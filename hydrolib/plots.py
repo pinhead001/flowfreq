@@ -56,6 +56,7 @@ def plot_frequency_curve(
     title: Optional[str] = None,
     save_path: Optional[str] = None,
     figsize: tuple = (10, 6),
+    yscale: str = "log",
 ) -> plt.Figure:
     """
     Plot flood frequency curve with observed data and confidence intervals.
@@ -128,7 +129,7 @@ def plot_frequency_curve(
 
     # Formatting
     ax.set_xscale("log")
-    ax.set_yscale("log")
+    ax.set_yscale(yscale)
     ax.set_xlabel("Return Period (years)", fontsize=11)
     ax.set_ylabel("Peak Discharge (cfs)", fontsize=11)
 

@@ -138,6 +138,7 @@ class FloodFrequencyAnalysis(ABC):
         save_path: str = None,
         figsize: Tuple[int, int] = (10, 7),
         show_confidence: bool = True,
+        yscale: str = "log",
     ) -> plt.Figure:
         """Plot professional flood frequency curve."""
         if self._results is None:
@@ -237,7 +238,7 @@ class FloodFrequencyAnalysis(ABC):
                 label=f"Low Outlier Threshold ({self._results.n_low_outliers})",
             )
 
-        ax.set_yscale("log")
+        ax.set_yscale(yscale)
         ax.set_ylabel("Peak Discharge (cfs)", fontsize=11)
         ax.set_xlabel("Annual Exceedance Probability", fontsize=11)
 

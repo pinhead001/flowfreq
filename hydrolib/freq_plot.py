@@ -66,6 +66,7 @@ def plot_frequency_curve_streamlit(
     site_no: Optional[str] = None,
     figsize: Tuple[int, int] = (10, 6),
     skew_curves: Optional[Dict[str, float]] = None,
+    yscale: str = "log",
 ) -> plt.Figure:
     """Plot a Bulletin 17C frequency curve suitable for Streamlit display.
 
@@ -169,14 +170,14 @@ def plot_frequency_curve_streamlit(
         )
 
     # --- Axes ---
-    ax.set_yscale("log")
+    ax.set_yscale(yscale)
     ax.set_ylabel("Discharge (cfs)", fontsize=_FONT_SIZE)
     ax.set_xlabel("Annual Exceedance Probability", fontsize=_FONT_SIZE)
 
     # Y-axis ticks: powers of 10, comma-formatted (matches hydrograph plots)
     min_flow = sorted_flows[-1] if n_obs else 1.0
     max_flow = sorted_flows[0] if n_obs else 1e6
-    if min_flow > 0:
+    if yscale == "log" and min_flow > 0:
         min_exp = math.floor(math.log10(min_flow))
         max_exp = math.ceil(math.log10(max_flow))
         yticks = [10**i for i in range(min_exp, max_exp + 1)]
