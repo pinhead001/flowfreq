@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="hydrolib",
-    version="0.0.2",
+    version="0.0.3",
     author="Your Name",
     author_email="your.email@example.com",
     description="Python library for hydrologic analysis with Bulletin 17C flood frequency",

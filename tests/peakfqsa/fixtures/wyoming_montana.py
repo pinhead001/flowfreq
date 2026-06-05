@@ -1,0 +1,543 @@
+"""
+Wyoming/Montana FFA test fixtures from peakfqr inst/testdata/wymt_ffa_2022A.
+
+Reference: PeakfqSA v7.4 / v7.5.1 expected outputs.
+Site IDs use the peakfqr convention with decimal suffixes (e.g., "06177720.00").
+
+Selected stations covering diverse EMA scenarios:
+- 06177720.00: West Fork Sullivan Creek (historical period, weighted skew, MGBT low outliers)
+- 06185500.10: Missouri River near Culbertson (station skew, large site, historical)
+- 06324500.00: Powder River at Moorhead (weighted skew, long record, historical)
+- 06326960.00: Timber Fork (interval censoring, low outliers, weighted skew)
+- 06328100.00: Yellowstone River trib (interval censoring both directions)
+"""
+
+from typing import Any
+
+# ---------------------------------------------------------------------------
+# Standard exceedance probabilities used in PeakfqSA output
+# ---------------------------------------------------------------------------
+EXCEEDANCE_PROBS: list[float] = [
+    0.995,
+    0.99,
+    0.98,
+    0.975,
+    0.96,
+    0.95,
+    0.9,
+    0.8,
+    0.7,
+    0.6667,
+    0.6,
+    0.5704,
+    0.5,
+    0.4292,
+    0.4,
+    0.3,
+    0.2,
+    0.1,
+    0.05,
+    0.04,
+    0.025,
+    0.02,
+    0.01,
+    0.005,
+    0.002,
+]
+
+
+# ---------------------------------------------------------------------------
+# Station: 06177720.00 - West Fork Sullivan Creek near Richey MT
+# EMA with historical period, weighted skew, 3 MGBT low outliers
+# ---------------------------------------------------------------------------
+STATION_06177720: dict[str, Any] = {
+    "site_no": "06177720.00",
+    "name": "West Fork Sullivan Creek near Richey MT",
+    "analysis": "EMA",
+    "beg_year": 1972,
+    "end_year": 1992,
+    "hist_length": 21,
+    "skew_option": "Weighted",
+    "expected_params": {
+        "skew": 0.154,
+        "mean": 1.453,
+        "std_dev": 0.798,
+        "at_site_skew": 0.967,
+        "at_site_mseg": 0.353,
+        "at_site_mseg_gaged_only": 0.379,
+        "reg_skew": -0.379,
+        "reg_mseg": 0.41,
+        "gaged_peaks": 19,
+        "hist_peaks": 1,
+        "pilf_method": "MGBT",
+        "pilf_thresh": 6,
+        "pilfs": 3,
+        "pilf_zeros": 3,
+        "ema_num_iter": 36,
+    },
+    "psf_config": {
+        "pcpt_thresh": [
+            {"beg": 1972, "end": 1992, "low": 0, "high": 1e20, "comment": "DEFAULT"},
+            {
+                "beg": 1972,
+                "end": 1973,
+                "low": 103,
+                "high": 1e20,
+                "comment": "1972 HISTORICAL PERIOD",
+            },
+        ],
+        "skew_opt": "Weighted",
+        "gen_skew": -0.3785522,
+        "skew_se": 0.64,
+        "lo_type": "MGBT",
+    },
+    # Expected frequency curve (Estimate column from EXPdata)
+    "expected_quantiles": {
+        0.995: 0,
+        0.99: 0,
+        0.98: 0,
+        0.975: 0,
+        0.96: 0,
+        0.95: 0,
+        0.9: 0,
+        0.8: 6,
+        0.7: 10.5,
+        0.6667: 12.4,
+        0.6: 17.1,
+        0.5704: 19.6,
+        0.5: 27.1,
+        0.4292: 37.6,
+        0.4: 43.3,
+        0.3: 71.9,
+        0.2: 131.3,
+        0.1: 307.9,
+        0.05: 631.1,
+        0.04: 779.8,
+        0.025: 1189,
+        0.02: 1438,
+        0.01: 2512,
+        0.005: 4213,
+        0.002: 7948,
+    },
+    # Confidence intervals [low, high]
+    "expected_ci": {
+        0.8: (0.8, 11.2),
+        0.5: (11.6, 55.7),
+        0.2: (63.5, 351.3),
+        0.1: (136.1, 1117),
+        0.05: (250.9, 3319),
+        0.02: (487.6, 13020),
+        0.01: (745.3, 35300),
+        0.002: (1677, 336500),
+    },
+    # Variance of estimate (log-space)
+    "expected_variance": {
+        0.8: 0.06,
+        0.5: 0.034,
+        0.2: 0.0443,
+        0.1: 0.0631,
+        0.05: 0.0894,
+        0.02: 0.1366,
+        0.01: 0.1825,
+        0.002: 0.3258,
+    },
+}
+
+
+# ---------------------------------------------------------------------------
+# Station: 06185500.10 - Missouri River near Culbertson MT
+# EMA, station skew, large regulated river, no low outliers
+# ---------------------------------------------------------------------------
+STATION_06185500_10: dict[str, Any] = {
+    "site_no": "06185500.10",
+    "name": "Missouri River near Culbertson MT",
+    "analysis": "EMA",
+    "beg_year": 1942,
+    "end_year": 2022,
+    "hist_length": 81,
+    "skew_option": "Station",
+    "expected_params": {
+        "skew": 1.02,
+        "mean": 4.293,
+        "std_dev": 0.206,
+        "at_site_skew": 1.02,
+        "at_site_mseg": 0.159,
+        "at_site_mseg_gaged_only": 0.158,
+        "reg_skew": -999,
+        "reg_mseg": 0,
+        "gaged_peaks": 74,
+        "hist_peaks": 0,
+        "pilf_method": "MGBT",
+        "pilf_thresh": 0,
+        "pilfs": 0,
+        "ema_num_iter": 20,
+    },
+    "psf_config": {
+        "pcpt_thresh": [
+            {"beg": 1942, "end": 2022, "low": 0, "high": 1e20, "comment": "DEFAULT"},
+            {
+                "beg": 1952,
+                "end": 1958,
+                "low": 104000,
+                "high": 1e20,
+                "comment": "2011 HISTORICAL PERIOD",
+            },
+        ],
+        "skew_opt": "Station",
+        "lo_type": "MGBT",
+    },
+    "expected_quantiles": {
+        0.995: 9007,
+        0.99: 9323,
+        0.98: 9746,
+        0.975: 9913,
+        0.96: 10330,
+        0.95: 10570,
+        0.9: 11540,
+        0.8: 13130,
+        0.7: 14650,
+        0.6667: 15180,
+        0.6: 16280,
+        0.5704: 16800,
+        0.5: 18150,
+        0.4292: 19710,
+        0.4: 20440,
+        0.3: 23490,
+        0.2: 28080,
+        0.1: 37040,
+        0.05: 47820,
+        0.04: 51760,
+        0.025: 60890,
+        0.02: 65680,
+        0.01: 82610,
+        0.005: 103200,
+        0.002: 137500,
+    },
+    "expected_ci": {
+        0.5: (16260, 20190),
+        0.1: (31820, 46210),
+        0.05: (39370, 66200),
+        0.02: (50480, 110000),
+        0.01: (59980, 164800),
+        0.002: (86600, 439500),
+    },
+}
+
+
+# ---------------------------------------------------------------------------
+# Station: 06324500.00 - Powder River at Moorhead MT
+# EMA, weighted skew, long record (145 yr), historical floods, MGBT censoring
+# ---------------------------------------------------------------------------
+STATION_06324500_00: dict[str, Any] = {
+    "site_no": "06324500.00",
+    "name": "Powder River at Moorhead MT",
+    "analysis": "EMA",
+    "beg_year": 1878,
+    "end_year": 2022,
+    "hist_length": 145,
+    "skew_option": "Weighted",
+    "expected_params": {
+        "skew": 0.394,
+        "mean": 3.742,
+        "std_dev": 0.324,
+        "at_site_skew": 0.591,
+        "at_site_mseg": 0.064,
+        "at_site_mseg_gaged_only": 0.091,
+        "reg_skew": -0.005,
+        "reg_mseg": 0.41,
+        "gaged_peaks": 92,
+        "hist_peaks": 1,
+        "pilf_method": "MGBT",
+        "pilf_thresh": 2620,
+        "pilfs": 17,
+        "pilf_zeros": 0,
+        "pilf_censored": 0,
+        "pilf_gaged": 17,
+        "ema_num_iter": 102,
+    },
+    "psf_config": {
+        "pcpt_thresh": [
+            {"beg": 1878, "end": 2022, "low": 0, "high": 1e20, "comment": "Default"},
+            {
+                "beg": 1878,
+                "end": 1928,
+                "low": 100000,
+                "high": 1e20,
+                "comment": "1923 HISTORICAL PERIOD",
+            },
+            {
+                "beg": 1973,
+                "end": 1974,
+                "low": 33000,
+                "high": 1e20,
+                "comment": "1978 HISTORICAL PERIOD",
+            },
+        ],
+        "skew_opt": "Weighted",
+        "gen_skew": -0.0053,
+        "skew_se": 0.64,
+        "lo_type": "MGBT",
+    },
+    "expected_quantiles": {
+        0.995: 1067,
+        0.99: 1213,
+        0.98: 1405,
+        0.975: 1480,
+        0.96: 1666,
+        0.95: 1772,
+        0.9: 2205,
+        0.8: 2920,
+        0.7: 3616,
+        0.6667: 3859,
+        0.6: 4374,
+        0.5704: 4620,
+        0.5: 5259,
+        0.4292: 6011,
+        0.4: 6363,
+        0.3: 7857,
+        0.2: 10150,
+        0.1: 14730,
+        0.05: 20340,
+        0.04: 22400,
+        0.025: 27200,
+        0.02: 29720,
+        0.01: 38670,
+        0.005: 49530,
+        0.002: 67480,
+    },
+    "expected_ci": {
+        0.5: (4596, 6068),
+        0.1: (12260, 18530),
+        0.05: (16330, 27560),
+        0.02: (22500, 46080),
+        0.01: (27790, 67700),
+        0.002: (42380, 163300),
+    },
+    # MGBT test results for this station
+    "mgbt_results": {
+        "peak_va": [
+            800,
+            1000,
+            1180,
+            1320,
+            1410,
+            1490,
+            1620,
+            1760,
+            1920,
+            1990,
+            2000,
+            2020,
+            2160,
+            2180,
+            2200,
+            2210,
+            2210,
+        ],
+        "p_value": [
+            0.3669,
+            0.2688,
+            0.2564,
+            0.234,
+            0.1698,
+            0.1176,
+            0.1266,
+            0.1554,
+            0.2252,
+            0.1835,
+            0.0921,
+            0.0438,
+            0.0625,
+            0.0289,
+            0.0119,
+            0.0037,
+            0.0009,
+        ],
+    },
+}
+
+
+# ---------------------------------------------------------------------------
+# Station: 06326960.00 - Timber Fork Up Sevenmile C trib nr Lindsay MT
+# EMA, interval censoring (PEAK < STATED VALUE), many low outliers
+# ---------------------------------------------------------------------------
+STATION_06326960_00: dict[str, Any] = {
+    "site_no": "06326960.00",
+    "name": "Timber Fork Up Sevenmile C trib nr Lindsay MT",
+    "analysis": "EMA",
+    "beg_year": 1974,
+    "end_year": 2021,
+    "hist_length": 48,
+    "skew_option": "Weighted",
+    "expected_params": {
+        "skew": -0.444,
+        "mean": 0.998,
+        "std_dev": 0.759,
+        "at_site_skew": -0.56,
+        "at_site_mseg": 0.149,
+        "at_site_mseg_gaged_only": 0.154,
+        "reg_skew": -0.368,
+        "reg_mseg": 0.41,
+        "gaged_peaks": 48,
+        "hist_peaks": 0,
+        "pilf_method": "MGBT",
+        "pilf_thresh": 4.6,
+        "pilfs": 15,
+        "pilf_zeros": 4,
+        "pilf_censored": 2,
+        "pilf_gaged": 9,
+        "ema_num_iter": 104,
+    },
+    "psf_config": {
+        "pcpt_thresh": [
+            {"beg": 1974, "end": 2021, "low": 0, "high": 1e20, "comment": "DEFAULT"},
+            {"beg": 2005, "end": 2005, "low": 0.5, "high": 1e20, "comment": "PEAK < STATED VALUE"},
+            {"beg": 2016, "end": 2016, "low": 2.76, "high": 1e20, "comment": "PEAK < STATED VALUE"},
+            {"beg": 2017, "end": 2017, "low": 2.76, "high": 1e20, "comment": "PEAK < STATED VALUE"},
+        ],
+        "intervals": [
+            {"year": 2005, "low": 0, "high": 0.5},
+            {"year": 2016, "low": 0, "high": 2.76},
+            {"year": 2017, "low": 0, "high": 2.76},
+        ],
+        "skew_opt": "Weighted",
+        "gen_skew": -0.3681,
+        "skew_se": 0.64,
+        "lo_type": "MGBT",
+    },
+    "expected_quantiles": {
+        0.995: 0,
+        0.99: 0,
+        0.98: 0,
+        0.975: 0,
+        0.96: 0,
+        0.95: 0,
+        0.9: 1,
+        0.8: 2.4,
+        0.7: 4.4,
+        0.6667: 5.2,
+        0.6: 7.2,
+        0.5704: 8.3,
+        0.5: 11.3,
+        0.4292: 15.4,
+        0.4: 17.4,
+        0.3: 27.1,
+        0.2: 44.4,
+        0.1: 84.6,
+        0.05: 139,
+        0.04: 159.8,
+        0.025: 208.8,
+        0.02: 234.6,
+        0.01: 325.6,
+        0.005: 433.3,
+        0.002: 601.8,
+    },
+    "expected_ci": {
+        0.5: (5.7, 17.1),
+        0.1: (54.1, 154.7),
+        0.05: (84.9, 294.3),
+        0.02: (132.4, 604.2),
+        0.01: (171.6, 969.7),
+        0.002: (266.8, 2528),
+    },
+}
+
+
+# ---------------------------------------------------------------------------
+# Station: 06328100.00 - Yellowstone River trib no 6 nr Glendive MT
+# EMA, interval censoring both <threshold and >threshold, weighted skew
+# ---------------------------------------------------------------------------
+STATION_06328100_00: dict[str, Any] = {
+    "site_no": "06328100.00",
+    "name": "Yellowstone River trib no 6 nr Glendive MT",
+    "analysis": "EMA",
+    "beg_year": 1974,
+    "end_year": 2022,
+    "hist_length": 49,
+    "skew_option": "Weighted",
+    "expected_params": {
+        "skew": -0.253,
+        "mean": 2.028,
+        "std_dev": 0.384,
+        "at_site_skew": -0.026,
+        "at_site_mseg": 0.107,
+        "at_site_mseg_gaged_only": 0.115,
+        "reg_skew": -0.389,
+        "reg_mseg": 0.41,
+        "gaged_peaks": 49,
+        "hist_peaks": 0,
+        "pilf_method": "MGBT",
+        "pilf_thresh": 90,
+        "pilfs": 20,
+        "pilf_zeros": 2,
+        "pilf_censored": 3,
+        "pilf_gaged": 15,
+        "ema_num_iter": 149,
+    },
+    "psf_config": {
+        "pcpt_thresh": [
+            {"beg": 1974, "end": 2022, "low": 0, "high": 1e20, "comment": "DEFAULT"},
+            {"beg": 2008, "end": 2008, "low": 2, "high": 1e20, "comment": "PEAK < STATED VALUE"},
+            {"beg": 2016, "end": 2016, "low": 23.8, "high": 1e20, "comment": "PEAK < STATED VALUE"},
+            {"beg": 2020, "end": 2020, "low": 23.5, "high": 1e20, "comment": "PEAK < STATED VALUE"},
+            {"beg": 2021, "end": 2021, "low": 23.5, "high": 407, "comment": "PEAK > STATED VALUE"},
+        ],
+        "intervals": [
+            {"year": 2008, "low": 0, "high": 2},
+            {"year": 2016, "low": 0, "high": 23.8},
+            {"year": 2020, "low": 0, "high": 23.5},
+            {"year": 2021, "low": 407, "high": 1e20},
+        ],
+        "skew_opt": "Weighted",
+        "gen_skew": -0.3889,
+        "skew_se": 0.64,
+        "lo_type": "MGBT",
+    },
+    "expected_quantiles": {
+        0.995: 0,
+        0.99: 0,
+        0.98: 0,
+        0.975: 0,
+        0.96: 0,
+        0.95: 23.4,
+        0.9: 33.6,
+        0.8: 51.3,
+        0.7: 69,
+        0.6667: 75.1,
+        0.6: 88.3,
+        0.5704: 94.5,
+        0.5: 110.6,
+        0.4292: 129.3,
+        0.4: 137.9,
+        0.3: 173.7,
+        0.2: 226.1,
+        0.1: 321.9,
+        0.05: 426.5,
+        0.04: 462.1,
+        0.025: 540.3,
+        0.02: 578.9,
+        0.01: 705.2,
+        0.005: 840.9,
+        0.002: 1035,
+    },
+    "expected_ci": {
+        0.5: (60.8, 133.9),
+        0.1: (254.2, 453.7),
+        0.05: (324.5, 669.6),
+        0.02: (418.6, 1060),
+        0.01: (489.9, 1442),
+        0.002: (653.3, 2680),
+    },
+}
+
+
+# ---------------------------------------------------------------------------
+# Convenience collection of all Wyoming/Montana stations
+# ---------------------------------------------------------------------------
+ALL_WYMT_STATIONS: dict[str, dict[str, Any]] = {
+    "06177720.00": STATION_06177720,
+    "06185500.10": STATION_06185500_10,
+    "06324500.00": STATION_06324500_00,
+    "06326960.00": STATION_06326960_00,
+    "06328100.00": STATION_06328100_00,
+}

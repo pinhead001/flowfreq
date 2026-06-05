@@ -1,269 +1,231 @@
-# HydroLib - Python Library for Hydrologic Analysis
+# HydroLib
 
-A comprehensive Python library for downloading USGS streamflow data, performing Bulletin 17C flood frequency analysis, and generating professional technical reports.
+A Python library for USGS streamflow data retrieval and Bulletin 17C flood frequency analysis, with an interactive Streamlit web application.
 
 ## Features
 
-- **USGS Data Retrieval**: Download mean daily flow and annual peak flow data from USGS NWIS
-- **Hydrograph Analysis**: Generate summary hydrographs with day of water year on x-axis
-- **Bulletin 17C Analysis**: 
-  - Log-Pearson Type III distribution fitting
-  - Station skew or weighted regional skew support
-  - Multiple Grubbs-Beck test for low outlier detection
-  - 90% confidence intervals (5% limits)
-- **Professional Figures**: Publication-quality plots
-- **Technical Reports**: Automated report generation in Markdown format
+- **USGS Data Retrieval** — Download mean daily flow and annual peak flow from NWIS for any gage
+- **Bulletin 17C Analysis**
+  - Expected Moments Algorithm (EMA) — the current USGS standard method
+  - Method of Moments (MOM) fallback
+  - Weighted regional skew (MSE weighting per B17C Appendix 6)
+  - Multiple Grubbs-Beck test (MGBT) for low outlier detection
+  - 90% confidence intervals (5%/95% limits)
+  - Station / weighted / regional skew comparison
+- **Hydrograph Plotting** — Daily time series, summary hydrograph, flow duration curve
+- **Frequency Curve** — Log-probability axis, LP3 fitted curve, CI band, multi-skew overlay
+- **Streamlit App** — Interactive web app: download, analyze, plot, and export as ZIP
+- **CLI** — `hydrolib validate` and `hydrolib benchmark` for numerical validation
+- **Reports** — Automated Markdown technical reports
 
 ## Installation
 
 ```bash
-pip install numpy pandas matplotlib scipy requests
+# Clone or download
+git clone https://github.com/pinhead001/hydrolib.git
+cd hydrolib
+
+# Create and activate virtual environment (recommended)
+python -m venv .venv
+# Windows:
+.venv\Scripts\activate
+# macOS/Linux:
+source .venv/bin/activate
+
+# Install library + dev tools
+pip install -e ".[dev]"
+
+# Install Streamlit (for the web app)
+pip install streamlit
 ```
+
+**Dependencies:** `numpy`, `pandas`, `matplotlib`, `scipy`, `requests`, `click`
 
 ## Quick Start
 
+### One-liner analysis
+
 ```python
-from hydrolib import USGSGage, Bulletin17C, Hydrograph, HydroReport, analyze_gage
+from hydrolib import analyze_gage
 
-# Option 1: Full automated analysis
-results = analyze_gage(
-    site_no='01638500',          # USGS gage number
-    regional_skew=-0.05,         # Optional: regional skew coefficient
-    regional_skew_mse=0.12,      # Optional: regional skew MSE
-    output_dir='./output'
+result = analyze_gage(
+    site_no="03606500",          # Big Sandy River at Bruceton TN
+    regional_skew=-0.302,        # Nationwide mean from B17C
+    regional_skew_mse=0.302,     # = SE² = 0.55²
+    output_dir="./output",
 )
-
-# Option 2: Step-by-step analysis
-gage = USGSGage('01638500')
-daily_data = gage.download_daily_flow(start_date='2010-01-01')
-peak_data = gage.download_peak_flow()
-
-# Run B17C analysis
-b17c = Bulletin17C(peak_data['peak_flow_cfs'].values)
-results = b17c.run_analysis()
-
-# Generate flood frequency curve
-b17c.plot_frequency_curve(gage.site_name, gage.site_no, save_path='ffa_plot.png')
+# Saves frequency_curve.png, flood_frequency_report.md, etc.
 ```
 
-## Classes
-
-### USGSGage
-Handles USGS gage data retrieval.
+### Step-by-step analysis
 
 ```python
-gage = USGSGage('01638500')
+import numpy as np
+from hydrolib import USGSgage, Bulletin17C
 
-# Download mean daily flow
-daily_data = gage.download_daily_flow(
-    start_date='2000-01-01',  # Optional
-    end_date='2020-12-31'     # Optional
-)
+# 1. Download data
+gage = USGSgage("03606500")
+peak_df = gage.download_peak_flow()
 
-# Download annual peak flows
-peak_data = gage.download_peak_flow()
-
-# Access site information
-print(gage.site_name)       # Station name
-print(gage.drainage_area)   # Drainage area (sq mi)
-```
-
-### Hydrograph
-Static methods for hydrograph plotting.
-
-```python
-# Daily time series plot
-Hydrograph.plot_daily_timeseries(
-    daily_data,
-    site_name='Station Name',
-    site_no='01638500',
-    save_path='timeseries.png'
-)
-
-# Summary hydrograph (day of water year)
-Hydrograph.plot_summary_hydrograph(
-    daily_data,
-    site_name='Station Name',
-    site_no='01638500',
-    save_path='hydrograph.png',
-    percentiles=[10, 25, 50, 75, 90]
-)
-```
-
-### Bulletin17C
-Performs flood frequency analysis.
-
-```python
-# Station skew only
-b17c = Bulletin17C(peak_flows_array)
-
-# With weighted regional skew
+# 2. Run EMA
 b17c = Bulletin17C(
-    peak_flows_array,
-    regional_skew=-0.05,      # Regional skew coefficient
-    regional_skew_mse=0.12    # Mean squared error of regional skew
+    peak_flows=peak_df["peak_flow_cfs"].values,
+    water_years=peak_df["water_year"].values.astype(int),
+    regional_skew=-0.302,
+    regional_skew_mse=0.302,      # SE² (0.55² ≈ 0.302)
 )
+results = b17c.run_analysis(method="ema")
 
-# Run complete analysis
-results = b17c.run_analysis()
+# 3. Quantile table
+aep = np.array([0.50, 0.20, 0.10, 0.04, 0.02, 0.01, 0.005, 0.002])
+q_df = b17c.compute_quantiles(aep=aep)
+ci_df = b17c.compute_confidence_limits(aep=aep)
+print(q_df)
 
-# Access results
-print(results['mean_log'])           # Mean of log Q
-print(results['std_log'])            # Std dev of log Q
-print(results['skew_station'])       # Station skew
-print(results['skew_weighted'])      # Weighted skew (if regional provided)
-print(results['low_outlier_threshold'])  # Grubbs-Beck threshold
-
-# Access quantile tables
-quantiles = results['quantiles']           # Flow estimates
-conf_limits = results['confidence_limits'] # With 5%/95% limits
-
-# Generate plot
-b17c.plot_frequency_curve(
-    site_name='Station Name',
-    site_no='01638500',
-    save_path='frequency_curve.png'
-)
+# 4. Frequency curve
+fig = b17c.plot_frequency_curve(site_name=gage.site_name, site_no=gage.site_no)
+fig.savefig("frequency_curve.png", dpi=300, bbox_inches="tight")
 ```
 
-### HydroReport
-Generates technical reports.
+## Module Overview
+
+| Module | Purpose |
+|--------|---------|
+| `hydrolib.usgs` | `USGSgage` — NWIS data download |
+| `hydrolib.bulletin17c` | `Bulletin17C` — EMA/MOM analysis, quantiles, CI, plots |
+| `hydrolib.core` | `FrequencyResults`, `kfactor`, `grubbs_beck_critical_value` |
+| `hydrolib.hydrograph` | `Hydrograph` — daily timeseries, summary hydrograph, FDC |
+| `hydrolib.freq_plot` | `plot_frequency_curve_streamlit` — Streamlit-ready frequency curve |
+| `hydrolib.report` | `HydroReport` — automated Markdown report |
+| `hydrolib.validation` | Benchmark framework, comparison engine |
+| `app/streamlit_app.py` | Interactive web app |
+| `app/ffa_runner.py` | Analysis runner + display formatters |
+| `app/ffa_export.py` | ZIP export (PNG, CSV, LP3 params) |
+
+## Key APIs
+
+### `USGSgage`
 
 ```python
-report = HydroReport(gage, b17c)
+gage = USGSgage("03606500")
+gage.fetch_site_info()              # Populates site_name, drainage_area, POR dates
 
-# Generate all figures
-figures = report.generate_all_figures(output_dir='./output')
+daily_df = gage.download_daily_flow(start_date="2000-01-01")
+# → DataFrame indexed by date, column: flow_cfs
 
-# Generate markdown report
-report.save_report('report.md')
+peak_df = gage.download_peak_flow()
+# → DataFrame: water_year, peak_date, peak_flow_cfs, qualification_code
 ```
 
-## Output Tables
+### `Bulletin17C`
 
-### Flood Frequency Quantiles
-| AEP (%) | Return Period (yr) | Flow (cfs) | 5% Limit | 95% Limit |
-|---------|-------------------|------------|----------|-----------|
-| 10.0    | 10                | 77,422     | 62,411   | 96,043    |
-| 4.0     | 25                | 111,195    | 85,497   | 144,617   |
-| 2.0     | 50                | 141,752    | 105,260  | 190,895   |
-| 1.0     | 100               | 177,426    | 127,390  | 247,115   |
-| 0.2     | 500               | 284,553    | 189,779  | 426,656   |
+```python
+b17c = Bulletin17C(
+    peak_flows,          # np.ndarray of annual peaks (cfs)
+    water_years,         # np.ndarray of water years
+    regional_skew,       # float or None (station-only if None)
+    regional_skew_mse,   # float or None (SE²)
+)
 
-## Generated Figures
+results = b17c.run_analysis(method="ema")   # or "mom"
 
-1. **Daily Flow Time Series** - Complete daily flow record with log scale
-2. **Summary Hydrograph** - Day of water year with percentile bands
-3. **Annual Peak Flow** - Bar chart of annual peaks
-4. **Flood Frequency Curve** - LP3 curve with confidence limits
+# Results attributes
+results.mean_log          # μ (log10)
+results.std_log           # σ (log10)
+results.skew_station      # station skew
+results.skew_weighted     # weighted skew (None if no regional)
+results.skew_used         # skew used in quantile calculation
+results.ema_converged     # bool
+results.n_low_outliers    # MGBT-flagged low outliers
+results.low_outlier_threshold  # MGBT threshold (cfs)
 
-## Technical Details
+# Quantile table
+q_df = b17c.compute_quantiles(aep=np.array([0.10, 0.02, 0.01]))
+# columns: aep, return_period, flow_cfs, log_flow, K_factor
 
-### Bulletin 17C Implementation
-
-The library implements key elements of USGS Bulletin 17C:
-
-1. **Log-Pearson Type III Distribution**: Statistics computed in log10 space
-2. **Weighted Skew**: Combines station and regional skew using MSE weighting
-3. **K-Factor Calculation**: Wilson-Hilferty approximation for LP3 quantiles
-4. **Grubbs-Beck Test**: Multiple Grubbs-Beck test for low outlier detection
-5. **Confidence Limits**: Approximate variance for quantile estimates
-
-### Weighted Skew Calculation
-
-When regional skew values are provided:
-
-```
-MSE_station = (6/n) * (1 + (6/n)*G² + (15/n²)*G⁴)
-
-w_regional = MSE_station / (MSE_station + MSE_regional)
-w_station = MSE_regional / (MSE_station + MSE_regional)
-
-G_weighted = w_station * G_station + w_regional * G_regional
+# Confidence limits
+ci_df = b17c.compute_confidence_limits(aep=..., confidence=0.90)
+# columns: aep, return_period, flow_cfs, lower_5pct, upper_5pct
 ```
 
-### Confidence Limits
+### Standard AEPs (return intervals 1.5–500 yr)
 
-90% confidence intervals (5% and 95% limits) computed as:
+```python
+aep = np.array([0.667, 0.50, 0.20, 0.10, 0.04, 0.02, 0.01, 0.005, 0.002])
+# RI =              1.5,  2,   5,   10,   25,   50,  100,  200,   500
+```
 
+## CLI
+
+```bash
+# Validate EMA against reference fixtures
+hydrolib validate
+
+# Benchmark report (text)
+hydrolib benchmark
+
+# Benchmark report (JSON)
+hydrolib benchmark --format json
 ```
-Var(X_p) = s² * [1/n + K² * (1 + 0.75*G²) / (2*(n-1))]
-SE = s * sqrt(Var_factor)
-CI = Q ± z_α/2 * SE
+
+## Streamlit App
+
+```bash
+# Run locally
+streamlit run app/streamlit_app.py
+# Opens at http://localhost:8501
 ```
+
+**App features:**
+- Single or multi-gage mode
+- Daily time series, summary hydrograph, flow duration curve
+- Flood Frequency Analysis (enable in sidebar):
+  - EMA with MOM fallback
+  - Regional skew inputs
+  - Skew option checkboxes: Station / Weighted / Regional
+  - Frequency curve with multi-skew overlay
+  - Per-skew frequency tables (RI 1.5–500 yr, 90% CI)
+- ZIP export: plots (PNG), daily flow CSV, frequency table, LP3 parameters
+- Multi-gage comparison table
+
+## Vignettes
+
+| Guide | Description |
+|-------|-------------|
+| [CLI Usage](docs/vignette_cli.md) | Command-line validation and benchmarking |
+| [Jupyter Notebook](docs/vignette_jupyter.md) | Interactive analysis walkthrough |
+| [Local Streamlit](docs/vignette_streamlit_local.md) | Run the web app on your machine |
+| [Streamlit Cloud](docs/vignette_streamlit_web.md) | Deploy to Streamlit Community Cloud |
+
+## Bulletin 17C Technical Notes
+
+**Weighted skew** (per B17C §6):
+```
+MSE_station = (6/n) × (1 + (6/n)G² + (15/n²)G⁴)
+w_regional  = MSE_station / (MSE_station + MSE_regional)
+G_weighted  = w_station × G_station + w_regional × G_regional
+```
+
+**90% confidence intervals:**
+```
+Var(X_p) = σ² × [1/n + K² × (1 + 0.75G²) / (2(n-1))]
+CI = Q̂ ± 1.645 × σ × √Var_factor
+```
+
+**Skew options** — Any combination of station, weighted, and regional skew can be selected to overlay multiple LP3 curves on the frequency plot and produce separate frequency tables for comparison.
 
 ## References
 
-England, J.F., Jr., et al., 2019, Guidelines for determining flood flow frequency—Bulletin 17C: U.S. Geological Survey Techniques and Methods, book 4, chap. B5, 148 p., https://doi.org/10.3133/tm4B5
+England, J.F., Jr., et al., 2019, Guidelines for determining flood flow frequency — Bulletin 17C: U.S. Geological Survey Techniques and Methods, book 4, chap. B5, 148 p. https://doi.org/10.3133/tm4B5
+
+## Version History
+
+| Version | Changes |
+|---------|---------|
+| **v0.1.0** | Streamlit app with FFA, skew comparison, ZIP export; freq_plot module; ffa_runner/ffa_export app modules; validation framework |
+| **v0.0.3** | EMA algorithm, historical flood handling, CLI, validation benchmarks |
+| **v0.0.1** | Initial release: MOM, USGS download, hydrograph plots |
 
 ## License
 
 MIT License
-
-## Author
-
-HydroLib - Python Hydrologic Analysis Library
-encyResults`: Complete analysis output
-
-### Decorators Used
-- `@lru_cache`: Caches `kfactor()` and `grubbs_beck_critical_value()` for performance
-- `@cached_property`: Lazy evaluation of `log_flows`, `period_of_record`
-- `@property`/`@setter`: Encapsulated access to gage data
-- `@staticmethod`: Stateless utility methods in `Hydrograph`
-- `@classmethod`: Factory methods in `FlowInterval`
-- `@abstractmethod`: Interface definition in `FloodFrequencyAnalysis`
-
-## Utility Functions
-
-```python
-from hydrolib import kfactor, grubbs_beck_critical_value
-
-# K-factor for LP3 distribution (cached)
-K = kfactor(skew=0.3, aep=0.01)  # 1% AEP
-
-# Grubbs-Beck critical value (cached)
-K_n = grubbs_beck_critical_value(n=50)
-```
-
-## Results Access
-
-```python
-results = b17c.run_analysis(method='ema')
-
-# Statistics
-results.mean_log          # Mean of log Q
-results.std_log           # Std dev of log Q
-results.skew_station      # Station skew
-results.skew_weighted     # Weighted skew
-results.skew_used         # Skew used in analysis
-
-# Sample counts
-results.n_peaks           # Total observations
-results.n_systematic      # Systematic record count
-results.n_historical      # Historical observations
-results.n_censored        # Censored observations
-results.n_low_outliers    # Low outliers (MGB)
-
-# Thresholds
-results.low_outlier_threshold
-results.mgb_critical_value
-
-# EMA-specific
-results.ema_iterations    # Number of iterations
-results.ema_converged     # Convergence status
-
-# Tables
-results.quantiles         # DataFrame of quantiles
-results.confidence_limits # DataFrame with 5%/95% limits
-```
-
-## References
-
-England, J.F., Jr., et al., 2019, Guidelines for determining flood flow frequency—Bulletin 17C: U.S. Geological Survey Techniques and Methods, book 4, chap. B5, 148 p., https://doi.org/10.3133/tm4B5
-
-## Version History
-
-- **v2.0.0**: Added EMA algorithm, historical flood handling, refactored with decorators
-- **v1.0.0**: Initial release with MOM analysis
-
-## License

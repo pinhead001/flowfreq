@@ -1,0 +1,213 @@
+"""
+Basic flood frequency analysis example.
+
+Demonstrates both MOM and EMA methods with SANTA ANA R-MWD CROSSING CA data.
+"""
+
+import matplotlib
+import numpy as np
+
+from hydrolib import Bulletin17C, ExpectedMomentsAlgorithm, MethodOfMoments
+
+matplotlib.use("Agg")  # Use non-interactive backend
+
+# Use provided peak flow data for SANTA ANA R-MWD CROSSING CA
+water_years = np.array(
+    [
+        1862,
+        1938,
+        2011,
+        2005,
+        1998,
+        1995,
+        1983,
+        2010,
+        2017,
+        2004,
+        1978,
+        2019,
+        1993,
+        1992,
+        2024,
+        2008,
+        2006,
+        1991,
+        1976,
+        2023,
+        2003,
+        2015,
+        2022,
+        2014,
+        2009,
+        1973,
+        2016,
+        1982,
+        2020,
+        1988,
+        2001,
+        2013,
+        1984,
+        2000,
+        1971,
+        1972,
+        1985,
+        1996,
+        1997,
+        2018,
+        1986,
+        1979,
+        1989,
+        1975,
+        2002,
+        1980,
+        1974,
+        2021,
+        1990,
+        1981,
+        1994,
+        2012,
+        1987,
+        1977,
+        2007,
+        1999,
+    ]
+)
+peak_flows = np.array(
+    [
+        320000,
+        100000,
+        49100,
+        47800,
+        31300,
+        30700,
+        26200,
+        20300,
+        20200,
+        19700,
+        19500,
+        16500,
+        16000,
+        14500,
+        12400,
+        11100,
+        10800,
+        10000,
+        9520,
+        8950,
+        8900,
+        8570,
+        7840,
+        7640,
+        7500,
+        6950,
+        6060,
+        5980,
+        5700,
+        5530,
+        5370,
+        5360,
+        5320,
+        5310,
+        5300,
+        5290,
+        5000,
+        4950,
+        4820,
+        4300,
+        3860,
+        3850,
+        3640,
+        3600,
+        3440,
+        3320,
+        3300,
+        3260,
+        2980,
+        2910,
+        2900,
+        1870,
+        1680,
+        1640,
+        1320,
+        1140,
+    ]
+)
+
+print("=" * 60)
+print("HYDROLIB FLOOD FREQUENCY ANALYSIS EXAMPLE")
+print("=" * 60)
+
+# Example 1: Method of Moments
+print("\n1. METHOD OF MOMENTS (MOM)")
+print("-" * 40)
+
+mom = MethodOfMoments(peak_flows, regional_skew=None, regional_skew_mse=None)
+mom_results = mom.run_analysis()
+
+print(f"Mean(log Q): {mom_results.mean_log:.4f}")
+print(f"Std(log Q): {mom_results.std_log:.4f}")
+print(f"Station Skew: {mom_results.skew_station:.4f}")
+print(f"Weighted Skew: {f'{mom_results.skew_weighted:.4f}' if mom_results.skew_weighted is not None else 'N/A'}")
+print(f"EMA iterations: {mom_results.ema_iterations}")
+print(f"Converged: {mom_results.ema_converged}")
+
+# Example 2: EMA with historical floods
+print("\n2. EXPECTED MOMENTS ALGORITHM (EMA)")
+print("-" * 40)
+
+historical_peaks = []
+
+ema = ExpectedMomentsAlgorithm(
+    peak_flows,
+    water_years=water_years,
+    regional_skew=None,
+    regional_skew_mse=None,
+    historical_peaks=historical_peaks,
+)
+ema_results = ema.run_analysis()
+
+print(f"Mean(log Q): {ema_results.mean_log:.4f}")
+print(f"Std(log Q): {ema_results.std_log:.4f}")
+print(f"Station Skew: {ema_results.skew_station:.4f}")
+print(f"Weighted Skew: {f'{ema_results.skew_weighted:.4f}' if ema_results.skew_weighted is not None else 'N/A'}")
+print(f"Historical peaks: {ema_results.n_historical}")
+print(f"EMA iterations: {ema_results.ema_iterations}")
+print(f"Converged: {ema_results.ema_converged}")
+
+# Example 3: Unified interface
+print("\n3. UNIFIED Bulletin17C INTERFACE")
+print("-" * 40)
+
+b17c = Bulletin17C(
+    peak_flows,
+    water_years=water_years,
+    regional_skew=None,
+    regional_skew_mse=None,
+    historical_peaks=historical_peaks,
+)
+
+# Run with EMA (default)
+results = b17c.run_analysis(method="ema")
+
+# Print key quantiles
+print("\nFlood Frequency Estimates:")
+print(f"{'Return Period':>15} {'Flow (cfs)':>15} {'90% CI':>25}")
+print("-" * 57)
+
+cl = results.confidence_limits
+for aep in [0.10, 0.04, 0.02, 0.01, 0.002]:
+    row = cl[cl["aep"] == aep].iloc[0]
+    rp = int(1 / aep)
+    ci = f"({row['lower_5pct']:,.0f} - {row['upper_5pct']:,.0f})"
+    print(f"{rp:>12} yr {row['flow_cfs']:>15,.0f} {ci:>25}")
+
+# Save plot
+print("\nSaving flood frequency curve...")
+fig = b17c.plot_frequency_curve(
+    site_name="SANTA ANA R-MWD CROSSING CA", site_no="", save_path="flood_frequency_curve.png"
+)
+print("Saved: flood_frequency_curve.png")
+
+print("\n" + "=" * 60)
+print("ANALYSIS COMPLETE")
+print("=" * 60)

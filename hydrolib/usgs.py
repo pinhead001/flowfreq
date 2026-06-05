@@ -220,7 +220,9 @@ class USGSgage:
             if local_attrs:
                 if "site_name" in local_attrs and pd.notna(local_attrs["site_name"]):
                     self._site_name = str(local_attrs["site_name"])
-                if "drainage_area_sqmi" in local_attrs and pd.notna(local_attrs["drainage_area_sqmi"]):
+                if "drainage_area_sqmi" in local_attrs and pd.notna(
+                    local_attrs["drainage_area_sqmi"]
+                ):
                     try:
                         self._drainage_area = float(local_attrs["drainage_area_sqmi"])
                     except (ValueError, TypeError):
@@ -258,7 +260,11 @@ class USGSgage:
                     if self._site_name is None and "station_nm" in df.columns and len(df) > 0:
                         self._site_name = df["station_nm"].iloc[0]
 
-                    if self._drainage_area is None and "drain_area_va" in df.columns and len(df) > 0:
+                    if (
+                        self._drainage_area is None
+                        and "drain_area_va" in df.columns
+                        and len(df) > 0
+                    ):
                         try:
                             self._drainage_area = float(df["drain_area_va"].iloc[0])
                         except (ValueError, TypeError):
@@ -427,11 +433,13 @@ def fetch_nwis_peaks(site_no: str) -> List[Dict]:
     gage.download_peak_flow()
     records = []
     for _, row in gage.peak_data.iterrows():
-        records.append({
-            "year": int(row["water_year"]),
-            "flow": float(row["peak_flow_cfs"]),
-            "source": "USGS",
-        })
+        records.append(
+            {
+                "year": int(row["water_year"]),
+                "flow": float(row["peak_flow_cfs"]),
+                "source": "USGS",
+            }
+        )
     return records
 
 
@@ -461,9 +469,7 @@ def fetch_nwis_batch(
     errors: Dict[str, str] = {}
 
     with ThreadPoolExecutor(max_workers=workers) as executor:
-        future_to_site = {
-            executor.submit(fetch_nwis_peaks, site): site for site in sites
-        }
+        future_to_site = {executor.submit(fetch_nwis_peaks, site): site for site in sites}
 
         for future in as_completed(future_to_site):
             site = future_to_site[future]

@@ -7,9 +7,9 @@ Demonstrates both MOM and EMA methods with synthetic data.
 import matplotlib
 import numpy as np
 
-matplotlib.use("Agg")  # Use non-interactive backend
-
 from hydrolib import Bulletin17C, ExpectedMomentsAlgorithm, MethodOfMoments
+
+matplotlib.use("Agg")  # Use non-interactive backend
 
 # Generate synthetic peak flow data
 np.random.seed(42)

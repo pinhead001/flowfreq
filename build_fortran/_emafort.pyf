@@ -1,0 +1,56 @@
+!    -*- f90 -*-
+! Signature file for wrapping peakfqr emafitpr via f2py
+! Only expose the main entry point emafitpr
+
+python module _emafort
+    interface
+        subroutine emafitpr(n,ql,qu,tl,tu,dtype,reg_m,reg_m_mse,reg_sd,reg_sd_mse,r_g,r_g_mse,gbthrsh0,pq,nq,eps,wght_opt_n,gbval,gbns,gbnzero,gbnlow,gbp,gbqs,as_g_mse_o,as_g_mse_syst_o,as_g_prl_o,cmoms,yp,ci_low,ci_high,var_est,wdout,qlema,quema,tlema,tuema,nu)
+            ! Input variables
+            integer, intent(in) :: n
+            double precision, dimension(n), intent(in) :: ql
+            double precision, dimension(n), intent(in) :: qu
+            double precision, dimension(n), intent(in) :: tl
+            double precision, dimension(n), intent(in) :: tu
+            integer, dimension(n), intent(in) :: dtype
+            double precision, intent(in) :: reg_m
+            double precision, intent(in) :: reg_m_mse
+            double precision, intent(in) :: reg_sd
+            double precision, intent(in) :: reg_sd_mse
+            double precision, intent(in) :: r_g
+            double precision, intent(in) :: r_g_mse
+            double precision, intent(in) :: gbthrsh0
+            integer, intent(in) :: nq
+            double precision, dimension(nq), intent(in) :: pq
+            double precision, intent(in) :: eps
+            integer, intent(in) :: wght_opt_n
+
+            ! Output variables - MGBT results
+            double precision, intent(out) :: gbval
+            integer, intent(out) :: gbns
+            integer, intent(out) :: gbnzero
+            integer, intent(out) :: gbnlow
+            double precision, dimension(20000), intent(out) :: gbp
+            double precision, dimension(20000), intent(out) :: gbqs
+
+            ! Output variables - skew MSE
+            double precision, intent(out) :: as_g_mse_o
+            double precision, intent(out) :: as_g_mse_syst_o
+            double precision, intent(out) :: as_g_prl_o
+
+            ! Output variables - moments and quantiles
+            double precision, dimension(3,3), intent(out) :: cmoms
+            double precision, dimension(nq), intent(out) :: yp
+            double precision, dimension(nq), intent(out) :: ci_low
+            double precision, dimension(nq), intent(out) :: ci_high
+            double precision, dimension(nq), intent(out) :: var_est
+            double precision, intent(out) :: wdout
+
+            ! Output variables - adjusted data
+            double precision, dimension(25000), intent(out) :: qlema
+            double precision, dimension(25000), intent(out) :: quema
+            double precision, dimension(25000), intent(out) :: tlema
+            double precision, dimension(25000), intent(out) :: tuema
+            double precision, dimension(25000), intent(out) :: nu
+        end subroutine emafitpr
+    end interface
+end python module _emafort

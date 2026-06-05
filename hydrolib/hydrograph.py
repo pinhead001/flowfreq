@@ -15,6 +15,7 @@ from matplotlib.dates import DateFormatter
 
 plt_color: str = "steelblue"
 
+
 class Hydrograph:
     """Class for hydrograph analysis and plotting."""
 
@@ -113,7 +114,9 @@ class Hydrograph:
             fontsize=cls.ANNOT_FONT_SIZE,
             ha="left",
             va="top",
-            bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="lightgray", alpha=1.0),
+            bbox=dict(
+                boxstyle="round,pad=0.3", facecolor="white", edgecolor="lightgray", alpha=1.0
+            ),
         )
 
         plt.tight_layout()
@@ -238,7 +241,9 @@ class Hydrograph:
             fontsize=cls.ANNOT_FONT_SIZE,
             ha="left",
             va="top",
-            bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="lightgray", alpha=1.0),
+            bbox=dict(
+                boxstyle="round,pad=0.3", facecolor="white", edgecolor="lightgray", alpha=1.0
+            ),
         )
 
         plt.tight_layout()
@@ -342,7 +347,9 @@ class Hydrograph:
             fontsize=cls.ANNOT_FONT_SIZE,
             ha="left",
             va="top",
-            bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="lightgray", alpha=1.0),
+            bbox=dict(
+                boxstyle="round,pad=0.3", facecolor="white", edgecolor="lightgray", alpha=1.0
+            ),
         )
 
         plt.tight_layout()

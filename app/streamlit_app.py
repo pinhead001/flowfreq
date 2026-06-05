@@ -11,8 +11,8 @@ from datetime import datetime
 from pathlib import Path
 
 import matplotlib
-import pandas as pd
 import matplotlib.pyplot as plt
+import pandas as pd
 import streamlit as st
 
 matplotlib.use("Agg")  # Use non-interactive backend
@@ -20,8 +20,19 @@ matplotlib.use("Agg")  # Use non-interactive backend
 # Add parent directory to path for hydrolib import (needed for Streamlit Cloud)
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
+from app.ffa_export import export_comparison_csv, export_ffa_to_zip
+from app.ffa_runner import (
+    SKEW_OPTIONS,
+    build_skew_curves_dict,
+    compute_skew_tables,
+    format_parameters_df,
+    format_quantile_df,
+    run_ffa,
+)
+
 # Import hydrolib
 from hydrolib import Hydrograph
+from hydrolib.freq_plot import plot_frequency_curve_streamlit
 from hydrolib.usgs import USGSgage
 
 st.set_page_config(
@@ -51,9 +62,7 @@ else:
         height=100,
     )
     # Parse input
-    gage_list = [
-        g.strip() for g in gage_input.replace(",", "\n").split("\n") if g.strip()
-    ]
+    gage_list = [g.strip() for g in gage_input.replace(",", "\n").split("\n") if g.strip()]
 
 st.sidebar.markdown(f"**{len(gage_list)} gage(s) selected**")
 
@@ -62,6 +71,38 @@ st.sidebar.header("Plot Options")
 show_timeseries = st.sidebar.checkbox("Daily Time Series", value=True)
 show_summary = st.sidebar.checkbox("Summary Hydrograph", value=True)
 show_fdc = st.sidebar.checkbox("Flow Duration Curve", value=True)
+
+# Flood Frequency Analysis section
+st.sidebar.markdown("---")
+st.sidebar.subheader("Flood Frequency Analysis")
+enable_ffa = st.sidebar.checkbox("Enable Flood Frequency Analysis", value=False)
+if enable_ffa:
+    regional_skew = st.sidebar.number_input(
+        "Regional Skew",
+        value=-0.302,
+        step=0.001,
+        format="%.3f",
+        help="Generalized skew from Bulletin 17C Appendix or regional study. Nationwide default: -0.302",
+    )
+    regional_skew_se = st.sidebar.number_input(
+        "Regional Skew SE",
+        value=0.55,
+        step=0.01,
+        format="%.2f",
+        help="Standard error of the regional skew estimate. Nationwide default: 0.55",
+    )
+    show_freq_curve = st.sidebar.checkbox("Frequency Curve", value=True)
+    st.sidebar.markdown("**Skew Options**")
+    skew_station_on = st.sidebar.checkbox("Station Skew", value=False)
+    skew_weighted_on = st.sidebar.checkbox("Weighted Skew", value=True)
+    skew_regional_on = st.sidebar.checkbox("Regional Skew", value=False)
+else:
+    regional_skew = -0.302
+    regional_skew_se = 0.55
+    show_freq_curve = False
+    skew_station_on = False
+    skew_weighted_on = True
+    skew_regional_on = False
 
 # Download button
 download_data = st.sidebar.button("Download Data", type="primary")
@@ -77,6 +118,10 @@ if "expanded_gage" not in st.session_state:
     st.session_state.expanded_gage = None
 if "expanded_plot_idx" not in st.session_state:
     st.session_state.expanded_plot_idx = 0
+if "peak_data" not in st.session_state:
+    st.session_state.peak_data = {}
+if "ffa_results" not in st.session_state:
+    st.session_state.ffa_results = {}
 
 
 def get_plot_list(site_no):
@@ -96,6 +141,7 @@ def get_plot_display_name(plot_key):
         "daily_timeseries": "Daily Time Series",
         "summary_hydrograph": "Summary Hydrograph",
         "flow_duration_curve": "Flow Duration Curve",
+        "frequency_curve": "Frequency Curve",
     }
     return names.get(plot_key, plot_key)
 
@@ -157,6 +203,8 @@ if download_data and gage_list:
     st.session_state.gage_data = {}
     st.session_state.gage_info = {}
     st.session_state.figures = {}
+    st.session_state.peak_data = {}
+    st.session_state.ffa_results = {}
 
     progress_bar = st.progress(0)
     status_text = st.empty()
@@ -192,6 +240,29 @@ if download_data and gage_list:
 
             # Store full daily data
             st.session_state.gage_data[site_no] = daily_data
+
+            # Download peak flows and run FFA if enabled
+            if enable_ffa:
+                with st.spinner(f"Downloading peak flows for {site_no}..."):
+                    try:
+                        peak_df = gage.download_peak_flow()
+                        st.session_state.peak_data[site_no] = peak_df
+                    except Exception as e:
+                        st.warning(f"Could not download peak flows for {site_no}: {e}")
+                        st.session_state.peak_data[site_no] = None
+
+                if st.session_state.peak_data.get(site_no) is not None:
+                    peak_df = st.session_state.peak_data[site_no]
+                    with st.spinner(f"Running flood frequency analysis for {site_no}..."):
+                        ffa_result = run_ffa(
+                            peak_flows=peak_df["peak_flow_cfs"].values,
+                            water_years=peak_df["water_year"].values.astype(int),
+                            regional_skew=regional_skew,
+                            regional_skew_se=regional_skew_se,
+                        )
+                        st.session_state.ffa_results[site_no] = ffa_result
+                    if ffa_result.get("error"):
+                        st.warning(f"FFA error for {site_no}: {ffa_result['error']}")
 
         except Exception as e:
             st.error(f"Error processing {site_no}: {str(e)}")
@@ -255,24 +326,33 @@ if st.session_state.gage_data:
         # Format POR and plot dates
         por_str = f"{format_date(gage_info['por_start'])} - {format_date(gage_info['por_end'])}"
         plot_str = f"{format_date(plot_data.index.min())} - {format_date(plot_data.index.max())}"
-        da_str = f"{gage_info['drainage_area']:,.1f} sq mi" if gage_info['drainage_area'] else "N/A"
+        da_str = f"{gage_info['drainage_area']:,.1f} sq mi" if gage_info["drainage_area"] else "N/A"
 
         # Display info
         info_cols = st.columns(4)
-        info_cols[0].markdown(f"**Drainage Area**<br><small>{da_str}</small>", unsafe_allow_html=True)
+        info_cols[0].markdown(
+            f"**Drainage Area**<br><small>{da_str}</small>", unsafe_allow_html=True
+        )
         info_cols[1].markdown(f"**POR**<br><small>{por_str}</small>", unsafe_allow_html=True)
-        info_cols[2].markdown(f"**Plot Range**<br><small>{plot_str}</small>", unsafe_allow_html=True)
-        info_cols[3].markdown(f"**Records**<br><small>{len(plot_data):,} days</small>", unsafe_allow_html=True)
+        info_cols[2].markdown(
+            f"**Plot Range**<br><small>{plot_str}</small>", unsafe_allow_html=True
+        )
+        info_cols[3].markdown(
+            f"**Records**<br><small>{len(plot_data):,} days</small>",
+            unsafe_allow_html=True,
+        )
 
         # Generate plots if not cached or need refresh
         if site_no not in st.session_state.figures:
             # Determine if we need to show POR annotation (when plot range differs from POR)
             por_start_str = None
             por_end_str = None
-            if (plot_data.index.min() > gage_info['por_start'] or
-                plot_data.index.max() < gage_info['por_end']):
-                por_start_str = format_date(gage_info['por_start'])
-                por_end_str = format_date(gage_info['por_end'])
+            if (
+                plot_data.index.min() > gage_info["por_start"]
+                or plot_data.index.max() < gage_info["por_end"]
+            ):
+                por_start_str = format_date(gage_info["por_start"])
+                por_end_str = format_date(gage_info["por_end"])
 
             st.session_state.figures[site_no] = generate_plots(
                 site_no, plot_data, gage_info, por_start_str, por_end_str
@@ -288,7 +368,103 @@ if st.session_state.gage_data:
                 with cols[i]:
                     st.pyplot(site_figs[plot_key])
 
+        # Frequency curve plot
+        if show_freq_curve and site_no in st.session_state.ffa_results:
+            ffa_result = st.session_state.ffa_results[site_no]
+            if not ffa_result.get("error") and ffa_result.get("b17c"):
+                selected_skew_labels = [
+                    lbl
+                    for lbl, on in [
+                        ("Station Skew", skew_station_on),
+                        ("Weighted Skew", skew_weighted_on),
+                        ("Regional Skew", skew_regional_on),
+                    ]
+                    if on
+                ]
+                skew_curves = build_skew_curves_dict(ffa_result, selected_skew_labels) or None
+                freq_fig = plot_frequency_curve_streamlit(
+                    ffa_result["b17c"],
+                    site_name=gage_info.get("name", ""),
+                    site_no=site_no,
+                    skew_curves=skew_curves,
+                )
+                st.pyplot(freq_fig)
+
+        # FFA results expander
+        if enable_ffa and site_no in st.session_state.ffa_results:
+            ffa_result = st.session_state.ffa_results[site_no]
+            if not ffa_result.get("error"):
+                selected_skew_labels = [
+                    lbl
+                    for lbl, on in [
+                        ("Station Skew", skew_station_on),
+                        ("Weighted Skew", skew_weighted_on),
+                        ("Regional Skew", skew_regional_on),
+                    ]
+                    if on
+                ]
+                skew_tables = compute_skew_tables(ffa_result, selected_skew_labels)
+
+                with st.expander("Flood Frequency Results", expanded=False):
+                    # Convergence badge
+                    if ffa_result.get("converged"):
+                        st.success("EMA Converged")
+                    else:
+                        st.warning("MOM Fallback (EMA did not converge)")
+
+                    st.markdown("**LP3 Parameters**")
+                    st.dataframe(
+                        format_parameters_df(ffa_result["parameters"]),
+                        use_container_width=True,
+                    )
+
+                    if skew_tables:
+                        for label, tbl in skew_tables.items():
+                            st.markdown(
+                                f"**Frequency Table — {label}** (Return intervals 1.5–500 years)"
+                            )
+                            st.dataframe(
+                                format_quantile_df(tbl),
+                                use_container_width=True,
+                            )
+                    else:
+                        st.markdown("**Frequency Table** (Return intervals 1.5–500 years)")
+                        st.dataframe(
+                            format_quantile_df(ffa_result["quantile_df"]),
+                            use_container_width=True,
+                        )
+
         st.divider()
+
+    # Multi-gage FFA comparison
+    if enable_ffa and len(gage_list) > 1:
+        sites_with_ffa = [
+            s
+            for s in gage_list
+            if s in st.session_state.ffa_results
+            and not st.session_state.ffa_results[s].get("error")
+        ]
+        if sites_with_ffa:
+            st.subheader("Flood Frequency Comparison")
+            rows = []
+            for sno in sites_with_ffa:
+                r = st.session_state.ffa_results[sno]
+                q100 = r["quantile_df"][r["quantile_df"]["Return Interval (yr)"] == 100][
+                    "Flow (cfs)"
+                ].values
+                q100_val = int(q100[0]) if len(q100) > 0 else None
+                attrs = st.session_state.gage_info.get(sno, {})
+                rows.append(
+                    {
+                        "Site No": sno,
+                        "Site Name": attrs.get("name", sno),
+                        "100-yr Flow (cfs)": f"{q100_val:,}" if q100_val else "N/A",
+                        "Weighted Skew": f"{r['parameters']['skew_weighted']:.3f}",
+                        "Method": r.get("method", "ema").upper(),
+                        "Converged": "Yes" if r.get("converged") else "No",
+                    }
+                )
+            st.dataframe(pd.DataFrame(rows), use_container_width=True)
 
     plt.close("all")
 
@@ -331,9 +507,7 @@ if st.session_state.gage_data:
                     else:
                         # Save PNG
                         img_buffer = io.BytesIO()
-                        fig.savefig(
-                            img_buffer, format="png", dpi=300, bbox_inches="tight"
-                        )
+                        fig.savefig(img_buffer, format="png", dpi=300, bbox_inches="tight")
                         img_buffer.seek(0)
                         zf.writestr(f"{site_no}/{name}.png", img_buffer.read())
 
@@ -343,6 +517,46 @@ if st.session_state.gage_data:
                     csv_buffer = io.StringIO()
                     summary_stats.to_csv(csv_buffer, index=False)
                     zf.writestr(f"{site_no}/summary_stats.csv", csv_buffer.getvalue())
+
+                # Export FFA results
+                if enable_ffa and site_no in st.session_state.ffa_results:
+                    ffa_result = st.session_state.ffa_results[site_no]
+                    if not ffa_result.get("error"):
+                        selected_skew_labels = [
+                            lbl
+                            for lbl, on in [
+                                ("Station Skew", skew_station_on),
+                                ("Weighted Skew", skew_weighted_on),
+                                ("Regional Skew", skew_regional_on),
+                            ]
+                            if on
+                        ]
+                        skew_curves_export = (
+                            build_skew_curves_dict(ffa_result, selected_skew_labels) or None
+                        )
+                        freq_fig_for_export = None
+                        if show_freq_curve and ffa_result.get("b17c"):
+                            freq_fig_for_export = plot_frequency_curve_streamlit(
+                                ffa_result["b17c"],
+                                site_name=gage_info.get("name", ""),
+                                site_no=site_no,
+                                skew_curves=skew_curves_export,
+                            )
+                        export_ffa_to_zip(zf, site_no, ffa_result, freq_fig_for_export)
+
+            # Multi-gage FFA comparison CSV
+            if enable_ffa and len(selected_gages) > 1:
+                site_results_for_export = {}
+                for sno in selected_gages:
+                    if sno in st.session_state.ffa_results:
+                        attrs = st.session_state.gage_info.get(sno, {})
+                        site_results_for_export[sno] = {
+                            "site_name": attrs.get("name", sno),
+                            "drainage_area_sqmi": attrs.get("drainage_area", 0),
+                            "ffa_results": st.session_state.ffa_results[sno],
+                        }
+                if site_results_for_export:
+                    export_comparison_csv(zf, site_results_for_export)
 
         zip_buffer.seek(0)
 
@@ -355,9 +569,7 @@ if st.session_state.gage_data:
 
 # Footer
 st.sidebar.markdown("---")
-st.sidebar.markdown(
-    """
-    **hydrolib** v0.0.3
+st.sidebar.markdown("""
+    **hydrolib** v0.1.0
     [GitHub](https://github.com/pinhead001/hydrolib)
-    """
-)
+    """)

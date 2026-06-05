@@ -23,7 +23,7 @@ pip install numpy pandas matplotlib scipy requests
 ## Quick Start
 
 ```python
-from hydrolib import USGSGage, Bulletin17C, Hydrograph, HydroReport, analyze_gage
+from hydrolib import USGSgage, Bulletin17C, Hydrograph, HydroReport, analyze_gage
 
 # Option 1: Full automated analysis
 results = analyze_gage(
@@ -34,7 +34,7 @@ results = analyze_gage(
 )
 
 # Option 2: Step-by-step analysis
-gage = USGSGage('01638500')
+gage = USGSgage('01638500')
 daily_data = gage.download_daily_flow(start_date='2010-01-01')
 peak_data = gage.download_peak_flow()
 
@@ -48,11 +48,11 @@ b17c.plot_frequency_curve(gage.site_name, gage.site_no, save_path='ffa_plot.png'
 
 ## Classes
 
-### USGSGage
+### USGSgage
 Handles USGS gage data retrieval.
 
 ```python
-gage = USGSGage('01638500')
+gage = USGSgage('01638500')
 
 # Download mean daily flow
 daily_data = gage.download_daily_flow(

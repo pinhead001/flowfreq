@@ -31,6 +31,32 @@ class AnalysisMethod(Enum):
 
 
 @dataclass
+class PeakRecord:
+    """
+    Represents a single peak flow record (PeakFQ-style).
+
+    Attributes
+    ----------
+    year : int
+        Water year of the observation
+    flow : float, optional
+        Peak flow in cfs (None if censored/missing)
+    perception_threshold : float, optional
+        Minimum flow that would have been recorded
+    is_historical : bool
+        Whether this is a historical (non-systematic) observation
+    source : str, optional
+        Data source (e.g., "USGS", "Historical")
+    """
+
+    year: int
+    flow: Optional[float] = None
+    perception_threshold: Optional[float] = None
+    is_historical: bool = False
+    source: Optional[str] = None
+
+
+@dataclass
 class FlowInterval:
     """
     Represents a flow interval for EMA analysis.
@@ -233,3 +259,94 @@ def log_pearson3_pdf(log_q: float, mean: float, std: float, skew: float) -> floa
             if y <= 0:
                 return 0.0
             return y ** (alpha - 1) * np.exp(-y) / (beta * np.exp(gammaln(alpha)))
+
+
+# =============================================================================
+# PEAKFQ-STYLE LP3 FUNCTIONS
+# =============================================================================
+
+
+def lp3_frequency_factor_peakfq(p: float, skew: float) -> float:
+    """
+    Calculate LP3 frequency factor using PeakFQ methodology.
+
+    Uses gamma distribution transformation for skewed distributions,
+    falls back to normal distribution for zero skew.
+
+    Parameters
+    ----------
+    p : float
+        Non-exceedance probability (0 < p < 1)
+    skew : float
+        Skew coefficient
+
+    Returns
+    -------
+    float
+        Frequency factor K
+    """
+    if abs(skew) < 1e-8:
+        return stats.norm.ppf(p)
+    alpha = 4 / (skew**2)
+    beta = skew / 2
+    return beta * (stats.gamma.ppf(p, a=alpha) - alpha)
+
+
+def lp3_quantile_peakfq(mu: float, sigma: float, skew: float, T: float) -> float:
+    """
+    Calculate LP3 quantile for a given return period using PeakFQ methodology.
+
+    Parameters
+    ----------
+    mu : float
+        Mean of log10(flow)
+    sigma : float
+        Standard deviation of log10(flow)
+    skew : float
+        Skew coefficient
+    T : float
+        Return period in years
+
+    Returns
+    -------
+    float
+        Flow quantile in cfs
+    """
+    p = 1 - 1 / T
+    K = lp3_frequency_factor_peakfq(p, skew)
+    return 10 ** (mu + K * sigma)
+
+
+def compute_ci_lp3(
+    mu: float, sigma: float, skew: float, n: int, T: float, alpha: float = 0.05
+) -> Tuple[float, float, float]:
+    """
+    Compute confidence intervals for LP3 quantile estimates.
+
+    Parameters
+    ----------
+    mu : float
+        Mean of log10(flow)
+    sigma : float
+        Standard deviation of log10(flow)
+    skew : float
+        Skew coefficient
+    n : int
+        Sample size
+    T : float
+        Return period in years
+    alpha : float
+        Significance level (default 0.05 for 95% CI)
+
+    Returns
+    -------
+    tuple
+        (estimate, lower_bound, upper_bound) in cfs
+    """
+    p = 1 - 1 / T
+    K = lp3_frequency_factor_peakfq(p, skew)
+    x = mu + K * sigma
+    tcrit = stats.t.ppf(1 - alpha / 2, df=n - 1)
+    var = (sigma**2 / n) * (1 + (K**2) / 2)
+    se = np.sqrt(var)
+    return 10**x, 10 ** (x - tcrit * se), 10 ** (x + tcrit * se)
