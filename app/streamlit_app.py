@@ -71,6 +71,8 @@ st.sidebar.header("Plot Options")
 show_timeseries = st.sidebar.checkbox("Daily Time Series", value=True)
 show_summary = st.sidebar.checkbox("Summary Hydrograph", value=True)
 show_fdc = st.sidebar.checkbox("Flow Duration Curve", value=True)
+# Y-axis scale toggle for all plots
+yscale_choice = st.sidebar.radio("Y-axis Scale", ["log", "linear"], index=0)
 
 # Flood Frequency Analysis section
 st.sidebar.markdown("---")
@@ -151,7 +153,7 @@ def format_date(dt):
     return f"{dt.month}/{dt.day}/{dt.year}"
 
 
-def generate_plots(site_no, plot_data, gage_info, por_start_str=None, por_end_str=None):
+def generate_plots(site_no, plot_data, gage_info, por_start_str=None, por_end_str=None, yscale: str = "log"):
     """Generate plots for a gage using the provided data."""
     site_figs = {}
 
@@ -164,6 +166,7 @@ def generate_plots(site_no, plot_data, gage_info, por_start_str=None, por_end_st
             figsize=(10, 4),
             por_start=por_start_str,
             por_end=por_end_str,
+            yscale=yscale,
         )
         site_figs["daily_timeseries"] = fig1
 
@@ -177,6 +180,7 @@ def generate_plots(site_no, plot_data, gage_info, por_start_str=None, por_end_st
             percentiles=[10, 25, 50, 75, 90],
             por_start=por_start_str,
             por_end=por_end_str,
+            yscale=yscale,
         )
         site_figs["summary_hydrograph"] = fig2
         # Store summary stats for export
@@ -191,6 +195,7 @@ def generate_plots(site_no, plot_data, gage_info, por_start_str=None, por_end_st
             figsize=(10, 4),
             por_start=por_start_str,
             por_end=por_end_str,
+            yscale=yscale,
         )
         site_figs["flow_duration_curve"] = fig3
         site_figs["fdc_stats"] = stats_df
@@ -355,7 +360,7 @@ if st.session_state.gage_data:
                 por_end_str = format_date(gage_info["por_end"])
 
             st.session_state.figures[site_no] = generate_plots(
-                site_no, plot_data, gage_info, por_start_str, por_end_str
+                site_no, plot_data, gage_info, por_start_str, por_end_str, yscale=yscale_choice
             )
 
         site_figs = st.session_state.figures[site_no]
@@ -387,6 +392,7 @@ if st.session_state.gage_data:
                     site_name=gage_info.get("name", ""),
                     site_no=site_no,
                     skew_curves=skew_curves,
+                    yscale=yscale_choice,
                 )
                 st.pyplot(freq_fig)
 
@@ -541,6 +547,7 @@ if st.session_state.gage_data:
                                 site_name=gage_info.get("name", ""),
                                 site_no=site_no,
                                 skew_curves=skew_curves_export,
+                                yscale=yscale_choice,
                             )
                         export_ffa_to_zip(zf, site_no, ffa_result, freq_fig_for_export)
 
