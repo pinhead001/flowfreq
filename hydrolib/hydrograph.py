@@ -71,7 +71,7 @@ class Hydrograph:
         fig, ax = plt.subplots(figsize=figsize)
 
         ax.plot(daily_data.index, daily_data["flow_cfs"], color=color, linewidth=0.5, alpha=0.8)
-        ax.set_yscale("log")
+        ax.set_yscale("linear")
         ax.set_ylabel("Discharge (cfs)", fontsize=cls.FONT_SIZE)
         ax.set_xlabel("Date", fontsize=cls.FONT_SIZE)
 
@@ -190,7 +190,7 @@ class Hydrograph:
             label="Max",
         )
 
-        ax.set_yscale("log")
+        ax.set_yscale("linear")
         ax.set_ylabel("Discharge (cfs)", fontsize=cls.FONT_SIZE)
         ax.set_xlabel("Day of Water Year", fontsize=cls.FONT_SIZE)
 
@@ -299,7 +299,7 @@ class Hydrograph:
         fig, ax = plt.subplots(figsize=figsize)
 
         ax.plot(exceedance_pct, flows_sorted, color=plt_color, linewidth=1.5)
-        ax.set_yscale("log")
+        ax.set_yscale("linear")
         ax.set_xlabel("Percent of Time Exceeded (%)", fontsize=cls.FONT_SIZE)
         ax.set_ylabel("Discharge (cfs)", fontsize=cls.FONT_SIZE)
 
