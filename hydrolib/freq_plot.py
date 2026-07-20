@@ -153,13 +153,13 @@ def plot_frequency_curve_streamlit(
             ax.annotate(
                 label_text,
                 xy=(max_x, max_flow),
-                xytext=(-10, 0),
+                xytext=(-15, 0),
                 textcoords="offset points",
                 fontsize=_ANNOT_FONT_SIZE,
                 ha="right",
                 va="center",
                 bbox=dict(boxstyle="round,pad=0.2", facecolor="white", edgecolor="lightgray", alpha=0.9),
-                arrowprops=dict(arrowstyle="-", color="gray", alpha=0.5),
+                arrowprops=dict(arrowstyle="-", color="gray", alpha=0.7),
             )
 
     # --- LP3 curves (one per skew option) ---
