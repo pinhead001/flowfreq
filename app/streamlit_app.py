@@ -80,8 +80,9 @@ if scale_mode == "Per Plot":
     yscale_timeseries = "log" if st.sidebar.checkbox("Log: Daily Time Series", value=False) else "linear"
     yscale_summary = "log" if st.sidebar.checkbox("Log: Summary Hydrograph", value=False) else "linear"
     yscale_fdc = "log" if st.sidebar.checkbox("Log: Flow Duration Curve", value=False) else "linear"
+    yscale_freq = "log" if st.sidebar.checkbox("Log: Flood Frequency Curve", value=False) else "linear"
 else:
-    yscale_timeseries = yscale_summary = yscale_fdc = scale_mode.lower()
+    yscale_timeseries = yscale_summary = yscale_fdc = yscale_freq = scale_mode.lower()
 
 # Flood Frequency Analysis section
 st.sidebar.markdown("---")
@@ -137,7 +138,7 @@ if "prev_scale_settings" not in st.session_state:
     st.session_state.prev_scale_settings = None
 
 # Clear figures cache when scale settings change
-current_scale_settings = (scale_mode, yscale_timeseries, yscale_summary, yscale_fdc)
+current_scale_settings = (scale_mode, yscale_timeseries, yscale_summary, yscale_fdc, yscale_freq)
 if st.session_state.prev_scale_settings != current_scale_settings:
     st.session_state.figures = {}
     st.session_state.prev_scale_settings = current_scale_settings
@@ -411,7 +412,7 @@ if st.session_state.gage_data:
                     site_name=gage_info.get("name", ""),
                     site_no=site_no,
                     skew_curves=skew_curves,
-                    yscale=yscale_fdc,
+                    yscale=yscale_freq,
                 )
                 st.pyplot(freq_fig)
 
@@ -566,7 +567,7 @@ if st.session_state.gage_data:
                                 site_name=gage_info.get("name", ""),
                                 site_no=site_no,
                                 skew_curves=skew_curves_export,
-                                yscale=yscale_fdc,
+                                yscale=yscale_freq,
                             )
                         export_ffa_to_zip(zf, site_no, ffa_result, freq_fig_for_export)
 
