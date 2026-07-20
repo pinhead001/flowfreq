@@ -411,7 +411,7 @@ if st.session_state.gage_data:
                     site_name=gage_info.get("name", ""),
                     site_no=site_no,
                     skew_curves=skew_curves,
-                    yscale=yscale_choice,
+                    yscale=yscale_fdc,
                 )
                 st.pyplot(freq_fig)
 
@@ -566,7 +566,7 @@ if st.session_state.gage_data:
                                 site_name=gage_info.get("name", ""),
                                 site_no=site_no,
                                 skew_curves=skew_curves_export,
-                                yscale=yscale_choice,
+                                yscale=yscale_fdc,
                             )
                         export_ffa_to_zip(zf, site_no, ffa_result, freq_fig_for_export)
 
