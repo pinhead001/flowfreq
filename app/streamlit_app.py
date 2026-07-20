@@ -197,10 +197,10 @@ def plot_peak_timeseries(peak_df, site_name, site_no, yscale="linear", quantiles
     if quantiles:
         x_min = peak_df["water_year"].min()
         for rp, flow in sorted(quantiles.items()):
-            ax.axhline(y=flow, linestyle='--', color='gray', alpha=0.7)
+            ax.axhline(y=flow, linestyle='--', color='#404040', alpha=0.9)
             rp_str = f"{rp:g}"  # Format without trailing zeros
             ax.text(x_min, flow, f" {rp_str}-yr: {flow:,.0f}",
-                    va='bottom', ha='left', fontsize=8, color='gray')
+                    va='bottom', ha='left', fontsize=8, color='#404040')
 
     ax.set_yscale(yscale)
     ax.set_xlabel("Water Year")
