@@ -107,6 +107,10 @@ if enable_ffa:
         help="Standard error of the regional skew estimate. Nationwide default: 0.55",
     )
     show_freq_curve = st.sidebar.checkbox("Frequency Curve", value=True)
+    if show_freq_curve:
+        label_max_on_freq = st.sidebar.checkbox("Label Max Flow on Curve", value=False)
+    else:
+        label_max_on_freq = False
     show_peak_timeseries = st.sidebar.checkbox("Peak Flow Time Series", value=True)
     if show_peak_timeseries:
         quantile_options = [1.5, 2, 5, 10, 25, 50, 100, 200, 500]
@@ -128,6 +132,7 @@ else:
     regional_skew = -0.302
     regional_skew_se = 0.55
     show_freq_curve = False
+    label_max_on_freq = False
     show_peak_timeseries = False
     show_quantile_lines = []
     show_max_ri = False
@@ -532,12 +537,29 @@ if st.session_state.gage_data:
                     if on
                 ]
                 skew_curves = build_skew_curves_dict(ffa_result, selected_skew_labels) or None
+                # Build max flow label if enabled
+                max_flow_label = None
+                if label_max_on_freq and site_no in st.session_state.peak_data:
+                    peak_df = st.session_state.peak_data[site_no]
+                    if peak_df is not None and len(peak_df) > 0:
+                        params = ffa_result.get("parameters", {})
+                        max_idx = peak_df["peak_flow_cfs"].idxmax()
+                        max_flow = peak_df.loc[max_idx, "peak_flow_cfs"]
+                        max_year = int(peak_df.loc[max_idx, "water_year"])
+                        ri = estimate_ri_from_lp3(
+                            max_flow,
+                            params.get("mean_log", 0),
+                            params.get("std_log", 1),
+                            params.get("skew_weighted", 0)
+                        ) if params else None
+                        max_flow_label = {"flow": max_flow, "year": max_year, "ri": ri}
                 freq_fig = plot_frequency_curve_streamlit(
                     ffa_result["b17c"],
                     site_name=gage_info.get("name", ""),
                     site_no=site_no,
                     skew_curves=skew_curves,
                     yscale=yscale_freq,
+                    max_flow_label=max_flow_label,
                 )
                 st.pyplot(freq_fig)
 
@@ -687,12 +709,29 @@ if st.session_state.gage_data:
                         )
                         freq_fig_for_export = None
                         if show_freq_curve and ffa_result.get("b17c"):
+                            # Build max flow label for export if enabled
+                            max_flow_label_export = None
+                            if label_max_on_freq and site_no in st.session_state.peak_data:
+                                peak_df = st.session_state.peak_data[site_no]
+                                if peak_df is not None and len(peak_df) > 0:
+                                    params = ffa_result.get("parameters", {})
+                                    max_idx = peak_df["peak_flow_cfs"].idxmax()
+                                    max_flow = peak_df.loc[max_idx, "peak_flow_cfs"]
+                                    max_year = int(peak_df.loc[max_idx, "water_year"])
+                                    ri = estimate_ri_from_lp3(
+                                        max_flow,
+                                        params.get("mean_log", 0),
+                                        params.get("std_log", 1),
+                                        params.get("skew_weighted", 0)
+                                    ) if params else None
+                                    max_flow_label_export = {"flow": max_flow, "year": max_year, "ri": ri}
                             freq_fig_for_export = plot_frequency_curve_streamlit(
                                 ffa_result["b17c"],
                                 site_name=gage_info.get("name", ""),
                                 site_no=site_no,
                                 skew_curves=skew_curves_export,
                                 yscale=yscale_freq,
+                                max_flow_label=max_flow_label_export,
                             )
                         export_ffa_to_zip(zf, site_no, ffa_result, freq_fig_for_export)
 

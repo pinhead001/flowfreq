@@ -67,6 +67,7 @@ def plot_frequency_curve_streamlit(
     figsize: Tuple[int, int] = (10, 6),
     skew_curves: Optional[Dict[str, float]] = None,
     yscale: str = "log",
+    max_flow_label: Optional[Dict] = None,
 ) -> plt.Figure:
     """Plot a Bulletin 17C frequency curve suitable for Streamlit display.
 
@@ -129,6 +130,35 @@ def plot_frequency_curve_streamlit(
         edgecolors="navy",
         linewidth=0.5,
     )
+
+    # --- Max flow label annotation ---
+    if max_flow_label:
+        max_flow = max_flow_label.get("flow")
+        max_year = max_flow_label.get("year")
+        max_ri = max_flow_label.get("ri")
+        if max_flow and max_year:
+            # Find the x position for the max flow (it's at rank 1, so AEP = 1/(n+1))
+            max_aep = 1 / (n_obs + 1)
+            max_x = aep_to_x(max_aep)
+            # Highlight the max point
+            ax.scatter([max_x], [max_flow], c="red", s=60, zorder=6, marker="*", edgecolors="darkred", linewidth=0.5)
+            # Build label text
+            ri_str = f"{max_ri:,.0f}" if max_ri and max_ri >= 10 else (f"{max_ri:.1f}" if max_ri else "")
+            if ri_str:
+                label_text = f"{max_flow:,.0f} cfs ({max_year})\n≈ {ri_str}-yr"
+            else:
+                label_text = f"{max_flow:,.0f} cfs ({max_year})"
+            ax.annotate(
+                label_text,
+                xy=(max_x, max_flow),
+                xytext=(10, 10),
+                textcoords="offset points",
+                fontsize=_ANNOT_FONT_SIZE,
+                ha="left",
+                va="bottom",
+                bbox=dict(boxstyle="round,pad=0.2", facecolor="white", edgecolor="lightgray", alpha=0.9),
+                arrowprops=dict(arrowstyle="-", color="gray", alpha=0.5),
+            )
 
     # --- LP3 curves (one per skew option) ---
     aep_fine = np.linspace(0.001, 0.999, 300)
