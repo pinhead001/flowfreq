@@ -12,8 +12,10 @@ from pathlib import Path
 
 import matplotlib
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import streamlit as st
+from scipy import stats
 
 matplotlib.use("Agg")  # Use non-interactive backend
 
@@ -114,8 +116,10 @@ if enable_ffa:
             default=[1.5, 25, 100],
             help="Horizontal lines showing flood frequency quantiles"
         )
+        show_max_ri = st.sidebar.checkbox("Show Max Peak RI Estimate", value=False)
     else:
         show_quantile_lines = []
+        show_max_ri = False
     st.sidebar.markdown("**Skew Options**")
     skew_station_on = st.sidebar.checkbox("Station Skew", value=False)
     skew_weighted_on = st.sidebar.checkbox("Weighted Skew", value=True)
@@ -126,6 +130,7 @@ else:
     show_freq_curve = False
     show_peak_timeseries = False
     show_quantile_lines = []
+    show_max_ri = False
     skew_station_on = False
     skew_weighted_on = True
     skew_regional_on = False
@@ -185,7 +190,23 @@ def format_date(dt):
     return f"{dt.month}/{dt.day}/{dt.year}"
 
 
-def plot_peak_timeseries(peak_df, site_name, site_no, yscale="linear", quantiles=None):
+def estimate_ri_from_lp3(flow, mean_log, std_log, skew):
+    """Estimate return interval for a flow using LP3 parameters."""
+    if flow <= 0 or std_log <= 0:
+        return None
+    log_flow = np.log10(flow)
+    k = (log_flow - mean_log) / std_log
+    try:
+        non_exceed_prob = stats.pearson3.cdf(k, skew)
+        exceed_prob = 1 - non_exceed_prob
+        if exceed_prob > 0:
+            return 1 / exceed_prob
+    except:
+        pass
+    return None
+
+
+def plot_peak_timeseries(peak_df, site_name, site_no, yscale="linear", quantiles=None, max_ri_info=None):
     """Plot annual peak flows with optional quantile reference lines.
 
     quantiles: dict of {return_period: flow_value} to draw as horizontal lines
@@ -201,6 +222,26 @@ def plot_peak_timeseries(peak_df, site_name, site_no, yscale="linear", quantiles
             rp_str = f"{rp:g}"  # Format without trailing zeros
             ax.text(x_min, flow, f" {rp_str}-yr: {flow:,.0f}",
                     va='bottom', ha='left', fontsize=8, color='#404040')
+
+    # Add max RI annotation if provided
+    if max_ri_info:
+        max_flow = max_ri_info.get("flow")
+        max_year = max_ri_info.get("year")
+        max_ri = max_ri_info.get("ri")
+        if max_flow and max_year and max_ri:
+            ri_str = f"{max_ri:,.0f}" if max_ri >= 10 else f"{max_ri:.1f}"
+            annot_text = f"Max: {max_flow:,.0f} cfs ({max_year}) ≈ {ri_str}-yr event"
+            ax.annotate(
+                annot_text,
+                xy=(0.97, 0.97),
+                xycoords="axes fraction",
+                fontsize=9,
+                ha="right",
+                va="top",
+                bbox=dict(
+                    boxstyle="round,pad=0.3", facecolor="white", edgecolor="lightgray", alpha=0.9
+                ),
+            )
 
     ax.set_yscale(yscale)
     ax.set_xlabel("Water Year")
@@ -453,9 +494,27 @@ if st.session_state.gage_data:
                             for _, row in qdf.iterrows()
                             if float(row["Return Interval (yr)"]) in show_quantile_lines
                         }
+                # Calculate max RI info if enabled
+                max_ri_info = None
+                if show_max_ri and site_no in st.session_state.ffa_results:
+                    ffa = st.session_state.ffa_results[site_no]
+                    if not ffa.get("error") and "parameters" in ffa:
+                        params = ffa["parameters"]
+                        max_idx = peak_df["peak_flow_cfs"].idxmax()
+                        max_flow = peak_df.loc[max_idx, "peak_flow_cfs"]
+                        max_year = int(peak_df.loc[max_idx, "water_year"])
+                        ri = estimate_ri_from_lp3(
+                            max_flow,
+                            params["mean_log"],
+                            params["std_log"],
+                            params["skew_weighted"]
+                        )
+                        if ri:
+                            max_ri_info = {"flow": max_flow, "year": max_year, "ri": ri}
+
                 peak_fig = plot_peak_timeseries(
                     peak_df, gage_info.get("name", ""), site_no,
-                    yscale=yscale_peak, quantiles=quantiles
+                    yscale=yscale_peak, quantiles=quantiles, max_ri_info=max_ri_info
                 )
                 st.pyplot(peak_fig)
 
