@@ -107,11 +107,11 @@ if enable_ffa:
     show_freq_curve = st.sidebar.checkbox("Frequency Curve", value=True)
     show_peak_timeseries = st.sidebar.checkbox("Peak Flow Time Series", value=True)
     if show_peak_timeseries:
-        quantile_options = [2, 5, 10, 25, 50, 100, 200, 500]
+        quantile_options = [1.5, 2, 5, 10, 25, 50, 100, 200, 500]
         show_quantile_lines = st.sidebar.multiselect(
             "Show Return Period Lines",
             options=quantile_options,
-            default=[10, 50, 100],
+            default=[1.5, 25, 100],
             help="Horizontal lines showing flood frequency quantiles"
         )
     else:
@@ -198,7 +198,8 @@ def plot_peak_timeseries(peak_df, site_name, site_no, yscale="linear", quantiles
         x_min = peak_df["water_year"].min()
         for rp, flow in sorted(quantiles.items()):
             ax.axhline(y=flow, linestyle='--', color='gray', alpha=0.7)
-            ax.text(x_min, flow, f" {rp}-yr: {flow:,.0f}",
+            rp_str = f"{rp:g}"  # Format without trailing zeros
+            ax.text(x_min, flow, f" {rp_str}-yr: {flow:,.0f}",
                     va='bottom', ha='left', fontsize=8, color='gray')
 
     ax.set_yscale(yscale)
@@ -448,9 +449,9 @@ if st.session_state.gage_data:
                     if not ffa.get("error") and "quantile_df" in ffa:
                         qdf = ffa["quantile_df"]
                         quantiles = {
-                            int(row["Return Interval (yr)"]): row["Flow (cfs)"]
+                            float(row["Return Interval (yr)"]): row["Flow (cfs)"]
                             for _, row in qdf.iterrows()
-                            if int(row["Return Interval (yr)"]) in show_quantile_lines
+                            if float(row["Return Interval (yr)"]) in show_quantile_lines
                         }
                 peak_fig = plot_peak_timeseries(
                     peak_df, gage_info.get("name", ""), site_no,
