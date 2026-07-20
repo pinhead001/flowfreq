@@ -544,7 +544,7 @@ if st.session_state.gage_data:
                     if peak_df is not None and len(peak_df) > 0:
                         params = ffa_result.get("parameters", {})
                         max_idx = peak_df["peak_flow_cfs"].idxmax()
-                        max_flow = peak_df.loc[max_idx, "peak_flow_cfs"]
+                        max_flow = float(peak_df.loc[max_idx, "peak_flow_cfs"])
                         max_year = int(peak_df.loc[max_idx, "water_year"])
                         ri = estimate_ri_from_lp3(
                             max_flow,
@@ -716,7 +716,7 @@ if st.session_state.gage_data:
                                 if peak_df is not None and len(peak_df) > 0:
                                     params = ffa_result.get("parameters", {})
                                     max_idx = peak_df["peak_flow_cfs"].idxmax()
-                                    max_flow = peak_df.loc[max_idx, "peak_flow_cfs"]
+                                    max_flow = float(peak_df.loc[max_idx, "peak_flow_cfs"])
                                     max_year = int(peak_df.loc[max_idx, "water_year"])
                                     ri = estimate_ri_from_lp3(
                                         max_flow,

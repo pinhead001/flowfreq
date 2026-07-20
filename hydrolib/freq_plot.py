@@ -136,15 +136,19 @@ def plot_frequency_curve_streamlit(
         max_flow = max_flow_label.get("flow")
         max_year = max_flow_label.get("year")
         max_ri = max_flow_label.get("ri")
-        if max_flow and max_year:
+        if max_flow is not None and max_year is not None:
+            # Convert to Python native types
+            max_flow = float(max_flow)
+            max_year = int(max_year)
             # Find the x position for the max flow (it's at rank 1, so AEP = 1/(n+1))
             max_aep = 1 / (n_obs + 1)
             max_x = aep_to_x(max_aep)
             # Highlight the max point
             ax.scatter([max_x], [max_flow], c="red", s=60, zorder=6, marker="*", edgecolors="darkred", linewidth=0.5)
             # Build label text
-            ri_str = f"{max_ri:,.0f}" if max_ri and max_ri >= 10 else (f"{max_ri:.1f}" if max_ri else "")
-            if ri_str:
+            if max_ri is not None:
+                max_ri = float(max_ri)
+                ri_str = f"{max_ri:,.0f}" if max_ri >= 10 else f"{max_ri:.1f}"
                 label_text = f"{max_flow:,.0f} cfs ({max_year})\n≈ {ri_str}-yr"
             else:
                 label_text = f"{max_flow:,.0f} cfs ({max_year})"
