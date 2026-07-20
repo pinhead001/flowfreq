@@ -143,8 +143,6 @@ def plot_frequency_curve_streamlit(
             # Find the x position for the max flow (it's at rank 1, so AEP = 1/(n+1))
             max_aep = 1 / (n_obs + 1)
             max_x = aep_to_x(max_aep)
-            # Highlight the max point
-            ax.scatter([max_x], [max_flow], c="red", s=60, zorder=6, marker="*", edgecolors="darkred", linewidth=0.5)
             # Build label text
             if max_ri is not None:
                 max_ri = float(max_ri)
@@ -155,11 +153,11 @@ def plot_frequency_curve_streamlit(
             ax.annotate(
                 label_text,
                 xy=(max_x, max_flow),
-                xytext=(10, 10),
+                xytext=(-10, 0),
                 textcoords="offset points",
                 fontsize=_ANNOT_FONT_SIZE,
-                ha="left",
-                va="bottom",
+                ha="right",
+                va="center",
                 bbox=dict(boxstyle="round,pad=0.2", facecolor="white", edgecolor="lightgray", alpha=0.9),
                 arrowprops=dict(arrowstyle="-", color="gray", alpha=0.5),
             )

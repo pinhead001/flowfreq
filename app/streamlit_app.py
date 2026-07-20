@@ -235,16 +235,17 @@ def plot_peak_timeseries(peak_df, site_name, site_no, yscale="linear", quantiles
         max_ri = max_ri_info.get("ri")
         if max_flow and max_year and max_ri:
             ri_str = f"{max_ri:,.0f}" if max_ri >= 10 else f"{max_ri:.1f}"
-            annot_text = f"Max: {max_flow:,.0f} cfs ({max_year}) ≈ {ri_str}-yr event"
+            annot_text = f"{max_flow:,.0f} cfs\n≈ {ri_str}-yr"
             ax.annotate(
                 annot_text,
-                xy=(0.97, 0.97),
-                xycoords="axes fraction",
-                fontsize=9,
-                ha="right",
-                va="top",
+                xy=(max_year, max_flow),
+                xytext=(5, 5),
+                textcoords="offset points",
+                fontsize=8,
+                ha="left",
+                va="bottom",
                 bbox=dict(
-                    boxstyle="round,pad=0.3", facecolor="white", edgecolor="lightgray", alpha=0.9
+                    boxstyle="round,pad=0.2", facecolor="white", edgecolor="lightgray", alpha=0.9
                 ),
             )
 
