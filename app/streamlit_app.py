@@ -191,17 +191,15 @@ def plot_peak_timeseries(peak_df, site_name, site_no, yscale="linear", quantiles
     quantiles: dict of {return_period: flow_value} to draw as horizontal lines
     """
     fig, ax = plt.subplots(figsize=(10, 4))
-    ax.plot(peak_df["water_year"], peak_df["peak_flow_cfs"], 'o-', color="steelblue")
+    ax.bar(peak_df["water_year"], peak_df["peak_flow_cfs"], color="steelblue", alpha=0.7)
 
-    # Add quantile lines with labels
+    # Add quantile lines with labels above
     if quantiles:
-        x_max = peak_df["water_year"].max()
+        x_min = peak_df["water_year"].min()
         for rp, flow in sorted(quantiles.items()):
             ax.axhline(y=flow, linestyle='--', color='gray', alpha=0.7)
-            ax.text(x_max + 0.5, flow, f"{rp}-yr: {flow:,.0f}",
-                    va='center', ha='left', fontsize=8, color='gray')
-        # Extend x-axis to make room for labels
-        ax.set_xlim(right=x_max + 12)
+            ax.text(x_min, flow, f" {rp}-yr: {flow:,.0f}",
+                    va='bottom', ha='left', fontsize=8, color='gray')
 
     ax.set_yscale(yscale)
     ax.set_xlabel("Water Year")
@@ -212,7 +210,7 @@ def plot_peak_timeseries(peak_df, site_name, site_no, yscale="linear", quantiles
     elif site_no:
         title = f"Annual Peak Flows - USGS {site_no}"
     ax.set_title(title, fontsize=12, fontweight="bold")
-    ax.grid(True, alpha=0.3)
+    ax.grid(True, alpha=0.3, axis='y')
     plt.tight_layout()
     return fig
 
