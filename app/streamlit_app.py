@@ -239,11 +239,11 @@ def plot_peak_timeseries(peak_df, site_name, site_no, yscale="linear", quantiles
             ax.annotate(
                 annot_text,
                 xy=(max_year, max_flow),
-                xytext=(5, 5),
+                xytext=(10, -15),
                 textcoords="offset points",
                 fontsize=8,
                 ha="left",
-                va="bottom",
+                va="top",
                 bbox=dict(
                     boxstyle="round,pad=0.2", facecolor="white", edgecolor="lightgray", alpha=0.9
                 ),
