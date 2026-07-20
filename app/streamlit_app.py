@@ -81,8 +81,9 @@ if scale_mode == "Per Plot":
     yscale_summary = "log" if st.sidebar.checkbox("Log: Summary Hydrograph", value=False) else "linear"
     yscale_fdc = "log" if st.sidebar.checkbox("Log: Flow Duration Curve", value=False) else "linear"
     yscale_freq = "log" if st.sidebar.checkbox("Log: Flood Frequency Curve", value=False) else "linear"
+    yscale_peak = "log" if st.sidebar.checkbox("Log: Peak Flow Time Series", value=False) else "linear"
 else:
-    yscale_timeseries = yscale_summary = yscale_fdc = yscale_freq = scale_mode.lower()
+    yscale_timeseries = yscale_summary = yscale_fdc = yscale_freq = yscale_peak = scale_mode.lower()
 
 # Flood Frequency Analysis section
 st.sidebar.markdown("---")
@@ -104,6 +105,17 @@ if enable_ffa:
         help="Standard error of the regional skew estimate. Nationwide default: 0.55",
     )
     show_freq_curve = st.sidebar.checkbox("Frequency Curve", value=True)
+    show_peak_timeseries = st.sidebar.checkbox("Peak Flow Time Series", value=True)
+    if show_peak_timeseries:
+        quantile_options = [2, 5, 10, 25, 50, 100, 200, 500]
+        show_quantile_lines = st.sidebar.multiselect(
+            "Show Return Period Lines",
+            options=quantile_options,
+            default=[10, 50, 100],
+            help="Horizontal lines showing flood frequency quantiles"
+        )
+    else:
+        show_quantile_lines = []
     st.sidebar.markdown("**Skew Options**")
     skew_station_on = st.sidebar.checkbox("Station Skew", value=False)
     skew_weighted_on = st.sidebar.checkbox("Weighted Skew", value=True)
@@ -112,6 +124,8 @@ else:
     regional_skew = -0.302
     regional_skew_se = 0.55
     show_freq_curve = False
+    show_peak_timeseries = False
+    show_quantile_lines = []
     skew_station_on = False
     skew_weighted_on = True
     skew_regional_on = False
@@ -138,7 +152,7 @@ if "prev_scale_settings" not in st.session_state:
     st.session_state.prev_scale_settings = None
 
 # Clear figures cache when scale settings change
-current_scale_settings = (scale_mode, yscale_timeseries, yscale_summary, yscale_fdc, yscale_freq)
+current_scale_settings = (scale_mode, yscale_timeseries, yscale_summary, yscale_fdc, yscale_freq, yscale_peak)
 if st.session_state.prev_scale_settings != current_scale_settings:
     st.session_state.figures = {}
     st.session_state.prev_scale_settings = current_scale_settings
@@ -169,6 +183,38 @@ def get_plot_display_name(plot_key):
 def format_date(dt):
     """Format datetime as M/D/YYYY string."""
     return f"{dt.month}/{dt.day}/{dt.year}"
+
+
+def plot_peak_timeseries(peak_df, site_name, site_no, yscale="linear", quantiles=None):
+    """Plot annual peak flows with optional quantile reference lines.
+
+    quantiles: dict of {return_period: flow_value} to draw as horizontal lines
+    """
+    fig, ax = plt.subplots(figsize=(10, 4))
+    ax.plot(peak_df["water_year"], peak_df["peak_flow_cfs"], 'o-', color="steelblue")
+
+    # Add quantile lines with labels
+    if quantiles:
+        x_max = peak_df["water_year"].max()
+        for rp, flow in sorted(quantiles.items()):
+            ax.axhline(y=flow, linestyle='--', color='gray', alpha=0.7)
+            ax.text(x_max + 0.5, flow, f"{rp}-yr: {flow:,.0f}",
+                    va='center', ha='left', fontsize=8, color='gray')
+        # Extend x-axis to make room for labels
+        ax.set_xlim(right=x_max + 12)
+
+    ax.set_yscale(yscale)
+    ax.set_xlabel("Water Year")
+    ax.set_ylabel("Peak Flow (cfs)")
+    title = "Annual Peak Flows"
+    if site_name and site_no:
+        title = f"Annual Peak Flows\nUSGS {site_no} - {site_name}"
+    elif site_no:
+        title = f"Annual Peak Flows - USGS {site_no}"
+    ax.set_title(title, fontsize=12, fontweight="bold")
+    ax.grid(True, alpha=0.3)
+    plt.tight_layout()
+    return fig
 
 
 def generate_plots(site_no, plot_data, gage_info, por_start_str=None, por_end_str=None,
@@ -392,6 +438,27 @@ if st.session_state.gage_data:
             for i, plot_key in enumerate(plot_keys):
                 with cols[i]:
                     st.pyplot(site_figs[plot_key])
+
+        # Peak flow time series plot
+        if show_peak_timeseries and site_no in st.session_state.peak_data:
+            peak_df = st.session_state.peak_data[site_no]
+            if peak_df is not None and len(peak_df) > 0:
+                # Build quantiles dict from FFA results if available
+                quantiles = None
+                if show_quantile_lines and site_no in st.session_state.ffa_results:
+                    ffa = st.session_state.ffa_results[site_no]
+                    if not ffa.get("error") and "quantile_df" in ffa:
+                        qdf = ffa["quantile_df"]
+                        quantiles = {
+                            int(row["Return Interval (yr)"]): row["Flow (cfs)"]
+                            for _, row in qdf.iterrows()
+                            if int(row["Return Interval (yr)"]) in show_quantile_lines
+                        }
+                peak_fig = plot_peak_timeseries(
+                    peak_df, gage_info.get("name", ""), site_no,
+                    yscale=yscale_peak, quantiles=quantiles
+                )
+                st.pyplot(peak_fig)
 
         # Frequency curve plot
         if show_freq_curve and site_no in st.session_state.ffa_results:
