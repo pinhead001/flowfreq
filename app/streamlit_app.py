@@ -434,6 +434,7 @@ if st.session_state.gage_data:
         # Peak flow year range (if FFA enabled and peak data exists)
         if enable_ffa and st.session_state.peak_data:
             st.markdown("**Peak Flow Years (for FFA)**")
+            st.caption("Click 'Update Plots' to re-run FFA with new range")
             all_peak_years = []
             for site_no, peak_df in st.session_state.peak_data.items():
                 if peak_df is not None and len(peak_df) > 0:
@@ -773,6 +774,21 @@ if st.session_state.gage_data:
                     summary_stats.to_csv(csv_buffer, index=False)
                     zf.writestr(f"{site_no}/summary_stats.csv", csv_buffer.getvalue())
 
+                # Export peak flow data if available
+                if site_no in st.session_state.peak_data:
+                    peak_df_export = st.session_state.peak_data[site_no]
+                    if peak_df_export is not None and len(peak_df_export) > 0:
+                        # Filter by peak year range if set
+                        if peak_start_year is not None and peak_end_year is not None:
+                            peak_df_export = peak_df_export[
+                                (peak_df_export["water_year"] >= peak_start_year) &
+                                (peak_df_export["water_year"] <= peak_end_year)
+                            ]
+                        if len(peak_df_export) > 0:
+                            csv_buffer = io.StringIO()
+                            peak_df_export.to_csv(csv_buffer, index=False)
+                            zf.writestr(f"{site_no}/peak_flows.csv", csv_buffer.getvalue())
+
                 # Export FFA results
                 if enable_ffa and site_no in st.session_state.ffa_results:
                     ffa_result = st.session_state.ffa_results[site_no]
@@ -794,19 +810,26 @@ if st.session_state.gage_data:
                             # Build max flow label for export if enabled
                             max_flow_label_export = None
                             if label_max_on_freq and site_no in st.session_state.peak_data:
-                                peak_df = st.session_state.peak_data[site_no]
-                                if peak_df is not None and len(peak_df) > 0:
-                                    params = ffa_result.get("parameters", {})
-                                    max_idx = peak_df["peak_flow_cfs"].idxmax()
-                                    max_flow = float(peak_df.loc[max_idx, "peak_flow_cfs"])
-                                    max_year = int(peak_df.loc[max_idx, "water_year"])
-                                    ri = estimate_ri_from_lp3(
-                                        max_flow,
-                                        params.get("mean_log", 0),
-                                        params.get("std_log", 1),
-                                        params.get("skew_weighted", 0)
-                                    ) if params else None
-                                    max_flow_label_export = {"flow": max_flow, "year": max_year, "ri": ri}
+                                peak_df_for_label = st.session_state.peak_data[site_no]
+                                if peak_df_for_label is not None and len(peak_df_for_label) > 0:
+                                    # Filter by peak year range
+                                    if peak_start_year is not None and peak_end_year is not None:
+                                        peak_df_for_label = peak_df_for_label[
+                                            (peak_df_for_label["water_year"] >= peak_start_year) &
+                                            (peak_df_for_label["water_year"] <= peak_end_year)
+                                        ]
+                                    if len(peak_df_for_label) > 0:
+                                        params = ffa_result.get("parameters", {})
+                                        max_idx = peak_df_for_label["peak_flow_cfs"].idxmax()
+                                        max_flow = float(peak_df_for_label.loc[max_idx, "peak_flow_cfs"])
+                                        max_year = int(peak_df_for_label.loc[max_idx, "water_year"])
+                                        ri = estimate_ri_from_lp3(
+                                            max_flow,
+                                            params.get("mean_log", 0),
+                                            params.get("std_log", 1),
+                                            params.get("skew_weighted", 0)
+                                        ) if params else None
+                                        max_flow_label_export = {"flow": max_flow, "year": max_year, "ri": ri}
                             freq_fig_for_export = plot_frequency_curve_streamlit(
                                 ffa_result["b17c"],
                                 site_name=gage_info.get("name", ""),
