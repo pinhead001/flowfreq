@@ -69,12 +69,18 @@ class FloodFrequencyAnalysis(ABC):
         pass
 
     def _compute_weighted_skew(self, station_skew: float) -> Optional[float]:
-        """Compute weighted skew from station and regional values."""
+        """Compute weighted skew from station and regional values.
+
+        Uses the Bulletin 17C Appendix 4 variance formula (eq. A4-2):
+        V(G) = [6N(N-1) / ((N-2)(N+1)(N+3))] * [1 + (6/N)G^2 + (15/N^2)G^4 + ...]
+        """
         if self._regional_skew is None or self._regional_skew_mse is None:
             return None
 
         n = self.n
-        mse_station = (6 / n) * (1 + (6 / n) * station_skew**2 + (15 / (n**2)) * station_skew**4)
+        # B17C exact variance of sample skew (Appendix 4, eq. A4-2)
+        base_var = (6 * n * (n - 1)) / ((n - 2) * (n + 1) * (n + 3))
+        mse_station = base_var * (1 + (6 / n) * station_skew**2 + (15 / (n**2)) * station_skew**4)
 
         w_regional = mse_station / (mse_station + self._regional_skew_mse)
         w_station = self._regional_skew_mse / (mse_station + self._regional_skew_mse)
@@ -392,12 +398,27 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         hist_end = None
         hist_threshold = None
 
-        if self._historical_peaks:
+        # Check for explicit perception thresholds covering pre-systematic period
+        for (start, end), threshold in self._perception_thresholds.items():
+            if end < sys_start and threshold > 0:
+                # This is a historical perception period
+                if hist_start is None or start < hist_start:
+                    hist_start = start
+                if hist_end is None or end > hist_end:
+                    hist_end = end
+                # Use the perception threshold (not max flow)
+                if hist_threshold is None or threshold < hist_threshold:
+                    hist_threshold = threshold
+
+        # If historical peaks exist but no explicit thresholds, derive from peaks
+        if self._historical_peaks and hist_threshold is None:
             hist_years = [h[0] for h in self._historical_peaks]
-            hist_start = min(hist_years)
-            hist_end = max(max(hist_years), sys_start - 1)
+            if hist_start is None:
+                hist_start = min(hist_years)
+            if hist_end is None:
+                hist_end = max(max(hist_years), sys_start - 1)
             hist_threshold = max(h[1] for h in self._historical_peaks)
-        elif gaps:
+        elif gaps and hist_threshold is None:
             first_gap = gaps[0]
             pre_gap_mask = self._water_years < first_gap
             if np.any(pre_gap_mask):
