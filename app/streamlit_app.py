@@ -870,6 +870,6 @@ if st.session_state.gage_data:
 # Footer
 st.sidebar.markdown("---")
 st.sidebar.markdown("""
-    **hydrolib** v0.1.1
+    **hydrolib** v0.1.2
     [GitHub](https://github.com/pinhead001/hydrolib)
     """)
