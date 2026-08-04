@@ -68,16 +68,27 @@ class FloodFrequencyAnalysis(ABC):
     def run_analysis(self) -> FrequencyResults:
         pass
 
-    def _compute_weighted_skew(self, station_skew: float) -> Optional[float]:
+    def _compute_weighted_skew(
+        self, station_skew: float, n_effective: Optional[int] = None
+    ) -> Optional[float]:
         """Compute weighted skew from station and regional values.
 
         Uses the Bulletin 17C Appendix 4 variance formula (eq. A4-2):
         V(G) = [6N(N-1) / ((N-2)(N+1)(N+3))] * [1 + (6/N)G^2 + (15/N^2)G^4 + ...]
+
+        Parameters
+        ----------
+        station_skew : float
+            Station skew coefficient.
+        n_effective : int, optional
+            Effective sample size for variance calculation. If None, uses self.n.
+            For EMA with historical data, this should be the count of point
+            observations (systematic + historical peaks).
         """
         if self._regional_skew is None or self._regional_skew_mse is None:
             return None
 
-        n = self.n
+        n = n_effective if n_effective is not None else self.n
         # B17C exact variance of sample skew (Appendix 4, eq. A4-2)
         base_var = (6 * n * (n - 1)) / ((n - 2) * (n + 1) * (n + 3))
         mse_station = base_var * (1 + (6 / n) * station_skew**2 + (15 / (n**2)) * station_skew**4)
@@ -732,7 +743,11 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
             std_log = new_std
             skew_station = new_skew
 
-        skew_weighted = self._compute_weighted_skew(skew_station)
+        # For EMA with historical data, use the total number of intervals as the
+        # effective sample size for skew variance calculation. This accounts for
+        # information from both observed peaks and censored intervals.
+        n_intervals = len(self._intervals)
+        skew_weighted = self._compute_weighted_skew(skew_station, n_effective=n_intervals)
         skew_used = skew_weighted if skew_weighted is not None else skew_station
 
         n_systematic = sum(1 for i in self._intervals if i.is_systematic and not i.is_censored)

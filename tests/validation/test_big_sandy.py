@@ -148,10 +148,8 @@ class TestBigSandyQuantiles:
 
         ri = 1 / aep
         print(f"\nQ{ri:.1f} (AEP={aep}): expected={expected_flow:.2f}, actual={actual_flow:.2f}, diff={pct_diff:.2f}%")
-        # Note: Current EMA implementation has ~3-4% deviation at extreme tails due to
-        # differences in how station skew is computed with historical data.
-        # Using 5% tolerance; target is <2% after EMA skew calculation fixes.
-        assert pct_diff < 5.0, f"Q{ri:.0f} differs by {pct_diff:.2f}%"
+        # Quantiles now within 2% after EMA skew weighting fix (using n_intervals)
+        assert pct_diff < 2.0, f"Q{ri:.0f} differs by {pct_diff:.2f}%"
 
 
 class TestBigSandyConfidenceIntervals:
@@ -195,11 +193,10 @@ class TestBigSandyConfidenceIntervals:
         print(f"              actual=({lower:.2f}, {upper:.2f})")
         print(f"              diff=(lower:{lower_diff:.2f}%, upper:{upper_diff:.2f}%)")
 
-        # CI tolerance is wider due to skew deviation affecting K-factors
-        # Upper bounds at high return periods are most sensitive (~20% max)
-        # Target is <5% after EMA skew calculation improvements
-        assert lower_diff < 10, f"Lower CI differs by {lower_diff:.2f}%"
-        assert upper_diff < 25, f"Upper CI differs by {upper_diff:.2f}%"
+        # CI tolerance: lower bounds within 5%, upper bounds within 20%
+        # Upper CI at extreme tails (Q100) still ~17% off due to skew sensitivity
+        assert lower_diff < 5, f"Lower CI differs by {lower_diff:.2f}%"
+        assert upper_diff < 20, f"Upper CI differs by {upper_diff:.2f}%"
 
 
 class TestBigSandySummary:
