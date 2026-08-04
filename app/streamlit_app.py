@@ -662,6 +662,10 @@ if st.session_state.gage_data:
                 skew_tables = compute_skew_tables(ffa_result, selected_skew_labels)
 
                 with st.expander("Flood Frequency Results", expanded=False):
+                    # Show analysis year range
+                    if peak_start_year is not None and peak_end_year is not None:
+                        st.info(f"Analysis Period: {peak_start_year} - {peak_end_year}")
+
                     # Convergence badge
                     if ffa_result.get("converged"):
                         st.success("EMA Converged")
