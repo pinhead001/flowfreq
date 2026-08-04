@@ -193,10 +193,11 @@ class TestBigSandyConfidenceIntervals:
         print(f"              actual=({lower:.2f}, {upper:.2f})")
         print(f"              diff=(lower:{lower_diff:.2f}%, upper:{upper_diff:.2f}%)")
 
-        # CI tolerance: lower bounds within 5%, upper bounds within 20%
-        # Upper CI at extreme tails (Q100) still ~17% off due to skew sensitivity
-        assert lower_diff < 5, f"Lower CI differs by {lower_diff:.2f}%"
-        assert upper_diff < 20, f"Upper CI differs by {upper_diff:.2f}%"
+        # CI bounds now include a skew-uncertainty variance term (propagating
+        # skew_used_mse through dK/dG), which roughly symmetrized and reduced
+        # error at extreme return periods. Q100 is still the worst case (~10%).
+        assert lower_diff < 10, f"Lower CI differs by {lower_diff:.2f}%"
+        assert upper_diff < 12, f"Upper CI differs by {upper_diff:.2f}%"
 
 
 class TestBigSandySummary:

@@ -147,6 +147,7 @@ class FrequencyResults:
     confidence_limits: pd.DataFrame = field(default_factory=pd.DataFrame)
     ema_iterations: Optional[int] = None
     ema_converged: Optional[bool] = None
+    skew_used_mse: Optional[float] = None
 
 
 # =============================================================================
@@ -167,6 +168,16 @@ def kfactor(skew: float, aep: float) -> float:
 
     k = skew / 6
     return (2 / skew) * ((1 + k * z - k * k) ** 3 - 1)
+
+
+def kfactor_skew_derivative(skew: float, aep: float, h: float = 1e-4) -> float:
+    """Numerical derivative dK/dG of the LP3 K-factor with respect to skew.
+
+    Used to propagate skew estimation uncertainty (MSE of the weighted skew)
+    into the confidence interval variance for a quantile estimate, per the
+    Bulletin 17B/17C approximate variance formula.
+    """
+    return (kfactor(skew + h, aep) - kfactor(skew - h, aep)) / (2 * h)
 
 
 def kfactor_array(skew: float, aep: np.ndarray) -> np.ndarray:

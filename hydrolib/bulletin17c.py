@@ -25,6 +25,7 @@ from .core import (
     grubbs_beck_critical_value,
     kfactor,
     kfactor_array,
+    kfactor_skew_derivative,
     log_pearson3_cdf,
     log_pearson3_pdf,
 )
@@ -73,8 +74,27 @@ class FloodFrequencyAnalysis(ABC):
     ) -> Optional[float]:
         """Compute weighted skew from station and regional values.
 
+        See `_compute_skew_weighting` for the underlying formula and MSE.
+        Retained for backward compatibility; prefer `_compute_skew_weighting`
+        when the MSE of the resulting skew is also needed (e.g. for CI width).
+        """
+        skew_weighted, _ = self._compute_skew_weighting(station_skew, n_effective)
+        return skew_weighted
+
+    def _compute_skew_weighting(
+        self, station_skew: float, n_effective: Optional[int] = None
+    ) -> Tuple[Optional[float], float]:
+        """Compute weighted skew and its mean-square error.
+
         Uses the Bulletin 17C Appendix 4 variance formula (eq. A4-2):
         V(G) = [6N(N-1) / ((N-2)(N+1)(N+3))] * [1 + (6/N)G^2 + (15/N^2)G^4 + ...]
+
+        When a regional skew is supplied, the weighted skew's MSE is the
+        harmonic combination of the station and regional MSEs:
+        V(G_weighted) = mse_station * mse_regional / (mse_station + mse_regional)
+        (the variance-minimizing combination of two independent estimators).
+        When no regional skew is supplied, the MSE returned is simply the
+        station skew's own sampling variance.
 
         Parameters
         ----------
@@ -84,19 +104,30 @@ class FloodFrequencyAnalysis(ABC):
             Effective sample size for variance calculation. If None, uses self.n.
             For EMA with historical data, this should be the count of point
             observations (systematic + historical peaks).
-        """
-        if self._regional_skew is None or self._regional_skew_mse is None:
-            return None
 
+        Returns
+        -------
+        tuple[float or None, float]
+            (weighted_skew, skew_mse). weighted_skew is None if no regional
+            skew was supplied; skew_mse is always the MSE of whichever skew
+            (station or weighted) is ultimately used.
+        """
         n = n_effective if n_effective is not None else self.n
         # B17C exact variance of sample skew (Appendix 4, eq. A4-2)
         base_var = (6 * n * (n - 1)) / ((n - 2) * (n + 1) * (n + 3))
         mse_station = base_var * (1 + (6 / n) * station_skew**2 + (15 / (n**2)) * station_skew**4)
 
+        if self._regional_skew is None or self._regional_skew_mse is None:
+            return None, mse_station
+
         w_regional = mse_station / (mse_station + self._regional_skew_mse)
         w_station = self._regional_skew_mse / (mse_station + self._regional_skew_mse)
 
-        return w_station * station_skew + w_regional * self._regional_skew
+        skew_weighted = w_station * station_skew + w_regional * self._regional_skew
+        mse_weighted = (mse_station * self._regional_skew_mse) / (
+            mse_station + self._regional_skew_mse
+        )
+        return skew_weighted, mse_weighted
 
     def compute_quantiles(self, aep: np.ndarray = None) -> pd.DataFrame:
         """Compute flood frequency quantiles."""
@@ -130,9 +161,26 @@ class FloodFrequencyAnalysis(ABC):
         n = self._results.n_systematic or self.n
         K = kfactor_array(self._results.skew_used, aep)
         G = self._results.skew_used
+        std_log = self._results.std_log
 
-        var_factor = 1 / n + K**2 * (1 + 0.75 * G**2) / (2 * (n - 1))
-        se_log = self._results.std_log * np.sqrt(var_factor)
+        # Classic Bulletin 17B/17C approximate variance of the LP3 quantile
+        # estimate, in two parts:
+        #  1. Sampling variance of mean/std, propagated through K (eq. B17B
+        #     App. 9): Var/S^2 = (1/n) * [1 + K*G + (K^2/2)*(1 + 0.75*G^2)]
+        #  2. Sampling variance of the skew itself (skew_used_mse), propagated
+        #     through the sensitivity of K to G via (dK/dG)^2. This term is
+        #     small for near-median AEPs but dominates at extreme return
+        #     periods, where K is large and most sensitive to skew.
+        moment_var_factor = (1 / n) * (1 + K * G + (K**2 / 2) * (1 + 0.75 * G**2))
+        moment_var_factor = np.maximum(moment_var_factor, 0.0)
+        var_log = std_log**2 * moment_var_factor
+
+        skew_mse = self._results.skew_used_mse
+        if skew_mse is not None and skew_mse > 0:
+            dK_dG = np.array([kfactor_skew_derivative(G, float(p)) for p in aep])
+            var_log = var_log + (dK_dG**2) * (std_log**2) * skew_mse
+
+        se_log = np.sqrt(var_log)
 
         log_Q = self._results.mean_log + K * self._results.std_log
         log_lower = log_Q - z_alpha * se_log
@@ -334,7 +382,7 @@ class MethodOfMoments(FloodFrequencyAnalysis):
 
         skew_station = n * np.sum((log_flows - mean_log) ** 3) / ((n - 1) * (n - 2) * std_log**3)
 
-        skew_weighted = self._compute_weighted_skew(skew_station)
+        skew_weighted, skew_used_mse = self._compute_skew_weighting(skew_station)
         skew_used = skew_weighted if skew_weighted is not None else skew_station
 
         k_n = grubbs_beck_critical_value(n)
@@ -354,6 +402,7 @@ class MethodOfMoments(FloodFrequencyAnalysis):
             skew_regional=self._regional_skew,
             skew_weighted=skew_weighted,
             skew_used=skew_used,
+            skew_used_mse=skew_used_mse,
             low_outlier_threshold=low_outlier_threshold,
             mgb_critical_value=k_n,
             method=AnalysisMethod.MOM,
@@ -743,16 +792,25 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
             std_log = new_std
             skew_station = new_skew
 
-        # For EMA with historical data, use the total number of intervals as the
-        # effective sample size for skew variance calculation. This accounts for
-        # information from both observed peaks and censored intervals.
-        n_intervals = len(self._intervals)
-        skew_weighted = self._compute_weighted_skew(skew_station, n_effective=n_intervals)
-        skew_used = skew_weighted if skew_weighted is not None else skew_station
-
         n_systematic = sum(1 for i in self._intervals if i.is_systematic and not i.is_censored)
         n_historical = sum(1 for i in self._intervals if i.is_historical)
         n_censored = sum(1 for i in self._intervals if i.is_censored)
+
+        # For the weighted-skew *point estimate*, use the total number of
+        # intervals as the effective sample size. This accounts for information
+        # from both observed peaks and censored intervals and best matches
+        # PeakfqSA's weighted skew value.
+        n_intervals = len(self._intervals)
+        skew_weighted, _ = self._compute_skew_weighting(skew_station, n_effective=n_intervals)
+        skew_used = skew_weighted if skew_weighted is not None else skew_station
+
+        # For the skew's *variance* (used to widen confidence intervals), use
+        # the count of actual observations (systematic + historical) instead.
+        # Using n_intervals here would understate skew uncertainty, since
+        # censored intervals contribute much less information about skew than
+        # true observations do.
+        n_observed = n_systematic + n_historical
+        _, skew_used_mse = self._compute_skew_weighting(skew_station, n_effective=n_observed)
 
         self._results = FrequencyResults(
             n_peaks=len(self._intervals),
@@ -766,6 +824,7 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
             skew_regional=self._regional_skew,
             skew_weighted=skew_weighted,
             skew_used=skew_used,
+            skew_used_mse=skew_used_mse,
             low_outlier_threshold=low_threshold,
             mgb_critical_value=grubbs_beck_critical_value(n),
             method=AnalysisMethod.EMA,
