@@ -154,12 +154,24 @@ class FrequencyResults:
 # =============================================================================
 
 
+#: Maximum absolute skew coefficient considered physically valid for LP3
+#: fitting, matching the domain of the Bulletin 17B/17C Appendix 3
+#: frequency-factor tables. Skew estimates are clipped to this range
+#: because both the Wilson-Hilferty K-factor approximation and the
+#: gamma-moment machinery used by EMA become numerically degenerate
+#: (shape parameter alpha = 4/skew**2 collapses toward 0) well before
+#: this bound, and no real annual-peak record legitimately produces a
+#: station skew this extreme.
+MAX_ABS_SKEW: float = 3.0
+
+
 @lru_cache(maxsize=256)
 def kfactor(skew: float, aep: float) -> float:
     """
     Calculate K factor for Log-Pearson Type III distribution.
     Uses Wilson-Hilferty approximation. Cached for performance.
     """
+    skew = max(-MAX_ABS_SKEW, min(MAX_ABS_SKEW, skew))
     z = ndtri(1 - aep)
 
     if abs(skew) < 0.001:

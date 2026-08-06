@@ -18,6 +18,7 @@ from scipy import stats
 from scipy.special import gammainc, gammaincc, gammaln, ndtri
 
 from .core import (
+    MAX_ABS_SKEW,
     AnalysisMethod,
     EMAParameters,
     FlowInterval,
@@ -316,6 +317,7 @@ class MethodOfMoments(FloodFrequencyAnalysis):
         std_log = np.std(log_flows, ddof=1)
 
         skew_station = n * np.sum((log_flows - mean_log) ** 3) / ((n - 1) * (n - 2) * std_log**3)
+        skew_station = float(np.clip(skew_station, -MAX_ABS_SKEW, MAX_ABS_SKEW))
 
         skew_weighted = self._compute_weighted_skew(skew_station)
         skew_used = skew_weighted if skew_weighted is not None else skew_station
@@ -647,6 +649,7 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         if n > 2:
             m3 = sum_x3 - 3 * new_mean * sum_x2 + 2 * n * new_mean**3
             new_skew = (n * m3) / ((n - 1) * (n - 2) * new_std**3)
+            new_skew = float(np.clip(new_skew, -MAX_ABS_SKEW, MAX_ABS_SKEW))
         else:
             new_skew = skew
 
@@ -684,6 +687,7 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         mean_log = np.mean(log_flows)
         std_log = np.std(log_flows, ddof=1)
         skew_station = n * np.sum((log_flows - mean_log) ** 3) / ((n - 1) * (n - 2) * std_log**3)
+        skew_station = float(np.clip(skew_station, -MAX_ABS_SKEW, MAX_ABS_SKEW))
 
         low_threshold, n_low_outliers = self._multiple_grubbs_beck()
         self._ema_params.low_outlier_threshold = low_threshold
