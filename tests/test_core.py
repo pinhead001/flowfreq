@@ -8,14 +8,54 @@ This file covers the PeakFQ-style exact-gamma LP3 functions, which had none.
 from __future__ import annotations
 
 import numpy as np
+import pandas as pd
 import pytest
 from scipy import stats
 
 from hydrolib.core import (
+    YEAR_TYPES,
+    assign_year_label,
     compute_ci_lp3,
     lp3_frequency_factor_peakfq,
     lp3_quantile_peakfq,
 )
+
+
+class TestAssignYearLabel:
+    """Tests for the year-definition labeling shared by lowflow and regime.
+
+    Used under two public names -- hydrolib.lowflow.LOW_FLOW_YEAR_TYPES is
+    an alias of YEAR_TYPES defined here -- so this is the single place these
+    boundary rules are pinned down.
+    """
+
+    def test_climatic_year_labeled_by_starting_calendar_year(self) -> None:
+        """Apr 1 Y - Mar 31 Y+1 is climatic year Y (majority-of-months convention)."""
+        dates = pd.DatetimeIndex(
+            ["1999-04-01", "1999-12-31", "2000-01-01", "2000-03-31", "2000-04-01"]
+        )
+        labels = assign_year_label(dates, "climatic")
+        assert list(labels) == [1999, 1999, 1999, 1999, 2000]
+
+    def test_water_year_matches_usgs_download_peak_flow_convention(self) -> None:
+        """Must agree with the inline water_year logic in usgs.download_peak_flow:
+        Oct 1 (Y-1) - Sep 30 Y is water year Y."""
+        dates = pd.DatetimeIndex(
+            ["1998-10-01", "1998-12-31", "1999-01-01", "1999-09-30", "1999-10-01"]
+        )
+        labels = assign_year_label(dates, "water")
+        assert list(labels) == [1999, 1999, 1999, 1999, 2000]
+
+    def test_calendar_year_is_trivial(self) -> None:
+        dates = pd.DatetimeIndex(["2020-01-01", "2020-12-31"])
+        assert list(assign_year_label(dates, "calendar")) == [2020, 2020]
+
+    def test_unknown_year_type_raises(self) -> None:
+        with pytest.raises(ValueError, match="year_type must be one of"):
+            assign_year_label(pd.DatetimeIndex(["2020-01-01"]), "fiscal")
+
+    def test_year_types_tuple_contents(self) -> None:
+        assert set(YEAR_TYPES) == {"climatic", "water", "calendar"}
 
 
 def _exact_k(p: float, skew: float) -> float:

@@ -31,6 +31,16 @@ from .core import (
 from .flowio import load_flow_frame, save_flow_frame
 from .hydrograph import Hydrograph
 from .lowflow import LOW_FLOW_YEAR_TYPES, LowFlowFrequency, annual_minimum_flow
+from .regime import (
+    BASEFLOW_METHODS,
+    FlowRegime,
+    baseflow_index,
+    monthly_flow_summary,
+    richards_baker_flashiness,
+    seasonal_flow_summary,
+    separate_baseflow,
+    tqmean,
+)
 from .report import HydroReport
 from .usgs import (
     GageAttributes,
@@ -145,6 +155,15 @@ __all__ = [
     "LowFlowFrequency",
     "annual_minimum_flow",
     "LOW_FLOW_YEAR_TYPES",
+    # Flow regime metrics
+    "FlowRegime",
+    "richards_baker_flashiness",
+    "tqmean",
+    "baseflow_index",
+    "separate_baseflow",
+    "monthly_flow_summary",
+    "seasonal_flow_summary",
+    "BASEFLOW_METHODS",
     # USGS data retrieval
     "USGSgage",
     "USGSGage",  # Alias for backwards compatibility

@@ -66,37 +66,20 @@ import numpy as np
 import pandas as pd
 from scipy.special import ndtri
 
-from .core import MAX_ABS_SKEW, LowFlowResults, lp3_frequency_factor_peakfq
+from .core import (
+    MAX_ABS_SKEW,
+    YEAR_TYPES,
+    LowFlowResults,
+    assign_year_label,
+    lp3_frequency_factor_peakfq,
+)
 
 logger = logging.getLogger(__name__)
 
 #: Year definitions accepted by annual_minimum_flow and LowFlowFrequency.
-LOW_FLOW_YEAR_TYPES = ("climatic", "water", "calendar")
-
-
-def _low_flow_year_label(dates: pd.DatetimeIndex, year_type: str) -> np.ndarray:
-    """Assign each date the low-flow year it belongs to.
-
-    Parameters
-    ----------
-    dates : pd.DatetimeIndex
-    year_type : str
-        One of "climatic" (Apr 1 - Mar 31, labeled by the starting year),
-        "water" (Oct 1 - Sep 30, labeled by the ending year -- matching
-        :meth:`hydrolib.usgs.USGSgage.download_peak_flow`'s water-year
-        convention), or "calendar".
-
-    Returns
-    -------
-    np.ndarray of int
-    """
-    if year_type == "calendar":
-        return dates.year.to_numpy()
-    if year_type == "water":
-        return np.where(dates.month >= 10, dates.year + 1, dates.year)
-    if year_type == "climatic":
-        return np.where(dates.month >= 4, dates.year, dates.year - 1)
-    raise ValueError(f"year_type must be one of {LOW_FLOW_YEAR_TYPES}, got {year_type!r}")
+#: Alias of hydrolib.core.YEAR_TYPES, kept under this name for backward
+#: compatibility with the public name this module already exports.
+LOW_FLOW_YEAR_TYPES = YEAR_TYPES
 
 
 def annual_minimum_flow(
@@ -176,8 +159,8 @@ def annual_minimum_flow(
     flows = flows.where(flows >= 0)
 
     n_day_mean = flows.rolling(window=n_day, min_periods=n_day).mean()
-    window_years = _low_flow_year_label(pd.DatetimeIndex(n_day_mean.index), year_type)
-    daily_years = _low_flow_year_label(full_idx, year_type)
+    window_years = assign_year_label(pd.DatetimeIndex(n_day_mean.index), year_type)
+    daily_years = assign_year_label(full_idx, year_type)
 
     windows = pd.DataFrame(
         {"year": window_years, "flow_cfs": n_day_mean.to_numpy()}, index=n_day_mean.index

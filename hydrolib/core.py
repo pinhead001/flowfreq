@@ -197,6 +197,45 @@ class LowFlowResults:
 # =============================================================================
 
 
+#: Year definitions shared by hydrolib.lowflow and hydrolib.regime for
+#: grouping a daily series into annual periods.
+YEAR_TYPES = ("climatic", "water", "calendar")
+
+
+def assign_year_label(dates: pd.DatetimeIndex, year_type: str) -> np.ndarray:
+    """Assign each date the annual period it belongs to.
+
+    Parameters
+    ----------
+    dates : pd.DatetimeIndex
+    year_type : str
+        One of:
+
+        - "water": Oct 1 (Y-1) - Sep 30 Y, labeled Y (matches
+          :meth:`hydrolib.usgs.USGSgage.download_peak_flow`'s inline
+          water-year convention).
+        - "climatic": Apr 1 Y - Mar 31 (Y+1), labeled Y. Follows Riggs
+          (1972), USGS Techniques of Water-Resources Investigations Book 4
+          Chapter B1, chosen for low-flow analysis to avoid splitting a
+          single connected low-flow event across a year boundary.
+        - "calendar": Jan 1 - Dec 31 Y, labeled Y.
+
+        Both "water" and "climatic" label a year by the calendar year
+        containing the majority of its months.
+
+    Returns
+    -------
+    np.ndarray of int
+    """
+    if year_type == "calendar":
+        return dates.year.to_numpy()
+    if year_type == "water":
+        return np.where(dates.month >= 10, dates.year + 1, dates.year)
+    if year_type == "climatic":
+        return np.where(dates.month >= 4, dates.year, dates.year - 1)
+    raise ValueError(f"year_type must be one of {YEAR_TYPES}, got {year_type!r}")
+
+
 #: Maximum absolute skew coefficient considered physically valid for LP3
 #: fitting, matching the domain of the Bulletin 17B/17C Appendix 3
 #: frequency-factor tables. Skew estimates are clipped to this range
