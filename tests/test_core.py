@@ -1,0 +1,121 @@
+"""Tests for hydrolib.core LP3 utility functions not already covered elsewhere.
+
+kfactor and grubbs_beck_critical_value have existing coverage under
+tests/test_bulletin17c.py::TestUtilities (added alongside bulletin17c.py).
+This file covers the PeakFQ-style exact-gamma LP3 functions, which had none.
+"""
+
+from __future__ import annotations
+
+import numpy as np
+import pytest
+from scipy import stats
+
+from hydrolib.core import (
+    compute_ci_lp3,
+    lp3_frequency_factor_peakfq,
+    lp3_quantile_peakfq,
+)
+
+
+def _exact_k(p: float, skew: float) -> float:
+    """Reference implementation: reflect explicitly rather than sharing code
+    with lp3_frequency_factor_peakfq, so this doesn't just check the function
+    agrees with itself."""
+    if abs(skew) < 1e-8:
+        return stats.norm.ppf(p)
+    alpha = 4.0 / skew**2
+    if skew > 0:
+        return (skew / 2.0) * (stats.gamma.ppf(p, alpha) - alpha)
+    return (skew / 2.0) * (stats.gamma.ppf(1.0 - p, alpha) - alpha)
+
+
+class TestLp3FrequencyFactorPeakfq:
+    """Regression tests for the negative-skew sign inversion.
+
+    Before the fix, lp3_frequency_factor_peakfq(p, skew) evaluated
+    gamma.ppf(p, alpha) unconditionally. For skew < 0 the correct quantile
+    needs gamma.ppf(1 - p, alpha) instead (the Pearson III lower tail maps to
+    the gamma distribution's upper tail once skew flips sign) -- so for any
+    negative-skew fit the function returned a K-factor that DECREASED as the
+    non-exceedance probability increased, i.e. quantiles ran backwards.
+    """
+
+    @pytest.mark.parametrize("skew", [-1.2, -0.6, -0.302, -0.05, 0.0, 0.05, 0.302, 0.6, 1.2])
+    def test_matches_exact_reflection(self, skew: float) -> None:
+        """Matches an independently-written reflected gamma quantile, for both signs."""
+        for p in (0.01, 0.02, 0.10, 0.30, 0.50, 0.70, 0.90, 0.98, 0.99):
+            assert lp3_frequency_factor_peakfq(p, skew) == pytest.approx(
+                _exact_k(p, skew), abs=1e-9
+            )
+
+    @pytest.mark.parametrize("skew", [-1.2, -0.6, -0.302, -0.05, 0.0, 0.05, 0.302, 0.6, 1.2])
+    def test_monotonic_increasing_in_p(self, skew: float) -> None:
+        """K must increase with non-exceedance probability regardless of skew sign.
+
+        This is the direct symptom of the bug: a negative-skew K-factor that
+        decreases with p silently inverts every quantile computed from it.
+        """
+        p = np.linspace(0.001, 0.999, 200)
+        K = np.array([lp3_frequency_factor_peakfq(pi, skew) for pi in p])
+        assert np.all(np.diff(K) > 0)
+
+    def test_negative_skew_100yr_factor_is_positive(self) -> None:
+        """Concrete symptom check at the national B17C regional skew (-0.302).
+
+        A 100-year (non-exceedance p=0.99) K-factor must be positive -- it
+        multiplies std_log to produce a flow ABOVE the mean. The pre-fix code
+        returned a large negative K here.
+        """
+        K = lp3_frequency_factor_peakfq(0.99, -0.302)
+        assert K > 0
+
+    def test_zero_skew_matches_normal_quantile(self) -> None:
+        """Zero skew is the shared boundary case between the two branches."""
+        K = lp3_frequency_factor_peakfq(0.98, 0.0)
+        assert K == pytest.approx(stats.norm.ppf(0.98))
+
+    def test_positive_and_negative_skew_are_mirror_images(self) -> None:
+        """K(p, -G) should equal -K(1-p, G): flipping skew sign and the tail
+        together is a symmetry of the Pearson III family."""
+        for p in (0.02, 0.10, 0.50, 0.90, 0.98):
+            assert lp3_frequency_factor_peakfq(p, -0.6) == pytest.approx(
+                -lp3_frequency_factor_peakfq(1 - p, 0.6), abs=1e-9
+            )
+
+
+class TestLp3QuantilePeakfq:
+    """Tests for the quantile (flow-value) wrapper, both skew signs."""
+
+    def test_increasing_with_return_period_positive_skew(self) -> None:
+        vals = [lp3_quantile_peakfq(3.0, 0.25, 0.4, T) for T in (2, 10, 50, 100)]
+        assert vals == sorted(vals)
+
+    def test_increasing_with_return_period_negative_skew(self) -> None:
+        """The case that was broken: negative skew must still increase with T."""
+        vals = [lp3_quantile_peakfq(3.0, 0.25, -0.6, T) for T in (2, 10, 50, 100)]
+        assert vals == sorted(vals)
+
+    def test_median_flow_near_mean_for_symmetric_case(self) -> None:
+        """T=2 (median) with zero skew should recover 10**mu."""
+        q = lp3_quantile_peakfq(3.0, 0.25, 0.0, 2)
+        assert q == pytest.approx(10**3.0, rel=1e-3)
+
+
+class TestComputeCiLp3:
+    """Tests for confidence-interval computation, both skew signs."""
+
+    def test_lower_below_estimate_below_upper_negative_skew(self) -> None:
+        """The CI must bracket the point estimate -- this fails silently
+        under the pre-fix sign bug for negative skew."""
+        estimate, lower, upper = compute_ci_lp3(3.0, 0.25, -0.6, n=40, T=100)
+        assert lower < estimate < upper
+
+    def test_lower_below_estimate_below_upper_positive_skew(self) -> None:
+        estimate, lower, upper = compute_ci_lp3(3.0, 0.25, 0.6, n=40, T=100)
+        assert lower < estimate < upper
+
+    def test_wider_ci_for_longer_return_period(self) -> None:
+        _, lower10, upper10 = compute_ci_lp3(3.0, 0.25, -0.302, n=40, T=10)
+        _, lower100, upper100 = compute_ci_lp3(3.0, 0.25, -0.302, n=40, T=100)
+        assert (upper100 - lower100) > (upper10 - lower10)

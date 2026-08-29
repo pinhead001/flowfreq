@@ -149,6 +149,49 @@ class FrequencyResults:
     ema_converged: Optional[bool] = None
 
 
+@dataclass
+class LowFlowResults:
+    """
+    Results from low-flow frequency analysis.
+
+    Mirrors :class:`FrequencyResults`' shape so the two analyses read alike.
+    Fields with no high-flow analogue: `n_zero_years` and `p_zero`, from the
+    conditional-probability adjustment for zero-flow years (see
+    :mod:`hydrolib.lowflow`). There is no regional-skew map or MGBT-style
+    outlier test for the low-flow tail, so those fields have no counterpart
+    here.
+
+    Attributes
+    ----------
+    n_years : int
+        Number of years used in the fit (zero-flow years included).
+    n_zero_years : int
+        Number of those years whose annual minimum n-day mean flow is zero.
+    p_zero : float
+        ``n_zero_years / n_years``, the fraction of years with no flow.
+    n_day : int
+        Duration of the annual minimum flow (e.g. 7 for 7Q10/7Q2).
+    year_type : str
+        Year definition the annual minima were computed over: "climatic",
+        "water", or "calendar".
+    distribution : str
+        Distribution fit to the positive-flow years: "lp3" or "lognormal".
+    """
+
+    n_years: int
+    n_zero_years: int
+    p_zero: float
+    n_day: int
+    year_type: str
+    distribution: str
+    mean_log: float
+    std_log: float
+    skew_station: float
+    skew_used: float
+    quantiles: pd.DataFrame = field(default_factory=pd.DataFrame)
+    confidence_limits: pd.DataFrame = field(default_factory=pd.DataFrame)
+
+
 # =============================================================================
 # UTILITY FUNCTIONS WITH CACHING
 # =============================================================================
@@ -282,8 +325,11 @@ def lp3_frequency_factor_peakfq(p: float, skew: float) -> float:
     """
     Calculate LP3 frequency factor using PeakFQ methodology.
 
-    Uses gamma distribution transformation for skewed distributions,
-    falls back to normal distribution for zero skew.
+    Uses the exact gamma-distribution transformation (the same inverse-CDF
+    approach as the peakfqr/PeakFQ Fortran reference, per ``qP3sub``), not the
+    Wilson-Hilferty approximation used by :func:`kfactor` elsewhere in this
+    module. Falls back to the normal distribution for zero skew, where the
+    two are identical.
 
     Parameters
     ----------
@@ -296,12 +342,24 @@ def lp3_frequency_factor_peakfq(p: float, skew: float) -> float:
     -------
     float
         Frequency factor K
+
+    Notes
+    -----
+    For negative skew the gamma distribution is reflected: the Pearson III
+    variate's lower tail (small ``log_Q``) corresponds to the gamma
+    distribution's *upper* tail, so the quantile must be taken at ``1 - p``,
+    not ``p``. This mirrors the reflection already used by
+    :func:`log_pearson3_cdf` for the CDF direction. Getting this backwards
+    makes K decrease as p increases, which silently inverts every quantile
+    for any negative-skew fit -- the national B17C regional skew (-0.302) is
+    negative, so this is not an edge case.
     """
     if abs(skew) < 1e-8:
         return stats.norm.ppf(p)
     alpha = 4 / (skew**2)
     beta = skew / 2
-    return beta * (stats.gamma.ppf(p, a=alpha) - alpha)
+    q = p if skew > 0 else 1 - p
+    return beta * (stats.gamma.ppf(q, a=alpha) - alpha)
 
 
 def lp3_quantile_peakfq(mu: float, sigma: float, skew: float, T: float) -> float:
