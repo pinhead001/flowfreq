@@ -35,6 +35,8 @@ from .regime import (
     BASEFLOW_METHODS,
     FlowRegime,
     baseflow_index,
+    diel_variation,
+    diel_variation_summary,
     monthly_flow_summary,
     richards_baker_flashiness,
     seasonal_flow_summary,
@@ -164,6 +166,8 @@ __all__ = [
     "monthly_flow_summary",
     "seasonal_flow_summary",
     "BASEFLOW_METHODS",
+    "diel_variation",
+    "diel_variation_summary",
     # USGS data retrieval
     "USGSgage",
     "USGSGage",  # Alias for backwards compatibility

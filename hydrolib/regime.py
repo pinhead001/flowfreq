@@ -905,3 +905,171 @@ class FlowRegime:
             total_base += np.nansum(group["baseflow_cfs"].to_numpy())
             total_flow += np.nansum(group["flow_cfs"].to_numpy())
         return float(total_base / total_flow) if total_flow > 0 else np.nan
+
+
+# =============================================================================
+# Diel variation
+# =============================================================================
+
+
+def diel_variation(
+    iv_data: pd.DataFrame, tz: str, min_completeness_frac: float = 0.9
+) -> pd.DataFrame:
+    """Per-day diel (within-day) variation statistics from an instantaneous series.
+
+    Computes daily range, coefficient of variation, and related summary
+    statistics for each local calendar day. This is descriptive only: it
+    quantifies how much a stream's flow swings within a day, not why. A
+    snowmelt-driven diel signal (afternoon melt pulse, overnight recession)
+    and a hydropeaking or diversion-driven signal can produce a similar
+    range or CV, and telling them apart requires knowledge of upstream
+    operations (reservoirs, diversions, hydropower schedules) that this
+    function has no way to know and does not attempt to infer. Treat every
+    number this returns as "how much flow varied that day," not as an
+    automatic natural/regulated classification.
+
+    Parameters
+    ----------
+    iv_data : pd.DataFrame
+        Instantaneous flow with a tz-aware datetime index and a ``flow_cfs``
+        column -- the shape returned by
+        :meth:`hydrolib.usgs.USGSgage.download_instantaneous_flow`.
+    tz : str
+        IANA time zone the data should be grouped by calendar day in, e.g.
+        ``"America/Los_Angeles"``. Required, with no default: grouping by
+        the index's own zone (typically UTC, per
+        ``download_instantaneous_flow``'s default) instead of the gage's
+        local zone silently fractures each local day across two UTC-labeled
+        buckets, corrupting the range and CV of both -- this is not a
+        hypothetical edge case, it happens on every single day for any
+        site west or east of the UTC meridian. If `iv_data` is already in
+        the zone you want, pass that same zone here; the conversion is then
+        a no-op.
+    min_completeness_frac : float
+        Fraction of the day's *expected* observation count (inferred from
+        the data's own median sampling interval; see Notes) that must be
+        present for a day to be marked ``complete``. Default 0.9.
+
+    Returns
+    -------
+    pd.DataFrame
+        One row per local calendar day with at least one observation.
+        Columns:
+
+        - ``date`` : the local calendar date
+        - ``min_flow_cfs``, ``max_flow_cfs``, ``mean_flow_cfs``,
+          ``std_flow_cfs`` : float
+        - ``range_cfs`` : ``max_flow_cfs - min_flow_cfs``, the day's diel
+          amplitude
+        - ``cv`` : ``std_flow_cfs / mean_flow_cfs``, NaN if the day's mean
+          flow is not positive (a day that includes a zero or negative-
+          treated-as-missing mean is not a meaningful denominator; see
+          hydrolib.lowflow's module docstring on the same issue for annual
+          minima)
+        - ``n_obs``, ``expected_obs``, ``complete``
+
+    Notes
+    -----
+    **Range and CV are reported regardless of completeness.** This is a
+    deliberate departure from the annual/monthly/seasonal metrics earlier
+    in this module, which report NaN for an incomplete period. A day
+    missing some fraction of its readings (a logger gap, a brief outage)
+    still usually captures most of the diurnal cycle, so its range and CV
+    remain informative, just less precise, at partial coverage -- unlike an
+    annual metric computed from a year missing an entire season. `complete`
+    is there to tell you how much to trust the day's precision, not to
+    gate whether a value is reported at all. A day with exactly one
+    observation still gets ``range_cfs = 0`` (mathematically correct: a
+    single point has no spread) but ``cv = NaN`` (a standard deviation needs
+    at least two points) -- both are reported as computed, with `complete`
+    correctly False.
+
+    **Expected observations per day** are inferred from the *median* time
+    step across the entire input, not a hardcoded assumption like 15
+    minutes -- NWIS's most common instantaneous interval, but not the only
+    one a logger might report at. If the sampling interval genuinely
+    changes partway through the record (e.g. a logger upgrade from hourly
+    to 15-minute reporting), this single global median will misjudge
+    completeness for whichever era doesn't match it; split the record at
+    the change and call this function on each piece separately in that
+    case.
+
+    **Negative values** are treated as missing, matching every other daily
+    function in this library -- a data artifact, not a legitimate reading.
+
+    Raises
+    ------
+    ValueError
+        Fewer than two timestamps are available to infer a sampling
+        interval from.
+    """
+    if len(iv_data) < 2:
+        raise ValueError(
+            "diel_variation needs at least 2 timestamps to infer a sampling interval; "
+            f"got {len(iv_data)}"
+        )
+
+    local_index = iv_data.index.tz_convert(tz)
+    flows = iv_data["flow_cfs"].where(iv_data["flow_cfs"] >= 0)
+
+    step_minutes = pd.Series(local_index).diff().dropna().dt.total_seconds().median() / 60.0
+    if not np.isfinite(step_minutes) or step_minutes <= 0:
+        raise ValueError(
+            "Could not infer a sampling interval from iv_data's index (timestamps must "
+            "be strictly increasing)."
+        )
+    expected_obs = 1440.0 / step_minutes
+
+    df = pd.DataFrame({"date": local_index.date, "flow_cfs": flows.to_numpy()})
+    grouped = df.groupby("date")["flow_cfs"]
+
+    result = grouped.agg(min_flow_cfs="min", max_flow_cfs="max", mean_flow_cfs="mean")
+    result["std_flow_cfs"] = grouped.std(ddof=1)
+    result["range_cfs"] = result["max_flow_cfs"] - result["min_flow_cfs"]
+    result["cv"] = np.where(
+        result["mean_flow_cfs"] > 0, result["std_flow_cfs"] / result["mean_flow_cfs"], np.nan
+    )
+    result["n_obs"] = grouped.apply(lambda s: int(s.notna().sum()))
+    result["expected_obs"] = expected_obs
+    result["complete"] = result["n_obs"] >= (expected_obs * min_completeness_frac)
+
+    return result.reset_index().sort_values("date").reset_index(drop=True)
+
+
+def diel_variation_summary(daily_diel: pd.DataFrame) -> pd.Series:
+    """Period-of-record summary of a :func:`diel_variation` table.
+
+    Computed only over rows marked ``complete``, so a period dominated by
+    gappy days doesn't quietly average in unreliable single-observation
+    ranges. Pass any slice of a `diel_variation` table -- filtered by
+    month, by season, by year, or by any other criterion -- to get a
+    summary over just that period; this function does not do any grouping
+    of its own, by design, since "over a period" can mean whatever period
+    the caller is working with.
+
+    Parameters
+    ----------
+    daily_diel : pd.DataFrame
+        A table from :func:`diel_variation`, or any row subset of one.
+
+    Returns
+    -------
+    pd.Series
+        Index: ``n_days`` (complete days used), ``mean_diel_amplitude_cfs``
+        (mean of ``range_cfs``), ``mean_diel_cv`` (mean of ``cv``).
+
+    Examples
+    --------
+    >>> daily = diel_variation(iv_data, tz="America/Los_Angeles")  # doctest: +SKIP
+    >>> diel_variation_summary(daily)  # period of record  # doctest: +SKIP
+    >>> july = daily[pd.DatetimeIndex(daily["date"]).month == 7]  # doctest: +SKIP
+    >>> diel_variation_summary(july)  # July only  # doctest: +SKIP
+    """
+    complete = daily_diel[daily_diel["complete"]]
+    return pd.Series(
+        {
+            "n_days": len(complete),
+            "mean_diel_amplitude_cfs": complete["range_cfs"].mean() if len(complete) else np.nan,
+            "mean_diel_cv": complete["cv"].mean() if len(complete) else np.nan,
+        }
+    )

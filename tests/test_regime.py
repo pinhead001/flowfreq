@@ -14,6 +14,8 @@ from hydrolib.regime import (
     _ih_smoothed_minima,
     _interpolate_baseflow,
     baseflow_index,
+    diel_variation,
+    diel_variation_summary,
     monthly_flow_summary,
     richards_baker_flashiness,
     seasonal_flow_summary,
@@ -510,3 +512,163 @@ class TestFlowRegime:
         # BFIs actually differ.
         if abs(bfi_2010 - bfi_2011) > 0.01:
             assert abs(summary["baseflow_index"] - bfi_2011) < abs(naive_mean - bfi_2011)
+
+
+def _pacific_diel_series(
+    n_days: int = 11, amplitude: float = 30.0, mean: float = 100.0
+) -> pd.DataFrame:
+    """A UTC-indexed instantaneous series (as download_instantaneous_flow
+    returns) with a clean, known diel sinusoid in LOCAL (Pacific) time:
+    trough near 4am local, peak near 4pm local, true range = 2*amplitude."""
+    local_times = pd.date_range(
+        "2020-01-10 00:00", periods=96 * n_days, freq="15min", tz="America/Los_Angeles"
+    )
+    hour_local = np.array([t.hour + t.minute / 60 for t in local_times])
+    flow = mean + amplitude * np.sin(2 * np.pi * (hour_local - 4) / 24 - np.pi / 2)
+    return pd.DataFrame({"flow_cfs": flow}, index=local_times.tz_convert("UTC"))
+
+
+class TestDielVariation:
+    """Tests for diel_variation."""
+
+    def test_local_day_grouping_recovers_true_diel_range(self) -> None:
+        """The central correctness property: grouping on local calendar days
+        (not the UTC index the data is stored in) must recover the true
+        diel amplitude on every fully-bracketed day."""
+        iv = _pacific_diel_series(n_days=11, amplitude=30.0)
+        daily = diel_variation(iv, tz="America/Los_Angeles")
+        middle = daily.iloc[2:-2]  # avoid the partial days at the UTC storage edges
+        assert (middle["range_cfs"] > 55).all() and (middle["range_cfs"] < 65).all()
+        assert middle["complete"].all()
+
+    def test_grouping_by_utc_day_would_give_a_different_wrong_answer(self) -> None:
+        """Guard against silently reverting to UTC-day grouping: manually
+        regrouping the same data by the raw (UTC) index date must NOT
+        recover the true range, confirming the tz conversion is doing
+        real work rather than being a no-op for this input."""
+        iv = _pacific_diel_series(n_days=5, amplitude=30.0)
+        wrong = pd.DataFrame({"date": iv.index.date, "flow_cfs": iv["flow_cfs"].to_numpy()})
+        wrong_ranges = wrong.groupby("date")["flow_cfs"].agg(lambda s: s.max() - s.min())
+        # At least one UTC-labeled bucket must show a range that is NOT
+        # close to the true 60 -- i.e. grouping naively really would corrupt it.
+        assert not (wrong_ranges.between(55, 65)).all()
+
+    def test_zero_mean_day_gives_nan_cv_not_error(self) -> None:
+        idx = pd.date_range("2020-06-01", periods=4 * 24, freq="15min", tz="UTC")
+        iv = pd.DataFrame({"flow_cfs": np.zeros(4 * 24)}, index=idx)
+        daily = diel_variation(iv, tz="UTC")
+        assert daily.iloc[0]["mean_flow_cfs"] == 0.0
+        assert np.isnan(daily.iloc[0]["cv"])
+        assert daily.iloc[0]["range_cfs"] == 0.0
+
+    def test_no_runtime_warning_on_zero_mean_division(self) -> None:
+        """The cv computation must not emit a divide-by-zero warning even
+        though it is vectorized across all days including zero-mean ones."""
+        import warnings
+
+        idx = pd.date_range("2020-06-01", periods=4 * 24, freq="15min", tz="UTC")
+        iv = pd.DataFrame({"flow_cfs": np.zeros(4 * 24)}, index=idx)
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", RuntimeWarning)
+            diel_variation(iv, tz="UTC")
+
+    def test_negative_values_excluded_from_range(self) -> None:
+        """A negative artifact must not become the day's minimum."""
+        idx = pd.date_range("2020-06-01", periods=8, freq="3h", tz="UTC")
+        vals = np.array([50.0, 55.0, -999.0, 60.0, 65.0, 45.0, 40.0, 52.0])
+        iv = pd.DataFrame({"flow_cfs": vals}, index=idx)
+        daily = diel_variation(iv, tz="UTC")
+        assert daily.iloc[0]["n_obs"] == 7
+        assert daily.iloc[0]["min_flow_cfs"] == 40.0
+        assert daily.iloc[0]["max_flow_cfs"] == 65.0
+
+    def test_single_observation_day_zero_range_nan_cv(self) -> None:
+        """range is defined for n=1 (a point has no spread); cv (needing a
+        sample std) is not."""
+        idx = pd.date_range("2020-07-01 00:00", periods=8, freq="3h", tz="UTC").append(
+            pd.date_range("2020-07-02 12:00", periods=1, freq="3h", tz="UTC")
+        )
+        vals = np.concatenate([np.linspace(40, 80, 8), [55.0]])
+        iv = pd.DataFrame({"flow_cfs": vals}, index=idx)
+        daily = diel_variation(iv, tz="UTC")
+        single_row = daily[daily["n_obs"] == 1].iloc[0]
+        assert single_row["range_cfs"] == 0.0
+        assert np.isnan(single_row["cv"])
+        assert not single_row["complete"]
+
+    def test_sparse_day_still_reports_value_but_marked_incomplete(self) -> None:
+        """Departure from the annual/monthly/seasonal metrics: an incomplete
+        day's range/cv are reported as computed (still informative at
+        partial coverage), not suppressed to NaN -- only the completeness
+        flag signals reduced precision."""
+        idx3 = pd.date_range("2020-07-01 00:00", periods=8, freq="3h", tz="UTC")
+        sparse_day = pd.date_range("2020-07-02 06:00", periods=2, freq="6h", tz="UTC")
+        full_idx = idx3.append(sparse_day)
+        vals3 = np.concatenate([np.linspace(40, 80, 8), [55.0, 58.0]])
+        iv = pd.DataFrame({"flow_cfs": vals3}, index=full_idx)
+        daily = diel_variation(iv, tz="UTC")
+
+        sparse_row = daily[daily["n_obs"] == 2].iloc[0]
+        assert sparse_row["range_cfs"] == 3.0
+        assert not np.isnan(sparse_row["cv"])
+        assert not sparse_row["complete"]
+
+    def test_expected_obs_inferred_from_median_step_not_hardcoded(self) -> None:
+        """A record sampled hourly (not NWIS's usual 15-minute) must infer
+        ~24 expected observations per day, not a hardcoded 96."""
+        idx = pd.date_range("2020-01-01", periods=24 * 5, freq="1h", tz="UTC")
+        iv = pd.DataFrame({"flow_cfs": 50.0 + 10 * np.sin(np.arange(len(idx)) / 4)}, index=idx)
+        daily = diel_variation(iv, tz="UTC")
+        assert daily["expected_obs"].iloc[0] == pytest.approx(24.0)
+
+    def test_too_few_timestamps_raises(self) -> None:
+        idx = pd.date_range("2020-01-01", periods=1, tz="UTC")
+        iv = pd.DataFrame({"flow_cfs": [50.0]}, index=idx)
+        with pytest.raises(ValueError, match="at least 2 timestamps"):
+            diel_variation(iv, tz="UTC")
+
+    def test_requires_tz_aware_index(self) -> None:
+        """A naive (non-tz-aware) index cannot be tz_convert'd; this should
+        surface as an error rather than silently misbehaving."""
+        idx = pd.date_range("2020-01-01", periods=10, freq="1h")  # no tz
+        iv = pd.DataFrame({"flow_cfs": 50.0}, index=idx)
+        with pytest.raises(TypeError):
+            diel_variation(iv, tz="UTC")
+
+
+class TestDielVariationSummary:
+    """Tests for diel_variation_summary."""
+
+    def test_summary_matches_known_amplitude(self) -> None:
+        iv = _pacific_diel_series(n_days=11, amplitude=30.0)
+        daily = diel_variation(iv, tz="America/Los_Angeles")
+        summary = diel_variation_summary(daily)
+        assert summary["mean_diel_amplitude_cfs"] == pytest.approx(60.0, abs=0.5)
+        assert summary["n_days"] == daily["complete"].sum()
+
+    def test_only_complete_days_included(self) -> None:
+        iv = _pacific_diel_series(n_days=5, amplitude=30.0)
+        daily = diel_variation(iv, tz="America/Los_Angeles")
+        daily_with_incomplete = daily.copy()
+        daily_with_incomplete.loc[0, "complete"] = False
+        daily_with_incomplete.loc[0, "range_cfs"] = 99999.0  # sentinel that must be excluded
+
+        summary = diel_variation_summary(daily_with_incomplete)
+        assert summary["n_days"] == len(daily_with_incomplete) - 1
+        assert summary["mean_diel_amplitude_cfs"] < 1000  # sentinel correctly excluded
+
+    def test_composes_with_an_arbitrary_caller_defined_slice(self) -> None:
+        """No grouping logic of its own: filtering to a sub-period before
+        calling is how 'a period' is chosen."""
+        iv = _pacific_diel_series(n_days=11, amplitude=30.0)
+        daily = diel_variation(iv, tz="America/Los_Angeles")
+        first_half = daily.iloc[: len(daily) // 2]
+        summary = diel_variation_summary(first_half)
+        assert summary["n_days"] <= len(first_half)
+
+    def test_empty_input_gives_nan_not_error(self) -> None:
+        empty = pd.DataFrame(columns=["date", "range_cfs", "cv", "complete"])
+        summary = diel_variation_summary(empty)
+        assert summary["n_days"] == 0
+        assert np.isnan(summary["mean_diel_amplitude_cfs"])
+        assert np.isnan(summary["mean_diel_cv"])
