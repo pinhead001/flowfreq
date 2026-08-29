@@ -27,9 +27,16 @@ from .core import (
     kfactor,
     kfactor_array,
 )
+from .flowio import load_flow_frame, save_flow_frame
 from .hydrograph import Hydrograph
 from .report import HydroReport
-from .usgs import GageAttributes, USGSgage, fetch_nwis_batch, fetch_nwis_peaks
+from .usgs import (
+    GageAttributes,
+    NoInstantaneousDataError,
+    USGSgage,
+    fetch_nwis_batch,
+    fetch_nwis_peaks,
+)
 
 # Alias for backwards compatibility
 USGSGage = USGSgage
@@ -135,8 +142,11 @@ __all__ = [
     "USGSgage",
     "USGSGage",  # Alias for backwards compatibility
     "GageAttributes",
+    "NoInstantaneousDataError",
     "fetch_nwis_peaks",
     "fetch_nwis_batch",
+    "save_flow_frame",
+    "load_flow_frame",
     # Hydrograph
     "Hydrograph",
     # Bulletin 17C
