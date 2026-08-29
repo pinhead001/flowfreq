@@ -22,6 +22,7 @@ from .core import (
     EMAParameters,
     FlowInterval,
     FrequencyResults,
+    LowFlowResults,
     SkewMethod,
     grubbs_beck_critical_value,
     kfactor,
@@ -29,6 +30,7 @@ from .core import (
 )
 from .flowio import load_flow_frame, save_flow_frame
 from .hydrograph import Hydrograph
+from .lowflow import LOW_FLOW_YEAR_TYPES, LowFlowFrequency, annual_minimum_flow
 from .report import HydroReport
 from .usgs import (
     GageAttributes,
@@ -138,6 +140,11 @@ __all__ = [
     "kfactor",
     "kfactor_array",
     "grubbs_beck_critical_value",
+    # Low-flow frequency analysis
+    "LowFlowResults",
+    "LowFlowFrequency",
+    "annual_minimum_flow",
+    "LOW_FLOW_YEAR_TYPES",
     # USGS data retrieval
     "USGSgage",
     "USGSGage",  # Alias for backwards compatibility
