@@ -16,6 +16,7 @@ dependencies = [
     "scipy>=1.7.0",
     "requests>=2.25.0",
     "click>=8.0",
+    "pyarrow>=10.0",
 ]
 
 [project.optional-dependencies]
@@ -26,12 +27,6 @@ dev = [
     "isort",
     "flake8",
     "bump2version",
-]
-# Parquet is the preferred on-disk format for instantaneous-value series --
-# it round-trips the tz-aware index and float dtypes exactly, where CSV does
-# not -- but the analysis code never requires it. See hydrolib.usgs.save_flow_frame.
-parquet = [
-    "pyarrow>=10.0",
 ]
 
 [project.scripts]

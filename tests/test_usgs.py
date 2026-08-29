@@ -376,12 +376,31 @@ class TestFlowFrameIO:
 
     def test_parquet_round_trip(self, tmp_path) -> None:
         """Parquet restores dtypes and the tz-aware index exactly."""
-        pytest.importorskip("pyarrow")
         df = _parse_iv_rdb(IV_BASIC)
         path = save_flow_frame(df, tmp_path / "iv.parquet")
         loaded = load_flow_frame(path)
 
         pd.testing.assert_frame_equal(loaded, df)
+
+    def test_parquet_preserves_timezone_where_csv_does_not(self, tmp_path) -> None:
+        """The reason Parquet is preferred: CSV loses the index dtype, Parquet keeps it."""
+        df = _parse_iv_rdb(IV_BASIC)
+
+        from_parquet = load_flow_frame(save_flow_frame(df, tmp_path / "iv.parquet"))
+        from_csv = load_flow_frame(save_flow_frame(df, tmp_path / "iv.csv"))
+
+        assert from_parquet.index.dtype == df.index.dtype
+        assert from_parquet["flow_cfs"].dtype == df["flow_cfs"].dtype
+        assert from_parquet["datetime_local"].dtype == df["datetime_local"].dtype
+        # CSV agrees on the instants but not on how they are typed.
+        assert list(from_csv.index) == list(df.index)
+        assert from_csv["datetime_local"].dtype != df["datetime_local"].dtype
+
+    def test_parquet_compression_is_configurable(self, tmp_path) -> None:
+        """A different codec still round-trips; the default is not load-bearing."""
+        df = _parse_iv_rdb(IV_BASIC)
+        path = save_flow_frame(df, tmp_path / "iv.parquet", compression="snappy")
+        pd.testing.assert_frame_equal(load_flow_frame(path), df)
 
     def test_unsupported_extension_raises(self, tmp_path) -> None:
         """An unknown extension is refused rather than guessed at."""

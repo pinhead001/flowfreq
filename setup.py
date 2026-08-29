@@ -32,6 +32,7 @@ setup(
         "matplotlib>=3.4.0",
         "scipy>=1.7.0",
         "requests>=2.25.0",
+        "pyarrow>=10.0",
     ],
     extras_require={
         "dev": ["pytest>=7.0", "pytest-cov", "black", "flake8"],

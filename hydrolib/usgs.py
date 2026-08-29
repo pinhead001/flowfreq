@@ -526,8 +526,7 @@ class USGSgage:
         **Storage.** For a series of this size Parquet is the format worth
         reaching for — it round-trips the tz-aware index and float dtypes
         exactly, where CSV loses both, and it is several times smaller. See
-        :func:`save_flow_frame`, which will also write CSV with no extra
-        dependency.
+        :func:`hydrolib.flowio.save_flow_frame`.
 
         Examples
         --------

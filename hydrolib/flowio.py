@@ -13,30 +13,44 @@ from typing import Union
 
 import pandas as pd
 
+#: Compression used for Parquet output unless overridden. On a year of
+#: 15-minute discharge, zstd lands a few percent under the Parquet default
+#: (snappy) and roughly a third the size of the equivalent CSV. Every standard
+#: Parquet reader -- pyarrow, R's arrow, DuckDB, parquet-mr -- decompresses it
+#: without configuration, so the default costs no portability.
+DEFAULT_PARQUET_COMPRESSION: str = "zstd"
 
-def save_flow_frame(df: pd.DataFrame, path: Union[str, Path]) -> Path:
+
+def save_flow_frame(
+    df: pd.DataFrame,
+    path: Union[str, Path],
+    compression: str = DEFAULT_PARQUET_COMPRESSION,
+) -> Path:
     """Write a flow time series to disk, choosing the writer by file extension.
 
-    Parquet is the format worth preferring for instantaneous series. It stores
-    the timezone-aware index and float column with their dtypes intact, where
-    CSV round-trips both through text and needs them re-inferred on read, and
-    it is typically several times smaller for a series of this length. It is
-    also readable from R and most GIS toolchains, which matters when the
-    numbers travel further than the Python session that produced them.
+    Parquet is the format to prefer, especially for instantaneous series. It
+    stores the timezone-aware index and float columns with their dtypes intact,
+    where CSV round-trips both through text and needs them re-inferred on read.
+    It is typically several times smaller, and it is readable from R, DuckDB and
+    most GIS toolchains, which matters when the numbers travel further than the
+    Python session that produced them.
 
-    Parquet needs ``pyarrow``, which hydrolib does not require, so CSV remains
-    available with no extra dependency and this function says plainly which one
-    is missing rather than failing obscurely.
+    CSV remains available for cases where a human has to read the file, at the
+    cost of the index dtype.
 
     Parameters
     ----------
     df : pd.DataFrame
         Frame to write, typically from
-        :meth:`USGSgage.download_instantaneous_flow` or
-        :meth:`USGSgage.download_daily_flow`.
+        :meth:`hydrolib.usgs.USGSgage.download_instantaneous_flow` or
+        :meth:`hydrolib.usgs.USGSgage.download_daily_flow`.
     path : str or Path
         Destination. ``.parquet``/``.pq`` writes Parquet; ``.csv`` and
         ``.csv.gz`` write CSV.
+    compression : str
+        Parquet compression codec, default ``"zstd"``. Accepts anything
+        pyarrow supports (``"snappy"``, ``"gzip"``, ``"brotli"``, ``"lz4"``,
+        ``"none"``). Ignored for CSV, whose compression follows the extension.
 
     Returns
     -------
@@ -48,19 +62,27 @@ def save_flow_frame(df: pd.DataFrame, path: Union[str, Path]) -> Path:
     ValueError
         The extension is not one of the supported formats.
     ImportError
-        Parquet was requested but no Parquet engine is installed.
+        The Parquet engine is unavailable. ``pyarrow`` is a hydrolib
+        dependency, so this indicates a damaged environment rather than a
+        missing optional extra.
+
+    Examples
+    --------
+    >>> save_flow_frame(iv, "methow_iv.parquet")           # doctest: +SKIP
+    >>> save_flow_frame(iv, "methow_iv.csv")               # doctest: +SKIP
     """
     path = Path(path)
     suffix = path.suffix.lower()
 
     if suffix in (".parquet", ".pq"):
         try:
-            df.to_parquet(path)
-        except ImportError as exc:
+            df.to_parquet(path, compression=compression)
+        except ImportError as exc:  # pragma: no cover - requires a broken install
             raise ImportError(
-                f"Writing {path.name} needs a Parquet engine, which hydrolib does not "
-                f"install by default. Either `pip install pyarrow` or save as .csv "
-                f"(note that CSV does not preserve the tz-aware index dtype)."
+                f"Writing {path.name} needs the pyarrow Parquet engine. pyarrow is a "
+                f"hydrolib dependency, so this environment looks incomplete: try "
+                f"`pip install --force-reinstall pyarrow`, or save as .csv to work "
+                f"around it (CSV does not preserve the tz-aware index dtype)."
             ) from exc
         return path
 
@@ -76,10 +98,11 @@ def save_flow_frame(df: pd.DataFrame, path: Union[str, Path]) -> Path:
 def load_flow_frame(path: Union[str, Path]) -> pd.DataFrame:
     """Read a flow time series written by :func:`save_flow_frame`.
 
-    Parquet restores the frame exactly as written. CSV is re-parsed, so the
-    index is reconstructed from text and a timezone-aware index comes back
-    normalized to UTC rather than to the offset it was written in — the instants
-    are identical, the printed offset may not be.
+    Parquet restores the frame exactly as written, compression codec included:
+    dtypes, column order and the timezone-aware index all come back unchanged.
+    CSV is re-parsed, so the index is reconstructed from text and a
+    timezone-aware index returns normalized to UTC rather than to the offset it
+    was written in -- the instants are identical, the printed offset may not be.
 
     Parameters
     ----------

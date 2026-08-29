@@ -39,7 +39,7 @@ pip install -e ".[dev]"
 pip install streamlit
 ```
 
-**Dependencies:** `numpy`, `pandas`, `matplotlib`, `scipy`, `requests`, `click`
+**Dependencies:** `numpy`, `pandas`, `matplotlib`, `scipy`, `requests`, `click`, `pyarrow`
 
 ## Quick Start
 
