@@ -38,7 +38,16 @@ approximation worth knowing is there.
 **Baseflow separation methods.** Five are implemented, named explicitly
 because a BFI value is not comparable across methods without knowing which
 one produced it -- every function and results object reports the method
-used alongside the number:
+used alongside the number. This is not a minor labeling formality: the
+five methods are known in the literature to disagree systematically on
+the same site (a step-function method like hysep_fixed and a smoothly
+interpolated one like ih_smoothed_minima do not converge as the record
+gets longer, they measure recognizably different things), so a BFI
+computed here is only comparable to a BFI from another gage, another
+tool, or a previously published figure when both sides used the same
+method. Treating two BFI values as comparable without checking that is a
+straightforward way to introduce an apples-to-oranges comparison that
+looks perfectly reasonable on paper.
 
 - ``"ih_smoothed_minima"`` (default): the UKIH/Institute of Hydrology
   smoothed-minima method (Institute of Hydrology, 1980; as codified by Wahl
@@ -48,7 +57,14 @@ used alongside the number:
   times it does not exceed either adjacent block's minimum; ordinates are
   connected by straight-line interpolation, capped at actual flow (baseflow
   cannot exceed total streamflow). Needs no drainage area and is
-  parameter-light, which is why it is the default here.
+  parameter-light, which is why it is the default here. Its non-overlapping
+  blocks are anchored to the first date in the input, a known, published
+  sensitivity of the method: shifting the same underlying series by 0-4
+  days (changing which calendar days fall in which block, with no
+  hydrologic meaning to the shift itself) moved a 2-year synthetic record's
+  annual BFI between 0.9349 and 0.9391 -- a real if modest effect, worth
+  knowing about before comparing this figure against the same site
+  analyzed from a slightly different download window.
 - ``"hysep_fixed"``, ``"hysep_sliding"``, ``"hysep_local_minimum"``: the
   three USGS HYSEP methods (Sloto & Crouse, 1996), all built on the same
   interval width ``N* = round_to_odd(2 * drainage_area_sqmi ** 0.2)`` days
@@ -63,6 +79,16 @@ used alongside the number:
   intrinsic to how HYSEP defines its window width, so a site missing that
   attribute cannot use these methods, and the error says so rather than
   guessing a drainage area or silently falling back to another method.
+  **The N* constant above is implemented from secondary-source citations of
+  Sloto & Crouse (1996) / Pettyjohn & Henning (1979), not a direct read of
+  either primary document** -- this development environment has no network
+  access to check it against USGS WRIR 96-4040 directly. The value is
+  self-consistent (odd-integer rounding, the expected qualitative growth
+  with drainage area) but that is not the same as confirming the constant
+  itself is correct. Verify it against the primary source before relying
+  on any HYSEP-derived number for a published result; if it is off by even
+  a small factor, every HYSEP result built on it is systematically wrong,
+  not just imprecise.
 - ``"lyne_hollick"``: the Lyne & Hollick (1979) recursive digital filter,
   3 passes (forward, backward, forward) per Nathan & McMahon (1990),
   alpha=0.925. A single missing day would otherwise poison every
@@ -354,6 +380,11 @@ def _hysep_interval_days(drainage_area_sqmi: float) -> int:
     """HYSEP's interval half-width N*, in days (Pettyjohn & Henning, 1979).
 
     N* = 2 * A^0.2, rounded to the nearest odd integer, A in square miles.
+
+    From secondary-source citations of the primary reference, not a direct
+    read of it -- this has not been checked against USGS WRIR 96-4040
+    itself (see the module docstring's HYSEP section). Confirm this
+    constant before relying on a HYSEP-derived result for publication.
     """
     if drainage_area_sqmi <= 0:
         raise ValueError(f"drainage_area_sqmi must be positive, got {drainage_area_sqmi}")
