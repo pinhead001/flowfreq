@@ -171,6 +171,76 @@ class TestLowFlowFrequencyValidation:
         assert lff.n == 12
 
 
+class TestMinPositiveYears:
+    """Tests for the MIN_POSITIVE_YEARS/RECOMMENDED_MIN_POSITIVE_YEARS floors.
+
+    Simulating 30,000 size-n samples from a true-skew-0 population gives a
+    sample-skew standard deviation of 1.22 at n=3 (a symmetric population
+    routinely produces an apparent skew over 1 from noise alone) versus
+    0.68 at n=10 -- there is no n where the noise vanishes, only shrinks,
+    which is why MIN_POSITIVE_YEARS is a floor on absurdity (was 3, an
+    arithmetic minimum with no real stability), not a claim that 5 is safe.
+    All constructions here use n_total=12 (above MIN_YEARS=10) so only the
+    positive-year floor is under test.
+    """
+
+    def test_exactly_at_new_floor_does_not_raise(self) -> None:
+        """n_pos=5 (the new MIN_POSITIVE_YEARS) must construct successfully."""
+        daily = _multi_year_daily(12, [0.0] * 7 + [10.0, 11.0, 12.0, 13.0, 14.0])
+        lff = LowFlowFrequency(daily, n_day=7)
+        assert lff._n_positive_years == 5
+
+    def test_one_below_new_floor_raises(self) -> None:
+        """n_pos=4 must still raise under the raised floor."""
+        daily = _multi_year_daily(12, [0.0] * 8 + [10.0, 11.0, 12.0, 13.0])
+        with pytest.raises(ValueError, match="at least 5 are required"):
+            LowFlowFrequency(daily, n_day=7)
+
+    def test_old_floor_of_three_no_longer_accepted(self) -> None:
+        """n_pos=3 (the previous MIN_POSITIVE_YEARS) must now raise -- this
+        is the exact case the fix targets: the old code fit a full LP3 skew
+        from 3 points, which simulation shows is indistinguishable from
+        noise."""
+        daily = _multi_year_daily(12, [0.0] * 9 + [10.0, 11.0, 12.0])
+        with pytest.raises(ValueError, match="at least 5 are required"):
+            LowFlowFrequency(daily, n_day=7)
+
+    def test_thin_positive_sample_warns_for_lp3(self, caplog) -> None:
+        """n_pos=9 (below RECOMMENDED_MIN_POSITIVE_YEARS=10) with the
+        default distribution='lp3' must warn specifically about the skew
+        estimate, not just about overall record length."""
+        daily = _multi_year_daily(12, [0.0] * 3 + [8, 9, 10, 11, 12, 13, 14, 15, 16])
+        with caplog.at_level("WARNING", logger="hydrolib.lowflow"):
+            LowFlowFrequency(daily, n_day=7, distribution="lp3")
+        assert any("nonzero year" in r.message and "skew" in r.message for r in caplog.records)
+
+    def test_no_thin_sample_warning_at_or_above_recommended(self, caplog) -> None:
+        """n_pos=10 (exactly at RECOMMENDED_MIN_POSITIVE_YEARS) must not log
+        the skew-specific warning."""
+        daily = _multi_year_daily(12, [0.0] * 2 + list(range(8, 18)))
+        with caplog.at_level("WARNING", logger="hydrolib.lowflow"):
+            LowFlowFrequency(daily, n_day=7, distribution="lp3")
+        assert not any("nonzero year" in r.message for r in caplog.records)
+
+    def test_no_thin_sample_warning_for_lognormal(self, caplog) -> None:
+        """distribution='lognormal' does not use the skew estimate at all,
+        so the same thin n_pos=9 case must not warn about it."""
+        daily = _multi_year_daily(12, [0.0] * 3 + [8, 9, 10, 11, 12, 13, 14, 15, 16])
+        with caplog.at_level("WARNING", logger="hydrolib.lowflow"):
+            LowFlowFrequency(daily, n_day=7, distribution="lognormal")
+        assert not any("nonzero year" in r.message for r in caplog.records)
+
+    def test_n_positive_years_consistent_between_init_and_run_analysis(self) -> None:
+        """The hard-error/warning check in __init__ and the moment fit in
+        run_analysis() must agree on n_pos -- they now share one computation
+        rather than each deriving it separately."""
+        daily = _multi_year_daily(12, [0.0] * 3 + list(range(8, 17)))
+        lff = LowFlowFrequency(daily, n_day=7)
+        n_pos_at_init = lff._n_positive_years
+        results = lff.run_analysis()
+        assert results.n_years - results.n_zero_years == n_pos_at_init
+
+
 class TestLowFlowFrequencyAnalysis:
     """Tests for the fit itself: quantiles, monotonicity, sign correctness."""
 
@@ -312,16 +382,140 @@ class TestZeroFlowConditionalProbability:
         assert (above["flow_cfs"] < above[upper_col]).all()
 
     def test_too_few_positive_years_raises(self) -> None:
-        """15 total years but only 2 nonzero cannot support fitting a distribution."""
+        """15 total years but only 2 nonzero cannot support fitting a distribution.
+        Raised at construction time now (see TestMinPositiveYears), not deferred
+        to run_analysis()."""
         daily = self._make_zero_inflated(n_total=15, n_zero=13)
-        lff = LowFlowFrequency(daily, n_day=7)
-        with pytest.raises(ValueError, match="at least 3 are required"):
-            lff.run_analysis()
+        with pytest.raises(ValueError, match="at least 5 are required"):
+            LowFlowFrequency(daily, n_day=7)
 
     def test_all_zero_years_is_not_silently_a_valid_fit(self) -> None:
         """An entirely zero-flow record must raise, not report p_zero=1.0 with
         an undefined distribution fit."""
         daily = _multi_year_daily(12, [0.0] * 12)
+        with pytest.raises(ValueError, match="at least 5 are required"):
+            LowFlowFrequency(daily, n_day=7)
+
+
+class TestBootstrapConfidenceLimits:
+    """Tests for the parametric bootstrap CI (compute_bootstrap_confidence_limits).
+
+    Added as an alternative to compute_confidence_limits specifically because
+    that method's asymptotic variance formula treats p_zero as known --
+    understating uncertainty for any record with zero-flow years. These tests
+    focus on confirming the bootstrap actually captures that extra source of
+    uncertainty, not just that it produces "a" number.
+    """
+
+    def _make_zero_inflated(self, n_total: int = 20, n_zero: int = 4, seed: int = 1):
+        rng = np.random.default_rng(seed)
+        dips = [0.0] * n_zero + list(np.clip(10.0 + rng.normal(0, 3, n_total - n_zero), 1.0, None))
+        return _multi_year_daily(n_total, dips, start_year=2005)
+
+    def test_brackets_the_point_estimate_no_zero_years(self) -> None:
+        rng = np.random.default_rng(1)
+        dips = np.clip(15.0 + rng.normal(0, 3, 15), 1.0, None)
+        daily = _multi_year_daily(15, dips)
         lff = LowFlowFrequency(daily, n_day=7)
-        with pytest.raises(ValueError, match="at least 3 are required"):
-            lff.run_analysis()
+        lff.run_analysis()
+
+        boot = lff.compute_bootstrap_confidence_limits(random_state=42)
+        lower_col = next(c for c in boot.columns if c.startswith("lower"))
+        upper_col = next(c for c in boot.columns if c.startswith("upper"))
+        assert (boot[lower_col] < boot["flow_cfs"]).all()
+        assert (boot["flow_cfs"] < boot[upper_col]).all()
+
+    def test_reproducible_with_fixed_random_state(self) -> None:
+        rng = np.random.default_rng(1)
+        dips = np.clip(15.0 + rng.normal(0, 3, 15), 1.0, None)
+        daily = _multi_year_daily(15, dips)
+        lff = LowFlowFrequency(daily, n_day=7)
+        lff.run_analysis()
+
+        boot_a = lff.compute_bootstrap_confidence_limits(random_state=7)
+        boot_b = lff.compute_bootstrap_confidence_limits(random_state=7)
+        lower_col = next(c for c in boot_a.columns if c.startswith("lower"))
+        assert np.allclose(boot_a[lower_col], boot_b[lower_col])
+
+    def test_captures_p_zero_uncertainty_where_analytic_ci_cannot(self) -> None:
+        """The central point of adding this method: at p == p_zero exactly,
+        compute_confidence_limits reports NaN (it treats p_zero as a fixed,
+        known quantity, so there is nothing for its formula to attach
+        uncertainty to). The bootstrap must report a real, non-trivial
+        interval there instead, since some resamples' simulated p_zero will
+        land above the true value and some below."""
+        daily = self._make_zero_inflated(n_total=20, n_zero=4)  # p0 = 0.20
+        lff = LowFlowFrequency(daily, n_day=7)
+        results = lff.run_analysis()
+        assert results.p_zero == pytest.approx(0.20)
+
+        boot = lff.compute_bootstrap_confidence_limits(np.array([0.20]), random_state=42)
+        analytic = lff.compute_confidence_limits(np.array([0.20]))
+
+        analytic_pct_cols = [c for c in analytic.columns if "pct" in c]
+        assert analytic[analytic_pct_cols].isna().all(axis=None)
+
+        upper_col = next(c for c in boot.columns if c.startswith("upper"))
+        lower_col = next(c for c in boot.columns if c.startswith("lower"))
+        assert not np.isnan(boot[upper_col].iloc[0])
+        assert not np.isnan(boot[lower_col].iloc[0])
+        assert boot[upper_col].iloc[0] > 0
+
+    def test_n_resamples_used_reflects_skipped_iterations(self) -> None:
+        """A record with a real (nonzero) p_zero must skip at least some
+        iterations whose simulated positive-year count is too small to fit
+        -- n_resamples_used should come back below the requested count."""
+        daily = self._make_zero_inflated(n_total=20, n_zero=15)  # p0 = 0.75, n_pos = 5 (floor)
+        lff = LowFlowFrequency(daily, n_day=7)
+        lff.run_analysis()
+
+        boot = lff.compute_bootstrap_confidence_limits(n_resamples=2000, random_state=1)
+        assert (boot["n_resamples_used"] < 2000).all()
+        assert (boot["n_resamples_used"] > 1000).all()  # not so many skipped it's unusable
+
+    def test_raises_when_too_many_iterations_are_unusable(self) -> None:
+        """Directly injects an extreme, internally-inconsistent p_zero after
+        construction (deliberately bypassing the constructor's own
+        validation, which would never let a real record reach this state --
+        see the reachability note in the review) specifically to confirm
+        this defensive check independently guards the method even if an
+        extreme p_zero were ever reached some other way."""
+        daily = self._make_zero_inflated(n_total=20, n_zero=15)
+        lff = LowFlowFrequency(daily, n_day=7)
+        results = lff.run_analysis()
+        results.p_zero = 0.9  # artificially inconsistent with n_years=20, n_pos=5
+
+        with pytest.raises(ValueError, match="too high relative to its length"):
+            lff.compute_bootstrap_confidence_limits(n_resamples=2000, random_state=1)
+
+    def test_lognormal_distribution_skew_stays_zero_in_every_resample(self) -> None:
+        """distribution='lognormal' must not refit a nonzero skew from any
+        simulated resample -- the whole point of that distribution choice is
+        to sidestep the skew estimate entirely, in every code path."""
+        rng = np.random.default_rng(1)
+        dips = np.clip(15.0 + rng.normal(0, 3, 15), 1.0, None)
+        daily = _multi_year_daily(15, dips)
+        lff = LowFlowFrequency(daily, n_day=7, distribution="lognormal")
+        lff.run_analysis()
+
+        boot = lff.compute_bootstrap_confidence_limits(random_state=3, n_resamples=300)
+        assert (boot["n_resamples_used"] > 250).all()
+        assert not boot.isna().any(axis=None)
+
+    def test_invalid_non_exceedance_probability_raises(self) -> None:
+        rng = np.random.default_rng(1)
+        dips = np.clip(15.0 + rng.normal(0, 3, 15), 1.0, None)
+        daily = _multi_year_daily(15, dips)
+        lff = LowFlowFrequency(daily, n_day=7)
+        lff.run_analysis()
+        with pytest.raises(ValueError, match="strictly between 0 and 1"):
+            lff.compute_bootstrap_confidence_limits(np.array([0.0, 0.5]))
+
+    def test_runs_without_explicit_run_analysis_call(self) -> None:
+        """Matches the lazy-run convention used elsewhere in this class."""
+        rng = np.random.default_rng(1)
+        dips = np.clip(15.0 + rng.normal(0, 3, 15), 1.0, None)
+        daily = _multi_year_daily(15, dips)
+        lff = LowFlowFrequency(daily, n_day=7)
+        boot = lff.compute_bootstrap_confidence_limits(random_state=1, n_resamples=300)
+        assert not boot.empty

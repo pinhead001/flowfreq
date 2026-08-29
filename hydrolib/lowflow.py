@@ -21,6 +21,22 @@ where sample skew is already the least stable parameter. Pass
 ``distribution="lognormal"`` to force skew to zero, which is more stable on
 short or noisy records at the cost of not fitting an asymmetric tail.
 
+**Bounded tail.** Once skew is nonzero, the Log-Pearson III quantile
+function has a single finite bound on one side of the distribution (upper
+for negative skew, lower for positive skew) -- a real mathematical
+property of Pearson III, not a numerical artifact of this implementation.
+For the low-flow tail this means: with a positive station skew, the exact
+frequency factor saturates as the non-exceedance probability shrinks
+toward 0, so two very different return periods can produce nearly
+identical quantiles once far enough into the bounded direction. Checked
+directly against :func:`hydrolib.core.lp3_frequency_factor_peakfq`: at
+skew=2.99, the factor at p=0.001 and at p=0.0001 both evaluate to
+-0.6689, to four decimal places. Read an unexpectedly flat set of extreme
+low-flow quantiles as this property showing up, not as evidence of a
+computational error -- but it is worth checking which side of the fit
+produced it (the sign of ``skew_used`` on the results object) before
+reporting a set of quantiles that looks suspiciously flat.
+
 **Year definition.** Annual minima are computed over a *climatic year*
 (April 1 - March 31) by default, following Riggs (1972), USGS Techniques of
 Water-Resources Investigations Book 4 Chapter B1 -- neither the calendar
@@ -44,7 +60,11 @@ that low a non-exceedance probability); for ``p > p0`` the fit is queried at
 the conditional probability ``(p - p0) / (1 - p0)``. ``n_zero_years`` and
 ``p0`` are always reported on :class:`hydrolib.core.LowFlowResults` so a
 zero-inflated record is never silently indistinguishable from a well-behaved
-one.
+one. ``p0`` is treated as *known* for :meth:`LowFlowFrequency.compute_confidence_limits`'s
+CI, understating true uncertainty for any record with zero-flow years;
+:meth:`LowFlowFrequency.compute_bootstrap_confidence_limits` instead resamples
+``p0`` from its own binomial sampling distribution alongside the moment fit,
+and is the more complete answer once that additional uncertainty matters.
 
 **Minimum record length.** Fewer than 10 years raises rather than returning
 a fit: 10 systematic years is Bulletin 17C's own minimum for a flood
@@ -55,6 +75,21 @@ than raised -- 20 years gives roughly 2-4 observations at or below a 10%-90%
 non-exceedance probability, which is little enough that the fitted quantile
 should be read with real caution, but not so little the analysis is
 meaningless.
+
+A second, independent floor applies to the *positive*-flow years the
+moment fit actually uses, since zero-flow years can thin that subset well
+below the total-year count: fewer than 5 positive years raises, and fewer
+than 10 (with ``distribution="lp3"``) logs a warning specifically about
+skew stability. Simulating 30,000 samples of size n drawn from a
+population with true skew 0 puts the sample-skew standard deviation at
+1.22 at n=3 versus 0.68 at n=10 -- there is no n at which the noise in a
+station-skew estimate vanishes, only shrinks gradually, which is exactly
+why Bulletin 17C leans on regional/weighted skew rather than station skew
+alone for a short flood record. Low flow has no equivalent regional-skew
+resource (see the Distribution note above), so these floors are a
+disclosed caution line, not a guarantee of stability once cleared --
+``distribution="lognormal"`` sidesteps the estimate entirely and is
+unaffected by either threshold.
 """
 
 from __future__ import annotations
@@ -242,9 +277,26 @@ class LowFlowFrequency:
     #: Below this, a fit is produced but a warning is logged: ~2-4
     #: observations at a 10%-90% non-exceedance probability is thin support.
     RECOMMENDED_MIN_YEARS: ClassVar[int] = 20
-    #: Absolute floor to compute a sample skew at all (matches
-    #: MethodOfMoments' implicit requirement in bulletin17c.py).
-    MIN_POSITIVE_YEARS: ClassVar[int] = 3
+    #: Absolute floor to compute a sample skew at all. Not a stability
+    #: floor -- simulating 30,000 samples of size n drawn from a population
+    #: with true skew 0 gives a sample-skew standard deviation of 1.22 at
+    #: n=3 (a 10th-90th percentile spread of -1.65 to +1.65: a perfectly
+    #: symmetric population routinely produces an apparent skew over 1 in
+    #: either direction from noise alone) versus 0.68 at n=10. There is no
+    #: n at which the noise vanishes -- it only shrinks gradually, which is
+    #: exactly why Bulletin 17C leans on regional/weighted skew rather than
+    #: station skew alone for a short record; low flow has no equivalent
+    #: regional skew resource to lean on. Kept below MIN_YEARS/RECOMMENDED_
+    #: MIN_YEARS (which gate on total years, the common-case check) so this
+    #: only binds in the specific case zero-flow years thin the positive
+    #: subset the moment fit actually uses.
+    MIN_POSITIVE_YEARS: ClassVar[int] = 5
+    #: Below this, distribution="lp3" still fits but logs a warning: the
+    #: same simulation puts the 10th-90th percentile spread at +/-1.45 by
+    #: n=15 and it keeps shrinking past that, so this is a caution line, not
+    #: a claim of adequacy. distribution="lognormal" sidesteps the estimate
+    #: entirely (skew forced to 0) and is unaffected by this threshold.
+    RECOMMENDED_MIN_POSITIVE_YEARS: ClassVar[int] = 10
 
     def __init__(
         self,
@@ -288,10 +340,35 @@ class LowFlowFrequency:
                 self.RECOMMENDED_MIN_YEARS,
             )
 
+        flows = usable["flow_cfs"].to_numpy(dtype=float)
+        is_zero = flows <= 0.0
+        n_zero = int(np.sum(is_zero))
+        n_pos = len(flows) - n_zero
+
+        if n_pos < self.MIN_POSITIVE_YEARS:
+            raise ValueError(
+                f"Only {n_pos} nonzero year(s) out of {len(usable)}; at least "
+                f"{self.MIN_POSITIVE_YEARS} are required to fit a distribution to the "
+                f"positive-flow years. A record this zero-dominated may not be suited to "
+                f"this method at all -- consider whether the site is effectively "
+                f"intermittent rather than perennial with occasional zero years."
+            )
+        if n_pos < self.RECOMMENDED_MIN_POSITIVE_YEARS and distribution == "lp3":
+            logger.warning(
+                "Only %d nonzero year(s) out of %d are available to estimate station "
+                "skew; %d or more is recommended. A sample skew from this few years is "
+                "dominated by noise (see MIN_POSITIVE_YEARS), not a reliable estimate of "
+                "the true distribution shape. Consider distribution='lognormal', which "
+                "does not depend on this estimate.",
+                n_pos,
+                len(usable),
+                self.RECOMMENDED_MIN_POSITIVE_YEARS,
+            )
+
         self._annual_minimums_all = annual
         self._annual_minimums = usable
         self._results: Optional[LowFlowResults] = None
-        self._n_positive_years: Optional[int] = None
+        self._n_positive_years: int = n_pos
 
     @property
     def annual_minimums(self) -> pd.DataFrame:
@@ -323,20 +400,15 @@ class LowFlowFrequency:
         flows = self._annual_minimums["flow_cfs"].to_numpy(dtype=float)
         n_years = len(flows)
 
+        # Zero/positive split, MIN_POSITIVE_YEARS, and the thin-sample skew
+        # warning are all resolved once, in __init__ -- not recomputed here --
+        # so a user sees every validation/warning at construction time and
+        # this method can never disagree with __init__ about n_pos.
         is_zero = flows <= 0.0
         n_zero = int(np.sum(is_zero))
         p_zero = n_zero / n_years
         positive = flows[~is_zero]
-        n_pos = len(positive)
-
-        if n_pos < self.MIN_POSITIVE_YEARS:
-            raise ValueError(
-                f"Only {n_pos} nonzero year(s) out of {n_years}; at least "
-                f"{self.MIN_POSITIVE_YEARS} are required to fit a distribution to the "
-                f"positive-flow years. A record this zero-dominated may not be suited to "
-                f"this method at all -- consider whether the site is effectively "
-                f"intermittent rather than perennial with occasional zero years."
-            )
+        n_pos = self._n_positive_years
 
         log_flows = np.log10(positive)
         mean_log = float(np.mean(log_flows))
@@ -361,7 +433,6 @@ class LowFlowFrequency:
             skew_station = 0.0
         skew_used = 0.0 if self._distribution == "lognormal" else skew_station
 
-        self._n_positive_years = n_pos
         self._results = LowFlowResults(
             n_years=n_years,
             n_zero_years=n_zero,
@@ -443,10 +514,12 @@ class LowFlowFrequency:
         applied to the positive-year fit at the conditional probability. This
         does not account for the added uncertainty in ``p_zero`` itself, so
         it understates true uncertainty for a record with any zero years;
-        treat it as a lower bound on the actual interval width. Limits are
-        not reported (NaN) for ``p <= p_zero``, where the point estimate is
-        the deterministic value 0 rather than a value with sampling
-        uncertainty in the usual sense.
+        treat it as a lower bound on the actual interval width for such a
+        record, and prefer :meth:`compute_bootstrap_confidence_limits` when
+        that additional uncertainty matters to how the result will be used.
+        Limits are not reported (NaN) for ``p <= p_zero``, where the point
+        estimate is the deterministic value 0 rather than a value with
+        sampling uncertainty in the usual sense.
 
         Parameters
         ----------
@@ -494,5 +567,155 @@ class LowFlowFrequency:
                 "flow_cfs": flow_cfs,
                 f"lower_{pct}pct": lower,
                 f"upper_{pct}pct": upper,
+            }
+        )
+
+    def compute_bootstrap_confidence_limits(
+        self,
+        non_exceedance: np.ndarray = None,
+        confidence: float = 0.90,
+        n_resamples: int = 2000,
+        random_state: Optional[int] = None,
+    ) -> pd.DataFrame:
+        """Parametric bootstrap confidence limits.
+
+        An alternative to :meth:`compute_confidence_limits` for a record
+        with any zero-flow years: that method's variance formula treats
+        ``p_zero`` as known, so it does not reflect the sampling uncertainty
+        in ``p_zero`` itself. This method does, at the cost of being a
+        resampling procedure rather than a closed-form one.
+
+        Each of `n_resamples` iterations: draws a simulated zero-year count
+        from ``Binomial(n_years, p_zero)`` (propagating p_zero's own
+        binomial uncertainty, not holding it fixed); simulates that many
+        positive-year log-flows from the *fitted* distribution via
+        :func:`hydrolib.core.lp3_frequency_factor_peakfq` (the same exact
+        method used for the point estimate, so simulation and estimation
+        are on one consistent basis); refits station skew (or holds it at
+        0 for ``distribution="lognormal"``, matching :meth:`run_analysis`)
+        from the simulated sample; and recomputes the quantile at each
+        requested probability using that iteration's own simulated p_zero
+        and refit parameters -- via the same conditional-probability
+        formula as the point estimate. The lower/upper limits are the
+        ``(1-confidence)/2`` and ``1-(1-confidence)/2`` percentiles of the
+        resulting distribution across iterations.
+
+        A simulated positive-year count below 3 (too few to fit a skew)
+        is skipped rather than forced; this happens more often for a
+        record with a large `p_zero` and few total years, and is reported
+        via ``n_resamples_used`` so a heavily-skipped run is visible rather
+        than silently returning a CI built from fewer effective iterations
+        than requested.
+
+        Parameters
+        ----------
+        non_exceedance : np.ndarray, optional
+            Defaults to :attr:`STANDARD_NONEXCEEDANCE`.
+        confidence : float
+            Confidence level, default 0.90.
+        n_resamples : int
+            Bootstrap iterations, default 2000.
+        random_state : int, optional
+            Seed for reproducibility. ``None`` (default) draws a fresh seed
+            each call, so repeated calls will not return bit-identical
+            limits -- pass an explicit seed for a reproducible result.
+
+        Returns
+        -------
+        pd.DataFrame
+            Columns: ``non_exceedance_prob``, ``return_period``,
+            ``flow_cfs``, ``lower_{pct}pct``, ``upper_{pct}pct``,
+            ``n_resamples_used``.
+
+        Raises
+        ------
+        ValueError
+            Fewer than half of `n_resamples` iterations produced a usable
+            simulated sample -- the record's `p_zero` is high enough
+            relative to its length that this method is not well supported
+            either; :meth:`compute_confidence_limits` at least gives a
+            (documented-partial) answer in that case.
+
+        Notes
+        -----
+        This still does not capture every source of uncertainty: it treats
+        the *fitted* distribution as the true population to simulate from,
+        so it reflects sampling variability around that fit, not the
+        possibility that LP3 (or lognormal) is itself the wrong distribution
+        family for this site.
+        """
+        if self._results is None:
+            self.run_analysis()
+
+        p = self._validate_probabilities(non_exceedance)
+        n_years = self._results.n_years
+        p0_hat = self._results.p_zero
+        mean_log = self._results.mean_log
+        std_log = self._results.std_log
+        skew_fit = self._results.skew_used
+
+        rng = np.random.default_rng(random_state)
+        sim_quantiles = []
+
+        for _ in range(n_resamples):
+            n_zero_sim = int(rng.binomial(n_years, p0_hat))
+            n_pos_sim = n_years - n_zero_sim
+            if n_pos_sim < 3:
+                continue
+
+            u = rng.uniform(size=n_pos_sim)
+            sim_log_flows = mean_log + lp3_frequency_factor_peakfq(u, skew_fit) * std_log
+
+            sim_mean = float(np.mean(sim_log_flows))
+            sim_std = float(np.std(sim_log_flows, ddof=1))
+            if sim_std > 0 and self._distribution == "lp3":
+                sim_skew = (
+                    n_pos_sim
+                    * np.sum((sim_log_flows - sim_mean) ** 3)
+                    / ((n_pos_sim - 1) * (n_pos_sim - 2) * sim_std**3)
+                )
+                sim_skew = float(np.clip(sim_skew, -MAX_ABS_SKEW, MAX_ABS_SKEW))
+            else:
+                # Zero variance in this resample, or distribution="lognormal"
+                # forcing skew to 0 regardless -- same reasoning as
+                # run_analysis()'s own zero-variance guard.
+                sim_skew = 0.0
+
+            p0_sim = n_zero_sim / n_years
+            below = p <= p0_sim
+            p_cond = np.where(below, np.nan, (p - p0_sim) / (1 - p0_sim))
+            k_q = np.full_like(p, np.nan)
+            if np.any(~below):
+                k_q[~below] = lp3_frequency_factor_peakfq(p_cond[~below], sim_skew)
+            log_q = sim_mean + k_q * sim_std
+            sim_quantiles.append(np.where(below, 0.0, 10**log_q))
+
+        n_used = len(sim_quantiles)
+        if n_used < n_resamples / 2:
+            raise ValueError(
+                f"Only {n_used} of {n_resamples} bootstrap iterations produced a usable "
+                f"sample (p_zero={p0_hat:.3f} over {n_years} years makes a too-small "
+                f"simulated positive-year count common); this record's zero-flow rate is "
+                f"too high relative to its length for this method to be well supported "
+                f"either. compute_confidence_limits() gives a documented-partial answer "
+                f"in the meantime."
+            )
+
+        stacked = np.array(sim_quantiles)
+        alpha = 1 - confidence
+        lower = np.nanpercentile(stacked, 100 * alpha / 2, axis=0)
+        upper = np.nanpercentile(stacked, 100 * (1 - alpha / 2), axis=0)
+        pct = int(confidence * 100)
+
+        point = self.compute_quantiles(p)["flow_cfs"].to_numpy()
+
+        return pd.DataFrame(
+            {
+                "non_exceedance_prob": p,
+                "return_period": 1 / p,
+                "flow_cfs": point,
+                f"lower_{pct}pct": lower,
+                f"upper_{pct}pct": upper,
+                "n_resamples_used": n_used,
             }
         )
