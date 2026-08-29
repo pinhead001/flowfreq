@@ -178,10 +178,19 @@ def _daily_with_year(daily_data: pd.DataFrame, year_type: str) -> pd.DataFrame:
     return pd.DataFrame({"year": years, "flow_cfs": flows.to_numpy()}, index=full_idx)
 
 
-def _year_completeness(df: pd.DataFrame, min_days: int) -> Tuple[pd.Series, pd.Series]:
+def _year_completeness(
+    year_labels: pd.Series, is_valid: pd.Series, min_days: int
+) -> Tuple[pd.Series, pd.Series]:
     """Per-year valid-day counts and the min_days completeness flag, as a
-    (n_days, complete) pair sharing one groupby pass."""
-    n_days = df.groupby("year")["flow_cfs"].apply(lambda s: int(s.notna().sum()))
+    (n_days, complete) pair sharing one groupby pass.
+
+    Takes an explicit `is_valid` boolean mask rather than assuming
+    ``flow_cfs.notna()`` -- callers whose metric depends on more than one
+    column's validity (see baseflow_index, where a day only counts if
+    *both* total flow and separated baseflow are available) pass their own
+    mask instead of this silently checking the wrong column.
+    """
+    n_days = is_valid.groupby(year_labels).apply(lambda s: int(s.sum()))
     return n_days, n_days >= min_days
 
 
@@ -224,7 +233,7 @@ def richards_baker_flashiness(
         diffs = np.abs(np.diff(vals))
         return float(np.nansum(diffs) / total)
 
-    n_days, complete = _year_completeness(df, min_days)
+    n_days, complete = _year_completeness(df["year"], df["flow_cfs"].notna(), min_days)
     rbi = df.groupby("year").apply(_rbi, include_groups=False)
     rbi = rbi.where(complete, np.nan)
 
@@ -266,7 +275,7 @@ def tqmean(daily_data: pd.DataFrame, year_type: str = "water", min_days: int = 3
             return np.nan
         return float(np.mean(valid > valid.mean()))
 
-    n_days, complete = _year_completeness(df, min_days)
+    n_days, complete = _year_completeness(df["year"], df["flow_cfs"].notna(), min_days)
     tq = df.groupby("year").apply(_tqmean, include_groups=False)
     tq = tq.where(complete, np.nan)
 
@@ -548,22 +557,42 @@ def baseflow_index(
         Columns: ``year``, ``baseflow_index`` (NaN if incomplete or if the
         method found no valid baseflow ordinate in that year), ``n_days``,
         ``complete``, ``method``.
+
+    Notes
+    -----
+    ``n_days`` counts only days where *both* total flow and separated
+    baseflow are available -- the days that actually feed the ratio, not
+    every day with a valid daily flow value. Every separation method
+    leaves some days undefined (a warm-up run before the first identified
+    turning point for "ih_smoothed_minima", "hysep_sliding", and
+    "hysep_local_minimum"; the run of days spoiled by any gap in the
+    input, for all five methods). Summing total flow over the whole year
+    while summing baseflow over only the days it happens to cover would
+    silently bias the ratio toward whatever is NOT represented in the
+    unmatched days -- worst when a storm or a gap during high water falls
+    in the unmatched stretch, since its volume then inflates the
+    denominator with no matching contribution to the numerator.
+    ``complete`` gates on this same matched day-set, not on `daily_data`'s
+    own completeness, so a year missing no input data can still show
+    ``complete=False`` if the separation method's own edge effects leave
+    too much of it unmatched.
     """
     baseflow = separate_baseflow(
         daily_data, method=method, drainage_area_sqmi=drainage_area_sqmi, **method_kwargs
     )
     df = _daily_with_year(daily_data.reindex(baseflow.index), year_type)
     df["baseflow_cfs"] = baseflow.to_numpy()
+    matched = df["flow_cfs"].notna() & df["baseflow_cfs"].notna()
 
     def _bfi(group: pd.DataFrame) -> float:
-        total = np.nansum(group["flow_cfs"].to_numpy())
-        base = np.nansum(group["baseflow_cfs"].to_numpy())
-        if total <= 0 or group["baseflow_cfs"].notna().sum() == 0:
+        rows = group[group["_matched"]]
+        total = rows["flow_cfs"].sum()
+        if len(rows) == 0 or total <= 0:
             return np.nan
-        return float(base / total)
+        return float(rows["baseflow_cfs"].sum() / total)
 
-    n_days, complete = _year_completeness(df, min_days)
-    bfi = df.groupby("year").apply(_bfi, include_groups=False)
+    n_days, complete = _year_completeness(df["year"], matched, min_days)
+    bfi = df.assign(_matched=matched).groupby("year").apply(_bfi, include_groups=False)
     bfi = bfi.where(complete, np.nan)
 
     result = pd.DataFrame(
@@ -801,9 +830,30 @@ class FlowRegime:
         annual = rbi[["year", "flashiness_index", "n_days", "complete"]].merge(
             tq[["year", "tqmean"]], on="year"
         )
-        annual = annual.merge(bfi[["year", "baseflow_index"]], on="year")
+        # baseflow_index's own completeness is gated on a *different* day-set
+        # than flashiness_index/tqmean (see baseflow_index's Notes): a year
+        # can have complete=True here (its daily flow record is fine) while
+        # baseflow_complete=False (the separation method's own edge effects
+        # -- a turning-point warm-up, or a gap -- left too little of that
+        # year matched between flow and baseflow). Kept as a separate column
+        # rather than forced into one flag, so a NaN baseflow_index is never
+        # unexplained next to a complete=True that isn't actually about it.
+        annual = annual.merge(
+            bfi[["year", "baseflow_index", "complete"]].rename(
+                columns={"complete": "baseflow_complete"}
+            ),
+            on="year",
+        )
         self._annual = annual[
-            ["year", "flashiness_index", "tqmean", "baseflow_index", "n_days", "complete"]
+            [
+                "year",
+                "flashiness_index",
+                "tqmean",
+                "baseflow_index",
+                "n_days",
+                "complete",
+                "baseflow_complete",
+            ]
         ]
 
         self._monthly = monthly_flow_summary(
@@ -824,7 +874,10 @@ class FlowRegime:
 
     @property
     def annual(self) -> pd.DataFrame:
-        """Per-year table: flashiness_index, tqmean, baseflow_index, n_days, complete."""
+        """Per-year table: flashiness_index, tqmean, baseflow_index, n_days,
+        complete (flashiness_index/tqmean's own completeness), and
+        baseflow_complete (baseflow_index's own, independent completeness --
+        see baseflow_index's Notes for why these two can differ)."""
         return self._annual.copy()
 
     @property
@@ -846,30 +899,46 @@ class FlowRegime:
         """Period-of-record summary across complete years.
 
         See the module docstring for why baseflow_index and flashiness_index
-        are pooled (volume-weighted) while tqmean is averaged.
+        are pooled (volume-weighted) while tqmean is averaged. baseflow_index
+        is pooled over the years passing its own baseflow_complete flag, not
+        `complete` -- the two can differ (see baseflow_index's Notes), and
+        gating BFI's pool on the wrong one would let an unmatched-day-set
+        year back into the pooled sum, the exact defect this now guards
+        against at the per-year level.
 
         Returns
         -------
         pd.Series
-            Index: ``n_years``, ``flashiness_index``, ``tqmean``,
-            ``baseflow_index``.
+            Index: ``n_years`` (flashiness_index/tqmean), ``flashiness_index``,
+            ``tqmean``, ``baseflow_index``, ``baseflow_n_years`` (the
+            possibly-different count baseflow_index was pooled over).
         """
         complete = self._annual[self._annual["complete"]]
+        baseflow_complete = self._annual[self._annual["baseflow_complete"]]
         n_years = len(complete)
-        if n_years == 0:
+        baseflow_n_years = len(baseflow_complete)
+        if n_years == 0 and baseflow_n_years == 0:
             return pd.Series(
                 {
                     "n_years": 0,
                     "flashiness_index": np.nan,
                     "tqmean": np.nan,
                     "baseflow_index": np.nan,
+                    "baseflow_n_years": 0,
                 }
             )
 
-        complete_years = set(complete["year"])
-        rbi_pooled = self._pooled_flashiness(complete_years)
-        bfi_pooled = self._pooled_baseflow_index(complete_years)
-        tqmean_mean = float(self._annual.loc[self._annual["complete"], "tqmean"].mean())
+        rbi_pooled = self._pooled_flashiness(set(complete["year"])) if n_years else np.nan
+        bfi_pooled = (
+            self._pooled_baseflow_index(set(baseflow_complete["year"]))
+            if baseflow_n_years
+            else np.nan
+        )
+        tqmean_mean = (
+            float(self._annual.loc[self._annual["complete"], "tqmean"].mean())
+            if n_years
+            else np.nan
+        )
 
         return pd.Series(
             {
@@ -877,6 +946,7 @@ class FlowRegime:
                 "flashiness_index": rbi_pooled,
                 "tqmean": tqmean_mean,
                 "baseflow_index": bfi_pooled,
+                "baseflow_n_years": baseflow_n_years,
             }
         )
 
@@ -895,15 +965,26 @@ class FlowRegime:
 
     def _pooled_baseflow_index(self, complete_years: set) -> float:
         """Volume-weighted BFI across complete years: pool baseflow and
-        total-flow volume, then take one ratio."""
+        total-flow volume over the matched (both valid) day-set, then take
+        one ratio.
+
+        Restricting to matched days here, not just filtering which YEARS
+        are included, matters: even within an included year, summing total
+        flow over every day while summing baseflow over only the days the
+        separation method happened to cover would reintroduce the exact
+        day-set mismatch baseflow_index's own fix addresses, just inside
+        the pooling loop instead of the per-year calculation.
+        """
         baseflow = self._baseflow_series.reindex(self._daily.index).to_numpy()
+        df = self._daily.assign(baseflow_cfs=baseflow)
+        matched = df["flow_cfs"].notna() & df["baseflow_cfs"].notna()
         total_base = 0.0
         total_flow = 0.0
-        for year, group in self._daily.assign(baseflow_cfs=baseflow).groupby("year"):
+        for year, group in df[matched].groupby("year"):
             if year not in complete_years:
                 continue
-            total_base += np.nansum(group["baseflow_cfs"].to_numpy())
-            total_flow += np.nansum(group["flow_cfs"].to_numpy())
+            total_base += group["baseflow_cfs"].sum()
+            total_flow += group["flow_cfs"].sum()
         return float(total_base / total_flow) if total_flow > 0 else np.nan
 
 

@@ -318,6 +318,96 @@ class TestSeparateBaseflowAndBaseflowIndex:
         with pytest.raises(ValueError, match="requires drainage_area_sqmi"):
             baseflow_index(daily, method="hysep_fixed")
 
+    def test_n_days_counts_matched_days_not_raw_flow_days(self) -> None:
+        """Regression: n_days must reflect days where BOTH flow_cfs and the
+        separated baseflow are valid, not just flow_cfs -- ih_smoothed_minima
+        always leaves a multi-day warm-up region NaN before its first
+        turning point (and, for an isolated year, another before its last),
+        even on perfectly gap-free daily data."""
+        rng = np.random.default_rng(3)
+        idx = pd.date_range("2010-01-01", periods=365, freq="D")
+        flow = np.clip(50 + 5 * np.sin(np.arange(365) / 30) + rng.normal(0, 1, 365), 20, None)
+        daily = pd.DataFrame({"flow_cfs": flow}, index=idx)
+
+        bf = separate_baseflow(daily, method="ih_smoothed_minima")
+        expected_n_days = int(bf.notna().sum())
+        assert expected_n_days < 365, "the reproduction must actually have a warm-up gap"
+
+        bfi = baseflow_index(daily, year_type="calendar", min_days=350)
+        row = bfi.iloc[0]
+        assert row["n_days"] < 365, "n_days must be less than the full flow record"
+        assert row["n_days"] == expected_n_days
+
+    def test_baseflow_index_matches_manually_computed_matched_day_ratio(self) -> None:
+        """Regression for the core defect: baseflow_index must equal
+        sum(baseflow)/sum(flow) over the SAME (matched) day-set, not
+        sum(baseflow over available days)/sum(flow over ALL days). Before
+        the fix this reported 0.9604 here; the matched-day-set ratio is
+        0.9765 -- a 1.6-point difference from mixing denominators, with no
+        warning since 'complete' was (wrongly) True either way."""
+        rng = np.random.default_rng(3)
+        idx = pd.date_range("2010-01-01", periods=365 * 4, freq="D")
+        flow = np.clip(
+            50 + 5 * np.sin(np.arange(len(idx)) / 30) + rng.normal(0, 1, len(idx)), 20, None
+        )
+        daily = pd.DataFrame({"flow_cfs": flow}, index=idx)
+
+        bf = separate_baseflow(daily, method="ih_smoothed_minima")
+        aligned_flow = daily["flow_cfs"].reindex(bf.index)
+        matched = bf.notna() & aligned_flow.notna()
+        year_labels = pd.DatetimeIndex(bf.index).year
+        year0 = year_labels[0]
+        mask = matched & (year_labels == year0)
+        expected = bf[mask].sum() / aligned_flow[mask].sum()
+
+        bfi = baseflow_index(daily, year_type="calendar", min_days=350)
+        reported = bfi[bfi["year"] == year0].iloc[0]["baseflow_index"]
+        assert reported == pytest.approx(expected, abs=1e-9)
+        assert reported == pytest.approx(0.9765, abs=0.001)
+
+    def test_a_storm_inside_the_warmup_window_no_longer_biases_the_ratio(self) -> None:
+        """The dramatic case: a large event landing entirely inside the
+        method's warm-up window used to inflate the denominator (all of it
+        counted in total flow) while contributing nothing to the numerator
+        (excluded from the baseflow sum) -- reported BFI came out 0.886
+        against a correct 0.951. Must now match the matched-day value."""
+        rng = np.random.default_rng(7)
+        idx = pd.date_range("2010-01-01", periods=365 * 3, freq="D")
+        flow = np.clip(
+            50 + 5 * np.sin(np.arange(len(idx)) / 30) + rng.normal(0, 1, len(idx)), 20, None
+        )
+        flow[0:25] += 300  # spike squarely inside the warm-up window
+        daily = pd.DataFrame({"flow_cfs": flow}, index=idx)
+
+        bfi = baseflow_index(daily, year_type="calendar", min_days=350)
+        row = bfi[bfi["year"] == 2010].iloc[0]
+        assert row["baseflow_index"] == pytest.approx(0.951, abs=0.001)
+
+    def test_complete_true_never_accompanies_a_mismatched_ratio(self) -> None:
+        """No dataset should be able to reach complete=True while its
+        reported ratio still mixes day-sets -- complete must gate on the
+        same matched set the ratio itself uses."""
+        for seed in range(5):
+            rng = np.random.default_rng(seed)
+            idx = pd.date_range("2010-01-01", periods=365 * 2, freq="D")
+            flow = np.clip(
+                50 + 5 * np.sin(np.arange(len(idx)) / 30) + rng.normal(0, 1, len(idx)), 20, None
+            )
+            daily = pd.DataFrame({"flow_cfs": flow}, index=idx)
+            bfi = baseflow_index(daily, year_type="calendar", min_days=350)
+
+            bf = separate_baseflow(daily, method="ih_smoothed_minima")
+            aligned_flow = daily["flow_cfs"].reindex(bf.index)
+            matched = bf.notna() & aligned_flow.notna()
+            year_labels = pd.DatetimeIndex(bf.index).year
+
+            for _, row in bfi.iterrows():
+                if not row["complete"]:
+                    continue
+                mask = matched & (year_labels == row["year"])
+                expected = bf[mask].sum() / aligned_flow[mask].sum()
+                assert row["baseflow_index"] == pytest.approx(expected, abs=1e-9)
+
 
 class TestMonthlyFlowSummary:
     """Tests for the per-(year, month) summary table."""
@@ -512,6 +602,63 @@ class TestFlowRegime:
         # BFIs actually differ.
         if abs(bfi_2010 - bfi_2011) > 0.01:
             assert abs(summary["baseflow_index"] - bfi_2011) < abs(naive_mean - bfi_2011)
+
+    def test_baseflow_complete_column_present_and_can_diverge_from_complete(self) -> None:
+        """Regression: complete (flashiness_index/tqmean's own gate) and
+        baseflow_complete (baseflow_index's own, independent gate) are
+        different questions and must be reported separately. A short record
+        can have a fully-valid daily flow series (complete=True) while
+        hysep_local_minimum's long warm-up window still leaves too little
+        matched data for baseflow_index (baseflow_complete=False) --
+        without the separate column this would show up as an unexplained
+        NaN baseflow_index next to complete=True."""
+        idx = pd.date_range("2020-01-01", periods=355, freq="D")
+        flow = 50 + 5 * np.sin(np.arange(355) / 20)
+        daily = pd.DataFrame({"flow_cfs": flow}, index=idx)
+
+        regime = FlowRegime(
+            daily,
+            year_type="calendar",
+            min_days=350,
+            baseflow_method="hysep_local_minimum",
+            drainage_area_sqmi=500.0,
+        )
+        assert "baseflow_complete" in regime.annual.columns
+        row = regime.annual.iloc[0]
+        assert row["complete"]
+        assert not row["baseflow_complete"]
+        assert np.isnan(row["baseflow_index"])
+
+    def test_pooled_baseflow_index_matches_manual_matched_day_computation(self) -> None:
+        """Regression: FlowRegime.summary()'s pooled BFI must match summing
+        baseflow and flow over the SAME matched day-set across complete
+        years, not baseflow-available-days over all-days -- the same defect
+        as baseflow_index() itself, but inside the pooling loop."""
+        rng = np.random.default_rng(3)
+        idx = pd.date_range("2010-01-01", periods=365 * 4, freq="D")
+        flow = np.clip(
+            50 + 5 * np.sin(np.arange(len(idx)) / 30) + rng.normal(0, 1, len(idx)), 20, None
+        )
+        daily = pd.DataFrame({"flow_cfs": flow}, index=idx)
+
+        regime = FlowRegime(daily, year_type="calendar", min_days=350)
+        summary = regime.summary()
+
+        bf = separate_baseflow(daily, method="ih_smoothed_minima")
+        aligned_flow = daily["flow_cfs"].reindex(bf.index)
+        matched = bf.notna() & aligned_flow.notna()
+        complete_years = set(regime.annual.loc[regime.annual["baseflow_complete"], "year"])
+        year_labels = pd.DatetimeIndex(bf.index).year
+        include = matched & pd.Series(year_labels, index=bf.index).isin(complete_years).to_numpy()
+        expected = bf[include].sum() / aligned_flow[include].sum()
+
+        assert summary["baseflow_index"] == pytest.approx(expected, abs=1e-9)
+
+    def test_summary_reports_baseflow_n_years_separately(self) -> None:
+        daily = _synthetic_daily(n_years=15)
+        regime = FlowRegime(daily)
+        summary = regime.summary()
+        assert summary["baseflow_n_years"] == regime.annual["baseflow_complete"].sum()
 
 
 def _pacific_diel_series(
