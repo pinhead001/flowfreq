@@ -6,25 +6,26 @@ Reference: PeakfqSA User Manual (Tim Cohn, USGS, 2012)
 Site: USGS 03606500 - Big Sandy River at Bruceton, TN
 """
 
-import pytest
-import numpy as np
 from typing import Dict, Tuple
 
+import numpy as np
+import pytest
+
 from hydrolib.bulletin17c import Bulletin17C
-from hydrolib.core import FlowInterval, EMAParameters
+from hydrolib.core import EMAParameters, FlowInterval
 
 # Import fixture data
 from tests.peakfqsa.fixtures.big_sandy import (
-    SYSTEMATIC_PEAKS,
-    HISTORICAL_PEAKS,
-    THRESHOLDS,
     BEGYEAR,
     ENDYEAR,
-    REGIONAL_SKEW,
-    REGIONAL_SKEW_SD,
+    EXPECTED_CONFIDENCE_INTERVALS,
     EXPECTED_PARAMETERS,
     EXPECTED_QUANTILES,
-    EXPECTED_CONFIDENCE_INTERVALS,
+    HISTORICAL_PEAKS,
+    REGIONAL_SKEW,
+    REGIONAL_SKEW_SD,
+    SYSTEMATIC_PEAKS,
+    THRESHOLDS,
     TOLERANCE_PERCENT,
 )
 
@@ -78,7 +79,7 @@ class TestBigSandyParameters:
             peak_flows=peak_flows,
             water_years=water_years,
             regional_skew=REGIONAL_SKEW,
-            regional_skew_mse=REGIONAL_SKEW_SD ** 2,
+            regional_skew_mse=REGIONAL_SKEW_SD**2,
             historical_peaks=historical_peaks,
             perception_thresholds=perception_thresholds,
         )
@@ -132,7 +133,7 @@ class TestBigSandyQuantiles:
             peak_flows=peak_flows,
             water_years=water_years,
             regional_skew=REGIONAL_SKEW,
-            regional_skew_mse=REGIONAL_SKEW_SD ** 2,
+            regional_skew_mse=REGIONAL_SKEW_SD**2,
             historical_peaks=historical_peaks,
             perception_thresholds=perception_thresholds,
         )
@@ -147,7 +148,9 @@ class TestBigSandyQuantiles:
         pct_diff = abs(actual_flow - expected_flow) / expected_flow * 100
 
         ri = 1 / aep
-        print(f"\nQ{ri:.1f} (AEP={aep}): expected={expected_flow:.2f}, actual={actual_flow:.2f}, diff={pct_diff:.2f}%")
+        print(
+            f"\nQ{ri:.1f} (AEP={aep}): expected={expected_flow:.2f}, actual={actual_flow:.2f}, diff={pct_diff:.2f}%"
+        )
         assert pct_diff < TOLERANCE_PERCENT * 2, f"Q{ri:.0f} differs by {pct_diff:.2f}%"
 
 
@@ -169,7 +172,7 @@ class TestBigSandyConfidenceIntervals:
             peak_flows=peak_flows,
             water_years=water_years,
             regional_skew=REGIONAL_SKEW,
-            regional_skew_mse=REGIONAL_SKEW_SD ** 2,
+            regional_skew_mse=REGIONAL_SKEW_SD**2,
             historical_peaks=historical_peaks,
             perception_thresholds=perception_thresholds,
         )
@@ -214,7 +217,7 @@ class TestBigSandySummary:
             peak_flows=peak_flows,
             water_years=water_years,
             regional_skew=REGIONAL_SKEW,
-            regional_skew_mse=REGIONAL_SKEW_SD ** 2,
+            regional_skew_mse=REGIONAL_SKEW_SD**2,
             historical_peaks=historical_peaks,
             perception_thresholds=perception_thresholds,
         )
@@ -269,7 +272,9 @@ class TestBigSandySummary:
             print(f"{ri_str:<18} {expected_flow:>12.2f} {actual_flow:>12.2f} {pct_diff:>+10.2f}")
 
         print("\n--- CONFIDENCE INTERVALS (90%) ---")
-        print(f"{'Return Interval':<12} {'Expected Lower':>14} {'Actual Lower':>14} {'Expected Upper':>14} {'Actual Upper':>14}")
+        print(
+            f"{'Return Interval':<12} {'Expected Lower':>14} {'Actual Lower':>14} {'Expected Upper':>14} {'Actual Upper':>14}"
+        )
         print("-" * 70)
 
         ci_aeps = np.array(sorted(EXPECTED_CONFIDENCE_INTERVALS.keys(), reverse=True))
@@ -281,7 +286,9 @@ class TestBigSandySummary:
             lower = ci_df["lower_5pct"].iloc[i]
             upper = ci_df["upper_5pct"].iloc[i]
             ri_str = f"{ri:.0f}-yr"
-            print(f"{ri_str:<12} {exp_lower:>14.2f} {lower:>14.2f} {exp_upper:>14.2f} {upper:>14.2f}")
+            print(
+                f"{ri_str:<12} {exp_lower:>14.2f} {lower:>14.2f} {exp_upper:>14.2f} {upper:>14.2f}"
+            )
 
         print("\n--- ANALYSIS METADATA ---")
         print(f"Method: {r.method}")
