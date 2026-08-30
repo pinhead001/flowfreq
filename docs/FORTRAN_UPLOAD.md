@@ -454,9 +454,20 @@ and that HydroLib falls back to the native EMA path when it is absent.
 Run on the machine holding `C:\a\hal\_shared\peakfqr`.
 
 **Pick a shell first.** The blocks below are Git Bash. `cmd.exe` will not run them —
-`SHARED=/c/a/hal/...` is bash syntax and cmd answers *'SHARED' is not recognized*. From a
-`C:\>` prompt just type `bash` to drop into Git Bash (it ships with Git for Windows), or
-use the PowerShell version in §5a.
+`SHARED=/c/a/hal/...` is bash syntax and cmd answers *'SHARED' is not recognized*.
+
+Do **not** just type `bash` at a `C:\>` prompt. On Windows that resolves to
+`C:\Windows\System32\bash.exe`, the WSL launcher, which fails with
+`WSL (10 - Relay) ERROR: CreateProcessCommon:800: execvpe(/bin/bash) failed` when no WSL
+distro is installed. Git Bash is a different program:
+
+```
+"C:\Program Files\Git\bin\bash.exe"
+```
+
+Launch that (or Git Bash from the Start menu, or right-click → *Git Bash Here*) and the
+blocks below work as written. **If you would rather not, use §5a — PowerShell is always
+present and needs no setup.**
 
 **Step 1 — get onto the designated branch.**
 
@@ -530,9 +541,13 @@ $fixtures = @(
   "wymt_ffa_2022A_EXPinfo_7_4.csv", "wymt_ffa_2022A_EXPdata_7_4.csv",
   "wymt_ffa_2022A_EMPdata_7_4.csv", "wymt_ffa_2022A_MGBT_7_5_1.csv"
 )
+$missing = @()
 foreach ($f in $fixtures) {
-  Copy-Item "$Shared\inst\testdata\$f" "$Vendor\inst\testdata\" -Force
+  $src = "$Shared\inst\testdata\$f"
+  if (Test-Path $src) { Copy-Item $src "$Vendor\inst\testdata\" -Force }
+  else                { $missing += $f }
 }
+if ($missing) { Write-Warning "Not found in the reference tree: $($missing -join ', ')" }
 Copy-Item "$Shared\inst\testdata\extra_tests" "$Vendor\inst\testdata\" -Recurse -Force
 
 Copy-Item ("$Shared\tests\testthat\test-fortran.R",
@@ -548,7 +563,7 @@ Then verify (the §5 Step 4 checks, in PowerShell):
 
 ```powershell
 Get-Content "$Vendor\src\emafit.f" -TotalCount 5
-(Select-String "$Vendor\src\emafit.f" -Pattern 'subroutine emafitpr').Count   # expect >= 1
+(Select-String -Path "$Vendor\src\emafit.f" -Pattern 'subroutine\s+emafitpr').Count  # expect >= 1
 git status --porcelain --ignored vendor/ | Select-String '^!!'                  # expect nothing
 "{0:N1} MB" -f ((Get-ChildItem $Vendor -Recurse -File |
                  Measure-Object Length -Sum).Sum / 1MB)
@@ -562,7 +577,7 @@ never by pasting file contents through an editor.
 ```bash
 # Fortran arrived intact and un-normalized
 head -5 vendor/peakfqr/src/emafit.f
-grep -c 'subroutine emafitpr' vendor/peakfqr/src/emafit.f     # expect >= 1
+grep -ciE 'subroutine[[:space:]]+emafitpr' vendor/peakfqr/src/emafit.f   # expect >= 1
 file vendor/peakfqr/src/*.f                                    # "ASCII text", not "CRLF"
 
 # nothing in the manifest is being ignored
