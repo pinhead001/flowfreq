@@ -1,0 +1,49 @@
+# Line-ending and whitespace policy.
+#
+# The Fortran rules below exist because fixed-form Fortran is column-sensitive:
+# columns 1-5 are the statement label, column 6 marks a continuation, and the
+# statement itself lives in columns 7-72. Anything that shifts characters
+# sideways changes the meaning of the program, and does so invisibly -- the
+# diff looks like whitespace, the compiler sees different code.
+#
+# Two distinct protections are at work, and they do different jobs:
+#
+#   text eol=lf
+#       Pins the bytes. The repository stores LF, and every checkout gets LF,
+#       so a contributor with core.autocrlf=true cannot silently rewrite line
+#       endings on the way in or out. (gfortran itself tolerates CRLF; the
+#       point is that the stored bytes stay identical to upstream's.)
+#
+#   whitespace=-trailing-space,-tab-in-indent
+#       Tells git NOT to treat trailing whitespace or leading tabs as errors
+#       in these files. This is the load-bearing one: without it,
+#       `git apply --whitespace=fix` and `git rebase --whitespace=fix` will
+#       happily strip trailing spaces and expand indent tabs, which is exactly
+#       the corruption described above. It also silences the false positives
+#       `git diff --check` would otherwise report on every Fortran hunk.
+
+# Fixed-form Fortran (.f, .for, .f77) and free-form (.f90). Uppercase variants
+# conventionally mean "run the C preprocessor first" and are just as sensitive.
+*.f       text eol=lf whitespace=-trailing-space,-tab-in-indent
+*.F       text eol=lf whitespace=-trailing-space,-tab-in-indent
+*.for     text eol=lf whitespace=-trailing-space,-tab-in-indent
+*.f77     text eol=lf whitespace=-trailing-space,-tab-in-indent
+*.f90     text eol=lf whitespace=-trailing-space,-tab-in-indent
+*.F90     text eol=lf whitespace=-trailing-space,-tab-in-indent
+
+# f2py signature files describe the Fortran interface; keep them byte-stable too.
+*.pyf     text eol=lf
+
+# R sources vendored from peakfqr, read as the call-convention reference.
+*.R       text eol=lf
+
+# Make requires a literal TAB to open a recipe line. Expanding those tabs
+# breaks the build outright, so the same whitespace exemption applies.
+Makevars      text eol=lf whitespace=-trailing-space,-tab-in-indent
+Makevars.win  text eol=lf whitespace=-trailing-space,-tab-in-indent
+
+# Reference test data is byte-exact expected output from the USGS package.
+# -text disables all normalization so the bytes match upstream exactly. The
+# trade-off is that git treats these as binary and will not render textual
+# diffs for them -- acceptable for fixtures that are never meant to change.
+vendor/peakfqr/inst/testdata/**  -text
