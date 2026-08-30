@@ -69,8 +69,12 @@ def build_flow_intervals() -> Tuple[list, list, EMAParameters]:
 class TestBigSandyParameters:
     """Test LP3 parameter estimation against expected values."""
 
-    @pytest.fixture
-    def b17c_result(self):
+    # Class-scoped: the MGBT three-sweep makes each run_analysis() cost ~2s, and
+    # every parametrized case in these classes would otherwise rebuild the same fit.
+    # Safe because no test here mutates the returned object.
+    @pytest.fixture(scope="class")
+    @staticmethod
+    def b17c_result():
         """Run B17C analysis on Big Sandy data."""
         peak_flows = list(SYSTEMATIC_PEAKS.values())
         water_years = list(SYSTEMATIC_PEAKS.keys())
@@ -126,8 +130,12 @@ class TestBigSandyParameters:
 class TestBigSandyQuantiles:
     """Test flood quantile estimates against expected values."""
 
-    @pytest.fixture
-    def b17c_result(self):
+    # Class-scoped: the MGBT three-sweep makes each run_analysis() cost ~2s, and
+    # every parametrized case in these classes would otherwise rebuild the same fit.
+    # Safe because no test here mutates the returned object.
+    @pytest.fixture(scope="class")
+    @staticmethod
+    def b17c_result():
         """Run B17C analysis on Big Sandy data."""
         peak_flows = list(SYSTEMATIC_PEAKS.values())
         water_years = list(SYSTEMATIC_PEAKS.keys())
@@ -165,8 +173,12 @@ class TestBigSandyQuantiles:
 class TestBigSandyConfidenceIntervals:
     """Test confidence interval bounds."""
 
-    @pytest.fixture
-    def b17c_result(self):
+    # Class-scoped: the MGBT three-sweep makes each run_analysis() cost ~2s, and
+    # every parametrized case in these classes would otherwise rebuild the same fit.
+    # Safe because no test here mutates the returned object.
+    @pytest.fixture(scope="class")
+    @staticmethod
+    def b17c_result():
         """Run B17C analysis on Big Sandy data."""
         peak_flows = list(SYSTEMATIC_PEAKS.values())
         water_years = list(SYSTEMATIC_PEAKS.keys())

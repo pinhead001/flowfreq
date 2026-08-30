@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from scipy import stats
+from scipy.integrate import quad as _quad
 from scipy.special import gammainc, gammaincc, gammaln, ndtri
 
 from .core import (
@@ -756,53 +757,100 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
 
     @staticmethod
     def _mgbt_pvalue(n: int, r: int, w: float) -> float:
-        """Approximate p-value for MGBT generalized Grubbs-Beck test statistic.
+        """Exact MGBT p-value via GGBCRITP algorithm (peakfqr/probfun.f).
 
-        Approximates the GGBCRITP function from peakfqr/probfun.f.  The exact
-        computation uses a complex numerical integral that accounts for the
-        order-statistic distribution of ZT(r).  This approximation centers the
-        test statistic relative to its expected value under H0 using Hazen
-        plotting positions for normal order statistics, then uses the
-        t-distribution.
+        Direct Python translation of the GGBCRITP/FGGB Fortran functions.
+        Integrates over the distribution of the r-th normal order statistic
+        using the non-central t-distribution to compute
+        P(W(r) ≤ w | H0: data are iid standard normal).
 
-        Under H0 the i-th smallest from N standard normals has expected value
-        ≈ Φ⁻¹((i−0.5)/N).  We compute E[W(r)|H0] from those expected order
-        statistics and assess how far the observed W deviates from expectation.
+        Reference: Cohn et al. (2013), probfun.f lines 1629–1750.
 
         Parameters
         ----------
         n : int
-            Total sample size.
+            Total sample size passed to MGBT (including zero-coded values).
         r : int
             1-based rank of the candidate outlier (r=1 = smallest).
         w : float
-            Test statistic W(r) = (ZT(r) - mean(upper)) / sqrt(var(upper)).
+            Test statistic W(r) = (ZT(r) − mean(upper)) / sqrt(var(upper)).
 
         Returns
         -------
         float
-            Approximate one-sided p-value in [0, 1].
+            One-sided p-value in [0, 1].  Small values indicate a low outlier.
         """
-        nc = n - r  # size of upper sample
+        nc = n - r  # size of upper (conditioning) sample
         if nc < 2:
             return 1.0
 
-        # Expected value of ZT(r) under H0 using Hazen plotting position
-        e_zt_r = float(stats.norm.ppf((r - 0.5) / n))
+        def _fggb(pzr: float) -> float:
+            """Integrand: conditional p-value given the order-statistic draw."""
+            if pzr <= 0.0 or pzr >= 1.0:
+                return 0.0
+            # r-th order statistic value via beta → normal transform
+            pr = float(stats.beta.ppf(pzr, r, n + 1 - r))
+            if pr <= 0.0 or pr >= 1.0:
+                return 0.0
+            zr = float(stats.norm.ppf(pr))
+            if not np.isfinite(zr):
+                return 0.0
 
-        # Expected upper sample statistics under H0
-        upper_pp = np.array([float(stats.norm.ppf((j - 0.5) / n)) for j in range(r + 1, n + 1)])
-        e_upper_mean = float(np.mean(upper_pp))
-        e_upper_std = float(np.std(upper_pp, ddof=1)) if nc > 1 else 1.0
+            # Truncated-normal moments of the upper (nc) observations
+            h = float(stats.norm.pdf(zr)) / max(1e-10, 1.0 - pr)
+            ex1 = h
+            ex2 = 1.0 + h * zr
+            ex3 = 2.0 * ex1 + h * zr**2
+            ex4 = 3.0 * ex2 + h * zr**3
 
-        if e_upper_std <= 0.0:
+            mu_m = ex1
+            mu_s2 = ex2 - ex1**2
+            if mu_s2 <= 0.0:
+                return 0.0
+
+            var_m = mu_s2 / nc
+            var_s2 = (
+                ex4 - 4 * ex3 * ex1 + 6 * ex2 * ex1**2 - 3 * ex1**4 - mu_s2**2
+            ) / nc + 2.0 / ((nc - 1.0) * nc) * mu_s2**2
+            if var_s2 <= 0.0:
+                return 0.0
+
+            # Gamma approximation to the distribution of S (upper std dev)
+            alpha_g = mu_s2**2 / var_s2
+            beta_g = mu_s2 / alpha_g
+            cov_ms2 = (ex3 - 3 * ex2 * ex1 + 2 * ex1**3) / np.sqrt(nc * (nc - 1.0))
+            mu_s = np.sqrt(beta_g) * np.exp(gammaln(alpha_g + 0.5) - gammaln(alpha_g))
+            cov_ms = cov_ms2 / (2.0 * mu_s)
+            var_s = mu_s2 - mu_s**2
+            if var_s <= 0.0:
+                return 0.0
+
+            # Non-central t parameters (Fortran FGGB lines 1741-1748)
+            lambda_ = cov_ms / var_s
+            eta_p = w + lambda_
+            mu_mp = mu_m - lambda_ * mu_s
+            var_mp = var_m - cov_ms**2 / var_s
+            if var_mp <= 0.0:
+                return 0.0
+
+            df = 2.0 * alpha_g
+            ncp = (mu_mp - zr) / np.sqrt(var_mp)
+            q = -np.sqrt(mu_s2 / var_mp) * eta_p
+
+            # Match Fortran FP_TNC_CDF (probfun.f lines 1341-1350):
+            # when NU > 20, use Abramowitz & Stegun p.949 normal approximation
+            if df > 20.0:
+                z_approx = (q * (1.0 - 1.0 / (4.0 * df)) - ncp) / np.sqrt(1.0 + q**2 / (2.0 * df))
+                tnc_cdf = float(stats.norm.cdf(z_approx))
+            else:
+                tnc_cdf = float(stats.nct.cdf(q, df, ncp))
+            return 1.0 - tnc_cdf
+
+        try:
+            result, _ = _quad(_fggb, 0.0, 1.0, limit=50, epsabs=1e-4, epsrel=1e-4)
+            return float(np.clip(result, 0.0, 1.0))
+        except Exception:
             return 1.0
-
-        # Expected W(r) under H0; center the observed statistic
-        e_w = (e_zt_r - e_upper_mean) / e_upper_std
-        w_centered = w - e_w
-
-        return float(stats.t.cdf(w_centered, df=max(nc - 1, 1)))
 
     def _multiple_grubbs_beck(
         self, user_threshold: Optional[float] = None
@@ -834,18 +882,26 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         """
         # User override takes precedence
         if user_threshold is not None and user_threshold > 0:
-            pilf = sorted([f for f in self._peak_flows if f < user_threshold])
+            # Zeros are always below any positive threshold
+            zero_pilf: List[float] = [0.0] * self._n_zeros
+            nonzero_pilf = sorted([f for f in self._peak_flows if f < user_threshold])
+            pilf = zero_pilf + nonzero_pilf
             return float(user_threshold), len(pilf), pilf
 
-        log_flows = self.log_flows
-        n = len(log_flows)
+        # Include zero-flow years as log10(1e-88) = -88, matching Fortran MGBTP
+        # which uses MAX(1D-88,X) before LOG10 (probfun.f line 1547).  Zeros must
+        # be present in the test so that their extreme low values push the MGBT
+        # sweep into the non-zero range and produce the correct threshold.
+        log_zeros = np.full(self._n_zeros, np.log10(1e-88))
+        log_flows_for_mgbt = np.concatenate([self.log_flows, log_zeros])
+        n = len(log_flows_for_mgbt)
 
         # Need at least 5 observations for a meaningful test
         if n < 5:
             return 0.0, 0, []
 
         # Sort ascending (zt[0] = smallest, zt[n-1] = largest)
-        zt = np.sort(log_flows)
+        zt = np.sort(log_flows_for_mgbt)
 
         # Median position (Fortran N/2, integer division)
         n2 = n // 2
@@ -913,7 +969,8 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         # Threshold = flow of the first NON-outlier (Fortran: qs(gbnlow+1))
         # zt is 0-based; the n_low_outliers smallest are outliers
         threshold = 10.0 ** zt[n_low_outliers]
-        pilf = [10.0 ** zt[k] for k in range(n_low_outliers)]
+        # Zeros are coded as log10(1e-88) = -88 in zt; restore them as 0.0
+        pilf = [0.0 if zt[k] < -80.0 else 10.0 ** zt[k] for k in range(n_low_outliers)]
 
         return threshold, n_low_outliers, pilf
 

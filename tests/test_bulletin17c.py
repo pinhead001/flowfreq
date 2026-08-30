@@ -285,5 +285,144 @@ class TestEdgeCases:
         assert results.n_peaks == 4
 
 
+# MGBT reference validation
+class TestMGBTOrestimba:
+    """Validate MGBT against the USGS B17C Appendix 10 PILF example.
+
+    Reference: Bulletin 17C Appendix 10 — Orestimba Creek near Newman, CA
+    (USGS 11274500, WY 1932-2013).  The MGBT should identify 782 cfs as the
+    PILF threshold, censoring 30 peaks (12 zero-flow years + 18 non-zero
+    peaks < 782 cfs) with a significance level ≈ 0.0007.
+    """
+
+    @pytest.fixture
+    def orestimba_data(self):
+        """Actual annual peak flows for USGS 11274500 (WY 1932-2013)."""
+        peaks = {
+            1932: 4260,
+            1933: 345,
+            1934: 516,
+            1935: 1320,
+            1936: 1200,
+            1937: 2180,
+            1938: 3230,
+            1939: 115,
+            1940: 3440,
+            1941: 3070,
+            1942: 1880,
+            1943: 6450,
+            1944: 1290,
+            1945: 5970,
+            1946: 782,
+            1947: 0,
+            1948: 0,
+            1949: 335,
+            1950: 175,
+            1951: 2920,
+            1952: 3660,
+            1953: 147,
+            1954: 0,
+            1955: 16,
+            1956: 5620,
+            1957: 1440,
+            1958: 10200,
+            1959: 5380,
+            1960: 448,
+            1961: 0,
+            1962: 1740,
+            1963: 8300,
+            1964: 156,
+            1965: 560,
+            1966: 128,
+            1967: 4200,
+            1968: 0,
+            1969: 5080,
+            1970: 1010,
+            1971: 584,
+            1972: 0,
+            1973: 1510,
+            1974: 922,
+            1975: 1010,
+            1976: 0,
+            1977: 0,
+            1978: 4360,
+            1979: 1270,
+            1980: 5210,
+            1981: 1130,
+            1982: 5550,
+            1983: 6360,
+            1984: 991,
+            1985: 50,
+            1986: 6990,
+            1987: 112,
+            1988: 0,
+            1989: 0,
+            1990: 4,
+            1991: 1260,
+            1992: 888,
+            1993: 4190,
+            1994: 12,
+            1995: 12000,
+            1996: 3130,
+            1997: 3320,
+            1998: 9470,
+            1999: 833,
+            2000: 2550,
+            2001: 958,
+            2002: 425,
+            2003: 2790,
+            2004: 2990,
+            2005: 1820,
+            2006: 1630,
+            2007: 0,
+            2008: 2110,
+            2009: 310,
+            2010: 4400,
+            2011: 4440,
+            2012: 0,
+            2013: 6250,
+        }
+        wys = np.array(sorted(peaks.keys()))
+        flows = np.array([peaks[y] for y in wys], dtype=float)
+        return flows, wys
+
+    def test_mgbt_threshold_782(self, orestimba_data):
+        """MGBT threshold must equal 782 cfs (B17C Appendix 10 reference)."""
+        flows, wys = orestimba_data
+        b = Bulletin17C(
+            peak_flows=flows,
+            water_years=wys,
+            regional_skew=-0.302,
+            regional_skew_mse=0.302,
+        )
+        b.run_analysis(method="ema")
+        assert b.results.low_outlier_threshold == pytest.approx(782.0, abs=1.0)
+
+    def test_mgbt_n_low_outliers_30(self, orestimba_data):
+        """MGBT must censor exactly 30 peaks (12 zeros + 18 non-zero < 782)."""
+        flows, wys = orestimba_data
+        b = Bulletin17C(
+            peak_flows=flows,
+            water_years=wys,
+            regional_skew=-0.302,
+            regional_skew_mse=0.302,
+        )
+        b.run_analysis(method="ema")
+        assert b.results.n_low_outliers == 30
+
+    def test_mgbt_pilf_includes_12_zeros(self, orestimba_data):
+        """PILF list must include all 12 zero-flow years."""
+        flows, wys = orestimba_data
+        b = Bulletin17C(
+            peak_flows=flows,
+            water_years=wys,
+            regional_skew=-0.302,
+            regional_skew_mse=0.302,
+        )
+        b.run_analysis(method="ema")
+        zeros_in_pilf = sum(1 for f in b.results.pilf_flows if f == 0.0)
+        assert zeros_in_pilf == 12
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
