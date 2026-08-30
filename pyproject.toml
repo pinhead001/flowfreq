@@ -55,5 +55,5 @@ addopts = "-v"
 markers = [
     "requires_peakfqsa: marks tests that require the PeakfqSA binary (deselect with '-m \"not requires_peakfqsa\"')",
     "requires_network: marks tests that contact live NWIS services (deselect with '-m \"not requires_network\"')",
-    "requires_peakfqr_testdata: marks tests that require the peakfqr reference package's bundled CSV test data under _shared/peakfqr (deselect with '-m \"not requires_peakfqr_testdata\"')",
+    "requires_peakfqr_testdata: marks tests needing the peakfqr reference test data, searched under vendor/peakfqr then ../_shared/peakfqr; auto-skipped when absent, see docs/FORTRAN_UPLOAD.md (deselect with '-m \"not requires_peakfqr_testdata\"')",
 ]

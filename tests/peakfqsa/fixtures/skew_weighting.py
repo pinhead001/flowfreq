@@ -12,19 +12,11 @@ import os
 from dataclasses import dataclass
 from typing import Optional
 
-# Path to the WHIST CSV (shared test data from peakfqr package)
-_WHIST_CSV = os.path.join(
-    os.path.dirname(__file__),
-    "..",
-    "..",
-    "..",
-    "..",
-    "_shared",
-    "peakfqr",
-    "inst",
-    "testdata",
-    "results_WHIST.csv",
-)
+from tests.peakfqsa.fixtures.paths import TESTDATA_AVAILABLE, TESTDATA_DIR
+
+# Path to the WHIST CSV (shared test data from the peakfqr package).
+# Resolved at import time; may be absent -- see paths.TESTDATA_AVAILABLE.
+_WHIST_CSV = str(TESTDATA_DIR / "results_WHIST.csv") if TESTDATA_AVAILABLE else ""
 
 
 @dataclass

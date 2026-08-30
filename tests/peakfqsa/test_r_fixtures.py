@@ -13,6 +13,12 @@ import os
 
 import pytest
 
+# Aliased: a module-level name starting with "test" would be collected as a test.
+from tests.peakfqsa.fixtures.paths import SKIP_REASON, TESTDATA_AVAILABLE
+from tests.peakfqsa.fixtures.paths import testdata_path as _testdata_path
+
+requires_testdata = pytest.mark.skipif(not TESTDATA_AVAILABLE, reason=SKIP_REASON)
+
 
 class TestFortranRespecFixtures:
     """Validate fortran_respec fixture data is well-formed."""
@@ -64,6 +70,7 @@ class TestFortranRespecFixtures:
 
 
 @pytest.mark.requires_peakfqr_testdata
+@requires_testdata
 class TestSkewWeightingFixtures:
     """Validate skew_weighting fixture data is loadable.
 
@@ -93,6 +100,7 @@ class TestMomentsWymtFixtures:
     """Validate moments_wymt fixture metadata."""
 
     @pytest.mark.requires_peakfqr_testdata
+    @requires_testdata
     def test_expected_csv_files_exist(self) -> None:
         from tests.peakfqsa.fixtures.moments_wymt import (
             EXPECTED_DATA_CSV,
@@ -101,21 +109,9 @@ class TestMomentsWymtFixtures:
             EXPECTED_MGBT_CSV,
         )
 
-        testdata_dir = os.path.normpath(
-            os.path.join(
-                os.path.dirname(__file__),
-                "..",
-                "..",
-                "..",
-                "_shared",
-                "peakfqr",
-                "inst",
-                "testdata",
-            )
-        )
         for csv_name in [EXPECTED_INFO_CSV, EXPECTED_DATA_CSV, EXPECTED_EMP_CSV, EXPECTED_MGBT_CSV]:
-            path = os.path.join(testdata_dir, csv_name)
-            assert os.path.exists(path), f"Missing expected CSV: {path}"
+            path = _testdata_path(csv_name)
+            assert path.exists(), f"Missing expected CSV: {path}"
 
     def test_column_definitions(self) -> None:
         from tests.peakfqsa.fixtures.moments_wymt import (
