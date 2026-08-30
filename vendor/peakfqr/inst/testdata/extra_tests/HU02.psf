@@ -1,0 +1,1888 @@
+I ASCI HU02_WATSTORE.txt
+O File HU02_7_5_1.PRT
+O Plot Style Graphics
+O Plot Format PNG
+O Export HU02_7_5_1.EXP
+O Empirical HU02_7_5_1.EMP
+O Plot Position 0
+O ConfInterval 0.9
+O EMA YES
+Station 01199050
+     Analyze EMA
+     PCPT_Thresh 1949 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1950 1954 6300 1E+20  HISTORIC 1
+     PCPT_Thresh 1956 1961 6300 1E+20  HISTORIC 1
+     Peak 1949 2100  H     
+     Peak 1955 6300  H     
+     BegYear 1949
+     EndYear 2013
+     HistPeriod 65
+     SkewOpt Station
+     LOType MGBT
+Station 01200000
+     Analyze EMA
+     PCPT_Thresh 1930 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1989 1991 1E+20 1E+20  MISSING1
+     BegYear 1930
+     EndYear 2013
+     HistPeriod 84
+     SkewOpt Station
+     LOType MGBT
+Station 01203000
+     Analyze EMA
+     PCPT_Thresh 1931 2008 0 1E+20  DEFAULT
+     PCPT_Thresh 1985 2005 1E+20 1E+20  MISSING1
+     BegYear 1931
+     EndYear 2008
+     HistPeriod 78
+     SkewOpt Station
+     LOType MGBT
+Station 01204000
+     Analyze EMA
+     PCPT_Thresh 1933 2013 0 1E+20  DEFAULT
+     BegYear 1933
+     EndYear 2013
+     HistPeriod 81
+     SkewOpt Station
+     LOType MGBT
+Station 01208925
+     Analyze EMA
+     PCPT_Thresh 1973 2013 0 1E+20  DEFAULT
+     BegYear 1973
+     EndYear 2013
+     HistPeriod 41
+     SkewOpt Station
+     LOType MGBT
+Station 01208950
+     Analyze EMA
+     PCPT_Thresh 1960 2013 0 1E+20  DEFAULT
+     BegYear 1960
+     EndYear 2013
+     HistPeriod 54
+     SkewOpt Station
+     LOType MGBT
+Station 01208990
+     Analyze EMA
+     PCPT_Thresh 1962 2013 0 1E+20  DEFAULT
+     BegYear 1962
+     EndYear 2013
+     HistPeriod 52
+     SkewOpt Station
+     LOType MGBT
+Station 01332000
+     Analyze EMA
+     PCPT_Thresh 1928 2011 0 1E+20  DEFAULT
+     PCPT_Thresh 1929 1931 9980 1E+20  HISTORIC1
+     PCPT_Thresh 1991 2010 13200 1E+20  MISSING1
+     Peak 1928 9980  H     
+     BegYear 1928
+     EndYear 2011
+     HistPeriod 84
+     SkewOpt Station
+     LOType MGBT
+Station 01333000
+     Analyze EMA
+     PCPT_Thresh 1950 2013 0 1E+20  DEFAULT
+     BegYear 1950
+     EndYear 2013
+     HistPeriod 64
+     SkewOpt Station
+     LOType MGBT
+Station 01495000
+     Analyze EMA
+     PCPT_Thresh 1884 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1885 1931 10600 1E+20  HISTORIC1
+     PCPT_Thresh 2001 2001 1E+20 1E+20  MISSING1
+     Peak 1884 18000  H     
+     Interval 1936 3250 1E+20  PEAK > STATED VALUE
+     BegYear 1884
+     EndYear 2013
+     HistPeriod 130
+     SkewOpt Station
+     LOType MGBT
+Station 01496000
+     Analyze EMA
+     PCPT_Thresh 1949 1999 0 1E+20  DEFAULT
+     PCPT_Thresh 1985 1998 9000 1E+20  HISTORIC 1
+     Peak 1999 9000  H     
+     BegYear 1949
+     EndYear 1999
+     HistPeriod 51
+     SkewOpt Station
+     LOType MGBT
+Station 01580000
+     Analyze EMA
+     PCPT_Thresh 1927 2013 0 1E+20  DEFAULT
+     Interval 1980 2100 10500  VALUE IS A DV
+     BegYear 1927
+     EndYear 2013
+     HistPeriod 87
+     SkewOpt Station
+     LOType MGBT
+Station 01582000
+     Analyze EMA
+     PCPT_Thresh 1933 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1934 1944 7000 1E+20  HISTORIC1
+     Peak 1933 7000  H     
+     BegYear 1933
+     EndYear 2013
+     HistPeriod 81
+     SkewOpt Station
+     LOType MGBT
+Station 01583500
+     Analyze EMA
+     PCPT_Thresh 1945 2013 0 1E+20  DEFAULT
+     BegYear 1945
+     EndYear 2013
+     HistPeriod 69
+     SkewOpt Station
+     LOType MGBT
+Station 01584050
+     Analyze EMA
+     PCPT_Thresh 1976 2013 0 1E+20  DEFAULT
+     BegYear 1976
+     EndYear 2013
+     HistPeriod 38
+     SkewOpt Station
+     LOType MGBT
+Station 01584500
+     Analyze EMA
+     PCPT_Thresh 1927 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1974 1974 1E+20 1E+20  MISSING1
+     PCPT_Thresh 1986 1998 1E+20 1E+20  MISSING2
+     Interval 1981 0 1000  PEAK < STATED VALUE
+     BegYear 1927
+     EndYear 2013
+     HistPeriod 87
+     SkewOpt Station
+     LOType MGBT
+Station 01586000
+     Analyze EMA
+     PCPT_Thresh 1946 2013 0 1E+20  DEFAULT
+     BegYear 1946
+     EndYear 2013
+     HistPeriod 68
+     SkewOpt Station
+     LOType MGBT
+Station 01588000
+     Analyze EMA
+     PCPT_Thresh 1932 1974 0 1E+20  DEFAULT
+     BegYear 1932
+     EndYear 1974
+     HistPeriod 43
+     SkewOpt Station
+     LOType MGBT
+Station 01595500
+     Analyze EMA
+     PCPT_Thresh 1950 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1996 1996 1E+20 1E+20  MISSING1
+     BegYear 1950
+     EndYear 2013
+     HistPeriod 64
+     SkewOpt Station
+     LOType MGBT
+Station 01596500
+     Analyze EMA
+     PCPT_Thresh 1949 2013 0 1E+20  DEFAULT
+     BegYear 1949
+     EndYear 2013
+     HistPeriod 65
+     SkewOpt Station
+     LOType MGBT
+Station 01599000
+     Analyze EMA
+     PCPT_Thresh 1924 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1924 1930 8500 1E+20  1924 hist pk stg exceeded 1936
+     Interval 1924 8500 1E+20  pk stg exceeded 1936
+     BegYear 1924
+     EndYear 2013
+     HistPeriod 90
+     SkewOpt Station
+     LOType MGBT
+Station 01601500
+     Analyze EMA
+     PCPT_Thresh 1924 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1924 1929 20000 1E+20  HISTORIC EST BASED ON 1924 GHT
+     BegYear 1924
+     EndYear 2013
+     HistPeriod 90
+     SkewOpt Station
+     LOType MGBT
+Station 01609000
+     Analyze EMA
+     PCPT_Thresh 1928 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1937 1967 27000 1E+20  HISTORIC1
+     PCPT_Thresh 1982 2001 27000 1E+20  HISTORIC2
+     PCPT_Thresh 2006 2006 27000 1E+20  HISTORIC3
+     Peak 1936 27000  H     
+     BegYear 1928
+     EndYear 2013
+     HistPeriod 86
+     SkewOpt Station
+     LOType MGBT
+Station 01614500
+     Analyze EMA
+     PCPT_Thresh 1889 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1890 1923 22000 1E+20  HISTORIC1
+     PCPT_Thresh 1925 1928 13000 1E+20  HISTORIC2
+     Peak 1889 22000  H     
+     Peak 1924 13000  H     
+     BegYear 1889
+     EndYear 2013
+     HistPeriod 125
+     SkewOpt Station
+     LOType MGBT
+Station 01617800
+     Analyze EMA
+     PCPT_Thresh 1964 2013 0 1E+20  DEFAULT
+     Interval 1969 54 1E+20  PEAK > STATED VALUE
+     BegYear 1964
+     EndYear 2013
+     HistPeriod 50
+     SkewOpt Station
+     LOType MGBT
+Station 01619500
+     Analyze EMA
+     PCPT_Thresh 1928 2013 0 1E+20  DEFAULT
+     BegYear 1928
+     EndYear 2013
+     HistPeriod 86
+     SkewOpt Station
+     LOType MGBT
+Station 01639000
+     Analyze EMA
+     PCPT_Thresh 1890 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1890 1932 23000 1E+20  HISTORIC1
+     PCPT_Thresh 1934 1941 23000 1E+20  HISTORIC1
+     Peak 1933 23000  H     
+     BegYear 1890
+     EndYear 2013
+     HistPeriod 124
+     SkewOpt Station
+     LOType MGBT
+Station 01639500
+     Analyze EMA
+     PCPT_Thresh 1948 2013 0 1E+20  DEFAULT
+     BegYear 1948
+     EndYear 2013
+     HistPeriod 66
+     SkewOpt Station
+     LOType MGBT
+Station 01640500
+     Analyze EMA
+     PCPT_Thresh 1932 1984 0 1E+20  DEFAULT
+     BegYear 1932
+     EndYear 1984
+     HistPeriod 53
+     SkewOpt Station
+     LOType MGBT
+Station 01641000
+     Analyze EMA
+     PCPT_Thresh 1950 1992 0 1E+20  DEFAULT
+     BegYear 1950
+     EndYear 1992
+     HistPeriod 43
+     SkewOpt Station
+     LOType MGBT
+Station 01641500
+     Analyze EMA
+     PCPT_Thresh 1948 2011 0 1E+20  DEFAULT
+     PCPT_Thresh 1985 2009 1E+20 1E+20  MISSING1
+     BegYear 1948
+     EndYear 2011
+     HistPeriod 64
+     SkewOpt Station
+     LOType MGBT
+Station 01643500
+     Analyze EMA
+     PCPT_Thresh 1949 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1959 1959 1E+20 1E+20  MISSING1
+     Interval 1993 2270 1E+20  PEAK > STATED VALUE
+     BegYear 1949
+     EndYear 2013
+     HistPeriod 65
+     SkewOpt Station
+     LOType MGBT
+Station 01440000
+     Analyze EMA
+     PCPT_Thresh 1924 2013 0 1E+20  DEFAULT
+     BegYear 1924
+     EndYear 2013
+     HistPeriod 90
+     SkewOpt Station
+     LOType MGBT
+Station 01443500
+     Analyze EMA
+     PCPT_Thresh 1922 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1931 1931 1E+20 1E+20  MISSING1
+     PCPT_Thresh 1977 1977 1E+20 1E+20  MISSING2
+     PCPT_Thresh 2012 2012 1E+20 1E+20  MISSING3
+     BegYear 1922
+     EndYear 2013
+     HistPeriod 92
+     SkewOpt Station
+     LOType MGBT
+Station 01445000
+     Analyze EMA
+     PCPT_Thresh 1940 2011 0 1E+20  DEFAULT
+     PCPT_Thresh 1996 1998 1E+20 1E+20  MISSING1
+     PCPT_Thresh 2001 2002 1E+20 1E+20  MISSING2
+     BegYear 1940
+     EndYear 2011
+     HistPeriod 72
+     SkewOpt Station
+     LOType MGBT
+Station 01446000
+     Analyze EMA
+     PCPT_Thresh 1923 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1996 2002 1E+20 1E+20  MISSING1
+     PCPT_Thresh 2012 2012 1E+20 1E+20  MISSING2
+     BegYear 1923
+     EndYear 2013
+     HistPeriod 91
+     SkewOpt Station
+     LOType MGBT
+Station 01455200
+     Analyze EMA
+     PCPT_Thresh 1960 2000 0 1E+20  DEFAULT
+     PCPT_Thresh 1996 1998 2150 1E+20  HISTORIC 1
+     Peak 1999 2150  H     
+     BegYear 1960
+     EndYear 2000
+     HistPeriod 41
+     SkewOpt Station
+     LOType MGBT
+Station 01199477
+     Analyze EMA
+     PCPT_Thresh 1976 2013 70 1E+20  CSG
+     BegYear 1976
+     EndYear 2013
+     HistPeriod 38
+     SkewOpt Station
+     LOType MGBT
+Station 01312000
+     Analyze EMA
+     PCPT_Thresh 1914 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1914 1925 7440 1E+20  BASED ON 1949WY PEAK LARGEST SINCE 1913
+     BegYear 1914
+     EndYear 2013
+     HistPeriod 100
+     SkewOpt Station
+     LOType MGBT
+Station 01313500
+     Analyze EMA
+     PCPT_Thresh 1914 1969 0 1E+20  DEFAULT
+     PCPT_Thresh 1914 1930 10200 1E+20  BASED ON 1942WY PEAK LARGEST SINCE 1913
+     PCPT_Thresh 1965 1965 1E+20 1E+20  MISSING1
+     PCPT_Thresh 1967 1969 1E+20 1E+20  MISSING2; 1969 opportunistic
+     Interval 1950 2300 4670  VALUE IS A DV
+     BegYear 1914
+     EndYear 1969
+     HistPeriod 56
+     SkewOpt Station
+     LOType MGBT
+Station 01314000
+     Analyze EMA
+     PCPT_Thresh 1917 1968 0 1E+20  DEFAULT
+     PCPT_Thresh 1914 1916 15000 1E+20  BASED ON 1949WY PEAK LARGEST SINCE 1913
+     Interval 1924 8000 12000  VALUE IS A DV
+     Interval 1928 11000 16500  VALUE IS A DV
+     Interval 1929 7500 11250  VALUE IS A DV
+     BegYear 1914
+     EndYear 1968
+     HistPeriod 55
+     SkewOpt Station
+     LOType MGBT
+Station 01317000
+     Analyze EMA
+     PCPT_Thresh 1908 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1971 1986 1E+20 1E+20  MISSING1
+     BegYear 1908
+     EndYear 2013
+     HistPeriod 106
+     SkewOpt Station
+     LOType MGBT
+Station 01319000
+     Analyze EMA
+     PCPT_Thresh 1934 1978 0 1E+20  DEFAULT
+     PCPT_Thresh 1914 1933 10700 1E+20  BASED ON 1949WY PEAK LARGEST SINCE 1913
+     BegYear 1914
+     EndYear 1978
+     HistPeriod 65
+     SkewOpt Station
+     LOType MGBT
+Station 01321000
+     Analyze EMA
+     PCPT_Thresh 1912 2013 0 1E+20  DEFAULT
+     BegYear 1912
+     EndYear 2013
+     HistPeriod 102
+     SkewOpt Station
+     LOType MGBT
+Station 01328000
+     Analyze EMA
+     PCPT_Thresh 1948 1982 0 1E+20  DEFAULT
+     PCPT_Thresh 1983 1984 1E+20 1E+20  MISSING1; 1984 opportunistic
+     BegYear 1948
+     EndYear 1984
+     HistPeriod 37
+     SkewOpt Station
+     LOType MGBT
+Station 01329490
+     Analyze EMA
+     PCPT_Thresh 1904 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1904 1922 1E+20 1E+20  BASED ON 1949WY PEAK LARGEST SINCE 1898; 1904, 1913 opportunistic
+     PCPT_Thresh 1969 1986 1E+20 1E+20  MISSING2; 1977 & 1984 opportunistic
+     BegYear 1904
+     EndYear 2013
+     HistPeriod 110
+     SkewOpt Station
+     LOType MGBT
+Station 01330000
+     Analyze EMA
+     PCPT_Thresh 1949 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1937 1948 1670 1E+20  BASED ON 1949WY PEAK LARGEST SINCE 1936
+     PCPT_Thresh 1964 1990 1E+20 1E+20  MISSING1
+     BegYear 1937
+     EndYear 2013
+     HistPeriod 77
+     SkewOpt Station
+     LOType MGBT
+Station 01330500
+     Analyze EMA
+     PCPT_Thresh 1927 1998 0 1E+20  DEFAULT
+     PCPT_Thresh 1996 1998 2930 1E+20  HISTORIC1
+     Peak 1998 2930  H     
+     BegYear 1927
+     EndYear 1998
+     HistPeriod 72
+     SkewOpt Station
+     LOType MGBT
+Station 01333500
+     Analyze EMA
+     PCPT_Thresh 1938 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1938 1951 7470 1E+20  BASED ON 1949WY PEAK LARGEST SINCE 1938
+     Peak 1949 7470  H     
+     BegYear 1938
+     EndYear 2013
+     HistPeriod 76
+     SkewOpt Station
+     LOType MGBT
+Station 01342800
+     Analyze EMA
+     PCPT_Thresh 1903 2000 0 1E+20  DEFAULT
+     PCPT_Thresh 1903 1957 16800 1E+20  HISTORIC1 BASED ON 1946WY NOTE IN PFF
+     PCPT_Thresh 1977 1986 20000 1E+20  HISTORIC2
+     PCPT_Thresh 1999 2000 1E+20 1E+20  MISSING2; 2000 opportunistic
+     Peak 1946 16800  H     
+     Peak 1985 20000  H     
+     BegYear 1903
+     EndYear 2000
+     HistPeriod 98
+     SkewOpt Station
+     LOType MGBT
+Station 01348000
+     Analyze EMA
+     PCPT_Thresh 1890 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1890 1946 24000 1E+20  BASED ON 1946WY PEAK IN PFF
+     PCPT_Thresh 1997 2002 15000 1E+20  HISTORIC1
+     Peak 1998 17800  H     
+     Peak 2000 15000  H     
+     BegYear 1890
+     EndYear 2013
+     HistPeriod 124
+     SkewOpt Station
+     LOType MGBT
+Station 01348420
+     Analyze EMA
+     PCPT_Thresh 1975 2013 100 1E+20  CSG
+     BegYear 1975
+     EndYear 2013
+     HistPeriod 39
+     SkewOpt Station
+     LOType MGBT
+Station 01349000
+     Analyze EMA
+     PCPT_Thresh 1950 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1990 2013 24700 1E+20  HISTORIC1
+     Peak 2013 24700  H     
+     BegYear 1950
+     EndYear 2013
+     HistPeriod 64
+     SkewOpt Station
+     LOType MGBT
+Station 01350000
+     Analyze EMA
+     PCPT_Thresh 1904 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1904 1907 28000 1E+20  HISTORIC1
+     PCPT_Thresh 1925 1925 51600 1E+20  BASED ON 1955WY PEAK BEING LARGEST SINCE 1904
+     PCPT_Thresh 1929 1929 51600 1E+20  BASED ON 1955WY PEAK BEING LARGEST SINCE 1904
+     Peak 1904 28000  H     
+     BegYear 1904
+     EndYear 2013
+     HistPeriod 110
+     SkewOpt Station
+     LOType MGBT
+Station 01350120
+     Analyze EMA
+     PCPT_Thresh 1976 2013 0 1E+20  DEFAULT
+     BegYear 1976
+     EndYear 2013
+     HistPeriod 38
+     SkewOpt Station
+     LOType MGBT
+Station 01350140
+     Analyze EMA
+     PCPT_Thresh 1975 2013 0 1E+20  DEFAULT
+     BegYear 1975
+     EndYear 2013
+     HistPeriod 39
+     SkewOpt Station
+     LOType MGBT
+Station 01358500
+     Analyze EMA
+     PCPT_Thresh 1914 1984 0 1E+20  DEFAULT
+     PCPT_Thresh 1914 1923 11900 1E+20  BASED ON 1938WY NOTE IN PFF
+     PCPT_Thresh 1969 1984 4220 1E+20  HISTORIC1
+     Peak 1977 5500  H     
+     Peak 1984 4220  H     
+     BegYear 1914
+     EndYear 1984
+     HistPeriod 71
+     SkewOpt Station
+     LOType MGBT
+Station 01359528
+     Analyze EMA
+     PCPT_Thresh 1956 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1956 1967 13000 1E+20  HISTORIC1
+     PCPT_Thresh 1985 1991 1E+20 1E+20  MISSING1
+     PCPT_Thresh 1992 2013 1980 1E+20  CSG
+     Peak 1956 13600  H     
+     Peak 1960 13000  H     
+     BegYear 1956
+     EndYear 2013
+     HistPeriod 58
+     SkewOpt Station
+     LOType MGBT
+Station 01359750
+     Analyze EMA
+     PCPT_Thresh 1958 1999 0 1E+20  DEFAULT
+     PCPT_Thresh 1996 1999 1E+20 1E+20  MISSING1; 1999 opportunistic
+     Interval 1981 450 1350  PEAK > STATED DV
+     BegYear 1958
+     EndYear 1999
+     HistPeriod 42
+     SkewOpt Station
+     LOType MGBT
+Station 01361000
+     Analyze EMA
+     PCPT_Thresh 1909 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1910 1927 29800 1E+20  BASED ON 1948WY PEAK BEING LARGEST SINCE 1909; 1913 opportunistic
+     PCPT_Thresh 1969 1987 12700 1E+20  HISTORIC1
+     Peak 1984 12700  H     
+     BegYear 1909
+     EndYear 2013
+     HistPeriod 105
+     SkewOpt Station
+     LOType MGBT
+Station 01361500
+     Analyze EMA
+     PCPT_Thresh 1902 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1902 1910 5000 1E+20  BASED ON 1913WY PEAK BEING LARGEST SINCE 1901
+     PCPT_Thresh 1964 1964 1E+20 1E+20  MISSING1
+     PCPT_Thresh 1978 1986 12500 1E+20  HISTORIC1
+     PCPT_Thresh 1987 2013 400 1E+20  CSG
+     Interval 1911 1650 16500  VALUE IS A DV
+     Interval 1912 1300 13000  VALUE IS A DV
+     Interval 1913 4000 16000  VALUE IS A DV
+     Interval 1917 1200 12000  VALUE IS A DV
+     Interval 1921 2540 12700  VALUE IS A DV
+     Interval 1927 2940 14700  VALUE IS A DV
+     Peak 1980 12500  H     
+     BegYear 1902
+     EndYear 2013
+     HistPeriod 112
+     SkewOpt Station
+     LOType MGBT
+Station 01362100
+     Analyze EMA
+     PCPT_Thresh 1958 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1961 1992 375 1E+20  CSG1
+     PCPT_Thresh 1993 1993 150 1E+20  CSG2
+     PCPT_Thresh 1994 2004 150 1E+20  CSG3
+     PCPT_Thresh 2005 2013 164 1E+20  CSG4
+     Interval 1985 0 475  PEAK < STATED VALUE
+     BegYear 1958
+     EndYear 2013
+     HistPeriod 56
+     SkewOpt Station
+     LOType MGBT
+Station 01362500
+     Analyze EMA
+     PCPT_Thresh 1875 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1875 1931 59600 1E+20  HISTORIC1 BASED ON 1951WY HIGHEST PEAK SINCE
+     BegYear 1875
+     EndYear 2013
+     HistPeriod 139
+     SkewOpt Station
+     LOType MGBT
+Station 01365000
+     Analyze EMA
+     PCPT_Thresh 1829 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1829 1936 7600 1E+20  BASED ON 1938WY PEAK HIGHEST SINCE 1928
+     BegYear 1829
+     EndYear 2013
+     HistPeriod 185
+     SkewOpt Station
+     LOType MGBT
+Station 01365500
+     Analyze EMA
+     PCPT_Thresh 1939 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1988 1998 1E+20 1E+20  MISSING1
+     BegYear 1939
+     EndYear 2013
+     HistPeriod 75
+     SkewOpt Station
+     LOType MGBT
+Station 01368000
+     Analyze EMA
+     PCPT_Thresh 1937 2000 0 1E+20  DEFAULT
+     PCPT_Thresh 1982 1983 2360 1E+20  HISTORIC 1
+     PCPT_Thresh 1994 1999 1E+20 1E+20  MISSING
+     PCPT_Thresh 1937 1937 6880 1E+20  BASED ON NOTE IN PFF
+     PCPT_Thresh 1985 1988 2360 1E+20  HISTORIC2
+     Interval 1941 1040 1872  HIGH = 1.8 X DV
+     Interval 1942 1300 2340  HIGH = 1.8 X DV
+     Interval 1943 1850 3330  HIGH = 1.8 X DV
+     Interval 1944 1240 2232  HIGH = 1.8 X DV
+     Peak 1984 2360  H     
+     Peak 2000 1500  H     
+     BegYear 1937
+     EndYear 2000
+     HistPeriod 64
+     SkewOpt Station
+     LOType MGBT
+Station 01368500
+     Analyze EMA
+     PCPT_Thresh 1937 2014 0 1E+20  DEFAULT
+     PCPT_Thresh 1937 1943 6850 1E+20  BASED ON 1955 PEAK HIGHEST SINCE 1936
+     PCPT_Thresh 1969 1986 2240 1E+20  HISTORIC1
+     PCPT_Thresh 1991 1992 1E+20 1E+20  MISSING1
+     PCPT_Thresh 1993 2013 700 1E+20  CSG
+     Peak 1984 2240  H     
+     BegYear 1937
+     EndYear 2013
+     HistPeriod 77
+     SkewOpt Station
+     LOType MGBT
+Station 01369000
+     Analyze EMA
+     PCPT_Thresh 1938 1984 0 1E+20  DEFAULT
+     PCPT_Thresh 1978 1984 1E+20 1E+20  MISSING1; 1984 opportunistic
+     BegYear 1938
+     EndYear 1984
+     HistPeriod 47
+     SkewOpt Station
+     LOType MGBT
+Station 01369500
+     Analyze EMA
+     PCPT_Thresh 1938 1984 0 1E+20  DEFAULT
+     PCPT_Thresh 1980 1984 1E+20 1E+20  MISSING1; 1984 opportunistic
+     BegYear 1938
+     EndYear 1984
+     HistPeriod 47
+     SkewOpt Station
+     LOType MGBT
+Station 01371000
+     Analyze EMA
+     PCPT_Thresh 1921 1992 0 1E+20  DEFAULT
+     PCPT_Thresh 1921 1924 9700 1E+20  BASED ON 1956WY PEAK HIGHEST SINCE 1920
+     PCPT_Thresh 1933 1957 7200 1E+20  HISTORIC1
+     PCPT_Thresh 1972 1988 1E+20 1E+20  MISSING1; 1972, 75, 84 opportunistic
+     Peak 1952 7200  H     
+     Peak 1955 9700  H     
+     Peak 1956 9700  H     
+     BegYear 1921
+     EndYear 1992
+     HistPeriod 72
+     SkewOpt Station
+     LOType MGBT
+Station 01371500
+     Analyze EMA
+     PCPT_Thresh 1921 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1921 1924 30800 1E+20  BASED ON 1955 PEAK HIGHEST SINCE 1920
+     BegYear 1921
+     EndYear 2013
+     HistPeriod 93
+     SkewOpt Station
+     LOType MGBT
+Station 01372500
+     Analyze EMA
+     PCPT_Thresh 1929 2013 0 1E+20  DEFAULT
+     BegYear 1929
+     EndYear 2013
+     HistPeriod 85
+     SkewOpt Station
+     LOType MGBT
+Station 01372800
+     Analyze EMA
+     PCPT_Thresh 1957 2012 0 1E+20  DEFAULT
+     PCPT_Thresh 1957 1957 2770 1E+20  BASED ON 1974WY PEAK HIGHEST SINCE 1956
+     PCPT_Thresh 1976 1986 1E+20 1E+20  MISSING1; 1984 opportunistic
+     PCPT_Thresh 1994 2012 370 1E+20  CSG1
+     BegYear 1957
+     EndYear 2012
+     HistPeriod 56
+     SkewOpt Station
+     LOType MGBT
+Station 01413500
+     Analyze EMA
+     PCPT_Thresh 1937 2013 0 1E+20  DEFAULT
+     BegYear 1937
+     EndYear 2013
+     HistPeriod 77
+     SkewOpt Station
+     LOType MGBT
+Station 01414000
+     Analyze EMA
+     PCPT_Thresh 1942 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1963 1995 1E+20 1E+20  MISSING1
+     BegYear 1942
+     EndYear 2013
+     HistPeriod 72
+     SkewOpt Station
+     LOType MGBT
+Station 01414500
+     Analyze EMA
+     PCPT_Thresh 1937 2013 0 1E+20  DEFAULT
+     BegYear 1937
+     EndYear 2013
+     HistPeriod 77
+     SkewOpt Station
+     LOType MGBT
+Station 01415000
+     Analyze EMA
+     PCPT_Thresh 1937 2013 0 1E+20  DEFAULT
+     BegYear 1937
+     EndYear 2013
+     HistPeriod 77
+     SkewOpt Station
+     LOType MGBT
+Station 01420000
+     Analyze EMA
+     PCPT_Thresh 1925 1981 0 1E+20  DEFAULT
+     BegYear 1925
+     EndYear 1981
+     HistPeriod 57
+     SkewOpt Station
+     LOType MGBT
+Station 01420500
+     Analyze EMA
+     PCPT_Thresh 1914 2013 0 1E+20  DEFAULT
+     BegYear 1914
+     EndYear 2013
+     HistPeriod 100
+     SkewOpt Station
+     LOType MGBT
+Station 01421900
+     Analyze EMA
+     PCPT_Thresh 1937 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1975 1995 1E+20 1E+20  MISSING1
+     BegYear 1937
+     EndYear 2013
+     HistPeriod 77
+     SkewOpt Station
+     LOType MGBT
+Station 01422500
+     Analyze EMA
+     PCPT_Thresh 1938 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1975 1995 1E+20 1E+20  MISSING1
+     BegYear 1938
+     EndYear 2013
+     HistPeriod 76
+     SkewOpt Station
+     LOType MGBT
+Station 01423000
+     Analyze EMA
+     PCPT_Thresh 1951 2013 0 1E+20  DEFAULT
+     BegYear 1951
+     EndYear 2013
+     HistPeriod 63
+     SkewOpt Station
+     LOType MGBT
+Station 01426000
+     Analyze EMA
+     PCPT_Thresh 1941 2009 0 1E+20  DEFAULT
+     PCPT_Thresh 1974 2002 1E+20 1E+20  MISSING1
+     BegYear 1941
+     EndYear 2009
+     HistPeriod 69
+     SkewOpt Station
+     LOType MGBT
+Station 01426500
+     Analyze EMA
+     PCPT_Thresh 1904 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1904 1912 46000 1E+20  HISTORIC 1
+     Peak 1904 46000  H     
+     BegYear 1904
+     EndYear 2013
+     HistPeriod 110
+     SkewOpt Station
+     LOType MGBT
+Station 01427500
+     Analyze EMA
+     PCPT_Thresh 1941 1999 0 1E+20  DEFAULT
+     PCPT_Thresh 1983 1986 1E+20 1E+20  MISSING1
+     BegYear 1941
+     EndYear 1999
+     HistPeriod 59
+     SkewOpt Station
+     LOType MGBT
+Station 01428000
+     Analyze EMA
+     PCPT_Thresh 1946 2000 0 1E+20  DEFAULT
+     PCPT_Thresh 1974 2000 6700 1E+20  HISTORIC1
+     Peak 2000 6700  H     
+     BegYear 1946
+     EndYear 2000
+     HistPeriod 55
+     SkewOpt Station
+     LOType MGBT
+Station 01435000
+     Analyze EMA
+     PCPT_Thresh 1938 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1950 1951 23400 1E+20  HISTORIC 1
+     Peak 1951 23400  H     
+     BegYear 1938
+     EndYear 2013
+     HistPeriod 76
+     SkewOpt Station
+     LOType MGBT
+Station 01496500
+     Analyze EMA
+     PCPT_Thresh 1930 1995 0 1E+20  DEFAULT
+     PCPT_Thresh 1933 1936 1E+20 1E+20  MISSING1
+     BegYear 1930
+     EndYear 1995
+     HistPeriod 66
+     SkewOpt Station
+     LOType MGBT
+Station 01498500
+     Analyze EMA
+     PCPT_Thresh 1937 1975 0 1E+20  DEFAULT
+     PCPT_Thresh 1937 1937 14000 1E+20  BASED ON 1938 PEAK HIGHEST SINCE 1936
+     BegYear 1937
+     EndYear 1975
+     HistPeriod 39
+     SkewOpt Station
+     LOType MGBT
+Station 01500500
+     Analyze EMA
+     PCPT_Thresh 1903 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1903 1937 29000 1E+20  BASED ON 1936 PEAK HIGHEST SINCE 1902
+     Peak 1935 29000  H     
+     Peak 1936 31300  H     
+     BegYear 1903
+     EndYear 2013
+     HistPeriod 111
+     SkewOpt Station
+     LOType MGBT
+Station 01501000
+     Analyze EMA
+     PCPT_Thresh 1905 1972 0 1E+20  DEFAULT
+     PCPT_Thresh 1905 1923 8200 1E+20  HISTORIC 1
+     Peak 1905 8200  H     
+     BegYear 1905
+     EndYear 1972
+     HistPeriod 68
+     SkewOpt Station
+     LOType MGBT
+Station 01501500
+     Analyze EMA
+     PCPT_Thresh 1933 1968 0 1E+20  DEFAULT
+     BegYear 1933
+     EndYear 1968
+     HistPeriod 36
+     SkewOpt Station
+     LOType MGBT
+Station 01502000
+     Analyze EMA
+     PCPT_Thresh 1937 1995 0 1E+20  DEFAULT
+     PCPT_Thresh 1937 1937 4260 1E+20  BASED ON 1964WY PEAK HIGHEST SINCE 1936
+     BegYear 1937
+     EndYear 1995
+     HistPeriod 59
+     SkewOpt Station
+     LOType MGBT
+Station 01502500
+     Analyze EMA
+     PCPT_Thresh 1930 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1930 1930 1E+20 1E+20  opportunistic peak
+     PCPT_Thresh 1934 1936 1E+20 1E+20  MISSING; 1935 opportunistic
+     BegYear 1930
+     EndYear 2013
+     HistPeriod 84
+     SkewOpt Station
+     LOType MGBT
+Station 01503980
+     Analyze EMA
+     PCPT_Thresh 1965 2013 229 1E+20  CSG
+     PCPT_Thresh 1966 1966 1E+20 1E+20  MISSING1
+     PCPT_Thresh 1997 1997 1E+20 1E+20  MISSING2
+     BegYear 1965
+     EndYear 2013
+     HistPeriod 49
+     SkewOpt Station
+     LOType MGBT
+Station 01505000
+     Analyze EMA
+     PCPT_Thresh 1936 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1936 1937 12500 1E+20  HISTORIC1
+     Peak 1936 12500  H     
+     BegYear 1936
+     EndYear 2013
+     HistPeriod 78
+     SkewOpt Station
+     LOType MGBT
+Station 01507000
+     Analyze EMA
+     PCPT_Thresh 1936 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1936 1936 18900 1E+20  BASED ON 1943WY PEAK HIGHEST SINCE 1935
+     BegYear 1936
+     EndYear 2013
+     HistPeriod 78
+     SkewOpt Station
+     LOType MGBT
+Station 01507500
+     Analyze EMA
+     PCPT_Thresh 1936 1971 0 1E+20  DEFAULT
+     PCPT_Thresh 1936 1937 5890 1E+20  BASED ON 1943WY PEAK HIGHEST SINCE 1935
+     BegYear 1936
+     EndYear 1971
+     HistPeriod 36
+     SkewOpt Station
+     LOType MGBT
+Station 01508000
+     Analyze EMA
+     PCPT_Thresh 1933 1968 0 1E+20  DEFAULT
+     BegYear 1933
+     EndYear 1968
+     HistPeriod 36
+     SkewOpt Station
+     LOType MGBT
+Station 01508500
+     Analyze EMA
+     PCPT_Thresh 1939 1976 0 1E+20  DEFAULT
+     BegYear 1939
+     EndYear 1976
+     HistPeriod 38
+     SkewOpt Station
+     LOType MGBT
+Station 01509000
+     Analyze EMA
+     PCPT_Thresh 1936 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1936 1938 13000 1E+20  BASED ON 1964WY PEAK HIGHEST SINCE 1935
+     BegYear 1936
+     EndYear 2013
+     HistPeriod 78
+     SkewOpt Station
+     LOType MGBT
+Station 01510000
+     Analyze EMA
+     PCPT_Thresh 1935 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1935 1938 8390 1E+20  BASED ON 1943WY HIGHEST PEAK SINCE 1935
+     PCPT_Thresh 1965 1969 1E+20 1E+20  MISSING1
+     Peak 1935 11000  H     
+     BegYear 1935
+     EndYear 2013
+     HistPeriod 79
+     SkewOpt Station
+     LOType MGBT
+Station 01510610
+     Analyze EMA
+     PCPT_Thresh 1976 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1982 1982 1E+20 1E+20  MISSING1
+     BegYear 1976
+     EndYear 2013
+     HistPeriod 38
+     SkewOpt Station
+     LOType MGBT
+Station 01513500
+     Analyze EMA
+     PCPT_Thresh 1866 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1866 1936 107000 1E+20  BASED ON 1936WY PEAK HIGHEST SINCE 1865; 1935 opportunistic
+     Peak 1936 107000  H     
+     BegYear 1866
+     EndYear 2013
+     HistPeriod 148
+     SkewOpt Station
+     LOType MGBT
+Station 01514000
+     Analyze EMA
+     PCPT_Thresh 1903 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1903 1929 23500 1E+20  BASED ON 1935WY PEAK HIGHEST SINCE 1902
+     BegYear 1903
+     EndYear 2013
+     HistPeriod 111
+     SkewOpt Station
+     LOType MGBT
+Station 01521596
+     Analyze EMA
+     PCPT_Thresh 1977 2013 50 1E+20  DEFAULT CSG
+     PCPT_Thresh 2001 2001 1E+20 1E+20  MISSING1
+     Interval 1983 0 50  PEAK < STATED VALUE
+     Interval 1985 0 50  PEAK < STATED VALUE
+     BegYear 1977
+     EndYear 2013
+     HistPeriod 37
+     SkewOpt Station
+     LOType MGBT
+Station 01522500
+     Analyze EMA
+     PCPT_Thresh 1935 1973 0 1E+20  DEFAULT
+     PCPT_Thresh 1935 1936 9900 1E+20  HISTORIC1
+     PCPT_Thresh 1969 1971 10900 1E+20  BASED ON 1972WY PEAK HIGHEST SINCE 1935
+     Peak 1935 9900  H     
+     BegYear 1935
+     EndYear 1973
+     HistPeriod 39
+     SkewOpt Station
+     LOType MGBT
+Station 01526000
+     Analyze EMA
+     PCPT_Thresh 1936 1972 0 1E+20  DEFAULT
+     PCPT_Thresh 1936 1936 18700 1E+20  BASED ON 1972WY PEAK HIGHEST SINCE 1935
+     BegYear 1936
+     EndYear 1972
+     HistPeriod 37
+     SkewOpt Station
+     LOType MGBT
+Station 01527000
+     Analyze EMA
+     PCPT_Thresh 1935 1999 0 1E+20  DEFAULT
+     PCPT_Thresh 1935 1950 1050 1E+20  HISTORIC 1
+     Peak 1935 1050  H     
+     BegYear 1935
+     EndYear 1999
+     HistPeriod 65
+     SkewOpt Station
+     GenSkew 0.08746567
+     LOType MGBT
+Station 01528000
+     Analyze EMA
+     PCPT_Thresh 1936 1995 0 1E+20  DEFAULT
+     PCPT_Thresh 1936 1936 5110 1E+20  BASED ON 1972WY PEAK HIGHEST SINCE 1935
+     BegYear 1936
+     EndYear 1995
+     HistPeriod 60
+     SkewOpt Station
+     LOType MGBT
+Station 01530301
+     Analyze EMA
+     PCPT_Thresh 1976 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1976 1978 800 1E+20  HISTORIC 1
+     Peak 1976 800  H     
+     BegYear 1976
+     EndYear 2013
+     HistPeriod 38
+     SkewOpt Station
+     LOType MGBT
+Station 01530500
+     Analyze EMA
+     PCPT_Thresh 1936 1989 0 1E+20  DEFAULT
+     PCPT_Thresh 1936 1937 4000 1E+20  BASED ON 1972WY PEAK HIGHEST SINCE 1935
+     BegYear 1936
+     EndYear 1989
+     HistPeriod 54
+     SkewOpt Station
+     LOType MGBT
+Station 01531000
+     Analyze EMA
+     PCPT_Thresh 1890 1978 0 1E+20  DEFAULT
+     PCPT_Thresh 1890 1903 189000 1E+20  BASED ON 1972WY PEAK HIGHEST SINCE 1889
+     BegYear 1890
+     EndYear 1978
+     HistPeriod 89
+     SkewOpt Station
+     LOType MGBT
+Station 01428750
+     Analyze EMA
+     PCPT_Thresh 1975 2013 0 1E+20  DEFAULT
+     BegYear 1975
+     EndYear 2013
+     HistPeriod 39
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01431000
+     Analyze EMA
+     PCPT_Thresh 1945 1986 0 1E+20  DEFAULT
+     PCPT_Thresh 1942 1944 12000 1E+20  HISTORIC 1
+     Peak 1942 12000  H     
+     BegYear 1942
+     EndYear 1986
+     HistPeriod 45
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01438300
+     Analyze EMA
+     PCPT_Thresh 1962 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 2002 2002 69 1E+20  PEAK < STATED VALUE
+     PCPT_Thresh 1962 2013 56 1E+20  CSG
+     Interval 2002 0 69  PEAK < STATED VALUE
+     BegYear 1962
+     EndYear 2013
+     HistPeriod 52
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01439500
+     Analyze EMA
+     PCPT_Thresh 1909 2013 0 1E+20  DEFAULT
+     BegYear 1909
+     EndYear 2013
+     HistPeriod 105
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01440400
+     Analyze EMA
+     PCPT_Thresh 1958 2013 0 1E+20  DEFAULT
+     BegYear 1958
+     EndYear 2013
+     HistPeriod 56
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01447500
+     Analyze EMA
+     PCPT_Thresh 1944 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1942 1943 15700 1E+20 
+     Peak 1942 15700  H     
+     BegYear 1942
+     EndYear 2013
+     HistPeriod 72
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01448500
+     Analyze EMA
+     PCPT_Thresh 1949 1996 0 1E+20  DEFAULT
+     PCPT_Thresh 1997 2006 680 1E+20  HISTORIC 1
+     Peak 2006 680  H     
+     BegYear 1949
+     EndYear 2006
+     HistPeriod 58
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01449360
+     Analyze EMA
+     PCPT_Thresh 1967 2013 0 1E+20  DEFAULT
+     BegYear 1967
+     EndYear 2013
+     HistPeriod 47
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01450500
+     Analyze EMA
+     PCPT_Thresh 1940 2013 0 1E+20  DEFAULT
+     BegYear 1940
+     EndYear 2013
+     HistPeriod 74
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01451800
+     Analyze EMA
+     PCPT_Thresh 1967 2013 0 1E+20  DEFAULT
+     BegYear 1967
+     EndYear 2013
+     HistPeriod 47
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01453000
+     Analyze EMA
+     PCPT_Thresh 1902 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1906 1909 1E+20 1E+20  MISSING1
+     BegYear 1902
+     EndYear 2013
+     HistPeriod 112
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01459500
+     Analyze EMA
+     PCPT_Thresh 1936 1972 0 1E+20  DEFAULT
+     BegYear 1936
+     EndYear 1972
+     HistPeriod 37
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01470500
+     Analyze EMA
+     PCPT_Thresh 1948 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1942 1947 26900 1E+20  HISTORIC 1
+     Peak 1942 26900  H     
+     BegYear 1942
+     EndYear 2013
+     HistPeriod 72
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01470779
+     Analyze EMA
+     PCPT_Thresh 1972 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1972 1974 6000 1E+20  HISTORIC1
+     Peak 1972 6000  H     
+     BegYear 1972
+     EndYear 2013
+     HistPeriod 42
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01472000
+     Analyze EMA
+     PCPT_Thresh 1902 1978 0 1E+20  DEFAULT
+     PCPT_Thresh 1902 1927 53900 1E+20  HISTORIC1
+     Peak 1902 53900  H     
+     BegYear 1902
+     EndYear 1978
+     HistPeriod 77
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01472157
+     Analyze EMA
+     PCPT_Thresh 1969 2013 0 1E+20  DEFAULT
+     BegYear 1969
+     EndYear 2013
+     HistPeriod 45
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01473000
+     Analyze EMA
+     PCPT_Thresh 1915 2013 0 1E+20  DEFAULT
+     BegYear 1915
+     EndYear 2013
+     HistPeriod 99
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01475850
+     Analyze EMA
+     PCPT_Thresh 1977 2013 0 1E+20  DEFAULT
+     BegYear 1977
+     EndYear 2013
+     HistPeriod 37
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01480300
+     Analyze EMA
+     PCPT_Thresh 1960 2013 0 1E+20  DEFAULT
+     BegYear 1960
+     EndYear 2013
+     HistPeriod 54
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01480675
+     Analyze EMA
+     PCPT_Thresh 1967 2013 0 1E+20  DEFAULT
+     BegYear 1967
+     EndYear 2013
+     HistPeriod 47
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01516350
+     Analyze EMA
+     PCPT_Thresh 1972 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1890 1972 24200 1E+20  PER PFF COMMENT
+     PCPT_Thresh 1973 1976 18000 1E+20  HP1
+     Peak 1972 24200  H     
+     Peak 1975 18000  H     
+     BegYear 1890
+     EndYear 2013
+     HistPeriod 124
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01516500
+     Analyze EMA
+     PCPT_Thresh 1955 2013 0 1E+20  DEFAULT
+     BegYear 1955
+     EndYear 2013
+     HistPeriod 59
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01532000
+     Analyze EMA
+     PCPT_Thresh 1914 2013 0 1E+20  DEFAULT
+     BegYear 1914
+     EndYear 2013
+     HistPeriod 100
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01534000
+     Analyze EMA
+     PCPT_Thresh 1914 2013 0 1E+20  DEFAULT
+     BegYear 1914
+     EndYear 2013
+     HistPeriod 100
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01538000
+     Analyze EMA
+     PCPT_Thresh 1920 2013 0 1E+20  DEFAULT
+     BegYear 1920
+     EndYear 2013
+     HistPeriod 94
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01539000
+     Analyze EMA
+     PCPT_Thresh 1936 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1936 1938 17600 1E+20  HISTORIC1
+     Peak 1936 17600  H     
+     BegYear 1936
+     EndYear 2013
+     HistPeriod 78
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01541000
+     Analyze EMA
+     PCPT_Thresh 1889 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1889 1913 27000 1E+20  HISTORIC1
+     Peak 1889 27000  H     
+     BegYear 1889
+     EndYear 2013
+     HistPeriod 125
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01541500
+     Analyze EMA
+     PCPT_Thresh 1914 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 2013 2013 1E+20 1E+20  MISSING1
+     BegYear 1914
+     EndYear 2013
+     HistPeriod 100
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01542810
+     Analyze EMA
+     PCPT_Thresh 1964 2013 0 1E+20  DEFAULT
+     BegYear 1964
+     EndYear 2013
+     HistPeriod 50
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01543000
+     Analyze EMA
+     PCPT_Thresh 1914 2013 0 1E+20  DEFAULT
+     BegYear 1914
+     EndYear 2013
+     HistPeriod 100
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01544500
+     Analyze EMA
+     PCPT_Thresh 1936 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1936 1940 20000 1E+20  HISTORIC1
+     Peak 1936 20000  H     
+     BegYear 1936
+     EndYear 2013
+     HistPeriod 78
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01545600
+     Analyze EMA
+     PCPT_Thresh 1965 2013 0 1E+20  DEFAULT
+     BegYear 1965
+     EndYear 2013
+     HistPeriod 49
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01547700
+     Analyze EMA
+     PCPT_Thresh 1956 2013 0 1E+20  DEFAULT
+     BegYear 1956
+     EndYear 2013
+     HistPeriod 58
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01547950
+     Analyze EMA
+     PCPT_Thresh 1968 2013 0 1E+20  DEFAULT
+     BegYear 1968
+     EndYear 2013
+     HistPeriod 46
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01548005
+     Analyze EMA
+     PCPT_Thresh 1911 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1958 1958 1E+20 1E+20  MISSING1
+     BegYear 1911
+     EndYear 2013
+     HistPeriod 103
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01548500
+     Analyze EMA
+     PCPT_Thresh 1919 2013 0 1E+20  DEFAULT
+     BegYear 1919
+     EndYear 2013
+     HistPeriod 95
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01549500
+     Analyze EMA
+     PCPT_Thresh 1936 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1936 1940 5780 1E+20  HISTORIC1
+     Peak 1936 5780  H     
+     BegYear 1936
+     EndYear 2013
+     HistPeriod 78
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01550000
+     Analyze EMA
+     PCPT_Thresh 1914 2013 0 1E+20  DEFAULT
+     BegYear 1914
+     EndYear 2013
+     HistPeriod 100
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01552000
+     Analyze EMA
+     PCPT_Thresh 1926 2013 0 1E+20  DEFAULT
+     BegYear 1926
+     EndYear 2013
+     HistPeriod 88
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01552500
+     Analyze EMA
+     PCPT_Thresh 1936 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1936 1941 4500 1E+20  EST Q
+     Interval 1936 4500 6500 
+     BegYear 1936
+     EndYear 2013
+     HistPeriod 78
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01555000
+     Analyze EMA
+     PCPT_Thresh 1930 2013 0 1E+20  DEFAULT
+     BegYear 1930
+     EndYear 2013
+     HistPeriod 84
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01555500
+     Analyze EMA
+     PCPT_Thresh 1930 2013 0 1E+20  DEFAULT
+     BegYear 1930
+     EndYear 2013
+     HistPeriod 84
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01556000
+     Analyze EMA
+     PCPT_Thresh 1889 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1889 1916 35500 1E+20  HISTORIC1
+     Peak 1889 35500  H     
+     BegYear 1889
+     EndYear 2013
+     HistPeriod 125
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01557500
+     Analyze EMA
+     PCPT_Thresh 1936 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1936 1944 5000 1E+20  HISTORIC
+     Interval 1936 5000 10000 
+     BegYear 1936
+     EndYear 2013
+     HistPeriod 78
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01558000
+     Analyze EMA
+     PCPT_Thresh 1936 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1936 1938 28600 1E+20  HISTORIC1
+     Peak 1936 39800  H     
+     BegYear 1936
+     EndYear 2013
+     HistPeriod 78
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01560000
+     Analyze EMA
+     PCPT_Thresh 1936 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1936 1939 16900 1E+20  HISTORIC1
+     Peak 1936 16900  H     
+     BegYear 1936
+     EndYear 2013
+     HistPeriod 78
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01564500
+     Analyze EMA
+     PCPT_Thresh 1889 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1889 1938 24000 1E+20  HISTORIC1
+     Peak 1889 24000  H     
+     BegYear 1889
+     EndYear 2013
+     HistPeriod 125
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01565000
+     Analyze EMA
+     PCPT_Thresh 1936 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1936 1939 11500 1E+20  HISTORIC1
+     PCPT_Thresh 1971 1983 16400 1E+20  HISTORIC2
+     PCPT_Thresh 1986 1988 1E+20 1E+20  MISSING1
+     Peak 1936 11500  H     
+     Peak 1972 16400  H     
+     BegYear 1936
+     EndYear 2013
+     HistPeriod 78
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01566000
+     Analyze EMA
+     PCPT_Thresh 1889 2014 0 1E+20  DEFAULT
+     PCPT_Thresh 1889 1911 19000 1E+20  HISTORIC ESTIMATED Q BASED ON GHT
+     PCPT_Thresh 1959 1987 25000 1E+20  HISTORIC ESTIMATED Q BASED ON GHT
+     PCPT_Thresh 1991 1995 1E+20 1E+20  MISSING
+     Interval 1889 19000 25000 
+     Interval 1972 25000 40000 
+     BegYear 1889
+     EndYear 2013
+     HistPeriod 125
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01567500
+     Analyze EMA
+     PCPT_Thresh 1954 2013 0 1E+20  DEFAULT
+     BegYear 1954
+     EndYear 2013
+     HistPeriod 60
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01568000
+     Analyze EMA
+     PCPT_Thresh 1930 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1927 1929 27500 1E+20  HISTORIC PER COMMENT IN PFF
+     Peak 1927 44000  H     
+     BegYear 1927
+     EndYear 2013
+     HistPeriod 87
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01570000
+     Analyze EMA
+     PCPT_Thresh 1912 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1918 1929 1E+20 1E+20  MISSING1
+     PCPT_Thresh 1959 1967 1E+20 1E+20  MISSING2
+     BegYear 1912
+     EndYear 2013
+     HistPeriod 102
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01571500
+     Analyze EMA
+     PCPT_Thresh 1910 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1920 1954 1E+20 1E+20  MISSING
+     BegYear 1910
+     EndYear 2013
+     HistPeriod 104
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01573000
+     Analyze EMA
+     PCPT_Thresh 1889 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1889 1918 66700 1E+20  HISTORIC 1 PER PFF COMMENT
+     Peak 1889 88000  H     
+     BegYear 1889
+     EndYear 2013
+     HistPeriod 125
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01574000
+     Analyze EMA
+     PCPT_Thresh 1929 2013 0 1E+20  DEFAULT
+     BegYear 1929
+     EndYear 2013
+     HistPeriod 85
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01574500
+     Analyze EMA
+     PCPT_Thresh 1930 1966 0 1E+20  DEFAULT
+     PCPT_Thresh 1965 1965 1E+20 1E+20  MISSING1
+     BegYear 1930
+     EndYear 1966
+     HistPeriod 37
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01575000
+     Analyze EMA
+     PCPT_Thresh 1928 1929 0 1E+20  DEFAULT
+     PCPT_Thresh 1930 1930 1E+20 1E+20  MISSING
+     PCPT_Thresh 1931 1995 0 1E+20  DEFAULT
+     BegYear 1928
+     EndYear 1995
+     HistPeriod 68
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01576500
+     Analyze EMA
+     PCPT_Thresh 1929 2013 0 1E+20  DEFAULT
+     BegYear 1929
+     EndYear 2013
+     HistPeriod 85
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01603500
+     Analyze EMA
+     PCPT_Thresh 1936 1978 0 1E+20  DEFAULT
+     PCPT_Thresh 1979 1979 0 400  PEAK > STATED VALUE
+     PCPT_Thresh 1941 1941 1E+20 1E+20  MISSING1
+     PCPT_Thresh 1947 1950 1E+20 1E+20  MISSING2
+     PCPT_Thresh 1952 1952 1E+20 1E+20  MISSING3
+     PCPT_Thresh 1959 1959 1E+20 1E+20  MISSING4
+     PCPT_Thresh 1965 1966 1E+20 1E+20  MISSING5
+     PCPT_Thresh 1968 1968 1E+20 1E+20  MISSING6
+     PCPT_Thresh 1980 1981 0 1E+20  DEFAULT
+     PCPT_Thresh 1936 1981 400 1E+20  CSG
+     Interval 1979 400 1500  PEAK > STATED VALUE
+     BegYear 1936
+     EndYear 1981
+     HistPeriod 46
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01613050
+     Analyze EMA
+     PCPT_Thresh 1963 2013 0 1E+20  DEFAULT
+     BegYear 1963
+     EndYear 2013
+     HistPeriod 51
+     SkewOpt Station
+     GenSkew 0.346208
+     SkewSE 0.424161
+     LOType MGBT
+Station 01613900
+     Analyze EMA
+     PCPT_Thresh 1961 2013 0 1E+20  DEFAULT
+     Interval 2012 300 3000  HIGH IS 10X DV
+     BegYear 1961
+     EndYear 2013
+     HistPeriod 53
+     SkewOpt Station
+     LOType MGBT
+Station 01615000
+     Analyze EMA
+     PCPT_Thresh 1943 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1943 1943 1E+20 1E+20  MISSING1
+     PCPT_Thresh 1998 2002 1E+20 1E+20  MISSING2
+     BegYear 1943
+     EndYear 2013
+     HistPeriod 71
+     SkewOpt Station
+     LOType MGBT
+Station 01634500
+     Analyze EMA
+     PCPT_Thresh 1936 2014 0 1E+20  DEFAULT
+     PCPT_Thresh 1937 1937 18000 1E+20  HISTORIC 1
+     Peak 1936 18000  H     
+     BegYear 1936
+     EndYear 2013
+     HistPeriod 78
+     SkewOpt Station
+     LOType MGBT
+Station 01638480
+     Analyze EMA
+     PCPT_Thresh 1971 2014 0 1E+20  DEFAULT
+     BegYear 1971
+     EndYear 2013
+     HistPeriod 43
+     SkewOpt Station
+     LOType MGBT
+Station 01334000
+     Analyze EMA
+     PCPT_Thresh 1932 2013 0 1E+20  DEFAULT
+     BegYear 1932
+     EndYear 2013
+     HistPeriod 82
+     SkewOpt Station
+     LOType MGBT
+Station 01608500
+     Analyze EMA
+     PCPT_Thresh 1878 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1879 1899 140000 1E+20  HISTORIC 1
+     PCPT_Thresh 1902 1903 140000 1E+20  BASED ON 1878 NOTE
+     PCPT_Thresh 1907 1928 140000 1E+20  BASED ON 1878 NOTE
+     Peak 1878 140000  H     
+     Interval 1900 10600 31800  HIGH IS 3X DV
+     Interval 1901 17400 52200  HIGH IS 3X DV
+     Interval 1906 15200 45600  HIGH IS 3X DV
+     BegYear 1878
+     EndYear 2013
+     HistPeriod 136
+     SkewOpt Station
+     LOType MGBT
+Station 01611500
+     Analyze EMA
+     PCPT_Thresh 1889 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1890 1922 57500 1E+20  HISTORIC 1
+     PCPT_Thresh 1996 1996 1E+20 1E+20  MISSING1
+     Peak 1889 57500  H     
+     BegYear 1889
+     EndYear 2013
+     HistPeriod 125
+     SkewOpt Station
+     LOType MGBT
+Station 01614000
+     Analyze EMA
+     PCPT_Thresh 1929 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1932 1935 22000 1E+20  HISTORIC 1
+     PCPT_Thresh 1976 1992 1E+20 1E+20  MISSING1
+     PCPT_Thresh 1999 2003 1E+20 1E+20  MISSING2
+     PCPT_Thresh 1937 1938 22000 1E+20  HISTORIC1
+     Peak 1936 22000  H     
+     BegYear 1929
+     EndYear 2013
+     HistPeriod 85
+     SkewOpt Station
+     LOType MGBT
+Station 01616500
+     Analyze EMA
+     PCPT_Thresh 1906 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1907 1935 1E+20 1E+20  MISSING1
+     PCPT_Thresh 1937 1947 19100 1E+20  HISTORIC1
+     Peak 1906 3420  H     
+     Peak 1936 19100  H     
+     BegYear 1906
+     EndYear 2013
+     HistPeriod 108
+     SkewOpt Station
+     LOType MGBT
+Station 01636500
+     Analyze EMA
+     PCPT_Thresh 1870 2013 0 1E+20  DEFAULT
+     PCPT_Thresh 1871 1895 151000 1E+20  HISTORIC 1
+     PCPT_Thresh 1925 1928 119000 1E+20  HISTORIC 2
+     PCPT_Thresh 1909 1923 230000 1E+20  BASED ON 1942WY COMMENT
+     Peak 1870 151000  H     
+     Peak 1924 119000  H     
+     BegYear 1870
+     EndYear 2013
+     HistPeriod 144
+     SkewOpt Station
+     LOType MGBT

@@ -1,0 +1,187 @@
+I ASCI wymt_ffa_2022A_WATSTORE.txt
+O File WYMT_FFA_2022A.PRT
+O Plot Style Graphics
+O Plot Format PNG
+O Export WYMT_FFA_2022A.EXP
+O Empirical WYMT_FFA_2022A.EMP
+O ConfInterval 0.9
+O EMA YES
+Station 06177720.00
+     PCPT_Thresh 1972 1992 0 1E+20  DEFAULT
+     PCPT_Thresh 1972 1973 103 1E+20  1972 HISTORICAL PERIOD
+     SkewOpt Weighted
+     GenSkew -0.3785522
+     SkewSE 0.64
+     LOType MGBT
+Station 06177820.00
+     PCPT_Thresh 1974 2019 0 1E+20  DEFAULT
+     PCPT_Thresh 2015 2015 12 1E+20  PEAK < STATED VALUE
+     PCPT_Thresh 2016 2016 1 1E+20  PEAK < STATED VALUE
+     Interval 2015 0 12  PEAK < STATED VALUE
+     Interval 2016 0 1  PEAK < STATED VALUE
+     SkewOpt Weighted
+     GenSkew -0.397702
+     SkewSE 0.64
+     LOType MGBT
+Station 06185200.00
+     PCPT_Thresh 1963 1977 0 1E+20  DEFAULT
+     SkewOpt Weighted
+     GenSkew -0.4
+     SkewSE 0.64
+     LOType MGBT
+Station 06185500.10
+     PCPT_Thresh 1942 2022 0 1E+20  DEFAULT
+     PCPT_Thresh 1952 1958 104000 1E+20 2011 HISTORICAL PERIOD
+     SkewOpt Station
+     LOType MGBT
+Station 06185500.11
+     PCPT_Thresh 1937 2022 0 1E+20 Default
+     SkewOpt Station
+     LOType MGBT
+Station 06324500.00
+     PCPT_Thresh 1878 2022 0 1E+20 Default
+     PCPT_Thresh 1878 1928 100000 1E+20 1923 HISTORICAL PERIOD
+     PCPT_Thresh 1973 1974 33000 1E+20 1978 HISTORICAL PERIOD
+     SkewOpt Weighted
+     GenSkew -0.0053
+     SkewSE 0.64
+     LOType MGBT
+Station 06324500.01
+     PCPT_Thresh 1878 2022 0 1E+20 Default
+     PCPT_Thresh 1878 1918 100000 1E+20 1923 HISTORICAL PERIOD
+     SkewOpt Weighted
+     GenSkew -0.0053
+     SkewSE 0.64
+     LOType MGBT
+Station 06324710.00
+     PCPT_Thresh 1976 2022 0 1E+20 Default
+     PCPT_Thresh 1993 2022 30000 1E+20 1978 HISTORICAL PERIOD
+     SkewOpt Weighted
+     GenSkew -0.041
+     SkewSE 0.64
+     LOType MGBT
+Station 06324710.01
+     PCPT_Thresh 1878 2022 0 1E+20 Default
+     PCPT_Thresh 1878 1918 102000 1E+20 1923 HISTORICAL PERIOD
+     SkewOpt Weighted
+     GenSkew -0.041
+     SkewSE 0.64
+     LOType MGBT
+Station 06325500.00
+     PCPT_Thresh 1947 1978 0 1E+20 Default
+     PCPT_Thresh 1973 1978 3160 1E+20 1978 HISTORICAL PERIOD
+     PCPT_Thresh 1954 1955 3160 1E+20 1978 HISTORICAL PERIOD
+     SkewOpt Weighted
+     GenSkew -0.0396
+     SkewSE 0.64
+     LOType MGBT
+Station 06326500.00
+     PCPT_Thresh 1938 2022 0 1E+20 Default
+     SkewOpt Weighted
+     GenSkew -0.2002
+     SkewSE 0.64
+     LOType MGBT
+Station 06326960.00
+     PCPT_Thresh 1974 2021 0 1E+20 Default
+     PCPT_Thresh 2005 2005 0.5 1E+20 PEAK < STATED VALUE
+     PCPT_Thresh 2016 2016 2.76 1E+20 PEAK < STATED VALUE
+     PCPT_Thresh 2017 2017 2.76 1E+20 PEAK < STATED VALUE
+     Interval 2005 0 0.5 PEAK < STATED VALUE
+     Interval 2016 0 2.76 PEAK < STATED VALUE
+     Interval 2017 0 2.76 PEAK < STATED VALUE
+     SkewOpt Weighted
+     GenSkew -0.3681
+     SkewSE 0.64
+     LOType MGBT
+Station 06327450.00
+     PCPT_Thresh 1991 2022 0 1E+20 Default
+     SkewOpt Weighted
+     GenSkew -0.387
+     SkewSE 0.64
+     LOType MGBT
+Station 06327700.00
+     PCPT_Thresh 1955 2004 0 1E+20 Default
+     PCPT_Thresh 1961 1961 14600 1E+20 1965 HISTORICAL PERIOD
+     PCPT_Thresh 1964 1964 14600 1E+20 1965 HISTORICAL PERIOD
+     PCPT_Thresh 1968 2004 14600 1E+20 1965 HISTORICAL PERIOD
+     SkewOpt Weighted
+     GenSkew -0.3899
+     SkewSE 0.64
+     LOType MGBT
+Station 06327720.00
+     PCPT_Thresh 1965 2022 0 1E+20 Default
+     PCPT_Thresh 1965 1973 1070 1E+20 1965 HISTORICAL PERIOD
+     SkewOpt Weighted
+     GenSkew -0.3893
+     SkewSE 0.64
+     LOType MGBT
+Station 06328100.00
+     PCPT_Thresh 1974 2022 0 1E+20 Default
+     PCPT_Thresh 2008 2008 2 1E+20 PEAK < STATED VALUE
+     PCPT_Thresh 2016 2016 23.8 1E+20 PEAK < STATED VALUE
+     PCPT_Thresh 2020 2020 23.5 1E+20 PEAK < STATED VALUE
+     PCPT_Thresh 2021 2021 23.5 407 PEAK > STATED VALUE
+     Interval 2008 0 2 PEAK < STATED VALUE
+     Interval 2016 0 23.8 PEAK < STATED VALUE
+     Interval 2020 0 23.5 PEAK < STATED VALUE
+     Interval 2021 407 1E+20 PEAK > STATED VALUE
+     SkewOpt Weighted
+     GenSkew -0.3889
+     SkewSE 0.64
+     LOType MGBT
+Station 06328400.00
+     PCPT_Thresh 1972 1991 0 1E+20 Default
+     PCPT_Thresh 1972 1973 110 1E+20 1972 HISTORICAL PERIOD
+     SkewOpt Weighted
+     GenSkew -0.3902
+     SkewSE 0.64
+     LOType MGBT
+Station 06328700.00
+     PCPT_Thresh 1958 1980 0 1E+20 Default
+     PCPT_Thresh 1974 1980 160 1E+20 1980 HISTORICAL PERIOD
+     SkewOpt Weighted
+     GenSkew -0.3926
+     SkewSE 0.64
+     LOType MGBT
+Station 06328800.00
+     PCPT_Thresh 1958 1973 0 1E+20  DEFAULT
+     SkewOpt Weighted
+     GenSkew -0.3923415
+     SkewSE 0.64
+     LOType MGBT
+Station 06328900.00
+     PCPT_Thresh 1958 1980 0 1E+20  DEFAULT
+     PCPT_Thresh 1974 1980 240 1E+20  1980 HISTORICAL PERIOD
+     SkewOpt Weighted
+     GenSkew -0.3934269
+     SkewSE 0.64
+     LOType MGBT
+Station 06329200.00
+     PCPT_Thresh 1958 1986 0 1E+20  DEFAULT
+     PCPT_Thresh 1968 1974 1E+20 1E+20  MISSING
+     PCPT_Thresh 1985 1985 1E+20 1E+20  MISSING
+     SkewOpt Weighted
+     GenSkew -0.394601
+     SkewSE 0.64
+     LOType MGBT
+Station 06329350.00
+     PCPT_Thresh 1974 2019 0 1E+20  DEFAULT
+     PCPT_Thresh 2016 2016 3.9 1E+20  PEAK < STATED VALUE
+     Interval 2016 0 3.9  PEAK < STATED VALUE
+     SkewOpt Weighted
+     GenSkew -0.3988442
+     SkewSE 0.64
+     LOType MGBT
+Station 06329510.00
+     PCPT_Thresh 1972 1996 0 1E+20  DEFAULT
+     PCPT_Thresh 1972 1973 59 1E+20  1972 HISTORICAL PERIOD
+     SkewOpt Weighted
+     GenSkew -0.3956848
+     SkewSE 0.64
+     LOType MGBT
+Station 06329570.00
+     PCPT_Thresh 1963 2004 0 1E+20  DEFAULT
+     SkewOpt Weighted
+     GenSkew -0.399098
+     SkewSE 0.64
+     LOType MGBT
