@@ -182,7 +182,13 @@ integrates the skewed sampling distribution instead of assuming normality about 
 estimate. A normal approximation cannot produce a 1.73 ratio no matter how its variance is
 computed.
 
-**Recipe** (reproducible in about two minutes):
+The merged result is pushed as **`claude/merge-b17c-accuracy-5gj1s1`** (merge commit
+`675e647`, parents `039f983` and `e1a66fb`), with the two hazards above resolved, CI
+tolerances restored to 5 % / 5 %, and the 2 remaining failures left failing rather than
+masked. Full suite there: 344 passed, 6 failed — those 2, the three §1.2 reference-data
+tests, and one sandbox-blocked live NWIS call.
+
+**Recipe**, to reproduce it from scratch:
 
 ```bash
 git checkout -b combined origin/claude/hydrolib-edt-attributes-mm2aif
