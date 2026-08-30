@@ -43,7 +43,7 @@ jobs:
       - name: Install
         run: pip install -e ".[dev]"
 
-      # The marker deselection lives in the Makefile, not here, so local runs
-      # and CI test exactly the same set.
+      # No marker flags here: the default selection lives in pyproject.toml's
+      # addopts, so this runs exactly what a developer's bare `pytest` runs.
       - name: Test
-        run: make test
+        run: pytest tests/

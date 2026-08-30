@@ -23,11 +23,17 @@ Two P1 items are done; the remaining three are still the cheapest work here.
 
 The frictions that cost real time and caused two red builds on main.
 
-- [x] **One-command verify.** ~~No `Makefile`, `noxfile.py` or `tox.ini`~~ — added.
-      `make check` runs lint plus the CI selection; `make help` lists the rest
-      (`fmt`, `test-all`, `fortran`, `golden`, `clean`). The marker deselection and the
-      `PYTHONSAFEPATH=1` flag live in the Makefile and **CI calls the same targets**, so
-      local and CI cannot drift. `make test` reproduces CI's count exactly.
+- [x] **One-command verify.** The default selection now lives in `pyproject.toml`'s
+      `addopts`, so a **bare `pytest` is the CI selection** on every platform — no `make`
+      needed, nothing to retype, and exactly one place to get the marker list wrong.
+      Override from the CLI when you want the excluded tests (`-m ""` for everything,
+      `-m requires_network` for just those; a later `-m` wins). `make check` / `make help`
+      still exist for convenience, and CI runs plain `pytest tests/`.
+
+      Dropping `requires_peakfqr_testdata` from the exclusion recovered 3 tests: the
+      reference data is vendored now and `paths.py` skips cleanly if it is ever absent, so
+      excluding it only hid passing tests. CI went 382 passed / 4 deselected → **385 passed
+      / 1 deselected**.
 
 - [x] **Un-gate the test job from lint.** ~~`needs: lint` on the test job~~ — removed;
       the two jobs are independent now. Also set `fail-fast: false` on the matrix: when
@@ -78,9 +84,13 @@ The frictions that cost real time and caused two red builds on main.
       building on Windows.
 
 - [ ] **Decide what `hydrolib/peakfqsa/` is for.** Five modules wrapping a standalone
-      PeakfqSA binary that does not exist. Mock-tested only, and every `requires_peakfqsa`
-      test is permanently deselected. Delete it or repoint it at the f2py bridge; leaving it
-      advertises a capability the library does not have.
+      PeakfqSA binary that does not exist. Mock-tested only — and the "integration tests"
+      that would exercise it were never written: both `@requires_peakfqsa` classes
+      (`TestBigSandyEndToEnd`, `TestPeakfqSAWrapperIntegration`) are empty stubs, one a bare
+      docstring and one a `pass`. `pytest -m requires_peakfqsa` collects **zero** tests, so
+      the marker and its exclusion are dead config. Delete the subsystem or repoint it at
+      the f2py bridge; leaving it advertises a capability the library does not have and
+      never had.
 
 - [ ] **Wire the PILF override into the Streamlit UI.** `run_ffa` accepts
       `low_outlier_threshold_override` and `freq_plot.plot_peak_flows_with_thresholds`

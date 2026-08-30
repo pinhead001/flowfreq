@@ -4,11 +4,8 @@
 PYTHON ?= python
 PKGS := hydrolib/ tests/
 
-# Tests needing something the environment may not have: the PeakfqSA binary
-# (which does not exist -- see CLAUDE.md), network access, or the peakfqr
-# reference data. Kept in one place because getting this list wrong by hand is
-# how a local "green" run stops meaning anything.
-DESELECT := not requires_peakfqsa and not requires_network and not requires_peakfqr_testdata
+# The marker deselection lives in pyproject.toml's addopts, not here, so a bare
+# `pytest` is already correct and there is exactly one place to get it wrong.
 
 # PYTHONSAFEPATH=1 stops Python prepending the working directory to sys.path,
 # which is what the `pytest` console script does and `python -m pytest` does
@@ -32,10 +29,10 @@ fmt:  ## Apply formatting
 	$(PYTHON) -m isort $(PKGS)
 
 test:  ## Run the suite as CI does
-	$(PYTEST) tests/ -m "$(DESELECT)"
-
-test-all:  ## Run everything, including network and reference-data tests
 	$(PYTEST) tests/
+
+test-all:  ## Run everything, including the network tests
+	$(PYTEST) tests/ -m ""
 
 fortran:  ## Build the f2py extension from vendor/peakfqr (needs gfortran + meson)
 	$(PYTHON) build_fortran/build.py

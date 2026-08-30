@@ -51,7 +51,15 @@ known_first_party = ["hydrolib"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-addopts = "-v"
+# The default selection IS the CI selection, so a bare `pytest` is correct on
+# every platform with nothing to remember and no `make` required. Override from
+# the CLI when you want the excluded tests: `-m ""` runs everything,
+# `-m requires_network` runs only those. A later -m always wins.
+#
+# requires_peakfqr_testdata is deliberately NOT excluded: the reference data is
+# vendored at vendor/peakfqr/inst/testdata, those tests pass, and
+# tests/peakfqsa/fixtures/paths.py skips them cleanly if it is ever absent.
+addopts = "-v -m 'not requires_peakfqsa and not requires_network'"
 markers = [
     "requires_peakfqsa: marks tests that require the PeakfqSA binary (deselect with '-m \"not requires_peakfqsa\"')",
     "requires_network: marks tests that contact live NWIS services (deselect with '-m \"not requires_network\"')",
