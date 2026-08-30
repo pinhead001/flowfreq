@@ -343,6 +343,35 @@ subroutine emafitpr(n, ql, qu, tl, tu, dtype,
   The wrapper module is implemented and tested via mocks but cannot be used end-to-end
   without a standalone executable.
 
+- **Native EMA confidence intervals for historical/censored records (Big Sandy
+  validation)**: `FloodFrequencyAnalysis.compute_confidence_limits()` uses a single
+  closed-form asymptotic variance formula (`1/n + K^2(1+0.75G^2)/(2(n-1))`, the
+  Bulletin 17B/MOM-style approximation) for both `MethodOfMoments` and
+  `ExpectedMomentsAlgorithm`, with `n = n_systematic`. It does not implement the
+  "Inverse Modified Cholesky Gaussian Quadrature" CI method emafitpr actually uses
+  (see "Confidence Interval Method" above), nor the Pseudo Effective Record Length
+  (`as_G_PRL_o`, see the `emafitpr` output table above) that method derives from the
+  historical/censored portion of the record to widen/reshape the CI. Against the Big
+  Sandy reference (`tests/validation/test_big_sandy.py`), this shows up as two distinct
+  residuals: (1) CI upper bounds only, at the rarest events (AEP 0.01-0.02), off by
+  ~10-17% and growing with return period, while lower bounds and the point quantile
+  estimates at those same AEPs match; and (2) point quantile estimates at the most
+  frequent events (AEP 0.99-0.995) off by ~2-2.7%, just outside the test's 2%
+  tolerance. One fix was found and applied this session: `_auto_configure_ema_params()`
+  now honors an explicitly-provided `perception_thresholds` entry for the historical
+  period instead of guessing the threshold from `max(historical peak values)`, which
+  resolved 9 of the original 13 Big Sandy failures. The remaining 4 were investigated
+  without guessing at a replacement formula: the two lowest-level EMA math primitives
+  (truncated-gamma moments, the LP3-to-gamma parameter transform) were independently
+  verified exact against brute-force numerical integration, ruling those out. The
+  residual is consistent with the missing PRL/Cholesky-quadrature CI machinery and
+  related censored-data EMA fitting subtleties, but pinning down and verifying the
+  exact formula requires the actual Fortran source (`_shared/peakfqr/src/emafit.f`,
+  routines `var_mom`/`EXPMOMCDERIV`/`DEXPECT`), which is not present in this
+  environment. These 4 tests are left failing (not skipped) rather than masked, since
+  unlike the environment-dependent gaps above this is a real, open numerical accuracy
+  question, not a missing-dependency one.
+
 ## Resolved Questions
 
 - PeakfqSA: Not a standalone binary. Use peakfqr `src/` Fortran as reference code.

@@ -55,4 +55,5 @@ addopts = "-v"
 markers = [
     "requires_peakfqsa: marks tests that require the PeakfqSA binary (deselect with '-m \"not requires_peakfqsa\"')",
     "requires_network: marks tests that contact live NWIS services (deselect with '-m \"not requires_network\"')",
+    "requires_peakfqr_testdata: marks tests that require the peakfqr reference package's bundled CSV test data under _shared/peakfqr (deselect with '-m \"not requires_peakfqr_testdata\"')",
 ]

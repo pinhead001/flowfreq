@@ -63,8 +63,15 @@ class TestFortranRespecFixtures:
         assert len(censored) == 3  # indices 20, 22, 23 have ql=0, qu=40
 
 
+@pytest.mark.requires_peakfqr_testdata
 class TestSkewWeightingFixtures:
-    """Validate skew_weighting fixture data is loadable."""
+    """Validate skew_weighting fixture data is loadable.
+
+    Deselect with -m 'not requires_peakfqr_testdata' -- these load a CSV
+    bundled with the peakfqr R package's own test data (_shared/peakfqr),
+    which is a reference tree from the original development machine and is
+    not part of this repository.
+    """
 
     def test_load_whist_cases(self) -> None:
         from tests.peakfqsa.fixtures.skew_weighting import load_whist_cases
@@ -85,6 +92,7 @@ class TestSkewWeightingFixtures:
 class TestMomentsWymtFixtures:
     """Validate moments_wymt fixture metadata."""
 
+    @pytest.mark.requires_peakfqr_testdata
     def test_expected_csv_files_exist(self) -> None:
         from tests.peakfqsa.fixtures.moments_wymt import (
             EXPECTED_DATA_CSV,

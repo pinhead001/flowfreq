@@ -408,6 +408,25 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
                 hist_start = sys_start
                 hist_end = first_gap - 1
 
+        # An explicitly provided perception threshold for the historical
+        # period is authoritative and must override the guess above, which
+        # conflates two different quantities: "the biggest flood we happen
+        # to have a record of" (max of historical peak values) is not the
+        # same as "the smallest flood that would have been noticed at all"
+        # (the actual perception threshold). Confusing the two understates
+        # how informative the pre-systematic record really is -- every
+        # unlisted year in the historical period gets censored against the
+        # wrong (larger, weaker) bound -- and materially biases every
+        # downstream moment. self._perception_thresholds was already
+        # accepted and stored by __init__, but nothing previously read it
+        # back out here; it only reached get_perception_thresholds_table(),
+        # a display-only method that never touched the fit itself.
+        if hist_start is not None and self._perception_thresholds:
+            for (start, end), threshold in self._perception_thresholds.items():
+                if end < sys_start and threshold > 0:
+                    hist_threshold = threshold
+                    break
+
         return EMAParameters(
             systematic_start=sys_start,
             systematic_end=sys_end,
