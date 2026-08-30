@@ -424,5 +424,46 @@ class TestMGBTOrestimba:
         assert zeros_in_pilf == 12
 
 
+class TestMGBTMemoization:
+    """Guards on the lru_cache around ExpectedMomentsAlgorithm._mgbt_pvalue.
+
+    The cache is what takes the suite from ~75 s to ~14 s, so it is worth a
+    little insurance: one test that it is still in place and reachable, and one
+    that it has not changed an answer.
+    """
+
+    @staticmethod
+    def _descriptor():
+        return ExpectedMomentsAlgorithm.__dict__["_mgbt_pvalue"]
+
+    def test_decorator_order_survives(self):
+        """staticmethod must stay outermost.
+
+        Reversed, this breaks only on Python 3.9, where a staticmethod object
+        is not callable and lru_cache cannot wrap it -- a red matrix job that a
+        green local 3.11 run would not predict.
+        """
+        assert isinstance(self._descriptor(), staticmethod)
+        assert hasattr(ExpectedMomentsAlgorithm._mgbt_pvalue, "cache_info")
+
+    def test_cached_value_matches_uncached(self):
+        """The cache must be transparent: same key, bit-identical result."""
+        cached = ExpectedMomentsAlgorithm._mgbt_pvalue
+        for args in ((50, 3, -2.1), (88, 12, -1.4), (30, 1, 0.5)):
+            assert cached(*args) == cached.__wrapped__(*args)
+
+    def test_repeated_key_is_served_from_the_cache(self):
+        cached = ExpectedMomentsAlgorithm._mgbt_pvalue
+        cached(97, 7, -1.9)
+        before = cached.cache_info().hits
+        cached(97, 7, -1.9)
+        assert cached.cache_info().hits == before + 1
+
+    def test_unhashable_argument_is_a_type_error(self):
+        """A numpy array would silently defeat the cache; it must raise instead."""
+        with pytest.raises(TypeError):
+            ExpectedMomentsAlgorithm._mgbt_pvalue(50, 3, np.array([-2.1, -1.0]))
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
