@@ -316,10 +316,14 @@ Nothing to do here; recorded so the reasoning survives.
 Two attributes doing different jobs, and it is worth being precise about which one
 actually protects the source:
 
-- **`text eol=lf`** pins the stored bytes to LF, so a contributor with
-  `core.autocrlf=true` cannot rewrite line endings in either direction. Note gfortran
-  itself tolerates CRLF — this is about the repository matching upstream byte-for-byte,
-  not about the compiler.
+- **`text eol=lf`** makes the repository store **one** consistent line ending regardless
+  of who commits. Be clear about what this is not: upstream peakfq ships CRLF, so on the
+  first `git add` git reports *"CRLF will be replaced by LF the next time Git touches
+  it"* for every Fortran and R file. That is the rule working as intended, but it means
+  the stored bytes are **normalized, not byte-identical to upstream** — a checksum
+  against the original tree will not match. Nothing is lost that matters: normalization
+  touches only line terminators, never intra-line content, so the column structure that
+  fixed-form Fortran depends on is untouched, and gfortran accepts either form.
 - **`whitespace=-trailing-space,-tab-in-indent`** is the load-bearing one. It tells git
   *not* to treat trailing whitespace and indent tabs as errors in these files, which
   stops `git apply --whitespace=fix` and `git rebase --whitespace=fix` from stripping
@@ -334,8 +338,12 @@ sensitive), plus `Makevars`/`Makevars.win`, where Make requires a literal TAB to
 recipe line and expanding it breaks the build outright.
 
 `vendor/peakfqr/inst/testdata/**` is `-text`, so byte-exact expected output is never
-normalized. Trade-off: git treats those as binary and shows no textual diff — acceptable
-for fixtures that are not meant to change, and worth knowing before you go looking for one.
+normalized. This is the half of the split where byte-identity genuinely matters, and it
+is observable: the fixture files produce **no** CRLF warning on `git add`, precisely
+because nothing is being rewritten. Source normalized, fixtures preserved exactly.
+
+Trade-off: git treats the fixtures as binary and shows no textual diff — acceptable for
+data that is not meant to change, and worth knowing before you go looking for one.
 
 Verified two ways before committing: `git check-attr` confirms every path in the §2
 manifest resolves to the intended rules, and `git add --renormalize .` confirms no
