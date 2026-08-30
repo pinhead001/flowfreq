@@ -66,37 +66,35 @@ def build_flow_intervals() -> Tuple[list, list, EMAParameters]:
     return intervals, water_years, ema_params
 
 
+@pytest.fixture(scope="module")
+def b17c_result():
+    """Big Sandy EMA fit, built once for the whole module.
+
+    Module-scoped deliberately. The MGBT three-sweep runs scipy.integrate.quad
+    per candidate, so a single run_analysis() costs about two seconds, and this
+    identical fit was previously rebuilt for every parametrized case in three
+    separate classes. Safe to share because no test here mutates the result.
+
+    Module-level rather than a class-scoped method: a class-scoped fixture
+    written as an instance method is deprecated and removed in pytest 10, and
+    the @staticmethod form that silences that warning breaks on Python 3.9,
+    where staticmethod objects do not expose __name__ for pytest to read.
+    """
+    perception_thresholds = {(t["start"], t["end"]): t["lower"] for t in THRESHOLDS}
+    b17c = Bulletin17C(
+        peak_flows=list(SYSTEMATIC_PEAKS.values()),
+        water_years=list(SYSTEMATIC_PEAKS.keys()),
+        regional_skew=REGIONAL_SKEW,
+        regional_skew_mse=REGIONAL_SKEW_SD**2,
+        historical_peaks=[(y, f) for y, f in HISTORICAL_PEAKS.items()],
+        perception_thresholds=perception_thresholds,
+    )
+    b17c.run_analysis()
+    return b17c
+
+
 class TestBigSandyParameters:
     """Test LP3 parameter estimation against expected values."""
-
-    # Class-scoped: the MGBT three-sweep makes each run_analysis() cost ~2s, and
-    # every parametrized case in these classes would otherwise rebuild the same fit.
-    # Safe because no test here mutates the returned object.
-    @pytest.fixture(scope="class")
-    @staticmethod
-    def b17c_result():
-        """Run B17C analysis on Big Sandy data."""
-        peak_flows = list(SYSTEMATIC_PEAKS.values())
-        water_years = list(SYSTEMATIC_PEAKS.keys())
-
-        # Add historical peaks
-        historical_peaks = [(y, f) for y, f in HISTORICAL_PEAKS.items()]
-
-        # Build perception thresholds
-        perception_thresholds = {}
-        for t in THRESHOLDS:
-            perception_thresholds[(t["start"], t["end"])] = t["lower"]
-
-        b17c = Bulletin17C(
-            peak_flows=peak_flows,
-            water_years=water_years,
-            regional_skew=REGIONAL_SKEW,
-            regional_skew_mse=REGIONAL_SKEW_SD**2,
-            historical_peaks=historical_peaks,
-            perception_thresholds=perception_thresholds,
-        )
-        b17c.run_analysis()
-        return b17c
 
     def test_mean_log(self, b17c_result):
         """Test mean of log10(Q)."""
@@ -130,32 +128,6 @@ class TestBigSandyParameters:
 class TestBigSandyQuantiles:
     """Test flood quantile estimates against expected values."""
 
-    # Class-scoped: the MGBT three-sweep makes each run_analysis() cost ~2s, and
-    # every parametrized case in these classes would otherwise rebuild the same fit.
-    # Safe because no test here mutates the returned object.
-    @pytest.fixture(scope="class")
-    @staticmethod
-    def b17c_result():
-        """Run B17C analysis on Big Sandy data."""
-        peak_flows = list(SYSTEMATIC_PEAKS.values())
-        water_years = list(SYSTEMATIC_PEAKS.keys())
-
-        historical_peaks = [(y, f) for y, f in HISTORICAL_PEAKS.items()]
-        perception_thresholds = {}
-        for t in THRESHOLDS:
-            perception_thresholds[(t["start"], t["end"])] = t["lower"]
-
-        b17c = Bulletin17C(
-            peak_flows=peak_flows,
-            water_years=water_years,
-            regional_skew=REGIONAL_SKEW,
-            regional_skew_mse=REGIONAL_SKEW_SD**2,
-            historical_peaks=historical_peaks,
-            perception_thresholds=perception_thresholds,
-        )
-        b17c.run_analysis()
-        return b17c
-
     @pytest.mark.parametrize("aep,expected_flow", list(EXPECTED_QUANTILES.items()))
     def test_quantile(self, b17c_result, aep, expected_flow):
         """Test individual quantile estimates."""
@@ -172,32 +144,6 @@ class TestBigSandyQuantiles:
 
 class TestBigSandyConfidenceIntervals:
     """Test confidence interval bounds."""
-
-    # Class-scoped: the MGBT three-sweep makes each run_analysis() cost ~2s, and
-    # every parametrized case in these classes would otherwise rebuild the same fit.
-    # Safe because no test here mutates the returned object.
-    @pytest.fixture(scope="class")
-    @staticmethod
-    def b17c_result():
-        """Run B17C analysis on Big Sandy data."""
-        peak_flows = list(SYSTEMATIC_PEAKS.values())
-        water_years = list(SYSTEMATIC_PEAKS.keys())
-
-        historical_peaks = [(y, f) for y, f in HISTORICAL_PEAKS.items()]
-        perception_thresholds = {}
-        for t in THRESHOLDS:
-            perception_thresholds[(t["start"], t["end"])] = t["lower"]
-
-        b17c = Bulletin17C(
-            peak_flows=peak_flows,
-            water_years=water_years,
-            regional_skew=REGIONAL_SKEW,
-            regional_skew_mse=REGIONAL_SKEW_SD**2,
-            historical_peaks=historical_peaks,
-            perception_thresholds=perception_thresholds,
-        )
-        b17c.run_analysis()
-        return b17c
 
     # AEP 0.01 and 0.02 are known failures, tracked as strict xfail: the run
     # still happens and the deviation still prints, but the build stays green
