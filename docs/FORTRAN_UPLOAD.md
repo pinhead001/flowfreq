@@ -707,6 +707,60 @@ and they need separating before anyone tunes Python against these numbers:
 Settle (1) before (2): re-run with the manual's exact perception-threshold and PILF
 configuration. If the quantiles still miss at the tails, it is (2).
 
+### 6.0b Chasing candidate (1): ruled out — it is the vintage
+
+Candidate (1) was "my input setup differs from the manual's". It does not, in any way that
+matters. Three lines of evidence:
+
+**The data setup is right.** The fitted mean comes back as **3.717508** against the manual's
+**3.717272** — off by 0.0063 %. A wrong interval count, a wrong censoring bound or a
+misplaced perception threshold cannot leave the first moment intact to six parts in a
+hundred thousand. The 84 intervals (44 systematic + 3 historic + 37 censored at 18 000) are
+what the manual fitted.
+
+**No configuration reproduces it.** Swept, all against the same intervals:
+
+| varied | values tried | effect |
+|---|---|---|
+| `dtype` for censored years | 1, 0 (0 is what `siteQT` sets) | **none — bit-identical** |
+| `tu` | 1e20, 1e50 | **none — bit-identical** |
+| `wght_opt_n` | 1 HWN, 2 ERL, 3 INV | skew −0.1563 / −0.1659 / −0.1563 |
+| skew option | Weighted, Generalized, Station | −0.1563 / −0.5000 / +0.0066 |
+| `eps` | 0.90, 0.95 | upper CI −14.2 % / −6.4 % |
+| PILF | MGBT, none | **none — bit-identical** |
+
+Nothing lands on the manual. Where one column gets close another breaks: Station skew
+matches the upper CI to **+0.40 %** and the asymmetry to 1.694 vs 1.727, but puts the skew at
++0.0066 against −0.1187 and Q100 5.5 % high.
+
+**The smoking gun is the skew weighting.** At-site skew is +0.00660 and peakfq 8.1.0 reports
+`as_G_mse = 0.09437`. Put that MSE through the *standard* Bulletin 17C weighting:
+
+| | regional weight | weighted skew | vs manual |
+|---|---:|---:|---:|
+| manual's −0.118702 implies | 0.2473 | −0.118702 | — |
+| standard B17C using 8.1.0's own `as_G_mse` | 0.2378 | **−0.113862** | +4.1 % |
+| what 8.1.0 actually returns | — | **−0.156306** | −31.7 % |
+
+The standard formula, fed 8.1.0's own reported MSE, lands within 4 % of the manual. 8.1.0's
+*internal* weighting does not — it is doing something else. `fortranWrappers.R` says exactly
+what: HWN is *"a generalization of the PeakFQ 7.4.1 algorithm using an optimized adjustment
+factor when censored data are present. Results are identical to PeakFQ 7.4.1 when no
+censored data are present."* Big Sandy has 37 censored intervals, so HWN diverges **by
+design** — and the 2012 PeakfqSA manual predates it.
+
+**Conclusion.** `EXPECTED_PARAMETERS` and `EXPECTED_CONFIDENCE_INTERVALS` are 2012-vintage
+and are not reproducible by peakfq 8.1.0. The two `xfail(strict=True)` cases are measuring
+against a target that no longer exists, so no amount of tuning `compute_confidence_limits()`
+will reach them — and tuning toward them would be fitting to a superseded method.
+
+**What to do instead.** Regenerate the Big Sandy expectations from peakfq 8.1.0 and keep the
+2012 values alongside as historical record. The extension builds, so this is now mechanical.
+That converts Big Sandy from an unreproducible historical benchmark into a live parity test
+against the reference the repository actually vendors — which is what §6.1 was always for.
+The genuine defect found in §6.0 is unaffected and still needs fixing: hydrolib's interval is
+symmetric by construction (1.000) where the Fortran's is not (1.408).
+
 ### 6.1 Test architecture: commit Fortran outputs as golden files
 
 The extension builds only where gfortran and the sources are present, but parity tests must
