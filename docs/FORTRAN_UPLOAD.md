@@ -451,8 +451,23 @@ and that HydroLib falls back to the native EMA path when it is absent.
 
 ## 5. Upload procedure
 
-Run on the machine holding `C:\a\hal\_shared\peakfqr`. Commands are Git Bash; PowerShell
-equivalents noted where they differ.
+Run on the machine holding `C:\a\hal\_shared\peakfqr`.
+
+**Pick a shell first.** The blocks below are Git Bash. `cmd.exe` will not run them —
+`SHARED=/c/a/hal/...` is bash syntax and cmd answers *'SHARED' is not recognized*.
+
+Do **not** just type `bash` at a `C:\>` prompt. On Windows that resolves to
+`C:\Windows\System32\bash.exe`, the WSL launcher, which fails with
+`WSL (10 - Relay) ERROR: CreateProcessCommon:800: execvpe(/bin/bash) failed` when no WSL
+distro is installed. Git Bash is a different program:
+
+```
+"C:\Program Files\Git\bin\bash.exe"
+```
+
+Launch that (or Git Bash from the Start menu, or right-click → *Git Bash Here*) and the
+blocks below work as written. **If you would rather not, use §5a — PowerShell is always
+present and needs no setup.**
 
 **Step 1 — get onto the designated branch.**
 
@@ -503,12 +518,66 @@ find vendor/peakfqr -type f \( -name '*.o' -o -name '*.mod' -o -name '*.dll' \
      -o -name '*.so' -o -name '*.pyd' \) -delete
 ```
 
+### 5a — PowerShell equivalent of Step 3
+
+Same copy, native. Run from anywhere; paths are absolute.
+
+```powershell
+$Shared = "C:\a\hal\_shared\peakfqr"
+$Repo   = "C:\a\hal\hybrid-17c-cld"
+$Vendor = "$Repo\vendor\peakfqr"
+
+New-Item -ItemType Directory -Force -Path `
+  "$Vendor\src", "$Vendor\R", "$Vendor\inst\testdata", "$Vendor\tests\testthat" | Out-Null
+
+Copy-Item "$Shared\src\*" "$Vendor\src\" -Recurse -Force
+Copy-Item "$Shared\R\*.R" "$Vendor\R\"   -Force
+Copy-Item "$Shared\DESCRIPTION", "$Shared\NAMESPACE" "$Vendor\" -Force
+Get-ChildItem "$Shared\LICENSE*" -ErrorAction SilentlyContinue |
+  Copy-Item -Destination "$Vendor\" -Force
+
+$fixtures = @(
+  "results_WHIST.csv", "wymt_ffa_2022A.psf", "wymt_ffa_2022A_WATSTORE.TXT",
+  "wymt_ffa_2022A_EXPinfo_7_4.csv", "wymt_ffa_2022A_EXPdata_7_4.csv",
+  "wymt_ffa_2022A_EMPdata_7_4.csv", "wymt_ffa_2022A_MGBT_7_5_1.csv"
+)
+$missing = @()
+foreach ($f in $fixtures) {
+  $src = "$Shared\inst\testdata\$f"
+  if (Test-Path $src) { Copy-Item $src "$Vendor\inst\testdata\" -Force }
+  else                { $missing += $f }
+}
+if ($missing) { Write-Warning "Not found in the reference tree: $($missing -join ', ')" }
+Copy-Item "$Shared\inst\testdata\extra_tests" "$Vendor\inst\testdata\" -Recurse -Force
+
+Copy-Item ("$Shared\tests\testthat\test-fortran.R",
+           "$Shared\tests\testthat\test-skewweight.R",
+           "$Shared\tests\testthat\test-moments.R") "$Vendor\tests\testthat\" -Force
+
+# strip any build output that came along
+Get-ChildItem $Vendor -Recurse -Include *.o, *.mod, *.dll, *.so, *.pyd |
+  Remove-Item -Force
+```
+
+Then verify (the §5 Step 4 checks, in PowerShell):
+
+```powershell
+Get-Content "$Vendor\src\emafit.f" -TotalCount 5
+(Select-String -Path "$Vendor\src\emafit.f" -Pattern 'subroutine\s+emafitpr').Count  # expect >= 1
+git status --porcelain --ignored vendor/ | Select-String '^!!'                  # expect nothing
+"{0:N1} MB" -f ((Get-ChildItem $Vendor -Recurse -File |
+                 Measure-Object Length -Sum).Sum / 1MB)
+```
+
+`Copy-Item` is byte-preserving, so the §3c warning still holds: copy with these commands,
+never by pasting file contents through an editor.
+
 **Step 4 — verify before staging.**
 
 ```bash
 # Fortran arrived intact and un-normalized
 head -5 vendor/peakfqr/src/emafit.f
-grep -c 'subroutine emafitpr' vendor/peakfqr/src/emafit.f     # expect >= 1
+grep -ciE 'subroutine[[:space:]]+emafitpr' vendor/peakfqr/src/emafit.f   # expect >= 1
 file vendor/peakfqr/src/*.f                                    # "ASCII text", not "CRLF"
 
 # nothing in the manifest is being ignored
