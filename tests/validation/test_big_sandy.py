@@ -195,7 +195,21 @@ class TestBigSandyConfidenceIntervals:
         print(f"              actual=({lower:.2f}, {upper:.2f})")
         print(f"              diff=(lower:{lower_diff:.2f}%, upper:{upper_diff:.2f}%)")
 
-        # CI tolerance is wider (5%)
+        # These two cases (AEP 0.01, 0.02) are EXPECTED TO FAIL at 5%, and are
+        # deliberately left failing rather than skipped or masked with a wider
+        # tolerance -- this is a real open numerical question, not a missing
+        # dependency. See docs/FORTRAN_UPLOAD.md section 1.6.
+        #
+        # The skew-uncertainty variance term (skew_used_mse propagated through
+        # dK/dG) fixed the interval's SIZE: total width in log10 space is now
+        # within ~2% of PeakfqSA and the point estimates within 0.5%. What
+        # remains is SHAPE. compute_confidence_limits() forms log_Q +/- z*se,
+        # so its upper/lower half-width ratio is exactly 1.000 at every AEP by
+        # construction, while PeakfqSA's runs 1.043 (Q10) -> 1.531 (Q50) ->
+        # 1.727 (Q100). Re-splitting our own width at those ratios puts every
+        # bound inside 1%, which localizes the defect to the missing Inverse
+        # Modified Cholesky Gaussian Quadrature -- a normal approximation
+        # cannot produce that asymmetry at any variance.
         assert lower_diff < 5, f"Lower CI differs by {lower_diff:.2f}%"
         assert upper_diff < 5, f"Upper CI differs by {upper_diff:.2f}%"
 
