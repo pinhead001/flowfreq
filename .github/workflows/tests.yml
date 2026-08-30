@@ -47,3 +47,31 @@ jobs:
       # addopts, so this runs exactly what a developer's bare `pytest` runs.
       - name: Test
         run: pytest tests/
+
+  # tests/fortran_parity/test_live_vs_golden.py is the only thing standing
+  # between a golden file and silent drift from vendor/peakfqr. It needs the
+  # f2py extension, no other job has a Fortran toolchain, so until now it
+  # skipped everywhere in CI and drift would surface months later on whichever
+  # machine happened to have gfortran. This job gives it one.
+  fortran:
+    name: Fortran parity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install gfortran
+        run: sudo apt-get update && sudo apt-get install -y gfortran
+
+      # meson and ninja are the f2py build backend, not runtime dependencies,
+      # so they are installed here rather than added to the dev extra.
+      - name: Install
+        run: pip install -e ".[dev]" meson ninja
+
+      # Same target a developer runs, so the two cannot drift. It builds, then
+      # asserts the extension imports before running the parity tests -- without
+      # that assertion a failed build would merely skip them and report green.
+      - name: Build and check parity
+        run: make parity

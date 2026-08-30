@@ -13,7 +13,7 @@ PKGS := hydrolib/ tests/
 PYTEST := PYTHONSAFEPATH=1 $(PYTHON) -m pytest
 
 .DEFAULT_GOAL := help
-.PHONY: help check lint fmt test test-all fortran golden clean
+.PHONY: help check lint fmt test test-all fortran parity golden clean
 
 help:  ## Show this help
 	@awk -F':.*?## ' '/^[a-z-]+:.*## /{printf "  %-10s %s\n", $$1, $$2}' Makefile
@@ -36,6 +36,14 @@ test-all:  ## Run everything, including the network tests
 
 fortran:  ## Build the f2py extension from vendor/peakfqr (needs gfortran + meson)
 	$(PYTHON) build_fortran/build.py
+
+# The import check is not redundant. test_live_vs_golden.py calls importorskip,
+# so a failed build would skip every parity test and still exit 0 -- which is
+# exactly the silent pass this target exists to prevent.
+parity:  ## Build the extension and check the golden files against it (needs gfortran + meson)
+	$(PYTHON) build_fortran/build.py
+	$(PYTHON) -c "from hydrolib.peakfqr import emafitpr"
+	$(PYTEST) tests/fortran_parity/
 
 golden:  ## Regenerate Fortran parity golden files (needs the extension)
 	$(PYTHON) tools/gen_fortran_golden.py
