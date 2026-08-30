@@ -663,6 +663,50 @@ input, not as the defect. Pulling `ci_low`, `ci_high` and `yp` for Big Sandy out
 Fortran and forming `(ci_high − yp)/(yp − ci_low)` at each AEP is one cheap comparison that
 settles it, and is worth more than any further reasoning from the Python side.
 
+### 6.0 Rung 6, answered
+
+The upload is done and the extension builds, so this no longer needs predicting. Built on
+Linux from the vendored sources (gfortran 13.3.0, meson 1.12.0, numpy 2.4.6) and run on Big
+Sandy through `emafitpr` with the call convention taken from
+`vendor/peakfqr/R/fortranWrappers.R` — `reg_M=0/-1e99`, `reg_SD=1/1e99`, `r_G=-0.5`,
+`r_G_mse=0.3025`, `gbthrsh0=-99`, `pq=1-AEP`, `eps=0.90`, `wght_opt_n=1` (HWN).
+
+Asymmetry ratio, `(log ci_high − log yp) / (log yp − log ci_low)`:
+
+| AEP | manual | **Fortran** | hydrolib |
+|---|---:|---:|---:|
+| 0.10 | 1.043 | **1.032** | 1.000 |
+| 0.02 | 1.531 | **1.311** | 1.000 |
+| 0.01 | 1.727 | **1.408** | 1.000 |
+
+**The diagnosis in §1.6 is confirmed.** The Fortran produces an interval that skews further
+right as the return period grows; `compute_confidence_limits()` returns exactly 1.000 at
+every AEP because `log_Q ± z·se` cannot do otherwise. The mechanism is real, it is in
+`emafit.f`, and it is absent from this codebase.
+
+`as_G_PRL_o` also comes back as a concrete number — **54.373** for this record, sitting
+between `n_systematic` (44) and `n_observed` (47), nowhere near `n_intervals` (84). Nothing
+in `hydrolib` computes it.
+
+**But the Fortran does not reproduce the manual either**, and that is the new open question.
+Its quantiles land within ~0.5 % mid-range while drifting to −3.4 % at AEP 0.995 and −1.8 %
+at 0.002, and its Q100 asymmetry is 1.408 against the manual's 1.727. Two candidate causes,
+and they need separating before anyone tunes Python against these numbers:
+
+1. **The input setup is not identical.** This run defines the censored historical period as
+   1890–1929 minus the three known peaks (37 intervals, `ql=Qmin`, `qu=18000`) and MGBT
+   returned `gbnlow=0`, no PILFs. The manual's run may differ.
+2. **Vintage mismatch, which would be worse.** The fixture's expected values come from the
+   2012 PeakfqSA manual; the vendored reference is peakfq **8.1.0**, and `TODO.md` §4 notes
+   the Inverse Modified Cholesky Gaussian Quadrature was *added to `emafit.f` in Oct 2012*.
+   If the CI method changed after the manual was written, `EXPECTED_CONFIDENCE_INTERVALS`
+   may simply not be reproducible against this code — in which case the two `xfail`-ed tests
+   are measuring against a target that no longer exists, and the fixture needs regenerating
+   from peakfq 8.1.0 rather than the Python being adjusted to match it.
+
+Settle (1) before (2): re-run with the manual's exact perception-threshold and PILF
+configuration. If the quantiles still miss at the tails, it is (2).
+
 ### 6.1 Test architecture: commit Fortran outputs as golden files
 
 The extension builds only where gfortran and the sources are present, but parity tests must

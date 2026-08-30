@@ -1,47 +1,72 @@
-"""Build script for f2py compilation of peakfqr Fortran sources."""
+"""Build the f2py extension wrapping peakfq's Fortran EMA implementation.
+
+Compiles ``vendor/peakfqr/src`` into ``_emafort`` via ``numpy.f2py``. Override
+the source location with the ``PEAKFQR_SRC`` environment variable; on Windows,
+override the MinGW toolchain location with ``MINGW_BIN``.
+
+The signature file is not optional. ``_emafort.pyf`` restricts wrapping to
+``emafitpr``; without it f2py tries to wrap every public symbol in the sources,
+including QUADPACK's ``dqag``, which takes a user function as a callback. The
+callback wrapper f2py generates for it does not compile against current NumPy
+(``unknown type name 'f_t'`` in the generated ``_emafortmodule.c``), so the
+build fails with an error that points at generated C rather than at anything
+in this repository.
+"""
+
 import os
-import sys
+import shutil
 import subprocess
+import sys
+from pathlib import Path
 
-# Add required paths to environment before invoking f2py
-scripts_dir = os.path.join(
-    os.environ["LOCALAPPDATA"],
-    r"Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0"
-    r"\LocalCache\local-packages\Python312\Scripts",
-)
-mingw_bin = r"C:\msys64\mingw64\bin"
+BUILD_DIR = Path(__file__).resolve().parent
+REPO_ROOT = BUILD_DIR.parent
+SRC = Path(os.environ.get("PEAKFQR_SRC", REPO_ROOT / "vendor" / "peakfqr" / "src"))
+PYF = BUILD_DIR / "_emafort.pyf"
 
-os.environ["PATH"] = mingw_bin + ";" + scripts_dir + ";" + os.environ["PATH"]
+# Order matters: emafit.f references symbols defined in the others.
+SOURCE_NAMES = ("emafit.f", "dcdflib1.f90", "imslfake.f", "probfun.f")
 
-# Verify tools
-for tool in ["gfortran", "meson"]:
-    import shutil
-    loc = shutil.which(tool)
-    if loc:
-        print(f"Found {tool}: {loc}")
-    else:
-        print(f"ERROR: {tool} not found on PATH")
-        sys.exit(1)
 
-src = r"C:\a\hal\_shared\peakfqr\src"
-sources = [
-    os.path.join(src, "emafit.f"),
-    os.path.join(src, "dcdflib1.f90"),
-    os.path.join(src, "imslfake.f"),
-    os.path.join(src, "probfun.f"),
-]
+def main() -> int:
+    if not SRC.is_dir():
+        sys.exit(
+            f"Fortran sources not found at {SRC}.\n"
+            "See docs/FORTRAN_UPLOAD.md -- vendor/peakfqr/src must be populated."
+        )
+    if not PYF.is_file():
+        sys.exit(f"Signature file missing: {PYF}")
 
-build_dir = os.path.dirname(os.path.abspath(__file__))
-os.chdir(build_dir)
+    sources = [SRC / name for name in SOURCE_NAMES]
+    missing = [str(p) for p in sources if not p.is_file()]
+    if missing:
+        sys.exit("Missing Fortran sources:\n  " + "\n  ".join(missing))
 
-cmd = [
-    sys.executable, "-m", "numpy.f2py",
-    "-c", *sources,
-    "-m", "_emafort",
-    "--backend", "meson",
-    "--build-dir", os.path.join(build_dir, "mbuild"),
-]
+    if sys.platform == "win32":
+        mingw_bin = os.environ.get("MINGW_BIN", r"C:\msys64\mingw64\bin")
+        if Path(mingw_bin).is_dir():
+            os.environ["PATH"] = mingw_bin + os.pathsep + os.environ["PATH"]
 
-print(f"Running: {' '.join(cmd)}")
-result = subprocess.run(cmd, env=os.environ)
-sys.exit(result.returncode)
+    for tool in ("gfortran", "meson"):
+        if shutil.which(tool) is None:
+            sys.exit(f"ERROR: {tool} not found on PATH")
+
+    # The .pyf comes first and supplies the module name, so no -m flag.
+    cmd = [
+        sys.executable,
+        "-m",
+        "numpy.f2py",
+        "-c",
+        str(PYF),
+        *(str(p) for p in sources),
+        "--backend",
+        "meson",
+        "--build-dir",
+        str(BUILD_DIR / "mbuild"),
+    ]
+    print("Running:", " ".join(cmd))
+    return subprocess.run(cmd, cwd=BUILD_DIR, env=os.environ).returncode
+
+
+if __name__ == "__main__":
+    sys.exit(main())
