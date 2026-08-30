@@ -48,6 +48,27 @@ jobs:
       - name: Test
         run: pytest tests/
 
+  # app/ had no tests and was not linted, so a Streamlit change could not be
+  # reviewed with any confidence -- and that is why dev's app work was left
+  # unported. Lint now covers app/ through PKGS in the Makefile; this job adds
+  # the missing execution. It is separate from the matrix because Streamlit
+  # requires Python >= 3.10 and the matrix still covers 3.9.
+  app:
+    name: Streamlit app
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install
+        run: pip install -e ".[dev]" -r app/requirements.txt
+
+      # Same target a developer runs, so the two cannot drift.
+      - name: Smoke-test the app
+        run: make smoke
+
   # tests/fortran_parity/test_live_vs_golden.py is the only thing standing
   # between a golden file and silent drift from vendor/peakfqr. It needs the
   # f2py extension, no other job has a Fortran toolchain, so until now it
