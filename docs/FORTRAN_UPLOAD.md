@@ -308,18 +308,39 @@ ways that are invisible in a diff. Land the `.gitattributes` in §4.1 **before**
 
 ## 4. Changes to land alongside the upload
 
-### 4.1 `.gitattributes` (new file, repo root) — add this first
+### 4.1 `.gitattributes` — **DONE** (`941aecd`)
 
-```gitattributes
-# Fixed-form Fortran is column-sensitive: normalize to LF, never touch whitespace.
-*.f      text eol=lf whitespace=-trailing-space,-tab-in-indent
-*.f90    text eol=lf whitespace=-trailing-space,-tab-in-indent
-*.pyf    text eol=lf
-*.R      text eol=lf
+Landed on this branch already, before any Fortran source exists — which is the point.
+Nothing to do here; recorded so the reasoning survives.
 
-# Reference fixtures are byte-exact expected output: do not normalize.
-vendor/peakfqr/inst/testdata/**  -text
-```
+Two attributes doing different jobs, and it is worth being precise about which one
+actually protects the source:
+
+- **`text eol=lf`** pins the stored bytes to LF, so a contributor with
+  `core.autocrlf=true` cannot rewrite line endings in either direction. Note gfortran
+  itself tolerates CRLF — this is about the repository matching upstream byte-for-byte,
+  not about the compiler.
+- **`whitespace=-trailing-space,-tab-in-indent`** is the load-bearing one. It tells git
+  *not* to treat trailing whitespace and indent tabs as errors in these files, which
+  stops `git apply --whitespace=fix` and `git rebase --whitespace=fix` from stripping
+  them. That stripping is the corruption that matters: fixed-form Fortran puts the label
+  in columns 1–5, a continuation marker in column 6, and the statement in 7–72, so
+  anything that shifts characters sideways changes the program while the diff still reads
+  as whitespace.
+
+What landed covers more than the original draft: `.for`/`.f77` and the uppercase
+`.F`/`.F90` variants (which conventionally mean "preprocess first" and are equally
+sensitive), plus `Makevars`/`Makevars.win`, where Make requires a literal TAB to open a
+recipe line and expanding it breaks the build outright.
+
+`vendor/peakfqr/inst/testdata/**` is `-text`, so byte-exact expected output is never
+normalized. Trade-off: git treats those as binary and shows no textual diff — acceptable
+for fixtures that are not meant to change, and worth knowing before you go looking for one.
+
+Verified two ways before committing: `git check-attr` confirms every path in the §2
+manifest resolves to the intended rules, and `git add --renormalize .` confirms no
+currently tracked file changes as a result (`build_fortran/_emafort.pyf` is the only
+existing file matching a new rule, and it is already LF).
 
 ### 4.2 `.gitignore` — one trap
 
@@ -448,12 +469,12 @@ A worktree that has already built the extension will not come up empty here. Exp
 untracked or modified file you do not recognise: identify it before adding anything, so it
 does not get swept into a commit alongside the vendored sources.
 
-**Step 2 — land `.gitattributes` first (§4.1), so the Fortran is never normalized.**
+**Step 2 — `.gitattributes`: already done (`941aecd`, §4.1).** It is on this branch, so
+just make sure you have it before adding any Fortran:
 
 ```bash
-# create .gitattributes with the §4.1 content, then:
-git add .gitattributes
-git commit -m "chore: add .gitattributes protecting fixed-form Fortran sources"
+git pull                    # must include 941aecd
+ls .gitattributes           # verify it is present before the first `git add` of .f
 ```
 
 **Step 3 — copy the material.**
