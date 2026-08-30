@@ -4,6 +4,7 @@ hydrolib.usgs - USGS data retrieval
 
 from __future__ import annotations
 
+import math
 from functools import cached_property
 from io import StringIO
 from pathlib import Path
@@ -175,6 +176,24 @@ class GageAttributes:
         }
 
 
+def _first_float(df: pd.DataFrame, column: str) -> Optional[float]:
+    """First value of *column* as a float, or None if it is absent or blank.
+
+    NWIS reports a missing numeric field as an empty column, which pandas reads
+    as NaN. ``float(nan)`` succeeds, so a naive conversion silently stores NaN
+    rather than None -- and NaN then propagates into summary tables and map
+    coordinates without ever raising. Checking for it is the whole point of this
+    helper.
+    """
+    if column not in df.columns or len(df) == 0:
+        return None
+    try:
+        value = float(df[column].iloc[0])
+    except (ValueError, TypeError):
+        return None
+    return None if math.isnan(value) else value
+
+
 class USGSgage:
     """Class to handle USGS gage data retrieval and storage."""
 
@@ -191,6 +210,8 @@ class USGSgage:
         self._peak_data: Optional[pd.DataFrame] = None
         self._daily_por_start: Optional[str] = None
         self._daily_por_end: Optional[str] = None
+        self._latitude: Optional[float] = None
+        self._longitude: Optional[float] = None
         self._instantaneous_data: Optional[pd.DataFrame] = None
         self._iv_por_start: Optional[str] = None
         self._iv_por_end: Optional[str] = None
@@ -238,6 +259,19 @@ class USGSgage:
     @property
     def daily_por_end(self) -> Optional[str]:
         return self._daily_por_end
+
+    @property
+    def latitude(self) -> Optional[float]:
+        """Decimal-degree latitude from the NWIS site service, or None."""
+        return self._latitude
+
+    @property
+    def longitude(self) -> Optional[float]:
+        """Decimal-degree longitude from the NWIS site service, or None.
+
+        Negative in the western hemisphere, as NWIS reports it.
+        """
+        return self._longitude
 
     @property
     def instantaneous_data(self) -> Optional[pd.DataFrame]:
@@ -301,8 +335,8 @@ class USGSgage:
         """
         self._last_api_error: Optional[str] = None
 
-        # Call 1: Get site metadata (name, drainage area) with siteOutput=expanded
-        if self._site_name is None or self._drainage_area is None:
+        # Call 1: site metadata (name, drainage area, lat/lon) via siteOutput=expanded
+        if self._site_name is None or self._drainage_area is None or self._latitude is None:
             params_site = {
                 "format": "rdb",
                 "sites": self._site_no,
@@ -322,15 +356,13 @@ class USGSgage:
                     if self._site_name is None and "station_nm" in df.columns and len(df) > 0:
                         self._site_name = df["station_nm"].iloc[0]
 
-                    if (
-                        self._drainage_area is None
-                        and "drain_area_va" in df.columns
-                        and len(df) > 0
+                    for attr, column in (
+                        ("_drainage_area", "drain_area_va"),
+                        ("_latitude", "dec_lat_va"),
+                        ("_longitude", "dec_long_va"),
                     ):
-                        try:
-                            self._drainage_area = float(df["drain_area_va"].iloc[0])
-                        except (ValueError, TypeError):
-                            pass
+                        if getattr(self, attr) is None:
+                            setattr(self, attr, _first_float(df, column))
             except Exception as e:
                 self._last_api_error = str(e)
 

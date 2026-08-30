@@ -118,3 +118,24 @@ agency_cd\tsite_no\tstation_nm\tdata_type_cd\tparm_cd\tbegin_date\tend_date\tcou
 5s\t15s\t50s\t2s\t5s\t20d\t20d\t8n
 USGS\t12449950\tMETHOW RIVER AT PATEROS, WA\tdv\t00060\t1959-10-01\t2024-09-30\t23741
 """
+
+# Site-service siteOutput=expanded response, the call that carries station name,
+# drainage area and decimal-degree coordinates. Trimmed to the columns hydrolib
+# reads; the real response has far more.
+SITE_EXPANDED = """\
+# US Geological Survey
+#
+agency_cd\tsite_no\tstation_nm\tdec_lat_va\tdec_long_va\tdrain_area_va
+5s\t15s\t50s\t16s\t16s\t8s
+USGS\t03606500\tBIG SANDY RIVER AT BRUCETON, TN\t36.0389722\t-88.2450000\t205
+"""
+
+# The same response from a site NWIS has no coordinates for: the columns are
+# present but empty, which is how NWIS reports a missing value.
+SITE_EXPANDED_NO_COORDS = """\
+# US Geological Survey
+#
+agency_cd\tsite_no\tstation_nm\tdec_lat_va\tdec_long_va\tdrain_area_va
+5s\t15s\t50s\t16s\t16s\t8s
+USGS\t03606500\tBIG SANDY RIVER AT BRUCETON, TN\t\t\t205
+"""

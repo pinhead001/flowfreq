@@ -30,6 +30,8 @@ from tests.fixtures.nwis_rdb import (
     IV_UNKNOWN_TZ,
     IV_WITH_GAPS,
     IV_WRONG_PARAMETER,
+    SITE_EXPANDED,
+    SITE_EXPANDED_NO_COORDS,
     SITE_SERIES_CATALOG,
     SITE_SERIES_CATALOG_NO_UV,
 )
@@ -421,3 +423,61 @@ class TestLiveNWIS:
         assert not df.empty
         assert df.index.tz is not None
         assert (df["flow_cfs"] > 0).all()
+
+
+class TestSiteCoordinates:
+    """Decimal-degree coordinates from the siteOutput=expanded call."""
+
+    def test_parses_latitude_and_longitude(self) -> None:
+        gage = USGSgage("03606500")
+        with patch("hydrolib.usgs.requests.get", return_value=_mock_response(SITE_EXPANDED)):
+            gage.fetch_site_info()
+
+        assert gage.latitude == pytest.approx(36.0389722)
+        assert gage.longitude == pytest.approx(-88.2450000)
+
+    def test_longitude_stays_negative_in_western_hemisphere(self) -> None:
+        """Sign is carried through as NWIS reports it, not normalised to positive."""
+        gage = USGSgage("03606500")
+        with patch("hydrolib.usgs.requests.get", return_value=_mock_response(SITE_EXPANDED)):
+            gage.fetch_site_info()
+
+        assert gage.longitude < 0
+
+    def test_missing_coordinates_leave_none(self) -> None:
+        """Empty NWIS values must not become NaN, 0.0, or an exception."""
+        gage = USGSgage("03606500")
+        with patch(
+            "hydrolib.usgs.requests.get", return_value=_mock_response(SITE_EXPANDED_NO_COORDS)
+        ):
+            gage.fetch_site_info()
+
+        assert gage.latitude is None
+        assert gage.longitude is None
+        # The rest of the response is still parsed.
+        assert gage.site_name == "BIG SANDY RIVER AT BRUCETON, TN"
+
+    def test_default_to_none_before_any_fetch(self) -> None:
+        gage = USGSgage("03606500")
+        assert gage.latitude is None
+        assert gage.longitude is None
+
+    def test_blank_drainage_area_is_none_not_nan(self) -> None:
+        """The same NaN trap the coordinates fall into, on the adjacent field.
+
+        NWIS reports a missing numeric as an empty column, pandas reads it as
+        NaN, and float(nan) does not raise -- so a naive conversion stores NaN.
+        """
+        gage = USGSgage("03606500")
+        rdb = SITE_EXPANDED_NO_COORDS.replace("\t205\n", "\t\n")
+        with patch("hydrolib.usgs.requests.get", return_value=_mock_response(rdb)):
+            gage.fetch_site_info()
+
+        assert gage.drainage_area is None
+
+    def test_drainage_area_still_parses_when_present(self) -> None:
+        gage = USGSgage("03606500")
+        with patch("hydrolib.usgs.requests.get", return_value=_mock_response(SITE_EXPANDED)):
+            gage.fetch_site_info()
+
+        assert gage.drainage_area == pytest.approx(205.0)
