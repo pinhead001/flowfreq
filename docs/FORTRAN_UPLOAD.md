@@ -46,6 +46,19 @@ that exists on exactly one computer. The consequences:
 Without the sources in-repo, the reference implementation cannot be rebuilt, read in
 context, or run by anyone but its author.
 
+Worth knowing why that matters more than it looks. The original build brief
+(`AGENT_BUILD_INSTRUCTIONS_Claude.md`, §7) specified PeakfqSA as "~45,000 lines of
+Fortran-95" invoked as a **standalone executable**, and `hydrolib/peakfqsa/` — config,
+wrapper, io_converters, parsers, validators — was built to that spec as a subprocess
+wrapper. That premise turned out to be wrong; `TODO.md` records the correction under
+Resolved Questions: *"PeakfqSA: Not a standalone binary. Use peakfqr `src/` Fortran as
+reference code."* So that entire subsystem drives a binary that does not exist. Its tests
+are mocks, and every `requires_peakfqsa` test is permanently deselected.
+
+The f2py bridge in `hydrolib/peakfqr/` is therefore not one of two ways to reach the
+reference implementation — it is the only one. Which makes the missing sources the single
+thing standing between this repo and any real comparison against USGS Fortran.
+
 ### 1.2 Three tests fail purely from missing reference data
 
 `tests/peakfqsa/test_r_fixtures.py` resolves data through `../../../../_shared/peakfqr/...`,
@@ -246,10 +259,20 @@ Copy the **entire** `src/` directory; it is small and inter-dependent.
 | `_shared/peakfqr/tests/testthat/test-skewweight.R` | same | origin of `skew_weighting.py` |
 | `_shared/peakfqr/tests/testthat/test-moments.R` | same | origin of `moments_wymt.py` |
 
+### Group 5 — Documentation (optional, small)
+
+The original build brief treats these as first-class reference, and it is right that they
+are useful; they are simply not on the critical path for the open CI question.
+
+| Source | Destination | Why |
+|---|---|---|
+| `_shared/peakfqr/man/` | `vendor/peakfqr/man/` | parameter descriptions, units, valid ranges, edge-case notes |
+| `_shared/peakfqr/vignettes/` | `vendor/peakfqr/vignettes/` | end-to-end worked examples, input → frequency curve |
+
 ### Do NOT upload
 
 - Compiled objects: `*.o`, `*.mod`, `*.dll`, `*.so`, `*.pyd`, `src-x64/`, `mbuild/`.
-- The R package's own `man/`, `.Rproj`, `.Rd` — not needed here.
+- `.Rproj` / IDE state.
 
 ---
 
@@ -615,4 +638,13 @@ and each of the three skew-weighting options. Fixtures for all three already exi
   needed and why it stopped. This document is the answer to that entry.
 - `build_fortran/_emafort.pyf` — the f2py signature, derived from `R/fortranWrappers.R`.
   If `emafit.f` disagrees with it, the `.pyf` is wrong and the bridge is silently mis-marshalling.
-- `CLAUDE.md` — repository conventions, including that all Fortran-facing data is log10 base-10.
+- `AGENT_BUILD_INSTRUCTIONS_Claude.md` — the original build brief that produced this whole
+  subsystem: the origin of `TODO.md`, of the Big Sandy fixture (verbatim in its Step 4), and
+  of the `requires_peakfqsa` marker (Step 7). Currently **untracked** — worth committing, as
+  it is the only record of why the code is shaped the way it is. Read its Step 0a before
+  deciding what else from peakfqr is worth vendoring. Note two of its house rules still in
+  force: commit messages reference their step number, and failing tests are not to be
+  `xfail`-ed without explicit user approval (the two Big Sandy CI cases were marked with it).
+- `CLAUDE.md` — repository conventions, including that all Fortran-facing data is log10
+  base-10. Stale in one respect: it describes a `src/hydrolib/` layout that does not exist
+  (the package is `hydrolib/`), inherited from the build brief's assumed structure.
