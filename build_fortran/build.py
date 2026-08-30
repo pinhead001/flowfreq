@@ -65,7 +65,23 @@ def main() -> int:
         str(BUILD_DIR / "mbuild"),
     ]
     print("Running:", " ".join(cmd))
-    return subprocess.run(cmd, cwd=BUILD_DIR, env=os.environ).returncode
+    rc = subprocess.run(cmd, cwd=BUILD_DIR, env=os.environ).returncode
+    if rc != 0:
+        return rc
+
+    # f2py drops the extension in the build directory, but hydrolib/peakfqr/__init__.py
+    # imports it as hydrolib.peakfqr._emafort. Move it into the package so the bridge
+    # actually loads. Both locations are gitignored; this is build output.
+    built = sorted(BUILD_DIR.glob("_emafort*.so")) + sorted(BUILD_DIR.glob("_emafort*.pyd"))
+    if not built:
+        print("WARNING: build reported success but no extension was produced", file=sys.stderr)
+        return 1
+    dest_dir = REPO_ROOT / "hydrolib" / "peakfqr"
+    for artifact in built:
+        dest = dest_dir / artifact.name
+        shutil.copy2(artifact, dest)
+        print(f"Installed {dest.relative_to(REPO_ROOT)}")
+    return 0
 
 
 if __name__ == "__main__":

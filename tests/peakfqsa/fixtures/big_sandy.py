@@ -104,3 +104,50 @@ EXPECTED_CONFIDENCE_INTERVALS: dict[float, tuple[float, float]] = {
 }
 
 TOLERANCE_PERCENT: float = 1.0  # Results must match within 1%
+
+
+# ---------------------------------------------------------------------------
+# peakfq 8.1.0 reference values
+# ---------------------------------------------------------------------------
+# Regenerated from the vendored USGS Fortran (vendor/peakfqr, peakfq 8.1.0) via
+# tools/gen_fortran_golden.py. Use THESE for parity work.
+#
+# The EXPECTED_* values above come from the 2012 PeakfqSA manual and are kept as
+# historical record only -- they are NOT reproducible by peakfq 8.1.0. The skew
+# weighting changed: 8.1.0 uses HWN, "a generalization of the PeakFQ 7.4.1
+# algorithm using an optimized adjustment factor when censored data are present"
+# (vendor/peakfqr/R/fortranWrappers.R), and Big Sandy has 37 censored intervals.
+# Feeding 8.1.0's own reported at-site skew MSE (0.09437) through the standard
+# Bulletin 17C weighting reproduces the manual to within 4%; 8.1.0's internal
+# weighting differs by 32%. See docs/FORTRAN_UPLOAD.md section 6.0b.
+
+PEAKFQ_810_PARAMETERS: dict[str, float] = {
+    "mean_log": 3.717508,
+    "std_log": 0.291043,
+    "skew_weighted": -0.156306,
+    "skew_at_site": 0.006601,
+}
+
+PEAKFQ_810_QUANTILES: dict[float, float] = {
+    0.995: 841.75,
+    0.99: 1016.70,
+    0.95: 1683.48,
+    0.9: 2187.72,
+    0.8: 2985.60,
+    0.6667: 3966.78,
+    0.5: 5309.91,
+    0.2: 9213.05,
+    0.1: 12169.84,
+    0.04: 16257.05,
+    0.02: 19523.97,
+    0.01: 22959.39,
+    0.005: 26573.14,
+    0.002: 31635.64,
+}
+
+# 90% interval: the 5th and 95th percentiles (eps=0.90)
+PEAKFQ_810_CONFIDENCE_INTERVALS: dict[float, tuple[float, float]] = {
+    0.1: (10170.10, 14646.38),
+    0.02: (15650.11, 26088.55),
+    0.01: (17903.45, 32590.70),
+}

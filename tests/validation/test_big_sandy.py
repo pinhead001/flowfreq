@@ -1,4 +1,12 @@
-"""
+"""Big Sandy River benchmark against the 2012 PeakfqSA manual.
+
+HISTORICAL RECORD. These expectations predate the vendored reference and are
+not reproducible by peakfq 8.1.0 -- see docs/FORTRAN_UPLOAD.md section 6.0b.
+For parity against the Fortran this repository actually vendors, see
+tests/fortran_parity/.
+
+Original docstring follows.
+
 Big Sandy River Benchmark Test
 
 Primary validation case for Bulletin 17C implementation.
@@ -193,9 +201,14 @@ class TestBigSandyConfidenceIntervals:
                     pytest.mark.xfail(
                         strict=True,
                         reason=(
-                            "CI upper bound is symmetric by construction "
-                            "(log_Q +/- z*se) while the reference is right-skewed; "
-                            "see docs/FORTRAN_UPLOAD.md section 1.6"
+                            "Target is not reachable: these values come from the 2012 "
+                            "PeakfqSA manual and are not reproducible by the vendored "
+                            "reference (peakfq 8.1.0), whose HWN skew weighting differs "
+                            "by design when censored data are present. Kept as historical "
+                            "record. Live parity work belongs in tests/fortran_parity/, "
+                            "which asserts against peakfq 8.1.0. Two real defects remain "
+                            "on that path -- skew weighting and CI asymmetry. "
+                            "See docs/FORTRAN_UPLOAD.md sections 6.0 and 6.0b."
                         ),
                     )
                     if aep in (0.01, 0.02)

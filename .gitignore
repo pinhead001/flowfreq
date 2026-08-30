@@ -205,3 +205,13 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Fortran extension build output. The extension is compiled from
+# vendor/peakfqr/src by build_fortran/build.py and is never committed; CI gets
+# the reference values from tests/fortran_parity/golden/ instead.
+hydrolib/peakfqr/_emafort*.so
+hydrolib/peakfqr/_emafort*.pyd
+build_fortran/_emafort*.so
+build_fortran/_emafort*.pyd
+build_fortran/mbuild/
+build_fortran/native.ini
