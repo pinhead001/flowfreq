@@ -1,0 +1,35 @@
+Package: peakfq
+Type: Package
+Title: Peak-Flow Frequency
+Version: 8.1.0
+Authors@R:
+  c(person(given = "Seth",
+           family = "Siefken",
+           role = c("aut", "cre"),
+           email = "ssiefken@usgs.gov"),
+    person(given = "Sophia",
+           family = "Crouch",
+           role = c("aut")), 
+    person(given = "Shanna",
+           family = "Blount",
+           role = c("aut")), 
+    person(given = "Harper",
+           family = "	Wavra",
+           role = c("ctb")), 
+    person(given = "Kaycee",
+           family = "Faunce",
+           role = c("ctb")), 
+    person(given = "Chelsie",
+           family = "Boles",
+           role = c("ctb")))
+Description: The peakfq package implements the Bulletin 17C procedures for flood-frequency analysis of streamflow records, computing estimates of flood magnitudes and their corresponding variance for a range of annual exceedance probabilities. Users should be famililar with Guidelines for Determining Flood Flow Frequency Bulletin 17C which can be accessed at: doi.org/10.3133/tm4B5.
+Depends:  R (>= 4.2.0), shinyBS
+License: CC0
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.3.1
+Roxygen: list(markdown = TRUE)
+Imports: dataRetrieval, fs, stringr, R.utils, dplyr, methods, raster, rhandsontable, rlang, sf, shiny, shinyFiles, shinyalert, shinyjs, shinythemes, svglite, tibble, tidyverse, trend, tidyr, e1071
+Suggests: testthat, knitr, rmarkdown, pkgload
+VignetteBuilder: knitr
+NeedsCompilation: yes

@@ -1,0 +1,12 @@
+SRCS = emafit.f dcdflib1.f90 imslfake.f probfun.f
+PKG_FFLAGS = -shared 
+
+
+
+$(SHLIB): $(SRCS) 
+
+
+
+
+clean:
+	@rm -rf *.mod *.o
