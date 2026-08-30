@@ -451,8 +451,12 @@ and that HydroLib falls back to the native EMA path when it is absent.
 
 ## 5. Upload procedure
 
-Run on the machine holding `C:\a\hal\_shared\peakfqr`. Commands are Git Bash; PowerShell
-equivalents noted where they differ.
+Run on the machine holding `C:\a\hal\_shared\peakfqr`.
+
+**Pick a shell first.** The blocks below are Git Bash. `cmd.exe` will not run them —
+`SHARED=/c/a/hal/...` is bash syntax and cmd answers *'SHARED' is not recognized*. From a
+`C:\>` prompt just type `bash` to drop into Git Bash (it ships with Git for Windows), or
+use the PowerShell version in §5a.
 
 **Step 1 — get onto the designated branch.**
 
@@ -502,6 +506,56 @@ cp "$SHARED"/tests/testthat/test-{fortran,skewweight,moments}.R vendor/peakfqr/t
 find vendor/peakfqr -type f \( -name '*.o' -o -name '*.mod' -o -name '*.dll' \
      -o -name '*.so' -o -name '*.pyd' \) -delete
 ```
+
+### 5a — PowerShell equivalent of Step 3
+
+Same copy, native. Run from anywhere; paths are absolute.
+
+```powershell
+$Shared = "C:\a\hal\_shared\peakfqr"
+$Repo   = "C:\a\hal\hybrid-17c-cld"
+$Vendor = "$Repo\vendor\peakfqr"
+
+New-Item -ItemType Directory -Force -Path `
+  "$Vendor\src", "$Vendor\R", "$Vendor\inst\testdata", "$Vendor\tests\testthat" | Out-Null
+
+Copy-Item "$Shared\src\*" "$Vendor\src\" -Recurse -Force
+Copy-Item "$Shared\R\*.R" "$Vendor\R\"   -Force
+Copy-Item "$Shared\DESCRIPTION", "$Shared\NAMESPACE" "$Vendor\" -Force
+Get-ChildItem "$Shared\LICENSE*" -ErrorAction SilentlyContinue |
+  Copy-Item -Destination "$Vendor\" -Force
+
+$fixtures = @(
+  "results_WHIST.csv", "wymt_ffa_2022A.psf", "wymt_ffa_2022A_WATSTORE.TXT",
+  "wymt_ffa_2022A_EXPinfo_7_4.csv", "wymt_ffa_2022A_EXPdata_7_4.csv",
+  "wymt_ffa_2022A_EMPdata_7_4.csv", "wymt_ffa_2022A_MGBT_7_5_1.csv"
+)
+foreach ($f in $fixtures) {
+  Copy-Item "$Shared\inst\testdata\$f" "$Vendor\inst\testdata\" -Force
+}
+Copy-Item "$Shared\inst\testdata\extra_tests" "$Vendor\inst\testdata\" -Recurse -Force
+
+Copy-Item ("$Shared\tests\testthat\test-fortran.R",
+           "$Shared\tests\testthat\test-skewweight.R",
+           "$Shared\tests\testthat\test-moments.R") "$Vendor\tests\testthat\" -Force
+
+# strip any build output that came along
+Get-ChildItem $Vendor -Recurse -Include *.o, *.mod, *.dll, *.so, *.pyd |
+  Remove-Item -Force
+```
+
+Then verify (the §5 Step 4 checks, in PowerShell):
+
+```powershell
+Get-Content "$Vendor\src\emafit.f" -TotalCount 5
+(Select-String "$Vendor\src\emafit.f" -Pattern 'subroutine emafitpr').Count   # expect >= 1
+git status --porcelain --ignored vendor/ | Select-String '^!!'                  # expect nothing
+"{0:N1} MB" -f ((Get-ChildItem $Vendor -Recurse -File |
+                 Measure-Object Length -Sum).Sum / 1MB)
+```
+
+`Copy-Item` is byte-preserving, so the §3c warning still holds: copy with these commands,
+never by pasting file contents through an editor.
 
 **Step 4 — verify before staging.**
 
