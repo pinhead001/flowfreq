@@ -17,23 +17,22 @@ cleanup work, most of which would have saved real time on the session that produ
 Ordered by value per hour, not by interest. P1 is cheap and compounds — it makes every
 other item faster. P3 is the actual science, but nothing is blocked on it.
 
+Two P1 items are done; the remaining three are still the cheapest work here.
+
 ### P1 — Reduce time to verify and commit
 
 The frictions that cost real time and caused two red builds on main.
 
-- [ ] **One-command verify.** There is no `Makefile`, `noxfile.py` or `tox.ini`, so
-      verifying the way CI does means retyping
-      `PYTHONSAFEPATH=1 python -m pytest tests/ -q -m "not requires_peakfqsa and not
-      requires_network and not requires_peakfqr_testdata"` from memory and getting the
-      marker list right every time. Add `make check` (lint + that selection) and `make
-      test`. Ten minutes of work, and the highest-value item here because everything else
-      is verified through it.
+- [x] **One-command verify.** ~~No `Makefile`, `noxfile.py` or `tox.ini`~~ — added.
+      `make check` runs lint plus the CI selection; `make help` lists the rest
+      (`fmt`, `test-all`, `fortran`, `golden`, `clean`). The marker deselection and the
+      `PYTHONSAFEPATH=1` flag live in the Makefile and **CI calls the same targets**, so
+      local and CI cannot drift. `make test` reproduces CI's count exactly.
 
-- [ ] **Un-gate the test job from lint.** `.github/workflows/tests.yml` has `needs: lint`
-      on the test job. That is why a `ModuleNotFoundError` across five test modules sat
-      undetected from February to August: lint failed first, so CI never once ran the
-      suite. Make them independent jobs — a formatting nit must not be able to hide a
-      broken build.
+- [x] **Un-gate the test job from lint.** ~~`needs: lint` on the test job~~ — removed;
+      the two jobs are independent now. Also set `fail-fast: false` on the matrix: when
+      3.9 broke this session the other three jobs were cancelled, so the failure looked
+      version-agnostic when it was not. All four now report.
 
 - [ ] **Memoize `_mgbt_pvalue`, for the suite only.** MGBT dominates runtime: one
       `run_analysis()` is ~2.1s, of which 22 calls to `_mgbt_pvalue` — each a

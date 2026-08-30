@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [main]
 
+# lint and test are independent on purpose. They used to be chained with
+# `needs: lint`, which meant a formatting failure stopped the suite from
+# running at all -- and that is how a ModuleNotFoundError across five test
+# modules went unnoticed from February to August 2026. A style nit must never
+# be able to hide a broken build.
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -14,31 +19,31 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      
+
       - name: Install linters
-        run: pip install black isort flake8
-      
-      - name: Black
-        run: black --check --diff hydrolib/ tests/
-      
-      - name: Isort
-        run: isort --check-only --diff hydrolib/ tests/
+        run: pip install black isort
+
+      # Same target a developer runs, so the two cannot drift.
+      - name: Lint
+        run: make lint
 
   test:
-    needs: lint
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         python-version: ['3.9', '3.10', '3.11', '3.12']
-    
+
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      
+
       - name: Install
         run: pip install -e ".[dev]"
-      
+
+      # The marker deselection lives in the Makefile, not here, so local runs
+      # and CI test exactly the same set.
       - name: Test
-        run: pytest tests/ -v -m "not requires_peakfqsa and not requires_network and not requires_peakfqr_testdata"
+        run: make test
