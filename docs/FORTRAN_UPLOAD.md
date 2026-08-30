@@ -114,11 +114,85 @@ systematic-only EMA regression test) is on **neither** `main` **nor**
 `claude/hydrolib-edt-attributes-mm2aif`. It is stranded, and it is the only work that
 attacks the upper-CI term directly — it is what took that error from ~19 % to 10.5 %.
 
-The two branches are complementary and have never been combined: one has the better
-quantiles, the other the better CI. Combining them is the obvious next experiment, and the
-Fortran is what settles whether the combination is *correct* or merely closer. Land that
-merge before generating any golden files, or the goldens will encode a state nobody ships.
+The two branches are complementary and have never been combined. **That merge has now been
+run as an experiment** — see §1.6 for the result and the recipe. Land it before generating
+any golden files, or the goldens will encode a state nobody ships.
 
+### 1.6 The merge experiment: run, and it changes the ask
+
+Merging `library-overview-JbAcS` into `hydrolib-edt-attributes-mm2aif` is nearly clean —
+both source files auto-merge, and the single conflict is a tolerance line whose two sides
+are numerically identical (`TOLERANCE_PERCENT * 2` vs `2.0`). Two things need a human,
+though, and neither announces itself:
+
+1. **Git textually merges both perception-threshold fixes.** Each branch fixed the same bug
+   in `_auto_configure_ema_params()` in a different place — `library-overview` with a
+   pre-loop that takes `min(threshold)` and can establish the historical period from
+   thresholds alone, `edt-attributes` with a post-block that overrides using the *first*
+   match. Merged, both survive, and the post-block silently overwrites the pre-loop's
+   `min()`. Same answer on Big Sandy (one historical period), divergent on any site with
+   several. Resolve to a single block — the pre-loop is the superset.
+2. **The auto-merge takes the looser CI tolerances** (10 % / 12 %, from `library-overview`),
+   so the suite goes green without anyone choosing that. Re-tighten to 5 % / 5 % before
+   believing any number.
+
+Measured at a common 5 % / 5 % tolerance, with a full-suite regression check:
+
+| State | Big Sandy | Q100 CI lower | Q100 CI upper |
+|---|---|---:|---:|
+| `hydrolib-edt-attributes-mm2aif` | 4 failed / 17 passed | 3.36 % | 17.34 % |
+| `library-overview-JbAcS` | 2 failed / 19 passed | 9.00 % | 10.53 % |
+| **merged** | **2 failed / 19 passed** | 9.00 % | 10.53 % |
+
+The merge picks up `library-overview`'s quantile accuracy — the two AEP 0.99 / 0.995
+failures are gone — with no regressions anywhere else (341 passed; the only other failures
+are the three §1.2 reference-data tests and one live-NWIS call blocked by the sandbox).
+Big Sandy is down to **2 failures, both CI**.
+
+**And the CI residual is not what it looked like.** Decompose the intervals in log10 space,
+where the code computes `log_Q ± z·se_log`:
+
+| AEP | point-estimate error | total log10 width vs expected | upper/lower half-width ratio, expected | …actual |
+|---|---:|---:|---:|---:|
+| 0.1 | −0.45 % | 0.979 | 1.043 | 1.000 |
+| 0.02 | −0.06 % | 0.999 | 1.531 | 1.000 |
+| 0.01 | +0.14 % | 0.978 | 1.727 | 1.000 |
+
+The point estimates are essentially exact and **the total width is already within ~2 %**.
+The actual ratio is 1.000 at every AEP *by construction* — a symmetric `± z·se` interval
+cannot be anything else. PeakfqSA's interval is increasingly right-skewed with return
+period, and that growing asymmetry is the entire remaining error.
+
+Confirm it directly: keep the merged code's own total width and merely re-split it using
+PeakfqSA's asymmetry ratio.
+
+| AEP | bound | expected | as-is | re-split |
+|---|---|---:|---:|---:|
+| 0.02 | lower | 15 155 | −6.66 % | **−0.04 %** |
+| 0.02 | upper | 29 124 | −6.70 % | **−0.09 %** |
+| 0.01 | lower | 17 388 | −9.00 % | **+0.76 %** |
+| 0.01 | upper | 37 986 | −10.53 % | **−0.94 %** |
+
+Every bound lands inside 1 %. This is a diagnostic, not a fix — the asymmetry ratio was
+taken *from* the reference, so it shows which quantity is wrong without supplying its
+value. But it relocates the ask precisely: the merged variance **magnitude** is right, so
+`var_mom` is no longer the prime suspect. What is missing is the mechanism that makes the
+interval asymmetric — the **Inverse Modified Cholesky Gaussian Quadrature**, which
+integrates the skewed sampling distribution instead of assuming normality about the point
+estimate. A normal approximation cannot produce a 1.73 ratio no matter how its variance is
+computed.
+
+**Recipe** (reproducible in about two minutes):
+
+```bash
+git checkout -b combined origin/claude/hydrolib-edt-attributes-mm2aif
+git merge origin/claude/library-overview-JbAcS
+# 1. tests/validation/test_big_sandy.py: the two conflict sides are identical, keep either
+# 2. hydrolib/bulletin17c.py: delete the trailing perception-threshold override
+#    block in _auto_configure_ema_params(); keep the pre-loop
+# 3. tests/validation/test_big_sandy.py: restore CI tolerances to 5 / 5
+pytest tests/ -q
+```
 
 ## 2. What to upload
 
@@ -413,18 +487,19 @@ pytest tests/ -q
 - [ ] `python build_fortran/build.py` succeeds **from the vendored sources**, with no path
       outside the repo (temporarily rename `C:\a\hal\_shared\peakfqr` to prove it).
 - [ ] The three `test_r_fixtures.py` failures from §1.2 pass.
-- [ ] Big Sandy failure count on `claude/hydrolib-edt-attributes-mm2aif` stays at 4 —
-      the upload must not perturb the numerics, only make them diagnosable.
+- [ ] Big Sandy failure count is unchanged by the upload — 4 on
+      `claude/hydrolib-edt-attributes-mm2aif`, 2 on the §1.6 merge. The upload must make
+      the numerics diagnosable, not perturb them.
 - [ ] `git status --porcelain --ignored vendor/` shows no `!!` entries.
 - [ ] `vendor/peakfqr/README.md` records upstream version, retrieval date, and license.
 
 ---
 
-## 6. Root-causing the remaining 4 failures
+## 6. Root-causing the remaining failures
 
-Work the ladder below **in order** on Big Sandy (USGS 03606500), from the merged state
-of §1.5. Each rung feeds the next; the *first* mismatch is the root cause and everything
-below it is downstream noise. Do not skip ahead — a `cmoms` difference means nothing if the
+Work the ladder below **in order** on Big Sandy (USGS 03606500), from the merged state of
+§1.6, where 2 failures remain, both CI. Each rung feeds the next; the *first* mismatch is
+the root cause and everything below it is downstream noise. Do not skip ahead — a `cmoms` difference means nothing if the
 two codes censored different observations.
 
 What changed since this doc was first drafted: quantiles now agree at 10 of 12 AEPs, so
@@ -439,12 +514,13 @@ trustworthy. The real work is rungs 4–6, and the headline target is rung 6.
 | 3 | `cmoms[0,0]`, `cmoms[1,1]`, `cmoms[2,2]` | Same mean, variance, skew? | Expected to match within ~0.3 %. Compare all three columns — col 1 regional+at-site, col 2 at-site only, col 3 B17B MSE. |
 | 4 | `as_G_mse_o`, `as_G_mse_Syst_o`, `Wdout` | Same skew MSE and determinant-ratio weight? | The `n_intervals`-vs-`n_observed` choice (84 vs 47) was reasoned about but never verified against Fortran. This is where that gets settled. Read `detratsub` and `mseg_all_sub`. |
 | 5 | `yp` | Same quantiles given identical moments? | Two known residuals at AEP 0.99 / 0.995 (~2–2.7 %). Both are at the *frequent* end where `K` is small — suspect `qP3sub` / the K-factor, not the fit. |
-| 6 | **`as_G_PRL_o`**, then `var_est`, `ci_low`, `ci_high` | Same Pseudo Effective Record Length, and same confidence limits? | **The headline defect (10–17 % upper CI at rare events).** Compare `as_G_PRL_o` *first*: it is a single scalar, it is the input the whole CI method is built on, and nothing here implements it. Read `var_mom`, `EXPMOMCDERIV`, `DEXPECT`, and the Inverse Modified Cholesky Gaussian Quadrature block (`emafit.f`, monotonicity enforcement at ~lines 485–491). |
+| 6 | `var_est`, then **`ci_low`/`ci_high` asymmetry**, then `as_G_PRL_o` | Same variance — and is the interval *skewed* the same way? | **The headline defect, and §1.6 narrows it to shape, not size.** Expect `var_est` to roughly agree (total width is within ~2 %). The live question is how `ci_low`/`ci_high` come out asymmetric about `yp` when a `± z·se` interval cannot: read the Inverse Modified Cholesky Gaussian Quadrature block (`emafit.f`, monotonicity enforcement ~lines 485–491), then `as_G_PRL_o` and how it feeds that quadrature. `var_mom`, `EXPMOMCDERIV`, `DEXPECT` back it up. |
 
-Rung 6 is the reason for the upload. `as_G_PRL_o` is one number; getting it out of the
-Fortran for Big Sandy tells you immediately whether the gap is the PRL value itself or the
-quadrature built on top of it, and that single comparison is worth more than any amount of
-further reasoning from the Python side.
+Rung 6 is the reason for the upload. Per §1.6 the variance magnitude is close and the
+asymmetry is absent, so the quadrature is what to read first — `as_G_PRL_o` matters as its
+input, not as the defect. Pulling `ci_low`, `ci_high` and `yp` for Big Sandy out of the
+Fortran and forming `(ci_high − yp)/(yp − ci_low)` at each AEP is one cheap comparison that
+settles it, and is worth more than any further reasoning from the Python side.
 
 ### 6.1 Test architecture: commit Fortran outputs as golden files
 
