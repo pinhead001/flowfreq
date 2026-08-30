@@ -5,7 +5,7 @@ HydroLib installs a `hydrolib` CLI entry point (via `pyproject.toml`) for runnin
 ## Setup
 
 ```bash
-cd C:/a/hal/hybrid-17c-cld    # or wherever you cloned the repo
+cd /path/to/hydrolib
 
 # Activate your virtual environment
 .venv\Scripts\activate         # Windows

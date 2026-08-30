@@ -6,7 +6,7 @@ The HydroLib Streamlit app (`app/streamlit_app.py`) provides an interactive brow
 
 ```bash
 # From the repo root
-cd C:/a/hal/hybrid-17c-cld   # adjust to your clone path
+cd /path/to/hydrolib
 
 python -m venv .venv
 .venv\Scripts\activate        # Windows
@@ -26,7 +26,7 @@ python -c "import streamlit, hydrolib; print('ready')"
 **Always run from the repo root** — the app uses relative imports (`from app.ffa_runner import ...`):
 
 ```bash
-cd C:/a/hal/hybrid-17c-cld
+cd /path/to/hydrolib
 streamlit run app/streamlit_app.py
 ```
 

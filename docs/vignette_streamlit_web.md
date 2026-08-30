@@ -42,7 +42,14 @@ Streamlit Cloud will also run `pip install -e .` from the repo root if `setup.py
 
 ### `packages.txt` (optional — system packages)
 
-Only needed if you use Fortran extensions (`hydrolib.peakfqr`). The compiled `.pyd` / `.so` files included in the repo should work on Linux (Streamlit Cloud runs Ubuntu). If not, add build tools:
+Only needed if you want the Fortran extension (`hydrolib.peakfqr`). **The app does not
+require it** — nothing in the Streamlit path calls it, and the parity tests read
+committed golden files instead.
+
+The repository does still carry `hydrolib/peakfqr/_emafort.cp312-win_amd64.pyd` and four
+mingw DLLs, but they are **Windows/CPython-3.12 only** and cannot load on Streamlit Cloud's
+Ubuntu — a `.pyd` is a PE32+ Windows DLL. Newly built extensions are gitignored. To build
+one on Linux, add:
 
 ```
 gfortran

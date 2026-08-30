@@ -1,12 +1,29 @@
 # TODO — HydroLib Hybrid 17C Implementation
 
 ## Status
-Last updated: 2026-02-16
-Phases complete: 16 / 16
-Tests passing: 96 / 96
-Coverage: TBD (run `pytest --cov=hydrolib`)
-PeakfqSA available: No (use peakfqr Fortran as reference)
-Open items: None — all phases implemented
+Last updated: 2026-08-30
+Tests: 376 passed, 4 deselected, 5 xfailed (CI selection). CI green on main.
+Fortran reference: **vendored** at `vendor/peakfqr/` (peakfq 8.1.0, CC0).
+Fortran bridge: builds from those sources via `python build_fortran/build.py`
+(gfortran + meson). Optional — parity tests read committed golden files.
+
+Open items: **two**, both real numerical defects, both `xfail(strict=True)` in
+`tests/fortran_parity/test_native_vs_golden.py`:
+
+1. **Confidence-interval shape.** `compute_confidence_limits()` forms `log_Q ± z·se`,
+   symmetric by construction (ratio 1.000 at every AEP). peakfq 8.1.0 skews right with
+   return period — 1.03 → 1.31 → 1.41 at AEP 0.1 / 0.02 / 0.01 — via the Inverse
+   Modified Cholesky Gaussian Quadrature, working from a Pseudo Effective Record Length
+   (`as_G_PRL_o` = 54.373 for Big Sandy). Neither is implemented. Note this is shape,
+   not size: total width is within ~2% and the point estimates within 0.5%, so the
+   variance magnitude is essentially right.
+2. **Skew weighting.** 8.1.0 uses HWN, an "optimized adjustment factor when censored
+   data are present"; hydrolib uses the standard Bulletin 17C weighting. −0.1563 vs
+   −0.1009 on Big Sandy.
+
+The 16 phases below were completed in February against the assumption that PeakfqSA was
+a standalone binary. It is not, and `hydrolib/peakfqsa/` wraps an executable that does
+not exist. Kept for the record; see `AGENT_BUILD_INSTRUCTIONS_Claude.md`.
 
 ---
 
@@ -14,7 +31,7 @@ Open items: None — all phases implemented
 
 ### 1. Fortran Call Signatures
 
-**Primary routine: `emafitpr`** (`_shared/peakfqr/src/emafit.f` line 392)
+**Primary routine: `emafitpr`** (`vendor/peakfqr/src/emafit.f`)
 
 ```
 subroutine emafitpr(n, ql, qu, tl, tu, dtype,
@@ -343,40 +360,24 @@ subroutine emafitpr(n, ql, qu, tl, tu, dtype,
   The wrapper module is implemented and tested via mocks but cannot be used end-to-end
   without a standalone executable.
 
-- **Native EMA confidence intervals for historical/censored records (Big Sandy
-  validation)**: `FloodFrequencyAnalysis.compute_confidence_limits()` uses a single
-  closed-form asymptotic variance formula (`1/n + K^2(1+0.75G^2)/(2(n-1))`, the
-  Bulletin 17B/MOM-style approximation) for both `MethodOfMoments` and
-  `ExpectedMomentsAlgorithm`, with `n = n_systematic`. It does not implement the
-  "Inverse Modified Cholesky Gaussian Quadrature" CI method emafitpr actually uses
-  (see "Confidence Interval Method" above), nor the Pseudo Effective Record Length
-  (`as_G_PRL_o`, see the `emafitpr` output table above) that method derives from the
-  historical/censored portion of the record to widen/reshape the CI. Against the Big
-  Sandy reference (`tests/validation/test_big_sandy.py`), this shows up as two distinct
-  residuals: (1) CI upper bounds only, at the rarest events (AEP 0.01-0.02), off by
-  ~10-17% and growing with return period, while lower bounds and the point quantile
-  estimates at those same AEPs match; and (2) point quantile estimates at the most
-  frequent events (AEP 0.99-0.995) off by ~2-2.7%, just outside the test's 2%
-  tolerance. One fix was found and applied this session: `_auto_configure_ema_params()`
-  now honors an explicitly-provided `perception_thresholds` entry for the historical
-  period instead of guessing the threshold from `max(historical peak values)`, which
-  resolved 9 of the original 13 Big Sandy failures. The remaining 4 were investigated
-  without guessing at a replacement formula: the two lowest-level EMA math primitives
-  (truncated-gamma moments, the LP3-to-gamma parameter transform) were independently
-  verified exact against brute-force numerical integration, ruling those out. The
-  residual is consistent with the missing PRL/Cholesky-quadrature CI machinery and
-  related censored-data EMA fitting subtleties, but pinning down and verifying the
-  exact formula requires the actual Fortran source (`_shared/peakfqr/src/emafit.f`,
-  routines `var_mom`/`EXPMOMCDERIV`/`DEXPECT`), which is not present in this
-  environment. These 4 tests are left failing (not skipped) rather than masked, since
-  unlike the environment-dependent gaps above this is a real, open numerical accuracy
-  question, not a missing-dependency one.
+- **Native EMA confidence intervals** — superseded. The Fortran is now vendored, the
+  extension builds, and the question this entry asked has been answered: see the Status
+  block above and `docs/FORTRAN_UPLOAD.md` §6.0 and §6.0b. Two findings worth carrying
+  forward. First, the residual is interval *shape*, not variance magnitude. Second, the
+  2012 PeakfqSA manual values this was measured against are not reproducible by peakfq
+  8.1.0 at all, so part of the original discrepancy was never a defect — the fixture now
+  carries `PEAKFQ_810_*` values for parity work alongside the 2012 ones.
 
 ## Resolved Questions
 
-- PeakfqSA: Not a standalone binary. Use peakfqr `src/` Fortran as reference code.
-- Project root: `C:\a\hal\hybrid-17c-cld`
-- Python: 3.12 with pip (no venv manager)
+- PeakfqSA: Not a standalone binary. Use the vendored `vendor/peakfqr/src/` Fortran.
+  `hydrolib/peakfqsa/` wraps a binary that does not exist and is mock-tested only.
+- Reference material: vendored into `vendor/peakfqr/` (CC0). No external workspace needed.
+- Big Sandy 2012 manual values: not reproducible by peakfq 8.1.0 — the HWN skew weighting
+  postdates the manual and diverges by design on censored records.
+- MGBT: verified line-by-line against the Fortran (`GGBCRITP`/`FP_TNC_CDF`), validated on
+  Orestimba Creek (USGS 11274500).
+- Python: CI tests 3.9–3.12; `requires-python >= 3.9`.
 - Regional skew defaults: -0.302 / MSE 0.3025 (Bulletin 17C national map)
 - Git: Commit to dev branch, no push unless asked
 - FrequencyAnalyzer API: Added validate() and to_comparison_dict() to Bulletin17C facade
