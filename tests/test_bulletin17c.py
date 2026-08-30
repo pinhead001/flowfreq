@@ -157,6 +157,35 @@ class TestEMA:
         assert results.n_historical == 2
         assert results.n_peaks > len(synthetic_peaks)
 
+    def test_historical_perception_threshold_overrides_peak_max(self):
+        """Regression test: an explicit perception threshold for the
+        historical period must be used as the EMA historical censoring
+        threshold, not the maximum of the listed historical peak values.
+
+        These are different quantities: "the biggest flood we happen to
+        have a record of" (max of historical peak values) is not "the
+        smallest flood that would have been noticed at all" (the actual
+        perception threshold). Silently substituting the former censors
+        every unlisted historical year against too weak a bound and biases
+        every downstream moment. Uses the Big Sandy River fixture values
+        (PeakfqSA User Manual, Cohn 2012): historical peaks 1897/1919/1927
+        max out at 25,000 cfs, but the documented perception threshold for
+        that period is 18,000 cfs.
+        """
+        water_years = np.arange(1930, 1974)
+        peak_flows = np.full(len(water_years), 5000.0)
+        historical_peaks = [(1897, 25000.0), (1919, 21000.0), (1927, 18500.0)]
+        perception_thresholds = {(1890, 1929): 18000.0}
+
+        ema = ExpectedMomentsAlgorithm(
+            peak_flows,
+            water_years=water_years,
+            historical_peaks=historical_peaks,
+            perception_thresholds=perception_thresholds,
+        )
+
+        assert ema._ema_params.historical_threshold == 18000.0
+
     def test_ema_vs_mom_similar_without_historical(self, synthetic_peaks, water_years):
         """EMA and MOM should give similar results without historical data."""
         mom = MethodOfMoments(synthetic_peaks)

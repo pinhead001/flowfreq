@@ -147,11 +147,94 @@ class FrequencyResults:
     confidence_limits: pd.DataFrame = field(default_factory=pd.DataFrame)
     ema_iterations: Optional[int] = None
     ema_converged: Optional[bool] = None
+    skew_used_mse: Optional[float] = None
+
+
+@dataclass
+class LowFlowResults:
+    """
+    Results from low-flow frequency analysis.
+
+    Mirrors :class:`FrequencyResults`' shape so the two analyses read alike.
+    Fields with no high-flow analogue: `n_zero_years` and `p_zero`, from the
+    conditional-probability adjustment for zero-flow years (see
+    :mod:`hydrolib.lowflow`). There is no regional-skew map or MGBT-style
+    outlier test for the low-flow tail, so those fields have no counterpart
+    here.
+
+    Attributes
+    ----------
+    n_years : int
+        Number of years used in the fit (zero-flow years included).
+    n_zero_years : int
+        Number of those years whose annual minimum n-day mean flow is zero.
+    p_zero : float
+        ``n_zero_years / n_years``, the fraction of years with no flow.
+    n_day : int
+        Duration of the annual minimum flow (e.g. 7 for 7Q10/7Q2).
+    year_type : str
+        Year definition the annual minima were computed over: "climatic",
+        "water", or "calendar".
+    distribution : str
+        Distribution fit to the positive-flow years: "lp3" or "lognormal".
+    """
+
+    n_years: int
+    n_zero_years: int
+    p_zero: float
+    n_day: int
+    year_type: str
+    distribution: str
+    mean_log: float
+    std_log: float
+    skew_station: float
+    skew_used: float
+    quantiles: pd.DataFrame = field(default_factory=pd.DataFrame)
+    confidence_limits: pd.DataFrame = field(default_factory=pd.DataFrame)
 
 
 # =============================================================================
 # UTILITY FUNCTIONS WITH CACHING
 # =============================================================================
+
+
+#: Year definitions shared by hydrolib.lowflow and hydrolib.regime for
+#: grouping a daily series into annual periods.
+YEAR_TYPES = ("climatic", "water", "calendar")
+
+
+def assign_year_label(dates: pd.DatetimeIndex, year_type: str) -> np.ndarray:
+    """Assign each date the annual period it belongs to.
+
+    Parameters
+    ----------
+    dates : pd.DatetimeIndex
+    year_type : str
+        One of:
+
+        - "water": Oct 1 (Y-1) - Sep 30 Y, labeled Y (matches
+          :meth:`hydrolib.usgs.USGSgage.download_peak_flow`'s inline
+          water-year convention).
+        - "climatic": Apr 1 Y - Mar 31 (Y+1), labeled Y. Follows Riggs
+          (1972), USGS Techniques of Water-Resources Investigations Book 4
+          Chapter B1, chosen for low-flow analysis to avoid splitting a
+          single connected low-flow event across a year boundary.
+        - "calendar": Jan 1 - Dec 31 Y, labeled Y.
+
+        Both "water" and "climatic" label a year by the calendar year
+        containing the majority of its months.
+
+    Returns
+    -------
+    np.ndarray of int
+    """
+    if year_type == "calendar":
+        return dates.year.to_numpy()
+    if year_type == "water":
+        return np.where(dates.month >= 10, dates.year + 1, dates.year)
+    if year_type == "climatic":
+        return np.where(dates.month >= 4, dates.year, dates.year - 1)
+    raise ValueError(f"year_type must be one of {YEAR_TYPES}, got {year_type!r}")
 
 
 #: Maximum absolute skew coefficient considered physically valid for LP3
@@ -179,6 +262,16 @@ def kfactor(skew: float, aep: float) -> float:
 
     k = skew / 6
     return (2 / skew) * ((1 + k * z - k * k) ** 3 - 1)
+
+
+def kfactor_skew_derivative(skew: float, aep: float, h: float = 1e-4) -> float:
+    """Numerical derivative dK/dG of the LP3 K-factor with respect to skew.
+
+    Used to propagate skew estimation uncertainty (MSE of the weighted skew)
+    into the confidence interval variance for a quantile estimate, per the
+    Bulletin 17B/17C approximate variance formula.
+    """
+    return (kfactor(skew + h, aep) - kfactor(skew - h, aep)) / (2 * h)
 
 
 def kfactor_array(skew: float, aep: np.ndarray) -> np.ndarray:
@@ -282,8 +375,11 @@ def lp3_frequency_factor_peakfq(p: float, skew: float) -> float:
     """
     Calculate LP3 frequency factor using PeakFQ methodology.
 
-    Uses gamma distribution transformation for skewed distributions,
-    falls back to normal distribution for zero skew.
+    Uses the exact gamma-distribution transformation (the same inverse-CDF
+    approach as the peakfqr/PeakFQ Fortran reference, per ``qP3sub``), not the
+    Wilson-Hilferty approximation used by :func:`kfactor` elsewhere in this
+    module. Falls back to the normal distribution for zero skew, where the
+    two are identical.
 
     Parameters
     ----------
@@ -296,12 +392,24 @@ def lp3_frequency_factor_peakfq(p: float, skew: float) -> float:
     -------
     float
         Frequency factor K
+
+    Notes
+    -----
+    For negative skew the gamma distribution is reflected: the Pearson III
+    variate's lower tail (small ``log_Q``) corresponds to the gamma
+    distribution's *upper* tail, so the quantile must be taken at ``1 - p``,
+    not ``p``. This mirrors the reflection already used by
+    :func:`log_pearson3_cdf` for the CDF direction. Getting this backwards
+    makes K decrease as p increases, which silently inverts every quantile
+    for any negative-skew fit -- the national B17C regional skew (-0.302) is
+    negative, so this is not an edge case.
     """
     if abs(skew) < 1e-8:
         return stats.norm.ppf(p)
     alpha = 4 / (skew**2)
     beta = skew / 2
-    return beta * (stats.gamma.ppf(p, a=alpha) - alpha)
+    q = p if skew > 0 else 1 - p
+    return beta * (stats.gamma.ppf(q, a=alpha) - alpha)
 
 
 def lp3_quantile_peakfq(mu: float, sigma: float, skew: float, T: float) -> float:

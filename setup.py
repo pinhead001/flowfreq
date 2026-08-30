@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="hydrolib",
-    version="0.0.3",
+    version="0.2.0",
     author="Your Name",
     author_email="your.email@example.com",
     description="Python library for hydrologic analysis with Bulletin 17C flood frequency",
@@ -32,6 +32,7 @@ setup(
         "matplotlib>=3.4.0",
         "scipy>=1.7.0",
         "requests>=2.25.0",
+        "pyarrow>=10.0",
     ],
     extras_require={
         "dev": ["pytest>=7.0", "pytest-cov", "black", "flake8"],

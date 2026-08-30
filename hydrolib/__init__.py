@@ -22,14 +22,35 @@ from .core import (
     EMAParameters,
     FlowInterval,
     FrequencyResults,
+    LowFlowResults,
     SkewMethod,
     grubbs_beck_critical_value,
     kfactor,
     kfactor_array,
 )
+from .flowio import load_flow_frame, save_flow_frame
 from .hydrograph import Hydrograph
+from .lowflow import LOW_FLOW_YEAR_TYPES, LowFlowFrequency, annual_minimum_flow
+from .regime import (
+    BASEFLOW_METHODS,
+    FlowRegime,
+    baseflow_index,
+    diel_variation,
+    diel_variation_summary,
+    monthly_flow_summary,
+    richards_baker_flashiness,
+    seasonal_flow_summary,
+    separate_baseflow,
+    tqmean,
+)
 from .report import HydroReport
-from .usgs import GageAttributes, USGSgage, fetch_nwis_batch, fetch_nwis_peaks
+from .usgs import (
+    GageAttributes,
+    NoInstantaneousDataError,
+    USGSgage,
+    fetch_nwis_batch,
+    fetch_nwis_peaks,
+)
 
 # Alias for backwards compatibility
 USGSGage = USGSgage
@@ -118,7 +139,7 @@ def analyze_gage(
     }
 
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __author__ = "HydroLib"
 
 __all__ = [
@@ -131,12 +152,31 @@ __all__ = [
     "kfactor",
     "kfactor_array",
     "grubbs_beck_critical_value",
+    # Low-flow frequency analysis
+    "LowFlowResults",
+    "LowFlowFrequency",
+    "annual_minimum_flow",
+    "LOW_FLOW_YEAR_TYPES",
+    # Flow regime metrics
+    "FlowRegime",
+    "richards_baker_flashiness",
+    "tqmean",
+    "baseflow_index",
+    "separate_baseflow",
+    "monthly_flow_summary",
+    "seasonal_flow_summary",
+    "BASEFLOW_METHODS",
+    "diel_variation",
+    "diel_variation_summary",
     # USGS data retrieval
     "USGSgage",
     "USGSGage",  # Alias for backwards compatibility
     "GageAttributes",
+    "NoInstantaneousDataError",
     "fetch_nwis_peaks",
     "fetch_nwis_batch",
+    "save_flow_frame",
+    "load_flow_frame",
     # Hydrograph
     "Hydrograph",
     # Bulletin 17C

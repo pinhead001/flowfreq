@@ -158,7 +158,9 @@ def plot_frequency_curve_streamlit(
                 fontsize=_ANNOT_FONT_SIZE,
                 ha="right",
                 va="center",
-                bbox=dict(boxstyle="round,pad=0.2", facecolor="white", edgecolor="lightgray", alpha=0.9),
+                bbox=dict(
+                    boxstyle="round,pad=0.2", facecolor="white", edgecolor="lightgray", alpha=0.9
+                ),
                 arrowprops=dict(arrowstyle="-", color="gray", alpha=0.7),
             )
 

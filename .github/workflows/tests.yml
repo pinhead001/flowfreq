@@ -41,4 +41,4 @@ jobs:
         run: pip install -e ".[dev]"
       
       - name: Test
-        run: pytest tests/ -v
+        run: pytest tests/ -v -m "not requires_peakfqsa and not requires_network and not requires_peakfqr_testdata"
