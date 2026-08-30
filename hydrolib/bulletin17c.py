@@ -44,6 +44,7 @@ class FloodFrequencyAnalysis(ABC):
     ):
         self._peak_flows = np.array(peak_flows)
         self._peak_flows = self._peak_flows[~np.isnan(self._peak_flows)]
+        self._n_zeros = int(np.sum(self._peak_flows == 0))
         self._peak_flows = self._peak_flows[self._peak_flows > 0]
 
         self._regional_skew = regional_skew
@@ -433,6 +434,7 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         ema_params: EMAParameters = None,
         historical_peaks: List[Tuple[int, float]] = None,
         perception_thresholds: Dict[Tuple[int, int], float] = None,
+        user_low_outlier_threshold: Optional[float] = None,
     ):
         super().__init__(peak_flows, regional_skew, regional_skew_mse)
 
@@ -444,6 +446,7 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
 
         self._historical_peaks = historical_peaks or []
         self._perception_thresholds = perception_thresholds or {}
+        self._user_low_outlier_threshold = user_low_outlier_threshold
         self._ema_params = ema_params or self._auto_configure_ema_params()
         self._intervals: List[FlowInterval] = []
 
@@ -751,29 +754,168 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
 
         return new_mean, new_std, new_skew
 
-    def _multiple_grubbs_beck(self) -> Tuple[float, int]:
-        """Perform Multiple Grubbs-Beck test for low outliers."""
+    @staticmethod
+    def _mgbt_pvalue(n: int, r: int, w: float) -> float:
+        """Approximate p-value for MGBT generalized Grubbs-Beck test statistic.
+
+        Approximates the GGBCRITP function from peakfqr/probfun.f.  The exact
+        computation uses a complex numerical integral that accounts for the
+        order-statistic distribution of ZT(r).  This approximation centers the
+        test statistic relative to its expected value under H0 using Hazen
+        plotting positions for normal order statistics, then uses the
+        t-distribution.
+
+        Under H0 the i-th smallest from N standard normals has expected value
+        ≈ Φ⁻¹((i−0.5)/N).  We compute E[W(r)|H0] from those expected order
+        statistics and assess how far the observed W deviates from expectation.
+
+        Parameters
+        ----------
+        n : int
+            Total sample size.
+        r : int
+            1-based rank of the candidate outlier (r=1 = smallest).
+        w : float
+            Test statistic W(r) = (ZT(r) - mean(upper)) / sqrt(var(upper)).
+
+        Returns
+        -------
+        float
+            Approximate one-sided p-value in [0, 1].
+        """
+        nc = n - r  # size of upper sample
+        if nc < 2:
+            return 1.0
+
+        # Expected value of ZT(r) under H0 using Hazen plotting position
+        e_zt_r = float(stats.norm.ppf((r - 0.5) / n))
+
+        # Expected upper sample statistics under H0
+        upper_pp = np.array([float(stats.norm.ppf((j - 0.5) / n)) for j in range(r + 1, n + 1)])
+        e_upper_mean = float(np.mean(upper_pp))
+        e_upper_std = float(np.std(upper_pp, ddof=1)) if nc > 1 else 1.0
+
+        if e_upper_std <= 0.0:
+            return 1.0
+
+        # Expected W(r) under H0; center the observed statistic
+        e_w = (e_zt_r - e_upper_mean) / e_upper_std
+        w_centered = w - e_w
+
+        return float(stats.t.cdf(w_centered, df=max(nc - 1, 1)))
+
+    def _multiple_grubbs_beck(
+        self, user_threshold: Optional[float] = None
+    ) -> Tuple[float, int, List[float]]:
+        """Perform Multiple Grubbs-Beck test for low outliers.
+
+        Implements the three-sweep MGBT algorithm following Cohn et al. (2013)
+        and the Fortran MGBTP routine in peakfqr/probfun.f.
+
+        Test statistic for rank i (1-based, ascending):
+            W(i) = (ZT(i) - mean(ZT[i+1..N])) / sqrt(var(ZT[i+1..N]))
+
+        Three sweeps determine the number of low outliers:
+          1. Outward sweep from median, α = 0.005 → J1
+          2. Inward sweep from J1, α = 0.0   → J2 (= J1 in practice)
+          3. Zeroin sweep from minimum, α = 0.1  → J3
+        Result = MAX(J1, J2, J3).
+
+        Parameters
+        ----------
+        user_threshold : float, optional
+            User-supplied override.  When provided and > 0, skips the
+            statistical test and uses this value directly.
+
+        Returns
+        -------
+        tuple
+            (threshold_cfs, n_low_outliers, pilf_flow_list)
+        """
+        # User override takes precedence
+        if user_threshold is not None and user_threshold > 0:
+            pilf = sorted([f for f in self._peak_flows if f < user_threshold])
+            return float(user_threshold), len(pilf), pilf
+
         log_flows = self.log_flows
-        current_flows = np.sort(log_flows)
-        n_outliers = 0
-        threshold_log = -np.inf
+        n = len(log_flows)
 
-        while len(current_flows) > 10:
-            mean_log = np.mean(current_flows)
-            std_log = np.std(current_flows, ddof=1)
+        # Need at least 5 observations for a meaningful test
+        if n < 5:
+            return 0.0, 0, []
 
-            k_n = grubbs_beck_critical_value(len(current_flows))
-            test_threshold = mean_log - k_n * std_log
+        # Sort ascending (zt[0] = smallest, zt[n-1] = largest)
+        zt = np.sort(log_flows)
 
-            if current_flows[0] < test_threshold:
-                threshold_log = test_threshold
-                n_outliers += 1
-                current_flows = current_flows[1:]
-            else:
+        # Median position (Fortran N/2, integer division)
+        n2 = n // 2
+
+        # ── Compute W(i) and p-values for i = N2 down to 1 (1-based) ──────
+        # Initial accumulator: ZT(N2+2) to ZT(N) in Fortran 1-based
+        # = zt[n2+1] to zt[n-1] in Python 0-based
+        s1 = float(np.sum(zt[n2 + 1 :]))
+        s2 = float(np.sum(zt[n2 + 1 :] ** 2))
+
+        pvalues = np.ones(n2 + 1)  # 1-indexed; pvalues[0] unused
+
+        for i_f in range(n2, 0, -1):  # Fortran I = N2 down to 1
+            # Add ZT(I+1) = zt[i_f] (0-based) to the upper accumulator
+            s1 += zt[i_f]
+            s2 += zt[i_f] ** 2
+            nc = n - i_f  # number of upper observations (I+1 to N)
+
+            if nc < 2:
+                pvalues[i_f] = 1.0
+                continue
+
+            xm = s1 / nc
+            xv = (s2 - nc * xm**2) / (nc - 1)
+
+            if xv <= 0.0:
+                pvalues[i_f] = 1.0
+                continue
+
+            # ZT(I) = zt[i_f - 1] (0-based)
+            w_i = (zt[i_f - 1] - xm) / np.sqrt(xv)
+            pvalues[i_f] = self._mgbt_pvalue(n, i_f, w_i)
+
+        # ── Three sweeps ────────────────────────────────────────────────────
+        alpha_out = 0.005  # outward sweep
+        alpha_in = 0.0  # inward sweep  (always = J1 with Alphain=0)
+        alpha_zero_in = 0.1  # zeroin sweep
+
+        # Step 1: Outward sweep – largest i from N2 to 1 where p < alpha_out
+        j1 = 0
+        for i_f in range(n2, 0, -1):
+            if pvalues[i_f] < alpha_out:
+                j1 = i_f
                 break
 
-        threshold = 10**threshold_log if threshold_log > -np.inf else 0.0
-        return threshold, n_outliers
+        # Step 2: Inward sweep – first i from j1+1 to N2 where p >= alpha_in
+        j2 = j1
+        for i_f in range(j1 + 1, n2 + 1):
+            if pvalues[i_f] >= alpha_in:
+                j2 = i_f - 1
+                break
+
+        # Step 3: Zeroin sweep – first i from 1 to N2 where p >= alpha_zero_in
+        j3 = n2  # fallback: all below-median positions would be outliers
+        for i_f in range(1, n2 + 1):
+            if pvalues[i_f] >= alpha_zero_in:
+                j3 = i_f - 1
+                break
+
+        n_low_outliers = max(j1, j2, j3)
+
+        if n_low_outliers == 0:
+            return 0.0, 0, []
+
+        # Threshold = flow of the first NON-outlier (Fortran: qs(gbnlow+1))
+        # zt is 0-based; the n_low_outliers smallest are outliers
+        threshold = 10.0 ** zt[n_low_outliers]
+        pilf = [10.0 ** zt[k] for k in range(n_low_outliers)]
+
+        return threshold, n_low_outliers, pilf
 
     def run_analysis(self) -> FrequencyResults:
         """Run EMA flood frequency analysis."""
@@ -785,7 +927,9 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         skew_station = n * np.sum((log_flows - mean_log) ** 3) / ((n - 1) * (n - 2) * std_log**3)
         skew_station = float(np.clip(skew_station, -MAX_ABS_SKEW, MAX_ABS_SKEW))
 
-        low_threshold, n_low_outliers = self._multiple_grubbs_beck()
+        low_threshold, n_low_outliers, pilf_flows = self._multiple_grubbs_beck(
+            user_threshold=self._user_low_outlier_threshold
+        )
         self._ema_params.low_outlier_threshold = low_threshold
 
         self._build_flow_intervals(low_threshold)
@@ -849,6 +993,8 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
             method=AnalysisMethod.EMA,
             ema_iterations=iteration + 1,
             ema_converged=converged,
+            n_zeros=self._n_zeros,
+            pilf_flows=pilf_flows,
         )
 
         self._results.quantiles = self.compute_quantiles()
@@ -997,6 +1143,7 @@ class Bulletin17C:
         historical_peaks: List[Tuple[int, float]] = None,
         perception_thresholds: Dict[Tuple[int, int], float] = None,
         ema_params: EMAParameters = None,
+        user_low_outlier_threshold: Optional[float] = None,
     ):
         self._peak_flows = np.array(peak_flows)
         self._water_years = water_years
@@ -1005,6 +1152,7 @@ class Bulletin17C:
         self._historical_peaks = historical_peaks
         self._perception_thresholds = perception_thresholds
         self._ema_params = ema_params
+        self._user_low_outlier_threshold = user_low_outlier_threshold
 
         self._analyzer: Optional[FloodFrequencyAnalysis] = None
         self._results: Optional[FrequencyResults] = None
@@ -1080,6 +1228,7 @@ class Bulletin17C:
                 ema_params=self._ema_params,
                 historical_peaks=self._historical_peaks,
                 perception_thresholds=self._perception_thresholds,
+                user_low_outlier_threshold=self._user_low_outlier_threshold,
             )
 
         self._results = self._analyzer.run_analysis()

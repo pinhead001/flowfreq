@@ -79,11 +79,19 @@ scale_mode = st.sidebar.radio("Y-Axis Scale", ["Linear", "Log", "Per Plot"], hor
 
 if scale_mode == "Per Plot":
     st.sidebar.markdown("**Scale per plot:**")
-    yscale_timeseries = "log" if st.sidebar.checkbox("Log: Daily Time Series", value=False) else "linear"
-    yscale_summary = "log" if st.sidebar.checkbox("Log: Summary Hydrograph", value=False) else "linear"
+    yscale_timeseries = (
+        "log" if st.sidebar.checkbox("Log: Daily Time Series", value=False) else "linear"
+    )
+    yscale_summary = (
+        "log" if st.sidebar.checkbox("Log: Summary Hydrograph", value=False) else "linear"
+    )
     yscale_fdc = "log" if st.sidebar.checkbox("Log: Flow Duration Curve", value=False) else "linear"
-    yscale_freq = "log" if st.sidebar.checkbox("Log: Flood Frequency Curve", value=False) else "linear"
-    yscale_peak = "log" if st.sidebar.checkbox("Log: Peak Flow Time Series", value=False) else "linear"
+    yscale_freq = (
+        "log" if st.sidebar.checkbox("Log: Flood Frequency Curve", value=False) else "linear"
+    )
+    yscale_peak = (
+        "log" if st.sidebar.checkbox("Log: Peak Flow Time Series", value=False) else "linear"
+    )
 else:
     yscale_timeseries = yscale_summary = yscale_fdc = yscale_freq = yscale_peak = scale_mode.lower()
 
@@ -128,7 +136,7 @@ if enable_ffa:
             "Show Return Period Lines",
             options=quantile_options,
             default=[1.5, 25, 100],
-            help="Horizontal lines showing flood frequency quantiles"
+            help="Horizontal lines showing flood frequency quantiles",
         )
         show_max_ri = st.sidebar.checkbox("Show Max Peak RI Estimate", value=False)
     else:
@@ -174,7 +182,14 @@ if "prev_peak_year_range" not in st.session_state:
     st.session_state.prev_peak_year_range = None
 
 # Clear figures cache when scale settings change
-current_scale_settings = (scale_mode, yscale_timeseries, yscale_summary, yscale_fdc, yscale_freq, yscale_peak)
+current_scale_settings = (
+    scale_mode,
+    yscale_timeseries,
+    yscale_summary,
+    yscale_fdc,
+    yscale_freq,
+    yscale_peak,
+)
 if st.session_state.prev_scale_settings != current_scale_settings:
     st.session_state.figures = {}
     st.session_state.prev_scale_settings = current_scale_settings
@@ -223,7 +238,9 @@ def estimate_ri_from_lp3(flow, mean_log, std_log, skew):
     return None
 
 
-def plot_peak_timeseries(peak_df, site_name, site_no, yscale="linear", quantiles=None, max_ri_info=None):
+def plot_peak_timeseries(
+    peak_df, site_name, site_no, yscale="linear", quantiles=None, max_ri_info=None
+):
     """Plot annual peak flows with optional quantile reference lines.
 
     quantiles: dict of {return_period: flow_value} to draw as horizontal lines
@@ -235,10 +252,17 @@ def plot_peak_timeseries(peak_df, site_name, site_no, yscale="linear", quantiles
     if quantiles:
         x_min = peak_df["water_year"].min()
         for rp, flow in sorted(quantiles.items()):
-            ax.axhline(y=flow, linestyle='--', color='#404040', alpha=0.9)
+            ax.axhline(y=flow, linestyle="--", color="#404040", alpha=0.9)
             rp_str = f"{rp:g}"  # Format without trailing zeros
-            ax.text(x_min, flow, f" {rp_str}-yr: {flow:,.0f}",
-                    va='bottom', ha='left', fontsize=8, color='#404040')
+            ax.text(
+                x_min,
+                flow,
+                f" {rp_str}-yr: {flow:,.0f}",
+                va="bottom",
+                ha="left",
+                fontsize=8,
+                color="#404040",
+            )
 
     # Add max RI annotation if provided
     if max_ri_info:
@@ -270,13 +294,21 @@ def plot_peak_timeseries(peak_df, site_name, site_no, yscale="linear", quantiles
     elif site_no:
         title = f"Annual Peak Flows - USGS {site_no}"
     ax.set_title(title, fontsize=12, fontweight="bold")
-    ax.grid(True, alpha=0.3, axis='y')
+    ax.grid(True, alpha=0.3, axis="y")
     plt.tight_layout()
     return fig
 
 
-def generate_plots(site_no, plot_data, gage_info, por_start_str=None, por_end_str=None,
-                    yscale_ts="linear", yscale_sh="linear", yscale_fdc="linear"):
+def generate_plots(
+    site_no,
+    plot_data,
+    gage_info,
+    por_start_str=None,
+    por_end_str=None,
+    yscale_ts="linear",
+    yscale_sh="linear",
+    yscale_fdc="linear",
+):
     """Generate plots for a gage using the provided data."""
     site_figs = {}
 
@@ -473,8 +505,8 @@ if st.session_state.gage_data:
                             # Filter by year range
                             if peak_start_year is not None and peak_end_year is not None:
                                 filtered_peak = peak_df[
-                                    (peak_df["water_year"] >= peak_start_year) &
-                                    (peak_df["water_year"] <= peak_end_year)
+                                    (peak_df["water_year"] >= peak_start_year)
+                                    & (peak_df["water_year"] <= peak_end_year)
                                 ]
                             else:
                                 filtered_peak = peak_df
@@ -537,8 +569,14 @@ if st.session_state.gage_data:
                 por_end_str = format_date(gage_info["por_end"])
 
             st.session_state.figures[site_no] = generate_plots(
-                site_no, plot_data, gage_info, por_start_str, por_end_str,
-                yscale_ts=yscale_timeseries, yscale_sh=yscale_summary, yscale_fdc=yscale_fdc
+                site_no,
+                plot_data,
+                gage_info,
+                por_start_str,
+                por_end_str,
+                yscale_ts=yscale_timeseries,
+                yscale_sh=yscale_summary,
+                yscale_fdc=yscale_fdc,
             )
 
         site_figs = st.session_state.figures[site_no]
@@ -558,8 +596,8 @@ if st.session_state.gage_data:
                 # Filter by peak year range if set
                 if peak_start_year is not None and peak_end_year is not None:
                     peak_df = peak_df[
-                        (peak_df["water_year"] >= peak_start_year) &
-                        (peak_df["water_year"] <= peak_end_year)
+                        (peak_df["water_year"] >= peak_start_year)
+                        & (peak_df["water_year"] <= peak_end_year)
                     ]
                 if len(peak_df) == 0:
                     st.warning(f"No peak data for {site_no} in selected year range")
@@ -588,14 +626,18 @@ if st.session_state.gage_data:
                                 max_flow,
                                 params["mean_log"],
                                 params["std_log"],
-                                params["skew_weighted"]
+                                params["skew_weighted"],
                             )
                             if ri:
                                 max_ri_info = {"flow": max_flow, "year": max_year, "ri": ri}
 
                     peak_fig = plot_peak_timeseries(
-                        peak_df, gage_info.get("name", ""), site_no,
-                        yscale=yscale_peak, quantiles=quantiles, max_ri_info=max_ri_info
+                        peak_df,
+                        gage_info.get("name", ""),
+                        site_no,
+                        yscale=yscale_peak,
+                        quantiles=quantiles,
+                        max_ri_info=max_ri_info,
                     )
                     st.pyplot(peak_fig)
 
@@ -621,20 +663,24 @@ if st.session_state.gage_data:
                         # Filter by peak year range if set
                         if peak_start_year is not None and peak_end_year is not None:
                             peak_df_freq = peak_df_freq[
-                                (peak_df_freq["water_year"] >= peak_start_year) &
-                                (peak_df_freq["water_year"] <= peak_end_year)
+                                (peak_df_freq["water_year"] >= peak_start_year)
+                                & (peak_df_freq["water_year"] <= peak_end_year)
                             ]
                         if len(peak_df_freq) > 0:
                             params = ffa_result.get("parameters", {})
                             max_idx = peak_df_freq["peak_flow_cfs"].idxmax()
                             max_flow = float(peak_df_freq.loc[max_idx, "peak_flow_cfs"])
                             max_year = int(peak_df_freq.loc[max_idx, "water_year"])
-                            ri = estimate_ri_from_lp3(
-                                max_flow,
-                                params.get("mean_log", 0),
-                                params.get("std_log", 1),
-                                params.get("skew_weighted", 0)
-                            ) if params else None
+                            ri = (
+                                estimate_ri_from_lp3(
+                                    max_flow,
+                                    params.get("mean_log", 0),
+                                    params.get("std_log", 1),
+                                    params.get("skew_weighted", 0),
+                                )
+                                if params
+                                else None
+                            )
                             max_flow_label = {"flow": max_flow, "year": max_year, "ri": ri}
                 freq_fig = plot_frequency_curve_streamlit(
                     ffa_result["b17c"],
@@ -785,8 +831,8 @@ if st.session_state.gage_data:
                         # Filter by peak year range if set
                         if peak_start_year is not None and peak_end_year is not None:
                             peak_df_export = peak_df_export[
-                                (peak_df_export["water_year"] >= peak_start_year) &
-                                (peak_df_export["water_year"] <= peak_end_year)
+                                (peak_df_export["water_year"] >= peak_start_year)
+                                & (peak_df_export["water_year"] <= peak_end_year)
                             ]
                         if len(peak_df_export) > 0:
                             csv_buffer = io.StringIO()
@@ -819,21 +865,31 @@ if st.session_state.gage_data:
                                     # Filter by peak year range
                                     if peak_start_year is not None and peak_end_year is not None:
                                         peak_df_for_label = peak_df_for_label[
-                                            (peak_df_for_label["water_year"] >= peak_start_year) &
-                                            (peak_df_for_label["water_year"] <= peak_end_year)
+                                            (peak_df_for_label["water_year"] >= peak_start_year)
+                                            & (peak_df_for_label["water_year"] <= peak_end_year)
                                         ]
                                     if len(peak_df_for_label) > 0:
                                         params = ffa_result.get("parameters", {})
                                         max_idx = peak_df_for_label["peak_flow_cfs"].idxmax()
-                                        max_flow = float(peak_df_for_label.loc[max_idx, "peak_flow_cfs"])
+                                        max_flow = float(
+                                            peak_df_for_label.loc[max_idx, "peak_flow_cfs"]
+                                        )
                                         max_year = int(peak_df_for_label.loc[max_idx, "water_year"])
-                                        ri = estimate_ri_from_lp3(
-                                            max_flow,
-                                            params.get("mean_log", 0),
-                                            params.get("std_log", 1),
-                                            params.get("skew_weighted", 0)
-                                        ) if params else None
-                                        max_flow_label_export = {"flow": max_flow, "year": max_year, "ri": ri}
+                                        ri = (
+                                            estimate_ri_from_lp3(
+                                                max_flow,
+                                                params.get("mean_log", 0),
+                                                params.get("std_log", 1),
+                                                params.get("skew_weighted", 0),
+                                            )
+                                            if params
+                                            else None
+                                        )
+                                        max_flow_label_export = {
+                                            "flow": max_flow,
+                                            "year": max_year,
+                                            "ri": ri,
+                                        }
                             freq_fig_for_export = plot_frequency_curve_streamlit(
                                 ffa_result["b17c"],
                                 site_name=gage_info.get("name", ""),

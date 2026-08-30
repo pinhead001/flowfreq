@@ -103,7 +103,7 @@ def plot_frequency_curve_streamlit(
 
     # Default: single curve using the skew already selected by EMA/MOM
     if not skew_curves:
-        skew_curves = {"LP3 Fitted Curve": r.skew_used}
+        skew_curves = {"Fitted Frequency Curve": r.skew_used}
 
     multi = len(skew_curves) > 1
 
@@ -113,23 +113,43 @@ def plot_frequency_curve_streamlit(
     fig, ax = plt.subplots(figsize=figsize)
 
     # --- Observed peaks (Weibull plotting positions) ---
+    # Separate PILF (below low-outlier threshold) from normal peaks for markers
     peak_flows = b17c._peak_flows  # noqa: SLF001
+    pilf_set = set(r.pilf_flows) if r.pilf_flows else set()
+    pilf_threshold = r.low_outlier_threshold if r.n_low_outliers > 0 else None
+
     sorted_flows = np.sort(peak_flows)[::-1]
     n_obs = len(sorted_flows)
     weibull_aep = np.arange(1, n_obs + 1) / (n_obs + 1)
     x_obs = [aep_to_x(p) for p in weibull_aep]
 
-    ax.scatter(
-        x_obs,
-        sorted_flows,
-        c="steelblue",
-        s=20,
-        alpha=0.5,
-        zorder=5,
-        label="Observed Annual Peaks",
-        edgecolors="navy",
-        linewidth=0.5,
-    )
+    # Normal peaks (above PILF threshold) → filled circles
+    normal_mask = np.array([pilf_threshold is None or f >= pilf_threshold for f in sorted_flows])
+    if np.any(normal_mask):
+        ax.scatter(
+            [x for x, m in zip(x_obs, normal_mask) if m],
+            sorted_flows[normal_mask],
+            c="steelblue",
+            s=20,
+            alpha=0.5,
+            zorder=5,
+            label="Observed Annual Peaks",
+            edgecolors="navy",
+            linewidth=0.5,
+        )
+    # PILF peaks → red × markers
+    if np.any(~normal_mask):
+        ax.scatter(
+            [x for x, m in zip(x_obs, normal_mask) if not m],
+            sorted_flows[~normal_mask],
+            c="red",
+            s=40,
+            alpha=0.8,
+            zorder=6,
+            label="PILF (below MGBT threshold)",
+            marker="x",
+            linewidths=1.2,
+        )
 
     # --- Max flow label annotation ---
     if max_flow_label:
@@ -174,19 +194,27 @@ def plot_frequency_curve_streamlit(
 
     fallback_idx = 0
     for label, skew_val in skew_curves.items():
+        # Map bare skew-option key → "Fitted Frequency Curve (Skew Type)" label
         if label in _SKEW_STYLE:
             color, ls = _SKEW_STYLE[label]
-        else:
+            curve_label = f"Fitted Frequency Curve ({label})"
+        elif multi:
             color = _FALLBACK_COLORS[fallback_idx % len(_FALLBACK_COLORS)]
             ls = "-"
             fallback_idx += 1
+            curve_label = label
+        else:
+            color, ls = "k", "-"
+            curve_label = label  # keep whatever was passed for single-curve
 
-        # Single curve → black "k-" linewidth=1 (matches summary hydrograph median)
+        # Single curve always black
         if not multi:
             color, ls = "k", "-"
 
         Q_curve = _lp3_quantiles(mean_log, std_log, skew_val, aep_fine)
-        ax.plot(x_curve, Q_curve, color=color, linestyle=ls, linewidth=1, label=label, zorder=4)
+        ax.plot(
+            x_curve, Q_curve, color=color, linestyle=ls, linewidth=1, label=curve_label, zorder=4
+        )
 
         lower, upper = _lp3_ci(mean_log, std_log, skew_val, n_sys, aep_ci)
         ax.fill_between(x_cl, lower, upper, alpha=0.12, color=color)
@@ -200,7 +228,7 @@ def plot_frequency_curve_streamlit(
             color="red",
             linestyle="--",
             alpha=0.7,
-            label=f"MGBT Threshold ({r.n_low_outliers} low outliers)",
+            label=f"MGBT Threshold ({r.n_low_outliers} PILF)",
         )
 
     # --- Axes ---
@@ -261,6 +289,10 @@ def plot_frequency_curve_streamlit(
         f"\u03c3(log Q) = {std_log:.4f}\n"
         f"{skew_lines}"
     )
+    if r.n_low_outliers > 0:
+        stats_text += f"\n{r.n_low_outliers} peak(s) below PILF threshold"
+    if r.n_zeros > 0:
+        stats_text += f"\n{r.n_zeros} zero flow(s) not displayed"
     ax.annotate(
         stats_text,
         xy=(_BOX_PADDING, 1 - _BOX_PADDING),
@@ -274,6 +306,208 @@ def plot_frequency_curve_streamlit(
 
     ax.legend(loc="lower left", fontsize=_ANNOT_FONT_SIZE)
     ax.grid(True, which="both", alpha=0.3)
+    fig.tight_layout()
+
+    return fig
+
+
+_THRESHOLD_COLORS = ["darkorange", "forestgreen", "purple", "crimson", "teal"]
+
+
+def plot_peak_flows_with_thresholds(
+    peak_df: pd.DataFrame,
+    site_name: Optional[str] = None,
+    site_no: Optional[str] = None,
+    thresholds: Optional[List[dict]] = None,
+    figsize: Tuple[int, int] = (12, 5),
+    ffa_year_range: Optional[Tuple[int, int]] = None,
+    mgbt_threshold: Optional[float] = None,
+) -> plt.Figure:
+    """Plot annual peak flows as a bar chart with optional perception threshold lines.
+
+    Parameters
+    ----------
+    peak_df : pd.DataFrame
+        DataFrame with columns ``water_year`` and ``peak_flow_cfs``.
+    site_name : str, optional
+        Station name for the title.
+    site_no : str, optional
+        USGS station number for the title.
+    thresholds : list of dict, optional
+        Each dict has keys ``start_year`` (int), ``end_year`` (int),
+        ``lower_cfs`` (float, default 0), ``upper_cfs`` (float, default inf).
+        Lower bound drawn as dashed line; upper bound drawn as dashed line or
+        labelled at top of axis when upper_cfs is inf.
+    figsize : tuple
+        Figure size in inches.
+    ffa_year_range : tuple of (int, int), optional
+        ``(start_year, end_year)`` of the peak-flow record used in the FFA.
+        Years outside this range are drawn as hollow outline bars so the user
+        can see which peaks were excluded from the analysis.
+    mgbt_threshold : float, optional
+        MGBT low outlier threshold.  When provided, drawn as a solid red
+        horizontal line across the full record.
+
+    Returns
+    -------
+    matplotlib.figure.Figure
+    """
+    fig, ax = plt.subplots(figsize=figsize)
+
+    years = peak_df["water_year"].values.astype(int)
+    flows = peak_df["peak_flow_cfs"].values.astype(float)
+
+    # Determine which years are inside the FFA analysis range
+    if ffa_year_range is not None:
+        ffa_start, ffa_end = ffa_year_range
+        in_range = (years >= ffa_start) & (years <= ffa_end)
+        has_excluded = bool((~in_range).any())
+    else:
+        in_range = np.ones(len(years), dtype=bool)
+        ffa_start = ffa_end = None
+        has_excluded = False
+
+    # Bar chart — years outside FFA range drawn as hollow outline bars
+    if has_excluded:
+        ax.bar(
+            years[in_range],
+            flows[in_range],
+            color="steelblue",
+            alpha=0.75,
+            width=0.8,
+            label="Annual Peak Flow (in analysis)",
+        )
+        ax.bar(
+            years[~in_range],
+            flows[~in_range],
+            facecolor="none",
+            edgecolor="steelblue",
+            linewidth=0.8,
+            alpha=0.7,
+            width=0.8,
+            label="Excluded from FFA",
+        )
+    else:
+        ax.bar(years, flows, color="steelblue", alpha=0.75, width=0.8, label="Annual Peak Flow")
+
+    # MGBT threshold line (solid red, full record width)
+    if mgbt_threshold is not None and mgbt_threshold > 0:
+        ax.axhline(
+            mgbt_threshold,
+            color="red",
+            linestyle="-",
+            linewidth=1.2,
+            alpha=0.8,
+            label=f"MGBT threshold: {mgbt_threshold:,.0f} cfs",
+            zorder=5,
+        )
+
+    # Perception threshold lines (lower and/or upper per period)
+    if thresholds:
+        ax_ylim_top = ax.get_ylim()[1] if ax.get_yscale() == "linear" else None
+
+        for i, thr in enumerate(thresholds):
+            start = int(thr.get("start_year", years.min()))
+            end = int(thr.get("end_year", years.max()))
+            lo = float(thr.get("lower_cfs", thr.get("threshold_cfs", 0)))
+            hi_raw = thr.get("upper_cfs", thr.get("threshold_cfs", None))
+            hi = float("inf") if hi_raw in (None, float("inf"), "inf", "") else float(hi_raw)
+
+            color = _THRESHOLD_COLORS[i % len(_THRESHOLD_COLORS)]
+            ax.axvspan(start - 0.5, end + 0.5, alpha=0.07, color=color)
+
+            # Lower threshold line
+            if lo > 0:
+                lo_label = f"T\u2081\u208b: {lo:,.0f} cfs ({start}\u2013{end})"
+                ax.hlines(
+                    lo,
+                    start - 0.5,
+                    end + 0.5,
+                    colors=color,
+                    linestyles="--",
+                    linewidth=1.5,
+                    label=lo_label,
+                    zorder=5,
+                )
+
+            # Upper threshold line
+            if not np.isinf(hi) and hi > 0:
+                hi_label = f"T\u2081\u207a: {hi:,.0f} cfs ({start}\u2013{end})"
+                ax.hlines(
+                    hi,
+                    start - 0.5,
+                    end + 0.5,
+                    colors=color,
+                    linestyles=":",
+                    linewidth=1.5,
+                    label=hi_label,
+                    zorder=5,
+                )
+            elif np.isinf(hi):
+                # Mark "T_upper = ∞" as text at top of the span
+                ax.annotate(
+                    f"T\u1d64\u209a\u209a\u2091\u1d63 = \u221e",
+                    xy=(start + (end - start) / 2, 1.0),
+                    xycoords=("data", "axes fraction"),
+                    fontsize=7,
+                    ha="center",
+                    va="bottom",
+                    color=color,
+                )
+
+    ax.set_yscale("log")
+    ax.set_xlabel("Water Year", fontsize=_FONT_SIZE)
+    ax.set_ylabel("Peak Flow (cfs)", fontsize=_FONT_SIZE)
+
+    # Y-axis: powers of 10, comma-formatted (matches hydrograph style)
+    valid_flows = flows[flows > 0]
+    if len(valid_flows) > 0:
+        min_exp = math.floor(math.log10(valid_flows.min()))
+        max_exp = math.ceil(math.log10(valid_flows.max()))
+        yticks = [10**i for i in range(min_exp, max_exp + 1)]
+        ax.set_yticks(yticks)
+        ax.set_yticklabels([f"{int(t):,}" for t in yticks])
+
+    # Title
+    if site_name and site_no:
+        title = f"Annual Peak Flows\nUSGS {site_no} - {site_name}"
+    elif site_no:
+        title = f"Annual Peak Flows - USGS {site_no}"
+    else:
+        title = "Annual Peak Flows"
+    ax.set_title(title, fontsize=_FONT_SIZE, fontweight="bold")
+
+    # Record summary annotation (top-left, matches hydrograph style)
+    n_years = len(years)
+    if has_excluded:
+        n_in = int(in_range.sum())
+        stats_text = f"n = {n_years} total peaks\n" f"{n_in} in analysis ({ffa_start}–{ffa_end})"
+    else:
+        year_range = f"{years.min()}–{years.max()}" if n_years > 0 else ""
+        stats_text = f"n = {n_years} years\n{year_range}"
+    ax.annotate(
+        stats_text,
+        xy=(_BOX_PADDING, 1 - _BOX_PADDING),
+        xycoords="axes fraction",
+        fontsize=_ANNOT_FONT_SIZE,
+        ha="left",
+        va="top",
+        family="monospace",
+        bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="lightgray", alpha=1.0),
+    )
+
+    has_valid_thresholds = thresholds and any(
+        float(t.get("lower_cfs", t.get("threshold_cfs", 0)) or 0) > 0
+        or (
+            t.get("upper_cfs") not in (None, "", "inf")
+            and not np.isinf(float(t.get("upper_cfs", float("inf"))))
+        )
+        for t in thresholds
+    )
+    if has_valid_thresholds or mgbt_threshold or has_excluded:
+        ax.legend(loc="upper right", fontsize=_ANNOT_FONT_SIZE)
+
+    ax.grid(True, which="both", alpha=0.3, axis="y")
     fig.tight_layout()
 
     return fig

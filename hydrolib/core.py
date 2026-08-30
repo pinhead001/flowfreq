@@ -148,6 +148,8 @@ class FrequencyResults:
     ema_iterations: Optional[int] = None
     ema_converged: Optional[bool] = None
     skew_used_mse: Optional[float] = None
+    n_zeros: int = 0
+    pilf_flows: List[float] = field(default_factory=list)
 
 
 @dataclass
