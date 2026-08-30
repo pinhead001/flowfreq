@@ -33,7 +33,7 @@ from app.ffa_runner import (
 )
 
 # Import hydrolib
-from hydrolib import Hydrograph
+from hydrolib import Hydrograph, __version__
 from hydrolib.freq_plot import plot_frequency_curve_streamlit
 from hydrolib.usgs import USGSgage
 
@@ -869,7 +869,7 @@ if st.session_state.gage_data:
 
 # Footer
 st.sidebar.markdown("---")
-st.sidebar.markdown("""
-    **hydrolib** v0.1.2
+st.sidebar.markdown(f"""
+    **hydrolib** v{__version__}
     [GitHub](https://github.com/pinhead001/hydrolib)
     """)
