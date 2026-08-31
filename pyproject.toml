@@ -7,8 +7,21 @@ name = "hydrolib"
 version = "0.2.0"
 description = "Python library for hydrologic analysis with Bulletin 17C flood frequency"
 readme = "README.md"
+authors = [{name = "pinhead001", email = "pinhead001@github.com"}]
 license = {text = "MIT"}
 requires-python = ">=3.9"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Hydrology",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+keywords = ["hydrology", "flood-frequency", "bulletin-17c", "usgs", "streamflow"]
 dependencies = [
     "numpy>=1.20.0",
     "pandas>=1.3.0",
@@ -21,12 +34,12 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=7.0",
-    "pytest-cov",
-    "black",
-    "isort",
-    "flake8",
-    "bump2version",
+    "pytest>=7.0,<8",
+    "pytest-cov>=4.0,<5",
+    "black>=24.0,<25",
+    "isort>=5.12,<6",
+    "flake8>=6.0,<7",
+    "bump2version>=0.6,<1",
 ]
 
 [project.scripts]
@@ -71,5 +84,5 @@ addopts = "-v -m 'not requires_network'"
 markers = [
     "requires_network: marks tests that contact live NWIS services (deselect with '-m \"not requires_network\"')",
     "requires_fortran: marks tests needing the f2py Fortran extension (auto-skipped when absent; build with python build_fortran/build.py)",
-    "requires_peakfqr_testdata: marks tests needing the peakfqr reference test data, searched under vendor/peakfqr then ../_shared/peakfqr; auto-skipped when absent, see docs/FORTRAN_UPLOAD.md (deselect with '-m \"not requires_peakfqr_testdata\"')",
+    "requires_peakfqr_testdata: marks tests needing the peakfqr reference test data, searched under vendor/peakfqr then ../_shared/peakfqr; auto-skipped when absent, see docs/FORTRAN_UPLOAD.md",
 ]
