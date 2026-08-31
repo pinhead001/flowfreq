@@ -20,10 +20,18 @@ jobs:
         with:
           python-version: '3.11'
 
+      # The dev extra, not a bare `pip install black isort`. This job used to
+      # install the linters unpinned, so it ran black 26 while pyproject pins
+      # black<25 and every other job installs the pins -- code formatted to
+      # the declared contract was then rejected by CI, and code CI accepted
+      # failed for anyone who had installed .[dev]. The comment below claimed
+      # the two could not drift; installing different versions is exactly how
+      # they drifted.
       - name: Install linters
-        run: pip install black isort
+        run: pip install -e ".[dev]"
 
-      # Same target a developer runs, so the two cannot drift.
+      # Same target, and now the same versions, as a developer who installed
+      # the dev extra.
       - name: Lint
         run: make lint
 
