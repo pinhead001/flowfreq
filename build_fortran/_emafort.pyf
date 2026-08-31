@@ -123,5 +123,66 @@ python module _emafort
             double precision, dimension(3), intent(in) :: mc_old
             double precision, dimension(3), intent(out) :: moms
         end subroutine moms_p3
+
+        ! --------------------------------------------------------------- !
+        ! var_mom port, phase 1: the leaf routines it calls directly for  !
+        ! p1/p2/p3 and mu_x/e_x (pP3, mP3) and the ones d_est needs       !
+        ! (m2p, qP3). m2mn is var_mom's other direct dependency, used to  !
+        ! get the noncentral moments mn2mvarb needs. See TODO.md P3.      !
+        ! --------------------------------------------------------------- !
+
+        ! Central moments (mu, sigma^2, skew) -> Pearson III shape params
+        ! (tau, alpha, beta). Pure algebra -- no blending, no quadrature.
+        subroutine m2p(m,p)
+            double precision, dimension(3), intent(in) :: m
+            double precision, dimension(3), intent(out) :: p
+        end subroutine m2p
+
+        ! Central moments -> noncentral (raw) moments about zero.
+        subroutine m2mn(m,mn)
+            double precision, dimension(3), intent(in) :: m
+            double precision, dimension(3), intent(out) :: mn
+        end subroutine m2mn
+
+        ! Its inverse: noncentral moments -> central moments.
+        subroutine mn2m(mn,m)
+            double precision, dimension(3), intent(in) :: mn
+            double precision, dimension(3), intent(out) :: m
+        end subroutine mn2m
+
+        ! CDF at x of a Pearson III variate with central moments m. Blends
+        ! an incomplete-gamma solution with a Wilson-Hilferty normal
+        ! approximation, weighted smoothly over |skew| in [0.0007, 0.0010].
+        !
+        ! Fortran identifiers are case-insensitive and gfortran's symbol
+        ! table is all-lowercase; pP3/qP3sub/mP3 must be spelled in lower
+        ! case here or the linker looks for a symbol (e.g. qP3sub_) that
+        ! does not exist. python sees the lower-case names too.
+        function pp3(x,m) result (pp3out)
+            double precision, intent(in) :: x
+            double precision, dimension(3), intent(in) :: m
+            double precision :: pp3out
+        end function pp3
+
+        ! Inverse CDF (quantile) of the same distribution. qP3 is itself a
+        ! function like pP3, but emafit.f already carries a subroutine
+        ! wrapper for it (qP3sub) -- the same one fortranWrappers.R calls.
+        subroutine qp3sub(q,m,qP3out)
+            double precision, intent(in) :: q
+            double precision, dimension(3), intent(in) :: m
+            double precision, intent(out) :: qP3out
+        end subroutine qp3sub
+
+        ! Expected value of the first n raw moments of a Pearson III variate
+        ! between tl and tu, central moments m. Feeds var_mom's mu_x/e_x
+        ! (the censored-interval truncated moments hydrolib's own
+        ! _truncated_gamma_moment/_truncated_normal_moments approximate).
+        subroutine mp3(tl,tu,m,mnout,n)
+            double precision, intent(in) :: tl
+            double precision, intent(in) :: tu
+            double precision, dimension(3), intent(in) :: m
+            integer, intent(in) :: n
+            double precision, dimension(n), intent(out), depend(n) :: mnout
+        end subroutine mp3
     end interface
 end python module _emafort

@@ -2,15 +2,15 @@
 
 ## Status
 Last updated: 2026-08-31
-Tests: **463 passed, 1 deselected, 7 xfailed** in ~38 s (was ~75 s for far fewer tests; see
-the MGBT memoization below). CI green on main. Two of the seven xfails are new, both on the
-Cains Coulee parity case; see P3.
+Tests: **506 passed, 1 skipped, 1 deselected, 7 xfailed** in ~28 s. CI green on main. Two of
+the seven xfails are on the Cains Coulee parity case; see P3.
 Fortran reference: **vendored** at `vendor/peakfqr/` (peakfq 8.1.0, CC0).
 Fortran bridge: builds from those sources via `python build_fortran/build.py`
 (gfortran + meson) and is now **built and checked in CI** by `make parity`.
 
 Every P1 and P2 item is done. What is left is P3: two numerical defects that turn out to be
-the same missing machinery, specified precisely below.
+the same missing machinery, specified precisely below. Phase 1 of the `var_mom` port itself
+(the leaf layer: `m2p`, `m2mn`, `mn2m`, `pP3`, `qP3`, `mP3`) is now done -- see below.
 
 ---
 
@@ -86,6 +86,40 @@ actually bites, so it is the oracle for that routine.
         ADJE's bias adjustment partially undo the cap; hydrolib applies the cap alone. On a
         record longer than 150 years that over-weights the regional skew. No parity case is
         that long, so only the oracle test detects it, and fixing it needs `mse_ema`.
+
+      **Phase 1 done: the leaf layer.** `hydrolib/_p3_moments.py` now carries `m2p`, `m2mn`,
+      `mn2m`, `p_p3`, `q_p3` and `m_p3` — everything `var_mom` calls directly except `varb`,
+      `varc` and `d_est` (Phase 2). Each is a direct transcription of `emafit.f`/`probfun.f`,
+      checked routine-by-routine against six new oracles `_emafort.pyf` exposes (`m2p`,
+      `m2mn`, `mn2m`, `pp3`, `qp3sub`, `mp3` — lower-cased there because gfortran's symbol
+      table is all-lowercase and f2py's generated wrapper does not re-case a mixed-case name
+      in the `.pyf`, which cost a build before it was caught). Tests:
+      `tests/fortran_parity/test_fortran_oracles.py` (Fortran-gated) and
+      `tests/test_p3_moments.py` (pure Python, no build needed). Nothing here is wired into
+      `ExpectedMomentsAlgorithm`/`Bulletin17C` yet — Phase 2 is composing `varb`/`varc`/
+      `d_est`/`var_mom` on top of this layer and only then deciding how (or whether) it
+      replaces `_truncated_gamma_moment`/`_truncated_normal_moments` in `bulletin17c.py`.
+
+      **A real defect in the reference, found while verifying `mP3`, not in this port.**
+      `mP3` blends an incomplete-gamma solution with a Wilson-Hilferty one; the 2024 upstream
+      patch (`FP_G1_CDF`/`FP_G1_MOM_TRC`, `probfun.f`) promoted the incomplete-gamma call
+      itself to real128 for large `alpha = 4/skew**2`, but not the surrounding
+      `choose(i,j)*tau**(i-j)*fp(j)` expansion `mP3` builds on top of it (`emafit.f:3049`).
+      On Big Sandy's own censoring group (at-site skew 0.0066, so alpha ≈ 9e4), that
+      expansion cancels by roughly 11 orders of magnitude at k = 6 and the Fortran result
+      goes **negative** — impossible for `E[X**6]` of a positive-truncated variate.
+      `hydrolib._p3_moments.m_p3` keeps the whole expansion in `mpmath` at 50 decimal digits
+      (`_GAMMA_MOMENT_DPS`) rather than only the CDF call, and its k = 4..6 values are
+      confirmed against independent arbitrary-precision quadrature of the truncated density
+      (not against the Fortran, which is the thing in question) —
+      `test_fortran_itself_loses_precision_on_big_sandy_s_censored_group`. Consequence for
+      Phase 2: a `var_mom` built on this `m_p3` will legitimately disagree with
+      Fortran-derived golden files at high moments on low-skew censored records, on purpose;
+      whether that shows up in `emafitpr`-level output (and thus needs its own
+      `xfail(strict=True)`, symmetric with the CI-shape and skew-weighting rows above) is
+      Phase 2's to determine once `var_mom` is assembled end to end.
+
+      New dependency: `mpmath` (pure Python, no compiled extension), added for exactly this.
 
 - [ ] **Skew weighting — 24% left, and it is all `as_G_mse`.** The structural half is done
       (see below): the regional skew is now folded into the EMA fixed point as `moms_p3`
