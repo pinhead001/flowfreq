@@ -14,11 +14,13 @@ computation and `vendor/peakfqr/R/fortranWrappers.R` for call conventions. It is
 reference copy: **do not edit anything under `vendor/`**, since a change there silently
 invalidates every comparison made against it.
 
-There is no PeakfqSA binary. Earlier work assumed one existed and built
-`hydrolib/peakfqsa/` as a subprocess wrapper around it; that premise was wrong. Those modules
-still exist, are exercised only by mocks, and their `requires_peakfqsa` tests never run. The
-f2py bridge in `hydrolib/peakfqr/` is the only working route to the reference implementation.
-`AGENT_BUILD_INSTRUCTIONS_Claude.md` is the original build brief and explains that history.
+There is no PeakfqSA binary. Earlier work assumed one existed and built `hydrolib/peakfqsa/`
+as a subprocess wrapper around it; that premise was wrong, and the subsystem has been removed
+— it was mock-tested only and its `requires_peakfqsa` tests collected nothing. What it
+contributed to validation now lives in `hydrolib/validation/reference.py`, pointed at
+references that exist. The f2py bridge in `hydrolib/peakfqr/` is the only working route to
+the reference implementation. `AGENT_BUILD_INSTRUCTIONS_Claude.md` is the original build
+brief and explains that history.
 
 ## Repository Layout
 
@@ -27,13 +29,13 @@ Everything lives in this repository; there is no external workspace to consult.
 ```
 hydrolib/            the library (flat package, NOT src/hydrolib/)
 ├── peakfqr/         f2py bridge to the vendored Fortran (built, gitignored)
-├── peakfqsa/        subprocess wrapper for a binary that does not exist (see above)
-└── validation/      comparison engine, benchmarks, reports
+└── validation/      comparison engine, benchmarks, reports, reference loaders
 vendor/peakfqr/      USGS peakfq 8.1.0 reference — Fortran, R, test data (do not edit)
 build_fortran/       f2py build script and .pyf signature file
 tools/               gen_fortran_golden.py — regenerates parity golden files
+tests/fixtures/      shared fixture data (Big Sandy, HU02, Wyoming/Montana, peakfqr respec)
 tests/fortran_parity/  native-vs-Fortran parity suite and committed golden files
-app/                 Streamlit application (not tested, not linted by CI)
+app/                 Streamlit application (lint + import smoke test in CI)
 ```
 
 ## Build & Development Commands
@@ -41,16 +43,23 @@ app/                 Streamlit application (not tested, not linted by CI)
 ```bash
 pip install -e ".[dev]"
 
-# Full suite. Takes ~2 min: the MGBT three-sweep runs scipy.integrate.quad per
-# candidate, so a single run_analysis() costs about two seconds.
+# Full suite. ~15 s. It was ~75 s until _mgbt_pvalue was memoized: the MGBT
+# three-sweep runs scipy.integrate.quad per candidate, ~85 ms each, and the
+# suite refits the same fixtures repeatedly. A single cold run_analysis() still
+# costs about two seconds.
 pytest tests/ -v
 
-# What CI actually runs
-pytest tests/ -v -m "not requires_peakfqsa and not requires_network and not requires_peakfqr_testdata"
+# What CI actually runs -- the same thing. The marker selection lives in
+# pyproject.toml's addopts, so a bare `pytest` is the CI selection.
+pytest tests/
 
-# Build the Fortran extension (needs gfortran + meson). Optional: the parity
-# tests read committed golden files and pass without it.
-python build_fortran/build.py
+# Build the Fortran extension and check the golden files against it. CI runs
+# this too, in its own job (gfortran + meson). The parity tests read committed
+# golden files and pass without it.
+make parity
+
+# Lint app/ and import the Streamlit app (needs -r app/requirements.txt)
+make smoke
 
 # Regenerate golden files after changing anything under vendor/peakfqr
 python tools/gen_fortran_golden.py

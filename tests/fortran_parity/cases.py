@@ -167,7 +167,7 @@ def call_emafitpr(case: ParityCase) -> Dict[str, Any]:
 
 def big_sandy_case() -> ParityCase:
     """USGS 03606500, Big Sandy River at Bruceton TN — the primary validation site."""
-    from tests.peakfqsa.fixtures.big_sandy import (
+    from tests.fixtures.big_sandy import (
         HISTORICAL_PEAKS,
         REGIONAL_SKEW,
         REGIONAL_SKEW_SD,

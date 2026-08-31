@@ -18,7 +18,7 @@ def cli() -> None:
 
 @cli.command()
 def validate() -> None:
-    """Run validation benchmarks against expected PeakfqSA results."""
+    """Run validation benchmarks against the reference expectations."""
     from hydrolib.validation.benchmarks import print_benchmark_report, run_all_benchmarks
 
     click.echo("Running validation benchmarks...")

@@ -10,7 +10,7 @@ from hydrolib.validation.benchmarks import (
     register_benchmarks,
     run_all_benchmarks,
 )
-from tests.peakfqsa.fixtures.big_sandy import EXPECTED_QUANTILES, SYSTEMATIC_PEAKS
+from tests.fixtures.big_sandy import EXPECTED_QUANTILES, SYSTEMATIC_PEAKS
 
 
 class TestBenchmark:

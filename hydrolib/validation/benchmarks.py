@@ -14,8 +14,8 @@ from typing import Any, Optional
 
 import numpy as np
 
-from hydrolib.peakfqsa.parsers import PeakfqSAResult
 from hydrolib.validation.comparisons import ComparisonResult, FrequencyComparator
+from hydrolib.validation.reference import ReferenceResult
 
 logger = logging.getLogger(__name__)
 
@@ -103,7 +103,7 @@ class Benchmark:
         """
         native = self.run_native()
 
-        reference = PeakfqSAResult(
+        reference = ReferenceResult(
             parameters=dict(self.expected_parameters),
             quantiles=dict(self.expected_quantiles),
             confidence_intervals={
@@ -121,7 +121,7 @@ class Benchmark:
 
 def _create_big_sandy_benchmark() -> Benchmark:
     """Create the Big Sandy River benchmark from fixture data."""
-    from tests.peakfqsa.fixtures.big_sandy import (
+    from tests.fixtures.big_sandy import (
         BEGYEAR,
         ENDYEAR,
         EXPECTED_CONFIDENCE_INTERVALS,
@@ -158,7 +158,7 @@ BENCHMARKS: dict[str, Benchmark] = {}
 
 def _create_fortran_respec_benchmark() -> Benchmark:
     """Create benchmark from Respec Fortran test fixture (moms_p3/p3est_ema)."""
-    from tests.peakfqsa.fixtures.fortran_respec import (
+    from tests.fixtures.fortran_respec import (
         MOMS_P3_EXPECTED,
         P3EST_EMA_EXPECTED,
         TRUTH_MOMS_P3_EXPECTED,

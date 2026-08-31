@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-from hydrolib.peakfqsa.parsers import PeakfqSAResult
 from hydrolib.validation.comparisons import ComparisonResult, FrequencyComparator, _pct_diff
+from hydrolib.validation.reference import ReferenceResult
 
 
 class TestPctDiff:
@@ -55,9 +55,9 @@ class TestComparisonResult:
 class TestFrequencyComparator:
     """Tests for FrequencyComparator."""
 
-    def _make_reference(self) -> PeakfqSAResult:
+    def _make_reference(self) -> ReferenceResult:
         """Create a reference result for testing."""
-        return PeakfqSAResult(
+        return ReferenceResult(
             parameters={
                 "mean_log": 3.717272,
                 "std_log": 0.289200,

@@ -1430,17 +1430,18 @@ class Bulletin17C:
 
     def validate(
         self,
-        reference: "PeakfqSAResult",
+        reference: "ReferenceResult",
         tolerance_pct: float = 1.0,
         parameter_tolerance_pct: float = 0.5,
         ci_tolerance_pct: float = 2.0,
     ) -> "ComparisonResult":
-        """Validate native results against a PeakfqSA reference.
+        """Validate native results against a peakfq 8.1.0 reference.
 
         Parameters
         ----------
-        reference : PeakfqSAResult
-            Reference result from PeakfqSA.
+        reference : ReferenceResult
+            Reference result, from a golden file or a live ``emafitpr`` call;
+            see :mod:`hydrolib.validation.reference`.
         tolerance_pct : float
             Tolerance for quantile comparisons.
         parameter_tolerance_pct : float

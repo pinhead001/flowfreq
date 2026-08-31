@@ -11,7 +11,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from app.ffa_runner import format_parameters_df, format_quantile_df, run_ffa
-from tests.peakfqsa.fixtures.big_sandy import (
+from tests.fixtures.big_sandy import (
     REGIONAL_SKEW,
     REGIONAL_SKEW_SD,
     SYSTEMATIC_PEAKS,

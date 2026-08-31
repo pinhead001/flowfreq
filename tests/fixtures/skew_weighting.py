@@ -12,7 +12,7 @@ import os
 from dataclasses import dataclass
 from typing import Optional
 
-from tests.peakfqsa.fixtures.paths import TESTDATA_AVAILABLE, TESTDATA_DIR
+from tests.fixtures.paths import TESTDATA_AVAILABLE, TESTDATA_DIR
 
 # Path to the WHIST CSV (shared test data from the peakfqr package).
 # Resolved at import time; may be absent -- see paths.TESTDATA_AVAILABLE.

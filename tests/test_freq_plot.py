@@ -14,7 +14,7 @@ matplotlib.use("Agg")
 @pytest.fixture
 def big_sandy_b17c():
     """Create a Bulletin17C instance from Big Sandy fixture data."""
-    from tests.peakfqsa.fixtures.big_sandy import (
+    from tests.fixtures.big_sandy import (
         HISTORICAL_PEAKS,
         REGIONAL_SKEW,
         REGIONAL_SKEW_SD,

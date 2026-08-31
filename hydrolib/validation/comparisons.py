@@ -1,8 +1,9 @@
 """
 Comparison engine for native vs reference frequency analysis results.
 
-Compares HydroLib native EMA output against PeakfqSA/reference results
-with configurable tolerance thresholds per output category.
+Compares HydroLib native EMA output against a
+:class:`~hydrolib.validation.reference.ReferenceResult` with configurable
+tolerance thresholds per output category.
 """
 
 from __future__ import annotations
@@ -11,7 +12,7 @@ import logging
 from dataclasses import dataclass, field
 from typing import Any
 
-from hydrolib.peakfqsa.parsers import PeakfqSAResult
+from hydrolib.validation.reference import ReferenceResult
 
 logger = logging.getLogger(__name__)
 
@@ -95,7 +96,7 @@ class FrequencyComparator:
     def compare(
         self,
         native: dict[str, Any],
-        reference: PeakfqSAResult,
+        reference: ReferenceResult,
     ) -> ComparisonResult:
         """Compare native analysis output against a reference result.
 
@@ -104,7 +105,7 @@ class FrequencyComparator:
         native : dict
             Output from HydroLib native analysis. Expected keys:
             'parameters', 'quantiles', 'confidence_intervals'.
-        reference : PeakfqSAResult
+        reference : ReferenceResult
             Reference result to compare against.
 
         Returns
@@ -149,14 +150,14 @@ class FrequencyComparator:
             summary=summary,
         )
 
-    def compare_parameters(self, native: dict[str, Any], ref: PeakfqSAResult) -> dict[str, float]:
+    def compare_parameters(self, native: dict[str, Any], ref: ReferenceResult) -> dict[str, float]:
         """Compare LP3 parameters between native and reference.
 
         Parameters
         ----------
         native : dict
             Native analysis output with 'parameters' key.
-        ref : PeakfqSAResult
+        ref : ReferenceResult
             Reference result.
 
         Returns
@@ -175,14 +176,14 @@ class FrequencyComparator:
 
         return diffs
 
-    def compare_quantiles(self, native: dict[str, Any], ref: PeakfqSAResult) -> dict[float, float]:
+    def compare_quantiles(self, native: dict[str, Any], ref: ReferenceResult) -> dict[float, float]:
         """Compare quantile estimates between native and reference.
 
         Parameters
         ----------
         native : dict
             Native analysis output with 'quantiles' key.
-        ref : PeakfqSAResult
+        ref : ReferenceResult
             Reference result.
 
         Returns
@@ -201,7 +202,7 @@ class FrequencyComparator:
 
         return diffs
 
-    def compare_ci(self, native: dict[str, Any], ref: PeakfqSAResult) -> dict[float, float]:
+    def compare_ci(self, native: dict[str, Any], ref: ReferenceResult) -> dict[float, float]:
         """Compare confidence intervals between native and reference.
 
         The percent difference is the maximum of lower and upper bound
@@ -211,7 +212,7 @@ class FrequencyComparator:
         ----------
         native : dict
             Native analysis output with 'confidence_intervals' key.
-        ref : PeakfqSAResult
+        ref : ReferenceResult
             Reference result.
 
         Returns

@@ -21,7 +21,23 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Optional
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
+
+def _repo_root() -> Path:
+    """Walk up to the directory holding pyproject.toml.
+
+    Counting ``parents[]`` broke silently once: this module moved from
+    ``tests/peakfqsa/fixtures/`` to ``tests/fixtures/`` and the hardcoded
+    ``parents[3]`` started pointing above the repository, which made
+    TESTDATA_AVAILABLE False and skipped three passing tests rather than
+    failing anything. Anchor on a file that marks the root instead.
+    """
+    for parent in Path(__file__).resolve().parents:
+        if (parent / "pyproject.toml").is_file():
+            return parent
+    raise RuntimeError("could not locate the repository root from " + __file__)
+
+
+REPO_ROOT = _repo_root()
 
 _CANDIDATES = (
     REPO_ROOT / "vendor" / "peakfqr" / "inst" / "testdata",

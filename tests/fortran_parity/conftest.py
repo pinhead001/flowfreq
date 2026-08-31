@@ -24,7 +24,7 @@ def golden_big_sandy() -> dict:
 def native_big_sandy():
     """hydrolib's own EMA fit of the same record."""
     from hydrolib.bulletin17c import Bulletin17C
-    from tests.peakfqsa.fixtures.big_sandy import (
+    from tests.fixtures.big_sandy import (
         HISTORICAL_PEAKS,
         REGIONAL_SKEW,
         REGIONAL_SKEW_SD,
