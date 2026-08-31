@@ -38,14 +38,18 @@ def _low_outlier_source(override: Optional[float], method: str) -> str:
     Returns
     -------
     str
-        ``"MGBT"``, ``"override"``, or a phrase saying the override was
-        requested and not applied.
+        ``"MGBT"``, ``"override"``, or a phrase saying the override is
+        reported but was not acted on.
     """
     if override is None:
         return "MGBT"
     if method == "ema":
         return "override"
-    return "MGBT (override not applied: MOM fallback)"
+    # MOM now reports the user's threshold rather than substituting a
+    # Grubbs-Beck value they did not ask for, so the number on screen is
+    # theirs -- but MOM computes its moments from every peak, so the fit did
+    # not act on it. Say both, or the label contradicts the number beside it.
+    return "override (reported only: MOM does not censor)"
 
 
 def run_ffa(

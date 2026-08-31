@@ -465,7 +465,32 @@ class FloodFrequencyAnalysis(ABC):
 
 
 class MethodOfMoments(FloodFrequencyAnalysis):
-    """Traditional Method of Moments flood frequency analysis."""
+    """Traditional Method of Moments flood frequency analysis.
+
+    Notes
+    -----
+    Low outliers are **detected and reported, not censored**. The moments are
+    computed from every peak regardless of the threshold. Censoring them
+    properly needs the Bulletin 17B conditional-probability adjustment, which
+    is not implemented here; :class:`ExpectedMomentsAlgorithm` is the method
+    that acts on a low-outlier threshold.
+
+    That matters when a user supplies one. Passing
+    ``user_low_outlier_threshold`` makes this class *report* their cut instead
+    of its own Grubbs-Beck value, so the number on screen is the one they
+    asked for, and logs a warning saying the fit did not act on it. It used
+    not to be passed down at all, so an override was dropped in silence.
+    """
+
+    def __init__(
+        self,
+        peak_flows: np.ndarray,
+        regional_skew: float = None,
+        regional_skew_mse: float = None,
+        user_low_outlier_threshold: Optional[float] = None,
+    ):
+        super().__init__(peak_flows, regional_skew, regional_skew_mse)
+        self._user_low_outlier_threshold = user_low_outlier_threshold
 
     def run_analysis(self) -> FrequencyResults:
         """Run Method of Moments analysis."""
@@ -484,6 +509,14 @@ class MethodOfMoments(FloodFrequencyAnalysis):
         k_n = grubbs_beck_critical_value(n)
         threshold_log = mean_log - k_n * std_log
         low_outlier_threshold = 10**threshold_log
+        if self._user_low_outlier_threshold and self._user_low_outlier_threshold > 0:
+            low_outlier_threshold = float(self._user_low_outlier_threshold)
+            logger.warning(
+                "Method of Moments reports the requested low-outlier threshold of "
+                "%.1f but does not censor against it: MOM computes its moments from "
+                "every peak. Use the EMA method for a fit that acts on the threshold.",
+                low_outlier_threshold,
+            )
         n_low_outliers = int(np.sum(self._peak_flows < low_outlier_threshold))
 
         self._results = FrequencyResults(
@@ -1506,6 +1539,7 @@ class Bulletin17C:
                 self._peak_flows,
                 regional_skew=self._regional_skew,
                 regional_skew_mse=self._regional_skew_mse,
+                user_low_outlier_threshold=self._user_low_outlier_threshold,
             )
         else:
             self._analyzer = ExpectedMomentsAlgorithm(

@@ -4,7 +4,12 @@ from __future__ import annotations
 
 import pytest
 
-from hydrolib.validation.comparisons import ComparisonResult, FrequencyComparator, _pct_diff
+from hydrolib.validation.comparisons import (
+    ComparisonResult,
+    FrequencyComparator,
+    _is_skew,
+    _pct_diff,
+)
 from hydrolib.validation.reference import ReferenceResult
 
 
@@ -226,3 +231,86 @@ class TestFrequencyComparator:
         result = comp.compare(native, ref)
 
         assert result.max_diff_pct > 2.5
+
+
+class TestSkewComparedInSkewUnits:
+    """Skew is compared absolutely, because it passes through zero.
+
+    Big Sandy's reference at-site skew is 0.0066. Judged by percent
+    difference, an absolute gap of 0.016 -- small, in skew units -- reads as
+    249% and dominates max_diff_pct, hiding every other number in the report.
+    A denominator floor blunted that; comparing in the quantity's own units
+    fixes it.
+    """
+
+    @staticmethod
+    def _reference(**overrides):
+        params = {
+            "mean_log": 3.7175,
+            "std_log": 0.2910,
+            "skew_weighted": -0.1563,
+            "skew_at_site": 0.0066,
+        }
+        params.update(overrides)
+        return ReferenceResult(parameters=params)
+
+    @staticmethod
+    def _native(**overrides):
+        params = {
+            "mean_log": 3.7175,
+            "std_log": 0.2910,
+            "skew_weighted": -0.1563,
+            "skew_at_site": 0.0066,
+        }
+        params.update(overrides)
+        return {"parameters": params, "quantiles": {}, "confidence_intervals": {}}
+
+    def test_skews_are_absent_from_the_percent_diffs(self):
+        result = FrequencyComparator().compare(self._native(), self._reference())
+        assert set(result.parameter_diffs) == {"mean_log", "std_log"}
+
+    def test_skews_are_reported_in_their_own_units(self):
+        result = FrequencyComparator().compare(self._native(skew_at_site=0.0226), self._reference())
+        assert result.skew_diffs["skew_at_site"] == pytest.approx(0.016, abs=1e-9)
+
+    def test_a_near_zero_skew_no_longer_dominates_max_diff(self):
+        """The whole point: 0.016 on a 0.0066 reference must not read as 249%."""
+        result = FrequencyComparator().compare(self._native(skew_at_site=0.0226), self._reference())
+        assert result.max_diff_pct < 1.0
+
+    def test_skew_gap_can_fail_the_comparison_on_its_own(self):
+        tight = FrequencyComparator(skew_tolerance_abs=0.01)
+        assert not tight.compare(self._native(skew_weighted=-0.30), self._reference()).passed
+
+    def test_skew_within_tolerance_passes(self):
+        loose = FrequencyComparator(skew_tolerance_abs=0.20)
+        assert loose.compare(self._native(skew_weighted=-0.30), self._reference()).passed
+
+    def test_summary_names_the_worst_skew(self):
+        summary = (
+            FrequencyComparator()
+            .compare(self._native(skew_at_site=0.0226), self._reference())
+            .summary
+        )
+        assert "skews=2" in summary and "0.0160" in summary
+
+    def test_a_skew_missing_from_the_native_side_is_skipped(self):
+        native = self._native()
+        del native["parameters"]["skew_at_site"]
+        result = FrequencyComparator().compare(native, self._reference())
+        assert "skew_at_site" not in result.skew_diffs
+        assert "skew_weighted" in result.skew_diffs
+
+    @pytest.mark.parametrize(
+        "name, expected",
+        [
+            ("skew_weighted", True),
+            ("skew_at_site", True),
+            ("mse_skew", True),
+            ("mean_log", False),
+            ("std_log", False),
+            ("pseudo_record_length", False),
+        ],
+    )
+    def test_which_parameters_count_as_skew(self, name, expected):
+        assert _is_skew(name) is expected
