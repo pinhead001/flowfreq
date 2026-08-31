@@ -2,15 +2,17 @@
 
 ## Status
 Last updated: 2026-08-31
-Tests: **506 passed, 1 skipped, 1 deselected, 7 xfailed** in ~28 s. CI green on main. Two of
+Tests: **526 passed, 1 skipped, 1 deselected, 7 xfailed** in ~30 s. CI green on main. Two of
 the seven xfails are on the Cains Coulee parity case; see P3.
 Fortran reference: **vendored** at `vendor/peakfqr/` (peakfq 8.1.0, CC0).
 Fortran bridge: builds from those sources via `python build_fortran/build.py`
 (gfortran + meson) and is now **built and checked in CI** by `make parity`.
 
 Every P1 and P2 item is done. What is left is P3: two numerical defects that turn out to be
-the same missing machinery, specified precisely below. Phase 1 of the `var_mom` port itself
-(the leaf layer: `m2p`, `m2mn`, `mn2m`, `pP3`, `qP3`, `mP3`) is now done -- see below.
+the same missing machinery, specified precisely below. Phases 1 and 2 of the `var_mom` port
+(the leaf layer, plus `varb`/`varc`/`d_est`/`expmomderiv` and the `var_mom` composition
+itself) are now done -- see below. `var_mom` itself now matches the Fortran to 1e-9 relative
+on every parity case except Big Sandy (1e-3 -- see the Phase 2 note for why).
 
 ---
 
@@ -112,14 +114,49 @@ actually bites, so it is the oracle for that routine.
       (`_GAMMA_MOMENT_DPS`) rather than only the CDF call, and its k = 4..6 values are
       confirmed against independent arbitrary-precision quadrature of the truncated density
       (not against the Fortran, which is the thing in question) —
-      `test_fortran_itself_loses_precision_on_big_sandy_s_censored_group`. Consequence for
-      Phase 2: a `var_mom` built on this `m_p3` will legitimately disagree with
-      Fortran-derived golden files at high moments on low-skew censored records, on purpose;
-      whether that shows up in `emafitpr`-level output (and thus needs its own
-      `xfail(strict=True)`, symmetric with the CI-shape and skew-weighting rows above) is
-      Phase 2's to determine once `var_mom` is assembled end to end.
+      `test_fortran_itself_loses_precision_on_big_sandy_s_censored_group`.
+
+      **Resolved by Phase 2, as it turns out: `var_mom` itself never reaches this regime.**
+      `var_mom` clamps `|skew|` to `[0.0632, 1.41]` before ever calling `mP3`/`pP3`
+      internally (`emafit.f:2324`, easy to miss reading linearly) — so even Big Sandy's raw
+      0.0066 becomes 0.0632 inside `var_mom`, capping alpha at ~1000 rather than the ~9e4 the
+      finding above used directly. `hydrolib._var_mom.var_mom` matches the Fortran oracle to
+      1e-9 relative on Powder River and Cains Coulee and 1e-3 on Big Sandy (see Phase 2 below
+      for where that residual is), not the orders-of-magnitude gap `mP3` alone showed. The
+      finding above stands as a real, documented Fortran defect reachable by calling `mP3`
+      directly (as the oracle tests do) — it just is not reachable *through* `var_mom`.
 
       New dependency: `mpmath` (pure Python, no compiled extension), added for exactly this.
+
+      **Phase 2 done: `varb`, `varc`, `d_est`, `expmomderiv` and the `var_mom` composition
+      itself.** `hydrolib/_var_mom.py`. `expmomderiv` differentiates `_p3_moments`'s own
+      (already Fortran- and quadrature-verified) truncated-moment function numerically via
+      `mpmath.diff` rather than transcribing `DEXPECT`'s closed-form chain, which needs
+      `DDGAM` — a nontrivial derivative of the incomplete gamma function w.r.t. its shape
+      parameter. Checking the same derivative at 50/80/120 `mpmath` working digits agrees to
+      30+ stable digits, so the ~1e-5 relative gap against the Fortran on Big Sandy's one
+      real censored group is on the Fortran side (`DDGAM`'s own series truncates at
+      `TOL=1e-11` per term, `probfun.f:1054`), not evidence the numerical-differentiation
+      shortcut is wrong — though that is not independently proven the way the `mP3` finding
+      is. `DPDM` and the matrix bookkeeping around all four (`DSET`/`DMSUM`/`DMRRRR`/
+      `DMXYTF`/`DMMULT`/`DLGINV` in the Fortran) are plain closed-form algebra and linear
+      algebra respectively, done directly with `numpy`/`numpy.linalg` rather than transcribed
+      routine by routine — there is no numerical subtlety in a 3x3 sum, product, or inverse
+      the way there is in the incomplete-gamma work.
+
+      Six more oracles in `_emafort.pyf` (`varb`, `varc`, `d_est`, `expmomderiv`, alongside
+      Phase 1's four): `varb`/`varc` match to 1e-9, `d_est` to 1e-3 (inherits `expmomderiv`'s
+      gap), and the full `var_mom` composition to 1e-9 on the two cases that never exercise
+      `d_est`'s nonzero path (both tail probabilities stay under its 1e-6 cutoff) and 1e-3 on
+      Big Sandy, the one case that does. Tests: `tests/fortran_parity/test_fortran_oracles.py`
+      (Fortran-gated) and `tests/test_var_mom.py` (pure Python, including an independent
+      cross-check against the classical delta-method moment covariance for the fully
+      uncensored case, computed without going through `var_mom`'s threshold-group machinery
+      at all). Still nothing wired into `ExpectedMomentsAlgorithm`/`Bulletin17C` — Phase 3 is
+      `mn2mvarb`/`mse_ema`/`VAR_EMAB`/`ci_ema_m3b` (the pseudo effective record length and the
+      CI-shape formula) and only then deciding how this replaces
+      `_truncated_gamma_moment`/`_truncated_normal_moments`/`compute_confidence_limits` in
+      `bulletin17c.py`.
 
 - [ ] **Skew weighting — 24% left, and it is all `as_G_mse`.** The structural half is done
       (see below): the regional skew is now folded into the EMA fixed point as `moms_p3`

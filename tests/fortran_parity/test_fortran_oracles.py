@@ -22,6 +22,7 @@ They also record two things the oracles found immediately:
 from __future__ import annotations
 
 import collections
+import math
 
 import numpy as np
 import pytest
@@ -271,6 +272,157 @@ class TestVarianceOfMomentsOracle:
         assert np.allclose(varm, varm.T, rtol=1e-9), "covariance must be symmetric"
         assert np.all(np.linalg.eigvalsh(varm) > 0), "covariance must be positive definite"
         assert np.all(np.diag(varm) > 0)
+
+    @pytest.mark.parametrize("name", CASES)
+    def test_matches_fortran(self, name):
+        """hydrolib._var_mom.var_mom (Phase 2) against the Fortran, directly.
+
+        Powder River and Cains Coulee (using golden["inputs"], uncensored
+        throughout -- see TestDeterminantRatioOracle) never drive d_est's
+        nontrivial path: both tail probabilities stay under d_est's
+        1e-6 cutoff, so those two match to float64 precision. Big Sandy's
+        one real group does exercise it -- see test_matches_fortran_on_the
+        _one_case_that_exercises_d_est below for why that one is not this
+        tight.
+        """
+        from hydrolib._var_mom import var_mom
+
+        golden = _golden(name)
+        nobs, tl, tu = _threshold_groups(golden["inputs"]["tl"], golden["inputs"]["tu"])
+        mc = _at_site_moments(golden)
+        mine = var_mom(nobs, tl, tu, mc)
+        from hydrolib.peakfqr._emafort import var_mom as var_mom_f
+
+        fortran = np.asarray(var_mom_f(nobs, tl, tu, mc), dtype=float)
+        tol = 1e-3 if name == "big_sandy_03606500" else 1e-9
+        assert np.allclose(mine, fortran, rtol=tol, atol=1e-12), (name, mine, fortran)
+
+
+class TestExpMomDerivPort:
+    """expmomderiv: the Jacobian d_est needs, d(E[X^j])/d(noncentral moments).
+
+    hydrolib._dexpect differentiates hydrolib._p3_moments' own (already
+    Fortran- and quadrature-verified) truncated-moment function numerically
+    via mpmath, rather than transcribing DEXPECT's closed-form chain
+    (which needs DDGAM, itself a nontrivial incomplete-gamma derivative).
+    """
+
+    def test_matches_fortran_on_big_sandy_s_open_tail(self):
+        """~1e-5 relative, not machine precision -- and that gap is on the
+
+        Fortran side. Independently checking the same derivative at three
+        different mpmath working precisions (50, 80, 120 dps) agrees to 30+
+        stable digits, so hydrolib's numerical derivative is not the
+        source of the ~1e-5 gap; DDGAM's own series (TOL=1e-11 per term,
+        emafit.f/probfun.f:1054) and the ADJ rising-factorial chain built
+        on it in float64 are the more likely one, though this is not
+        independently proven the way the mP3 finding in TODO.md P3 is.
+        """
+        from hydrolib._p3_moments import m2p, p_p3, q_p3
+        from hydrolib._var_mom import expmomderiv
+        from hydrolib.peakfqr._emafort import expmomderiv as expmomderiv_f
+
+        golden = _golden("big_sandy_03606500")
+        mc = _at_site_moments(golden)
+        skew = 0.06324555  # var_mom's clamp floor -- see TestVarMomComponentsPort
+        mc_shift = np.array([0.0, mc[1], skew])
+        parms = m2p(mc_shift)
+
+        lo = 4.2552725051033065 - mc[0]
+        pa = p_p3(lo, mc_shift)
+        t1 = q_p3(pa, mc_shift)
+
+        mine = expmomderiv(parms, -1e19, t1)
+        fortran = np.asarray(expmomderiv_f(parms, -1e19, t1), dtype=float)
+        assert np.allclose(mine, fortran, rtol=1e-4), (mine, fortran)
+
+
+class TestVarMomComponentsPort:
+    """varb/varc/d_est: the pieces var_mom sums over each threshold group."""
+
+    @staticmethod
+    def _group_inputs(golden, lo, hi):
+        """(mu_x, e_x, p1, p2, p3) for one (mean-shifted) threshold group,
+
+        matching what var_mom itself builds before calling varb/varc/d_est
+        -- see hydrolib._var_mom.var_mom.
+        """
+        from hydrolib._p3_moments import m_p3, p_p3
+
+        mc = _at_site_moments(golden)
+        skew = math.copysign(min(max(abs(mc[2]), 0.06324555), 1.41), mc[2])
+        mc_shift = np.array([0.0, mc[1], skew])
+        mnouta = m_p3(-999.0, lo, mc_shift, 3)
+        mnoutb = m_p3(hi, 999.0, mc_shift, 3)
+        e_x = m_p3(lo, hi, mc_shift, 6)
+        mu_x = np.array([mnouta, e_x[:3], mnoutb]).T
+        pa, pb = p_p3(lo, mc_shift), p_p3(hi, mc_shift)
+        return mc_shift, mu_x, e_x, pa, pb - pa, 1.0 - pb
+
+    def test_varb_matches_fortran_on_big_sandy_s_group(self):
+        from hydrolib._var_mom import varb
+        from hydrolib.peakfqr._emafort import varb as varb_f
+
+        golden = _golden("big_sandy_03606500")
+        lo, hi = (
+            4.2552725051033065 - golden["outputs"]["cmoms"][0][1],
+            20.0 - golden["outputs"]["cmoms"][0][1],
+        )
+        _, mu_x, _, p1, p2, p3 = self._group_inputs(golden, lo, hi)
+        nh = 40.0
+        mine = varb(mu_x, nh, p1, p2, p3)
+        fortran = np.asarray(varb_f(mu_x, nh, p1, p2, p3), dtype=float)
+        assert np.allclose(mine, fortran, rtol=1e-9), (mine, fortran)
+
+    def test_varc_matches_fortran_on_big_sandy_s_group(self):
+        from hydrolib._var_mom import varc
+        from hydrolib.peakfqr._emafort import varc as varc_f
+
+        golden = _golden("big_sandy_03606500")
+        lo, hi = (
+            4.2552725051033065 - golden["outputs"]["cmoms"][0][1],
+            20.0 - golden["outputs"]["cmoms"][0][1],
+        )
+        _, _, e_x, _, p2, _ = self._group_inputs(golden, lo, hi)
+        nh = 40.0
+        mine = varc(e_x, nh, p2)
+        fortran = np.asarray(varc_f(e_x, nh, p2), dtype=float)
+        assert np.allclose(mine, fortran, rtol=1e-9), (mine, fortran)
+
+    def test_d_est_matches_fortran_on_big_sandy_s_group(self):
+        """The one group among the three cases where d_est is not just zeros."""
+        from hydrolib._var_mom import d_est
+        from hydrolib.peakfqr._emafort import d_est as d_est_f
+
+        golden = _golden("big_sandy_03606500")
+        lo, hi = (
+            4.2552725051033065 - golden["outputs"]["cmoms"][0][1],
+            20.0 - golden["outputs"]["cmoms"][0][1],
+        )
+        mc_shift, _, _, pa, _, p3 = self._group_inputs(golden, lo, hi)
+        pb = 1.0 - p3
+        nh = 40.0
+
+        mine = d_est(nh, mc_shift, pa, pb)
+        fortran = np.asarray(d_est_f(nh, mc_shift, pa, pb), dtype=float)
+        assert not np.allclose(mine, 0.0), "this group should exercise the nonzero path"
+        assert np.allclose(mine, fortran, rtol=1e-3), (mine, fortran)
+
+    def test_d_est_is_zero_below_the_probability_cutoff(self):
+        """Neither tail carries enough probability: both jac contributions
+
+        should vanish, matching the Fortran's own skip (emafit.f:2491/2500).
+        """
+        from hydrolib._var_mom import d_est
+        from hydrolib.peakfqr._emafort import d_est as d_est_f
+
+        mc = np.array([0.0, 0.09, 0.5])
+        nh = 50.0
+        pa, pb = 0.0, 1.0  # p1 = pa = 0, p3 = 1-pb = 0: both under 1e-6
+        mine = d_est(nh, mc, pa, pb)
+        fortran = np.asarray(d_est_f(nh, mc, pa, pb), dtype=float)
+        assert np.allclose(mine, 0.0)
+        assert np.allclose(fortran, 0.0)
 
 
 # A skew right in the blend band (|skew| in [0.0007, 0.0010]) so both the

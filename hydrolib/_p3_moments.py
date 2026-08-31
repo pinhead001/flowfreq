@@ -290,6 +290,26 @@ def _fp_g2_mom_trc(alpha: float, beta: float, tl: float, tu: float, k: int) -> m
     return beta_mp**k * _fp_g1_mom_trc(alpha_mp, tu_mp / beta_mp, tl_mp / beta_mp, k)
 
 
+def _gamma_trunc_moment(tau, alpha, beta, tl, tu, k: int) -> mpmath.mpf:
+    """E[X^k | tl < X < tu] for the 3-parameter shifted gamma (tau, alpha, beta).
+
+    Single-k counterpart to ``m_p3``'s gamma branch (same binomial
+    expansion, ``emafit.f:3049``), expressed directly in ``(tau, alpha,
+    beta)`` rather than central moments -- what ``_dexpect`` (Phase 2,
+    ``hydrolib._var_mom``) numerically differentiates with respect to each
+    parameter. Accepts float or ``mpmath.mpf`` inputs; always returns
+    ``mpmath.mpf``.
+    """
+    tau_mp = mpmath.mpf(tau)
+    fp = [mpmath.mpf(1)] + [
+        _fp_g2_mom_trc(alpha, beta, tl - tau, tu - tau, j) for j in range(1, k + 1)
+    ]
+    mg = fp[k]
+    for j in range(k):
+        mg += math.comb(k, j) * tau_mp ** (k - j) * fp[j]
+    return mg
+
+
 def m_p3(tl: float, tu: float, m: np.ndarray, n: int) -> np.ndarray:
     """E[X^k | tl < X < tu] for k = 1..n, X ~ Pearson III with central moments m.
 
