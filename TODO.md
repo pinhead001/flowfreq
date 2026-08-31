@@ -2,7 +2,7 @@
 
 ## Status
 Last updated: 2026-08-31
-Tests: **448 passed, 1 deselected, 7 xfailed** in ~33 s (was ~75 s for far fewer tests; see
+Tests: **463 passed, 1 deselected, 7 xfailed** in ~38 s (was ~75 s for far fewer tests; see
 the MGBT memoization below). CI green on main. Two of the seven xfails are new, both on the
 Cains Coulee parity case; see P3.
 Fortran reference: **vendored** at `vendor/peakfqr/` (peakfq 8.1.0, CC0).
@@ -56,9 +56,36 @@ actually bites, so it is the oracle for that routine.
       `mn2mvarb` 77, `qP3` 73, `VAR_EMAB` 66, `jmc2mnvb` 61, `mc2mnvb` 58, `mseg_all` 57,
       `pP3` 54, `ci_ema_m3b` 51, `mse_ema` 49, `d_est` 39, `varb`/`varc` 23 each.
 
-      Verify against the bridge, not by eye: `emafitpr` returns `as_G_mse_o`,
-      `as_G_mse_Syst_o`, `as_G_PRL_o` and `var_est`, so every intermediate has an oracle.
-      `make parity` runs it.
+      **Verify per routine, not end to end.** `build_fortran/_emafort.pyf` now exposes
+      `mseg_all_sub`, `detratsub`, `var_mom` and `moms_p3` alongside `emafitpr`, and
+      `tests/fortran_parity/test_fortran_oracles.py` pins what each says. Checking a ported
+      routine only through `emafitpr` means checking it through a fixed point with a
+      condition number around 1e13, where a correct routine can look wrong and a wrong one
+      can look right. All four were already externally callable — peakfqr's own R code calls
+      them via `.Fortran()`, and `vendor/peakfqr/R/fortranWrappers.R` documents the
+      conventions — so no new Fortran was needed.
+
+      Two usage notes that cost time to find:
+
+      * `detrat` takes the **post-MGBT** thresholds. Cains Coulee's input thresholds are
+        uncensored throughout, so calling it with those returns 1.0; MGBT raises the lower
+        threshold to log10(332) = 2.521 inside the fit, and only then does it give the 0.184
+        `emafitpr` reports. Those arrays come back as `tlema`/`tuema`.
+      * Group thresholds on **exact** values. Rounding to 12 decimals to be "robust" moves
+        Big Sandy's at-site skew MSE by 2.2e-4.
+
+      What the oracles found immediately, both now covered by tests:
+
+      * `_ema_iteration` reproduces `moms_p3` **exactly** on uncensored rows (0.0 on the
+        mean, ~1e-14 variance, ~1e-12 skew) and diverges only where intervals are censored
+        (Cains Coulee: 0.70% variance, 4.94% skew). So the transcribed formulas are right
+        and the residual is in the truncated-P3 moment code for censored intervals — that is
+        what the port has to replace, and it is a smaller target than "the EMA is off".
+      * `_b17b_skew_mse` is exact against `mseg()` up to n = 150 and **31% high at n = 200**
+        (0.0479 against 0.0365). `mseg_all` evaluates `mseg()` at `min(n, 150)` then lets
+        ADJE's bias adjustment partially undo the cap; hydrolib applies the cap alone. On a
+        record longer than 150 years that over-weights the regional skew. No parity case is
+        that long, so only the oracle test detects it, and fixing it needs `mse_ema`.
 
 - [ ] **Skew weighting — 24% left, and it is all `as_G_mse`.** The structural half is done
       (see below): the regional skew is now folded into the EMA fixed point as `moms_p3`
@@ -225,6 +252,16 @@ done — see the P3 table above and the Done section.)
 - [x] **`Benchmark.run_native()` dropped the perception thresholds**, comparing a
       systematic-only fit against the reference's censored one and calling the modelling
       difference an error.
+
+### Per-routine oracles for the port
+
+- [x] **Extended `_emafort.pyf`** with `mseg_all_sub`, `detratsub`, `var_mom` and `moms_p3`.
+      The signature file is still not merely a filter — without it f2py tries to wrap
+      QUADPACK's `dqag` and the build fails in generated C — so each symbol is listed
+      deliberately. `mseg_all_sub` reproduces `emafitpr`'s `as_G_mse_o` exactly on all three
+      parity cases, which makes it the oracle the ADJE work is written against; `detratsub`
+      reproduces `Wdout` to 1e-9 given the post-MGBT thresholds. See the P3 entry for the
+      two defects this immediately surfaced.
 
 ### Parity beyond Big Sandy
 

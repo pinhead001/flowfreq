@@ -1,6 +1,22 @@
 !    -*- f90 -*-
-! Signature file for wrapping peakfqr emafitpr via f2py
-! Only expose the main entry point emafitpr
+! Signature file for wrapping peakfqr routines via f2py.
+!
+! This file is not optional and it is not merely a filter. Without it f2py
+! tries to wrap every public symbol in the sources, including QUADPACK's dqag,
+! whose callback wrapper does not compile against current NumPy -- the build
+! then fails pointing at generated C rather than at anything in this
+! repository. So every symbol exposed here is listed deliberately.
+!
+! Beyond emafitpr, the routines below exist to give the var_mom port a
+! per-routine oracle. Verifying a ported routine only through emafitpr means
+! verifying it through the whole EMA fixed point, whose condition number is
+! around 1e13 -- a correct routine can look wrong and a wrong one can look
+! right. These let each piece be checked against the Fortran directly.
+!
+! All four are already externally callable by design: peakfqr's own R code
+! calls them through .Fortran(), and vendor/peakfqr/R/fortranWrappers.R is the
+! reference for their calling conventions. mseg_all_sub and detratsub are
+! subroutine wrappers upstream added for exactly this purpose.
 
 python module _emafort
     interface
@@ -52,5 +68,60 @@ python module _emafort
             double precision, dimension(25000), intent(out) :: tuema
             double precision, dimension(25000), intent(out) :: nu
         end subroutine emafitpr
+
+        ! --------------------------------------------------------------- !
+        ! Oracles for the var_mom port. See TODO.md P3.                    !
+        ! --------------------------------------------------------------- !
+
+        ! Variance-covariance of the moment estimators. The root of the
+        ! dependency tree: mse_ema needs it, and so does VAR_EMAB.
+        ! nobs/tl/tu describe distinct censoring threshold groups, not
+        ! individual observations -- nobs(i) counts the observations sharing
+        ! the pair (tl(i), tu(i)).
+        subroutine var_mom(nthresh,n_in,tl_in,tu_in,mc_in,varm)
+            integer, intent(in) :: nthresh
+            double precision, dimension(nthresh), intent(in) :: n_in
+            double precision, dimension(nthresh), intent(in), depend(nthresh) :: tl_in
+            double precision, dimension(nthresh), intent(in), depend(nthresh) :: tu_in
+            double precision, dimension(3), intent(in) :: mc_in
+            double precision, dimension(3,3), intent(out) :: varm
+        end subroutine var_mom
+
+        ! MSE of the at-site skew, through whichever at_site_option the
+        ! blockdata sets -- ADJE by default, which is the censoring bias
+        ! adjustment hydrolib does not yet implement.
+        subroutine mseg_all_sub(nthresh,nobs,tl,tu,mc,mseg)
+            integer, intent(in) :: nthresh
+            double precision, dimension(nthresh), intent(in) :: nobs
+            double precision, dimension(nthresh), intent(in), depend(nthresh) :: tl
+            double precision, dimension(nthresh), intent(in), depend(nthresh) :: tu
+            double precision, dimension(3), intent(in) :: mc
+            double precision, intent(out) :: mseg
+        end subroutine mseg_all_sub
+
+        ! The Halloween determinant ratio, Wd. Reached only when the at-site
+        ! skew clears 0.04 (emafit.f:763); 0.184 on Cains Coulee.
+        subroutine detratsub(mc,n,nthresh,nobs,tl,tu,detratout)
+            double precision, dimension(3), intent(in) :: mc
+            integer, intent(in) :: n
+            integer, intent(in) :: nthresh
+            double precision, dimension(nthresh), intent(in) :: nobs
+            double precision, dimension(nthresh), intent(in), depend(nthresh) :: tl
+            double precision, dimension(nthresh), intent(in), depend(nthresh) :: tu
+            double precision, intent(out) :: detratout
+        end subroutine detratsub
+
+        ! One EMA moment iteration, including the nG*rG regional-skew term.
+        ! hydrolib._ema_iteration is a hand transcription of this; wrapping it
+        ! turns that from an end-to-end claim into a per-call check.
+        subroutine moms_p3(n,ql,qu,rg,ng,mc_old,moms)
+            integer, intent(in) :: n
+            double precision, dimension(n), intent(in) :: ql
+            double precision, dimension(n), intent(in), depend(n) :: qu
+            double precision, intent(in) :: rg
+            double precision, intent(in) :: ng
+            double precision, dimension(3), intent(in) :: mc_old
+            double precision, dimension(3), intent(out) :: moms
+        end subroutine moms_p3
     end interface
 end python module _emafort
