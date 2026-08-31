@@ -10,7 +10,12 @@ import pytest
 # Ensure app package is importable
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from app.ffa_runner import format_parameters_df, format_quantile_df, run_ffa
+from app.ffa_runner import (
+    _low_outlier_source,
+    format_parameters_df,
+    format_quantile_df,
+    run_ffa,
+)
 from tests.fixtures.big_sandy import (
     REGIONAL_SKEW,
     REGIONAL_SKEW_SD,
@@ -65,9 +70,82 @@ class TestFormatParametersDf:
             "Station Skew",
             "Weighted Skew",
             "Regional Skew",
+            "PILF Threshold (cfs)",
+            "PILFs",
         ]
         assert list(df.columns) == expected_cols
         assert len(df) == 1
+
+    def test_missing_pilf_keys_render_as_none(self):
+        """Older result dicts have no PILF keys; the table must not blow up."""
+        df = format_parameters_df({"mean_log": 3.7})
+        assert df["PILF Threshold (cfs)"].iloc[0] == "none"
+        assert df["PILFs"].iloc[0] == "0"
+
+    def test_pilf_threshold_names_its_source(self):
+        """A user needs to know whether the cut is MGBT's or their own."""
+        mgbt = format_parameters_df(
+            {"low_outlier_threshold": 1234.0, "n_low_outliers": 3, "low_outlier_source": "MGBT"}
+        )
+        assert mgbt["PILF Threshold (cfs)"].iloc[0] == "1,234 (MGBT)"
+        assert mgbt["PILFs"].iloc[0] == "3"
+
+        override = format_parameters_df(
+            {"low_outlier_threshold": 500.0, "n_low_outliers": 1, "low_outlier_source": "override"}
+        )
+        assert override["PILF Threshold (cfs)"].iloc[0] == "500 (override)"
+
+
+class TestPilfOverride:
+    """The override has to change the fit, or the control is decorative."""
+
+    OVERRIDE = 2000.0  # censors four Big Sandy peaks; EMA still converges
+
+    def test_override_censors_more_peaks_than_mgbt(self):
+        flows, years = _big_sandy_arrays()
+        base = run_ffa(peak_flows=flows, water_years=years)
+        forced = run_ffa(
+            peak_flows=flows, water_years=years, low_outlier_threshold_override=self.OVERRIDE
+        )
+        assert forced["parameters"]["n_low_outliers"] > base["parameters"]["n_low_outliers"]
+        assert forced["parameters"]["low_outlier_threshold"] == pytest.approx(self.OVERRIDE)
+        assert forced["parameters"]["low_outlier_source"] == "override"
+        assert base["parameters"]["low_outlier_source"] == "MGBT"
+
+    def test_override_moves_the_fitted_moments(self):
+        flows, years = _big_sandy_arrays()
+        base = run_ffa(peak_flows=flows, water_years=years)
+        forced = run_ffa(
+            peak_flows=flows, water_years=years, low_outlier_threshold_override=self.OVERRIDE
+        )
+        assert base["parameters"]["mean_log"] != forced["parameters"]["mean_log"]
+
+    def test_zero_and_none_both_mean_use_mgbt(self):
+        flows, years = _big_sandy_arrays()
+        zero = run_ffa(peak_flows=flows, water_years=years, low_outlier_threshold_override=0.0)
+        none = run_ffa(peak_flows=flows, water_years=years, low_outlier_threshold_override=None)
+        assert zero["parameters"]["low_outlier_source"] == "MGBT"
+        assert zero["parameters"]["mean_log"] == none["parameters"]["mean_log"]
+
+    def test_mom_fallback_says_the_override_was_not_applied(self):
+        """A high override stops EMA converging, and MOM does not censor at all.
+
+        Reporting "override" here would put a threshold on screen that had no
+        effect on the fit. Only the EMA path acts on a user threshold;
+        MethodOfMoments computes a Grubbs-Beck value and uses it for reporting
+        only.
+        """
+        flows, years = _big_sandy_arrays()
+        result = run_ffa(peak_flows=flows, water_years=years, low_outlier_threshold_override=6000.0)
+        assert result["method"] == "mom"
+        assert "not applied" in result["parameters"]["low_outlier_source"]
+        assert result["parameters"]["low_outlier_threshold"] != pytest.approx(6000.0)
+
+    def test_source_helper_covers_every_combination(self):
+        assert _low_outlier_source(None, "ema") == "MGBT"
+        assert _low_outlier_source(None, "mom") == "MGBT"
+        assert _low_outlier_source(1000.0, "ema") == "override"
+        assert "not applied" in _low_outlier_source(1000.0, "mom")
 
 
 class TestFormatQuantileDf:

@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import importlib
 import logging
+import pathlib
 
 import pytest
 
@@ -76,3 +77,56 @@ def test_app_reports_the_installed_hydrolib_version(app_module):
 def test_skew_options_are_offered(app_module):
     """SKEW_OPTIONS drives a sidebar selectbox; an empty one would render a dead control."""
     assert app_module.SKEW_OPTIONS
+
+
+class TestPilfOverrideWiring:
+    """The PILF override was reachable only from Python; now it is in the UI.
+
+    run_ffa has always accepted low_outlier_threshold_override, but
+    streamlit_app.py never passed it. These check the wiring end to end: the
+    sidebar value reaches run_ffa, and the applied cut is drawn on the record
+    rather than only changing a number in the parameter table.
+    """
+
+    @staticmethod
+    def _peaks():
+        import pandas as pd
+
+        from tests.fixtures.big_sandy import SYSTEMATIC_PEAKS
+
+        return pd.DataFrame(
+            {
+                "water_year": sorted(SYSTEMATIC_PEAKS),
+                "peak_flow_cfs": [SYSTEMATIC_PEAKS[y] for y in sorted(SYSTEMATIC_PEAKS)],
+            }
+        )
+
+    def test_app_passes_the_override_to_run_ffa(self, app_module):
+        """Both call sites, not just the download path."""
+        source = pathlib.Path(app_module.__file__).read_text()
+        assert source.count("low_outlier_threshold_override=pilf_override or None") == 2
+
+    def test_override_participates_in_the_refit_trigger(self, app_module):
+        """Changing it without refitting would leave the curve silently stale."""
+        source = pathlib.Path(app_module.__file__).read_text()
+        start = source.index("current_ffa_inputs = (")
+        assert "pilf_override" in source[start : start + 300]
+
+    def test_plot_marks_censored_peaks_when_a_threshold_applies(self, app_module):
+        fig = app_module.plot_peak_timeseries(
+            self._peaks(), "Big Sandy", "03606500", pilf_threshold=2000.0, pilf_source="override"
+        )
+        labels = [t.get_text() for t in fig.axes[0].get_legend().get_texts()]
+        assert any("censored" in label for label in labels)
+        assert any("2,000 cfs (override)" in label for label in labels)
+
+    def test_plot_is_unchanged_when_no_threshold_applies(self, app_module):
+        fig = app_module.plot_peak_timeseries(self._peaks(), "Big Sandy", "03606500")
+        assert fig.axes[0].get_legend() is None
+
+    def test_a_threshold_below_every_peak_censors_nothing(self, app_module):
+        """Guard against drawing an empty 'censored' series and a stray legend."""
+        fig = app_module.plot_peak_timeseries(
+            self._peaks(), "Big Sandy", "03606500", pilf_threshold=1.0
+        )
+        assert fig.axes[0].get_legend() is None
