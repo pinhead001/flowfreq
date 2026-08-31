@@ -1,4 +1,4 @@
-# Security Policy# HydroLib Production Readiness Status
+# HydroLib Production Readiness Status
 
 **Status**: ✅ **MVP Complete** | **Next Phase**: Medium-priority enhancements (2–3 weeks)
 
@@ -15,6 +15,8 @@ All critical governance and security measures are in place.
 | Item | Deliverable | Status |
 |------|-------------|--------|
 | **Remove setup.py** | Deleted; pyproject.toml is single source of truth | ✅ |
+| **Repair `bump2version`** | Config said 0.0.3 while every file said 0.2.0, so it raised `VersionNotFoundException` and no release could be cut | ✅ |
+| **PEP 561 marker** | `hydrolib/py.typed` added and packaged | ✅ |
 | **Code ownership** | `.github/CODEOWNERS` — all code requires review | ✅ |
 | **Security policy** | `SECURITY.md` — vulnerability reporting workflow | ✅ |
 | **Branch protection** | `main` requires: 1 PR review + all CI checks pass | ✅ |
@@ -39,7 +41,7 @@ These should be completed before widespread production adoption.
 |------|----------|--------|--------|
 | Add `mypy` to CI and enforce type hints | HIGH | 2–3 days | Catch type errors early; improves IDE support |
 | Add `pydocstyle` to CI for docstring coverage | MEDIUM | 1–2 days | Ensures all public APIs are documented |
-| Add type hints to all function signatures | HIGH | 3–5 days | Required for mypy enforcement |
+| ~~Add type hints to all function signatures~~ — already done (99%); see the corrected risk note below | — | — | — |
 | Create `.pre-commit-config.yaml` for local enforcement | MEDIUM | 1 day | Prevents formatting issues from reaching CI |
 
 **Recommendation**: Start with `mypy` (highest ROI). Type hints prevent ~30% of production bugs.
@@ -117,11 +119,17 @@ Advanced safety measures for high-stakes deployments.
    - **Mitigation**: Add staging environment tests; subscribe to USGS API notifications
    - **Timeline**: 1–2 weeks
 
-2. **No type hints**
-   - IDE support is limited
-   - Type errors only caught at runtime
-   - **Mitigation**: Add mypy enforcement (Phase 2)
-   - **Timeline**: 3–5 days
+2. **Type hints present but unenforced**
+   - Corrected 2026-08-31: the earlier claim that this codebase has no type
+     hints was wrong. 210 of 213 functions in `hydrolib/` carry annotations
+     (99%), as `CLAUDE.md` requires. The real gap was that `hydrolib/py.typed`
+     was missing, so downstream type checkers ignored all of them — a
+     one-file fix, now made.
+   - What remains is *enforcement*: nothing checks the annotations are correct
+     or that new code keeps them.
+   - **Mitigation**: add mypy to CI (Phase 2). Much cheaper than the 3–5 days
+     estimated below, because the annotations already exist.
+   - **Timeline**: hours, not days
 
 3. **No automated dependency updates**
    - Manual responsibility to update numpy, pandas, scipy, etc.

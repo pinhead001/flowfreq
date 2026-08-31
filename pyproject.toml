@@ -50,7 +50,10 @@ where = ["."]
 include = ["hydrolib*", "data*"]
 
 [tool.setuptools.package-data]
-"hydrolib" = ["../data/*.csv"]
+# py.typed is the PEP 561 marker. Without it a downstream type checker ignores
+# every annotation in this package, so the type hints are invisible to the
+# people they exist for.
+"hydrolib" = ["../data/*.csv", "py.typed"]
 # Benchmark cases must ship with the package: hydrolib benchmark used to read
 # them out of tests/, which is not packaged, so the command failed for every
 # installed user.
