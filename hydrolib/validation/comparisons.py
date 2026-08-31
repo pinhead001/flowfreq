@@ -48,7 +48,7 @@ class ComparisonResult:
     summary: str = ""
 
 
-def _pct_diff(native_val: float, ref_val: float) -> float:
+def _pct_diff(native_val: float, ref_val: float, scale_floor: float = 0.0) -> float:
     """Compute percent difference between two values.
 
     Parameters
@@ -57,17 +57,25 @@ def _pct_diff(native_val: float, ref_val: float) -> float:
         Value from the native analysis.
     ref_val : float
         Reference value.
+    scale_floor : float, optional
+        Lower bound on the denominator. Percent difference is meaningless for a
+        quantity that legitimately passes through zero: Big Sandy's at-site
+        skew is 0.0066 under peakfq 8.1.0, so an absolute gap of 0.016 -- small,
+        in skew units -- divides out to 249%, which then dominates
+        ``max_diff_pct`` and hides everything else in the report. With a floor
+        of 0.1 the same gap reads 16%. Left at 0.0 the behaviour is unchanged,
+        which is what discharges want: they are in the thousands and never
+        approach any sane floor.
 
     Returns
     -------
     float
         Absolute percent difference. Returns 0.0 if both values are zero.
     """
-    if ref_val == 0.0:
-        if native_val == 0.0:
-            return 0.0
-        return 100.0
-    return abs((native_val - ref_val) / ref_val) * 100.0
+    denominator = max(abs(ref_val), scale_floor)
+    if denominator == 0.0:
+        return 0.0 if native_val == 0.0 else 100.0
+    return abs(native_val - ref_val) / denominator * 100.0
 
 
 class FrequencyComparator:
@@ -81,6 +89,10 @@ class FrequencyComparator:
         Tolerance for LP3 parameter comparisons.
     ci_tolerance_pct : float
         Tolerance for confidence interval comparisons.
+    parameter_scale_floor : float
+        Denominator floor for parameter percent differences; see
+        :func:`_pct_diff`. Applies to parameters only, not to quantiles or
+        confidence intervals.
     """
 
     def __init__(
@@ -88,10 +100,12 @@ class FrequencyComparator:
         tolerance_pct: float = 1.0,
         parameter_tolerance_pct: float = 0.5,
         ci_tolerance_pct: float = 2.0,
+        parameter_scale_floor: float = 0.1,
     ) -> None:
         self.tolerance_pct = tolerance_pct
         self.parameter_tolerance_pct = parameter_tolerance_pct
         self.ci_tolerance_pct = ci_tolerance_pct
+        self.parameter_scale_floor = parameter_scale_floor
 
     def compare(
         self,
@@ -170,7 +184,9 @@ class FrequencyComparator:
 
         for key, ref_val in ref.parameters.items():
             if key in native_params:
-                diffs[key] = _pct_diff(native_params[key], ref_val)
+                diffs[key] = _pct_diff(
+                    native_params[key], ref_val, scale_floor=self.parameter_scale_floor
+                )
             else:
                 logger.debug("Parameter '%s' not in native output, skipping", key)
 

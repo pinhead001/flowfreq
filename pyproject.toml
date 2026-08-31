@@ -38,6 +38,10 @@ include = ["hydrolib*", "data*"]
 
 [tool.setuptools.package-data]
 "hydrolib" = ["../data/*.csv"]
+# Benchmark cases must ship with the package: hydrolib benchmark used to read
+# them out of tests/, which is not packaged, so the command failed for every
+# installed user.
+"hydrolib.validation" = ["data/*.json"]
 
 [tool.black]
 line-length = 100
