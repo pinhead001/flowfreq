@@ -10,17 +10,8 @@ import pytest
 # Ensure app package is importable
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from app.ffa_runner import (
-    _low_outlier_source,
-    format_parameters_df,
-    format_quantile_df,
-    run_ffa,
-)
-from tests.fixtures.big_sandy import (
-    REGIONAL_SKEW,
-    REGIONAL_SKEW_SD,
-    SYSTEMATIC_PEAKS,
-)
+from app.ffa_runner import _low_outlier_source, format_parameters_df, format_quantile_df, run_ffa
+from tests.fixtures.big_sandy import REGIONAL_SKEW, REGIONAL_SKEW_SD, SYSTEMATIC_PEAKS
 
 
 def _big_sandy_arrays():
