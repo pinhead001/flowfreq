@@ -96,10 +96,21 @@ def _b17b_skew_mse(n: int, skew: float) -> float:
     adjustment computed from ``var_mom``; that adjustment is not implemented
     here, so on a censored record this underestimates the MSE. See TODO.md P3.
 
+    Two consequences of that, both measured against the ``mseg_all_sub``
+    oracle in ``tests/fortran_parity/test_fortran_oracles.py``. Up to n = 150
+    and with nothing censored this is exact -- the bias adjustment is 1 there,
+    so ``mseg_all`` reduces to this formula. Above n = 150 it is not: the
+    Fortran evaluates ``mseg()`` at ``min(n, 150)`` and then lets the bias
+    adjustment partially undo the cap, while this applies the cap alone. At
+    n = 200 that makes this 31% high (0.0479 against 0.0365), which
+    over-weights the regional skew on a long record. No parity case reaches
+    150 years, so only that oracle test detects it.
+
     Parameters
     ----------
     n : int
-        Record length, capped at 150 as ``mseg_all`` caps it.
+        Record length. Capped at 150, as ``mseg_all`` caps it -- see the note
+        above on why the cap alone is not the whole story.
     skew : float
         At-site skew coefficient.
 
