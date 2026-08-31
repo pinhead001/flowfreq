@@ -6,10 +6,11 @@ Implements both Method of Moments (MOM) and Expected Moments Algorithm (EMA).
 
 from __future__ import annotations
 
+import logging
 from abc import ABC, abstractmethod
 from datetime import datetime
 from functools import cached_property, lru_cache
-from typing import ClassVar, Dict, List, Optional, Tuple, Union
+from typing import ClassVar, Dict, List, NamedTuple, Optional, Tuple, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -31,6 +32,86 @@ from .core import (
     log_pearson3_cdf,
     log_pearson3_pdf,
 )
+
+
+class _ExpectedSums(NamedTuple):
+    """Non-central sums from one EMA pass, split the way the Fortran splits them.
+
+    ``moms_p3`` (``vendor/peakfqr/src/emafit.f``, line 1344) applies the
+    bias-correction factors c2 and c3 to the exactly-observed peaks only;
+    censored intervals contribute their expected central moments uncorrected.
+    Summing everything first and correcting once applies a small-sample
+    correction to information that is not there.
+
+    Attributes
+    ----------
+    n : int
+        Total number of intervals.
+    n_exact : int
+        Intervals with an exactly known peak.
+    exact : tuple of float
+        Sums of x, x**2, x**3 over the exact peaks.
+    censored : tuple of float
+        Sums of E[X], E[X**2], E[X**3] over the censored intervals.
+    """
+
+    n: int
+    n_exact: int
+    exact: Tuple[float, float, float]
+    censored: Tuple[float, float, float]
+
+    @property
+    def total(self) -> Tuple[float, float, float]:
+        """Non-central sums over every interval."""
+        return tuple(e + c for e, c in zip(self.exact, self.censored))
+
+    def central(self, mean: float) -> Tuple[Tuple[float, float, float], ...]:
+        """Second and third central sums, as ``(exact, censored)`` pairs.
+
+        The censored half expands E[(X - m)**j] from the non-central moments,
+        which is the ``choose(j,k)`` loop in ``moms_p3``.
+        """
+        e1, e2, e3 = self.exact
+        c1, c2, c3 = self.censored
+        n_c = self.n - self.n_exact
+        se2 = e2 - 2 * mean * e1 + self.n_exact * mean**2
+        se3 = e3 - 3 * mean * e2 + 3 * mean**2 * e1 - self.n_exact * mean**3
+        sc2 = c2 - 2 * mean * c1 + n_c * mean**2
+        sc3 = c3 - 3 * mean * c2 + 3 * mean**2 * c1 - n_c * mean**3
+        return (se2, se3), (sc2, sc3)
+
+
+logger = logging.getLogger(__name__)
+
+# emafit.f:763 -- the Halloween determinant ratio applies only above this
+# at-site skew magnitude; below it the Fortran sets Wd = 1 outright.
+_HWN_SKEW_FLOOR = 0.04
+
+
+def _b17b_skew_mse(n: int, skew: float) -> float:
+    """Bulletin 17B empirical MSE of at-site skew.
+
+    Direct translation of ``mseg`` (``emafit.f``, line 1707). peakfq's default
+    at-site option is ADJE, which multiplies this by a censoring bias
+    adjustment computed from ``var_mom``; that adjustment is not implemented
+    here, so on a censored record this underestimates the MSE. See TODO.md P3.
+
+    Parameters
+    ----------
+    n : int
+        Record length, capped at 150 as ``mseg_all`` caps it.
+    skew : float
+        At-site skew coefficient.
+
+    Returns
+    -------
+    float
+        Mean-square error of the at-site skew estimate.
+    """
+    g = abs(skew)
+    a = -0.33 + 0.08 * g if g <= 0.9 else -0.52 + 0.30 * g
+    b = 0.94 - 0.26 * g if g <= 1.5 else 0.55
+    return float(10.0 ** (a - b * np.log10(min(n, 150) / 10.0)))
 
 
 class FloodFrequencyAnalysis(ABC):
@@ -621,25 +702,28 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
 
         return ez1, ez2, ez3
 
-    def _compute_ema_moments(
-        self, mean_log: float, std_log: float, skew: float
-    ) -> Tuple[float, float, float]:
+    def _compute_ema_moments(self, mean_log: float, std_log: float, skew: float) -> "_ExpectedSums":
         """Compute expected moments given current parameter estimates.
 
         Uses analytical truncated distribution moments following the Fortran
         mP3 approach: incomplete gamma moments for |skew| > ~0.001, and
         truncated normal (Wilson-Hilferty) for near-zero skew.
+
+        Returns
+        -------
+        _ExpectedSums
+            Non-central sums, exactly-observed peaks kept apart from censored
+            intervals; see that class for why the split matters.
         """
-        sum_x = 0.0
-        sum_x2 = 0.0
-        sum_x3 = 0.0
+        exact = np.zeros(3)
+        censored = np.zeros(3)
+        n_exact = 0
 
         for interval in self._intervals:
             if not interval.is_censored:
                 x = np.log10(interval.lower)
-                sum_x += x
-                sum_x2 += x**2
-                sum_x3 += x**3
+                n_exact += 1
+                exact += (x, x**2, x**3)
             else:
                 lower = interval.lower if interval.lower > 0 else 1e-10
                 upper = interval.upper if np.isfinite(interval.upper) else np.inf
@@ -696,9 +780,7 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
                         mid = (
                             log_lower + (log_upper if np.isfinite(log_upper) else log_lower)
                         ) / 2.0
-                        sum_x += mid
-                        sum_x2 += mid**2
-                        sum_x3 += mid**3
+                        censored += (mid, mid**2, mid**3)
                         continue
 
                     # Compute truncated gamma moments E[Y^k] for Y~Gamma(alpha,1)
@@ -728,27 +810,151 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
                             - abs_beta**3 * gy3
                         )
 
-                sum_x += ex
-                sum_x2 += ex2
-                sum_x3 += ex3
+                censored += (ex, ex2, ex3)
 
-        return sum_x, sum_x2, sum_x3
+        return _ExpectedSums(
+            n=len(self._intervals),
+            n_exact=n_exact,
+            exact=tuple(exact),
+            censored=tuple(censored),
+        )
+
+    def _ema_fixed_point(
+        self,
+        mean_log: float,
+        std_log: float,
+        skew: float,
+        n_regional: float = 0.0,
+    ) -> Tuple[float, float, float, bool, int]:
+        """Iterate :meth:`_ema_iteration` to convergence.
+
+        Parameters
+        ----------
+        mean_log, std_log, skew : float
+            Starting estimates.
+        n_regional : float, optional
+            Equivalent years of record for the regional skew; 0 fits at-site.
+
+        Returns
+        -------
+        tuple
+            ``(mean, std, skew, converged, iterations)``.
+        """
+        converged = False
+        iteration = 0
+        for iteration in range(self._ema_params.max_iterations):
+            new_mean, new_std, new_skew = self._ema_iteration(
+                mean_log, std_log, skew, n_regional=n_regional
+            )
+            converged = (
+                abs(new_mean - mean_log) < self._ema_params.tolerance
+                and abs(new_std - std_log) < self._ema_params.tolerance
+                and abs(new_skew - skew) < self._ema_params.tolerance
+            )
+            mean_log, std_log, skew = new_mean, new_std, new_skew
+            if converged:
+                break
+        return mean_log, std_log, skew, converged, iteration + 1
+
+    def _regional_skew_equivalent_years(self, at_site_skew: float, n: int) -> float:
+        """Equivalent years of record for the regional skew, ``nG``.
+
+        Griffis and others (2004) equation 2, as ``p3est_ema`` computes it
+        (``emafit.f``, line 1194)::
+
+            nG = n * Wd * as_G_mse / r_G_mse
+
+        ``Wd`` is the weighting factor chosen by ``wght_opt_n``. This
+        implements HWN, peakfq's default, whose rule is at ``emafit.f`` line
+        763: the Halloween determinant ratio applies only when the at-site
+        skew is at least 0.04 in magnitude, and reduces to 1 below that. The
+        determinant ratio itself (``detrat``) is not implemented; a record
+        whose at-site skew exceeds 0.04 therefore gets ``Wd = 1``, which is
+        the INV weighting option rather than HWN. See TODO.md P3.
+
+        Parameters
+        ----------
+        at_site_skew : float
+            Skew from the at-site fit.
+        n : int
+            Number of intervals.
+
+        Returns
+        -------
+        float
+            ``nG``, or 0.0 when no weighting applies -- no regional skew, a
+            generalized skew (MSE 0), or station-only (MSE >= 1e10).
+        """
+        if self._regional_skew is None or self._regional_skew_mse is None:
+            return 0.0
+        r_g_mse = self._regional_skew_mse
+        if r_g_mse <= 0.0 or r_g_mse >= 1e10:
+            return 0.0
+        wd = 1.0
+        if abs(at_site_skew) >= _HWN_SKEW_FLOOR:
+            logger.debug(
+                "at-site skew %.4f exceeds the HWN floor; the determinant-ratio "
+                "adjustment is not implemented, using Wd = 1",
+                at_site_skew,
+            )
+        return n * wd * _b17b_skew_mse(n, at_site_skew) / r_g_mse
 
     def _ema_iteration(
-        self, mean_log: float, std_log: float, skew: float
+        self,
+        mean_log: float,
+        std_log: float,
+        skew: float,
+        n_regional: float = 0.0,
     ) -> Tuple[float, float, float]:
-        """Perform one EMA iteration."""
-        n = len(self._intervals)
+        """Perform one EMA iteration, following ``moms_p3``.
 
-        sum_x, sum_x2, sum_x3 = self._compute_ema_moments(mean_log, std_log, skew)
+        Parameters
+        ----------
+        mean_log, std_log, skew : float
+            Current parameter estimates.
+        n_regional : float, optional
+            Equivalent years of record for the regional skew (``nG`` in the
+            Fortran). Zero gives the at-site fit.
 
-        new_mean = sum_x / n
-        var = (sum_x2 - n * new_mean**2) / (n - 1)
+        Returns
+        -------
+        tuple of float
+            Updated ``(mean, std, skew)``.
+
+        Notes
+        -----
+        Transcribed from ``moms_p3`` (``vendor/peakfqr/src/emafit.f``, line
+        1344), whose closing lines are::
+
+            moms(2) = ( c2*s_e(2) + s_c(2) )/n
+            moms(3) = (c3*s_e(3) + s_c(3) + nG*rG*moms(2)**1.5) /
+                      ((n + nG)*moms(2)**1.5)
+
+        Two things follow that this method used to get wrong. The bias
+        corrections c2 and c3 apply to the exact peaks only, not to the
+        expected moments of censored intervals. And the regional skew enters
+        *here*, inside the fixed point, as ``nG`` pseudo-observations at value
+        ``rG`` -- it is not a weighted average taken after the fit converges.
+        That distinction is the whole difference: because the skew feeds the
+        P3 distribution used to compute the next round of expected moments,
+        weighting inside the loop moves the mean and variance as well.
+        """
+        sums = self._compute_ema_moments(mean_log, std_log, skew)
+        n = sums.n
+
+        total_1 = sums.total[0]
+        new_mean = total_1 / n
+
+        (se2, se3), (sc2, sc3) = sums.central(new_mean)
+        c2 = n / (n - 1.0)
+        var = (c2 * se2 + sc2) / n
         new_std = np.sqrt(max(var, 1e-10))
 
         if n > 2:
-            m3 = sum_x3 - 3 * new_mean * sum_x2 + 2 * n * new_mean**3
-            new_skew = (n * m3) / ((n - 1) * (n - 2) * new_std**3)
+            c3 = n**2 / ((n - 1.0) * (n - 2.0))
+            sigma3 = new_std**3
+            rg = self._regional_skew if self._regional_skew is not None else 0.0
+            new_skew = (c3 * se3 + sc3 + n_regional * rg * sigma3) / ((n + n_regional) * sigma3)
             new_skew = float(np.clip(new_skew, -MAX_ABS_SKEW, MAX_ABS_SKEW))
         else:
             new_skew = skew
@@ -1009,37 +1215,30 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
 
         self._build_flow_intervals(low_threshold)
 
-        converged = False
-        iteration = 0
-
-        for iteration in range(self._ema_params.max_iterations):
-            new_mean, new_std, new_skew = self._ema_iteration(mean_log, std_log, skew_station)
-
-            if (
-                abs(new_mean - mean_log) < self._ema_params.tolerance
-                and abs(new_std - std_log) < self._ema_params.tolerance
-                and abs(new_skew - skew_station) < self._ema_params.tolerance
-            ):
-                converged = True
-                mean_log = new_mean
-                std_log = new_std
-                skew_station = new_skew
-                break
-
-            mean_log = new_mean
-            std_log = new_std
-            skew_station = new_skew
+        # Two fits, as the Fortran runs two p3est_ema calls (emafit.f:754-800):
+        # the at-site fit first, because its skew sets the MSE that decides how
+        # much weight the regional skew gets, then the fit that carries it.
+        mean_log, std_log, skew_station, converged, iteration = self._ema_fixed_point(
+            mean_log, std_log, skew_station
+        )
+        at_site_iterations = iteration
 
         n_systematic = sum(1 for i in self._intervals if i.is_systematic and not i.is_censored)
         n_historical = sum(1 for i in self._intervals if i.is_historical)
         n_censored = sum(1 for i in self._intervals if i.is_censored)
-
-        # For the weighted-skew *point estimate*, use the total number of
-        # intervals as the effective sample size. This accounts for information
-        # from both observed peaks and censored intervals and best matches
-        # PeakfqSA's weighted skew value.
         n_intervals = len(self._intervals)
-        skew_weighted, _ = self._compute_skew_weighting(skew_station, n_effective=n_intervals)
+
+        skew_weighted: Optional[float] = None
+        n_regional = self._regional_skew_equivalent_years(skew_station, n_intervals)
+        if n_regional > 0.0:
+            mean_log, std_log, skew_weighted, converged, iteration = self._ema_fixed_point(
+                mean_log, std_log, skew_station, n_regional=n_regional
+            )
+        elif self._regional_skew is not None and self._regional_skew_mse is not None:
+            # Generalized skew (MSE 0) or station-only: no weighting to do, but
+            # _compute_skew_weighting still reports what B17C would combine.
+            skew_weighted, _ = self._compute_skew_weighting(skew_station, n_effective=n_intervals)
+
         skew_used = skew_weighted if skew_weighted is not None else skew_station
 
         # For the skew's *variance* (used to widen confidence intervals), use
@@ -1066,7 +1265,10 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
             low_outlier_threshold=low_threshold,
             mgb_critical_value=grubbs_beck_critical_value(n),
             method=AnalysisMethod.EMA,
-            ema_iterations=iteration + 1,
+            # _ema_fixed_point already returns a 1-based count; on a weighted
+            # fit this is the second pass's, the one that produced the moments
+            # reported here.
+            ema_iterations=iteration,
             ema_converged=converged,
             n_zeros=self._n_zeros,
             pilf_flows=pilf_flows,

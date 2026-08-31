@@ -229,13 +229,19 @@ class TestBigSandyAgainstReference:
     def test_weighted_skew_still_carries_the_hwn_gap(self):
         """The open P3 defect, asserted rather than hidden by a loose tolerance.
 
-        peakfq 8.1.0 weights skew by the Halloween method; hydrolib uses
-        standard B17C weighting. -0.1009 vs -0.1563, ~35% apart. Tighten this
-        bound when that lands -- and note the parity suite's xfail(strict=True)
-        will fail first, which is the alarm you want.
+        Was ~35% when the weighting was a post-hoc average of two skews. Now
+        that the regional skew is folded into the EMA fixed point the way
+        moms_p3 does it, the gap is ~24%, and all of what is left is the
+        at-site skew MSE: peakfq's default ADJE option inflates the Bulletin
+        17B value by a censoring bias adjustment from var_mom, which is not
+        implemented. Feeding peakfq's own as_G_mse through this code gives
+        -0.1592 against its -0.1563, a 1.9% gap.
+
+        Tighten this bound when that lands -- and note the parity suite's
+        xfail(strict=True) will fail first, which is the alarm you want.
         """
         params = self._native().validate(self._reference()).parameter_diffs
-        assert 30.0 < params["skew_weighted"] < 40.0
+        assert 20.0 < params["skew_weighted"] < 28.0
 
     def test_skew_at_site_percent_difference_is_not_meaningful(self):
         """A documented wart, so nobody reads 249% as a 249% error.
