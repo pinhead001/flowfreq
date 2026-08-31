@@ -91,7 +91,7 @@ _HWN_SKEW_FLOOR = 0.04
 def _b17b_skew_mse(n: int, skew: float) -> float:
     """Bulletin 17B empirical MSE of at-site skew.
 
-    Direct translation of ``mseg`` (``emafit.f``, line 1707). peakfq's default
+    Direct translation of ``mseg`` (``emafit.f``, line 1739). peakfq's default
     at-site option is ADJE, which multiplies this by a censoring bias
     adjustment computed from ``var_mom``; that adjustment is not implemented
     here, so on a censored record this underestimates the MSE. See TODO.md P3.

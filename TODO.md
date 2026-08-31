@@ -1,126 +1,229 @@
 # TODO — HydroLib Hybrid 17C Implementation
 
 ## Status
-Last updated: 2026-08-30
-Tests: 382 passed, 4 deselected, 5 xfailed (CI selection). CI green on main.
+Last updated: 2026-08-31
+Tests: **407 passed, 1 deselected, 5 xfailed** in ~18 s (was ~75 s; see the MGBT memoization
+below). CI green on main.
 Fortran reference: **vendored** at `vendor/peakfqr/` (peakfq 8.1.0, CC0).
 Fortran bridge: builds from those sources via `python build_fortran/build.py`
-(gfortran + meson). Optional — parity tests read committed golden files.
+(gfortran + meson) and is now **built and checked in CI** by `make parity`.
 
-See **Open Items** below. Two are real numerical defects; the rest is velocity and
-cleanup work, most of which would have saved real time on the session that produced it.
+Every P1 and P2 item is done. What is left is P3: two numerical defects that turn out to be
+the same missing machinery, specified precisely below.
 
 ---
 
 ## Open Items (prioritised)
 
-Ordered by value per hour, not by interest. P1 is cheap and compounds — it makes every
-other item faster. P3 is the actual science, but nothing is blocked on it.
-
-Two P1 items are done; the remaining three are still the cheapest work here.
-
-### P1 — Reduce time to verify and commit
-
-The frictions that cost real time and caused two red builds on main.
-
-- [x] **One-command verify.** The default selection now lives in `pyproject.toml`'s
-      `addopts`, so a **bare `pytest` is the CI selection** on every platform — no `make`
-      needed, nothing to retype, and exactly one place to get the marker list wrong.
-      Override from the CLI when you want the excluded tests (`-m ""` for everything,
-      `-m requires_network` for just those; a later `-m` wins). `make check` / `make help`
-      still exist for convenience, and CI runs plain `pytest tests/`.
-
-      Dropping `requires_peakfqr_testdata` from the exclusion recovered 3 tests: the
-      reference data is vendored now and `paths.py` skips cleanly if it is ever absent, so
-      excluding it only hid passing tests. CI went 382 passed / 4 deselected → **385 passed
-      / 1 deselected**.
-
-- [x] **Un-gate the test job from lint.** ~~`needs: lint` on the test job~~ — removed;
-      the two jobs are independent now. Also set `fail-fast: false` on the matrix: when
-      3.9 broke this session the other three jobs were cancelled, so the failure looked
-      version-agnostic when it was not. All four now report.
-
-- [ ] **Memoize `_mgbt_pvalue`, for the suite only.** MGBT dominates runtime: one
-      `run_analysis()` is ~2.1s, of which 22 calls to `_mgbt_pvalue` — each a
-      `scipy.integrate.quad` over the beta-order-statistic integrand — are ~97ms apiece.
-      Measured, because the obvious assumption is wrong:
-
-      | | calls | distinct `(n, r, w)` | would-be cache hits |
-      |---|---:|---:|---:|
-      | one analysis | 22 | 22 | **0 %** |
-      | three identical analyses | 66 | 22 | **67 %** |
-
-      An `lru_cache` does **nothing** for a single user-facing run — every key within one
-      analysis is unique. It only pays where the same fit repeats, which is exactly what
-      the suite does (16 `Bulletin17C` constructions, many on shared fixtures). Treat it as
-      a test-speed lever, not a performance fix, and measure the suite either side rather
-      than assuming a win.
-
-- [ ] **Build the Fortran in one CI job.** `tests/fortran_parity/test_live_vs_golden.py`
-      guards against a golden file drifting from `vendor/peakfqr/`, and it skips everywhere
-      in CI because no job has gfortran. One job running `python build_fortran/build.py`
-      turns drift into a build failure instead of something noticed months later on
-      whichever machine happens to have a toolchain.
-
-- [ ] **Lint and smoke-test `app/`.** CI lints `hydrolib/` and `tests/` only, and there are
-      no app tests at all. That is precisely why dev's Streamlit changes could not be merged
-      with any confidence and were left unported. Even an import smoke test would make app
-      changes reviewable.
-
-### P2 — Cleanup that stops the same confusion recurring
-
-- [ ] **Review `dev`'s remaining library deltas, then delete the branch.** Its two MGBT
-      commits are on main and `USGSgage.latitude`/`.longitude` are ported. What remains is
-      `freq_plot.py` (+189 across three commits) and `bulletin17c.py` (+18), entangled with
-      Streamlit work main superseded independently. This wants a read-and-judge pass, not a
-      port. Do not delete first: the "it is only stale Streamlit work" assumption was
-      already wrong once, and acting on it would have lost the coordinates.
-
-- [ ] **Remove the 5.2 MB of Windows binaries** in `hydrolib/peakfqr/`
-      (`_emafort.cp312-win_amd64.pyd` and four mingw DLLs). Windows/CPython-3.12 only, built
-      from sources of unknown vintage, unreproducible, and now buildable from
-      `vendor/peakfqr/`. `.gitignore` already excludes newly built ones, so they contradict
-      stated policy. Keep `__init__.py`'s `add_dll_directory` call — still useful for anyone
-      building on Windows.
-
-- [ ] **Decide what `hydrolib/peakfqsa/` is for.** Five modules wrapping a standalone
-      PeakfqSA binary that does not exist. Mock-tested only — and the "integration tests"
-      that would exercise it were never written: both `@requires_peakfqsa` classes
-      (`TestBigSandyEndToEnd`, `TestPeakfqSAWrapperIntegration`) are empty stubs, one a bare
-      docstring and one a `pass`. `pytest -m requires_peakfqsa` collects **zero** tests, so
-      the marker and its exclusion are dead config. Delete the subsystem or repoint it at
-      the f2py bridge; leaving it advertises a capability the library does not have and
-      never had.
-
-- [ ] **Wire the PILF override into the Streamlit UI.** `run_ffa` accepts
-      `low_outlier_threshold_override` and `freq_plot.plot_peak_flows_with_thresholds`
-      exists, but `streamlit_app.py` calls neither. Deliberate (see the MGBT port commit),
-      but it leaves a feature reachable only from Python.
-
 ### P3 — The open numerical defects
 
-Both are `xfail(strict=True)` in `tests/fortran_parity/test_native_vs_golden.py`, so the
-build fails the moment either starts passing. Nothing else is blocked on them.
+Both are `xfail(strict=True)` in `tests/fortran_parity/test_native_vs_golden.py`, so the build
+fails the moment either starts passing. Nothing else is blocked on them.
+
+They are **not two problems**. Both bottom out in `var_mom` and its dependency tree, which is
+the one piece of the reference implementation that has never been ported. Read this section
+as one item with two symptoms.
+
+- [ ] **Port `var_mom` and the routines it needs.** ~1,100 lines of Fortran in `emafit.f`
+      alone, plus `CHOL33` (`probfun.f`), `DLGINV` (`imslfake.f`), and `expmomderiv`, `m2mn`,
+      `m2p`, `fp_tnc_icdf` which live outside `emafit.f`. The tree:
+
+      ```
+      mseg_all(ADJE)  -> mse_ema -> var_mom -> mP3(k=6), pP3, varb, varc,
+                                               d_est -> m2p, qP3, expmomderiv
+                                    m2mn
+                                    mn2mvarb -> mn2m_var, mc2mnvb, jmc2mnvb,
+                                                chol33, dlginv   (iterative solver)
+      VAR_EMAB        -> regmoms, gridmake (the inverse-Cholesky quadrature),
+                         ci_ema_m3b
+      ```
+
+      Sizes, for planning: `var_mom` 111, `mP3` 141, `regmoms` 111, `gridmake` 93,
+      `mn2mvarb` 77, `qP3` 73, `VAR_EMAB` 66, `jmc2mnvb` 61, `mc2mnvb` 58, `mseg_all` 57,
+      `pP3` 54, `ci_ema_m3b` 51, `mse_ema` 49, `d_est` 39, `varb`/`varc` 23 each.
+
+      Verify against the bridge, not by eye: `emafitpr` returns `as_G_mse_o`,
+      `as_G_mse_Syst_o`, `as_G_PRL_o` and `var_est`, so every intermediate has an oracle.
+      `make parity` runs it.
+
+- [ ] **Skew weighting — 24% left, and it is all `as_G_mse`.** The structural half is done
+      (see below): the regional skew is now folded into the EMA fixed point as `moms_p3`
+      does it, which took Big Sandy from 35% to **24.1%** (−0.1187 against peakfq's −0.1563)
+      and improved the mean and variance at the same time.
+
+      All of the remainder is one input. peakfq's default `at_site_option` is `ADJE`
+      (`emafit.f:3888`): `as_G_mse = bias_adj * mseg(min(n,150), G)`, where `bias_adj` is the
+      censoring inflation `mse_ema(censored)/mse_ema(uncensored)` — **1.4844** on Big Sandy.
+      Only `mseg()` is implemented (`_b17b_skew_mse`), so a censored record under-weights the
+      regional skew. Feeding peakfq's own `as_G_mse` (0.09437) through this code gives
+      **−0.1592 against −0.1563, a 1.9% gap**, which is inside the xfail's 0.02 bound. So the
+      structure is right and the input is not.
+
+      Also unimplemented: `detrat`, the Halloween determinant ratio. `emafit.f:763` applies it
+      only when the at-site skew is ≥ 0.04 in magnitude, and Big Sandy's is 0.0066, so `Wd`
+      is 1 here either way — but a record above that floor currently gets INV weighting, not
+      HWN. Big Sandy cannot detect that regression; a second parity case would.
 
 - [ ] **Confidence-interval shape.** `compute_confidence_limits()` forms `log_Q ± z·se`,
-      symmetric by construction (ratio 1.000 at every AEP). peakfq 8.1.0 skews right with
-      return period — 1.03 → 1.31 → 1.41 at AEP 0.1 / 0.02 / 0.01 — via the Inverse Modified
-      Cholesky Gaussian Quadrature, working from a Pseudo Effective Record Length
-      (`as_G_PRL_o` = 54.373 for Big Sandy). This is **shape, not size**: total width is
-      within ~2 % and point estimates within 0.5 %, so the variance magnitude is essentially
-      right and `var_mom` is not the suspect. Read the quadrature block in
-      `vendor/peakfqr/src/emafit.f` (monotonicity enforcement ~lines 485–491).
+      symmetric by construction (ratio 1.000 at every AEP). peakfq skews right with return
+      period — 1.03 → 1.31 → 1.41 at AEP 0.1 / 0.02 / 0.01. **Shape, not size**: total width
+      is within ~2% and point estimates within 0.5%, so the variance magnitude is essentially
+      right and `var_mom`'s output is not the suspect — its absence is.
 
-- [ ] **Skew weighting.** 8.1.0 uses HWN, an "optimized adjustment factor when censored data
-      are present"; hydrolib uses standard Bulletin 17C weighting. −0.1563 vs −0.1009 on Big
-      Sandy. Feeding 8.1.0's own reported `as_G_mse` (0.09437) through the standard formula
-      gives −0.1139, so the gap is the adjustment factor itself, not the MSE.
+      The formula is no longer a mystery. `ci_ema_m3b` (`emafit.f:1853`) is short and fully
+      readable:
+
+      ```
+      beta1     = cov(yp, syp) / var(yp)            # regression of the s.e. on the quantile
+      var_xsi_d = var(syp) - cov(yp, syp)**2/var(yp)
+      nu        = max(5, 0.5 * var(yp)/var_xsi_d)   # Student t degrees of freedom
+      t         = t_nu((1 + eps)/2)
+      ci_high   = yp + sqrt(var(yp)) *  t / max(0.5, 1 - beta1*t)
+      ci_low    = yp + sqrt(var(yp)) * -t / max(0.5, 1 + beta1*t)
+      ```
+
+      The whole asymmetry is the `1 - beta1*t` denominator: it shrinks on the high side and
+      grows on the low side. Implementing this is an afternoon. Getting `beta1` is not —
+      `cov(yp, syp)` comes from `VAR_EMAB`, hence from `var_mom`. Implementing `ci_ema_m3b`
+      alone with `beta1 = 0` reproduces exactly today's symmetric interval, so there is no
+      partial credit available here: the port comes first.
+
+      The pseudo effective record length (`as_G_PRL_o`, 54.373 for Big Sandy) is
+      `eff_n * as_G_mse_Syst / as_G_mse` (`emafit.f:758`) — two more `mseg_all` calls, so it
+      is blocked on the same port.
+
+### Follow-ups found while clearing P1 and P2
+
+Small, specified, none blocking.
+
+- [ ] **`plot_peak_flows_with_thresholds` is still uncalled.** `app/streamlit_app.py` has its
+      own `plot_peak_timeseries`, which carries return-period lines and the max-peak
+      recurrence annotation that the library function does not; switching to the library one
+      today would lose features. The dedupe is: move those two features into
+      `hydrolib/freq_plot.py`, then delete the app copy. One peak-flow plotter, tested.
+
+- [ ] **`MethodOfMoments` ignores a user PILF threshold.** `Bulletin17C.run_analysis` does not
+      pass `user_low_outlier_threshold` down the MOM path (`bulletin17c.py:1494`), and MOM
+      does not censor low outliers at all — it computes a Grubbs-Beck value for reporting
+      only. So when EMA fails to converge and `app/ffa_runner.run_ffa` falls back to MOM, the
+      user's override is dropped. `_low_outlier_source()` reports that honestly rather than
+      claiming a threshold that had no effect, but the underlying limitation stands. Doing
+      this properly means censoring plus the conditional-probability adjustment, which is a
+      real piece of B17B, not a one-liner.
+
+- [ ] **`FrequencyComparator` compares every parameter by percent difference.** That is the
+      wrong metric for skew, which legitimately crosses zero: Big Sandy's reference at-site
+      skew is 0.0066, so an absolute gap of 0.016 read as 249% and dominated `max_diff_pct`.
+      A denominator floor (`parameter_scale_floor`, default 0.1) stops it hiding the rest of
+      the report, but comparing skew in skew units with its own tolerance would be better.
+
+- [ ] **`origin/dev` can be deleted.** The read-and-judge pass is done — see the commit
+      "Port extra_curves from dev". `extra_curves` was the one library delta worth keeping
+      and is on this branch; `hydrolib/setup.py` is stale packaging that contradicts
+      `pyproject.toml`; everything else is superseded or older than main. Tip is `86cb147`,
+      recorded here so the branch is recoverable by SHA. Left undeleted deliberately: that is
+      not reversible from a commit, so it is the owner's call.
 
 ### Blocked
 
 - [ ] **Tag pushes return HTTP 403** from the agent environment, so neither `v0.2.0` nor an
       `archive/dev-2026-02` tag could be pushed. Needs tag-push permission, or someone
       pushing tags from a local clone.
+
+---
+
+## Done
+
+### P1 — Reduce time to verify and commit
+
+- [x] **One-command verify.** The default selection lives in `pyproject.toml`'s `addopts`, so
+      a bare `pytest` is the CI selection on every platform. Override from the CLI when you
+      want the excluded tests (`-m ""` for everything). `make check` / `make help` still
+      exist; CI runs plain `pytest tests/`.
+
+- [x] **Un-gate the test job from lint.** ~~`needs: lint`~~ removed; the jobs are
+      independent, and `fail-fast: false` means all four matrix jobs report.
+
+- [x] **Memoize `_mgbt_pvalue`.** Measured first, because the obvious assumption is wrong:
+      within one analysis all 22 keys are distinct, so an `lru_cache` buys **0%** for a
+      user-facing run. It pays only where the same fit repeats — 66 calls over 22 distinct
+      keys across three identical analyses, 67% — which is the suite's access pattern.
+      Measured after, rather than assumed: **75.4 s → 13.6 s**, two runs each way, identical
+      outcomes, and refitting with the cache bypassed gives bit-identical results (max |diff|
+      0.0). Bigger than this entry originally estimated, because the suite shares fixtures
+      more heavily than the three-analysis probe suggested. Decorator order is load-bearing
+      and now has a test: `staticmethod` outermost, or Python 3.9 breaks and 3.11 does not.
+
+- [x] **Build the Fortran in one CI job.** New `fortran` job runs `make parity`: build,
+      assert the extension imports, then run `tests/fortran_parity/`. The import assertion is
+      the point — the parity tests call `importorskip`, so without it a failed build would
+      skip all twelve live-vs-golden tests and report green. Verified on Linux/CPython 3.11:
+      the extension builds from the vendored sources and the committed goldens are not
+      drifted.
+
+- [x] **Lint and smoke-test `app/`.** `app/` joined `PKGS`, so the existing lint job covers it
+      (it was already clean). `tests/test_streamlit_app.py` imports `app/streamlit_app.py`,
+      which is a top-level script, so importing it executes the whole body in Streamlit's bare
+      mode — widgets return defaults, `download_data` is False, nothing contacts NWIS.
+      Confirmed non-vacuous: a `NameError` in an executed branch turns all 13 tests red. Runs
+      in its own `app` job because Streamlit needs Python ≥ 3.10 and the matrix still covers
+      3.9.
+
+### P2 — Cleanup that stops the same confusion recurring
+
+- [x] **Reviewed `dev`'s remaining library deltas.** See the follow-up above for the branch
+      itself.
+
+- [x] **Removed the 5.2 MB of Windows binaries** in `hydrolib/peakfqr/`. `.gitignore` now also
+      excludes `hydrolib/peakfqr/*.dll`, and the Streamlit vignette no longer tells readers
+      the repository ships a prebuilt extension.
+
+- [x] **Decided what `hydrolib/peakfqsa/` is for: nothing.** Deleted — `config.py`,
+      `wrapper.py`, `io_converters.py`, `validators.py` (imported by nothing at all) and the
+      `.out` parser, with their ~50 mock tests and the dead `requires_peakfqsa` marker. The
+      result container survives as `hydrolib/validation/reference.py::ReferenceResult`,
+      pointed at references that exist: `from_golden()` reads the committed golden file,
+      `from_emafit()` calls the vendored Fortran live. They agree bitwise on Big Sandy.
+      `tests/peakfqsa/fixtures/` was never about the binary — it merged into the existing
+      `tests/fixtures/`, and that move silently broke `paths.py`'s hardcoded `parents[3]`
+      (three passing tests would have skipped rather than failed), now anchored on
+      `pyproject.toml`.
+
+- [x] **Wired the PILF override into the Streamlit UI.** Sidebar control, both `run_ffa` call
+      sites, and the refit trigger. Peaks below the applied cut are drawn hollow under a red
+      threshold line, so the control changes something a user can see.
+
+### Found and fixed while clearing the above
+
+- [x] **`hydrolib benchmark` could not work for an installed user.** Three defects, all
+      pre-existing: it imported fixture data from `tests/`, which is not packaged, so the
+      command raised `ModuleNotFoundError` outside a source checkout; two of its three
+      registered benchmarks carried no peaks at all and errored on every run; and the third
+      validated against the 2012 PeakfqSA manual, which peakfq 8.1.0 does not reproduce, so a
+      correct implementation was guaranteed a FAIL. Case data now ships in
+      `hydrolib/validation/data/`, tolerances are measured, and known deviations are reported
+      rather than compared. 1/1 passed, from any directory.
+
+- [x] **`Benchmark.run_native()` dropped the perception thresholds**, comparing a
+      systematic-only fit against the reference's censored one and calling the modelling
+      difference an error.
+
+### The structural half of the skew defect
+
+- [x] **The regional skew is weighted inside the EMA fixed point.** peakfq does not average
+      two skews after fitting — the explicit average is commented out at `emafit.f:1259`, and
+      `moms_p3` folds the regional skew in as `nG` pseudo-observations every iteration, where
+      it also moves the mean and variance. Two bugs fixed: the bias corrections `c2`/`c3`
+      apply to exact peaks only, not to censored intervals' expected moments; and the
+      weighting belongs in the loop, not after it. Big Sandy, against the golden file:
+
+      | | before | after | peakfq 8.1.0 |
+      |---|---:|---:|---:|
+      | `mean_log` | 0.05% | **0.01%** | 3.717508 |
+      | `std_log` | 1.72% | **0.63%** | 0.291043 |
+      | at-site skew | 0.0165 abs | **0.0046** | 0.006601 |
+      | weighted skew | 35.4% | **24.1%** | −0.156306 |
+      | Q100 | — | **0.88%** | 22 959.4 |
 
 ---
 
