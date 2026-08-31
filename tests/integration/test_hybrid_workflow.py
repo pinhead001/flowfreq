@@ -239,9 +239,14 @@ class TestBigSandyAgainstReference:
 
         Tighten this bound when that lands -- and note the parity suite's
         xfail(strict=True) will fail first, which is the alarm you want.
+
+        Asserted in skew units, not percent: FrequencyComparator now compares
+        skew by absolute difference, because a quantity that passes through
+        zero cannot be judged by a ratio. The gap is 0.0376 in skew units,
+        which is the 24% that used to be reported here.
         """
-        params = self._native().validate(self._reference()).parameter_diffs
-        assert 20.0 < params["skew_weighted"] < 28.0
+        skews = self._native().validate(self._reference()).skew_diffs
+        assert 0.02 < skews["skew_weighted"] < 0.06
 
     def test_skew_at_site_percent_difference_is_not_meaningful(self):
         """A documented wart, so nobody reads 249% as a 249% error.

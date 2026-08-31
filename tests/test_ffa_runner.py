@@ -10,17 +10,8 @@ import pytest
 # Ensure app package is importable
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from app.ffa_runner import (
-    _low_outlier_source,
-    format_parameters_df,
-    format_quantile_df,
-    run_ffa,
-)
-from tests.fixtures.big_sandy import (
-    REGIONAL_SKEW,
-    REGIONAL_SKEW_SD,
-    SYSTEMATIC_PEAKS,
-)
+from app.ffa_runner import _low_outlier_source, format_parameters_df, format_quantile_df, run_ffa
+from tests.fixtures.big_sandy import REGIONAL_SKEW, REGIONAL_SKEW_SD, SYSTEMATIC_PEAKS
 
 
 def _big_sandy_arrays():
@@ -127,25 +118,34 @@ class TestPilfOverride:
         assert zero["parameters"]["low_outlier_source"] == "MGBT"
         assert zero["parameters"]["mean_log"] == none["parameters"]["mean_log"]
 
-    def test_mom_fallback_says_the_override_was_not_applied(self):
+    def test_mom_fallback_reports_the_override_but_says_it_was_not_acted_on(self):
         """A high override stops EMA converging, and MOM does not censor at all.
 
-        Reporting "override" here would put a threshold on screen that had no
-        effect on the fit. Only the EMA path acts on a user threshold;
-        MethodOfMoments computes a Grubbs-Beck value and uses it for reporting
-        only.
+        MethodOfMoments now reports the threshold the user asked for rather
+        than substituting a Grubbs-Beck value they did not -- but it computes
+        its moments from every peak regardless. The label has to say both, or
+        it contradicts the number displayed beside it.
         """
         flows, years = _big_sandy_arrays()
         result = run_ffa(peak_flows=flows, water_years=years, low_outlier_threshold_override=6000.0)
         assert result["method"] == "mom"
-        assert "not applied" in result["parameters"]["low_outlier_source"]
-        assert result["parameters"]["low_outlier_threshold"] != pytest.approx(6000.0)
+        assert result["parameters"]["low_outlier_threshold"] == pytest.approx(6000.0)
+        source = result["parameters"]["low_outlier_source"]
+        assert "override" in source and "does not censor" in source
+
+    def test_mom_fallback_moments_are_untouched_by_the_override(self):
+        """The claim the label makes must actually hold."""
+        flows, years = _big_sandy_arrays()
+        forced = run_ffa(peak_flows=flows, water_years=years, low_outlier_threshold_override=6000.0)
+        assert forced["method"] == "mom"
+        plain = run_ffa(peak_flows=flows, water_years=years)
+        assert forced["parameters"]["mean_log"] == pytest.approx(plain["parameters"]["mean_log"])
 
     def test_source_helper_covers_every_combination(self):
         assert _low_outlier_source(None, "ema") == "MGBT"
         assert _low_outlier_source(None, "mom") == "MGBT"
         assert _low_outlier_source(1000.0, "ema") == "override"
-        assert "not applied" in _low_outlier_source(1000.0, "mom")
+        assert "does not censor" in _low_outlier_source(1000.0, "mom")
 
 
 class TestFormatQuantileDf:

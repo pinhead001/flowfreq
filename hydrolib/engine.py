@@ -10,12 +10,7 @@ from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
 
-from .core import (
-    PeakRecord,
-    compute_ci_lp3,
-    lp3_frequency_factor_peakfq,
-    lp3_quantile_peakfq,
-)
+from .core import PeakRecord, compute_ci_lp3, lp3_frequency_factor_peakfq, lp3_quantile_peakfq
 
 # Standard return periods used in flood frequency analysis
 STANDARD_RETURN_PERIODS = (1.5, 2, 5, 10, 25, 50, 100, 200, 500)

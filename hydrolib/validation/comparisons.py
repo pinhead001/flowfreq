@@ -33,8 +33,16 @@ class ComparisonResult:
         AEP to percent difference mapping for quantiles.
     ci_diffs : dict[float, float]
         AEP to percent difference mapping for CI bounds.
+    skew_diffs : dict[str, float]
+        Skew parameter name to **absolute** difference, in skew units.
+        Skew is the one LP3 parameter that legitimately passes through zero --
+        Big Sandy's at-site skew is 0.0066 -- so a percent difference on it
+        measures the denominator, not the disagreement: a gap of 0.016 reads as
+        249%. These are judged against ``skew_tolerance_abs`` instead, and are
+        excluded from ``parameter_diffs`` and from ``max_diff_pct``.
     max_diff_pct : float
-        Maximum percent difference across all comparisons.
+        Maximum percent difference across all comparisons. Skews are not in it,
+        because they are not measured in percent.
     summary : str
         Human-readable one-line summary of comparison.
     """
@@ -44,8 +52,18 @@ class ComparisonResult:
     parameter_diffs: dict[str, float] = field(default_factory=dict)
     quantile_diffs: dict[float, float] = field(default_factory=dict)
     ci_diffs: dict[float, float] = field(default_factory=dict)
+    skew_diffs: dict[str, float] = field(default_factory=dict)
     max_diff_pct: float = 0.0
     summary: str = ""
+
+
+def _is_skew(parameter: str) -> bool:
+    """Whether a parameter name denotes a skew coefficient.
+
+    Skews are compared in their own units rather than by percent; see
+    :meth:`FrequencyComparator.compare_skews`.
+    """
+    return "skew" in parameter.lower()
 
 
 def _pct_diff(native_val: float, ref_val: float, scale_floor: float = 0.0) -> float:
@@ -91,8 +109,12 @@ class FrequencyComparator:
         Tolerance for confidence interval comparisons.
     parameter_scale_floor : float
         Denominator floor for parameter percent differences; see
-        :func:`_pct_diff`. Applies to parameters only, not to quantiles or
-        confidence intervals.
+        :func:`_pct_diff`. Applies to non-skew parameters only, not to
+        quantiles or confidence intervals.
+    skew_tolerance_abs : float
+        Tolerance for skew parameters, as an **absolute** difference in skew
+        units. Skew is compared this way rather than by percent because it
+        legitimately passes through zero; see :meth:`compare_skews`.
     """
 
     def __init__(
@@ -101,11 +123,13 @@ class FrequencyComparator:
         parameter_tolerance_pct: float = 0.5,
         ci_tolerance_pct: float = 2.0,
         parameter_scale_floor: float = 0.1,
+        skew_tolerance_abs: float = 0.05,
     ) -> None:
         self.tolerance_pct = tolerance_pct
         self.parameter_tolerance_pct = parameter_tolerance_pct
         self.ci_tolerance_pct = ci_tolerance_pct
         self.parameter_scale_floor = parameter_scale_floor
+        self.skew_tolerance_abs = skew_tolerance_abs
 
     def compare(
         self,
@@ -128,10 +152,13 @@ class FrequencyComparator:
             Detailed comparison with per-field differences.
         """
         param_diffs = self.compare_parameters(native, reference)
+        skew_diffs = self.compare_skews(native, reference)
         quant_diffs = self.compare_quantiles(native, reference)
         ci_diffs = self.compare_ci(native, reference)
 
-        # Determine max difference across all categories
+        # Skews are deliberately absent here: they are absolute differences in
+        # skew units, so mixing them into a percent maximum would compare
+        # unlike quantities and let a near-zero denominator dominate.
         all_diffs: list[float] = []
         all_diffs.extend(param_diffs.values())
         all_diffs.extend(quant_diffs.values())
@@ -140,18 +167,21 @@ class FrequencyComparator:
 
         # Check pass/fail per category
         params_ok = all(d <= self.parameter_tolerance_pct for d in param_diffs.values())
+        skews_ok = all(d <= self.skew_tolerance_abs for d in skew_diffs.values())
         quants_ok = all(d <= self.tolerance_pct for d in quant_diffs.values())
         cis_ok = all(d <= self.ci_tolerance_pct for d in ci_diffs.values())
-        passed = params_ok and quants_ok and cis_ok
+        passed = params_ok and skews_ok and quants_ok and cis_ok
 
         # Build summary
         n_params = len(param_diffs)
         n_quants = len(quant_diffs)
         n_cis = len(ci_diffs)
         status = "PASS" if passed else "FAIL"
+        worst_skew = max(skew_diffs.values(), default=0.0)
+        skew_note = f", skews={len(skew_diffs)} (worst {worst_skew:.4f})" if skew_diffs else ""
         summary = (
             f"{status}: max diff {max_diff:.3f}% "
-            f"(params={n_params}, quantiles={n_quants}, CIs={n_cis})"
+            f"(params={n_params}, quantiles={n_quants}, CIs={n_cis}{skew_note})"
         )
 
         return ComparisonResult(
@@ -160,6 +190,7 @@ class FrequencyComparator:
             parameter_diffs=param_diffs,
             quantile_diffs=quant_diffs,
             ci_diffs=ci_diffs,
+            skew_diffs=skew_diffs,
             max_diff_pct=max_diff,
             summary=summary,
         )
@@ -183,12 +214,47 @@ class FrequencyComparator:
         native_params = native.get("parameters", {})
 
         for key, ref_val in ref.parameters.items():
+            if _is_skew(key):
+                continue  # compared in skew units by compare_skews
             if key in native_params:
                 diffs[key] = _pct_diff(
                     native_params[key], ref_val, scale_floor=self.parameter_scale_floor
                 )
             else:
                 logger.debug("Parameter '%s' not in native output, skipping", key)
+
+        return diffs
+
+    def compare_skews(self, native: dict[str, Any], ref: ReferenceResult) -> dict[str, float]:
+        """Compare skew parameters by absolute difference, in skew units.
+
+        Percent difference is the wrong metric for a quantity that passes
+        through zero. Big Sandy's reference at-site skew is 0.0066, so an
+        absolute gap of 0.016 -- small, in skew units -- divides out to 249%
+        and swamps every other number in the report.
+
+        Parameters
+        ----------
+        native : dict
+            Native analysis output with a 'parameters' key.
+        ref : ReferenceResult
+            Reference result.
+
+        Returns
+        -------
+        dict[str, float]
+            Skew parameter name to absolute difference.
+        """
+        diffs: dict[str, float] = {}
+        native_params = native.get("parameters", {})
+
+        for key, ref_val in ref.parameters.items():
+            if not _is_skew(key):
+                continue
+            if key in native_params:
+                diffs[key] = abs(float(native_params[key]) - float(ref_val))
+            else:
+                logger.debug("Skew parameter '%s' not in native output, skipping", key)
 
         return diffs
 

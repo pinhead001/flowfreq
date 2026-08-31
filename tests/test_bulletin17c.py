@@ -1,5 +1,7 @@
 """Tests for Bulletin 17C flood frequency analysis."""
 
+import logging
+
 import numpy as np
 import pytest
 
@@ -571,3 +573,90 @@ class TestB17BSkewMse:
 
     def test_mse_falls_with_record_length(self):
         assert _b17b_skew_mse(100, 0.2) < _b17b_skew_mse(20, 0.2)
+
+
+class TestMomUserLowOutlierThreshold:
+    """MOM used to drop a user PILF threshold silently.
+
+    Bulletin17C.run_analysis did not pass user_low_outlier_threshold down the
+    MOM path at all, so a user who set one and got a MOM fit -- which is what
+    happens when EMA does not converge and app.ffa_runner falls back -- saw a
+    Grubbs-Beck value they had not asked for, with no indication their setting
+    had been ignored.
+
+    MOM still does not *censor*: doing that needs the Bulletin 17B
+    conditional-probability adjustment, which is not implemented. What changed
+    is that the number reported is now the one the user asked for, and the
+    limitation is stated out loud instead of being invisible.
+    """
+
+    FLOWS = np.array(
+        [
+            9100.0,
+            2060,
+            7820,
+            3220,
+            5580,
+            17000,
+            6740,
+            13800,
+            4270,
+            5940,
+            1680,
+            1200,
+            10100,
+            3780,
+            5340,
+            5630,
+            12000,
+            3980,
+            6130,
+            4740,
+        ]
+    )
+    YEARS = np.arange(1930, 1950)
+
+    def _run(self, override=None):
+        b17c = Bulletin17C(
+            peak_flows=self.FLOWS,
+            water_years=self.YEARS,
+            regional_skew=-0.5,
+            regional_skew_mse=0.3025,
+            user_low_outlier_threshold=override,
+        )
+        b17c.run_analysis(method="mom")
+        return b17c.results
+
+    def test_without_an_override_it_reports_grubbs_beck(self):
+        results = self._run()
+        assert results.low_outlier_threshold > 0
+        assert results.low_outlier_threshold == pytest.approx(
+            10
+            ** (
+                np.mean(np.log10(self.FLOWS))
+                - grubbs_beck_critical_value(len(self.FLOWS)) * np.std(np.log10(self.FLOWS), ddof=1)
+            )
+        )
+
+    def test_override_is_reported_instead_of_grubbs_beck(self):
+        assert self._run(override=4000.0).low_outlier_threshold == pytest.approx(4000.0)
+
+    def test_override_changes_the_reported_pilf_count(self):
+        assert self._run(override=4000.0).n_low_outliers > self._run().n_low_outliers
+
+    def test_override_warns_that_mom_does_not_censor(self, caplog):
+        """Silent is the failure mode being fixed; the warning is the fix."""
+        with caplog.at_level(logging.WARNING, logger="hydrolib.bulletin17c"):
+            self._run(override=4000.0)
+        assert any("does not censor" in r.message for r in caplog.records)
+
+    def test_moments_are_unchanged_by_the_override(self):
+        """Reporting only. If this ever stops holding, MOM has started censoring."""
+        base, forced = self._run(), self._run(override=4000.0)
+        assert forced.mean_log == pytest.approx(base.mean_log)
+        assert forced.std_log == pytest.approx(base.std_log)
+
+    def test_zero_and_none_both_mean_grubbs_beck(self):
+        assert self._run(override=0.0).low_outlier_threshold == pytest.approx(
+            self._run().low_outlier_threshold
+        )
