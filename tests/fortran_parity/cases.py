@@ -211,4 +211,81 @@ def big_sandy_case() -> ParityCase:
     )
 
 
-CASES = {"big_sandy_03606500": big_sandy_case}
+# Standard AEP set, shared by every case so goldens stay comparable.
+_AEPS = tuple(
+    sorted(
+        (0.995, 0.99, 0.95, 0.9, 0.8, 0.6667, 0.5, 0.2, 0.1, 0.04, 0.02, 0.01, 0.005, 0.002),
+        reverse=True,
+    )
+)
+
+
+def wymt_case(site_no: str) -> ParityCase:
+    """A Wyoming/Montana site from the vendored peakfqr test data.
+
+    These sites are plain systematic records -- contiguous water years, no
+    historic peaks, no zero flows -- so their EMA inputs are just the peaks,
+    with the systematic perception thresholds ``(Qmin, Qmax)`` throughout.
+    That keeps the case construction unambiguous, which is the point: they
+    exist to test the parity machinery against a *second* site, not to
+    exercise censoring reconstruction.
+
+    Two things Big Sandy cannot test that these can. Its at-site skew is
+    0.0066, below the 0.04 floor at ``emafit.f:763``, so the Halloween
+    determinant ratio is never reached there; both sites here are well above
+    it. And its conditioning is the only conditioning the live-vs-golden
+    tolerances have ever been calibrated against.
+
+    Parameters
+    ----------
+    site_no : str
+        Station number as it appears in the peakfqr CSVs.
+
+    Returns
+    -------
+    ParityCase
+
+    Raises
+    ------
+    ValueError
+        If the site is not the plain systematic record this assumes.
+    """
+    from tests.fixtures.wymt_peaks import load_site
+
+    site = load_site(site_no)
+    if site.n_historical or not site.is_contiguous:
+        raise ValueError(
+            f"site {site_no} is not a contiguous systematic record "
+            f"(historic peaks: {site.n_historical}, contiguous: {site.is_contiguous}); "
+            "it needs perception thresholds built explicitly"
+        )
+    if site.regional_skew is None:
+        raise ValueError(f"site {site_no} has no regional skew, so weighting is not exercised")
+
+    years = sorted(site.peaks)
+    return ParityCase(
+        site_no=site.site_no,
+        description=f"{site.name}, {years[0]}-{years[-1]}",
+        systematic=dict(site.peaks),
+        historical={},
+        threshold_start=years[0],
+        threshold_end=years[-1],
+        # Unused: with contiguous years and no historic peaks the censored-fill
+        # loop in build_emafit_inputs adds no rows, so no year is ever measured
+        # against this. QMIN keeps it harmless if that ever changes.
+        threshold_lower=QMIN,
+        regional_skew=site.regional_skew,
+        regional_skew_mse=site.regional_skew_mse,
+        aeps=_AEPS,
+    )
+
+
+CASES = {
+    "big_sandy_03606500": big_sandy_case,
+    # Powder River near Locate MT: 85 contiguous years, no PILFs. The plain
+    # counterpart to Big Sandy -- same machinery, different conditioning.
+    "powder_river_06326500": lambda: wymt_case("06326500.00"),
+    # Cains Coulee at Glendive MT: 32 years and 11 PILFs under MGBT, so the
+    # censoring here is produced by the fit rather than supplied as input.
+    "cains_coulee_06327450": lambda: wymt_case("06327450.00"),
+}

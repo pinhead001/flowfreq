@@ -40,6 +40,8 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
+from tests.fortran_parity.conftest import load_golden
+
 pytest.importorskip(
     "hydrolib.peakfqr",
     reason="Fortran extension not built; run python build_fortran/build.py "
@@ -60,50 +62,74 @@ ATOL_VARIANCE = 1e-5
 RTOL_DIAGNOSTIC = 1e-3
 
 
-@pytest.fixture(scope="module")
-def live_big_sandy():
-    from tests.fortran_parity.cases import big_sandy_case, call_emafitpr
+def _case_names():
+    from tests.fortran_parity.cases import CASES
 
-    return call_emafitpr(big_sandy_case())
+    return sorted(CASES)
 
 
-def test_version_still_matches(golden_big_sandy):
+# Every registered case, not just Big Sandy. The tolerances above were
+# calibrated against one site's conditioning; running them over every case is
+# what says whether that calibration generalises.
+@pytest.fixture(scope="module", params=_case_names())
+def case(request):
+    """(golden document, live emafitpr output) for one registered case."""
+    from tests.fortran_parity.cases import CASES, call_emafitpr
+
+    name = request.param
+    golden = load_golden(name)
+    if golden is None:
+        pytest.skip(f"golden file missing for {name} (run tools/gen_fortran_golden.py)")
+    try:
+        live = call_emafitpr(CASES[name]())
+    except FileNotFoundError as exc:  # reference test data absent
+        pytest.skip(f"{name}: {exc}")
+    return name, golden, live
+
+
+def test_version_still_matches(case):
     """The golden file names the peakfq version it came from; vendor/ must agree."""
     from tools.gen_fortran_golden import peakfq_version
 
-    assert golden_big_sandy["meta"]["peakfq_version"] == peakfq_version(), (
-        "vendor/peakfqr/DESCRIPTION reports a different version than the golden file "
-        "records -- regenerate with tools/gen_fortran_golden.py"
+    name, golden, _ = case
+    assert golden["meta"]["peakfq_version"] == peakfq_version(), (
+        f"{name}: vendor/peakfqr/DESCRIPTION reports a different version than the "
+        "golden file records -- regenerate with tools/gen_fortran_golden.py"
     )
 
 
-def test_interval_count(golden_big_sandy, live_big_sandy):
-    assert live_big_sandy["n"] == golden_big_sandy["outputs"]["n"]
+def test_interval_count(case):
+    _, golden, live = case
+    assert live["n"] == golden["outputs"]["n"]
 
 
-def test_mgbt_unchanged(golden_big_sandy, live_big_sandy):
-    assert live_big_sandy["mgbt"] == golden_big_sandy["outputs"]["mgbt"]
+def test_mgbt_unchanged(case):
+    """Counts and the threshold are discrete, so these must match exactly."""
+    _, golden, live = case
+    assert live["mgbt"] == golden["outputs"]["mgbt"]
 
 
 @pytest.mark.parametrize("key", ["as_G_mse_o", "as_G_mse_Syst_o", "as_G_PRL_o", "Wdout"])
-def test_skew_diagnostics_unchanged(golden_big_sandy, live_big_sandy, key):
-    assert live_big_sandy["skew"][key] == pytest.approx(
-        golden_big_sandy["outputs"]["skew"][key], rel=RTOL_DIAGNOSTIC
-    )
+def test_skew_diagnostics_unchanged(case, key):
+    name, golden, live = case
+    assert live["skew"][key] == pytest.approx(
+        golden["outputs"]["skew"][key], rel=RTOL_DIAGNOSTIC
+    ), f"{name}: {key} drifted"
 
 
 # cmoms rows are mean, variance and skew, so one tolerance cannot serve all
 # three: the row that varies most across machines is also the one nearest zero.
 @pytest.mark.parametrize(
-    "row, name, atol",
+    "row, row_name, atol",
     [(0, "mean", ATOL_MEAN), (1, "variance", ATOL_VARIANCE), (2, "skew", ATOL_SKEW)],
 )
-def test_moments_unchanged(golden_big_sandy, live_big_sandy, row, name, atol):
-    live = np.asarray(live_big_sandy["cmoms"], dtype=float)[row]
-    golden = np.asarray(golden_big_sandy["outputs"]["cmoms"], dtype=float)[row]
-    assert np.allclose(live, golden, rtol=0.0, atol=atol), (
-        f"cmoms {name} row drifted from the golden file by "
-        f"{np.max(np.abs(live - golden)):.3e}, past {atol:.0e}"
+def test_moments_unchanged(case, row, row_name, atol):
+    name, golden, live = case
+    live_row = np.asarray(live["cmoms"], dtype=float)[row]
+    golden_row = np.asarray(golden["outputs"]["cmoms"], dtype=float)[row]
+    assert np.allclose(live_row, golden_row, rtol=0.0, atol=atol), (
+        f"{name}: cmoms {row_name} row drifted from the golden file by "
+        f"{np.max(np.abs(live_row - golden_row)):.3e}, past {atol:.0e}"
     )
 
 
@@ -116,9 +142,10 @@ def test_moments_unchanged(golden_big_sandy, live_big_sandy, row, name, atol):
         ("var_est", RTOL_DIAGNOSTIC, 0.0),
     ],
 )
-def test_quantile_vectors_unchanged(golden_big_sandy, live_big_sandy, key, rtol, atol):
-    live = np.asarray(live_big_sandy["quantiles"][key], dtype=float)
-    golden = np.asarray(golden_big_sandy["outputs"]["quantiles"][key], dtype=float)
-    assert np.allclose(live, golden, rtol=rtol, atol=atol), (
-        f"{key} drifted from the golden file by " f"{np.max(np.abs(live - golden)):.3e}"
+def test_quantile_vectors_unchanged(case, key, rtol, atol):
+    name, golden, live = case
+    live_v = np.asarray(live["quantiles"][key], dtype=float)
+    golden_v = np.asarray(golden["outputs"]["quantiles"][key], dtype=float)
+    assert np.allclose(live_v, golden_v, rtol=rtol, atol=atol), (
+        f"{name}: {key} drifted from the golden file by " f"{np.max(np.abs(live_v - golden_v)):.3e}"
     )

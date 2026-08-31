@@ -11,6 +11,18 @@ import pytest
 GOLDEN_DIR = Path(__file__).parent / "golden"
 
 
+def load_golden(name: str):
+    """Load a golden document by case name, or None when it has not been generated.
+
+    Returning None rather than raising lets a caller skip: a missing golden is
+    a missing input, not a failure.
+    """
+    path = GOLDEN_DIR / f"{name}.json"
+    if not path.is_file():
+        return None
+    return json.loads(path.read_text())
+
+
 @pytest.fixture(scope="session")
 def golden_big_sandy() -> dict:
     """The committed Fortran output for Big Sandy (USGS 03606500)."""
