@@ -1,0 +1,157 @@
+{
+  "name": "big_sandy",
+  "site_no": "03606500",
+  "station_name": "BIG SANDY RIVER AT BRUCETON, TN, 1890-1973",
+  "description": "Big Sandy River at Bruceton, TN. Primary validation site: 44 systematic peaks 1930-1973, three historical peaks above an 18,000 cfs perception threshold, 1890-1929.",
+  "begyear": 1890,
+  "endyear": 1973,
+  "regional_skew": -0.5,
+  "regional_skew_sd": 0.55,
+  "systematic_peaks": {
+    "1930": 9100,
+    "1931": 2060,
+    "1932": 7820,
+    "1933": 3220,
+    "1934": 5580,
+    "1935": 17000,
+    "1936": 6740,
+    "1937": 13800,
+    "1938": 4270,
+    "1939": 5940,
+    "1940": 1680,
+    "1941": 1200,
+    "1942": 10100,
+    "1943": 3780,
+    "1944": 5340,
+    "1945": 5630,
+    "1946": 12000,
+    "1947": 3980,
+    "1948": 6130,
+    "1949": 4740,
+    "1950": 9880,
+    "1951": 5230,
+    "1952": 4260,
+    "1953": 5000,
+    "1954": 3320,
+    "1955": 5480,
+    "1956": 11800,
+    "1957": 5150,
+    "1958": 3350,
+    "1959": 2400,
+    "1960": 1460,
+    "1961": 3770,
+    "1962": 7480,
+    "1963": 2740,
+    "1964": 3100,
+    "1965": 7180,
+    "1966": 1920,
+    "1967": 9060,
+    "1968": 3080,
+    "1969": 2800,
+    "1970": 4330,
+    "1971": 5080,
+    "1972": 12000,
+    "1973": 7640
+  },
+  "historical_peaks": {
+    "1897": 25000,
+    "1919": 21000,
+    "1927": 18500
+  },
+  "thresholds": [
+    {
+      "start": 1890,
+      "end": 1929,
+      "lower": 18000.0,
+      "upper": 1e+50
+    },
+    {
+      "start": 1930,
+      "end": 1973,
+      "lower": 0.0,
+      "upper": 1e+50
+    }
+  ],
+  "reference": {
+    "source": "peakfq 8.1.0 (vendor/peakfqr), via tools/gen_fortran_golden.py",
+    "parameters": {
+      "mean_log": 3.717508,
+      "std_log": 0.291043,
+      "skew_weighted": -0.156306,
+      "skew_at_site": 0.006601
+    },
+    "quantiles": {
+      "0.002": 31635.64,
+      "0.005": 26573.14,
+      "0.01": 22959.39,
+      "0.02": 19523.97,
+      "0.04": 16257.05,
+      "0.1": 12169.84,
+      "0.2": 9213.05,
+      "0.5": 5309.91,
+      "0.6667": 3966.78,
+      "0.8": 2985.6,
+      "0.9": 2187.72,
+      "0.95": 1683.48,
+      "0.99": 1016.7,
+      "0.995": 841.75
+    },
+    "confidence_intervals": {
+      "0.01": [
+        17903.45,
+        32590.7
+      ],
+      "0.02": [
+        15650.11,
+        26088.55
+      ],
+      "0.1": [
+        10170.1,
+        14646.38
+      ]
+    }
+  },
+  "historical_reference": {
+    "source": "PeakfqSA User Manual (Cohn, USGS, 2012), pages 26-27",
+    "note": "Kept as historical record only. NOT reproducible by peakfq 8.1.0, whose HWN skew weighting postdates the manual and diverges by design on a censored record. See docs/FORTRAN_UPLOAD.md section 6.0b.",
+    "parameters": {
+      "mean_log": 3.717272,
+      "std_log": 0.2892,
+      "skew_weighted": -0.118702
+    },
+    "quantiles": {
+      "0.002": 32217.14,
+      "0.005": 26912.12,
+      "0.01": 23158.65,
+      "0.02": 19617.73,
+      "0.04": 16276.6,
+      "0.1": 12134.65,
+      "0.2": 9166.15,
+      "0.5": 5284.36,
+      "0.6667": 3957.5,
+      "0.8": 2990.15,
+      "0.9": 2203.77,
+      "0.95": 1706.18,
+      "0.99": 1045.59,
+      "0.995": 871.25
+    },
+    "confidence_intervals": {
+      "0.01": [
+        17388.03,
+        37986.08
+      ],
+      "0.02": [
+        15154.99,
+        29124.18
+      ],
+      "0.1": [
+        9766.0,
+        15218.32
+      ]
+    }
+  },
+  "known_deviations": {
+    "skew_weighted": "peakfq 8.1.0 weights skew by the Halloween method (HWN), an optimized adjustment factor for censored records; hydrolib uses standard Bulletin 17C weighting. -0.1009 vs -0.1563. Open: TODO.md P3.",
+    "skew_at_site": "Follows from the same weighting difference. The reference at-site skew is 0.0066, near enough zero that percent difference is not a useful measure of the gap. Open: TODO.md P3."
+  }
+}

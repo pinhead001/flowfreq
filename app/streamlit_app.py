@@ -146,6 +146,19 @@ if enable_ffa:
     skew_station_on = st.sidebar.checkbox("Station Skew", value=False)
     skew_weighted_on = st.sidebar.checkbox("Weighted Skew", value=True)
     skew_regional_on = st.sidebar.checkbox("Regional Skew", value=False)
+    st.sidebar.markdown("**Low Outliers (PILFs)**")
+    pilf_override = st.sidebar.number_input(
+        "PILF Threshold Override (cfs)",
+        min_value=0.0,
+        value=0.0,
+        step=100.0,
+        format="%.0f",
+        help=(
+            "Leave at 0 to let the Multiple Grubbs-Beck Test pick the threshold. "
+            "A positive value overrides it: every peak below this flow is treated "
+            "as a potentially influential low flood and censored out of the fit."
+        ),
+    )
 else:
     regional_skew = -0.302
     regional_skew_se = 0.55
@@ -157,6 +170,7 @@ else:
     skew_station_on = False
     skew_weighted_on = True
     skew_regional_on = False
+    pilf_override = 0.0
 
 # Download button
 download_data = st.sidebar.button("Download Data", type="primary")
@@ -178,8 +192,8 @@ if "ffa_results" not in st.session_state:
     st.session_state.ffa_results = {}
 if "prev_scale_settings" not in st.session_state:
     st.session_state.prev_scale_settings = None
-if "prev_peak_year_range" not in st.session_state:
-    st.session_state.prev_peak_year_range = None
+if "prev_ffa_inputs" not in st.session_state:
+    st.session_state.prev_ffa_inputs = None
 
 # Clear figures cache when scale settings change
 current_scale_settings = (
@@ -239,14 +253,59 @@ def estimate_ri_from_lp3(flow, mean_log, std_log, skew):
 
 
 def plot_peak_timeseries(
-    peak_df, site_name, site_no, yscale="linear", quantiles=None, max_ri_info=None
+    peak_df,
+    site_name,
+    site_no,
+    yscale="linear",
+    quantiles=None,
+    max_ri_info=None,
+    pilf_threshold=None,
+    pilf_source=None,
 ):
     """Plot annual peak flows with optional quantile reference lines.
 
     quantiles: dict of {return_period: flow_value} to draw as horizontal lines
+    pilf_threshold: low-outlier cut in cfs; peaks below it are drawn hollow
+    pilf_source: where that cut came from, for the legend ("MGBT"/"override")
     """
     fig, ax = plt.subplots(figsize=(10, 4))
-    ax.bar(peak_df["water_year"], peak_df["peak_flow_cfs"], color="steelblue", alpha=0.7)
+
+    years = peak_df["water_year"].values
+    flows = peak_df["peak_flow_cfs"].values
+    # Peaks below the PILF cut are censored out of the fit. Drawing them hollow
+    # is the whole point of exposing the override: without it the control
+    # changes numbers in a table and nothing a user can see on the record.
+    censored = (
+        np.asarray(flows) < pilf_threshold if pilf_threshold else np.zeros(len(flows), dtype=bool)
+    )
+    if censored.any():
+        ax.bar(
+            years[~censored],
+            flows[~censored],
+            color="steelblue",
+            alpha=0.7,
+            label="Peak used in fit",
+        )
+        ax.bar(
+            years[censored],
+            flows[censored],
+            facecolor="none",
+            edgecolor="steelblue",
+            linewidth=0.8,
+            alpha=0.7,
+            label=f"Low outlier, censored ({int(censored.sum())})",
+        )
+        ax.axhline(
+            pilf_threshold,
+            color="red",
+            linestyle="-",
+            linewidth=1.2,
+            alpha=0.8,
+            label=f"PILF threshold {pilf_threshold:,.0f} cfs ({pilf_source or 'MGBT'})",
+        )
+        ax.legend(fontsize=8, loc="upper left")
+    else:
+        ax.bar(years, flows, color="steelblue", alpha=0.7)
 
     # Add quantile lines with labels above
     if quantiles:
@@ -419,6 +478,7 @@ if download_data and gage_list:
                             water_years=peak_df["water_year"].values.astype(int),
                             regional_skew=regional_skew,
                             regional_skew_se=regional_skew_se,
+                            low_outlier_threshold_override=pilf_override or None,
                         )
                         st.session_state.ffa_results[site_no] = ffa_result
                     if ffa_result.get("error"):
@@ -493,10 +553,19 @@ if st.session_state.gage_data:
         # Update plots button
         if st.button("Update Plots", type="secondary"):
             st.session_state.figures = {}
-            # Check if peak year range changed and re-run FFA if needed
-            current_peak_range = (peak_start_year, peak_end_year)
-            if st.session_state.prev_peak_year_range != current_peak_range:
-                st.session_state.prev_peak_year_range = current_peak_range
+            # Re-run FFA when anything it depends on changed. The PILF
+            # override belongs in here: changing it and not refitting would
+            # leave the displayed curve silently stale, which is worse than
+            # not offering the control at all.
+            current_ffa_inputs = (
+                peak_start_year,
+                peak_end_year,
+                pilf_override,
+                regional_skew,
+                regional_skew_se,
+            )
+            if st.session_state.prev_ffa_inputs != current_ffa_inputs:
+                st.session_state.prev_ffa_inputs = current_ffa_inputs
                 # Re-run FFA with filtered peak data
                 if enable_ffa:
                     for site_no in st.session_state.peak_data.keys():
@@ -516,6 +585,7 @@ if st.session_state.gage_data:
                                     water_years=filtered_peak["water_year"].values.astype(int),
                                     regional_skew=regional_skew,
                                     regional_skew_se=regional_skew_se,
+                                    low_outlier_threshold_override=pilf_override or None,
                                 )
                                 st.session_state.ffa_results[site_no] = ffa_result
 
@@ -631,6 +701,18 @@ if st.session_state.gage_data:
                             if ri:
                                 max_ri_info = {"flow": max_flow, "year": max_year, "ri": ri}
 
+                    # PILF cut actually applied to the fit, so the override is
+                    # visible on the record and not only in the parameter table
+                    pilf_threshold = None
+                    pilf_source = None
+                    if site_no in st.session_state.ffa_results:
+                        ffa = st.session_state.ffa_results[site_no]
+                        if not ffa.get("error"):
+                            fp = ffa.get("parameters", {})
+                            if fp.get("n_low_outliers", 0) > 0:
+                                pilf_threshold = fp.get("low_outlier_threshold")
+                                pilf_source = fp.get("low_outlier_source")
+
                     peak_fig = plot_peak_timeseries(
                         peak_df,
                         gage_info.get("name", ""),
@@ -638,6 +720,8 @@ if st.session_state.gage_data:
                         yscale=yscale_peak,
                         quantiles=quantiles,
                         max_ri_info=max_ri_info,
+                        pilf_threshold=pilf_threshold,
+                        pilf_source=pilf_source,
                     )
                     st.pyplot(peak_fig)
 

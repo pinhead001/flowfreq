@@ -25,6 +25,29 @@ DISPLAY_AEP = [1 / ri for ri in DISPLAY_RETURN_INTERVALS]
 # = [0.667, 0.50, 0.20, 0.10, 0.04, 0.02, 0.01, 0.005, 0.002]
 
 
+def _low_outlier_source(override: Optional[float], method: str) -> str:
+    """Describe where the reported PILF threshold came from.
+
+    Parameters
+    ----------
+    override : float or None
+        The user's requested threshold, if any.
+    method : str
+        The method that actually produced the fit, ``"ema"`` or ``"mom"``.
+
+    Returns
+    -------
+    str
+        ``"MGBT"``, ``"override"``, or a phrase saying the override was
+        requested and not applied.
+    """
+    if override is None:
+        return "MGBT"
+    if method == "ema":
+        return "override"
+    return "MGBT (override not applied: MOM fallback)"
+
+
 def run_ffa(
     peak_flows: np.ndarray,
     water_years: np.ndarray,
@@ -54,7 +77,9 @@ def run_ffa(
         left-censored observations (peak < threshold).
     low_outlier_threshold_override : float, optional
         User-supplied PILF threshold (cfs).  When > 0, overrides the MGBT
-        result and censors all peaks below this value.
+        result and censors all peaks below this value.  The threshold actually
+        applied, its source and the resulting PILF count come back under
+        ``parameters`` so a caller can show which cut produced the fit.
 
     Returns
     -------
@@ -135,6 +160,19 @@ def run_ffa(
                     "skew_weighted": r.skew_weighted,
                     "skew_used": r.skew_used,
                     "regional_skew": regional_skew,
+                    # The low-outlier cut and where it came from. Without these
+                    # the UI could offer the override but never show its effect.
+                    #
+                    # The source is derived from what actually happened, not
+                    # from what was asked for. Only the EMA path censors on a
+                    # user threshold: MethodOfMoments reports a Grubbs-Beck
+                    # value and does not censor at all, so on the MOM fallback
+                    # below an override is silently dropped. Saying "override"
+                    # there would put a number on screen that had no effect on
+                    # the fit.
+                    "low_outlier_threshold": r.low_outlier_threshold,
+                    "n_low_outliers": r.n_low_outliers,
+                    "low_outlier_source": _low_outlier_source(lo_override, method),
                 },
                 "quantile_df": quantile_df,
             }
@@ -160,6 +198,8 @@ def format_parameters_df(params: dict) -> pd.DataFrame:
     pd.DataFrame
         Single-row DataFrame with formatted parameter values.
     """
+    threshold = params.get("low_outlier_threshold", 0) or 0
+    source = params.get("low_outlier_source", "MGBT")
     return pd.DataFrame(
         {
             "Mean (log10)": [f"{params.get('mean_log', 0):.4f}"],
@@ -167,6 +207,8 @@ def format_parameters_df(params: dict) -> pd.DataFrame:
             "Station Skew": [f"{params.get('skew_station', 0):.4f}"],
             "Weighted Skew": [f"{params.get('skew_weighted', 0):.4f}"],
             "Regional Skew": [f"{params.get('regional_skew', 0):.4f}"],
+            "PILF Threshold (cfs)": [f"{threshold:,.0f} ({source})" if threshold > 0 else "none"],
+            "PILFs": [f"{params.get('n_low_outliers', 0)}"],
         }
     )
 

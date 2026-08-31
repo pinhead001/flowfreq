@@ -31,6 +31,9 @@ _SKEW_STYLE: Dict[str, Tuple[str, str]] = {
 }
 # Fallback palette when label not in _SKEW_STYLE
 _FALLBACK_COLORS = ["steelblue", "k", "darkorange", "forestgreen"]
+# Style for overlay curves fitted from a different moment set: dashed purple,
+# deliberately unlike anything in _SKEW_STYLE so the two cannot be confused.
+_EXTRA_CURVE_COLOR = "mediumorchid"
 
 
 def _lp3_quantiles(
@@ -68,6 +71,7 @@ def plot_frequency_curve_streamlit(
     skew_curves: Optional[Dict[str, float]] = None,
     yscale: str = "log",
     max_flow_label: Optional[Dict] = None,
+    extra_curves: Optional[Dict[str, Tuple[float, float, float, int]]] = None,
 ) -> plt.Figure:
     """Plot a Bulletin 17C frequency curve suitable for Streamlit display.
 
@@ -87,6 +91,14 @@ def plot_frequency_curve_streamlit(
         hydrograph median line) is drawn.  With multiple entries each curve
         gets a distinct color with its own 90% CI band.
         Example: ``{"Station Skew": -0.15, "Weighted Skew": -0.22}``.
+    extra_curves : dict[str, tuple[float, float, float, int]], optional
+        Additional LP3 parameter sets to overlay, each as
+        ``{label: (mean_log, std_log, skew, n)}``. Unlike ``skew_curves``,
+        which varies only the skew of the fit already on the axes, these carry
+        their own moments -- which is what a second *fit* needs. Use it to show
+        the effect of a refit: a PILF-threshold override, or a
+        perception-threshold-aware EMA beside the base analysis. Drawn in
+        dashed purple with its own 90% band.
 
     Returns
     -------
@@ -220,6 +232,22 @@ def plot_frequency_curve_streamlit(
         ax.fill_between(x_cl, lower, upper, alpha=0.12, color=color)
         ax.plot(x_cl, lower, color=color, linestyle="--", linewidth=0.7, alpha=0.55)
         ax.plot(x_cl, upper, color=color, linestyle="--", linewidth=0.7, alpha=0.55)
+
+    # --- Overlay curves from an independent fit (own mean/std, not just skew) ---
+    for label, (ec_mean, ec_std, ec_skew, ec_n) in (extra_curves or {}).items():
+        ax.plot(
+            x_curve,
+            _lp3_quantiles(ec_mean, ec_std, ec_skew, aep_fine),
+            color=_EXTRA_CURVE_COLOR,
+            linestyle="--",
+            linewidth=1.5,
+            label=label,
+            zorder=4,
+        )
+        lower_ec, upper_ec = _lp3_ci(ec_mean, ec_std, ec_skew, ec_n, aep_ci)
+        ax.fill_between(x_cl, lower_ec, upper_ec, alpha=0.10, color=_EXTRA_CURVE_COLOR)
+        ax.plot(x_cl, lower_ec, color=_EXTRA_CURVE_COLOR, linestyle=":", linewidth=0.7, alpha=0.55)
+        ax.plot(x_cl, upper_ec, color=_EXTRA_CURVE_COLOR, linestyle=":", linewidth=0.7, alpha=0.55)
 
     # --- Low outlier threshold ---
     if r.low_outlier_threshold > 0 and r.n_low_outliers > 0:

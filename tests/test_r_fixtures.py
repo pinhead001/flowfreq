@@ -14,8 +14,8 @@ import os
 import pytest
 
 # Aliased: a module-level name starting with "test" would be collected as a test.
-from tests.peakfqsa.fixtures.paths import SKIP_REASON, TESTDATA_AVAILABLE
-from tests.peakfqsa.fixtures.paths import testdata_path as _testdata_path
+from tests.fixtures.paths import SKIP_REASON, TESTDATA_AVAILABLE
+from tests.fixtures.paths import testdata_path as _testdata_path
 
 requires_testdata = pytest.mark.skipif(not TESTDATA_AVAILABLE, reason=SKIP_REASON)
 
@@ -24,38 +24,38 @@ class TestFortranRespecFixtures:
     """Validate fortran_respec fixture data is well-formed."""
 
     def test_ql_qu_same_length(self) -> None:
-        from tests.peakfqsa.fixtures.fortran_respec import QL, QU
+        from tests.fixtures.fortran_respec import QL, QU
 
         assert len(QL) == len(QU) == 34
 
     def test_truth_data_length(self) -> None:
-        from tests.peakfqsa.fixtures.fortran_respec import QL_TRUTH, QU_TRUTH
+        from tests.fixtures.fortran_respec import QL_TRUTH, QU_TRUTH
 
         assert len(QL_TRUTH) == len(QU_TRUTH) == 200
 
     def test_moms_p3_expected_has_three_variants(self) -> None:
-        from tests.peakfqsa.fixtures.fortran_respec import MOMS_P3_EXPECTED
+        from tests.fixtures.fortran_respec import MOMS_P3_EXPECTED
 
         assert set(MOMS_P3_EXPECTED.keys()) == {"orig", "ERL", "HWN"}
         for key, vals in MOMS_P3_EXPECTED.items():
             assert len(vals) == 3, f"{key} should have [mean, var, skew]"
 
     def test_p3est_ema_expected_has_three_variants(self) -> None:
-        from tests.peakfqsa.fixtures.fortran_respec import P3EST_EMA_EXPECTED
+        from tests.fixtures.fortran_respec import P3EST_EMA_EXPECTED
 
         assert set(P3EST_EMA_EXPECTED.keys()) == {"orig", "ERL", "HWN"}
         for key, vals in P3EST_EMA_EXPECTED.items():
             assert len(vals) == 3
 
     def test_truth_moms_expected_values(self) -> None:
-        from tests.peakfqsa.fixtures.fortran_respec import TRUTH_MOMS_P3_EXPECTED
+        from tests.fixtures.fortran_respec import TRUTH_MOMS_P3_EXPECTED
 
         assert len(TRUTH_MOMS_P3_EXPECTED) == 3
         # mean, variance, skew should all be finite
         assert all(math.isfinite(v) for v in TRUTH_MOMS_P3_EXPECTED)
 
     def test_qp3_exceedance_probs(self) -> None:
-        from tests.peakfqsa.fixtures.fortran_respec import QP3_EXCEEDANCE_PROBS
+        from tests.fixtures.fortran_respec import QP3_EXCEEDANCE_PROBS
 
         assert len(QP3_EXCEEDANCE_PROBS) == 7
         # Should be in decreasing order (high to low exceedance)
@@ -63,7 +63,7 @@ class TestFortranRespecFixtures:
 
     def test_censored_intervals_present(self) -> None:
         """Verify that QL has zeros (censored lower bounds) where QU > 0."""
-        from tests.peakfqsa.fixtures.fortran_respec import QL, QU
+        from tests.fixtures.fortran_respec import QL, QU
 
         censored = [(l, u) for l, u in zip(QL, QU) if l != u]
         assert len(censored) == 3  # indices 20, 22, 23 have ql=0, qu=40
@@ -81,13 +81,13 @@ class TestSkewWeightingFixtures:
     """
 
     def test_load_whist_cases(self) -> None:
-        from tests.peakfqsa.fixtures.skew_weighting import load_whist_cases
+        from tests.fixtures.skew_weighting import load_whist_cases
 
         cases = load_whist_cases()
         assert len(cases) == 312  # 312 data rows in CSV
 
     def test_whist_case_values_in_range(self) -> None:
-        from tests.peakfqsa.fixtures.skew_weighting import load_whist_cases
+        from tests.fixtures.skew_weighting import load_whist_cases
 
         cases = load_whist_cases()
         for case in cases:
@@ -102,7 +102,7 @@ class TestMomentsWymtFixtures:
     @pytest.mark.requires_peakfqr_testdata
     @requires_testdata
     def test_expected_csv_files_exist(self) -> None:
-        from tests.peakfqsa.fixtures.moments_wymt import (
+        from tests.fixtures.moments_wymt import (
             EXPECTED_DATA_CSV,
             EXPECTED_EMP_CSV,
             EXPECTED_INFO_CSV,
@@ -114,7 +114,7 @@ class TestMomentsWymtFixtures:
             assert path.exists(), f"Missing expected CSV: {path}"
 
     def test_column_definitions(self) -> None:
-        from tests.peakfqsa.fixtures.moments_wymt import (
+        from tests.fixtures.moments_wymt import (
             MGBT_COLS,
             MOMENTS_COLS,
             QUANTILE_COLS,

@@ -1,8 +1,9 @@
 """
 Comparison engine for native vs reference frequency analysis results.
 
-Compares HydroLib native EMA output against PeakfqSA/reference results
-with configurable tolerance thresholds per output category.
+Compares HydroLib native EMA output against a
+:class:`~hydrolib.validation.reference.ReferenceResult` with configurable
+tolerance thresholds per output category.
 """
 
 from __future__ import annotations
@@ -11,7 +12,7 @@ import logging
 from dataclasses import dataclass, field
 from typing import Any
 
-from hydrolib.peakfqsa.parsers import PeakfqSAResult
+from hydrolib.validation.reference import ReferenceResult
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +48,7 @@ class ComparisonResult:
     summary: str = ""
 
 
-def _pct_diff(native_val: float, ref_val: float) -> float:
+def _pct_diff(native_val: float, ref_val: float, scale_floor: float = 0.0) -> float:
     """Compute percent difference between two values.
 
     Parameters
@@ -56,17 +57,25 @@ def _pct_diff(native_val: float, ref_val: float) -> float:
         Value from the native analysis.
     ref_val : float
         Reference value.
+    scale_floor : float, optional
+        Lower bound on the denominator. Percent difference is meaningless for a
+        quantity that legitimately passes through zero: Big Sandy's at-site
+        skew is 0.0066 under peakfq 8.1.0, so an absolute gap of 0.016 -- small,
+        in skew units -- divides out to 249%, which then dominates
+        ``max_diff_pct`` and hides everything else in the report. With a floor
+        of 0.1 the same gap reads 16%. Left at 0.0 the behaviour is unchanged,
+        which is what discharges want: they are in the thousands and never
+        approach any sane floor.
 
     Returns
     -------
     float
         Absolute percent difference. Returns 0.0 if both values are zero.
     """
-    if ref_val == 0.0:
-        if native_val == 0.0:
-            return 0.0
-        return 100.0
-    return abs((native_val - ref_val) / ref_val) * 100.0
+    denominator = max(abs(ref_val), scale_floor)
+    if denominator == 0.0:
+        return 0.0 if native_val == 0.0 else 100.0
+    return abs(native_val - ref_val) / denominator * 100.0
 
 
 class FrequencyComparator:
@@ -80,6 +89,10 @@ class FrequencyComparator:
         Tolerance for LP3 parameter comparisons.
     ci_tolerance_pct : float
         Tolerance for confidence interval comparisons.
+    parameter_scale_floor : float
+        Denominator floor for parameter percent differences; see
+        :func:`_pct_diff`. Applies to parameters only, not to quantiles or
+        confidence intervals.
     """
 
     def __init__(
@@ -87,15 +100,17 @@ class FrequencyComparator:
         tolerance_pct: float = 1.0,
         parameter_tolerance_pct: float = 0.5,
         ci_tolerance_pct: float = 2.0,
+        parameter_scale_floor: float = 0.1,
     ) -> None:
         self.tolerance_pct = tolerance_pct
         self.parameter_tolerance_pct = parameter_tolerance_pct
         self.ci_tolerance_pct = ci_tolerance_pct
+        self.parameter_scale_floor = parameter_scale_floor
 
     def compare(
         self,
         native: dict[str, Any],
-        reference: PeakfqSAResult,
+        reference: ReferenceResult,
     ) -> ComparisonResult:
         """Compare native analysis output against a reference result.
 
@@ -104,7 +119,7 @@ class FrequencyComparator:
         native : dict
             Output from HydroLib native analysis. Expected keys:
             'parameters', 'quantiles', 'confidence_intervals'.
-        reference : PeakfqSAResult
+        reference : ReferenceResult
             Reference result to compare against.
 
         Returns
@@ -149,14 +164,14 @@ class FrequencyComparator:
             summary=summary,
         )
 
-    def compare_parameters(self, native: dict[str, Any], ref: PeakfqSAResult) -> dict[str, float]:
+    def compare_parameters(self, native: dict[str, Any], ref: ReferenceResult) -> dict[str, float]:
         """Compare LP3 parameters between native and reference.
 
         Parameters
         ----------
         native : dict
             Native analysis output with 'parameters' key.
-        ref : PeakfqSAResult
+        ref : ReferenceResult
             Reference result.
 
         Returns
@@ -169,20 +184,22 @@ class FrequencyComparator:
 
         for key, ref_val in ref.parameters.items():
             if key in native_params:
-                diffs[key] = _pct_diff(native_params[key], ref_val)
+                diffs[key] = _pct_diff(
+                    native_params[key], ref_val, scale_floor=self.parameter_scale_floor
+                )
             else:
                 logger.debug("Parameter '%s' not in native output, skipping", key)
 
         return diffs
 
-    def compare_quantiles(self, native: dict[str, Any], ref: PeakfqSAResult) -> dict[float, float]:
+    def compare_quantiles(self, native: dict[str, Any], ref: ReferenceResult) -> dict[float, float]:
         """Compare quantile estimates between native and reference.
 
         Parameters
         ----------
         native : dict
             Native analysis output with 'quantiles' key.
-        ref : PeakfqSAResult
+        ref : ReferenceResult
             Reference result.
 
         Returns
@@ -201,7 +218,7 @@ class FrequencyComparator:
 
         return diffs
 
-    def compare_ci(self, native: dict[str, Any], ref: PeakfqSAResult) -> dict[float, float]:
+    def compare_ci(self, native: dict[str, Any], ref: ReferenceResult) -> dict[float, float]:
         """Compare confidence intervals between native and reference.
 
         The percent difference is the maximum of lower and upper bound
@@ -211,7 +228,7 @@ class FrequencyComparator:
         ----------
         native : dict
             Native analysis output with 'confidence_intervals' key.
-        ref : PeakfqSAResult
+        ref : ReferenceResult
             Reference result.
 
         Returns

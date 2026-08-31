@@ -19,7 +19,7 @@ import pytest
 
 from hydrolib.bulletin17c import Bulletin17C
 from hydrolib.core import kfactor_array
-from tests.peakfqsa.fixtures.big_sandy import SYSTEMATIC_PEAKS
+from tests.fixtures.big_sandy import SYSTEMATIC_PEAKS
 
 PEAK_FLOWS = list(SYSTEMATIC_PEAKS.values())
 WATER_YEARS = list(SYSTEMATIC_PEAKS.keys())

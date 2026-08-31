@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from datetime import datetime
-from functools import cached_property
+from functools import cached_property, lru_cache
 from typing import ClassVar, Dict, List, Optional, Tuple, Union
 
 import matplotlib.pyplot as plt
@@ -755,7 +755,23 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
 
         return new_mean, new_std, new_skew
 
+    # Memoized because it is pure and expensive: a scipy.integrate.quad over the
+    # beta-order-statistic integrand, ~85 ms a call, and MGBT is ~99% of the
+    # wall time of a run_analysis() on a typical record.
+    #
+    # It buys nothing inside a single analysis. All 22 keys one run_analysis()
+    # generates are distinct -- measured, not assumed -- so the hit rate there
+    # is 0%. It pays only where the same fit repeats: 66 calls over 22 distinct
+    # keys across three identical analyses, a 67% hit rate. That is the test
+    # suite's access pattern, not a user's. Treat this as a suite-speed lever,
+    # not a performance fix.
+    #
+    # Decorator order is load-bearing: staticmethod must be outermost. Before
+    # Python 3.10 a staticmethod object is not callable, so lru_cache above
+    # staticmethod would wrap something it cannot call and break collection on
+    # the 3.9 matrix job.
     @staticmethod
+    @lru_cache(maxsize=4096)
     def _mgbt_pvalue(n: int, r: int, w: float) -> float:
         """Exact MGBT p-value via GGBCRITP algorithm (peakfqr/probfun.f).
 
@@ -933,7 +949,9 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
 
             # ZT(I) = zt[i_f - 1] (0-based)
             w_i = (zt[i_f - 1] - xm) / np.sqrt(xv)
-            pvalues[i_f] = self._mgbt_pvalue(n, i_f, w_i)
+            # float() keeps the cache key a plain float rather than a
+            # numpy scalar, so repeats of the same fit land on one entry.
+            pvalues[i_f] = self._mgbt_pvalue(int(n), i_f, float(w_i))
 
         # ── Three sweeps ────────────────────────────────────────────────────
         alpha_out = 0.005  # outward sweep
@@ -1412,17 +1430,18 @@ class Bulletin17C:
 
     def validate(
         self,
-        reference: "PeakfqSAResult",
+        reference: "ReferenceResult",
         tolerance_pct: float = 1.0,
         parameter_tolerance_pct: float = 0.5,
         ci_tolerance_pct: float = 2.0,
     ) -> "ComparisonResult":
-        """Validate native results against a PeakfqSA reference.
+        """Validate native results against a peakfq 8.1.0 reference.
 
         Parameters
         ----------
-        reference : PeakfqSAResult
-            Reference result from PeakfqSA.
+        reference : ReferenceResult
+            Reference result, from a golden file or a live ``emafitpr`` call;
+            see :mod:`hydrolib.validation.reference`.
         tolerance_pct : float
             Tolerance for quantile comparisons.
         parameter_tolerance_pct : float

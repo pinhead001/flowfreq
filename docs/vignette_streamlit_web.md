@@ -46,10 +46,11 @@ Only needed if you want the Fortran extension (`hydrolib.peakfqr`). **The app do
 require it** — nothing in the Streamlit path calls it, and the parity tests read
 committed golden files instead.
 
-The repository does still carry `hydrolib/peakfqr/_emafort.cp312-win_amd64.pyd` and four
-mingw DLLs, but they are **Windows/CPython-3.12 only** and cannot load on Streamlit Cloud's
-Ubuntu — a `.pyd` is a PE32+ Windows DLL. Newly built extensions are gitignored. To build
-one on Linux, add:
+The repository carries no prebuilt extension: a Windows/CPython-3.12 `.pyd` and four mingw
+DLLs used to be committed here, but they could not load on Streamlit Cloud's Ubuntu — a
+`.pyd` is a PE32+ Windows DLL — and they have been removed. Build output is gitignored;
+the extension is compiled from `vendor/peakfqr/src` by `build_fortran/build.py`, and
+HydroLib falls back to the native EMA path when it is absent. To build one on Linux, add:
 
 ```
 gfortran

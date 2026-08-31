@@ -2,7 +2,9 @@
 # and what the build runs cannot drift apart.
 
 PYTHON ?= python
-PKGS := hydrolib/ tests/
+# app/ is in here because CI once linted hydrolib/ and tests/ only, and that
+# blind spot is why Streamlit changes could not be reviewed with confidence.
+PKGS := hydrolib/ tests/ app/
 
 # The marker deselection lives in pyproject.toml's addopts, not here, so a bare
 # `pytest` is already correct and there is exactly one place to get it wrong.
@@ -13,7 +15,7 @@ PKGS := hydrolib/ tests/
 PYTEST := PYTHONSAFEPATH=1 $(PYTHON) -m pytest
 
 .DEFAULT_GOAL := help
-.PHONY: help check lint fmt test test-all fortran golden clean
+.PHONY: help check lint fmt test test-all smoke fortran parity golden clean
 
 help:  ## Show this help
 	@awk -F':.*?## ' '/^[a-z-]+:.*## /{printf "  %-10s %s\n", $$1, $$2}' Makefile
@@ -34,8 +36,22 @@ test:  ## Run the suite as CI does
 test-all:  ## Run everything, including the network tests
 	$(PYTEST) tests/ -m ""
 
+# Importing app/streamlit_app.py executes the whole script in Streamlit's bare
+# mode, so this exercises the app end to end short of a button press. Needs
+# Streamlit, which needs Python >= 3.10 and is not in the dev extra.
+smoke:  ## Smoke-test the Streamlit app (pip install -r app/requirements.txt first)
+	$(PYTEST) tests/test_streamlit_app.py tests/test_ffa_runner.py tests/test_ffa_export.py
+
 fortran:  ## Build the f2py extension from vendor/peakfqr (needs gfortran + meson)
 	$(PYTHON) build_fortran/build.py
+
+# The import check is not redundant. test_live_vs_golden.py calls importorskip,
+# so a failed build would skip every parity test and still exit 0 -- which is
+# exactly the silent pass this target exists to prevent.
+parity:  ## Build the extension and check the golden files against it (needs gfortran + meson)
+	$(PYTHON) build_fortran/build.py
+	$(PYTHON) -c "from hydrolib.peakfqr import emafitpr"
+	$(PYTEST) tests/fortran_parity/
 
 golden:  ## Regenerate Fortran parity golden files (needs the extension)
 	$(PYTHON) tools/gen_fortran_golden.py

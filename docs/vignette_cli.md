@@ -87,15 +87,15 @@ Example JSON output structure:
 The full pytest suite covers all public APIs including EMA, plotting, export, and the Streamlit runner:
 
 ```bash
-# All tests (excluding Fortran-dependent)
-pytest tests/ -v -m "not requires_peakfqsa"
+# The whole suite. The default marker selection lives in pyproject.toml's
+# addopts, so a bare pytest is already what CI runs.
+pytest tests/
 
 # Specific module
 pytest tests/test_ffa_runner.py -v
-pytest tests/peakfqsa/ -v -m "not requires_peakfqsa"
 
 # With coverage
-pytest tests/ --cov=hydrolib --cov-report=term-missing -m "not requires_peakfqsa"
+pytest tests/ --cov=hydrolib --cov-report=term-missing
 ```
 
 ---

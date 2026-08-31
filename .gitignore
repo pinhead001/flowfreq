@@ -213,5 +213,8 @@ hydrolib/peakfqr/_emafort*.so
 hydrolib/peakfqr/_emafort*.pyd
 build_fortran/_emafort*.so
 build_fortran/_emafort*.pyd
+# A Windows build drops the mingw runtime beside the extension. Those are build
+# output too -- five of them were committed once and had to be removed later.
+hydrolib/peakfqr/*.dll
 build_fortran/mbuild/
 build_fortran/native.ini

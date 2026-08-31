@@ -23,7 +23,7 @@ from hydrolib.bulletin17c import Bulletin17C
 from hydrolib.core import EMAParameters, FlowInterval
 
 # Import fixture data
-from tests.peakfqsa.fixtures.big_sandy import (
+from tests.fixtures.big_sandy import (
     BEGYEAR,
     ENDYEAR,
     EXPECTED_CONFIDENCE_INTERVALS,
