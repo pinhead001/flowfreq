@@ -11,6 +11,7 @@ from hydrolib import (
     grubbs_beck_critical_value,
     kfactor,
 )
+from hydrolib.bulletin17c import _b17b_skew_mse
 
 
 # Fixtures
@@ -467,3 +468,106 @@ class TestMGBTMemoization:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
+
+
+class TestRegionalSkewInTheFixedPoint:
+    """The regional skew enters the EMA loop, it is not averaged in afterwards.
+
+    peakfq 8.1.0 implements Bulletin 17C eq. 7-10 inside moms_p3
+    (vendor/peakfqr/src/emafit.f:1344): the regional skew arrives as nG
+    pseudo-observations at value rG, evaluated every iteration. Because the
+    skew feeds the P3 distribution that produces the next round of expected
+    moments, that also moves the mean and the variance -- which a post-hoc
+    weighted average of two skews cannot do.
+    """
+
+    @staticmethod
+    def _big_sandy(**kwargs):
+        from tests.fixtures.big_sandy import (
+            HISTORICAL_PEAKS,
+            REGIONAL_SKEW,
+            REGIONAL_SKEW_SD,
+            SYSTEMATIC_PEAKS,
+            THRESHOLDS,
+        )
+
+        params = dict(
+            peak_flows=list(SYSTEMATIC_PEAKS.values()),
+            water_years=list(SYSTEMATIC_PEAKS.keys()),
+            regional_skew=REGIONAL_SKEW,
+            regional_skew_mse=REGIONAL_SKEW_SD**2,
+            historical_peaks=[(y, f) for y, f in HISTORICAL_PEAKS.items()],
+            perception_thresholds={(t["start"], t["end"]): t["lower"] for t in THRESHOLDS},
+        )
+        params.update(kwargs)
+        b = Bulletin17C(**params)
+        b.run_analysis()
+        return b
+
+    def test_weighting_moves_the_mean_and_variance_too(self):
+        """Not just the skew. This is what distinguishes the two formulations."""
+        weighted = self._big_sandy().results
+        at_site = self._big_sandy(regional_skew=None, regional_skew_mse=None).results
+        assert weighted.mean_log != at_site.mean_log
+        assert weighted.std_log != at_site.std_log
+
+    def test_equivalent_years_follows_griffis_2004(self):
+        """nG = n * Wd * as_G_mse / r_G_mse, emafit.f:1194."""
+        ema = self._big_sandy()._analyzer
+        n = len(ema.intervals)
+        n_g = ema._regional_skew_equivalent_years(0.0066, n)
+        expected = n * 1.0 * _b17b_skew_mse(n, 0.0066) / ema._regional_skew_mse
+        assert n_g == pytest.approx(expected)
+
+    def test_no_regional_skew_means_no_pseudo_observations(self):
+        ema = self._big_sandy(regional_skew=None, regional_skew_mse=None)._analyzer
+        assert ema._regional_skew_equivalent_years(0.0066, 84) == 0.0
+
+    @pytest.mark.parametrize("mse", [0.0, 1e11])
+    def test_generalized_and_station_only_get_no_pseudo_observations(self, mse):
+        """MSE 0 is 'generalized, no error'; >= 1e10 is station-only."""
+        ema = self._big_sandy(regional_skew_mse=mse)._analyzer
+        assert ema._regional_skew_equivalent_years(0.0066, 84) == 0.0
+
+    def test_bias_correction_applies_to_exact_peaks_only(self):
+        """c2 and c3 correct the exact peaks; censored intervals go in raw.
+
+        With an uncensored record the two formulations coincide, which is what
+        makes this checkable: the Fortran split must reproduce the plain
+        sample moments exactly.
+        """
+        flows = np.array([9100.0, 2060, 7820, 3220, 5580, 17000, 6740, 13800, 4270, 5940])
+        years = np.arange(1960, 1970)
+        b = Bulletin17C(peak_flows=flows, water_years=years)
+        b.run_analysis(method="ema")
+        logs = np.log10(flows)
+        n = len(logs)
+        assert b.results.mean_log == pytest.approx(logs.mean())
+        assert b.results.std_log == pytest.approx(logs.std(ddof=1))
+        m3 = np.sum((logs - logs.mean()) ** 3)
+        expected_skew = n * m3 / ((n - 1) * (n - 2) * logs.std(ddof=1) ** 3)
+        assert b.results.skew_station == pytest.approx(expected_skew)
+
+
+class TestB17BSkewMse:
+    """mseg(), emafit.f:1707."""
+
+    def test_matches_the_fortran_formula(self):
+        # a = -0.33 + 0.08|g|, b = 0.94 - 0.26|g|, mseg = 10**(a - b*log10(n/10))
+        expected = 10 ** ((-0.33 + 0.08 * 0.5) - (0.94 - 0.26 * 0.5) * np.log10(8.4))
+        assert _b17b_skew_mse(84, 0.5) == pytest.approx(expected)
+
+    def test_large_skew_switches_coefficients(self):
+        """|g| > 0.9 changes a; |g| > 1.5 pins b at 0.55."""
+        expected = 10 ** ((-0.52 + 0.30 * 1.6) - 0.55 * np.log10(8.4))
+        assert _b17b_skew_mse(84, 1.6) == pytest.approx(expected)
+
+    def test_sign_of_skew_is_irrelevant(self):
+        assert _b17b_skew_mse(84, -0.5) == pytest.approx(_b17b_skew_mse(84, 0.5))
+
+    def test_record_length_is_capped_at_150(self):
+        """mseg_all passes min(n, 150); a longer record buys no more certainty."""
+        assert _b17b_skew_mse(400, 0.2) == pytest.approx(_b17b_skew_mse(150, 0.2))
+
+    def test_mse_falls_with_record_length(self):
+        assert _b17b_skew_mse(100, 0.2) < _b17b_skew_mse(20, 0.2)
