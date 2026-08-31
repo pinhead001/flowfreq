@@ -2,8 +2,9 @@
 
 ## Status
 Last updated: 2026-08-31
-Tests: **407 passed, 1 deselected, 5 xfailed** in ~18 s (was ~75 s; see the MGBT memoization
-below). CI green on main.
+Tests: **448 passed, 1 deselected, 7 xfailed** in ~33 s (was ~75 s for far fewer tests; see
+the MGBT memoization below). CI green on main. Two of the seven xfails are new, both on the
+Cains Coulee parity case; see P3.
 Fortran reference: **vendored** at `vendor/peakfqr/` (peakfq 8.1.0, CC0).
 Fortran bridge: builds from those sources via `python build_fortran/build.py`
 (gfortran + meson) and is now **built and checked in CI** by `make parity`.
@@ -23,6 +24,19 @@ fails the moment either starts passing. Nothing else is blocked on them.
 They are **not two problems**. Both bottom out in `var_mom` and its dependency tree, which is
 the one piece of the reference implementation that has never been ported. Read this section
 as one item with two symptoms.
+
+**The defect is censoring-specific, and that is now measured rather than assumed.** Two
+Wyoming/Montana parity cases were added for exactly this question:
+
+| case | censoring | reference `Wd` | native vs peakfq 8.1.0 |
+|---|---|---:|---|
+| Powder River 06326500 | none | 1.0 | mean **0.0**, sd **3.7e-14**, at-site skew **4.5e-12**, weighted skew **7.5e-11**; quantiles ≤ 0.10% |
+| Cains Coulee 06327450 | 11 PILFs from MGBT | **0.184** | at-site skew 0.122, weighted skew 0.098; quantiles 0.30% to 18.7%, 2.7% at Q100 |
+
+So with nothing censored the native EMA reproduces peakfq to machine precision — the in-loop
+regional-skew weighting is *right*, not merely closer. Everything that remains is
+censored-path work. Cains Coulee is also the first case in the repository where `detrat`
+actually bites, so it is the oracle for that routine.
 
 - [ ] **Port `var_mom` and the routines it needs.** ~1,100 lines of Fortran in `emafit.f`
       alone, plus `CHOL33` (`probfun.f`), `DLGINV` (`imslfake.f`), and `expmomderiv`, `m2mn`,
@@ -61,8 +75,11 @@ as one item with two symptoms.
 
       Also unimplemented: `detrat`, the Halloween determinant ratio. `emafit.f:763` applies it
       only when the at-site skew is ≥ 0.04 in magnitude, and Big Sandy's is 0.0066, so `Wd`
-      is 1 here either way — but a record above that floor currently gets INV weighting, not
-      HWN. Big Sandy cannot detect that regression; a second parity case would.
+      is 1 there either way. **Cains Coulee 06327450 now covers it**: its at-site skew is
+      −0.708 and its reference `Wd` is **0.184**, so hydrolib's implicit 1 over-weights the
+      regional skew by more than fivefold on that site. That case is the acceptance test for
+      `detrat`, and its two `xfail(strict=True)` assertions will fail the build the moment
+      the routine lands and starts working.
 
 - [ ] **Confidence-interval shape.** `compute_confidence_limits()` forms `log_Q ± z·se`,
       symmetric by construction (ratio 1.000 at every AEP). peakfq skews right with return
@@ -94,7 +111,8 @@ as one item with two symptoms.
 
 ### Follow-ups found while clearing P1 and P2
 
-Small, specified, none blocking.
+Small, specified, none blocking. (The second-parity-case item that used to head this list is
+done — see the P3 table above and the Done section.)
 
 - [ ] **`plot_peak_flows_with_thresholds` is still uncalled.** `app/streamlit_app.py` has its
       own `plot_peak_timeseries`, which carries return-period lines and the max-peak
@@ -207,6 +225,28 @@ Small, specified, none blocking.
 - [x] **`Benchmark.run_native()` dropped the perception thresholds**, comparing a
       systematic-only fit against the reference's censored one and calling the modelling
       difference an error.
+
+### Parity beyond Big Sandy
+
+- [x] **Two Wyoming/Montana parity cases**, from peaks the repository already vendored
+      (`wymt_ffa_2022A_EMPdata_7_4.csv`). Both are contiguous systematic records with no
+      historic peaks and no zero flows, so their EMA inputs are unambiguous. Powder River
+      (85 years, no PILFs) and Cains Coulee (32 years, 11 PILFs under MGBT). Registered in
+      `CASES`, goldens generated from the vendored 8.1.0 Fortran; the peakfq 7.4 numbers in
+      those CSVs are a cross-check only, never a parity target.
+
+      `test_live_vs_golden.py` is now parametrised over every registered case rather than
+      Big Sandy alone, which is what says whether its tolerances generalise. They do, with
+      room: the 1-ulp conditioning response is **0.0** on Powder River and ~1e-13 on Cains
+      Coulee, against Big Sandy's 1e-5 to 1e-4. Censoring drives the conditioning, not record
+      length — Big Sandy's 37 censored intervals are why it is the ill-conditioned one, and
+      the tolerances calibrated on it are the loosest any case needs. Minimum headroom across
+      all three: 10.7x.
+
+      Both new modules skip cleanly when the reference tree is absent — verified by hiding
+      `vendor/peakfqr/inst/testdata` and re-running: 406 passed, 44 skipped, exit 0. The
+      `requires_peakfqr_testdata` marker alone does not skip anything, so it is paired with
+      a `skipif` on `TESTDATA_AVAILABLE`, the same way `tests/test_r_fixtures.py` does it.
 
 ### The structural half of the skew defect
 
