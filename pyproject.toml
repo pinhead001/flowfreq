@@ -30,6 +30,12 @@ dependencies = [
     "requests>=2.25.0",
     "click>=8.0",
     "pyarrow>=10.0",
+    # Pure Python, no compiled extension. hydrolib._p3_moments needs it for
+    # the var_mom port's truncated-moment computation: at-site skew near
+    # zero (the common case) makes the Pearson III shape parameter
+    # alpha = 4/skew**2 large enough (Big Sandy: ~9e4) that float64 loses
+    # the moment computation to cancellation. See _GAMMA_MOMENT_DPS there.
+    "mpmath>=1.2",
 ]
 
 [project.optional-dependencies]

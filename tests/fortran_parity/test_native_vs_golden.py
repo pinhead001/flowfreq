@@ -56,16 +56,19 @@ class TestRung3Moments:
         actual = native_big_sandy._results.skew_station
         assert abs(actual - expected) < 0.05
 
-    @pytest.mark.xfail(
-        strict=True,
-        reason=(
-            "peakfq 8.1.0 weights skew with the HWN 'optimized adjustment factor when "
-            "censored data are present' (fortranWrappers.R); hydrolib uses the standard "
-            "Bulletin 17C weighting. On this record that is -0.1563 vs -0.1009, ~35%. "
-            "See docs/FORTRAN_UPLOAD.md section 6.0b."
-        ),
-    )
     def test_weighted_skew(self, golden_big_sandy, native_big_sandy):
+        """No longer xfail: TODO.md P3's var_mom port closes this.
+
+        Was -0.1563 vs -0.1009, ~35%, when hydrolib used the standard
+        Bulletin 17C weighting instead of peakfq's HWN "optimized adjustment
+        factor when censored data are present" (fortranWrappers.R). Folding
+        the regional skew into the EMA fixed point the way moms_p3 does it
+        closed most of that gap; hydrolib._mse_ema.mse_ema (var_mom's
+        censoring bias adjustment, ADJE's as_G_mse) closed the rest. See
+        docs/FORTRAN_UPLOAD.md section 6.0b for the history and
+        tests/integration/test_hybrid_workflow.py::TestBigSandyAgainstReference
+        .test_weighted_skew_gap_is_closed for the current measured gap.
+        """
         expected = golden_big_sandy["outputs"]["cmoms"][2][0]
         actual = native_big_sandy._results.skew_used
         assert abs(actual - expected) < 0.02

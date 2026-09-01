@@ -17,11 +17,27 @@ They also record two things the oracles found immediately:
 * ``_ema_iteration`` reproduces ``moms_p3`` exactly on uncensored rows, and
   diverges only where intervals are censored -- which places the remaining
   error in the truncated-moment code, not in the transcribed formulas.
+
+A third, found while adding the Phase 3 (``mse_ema``) oracles: ``mseg_all_sub``
+is not safe to call more than once per process. A fresh call reproduces
+``as_G_mse_o`` correctly (``TestSkewMseOracle.test_reproduces_emafitpr_as_g_mse``,
+which runs first in this file and is what actually pins that number), but
+calling ``emafitpr`` for *any* case in between -- as ``TestDeterminantRatioOracle``
+does a few classes below -- leaves ``mseg_all_sub`` permanently returning the
+*uncensored* value for every input afterwards, Big Sandy's own included,
+regardless of the (nobs, tl, tu) actually passed. Confirmed outside pytest
+entirely (plain call, call ``emafitpr`` for an unrelated case, call again: the
+second call is wrong and stays wrong). This is Fortran-side ``SAVE``d state
+leaking across calls to *different* entry points, not anything on the Python
+side -- the arrays going in are unmutated -- and not something to fix here
+(``vendor/`` is not edited). The practical rule: never call ``mseg_all_sub``
+after any ``emafitpr`` call in the same process, in these tests or elsewhere.
 """
 
 from __future__ import annotations
 
 import collections
+import math
 
 import numpy as np
 import pytest
@@ -271,3 +287,773 @@ class TestVarianceOfMomentsOracle:
         assert np.allclose(varm, varm.T, rtol=1e-9), "covariance must be symmetric"
         assert np.all(np.linalg.eigvalsh(varm) > 0), "covariance must be positive definite"
         assert np.all(np.diag(varm) > 0)
+
+    @pytest.mark.parametrize("name", CASES)
+    def test_matches_fortran(self, name):
+        """hydrolib._var_mom.var_mom (Phase 2) against the Fortran, directly.
+
+        Powder River and Cains Coulee (using golden["inputs"], uncensored
+        throughout -- see TestDeterminantRatioOracle) never drive d_est's
+        nontrivial path: both tail probabilities stay under d_est's
+        1e-6 cutoff, so those two match to float64 precision. Big Sandy's
+        one real group does exercise it -- see test_matches_fortran_on_the
+        _one_case_that_exercises_d_est below for why that one is not this
+        tight.
+        """
+        from hydrolib._var_mom import var_mom
+
+        golden = _golden(name)
+        nobs, tl, tu = _threshold_groups(golden["inputs"]["tl"], golden["inputs"]["tu"])
+        mc = _at_site_moments(golden)
+        mine = var_mom(nobs, tl, tu, mc)
+        from hydrolib.peakfqr._emafort import var_mom as var_mom_f
+
+        fortran = np.asarray(var_mom_f(nobs, tl, tu, mc), dtype=float)
+        tol = 1e-3 if name == "big_sandy_03606500" else 1e-9
+        assert np.allclose(mine, fortran, rtol=tol, atol=1e-12), (name, mine, fortran)
+
+
+class TestExpMomDerivPort:
+    """expmomderiv: the Jacobian d_est needs, d(E[X^j])/d(noncentral moments).
+
+    hydrolib._dexpect differentiates hydrolib._p3_moments' own (already
+    Fortran- and quadrature-verified) truncated-moment function numerically
+    via mpmath, rather than transcribing DEXPECT's closed-form chain
+    (which needs DDGAM, itself a nontrivial incomplete-gamma derivative).
+    """
+
+    def test_matches_fortran_on_big_sandy_s_open_tail(self):
+        """~1e-5 relative, not machine precision -- and that gap is on the
+
+        Fortran side. Independently checking the same derivative at three
+        different mpmath working precisions (50, 80, 120 dps) agrees to 30+
+        stable digits, so hydrolib's numerical derivative is not the
+        source of the ~1e-5 gap; DDGAM's own series (TOL=1e-11 per term,
+        emafit.f/probfun.f:1054) and the ADJ rising-factorial chain built
+        on it in float64 are the more likely one, though this is not
+        independently proven the way the mP3 finding in TODO.md P3 is.
+        """
+        from hydrolib._p3_moments import m2p, p_p3, q_p3
+        from hydrolib._var_mom import expmomderiv
+        from hydrolib.peakfqr._emafort import expmomderiv as expmomderiv_f
+
+        golden = _golden("big_sandy_03606500")
+        mc = _at_site_moments(golden)
+        skew = 0.06324555  # var_mom's clamp floor -- see TestVarMomComponentsPort
+        mc_shift = np.array([0.0, mc[1], skew])
+        parms = m2p(mc_shift)
+
+        lo = 4.2552725051033065 - mc[0]
+        pa = p_p3(lo, mc_shift)
+        t1 = q_p3(pa, mc_shift)
+
+        mine = expmomderiv(parms, -1e19, t1)
+        fortran = np.asarray(expmomderiv_f(parms, -1e19, t1), dtype=float)
+        assert np.allclose(mine, fortran, rtol=1e-4), (mine, fortran)
+
+
+class TestVarMomComponentsPort:
+    """varb/varc/d_est: the pieces var_mom sums over each threshold group."""
+
+    @staticmethod
+    def _group_inputs(golden, lo, hi):
+        """(mu_x, e_x, p1, p2, p3) for one (mean-shifted) threshold group,
+
+        matching what var_mom itself builds before calling varb/varc/d_est
+        -- see hydrolib._var_mom.var_mom.
+        """
+        from hydrolib._p3_moments import m_p3, p_p3
+
+        mc = _at_site_moments(golden)
+        skew = math.copysign(min(max(abs(mc[2]), 0.06324555), 1.41), mc[2])
+        mc_shift = np.array([0.0, mc[1], skew])
+        mnouta = m_p3(-999.0, lo, mc_shift, 3)
+        mnoutb = m_p3(hi, 999.0, mc_shift, 3)
+        e_x = m_p3(lo, hi, mc_shift, 6)
+        mu_x = np.array([mnouta, e_x[:3], mnoutb]).T
+        pa, pb = p_p3(lo, mc_shift), p_p3(hi, mc_shift)
+        return mc_shift, mu_x, e_x, pa, pb - pa, 1.0 - pb
+
+    def test_varb_matches_fortran_on_big_sandy_s_group(self):
+        from hydrolib._var_mom import varb
+        from hydrolib.peakfqr._emafort import varb as varb_f
+
+        golden = _golden("big_sandy_03606500")
+        lo, hi = (
+            4.2552725051033065 - golden["outputs"]["cmoms"][0][1],
+            20.0 - golden["outputs"]["cmoms"][0][1],
+        )
+        _, mu_x, _, p1, p2, p3 = self._group_inputs(golden, lo, hi)
+        nh = 40.0
+        mine = varb(mu_x, nh, p1, p2, p3)
+        fortran = np.asarray(varb_f(mu_x, nh, p1, p2, p3), dtype=float)
+        assert np.allclose(mine, fortran, rtol=1e-9), (mine, fortran)
+
+    def test_varc_matches_fortran_on_big_sandy_s_group(self):
+        from hydrolib._var_mom import varc
+        from hydrolib.peakfqr._emafort import varc as varc_f
+
+        golden = _golden("big_sandy_03606500")
+        lo, hi = (
+            4.2552725051033065 - golden["outputs"]["cmoms"][0][1],
+            20.0 - golden["outputs"]["cmoms"][0][1],
+        )
+        _, _, e_x, _, p2, _ = self._group_inputs(golden, lo, hi)
+        nh = 40.0
+        mine = varc(e_x, nh, p2)
+        fortran = np.asarray(varc_f(e_x, nh, p2), dtype=float)
+        assert np.allclose(mine, fortran, rtol=1e-9), (mine, fortran)
+
+    def test_d_est_matches_fortran_on_big_sandy_s_group(self):
+        """The one group among the three cases where d_est is not just zeros."""
+        from hydrolib._var_mom import d_est
+        from hydrolib.peakfqr._emafort import d_est as d_est_f
+
+        golden = _golden("big_sandy_03606500")
+        lo, hi = (
+            4.2552725051033065 - golden["outputs"]["cmoms"][0][1],
+            20.0 - golden["outputs"]["cmoms"][0][1],
+        )
+        mc_shift, _, _, pa, _, p3 = self._group_inputs(golden, lo, hi)
+        pb = 1.0 - p3
+        nh = 40.0
+
+        mine = d_est(nh, mc_shift, pa, pb)
+        fortran = np.asarray(d_est_f(nh, mc_shift, pa, pb), dtype=float)
+        assert not np.allclose(mine, 0.0), "this group should exercise the nonzero path"
+        assert np.allclose(mine, fortran, rtol=1e-3), (mine, fortran)
+
+    def test_d_est_is_zero_below_the_probability_cutoff(self):
+        """Neither tail carries enough probability: both jac contributions
+
+        should vanish, matching the Fortran's own skip (emafit.f:2491/2500).
+        """
+        from hydrolib._var_mom import d_est
+        from hydrolib.peakfqr._emafort import d_est as d_est_f
+
+        mc = np.array([0.0, 0.09, 0.5])
+        nh = 50.0
+        pa, pb = 0.0, 1.0  # p1 = pa = 0, p3 = 1-pb = 0: both under 1e-6
+        mine = d_est(nh, mc, pa, pb)
+        fortran = np.asarray(d_est_f(nh, mc, pa, pb), dtype=float)
+        assert np.allclose(mine, 0.0)
+        assert np.allclose(fortran, 0.0)
+
+
+# A skew right in the blend band (|skew| in [0.0007, 0.0010]) so both the
+# incomplete-gamma and Wilson-Hilferty branches of pP3/qP3/mP3 get nonzero
+# weight -- the seam is exactly where a transcription is likeliest to be
+# wrong, and no parity case's at-site skew happens to land there.
+BLEND_BAND_MOMENTS = (0.0, 1.0, 0.00085)
+
+
+class TestM2pM2mnPort:
+    """m2p/m2mn/mn2m: pure algebra, the leaves of the leaf layer."""
+
+    @pytest.mark.parametrize("name", CASES)
+    def test_m2p_matches_fortran(self, name):
+        from hydrolib._p3_moments import m2p
+        from hydrolib.peakfqr._emafort import m2p as m2p_fortran
+
+        mc = _at_site_moments(_golden(name))
+        assert np.allclose(m2p(mc), m2p_fortran(mc), rtol=1e-12)
+
+    def test_m2p_in_the_blend_band(self):
+        from hydrolib._p3_moments import m2p
+        from hydrolib.peakfqr._emafort import m2p as m2p_fortran
+
+        mc = np.array(BLEND_BAND_MOMENTS)
+        assert np.allclose(m2p(mc), m2p_fortran(mc), rtol=1e-12)
+
+    @pytest.mark.parametrize("name", CASES)
+    def test_m2mn_matches_fortran(self, name):
+        from hydrolib._p3_moments import m2mn
+        from hydrolib.peakfqr._emafort import m2mn as m2mn_fortran
+
+        mc = _at_site_moments(_golden(name))
+        assert np.allclose(m2mn(mc), m2mn_fortran(mc), rtol=1e-12)
+
+    @pytest.mark.parametrize("name", CASES)
+    def test_mn2m_matches_fortran_and_inverts_m2mn(self, name):
+        from hydrolib._p3_moments import m2mn, mn2m
+        from hydrolib.peakfqr._emafort import mn2m as mn2m_fortran
+
+        mc = _at_site_moments(_golden(name))
+        mn = m2mn(mc)
+        assert np.allclose(mn2m(mn), mn2m_fortran(mn), rtol=1e-12)
+        assert np.allclose(mn2m(mn), mc, rtol=1e-9), "mn2m must invert m2mn"
+
+
+class TestPP3QP3Port:
+    """pP3/qP3: the Pearson III CDF and its inverse, gamma/WH-blended."""
+
+    @staticmethod
+    def _probe_points(mc):
+        mu, s = mc[0], mc[1] ** 0.5
+        return [mu - 3 * s, mu - s, mu, mu + s, mu + 3 * s]
+
+    @pytest.mark.parametrize("name", CASES)
+    def test_p_p3_matches_fortran(self, name):
+        from hydrolib._p3_moments import p_p3
+        from hydrolib.peakfqr._emafort import pp3
+
+        mc = _at_site_moments(_golden(name))
+        for x in self._probe_points(mc):
+            assert p_p3(x, mc) == pytest.approx(float(pp3(x, mc)), abs=1e-9)
+
+    def test_p_p3_in_the_blend_band(self):
+        """Looser than test_p_p3_matches_fortran on purpose.
+
+        A skew of 0.00085 gives alpha = 4/skew**2 ~ 5.5e6 -- far more
+        extreme than any real at-site skew (none of the three parity cases
+        land in the blend band at all). float64 stats.gamma.cdf loses a few
+        digits at that shape parameter relative to the Fortran's real128
+        DGAMDF; measured at ~4e-9 absolute here, not the moment-order
+        cancellation m_p3 has (see _GAMMA_MOMENT_DPS) since pP3 evaluates
+        the CDF once rather than raising alpha to a power.
+        """
+        from hydrolib._p3_moments import p_p3
+        from hydrolib.peakfqr._emafort import pp3
+
+        mc = np.array(BLEND_BAND_MOMENTS)
+        for x in self._probe_points(mc):
+            assert p_p3(x, mc) == pytest.approx(float(pp3(x, mc)), abs=1e-7)
+
+    @pytest.mark.parametrize("name", CASES)
+    def test_q_p3_matches_fortran(self, name):
+        from hydrolib._p3_moments import q_p3
+        from hydrolib.peakfqr._emafort import qp3sub
+
+        mc = _at_site_moments(_golden(name))
+        for q in (0.01, 0.1, 0.5, 0.9, 0.99):
+            assert q_p3(q, mc) == pytest.approx(float(qp3sub(q, mc)), rel=1e-8)
+
+    def test_q_p3_in_the_blend_band(self):
+        """See test_p_p3_in_the_blend_band: same extreme-alpha float64 gap."""
+        from hydrolib._p3_moments import q_p3
+        from hydrolib.peakfqr._emafort import qp3sub
+
+        mc = np.array(BLEND_BAND_MOMENTS)
+        for q in (0.01, 0.1, 0.5, 0.9, 0.99):
+            # abs matters near q=0.5: with mean 0 the quantile itself is near
+            # zero there, where a relative tolerance alone is unsatisfiable.
+            assert q_p3(q, mc) == pytest.approx(float(qp3sub(q, mc)), rel=1e-6, abs=1e-7)
+
+    @pytest.mark.parametrize("name", CASES)
+    def test_p_p3_and_q_p3_are_inverses(self, name):
+        """Self-consistency, independent of the Fortran: p_p3(q_p3(p)) == p.
+
+        Probability -> quantile -> probability, not the other direction:
+        Cains Coulee's at-site skew is -0.708, strongly bounded on the
+        right, so a probe point picked in x-space (mean +/- 3 sigma) can
+        land past that bound, where p_p3 saturates to exactly 1.0 and the
+        round trip is genuinely lossy rather than wrong -- q_p3(1.0, mc) is
+        the boundary itself, not the x that produced 1.0 in floating point.
+        Starting from p avoids ever hitting that boundary.
+        """
+        from hydrolib._p3_moments import p_p3, q_p3
+
+        mc = _at_site_moments(_golden(name))
+        for p in (0.01, 0.1, 0.5, 0.9, 0.99):
+            assert p_p3(q_p3(p, mc), mc) == pytest.approx(p, rel=1e-6)
+
+
+class TestMP3Port:
+    """mP3: expected truncated raw moments -- the piece TODO.md P3 names as
+
+    the source of _ema_iteration's residual gap on censored rows.
+    """
+
+    @pytest.mark.parametrize("name", CASES)
+    def test_full_support_matches_m2mn(self, name):
+        """With no truncation mP3 must reduce to the ordinary raw moments."""
+        from hydrolib._p3_moments import m2mn, m_p3
+        from hydrolib.peakfqr._emafort import mp3
+
+        mc = _at_site_moments(_golden(name))
+        fortran = np.asarray(mp3(-QMAX, QMAX, mc, 3), dtype=float)
+        mine = m_p3(-QMAX, QMAX, mc, 3)
+        assert np.allclose(fortran, np.asarray(m2mn(mc)), rtol=1e-6)
+        assert np.allclose(mine, fortran, rtol=1e-6)
+
+    @staticmethod
+    def _shifted(golden):
+        """(mc, groups) the way var_mom itself calls mP3.
+
+        var_mom (emafit.f:2346) shifts every threshold by the fitted mean
+        before calling mP3 -- ``tl = tl_in(it) - mc_in(1)`` -- and always
+        asks for n = 6. Testing with the case's raw (unshifted) tl/tu against
+        the raw at-site mean, as an earlier version of this test did, is not
+        what var_mom actually evaluates and mixes up two different failure
+        modes; this reproduces the real call.
+        """
+        mc = _at_site_moments(golden)
+        mc_shift = np.array([0.0, mc[1], mc[2]])
+        _, tl, tu = _threshold_groups(golden["inputs"]["tl"], golden["inputs"]["tu"])
+        return mc_shift, list(zip(tl - mc[0], tu - mc[0]))
+
+    @pytest.mark.parametrize("name", ["powder_river_06326500", "cains_coulee_06327450"])
+    def test_matches_fortran_on_full_support_groups(self, name):
+        """Every case has an uncensored (-20, 20) group; shifted, still wide open.
+
+        Big Sandy is deliberately excluded here, not just untested: its
+        at-site skew (0.0066) is close enough to zero that alpha = 4/skew**2
+        is enormous regardless of which group is used, so even this "wide
+        open" group already shows the precision gap this class documents
+        for its one real censored group -- see
+        test_fortran_itself_loses_precision_on_big_sandy_s_censored_group.
+        Powder River and Cains Coulee have much larger-magnitude at-site
+        skew (not near TODO.md's table values, which are the *weighted*
+        skew; both are safely away from the blend band either way).
+        """
+        from hydrolib._p3_moments import m_p3
+        from hydrolib.peakfqr._emafort import mp3
+
+        mc_shift, groups = self._shifted(_golden(name))
+        for lo, hi in groups:
+            if not (lo < -15 and hi > 15):
+                continue
+            fortran = np.asarray(mp3(lo, hi, mc_shift, 6), dtype=float)
+            mine = m_p3(lo, hi, mc_shift, 6)
+            assert np.allclose(mine, fortran, rtol=1e-6, atol=1e-9), (lo, hi)
+
+    def test_matches_fortran_on_cains_coulee_post_mgbt_group(self):
+        """Cains Coulee's real censoring: finite width, both bounds real.
+
+        golden["inputs"] carries emafitpr's *input* thresholds, which are
+        uncensored for this case (MGBT creates the censoring inside the
+        fit) -- see TestDeterminantRatioOracle. The group var_mom's own
+        mse_ema/var_mom calls would actually iterate over is the post-MGBT
+        one, (2.521, 20) before the mean shift, recovered the same way
+        TestDeterminantRatioOracle does: from emafitpr's tlema/tuema.
+        """
+        from hydrolib._p3_moments import m_p3
+        from hydrolib.peakfqr._emafort import emafitpr, mp3
+        from tests.fortran_parity.cases import CASES as CASE_FACTORIES
+        from tests.fortran_parity.cases import build_emafit_inputs
+
+        args = build_emafit_inputs(CASE_FACTORIES["cains_coulee_06327450"]())
+        out = emafitpr(
+            args["ql"],
+            args["qu"],
+            args["tl"],
+            args["tu"],
+            args["dtype"],
+            args["reg_m"],
+            args["reg_m_mse"],
+            args["reg_sd"],
+            args["reg_sd_mse"],
+            args["r_g"],
+            args["r_g_mse"],
+            args["gbthrsh0"],
+            args["pq"],
+            args["eps"],
+            args["wght_opt_n"],
+        )
+        cmoms = np.asarray(out[9], dtype=float)
+        n = len(args["ql"])
+        tlema, tuema = np.asarray(out[17], dtype=float)[:n], np.asarray(out[18], dtype=float)[:n]
+        mc = np.array([cmoms[0][1], cmoms[1][1], cmoms[2][1]])
+        _, tl, tu = _threshold_groups(tlema, tuema)
+        censored = [(lo, hi) for lo, hi in zip(tl, tu) if lo > -15]
+        assert censored, "Cains Coulee should have a real (raised) lower threshold post-MGBT"
+
+        mc_shift = np.array([0.0, mc[1], mc[2]])
+        for lo, hi in censored:
+            fortran = np.asarray(mp3(lo - mc[0], hi - mc[0], mc_shift, 6), dtype=float)
+            mine = m_p3(lo - mc[0], hi - mc[0], mc_shift, 6)
+            assert np.allclose(mine, fortran, rtol=1e-6, atol=1e-9), (lo, hi)
+
+    def test_fortran_itself_loses_precision_on_big_sandy_s_censored_group(self):
+        """A real, understood limitation of the *reference*, not of this port.
+
+        Big Sandy's only non-trivial threshold group is (4.255, 20) --
+        essentially "greater than 18000 cfs", open at the sentinel used for
+        no upper bound. Shifted by the fitted mean (as var_mom does; at-site
+        skew 0.0066), that lands mP3 in a regime its own author flagged:
+        alpha = 4/skew**2 ~ 9e4 (probfun.f's FP_G1_CDF/FP_G1_MOM_TRC were
+        patched in Sept. 2024 to evaluate DGAMDF in real128 for exactly
+        this). But the patch only promoted the incomplete-gamma call itself
+        -- the surrounding rising-factorial and choose(i,j)*tau**(i-j)*fp(j)
+        expansion mP3 does around it (emafit.f:3049) is still float64, and
+        that expansion cancels by ~11 orders of magnitude at k=6 here (terms
+        of order tau**6 ~ 2e11 net to an answer of order 1e2). float64 does
+        not have 11 spare digits, and the Fortran result shows it: it goes
+        negative at k=6, which E[X**6] over positive-truncated X cannot be.
+
+        hydrolib's own mP3 keeps this expansion in mpmath at 50 decimal
+        digits (see _GAMMA_MOMENT_DPS), which is enough headroom to survive
+        the cancellation. Independent verification below, by direct
+        arbitrary-precision quadrature of the truncated density -- not by
+        comparison with the Fortran, which is exactly the thing in
+        question here -- confirms hydrolib's k=4..6 values, not the
+        Fortran's.
+
+        The Fortran/hydrolib gap grows steadily with k rather than
+        appearing only at k=6 -- k=1 already differs at the 1e-8 absolute
+        level -- so what is checked against the oracle (loosely, k=1..3)
+        and what is checked against quadrature instead (k=4..6, where the
+        gap is no longer a rounding difference) is a judgment call, not a
+        sharp cutoff the numbers themselves draw. The unambiguous part is
+        k=6 going negative, and hydrolib matching quadrature everywhere.
+        """
+        import mpmath
+
+        from hydrolib._p3_moments import m2p, m_p3
+        from hydrolib.peakfqr._emafort import mp3
+
+        mc_shift, groups = self._shifted(_golden("big_sandy_03606500"))
+        lo, hi = next((lo, hi) for lo, hi in groups if 0 < lo < 5 and hi > 15)
+
+        fortran = np.asarray(mp3(lo, hi, mc_shift, 6), dtype=float)
+        mine = m_p3(lo, hi, mc_shift, 6)
+
+        assert np.allclose(mine[:3], fortran[:3], rtol=1e-4), "k=1..3 should still roughly agree"
+        assert fortran[5] < 0, "the Fortran value at k=6 is exhibiting the cancellation failure"
+
+        with mpmath.workdps(40):
+            tau, alpha, beta = (mpmath.mpf(v) for v in m2p(mc_shift))
+
+            def pdf(y):
+                return mpmath.e ** (-y + (alpha - 1) * mpmath.log(y) - mpmath.loggamma(alpha))
+
+            ymin, ymax = (mpmath.mpf(lo) - tau) / beta, (mpmath.mpf(hi) - tau) / beta
+            nodes = [ymin, ymin + 1000, ymin + 5000, ymin + 20000, ymax]
+            mass = mpmath.quad(pdf, nodes)
+            for k in range(1, 7):
+                expected = mpmath.quad(lambda y: (tau + beta * y) ** k * pdf(y), nodes) / mass
+                assert mine[k - 1] == pytest.approx(float(expected), rel=1e-4), k
+
+    def test_degenerate_interval_off_support(self):
+        """cdfu == cdfl: the interval carries no probability mass.
+
+        mP3 falls back to whichever endpoint is closer to the mean, raised
+        to each power -- exercised here because it is a distinct code path,
+        not the blended gamma/WH computation.
+        """
+        from hydrolib._p3_moments import m_p3
+        from hydrolib.peakfqr._emafort import mp3
+
+        mc = np.array([0.0, 1.0, 0.3])
+        lo, hi = 50.0, 60.0  # far off in the upper tail: cdf saturates at 1.0
+        fortran = np.asarray(mp3(lo, hi, mc, 3), dtype=float)
+        mine = m_p3(lo, hi, mc, 3)
+        assert np.allclose(mine, fortran, rtol=1e-9)
+        assert np.allclose(mine, [lo, lo**2, lo**3])
+
+
+class TestQuadratureAndCholeskyPort:
+    """normquad/gammaquad/chol33: the primitives mc2mnvb's quadrature grid needs."""
+
+    @pytest.mark.parametrize("n", [2, 3, 5])
+    def test_normquad_matches_fortran(self, n):
+        from hydrolib._mse_ema import _normquad
+        from hydrolib.peakfqr._emafort import normquad
+
+        t, w = _normquad(n)
+        tf, wf = normquad(n)
+        # Fortran hardcodes sqrt(2)/(1/sqrt(pi)) to 12 significant digits
+        # rather than computing them, so this is not machine precision.
+        assert np.allclose(t, tf, atol=1e-7)
+        assert np.allclose(w, wf, atol=1e-7)
+        assert w.sum() == pytest.approx(1.0)
+
+    @pytest.mark.parametrize("alpha,beta", [(5.0, 0.5), (1000.0, 0.03), (250.0, 0.06324555)])
+    def test_gammaquad_matches_fortran(self, alpha, beta):
+        from hydrolib._mse_ema import _gammaquad
+        from hydrolib.peakfqr._emafort import gammaquad
+
+        t, w = _gammaquad(3, alpha, beta)
+        tf, wf = gammaquad(3, alpha, beta)
+        assert np.allclose(t, tf, rtol=1e-9)
+        assert np.allclose(w, wf, rtol=1e-9)
+        assert w.sum() == pytest.approx(1.0)
+        assert np.average(t, weights=w) == pytest.approx(alpha * beta, rel=1e-6)
+
+    def test_gammaquad_matches_fortran_above_the_stabilization_threshold(self):
+        """alpha > 160 (probfun.f:2694): the mean-preserving Gamma(160, .) proxy."""
+        from hydrolib._mse_ema import _gammaquad
+        from hydrolib.peakfqr._emafort import gammaquad
+
+        t, w = _gammaquad(3, 5000.0, 0.01)
+        tf, wf = gammaquad(3, 5000.0, 0.01)
+        assert np.allclose(t, tf, rtol=1e-9)
+        assert np.allclose(w, wf, rtol=1e-9)
+        assert np.average(t, weights=w) == pytest.approx(5000.0 * 0.01, rel=1e-6)
+
+    def test_chol33_matches_fortran(self):
+        from hydrolib._mse_ema import _chol33
+        from hydrolib.peakfqr._emafort import chol33
+
+        s = np.array([[1.0, 0.2, 0.1], [0.2, 2.0, 0.3], [0.1, 0.3, 0.5]])
+        v = _chol33(s)
+        vf, iflag = chol33(s)
+        assert iflag == 0
+        assert np.allclose(v, vf, rtol=1e-12)
+        assert np.allclose(v.T @ v, s), "V.T @ V must reconstruct S"
+
+    def test_chol33_flags_non_positive_semi_definite(self):
+        from hydrolib._mse_ema import _chol33
+        from hydrolib.peakfqr._emafort import chol33
+
+        s = np.array([[1.0, 5.0, 0.0], [5.0, 1.0, 0.0], [0.0, 0.0, 1.0]])  # off-diag too large
+        assert _chol33(s) is None
+        _, iflag = chol33(s)
+        assert iflag == 1
+
+
+class TestMc2mnvbPort:
+    """mc2mnvb: central-moment covariance -> noncentral-moment covariance,
+
+    via gridmake's quadrature.
+    """
+
+    def test_matches_fortran(self):
+        from hydrolib._mse_ema import mc2mnvb
+        from hydrolib.peakfqr._emafort import mc2mnvb as mc2mnvb_f
+
+        mc = np.array([3.7, 0.09, 0.3])
+        s_mc = np.array(
+            [
+                [0.001, 0.0001, 0.0002],
+                [0.0001, 0.0002, 0.00005],
+                [0.0002, 0.00005, 0.001],
+            ]
+        )
+        mine = mc2mnvb(mc, s_mc)
+        fortran = np.asarray(mc2mnvb_f(mc, s_mc, [2, 2, 2]), dtype=float)
+        # Same ~1e-11-level gap as normquad's truncated constants, propagated
+        # through the quadrature sum.
+        assert np.allclose(mine, fortran, atol=1e-6)
+        assert np.allclose(mine, mine.T), "a covariance matrix must be symmetric"
+
+
+class TestMn2mVarPort:
+    """mn2m_var: the closed-form linearized estimate mn2mvarb starts from."""
+
+    @pytest.mark.parametrize("name", CASES)
+    def test_matches_fortran(self, name):
+        from hydrolib._mse_ema import mn2m_var
+        from hydrolib._p3_moments import m2mn
+        from hydrolib.peakfqr._emafort import mn2m_var as mn2m_var_f
+        from hydrolib.peakfqr._emafort import var_mom as var_mom_f
+
+        golden = _golden(name)
+        mc = _at_site_moments(golden)
+        nobs, tl, tu = _threshold_groups(golden["inputs"]["tl"], golden["inputs"]["tu"])
+        mc_shift = np.array([0.0, mc[1], mc[2]])
+        s_mn = np.asarray(var_mom_f(nobs, tl - mc[0], tu - mc[0], mc_shift), dtype=float)
+        mn = m2mn(mc_shift)
+
+        mc_out, s_mc_out = mn2m_var(mn, s_mn)
+        mc_out_f, s_mc_out_f = mn2m_var_f(mn, s_mn)
+        assert np.allclose(mc_out, mc_out_f, rtol=1e-12)
+        assert np.allclose(s_mc_out, s_mc_out_f, rtol=1e-9)
+
+
+class TestMn2mvarbPort:
+    """mn2mvarb: the inverse-problem solve -- see hydrolib._mse_ema's module
+
+    docstring for how the V-reparametrized root-find compares to the
+    Fortran's step-halved Newton iteration.
+    """
+
+    @pytest.mark.parametrize("name", CASES)
+    def test_matches_fortran(self, name):
+        from hydrolib._mse_ema import mn2mvarb
+        from hydrolib._p3_moments import m2mn
+        from hydrolib.peakfqr._emafort import mn2mvarb as mn2mvarb_f
+        from hydrolib.peakfqr._emafort import var_mom as var_mom_f
+
+        golden = _golden(name)
+        mc = _at_site_moments(golden)
+        nobs, tl, tu = _threshold_groups(golden["inputs"]["tl"], golden["inputs"]["tu"])
+        mc_shift = np.array([0.0, mc[1], mc[2]])
+        s_mn = np.asarray(var_mom_f(nobs, tl - mc[0], tu - mc[0], mc_shift), dtype=float)
+        mn = m2mn(mc_shift)
+
+        mc_out, s_mc_out = mn2mvarb(mn, s_mn)
+        mc_out_f, s_mc_out_f = mn2mvarb_f(mn, s_mn)
+        tol = 1e-3 if name == "big_sandy_03606500" else 1e-6
+        assert np.allclose(mc_out, mc_out_f, rtol=1e-9)
+        assert np.allclose(s_mc_out, s_mc_out_f, rtol=tol, atol=1e-12), (s_mc_out, s_mc_out_f)
+
+
+class TestMseEmaPort:
+    """mse_ema: the ADJE censoring bias adjustment's numerator/denominator,
+
+    TODO.md P3's "skew weighting -- 24% left" item. bias_adj =
+    mse_ema(censored)/mse_ema(uncensored), feeding
+    as_G_mse = bias_adj * mseg(min(n,150), G).
+    """
+
+    @pytest.mark.parametrize("name", CASES)
+    def test_matches_fortran_on_the_case_own_thresholds(self, name):
+        from hydrolib._mse_ema import mse_ema
+        from hydrolib.peakfqr._emafort import mse_ema as mse_ema_f
+
+        golden = _golden(name)
+        mc = _at_site_moments(golden)
+        nobs, tl, tu = _threshold_groups(golden["inputs"]["tl"], golden["inputs"]["tu"])
+
+        mine = mse_ema(nobs, tl, tu, mc, kmom=3)
+        fortran = float(mse_ema_f(nobs, tl, tu, mc, 3))
+        tol = 1e-3 if name == "big_sandy_03606500" else 1e-6
+        assert mine == pytest.approx(fortran, rel=tol)
+
+    def test_reproduces_the_documented_adje_bias_adjustment_on_big_sandy(self):
+        """The end-to-end number TODO.md P3 cites: bias_adj = 1.4844,
+
+        as_G_mse = 0.09437. TestSkewMseOracle.test_reproduces_emafitpr_as_g_mse
+        already checks this same figure against the ``mseg_all_sub`` oracle
+        directly (as_G_mse_o); that comparison is deliberately not repeated
+        here -- see the module docstring's note on ``mseg_all_sub`` for why
+        calling it a second time in the same process is not safe to rely on.
+        """
+        from hydrolib._mse_ema import mse_ema
+        from hydrolib.bulletin17c import _b17b_skew_mse
+
+        golden = _golden("big_sandy_03606500")
+        mc = _at_site_moments(golden)
+        nobs, tl, tu = _threshold_groups(golden["inputs"]["tl"], golden["inputs"]["tu"])
+        n = int(nobs.sum())
+
+        mse_censored = mse_ema(nobs, tl, tu, mc, kmom=3)
+        mse_uncensored = mse_ema(np.array([float(n)]), np.array([-99.0]), np.array([99.0]), mc, 3)
+        bias_adj = mse_censored / mse_uncensored
+        assert bias_adj == pytest.approx(1.4844, abs=2e-4)
+
+        as_g_mse = bias_adj * _b17b_skew_mse(min(n, 150), mc[2])
+        assert as_g_mse == pytest.approx(0.09437, abs=2e-5)
+
+    def test_rejects_invalid_kmom(self):
+        from hydrolib._mse_ema import mse_ema
+
+        mc = np.array([3.7, 0.09, 0.3])
+        with pytest.raises(ValueError):
+            mse_ema(np.array([50.0]), np.array([-20.0]), np.array([20.0]), mc, kmom=0)
+
+
+class TestExpMomCDerivPort:
+    """expmomcderiv: detrat's per-group building block -- E[X^j | censored]
+
+    and the Jacobian of the resulting expected central moments, w.r.t. the
+    fit's own central moments directly (a different basis from
+    hydrolib._var_mom's expmomderiv, which differentiates w.r.t. noncentral
+    moments).
+    """
+
+    @pytest.mark.parametrize("tl,tu", [(3.5, 4.0), (-20.0, 3.0), (4.5, 20.0)])
+    def test_matches_fortran(self, tl, tu):
+        from hydrolib._detrat import _expmomcderiv
+        from hydrolib._p3_moments import m2p
+        from hydrolib.peakfqr._emafort import expmomcderiv
+
+        mc = np.array([3.7, 0.09, -0.5])
+        parms = m2p(mc)
+
+        mne_f, dedmc_f = expmomcderiv(parms, tl, tu)
+        _, mne, dedmc = _expmomcderiv(parms, tl, tu)
+        assert np.allclose(mne, mne_f, rtol=1e-6)
+        assert np.allclose(dedmc, dedmc_f, rtol=1e-6), (dedmc, dedmc_f)
+
+    def test_falls_back_to_unconditional_moments_when_censoring_probability_is_negligible(self):
+        """probfun.f:940 -- PICK <= 1e-10 uses DEXPECT(-inf, inf) directly."""
+        from hydrolib._detrat import _expmomcderiv
+        from hydrolib._p3_moments import m2p
+        from hydrolib.peakfqr._emafort import expmomcderiv
+
+        mc = np.array([3.7, 0.09, -0.5])
+        parms = m2p(mc)
+        # A threshold group so wide that essentially nothing falls outside it.
+        mne_f, dedmc_f = expmomcderiv(parms, -20.0, 20.0)
+        _, mne, dedmc = _expmomcderiv(parms, -20.0, 20.0)
+        assert np.allclose(mne, mne_f, rtol=1e-6)
+        assert np.allclose(dedmc, dedmc_f, rtol=1e-6)
+
+
+class TestDetratPort:
+    """detrat: the Halloween determinant ratio, Wd -- TODO.md P3's other
+
+    open item, independent of var_mom/mse_ema.
+    """
+
+    def test_is_one_below_the_skew_floor(self):
+        from hydrolib._detrat import detrat
+
+        mc = np.array([3.7, 0.09, 0.0066])  # |skew| < 0.04
+        w = detrat(mc, 84, np.array([84.0]), np.array([-20.0]), np.array([20.0]))
+        assert w == 1.0
+
+    def test_matches_fortran_on_big_sandy(self):
+        """At-site skew 0.0066 is under the floor either way, but this
+
+        exercises the real (nobs, tl, tu) groups end to end.
+        """
+        from hydrolib._detrat import detrat
+        from hydrolib.peakfqr._emafort import detratsub
+
+        golden = _golden("big_sandy_03606500")
+        mc = _at_site_moments(golden)
+        nobs, tl, tu = _threshold_groups(golden["inputs"]["tl"], golden["inputs"]["tu"])
+        n = int(nobs.sum())
+
+        mine = detrat(mc, n, nobs, tl, tu)
+        fortran = float(detratsub(mc, n, nobs, tl, tu))
+        assert mine == pytest.approx(fortran, rel=1e-9)
+        assert mine == 1.0
+
+    def test_matches_fortran_on_cains_coulee_post_mgbt_group(self):
+        """The acceptance case: at-site skew -0.708, reference Wd 0.184.
+
+        Uses emafitpr's own tlema/tuema (post-MGBT), the same way
+        TestDeterminantRatioOracle does -- Cains Coulee's *input*
+        thresholds carry no censoring; MGBT creates it inside the fit.
+        """
+        from hydrolib._detrat import detrat
+        from hydrolib.peakfqr._emafort import detratsub, emafitpr
+        from tests.fortran_parity.cases import CASES as CASE_FACTORIES
+        from tests.fortran_parity.cases import build_emafit_inputs
+
+        args = build_emafit_inputs(CASE_FACTORIES["cains_coulee_06327450"]())
+        out = emafitpr(
+            args["ql"],
+            args["qu"],
+            args["tl"],
+            args["tu"],
+            args["dtype"],
+            args["reg_m"],
+            args["reg_m_mse"],
+            args["reg_sd"],
+            args["reg_sd_mse"],
+            args["r_g"],
+            args["r_g_mse"],
+            args["gbthrsh0"],
+            args["pq"],
+            args["eps"],
+            args["wght_opt_n"],
+        )
+        cmoms, wdout = np.asarray(out[9], dtype=float), float(out[14])
+        n = len(args["ql"])
+        tlema, tuema = np.asarray(out[17], dtype=float)[:n], np.asarray(out[18], dtype=float)[:n]
+        mc = np.array([cmoms[0][1], cmoms[1][1], cmoms[2][1]])
+        nobs, tl, tu = _threshold_groups(tlema, tuema)
+
+        mine = detrat(mc, n, nobs, tl, tu)
+        fortran = float(detratsub(mc, n, nobs, tl, tu))
+        assert mine == pytest.approx(fortran, rel=1e-6)
+        assert mine == pytest.approx(wdout, rel=1e-6)
+        assert mine == pytest.approx(0.184, abs=5e-4)
+
+    @pytest.mark.parametrize("skew", [-0.5, 0.3, 1.2])
+    def test_matches_fortran_on_synthetic_censored_groups(self, skew):
+        from hydrolib._detrat import detrat
+        from hydrolib.peakfqr._emafort import detratsub
+
+        mc = np.array([3.7, 0.09, skew])
+        nobs = np.array([60.0, 20.0])
+        tl = np.array([-20.0, 4.0])
+        tu = np.array([4.0, 20.0])
+        mine = detrat(mc, 80, nobs, tl, tu)
+        fortran = float(detratsub(mc, 80, nobs, tl, tu))
+        assert mine == pytest.approx(fortran, rel=1e-6)

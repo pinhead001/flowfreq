@@ -123,5 +123,237 @@ python module _emafort
             double precision, dimension(3), intent(in) :: mc_old
             double precision, dimension(3), intent(out) :: moms
         end subroutine moms_p3
+
+        ! --------------------------------------------------------------- !
+        ! var_mom port, phase 1: the leaf routines it calls directly for  !
+        ! p1/p2/p3 and mu_x/e_x (pP3, mP3) and the ones d_est needs       !
+        ! (m2p, qP3). m2mn is var_mom's other direct dependency, used to  !
+        ! get the noncentral moments mn2mvarb needs. See TODO.md P3.      !
+        ! --------------------------------------------------------------- !
+
+        ! Central moments (mu, sigma^2, skew) -> Pearson III shape params
+        ! (tau, alpha, beta). Pure algebra -- no blending, no quadrature.
+        subroutine m2p(m,p)
+            double precision, dimension(3), intent(in) :: m
+            double precision, dimension(3), intent(out) :: p
+        end subroutine m2p
+
+        ! Central moments -> noncentral (raw) moments about zero.
+        subroutine m2mn(m,mn)
+            double precision, dimension(3), intent(in) :: m
+            double precision, dimension(3), intent(out) :: mn
+        end subroutine m2mn
+
+        ! Its inverse: noncentral moments -> central moments.
+        subroutine mn2m(mn,m)
+            double precision, dimension(3), intent(in) :: mn
+            double precision, dimension(3), intent(out) :: m
+        end subroutine mn2m
+
+        ! CDF at x of a Pearson III variate with central moments m. Blends
+        ! an incomplete-gamma solution with a Wilson-Hilferty normal
+        ! approximation, weighted smoothly over |skew| in [0.0007, 0.0010].
+        !
+        ! Fortran identifiers are case-insensitive and gfortran's symbol
+        ! table is all-lowercase; pP3/qP3sub/mP3 must be spelled in lower
+        ! case here or the linker looks for a symbol (e.g. qP3sub_) that
+        ! does not exist. python sees the lower-case names too.
+        function pp3(x,m) result (pp3out)
+            double precision, intent(in) :: x
+            double precision, dimension(3), intent(in) :: m
+            double precision :: pp3out
+        end function pp3
+
+        ! Inverse CDF (quantile) of the same distribution. qP3 is itself a
+        ! function like pP3, but emafit.f already carries a subroutine
+        ! wrapper for it (qP3sub) -- the same one fortranWrappers.R calls.
+        subroutine qp3sub(q,m,qP3out)
+            double precision, intent(in) :: q
+            double precision, dimension(3), intent(in) :: m
+            double precision, intent(out) :: qP3out
+        end subroutine qp3sub
+
+        ! Expected value of the first n raw moments of a Pearson III variate
+        ! between tl and tu, central moments m. Feeds var_mom's mu_x/e_x
+        ! (the censored-interval truncated moments hydrolib's own
+        ! _truncated_gamma_moment/_truncated_normal_moments approximate).
+        subroutine mp3(tl,tu,m,mnout,n)
+            double precision, intent(in) :: tl
+            double precision, intent(in) :: tu
+            double precision, dimension(3), intent(in) :: m
+            integer, intent(in) :: n
+            double precision, dimension(n), intent(out), depend(n) :: mnout
+        end subroutine mp3
+
+        ! --------------------------------------------------------------- !
+        ! var_mom port, phase 2: the pieces var_mom sums over each        !
+        ! threshold group and combines into the (3,3) covariance matrix   !
+        ! -- varb, varc, d_est -- plus expmomderiv, which d_est calls.    !
+        ! See TODO.md P3.                                                 !
+        ! --------------------------------------------------------------- !
+
+        ! Multinomial-sampling contribution to the covariance of the fitted
+        ! moment estimators, from a group with nh observations split
+        ! (p1, p2, p3) across (below tl, between tl/tu, above tu). mu_x
+        ! packs the three regions' raw moments 1..3 as columns.
+        subroutine varb(mu_x,nh,p1,p2,p3,vb)
+            double precision, dimension(3,3), intent(in) :: mu_x
+            double precision, intent(in) :: nh
+            double precision, intent(in) :: p1
+            double precision, intent(in) :: p2
+            double precision, intent(in) :: p3
+            double precision, dimension(3,3), intent(out) :: vb
+        end subroutine varb
+
+        ! Within-interval contribution: the extra variance from not knowing
+        ! exactly where, inside (tl, tu), a censored observation falls.
+        ! e_x packs mP3(tl, tu, mc, 6) -- moments 1..6 of the exact interval,
+        ! needed because varc(i,j) reaches e_x(i+j) up to index 6.
+        subroutine varc(e_x,nh,p2,vc)
+            double precision, dimension(6), intent(in) :: e_x
+            double precision, intent(in) :: nh
+            double precision, intent(in) :: p2
+            double precision, dimension(3,3), intent(out) :: vc
+        end subroutine varc
+
+        ! Bias-correction ("D") matrix from the open tails below tl and
+        ! above tu, via expmomderiv's Jacobian of E[X^j] with respect to
+        ! the fitted noncentral moments. Skipped (zero) on a tail whose
+        ! probability is below 1e-6 -- qP3 is not evaluated there either.
+        subroutine d_est(nh,mc,pa,pb,d)
+            double precision, intent(in) :: nh
+            double precision, dimension(3), intent(in) :: mc
+            double precision, intent(in) :: pa
+            double precision, intent(in) :: pb
+            double precision, dimension(3,3), intent(out) :: d
+        end subroutine d_est
+
+        ! Jacobian of E[X^j | xmin < X < xmax], j=1..3 (the incomplete-gamma
+        ! branch only -- d_est always calls this through m2p, never blended
+        ! with Wilson-Hilferty) with respect to the noncentral moments
+        ! (m1, m2, m3), via the chain rule through Pearson III params
+        ! (tau, alpha, beta): DEXPECT (d E[X^j]/d params) times DPDM
+        ! (d params/d moments).
+        subroutine expmomderiv(parms,xmin,xmax,jac)
+            double precision, dimension(3), intent(in) :: parms
+            double precision, intent(in) :: xmin
+            double precision, intent(in) :: xmax
+            double precision, dimension(3,3), intent(out) :: jac
+        end subroutine expmomderiv
+
+        ! --------------------------------------------------------------- !
+        ! var_mom port, phase 3: mse_ema (the ADJE skew-MSE bias           !
+        ! adjustment) and its dependency mn2mvarb -- the "Inverse         !
+        ! Modified Cholesky Gaussian Quadrature" that turns a covariance  !
+        ! of noncentral moments into a covariance of central moments.     !
+        ! See TODO.md P3.                                                 !
+        ! --------------------------------------------------------------- !
+
+        ! Gauss-Hermite quadrature for the standard normal: nodes/weights
+        ! s.t. integral phi(z)*g(z)dz ~= sum(w(i)*g(t(i))). Used for the
+        ! (mean, skew) axes of gridmake's quadrature grid.
+        subroutine normquad(n,t,w)
+            integer, intent(in) :: n
+            double precision, dimension(n), intent(out) :: t
+            double precision, dimension(n), intent(out), depend(n) :: w
+        end subroutine normquad
+
+        ! The same, for a Gamma(alpha, beta) distribution -- used for the
+        ! variance axis, whose sampling distribution is right-skewed
+        ! rather than normal.
+        subroutine gammaquad(n,alpha,beta,t,w)
+            integer, intent(in) :: n
+            double precision, intent(in) :: alpha
+            double precision, intent(in) :: beta
+            double precision, dimension(n), intent(out) :: t
+            double precision, dimension(n), intent(out), depend(n) :: w
+        end subroutine gammaquad
+
+        ! A permuted (2,1,3) Cholesky-like factorization, V^T @ V = S,
+        ! pivoted so the "gamma" quadrature axis (index 2, variance) is
+        ! unconditioned and the two "normal" axes (mean, skew) are
+        ! expressed conditional on it. iflag = 1 when S is not PSD.
+        subroutine chol33(s,v,iflag)
+            double precision, dimension(3,3), intent(in) :: s
+            double precision, dimension(3,3), intent(out) :: v
+            integer, intent(out) :: iflag
+        end subroutine chol33
+
+        ! Central moments (mc, s_mc) -> covariance of the noncentral
+        ! moments (s_mn), via a grid of quadrature points built from
+        ! chol33 + normquad/gammaquad, mapped through m2mn, and combined
+        ! with covw's weighted covariance. nnd is always (2,2,2) in
+        ! practice (mn2mvarb hardcodes it), so hydrolib does too.
+        subroutine mc2mnvb(mc,s_mc,nnd,s_mn)
+            double precision, dimension(3), intent(in) :: mc
+            double precision, dimension(3,3), intent(in) :: s_mc
+            integer, dimension(3), intent(in) :: nnd
+            double precision, dimension(3,3), intent(out) :: s_mn
+        end subroutine mc2mnvb
+
+        ! Linearized (delta-method) initial guess for (mc, s_mc) given
+        ! (mn, s_mn) -- what mn2mvarb starts its iteration from.
+        subroutine mn2m_var(mn,s_mn,mc,s_mc)
+            double precision, dimension(3), intent(in) :: mn
+            double precision, dimension(3,3), intent(in) :: s_mn
+            double precision, dimension(3), intent(out) :: mc
+            double precision, dimension(3,3), intent(out) :: s_mc
+        end subroutine mn2m_var
+
+        ! The full inverse problem: (mn, s_mn) -> (mc, s_mc) such that
+        ! mc2mnvb(mc, s_mc) recovers s_mn -- solved in the Fortran by a
+        ! step-halved Newton iteration from the mn2m_var starting point.
+        subroutine mn2mvarb(mn,s_mn,mc,s_mc)
+            double precision, dimension(3), intent(in) :: mn
+            double precision, dimension(3,3), intent(in) :: s_mn
+            double precision, dimension(3), intent(out) :: mc
+            double precision, dimension(3,3), intent(out) :: s_mc
+        end subroutine mn2mvarb
+
+        ! MSE of the kmom-th at-site moment (1=mean, 2=variance, 3=skew)
+        ! under EMA/ADJE: var_mom -> m2mn -> mn2mvarb, diagonal element
+        ! kmom. Blends the skewmin/-skewmin branches near skew = 0 --
+        ! var_mom's own internal clamp is a no-op there, but mse_ema adds
+        ! a second, smoother blend on top of it.
+        function mse_ema(nthresh,nobs,tl,tu,mc,kmom) result (mse_ema_out)
+            integer, intent(in) :: nthresh
+            double precision, dimension(nthresh), intent(in) :: nobs
+            double precision, dimension(nthresh), intent(in), depend(nthresh) :: tl
+            double precision, dimension(nthresh), intent(in), depend(nthresh) :: tu
+            double precision, dimension(3), intent(in) :: mc
+            integer, intent(in) :: kmom
+            double precision :: mse_ema_out
+        end function mse_ema
+
+        ! --------------------------------------------------------------- !
+        ! detrat, the Halloween determinant ratio (Wd): TODO.md P3's      !
+        ! other open item, separate from var_mom/mse_ema. Reached only    !
+        ! when at-site skew >= 0.04 in magnitude -- Cains Coulee (-0.708) !
+        ! is the acceptance case, its reference Wd = 0.184.               !
+        ! --------------------------------------------------------------- !
+
+        ! E[X^j | X falls outside [tl, tu]] (the *censored* region for this
+        ! threshold group) and the Jacobian of the corresponding expected
+        ! central moments w.r.t. the current fit's own central moments
+        ! (mean, variance, skew) -- Schwarz's EQ 27. Reuses DEXPECT
+        ! internally, same as expmomderiv does, but differentiates with
+        ! respect to central moments directly rather than through
+        ! noncentral moments and DPDM.
+        subroutine expmomcderiv(parms,tl,tu,mne,dedmc)
+            double precision, dimension(3), intent(in) :: parms
+            double precision, intent(in) :: tl
+            double precision, intent(in) :: tu
+            double precision, dimension(3), intent(out) :: mne
+            double precision, dimension(3,3), intent(out) :: dedmc
+        end subroutine expmomcderiv
+
+        ! The determinant ratio itself: Wd = 1 below the 0.04 skew floor,
+        ! otherwise det(I - F0PHI) / det(I - F0PHI[1:2,1:2]) -- a 3x3 vs.
+        ! 2x2 determinant ratio measuring how much the joint (mean,
+        ! variance, skew) information content is degraded by censoring,
+        ! not just skew's own marginal variance. detrat itself is a
+        ! function; detratsub (already exposed above, Phase 1) is the
+        ! subroutine wrapper peakfqr's own R code calls, reused here
+        ! rather than wrapping the function a second time.
     end interface
 end python module _emafort

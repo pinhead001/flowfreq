@@ -1,16 +1,26 @@
 # TODO — HydroLib Hybrid 17C Implementation
 
 ## Status
-Last updated: 2026-08-31
-Tests: **463 passed, 1 deselected, 7 xfailed** in ~38 s (was ~75 s for far fewer tests; see
-the MGBT memoization below). CI green on main. Two of the seven xfails are new, both on the
-Cains Coulee parity case; see P3.
+Last updated: 2026-09-01
+Tests: **587 passed, 1 skipped, 1 deselected, 9 xfailed** in ~42 s. CI green on main.
 Fortran reference: **vendored** at `vendor/peakfqr/` (peakfq 8.1.0, CC0).
 Fortran bridge: builds from those sources via `python build_fortran/build.py`
 (gfortran + meson) and is now **built and checked in CI** by `make parity`.
 
-Every P1 and P2 item is done. What is left is P3: two numerical defects that turn out to be
-the same missing machinery, specified precisely below.
+Every P1 and P2 item is done. The `var_mom` port (TODO.md P3) is done through Phase 3, plus
+`detrat`, and both are **wired into `Bulletin17C`**: `mn2mvarb`/`mse_ema` (the ADJE censoring
+bias adjustment) and `hydrolib._detrat.detrat` (the Halloween determinant ratio, `Wd`) both
+feed `_regional_skew_equivalent_years`. Big Sandy's weighted skew matches peakfq 8.1.0 closely
+enough that the parity suite's `xfail(strict=True)` for it now passes -- so it is no longer
+marked xfail, per the whole point of `strict=True`. On Cains Coulee, the only parity case whose
+at-site skew clears the 0.04 HWN floor, native `Wd` is now 0.174 against peakfq's 0.184 -- where
+it was a flatly wrong 1.0 before `_perception_threshold_groups` learned to fold MGBT's
+low-outlier threshold into the perception-threshold groups it hands to `mse_ema`/`detrat`. What
+is left of P3 is `VAR_EMAB`/`regmoms`/`ci_ema_m3b` (the confidence-interval shape fix,
+unstarted) and the separate, deeper, pre-existing defect that Cains Coulee's remaining xfails
+now trace to: hydrolib's at-site EMA moment iteration doesn't use perception thresholds at all,
+only value intervals, so `skew_station` itself is 0.122 off regardless of weighting
+correctness -- see the "Skew weighting" item below.
 
 ---
 
@@ -28,10 +38,17 @@ as one item with two symptoms.
 **The defect is censoring-specific, and that is now measured rather than assumed.** Two
 Wyoming/Montana parity cases were added for exactly this question:
 
-| case | censoring | reference `Wd` | native vs peakfq 8.1.0 |
-|---|---|---:|---|
-| Powder River 06326500 | none | 1.0 | mean **0.0**, sd **3.7e-14**, at-site skew **4.5e-12**, weighted skew **7.5e-11**; quantiles ≤ 0.10% |
-| Cains Coulee 06327450 | 11 PILFs from MGBT | **0.184** | at-site skew 0.122, weighted skew 0.098; quantiles 0.30% to 18.7%, 2.7% at Q100 |
+| case | censoring | reference `Wd` | native `Wd` | native vs peakfq 8.1.0 |
+|---|---|---:|---:|---|
+| Powder River 06326500 | none | 1.0 | 1.0 | mean **0.0**, sd **3.7e-14**, at-site skew **4.5e-12**, weighted skew **7.5e-11**; quantiles ≤ 0.10% |
+| Cains Coulee 06327450 | 11 PILFs from MGBT | **0.184** | **0.174** | at-site skew 0.122, weighted skew 0.172; quantiles 0.64% to 23.9%, 6.3% at Q100 |
+
+Cains Coulee's `Wd` column is the story: `detrat`/ADJE are now ported and correctly wired, and
+`Wd` moved from a flatly wrong 1.0 to within 0.01 of peakfq's 0.184. But the weighted-skew gap
+*grew* (0.098 -> 0.172), not shrank -- with less regional-skew smoothing than the old (buggy)
+`Wd = 1` gave it, `skew_weighted` now leans harder on `skew_station`, which is still wrong by
+0.122. Fixing the weighting exposed the upstream defect more clearly instead of masking it;
+see the "Skew weighting" item for the full account.
 
 So with nothing censored the native EMA reproduces peakfq to machine precision — the in-loop
 regional-skew weighting is *right*, not merely closer. Everything that remains is
@@ -87,7 +104,76 @@ actually bites, so it is the oracle for that routine.
         record longer than 150 years that over-weights the regional skew. No parity case is
         that long, so only the oracle test detects it, and fixing it needs `mse_ema`.
 
-- [ ] **Skew weighting — 24% left, and it is all `as_G_mse`.** The structural half is done
+      **Phase 1 done: the leaf layer.** `hydrolib/_p3_moments.py` now carries `m2p`, `m2mn`,
+      `mn2m`, `p_p3`, `q_p3` and `m_p3` — everything `var_mom` calls directly except `varb`,
+      `varc` and `d_est` (Phase 2). Each is a direct transcription of `emafit.f`/`probfun.f`,
+      checked routine-by-routine against six new oracles `_emafort.pyf` exposes (`m2p`,
+      `m2mn`, `mn2m`, `pp3`, `qp3sub`, `mp3` — lower-cased there because gfortran's symbol
+      table is all-lowercase and f2py's generated wrapper does not re-case a mixed-case name
+      in the `.pyf`, which cost a build before it was caught). Tests:
+      `tests/fortran_parity/test_fortran_oracles.py` (Fortran-gated) and
+      `tests/test_p3_moments.py` (pure Python, no build needed). Nothing here is wired into
+      `ExpectedMomentsAlgorithm`/`Bulletin17C` yet — Phase 2 is composing `varb`/`varc`/
+      `d_est`/`var_mom` on top of this layer and only then deciding how (or whether) it
+      replaces `_truncated_gamma_moment`/`_truncated_normal_moments` in `bulletin17c.py`.
+
+      **A real defect in the reference, found while verifying `mP3`, not in this port.**
+      `mP3` blends an incomplete-gamma solution with a Wilson-Hilferty one; the 2024 upstream
+      patch (`FP_G1_CDF`/`FP_G1_MOM_TRC`, `probfun.f`) promoted the incomplete-gamma call
+      itself to real128 for large `alpha = 4/skew**2`, but not the surrounding
+      `choose(i,j)*tau**(i-j)*fp(j)` expansion `mP3` builds on top of it (`emafit.f:3049`).
+      On Big Sandy's own censoring group (at-site skew 0.0066, so alpha ≈ 9e4), that
+      expansion cancels by roughly 11 orders of magnitude at k = 6 and the Fortran result
+      goes **negative** — impossible for `E[X**6]` of a positive-truncated variate.
+      `hydrolib._p3_moments.m_p3` keeps the whole expansion in `mpmath` at 50 decimal digits
+      (`_GAMMA_MOMENT_DPS`) rather than only the CDF call, and its k = 4..6 values are
+      confirmed against independent arbitrary-precision quadrature of the truncated density
+      (not against the Fortran, which is the thing in question) —
+      `test_fortran_itself_loses_precision_on_big_sandy_s_censored_group`.
+
+      **Resolved by Phase 2, as it turns out: `var_mom` itself never reaches this regime.**
+      `var_mom` clamps `|skew|` to `[0.0632, 1.41]` before ever calling `mP3`/`pP3`
+      internally (`emafit.f:2324`, easy to miss reading linearly) — so even Big Sandy's raw
+      0.0066 becomes 0.0632 inside `var_mom`, capping alpha at ~1000 rather than the ~9e4 the
+      finding above used directly. `hydrolib._var_mom.var_mom` matches the Fortran oracle to
+      1e-9 relative on Powder River and Cains Coulee and 1e-3 on Big Sandy (see Phase 2 below
+      for where that residual is), not the orders-of-magnitude gap `mP3` alone showed. The
+      finding above stands as a real, documented Fortran defect reachable by calling `mP3`
+      directly (as the oracle tests do) — it just is not reachable *through* `var_mom`.
+
+      New dependency: `mpmath` (pure Python, no compiled extension), added for exactly this.
+
+      **Phase 2 done: `varb`, `varc`, `d_est`, `expmomderiv` and the `var_mom` composition
+      itself.** `hydrolib/_var_mom.py`. `expmomderiv` differentiates `_p3_moments`'s own
+      (already Fortran- and quadrature-verified) truncated-moment function numerically via
+      `mpmath.diff` rather than transcribing `DEXPECT`'s closed-form chain, which needs
+      `DDGAM` — a nontrivial derivative of the incomplete gamma function w.r.t. its shape
+      parameter. Checking the same derivative at 50/80/120 `mpmath` working digits agrees to
+      30+ stable digits, so the ~1e-5 relative gap against the Fortran on Big Sandy's one
+      real censored group is on the Fortran side (`DDGAM`'s own series truncates at
+      `TOL=1e-11` per term, `probfun.f:1054`), not evidence the numerical-differentiation
+      shortcut is wrong — though that is not independently proven the way the `mP3` finding
+      is. `DPDM` and the matrix bookkeeping around all four (`DSET`/`DMSUM`/`DMRRRR`/
+      `DMXYTF`/`DMMULT`/`DLGINV` in the Fortran) are plain closed-form algebra and linear
+      algebra respectively, done directly with `numpy`/`numpy.linalg` rather than transcribed
+      routine by routine — there is no numerical subtlety in a 3x3 sum, product, or inverse
+      the way there is in the incomplete-gamma work.
+
+      Six more oracles in `_emafort.pyf` (`varb`, `varc`, `d_est`, `expmomderiv`, alongside
+      Phase 1's four): `varb`/`varc` match to 1e-9, `d_est` to 1e-3 (inherits `expmomderiv`'s
+      gap), and the full `var_mom` composition to 1e-9 on the two cases that never exercise
+      `d_est`'s nonzero path (both tail probabilities stay under its 1e-6 cutoff) and 1e-3 on
+      Big Sandy, the one case that does. Tests: `tests/fortran_parity/test_fortran_oracles.py`
+      (Fortran-gated) and `tests/test_var_mom.py` (pure Python, including an independent
+      cross-check against the classical delta-method moment covariance for the fully
+      uncensored case, computed without going through `var_mom`'s threshold-group machinery
+      at all). Still nothing wired into `ExpectedMomentsAlgorithm`/`Bulletin17C` at this
+      point — see the Phase 3 note below the "Skew weighting" item for `mn2mvarb`/`mse_ema`,
+      which is now done, and what is still open (`VAR_EMAB`/`regmoms`/`ci_ema_m3b`, the
+      CI-shape formula, plus the wiring decision for both).
+
+- [x] **Skew weighting — wired in, `detrat` included; what's left is upstream of weighting.**
+      The structural half is done
       (see below): the regional skew is now folded into the EMA fixed point as `moms_p3`
       does it, which took Big Sandy from 35% to **24.1%** (−0.1187 against peakfq's −0.1563)
       and improved the mean and variance at the same time.
@@ -100,13 +186,156 @@ actually bites, so it is the oracle for that routine.
       **−0.1592 against −0.1563, a 1.9% gap**, which is inside the xfail's 0.02 bound. So the
       structure is right and the input is not.
 
-      Also unimplemented: `detrat`, the Halloween determinant ratio. `emafit.f:763` applies it
-      only when the at-site skew is ≥ 0.04 in magnitude, and Big Sandy's is 0.0066, so `Wd`
-      is 1 there either way. **Cains Coulee 06327450 now covers it**: its at-site skew is
-      −0.708 and its reference `Wd` is **0.184**, so hydrolib's implicit 1 over-weights the
-      regional skew by more than fivefold on that site. That case is the acceptance test for
-      `detrat`, and its two `xfail(strict=True)` assertions will fail the build the moment
-      the routine lands and starts working.
+      Also then-unimplemented: `detrat`, the Halloween determinant ratio — now done (below).
+      `emafit.f:763` applies it only when the at-site skew is ≥ 0.04 in magnitude, and Big
+      Sandy's is 0.0066, so `Wd` is 1 there either way. **Cains Coulee 06327450 covers it**:
+      its at-site skew is −0.708 (peakfq's; hydrolib's own is −0.830) and its reference `Wd`
+      is **0.184**, so hydrolib's old implicit 1 over-weighted the regional skew by more than
+      fivefold on that site. That case was the acceptance test for `detrat`; see below for
+      where the resulting `xfail(strict=True)` assertions landed — not flipped, for a reason
+      unrelated to `detrat` itself.
+
+      **Phase 3 done: `mn2mvarb`/`mse_ema` — `as_G_mse` is now computable, in Python, matching
+      the Fortran.** `hydrolib/_mse_ema.py`. `mse_ema(nobs, tl, tu, mc, kmom) →`
+      `var_mom → m2mn → mn2mvarb`, diagonal element `kmom`; feeding it through both a censored
+      and an equivalent uncensored call reproduces the documented numbers on Big Sandy exactly:
+      `bias_adj` **1.4843** (documented 1.4844) and `as_G_mse` **0.094366** (documented 0.09437,
+      and matching the `mseg_all_sub` oracle's own `as_G_mse_o`, **0.094375**, to 0.01%). The
+      skew-weighting gap this closes is therefore no longer an open question — the input peakfq
+      uses is now reproducible — only wiring it into the fixed point remains (see below).
+
+      `mn2mvarb` (`emafit.f:2514`) solves an inverse problem: find the central-moment covariance
+      whose forward map through `mc2mnvb` (an eight-point "Inverse Modified Cholesky Gaussian
+      Quadrature" — `gridmake`, `normquad`/`gammaquad` via `numpy.polynomial.hermite.hermgauss`/
+      `scipy.special.roots_genlaguerre`, ported faithfully) reproduces a given noncentral-moment
+      covariance. The Fortran solves this with a bespoke step-halved Newton iteration, checking
+      positive-semi-definiteness via `chol33` at every trial step. Reparametrizing the unknown as
+      `chol33`'s own six free entries — so the candidate covariance is `V.T @ V`, automatically
+      PSD for *any* real `V`, no guard needed — turns it into unconstrained root-finding
+      (`scipy.optimize.root`), started from the same linearized estimate (`mn2m_var`) the Fortran
+      uses. Both land on the same root: `mn2mvarb` matches the Fortran to 1e-6 relative on
+      Powder River/Cains Coulee, 1e-3 on Big Sandy (inherits `expmomderiv`'s gap — see Phase 2).
+
+      **Performance mattered here in a way it had not before**, because `mse_ema` sits on what
+      would be the fixed point's hot path: the first attempt (`expmomderiv`'s Jacobian via
+      9 separate `mpmath.diff` calls, one per moment/parameter pair) took **1.14 s** for one
+      `mse_ema(censored)` call on Big Sandy — untenable, since `Bulletin17C.run_analysis` would
+      need two such calls (censored and uncensored) per analysis. Profiling
+      (`cProfile`) pointed at the redundancy directly: each `mpmath.diff` re-evaluated the
+      truncated-moment function from scratch, recomputing the incomplete-gamma "down" term
+      (which does not depend on which moment k is being computed) up to 3 times per call. Batching
+      the three moments into one evaluation (`_gamma_trunc_moments`/`_fp_g1_mom_trc_batch` in
+      `hydrolib/_p3_moments.py`, sharing `down` across k) and replacing the 9 `mpmath.diff` calls
+      with 7 manual, batched central differences (2 evaluations per parameter plus 1 for the
+      center point, instead of ~2 per moment-parameter pair) cut it to **0.32 s** — a ~3.6x
+      speedup, bit-identical to the un-optimized version once the finite-difference step was
+      tightened to `1e-12` relative (`_DEXPECT_STEP`; the first attempt at `1e-6` was too coarse
+      and cost three tests ~0.1-1% accuracy against the Fortran, since found by re-running the
+      full suite — measured, not assumed). Still not fast enough to call on every EMA
+      iteration, but `_regional_skew_equivalent_years` (`bulletin17c.py:903`) only needs it once
+      per `run_analysis()` call, using the converged at-site skew — not once per iteration — so
+      this is viable for the wiring below, at roughly 0.3-0.4 s added per analysis with a
+      regional skew supplied.
+
+      **A real, serious defect found in the reference while testing this, not in the port**:
+      `mseg_all_sub` is not safe to call more than once per process. Confirmed outside pytest
+      entirely — call it once (correct), call `emafitpr` for a *different, unrelated* case, call
+      `mseg_all_sub` again with the *original* (unchanged) inputs: the second call silently
+      returns the *uncensored* value instead, and stays wrong for every subsequent call. The
+      arrays going in are unmutated; this is Fortran-side `SAVE`d state leaking across calls to
+      different entry points in `emafit.f`. Documented in
+      `tests/fortran_parity/test_fortran_oracles.py`'s module docstring (found while adding the
+      Phase 3 oracles, which is why that test file's own assertions are careful never to call
+      `mseg_all_sub` a second time in the same process). Not fixed here — `vendor/` is not
+      edited — but worth knowing before calling `hydrolib.peakfqr`/`hydrolib.validation.reference`
+      for more than one site in a single long-running process (a Streamlit session, a batch
+      script): `emafitpr` itself appears unaffected (the existing multi-case parity tests already
+      interleave it across cases and pass), but anything downstream that calls `mseg_all`'s ADJE
+      path a second time should not be trusted without a fresh process.
+
+      **Done: wired into `Bulletin17C`, and the parity xfail actually flips.**
+      `ExpectedMomentsAlgorithm._perception_threshold_groups` builds the `(nobs, tl, tu)`
+      groups from `self._intervals` (the `perception_threshold > 0` rule above, verified
+      against `tests/fortran_parity/cases.py::build_emafit_inputs`); `_adje_skew_mse` calls
+      `mse_ema` through a `@staticmethod`/`@lru_cache` method (`_adje_bias_adjustment`, same
+      pattern as `_mgbt_pvalue` and for the same reason — repeated fits of the same fixture
+      are common, and one call is not free) and feeds the result into
+      `_regional_skew_equivalent_years`, which now takes `mean_log`/`std_log` too. Falls back
+      to `bias_adj = 1` (today's behavior) with a logged warning if `mse_ema` raises, rather
+      than let an ancillary correction fail the whole analysis — `mn2mvarb`'s root-find is not
+      guaranteed to converge on every input.
+
+      Confirmed end to end, not assumed: Big Sandy's `TestRung3Moments::test_weighted_skew`
+      in `tests/fortran_parity/test_native_vs_golden.py` — peakfq's −0.1563 against a 0.02
+      tolerance — now passes, so its `xfail(strict=True)` is removed (that test file's own
+      alarm going off is what caught it). Measured weighted-skew gap against the reference,
+      `tests/integration/test_hybrid_workflow.py`: **0.0026** in skew units, down from 0.0376
+      — matching the ~1.9% figure predicted above almost exactly, with the small residual
+      being `mn2mvarb`'s own ~1e-3 relative gap on Big Sandy (Phase 2's `expmomderiv` note),
+      not `detrat`, which does not apply here (Big Sandy's at-site skew is under the 0.04 HWN
+      floor). Three quantiles in `tests/validation/test_big_sandy.py` (AEP 0.002, 0.99, 0.995)
+      moved 2.2–2.8% *further* from the 2012 PeakfqSA manual as a direct, expected consequence
+      — that manual predates HWN/ADJE and was already documented as not reproducible by peakfq
+      8.1.0 — so they are now `xfail(strict=True)` there instead of silently passing at a
+      widened tolerance, with the actual `PEAKFQ_810_*`/`tests/fortran_parity/` parity checks
+      (the ones that matter) unaffected.
+
+      **Cost**: the full suite went from ~29 s to ~40 s. `_adje_bias_adjustment` costs
+      ~0.3–0.4 s the first time a given (fixture, moments) combination is fit with a regional
+      skew supplied; the `@lru_cache` absorbs repeats. Acceptable for now; worth another pass
+      if it grows further.
+
+      **`detrat` done too — ported, wired, and verified.** `hydrolib/_detrat.py`, a direct
+      transcription of `emafit.f`'s `detrat` (the 3x3-vs-2x2 determinant ratio) and
+      `probfun.f`'s `EXPMOMCDERIV` (the censored-region expected-moment Jacobian it needs,
+      reusing `hydrolib._var_mom._dexpect` for the open-tail pieces rather than a second
+      truncated-gamma implementation). Verified against two oracles `_emafort.pyf` exposes
+      (`expmomcderiv`, and Phase 1's existing `detratsub`): matched Cains Coulee's real,
+      post-MGBT `Wd` of 0.184 to ~1e-9 relative precision on the first attempt — noticeably
+      tighter than `mse_ema`'s ~1e-3 on Big Sandy, since `detrat` needs no Newton-solve/
+      quadrature machinery. Wired into `_regional_skew_equivalent_years` via a new
+      `@staticmethod`/`@lru_cache` method, `_detrat_wd`, mirroring `_adje_bias_adjustment`'s
+      pattern; falls back to `Wd = 1` with a logged warning if it raises, the same posture
+      `_adje_skew_mse` already takes on `mse_ema`. Tests: `TestExpMomCDerivPort`/
+      `TestDetratPort` in `tests/fortran_parity/test_fortran_oracles.py` (Fortran-gated),
+      `tests/test_detrat.py` (pure Python, no build needed).
+
+      **Wiring it surfaced a real gap in `_perception_threshold_groups`, not in `detrat`
+      itself.** That method reconstructs the `(nobs, tl, tu)` groups `mse_ema`/`detrat` need
+      from `self._intervals`' `perception_threshold` field — but MGBT-censored PILFs get
+      `perception_threshold = 0.0` in hydrolib's model (a censored *value*, correctly, for the
+      moment iteration itself), while peakfq's own `tlema`/`tuema` (confirmed via a direct
+      `emafitpr` call on Cains Coulee) raise the perception threshold for the **entire**
+      systematic record to the MGBT cutoff once one is found, not just the flagged PILF years.
+      Left unfixed, `detrat` would only ever see Cains Coulee as one uncensored group and
+      return `Wd = 1` regardless of how correct the port was — the same wrong answer as before,
+      for a different reason. Fixed by having `_perception_threshold_groups` take
+      `max(interval.perception_threshold, self._ema_params.low_outlier_threshold)` for every
+      *systematic* interval (`self._ema_params.low_outlier_threshold` is `0.0` when MGBT finds
+      no PILFs, verified by reading `_multiple_grubbs_beck`'s early-return branches, so this is
+      a no-op — `max(x, 0.0) == x` — on every record without one); historical-period intervals
+      are left alone, since MGBT runs on systematic peaks only and their own threshold is an
+      unrelated restriction. This is what actually moved Cains Coulee's native `Wd` from 1.0 to
+      0.174.
+
+      **The result is not a clean win, and that is the honest reading of it, not a regression.**
+      `Wd` and `bias_adj` are now correct (or close to it — see the table above); but
+      `skew_weighted` is a blend of the (now-correct) regional weight and `skew_station`, which
+      is still 0.122 off from a separate, pre-existing, deeper defect: hydrolib's at-site EMA
+      moment iteration (`_ema_iteration`/`_compute_ema_moments`) never used perception
+      thresholds at all, only value intervals, and nothing in this session's work touches that.
+      With the old buggy `Wd = 1`, more weight landed on the regional skew, which happens to be
+      closer to peakfq's answer here than the broken at-site fit is — so the bug was
+      accidentally diluting a different error, not fixing anything. Once `Wd` dropped to its
+      correct ~0.17, that dilution shrank and `skew_weighted`'s own gap against peakfq grew from
+      0.098 to 0.172 (`tests/fortran_parity/test_wymt_vs_golden.py::TestCainsCouleeCensored`,
+      updated to record this rather than hide it — its `skew_matches` xfail's reason and the
+      quantile-error bound were both rewritten to the new measured numbers, per this repo's
+      `xfail(strict=True)` discipline). Fixing `detrat`'s own defect does not and could not flip
+      those xfails; the at-site-fit gap is the thing standing between here and that, and it is
+      out of scope for the `var_mom`/`detrat` port itself. Big Sandy is unaffected either way —
+      its at-site skew (0.0066) sits under the 0.04 HWN floor, so `detrat` never activates for
+      it regardless of what `_perception_threshold_groups` reports.
 
 - [ ] **Confidence-interval shape.** `compute_confidence_limits()` forms `log_Q ± z·se`,
       symmetric by construction (ratio 1.000 at every AEP). peakfq skews right with return
