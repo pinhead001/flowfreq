@@ -324,5 +324,36 @@ python module _emafort
             integer, intent(in) :: kmom
             double precision :: mse_ema_out
         end function mse_ema
+
+        ! --------------------------------------------------------------- !
+        ! detrat, the Halloween determinant ratio (Wd): TODO.md P3's      !
+        ! other open item, separate from var_mom/mse_ema. Reached only    !
+        ! when at-site skew >= 0.04 in magnitude -- Cains Coulee (-0.708) !
+        ! is the acceptance case, its reference Wd = 0.184.               !
+        ! --------------------------------------------------------------- !
+
+        ! E[X^j | X falls outside [tl, tu]] (the *censored* region for this
+        ! threshold group) and the Jacobian of the corresponding expected
+        ! central moments w.r.t. the current fit's own central moments
+        ! (mean, variance, skew) -- Schwarz's EQ 27. Reuses DEXPECT
+        ! internally, same as expmomderiv does, but differentiates with
+        ! respect to central moments directly rather than through
+        ! noncentral moments and DPDM.
+        subroutine expmomcderiv(parms,tl,tu,mne,dedmc)
+            double precision, dimension(3), intent(in) :: parms
+            double precision, intent(in) :: tl
+            double precision, intent(in) :: tu
+            double precision, dimension(3), intent(out) :: mne
+            double precision, dimension(3,3), intent(out) :: dedmc
+        end subroutine expmomcderiv
+
+        ! The determinant ratio itself: Wd = 1 below the 0.04 skew floor,
+        ! otherwise det(I - F0PHI) / det(I - F0PHI[1:2,1:2]) -- a 3x3 vs.
+        ! 2x2 determinant ratio measuring how much the joint (mean,
+        ! variance, skew) information content is degraded by censoring,
+        ! not just skew's own marginal variance. detrat itself is a
+        ! function; detratsub (already exposed above, Phase 1) is the
+        ! subroutine wrapper peakfqr's own R code calls, reused here
+        ! rather than wrapping the function a second time.
     end interface
 end python module _emafort

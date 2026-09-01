@@ -929,11 +929,30 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         covers all three cases because ``_build_flow_intervals`` already
         encodes the distinction that way, not because of ``is_historical``,
         which the gap-year branch does not set.
+
+        MGBT is the one exception to "zero means unrestricted": once MGBT
+        (or a user override) determines a real low-outlier cutoff
+        (``self._ema_params.low_outlier_threshold``), peakfq's own
+        ``tlema``/``tuema`` raise the perception threshold for the *entire*
+        systematic record to that cutoff -- not just the flagged PILF
+        years -- confirmed against a direct ``emafitpr`` call. hydrolib's
+        ``FlowInterval.perception_threshold`` stays ``0.0`` for PILFs (it
+        models the low outlier as a censored *value*, which is correct for
+        the moment fit itself), so that elevation has to be applied here
+        explicitly, to every systematic interval, rather than read off the
+        interval. Historical-period intervals are untouched: their own
+        threshold already reflects a different, unrelated restriction, and
+        MGBT is computed from systematic peaks only.
         """
+        low_outlier = self._ema_params.low_outlier_threshold or 0.0
         groups: Dict[Tuple[float, float], int] = {}
         for interval in self._intervals:
-            if interval.perception_threshold > 0:
-                pair = (np.log10(interval.perception_threshold), np.log10(_PERCEPTION_QMAX))
+            if interval.is_systematic:
+                tl = max(interval.perception_threshold, low_outlier)
+            else:
+                tl = interval.perception_threshold
+            if tl > 0:
+                pair = (np.log10(tl), np.log10(_PERCEPTION_QMAX))
             else:
                 pair = (np.log10(_PERCEPTION_QMIN), np.log10(_PERCEPTION_QMAX))
             groups[pair] = groups.get(pair, 0) + 1
@@ -1010,6 +1029,31 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
             return base
         return bias_adj * base
 
+    @staticmethod
+    @lru_cache(maxsize=512)
+    def _detrat_wd(
+        nobs: Tuple[float, ...],
+        tl: Tuple[float, ...],
+        tu: Tuple[float, ...],
+        mean_log: float,
+        var_log: float,
+        at_site_skew: float,
+        n: int,
+    ) -> float:
+        """``Wd``, the Halloween determinant ratio (``hydrolib._detrat.detrat``).
+
+        Unlike ``mse_ema``, ``detrat`` takes the fit's real (unshifted)
+        mean and the real (unshifted) perception thresholds directly --
+        ``var_mom``'s internal recentring to mean 0 is a convenience for
+        its own quadrature, not something ``detrat`` needs or reproduces.
+        ``@lru_cache`` for the same reason ``_adje_bias_adjustment`` has
+        one.
+        """
+        from hydrolib._detrat import detrat
+
+        mc = np.array([mean_log, var_log, at_site_skew])
+        return detrat(mc, n, np.array(nobs), np.array(tl), np.array(tu))
+
     def _regional_skew_equivalent_years(
         self, mean_log: float, std_log: float, at_site_skew: float, n: int
     ) -> float:
@@ -1023,10 +1067,12 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         ``Wd`` is the weighting factor chosen by ``wght_opt_n``. This
         implements HWN, peakfq's default, whose rule is at ``emafit.f`` line
         763: the Halloween determinant ratio applies only when the at-site
-        skew is at least 0.04 in magnitude, and reduces to 1 below that. The
-        determinant ratio itself (``detrat``) is not implemented; a record
-        whose at-site skew exceeds 0.04 therefore gets ``Wd = 1``, which is
-        the INV weighting option rather than HWN. See TODO.md P3.
+        skew is at least 0.04 in magnitude, and reduces to 1 below that.
+        Above that floor, ``Wd`` comes from ``hydrolib._detrat.detrat``
+        (TODO.md P3's other open item, now closed) -- falls back to
+        ``Wd = 1`` (the INV weighting option rather than HWN) with a
+        logged warning if that fails, the same posture ``_adje_skew_mse``
+        takes on ``mse_ema``.
 
         ``as_G_mse`` is ADJE's censoring-adjusted skew MSE (``_adje_skew_mse``),
         not ``mseg()`` alone -- see TODO.md P3's "skew weighting" item.
@@ -1053,11 +1099,23 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
             return 0.0
         wd = 1.0
         if abs(at_site_skew) >= _HWN_SKEW_FLOOR:
-            logger.debug(
-                "at-site skew %.4f exceeds the HWN floor; the determinant-ratio "
-                "adjustment is not implemented, using Wd = 1",
-                at_site_skew,
-            )
+            nobs, tl, tu = self._perception_threshold_groups()
+            try:
+                wd = self._detrat_wd(
+                    tuple(nobs),
+                    tuple(tl),
+                    tuple(tu),
+                    float(mean_log),
+                    float(std_log) ** 2,
+                    float(at_site_skew),
+                    int(n),
+                )
+            except Exception:
+                logger.warning(
+                    "detrat failed to compute the Halloween determinant ratio; using Wd = 1",
+                    exc_info=True,
+                )
+                wd = 1.0
         as_g_mse = self._adje_skew_mse(mean_log, std_log, at_site_skew, n)
         return n * wd * as_g_mse / r_g_mse
 

@@ -932,3 +932,128 @@ class TestMseEmaPort:
         mc = np.array([3.7, 0.09, 0.3])
         with pytest.raises(ValueError):
             mse_ema(np.array([50.0]), np.array([-20.0]), np.array([20.0]), mc, kmom=0)
+
+
+class TestExpMomCDerivPort:
+    """expmomcderiv: detrat's per-group building block -- E[X^j | censored]
+
+    and the Jacobian of the resulting expected central moments, w.r.t. the
+    fit's own central moments directly (a different basis from
+    hydrolib._var_mom's expmomderiv, which differentiates w.r.t. noncentral
+    moments).
+    """
+
+    @pytest.mark.parametrize("tl,tu", [(3.5, 4.0), (-20.0, 3.0), (4.5, 20.0)])
+    def test_matches_fortran(self, tl, tu):
+        from hydrolib._detrat import _expmomcderiv
+        from hydrolib._p3_moments import m2p
+        from hydrolib.peakfqr._emafort import expmomcderiv
+
+        mc = np.array([3.7, 0.09, -0.5])
+        parms = m2p(mc)
+
+        mne_f, dedmc_f = expmomcderiv(parms, tl, tu)
+        _, mne, dedmc = _expmomcderiv(parms, tl, tu)
+        assert np.allclose(mne, mne_f, rtol=1e-6)
+        assert np.allclose(dedmc, dedmc_f, rtol=1e-6), (dedmc, dedmc_f)
+
+    def test_falls_back_to_unconditional_moments_when_censoring_probability_is_negligible(self):
+        """probfun.f:940 -- PICK <= 1e-10 uses DEXPECT(-inf, inf) directly."""
+        from hydrolib._detrat import _expmomcderiv
+        from hydrolib._p3_moments import m2p
+        from hydrolib.peakfqr._emafort import expmomcderiv
+
+        mc = np.array([3.7, 0.09, -0.5])
+        parms = m2p(mc)
+        # A threshold group so wide that essentially nothing falls outside it.
+        mne_f, dedmc_f = expmomcderiv(parms, -20.0, 20.0)
+        _, mne, dedmc = _expmomcderiv(parms, -20.0, 20.0)
+        assert np.allclose(mne, mne_f, rtol=1e-6)
+        assert np.allclose(dedmc, dedmc_f, rtol=1e-6)
+
+
+class TestDetratPort:
+    """detrat: the Halloween determinant ratio, Wd -- TODO.md P3's other
+
+    open item, independent of var_mom/mse_ema.
+    """
+
+    def test_is_one_below_the_skew_floor(self):
+        from hydrolib._detrat import detrat
+
+        mc = np.array([3.7, 0.09, 0.0066])  # |skew| < 0.04
+        w = detrat(mc, 84, np.array([84.0]), np.array([-20.0]), np.array([20.0]))
+        assert w == 1.0
+
+    def test_matches_fortran_on_big_sandy(self):
+        """At-site skew 0.0066 is under the floor either way, but this
+
+        exercises the real (nobs, tl, tu) groups end to end.
+        """
+        from hydrolib._detrat import detrat
+        from hydrolib.peakfqr._emafort import detratsub
+
+        golden = _golden("big_sandy_03606500")
+        mc = _at_site_moments(golden)
+        nobs, tl, tu = _threshold_groups(golden["inputs"]["tl"], golden["inputs"]["tu"])
+        n = int(nobs.sum())
+
+        mine = detrat(mc, n, nobs, tl, tu)
+        fortran = float(detratsub(mc, n, nobs, tl, tu))
+        assert mine == pytest.approx(fortran, rel=1e-9)
+        assert mine == 1.0
+
+    def test_matches_fortran_on_cains_coulee_post_mgbt_group(self):
+        """The acceptance case: at-site skew -0.708, reference Wd 0.184.
+
+        Uses emafitpr's own tlema/tuema (post-MGBT), the same way
+        TestDeterminantRatioOracle does -- Cains Coulee's *input*
+        thresholds carry no censoring; MGBT creates it inside the fit.
+        """
+        from hydrolib._detrat import detrat
+        from hydrolib.peakfqr._emafort import detratsub, emafitpr
+        from tests.fortran_parity.cases import CASES as CASE_FACTORIES
+        from tests.fortran_parity.cases import build_emafit_inputs
+
+        args = build_emafit_inputs(CASE_FACTORIES["cains_coulee_06327450"]())
+        out = emafitpr(
+            args["ql"],
+            args["qu"],
+            args["tl"],
+            args["tu"],
+            args["dtype"],
+            args["reg_m"],
+            args["reg_m_mse"],
+            args["reg_sd"],
+            args["reg_sd_mse"],
+            args["r_g"],
+            args["r_g_mse"],
+            args["gbthrsh0"],
+            args["pq"],
+            args["eps"],
+            args["wght_opt_n"],
+        )
+        cmoms, wdout = np.asarray(out[9], dtype=float), float(out[14])
+        n = len(args["ql"])
+        tlema, tuema = np.asarray(out[17], dtype=float)[:n], np.asarray(out[18], dtype=float)[:n]
+        mc = np.array([cmoms[0][1], cmoms[1][1], cmoms[2][1]])
+        nobs, tl, tu = _threshold_groups(tlema, tuema)
+
+        mine = detrat(mc, n, nobs, tl, tu)
+        fortran = float(detratsub(mc, n, nobs, tl, tu))
+        assert mine == pytest.approx(fortran, rel=1e-6)
+        assert mine == pytest.approx(wdout, rel=1e-6)
+        assert mine == pytest.approx(0.184, abs=5e-4)
+
+    @pytest.mark.parametrize("skew", [-0.5, 0.3, 1.2])
+    def test_matches_fortran_on_synthetic_censored_groups(self, skew):
+        from hydrolib._detrat import detrat
+        from hydrolib.peakfqr._emafort import detratsub
+
+        mc = np.array([3.7, 0.09, skew])
+        nobs = np.array([60.0, 20.0])
+        tl = np.array([-20.0, 4.0])
+        tu = np.array([4.0, 20.0])
+        mine = detrat(mc, 80, nobs, tl, tu)
+        fortran = float(detratsub(mc, 80, nobs, tl, tu))
+        assert mine == pytest.approx(fortran, rel=1e-6)

@@ -2,22 +2,25 @@
 
 ## Status
 Last updated: 2026-09-01
-Tests: **564 passed, 1 skipped, 1 deselected, 9 xfailed** in ~40 s (up from ~29 s -- the ADJE
-bias adjustment costs real time on a censored fit; see the "Skew weighting" item). CI green
-on main.
+Tests: **587 passed, 1 skipped, 1 deselected, 9 xfailed** in ~42 s. CI green on main.
 Fortran reference: **vendored** at `vendor/peakfqr/` (peakfq 8.1.0, CC0).
 Fortran bridge: builds from those sources via `python build_fortran/build.py`
 (gfortran + meson) and is now **built and checked in CI** by `make parity`.
 
-Every P1 and P2 item is done. The `var_mom` port (TODO.md P3) is done through Phase 3 and
-**wired into `Bulletin17C`**: `mn2mvarb`/`mse_ema`, the ADJE censoring bias adjustment, now
-feeds `_regional_skew_equivalent_years`, and Big Sandy's weighted skew matches peakfq 8.1.0
-closely enough that the parity suite's `xfail(strict=True)` for it now passes -- so it is no
-longer marked xfail, per the whole point of `strict=True`. The "Skew weighting" item below is
-effectively closed for records like Big Sandy (at-site skew under the HWN floor); what is left
-of P3 is `VAR_EMAB`/`regmoms`/`ci_ema_m3b` (the confidence-interval shape fix, unstarted) and
-`detrat` (the Halloween determinant ratio, needed only when at-site skew exceeds 0.04 in
-magnitude, which none of the three parity cases needing regional weighting do).
+Every P1 and P2 item is done. The `var_mom` port (TODO.md P3) is done through Phase 3, plus
+`detrat`, and both are **wired into `Bulletin17C`**: `mn2mvarb`/`mse_ema` (the ADJE censoring
+bias adjustment) and `hydrolib._detrat.detrat` (the Halloween determinant ratio, `Wd`) both
+feed `_regional_skew_equivalent_years`. Big Sandy's weighted skew matches peakfq 8.1.0 closely
+enough that the parity suite's `xfail(strict=True)` for it now passes -- so it is no longer
+marked xfail, per the whole point of `strict=True`. On Cains Coulee, the only parity case whose
+at-site skew clears the 0.04 HWN floor, native `Wd` is now 0.174 against peakfq's 0.184 -- where
+it was a flatly wrong 1.0 before `_perception_threshold_groups` learned to fold MGBT's
+low-outlier threshold into the perception-threshold groups it hands to `mse_ema`/`detrat`. What
+is left of P3 is `VAR_EMAB`/`regmoms`/`ci_ema_m3b` (the confidence-interval shape fix,
+unstarted) and the separate, deeper, pre-existing defect that Cains Coulee's remaining xfails
+now trace to: hydrolib's at-site EMA moment iteration doesn't use perception thresholds at all,
+only value intervals, so `skew_station` itself is 0.122 off regardless of weighting
+correctness -- see the "Skew weighting" item below.
 
 ---
 
@@ -35,10 +38,17 @@ as one item with two symptoms.
 **The defect is censoring-specific, and that is now measured rather than assumed.** Two
 Wyoming/Montana parity cases were added for exactly this question:
 
-| case | censoring | reference `Wd` | native vs peakfq 8.1.0 |
-|---|---|---:|---|
-| Powder River 06326500 | none | 1.0 | mean **0.0**, sd **3.7e-14**, at-site skew **4.5e-12**, weighted skew **7.5e-11**; quantiles ≤ 0.10% |
-| Cains Coulee 06327450 | 11 PILFs from MGBT | **0.184** | at-site skew 0.122, weighted skew 0.098; quantiles 0.30% to 18.7%, 2.7% at Q100 |
+| case | censoring | reference `Wd` | native `Wd` | native vs peakfq 8.1.0 |
+|---|---|---:|---:|---|
+| Powder River 06326500 | none | 1.0 | 1.0 | mean **0.0**, sd **3.7e-14**, at-site skew **4.5e-12**, weighted skew **7.5e-11**; quantiles ≤ 0.10% |
+| Cains Coulee 06327450 | 11 PILFs from MGBT | **0.184** | **0.174** | at-site skew 0.122, weighted skew 0.172; quantiles 0.64% to 23.9%, 6.3% at Q100 |
+
+Cains Coulee's `Wd` column is the story: `detrat`/ADJE are now ported and correctly wired, and
+`Wd` moved from a flatly wrong 1.0 to within 0.01 of peakfq's 0.184. But the weighted-skew gap
+*grew* (0.098 -> 0.172), not shrank -- with less regional-skew smoothing than the old (buggy)
+`Wd = 1` gave it, `skew_weighted` now leans harder on `skew_station`, which is still wrong by
+0.122. Fixing the weighting exposed the upstream defect more clearly instead of masking it;
+see the "Skew weighting" item for the full account.
 
 So with nothing censored the native EMA reproduces peakfq to machine precision — the in-loop
 regional-skew weighting is *right*, not merely closer. Everything that remains is
@@ -162,7 +172,7 @@ actually bites, so it is the oracle for that routine.
       which is now done, and what is still open (`VAR_EMAB`/`regmoms`/`ci_ema_m3b`, the
       CI-shape formula, plus the wiring decision for both).
 
-- [x] **Skew weighting — wired in; `detrat` is what's left, and it doesn't bite these cases.**
+- [x] **Skew weighting — wired in, `detrat` included; what's left is upstream of weighting.**
       The structural half is done
       (see below): the regional skew is now folded into the EMA fixed point as `moms_p3`
       does it, which took Big Sandy from 35% to **24.1%** (−0.1187 against peakfq's −0.1563)
@@ -176,13 +186,14 @@ actually bites, so it is the oracle for that routine.
       **−0.1592 against −0.1563, a 1.9% gap**, which is inside the xfail's 0.02 bound. So the
       structure is right and the input is not.
 
-      Also unimplemented: `detrat`, the Halloween determinant ratio. `emafit.f:763` applies it
-      only when the at-site skew is ≥ 0.04 in magnitude, and Big Sandy's is 0.0066, so `Wd`
-      is 1 there either way. **Cains Coulee 06327450 now covers it**: its at-site skew is
-      −0.708 and its reference `Wd` is **0.184**, so hydrolib's implicit 1 over-weights the
-      regional skew by more than fivefold on that site. That case is the acceptance test for
-      `detrat`, and its two `xfail(strict=True)` assertions will fail the build the moment
-      the routine lands and starts working.
+      Also then-unimplemented: `detrat`, the Halloween determinant ratio — now done (below).
+      `emafit.f:763` applies it only when the at-site skew is ≥ 0.04 in magnitude, and Big
+      Sandy's is 0.0066, so `Wd` is 1 there either way. **Cains Coulee 06327450 covers it**:
+      its at-site skew is −0.708 (peakfq's; hydrolib's own is −0.830) and its reference `Wd`
+      is **0.184**, so hydrolib's old implicit 1 over-weighted the regional skew by more than
+      fivefold on that site. That case was the acceptance test for `detrat`; see below for
+      where the resulting `xfail(strict=True)` assertions landed — not flipped, for a reason
+      unrelated to `detrat` itself.
 
       **Phase 3 done: `mn2mvarb`/`mse_ema` — `as_G_mse` is now computable, in Python, matching
       the Fortran.** `hydrolib/_mse_ema.py`. `mse_ema(nobs, tl, tu, mc, kmom) →`
@@ -274,9 +285,57 @@ actually bites, so it is the oracle for that routine.
       skew supplied; the `@lru_cache` absorbs repeats. Acceptable for now; worth another pass
       if it grows further.
 
-      What is still open: `detrat`, the Halloween determinant ratio (below) — needed only when
-      at-site skew is ≥ 0.04, which none of the three parity cases needing regional weighting
-      are.
+      **`detrat` done too — ported, wired, and verified.** `hydrolib/_detrat.py`, a direct
+      transcription of `emafit.f`'s `detrat` (the 3x3-vs-2x2 determinant ratio) and
+      `probfun.f`'s `EXPMOMCDERIV` (the censored-region expected-moment Jacobian it needs,
+      reusing `hydrolib._var_mom._dexpect` for the open-tail pieces rather than a second
+      truncated-gamma implementation). Verified against two oracles `_emafort.pyf` exposes
+      (`expmomcderiv`, and Phase 1's existing `detratsub`): matched Cains Coulee's real,
+      post-MGBT `Wd` of 0.184 to ~1e-9 relative precision on the first attempt — noticeably
+      tighter than `mse_ema`'s ~1e-3 on Big Sandy, since `detrat` needs no Newton-solve/
+      quadrature machinery. Wired into `_regional_skew_equivalent_years` via a new
+      `@staticmethod`/`@lru_cache` method, `_detrat_wd`, mirroring `_adje_bias_adjustment`'s
+      pattern; falls back to `Wd = 1` with a logged warning if it raises, the same posture
+      `_adje_skew_mse` already takes on `mse_ema`. Tests: `TestExpMomCDerivPort`/
+      `TestDetratPort` in `tests/fortran_parity/test_fortran_oracles.py` (Fortran-gated),
+      `tests/test_detrat.py` (pure Python, no build needed).
+
+      **Wiring it surfaced a real gap in `_perception_threshold_groups`, not in `detrat`
+      itself.** That method reconstructs the `(nobs, tl, tu)` groups `mse_ema`/`detrat` need
+      from `self._intervals`' `perception_threshold` field — but MGBT-censored PILFs get
+      `perception_threshold = 0.0` in hydrolib's model (a censored *value*, correctly, for the
+      moment iteration itself), while peakfq's own `tlema`/`tuema` (confirmed via a direct
+      `emafitpr` call on Cains Coulee) raise the perception threshold for the **entire**
+      systematic record to the MGBT cutoff once one is found, not just the flagged PILF years.
+      Left unfixed, `detrat` would only ever see Cains Coulee as one uncensored group and
+      return `Wd = 1` regardless of how correct the port was — the same wrong answer as before,
+      for a different reason. Fixed by having `_perception_threshold_groups` take
+      `max(interval.perception_threshold, self._ema_params.low_outlier_threshold)` for every
+      *systematic* interval (`self._ema_params.low_outlier_threshold` is `0.0` when MGBT finds
+      no PILFs, verified by reading `_multiple_grubbs_beck`'s early-return branches, so this is
+      a no-op — `max(x, 0.0) == x` — on every record without one); historical-period intervals
+      are left alone, since MGBT runs on systematic peaks only and their own threshold is an
+      unrelated restriction. This is what actually moved Cains Coulee's native `Wd` from 1.0 to
+      0.174.
+
+      **The result is not a clean win, and that is the honest reading of it, not a regression.**
+      `Wd` and `bias_adj` are now correct (or close to it — see the table above); but
+      `skew_weighted` is a blend of the (now-correct) regional weight and `skew_station`, which
+      is still 0.122 off from a separate, pre-existing, deeper defect: hydrolib's at-site EMA
+      moment iteration (`_ema_iteration`/`_compute_ema_moments`) never used perception
+      thresholds at all, only value intervals, and nothing in this session's work touches that.
+      With the old buggy `Wd = 1`, more weight landed on the regional skew, which happens to be
+      closer to peakfq's answer here than the broken at-site fit is — so the bug was
+      accidentally diluting a different error, not fixing anything. Once `Wd` dropped to its
+      correct ~0.17, that dilution shrank and `skew_weighted`'s own gap against peakfq grew from
+      0.098 to 0.172 (`tests/fortran_parity/test_wymt_vs_golden.py::TestCainsCouleeCensored`,
+      updated to record this rather than hide it — its `skew_matches` xfail's reason and the
+      quantile-error bound were both rewritten to the new measured numbers, per this repo's
+      `xfail(strict=True)` discipline). Fixing `detrat`'s own defect does not and could not flip
+      those xfails; the at-site-fit gap is the thing standing between here and that, and it is
+      out of scope for the `var_mom`/`detrat` port itself. Big Sandy is unaffected either way —
+      its at-site skew (0.0066) sits under the 0.04 HWN floor, so `detrat` never activates for
+      it regardless of what `_perception_threshold_groups` reports.
 
 - [ ] **Confidence-interval shape.** `compute_confidence_limits()` forms `log_Q ± z·se`,
       symmetric by construction (ratio 1.000 at every AEP). peakfq skews right with return
