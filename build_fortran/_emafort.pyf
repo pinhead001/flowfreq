@@ -240,5 +240,89 @@ python module _emafort
             double precision, intent(in) :: xmax
             double precision, dimension(3,3), intent(out) :: jac
         end subroutine expmomderiv
+
+        ! --------------------------------------------------------------- !
+        ! var_mom port, phase 3: mse_ema (the ADJE skew-MSE bias           !
+        ! adjustment) and its dependency mn2mvarb -- the "Inverse         !
+        ! Modified Cholesky Gaussian Quadrature" that turns a covariance  !
+        ! of noncentral moments into a covariance of central moments.     !
+        ! See TODO.md P3.                                                 !
+        ! --------------------------------------------------------------- !
+
+        ! Gauss-Hermite quadrature for the standard normal: nodes/weights
+        ! s.t. integral phi(z)*g(z)dz ~= sum(w(i)*g(t(i))). Used for the
+        ! (mean, skew) axes of gridmake's quadrature grid.
+        subroutine normquad(n,t,w)
+            integer, intent(in) :: n
+            double precision, dimension(n), intent(out) :: t
+            double precision, dimension(n), intent(out), depend(n) :: w
+        end subroutine normquad
+
+        ! The same, for a Gamma(alpha, beta) distribution -- used for the
+        ! variance axis, whose sampling distribution is right-skewed
+        ! rather than normal.
+        subroutine gammaquad(n,alpha,beta,t,w)
+            integer, intent(in) :: n
+            double precision, intent(in) :: alpha
+            double precision, intent(in) :: beta
+            double precision, dimension(n), intent(out) :: t
+            double precision, dimension(n), intent(out), depend(n) :: w
+        end subroutine gammaquad
+
+        ! A permuted (2,1,3) Cholesky-like factorization, V^T @ V = S,
+        ! pivoted so the "gamma" quadrature axis (index 2, variance) is
+        ! unconditioned and the two "normal" axes (mean, skew) are
+        ! expressed conditional on it. iflag = 1 when S is not PSD.
+        subroutine chol33(s,v,iflag)
+            double precision, dimension(3,3), intent(in) :: s
+            double precision, dimension(3,3), intent(out) :: v
+            integer, intent(out) :: iflag
+        end subroutine chol33
+
+        ! Central moments (mc, s_mc) -> covariance of the noncentral
+        ! moments (s_mn), via a grid of quadrature points built from
+        ! chol33 + normquad/gammaquad, mapped through m2mn, and combined
+        ! with covw's weighted covariance. nnd is always (2,2,2) in
+        ! practice (mn2mvarb hardcodes it), so hydrolib does too.
+        subroutine mc2mnvb(mc,s_mc,nnd,s_mn)
+            double precision, dimension(3), intent(in) :: mc
+            double precision, dimension(3,3), intent(in) :: s_mc
+            integer, dimension(3), intent(in) :: nnd
+            double precision, dimension(3,3), intent(out) :: s_mn
+        end subroutine mc2mnvb
+
+        ! Linearized (delta-method) initial guess for (mc, s_mc) given
+        ! (mn, s_mn) -- what mn2mvarb starts its iteration from.
+        subroutine mn2m_var(mn,s_mn,mc,s_mc)
+            double precision, dimension(3), intent(in) :: mn
+            double precision, dimension(3,3), intent(in) :: s_mn
+            double precision, dimension(3), intent(out) :: mc
+            double precision, dimension(3,3), intent(out) :: s_mc
+        end subroutine mn2m_var
+
+        ! The full inverse problem: (mn, s_mn) -> (mc, s_mc) such that
+        ! mc2mnvb(mc, s_mc) recovers s_mn -- solved in the Fortran by a
+        ! step-halved Newton iteration from the mn2m_var starting point.
+        subroutine mn2mvarb(mn,s_mn,mc,s_mc)
+            double precision, dimension(3), intent(in) :: mn
+            double precision, dimension(3,3), intent(in) :: s_mn
+            double precision, dimension(3), intent(out) :: mc
+            double precision, dimension(3,3), intent(out) :: s_mc
+        end subroutine mn2mvarb
+
+        ! MSE of the kmom-th at-site moment (1=mean, 2=variance, 3=skew)
+        ! under EMA/ADJE: var_mom -> m2mn -> mn2mvarb, diagonal element
+        ! kmom. Blends the skewmin/-skewmin branches near skew = 0 --
+        ! var_mom's own internal clamp is a no-op there, but mse_ema adds
+        ! a second, smoother blend on top of it.
+        function mse_ema(nthresh,nobs,tl,tu,mc,kmom) result (mse_ema_out)
+            integer, intent(in) :: nthresh
+            double precision, dimension(nthresh), intent(in) :: nobs
+            double precision, dimension(nthresh), intent(in), depend(nthresh) :: tl
+            double precision, dimension(nthresh), intent(in), depend(nthresh) :: tu
+            double precision, dimension(3), intent(in) :: mc
+            integer, intent(in) :: kmom
+            double precision :: mse_ema_out
+        end function mse_ema
     end interface
 end python module _emafort

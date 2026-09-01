@@ -17,6 +17,21 @@ They also record two things the oracles found immediately:
 * ``_ema_iteration`` reproduces ``moms_p3`` exactly on uncensored rows, and
   diverges only where intervals are censored -- which places the remaining
   error in the truncated-moment code, not in the transcribed formulas.
+
+A third, found while adding the Phase 3 (``mse_ema``) oracles: ``mseg_all_sub``
+is not safe to call more than once per process. A fresh call reproduces
+``as_G_mse_o`` correctly (``TestSkewMseOracle.test_reproduces_emafitpr_as_g_mse``,
+which runs first in this file and is what actually pins that number), but
+calling ``emafitpr`` for *any* case in between -- as ``TestDeterminantRatioOracle``
+does a few classes below -- leaves ``mseg_all_sub`` permanently returning the
+*uncensored* value for every input afterwards, Big Sandy's own included,
+regardless of the (nobs, tl, tu) actually passed. Confirmed outside pytest
+entirely (plain call, call ``emafitpr`` for an unrelated case, call again: the
+second call is wrong and stays wrong). This is Fortran-side ``SAVE``d state
+leaking across calls to *different* entry points, not anything on the Python
+side -- the arrays going in are unmutated -- and not something to fix here
+(``vendor/`` is not edited). The practical rule: never call ``mseg_all_sub``
+after any ``emafitpr`` call in the same process, in these tests or elsewhere.
 """
 
 from __future__ import annotations
@@ -725,3 +740,195 @@ class TestMP3Port:
         mine = m_p3(lo, hi, mc, 3)
         assert np.allclose(mine, fortran, rtol=1e-9)
         assert np.allclose(mine, [lo, lo**2, lo**3])
+
+
+class TestQuadratureAndCholeskyPort:
+    """normquad/gammaquad/chol33: the primitives mc2mnvb's quadrature grid needs."""
+
+    @pytest.mark.parametrize("n", [2, 3, 5])
+    def test_normquad_matches_fortran(self, n):
+        from hydrolib._mse_ema import _normquad
+        from hydrolib.peakfqr._emafort import normquad
+
+        t, w = _normquad(n)
+        tf, wf = normquad(n)
+        # Fortran hardcodes sqrt(2)/(1/sqrt(pi)) to 12 significant digits
+        # rather than computing them, so this is not machine precision.
+        assert np.allclose(t, tf, atol=1e-7)
+        assert np.allclose(w, wf, atol=1e-7)
+        assert w.sum() == pytest.approx(1.0)
+
+    @pytest.mark.parametrize("alpha,beta", [(5.0, 0.5), (1000.0, 0.03), (250.0, 0.06324555)])
+    def test_gammaquad_matches_fortran(self, alpha, beta):
+        from hydrolib._mse_ema import _gammaquad
+        from hydrolib.peakfqr._emafort import gammaquad
+
+        t, w = _gammaquad(3, alpha, beta)
+        tf, wf = gammaquad(3, alpha, beta)
+        assert np.allclose(t, tf, rtol=1e-9)
+        assert np.allclose(w, wf, rtol=1e-9)
+        assert w.sum() == pytest.approx(1.0)
+        assert np.average(t, weights=w) == pytest.approx(alpha * beta, rel=1e-6)
+
+    def test_gammaquad_matches_fortran_above_the_stabilization_threshold(self):
+        """alpha > 160 (probfun.f:2694): the mean-preserving Gamma(160, .) proxy."""
+        from hydrolib._mse_ema import _gammaquad
+        from hydrolib.peakfqr._emafort import gammaquad
+
+        t, w = _gammaquad(3, 5000.0, 0.01)
+        tf, wf = gammaquad(3, 5000.0, 0.01)
+        assert np.allclose(t, tf, rtol=1e-9)
+        assert np.allclose(w, wf, rtol=1e-9)
+        assert np.average(t, weights=w) == pytest.approx(5000.0 * 0.01, rel=1e-6)
+
+    def test_chol33_matches_fortran(self):
+        from hydrolib._mse_ema import _chol33
+        from hydrolib.peakfqr._emafort import chol33
+
+        s = np.array([[1.0, 0.2, 0.1], [0.2, 2.0, 0.3], [0.1, 0.3, 0.5]])
+        v = _chol33(s)
+        vf, iflag = chol33(s)
+        assert iflag == 0
+        assert np.allclose(v, vf, rtol=1e-12)
+        assert np.allclose(v.T @ v, s), "V.T @ V must reconstruct S"
+
+    def test_chol33_flags_non_positive_semi_definite(self):
+        from hydrolib._mse_ema import _chol33
+        from hydrolib.peakfqr._emafort import chol33
+
+        s = np.array([[1.0, 5.0, 0.0], [5.0, 1.0, 0.0], [0.0, 0.0, 1.0]])  # off-diag too large
+        assert _chol33(s) is None
+        _, iflag = chol33(s)
+        assert iflag == 1
+
+
+class TestMc2mnvbPort:
+    """mc2mnvb: central-moment covariance -> noncentral-moment covariance,
+
+    via gridmake's quadrature.
+    """
+
+    def test_matches_fortran(self):
+        from hydrolib._mse_ema import mc2mnvb
+        from hydrolib.peakfqr._emafort import mc2mnvb as mc2mnvb_f
+
+        mc = np.array([3.7, 0.09, 0.3])
+        s_mc = np.array(
+            [
+                [0.001, 0.0001, 0.0002],
+                [0.0001, 0.0002, 0.00005],
+                [0.0002, 0.00005, 0.001],
+            ]
+        )
+        mine = mc2mnvb(mc, s_mc)
+        fortran = np.asarray(mc2mnvb_f(mc, s_mc, [2, 2, 2]), dtype=float)
+        # Same ~1e-11-level gap as normquad's truncated constants, propagated
+        # through the quadrature sum.
+        assert np.allclose(mine, fortran, atol=1e-6)
+        assert np.allclose(mine, mine.T), "a covariance matrix must be symmetric"
+
+
+class TestMn2mVarPort:
+    """mn2m_var: the closed-form linearized estimate mn2mvarb starts from."""
+
+    @pytest.mark.parametrize("name", CASES)
+    def test_matches_fortran(self, name):
+        from hydrolib._mse_ema import mn2m_var
+        from hydrolib._p3_moments import m2mn
+        from hydrolib.peakfqr._emafort import mn2m_var as mn2m_var_f
+        from hydrolib.peakfqr._emafort import var_mom as var_mom_f
+
+        golden = _golden(name)
+        mc = _at_site_moments(golden)
+        nobs, tl, tu = _threshold_groups(golden["inputs"]["tl"], golden["inputs"]["tu"])
+        mc_shift = np.array([0.0, mc[1], mc[2]])
+        s_mn = np.asarray(var_mom_f(nobs, tl - mc[0], tu - mc[0], mc_shift), dtype=float)
+        mn = m2mn(mc_shift)
+
+        mc_out, s_mc_out = mn2m_var(mn, s_mn)
+        mc_out_f, s_mc_out_f = mn2m_var_f(mn, s_mn)
+        assert np.allclose(mc_out, mc_out_f, rtol=1e-12)
+        assert np.allclose(s_mc_out, s_mc_out_f, rtol=1e-9)
+
+
+class TestMn2mvarbPort:
+    """mn2mvarb: the inverse-problem solve -- see hydrolib._mse_ema's module
+
+    docstring for how the V-reparametrized root-find compares to the
+    Fortran's step-halved Newton iteration.
+    """
+
+    @pytest.mark.parametrize("name", CASES)
+    def test_matches_fortran(self, name):
+        from hydrolib._mse_ema import mn2mvarb
+        from hydrolib._p3_moments import m2mn
+        from hydrolib.peakfqr._emafort import mn2mvarb as mn2mvarb_f
+        from hydrolib.peakfqr._emafort import var_mom as var_mom_f
+
+        golden = _golden(name)
+        mc = _at_site_moments(golden)
+        nobs, tl, tu = _threshold_groups(golden["inputs"]["tl"], golden["inputs"]["tu"])
+        mc_shift = np.array([0.0, mc[1], mc[2]])
+        s_mn = np.asarray(var_mom_f(nobs, tl - mc[0], tu - mc[0], mc_shift), dtype=float)
+        mn = m2mn(mc_shift)
+
+        mc_out, s_mc_out = mn2mvarb(mn, s_mn)
+        mc_out_f, s_mc_out_f = mn2mvarb_f(mn, s_mn)
+        tol = 1e-3 if name == "big_sandy_03606500" else 1e-6
+        assert np.allclose(mc_out, mc_out_f, rtol=1e-9)
+        assert np.allclose(s_mc_out, s_mc_out_f, rtol=tol, atol=1e-12), (s_mc_out, s_mc_out_f)
+
+
+class TestMseEmaPort:
+    """mse_ema: the ADJE censoring bias adjustment's numerator/denominator,
+
+    TODO.md P3's "skew weighting -- 24% left" item. bias_adj =
+    mse_ema(censored)/mse_ema(uncensored), feeding
+    as_G_mse = bias_adj * mseg(min(n,150), G).
+    """
+
+    @pytest.mark.parametrize("name", CASES)
+    def test_matches_fortran_on_the_case_own_thresholds(self, name):
+        from hydrolib._mse_ema import mse_ema
+        from hydrolib.peakfqr._emafort import mse_ema as mse_ema_f
+
+        golden = _golden(name)
+        mc = _at_site_moments(golden)
+        nobs, tl, tu = _threshold_groups(golden["inputs"]["tl"], golden["inputs"]["tu"])
+
+        mine = mse_ema(nobs, tl, tu, mc, kmom=3)
+        fortran = float(mse_ema_f(nobs, tl, tu, mc, 3))
+        tol = 1e-3 if name == "big_sandy_03606500" else 1e-6
+        assert mine == pytest.approx(fortran, rel=tol)
+
+    def test_reproduces_the_documented_adje_bias_adjustment_on_big_sandy(self):
+        """The end-to-end number TODO.md P3 cites: bias_adj = 1.4844,
+
+        as_G_mse = 0.09437. TestSkewMseOracle.test_reproduces_emafitpr_as_g_mse
+        already checks this same figure against the ``mseg_all_sub`` oracle
+        directly (as_G_mse_o); that comparison is deliberately not repeated
+        here -- see the module docstring's note on ``mseg_all_sub`` for why
+        calling it a second time in the same process is not safe to rely on.
+        """
+        from hydrolib._mse_ema import mse_ema
+        from hydrolib.bulletin17c import _b17b_skew_mse
+
+        golden = _golden("big_sandy_03606500")
+        mc = _at_site_moments(golden)
+        nobs, tl, tu = _threshold_groups(golden["inputs"]["tl"], golden["inputs"]["tu"])
+        n = int(nobs.sum())
+
+        mse_censored = mse_ema(nobs, tl, tu, mc, kmom=3)
+        mse_uncensored = mse_ema(np.array([float(n)]), np.array([-99.0]), np.array([99.0]), mc, 3)
+        bias_adj = mse_censored / mse_uncensored
+        assert bias_adj == pytest.approx(1.4844, abs=2e-4)
+
+        as_g_mse = bias_adj * _b17b_skew_mse(min(n, 150), mc[2])
+        assert as_g_mse == pytest.approx(0.09437, abs=2e-5)
+
+    def test_rejects_invalid_kmom(self):
+        from hydrolib._mse_ema import mse_ema
+
+        mc = np.array([3.7, 0.09, 0.3])
+        with pytest.raises(ValueError):
+            mse_ema(np.array([50.0]), np.array([-20.0]), np.array([20.0]), mc, kmom=0)

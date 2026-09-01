@@ -34,7 +34,7 @@ import math
 import mpmath
 import numpy as np
 
-from hydrolib._p3_moments import _GAMMA_MOMENT_DPS, _gamma_trunc_moment, m2p, m_p3, p_p3, q_p3
+from hydrolib._p3_moments import _GAMMA_MOMENT_DPS, _gamma_trunc_moments, m2p, m_p3, p_p3, q_p3
 
 __all__ = ["expmomderiv", "d_est", "varb", "varc", "var_mom"]
 
@@ -110,6 +110,14 @@ def _dpdm(parms: np.ndarray) -> np.ndarray:
     return jac.T
 
 
+#: Relative step for _dexpect's manual central difference. mpmath's working
+#: precision (_GAMMA_MOMENT_DPS, 50 decimal digits) leaves so much headroom
+#: over this that truncation error (~h**2) dominates cancellation error
+#: (~eps/h) by many orders of magnitude at any reasonable h -- unlike in
+#: float64, there is no delicate step-size tradeoff to make here.
+_DEXPECT_STEP = mpmath.mpf("1e-12")
+
+
 def _dexpect(tau: float, alpha: float, beta: float, tl: float, tu: float):
     """E[X^j] over (tl, tu), j=1..3, and its Jacobian w.r.t. (tau, alpha, beta).
 
@@ -118,16 +126,20 @@ def _dexpect(tau: float, alpha: float, beta: float, tl: float, tu: float):
     The Fortran computes both the moments and the Jacobian from a shared
     closed-form chain (``ADJ``/``G1``/``B`` and their derivatives, plus
     ``DDGAM`` for d(incomplete gamma)/d(alpha)). This differentiates
-    ``_gamma_trunc_moment`` numerically instead, at the same working
+    ``_gamma_trunc_moments`` numerically instead, at the same working
     precision Phase 1's ``m_p3`` uses for the same reason
     (``_GAMMA_MOMENT_DPS``): that function is already the one this port
     trusts (verified against the Fortran and independently against
     quadrature in ``tests/fortran_parity/test_fortran_oracles.py``), so
     reusing it here means one moment implementation to get right rather
-    than two, at the cost of a handful of extra evaluations per call. Both
-    a fresh closed-form transcription and automatic differentiation of it
-    would need the same ``mpmath`` precision anyway once alpha gets large
-    (Big Sandy's clamped skew still gives alpha ~ 1000; see var_mom).
+    than two. A manual central difference, batched over j=1..3 per
+    evaluation rather than ``mpmath.diff`` called once per (j, param) pair,
+    matters in practice: this is on the hot path of ``mse_ema``, called
+    from ``ExpectedMomentsAlgorithm`` once per analysis, and the naive
+    9-``mpmath.diff`` version measured close to a second per call on Big
+    Sandy's censored group -- batching the three moments together and
+    sharing the incomplete-gamma work within each evaluation (see
+    ``_gamma_trunc_moments``) cuts that by roughly an order of magnitude.
 
     Returns zeros, matching the Fortran's early exit, when the interval is
     empty (``tu <= tl``) or ``beta == 0``.
@@ -136,31 +148,24 @@ def _dexpect(tau: float, alpha: float, beta: float, tl: float, tu: float):
         return np.zeros(3), np.zeros((3, 3))
 
     with mpmath.workdps(_GAMMA_MOMENT_DPS):
-        tau_mp = mpmath.mpf(tau)
-        alpha_mp = mpmath.mpf(alpha)
-        beta_mp = mpmath.mpf(beta)
-        tl_mp = mpmath.mpf(tl)
-        tu_mp = mpmath.mpf(tu)
+        tau_mp, alpha_mp, beta_mp = mpmath.mpf(tau), mpmath.mpf(alpha), mpmath.mpf(beta)
+        tl_mp, tu_mp = mpmath.mpf(tl), mpmath.mpf(tu)
 
-        m3 = np.zeros(3)
+        m3 = np.array(
+            [float(v) for v in _gamma_trunc_moments(tau_mp, alpha_mp, beta_mp, tl_mp, tu_mp, 3)]
+        )
+
         dm3 = np.zeros((3, 3))
-        for j in range(1, 4):
-            m3[j - 1] = float(_gamma_trunc_moment(tau_mp, alpha_mp, beta_mp, tl_mp, tu_mp, j))
-            dm3[j - 1, 0] = float(
-                mpmath.diff(
-                    lambda t: _gamma_trunc_moment(t, alpha_mp, beta_mp, tl_mp, tu_mp, j), tau_mp
-                )
-            )
-            dm3[j - 1, 1] = float(
-                mpmath.diff(
-                    lambda a: _gamma_trunc_moment(tau_mp, a, beta_mp, tl_mp, tu_mp, j), alpha_mp
-                )
-            )
-            dm3[j - 1, 2] = float(
-                mpmath.diff(
-                    lambda b: _gamma_trunc_moment(tau_mp, alpha_mp, b, tl_mp, tu_mp, j), beta_mp
-                )
-            )
+        for col, center in enumerate((tau_mp, alpha_mp, beta_mp)):
+            h = max(abs(center), mpmath.mpf(1)) * _DEXPECT_STEP
+            args_plus = [tau_mp, alpha_mp, beta_mp]
+            args_minus = [tau_mp, alpha_mp, beta_mp]
+            args_plus[col] += h
+            args_minus[col] -= h
+            plus = _gamma_trunc_moments(*args_plus, tl_mp, tu_mp, 3)
+            minus = _gamma_trunc_moments(*args_minus, tl_mp, tu_mp, 3)
+            for row in range(3):
+                dm3[row, col] = float((plus[row] - minus[row]) / (2 * h))
     return m3, dm3
 
 

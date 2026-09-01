@@ -261,53 +261,65 @@ def _lower_gamma_reg(a: mpmath.mpf, x: mpmath.mpf) -> mpmath.mpf:
     return 1 - gammcf
 
 
-def _fp_g1_mom_trc(alpha: float, tl: float, tu: float, k: int) -> mpmath.mpf:
-    """E[X^k | tl < X < tu] for X ~ Gamma(alpha, scale=1). FP_G1_MOM_TRC.
+def _fp_g1_mom_trc_batch(alpha, tl, tu, kmax: int) -> list:
+    """[E[X^k | tl < X < tu] for k = 1..kmax], X ~ Gamma(alpha, scale=1).
 
-    Returns an ``mpmath.mpf``, not a float -- see ``_GAMMA_MOMENT_DPS``.
+    Batched form of ``FP_G1_MOM_TRC``: the incomplete-gamma ``down`` term
+    does not depend on k, so computing k = 1..kmax together shares it
+    instead of recomputing it kmax times -- the dominant cost once this is
+    called from a numerical Jacobian (``hydrolib._var_mom._dexpect``),
+    which needs several k at once, several times over for a finite
+    difference.
     """
     tl1 = max(min(mpmath.mpf(0), tu), tl)
     if tl1 == tu:
-        return tl1**k
+        return [tl1**k for k in range(1, kmax + 1)]
     down = _lower_gamma_reg(alpha, tu) - _lower_gamma_reg(alpha, tl1)
-    if down > 0:
-        up = _lower_gamma_reg(alpha + k, tu) - _lower_gamma_reg(alpha + k, tl1)
-        ans = up / down
-        for j in range(k):
-            ans *= alpha + j
-        return ans
-    return tl1**k if tl1 > alpha else tu**k
+    result = []
+    for k in range(1, kmax + 1):
+        if down > 0:
+            up = _lower_gamma_reg(alpha + k, tu) - _lower_gamma_reg(alpha + k, tl1)
+            ans = up / down
+            for j in range(k):
+                ans *= alpha + j
+            result.append(ans)
+        else:
+            result.append(tl1**k if tl1 > alpha else tu**k)
+    return result
 
 
-def _fp_g2_mom_trc(alpha: float, beta: float, tl: float, tu: float, k: int) -> mpmath.mpf:
-    """E[X^k | tl < X < tu] for the 2-parameter gamma(alpha, beta). FP_G2_MOM_TRC."""
+def _fp_g2_mom_trc_batch(alpha, beta, tl, tu, kmax: int) -> list:
+    """Batched ``FP_G2_MOM_TRC``: [E[X^k | tl < X < tu] for k = 1..kmax]."""
     if beta == 0.0:
         raise ValueError("invalid parameters in fp_g2_mom_trc: beta = 0")
     alpha_mp, beta_mp = mpmath.mpf(alpha), mpmath.mpf(beta)
     tl_mp, tu_mp = mpmath.mpf(tl), mpmath.mpf(tu)
     if beta > 0.0:
-        return beta_mp**k * _fp_g1_mom_trc(alpha_mp, tl_mp / beta_mp, tu_mp / beta_mp, k)
-    return beta_mp**k * _fp_g1_mom_trc(alpha_mp, tu_mp / beta_mp, tl_mp / beta_mp, k)
+        fp = _fp_g1_mom_trc_batch(alpha_mp, tl_mp / beta_mp, tu_mp / beta_mp, kmax)
+    else:
+        fp = _fp_g1_mom_trc_batch(alpha_mp, tu_mp / beta_mp, tl_mp / beta_mp, kmax)
+    return [beta_mp**k * fp[k - 1] for k in range(1, kmax + 1)]
 
 
-def _gamma_trunc_moment(tau, alpha, beta, tl, tu, k: int) -> mpmath.mpf:
-    """E[X^k | tl < X < tu] for the 3-parameter shifted gamma (tau, alpha, beta).
+def _gamma_trunc_moments(tau, alpha, beta, tl, tu, kmax: int) -> list:
+    """[E[X^k | tl < X < tu] for k = 1..kmax] for the 3-parameter shifted gamma.
 
-    Single-k counterpart to ``m_p3``'s gamma branch (same binomial
+    Batched counterpart to ``m_p3``'s gamma branch (same binomial
     expansion, ``emafit.f:3049``), expressed directly in ``(tau, alpha,
-    beta)`` rather than central moments -- what ``_dexpect`` (Phase 2,
-    ``hydrolib._var_mom``) numerically differentiates with respect to each
-    parameter. Accepts float or ``mpmath.mpf`` inputs; always returns
-    ``mpmath.mpf``.
+    beta)`` rather than central moments -- what ``hydrolib._var_mom``'s
+    ``_dexpect`` differentiates numerically with respect to each
+    parameter. Accepts float or ``mpmath.mpf`` inputs; always returns a
+    list of ``mpmath.mpf``.
     """
     tau_mp = mpmath.mpf(tau)
-    fp = [mpmath.mpf(1)] + [
-        _fp_g2_mom_trc(alpha, beta, tl - tau, tu - tau, j) for j in range(1, k + 1)
-    ]
-    mg = fp[k]
-    for j in range(k):
-        mg += math.comb(k, j) * tau_mp ** (k - j) * fp[j]
-    return mg
+    fp = [mpmath.mpf(1)] + _fp_g2_mom_trc_batch(alpha, beta, tl - tau, tu - tau, kmax)
+    result = []
+    for k in range(1, kmax + 1):
+        mg = fp[k]
+        for j in range(k):
+            mg += math.comb(k, j) * tau_mp ** (k - j) * fp[j]
+        result.append(mg)
+    return result
 
 
 def m_p3(tl: float, tu: float, m: np.ndarray, n: int) -> np.ndarray:
@@ -345,14 +357,8 @@ def m_p3(tl: float, tu: float, m: np.ndarray, n: int) -> np.ndarray:
     if wg > 0.0:
         tau, alpha, beta = m2p(m)
         with mpmath.workdps(_GAMMA_MOMENT_DPS):
-            tau_mp = mpmath.mpf(tau)
-            fp = [mpmath.mpf(1)] * (n + 1)
-            for i in range(1, n + 1):
-                fp[i] = _fp_g2_mom_trc(alpha, beta, tl - tau, tu - tau, i)
-                mg_i = fp[i]
-                for j in range(i):
-                    mg_i += math.comb(i, j) * tau_mp ** (i - j) * fp[j]
-                mg[i] = float(mg_i)
+            moments = _gamma_trunc_moments(tau, alpha, beta, tl, tu, n)
+        mg[1:] = [float(v) for v in moments]
 
     mwh = np.zeros(n + 1)
     if wwh > 0.0:

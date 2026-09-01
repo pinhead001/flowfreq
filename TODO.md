@@ -1,18 +1,21 @@
 # TODO — HydroLib Hybrid 17C Implementation
 
 ## Status
-Last updated: 2026-08-31
-Tests: **526 passed, 1 skipped, 1 deselected, 7 xfailed** in ~30 s. CI green on main. Two of
+Last updated: 2026-09-01
+Tests: **566 passed, 1 skipped, 1 deselected, 7 xfailed** in ~29 s. CI green on main. Two of
 the seven xfails are on the Cains Coulee parity case; see P3.
 Fortran reference: **vendored** at `vendor/peakfqr/` (peakfq 8.1.0, CC0).
 Fortran bridge: builds from those sources via `python build_fortran/build.py`
 (gfortran + meson) and is now **built and checked in CI** by `make parity`.
 
 Every P1 and P2 item is done. What is left is P3: two numerical defects that turn out to be
-the same missing machinery, specified precisely below. Phases 1 and 2 of the `var_mom` port
-(the leaf layer, plus `varb`/`varc`/`d_est`/`expmomderiv` and the `var_mom` composition
-itself) are now done -- see below. `var_mom` itself now matches the Fortran to 1e-9 relative
-on every parity case except Big Sandy (1e-3 -- see the Phase 2 note for why).
+the same missing machinery, specified precisely below. Phases 1-3 of the `var_mom` port (the
+leaf layer; `varb`/`varc`/`d_est`/`expmomderiv`/`var_mom` itself; `mn2mvarb`/`mse_ema`, the
+ADJE censoring bias adjustment) are now done -- see below, and TODO.md's "Skew weighting"
+item, whose remaining 24% this closes numerically. Not yet done: wiring any of it into
+`Bulletin17C`/`ExpectedMomentsAlgorithm`, and `VAR_EMAB`/`regmoms`/`ci_ema_m3b` (the
+confidence-interval shape fix) -- both left for a following phase, specified in the "Skew
+weighting" and "Confidence-interval shape" items below.
 
 ---
 
@@ -152,11 +155,10 @@ actually bites, so it is the oracle for that routine.
       (Fortran-gated) and `tests/test_var_mom.py` (pure Python, including an independent
       cross-check against the classical delta-method moment covariance for the fully
       uncensored case, computed without going through `var_mom`'s threshold-group machinery
-      at all). Still nothing wired into `ExpectedMomentsAlgorithm`/`Bulletin17C` — Phase 3 is
-      `mn2mvarb`/`mse_ema`/`VAR_EMAB`/`ci_ema_m3b` (the pseudo effective record length and the
-      CI-shape formula) and only then deciding how this replaces
-      `_truncated_gamma_moment`/`_truncated_normal_moments`/`compute_confidence_limits` in
-      `bulletin17c.py`.
+      at all). Still nothing wired into `ExpectedMomentsAlgorithm`/`Bulletin17C` at this
+      point — see the Phase 3 note below the "Skew weighting" item for `mn2mvarb`/`mse_ema`,
+      which is now done, and what is still open (`VAR_EMAB`/`regmoms`/`ci_ema_m3b`, the
+      CI-shape formula, plus the wiring decision for both).
 
 - [ ] **Skew weighting — 24% left, and it is all `as_G_mse`.** The structural half is done
       (see below): the regional skew is now folded into the EMA fixed point as `moms_p3`
@@ -178,6 +180,83 @@ actually bites, so it is the oracle for that routine.
       regional skew by more than fivefold on that site. That case is the acceptance test for
       `detrat`, and its two `xfail(strict=True)` assertions will fail the build the moment
       the routine lands and starts working.
+
+      **Phase 3 done: `mn2mvarb`/`mse_ema` — `as_G_mse` is now computable, in Python, matching
+      the Fortran.** `hydrolib/_mse_ema.py`. `mse_ema(nobs, tl, tu, mc, kmom) →`
+      `var_mom → m2mn → mn2mvarb`, diagonal element `kmom`; feeding it through both a censored
+      and an equivalent uncensored call reproduces the documented numbers on Big Sandy exactly:
+      `bias_adj` **1.4843** (documented 1.4844) and `as_G_mse` **0.094366** (documented 0.09437,
+      and matching the `mseg_all_sub` oracle's own `as_G_mse_o`, **0.094375**, to 0.01%). The
+      skew-weighting gap this closes is therefore no longer an open question — the input peakfq
+      uses is now reproducible — only wiring it into the fixed point remains (see below).
+
+      `mn2mvarb` (`emafit.f:2514`) solves an inverse problem: find the central-moment covariance
+      whose forward map through `mc2mnvb` (an eight-point "Inverse Modified Cholesky Gaussian
+      Quadrature" — `gridmake`, `normquad`/`gammaquad` via `numpy.polynomial.hermite.hermgauss`/
+      `scipy.special.roots_genlaguerre`, ported faithfully) reproduces a given noncentral-moment
+      covariance. The Fortran solves this with a bespoke step-halved Newton iteration, checking
+      positive-semi-definiteness via `chol33` at every trial step. Reparametrizing the unknown as
+      `chol33`'s own six free entries — so the candidate covariance is `V.T @ V`, automatically
+      PSD for *any* real `V`, no guard needed — turns it into unconstrained root-finding
+      (`scipy.optimize.root`), started from the same linearized estimate (`mn2m_var`) the Fortran
+      uses. Both land on the same root: `mn2mvarb` matches the Fortran to 1e-6 relative on
+      Powder River/Cains Coulee, 1e-3 on Big Sandy (inherits `expmomderiv`'s gap — see Phase 2).
+
+      **Performance mattered here in a way it had not before**, because `mse_ema` sits on what
+      would be the fixed point's hot path: the first attempt (`expmomderiv`'s Jacobian via
+      9 separate `mpmath.diff` calls, one per moment/parameter pair) took **1.14 s** for one
+      `mse_ema(censored)` call on Big Sandy — untenable, since `Bulletin17C.run_analysis` would
+      need two such calls (censored and uncensored) per analysis. Profiling
+      (`cProfile`) pointed at the redundancy directly: each `mpmath.diff` re-evaluated the
+      truncated-moment function from scratch, recomputing the incomplete-gamma "down" term
+      (which does not depend on which moment k is being computed) up to 3 times per call. Batching
+      the three moments into one evaluation (`_gamma_trunc_moments`/`_fp_g1_mom_trc_batch` in
+      `hydrolib/_p3_moments.py`, sharing `down` across k) and replacing the 9 `mpmath.diff` calls
+      with 7 manual, batched central differences (2 evaluations per parameter plus 1 for the
+      center point, instead of ~2 per moment-parameter pair) cut it to **0.32 s** — a ~3.6x
+      speedup, bit-identical to the un-optimized version once the finite-difference step was
+      tightened to `1e-12` relative (`_DEXPECT_STEP`; the first attempt at `1e-6` was too coarse
+      and cost three tests ~0.1-1% accuracy against the Fortran, since found by re-running the
+      full suite — measured, not assumed). Still not fast enough to call on every EMA
+      iteration, but `_regional_skew_equivalent_years` (`bulletin17c.py:903`) only needs it once
+      per `run_analysis()` call, using the converged at-site skew — not once per iteration — so
+      this is viable for the wiring below, at roughly 0.3-0.4 s added per analysis with a
+      regional skew supplied.
+
+      **A real, serious defect found in the reference while testing this, not in the port**:
+      `mseg_all_sub` is not safe to call more than once per process. Confirmed outside pytest
+      entirely — call it once (correct), call `emafitpr` for a *different, unrelated* case, call
+      `mseg_all_sub` again with the *original* (unchanged) inputs: the second call silently
+      returns the *uncensored* value instead, and stays wrong for every subsequent call. The
+      arrays going in are unmutated; this is Fortran-side `SAVE`d state leaking across calls to
+      different entry points in `emafit.f`. Documented in
+      `tests/fortran_parity/test_fortran_oracles.py`'s module docstring (found while adding the
+      Phase 3 oracles, which is why that test file's own assertions are careful never to call
+      `mseg_all_sub` a second time in the same process). Not fixed here — `vendor/` is not
+      edited — but worth knowing before calling `hydrolib.peakfqr`/`hydrolib.validation.reference`
+      for more than one site in a single long-running process (a Streamlit session, a batch
+      script): `emafitpr` itself appears unaffected (the existing multi-case parity tests already
+      interleave it across cases and pass), but anything downstream that calls `mseg_all`'s ADJE
+      path a second time should not be trusted without a fresh process.
+
+      **Not done: wiring any of this into `Bulletin17C`.** The hook is
+      `_regional_skew_equivalent_years` (`bulletin17c.py:903`), which currently computes
+      `as_G_mse` as `_b17b_skew_mse(n, at_site_skew)` alone (no ADJE bias adjustment) — replacing
+      that with `mse_ema`-based `as_G_mse` needs `mean_log`/`std_log` threaded in alongside
+      `at_site_skew` (available at its one call site, `bulletin17c.py:1276`) and the actual
+      perception-threshold *groups*, which `self._intervals` does not carry as a `(tl, tu)` pair
+      directly — only a single `perception_threshold` scalar. The correct reconstruction,
+      verified against `tests/fortran_parity/cases.py::build_emafit_inputs` (the existing,
+      already-correct reference for exactly this mapping): an interval's threshold pair is
+      `(perception_threshold, QMAX)` when `perception_threshold > 0`, else `(QMIN, QMAX)` --
+      this covers systematic peaks, historical peaks, *and* MGBT-censored PILFs correctly in one
+      rule, because `_build_flow_intervals` already sets `perception_threshold` to exactly 0 for
+      the systematic case (including PILFs) and to the real threshold for both historical peaks
+      and historical-period gap years, regardless of `is_historical`. Once wired, whether Big
+      Sandy's `TestRung3Moments::test_weighted_skew` `xfail(strict=True)` in
+      `tests/fortran_parity/test_native_vs_golden.py` actually flips to passing (peakfq's
+      −0.1563 against a 0.02 tolerance) needs checking end to end, not assumed from the isolated
+      `mse_ema` match above.
 
 - [ ] **Confidence-interval shape.** `compute_confidence_limits()` forms `log_Q ± z·se`,
       symmetric by construction (ratio 1.000 at every AEP). peakfq skews right with return
