@@ -252,19 +252,28 @@ class TestMomentIterationOracle:
         assert n_censored == 0, "this case should have no censored intervals here"
         assert np.allclose(fortran, mine, rtol=0.0, atol=1e-9)
 
-    def test_censored_rows_are_where_it_diverges(self):
-        """Cains Coulee censors 11 of 32, and only then do the two disagree.
+    def test_matches_on_censored_rows_too(self):
+        """Cains Coulee censors 11 of 32; this used to be where they diverged.
 
-        Measured: mean still exact to 7e-11, variance 0.70% apart, skew 4.94%.
-        Since the formulas are exact without censoring, the residual is in the
-        expected moments of censored intervals -- hydrolib's truncated-P3 code,
-        not the moms_p3 transcription. That is the next thing the port fixes.
+        Two bugs previously combined to a 0.70% variance / 4.94% skew gap,
+        both now fixed (see TODO.md P3):
+
+        * ``_compute_ema_moments``'s censored branch used its own
+          approximate truncated-gamma-moment formula instead of the
+          Fortran-verified ``hydrolib._p3_moments.m_p3``.
+        * ``_ema_iteration``'s bias-correction factors (``c2``, ``c3``)
+          used the total interval count where the vendored Fortran's
+          default (``bcf=1997``) uses the exact-peak count instead
+          (``emafit.f:1408``; the ``bcf=2004`` alternative that would use
+          the total is compiled out).
+
+        Measured now: mean 7e-11, variance 1.6e-10, skew 3.0e-10 -- machine
+        precision, the same level Powder River and Big Sandy already hit
+        with nothing censored at all.
         """
         fortran, mine, n_censored = self._compare(self._fit("cains_coulee_06327450"))
         assert n_censored == 11
-        assert abs(fortran[0] - mine[0]) < 1e-8, "the mean should still agree"
-        assert 0.001 < abs(fortran[1] / mine[1] - 1) < 0.05, "variance gap ~0.7%"
-        assert 0.01 < abs(fortran[2] / mine[2] - 1) < 0.10, "skew gap ~4.9%"
+        assert np.allclose(fortran, mine, rtol=0.0, atol=1e-8)
 
 
 class TestVarianceOfMomentsOracle:

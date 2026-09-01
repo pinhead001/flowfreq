@@ -15,20 +15,26 @@ What does censoring cost?
     reference ``Wd`` is 0.184 -- the first case in this repository where the
     Halloween determinant ratio is far from 1, since ``emafit.f:763`` only
     reaches ``detrat`` when the at-site skew clears 0.04 and Big Sandy's is
-    0.0066. Both ``detrat`` and the ADJE bias adjustment are now ported and
-    wired (``hydrolib._detrat``, ``hydrolib._mse_ema``), and hydrolib's own
-    ``Wd`` here is 0.174 -- close to peakfq's, where it was a flatly wrong
-    1.0 before ``_perception_threshold_groups`` learned to fold in MGBT's
-    low-outlier threshold. What remains is upstream of the weighting: the
-    at-site skew itself is still off by 0.122, because hydrolib's EMA
-    moment iteration doesn't use perception thresholds at all -- see the
+    0.0066. ``detrat`` and the ADJE bias adjustment are ported and wired
+    (``hydrolib._detrat``, ``hydrolib._mse_ema``), and the at-site EMA
+    moment iteration itself (``_compute_ema_moments``/``_ema_iteration``)
+    now matches ``moms_p3`` to machine precision on censored rows too (it
+    used to diverge there, from its own approximate truncated-moment
+    formula and a bias-correction factor sized off the wrong count -- see
+    ``tests/fortran_parity/test_fortran_oracles.py::TestMomentIterationOracle``).
+    Native ``Wd`` here is 0.186, close to peakfq's 0.184; native at-site
+    skew is -0.708 against peakfq's -0.708. What's left is downstream of
+    all of that: ``skew_weighted`` still carries a real gap (0.058 skew
+    units) traced to ``mn2mvarb``'s own ~1e-3 relative precision limit on
+    this site (``hydrolib._var_mom``'s ``expmomderiv`` gap) -- see the
     xfail below.
 
 Read together they localise the open P3 defect precisely: with no censoring
-the native fit is exact, and everything censored-path that touches the
-*weighting* (the ADJE bias adjustment on the at-site skew MSE, and
-``detrat``) is now ported and correct. What remains is the at-site EMA fit
-itself not applying perception thresholds during the moment iteration.
+the native fit is exact, and every censored-path piece -- the at-site
+moment iteration, the ADJE bias adjustment, and ``detrat`` -- is now ported
+and correct to a demonstrated tolerance. What remains is `var_mom`'s own
+inherited numerical-differentiation gap in `expmomderiv`, which propagates
+into `skew_weighted` through ADJE's censoring bias adjustment.
 
 The peakfq 7.4 columns in the fixture CSVs are a sanity cross-check only.
 Parity is against the committed goldens, generated from the vendored 8.1.0
@@ -155,10 +161,11 @@ class TestCainsCouleeCensored:
     """USGS 06327450, 1991-2022. MGBT censors 11 peaks, and the fit diverges.
 
     Everything discrete matches: the same 11 PILFs at the same 332 cfs cut.
-    ``Wd`` now matches too, to within 0.01 of peakfq's 0.184. What still
-    does not match is the at-site skew feeding into that weighting -- off
-    by 0.122, a defect in the moment iteration itself, upstream of
-    everything this module ports.
+    The at-site skew now matches too (0.0002 gap), and so does ``Wd`` (0.002
+    gap against peakfq's 0.184). What still doesn't match is
+    ``skew_weighted`` -- a real residual, traced to ``var_mom``'s own
+    ~1e-3 relative precision limit on this site, not to anything this
+    class's other tests cover.
     """
 
     def test_mgbt_finds_the_same_pilfs(self, cains_coulee):
@@ -173,12 +180,14 @@ class TestCainsCouleeCensored:
         assert ref["wd"] == pytest.approx(0.184, abs=5e-4)
 
     def test_native_determinant_ratio_is_close(self, cains_coulee):
-        """hydrolib's own Wd, computed from its (imperfect) at-site fit.
+        """hydrolib's own Wd, computed from its now near-exact at-site fit.
 
-        Not exact -- it feeds off ``skew_station``, which is itself 0.122
-        off from peakfq's -- but close, and nowhere near the ``Wd = 1`` that
-        ``_perception_threshold_groups`` reported before it accounted for
-        MGBT's low-outlier threshold.
+        0.186 against peakfq's 0.184 -- close, and nowhere near the
+        ``Wd = 1`` that ``_perception_threshold_groups`` reported before it
+        accounted for MGBT's low-outlier threshold, or the 0.174 it reported
+        before the at-site EMA moment iteration itself was fixed (feeding
+        ``skew_station`` -0.830 into ``detrat`` rather than the now-correct
+        -0.708).
         """
         from hydrolib.bulletin17c import ExpectedMomentsAlgorithm
 
@@ -200,54 +209,62 @@ class TestCainsCouleeCensored:
         assert abs(wd - ref["wd"]) < 0.02
 
     def test_mean_still_agrees_closely(self, cains_coulee):
-        """Censoring moves the mean least; measured 5.9e-3 in log10, ~1.4% in flow."""
+        """Measured 3.1e-3 in log10, ~0.7% in flow -- was 5.9e-3/~1.4%.
+
+        Moved when the at-site EMA moment iteration was fixed (TODO.md P3),
+        even though the mean was never the part with a known defect: both
+        bugs it fixed (the truncated-moment formula, the bias-correction
+        count) touch every censored-row moment, mean included.
+        """
         results, ref = cains_coulee
         assert abs(results.mean_log - ref["mean_log"]) < 0.01
+
+    def test_at_site_skew_matches(self, cains_coulee):
+        """Was 0.122 off; now 0.0002 -- the at-site EMA moment-iteration fix.
+
+        ``_compute_ema_moments``'s censored branch used its own approximate
+        truncated-gamma-moment formula instead of the already-ported,
+        Fortran-verified ``hydrolib._p3_moments.m_p3``, and
+        ``_ema_iteration``'s bias-correction factors used the total
+        interval count where the vendored Fortran's actual default
+        (``bcf=1997``, ``emafit.f:1408``) uses the exact-peak count. Both
+        are now fixed; see
+        ``tests/fortran_parity/test_fortran_oracles.py::TestMomentIterationOracle``
+        for the routine-level version of this same measurement.
+        """
+        results, ref = cains_coulee
+        assert abs(results.skew_station - ref["skew_at_site"]) < 0.02
 
     @pytest.mark.xfail(
         strict=True,
         reason=(
-            "The at-site EMA moment iteration doesn't use perception "
-            "thresholds at all -- only value intervals -- so skew_station "
-            "is 0.122 off regardless of weighting correctness. ADJE and "
-            "detrat (both ported: hydrolib._mse_ema, hydrolib._detrat) are "
-            "no longer the gap: native Wd is 0.174 against peakfq's 0.184. "
-            "But skew_weighted inherits the at-site error, and with less "
-            "regional-skew smoothing than the old (incorrect) Wd=1 gave it,"
-            " its own gap is now 0.172, not smaller. See TODO.md P3."
+            "skew_weighted still carries a real 0.058-skew-unit gap, traced "
+            "to mn2mvarb's own ~1e-3 relative precision limit on this site "
+            "(hydrolib._var_mom.expmomderiv's numerical-differentiation gap, "
+            "propagating through ADJE's censoring bias adjustment into the "
+            "regional-skew weight). Not the at-site fit -- skew_station is "
+            "now correct to 0.0002 -- and not detrat -- native Wd is 0.186 "
+            "against peakfq's 0.184. See TODO.md P3."
         ),
     )
-    @pytest.mark.parametrize("field", ["skew_at_site", "skew_weighted"])
-    def test_skew_matches(self, cains_coulee, field):
+    def test_weighted_skew_matches(self, cains_coulee):
         results, ref = cains_coulee
-        native = {
-            "skew_at_site": results.skew_station,
-            "skew_weighted": results.skew_weighted,
-        }[field]
-        assert abs(native - ref[field]) < 0.02
+        assert abs(results.skew_weighted - ref["skew_weighted"]) < 0.02
 
     def test_quantile_error_is_bounded_and_worst_in_the_lower_tail(self, cains_coulee):
-        """Recorded, not asserted away: 0.64% at best, 23.9% at worst, 6.3% at Q100.
+        """Recorded, not asserted away: 0.08% at best, 9.7% at worst, 1.5% at Q100.
 
-        The lower tail is where the censoring bites, which is the signature of
-        the open defect rather than of a broken fit.
-
-        These numbers moved when ``_perception_threshold_groups`` started
-        folding in MGBT's low-outlier threshold (previously it reported this
-        record as fully uncensored, so ADJE and ``detrat`` both silently
-        no-opped). ``Wd`` is now 0.174 against peakfq's 0.184 -- close, where
-        it was 1.0 before -- but ``skew_weighted`` moved further from
-        peakfq's -0.604, to -0.776, because it blends the (correct) weight
-        against the (still wrong, by the known 0.122 at-site-fit gap)
-        at-site skew of -0.830; less weight on the regional skew means less
-        of that error gets diluted, not more of it fixed. The previous
-        Q100 error of 2.7% was the old buggy Wd=1 coincidentally leaning on
-        a healthier input, not evidence the weighting was right. See
-        TODO.md P3.
+        Was 0.64%-23.9% (6.3% at Q100) before the at-site EMA moment
+        iteration was fixed (TODO.md P3); the remaining error traces
+        entirely to the one open item, ``skew_weighted``'s own 0.058-skew-unit
+        gap (``test_weighted_skew_matches``) -- everything upstream of it
+        (the at-site fit, ``Wd``, ADJE) now matches peakfq 8.1.0 closely.
+        The lower tail is where that residual bites hardest, which is the
+        signature of a skew-weighting gap rather than a broken fit.
         """
         results, ref = cains_coulee
         errors = _quantile_errors(results, ref)
-        assert max(errors.values()) < 25.0
-        assert errors[0.01] < 7.0
+        assert max(errors.values()) < 12.0
+        assert errors[0.01] < 2.0
         worst_aep = max(errors, key=errors.get)
         assert worst_aep > 0.5, f"worst error at AEP {worst_aep}, expected the lower tail"

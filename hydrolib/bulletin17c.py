@@ -17,7 +17,7 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 from scipy.integrate import quad as _quad
-from scipy.special import gammainc, gammaincc, gammaln, ndtri
+from scipy.special import gammaln, ndtri
 
 from .core import (
     MAX_ABS_SKEW,
@@ -688,75 +688,21 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         self._intervals = sorted(intervals, key=lambda x: x.year)
         return self._intervals
 
-    @staticmethod
-    def _truncated_gamma_moment(alpha: float, lower: float, upper: float, k: int) -> float:
-        """Compute E[X^k] for a standardized Gamma(alpha,1) truncated to [lower, upper].
-
-        Uses the identity E[X^k | lower<X<upper] = Gamma(alpha+k)/Gamma(alpha)
-        * [P(alpha+k, upper) - P(alpha+k, lower)] / [P(alpha, upper) - P(alpha, lower)]
-        where P is the regularized incomplete gamma function.
-
-        Parameters
-        ----------
-        alpha : float
-            Shape parameter of the gamma distribution.
-        lower : float
-            Lower truncation bound (>=0).
-        upper : float
-            Upper truncation bound (can be inf).
-        k : int
-            Moment order (1, 2, or 3).
-
-        Returns
-        -------
-        float
-            The k-th raw moment of the truncated gamma.
-        """
-        # Regularized incomplete gamma: gammainc(a, x) = P(a, x)
-        if np.isinf(upper):
-            p_num = gammaincc(alpha + k, lower) if lower > 0 else 1.0
-            p_den = gammaincc(alpha, lower) if lower > 0 else 1.0
-        else:
-            p_num = gammainc(alpha + k, upper) - (gammainc(alpha + k, lower) if lower > 0 else 0.0)
-            p_den = gammainc(alpha, upper) - (gammainc(alpha, lower) if lower > 0 else 0.0)
-
-        if p_den < 1e-30:
-            return 0.0
-
-        # ADJ = Gamma(alpha+k)/Gamma(alpha) = alpha*(alpha+1)*...*(alpha+k-1)
-        adj = 1.0
-        for j in range(k):
-            adj *= alpha + j
-
-        return adj * p_num / p_den
-
-    @staticmethod
-    def _truncated_normal_moments(zl: float, zu: float) -> Tuple[float, float, float]:
-        """Compute E[Z^k | zl<Z<zu] for k=1,2,3 where Z ~ N(0,1).
-
-        Uses the recurrence: E[Z^k] = (k-1)*E[Z^{k-2}] - (zu^{k-1}*phi(zu) - zl^{k-1}*phi(zl))/(Phi(zu)-Phi(zl))
-        """
-        phi_u = stats.norm.pdf(zu)
-        phi_l = stats.norm.pdf(zl)
-        cdf_u = stats.norm.cdf(zu)
-        cdf_l = stats.norm.cdf(zl)
-        dp = cdf_u - cdf_l
-        if dp < 1e-30:
-            mid = (zl + zu) / 2.0
-            return mid, mid**2, mid**3
-
-        ez1 = -(phi_u - phi_l) / dp
-        ez2 = 1.0 + (-(zu * phi_u - zl * phi_l) / dp)
-        ez3 = 2.0 * ez1 + (-(zu**2 * phi_u - zl**2 * phi_l) / dp)
-
-        return ez1, ez2, ez3
-
     def _compute_ema_moments(self, mean_log: float, std_log: float, skew: float) -> "_ExpectedSums":
         """Compute expected moments given current parameter estimates.
 
-        Uses analytical truncated distribution moments following the Fortran
-        mP3 approach: incomplete gamma moments for |skew| > ~0.001, and
-        truncated normal (Wilson-Hilferty) for near-zero skew.
+        Censored intervals contribute ``E[X^k | tl < X < tu]`` from
+        ``hydrolib._p3_moments.m_p3`` -- ``emafit.f``'s ``mP3``, the same
+        truncated-moment machinery ``var_mom`` uses (blending an
+        incomplete-gamma solution with a Wilson-Hilferty one, rather than
+        this method's own former approximation of the same thing), verified
+        against the Fortran oracle
+        (``tests/fortran_parity/test_fortran_oracles.py::TestMP3Port``).
+        Grouped by ``(lower, upper)`` across intervals that share the same
+        censoring bounds -- the common case, since every PILF year MGBT
+        censors to one threshold shares one group -- so the mpmath-backed
+        solve inside ``m_p3`` runs once per distinct group per iteration,
+        not once per censored interval.
 
         Returns
         -------
@@ -764,9 +710,12 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
             Non-central sums, exactly-observed peaks kept apart from censored
             intervals; see that class for why the split matters.
         """
+        from hydrolib._p3_moments import m_p3
+
         exact = np.zeros(3)
         censored = np.zeros(3)
         n_exact = 0
+        groups: Dict[Tuple[float, float], int] = {}
 
         for interval in self._intervals:
             if not interval.is_censored:
@@ -774,92 +723,22 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
                 n_exact += 1
                 exact += (x, x**2, x**3)
             else:
-                lower = interval.lower if interval.lower > 0 else 1e-10
-                upper = interval.upper if np.isfinite(interval.upper) else np.inf
+                log_lower = (
+                    np.log10(interval.lower) if interval.lower > 0 else np.log10(_PERCEPTION_QMIN)
+                )
+                log_upper = (
+                    np.log10(interval.upper)
+                    if np.isfinite(interval.upper) and interval.upper > 0
+                    else np.log10(_PERCEPTION_QMAX)
+                )
+                key = (log_lower, log_upper)
+                groups[key] = groups.get(key, 0) + 1
 
-                log_lower = np.log10(lower)
-                log_upper = np.log10(upper) if np.isfinite(upper) else np.inf
-
-                if abs(skew) < 0.001:
-                    # Near-zero skew: use truncated normal moments
-                    zl = (log_lower - mean_log) / std_log if std_log > 0 else -20.0
-                    zu = (
-                        (log_upper - mean_log) / std_log
-                        if std_log > 0 and np.isfinite(log_upper)
-                        else 20.0
-                    )
-                    zl = np.clip(zl, -20.0, 20.0)
-                    zu = np.clip(zu, -20.0, 20.0)
-
-                    ez1, ez2, ez3 = self._truncated_normal_moments(zl, zu)
-                    # Transform back: x = mean + std*z
-                    ex = mean_log + std_log * ez1
-                    ex2 = mean_log**2 + 2 * mean_log * std_log * ez1 + std_log**2 * ez2
-                    ex3 = (
-                        mean_log**3
-                        + 3 * mean_log**2 * std_log * ez1
-                        + 3 * mean_log * std_log**2 * ez2
-                        + std_log**3 * ez3
-                    )
-                else:
-                    # Convert LP3 moments (mean, variance, skew) to gamma params
-                    # m = (mu, sigma^2, gamma) -> (tau, alpha, beta)
-                    alpha = 4.0 / skew**2
-                    beta = std_log * abs(skew) / 2.0
-                    if skew < 0:
-                        beta = -beta
-                    tau = mean_log - alpha * beta
-
-                    # Standardize bounds for Gamma(alpha,1)
-                    if beta > 0:
-                        s_lower = max(0.0, (log_lower - tau) / beta)
-                        s_upper = (log_upper - tau) / beta if np.isfinite(log_upper) else np.inf
-                    else:
-                        # Negative beta: flip and work with |beta|
-                        abs_beta = -beta
-                        s_lower = (
-                            max(0.0, (tau - log_upper) / abs_beta)
-                            if np.isfinite(log_upper)
-                            else 0.0
-                        )
-                        s_upper = (tau - log_lower) / abs_beta
-
-                    if s_upper <= s_lower:
-                        # Interval outside distribution support
-                        mid = (
-                            log_lower + (log_upper if np.isfinite(log_upper) else log_lower)
-                        ) / 2.0
-                        censored += (mid, mid**2, mid**3)
-                        continue
-
-                    # Compute truncated gamma moments E[Y^k] for Y~Gamma(alpha,1)
-                    gy1 = self._truncated_gamma_moment(alpha, s_lower, s_upper, 1)
-                    gy2 = self._truncated_gamma_moment(alpha, s_lower, s_upper, 2)
-                    gy3 = self._truncated_gamma_moment(alpha, s_lower, s_upper, 3)
-
-                    # Transform back: x = tau + beta*Y (positive skew)
-                    # or x = tau - |beta|*Y (negative skew)
-                    if beta > 0:
-                        ex = tau + beta * gy1
-                        ex2 = tau**2 + 2 * tau * beta * gy1 + beta**2 * gy2
-                        ex3 = (
-                            tau**3
-                            + 3 * tau**2 * beta * gy1
-                            + 3 * tau * beta**2 * gy2
-                            + beta**3 * gy3
-                        )
-                    else:
-                        abs_beta = -beta
-                        ex = tau - abs_beta * gy1
-                        ex2 = tau**2 - 2 * tau * abs_beta * gy1 + abs_beta**2 * gy2
-                        ex3 = (
-                            tau**3
-                            - 3 * tau**2 * abs_beta * gy1
-                            + 3 * tau * abs_beta**2 * gy2
-                            - abs_beta**3 * gy3
-                        )
-
-                censored += (ex, ex2, ex3)
+        if groups:
+            m = np.array([mean_log, std_log**2, skew])
+            for (tl, tu), count in groups.items():
+                ex, ex2, ex3 = m_p3(tl, tu, m, 3)
+                censored += count * np.array([ex, ex2, ex3])
 
         return _ExpectedSums(
             n=len(self._intervals),
@@ -1151,9 +1030,15 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
                       ((n + nG)*moms(2)**1.5)
 
         Two things follow that this method used to get wrong. The bias
-        corrections c2 and c3 apply to the exact peaks only, not to the
-        expected moments of censored intervals. And the regional skew enters
-        *here*, inside the fixed point, as ``nG`` pseudo-observations at value
+        corrections c2 and c3 apply to the exact peaks only -- not just in
+        which sums they touch (``s_e``, never ``s_c``), but in their own
+        magnitude: ``n_bcf`` in the Fortran is the exact-peak count
+        (``n_e``, ``emafit.f:1408`` -- the vendored default is ``bcf=1997``,
+        Cohn et al.; the ``bcf=2004`` Griffis alternative that would use the
+        *total* record length is compiled out, ``emafit.f:3898-3899``), not
+        the interval count ``n`` the surrounding sums (and ``nG``'s
+        denominator, ``(n + nG)``) use. And the regional skew enters *here*,
+        inside the fixed point, as ``nG`` pseudo-observations at value
         ``rG`` -- it is not a weighted average taken after the fit converges.
         That distinction is the whole difference: because the skew feeds the
         P3 distribution used to compute the next round of expected moments,
@@ -1161,17 +1046,18 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         """
         sums = self._compute_ema_moments(mean_log, std_log, skew)
         n = sums.n
+        n_bcf = sums.n_exact
 
         total_1 = sums.total[0]
         new_mean = total_1 / n
 
         (se2, se3), (sc2, sc3) = sums.central(new_mean)
-        c2 = n / (n - 1.0)
+        c2 = n_bcf / (n_bcf - 1.0)
         var = (c2 * se2 + sc2) / n
         new_std = np.sqrt(max(var, 1e-10))
 
-        if n > 2:
-            c3 = n**2 / ((n - 1.0) * (n - 2.0))
+        if n_bcf > 2:
+            c3 = n_bcf**2 / ((n_bcf - 1.0) * (n_bcf - 2.0))
             sigma3 = new_std**3
             rg = self._regional_skew if self._regional_skew is not None else 0.0
             new_skew = (c3 * se3 + sc3 + n_regional * rg * sigma3) / ((n + n_regional) * sigma3)

@@ -213,7 +213,15 @@ class TestBigSandyAgainstReference:
         assert result.summary
 
     def test_quantiles_agree_within_5pct(self):
-        """Measured 0.12% at the 4% AEP, rising to 4.70% at the 0.995 AEP tail."""
+        """Measured 0.0006% at the AEP-0.5 median, rising to 0.056% at the 0.002 tail.
+
+        Was 0.12%-4.70% before the at-site EMA moment iteration was fixed to
+        use ``hydrolib._p3_moments.m_p3`` and the Fortran's own (exact-peak,
+        not total-record) bias-correction count -- Big Sandy has 37 censored
+        historical gap-year intervals, so both bugs bit here even though
+        neither is skew-weighting-specific. The 5% bound is left loose on
+        purpose; the docstring is what actually pins the number.
+        """
         diffs = self._native().validate(self._reference()).quantile_diffs
         worst_aep = max(diffs, key=lambda a: diffs[a])
         assert (
@@ -221,7 +229,12 @@ class TestBigSandyAgainstReference:
         ), f"worst quantile diff at AEP {worst_aep}: {diffs[worst_aep]}%"
 
     def test_moments_agree_within_1pct(self):
-        """Mean and standard deviation, the parameters with no open defect."""
+        """Mean and standard deviation, the parameters with no open defect.
+
+        Measured 3.5e-7% and 3.3e-5% -- the loose 0.1%/1.0% bounds predate
+        the at-site moment-iteration fix (TODO.md P3) and are kept loose
+        deliberately; see test_quantiles_agree_within_5pct's docstring.
+        """
         params = self._native().validate(self._reference()).parameter_diffs
         assert params["mean_log"] < 0.1
         assert params["std_log"] < 1.0
@@ -231,30 +244,32 @@ class TestBigSandyAgainstReference:
 
         Was ~35% when the weighting was a post-hoc average of two skews,
         then ~24% (0.0376 in skew units) once the regional skew was folded
-        into the EMA fixed point the way moms_p3 does it -- at which point
-        the only input left was the at-site skew MSE: peakfq's default
-        ADJE option inflates the Bulletin 17B value by a censoring bias
-        adjustment from var_mom. hydrolib._mse_ema.mse_ema (TODO.md P3's
-        var_mom Phase 3) now supplies that input. Measured here: 0.0026
-        skew units, matching the ~1.9% gap TODO.md predicted from feeding
-        peakfq's own as_G_mse through this code by hand.
-        tests/fortran_parity/test_native_vs_golden.py::TestRung3Moments
-        .test_weighted_skew (the stricter, 0.02-skew-unit parity check)
-        now passes too.
+        into the EMA fixed point the way moms_p3 does it, then 0.0026 once
+        ADJE (hydrolib._mse_ema.mse_ema, var_mom Phase 3) supplied peakfq's
+        own censoring-adjusted skew MSE instead of the plain Bulletin 17B
+        value. Measured now: **2.4e-6** -- essentially exact, the same level
+        Powder River (no censoring at all) already hit.
 
-        Not exactly zero: mn2mvarb's root-find matches the Fortran to only
-        ~1e-3 relative on Big Sandy specifically (var_mom Phase 2's
-        expmomderiv gap propagating through). detrat (the Halloween
-        determinant ratio) is still unimplemented, but Big Sandy's at-site
-        skew (0.0066) is below the 0.04 HWN floor, so Wd = 1 there either
-        way -- detrat would not move this number.
+        The last mile was a second bug in the at-site EMA moment iteration
+        itself, unrelated to skew weighting: ``_compute_ema_moments``'s
+        censored-interval branch used its own approximate truncated-gamma
+        formula instead of the already-ported, Fortran-verified
+        ``hydrolib._p3_moments.m_p3``, and ``_ema_iteration``'s bias
+        corrections (``c2``, ``c3``) used the total interval count where the
+        vendored Fortran's actual default (``bcf=1997``, ``emafit.f:1408``)
+        uses the exact-peak count. Both bit here because Big Sandy has 37
+        censored historical gap-year intervals -- not a skew-weighting input
+        at all, which is why fixing ADJE/detrat alone left a residual and
+        this needed its own fix. See
+        tests/fortran_parity/test_fortran_oracles.py::TestMomentIterationOracle
+        for the oracle-level version of this same fix.
 
         Asserted in skew units, not percent: FrequencyComparator compares
         skew by absolute difference, because a quantity that passes through
         zero cannot be judged by a ratio.
         """
         skews = self._native().validate(self._reference()).skew_diffs
-        assert skews["skew_weighted"] < 0.01
+        assert skews["skew_weighted"] < 1e-4
 
     def test_skew_at_site_percent_difference_is_not_meaningful(self):
         """A documented wart, so nobody reads 249% as a 249% error.

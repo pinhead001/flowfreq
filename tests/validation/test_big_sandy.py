@@ -128,16 +128,19 @@ class TestBigSandyParameters:
 class TestBigSandyQuantiles:
     """Test flood quantile estimates against expected values."""
 
-    # AEP 0.002, 0.99 and 0.995 are known failures now, tracked as strict
-    # xfail: TODO.md P3's ADJE port (var_mom's censoring bias adjustment,
-    # hydrolib._mse_ema.mse_ema) closed the skew-weighting gap against
-    # peakfq 8.1.0 -- tests/fortran_parity/test_native_vs_golden.py's
-    # TestRung3Moments.test_weighted_skew now passes -- which moves these
-    # three tail quantiles 2.2-2.8% further from the 2012 manual's values,
-    # not closer: the manual predates HWN/ADJE and is not reproducible by
-    # peakfq 8.1.0 either (module docstring above). This is the expected
-    # direction, verified against tests/fortran_parity/'s PEAKFQ_810_*
-    # fixture rather than assumed.
+    # AEP 0.99 and 0.995 are known failures, tracked as strict xfail: TODO.md
+    # P3's censored-path fixes (ADJE, detrat, and the at-site EMA moment
+    # iteration itself, hydrolib._p3_moments.m_p3) together brought this site's
+    # weighted skew and every other quantile here to within 0.06% of peakfq
+    # 8.1.0's own output (tests/fortran_parity/'s PEAKFQ_810_* fixture) -- but
+    # the 2012 manual these two are compared against was never reproducible by
+    # peakfq 8.1.0 to begin with (module docstring above: its HWN skew
+    # weighting differs from the manual's by 32% in the extreme tails). AEP
+    # 0.002 used to be xfailed alongside these two on the same reasoning; the
+    # 2026-09 moment-iteration fix moved it back within tolerance (1.75%, was
+    # xfailed at 2.2%) where 0.99/0.995 stayed just outside (2.6%, 3.4%) --
+    # not because those two are less fixed, but because the manual disagrees
+    # with peakfq 8.1.0 most in exactly this part of the tail.
     @pytest.mark.parametrize(
         "aep,expected_flow",
         [
@@ -148,13 +151,14 @@ class TestBigSandyQuantiles:
                     pytest.mark.xfail(
                         strict=True,
                         reason=(
-                            "Target is not reachable: closing the ADJE skew-weighting "
-                            "gap (TODO.md P3) moves this quantile further from the "
-                            "2012 PeakfqSA manual, which peakfq 8.1.0 itself does not "
-                            "reproduce here -- see the module docstring."
+                            "Target is not reachable: this site's native fit now "
+                            "matches peakfq 8.1.0 itself to within 0.06% (TODO.md P3), "
+                            "but the 2012 PeakfqSA manual this test compares against "
+                            "was never reproducible by peakfq 8.1.0 in the far tails -- "
+                            "see the module docstring."
                         ),
                     )
-                    if aep in (0.002, 0.99, 0.995)
+                    if aep in (0.99, 0.995)
                     else ()
                 ),
             )
