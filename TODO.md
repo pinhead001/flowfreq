@@ -2,7 +2,7 @@
 
 ## Status
 Last updated: 2026-09-01
-Tests: **602 passed, 1 skipped, 1 deselected, 5 xfailed** in ~93 s (up from ~76 s -- the new
+Tests: **604 passed, 1 skipped, 1 deselected, 5 xfailed** in ~93 s (up from ~76 s -- the new
 confidence-interval machinery, `hydrolib._var_emab.var_emab`, is nine `regmoms` calls per
 analysis, each a full `var_mom`/`mn2mvarb` solve; `@lru_cache`d like the rest of this port's
 expensive pieces, but the first fit of any given fixture still pays it). CI green on main.
@@ -23,11 +23,20 @@ understood numerical residual, not a missing routine:
   in ratio terms at the AEP-0.01 tail).
 - Cains Coulee (11 PILFs from MGBT, the one parity case whose at-site skew clears the 0.04 HWN
   floor): at-site skew matches to **0.0002**, native `Wd` to **0.002** against peakfq's 0.184.
-  One real residual remains: `skew_weighted` is still 0.058 skew units off, traced to
-  `mn2mvarb`'s own ~1e-3 relative precision limit (the `expmomderiv` numerical-differentiation
-  gap Phase 2 already documented as unproven-but-suspected) --
-  `tests/fortran_parity/test_wymt_vs_golden.py`'s `test_weighted_skew_matches` is the one
-  still-open `xfail(strict=True)` this leaves in the whole `var_mom`/`detrat`/`var_emab` tree.
+  One real residual remains: `skew_weighted` is still 0.058 skew units off. **Not** a
+  `var_mom`/`mse_ema`/`mn2mvarb` precision limit, as earlier documentation here assumed and a
+  deeper investigation has now corrected -- `mse_ema` called standalone with this site's real
+  post-MGBT group matches the Fortran oracle to 3e-8 relative. The actual gap: `emafitpr`'s own
+  internally-computed, reported `as_G_mse` for this site (0.2212) does not match what the same
+  `mseg_all` Fortran routine gives called standalone with identical inputs (0.0749) -- a ~3x
+  discrepancy, reproducible even from a from-scratch, single-case golden regeneration (ruling
+  out cross-case state contamination), whose exact mechanism inside `emafitpr` was not pinned
+  down despite substantial investigation. See
+  `tests/fortran_parity/test_fortran_oracles.py::TestCainsCouleeAsGMseDiscrepancy` for the full,
+  reproducible account. `tests/fortran_parity/test_wymt_vs_golden.py`'s `test_weighted_skew_matches`
+  is the one still-open `xfail(strict=True)` this leaves in the whole `var_mom`/`detrat`/`var_emab`
+  tree -- and, per its own reasoning, hydrolib's own computation may well be *more* correct than
+  the golden reference here, not less.
 
 The other four `xfail(strict=True)`s left in the suite are all the 2012 PeakfqSA manual
 comparisons (`tests/validation/test_big_sandy.py`), which is a different, non-reproducible
@@ -60,12 +69,14 @@ systematic record rather than configuring a real historical period):
 | Cains Coulee 06327450 | 11 PILFs from MGBT | **0.184** | **0.186** | at-site skew **0.0002**, weighted skew 0.058 (skew units); quantiles 0.08% to 9.7%, 1.5% at Q100 |
 
 Cains Coulee's remaining weighted-skew gap is now the *only* open numerical residual on the
-censored path -- everything upstream of it (the at-site fit, `Wd`, ADJE) matches peakfq 8.1.0
-closely. It traces to `mn2mvarb`'s own ~1e-3 relative precision limit on this site (the
-`expmomderiv` numerical-differentiation gap Phase 2 documented as suspected-but-unproven, see
-below), not to anything newly discovered. Big Sandy's own weighted skew, by contrast, is now
-correct to 2.4e-6 -- its at-site skew (0.0066) sits under the 0.04 HWN floor, so it never
-exercises `mn2mvarb`/`d_est`'s nonzero path the way Cains Coulee's -0.708 does.
+censored path -- everything upstream of it (the at-site fit, `Wd`, ADJE, and -- confirmed by a
+dedicated investigation once this looked like the last item, see the "Confidence-interval shape"
+entry below -- `mse_ema`/`var_mom`/`mn2mvarb` themselves, called at this site's own real,
+sensitive input) matches peakfq 8.1.0 closely. It does **not** trace to `mn2mvarb`'s own
+numerical-differentiation gap the way earlier revisions of this document assumed; that
+explanation did not survive being checked directly. Big Sandy's own weighted skew, by contrast,
+is now correct to 2.4e-6 -- its at-site skew (0.0066) sits under the 0.04 HWN floor, so it never
+exercises `detrat`/ADJE's nontrivial path the way Cains Coulee's -0.708 does.
 
 So with nothing censored the native EMA reproduces peakfq to machine precision — the in-loop
 regional-skew weighting is *right*, not merely closer — and with heavy censoring but no PILFs
@@ -487,6 +498,86 @@ it is the oracle for `detrat`.
       reports that hydrolib does not currently surface anywhere in `FrequencyResults`. Not needed
       for the confidence bounds themselves (`VAR_EMAB` never asks for it), so it was out of scope
       here; a small, separate follow-up if that diagnostic is ever wanted.
+
+- [x] **Re-investigated Cains Coulee's `skew_weighted` residual — the earlier explanation was
+      wrong, and now there's a much more precise, evidence-backed one.** With every other P3
+      item closed, this was the one thing left labeled "small, understood" -- Phase 2 had
+      documented it as `mn2mvarb`'s own numerical-differentiation gap in `expmomderiv`, "not
+      independently proven the way the `mP3` finding is." Checking that claim directly, rather
+      than continuing to repeat it, was the actual completion of P3.
+
+      **The claim did not survive being checked.** `hydrolib._mse_ema.mse_ema(kmom=3)`, called
+      standalone with Cains Coulee's real post-MGBT censoring group (`nobs=32, tl=2.521, tu=20`,
+      its 332 cfs MGBT cutoff) and its real at-site fit, matches the Fortran oracle to **3e-8**
+      relative -- nowhere near a ~1e-3 precision limit large enough to explain a 0.058-skew-unit
+      gap. `var_mom`/`mn2mvarb` are not the bottleneck at Cains Coulee's own sensitive input
+      after all.
+
+      **What is actually happening**: `emafitpr`'s own internally-computed, reported `as_G_mse`
+      for Cains Coulee -- 0.2212, committed in the golden file as `skew.as_G_mse_o`, and what the
+      golden `skew_weighted` (-0.604) was built from -- does not match what calling the *same*
+      `mseg_all` Fortran routine standalone gives for the *identical* `(nobs, tl, tu, mc)`: 0.0749,
+      a ~3x difference. That 0.0749 is exactly what `hydrolib.bulletin17c.ExpectedMomentsAlgorithm
+      ._adje_bias_adjustment` computes too (it is the same formula) -- so hydrolib's native fit
+      is *internally consistent* with a clean, from-first-principles composition of independently
+      Fortran-verified routines; it is `emafitpr`'s own reported value that disagrees with that
+      composition, not the other way around.
+
+      **Ruled out, in order, before concluding the mechanism itself is unresolved**:
+      * *Existing test coverage passing was a false signal, not confirmation.*
+        `TestSkewMseOracle.test_reproduces_emafitpr_as_g_mse[cains_coulee_06327450]` (added in an
+        earlier phase) "passes," but it calls `mseg_all_sub` with `golden["inputs"]`'s tl/tu --
+        which, as already documented for `detrat`, are *uncensored* for this site (MGBT creates
+        the real censoring inside the fit). ADJE's bias adjustment is a no-op on an uncensored
+        group, so that call reduces to the plain B17B `mseg()` value, which happens to equal
+        `as_G_mse_o` (0.2212) -- meaning that test never actually exercised ADJE's bias
+        adjustment for Cains Coulee at all. It was quietly testing the wrong group the entire
+        time.
+      * *Cross-case `SAVE`d-state contamination* (the already-documented `mseg_all_sub` bug,
+        findings 1/3/4 in `test_fortran_oracles.py`'s module docstring) -- ruled out by
+        regenerating Cains Coulee's golden file in total isolation
+        (`python tools/gen_fortran_golden.py cains_coulee_06327450`, the only case in that
+        process): still 0.2212. Whatever this is, it does not require an intervening,
+        *different* case's `emafitpr` call the way the other four findings do.
+      * *`momsadj`'s skew floor* (`emafit.f:1487`, clamps skew `>= max(-1.41, skxmax)`,
+        `skxmax` itself a no-op since `lskewXmax` defaults `.FALSE.`) -- a no-op at Cains
+        Coulee's -0.6 to -0.8 magnitude, nowhere near -1.41.
+      * *`nG` recomputed every EMA iteration instead of once* -- would have been a genuine
+        algorithmic difference from hydrolib's own "compute `nG` once, from the converged
+        at-site skew, then iterate" approach. Checked directly against `p3est_ema`
+        (`emafit.f:1149`): `nG = n*Wd*as_G_mse/r_G_mse` is computed once, before the iteration
+        loop (`emafit.f:1194`), from the `Wd`/`as_G_mse` values passed in as arguments -- same
+        structure hydrolib uses. Not the explanation.
+      * *Replicating `emafitpr`'s own internal call sequence* -- `mse_ema(kmom=1)`, then
+        `(kmom=2)`, then `mseg_all` (`as_G_mse`), then `mseg_all` again with the different,
+        uncensored "Syst"/ERL group (`as_G_mse_Syst`), then `mseg_all` once more -- via
+        standalone oracle calls in that exact order never reproduces the drift; `as_G_mse`
+        stays at 0.0749 throughout. So it is not simply "enough repeated `mse_ema`/`mseg_all`
+        calls with varying arguments," the way `mseg_all_sub`'s documented bug is.
+
+      What was **not** ruled out, for lack of a way to isolate it further without transcribing
+      large parts of `emafitpr`/`p3est_ema` (out of scope -- hydrolib already has its own native
+      EMA fit, verified separately): something in `emafitpr`'s *first* internal fitting pass
+      (MGBT, or the initial at-site-only `p3est_ema` call under `at_site_option='B17B'`,
+      `emafit.f:745-754`, which runs before the ADJE-branch `mseg_all` call this item traces)
+      leaves `mseg_all`/`at_site_option`-adjacent state in a condition that a standalone
+      `mseg_all_sub` call from a clean process cannot reproduce. Given `at_site_option` is a
+      Fortran `COMMON` variable explicitly toggled `'B17B'` → (reset) `at_site_default`/`at_site_std`
+      partway through `emafitpr` (`emafit.f:751`, `790`), and given this whole class of routine
+      already carries one confirmed `SAVE`d-state bug, a *second*, subtler one in the same
+      family is the leading hypothesis -- but it is a hypothesis, not a confirmed finding, and is
+      recorded as such.
+
+      **Consequence**: the `skew_weighted` xfail's reason was rewritten to this account (both in
+      `tests/fortran_parity/test_wymt_vs_golden.py` and a new,
+      dedicated `tests/fortran_parity/test_fortran_oracles.py::TestCainsCouleeAsGMseDiscrepancy`,
+      which pins the 3e-8 `mse_ema` match and the 0.0749-vs-0.2212 `mseg_all_sub` disagreement as
+      committed, reproducible assertions rather than prose). hydrolib's own computation is left
+      as is -- there is no principled way to deliberately reproduce a number whose mechanism
+      is not understood, and doing so would mean curve-fitting to one data point rather than
+      transcribing an understood routine, which is what every other line of this port has been.
+      It is entirely possible hydrolib's native fit is *more* correct here than the golden
+      reference, not less; that is unresolved, not something to act on speculatively.
 
 ### Follow-ups found while clearing P1 and P2
 

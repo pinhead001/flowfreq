@@ -39,6 +39,23 @@ raw ``var_emab``/``regmoms`` Fortran oracle (both carry ``SAVE``) drifts by
 ``emafitpr``/MGBT/``detrat``, even though it matches this port (and the
 golden file) exactly when called first in a clean process. ``TestVarEmabPort``
 therefore checks against the golden file only, never a live oracle call.
+
+A fifth, found chasing TODO.md P3's last remaining ``xfail`` (Cains Coulee's
+``skew_weighted``, ~0.058 skew units off): ``TestSkewMseOracle.test_reproduces
+_emafitpr_as_g_mse`` above "passes" for Cains Coulee for the wrong reason. It
+calls ``mseg_all_sub`` with ``golden["inputs"]``'s tl/tu, which -- as
+``TestDeterminantRatioOracle`` documents -- are *uncensored* for this site
+(MGBT creates the real censoring inside the fit); the ADJE bias adjustment
+is therefore a no-op there and the call reduces to the plain B17B ``mseg()``
+value, which happens to equal ``as_G_mse_o`` (0.2212) -- so the test never
+actually exercises ADJE's bias adjustment for this site at all. Calling
+``mseg_all_sub`` fresh with the *real* post-MGBT group instead
+(``TestCainsCouleeAsGMseDiscrepancy``, placed here specifically so its own
+call is the first Fortran entry point this process touches) gives 0.0749,
+not 0.2212 -- and unlike the first three findings above, this one is *not*
+explained by calling something after an unrelated ``emafitpr``: regenerating
+Cains Coulee's golden file in total isolation reproduces 0.2212 too. See
+that class's docstring for the full account and what was ruled out.
 """
 
 from __future__ import annotations
@@ -162,6 +179,80 @@ class TestSkewMseOracle:
         assert fortran == pytest.approx(0.03648, abs=1e-5)
         assert _b17b_skew_mse(200, 0.3) == pytest.approx(0.04789, abs=1e-5)
         assert _b17b_skew_mse(200, 0.3) / fortran == pytest.approx(1.31, abs=0.02)
+
+
+class TestCainsCouleeAsGMseDiscrepancy:
+    """A real, unexplained gap found chasing TODO.md P3's last xfail.
+
+    Runs right after ``TestSkewMseOracle`` -- before any ``emafitpr`` call
+    in this file -- so its own ``mseg_all_sub`` call is the first Fortran
+    entry point touched this process, avoiding the ``SAVE``d-state leak
+    the module docstring already documents.
+
+    Everything else this port touches matches the Fortran closely at Cains
+    Coulee's real post-MGBT censoring group (``tl=2.521``, its 332 cfs
+    MGBT cutoff, ``tu=20``, ``n=32``) and its real at-site fit -- but
+    ``emafitpr``'s own internally-computed, reported ``as_G_mse`` for this
+    site (0.2212, committed in the golden file as ``skew.as_G_mse_o``, and
+    what ``skew_weighted`` there was built from) does not match what
+    calling the *same* ``mseg_all`` Fortran routine standalone gives for
+    the *identical* inputs (0.0749). Confirmed reproducible, not a testing
+    artifact: regenerating Cains Coulee's golden file in total isolation
+    (``python tools/gen_fortran_golden.py cains_coulee_06327450``, nothing
+    else in the process) gives the same 0.2212 -- ruling out cross-case
+    contamination as the explanation this time (that would require some
+    *other* case's ``emafitpr`` to have run first). The exact mechanism
+    inside ``emafitpr`` was not pinned down: ``momsadj``'s skew floor is a
+    no-op at this magnitude (-1.41), ``p3est_ema`` computes ``nG`` once
+    before its iteration loop rather than per-iteration (so that is not
+    silently recomputing ``as_G_mse`` differently), and replicating
+    ``emafitpr``'s exact internal ``mse_ema``/``mseg_all`` call sequence
+    (kmom=1, kmom=2, kmom=3, then the ERL "Syst" variant, then kmom=3
+    again) via standalone oracle calls never reproduces the drift either --
+    something earlier in ``emafitpr``'s own multi-stage fit (MGBT, or the
+    first at-site-only ``p3est_ema`` pass under ``at_site_option='B17B'``)
+    is implicated, but which one, and why, is still open.
+
+    ``hydrolib._mse_ema.mse_ema``/``hydrolib._var_mom.var_mom`` are not the
+    suspects here -- both are independently confirmed exact against the
+    Fortran at this same real point, ruling out the ``var_mom``-precision
+    explanation this xfail carried before this investigation.
+    """
+
+    #: Cains Coulee 06327450's real post-MGBT censoring group and at-site
+    #: fit, read once from the committed golden file / a verified live
+    #: emafitpr call and pinned here as literals -- so this class never
+    #: needs its own emafitpr call, which would make its mseg_all_sub call
+    #: untrustworthy per this file's own documented state-leak rule.
+    _NOBS = np.array([32.0])
+    _TL = np.array([2.5211380837040362])  # log10(331.99999999999994), the MGBT cutoff
+    _TU = np.array([20.0])
+    _MC_AT_SITE = np.array([2.6367671197988694, 0.15301024816541287, -0.7078900133204128])
+    _AS_G_MSE_O = 0.22118912333191387  # golden file's skew.as_G_mse_o
+
+    def test_mse_ema_matches_the_fortran_at_this_real_point(self):
+        """The routine var_mom/mn2mvarb's port actually touches -- and it is exact."""
+        from hydrolib._mse_ema import mse_ema
+        from hydrolib.peakfqr._emafort import mse_ema as mse_ema_f
+
+        mine = mse_ema(self._NOBS, self._TL, self._TU, self._MC_AT_SITE, kmom=3)
+        fortran = float(mse_ema_f(self._NOBS, self._TL, self._TU, self._MC_AT_SITE, 3))
+        assert mine == pytest.approx(fortran, rel=1e-6)
+
+    def test_mseg_all_sub_disagrees_with_emafitprs_own_as_g_mse_o(self):
+        """The actual gap: not a precision limit, a ~3x discrepancy.
+
+        ``mseg_all_sub`` here is ADJE's ``bias_adj * mseg(n_adj, skew)``,
+        called standalone with exactly the inputs ``emafitpr`` used to
+        report ``as_G_mse_o`` -- and it does not agree.
+        """
+        from hydrolib.peakfqr._emafort import mseg_all_sub
+
+        standalone = float(mseg_all_sub(self._NOBS, self._TL, self._TU, self._MC_AT_SITE))
+        assert standalone == pytest.approx(0.0748857778, rel=1e-6)
+        assert (
+            abs(standalone / self._AS_G_MSE_O - 1) > 0.5
+        ), "if this ever starts agreeing, the mystery is solved -- see the class docstring"
 
 
 class TestDeterminantRatioOracle:

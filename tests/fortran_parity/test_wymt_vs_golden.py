@@ -25,16 +25,21 @@ What does censoring cost?
     Native ``Wd`` here is 0.186, close to peakfq's 0.184; native at-site
     skew is -0.708 against peakfq's -0.708. What's left is downstream of
     all of that: ``skew_weighted`` still carries a real gap (0.058 skew
-    units) traced to ``mn2mvarb``'s own ~1e-3 relative precision limit on
-    this site (``hydrolib._var_mom``'s ``expmomderiv`` gap) -- see the
-    xfail below.
+    units), and it is *not* a `var_mom`/`mn2mvarb` precision limit --
+    `mse_ema` called standalone with this site's real post-MGBT group
+    matches the Fortran oracle to 3e-8 relative. It traces to `emafitpr`'s
+    own internally-computed `as_G_mse` for this site disagreeing with what
+    the same `mseg_all` routine gives called standalone on identical
+    inputs; see the xfail below for the full account.
 
 Read together they localise the open P3 defect precisely: with no censoring
-the native fit is exact, and every censored-path piece -- the at-site
-moment iteration, the ADJE bias adjustment, and ``detrat`` -- is now ported
-and correct to a demonstrated tolerance. What remains is `var_mom`'s own
-inherited numerical-differentiation gap in `expmomderiv`, which propagates
-into `skew_weighted` through ADJE's censoring bias adjustment.
+the native fit is exact, and every ported piece -- the at-site moment
+iteration, the ADJE bias adjustment, `detrat`, and (independently, per
+routine) `mse_ema`/`var_mom`/`mn2mvarb` -- matches the Fortran to a
+demonstrated tolerance, including at this site's own real, sensitive input.
+What remains is a discrepancy inside `emafitpr` itself that a clean
+composition of correctly-verified routines has no principled way to
+reproduce -- see the xfail below.
 
 The peakfq 7.4 columns in the fixture CSVs are a sanity cross-check only.
 Parity is against the committed goldens, generated from the vendored 8.1.0
@@ -163,9 +168,9 @@ class TestCainsCouleeCensored:
     Everything discrete matches: the same 11 PILFs at the same 332 cfs cut.
     The at-site skew now matches too (0.0002 gap), and so does ``Wd`` (0.002
     gap against peakfq's 0.184). What still doesn't match is
-    ``skew_weighted`` -- a real residual, traced to ``var_mom``'s own
-    ~1e-3 relative precision limit on this site, not to anything this
-    class's other tests cover.
+    ``skew_weighted`` -- a real residual, and (measured, not assumed) not
+    a `var_mom`/`mse_ema` precision limit; see `test_weighted_skew_matches`'s
+    xfail reason.
     """
 
     def test_mgbt_finds_the_same_pilfs(self, cains_coulee):
@@ -238,13 +243,25 @@ class TestCainsCouleeCensored:
     @pytest.mark.xfail(
         strict=True,
         reason=(
-            "skew_weighted still carries a real 0.058-skew-unit gap, traced "
-            "to mn2mvarb's own ~1e-3 relative precision limit on this site "
-            "(hydrolib._var_mom.expmomderiv's numerical-differentiation gap, "
-            "propagating through ADJE's censoring bias adjustment into the "
-            "regional-skew weight). Not the at-site fit -- skew_station is "
-            "now correct to 0.0002 -- and not detrat -- native Wd is 0.186 "
-            "against peakfq's 0.184. See TODO.md P3."
+            "skew_weighted still carries a real 0.058-skew-unit gap. Not "
+            "the at-site fit (skew_station is correct to 0.0002), not "
+            "detrat (native Wd is 0.186 against peakfq's 0.184), and -- "
+            "measured directly, not assumed -- not mse_ema/var_mom/"
+            "mn2mvarb either: called standalone with Cains Coulee's real "
+            "post-MGBT group, mse_ema(kmom=3) matches the Fortran oracle "
+            "to 3e-8 relative. The gap is that emafitpr's own internally-"
+            "computed as_G_mse for this site (0.2212, what the golden "
+            "skew_weighted was built from) does not match what calling "
+            "the same mseg_all Fortran routine standalone gives for the "
+            "identical (nobs, tl, tu, mc) -- 0.0749, reproduced even by a "
+            "from-scratch, single-case golden regeneration, ruling out "
+            "cross-case SAVE state contamination as the cause this time. "
+            "The exact mechanism (likely something in emafitpr's own "
+            "multi-stage internal fitting before the reported value is "
+            "set) was not pinned down despite substantial investigation. "
+            "hydrolib's own composition of independently-verified routines "
+            "has no principled way to reproduce an unexplained number, so "
+            "it is left as is. See TODO.md P3."
         ),
     )
     def test_weighted_skew_matches(self, cains_coulee):
