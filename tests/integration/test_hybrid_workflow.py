@@ -226,27 +226,35 @@ class TestBigSandyAgainstReference:
         assert params["mean_log"] < 0.1
         assert params["std_log"] < 1.0
 
-    def test_weighted_skew_still_carries_the_hwn_gap(self):
-        """The open P3 defect, asserted rather than hidden by a loose tolerance.
+    def test_weighted_skew_gap_is_closed(self):
+        """The P3 skew-weighting defect this test used to pin, now closed.
 
-        Was ~35% when the weighting was a post-hoc average of two skews. Now
-        that the regional skew is folded into the EMA fixed point the way
-        moms_p3 does it, the gap is ~24%, and all of what is left is the
-        at-site skew MSE: peakfq's default ADJE option inflates the Bulletin
-        17B value by a censoring bias adjustment from var_mom, which is not
-        implemented. Feeding peakfq's own as_G_mse through this code gives
-        -0.1592 against its -0.1563, a 1.9% gap.
+        Was ~35% when the weighting was a post-hoc average of two skews,
+        then ~24% (0.0376 in skew units) once the regional skew was folded
+        into the EMA fixed point the way moms_p3 does it -- at which point
+        the only input left was the at-site skew MSE: peakfq's default
+        ADJE option inflates the Bulletin 17B value by a censoring bias
+        adjustment from var_mom. hydrolib._mse_ema.mse_ema (TODO.md P3's
+        var_mom Phase 3) now supplies that input. Measured here: 0.0026
+        skew units, matching the ~1.9% gap TODO.md predicted from feeding
+        peakfq's own as_G_mse through this code by hand.
+        tests/fortran_parity/test_native_vs_golden.py::TestRung3Moments
+        .test_weighted_skew (the stricter, 0.02-skew-unit parity check)
+        now passes too.
 
-        Tighten this bound when that lands -- and note the parity suite's
-        xfail(strict=True) will fail first, which is the alarm you want.
+        Not exactly zero: mn2mvarb's root-find matches the Fortran to only
+        ~1e-3 relative on Big Sandy specifically (var_mom Phase 2's
+        expmomderiv gap propagating through). detrat (the Halloween
+        determinant ratio) is still unimplemented, but Big Sandy's at-site
+        skew (0.0066) is below the 0.04 HWN floor, so Wd = 1 there either
+        way -- detrat would not move this number.
 
-        Asserted in skew units, not percent: FrequencyComparator now compares
+        Asserted in skew units, not percent: FrequencyComparator compares
         skew by absolute difference, because a quantity that passes through
-        zero cannot be judged by a ratio. The gap is 0.0376 in skew units,
-        which is the 24% that used to be reported here.
+        zero cannot be judged by a ratio.
         """
         skews = self._native().validate(self._reference()).skew_diffs
-        assert 0.02 < skews["skew_weighted"] < 0.06
+        assert skews["skew_weighted"] < 0.01
 
     def test_skew_at_site_percent_difference_is_not_meaningful(self):
         """A documented wart, so nobody reads 249% as a 249% error.

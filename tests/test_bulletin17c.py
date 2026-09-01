@@ -514,22 +514,30 @@ class TestRegionalSkewInTheFixedPoint:
         assert weighted.std_log != at_site.std_log
 
     def test_equivalent_years_follows_griffis_2004(self):
-        """nG = n * Wd * as_G_mse / r_G_mse, emafit.f:1194."""
+        """nG = n * Wd * as_G_mse / r_G_mse, emafit.f:1194.
+
+        as_G_mse is ADJE's censoring-adjusted skew MSE
+        (``_adje_skew_mse``), not ``_b17b_skew_mse`` alone -- see
+        TODO.md P3's "skew weighting" item.
+        """
         ema = self._big_sandy()._analyzer
         n = len(ema.intervals)
-        n_g = ema._regional_skew_equivalent_years(0.0066, n)
-        expected = n * 1.0 * _b17b_skew_mse(n, 0.0066) / ema._regional_skew_mse
+        mean_log, std_log = ema.results.mean_log, ema.results.std_log
+        n_g = ema._regional_skew_equivalent_years(mean_log, std_log, 0.0066, n)
+        expected = (
+            n * 1.0 * ema._adje_skew_mse(mean_log, std_log, 0.0066, n) / ema._regional_skew_mse
+        )
         assert n_g == pytest.approx(expected)
 
     def test_no_regional_skew_means_no_pseudo_observations(self):
         ema = self._big_sandy(regional_skew=None, regional_skew_mse=None)._analyzer
-        assert ema._regional_skew_equivalent_years(0.0066, 84) == 0.0
+        assert ema._regional_skew_equivalent_years(3.7, 0.09, 0.0066, 84) == 0.0
 
     @pytest.mark.parametrize("mse", [0.0, 1e11])
     def test_generalized_and_station_only_get_no_pseudo_observations(self, mse):
         """MSE 0 is 'generalized, no error'; >= 1e10 is station-only."""
         ema = self._big_sandy(regional_skew_mse=mse)._analyzer
-        assert ema._regional_skew_equivalent_years(0.0066, 84) == 0.0
+        assert ema._regional_skew_equivalent_years(3.7, 0.09, 0.0066, 84) == 0.0
 
     def test_bias_correction_applies_to_exact_peaks_only(self):
         """c2 and c3 correct the exact peaks; censored intervals go in raw.

@@ -128,7 +128,39 @@ class TestBigSandyParameters:
 class TestBigSandyQuantiles:
     """Test flood quantile estimates against expected values."""
 
-    @pytest.mark.parametrize("aep,expected_flow", list(EXPECTED_QUANTILES.items()))
+    # AEP 0.002, 0.99 and 0.995 are known failures now, tracked as strict
+    # xfail: TODO.md P3's ADJE port (var_mom's censoring bias adjustment,
+    # hydrolib._mse_ema.mse_ema) closed the skew-weighting gap against
+    # peakfq 8.1.0 -- tests/fortran_parity/test_native_vs_golden.py's
+    # TestRung3Moments.test_weighted_skew now passes -- which moves these
+    # three tail quantiles 2.2-2.8% further from the 2012 manual's values,
+    # not closer: the manual predates HWN/ADJE and is not reproducible by
+    # peakfq 8.1.0 either (module docstring above). This is the expected
+    # direction, verified against tests/fortran_parity/'s PEAKFQ_810_*
+    # fixture rather than assumed.
+    @pytest.mark.parametrize(
+        "aep,expected_flow",
+        [
+            pytest.param(
+                aep,
+                flow,
+                marks=(
+                    pytest.mark.xfail(
+                        strict=True,
+                        reason=(
+                            "Target is not reachable: closing the ADJE skew-weighting "
+                            "gap (TODO.md P3) moves this quantile further from the "
+                            "2012 PeakfqSA manual, which peakfq 8.1.0 itself does not "
+                            "reproduce here -- see the module docstring."
+                        ),
+                    )
+                    if aep in (0.002, 0.99, 0.995)
+                    else ()
+                ),
+            )
+            for aep, flow in EXPECTED_QUANTILES.items()
+        ],
+    )
     def test_quantile(self, b17c_result, aep, expected_flow):
         """Test individual quantile estimates."""
         quantiles_df = b17c_result.compute_quantiles(np.array([aep]))

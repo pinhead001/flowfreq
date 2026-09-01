@@ -2,20 +2,22 @@
 
 ## Status
 Last updated: 2026-09-01
-Tests: **566 passed, 1 skipped, 1 deselected, 7 xfailed** in ~29 s. CI green on main. Two of
-the seven xfails are on the Cains Coulee parity case; see P3.
+Tests: **564 passed, 1 skipped, 1 deselected, 9 xfailed** in ~40 s (up from ~29 s -- the ADJE
+bias adjustment costs real time on a censored fit; see the "Skew weighting" item). CI green
+on main.
 Fortran reference: **vendored** at `vendor/peakfqr/` (peakfq 8.1.0, CC0).
 Fortran bridge: builds from those sources via `python build_fortran/build.py`
 (gfortran + meson) and is now **built and checked in CI** by `make parity`.
 
-Every P1 and P2 item is done. What is left is P3: two numerical defects that turn out to be
-the same missing machinery, specified precisely below. Phases 1-3 of the `var_mom` port (the
-leaf layer; `varb`/`varc`/`d_est`/`expmomderiv`/`var_mom` itself; `mn2mvarb`/`mse_ema`, the
-ADJE censoring bias adjustment) are now done -- see below, and TODO.md's "Skew weighting"
-item, whose remaining 24% this closes numerically. Not yet done: wiring any of it into
-`Bulletin17C`/`ExpectedMomentsAlgorithm`, and `VAR_EMAB`/`regmoms`/`ci_ema_m3b` (the
-confidence-interval shape fix) -- both left for a following phase, specified in the "Skew
-weighting" and "Confidence-interval shape" items below.
+Every P1 and P2 item is done. The `var_mom` port (TODO.md P3) is done through Phase 3 and
+**wired into `Bulletin17C`**: `mn2mvarb`/`mse_ema`, the ADJE censoring bias adjustment, now
+feeds `_regional_skew_equivalent_years`, and Big Sandy's weighted skew matches peakfq 8.1.0
+closely enough that the parity suite's `xfail(strict=True)` for it now passes -- so it is no
+longer marked xfail, per the whole point of `strict=True`. The "Skew weighting" item below is
+effectively closed for records like Big Sandy (at-site skew under the HWN floor); what is left
+of P3 is `VAR_EMAB`/`regmoms`/`ci_ema_m3b` (the confidence-interval shape fix, unstarted) and
+`detrat` (the Halloween determinant ratio, needed only when at-site skew exceeds 0.04 in
+magnitude, which none of the three parity cases needing regional weighting do).
 
 ---
 
@@ -160,7 +162,8 @@ actually bites, so it is the oracle for that routine.
       which is now done, and what is still open (`VAR_EMAB`/`regmoms`/`ci_ema_m3b`, the
       CI-shape formula, plus the wiring decision for both).
 
-- [ ] **Skew weighting — 24% left, and it is all `as_G_mse`.** The structural half is done
+- [x] **Skew weighting — wired in; `detrat` is what's left, and it doesn't bite these cases.**
+      The structural half is done
       (see below): the regional skew is now folded into the EMA fixed point as `moms_p3`
       does it, which took Big Sandy from 35% to **24.1%** (−0.1187 against peakfq's −0.1563)
       and improved the mean and variance at the same time.
@@ -239,24 +242,41 @@ actually bites, so it is the oracle for that routine.
       interleave it across cases and pass), but anything downstream that calls `mseg_all`'s ADJE
       path a second time should not be trusted without a fresh process.
 
-      **Not done: wiring any of this into `Bulletin17C`.** The hook is
-      `_regional_skew_equivalent_years` (`bulletin17c.py:903`), which currently computes
-      `as_G_mse` as `_b17b_skew_mse(n, at_site_skew)` alone (no ADJE bias adjustment) — replacing
-      that with `mse_ema`-based `as_G_mse` needs `mean_log`/`std_log` threaded in alongside
-      `at_site_skew` (available at its one call site, `bulletin17c.py:1276`) and the actual
-      perception-threshold *groups*, which `self._intervals` does not carry as a `(tl, tu)` pair
-      directly — only a single `perception_threshold` scalar. The correct reconstruction,
-      verified against `tests/fortran_parity/cases.py::build_emafit_inputs` (the existing,
-      already-correct reference for exactly this mapping): an interval's threshold pair is
-      `(perception_threshold, QMAX)` when `perception_threshold > 0`, else `(QMIN, QMAX)` --
-      this covers systematic peaks, historical peaks, *and* MGBT-censored PILFs correctly in one
-      rule, because `_build_flow_intervals` already sets `perception_threshold` to exactly 0 for
-      the systematic case (including PILFs) and to the real threshold for both historical peaks
-      and historical-period gap years, regardless of `is_historical`. Once wired, whether Big
-      Sandy's `TestRung3Moments::test_weighted_skew` `xfail(strict=True)` in
-      `tests/fortran_parity/test_native_vs_golden.py` actually flips to passing (peakfq's
-      −0.1563 against a 0.02 tolerance) needs checking end to end, not assumed from the isolated
-      `mse_ema` match above.
+      **Done: wired into `Bulletin17C`, and the parity xfail actually flips.**
+      `ExpectedMomentsAlgorithm._perception_threshold_groups` builds the `(nobs, tl, tu)`
+      groups from `self._intervals` (the `perception_threshold > 0` rule above, verified
+      against `tests/fortran_parity/cases.py::build_emafit_inputs`); `_adje_skew_mse` calls
+      `mse_ema` through a `@staticmethod`/`@lru_cache` method (`_adje_bias_adjustment`, same
+      pattern as `_mgbt_pvalue` and for the same reason — repeated fits of the same fixture
+      are common, and one call is not free) and feeds the result into
+      `_regional_skew_equivalent_years`, which now takes `mean_log`/`std_log` too. Falls back
+      to `bias_adj = 1` (today's behavior) with a logged warning if `mse_ema` raises, rather
+      than let an ancillary correction fail the whole analysis — `mn2mvarb`'s root-find is not
+      guaranteed to converge on every input.
+
+      Confirmed end to end, not assumed: Big Sandy's `TestRung3Moments::test_weighted_skew`
+      in `tests/fortran_parity/test_native_vs_golden.py` — peakfq's −0.1563 against a 0.02
+      tolerance — now passes, so its `xfail(strict=True)` is removed (that test file's own
+      alarm going off is what caught it). Measured weighted-skew gap against the reference,
+      `tests/integration/test_hybrid_workflow.py`: **0.0026** in skew units, down from 0.0376
+      — matching the ~1.9% figure predicted above almost exactly, with the small residual
+      being `mn2mvarb`'s own ~1e-3 relative gap on Big Sandy (Phase 2's `expmomderiv` note),
+      not `detrat`, which does not apply here (Big Sandy's at-site skew is under the 0.04 HWN
+      floor). Three quantiles in `tests/validation/test_big_sandy.py` (AEP 0.002, 0.99, 0.995)
+      moved 2.2–2.8% *further* from the 2012 PeakfqSA manual as a direct, expected consequence
+      — that manual predates HWN/ADJE and was already documented as not reproducible by peakfq
+      8.1.0 — so they are now `xfail(strict=True)` there instead of silently passing at a
+      widened tolerance, with the actual `PEAKFQ_810_*`/`tests/fortran_parity/` parity checks
+      (the ones that matter) unaffected.
+
+      **Cost**: the full suite went from ~29 s to ~40 s. `_adje_bias_adjustment` costs
+      ~0.3–0.4 s the first time a given (fixture, moments) combination is fit with a regional
+      skew supplied; the `@lru_cache` absorbs repeats. Acceptable for now; worth another pass
+      if it grows further.
+
+      What is still open: `detrat`, the Halloween determinant ratio (below) — needed only when
+      at-site skew is ≥ 0.04, which none of the three parity cases needing regional weighting
+      are.
 
 - [ ] **Confidence-interval shape.** `compute_confidence_limits()` forms `log_Q ± z·se`,
       symmetric by construction (ratio 1.000 at every AEP). peakfq skews right with return
