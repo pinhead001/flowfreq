@@ -184,7 +184,7 @@ class TestBigSandyConfidenceIntervals:
     # AEP 0.01 and 0.02 are known failures, tracked as strict xfail: the run
     # still happens and the deviation still prints, but the build stays green
     # -- and if either starts PASSING, strict=True fails the build, which is
-    # exactly the alarm wanted when the missing quadrature lands.
+    # the alarm wanted if the 2012 manual ever turns out reproducible after all.
     @pytest.mark.parametrize(
         "aep,expected_ci",
         [
@@ -196,13 +196,14 @@ class TestBigSandyConfidenceIntervals:
                         strict=True,
                         reason=(
                             "Target is not reachable: these values come from the 2012 "
-                            "PeakfqSA manual and are not reproducible by the vendored "
-                            "reference (peakfq 8.1.0), whose HWN skew weighting differs "
+                            "PeakfqSA manual, which is not reproducible by the vendored "
+                            "reference (peakfq 8.1.0) -- its HWN skew weighting differs "
                             "by design when censored data are present. Kept as historical "
                             "record. Live parity work belongs in tests/fortran_parity/, "
-                            "which asserts against peakfq 8.1.0. Two real defects remain "
-                            "on that path -- skew weighting and CI asymmetry. "
-                            "See docs/FORTRAN_UPLOAD.md sections 6.0 and 6.0b."
+                            "which asserts against peakfq 8.1.0 directly and now matches "
+                            "it closely: TestRung6ConfidenceIntervals measures both bounds "
+                            "within 0.06% of peakfq's own output (TODO.md P3, "
+                            "ExpectedMomentsAlgorithm.compute_confidence_limits)."
                         ),
                     )
                     if aep in (0.01, 0.02)

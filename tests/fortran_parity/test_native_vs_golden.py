@@ -5,9 +5,10 @@ file rather than from the extension. See ``tools/gen_fortran_golden.py``.
 
 Structured as the diagnostic ladder in ``docs/FORTRAN_UPLOAD.md`` section 6:
 each rung feeds the next, so the *first* failure is the root cause and anything
-below it is downstream noise. Two rungs are known-failing and marked
-``xfail(strict=True)`` -- they are real, understood defects, and strict means
-the build fails the moment either starts passing.
+below it is downstream noise. Rung 6 (confidence-interval shape) used to carry
+two ``xfail(strict=True)`` rungs; both are closed now that
+``ExpectedMomentsAlgorithm.compute_confidence_limits`` uses
+``hydrolib._var_emab.var_emab`` -- see TODO.md P3 and that class's docstring.
 """
 
 from __future__ import annotations
@@ -16,13 +17,6 @@ import numpy as np
 import pytest
 
 from tests.fortran_parity.conftest import aep_index, asymmetry
-
-_ASYM_REASON = (
-    "compute_confidence_limits() forms log_Q +/- z*se, so its upper/lower half-width "
-    "ratio is exactly 1.000 at every AEP. peakfq 8.1.0 runs 1.03 -> 1.31 -> 1.41 with "
-    "return period via the Inverse Modified Cholesky Gaussian Quadrature, which hydrolib "
-    "does not implement. See docs/FORTRAN_UPLOAD.md sections 1.6 and 6.0."
-)
 
 
 class TestRung1Censoring:
@@ -87,21 +81,18 @@ class TestRung5Quantiles:
 
 
 class TestRung6ConfidenceIntervals:
-    """The open defect: interval shape, not size."""
+    """The former open defect: interval shape, not size -- now closed.
 
-    # Only the rare events are marked. At AEP 0.1 the reference itself is nearly
-    # symmetric (1.032), so log_Q +/- z*se is adequate there and the assertion
-    # genuinely passes -- which is the useful finding: the defect bites at long
-    # return periods, not everywhere. Marking 0.1 too would hide that.
-    @pytest.mark.parametrize(
-        "aep",
-        [
-            0.1,
-            pytest.param(0.02, marks=pytest.mark.xfail(strict=True, reason=_ASYM_REASON)),
-            pytest.param(0.01, marks=pytest.mark.xfail(strict=True, reason=_ASYM_REASON)),
-        ],
-    )
+    ``ExpectedMomentsAlgorithm.compute_confidence_limits`` (``bulletin17c.py``)
+    now overrides the base class's symmetric ``log_Q +/- z*se`` formula with
+    ``hydrolib._var_emab.var_emab`` (``emafit.f``'s ``VAR_EMAB``/``regmoms``/
+    ``ci_ema_m3b``, Cohn's inverse-Gaussian-quadrature method), falling back
+    to the symmetric formula only if that raises. See TODO.md P3.
+    """
+
+    @pytest.mark.parametrize("aep", [0.1, 0.02, 0.01])
     def test_interval_asymmetry(self, golden_big_sandy, native_big_sandy, aep):
+        """Measured within 0.0007-0.0022 of peakfq's own ratio -- was as far as 0.4 at AEP 0.01."""
         i = aep_index(golden_big_sandy, aep)
         q = golden_big_sandy["outputs"]["quantiles"]
         expected = asymmetry(10 ** q["ci_low"][i], 10 ** q["yp"][i], 10 ** q["ci_high"][i])
@@ -111,18 +102,17 @@ class TestRung6ConfidenceIntervals:
             float(ci["flow_cfs"].iloc[0]),
             float(ci["upper_5pct"].iloc[0]),
         )
-        assert abs(actual - expected) < 0.05
+        assert abs(actual - expected) < 0.01
 
-    def test_native_intervals_are_exactly_symmetric(self, native_big_sandy):
-        """Pin the current behaviour, so the defect is documented rather than implied."""
+    def test_native_bounds_match_peakfq_closely(self, golden_big_sandy, native_big_sandy):
+        """Both bounds, not just their ratio -- measured within 0.06% at every AEP tested."""
+        q = golden_big_sandy["outputs"]["quantiles"]
         for aep in (0.1, 0.02, 0.01):
+            i = aep_index(golden_big_sandy, aep)
             ci = native_big_sandy.compute_confidence_limits(np.array([aep]))
-            ratio = asymmetry(
-                float(ci["lower_5pct"].iloc[0]),
-                float(ci["flow_cfs"].iloc[0]),
-                float(ci["upper_5pct"].iloc[0]),
-            )
-            assert abs(ratio - 1.0) < 1e-9
+            ref_lo, ref_hi = 10 ** q["ci_low"][i], 10 ** q["ci_high"][i]
+            assert float(ci["lower_5pct"].iloc[0]) == pytest.approx(ref_lo, rel=1e-3)
+            assert float(ci["upper_5pct"].iloc[0]) == pytest.approx(ref_hi, rel=1e-3)
 
 
 class TestGoldenProvenance:

@@ -2,48 +2,50 @@
 
 ## Status
 Last updated: 2026-09-01
-Tests: **589 passed, 1 skipped, 1 deselected, 7 xfailed** in ~76 s (up from ~42 s -- the at-site
-moment-iteration fix below calls the mpmath-backed `m_p3` on every EMA iteration for a censored
-fit, where the code it replaced was cheap and approximate; see that item for the tradeoff).
-CI green on main.
+Tests: **602 passed, 1 skipped, 1 deselected, 5 xfailed** in ~93 s (up from ~76 s -- the new
+confidence-interval machinery, `hydrolib._var_emab.var_emab`, is nine `regmoms` calls per
+analysis, each a full `var_mom`/`mn2mvarb` solve; `@lru_cache`d like the rest of this port's
+expensive pieces, but the first fit of any given fixture still pays it). CI green on main.
 Fortran reference: **vendored** at `vendor/peakfqr/` (peakfq 8.1.0, CC0).
 Fortran bridge: builds from those sources via `python build_fortran/build.py`
 (gfortran + meson) and is now **built and checked in CI** by `make parity`.
 
-Every P1 and P2 item is done. The `var_mom` port (TODO.md P3) is done through Phase 3, plus
-`detrat`, both **wired into `Bulletin17C`**, plus a fix to the at-site EMA moment iteration
-itself that turned out to be the dominant remaining defect. Together these close P3's censored
-path to within measurement noise on every parity case:
+Every P1 and P2 item is done. **The entire `var_mom` port (TODO.md P3) is now done**, including
+`detrat`, the at-site EMA moment-iteration fix, and the confidence-interval shape fix
+(`VAR_EMAB`/`regmoms`/`ci_ema_m3b`) -- all wired into `Bulletin17C`. What's left is one small,
+understood numerical residual, not a missing routine:
 
 - Big Sandy (37 censored historical gap-year intervals, at-site skew under the HWN floor):
-  weighted skew now matches peakfq 8.1.0 to **2.4e-6** (was 0.0026), every quantile to **≤0.06%**
-  (was ≤4.70%), mean/std to **~1e-5%** (was ~0.03%/~3e-3%) -- the same level Powder River
-  (no censoring at all) already had.
+  weighted skew matches peakfq 8.1.0 to **2.4e-6**, every quantile to **≤0.06%**, mean/std to
+  **~1e-5%** -- the same level Powder River (no censoring at all) has. Confidence intervals now
+  match too: **both bounds within 0.06%** at every AEP tested, asymmetry ratio within 0.0007-0.0022
+  of peakfq's own (was exactly 1.000 everywhere, symmetric by construction, off by as much as 0.4
+  in ratio terms at the AEP-0.01 tail).
 - Cains Coulee (11 PILFs from MGBT, the one parity case whose at-site skew clears the 0.04 HWN
-  floor): at-site skew now matches to **0.0002** (was off by 0.122), native `Wd` to **0.002**
-  against peakfq's 0.184 (was a flatly wrong 1.0, then 0.174). One real residual remains:
-  `skew_weighted` is still 0.058 skew units off, traced to `mn2mvarb`'s own ~1e-3 relative
-  precision limit (the `expmomderiv` numerical-differentiation gap Phase 2 already documented
-  as unproven-but-suspected) -- `tests/fortran_parity/test_wymt_vs_golden.py`'s
-  `test_weighted_skew_matches` is the one still-open `xfail(strict=True)` this leaves.
+  floor): at-site skew matches to **0.0002**, native `Wd` to **0.002** against peakfq's 0.184.
+  One real residual remains: `skew_weighted` is still 0.058 skew units off, traced to
+  `mn2mvarb`'s own ~1e-3 relative precision limit (the `expmomderiv` numerical-differentiation
+  gap Phase 2 already documented as unproven-but-suspected) --
+  `tests/fortran_parity/test_wymt_vs_golden.py`'s `test_weighted_skew_matches` is the one
+  still-open `xfail(strict=True)` this leaves in the whole `var_mom`/`detrat`/`var_emab` tree.
 
-What is left of P3 is that one residual and `VAR_EMAB`/`regmoms`/`ci_ema_m3b` (the
-confidence-interval shape fix, unstarted) -- see "Open Items" below.
+The other four `xfail(strict=True)`s left in the suite are all the 2012 PeakfqSA manual
+comparisons (`tests/validation/test_big_sandy.py`), which is a different, non-reproducible
+reference (CLAUDE.md's Test Data section) -- not evidence of anything left to port.
 
 ---
 
 ## Open Items (prioritised)
 
-### P3 — The open numerical defects
+### P3 — The `var_mom` port, now complete
 
-The confidence-interval-shape rungs are `xfail(strict=True)` in
-`tests/fortran_parity/test_native_vs_golden.py`; Cains Coulee's `skew_weighted` rung is
-`xfail(strict=True)` in `tests/fortran_parity/test_wymt_vs_golden.py`. The build fails the
-moment any of them starts passing. Nothing else is blocked on them.
+One `xfail(strict=True)` remains from this whole item: Cains Coulee's `skew_weighted` rung, in
+`tests/fortran_parity/test_wymt_vs_golden.py`. The build fails the moment it starts passing.
+Nothing else is blocked on it, and nothing else in this item is still open.
 
-They all bottom out in `var_mom` and its dependency tree, which is the one piece of the
-reference implementation that was never ported before this item. Read this section as one
-item with (now) two remaining symptoms, down from four.
+Everything here bottomed out in `var_mom` and its dependency tree, the one piece of the
+reference implementation that had never been ported before this item started. What follows is
+the full account, phase by phase, ending in the confidence-interval shape fix that closed it.
 
 **The defect was censoring-specific, and that is measured rather than assumed.** Two
 Wyoming/Montana parity cases were added for exactly this question, plus Big Sandy (which turns
@@ -71,7 +73,7 @@ regional-skew weighting is *right*, not merely closer — and with heavy censori
 PILFs and an at-site skew above the HWN floor, is where the one remaining residual lives, and
 it is the oracle for `detrat`.
 
-- [ ] **Port `var_mom` and the routines it needs.** ~1,100 lines of Fortran in `emafit.f`
+- [x] **Port `var_mom` and the routines it needs.** ~1,100 lines of Fortran in `emafit.f`
       alone, plus `CHOL33` (`probfun.f`), `DLGINV` (`imslfake.f`), and `expmomderiv`, `m2mn`,
       `m2p`, `fp_tnc_icdf` which live outside `emafit.f`. The tree:
 
@@ -409,14 +411,11 @@ it is the oracle for `detrat`.
       interval, which is what makes this tractable at all (Cains Coulee: 11 intervals, 1 group).
       Not revisited further this session; worth a look if the suite grows past this budget.
 
-- [ ] **Confidence-interval shape.** `compute_confidence_limits()` forms `log_Q ± z·se`,
-      symmetric by construction (ratio 1.000 at every AEP). peakfq skews right with return
-      period — 1.03 → 1.31 → 1.41 at AEP 0.1 / 0.02 / 0.01. **Shape, not size**: total width
-      is within ~2% and point estimates within 0.5%, so the variance magnitude is essentially
-      right and `var_mom`'s output is not the suspect — its absence is.
+- [x] **Confidence-interval shape — done.** `compute_confidence_limits()` used to form
+      `log_Q ± z·se`, symmetric by construction (ratio 1.000 at every AEP), where peakfq skews
+      right with return period — 1.03 → 1.31 → 1.41 at AEP 0.1 / 0.02 / 0.01 on Big Sandy.
 
-      The formula is no longer a mystery. `ci_ema_m3b` (`emafit.f:1853`) is short and fully
-      readable:
+      `ci_ema_m3b` (`emafit.f:1853`) itself is short:
 
       ```
       beta1     = cov(yp, syp) / var(yp)            # regression of the s.e. on the quantile
@@ -424,18 +423,70 @@ it is the oracle for `detrat`.
       nu        = max(5, 0.5 * var(yp)/var_xsi_d)   # Student t degrees of freedom
       t         = t_nu((1 + eps)/2)
       ci_high   = yp + sqrt(var(yp)) *  t / max(0.5, 1 - beta1*t)
-      ci_low    = yp + sqrt(var(yp)) * -t / max(0.5, 1 + beta1*t)
+      t         = -t
+      ci_low    = yp + sqrt(var(yp)) *  t / max(0.5, 1 - beta1*t)   # same denominator formula
       ```
 
-      The whole asymmetry is the `1 - beta1*t` denominator: it shrinks on the high side and
-      grows on the low side. Implementing this is an afternoon. Getting `beta1` is not —
-      `cov(yp, syp)` comes from `VAR_EMAB`, hence from `var_mom`. Implementing `ci_ema_m3b`
-      alone with `beta1 = 0` reproduces exactly today's symmetric interval, so there is no
-      partial credit available here: the port comes first.
+      Both lines use the *same* `1 - beta1*t` denominator formula -- the whole asymmetry comes
+      from `t` being reassigned to `-t` before the second line, not from a different formula for
+      the two sides. Easy to mistranscribe as `1 + beta1*t` for `ci_low` (this session did,
+      once, before checking the exact source text): that version gives a plausible-looking but
+      wrong answer -- point estimates matched the Fortran exactly, and the interval was still
+      asymmetric, just by the wrong amount, which is a harder bug to notice than an outright
+      crash.
 
-      The pseudo effective record length (`as_G_PRL_o`, 54.373 for Big Sandy) is
-      `eff_n * as_G_mse_Syst / as_G_mse` (`emafit.f:758`) — two more `mseg_all` calls, so it
-      is blocked on the same port.
+      What made this a small port after all: `beta1` needs `cov(yp, syp)` from `VAR_EMAB`
+      (`emafit.f:1972`), and `VAR_EMAB` needs `regmoms` (`emafit.f:2173`) and `GRIDMAKE`
+      (`emafit.f:2039`) -- but `regmoms` is `var_mom` (Phase 2) → `m2mn` (Phase 1) → `mn2mvarb`
+      (Phase 3) plus regional-info blending arithmetic, and `GRIDMAKE` is exactly
+      `hydrolib._mse_ema`'s existing `_gridmake`/`_covw` (already Fortran-verified indirectly,
+      through `mc2mnvb`, which is `GRIDMAKE + M2MN + COVW` composed). The only routine with no
+      existing counterpart was `VAR_EMAB` itself -- a nested quadrature (one 8-point grid around
+      the fit, then a fresh `regmoms`/grid pair *at each of those 8 points*, to capture how the
+      quantile and its own standard error co-vary) -- and `ci_ema_m3b`, the short formula above.
+      New module: `hydrolib/_var_emab.py`.
+
+      **Call convention, worth recording since it cost real time to pin down**: `VAR_EMAB`'s own
+      probability argument is *non-exceedance* probability (`q_p3` uses `ndtri(q)` directly), so
+      callers pass `pq = 1 - aep`, not `aep` itself -- passing `aep` directly gives a plausible
+      but backwards-ordered `yp` array. And `regmoms`/`VAR_EMAB`'s two Fortran signatures use
+      *different* argument orders for `(r_G_mse, r_M_mse, r_S2, r_S2_mse)`; mixing them up (this
+      session did, once) silently sends the real regional-skew MSE into the wrong slot and
+      produces a materially narrower, less-asymmetric interval that still looks plausible enough
+      to not obviously be wrong.
+
+      **A fourth instance of the `SAVE`d-state leak already documented for `mseg_all_sub`**: a
+      direct call to the raw `var_emab`/`regmoms` Fortran oracle drifts ~2e-3 relative once other
+      tests earlier in the same process have exercised `emafitpr`/MGBT/`detrat`, even though it
+      matches exactly when called first in a clean process. `TestVarEmabPort` (`tests/fortran_parity
+      /test_fortran_oracles.py`) checks against the committed golden file only, never a live
+      oracle call, for exactly this reason.
+
+      **Verified end to end, not just at the oracle level.** Big Sandy's own confidence bounds
+      now match peakfq 8.1.0 within **0.06%** at every AEP tested (was symmetric by construction);
+      the asymmetry ratio itself matches within 0.0007–0.0022 (was off by as much as 0.4 in ratio
+      terms at the tail). Two `xfail(strict=True)` rungs in
+      `tests/fortran_parity/test_native_vs_golden.py::TestRung6ConfidenceIntervals` flipped and
+      were un-xfailed; a third assertion pinning the old symmetric behavior was rewritten into a
+      positive check of the new one (`test_native_bounds_match_peakfq_closely`). Cains Coulee
+      inherits its usual larger residual here too (`skew_weighted`'s own 0.058-skew-unit gap,
+      the one item this whole port still leaves open — see the table above).
+
+      **Cost, measured**: full suite ~76 s → ~93 s. `var_emab` is nine `regmoms` calls per
+      confidence-limit computation (one outer + eight inner grid points, each a full
+      `var_mom`/`mn2mvarb` solve) -- the single most expensive piece in the whole `var_mom` port,
+      more than `mse_ema`'s own ~0.3–0.4 s. `ExpectedMomentsAlgorithm._cohn_confidence_bounds`
+      is `@lru_cache`d the same way `_adje_bias_adjustment`/`_detrat_wd` are, so repeated fits of
+      the same fixture (common across this test suite) pay it once. Falls back to the base
+      class's symmetric formula, logged, if `var_emab` raises for any reason -- `MethodOfMoments`
+      is untouched (it has no `_perception_threshold_groups`, and this whole item was always
+      about the EMA path).
+
+      **Not done, separately**: the pseudo effective record length (`as_G_PRL_o`, 54.373 for Big
+      Sandy) is `eff_n * as_G_mse_Syst / as_G_mse` (`emafit.f:758`) -- a diagnostic value peakfq
+      reports that hydrolib does not currently surface anywhere in `FrequencyResults`. Not needed
+      for the confidence bounds themselves (`VAR_EMAB` never asks for it), so it was out of scope
+      here; a small, separate follow-up if that diagnostic is ever wanted.
 
 ### Follow-ups found while clearing P1 and P2
 

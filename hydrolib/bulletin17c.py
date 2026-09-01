@@ -1387,6 +1387,87 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
 
         return self._results
 
+    @staticmethod
+    @lru_cache(maxsize=512)
+    def _cohn_confidence_bounds(
+        nobs: Tuple[float, ...],
+        tl: Tuple[float, ...],
+        tu: Tuple[float, ...],
+        mean_log: float,
+        var_log: float,
+        skew: float,
+        pq: Tuple[float, ...],
+        eps: float,
+        r_g_mse: float,
+    ) -> Tuple[np.ndarray, np.ndarray]:
+        """``(ci_low, ci_high)`` in log10 space from ``hydrolib._var_emab.var_emab``.
+
+        ``@lru_cache`` for the same reason ``_adje_bias_adjustment``/
+        ``_detrat_wd`` have one -- this is the most expensive piece in the
+        whole ``var_mom`` port (nine ``regmoms`` calls, each a full
+        ``var_mom``/``mn2mvarb`` solve) and repeated fits of the same
+        fixture are common.
+        """
+        from hydrolib._var_emab import var_emab
+
+        mc = np.array([mean_log, var_log, skew])
+        _, _, cil, cih, _ = var_emab(
+            np.array(nobs), np.array(tl), np.array(tu), mc, np.array(pq), eps, r_g_mse=r_g_mse
+        )
+        return cil, cih
+
+    def compute_confidence_limits(
+        self, aep: np.ndarray = None, confidence: float = 0.90
+    ) -> pd.DataFrame:
+        """Confidence limits, preferring Cohn's asymmetric CI shape over the base class's.
+
+        ``FloodFrequencyAnalysis.compute_confidence_limits`` forms
+        ``log_Q +/- z*se``, symmetric by construction (TODO.md P3's
+        confidence-interval-shape defect). ``hydrolib._var_emab.var_emab``
+        (``emafit.f``'s ``VAR_EMAB``/``regmoms``/``ci_ema_m3b``) reproduces
+        peakfq 8.1.0's own asymmetric bounds instead, verified against the
+        Fortran oracle to ~1e-5 relative on Big Sandy and Powder River (see
+        ``tests/fortran_parity/test_fortran_oracles.py::TestVarEmabPort``).
+        Falls back to the symmetric formula -- the same posture
+        ``_adje_skew_mse``/``_regional_skew_equivalent_years`` already take
+        on their own ADJE/``detrat`` calls -- if ``var_emab`` raises for any
+        reason, rather than let an ancillary correction fail the whole
+        analysis.
+        """
+        base = super().compute_confidence_limits(aep, confidence)
+        if aep is None:
+            aep = self.STANDARD_AEP
+
+        from hydrolib._var_emab import NO_REGIONAL_INFO
+
+        nobs, tl, tu = self._perception_threshold_groups()
+        r_g_mse = (
+            self._regional_skew_mse if self._regional_skew_mse is not None else NO_REGIONAL_INFO
+        )
+        pq = 1.0 - np.asarray(aep, dtype=float)
+        try:
+            cil, cih = self._cohn_confidence_bounds(
+                tuple(nobs),
+                tuple(tl),
+                tuple(tu),
+                float(self._results.mean_log),
+                float(self._results.std_log) ** 2,
+                float(self._results.skew_used),
+                tuple(pq),
+                float(confidence),
+                float(r_g_mse),
+            )
+        except Exception:
+            logger.warning(
+                "Cohn asymmetric CI shape (var_emab) failed; using the symmetric approximation",
+                exc_info=True,
+            )
+            return base
+
+        base["lower_5pct"] = 10.0**cil
+        base["upper_5pct"] = 10.0**cih
+        return base
+
     @property
     def intervals(self) -> List[FlowInterval]:
         return self._intervals.copy()

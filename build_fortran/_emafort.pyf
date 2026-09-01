@@ -355,5 +355,75 @@ python module _emafort
         ! function; detratsub (already exposed above, Phase 1) is the
         ! subroutine wrapper peakfqr's own R code calls, reused here
         ! rather than wrapping the function a second time.
+
+        ! --------------------------------------------------------------- !
+        ! VAR_EMAB/regmoms/ci_ema_m3b: the confidence-interval shape fix, !
+        ! TODO.md P3's last open item. Cohn's inverse-Gaussian-quadrature !
+        ! method -- GRIDMAKE and COVW are not bound separately here,     !
+        ! since MC2MNVB (already exposed above) is exactly GRIDMAKE +    !
+        ! M2MN + COVW composed (emafit.f:2594), so its existing oracle   !
+        ! tests already verify both indirectly.                         !
+        ! --------------------------------------------------------------- !
+
+        ! Covariance of the fitted central moments (mean, variance, skew),
+        ! blended with regional information if supplied. hydrolib only
+        ! ever supplies regional skew (r_M_mse/r_S2_mse >= 1e10, the
+        ! "station-only" sentinel, disable the mean/variance blends this
+        ! repository has no regional inputs for).
+        subroutine regmoms(nthresh,nobs,tl_in,tu_in,mc_in,r_g_mse,r_m_mse,r_s2,r_s2_mse,s_mc)
+            integer, intent(in) :: nthresh
+            double precision, dimension(nthresh), intent(in) :: nobs
+            double precision, dimension(nthresh), intent(in), depend(nthresh) :: tl_in
+            double precision, dimension(nthresh), intent(in), depend(nthresh) :: tu_in
+            double precision, dimension(3), intent(in) :: mc_in
+            double precision, intent(in) :: r_g_mse
+            double precision, intent(in) :: r_m_mse
+            double precision, intent(in) :: r_s2
+            double precision, intent(in) :: r_s2_mse
+            double precision, dimension(3,3), intent(out) :: s_mc
+        end subroutine regmoms
+
+        ! Quantile point estimates (yp), their 2x2 covariance with their
+        ! own standard error (cv_yp_syp -- what ci_ema_m3b needs for the
+        ! asymmetric bound), and the resulting confidence limits
+        ! themselves. Note the argument order: (r_S2, r_M_mse, r_S2_mse,
+        ! r_G_mse) here, not regmoms's (r_G_mse, r_M_mse, r_S2, r_S2_mse)
+        ! -- emafit.f's own two signatures disagree, and VAR_EMAB
+        ! reorders when it calls REGMOMS internally (emafit.f:2010-2011).
+        subroutine var_emab(nth,nobs,tl,tu,mc,pq,nq,eps,r_s2,r_m_mse,r_s2_mse,r_g_mse, &
+                             yp,cv_yp_syp,cil,cih,nu)
+            integer, intent(in) :: nth
+            double precision, dimension(nth), intent(in) :: nobs
+            double precision, dimension(nth), intent(in), depend(nth) :: tl
+            double precision, dimension(nth), intent(in), depend(nth) :: tu
+            double precision, dimension(3), intent(in) :: mc
+            integer, intent(in) :: nq
+            double precision, dimension(nq), intent(in) :: pq
+            double precision, intent(in) :: eps
+            double precision, intent(in) :: r_s2
+            double precision, intent(in) :: r_m_mse
+            double precision, intent(in) :: r_s2_mse
+            double precision, intent(in) :: r_g_mse
+            double precision, dimension(nq), intent(out), depend(nq) :: yp
+            double precision, dimension(2,2,nq), intent(out), depend(nq) :: cv_yp_syp
+            double precision, dimension(nq), intent(out), depend(nq) :: cil
+            double precision, dimension(nq), intent(out), depend(nq) :: cih
+            double precision, dimension(nq), intent(out), depend(nq) :: nu
+        end subroutine var_emab
+
+        ! The asymmetric Student-t confidence bound itself, given a
+        ! quantile estimate and its 2x2 covariance with its own SE --
+        ! the piece that actually breaks compute_confidence_limits()'s
+        ! symmetric log_Q +/- z*se shape. Note: the Fortran clobbers its
+        ! own "nu" output with var(yp) (cv_yp_syp(1,1)) right before
+        ! returning -- not a typo caught here, transcribed faithfully.
+        subroutine ci_ema_m3b(yp,cv_yp_syp,eps,ci_low,ci_high,nu)
+            double precision, intent(in) :: yp
+            double precision, dimension(2,2), intent(in) :: cv_yp_syp
+            double precision, intent(in) :: eps
+            double precision, intent(out) :: ci_low
+            double precision, intent(out) :: ci_high
+            double precision, intent(out) :: nu
+        end subroutine ci_ema_m3b
     end interface
 end python module _emafort
