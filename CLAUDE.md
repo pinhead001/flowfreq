@@ -43,10 +43,12 @@ app/                 Streamlit application (lint + import smoke test in CI)
 ```bash
 pip install -e ".[dev]"
 
-# Full suite. ~15 s. It was ~75 s until _mgbt_pvalue was memoized: the MGBT
-# three-sweep runs scipy.integrate.quad per candidate, ~85 ms each, and the
-# suite refits the same fixtures repeatedly. A single cold run_analysis() still
-# costs about two seconds.
+# Full suite. ~90-95 s. It was ~15 s until the confidence-interval shape fix
+# (hydrolib._var_emab.var_emab, TODO.md P3): nine regmoms calls per analysis,
+# each a full var_mom/mn2mvarb solve. @lru_cache'd like the rest of this
+# port's expensive pieces, so repeated fits of the same fixture are cheap,
+# but the first fit of any given fixture still pays it. A single cold
+# run_analysis() with a regional skew supplied costs a few seconds.
 pytest tests/ -v
 
 # What CI actually runs -- the same thing. The marker selection lives in
@@ -118,18 +120,23 @@ black hydrolib/ tests/ && isort hydrolib/ tests/
 ## Validation Status
 
 `tests/fortran_parity/` compares the native EMA against committed golden files generated from
-peakfq 8.1.0. Two rungs are `xfail(strict=True)` — real, understood defects:
+peakfq 8.1.0. The `var_mom` port (TODO.md P3) is complete — ADJE's censoring bias adjustment,
+`detrat` (the Halloween determinant ratio), the at-site EMA moment iteration on censored
+intervals, and the confidence-interval shape (`hydrolib._var_emab.var_emab`, Cohn's
+inverse-Gaussian-quadrature method) are all ported and wired into `Bulletin17C`. On the parity
+sites this reproduces peakfq 8.1.0 to within measurement noise: weighted skew to 2.4e-6 on Big
+Sandy, confidence bounds within 0.06% at every AEP tested, asymmetry ratio within
+0.0007-0.0022 of peakfq's own.
 
-| defect | native | Fortran |
-|---|---:|---:|
-| weighted skew (HWN vs standard B17C) | −0.1009 | −0.1563 |
-| CI asymmetry at Q100 | 1.000 | 1.408 |
-
-The confidence-interval defect is **shape, not size**: total interval width is within ~2% and
-the point estimates within 0.5%, but `compute_confidence_limits()` forms `log_Q ± z·se`, which
-is symmetric by construction, while the Fortran skews right with return period via the Inverse
-Modified Cholesky Gaussian Quadrature and a Pseudo Effective Record Length (`as_G_PRL_o`,
-54.373 for Big Sandy). Neither is implemented here.
+One `xfail(strict=True)` remains, on Cains Coulee's `skew_weighted` (off by 0.058 skew units).
+It is **not** a `var_mom`/`mse_ema` precision limit — that was checked directly and ruled out
+(`mse_ema` matches the Fortran oracle to 3e-8 relative at this site's real input). The actual
+gap: `emafitpr`'s own internally-computed `as_G_mse` for this one site disagrees with what
+calling the same `mseg_all` Fortran routine gives standalone on identical inputs, by roughly
+3x, for a reason not pinned down despite investigation (see
+`tests/fortran_parity/test_fortran_oracles.py::TestCainsCouleeAsGMseDiscrepancy` and TODO.md
+P3 for the full account). hydrolib's own computation may be more correct here than the golden
+reference, not less — there is no known defect to fix.
 
 MGBT is the one part verified line-by-line against the Fortran (`GGBCRITP` / `FP_TNC_CDF`),
 validated on Orestimba Creek (USGS 11274500, B17C Appendix 10).

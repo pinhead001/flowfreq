@@ -686,7 +686,7 @@ class USGSgage:
                     try:
                         parts = line.split(":")[-1].strip()
                         self._drainage_area = float(parts.split()[0])
-                    except:
+                    except (ValueError, IndexError):
                         pass
                 if "STATION NAME" in line.upper():
                     self._site_name = line.split(":")[-1].strip()

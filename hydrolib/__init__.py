@@ -11,6 +11,8 @@ Includes:
 - Technical report generation
 """
 
+import logging
+
 from .bulletin17c import (
     Bulletin17C,
     ExpectedMomentsAlgorithm,
@@ -55,6 +57,8 @@ from .usgs import (
 # Alias for backwards compatibility
 USGSGage = USGSgage
 
+logger = logging.getLogger(__name__)
+
 
 def analyze_gage(
     site_no: str,
@@ -86,20 +90,20 @@ def analyze_gage(
 
     os.makedirs(output_dir, exist_ok=True)
 
-    print(f"Downloading data for USGS {site_no}...")
+    logger.info("Downloading data for USGS %s...", site_no)
     gage = USGSgage(site_no)
 
     try:
         gage.download_daily_flow()
-        print(f"  Downloaded {len(gage.daily_data)} days of daily flow data")
+        logger.info("Downloaded %d days of daily flow data", len(gage.daily_data))
     except Exception as e:
-        print(f"  Warning: Could not download daily flow data: {e}")
+        logger.warning("Could not download daily flow data: %s", e)
 
     gage.download_peak_flow()
-    print(f"  Downloaded {len(gage.peak_data)} annual peak flow records")
-    print(f"  Site name: {gage.site_name}")
+    logger.info("Downloaded %d annual peak flow records", len(gage.peak_data))
+    logger.info("Site name: %s", gage.site_name)
 
-    print(f"\nRunning Bulletin 17C analysis (method={method.upper()})...")
+    logger.info("Running Bulletin 17C analysis (method=%s)...", method.upper())
 
     water_years = gage.peak_data["water_year"].values
 
@@ -113,22 +117,22 @@ def analyze_gage(
 
     results = analysis.run_analysis(method=method)
 
-    print(f"  Station skew: {results.skew_station:.4f}")
+    logger.info("Station skew: %.4f", results.skew_station)
     if results.skew_weighted is not None:
-        print(f"  Weighted skew: {results.skew_weighted:.4f}")
-    print(f"  Low outlier threshold: {results.low_outlier_threshold:,.0f} cfs")
+        logger.info("Weighted skew: %.4f", results.skew_weighted)
+    logger.info("Low outlier threshold: %s cfs", f"{results.low_outlier_threshold:,.0f}")
 
     if results.method == AnalysisMethod.EMA:
-        print(f"  EMA iterations: {results.ema_iterations}")
-        print(f"  EMA converged: {results.ema_converged}")
+        logger.info("EMA iterations: %s", results.ema_iterations)
+        logger.info("EMA converged: %s", results.ema_converged)
 
-    print("\nGenerating report and figures...")
+    logger.info("Generating report and figures...")
     report = HydroReport(gage, analysis)
     figures = report.generate_all_figures(output_dir)
 
     report_path = os.path.join(output_dir, "flood_frequency_report.md")
     report.save_report(report_path)
-    print(f"  Report saved to: {report_path}")
+    logger.info("Report saved to: %s", report_path)
 
     return {
         "gage": gage,
