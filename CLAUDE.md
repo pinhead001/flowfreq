@@ -43,7 +43,7 @@ app/                 Streamlit application (lint + import smoke test in CI)
 ```bash
 pip install -e ".[dev]"
 
-# Full suite. ~90-95 s. It was ~15 s until the confidence-interval shape fix
+# Full suite. ~95-100 s. It was ~15 s until the confidence-interval shape fix
 # (hydrolib._var_emab.var_emab, TODO.md P3): nine regmoms calls per analysis,
 # each a full var_mom/mn2mvarb solve. @lru_cache'd like the rest of this
 # port's expensive pieces, so repeated fits of the same fixture are cheap,

@@ -8,12 +8,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Native Python port of `var_mom` and its dependency tree (`mn2mvarb`/`mse_ema`, `detrat`,
+  `VAR_EMAB`/`regmoms`/`ci_ema_m3b`), verified routine-by-routine against the vendored
+  peakfq 8.1.0 Fortran. See TODO.md's P3 section for the full account.
+- `MethodOfMoments` now applies the Bulletin 17B conditional-probability adjustment: a
+  low-outlier (PILF) threshold — Grubbs-Beck or user-supplied — censors the fit instead of
+  only being reported.
 
 ### Changed
+- `ExpectedMomentsAlgorithm` confidence intervals are now Cohn's asymmetric bounds
+  (`hydrolib._var_emab.var_emab`) instead of the symmetric `log_Q ± z*se` approximation.
+- `ExpectedMomentsAlgorithm`'s at-site EMA moment iteration on censored intervals now uses
+  the Fortran-verified truncated-moment code (`hydrolib._p3_moments.m_p3`) and the correct
+  bias-correction sample size, closing a real accuracy gap on any record with censored
+  intervals (Big Sandy's historical gap years included, not just MGBT-flagged PILFs).
+- Regional skew weighting now includes ADJE's censoring bias adjustment and the Halloween
+  determinant ratio (`detrat`), matching peakfq's default `at_site_option`.
 
 ### Fixed
+- `hydrolib/peakfqsa/` (a subprocess wrapper around a PeakfqSA binary that does not exist)
+  removed; it was mock-tested only. `hydrolib/validation/reference.py` covers what it
+  contributed, pointed at references that actually exist.
+- Bare `except:` in `usgs.py` narrowed to the actual failure modes.
+- `analyze_gage()` no longer prints unconditionally to stdout; uses `logging` like the rest
+  of the library.
 
 ### Removed
+- `hydrolib/peakfqsa/` and its mock-only test suite (see Fixed, above).
 
 ---
 
