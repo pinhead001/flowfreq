@@ -25,31 +25,23 @@ DISPLAY_AEP = [1 / ri for ri in DISPLAY_RETURN_INTERVALS]
 # = [0.667, 0.50, 0.20, 0.10, 0.04, 0.02, 0.01, 0.005, 0.002]
 
 
-def _low_outlier_source(override: Optional[float], method: str) -> str:
+def _low_outlier_source(override: Optional[float]) -> str:
     """Describe where the reported PILF threshold came from.
 
     Parameters
     ----------
     override : float or None
         The user's requested threshold, if any.
-    method : str
-        The method that actually produced the fit, ``"ema"`` or ``"mom"``.
 
     Returns
     -------
     str
-        ``"MGBT"``, ``"override"``, or a phrase saying the override is
-        reported but was not acted on.
+        ``"MGBT"`` or ``"override"``. Both EMA and MOM censor on a supplied
+        threshold now, so the label needs no method-specific caveat.
     """
     if override is None:
         return "MGBT"
-    if method == "ema":
-        return "override"
-    # MOM now reports the user's threshold rather than substituting a
-    # Grubbs-Beck value they did not ask for, so the number on screen is
-    # theirs -- but MOM computes its moments from every peak, so the fit did
-    # not act on it. Say both, or the label contradicts the number beside it.
-    return "override (reported only: MOM does not censor)"
+    return "override"
 
 
 def run_ffa(
@@ -166,17 +158,11 @@ def run_ffa(
                     "regional_skew": regional_skew,
                     # The low-outlier cut and where it came from. Without these
                     # the UI could offer the override but never show its effect.
-                    #
-                    # The source is derived from what actually happened, not
-                    # from what was asked for. Only the EMA path censors on a
-                    # user threshold: MethodOfMoments reports a Grubbs-Beck
-                    # value and does not censor at all, so on the MOM fallback
-                    # below an override is silently dropped. Saying "override"
-                    # there would put a number on screen that had no effect on
-                    # the fit.
+                    # Both EMA and MOM censor on it now, so the source is just
+                    # whether it came from MGBT or the user.
                     "low_outlier_threshold": r.low_outlier_threshold,
                     "n_low_outliers": r.n_low_outliers,
-                    "low_outlier_source": _low_outlier_source(lo_override, method),
+                    "low_outlier_source": _low_outlier_source(lo_override),
                 },
                 "quantile_df": quantile_df,
             }

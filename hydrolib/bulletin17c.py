@@ -474,17 +474,20 @@ class MethodOfMoments(FloodFrequencyAnalysis):
 
     Notes
     -----
-    Low outliers are **detected and reported, not censored**. The moments are
-    computed from every peak regardless of the threshold. Censoring them
-    properly needs the Bulletin 17B conditional-probability adjustment, which
-    is not implemented here; :class:`ExpectedMomentsAlgorithm` is the method
-    that acts on a low-outlier threshold.
+    Low outliers (PILFs, "potentially influential low floods") are censored
+    with the Bulletin 17B conditional-probability adjustment (§4.2.9-4.2.10):
+    peaks below the threshold are dropped from the moments, and the fitted
+    curve is evaluated at an adjusted exceedance probability
+    ``Pc = P * n / n_conditional`` so the omitted low peaks still count
+    toward the record length. See ``compute_quantiles`` /
+    ``compute_confidence_limits`` for the probability adjustment and
+    ``_conditional_aep`` for what happens when ``Pc`` would exceed 1 (no
+    conditional-distribution answer exists for AEPs at or below the
+    threshold itself).
 
-    That matters when a user supplies one. Passing
-    ``user_low_outlier_threshold`` makes this class *report* their cut instead
-    of its own Grubbs-Beck value, so the number on screen is the one they
-    asked for, and logs a warning saying the fit did not act on it. It used
-    not to be passed down at all, so an override was dropped in silence.
+    The threshold is Grubbs-Beck by default, or ``user_low_outlier_threshold``
+    when supplied -- that override now actually censors the fit, not just the
+    number reported alongside it.
     """
 
     def __init__(
@@ -502,33 +505,57 @@ class MethodOfMoments(FloodFrequencyAnalysis):
         log_flows = self.log_flows
         n = self.n
 
-        mean_log = np.mean(log_flows)
-        std_log = np.std(log_flows, ddof=1)
-
-        skew_station = n * np.sum((log_flows - mean_log) ** 3) / ((n - 1) * (n - 2) * std_log**3)
-        skew_station = float(np.clip(skew_station, -MAX_ABS_SKEW, MAX_ABS_SKEW))
-
-        skew_weighted, skew_used_mse = self._compute_skew_weighting(skew_station)
-        skew_used = skew_weighted if skew_weighted is not None else skew_station
-
+        # The Grubbs-Beck threshold is a property of the full sample: compute
+        # it from all-peak moments before any censoring.
+        mean_log_all = np.mean(log_flows)
+        std_log_all = np.std(log_flows, ddof=1)
         k_n = grubbs_beck_critical_value(n)
-        threshold_log = mean_log - k_n * std_log
+        threshold_log = mean_log_all - k_n * std_log_all
         low_outlier_threshold = 10**threshold_log
         if self._user_low_outlier_threshold and self._user_low_outlier_threshold > 0:
             low_outlier_threshold = float(self._user_low_outlier_threshold)
-            logger.warning(
-                "Method of Moments reports the requested low-outlier threshold of "
-                "%.1f but does not censor against it: MOM computes its moments from "
-                "every peak. Use the EMA method for a fit that acts on the threshold.",
-                low_outlier_threshold,
+
+        is_pilf = self._peak_flows < low_outlier_threshold
+        n_low_outliers = int(np.sum(is_pilf))
+        n_conditional = n - n_low_outliers
+
+        if n_conditional < 3:
+            raise ValueError(
+                f"Only {n_conditional} peak(s) remain above the low-outlier threshold of "
+                f"{low_outlier_threshold:.1f} cfs; Method of Moments needs at least 3 to fit "
+                "a skew. Lower the threshold."
             )
-        n_low_outliers = int(np.sum(self._peak_flows < low_outlier_threshold))
+
+        if self._user_low_outlier_threshold and self._user_low_outlier_threshold > 0:
+            logger.info(
+                "Method of Moments censors %d peak(s) below the requested low-outlier "
+                "threshold of %.1f cfs; moments are computed from the remaining %d peak(s).",
+                n_low_outliers,
+                low_outlier_threshold,
+                n_conditional,
+            )
+
+        conditional_log_flows = log_flows[~is_pilf]
+        mean_log = np.mean(conditional_log_flows)
+        std_log = np.std(conditional_log_flows, ddof=1)
+
+        skew_station = (
+            n_conditional
+            * np.sum((conditional_log_flows - mean_log) ** 3)
+            / ((n_conditional - 1) * (n_conditional - 2) * std_log**3)
+        )
+        skew_station = float(np.clip(skew_station, -MAX_ABS_SKEW, MAX_ABS_SKEW))
+
+        skew_weighted, skew_used_mse = self._compute_skew_weighting(
+            skew_station, n_effective=n_conditional
+        )
+        skew_used = skew_weighted if skew_weighted is not None else skew_station
 
         self._results = FrequencyResults(
             n_peaks=n,
-            n_systematic=n,
+            n_systematic=n_conditional,
             n_historical=0,
-            n_censored=0,
+            n_censored=n_low_outliers,
             n_low_outliers=n_low_outliers,
             mean_log=mean_log,
             std_log=std_log,
@@ -546,6 +573,75 @@ class MethodOfMoments(FloodFrequencyAnalysis):
         self._results.confidence_limits = self.compute_confidence_limits()
 
         return self._results
+
+    def _conditional_aep(self, aep: np.ndarray) -> np.ndarray:
+        """Bulletin 17B conditional-probability adjustment (§4.2.9-4.2.10).
+
+        Low outliers are excluded from the fitted moments, so the target
+        exceedance probability must be conditioned on exceeding the
+        threshold: ``Pc = P * n / n_conditional``. An AEP whose ``Pc`` would
+        reach or exceed 1 asks for a return period at or below the
+        low-outlier threshold itself -- the conditional distribution has no
+        answer there, so it comes back as NaN.
+        """
+        n = self._results.n_peaks
+        n_conditional = self._results.n_systematic
+        aep = np.asarray(aep, dtype=float)
+        if n_conditional == n:
+            return aep
+
+        pc = aep * n / n_conditional
+        n_undefined = int(np.sum(pc >= 1.0))
+        if n_undefined:
+            logger.warning(
+                "%d of %d requested AEP value(s) fall at or below the censored low-outlier "
+                "threshold's conditional probability (n=%d, n_conditional=%d); no conditional "
+                "quantile exists for them, returning NaN.",
+                n_undefined,
+                pc.size,
+                n,
+                n_conditional,
+            )
+        return np.where(pc < 1.0, pc, np.nan)
+
+    def compute_quantiles(self, aep: np.ndarray = None) -> pd.DataFrame:
+        """Compute flood frequency quantiles at the conditional probability.
+
+        See `_conditional_aep`: when low outliers are censored, the K-factor
+        is evaluated at ``Pc`` rather than the requested AEP directly.
+        """
+        if self._results is None:
+            self.run_analysis()
+
+        if aep is None:
+            aep = self.STANDARD_AEP
+        aep = np.asarray(aep, dtype=float)
+        pc = self._conditional_aep(aep)
+
+        K = kfactor_array(self._results.skew_used, pc)
+        log_Q = self._results.mean_log + K * self._results.std_log
+        Q = 10**log_Q
+
+        return pd.DataFrame(
+            {"aep": aep, "return_period": 1 / aep, "flow_cfs": Q, "log_flow": log_Q, "K_factor": K}
+        )
+
+    def compute_confidence_limits(
+        self, aep: np.ndarray = None, confidence: float = 0.90
+    ) -> pd.DataFrame:
+        """Compute confidence limits at the same conditional probability as `compute_quantiles`."""
+        if self._results is None:
+            self.run_analysis()
+
+        if aep is None:
+            aep = self.STANDARD_AEP
+        aep = np.asarray(aep, dtype=float)
+        pc = self._conditional_aep(aep)
+
+        limits = super().compute_confidence_limits(pc, confidence)
+        limits["aep"] = aep
+        limits["return_period"] = 1 / aep
+        return limits
 
 
 class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):

@@ -584,18 +584,19 @@ class TestB17BSkewMse:
 
 
 class TestMomUserLowOutlierThreshold:
-    """MOM used to drop a user PILF threshold silently.
+    """MOM used to drop a user PILF threshold silently, and never censored on it.
 
     Bulletin17C.run_analysis did not pass user_low_outlier_threshold down the
     MOM path at all, so a user who set one and got a MOM fit -- which is what
     happens when EMA does not converge and app.ffa_runner falls back -- saw a
     Grubbs-Beck value they had not asked for, with no indication their setting
-    had been ignored.
+    had been ignored. MOM also computed its moments from every peak regardless
+    of the threshold.
 
-    MOM still does not *censor*: doing that needs the Bulletin 17B
-    conditional-probability adjustment, which is not implemented. What changed
-    is that the number reported is now the one the user asked for, and the
-    limitation is stated out loud instead of being invisible.
+    Both are fixed: the override is passed down, and MOM now applies the
+    Bulletin 17B conditional-probability adjustment -- peaks below the
+    threshold are dropped from the moments, and quantiles are evaluated at an
+    adjusted exceedance probability that accounts for the omitted peaks.
     """
 
     FLOWS = np.array(
@@ -652,19 +653,68 @@ class TestMomUserLowOutlierThreshold:
     def test_override_changes_the_reported_pilf_count(self):
         assert self._run(override=4000.0).n_low_outliers > self._run().n_low_outliers
 
-    def test_override_warns_that_mom_does_not_censor(self, caplog):
-        """Silent is the failure mode being fixed; the warning is the fix."""
-        with caplog.at_level(logging.WARNING, logger="hydrolib.bulletin17c"):
+    def test_override_logs_that_mom_censors(self, caplog):
+        """The fit now acts on the override; say so."""
+        with caplog.at_level(logging.INFO, logger="hydrolib.bulletin17c"):
             self._run(override=4000.0)
-        assert any("does not censor" in r.message for r in caplog.records)
+        assert any("censors" in r.message for r in caplog.records)
 
-    def test_moments_are_unchanged_by_the_override(self):
-        """Reporting only. If this ever stops holding, MOM has started censoring."""
+    def test_moments_shift_with_the_override(self):
+        """The conditional-probability adjustment means the override changes the fit."""
         base, forced = self._run(), self._run(override=4000.0)
-        assert forced.mean_log == pytest.approx(base.mean_log)
-        assert forced.std_log == pytest.approx(base.std_log)
+        assert forced.mean_log != pytest.approx(base.mean_log)
+        assert forced.std_log != pytest.approx(base.std_log)
+        assert forced.n_systematic == len(self.FLOWS) - forced.n_low_outliers
 
     def test_zero_and_none_both_mean_grubbs_beck(self):
         assert self._run(override=0.0).low_outlier_threshold == pytest.approx(
             self._run().low_outlier_threshold
         )
+
+    def test_conditional_moments_come_from_the_censored_sample_only(self):
+        """mean_log/std_log/skew_station must match a fit on the surviving peaks alone."""
+        results = self._run(override=4000.0)
+        conditional = np.log10(self.FLOWS[self.FLOWS >= 4000.0])
+        n_c = len(conditional)
+        assert results.n_systematic == n_c
+        assert results.mean_log == pytest.approx(np.mean(conditional))
+        assert results.std_log == pytest.approx(np.std(conditional, ddof=1))
+
+    def test_quantiles_use_the_conditional_probability(self):
+        """Pc = P * n / n_conditional should reproduce the K-factor used at each AEP."""
+        b17c = Bulletin17C(
+            peak_flows=self.FLOWS,
+            water_years=self.YEARS,
+            regional_skew=-0.5,
+            regional_skew_mse=0.3025,
+            user_low_outlier_threshold=4000.0,
+        )
+        b17c.run_analysis(method="mom")
+        results = b17c.results
+        n, n_c = len(self.FLOWS), results.n_systematic
+
+        quantiles = b17c.compute_quantiles(aep=np.array([0.10, 0.02]))
+        for aep, row in zip([0.10, 0.02], quantiles.itertuples()):
+            pc = aep * n / n_c
+            expected_K = kfactor(results.skew_used, pc)
+            assert row.K_factor == pytest.approx(expected_K)
+
+    def test_high_pilf_fraction_yields_nan_for_undefined_aep(self):
+        """An AEP whose conditional probability would exceed 1 has no answer."""
+        results = self._run(override=8000.0)
+        n, n_c = len(self.FLOWS), results.n_systematic
+        assert n_c < n
+        # aep=0.995 will fail the Pc < 1 test whenever n / n_c > ~1.005.
+        quantiles = MethodOfMoments(
+            self.FLOWS,
+            regional_skew=-0.5,
+            regional_skew_mse=0.3025,
+            user_low_outlier_threshold=8000.0,
+        ).compute_quantiles(aep=np.array([0.995]))
+        if 0.995 * n / n_c >= 1.0:
+            assert np.isnan(quantiles["flow_cfs"].iloc[0])
+
+    def test_too_few_conditional_peaks_raises(self):
+        """A threshold that censors nearly everything cannot fit a skew."""
+        with pytest.raises(ValueError):
+            self._run(override=1_000_000.0)

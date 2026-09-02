@@ -1,11 +1,9 @@
 # TODO — HydroLib Hybrid 17C Implementation
 
 ## Status
-Last updated: 2026-09-01
-Tests: **604 passed, 1 skipped, 1 deselected, 5 xfailed** in ~93 s (up from ~76 s -- the new
-confidence-interval machinery, `hydrolib._var_emab.var_emab`, is nine `regmoms` calls per
-analysis, each a full `var_mom`/`mn2mvarb` solve; `@lru_cache`d like the rest of this port's
-expensive pieces, but the first fit of any given fixture still pays it). CI green on main.
+Last updated: 2026-09-02
+Tests: **608 passed, 1 skipped, 1 deselected, 5 xfailed** in ~99 s (up from 604 passed -- four
+new tests for the MOM PILF-censoring fix below). CI green on main.
 Fortran reference: **vendored** at `vendor/peakfqr/` (peakfq 8.1.0, CC0).
 Fortran bridge: builds from those sources via `python build_fortran/build.py`
 (gfortran + meson) and is now **built and checked in CI** by `make parity`.
@@ -590,15 +588,6 @@ done — see the P3 table above and the Done section.)
       today would lose features. The dedupe is: move those two features into
       `hydrolib/freq_plot.py`, then delete the app copy. One peak-flow plotter, tested.
 
-- [ ] **`MethodOfMoments` ignores a user PILF threshold.** `Bulletin17C.run_analysis` does not
-      pass `user_low_outlier_threshold` down the MOM path (`bulletin17c.py:1494`), and MOM
-      does not censor low outliers at all — it computes a Grubbs-Beck value for reporting
-      only. So when EMA fails to converge and `app/ffa_runner.run_ffa` falls back to MOM, the
-      user's override is dropped. `_low_outlier_source()` reports that honestly rather than
-      claiming a threshold that had no effect, but the underlying limitation stands. Doing
-      this properly means censoring plus the conditional-probability adjustment, which is a
-      real piece of B17B, not a one-liner.
-
 - [ ] **`FrequencyComparator` compares every parameter by percent difference.** That is the
       wrong metric for skew, which legitimately crosses zero: Big Sandy's reference at-site
       skew is 0.0066, so an absolute gap of 0.016 read as 249% and dominated `max_diff_pct`.
@@ -656,6 +645,25 @@ done — see the P3 table above and the Done section.)
       Confirmed non-vacuous: a `NameError` in an executed branch turns all 13 tests red. Runs
       in its own `app` job because Streamlit needs Python ≥ 3.10 and the matrix still covers
       3.9.
+
+### Fixed after P1/P2: the MOM PILF threshold gap
+
+- [x] **`MethodOfMoments` now censors on a PILF threshold instead of only reporting it.**
+      Peaks below the threshold (Grubbs-Beck by default, or `user_low_outlier_threshold`) are
+      dropped from the moments, and quantiles/confidence limits are evaluated at the Bulletin
+      17B conditional probability `Pc = P * n / n_conditional` (§4.2.9-4.2.10) rather than the
+      requested AEP directly — the standard treatment for a MOM fit with low outliers. An AEP
+      whose `Pc` would reach or exceed 1 (the requested return period falls at or below the
+      threshold itself) has no conditional-distribution answer and comes back as `NaN`, logged
+      once per call rather than raising. A threshold that leaves fewer than 3 conditional peaks
+      raises `ValueError` — there is nothing to fit a skew to.
+
+      No Fortran oracle exists for this: peakfq 8.1.0 only implements EMA, so unlike the rest of
+      the `var_mom` port this is verified by construction (conditional moments checked against a
+      direct fit on the surviving peaks; K-factors checked against the `Pc` formula applied by
+      hand) and against `app/ffa_runner`'s existing override tests, not against vendored Fortran.
+      `_low_outlier_source()` no longer needs the "reported only" caveat — MOM acts on the
+      number it reports now, same as EMA.
 
 ### P2 — Cleanup that stops the same confusion recurring
 

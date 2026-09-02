@@ -118,34 +118,30 @@ class TestPilfOverride:
         assert zero["parameters"]["low_outlier_source"] == "MGBT"
         assert zero["parameters"]["mean_log"] == none["parameters"]["mean_log"]
 
-    def test_mom_fallback_reports_the_override_but_says_it_was_not_acted_on(self):
-        """A high override stops EMA converging, and MOM does not censor at all.
+    def test_mom_fallback_censors_on_the_override(self):
+        """A high override stops EMA converging, and MOM now censors on it too.
 
-        MethodOfMoments now reports the threshold the user asked for rather
-        than substituting a Grubbs-Beck value they did not -- but it computes
-        its moments from every peak regardless. The label has to say both, or
-        it contradicts the number displayed beside it.
+        MethodOfMoments applies the Bulletin 17B conditional-probability
+        adjustment, so the number reported as the threshold is also the one
+        that shaped the fit.
         """
         flows, years = _big_sandy_arrays()
         result = run_ffa(peak_flows=flows, water_years=years, low_outlier_threshold_override=6000.0)
         assert result["method"] == "mom"
         assert result["parameters"]["low_outlier_threshold"] == pytest.approx(6000.0)
-        source = result["parameters"]["low_outlier_source"]
-        assert "override" in source and "does not censor" in source
+        assert result["parameters"]["low_outlier_source"] == "override"
 
-    def test_mom_fallback_moments_are_untouched_by_the_override(self):
-        """The claim the label makes must actually hold."""
+    def test_mom_fallback_moments_shift_with_the_override(self):
+        """The claim the label makes must actually hold: MOM censors now."""
         flows, years = _big_sandy_arrays()
         forced = run_ffa(peak_flows=flows, water_years=years, low_outlier_threshold_override=6000.0)
         assert forced["method"] == "mom"
         plain = run_ffa(peak_flows=flows, water_years=years)
-        assert forced["parameters"]["mean_log"] == pytest.approx(plain["parameters"]["mean_log"])
+        assert forced["parameters"]["mean_log"] != pytest.approx(plain["parameters"]["mean_log"])
 
     def test_source_helper_covers_every_combination(self):
-        assert _low_outlier_source(None, "ema") == "MGBT"
-        assert _low_outlier_source(None, "mom") == "MGBT"
-        assert _low_outlier_source(1000.0, "ema") == "override"
-        assert "does not censor" in _low_outlier_source(1000.0, "mom")
+        assert _low_outlier_source(None) == "MGBT"
+        assert _low_outlier_source(1000.0) == "override"
 
 
 class TestFormatQuantileDf:
