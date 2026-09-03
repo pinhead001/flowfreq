@@ -53,13 +53,19 @@ hydrolib = "hydrolib.cli:cli"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["hydrolib*", "data*"]
+include = ["hydrolib*"]
 
 [tool.setuptools.package-data]
 # py.typed is the PEP 561 marker. Without it a downstream type checker ignores
 # every annotation in this package, so the type hints are invisible to the
 # people they exist for.
-"hydrolib" = ["../data/*.csv", "py.typed"]
+#
+# The gage table used to be shipped as "../data/*.csv" from a top-level data/
+# directory, a package-data entry reaching outside the package it belongs to.
+# It happened to work; it is not contractual, and it forced data* into
+# packages.find above. The file now lives in hydrolib/data/ where it is
+# addressed normally.
+"hydrolib" = ["data/*.csv", "py.typed"]
 # Benchmark cases must ship with the package: hydrolib benchmark used to read
 # them out of tests/, which is not packaged, so the command failed for every
 # installed user.

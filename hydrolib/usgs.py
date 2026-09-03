@@ -71,14 +71,12 @@ class GageAttributes:
     @classmethod
     def _find_data_file(cls) -> Optional[Path]:
         """Find the gage_attributes.csv file in various locations."""
-        # Try multiple possible locations
+        # Packaged location first: it is the only one that resolves for an
+        # installed user. The cwd fallback lets a caller shadow the shipped
+        # table with a local one without reinstalling.
         candidates = [
-            # Relative to this module (for editable installs)
-            Path(__file__).parent.parent / "data" / "gage_attributes.csv",
-            # Relative to current working directory
-            Path.cwd() / "data" / "gage_attributes.csv",
-            # In hydrolib package data
             Path(__file__).parent / "data" / "gage_attributes.csv",
+            Path.cwd() / "data" / "gage_attributes.csv",
         ]
 
         for path in candidates:

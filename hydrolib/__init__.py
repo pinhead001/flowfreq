@@ -9,6 +9,7 @@ Includes:
   - Expected Moments Algorithm (EMA) with full PeakFQ parity
 - Historical flood information handling
 - Technical report generation
+- One-call analysis workflow (hydrolib.workflow.run_ffa)
 """
 
 import logging
@@ -52,6 +53,15 @@ from .usgs import (
     USGSgage,
     fetch_nwis_batch,
     fetch_nwis_peaks,
+)
+from .workflow import (
+    B17C_DEFAULT_SKEW,
+    DEFAULT_AEP,
+    DEFAULT_RETURN_INTERVALS,
+    SKEW_OPTIONS,
+    build_skew_curves_dict,
+    compute_skew_tables,
+    run_ffa,
 )
 
 # Alias for backwards compatibility

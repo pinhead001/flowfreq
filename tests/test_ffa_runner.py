@@ -1,48 +1,19 @@
-"""Tests for app.ffa_runner module."""
+"""Tests for app.ffa_runner -- display formatting only.
+
+The analysis these tables render moved to :mod:`hydrolib.workflow`; its tests
+live in ``tests/test_workflow.py``. Nothing here calls into the library, which
+is the point: this module must stay renderable without an analysis run.
+"""
 
 import sys
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
-import pytest
 
 # Ensure app package is importable
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from app.ffa_runner import _low_outlier_source, format_parameters_df, format_quantile_df, run_ffa
-from tests.fixtures.big_sandy import REGIONAL_SKEW, REGIONAL_SKEW_SD, SYSTEMATIC_PEAKS
-
-
-def _big_sandy_arrays():
-    """Extract peak_flows and water_years arrays from big_sandy fixture."""
-    years = np.array(sorted(SYSTEMATIC_PEAKS.keys()))
-    flows = np.array([SYSTEMATIC_PEAKS[y] for y in years])
-    return flows, years
-
-
-class TestRunFFA:
-    def test_run_ffa_returns_expected_keys(self):
-        flows, years = _big_sandy_arrays()
-        result = run_ffa(flows, years)
-        expected_keys = {"b17c", "converged", "method", "parameters", "quantile_df", "error"}
-        assert set(result.keys()) == expected_keys
-
-    def test_run_ffa_with_big_sandy_data(self):
-        flows, years = _big_sandy_arrays()
-        result = run_ffa(
-            flows, years, regional_skew=REGIONAL_SKEW, regional_skew_se=REGIONAL_SKEW_SD
-        )
-        assert result["error"] is None
-        assert result["converged"] is True
-        assert result["method"] in ("ema", "mom")
-        assert len(result["quantile_df"]) == 9
-        assert result["b17c"] is not None
-
-    def test_run_ffa_handles_bad_data(self):
-        result = run_ffa(np.array([]), np.array([]))
-        # Should return an error for empty input
-        assert result["error"] is not None
+from app.ffa_runner import format_parameters_df, format_quantile_df
 
 
 class TestFormatParametersDf:
@@ -85,63 +56,6 @@ class TestFormatParametersDf:
             {"low_outlier_threshold": 500.0, "n_low_outliers": 1, "low_outlier_source": "override"}
         )
         assert override["PILF Threshold (cfs)"].iloc[0] == "500 (override)"
-
-
-class TestPilfOverride:
-    """The override has to change the fit, or the control is decorative."""
-
-    OVERRIDE = 2000.0  # censors four Big Sandy peaks; EMA still converges
-
-    def test_override_censors_more_peaks_than_mgbt(self):
-        flows, years = _big_sandy_arrays()
-        base = run_ffa(peak_flows=flows, water_years=years)
-        forced = run_ffa(
-            peak_flows=flows, water_years=years, low_outlier_threshold_override=self.OVERRIDE
-        )
-        assert forced["parameters"]["n_low_outliers"] > base["parameters"]["n_low_outliers"]
-        assert forced["parameters"]["low_outlier_threshold"] == pytest.approx(self.OVERRIDE)
-        assert forced["parameters"]["low_outlier_source"] == "override"
-        assert base["parameters"]["low_outlier_source"] == "MGBT"
-
-    def test_override_moves_the_fitted_moments(self):
-        flows, years = _big_sandy_arrays()
-        base = run_ffa(peak_flows=flows, water_years=years)
-        forced = run_ffa(
-            peak_flows=flows, water_years=years, low_outlier_threshold_override=self.OVERRIDE
-        )
-        assert base["parameters"]["mean_log"] != forced["parameters"]["mean_log"]
-
-    def test_zero_and_none_both_mean_use_mgbt(self):
-        flows, years = _big_sandy_arrays()
-        zero = run_ffa(peak_flows=flows, water_years=years, low_outlier_threshold_override=0.0)
-        none = run_ffa(peak_flows=flows, water_years=years, low_outlier_threshold_override=None)
-        assert zero["parameters"]["low_outlier_source"] == "MGBT"
-        assert zero["parameters"]["mean_log"] == none["parameters"]["mean_log"]
-
-    def test_mom_fallback_censors_on_the_override(self):
-        """A high override stops EMA converging, and MOM now censors on it too.
-
-        MethodOfMoments applies the Bulletin 17B conditional-probability
-        adjustment, so the number reported as the threshold is also the one
-        that shaped the fit.
-        """
-        flows, years = _big_sandy_arrays()
-        result = run_ffa(peak_flows=flows, water_years=years, low_outlier_threshold_override=6000.0)
-        assert result["method"] == "mom"
-        assert result["parameters"]["low_outlier_threshold"] == pytest.approx(6000.0)
-        assert result["parameters"]["low_outlier_source"] == "override"
-
-    def test_mom_fallback_moments_shift_with_the_override(self):
-        """The claim the label makes must actually hold: MOM censors now."""
-        flows, years = _big_sandy_arrays()
-        forced = run_ffa(peak_flows=flows, water_years=years, low_outlier_threshold_override=6000.0)
-        assert forced["method"] == "mom"
-        plain = run_ffa(peak_flows=flows, water_years=years)
-        assert forced["parameters"]["mean_log"] != pytest.approx(plain["parameters"]["mean_log"])
-
-    def test_source_helper_covers_every_combination(self):
-        assert _low_outlier_source(None) == "MGBT"
-        assert _low_outlier_source(1000.0) == "override"
 
 
 class TestFormatQuantileDf:
