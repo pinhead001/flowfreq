@@ -1,5 +1,5 @@
 """
-hydrolib.report - Technical report generation
+flowfreq.report - Technical report generation
 """
 
 from __future__ import annotations

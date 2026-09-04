@@ -19,8 +19,8 @@ from typing import Dict, Tuple
 import numpy as np
 import pytest
 
-from hydrolib.bulletin17c import Bulletin17C
-from hydrolib.core import EMAParameters, FlowInterval
+from flowfreq.bulletin17c import Bulletin17C
+from flowfreq.core import EMAParameters, FlowInterval
 
 # Import fixture data
 from tests.fixtures.big_sandy import (
@@ -130,7 +130,7 @@ class TestBigSandyQuantiles:
 
     # AEP 0.99 and 0.995 are known failures, tracked as strict xfail: TODO.md
     # P3's censored-path fixes (ADJE, detrat, and the at-site EMA moment
-    # iteration itself, hydrolib._p3_moments.m_p3) together brought this site's
+    # iteration itself, flowfreq._p3_moments.m_p3) together brought this site's
     # weighted skew and every other quantile here to within 0.06% of peakfq
     # 8.1.0's own output (tests/fortran_parity/'s PEAKFQ_810_* fixture) -- but
     # the 2012 manual these two are compared against was never reproducible by

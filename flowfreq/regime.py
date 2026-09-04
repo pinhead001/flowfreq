@@ -1,5 +1,5 @@
 """
-hydrolib.regime - Flow regime metrics
+flowfreq.regime - Flow regime metrics
 
 Intra-annual flow-pattern metrics computed from a daily flow series:
 Richards-Baker flashiness, TQmean, baseflow separation and index, and
@@ -7,12 +7,12 @@ monthly/seasonal summary statistics -- plus (see the diel-variation
 functions further down this module) metrics computed from an instantaneous
 series. Grouped together because both describe the *shape* of a flow
 record rather than the frequency of its extremes, which is what
-hydrolib.bulletin17c and hydrolib.lowflow cover.
+flowfreq.bulletin17c and flowfreq.lowflow cover.
 
 Method notes
 ------------
 **Year definition.** Metrics here default to the *water year* (Oct 1 - Sep
-30), not the climatic year hydrolib.lowflow uses. The climatic year (Apr 1
+30), not the climatic year flowfreq.lowflow uses. The climatic year (Apr 1
 - Mar 31) exists specifically to avoid splitting a single connected
 low-flow event; flashiness, TQmean, and baseflow index describe a whole
 year's hydrograph shape rather than the timing of one extreme, and water
@@ -20,18 +20,18 @@ year is both the USGS convention for these indices (e.g. Richards-Baker
 flashiness is conventionally reported by water year) and what published
 regional statistics use, so it is the more useful default for
 comparability. Pass ``year_type="climatic"`` or ``"calendar"`` to use
-those instead; see :func:`hydrolib.core.assign_year_label`.
+those instead; see :func:`flowfreq.core.assign_year_label`.
 
 **Completeness.** Every per-year metric in this module uses the same rule:
 a year needs at least ``min_days`` valid daily values (negative values
-count as missing, matching hydrolib.lowflow) to get a computed value; below
+count as missing, matching flowfreq.lowflow) to get a computed value; below
 that, the metric is NaN and the row's ``complete`` flag is False rather
 than the year disappearing or a value being silently computed from a
 partial record. One metric is only approximately exact even in a
 "complete" year: the flashiness index sums day-to-day differences, and a
 handful of missing days each spoil the (at most two) differences adjacent
 to them, which are dropped via ``nansum`` rather than fabricated. With
-``min_days=350`` (the default, matching hydrolib.lowflow) this is at most
+``min_days=350`` (the default, matching flowfreq.lowflow) this is at most
 roughly a dozen dropped difference terms out of ~364, a small but nonzero
 approximation worth knowing is there.
 
@@ -189,9 +189,9 @@ def _daily_with_year(daily_data: pd.DataFrame, year_type: str) -> pd.DataFrame:
     """Reindex onto a complete daily calendar and attach a year label.
 
     Negative values are set to NaN (a data artifact, not a legitimate low --
-    matching hydrolib.lowflow.annual_minimum_flow's convention), and a real
+    matching flowfreq.lowflow.annual_minimum_flow's convention), and a real
     gap becomes an explicit NaN row rather than a missing one, since
-    :meth:`hydrolib.usgs.USGSgage.download_daily_flow` drops rows with no
+    :meth:`flowfreq.usgs.USGSgage.download_daily_flow` drops rows with no
     value.
     """
     if year_type not in YEAR_TYPES:
@@ -514,7 +514,7 @@ def separate_baseflow(
     pd.Series
         Baseflow in cfs, indexed on the complete daily calendar spanning
         `daily_data` (gaps filled as NaN -- see
-        :func:`hydrolib.lowflow.annual_minimum_flow`'s Notes on why a real
+        :func:`flowfreq.lowflow.annual_minimum_flow`'s Notes on why a real
         gap must not be silently bridged). NaN outside the span any given
         method can support (e.g. before the first identified turning
         point).
@@ -643,7 +643,7 @@ def monthly_flow_summary(
 ) -> pd.DataFrame:
     """Per-year, per-calendar-month flow summary statistics.
 
-    Distinct from :meth:`hydrolib.hydrograph.Hydrograph.get_summary_stats`,
+    Distinct from :meth:`flowfreq.hydrograph.Hydrograph.get_summary_stats`,
     which pools every year together into one climatological day-of-water-year
     shape; this returns one row per (year, month) so month-to-month and
     year-to-year variation both stay visible for trend analysis.
@@ -1045,7 +1045,7 @@ def diel_variation(
     iv_data : pd.DataFrame
         Instantaneous flow with a tz-aware datetime index and a ``flow_cfs``
         column -- the shape returned by
-        :meth:`hydrolib.usgs.USGSgage.download_instantaneous_flow`.
+        :meth:`flowfreq.usgs.USGSgage.download_instantaneous_flow`.
     tz : str
         IANA time zone the data should be grouped by calendar day in, e.g.
         ``"America/Los_Angeles"``. Required, with no default: grouping by
@@ -1076,7 +1076,7 @@ def diel_variation(
         - ``cv`` : ``std_flow_cfs / mean_flow_cfs``, NaN if the day's mean
           flow is not positive (a day that includes a zero or negative-
           treated-as-missing mean is not a meaningful denominator; see
-          hydrolib.lowflow's module docstring on the same issue for annual
+          flowfreq.lowflow's module docstring on the same issue for annual
           minima)
         - ``n_obs``, ``expected_obs``, ``complete``
 

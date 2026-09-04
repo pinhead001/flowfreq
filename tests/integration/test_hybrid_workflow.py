@@ -7,9 +7,9 @@ import pathlib
 import numpy as np
 import pytest
 
-from hydrolib.bulletin17c import Bulletin17C
-from hydrolib.validation.comparisons import FrequencyComparator
-from hydrolib.validation.reference import ReferenceResult
+from flowfreq.bulletin17c import Bulletin17C
+from flowfreq.validation.comparisons import FrequencyComparator
+from flowfreq.validation.reference import ReferenceResult
 from tests.fixtures.big_sandy import (
     EXPECTED_CONFIDENCE_INTERVALS,
     EXPECTED_PARAMETERS,
@@ -216,7 +216,7 @@ class TestBigSandyAgainstReference:
         """Measured 0.0006% at the AEP-0.5 median, rising to 0.056% at the 0.002 tail.
 
         Was 0.12%-4.70% before the at-site EMA moment iteration was fixed to
-        use ``hydrolib._p3_moments.m_p3`` and the Fortran's own (exact-peak,
+        use ``flowfreq._p3_moments.m_p3`` and the Fortran's own (exact-peak,
         not total-record) bias-correction count -- Big Sandy has 37 censored
         historical gap-year intervals, so both bugs bit here even though
         neither is skew-weighting-specific. The 5% bound is left loose on
@@ -245,7 +245,7 @@ class TestBigSandyAgainstReference:
         Was ~35% when the weighting was a post-hoc average of two skews,
         then ~24% (0.0376 in skew units) once the regional skew was folded
         into the EMA fixed point the way moms_p3 does it, then 0.0026 once
-        ADJE (hydrolib._mse_ema.mse_ema, var_mom Phase 3) supplied peakfq's
+        ADJE (flowfreq._mse_ema.mse_ema, var_mom Phase 3) supplied peakfq's
         own censoring-adjusted skew MSE instead of the plain Bulletin 17B
         value. Measured now: **2.4e-6** -- essentially exact, the same level
         Powder River (no censoring at all) already hit.
@@ -254,7 +254,7 @@ class TestBigSandyAgainstReference:
         itself, unrelated to skew weighting: ``_compute_ema_moments``'s
         censored-interval branch used its own approximate truncated-gamma
         formula instead of the already-ported, Fortran-verified
-        ``hydrolib._p3_moments.m_p3``, and ``_ema_iteration``'s bias
+        ``flowfreq._p3_moments.m_p3``, and ``_ema_iteration``'s bias
         corrections (``c2``, ``c3``) used the total interval count where the
         vendored Fortran's actual default (``bcf=1997``, ``emafit.f:1408``)
         uses the exact-peak count. Both bit here because Big Sandy has 37

@@ -1,5 +1,5 @@
 """
-Script to download and plot daily flow hydrographs using hydrolib.
+Script to download and plot daily flow hydrographs using flowfreq.
 
 This script demonstrates downloading daily streamflow data from USGS
 and plotting both a daily time series and summary hydrograph.
@@ -10,8 +10,8 @@ import os
 import matplotlib
 import matplotlib.pyplot as plt
 
-from hydrolib import Hydrograph
-from hydrolib.usgs import USGSGage
+from flowfreq import Hydrograph
+from flowfreq.usgs import USGSGage
 
 matplotlib.use("Agg")  # Use non-interactive backend for saving plots
 

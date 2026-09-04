@@ -20,10 +20,10 @@ testable; that file makes it *possible*.
 
 ### 1.1 The Fortran bridge does not exist outside one machine
 
-`hydrolib/peakfqr/` currently contains **only build output**, no source:
+`flowfreq/peakfqr/` currently contains **only build output**, no source:
 
 ```
-hydrolib/peakfqr/
+flowfreq/peakfqr/
 ├── __init__.py
 ├── _emafort.cp312-win_amd64.pyd   <- Windows-only, CPython 3.12-only binary
 ├── libgfortran-5.dll
@@ -35,8 +35,8 @@ hydrolib/peakfqr/
 `build_fortran/build.py` compiles it from `C:\a\hal\_shared\peakfqr\src`, an absolute path
 that exists on exactly one computer. The consequences:
 
-- `from hydrolib.peakfqr import emafitpr` raises `ModuleNotFoundError: No module named
-  'hydrolib.peakfqr._emafort'` anywhere else — including this checkout (Linux, CPython 3.11).
+- `from flowfreq.peakfqr import emafitpr` raises `ModuleNotFoundError: No module named
+  'flowfreq.peakfqr._emafort'` anywhere else — including this checkout (Linux, CPython 3.11).
 - `.github/workflows/tests.yml` runs on `ubuntu-latest` across Python 3.9–3.12. The bridge
   can never load there, so **no CI job has ever exercised the Fortran path**.
 - `docs/vignette_streamlit_web.md` claims the shipped `.pyd`/`.so` "should work on Linux
@@ -48,14 +48,14 @@ context, or run by anyone but its author.
 
 Worth knowing why that matters more than it looks. The original build brief
 (`AGENT_BUILD_INSTRUCTIONS_Claude.md`, §7) specified PeakfqSA as "~45,000 lines of
-Fortran-95" invoked as a **standalone executable**, and `hydrolib/peakfqsa/` — config,
+Fortran-95" invoked as a **standalone executable**, and `flowfreq/peakfqsa/` — config,
 wrapper, io_converters, parsers, validators — was built to that spec as a subprocess
 wrapper. That premise turned out to be wrong; `TODO.md` records the correction under
 Resolved Questions: *"PeakfqSA: Not a standalone binary. Use peakfqr `src/` Fortran as
 reference code."* So that entire subsystem drives a binary that does not exist. Its tests
 are mocks, and every `requires_peakfqsa` test is permanently deselected.
 
-The f2py bridge in `hydrolib/peakfqr/` is therefore not one of two ways to reach the
+The f2py bridge in `flowfreq/peakfqr/` is therefore not one of two ways to reach the
 reference implementation — it is the only one. Which makes the missing sources the single
 thing standing between this repo and any real comparison against USGS Fortran.
 
@@ -79,13 +79,13 @@ Big Sandy results, and the two that matter are *both unmerged*:
 |---|---|---:|---:|---|
 | `main` | 16 failed / 127 passed repo-wide | 1.19 % | 12.29 % | 11 quantiles + `std_log` also fail |
 | `claude/library-overview-JbAcS` | 2 failed / 19 passed | 9.00 % | **10.53 %** | best upper CI, symmetric; degrades lower |
-| `claude/hydrolib-edt-attributes-mm2aif` | **4 failed / 17 passed** | 3.36 % | 17.34 % | best quantiles; worst upper CI |
+| `claude/flowfreq-edt-attributes-mm2aif` | **4 failed / 17 passed** | 3.36 % | 17.34 % | best quantiles; worst upper CI |
 
 CI figures are measured at a common 5 % / 5 % tolerance. `library-overview-JbAcS` reports
 "21 passed" on its own tolerances (10 % lower, 12 % upper) — it is green because its gates
 are wider, **not** because it is more accurate. Compare deviations, never pass counts.
 
-`claude/hydrolib-edt-attributes-mm2aif` is the current authoritative state: **4 failures.**
+`claude/flowfreq-edt-attributes-mm2aif` is the current authoritative state: **4 failures.**
 
 - `test_quantile[0.995]`, `test_quantile[0.99]` — the most *frequent* events, off ~2–2.7 %.
 - `test_confidence_interval[0.02]`, `[0.01]` — the *rarest* events, upper bound only, off
@@ -124,7 +124,7 @@ messages on the two branches above:
 `claude/library-overview-JbAcS` (4 commits: B17C Appendix 4 skew MSE, `n_intervals` skew
 weighting, the skew-uncertainty CI variance term with `kfactor_skew_derivative()`, and a
 systematic-only EMA regression test) is on **neither** `main` **nor**
-`claude/hydrolib-edt-attributes-mm2aif`. It is stranded, and it is the only work that
+`claude/flowfreq-edt-attributes-mm2aif`. It is stranded, and it is the only work that
 attacks the upper-CI term directly — it is what took that error from ~19 % to 10.5 %.
 
 The two branches are complementary and have never been combined. **That merge has now been
@@ -133,7 +133,7 @@ any golden files, or the goldens will encode a state nobody ships.
 
 ### 1.6 The merge experiment: run, and it changes the ask
 
-Merging `library-overview-JbAcS` into `hydrolib-edt-attributes-mm2aif` is nearly clean —
+Merging `library-overview-JbAcS` into `flowfreq-edt-attributes-mm2aif` is nearly clean —
 both source files auto-merge, and the single conflict is a tolerance line whose two sides
 are numerically identical (`TOLERANCE_PERCENT * 2` vs `2.0`). Two things need a human,
 though, and neither announces itself:
@@ -153,7 +153,7 @@ Measured at a common 5 % / 5 % tolerance, with a full-suite regression check:
 
 | State | Big Sandy | Q100 CI lower | Q100 CI upper |
 |---|---|---:|---:|
-| `hydrolib-edt-attributes-mm2aif` | 4 failed / 17 passed | 3.36 % | 17.34 % |
+| `flowfreq-edt-attributes-mm2aif` | 4 failed / 17 passed | 3.36 % | 17.34 % |
 | `library-overview-JbAcS` | 2 failed / 19 passed | 9.00 % | 10.53 % |
 | **merged** | **2 failed / 19 passed** | 9.00 % | 10.53 % |
 
@@ -204,10 +204,10 @@ tests, and one sandbox-blocked live NWIS call.
 **Recipe**, to reproduce it from scratch:
 
 ```bash
-git checkout -b combined origin/claude/hydrolib-edt-attributes-mm2aif
+git checkout -b combined origin/claude/flowfreq-edt-attributes-mm2aif
 git merge origin/claude/library-overview-JbAcS
 # 1. tests/validation/test_big_sandy.py: the two conflict sides are identical, keep either
-# 2. hydrolib/bulletin17c.py: delete the trailing perception-threshold override
+# 2. flowfreq/bulletin17c.py: delete the trailing perception-threshold override
 #    block in _auto_configure_ema_params(); keep the pre-loop
 # 3. tests/validation/test_big_sandy.py: restore CI tolerances to 5 / 5
 pytest tests/ -q
@@ -352,14 +352,14 @@ existing file matching a new rule, and it is already LF).
 
 ### 4.2 `.gitignore` — one trap
 
-Line 7 is `*.so`. Once the extension builds on Linux/CI, `hydrolib/peakfqr/_emafort*.so`
+Line 7 is `*.so`. Once the extension builds on Linux/CI, `flowfreq/peakfqr/_emafort*.so`
 will be **silently ignored**. That is the correct default (build output does not belong in
 git), but it is worth making explicit so nobody loses an hour to it:
 
 ```gitignore
 # Build output — the Fortran extension is compiled from vendor/peakfqr/src, never committed.
-hydrolib/peakfqr/_emafort*.so
-hydrolib/peakfqr/_emafort*.pyd
+flowfreq/peakfqr/_emafort*.so
+flowfreq/peakfqr/_emafort*.pyd
 build_fortran/mbuild/
 build_fortran/native.ini
 
@@ -453,7 +453,7 @@ Confirm `parents[3]` resolves to the repo root from
 
 Correct the claim that the bundled `.pyd`/`.so` works on Linux (§1.1). State instead that the
 Fortran extension is optional, is built from `vendor/peakfqr/src` via `build_fortran/build.py`,
-and that HydroLib falls back to the native EMA path when it is absent.
+and that FlowFreq falls back to the native EMA path when it is absent.
 
 ---
 
@@ -618,7 +618,7 @@ git push -u origin claude/fortran-code-github-upload-5gj1s1
 
 ```bash
 python build_fortran/build.py
-python -c "from hydrolib.peakfqr import emafitpr; print('bridge OK')"
+python -c "from flowfreq.peakfqr import emafitpr; print('bridge OK')"
 pytest tests/ -q
 ```
 
@@ -629,7 +629,7 @@ pytest tests/ -q
       outside the repo (temporarily rename `C:\a\hal\_shared\peakfqr` to prove it).
 - [ ] The three `test_r_fixtures.py` failures from §1.2 pass.
 - [ ] Big Sandy failure count is unchanged by the upload — 4 on
-      `claude/hydrolib-edt-attributes-mm2aif`, 2 on the §1.6 merge. The upload must make
+      `claude/flowfreq-edt-attributes-mm2aif`, 2 on the §1.6 merge. The upload must make
       the numerics diagnosable, not perturb them.
 - [ ] `git status --porcelain --ignored vendor/` shows no `!!` entries.
 - [ ] `vendor/peakfqr/README.md` records upstream version, retrieval date, and license.
@@ -673,7 +673,7 @@ Sandy through `emafitpr` with the call convention taken from
 
 Asymmetry ratio, `(log ci_high − log yp) / (log yp − log ci_low)`:
 
-| AEP | manual | **Fortran** | hydrolib |
+| AEP | manual | **Fortran** | flowfreq |
 |---|---:|---:|---:|
 | 0.10 | 1.043 | **1.032** | 1.000 |
 | 0.02 | 1.531 | **1.311** | 1.000 |
@@ -686,7 +686,7 @@ every AEP because `log_Q ± z·se` cannot do otherwise. The mechanism is real, i
 
 `as_G_PRL_o` also comes back as a concrete number — **54.373** for this record, sitting
 between `n_systematic` (44) and `n_observed` (47), nowhere near `n_intervals` (84). Nothing
-in `hydrolib` computes it.
+in `flowfreq` computes it.
 
 **But the Fortran does not reproduce the manual either**, and that is the new open question.
 Its quantiles land within ~0.5 % mid-range while drifting to −3.4 % at AEP 0.995 and −1.8 %
@@ -758,7 +758,7 @@ will reach them — and tuning toward them would be fitting to a superseded meth
 2012 values alongside as historical record. The extension builds, so this is now mechanical.
 That converts Big Sandy from an unreproducible historical benchmark into a live parity test
 against the reference the repository actually vendors — which is what §6.1 was always for.
-The genuine defect found in §6.0 is unaffected and still needs fixing: hydrolib's interval is
+The genuine defect found in §6.0 is unaffected and still needs fixing: flowfreq's interval is
 symmetric by construction (1.000) where the Fortran's is not (1.408).
 
 ### 6.1 Test architecture: commit Fortran outputs as golden files
@@ -842,5 +842,5 @@ and each of the three skew-weighting options. Fixtures for all three already exi
   force: commit messages reference their step number, and failing tests are not to be
   `xfail`-ed without explicit user approval (the two Big Sandy CI cases were marked with it).
 - `CLAUDE.md` — repository conventions, including that all Fortran-facing data is log10
-  base-10. Stale in one respect: it describes a `src/hydrolib/` layout that does not exist
-  (the package is `hydrolib/`), inherited from the build brief's assumed structure.
+  base-10. Stale in one respect: it describes a `src/flowfreq/` layout that does not exist
+  (the package is `flowfreq/`), inherited from the build brief's assumed structure.

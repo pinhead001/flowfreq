@@ -12,8 +12,8 @@ import pandas as pd
 import pytest
 import requests
 
-from hydrolib.flowio import load_flow_frame, save_flow_frame
-from hydrolib.usgs import (
+from flowfreq.flowio import load_flow_frame, save_flow_frame
+from flowfreq.usgs import (
     NWIS_TZ_OFFSETS,
     NoInstantaneousDataError,
     USGSgage,
@@ -225,7 +225,7 @@ class TestDownloadInstantaneousFlow:
     def test_returns_frame_and_caches_it(self) -> None:
         """The frame is returned and also stored on the gage."""
         gage = USGSgage("12449950")
-        with patch("hydrolib.usgs.requests.get", return_value=_mock_response(IV_BASIC)):
+        with patch("flowfreq.usgs.requests.get", return_value=_mock_response(IV_BASIC)):
             df = gage.download_instantaneous_flow("2022-06-15", "2022-06-15")
 
         assert len(df) == 6
@@ -235,7 +235,7 @@ class TestDownloadInstantaneousFlow:
     def test_requests_the_instantaneous_endpoint(self) -> None:
         """The unit-value service is used, with no statistic code."""
         gage = USGSgage("12449950")
-        with patch("hydrolib.usgs.requests.get", return_value=_mock_response(IV_BASIC)) as mock_get:
+        with patch("flowfreq.usgs.requests.get", return_value=_mock_response(IV_BASIC)) as mock_get:
             gage.download_instantaneous_flow("2022-06-15", "2022-06-15")
 
         url = mock_get.call_args.args[0]
@@ -247,7 +247,7 @@ class TestDownloadInstantaneousFlow:
     def test_chunks_long_request_by_year(self) -> None:
         """A three-year window is issued as three requests with abutting windows."""
         gage = USGSgage("12449950")
-        with patch("hydrolib.usgs.requests.get", return_value=_mock_response(IV_BASIC)) as mock_get:
+        with patch("flowfreq.usgs.requests.get", return_value=_mock_response(IV_BASIC)) as mock_get:
             gage.download_instantaneous_flow("2020-01-01", "2022-12-31")
 
         assert mock_get.call_count == 3
@@ -264,7 +264,7 @@ class TestDownloadInstantaneousFlow:
     def test_duplicate_timestamps_collapsed(self) -> None:
         """Chunks returning the same instant twice yield one row, not two."""
         gage = USGSgage("12449950")
-        with patch("hydrolib.usgs.requests.get", return_value=_mock_response(IV_BASIC)):
+        with patch("flowfreq.usgs.requests.get", return_value=_mock_response(IV_BASIC)):
             df = gage.download_instantaneous_flow("2020-01-01", "2022-12-31")
 
         assert len(df) == 6
@@ -278,7 +278,7 @@ class TestDownloadInstantaneousFlow:
             _mock_response(IV_NO_DATA_400_BODY, status_code=400),
             _mock_response(IV_BASIC),
         ]
-        with patch("hydrolib.usgs.requests.get", side_effect=responses):
+        with patch("flowfreq.usgs.requests.get", side_effect=responses):
             df = gage.download_instantaneous_flow("2021-01-01", "2022-12-31")
 
         assert len(df) == 6
@@ -287,7 +287,7 @@ class TestDownloadInstantaneousFlow:
         """A site with no instantaneous record fails loudly, per the brief."""
         gage = USGSgage("12449950")
         with patch(
-            "hydrolib.usgs.requests.get",
+            "flowfreq.usgs.requests.get",
             return_value=_mock_response(IV_NO_DATA_400_BODY, status_code=400),
         ):
             with pytest.raises(NoInstantaneousDataError, match="No instantaneous discharge"):
@@ -300,7 +300,7 @@ class TestDownloadInstantaneousFlow:
             _mock_response(IV_BASIC),
             requests.ConnectionError("connection reset"),
         ]
-        with patch("hydrolib.usgs.requests.get", side_effect=responses):
+        with patch("flowfreq.usgs.requests.get", side_effect=responses):
             with pytest.raises(requests.RequestException, match="2022-01-01 to 2022-12-31"):
                 gage.download_instantaneous_flow("2021-01-01", "2022-12-31")
 
@@ -308,7 +308,7 @@ class TestDownloadInstantaneousFlow:
         """A 500 is a failure, not an empty window."""
         gage = USGSgage("12449950")
         with patch(
-            "hydrolib.usgs.requests.get",
+            "flowfreq.usgs.requests.get",
             return_value=_mock_response("Internal Server Error", status_code=500),
         ):
             with pytest.raises(requests.RequestException):
@@ -317,7 +317,7 @@ class TestDownloadInstantaneousFlow:
     def test_tz_argument_converts_index(self) -> None:
         """Passing tz returns the index in that zone, same instants."""
         gage = USGSgage("12449950")
-        with patch("hydrolib.usgs.requests.get", return_value=_mock_response(IV_BASIC)):
+        with patch("flowfreq.usgs.requests.get", return_value=_mock_response(IV_BASIC)):
             df = gage.download_instantaneous_flow(
                 "2022-06-15", "2022-06-15", tz="America/Los_Angeles"
             )
@@ -342,7 +342,7 @@ class TestDownloadInstantaneousFlow:
                 return _mock_response(SITE_SERIES_CATALOG)
             return _mock_response(IV_BASIC)
 
-        with patch("hydrolib.usgs.requests.get", side_effect=_dispatch):
+        with patch("flowfreq.usgs.requests.get", side_effect=_dispatch):
             gage.download_instantaneous_flow()
 
         assert gage.iv_por_start == "2007-10-01"
@@ -355,7 +355,7 @@ class TestDownloadInstantaneousFlow:
         gage.drainage_area = 1772.0
 
         with patch(
-            "hydrolib.usgs.requests.get", return_value=_mock_response(SITE_SERIES_CATALOG_NO_UV)
+            "flowfreq.usgs.requests.get", return_value=_mock_response(SITE_SERIES_CATALOG_NO_UV)
         ) as mock_get:
             with pytest.raises(NoInstantaneousDataError, match="no instantaneous"):
                 gage.download_instantaneous_flow()
@@ -430,7 +430,7 @@ class TestSiteCoordinates:
 
     def test_parses_latitude_and_longitude(self) -> None:
         gage = USGSgage("03606500")
-        with patch("hydrolib.usgs.requests.get", return_value=_mock_response(SITE_EXPANDED)):
+        with patch("flowfreq.usgs.requests.get", return_value=_mock_response(SITE_EXPANDED)):
             gage.fetch_site_info()
 
         assert gage.latitude == pytest.approx(36.0389722)
@@ -439,7 +439,7 @@ class TestSiteCoordinates:
     def test_longitude_stays_negative_in_western_hemisphere(self) -> None:
         """Sign is carried through as NWIS reports it, not normalised to positive."""
         gage = USGSgage("03606500")
-        with patch("hydrolib.usgs.requests.get", return_value=_mock_response(SITE_EXPANDED)):
+        with patch("flowfreq.usgs.requests.get", return_value=_mock_response(SITE_EXPANDED)):
             gage.fetch_site_info()
 
         assert gage.longitude < 0
@@ -448,7 +448,7 @@ class TestSiteCoordinates:
         """Empty NWIS values must not become NaN, 0.0, or an exception."""
         gage = USGSgage("03606500")
         with patch(
-            "hydrolib.usgs.requests.get", return_value=_mock_response(SITE_EXPANDED_NO_COORDS)
+            "flowfreq.usgs.requests.get", return_value=_mock_response(SITE_EXPANDED_NO_COORDS)
         ):
             gage.fetch_site_info()
 
@@ -470,14 +470,14 @@ class TestSiteCoordinates:
         """
         gage = USGSgage("03606500")
         rdb = SITE_EXPANDED_NO_COORDS.replace("\t205\n", "\t\n")
-        with patch("hydrolib.usgs.requests.get", return_value=_mock_response(rdb)):
+        with patch("flowfreq.usgs.requests.get", return_value=_mock_response(rdb)):
             gage.fetch_site_info()
 
         assert gage.drainage_area is None
 
     def test_drainage_area_still_parses_when_present(self) -> None:
         gage = USGSgage("03606500")
-        with patch("hydrolib.usgs.requests.get", return_value=_mock_response(SITE_EXPANDED)):
+        with patch("flowfreq.usgs.requests.get", return_value=_mock_response(SITE_EXPANDED)):
             gage.fetch_site_info()
 
         assert gage.drainage_area == pytest.approx(205.0)

@@ -1,5 +1,5 @@
 """
-hydrolib.batch - Multi-site batch processing for flood frequency analysis
+flowfreq.batch - Multi-site batch processing for flood frequency analysis
 """
 
 from __future__ import annotations

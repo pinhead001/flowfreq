@@ -1,6 +1,6 @@
 # Vignette: Low-Flow, Flow-Regime, and Sub-Daily Variation Analysis
 
-This vignette walks through hydrolib's low-flow frequency analysis, flow-regime
+This vignette walks through flowfreq's low-flow frequency analysis, flow-regime
 metrics (flashiness, baseflow separation, seasonal summaries), and sub-daily
 (diel) variation analysis, using the Methow River at Pateros, WA (USGS
 12449950) as the example gage.
@@ -34,7 +34,7 @@ pip install -e ".[dev]"
 ```python
 import numpy as np
 import pandas as pd
-from hydrolib import USGSgage
+from flowfreq import USGSgage
 
 SITE_NO = "12449950"   # Methow River at Pateros, WA
 
@@ -128,11 +128,11 @@ iv_df = pd.DataFrame({"flow_cfs": diel_signal + iv_noise}, index=iv_dates)
 ## Cell 3 — Save / Load a Flow Series
 
 Either `daily_df` above is worth caching locally rather than re-downloading on
-every run. `hydrolib.flowio` wraps `daily_df.to_parquet`/`pd.read_parquet`
+every run. `flowfreq.flowio` wraps `daily_df.to_parquet`/`pd.read_parquet`
 with a consistent default compression and dtype/timezone handling:
 
 ```python
-from hydrolib import save_flow_frame, load_flow_frame
+from flowfreq import save_flow_frame, load_flow_frame
 
 save_flow_frame(daily_df, "methow_daily.parquet")
 reloaded = load_flow_frame("methow_daily.parquet")
@@ -155,7 +155,7 @@ statistics; the climatic year (Apr 1 – Mar 31, per Riggs 1972) keeps a single
 low-flow season from being split across a calendar- or water-year boundary.
 
 ```python
-from hydrolib import LowFlowFrequency
+from flowfreq import LowFlowFrequency
 
 lff = LowFlowFrequency(daily_df, n_day=7, year_type="climatic")
 results = lff.run_analysis()
@@ -240,7 +240,7 @@ a regime description is naturally organized by water year while a low-flow
 extreme should not be split across one).
 
 ```python
-from hydrolib import FlowRegime
+from flowfreq import FlowRegime
 
 regime = FlowRegime(daily_df, year_type="water", baseflow_method="ih_smoothed_minima")
 print(regime.annual.head(3).round(3).to_string(index=False))
@@ -321,7 +321,7 @@ grouping by the wrong zone silently fractures each local day across two
 UTC-labeled buckets.
 
 ```python
-from hydrolib import diel_variation, diel_variation_summary
+from flowfreq import diel_variation, diel_variation_summary
 
 diel_df = diel_variation(iv_df, tz="America/Los_Angeles")
 print(diel_df.round(2).to_string(index=False))

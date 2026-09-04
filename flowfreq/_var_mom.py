@@ -1,6 +1,6 @@
 """Native port of peakfq's var_mom: variance-covariance of the EMA moment estimators.
 
-Phase 2 of the ``var_mom`` port (TODO.md P3). Phase 1 (``hydrolib._p3_moments``)
+Phase 2 of the ``var_mom`` port (TODO.md P3). Phase 1 (``flowfreq._p3_moments``)
 ported the leaf layer -- ``m2p``, ``m2mn``, ``mn2m``, ``p_p3``, ``q_p3``,
 ``m_p3``. This module composes the rest of the dependency tree on top of it:
 
@@ -34,7 +34,7 @@ import math
 import mpmath
 import numpy as np
 
-from hydrolib._p3_moments import _GAMMA_MOMENT_DPS, _gamma_trunc_moments, m2p, m_p3, p_p3, q_p3
+from flowfreq._p3_moments import _GAMMA_MOMENT_DPS, _gamma_trunc_moments, m2p, m_p3, p_p3, q_p3
 
 __all__ = ["expmomderiv", "d_est", "varb", "varc", "var_mom"]
 

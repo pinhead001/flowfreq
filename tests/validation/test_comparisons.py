@@ -4,13 +4,13 @@ from __future__ import annotations
 
 import pytest
 
-from hydrolib.validation.comparisons import (
+from flowfreq.validation.comparisons import (
     ComparisonResult,
     FrequencyComparator,
     _is_skew,
     _pct_diff,
 )
-from hydrolib.validation.reference import ReferenceResult
+from flowfreq.validation.reference import ReferenceResult
 
 
 class TestPctDiff:

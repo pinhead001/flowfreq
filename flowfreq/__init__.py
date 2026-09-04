@@ -1,5 +1,5 @@
 """
-hydrolib - Python library for hydrologic analysis
+flowfreq - Python library for hydrologic analysis
 
 Includes:
 - USGS gage data download (daily and peak flows)
@@ -9,7 +9,7 @@ Includes:
   - Expected Moments Algorithm (EMA) with full PeakFQ parity
 - Historical flood information handling
 - Technical report generation
-- One-call analysis workflow (hydrolib.workflow.run_ffa)
+- One-call analysis workflow (flowfreq.workflow.run_ffa)
 """
 
 import logging
@@ -154,7 +154,7 @@ def analyze_gage(
 
 
 __version__ = "0.2.0"
-__author__ = "HydroLib"
+__author__ = "FlowFreq"
 
 __all__ = [
     # Core

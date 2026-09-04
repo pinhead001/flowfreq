@@ -1,5 +1,5 @@
 """
-hydrolib.core - Core data structures and utility functions
+flowfreq.core - Core data structures and utility functions
 """
 
 from __future__ import annotations
@@ -160,7 +160,7 @@ class LowFlowResults:
     Mirrors :class:`FrequencyResults`' shape so the two analyses read alike.
     Fields with no high-flow analogue: `n_zero_years` and `p_zero`, from the
     conditional-probability adjustment for zero-flow years (see
-    :mod:`hydrolib.lowflow`). There is no regional-skew map or MGBT-style
+    :mod:`flowfreq.lowflow`). There is no regional-skew map or MGBT-style
     outlier test for the low-flow tail, so those fields have no counterpart
     here.
 
@@ -200,7 +200,7 @@ class LowFlowResults:
 # =============================================================================
 
 
-#: Year definitions shared by hydrolib.lowflow and hydrolib.regime for
+#: Year definitions shared by flowfreq.lowflow and flowfreq.regime for
 #: grouping a daily series into annual periods.
 YEAR_TYPES = ("climatic", "water", "calendar")
 
@@ -215,7 +215,7 @@ def assign_year_label(dates: pd.DatetimeIndex, year_type: str) -> np.ndarray:
         One of:
 
         - "water": Oct 1 (Y-1) - Sep 30 Y, labeled Y (matches
-          :meth:`hydrolib.usgs.USGSgage.download_peak_flow`'s inline
+          :meth:`flowfreq.usgs.USGSgage.download_peak_flow`'s inline
           water-year convention).
         - "climatic": Apr 1 Y - Mar 31 (Y+1), labeled Y. Follows Riggs
           (1972), USGS Techniques of Water-Resources Investigations Book 4

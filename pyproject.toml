@@ -3,7 +3,7 @@ requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "hydrolib"
+name = "flowfreq"
 version = "0.2.0"
 description = "Python library for hydrologic analysis with Bulletin 17C flood frequency"
 readme = "README.md"
@@ -30,7 +30,7 @@ dependencies = [
     "requests>=2.25.0",
     "click>=8.0",
     "pyarrow>=10.0",
-    # Pure Python, no compiled extension. hydrolib._p3_moments needs it for
+    # Pure Python, no compiled extension. flowfreq._p3_moments needs it for
     # the var_mom port's truncated-moment computation: at-site skew near
     # zero (the common case) makes the Pearson III shape parameter
     # alpha = 4/skew**2 large enough (Big Sandy: ~9e4) that float64 loses
@@ -49,11 +49,11 @@ dev = [
 ]
 
 [project.scripts]
-hydrolib = "hydrolib.cli:cli"
+flowfreq = "flowfreq.cli:cli"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["hydrolib*"]
+include = ["flowfreq*"]
 
 [tool.setuptools.package-data]
 # py.typed is the PEP 561 marker. Without it a downstream type checker ignores
@@ -63,13 +63,13 @@ include = ["hydrolib*"]
 # The gage table used to be shipped as "../data/*.csv" from a top-level data/
 # directory, a package-data entry reaching outside the package it belongs to.
 # It happened to work; it is not contractual, and it forced data* into
-# packages.find above. The file now lives in hydrolib/data/ where it is
+# packages.find above. The file now lives in flowfreq/data/ where it is
 # addressed normally.
-"hydrolib" = ["data/*.csv", "py.typed"]
-# Benchmark cases must ship with the package: hydrolib benchmark used to read
+"flowfreq" = ["data/*.csv", "py.typed"]
+# Benchmark cases must ship with the package: flowfreq benchmark used to read
 # them out of tests/, which is not packaged, so the command failed for every
 # installed user.
-"hydrolib.validation" = ["data/*.json"]
+"flowfreq.validation" = ["data/*.json"]
 
 [tool.black]
 line-length = 100
@@ -78,7 +78,7 @@ target-version = ['py39', 'py310', 'py311', 'py312']
 [tool.isort]
 profile = "black"
 line_length = 100
-known_first_party = ["hydrolib"]
+known_first_party = ["flowfreq"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -92,7 +92,7 @@ python_files = ["test_*.py"]
 # vendored at vendor/peakfqr/inst/testdata, those tests pass, and
 # tests/fixtures/paths.py skips them cleanly if it is ever absent.
 #
-# requires_peakfqsa is gone with hydrolib/peakfqsa: the marker gated two empty
+# requires_peakfqsa is gone with flowfreq/peakfqsa: the marker gated two empty
 # stub classes, so `pytest -m requires_peakfqsa` collected zero tests and both
 # the marker and its exclusion were dead config.
 addopts = "-v -m 'not requires_network'"

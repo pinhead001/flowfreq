@@ -1,4 +1,4 @@
-"""Tests for hydrolib.regime (flow regime metrics)."""
+"""Tests for flowfreq.regime (flow regime metrics)."""
 
 from __future__ import annotations
 
@@ -6,8 +6,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from hydrolib.regime import _days_in_season  # noqa: PLC2701 -- testing the helper directly
-from hydrolib.regime import (
+from flowfreq.regime import _days_in_season  # noqa: PLC2701 -- testing the helper directly
+from flowfreq.regime import (
     BASEFLOW_METHODS,
     FlowRegime,
     _hysep_interval_days,
@@ -201,13 +201,13 @@ class TestHysep:
             [50, 45, 40, 35, 30, 10, 32, 36, 40, 44, 48, 52, 20, 48, 44, 40, 36, 32, 28, 24],
             dtype=float,
         )
-        from hydrolib.regime import _hysep_fixed
+        from flowfreq.regime import _hysep_fixed
 
         bf = _hysep_fixed(flows, n_star=2)
         assert bf[0] == bf[1] == bf[2] == bf[3] == flows[0:4].min()
 
     def test_sliding_interval_never_exceeds_actual_flow(self) -> None:
-        from hydrolib.regime import _hysep_sliding
+        from flowfreq.regime import _hysep_sliding
 
         flows = np.array(
             [50, 45, 40, 35, 30, 10, 32, 36, 40, 44, 48, 52, 20, 48, 44, 40, 36, 32, 28, 24],
@@ -218,7 +218,7 @@ class TestHysep:
         assert np.all(bf[valid] <= flows[valid] + 1e-9)
 
     def test_local_minimum_identifies_known_local_minima(self) -> None:
-        from hydrolib.regime import _hysep_local_minimum
+        from flowfreq.regime import _hysep_local_minimum
 
         flows = np.array(
             [50, 45, 40, 35, 30, 10, 32, 36, 40, 44, 48, 52, 20, 48, 44, 40, 36, 32, 28, 24],
@@ -249,7 +249,7 @@ class TestLyneHollick:
         """A single missing day must not poison every value after it -- each
         day's filtered value depends on the previous one via the recursion,
         so an unguarded gap would corrupt the entire remainder."""
-        from hydrolib.regime import _lyne_hollick
+        from flowfreq.regime import _lyne_hollick
 
         flows = self._recession_with_storm()
         gapped = flows.copy()
@@ -262,7 +262,7 @@ class TestLyneHollick:
         assert not np.isnan(bf[89])
 
     def test_recession_is_mostly_baseflow(self) -> None:
-        from hydrolib.regime import _lyne_hollick
+        from flowfreq.regime import _lyne_hollick
 
         flows = self._recession_with_storm()
         bf = _lyne_hollick(flows)
@@ -270,14 +270,14 @@ class TestLyneHollick:
         assert bfi_recession > 0.85
 
     def test_storm_peak_is_mostly_quickflow(self) -> None:
-        from hydrolib.regime import _lyne_hollick
+        from flowfreq.regime import _lyne_hollick
 
         flows = self._recession_with_storm()
         bf = _lyne_hollick(flows)
         assert bf[42] < flows[42] * 0.5
 
     def test_baseflow_bounded_by_zero_and_total_flow(self) -> None:
-        from hydrolib.regime import _lyne_hollick
+        from flowfreq.regime import _lyne_hollick
 
         flows = self._recession_with_storm()
         bf = _lyne_hollick(flows)

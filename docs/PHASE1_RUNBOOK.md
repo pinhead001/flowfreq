@@ -1,4 +1,4 @@
-# Phase 1 Runbook — Create `pyhydrolib`
+# Phase 1 Runbook — Create `flowfreq`
 
 Step-by-step for the library half of the split. Companion to
 `docs/REPO_SPLIT_PLAN.md`; that document holds the reasoning, this one holds the
@@ -21,7 +21,7 @@ Merge it first:
 
 ```bash
 gh pr create --base main --head claude/repo-split-planning-m4bj30 \
-  --title "Split analysis into hydrolib.workflow (repo-split Phase 0)" \
+  --title "Split analysis into flowfreq.workflow (repo-split Phase 0)" \
   --body "See docs/REPO_SPLIT_PLAN.md"
 # review, then merge
 gh pr merge --squash --delete-branch
@@ -31,7 +31,7 @@ Do not proceed until `git log origin/main` shows the refactor. Everything below
 assumes `main` contains it.
 
 > Squash-merging collapses the three commits into one. That is fine for the
-> history `pyhydrolib` inherits — the reasoning survives in the squash message
+> history `flowfreq` inherits — the reasoning survives in the squash message
 > and in `docs/REPO_SPLIT_PLAN.md`. Use `--merge` instead if you would rather
 > keep them separate.
 
@@ -44,7 +44,7 @@ this is a create-then-push, not the Fork button. The history is preserved either
 way.
 
 ```bash
-gh repo create pinhead001/pyhydrolib --public \
+gh repo create pinhead001/flowfreq --public \
   --description "Bulletin 17C flood frequency analysis with USGS data retrieval"
 ```
 
@@ -57,9 +57,9 @@ history.
 ## Step 2 — Push the full history
 
 ```bash
-git clone https://github.com/pinhead001/hydrolib pyhydrolib
-cd pyhydrolib
-git remote set-url origin https://github.com/pinhead001/pyhydrolib
+git clone https://github.com/pinhead001/hydrolib flowfreq
+cd flowfreq
+git remote set-url origin https://github.com/pinhead001/flowfreq
 git push -u origin main
 ```
 
@@ -81,7 +81,7 @@ Do **not** delete these — they are library code that only sounds app-shaped:
 
 | Path | Why it stays |
 |---|---|
-| `hydrolib/freq_plot.py` | imports matplotlib, not Streamlit; returns a `Figure` |
+| `flowfreq/freq_plot.py` | imports matplotlib, not Streamlit; returns a `Figure` |
 | `tests/test_freq_plot.py` | tests the above |
 | `tests/test_workflow.py` | the analysis half that came out of `ffa_runner` in Phase 0 |
 | `tests/fixtures/big_sandy.py` | used by six library test modules |
@@ -93,16 +93,16 @@ Do **not** delete these — they are library code that only sounds app-shaped:
 ### `pyproject.toml`
 
 ```toml
-name = "pyhydrolib"      # was "hydrolib"
+name = "flowfreq"      # was "hydrolib"
 version = "0.3.0"        # was "0.2.0"
 ```
 
 Leave everything else. In particular `[tool.setuptools.packages.find]` still
 says `include = ["hydrolib*"]` and `[project.scripts]` still says
-`hydrolib = "hydrolib.cli:cli"` — the **import** name and console script do not
-change, only the distribution name. That is the whole point of the naming
-decision; if you find yourself editing import statements, stop and re-read
-§1 of the plan.
+`flowfreq = "flowfreq.cli:cli"`. Repo, distribution, import name and console
+script now all read `flowfreq` — the rename landed before this runbook runs, so
+Phase 1 edits no import statements. If you find yourself editing one, something
+has gone wrong.
 
 ### `.bumpversion.cfg`
 
@@ -110,7 +110,7 @@ decision; if you find yourself editing import statements, stop and re-read
 current_version = 0.3.0
 ```
 
-### `hydrolib/__init__.py`
+### `flowfreq/__init__.py`
 
 Line 156: `__version__ = "0.3.0"`.
 
@@ -154,8 +154,8 @@ next session hunting for files that are not there.
 | File | Edit |
 |---|---|
 | `CLAUDE.md` | Drop `app/` from the Repository Layout block; drop the `make smoke` entry and its comment from Build & Development Commands |
-| `README.md` | Drop the `app/*` rows from Module Overview (~L115–117), the `pip install streamlit` step (~L50), the `streamlit run` section (~L239), and the two Streamlit vignette rows (~L262–263). Add an install-from-git line: `pip install git+https://github.com/pinhead001/pyhydrolib@v0.3.0` |
-| `CHANGELOG.md` | New `0.3.0` entry: renamed distribution to `pyhydrolib` (import name unchanged), app split to its own repo, `hydrolib.workflow` added, gage table moved into the package |
+| `README.md` | Drop the `app/*` rows from Module Overview (~L115–117), the `pip install streamlit` step (~L50), the `streamlit run` section (~L239), and the two Streamlit vignette rows (~L262–263). Add an install-from-git line: `pip install git+https://github.com/pinhead001/flowfreq@v0.3.0` |
+| `CHANGELOG.md` | New `0.3.0` entry: renamed to `flowfreq` (package, distribution and display name), app split to its own repo, `flowfreq.workflow` added, gage table moved into the package |
 | `PRODUCTION.md` | L141 mentions `app/` is smoke-tested only — now false |
 
 `docs/FORTRAN_UPLOAD.md` references the Streamlit vignettes at L42 and L452, but
@@ -187,12 +187,25 @@ fails the build on purpose.
 Packaged install — build a wheel, install it into a clean venv, and read the
 gage table back from a directory that has no `data/` in it:
 
+Clear stale build output first. `build/` and `*.egg-info/` are gitignored, so a
+tree that ever built under the old name still holds `build/lib/hydrolib/`, and
+setuptools will happily fold it into the new wheel — producing a distribution
+that ships **both** packages and recreates the very collision the rename
+removed. It bit this rename during verification.
+
 ```bash
+rm -rf build *.egg-info
 python -m build --wheel
-python -m venv /tmp/pyhl && /tmp/pyhl/bin/pip install dist/pyhydrolib-0.3.0-*.whl
+python -c "
+import zipfile, glob
+tops = {n.split('/')[0] for n in zipfile.ZipFile(glob.glob('dist/*.whl')[0]).namelist()}
+assert 'hydrolib' not in tops, f'stale hydrolib in wheel: {tops}'
+print('wheel is clean:', sorted(tops))
+"
+python -m venv /tmp/pyhl && /tmp/pyhl/bin/pip install dist/flowfreq-0.3.0-*.whl
 mkdir -p /tmp/elsewhere && cd /tmp/elsewhere
 /tmp/pyhl/bin/python -c "
-from hydrolib.usgs import GageAttributes
+from flowfreq.usgs import GageAttributes
 st = GageAttributes.status()
 assert st['file_exists'] and st['num_gages'] == 3, st
 assert GageAttributes.get_site_name('09355500') == 'SAN JUAN RIVER NEAR ARCHULETA NM'
@@ -200,8 +213,8 @@ print('PASS')
 "
 ```
 
-Two things this proves that `pytest` cannot: the wheel is named `pyhydrolib`
-while the package inside it is `hydrolib`, and the gage CSV resolves from
+Two things this proves that `pytest` cannot: the wheel is named `flowfreq`
+and the package inside it, and the gage CSV resolves from
 site-packages rather than from a sibling directory that only exists in a
 checkout.
 
@@ -213,16 +226,16 @@ checkout.
 git add -A
 git commit    # see message sketch below
 git push origin main
-git tag -a v0.3.0 -m "First release as pyhydrolib; app split to its own repo"
+git tag -a v0.3.0 -m "First release as flowfreq; app split to its own repo"
 git push origin v0.3.0
 ```
 
 The tag is not optional and not cosmetic: Phase 2 pins the app to
-`git+https://github.com/pinhead001/pyhydrolib@v0.3.0`, and that reference cannot
+`git+https://github.com/pinhead001/flowfreq@v0.3.0`, and that reference cannot
 resolve until the tag exists on the remote.
 
 Commit message should say what a reader six months out needs: that this repo is
-the analysis half of a split, that the distribution renamed but the import name
+the analysis half of a split, that it is the former `hydrolib` under a new name
 did not, and that the app moved rather than being deleted.
 
 ---

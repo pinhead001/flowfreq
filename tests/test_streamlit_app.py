@@ -2,15 +2,15 @@
 
 The app is a top-level script, not a module with a ``main()``: importing it
 executes the entire body -- every widget call, every ``st.session_state``
-default, and every hydrolib call reachable before the first button press.
+default, and every flowfreq call reachable before the first button press.
 Streamlit calls this *bare mode*, widgets return their declared defaults, and
 ``download_data`` is therefore ``False``, so nothing here contacts NWIS.
 
 That makes a plain import a real check, and it is coverage the app did not
-have: CI linted ``hydrolib/`` and ``tests/`` only and ran no app tests at all,
+have: CI linted ``flowfreq/`` and ``tests/`` only and ran no app tests at all,
 which is why Streamlit changes could not be reviewed with any confidence. This
 catches a stale import, a ``NameError`` on a branch no test takes, and -- the
-one that matters -- an app call that no longer matches a hydrolib signature.
+one that matters -- an app call that no longer matches a flowfreq signature.
 
 Skipped when Streamlit is absent, which includes the 3.9 matrix job: Streamlit
 requires Python >= 3.10. The ``app`` job in ``.github/workflows/tests.yml``
@@ -34,8 +34,8 @@ pytest.importorskip(
 # dozens. Expected in bare mode, and it would bury a real failure in the log.
 logging.getLogger("streamlit.runtime.scriptrunner_utils.script_run_context").setLevel(logging.ERROR)
 
-# Names the app pulls out of hydrolib and app.ffa_*. If one of these stops
-# resolving, the app is broken for every user even though hydrolib's own tests
+# Names the app pulls out of flowfreq and app.ffa_*. If one of these stops
+# resolving, the app is broken for every user even though flowfreq's own tests
 # are green -- which is exactly the failure this module exists to catch.
 WIRED_CALLABLES = (
     "run_ffa",
@@ -69,7 +69,7 @@ def test_wired_entry_point_resolves(app_module, name):
 
 
 def test_app_reports_the_installed_hydrolib_version(app_module):
-    from hydrolib import __version__
+    from flowfreq import __version__
 
     assert app_module.__version__ == __version__
 

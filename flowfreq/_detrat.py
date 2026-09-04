@@ -1,7 +1,7 @@
 """Native port of peakfq's detrat: the Halloween determinant ratio, Wd.
 
 TODO.md P3's second open item, independent of the ``var_mom``/``mse_ema``
-port (``hydrolib._var_mom``/``hydrolib._mse_ema``). ``Wd`` is HWN's other
+port (``flowfreq._var_mom``/``flowfreq._mse_ema``). ``Wd`` is HWN's other
 weighting input, alongside ``as_G_mse``: ``emafit.f``::
 
     nG = n * Wd * as_G_mse / r_G_mse
@@ -13,7 +13,7 @@ information than its own marginal MSE suggests. ``detrat`` measures that
 via a determinant ratio -- ``det(I - F)`` for the full (mean, variance,
 skew) system versus the (mean, variance)-only subsystem -- rather than
 treating skew's uncertainty in isolation. Below an at-site skew magnitude of
-0.04 the Fortran short-circuits to ``Wd = 1`` (``emafit.f:3654``); hydrolib
+0.04 the Fortran short-circuits to ``Wd = 1`` (``emafit.f:3654``); flowfreq
 matches that, so this module is only ever exercised above that floor.
 
 Everything here is a direct, function-for-function transcription of
@@ -23,7 +23,7 @@ the Fortran comments do), checked against two Fortran oracles
 ``build_fortran/_emafort.pyf`` exposes (``expmomcderiv``, and Phase 1's
 ``detratsub``) -- see ``tests/fortran_parity/test_fortran_oracles.py``.
 
-``EXPMOMCDERIV`` reuses ``hydrolib._var_mom._dexpect`` for the open-tail
+``EXPMOMCDERIV`` reuses ``flowfreq._var_mom._dexpect`` for the open-tail
 expected moments and their Jacobian -- the same building block
 ``expmomderiv``/``d_est`` use -- rather than a second implementation of the
 same truncated-gamma machinery.
@@ -38,8 +38,8 @@ import math
 
 import numpy as np
 
-from hydrolib._p3_moments import _fp_g3_cdf, m2p
-from hydrolib._var_mom import _dexpect
+from flowfreq._p3_moments import _fp_g3_cdf, m2p
+from flowfreq._var_mom import _dexpect
 
 __all__ = ["detrat"]
 
@@ -48,7 +48,7 @@ __all__ = ["detrat"]
 _SKEW_FLOOR = 0.04
 
 #: probfun.f:916 -- EXPMOMCDERIV's own "infinity", log10(1e20). A different
-#: sentinel from hydrolib._var_mom's _D_EST_INF (1e19): this one is in the
+#: sentinel from flowfreq._var_mom's _D_EST_INF (1e19): this one is in the
 #: same log10(flow) units as tl/tu themselves, not an arbitrarily large
 #: number, and must match exactly for the open-tail Jacobian to line up
 #: with what the Fortran computes.
@@ -120,7 +120,7 @@ def _expmomcderiv(parms: np.ndarray, tl: float, tu: float):
         ]
     )
     # d(tau, alpha, beta)/d(mean, variance, skew) directly -- not the same
-    # basis as hydrolib._var_mom._dpdm, which differentiates w.r.t.
+    # basis as flowfreq._var_mom._dpdm, which differentiates w.r.t.
     # noncentral moments instead.
     skew = float(mc[2])
     tp = np.array(

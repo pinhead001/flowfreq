@@ -10,7 +10,7 @@ import json
 import logging
 from typing import Any
 
-from hydrolib.validation.comparisons import ComparisonResult
+from flowfreq.validation.comparisons import ComparisonResult
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +29,7 @@ def generate_text_report(results: dict[str, ComparisonResult]) -> str:
         Formatted text report.
     """
     lines: list[str] = []
-    lines.append("HydroLib Validation Report")
+    lines.append("FlowFreq Validation Report")
     lines.append("=" * 40)
 
     n_pass = sum(1 for r in results.values() if r.passed)

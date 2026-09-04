@@ -34,8 +34,8 @@ def golden_big_sandy() -> dict:
 
 @pytest.fixture(scope="session")
 def native_big_sandy():
-    """hydrolib's own EMA fit of the same record."""
-    from hydrolib.bulletin17c import Bulletin17C
+    """flowfreq's own EMA fit of the same record."""
+    from flowfreq.bulletin17c import Bulletin17C
     from tests.fixtures.big_sandy import (
         HISTORICAL_PEAKS,
         REGIONAL_SKEW,

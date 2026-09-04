@@ -6,13 +6,13 @@ return period via Cohn's inverse-Gaussian-quadrature method (``VAR_EMAB``,
 ``emafit.f:1972``).
 
 Nearly everything this needs was already ported by earlier phases: ``var_mom``,
-``m2mn``, ``mn2mvarb`` (``hydrolib._var_mom``, ``hydrolib._p3_moments``,
-``hydrolib._mse_ema``), the Fortran-verified ``_gridmake``/``_covw``
-(``hydrolib._mse_ema`` -- already indirectly oracle-tested through
+``m2mn``, ``mn2mvarb`` (``flowfreq._var_mom``, ``flowfreq._p3_moments``,
+``flowfreq._mse_ema``), the Fortran-verified ``_gridmake``/``_covw``
+(``flowfreq._mse_ema`` -- already indirectly oracle-tested through
 ``mc2mnvb``, which is exactly ``GRIDMAKE`` + ``M2MN`` + ``COVW`` composed,
-``emafit.f:2594``), ``q_p3`` (``hydrolib._p3_moments``), and the ADJE
+``emafit.f:2594``), ``q_p3`` (``flowfreq._p3_moments``), and the ADJE
 skew-MSE machinery (``ExpectedMomentsAlgorithm._adje_bias_adjustment``,
-``hydrolib.bulletin17c._b17b_skew_mse``). ``regmoms`` and ``ci_ema_m3b`` are
+``flowfreq.bulletin17c._b17b_skew_mse``). ``regmoms`` and ``ci_ema_m3b`` are
 mostly glue code composing those pieces; ``var_emab`` itself is the one
 genuinely new piece -- a nested quadrature that estimates not just the
 quantile but the sampling variability of its own standard error.
@@ -33,7 +33,7 @@ answer -- point estimates matched exactly, confidence widths did not):
   same one ``Bulletin17C.run_analysis()`` already produces -- not the
   at-site-only fit.
 * ``r_m_mse``/``r_s2_mse`` are "no regional info" sentinels here always:
-  hydrolib has no regional mean/variance inputs, only regional skew
+  flowfreq has no regional mean/variance inputs, only regional skew
   (``r_g_mse``, already ``Bulletin17C``'s existing MSE encoding --
   0 = generalized/no error, <0 = generalized with error, >0 = weighted,
   >=1e10 = station-only).
@@ -55,9 +55,9 @@ from typing import Tuple
 import numpy as np
 from scipy.stats import t as _student_t
 
-from hydrolib._mse_ema import _covw, _gridmake, mn2mvarb
-from hydrolib._p3_moments import m2mn, q_p3
-from hydrolib._var_mom import var_mom
+from flowfreq._mse_ema import _covw, _gridmake, mn2mvarb
+from flowfreq._p3_moments import m2mn, q_p3
+from flowfreq._var_mom import var_mom
 
 __all__ = ["regmoms", "var_emab", "ci_ema_m3b"]
 
@@ -67,7 +67,7 @@ __all__ = ["regmoms", "var_emab", "ci_ema_m3b"]
 _REGMOMS_SKEW_CLAMP = 1.5
 
 #: "no regional info" sentinel, matching Bulletin17C's own regional-skew
-#: MSE convention (see hydrolib.bulletin17c's module docstring): >= 1e10
+#: MSE convention (see flowfreq.bulletin17c's module docstring): >= 1e10
 #: means station-only, no blending.
 NO_REGIONAL_INFO = 1e10
 
@@ -86,7 +86,7 @@ def _mseg_all(nobs: np.ndarray, tl: np.ndarray, tu: np.ndarray, mc: np.ndarray) 
     matches what ``_adje_bias_adjustment`` expects: it calls ``mse_ema``,
     which re-derives its own shift from ``mc[0]`` -- exactly 0 here.
     """
-    from hydrolib.bulletin17c import ExpectedMomentsAlgorithm, _b17b_skew_mse
+    from flowfreq.bulletin17c import ExpectedMomentsAlgorithm, _b17b_skew_mse
 
     n = int(round(float(np.sum(nobs))))
     n_adj = min(n, 150)

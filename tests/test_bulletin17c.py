@@ -5,7 +5,7 @@ import logging
 import numpy as np
 import pytest
 
-from hydrolib import (
+from flowfreq import (
     AnalysisMethod,
     Bulletin17C,
     ExpectedMomentsAlgorithm,
@@ -13,7 +13,7 @@ from hydrolib import (
     grubbs_beck_critical_value,
     kfactor,
 )
-from hydrolib.bulletin17c import _b17b_skew_mse
+from flowfreq.bulletin17c import _b17b_skew_mse
 
 
 # Fixtures
@@ -655,7 +655,7 @@ class TestMomUserLowOutlierThreshold:
 
     def test_override_logs_that_mom_censors(self, caplog):
         """The fit now acts on the override; say so."""
-        with caplog.at_level(logging.INFO, logger="hydrolib.bulletin17c"):
+        with caplog.at_level(logging.INFO, logger="flowfreq.bulletin17c"):
             self._run(override=4000.0)
         assert any("censors" in r.message for r in caplog.records)
 

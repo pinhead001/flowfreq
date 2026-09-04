@@ -1,5 +1,5 @@
 """
-hydrolib.freq_plot - Frequency curve plotting for Streamlit display.
+flowfreq.freq_plot - Frequency curve plotting for Streamlit display.
 """
 
 from __future__ import annotations

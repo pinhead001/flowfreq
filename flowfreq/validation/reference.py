@@ -1,6 +1,6 @@
 """Reference results for validating the native EMA against peakfq 8.1.0.
 
-This replaces ``hydrolib.peakfqsa``, which was written to drive a standalone
+This replaces ``flowfreq.peakfqsa``, which was written to drive a standalone
 PeakfqSA executable. That executable does not exist and never did -- the
 premise came from the original build brief (see
 ``AGENT_BUILD_INSTRUCTIONS_Claude.md`` §7) and was corrected later. The
@@ -16,11 +16,11 @@ Two of them:
     ``tools/gen_fortran_golden.py``. Always available, no toolchain needed.
 
 ``from_emafit``
-    A live call through the f2py bridge in :mod:`hydrolib.peakfqr`. Needs the
+    A live call through the f2py bridge in :mod:`flowfreq.peakfqr`. Needs the
     extension built (``python build_fortran/build.py``), and is the only way to
     get a reference for a site no golden file covers.
 
-Both return the same shape, so :class:`~hydrolib.validation.comparisons.FrequencyComparator`
+Both return the same shape, so :class:`~flowfreq.validation.comparisons.FrequencyComparator`
 does not care which produced it.
 
 All flow quantities from the Fortran are log10(cfs); everything this module
@@ -53,7 +53,7 @@ def cmoms_to_parameters(
     pseudo_record_length: Optional[float] = None,
     weight_factor: Optional[float] = None,
 ) -> Dict[str, float]:
-    """Map ``emafitpr``'s ``cmoms(3,3)`` onto HydroLib parameter names.
+    """Map ``emafitpr``'s ``cmoms(3,3)`` onto FlowFreq parameter names.
 
     Column 1 is the fit using regional information, column 2 the at-site-only
     fit, column 3 the B17B MSE formula applied at-site. Rows are mean, variance
@@ -233,7 +233,7 @@ class ReferenceResult:
             ``python build_fortran/build.py`` (needs gfortran and meson).
         """
         try:
-            from hydrolib.peakfqr import emafitpr
+            from flowfreq.peakfqr import emafitpr
         except ImportError as exc:  # pragma: no cover - depends on the build
             raise ImportError(
                 "the Fortran bridge is not built; run python build_fortran/build.py "
@@ -279,7 +279,7 @@ class ReferenceResult:
 
         n_historical = int(np.count_nonzero(np.asarray(dtype) == 1))
         return cls._assemble(
-            source="live emafitpr via hydrolib.peakfqr",
+            source="live emafitpr via flowfreq.peakfqr",
             station_name=station_name,
             aeps=aeps,
             outputs={

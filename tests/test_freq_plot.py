@@ -1,12 +1,12 @@
-"""Tests for hydrolib.freq_plot."""
+"""Tests for flowfreq.freq_plot."""
 
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 
-from hydrolib.bulletin17c import Bulletin17C
-from hydrolib.freq_plot import plot_frequency_curve_streamlit
+from flowfreq.bulletin17c import Bulletin17C
+from flowfreq.freq_plot import plot_frequency_curve_streamlit
 
 matplotlib.use("Agg")
 

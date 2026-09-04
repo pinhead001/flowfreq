@@ -16,7 +16,7 @@ What does censoring cost?
     Halloween determinant ratio is far from 1, since ``emafit.f:763`` only
     reaches ``detrat`` when the at-site skew clears 0.04 and Big Sandy's is
     0.0066. ``detrat`` and the ADJE bias adjustment are ported and wired
-    (``hydrolib._detrat``, ``hydrolib._mse_ema``), and the at-site EMA
+    (``flowfreq._detrat``, ``flowfreq._mse_ema``), and the at-site EMA
     moment iteration itself (``_compute_ema_moments``/``_ema_iteration``)
     now matches ``moms_p3`` to machine precision on censored rows too (it
     used to diverge there, from its own approximate truncated-moment
@@ -65,7 +65,7 @@ pytestmark = [
 
 
 def _native(site_no: str):
-    from hydrolib.bulletin17c import Bulletin17C
+    from flowfreq.bulletin17c import Bulletin17C
     from tests.fixtures.wymt_peaks import load_site
 
     site = load_site(site_no)
@@ -185,7 +185,7 @@ class TestCainsCouleeCensored:
         assert ref["wd"] == pytest.approx(0.184, abs=5e-4)
 
     def test_native_determinant_ratio_is_close(self, cains_coulee):
-        """hydrolib's own Wd, computed from its now near-exact at-site fit.
+        """flowfreq's own Wd, computed from its now near-exact at-site fit.
 
         0.186 against peakfq's 0.184 -- close, and nowhere near the
         ``Wd = 1`` that ``_perception_threshold_groups`` reported before it
@@ -194,7 +194,7 @@ class TestCainsCouleeCensored:
         ``skew_station`` -0.830 into ``detrat`` rather than the now-correct
         -0.708).
         """
-        from hydrolib.bulletin17c import ExpectedMomentsAlgorithm
+        from flowfreq.bulletin17c import ExpectedMomentsAlgorithm
 
         results, ref = cains_coulee
         nobs, tl, tu = (
@@ -229,7 +229,7 @@ class TestCainsCouleeCensored:
 
         ``_compute_ema_moments``'s censored branch used its own approximate
         truncated-gamma-moment formula instead of the already-ported,
-        Fortran-verified ``hydrolib._p3_moments.m_p3``, and
+        Fortran-verified ``flowfreq._p3_moments.m_p3``, and
         ``_ema_iteration``'s bias-correction factors used the total
         interval count where the vendored Fortran's actual default
         (``bcf=1997``, ``emafit.f:1408``) uses the exact-peak count. Both
@@ -259,7 +259,7 @@ class TestCainsCouleeCensored:
             "The exact mechanism (likely something in emafitpr's own "
             "multi-stage internal fitting before the reported value is "
             "set) was not pinned down despite substantial investigation. "
-            "hydrolib's own composition of independently-verified routines "
+            "flowfreq's own composition of independently-verified routines "
             "has no principled way to reproduce an unexplained number, so "
             "it is left as is. See TODO.md P3."
         ),

@@ -1,5 +1,5 @@
 """
-hydrolib.hydrograph - Hydrograph analysis and plotting
+flowfreq.hydrograph - Hydrograph analysis and plotting
 """
 
 from __future__ import annotations

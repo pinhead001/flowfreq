@@ -1,6 +1,6 @@
 # %% Complete workflow - run this entire cell
 
-from hydrolib import (
+from flowfreq import (
     USGSGage,
     Bulletin17C,
 )
@@ -85,7 +85,7 @@ report_text = f"""
 {thresh_table.to_string(index=False)}
 
 ---
-*Analysis performed using hydrolib v0.0.3*
+*Analysis performed using flowfreq v0.0.3*
 """
 
 report_path = os.path.join(output_dir, "flood_frequency_report.md")

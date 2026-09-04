@@ -1,5 +1,5 @@
 """
-hydrolib.bulletin17c - Bulletin 17C Flood Frequency Analysis
+flowfreq.bulletin17c - Bulletin 17C Flood Frequency Analysis
 
 Implements both Method of Moments (MOM) and Expected Moments Algorithm (EMA).
 """
@@ -788,7 +788,7 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         """Compute expected moments given current parameter estimates.
 
         Censored intervals contribute ``E[X^k | tl < X < tu]`` from
-        ``hydrolib._p3_moments.m_p3`` -- ``emafit.f``'s ``mP3``, the same
+        ``flowfreq._p3_moments.m_p3`` -- ``emafit.f``'s ``mP3``, the same
         truncated-moment machinery ``var_mom`` uses (blending an
         incomplete-gamma solution with a Wilson-Hilferty one, rather than
         this method's own former approximation of the same thing), verified
@@ -806,7 +806,7 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
             Non-central sums, exactly-observed peaks kept apart from censored
             intervals; see that class for why the split matters.
         """
-        from hydrolib._p3_moments import m_p3
+        from flowfreq._p3_moments import m_p3
 
         exact = np.zeros(3)
         censored = np.zeros(3)
@@ -885,7 +885,7 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
 
         ``nobs[i]`` intervals share the perception-threshold pair
         ``(tl[i], tu[i])`` -- the same grouping ``var_mom``/``mse_ema``
-        (``hydrolib._var_mom``/``hydrolib._mse_ema``) and the Fortran parity
+        (``flowfreq._var_mom``/``flowfreq._mse_ema``) and the Fortran parity
         tests use (``tests/fortran_parity/test_fortran_oracles.py::_threshold_groups``).
 
         This is *not* the observed value interval (``interval.lower``/
@@ -910,7 +910,7 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         (``self._ema_params.low_outlier_threshold``), peakfq's own
         ``tlema``/``tuema`` raise the perception threshold for the *entire*
         systematic record to that cutoff -- not just the flagged PILF
-        years -- confirmed against a direct ``emafitpr`` call. hydrolib's
+        years -- confirmed against a direct ``emafitpr`` call. flowfreq's
         ``FlowInterval.perception_threshold`` stays ``0.0`` for PILFs (it
         models the low outlier as a censored *value*, which is correct for
         the moment fit itself), so that elevation has to be applied here
@@ -958,9 +958,9 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         across a test suite (and, for a Streamlit session re-running a fit
         with different low-outlier thresholds, in real use too) -- and
         because a single call costs a few hundred milliseconds
-        (``hydrolib._mse_ema``'s module docstring has the profiling story).
+        (``flowfreq._mse_ema``'s module docstring has the profiling story).
         """
-        from hydrolib._mse_ema import mse_ema
+        from flowfreq._mse_ema import mse_ema
 
         mc = np.array([mean_log, var_log, at_site_skew])
         mse_censored = mse_ema(np.array(nobs), np.array(tl), np.array(tu), mc, kmom=3)
@@ -1015,7 +1015,7 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         at_site_skew: float,
         n: int,
     ) -> float:
-        """``Wd``, the Halloween determinant ratio (``hydrolib._detrat.detrat``).
+        """``Wd``, the Halloween determinant ratio (``flowfreq._detrat.detrat``).
 
         Unlike ``mse_ema``, ``detrat`` takes the fit's real (unshifted)
         mean and the real (unshifted) perception thresholds directly --
@@ -1024,7 +1024,7 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         ``@lru_cache`` for the same reason ``_adje_bias_adjustment`` has
         one.
         """
-        from hydrolib._detrat import detrat
+        from flowfreq._detrat import detrat
 
         mc = np.array([mean_log, var_log, at_site_skew])
         return detrat(mc, n, np.array(nobs), np.array(tl), np.array(tu))
@@ -1043,7 +1043,7 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         implements HWN, peakfq's default, whose rule is at ``emafit.f`` line
         763: the Halloween determinant ratio applies only when the at-site
         skew is at least 0.04 in magnitude, and reduces to 1 below that.
-        Above that floor, ``Wd`` comes from ``hydrolib._detrat.detrat``
+        Above that floor, ``Wd`` comes from ``flowfreq._detrat.detrat``
         (TODO.md P3's other open item, now closed) -- falls back to
         ``Wd = 1`` (the INV weighting option rather than HWN) with a
         logged warning if that fails, the same posture ``_adje_skew_mse``
@@ -1496,7 +1496,7 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         eps: float,
         r_g_mse: float,
     ) -> Tuple[np.ndarray, np.ndarray]:
-        """``(ci_low, ci_high)`` in log10 space from ``hydrolib._var_emab.var_emab``.
+        """``(ci_low, ci_high)`` in log10 space from ``flowfreq._var_emab.var_emab``.
 
         ``@lru_cache`` for the same reason ``_adje_bias_adjustment``/
         ``_detrat_wd`` have one -- this is the most expensive piece in the
@@ -1504,7 +1504,7 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         ``var_mom``/``mn2mvarb`` solve) and repeated fits of the same
         fixture are common.
         """
-        from hydrolib._var_emab import var_emab
+        from flowfreq._var_emab import var_emab
 
         mc = np.array([mean_log, var_log, skew])
         _, _, cil, cih, _ = var_emab(
@@ -1519,7 +1519,7 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
 
         ``FloodFrequencyAnalysis.compute_confidence_limits`` forms
         ``log_Q +/- z*se``, symmetric by construction (TODO.md P3's
-        confidence-interval-shape defect). ``hydrolib._var_emab.var_emab``
+        confidence-interval-shape defect). ``flowfreq._var_emab.var_emab``
         (``emafit.f``'s ``VAR_EMAB``/``regmoms``/``ci_ema_m3b``) reproduces
         peakfq 8.1.0's own asymmetric bounds instead, verified against the
         Fortran oracle to ~1e-5 relative on Big Sandy and Powder River (see
@@ -1534,7 +1534,7 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         if aep is None:
             aep = self.STANDARD_AEP
 
-        from hydrolib._var_emab import NO_REGIONAL_INFO
+        from flowfreq._var_emab import NO_REGIONAL_INFO
 
         nobs, tl, tu = self._perception_threshold_groups()
         r_g_mse = (
@@ -1929,7 +1929,7 @@ class Bulletin17C:
         ----------
         reference : ReferenceResult
             Reference result, from a golden file or a live ``emafitpr`` call;
-            see :mod:`hydrolib.validation.reference`.
+            see :mod:`flowfreq.validation.reference`.
         tolerance_pct : float
             Tolerance for quantile comparisons.
         parameter_tolerance_pct : float
@@ -1942,7 +1942,7 @@ class Bulletin17C:
         ComparisonResult
             Detailed comparison result.
         """
-        from hydrolib.validation.comparisons import FrequencyComparator
+        from flowfreq.validation.comparisons import FrequencyComparator
 
         if self._results is None:
             self.run_analysis()

@@ -1,4 +1,4 @@
-"""Tests for hydrolib._var_emab that do not require the Fortran extension.
+"""Tests for flowfreq._var_emab that do not require the Fortran extension.
 
 Parity against the vendored Fortran lives in
 tests/fortran_parity/test_fortran_oracles.py::TestVarEmabPort (skipped when
@@ -14,7 +14,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from hydrolib._var_emab import ci_ema_m3b, regmoms, var_emab
+from flowfreq._var_emab import ci_ema_m3b, regmoms, var_emab
 
 # Big Sandy's own converged weighted fit and threshold groups (TODO.md P3),
 # verified against the Fortran oracle in

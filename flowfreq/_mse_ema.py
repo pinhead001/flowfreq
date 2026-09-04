@@ -1,7 +1,7 @@
 """Native port of peakfq's mse_ema: MSE of an at-site EMA moment under ADJE.
 
-Phase 3 of the ``var_mom`` port (TODO.md P3). Phases 1 (``hydrolib._p3_moments``)
-and 2 (``hydrolib._var_mom``) built ``var_mom``, the variance-covariance of the
+Phase 3 of the ``var_mom`` port (TODO.md P3). Phases 1 (``flowfreq._p3_moments``)
+and 2 (``flowfreq._var_mom``) built ``var_mom``, the variance-covariance of the
 *noncentral* moment estimators. ``mse_ema`` is the last piece the ADJE skew
 weighting needs -- ``as_G_mse = bias_adj * mseg(...)`` where
 ``bias_adj = mse_ema(censored)/mse_ema(uncensored)`` (TODO.md P3) -- and it
@@ -49,8 +49,8 @@ from scipy.optimize import root
 from scipy.special import gamma as _gamma_fn
 from scipy.special import roots_genlaguerre
 
-from hydrolib._p3_moments import m2mn, mn2m
-from hydrolib._var_mom import var_mom
+from flowfreq._p3_moments import m2mn, mn2m
+from flowfreq._var_mom import var_mom
 
 __all__ = ["mc2mnvb", "mn2m_var", "mn2mvarb", "mse_ema"]
 

@@ -1,4 +1,4 @@
-# TODO — HydroLib Hybrid 17C Implementation
+# TODO — FlowFreq Hybrid 17C Implementation
 
 ## Status
 Last updated: 2026-09-02
@@ -33,7 +33,7 @@ understood numerical residual, not a missing routine:
   `tests/fortran_parity/test_fortran_oracles.py::TestCainsCouleeAsGMseDiscrepancy` for the full,
   reproducible account. `tests/fortran_parity/test_wymt_vs_golden.py`'s `test_weighted_skew_matches`
   is the one still-open `xfail(strict=True)` this leaves in the whole `var_mom`/`detrat`/`var_emab`
-  tree -- and, per its own reasoning, hydrolib's own computation may well be *more* correct than
+  tree -- and, per its own reasoning, flowfreq's own computation may well be *more* correct than
   the golden reference here, not less.
 
 The other four `xfail(strict=True)`s left in the suite are all the 2012 PeakfqSA manual
@@ -127,11 +127,11 @@ it is the oracle for `detrat`.
         what the port has to replace, and it is a smaller target than "the EMA is off".
       * `_b17b_skew_mse` is exact against `mseg()` up to n = 150 and **31% high at n = 200**
         (0.0479 against 0.0365). `mseg_all` evaluates `mseg()` at `min(n, 150)` then lets
-        ADJE's bias adjustment partially undo the cap; hydrolib applies the cap alone. On a
+        ADJE's bias adjustment partially undo the cap; flowfreq applies the cap alone. On a
         record longer than 150 years that over-weights the regional skew. No parity case is
         that long, so only the oracle test detects it, and fixing it needs `mse_ema`.
 
-      **Phase 1 done: the leaf layer.** `hydrolib/_p3_moments.py` now carries `m2p`, `m2mn`,
+      **Phase 1 done: the leaf layer.** `flowfreq/_p3_moments.py` now carries `m2p`, `m2mn`,
       `mn2m`, `p_p3`, `q_p3` and `m_p3` — everything `var_mom` calls directly except `varb`,
       `varc` and `d_est` (Phase 2). Each is a direct transcription of `emafit.f`/`probfun.f`,
       checked routine-by-routine against six new oracles `_emafort.pyf` exposes (`m2p`,
@@ -152,7 +152,7 @@ it is the oracle for `detrat`.
       On Big Sandy's own censoring group (at-site skew 0.0066, so alpha ≈ 9e4), that
       expansion cancels by roughly 11 orders of magnitude at k = 6 and the Fortran result
       goes **negative** — impossible for `E[X**6]` of a positive-truncated variate.
-      `hydrolib._p3_moments.m_p3` keeps the whole expansion in `mpmath` at 50 decimal digits
+      `flowfreq._p3_moments.m_p3` keeps the whole expansion in `mpmath` at 50 decimal digits
       (`_GAMMA_MOMENT_DPS`) rather than only the CDF call, and its k = 4..6 values are
       confirmed against independent arbitrary-precision quadrature of the truncated density
       (not against the Fortran, which is the thing in question) —
@@ -162,7 +162,7 @@ it is the oracle for `detrat`.
       `var_mom` clamps `|skew|` to `[0.0632, 1.41]` before ever calling `mP3`/`pP3`
       internally (`emafit.f:2324`, easy to miss reading linearly) — so even Big Sandy's raw
       0.0066 becomes 0.0632 inside `var_mom`, capping alpha at ~1000 rather than the ~9e4 the
-      finding above used directly. `hydrolib._var_mom.var_mom` matches the Fortran oracle to
+      finding above used directly. `flowfreq._var_mom.var_mom` matches the Fortran oracle to
       1e-9 relative on Powder River and Cains Coulee and 1e-3 on Big Sandy (see Phase 2 below
       for where that residual is), not the orders-of-magnitude gap `mP3` alone showed. The
       finding above stands as a real, documented Fortran defect reachable by calling `mP3`
@@ -171,7 +171,7 @@ it is the oracle for `detrat`.
       New dependency: `mpmath` (pure Python, no compiled extension), added for exactly this.
 
       **Phase 2 done: `varb`, `varc`, `d_est`, `expmomderiv` and the `var_mom` composition
-      itself.** `hydrolib/_var_mom.py`. `expmomderiv` differentiates `_p3_moments`'s own
+      itself.** `flowfreq/_var_mom.py`. `expmomderiv` differentiates `_p3_moments`'s own
       (already Fortran- and quadrature-verified) truncated-moment function numerically via
       `mpmath.diff` rather than transcribing `DEXPECT`'s closed-form chain, which needs
       `DDGAM` — a nontrivial derivative of the incomplete gamma function w.r.t. its shape
@@ -216,14 +216,14 @@ it is the oracle for `detrat`.
       Also then-unimplemented: `detrat`, the Halloween determinant ratio — now done (below).
       `emafit.f:763` applies it only when the at-site skew is ≥ 0.04 in magnitude, and Big
       Sandy's is 0.0066, so `Wd` is 1 there either way. **Cains Coulee 06327450 covers it**:
-      its at-site skew is −0.708 (peakfq's; hydrolib's own is −0.830) and its reference `Wd`
-      is **0.184**, so hydrolib's old implicit 1 over-weighted the regional skew by more than
+      its at-site skew is −0.708 (peakfq's; flowfreq's own is −0.830) and its reference `Wd`
+      is **0.184**, so flowfreq's old implicit 1 over-weighted the regional skew by more than
       fivefold on that site. That case was the acceptance test for `detrat`; see below for
       where the resulting `xfail(strict=True)` assertions landed — not flipped, for a reason
       unrelated to `detrat` itself.
 
       **Phase 3 done: `mn2mvarb`/`mse_ema` — `as_G_mse` is now computable, in Python, matching
-      the Fortran.** `hydrolib/_mse_ema.py`. `mse_ema(nobs, tl, tu, mc, kmom) →`
+      the Fortran.** `flowfreq/_mse_ema.py`. `mse_ema(nobs, tl, tu, mc, kmom) →`
       `var_mom → m2mn → mn2mvarb`, diagonal element `kmom`; feeding it through both a censored
       and an equivalent uncensored call reproduces the documented numbers on Big Sandy exactly:
       `bias_adj` **1.4843** (documented 1.4844) and `as_G_mse` **0.094366** (documented 0.09437,
@@ -252,7 +252,7 @@ it is the oracle for `detrat`.
       truncated-moment function from scratch, recomputing the incomplete-gamma "down" term
       (which does not depend on which moment k is being computed) up to 3 times per call. Batching
       the three moments into one evaluation (`_gamma_trunc_moments`/`_fp_g1_mom_trc_batch` in
-      `hydrolib/_p3_moments.py`, sharing `down` across k) and replacing the 9 `mpmath.diff` calls
+      `flowfreq/_p3_moments.py`, sharing `down` across k) and replacing the 9 `mpmath.diff` calls
       with 7 manual, batched central differences (2 evaluations per parameter plus 1 for the
       center point, instead of ~2 per moment-parameter pair) cut it to **0.32 s** — a ~3.6x
       speedup, bit-identical to the un-optimized version once the finite-difference step was
@@ -274,7 +274,7 @@ it is the oracle for `detrat`.
       `tests/fortran_parity/test_fortran_oracles.py`'s module docstring (found while adding the
       Phase 3 oracles, which is why that test file's own assertions are careful never to call
       `mseg_all_sub` a second time in the same process). Not fixed here — `vendor/` is not
-      edited — but worth knowing before calling `hydrolib.peakfqr`/`hydrolib.validation.reference`
+      edited — but worth knowing before calling `flowfreq.peakfqr`/`flowfreq.validation.reference`
       for more than one site in a single long-running process (a Streamlit session, a batch
       script): `emafitpr` itself appears unaffected (the existing multi-case parity tests already
       interleave it across cases and pass), but anything downstream that calls `mseg_all`'s ADJE
@@ -312,10 +312,10 @@ it is the oracle for `detrat`.
       skew supplied; the `@lru_cache` absorbs repeats. Acceptable for now; worth another pass
       if it grows further.
 
-      **`detrat` done too — ported, wired, and verified.** `hydrolib/_detrat.py`, a direct
+      **`detrat` done too — ported, wired, and verified.** `flowfreq/_detrat.py`, a direct
       transcription of `emafit.f`'s `detrat` (the 3x3-vs-2x2 determinant ratio) and
       `probfun.f`'s `EXPMOMCDERIV` (the censored-region expected-moment Jacobian it needs,
-      reusing `hydrolib._var_mom._dexpect` for the open-tail pieces rather than a second
+      reusing `flowfreq._var_mom._dexpect` for the open-tail pieces rather than a second
       truncated-gamma implementation). Verified against two oracles `_emafort.pyf` exposes
       (`expmomcderiv`, and Phase 1's existing `detratsub`): matched Cains Coulee's real,
       post-MGBT `Wd` of 0.184 to ~1e-9 relative precision on the first attempt — noticeably
@@ -330,7 +330,7 @@ it is the oracle for `detrat`.
       **Wiring it surfaced a real gap in `_perception_threshold_groups`, not in `detrat`
       itself.** That method reconstructs the `(nobs, tl, tu)` groups `mse_ema`/`detrat` need
       from `self._intervals`' `perception_threshold` field — but MGBT-censored PILFs get
-      `perception_threshold = 0.0` in hydrolib's model (a censored *value*, correctly, for the
+      `perception_threshold = 0.0` in flowfreq's model (a censored *value*, correctly, for the
       moment iteration itself), while peakfq's own `tlema`/`tuema` (confirmed via a direct
       `emafitpr` call on Cains Coulee) raise the perception threshold for the **entire**
       systematic record to the MGBT cutoff once one is found, not just the flagged PILF years.
@@ -348,7 +348,7 @@ it is the oracle for `detrat`.
       **The result is not a clean win, and that is the honest reading of it, not a regression.**
       `Wd` and `bias_adj` are now correct (or close to it — see the table above); but
       `skew_weighted` is a blend of the (now-correct) regional weight and `skew_station`, which
-      is still 0.122 off from a separate, deeper defect: hydrolib's at-site EMA moment
+      is still 0.122 off from a separate, deeper defect: flowfreq's at-site EMA moment
       iteration (`_ema_iteration`/`_compute_ema_moments`) never used the Fortran-verified
       truncated-moment code, only its own approximation, and got the bias-correction sample
       size wrong on top of that. With the old buggy `Wd = 1`, more weight landed on the
@@ -361,7 +361,7 @@ it is the oracle for `detrat`.
       `detrat` alone, as this bullet originally suspected, could not have.
 
 - [x] **At-site EMA moment iteration — the actual dominant defect, now fixed.**
-      `_ema_iteration`/`_compute_ema_moments` (`bulletin17c.py`) is hydrolib's own transcription
+      `_ema_iteration`/`_compute_ema_moments` (`bulletin17c.py`) is flowfreq's own transcription
       of `moms_p3` (`emafit.f:1344`), verified against a `moms_p3` Fortran oracle
       (`tests/fortran_parity/test_fortran_oracles.py::TestMomentIterationOracle`) since Phase 1.
       That oracle test showed the transcription was **exact** on uncensored rows (0.0 mean,
@@ -373,7 +373,7 @@ it is the oracle for `detrat`.
          its own approximate truncated-gamma/truncated-normal moment code (`scipy`'s `gammainc`/
          `gammaincc`, standardized bounds, a Wilson-Hilferty blend by hand) predating this
          session's `var_mom` port — but Phase 1 had *already* ported and Fortran-verified the
-         real thing, `hydrolib._p3_moments.m_p3` (`mP3`, `emafit.f:2983`), for `var_mom`'s own
+         real thing, `flowfreq._p3_moments.m_p3` (`mP3`, `emafit.f:2983`), for `var_mom`'s own
          use, and never wired it back into the E-step that inspired the port in the first place.
          Swapped in directly: `m_p3(tl, tu, [mean, var, skew], 3)` returns `E[X^k]` for
          `k=1..3` in real (unstandardized) log10-flow space, replacing ~110 lines of
@@ -386,7 +386,7 @@ it is the oracle for `detrat`.
          (the **exact-peak count**), `bcf=2004` (Griffis et al.) uses `n_bcf = n` (the **total**
          interval count). `emafit.f:3898` sets the vendored default to `1997`; the `2004` line
          right below it (`emafit.f:3899`) is commented out and has been since before this
-         repository forked from upstream. hydrolib's `_ema_iteration` used `n` (the `2004`
+         repository forked from upstream. flowfreq's `_ema_iteration` used `n` (the `2004`
          convention) unconditionally — silently the wrong default, on every fit with any
          censored interval, since before this session. Fixed by computing `c2`/`c3` from
          `sums.n_exact` instead.
@@ -448,12 +448,12 @@ it is the oracle for `detrat`.
       (`emafit.f:1972`), and `VAR_EMAB` needs `regmoms` (`emafit.f:2173`) and `GRIDMAKE`
       (`emafit.f:2039`) -- but `regmoms` is `var_mom` (Phase 2) → `m2mn` (Phase 1) → `mn2mvarb`
       (Phase 3) plus regional-info blending arithmetic, and `GRIDMAKE` is exactly
-      `hydrolib._mse_ema`'s existing `_gridmake`/`_covw` (already Fortran-verified indirectly,
+      `flowfreq._mse_ema`'s existing `_gridmake`/`_covw` (already Fortran-verified indirectly,
       through `mc2mnvb`, which is `GRIDMAKE + M2MN + COVW` composed). The only routine with no
       existing counterpart was `VAR_EMAB` itself -- a nested quadrature (one 8-point grid around
       the fit, then a fresh `regmoms`/grid pair *at each of those 8 points*, to capture how the
       quantile and its own standard error co-vary) -- and `ci_ema_m3b`, the short formula above.
-      New module: `hydrolib/_var_emab.py`.
+      New module: `flowfreq/_var_emab.py`.
 
       **Call convention, worth recording since it cost real time to pin down**: `VAR_EMAB`'s own
       probability argument is *non-exceedance* probability (`q_p3` uses `ndtri(q)` directly), so
@@ -493,7 +493,7 @@ it is the oracle for `detrat`.
 
       **Not done, separately**: the pseudo effective record length (`as_G_PRL_o`, 54.373 for Big
       Sandy) is `eff_n * as_G_mse_Syst / as_G_mse` (`emafit.f:758`) -- a diagnostic value peakfq
-      reports that hydrolib does not currently surface anywhere in `FrequencyResults`. Not needed
+      reports that flowfreq does not currently surface anywhere in `FrequencyResults`. Not needed
       for the confidence bounds themselves (`VAR_EMAB` never asks for it), so it was out of scope
       here; a small, separate follow-up if that diagnostic is ever wanted.
 
@@ -504,7 +504,7 @@ it is the oracle for `detrat`.
       independently proven the way the `mP3` finding is." Checking that claim directly, rather
       than continuing to repeat it, was the actual completion of P3.
 
-      **The claim did not survive being checked.** `hydrolib._mse_ema.mse_ema(kmom=3)`, called
+      **The claim did not survive being checked.** `flowfreq._mse_ema.mse_ema(kmom=3)`, called
       standalone with Cains Coulee's real post-MGBT censoring group (`nobs=32, tl=2.521, tu=20`,
       its 332 cfs MGBT cutoff) and its real at-site fit, matches the Fortran oracle to **3e-8**
       relative -- nowhere near a ~1e-3 precision limit large enough to explain a 0.058-skew-unit
@@ -515,8 +515,8 @@ it is the oracle for `detrat`.
       for Cains Coulee -- 0.2212, committed in the golden file as `skew.as_G_mse_o`, and what the
       golden `skew_weighted` (-0.604) was built from -- does not match what calling the *same*
       `mseg_all` Fortran routine standalone gives for the *identical* `(nobs, tl, tu, mc)`: 0.0749,
-      a ~3x difference. That 0.0749 is exactly what `hydrolib.bulletin17c.ExpectedMomentsAlgorithm
-      ._adje_bias_adjustment` computes too (it is the same formula) -- so hydrolib's native fit
+      a ~3x difference. That 0.0749 is exactly what `flowfreq.bulletin17c.ExpectedMomentsAlgorithm
+      ._adje_bias_adjustment` computes too (it is the same formula) -- so flowfreq's native fit
       is *internally consistent* with a clean, from-first-principles composition of independently
       Fortran-verified routines; it is `emafitpr`'s own reported value that disagrees with that
       composition, not the other way around.
@@ -541,11 +541,11 @@ it is the oracle for `detrat`.
         `skxmax` itself a no-op since `lskewXmax` defaults `.FALSE.`) -- a no-op at Cains
         Coulee's -0.6 to -0.8 magnitude, nowhere near -1.41.
       * *`nG` recomputed every EMA iteration instead of once* -- would have been a genuine
-        algorithmic difference from hydrolib's own "compute `nG` once, from the converged
+        algorithmic difference from flowfreq's own "compute `nG` once, from the converged
         at-site skew, then iterate" approach. Checked directly against `p3est_ema`
         (`emafit.f:1149`): `nG = n*Wd*as_G_mse/r_G_mse` is computed once, before the iteration
         loop (`emafit.f:1194`), from the `Wd`/`as_G_mse` values passed in as arguments -- same
-        structure hydrolib uses. Not the explanation.
+        structure flowfreq uses. Not the explanation.
       * *Replicating `emafitpr`'s own internal call sequence* -- `mse_ema(kmom=1)`, then
         `(kmom=2)`, then `mseg_all` (`as_G_mse`), then `mseg_all` again with the different,
         uncensored "Syst"/ERL group (`as_G_mse_Syst`), then `mseg_all` once more -- via
@@ -554,7 +554,7 @@ it is the oracle for `detrat`.
         calls with varying arguments," the way `mseg_all_sub`'s documented bug is.
 
       What was **not** ruled out, for lack of a way to isolate it further without transcribing
-      large parts of `emafitpr`/`p3est_ema` (out of scope -- hydrolib already has its own native
+      large parts of `emafitpr`/`p3est_ema` (out of scope -- flowfreq already has its own native
       EMA fit, verified separately): something in `emafitpr`'s *first* internal fitting pass
       (MGBT, or the initial at-site-only `p3est_ema` call under `at_site_option='B17B'`,
       `emafit.f:745-754`, which runs before the ADJE-branch `mseg_all` call this item traces)
@@ -570,11 +570,11 @@ it is the oracle for `detrat`.
       `tests/fortran_parity/test_wymt_vs_golden.py` and a new,
       dedicated `tests/fortran_parity/test_fortran_oracles.py::TestCainsCouleeAsGMseDiscrepancy`,
       which pins the 3e-8 `mse_ema` match and the 0.0749-vs-0.2212 `mseg_all_sub` disagreement as
-      committed, reproducible assertions rather than prose). hydrolib's own computation is left
+      committed, reproducible assertions rather than prose). flowfreq's own computation is left
       as is -- there is no principled way to deliberately reproduce a number whose mechanism
       is not understood, and doing so would mean curve-fitting to one data point rather than
       transcribing an understood routine, which is what every other line of this port has been.
-      It is entirely possible hydrolib's native fit is *more* correct here than the golden
+      It is entirely possible flowfreq's native fit is *more* correct here than the golden
       reference, not less; that is unresolved, not something to act on speculatively.
 
 ### Follow-ups found while clearing P1 and P2
@@ -586,7 +586,7 @@ done — see the P3 table above and the Done section.)
       own `plot_peak_timeseries`, which carries return-period lines and the max-peak
       recurrence annotation that the library function does not; switching to the library one
       today would lose features. The dedupe is: move those two features into
-      `hydrolib/freq_plot.py`, then delete the app copy. One peak-flow plotter, tested.
+      `flowfreq/freq_plot.py`, then delete the app copy. One peak-flow plotter, tested.
 
 - [ ] **`FrequencyComparator` compares every parameter by percent difference.** That is the
       wrong metric for skew, which legitimately crosses zero: Big Sandy's reference at-site
@@ -596,7 +596,7 @@ done — see the P3 table above and the Done section.)
 
 - [ ] **`origin/dev` can be deleted.** The read-and-judge pass is done — see the commit
       "Port extra_curves from dev". `extra_curves` was the one library delta worth keeping
-      and is on this branch; `hydrolib/setup.py` is stale packaging that contradicts
+      and is on this branch; `flowfreq/setup.py` is stale packaging that contradicts
       `pyproject.toml`; everything else is superseded or older than main. Tip is `86cb147`,
       recorded here so the branch is recoverable by SHA. Left undeleted deliberately: that is
       not reversible from a commit, so it is the owner's call.
@@ -670,14 +670,14 @@ done — see the P3 table above and the Done section.)
 - [x] **Reviewed `dev`'s remaining library deltas.** See the follow-up above for the branch
       itself.
 
-- [x] **Removed the 5.2 MB of Windows binaries** in `hydrolib/peakfqr/`. `.gitignore` now also
-      excludes `hydrolib/peakfqr/*.dll`, and the Streamlit vignette no longer tells readers
+- [x] **Removed the 5.2 MB of Windows binaries** in `flowfreq/peakfqr/`. `.gitignore` now also
+      excludes `flowfreq/peakfqr/*.dll`, and the Streamlit vignette no longer tells readers
       the repository ships a prebuilt extension.
 
-- [x] **Decided what `hydrolib/peakfqsa/` is for: nothing.** Deleted — `config.py`,
+- [x] **Decided what `flowfreq/peakfqsa/` is for: nothing.** Deleted — `config.py`,
       `wrapper.py`, `io_converters.py`, `validators.py` (imported by nothing at all) and the
       `.out` parser, with their ~50 mock tests and the dead `requires_peakfqsa` marker. The
-      result container survives as `hydrolib/validation/reference.py::ReferenceResult`,
+      result container survives as `flowfreq/validation/reference.py::ReferenceResult`,
       pointed at references that exist: `from_golden()` reads the committed golden file,
       `from_emafit()` calls the vendored Fortran live. They agree bitwise on Big Sandy.
       `tests/peakfqsa/fixtures/` was never about the binary — it merged into the existing
@@ -691,13 +691,13 @@ done — see the P3 table above and the Done section.)
 
 ### Found and fixed while clearing the above
 
-- [x] **`hydrolib benchmark` could not work for an installed user.** Three defects, all
+- [x] **`flowfreq benchmark` could not work for an installed user.** Three defects, all
       pre-existing: it imported fixture data from `tests/`, which is not packaged, so the
       command raised `ModuleNotFoundError` outside a source checkout; two of its three
       registered benchmarks carried no peaks at all and errored on every run; and the third
       validated against the 2012 PeakfqSA manual, which peakfq 8.1.0 does not reproduce, so a
       correct implementation was guaranteed a FAIL. Case data now ships in
-      `hydrolib/validation/data/`, tolerances are measured, and known deviations are reported
+      `flowfreq/validation/data/`, tolerances are measured, and known deviations are reported
       rather than compared. 1/1 passed, from any directory.
 
 - [x] **`Benchmark.run_native()` dropped the perception thresholds**, comparing a
@@ -756,7 +756,7 @@ done — see the P3 table above and the Done section.)
 ---
 
 The 16 phases below were completed in February against the assumption that PeakfqSA was
-a standalone binary. It is not, and `hydrolib/peakfqsa/` wraps an executable that does
+a standalone binary. It is not, and `flowfreq/peakfqsa/` wraps an executable that does
 not exist. Kept for the record; see `AGENT_BUILD_INSTRUCTIONS_Claude.md`.
 
 ---
@@ -956,7 +956,7 @@ subroutine emafitpr(n, ql, qu, tl, tu, dtype,
 - [x] Step 0a: Document regional skew weighting
 - [x] Step 0a: Map output fields to PeakfqSAResult
 - [x] Step 0a: Document edge cases
-- [x] Step 0b: Scan existing HydroLib codebase
+- [x] Step 0b: Scan existing FlowFreq codebase
 - [x] Step 0b: Generate this TODO list
 
 ## Phase 1: Information Gathering
@@ -971,16 +971,16 @@ subroutine emafitpr(n, ql, qu, tl, tu, dtype,
 
 ## Phase 3: Directory Structure
 
-- [x] Step 3: Create `hydrolib/peakfqsa/__init__.py`
-- [x] Step 3: Create `hydrolib/peakfqsa/config.py` (stub)
-- [x] Step 3: Create `hydrolib/peakfqsa/wrapper.py` (stub)
-- [x] Step 3: Create `hydrolib/peakfqsa/io_converters.py` (stub)
-- [x] Step 3: Create `hydrolib/peakfqsa/parsers.py` (stub)
-- [x] Step 3: Create `hydrolib/peakfqsa/validators.py` (stub)
-- [x] Step 3: Create `hydrolib/validation/__init__.py`
-- [x] Step 3: Create `hydrolib/validation/benchmarks.py` (stub)
-- [x] Step 3: Create `hydrolib/validation/comparisons.py` (stub)
-- [x] Step 3: Create `hydrolib/validation/reports.py` (stub)
+- [x] Step 3: Create `flowfreq/peakfqsa/__init__.py`
+- [x] Step 3: Create `flowfreq/peakfqsa/config.py` (stub)
+- [x] Step 3: Create `flowfreq/peakfqsa/wrapper.py` (stub)
+- [x] Step 3: Create `flowfreq/peakfqsa/io_converters.py` (stub)
+- [x] Step 3: Create `flowfreq/peakfqsa/parsers.py` (stub)
+- [x] Step 3: Create `flowfreq/peakfqsa/validators.py` (stub)
+- [x] Step 3: Create `flowfreq/validation/__init__.py`
+- [x] Step 3: Create `flowfreq/validation/benchmarks.py` (stub)
+- [x] Step 3: Create `flowfreq/validation/comparisons.py` (stub)
+- [x] Step 3: Create `flowfreq/validation/reports.py` (stub)
 - [x] Step 3: Create `tests/peakfqsa/__init__.py`
 - [x] Step 3: Create `tests/peakfqsa/test_config.py`
 - [x] Step 3: Create `tests/peakfqsa/test_wrapper.py`
@@ -1060,8 +1060,8 @@ subroutine emafitpr(n, ql, qu, tl, tu, dtype,
 
 ## Phase 13: CLI Commands
 
-- [x] Step 13: Implement `hydrolib validate` command
-- [x] Step 13: Implement `hydrolib benchmark` command
+- [x] Step 13: Implement `flowfreq validate` command
+- [x] Step 13: Implement `flowfreq benchmark` command
 - [x] Step 13: Register in `pyproject.toml`
 
 ## Phase 14: Documentation
@@ -1105,7 +1105,7 @@ subroutine emafitpr(n, ql, qu, tl, tu, dtype,
 ## Resolved Questions
 
 - PeakfqSA: Not a standalone binary. Use the vendored `vendor/peakfqr/src/` Fortran.
-  `hydrolib/peakfqsa/` wraps a binary that does not exist and is mock-tested only.
+  `flowfreq/peakfqsa/` wraps a binary that does not exist and is mock-tested only.
 - Reference material: vendored into `vendor/peakfqr/` (CC0). No external workspace needed.
 - Big Sandy 2012 manual values: not reproducible by peakfq 8.1.0 — the HWN skew weighting
   postdates the manual and diverges by design on censored records.

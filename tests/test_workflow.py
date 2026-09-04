@@ -1,9 +1,9 @@
-"""Tests for hydrolib.workflow -- the one-call analysis entry points."""
+"""Tests for flowfreq.workflow -- the one-call analysis entry points."""
 
 import numpy as np
 import pytest
 
-from hydrolib.workflow import (
+from flowfreq.workflow import (
     DEFAULT_RETURN_INTERVALS,
     SKEW_OPTIONS,
     _low_outlier_source,

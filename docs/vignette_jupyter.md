@@ -21,7 +21,7 @@ jupyter notebook
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from hydrolib import USGSgage, Bulletin17C, Hydrograph
+from flowfreq import USGSgage, Bulletin17C, Hydrograph
 
 %matplotlib inline
 plt.rcParams["figure.dpi"] = 120
@@ -150,7 +150,7 @@ Return Interval (yr)
 ## Cell 6 — Compare Skew Options
 
 ```python
-from hydrolib.core import kfactor_array
+from flowfreq.core import kfactor_array
 
 skew_options = {
     "Station Skew":  results.skew_station,
@@ -177,7 +177,7 @@ print(comparison.to_string())
 ## Cell 7 — Frequency Curve Plot
 
 ```python
-from hydrolib.freq_plot import plot_frequency_curve_streamlit
+from flowfreq.freq_plot import plot_frequency_curve_streamlit
 
 # Single weighted skew curve (default)
 fig = plot_frequency_curve_streamlit(
@@ -210,7 +210,7 @@ plt.show()
 ## Cell 8 — Save Report
 
 ```python
-from hydrolib import HydroReport
+from flowfreq import HydroReport
 import os
 
 output_dir = "./output"
@@ -230,7 +230,7 @@ for f in os.listdir(output_dir):
 ## Cell 9 — Batch Analysis (multiple gages)
 
 ```python
-from hydrolib.usgs import fetch_nwis_batch
+from flowfreq.usgs import fetch_nwis_batch
 
 GAGES = ["03606500", "09355500", "11066460"]
 

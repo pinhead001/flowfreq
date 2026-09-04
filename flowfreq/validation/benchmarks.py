@@ -3,11 +3,11 @@ Bulletin 17C benchmark test cases.
 
 Each benchmark is a named, self-contained scenario with known inputs and a
 reference to compare against, used to validate the native EMA. Backs the
-``hydrolib benchmark`` and ``hydrolib validate`` CLI commands.
+``flowfreq benchmark`` and ``flowfreq validate`` CLI commands.
 
-Case data lives in ``hydrolib/validation/data/`` and ships with the package.
+Case data lives in ``flowfreq/validation/data/`` and ships with the package.
 It used to be imported from ``tests.fixtures``, which is not packaged, so
-``hydrolib benchmark`` raised ``ModuleNotFoundError: No module named 'tests'``
+``flowfreq benchmark`` raised ``ModuleNotFoundError: No module named 'tests'``
 for anyone who was not sitting in a source checkout -- that is, for every
 installed user.
 """
@@ -22,8 +22,8 @@ from typing import Any, Dict, Optional
 
 import numpy as np
 
-from hydrolib.validation.comparisons import ComparisonResult, FrequencyComparator
-from hydrolib.validation.reference import ReferenceResult
+from flowfreq.validation.comparisons import ComparisonResult, FrequencyComparator
+from flowfreq.validation.reference import ReferenceResult
 
 logger = logging.getLogger(__name__)
 
@@ -93,14 +93,14 @@ class Benchmark:
     known_deviations: dict[str, str] = field(default_factory=dict)
 
     def run_native(self) -> dict[str, Any]:
-        """Run benchmark using HydroLib native EMA.
+        """Run benchmark using FlowFreq native EMA.
 
         Returns
         -------
         dict
             Native analysis result in comparison dict format.
         """
-        from hydrolib.bulletin17c import Bulletin17C
+        from flowfreq.bulletin17c import Bulletin17C
 
         if not self.peaks:
             raise ValueError(
@@ -162,7 +162,7 @@ def load_case(name: str) -> Dict[str, Any]:
     Parameters
     ----------
     name : str
-        File stem under ``hydrolib/validation/data``, e.g.
+        File stem under ``flowfreq/validation/data``, e.g.
         ``"big_sandy_03606500"``.
 
     Returns
@@ -222,7 +222,7 @@ def register_benchmarks() -> None:
     Only cases that can actually be fitted are registered. Two entries used to
     live here that could not: ``fortran_respec`` and ``skew_weighting`` carried
     no peaks at all -- they are routine-level checks of moms_p3, p3est_ema and
-    detrat, not frequency analyses -- so every run of ``hydrolib benchmark``
+    detrat, not frequency analyses -- so every run of ``flowfreq benchmark``
     ended in ``zero-size array to reduction operation minimum``. Those fixtures
     are exercised properly by ``tests/test_r_fixtures.py``.
     """
@@ -281,7 +281,7 @@ def print_benchmark_report(results: dict[str, ComparisonResult]) -> None:
         Results from run_all_benchmarks.
     """
     print("\n" + "=" * 60)
-    print("  HydroLib Benchmark Report")
+    print("  FlowFreq Benchmark Report")
     print("=" * 60)
 
     n_pass = sum(1 for r in results.values() if r.passed)

@@ -1,5 +1,5 @@
 """
-hydrolib.plots - Plotting utilities for flood frequency analysis
+flowfreq.plots - Plotting utilities for flood frequency analysis
 """
 
 from __future__ import annotations

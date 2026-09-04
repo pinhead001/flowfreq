@@ -8,7 +8,7 @@ reference implementation anywhere.
 
 Usage::
 
-    python build_fortran/build.py          # produces hydrolib/peakfqr/_emafort*
+    python build_fortran/build.py          # produces flowfreq/peakfqr/_emafort*
     python tools/gen_fortran_golden.py     # writes tests/fortran_parity/golden/*.json
 
 Regenerate whenever ``vendor/peakfqr`` changes, and commit the result: a golden
@@ -110,7 +110,7 @@ def main() -> int:
     args = parser.parse_args()
 
     try:
-        import hydrolib.peakfqr  # noqa: F401
+        import flowfreq.peakfqr  # noqa: F401
     except ImportError as exc:
         print(
             f"Fortran extension not importable: {exc}\n"

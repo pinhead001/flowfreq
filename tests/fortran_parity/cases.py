@@ -102,7 +102,7 @@ def build_emafit_inputs(case: ParityCase) -> Dict[str, Any]:
 
 def call_emafitpr(case: ParityCase) -> Dict[str, Any]:
     """Run the vendored Fortran for *case* and return its outputs verbatim (log10)."""
-    from hydrolib.peakfqr import emafitpr
+    from flowfreq.peakfqr import emafitpr
 
     a = build_emafit_inputs(case)
     out = emafitpr(

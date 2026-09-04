@@ -1,4 +1,4 @@
-"""Test suite for hydrolib.
+"""Test suite for flowfreq.
 
 This file is required: test modules import fixtures by absolute path
 (``from tests.fixtures... import ...``), which only resolves when

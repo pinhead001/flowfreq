@@ -1,8 +1,8 @@
 """
-hydrolib.flowio - Reading and writing flow time series
+flowfreq.flowio - Reading and writing flow time series
 
 Format helpers shared by the retrieval and analysis modules. Kept apart from
-:mod:`hydrolib.usgs` because they apply to any flow series, not only to one
+:mod:`flowfreq.usgs` because they apply to any flow series, not only to one
 fetched from NWIS.
 """
 
@@ -42,8 +42,8 @@ def save_flow_frame(
     ----------
     df : pd.DataFrame
         Frame to write, typically from
-        :meth:`hydrolib.usgs.USGSgage.download_instantaneous_flow` or
-        :meth:`hydrolib.usgs.USGSgage.download_daily_flow`.
+        :meth:`flowfreq.usgs.USGSgage.download_instantaneous_flow` or
+        :meth:`flowfreq.usgs.USGSgage.download_daily_flow`.
     path : str or Path
         Destination. ``.parquet``/``.pq`` writes Parquet; ``.csv`` and
         ``.csv.gz`` write CSV.
@@ -62,7 +62,7 @@ def save_flow_frame(
     ValueError
         The extension is not one of the supported formats.
     ImportError
-        The Parquet engine is unavailable. ``pyarrow`` is a hydrolib
+        The Parquet engine is unavailable. ``pyarrow`` is a flowfreq
         dependency, so this indicates a damaged environment rather than a
         missing optional extra.
 
@@ -80,7 +80,7 @@ def save_flow_frame(
         except ImportError as exc:  # pragma: no cover - requires a broken install
             raise ImportError(
                 f"Writing {path.name} needs the pyarrow Parquet engine. pyarrow is a "
-                f"hydrolib dependency, so this environment looks incomplete: try "
+                f"flowfreq dependency, so this environment looks incomplete: try "
                 f"`pip install --force-reinstall pyarrow`, or save as .csv to work "
                 f"around it (CSV does not preserve the tz-aware index dtype)."
             ) from exc

@@ -1,12 +1,12 @@
 # Vignette: Run the Streamlit App Locally
 
-The HydroLib Streamlit app (`app/streamlit_app.py`) provides an interactive browser-based interface for downloading USGS streamflow data, running Bulletin 17C analysis, and exporting results.
+The FlowFreq Streamlit app (`app/streamlit_app.py`) provides an interactive browser-based interface for downloading USGS streamflow data, running Bulletin 17C analysis, and exporting results.
 
 ## 1. Install
 
 ```bash
 # From the repo root
-cd /path/to/hydrolib
+cd /path/to/flowfreq
 
 python -m venv .venv
 .venv\Scripts\activate        # Windows
@@ -18,7 +18,7 @@ pip install streamlit
 
 Verify:
 ```bash
-python -c "import streamlit, hydrolib; print('ready')"
+python -c "import streamlit, flowfreq; print('ready')"
 ```
 
 ## 2. Run
@@ -26,7 +26,7 @@ python -c "import streamlit, hydrolib; print('ready')"
 **Always run from the repo root** — the app uses relative imports (`from app.ffa_runner import ...`):
 
 ```bash
-cd /path/to/hydrolib
+cd /path/to/flowfreq
 streamlit run app/streamlit_app.py
 ```
 
@@ -87,7 +87,7 @@ Enter multiple gage numbers (one per line), enable FFA, and a **Flood Frequency 
 
 | Symptom | Fix |
 |---------|-----|
-| `ModuleNotFoundError: hydrolib` | Run from repo root; ensure venv is active |
+| `ModuleNotFoundError: flowfreq` | Run from repo root; ensure venv is active |
 | `ModuleNotFoundError: app.ffa_runner` | Run `streamlit run app/streamlit_app.py` from repo root, not from inside `app/` |
 | Port already in use | `streamlit run app/streamlit_app.py --server.port 8502` |
 | Blank page / no data | Check NWIS connectivity; some gages have restricted peak data |

@@ -1,5 +1,5 @@
 """
-hydrolib.usgs - USGS data retrieval
+flowfreq.usgs - USGS data retrieval
 """
 
 from __future__ import annotations
@@ -550,13 +550,13 @@ class USGSgage:
 
         Note that diel statistics must be grouped on *local* calendar days: at
         a Pacific gage, UTC days are offset seven to eight hours and cut across
-        the daily cycle. The functions in :mod:`hydrolib.regime` take an
+        the daily cycle. The functions in :mod:`flowfreq.regime` take an
         explicit time zone for this reason.
 
         **Storage.** For a series of this size Parquet is the format worth
         reaching for — it round-trips the tz-aware index and float dtypes
         exactly, where CSV loses both, and it is several times smaller. See
-        :func:`hydrolib.flowio.save_flow_frame`.
+        :func:`flowfreq.flowio.save_flow_frame`.
 
         Examples
         --------
@@ -924,7 +924,7 @@ def _parse_iv_rdb(text: str, ts_id: Optional[str] = None) -> pd.DataFrame:
     if unknown:
         raise ValueError(
             f"Unrecognized NWIS time-zone code(s) {unknown} for this site. Add them to "
-            f"hydrolib.usgs.NWIS_TZ_OFFSETS; records are not dropped silently."
+            f"flowfreq.usgs.NWIS_TZ_OFFSETS; records are not dropped silently."
         )
 
     frame = pd.DataFrame(

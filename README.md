@@ -1,4 +1,4 @@
-# HydroLib
+# FlowFreq
 
 A Python library for USGS streamflow data retrieval and Bulletin 17C flood frequency analysis, with an interactive Streamlit web application.
 
@@ -22,19 +22,19 @@ A Python library for USGS streamflow data retrieval and Bulletin 17C flood frequ
 - **Diel (Sub-Daily) Variation** — Within-day flow range/CV from instantaneous
   data, with timezone-correct local-day grouping
 - **Flow Series I/O** — Parquet-backed save/load for daily or instantaneous
-  flow series (`hydrolib.flowio`)
+  flow series (`flowfreq.flowio`)
 - **Hydrograph Plotting** — Daily time series, summary hydrograph, flow duration curve
 - **Frequency Curve** — Log-probability axis, LP3 fitted curve, CI band, multi-skew overlay
 - **Streamlit App** — Interactive web app: download, analyze, plot, and export as ZIP
-- **CLI** — `hydrolib validate` and `hydrolib benchmark` for numerical validation
+- **CLI** — `flowfreq validate` and `flowfreq benchmark` for numerical validation
 - **Reports** — Automated Markdown technical reports
 
 ## Installation
 
 ```bash
 # Clone or download
-git clone https://github.com/pinhead001/hydrolib.git
-cd hydrolib
+git clone https://github.com/pinhead001/flowfreq.git
+cd flowfreq
 
 # Create and activate virtual environment (recommended)
 python -m venv .venv
@@ -57,7 +57,7 @@ pip install streamlit
 ### One-liner analysis
 
 ```python
-from hydrolib import analyze_gage
+from flowfreq import analyze_gage
 
 result = analyze_gage(
     site_no="03606500",          # Big Sandy River at Bruceton TN
@@ -72,7 +72,7 @@ result = analyze_gage(
 
 ```python
 import numpy as np
-from hydrolib import USGSgage, Bulletin17C
+from flowfreq import USGSgage, Bulletin17C
 
 # 1. Download data
 gage = USGSgage("03606500")
@@ -102,16 +102,16 @@ fig.savefig("frequency_curve.png", dpi=300, bbox_inches="tight")
 
 | Module | Purpose |
 |--------|---------|
-| `hydrolib.usgs` | `USGSgage` — NWIS daily/peak/instantaneous data download |
-| `hydrolib.bulletin17c` | `Bulletin17C` — EMA/MOM analysis, quantiles, CI, plots |
-| `hydrolib.core` | `FrequencyResults`, `LowFlowResults`, `kfactor`, `grubbs_beck_critical_value` |
-| `hydrolib.lowflow` | `LowFlowFrequency` — annual *n*-day low-flow frequency analysis |
-| `hydrolib.regime` | `FlowRegime` — flashiness, baseflow separation, diel variation, seasonal summaries |
-| `hydrolib.flowio` | `save_flow_frame` / `load_flow_frame` — parquet flow-series I/O |
-| `hydrolib.hydrograph` | `Hydrograph` — daily timeseries, summary hydrograph, FDC |
-| `hydrolib.freq_plot` | `plot_frequency_curve_streamlit` — Streamlit-ready frequency curve |
-| `hydrolib.report` | `HydroReport` — automated Markdown report |
-| `hydrolib.validation` | Benchmark framework, comparison engine |
+| `flowfreq.usgs` | `USGSgage` — NWIS daily/peak/instantaneous data download |
+| `flowfreq.bulletin17c` | `Bulletin17C` — EMA/MOM analysis, quantiles, CI, plots |
+| `flowfreq.core` | `FrequencyResults`, `LowFlowResults`, `kfactor`, `grubbs_beck_critical_value` |
+| `flowfreq.lowflow` | `LowFlowFrequency` — annual *n*-day low-flow frequency analysis |
+| `flowfreq.regime` | `FlowRegime` — flashiness, baseflow separation, diel variation, seasonal summaries |
+| `flowfreq.flowio` | `save_flow_frame` / `load_flow_frame` — parquet flow-series I/O |
+| `flowfreq.hydrograph` | `Hydrograph` — daily timeseries, summary hydrograph, FDC |
+| `flowfreq.freq_plot` | `plot_frequency_curve_streamlit` — Streamlit-ready frequency curve |
+| `flowfreq.report` | `HydroReport` — automated Markdown report |
+| `flowfreq.validation` | Benchmark framework, comparison engine |
 | `app/streamlit_app.py` | Interactive web app |
 | `app/ffa_runner.py` | Analysis runner + display formatters |
 | `app/ffa_export.py` | ZIP export (PNG, CSV, LP3 params) |
@@ -172,7 +172,7 @@ aep = np.array([0.667, 0.50, 0.20, 0.10, 0.04, 0.02, 0.01, 0.005, 0.002])
 ### `LowFlowFrequency`
 
 ```python
-from hydrolib import LowFlowFrequency
+from flowfreq import LowFlowFrequency
 
 lff = LowFlowFrequency(
     daily_df,             # from USGSgage.download_daily_flow()
@@ -192,7 +192,7 @@ boot_df = lff.compute_bootstrap_confidence_limits(non_exceedance=np.array([0.5, 
 ### `FlowRegime`
 
 ```python
-from hydrolib import FlowRegime
+from flowfreq import FlowRegime
 
 regime = FlowRegime(
     daily_df,
@@ -209,7 +209,7 @@ regime.summary()  # period-of-record pooled summary
 ### Diel Variation
 
 ```python
-from hydrolib import diel_variation, diel_variation_summary
+from flowfreq import diel_variation, diel_variation_summary
 
 iv_df = gage.download_instantaneous_flow(tz="America/Los_Angeles")
 diel_df = diel_variation(iv_df, tz="America/Los_Angeles")   # tz required, no default
@@ -223,13 +223,13 @@ full walkthrough of all three, with a worked example and method-choice notes.
 
 ```bash
 # Validate EMA against reference fixtures
-hydrolib validate
+flowfreq validate
 
 # Benchmark report (text)
-hydrolib benchmark
+flowfreq benchmark
 
 # Benchmark report (JSON)
-hydrolib benchmark --format json
+flowfreq benchmark --format json
 ```
 
 ## Streamlit App
@@ -287,7 +287,7 @@ England, J.F., Jr., et al., 2019, Guidelines for determining flood flow frequenc
 
 | Version | Changes |
 |---------|---------|
-| **v0.2.0** | Instantaneous (unit-value) flow retrieval; low-flow frequency analysis (`hydrolib.lowflow`); flow regime metrics — flashiness, baseflow separation, monthly/seasonal summaries, diel variation (`hydrolib.regime`); parquet flow-series I/O (`hydrolib.flowio`); LP3 negative-skew quantile fix; EMA historical perception-threshold fix |
+| **v0.2.0** | Instantaneous (unit-value) flow retrieval; low-flow frequency analysis (`flowfreq.lowflow`); flow regime metrics — flashiness, baseflow separation, monthly/seasonal summaries, diel variation (`flowfreq.regime`); parquet flow-series I/O (`flowfreq.flowio`); LP3 negative-skew quantile fix; EMA historical perception-threshold fix |
 | **v0.1.0** | Streamlit app with FFA, skew comparison, ZIP export; freq_plot module; ffa_runner/ffa_export app modules; validation framework |
 | **v0.0.3** | EMA algorithm, historical flood handling, CLI, validation benchmarks |
 | **v0.0.1** | Initial release: MOM, USGS download, hydrograph plots |

@@ -2,9 +2,9 @@
 # and what the build runs cannot drift apart.
 
 PYTHON ?= python
-# app/ is in here because CI once linted hydrolib/ and tests/ only, and that
+# app/ is in here because CI once linted flowfreq/ and tests/ only, and that
 # blind spot is why Streamlit changes could not be reviewed with confidence.
-PKGS := hydrolib/ tests/ app/
+PKGS := flowfreq/ tests/ app/
 
 # The marker deselection lives in pyproject.toml's addopts, not here, so a bare
 # `pytest` is already correct and there is exactly one place to get it wrong.
@@ -50,7 +50,7 @@ fortran:  ## Build the f2py extension from vendor/peakfqr (needs gfortran + meso
 # exactly the silent pass this target exists to prevent.
 parity:  ## Build the extension and check the golden files against it (needs gfortran + meson)
 	$(PYTHON) build_fortran/build.py
-	$(PYTHON) -c "from hydrolib.peakfqr import emafitpr"
+	$(PYTHON) -c "from flowfreq.peakfqr import emafitpr"
 	$(PYTEST) tests/fortran_parity/
 
 golden:  ## Regenerate Fortran parity golden files (needs the extension)
@@ -58,4 +58,4 @@ golden:  ## Regenerate Fortran parity golden files (needs the extension)
 
 clean:  ## Remove build and test artifacts
 	rm -rf build_fortran/mbuild build_fortran/native.ini build_fortran/_emafort*.so
-	rm -rf hydrolib/peakfqr/_emafort*.so .pytest_cache
+	rm -rf flowfreq/peakfqr/_emafort*.so .pytest_cache

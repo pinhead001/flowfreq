@@ -1,11 +1,25 @@
 # Changelog
 
-All notable changes to HydroLib are documented here.
+All notable changes to FlowFreq (formerly HydroLib) are documented here.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+### Changed
+- **Renamed to `flowfreq`** — package, import name, distribution and display name.
+  `from hydrolib.core import kfactor` is now `from flowfreq.core import kfactor`;
+  the console script is `flowfreq`. Historical entries below keep the old name,
+  since they describe what shipped at the time.
+
+  The old name was unusable. Deltares publishes `hydrolib` and `hydrolib-core` on
+  PyPI, both installing a top-level `hydrolib/` package, and `hydrolib-core` ships
+  `hydrolib/core/` against this project's `hydrolib/core.py`. Installed together
+  one silently destroys the other -- in one order this library's entire API
+  disappears, in the other neither package imports at all -- and `pip check`
+  reports nothing wrong. `flowfreq` names what the library does (flood *and*
+  low-flow frequency) and cannot be mistaken for HYDROLIB.
 
 ### Added
 - Native Python port of `var_mom` and its dependency tree (`mn2mvarb`/`mse_ema`, `detrat`,

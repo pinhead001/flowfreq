@@ -1,4 +1,4 @@
-"""Tests for hydrolib.lowflow (low-flow frequency analysis)."""
+"""Tests for flowfreq.lowflow (low-flow frequency analysis)."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from hydrolib.lowflow import LOW_FLOW_YEAR_TYPES, LowFlowFrequency, annual_minimum_flow
+from flowfreq.lowflow import LOW_FLOW_YEAR_TYPES, LowFlowFrequency, annual_minimum_flow
 
 
 def _flat_year_with_dip(
@@ -141,13 +141,13 @@ class TestLowFlowFrequencyValidation:
 
     def test_short_record_below_recommended_logs_warning(self, caplog) -> None:
         daily = _multi_year_daily(12, np.linspace(10, 15, 12))
-        with caplog.at_level("WARNING", logger="hydrolib.lowflow"):
+        with caplog.at_level("WARNING", logger="flowfreq.lowflow"):
             LowFlowFrequency(daily, n_day=7)
         assert any("recommended" in r.message for r in caplog.records)
 
     def test_no_warning_at_or_above_recommended_minimum(self, caplog) -> None:
         daily = _multi_year_daily(20, np.linspace(10, 15, 20))
-        with caplog.at_level("WARNING", logger="hydrolib.lowflow"):
+        with caplog.at_level("WARNING", logger="flowfreq.lowflow"):
             LowFlowFrequency(daily, n_day=7)
         assert not any("recommended" in r.message for r in caplog.records)
 
@@ -210,7 +210,7 @@ class TestMinPositiveYears:
         default distribution='lp3' must warn specifically about the skew
         estimate, not just about overall record length."""
         daily = _multi_year_daily(12, [0.0] * 3 + [8, 9, 10, 11, 12, 13, 14, 15, 16])
-        with caplog.at_level("WARNING", logger="hydrolib.lowflow"):
+        with caplog.at_level("WARNING", logger="flowfreq.lowflow"):
             LowFlowFrequency(daily, n_day=7, distribution="lp3")
         assert any("nonzero year" in r.message and "skew" in r.message for r in caplog.records)
 
@@ -218,7 +218,7 @@ class TestMinPositiveYears:
         """n_pos=10 (exactly at RECOMMENDED_MIN_POSITIVE_YEARS) must not log
         the skew-specific warning."""
         daily = _multi_year_daily(12, [0.0] * 2 + list(range(8, 18)))
-        with caplog.at_level("WARNING", logger="hydrolib.lowflow"):
+        with caplog.at_level("WARNING", logger="flowfreq.lowflow"):
             LowFlowFrequency(daily, n_day=7, distribution="lp3")
         assert not any("nonzero year" in r.message for r in caplog.records)
 
@@ -226,7 +226,7 @@ class TestMinPositiveYears:
         """distribution='lognormal' does not use the skew estimate at all,
         so the same thin n_pos=9 case must not warn about it."""
         daily = _multi_year_daily(12, [0.0] * 3 + [8, 9, 10, 11, 12, 13, 14, 15, 16])
-        with caplog.at_level("WARNING", logger="hydrolib.lowflow"):
+        with caplog.at_level("WARNING", logger="flowfreq.lowflow"):
             LowFlowFrequency(daily, n_day=7, distribution="lognormal")
         assert not any("nonzero year" in r.message for r in caplog.records)
 

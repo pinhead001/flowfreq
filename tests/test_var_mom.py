@@ -1,4 +1,4 @@
-"""Tests for hydrolib._var_mom that do not require the Fortran extension.
+"""Tests for flowfreq._var_mom that do not require the Fortran extension.
 
 Parity against the vendored Fortran lives in
 tests/fortran_parity/test_fortran_oracles.py (skipped when the extension
@@ -11,8 +11,8 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from hydrolib._p3_moments import m2p, m_p3
-from hydrolib._var_mom import d_est, expmomderiv, var_mom, varb, varc
+from flowfreq._p3_moments import m2p, m_p3
+from flowfreq._var_mom import d_est, expmomderiv, var_mom, varb, varc
 
 
 class TestVarb:
@@ -101,7 +101,7 @@ class TestVarMom:
         v = var_mom(np.array([n]), np.array([-20.0]), np.array([20.0]), mc)
 
         # var_mom itself always works in mean-centred coordinates (mean 0) --
-        # see hydrolib._var_mom.var_mom -- so the independent check must too.
+        # see flowfreq._var_mom.var_mom -- so the independent check must too.
         mc_centred = np.array([0.0, mc[1], mc[2]])
         e_x = m_p3(-999.0, 999.0, mc_centred, 6)
         expected = np.zeros((3, 3))

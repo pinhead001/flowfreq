@@ -6,7 +6,7 @@ numpy.f2py.
 
 Usage::
 
-    from hydrolib.peakfqr import emafitpr
+    from flowfreq.peakfqr import emafitpr
 
 The ``emafitpr`` function signature matches the Fortran subroutine
 documented in ``_shared/peakfqr/src/emafit.f``.
@@ -21,6 +21,6 @@ _pkg_dir = Path(__file__).parent
 if sys.platform == "win32" and hasattr(os, "add_dll_directory"):
     os.add_dll_directory(str(_pkg_dir))
 
-from hydrolib.peakfqr._emafort import emafitpr  # noqa: E402
+from flowfreq.peakfqr._emafort import emafitpr  # noqa: E402
 
 __all__ = ["emafitpr"]

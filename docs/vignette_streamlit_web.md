@@ -4,7 +4,7 @@ Streamlit Community Cloud provides free hosting for public Streamlit apps linked
 
 ## Prerequisites
 
-- A public GitHub repository containing the hydrolib code
+- A public GitHub repository containing the flowfreq code
 - A free account at [share.streamlit.io](https://share.streamlit.io)
 
 ## 1. Prepare the Repository
@@ -22,7 +22,7 @@ scipy>=1.7.0
 requests>=2.25.0
 ```
 
-Streamlit Cloud installs from this file automatically. The `hydrolib` package itself is installed from the repo via `pip install -e .` if a `setup.py` or `pyproject.toml` is present — or you can add it explicitly:
+Streamlit Cloud installs from this file automatically. The `flowfreq` package itself is installed from the repo via `pip install -e .` if a `setup.py` or `pyproject.toml` is present — or you can add it explicitly:
 
 ### `requirements.txt` (repo root — Streamlit Cloud primary)
 
@@ -38,11 +38,11 @@ click>=8.0
 streamlit>=1.28.0
 ```
 
-Streamlit Cloud will also run `pip install -e .` from the repo root if `setup.py` or `pyproject.toml` is present, installing `hydrolib` as a package.
+Streamlit Cloud will also run `pip install -e .` from the repo root if `setup.py` or `pyproject.toml` is present, installing `flowfreq` as a package.
 
 ### `packages.txt` (optional — system packages)
 
-Only needed if you want the Fortran extension (`hydrolib.peakfqr`). **The app does not
+Only needed if you want the Fortran extension (`flowfreq.peakfqr`). **The app does not
 require it** — nothing in the Streamlit path calls it, and the parity tests read
 committed golden files instead.
 
@@ -50,7 +50,7 @@ The repository carries no prebuilt extension: a Windows/CPython-3.12 `.pyd` and 
 DLLs used to be committed here, but they could not load on Streamlit Cloud's Ubuntu — a
 `.pyd` is a PE32+ Windows DLL — and they have been removed. Build output is gitignored;
 the extension is compiled from `vendor/peakfqr/src` by `build_fortran/build.py`, and
-HydroLib falls back to the native EMA path when it is absent. To build one on Linux, add:
+FlowFreq falls back to the native EMA path when it is absent. To build one on Linux, add:
 
 ```
 gfortran
@@ -67,7 +67,7 @@ git push origin main
 1. Go to [share.streamlit.io](https://share.streamlit.io) and sign in with GitHub
 2. Click **New app**
 3. Fill in:
-   - **Repository:** `your-username/hydrolib`
+   - **Repository:** `your-username/flowfreq`
    - **Branch:** `main`
    - **Main file path:** `app/streamlit_app.py`
 4. Click **Deploy**
@@ -75,13 +75,13 @@ git push origin main
 Streamlit Cloud will:
 - Clone the repo
 - Install dependencies from `requirements.txt`
-- Run `pip install -e .` (installs `hydrolib`)
-- Start the app at `https://your-username-hydrolib-app-streamlit-app-XXXXXX.streamlit.app`
+- Run `pip install -e .` (installs `flowfreq`)
+- Start the app at `https://your-username-flowfreq-app-streamlit-app-XXXXXX.streamlit.app`
 
 ## 4. App URL and Settings
 
 After deployment, the URL is shown in the Streamlit Cloud dashboard. You can:
-- Set a **custom subdomain** in app settings (e.g., `hydrolib.streamlit.app`)
+- Set a **custom subdomain** in app settings (e.g., `flowfreq.streamlit.app`)
 - **Reboot** the app if it goes to sleep (free tier sleeps after inactivity)
 - View **logs** in the cloud dashboard for debugging
 

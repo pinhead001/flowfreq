@@ -7,24 +7,48 @@ Streamlit application.
 
 | Question | Decision |
 |---|---|
-| Library repo | `pinhead001/pyhydrolib` |
-| Library distribution name | `pyhydrolib` (on PyPI, and in `pip install`) |
-| Library **import** name | **stays `hydrolib`** — `from hydrolib.bulletin17c import Bulletin17C` |
+| Library repo | `pinhead001/flowfreq` |
+| Library distribution name | `flowfreq` (on PyPI, and in `pip install`) |
+| Library **import** name | `flowfreq` — `from flowfreq.bulletin17c import Bulletin17C` |
 | App repo | `pinhead001/pyhydroapp` — new repo, separate from both |
 | Git history | preserved in both repos; the original repo is archived, not deleted |
 | App → library dependency | pinned git URL, bumped deliberately |
 | `app/ffa_runner.py` | split — analysis half moves into the library, formatting stays in the app |
 
-The distribution/import name mismatch is deliberate and has precedent
-(`scikit-learn`/`sklearn`, `pillow`/`PIL`). It buys a consistent repo name at zero
-churn: no edits to ~25 library modules, 25 test files, the docs, the examples, the
-`hydrolib` console script, or `.bumpversion.cfg`.
+Repo, distribution and import name all agree. That is a change of plan, and the
+reason matters:
+
+**The `hydrolib` import name was already taken.** Deltares publishes `hydrolib`
+(0.5.1) and `hydrolib-core` (1.1.0) on PyPI, both installing a top-level
+`hydrolib/` package — and `hydrolib-core` ships `hydrolib/core/`, colliding
+directly with what was then this project's `hydrolib/core.py`. Installed together in a clean
+venv, verified in both orders:
+
+- ours then Deltares: our entire API disappears — `hydrolib.Bulletin17C` gone,
+  `from hydrolib.core import kfactor` raises ImportError
+- Deltares then ours: **both** break; `import hydrolib` fails on `MAX_ABS_SKEW`
+
+`pip check` reports no problem in either case. Nothing warns.
+
+An earlier draft of this plan kept `import hydrolib` and renamed only the
+distribution, citing `scikit-learn`/`sklearn` and `pillow`/`PIL`. Those precedents
+hold only because nobody else owns the import name. Renaming the distribution
+alone would have fixed PyPI publication and left the collision fully intact,
+aimed squarely at this library's own audience — people doing hydrology in Python
+are exactly the people likely to have Deltares tooling installed.
+
+The project display name changed with it, `HydroLib` to `FlowFreq`, because
+`HYDROLIB` is Deltares' project name: keeping it would have preserved the
+confusion the rename exists to end.
+
+`flowfreq` covers what the library actually does — flood frequency *and* low-flow
+frequency — and carries no `hydro-` prefix to be mistaken for its neighbour.
 
 ## 2. Why the split is cheap
 
 The coupling is already one-way and shallow. `app/` imports the library; nothing in
-`hydrolib/` imports `app`. The only library module that even mentions Streamlit is
-`hydrolib/freq_plot.py`, and that is a docstring and a function name — it imports
+`flowfreq/` imports `app`. The only library module that even mentions Streamlit is
+`flowfreq/freq_plot.py`, and that is a docstring and a function name — it imports
 matplotlib and returns a `Figure`, not a Streamlit call.
 
 Four real boundary defects have to be fixed as part of the split. They are listed in
@@ -32,10 +56,10 @@ Four real boundary defects have to be fixed as part of the split. They are liste
 
 ## 3. File allocation
 
-### → `pyhydrolib` (library)
+### → `flowfreq` (library)
 
 ```
-hydrolib/                 all 25 modules, unchanged imports
+flowfreq/                 all 25 modules (renamed from hydrolib/)
   peakfqr/                f2py bridge (built, gitignored)
   validation/             comparison engine, benchmarks, reports, reference loaders
   workflow.py             NEW — see §4.1
@@ -81,7 +105,7 @@ Nothing is lost — `pinhead001/hydrolib` stays readable as the pre-split record
 computation half is exactly what a second consumer would otherwise have to
 reimplement, so it belongs in the library.
 
-**Down into `hydrolib/workflow.py`:**
+**Down into `flowfreq/workflow.py`:**
 
 | Symbol | Note |
 |---|---|
@@ -91,7 +115,7 @@ reimplement, so it belongs in the library.
 | `DISPLAY_RETURN_INTERVALS`, `DISPLAY_AEP` | rename to `DEFAULT_*` — no longer display-specific |
 | `_skew_values_from_result()` | pure extraction |
 | `compute_skew_tables()` | computes quantiles + CIs per skew option |
-| `build_skew_curves_dict()` | feeds `hydrolib.freq_plot`, which is already in the library |
+| `build_skew_curves_dict()` | feeds `flowfreq.freq_plot`, which is already in the library |
 | `SKEW_OPTIONS` | the label vocabulary both halves key on |
 
 **Stays in `app/ffa_runner.py`:**
@@ -104,7 +128,7 @@ column labels and decimal places that a library should not dictate.
 holds computed numbers, not formatted strings — the formatting pass is a separate
 function that stays up.
 
-Re-export the moved names from `hydrolib/__init__.py` and add `workflow` to the
+Re-export the moved names from `flowfreq/__init__.py` and add `workflow` to the
 module list in that docstring.
 
 **Do this refactor before the fork**, in the current repo. Then the split itself is a
@@ -121,20 +145,20 @@ verifiable against the existing test suite in one place.
 
 A `..` in `package-data` reaches outside the package directory. It works with the
 current setuptools but is not contractual, and it is why `data*` also has to appear in
-`packages.find.include`. Move the file to `hydrolib/data/gage_attributes.csv` and drop
-both hacks. `hydrolib/usgs.py:73-81` already searches
+`packages.find.include`. Move the file to `flowfreq/data/gage_attributes.csv` and drop
+both hacks. `flowfreq/usgs.py:73-81` already searches
 `Path(__file__).parent / "data"` as one of three candidate locations, so the move
 needs no code change — only the removal of the now-dead sibling paths.
 
 ### 4.3 Drop the `sys.path` hacks
 
-Three of them exist only because `app/` and `hydrolib/` share a checkout:
+Three of them exist only because `app/` and `flowfreq/` share a checkout:
 
 - `app/streamlit_app.py:23` — `sys.path.insert(0, parent)`, commented "needed for Streamlit Cloud"
 - `tests/test_ffa_runner.py:11`
 - `tests/test_ffa_export.py:13`
 
-Once `pyhydrolib` is a declared pip dependency, all three are wrong rather than
+Once `flowfreq` is a declared pip dependency, all three are wrong rather than
 merely ugly: they would shadow the installed package with whatever happens to sit
 beside the app. Delete them.
 
@@ -142,7 +166,7 @@ beside the app. Delete them.
 
 ```
 streamlit>=1.28.0
-pyhydrolib @ git+https://github.com/pinhead001/pyhydrolib@v0.3.0
+flowfreq @ git+https://github.com/pinhead001/flowfreq@v0.3.0
 numpy>=1.20.0
 pandas>=1.3.0
 matplotlib>=3.4.0
@@ -170,7 +194,7 @@ nothing.
 
 ### 4.6 CI, Makefile, lint scope
 
-**`pyhydrolib`** keeps `.github/workflows/tests.yml` with the `app` job deleted, and
+**`flowfreq`** keeps `.github/workflows/tests.yml` with the `app` job deleted, and
 `Makefile` with `app/` removed from `PKGS` and the `smoke` target dropped. The
 `lint`, `test` (3.9–3.12 matrix), and `fortran` jobs are unchanged — including the
 deliberate non-chaining of `lint` and `test` documented in that workflow.
@@ -186,9 +210,9 @@ line-length-100 and `profile = "black"` settings do not drift between repos.
 
 ### 4.7 Versioning
 
-- `pyhydrolib` starts at **0.3.0** — a new distribution name and a changed public
-  surface (`hydrolib.workflow`) both warrant the minor bump. Keep `.bumpversion.cfg`;
-  it already drives `pyproject.toml` and `hydrolib/__init__.py`.
+- `flowfreq` starts at **0.3.0** — a new distribution name and a changed public
+  surface (`flowfreq.workflow`) both warrant the minor bump. Keep `.bumpversion.cfg`;
+  it already drives `pyproject.toml` and `flowfreq/__init__.py`.
 - `pyhydroapp` starts at **0.1.0** with its own independent version. It has no
   `.bumpversion.cfg` to inherit — the app's version is a display string, not a
   release contract.
@@ -198,7 +222,7 @@ line-length-100 and `profile = "black"` settings do not drift between repos.
 
 ### 4.8 Optional: rename `plot_frequency_curve_streamlit`
 
-`hydrolib/freq_plot.py` is named for a consumer it no longer lives with. It imports no
+`flowfreq/freq_plot.py` is named for a consumer it no longer lives with. It imports no
 Streamlit and returns a plain matplotlib `Figure`. Renaming the function to
 `plot_frequency_curve` (keeping the old name as an alias) and rewording the module
 docstring costs one commit and removes a misleading signpost for the next consumer.
@@ -208,11 +232,11 @@ Not required for the split to work — sequence it after.
 
 ### Phase 0 — Refactor in place (current repo) — **DONE**
 
-1. Create `hydrolib/workflow.py`; move the §4.1 symbols; re-export from `__init__.py`.
+1. Create `flowfreq/workflow.py`; move the §4.1 symbols; re-export from `__init__.py`.
 2. Reduce `app/ffa_runner.py` to the formatters; update its imports.
 3. Split `tests/test_ffa_runner.py` → `tests/test_workflow.py` (library) + a slimmed
    `tests/test_ffa_runner.py` (formatters).
-4. Move `data/gage_attributes.csv` → `hydrolib/data/`; fix `pyproject.toml` and prune
+4. Move `data/gage_attributes.csv` → `flowfreq/data/`; fix `pyproject.toml` and prune
    the dead search paths in `usgs.py`.
 5. `make check && make smoke` — both green before anything is forked.
 
@@ -228,20 +252,20 @@ Two items in §4 are deliberately **not** in Phase 0 and remain for the repo spl
   about to stop applying.
 - `plot_frequency_curve_streamlit` (§4.8), which is a rename, not a boundary fix.
 
-### Phase 1 — Create `pyhydrolib`
+### Phase 1 — Create `flowfreq`
 
 GitHub does not allow forking a personal repo into the account that owns it, so the
 history-preserving move is a clone-and-push, not the Fork button:
 
 ```bash
-gh repo create pinhead001/pyhydrolib --public
-git clone https://github.com/pinhead001/hydrolib pyhydrolib && cd pyhydrolib
-git remote set-url origin https://github.com/pinhead001/pyhydrolib
+gh repo create pinhead001/flowfreq --public
+git clone https://github.com/pinhead001/hydrolib flowfreq && cd flowfreq
+git remote set-url origin https://github.com/pinhead001/flowfreq
 git push -u origin main            # full history, all 107 commits
 
 git rm -r app tests/test_streamlit_app.py tests/test_ffa_export.py \
           tests/test_ffa_runner.py docs/vignette_streamlit_*.md
-# pyproject: name = "pyhydrolib", version 0.3.0
+# pyproject: name = "flowfreq", version 0.3.0
 # Makefile: drop app/ from PKGS, drop the smoke target
 # workflow: delete the app job
 # README/CLAUDE.md: rewrite for a library-only repo
@@ -272,7 +296,7 @@ is a legible marker of where the split happened.
 
 ### Phase 3 — Wire and verify
 
-1. Push `pyhydrolib` and tag `v0.3.0` **before** the app's `requirements.txt` pin can
+1. Push `flowfreq` and tag `v0.3.0` **before** the app's `requirements.txt` pin can
    resolve.
 2. In a clean venv: `pip install -r requirements.txt && make smoke` in the app repo.
 3. Repoint the Streamlit Cloud deployment at `pinhead001/pyhydroapp`, main branch,
@@ -289,10 +313,10 @@ deployment is live. Add a one-line README note in each new repo pointing back to
 |---|---|---|
 | Phase 0 | `make check` | full suite green, one known `xfail` on Cains Coulee |
 | Phase 0 | `make smoke` | app imports and runs against the refactored boundary |
-| pyhydrolib | `PYTHONSAFEPATH=1 python -m pytest tests/` | green on 3.9 and 3.12 |
-| pyhydrolib | `grep -rn "app\." hydrolib/ tests/` | no hits |
-| pyhydrolib | `make parity` | extension builds, golden files match |
-| pyhydrolib | wheel into a clean venv, then `GageAttributes.status()` from a dir with no `data/` | `file_exists: True`, `num_gages: 3` (full command in the Phase 1 runbook §6) |
+| flowfreq | `PYTHONSAFEPATH=1 python -m pytest tests/` | green on 3.9 and 3.12 |
+| flowfreq | `grep -rn "app\." hydrolib/ tests/` | no hits |
+| flowfreq | `make parity` | extension builds, golden files match |
+| flowfreq | wheel into a clean venv, then `GageAttributes.status()` from a dir with no `data/` | `file_exists: True`, `num_gages: 3` (full command in the Phase 1 runbook §6) |
 | pyhydroapp | `pip install -r requirements.txt` in a clean venv | pinned tag resolves |
 | pyhydroapp | `grep -rn "sys.path\|from app\." . --include="*.py"` | no hits |
 | pyhydroapp | `make test` | 26 passed against the *installed* library |
@@ -310,15 +334,15 @@ something asks it for a gage.
 `pinhead001/hydrolib`; archiving that repo without repointing first takes the app
 down. Phase 3 step 3 precedes Phase 4 for this reason.
 
-**Fortran toolchain.** Only `pyhydrolib` needs gfortran + meson, and only in the
+**Fortran toolchain.** Only `flowfreq` needs gfortran + meson, and only in the
 `fortran` CI job. The app repo requires no compiler — worth stating in its README,
 since the vendored Fortran is the loudest thing in the current repo and its absence
 will read as an omission.
 
-**The `hydrolib` name on PyPI.** `pyhydrolib` is the distribution name, so nothing is
+**The `hydrolib` name on PyPI.** `flowfreq` is the distribution name, so nothing is
 claimed under `hydrolib`. Anyone who previously installed this repo from a git URL as
 `hydrolib` keeps working — the import name is unchanged — but their pin needs updating
-to the new repo URL. Note it in the pyhydrolib CHANGELOG.
+to the new repo URL. Note it in the flowfreq CHANGELOG.
 
 **Doc drift.** `README.md`, `CLAUDE.md`, `TODO.md` (71 KB) and `PRODUCTION.md` all
 describe a combined repo. `CLAUDE.md` in particular is instructions to an agent and

@@ -1,8 +1,8 @@
 """
 Comparison engine for native vs reference frequency analysis results.
 
-Compares HydroLib native EMA output against a
-:class:`~hydrolib.validation.reference.ReferenceResult` with configurable
+Compares FlowFreq native EMA output against a
+:class:`~flowfreq.validation.reference.ReferenceResult` with configurable
 tolerance thresholds per output category.
 """
 
@@ -12,7 +12,7 @@ import logging
 from dataclasses import dataclass, field
 from typing import Any
 
-from hydrolib.validation.reference import ReferenceResult
+from flowfreq.validation.reference import ReferenceResult
 
 logger = logging.getLogger(__name__)
 
@@ -97,7 +97,7 @@ def _pct_diff(native_val: float, ref_val: float, scale_floor: float = 0.0) -> fl
 
 
 class FrequencyComparator:
-    """Compare native HydroLib analysis against a reference result.
+    """Compare native FlowFreq analysis against a reference result.
 
     Parameters
     ----------
@@ -141,7 +141,7 @@ class FrequencyComparator:
         Parameters
         ----------
         native : dict
-            Output from HydroLib native analysis. Expected keys:
+            Output from FlowFreq native analysis. Expected keys:
             'parameters', 'quantiles', 'confidence_intervals'.
         reference : ReferenceResult
             Reference result to compare against.

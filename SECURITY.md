@@ -2,12 +2,12 @@
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability in HydroLib, **please do NOT open a public GitHub issue**.
+If you discover a security vulnerability in FlowFreq, **please do NOT open a public GitHub issue**.
 
 Instead, please report it by email to **pinhead001@github.com** with the following information:
 
 1. **Description** — What is the vulnerability and how can it be exploited?
-2. **Affected versions** — Which releases of HydroLib are impacted?
+2. **Affected versions** — Which releases of FlowFreq are impacted?
 3. **Steps to reproduce** — Minimal code example (if applicable)
 4. **Suggested fix** — (Optional) Your proposed solution
 5. **CVSS score** — (Optional) Severity assessment
@@ -22,7 +22,7 @@ Instead, please report it by email to **pinhead001@github.com** with the followi
 ## Scope
 
 ✅ **In scope:**
-- Vulnerabilities in HydroLib source code (hydrolib/ directory)
+- Vulnerabilities in FlowFreq source code (flowfreq/ directory)
 - Vulnerabilities in vendored dependencies (vendor/peakfqr)
 - Remote code execution, SQL injection, or similar attack vectors
 - Sensitive data leakage
@@ -35,9 +35,9 @@ Instead, please report it by email to **pinhead001@github.com** with the followi
 
 ## Security Best Practices
 
-When using HydroLib:
+When using FlowFreq:
 
-- Keep Python and dependencies up to date: `pip install --upgrade hydrolib`
+- Keep Python and dependencies up to date: `pip install --upgrade flowfreq`
 - Validate input data, especially USGS gage IDs from untrusted sources
 - Use regional skew parameters from authoritative USGS sources
 - Do not commit API keys or credentials in code; use environment variables

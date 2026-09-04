@@ -1,5 +1,5 @@
 """
-HydroLib command-line interface.
+FlowFreq command-line interface.
 
 Provides CLI commands for validation and benchmarking of the
 Bulletin 17C implementation.
@@ -12,14 +12,14 @@ import click
 
 @click.group()
 def cli() -> None:
-    """HydroLib - Hydrologic frequency analysis tools."""
+    """FlowFreq - Hydrologic frequency analysis tools."""
     pass
 
 
 @cli.command()
 def validate() -> None:
     """Run validation benchmarks against the reference expectations."""
-    from hydrolib.validation.benchmarks import print_benchmark_report, run_all_benchmarks
+    from flowfreq.validation.benchmarks import print_benchmark_report, run_all_benchmarks
 
     click.echo("Running validation benchmarks...")
     results = run_all_benchmarks()
@@ -41,8 +41,8 @@ def benchmark(fmt: str) -> None:
     fmt : str
         Output format: 'text' or 'json'.
     """
-    from hydrolib.validation.benchmarks import run_all_benchmarks
-    from hydrolib.validation.reports import generate_json_report, generate_text_report
+    from flowfreq.validation.benchmarks import run_all_benchmarks
+    from flowfreq.validation.reports import generate_json_report, generate_text_report
 
     click.echo("Running benchmarks...")
     results = run_all_benchmarks()

@@ -1,7 +1,7 @@
 # %% Imports
 import os
 
-from hydrolib import B17CEngine, Bulletin17C, PeakRecord, USGSGage, plot_frequency_curve
+from flowfreq import B17CEngine, Bulletin17C, PeakRecord, USGSGage, plot_frequency_curve
 
 # Set output directory (outside repo)
 output_dir = r"C:\Users\chrisj.nelson\hydro_output\gage_11066460"
@@ -168,7 +168,7 @@ report_text = f"""
 {thresh_table.to_string(index=False)}
 
 ---
-*Analysis performed using hydrolib v0.0.3*
+*Analysis performed using flowfreq v0.0.3*
 """
 
 report_path = os.path.join(output_dir, "flood_frequency_report.md")

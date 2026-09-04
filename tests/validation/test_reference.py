@@ -1,4 +1,4 @@
-"""Tests for hydrolib.validation.reference.
+"""Tests for flowfreq.validation.reference.
 
 The reference side of validation used to be a subprocess wrapper around a
 PeakfqSA executable that does not exist, mock-tested only. These tests exercise
@@ -14,7 +14,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from hydrolib.validation.reference import ReferenceResult, cmoms_to_parameters
+from flowfreq.validation.reference import ReferenceResult, cmoms_to_parameters
 
 GOLDEN = (
     Path(__file__).resolve().parents[1] / "fortran_parity" / "golden" / "big_sandy_03606500.json"
@@ -104,7 +104,7 @@ class TestFromEmafit:
     @staticmethod
     def _live() -> ReferenceResult:
         pytest.importorskip(
-            "hydrolib.peakfqr",
+            "flowfreq.peakfqr",
             reason="Fortran extension not built; run python build_fortran/build.py",
         )
         from tests.fortran_parity.cases import big_sandy_case, build_emafit_inputs

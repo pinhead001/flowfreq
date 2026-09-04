@@ -43,7 +43,7 @@ import pytest
 from tests.fortran_parity.conftest import load_golden
 
 pytest.importorskip(
-    "hydrolib.peakfqr",
+    "flowfreq.peakfqr",
     reason="Fortran extension not built; run python build_fortran/build.py "
     "(see docs/FORTRAN_UPLOAD.md)",
 )

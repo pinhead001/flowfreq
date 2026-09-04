@@ -120,7 +120,7 @@ USGS\t12449950\tMETHOW RIVER AT PATEROS, WA\tdv\t00060\t1959-10-01\t2024-09-30\t
 """
 
 # Site-service siteOutput=expanded response, the call that carries station name,
-# drainage area and decimal-degree coordinates. Trimmed to the columns hydrolib
+# drainage area and decimal-degree coordinates. Trimmed to the columns flowfreq
 # reads; the real response has far more.
 SITE_EXPANDED = """\
 # US Geological Survey

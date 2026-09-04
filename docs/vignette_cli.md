@@ -1,11 +1,11 @@
 # Vignette: Command-Line Usage
 
-HydroLib installs a `hydrolib` CLI entry point (via `pyproject.toml`) for running validation and benchmarks against known reference results.
+FlowFreq installs a `flowfreq` CLI entry point (via `pyproject.toml`) for running validation and benchmarks against known reference results.
 
 ## Setup
 
 ```bash
-cd /path/to/hydrolib
+cd /path/to/flowfreq
 
 # Activate your virtual environment
 .venv\Scripts\activate         # Windows
@@ -15,18 +15,18 @@ cd /path/to/hydrolib
 pip install -e ".[dev]"
 ```
 
-After install, `hydrolib` is available on your PATH.
+After install, `flowfreq` is available on your PATH.
 
 ---
 
 ## Commands
 
-### `hydrolib validate`
+### `flowfreq validate`
 
 Runs the full numerical validation suite — comparing the native EMA implementation against fixtures extracted from the USGS `peakfqr` R package (the authoritative reference). Exits with code 1 if any benchmark fails.
 
 ```bash
-hydrolib validate
+flowfreq validate
 ```
 
 Example output:
@@ -42,19 +42,19 @@ Big Sandy River (03606500)
 All 12 benchmarks passed.
 ```
 
-### `hydrolib benchmark`
+### `flowfreq benchmark`
 
 Runs benchmarks and prints a detailed report. Use `--format json` to pipe results into other tools.
 
 ```bash
 # Human-readable text report
-hydrolib benchmark
+flowfreq benchmark
 
 # JSON (for programmatic consumption)
-hydrolib benchmark --format json
+flowfreq benchmark --format json
 
 # Save JSON to file
-hydrolib benchmark --format json > benchmark_results.json
+flowfreq benchmark --format json > benchmark_results.json
 ```
 
 Example JSON output structure:
@@ -95,7 +95,7 @@ pytest tests/
 pytest tests/test_ffa_runner.py -v
 
 # With coverage
-pytest tests/ --cov=hydrolib --cov-report=term-missing
+pytest tests/ --cov=flowfreq --cov-report=term-missing
 ```
 
 ---
@@ -104,9 +104,9 @@ pytest tests/ --cov=hydrolib --cov-report=term-missing
 
 ```bash
 # Format all source files
-black hydrolib/ app/ tests/
-isort hydrolib/ app/ tests/
+black flowfreq/ app/ tests/
+isort flowfreq/ app/ tests/
 
 # Type checking
-mypy hydrolib/ --ignore-missing-imports --strict
+mypy flowfreq/ --ignore-missing-imports --strict
 ```

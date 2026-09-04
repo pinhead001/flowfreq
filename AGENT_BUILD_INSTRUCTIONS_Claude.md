@@ -1,4 +1,4 @@
-# HydroLib Hybrid 17C Implementation — Agent Build Instructions
+# FlowFreq Hybrid 17C Implementation — Agent Build Instructions
 
 > **For the Agent:** Read this entire document before writing a single line of code.  
 > Start by generating the TODO list in Step 0. Then work through every task in order.  
@@ -9,7 +9,7 @@
 
 ## Context
 
-**Project:** HydroLib — a Python library for hydrologic frequency analysis  
+**Project:** FlowFreq — a Python library for hydrologic frequency analysis  
 **Goal:** Implement a hybrid Bulletin 17C approach that wraps PeakfqSA (USGS Fortran reference implementation) alongside the existing native EMA implementation  
 **Reference Software:** PeakfqSA by Tim Cohn (USGS) — ~45,000 lines of Fortran-95  
 **Test Case:** Big Sandy River at Bruceton, TN (USGS gage 03606500)
@@ -33,7 +33,7 @@ The agent must read this repository **before writing any computation code**. It 
 
 **Read `\src\` for computation logic:**
 - These are the R source files that implement EMA, MGBT, confidence intervals, and frequency curve fitting
-- Treat each `.R` file in `\src\` as the specification for the equivalent Python module in HydroLib
+- Treat each `.R` file in `\src\` as the specification for the equivalent Python module in FlowFreq
 - Mirror the function signatures, parameter names, and logic flow wherever practical
 - Pay close attention to how R calls into Fortran — the same call patterns apply to the Python subprocess wrapper
 
@@ -51,14 +51,14 @@ The agent must read this repository **before writing any computation code**. It 
 
 ### Specific things to extract from peakfqr before coding
 
-Before writing a single HydroLib module, read peakfqr and document the following in `TODO.md`:
+Before writing a single FlowFreq module, read peakfqr and document the following in `TODO.md`:
 
 1. **Fortran call signatures** — what arguments does R pass to the Fortran routines in `\src\`? What are the argument order, types, and units?
 2. **EMA parameter conventions** — how does peakfqr define and pass perception thresholds, historical period, and systematic record length?
 3. **MGBT implementation** — how does peakfqr call and interpret the Multiple Grubbs-Beck Test results?
 4. **Confidence interval method** — does peakfqr use the same CI approach as the PeakfqSA manual? Note any differences.
 5. **Regional skew weighting** — exact formula and MSE combination method used
-6. **Output format** — what fields does peakfqr return? Map each to the equivalent `PeakfqSAResult` field in HydroLib
+6. **Output format** — what fields does peakfqr return? Map each to the equivalent `PeakfqSAResult` field in FlowFreq
 7. **Edge cases handled** — zero flows, all-censored records, single threshold, ties — note how peakfqr handles each
 
 Add a section `## peakfqr Reference Notes` to `TODO.md` with findings from steps 1-7 before proceeding to Step 3.
@@ -82,7 +82,7 @@ Read in this order:
 4. C:\a\hal\_shared\peakfqr\R\                 — ALL files (R API layer — input/output contracts)
 5. C:\a\hal\_shared\peakfqr\man\               — function docs (parameter names, units, valid ranges)
 6. C:\a\hal\_shared\peakfqr\vignettes\         — worked examples (end-to-end workflows)
-7. C:\a\hal\_shared\peakfqr\tests\ or \test\   — test fixtures (extract as additional HydroLib fixtures)
+7. C:\a\hal\_shared\peakfqr\tests\ or \test\   — test fixtures (extract as additional FlowFreq fixtures)
 8. C:\a\hal\_shared\peakfqr\data\ or \inst\    — example datasets
 ```
 
@@ -93,14 +93,14 @@ While reading, extract and record in `TODO.md` under a `## peakfqr Reference Not
 - MGBT call signature and how results are interpreted
 - Confidence interval method — does it match PeakfqSA manual? Note differences
 - Regional skew weighting formula and MSE combination
-- Complete output field list — map each to `PeakfqSAResult` fields in HydroLib
+- Complete output field list — map each to `PeakfqSAResult` fields in FlowFreq
 - Edge cases explicitly handled (zero flows, all-censored, ties, single threshold)
 
 **Do not skip this step.** The peakfqr `\src\` files are the specification for every computation module written below.
 
 ### Step 0b — Generate TODO.md
 
-After reading peakfqr, scan the existing HydroLib codebase and generate a comprehensive TODO list in `TODO.md`:
+After reading peakfqr, scan the existing FlowFreq codebase and generate a comprehensive TODO list in `TODO.md`:
 
 ```
 - [ ] Every file to be created (with purpose)
@@ -124,8 +124,8 @@ Before building anything, ask the user the following questions in a **single gro
 ```
 Questions to ask:
 
-1. Where is your HydroLib project root?
-   (e.g., ~/projects/hydrolib)
+1. Where is your FlowFreq project root?
+   (e.g., ~/projects/flowfreq)
 
 2. Do you have PeakfqSA installed?
    - Yes — provide the path to the executable
@@ -154,7 +154,7 @@ Store all answers in memory. Use them throughout the build. Do not ask again.
 ### 2a — Verify Project Structure
 
 ```bash
-# Confirm HydroLib is structured as expected
+# Confirm FlowFreq is structured as expected
 find . -name "*.py" | head -40
 cat pyproject.toml || cat setup.py || cat setup.cfg
 ```
@@ -163,7 +163,7 @@ If the structure differs significantly from the expected layout below, **stop an
 
 ```
 Expected layout:
-src/hydrolib/
+src/flowfreq/
 ├── analysis/
 ├── data/
 ├── visualization/
@@ -202,7 +202,7 @@ Create every directory and stub file listed below. Each stub must contain:
 - `TODO:` comments on each stub body
 
 ```
-src/hydrolib/peakfqsa/
+src/flowfreq/peakfqsa/
 ├── __init__.py
 ├── config.py         # PeakfqSAConfig, executable detection
 ├── wrapper.py        # Subprocess execution of PeakfqSA
@@ -210,7 +210,7 @@ src/hydrolib/peakfqsa/
 ├── parsers.py        # .out file parsing → Python objects
 └── validators.py     # Tolerance-based result comparison
 
-src/hydrolib/validation/
+src/flowfreq/validation/
 ├── __init__.py
 ├── benchmarks.py     # Bulletin 17C Appendix 10 test cases
 ├── comparisons.py    # Native vs PeakfqSA comparison engine
@@ -238,7 +238,7 @@ tests/integration/
 └── test_hybrid_workflow.py
 ```
 
-After creating the structure, verify it with `find src/hydrolib tests -name "*.py" | sort` and print the result.
+After creating the structure, verify it with `find src/flowfreq tests -name "*.py" | sort` and print the result.
 
 ---
 
@@ -330,7 +330,7 @@ TOLERANCE_PERCENT = 1.0  # Results must match PeakfqSA within 1%
 
 ## Step 5 — Configuration Module
 
-**Do autonomously.** Implement `src/hydrolib/peakfqsa/config.py`:
+**Do autonomously.** Implement `src/flowfreq/peakfqsa/config.py`:
 
 Requirements:
 - `PeakfqSAConfig` dataclass with fields: `executable_path`, `timeout_seconds`, `temp_dir`, `keep_temp_files`
@@ -351,7 +351,7 @@ Run tests. Fix until they pass.
 
 ## Step 6 — I/O Converters
 
-**Do autonomously.** Implement `src/hydrolib/peakfqsa/io_converters.py`.
+**Do autonomously.** Implement `src/flowfreq/peakfqsa/io_converters.py`.
 
 **Before writing any code**, re-read the relevant files in `C:\a\hal\_shared\peakfqr\src\` to confirm the exact argument names, field order, and formatting that the Fortran routines expect. The `.psf` and `.dat` formats must match what the Fortran layer consumes — use peakfqr's R-to-Fortran calls as the ground truth.
 
@@ -360,7 +360,7 @@ Run tests. Fix until they pass.
 Must produce output that exactly matches PeakfqSA `.psf` format from the manual:
 
 ```
-# Generated by HydroLib
+# Generated by FlowFreq
 I {data_filename}
 STATION {station_name}
 BEGYEAR {begyear}
@@ -395,7 +395,7 @@ Run tests. Fix until they pass.
 
 ## Step 7 — PeakfqSA Wrapper
 
-**Do autonomously.** Implement `src/hydrolib/peakfqsa/wrapper.py`.
+**Do autonomously.** Implement `src/flowfreq/peakfqsa/wrapper.py`.
 
 **Before writing any code**, read `C:\a\hal\_shared\peakfqr\src\` to identify how the R package invokes the Fortran executable — argument order, environment variables, working directory assumptions, and temp file conventions. Mirror the same invocation pattern in the Python subprocess wrapper.
 
@@ -447,7 +447,7 @@ Run tests. Fix until they pass.
 
 ## Step 8 — Output Parser
 
-**Do autonomously.** Implement `src/hydrolib/peakfqsa/parsers.py`.
+**Do autonomously.** Implement `src/flowfreq/peakfqsa/parsers.py`.
 
 **Before writing any code**, read `C:\a\hal\_shared\peakfqr\R\` and `\man\` to get the complete list of fields returned by the R package from the Fortran output. Use the peakfqr field names and structure to ensure `PeakfqSAResult` captures every value peakfqr exposes — nothing should be silently dropped.
 
@@ -491,7 +491,7 @@ Run tests. Fix until they pass.
 
 ## Step 9 — Comparison Engine
 
-**Do autonomously.** Implement `src/hydrolib/validation/comparisons.py`:
+**Do autonomously.** Implement `src/flowfreq/validation/comparisons.py`:
 
 ```python
 @dataclass
@@ -509,7 +509,7 @@ class FrequencyComparator:
 
     def compare(
         self,
-        native: dict,           # output from HydroLib native analysis
+        native: dict,           # output from FlowFreq native analysis
         reference: PeakfqSAResult,
     ) -> ComparisonResult: ...
 
@@ -625,7 +625,7 @@ Also write a test that runs **without** PeakfqSA (native only) and verifies the 
 
 ## Step 12 — Benchmark Module
 
-**Do autonomously.** Implement `src/hydrolib/validation/benchmarks.py`:
+**Do autonomously.** Implement `src/flowfreq/validation/benchmarks.py`:
 
 ```python
 """
@@ -665,9 +665,9 @@ def print_benchmark_report(results: dict[str, ComparisonResult]) -> None: ...
 
 ```bash
 # Usage after install:
-hydrolib validate --gage 03606500 --method both
-hydrolib benchmark --list
-hydrolib benchmark --run big_sandy
+flowfreq validate --gage 03606500 --method both
+flowfreq benchmark --list
+flowfreq benchmark --run big_sandy
 ```
 
 Implement using `click`. The command should:
@@ -693,7 +693,7 @@ Every public class and function must have a NumPy-format docstring with:
 - Raises section
 - Examples section (at least one runnable example)
 
-Run `python -m pytest --doctest-modules src/hydrolib/peakfqsa/` to verify doctest examples work.
+Run `python -m pytest --doctest-modules src/flowfreq/peakfqsa/` to verify doctest examples work.
 
 ### 14b — README Section
 
@@ -702,11 +702,11 @@ Add a "Hybrid Bulletin 17C Validation" section to the project README:
 ```markdown
 ## Hybrid Bulletin 17C Validation
 
-HydroLib supports two modes for Bulletin 17C flood frequency analysis:
+FlowFreq supports two modes for Bulletin 17C flood frequency analysis:
 
 **Native mode** (default — no external dependencies):
 ```python
-from hydrolib.analysis import FrequencyAnalyzer
+from flowfreq.analysis import FrequencyAnalyzer
 analyzer = FrequencyAnalyzer()
 result = analyzer.analyze(peaks, begyear=1930, endyear=2020)
 ```
@@ -727,10 +727,10 @@ Add an entry to `CHANGELOG.md`:
 ```markdown
 ## [Unreleased]
 ### Added
-- PeakfqSA integration for Bulletin 17C validation (`hydrolib.peakfqsa`)
+- PeakfqSA integration for Bulletin 17C validation (`flowfreq.peakfqsa`)
 - `FrequencyAnalyzer.validate()` method for side-by-side comparison
 - Benchmark framework with Big Sandy River test case
-- `hydrolib validate` and `hydrolib benchmark` CLI commands
+- `flowfreq validate` and `flowfreq benchmark` CLI commands
 - Comparison reports with per-quantile tolerance checking
 ```
 
@@ -746,17 +746,17 @@ black src/ tests/
 isort src/ tests/
 
 # Type checking
-mypy src/hydrolib/ --ignore-missing-imports --strict
+mypy src/flowfreq/ --ignore-missing-imports --strict
 
 # Tests (without PeakfqSA)
-pytest tests/ -v -m "not requires_peakfqsa" --cov=hydrolib \
+pytest tests/ -v -m "not requires_peakfqsa" --cov=flowfreq \
     --cov-report=term-missing --cov-fail-under=80
 
 # Doctest
-python -m pytest --doctest-modules src/hydrolib/peakfqsa/ src/hydrolib/validation/
+python -m pytest --doctest-modules src/flowfreq/peakfqsa/ src/flowfreq/validation/
 
 # Check for leftover TODO stubs (warn but don't fail)
-grep -rn "TODO:" src/hydrolib/ | grep -v ".pyc"
+grep -rn "TODO:" src/flowfreq/ | grep -v ".pyc"
 ```
 
 After the run, print a summary:
@@ -800,7 +800,7 @@ These rules apply throughout the entire build:
 **DO ask when:**
 - Modifying existing public APIs (Step 10)
 - PeakfqSA binary path is unknown and auto-detection fails
-- A test reveals an unexpected behavior in the existing HydroLib implementation
+- A test reveals an unexpected behavior in the existing FlowFreq implementation
 - The existing codebase structure differs from what was expected
 - A design decision has significant tradeoffs (document the options, ask once)
 
@@ -851,12 +851,12 @@ Do not comment out failing tests or mark them `xfail` without explicit user appr
 | File | Purpose |
 |------|---------|
 | `TODO.md` | Live task tracker — created in Step 0 |
-| `src/hydrolib/peakfqsa/config.py` | PeakfqSA detection and config |
-| `src/hydrolib/peakfqsa/wrapper.py` | Subprocess execution |
-| `src/hydrolib/peakfqsa/io_converters.py` | .psf / .dat file generation |
-| `src/hydrolib/peakfqsa/parsers.py` | .out file parsing |
-| `src/hydrolib/validation/comparisons.py` | Native vs PeakfqSA comparison |
-| `src/hydrolib/validation/benchmarks.py` | Bulletin 17C test cases |
+| `src/flowfreq/peakfqsa/config.py` | PeakfqSA detection and config |
+| `src/flowfreq/peakfqsa/wrapper.py` | Subprocess execution |
+| `src/flowfreq/peakfqsa/io_converters.py` | .psf / .dat file generation |
+| `src/flowfreq/peakfqsa/parsers.py` | .out file parsing |
+| `src/flowfreq/validation/comparisons.py` | Native vs PeakfqSA comparison |
+| `src/flowfreq/validation/benchmarks.py` | Bulletin 17C test cases |
 | `tests/peakfqsa/fixtures/big_sandy.py` | Primary test data |
 | `tests/integration/test_hybrid_workflow.py` | End-to-end integration test |
 

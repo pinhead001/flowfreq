@@ -209,12 +209,12 @@ __marimo__/
 # Fortran extension build output. The extension is compiled from
 # vendor/peakfqr/src by build_fortran/build.py and is never committed; CI gets
 # the reference values from tests/fortran_parity/golden/ instead.
-hydrolib/peakfqr/_emafort*.so
-hydrolib/peakfqr/_emafort*.pyd
+flowfreq/peakfqr/_emafort*.so
+flowfreq/peakfqr/_emafort*.pyd
 build_fortran/_emafort*.so
 build_fortran/_emafort*.pyd
 # A Windows build drops the mingw runtime beside the extension. Those are build
 # output too -- five of them were committed once and had to be removed later.
-hydrolib/peakfqr/*.dll
+flowfreq/peakfqr/*.dll
 build_fortran/mbuild/
 build_fortran/native.ini

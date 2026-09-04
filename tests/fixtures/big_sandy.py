@@ -2,8 +2,8 @@
 Big Sandy River at Bruceton, TN (USGS gage 03606500).
 
 The primary validation case. The numbers are not defined here: they load from
-``hydrolib/validation/data/big_sandy_03606500.json``, which ships with the
-package because ``hydrolib benchmark`` needs them and ``tests/`` is not
+``flowfreq/validation/data/big_sandy_03606500.json``, which ships with the
+package because ``flowfreq benchmark`` needs them and ``tests/`` is not
 packaged. Duplicating them here would give the benchmark and the test suite two
 sources of truth for the same site, which is how they drift.
 
@@ -27,7 +27,7 @@ Two sets of expectations, deliberately:
 
 from __future__ import annotations
 
-from hydrolib.validation.benchmarks import load_case
+from flowfreq.validation.benchmarks import load_case
 
 _CASE = load_case("big_sandy_03606500")
 _REF = _CASE["reference"]

@@ -1,4 +1,4 @@
-"""Compare hydrolib's native EMA against the committed Fortran output.
+"""Compare flowfreq's native EMA against the committed Fortran output.
 
 Runs everywhere, including CI, because the reference values come from a golden
 file rather than from the extension. See ``tools/gen_fortran_golden.py``.
@@ -8,7 +8,7 @@ each rung feeds the next, so the *first* failure is the root cause and anything
 below it is downstream noise. Rung 6 (confidence-interval shape) used to carry
 two ``xfail(strict=True)`` rungs; both are closed now that
 ``ExpectedMomentsAlgorithm.compute_confidence_limits`` uses
-``hydrolib._var_emab.var_emab`` -- see TODO.md P3 and that class's docstring.
+``flowfreq._var_emab.var_emab`` -- see TODO.md P3 and that class's docstring.
 """
 
 from __future__ import annotations
@@ -53,11 +53,11 @@ class TestRung3Moments:
     def test_weighted_skew(self, golden_big_sandy, native_big_sandy):
         """No longer xfail: TODO.md P3's var_mom port closes this.
 
-        Was -0.1563 vs -0.1009, ~35%, when hydrolib used the standard
+        Was -0.1563 vs -0.1009, ~35%, when flowfreq used the standard
         Bulletin 17C weighting instead of peakfq's HWN "optimized adjustment
         factor when censored data are present" (fortranWrappers.R). Folding
         the regional skew into the EMA fixed point the way moms_p3 does it
-        closed most of that gap; hydrolib._mse_ema.mse_ema (var_mom's
+        closed most of that gap; flowfreq._mse_ema.mse_ema (var_mom's
         censoring bias adjustment, ADJE's as_G_mse) closed the rest. See
         docs/FORTRAN_UPLOAD.md section 6.0b for the history and
         tests/integration/test_hybrid_workflow.py::TestBigSandyAgainstReference
@@ -85,7 +85,7 @@ class TestRung6ConfidenceIntervals:
 
     ``ExpectedMomentsAlgorithm.compute_confidence_limits`` (``bulletin17c.py``)
     now overrides the base class's symmetric ``log_Q +/- z*se`` formula with
-    ``hydrolib._var_emab.var_emab`` (``emafit.f``'s ``VAR_EMAB``/``regmoms``/
+    ``flowfreq._var_emab.var_emab`` (``emafit.f``'s ``VAR_EMAB``/``regmoms``/
     ``ci_ema_m3b``, Cohn's inverse-Gaussian-quadrature method), falling back
     to the symmetric formula only if that raises. See TODO.md P3.
     """

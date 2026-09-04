@@ -1,4 +1,4 @@
-# HydroLib - Python Library for Hydrologic Analysis
+# FlowFreq - Python Library for Hydrologic Analysis
 
 A comprehensive Python library for downloading USGS streamflow data, performing Bulletin 17C flood frequency analysis, and generating professional technical reports.
 
@@ -23,7 +23,7 @@ pip install numpy pandas matplotlib scipy requests
 ## Quick Start
 
 ```python
-from hydrolib import USGSgage, Bulletin17C, Hydrograph, HydroReport, analyze_gage
+from flowfreq import USGSgage, Bulletin17C, Hydrograph, HydroReport, analyze_gage
 
 # Option 1: Full automated analysis
 results = analyze_gage(
@@ -202,7 +202,7 @@ MIT License
 
 ## Author
 
-HydroLib - Python Hydrologic Analysis Library
+FlowFreq - Python Hydrologic Analysis Library
 encyResults`: Complete analysis output
 
 ### Decorators Used
@@ -216,7 +216,7 @@ encyResults`: Complete analysis output
 ## Utility Functions
 
 ```python
-from hydrolib import kfactor, grubbs_beck_critical_value
+from flowfreq import kfactor, grubbs_beck_critical_value
 
 # K-factor for LP3 distribution (cached)
 K = kfactor(skew=0.3, aep=0.01)  # 1% AEP

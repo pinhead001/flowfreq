@@ -1,4 +1,4 @@
-"""Tests for hydrolib._detrat that do not require the Fortran extension.
+"""Tests for flowfreq._detrat that do not require the Fortran extension.
 
 Parity against the vendored Fortran lives in
 tests/fortran_parity/test_fortran_oracles.py (skipped when the extension
@@ -10,8 +10,8 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from hydrolib._detrat import _expmomcderiv, _p2m, detrat
-from hydrolib._p3_moments import m2p
+from flowfreq._detrat import _expmomcderiv, _p2m, detrat
+from flowfreq._p3_moments import m2p
 
 
 class TestP2m:

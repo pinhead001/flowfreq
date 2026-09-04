@@ -3,8 +3,10 @@
 The Streamlit half of the split. Companion to `docs/REPO_SPLIT_PLAN.md` and
 `docs/PHASE1_RUNBOOK.md`.
 
-The repository is **`pinhead001/pyhydroapp`**, pairing with `pyhydrolib` on the
-`py-` prefix. Settled before Step 2 deliberately: renaming after the Streamlit
+The repository is **`pinhead001/pyhydroapp`**, as chosen. Note that its original
+rationale — pairing with `pyhydrolib` on a shared `py-` prefix — lapsed when the
+library became `flowfreq`; `flowfreq-app` would pair, if you would rather it did.
+Settled before Step 2 deliberately: renaming after the Streamlit
 Cloud repoint in Step 12 means performing that repoint twice.
 
 ---
@@ -13,7 +15,7 @@ Cloud repoint in Step 12 means performing that repoint twice.
 
 Phase 2 cannot start until all three hold:
 
-- [ ] `pyhydrolib` exists with `main` green on three CI jobs
+- [ ] `flowfreq` exists with `main` green on three CI jobs
 - [ ] **`v0.3.0` is pushed as a tag** — `git ls-remote --tags` on the new repo must show it
 - [ ] The original `pinhead001/hydrolib` is still **unarchived** and still serving the live app
 
@@ -26,7 +28,7 @@ pip resolution error rather than anything that points at the real cause.
 Verify before going further:
 
 ```bash
-git ls-remote --tags https://github.com/pinhead001/pyhydrolib | grep v0.3.0
+git ls-remote --tags https://github.com/pinhead001/flowfreq | grep v0.3.0
 ```
 
 ---
@@ -34,7 +36,7 @@ git ls-remote --tags https://github.com/pinhead001/pyhydrolib | grep v0.3.0
 ## Step 1 — Layout: flatten `app/` to the repo root
 
 The combined repo nested everything under `app/` to keep it separate from
-`hydrolib/`. Once the library is gone that nesting has nothing left to separate
+`flowfreq/`. Once the library is gone that nesting has nothing left to separate
 from, so the app modules move to the repo root:
 
 ```
@@ -59,7 +61,7 @@ so the imports resolve with nothing added.
 
 > Plan §4.3 gave a different reason for deleting the hacks — that they would
 > shadow the installed package. That reasoning was wrong: the hack inserts the
-> repo root, which shadows nothing once `hydrolib/` is not beside it. The hacks
+> repo root, which shadows nothing once `flowfreq/` is not beside it. The hacks
 > are removable because of the flattening, not because the library moved. If you
 > keep the `app/` subdirectory, **keep the hack in `streamlit_app.py`** or the
 > deployed app will fail on `ModuleNotFoundError: No module named 'app'`.
@@ -156,9 +158,9 @@ Delete the three `sys.path` blocks — in `streamlit_app.py` (the one commented
 `from pathlib import Path` that only served them. Leave `pathlib` where the file
 still uses it: `tests/test_streamlit_app.py` reads the app source at L106/L111.
 
-**Do not touch any `hydrolib` import.** `from hydrolib.workflow import run_ffa`
-is correct and stays correct — the distribution is named `pyhydrolib`, the
-package inside it is `hydrolib`.
+**Do not touch any `flowfreq` import.** `from flowfreq.workflow import run_ffa`
+is correct and stays correct: repo, distribution and package all read
+`flowfreq` since the rename.
 
 ---
 
@@ -186,7 +188,7 @@ At the repo root, which is where Streamlit Cloud looks:
 
 ```
 streamlit>=1.28.0
-pyhydrolib @ git+https://github.com/pinhead001/pyhydrolib@v0.3.0
+flowfreq @ git+https://github.com/pinhead001/flowfreq@v0.3.0
 numpy>=1.20.0
 pandas>=1.3.0
 matplotlib>=3.4.0
@@ -199,7 +201,7 @@ lean on a transitive dependency. `requests` is dropped — only the library's NW
 client used it.
 
 Bumping the library later is a one-line edit to the tag here. That is the point
-of pinning: a `pyhydrolib` regression cannot reach the deployed app on its own.
+of pinning: a `flowfreq` regression cannot reach the deployed app on its own.
 
 ---
 
@@ -281,7 +283,7 @@ jobs:
         with:
           python-version: '3.12'   # Streamlit needs >= 3.10
 
-      # Installs pyhydrolib from the pinned tag, so CI exercises the same
+      # Installs flowfreq from the pinned tag, so CI exercises the same
       # resolution Streamlit Cloud performs on deploy. A broken pin fails
       # here rather than in production.
       - name: Install
@@ -312,7 +314,7 @@ is deployed on one interpreter.
 
 | File | Action |
 |---|---|
-| `README.md` | Rewrite. Purpose, `pip install -r requirements.txt`, `streamlit run streamlit_app.py`, the live URL, Python ≥ 3.10, and a link to `pinhead001/pyhydrolib` for the analysis code |
+| `README.md` | Rewrite. Purpose, `pip install -r requirements.txt`, `streamlit run streamlit_app.py`, the live URL, Python ≥ 3.10, and a link to `pinhead001/flowfreq` for the analysis code |
 | `CLAUDE.md` | Rewrite. An agent instruction file describing a library that is no longer here will send the next session hunting for `vendor/peakfqr` and `make parity` |
 | `docs/vignette_streamlit_local.md` | Keep; update paths (`streamlit run streamlit_app.py`, no repo-root caveat) |
 | `docs/vignette_streamlit_web.md` | Keep; rewrite §"requirements.txt" and the main-file-path step for the flat layout. L79's example deploy URL is derived from the repo and entry-point names, so it changes too |
@@ -334,7 +336,7 @@ exercises the pinned git dependency the way Streamlit Cloud will.
 ```bash
 python -m venv /tmp/appvenv
 /tmp/appvenv/bin/pip install -r requirements.txt      # must resolve the v0.3.0 tag
-/tmp/appvenv/bin/python -c "import hydrolib; print(hydrolib.__version__)"   # 0.3.0
+/tmp/appvenv/bin/python -c "import flowfreq; print(hydrolib.__version__)"   # 0.3.0
 ```
 
 If that pip call fails, stop — the tag is missing or the URL is wrong, and every
@@ -369,7 +371,7 @@ git push origin main
 ```
 
 Say in the message that this is the app half of a split, that the analysis moved
-to `pinhead001/pyhydrolib` rather than being deleted, and that the layout was
+to `pinhead001/flowfreq` rather than being deleted, and that the layout was
 flattened so the `sys.path` hacks could go.
 
 Watch CI: `gh run watch`. It must pass **before** the repoint — a red build here
@@ -415,7 +417,7 @@ Add a line to both new READMEs pointing back to it as the pre-split record.
 ## Done when
 
 - [ ] `pyhydroapp` CI green
-- [ ] `pip install -r requirements.txt` resolves `pyhydrolib@v0.3.0` in a clean venv
+- [ ] `pip install -r requirements.txt` resolves `flowfreq@v0.3.0` in a clean venv
 - [ ] Deployed app loads from the new repo and analyses a gage
 - [ ] No `sys.path` manipulation left in any file
 - [ ] `CLAUDE.md` describes only what is in the repo

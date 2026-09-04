@@ -1,4 +1,4 @@
-"""Tests for hydrolib.core LP3 utility functions not already covered elsewhere.
+"""Tests for flowfreq.core LP3 utility functions not already covered elsewhere.
 
 kfactor and grubbs_beck_critical_value have existing coverage under
 tests/test_bulletin17c.py::TestUtilities (added alongside bulletin17c.py).
@@ -12,7 +12,7 @@ import pandas as pd
 import pytest
 from scipy import stats
 
-from hydrolib.core import (
+from flowfreq.core import (
     YEAR_TYPES,
     assign_year_label,
     compute_ci_lp3,
@@ -24,7 +24,7 @@ from hydrolib.core import (
 class TestAssignYearLabel:
     """Tests for the year-definition labeling shared by lowflow and regime.
 
-    Used under two public names -- hydrolib.lowflow.LOW_FLOW_YEAR_TYPES is
+    Used under two public names -- flowfreq.lowflow.LOW_FLOW_YEAR_TYPES is
     an alias of YEAR_TYPES defined here -- so this is the single place these
     boundary rules are pinned down.
     """

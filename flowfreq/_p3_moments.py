@@ -1,8 +1,8 @@
 """Native port of peakfq's Pearson III moment/parameter primitives.
 
 Phase 1 of the ``var_mom`` port (TODO.md P3). ``var_mom`` and the routines it
-needs are not implemented anywhere in hydrolib yet; this module is the leaf
-layer of that dependency tree -- the piece with no further hydrolib
+needs are not implemented anywhere in flowfreq yet; this module is the leaf
+layer of that dependency tree -- the piece with no further flowfreq
 dependencies of its own:
 
     var_mom -> mP3(k=6), pP3, varb, varc, d_est -> m2p, qP3, expmomderiv
@@ -267,7 +267,7 @@ def _fp_g1_mom_trc_batch(alpha, tl, tu, kmax: int) -> list:
     Batched form of ``FP_G1_MOM_TRC``: the incomplete-gamma ``down`` term
     does not depend on k, so computing k = 1..kmax together shares it
     instead of recomputing it kmax times -- the dominant cost once this is
-    called from a numerical Jacobian (``hydrolib._var_mom._dexpect``),
+    called from a numerical Jacobian (``flowfreq._var_mom._dexpect``),
     which needs several k at once, several times over for a finite
     difference.
     """
@@ -306,7 +306,7 @@ def _gamma_trunc_moments(tau, alpha, beta, tl, tu, kmax: int) -> list:
 
     Batched counterpart to ``m_p3``'s gamma branch (same binomial
     expansion, ``emafit.f:3049``), expressed directly in ``(tau, alpha,
-    beta)`` rather than central moments -- what ``hydrolib._var_mom``'s
+    beta)`` rather than central moments -- what ``flowfreq._var_mom``'s
     ``_dexpect`` differentiates numerically with respect to each
     parameter. Accepts float or ``mpmath.mpf`` inputs; always returns a
     list of ``mpmath.mpf``.
@@ -329,7 +329,7 @@ def m_p3(tl: float, tu: float, m: np.ndarray, n: int) -> np.ndarray:
     ``var_mom`` needs for ``mu_x``/``e_x`` on censored intervals, and the
     piece TODO.md P3 names as the source of ``_ema_iteration``'s residual
     disagreement with ``moms_p3`` on censored rows (Cains Coulee: 0.70%
-    variance, 4.94% skew) -- hydrolib's own
+    variance, 4.94% skew) -- flowfreq's own
     ``_truncated_gamma_moment``/``_truncated_normal_moments`` are an
     approximation of what this function computes exactly.
 

@@ -1,4 +1,4 @@
-"""Tests for hydrolib._p3_moments that do not require the Fortran extension.
+"""Tests for flowfreq._p3_moments that do not require the Fortran extension.
 
 Parity against the vendored Fortran itself lives in
 tests/fortran_parity/test_fortran_oracles.py (skipped when the extension
@@ -12,7 +12,7 @@ import numpy as np
 import pytest
 from scipy import stats
 
-from hydrolib._p3_moments import m2mn, m2p, m_p3, mn2m, p_p3, q_p3
+from flowfreq._p3_moments import m2mn, m2p, m_p3, mn2m, p_p3, q_p3
 
 
 class TestM2pM2mn:

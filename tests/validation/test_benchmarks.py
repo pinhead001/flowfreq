@@ -6,8 +6,8 @@ import pathlib
 
 import pytest
 
-import hydrolib.validation
-from hydrolib.validation.benchmarks import (
+import flowfreq.validation
+from flowfreq.validation.benchmarks import (
     BENCHMARKS,
     DATA_DIR,
     Benchmark,
@@ -84,7 +84,7 @@ class TestBenchmark:
 
         fortran_respec and skew_weighting are routine-level checks of moms_p3,
         p3est_ema and detrat, not frequency analyses, so every run of
-        `hydrolib benchmark` ended in "zero-size array to reduction operation
+        `flowfreq benchmark` ended in "zero-size array to reduction operation
         minimum". They are covered by tests/test_r_fixtures.py instead.
         """
         register_benchmarks()
@@ -122,9 +122,9 @@ class TestPackagedCases:
     def test_case_data_is_not_reachable_only_from_the_repo_root(self) -> None:
         """The defect this replaced: benchmarks.py imported from tests/.
 
-        tests/ is not in [tool.setuptools.packages.find], so `hydrolib
+        tests/ is not in [tool.setuptools.packages.find], so `flowfreq
         benchmark` raised ModuleNotFoundError for every installed user. The
         data directory has to resolve relative to the package itself.
         """
         assert DATA_DIR.is_dir()
-        assert DATA_DIR.is_relative_to(pathlib.Path(hydrolib.validation.__file__).parent)
+        assert DATA_DIR.is_relative_to(pathlib.Path(flowfreq.validation.__file__).parent)

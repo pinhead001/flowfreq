@@ -1,7 +1,7 @@
 """
 Display formatting for the Streamlit FFA app.
 
-The analysis lives in :mod:`hydrolib.workflow`; this module turns its numbers
+The analysis lives in :mod:`flowfreq.workflow`; this module turns its numbers
 into the labelled, rounded, comma-separated strings a table wants. Nothing here
 computes anything -- that separation is what lets the library serve consumers
 that have no use for these column headings.
@@ -92,7 +92,7 @@ def build_station_summary_df(
     peak_df : pd.DataFrame
         Annual peak flow data (must have ``water_year`` column).
     ffa_result : dict
-        Output from :func:`hydrolib.workflow.run_ffa`.
+        Output from :func:`flowfreq.workflow.run_ffa`.
     regional_skew : float
         Regional skew input value.
     regional_skew_se : float

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**HydroLib** is a Python library for hydrologic frequency analysis with USGS data retrieval and
+**FlowFreq** is a Python library for hydrologic frequency analysis with USGS data retrieval and
 Bulletin 17C flood frequency analysis. It has a native Python EMA implementation, validated
 against the USGS Fortran reference that is vendored into this repository.
 
@@ -14,11 +14,11 @@ computation and `vendor/peakfqr/R/fortranWrappers.R` for call conventions. It is
 reference copy: **do not edit anything under `vendor/`**, since a change there silently
 invalidates every comparison made against it.
 
-There is no PeakfqSA binary. Earlier work assumed one existed and built `hydrolib/peakfqsa/`
+There is no PeakfqSA binary. Earlier work assumed one existed and built `flowfreq/peakfqsa/`
 as a subprocess wrapper around it; that premise was wrong, and the subsystem has been removed
 — it was mock-tested only and its `requires_peakfqsa` tests collected nothing. What it
-contributed to validation now lives in `hydrolib/validation/reference.py`, pointed at
-references that exist. The f2py bridge in `hydrolib/peakfqr/` is the only working route to
+contributed to validation now lives in `flowfreq/validation/reference.py`, pointed at
+references that exist. The f2py bridge in `flowfreq/peakfqr/` is the only working route to
 the reference implementation. `AGENT_BUILD_INSTRUCTIONS_Claude.md` is the original build
 brief and explains that history.
 
@@ -27,7 +27,7 @@ brief and explains that history.
 Everything lives in this repository; there is no external workspace to consult.
 
 ```
-hydrolib/            the library (flat package, NOT src/hydrolib/)
+flowfreq/            the library (flat package, NOT src/flowfreq/)
 ├── peakfqr/         f2py bridge to the vendored Fortran (built, gitignored)
 └── validation/      comparison engine, benchmarks, reports, reference loaders
 vendor/peakfqr/      USGS peakfq 8.1.0 reference — Fortran, R, test data (do not edit)
@@ -44,7 +44,7 @@ app/                 Streamlit application (lint + import smoke test in CI)
 pip install -e ".[dev]"
 
 # Full suite. ~95-100 s. It was ~15 s until the confidence-interval shape fix
-# (hydrolib._var_emab.var_emab, TODO.md P3): nine regmoms calls per analysis,
+# (flowfreq._var_emab.var_emab, TODO.md P3): nine regmoms calls per analysis,
 # each a full var_mom/mn2mvarb solve. @lru_cache'd like the rest of this
 # port's expensive pieces, so repeated fits of the same fixture are cheap,
 # but the first fit of any given fixture still pays it. A single cold
@@ -66,7 +66,7 @@ make smoke
 # Regenerate golden files after changing anything under vendor/peakfqr
 python tools/gen_fortran_golden.py
 
-black hydrolib/ tests/ && isort hydrolib/ tests/
+black flowfreq/ tests/ && isort flowfreq/ tests/
 ```
 
 **Reproduce CI faithfully.** Two traps have both cost a red build:
@@ -91,7 +91,7 @@ black hydrolib/ tests/ && isort hydrolib/ tests/
 
 ## Conventions
 
-- Run `black` and `isort` before every commit; CI lints `hydrolib/` and `tests/` only
+- Run `black` and `isort` before every commit; CI lints `flowfreq/` and `tests/` only
 - Type hints on all signatures; NumPy-format docstrings on public API
 - No bare `except:`; no `print()` in library code — use `logging.getLogger(__name__)`
 - Tests for every public function (happy path + one error case minimum)
@@ -122,7 +122,7 @@ black hydrolib/ tests/ && isort hydrolib/ tests/
 `tests/fortran_parity/` compares the native EMA against committed golden files generated from
 peakfq 8.1.0. The `var_mom` port (TODO.md P3) is complete — ADJE's censoring bias adjustment,
 `detrat` (the Halloween determinant ratio), the at-site EMA moment iteration on censored
-intervals, and the confidence-interval shape (`hydrolib._var_emab.var_emab`, Cohn's
+intervals, and the confidence-interval shape (`flowfreq._var_emab.var_emab`, Cohn's
 inverse-Gaussian-quadrature method) are all ported and wired into `Bulletin17C`. On the parity
 sites this reproduces peakfq 8.1.0 to within measurement noise: weighted skew to 2.4e-6 on Big
 Sandy, confidence bounds within 0.06% at every AEP tested, asymmetry ratio within
@@ -135,7 +135,7 @@ gap: `emafitpr`'s own internally-computed `as_G_mse` for this one site disagrees
 calling the same `mseg_all` Fortran routine gives standalone on identical inputs, by roughly
 3x, for a reason not pinned down despite investigation (see
 `tests/fortran_parity/test_fortran_oracles.py::TestCainsCouleeAsGMseDiscrepancy` and TODO.md
-P3 for the full account). hydrolib's own computation may be more correct here than the golden
+P3 for the full account). flowfreq's own computation may be more correct here than the golden
 reference, not less — there is no known defect to fix.
 
 MGBT is the one part verified line-by-line against the Fortran (`GGBCRITP` / `FP_TNC_CDF`),

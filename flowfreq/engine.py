@@ -1,5 +1,5 @@
 """
-hydrolib.engine - B17C Engine for flood frequency analysis
+flowfreq.engine - B17C Engine for flood frequency analysis
 
 Provides a simplified interface for Bulletin 17C analysis with PeakFQ-style output.
 """
@@ -24,7 +24,7 @@ class B17CEngine:
 
     Examples
     --------
-    >>> from hydrolib import B17CEngine, PeakRecord
+    >>> from flowfreq import B17CEngine, PeakRecord
     >>> records = [PeakRecord(year=y, flow=f) for y, f in zip(years, flows)]
     >>> engine = B17CEngine()
     >>> engine.fit(records)

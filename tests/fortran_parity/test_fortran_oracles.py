@@ -69,7 +69,7 @@ import pytest
 from tests.fortran_parity.conftest import load_golden
 
 pytest.importorskip(
-    "hydrolib.peakfqr",
+    "flowfreq.peakfqr",
     reason="Fortran extension not built; run python build_fortran/build.py",
 )
 
@@ -131,10 +131,10 @@ class TestSkewMseOracle:
         """Called directly it must give exactly what the full fit reports.
 
         This is the oracle the ADJE port is written against: it already
-        includes the censoring bias adjustment hydrolib does not implement --
+        includes the censoring bias adjustment flowfreq does not implement --
         0.0944 on Big Sandy against an uncensored 0.0636.
         """
-        from hydrolib.peakfqr._emafort import mseg_all_sub
+        from flowfreq.peakfqr._emafort import mseg_all_sub
 
         golden = _golden(name)
         nobs, tl, tu = _threshold_groups(golden["inputs"]["tl"], golden["inputs"]["tu"])
@@ -145,10 +145,10 @@ class TestSkewMseOracle:
     def test_matches_b17b_formula_when_nothing_is_censored(self, n, skew):
         """With no censoring ADJE's bias adjustment is 1, so it reduces to mseg().
 
-        That makes this a direct check of hydrolib's ``_b17b_skew_mse``.
+        That makes this a direct check of flowfreq's ``_b17b_skew_mse``.
         """
-        from hydrolib.bulletin17c import _b17b_skew_mse
-        from hydrolib.peakfqr._emafort import mseg_all_sub
+        from flowfreq.bulletin17c import _b17b_skew_mse
+        from flowfreq.peakfqr._emafort import mseg_all_sub
 
         fortran = float(
             mseg_all_sub(
@@ -171,8 +171,8 @@ class TestSkewMseOracle:
         needs ``mse_ema``, hence ``var_mom``; see TODO.md P3. No parity case
         reaches n = 150, so nothing else detects this.
         """
-        from hydrolib.bulletin17c import _b17b_skew_mse
-        from hydrolib.peakfqr._emafort import mseg_all_sub
+        from flowfreq.bulletin17c import _b17b_skew_mse
+        from flowfreq.peakfqr._emafort import mseg_all_sub
 
         mc = np.array([0.0, 0.09, 0.3])
         fortran = float(mseg_all_sub(np.array([200.0]), np.array([-99.0]), np.array([99.0]), mc))
@@ -213,7 +213,7 @@ class TestCainsCouleeAsGMseDiscrepancy:
     first at-site-only ``p3est_ema`` pass under ``at_site_option='B17B'``)
     is implicated, but which one, and why, is still open.
 
-    ``hydrolib._mse_ema.mse_ema``/``hydrolib._var_mom.var_mom`` are not the
+    ``flowfreq._mse_ema.mse_ema``/``flowfreq._var_mom.var_mom`` are not the
     suspects here -- both are independently confirmed exact against the
     Fortran at this same real point, ruling out the ``var_mom``-precision
     explanation this xfail carried before this investigation.
@@ -232,8 +232,8 @@ class TestCainsCouleeAsGMseDiscrepancy:
 
     def test_mse_ema_matches_the_fortran_at_this_real_point(self):
         """The routine var_mom/mn2mvarb's port actually touches -- and it is exact."""
-        from hydrolib._mse_ema import mse_ema
-        from hydrolib.peakfqr._emafort import mse_ema as mse_ema_f
+        from flowfreq._mse_ema import mse_ema
+        from flowfreq.peakfqr._emafort import mse_ema as mse_ema_f
 
         mine = mse_ema(self._NOBS, self._TL, self._TU, self._MC_AT_SITE, kmom=3)
         fortran = float(mse_ema_f(self._NOBS, self._TL, self._TU, self._MC_AT_SITE, 3))
@@ -246,7 +246,7 @@ class TestCainsCouleeAsGMseDiscrepancy:
         called standalone with exactly the inputs ``emafitpr`` used to
         report ``as_G_mse_o`` -- and it does not agree.
         """
-        from hydrolib.peakfqr._emafort import mseg_all_sub
+        from flowfreq.peakfqr._emafort import mseg_all_sub
 
         standalone = float(mseg_all_sub(self._NOBS, self._TL, self._TU, self._MC_AT_SITE))
         assert standalone == pytest.approx(0.0748857778, rel=1e-6)
@@ -256,7 +256,7 @@ class TestCainsCouleeAsGMseDiscrepancy:
 
 
 class TestDeterminantRatioOracle:
-    """detratsub: the Halloween Wd, which hydrolib does not implement."""
+    """detratsub: the Halloween Wd, which flowfreq does not implement."""
 
     def test_needs_the_post_mgbt_thresholds(self):
         """The usage note that matters, and it is not obvious.
@@ -267,7 +267,7 @@ class TestDeterminantRatioOracle:
         only with those does detrat give the 0.184 that emafitpr reports.
         emafitpr returns them as tlema/tuema.
         """
-        from hydrolib.peakfqr._emafort import detratsub, emafitpr
+        from flowfreq.peakfqr._emafort import detratsub, emafitpr
         from tests.fortran_parity.cases import CASES as CASE_FACTORIES
         from tests.fortran_parity.cases import build_emafit_inputs
 
@@ -307,7 +307,7 @@ class TestMomentIterationOracle:
 
     @staticmethod
     def _fit(name):
-        from hydrolib.bulletin17c import Bulletin17C
+        from flowfreq.bulletin17c import Bulletin17C
         from tests.fortran_parity.cases import CASES as CASE_FACTORIES
 
         case = CASE_FACTORIES[name]()
@@ -338,7 +338,7 @@ class TestMomentIterationOracle:
 
     @staticmethod
     def _compare(b17c):
-        from hydrolib.peakfqr._emafort import moms_p3
+        from flowfreq.peakfqr._emafort import moms_p3
 
         analyzer = b17c._analyzer
         ql, qu = TestMomentIterationOracle._same_rows(analyzer)
@@ -369,7 +369,7 @@ class TestMomentIterationOracle:
 
         * ``_compute_ema_moments``'s censored branch used its own
           approximate truncated-gamma-moment formula instead of the
-          Fortran-verified ``hydrolib._p3_moments.m_p3``.
+          Fortran-verified ``flowfreq._p3_moments.m_p3``.
         * ``_ema_iteration``'s bias-correction factors (``c2``, ``c3``)
           used the total interval count where the vendored Fortran's
           default (``bcf=1997``) uses the exact-peak count instead
@@ -396,7 +396,7 @@ class TestVarianceOfMomentsOracle:
         must be 3x3, symmetric and positive definite. A port that produces
         anything else is wrong regardless of the numbers.
         """
-        from hydrolib.peakfqr._emafort import var_mom
+        from flowfreq.peakfqr._emafort import var_mom
 
         golden = _golden(name)
         nobs, tl, tu = _threshold_groups(golden["inputs"]["tl"], golden["inputs"]["tu"])
@@ -408,7 +408,7 @@ class TestVarianceOfMomentsOracle:
 
     @pytest.mark.parametrize("name", CASES)
     def test_matches_fortran(self, name):
-        """hydrolib._var_mom.var_mom (Phase 2) against the Fortran, directly.
+        """flowfreq._var_mom.var_mom (Phase 2) against the Fortran, directly.
 
         Powder River and Cains Coulee (using golden["inputs"], uncensored
         throughout -- see TestDeterminantRatioOracle) never drive d_est's
@@ -418,13 +418,13 @@ class TestVarianceOfMomentsOracle:
         _one_case_that_exercises_d_est below for why that one is not this
         tight.
         """
-        from hydrolib._var_mom import var_mom
+        from flowfreq._var_mom import var_mom
 
         golden = _golden(name)
         nobs, tl, tu = _threshold_groups(golden["inputs"]["tl"], golden["inputs"]["tu"])
         mc = _at_site_moments(golden)
         mine = var_mom(nobs, tl, tu, mc)
-        from hydrolib.peakfqr._emafort import var_mom as var_mom_f
+        from flowfreq.peakfqr._emafort import var_mom as var_mom_f
 
         fortran = np.asarray(var_mom_f(nobs, tl, tu, mc), dtype=float)
         tol = 1e-3 if name == "big_sandy_03606500" else 1e-9
@@ -434,7 +434,7 @@ class TestVarianceOfMomentsOracle:
 class TestExpMomDerivPort:
     """expmomderiv: the Jacobian d_est needs, d(E[X^j])/d(noncentral moments).
 
-    hydrolib._dexpect differentiates hydrolib._p3_moments' own (already
+    flowfreq._dexpect differentiates flowfreq._p3_moments' own (already
     Fortran- and quadrature-verified) truncated-moment function numerically
     via mpmath, rather than transcribing DEXPECT's closed-form chain
     (which needs DDGAM, itself a nontrivial incomplete-gamma derivative).
@@ -445,15 +445,15 @@ class TestExpMomDerivPort:
 
         Fortran side. Independently checking the same derivative at three
         different mpmath working precisions (50, 80, 120 dps) agrees to 30+
-        stable digits, so hydrolib's numerical derivative is not the
+        stable digits, so flowfreq's numerical derivative is not the
         source of the ~1e-5 gap; DDGAM's own series (TOL=1e-11 per term,
         emafit.f/probfun.f:1054) and the ADJ rising-factorial chain built
         on it in float64 are the more likely one, though this is not
         independently proven the way the mP3 finding in TODO.md P3 is.
         """
-        from hydrolib._p3_moments import m2p, p_p3, q_p3
-        from hydrolib._var_mom import expmomderiv
-        from hydrolib.peakfqr._emafort import expmomderiv as expmomderiv_f
+        from flowfreq._p3_moments import m2p, p_p3, q_p3
+        from flowfreq._var_mom import expmomderiv
+        from flowfreq.peakfqr._emafort import expmomderiv as expmomderiv_f
 
         golden = _golden("big_sandy_03606500")
         mc = _at_site_moments(golden)
@@ -478,9 +478,9 @@ class TestVarMomComponentsPort:
         """(mu_x, e_x, p1, p2, p3) for one (mean-shifted) threshold group,
 
         matching what var_mom itself builds before calling varb/varc/d_est
-        -- see hydrolib._var_mom.var_mom.
+        -- see flowfreq._var_mom.var_mom.
         """
-        from hydrolib._p3_moments import m_p3, p_p3
+        from flowfreq._p3_moments import m_p3, p_p3
 
         mc = _at_site_moments(golden)
         skew = math.copysign(min(max(abs(mc[2]), 0.06324555), 1.41), mc[2])
@@ -493,8 +493,8 @@ class TestVarMomComponentsPort:
         return mc_shift, mu_x, e_x, pa, pb - pa, 1.0 - pb
 
     def test_varb_matches_fortran_on_big_sandy_s_group(self):
-        from hydrolib._var_mom import varb
-        from hydrolib.peakfqr._emafort import varb as varb_f
+        from flowfreq._var_mom import varb
+        from flowfreq.peakfqr._emafort import varb as varb_f
 
         golden = _golden("big_sandy_03606500")
         lo, hi = (
@@ -508,8 +508,8 @@ class TestVarMomComponentsPort:
         assert np.allclose(mine, fortran, rtol=1e-9), (mine, fortran)
 
     def test_varc_matches_fortran_on_big_sandy_s_group(self):
-        from hydrolib._var_mom import varc
-        from hydrolib.peakfqr._emafort import varc as varc_f
+        from flowfreq._var_mom import varc
+        from flowfreq.peakfqr._emafort import varc as varc_f
 
         golden = _golden("big_sandy_03606500")
         lo, hi = (
@@ -524,8 +524,8 @@ class TestVarMomComponentsPort:
 
     def test_d_est_matches_fortran_on_big_sandy_s_group(self):
         """The one group among the three cases where d_est is not just zeros."""
-        from hydrolib._var_mom import d_est
-        from hydrolib.peakfqr._emafort import d_est as d_est_f
+        from flowfreq._var_mom import d_est
+        from flowfreq.peakfqr._emafort import d_est as d_est_f
 
         golden = _golden("big_sandy_03606500")
         lo, hi = (
@@ -546,8 +546,8 @@ class TestVarMomComponentsPort:
 
         should vanish, matching the Fortran's own skip (emafit.f:2491/2500).
         """
-        from hydrolib._var_mom import d_est
-        from hydrolib.peakfqr._emafort import d_est as d_est_f
+        from flowfreq._var_mom import d_est
+        from flowfreq.peakfqr._emafort import d_est as d_est_f
 
         mc = np.array([0.0, 0.09, 0.5])
         nh = 50.0
@@ -570,31 +570,31 @@ class TestM2pM2mnPort:
 
     @pytest.mark.parametrize("name", CASES)
     def test_m2p_matches_fortran(self, name):
-        from hydrolib._p3_moments import m2p
-        from hydrolib.peakfqr._emafort import m2p as m2p_fortran
+        from flowfreq._p3_moments import m2p
+        from flowfreq.peakfqr._emafort import m2p as m2p_fortran
 
         mc = _at_site_moments(_golden(name))
         assert np.allclose(m2p(mc), m2p_fortran(mc), rtol=1e-12)
 
     def test_m2p_in_the_blend_band(self):
-        from hydrolib._p3_moments import m2p
-        from hydrolib.peakfqr._emafort import m2p as m2p_fortran
+        from flowfreq._p3_moments import m2p
+        from flowfreq.peakfqr._emafort import m2p as m2p_fortran
 
         mc = np.array(BLEND_BAND_MOMENTS)
         assert np.allclose(m2p(mc), m2p_fortran(mc), rtol=1e-12)
 
     @pytest.mark.parametrize("name", CASES)
     def test_m2mn_matches_fortran(self, name):
-        from hydrolib._p3_moments import m2mn
-        from hydrolib.peakfqr._emafort import m2mn as m2mn_fortran
+        from flowfreq._p3_moments import m2mn
+        from flowfreq.peakfqr._emafort import m2mn as m2mn_fortran
 
         mc = _at_site_moments(_golden(name))
         assert np.allclose(m2mn(mc), m2mn_fortran(mc), rtol=1e-12)
 
     @pytest.mark.parametrize("name", CASES)
     def test_mn2m_matches_fortran_and_inverts_m2mn(self, name):
-        from hydrolib._p3_moments import m2mn, mn2m
-        from hydrolib.peakfqr._emafort import mn2m as mn2m_fortran
+        from flowfreq._p3_moments import m2mn, mn2m
+        from flowfreq.peakfqr._emafort import mn2m as mn2m_fortran
 
         mc = _at_site_moments(_golden(name))
         mn = m2mn(mc)
@@ -612,8 +612,8 @@ class TestPP3QP3Port:
 
     @pytest.mark.parametrize("name", CASES)
     def test_p_p3_matches_fortran(self, name):
-        from hydrolib._p3_moments import p_p3
-        from hydrolib.peakfqr._emafort import pp3
+        from flowfreq._p3_moments import p_p3
+        from flowfreq.peakfqr._emafort import pp3
 
         mc = _at_site_moments(_golden(name))
         for x in self._probe_points(mc):
@@ -630,8 +630,8 @@ class TestPP3QP3Port:
         cancellation m_p3 has (see _GAMMA_MOMENT_DPS) since pP3 evaluates
         the CDF once rather than raising alpha to a power.
         """
-        from hydrolib._p3_moments import p_p3
-        from hydrolib.peakfqr._emafort import pp3
+        from flowfreq._p3_moments import p_p3
+        from flowfreq.peakfqr._emafort import pp3
 
         mc = np.array(BLEND_BAND_MOMENTS)
         for x in self._probe_points(mc):
@@ -639,8 +639,8 @@ class TestPP3QP3Port:
 
     @pytest.mark.parametrize("name", CASES)
     def test_q_p3_matches_fortran(self, name):
-        from hydrolib._p3_moments import q_p3
-        from hydrolib.peakfqr._emafort import qp3sub
+        from flowfreq._p3_moments import q_p3
+        from flowfreq.peakfqr._emafort import qp3sub
 
         mc = _at_site_moments(_golden(name))
         for q in (0.01, 0.1, 0.5, 0.9, 0.99):
@@ -648,8 +648,8 @@ class TestPP3QP3Port:
 
     def test_q_p3_in_the_blend_band(self):
         """See test_p_p3_in_the_blend_band: same extreme-alpha float64 gap."""
-        from hydrolib._p3_moments import q_p3
-        from hydrolib.peakfqr._emafort import qp3sub
+        from flowfreq._p3_moments import q_p3
+        from flowfreq.peakfqr._emafort import qp3sub
 
         mc = np.array(BLEND_BAND_MOMENTS)
         for q in (0.01, 0.1, 0.5, 0.9, 0.99):
@@ -669,7 +669,7 @@ class TestPP3QP3Port:
         the boundary itself, not the x that produced 1.0 in floating point.
         Starting from p avoids ever hitting that boundary.
         """
-        from hydrolib._p3_moments import p_p3, q_p3
+        from flowfreq._p3_moments import p_p3, q_p3
 
         mc = _at_site_moments(_golden(name))
         for p in (0.01, 0.1, 0.5, 0.9, 0.99):
@@ -685,8 +685,8 @@ class TestMP3Port:
     @pytest.mark.parametrize("name", CASES)
     def test_full_support_matches_m2mn(self, name):
         """With no truncation mP3 must reduce to the ordinary raw moments."""
-        from hydrolib._p3_moments import m2mn, m_p3
-        from hydrolib.peakfqr._emafort import mp3
+        from flowfreq._p3_moments import m2mn, m_p3
+        from flowfreq.peakfqr._emafort import mp3
 
         mc = _at_site_moments(_golden(name))
         fortran = np.asarray(mp3(-QMAX, QMAX, mc, 3), dtype=float)
@@ -724,8 +724,8 @@ class TestMP3Port:
         skew (not near TODO.md's table values, which are the *weighted*
         skew; both are safely away from the blend band either way).
         """
-        from hydrolib._p3_moments import m_p3
-        from hydrolib.peakfqr._emafort import mp3
+        from flowfreq._p3_moments import m_p3
+        from flowfreq.peakfqr._emafort import mp3
 
         mc_shift, groups = self._shifted(_golden(name))
         for lo, hi in groups:
@@ -745,8 +745,8 @@ class TestMP3Port:
         one, (2.521, 20) before the mean shift, recovered the same way
         TestDeterminantRatioOracle does: from emafitpr's tlema/tuema.
         """
-        from hydrolib._p3_moments import m_p3
-        from hydrolib.peakfqr._emafort import emafitpr, mp3
+        from flowfreq._p3_moments import m_p3
+        from flowfreq.peakfqr._emafort import emafitpr, mp3
         from tests.fortran_parity.cases import CASES as CASE_FACTORIES
         from tests.fortran_parity.cases import build_emafit_inputs
 
@@ -799,26 +799,26 @@ class TestMP3Port:
         not have 11 spare digits, and the Fortran result shows it: it goes
         negative at k=6, which E[X**6] over positive-truncated X cannot be.
 
-        hydrolib's own mP3 keeps this expansion in mpmath at 50 decimal
+        flowfreq's own mP3 keeps this expansion in mpmath at 50 decimal
         digits (see _GAMMA_MOMENT_DPS), which is enough headroom to survive
         the cancellation. Independent verification below, by direct
         arbitrary-precision quadrature of the truncated density -- not by
         comparison with the Fortran, which is exactly the thing in
-        question here -- confirms hydrolib's k=4..6 values, not the
+        question here -- confirms flowfreq's k=4..6 values, not the
         Fortran's.
 
-        The Fortran/hydrolib gap grows steadily with k rather than
+        The Fortran/flowfreq gap grows steadily with k rather than
         appearing only at k=6 -- k=1 already differs at the 1e-8 absolute
         level -- so what is checked against the oracle (loosely, k=1..3)
         and what is checked against quadrature instead (k=4..6, where the
         gap is no longer a rounding difference) is a judgment call, not a
         sharp cutoff the numbers themselves draw. The unambiguous part is
-        k=6 going negative, and hydrolib matching quadrature everywhere.
+        k=6 going negative, and flowfreq matching quadrature everywhere.
         """
         import mpmath
 
-        from hydrolib._p3_moments import m2p, m_p3
-        from hydrolib.peakfqr._emafort import mp3
+        from flowfreq._p3_moments import m2p, m_p3
+        from flowfreq.peakfqr._emafort import mp3
 
         mc_shift, groups = self._shifted(_golden("big_sandy_03606500"))
         lo, hi = next((lo, hi) for lo, hi in groups if 0 < lo < 5 and hi > 15)
@@ -849,8 +849,8 @@ class TestMP3Port:
         to each power -- exercised here because it is a distinct code path,
         not the blended gamma/WH computation.
         """
-        from hydrolib._p3_moments import m_p3
-        from hydrolib.peakfqr._emafort import mp3
+        from flowfreq._p3_moments import m_p3
+        from flowfreq.peakfqr._emafort import mp3
 
         mc = np.array([0.0, 1.0, 0.3])
         lo, hi = 50.0, 60.0  # far off in the upper tail: cdf saturates at 1.0
@@ -865,8 +865,8 @@ class TestQuadratureAndCholeskyPort:
 
     @pytest.mark.parametrize("n", [2, 3, 5])
     def test_normquad_matches_fortran(self, n):
-        from hydrolib._mse_ema import _normquad
-        from hydrolib.peakfqr._emafort import normquad
+        from flowfreq._mse_ema import _normquad
+        from flowfreq.peakfqr._emafort import normquad
 
         t, w = _normquad(n)
         tf, wf = normquad(n)
@@ -878,8 +878,8 @@ class TestQuadratureAndCholeskyPort:
 
     @pytest.mark.parametrize("alpha,beta", [(5.0, 0.5), (1000.0, 0.03), (250.0, 0.06324555)])
     def test_gammaquad_matches_fortran(self, alpha, beta):
-        from hydrolib._mse_ema import _gammaquad
-        from hydrolib.peakfqr._emafort import gammaquad
+        from flowfreq._mse_ema import _gammaquad
+        from flowfreq.peakfqr._emafort import gammaquad
 
         t, w = _gammaquad(3, alpha, beta)
         tf, wf = gammaquad(3, alpha, beta)
@@ -890,8 +890,8 @@ class TestQuadratureAndCholeskyPort:
 
     def test_gammaquad_matches_fortran_above_the_stabilization_threshold(self):
         """alpha > 160 (probfun.f:2694): the mean-preserving Gamma(160, .) proxy."""
-        from hydrolib._mse_ema import _gammaquad
-        from hydrolib.peakfqr._emafort import gammaquad
+        from flowfreq._mse_ema import _gammaquad
+        from flowfreq.peakfqr._emafort import gammaquad
 
         t, w = _gammaquad(3, 5000.0, 0.01)
         tf, wf = gammaquad(3, 5000.0, 0.01)
@@ -900,8 +900,8 @@ class TestQuadratureAndCholeskyPort:
         assert np.average(t, weights=w) == pytest.approx(5000.0 * 0.01, rel=1e-6)
 
     def test_chol33_matches_fortran(self):
-        from hydrolib._mse_ema import _chol33
-        from hydrolib.peakfqr._emafort import chol33
+        from flowfreq._mse_ema import _chol33
+        from flowfreq.peakfqr._emafort import chol33
 
         s = np.array([[1.0, 0.2, 0.1], [0.2, 2.0, 0.3], [0.1, 0.3, 0.5]])
         v = _chol33(s)
@@ -911,8 +911,8 @@ class TestQuadratureAndCholeskyPort:
         assert np.allclose(v.T @ v, s), "V.T @ V must reconstruct S"
 
     def test_chol33_flags_non_positive_semi_definite(self):
-        from hydrolib._mse_ema import _chol33
-        from hydrolib.peakfqr._emafort import chol33
+        from flowfreq._mse_ema import _chol33
+        from flowfreq.peakfqr._emafort import chol33
 
         s = np.array([[1.0, 5.0, 0.0], [5.0, 1.0, 0.0], [0.0, 0.0, 1.0]])  # off-diag too large
         assert _chol33(s) is None
@@ -927,8 +927,8 @@ class TestMc2mnvbPort:
     """
 
     def test_matches_fortran(self):
-        from hydrolib._mse_ema import mc2mnvb
-        from hydrolib.peakfqr._emafort import mc2mnvb as mc2mnvb_f
+        from flowfreq._mse_ema import mc2mnvb
+        from flowfreq.peakfqr._emafort import mc2mnvb as mc2mnvb_f
 
         mc = np.array([3.7, 0.09, 0.3])
         s_mc = np.array(
@@ -951,10 +951,10 @@ class TestMn2mVarPort:
 
     @pytest.mark.parametrize("name", CASES)
     def test_matches_fortran(self, name):
-        from hydrolib._mse_ema import mn2m_var
-        from hydrolib._p3_moments import m2mn
-        from hydrolib.peakfqr._emafort import mn2m_var as mn2m_var_f
-        from hydrolib.peakfqr._emafort import var_mom as var_mom_f
+        from flowfreq._mse_ema import mn2m_var
+        from flowfreq._p3_moments import m2mn
+        from flowfreq.peakfqr._emafort import mn2m_var as mn2m_var_f
+        from flowfreq.peakfqr._emafort import var_mom as var_mom_f
 
         golden = _golden(name)
         mc = _at_site_moments(golden)
@@ -970,7 +970,7 @@ class TestMn2mVarPort:
 
 
 class TestMn2mvarbPort:
-    """mn2mvarb: the inverse-problem solve -- see hydrolib._mse_ema's module
+    """mn2mvarb: the inverse-problem solve -- see flowfreq._mse_ema's module
 
     docstring for how the V-reparametrized root-find compares to the
     Fortran's step-halved Newton iteration.
@@ -978,10 +978,10 @@ class TestMn2mvarbPort:
 
     @pytest.mark.parametrize("name", CASES)
     def test_matches_fortran(self, name):
-        from hydrolib._mse_ema import mn2mvarb
-        from hydrolib._p3_moments import m2mn
-        from hydrolib.peakfqr._emafort import mn2mvarb as mn2mvarb_f
-        from hydrolib.peakfqr._emafort import var_mom as var_mom_f
+        from flowfreq._mse_ema import mn2mvarb
+        from flowfreq._p3_moments import m2mn
+        from flowfreq.peakfqr._emafort import mn2mvarb as mn2mvarb_f
+        from flowfreq.peakfqr._emafort import var_mom as var_mom_f
 
         golden = _golden(name)
         mc = _at_site_moments(golden)
@@ -1007,8 +1007,8 @@ class TestMseEmaPort:
 
     @pytest.mark.parametrize("name", CASES)
     def test_matches_fortran_on_the_case_own_thresholds(self, name):
-        from hydrolib._mse_ema import mse_ema
-        from hydrolib.peakfqr._emafort import mse_ema as mse_ema_f
+        from flowfreq._mse_ema import mse_ema
+        from flowfreq.peakfqr._emafort import mse_ema as mse_ema_f
 
         golden = _golden(name)
         mc = _at_site_moments(golden)
@@ -1028,8 +1028,8 @@ class TestMseEmaPort:
         here -- see the module docstring's note on ``mseg_all_sub`` for why
         calling it a second time in the same process is not safe to rely on.
         """
-        from hydrolib._mse_ema import mse_ema
-        from hydrolib.bulletin17c import _b17b_skew_mse
+        from flowfreq._mse_ema import mse_ema
+        from flowfreq.bulletin17c import _b17b_skew_mse
 
         golden = _golden("big_sandy_03606500")
         mc = _at_site_moments(golden)
@@ -1045,7 +1045,7 @@ class TestMseEmaPort:
         assert as_g_mse == pytest.approx(0.09437, abs=2e-5)
 
     def test_rejects_invalid_kmom(self):
-        from hydrolib._mse_ema import mse_ema
+        from flowfreq._mse_ema import mse_ema
 
         mc = np.array([3.7, 0.09, 0.3])
         with pytest.raises(ValueError):
@@ -1057,15 +1057,15 @@ class TestExpMomCDerivPort:
 
     and the Jacobian of the resulting expected central moments, w.r.t. the
     fit's own central moments directly (a different basis from
-    hydrolib._var_mom's expmomderiv, which differentiates w.r.t. noncentral
+    flowfreq._var_mom's expmomderiv, which differentiates w.r.t. noncentral
     moments).
     """
 
     @pytest.mark.parametrize("tl,tu", [(3.5, 4.0), (-20.0, 3.0), (4.5, 20.0)])
     def test_matches_fortran(self, tl, tu):
-        from hydrolib._detrat import _expmomcderiv
-        from hydrolib._p3_moments import m2p
-        from hydrolib.peakfqr._emafort import expmomcderiv
+        from flowfreq._detrat import _expmomcderiv
+        from flowfreq._p3_moments import m2p
+        from flowfreq.peakfqr._emafort import expmomcderiv
 
         mc = np.array([3.7, 0.09, -0.5])
         parms = m2p(mc)
@@ -1077,9 +1077,9 @@ class TestExpMomCDerivPort:
 
     def test_falls_back_to_unconditional_moments_when_censoring_probability_is_negligible(self):
         """probfun.f:940 -- PICK <= 1e-10 uses DEXPECT(-inf, inf) directly."""
-        from hydrolib._detrat import _expmomcderiv
-        from hydrolib._p3_moments import m2p
-        from hydrolib.peakfqr._emafort import expmomcderiv
+        from flowfreq._detrat import _expmomcderiv
+        from flowfreq._p3_moments import m2p
+        from flowfreq.peakfqr._emafort import expmomcderiv
 
         mc = np.array([3.7, 0.09, -0.5])
         parms = m2p(mc)
@@ -1097,7 +1097,7 @@ class TestDetratPort:
     """
 
     def test_is_one_below_the_skew_floor(self):
-        from hydrolib._detrat import detrat
+        from flowfreq._detrat import detrat
 
         mc = np.array([3.7, 0.09, 0.0066])  # |skew| < 0.04
         w = detrat(mc, 84, np.array([84.0]), np.array([-20.0]), np.array([20.0]))
@@ -1108,8 +1108,8 @@ class TestDetratPort:
 
         exercises the real (nobs, tl, tu) groups end to end.
         """
-        from hydrolib._detrat import detrat
-        from hydrolib.peakfqr._emafort import detratsub
+        from flowfreq._detrat import detrat
+        from flowfreq.peakfqr._emafort import detratsub
 
         golden = _golden("big_sandy_03606500")
         mc = _at_site_moments(golden)
@@ -1128,8 +1128,8 @@ class TestDetratPort:
         TestDeterminantRatioOracle does -- Cains Coulee's *input*
         thresholds carry no censoring; MGBT creates it inside the fit.
         """
-        from hydrolib._detrat import detrat
-        from hydrolib.peakfqr._emafort import detratsub, emafitpr
+        from flowfreq._detrat import detrat
+        from flowfreq.peakfqr._emafort import detratsub, emafitpr
         from tests.fortran_parity.cases import CASES as CASE_FACTORIES
         from tests.fortran_parity.cases import build_emafit_inputs
 
@@ -1165,8 +1165,8 @@ class TestDetratPort:
 
     @pytest.mark.parametrize("skew", [-0.5, 0.3, 1.2])
     def test_matches_fortran_on_synthetic_censored_groups(self, skew):
-        from hydrolib._detrat import detrat
-        from hydrolib.peakfqr._emafort import detratsub
+        from flowfreq._detrat import detrat
+        from flowfreq.peakfqr._emafort import detratsub
 
         mc = np.array([3.7, 0.09, skew])
         nobs = np.array([60.0, 20.0])
@@ -1183,7 +1183,7 @@ class TestVarEmabPort:
     TODO.md P3's last open item. compute_confidence_limits() forms
     log_Q +/- z*se, symmetric by construction; peakfq skews right with
     return period via Cohn's inverse-Gaussian-quadrature method. See
-    hydrolib._var_emab's module docstring for the call convention this
+    flowfreq._var_emab's module docstring for the call convention this
     class pins -- pq is non-exceedance probability (1 - aep), mc is the
     weighted fit, and the two Fortran signatures disagree on their own
     (r_G_mse, r_M_mse, r_S2, r_S2_mse) argument order.
@@ -1209,7 +1209,7 @@ class TestVarEmabPort:
         generated by a single, isolated ``tools/gen_fortran_golden.py`` run
         and is not subject to that.
         """
-        from hydrolib._var_emab import var_emab
+        from flowfreq._var_emab import var_emab
 
         golden = _golden(name)
         mc = _weighted_moments(golden)
@@ -1241,8 +1241,8 @@ class TestVarEmabPort:
         between ci_low (worse, ~11%) and ci_high (~1%) -- both loose but
         real, not evidence of a new defect on top of the known one.
         """
-        from hydrolib._var_emab import var_emab
-        from hydrolib.peakfqr._emafort import emafitpr
+        from flowfreq._var_emab import var_emab
+        from flowfreq.peakfqr._emafort import emafitpr
         from tests.fortran_parity.cases import CASES as CASE_FACTORIES
         from tests.fortran_parity.cases import build_emafit_inputs
 

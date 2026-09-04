@@ -1,1 +1,1 @@
-"""Parity tests between hydrolib's native EMA and the vendored USGS Fortran."""
+"""Parity tests between flowfreq's native EMA and the vendored USGS Fortran."""

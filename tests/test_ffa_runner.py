@@ -1,6 +1,6 @@
 """Tests for app.ffa_runner -- display formatting only.
 
-The analysis these tables render moved to :mod:`hydrolib.workflow`; its tests
+The analysis these tables render moved to :mod:`flowfreq.workflow`; its tests
 live in ``tests/test_workflow.py``. Nothing here calls into the library, which
 is the point: this module must stay renderable without an analysis run.
 """

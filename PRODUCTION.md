@@ -1,4 +1,4 @@
-# HydroLib Production Readiness Status
+# FlowFreq Production Readiness Status
 
 **Status**: ✅ **MVP Complete** | **Next Phase**: Medium-priority enhancements (2–3 weeks)
 
@@ -16,7 +16,7 @@ All critical governance and security measures are in place.
 |------|-------------|--------|
 | **Remove setup.py** | Deleted; pyproject.toml is single source of truth | ✅ |
 | **Repair `bump2version`** | Config said 0.0.3 while every file said 0.2.0, so it raised `VersionNotFoundException` and no release could be cut | ✅ |
-| **PEP 561 marker** | `hydrolib/py.typed` added and packaged | ✅ |
+| **PEP 561 marker** | `flowfreq/py.typed` added and packaged | ✅ |
 | **Code ownership** | `.github/CODEOWNERS` — all code requires review | ✅ |
 | **Security policy** | `SECURITY.md` — vulnerability reporting workflow | ✅ |
 | **Branch protection** | `main` requires: 1 PR review + all CI checks pass | ✅ |
@@ -121,8 +121,8 @@ Advanced safety measures for high-stakes deployments.
 
 2. **Type hints present but unenforced**
    - Corrected 2026-08-31: the earlier claim that this codebase has no type
-     hints was wrong. 210 of 213 functions in `hydrolib/` carry annotations
-     (99%), as `CLAUDE.md` requires. The real gap was that `hydrolib/py.typed`
+     hints was wrong. 210 of 213 functions in `flowfreq/` carry annotations
+     (99%), as `CLAUDE.md` requires. The real gap was that `flowfreq/py.typed`
      was missing, so downstream type checkers ignored all of them — a
      one-file fix, now made.
    - What remains is *enforcement*: nothing checks the annotations are correct

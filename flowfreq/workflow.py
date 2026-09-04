@@ -1,9 +1,9 @@
 """
-hydrolib.workflow - High-level Bulletin 17C analysis entry points.
+flowfreq.workflow - High-level Bulletin 17C analysis entry points.
 
 One call from annual peaks to a fitted frequency curve, plus the skew-variant
 helpers that go with it. This is the layer a consumer wants when it does not
-want to assemble :class:`~hydrolib.bulletin17c.Bulletin17C`, quantiles and
+want to assemble :class:`~flowfreq.bulletin17c.Bulletin17C`, quantiles and
 confidence limits by hand.
 
 Everything here returns plain numbers and DataFrames of numbers. Turning those
@@ -92,7 +92,7 @@ def run_ffa(
         Each dict has keys ``start_year``, ``end_year``, ``threshold_cfs``
         (legacy) or ``lower_cfs`` / ``upper_cfs``.  Converts to the
         ``Dict[Tuple[int,int], float]`` format expected by
-        :class:`~hydrolib.bulletin17c.Bulletin17C` and passed to EMA so that
+        :class:`~flowfreq.bulletin17c.Bulletin17C` and passed to EMA so that
         years in each period without a recorded peak are treated as
         left-censored observations (peak < threshold).
     low_outlier_threshold_override : float, optional
@@ -289,7 +289,7 @@ def build_skew_curves_dict(
     """Return ``{label: skew_value}`` for the selected skew options.
 
     Intended for passing directly to
-    :func:`hydrolib.freq_plot.plot_frequency_curve_streamlit` as the
+    :func:`flowfreq.freq_plot.plot_frequency_curve_streamlit` as the
     ``skew_curves`` argument.
 
     Parameters

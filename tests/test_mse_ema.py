@@ -1,4 +1,4 @@
-"""Tests for hydrolib._mse_ema that do not require the Fortran extension.
+"""Tests for flowfreq._mse_ema that do not require the Fortran extension.
 
 Parity against the vendored Fortran lives in
 tests/fortran_parity/test_fortran_oracles.py (skipped when the extension
@@ -11,7 +11,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from hydrolib._mse_ema import _chol33, _covw, _gammaquad, _normquad, mc2mnvb, mn2m_var, mse_ema
+from flowfreq._mse_ema import _chol33, _covw, _gammaquad, _normquad, mc2mnvb, mn2m_var, mse_ema
 
 
 class TestQuadrature:
@@ -99,7 +99,7 @@ class TestMn2mVar:
 
         the covariance, not the point estimate.
         """
-        from hydrolib._p3_moments import mn2m
+        from flowfreq._p3_moments import mn2m
 
         mn = np.array([3.71, 13.8, 51.6])
         s_mn = np.eye(3) * 0.001

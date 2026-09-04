@@ -1,9 +1,9 @@
 """
-hydrolib.lowflow - Low-flow frequency analysis
+flowfreq.lowflow - Low-flow frequency analysis
 
 Fits a distribution to the annual minimum n-day mean flow and computes
 quantiles at specified non-exceedance probabilities -- the low-flow
-counterpart to hydrolib.bulletin17c's high-flow analysis. The standard
+counterpart to flowfreq.bulletin17c's high-flow analysis. The standard
 products (7Q10, 7Q2) are the n=7, non-exceedance-probability=0.10 and 0.50
 cases of the same general computation; n and the probabilities are always
 arguments, never hardcoded.
@@ -12,9 +12,9 @@ Method notes
 ------------
 **Distribution.** Log-Pearson III fit by station skew, reusing the same
 log-space machinery as the high-flow side. Quantiles are computed with
-:func:`hydrolib.core.lp3_frequency_factor_peakfq`, the exact gamma-quantile
+:func:`flowfreq.core.lp3_frequency_factor_peakfq`, the exact gamma-quantile
 method (matching peakfqr/PeakFQ's own ``qP3sub``), rather than the
-Wilson-Hilferty approximation :func:`hydrolib.core.kfactor` uses on the
+Wilson-Hilferty approximation :func:`flowfreq.core.kfactor` uses on the
 high-flow side -- there is no low-flow generalized-skew map analogous to
 B17C Plate 1 to justify carrying the approximation's error into a tail
 where sample skew is already the least stable parameter. Pass
@@ -29,7 +29,7 @@ For the low-flow tail this means: with a positive station skew, the exact
 frequency factor saturates as the non-exceedance probability shrinks
 toward 0, so two very different return periods can produce nearly
 identical quantiles once far enough into the bounded direction. Checked
-directly against :func:`hydrolib.core.lp3_frequency_factor_peakfq`: at
+directly against :func:`flowfreq.core.lp3_frequency_factor_peakfq`: at
 skew=2.99, the factor at p=0.001 and at p=0.0001 both evaluate to
 -0.6689, to four decimal places. Read an unexpectedly flat set of extreme
 low-flow quantiles as this property showing up, not as evidence of a
@@ -58,7 +58,7 @@ requested non-exceedance probability ``p <= p0`` has quantile exactly 0 (that
 fraction of years or more had no flow at all, so no positive flow value has
 that low a non-exceedance probability); for ``p > p0`` the fit is queried at
 the conditional probability ``(p - p0) / (1 - p0)``. ``n_zero_years`` and
-``p0`` are always reported on :class:`hydrolib.core.LowFlowResults` so a
+``p0`` are always reported on :class:`flowfreq.core.LowFlowResults` so a
 zero-inflated record is never silently indistinguishable from a well-behaved
 one. ``p0`` is treated as *known* for :meth:`LowFlowFrequency.compute_confidence_limits`'s
 CI, understating true uncertainty for any record with zero-flow years;
@@ -112,7 +112,7 @@ from .core import (
 logger = logging.getLogger(__name__)
 
 #: Year definitions accepted by annual_minimum_flow and LowFlowFrequency.
-#: Alias of hydrolib.core.YEAR_TYPES, kept under this name for backward
+#: Alias of flowfreq.core.YEAR_TYPES, kept under this name for backward
 #: compatibility with the public name this module already exports.
 LOW_FLOW_YEAR_TYPES = YEAR_TYPES
 
@@ -129,7 +129,7 @@ def annual_minimum_flow(
     ----------
     daily_data : pd.DataFrame
         Daily mean flow indexed by date, with a ``flow_cfs`` column -- the
-        shape returned by :meth:`hydrolib.usgs.USGSgage.download_daily_flow`.
+        shape returned by :meth:`flowfreq.usgs.USGSgage.download_daily_flow`.
         Negative values are treated as missing (see Notes), not as extreme
         lows.
     n_day : int
@@ -161,7 +161,7 @@ def annual_minimum_flow(
 
     Notes
     -----
-    **Gaps.** :meth:`hydrolib.usgs.USGSgage.download_daily_flow` drops rows
+    **Gaps.** :meth:`flowfreq.usgs.USGSgage.download_daily_flow` drops rows
     with no reported value, so a real gap in the record is a missing date,
     not a NaN-valued one. A plain ``rolling(window=n_day)`` would then treat
     ``n_day`` available *rows* as the window regardless of whether they are
@@ -510,7 +510,7 @@ class LowFlowFrequency:
         """Compute confidence limits for the quantile estimates.
 
         Uses the same asymptotic LP3 variance formula as
-        :meth:`hydrolib.bulletin17c.FloodFrequencyAnalysis.compute_confidence_limits`,
+        :meth:`flowfreq.bulletin17c.FloodFrequencyAnalysis.compute_confidence_limits`,
         applied to the positive-year fit at the conditional probability. This
         does not account for the added uncertainty in ``p_zero`` itself, so
         it understates true uncertainty for a record with any zero years;
@@ -589,7 +589,7 @@ class LowFlowFrequency:
         from ``Binomial(n_years, p_zero)`` (propagating p_zero's own
         binomial uncertainty, not holding it fixed); simulates that many
         positive-year log-flows from the *fitted* distribution via
-        :func:`hydrolib.core.lp3_frequency_factor_peakfq` (the same exact
+        :func:`flowfreq.core.lp3_frequency_factor_peakfq` (the same exact
         method used for the point estimate, so simulation and estimation
         are on one consistent basis); refits station skew (or holds it at
         0 for ``distribution="lognormal"``, matching :meth:`run_analysis`)

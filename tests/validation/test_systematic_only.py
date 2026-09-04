@@ -17,8 +17,8 @@ Data: Big Sandy systematic record only (1930-1973), no historical peaks.
 import numpy as np
 import pytest
 
-from hydrolib.bulletin17c import Bulletin17C
-from hydrolib.core import kfactor_array
+from flowfreq.bulletin17c import Bulletin17C
+from flowfreq.core import kfactor_array
 from tests.fixtures.big_sandy import SYSTEMATIC_PEAKS
 
 PEAK_FLOWS = list(SYSTEMATIC_PEAKS.values())
@@ -26,7 +26,7 @@ WATER_YEARS = list(SYSTEMATIC_PEAKS.keys())
 
 
 def _reference_moments():
-    """Independent MOM reference computation (numpy, not hydrolib)."""
+    """Independent MOM reference computation (numpy, not flowfreq)."""
     log_flows = np.log10(PEAK_FLOWS)
     n = len(log_flows)
     mean_log = np.mean(log_flows)

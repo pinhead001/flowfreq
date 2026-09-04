@@ -7,7 +7,7 @@ Demonstrates both MOM and EMA methods with synthetic data.
 import matplotlib
 import numpy as np
 
-from hydrolib import Bulletin17C, ExpectedMomentsAlgorithm, MethodOfMoments
+from flowfreq import Bulletin17C, ExpectedMomentsAlgorithm, MethodOfMoments
 
 matplotlib.use("Agg")  # Use non-interactive backend
 
@@ -27,7 +27,7 @@ z = (np.random.gamma(alpha, 1, n_years) - alpha) / np.sqrt(alpha)
 peak_flows = 10 ** (mean_log + std_log * z)
 
 print("=" * 60)
-print("HYDROLIB FLOOD FREQUENCY ANALYSIS EXAMPLE")
+print("FLOWFREQ FLOOD FREQUENCY ANALYSIS EXAMPLE")
 print("=" * 60)
 
 # Example 1: Method of Moments
