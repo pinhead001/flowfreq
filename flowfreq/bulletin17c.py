@@ -10,7 +10,7 @@ import logging
 from abc import ABC, abstractmethod
 from datetime import datetime
 from functools import cached_property, lru_cache
-from typing import ClassVar, Dict, List, NamedTuple, Optional, Tuple, Union
+from typing import TYPE_CHECKING, ClassVar, Dict, List, NamedTuple, Optional, Tuple, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -79,6 +79,24 @@ class _ExpectedSums(NamedTuple):
         sc2 = c2 - 2 * mean * c1 + n_c * mean**2
         sc3 = c3 - 3 * mean * c2 + 3 * mean**2 * c1 - n_c * mean**3
         return (se2, se3), (sc2, sc3)
+
+
+if TYPE_CHECKING:  # pragma: no cover - annotations only
+    # Annotations only, and deliberately so: a runtime import here would make
+    # every `import flowfreq.bulletin17c` pull in the validation subsystem,
+    # which flowfreq/__init__ leaves opt-in. validate() imports what it needs
+    # lazily at call time.
+    #
+    # The cost is real and worth naming: typing.get_type_hints(Bulletin17C
+    # .validate) raises NameError, and importing flowfreq.validation first does
+    # NOT fix it -- get_type_hints resolves against the *defining module's*
+    # globals, where a TYPE_CHECKING name never appears. Callers needing those
+    # hints must pass localns themselves. The pandas annotations elsewhere in
+    # this package resolve unaided because pandas is a hard dependency imported
+    # at module level; that option was rejected here only because it would
+    # invert the package's layering.
+    from .validation.comparisons import ComparisonResult
+    from .validation.reference import ReferenceResult
 
 
 logger = logging.getLogger(__name__)

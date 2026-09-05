@@ -9,6 +9,7 @@ from __future__ import annotations
 from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
+import pandas as pd
 
 from .core import PeakRecord, compute_ci_lp3, lp3_frequency_factor_peakfq, lp3_quantile_peakfq
 
@@ -185,7 +186,6 @@ class B17CEngine:
             Frequency table with columns: Return Period, AEP, Flow (cfs),
             Lower CI, Upper CI
         """
-        import pandas as pd
 
         ci = self.quantiles_with_ci(return_periods, alpha)
 
