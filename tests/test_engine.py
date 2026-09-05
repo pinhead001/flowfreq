@@ -5,8 +5,8 @@ intervals, print a summary. It is not the Bulletin17C path -- it does no MGBT
 screening, no EMA, no regional skew weighting -- and the tests below pin where
 the two deliberately differ from where they differ by accident.
 
-One difference is not deliberate and is recorded as a strict xfail: the station
-skew estimator. See TestSkewEstimatorDiffersFromBulletin17C.
+One difference was not deliberate: the station skew estimator, biased before
+0.4.0 and now unbiased. See TestSkewEstimatorMatchesBulletin17C.
 """
 
 from __future__ import annotations
@@ -199,42 +199,43 @@ class TestSummary:
         assert f"{fitted.quantiles([100])[100]:,.0f}" in text
 
 
-class TestSkewEstimatorDiffersFromBulletin17C:
-    """engine.fit uses the biased skew; Bulletin 17C specifies the unbiased one.
+class TestSkewEstimatorMatchesBulletin17C:
+    """engine.fit uses Bulletin 17C Eq. 7-2, the same estimator as Bulletin17C.
 
-    ``B17CEngine.fit`` computes ``((x - mean)**3).mean() / std**3`` -- the
-    population (biased) coefficient of skewness. Bulletin 17C Eq. 7-2, and
-    ``Bulletin17C._compute_moments``, use the unbiased sample estimator
-    ``n * sum((x - mean)**3) / ((n-1)(n-2) * std**3)``.
+    Before 0.4.0 ``B17CEngine.fit`` computed ``((x - mean)**3).mean() /
+    std**3`` -- the population (biased) coefficient of skewness -- while
+    Bulletin 17C Eq. 7-2, and ``Bulletin17C.run_analysis``, use the unbiased
+    sample estimator ``n * sum((x - mean)**3) / ((n-1)(n-2) * std**3)``.
 
     The two differ by a factor of ``n**2 / ((n-1)(n-2))``: 7.2% at n=44, and
-    39% at n=10. Short records are ordinary in flood frequency work.
+    39% at n=10. Short records are ordinary in flood frequency work, and on
+    Big Sandy the biased form put Q100 0.57% high and Q500 0.93% high.
 
-    Propagated to quantiles on Big Sandy (n=44) that is +0.58% at Q100 and
-    +0.93% at Q500; on its first 12 years it is +4.4% at Q100. A class named
-    B17CEngine, offering "PeakFQ-style output", should not use a different
-    station skew from the Bulletin 17C path in the same library.
-
-    Strict xfail rather than a fix: correcting it changes the numbers this
-    public API returns, which is the caller's decision, not a silent one. When
-    it is fixed this starts passing and the build fails, which is the alarm.
+    These tests are the guard against a regression to the biased form. The
+    first pins agreement with the Bulletin 17C path; the second names the old
+    estimator explicitly, so a silent revert fails on a specific, recognisable
+    number rather than on a tolerance.
     """
 
-    @pytest.mark.xfail(
-        strict=True,
-        reason="engine.fit uses the biased skew estimator; B17C Eq. 7-2 is unbiased",
-    )
     def test_station_skew_matches_bulletin17c(self, fitted, peaks):
         years, flows = peaks
         b = Bulletin17C(peak_flows=flows, water_years=years)
         b.run_analysis(method="mom")
         assert fitted.skew == pytest.approx(b.results.skew_station, rel=1e-6)
 
-    def test_the_gap_is_exactly_the_bias_factor(self, fitted, peaks):
-        """Pins the cause, so a future change cannot quietly alter its size."""
-        years, flows = peaks
-        b = Bulletin17C(peak_flows=flows, water_years=years)
-        b.run_analysis(method="mom")
+    def test_is_not_the_biased_population_coefficient(self, fitted, peaks):
+        """The pre-0.4.0 form, pinned by name so a revert is recognisable."""
+        _, flows = peaks
+        log_flows = np.log10(flows)
+        biased = float(((log_flows - log_flows.mean()) ** 3).mean() / log_flows.std(ddof=1) ** 3)
         n = fitted.n
-        expected_ratio = n**2 / ((n - 1) * (n - 2))
-        assert b.results.skew_station / fitted.skew == pytest.approx(expected_ratio, rel=1e-9)
+        assert fitted.skew / biased == pytest.approx(n**2 / ((n - 1) * (n - 2)), rel=1e-9)
+
+    def test_agrees_with_bulletin17c_on_a_short_record(self, peaks):
+        """n=12, where the old bias factor was 1.31 rather than 1.07."""
+        years, flows = peaks
+        engine = B17CEngine()
+        engine.fit_from_flows(flows[:12], years[:12])
+        b = Bulletin17C(peak_flows=flows[:12], water_years=years[:12])
+        b.run_analysis(method="mom")
+        assert engine.skew == pytest.approx(b.results.skew_station, rel=1e-6)

@@ -74,12 +74,18 @@ class B17CEngine:
             raise ValueError("At least 3 non-null flow values required for fitting")
 
         log_flows = np.log10(obs)
+        n = len(obs)
         mu = float(log_flows.mean())
         sigma = float(log_flows.std(ddof=1))
-        skew = float(((log_flows - mu) ** 3).mean() / (sigma**3))
+        # Bulletin 17C Eq. 7-2, the unbiased sample estimator -- the same form
+        # Bulletin17C.run_analysis uses, so the two paths in this library agree
+        # on the station skew. Before 0.4.0 this was the biased population
+        # coefficient, sum((x-mu)**3)/n / sigma**3, whose magnitude is smaller
+        # by a factor of n**2 / ((n-1)(n-2)): 7.2% at n=44, 39% at n=10.
+        skew = float(n * np.sum((log_flows - mu) ** 3) / ((n - 1) * (n - 2) * sigma**3))
 
         self.params = (mu, sigma, skew)
-        self.n = len(obs)
+        self.n = n
 
         return self.params
 

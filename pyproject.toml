@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "flowfreq"
-version = "0.3.0"
+version = "0.4.0"
 description = "Python library for hydrologic analysis with Bulletin 17C flood frequency"
 readme = "README.md"
 authors = [{name = "pinhead001", email = "pinhead001@github.com"}]
