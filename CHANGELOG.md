@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- mypy runs in CI, enforced on the modules that already pass; the rest are
+  exempted individually in `pyproject.toml` so the debt is countable and shrinks
+  by deleting a stanza. The library ships `py.typed`, so downstream checkers
+  trust these annotations -- nothing verified them before.
+- `make cov` and a CI coverage step. `pytest-cov` had been a declared dev
+  dependency that nothing invoked.
+- `make clean-verify`, which wipes build artifacts and every `__pycache__`
+  before running the gate, so a green result reflects the tree rather than
+  whatever was left lying around.
+
+### Fixed
+- Four public signatures annotated names their modules never imported, so
+  `typing.get_type_hints()` raised `NameError` on `engine.B17CEngine
+  .frequency_table`, `batch.batch_summary_table`,
+  `freq_plot.plot_peak_flows_with_thresholds` and `Bulletin17C.validate`.
+  `from __future__ import annotations` kept it from raising at import, which is
+  why it went unnoticed. The first three now resolve; `validate` keeps a
+  `TYPE_CHECKING` import to avoid inverting the package's layering, and says so.
+
 ### Changed
 - `flowfreq.freq_plot.plot_frequency_curve_streamlit` is now
   `plot_frequency_curve`. The old name remains as an alias, so pinned consumers

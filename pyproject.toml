@@ -46,7 +46,9 @@ dev = [
     "isort>=5.12,<6",
     "flake8>=6.0,<7",
     "bump2version>=1.0.0,<2",
-    "mypy>=1.8,<2",
+    # No upper bound: <2 is what made CI install 1.x while a developer on 2.x
+    # saw different behaviour from the same config.
+    "mypy>=1.8",
     "pandas-stubs",
     "types-requests",
 ]
@@ -75,7 +77,13 @@ include = ["flowfreq*"]
 "flowfreq.validation" = ["data/*.json"]
 
 [tool.mypy]
-python_version = "3.9"
+# No python_version pin. Setting it to 3.9 -- the runtime floor -- makes mypy
+# parse *dependency* source under 3.9 grammar too, and click uses a match
+# statement, so the run dies on click/utils.py before checking any of our code.
+# mypy 2.x refuses the setting outright (3.10 is its floor), which is how this
+# passed locally on 2.3.1 while failing CI on the 1.x the dev extra pinned:
+# 2.x warned and ignored it, 1.x honoured it and broke. Runtime 3.9 support is
+# covered by the test matrix, which is the stronger check anyway.
 ignore_missing_imports = true
 # Enforced on the modules that already pass, so no NEW type error can land in
 # them. The library ships py.typed, which tells every downstream checker to
