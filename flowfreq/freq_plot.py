@@ -1,5 +1,9 @@
 """
-flowfreq.freq_plot - Frequency curve plotting for Streamlit display.
+flowfreq.freq_plot - Frequency curve plotting.
+
+Returns matplotlib ``Figure`` objects. Nothing here imports Streamlit; the
+module and its main function were named for the app that first consumed them,
+which now lives in its own repository.
 """
 
 from __future__ import annotations
@@ -64,7 +68,7 @@ def _lp3_ci(
     return 10.0 ** (log_Q - z_alpha * se_log), 10.0 ** (log_Q + z_alpha * se_log)
 
 
-def plot_frequency_curve_streamlit(
+def plot_frequency_curve(
     b17c: "Bulletin17C",
     site_name: Optional[str] = None,
     site_no: Optional[str] = None,
@@ -540,3 +544,11 @@ def plot_peak_flows_with_thresholds(
     fig.tight_layout()
 
     return fig
+
+
+#: Former name of :func:`plot_frequency_curve`, kept so the split-out app and
+#: any other existing caller keep working across the rename. The "streamlit"
+#: suffix was always a misnomer -- this module imports matplotlib and returns a
+#: Figure -- and it became actively misleading once the app moved out. Prefer
+#: the new name; this alias can go once no pinned consumer uses it.
+plot_frequency_curve_streamlit = plot_frequency_curve

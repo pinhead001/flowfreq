@@ -289,7 +289,7 @@ def build_skew_curves_dict(
     """Return ``{label: skew_value}`` for the selected skew options.
 
     Intended for passing directly to
-    :func:`flowfreq.freq_plot.plot_frequency_curve_streamlit` as the
+    :func:`flowfreq.freq_plot.plot_frequency_curve` as the
     ``skew_curves`` argument.
 
     Parameters
