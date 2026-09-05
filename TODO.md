@@ -1,12 +1,39 @@
 # TODO — FlowFreq Hybrid 17C Implementation
 
 ## Status
-Last updated: 2026-09-02
-Tests: **608 passed, 1 skipped, 1 deselected, 5 xfailed** in ~99 s (up from 604 passed -- four
-new tests for the MOM PILF-censoring fix below). CI green on main.
+Last updated: 2026-09-05. Version **0.4.0**.
+Tests: **563 passed, 4 skipped, 1 deselected, 5 xfailed** in ~92 s, via `make clean-verify`.
+CI green on main. (The 608 recorded here on 2026-09-02 was the pre-split suite, which still
+carried the Streamlit app's tests; those moved to `flowfreq-app` in 0.3.0. Run the number, do
+not carry it forward -- it has been wrong in a commit message and a PR body already.)
 Fortran reference: **vendored** at `vendor/peakfqr/` (peakfq 8.1.0, CC0).
 Fortran bridge: builds from those sources via `python build_fortran/build.py`
 (gfortran + meson) and is now **built and checked in CI** by `make parity`.
+
+### Environment constraints -- read before starting work
+
+These bit repeatedly and are not discoverable from the code:
+
+- **Tag pushes and branch deletes return HTTP 403** from a Claude Code session. This is a
+  credential boundary, not a transient failure: retrying and re-authenticating do not help.
+  Anything requiring a tag or a branch deletion has to be done from a local clone.
+- **`v0.4.0` is not tagged yet, and `README.md` already pins it.** The install line reads
+  `pip install git+https://github.com/pinhead001/flowfreq@v0.4.0`, which will not resolve
+  until someone pushes that tag. Do this first, from a local clone:
+  `git tag -a v0.4.0 -m "..." && git push origin v0.4.0`.
+- **NWIS (`nwis.waterdata.usgs.gov`) is blocked by the egress proxy.** Tests marked
+  `requires_network` cannot run in a Claude session; they are deselected by default via
+  `addopts` anyway. Use the committed fixtures under `tests/fixtures/`.
+- **The Fortran extension is not built by default.** `make fortran` needs gfortran and meson.
+  Everything marked `requires_fortran` auto-skips without it, which is why a local run can
+  report fewer tests than CI's parity job.
+- **Reproduce CI with `make clean-verify`, not a bare `pytest`.** Five separate local-pass /
+  CI-fail incidents during the repo split traced to environment artifacts: a stale
+  `build/lib/` shipping two packages in one wheel, the working directory shadowing an
+  installed package, a `__pycache__`-only directory changing isort's first-party
+  classification, and a mypy version skew. `clean-verify` wipes the tree first.
+- **`vendor/` is a verbatim USGS reference copy. Do not edit anything under it** -- a change
+  there silently invalidates every parity comparison made against it.
 
 Every P1 and P2 item is done. **The entire `var_mom` port (TODO.md P3) is now done**, including
 `detrat`, the at-site EMA moment-iteration fix, and the confidence-interval shape fix
@@ -43,6 +70,49 @@ reference (CLAUDE.md's Test Data section) -- not evidence of anything left to po
 ---
 
 ## Open Items (prioritised)
+
+### Next — the Fortran as a selectable engine
+
+Specified in **`docs/FORTRAN_ENGINE_DESIGN.md`**. Read that before writing any of it; the
+one part with a silent failure mode is written down there rather than left to be improvised.
+
+- [ ] **Library-side interval builder**, translating a `Bulletin17C` input set into
+      `emafitpr`'s `ql/qu/tl/tu/dtype` arrays. This is the whole of the risk: a wrong
+      translation does not raise, it produces a different *valid* analysis, and the
+      comparison then reports disagreement between two implementations that are both
+      correct. `tests/fortran_parity/cases.py::build_emafit_inputs` is test code that
+      handles the parity cases, not the full input space. ~1 day.
+- [ ] `ReferenceResult` → `FrequencyResults` adapter. The two share five field *names* and
+      even `quantiles` differs in shape. Never synthesise a field the Fortran did not
+      report. ~2 h.
+- [ ] `engine=` on `run_analysis`, defaulting to `"native"` forever. ~2 h.
+- [ ] `compare_engines` and its markdown output -- **this is the feature**; `engine=` alone
+      leaves the user diffing two analyses by hand. It requires the built extension and
+      raises without it (design doc §9 q4, decided). ~0.5 day.
+- [ ] CLI `compare` subcommand. ~2 h.
+
+Still open in that design, and needing answers from `readInputs.R` rather than invention:
+zero-flow handling (no parity site exercises it), overlapping perception threshold periods,
+and whether `mgb_critical_value` is recomputed natively or reported as unavailable.
+
+Binary wheels are deliberately **out of scope** for the first pass; source checkouts serve
+the CLOMR/LOMR case this is for.
+
+### Modules with no tests
+
+`engine.py` and `report.py` were covered in 0.4.0. Four remain, largest first:
+
+- [ ] `hydrograph.py` (375 lines)
+- [ ] `plots.py` (255)
+- [ ] `batch.py` (128) -- note its output moved in 0.4.0 with the station-skew fix
+- [ ] `cli.py` (57)
+
+### Downstream
+
+- [ ] **Bump the app's pin once `v0.4.0` is tagged.** `flowfreq-app`'s `requirements.txt`
+      pins `flowfreq@v0.3.0`. The 0.4.0 station-skew fix changes reported discharges, so
+      this bump is a visible change to the deployed app, not routine housekeeping -- see
+      the CHANGELOG entry for the measured deltas before doing it.
 
 ### P3 — The `var_mom` port, now complete
 
@@ -582,11 +652,13 @@ it is the oracle for `detrat`.
 Small, specified, none blocking. (The second-parity-case item that used to head this list is
 done — see the P3 table above and the Done section.)
 
-- [ ] **`plot_peak_flows_with_thresholds` is still uncalled.** `app/streamlit_app.py` has its
-      own `plot_peak_timeseries`, which carries return-period lines and the max-peak
-      recurrence annotation that the library function does not; switching to the library one
-      today would lose features. The dedupe is: move those two features into
-      `flowfreq/freq_plot.py`, then delete the app copy. One peak-flow plotter, tested.
+- [ ] **`plot_peak_flows_with_thresholds` is still uncalled.** `streamlit_app.py`, now in the
+      separate `flowfreq-app` repository, has its own `plot_peak_timeseries` carrying
+      return-period lines and the max-peak recurrence annotation that the library function
+      does not; switching to the library one today would lose features. The dedupe is: move
+      those two features into `flowfreq/freq_plot.py`, release, bump the app's pin, then
+      delete the app copy. One peak-flow plotter, tested. Note this now spans two
+      repositories and a version bump, which it did not when it was written.
 
 - [ ] **`FrequencyComparator` compares every parameter by percent difference.** That is the
       wrong metric for skew, which legitimately crosses zero: Big Sandy's reference at-site
@@ -603,9 +675,12 @@ done — see the P3 table above and the Done section.)
 
 ### Blocked
 
-- [ ] **Tag pushes return HTTP 403** from the agent environment, so neither `v0.2.0` nor an
-      `archive/dev-2026-02` tag could be pushed. Needs tag-push permission, or someone
-      pushing tags from a local clone.
+- [ ] **Tag pushes and branch deletes return HTTP 403** from a Claude Code session -- a
+      credential boundary, not a transient failure. Outstanding items that need a local
+      clone: push the **`v0.4.0`** tag (`README.md` already pins it, see Status above);
+      delete the merged `typecheck` and `tests-engine-report` branches on `flowfreq`; delete
+      the stray `parity-12363000` branch pushed to `hydrolib` by mistake. Historically this
+      also blocked `v0.2.0` and an `archive/dev-2026-02` tag.
 
 ---
 

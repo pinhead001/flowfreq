@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0]
+
 ### Added
 - mypy runs in CI, enforced on the modules that already pass; the rest are
   exempted individually in `pyproject.toml` so the debt is countable and shrinks
@@ -18,6 +20,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   before running the gate, so a green result reflects the tree rather than
   whatever was left lying around.
 
+### Changed
+- **`B17CEngine.fit` now uses the Bulletin 17C Eq. 7-2 station skew. The
+  numbers this public API returns have moved.** It computed
+  `((x - mean)**3).mean() / std**3`, the biased population coefficient, while
+  `Bulletin17C.run_analysis` in this same library used the unbiased sample
+  estimator `n * sum((x - mean)**3) / ((n-1)(n-2) * std**3)`. The two differ by
+  `n**2 / ((n-1)(n-2))` -- 7.2% at n=44, 39% at n=10, and short records are
+  ordinary in flood frequency work.
+
+  Measured on Big Sandy (n=44): station skew moves from -0.1748 to -0.1874,
+  which is now exactly what the Bulletin 17C path reports for the same record.
+  Quantiles move **Q2 +0.13%, Q10 -0.10%, Q100 -0.57%, Q500 -0.93%**. Anything
+  derived from `B17CEngine` moves with it, including `batch.batch_summary_table`
+  and `plots`. If you have reported a discharge from this class, it will not
+  reproduce under 0.4.0 -- pin `v0.3.0` if you need the old figures, and expect
+  the 0.4.0 value to be the defensible one.
+
+  `Bulletin17C` is unaffected: it was always correct, and the release exists to
+  make the two agree. Recorded in 0.3.0's test suite as a strict xfail; the
+  three tests that replace it in `tests/test_engine.py` now guard against a
+  revert, one of them naming the old estimator explicitly.
+
+  One deliberate difference remains: `Bulletin17C` clips the station skew to
+  ±3.0 (`MAX_ABS_SKEW`) and `B17CEngine` does not, so the two can still diverge
+  on a record with extreme skew. That is a separate question from the estimator
+  and was left alone.
+
+- `flowfreq.freq_plot.plot_frequency_curve_streamlit` is now
+  `plot_frequency_curve`. The old name remains as an alias, so pinned consumers
+  keep working; it can go once none use it. The module imports matplotlib and
+  returns a `Figure` -- the suffix was always a misnomer and became misleading
+  once the app moved to its own repository.
+
 ### Fixed
 - Four public signatures annotated names their modules never imported, so
   `typing.get_type_hints()` raised `NameError` on `engine.B17CEngine
@@ -27,14 +62,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   why it went unnoticed. The first three now resolve; `validate` keeps a
   `TYPE_CHECKING` import to avoid inverting the package's layering, and says so.
 
-### Changed
-- `flowfreq.freq_plot.plot_frequency_curve_streamlit` is now
-  `plot_frequency_curve`. The old name remains as an alias, so pinned consumers
-  keep working; it can go once none use it. The module imports matplotlib and
-  returns a `Figure` -- the suffix was always a misnomer and became misleading
-  once the app moved to its own repository.
-
-### Fixed
 - `import flowfreq.peakfqr` without the f2py extension built raised a bare
   `ModuleNotFoundError` naming a private submodule. It now explains that the
   extension is built on demand, gives the command and the toolchain, and says

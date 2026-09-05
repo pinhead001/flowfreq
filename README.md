@@ -53,7 +53,7 @@ pip install -e ".[dev]"
 Or install a released version straight from GitHub:
 
 ```bash
-pip install git+https://github.com/pinhead001/flowfreq@v0.3.0
+pip install git+https://github.com/pinhead001/flowfreq@v0.4.0
 ```
 
 **Dependencies:** `numpy`, `pandas`, `matplotlib`, `scipy`, `requests`, `click`, `pyarrow`
