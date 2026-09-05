@@ -5,6 +5,23 @@ All notable changes to FlowFreq (formerly HydroLib) are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+- `flowfreq.freq_plot.plot_frequency_curve_streamlit` is now
+  `plot_frequency_curve`. The old name remains as an alias, so pinned consumers
+  keep working; it can go once none use it. The module imports matplotlib and
+  returns a `Figure` -- the suffix was always a misnomer and became misleading
+  once the app moved to its own repository.
+
+### Fixed
+- `import flowfreq.peakfqr` without the f2py extension built raised a bare
+  `ModuleNotFoundError` naming a private submodule. It now explains that the
+  extension is built on demand, gives the command and the toolchain, and says
+  that nothing else in the library depends on it -- the native EMA is the
+  default path. Its docstring also cited `_shared/peakfqr/src/emafit.f`, a path
+  that does not exist here; the sources are under `vendor/peakfqr/`.
+
 ## [0.3.0]
 
 ### Changed

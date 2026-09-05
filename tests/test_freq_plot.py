@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 
 from flowfreq.bulletin17c import Bulletin17C
-from flowfreq.freq_plot import plot_frequency_curve_streamlit
+from flowfreq.freq_plot import plot_frequency_curve
 
 matplotlib.use("Agg")
 
@@ -38,14 +38,14 @@ def big_sandy_b17c():
 
 def test_returns_figure(big_sandy_b17c):
     """Verify function returns a matplotlib Figure."""
-    fig = plot_frequency_curve_streamlit(big_sandy_b17c)
+    fig = plot_frequency_curve(big_sandy_b17c)
     assert isinstance(fig, plt.Figure)
     plt.close(fig)
 
 
 def test_axes_labels(big_sandy_b17c):
     """Verify y-axis label contains discharge info."""
-    fig = plot_frequency_curve_streamlit(big_sandy_b17c)
+    fig = plot_frequency_curve(big_sandy_b17c)
     ax = fig.axes[0]
     ylabel = ax.get_ylabel()
     assert "cfs" in ylabel.lower() or "discharge" in ylabel.lower()
@@ -54,7 +54,7 @@ def test_axes_labels(big_sandy_b17c):
 
 def test_with_big_sandy_data(big_sandy_b17c):
     """Run with Big Sandy fixture; verify no exception and plot elements exist."""
-    fig = plot_frequency_curve_streamlit(
+    fig = plot_frequency_curve(
         big_sandy_b17c,
         site_name="Big Sandy River at Bruceton, TN",
         site_no="03606500",
@@ -80,11 +80,11 @@ class TestExtraCurves:
     OVERLAY = {"Threshold-aware EMA": (3.72, 0.29, -0.16, 44)}
 
     def test_overlay_adds_a_curve_and_a_band(self, big_sandy_b17c):
-        base = plot_frequency_curve_streamlit(big_sandy_b17c)
+        base = plot_frequency_curve(big_sandy_b17c)
         n_lines, n_collections = len(base.axes[0].lines), len(base.axes[0].collections)
         plt.close(base)
 
-        fig = plot_frequency_curve_streamlit(big_sandy_b17c, extra_curves=self.OVERLAY)
+        fig = plot_frequency_curve(big_sandy_b17c, extra_curves=self.OVERLAY)
         ax = fig.axes[0]
         # the curve itself plus two dotted bounds, and one filled band
         assert len(ax.lines) == n_lines + 3
@@ -92,19 +92,15 @@ class TestExtraCurves:
         plt.close(fig)
 
     def test_overlay_is_labelled_for_the_legend(self, big_sandy_b17c):
-        fig = plot_frequency_curve_streamlit(big_sandy_b17c, extra_curves=self.OVERLAY)
+        fig = plot_frequency_curve(big_sandy_b17c, extra_curves=self.OVERLAY)
         labels = [ln.get_label() for ln in fig.axes[0].lines]
         assert "Threshold-aware EMA" in labels
         plt.close(fig)
 
     def test_overlay_uses_its_own_moments(self, big_sandy_b17c):
         """A different mean must move the curve; otherwise the parameter is decorative."""
-        low = plot_frequency_curve_streamlit(
-            big_sandy_b17c, extra_curves={"low": (3.0, 0.29, -0.16, 44)}
-        )
-        high = plot_frequency_curve_streamlit(
-            big_sandy_b17c, extra_curves={"high": (4.0, 0.29, -0.16, 44)}
-        )
+        low = plot_frequency_curve(big_sandy_b17c, extra_curves={"low": (3.0, 0.29, -0.16, 44)})
+        high = plot_frequency_curve(big_sandy_b17c, extra_curves={"high": (4.0, 0.29, -0.16, 44)})
         y_low = [ln for ln in low.axes[0].lines if ln.get_label() == "low"][0].get_ydata()
         y_high = [ln for ln in high.axes[0].lines if ln.get_label() == "high"][0].get_ydata()
         assert np.all(y_high > y_low)
@@ -112,10 +108,25 @@ class TestExtraCurves:
         plt.close(high)
 
     def test_none_and_empty_are_no_ops(self, big_sandy_b17c):
-        base = plot_frequency_curve_streamlit(big_sandy_b17c)
+        base = plot_frequency_curve(big_sandy_b17c)
         n_lines = len(base.axes[0].lines)
         plt.close(base)
         for value in (None, {}):
-            fig = plot_frequency_curve_streamlit(big_sandy_b17c, extra_curves=value)
+            fig = plot_frequency_curve(big_sandy_b17c, extra_curves=value)
             assert len(fig.axes[0].lines) == n_lines
             plt.close(fig)
+
+
+class TestBackwardCompatibleAlias:
+    """The app pins an older tag and imports the pre-rename name."""
+
+    def test_alias_is_the_same_function(self):
+        from flowfreq import freq_plot
+
+        assert freq_plot.plot_frequency_curve_streamlit is freq_plot.plot_frequency_curve
+
+    def test_alias_still_importable_by_name(self):
+        """How flowfreq-app imports it today; breaking this breaks the app."""
+        from flowfreq.freq_plot import plot_frequency_curve_streamlit
+
+        assert callable(plot_frequency_curve_streamlit)

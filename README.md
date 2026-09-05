@@ -115,7 +115,7 @@ fig.savefig("frequency_curve.png", dpi=300, bbox_inches="tight")
 | `flowfreq.regime` | `FlowRegime` — flashiness, baseflow separation, diel variation, seasonal summaries |
 | `flowfreq.flowio` | `save_flow_frame` / `load_flow_frame` — parquet flow-series I/O |
 | `flowfreq.hydrograph` | `Hydrograph` — daily timeseries, summary hydrograph, FDC |
-| `flowfreq.freq_plot` | `plot_frequency_curve_streamlit` — frequency curve as a matplotlib `Figure` |
+| `flowfreq.freq_plot` | `plot_frequency_curve` — frequency curve as a matplotlib `Figure` |
 | `flowfreq.report` | `HydroReport` — automated Markdown report |
 | `flowfreq.validation` | Benchmark framework, comparison engine |
 | `flowfreq.workflow` | `run_ffa` — one call from annual peaks to a fitted frequency curve |
