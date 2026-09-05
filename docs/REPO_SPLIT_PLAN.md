@@ -261,7 +261,7 @@ history-preserving move is a clone-and-push, not the Fork button:
 gh repo create pinhead001/flowfreq --public
 git clone https://github.com/pinhead001/hydrolib flowfreq && cd flowfreq
 git remote set-url origin https://github.com/pinhead001/flowfreq
-git push -u origin main            # full history, all 107 commits
+git push -u origin main            # full history, all 174 commits
 
 git rm -r app tests/test_streamlit_app.py tests/test_ffa_export.py \
           tests/test_ffa_runner.py docs/vignette_streamlit_*.md
@@ -290,7 +290,7 @@ git rm tests/fixtures/*.py   # then restore big_sandy.py per §4.5
 # write requirements.txt (§4.4), new workflow, new README/CLAUDE.md
 ```
 
-Keeping the full history here is worth the clone even though only 21 commits touch
+Keeping the full history here is worth the clone even though only 35 commits touch
 `app/` — `git log --follow` on the app files still resolves, and the deletion commit
 is a legible marker of where the split happened.
 
