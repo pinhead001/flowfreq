@@ -46,6 +46,11 @@ dev = [
     "isort>=5.12,<6",
     "flake8>=6.0,<7",
     "bump2version>=1.0.0,<2",
+    # No upper bound: <2 is what made CI install 1.x while a developer on 2.x
+    # saw different behaviour from the same config.
+    "mypy>=1.8",
+    "pandas-stubs",
+    "types-requests",
 ]
 
 [project.scripts]
@@ -70,6 +75,87 @@ include = ["flowfreq*"]
 # them out of tests/, which is not packaged, so the command failed for every
 # installed user.
 "flowfreq.validation" = ["data/*.json"]
+
+[tool.mypy]
+# No python_version pin. Setting it to 3.9 -- the runtime floor -- makes mypy
+# parse *dependency* source under 3.9 grammar too, and click uses a match
+# statement, so the run dies on click/utils.py before checking any of our code.
+# mypy 2.x refuses the setting outright (3.10 is its floor), which is how this
+# passed locally on 2.3.1 while failing CI on the 1.x the dev extra pinned:
+# 2.x warned and ignored it, 1.x honoured it and broke. Runtime 3.9 support is
+# covered by the test matrix, which is the stronger check anyway.
+ignore_missing_imports = true
+# Enforced on the modules that already pass, so no NEW type error can land in
+# them. The library ships py.typed, which tells every downstream checker to
+# trust these annotations -- that promise is worth something only if something
+# checks it.
+#
+# The modules listed below still carry errors inherited from before mypy ran
+# here at all (14 files). They are exempted individually rather than by
+# loosening the global settings, so the debt is countable and shrinks by
+# deleting a stanza: pick a module, fix it, remove its override. Nothing new
+# gets added to this list -- a new module is checked by default.
+#
+# Deliberately not fixed wholesale: over 200 errors concentrated in the
+# numerical core, which is validated against the vendored Fortran to 1e-8. A
+# large mechanical retype there risks a behaviour change no type checker would
+# catch, for a benefit no user sees.
+
+[[tool.mypy.overrides]]
+module = "flowfreq"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "flowfreq._var_mom"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "flowfreq.batch"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "flowfreq.bulletin17c"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "flowfreq.flowio"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "flowfreq.freq_plot"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "flowfreq.hydrograph"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "flowfreq.lowflow"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "flowfreq.regime"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "flowfreq.report"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "flowfreq.usgs"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "flowfreq.validation.benchmarks"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "flowfreq.validation.reference"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "flowfreq.workflow"
+ignore_errors = true
 
 [tool.black]
 line-length = 100
