@@ -1,6 +1,10 @@
 # FlowFreq
 
-A Python library for USGS streamflow data retrieval and Bulletin 17C flood frequency analysis, with an interactive Streamlit web application.
+A Python library for USGS streamflow data retrieval and Bulletin 17C flood frequency analysis.
+
+The Streamlit web application that used to live here is now a separate project:
+[pinhead001/flowfreq-app](https://github.com/pinhead001/flowfreq-app), which depends
+on this library.
 
 ## Features
 
@@ -25,7 +29,6 @@ A Python library for USGS streamflow data retrieval and Bulletin 17C flood frequ
   flow series (`flowfreq.flowio`)
 - **Hydrograph Plotting** — Daily time series, summary hydrograph, flow duration curve
 - **Frequency Curve** — Log-probability axis, LP3 fitted curve, CI band, multi-skew overlay
-- **Streamlit App** — Interactive web app: download, analyze, plot, and export as ZIP
 - **CLI** — `flowfreq validate` and `flowfreq benchmark` for numerical validation
 - **Reports** — Automated Markdown technical reports
 
@@ -45,9 +48,12 @@ source .venv/bin/activate
 
 # Install library + dev tools
 pip install -e ".[dev]"
+```
 
-# Install Streamlit (for the web app)
-pip install streamlit
+Or install a released version straight from GitHub:
+
+```bash
+pip install git+https://github.com/pinhead001/flowfreq@v0.3.0
 ```
 
 **Dependencies:** `numpy`, `pandas`, `matplotlib`, `scipy`, `requests`, `click`, `pyarrow`
@@ -109,12 +115,10 @@ fig.savefig("frequency_curve.png", dpi=300, bbox_inches="tight")
 | `flowfreq.regime` | `FlowRegime` — flashiness, baseflow separation, diel variation, seasonal summaries |
 | `flowfreq.flowio` | `save_flow_frame` / `load_flow_frame` — parquet flow-series I/O |
 | `flowfreq.hydrograph` | `Hydrograph` — daily timeseries, summary hydrograph, FDC |
-| `flowfreq.freq_plot` | `plot_frequency_curve_streamlit` — Streamlit-ready frequency curve |
+| `flowfreq.freq_plot` | `plot_frequency_curve_streamlit` — frequency curve as a matplotlib `Figure` |
 | `flowfreq.report` | `HydroReport` — automated Markdown report |
 | `flowfreq.validation` | Benchmark framework, comparison engine |
-| `app/streamlit_app.py` | Interactive web app |
-| `app/ffa_runner.py` | Analysis runner + display formatters |
-| `app/ffa_export.py` | ZIP export (PNG, CSV, LP3 params) |
+| `flowfreq.workflow` | `run_ffa` — one call from annual peaks to a fitted frequency curve |
 
 ## Key APIs
 
@@ -232,13 +236,11 @@ flowfreq benchmark
 flowfreq benchmark --format json
 ```
 
-## Streamlit App
+## Web Application
 
-```bash
-# Run locally
-streamlit run app/streamlit_app.py
-# Opens at http://localhost:8501
-```
+The interactive Streamlit app lives in its own repository,
+[pinhead001/flowfreq-app](https://github.com/pinhead001/flowfreq-app). It installs
+this library as a pinned dependency; see that repo's README to run or deploy it.
 
 **App features:**
 - Single or multi-gage mode
@@ -259,8 +261,6 @@ streamlit run app/streamlit_app.py
 | [CLI Usage](docs/vignette_cli.md) | Command-line validation and benchmarking |
 | [Jupyter Notebook](docs/vignette_jupyter.md) | Interactive Bulletin 17C analysis walkthrough |
 | [Low-Flow & Flow Regime](docs/vignette_lowflow_regime.md) | Low-flow frequency, flashiness, baseflow separation, diel variation |
-| [Local Streamlit](docs/vignette_streamlit_local.md) | Run the web app on your machine |
-| [Streamlit Cloud](docs/vignette_streamlit_web.md) | Deploy to Streamlit Community Cloud |
 
 ## Bulletin 17C Technical Notes
 

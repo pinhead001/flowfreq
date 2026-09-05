@@ -138,7 +138,6 @@ Advanced safety measures for high-stakes deployments.
    - **Timeline**: 2 hours
 
 4. **Limited Streamlit app testing**
-   - `app/` is tested but with mocked/smoke tests only
    - No end-to-end UI testing
    - **Risk**: Streamlit updates may break UI
    - **Mitigation**: Document UI test checklist; add visual regression testing (optional)

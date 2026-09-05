@@ -588,7 +588,7 @@ class TestMomUserLowOutlierThreshold:
 
     Bulletin17C.run_analysis did not pass user_low_outlier_threshold down the
     MOM path at all, so a user who set one and got a MOM fit -- which is what
-    happens when EMA does not converge and app.ffa_runner falls back -- saw a
+    happens when EMA does not converge and flowfreq.workflow falls back -- saw a
     Grubbs-Beck value they had not asked for, with no indication their setting
     had been ignored. MOM also computed its moments from every peak regardless
     of the threshold.

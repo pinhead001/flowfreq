@@ -115,7 +115,7 @@ class TestPilfOverride:
 
 
 class TestComputeSkewTables:
-    """Public API since the split; it had no direct coverage in app/."""
+    """Public API since the split; it had no direct coverage while it lived in the app."""
 
     def test_one_table_per_selected_label(self):
         flows, years = _big_sandy_arrays()

@@ -35,8 +35,12 @@ build_fortran/       f2py build script and .pyf signature file
 tools/               gen_fortran_golden.py — regenerates parity golden files
 tests/fixtures/      shared fixture data (Big Sandy, HU02, Wyoming/Montana, peakfqr respec)
 tests/fortran_parity/  native-vs-Fortran parity suite and committed golden files
-app/                 Streamlit application (lint + import smoke test in CI)
 ```
+
+The Streamlit application is no longer in this repository. It lives in
+[pinhead001/flowfreq-app](https://github.com/pinhead001/flowfreq-app) and consumes
+this library as a pinned dependency, so a change here reaches it only when that
+repo bumps its pin.
 
 ## Build & Development Commands
 
@@ -59,9 +63,6 @@ pytest tests/
 # this too, in its own job (gfortran + meson). The parity tests read committed
 # golden files and pass without it.
 make parity
-
-# Lint app/ and import the Streamlit app (needs -r app/requirements.txt)
-make smoke
 
 # Regenerate golden files after changing anything under vendor/peakfqr
 python tools/gen_fortran_golden.py

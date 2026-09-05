@@ -5,9 +5,20 @@ All notable changes to FlowFreq (formerly HydroLib) are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.3.0]
 
 ### Changed
+- **Split into two repositories.** This repo is the analysis library; the Streamlit
+  application moved to [pinhead001/flowfreq-app](https://github.com/pinhead001/flowfreq-app),
+  which installs this library as a pinned dependency. `app/` and its three test
+  modules are gone from here, along with the `smoke` make target and the CI job
+  that ran it.
+- `flowfreq.workflow` — new module holding the high-level entry points that used to
+  live in the app: `run_ffa`, `compute_skew_tables`, `build_skew_curves_dict`. The
+  display formatters stayed with the app.
+- The gage attributes table moved into the package at `flowfreq/data/`, replacing a
+  `package-data` entry that reached outside the package and only ever resolved in a
+  source checkout.
 - **Renamed to `flowfreq`** — package, import name, distribution and display name.
   `from hydrolib.core import kfactor` is now `from flowfreq.core import kfactor`;
   the console script is `flowfreq`. Historical entries below keep the old name,

@@ -4,9 +4,6 @@
 # All changes require review from maintainer
 * @pinhead001
 
-# Streamlit app and deployment
-app/ @pinhead001
-
 # Fortran interop and parity tests are critical
 tests/fortran_parity/ @pinhead001
 vendor/peakfqr/ @pinhead001

@@ -3,10 +3,8 @@
 The Streamlit half of the split. Companion to `docs/REPO_SPLIT_PLAN.md` and
 `docs/PHASE1_RUNBOOK.md`.
 
-The repository is **`pinhead001/pyhydroapp`**, as chosen. Note that its original
-rationale — pairing with `pyhydrolib` on a shared `py-` prefix — lapsed when the
-library became `flowfreq`; `flowfreq-app` would pair, if you would rather it did.
-Settled before Step 2 deliberately: renaming after the Streamlit
+The repository is **`pinhead001/flowfreq-app`**, pairing with the `flowfreq`
+library. Settled before Step 2 deliberately: renaming after the Streamlit
 Cloud repoint in Step 12 means performing that repoint twice.
 
 ---
@@ -81,7 +79,7 @@ why. Choose this only if you would rather not touch the Cloud config.
 ## Step 2 — Create the empty repository
 
 ```bash
-gh repo create pinhead001/pyhydroapp --public \
+gh repo create pinhead001/flowfreq-app --public \
   --description "Streamlit web app for Bulletin 17C flood frequency analysis"
 ```
 
@@ -93,9 +91,9 @@ auto-created file becomes a conflicting root commit.
 ## Step 3 — Push the full history
 
 ```bash
-git clone https://github.com/pinhead001/hydrolib pyhydroapp
-cd pyhydroapp
-git remote set-url origin https://github.com/pinhead001/pyhydroapp
+git clone https://github.com/pinhead001/hydrolib flowfreq-app
+cd flowfreq-app
+git remote set-url origin https://github.com/pinhead001/flowfreq-app
 git push -u origin main
 ```
 
@@ -385,7 +383,7 @@ At [share.streamlit.io](https://share.streamlit.io), on the existing app:
 
 | Setting | New value |
 |---|---|
-| Repository | `pinhead001/pyhydroapp` |
+| Repository | `pinhead001/flowfreq-app` |
 | Branch | `main` |
 | Main file path | `streamlit_app.py` (was `app/streamlit_app.py`) |
 
@@ -416,7 +414,7 @@ Add a line to both new READMEs pointing back to it as the pre-split record.
 
 ## Done when
 
-- [ ] `pyhydroapp` CI green
+- [ ] `flowfreq-app` CI green
 - [ ] `pip install -r requirements.txt` resolves `flowfreq@v0.3.0` in a clean venv
 - [ ] Deployed app loads from the new repo and analyses a gage
 - [ ] No `sys.path` manipulation left in any file

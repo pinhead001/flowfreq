@@ -10,7 +10,7 @@ Streamlit application.
 | Library repo | `pinhead001/flowfreq` |
 | Library distribution name | `flowfreq` (on PyPI, and in `pip install`) |
 | Library **import** name | `flowfreq` — `from flowfreq.bulletin17c import Bulletin17C` |
-| App repo | `pinhead001/pyhydroapp` — new repo, separate from both |
+| App repo | `pinhead001/flowfreq-app` — new repo, separate from both |
 | Git history | preserved in both repos; the original repo is archived, not deleted |
 | App → library dependency | pinned git URL, bumped deliberately |
 | `app/ffa_runner.py` | split — analysis half moves into the library, formatting stays in the app |
@@ -79,7 +79,7 @@ docs/FORTRAN_UPLOAD.md, vignette_cli.md, vignette_jupyter.md,
 AGENT_BUILD_INSTRUCTIONS_Claude.md, CHANGELOG.md, TODO.md, PRODUCTION.md
 ```
 
-### → `pyhydroapp` (application)
+### → `flowfreq-app` (application)
 
 ```
 app/streamlit_app.py      minus the sys.path hack (§4.3)
@@ -199,7 +199,7 @@ nothing.
 `lint`, `test` (3.9–3.12 matrix), and `fortran` jobs are unchanged — including the
 deliberate non-chaining of `lint` and `test` documented in that workflow.
 
-**`pyhydroapp`** gets a single-job workflow on Python 3.12: install
+**`flowfreq-app`** gets a single-job workflow on Python 3.12: install
 `requirements.txt`, `black --check`, `isort --check-only`, then run the three test
 modules. `requires-python = ">=3.10"` — Streamlit's floor, which is why the app job is
 separate from the matrix today.
@@ -213,7 +213,7 @@ line-length-100 and `profile = "black"` settings do not drift between repos.
 - `flowfreq` starts at **0.3.0** — a new distribution name and a changed public
   surface (`flowfreq.workflow`) both warrant the minor bump. Keep `.bumpversion.cfg`;
   it already drives `pyproject.toml` and `flowfreq/__init__.py`.
-- `pyhydroapp` starts at **0.1.0** with its own independent version. It has no
+- `flowfreq-app` starts at **0.1.0** with its own independent version. It has no
   `.bumpversion.cfg` to inherit — the app's version is a display string, not a
   release contract.
 - The library must **tag** releases from now on, because the app pins a tag. A PyPI
@@ -273,12 +273,12 @@ git commit && git push
 git tag v0.3.0 && git push --tags
 ```
 
-### Phase 2 — Create `pyhydroapp`
+### Phase 2 — Create `flowfreq-app`
 
 Same clone-and-push, then the inverse deletion:
 
 ```bash
-gh repo create pinhead001/pyhydroapp --public
+gh repo create pinhead001/flowfreq-app --public
 # clone, repoint origin, push main
 git rm -r hydrolib vendor build_fortran tools examples \
           tests/fortran_parity tests/validation tests/integration \
@@ -299,7 +299,7 @@ is a legible marker of where the split happened.
 1. Push `flowfreq` and tag `v0.3.0` **before** the app's `requirements.txt` pin can
    resolve.
 2. In a clean venv: `pip install -r requirements.txt && make smoke` in the app repo.
-3. Repoint the Streamlit Cloud deployment at `pinhead001/pyhydroapp`, main branch,
+3. Repoint the Streamlit Cloud deployment at `pinhead001/flowfreq-app`, main branch,
    `app/streamlit_app.py`. Confirm the deployed app loads and runs one gage.
 
 ### Phase 4 — Archive
@@ -317,9 +317,9 @@ deployment is live. Add a one-line README note in each new repo pointing back to
 | flowfreq | `grep -rn "app\." hydrolib/ tests/` | no hits |
 | flowfreq | `make parity` | extension builds, golden files match |
 | flowfreq | wheel into a clean venv, then `GageAttributes.status()` from a dir with no `data/` | `file_exists: True`, `num_gages: 3` (full command in the Phase 1 runbook §6) |
-| pyhydroapp | `pip install -r requirements.txt` in a clean venv | pinned tag resolves |
-| pyhydroapp | `grep -rn "sys.path\|from app\." . --include="*.py"` | no hits |
-| pyhydroapp | `make test` | 26 passed against the *installed* library |
+| flowfreq-app | `pip install -r requirements.txt` in a clean venv | pinned tag resolves |
+| flowfreq-app | `grep -rn "sys.path\|from app\." . --include="*.py"` | no hits |
+| flowfreq-app | `make test` | 26 passed against the *installed* library |
 | Deployment | Streamlit Cloud | one gage analysed end to end |
 
 The packaged-CSV check matters because it is the one failure the test suite cannot
