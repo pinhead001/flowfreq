@@ -1,5 +1,10 @@
 # Phase 1 Runbook — Create `flowfreq`
 
+> **STATUS: COMPLETE.** `pinhead001/flowfreq` exists, `main` is at `c76a3e6` with
+> all 174 commits, and `v0.3.0` is tagged and pushed. What follows is the record
+> of how it was done, kept because Phase 2 references its conventions and because
+> the traps called out below are real ones this run hit.
+
 Step-by-step for the library half of the split. Companion to
 `docs/REPO_SPLIT_PLAN.md`; that document holds the reasoning, this one holds the
 commands. Phase 2 (the app repo) is a separate runbook and must not start until
@@ -63,9 +68,23 @@ git remote set-url origin https://github.com/pinhead001/flowfreq
 git push -u origin main
 ```
 
-Check: `git log --oneline | wc -l` should report 100+ commits, and the GitHub
+Check: `git log --oneline | wc -l` should report **174** commits, and the GitHub
 repo should show the same. If it shows 1, you cloned wrong or the repo was not
 empty.
+
+**If it reports far fewer, your clone is shallow** and the push will fail with
+`remote unpack failed: index-pack failed` / `did not receive expected object` —
+the pack references objects past the shallow boundary that the remote cannot
+resolve. `git log` looks plausible, which is what makes it easy to miss; check
+for `.git/shallow`. Fix it with a bounded deepen, not `--unshallow`, which some
+repo policy hooks block:
+
+```bash
+[ -f .git/shallow ] && git fetch --depth=1000 origin main
+```
+
+This bit the real Phase 1 run: a shallow clone reported 110 commits when the
+history is 174, and cost two failed pushes before the cause was clear.
 
 ---
 
@@ -234,6 +253,13 @@ The tag is not optional and not cosmetic: Phase 2 pins the app to
 `git+https://github.com/pinhead001/flowfreq@v0.3.0`, and that reference cannot
 resolve until the tag exists on the remote.
 
+**Push the tag from your own machine.** A Claude Code web session can push
+branches to this repo but not tags — `git push origin v0.3.0` returns HTTP 403
+from GitHub (not the egress proxy, which records no denial), for annotated and
+lightweight tags alike. That is a credential boundary, not a transient failure,
+so retrying will not help. This is the one step of Phase 1 that cannot be
+automated from a session.
+
 Commit message should say what a reader six months out needs: that this repo is
 the analysis half of a split, that it is the former `hydrolib` under a new name
 did not, and that the app moved rather than being deleted.
@@ -255,7 +281,7 @@ the `app:` job survived Step 4 and will fail on missing `app/requirements.txt`.
 
 ## Done when
 
-- [ ] `main` has 100+ commits and no `app/` directory
+- [ ] `main` has 174 commits and no `app/` directory
 - [ ] `v0.3.0` is pushed and visible in `gh release list` / the tag list
 - [ ] CI green on three jobs
 - [ ] A clean-venv wheel install resolves the gage table

@@ -97,7 +97,7 @@ git remote set-url origin https://github.com/pinhead001/flowfreq-app
 git push -u origin main
 ```
 
-Only 21 of the ~110 commits touch `app/`, but the clone is still worth it:
+Only 35 of the 174 commits touch `app/`, but the clone is still worth it:
 `git log --follow` on the app files keeps resolving, and the deletion commit
 below becomes a legible marker of where the split happened.
 
