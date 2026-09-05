@@ -195,6 +195,10 @@ flowfreq compare --site 12363000 --peaks peaks.csv
 `flowfreq/peakfqr/__init__.py` when the extension is absent. `engine` defaults
 to `"native"` forever — the Fortran path is opt-in, never a silent substitution.
 
+**`compare_engines` requires the built extension too, and raises the same
+error rather than falling back to anything.** See section 9, question 4: it was
+open, and the answer is no.
+
 `compare_engines` is the feature. `engine=` alone makes a user run two analyses
 and diff them by hand, which is the thing they wanted the library to do.
 
@@ -240,6 +244,11 @@ than usual. Each risk with the test that retires it:
 | Adapter fabricates a field | Assert `ema_converged is None` and `mgb_critical_value is None` on a Fortran result — the absence is the contract |
 | Comparison reports false disagreement | On all four parity sites, `max_quantile_deviation_pct` must be under the tolerances already measured in the goldens |
 
+Every row here needs the built extension, so all of it carries the existing
+`requires_fortran` marker and auto-skips where the bridge is absent. With
+question 4 answered no, that is also the only way these run: there is no
+golden-replay path for the feature itself to be tested through.
+
 **Do not add the CLI or app surface until the builder passes the first row.**
 Everything else is presentation over a translation that either is or is not
 faithful.
@@ -262,15 +271,35 @@ faithful.
 
 ## 9. Open questions
 
+Three still open, one decided.
+
+### Open
+
 1. **Zero flows.** What does `siteQT` do with them, and does it match
    `Bulletin17C`'s `n_zeros` handling? No parity site exercises this.
 2. **Overlapping perception threshold periods.** Is the dict key rule
    documented in `readInputs.R`, or is it undefined behaviour to reject?
 3. **`mgb_critical_value`.** Recompute natively for the comparison, or report
    the field as unavailable on the Fortran path?
-4. **Should `compare_engines` be able to run without the extension**, falling
-   back to the committed goldens for the four reference sites? That would give
-   the deployed app *something* honest to show without any build step.
 
-Question 4 is worth deciding early: it is the cheap 80% of the feature, and it
-changes what layer 2 should look like.
+### Decided
+
+4. **Should `compare_engines` run without the extension**, falling back to the
+   committed goldens for the four reference sites? **No.** It requires the
+   built extension and raises without it.
+
+   The fallback would only ever cover Big Sandy, Powder River, Cains Coulee and
+   12363000 — the four records where a comparison proves least, because parity
+   on them is already established and committed. The value of this feature is
+   on the caller's own record, which a golden cannot serve. So the fallback
+   buys coverage exactly where it is not needed and none where it is.
+
+   The stronger reason is what it would do to the meaning of the output. A
+   `compare_engines` report that means "measured against PeakFQ 8.1.0 just now"
+   on one machine and "replayed from a file committed to this repository" on
+   another is a report a reviewer cannot take at face value, and this output is
+   aimed at LOMR submittals. Better to raise, and say what to build.
+
+   The consequence is that the deployed Streamlit app has nothing to show here
+   without a build step. Accepted: section 6 already puts the app out of scope
+   for the first pass, and this is the same boundary, not a new one.
