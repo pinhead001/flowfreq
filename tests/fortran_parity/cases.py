@@ -46,6 +46,14 @@ class ParityCase:
     eps: float = 0.90
     weight_opt: int = 1  # 1=HWN, 2=ERL, 3=INV
     gbthrsh0: float = -99.0  # <= -6 runs MGBT
+    #: Whether unobserved years inside the record's span become censored rows.
+    #: True -- the siteQT default -- is right when a perception threshold has
+    #: been declared: somebody is asserting a peak that size would have been
+    #: recorded, so its absence is information. Set False for a record whose
+    #: gap years are simply unmeasured, where filling them invents observations
+    #: nobody made. Not cosmetic: on site 12363000 filling four gap years moves
+    #: the at-site skew from +0.435 to +0.250.
+    fill_missing_years: bool = True
     extra: Dict[str, Any] = field(default_factory=dict)
 
 
@@ -71,7 +79,10 @@ def build_emafit_inputs(case: ParityCase) -> Dict[str, Any]:
         tu.append(QMAX)
         dtype.append(1)  # carries the historic peak flag
 
-    for year in range(case.threshold_start, case.threshold_end + 1):
+    fill_years = (
+        range(case.threshold_start, case.threshold_end + 1) if case.fill_missing_years else ()
+    )
+    for year in fill_years:
         if year in case.historical or year in case.systematic:
             continue
         ql.append(QMIN)
@@ -280,6 +291,46 @@ def wymt_case(site_no: str) -> ParityCase:
     )
 
 
+def site_12363000_case() -> ParityCase:
+    """USGS 12363000: 98 peaks over 102 water years, strongly right-skewed.
+
+    The first parity case with a gap in the record. Water years 1924-1927 have
+    no observation and no perception threshold declares what would have been
+    recorded there, so they are left out rather than censored -- see
+    ``fill_missing_years`` and the fixture's module docstring for why that
+    distinction changes the answer here.
+
+    What this site adds over the existing three: an at-site skew of +0.435,
+    driven by a 176,000 cfs peak 1.7x the next largest, with MGBT finding no
+    low outliers. Big Sandy's skew is 0.0066 and never reaches ``detrat``;
+    Cains Coulee reaches it but with 11 PILFs, so its censoring and its skew
+    are entangled. This one reaches ``detrat`` on a wholly uncensored record,
+    which isolates the skew path from the censoring path.
+
+    Returns
+    -------
+    ParityCase
+    """
+    from tests.fixtures.site_12363000 import REGIONAL_SKEW, REGIONAL_SKEW_SD, SYSTEMATIC_PEAKS
+
+    years = sorted(SYSTEMATIC_PEAKS)
+    return ParityCase(
+        site_no="12363000",
+        description=f"USGS 12363000, {years[0]}-{years[-1]}, {len(years)} peaks with a gap",
+        systematic=dict(SYSTEMATIC_PEAKS),
+        historical={},
+        threshold_start=years[0],
+        threshold_end=years[-1],
+        # Unreachable with fill_missing_years=False -- no row is ever measured
+        # against it. QMIN keeps it harmless if that ever changes.
+        threshold_lower=QMIN,
+        regional_skew=REGIONAL_SKEW,
+        regional_skew_mse=REGIONAL_SKEW_SD**2,
+        aeps=(1 / 1.5, 0.5, 0.2, 0.1, 0.04, 0.02, 0.01, 0.005, 0.002),
+        fill_missing_years=False,
+    )
+
+
 CASES = {
     "big_sandy_03606500": big_sandy_case,
     # Powder River near Locate MT: 85 contiguous years, no PILFs. The plain
@@ -288,4 +339,7 @@ CASES = {
     # Cains Coulee at Glendive MT: 32 years and 11 PILFs under MGBT, so the
     # censoring here is produced by the fit rather than supplied as input.
     "cains_coulee_06327450": lambda: wymt_case("06327450.00"),
+    # 98 peaks over 102 water years: the only gapped record here, and the only
+    # one reaching detrat with nothing censored.
+    "site_12363000": site_12363000_case,
 }

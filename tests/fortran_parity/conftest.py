@@ -56,6 +56,36 @@ def native_big_sandy():
     return analysis
 
 
+@pytest.fixture(scope="session")
+def golden_12363000() -> dict:
+    """The committed Fortran output for USGS 12363000."""
+    path = GOLDEN_DIR / "site_12363000.json"
+    if not path.is_file():
+        pytest.skip(f"golden file missing: {path} (run tools/gen_fortran_golden.py)")
+    return json.loads(path.read_text())
+
+
+@pytest.fixture(scope="session")
+def native_12363000():
+    """flowfreq's own EMA fit of the same 98 peaks.
+
+    No ``perception_thresholds`` and no ``historical_peaks``: the four gap
+    years are unmeasured rather than censored, which is exactly the row set the
+    golden was generated from. See ``tests/fixtures/site_12363000``.
+    """
+    from flowfreq.bulletin17c import Bulletin17C
+    from tests.fixtures.site_12363000 import REGIONAL_SKEW, REGIONAL_SKEW_SD, SYSTEMATIC_PEAKS
+
+    analysis = Bulletin17C(
+        peak_flows=list(SYSTEMATIC_PEAKS.values()),
+        water_years=list(SYSTEMATIC_PEAKS.keys()),
+        regional_skew=REGIONAL_SKEW,
+        regional_skew_mse=REGIONAL_SKEW_SD**2,
+    )
+    analysis.run_analysis(method="ema")
+    return analysis
+
+
 def aep_index(golden: dict, aep: float) -> int:
     """Index of *aep* within the golden file's quantile vectors."""
     aeps = np.asarray(golden["inputs"]["aeps"], dtype=float)
