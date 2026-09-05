@@ -13,16 +13,19 @@ PKGS := flowfreq/ tests/
 PYTEST := PYTHONSAFEPATH=1 $(PYTHON) -m pytest
 
 .DEFAULT_GOAL := help
-.PHONY: help check lint fmt test test-all fortran parity golden clean
+.PHONY: help check lint typecheck fmt test test-all cov clean-verify fortran parity golden clean
 
 help:  ## Show this help
 	@awk -F':.*?## ' '/^[a-z-]+:.*## /{printf "  %-10s %s\n", $$1, $$2}' Makefile
 
-check: lint test  ## Everything CI checks, in CI's order
+check: lint typecheck test  ## Everything CI checks, in CI's order
 
 lint:  ## Formatting check (does not modify files)
 	$(PYTHON) -m black --check --diff $(PKGS)
 	$(PYTHON) -m isort --check-only --diff $(PKGS)
+
+typecheck:  ## mypy over the modules that pass today (see pyproject overrides)
+	$(PYTHON) -m mypy flowfreq/
 
 fmt:  ## Apply formatting
 	$(PYTHON) -m black $(PKGS)
@@ -30,6 +33,25 @@ fmt:  ## Apply formatting
 
 test:  ## Run the suite as CI does
 	$(PYTEST) tests/
+
+cov:  ## Test suite with a coverage report
+	$(PYTEST) tests/ --cov=flowfreq --cov-report=term-missing --cov-report=xml
+
+# Four times during the repo split a check passed locally for a reason that did
+# not hold in a clean checkout: a stale build/lib/ shipping two packages in one
+# wheel, a working directory shadowing an installed package, and a leftover
+# __pycache__ directory steering isort's first-party classification. Each looked
+# like a passing check. This target removes everything that can do that, so a
+# green result means the tree is green rather than the leftovers are helpful.
+# Note it depends on `clean`, which removes the f2py extension: this reports
+# the ~476 tests a fresh checkout runs, not the ~608 available once the
+# extension is built. That is the point -- it answers "is the tree green", not
+# "is my machine green". Run `make parity` afterwards to get the Fortran
+# comparisons back.
+clean-verify: clean  ## Wipe every build artifact, then run the full gate
+	rm -rf build/ dist/ *.egg-info .mypy_cache .pytest_cache
+	find . -path ./vendor -prune -o -name "__pycache__" -type d -print0 2>/dev/null | xargs -0 rm -rf
+	$(MAKE) check
 
 test-all:  ## Run everything, including the network tests
 	$(PYTEST) tests/ -m ""

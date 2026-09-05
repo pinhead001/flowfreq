@@ -35,6 +35,13 @@ jobs:
       - name: Lint
         run: make lint
 
+      # Enforced on the modules that already pass; the rest are exempted
+      # individually in pyproject.toml so the debt is countable. The library
+      # ships py.typed, so downstream checkers trust these annotations -- this
+      # is what makes that promise mean something.
+      - name: Typecheck
+        run: make typecheck
+
   test:
     runs-on: ubuntu-latest
     strategy:
@@ -55,6 +62,14 @@ jobs:
       # addopts, so this runs exactly what a developer's bare `pytest` runs.
       - name: Test
         run: pytest tests/
+
+      # pytest-cov has been a declared dev dependency that nothing ever
+      # invoked, so coverage was unmeasured rather than known. One leg of the
+      # matrix is enough; running it on all four would quadruple the cost to
+      # produce the same number.
+      - name: Coverage
+        if: matrix.python-version == '3.12'
+        run: make cov
 
 
   # tests/fortran_parity/test_live_vs_golden.py is the only thing standing

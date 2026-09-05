@@ -6,6 +6,8 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
+import pandas as pd
+
 from .core import PeakRecord
 from .engine import STANDARD_RETURN_PERIODS, B17CEngine
 from .usgs import fetch_nwis_batch
@@ -104,7 +106,6 @@ def batch_summary_table(
     pd.DataFrame
         Summary table with sites as rows and quantiles as columns
     """
-    import pandas as pd
 
     rows = []
     for site, result in results.items():
