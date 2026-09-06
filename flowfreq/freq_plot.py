@@ -17,7 +17,7 @@ import numpy as np
 import pandas as pd
 from scipy.stats import norm
 
-from .core import kfactor_array
+from .core import kfactor_array, log_pearson3_cdf
 
 if TYPE_CHECKING:
     from .bulletin17c import Bulletin17C
@@ -355,6 +355,9 @@ def plot_peak_flows_with_thresholds(
     figsize: Tuple[int, int] = (12, 5),
     ffa_year_range: Optional[Tuple[int, int]] = None,
     mgbt_threshold: Optional[float] = None,
+    lp3_params: Optional[Tuple[float, float, float]] = None,
+    return_periods: Tuple[float, ...] = (2, 5, 10, 25, 50, 100),
+    annotate_max_peak: bool = True,
 ) -> plt.Figure:
     """Plot annual peak flows as a bar chart with optional perception threshold lines.
 
@@ -380,6 +383,21 @@ def plot_peak_flows_with_thresholds(
     mgbt_threshold : float, optional
         MGBT low outlier threshold.  When provided, drawn as a solid red
         horizontal line across the full record.
+    lp3_params : tuple of (mean_log, std_log, skew), optional
+        The fitted LP3 moments, e.g. ``(r.mean_log, r.std_log, r.skew_used)``
+        from a :class:`~flowfreq.core.FrequencyResults`. When given, draws a
+        reference line at the flow for each entry in ``return_periods`` and,
+        when ``annotate_max_peak`` is True, labels the largest peak in
+        ``peak_df`` with its approximate recurrence interval under this fit.
+        These are the two features the app's ``plot_peak_timeseries`` carried
+        that this function previously did not (TODO.md).
+    return_periods : tuple of float, optional
+        Return periods (years) to draw reference lines for, used only when
+        ``lp3_params`` is given. Default ``(2, 5, 10, 25, 50, 100)``.
+    annotate_max_peak : bool, optional
+        When True (default) and ``lp3_params`` is given, annotate the largest
+        peak in the record with its estimated recurrence interval, read off
+        the LP3 CDF at that flow.
 
     Returns
     -------
@@ -488,6 +506,72 @@ def plot_peak_flows_with_thresholds(
                     color=color,
                 )
 
+    # --- Return-period reference lines + max-peak recurrence annotation ---
+    if lp3_params is not None:
+        mean_log, std_log, skew = lp3_params
+        rp_arr = np.array(sorted(set(float(rp) for rp in return_periods)))
+        rp_flows = _lp3_quantiles(mean_log, std_log, skew, 1.0 / rp_arr)
+
+        for i, (rp, flow) in enumerate(zip(rp_arr, rp_flows)):
+            # Only the first line gets a label, so the whole family collapses
+            # to one legend entry instead of one per return period.
+            ax.axhline(
+                flow,
+                color="dimgray",
+                linestyle=":",
+                linewidth=1.0,
+                alpha=0.6,
+                zorder=2,
+                label="Return Period (LP3 fit)" if i == 0 else None,
+            )
+            rp_label = f"{rp:g}-yr"
+            ax.annotate(
+                rp_label,
+                xy=(1.0, flow),
+                xycoords=("axes fraction", "data"),
+                xytext=(4, 0),
+                textcoords="offset points",
+                fontsize=7,
+                color="dimgray",
+                ha="left",
+                va="center",
+                annotation_clip=False,
+            )
+
+        if annotate_max_peak and len(flows) > 0:
+            max_idx = int(np.argmax(flows))
+            max_flow = float(flows[max_idx])
+            max_year = int(years[max_idx])
+            if max_flow > 0:
+                aep_at_max = 1.0 - log_pearson3_cdf(max_flow, mean_log, std_log, skew)
+                # An AEP near (or, at the CDF's saturation, exactly) zero makes
+                # 1/aep either a meaningless multi-billion-year figure or an
+                # outright division by zero. Report a bound past the largest
+                # tabulated return period instead, in both cases.
+                ri = 1.0 / aep_at_max if aep_at_max > 0 else float("inf")
+                if ri > 10 * rp_arr[-1]:
+                    ri_line = f"> {rp_arr[-1]:g}-yr"
+                else:
+                    ri_str = f"{ri:,.0f}" if ri >= 10 else f"{ri:.1f}"
+                    ri_line = f"≈ {ri_str}-yr"
+                ax.annotate(
+                    f"{max_flow:,.0f} cfs ({max_year})\n{ri_line}",
+                    xy=(max_year, max_flow),
+                    xytext=(0, 12),
+                    textcoords="offset points",
+                    fontsize=_ANNOT_FONT_SIZE,
+                    ha="center",
+                    va="bottom",
+                    bbox=dict(
+                        boxstyle="round,pad=0.2",
+                        facecolor="white",
+                        edgecolor="lightgray",
+                        alpha=0.9,
+                    ),
+                    arrowprops=dict(arrowstyle="-", color="gray", alpha=0.7),
+                    zorder=6,
+                )
+
     ax.set_yscale("log")
     ax.set_xlabel("Water Year", fontsize=_FONT_SIZE)
     ax.set_ylabel("Peak Flow (cfs)", fontsize=_FONT_SIZE)
@@ -537,7 +621,7 @@ def plot_peak_flows_with_thresholds(
         )
         for t in thresholds
     )
-    if has_valid_thresholds or mgbt_threshold or has_excluded:
+    if has_valid_thresholds or mgbt_threshold or has_excluded or lp3_params is not None:
         ax.legend(loc="upper right", fontsize=_ANNOT_FONT_SIZE)
 
     ax.grid(True, which="both", alpha=0.3, axis="y")

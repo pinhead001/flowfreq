@@ -3,10 +3,11 @@
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import pytest
 
 from flowfreq.bulletin17c import Bulletin17C
-from flowfreq.freq_plot import plot_frequency_curve
+from flowfreq.freq_plot import _lp3_quantiles, plot_frequency_curve, plot_peak_flows_with_thresholds
 
 matplotlib.use("Agg")
 
@@ -130,3 +131,127 @@ class TestBackwardCompatibleAlias:
         from flowfreq.freq_plot import plot_frequency_curve_streamlit
 
         assert callable(plot_frequency_curve_streamlit)
+
+
+@pytest.fixture
+def peak_df():
+    """Simple synthetic annual-peak record, unrelated to any LP3 fit."""
+    years = np.arange(1980, 2020)
+    rng = np.random.default_rng(0)
+    flows = 1000.0 * 10.0 ** rng.normal(0, 0.25, size=len(years))
+    return pd.DataFrame({"water_year": years, "peak_flow_cfs": flows})
+
+
+class TestPlotPeakFlowsWithThresholds:
+    """Basic behavior of the bar-chart plotter, previously untested."""
+
+    def test_returns_figure(self, peak_df):
+        fig = plot_peak_flows_with_thresholds(peak_df)
+        assert isinstance(fig, plt.Figure)
+        plt.close(fig)
+
+    def test_one_bar_per_year(self, peak_df):
+        fig = plot_peak_flows_with_thresholds(peak_df)
+        ax = fig.axes[0]
+        assert len(ax.patches) == len(peak_df)
+        plt.close(fig)
+
+    def test_mgbt_threshold_drawn(self, peak_df):
+        fig = plot_peak_flows_with_thresholds(peak_df, mgbt_threshold=500.0)
+        ax = fig.axes[0]
+        assert any(abs(line.get_ydata()[0] - 500.0) < 1e-6 for line in ax.lines)
+        plt.close(fig)
+
+
+class TestReturnPeriodLinesAndMaxPeakAnnotation:
+    """The two features ported in from the app's ``plot_peak_timeseries`` (TODO.md).
+
+    ``plot_peak_flows_with_thresholds`` previously had neither return-period
+    reference lines nor a max-peak recurrence annotation, so switching the app
+    to the library function would have lost both. ``lp3_params`` is the new
+    opt-in that supplies them.
+    """
+
+    # Roughly Big Sandy's weighted-skew fit; exact values don't matter here,
+    # only that the same triple is used to compute expectations and to plot.
+    LP3 = (3.7175, 0.2910, -0.1563)
+
+    def test_no_lp3_params_is_a_no_op(self, peak_df):
+        base = plot_peak_flows_with_thresholds(peak_df)
+        n_lines, n_texts = len(base.axes[0].lines), len(base.axes[0].texts)
+        plt.close(base)
+
+        fig = plot_peak_flows_with_thresholds(peak_df, lp3_params=None)
+        assert len(fig.axes[0].lines) == n_lines
+        assert len(fig.axes[0].texts) == n_texts
+        plt.close(fig)
+
+    def test_one_reference_line_per_return_period(self, peak_df):
+        fig = plot_peak_flows_with_thresholds(
+            peak_df, lp3_params=self.LP3, return_periods=(2, 10, 100)
+        )
+        ax = fig.axes[0]
+        assert len(ax.lines) == 3
+        plt.close(fig)
+
+    def test_reference_lines_match_the_lp3_quantiles(self, peak_df):
+        return_periods = (2, 10, 100)
+        fig = plot_peak_flows_with_thresholds(
+            peak_df, lp3_params=self.LP3, return_periods=return_periods
+        )
+        ax = fig.axes[0]
+        drawn = sorted(line.get_ydata()[0] for line in ax.lines)
+        mean_log, std_log, skew = self.LP3
+        expected = sorted(_lp3_quantiles(mean_log, std_log, skew, 1.0 / np.array(return_periods)))
+        assert drawn == pytest.approx(expected, rel=1e-9)
+        plt.close(fig)
+
+    def test_reference_lines_get_a_single_legend_entry(self, peak_df):
+        fig = plot_peak_flows_with_thresholds(
+            peak_df, lp3_params=self.LP3, return_periods=(2, 10, 100)
+        )
+        ax = fig.axes[0]
+        labels = [ln.get_label() for ln in ax.lines]
+        assert labels.count("Return Period (LP3 fit)") == 1
+        plt.close(fig)
+
+    def test_return_period_lines_are_labelled_on_the_plot(self, peak_df):
+        fig = plot_peak_flows_with_thresholds(
+            peak_df, lp3_params=self.LP3, return_periods=(2, 10, 100)
+        )
+        texts = {t.get_text() for t in fig.axes[0].texts}
+        assert {"2-yr", "10-yr", "100-yr"} <= texts
+        plt.close(fig)
+
+    def test_max_peak_annotation_reports_correct_recurrence_interval(self):
+        """A peak sized to exactly the 100-yr LP3 quantile should read ~100-yr."""
+        mean_log, std_log, skew = self.LP3
+        years = np.arange(1980, 2000)
+        flows = np.full(len(years), 500.0)
+        hundred_yr_flow = float(_lp3_quantiles(mean_log, std_log, skew, np.array([0.01]))[0])
+        flows[-1] = hundred_yr_flow
+        df = pd.DataFrame({"water_year": years, "peak_flow_cfs": flows})
+
+        fig = plot_peak_flows_with_thresholds(df, lp3_params=self.LP3, return_periods=(2, 10, 100))
+        texts = [t.get_text() for t in fig.axes[0].texts]
+        assert any("cfs" in t and "100-yr" in t for t in texts)
+        plt.close(fig)
+
+    def test_annotate_max_peak_false_suppresses_the_annotation(self, peak_df):
+        fig = plot_peak_flows_with_thresholds(peak_df, lp3_params=self.LP3, annotate_max_peak=False)
+        texts = [t.get_text() for t in fig.axes[0].texts]
+        assert not any("cfs" in t for t in texts)
+        plt.close(fig)
+
+    def test_a_peak_far_beyond_the_largest_return_period_reports_a_bound(self):
+        """The LP3 CDF saturates; the annotation must not divide by zero."""
+        mean_log, std_log, skew = self.LP3
+        years = np.arange(1980, 2000)
+        flows = np.full(len(years), 500.0)
+        flows[-1] = 10.0 ** (mean_log + 20 * std_log)  # absurdly far out on the tail
+        df = pd.DataFrame({"water_year": years, "peak_flow_cfs": flows})
+
+        fig = plot_peak_flows_with_thresholds(df, lp3_params=self.LP3, return_periods=(2, 10, 100))
+        texts = [t.get_text() for t in fig.axes[0].texts]
+        assert any("> 100-yr" in t for t in texts)
+        plt.close(fig)
