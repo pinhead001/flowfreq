@@ -17,10 +17,8 @@ These bit repeatedly and are not discoverable from the code:
 - **Tag pushes and branch deletes return HTTP 403** from a Claude Code session. This is a
   credential boundary, not a transient failure: retrying and re-authenticating do not help.
   Anything requiring a tag or a branch deletion has to be done from a local clone.
-- **`v0.4.0` is not tagged yet, and `README.md` already pins it.** The install line reads
-  `pip install git+https://github.com/pinhead001/flowfreq@v0.4.0`, which will not resolve
-  until someone pushes that tag. Do this first, from a local clone:
-  `git tag -a v0.4.0 -m "..." && git push origin v0.4.0`.
+- **`v0.4.0` is now tagged** (confirmed via `git ls-remote --tags origin`, 2026-09-05) --
+  `README.md`'s install line resolves. This item is done; no action needed.
 - **NWIS (`nwis.waterdata.usgs.gov`) is blocked by the egress proxy.** Tests marked
   `requires_network` cannot run in a Claude session; they are deselected by default via
   `addopts` anyway. Use the committed fixtures under `tests/fixtures/`.
@@ -109,10 +107,12 @@ the CLOMR/LOMR case this is for.
 
 ### Downstream
 
-- [ ] **Bump the app's pin once `v0.4.0` is tagged.** `flowfreq-app`'s `requirements.txt`
-      pins `flowfreq@v0.3.0`. The 0.4.0 station-skew fix changes reported discharges, so
-      this bump is a visible change to the deployed app, not routine housekeeping -- see
-      the CHANGELOG entry for the measured deltas before doing it.
+- [x] **Bump the app's pin once `v0.4.0` is tagged.** Done: `flowfreq-app/requirements.txt`
+      now pins `flowfreq@v0.4.0` (local branch `bump-flowfreq-0.4.0` in that checkout, not
+      yet merged to its `main` or pushed to origin -- see `flowfreq-app/TODO.md`). Verifying
+      the app produces identical numbers post-bump, and deleting the app's local
+      `plot_peak_timeseries` copy, are still open -- the latter also needs the library-side
+      move from the Follow-ups item below, which has not happened yet.
 
 ### P3 — The `var_mom` port, now complete
 
@@ -676,11 +676,14 @@ done — see the P3 table above and the Done section.)
 ### Blocked
 
 - [ ] **Tag pushes and branch deletes return HTTP 403** from a Claude Code session -- a
-      credential boundary, not a transient failure. Outstanding items that need a local
-      clone: push the **`v0.4.0`** tag (`README.md` already pins it, see Status above);
-      delete the merged `typecheck` and `tests-engine-report` branches on `flowfreq`; delete
-      the stray `parity-12363000` branch pushed to `hydrolib` by mistake. Historically this
-      also blocked `v0.2.0` and an `archive/dev-2026-02` tag.
+      credential boundary, not a transient failure. `v0.4.0` is now tagged (verified via
+      `git ls-remote --tags origin` on 2026-09-05), and `typecheck`/`tests-engine-report` no
+      longer exist on `flowfreq`'s remote at all -- both resolved, presumably from a local
+      clone, so nothing outstanding there. What remains: delete the stray `parity-12363000`
+      branch -- it is on **`flowfreq`** itself, not `hydrolib` as this item previously said
+      (`git ls-remote --heads origin` on both repos, 2026-09-05: present on flowfreq, absent
+      on hydrolib). Historically this class of block also hit `v0.2.0` and an
+      `archive/dev-2026-02` tag.
 
 ---
 
