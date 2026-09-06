@@ -718,3 +718,35 @@ class TestMomUserLowOutlierThreshold:
         """A threshold that censors nearly everything cannot fit a skew."""
         with pytest.raises(ValueError):
             self._run(override=1_000_000.0)
+
+
+class TestEngineParameter:
+    """``Bulletin17C.run_analysis(engine=...)``'s guard clauses.
+
+    The fortran engine itself needs the built f2py extension
+    (``tests/fortran_parity/test_interval_builder_live.py`` and
+    ``test_compare_engines.py`` exercise that live); everything here checks
+    validation that happens before any Fortran call is attempted, so it runs
+    with or without the extension built.
+    """
+
+    FLOWS = np.array([1000, 1200, 1500, 900, 1100, 1300, 1050, 1400, 950, 1250], dtype=float)
+    YEARS = np.arange(2010, 2020)
+
+    def test_default_engine_is_native(self):
+        b17c = Bulletin17C(peak_flows=self.FLOWS, water_years=self.YEARS)
+        b17c.run_analysis(method="ema")
+        assert isinstance(b17c._analyzer, ExpectedMomentsAlgorithm)
+
+    def test_unknown_engine_raises(self):
+        b17c = Bulletin17C(peak_flows=self.FLOWS, water_years=self.YEARS)
+        with pytest.raises(ValueError, match="engine"):
+            b17c.run_analysis(engine="bogus")
+
+    def test_fortran_engine_rejects_method_of_moments(self):
+        """peakfq 8.1.0's emafitpr has no MOM path -- this must raise before
+        ever trying to import the extension, so it is checkable without one
+        built."""
+        b17c = Bulletin17C(peak_flows=self.FLOWS, water_years=self.YEARS)
+        with pytest.raises(ValueError, match="Method-of-Moments"):
+            b17c.run_analysis(method="mom", engine="fortran")

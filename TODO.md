@@ -1,8 +1,13 @@
 # TODO — FlowFreq Hybrid 17C Implementation
 
 ## Status
-Last updated: 2026-09-05. Version **0.4.0**.
-Tests: **563 passed, 4 skipped, 1 deselected, 5 xfailed** in ~92 s, via `make clean-verify`.
+Last updated: 2026-09-06. Version **0.4.0**.
+Tests: **595 passed, 7 skipped, 1 deselected, 5 xfailed** in ~46 s, via `make clean-verify`
+with the extension genuinely absent (563 before the Fortran-as-a-selectable-engine work below
+started). With the extension built, `pytest tests/fortran_parity/` (`make parity`'s exact
+selection) adds 259 passed, 1 pre-existing platform-precision failure, 2 xfailed -- see "Done
+-- the Fortran as a selectable engine" for the full account, including the one known failure
+and why it is not this work's to fix.
 CI green on main. (The 608 recorded here on 2026-09-02 was the pre-split suite, which still
 carried the Streamlit app's tests; those moved to `flowfreq-app` in 0.3.0. Run the number, do
 not carry it forward -- it has been wrong in a commit message and a PR body already.)
@@ -69,29 +74,254 @@ reference (CLAUDE.md's Test Data section) -- not evidence of anything left to po
 
 ## Open Items (prioritised)
 
-### Next — the Fortran as a selectable engine
+### Done — the Fortran as a selectable engine
 
-Specified in **`docs/FORTRAN_ENGINE_DESIGN.md`**. Read that before writing any of it; the
-one part with a silent failure mode is written down there rather than left to be improvised.
+Specified in **`docs/FORTRAN_ENGINE_DESIGN.md`**; all five pieces from that doc's estimate
+table are implemented, tested, and (unlike an earlier checkpoint of this same item) verified
+against a **live** `emafitpr` call, not just committed goldens.
 
-- [ ] **Library-side interval builder**, translating a `Bulletin17C` input set into
-      `emafitpr`'s `ql/qu/tl/tu/dtype` arrays. This is the whole of the risk: a wrong
-      translation does not raise, it produces a different *valid* analysis, and the
-      comparison then reports disagreement between two implementations that are both
-      correct. `tests/fortran_parity/cases.py::build_emafit_inputs` is test code that
-      handles the parity cases, not the full input space. ~1 day.
-- [ ] `ReferenceResult` → `FrequencyResults` adapter. The two share five field *names* and
-      even `quantiles` differs in shape. Never synthesise a field the Fortran did not
-      report. ~2 h.
-- [ ] `engine=` on `run_analysis`, defaulting to `"native"` forever. ~2 h.
-- [ ] `compare_engines` and its markdown output -- **this is the feature**; `engine=` alone
-      leaves the user diffing two analyses by hand. It requires the built extension and
-      raises without it (design doc §9 q4, decided). ~0.5 day.
-- [ ] CLI `compare` subcommand. ~2 h.
+**Environment note, resolved**: an earlier checkpoint of this item recorded no
+gfortran/meson/ninja available. MSYS2 (`C:\msys64\mingw64\bin`) was installed and the
+extension now builds on Windows too -- `PATH` needs the mingw64 bin dir appended *after* the
+existing `PATH` (MSYS2 ships its own `python.exe`, which would otherwise shadow the
+numpy-having interpreter), and the built `.pyd` needs four runtime DLLs
+(`libgcc_s_seh-1.dll`, `libgfortran-5.dll`, `libquadmath-0.dll`, `libwinpthread-1.dll`, all
+from the same mingw64 `bin/`) copied alongside it in `flowfreq/peakfqr/` -- Windows does not
+search `PATH` for an extension module's own DLL dependencies the way Linux's loader does.
+Not written into `build_fortran/build.py` (a Windows-specific packaging step, out of scope for
+this item), but worth remembering for whoever next builds this on Windows.
 
-Still open in that design, and needing answers from `readInputs.R` rather than invention:
-zero-flow handling (no parity site exercises it), overlapping perception threshold periods,
-and whether `mgb_critical_value` is recomputed natively or reported as unavailable.
+**A real, environment-specific gap found in `make clean-verify` itself, not fixed here**: the
+`clean` target's `rm -rf flowfreq/peakfqr/_emafort*.so` only matches the Linux extension
+suffix. On Windows the built artifact is `_emafort.cp3xx-win_amd64.pyd`, which that glob never
+touches -- so `make clean-verify` on a Windows machine that has ever built the extension does
+**not** actually test the "extension absent" state `clean-verify`'s own docstring promises; it
+silently keeps testing with the extension present. Not a portability bug worth fixing in this
+item's scope (CI only ever runs `make clean-verify`/`make parity` on Linux, where the glob is
+correct), but it cost real time to notice here, and manually deleting the `.pyd` and the four
+DLLs was needed to get a true baseline read. Verified both ways below.
+
+- [x] **Library-side interval builder** -- `flowfreq/fortran_engine.py::build_emafit_arrays`.
+      Translates a `Bulletin17C` input set (peaks, water years, historical peaks, perception
+      thresholds, a low-outlier override, optional `EMAParameters`) into `emafitpr`'s
+      `ql/qu/tl/tu/dtype`, following `siteQT` (`vendor/peakfqr/R/readInputs.R`) directly rather
+      than reusing `ExpectedMomentsAlgorithm._build_flow_intervals` -- confirmed by reading that
+      method (`bulletin17c.py` ~lines 763-803) that it only fills gap years over the *historical*
+      range (via `self._ema_params.historical_start/end`), never over a perception-threshold
+      period declared across the *systematic* range, which is exactly what site 12363000's
+      gap-year case exercises. The prior research's claim about this limitation is correct.
+
+      Verified, with actual numbers, all without needing the built extension:
+      - **Byte-equality against `tests/fortran_parity/cases.py::build_emafit_inputs`** on all
+        four registered parity cases (`tests/fortran_parity/test_interval_builder.py::
+        TestMatchesExistingParityCases`) -- Big Sandy (44 systematic + 3 historical + 37
+        censored gap rows = 84 total, matching `n_censored == 37` from the P3 table), Powder
+        River, Cains Coulee (both 0 censored, contiguous), and site 12363000 (98 rows, gaps
+        omitted). Compared as a sorted multiset of rows, not by iteration order -- the two
+        builders append systematic/historical/fill in different block orders, and row order has
+        no meaning to `emafitpr` (a sum over independent intervals).
+      - **The 12363000 gap-year switch**, at the row-construction level: without a declared
+        threshold the four 1924-1927 gap years are omitted (98 rows total, on a 5-year slice
+        used for a fast unit test); with one declared over the span, they are censored
+        (`ql=Qmin`, `qu=tl=`threshold, `tu=Qmax`) and counted in `n_censored`.
+        **Now verified against a live `emafitpr` call**
+        (`tests/fortran_parity/test_live_interval_builder.py::TestGapYearSwitchLive`), and it
+        reproduces the design doc's published example on the nose: the 98-row (omitted)
+        construction gives at-site skew **0.43504703453300786**, bit-identical to the golden
+        file's own `cmoms[2][1]`, and Q100 **120,064.33** cfs (design doc: "120,064"); the
+        102-row (censored) construction, with a synthetic 5,000 cfs threshold declared over the
+        gap (any value from roughly 1,000-10,000 cfs gives the same result to 4 significant
+        figures -- found empirically, not assumed), gives at-site skew **0.2500537568149216**
+        and Q100 **119,472.61** cfs -- the design doc's own "+0.250" and "119,473" (rounded),
+        matched independently, not curve-fit to hit them.
+      - **Declared-but-vacuous-threshold omission** (`tl <= Qmin`, e.g. Big Sandy's own
+        1930-1973 systematic threshold of literally 0.0): confirmed directly against
+        `readInputs.R` lines ~1030-1051 (the `keepNoInfo` filter after the missing-year branch)
+        and unit-tested (`TestVacuousThreshold`) -- a gap year under a vacuous threshold is
+        dropped, same as an undeclared gap year, not turned into an exact peak at `Qmin`.
+      - Zero flows, overlapping perception-threshold periods, `water_years` omitted, and the
+        `gbthrsh0` encoding: all unit-tested directly (`TestZeroFlows`,
+        `TestOverlappingPerceptionPeriods`, `TestWaterYearsOmitted`, `TestGbthrsh0Encoding`).
+
+      **Open question 1 (zero flows) -- resolved and implemented.** A zero flow is an exact
+      peak at `log10(Qmin) = -20`, not an omission or a special censored row -- confirmed
+      against `readInputs.R` (`QT$ql <- QT$peak_va` sets it directly, later clamped by
+      `QT$ql[QT$ql < Qmin] <- Qmin`). `EmafitArrays.systematic_peaks` records the *real* value
+      (0.0) alongside the clamped log10 row, so the adapter's `pilf_flows` can report a true
+      zero rather than `Qmin`.
+
+      **Open question 2 (overlapping perception threshold periods) -- resolved and
+      implemented.** `siteQT`'s own doc comment (readInputs.R ~lines 805-806): "the last one
+      specified is given priority", implemented as a sequential year->threshold map overwrite in
+      the order `perception_thresholds.items()` iterates (a plain dict, so insertion order).
+      Unit-tested both directions (`TestOverlappingPerceptionPeriods`) to confirm it is really
+      *last-declared*, not e.g. lowest-value or widest-range.
+
+      **Open question 3 (`mgb_critical_value`) -- decided, with a correction to the prior
+      research's justification.** The design doc's adapter table (§4) leaves this open between
+      "recompute natively" and "report unavailable"; the decision here is recompute, via
+      `flowfreq.core.grubbs_beck_critical_value(n)` -- same function, same policy the *native*
+      EMA path already uses for this exact diagnostic field (it is not itself what determines
+      MGBT's censoring in either engine). **The prior research's citation for why this is safe
+      was wrong and needed correcting, not just spot-checking**: it claimed
+      `grubbs_beck_critical_value` is "already verified line-by-line against the Fortran
+      (GGBCRITP/FP_TNC_CDF, validated on Orestimba Creek)" -- that citation is CLAUDE.md's
+      Validation Status section, but it describes a *different* function,
+      `ExpectedMomentsAlgorithm._mgbt_pvalue` (the actual MGBT p-value machinery, whose docstring
+      says "Direct Python translation of the GGBCRITP/FGGB Fortran functions" and whose variable
+      names -- `EX1..EX4`, `MuM`, `MuS2`, `Lambda` -- match `probfun.f`'s `FGGB` one-for-one).
+      `grubbs_beck_critical_value` is a wholly separate, simpler critical-value table for the
+      *classical single-outlier* Grubbs-Beck test (`gbtype = 'GBT'`), not the default MGBT path.
+      Checked directly against `vendor/peakfqr/src/emafit.f` lines 1020-1039: its `n >= 100`
+      asymptotic branch (`-0.9043 + 3.345*sqrt(log10(n)) - 0.4046*log10(n)`) is an *exact*
+      transcription of that file's line 1031-1032 (labelled "Lu formula [JRS]" in a comment),
+      used only when `gbtype == 'GBT'` -- not peakfq's default, which hardcodes MGBT
+      (`emafit.f:982`). The `n < 100` table of exact values is not sourced from this vendored
+      Fortran at all (grepped for the literal constants, found nowhere in `vendor/`); it reads as
+      the standard published Bulletin 17B table. Net effect on the decision: recomputing it is
+      still the right call (it is what the native engine already does with this field, so the
+      two engines report it the same, consistent way), but "already Fortran-verified" is not the
+      reason -- the honest reason is "consistent with the native engine's own existing policy for
+      an unreported diagnostic", which is a weaker but still sufficient justification. Documented
+      in `flowfreq/fortran_engine.py::_frequency_results_from_reference`'s docstring.
+
+- [x] `ReferenceResult` -> `FrequencyResults` adapter --
+      `flowfreq/fortran_engine.py::_frequency_results_from_reference`. Follows the design doc §4
+      table field by field. `ema_iterations`/`ema_converged` forced `None`; `n_censored`/
+      `pilf_flows` derived from the builder's own `EmafitArrays`, never read off
+      `ReferenceResult`; `skew_weighted`/`skew_regional` only populated when the caller actually
+      supplied regional-skew information (station-only inputs make `emafitpr`'s own "weighted"
+      column numerically equal to its at-site one, and reporting that as a weighted result would
+      claim a weighting that never happened -- mirrors `ExpectedMomentsAlgorithm`'s own policy).
+      The one field-semantics mismatch the design doc flagged (`ReferenceResult.n_systematic`
+      counts every `dtype==0` row including gap-fill censoring; the native engine's own
+      `n_systematic` counts only uncensored rows) is passed through directly, as instructed, and
+      documented in the adapter's docstring rather than silently reinterpreted.
+
+      **Verified two ways.** Unit-tested against a synthetic `ReferenceResult`/`EmafitArrays`
+      pair (`tests/fortran_parity/test_fortran_adapter.py`, 9 tests) -- confirms the
+      non-fabrication contract (`ema_iterations`/`ema_converged is None`), the skew-weighting
+      policy in both branches, `pilf_flows` derivation, and that `n_censored` comes from the
+      arrays not the reference. **Now also verified end to end against a live `emafitpr` call**:
+      `Bulletin17C(...).run_analysis(method="ema", engine="fortran")` on Big Sandy (which has
+      historic peaks, exercising the historic-only-dtype-1 rule through the whole stack, not
+      just the builder) reproduces the golden's weighted skew (**-0.15634** live vs **-0.15631**
+      golden -- the small residual is the same cross-machine EMA-fixed-point noise
+      `test_live_vs_golden.py`'s own docstring already measures for this gfortran build, not an
+      adapter defect), `n_censored == 37`, `n_peaks == 84`, and -- the actual non-fabrication
+      check that matters, not just the synthetic-data one -- `ema_iterations is None` and
+      `ema_converged is None` on real Fortran output too.
+
+- [x] `engine=` on `Bulletin17C.run_analysis`, defaulting to `"native"` forever --
+      `flowfreq/bulletin17c.py`. `engine="fortran"` requires `method="ema"` (raises `ValueError`
+      naming why for `method="mom"`, checked before any Fortran import so it is testable without
+      the extension built -- `tests/test_bulletin17c.py::TestEngineParameter`) and delegates to
+      `fortran_engine.run_fortran_ema`, keeping the live `ReferenceResult`/`EmafitArrays` on the
+      instance so `compute_quantiles`/`compute_confidence_limits` can re-invoke `emafitpr` at a
+      *different* AEP list afterward -- confirmed necessary and implemented: Fortran quantiles
+      come from `qP3sub`'s exact gamma quantile evaluated at the AEPs passed into `emafitpr`
+      itself, not from applying a K-factor to already-fitted moments the way the native path's
+      `compute_quantiles` can for any AEP after one fit, so a new AEP list needs a fresh Fortran
+      call built from the same arrays (same fit, same MGBT decision, different probabilities).
+      Verified live: requesting a 500-year quantile after fitting at the default AEP list
+      returns a fresh, correctly-computed value (`Bulletin17C(...).compute_quantiles(aep=[1/500])`
+      on Big Sandy through `engine="fortran"`, checked by hand against a direct `emafitpr` call
+      at that AEP).
+
+- [x] `compare_engines` + markdown output -- `flowfreq/workflow.py::compare_engines` /
+      `EngineComparisonReport`. Reuses the existing `Bulletin17C.validate()` /
+      `FrequencyComparator` machinery exactly as planned, rather than new comparison logic;
+      recomputes the *native* side's quantiles/confidence limits at the requested `aeps`
+      explicitly after fitting (`run_analysis` always fits at `STANDARD_AEP` internally, so a
+      caller-supplied `aeps` would otherwise leave the two sides compared at different AEP sets,
+      which `FrequencyComparator` would silently treat as "no keys in common" rather than raise
+      -- found and fixed while implementing this, not a hypothetical). Imports
+      `flowfreq.peakfqr` up front so the actionable `ImportError` (design doc §9 q4: no
+      golden-file fallback, ever) raises before any native work is wasted, rather than partway
+      through. `max_quantile_deviation_pct` reads `ComparisonResult.quantile_diffs` specifically,
+      not the mixed `max_diff_pct` (which also folds in parameters/CIs).
+
+      **Verified live on all four parity sites**, matching TODO.md's own P3 table and the design
+      doc's own worked example almost to the decimal:
+
+      | site | `max_quantile_deviation_pct` | overall | design doc / P3 table says |
+      |---|---:|---|---|
+      | Big Sandy 03606500 | **0.0587%** | PASS | "every quantile to <= 0.06%" |
+      | Powder River 06326500 | **0.1003%** | PASS | "quantiles <= 0.10%" |
+      | 12363000 | **0.1057%** | PASS | design doc §5's own example: "0.106 ... at the 500-yr" |
+      | Cains Coulee 06327450 | **9.741%** | **FAIL** | P3 table: "quantiles 0.08% to 9.7%" |
+
+      Cains Coulee's FAIL is the known, already-`xfail(strict=True)`'d `skew_weighted` residual
+      (worst skew diff reported: **0.0580**, matching the documented 0.058) surfacing through
+      this tool exactly as section 1 of the design doc says it should -- not a defect in
+      `compare_engines` itself. Tested as such: `max_quantile_deviation_pct` is asserted under a
+      measured bound (no xfail needed, that number is not in question), and the overall
+      `.passed` is `xfail(strict=True)`'d with a reason pointing at the standing xfail in
+      `test_wymt_vs_golden.py`, so the two flip together if that residual is ever resolved.
+      Tests: `tests/fortran_parity/test_live_compare_engines.py`.
+
+- [x] CLI `compare` subcommand -- `flowfreq/cli.py`. `--peaks` reads a CSV with `water_year`/
+      `peak_flow_cfs` columns, the same shape `USGSgage.download_peak_flow` produces (so that
+      DataFrame can be saved straight to CSV and used here); `--regional-skew`/`--regional-skew-se`/
+      `--low-outlier-threshold`/`--tolerance-pct`/`--output` cover the common case. Historical
+      peaks and perception thresholds are **not** exposed as CLI flags yet -- a record needing
+      them goes through `compare_engines` directly; noted in the command's own `--help`, not
+      silently unsupported. Exits nonzero when the comparison fails tolerance (verified: Cains
+      Coulee's CSV run through the CLI exits nonzero and prints "FAIL"), and raises a
+      `click.ClickException` wrapping the extension's own `ImportError` if it is not built,
+      rather than a bare traceback. Verified live end to end via Click's `CliRunner`, including
+      writing the markdown to `--output` and rejecting a CSV with the wrong column names.
+      Tests: `tests/fortran_parity/test_live_cli_compare.py`.
+
+**A live-Fortran testing hazard found and worked around, worth recording for whoever adds the
+next test file here**: `test_fortran_oracles.py`'s `TestCainsCouleeAsGMseDiscrepancy` and
+`TestSkewMseOracle` depend on being the *first* code in the whole pytest process to call any
+`emafitpr`-family entry point -- documented in that file's own module docstring as a real,
+already-known `mseg_all_sub` `SAVE`-state leak, not something introduced here. The first drafts
+of this session's three new live-Fortran test files (`test_interval_builder_live.py`,
+`test_compare_engines.py`, `test_cli_compare.py`) sorted alphabetically *before*
+`test_fortran_oracles.py` and, by calling `emafitpr` on several different cases each, left that
+file reading contaminated state (`mseg_all_sub` returning 0.2212 instead of 0.0749) even though
+none of the new files call `mseg_all_sub` directly. Fixed by renaming all three with a
+`test_live_` prefix, the same convention `test_live_vs_golden.py`/`test_native_vs_golden.py`/
+`test_wymt_vs_golden.py` already use and which already sorts after `test_fortran_oracles.py`.
+Confirmed fixed by running `pytest tests/fortran_parity/` (exactly `make parity`'s selection)
+before and after the rename: 3 spurious failures before, the one known pre-existing 1e-12
+platform-precision mismatch after (see below). **Rule for next time**: a new test file that
+calls `emafitpr` on more than one case must sort after `test_fortran_oracles.py`, or must be
+checked against the whole `tests/fortran_parity/` directory (not run alone) before trusting it.
+
+**Full verification status, both with and without the extension**:
+
+- `make clean-verify` with the extension genuinely absent (the `.pyd` and its four DLLs deleted
+  by hand, since -- see the note above -- the `clean` target's own glob does not remove them on
+  Windows): **595 passed, 7 skipped, 1 deselected, 5 xfailed**, lint and mypy clean. Same 5
+  xfails as the pre-existing baseline; no new ones outside the live-Fortran files, which skip
+  entirely here.
+- `pytest tests/fortran_parity/` with the extension built (exactly `make parity`'s selection):
+  **1 failed, 259 passed, 2 xfailed**. The one failure --
+  `TestSkewMseOracle::test_reproduces_emafitpr_as_g_mse[big_sandy_03606500]`, off by ~1.1e-8
+  relative at a `rel=1e-12` tolerance -- is the one the environment fix-up message flagged in
+  advance as a near-certain MinGW-vs-Linux-gfortran platform artifact, not a correctness issue;
+  left as is, not loosened, per instructions.
+- A separate, **pre-existing** fragility (reproducible with none of this session's files added,
+  confirmed by isolating it to only the original `tests/fortran_parity/*.py` plus
+  `tests/validation/test_reference.py`) surfaces only in a *full local* `pytest tests/`
+  run with the extension built: `tests/validation/test_reference.py::TestFromEmafit::
+  test_live_call_matches_the_golden_file` fails by the same few-ulps-of-cross-machine-noise
+  margin. Never reaches CI either way -- CI's `fortran` job runs only `tests/fortran_parity/`,
+  and CI's default `test` job never builds the extension -- so it is recorded here rather than
+  touched; not this item's file, not introduced by this item's changes.
+
+All five design-doc pieces are done; nothing is left open under this item except the two
+already-recorded, pre-existing platform/environment artifacts above (the 1e-12 gfortran
+mismatch, and `make clean-verify`'s Windows `.pyd` cleanup gap) and possibly-worthwhile
+follow-ups, not blockers:
+
+- Historical peaks / perception thresholds are not exposed as CLI flags on `flowfreq compare`
+  (noted in its `--help`); a caller needing them uses `compare_engines` directly. Small, if
+  ever wanted -- the arguments already exist on the Python side.
+- No binary-wheel distribution story, deliberately -- see below.
 
 Binary wheels are deliberately **out of scope** for the first pass; source checkouts serve
 the CLOMR/LOMR case this is for.

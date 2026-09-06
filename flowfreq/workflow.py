@@ -14,13 +14,22 @@ the caller.
 from __future__ import annotations
 
 import logging
-from typing import Dict, List, Optional, Tuple
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
 
 from .bulletin17c import Bulletin17C
-from .core import kfactor_array
+from .core import EMAParameters, FrequencyResults, kfactor_array
+
+if TYPE_CHECKING:  # pragma: no cover - annotations only
+    # Same layering reason as flowfreq.bulletin17c.Bulletin17C.validate: a
+    # runtime import here would make every `import flowfreq.workflow` pull in
+    # the validation subsystem, which flowfreq/__init__ leaves opt-in.
+    # compare_engines imports what it needs lazily at call time.
+    from .validation.comparisons import ComparisonResult
+    from .validation.reference import ReferenceResult
 
 logger = logging.getLogger(__name__)
 
@@ -306,3 +315,260 @@ def build_skew_curves_dict(
     """
     skew_map = _skew_values_from_result(ffa_result)
     return {lbl: skew_map[lbl] for lbl in selected_labels if skew_map.get(lbl) is not None}
+
+
+@dataclass
+class EngineComparisonReport:
+    """The result of running one record through both engines and comparing them.
+
+    ``docs/FORTRAN_ENGINE_DESIGN.md`` section 5: "the comparison ... is the
+    feature; ``engine=`` alone leaves the user diffing two analyses by hand."
+    Built by :func:`compare_engines`, which reuses the already-existing
+    :meth:`~flowfreq.bulletin17c.Bulletin17C.validate` /
+    :class:`~flowfreq.validation.comparisons.FrequencyComparator` machinery
+    rather than duplicating comparison logic.
+
+    Attributes
+    ----------
+    native : FrequencyResults
+        The native engine's fitted result, evaluated at the same AEPs the
+        Fortran side was.
+    reference : ReferenceResult
+        The live ``emafitpr`` output.
+    comparison : ComparisonResult
+        Per-field differences and pass/fail, from
+        :class:`~flowfreq.validation.comparisons.FrequencyComparator`.
+    site_name : str
+        Carried through for the markdown title only.
+    """
+
+    native: FrequencyResults
+    reference: "ReferenceResult"
+    comparison: "ComparisonResult"
+    site_name: str = ""
+
+    @property
+    def max_quantile_deviation_pct(self) -> float:
+        """Largest quantile percent difference across every AEP compared.
+
+        Deliberately not :attr:`ComparisonResult.max_diff_pct` -- that also
+        folds in parameter and confidence-interval differences, which answer
+        a different question than "how far apart are the flood quantiles
+        themselves."
+        """
+        return max(self.comparison.quantile_diffs.values(), default=0.0)
+
+    def to_markdown(self) -> str:
+        """A markdown report suitable for a submittal appendix.
+
+        Parameters, skews (in skew units, not percent -- see
+        :class:`~flowfreq.validation.comparisons.ComparisonResult`), quantiles
+        and confidence limits, each as a table of native vs. Fortran with the
+        percent (or, for skew, absolute) difference already computed by
+        :class:`~flowfreq.validation.comparisons.FrequencyComparator`.
+        """
+        n, r, c = self.native, self.reference, self.comparison
+        lines: List[str] = []
+
+        title = "Engine comparison"
+        if self.site_name:
+            title += f": {self.site_name}"
+        lines.append(f"# {title}")
+        lines.append("")
+        status = "PASS" if c.passed else "FAIL"
+        lines.append(
+            f"**{status}** -- native EMA vs. USGS peakfq (`emafitpr`, the vendored Fortran "
+            "reference)"
+        )
+        lines.append("")
+        lines.append(
+            f"- Max quantile deviation: **{self.max_quantile_deviation_pct:.3f}%** "
+            f"(tolerance {c.tolerance_pct:.2f}%)"
+        )
+        lines.append(f"- {c.summary}")
+        lines.append("")
+
+        native_params = {"mean_log": n.mean_log, "std_log": n.std_log}
+        if c.parameter_diffs:
+            lines.append("## Parameters")
+            lines.append("")
+            lines.append("| Parameter | Native | Fortran | Diff % |")
+            lines.append("|---|---:|---:|---:|")
+            for key in sorted(c.parameter_diffs):
+                nat_val = native_params.get(key)
+                ref_val = r.parameters.get(key)
+                nat_str = f"{nat_val:.6g}" if nat_val is not None else "n/a"
+                ref_str = f"{ref_val:.6g}" if ref_val is not None else "n/a"
+                lines.append(f"| {key} | {nat_str} | {ref_str} | {c.parameter_diffs[key]:.3f} |")
+            lines.append("")
+
+        if c.skew_diffs:
+            native_skew = {"skew_at_site": n.skew_station, "skew_weighted": n.skew_weighted}
+            lines.append("## Skew (skew units, not percent)")
+            lines.append("")
+            lines.append("| Parameter | Native | Fortran | Abs diff |")
+            lines.append("|---|---:|---:|---:|")
+            for key in sorted(c.skew_diffs):
+                nat_val = native_skew.get(key)
+                ref_val = r.parameters.get(key)
+                nat_str = f"{nat_val:.4f}" if nat_val is not None else "n/a"
+                ref_str = f"{ref_val:.4f}" if ref_val is not None else "n/a"
+                lines.append(f"| {key} | {nat_str} | {ref_str} | {c.skew_diffs[key]:.4f} |")
+            lines.append("")
+
+        if c.quantile_diffs:
+            native_q: Dict[float, float] = {}
+            if n.quantiles is not None and not n.quantiles.empty:
+                native_q = dict(zip(n.quantiles["aep"], n.quantiles["flow_cfs"]))
+            lines.append("## Quantiles (cfs)")
+            lines.append("")
+            lines.append("| AEP | Return period (yr) | Native | Fortran | Diff % |")
+            lines.append("|---:|---:|---:|---:|---:|")
+            for aep in sorted(c.quantile_diffs, reverse=True):
+                nat_val = native_q.get(aep)
+                ref_val = r.quantiles.get(aep)
+                nat_str = f"{nat_val:,.0f}" if nat_val is not None else "n/a"
+                ref_str = f"{ref_val:,.0f}" if ref_val is not None else "n/a"
+                lines.append(
+                    f"| {aep:.4g} | {1 / aep:,.1f} | {nat_str} | {ref_str} | "
+                    f"{c.quantile_diffs[aep]:.3f} |"
+                )
+            lines.append("")
+
+        if c.ci_diffs:
+            native_ci: Dict[float, Tuple[float, float]] = {}
+            if n.confidence_limits is not None and not n.confidence_limits.empty:
+                for _, row in n.confidence_limits.iterrows():
+                    native_ci[float(row["aep"])] = (row["lower_5pct"], row["upper_5pct"])
+            lines.append("## Confidence intervals (cfs)")
+            lines.append("")
+            lines.append(
+                "| AEP | Native lower | Native upper | Fortran lower | Fortran upper | Diff % |"
+            )
+            lines.append("|---:|---:|---:|---:|---:|---:|")
+            for aep in sorted(c.ci_diffs, reverse=True):
+                nat_lo, nat_hi = native_ci.get(aep, (None, None))
+                ref_lo, ref_hi = r.confidence_intervals.get(aep, (None, None))
+                nat_lo_s = f"{nat_lo:,.0f}" if nat_lo is not None else "n/a"
+                nat_hi_s = f"{nat_hi:,.0f}" if nat_hi is not None else "n/a"
+                ref_lo_s = f"{ref_lo:,.0f}" if ref_lo is not None else "n/a"
+                ref_hi_s = f"{ref_hi:,.0f}" if ref_hi is not None else "n/a"
+                lines.append(
+                    f"| {aep:.4g} | {nat_lo_s} | {nat_hi_s} | {ref_lo_s} | {ref_hi_s} | "
+                    f"{c.ci_diffs[aep]:.3f} |"
+                )
+            lines.append("")
+
+        return "\n".join(lines)
+
+
+def compare_engines(
+    peak_flows: np.ndarray,
+    water_years: Optional[np.ndarray] = None,
+    regional_skew: float = B17C_DEFAULT_SKEW,
+    regional_skew_se: float = 0.55,
+    historical_peaks: Optional[List[Tuple[int, float]]] = None,
+    perception_thresholds: Optional[Dict[Tuple[int, int], float]] = None,
+    user_low_outlier_threshold: Optional[float] = None,
+    ema_params: Optional[EMAParameters] = None,
+    aeps: Optional[np.ndarray] = None,
+    site_name: str = "",
+    tolerance_pct: float = 1.0,
+    parameter_tolerance_pct: float = 0.5,
+    ci_tolerance_pct: float = 2.0,
+) -> EngineComparisonReport:
+    """Run one record through both engines and compare them.
+
+    ``docs/FORTRAN_ENGINE_DESIGN.md`` section 5-- this is the feature the
+    Fortran bridge exists for: a per-run comparison against USGS peakfq 8.1.0
+    on the caller's own data, not just the four sites already committed as
+    parity goldens.
+
+    **Requires the built f2py extension, and raises the same actionable
+    ``ImportError`` :mod:`flowfreq.peakfqr` raises when it is absent -- there
+    is no golden-file fallback.** Decided, not left open (design doc section
+    9, question 4): a fallback would only ever cover the four sites already
+    proven to agree, which is exactly where this comparison proves the least;
+    on a caller's own record there is no golden to fall back to, so the
+    feature would silently work on some inputs and not others.
+
+    Parameters
+    ----------
+    peak_flows, water_years, historical_peaks, perception_thresholds,
+    user_low_outlier_threshold, ema_params : see :class:`~flowfreq.bulletin17c.Bulletin17C`.
+    regional_skew, regional_skew_se : float
+        As in :func:`run_ffa`. Defaults to the nationwide B17C generalized
+        skew, so a caller who only wants a quick parity check does not have
+        to look one up.
+    aeps : array-like, optional
+        Annual exceedance probabilities to compare at. Defaults to
+        :attr:`~flowfreq.bulletin17c.FloodFrequencyAnalysis.STANDARD_AEP`.
+        Both engines are evaluated at exactly this list -- the native side's
+        own quantiles/confidence limits are recomputed at *aeps* even when it
+        matches the default, so the two are always compared like for like
+        rather than at whatever AEPs the native fit happened to be run at.
+    site_name : str, optional
+        Carried through to :meth:`EngineComparisonReport.to_markdown`'s title.
+    tolerance_pct, parameter_tolerance_pct, ci_tolerance_pct : float
+        As in :meth:`~flowfreq.bulletin17c.Bulletin17C.validate`.
+
+    Returns
+    -------
+    EngineComparisonReport
+
+    Raises
+    ------
+    ImportError
+        The f2py extension is not built; run
+        ``python build_fortran/build.py`` (needs gfortran and meson).
+    """
+    import flowfreq.peakfqr  # noqa: F401 -- raise before doing any native work if absent
+
+    from .bulletin17c import FloodFrequencyAnalysis
+    from .fortran_engine import run_fortran_reference
+
+    if aeps is None:
+        aeps = FloodFrequencyAnalysis.STANDARD_AEP
+    aeps = np.asarray(aeps, dtype=float)
+
+    native = Bulletin17C(
+        peak_flows=peak_flows,
+        water_years=water_years,
+        regional_skew=regional_skew,
+        regional_skew_mse=regional_skew_se**2,
+        historical_peaks=historical_peaks,
+        perception_thresholds=perception_thresholds,
+        ema_params=ema_params,
+        user_low_outlier_threshold=user_low_outlier_threshold,
+    )
+    native.run_analysis(method="ema", engine="native")
+    # Recompute at *aeps* explicitly: run_analysis() always fits at
+    # STANDARD_AEP internally, so a caller-supplied aeps list would otherwise
+    # leave native.results.quantiles at a different AEP set than the
+    # reference below, and FrequencyComparator would silently compare nothing
+    # (no aep keys in common) rather than raise.
+    native.results.quantiles = native.compute_quantiles(aep=aeps)
+    native.results.confidence_limits = native.compute_confidence_limits(aep=aeps)
+
+    reference, _arrays = run_fortran_reference(
+        peak_flows,
+        water_years=water_years,
+        historical_peaks=historical_peaks,
+        perception_thresholds=perception_thresholds,
+        user_low_outlier_threshold=user_low_outlier_threshold,
+        ema_params=ema_params,
+        regional_skew=regional_skew,
+        regional_skew_mse=regional_skew_se**2,
+        aeps=aeps,
+        station_name=site_name,
+    )
+
+    comparison = native.validate(
+        reference,
+        tolerance_pct=tolerance_pct,
+        parameter_tolerance_pct=parameter_tolerance_pct,
+        ci_tolerance_pct=ci_tolerance_pct,
+    )
+    return EngineComparisonReport(
+        native=native.results, reference=reference, comparison=comparison, site_name=site_name
+    )
