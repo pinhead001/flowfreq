@@ -328,12 +328,26 @@ the CLOMR/LOMR case this is for.
 
 ### Modules with no tests
 
-`engine.py` and `report.py` were covered in 0.4.0. Four remain, largest first:
+`engine.py` and `report.py` were covered in 0.4.0. The remaining four are now covered too:
 
-- [ ] `hydrograph.py` (375 lines)
-- [ ] `plots.py` (255)
-- [ ] `batch.py` (128) -- note its output moved in 0.4.0 with the station-skew fix
-- [ ] `cli.py` (57)
+- [x] `hydrograph.py` (375 lines) -- `tests/test_hydrograph.py`, happy path + error case per public
+      function.
+- [x] `plots.py` (255) -- `tests/test_plots.py`.
+- [x] `batch.py` (128) -- `tests/test_batch.py`, including a test pinning the 0.4.0 station-skew
+      fix against `Bulletin17C`'s own unbiased estimator rather than a hardcoded number. Found (not
+      fixed, out of this lane's scope) a real bug while writing these: `usgs.fetch_nwis_batch`
+      returns plain dicts, but `batch.run_multi_site` reads `.flow` as an attribute, so every real
+      multi-site call fails per-site with `'dict' object has no attribute 'flow'`, silently
+      swallowed by a broad `except Exception` into `{"error": ...}`. Pinned as
+      `tests/test_batch.py::TestAnalyzeSites::test_real_fetch_output_shape_is_analyzable`,
+      `xfail(strict=True)`. The real fix belongs in `usgs.py` (should it return `PeakRecord`
+      instead of a dict, or should `batch.py` adapt?) -- not done here.
+- [x] `cli.py` (57, now larger with the `compare` subcommand) -- `tests/test_cli.py` covers
+      `validate`/`benchmark` and `compare`'s extension-agnostic paths (CSV validation, the
+      `ImportError`-to-`ClickException` mapping, exit codes) via a monkeypatched
+      `compare_engines` so it runs the same with or without the built extension.
+      `compare`'s real, Fortran-backed happy path is covered end-to-end in
+      `tests/fortran_parity/test_live_cli_compare.py` instead (`requires_fortran`).
 
 ### Downstream
 
