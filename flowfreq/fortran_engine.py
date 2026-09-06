@@ -45,6 +45,7 @@ __all__ = [
     "build_emafit_arrays",
     "run_fortran_reference",
     "run_fortran_ema",
+    "quantile_frames",
 ]
 
 # emafitpr's own "no regional information" sentinel for a *_mse argument --
@@ -410,6 +411,57 @@ def run_fortran_reference(
     return reference, arrays
 
 
+def quantile_frames(reference: ReferenceResult) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """``(quantiles, confidence_limits)`` DataFrames, matching the native engine's shape.
+
+    Shared by the adapter and by ``Bulletin17C``'s ``engine="fortran"``
+    ``compute_quantiles``/``compute_confidence_limits`` re-invocation path
+    (design doc section 5: Fortran quantiles come from ``qP3sub``'s exact
+    gamma quantile at Fortran-computed AEPs, not from re-applying a K-factor
+    to already-fitted moments the way the native path does for an AEP it
+    was not originally fit at -- so a new AEP list means a fresh
+    ``emafitpr`` call, which is what produces the ``ReferenceResult`` this
+    function reads, not a recomputation from ``reference`` alone).
+
+    Parameters
+    ----------
+    reference : ReferenceResult
+
+    Returns
+    -------
+    tuple of (pd.DataFrame, pd.DataFrame)
+        ``quantiles`` has ``aep``, ``return_period``, ``flow_cfs``,
+        ``log_flow``, ``K_factor``; ``confidence_limits`` has ``aep``,
+        ``return_period``, ``flow_cfs``, ``lower_5pct``, ``upper_5pct``.
+    """
+    p = reference.parameters
+    aeps = sorted(reference.quantiles, reverse=True)
+    quantiles = pd.DataFrame(
+        {
+            "aep": aeps,
+            "return_period": [1.0 / a for a in aeps],
+            "flow_cfs": [reference.quantiles[a] for a in aeps],
+        }
+    )
+    quantiles["log_flow"] = np.log10(quantiles["flow_cfs"])
+    # K = (log_flow - mean_log) / std_log is an exact algebraic rearrangement
+    # of the Fortran's own reported quantile and moments, not a fabricated
+    # value -- included so this DataFrame has the same columns
+    # FloodFrequencyAnalysis.compute_quantiles produces.
+    quantiles["K_factor"] = (quantiles["log_flow"] - p["mean_log"]) / p["std_log"]
+    ci_aeps = sorted(reference.confidence_intervals, reverse=True)
+    confidence_limits = pd.DataFrame(
+        {
+            "aep": ci_aeps,
+            "return_period": [1.0 / a for a in ci_aeps],
+            "flow_cfs": [reference.quantiles.get(a, np.nan) for a in ci_aeps],
+            "lower_5pct": [reference.confidence_intervals[a][0] for a in ci_aeps],
+            "upper_5pct": [reference.confidence_intervals[a][1] for a in ci_aeps],
+        }
+    )
+    return quantiles, confidence_limits
+
+
 def _frequency_results_from_reference(
     reference: ReferenceResult,
     arrays: EmafitArrays,
@@ -474,30 +526,7 @@ def _frequency_results_from_reference(
         else []
     )
 
-    aeps = sorted(reference.quantiles, reverse=True)
-    quantiles = pd.DataFrame(
-        {
-            "aep": aeps,
-            "return_period": [1.0 / a for a in aeps],
-            "flow_cfs": [reference.quantiles[a] for a in aeps],
-        }
-    )
-    quantiles["log_flow"] = np.log10(quantiles["flow_cfs"])
-    # K = (log_flow - mean_log) / std_log is an exact algebraic rearrangement
-    # of the Fortran's own reported quantile and moments, not a fabricated
-    # value -- included so this DataFrame has the same columns
-    # FloodFrequencyAnalysis.compute_quantiles produces.
-    quantiles["K_factor"] = (quantiles["log_flow"] - p["mean_log"]) / p["std_log"]
-    ci_aeps = sorted(reference.confidence_intervals, reverse=True)
-    confidence_limits = pd.DataFrame(
-        {
-            "aep": ci_aeps,
-            "return_period": [1.0 / a for a in ci_aeps],
-            "flow_cfs": [reference.quantiles.get(a, np.nan) for a in ci_aeps],
-            "lower_5pct": [reference.confidence_intervals[a][0] for a in ci_aeps],
-            "upper_5pct": [reference.confidence_intervals[a][1] for a in ci_aeps],
-        }
-    )
+    quantiles, confidence_limits = quantile_frames(reference)
 
     return FrequencyResults(
         n_peaks=reference.n_peaks,

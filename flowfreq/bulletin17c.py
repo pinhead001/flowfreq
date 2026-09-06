@@ -95,6 +95,7 @@ if TYPE_CHECKING:  # pragma: no cover - annotations only
     # this package resolve unaided because pandas is a hard dependency imported
     # at module level; that option was rejected here only because it would
     # invert the package's layering.
+    from .fortran_engine import EmafitArrays
     from .validation.comparisons import ComparisonResult
     from .validation.reference import ReferenceResult
 
@@ -1736,6 +1737,14 @@ class Bulletin17C:
 
         self._analyzer: Optional[FloodFrequencyAnalysis] = None
         self._results: Optional[FrequencyResults] = None
+        self._engine: str = "native"
+        # Populated only when engine="fortran" -- the live ReferenceResult and
+        # the arrays it was built from, kept so compute_quantiles/
+        # compute_confidence_limits can re-invoke emafitpr at a different AEP
+        # list afterward (see run_analysis's docstring for why that needs a
+        # fresh Fortran call rather than a K-factor recomputation).
+        self._fortran_reference: Optional["ReferenceResult"] = None
+        self._fortran_arrays: Optional["EmafitArrays"] = None
 
     @property
     def results(self) -> Optional[FrequencyResults]:
@@ -1781,18 +1790,67 @@ class Bulletin17C:
     def n_low_outliers(self) -> Optional[int]:
         return self._results.n_low_outliers if self._results else None
 
-    def run_analysis(self, method: Union[str, AnalysisMethod] = "ema") -> FrequencyResults:
+    def run_analysis(
+        self, method: Union[str, AnalysisMethod] = "ema", engine: str = "native"
+    ) -> FrequencyResults:
         """
         Run flood frequency analysis.
 
         Parameters
         ----------
         method : str or AnalysisMethod
-            'mom' for Method of Moments, 'ema' for Expected Moments Algorithm
+            'mom' for Method of Moments, 'ema' for Expected Moments Algorithm.
+            Ignored by ``engine="fortran"`` beyond validating it is EMA --
+            peakfq 8.1.0's ``emafitpr`` has no Method-of-Moments path.
+        engine : str
+            ``"native"`` (default, always) runs flowfreq's own Python EMA/MOM.
+            ``"fortran"`` runs the vendored USGS Fortran (``emafitpr``) through
+            the f2py bridge instead -- see ``docs/FORTRAN_ENGINE_DESIGN.md``.
+            Requires the extension to be built
+            (``python build_fortran/build.py``); raises the same actionable
+            ``ImportError`` :mod:`flowfreq.peakfqr` raises when it is absent.
+            ``engine`` defaults to ``"native"`` and always will: the Fortran
+            path is opt-in, never a silent substitution.
+
+        Raises
+        ------
+        ValueError
+            ``engine="fortran"`` with ``method="mom"``, or an ``engine`` value
+            that is neither ``"native"`` nor ``"fortran"``.
+        ImportError
+            ``engine="fortran"`` and the f2py extension is not built.
         """
+        if engine not in ("native", "fortran"):
+            raise ValueError(f"engine must be 'native' or 'fortran', got {engine!r}")
+        self._engine = engine
+
         if isinstance(method, str):
             method = AnalysisMethod[method.upper()]
 
+        if engine == "fortran":
+            if method != AnalysisMethod.EMA:
+                raise ValueError(
+                    "engine='fortran' only implements EMA -- peakfq 8.1.0's emafitpr has "
+                    "no Method-of-Moments path"
+                )
+            from .fortran_engine import run_fortran_ema
+
+            self._analyzer = None
+            self._results, self._fortran_reference, self._fortran_arrays = run_fortran_ema(
+                self._peak_flows,
+                water_years=self._water_years,
+                historical_peaks=self._historical_peaks,
+                perception_thresholds=self._perception_thresholds,
+                user_low_outlier_threshold=self._user_low_outlier_threshold,
+                ema_params=self._ema_params,
+                regional_skew=self._regional_skew,
+                regional_skew_mse=self._regional_skew_mse,
+                aeps=FloodFrequencyAnalysis.STANDARD_AEP,
+            )
+            return self._results
+
+        self._fortran_reference = None
+        self._fortran_arrays = None
         if method == AnalysisMethod.MOM:
             self._analyzer = MethodOfMoments(
                 self._peak_flows,
@@ -1816,6 +1874,8 @@ class Bulletin17C:
         return self._results
 
     def compute_quantiles(self, aep: np.ndarray = None) -> pd.DataFrame:
+        if self._engine == "fortran":
+            return self._fortran_quantiles(aep)[0]
         if self._analyzer is None:
             self.run_analysis()
         return self._analyzer.compute_quantiles(aep)
@@ -1823,9 +1883,51 @@ class Bulletin17C:
     def compute_confidence_limits(
         self, aep: np.ndarray = None, confidence: float = 0.90
     ) -> pd.DataFrame:
+        if self._engine == "fortran":
+            return self._fortran_quantiles(aep, confidence)[1]
         if self._analyzer is None:
             self.run_analysis()
         return self._analyzer.compute_confidence_limits(aep, confidence)
+
+    def _fortran_quantiles(
+        self, aep: np.ndarray = None, confidence: float = 0.90
+    ) -> Tuple[pd.DataFrame, pd.DataFrame]:
+        """Re-invoke ``emafitpr`` at *aep*/*confidence*, returning fresh DataFrames.
+
+        Fortran quantiles come from ``qP3sub``'s exact gamma quantile
+        evaluated at the AEPs passed into ``emafitpr`` itself, not from
+        applying a K-factor to already-fitted moments the way the native
+        path's ``compute_quantiles`` can for any AEP after one fit. An AEP
+        list different from the one ``run_analysis(engine="fortran")`` used
+        therefore needs a fresh call, built from the same arrays (so the fit
+        itself -- MGBT's censoring decision included -- does not change,
+        only the probabilities it is evaluated at).
+        """
+        if self._fortran_arrays is None:
+            self.run_analysis(method="ema", engine="fortran")
+        if aep is None:
+            aep = FloodFrequencyAnalysis.STANDARD_AEP
+
+        from .fortran_engine import quantile_frames, run_fortran_reference
+
+        # Rebuilding the arrays from the original inputs (rather than reusing
+        # self._fortran_arrays directly) is deliberate: it is the same
+        # deterministic, pure-Python construction either way, and going
+        # through the one function that also owns the regional-skew sentinel
+        # mapping keeps that logic in one place rather than duplicated here.
+        reference, _arrays = run_fortran_reference(
+            self._peak_flows,
+            water_years=self._water_years,
+            historical_peaks=self._historical_peaks,
+            perception_thresholds=self._perception_thresholds,
+            user_low_outlier_threshold=self._user_low_outlier_threshold,
+            ema_params=self._ema_params,
+            regional_skew=self._regional_skew,
+            regional_skew_mse=self._regional_skew_mse,
+            aeps=aep,
+            eps=confidence,
+        )
+        return quantile_frames(reference)
 
     def plot_frequency_curve(
         self,
