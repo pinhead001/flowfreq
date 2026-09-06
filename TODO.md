@@ -655,16 +655,30 @@ done — see the P3 table above and the Done section.)
 - [ ] **`plot_peak_flows_with_thresholds` is still uncalled.** `streamlit_app.py`, now in the
       separate `flowfreq-app` repository, has its own `plot_peak_timeseries` carrying
       return-period lines and the max-peak recurrence annotation that the library function
-      does not; switching to the library one today would lose features. The dedupe is: move
-      those two features into `flowfreq/freq_plot.py`, release, bump the app's pin, then
-      delete the app copy. One peak-flow plotter, tested. Note this now spans two
-      repositories and a version bump, which it did not when it was written.
+      did not. **Library half done**: both features are now on `plot_peak_flows_with_thresholds`
+      itself, opt-in via a new `lp3_params=(mean_log, std_log, skew)` argument — dotted
+      reference lines at each of `return_periods` (default 2/5/10/25/50/100-yr), each labelled
+      at the right margin, plus (when `annotate_max_peak=True`, the default) an annotation on
+      the largest peak in the record giving its recurrence interval, read exactly off
+      `core.log_pearson3_cdf` rather than interpolated off the drawn lines. A peak whose
+      recurrence would round to more than 10x the largest requested return period (including
+      the CDF's exact saturation to 0/1 for a peak far off the fitted curve) is reported as
+      `"> {max return period}-yr"` instead of a meaningless multi-billion-year number. Tested in
+      `tests/test_freq_plot.py::TestReturnPeriodLinesAndMaxPeakAnnotation` (line placement,
+      value correctness against `_lp3_quantiles`, the single-legend-entry grouping, the
+      annotation-off toggle, and the saturation bound). **Still open**: release, bump the app's
+      pin, then delete `flowfreq-app`'s own `plot_peak_timeseries` and switch it to call this
+      function with its already-computed LP3 moments — that part spans a second repository and
+      a version bump, and is explicitly out of scope for the library-side change above.
 
-- [ ] **`FrequencyComparator` compares every parameter by percent difference.** That is the
+- [x] **`FrequencyComparator` compares every parameter by percent difference.** That was the
       wrong metric for skew, which legitimately crosses zero: Big Sandy's reference at-site
-      skew is 0.0066, so an absolute gap of 0.016 read as 249% and dominated `max_diff_pct`.
-      A denominator floor (`parameter_scale_floor`, default 0.1) stops it hiding the rest of
-      the report, but comparing skew in skew units with its own tolerance would be better.
+      skew is 0.0066, so an absolute gap of 0.016 read as 249% and dominated `max_diff_pct`. Done
+      in commit `dc563c5` (skews now go to their own `skew_diffs` dict, compared in skew units
+      against `skew_tolerance_abs` and excluded from `max_diff_pct`) but this checkbox was never
+      updated to say so. Verified still correct and covered by
+      `tests/validation/test_comparisons.py::TestSkewComparedInSkewUnits`, including the exact
+      Big Sandy numbers above (`test_a_near_zero_skew_no_longer_dominates_max_diff`).
 
 - [ ] **`origin/dev` can be deleted.** The read-and-judge pass is done — see the commit
       "Port extra_curves from dev". `extra_curves` was the one library delta worth keeping
