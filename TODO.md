@@ -2,7 +2,10 @@
 
 ## Status
 Last updated: 2026-09-05. Version **0.4.0**.
-Tests: **563 passed, 4 skipped, 1 deselected, 5 xfailed** in ~92 s, via `make clean-verify`.
+Tests: **592 passed, 4 skipped, 1 deselected, 5 xfailed** in ~46 s, via `make clean-verify`
+(563 before this session's 29 new interval-builder/adapter tests for the Fortran-engine work
+below -- no gfortran/meson/ninja available in this session's environment, so none of it could
+be checked against a live Fortran call; see "Next -- the Fortran as a selectable engine").
 CI green on main. (The 608 recorded here on 2026-09-02 was the pre-split suite, which still
 carried the Streamlit app's tests; those moved to `flowfreq-app` in 0.3.0. Run the number, do
 not carry it forward -- it has been wrong in a commit message and a PR body already.)
@@ -75,25 +78,143 @@ reference (CLAUDE.md's Test Data section) -- not evidence of anything left to po
 
 Specified in **`docs/FORTRAN_ENGINE_DESIGN.md`**. Read that before writing any of it; the
 one part with a silent failure mode is written down there rather than left to be improvised.
+Checkpoint below is mid-implementation, not finished -- see "Not started" for what the next
+session should pick up, and why in that order.
 
-- [ ] **Library-side interval builder**, translating a `Bulletin17C` input set into
-      `emafitpr`'s `ql/qu/tl/tu/dtype` arrays. This is the whole of the risk: a wrong
-      translation does not raise, it produces a different *valid* analysis, and the
-      comparison then reports disagreement between two implementations that are both
-      correct. `tests/fortran_parity/cases.py::build_emafit_inputs` is test code that
-      handles the parity cases, not the full input space. ~1 day.
-- [ ] `ReferenceResult` → `FrequencyResults` adapter. The two share five field *names* and
-      even `quantiles` differs in shape. Never synthesise a field the Fortran did not
-      report. ~2 h.
-- [ ] `engine=` on `run_analysis`, defaulting to `"native"` forever. ~2 h.
-- [ ] `compare_engines` and its markdown output -- **this is the feature**; `engine=` alone
-      leaves the user diffing two analyses by hand. It requires the built extension and
-      raises without it (design doc §9 q4, decided). ~0.5 day.
-- [ ] CLI `compare` subcommand. ~2 h.
+**Environment note for whoever picks this up next**: this session had no gfortran/meson/ninja
+available (Windows, git-bash `which` found none of the three), so `make fortran` could not be
+attempted and nothing here was checked against a live `emafitpr` call -- only against the
+committed goldens and the existing test-code builder. Try `make fortran` first; if it's
+available, the `requires_fortran`-gated gaps below (marked explicitly) are the highest-value
+next work, since they are the only rows of the design doc's §7 correctness plan this session
+could not close.
 
-Still open in that design, and needing answers from `readInputs.R` rather than invention:
-zero-flow handling (no parity site exercises it), overlapping perception threshold periods,
-and whether `mgb_critical_value` is recomputed natively or reported as unavailable.
+- [x] **Library-side interval builder** -- `flowfreq/fortran_engine.py::build_emafit_arrays`.
+      Translates a `Bulletin17C` input set (peaks, water years, historical peaks, perception
+      thresholds, a low-outlier override, optional `EMAParameters`) into `emafitpr`'s
+      `ql/qu/tl/tu/dtype`, following `siteQT` (`vendor/peakfqr/R/readInputs.R`) directly rather
+      than reusing `ExpectedMomentsAlgorithm._build_flow_intervals` -- confirmed by reading that
+      method (`bulletin17c.py` ~lines 763-803) that it only fills gap years over the *historical*
+      range (via `self._ema_params.historical_start/end`), never over a perception-threshold
+      period declared across the *systematic* range, which is exactly what site 12363000's
+      gap-year case exercises. The prior research's claim about this limitation is correct.
+
+      Verified, with actual numbers, all without needing the built extension:
+      - **Byte-equality against `tests/fortran_parity/cases.py::build_emafit_inputs`** on all
+        four registered parity cases (`tests/fortran_parity/test_interval_builder.py::
+        TestMatchesExistingParityCases`) -- Big Sandy (44 systematic + 3 historical + 37
+        censored gap rows = 84 total, matching `n_censored == 37` from the P3 table), Powder
+        River, Cains Coulee (both 0 censored, contiguous), and site 12363000 (98 rows, gaps
+        omitted). Compared as a sorted multiset of rows, not by iteration order -- the two
+        builders append systematic/historical/fill in different block orders, and row order has
+        no meaning to `emafitpr` (a sum over independent intervals).
+      - **The 12363000 gap-year switch**, at the row-construction level: without a declared
+        threshold the four 1924-1927 gap years are omitted (98 rows total, on a 5-year slice
+        used for a fast unit test); with one declared over the span, they are censored
+        (`ql=Qmin`, `qu=tl=`threshold, `tu=Qmax`) and counted in `n_censored`. **Not verified**:
+        the actual published +0.435/+0.250 skew split, which needs a live `emafitpr` call this
+        environment could not make -- next session, once the extension builds, add a
+        `requires_fortran` test running both row sets through it and asserting the split.
+      - **Declared-but-vacuous-threshold omission** (`tl <= Qmin`, e.g. Big Sandy's own
+        1930-1973 systematic threshold of literally 0.0): confirmed directly against
+        `readInputs.R` lines ~1030-1051 (the `keepNoInfo` filter after the missing-year branch)
+        and unit-tested (`TestVacuousThreshold`) -- a gap year under a vacuous threshold is
+        dropped, same as an undeclared gap year, not turned into an exact peak at `Qmin`.
+      - Zero flows, overlapping perception-threshold periods, `water_years` omitted, and the
+        `gbthrsh0` encoding: all unit-tested directly (`TestZeroFlows`,
+        `TestOverlappingPerceptionPeriods`, `TestWaterYearsOmitted`, `TestGbthrsh0Encoding`).
+
+      **Open question 1 (zero flows) -- resolved and implemented.** A zero flow is an exact
+      peak at `log10(Qmin) = -20`, not an omission or a special censored row -- confirmed
+      against `readInputs.R` (`QT$ql <- QT$peak_va` sets it directly, later clamped by
+      `QT$ql[QT$ql < Qmin] <- Qmin`). `EmafitArrays.systematic_peaks` records the *real* value
+      (0.0) alongside the clamped log10 row, so the adapter's `pilf_flows` can report a true
+      zero rather than `Qmin`.
+
+      **Open question 2 (overlapping perception threshold periods) -- resolved and
+      implemented.** `siteQT`'s own doc comment (readInputs.R ~lines 805-806): "the last one
+      specified is given priority", implemented as a sequential year->threshold map overwrite in
+      the order `perception_thresholds.items()` iterates (a plain dict, so insertion order).
+      Unit-tested both directions (`TestOverlappingPerceptionPeriods`) to confirm it is really
+      *last-declared*, not e.g. lowest-value or widest-range.
+
+      **Open question 3 (`mgb_critical_value`) -- decided, with a correction to the prior
+      research's justification.** The design doc's adapter table (§4) leaves this open between
+      "recompute natively" and "report unavailable"; the decision here is recompute, via
+      `flowfreq.core.grubbs_beck_critical_value(n)` -- same function, same policy the *native*
+      EMA path already uses for this exact diagnostic field (it is not itself what determines
+      MGBT's censoring in either engine). **The prior research's citation for why this is safe
+      was wrong and needed correcting, not just spot-checking**: it claimed
+      `grubbs_beck_critical_value` is "already verified line-by-line against the Fortran
+      (GGBCRITP/FP_TNC_CDF, validated on Orestimba Creek)" -- that citation is CLAUDE.md's
+      Validation Status section, but it describes a *different* function,
+      `ExpectedMomentsAlgorithm._mgbt_pvalue` (the actual MGBT p-value machinery, whose docstring
+      says "Direct Python translation of the GGBCRITP/FGGB Fortran functions" and whose variable
+      names -- `EX1..EX4`, `MuM`, `MuS2`, `Lambda` -- match `probfun.f`'s `FGGB` one-for-one).
+      `grubbs_beck_critical_value` is a wholly separate, simpler critical-value table for the
+      *classical single-outlier* Grubbs-Beck test (`gbtype = 'GBT'`), not the default MGBT path.
+      Checked directly against `vendor/peakfqr/src/emafit.f` lines 1020-1039: its `n >= 100`
+      asymptotic branch (`-0.9043 + 3.345*sqrt(log10(n)) - 0.4046*log10(n)`) is an *exact*
+      transcription of that file's line 1031-1032 (labelled "Lu formula [JRS]" in a comment),
+      used only when `gbtype == 'GBT'` -- not peakfq's default, which hardcodes MGBT
+      (`emafit.f:982`). The `n < 100` table of exact values is not sourced from this vendored
+      Fortran at all (grepped for the literal constants, found nowhere in `vendor/`); it reads as
+      the standard published Bulletin 17B table. Net effect on the decision: recomputing it is
+      still the right call (it is what the native engine already does with this field, so the
+      two engines report it the same, consistent way), but "already Fortran-verified" is not the
+      reason -- the honest reason is "consistent with the native engine's own existing policy for
+      an unreported diagnostic", which is a weaker but still sufficient justification. Documented
+      in `flowfreq/fortran_engine.py::_frequency_results_from_reference`'s docstring.
+
+- [x] `ReferenceResult` -> `FrequencyResults` adapter --
+      `flowfreq/fortran_engine.py::_frequency_results_from_reference`. Follows the design doc §4
+      table field by field. `ema_iterations`/`ema_converged` forced `None`; `n_censored`/
+      `pilf_flows` derived from the builder's own `EmafitArrays`, never read off
+      `ReferenceResult`; `skew_weighted`/`skew_regional` only populated when the caller actually
+      supplied regional-skew information (station-only inputs make `emafitpr`'s own "weighted"
+      column numerically equal to its at-site one, and reporting that as a weighted result would
+      claim a weighting that never happened -- mirrors `ExpectedMomentsAlgorithm`'s own policy).
+      The one field-semantics mismatch the design doc flagged (`ReferenceResult.n_systematic`
+      counts every `dtype==0` row including gap-fill censoring; the native engine's own
+      `n_systematic` counts only uncensored rows) is passed through directly, as instructed, and
+      documented in the adapter's docstring rather than silently reinterpreted.
+
+      **Verified**: unit-tested against a synthetic `ReferenceResult`/`EmafitArrays` pair
+      (`tests/fortran_parity/test_fortran_adapter.py`, 9 tests) -- confirms the non-fabrication
+      contract (`ema_iterations`/`ema_converged is None`), the skew-weighting policy in both
+      branches, `pilf_flows` derivation, and that `n_censored` comes from the arrays not the
+      reference. **Not verified**: real `emafitpr` output run through this adapter end to end --
+      needs the built extension. Next session: once built, add a `requires_fortran` test on Big
+      Sandy (has historic peaks, exercises the historic-only-dtype-1 rule at the adapter layer
+      too) asserting the adapted `FrequencyResults` reproduces that site's committed golden
+      through the full builder -> `emafitpr` -> adapter path, not just the builder's own arrays
+      against the golden's recorded inputs (which the byte-equality test above already covers).
+
+### Not started
+
+- [ ] `engine=` on `Bulletin17C.run_analysis`, defaulting to `"native"` forever.
+      `flowfreq/fortran_engine.py::run_fortran_ema` already exists and returns
+      `(FrequencyResults, ReferenceResult, EmafitArrays)` -- the missing piece is wiring
+      `Bulletin17C.run_analysis(engine=...)` to call it and storing enough state
+      (`ReferenceResult`/`EmafitArrays`) for `compute_quantiles`/`compute_confidence_limits` to
+      re-invoke `emafitpr` at a different AEP list afterward, since Fortran quantiles come from
+      `qP3sub`'s exact gamma quantile at Fortran-computed AEPs, not from re-applying a K-factor
+      to already-fitted moments the way the native path's `compute_quantiles` does. ~2h, per the
+      design doc's estimate -- most of the design work for this was already done while building
+      the adapter (see `run_fortran_ema`'s docstring), so this should be close to that estimate
+      still.
+- [ ] `compare_engines` and its markdown output in `flowfreq/workflow.py`. Reuse the existing
+      `Bulletin17C.validate()` / `FrequencyComparator` machinery (confirmed to exist and still
+      work, `flowfreq/validation/comparisons.py`) rather than writing new comparison logic --
+      feed it the `ReferenceResult` from `run_fortran_reference`. Wrap in an
+      `EngineComparisonReport` with `max_quantile_deviation_pct` (from `ComparisonResult.
+      quantile_diffs`, not the mixed `max_diff_pct`, which also carries parameters/CIs) and
+      `to_markdown()`. Must require the built extension and raise the existing `ImportError` --
+      no golden-file fallback (design doc §9 q4, decided, do not re-litigate).
+- [ ] CLI `compare` subcommand in `flowfreq/cli.py`. Blocked on the two items above existing to
+      call. `--peaks peaks.csv` should read the same `water_year`/`peak_flow_cfs` column names
+      `USGSgage.download_peak_flow` already produces, for one consistent convention across the
+      library rather than inventing a second one for the CLI alone.
 
 Binary wheels are deliberately **out of scope** for the first pass; source checkouts serve
 the CLOMR/LOMR case this is for.
