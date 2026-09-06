@@ -7,6 +7,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0]
+
+### Added
+- **The vendored Fortran as a selectable analysis engine.** `Bulletin17C.run_analysis(engine=)`
+  accepts `"fortran"` alongside the default `"native"` (which stays the default forever); the
+  real feature is `flowfreq.workflow.compare_engines`, which runs both and returns an
+  `EngineComparisonReport` with `.max_quantile_deviation_pct` and `.to_markdown()`, and the
+  `flowfreq compare` CLI subcommand built on it. Both require the built f2py extension and
+  raise the library's existing, actionable `ImportError` rather than falling back to committed
+  golden files -- a comparison meant for a LOMR/CLOMR submittal has to mean "measured against
+  PeakFQ 8.1.0 just now," not "replayed from a file in this repository" (`docs/
+  FORTRAN_ENGINE_DESIGN.md` section 9). New module `flowfreq/fortran_engine.py`: a library-side
+  interval builder translating a `Bulletin17C` input set into `emafitpr`'s `ql/qu/tl/tu/dtype`
+  arrays, following `siteQT` (`vendor/peakfqr/R/readInputs.R`) rather than the parity suite's
+  test-only builder. Handles gap years with and without a declared perception threshold (the
+  worked example in the design doc: site 12363000's at-site skew is +0.435 omitting the four
+  unmeasured years, +0.250 censoring them at the lower threshold -- both reproduced exactly
+  through the new builder), historic-peak flagging restricted to the USGS historic flag rather
+  than the whole historical period, zero flows floored at `Qmin = 1e-20` (peakfq has no special
+  zero-flow case), a user-supplied PILF threshold, and overlapping perception-threshold periods
+  (last-declared wins, per `siteQT`'s own documented priority rule). The adapter from
+  `ReferenceResult` to `FrequencyResults` never synthesizes a field the Fortran did not report --
+  `ema_iterations`/`ema_converged` are `None`, not a guess. Verified live against the built
+  extension on all four parity sites: Big Sandy 0.0587%, Powder River 0.1003%, site 12363000
+  0.1057% (matching the design doc's own worked example), all under tolerance; Cains Coulee
+  9.741%, correctly surfaced as a failure -- it is the site carrying the pre-existing, still-open
+  `skew_weighted` residual (see P3 below), not a defect in this feature.
+- Tests for the four modules that had none: `hydrograph.py`, `plots.py`, `batch.py`, and
+  `cli.py` (the last covering `validate`/`benchmark` and `compare`'s extension-agnostic paths;
+  `compare`'s Fortran-backed happy path lives in `tests/fortran_parity/test_live_cli_compare.py`
+  instead). Writing the `batch.py` tests surfaced a real, pre-existing defect, not introduced
+  here and not fixed by this release: `batch.run_multi_site` passes NWIS records straight from
+  `usgs.fetch_nwis_batch` (plain dicts) into `B17CEngine.fit`, which reads `.flow` as an
+  attribute -- every real multi-site call has therefore been failing per-site, silently, caught
+  by a broad `except Exception` and turned into `{"error": ...}`. Pinned as
+  `tests/test_batch.py::TestAnalyzeSites::test_real_fetch_output_shape_is_analyzable`,
+  `xfail(strict=True)`, so it stops the build the moment someone's fix makes it pass.
+- `plot_peak_flows_with_thresholds` gained opt-in return-period reference lines and a max-peak
+  recurrence annotation via a new `lp3_params=(mean_log, std_log, skew)` argument -- the
+  library half of retiring `flowfreq-app`'s own duplicate plotting code. The app side (deleting
+  its local copy) is a separate, later change gated on a release and a pin bump.
+
 ## [0.4.0]
 
 ### Added

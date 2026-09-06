@@ -53,7 +53,7 @@ pip install -e ".[dev]"
 Or install a released version straight from GitHub:
 
 ```bash
-pip install git+https://github.com/pinhead001/flowfreq@v0.4.0
+pip install git+https://github.com/pinhead001/flowfreq@v0.5.0
 ```
 
 **Dependencies:** `numpy`, `pandas`, `matplotlib`, `scipy`, `requests`, `click`, `pyarrow`
@@ -287,6 +287,9 @@ England, J.F., Jr., et al., 2019, Guidelines for determining flood flow frequenc
 
 | Version | Changes |
 |---------|---------|
+| **v0.5.0** | Fortran engine as a selectable analysis engine (`engine=`, `compare_engines`, `flowfreq compare` CLI); tests for `hydrograph.py`/`plots.py`/`batch.py`/`cli.py`; return-period lines and max-peak annotation on `plot_peak_flows_with_thresholds` |
+| **v0.4.0** | `B17CEngine.fit` station skew corrected to the Bulletin 17C Eq. 7-2 unbiased estimator (numbers move); `plot_frequency_curve_streamlit` renamed to `plot_frequency_curve`; mypy in CI; `make clean-verify` |
+| **v0.3.0** | Split into `flowfreq` (library) and `flowfreq-app` (Streamlit app); renamed from `hydrolib`; native `var_mom` port complete (EMA confidence intervals, censored-interval moment iteration, ADJE/`detrat` regional skew weighting); MOM PILF conditional-probability adjustment |
 | **v0.2.0** | Instantaneous (unit-value) flow retrieval; low-flow frequency analysis (`flowfreq.lowflow`); flow regime metrics — flashiness, baseflow separation, monthly/seasonal summaries, diel variation (`flowfreq.regime`); parquet flow-series I/O (`flowfreq.flowio`); LP3 negative-skew quantile fix; EMA historical perception-threshold fix |
 | **v0.1.0** | Streamlit app with FFA, skew comparison, ZIP export; freq_plot module; ffa_runner/ffa_export app modules; validation framework |
 | **v0.0.3** | EMA algorithm, historical flood handling, CLI, validation benchmarks |
