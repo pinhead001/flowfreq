@@ -325,3 +325,77 @@ class TestKindGuardIsSymmetric:
     def test_unknown_kind_rejected_at_construction(self):
         with pytest.raises(ValueError, match="unknown probability_kind"):
             RegressionExponents(aeps=[0.5], exponents=[0.8], citation="x", probability_kind="vibes")
+
+
+class TestMonotonicity:
+    """A transposed curve that turns back on itself is physically impossible.
+
+    This was a real defect in the first cut of ``transpose_duration``: with a
+    groundwater-dominated donor (flat dry end) and an exponent set that falls
+    toward the dry end -- the exact combination the PNW duration-regression
+    literature describes -- the transposed curve inverted at area ratios of
+    0.5 to 0.7, *inside* the supported band. It shipped because the flood path
+    had a monotonicity test and the duration path did not.
+    """
+
+    #: Flat dry end: the signature of a basin sustained by storage.
+    GROUNDWATER_CURVE = pd.DataFrame(
+        {
+            "exceedance_prob": [0.01, 0.10, 0.50, 0.90, 0.95, 0.99],
+            "flow_cfs": [800.0, 260.0, 90.0, 52.0, 50.5, 50.0],
+        }
+    )
+
+    @staticmethod
+    def _steep_exponents() -> RegressionExponents:
+        return RegressionExponents(
+            aeps=[0.01, 0.10, 0.50, 0.90, 0.95, 0.99],
+            exponents=[1.00, 0.95, 0.80, 0.62, 0.58, 0.55],
+            citation="steep duration set, for the inversion case",
+            probability_kind="exceedance",
+        )
+
+    @pytest.mark.parametrize("target_area", [50.0, 60.0, 70.0])
+    def test_inversion_inside_the_supported_band_raises(self, target_area):
+        with pytest.raises(ValueError, match="not monotone"):
+            transpose_duration(self.GROUNDWATER_CURVE, 100.0, target_area, self._steep_exponents())
+
+    def test_warn_mode_returns_and_records_it(self):
+        result = transpose_duration(
+            self.GROUNDWATER_CURVE,
+            100.0,
+            60.0,
+            self._steep_exponents(),
+            on_non_monotonic="warn",
+        )
+        assert result.provenance.monotonic is False
+
+    def test_a_well_behaved_transposition_is_monotone(self):
+        result = transpose_duration(self.GROUNDWATER_CURVE, 100.0, 100.0, self._steep_exponents())
+        assert result.provenance.monotonic is True
+        flows = result.quantiles["flow_cfs"].to_numpy()
+        assert np.all(np.diff(flows) < 0)
+
+    def test_unknown_mode_rejected(self, duration_exponents, daily):
+        curve = flow_duration_curve(daily)
+        with pytest.raises(ValueError, match="unknown on_non_monotonic"):
+            transpose_duration(curve, 100.0, 80.0, duration_exponents, on_non_monotonic="shrug")
+
+    def test_low_flow_direction_is_the_other_way(self, low_flow_exponents):
+        """Low flows *rise* with non-exceedance probability -- 7Q2 exceeds
+        7Q10 -- so the check must not simply reuse the falling rule."""
+        donor = _low_flow_results([12.0, 8.0, 6.0, 4.5, 4.0])
+        result = transpose_low_flow(
+            donor, 100.0, 80.0, low_flow_exponents, hydrogeologic_setting="same aquifer"
+        )
+        assert result.provenance.monotonic is True
+
+    def test_degenerate_rows_do_not_break_the_check(self, duration_exponents):
+        """NaN rows from a zero donor statistic are skipped, not treated as
+        an inversion."""
+        curve = pd.DataFrame(
+            {"exceedance_prob": [0.10, 0.50, 0.99], "flow_cfs": [100.0, 20.0, 0.0]}
+        )
+        result = transpose_duration(curve, 100.0, 80.0, duration_exponents)
+        assert result.provenance.monotonic is True
+        assert result.provenance.degenerate_count == 1

@@ -452,6 +452,7 @@ class TranspositionProvenance:
     target_name: Optional[str] = None
     statistic: str = "flood frequency"
     degenerate_count: int = 0
+    monotonic: bool = True
     hydrogeologic_setting: Optional[str] = None
     bfi_difference: Optional[float] = None
 
@@ -711,6 +712,74 @@ def _check_areas(
     return area_ratio, in_range
 
 
+def _check_monotonic(
+    probs: np.ndarray,
+    flows: np.ndarray,
+    flow_rises_with_prob: bool,
+    on_non_monotonic: str,
+    context: str,
+) -> bool:
+    """Verify the transposed curve is still physically ordered.
+
+    Transposing with an exponent that varies across the curve can invert it.
+    Writing ``Q_t(p) = Q_d(p) * r**b(p)`` in logs,
+
+        d/dp [ln Q_t] = d/dp [ln Q_d] + ln(r) * db/dp
+
+    so when ``r < 1`` (``ln r`` negative) and ``b`` falls toward the dry end
+    (``db/dp`` negative), the second term is *positive* and fights the first.
+    If the donor's own curve is flat enough at that end, the second term
+    wins and the transposed curve turns back on itself -- a flow exceeded
+    99% of the time coming out larger than the flow exceeded 95% of the
+    time, which cannot happen.
+
+    That combination is not exotic. A flat dry end is exactly the signature
+    of a groundwater-dominated basin, and a ``b`` that falls toward the dry
+    end is exactly what the duration-regression literature reports, because
+    low flows scale with storage rather than area. So this is checked rather
+    than assumed, and it is checked on the transposed result rather than
+    argued about in advance.
+
+    Returns
+    -------
+    bool
+        Whether the curve came out monotone.
+
+    Raises
+    ------
+    ValueError
+        If it did not and ``on_non_monotonic="raise"``.
+    """
+    if on_non_monotonic not in ("raise", "warn"):
+        raise ValueError(f"unknown on_non_monotonic {on_non_monotonic!r}; use 'raise' or 'warn'")
+
+    finite = np.isfinite(flows)
+    if finite.sum() < 2:
+        return True
+
+    order = np.argsort(probs[finite])
+    ordered = flows[finite][order]
+    steps = np.diff(ordered)
+    monotonic = bool(np.all(steps > 0) if flow_rises_with_prob else np.all(steps < 0))
+
+    if not monotonic:
+        direction = "rise" if flow_rises_with_prob else "fall"
+        message = (
+            f"the transposed {context} is not monotone: flows do not {direction} "
+            "consistently with probability, which is physically impossible. The "
+            "exponent set varies too steeply across the curve relative to how flat "
+            "the donor's own curve is at that end -- see _check_monotonic. Use a "
+            "smoother exponent set (or one exponent across the flat tail) rather "
+            "than accepting the result; clipping the flows would invent numbers "
+            "with no basis."
+        )
+        if on_non_monotonic == "raise":
+            raise ValueError(message)
+        logger.warning(message)
+
+    return monotonic
+
+
 def _warn_if_extrapolated(exponent_frame: pd.DataFrame, n_total: int) -> np.ndarray:
     """Log once naming the probabilities whose exponent was extrapolated."""
     extrapolated = exponent_frame.loc[
@@ -739,6 +808,7 @@ def transpose_frequency(
     b_bounds: Tuple[float, float] = DEFAULT_B_BOUNDS,
     area_ratio_range: Tuple[float, float] = DEFAULT_AREA_RATIO_RANGE,
     allow_out_of_range: bool = False,
+    on_non_monotonic: str = "raise",
     max_aep: Optional[float] = None,
     donor_site_no: Optional[str] = None,
     target_name: Optional[str] = None,
@@ -842,6 +912,14 @@ def transpose_frequency(
         }
     )
 
+    monotonic = _check_monotonic(
+        aeps,
+        transposed_quantiles["flow_cfs"].to_numpy(dtype=float),
+        flow_rises_with_prob=False,
+        on_non_monotonic=on_non_monotonic,
+        context="frequency curve",
+    )
+
     donor_limits = results.confidence_limits
     if donor_limits is None or donor_limits.empty:
         transposed_limits = pd.DataFrame()
@@ -875,6 +953,7 @@ def transpose_frequency(
         area_ratio_in_range=in_range,
         donor_site_no=donor_site_no,
         target_name=target_name,
+        monotonic=monotonic,
     )
 
     return TransposedResults(
@@ -895,6 +974,7 @@ def transpose_duration(
     b_bounds: Tuple[float, float] = DEFAULT_B_BOUNDS,
     area_ratio_range: Tuple[float, float] = DEFAULT_AREA_RATIO_RANGE,
     allow_out_of_range: bool = False,
+    on_non_monotonic: str = "raise",
     donor_site_no: Optional[str] = None,
     target_name: Optional[str] = None,
 ) -> TransposedResults:
@@ -1005,6 +1085,14 @@ def transpose_duration(
         }
     )
 
+    monotonic = _check_monotonic(
+        probs,
+        transposed,
+        flow_rises_with_prob=False,
+        on_non_monotonic=on_non_monotonic,
+        context="duration curve",
+    )
+
     provenance = TranspositionProvenance(
         donor_area_sqmi=float(donor_area_sqmi),
         target_area_sqmi=float(target_area_sqmi),
@@ -1021,6 +1109,7 @@ def transpose_duration(
         target_name=target_name,
         statistic="flow duration",
         degenerate_count=n_degenerate,
+        monotonic=monotonic,
     )
 
     return TransposedResults(
@@ -1042,6 +1131,7 @@ def transpose_low_flow(
     b_bounds: Tuple[float, float] = DEFAULT_B_BOUNDS,
     area_ratio_range: Tuple[float, float] = LOW_FLOW_AREA_RATIO_RANGE,
     allow_out_of_range: bool = False,
+    on_non_monotonic: str = "raise",
     donor_bfi: Optional[float] = None,
     target_bfi: Optional[float] = None,
     max_bfi_difference: float = 0.15,
@@ -1182,6 +1272,14 @@ def transpose_low_flow(
     b_values = exponent_frame["exponent"].to_numpy(dtype=float)
     factors = area_ratio**b_values
 
+    monotonic = _check_monotonic(
+        probs,
+        donor_flows * factors,
+        flow_rises_with_prob=True,
+        on_non_monotonic=on_non_monotonic,
+        context="low-flow curve",
+    )
+
     quantiles = pd.DataFrame(
         {
             "non_exceedance_prob": probs,
@@ -1211,6 +1309,7 @@ def transpose_low_flow(
         statistic=f"{results.n_day}-day low flow",
         hydrogeologic_setting=hydrogeologic_setting,
         bfi_difference=bfi_difference,
+        monotonic=monotonic,
     )
 
     return TransposedResults(
