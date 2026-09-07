@@ -7,6 +7,60 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0]
+
+### Added
+- **`flowfreq.transpose`** -- moving a computed statistic from a gaged donor basin to a
+  nearby ungaged target by drainage-area ratio, `Q_t(p) = Q_d(p) * (A_t/A_d)**b(p)`, with
+  `b(p)` from the applicable published regression rather than assumed to be 1. Three
+  functions, deliberately separate: `transpose_frequency` (floods),
+  `transpose_duration` (flow-duration statistics) and `transpose_low_flow`.
+
+  The failure mode this is built around is silent: a wrong exponent does not raise, it
+  returns a plausible, monotone, right-order-of-magnitude discharge that is wrong by
+  10-30%. So `RegressionExponents` will not construct without a citation, every quantile
+  records whether its exponent was published, interpolated or extrapolated, and
+  `TransposedResults` deliberately carries no LP3 moments -- no distribution was fitted at
+  the target, and reporting the donor's would invent a fit nobody performed.
+
+  `probability_kind` ("aep" / "exceedance" / "non_exceedance") makes the category error
+  unreachable rather than merely documented: a flood regression's exponent describes flood
+  response and says nothing about 7Q10, so handing one to `transpose_low_flow` raises.
+  Separate functions were not enough on their own, because the *arguments* were still
+  interchangeable.
+
+  Transposed curves are checked for monotonicity in both directions and raise if they
+  invert. That was a real defect found during development: with a groundwater-dominated
+  donor (flat dry end) and an exponent set falling toward the dry end -- the combination
+  the duration literature actually describes -- `transpose_duration` could return
+  `Q99 > Q95` at area ratios inside the supported band.
+
+- **`flowfreq.qppq`** -- QPPQ daily-series transfer through two flow-duration curves, with
+  an invertible empirical `FlowDurationCurve`, seasonal curve construction, donor ranking,
+  goodness-of-fit and a leave-one-out harness.
+
+  Includes a measured result that contradicts the obvious fix. QPPQ assumes donor and
+  target sit at the same position in their own curves on the same day; in a snowmelt basin
+  a higher target melts later, breaking that systematically. Grouping the curves by season
+  is the intuitive remedy and *makes it worse*: on a 25-day imposed offset, log-NSE was
+  0.273 annual, 0.040 for three seasons, 0.605 monthly, and 0.895 once the donor series was
+  lagged. A coarse season is longer than the offset being corrected. `estimate_donor_lag`
+  recovers the offset from rank correlation; `center_of_timing` gives the route for a
+  target with no record, since melt timing regresses on basin elevation.
+
+  `performance()` reports NSE, log-NSE, KGE and dry-end bias together, because an estimate
+  that is exact through the freshet and wrong by 10x in September still scores NSE > 0.99.
+
+- **`regime.flow_duration_curve`** -- duration statistics were previously reachable only as
+  a by-product of drawing a figure, at nine hardcoded percentiles.
+  `Hydrograph.plot_flow_duration_curve` now delegates to it, so the table it has always
+  returned is one computation rather than two that can drift.
+
+### Fixed
+- `fortran_engine.build_emafit_arrays` reused the scalar loop-local names `ql`/`qu`/`tl`
+  for the arrays of the same name later in the function -- harmless at runtime, a real
+  mypy error.
+
 ## [0.6.1]
 
 ### Added

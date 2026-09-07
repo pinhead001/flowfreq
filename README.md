@@ -53,7 +53,7 @@ pip install -e ".[dev]"
 Or install a released version straight from GitHub:
 
 ```bash
-pip install git+https://github.com/pinhead001/flowfreq@v0.6.1
+pip install git+https://github.com/pinhead001/flowfreq@v0.7.0
 ```
 
 **Dependencies:** `numpy`, `pandas`, `matplotlib`, `scipy`, `requests`, `click`, `pyarrow`
@@ -287,6 +287,7 @@ England, J.F., Jr., et al., 2019, Guidelines for determining flood flow frequenc
 
 | Version | Changes |
 |---------|---------|
+| **v0.7.0** | Transposition of computed flows to ungaged sites (`flowfreq.transpose`: flood, flow-duration and low-flow, each with mandatory exponent provenance); QPPQ daily-series transfer with melt-timing tools (`flowfreq.qppq`); standalone `regime.flow_duration_curve` |
 | **v0.6.1** | `plot_peak_flows_with_thresholds` gains a `yscale` toggle, closing the last app/library plot-dedupe gap (verified numerically equivalent to the app's old values) |
 | **v0.6.0** | `plot_peak_flows_with_thresholds` gains PILF/MGBT hollow-bar censoring, closing the app/library plot dedupe; mypy fix in `fortran_engine.py`; `make clean` now also wipes `.mypy_cache` |
 | **v0.5.0** | Fortran engine as a selectable analysis engine (`engine=`, `compare_engines`, `flowfreq compare` CLI); tests for `hydrograph.py`/`plots.py`/`batch.py`/`cli.py`; return-period lines and max-peak annotation on `plot_peak_flows_with_thresholds` |
