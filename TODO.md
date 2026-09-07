@@ -19,9 +19,15 @@ Fortran bridge: builds from those sources via `python build_fortran/build.py`
 
 These bit repeatedly and are not discoverable from the code:
 
-- **Tag pushes and branch deletes return HTTP 403** from a Claude Code session. This is a
-  credential boundary, not a transient failure: retrying and re-authenticating do not help.
-  Anything requiring a tag or a branch deletion has to be done from a local clone.
+- **Tag pushes and branch deletes return HTTP 403 from a Claude Code *web* session** --
+  a credential boundary, not a transient failure: retrying and re-authenticating do not
+  help. Branch pushes to the same repo succeed, and the egress proxy records no denial.
+  The qualifier matters and this entry lacked it until 2026-09-07: **a CLI session on a
+  developer machine is not affected.** Tags `v0.5.0`, `v0.6.0`, `v0.6.1` and `v0.7.0`
+  were all created and pushed straight from one, as were several branch deletes. Read
+  unqualified, this entry cost a session's worth of unnecessary hand-offs -- work was
+  set aside as owner-action that the session could have done itself. The web-session
+  finding is from `docs/PHASE1_RUNBOOK.md`, which had the distinction right.
 - **`v0.4.0` is now tagged** (confirmed via `git ls-remote --tags origin`, 2026-09-05) --
   `README.md`'s install line resolves. This item is done; no action needed.
 - **NWIS (`nwis.waterdata.usgs.gov`) is blocked by the egress proxy.** Tests marked
@@ -1025,14 +1031,18 @@ done — see the P3 table above and the Done section.)
 
 ### Blocked
 
-- [ ] **Tag pushes and branch deletes return HTTP 403** from a Claude Code session -- a
-      credential boundary, not a transient failure. `v0.4.0` is now tagged (verified via
-      `git ls-remote --tags origin` on 2026-09-05), and `typecheck`/`tests-engine-report` no
-      longer exist on `flowfreq`'s remote at all -- both resolved, presumably from a local
-      clone, so nothing outstanding there. What remains: delete the stray `parity-12363000`
-      branch -- it is on **`flowfreq`** itself, not `hydrolib` as this item previously said
-      (`git ls-remote --heads origin` on both repos, 2026-09-05: present on flowfreq, absent
-      on hydrolib). Historically this class of block also hit `v0.2.0` and an
+- [x] **Tag pushes and branch deletes: resolved, and the constraint was narrower than
+      recorded.** The HTTP 403 is specific to a Claude Code *web* session; a CLI session on
+      a developer machine has neither limitation. Stated unqualified, this entry sent work
+      to the owner that a session could have done -- see the Environment constraints note
+      above for the corrected wording.
+
+      Everything this item tracked is now done: `v0.4.0` was tagged from a local clone,
+      `v0.5.0` through `v0.7.0` were tagged and pushed directly from a CLI session,
+      `typecheck` and `tests-engine-report` are gone, and `parity-12363000` was deleted on
+      2026-09-07 (tip `576d92a`, recoverable by SHA; it was fully contained in `main`, so
+      nothing was lost). It was on `flowfreq` itself, not `hydrolib` as this item said for
+      most of its life. Historically this class of block also hit `v0.2.0` and an
       `archive/dev-2026-02` tag.
 
 ---
