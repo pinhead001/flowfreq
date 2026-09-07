@@ -4,10 +4,20 @@ Moving a computed streamflow statistic from a gaged donor basin to a nearby
 ungaged target basin by drainage-area ratio, with the exponent taken from the
 applicable published USGS regional regression.
 
-**Status: the flood series is implemented** in `flowfreq/transpose.py`
-(`RegressionExponents`, `transpose_frequency`, `TransposedResults`), tested in
-`tests/test_transpose.py`. Sections 6 and 7 — flow-duration and low-flow
-transposition — remain design only.
+**Status: implemented**, except QPPQ (section 6). `flowfreq/transpose.py`
+carries `transpose_frequency`, `transpose_duration` and `transpose_low_flow`
+over a shared `RegressionExponents`; `flowfreq/regime.py` gained the
+standalone `flow_duration_curve` they needed. Tested in
+`tests/test_transpose.py` and `tests/test_transpose_duration_lowflow.py`.
+
+One thing changed from the original design while building it. The three
+statistics are indexed by different probabilities — AEP, exceedance fraction,
+non-exceedance — and nothing stopped a caller feeding a flood exponent set to
+`transpose_low_flow`, which section 7 calls a category error. That is now a
+`probability_kind` on `RegressionExponents` that each function checks, so the
+mistake raises instead of returning a plausible wrong number. The design said
+"separate function"; separate functions turned out not to be enough on their
+own, because the *arguments* were still interchangeable.
 
 ---
 
@@ -334,9 +344,9 @@ exponent-plumbing bug that no eyeball review would.
 |---|---|---|
 | `RegressionExponents` + interpolation/extrapolation + provenance | 0.5 day — the risk lives in extrapolation policy | **Done** |
 | `transpose_frequency` + guardrails + markdown output | 0.5 day | **Done** |
-| Standalone FDC extraction out of `hydrograph.py` | 2 h | Not started |
-| `transpose_duration` | 2 h once the FDC function exists | Not started |
-| `transpose_low_flow` + similarity screen | 0.5 day | Not started |
+| Standalone FDC extraction out of `hydrograph.py` | 2 h | **Done** — `regime.flow_duration_curve` |
+| `transpose_duration` | 2 h once the FDC function exists | **Done** |
+| `transpose_low_flow` + similarity screen | 0.5 day | **Done** |
 | QPPQ daily-series transfer, if pursued later | ~1 week | Deferred |
 
 ---

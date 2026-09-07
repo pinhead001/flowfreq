@@ -92,13 +92,28 @@ regional regression rather than assumed to be 1.
 - [x] **`transpose_frequency`** + guardrails (area-ratio band 0.5-1.5, raises by default
       outside it, `allow_out_of_range=True` transposes anyway and records the violation) +
       `to_markdown()` showing the per-quantile arithmetic and every caveat that applies.
-- [ ] Extract a standalone flow-duration function out of
-      `Hydrograph.plot_flow_duration_curve`. Duration statistics are currently a by-product
-      of drawing a figure, at nine hardcoded percentiles. ~2 h.
-- [ ] `transpose_duration`, once that exists — same machinery, exponents indexed by
-      exceedance probability, since `b` is not constant across the duration curve. ~2 h.
-- [ ] `transpose_low_flow`, deliberately a separate function with stricter guardrails and a
-      donor-similarity screen on BFI. ~0.5 day.
+- [x] **`regime.flow_duration_curve`** — duration statistics were a by-product of drawing a
+      figure, at nine hardcoded percentiles. Now a function, at arbitrary percentiles;
+      `Hydrograph.plot_flow_duration_curve` delegates to it, so the table it has always
+      returned is one computation rather than two that can drift, pinned by a test asserting
+      the plot's numbers and column names did not move.
+- [x] **`transpose_duration`** — same machinery, exponents indexed by exceedance fraction,
+      because `b` is not constant across a duration curve (near-linear at the wet end where
+      area sets the flow, falling away at the dry end where geology does). A zero donor
+      statistic comes back `NaN`, never `0`: scaling a zero would assert the target is dry
+      rather than estimate it.
+- [x] **`transpose_low_flow`** — separate function, tighter band (0.7-1.3), a **required**
+      `hydrogeologic_setting` assertion recorded in provenance, refusal on a zero statistic
+      or a donor that ever goes dry, and an optional BFI similarity screen.
+
+**The category error is now unreachable, not just documented.** The design said a flood
+exponent applied to 7Q10 is a category error and answered it with separate functions -- but
+separate functions were not enough, because the *arguments* were still interchangeable and
+nothing stopped a flood exponent set being passed to the low-flow one. `RegressionExponents`
+now carries a `probability_kind` (`"aep"` / `"exceedance"` / `"non_exceedance"`) and each
+function requires its own, so the mistake raises rather than returning a plausible wrong
+number. Worth remembering as a pattern: a guardrail that lives only in which function you
+call is not a guardrail if the inputs still fit both.
 
 **The whole standard AEP set transposes, 0.995 down to 0.002** -- all fourteen points, not
 just the flood range. The six more frequent than Q2 sit below anything a flood regression

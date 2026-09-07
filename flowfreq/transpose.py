@@ -46,7 +46,7 @@ import numpy as np
 import pandas as pd
 from scipy.special import ndtri
 
-from flowfreq.core import FrequencyResults
+from flowfreq.core import FrequencyResults, LowFlowResults
 
 logger = logging.getLogger(__name__)
 
@@ -55,6 +55,11 @@ logger = logging.getLogger(__name__)
 #: the same stream, in the same hydrologic region. Outside this band the
 #: published regression should be used directly instead of transposing.
 DEFAULT_AREA_RATIO_RANGE: Tuple[float, float] = (0.5, 1.5)
+
+#: Tighter band for low flows. A low-flow statistic is controlled by
+#: baseflow storage rather than area, so the range over which a pure
+#: area-ratio transfer is defensible is narrower than it is for floods.
+LOW_FLOW_AREA_RATIO_RANGE: Tuple[float, float] = (0.7, 1.3)
 
 #: Hard bounds applied to every exponent after interpolation or
 #: extrapolation, whatever those produced. A drainage-area exponent outside
@@ -71,6 +76,20 @@ _SOURCE_PUBLISHED = "published"
 _SOURCE_INTERPOLATED = "interpolated"
 _SOURCE_EXTRAPOLATED = "extrapolated"
 _SOURCE_CONSTANT = "constant"
+
+#: What kind of probability an exponent set is indexed by. These are not
+#: interchangeable, and mixing them up is the category error
+#: ``docs/TRANSPOSITION_DESIGN.md`` §7 warns about -- a flood regression's
+#: exponent describes flood response and says nothing about 7Q10, which is
+#: controlled by baseflow storage and geology. Each transpose function
+#: requires its own kind, so the mistake raises instead of returning a
+#: plausible wrong number.
+#:
+#: - ``"aep"`` -- annual exceedance probability of an annual maximum (floods)
+#: - ``"exceedance"`` -- fraction of time exceeded (flow-duration curves)
+#: - ``"non_exceedance"`` -- annual non-exceedance probability of an annual
+#:   minimum (low flows: 7Q10 is non-exceedance 0.1)
+PROBABILITY_KINDS: Tuple[str, ...] = ("aep", "exceedance", "non_exceedance")
 
 
 def _normal_deviate(aep: np.ndarray) -> np.ndarray:
@@ -117,13 +136,26 @@ class RegressionExponents:
     valid_area_range_sqmi : tuple of float, optional
         The drainage-area range the regression was developed over. Used only
         to warn when a basin falls outside it.
+    probability_kind : {"aep", "exceedance", "non_exceedance"}, optional
+        What ``aeps`` actually holds. Defaults to ``"aep"`` (floods). See
+        :data:`PROBABILITY_KINDS`: each transpose function requires the kind
+        that matches the statistic it transposes, so handing a flood
+        exponent set to :func:`transpose_low_flow` raises rather than
+        returning a plausible wrong number.
+
+        The field is named ``aeps`` for all three because the rest of this
+        library indexes probabilities that way and a second name would be
+        worse; for duration and low-flow sets it holds exceedance fractions
+        and non-exceedance probabilities respectively, both of which occupy
+        the same (0, 1) domain.
 
     Raises
     ------
     ValueError
-        If the citation is empty, the arrays disagree in length, any AEP is
-        outside (0, 1), any exponent is non-finite or non-positive, or an
-        AEP is repeated.
+        If the citation is empty, the arrays disagree in length, any
+        probability is outside (0, 1), any exponent is non-finite or
+        non-positive, an entry is repeated, or ``probability_kind`` is not
+        one of :data:`PROBABILITY_KINDS`.
     """
 
     aeps: np.ndarray
@@ -131,6 +163,7 @@ class RegressionExponents:
     citation: str
     region: str = ""
     valid_area_range_sqmi: Optional[Tuple[float, float]] = None
+    probability_kind: str = "aep"
 
     def __post_init__(self) -> None:
         if not self.citation or not self.citation.strip():
@@ -138,6 +171,12 @@ class RegressionExponents:
                 "RegressionExponents requires a citation naming where the exponents came "
                 "from. A transposition whose exponent has no stated source is not a result "
                 "worth having; see docs/TRANSPOSITION_DESIGN.md."
+            )
+
+        if self.probability_kind not in PROBABILITY_KINDS:
+            raise ValueError(
+                f"unknown probability_kind {self.probability_kind!r}; use one of "
+                f"{PROBABILITY_KINDS}"
             )
 
         aeps = np.asarray(self.aeps, dtype=float).ravel()
@@ -175,6 +214,7 @@ class RegressionExponents:
         citation: str,
         region: str = "",
         valid_area_range_sqmi: Optional[Tuple[float, float]] = None,
+        probability_kind: str = "aep",
     ) -> "RegressionExponents":
         """A single exponent applied at every AEP.
 
@@ -203,6 +243,7 @@ class RegressionExponents:
             citation=citation,
             region=region,
             valid_area_range_sqmi=valid_area_range_sqmi,
+            probability_kind=probability_kind,
         )
 
     @property
@@ -409,6 +450,10 @@ class TranspositionProvenance:
     area_ratio_in_range: bool
     donor_site_no: Optional[str] = None
     target_name: Optional[str] = None
+    statistic: str = "flood frequency"
+    degenerate_count: int = 0
+    hydrogeologic_setting: Optional[str] = None
+    bfi_difference: Optional[float] = None
 
     @property
     def extrapolated_aeps(self) -> np.ndarray:
@@ -477,25 +522,46 @@ class TransposedResults:
         ]
         if p.region:
             lines.append(f"- Region: {p.region}")
+        if p.hydrogeologic_setting:
+            lines.append(f"- Shared setting asserted by the analyst: {p.hydrogeologic_setting}")
         lines.extend(
             [
+                f"- Statistic: {p.statistic}",
                 f"- Interpolation: {p.interpolation} (in normal-deviate space); "
                 f"extrapolation: {p.extrapolation}",
                 "",
                 "## Quantiles",
                 "",
-                "| AEP | Return period (yr) | Donor Q (cfs) | b | Ratio^b | Target Q (cfs) | Exponent source |",
-                "|---:|---:|---:|---:|---:|---:|---|",
             ]
         )
 
+        # Which probability the rows are indexed by depends on the statistic:
+        # AEP for floods, exceedance fraction for duration, non-exceedance for
+        # low flow. Pick whichever the frame actually carries rather than
+        # assuming the flood one.
+        prob_column, prob_label = _probability_column(self.quantiles)
+        has_return_period = "return_period" in self.quantiles.columns
+
+        header = f"| {prob_label} |"
+        rule = "|---:|"
+        if has_return_period:
+            header += " Return period (yr) |"
+            rule += "---:|"
+        header += " Donor Q (cfs) | b | Ratio^b | Target Q (cfs) | Exponent source |"
+        rule += "---:|---:|---:|---:|---|"
+        lines.extend([header, rule])
+
         for _, row in self.quantiles.iterrows():
-            lines.append(
-                f"| {row['aep']:.4g} | {row['return_period']:.4g} | "
-                f"{row['donor_flow_cfs']:,.0f} | {row['exponent']:.4f} | "
-                f"{row['area_ratio_factor']:.4f} | {row['flow_cfs']:,.0f} | "
-                f"{row['source']} |"
+            cells = f"| {row[prob_column]:.4g} |"
+            if has_return_period:
+                cells += f" {row['return_period']:.4g} |"
+            target_flow = row["flow_cfs"]
+            target_text = "not transposable" if pd.isna(target_flow) else f"{target_flow:,.0f}"
+            cells += (
+                f" {row['donor_flow_cfs']:,.0f} | {row['exponent']:.4f} | "
+                f"{row['area_ratio_factor']:.4f} | {target_text} | {row['source']} |"
             )
+            lines.append(cells)
 
         lines.extend(["", "## Caveats", ""])
 
@@ -529,6 +595,26 @@ class TransposedResults:
                 "override; the published regression should be preferred at the target."
             )
 
+        if p.degenerate_count:
+            lines.append(
+                f"- **{p.degenerate_count} donor statistic(s) were zero** and could not be "
+                "transposed: scaling a zero by an area ratio returns zero, which would "
+                "assert the target is dry rather than estimate it. Those rows are blank, "
+                "not zero."
+            )
+
+        if p.hydrogeologic_setting:
+            lines.append(
+                "- Low-flow transposition rests on the analyst's assertion that donor and "
+                f"target share a setting ({p.hydrogeologic_setting}). Low flows are "
+                "controlled by baseflow storage and geology rather than drainage area; "
+                "where the target's own basin characteristics are available, a published "
+                "low-flow regression is the better tool than transposition."
+            )
+
+        if p.bfi_difference is not None:
+            lines.append(f"- Donor and target baseflow indices differ by {p.bfi_difference:.3f}.")
+
         if not self.confidence_limits.empty:
             lines.append(
                 "- Confidence limits are the donor's, scaled by the same factor. That is "
@@ -537,6 +623,109 @@ class TransposedResults:
             )
 
         return "\n".join(lines) + "\n"
+
+
+def _probability_column(frame: pd.DataFrame) -> Tuple[str, str]:
+    """The probability column a transposed frame is indexed by, and its label."""
+    for column, label in (
+        ("aep", "AEP"),
+        ("exceedance_prob", "Exceedance"),
+        ("non_exceedance_prob", "Non-exceedance"),
+    ):
+        if column in frame.columns:
+            return column, label
+    raise KeyError(f"no probability column in {list(frame.columns)}")
+
+
+def _require_kind(exponents: RegressionExponents, expected: str, caller: str) -> None:
+    """Refuse an exponent set indexed by the wrong kind of probability.
+
+    Structural, not advisory: handing a flood regression's exponents to
+    :func:`transpose_low_flow` is a category error rather than an
+    approximation (``docs/TRANSPOSITION_DESIGN.md`` §7), and it is invisible
+    in the output if it is allowed through.
+    """
+    if exponents.probability_kind != expected:
+        raise ValueError(
+            f"{caller} needs exponents indexed by {expected!r}, but this set is indexed "
+            f"by {exponents.probability_kind!r}. These are not interchangeable: a flood "
+            "regression's drainage-area exponent describes flood response and says "
+            "nothing about a low-flow or duration statistic, which are controlled by "
+            "baseflow storage and geology. Use the regression published for the "
+            "statistic being transposed."
+        )
+
+
+def _check_areas(
+    donor_area_sqmi: float,
+    target_area_sqmi: float,
+    exponents: RegressionExponents,
+    area_ratio_range: Tuple[float, float],
+    allow_out_of_range: bool,
+) -> Tuple[float, bool]:
+    """Validate the two areas and the ratio between them.
+
+    Shared by every transpose function so the guardrail is one
+    implementation rather than three that drift apart.
+
+    Returns
+    -------
+    tuple of (float, bool)
+        The area ratio, and whether it fell inside ``area_ratio_range``.
+    """
+    if not np.isfinite(donor_area_sqmi) or donor_area_sqmi <= 0:
+        raise ValueError(f"donor_area_sqmi must be positive; got {donor_area_sqmi!r}")
+    if not np.isfinite(target_area_sqmi) or target_area_sqmi <= 0:
+        raise ValueError(f"target_area_sqmi must be positive; got {target_area_sqmi!r}")
+
+    area_ratio = float(target_area_sqmi) / float(donor_area_sqmi)
+    ratio_low, ratio_high = area_ratio_range
+    in_range = bool(ratio_low <= area_ratio <= ratio_high)
+    if not in_range:
+        if not allow_out_of_range:
+            raise ValueError(
+                f"area ratio {area_ratio:.4f} is outside the applicable range "
+                f"({ratio_low}, {ratio_high}) for the drainage-area ratio method. "
+                "Use the published regression at the target directly, or pass "
+                "allow_out_of_range=True to transpose anyway and record the violation."
+            )
+        logger.warning(
+            "Transposing at an area ratio of %.4f, outside the applicable range %s. "
+            "The published regression should be preferred at the target.",
+            area_ratio,
+            area_ratio_range,
+        )
+
+    valid_area = exponents.valid_area_range_sqmi
+    if valid_area is not None:
+        for label, area in (("donor", donor_area_sqmi), ("target", target_area_sqmi)):
+            if not valid_area[0] <= area <= valid_area[1]:
+                logger.warning(
+                    "%s drainage area %.1f sq mi is outside the range %s the cited "
+                    "regression was developed over.",
+                    label,
+                    area,
+                    valid_area,
+                )
+
+    return area_ratio, in_range
+
+
+def _warn_if_extrapolated(exponent_frame: pd.DataFrame, n_total: int) -> np.ndarray:
+    """Log once naming the probabilities whose exponent was extrapolated."""
+    extrapolated = exponent_frame.loc[
+        exponent_frame["source"] == _SOURCE_EXTRAPOLATED, "aep"
+    ].to_numpy()
+    if extrapolated.size:
+        logger.warning(
+            "%d of %d quantiles use an exponent extrapolated beyond the cited "
+            "regression's published range (probability %s); their exponent is an "
+            "assumption of this analysis rather than a published value.",
+            extrapolated.size,
+            n_total,
+            np.array2string(extrapolated, precision=4),
+        )
+    return extrapolated
 
 
 def transpose_frequency(
@@ -602,10 +791,14 @@ def transpose_frequency(
         leaves nothing to transpose, or the area ratio is outside
         ``area_ratio_range`` without ``allow_out_of_range``.
     """
-    if not np.isfinite(donor_area_sqmi) or donor_area_sqmi <= 0:
-        raise ValueError(f"donor_area_sqmi must be positive; got {donor_area_sqmi!r}")
-    if not np.isfinite(target_area_sqmi) or target_area_sqmi <= 0:
-        raise ValueError(f"target_area_sqmi must be positive; got {target_area_sqmi!r}")
+    _require_kind(exponents, "aep", "transpose_frequency")
+    area_ratio, in_range = _check_areas(
+        donor_area_sqmi,
+        target_area_sqmi,
+        exponents,
+        area_ratio_range,
+        allow_out_of_range,
+    )
 
     donor_quantiles = results.quantiles
     if donor_quantiles is None or donor_quantiles.empty:
@@ -624,36 +817,6 @@ def transpose_frequency(
                 f"{donor_quantiles['aep'].max():g})"
             )
 
-    area_ratio = float(target_area_sqmi) / float(donor_area_sqmi)
-    ratio_low, ratio_high = area_ratio_range
-    in_range = bool(ratio_low <= area_ratio <= ratio_high)
-    if not in_range:
-        if not allow_out_of_range:
-            raise ValueError(
-                f"area ratio {area_ratio:.4f} is outside the applicable range "
-                f"({ratio_low}, {ratio_high}) for the drainage-area ratio method. "
-                "Use the published regression at the target directly, or pass "
-                "allow_out_of_range=True to transpose anyway and record the violation."
-            )
-        logger.warning(
-            "Transposing at an area ratio of %.4f, outside the applicable range %s. "
-            "The published regression should be preferred at the target.",
-            area_ratio,
-            area_ratio_range,
-        )
-
-    valid_area = exponents.valid_area_range_sqmi
-    if valid_area is not None:
-        for label, area in (("donor", donor_area_sqmi), ("target", target_area_sqmi)):
-            if not valid_area[0] <= area <= valid_area[1]:
-                logger.warning(
-                    "%s drainage area %.1f sq mi is outside the range %s the cited "
-                    "regression was developed over.",
-                    label,
-                    area,
-                    valid_area,
-                )
-
     aeps = selected["aep"].to_numpy(dtype=float)
     exponent_frame = exponents.exponent_at(
         aeps,
@@ -664,18 +827,7 @@ def transpose_frequency(
     b_values = exponent_frame["exponent"].to_numpy(dtype=float)
     factors = area_ratio**b_values
 
-    extrapolated = exponent_frame.loc[
-        exponent_frame["source"] == _SOURCE_EXTRAPOLATED, "aep"
-    ].to_numpy()
-    if extrapolated.size:
-        logger.warning(
-            "%d of %d quantiles use an exponent extrapolated beyond the cited "
-            "regression's published range (AEP %s); their exponent is an assumption "
-            "of this analysis rather than a published value.",
-            extrapolated.size,
-            len(aeps),
-            np.array2string(extrapolated, precision=4),
-        )
+    _warn_if_extrapolated(exponent_frame, len(aeps))
 
     donor_flows = selected["flow_cfs"].to_numpy(dtype=float)
     transposed_quantiles = pd.DataFrame(
@@ -728,5 +880,341 @@ def transpose_frequency(
     return TransposedResults(
         quantiles=transposed_quantiles,
         confidence_limits=transposed_limits,
+        provenance=provenance,
+    )
+
+
+def transpose_duration(
+    curve: pd.DataFrame,
+    donor_area_sqmi: float,
+    target_area_sqmi: float,
+    exponents: RegressionExponents,
+    *,
+    interpolation: str = "linear",
+    extrapolation: str = "clamp",
+    b_bounds: Tuple[float, float] = DEFAULT_B_BOUNDS,
+    area_ratio_range: Tuple[float, float] = DEFAULT_AREA_RATIO_RANGE,
+    allow_out_of_range: bool = False,
+    donor_site_no: Optional[str] = None,
+    target_name: Optional[str] = None,
+) -> TransposedResults:
+    """Transpose flow-duration statistics to an ungaged target.
+
+    Same drainage-area ratio machinery as :func:`transpose_frequency`, with
+    exponents indexed by *exceedance fraction* rather than AEP, because ``b``
+    is not constant across a duration curve: it is near-linear at the wet
+    end, where contributing area largely sets the flow, and falls away at the
+    dry end, where geology and storage dominate. A single exponent across the
+    whole curve is wrong at one end or the other, which is why this takes a
+    whole exponent set rather than one number.
+
+    Parameters
+    ----------
+    curve : pd.DataFrame
+        The donor's duration statistics as
+        :func:`flowfreq.regime.flow_duration_curve` returns them: a
+        ``flow_cfs`` column plus ``exceedance_prob`` or ``exceedance_pct``.
+    donor_area_sqmi, target_area_sqmi : float
+        Drainage areas, same units.
+    exponents : RegressionExponents
+        Must have ``probability_kind="exceedance"``.
+    interpolation, extrapolation, b_bounds : optional
+        As :func:`transpose_frequency`.
+    area_ratio_range, allow_out_of_range : optional
+        As :func:`transpose_frequency`.
+    donor_site_no, target_name : str, optional
+        Labels for the report.
+
+    Returns
+    -------
+    TransposedResults
+        ``confidence_limits`` is always empty: a duration curve is an
+        empirical description of a record, not a fitted distribution, so
+        there are no limits to carry.
+
+    Raises
+    ------
+    ValueError
+        If the exponent set is indexed by the wrong kind of probability, the
+        curve is empty, or the areas fail their checks.
+    KeyError
+        If the curve lacks a flow or probability column.
+
+    Notes
+    -----
+    A donor duration statistic of zero cannot be transposed: ``0 * anything``
+    is ``0``, which asserts something about the target that the donor's
+    record does not support. Those rows come back as ``NaN`` and are counted
+    in the report rather than quietly reported as zero flow.
+    """
+    _require_kind(exponents, "exceedance", "transpose_duration")
+    area_ratio, in_range = _check_areas(
+        donor_area_sqmi,
+        target_area_sqmi,
+        exponents,
+        area_ratio_range,
+        allow_out_of_range,
+    )
+
+    if curve is None or curve.empty:
+        raise ValueError("curve is empty; nothing to transpose")
+    if "flow_cfs" not in curve.columns:
+        raise KeyError("curve has no 'flow_cfs' column")
+
+    if "exceedance_prob" in curve.columns:
+        probs = curve["exceedance_prob"].to_numpy(dtype=float)
+    elif "exceedance_pct" in curve.columns:
+        probs = curve["exceedance_pct"].to_numpy(dtype=float) / 100.0
+    else:
+        raise KeyError("curve has neither 'exceedance_prob' nor 'exceedance_pct'")
+
+    exponent_frame = exponents.exponent_at(
+        probs,
+        interpolation=interpolation,
+        extrapolation=extrapolation,
+        b_bounds=b_bounds,
+    )
+    _warn_if_extrapolated(exponent_frame, len(probs))
+
+    b_values = exponent_frame["exponent"].to_numpy(dtype=float)
+    factors = area_ratio**b_values
+    donor_flows = curve["flow_cfs"].to_numpy(dtype=float)
+
+    # A zero donor statistic is degenerate under a ratio method: scaling it
+    # returns zero, which is an assertion about the target rather than an
+    # estimate of it. NaN says "this could not be transposed", which is true.
+    degenerate = ~(donor_flows > 0.0)
+    transposed = np.where(degenerate, np.nan, donor_flows * factors)
+    n_degenerate = int(np.count_nonzero(degenerate))
+    if n_degenerate:
+        logger.warning(
+            "%d duration statistic(s) are zero or non-positive at the donor and cannot "
+            "be transposed by a ratio method; reported as NaN, not as zero flow.",
+            n_degenerate,
+        )
+
+    quantiles = pd.DataFrame(
+        {
+            "exceedance_prob": probs,
+            "exceedance_pct": probs * 100.0,
+            "donor_flow_cfs": donor_flows,
+            "exponent": b_values,
+            "area_ratio_factor": factors,
+            "flow_cfs": transposed,
+            "source": exponent_frame["source"].to_numpy(),
+        }
+    )
+
+    provenance = TranspositionProvenance(
+        donor_area_sqmi=float(donor_area_sqmi),
+        target_area_sqmi=float(target_area_sqmi),
+        area_ratio=area_ratio,
+        citation=exponents.citation,
+        region=exponents.region,
+        exponents=exponent_frame,
+        interpolation=interpolation,
+        extrapolation=extrapolation,
+        b_bounds=b_bounds,
+        area_ratio_range=area_ratio_range,
+        area_ratio_in_range=in_range,
+        donor_site_no=donor_site_no,
+        target_name=target_name,
+        statistic="flow duration",
+        degenerate_count=n_degenerate,
+    )
+
+    return TransposedResults(
+        quantiles=quantiles,
+        confidence_limits=pd.DataFrame(),
+        provenance=provenance,
+    )
+
+
+def transpose_low_flow(
+    results: LowFlowResults,
+    donor_area_sqmi: float,
+    target_area_sqmi: float,
+    exponents: RegressionExponents,
+    *,
+    hydrogeologic_setting: str,
+    interpolation: str = "linear",
+    extrapolation: str = "clamp",
+    b_bounds: Tuple[float, float] = DEFAULT_B_BOUNDS,
+    area_ratio_range: Tuple[float, float] = LOW_FLOW_AREA_RATIO_RANGE,
+    allow_out_of_range: bool = False,
+    donor_bfi: Optional[float] = None,
+    target_bfi: Optional[float] = None,
+    max_bfi_difference: float = 0.15,
+    max_p_zero: float = 0.0,
+    donor_site_no: Optional[str] = None,
+    target_name: Optional[str] = None,
+) -> TransposedResults:
+    """Transpose low-flow statistics to an ungaged target, under protest.
+
+    Deliberately a separate function from :func:`transpose_frequency` rather
+    than a flag on it. Low flows are controlled by baseflow storage --
+    surficial geology, aquifer transmissivity, soil permeability -- not by
+    drainage area. Two adjacent basins of identical area can differ
+    severalfold in 7Q10, and one of them can be zero. That is why published
+    low-flow regressions carry a geology or baseflow term and flood
+    regressions do not, and why the guardrails here are stricter:
+
+    - The exponent set must be indexed by ``"non_exceedance"``. A flood
+      exponent is not an approximation here, it is the wrong quantity.
+    - The area-ratio band defaults to :data:`LOW_FLOW_AREA_RATIO_RANGE`
+      (0.7-1.3), tighter than the flood band.
+    - ``hydrogeologic_setting`` is required. This module cannot verify that
+      donor and target share an aquifer or physiographic province, so it
+      makes the caller assert it in writing and records the assertion.
+    - A donor statistic of zero, or a donor that goes dry at all
+      (``p_zero > max_p_zero``), refuses rather than scaling a zero.
+
+    **Where the target's own basin characteristics are available, prefer the
+    published low-flow regression directly.** Transposition is the fallback
+    here, not the better tool.
+
+    Parameters
+    ----------
+    results : LowFlowResults
+        The donor's low-flow analysis.
+    donor_area_sqmi, target_area_sqmi : float
+        Drainage areas, same units.
+    exponents : RegressionExponents
+        Must have ``probability_kind="non_exceedance"``.
+    hydrogeologic_setting : str
+        The setting the caller asserts donor and target share, e.g.
+        "Valley and Ridge carbonate, same aquifer". Required and recorded;
+        an empty string raises.
+    donor_bfi, target_bfi : float, optional
+        Baseflow indices from :func:`flowfreq.regime.baseflow_index`. When
+        both are given and differ by more than ``max_bfi_difference``, a
+        warning is logged and the difference recorded. Note ``regime``'s own
+        caveat: two BFIs are comparable only when computed by the same
+        method with the same parameters, so compute both sides yourself.
+    max_bfi_difference : float, optional
+        How far the two may differ before it is worth saying so.
+    max_p_zero : float, optional
+        The largest fraction of zero-flow years the donor may have. Defaults
+        to 0.0: a donor that ever goes dry cannot tell you what the target
+        does.
+    interpolation, extrapolation, b_bounds : optional
+        As :func:`transpose_frequency`.
+    area_ratio_range, allow_out_of_range : optional
+        As :func:`transpose_frequency`, with a tighter default band.
+    donor_site_no, target_name : str, optional
+        Labels for the report.
+
+    Returns
+    -------
+    TransposedResults
+        ``quantiles`` is indexed by ``non_exceedance_prob``.
+
+    Raises
+    ------
+    ValueError
+        If the exponent kind is wrong, ``hydrogeologic_setting`` is empty,
+        the donor carries no quantiles, any donor statistic is zero, or the
+        donor's ``p_zero`` exceeds ``max_p_zero``.
+    """
+    if not hydrogeologic_setting or not hydrogeologic_setting.strip():
+        raise ValueError(
+            "transpose_low_flow requires hydrogeologic_setting: a written assertion that "
+            "donor and target share an aquifer or physiographic setting. Low flows are "
+            "controlled by geology rather than area, this module cannot check the "
+            "assertion itself, and leaving it unstated is what makes a transposed 7Q10 "
+            "indefensible."
+        )
+
+    _require_kind(exponents, "non_exceedance", "transpose_low_flow")
+    area_ratio, in_range = _check_areas(
+        donor_area_sqmi,
+        target_area_sqmi,
+        exponents,
+        area_ratio_range,
+        allow_out_of_range,
+    )
+
+    donor_quantiles = results.quantiles
+    if donor_quantiles is None or donor_quantiles.empty:
+        raise ValueError("the donor LowFlowResults carries no quantiles")
+
+    p_zero = float(results.p_zero or 0.0)
+    if p_zero > max_p_zero:
+        raise ValueError(
+            f"the donor has zero flow in {p_zero:.1%} of years (p_zero={p_zero:g}, "
+            f"max_p_zero={max_p_zero:g}). A ratio method cannot transpose a record that "
+            "goes dry: the statistic is then controlled by whether the channel holds "
+            "water at all, which is a property of the donor's geology, not its area."
+        )
+
+    donor_flows = donor_quantiles["flow_cfs"].to_numpy(dtype=float)
+    if np.any(~(donor_flows > 0.0)):
+        raise ValueError(
+            "at least one donor low-flow statistic is zero or non-positive, and "
+            "0 * (area ratio) is 0 -- which would assert that the target is dry rather "
+            "than estimate it. Refusing; the target needs its own analysis or a "
+            "regional low-flow regression."
+        )
+
+    probs = donor_quantiles["non_exceedance_prob"].to_numpy(dtype=float)
+    exponent_frame = exponents.exponent_at(
+        probs,
+        interpolation=interpolation,
+        extrapolation=extrapolation,
+        b_bounds=b_bounds,
+    )
+    _warn_if_extrapolated(exponent_frame, len(probs))
+
+    bfi_difference: Optional[float] = None
+    if donor_bfi is not None and target_bfi is not None:
+        bfi_difference = abs(float(donor_bfi) - float(target_bfi))
+        if bfi_difference > max_bfi_difference:
+            logger.warning(
+                "Donor and target baseflow indices differ by %.3f (%.3f vs %.3f), more "
+                "than max_bfi_difference=%.3f. Low-flow transposition assumes similar "
+                "baseflow behaviour; this pair may not have it.",
+                bfi_difference,
+                donor_bfi,
+                target_bfi,
+                max_bfi_difference,
+            )
+
+    b_values = exponent_frame["exponent"].to_numpy(dtype=float)
+    factors = area_ratio**b_values
+
+    quantiles = pd.DataFrame(
+        {
+            "non_exceedance_prob": probs,
+            "return_period": donor_quantiles["return_period"].to_numpy(dtype=float),
+            "donor_flow_cfs": donor_flows,
+            "exponent": b_values,
+            "area_ratio_factor": factors,
+            "flow_cfs": donor_flows * factors,
+            "source": exponent_frame["source"].to_numpy(),
+        }
+    )
+
+    provenance = TranspositionProvenance(
+        donor_area_sqmi=float(donor_area_sqmi),
+        target_area_sqmi=float(target_area_sqmi),
+        area_ratio=area_ratio,
+        citation=exponents.citation,
+        region=exponents.region,
+        exponents=exponent_frame,
+        interpolation=interpolation,
+        extrapolation=extrapolation,
+        b_bounds=b_bounds,
+        area_ratio_range=area_ratio_range,
+        area_ratio_in_range=in_range,
+        donor_site_no=donor_site_no,
+        target_name=target_name,
+        statistic=f"{results.n_day}-day low flow",
+        hydrogeologic_setting=hydrogeologic_setting,
+        bfi_difference=bfi_difference,
+    )
+
+    return TransposedResults(
+        quantiles=quantiles,
+        confidence_limits=pd.DataFrame(),
         provenance=provenance,
     )

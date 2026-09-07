@@ -114,7 +114,7 @@ values, which is what the term conventionally means.
 from __future__ import annotations
 
 import calendar
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional, Sequence, Tuple
 
 import numpy as np
 import pandas as pd
@@ -1185,3 +1185,82 @@ def diel_variation_summary(daily_diel: pd.DataFrame) -> pd.Series:
             "mean_diel_cv": complete["cv"].mean() if len(complete) else np.nan,
         }
     )
+
+
+#: Percent-of-time-exceeded points a flow-duration table reports by default.
+#: These are the nine ``Hydrograph.plot_flow_duration_curve`` has always
+#: returned; kept as the default so the standalone function and the plot's
+#: table agree without anyone passing anything.
+DEFAULT_EXCEEDANCE_PCT: Tuple[float, ...] = (1, 5, 10, 20, 50, 80, 90, 95, 99)
+
+
+def flow_duration_curve(
+    daily_data: pd.DataFrame,
+    exceedance_pct: Optional[Sequence[float]] = None,
+) -> pd.DataFrame:
+    """Flow-duration statistics: the discharge exceeded a given percent of the time.
+
+    Whole-record, not per-year -- unlike the rest of this module, a duration
+    curve describes the period of record as a single population.
+
+    This is the computation ``Hydrograph.plot_flow_duration_curve`` has always
+    done as a side effect of drawing the figure. It exists separately because
+    the numbers are useful without the plot, and because transposing a
+    duration curve to an ungaged site (``flowfreq.transpose``) needs them at
+    arbitrary percentiles rather than the nine the plot happens to tabulate.
+
+    Parameters
+    ----------
+    daily_data : pd.DataFrame
+        Daily flows with a ``flow_cfs`` column. NaNs are dropped.
+    exceedance_pct : sequence of float, optional
+        Percent of time exceeded, each strictly between 0 and 100. Defaults
+        to :data:`DEFAULT_EXCEEDANCE_PCT`. Note the direction: 1 is the wet
+        end (exceeded only 1% of the time, so a high flow) and 99 the dry end.
+
+    Returns
+    -------
+    pd.DataFrame
+        Columns ``exceedance_pct``, ``exceedance_prob`` (the same thing as a
+        fraction) and ``flow_cfs``, sorted wet end first.
+
+    Raises
+    ------
+    KeyError
+        If ``daily_data`` has no ``flow_cfs`` column.
+    ValueError
+        If no non-null flows remain, or a percentile is outside (0, 100).
+
+    Examples
+    --------
+    >>> flow_duration_curve(daily)                      # doctest: +SKIP
+    >>> flow_duration_curve(daily, [5, 50, 95])         # doctest: +SKIP
+    """
+    if "flow_cfs" not in daily_data.columns:
+        raise KeyError("daily_data has no 'flow_cfs' column")
+
+    flows = daily_data["flow_cfs"].dropna().to_numpy(dtype=float)
+    if flows.size == 0:
+        raise ValueError("no non-null flows in daily_data; nothing to build a curve from")
+
+    pct = np.asarray(
+        DEFAULT_EXCEEDANCE_PCT if exceedance_pct is None else exceedance_pct, dtype=float
+    ).ravel()
+    if pct.size == 0:
+        raise ValueError("exceedance_pct is empty")
+    if np.any((pct <= 0.0) | (pct >= 100.0)):
+        raise ValueError("every exceedance_pct must lie strictly between 0 and 100")
+
+    # Percent *exceeded* is the complement of the percentile: the flow
+    # exceeded 1% of the time is the 99th percentile of the record. This is
+    # the same expression the plot has always used, so the two agree exactly.
+    values = np.percentile(flows, 100.0 - pct)
+
+    order = np.argsort(pct)
+    return pd.DataFrame(
+        {
+            "exceedance_pct": pct[order],
+            "exceedance_prob": pct[order] / 100.0,
+            "flow_cfs": np.asarray(values, dtype=float)[order],
+        }
+    ).reset_index(drop=True)
