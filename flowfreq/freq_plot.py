@@ -355,6 +355,7 @@ def plot_peak_flows_with_thresholds(
     figsize: Tuple[int, int] = (12, 5),
     ffa_year_range: Optional[Tuple[int, int]] = None,
     mgbt_threshold: Optional[float] = None,
+    mgbt_threshold_source: Optional[str] = None,
     lp3_params: Optional[Tuple[float, float, float]] = None,
     return_periods: Tuple[float, ...] = (2, 5, 10, 25, 50, 100),
     annotate_max_peak: bool = True,
@@ -381,8 +382,15 @@ def plot_peak_flows_with_thresholds(
         Years outside this range are drawn as hollow outline bars so the user
         can see which peaks were excluded from the analysis.
     mgbt_threshold : float, optional
-        MGBT low outlier threshold.  When provided, drawn as a solid red
-        horizontal line across the full record.
+        Low outlier (PILF) cut in cfs, from MGBT or a user override. When
+        provided, drawn as a solid red horizontal line across the full
+        record, and peaks below it are drawn as hollow outline bars -- the
+        third feature the app's ``plot_peak_timeseries`` carried that this
+        function previously did not (TODO.md), so an applied override is
+        visible on the record and not only in the parameter table.
+    mgbt_threshold_source : str, optional
+        Where ``mgbt_threshold`` came from, for the line's legend label
+        (e.g. ``"override"``). Defaults to labelling it ``"MGBT"``.
     lp3_params : tuple of (mean_log, std_log, skew), optional
         The fitted LP3 moments, e.g. ``(r.mean_log, r.std_log, r.skew_used)``
         from a :class:`~flowfreq.core.FrequencyResults`. When given, draws a
@@ -418,25 +426,44 @@ def plot_peak_flows_with_thresholds(
         ffa_start = ffa_end = None
         has_excluded = False
 
-    # Bar chart — years outside FFA range drawn as hollow outline bars
-    if has_excluded:
+    # Peaks below the PILF/MGBT cut are censored out of the fit -- drawing
+    # them hollow, like an excluded year, is what makes the cut visible on
+    # the record rather than only in the parameter table.
+    if mgbt_threshold is not None and mgbt_threshold > 0:
+        censored = flows < mgbt_threshold
+        has_censored = bool(censored.any())
+    else:
+        censored = np.zeros(len(flows), dtype=bool)
+        has_censored = False
+
+    hollow = ~in_range | censored
+
+    # Bar chart -- years outside the FFA range and/or PILF-censored peaks
+    # drawn as hollow outline bars.
+    if has_excluded or has_censored:
         ax.bar(
-            years[in_range],
-            flows[in_range],
+            years[~hollow],
+            flows[~hollow],
             color="steelblue",
             alpha=0.75,
             width=0.8,
-            label="Annual Peak Flow (in analysis)",
+            label="Annual Peak Flow (in analysis)" if has_excluded else "Annual Peak Flow",
         )
+        if has_excluded and has_censored:
+            hollow_label = "Excluded from FFA / low outlier"
+        elif has_censored:
+            hollow_label = f"Low outlier, censored ({int(censored.sum())})"
+        else:
+            hollow_label = "Excluded from FFA"
         ax.bar(
-            years[~in_range],
-            flows[~in_range],
+            years[hollow],
+            flows[hollow],
             facecolor="none",
             edgecolor="steelblue",
             linewidth=0.8,
             alpha=0.7,
             width=0.8,
-            label="Excluded from FFA",
+            label=hollow_label,
         )
     else:
         ax.bar(years, flows, color="steelblue", alpha=0.75, width=0.8, label="Annual Peak Flow")
@@ -449,7 +476,7 @@ def plot_peak_flows_with_thresholds(
             linestyle="-",
             linewidth=1.2,
             alpha=0.8,
-            label=f"MGBT threshold: {mgbt_threshold:,.0f} cfs",
+            label=f"PILF threshold: {mgbt_threshold:,.0f} cfs ({mgbt_threshold_source or 'MGBT'})",
             zorder=5,
         )
 

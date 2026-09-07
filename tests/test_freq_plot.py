@@ -162,6 +162,37 @@ class TestPlotPeakFlowsWithThresholds:
         assert any(abs(line.get_ydata()[0] - 500.0) < 1e-6 for line in ax.lines)
         plt.close(fig)
 
+    def test_peaks_below_the_threshold_are_censored_hollow(self, peak_df):
+        """A PILF/MGBT cut hollows out the bars below it -- the third feature
+        moved in from the app's plot_peak_timeseries (TODO.md), so an applied
+        override is visible on the record itself."""
+        threshold = float(peak_df["peak_flow_cfs"].median())
+        n_below = int((peak_df["peak_flow_cfs"] < threshold).sum())
+        assert 0 < n_below < len(peak_df)  # fixture actually exercises both sides
+
+        fig = plot_peak_flows_with_thresholds(peak_df, mgbt_threshold=threshold)
+        ax = fig.axes[0]
+        # Total bars drawn still equals one per year, split solid/hollow.
+        assert len(ax.patches) == len(peak_df)
+        hollow_patches = [p for p in ax.patches if p.get_facecolor()[3] == 0]
+        assert len(hollow_patches) == n_below
+        plt.close(fig)
+
+    def test_no_threshold_leaves_every_bar_solid(self, peak_df):
+        fig = plot_peak_flows_with_thresholds(peak_df)
+        ax = fig.axes[0]
+        assert all(p.get_facecolor()[3] != 0 for p in ax.patches)
+        plt.close(fig)
+
+    def test_threshold_source_appears_in_the_legend_label(self, peak_df):
+        fig = plot_peak_flows_with_thresholds(
+            peak_df, mgbt_threshold=500.0, mgbt_threshold_source="override"
+        )
+        ax = fig.axes[0]
+        labels = [line.get_label() for line in ax.lines]
+        assert any("override" in lbl for lbl in labels)
+        plt.close(fig)
+
 
 class TestReturnPeriodLinesAndMaxPeakAnnotation:
     """The two features ported in from the app's ``plot_peak_timeseries`` (TODO.md).

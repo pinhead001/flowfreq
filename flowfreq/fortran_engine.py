@@ -257,26 +257,26 @@ def build_emafit_arrays(
     for year in sorted(all_years):
         if year in historical_by_year:
             flow = historical_by_year[year]
-            ql = qu = QMIN if flow == 0.0 else flow
+            row_ql = row_qu = QMIN if flow == 0.0 else flow
             # No declared threshold for this specific historic year: the
             # flood's own value is the smallest flow that would have been
             # noticed, the same fallback
             # ExpectedMomentsAlgorithm._build_flow_intervals uses
             # (`threshold = self._ema_params.historical_threshold or flow`).
-            tl = threshold_by_year.get(year, flow if flow > 0.0 else QMIN)
+            row_tl = threshold_by_year.get(year, flow if flow > 0.0 else QMIN)
             # siteQT clamps every tl below Qmin up to Qmin (readInputs.R line
             # 1046) unconditionally -- not only for gap-filled rows -- so a
             # historic peak sitting inside a declared-but-vacuous (0.0)
             # threshold period reads as "unrestricted", the same as no
             # threshold at all, rather than taking log10(0).
-            tl = max(tl, QMIN)
-            rows.append((year, ql, qu, tl, QMAX, 1))
+            row_tl = max(row_tl, QMIN)
+            rows.append((year, row_ql, row_qu, row_tl, QMAX, 1))
         elif year in peak_by_year:
             flow = peak_by_year[year]
-            ql = qu = QMIN if flow == 0.0 else flow
-            tl = max(threshold_by_year.get(year, QMIN), QMIN)
+            row_ql = row_qu = QMIN if flow == 0.0 else flow
+            row_tl = max(threshold_by_year.get(year, QMIN), QMIN)
             systematic_peaks[year] = flow
-            rows.append((year, ql, qu, tl, QMAX, 0))
+            rows.append((year, row_ql, row_qu, row_tl, QMAX, 0))
         else:
             # A gap year: no observation, but a perception threshold was
             # declared for it. siteQT (readInputs.R lines ~1030-1051):

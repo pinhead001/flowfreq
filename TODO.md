@@ -916,24 +916,25 @@ it is the oracle for `detrat`.
 Small, specified, none blocking. (The second-parity-case item that used to head this list is
 done — see the P3 table above and the Done section.)
 
-- [ ] **`plot_peak_flows_with_thresholds` is still uncalled.** `streamlit_app.py`, now in the
-      separate `flowfreq-app` repository, has its own `plot_peak_timeseries` carrying
-      return-period lines and the max-peak recurrence annotation that the library function
-      did not. **Library half done**: both features are now on `plot_peak_flows_with_thresholds`
-      itself, opt-in via a new `lp3_params=(mean_log, std_log, skew)` argument — dotted
-      reference lines at each of `return_periods` (default 2/5/10/25/50/100-yr), each labelled
-      at the right margin, plus (when `annotate_max_peak=True`, the default) an annotation on
-      the largest peak in the record giving its recurrence interval, read exactly off
-      `core.log_pearson3_cdf` rather than interpolated off the drawn lines. A peak whose
-      recurrence would round to more than 10x the largest requested return period (including
-      the CDF's exact saturation to 0/1 for a peak far off the fitted curve) is reported as
-      `"> {max return period}-yr"` instead of a meaningless multi-billion-year number. Tested in
-      `tests/test_freq_plot.py::TestReturnPeriodLinesAndMaxPeakAnnotation` (line placement,
-      value correctness against `_lp3_quantiles`, the single-legend-entry grouping, the
-      annotation-off toggle, and the saturation bound). **Still open**: release, bump the app's
-      pin, then delete `flowfreq-app`'s own `plot_peak_timeseries` and switch it to call this
-      function with its already-computed LP3 moments — that part spans a second repository and
-      a version bump, and is explicitly out of scope for the library-side change above.
+- [x] **`plot_peak_flows_with_thresholds` dedupe -- library side done.**
+      `streamlit_app.py`'s own `plot_peak_timeseries` carried three things the library
+      function didn't: return-period lines, a max-peak recurrence annotation, and hollow bars
+      for peaks below a PILF/MGBT cut. All three are now on `plot_peak_flows_with_thresholds`:
+      the first two via `lp3_params=(mean_log, std_log, skew)` (dotted reference lines at each
+      of `return_periods`, default 2/5/10/25/50/100-yr, each labelled at the right margin, plus
+      -- when `annotate_max_peak=True`, the default -- an annotation on the largest peak giving
+      its recurrence interval, read exactly off `core.log_pearson3_cdf` rather than interpolated
+      off the drawn lines; a recurrence beyond 10x the largest requested return period, including
+      the CDF's exact 0/1 saturation, reports `"> {max return period}-yr"` instead of a
+      meaningless multi-billion-year number); the third by extending the existing
+      `mgbt_threshold` parameter (previously line-only) to also hollow-out bars below it, plus a
+      new `mgbt_threshold_source` argument for the line's label (`"override"` vs. the default
+      `"MGBT"`), matching the app's own PILF-source labelling. Tested in
+      `tests/test_freq_plot.py::TestReturnPeriodLinesAndMaxPeakAnnotation` and
+      `TestPlotPeakFlowsWithThresholds` (censored-hollow-bar count, no-threshold-stays-solid,
+      source label). App-side switch (calling this instead of `plot_peak_timeseries`, then
+      deleting the app's copy) is in progress on `flowfreq-app`'s `v0.5.0` bump branch --
+      see that repo's `TODO.md` for status.
 
 - [x] **`FrequencyComparator` compares every parameter by percent difference.** That was the
       wrong metric for skew, which legitimately crosses zero: Big Sandy's reference at-site
