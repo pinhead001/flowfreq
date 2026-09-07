@@ -13,6 +13,8 @@ Includes:
 """
 
 import logging
+from importlib.metadata import PackageNotFoundError
+from importlib.metadata import version as _installed_version
 
 from .bulletin17c import (
     Bulletin17C,
@@ -153,7 +155,20 @@ def analyze_gage(
     }
 
 
-__version__ = "0.4.0"
+# Read from the installed distribution rather than repeated here as a
+# literal. The literal drifted every time: it read "0.3.0" through the 0.4.0
+# release (docs/PHASE1_RUNBOOK.md still records it saying so) and "0.4.0"
+# through 0.5.0, 0.6.0 and 0.6.1, so `flowfreq.__version__` has spent most of
+# this project's life reporting a version that was not the one installed.
+# pyproject.toml is the single source of truth; this reads what pip actually
+# installed from it, which cannot disagree.
+try:
+    __version__ = _installed_version("flowfreq")
+except PackageNotFoundError:  # pragma: no cover - only in an uninstalled checkout
+    # No dist-info: someone is importing from a source tree they never
+    # installed. Saying so is better than naming a version that may be wrong.
+    __version__ = "unknown"
+
 __author__ = "FlowFreq"
 
 __all__ = [
