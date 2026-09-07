@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0]
+
+### Added
+- `plot_peak_flows_with_thresholds`'s `mgbt_threshold` now also draws peaks below the cut as
+  hollow outline bars, matching what `flowfreq-app`'s own `plot_peak_timeseries` did that this
+  function previously didn't -- the third and last of the three features the app carried
+  (0.5.0 moved the other two, return-period lines and the max-peak annotation). A new
+  `mgbt_threshold_source` argument labels the threshold line's legend entry (`"override"` vs.
+  the default `"MGBT"`), matching the app's own PILF-source distinction. This closes the plot
+  dedupe: `flowfreq-app` can now switch to this function and delete its own copy entirely.
+
+### Fixed
+- `fortran_engine.build_emafit_arrays` reused the scalar loop-local names `ql`/`qu`/`tl` for
+  the final `ql`/`qu`/`tl` arrays later in the same function -- harmless at runtime (Python
+  doesn't care), but a real mypy violation (`error: Incompatible types in assignment`).
+  Renamed the loop-locals to `row_ql`/`row_qu`/`row_tl`.
+- **`make clean` never wiped `.mypy_cache`**, which is how the error above shipped in 0.5.0
+  despite `clean-verify` passing repeatedly: mypy's incremental cache can mask a real error on
+  a file it already has a (stale, error-free) entry for, the exact failure mode
+  `clean-verify` exists to rule out for the rest of the tree. `clean` now removes it too.
+
 ## [0.5.0]
 
 ### Added
