@@ -360,14 +360,19 @@ class Hydrograph:
         if save_path:
             fig.savefig(save_path, dpi=300, bbox_inches="tight")
 
-        # Compute flow duration statistics
-        percentiles_exceeded = [1, 5, 10, 20, 50, 80, 90, 95, 99]
-        flow_stats = []
-        for pct in percentiles_exceeded:
-            flow_value = np.percentile(flows, 100 - pct)
-            flow_stats.append({"Percent Exceeded": f"{pct}%", "Flow (cfs)": flow_value})
+        # Flow duration statistics come from regime.flow_duration_curve, so
+        # the table drawn here and the standalone statistics are one
+        # computation rather than two that can drift. The column names below
+        # are this method's long-standing output and are kept as they were.
+        from .regime import flow_duration_curve
 
-        stats_df = pd.DataFrame(flow_stats)
+        curve = flow_duration_curve(daily_data)
+        stats_df = pd.DataFrame(
+            {
+                "Percent Exceeded": [f"{pct:g}%" for pct in curve["exceedance_pct"]],
+                "Flow (cfs)": curve["flow_cfs"].to_numpy(),
+            }
+        )
 
         if table_path:
             stats_df.to_csv(table_path, index=False)

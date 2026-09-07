@@ -36,12 +36,28 @@ from .core import (
 from .flowio import load_flow_frame, save_flow_frame
 from .hydrograph import Hydrograph
 from .lowflow import LOW_FLOW_YEAR_TYPES, LowFlowFrequency, annual_minimum_flow
+from .qppq import (
+    MONTHLY_SEASONS,
+    SNOWMELT_SEASONS,
+    FlowDurationCurve,
+    QppqResult,
+    apply_lag,
+    center_of_timing,
+    estimate_donor_lag,
+    loocv_qppq,
+    performance,
+    qppq,
+    rank_donors,
+    seasonal_curves,
+)
 from .regime import (
     BASEFLOW_METHODS,
+    DEFAULT_EXCEEDANCE_PCT,
     FlowRegime,
     baseflow_index,
     diel_variation,
     diel_variation_summary,
+    flow_duration_curve,
     monthly_flow_summary,
     richards_baker_flashiness,
     seasonal_flow_summary,
@@ -49,6 +65,17 @@ from .regime import (
     tqmean,
 )
 from .report import HydroReport
+from .transpose import (
+    DEFAULT_AREA_RATIO_RANGE,
+    LOW_FLOW_AREA_RATIO_RANGE,
+    PROBABILITY_KINDS,
+    RegressionExponents,
+    TransposedResults,
+    TranspositionProvenance,
+    transpose_duration,
+    transpose_frequency,
+    transpose_low_flow,
+)
 from .usgs import (
     GageAttributes,
     NoInstantaneousDataError,
@@ -181,6 +208,29 @@ __all__ = [
     "kfactor",
     "kfactor_array",
     "grubbs_beck_critical_value",
+    # QPPQ daily-series transfer
+    "FlowDurationCurve",
+    "QppqResult",
+    "qppq",
+    "seasonal_curves",
+    "center_of_timing",
+    "estimate_donor_lag",
+    "apply_lag",
+    "rank_donors",
+    "performance",
+    "loocv_qppq",
+    "SNOWMELT_SEASONS",
+    "MONTHLY_SEASONS",
+    # Transposition to an ungaged site
+    "RegressionExponents",
+    "TransposedResults",
+    "TranspositionProvenance",
+    "transpose_frequency",
+    "transpose_duration",
+    "transpose_low_flow",
+    "PROBABILITY_KINDS",
+    "DEFAULT_AREA_RATIO_RANGE",
+    "LOW_FLOW_AREA_RATIO_RANGE",
     # Low-flow frequency analysis
     "LowFlowResults",
     "LowFlowFrequency",
@@ -191,6 +241,8 @@ __all__ = [
     "richards_baker_flashiness",
     "tqmean",
     "baseflow_index",
+    "flow_duration_curve",
+    "DEFAULT_EXCEEDANCE_PCT",
     "separate_baseflow",
     "monthly_flow_summary",
     "seasonal_flow_summary",

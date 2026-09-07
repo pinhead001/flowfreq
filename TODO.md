@@ -74,6 +74,68 @@ reference (CLAUDE.md's Test Data section) -- not evidence of anything left to po
 
 ## Open Items (prioritised)
 
+### Next — transposing computed flows to an ungaged site
+
+Specified in **`docs/TRANSPOSITION_DESIGN.md`**. Read that before writing any more of it; as
+with the Fortran engine, the parts with a silent failure mode are written down there rather
+than left to be improvised.
+
+Drainage-area-ratio transposition of a donor gage's fitted statistics to a nearby ungaged
+site, `Q_t(p) = Q_d(p) * (A_t/A_d)**b(p)`, with `b(p)` from the applicable published USGS
+regional regression rather than assumed to be 1.
+
+- [x] **`RegressionExponents`** (exponents by AEP + a **mandatory** citation -- the class
+      will not construct without one) and the interpolation/extrapolation of `b(p)` onto the
+      AEPs actually computed. Interpolated against the normal deviate; `linear` by default
+      because a reviewer can reproduce it with a calculator, `pchip` available and measured
+      to differ by <0.005 over a normal published set. `flowfreq/transpose.py`.
+- [x] **`transpose_frequency`** + guardrails (area-ratio band 0.5-1.5, raises by default
+      outside it, `allow_out_of_range=True` transposes anyway and records the violation) +
+      `to_markdown()` showing the per-quantile arithmetic and every caveat that applies.
+- [x] **`regime.flow_duration_curve`** — duration statistics were a by-product of drawing a
+      figure, at nine hardcoded percentiles. Now a function, at arbitrary percentiles;
+      `Hydrograph.plot_flow_duration_curve` delegates to it, so the table it has always
+      returned is one computation rather than two that can drift, pinned by a test asserting
+      the plot's numbers and column names did not move.
+- [x] **`transpose_duration`** — same machinery, exponents indexed by exceedance fraction,
+      because `b` is not constant across a duration curve (near-linear at the wet end where
+      area sets the flow, falling away at the dry end where geology does). A zero donor
+      statistic comes back `NaN`, never `0`: scaling a zero would assert the target is dry
+      rather than estimate it.
+- [x] **`transpose_low_flow`** — separate function, tighter band (0.7-1.3), a **required**
+      `hydrogeologic_setting` assertion recorded in provenance, refusal on a zero statistic
+      or a donor that ever goes dry, and an optional BFI similarity screen.
+
+**The category error is now unreachable, not just documented.** The design said a flood
+exponent applied to 7Q10 is a category error and answered it with separate functions -- but
+separate functions were not enough, because the *arguments* were still interchangeable and
+nothing stopped a flood exponent set being passed to the low-flow one. `RegressionExponents`
+now carries a `probability_kind` (`"aep"` / `"exceedance"` / `"non_exceedance"`) and each
+function requires its own, so the mistake raises rather than returning a plausible wrong
+number. Worth remembering as a pattern: a guardrail that lives only in which function you
+call is not a guardrail if the inputs still fit both.
+
+**The whole standard AEP set transposes, 0.995 down to 0.002** -- all fourteen points, not
+just the flood range. The six more frequent than Q2 sit below anything a flood regression
+publishes: in normal-deviate space AEP 0.995 is at `z = -2.58`, as far *below* the published
+range as Q500 is above it. They are transposed on a clamped (endpoint-held) exponent, and
+every one of them is flagged `extrapolated` in the provenance, logged once, and named in the
+markdown caveats. That is the honest posture, not a fix: a flood regression's exponent
+describes flood response, and at AEP 0.9 it is being asked about flows that are not floods.
+Where duration-regression exponents exist for the frequent end, supplying them in the same
+`RegressionExponents` removes the extrapolation entirely -- deliberately a matter of passing
+more points, not calling a different function.
+
+Two things the design doc argues and this list should not lose:
+
+- **A flood exponent applied to 7Q10 is a category error**, not an approximation. Low flows
+  are controlled by baseflow storage and geology; that is why published low-flow regressions
+  carry a geology term and flood regressions do not. Hence `transpose_low_flow` as a
+  separate function rather than a flag on the flood path.
+- **QPPQ (probability-preserving) transfer** of a whole daily series is the right tool when
+  the caller wants a time series rather than statistics, and is deliberately **deferred** --
+  a much larger piece that needs a target-site FDC from somewhere.
+
 ### Done — the Fortran as a selectable engine
 
 Specified in **`docs/FORTRAN_ENGINE_DESIGN.md`**; all five pieces from that doc's estimate
