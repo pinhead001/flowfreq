@@ -68,6 +68,21 @@ make parity
 python tools/gen_fortran_golden.py
 
 black flowfreq/ tests/ && isort flowfreq/ tests/
+
+# mypy over flowfreq/. A separate CI job (`ci / lint`) from the black/isort
+# check, and easy to miss: this command list ran black+isort+pytest for a
+# while with no mention of it, which is exactly how v0.7.0 shipped ten mypy
+# errors in transpose.py/qppq.py straight to main without anyone running it
+# locally first -- pytest was, and stayed, fully green throughout. The
+# pyproject.toml [tool.mypy] override list documents which modules are
+# exempted (legacy debt) versus enforced (new modules by default, including
+# any you add).
+mypy flowfreq/
+
+# make check == lint (black --check + isort --check-only) + typecheck (mypy) + test,
+# in CI's exact order -- the one command that actually reproduces the `ci / lint`
+# and `ci / test` jobs together.
+make check
 ```
 
 **Reproduce CI faithfully.** Two traps have both cost a red build:
