@@ -40,7 +40,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import Optional, Sequence, Tuple
+from typing import Optional, Sequence, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -253,7 +253,7 @@ class RegressionExponents:
 
     def exponent_at(
         self,
-        aeps: Sequence[float],
+        aeps: Union[Sequence[float], np.ndarray],
         *,
         interpolation: str = "linear",
         extrapolation: str = "clamp",

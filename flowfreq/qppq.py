@@ -71,7 +71,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from typing import Callable, Dict, Mapping, Optional, Sequence, Tuple, Union
+from typing import Any, Callable, Dict, Mapping, Optional, Sequence, Tuple, Union, cast
 
 import numpy as np
 import pandas as pd
@@ -434,7 +434,7 @@ def qppq(
         donor_map: Dict[str, FlowDurationCurve] = donor_curve
         target_map: Dict[str, FlowDurationCurve] = target_curve
         grouping = SNOWMELT_SEASONS if seasons is None else seasons
-        labels = _season_of(frame.index, grouping)
+        labels = _season_of(donor_daily.index, grouping)
         absent = set(np.unique(labels)) - set(donor_map)
         if absent:
             raise ValueError(f"no donor curve for season(s) {sorted(absent)}")
@@ -576,8 +576,9 @@ def rank_donors(
         both_positive = joined[(joined["target"] > 0) & (joined["donor"] > 0)]
         n = int(len(both_positive))
         if n >= 2:
-            logs = np.log10(both_positive)
-            pearson = float(logs["target"].corr(logs["donor"]))
+            log_target = np.log10(both_positive["target"])
+            log_donor = np.log10(both_positive["donor"])
+            pearson = float(log_target.corr(log_donor))
             spearman = float(
                 both_positive["target"].corr(both_positive["donor"], method="spearman")
             )
@@ -774,7 +775,9 @@ def loocv_qppq(
             )
             continue
 
-        metrics = performance(paired["observed"], paired["estimated"])
+        metrics = performance(
+            paired["observed"].to_numpy(dtype=float), paired["estimated"].to_numpy(dtype=float)
+        )
         rows.append(
             {
                 "site": name,
@@ -832,18 +835,23 @@ def center_of_timing(
         raise TypeError("daily_data must have a DatetimeIndex")
 
     frame = daily_data[[flow_column]].copy()
-    frame["water_year"] = assign_year_label(frame.index, "water")
+    frame["water_year"] = assign_year_label(daily_data.index, "water")
     frame = frame.dropna(subset=[flow_column])
 
     rows = []
     for year, group in frame.groupby("water_year"):
+        # pandas-stubs types a groupby key over a mixed-dtype-capable union
+        # (str/date/complex/...); this column is always int (assign_year_label's
+        # contract), so int() on it is genuinely safe -- the cast documents that
+        # to mypy without disabling checking on the rest of the line.
+        water_year = int(cast(Any, year))
         flows = group[flow_column].to_numpy(dtype=float)
         n_days = int(flows.size)
         total = float(flows.sum())
         if n_days < min_days or total <= 0:
             rows.append(
                 {
-                    "water_year": int(year),
+                    "water_year": water_year,
                     "n_days": n_days,
                     "center_of_timing_dowy": float("nan"),
                     "complete": False,
@@ -855,7 +863,7 @@ def center_of_timing(
         dowy = int(np.searchsorted(cumulative, 0.5 * total) + 1)
         rows.append(
             {
-                "water_year": int(year),
+                "water_year": water_year,
                 "n_days": n_days,
                 "center_of_timing_dowy": float(dowy),
                 "complete": True,
