@@ -47,6 +47,12 @@ from .regime import (
     tqmean,
 )
 from .report import HydroReport
+from .transpose import (
+    RegressionExponents,
+    TransposedResults,
+    TranspositionProvenance,
+    transpose_frequency,
+)
 from .usgs import (
     GageAttributes,
     NoInstantaneousDataError,
@@ -166,6 +172,11 @@ __all__ = [
     "kfactor",
     "kfactor_array",
     "grubbs_beck_critical_value",
+    # Transposition to an ungaged site
+    "RegressionExponents",
+    "TransposedResults",
+    "TranspositionProvenance",
+    "transpose_frequency",
     # Low-flow frequency analysis
     "LowFlowResults",
     "LowFlowFrequency",

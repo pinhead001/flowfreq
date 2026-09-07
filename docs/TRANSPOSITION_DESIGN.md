@@ -4,9 +4,10 @@ Moving a computed streamflow statistic from a gaged donor basin to a nearby
 ungaged target basin by drainage-area ratio, with the exponent taken from the
 applicable published USGS regional regression.
 
-**Status: design only.** Nothing here is implemented. This document exists so
-the work starts from a specification, and so the parts with silent failure
-modes are written down before anyone builds them.
+**Status: the flood series is implemented** in `flowfreq/transpose.py`
+(`RegressionExponents`, `transpose_frequency`, `TransposedResults`), tested in
+`tests/test_transpose.py`. Sections 6 and 7 — flow-duration and low-flow
+transposition — remain design only.
 
 ---
 
@@ -74,7 +75,8 @@ Three ways to get it wrong, all silent:
 2. Applying a flood exponent to a low-flow or flow-duration statistic
    (section 7 — this is a category error, not an approximation).
 3. Extrapolating `b(p)` past the range the regression was published over,
-   which is **guaranteed to happen for Q1.1** (section 4).
+   which is **guaranteed for every quantile more frequent than Q2** —
+   six of the fourteen in the standard set (section 4).
 
 The module cannot detect (1). It must therefore *record* the citation as
 mandatory provenance and refuse to run without one, rather than accept a bare
@@ -96,14 +98,16 @@ take at face value.
 
 ---
 
-## 4. The exponent set, and the Q1.1 problem
+## 4. The exponent set, and the frequent end
 
 Published flood regressions give `b` at a fixed handful of AEPs — typically
-50%, 20%, 10%, 4%, 2%, 1%, 0.5%, 0.2% (Q2 through Q500). The caller wants a
-full set of transposed quantiles, and `run_analysis` will happily have
-computed Q1.1 (90.9% AEP), which no flood regression publishes.
+50%, 20%, 10%, 4%, 2%, 1%, 0.5%, 0.2% (Q2 through Q500).
+`Bulletin17C.STANDARD_AEP` runs from **0.995 to 0.002** — fourteen points,
+Q1.005 through Q500. The whole set transposes: `transpose_frequency` scales
+every quantile the donor carries, and the six more frequent than Q2 are the
+ones the published regression has nothing to say about.
 
-So `b(p)` has to be interpolated between published points and, at the low end,
+So `b(p)` has to be interpolated between published points and, below AEP 0.50,
 extrapolated beyond them.
 
 ### Interpolating
@@ -120,32 +124,43 @@ region-specific and the module must not assume one**. Use a shape-preserving
 interpolant (PCHIP) or plain linear interpolation; do not fit a spline that
 can overshoot between published points.
 
-### Extrapolating — and why Q1.1 is a different question
+### Extrapolating to the frequent end
 
-Below Q2, linear extrapolation of `b` in `z` is unconstrained and can walk the
-exponent somewhere physically meaningless. Two defenses, both needed:
+This is the load-bearing decision, and it is worth being precise about how far
+the extrapolation actually reaches. In normal-deviate space the published set
+spans `z = 0` (AEP 0.50) to `z = 2.88` (AEP 0.002). AEP 0.995 sits at
+`z = -2.58`. **The frequent end is as far below the published range as Q500 is
+above it** — it is a long extrapolation, not a short one, and the six
+quantiles more frequent than Q2 all live there.
 
-- Default `extrapolation="clamp"`: hold the endpoint exponent. `"linear"` is
-  available for a caller who has a reason; `"error"` refuses.
-- A hard `b_bounds` clamp (default `(0.5, 1.0)`) applied regardless of mode.
+Two defenses, both implemented:
 
-Every extrapolated AEP is recorded by name in the provenance and logged once,
-so a report can say which quantiles were transposed on an extrapolated
-exponent rather than a published one.
+- Default `extrapolation="clamp"`: hold the endpoint exponent. `"linear"`
+  extends the slope through the two nearest published points for a caller who
+  has a reason; `"error"` refuses outright. Clamp is the default because
+  extending a trend 2.6 normal deviates past the last observation is a curve
+  fit, not an estimate.
+- A hard `b_bounds` clamp (default `(0.5, 1.0)`) applied after either mode,
+  with the affected AEPs flagged separately. This is a backstop against a
+  pathological exponent set, not a routine correction: on a normally-sloped
+  published set, even full linear extrapolation to AEP 0.995 only reaches
+  about 0.89, so the bound does not bite. `test_linear_extrapolation_to_0995
+  _stays_under_the_default_bound` measures that rather than assuming it.
 
-**But the honest answer for Q1.1 is that no amount of careful extrapolation
-makes a flood regression's exponent right there.** Q1.1 is not a flood. It
-sits in the annual-minimum-of-annual-maxima range, where the controlling
-physics is baseflow and channel geometry, not flood response, and where the
-regression it came from has no observations at all. A flood exponent
-extrapolated to 90% AEP is a curve-fit past the edge of its own evidence.
+Every extrapolated AEP is recorded in the provenance, logged once, and named
+in `to_markdown()`'s caveats, so a report says which quantiles rest on a
+published exponent and which on an assumption of the analysis.
 
-The recommendation is therefore to **let the caller supply a separate
-low-end exponent source** (a flow-duration or low-flow regression, section
-6–7) for AEPs above roughly 50%, and to flag — loudly, in the result and in
-any report the result feeds — every quantile transposed outside the flood
-regression's published AEP range. The module should make it easy to do the
-right thing and impossible to do the wrong thing quietly.
+**The honest caveat, which flagging does not remove:** a flood regression's
+exponent describes flood response. Extrapolated to AEP 0.9 or 0.995 it is
+being asked about flows that are not floods, where baseflow and channel
+geometry control the scaling and the regression has no observations at all.
+Clamping keeps the arithmetic sane and the flagging keeps it honest, but the
+better answer, where the data exist, is to **supply exponents covering the
+frequent end** — from a flow-duration regression (section 6) — in the same
+`RegressionExponents`. Doing that removes the extrapolation entirely, and the
+API deliberately makes it a matter of passing more points rather than calling
+a different function.
 
 ---
 
@@ -173,7 +188,7 @@ transposed = transpose_frequency(
 
 transposed.quantiles            # same shape as FrequencyResults.quantiles
 transposed.provenance.area_ratio        # 0.736
-transposed.provenance.extrapolated_aeps # [0.909] -- Q1.1, flagged
+transposed.provenance.extrapolated_aeps # [0.995 ... 0.67] -- flagged
 transposed.to_markdown()        # the arithmetic, per quantile, for an appendix
 ```
 
@@ -300,7 +315,7 @@ would make the strict path reachable by accident from the lenient one.
 | Risk | Test |
 |---|---|
 | Exponent interpolation wrong | Reproduce published `b` values exactly at the published AEPs (interpolation must be an identity there) |
-| Extrapolation silently wrong | Assert Q1.1 is flagged in `extrapolated_aeps`, and that `clamp` holds the endpoint while `error` raises |
+| Extrapolation silently wrong | Assert every AEP above 0.50 is flagged in `extrapolated_aeps`, that `clamp` holds the endpoint, and that `error` raises |
 | Area-ratio band not enforced | Ratios of 0.4 and 1.6 raise; 0.5/1.5 pass; override records the violation |
 | Arithmetic wrong | Hand-computed transposition on a fixture (Big Sandy, halved area) checked against the closed form per quantile |
 | Monotonicity lost | Transposed quantiles must remain monotone in AEP for any valid exponent set |
@@ -315,15 +330,14 @@ exponent-plumbing bug that no eyeball review would.
 
 ## 9. Estimate
 
-| Piece | Estimate |
-|---|---|
-| `RegressionExponents` + interpolation/extrapolation + provenance | 0.5 day — the risk lives in extrapolation policy |
-| `transpose_frequency` + guardrails + markdown output | 0.5 day |
-| Standalone FDC extraction out of `hydrograph.py` | 2 h |
-| `transpose_duration` | 2 h once the FDC function exists |
-| `transpose_low_flow` + similarity screen | 0.5 day |
-| **Total, first pass** | **~2 days** |
-| QPPQ daily-series transfer, if pursued later | ~1 week |
+| Piece | Estimate | State |
+|---|---|---|
+| `RegressionExponents` + interpolation/extrapolation + provenance | 0.5 day — the risk lives in extrapolation policy | **Done** |
+| `transpose_frequency` + guardrails + markdown output | 0.5 day | **Done** |
+| Standalone FDC extraction out of `hydrograph.py` | 2 h | Not started |
+| `transpose_duration` | 2 h once the FDC function exists | Not started |
+| `transpose_low_flow` + similarity screen | 0.5 day | Not started |
+| QPPQ daily-series transfer, if pursued later | ~1 week | Deferred |
 
 ---
 
@@ -348,6 +362,6 @@ exponent-plumbing bug that no eyeball review would.
    to use. Deliberately out of scope for the first pass; note it so the API
    does not foreclose it.
 4. **Does the target need its own AEP set?** Transposing preserves AEPs by
-   construction, so no — but a caller who wants Q1.1 at the target and did
+   construction, so no — but a caller who wants an AEP at the target and did
    not compute it at the donor cannot get it by transposition. Worth an
    explicit error rather than a quiet empty row.
