@@ -353,10 +353,30 @@ the CLOMR/LOMR case this is for.
 
 - [x] **Bump the app's pin once `v0.4.0` is tagged.** Done: `flowfreq-app/requirements.txt`
       now pins `flowfreq@v0.4.0` (local branch `bump-flowfreq-0.4.0` in that checkout, not
-      yet merged to its `main` or pushed to origin -- see `flowfreq-app/TODO.md`). Verifying
-      the app produces identical numbers post-bump, and deleting the app's local
-      `plot_peak_timeseries` copy, are still open -- the latter also needs the library-side
-      move from the Follow-ups item below, which has not happened yet.
+      yet merged to its `main` or pushed to origin -- see `flowfreq-app/TODO.md`).
+
+      **The app's reported numbers do not change.** An earlier version of this entry said
+      the bump was "a visible change to the deployed app"; that was wrong. `streamlit_app.py`
+      goes through `workflow.run_ffa` to `Bulletin17C` and never constructs a `B17CEngine`,
+      and the 0.4.0 station-skew fix is confined to `B17CEngine`. Checked against the whole
+      `v0.3.0..v0.4.0` diff of `flowfreq/`: on the app's path, `freq_plot.py` is a rename
+      plus an alias and docstrings, `workflow.py` is one docstring reference, and
+      `bulletin17c.py` is a `TYPE_CHECKING` import block. No arithmetic moves.
+
+      So the expectation when verifying the bump is **identical output**, and a difference
+      is a defect rather than the change landing. What is worth smoke-testing is the
+      `plot_frequency_curve` rename: the app still imports the old
+      `plot_frequency_curve_streamlit`, which survives only as an alias. `make test` in the
+      app repo catches that, since importing `streamlit_app.py` executes it in Streamlit's
+      bare mode.
+
+      `batch.batch_summary_table` and `plots` are the consumers that *do* move with the
+      skew fix -- see the CHANGELOG for the measured deltas -- and neither is used by the
+      app.
+
+      Still open on this item: running that verification and smoke test against the bumped
+      branch, and deleting the app's local `plot_peak_timeseries` copy -- the latter also
+      needs the library-side move from the Follow-ups item below, which has not happened yet.
 
 ### P3 — The `var_mom` port, now complete
 

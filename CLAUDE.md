@@ -73,10 +73,39 @@ black flowfreq/ tests/ && isort flowfreq/ tests/
 **Reproduce CI faithfully.** Two traps have both cost a red build:
 
 - `python -m pytest` puts the working directory on `sys.path`; CI runs the `pytest` console
-  script, which does not. Use `PYTHONSAFEPATH=1 python -m pytest` to match CI.
+  script, which does not. The `test`, `cov`, `test-all` and `parity` targets set
+  `PYTHONSAFEPATH=1` for you; invoking pytest by hand, set it yourself.
 - CI tests Python 3.9–3.12. A green run on one interpreter says nothing about the others —
   fixture plumbing in particular diverges (a `@staticmethod` fixture works on 3.11 and breaks
   collection on 3.9).
+
+**Prefer the `make` targets to the bare commands above**, and on Windows treat them as the
+only supported route. Four things differ there. The last three the Makefile handles; the
+first is on you at every invocation:
+
+- **Run make with the virtualenv on PATH** — activate it, or go through a runner that does
+  (`uv run make check`). The Makefile invokes `python`, and a bare `python` in `cmd.exe`
+  resolves to the Microsoft Store shim rather than the venv's interpreter when nothing has
+  put the venv on PATH. The failure names the wrong problem — `No module named black`
+  against a `WindowsApps\...` path — which reads as a missing package but is the wrong
+  interpreter, so reinstalling the package cannot help. Passing `PYTHON=<venv>\python.exe`
+  covers every target that only needs the interpreter, but not `fortran` or `parity`:
+  `build_fortran/build.py` locates meson with `shutil.which`, a PATH lookup, and meson is
+  normally pip-installed into the venv — so with the venv off PATH it exits
+  `ERROR: meson not found on PATH` however correct the interpreter is.
+- `make` is not installed by default (`winget install ezwinports.make`), and its recipes run
+  through `cmd.exe`, which cannot parse Unix inline env-var syntax. Both variables are
+  therefore set with `export`, which make applies itself rather than handing to a shell.
+- `PYTHONUTF8=1` is exported globally. Eleven files under `flowfreq/` and `tests/` contain
+  non-ASCII characters; without UTF-8 mode isort cannot encode them to cp1252, reports
+  "Unable to parse file", and **skips the file** — `isort --check` then passes without
+  having checked it. Linux CI defaults to UTF-8 and never sees this. Note that a
+  `Skipped N files` line in isort's output is unrelated: that is its default skip list
+  catching `.venv` and similar, and it appears with or without UTF-8 mode. The signal is
+  the "Unable to parse" warning, not the count.
+- Install the dev tooling with `pip install -e ".[dev]"`, never by naming packages. The
+  extra pins `black>=24.0,<25`; black 26 formats differently, so an unpinned install has you
+  "fix" correctly formatted files and turn CI red.
 
 ## Architecture
 
