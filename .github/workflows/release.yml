@@ -1,0 +1,85 @@
+name: Release
+
+# Fires on a version tag (v0.6.1, etc). Runs the exact same gate as every
+# ordinary push (ci.yml) before doing anything else -- a tag that hasn't
+# passed CI on this platform never reaches the publish job, regardless of
+# what passed locally on whoever's machine cut the tag. That's the point of
+# this workflow: CI, not the person tagging, is what a release depends on.
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  publish:
+    needs: ci
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write # PyPI trusted publishing (OIDC) -- no stored token
+      contents: write # create the GitHub Release and upload dists to it
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # The tag is the only thing that decides what gets published to PyPI --
+      # pyproject.toml's version has to actually agree with it, or this job
+      # would happily publish v0.6.1's tag containing whatever version
+      # pyproject.toml happened to say, silently. A tag/version mismatch is
+      # exactly the kind of mistake a fast release cadence makes easy.
+      - name: Verify tag matches pyproject.toml version
+        run: |
+          python -c "
+          import sys, tomllib
+          with open('pyproject.toml', 'rb') as f:
+              version = tomllib.load(f)['project']['version']
+          tag = '${{ github.ref_name }}'.lstrip('v')
+          if version != tag:
+              sys.exit(f'pyproject.toml version {version!r} does not match tag v{tag}')
+          print(f'OK: tag v{tag} matches pyproject.toml')
+          "
+
+      - name: Install build tooling
+        run: pip install build twine
+
+      - name: Build sdist and wheel
+        run: python -m build
+
+      # Cheap insurance against a malformed long_description or other
+      # metadata problem that only PyPI's own upload would otherwise catch --
+      # by which point the tag is already public.
+      - name: Check distributions
+        run: twine check dist/*
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+
+      # Extract this version's own CHANGELOG.md section for the release body,
+      # rather than writing a second copy of the same notes by hand.
+      - name: Extract changelog section
+        id: changelog
+        run: |
+          python -c "
+          import re
+          version = '${{ github.ref_name }}'.lstrip('v')
+          text = open('CHANGELOG.md', encoding='utf-8').read()
+          pattern = rf'^## \[{re.escape(version)}\]\n(.*?)(?=^## \[|\Z)'
+          m = re.search(pattern, text, re.MULTILINE | re.DOTALL)
+          section = m.group(1).strip() if m else '(no matching CHANGELOG.md section found)'
+          with open('release_notes.md', 'w', encoding='utf-8') as f:
+              f.write(section + '\n')
+          "
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ github.ref_name }}" dist/* \
+            --title "${{ github.ref_name }}" \
+            --notes-file release_notes.md
