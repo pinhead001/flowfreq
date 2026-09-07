@@ -34,6 +34,20 @@ from .core import (
 from .flowio import load_flow_frame, save_flow_frame
 from .hydrograph import Hydrograph
 from .lowflow import LOW_FLOW_YEAR_TYPES, LowFlowFrequency, annual_minimum_flow
+from .qppq import (
+    MONTHLY_SEASONS,
+    SNOWMELT_SEASONS,
+    FlowDurationCurve,
+    QppqResult,
+    apply_lag,
+    center_of_timing,
+    estimate_donor_lag,
+    loocv_qppq,
+    performance,
+    qppq,
+    rank_donors,
+    seasonal_curves,
+)
 from .regime import (
     BASEFLOW_METHODS,
     DEFAULT_EXCEEDANCE_PCT,
@@ -179,6 +193,19 @@ __all__ = [
     "kfactor",
     "kfactor_array",
     "grubbs_beck_critical_value",
+    # QPPQ daily-series transfer
+    "FlowDurationCurve",
+    "QppqResult",
+    "qppq",
+    "seasonal_curves",
+    "center_of_timing",
+    "estimate_donor_lag",
+    "apply_lag",
+    "rank_donors",
+    "performance",
+    "loocv_qppq",
+    "SNOWMELT_SEASONS",
+    "MONTHLY_SEASONS",
     # Transposition to an ungaged site
     "RegressionExponents",
     "TransposedResults",
