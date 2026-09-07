@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.1]
+
+### Added
+- `plot_peak_flows_with_thresholds` gained a `yscale: str = "log"` parameter (same convention
+  `plot_frequency_curve` already uses), the last gap against `flowfreq-app`'s
+  `plot_peak_timeseries` -- a per-plot linear/log toggle the app exposes as a real sidebar
+  control. Verified live that switching the app over loses nothing numerically: the
+  quantile-line values this function computes analytically from `lp3_params` match
+  `run_ffa`'s actual `quantile_df["Flow (cfs)"]` to 0.0% (uncensored and censored sites both
+  checked, including the app's full return-period list), and `core.log_pearson3_cdf` matches
+  the app's own max-peak-recurrence formula to ~1e-15.
+
 ## [0.6.0]
 
 ### Added

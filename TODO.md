@@ -932,9 +932,18 @@ done — see the P3 table above and the Done section.)
       `"MGBT"`), matching the app's own PILF-source labelling. Tested in
       `tests/test_freq_plot.py::TestReturnPeriodLinesAndMaxPeakAnnotation` and
       `TestPlotPeakFlowsWithThresholds` (censored-hollow-bar count, no-threshold-stays-solid,
-      source label). App-side switch (calling this instead of `plot_peak_timeseries`, then
-      deleting the app's copy) is in progress on `flowfreq-app`'s `v0.5.0` bump branch --
-      see that repo's `TODO.md` for status.
+      source label). A fourth, later-found gap: the app also let the user toggle the y-axis
+      between linear and log per-plot (a real sidebar control, "Log: Peak Flow Time Series"),
+      while the library function was always log. Added `yscale: str = "log"` (same convention
+      `plot_frequency_curve` already uses), gating the power-of-10 tick formatting behind
+      `yscale == "log"`. Verified live, not assumed: the quantile-line values this function
+      computes analytically from `lp3_params` via `_lp3_quantiles` match `run_ffa`'s actual
+      `quantile_df["Flow (cfs)"]` to 0.0% on both an uncensored site (Powder River, all nine of
+      the app's quantile options including 1.5/200/500-yr) and a censored one (Big Sandy);
+      `core.log_pearson3_cdf` (used for the max-peak annotation) matches the app's own
+      `scipy.stats.pearson3.cdf`-based formula to ~1e-15. App-side switch (calling this instead
+      of `plot_peak_timeseries`, then deleting the app's copy) is in progress on `flowfreq-app`'s
+      pin-bump branch -- see that repo's `TODO.md` for status.
 
 - [x] **`FrequencyComparator` compares every parameter by percent difference.** That was the
       wrong metric for skew, which legitimately crosses zero: Big Sandy's reference at-site

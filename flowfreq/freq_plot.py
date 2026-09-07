@@ -359,6 +359,7 @@ def plot_peak_flows_with_thresholds(
     lp3_params: Optional[Tuple[float, float, float]] = None,
     return_periods: Tuple[float, ...] = (2, 5, 10, 25, 50, 100),
     annotate_max_peak: bool = True,
+    yscale: str = "log",
 ) -> plt.Figure:
     """Plot annual peak flows as a bar chart with optional perception threshold lines.
 
@@ -406,6 +407,8 @@ def plot_peak_flows_with_thresholds(
         When True (default) and ``lp3_params`` is given, annotate the largest
         peak in the record with its estimated recurrence interval, read off
         the LP3 CDF at that flow.
+    yscale : str, optional
+        ``"log"`` (default) or ``"linear"``.
 
     Returns
     -------
@@ -599,13 +602,14 @@ def plot_peak_flows_with_thresholds(
                     zorder=6,
                 )
 
-    ax.set_yscale("log")
+    ax.set_yscale(yscale)
     ax.set_xlabel("Water Year", fontsize=_FONT_SIZE)
     ax.set_ylabel("Peak Flow (cfs)", fontsize=_FONT_SIZE)
 
-    # Y-axis: powers of 10, comma-formatted (matches hydrograph style)
+    # Y-axis: powers of 10, comma-formatted (matches hydrograph style). Only
+    # meaningful on a log axis -- linear gets matplotlib's own default ticks.
     valid_flows = flows[flows > 0]
-    if len(valid_flows) > 0:
+    if yscale == "log" and len(valid_flows) > 0:
         min_exp = math.floor(math.log10(valid_flows.min()))
         max_exp = math.ceil(math.log10(valid_flows.max()))
         yticks = [10**i for i in range(min_exp, max_exp + 1)]

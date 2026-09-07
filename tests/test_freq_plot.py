@@ -193,6 +193,16 @@ class TestPlotPeakFlowsWithThresholds:
         assert any("override" in lbl for lbl in labels)
         plt.close(fig)
 
+    def test_yscale_defaults_to_log(self, peak_df):
+        fig = plot_peak_flows_with_thresholds(peak_df)
+        assert fig.axes[0].get_yscale() == "log"
+        plt.close(fig)
+
+    def test_yscale_linear_is_honored(self, peak_df):
+        fig = plot_peak_flows_with_thresholds(peak_df, yscale="linear")
+        assert fig.axes[0].get_yscale() == "linear"
+        plt.close(fig)
+
 
 class TestReturnPeriodLinesAndMaxPeakAnnotation:
     """The two features ported in from the app's ``plot_peak_timeseries`` (TODO.md).
