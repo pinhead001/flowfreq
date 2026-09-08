@@ -4,6 +4,9 @@
 # fixed in 83.0.0. This only pins what pip fetches into the isolated build
 # environment when the sdist/wheel are built; it does not require a
 # contributor's own installed setuptools to be this new.
+# >=83.0.0 also happens to be needed for the PEP 639 license fields below
+# (license = "<SPDX expr>", license-files) -- that support landed at 77.0.0,
+# well under the CVE floor already required.
 requires = ["setuptools>=83.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
@@ -13,13 +16,22 @@ version = "0.7.0"
 description = "Python library for hydrologic analysis with Bulletin 17C flood frequency"
 readme = "README.md"
 authors = [{name = "pinhead001"}]
-license = {text = "MIT"}
+# PEP 639 form: an SPDX expression rather than the legacy {text = "MIT"}
+# free-text field. license-files is explicit rather than relying on
+# setuptools' default LICEN[SC]E* glob, so the packaged file is a stated
+# contract, not an accident of what the glob happens to match. The
+# corresponding "License :: OSI Approved :: MIT License" classifier is
+# deliberately gone: setuptools>=77 treats a Trove license classifier
+# alongside an SPDX license expression as a build error (they'd otherwise be
+# two descriptions of the same fact that could silently disagree), and the
+# SPDX expression is what tooling should read now.
+license = "MIT"
+license-files = ["LICENSE"]
 requires-python = ">=3.11"
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
     "Topic :: Scientific/Engineering :: Hydrology",
-    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -83,7 +95,6 @@ dev = [
     "pytest-cov>=5.0,<6",
     "black>=24.0,<25",
     "isort>=5.12,<6",
-    "flake8>=6.0,<7",
     "bump2version>=1.0.0,<2",
     # No upper bound: <2 is what made CI install 1.x while a developer on 2.x
     # saw different behaviour from the same config.

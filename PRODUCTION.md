@@ -21,7 +21,7 @@ All critical governance and security measures are in place.
 | **Security policy** | `SECURITY.md` — vulnerability reporting workflow | ✅ |
 | **Branch protection** | `main` requires: 1 PR review + all CI checks pass | ✅ |
 | **Author metadata** | `pyproject.toml` updated with author, classifiers, keywords | ✅ |
-| **Dependency pinning** | Dev tools locked: black <25, pytest <8, isort <6, flake8 <7, pytest-cov <5 | ✅ |
+| **Dependency pinning** | Dev tools locked: black <25, isort <6, pytest-cov <5. Pins have moved since this table was written (pytest <8 -> <9, both after pip-audit flagged the old floors); flake8 <7 was removed outright -- it was declared but never wired into `make lint`/CI, and black+isort+mypy already cover formatting and types. | ✅ |
 | **Changelog** | `CHANGELOG.md` (Keep a Changelog format) with v0.1.0–v0.2.0 history | ✅ |
 
 ### Commit
