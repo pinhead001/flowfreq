@@ -90,9 +90,9 @@ make check
 - `python -m pytest` puts the working directory on `sys.path`; CI runs the `pytest` console
   script, which does not. The `test`, `cov`, `test-all` and `parity` targets set
   `PYTHONSAFEPATH=1` for you; invoking pytest by hand, set it yourself.
-- CI tests Python 3.9–3.12. A green run on one interpreter says nothing about the others —
-  fixture plumbing in particular diverges (a `@staticmethod` fixture works on 3.11 and breaks
-  collection on 3.9).
+- CI tests Python 3.11–3.14 (see Python Compatibility below). A green run on one interpreter
+  says nothing about the others -- fixture plumbing and dependency behavior can both diverge
+  across the matrix, which is why all four are tested rather than assumed from one.
 
 **Prefer the `make` targets to the bare commands above**, and on Windows treat them as the
 only supported route. Four things differ there. The last three the Makefile handles; the
@@ -121,6 +121,20 @@ first is on you at every invocation:
 - Install the dev tooling with `pip install -e ".[dev]"`, never by naming packages. The
   extra pins `black>=24.0,<25`; black 26 formats differently, so an unpinned install has you
   "fix" correctly formatted files and turn CI red.
+
+## Python Compatibility
+
+flowfreq supports Python 3.11–3.14.
+
+Python 3.9 and 3.10 are not supported.
+
+Do not introduce syntax or standard-library features that prevent
+support for Python 3.11 unless explicitly approved.
+
+When changing dependencies, verify compatibility across all supported
+Python versions.
+
+CI should test the supported Python matrix.
 
 ## Architecture
 

@@ -37,7 +37,7 @@ that exists on exactly one computer. The consequences:
 
 - `from flowfreq.peakfqr import emafitpr` raises `ModuleNotFoundError: No module named
   'flowfreq.peakfqr._emafort'` anywhere else — including this checkout (Linux, CPython 3.11).
-- `.github/workflows/tests.yml` runs on `ubuntu-latest` across Python 3.9–3.12. The bridge
+- `.github/workflows/tests.yml` runs on `ubuntu-latest` across Python 3.11–3.14. The bridge
   can never load there, so **no CI job has ever exercised the Fortran path**.
 - `docs/vignette_streamlit_web.md` claims the shipped `.pyd`/`.so` "should work on Linux
   (Streamlit Cloud runs Ubuntu)". That is not correct — a `.pyd` is a PE32+ Windows DLL.
