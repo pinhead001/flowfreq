@@ -1016,12 +1016,11 @@ done — see the P3 table above and the Done section.)
       `tests/validation/test_comparisons.py::TestSkewComparedInSkewUnits`, including the exact
       Big Sandy numbers above (`test_a_near_zero_skew_no_longer_dominates_max_diff`).
 
-- [ ] **`origin/dev` can be deleted.** The read-and-judge pass is done — see the commit
-      "Port extra_curves from dev". `extra_curves` was the one library delta worth keeping
-      and is on this branch; `flowfreq/setup.py` is stale packaging that contradicts
-      `pyproject.toml`; everything else is superseded or older than main. Tip is `86cb147`,
-      recorded here so the branch is recoverable by SHA. Left undeleted deliberately: that is
-      not reversible from a commit, so it is the owner's call.
+- [x] **`origin/dev` deleted.** The read-and-judge pass found only `extra_curves` worth
+      keeping (`flowfreq/setup.py` was stale packaging contradicting `pyproject.toml`;
+      everything else was superseded or older than main) and it was already ported to main
+      -- see the commit "Port extra_curves from dev". Confirmed gone from `git ls-remote
+      --heads` on 2026-09-08; tip was `86cb147` if it's ever needed back.
 
 ### Blocked
 
