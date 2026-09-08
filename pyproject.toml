@@ -27,9 +27,19 @@ dependencies = [
     "pandas>=1.3.0",
     "matplotlib>=3.4.0",
     "scipy>=1.7.0",
-    "requests>=2.25.0",
+    # >=2.33.0, not the more common >=2.32.4: 2.31.0 fixed a Proxy-Authorization
+    # header leak on cross-origin redirect, 2.32.4 fixed a .netrc credential
+    # leak via crafted URL parsing, and 2.33.0 fixed a predictable-tempfile
+    # issue in extract_zipped_paths() (unused here, but the floor should not
+    # advertise a known-vulnerable version when clearing it costs nothing).
+    "requests>=2.33.0",
     "click>=8.0",
-    "pyarrow>=10.0",
+    # >=14.0.1: versions 0.14.0-14.0.0 carry CVE-2023-47248, arbitrary code
+    # execution via crafted Parquet/Feather/IPC input through PyExtensionType
+    # autoload. flowfreq.flowio.load_flow_frame wraps pd.read_parquet, which
+    # uses pyarrow as its engine -- loading a file from anyone but yourself
+    # is the exact vulnerable path this closes.
+    "pyarrow>=14.0.1",
     # Pure Python, no compiled extension. flowfreq._p3_moments needs it for
     # the var_mom port's truncated-moment computation: at-site skew near
     # zero (the common case) makes the Pearson III shape parameter

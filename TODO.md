@@ -81,6 +81,24 @@ reference (CLAUDE.md's Test Data section) -- not evidence of anything left to po
 
 ## Open Items (prioritised)
 
+### Next — pip-audit in CI
+
+Found during the pre-PyPI-publish review: `pyarrow>=10.0` and `requests>=2.25.0`'s floors
+permitted versions with real, named CVEs (pyarrow's CVE-2023-47248 -- arbitrary code
+execution via crafted Parquet/Feather/IPC input, hit directly by
+`flowio.load_flow_frame`; requests' Proxy-Authorization header leak and `.netrc` credential
+leak, fixed in 2.31.0 and 2.32.4 respectively). Both floors are now bumped
+(`pyarrow>=14.0.1`, `requests>=2.33.0`), but that was a manual, one-time check against
+whatever CVEs happened to be known at the time -- it does not catch the next one, and
+nothing re-checks it as new advisories land.
+
+- [ ] Add `pip-audit` (PyPA's own tool, fitting given `pypa/gh-action-pypi-publish` is
+      already the release mechanism) as a CI step -- either its own job in `ci.yml` or a
+      step in the existing `lint` job. Decide whether a hit should fail the build outright
+      or just annotate; a hard fail on every transitive dependency's every advisory risks
+      false-positive noise blocking unrelated PRs, so a first cut might warn-only and go
+      hard-fail once it's proven quiet.
+
 ### Done — transposing computed flows to an ungaged site, and QPPQ
 
 Specified in **`docs/TRANSPOSITION_DESIGN.md`**. Read that before writing any more of it; as
