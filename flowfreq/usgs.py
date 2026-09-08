@@ -418,7 +418,7 @@ class USGSgage:
         if end_date:
             params["endDT"] = end_date
 
-        response = requests.get(self.BASE_URL_DAILY, params=params)
+        response = requests.get(self.BASE_URL_DAILY, params=params, timeout=30)
         response.raise_for_status()
 
         lines = response.text.split("\n")
@@ -669,7 +669,7 @@ class USGSgage:
             "format": "rdb",
         }
 
-        response = requests.get(self.BASE_URL_PEAKS, params=params)
+        response = requests.get(self.BASE_URL_PEAKS, params=params, timeout=30)
         response.raise_for_status()
 
         lines = response.text.split("\n")
