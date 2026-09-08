@@ -10,9 +10,7 @@ This opens a private draft advisory visible only to the maintainer, with a built
 follow-up — no email round-trip, and the report never becomes a public issue until you're ready to
 disclose it.
 
-If you cannot use GitHub (e.g. you don't have an account), email **pinhead001+flowfreq@gmail.com** instead.
-
-Whichever route you use, please include:
+Please include:
 
 1. **Description** — What is the vulnerability and how can it be exploited?
 2. **Affected versions** — Which releases of FlowFreq are impacted?
