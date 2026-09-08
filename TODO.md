@@ -1,13 +1,14 @@
 # TODO — FlowFreq Hybrid 17C Implementation
 
 ## Status
-Last updated: 2026-09-06. Version **0.4.0**.
-Tests: **595 passed, 7 skipped, 1 deselected, 5 xfailed** in ~46 s, via `make clean-verify`
-with the extension genuinely absent (563 before the Fortran-as-a-selectable-engine work below
-started). With the extension built, `pytest tests/fortran_parity/` (`make parity`'s exact
-selection) adds 259 passed, 1 pre-existing platform-precision failure, 2 xfailed -- see "Done
--- the Fortran as a selectable engine" for the full account, including the one known failure
-and why it is not this work's to fix.
+Last updated: 2026-09-08. Version **0.7.0**.
+Tests: **810 passed, 7 skipped, 1 deselected, 6 xfailed** in ~130 s, via `make clean-verify`
+with the extension genuinely absent (595 before the transposition/QPPQ work below started;
+563 before that, before the Fortran-as-a-selectable-engine work). With the extension built,
+`pytest tests/fortran_parity/` (`make parity`'s exact selection) adds 259 passed, 1
+pre-existing platform-precision failure, 2 xfailed -- see "Done -- the Fortran as a
+selectable engine" for the full account, including the one known failure and why it is not
+this work's to fix.
 CI green on main. (The 608 recorded here on 2026-09-02 was the pre-split suite, which still
 carried the Streamlit app's tests; those moved to `flowfreq-app` in 0.3.0. Run the number, do
 not carry it forward -- it has been wrong in a commit message and a PR body already.)
@@ -80,7 +81,7 @@ reference (CLAUDE.md's Test Data section) -- not evidence of anything left to po
 
 ## Open Items (prioritised)
 
-### Next — transposing computed flows to an ungaged site
+### Done — transposing computed flows to an ungaged site, and QPPQ
 
 Specified in **`docs/TRANSPOSITION_DESIGN.md`**. Read that before writing any more of it; as
 with the Fortran engine, the parts with a silent failure mode are written down there rather
@@ -138,9 +139,18 @@ Two things the design doc argues and this list should not lose:
   are controlled by baseflow storage and geology; that is why published low-flow regressions
   carry a geology term and flood regressions do not. Hence `transpose_low_flow` as a
   separate function rather than a flag on the flood path.
-- **QPPQ (probability-preserving) transfer** of a whole daily series is the right tool when
-  the caller wants a time series rather than statistics, and is deliberately **deferred** --
-  a much larger piece that needs a target-site FDC from somewhere.
+- [x] **QPPQ (probability-preserving) transfer** of a whole daily series -- the right tool
+      when the caller wants a time series rather than statistics. `flowfreq/qppq.py`: an
+      invertible `FlowDurationCurve`, seasonal curve construction, donor ranking and
+      goodness-of-fit, and a leave-one-out harness.
+      `performance()` reports NSE, log-NSE, KGE and dry-end bias together, because an
+      estimate that is exact through the freshet and wrong by 10x in September still scores
+      NSE > 0.99. The counterintuitive result worth remembering: a coarse seasonal split of
+      the curves makes snowmelt melt-timing phase error *worse*, not better, since a season
+      block is longer than the offset it is meant to correct -- `estimate_donor_lag`
+      recovering the offset from rank correlation is what actually works (log-NSE 0.273
+      annual, 0.040 three-season, 0.605 monthly, 0.895 once lagged, on a 25-day imposed
+      offset). See CHANGELOG.md's 0.7.0 entry.
 
 ### Done — the Fortran as a selectable engine
 
@@ -419,32 +429,16 @@ the CLOMR/LOMR case this is for.
 
 ### Downstream
 
-- [x] **Bump the app's pin once `v0.4.0` is tagged.** Done: `flowfreq-app/requirements.txt`
-      now pins `flowfreq@v0.4.0` (local branch `bump-flowfreq-0.4.0` in that checkout, not
-      yet merged to its `main` or pushed to origin -- see `flowfreq-app/TODO.md`).
-
-      **The app's reported numbers do not change.** An earlier version of this entry said
-      the bump was "a visible change to the deployed app"; that was wrong. `streamlit_app.py`
-      goes through `workflow.run_ffa` to `Bulletin17C` and never constructs a `B17CEngine`,
-      and the 0.4.0 station-skew fix is confined to `B17CEngine`. Checked against the whole
-      `v0.3.0..v0.4.0` diff of `flowfreq/`: on the app's path, `freq_plot.py` is a rename
-      plus an alias and docstrings, `workflow.py` is one docstring reference, and
-      `bulletin17c.py` is a `TYPE_CHECKING` import block. No arithmetic moves.
-
-      So the expectation when verifying the bump is **identical output**, and a difference
-      is a defect rather than the change landing. What is worth smoke-testing is the
-      `plot_frequency_curve` rename: the app still imports the old
-      `plot_frequency_curve_streamlit`, which survives only as an alias. `make test` in the
-      app repo catches that, since importing `streamlit_app.py` executes it in Streamlit's
-      bare mode.
-
-      `batch.batch_summary_table` and `plots` are the consumers that *do* move with the
-      skew fix -- see the CHANGELOG for the measured deltas -- and neither is used by the
-      app.
-
-      Still open on this item: running that verification and smoke test against the bumped
-      branch, and deleting the app's local `plot_peak_timeseries` copy -- the latter also
-      needs the library-side move from the Follow-ups item below, which has not happened yet.
+- [x] **Keep the app's pin current.** Bumped through every release since -- v0.5.0, v0.6.0,
+      v0.6.1, and now **v0.7.0** -- each time verified rather than assumed:
+      `pip show flowfreq` confirms the tag actually installed, and `flowfreq-app`'s own
+      suite (29 tests) passes identically before and after. v0.7.0 in particular adds
+      `transpose`/`qppq`/`regime.flow_duration_curve`, none of which the app's code path
+      (`workflow.run_ffa` → `Bulletin17C`, never `B17CEngine`) reaches, so **identical
+      output** was the bar and it was met. The app's own `plot_peak_timeseries` copy was
+      deleted in the v0.6.1 switch to this library's `plot_peak_flows_with_thresholds` (see
+      the Follow-ups item below) -- nothing left open on this item. Future bumps follow the
+      same pattern; see `flowfreq-app/CLAUDE.md`'s "one edit, deliberate" note.
 
 ### P3 — The `var_mom` port, now complete
 
@@ -1010,8 +1004,8 @@ done — see the P3 table above and the Done section.)
       the app's quantile options including 1.5/200/500-yr) and a censored one (Big Sandy);
       `core.log_pearson3_cdf` (used for the max-peak annotation) matches the app's own
       `scipy.stats.pearson3.cdf`-based formula to ~1e-15. App-side switch (calling this instead
-      of `plot_peak_timeseries`, then deleting the app's copy) is in progress on `flowfreq-app`'s
-      pin-bump branch -- see that repo's `TODO.md` for status.
+      of `plot_peak_timeseries`, then deleting the app's copy) landed in the v0.6.1 pin bump --
+      done, see that repo's `TODO.md` for the session record.
 
 - [x] **`FrequencyComparator` compares every parameter by percent difference.** That was the
       wrong metric for skew, which legitimately crosses zero: Big Sandy's reference at-site
