@@ -249,5 +249,5 @@ England, J.F., Jr., et al., 2019, Guidelines for determining flood flow frequenc
 
     def save_report(self, output_path: str):
         """Save report to markdown file."""
-        with open(output_path, "w") as f:
+        with open(output_path, "w", encoding="utf-8") as f:
             f.write(self.generate_report_text())

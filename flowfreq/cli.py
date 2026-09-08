@@ -144,7 +144,7 @@ def compare(
 
     markdown = report.to_markdown()
     if output_path is not None:
-        output_path.write_text(markdown)
+        output_path.write_text(markdown, encoding="utf-8")
         click.echo(f"Wrote {output_path}")
     else:
         click.echo(markdown)
