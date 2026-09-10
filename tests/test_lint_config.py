@@ -1,14 +1,22 @@
 """The formatter config must be one the pinned formatter understands.
 
-``[tool.black]`` gained ``py314`` when the test matrix rose to 3.14, and the
-dev extra still pinned ``black>=24.0,<25``. black 24 has no ``py314`` target,
-so it exited with a usage error before formatting anything: ``make lint``
-could not run at all, and ``main`` stayed red for two days because the failure
-looked like a formatting complaint rather than a broken tool.
+``[tool.black]`` gained ``py314`` in 82b1dab when the test matrix rose to
+3.14, while the dev extra still pinned ``black>=24.0,<25``. black 24 has no
+``py314`` target, so it exited with a usage error before formatting anything:
+``make lint`` was not reporting a style problem, it was not running, and every
+file went unchecked. That broke CI and the v0.7.0 release run until 3dba003
+dropped the target again.
 
-Nothing tied the two settings together, and nothing would have. This is the
-tie. It is the same kind of check as ``test_version.py`` -- two places in one
-file that have to agree, asserted rather than remembered.
+Dropping it was the right call -- black has no py314-specific formatting rules,
+so the target changes no output and only decides whether black agrees to start.
+But the pressure to re-add it comes back every time someone reads the 3.14 test
+matrix and notices the formatter does not mention 3.14, and the failure it
+causes does not look like its cause.
+
+So this is the tie between the two settings, which nothing else provides:
+re-adding ``py314`` is fine the moment the pin allows a black that knows it,
+and fails loudly before then. Same kind of check as ``test_version.py`` --
+two places in one file that have to agree, asserted rather than remembered.
 
 The target list is read with a regex rather than a TOML parser to match
 ``test_version.py``'s reasoning about dev-dependency weight; ``target-version``
