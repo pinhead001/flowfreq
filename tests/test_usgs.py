@@ -519,9 +519,7 @@ class TestDownloadDailyFlow:
     def test_caller_supplied_dates_are_passed_through(self) -> None:
         with patch("flowfreq.usgs.requests.get") as get:
             get.return_value = _mock_response(DV_BASIC)
-            USGSgage("12449500").download_daily_flow(
-                start_date="1919-06-01", end_date="2025-09-30"
-            )
+            USGSgage("12449500").download_daily_flow(start_date="1919-06-01", end_date="2025-09-30")
 
         params = get.call_args.kwargs["params"]
         assert params["startDT"] == "1919-06-01"
