@@ -8,10 +8,13 @@ installed -- but that only helps if what pip installed matches the tree, so
 this checks the round trip.
 
 The version is read out of pyproject.toml with a regex rather than a TOML
-parser on purpose: ``tomllib`` is 3.11+, the runtime floor here is 3.9, and
-``tomli`` is not a declared dev dependency. Anchoring on a line that starts
-exactly with ``version = "`` is unambiguous in this file -- ``[tool.black]``
-has ``target-version``, which does not match.
+parser. Historical note: this was forced when the runtime floor was 3.9
+(``tomllib`` is 3.11+ and ``tomli`` was never a declared dev dependency); the
+floor is 3.11 now, so ``tomllib`` would parse fine here too, but there is no
+strong reason to switch a working regex for a stdlib import that would only
+matter if this file's ``version = "..."`` line ever became ambiguous to
+match, which it is not -- ``[tool.black]`` has ``target-version``, which does
+not match the anchor.
 """
 
 from __future__ import annotations

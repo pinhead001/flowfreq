@@ -4,6 +4,7 @@ flowfreq.usgs - USGS data retrieval
 
 from __future__ import annotations
 
+import logging
 import math
 from datetime import date as _date
 from functools import cached_property
@@ -14,6 +15,8 @@ from typing import ClassVar, Dict, List, Optional, Tuple
 import numpy as np
 import pandas as pd
 import requests
+
+logger = logging.getLogger(__name__)
 
 NWIS_TZ_OFFSETS: Dict[str, int] = {
     "UTC": 0,
@@ -109,6 +112,7 @@ class GageAttributes:
                 df["site_no"] = df["site_no"].str.zfill(8)
                 cls._data = df.set_index("site_no")
             except Exception:
+                logger.warning("Failed to parse gage attributes file %s", path, exc_info=True)
                 cls._data = pd.DataFrame()
         else:
             cls._data = pd.DataFrame()
@@ -369,6 +373,7 @@ class USGSgage:
                         if getattr(self, attr) is None:
                             setattr(self, attr, _first_float(df, column))
             except Exception as e:
+                logger.warning("Site metadata request failed for %s: %s", self._site_no, e)
                 self._last_api_error = str(e)
 
         # Call 2: Get period of record with seriesCatalogOutput=true
@@ -407,6 +412,7 @@ class USGSgage:
                         if "end_date" in df.columns:
                             self._iv_por_end = str(uv_rows["end_date"].iloc[0])
         except Exception as e:
+            logger.warning("Period-of-record request failed for %s: %s", self._site_no, e)
             if self._last_api_error:
                 self._last_api_error += f"; {str(e)}"
             else:
@@ -444,7 +450,7 @@ class USGSgage:
             "endDT": end_date or _date.today().isoformat(),
         }
 
-        response = requests.get(self.BASE_URL_DAILY, params=params, timeout=60)
+        response = requests.get(self.BASE_URL_DAILY, params=params, timeout=30)
         response.raise_for_status()
 
         lines = response.text.split("\n")
@@ -695,7 +701,7 @@ class USGSgage:
             "format": "rdb",
         }
 
-        response = requests.get(self.BASE_URL_PEAKS, params=params)
+        response = requests.get(self.BASE_URL_PEAKS, params=params, timeout=30)
         response.raise_for_status()
 
         lines = response.text.split("\n")

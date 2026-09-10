@@ -1,0 +1,11 @@
+# Without this file, setuptools' default sdist file-finder pulls in
+# tests/test_*.py individually (matching its built-in test-file heuristic)
+# but not tests/__init__.py, tests/fixtures/, or the tests/fortran_parity/,
+# tests/integration/, tests/validation/ subpackages -- an sdist a user
+# actually tried to test from would fail on the first import. None of it is
+# runnable from an sdist anyway (vendor/ and the fixture data it needs
+# aren't shipped either), so exclude the whole tree rather than ship a
+# partial, broken copy.
+prune tests
+
+include CHANGELOG.md
