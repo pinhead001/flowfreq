@@ -44,6 +44,30 @@ jobs:
       - name: Typecheck
         run: make typecheck
 
+      # Standing replacement for the one-time manual CVE sweep done in the
+      # pre-publish security review (see the floor-raising commits on
+      # requests/pyarrow/setuptools): that check only caught what was known
+      # the day it ran. This catches the next one, on every push.
+      #
+      # Scoped to a clean install of the base package, not this job's own
+      # `.[dev]` environment: black and pytest are deliberately pinned below
+      # their latest patch (black<25, pytest<8 -- see the dev extra's own
+      # comments on why) and pip itself is just this runner's bootstrap
+      # tooling, not a flowfreq dependency. None of those three reach a `pip
+      # install flowfreq` user, so a CVE in them would fail this gate for a
+      # supply-chain risk nobody actually ships. Auditing a throwaway venv
+      # holding only what `pip install .` pulls in is what's actually being
+      # published.
+      - name: Audit runtime dependencies for known vulnerabilities
+        run: |
+          python -m venv /tmp/audit-env
+          /tmp/audit-env/bin/pip install -q .
+          /tmp/audit-env/bin/pip list --format=freeze \
+            --exclude pip --exclude setuptools --exclude wheel --exclude flowfreq \
+            > /tmp/audit-reqs.txt
+          pip install pip-audit
+          pip-audit -r /tmp/audit-reqs.txt
+
   test:
     runs-on: ubuntu-latest
     strategy:

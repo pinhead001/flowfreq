@@ -1,0 +1,16 @@
+version: 2
+updates:
+  # Python runtime and dev dependencies declared in pyproject.toml.
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+
+  # The GitHub Actions themselves -- every third-party action here is pinned
+  # to a commit SHA (see the comments in ci.yml/release.yml), and Dependabot
+  # is what keeps those pins from going stale silently. It updates the SHA
+  # and the version comment together in one PR.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"

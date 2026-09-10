@@ -23,7 +23,13 @@ jobs:
       contents: write # create the GitHub Release and upload dists to it
 
     steps:
+      # persist-credentials: false -- this job runs with contents: write and
+      # id-token: write (the live PyPI OIDC publish credential). The checkout
+      # step's default token has no reason to sit in .git/config for the rest
+      # of the job once the checkout itself is done.
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
         with:
           python-version: '3.12'
@@ -33,13 +39,21 @@ jobs:
       # would happily publish v0.6.1's tag containing whatever version
       # pyproject.toml happened to say, silently. A tag/version mismatch is
       # exactly the kind of mistake a fast release cadence makes easy.
+      #
+      # TAG comes in via env rather than interpolated directly into the
+      # inline script -- only a maintainer can push a v* tag, so this isn't
+      # exploitable today, but a ref name substituted straight into a script
+      # body is the shape of a template-injection bug and costs nothing to
+      # avoid.
       - name: Verify tag matches pyproject.toml version
+        env:
+          TAG: ${{ github.ref_name }}
         run: |
           python -c "
-          import sys, tomllib
+          import os, sys, tomllib
           with open('pyproject.toml', 'rb') as f:
               version = tomllib.load(f)['project']['version']
-          tag = '${{ github.ref_name }}'.lstrip('v')
+          tag = os.environ['TAG'].lstrip('v')
           if version != tag:
               sys.exit(f'pyproject.toml version {version!r} does not match tag v{tag}')
           print(f'OK: tag v{tag} matches pyproject.toml')
@@ -64,10 +78,12 @@ jobs:
       # rather than writing a second copy of the same notes by hand.
       - name: Extract changelog section
         id: changelog
+        env:
+          TAG: ${{ github.ref_name }}
         run: |
           python -c "
-          import re
-          version = '${{ github.ref_name }}'.lstrip('v')
+          import os, re
+          version = os.environ['TAG'].lstrip('v')
           text = open('CHANGELOG.md', encoding='utf-8').read()
           pattern = rf'^## \[{re.escape(version)}\]\n(.*?)(?=^## \[|\Z)'
           m = re.search(pattern, text, re.MULTILINE | re.DOTALL)
@@ -79,7 +95,8 @@ jobs:
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
         run: |
-          gh release create "${{ github.ref_name }}" dist/* \
-            --title "${{ github.ref_name }}" \
+          gh release create "$TAG" dist/* \
+            --title "$TAG" \
             --notes-file release_notes.md

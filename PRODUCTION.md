@@ -21,7 +21,7 @@ All critical governance and security measures are in place.
 | **Security policy** | `SECURITY.md` — vulnerability reporting workflow | ✅ |
 | **Branch protection** | `main` requires: 1 PR review + all CI checks pass | ✅ |
 | **Author metadata** | `pyproject.toml` updated with author, classifiers, keywords | ✅ |
-| **Dependency pinning** | Dev tools locked: black <25, pytest <8, isort <6, flake8 <7, pytest-cov <5 | ✅ |
+| **Dependency pinning** | Dev tools locked: black <25, isort <6, pytest-cov <5. Pins have moved since this table was written (pytest <8 -> <9, both after pip-audit flagged the old floors); flake8 <7 was removed outright -- it was declared but never wired into `make lint`/CI, and black+isort+mypy already cover formatting and types. | ✅ |
 | **Changelog** | `CHANGELOG.md` (Keep a Changelog format) with v0.1.0–v0.2.0 history | ✅ |
 
 ### Commit
@@ -39,7 +39,7 @@ These should be completed before widespread production adoption.
 
 | Task | Priority | Effort | Impact |
 |------|----------|--------|--------|
-| Add `mypy` to CI and enforce type hints | HIGH | 2–3 days | Catch type errors early; improves IDE support |
+| ~~Add `mypy` to CI and enforce type hints~~ — done; `ci / lint` runs `make typecheck`, see CLAUDE.md | — | — | — |
 | Add `pydocstyle` to CI for docstring coverage | MEDIUM | 1–2 days | Ensures all public APIs are documented |
 | ~~Add type hints to all function signatures~~ — already done (99%); see the corrected risk note below | — | — | — |
 | Create `.pre-commit-config.yaml` for local enforcement | MEDIUM | 1 day | Prevents formatting issues from reaching CI |
@@ -52,10 +52,10 @@ These should be completed before widespread production adoption.
 
 | Task | Priority | Effort | Impact |
 |------|----------|--------|--------|
-| Create `.github/workflows/release.yml` | HIGH | 1 day | Automate PyPI publishing on git tags |
-| Add `PYPI_TOKEN` secret to GitHub repo settings | HIGH | 15 min | Required for automated releases |
+| ~~Create `.github/workflows/release.yml`~~ — done, gated on `ci.yml` passing first | — | — | — |
+| Register PyPI trusted publisher (OIDC) + create the `pypi` GitHub environment | HIGH | 15 min | Required for `publish` to succeed. Corrects the original plan here: `release.yml` uses OIDC (`id-token: write`), not a stored `PYPI_TOKEN` secret -- there is no token to add. Still open; v0.7.0's tag exists but its Release run failed before reaching `publish`. |
 | Document version bump workflow (using `bump2version`) | MEDIUM | 2 hours | Repeatable release process |
-| Test release locally with test PyPI | MEDIUM | 1 hour | Validate workflow before first production release |
+| Test release with TestPyPI before the first real one | MEDIUM | 1 hour | Validate the OIDC trusted-publisher setup before it's live |
 
 **Impact**: Enables one-command releases. Currently no CI-based publishing.
 
@@ -65,7 +65,7 @@ These should be completed before widespread production adoption.
 
 | Task | Priority | Effort | Impact |
 |------|----------|--------|--------|
-| Add `pytest-cov` to CI job (already in dev extras) | HIGH | 30 min | Generate coverage reports |
+| ~~Add `pytest-cov` to CI job~~ — done; `ci / test` runs `make cov` on the 3.12 leg | — | — | — |
 | Set coverage threshold (e.g., 80%) in CI | MEDIUM | 30 min | Prevent coverage regressions |
 | Add badge to README.md | LOW | 15 min | Visual indicator of test health |
 | Integrate with codecov.io (optional) | LOW | 1 hour | Track coverage trends over time |
@@ -100,8 +100,8 @@ Advanced safety measures for high-stakes deployments.
 
 | Task | Priority | Effort | Impact |
 |------|----------|--------|--------|
-| **Automated security scanning** | MEDIUM | 2 days | Detect known vulnerabilities in dependencies |
-| Add `dependabot` config (`.github/dependabot.yml`) | MEDIUM | 2 hours | Auto-update dependencies weekly |
+| ~~Automated security scanning~~ — done; `pip-audit` runs in `ci / lint`, scoped to a clean runtime install | — | — | — |
+| ~~Add `dependabot` config~~ — done, `.github/dependabot.yml` (pip + github-actions, weekly) | — | — | — |
 | Add SBOM (Software Bill of Materials) generation | LOW | 1 day | Supply chain transparency |
 | Add integration tests (NWIS API calls in staging) | HIGH | 5–7 days | Catch breaking API changes early |
 | Performance benchmarking CI job | LOW | 3–4 days | Detect regressions in computation time |

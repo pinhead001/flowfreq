@@ -4,7 +4,13 @@
 
 If you discover a security vulnerability in FlowFreq, **please do NOT open a public GitHub issue**.
 
-Instead, please report it by email to **pinhead001@github.com** with the following information:
+Instead, use GitHub's private vulnerability reporting: go to the
+[Security tab](https://github.com/pinhead001/flowfreq/security) and click **Report a vulnerability**.
+This opens a private draft advisory visible only to the maintainer, with a built-in thread for
+follow-up — no email round-trip, and the report never becomes a public issue until you're ready to
+disclose it.
+
+Please include:
 
 1. **Description** — What is the vulnerability and how can it be exploited?
 2. **Affected versions** — Which releases of FlowFreq are impacted?
