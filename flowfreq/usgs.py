@@ -5,6 +5,7 @@ flowfreq.usgs - USGS data retrieval
 from __future__ import annotations
 
 import math
+from datetime import date as _date
 from functools import cached_property
 from io import StringIO
 from pathlib import Path
@@ -199,6 +200,12 @@ class USGSgage:
     BASE_URL_IV: ClassVar[str] = "https://waterservices.usgs.gov/nwis/iv/"
     BASE_URL_PEAKS: ClassVar[str] = "https://nwis.waterdata.usgs.gov/nwis/peak"
     BASE_URL_SITE: ClassVar[str] = "https://waterservices.usgs.gov/nwis/site/"
+
+    #: Start of the default daily-values window, preceding every USGS daily
+    #: record. It exists so that a caller who supplies no range still gets one
+    #: sent: NWIS reads a missing range as "the most recent day", not as "the
+    #: whole record". See :meth:`download_daily_flow`.
+    DEFAULT_START_DATE: ClassVar[str] = "1850-01-01"
 
     def __init__(self, site_no: str):
         self._site_no = str(site_no).zfill(8)
@@ -406,19 +413,38 @@ class USGSgage:
                 self._last_api_error = str(e)
 
     def download_daily_flow(self, start_date: str = None, end_date: str = None) -> pd.DataFrame:
-        """Download mean daily streamflow data from USGS."""
+        """Download mean daily streamflow data from USGS.
+
+        Parameters
+        ----------
+        start_date, end_date : str, optional
+            ISO dates bounding the request. Both default to the full period of
+            record.
+
+        Returns
+        -------
+        pd.DataFrame
+            Daily mean flows indexed by date.
+
+        Notes
+        -----
+        A date range is **always** sent, even when the caller supplies none.
+        The NWIS daily-values service answers a range-less request by
+        returning only the most recent day, and a one-row frame is not an
+        error -- it is a degenerate record that builds a plausible, meaningless
+        curve wherever it is used. Measured on 12449500: one row with no range,
+        26,958 with one. See ``DEFAULT_START_DATE``.
+        """
         params = {
             "format": "rdb",
             "sites": self._site_no,
             "parameterCd": "00060",
             "statCd": "00003",
+            "startDT": start_date or self.DEFAULT_START_DATE,
+            "endDT": end_date or _date.today().isoformat(),
         }
-        if start_date:
-            params["startDT"] = start_date
-        if end_date:
-            params["endDT"] = end_date
 
-        response = requests.get(self.BASE_URL_DAILY, params=params)
+        response = requests.get(self.BASE_URL_DAILY, params=params, timeout=60)
         response.raise_for_status()
 
         lines = response.text.split("\n")

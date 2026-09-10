@@ -6,6 +6,7 @@ Tests that would require a live service are marked ``requires_network``.
 
 from __future__ import annotations
 
+from datetime import date
 from unittest.mock import Mock, patch
 
 import pandas as pd
@@ -22,6 +23,8 @@ from flowfreq.usgs import (
     _parse_iv_rdb,
 )
 from tests.fixtures.nwis_rdb import (
+    DV_BASIC,
+    DV_SINGLE_DAY,
     IV_BASIC,
     IV_DST_FALL_BACK,
     IV_EMPTY,
@@ -481,3 +484,72 @@ class TestSiteCoordinates:
             gage.fetch_site_info()
 
         assert gage.drainage_area == pytest.approx(205.0)
+
+
+class TestDownloadDailyFlow:
+    """A range-less NWIS request returns one day, not the record.
+
+    These exist because the omission was invisible: no exception, no warning,
+    a well-formed one-row frame that builds a degenerate curve wherever it is
+    used. The bug lived in a method with no test, in a module whose live tests
+    are deselected by default.
+    """
+
+    def test_a_date_range_is_sent_even_when_the_caller_supplies_none(self) -> None:
+        with patch("flowfreq.usgs.requests.get") as get:
+            get.return_value = _mock_response(DV_BASIC)
+            USGSgage("12449500").download_daily_flow()
+
+        params = get.call_args.kwargs["params"]
+        assert "startDT" in params and "endDT" in params
+        assert params["startDT"] and params["endDT"]
+
+    def test_the_default_range_spans_the_period_of_record(self) -> None:
+        with patch("flowfreq.usgs.requests.get") as get:
+            get.return_value = _mock_response(DV_BASIC)
+            USGSgage("12449500").download_daily_flow()
+
+        params = get.call_args.kwargs["params"]
+        assert params["startDT"] == USGSgage.DEFAULT_START_DATE
+        assert params["endDT"] == date.today().isoformat()
+
+    def test_the_default_start_precedes_every_usgs_daily_record(self) -> None:
+        assert date.fromisoformat(USGSgage.DEFAULT_START_DATE).year <= 1850
+
+    def test_caller_supplied_dates_are_passed_through(self) -> None:
+        with patch("flowfreq.usgs.requests.get") as get:
+            get.return_value = _mock_response(DV_BASIC)
+            USGSgage("12449500").download_daily_flow(
+                start_date="1919-06-01", end_date="2025-09-30"
+            )
+
+        params = get.call_args.kwargs["params"]
+        assert params["startDT"] == "1919-06-01"
+        assert params["endDT"] == "2025-09-30"
+
+    def test_a_timeout_is_set(self) -> None:
+        """A batch retrieval must not be able to hang forever on one gage."""
+        with patch("flowfreq.usgs.requests.get") as get:
+            get.return_value = _mock_response(DV_BASIC)
+            USGSgage("12449500").download_daily_flow()
+
+        assert get.call_args.kwargs.get("timeout")
+
+    def test_parses_a_daily_record(self) -> None:
+        with patch("flowfreq.usgs.requests.get") as get:
+            get.return_value = _mock_response(DV_BASIC)
+            frame = USGSgage("12449500").download_daily_flow()
+
+        assert len(frame) == 5
+        assert frame["flow_cfs"].iloc[0] == 221
+        assert frame["flow_cfs"].iloc[-1] == 216
+
+    def test_the_single_day_response_is_what_the_old_default_produced(self) -> None:
+        """Documents the defect rather than the fix: this payload is a valid
+        200 carrying one row. Nothing downstream can tell it from a record,
+        which is why the range is now always sent."""
+        with patch("flowfreq.usgs.requests.get") as get:
+            get.return_value = _mock_response(DV_SINGLE_DAY)
+            frame = USGSgage("12449500").download_daily_flow()
+
+        assert len(frame) == 1

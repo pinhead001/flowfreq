@@ -139,3 +139,38 @@ agency_cd\tsite_no\tstation_nm\tdec_lat_va\tdec_long_va\tdrain_area_va
 5s\t15s\t50s\t16s\t16s\t8s
 USGS\t03606500\tBIG SANDY RIVER AT BRUCETON, TN\t\t\t205
 """
+
+
+# Daily-values payloads (``/nwis/dv/``). Site 12449500, Methow River at Twisp.
+# Five consecutive days of mean daily discharge in the summer recession.
+DV_BASIC = """\
+# ---------------------------------- WARNING ----------------------------------
+# Provisional data are subject to revision.
+#
+# Data provided for site 12449500
+#    TS   parameter     statistic     Description
+# 152418  00060         00003         Discharge, cubic feet per second (Mean)
+#
+agency_cd\tsite_no\tdatetime\t152418_00060_00003\t152418_00060_00003_cd
+5s\t15s\t20d\t14n\t10s
+USGS\t12449500\t2025-09-26\t221\tA
+USGS\t12449500\t2025-09-27\t215\tA
+USGS\t12449500\t2025-09-28\t210\tA
+USGS\t12449500\t2025-09-29\t209\tA
+USGS\t12449500\t2025-09-30\t216\tA
+"""
+
+# What NWIS actually returns for a daily-values request carrying NO date
+# range: a single row, the most recent day. It is a well-formed 200 response,
+# which is what makes it dangerous -- nothing about it looks like an error.
+# This fixture exists so the "always send a range" behaviour has a test that
+# does not need the network to fail.
+DV_SINGLE_DAY = """\
+# Data provided for site 12449500
+#    TS   parameter     statistic     Description
+# 152418  00060         00003         Discharge, cubic feet per second (Mean)
+#
+agency_cd\tsite_no\tdatetime\t152418_00060_00003\t152418_00060_00003_cd
+5s\t15s\t20d\t14n\t10s
+USGS\t12449500\t2026-09-08\t261\tP
+"""
