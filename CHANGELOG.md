@@ -9,14 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **`flowfreq.streamstats`** (Phase 1) -- USGS StreamStats watershed delineation and
-  basin-characteristics retrieval for a pour point: `pourpoint` snap, `ss-delineate`,
-  `ss-hydro`, per `docs/STREAMSTATS_MODULE_DESIGN.md`. Validates every response against
-  what it's supposed to contain rather than trusting a 200 (an unsnappable point
-  delineates a structurally valid hillslope-sliver polygon and still returns HTTP 200,
-  signalled only by a `WarningMsg` string); typed/indexable characteristics with
-  provenance; an offline-capable cache; a batch entry point that returns results and
-  failures side by side rather than aborting on one bad point. Flow-statistics regression
-  estimation (NSS) is deliberately out of scope for this phase.
+  basin-characteristics retrieval for a pour point: `pourpoint` snap, `ss-delineate`
+  `delineate/sshydro`, `ss-hydro`, per `docs/STREAMSTATS_MODULE_DESIGN.md`. Validates
+  every response against what it's supposed to contain rather than trusting a 200 (an
+  unsnappable point returns HTTP 200 with a `WarningMsg` string rather than an error);
+  typed/indexable characteristics with provenance; an offline-capable cache; a batch
+  entry point that returns results and failures side by side rather than aborting on
+  one bad point. Confirmed against the live service, reproducing the design doc's
+  published values exactly. Flow-statistics regression estimation (NSS) is deliberately
+  out of scope for this phase, and so is the watershed polygon itself --
+  `WatershedCharacteristics.polygon_geojson` is always `None`; no call in the verified
+  protocol returns it, and getting it is an open question for later.
 
 ### Fixed
 - **`USGSgage.download_daily_flow`**: the timeout was hardcoded at 30s even after an

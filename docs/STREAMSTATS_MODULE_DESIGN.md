@@ -24,6 +24,12 @@ still an open question. `WatershedCharacteristics.polygon_geojson` is
 therefore always `None` in the shipped implementation; FR-3's `WarningMsg`
 check is done by scanning the `sshydro` response instead of checking
 polygon geometry.
+
+**All three `requires_network` tests pass against the live service as of
+2026-09-11**, confirming this document's three-call protocol end to end:
+both Methow points reproduce the appendix's published `DRNAREA`/
+`PRECPRIS10`/`CANOPY_PCT` values, and the off-network point correctly
+raises.
 **Date:** 2026-09-10
 **Context:** written from the Methow sub-basin work, where 113 EDT reach pour
 nodes need basin characteristics that are currently transcribed by hand from

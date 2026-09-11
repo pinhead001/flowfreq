@@ -120,9 +120,7 @@ evaluation] invites an uncited exponent."
 `flowfreq/streamstats.py`, per `docs/STREAMSTATS_MODULE_DESIGN.md` (merged 2026-09-10,
 written from hands-on verification against the live service, not assumed from
 documentation) -- watershed delineation and basin characteristics for a pour point:
-`pourpoint` snap -> `ss-delineate` (validated against the design doc's "a 200 is not an
-answer" failure mode: an unsnappable point returns HTTP 200 with a structurally valid
-hillslope-sliver polygon, signalled only by a `WarningMsg` string) -> `ss-hydro` basin
+`pourpoint` snap -> `ss-delineate` `delineate/sshydro` -> `ss-hydro` basin
 characteristics, typed/indexable by StreamStats code with unit/description/service
 message, stamped with provenance (service versions, request URLs, timestamp, server
 used). Batch entry point mirrors `usgs.fetch_nwis_batch`'s `(results, errors)` shape --
@@ -130,10 +128,38 @@ one bad point never aborts the batch. Offline-capable JSON-file cache keyed on t
 *requested* (not snapped) coordinate specifically so a cache hit needs no network call
 at all, not even the snap -- a deliberate, documented departure from the design doc's
 literal wording of the cache key, in favor of its own stronger NFR-5 requirement.
-`tests/test_streamstats.py` (38 tests, network mocked throughout, one
-`requires_network`-marked live test not yet run against the real service -- do that
-before trusting the module for real work; `snap_point`'s `output` field names are a
-best-effort guess the design doc didn't pin down exactly). PR #23.
+`tests/test_streamstats.py` (37 mocked tests + 3 `requires_network` live tests). PR #23.
+
+**Confirmed live 2026-09-11, by the user running the `requires_network` tests by hand
+(no network access in the Claude Code session that built this) -- and it caught two
+real bugs the mocked suite couldn't, exactly as intended:**
+
+- `snap_point`'s `output` field-name guess was wrong in a more specific way than
+  missing keys: the real `pourpoint` response nests the snapped coordinate as a
+  GeoJSON Point (`{"coordinates": [lon, lat]}`), not flat fields. Fixed with
+  `_extract_point_lat_lon`, GeoJSON-order-aware, falling back to the old guessed keys
+  defensively.
+- A second bug the first fix then exposed: this implementation had added its own
+  extra call to `ss-delineate/v1/delineate/features/{region}` (`x`/`y`/`crs` params,
+  borrowed from the unverified ff-idea02 PDF/py transcript -- the same source whose
+  `ss-hydro` endpoint guess was already known wrong) to fetch a watershed polygon for
+  FR-3. Live, first a 422 (wrong param names -- fixed to `lat`/`lon`, matching the
+  rest of the API), then a 200 carrying an unrelated zero-area Point feature, not a
+  polygon. **Removed** rather than patched further -- it was never part of the design
+  doc's own literally-verified protocol, which only ever called snap ->
+  `delineate/sshydro` -> `ss-hydro`. The pipeline now matches that protocol exactly
+  (two GETs, one POST, nothing more); FR-3's `WarningMsg` check is a recursive scan of
+  the `sshydro` response instead of a polygon check.
+
+**One known, honest gap, not a bug: `WatershedCharacteristics.polygon_geojson` is
+always `None`.** No call in the verified, working protocol returns the watershed's
+geometry. Obtaining it is an open question for a future session -- worth its own
+live-verification pass (same discipline as everything else here) before attempting
+again, not another guess from the PDF/py script.
+
+All three `requires_network` tests now pass against the real service, including both
+Methow points reproducing the design doc's own published `DRNAREA`/`PRECPRIS10`/
+`CANOPY_PCT` values exactly.
 
 - [x] **The design doc's own "read this first" precedent, fixed alongside this work as
       it said to be.** `usgs.py::download_daily_flow` already sent an explicit date range
