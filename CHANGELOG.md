@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0]
+
 ### Added
 - **`flowfreq.streamstats`** (Phase 1) -- USGS StreamStats watershed delineation and
   basin-characteristics retrieval for a pour point: `pourpoint` snap, `ss-delineate`
