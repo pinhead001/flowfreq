@@ -1,6 +1,15 @@
 # Requirements: a StreamStats module for flowfreq
 
-**Status:** draft for review
+**Status:** Phase 1 (SS3-SS7, this document's actual scope) implemented --
+`flowfreq/streamstats.py`, PR #23, 2026-09-10/11. See `TODO.md`'s "Done --
+StreamStats module Phase 1" entry for what shipped, and one documented
+departure from S6's literal cache-key wording (keyed on the requested, not
+snapped, coordinate, so a cache hit needs no network call at all -- NFR-5
+taken as the binding requirement over NFR-1's literal phrasing). Phase 2
+(NSS flow-statistics estimation, out of scope for this document by design --
+see S2) is tracked separately in `TODO.md`'s "Next" section; it needs its
+own live-verification pass before any code, for the same reason this
+document exists.
 **Date:** 2026-09-10
 **Context:** written from the Methow sub-basin work, where 113 EDT reach pour
 nodes need basin characteristics that are currently transcribed by hand from

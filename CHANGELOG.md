@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **`flowfreq.streamstats`** (Phase 1) -- USGS StreamStats watershed delineation and
+  basin-characteristics retrieval for a pour point: `pourpoint` snap, `ss-delineate`,
+  `ss-hydro`, per `docs/STREAMSTATS_MODULE_DESIGN.md`. Validates every response against
+  what it's supposed to contain rather than trusting a 200 (an unsnappable point
+  delineates a structurally valid hillslope-sliver polygon and still returns HTTP 200,
+  signalled only by a `WarningMsg` string); typed/indexable characteristics with
+  provenance; an offline-capable cache; a batch entry point that returns results and
+  failures side by side rather than aborting on one bad point. Flow-statistics regression
+  estimation (NSS) is deliberately out of scope for this phase.
+
+### Fixed
+- **`USGSgage.download_daily_flow`**: the timeout was hardcoded at 30s even after an
+  earlier fix made a full period-of-record request (tens of thousands of rows for a
+  long-running site) the default -- now configurable, default 60s. The default end date
+  used local wall-clock time rather than UTC, so a host clock behind UTC could silently
+  request a narrower range than intended; now computed in UTC. `start_date`/`end_date`
+  are now validated (parseable, `start_date` not after `end_date`) before any request is
+  sent, rather than reaching NWIS unvalidated.
+
 ## [0.7.0]
 
 ### Added
