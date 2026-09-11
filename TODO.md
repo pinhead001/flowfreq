@@ -41,9 +41,15 @@ These bit repeatedly and are not discoverable from the code:
   finding is from `docs/PHASE1_RUNBOOK.md`, which had the distinction right.
 - **`v0.4.0` is now tagged** (confirmed via `git ls-remote --tags origin`, 2026-09-05) --
   `README.md`'s install line resolves. This item is done; no action needed.
-- **NWIS (`nwis.waterdata.usgs.gov`) is blocked by the egress proxy.** Tests marked
-  `requires_network` cannot run in a Claude session; they are deselected by default via
-  `addopts` anyway. Use the committed fixtures under `tests/fixtures/`.
+- **NWIS (`nwis.waterdata.usgs.gov`/`waterservices.usgs.gov`) is blocked by the egress
+  proxy, but that does not generalize to every USGS host.** `requires_network` tests
+  against NWIS cannot run in a Claude Code session; use the committed fixtures under
+  `tests/fixtures/`. **StreamStats (`streamstats.usgs.gov`) is a different host and is
+  reachable** -- confirmed directly, 2026-09-11: both the raw endpoint probes and the
+  actual `pytest tests/test_streamstats.py -m requires_network` suite ran and passed
+  from inside a Claude Code session, no hand-off to the user needed. Read this
+  unqualified the way the earlier tag-push/403 entry was misread once already: check
+  per host, don't assume "USGS" is one block.
 - **The Fortran extension is not built by default.** `make fortran` needs gfortran and meson.
   Everything marked `requires_fortran` auto-skips without it, which is why a local run can
   report fewer tests than CI's parity job.

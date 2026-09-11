@@ -258,9 +258,12 @@ loud failure, not a silently empty result.
   raises. That test is the whole point of the module.
 - **One opt-in live test** marked `requires_network`, checking the two Methow
   points below against their known values — so a service change is detected
-  deliberately rather than discovered in someone's results. It will not run in
-  a Claude session; that is expected, and is why the fixtures above carry the
-  real assertions.
+  deliberately rather than discovered in someone's results. Assumed at write
+  time not to run in a Claude session, by analogy with NWIS — **wrong**:
+  confirmed 2026-09-11 that `streamstats.usgs.gov` is reachable from a Claude
+  Code session even though NWIS is not (see TODO.md's environment
+  constraints). The fixtures above still carry the assertions that matter for
+  CI, where this test is deselected regardless of reachability.
 - Cache round-trip, provenance completeness, and batch partial-failure.
 
 ## 9. Open questions
