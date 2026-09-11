@@ -1,11 +1,17 @@
 """
 flowfreq.streamstats - USGS StreamStats watershed delineation and basin characteristics
 
-Phase 1 of the module scoped in ``docs/STREAMSTATS_MODULE_DESIGN.md``: given a pour
-point, snap it to the stream network, delineate its watershed, and return basin
-characteristics (drainage area, precipitation, canopy, ...) as regression predictors.
-Flow-statistics regression estimation (NSS) is out of scope here -- see the design doc
-S2 and TODO.md for why.
+Phase 1 (``docs/STREAMSTATS_MODULE_DESIGN.md``): given a pour point, snap it to the
+stream network, delineate its watershed, and return basin characteristics (drainage
+area, precipitation, canopy, ...) as regression predictors.
+
+Phase 2 (``docs/STREAMSTATS_NSS_ADDENDUM.md``): feed those characteristics into NSS
+(National Streamflow Statistics) to compute actual flow-statistic estimates (peak-flow,
+low-flow, ...), each carrying its own regression equation and a resolved citation.
+**Region selection across NSS's regressionRegions is not automatic** -- see
+:func:`estimate_flow_statistics`'s docstring and the addendum S4 before assuming a
+single "the" answer for a point; StreamStats itself does not resolve this without a
+watershed polygon, which Phase 1 does not produce.
 
 **Governing principle (design doc S4): a 200 is not an answer.** StreamStats can
 delineate a hillslope sliver for an unsnappable point and return HTTP 200 with a
@@ -49,7 +55,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
 
 import requests
 
@@ -366,7 +372,7 @@ def _request_with_backoff(
     url: str,
     *,
     params: Optional[Dict[str, Any]] = None,
-    json_body: Optional[Dict[str, Any]] = None,
+    json_body: Optional[Union[Dict[str, Any], List[Any]]] = None,
     timeout: float,
     max_retries: int = 3,
     backoff_base: float = 2.0,
@@ -825,3 +831,484 @@ def batch_get_characteristics(
                 errors[point_id] = str(e)
 
     return results, errors
+
+
+# =============================================================================
+# Phase 2 -- NSS (National Streamflow Statistics) flow-statistics estimation.
+# See docs/STREAMSTATS_NSS_ADDENDUM.md for the live-verification pass this
+# implements. The real protocol differs from every NSS-related detail the
+# ff-idea02 PDF/py transcript guessed: GET /nssservices/regions/{region} carries
+# no statistic groups, POST /nssservices/estimate does not exist at all, and the
+# real estimate call (POST /nssservices/Scenarios/Estimate) takes a bare JSON
+# array body, not one wrapped in {"scenarioList": [...]} -- the addendum's S2
+# records how each of those was found.
+# =============================================================================
+
+
+@dataclass
+class RegressionCitation:
+    """A published citation for a regression-equation set (addendum S2/S4 item 3).
+
+    Resolves the "uncited exponent" concern the design doc's FR-9 raised for a
+    later NSS module: every regression estimate can be traced to a real,
+    DOI-linked reference via this, not just an opaque ``citationID``.
+    """
+
+    citation_id: int
+    title: str
+    author: str
+    citation_url: str
+    last_year_of_data: Optional[int] = None
+
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "RegressionCitation":
+        return cls(**data)
+
+
+@dataclass
+class FlowStatisticEstimate:
+    """One computed flow statistic from one NSS regression region.
+
+    Attributes
+    ----------
+    equation : str
+        The literal regression equation NSS used, e.g.
+        ``"3.846*DRNAREA^0.745*10^(0.032*PRECPRIS10)/10^(0.0078*CANOPY_PCT)"`` --
+        returned directly by the service, not reconstructed.
+    standard_error_pct : float, optional
+        NSS's own "ASEp" (average standard error of prediction), confusingly
+        labelled ``errors`` in the raw response (a prediction-error statistic, not
+        a failure indicator). ``None`` when NSS did not return one -- observed
+        live for a wildly out-of-range input (addendum S3), so its absence is a
+        soft signal worth noticing even though it is not a hard failure marker.
+    """
+
+    code: str
+    name: str
+    description: str
+    value: float
+    unit: str
+    equation: str
+    standard_error_pct: Optional[float] = None
+    interval_lower: Optional[float] = None
+    interval_upper: Optional[float] = None
+
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "FlowStatisticEstimate":
+        return cls(**data)
+
+
+@dataclass
+class RegionFlowEstimates:
+    """Every flow statistic NSS computed for one regressionRegion, one statistic group.
+
+    A state commonly defines several independently-calibrated regressionRegions per
+    statistic group (WA Peak-Flow: four) -- this is one of them, not "the" answer
+    for a point. See :func:`estimate_flow_statistics`'s docstring on region
+    selection before treating one of these as authoritative for a given location.
+    """
+
+    region_code: str
+    region_name: str
+    statistic_group_code: str
+    statistic_group_name: str
+    estimates: Dict[str, FlowStatisticEstimate] = field(default_factory=dict)
+    citation: Optional[RegressionCitation] = None
+
+    def __getitem__(self, code: str) -> FlowStatisticEstimate:
+        return self.estimates[code]
+
+    def __contains__(self, code: str) -> bool:
+        return code in self.estimates
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "region_code": self.region_code,
+            "region_name": self.region_name,
+            "statistic_group_code": self.statistic_group_code,
+            "statistic_group_name": self.statistic_group_name,
+            "estimates": {k: v.to_dict() for k, v in self.estimates.items()},
+            "citation": self.citation.to_dict() if self.citation else None,
+        }
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "RegionFlowEstimates":
+        citation = data.get("citation")
+        return cls(
+            region_code=data["region_code"],
+            region_name=data["region_name"],
+            statistic_group_code=data["statistic_group_code"],
+            statistic_group_name=data["statistic_group_name"],
+            estimates={
+                code: FlowStatisticEstimate.from_dict(e) for code, e in data["estimates"].items()
+            },
+            citation=RegressionCitation.from_dict(citation) if citation else None,
+        )
+
+
+def list_statistic_groups(
+    region: Optional[str] = None, *, timeout: float = 30.0
+) -> List[Dict[str, Any]]:
+    """List NSS statistic groups (addendum S2).
+
+    With ``region=None``, lists every statistic group NSS defines (``PC``, ``PFS``,
+    ``LFS``, ``FDS``, ...). With ``region`` given, lists only the groups actually
+    valid for that region (confirmed live: WA supports only ``PFS`` and ``LFS``) --
+    the real replacement for the ff-idea02 transcript's wrong assumption that
+    ``GET /nssservices/regions/{region}`` itself carries this list.
+
+    Returns
+    -------
+    list of dict
+        Each carries at least ``id``, ``name``, ``code``, ``defType``.
+    """
+    if region:
+        url = f"https://{GENERIC_HOST}/nssservices/regions/{region}/statisticgroups"
+    else:
+        url = f"https://{GENERIC_HOST}/nssservices/statisticgroups"
+    response = _request_with_backoff(requests.get, url, timeout=timeout)
+    response.raise_for_status()
+    try:
+        data = response.json()
+    except ValueError as exc:
+        raise StreamStatsResponseError("Statistic groups response was not valid JSON") from exc
+    if not isinstance(data, list):
+        raise StreamStatsResponseError(
+            f"Expected a list of statistic groups from {url}, got {type(data).__name__}"
+        )
+    return data
+
+
+def _fill_and_validate_regions(
+    scenario: Dict[str, Any], characteristics: Dict[str, Characteristic]
+) -> Tuple[Dict[str, Any], Dict[str, str]]:
+    """Fill a scenario template's parameters from real characteristics.
+
+    Keeps only the regressionRegions whose every required parameter is present in
+    *characteristics* and within that region's own declared ``[min, max]``
+    (addendum S3): NSS will not check this for you, and returns a plausible,
+    silently-wrong extrapolated value for an out-of-range input with no warning at
+    all -- worse than Phase 1's ``WarningMsg``-bearing failures, which at least
+    signal something. Validating before submission, using limits the service
+    itself just echoed back, means an invalid region is never even asked for --
+    stronger than catching a bad answer after the fact.
+
+    Returns
+    -------
+    tuple
+        ``(scenario_with_only_valid_regions, {region_code: skip_reason})``.
+    """
+    valid_regions = []
+    skipped: Dict[str, str] = {}
+    for region in scenario.get("regressionRegions", []):
+        region_code = str(region.get("code", "?"))
+        ok = True
+        for param in region.get("parameters", []):
+            code = param.get("code")
+            char = characteristics.get(code)
+            if char is None:
+                skipped[region_code] = f"no basin characteristic for required parameter {code!r}"
+                ok = False
+                break
+            limits = param.get("limits") or {}
+            lo, hi = limits.get("min"), limits.get("max")
+            if (lo is not None and char.value < lo) or (hi is not None and char.value > hi):
+                skipped[region_code] = (
+                    f"{code}={char.value} is outside this region's valid range [{lo}, {hi}]"
+                )
+                ok = False
+                break
+            param["value"] = char.value
+        if ok:
+            valid_regions.append(region)
+    filled = dict(scenario)
+    filled["regressionRegions"] = valid_regions
+    return filled, skipped
+
+
+def _fetch_citations(region_ids: Sequence[int], *, timeout: float) -> Dict[int, RegressionCitation]:
+    """Resolve citations for a set of regressionRegion IDs, keyed by citation ID.
+
+    Confirmed live: a returned citation's own ``id`` is the same value each
+    regressionRegion's own ``citationID`` field references, and several regions
+    commonly share one citation (WA's four Peak-Flow regions all resolve to a
+    single Mastin et al. 2016 citation) -- the response lists each distinct
+    citation once, matched back to a region by ``citationID``, not by request
+    order or count.
+    """
+    url = f"https://{GENERIC_HOST}/nssservices/citations"
+    params = {"regressionregions": ",".join(str(r) for r in region_ids)}
+    response = _request_with_backoff(requests.get, url, params=params, timeout=timeout)
+    response.raise_for_status()
+    try:
+        data = response.json()
+    except ValueError as exc:
+        raise StreamStatsResponseError("NSS citations response was not valid JSON") from exc
+    if not isinstance(data, list):
+        raise StreamStatsResponseError(f"Expected a list of citations, got {type(data).__name__}")
+    return {
+        int(c["id"]): RegressionCitation(
+            citation_id=int(c["id"]),
+            title=str(c.get("title", "")),
+            author=str(c.get("author", "")),
+            citation_url=str(c.get("citationURL", "")),
+            last_year_of_data=c.get("lastYearOfData"),
+        )
+        for c in data
+    }
+
+
+def estimate_flow_statistics(
+    region: str,
+    characteristics: Dict[str, Characteristic],
+    statistic_group_codes: Optional[Sequence[str]] = None,
+    *,
+    unit_system: int = 2,
+    timeout: float = 60.0,
+) -> Tuple[List[RegionFlowEstimates], Dict[str, str]]:
+    """Estimate NSS regression flow statistics from real basin characteristics.
+
+    Phase 2 (``docs/STREAMSTATS_NSS_ADDENDUM.md``). Given characteristics Phase 1's
+    :func:`delineate_and_get_characteristics` already produced, computes every
+    regression equation NSS defines for the region -- across every regressionRegion
+    within every requested statistic group -- skipping (never silently computing)
+    any region whose required parameters are missing or fall outside that region's
+    own declared valid range (addendum S3).
+
+    **Region selection is not automatic.** NSS defines multiple, independently
+    calibrated regressionRegions per statistic group within a state (WA Peak-Flow
+    has four), and no available call filters them by location: Phase 1 provides no
+    watershed polygon, and confirmed live, NSS's own ``ByLocation`` call does not
+    filter on a bare point either. Every geographically-plausible region computes a
+    result with no error as long as its parameters are merely in numeric range --
+    picking the geographically-correct one among the returned regions is the
+    caller's responsibility, the same way FR-8 makes the StreamStats region itself
+    the caller's responsibility one level up.
+
+    Parameters
+    ----------
+    region : str
+        StreamStats region code (e.g. ``"WA"``). Required, never inferred.
+    characteristics : dict of str to Characteristic
+        Real basin characteristics, e.g. ``WatershedCharacteristics.characteristics``
+        from :func:`delineate_and_get_characteristics`.
+    statistic_group_codes : sequence of str, optional
+        NSS statistic group codes to estimate (e.g. ``["PFS"]``). Defaults to every
+        group :func:`list_statistic_groups` reports as valid for this region -- a
+        live lookup, not a guess.
+    unit_system : int
+        1=Metric, 2=US Customary (default), 3=Universal.
+    timeout : float
+        Per-request timeout in seconds.
+
+    Returns
+    -------
+    tuple
+        ``(region_estimates, skipped)`` -- ``region_estimates`` is a list of
+        :class:`RegionFlowEstimates`, one per (statistic group, regressionRegion)
+        pair that had every required parameter in range; ``skipped`` maps
+        ``"{statistic_group_code}:{region_code}"`` to why it was excluded. Mirrors
+        FR-7's batch shape one level deeper: one bad regression region never
+        excludes its siblings.
+
+    Raises
+    ------
+    StreamStatsResponseError, StreamStatsTransportError
+        A malformed response, or a transport failure after retrying.
+    """
+    if statistic_group_codes is None:
+        statistic_group_codes = [g["code"] for g in list_statistic_groups(region, timeout=timeout)]
+
+    id_to_code = {g["id"]: g["code"] for g in list_statistic_groups(timeout=timeout)}
+
+    templates_url = f"https://{GENERIC_HOST}/nssservices/regions/{region}/Scenarios"
+    templates_params = {
+        "statisticgroups": ",".join(statistic_group_codes),
+        "unitsystem": unit_system,
+    }
+    templates_response = _request_with_backoff(
+        requests.get, templates_url, params=templates_params, timeout=timeout
+    )
+    templates_response.raise_for_status()
+    try:
+        templates = templates_response.json()
+    except ValueError as exc:
+        raise StreamStatsResponseError(
+            f"NSS scenario-template response for region {region!r} was not valid JSON"
+        ) from exc
+    if not isinstance(templates, list):
+        raise StreamStatsResponseError(
+            f"Expected a list of scenario templates for region {region!r}, got "
+            f"{type(templates).__name__}"
+        )
+
+    skipped: Dict[str, str] = {}
+    to_submit: List[Dict[str, Any]] = []
+    for scenario in templates:
+        group_code = id_to_code.get(scenario.get("statisticGroupID"), "")
+        filled, region_skips = _fill_and_validate_regions(scenario, characteristics)
+        for region_code, reason in region_skips.items():
+            skipped[f"{group_code}:{region_code}"] = reason
+        if filled["regressionRegions"]:
+            to_submit.append(filled)
+
+    if not to_submit:
+        return [], skipped
+
+    estimate_url = f"https://{GENERIC_HOST}/nssservices/Scenarios/Estimate"
+    estimate_response = _request_with_backoff(
+        requests.post, estimate_url, json_body=to_submit, timeout=timeout
+    )
+    if estimate_response.status_code >= 400:
+        raise StreamStatsResponseError(
+            f"NSS estimate request for region {region!r} was rejected "
+            f"({estimate_response.status_code}): {estimate_response.text}"
+        )
+    try:
+        results = estimate_response.json()
+    except ValueError as exc:
+        raise StreamStatsResponseError(
+            f"NSS estimate response for region {region!r} was not valid JSON"
+        ) from exc
+    if not isinstance(results, list):
+        raise StreamStatsResponseError(
+            f"Expected a list of scenario results for region {region!r}, got "
+            f"{type(results).__name__}"
+        )
+
+    parsed: List[Tuple[Optional[int], RegionFlowEstimates]] = []
+    region_ids: List[int] = []
+    for scenario in results:
+        group_code = id_to_code.get(scenario.get("statisticGroupID"), "")
+        group_name = str(scenario.get("statisticGroupName", ""))
+        for rr in scenario.get("regressionRegions", []):
+            estimates: Dict[str, FlowStatisticEstimate] = {}
+            for stat in rr.get("results", []) or []:
+                errors = stat.get("errors") or []
+                sep = next((e.get("value") for e in errors if e.get("code") == "ASEp"), None)
+                bounds = stat.get("intervalBounds") or {}
+                try:
+                    code = str(stat["code"])
+                    value = float(stat["value"])
+                except (KeyError, TypeError, ValueError) as exc:
+                    raise StreamStatsResponseError(
+                        f"NSS result entry missing code/value: {stat!r}"
+                    ) from exc
+                estimates[code] = FlowStatisticEstimate(
+                    code=code,
+                    name=str(stat.get("name", "")),
+                    description=str(stat.get("description", "")),
+                    value=value,
+                    unit=str((stat.get("unit") or {}).get("abbr", "")),
+                    equation=str(stat.get("equation", "")),
+                    standard_error_pct=sep,
+                    interval_lower=bounds.get("lower"),
+                    interval_upper=bounds.get("upper"),
+                )
+            region_id = rr.get("id")
+            citation_id = rr.get("citationID")
+            if region_id is not None:
+                region_ids.append(region_id)
+            parsed.append(
+                (
+                    citation_id,
+                    RegionFlowEstimates(
+                        region_code=str(rr.get("code", "")),
+                        region_name=str(rr.get("name", "")),
+                        statistic_group_code=group_code,
+                        statistic_group_name=group_name,
+                        estimates=estimates,
+                    ),
+                )
+            )
+
+    citations_by_id: Dict[int, RegressionCitation] = {}
+    if region_ids:
+        try:
+            citations_by_id = _fetch_citations(region_ids, timeout=timeout)
+        except (StreamStatsResponseError, StreamStatsTransportError, requests.RequestException):
+            logger.warning(
+                "Could not resolve NSS citations for regions %s", region_ids, exc_info=True
+            )
+
+    region_estimates: List[RegionFlowEstimates] = []
+    for citation_id, item in parsed:
+        if citation_id is not None:
+            item.citation = citations_by_id.get(citation_id)
+        region_estimates.append(item)
+
+    return region_estimates, skipped
+
+
+def batch_estimate_flow_statistics(
+    points: Sequence[Tuple[str, str, float, float]],
+    *,
+    statistic_group_codes: Optional[Sequence[str]] = None,
+    unit_system: int = 2,
+    concurrency: int = 1,
+    cache: Optional[StreamStatsCache] = None,
+    validate_regions: bool = True,
+    timeout: float = 60.0,
+) -> Tuple[Dict[str, List[RegionFlowEstimates]], Dict[str, Dict[str, str]], Dict[str, str]]:
+    """Delineate, then estimate flow statistics, for many pour points.
+
+    Composes :func:`batch_get_characteristics` (Phase 1) with
+    :func:`estimate_flow_statistics` for each point that successfully delineates.
+    Mirrors FR-7's batch shape at two levels: one point's delineation failure never
+    blocks another point's estimate, and within an otherwise-successful point, one
+    bad regressionRegion never blocks its siblings.
+
+    Parameters
+    ----------
+    points : sequence of (point_id, region, lat, lon)
+    statistic_group_codes, unit_system
+        Passed through to :func:`estimate_flow_statistics` for every point.
+    concurrency, cache, validate_regions, timeout
+        Passed through to :func:`batch_get_characteristics`.
+
+    Returns
+    -------
+    tuple
+        ``(estimates, skipped, errors)`` -- ``estimates`` maps ``point_id`` to a
+        list of :class:`RegionFlowEstimates` for points that both delineated and
+        estimated successfully; ``skipped`` maps ``point_id`` to
+        :func:`estimate_flow_statistics`'s own per-region skip dict, for an
+        otherwise-successful point with some regions excluded; ``errors`` maps
+        ``point_id`` to a failure reason, for points that never delineated
+        (:func:`batch_get_characteristics`'s own errors) or whose estimate call
+        itself failed outright.
+    """
+    characteristics_by_point, errors = batch_get_characteristics(
+        points,
+        concurrency=concurrency,
+        cache=cache,
+        validate_regions=validate_regions,
+        timeout=timeout,
+    )
+
+    region_by_point = {point_id: region for point_id, region, _, _ in points}
+    estimates: Dict[str, List[RegionFlowEstimates]] = {}
+    skipped: Dict[str, Dict[str, str]] = {}
+
+    for point_id, watershed in characteristics_by_point.items():
+        try:
+            region_estimates, point_skipped = estimate_flow_statistics(
+                region_by_point[point_id],
+                watershed.characteristics,
+                statistic_group_codes=statistic_group_codes,
+                unit_system=unit_system,
+                timeout=timeout,
+            )
+            estimates[point_id] = region_estimates
+            if point_skipped:
+                skipped[point_id] = point_skipped
+        except Exception as e:
+            errors[point_id] = str(e)
+
+    return estimates, skipped, errors

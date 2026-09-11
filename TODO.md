@@ -16,14 +16,15 @@ Fortran reference: **vendored** at `vendor/peakfqr/` (peakfq 8.1.0, CC0).
 Fortran bridge: builds from those sources via `python build_fortran/build.py`
 (gfortran + meson) and is now **built and checked in CI** by `make parity`.
 
-**2026-09-10/11 addendum**: `flowfreq/streamstats.py` (Phase 1) and three small
-`download_daily_flow` fixes landed -- see "Done -- StreamStats module Phase 1" below.
-Measured via bare `pytest tests/` (no `make`/`clean-verify` -- not installed in that
-session's environment, see the Windows caveats in `CLAUDE.md`), with the Fortran
-extension present: **1038 passed, 4 deselected, 7 xfailed**, plus the same 2
-pre-existing, environment-specific Fortran-precision failures this file already
-records elsewhere (not this work's to fix). Not a `clean-verify` number and not
-directly comparable to the 810 above; recorded here so it isn't lost, not as a
+**2026-09-10/11 addendum**: `flowfreq/streamstats.py` Phase 1 and Phase 2, and three
+small `download_daily_flow` fixes, landed -- see "Done -- StreamStats module Phase 1"
+and "Done -- StreamStats module Phase 2" below. Measured via bare `pytest tests/` (no
+`make`/`clean-verify` -- not installed in that session's environment, see the Windows
+caveats in `CLAUDE.md`), with the Fortran extension present: **1056 passed, 5
+deselected, 7 xfailed**, plus the same 2 pre-existing, environment-specific
+Fortran-precision failures this file already records elsewhere (not this work's to
+fix). Not a `clean-verify` number and not directly comparable to the 810 above;
+recorded here so it isn't lost, not as a
 replacement for it.
 
 ### Environment constraints -- read before starting work
@@ -97,29 +98,65 @@ reference (CLAUDE.md's Test Data section) -- not evidence of anything left to po
 
 ## Open Items (prioritised)
 
-### Next — StreamStats Phase 2: NSS flow-statistics batch estimation
+### Next — StreamStats Phase 2 follow-ups
 
-Phase 1 (`flowfreq/streamstats.py` -- basin delineation and characteristics) is done;
-see "Done -- StreamStats module Phase 1" below. Flow-statistics regression estimation
-(the National Streamflow Statistics service, `nssservices`) was deliberately scoped out
-of Phase 1 -- the design doc's own words: "conflating [characteristics and regression
-evaluation] invites an uncited exponent."
+Phase 2 itself (NSS flow-statistics estimation) is done -- see "Done -- StreamStats
+module Phase 2" below. Two things it found are still open:
 
-- [ ] **Live-verification pass first, the same discipline that produced the Phase 1
-      design doc** -- exercise `GET /nssservices/regions/{region}` and
-      `POST /nssservices/estimate` for real, using Phase 1's own
-      `WatershedCharacteristics.characteristics` as input, before writing any Phase 2
-      code. Record findings as a doc addendum. Not optional: the Phase 1 doc's own
-      `SS-Hydro` endpoint guess (from an earlier, unverified source) turned out wrong
-      when checked against the live service, which is the whole reason this discipline
-      exists.
-- [ ] Confirm/deny an NSS-side "false 200" or other silent-failure mode; do not assume
-      StreamStats' `ss-delineate`/`ss-hydro` behavior (HTTP 200 on a request that failed)
-      is unique to those two services.
-- [ ] `list_regions()`/`list_statistic_groups(region)`/`estimate_flow_statistics()`/
-      `batch_estimate_flow_statistics()`, each estimate carrying the regression-equation
-      source that produced it (the "uncited exponent" concern above, resolved rather
-      than ignored). Reuse Phase 1's cache/provenance/exception/batch machinery.
+- [ ] **Region selection without a watershed polygon.** NSS defines several
+      independently-calibrated `regressionRegions` per statistic group within a state
+      (WA Peak-Flow: four), and confirmed live, nothing filters them by location --
+      not `ByLocation` with a bare point (Phase 1 produces no polygon to try instead).
+      `estimate_flow_statistics()` currently returns every region whose parameters are
+      merely in numeric range, unlabelled as to which is geographically correct; the
+      caller must know. Revisit once/if Phase 1's own polygon gap (below) is closed --
+      a real polygon through `Scenarios/ByLocation` may resolve both at once.
+- [ ] Low-Flow Statistics (`LFS`, the other group WA supports) was exercised only
+      through its client-side validation (correctly skipping 3 of 4 regions as
+      out-of-range, 1 for a missing `ELEV1000` characteristic) -- no region actually
+      returned a Low-Flow estimate live. Only Peak-Flow (`PFS`) has a confirmed,
+      complete live estimate. Worth a live pass with a point that actually has
+      `ELEV1000` and falls in a valid drainage-area range before trusting `LFS`
+      results the way `PFS` is now trusted.
+
+### Done — StreamStats module Phase 2: NSS flow-statistics estimation
+
+`docs/STREAMSTATS_NSS_ADDENDUM.md` -- the live-verification pass Phase 1 required
+before any Phase 2 code, same discipline as the original design doc. Every
+NSS-related detail the `ff-idea02` PDF/py transcript guessed was wrong, in the same
+pattern as its `ss-hydro` guess: `GET /nssservices/regions/{region}` carries no
+statistic groups, `POST /nssservices/estimate` does not exist at any path tried, and
+the real estimate call (`POST /nssservices/Scenarios/Estimate`) takes a **bare JSON
+array** body -- wrapping it in `{"scenarioList": [...]}`, matching the API's own
+machine-readable parameter name, is a confirmed-live `500` with no other diagnostic.
+Found the real protocol by pulling the NSS docs viewer's Angular bundle apart to its
+`assets/config.json`, which named the actual machine-readable spec
+(`GET /nssservices/apiconfig`, a custom non-OpenAPI format) -- there is no published
+OpenAPI/Swagger for `nssservices`, and the human-readable per-endpoint docs it
+references live on an internal, sign-in-gated USGS GitLab, unreachable without
+authentication.
+
+Implemented in `flowfreq/streamstats.py`: `list_statistic_groups(region=None)`,
+`estimate_flow_statistics(region, characteristics, statistic_group_codes=None)`,
+`batch_estimate_flow_statistics(points, ...)`, plus `RegressionCitation`,
+`FlowStatisticEstimate`, `RegionFlowEstimates` (typed, indexable, mirroring Phase 1's
+own style). Every estimate carries NSS's own literal regression-equation string and a
+resolved citation (title/author/DOI, via `GET /nssservices/citations`) -- closes the
+design doc's FR-9 "uncited exponent" concern for real, not just in principle.
+
+**NSS's own "a 200 is not an answer," found live and recorded as this module's
+governing check for Phase 2**: submitting a wildly out-of-range parameter value
+(`DRNAREA=999999` against a calibrated range of `[0.25, 3310]`) still returned a
+computed, plausible-looking flow estimate with **no error and no warning at all** --
+worse than Phase 1's `WarningMsg`-bearing failures, since there is no message to
+detect. `estimate_flow_statistics` therefore validates every parameter against that
+same request's own echoed-back `limits.min`/`limits.max` *before* submission
+(`_fill_and_validate_regions`), so an invalid region is never even asked for, rather
+than trusting a returned number after the fact. Confirmed live end to end
+(`tests/test_streamstats.py::TestLiveNSS`): Goat Creek's real basin characteristics
+reproduce a live NSS 50-percent-AEP peak-flow estimate with its real equation and
+citation. 17 new tests (13 mocked + 1 live, plus dataclass serialization and
+`_fill_and_validate_regions` unit tests).
 
 ### Done — StreamStats module Phase 1, and the `download_daily_flow` precedent fix
 

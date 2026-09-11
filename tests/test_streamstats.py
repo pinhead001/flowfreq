@@ -17,7 +17,10 @@ from flowfreq.streamstats import (
     MAX_CONCURRENCY,
     Characteristic,
     DegenerateDelineationError,
+    FlowStatisticEstimate,
     Provenance,
+    RegionFlowEstimates,
+    RegressionCitation,
     SnapResult,
     StreamStatsCache,
     StreamStatsResponseError,
@@ -25,9 +28,13 @@ from flowfreq.streamstats import (
     UnsnappablePointError,
     UnsupportedRegionError,
     WatershedCharacteristics,
+    _fill_and_validate_regions,
+    batch_estimate_flow_statistics,
     batch_get_characteristics,
     delineate_and_get_characteristics,
+    estimate_flow_statistics,
     list_regions,
+    list_statistic_groups,
     snap_point,
 )
 from tests.fixtures.streamstats_responses import (
@@ -38,6 +45,12 @@ from tests.fixtures.streamstats_responses import (
     HYDRO_CHARACTERISTICS_MALFORMED,
     HYDRO_CHARACTERISTICS_MISSING_VALUE,
     HYDRO_CHARACTERISTICS_WRAPPED,
+    NSS_CITATIONS_RESPONSE,
+    NSS_ESTIMATE_500_BODY,
+    NSS_ESTIMATE_RESPONSE_PFS,
+    NSS_SCENARIO_TEMPLATE_PFS,
+    NSS_STATISTIC_GROUPS_ALL,
+    NSS_STATISTIC_GROUPS_WA,
     RESPONSE_422_MISSING_REGION,
     SNAP_GOOD,
     SNAP_UNSNAPPABLE,
@@ -438,6 +451,43 @@ class TestWatershedCharacteristicsSerialization:
         assert restored.provenance.server_used == "prodweba"
 
 
+class TestRegionFlowEstimatesSerialization:
+    def test_to_dict_from_dict_round_trip(self) -> None:
+        estimate = FlowStatisticEstimate(
+            code="PK50AEP",
+            name="50-percent AEP flood",
+            description="",
+            value=4370.0,
+            unit="ft^3/s",
+            equation="3.846*DRNAREA^0.745",
+            standard_error_pct=95.0,
+            interval_lower=1140.0,
+            interval_upper=16700.0,
+        )
+        citation = RegressionCitation(
+            citation_id=150,
+            title="2016, Magnitude, frequency, and trends of floods...",
+            author="Mastin, M.C., et al.",
+            citation_url="http://dx.doi.org/10.3133/sir20165118",
+            last_year_of_data=2014,
+        )
+        region = RegionFlowEstimates(
+            region_code="GC1750",
+            region_name="Peak_Region_1_2016_5118",
+            statistic_group_code="PFS",
+            statistic_group_name="Peak-Flow Statistics",
+            estimates={"PK50AEP": estimate},
+            citation=citation,
+        )
+
+        restored = RegionFlowEstimates.from_dict(region.to_dict())
+
+        assert restored.region_code == "GC1750"
+        assert restored["PK50AEP"].value == pytest.approx(4370.0)
+        assert restored.citation is not None
+        assert restored.citation.citation_id == 150
+
+
 class TestListRegions:
     def test_parses_region_list(self) -> None:
         payload = [
@@ -518,6 +568,272 @@ class TestBatchGetCharacteristics:
         mock_get.assert_not_called()
 
 
+_GOOD_CHARACTERISTICS = {
+    "DRNAREA": Characteristic("DRNAREA", "Drainage Area", "", 412.0, "square miles"),
+    "PRECPRIS10": Characteristic("PRECPRIS10", "Mean Annual Precip", "", 45.62, "inches"),
+    "CANOPY_PCT": Characteristic("CANOPY_PCT", "Percent Canopy", "", 45.242, "percent"),
+}
+
+
+def _nss_get_dispatch(url, **kwargs):
+    if url.endswith("/nssservices/statisticgroups"):
+        return _mock_response(NSS_STATISTIC_GROUPS_ALL)
+    if url.endswith("/nssservices/regions/WA/statisticgroups"):
+        return _mock_response(NSS_STATISTIC_GROUPS_WA)
+    if url.endswith("/nssservices/regions/WA/Scenarios"):
+        return _mock_response(NSS_SCENARIO_TEMPLATE_PFS)
+    if url.endswith("/nssservices/citations"):
+        return _mock_response(NSS_CITATIONS_RESPONSE)
+    raise AssertionError(f"unexpected GET {url}")
+
+
+class TestFillAndValidateRegions:
+    """Tests for the client-side range check NSS itself will not perform."""
+
+    def test_valid_values_are_filled_and_region_kept(self) -> None:
+        import copy
+
+        scenario = copy.deepcopy(NSS_SCENARIO_TEMPLATE_PFS[0])
+        filled, skipped = _fill_and_validate_regions(scenario, _GOOD_CHARACTERISTICS)
+
+        assert skipped == {}
+        assert len(filled["regressionRegions"]) == 1
+        values = {p["code"]: p["value"] for p in filled["regressionRegions"][0]["parameters"]}
+        assert values == {"DRNAREA": 412.0, "PRECPRIS10": 45.62, "CANOPY_PCT": 45.242}
+
+    def test_missing_characteristic_skips_region(self) -> None:
+        import copy
+
+        scenario = copy.deepcopy(NSS_SCENARIO_TEMPLATE_PFS[0])
+        incomplete = {k: v for k, v in _GOOD_CHARACTERISTICS.items() if k != "CANOPY_PCT"}
+
+        filled, skipped = _fill_and_validate_regions(scenario, incomplete)
+
+        assert filled["regressionRegions"] == []
+        assert "GC1750" in skipped
+        assert "CANOPY_PCT" in skipped["GC1750"]
+
+    def test_out_of_range_value_skips_region(self) -> None:
+        """The mandatory test for this module's own governing principle, restated
+        for NSS: an out-of-range input must never be submitted as if valid.
+        """
+        import copy
+
+        scenario = copy.deepcopy(NSS_SCENARIO_TEMPLATE_PFS[0])
+        out_of_range = dict(_GOOD_CHARACTERISTICS)
+        out_of_range["DRNAREA"] = Characteristic("DRNAREA", "", "", 999999.0, "square miles")
+
+        filled, skipped = _fill_and_validate_regions(scenario, out_of_range)
+
+        assert filled["regressionRegions"] == []
+        assert "outside this region's valid range" in skipped["GC1750"]
+
+
+class TestListStatisticGroupsNSS:
+    def test_no_region_lists_all_groups(self) -> None:
+        with patch(
+            "flowfreq.streamstats.requests.get",
+            return_value=_mock_response(NSS_STATISTIC_GROUPS_ALL),
+        ) as mock_get:
+            groups = list_statistic_groups()
+
+        assert mock_get.call_args.args[0].endswith("/nssservices/statisticgroups")
+        assert {g["code"] for g in groups} == {"PC", "PFS", "LFS"}
+
+    def test_region_lists_only_valid_groups(self) -> None:
+        with patch(
+            "flowfreq.streamstats.requests.get",
+            return_value=_mock_response(NSS_STATISTIC_GROUPS_WA),
+        ) as mock_get:
+            groups = list_statistic_groups("WA")
+
+        assert mock_get.call_args.args[0].endswith("/nssservices/regions/WA/statisticgroups")
+        assert {g["code"] for g in groups} == {"PFS", "LFS"}
+
+    def test_non_list_response_raises(self) -> None:
+        with patch(
+            "flowfreq.streamstats.requests.get", return_value=_mock_response({"not": "a list"})
+        ):
+            with pytest.raises(StreamStatsResponseError):
+                list_statistic_groups("WA")
+
+
+class TestEstimateFlowStatistics:
+    """Tests for the Phase 2 NSS pipeline (docs/STREAMSTATS_NSS_ADDENDUM.md)."""
+
+    def test_happy_path_returns_estimates_with_citation(self) -> None:
+        with (
+            patch("flowfreq.streamstats.requests.get", side_effect=_nss_get_dispatch),
+            patch(
+                "flowfreq.streamstats.requests.post",
+                return_value=_mock_response(NSS_ESTIMATE_RESPONSE_PFS),
+            ),
+        ):
+            region_estimates, skipped = estimate_flow_statistics(
+                "WA", _GOOD_CHARACTERISTICS, statistic_group_codes=["PFS"]
+            )
+
+        assert skipped == {}
+        assert len(region_estimates) == 1
+        result = region_estimates[0]
+        assert result.region_code == "GC1750"
+        assert result.statistic_group_code == "PFS"
+        assert result["PK50AEP"].value == pytest.approx(4370.0)
+        assert result["PK50AEP"].equation.startswith("3.846*DRNAREA")
+        assert result["PK50AEP"].standard_error_pct == pytest.approx(95.0)
+        assert result.citation is not None
+        assert "Mastin" in result.citation.author
+        assert result.citation.citation_url == "http://dx.doi.org/10.3133/sir20165118"
+
+    def test_estimate_body_is_a_bare_array_not_wrapped(self) -> None:
+        """The mandatory regression test: wrapping the body in {"scenarioList": [...]}
+        (the api-config's own literal parameter name) is a confirmed-live 500 with no
+        other diagnostic. Posting the array bare is what actually works.
+        """
+        with (
+            patch("flowfreq.streamstats.requests.get", side_effect=_nss_get_dispatch),
+            patch(
+                "flowfreq.streamstats.requests.post",
+                return_value=_mock_response(NSS_ESTIMATE_RESPONSE_PFS),
+            ) as mock_post,
+        ):
+            estimate_flow_statistics("WA", _GOOD_CHARACTERISTICS, statistic_group_codes=["PFS"])
+
+        body = mock_post.call_args.kwargs["json"]
+        assert isinstance(body, list)
+        assert not isinstance(body, dict)
+
+    def test_default_statistic_groups_discovered_live(self) -> None:
+        """With no explicit groups, every group valid for the region is requested."""
+        with (
+            patch("flowfreq.streamstats.requests.get", side_effect=_nss_get_dispatch) as mock_get,
+            patch(
+                "flowfreq.streamstats.requests.post",
+                return_value=_mock_response(NSS_ESTIMATE_RESPONSE_PFS),
+            ),
+        ):
+            estimate_flow_statistics("WA", _GOOD_CHARACTERISTICS)
+
+        template_call = next(c for c in mock_get.call_args_list if c.args[0].endswith("/Scenarios"))
+        assert template_call.kwargs["params"]["statisticgroups"] == "PFS,LFS"
+
+    def test_all_regions_invalid_skips_network_call_to_estimate(self) -> None:
+        with (
+            patch("flowfreq.streamstats.requests.get", side_effect=_nss_get_dispatch),
+            patch("flowfreq.streamstats.requests.post") as mock_post,
+        ):
+            region_estimates, skipped = estimate_flow_statistics(
+                "WA", {}, statistic_group_codes=["PFS"]
+            )
+
+        assert region_estimates == []
+        assert "PFS:GC1750" in skipped
+        mock_post.assert_not_called()
+
+    def test_estimate_4xx_raises_response_error(self) -> None:
+        with (
+            patch("flowfreq.streamstats.requests.get", side_effect=_nss_get_dispatch),
+            patch(
+                "flowfreq.streamstats.requests.post",
+                return_value=_mock_response(status_code=422, text="bad request"),
+            ),
+        ):
+            with pytest.raises(StreamStatsResponseError):
+                estimate_flow_statistics("WA", _GOOD_CHARACTERISTICS, statistic_group_codes=["PFS"])
+
+    def test_estimate_persistent_500_raises_transport_error(self) -> None:
+        """The confirmed-live real bug (wrapping the body in {"scenarioList": [...]})
+        surfaces as a 500 that persists across retries -- exercised here via the
+        actual captured error body, expecting the transport-failure path rather than
+        the 4xx-data-problem path.
+        """
+        with (
+            patch("flowfreq.streamstats.requests.get", side_effect=_nss_get_dispatch),
+            patch("flowfreq.streamstats.time.sleep", return_value=None),
+            patch(
+                "flowfreq.streamstats.requests.post",
+                return_value=_mock_response(status_code=500, text=NSS_ESTIMATE_500_BODY),
+            ),
+        ):
+            with pytest.raises(StreamStatsTransportError):
+                estimate_flow_statistics("WA", _GOOD_CHARACTERISTICS, statistic_group_codes=["PFS"])
+
+    def test_malformed_template_response_raises(self) -> None:
+        def dispatch(url, **kwargs):
+            if url.endswith("/Scenarios"):
+                return _mock_response({"not": "a list"})
+            return _nss_get_dispatch(url, **kwargs)
+
+        with patch("flowfreq.streamstats.requests.get", side_effect=dispatch):
+            with pytest.raises(StreamStatsResponseError):
+                estimate_flow_statistics("WA", _GOOD_CHARACTERISTICS, statistic_group_codes=["PFS"])
+
+    def test_citation_resolution_failure_does_not_fail_the_whole_call(self) -> None:
+        """A citations-lookup failure is not fatal -- the estimates themselves are
+        still good; only the citation attachment is best-effort.
+        """
+
+        def dispatch(url, **kwargs):
+            if url.endswith("/nssservices/citations"):
+                return _mock_response(status_code=500, text="error")
+            return _nss_get_dispatch(url, **kwargs)
+
+        with (
+            patch("flowfreq.streamstats.requests.get", side_effect=dispatch),
+            patch(
+                "flowfreq.streamstats.requests.post",
+                return_value=_mock_response(NSS_ESTIMATE_RESPONSE_PFS),
+            ),
+        ):
+            region_estimates, _ = estimate_flow_statistics(
+                "WA", _GOOD_CHARACTERISTICS, statistic_group_codes=["PFS"]
+            )
+
+        assert region_estimates[0]["PK50AEP"].value == pytest.approx(4370.0)
+        assert region_estimates[0].citation is None
+
+
+class TestBatchEstimateFlowStatistics:
+    def test_delineation_failure_reported_as_error(self) -> None:
+        with patch(
+            "flowfreq.streamstats.requests.get", return_value=_mock_response(SNAP_UNSNAPPABLE)
+        ):
+            estimates, skipped, errors = batch_estimate_flow_statistics(
+                [("bad", "WA", 48.584, -120.370)], validate_regions=False
+            )
+
+        assert estimates == {}
+        assert "bad" in errors
+
+    def test_successful_point_returns_estimates(self) -> None:
+        def dispatch(url, **kwargs):
+            if url.endswith("/pourpoint/v1/snap/str900"):
+                return _mock_response(SNAP_GOOD)
+            if "/ss-delineate/" in url:
+                return _mock_response(DELINEATE_SSHYDRO_GOOD)
+            return _nss_get_dispatch(url, **kwargs)
+
+        with (
+            patch("flowfreq.streamstats.requests.get", side_effect=dispatch),
+            patch(
+                "flowfreq.streamstats.requests.post",
+                side_effect=[
+                    _mock_response(HYDRO_CHARACTERISTICS_GOOD),
+                    _mock_response(NSS_ESTIMATE_RESPONSE_PFS),
+                ],
+            ),
+        ):
+            estimates, skipped, errors = batch_estimate_flow_statistics(
+                [("goat_creek", "WA", 48.57430, -120.37890)],
+                statistic_group_codes=["PFS"],
+                validate_regions=False,
+            )
+
+        assert errors == {}
+        assert "goat_creek" in estimates
+        assert estimates["goat_creek"][0]["PK50AEP"].value == pytest.approx(4370.0)
+
+
 @pytest.mark.requires_network
 class TestLiveStreamStats:
     """Live StreamStats checks against the design doc's verification points.
@@ -545,3 +861,26 @@ class TestLiveStreamStats:
     def test_offnetwork_point_raises(self) -> None:
         with pytest.raises((UnsnappablePointError, DegenerateDelineationError)):
             delineate_and_get_characteristics("WA", 48.584, -120.370)
+
+
+@pytest.mark.requires_network
+class TestLiveNSS:
+    """Live NSS checks (docs/STREAMSTATS_NSS_ADDENDUM.md). Deselect with
+    -m 'not requires_network'.
+    """
+
+    def test_goat_creek_peak_flow_estimate_is_plausible(self) -> None:
+        watershed = delineate_and_get_characteristics("WA", 48.57426, -120.37893)
+
+        region_estimates, skipped = estimate_flow_statistics(
+            "WA", watershed.characteristics, statistic_group_codes=["PFS"]
+        )
+
+        assert region_estimates
+        by_code = {r.region_code: r for r in region_estimates}
+        assert "GC1750" in by_code
+        result = by_code["GC1750"]
+        assert result["PK50AEP"].value == pytest.approx(4370.0, rel=0.02)
+        assert "DRNAREA" in result["PK50AEP"].equation
+        assert result.citation is not None
+        assert "Mastin" in result.citation.author

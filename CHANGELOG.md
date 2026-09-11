@@ -20,6 +20,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   out of scope for this phase, and so is the watershed polygon itself --
   `WatershedCharacteristics.polygon_geojson` is always `None`; no call in the verified
   protocol returns it, and getting it is an open question for later.
+- **`flowfreq.streamstats`** (Phase 2) -- NSS (National Streamflow Statistics)
+  flow-statistic estimation from real basin characteristics, per
+  `docs/STREAMSTATS_NSS_ADDENDUM.md`: `list_statistic_groups()`,
+  `estimate_flow_statistics()`, `batch_estimate_flow_statistics()`. Every estimate
+  carries NSS's own regression-equation string and a resolved citation
+  (title/author/DOI). Validates every parameter against the region's own valid range
+  *before* submission -- confirmed live that NSS returns a plausible, silently-wrong
+  extrapolated value for an out-of-range input with no warning at all. Region
+  selection across NSS's several regressionRegions per state is not automatic (no
+  available call filters by location without a watershed polygon, which Phase 1 does
+  not produce) -- every geographically-plausible region is returned, unlabelled as to
+  which is geographically correct; picking it is the caller's responsibility.
 
 ### Fixed
 - **`USGSgage.download_daily_flow`**: the timeout was hardcoded at 30s even after an
