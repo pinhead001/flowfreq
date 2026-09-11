@@ -1,0 +1,830 @@
+"""
+flowfreq.streamstats - USGS StreamStats watershed delineation and basin characteristics
+
+Phase 1 of the module scoped in ``docs/STREAMSTATS_MODULE_DESIGN.md``: given a pour
+point, snap it to the stream network, delineate its watershed, and return basin
+characteristics (drainage area, precipitation, canopy, ...) as regression predictors.
+Flow-statistics regression estimation (NSS) is out of scope here -- see the design doc
+S2 and TODO.md for why.
+
+**Governing principle (design doc S4): a 200 is not an answer.** StreamStats can
+delineate a hillslope sliver for an unsnappable point and return HTTP 200 with a
+structurally valid polygon, signalled only by a ``WarningMsg`` string. Every response
+here is validated against what it is supposed to contain; a result that fails
+validation raises rather than being returned.
+
+**Field-name caveat.** The design doc's live verification (2026-09-09/10) pinned down
+the request/response *shapes* precisely for the basin-characteristics call (a list of
+``{name, description, code, unit, value, msg}`` objects) but did not dump the raw JSON
+of the ``pourpoint`` snap response's ``output`` object, only that it exists alongside
+``couldSnap``. :func:`snap_point` therefore tries several plausible key names
+(``lat``/``lon``, ``y``/``x``, ``snappedLat``/``snappedLon``) and raises
+:class:`StreamStatsResponseError` if none match, rather than silently trusting a guess.
+``TestLiveStreamStats`` (marked ``requires_network``) is the one call that actually
+proves these names right; run it by hand before trusting this module for real work, and
+fix the key list here if it fails.
+"""
+
+from __future__ import annotations
+
+import json
+import logging
+import math
+import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from dataclasses import asdict, dataclass, field
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
+
+import requests
+
+logger = logging.getLogger(__name__)
+
+#: Service versions this module was written and verified against (design doc S3,
+#: exercised live 2026-09-09/10). The cache key includes these, so bumping them after
+#: a service change invalidates stale cached results instead of silently reusing them
+#: (NFR-1) -- update them here when ``/ss-delineate/openapi.json`` or
+#: ``/ss-hydro/openapi.json`` report a new ``info.version``.
+SS_DELINEATE_VERSION: str = "1.2.0"
+SS_HYDRO_VERSION: str = "1.4.0"
+
+#: Host with no server affinity, safe for the initial snap call and for the
+#: region-list lookup, neither of which depends on SS-Delineate's temporary files.
+GENERIC_HOST: str = "streamstats.usgs.gov"
+
+#: Server used for the first SS-Delineate call of a point, before the service's own
+#: ``usgswim-hostname`` response header is known. Whichever server actually answers is
+#: then used for every subsequent call for that point (server stickiness, design doc
+#: S3): SS-Hydro's basin-characteristics computation reads temporary files SS-Delineate
+#: left on that specific node.
+DEFAULT_SERVER: str = "prodweba"
+
+#: Identifies this client to a free public service with no API key, per NFR-2.
+USER_AGENT: str = "flowfreq/streamstats (https://github.com/pinhead001/flowfreq)"
+
+#: StreamStats documents a hard limit of four simultaneous requests per user. This is
+#: enforced as a ceiling on caller-requested concurrency, not a target -- NFR-2 asks for
+#: serial-by-default besides.
+MAX_CONCURRENCY: int = 4
+
+
+class UnsnappablePointError(ValueError):
+    """A coordinate would not snap to the StreamStats stream network (FR-1).
+
+    A data problem with the point itself, not a transient failure: retrying the same
+    coordinate will not help. The caller must move the node.
+    """
+
+
+class UnsupportedRegionError(ValueError):
+    """A region code is not one StreamStats recognizes, or rejected the request (FR-8).
+
+    Never inferred from a coordinate by this module -- a wrong region would otherwise
+    silently delineate against the wrong data layers.
+    """
+
+
+class DegenerateDelineationError(ValueError):
+    """A delineation response failed validation: a warning, or a structurally invalid
+    or degenerate polygon (FR-3). The accompanying geometry must not be used.
+    """
+
+
+class StreamStatsResponseError(ValueError):
+    """A response did not have the shape this module expects.
+
+    Distinct from a data problem with the request: this means a bug in this module, or
+    that the service's response shape changed underneath it, and must fail loudly
+    rather than return something that merely resembles a result.
+    """
+
+
+class StreamStatsTransportError(requests.RequestException):
+    """A transport failure, timeout, or 5xx persisted after retrying. Retryable."""
+
+
+@dataclass
+class SnapResult:
+    """Result of snapping a coordinate to the stream network (FR-1/FR-2).
+
+    Attributes
+    ----------
+    requested_lat, requested_lon : float
+        The coordinate as given by the caller.
+    snapped_lat, snapped_lon : float
+        The coordinate StreamStats actually delineates. The delineation belongs to
+        this point, not the requested one.
+    could_snap : bool
+        Always True on a returned ``SnapResult`` -- construction raises
+        :class:`UnsnappablePointError` otherwise, so a caller never has to remember to
+        check this before trusting the snapped coordinates.
+    distance_m : float
+        Great-circle distance between requested and snapped coordinates, in meters.
+        A data-quality signal the caller can threshold; this module does not impose a
+        cutoff of its own (design doc S9.3 -- a snap tolerance is a caller decision).
+    """
+
+    requested_lat: float
+    requested_lon: float
+    snapped_lat: float
+    snapped_lon: float
+    could_snap: bool
+    distance_m: float
+
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "SnapResult":
+        return cls(**data)
+
+
+@dataclass
+class Characteristic:
+    """One StreamStats basin characteristic (FR-5/FR-6).
+
+    Never flattened to a bare float: ``unit`` and ``msg`` are how a caller notices a
+    characteristic came back in an unexpected unit or with a service-attached caveat
+    (for example, a note about local versus total drainage area).
+    """
+
+    code: str
+    name: str
+    description: str
+    value: float
+    unit: str
+    msg: str = ""
+
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "Characteristic":
+        return cls(**data)
+
+
+@dataclass
+class Provenance:
+    """Records how a :class:`WatershedCharacteristics` result was obtained (NFR-4).
+
+    StreamStats updates its underlying data layers over time, so a characteristic
+    obtained today is not guaranteed reproducible from the same coordinate next year.
+    Without this, a published number obtained through this module cannot be defended.
+    """
+
+    service_versions: Dict[str, str]
+    request_urls: List[str]
+    requested_at_utc: str
+    server_used: str
+
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "Provenance":
+        return cls(**data)
+
+
+@dataclass
+class WatershedCharacteristics:
+    """A delineated watershed's basin characteristics, indexable by StreamStats code.
+
+    Attributes
+    ----------
+    region : str
+        The region code the caller supplied (FR-8 -- never inferred).
+    snap : SnapResult
+        The snap that preceded delineation.
+    polygon_geojson : dict, optional
+        The ``globalwatershed`` feature's GeoJSON geometry, or None if the delineation
+        response carried no polygon (see FR-3 validation in
+        :func:`delineate_and_get_characteristics`). A plain dict, not a shapely
+        geometry -- NFR-6 keeps this module free of a hard GIS dependency.
+    characteristics : dict of str to Characteristic
+        Keyed by StreamStats parameter code (e.g. ``DRNAREA``, ``PRECPRIS10``).
+    provenance : Provenance
+        How and when this result was obtained.
+    """
+
+    region: str
+    snap: SnapResult
+    polygon_geojson: Optional[Dict[str, Any]]
+    characteristics: Dict[str, Characteristic] = field(default_factory=dict)
+    provenance: Optional[Provenance] = None
+
+    def __getitem__(self, code: str) -> Characteristic:
+        return self.characteristics[code]
+
+    def __contains__(self, code: str) -> bool:
+        return code in self.characteristics
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "region": self.region,
+            "snap": self.snap.to_dict(),
+            "polygon_geojson": self.polygon_geojson,
+            "characteristics": {k: v.to_dict() for k, v in self.characteristics.items()},
+            "provenance": self.provenance.to_dict() if self.provenance else None,
+        }
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "WatershedCharacteristics":
+        provenance = data.get("provenance")
+        return cls(
+            region=data["region"],
+            snap=SnapResult.from_dict(data["snap"]),
+            polygon_geojson=data["polygon_geojson"],
+            characteristics={
+                code: Characteristic.from_dict(c) for code, c in data["characteristics"].items()
+            },
+            provenance=Provenance.from_dict(provenance) if provenance else None,
+        )
+
+
+def _default_cache_path() -> Path:
+    return Path.home() / ".flowfreq" / "streamstats_cache.json"
+
+
+class StreamStatsCache:
+    """Disk-backed cache for delineation/characteristics results (NFR-1/NFR-5).
+
+    Keyed on (region, requested lat/lon, service versions, requested characteristic
+    codes) -- see :func:`_cache_key` for why the *requested* rather than snapped
+    coordinate is used -- so a service-version bump or a different characteristic
+    filter never silently reuses a stale entry. Loads on construction and writes
+    through on every ``set``, so a populated cache works with no network at all,
+    including no snap call.
+    """
+
+    def __init__(self, path: Optional[Path] = None) -> None:
+        self._path = path or _default_cache_path()
+        self._data: Dict[str, Dict[str, Any]] = {}
+        self._load()
+
+    def _load(self) -> None:
+        if self._path.exists():
+            try:
+                self._data = json.loads(self._path.read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                logger.warning(
+                    "Could not read StreamStats cache at %s; starting empty",
+                    self._path,
+                    exc_info=True,
+                )
+                self._data = {}
+
+    def get(self, key: str) -> Optional[Dict[str, Any]]:
+        return self._data.get(key)
+
+    def set(self, key: str, value: Dict[str, Any]) -> None:
+        self._data[key] = value
+        self._path.parent.mkdir(parents=True, exist_ok=True)
+        self._path.write_text(json.dumps(self._data, indent=2), encoding="utf-8")
+
+
+def _cache_key(region: str, lat: float, lon: float, bc_labels: str) -> str:
+    """Cache key from the *requested* coordinate, not the snapped one.
+
+    The design doc (NFR-1) describes the key as snapped lat/lon, but keying on the
+    snapped coordinate would force a snap call -- a network round trip -- before a
+    cache hit could even be recognized, defeating NFR-5's stronger requirement that a
+    populated cache complete a run with no network at all. Keying on what the caller
+    already has in hand achieves both: service-version and characteristic-filter
+    changes still invalidate stale entries, and a hit never touches the network.
+    """
+    return "|".join(
+        [
+            region,
+            f"{round(lat, 6):.6f}",
+            f"{round(lon, 6):.6f}",
+            SS_DELINEATE_VERSION,
+            SS_HYDRO_VERSION,
+            bc_labels,
+        ]
+    )
+
+
+def _haversine_distance_m(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """Great-circle distance in meters, no geospatial dependency (NFR-6)."""
+    r = 6371000.0
+    phi1, phi2 = math.radians(lat1), math.radians(lat2)
+    dphi = math.radians(lat2 - lat1)
+    dlambda = math.radians(lon2 - lon1)
+    a = math.sin(dphi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2) ** 2
+    return 2 * r * math.asin(math.sqrt(a))
+
+
+def _first_present(d: Dict[str, Any], keys: Sequence[str]) -> Optional[float]:
+    """First of *keys* present in *d* with a numeric value, or None."""
+    for key in keys:
+        if key in d and d[key] is not None:
+            try:
+                return float(d[key])
+            except (TypeError, ValueError):
+                continue
+    return None
+
+
+def _request_with_backoff(
+    method: Callable[..., requests.Response],
+    url: str,
+    *,
+    params: Optional[Dict[str, Any]] = None,
+    json_body: Optional[Dict[str, Any]] = None,
+    timeout: float,
+    max_retries: int = 3,
+    backoff_base: float = 2.0,
+) -> requests.Response:
+    """Issue one polite request with exponential backoff on 5xx or timeout (NFR-2).
+
+    A 4xx is a data problem, not a transient one, and is never retried here --
+    retrying a request that will fail the same way again just adds load to a free
+    public service with no key.
+    """
+    last_exc: Optional[BaseException] = None
+    for attempt in range(max_retries):
+        try:
+            kwargs: Dict[str, Any] = {"headers": {"User-Agent": USER_AGENT}, "timeout": timeout}
+            if params is not None:
+                kwargs["params"] = params
+            if json_body is not None:
+                kwargs["json"] = json_body
+            response = method(url, **kwargs)
+        except (requests.Timeout, requests.ConnectionError) as exc:
+            last_exc = exc
+            logger.warning(
+                "StreamStats request to %s failed (attempt %d/%d): %s",
+                url,
+                attempt + 1,
+                max_retries,
+                exc,
+            )
+        else:
+            if response.status_code >= 500:
+                last_exc = requests.HTTPError(f"{response.status_code} error from {url}")
+                logger.warning(
+                    "StreamStats %s returned %d (attempt %d/%d)",
+                    url,
+                    response.status_code,
+                    attempt + 1,
+                    max_retries,
+                )
+            else:
+                return response
+        if attempt < max_retries - 1:
+            time.sleep(backoff_base * (2**attempt))
+    raise StreamStatsTransportError(
+        f"StreamStats request to {url} failed after {max_retries} attempts"
+    ) from last_exc
+
+
+def _resolve_server(response: requests.Response, default: str) -> str:
+    """Read the ``usgswim-hostname`` server-stickiness header (design doc S3).
+
+    Falls back to *default* if the header is absent, rather than raising -- an
+    undocumented header omission should not itself be treated as a validation
+    failure the way a warning or a degenerate polygon is.
+    """
+    hostname = response.headers.get("usgswim-hostname")
+    return hostname.lower() if hostname else default
+
+
+def snap_point(region: str, lat: float, lon: float, *, timeout: float = 45.0) -> SnapResult:
+    """Snap a coordinate to the StreamStats stream network (FR-1).
+
+    Parameters
+    ----------
+    region : str
+        StreamStats region code (e.g. ``"WA"``). Required, never inferred (FR-8).
+    lat, lon : float
+        Decimal-degree coordinate, WGS84.
+    timeout : float
+        Per-request timeout in seconds.
+
+    Returns
+    -------
+    SnapResult
+
+    Raises
+    ------
+    UnsnappablePointError
+        The point will not snap. Move it; retrying will not help.
+    UnsupportedRegionError
+        StreamStats rejected the region code for this coordinate.
+    StreamStatsResponseError
+        The response was not valid JSON, or reported success with no usable output
+        coordinates.
+    StreamStatsTransportError
+        The request failed after retrying.
+    """
+    url = f"https://{GENERIC_HOST}/pourpoint/v1/snap/str900"
+    params = {"region": region, "lat": lat, "lon": lon}
+    response = _request_with_backoff(requests.get, url, params=params, timeout=timeout)
+
+    if response.status_code == 422:
+        raise UnsupportedRegionError(
+            f"StreamStats rejected region {region!r} while snapping ({lat}, {lon}): "
+            f"{response.text}"
+        )
+    response.raise_for_status()
+
+    try:
+        data = response.json()
+    except ValueError as exc:
+        raise StreamStatsResponseError(
+            f"Snap response for region {region!r} at ({lat}, {lon}) was not valid JSON"
+        ) from exc
+
+    could_snap = bool(data.get("couldSnap", False))
+    if not could_snap:
+        raise UnsnappablePointError(
+            f"StreamStats could not snap ({lat}, {lon}) to the stream network in "
+            f"region {region!r}; move the point rather than retrying"
+        )
+
+    output = data.get("output") or {}
+    snapped_lat = _first_present(output, ("lat", "y", "snappedLat"))
+    snapped_lon = _first_present(output, ("lon", "x", "snappedLon"))
+    if snapped_lat is None or snapped_lon is None:
+        raise StreamStatsResponseError(
+            f"Snap response for region {region!r} reported couldSnap=true but no "
+            f"usable output coordinates: {data!r}"
+        )
+
+    return SnapResult(
+        requested_lat=lat,
+        requested_lon=lon,
+        snapped_lat=snapped_lat,
+        snapped_lon=snapped_lon,
+        could_snap=could_snap,
+        distance_m=_haversine_distance_m(lat, lon, snapped_lat, snapped_lon),
+    )
+
+
+def _is_valid_polygon(geometry: Optional[Dict[str, Any]]) -> bool:
+    """Structural (not geometric) validity check: real rings, not a single point.
+
+    Deliberately shallow -- true polygon validity or area would need a projection,
+    which NFR-6 rules out as a dependency. This only catches the degenerate case FR-3
+    is written against: an empty or collapsed geometry with no accompanying warning.
+    """
+    if not geometry or geometry.get("type") not in ("Polygon", "MultiPolygon"):
+        return False
+    coords = geometry.get("coordinates")
+    if not coords:
+        return False
+    polygons = coords if geometry["type"] == "MultiPolygon" else [coords]
+    for polygon in polygons:
+        for ring in polygon:
+            if len(ring) < 4:
+                return False
+            if len({tuple(pt) for pt in ring}) < 2:
+                return False
+    return True
+
+
+def _validate_delineation_features(
+    data: Dict[str, Any],
+) -> Tuple[Optional[Dict[str, Any]], str]:
+    """Validate an ss-delineate ``features`` response against FR-3.
+
+    Returns the ``globalwatershed`` feature's geometry and any ``WarningMsg`` found on
+    it. A non-empty warning means the geometry must not be trusted (design doc S4): an
+    unsnappable point delineates a structurally valid hillslope sliver and still
+    returns HTTP 200.
+    """
+    features = data.get("features") or []
+    if not features:
+        raise StreamStatsResponseError(f"ss-delineate response carried no features: {data!r}")
+
+    watershed_feature = next(
+        (
+            f
+            for f in features
+            if f.get("id") == "globalwatershed"
+            or (f.get("properties") or {}).get("Name") == "globalwatershed"
+        ),
+        features[0],
+    )
+
+    properties = watershed_feature.get("properties") or {}
+    warning_msg = str(properties.get("WarningMsg") or "").strip()
+    geometry = watershed_feature.get("geometry")
+
+    if not warning_msg and not _is_valid_polygon(geometry):
+        raise DegenerateDelineationError(
+            f"ss-delineate returned a structurally invalid or degenerate polygon with "
+            f"no WarningMsg to explain it: {geometry!r}"
+        )
+
+    return geometry, warning_msg
+
+
+def _parse_characteristics(hydro_data: Any) -> Dict[str, Characteristic]:
+    """Parse the ss-hydro basin-characteristics response (design doc S3): a list of
+    ``{name, description, code, unit, value, msg}`` objects, optionally wrapped in a
+    ``{"parameters": [...]}`` envelope.
+    """
+    if isinstance(hydro_data, dict) and "parameters" in hydro_data:
+        items = hydro_data["parameters"]
+    elif isinstance(hydro_data, list):
+        items = hydro_data
+    else:
+        raise StreamStatsResponseError(
+            f"ss-hydro response was neither a list nor a dict with 'parameters': "
+            f"{type(hydro_data).__name__}"
+        )
+
+    characteristics: Dict[str, Characteristic] = {}
+    for item in items:
+        try:
+            code = str(item["code"])
+            value = float(item["value"])
+        except (KeyError, TypeError, ValueError) as exc:
+            raise StreamStatsResponseError(
+                f"ss-hydro characteristic entry missing code/value: {item!r}"
+            ) from exc
+        characteristics[code] = Characteristic(
+            code=code,
+            name=str(item.get("name", "")),
+            description=str(item.get("description", "")),
+            value=value,
+            unit=str(item.get("unit", "")),
+            msg=str(item.get("msg") or ""),
+        )
+    return characteristics
+
+
+def delineate_and_get_characteristics(
+    region: str,
+    lat: float,
+    lon: float,
+    *,
+    characteristic_codes: Optional[Sequence[str]] = None,
+    cache: Optional[StreamStatsCache] = None,
+    default_server: str = DEFAULT_SERVER,
+    timeout: float = 60.0,
+) -> WatershedCharacteristics:
+    """Snap, delineate, and compute basin characteristics for one pour point.
+
+    Implements the full protocol from ``docs/STREAMSTATS_MODULE_DESIGN.md`` S3: a
+    ``pourpoint`` snap (FR-1), an ``ss-delineate`` features call to obtain and validate
+    the watershed polygon (FR-2/FR-3), a second ``ss-delineate`` call
+    (``delineate/sshydro``) to obtain the request body ``ss-hydro`` needs, and the
+    ``ss-hydro`` POST itself (FR-5/FR-6). All three ``ss-delineate``/``ss-hydro`` calls
+    are pinned to the same server (design doc S3 -- ``ss-hydro`` reads temporary files
+    ``ss-delineate`` left on that specific node).
+
+    Parameters
+    ----------
+    region : str
+        StreamStats region code. Required, never inferred from the coordinate (FR-8).
+    lat, lon : float
+        Decimal-degree pour point, WGS84.
+    characteristic_codes : sequence of str, optional
+        StreamStats characteristic codes to request (resolves design doc S9.4).
+        Defaults to all (``bcLabels=*``). Every request explicitly states this
+        parameter rather than relying on a service default (FR-4).
+    cache : StreamStatsCache, optional
+        When given, a cache hit skips all network calls; a miss populates it.
+    default_server : str
+        Server for the first ``ss-delineate`` call, before the service's own
+        ``usgswim-hostname`` header is known.
+    timeout : float
+        Per-request timeout in seconds. StreamStats delineation and characteristics
+        calls have been observed to take 6-11 s each under good conditions (NFR-3).
+
+    Returns
+    -------
+    WatershedCharacteristics
+
+    Raises
+    ------
+    UnsnappablePointError, UnsupportedRegionError, DegenerateDelineationError,
+    StreamStatsResponseError, StreamStatsTransportError
+        See each exception's docstring; see also S7 of the design doc.
+    """
+    bc_labels = ",".join(characteristic_codes) if characteristic_codes else "*"
+    cache_key = _cache_key(region, lat, lon, bc_labels)
+
+    if cache is not None:
+        cached = cache.get(cache_key)
+        if cached is not None:
+            logger.info("StreamStats cache hit for %s", cache_key)
+            return WatershedCharacteristics.from_dict(cached)
+
+    snap = snap_point(region, lat, lon, timeout=timeout)
+
+    request_urls: List[str] = []
+
+    features_url = (
+        f"https://{default_server}.{GENERIC_HOST}/ss-delineate/v1/delineate/features/{region}"
+    )
+    features_params = {"x": snap.snapped_lon, "y": snap.snapped_lat, "crs": 4326}
+    features_response = _request_with_backoff(
+        requests.get, features_url, params=features_params, timeout=timeout
+    )
+    request_urls.append(getattr(features_response, "url", features_url))
+    features_response.raise_for_status()
+    server_used = _resolve_server(features_response, default_server)
+
+    try:
+        features_data = features_response.json()
+    except ValueError as exc:
+        raise StreamStatsResponseError(
+            f"ss-delineate features response for region {region!r} was not valid JSON"
+        ) from exc
+
+    polygon_geojson, warning_msg = _validate_delineation_features(features_data)
+    if warning_msg:
+        raise DegenerateDelineationError(
+            f"StreamStats delineation warning at ({snap.snapped_lat}, "
+            f"{snap.snapped_lon}) in region {region!r}: {warning_msg}"
+        )
+
+    sshydro_url = f"https://{server_used}.{GENERIC_HOST}/ss-delineate/v1/delineate/sshydro/{region}"
+    sshydro_params = {"lat": snap.snapped_lat, "lon": snap.snapped_lon}
+    sshydro_response = _request_with_backoff(
+        requests.get, sshydro_url, params=sshydro_params, timeout=timeout
+    )
+    request_urls.append(getattr(sshydro_response, "url", sshydro_url))
+    sshydro_response.raise_for_status()
+
+    try:
+        sshydro_data = sshydro_response.json()
+    except ValueError as exc:
+        raise StreamStatsResponseError(
+            f"ss-delineate sshydro response for region {region!r} was not valid JSON"
+        ) from exc
+
+    bcrequest = sshydro_data.get("bcrequest")
+    if not bcrequest:
+        raise StreamStatsResponseError(
+            f"ss-delineate sshydro response for region {region!r} carried no "
+            f"bcrequest payload to pass to ss-hydro: {sshydro_data!r}"
+        )
+
+    hydro_url = (
+        f"https://{server_used}.{GENERIC_HOST}"
+        "/ss-hydro/v1/basin-characteristics/calculate-using-ssdelineate/"
+    )
+    hydro_params = {
+        "region": region,
+        "lat": snap.snapped_lat,
+        "lon": snap.snapped_lon,
+        "bcLabels": bc_labels,
+    }
+    hydro_response = _request_with_backoff(
+        requests.post, hydro_url, params=hydro_params, json_body=bcrequest, timeout=timeout
+    )
+    request_urls.append(getattr(hydro_response, "url", hydro_url))
+    if hydro_response.status_code == 422:
+        raise StreamStatsResponseError(
+            f"ss-hydro rejected the basin-characteristics request for region "
+            f"{region!r}: {hydro_response.text}"
+        )
+    hydro_response.raise_for_status()
+
+    try:
+        hydro_data = hydro_response.json()
+    except ValueError as exc:
+        raise StreamStatsResponseError(
+            f"ss-hydro response for region {region!r} was not valid JSON"
+        ) from exc
+
+    characteristics = _parse_characteristics(hydro_data)
+
+    provenance = Provenance(
+        service_versions={"ss-delineate": SS_DELINEATE_VERSION, "ss-hydro": SS_HYDRO_VERSION},
+        request_urls=request_urls,
+        requested_at_utc=datetime.now(timezone.utc).isoformat(),
+        server_used=server_used,
+    )
+
+    result = WatershedCharacteristics(
+        region=region,
+        snap=snap,
+        polygon_geojson=polygon_geojson,
+        characteristics=characteristics,
+        provenance=provenance,
+    )
+
+    if cache is not None:
+        cache.set(cache_key, result.to_dict())
+
+    return result
+
+
+def list_regions(*, timeout: float = 30.0) -> List[Dict[str, Any]]:
+    """List StreamStats region codes (resolves design doc S9.2).
+
+    Used to validate a caller's region codes up front rather than silently
+    delineating against the wrong data layers for a mistyped one (FR-8). See
+    :func:`batch_get_characteristics`'s ``validate_regions`` parameter.
+
+    Returns
+    -------
+    list of dict
+        Each carries at least an ``id``, ``name``, and ``code``.
+    """
+    url = f"https://{GENERIC_HOST}/nssservices/regions"
+    response = _request_with_backoff(requests.get, url, timeout=timeout)
+    response.raise_for_status()
+    try:
+        data = response.json()
+    except ValueError as exc:
+        raise StreamStatsResponseError("Regions list response was not valid JSON") from exc
+    if not isinstance(data, list):
+        raise StreamStatsResponseError(
+            f"Expected a list of regions from {url}, got {type(data).__name__}"
+        )
+    return data
+
+
+def batch_get_characteristics(
+    points: Sequence[Tuple[str, str, float, float]],
+    *,
+    concurrency: int = 1,
+    cache: Optional[StreamStatsCache] = None,
+    characteristic_codes: Optional[Sequence[str]] = None,
+    validate_regions: bool = True,
+    timeout: float = 60.0,
+) -> Tuple[Dict[str, WatershedCharacteristics], Dict[str, str]]:
+    """Delineate and fetch characteristics for many pour points (FR-7).
+
+    A single bad point (unsnappable, wrong region, a service hiccup) never aborts the
+    batch -- its reason is collected in ``errors`` instead, mirroring
+    :func:`flowfreq.usgs.fetch_nwis_batch`'s two-dict return.
+
+    Parameters
+    ----------
+    points : sequence of (point_id, region, lat, lon)
+        ``point_id`` is any caller-chosen key (e.g. a reach node ID) used to key both
+        returned dicts.
+    concurrency : int
+        Parallel workers. Serial (1) by default per NFR-2; capped at
+        :data:`MAX_CONCURRENCY` regardless of what is requested, since StreamStats
+        documents a hard limit of four simultaneous requests per user.
+    cache : StreamStatsCache, optional
+        Shared across all points in the batch.
+    characteristic_codes : sequence of str, optional
+        Passed through to :func:`delineate_and_get_characteristics` for every point.
+    validate_regions : bool
+        When True (default), fetch :func:`list_regions` once up front and raise
+        :class:`UnsupportedRegionError` immediately for any point using an unknown
+        region code, before issuing any delineation calls.
+    timeout : float
+        Per-request timeout in seconds, passed through to every point.
+
+    Returns
+    -------
+    tuple
+        ``(results, errors)`` -- ``results`` maps ``point_id`` to
+        :class:`WatershedCharacteristics` for points that succeeded; ``errors`` maps
+        ``point_id`` to the failure reason for points that did not.
+    """
+    if concurrency > MAX_CONCURRENCY:
+        logger.warning(
+            "Requested concurrency %d exceeds StreamStats' documented "
+            "4-simultaneous-request limit; capping at %d",
+            concurrency,
+            MAX_CONCURRENCY,
+        )
+    workers = max(1, min(concurrency, MAX_CONCURRENCY))
+
+    if validate_regions:
+        valid_codes = {str(r.get("code")) for r in list_regions(timeout=timeout)}
+        for point_id, region, _, _ in points:
+            if region not in valid_codes:
+                raise UnsupportedRegionError(
+                    f"Point {point_id!r} uses region {region!r}, not one of "
+                    f"StreamStats' known region codes"
+                )
+
+    def _one(region: str, lat: float, lon: float) -> WatershedCharacteristics:
+        return delineate_and_get_characteristics(
+            region,
+            lat,
+            lon,
+            characteristic_codes=characteristic_codes,
+            cache=cache,
+            timeout=timeout,
+        )
+
+    results: Dict[str, WatershedCharacteristics] = {}
+    errors: Dict[str, str] = {}
+
+    with ThreadPoolExecutor(max_workers=workers) as executor:
+        future_to_id = {
+            executor.submit(_one, region, lat, lon): point_id
+            for point_id, region, lat, lon in points
+        }
+        for future in as_completed(future_to_id):
+            point_id = future_to_id[future]
+            try:
+                results[point_id] = future.result()
+            except Exception as e:
+                errors[point_id] = str(e)
+
+    return results, errors

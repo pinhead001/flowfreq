@@ -16,6 +16,16 @@ Fortran reference: **vendored** at `vendor/peakfqr/` (peakfq 8.1.0, CC0).
 Fortran bridge: builds from those sources via `python build_fortran/build.py`
 (gfortran + meson) and is now **built and checked in CI** by `make parity`.
 
+**2026-09-10/11 addendum**: `flowfreq/streamstats.py` (Phase 1) and three small
+`download_daily_flow` fixes landed -- see "Done -- StreamStats module Phase 1" below.
+Measured via bare `pytest tests/` (no `make`/`clean-verify` -- not installed in that
+session's environment, see the Windows caveats in `CLAUDE.md`), with the Fortran
+extension present: **1038 passed, 4 deselected, 7 xfailed**, plus the same 2
+pre-existing, environment-specific Fortran-precision failures this file already
+records elsewhere (not this work's to fix). Not a `clean-verify` number and not
+directly comparable to the 810 above; recorded here so it isn't lost, not as a
+replacement for it.
+
 ### Environment constraints -- read before starting work
 
 These bit repeatedly and are not discoverable from the code:
@@ -81,23 +91,71 @@ reference (CLAUDE.md's Test Data section) -- not evidence of anything left to po
 
 ## Open Items (prioritised)
 
-### Next — pip-audit in CI
+### Next — StreamStats Phase 2: NSS flow-statistics batch estimation
 
-Found during the pre-PyPI-publish review: `pyarrow>=10.0` and `requests>=2.25.0`'s floors
-permitted versions with real, named CVEs (pyarrow's CVE-2023-47248 -- arbitrary code
-execution via crafted Parquet/Feather/IPC input, hit directly by
-`flowio.load_flow_frame`; requests' Proxy-Authorization header leak and `.netrc` credential
-leak, fixed in 2.31.0 and 2.32.4 respectively). Both floors are now bumped
-(`pyarrow>=14.0.1`, `requests>=2.33.0`), but that was a manual, one-time check against
-whatever CVEs happened to be known at the time -- it does not catch the next one, and
-nothing re-checks it as new advisories land.
+Phase 1 (`flowfreq/streamstats.py` -- basin delineation and characteristics) is done;
+see "Done -- StreamStats module Phase 1" below. Flow-statistics regression estimation
+(the National Streamflow Statistics service, `nssservices`) was deliberately scoped out
+of Phase 1 -- the design doc's own words: "conflating [characteristics and regression
+evaluation] invites an uncited exponent."
 
-- [ ] Add `pip-audit` (PyPA's own tool, fitting given `pypa/gh-action-pypi-publish` is
-      already the release mechanism) as a CI step -- either its own job in `ci.yml` or a
-      step in the existing `lint` job. Decide whether a hit should fail the build outright
-      or just annotate; a hard fail on every transitive dependency's every advisory risks
-      false-positive noise blocking unrelated PRs, so a first cut might warn-only and go
-      hard-fail once it's proven quiet.
+- [ ] **Live-verification pass first, the same discipline that produced the Phase 1
+      design doc** -- exercise `GET /nssservices/regions/{region}` and
+      `POST /nssservices/estimate` for real, using Phase 1's own
+      `WatershedCharacteristics.characteristics` as input, before writing any Phase 2
+      code. Record findings as a doc addendum. Not optional: the Phase 1 doc's own
+      `SS-Hydro` endpoint guess (from an earlier, unverified source) turned out wrong
+      when checked against the live service, which is the whole reason this discipline
+      exists.
+- [ ] Confirm/deny an NSS-side "false 200" or other silent-failure mode; do not assume
+      StreamStats' `ss-delineate`/`ss-hydro` behavior (HTTP 200 on a request that failed)
+      is unique to those two services.
+- [ ] `list_regions()`/`list_statistic_groups(region)`/`estimate_flow_statistics()`/
+      `batch_estimate_flow_statistics()`, each estimate carrying the regression-equation
+      source that produced it (the "uncited exponent" concern above, resolved rather
+      than ignored). Reuse Phase 1's cache/provenance/exception/batch machinery.
+
+### Done — StreamStats module Phase 1, and the `download_daily_flow` precedent fix
+
+`flowfreq/streamstats.py`, per `docs/STREAMSTATS_MODULE_DESIGN.md` (merged 2026-09-10,
+written from hands-on verification against the live service, not assumed from
+documentation) -- watershed delineation and basin characteristics for a pour point:
+`pourpoint` snap -> `ss-delineate` (validated against the design doc's "a 200 is not an
+answer" failure mode: an unsnappable point returns HTTP 200 with a structurally valid
+hillslope-sliver polygon, signalled only by a `WarningMsg` string) -> `ss-hydro` basin
+characteristics, typed/indexable by StreamStats code with unit/description/service
+message, stamped with provenance (service versions, request URLs, timestamp, server
+used). Batch entry point mirrors `usgs.fetch_nwis_batch`'s `(results, errors)` shape --
+one bad point never aborts the batch. Offline-capable JSON-file cache keyed on the
+*requested* (not snapped) coordinate specifically so a cache hit needs no network call
+at all, not even the snap -- a deliberate, documented departure from the design doc's
+literal wording of the cache key, in favor of its own stronger NFR-5 requirement.
+`tests/test_streamstats.py` (38 tests, network mocked throughout, one
+`requires_network`-marked live test not yet run against the real service -- do that
+before trusting the module for real work; `snap_point`'s `output` field names are a
+best-effort guess the design doc didn't pin down exactly). PR #23.
+
+- [x] **The design doc's own "read this first" precedent, fixed alongside this work as
+      it said to be.** `usgs.py::download_daily_flow` already sent an explicit date range
+      (the earlier range-less-request defect was fixed before this session, commit
+      `04f6b65`), but a code review of that fix found three more issues from combining it
+      with the method's pre-existing hardcoded 30s timeout and local-clock default: the
+      timeout was too tight for a full period-of-record request (now the method's own
+      default) on a long-running, high-frequency site -- made configurable, default 60s;
+      the default end date used local wall-clock (`date.today()`) rather than UTC, so a
+      host clock behind UTC could silently request a narrower range than intended, the
+      exact "silently wrong, not missing" failure mode this method's own docstring warns
+      about; and `start_date`/`end_date` were sent to NWIS unvalidated -- a reversed or
+      malformed range now raises before any request is made. 8 new tests in
+      `tests/test_usgs.py`.
+- [x] Pinned `pip-audit>=2.10.1,<3` in `ci.yml`, closing a gap a review found: it was the
+      one unpinned tool in a CI file that otherwise pins everything (black<25, pytest<9,
+      SHA-pinned actions) with an explicit stated rationale for why reproducibility
+      matters -- an unpinned pip-audit release could silently change scan behavior between
+      runs with no diff in this repo to review. (The step itself -- see the "Next --
+      pip-audit in CI" item this replaces -- was already added to `ci.yml` sometime after
+      that item was written and before this session found it; this session's contribution
+      was closing the pin gap, not adding the step.)
 
 ### Done — transposing computed flows to an ungaged site, and QPPQ
 

@@ -6,7 +6,7 @@ Tests that would require a live service are marked ``requires_network``.
 
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, datetime, timezone
 from unittest.mock import Mock, patch
 
 import pandas as pd
@@ -511,7 +511,26 @@ class TestDownloadDailyFlow:
 
         params = get.call_args.kwargs["params"]
         assert params["startDT"] == USGSgage.DEFAULT_START_DATE
-        assert params["endDT"] == date.today().isoformat()
+        assert params["endDT"] == datetime.now(timezone.utc).date().isoformat()
+
+    def test_default_end_date_uses_utc_not_local_clock(self) -> None:
+        """A host clock behind UTC must not silently narrow the requested range.
+
+        Regression test for exactly that: the default used to be computed from
+        ``date.today()`` (local wall-clock), so a host behind UTC could omit a
+        day NWIS had already published with no error to signal it.
+        """
+        fixed_now = datetime(2026, 1, 1, 0, 30, tzinfo=timezone.utc)
+        with (
+            patch("flowfreq.usgs.requests.get") as get,
+            patch("flowfreq.usgs.datetime") as mock_datetime,
+        ):
+            mock_datetime.now.return_value = fixed_now
+            get.return_value = _mock_response(DV_BASIC)
+            USGSgage("12449500").download_daily_flow()
+
+        assert get.call_args.kwargs["params"]["endDT"] == "2026-01-01"
+        mock_datetime.now.assert_called_with(timezone.utc)
 
     def test_the_default_start_precedes_every_usgs_daily_record(self) -> None:
         assert date.fromisoformat(USGSgage.DEFAULT_START_DATE).year <= 1850
@@ -525,13 +544,41 @@ class TestDownloadDailyFlow:
         assert params["startDT"] == "1919-06-01"
         assert params["endDT"] == "2025-09-30"
 
-    def test_a_timeout_is_set(self) -> None:
-        """A batch retrieval must not be able to hang forever on one gage."""
+    def test_default_timeout_is_generous(self) -> None:
+        """60s, not the 30s a small siteOutput=expanded request is sized for --
+
+        a full period-of-record request (this method's own default) can be tens
+        of thousands of RDB rows for a long-running, high-frequency site.
+        """
         with patch("flowfreq.usgs.requests.get") as get:
             get.return_value = _mock_response(DV_BASIC)
             USGSgage("12449500").download_daily_flow()
 
-        assert get.call_args.kwargs.get("timeout")
+        assert get.call_args.kwargs["timeout"] == 60
+
+    def test_timeout_is_configurable(self) -> None:
+        with patch("flowfreq.usgs.requests.get") as get:
+            get.return_value = _mock_response(DV_BASIC)
+            USGSgage("12449500").download_daily_flow(timeout=120)
+
+        assert get.call_args.kwargs["timeout"] == 120
+
+    def test_reversed_range_raises(self) -> None:
+        """A caller-supplied reversed range must fail before ever reaching NWIS."""
+        with patch("flowfreq.usgs.requests.get") as get:
+            with pytest.raises(ValueError, match="after end_date"):
+                USGSgage("12449500").download_daily_flow(
+                    start_date="2025-01-01", end_date="2020-01-01"
+                )
+
+        get.assert_not_called()
+
+    def test_malformed_date_raises(self) -> None:
+        with patch("flowfreq.usgs.requests.get") as get:
+            with pytest.raises(ValueError):
+                USGSgage("12449500").download_daily_flow(start_date="not-a-date")
+
+        get.assert_not_called()
 
     def test_parses_a_daily_record(self) -> None:
         with patch("flowfreq.usgs.requests.get") as get:

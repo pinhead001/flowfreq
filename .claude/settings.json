@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(export *)",
+      "Bash(git fetch *)",
+      "Bash(git merge-base *)",
+      "Bash(make check)",
+      "Bash(pip show *)",
+      "Bash(git ls-tree *)",
+      "Bash(gfortran --version)",
+      "Bash(source .venv/Scripts/activate)",
+      "Bash(source .venv/bin/activate)"
+    ]
+  }
+}
