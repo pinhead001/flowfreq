@@ -13,16 +13,14 @@ structurally valid polygon, signalled only by a ``WarningMsg`` string. Every res
 here is validated against what it is supposed to contain; a result that fails
 validation raises rather than being returned.
 
-**Field-name caveat.** The design doc's live verification (2026-09-09/10) pinned down
-the request/response *shapes* precisely for the basin-characteristics call (a list of
-``{name, description, code, unit, value, msg}`` objects) but did not dump the raw JSON
-of the ``pourpoint`` snap response's ``output`` object, only that it exists alongside
-``couldSnap``. :func:`snap_point` therefore tries several plausible key names
-(``lat``/``lon``, ``y``/``x``, ``snappedLat``/``snappedLon``) and raises
-:class:`StreamStatsResponseError` if none match, rather than silently trusting a guess.
-``TestLiveStreamStats`` (marked ``requires_network``) is the one call that actually
-proves these names right; run it by hand before trusting this module for real work, and
-fix the key list here if it fails.
+**The ``pourpoint`` snap response's ``output``, confirmed live 2026-09-11.** It is a
+GeoJSON Point: ``{"type": "Point", "coordinates": [lon, lat]}`` -- GeoJSON coordinate
+order is always longitude-then-latitude (RFC 7946 S3.1.1), the reverse of the
+``(lat, lon)`` convention this module's own public API uses everywhere else.
+:func:`_extract_point_lat_lon` handles this, trying the GeoJSON ``coordinates`` shape
+first since that is what the live service actually returns, and falling back to a
+handful of flat ``lat``/``lon``-style keys only in case some other region or a future
+service version answers differently.
 """
 
 from __future__ import annotations
@@ -326,6 +324,26 @@ def _first_present(d: Dict[str, Any], keys: Sequence[str]) -> Optional[float]:
     return None
 
 
+def _extract_point_lat_lon(point: Dict[str, Any]) -> Tuple[Optional[float], Optional[float]]:
+    """(lat, lon) from a ``pourpoint`` snap response's ``output`` object.
+
+    Confirmed live 2026-09-11: it is a GeoJSON Point, ``{"type": "Point", "coordinates":
+    [lon, lat]}`` -- GeoJSON coordinate order is always longitude-then-latitude (RFC
+    7946 S3.1.1), the reverse of every other coordinate in this module's public API.
+    Falls back to flat ``lat``/``lon``-style keys only if ``coordinates`` is absent, in
+    case some other region or a future service version answers differently.
+    """
+    coords = point.get("coordinates")
+    if isinstance(coords, (list, tuple)) and len(coords) >= 2:
+        try:
+            return float(coords[1]), float(coords[0])
+        except (TypeError, ValueError):
+            pass
+    lat = _first_present(point, ("lat", "y", "snappedLat"))
+    lon = _first_present(point, ("lon", "x", "snappedLon"))
+    return lat, lon
+
+
 def _request_with_backoff(
     method: Callable[..., requests.Response],
     url: str,
@@ -444,8 +462,7 @@ def snap_point(region: str, lat: float, lon: float, *, timeout: float = 45.0) ->
         )
 
     output = data.get("output") or {}
-    snapped_lat = _first_present(output, ("lat", "y", "snappedLat"))
-    snapped_lon = _first_present(output, ("lon", "x", "snappedLon"))
+    snapped_lat, snapped_lon = _extract_point_lat_lon(output)
     if snapped_lat is None or snapped_lon is None:
         raise StreamStatsResponseError(
             f"Snap response for region {region!r} reported couldSnap=true but no "

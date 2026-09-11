@@ -1,17 +1,20 @@
 """Captured-shape StreamStats API payloads for delineation/characteristics tests.
 
 Values are plausible for the Methow River basin, WA (the design doc's own
-verification points, ``docs/STREAMSTATS_MODULE_DESIGN.md`` appendix) but are not
-guaranteed to be the service's exact current field names -- see the field-name caveat
-in ``flowfreq/streamstats.py``'s module docstring. These fixtures encode this module's
-best-effort interpretation of the documented shapes; the ``requires_network`` live test
-is what actually proves them right.
+verification points, ``docs/STREAMSTATS_MODULE_DESIGN.md`` appendix). The snap and
+basin-characteristics shapes below are confirmed against the live service (2026-09-11
+for the snap shape, 2026-09-09/10 for basin characteristics per the design doc); the
+``ss-delineate``/``ss-hydro`` chaining shapes are this module's best-effort
+interpretation of the documented protocol and not independently re-verified here.
 """
 
-# A successful pourpoint snap: the point lies close to the stream network.
+# A successful pourpoint snap: the point lies close to the stream network. `output` is
+# a GeoJSON Point -- coordinates are [lon, lat], confirmed live 2026-09-11.
 SNAP_GOOD = {
+    "region": "WA",
+    "input": {"type": "Point", "coordinates": [-120.37893, 48.57426]},
+    "output": {"type": "Point", "coordinates": [-120.3789336506848, 48.57425501781417]},
     "couldSnap": True,
-    "output": {"lat": 48.57426, "lon": -120.37893},
 }
 
 # The point is off the flowline -- the service will not snap it. The whole point of
