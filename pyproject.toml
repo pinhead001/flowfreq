@@ -86,11 +86,16 @@ dev = [
     # >=8.0,<9: pip-audit flagged the previous <8 floor (pytest 7.4.4 resolved)
     # as carrying PYSEC-2026-1845, fixed in 9.0.3. Capped below 9 rather than
     # raised all the way: pytest 9.1 turns pytest.importorskip's ImportError
-    # handling into a hard error by default, which two parity test modules
-    # here rely on to skip cleanly when the (gitignored, built-on-demand) f2py
-    # extension is absent -- see the warnings pytest 8.4.2 already emits about
-    # it. Verified full suite unchanged (810 passed) on pytest 8.4.2 +
-    # pytest-cov 5.0 before raising the floor.
+    # handling into a hard error by default. Confirmed live, not just from the
+    # 8.4.2 warning, when a dependabot PR (#18) proposed raising this cap: CI's
+    # `test` job (extension absent) failed on all four Python versions with
+    # ModuleNotFoundError, not a clean skip, across five parity test modules --
+    # test_fortran_oracles.py, test_live_cli_compare.py,
+    # test_live_compare_engines.py, test_live_interval_builder.py,
+    # test_live_vs_golden.py -- more than this comment used to claim ("two").
+    # Do not merge a pytest>=9 bump until those are updated for the new
+    # importorskip behavior. Verified full suite unchanged (810 passed) on
+    # pytest 8.4.2 + pytest-cov 5.0 before raising the floor.
     "pytest>=8.0,<9",
     "pytest-cov>=5.0,<8",
     "black>=24.0,<27",
