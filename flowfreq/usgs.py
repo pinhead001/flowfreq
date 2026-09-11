@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import logging
 import math
-from datetime import date as _date
+from datetime import datetime, timezone
 from functools import cached_property
 from io import StringIO
 from pathlib import Path
@@ -418,19 +418,36 @@ class USGSgage:
             else:
                 self._last_api_error = str(e)
 
-    def download_daily_flow(self, start_date: str = None, end_date: str = None) -> pd.DataFrame:
+    def download_daily_flow(
+        self,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+        *,
+        timeout: int = 60,
+    ) -> pd.DataFrame:
         """Download mean daily streamflow data from USGS.
 
         Parameters
         ----------
         start_date, end_date : str, optional
             ISO dates bounding the request. Both default to the full period of
-            record.
+            record. If both are given, start_date must not be after end_date.
+        timeout : int
+            Per-request timeout in seconds. Default 60 -- the full
+            period-of-record request this method sends by default can return
+            tens of thousands of RDB rows for a long-running, high-frequency
+            site, well past what a tight timeout is sized for.
 
         Returns
         -------
         pd.DataFrame
             Daily mean flows indexed by date.
+
+        Raises
+        ------
+        ValueError
+            start_date or end_date is not a parseable date, or start_date is
+            after end_date.
 
         Notes
         -----
@@ -440,17 +457,23 @@ class USGSgage:
         error -- it is a degenerate record that builds a plausible, meaningless
         curve wherever it is used. Measured on 12449500: one row with no range,
         26,958 with one. See ``DEFAULT_START_DATE``.
+
+        The default end date is computed in UTC, not local wall-clock time: a
+        host whose clock is behind UTC would otherwise silently request (and
+        receive) a narrower range than intended, with no error to signal it.
         """
+        _validate_daily_flow_range(start_date, end_date)
+
         params = {
             "format": "rdb",
             "sites": self._site_no,
             "parameterCd": "00060",
             "statCd": "00003",
             "startDT": start_date or self.DEFAULT_START_DATE,
-            "endDT": end_date or _date.today().isoformat(),
+            "endDT": end_date or datetime.now(timezone.utc).date().isoformat(),
         }
 
-        response = requests.get(self.BASE_URL_DAILY, params=params, timeout=30)
+        response = requests.get(self.BASE_URL_DAILY, params=params, timeout=timeout)
         response.raise_for_status()
 
         lines = response.text.split("\n")
@@ -787,6 +810,21 @@ def _is_no_data_response(text: str) -> bool:
     """
     lowered = text.lower()
     return "no sites" in lowered or "no data" in lowered
+
+
+def _validate_daily_flow_range(start_date: Optional[str], end_date: Optional[str]) -> None:
+    """Raise a clear ValueError for a malformed or reversed caller-supplied range.
+
+    Otherwise a bad date string or a reversed range reaches NWIS exactly as given,
+    and the resulting failure is indistinguishable from a network problem.
+    """
+    start_ts = pd.Timestamp(start_date) if start_date is not None else None
+    end_ts = pd.Timestamp(end_date) if end_date is not None else None
+
+    if (start_ts is not None and pd.isna(start_ts)) or (end_ts is not None and pd.isna(end_ts)):
+        raise ValueError(f"Could not parse date range {start_date!r} to {end_date!r}")
+    if start_ts is not None and end_ts is not None and start_ts > end_ts:
+        raise ValueError(f"start_date {start_date} is after end_date {end_date}")
 
 
 def _chunk_date_range(start_date: str, end_date: str, chunk_years: int) -> List[Tuple[str, str]]:
