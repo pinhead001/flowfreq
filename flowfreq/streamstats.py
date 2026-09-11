@@ -638,11 +638,16 @@ def delineate_and_get_characteristics(
     features_url = (
         f"https://{default_server}.{GENERIC_HOST}/ss-delineate/v1/delineate/features/{region}"
     )
-    features_params = {"x": snap.snapped_lon, "y": snap.snapped_lat, "crs": 4326}
+    features_params = {"lat": snap.snapped_lat, "lon": snap.snapped_lon}
     features_response = _request_with_backoff(
         requests.get, features_url, params=features_params, timeout=timeout
     )
     request_urls.append(getattr(features_response, "url", features_url))
+    if features_response.status_code == 422:
+        raise StreamStatsResponseError(
+            f"ss-delineate features request for region {region!r} at "
+            f"({snap.snapped_lat}, {snap.snapped_lon}) was rejected: {features_response.text}"
+        )
     features_response.raise_for_status()
     server_used = _resolve_server(features_response, default_server)
 

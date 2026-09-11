@@ -364,6 +364,26 @@ class TestDelineateAndGetCharacteristics:
 
         assert result.region == "WA"
 
+    def test_features_call_uses_lat_lon_params(self) -> None:
+        """Regression test: the features endpoint takes lat/lon like the rest of the
+        API, not the x/y/crs convention the unverified PDF script guessed at -- found
+        live (a 422) after fixing snap_point's own unrelated field-name bug.
+        """
+        with (
+            patch(
+                "flowfreq.streamstats.requests.get", side_effect=_good_get_responses()
+            ) as mock_get,
+            patch(
+                "flowfreq.streamstats.requests.post",
+                return_value=_mock_response(HYDRO_CHARACTERISTICS_GOOD),
+            ),
+        ):
+            delineate_and_get_characteristics("WA", 48.57430, -120.37890)
+
+        features_call = mock_get.call_args_list[1]
+        params = features_call.kwargs["params"]
+        assert set(params) == {"lat", "lon"}
+
     def test_provenance_completeness(self) -> None:
         with (
             patch("flowfreq.streamstats.requests.get", side_effect=_good_get_responses()),
