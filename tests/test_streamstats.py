@@ -31,12 +31,9 @@ from flowfreq.streamstats import (
     snap_point,
 )
 from tests.fixtures.streamstats_responses import (
-    DELINEATE_FEATURES_DEGENERATE_NO_WARNING,
-    DELINEATE_FEATURES_GOOD,
-    DELINEATE_FEATURES_MALFORMED,
-    DELINEATE_FEATURES_UNSNAPPABLE_WARNING,
     DELINEATE_SSHYDRO_GOOD,
     DELINEATE_SSHYDRO_MALFORMED,
+    DELINEATE_SSHYDRO_WITH_WARNING,
     HYDRO_CHARACTERISTICS_GOOD,
     HYDRO_CHARACTERISTICS_MALFORMED,
     HYDRO_CHARACTERISTICS_MISSING_VALUE,
@@ -73,11 +70,10 @@ def _mock_response(json_data=None, status_code: int = 200, headers=None, text=No
 
 
 def _good_get_responses(server: str = "PRODWEBB"):
-    """The three GET calls (snap, features, sshydro) for a fully successful point."""
+    """The two GET calls (snap, sshydro) for a fully successful point."""
     return [
         _mock_response(SNAP_GOOD),
-        _mock_response(DELINEATE_FEATURES_GOOD, headers={"usgswim-hostname": server}),
-        _mock_response(DELINEATE_SSHYDRO_GOOD),
+        _mock_response(DELINEATE_SSHYDRO_GOOD, headers={"usgswim-hostname": server}),
     ]
 
 
@@ -239,12 +235,12 @@ class TestDelineateAndGetCharacteristics:
     def test_warning_msg_on_delineation_raises_and_skips_hydro(self) -> None:
         """The mandatory test (design doc S8): this is the whole point of the module.
 
-        A 200 carrying a degenerate hillslope-sliver polygon and a WarningMsg must
-        never reach ss-hydro, let alone be returned as if it were a real result.
+        A 200 carrying a WarningMsg for an unsnappable point must never reach
+        ss-hydro, let alone be returned as if it were a real result.
         """
         responses = [
             _mock_response(SNAP_GOOD),
-            _mock_response(DELINEATE_FEATURES_UNSNAPPABLE_WARNING),
+            _mock_response(DELINEATE_SSHYDRO_WITH_WARNING),
         ]
         with (
             patch("flowfreq.streamstats.requests.get", side_effect=responses),
@@ -255,25 +251,9 @@ class TestDelineateAndGetCharacteristics:
 
         mock_post.assert_not_called()
 
-    def test_degenerate_polygon_without_warning_still_raises(self) -> None:
-        responses = [
-            _mock_response(SNAP_GOOD),
-            _mock_response(DELINEATE_FEATURES_DEGENERATE_NO_WARNING),
-        ]
-        with patch("flowfreq.streamstats.requests.get", side_effect=responses):
-            with pytest.raises(DegenerateDelineationError):
-                delineate_and_get_characteristics("WA", 48.57430, -120.37890)
-
-    def test_malformed_features_response_raises(self) -> None:
-        responses = [_mock_response(SNAP_GOOD), _mock_response(DELINEATE_FEATURES_MALFORMED)]
-        with patch("flowfreq.streamstats.requests.get", side_effect=responses):
-            with pytest.raises(StreamStatsResponseError):
-                delineate_and_get_characteristics("WA", 48.57430, -120.37890)
-
     def test_malformed_sshydro_response_raises(self) -> None:
         responses = [
             _mock_response(SNAP_GOOD),
-            _mock_response(DELINEATE_FEATURES_GOOD),
             _mock_response(DELINEATE_SSHYDRO_MALFORMED),
         ]
         with patch("flowfreq.streamstats.requests.get", side_effect=responses):
@@ -364,10 +344,9 @@ class TestDelineateAndGetCharacteristics:
 
         assert result.region == "WA"
 
-    def test_features_call_uses_lat_lon_params(self) -> None:
-        """Regression test: the features endpoint takes lat/lon like the rest of the
-        API, not the x/y/crs convention the unverified PDF script guessed at -- found
-        live (a 422) after fixing snap_point's own unrelated field-name bug.
+    def test_sshydro_call_uses_lat_lon_params(self) -> None:
+        """The sshydro delineate call takes lat/lon, matching the rest of the API and
+        the design doc's own literally-verified protocol.
         """
         with (
             patch(
@@ -380,8 +359,8 @@ class TestDelineateAndGetCharacteristics:
         ):
             delineate_and_get_characteristics("WA", 48.57430, -120.37890)
 
-        features_call = mock_get.call_args_list[1]
-        params = features_call.kwargs["params"]
+        sshydro_call = mock_get.call_args_list[1]
+        params = sshydro_call.kwargs["params"]
         assert set(params) == {"lat", "lon"}
 
     def test_provenance_completeness(self) -> None:
@@ -397,7 +376,7 @@ class TestDelineateAndGetCharacteristics:
         assert result.provenance is not None
         assert result.provenance.service_versions["ss-delineate"]
         assert result.provenance.service_versions["ss-hydro"]
-        assert len(result.provenance.request_urls) == 3
+        assert len(result.provenance.request_urls) == 2
         assert result.provenance.requested_at_utc
         assert result.provenance.server_used
 

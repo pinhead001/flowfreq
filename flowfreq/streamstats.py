@@ -21,6 +21,22 @@ order is always longitude-then-latitude (RFC 7946 S3.1.1), the reverse of the
 first since that is what the live service actually returns, and falling back to a
 handful of flat ``lat``/``lon``-style keys only in case some other region or a future
 service version answers differently.
+
+**No watershed polygon, confirmed live 2026-09-11.** An earlier version of this module
+also called ``ss-delineate/v1/delineate/features/{region}`` (borrowed from the
+unverified ff-idea02 PDF/py transcript, the same source whose ``ss-hydro`` endpoint
+guess was already known wrong) to obtain and FR-3-validate the ``globalwatershed``
+polygon. Called live with the region's real, snapped ``lat``/``lon``, it returns HTTP
+200 with a single ``Point`` feature of zero ``Shape_Area``/``Shape_Leng`` -- an echo of
+the snapped pour point, not a delineated basin -- so it was never the right call and has
+been removed from the pipeline. This module now follows exactly the three-call protocol
+docs/STREAMSTATS_MODULE_DESIGN.md S3 verified end to end (snap, ``delineate/sshydro``,
+``ss-hydro``), none of which returns a polygon; :attr:`WatershedCharacteristics.
+polygon_geojson` is always ``None``. FR-3's ``WarningMsg`` check is done by
+:func:`_find_warning_msg`, a recursive scan of the ``sshydro`` response, rather than a
+polygon-degeneracy check, since no polygon is available to check. Obtaining the actual
+watershed geometry remains an open question -- worth its own live-verification pass
+before attempting again, per TODO.md.
 """
 
 from __future__ import annotations
@@ -195,10 +211,11 @@ class WatershedCharacteristics:
     snap : SnapResult
         The snap that preceded delineation.
     polygon_geojson : dict, optional
-        The ``globalwatershed`` feature's GeoJSON geometry, or None if the delineation
-        response carried no polygon (see FR-3 validation in
-        :func:`delineate_and_get_characteristics`). A plain dict, not a shapely
-        geometry -- NFR-6 keeps this module free of a hard GIS dependency.
+        Reserved for the watershed's GeoJSON geometry; always ``None`` in this version.
+        The verified delineation protocol (:func:`delineate_and_get_characteristics`)
+        has no call that returns the polygon -- see the module docstring. Would be a
+        plain dict, not a shapely geometry, if populated: NFR-6 keeps this module free
+        of a hard GIS dependency.
     characteristics : dict of str to Characteristic
         Keyed by StreamStats parameter code (e.g. ``DRNAREA``, ``PRECPRIS10``).
     provenance : Provenance
@@ -479,63 +496,28 @@ def snap_point(region: str, lat: float, lon: float, *, timeout: float = 45.0) ->
     )
 
 
-def _is_valid_polygon(geometry: Optional[Dict[str, Any]]) -> bool:
-    """Structural (not geometric) validity check: real rings, not a single point.
+def _find_warning_msg(obj: Any) -> str:
+    """Recursively search a JSON-like structure for a non-empty ``WarningMsg`` string.
 
-    Deliberately shallow -- true polygon validity or area would need a projection,
-    which NFR-6 rules out as a dependency. This only catches the degenerate case FR-3
-    is written against: an empty or collapsed geometry with no accompanying warning.
+    The design doc's own live testing (S4) found this key on an unsnappable point's
+    delineation response; the exact nesting within the ``sshydro`` chaining variant's
+    response was not independently re-confirmed (see the module docstring), so this
+    scans the whole structure defensively rather than assuming one exact path.
     """
-    if not geometry or geometry.get("type") not in ("Polygon", "MultiPolygon"):
-        return False
-    coords = geometry.get("coordinates")
-    if not coords:
-        return False
-    polygons = coords if geometry["type"] == "MultiPolygon" else [coords]
-    for polygon in polygons:
-        for ring in polygon:
-            if len(ring) < 4:
-                return False
-            if len({tuple(pt) for pt in ring}) < 2:
-                return False
-    return True
-
-
-def _validate_delineation_features(
-    data: Dict[str, Any],
-) -> Tuple[Optional[Dict[str, Any]], str]:
-    """Validate an ss-delineate ``features`` response against FR-3.
-
-    Returns the ``globalwatershed`` feature's geometry and any ``WarningMsg`` found on
-    it. A non-empty warning means the geometry must not be trusted (design doc S4): an
-    unsnappable point delineates a structurally valid hillslope sliver and still
-    returns HTTP 200.
-    """
-    features = data.get("features") or []
-    if not features:
-        raise StreamStatsResponseError(f"ss-delineate response carried no features: {data!r}")
-
-    watershed_feature = next(
-        (
-            f
-            for f in features
-            if f.get("id") == "globalwatershed"
-            or (f.get("properties") or {}).get("Name") == "globalwatershed"
-        ),
-        features[0],
-    )
-
-    properties = watershed_feature.get("properties") or {}
-    warning_msg = str(properties.get("WarningMsg") or "").strip()
-    geometry = watershed_feature.get("geometry")
-
-    if not warning_msg and not _is_valid_polygon(geometry):
-        raise DegenerateDelineationError(
-            f"ss-delineate returned a structurally invalid or degenerate polygon with "
-            f"no WarningMsg to explain it: {geometry!r}"
-        )
-
-    return geometry, warning_msg
+    if isinstance(obj, dict):
+        for key, value in obj.items():
+            if key.lower() == "warningmsg" and isinstance(value, str) and value.strip():
+                return value.strip()
+        for value in obj.values():
+            found = _find_warning_msg(value)
+            if found:
+                return found
+    elif isinstance(obj, list):
+        for item in obj:
+            found = _find_warning_msg(item)
+            if found:
+                return found
+    return ""
 
 
 def _parse_characteristics(hydro_data: Any) -> Dict[str, Characteristic]:
@@ -585,13 +567,13 @@ def delineate_and_get_characteristics(
 ) -> WatershedCharacteristics:
     """Snap, delineate, and compute basin characteristics for one pour point.
 
-    Implements the full protocol from ``docs/STREAMSTATS_MODULE_DESIGN.md`` S3: a
-    ``pourpoint`` snap (FR-1), an ``ss-delineate`` features call to obtain and validate
-    the watershed polygon (FR-2/FR-3), a second ``ss-delineate`` call
-    (``delineate/sshydro``) to obtain the request body ``ss-hydro`` needs, and the
-    ``ss-hydro`` POST itself (FR-5/FR-6). All three ``ss-delineate``/``ss-hydro`` calls
-    are pinned to the same server (design doc S3 -- ``ss-hydro`` reads temporary files
-    ``ss-delineate`` left on that specific node).
+    Implements exactly the protocol design doc S3 verified live: a ``pourpoint`` snap
+    (FR-1), ``ss-delineate``'s ``delineate/sshydro`` call to obtain the request body
+    ``ss-hydro`` needs (validated for a ``WarningMsg`` per FR-3), and the ``ss-hydro``
+    POST itself (FR-5/FR-6). Both ``ss-delineate``/``ss-hydro`` calls are pinned to the
+    same server (design doc S3 -- ``ss-hydro`` reads temporary files ``ss-delineate``
+    left on that specific node). No watershed polygon is returned -- see the module
+    docstring for why.
 
     Parameters
     ----------
@@ -635,43 +617,21 @@ def delineate_and_get_characteristics(
 
     request_urls: List[str] = []
 
-    features_url = (
-        f"https://{default_server}.{GENERIC_HOST}/ss-delineate/v1/delineate/features/{region}"
+    sshydro_url = (
+        f"https://{default_server}.{GENERIC_HOST}/ss-delineate/v1/delineate/sshydro/{region}"
     )
-    features_params = {"lat": snap.snapped_lat, "lon": snap.snapped_lon}
-    features_response = _request_with_backoff(
-        requests.get, features_url, params=features_params, timeout=timeout
-    )
-    request_urls.append(getattr(features_response, "url", features_url))
-    if features_response.status_code == 422:
-        raise StreamStatsResponseError(
-            f"ss-delineate features request for region {region!r} at "
-            f"({snap.snapped_lat}, {snap.snapped_lon}) was rejected: {features_response.text}"
-        )
-    features_response.raise_for_status()
-    server_used = _resolve_server(features_response, default_server)
-
-    try:
-        features_data = features_response.json()
-    except ValueError as exc:
-        raise StreamStatsResponseError(
-            f"ss-delineate features response for region {region!r} was not valid JSON"
-        ) from exc
-
-    polygon_geojson, warning_msg = _validate_delineation_features(features_data)
-    if warning_msg:
-        raise DegenerateDelineationError(
-            f"StreamStats delineation warning at ({snap.snapped_lat}, "
-            f"{snap.snapped_lon}) in region {region!r}: {warning_msg}"
-        )
-
-    sshydro_url = f"https://{server_used}.{GENERIC_HOST}/ss-delineate/v1/delineate/sshydro/{region}"
     sshydro_params = {"lat": snap.snapped_lat, "lon": snap.snapped_lon}
     sshydro_response = _request_with_backoff(
         requests.get, sshydro_url, params=sshydro_params, timeout=timeout
     )
     request_urls.append(getattr(sshydro_response, "url", sshydro_url))
+    if sshydro_response.status_code == 422:
+        raise StreamStatsResponseError(
+            f"ss-delineate sshydro request for region {region!r} at "
+            f"({snap.snapped_lat}, {snap.snapped_lon}) was rejected: {sshydro_response.text}"
+        )
     sshydro_response.raise_for_status()
+    server_used = _resolve_server(sshydro_response, default_server)
 
     try:
         sshydro_data = sshydro_response.json()
@@ -680,12 +640,27 @@ def delineate_and_get_characteristics(
             f"ss-delineate sshydro response for region {region!r} was not valid JSON"
         ) from exc
 
+    warning_msg = _find_warning_msg(sshydro_data)
+    if warning_msg:
+        raise DegenerateDelineationError(
+            f"StreamStats delineation warning at ({snap.snapped_lat}, "
+            f"{snap.snapped_lon}) in region {region!r}: {warning_msg}"
+        )
+
     bcrequest = sshydro_data.get("bcrequest")
     if not bcrequest:
         raise StreamStatsResponseError(
             f"ss-delineate sshydro response for region {region!r} carried no "
             f"bcrequest payload to pass to ss-hydro: {sshydro_data!r}"
         )
+
+    # No watershed polygon is available through this protocol: the one endpoint that
+    # looked plausible for it (`ss-delineate/v1/delineate/features/{region}`, borrowed
+    # from the unverified PDF/py script) was tried live and returns an unrelated,
+    # zero-area Point feature echoing the snapped pour point, not a basin polygon --
+    # not the design doc's own literally-verified protocol, which never called it. See
+    # the module docstring.
+    polygon_geojson: Optional[Dict[str, Any]] = None
 
     hydro_url = (
         f"https://{server_used}.{GENERIC_HOST}"

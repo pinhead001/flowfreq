@@ -10,6 +10,20 @@ taken as the binding requirement over NFR-1's literal phrasing). Phase 2
 see S2) is tracked separately in `TODO.md`'s "Next" section; it needs its
 own live-verification pass before any code, for the same reason this
 document exists.
+
+**Two implementation bugs the live `requires_network` tests caught and fixed
+(2026-09-11), neither in this document's own verified protocol**: the
+`pourpoint` snap response's `output` turned out to be a GeoJSON Point
+(`{"coordinates": [lon, lat]}`), not flat fields, and an extra
+`ss-delineate/v1/delineate/features/{region}` call the implementation added
+on top of this document's three-call protocol (to fetch a watershed polygon
+FR-3 asks for) was found, live, to return an unrelated zero-area point
+feature rather than a basin polygon. Removed rather than fixed -- this
+document's own protocol never called it, and getting the real polygon is
+still an open question. `WatershedCharacteristics.polygon_geojson` is
+therefore always `None` in the shipped implementation; FR-3's `WarningMsg`
+check is done by scanning the `sshydro` response instead of checking
+polygon geometry.
 **Date:** 2026-09-10
 **Context:** written from the Methow sub-basin work, where 113 EDT reach pour
 nodes need basin characteristics that are currently transcribed by hand from
