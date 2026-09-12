@@ -98,6 +98,36 @@ reference (CLAUDE.md's Test Data section) -- not evidence of anything left to po
 
 ## Open Items (prioritised)
 
+### Sub-daily metrics follow-ups
+
+`flowfreq/subdaily.py` landed (see `docs/SUBDAILY_METRICS_DESIGN.md`, and the
+Unreleased CHANGELOG entry). Three things it left open, all recorded rather
+than fixed:
+
+- [ ] **`diel_variation`'s `expected_obs` is a fixed 1440 minutes / median step,
+      so it mismarks the two daylight-saving transition days of every year** --
+      the spring day (23 local hours) reads as incomplete at any
+      `min_completeness_frac` above ~0.96, and the autumn day (25 hours) reads
+      as more than complete. `daily_extreme_timing` and `ramping_rates` use each
+      day's actual local length and do not have this. Left alone deliberately:
+      changing it moves numbers `diel_variation` has already reported. Fix it
+      together with the next release that is allowed to move those, not as a
+      drive-by.
+- [ ] **Paired stage-and-discharge retrieval.** `download_instantaneous_flow`
+      and `download_instantaneous_stage` are separate calls returning separate
+      frames. Anyone comparing a cfs/hr limit against a ft/hr one joins them on
+      the index by hand. A single call retrieving both parameters onto one index
+      is the natural next step and is not built.
+- [ ] **No validation against a published ramping-rate or peak-timing figure for
+      a real gage.** Every number in `subdaily.py` is checked against synthetic
+      series with known analytic answers and against internal consistency, which
+      catches the circular-mean and local-`dt` errors the module exists to avoid
+      -- and is *not* the same as reproducing a published hydropeaking statistic.
+      That needs live NWIS, blocked from a Claude Code session (see the
+      environment constraints above). Treat the metrics as verified in arithmetic
+      and unverified against the literature until someone runs a real gage
+      through them.
+
 ### Next — StreamStats Phase 2 follow-ups
 
 Phase 2 itself (NSS flow-statistics estimation) is done -- see "Done -- StreamStats

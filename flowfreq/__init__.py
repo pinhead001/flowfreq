@@ -55,8 +55,6 @@ from .regime import (
     DEFAULT_EXCEEDANCE_PCT,
     FlowRegime,
     baseflow_index,
-    diel_variation,
-    diel_variation_summary,
     flow_duration_curve,
     monthly_flow_summary,
     richards_baker_flashiness,
@@ -65,6 +63,19 @@ from .regime import (
     tqmean,
 )
 from .report import HydroReport
+from .subdaily import (
+    DEFAULT_MAX_GAP_MULTIPLE,
+    INTERVAL_LABELS,
+    KNOWN_VALUE_UNITS,
+    TRUE_ZERO_UNITS,
+    circular_hour_statistics,
+    daily_extreme_timing,
+    diel_variation,
+    diel_variation_summary,
+    extreme_timing_summary,
+    ramping_rate_summary,
+    ramping_rates,
+)
 from .transpose import (
     DEFAULT_AREA_RATIO_RANGE,
     LOW_FLOW_AREA_RATIO_RANGE,
@@ -249,6 +260,16 @@ __all__ = [
     "BASEFLOW_METHODS",
     "diel_variation",
     "diel_variation_summary",
+    # Sub-daily (instantaneous-series) metrics
+    "DEFAULT_MAX_GAP_MULTIPLE",
+    "INTERVAL_LABELS",
+    "KNOWN_VALUE_UNITS",
+    "TRUE_ZERO_UNITS",
+    "circular_hour_statistics",
+    "daily_extreme_timing",
+    "extreme_timing_summary",
+    "ramping_rates",
+    "ramping_rate_summary",
     # USGS data retrieval
     "USGSgage",
     "USGSGage",  # Alias for backwards compatibility

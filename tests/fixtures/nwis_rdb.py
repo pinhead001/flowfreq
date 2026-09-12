@@ -174,3 +174,34 @@ agency_cd\tsite_no\tdatetime\t152418_00060_00003\t152418_00060_00003_cd
 5s\t15s\t20d\t14n\t10s
 USGS\t12449500\t2026-09-08\t261\tP
 """
+
+
+#: An instantaneous gage-height (00065) payload, same station and shape as
+#: IV_BASIC so the two parameters can be compared directly. Includes an "Ice"
+#: reading, which is at least as common in a stage record as in a discharge one.
+IV_STAGE_BASIC = """\
+# ---------------------------------- WARNING ----------------------------------
+# Provisional data are subject to revision.
+#
+# Data provided for site 12449950
+#    TS   parameter     Description
+#    46   00065         Gage height, feet
+#
+agency_cd\tsite_no\tdatetime\ttz_cd\t46_00065\t46_00065_cd
+5s\t15s\t20d\t6s\t14n\t10s
+USGS\t12449950\t2022-06-15 12:00\tPDT\t4.52\tA
+USGS\t12449950\t2022-06-15 12:15\tPDT\t4.55\tA
+USGS\t12449950\t2022-06-15 12:30\tPDT\tIce\tP
+USGS\t12449950\t2022-06-15 12:45\tPDT\t4.48\tP
+"""
+
+#: Two 00065 series at one site. Separate primary and backup stage sensors are
+#: more common than duplicate discharge series, so this is the case ts_id has to
+#: resolve rather than an exotic one.
+IV_STAGE_MULTI_SENSOR = """\
+# Data provided for site 12345678
+agency_cd\tsite_no\tdatetime\ttz_cd\t46_00065\t46_00065_cd\t63681_00065\t63681_00065_cd
+5s\t15s\t20d\t6s\t14n\t10s\t14n\t10s
+USGS\t12345678\t2022-06-15 12:00\tPDT\t4.52\tA\t4.51\tA
+USGS\t12345678\t2022-06-15 12:15\tPDT\t4.55\tA\t4.54\tA
+"""

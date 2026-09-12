@@ -30,6 +30,8 @@ from tests.fixtures.nwis_rdb import (
     IV_EMPTY,
     IV_MULTI_SENSOR,
     IV_NO_DATA_400_BODY,
+    IV_STAGE_BASIC,
+    IV_STAGE_MULTI_SENSOR,
     IV_UNKNOWN_TZ,
     IV_WITH_GAPS,
     IV_WRONG_PARAMETER,
@@ -220,6 +222,125 @@ class TestNoDataResponseDetection:
     def test_does_not_match_arbitrary_error(self) -> None:
         """An unrelated error body is not mistaken for an empty window."""
         assert not _is_no_data_response("Internal Server Error")
+
+
+class TestParseIvRdbStage:
+    """Tests for _parse_iv_rdb on gage height (parameter 00065).
+
+    The RDB parser is shared with discharge, so these check the parts that are
+    actually parameterized -- column discovery and output naming -- rather than
+    re-testing the tz mapping that TestParseIvRdb already covers.
+    """
+
+    def test_stage_column_named_gage_height_ft(self) -> None:
+        df = _parse_iv_rdb(IV_STAGE_BASIC, param_cd="00065")
+        assert list(df.columns) == [
+            "gage_height_ft",
+            "datetime_local",
+            "tz_cd",
+            "qualification_code",
+        ]
+        assert df["gage_height_ft"].dtype == float
+        assert df["gage_height_ft"].iloc[0] == pytest.approx(4.52)
+
+    def test_stage_shares_the_utc_axis_rule(self) -> None:
+        """12:00 PDT is 19:00 UTC for stage exactly as for discharge."""
+        df = _parse_iv_rdb(IV_STAGE_BASIC, param_cd="00065")
+        assert df.index[0] == pd.Timestamp("2022-06-15 19:00", tz="UTC")
+        assert df["datetime_local"].iloc[0] == pd.Timestamp("2022-06-15 12:00")
+
+    def test_stage_non_numeric_dropped(self) -> None:
+        """An 'Ice' stage reading is dropped, not carried as NaN."""
+        df = _parse_iv_rdb(IV_STAGE_BASIC, param_cd="00065")
+        assert len(df) == 3
+
+    def test_stage_multiple_sensors_raises(self) -> None:
+        """Separate primary and backup stage sensors must not be resolved by
+        silently picking one."""
+        with pytest.raises(ValueError, match="separate 00065 time series"):
+            _parse_iv_rdb(IV_STAGE_MULTI_SENSOR, param_cd="00065")
+
+    def test_stage_ts_id_selects_one_sensor(self) -> None:
+        df = _parse_iv_rdb(IV_STAGE_MULTI_SENSOR, ts_id="63681", param_cd="00065")
+        assert df["gage_height_ft"].tolist() == [4.51, 4.54]
+
+    def test_stage_unmatched_ts_id_raises_naming_the_parameter(self) -> None:
+        with pytest.raises(ValueError, match="does not match any gage height series"):
+            _parse_iv_rdb(IV_STAGE_MULTI_SENSOR, ts_id="99999", param_cd="00065")
+
+    def test_discharge_payload_has_no_stage_column(self) -> None:
+        """Asking a discharge-only payload for 00065 raises rather than
+        returning an empty frame that reads as 'the site has no stage'."""
+        with pytest.raises(ValueError, match=r"no gage height \(00065\) column"):
+            _parse_iv_rdb(IV_BASIC, param_cd="00065")
+
+    def test_unsupported_parameter_code_raises(self) -> None:
+        with pytest.raises(ValueError, match="Unsupported instantaneous parameter code"):
+            _parse_iv_rdb(IV_BASIC, param_cd="00010")
+
+    def test_discharge_default_unchanged(self) -> None:
+        """The default parameter is still discharge, so existing callers that
+        pass no param_cd are unaffected by the generalization."""
+        assert "flow_cfs" in _parse_iv_rdb(IV_BASIC).columns
+
+
+class TestDownloadInstantaneousStage:
+    """Tests for USGSgage.download_instantaneous_stage."""
+
+    def test_requests_parameter_00065(self) -> None:
+        gage = USGSgage("12449950")
+        with patch(
+            "flowfreq.usgs.requests.get", return_value=_mock_response(IV_STAGE_BASIC)
+        ) as mock_get:
+            gage.download_instantaneous_stage("2022-06-15", "2022-06-15")
+
+        params = mock_get.call_args.kwargs["params"]
+        assert mock_get.call_args.args[0] == USGSgage.BASE_URL_IV
+        assert params["parameterCd"] == "00065"
+        assert "statCd" not in params
+
+    def test_cached_separately_from_discharge(self) -> None:
+        """A stage download must not land in instantaneous_data, or a caller
+        reading instantaneous_data["flow_cfs"] afterwards gets a KeyError from
+        a call it never made.
+        """
+        gage = USGSgage("12449950")
+        with patch("flowfreq.usgs.requests.get", return_value=_mock_response(IV_BASIC)):
+            gage.download_instantaneous_flow("2022-06-15", "2022-06-15")
+        with patch("flowfreq.usgs.requests.get", return_value=_mock_response(IV_STAGE_BASIC)):
+            stage = gage.download_instantaneous_stage("2022-06-15", "2022-06-15")
+
+        assert "flow_cfs" in gage.instantaneous_data.columns
+        assert "gage_height_ft" in gage.instantaneous_stage.columns
+        assert gage.instantaneous_stage is stage
+
+    def test_chunks_and_converts_tz_like_discharge(self) -> None:
+        gage = USGSgage("12449950")
+        with patch(
+            "flowfreq.usgs.requests.get", return_value=_mock_response(IV_STAGE_BASIC)
+        ) as mock_get:
+            df = gage.download_instantaneous_stage(
+                "2020-01-01", "2021-12-31", tz="America/Los_Angeles"
+            )
+
+        assert mock_get.call_count == 2
+        assert str(df.index.tz) == "America/Los_Angeles"
+
+    def test_no_stage_record_raises_naming_the_parameter(self) -> None:
+        """Stage is absent far more often than discharge, so the error must not
+        read as 'this site has no unit values at all'."""
+        gage = USGSgage("12449950")
+        with patch(
+            "flowfreq.usgs.requests.get",
+            return_value=_mock_response(IV_NO_DATA_400_BODY, status_code=400),
+        ):
+            with pytest.raises(NoInstantaneousDataError, match="00065"):
+                gage.download_instantaneous_stage("2022-06-15", "2022-06-15")
+
+    def test_bad_chunk_years_raises(self) -> None:
+        gage = USGSgage("12449950")
+        with pytest.raises(ValueError, match="chunk_years must be >= 1"):
+            gage.download_instantaneous_stage("2022-06-15", "2022-06-15", chunk_years=0)
 
 
 class TestDownloadInstantaneousFlow:

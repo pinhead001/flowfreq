@@ -222,6 +222,7 @@ class USGSgage:
         self._latitude: Optional[float] = None
         self._longitude: Optional[float] = None
         self._instantaneous_data: Optional[pd.DataFrame] = None
+        self._stage_data: Optional[pd.DataFrame] = None
         self._iv_por_start: Optional[str] = None
         self._iv_por_end: Optional[str] = None
 
@@ -284,12 +285,27 @@ class USGSgage:
 
     @property
     def instantaneous_data(self) -> Optional[pd.DataFrame]:
-        """Most recently downloaded instantaneous (unit-value) series."""
+        """Most recently downloaded instantaneous (unit-value) *discharge* series.
+
+        Gage height has its own :attr:`instantaneous_stage` rather than sharing
+        this attribute: the two frames differ in their value column, so a stage
+        download landing here would make ``gage.instantaneous_data["flow_cfs"]``
+        raise KeyError at a call site that had no reason to expect it.
+        """
         return self._instantaneous_data
 
     @instantaneous_data.setter
     def instantaneous_data(self, value: pd.DataFrame):
         self._instantaneous_data = value
+
+    @property
+    def instantaneous_stage(self) -> Optional[pd.DataFrame]:
+        """Most recently downloaded instantaneous (unit-value) gage-height series."""
+        return self._stage_data
+
+    @instantaneous_stage.setter
+    def instantaneous_stage(self, value: pd.DataFrame):
+        self._stage_data = value
 
     @property
     def iv_por_start(self) -> Optional[str]:
@@ -605,8 +621,13 @@ class USGSgage:
 
         Note that diel statistics must be grouped on *local* calendar days: at
         a Pacific gage, UTC days are offset seven to eight hours and cut across
-        the daily cycle. The functions in :mod:`flowfreq.regime` take an
+        the daily cycle. The functions in :mod:`flowfreq.subdaily` take an
         explicit time zone for this reason.
+
+        **Gage height** for the same site and window comes from
+        :meth:`download_instantaneous_stage`, which is this method with
+        parameter 00065; the two are separate calls returning separate frames,
+        joinable on the index.
 
         **Storage.** For a series of this size Parquet is the format worth
         reaching for — it round-trips the tz-aware index and float dtypes
@@ -620,6 +641,140 @@ class USGSgage:
         >>> iv.index.tz is not None
         True
         """
+        combined = self._download_instantaneous(
+            "00060",
+            start_date=start_date,
+            end_date=end_date,
+            tz=tz,
+            chunk_years=chunk_years,
+            ts_id=ts_id,
+            timeout=timeout,
+        )
+        self._instantaneous_data = combined
+        return combined
+
+    def download_instantaneous_stage(  # pylint: disable=too-many-arguments
+        self,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+        *,
+        tz: Optional[str] = None,
+        chunk_years: int = 1,
+        ts_id: Optional[str] = None,
+        timeout: int = 60,
+    ) -> pd.DataFrame:
+        """Download instantaneous (unit-value) gage height from USGS NWIS.
+
+        Retrieves parameter 00065 (gage height, feet) from the NWIS
+        instantaneous values service. Every argument, the chunking, the UTC
+        axis and the multi-sensor ``ts_id`` rule are exactly
+        :meth:`download_instantaneous_flow`'s -- see that method's Notes, all
+        of which apply here -- and the only difference in the returned frame is
+        that the value column is ``gage_height_ft`` rather than ``flow_cfs``.
+
+        Stage is the series most FERC and HCP ramping-rate conditions are
+        actually written against, and the one that drives fish stranding, so it
+        feeds :func:`flowfreq.subdaily.ramping_rates` with
+        ``value_col="gage_height_ft"``.
+
+        Parameters
+        ----------
+        start_date, end_date : str, optional
+            ``YYYY-MM-DD`` window bounds, inclusive. Default to the site's
+            instantaneous period of record.
+        tz : str, optional
+            IANA time zone for the returned index; default ``None`` leaves it
+            in UTC.
+        chunk_years : int
+            Years per HTTP request. Default 1.
+        ts_id : str, optional
+            NWIS time-series (DD) identifier, to disambiguate a site that
+            reports gage height from more than one sensor. Multiple 00065
+            series are *more* common than multiple 00060 ones -- a site can
+            carry separate primary and backup stage sensors -- so this is worth
+            expecting rather than treating as exotic.
+        timeout : int
+            Per-request timeout in seconds. Default 60.
+
+        Returns
+        -------
+        pd.DataFrame
+            Indexed by tz-aware datetime (UTC unless `tz` is given), with
+            columns ``gage_height_ft``, ``datetime_local``, ``tz_cd``,
+            ``qualification_code``.
+
+        Raises
+        ------
+        NoInstantaneousDataError
+            The site has no instantaneous gage-height record, or none in the
+            requested window. **This is a good deal more common than for
+            discharge**: a site with fifteen years of unit-value discharge may
+            carry a partial stage record or none at all, since stage is an
+            intermediate measurement a gage is not obliged to publish. The
+            message names the parameter, so this is not mistaken for the site
+            having no unit values whatsoever.
+        ValueError
+            As :meth:`download_instantaneous_flow`.
+        requests.RequestException
+            A chunk request failed; the partial result is discarded.
+
+        Notes
+        -----
+        **Gage height is not comparable between gages, and is not depth.** It
+        is measured from an arbitrary local datum, so 4.0 ft at one gage and
+        4.0 ft at another say nothing about which is deeper or which carries
+        more water, and neither is the depth of the water. Only *changes*
+        within one gage's record are meaningful, which is why
+        :func:`flowfreq.subdaily.ramping_rates` refuses to compute a
+        percent-per-hour rate on a stage series.
+
+        **A datum can be reset.** When a gage is rebuilt or resurveyed its
+        datum may change, which puts a step in this series that is not a
+        hydrologic event and will read as an enormous ramping rate. Nothing
+        here detects that; check the site's NWIS history before analyzing a
+        long stage record across a station rebuild.
+
+        Examples
+        --------
+        >>> gage = USGSgage("12449950")
+        >>> stage = gage.download_instantaneous_stage("2022-06-01", "2022-09-30")
+        >>> "gage_height_ft" in stage.columns
+        True
+        """
+        combined = self._download_instantaneous(
+            "00065",
+            start_date=start_date,
+            end_date=end_date,
+            tz=tz,
+            chunk_years=chunk_years,
+            ts_id=ts_id,
+            timeout=timeout,
+        )
+        self._stage_data = combined
+        return combined
+
+    def _download_instantaneous(  # pylint: disable=too-many-arguments
+        self,
+        param_cd: str,
+        *,
+        start_date: Optional[str],
+        end_date: Optional[str],
+        tz: Optional[str],
+        chunk_years: int,
+        ts_id: Optional[str],
+        timeout: int,
+    ) -> pd.DataFrame:
+        """Retrieve one instantaneous parameter, chunked, on a UTC axis.
+
+        The shared body of :meth:`download_instantaneous_flow` and
+        :meth:`download_instantaneous_stage`. Parameterized rather than copied
+        because the chunking, the no-data-is-an-HTTP-400 handling, the
+        tz-abbreviation mapping and the duplicate-timestamp rule would
+        otherwise exist twice and drift apart on the next fix to any of them.
+        """
+        value_col = _iv_value_column(param_cd)
+        description = IV_PARAMETERS[param_cd][1]
+
         if chunk_years < 1:
             raise ValueError(f"chunk_years must be >= 1, got {chunk_years}")
 
@@ -628,21 +783,21 @@ class USGSgage:
 
         frames: List[pd.DataFrame] = []
         for chunk_start, chunk_end in chunks:
-            chunk = self._request_iv_chunk(chunk_start, chunk_end, ts_id, timeout)
+            chunk = self._request_iv_chunk(chunk_start, chunk_end, ts_id, timeout, param_cd)
             if not chunk.empty:
                 frames.append(chunk)
 
-        combined = pd.concat(frames) if frames else _empty_iv_frame()
+        combined = pd.concat(frames) if frames else _empty_iv_frame(value_col)
 
         if combined.empty:
             raise NoInstantaneousDataError(
-                f"No instantaneous discharge (parameter 00060) found for site "
+                f"No instantaneous {description} (parameter {param_cd}) found for site "
                 f"{self._site_no} between {start_date} and {end_date}"
                 + (
                     f"; the site's instantaneous record runs "
                     f"{self._iv_por_start} to {self._iv_por_end}"
                     if self._iv_por_start
-                    else "; NWIS lists no instantaneous discharge series for this site"
+                    else f"; NWIS lists no instantaneous {description} series for this site"
                 )
             )
 
@@ -651,7 +806,6 @@ class USGSgage:
         if tz is not None:
             combined.index = combined.index.tz_convert(tz)
 
-        self._instantaneous_data = combined
         return combined
 
     def _resolve_iv_window(
@@ -684,8 +838,13 @@ class USGSgage:
 
         return str(resolved_start), str(resolved_end)
 
-    def _request_iv_chunk(
-        self, chunk_start: str, chunk_end: str, ts_id: Optional[str], timeout: int
+    def _request_iv_chunk(  # pylint: disable=too-many-arguments
+        self,
+        chunk_start: str,
+        chunk_end: str,
+        ts_id: Optional[str],
+        timeout: int,
+        param_cd: str = "00060",
     ) -> pd.DataFrame:
         """Request and parse one date-range chunk of instantaneous values.
 
@@ -698,7 +857,7 @@ class USGSgage:
         params = {
             "format": "rdb",
             "sites": self._site_no,
-            "parameterCd": "00060",
+            "parameterCd": param_cd,
             "startDT": chunk_start,
             "endDT": chunk_end,
         }
@@ -706,15 +865,15 @@ class USGSgage:
         try:
             response = requests.get(self.BASE_URL_IV, params=params, timeout=timeout)
             if response.status_code == 400 and _is_no_data_response(response.text):
-                return _empty_iv_frame()
+                return _empty_iv_frame(_iv_value_column(param_cd))
             response.raise_for_status()
         except requests.RequestException as exc:
             raise requests.RequestException(
                 f"Instantaneous-value request failed for site {self._site_no}, "
-                f"window {chunk_start} to {chunk_end}: {exc}"
+                f"parameter {param_cd}, window {chunk_start} to {chunk_end}: {exc}"
             ) from exc
 
-        return _parse_iv_rdb(response.text, ts_id=ts_id)
+        return _parse_iv_rdb(response.text, ts_id=ts_id, param_cd=param_cd)
 
     def download_peak_flow(self) -> pd.DataFrame:
         """Download annual peak streamflow data from USGS."""
@@ -783,8 +942,29 @@ _IV_COLUMNS: Tuple[str, ...] = (
     "qualification_code",
 )
 
+#: NWIS instantaneous parameter codes this module retrieves, mapped to the
+#: value-column name and human description used for each. Discharge (00060)
+#: and gage height (00065) share the whole retrieval path -- chunking, the UTC
+#: axis, the tz mapping, multi-sensor disambiguation -- so the path is
+#: parameterized over this table rather than duplicated per parameter, which
+#: would let the two copies drift.
+IV_PARAMETERS: Dict[str, Tuple[str, str]] = {
+    "00060": ("flow_cfs", "discharge"),
+    "00065": ("gage_height_ft", "gage height"),
+}
 
-def _empty_iv_frame() -> pd.DataFrame:
+
+def _iv_value_column(param_cd: str) -> str:
+    """Value-column name for an NWIS instantaneous parameter code."""
+    if param_cd not in IV_PARAMETERS:
+        raise ValueError(
+            f"Unsupported instantaneous parameter code {param_cd!r}; known: "
+            f"{sorted(IV_PARAMETERS)}"
+        )
+    return IV_PARAMETERS[param_cd][0]
+
+
+def _empty_iv_frame(value_col: str = "flow_cfs") -> pd.DataFrame:
     """Return a correctly typed, empty instantaneous-value frame.
 
     Used for chunks that legitimately contain no records, so that concatenating
@@ -792,7 +972,7 @@ def _empty_iv_frame() -> pd.DataFrame:
     """
     return pd.DataFrame(
         {
-            "flow_cfs": pd.Series(dtype=float),
+            value_col: pd.Series(dtype=float),
             "datetime_local": pd.Series(dtype="datetime64[ns]"),
             "tz_cd": pd.Series(dtype=object),
             "qualification_code": pd.Series(dtype=object),
@@ -864,13 +1044,13 @@ def _chunk_date_range(start_date: str, end_date: str, chunk_years: int) -> List[
     return chunks
 
 
-def _resolve_flow_column(df: pd.DataFrame, ts_id: Optional[str]) -> str:
-    """Pick the single discharge column out of a parsed RDB table.
+def _resolve_value_column(df: pd.DataFrame, ts_id: Optional[str], param_cd: str) -> str:
+    """Pick the single value column for one parameter out of a parsed RDB table.
 
-    Value columns are named ``<DD>_00060``; their qualifier twins end
-    ``_00060_cd``. A site that reports discharge from more than one sensor
-    yields more than one such column, and choosing between them silently would
-    hand back a plausible-looking series from the wrong instrument.
+    Value columns are named ``<DD>_<param_cd>``; their qualifier twins end
+    ``_<param_cd>_cd``. A site that reports the parameter from more than one
+    sensor yields more than one such column, and choosing between them silently
+    would hand back a plausible-looking series from the wrong instrument.
 
     Parameters
     ----------
@@ -878,59 +1058,63 @@ def _resolve_flow_column(df: pd.DataFrame, ts_id: Optional[str]) -> str:
         Parsed RDB table, all columns as strings.
     ts_id : str, optional
         NWIS time-series (DD) identifier selecting one series.
+    param_cd : str
+        NWIS parameter code, e.g. ``"00060"`` for discharge or ``"00065"`` for
+        gage height.
 
     Returns
     -------
     str
-        Name of the discharge column to read.
+        Name of the value column to read.
 
     Raises
     ------
     ValueError
-        No discharge column, several with no ``ts_id`` to choose between them,
+        No matching column, several with no ``ts_id`` to choose between them,
         or a ``ts_id`` matching none of them.
     """
-    flow_cols = [c for c in df.columns if c.endswith("_00060")]
+    description = IV_PARAMETERS.get(param_cd, ("", param_cd))[1]
+    value_cols = [c for c in df.columns if c.endswith(f"_{param_cd}")]
 
     if ts_id is not None:
-        wanted = f"{ts_id}_00060"
-        if wanted not in flow_cols:
+        wanted = f"{ts_id}_{param_cd}"
+        if wanted not in value_cols:
             raise ValueError(
-                f"ts_id={ts_id!r} does not match any discharge series in this response; "
-                f"available: {flow_cols or 'none'}"
+                f"ts_id={ts_id!r} does not match any {description} series in this "
+                f"response; available: {value_cols or 'none'}"
             )
         return wanted
 
-    if not flow_cols:
+    if not value_cols:
         raise ValueError(
-            f"NWIS returned {len(df)} instantaneous records but no discharge (00060) "
-            f"column; columns were: {list(df.columns)}"
+            f"NWIS returned {len(df)} instantaneous records but no {description} "
+            f"({param_cd}) column; columns were: {list(df.columns)}"
         )
 
-    if len(flow_cols) > 1:
-        example = flow_cols[0].split("_")[0]
+    if len(value_cols) > 1:
+        example = value_cols[0].split("_")[0]
         raise ValueError(
-            f"Site reports {len(flow_cols)} separate 00060 time series "
-            f"({', '.join(flow_cols)}). Pass ts_id to choose one "
+            f"Site reports {len(value_cols)} separate {param_cd} time series "
+            f"({', '.join(value_cols)}). Pass ts_id to choose one "
             f"(e.g. ts_id={example!r}) rather than accepting an arbitrary sensor."
         )
 
-    return flow_cols[0]
+    return value_cols[0]
 
 
-def _qualifier_column(df: pd.DataFrame, flow_col: str) -> pd.Series:
-    """Return the NWIS data-qualifier column paired with a discharge column.
+def _qualifier_column(df: pd.DataFrame, value_col: str) -> pd.Series:
+    """Return the NWIS data-qualifier column paired with a value column.
 
     Qualifier columns are the value column's name plus ``_cd``. They are not
     guaranteed to be present, so an all-empty column stands in when absent.
     """
-    qual_col = f"{flow_col}_cd"
+    qual_col = f"{value_col}_cd"
     if qual_col in df.columns:
         return df[qual_col].fillna("").astype(str)
     return pd.Series("", index=df.index)
 
 
-def _parse_iv_rdb(text: str, ts_id: Optional[str] = None) -> pd.DataFrame:
+def _parse_iv_rdb(text: str, ts_id: Optional[str] = None, param_cd: str = "00060") -> pd.DataFrame:
     """Parse an NWIS instantaneous-value RDB payload into a UTC-indexed frame.
 
     Separated from the HTTP call so the parsing rules — column discovery,
@@ -943,44 +1127,51 @@ def _parse_iv_rdb(text: str, ts_id: Optional[str] = None) -> pd.DataFrame:
         Raw RDB text as returned by the NWIS instantaneous-values service.
     ts_id : str, optional
         NWIS time-series (DD) identifier, to select one series at a site that
-        reports discharge from more than one sensor.
+        reports the parameter from more than one sensor.
+    param_cd : str
+        NWIS parameter code to extract, one of :data:`IV_PARAMETERS`. Default
+        ``"00060"`` (discharge); ``"00065"`` is gage height. The output column
+        is named accordingly.
 
     Returns
     -------
     pd.DataFrame
         Indexed by tz-aware UTC datetime, with the columns described by
-        :meth:`USGSgage.download_instantaneous_flow`. Empty if the payload
-        carried no records.
+        :meth:`USGSgage.download_instantaneous_flow` -- except that the value
+        column is named for `param_cd`. Empty if the payload carried no
+        records.
 
     Raises
     ------
     ValueError
-        Records are present but no discharge column was found, more than one
-        discharge series is present and ``ts_id`` did not resolve it, or a
-        time-zone abbreviation could not be mapped to a UTC offset.
+        Records are present but no column for `param_cd` was found, more than
+        one such series is present and ``ts_id`` did not resolve it, a
+        time-zone abbreviation could not be mapped to a UTC offset, or
+        `param_cd` is not a supported parameter.
     """
+    value_col = _iv_value_column(param_cd)
     lines = text.split("\n")
     data_lines = [line for line in lines if not line.startswith("#") and line.strip()]
 
     # An RDB payload needs a header, a format-spec row, and at least one record.
     if len(data_lines) < 3:
-        return _empty_iv_frame()
+        return _empty_iv_frame(value_col)
 
     header_idx = next((i for i, line in enumerate(data_lines) if "datetime" in line.lower()), None)
     if header_idx is None:
-        return _empty_iv_frame()
+        return _empty_iv_frame(value_col)
 
     df = pd.read_csv(
         StringIO("\n".join(data_lines[header_idx:])), sep="\t", skiprows=[1], dtype=str
     )
     if df.empty:
-        return _empty_iv_frame()
+        return _empty_iv_frame(value_col)
 
     date_col = next((c for c in df.columns if c.lower() == "datetime"), None)
     if date_col is None:
-        return _empty_iv_frame()
+        return _empty_iv_frame(value_col)
 
-    flow_col = _resolve_flow_column(df, ts_id)
+    raw_col = _resolve_value_column(df, ts_id, param_cd)
 
     if "tz_cd" not in df.columns:
         raise ValueError(
@@ -999,16 +1190,16 @@ def _parse_iv_rdb(text: str, ts_id: Optional[str] = None) -> pd.DataFrame:
 
     frame = pd.DataFrame(
         {
-            "flow_cfs": pd.to_numeric(df[flow_col], errors="coerce").astype(float),
+            value_col: pd.to_numeric(df[raw_col], errors="coerce").astype(float),
             "datetime_local": pd.to_datetime(df[date_col], errors="coerce"),
             "tz_cd": tz_codes,
-            "qualification_code": _qualifier_column(df, flow_col),
+            "qualification_code": _qualifier_column(df, raw_col),
             "_offset_hours": offsets.astype(float),
         }
     )
-    frame = frame.dropna(subset=["flow_cfs", "datetime_local"])
+    frame = frame.dropna(subset=[value_col, "datetime_local"])
     if frame.empty:
-        return _empty_iv_frame()
+        return _empty_iv_frame(value_col)
 
     utc = frame["datetime_local"] - pd.to_timedelta(frame["_offset_hours"], unit="h")
     index = pd.DatetimeIndex(utc).tz_localize("UTC")
@@ -1016,7 +1207,7 @@ def _parse_iv_rdb(text: str, ts_id: Optional[str] = None) -> pd.DataFrame:
 
     frame = frame.drop(columns=["_offset_hours"])
     frame.index = index
-    return frame[list(_IV_COLUMNS)]
+    return frame[[value_col, *_IV_COLUMNS[1:]]]
 
 
 def fetch_nwis_peaks(site_no: str) -> List[Dict]:

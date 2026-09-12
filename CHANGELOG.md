@@ -7,6 +7,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **`flowfreq.subdaily`** -- a new module for instantaneous-series metrics, per
+  `docs/SUBDAILY_METRICS_DESIGN.md`. Two families of metric plus the circular
+  statistics they need:
+  - `daily_extreme_timing()` -- hour of the daily maximum *and* minimum, per local
+    calendar day, as a fractional local hour. The pair is what separates a snowmelt
+    signal (morning minimum, late-afternoon peak) from an operations-driven one;
+    either half alone is ambiguous. A flat day reports NaN rather than a fabricated
+    midnight peak, and ties report their count rather than silently returning the
+    first of several.
+  - `circular_hour_statistics()` and `extreme_timing_summary()` -- pooled timing as
+    **circular** statistics. An hour-of-day is an angle, not a point on a line: the
+    arithmetic mean of hours 23.5 and 0.5 is noon, the one time such a site never
+    peaks, and the error is worst for the sites whose timing is most consistent.
+    Reports a mean hour beside the concentration `r` and a Rayleigh p-value, so a
+    meaningless mean direction announces itself.
+  - `ramping_rates()` and `ramping_rate_summary()` -- rate of change between
+    consecutive observations, per day, as up-ramp, down-ramp and mean absolute rate
+    in **cfs/hr, %/hr and ft/hr**, plus the standard hydropeaking reversal count and
+    exceedance counts against a stated licence limit. Down-ramp is signed and never
+    positive; `dt` is measured on the UTC axis, never on local wall-clock time (which
+    runs backwards across a fall-back transition and turns a modest ramp into a large
+    one of the wrong sign); an interval longer than `max_gap_hours` is counted as a
+    gap rather than averaged in as a gentle ramp.
+  - **Percent-per-hour on a stage series raises.** Gage height is measured from an
+    arbitrary local datum, so a "5% rise in stage" has no physical referent while
+    looking exactly like a regulatory ramping rate. Same stance as `transpose`'s
+    `_require_kind`: refuse rather than return the plausible wrong number.
+- **`USGSgage.download_instantaneous_stage()`** -- NWIS parameter 00065 (gage height),
+  which is the series most FERC and HCP ramping-rate conditions are written against.
+  Shares the whole retrieval path with `download_instantaneous_flow` (chunking, UTC
+  axis, tz-abbreviation mapping, multi-sensor `ts_id` disambiguation), now
+  parameterized over `IV_PARAMETERS` rather than duplicated. Cached on a separate
+  `instantaneous_stage` property so a stage download cannot land where a caller
+  expects `flow_cfs`.
+
+### Changed
+- **`diel_variation` and `diel_variation_summary` moved** from `flowfreq.regime` to
+  `flowfreq.subdaily`, alongside the other instantaneous-series metrics they share
+  their local-day and completeness conventions with. **No import path changed** --
+  both are re-exported from `flowfreq.regime` and from the package top level, and
+  `tests/test_regime.py` was deliberately left importing them from `regime` as the
+  back-compatibility check. The move is to get them type-checked: `pyproject.toml`'s
+  mypy override list exempts `flowfreq.regime` as pre-existing debt and states that
+  nothing new is added to it, so a new module is the only place new public functions
+  are checked at all.
+
 ## [0.8.0]
 
 ### Added
