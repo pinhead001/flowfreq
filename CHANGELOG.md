@@ -8,6 +8,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **`flowfreq.edt`** -- Level 2 hydrology attribute statistics for EDT, per Doyle &
+  Lestelle (2021), *Updated guidelines for rating Level 2 environmental attributes in
+  Ecosystem Diagnosis and Treatment*. The attribute registry
+  (`EDT_HYDROLOGY_ATTRIBUTES`), the five published index ladders, `audit_record` for
+  record-length sufficiency, `tqmean_change` and `low_flow_change` for the two-period
+  change statistics, `index_band` for the published Categorical Conclusions lookup, and
+  `q2yr_rating` for the one continuous transform there is evidence to build.
+  - **The attribute names mislead and the module says so.** Attributes 15 and 16 are
+    both named for inter-annual *variability* and neither is rated on a variability
+    statistic: 15 is the percent change in Q2yr (from annual *instantaneous peaks*, not
+    the highest mean daily flow -- §15.7), and 16 the percent change in the 45- or
+    60-day consecutive lowest average daily flow. §15.7 specifically cautions against
+    the coefficient of variation, which needs a very long record and *decreases* as
+    impervious surface rises.
+  - **A band is not a rating.** The integer index sits at the *midpoint* of its band's
+    range (the footnote to §§36.6/37.6), so flooring a band gives the wrong integer for
+    six of the eight worked examples in D&L Table 3. `index_band` returns a label;
+    `q2yr_rating` returns a rating.
+  - **`q2yr_rating` reproduces all eight Table 3 examples to within 0.013 index
+    units.** Its anchors come from the source, not from curve-fitting: indices 0-3 at
+    their band midpoints, and index 4 at the +110 its cell prints rather than at the
+    band midpoint of +75, which the data requires (the midpoint choice misses Table 3
+    by up to 0.30). Only the Q2yr ladder has published examples to calibrate against,
+    so no other ladder gets a continuous transform -- theirs must come from the Flow
+    High rating tool in the EDT Excel plug-in.
+  - **TQmean is the statistic a short record can support**: about ten years per
+    development state (§18.7) against forty for Q2yr and the low-flow change, which is
+    what `audit_record` exists to make visible before any estimation work.
 - **`flowfreq.subdaily`** -- a new module for instantaneous-series metrics, per
   `docs/SUBDAILY_METRICS_DESIGN.md`. Two families of metric plus the circular
   statistics they need:

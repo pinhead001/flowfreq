@@ -33,6 +33,25 @@ from .core import (
     kfactor,
     kfactor_array,
 )
+from .edt import (
+    DIEL_STAGE_BANDS,
+    EDT_HYDROLOGY_ATTRIBUTES,
+    LOW_FLOW_CHANGE_BANDS,
+    LOW_FLOW_WINDOWS,
+    Q2YR_CHANGE_BANDS,
+    TQMEAN_FLASHINESS_BANDS,
+    TQMEAN_HIGH_FLOW_BANDS,
+    AttributeSpec,
+    BandResult,
+    IndexBand,
+    PeriodChange,
+    audit_record,
+    index_band,
+    low_flow_change,
+    q2yr_rating,
+    split_periods,
+    tqmean_change,
+)
 from .flowio import load_flow_frame, save_flow_frame
 from .hydrograph import Hydrograph
 from .lowflow import LOW_FLOW_YEAR_TYPES, LowFlowFrequency, annual_minimum_flow
@@ -270,6 +289,24 @@ __all__ = [
     "extreme_timing_summary",
     "ramping_rates",
     "ramping_rate_summary",
+    # EDT Level 2 hydrology attributes (Doyle & Lestelle 2021)
+    "EDT_HYDROLOGY_ATTRIBUTES",
+    "AttributeSpec",
+    "IndexBand",
+    "BandResult",
+    "PeriodChange",
+    "Q2YR_CHANGE_BANDS",
+    "TQMEAN_HIGH_FLOW_BANDS",
+    "TQMEAN_FLASHINESS_BANDS",
+    "LOW_FLOW_CHANGE_BANDS",
+    "DIEL_STAGE_BANDS",
+    "LOW_FLOW_WINDOWS",
+    "index_band",
+    "q2yr_rating",
+    "split_periods",
+    "audit_record",
+    "tqmean_change",
+    "low_flow_change",
     # USGS data retrieval
     "USGSgage",
     "USGSGage",  # Alias for backwards compatibility
