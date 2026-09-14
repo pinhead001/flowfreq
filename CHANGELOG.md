@@ -7,6 +7,81 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **`flowfreq.edt`** -- Level 2 hydrology attribute statistics for EDT, per Doyle &
+  Lestelle (2021), *Updated guidelines for rating Level 2 environmental attributes in
+  Ecosystem Diagnosis and Treatment*. The attribute registry
+  (`EDT_HYDROLOGY_ATTRIBUTES`), the five published index ladders, `audit_record` for
+  record-length sufficiency, `tqmean_change` and `low_flow_change` for the two-period
+  change statistics, `index_band` for the published Categorical Conclusions lookup, and
+  `q2yr_rating` for the one continuous transform there is evidence to build.
+  - **The attribute names mislead and the module says so.** Attributes 15 and 16 are
+    both named for inter-annual *variability* and neither is rated on a variability
+    statistic: 15 is the percent change in Q2yr (from annual *instantaneous peaks*, not
+    the highest mean daily flow -- §15.7), and 16 the percent change in the 45- or
+    60-day consecutive lowest average daily flow. §15.7 specifically cautions against
+    the coefficient of variation, which needs a very long record and *decreases* as
+    impervious surface rises.
+  - **A band is not a rating.** The integer index sits at the *midpoint* of its band's
+    range (the footnote to §§36.6/37.6), so flooring a band gives the wrong integer for
+    six of the eight worked examples in D&L Table 3. `index_band` returns a label;
+    `q2yr_rating` returns a rating.
+  - **`q2yr_rating` reproduces all eight Table 3 examples to within 0.013 index
+    units.** Its anchors come from the source, not from curve-fitting: indices 0-3 at
+    their band midpoints, and index 4 at the +110 its cell prints rather than at the
+    band midpoint of +75, which the data requires (the midpoint choice misses Table 3
+    by up to 0.30). Only the Q2yr ladder has published examples to calibrate against,
+    so no other ladder gets a continuous transform -- theirs must come from the Flow
+    High rating tool in the EDT Excel plug-in.
+  - **TQmean is the statistic a short record can support**: about ten years per
+    development state (§18.7) against forty for Q2yr and the low-flow change, which is
+    what `audit_record` exists to make visible before any estimation work.
+- **`flowfreq.subdaily`** -- a new module for instantaneous-series metrics, per
+  `docs/SUBDAILY_METRICS_DESIGN.md`. Two families of metric plus the circular
+  statistics they need:
+  - `daily_extreme_timing()` -- hour of the daily maximum *and* minimum, per local
+    calendar day, as a fractional local hour. The pair is what separates a snowmelt
+    signal (morning minimum, late-afternoon peak) from an operations-driven one;
+    either half alone is ambiguous. A flat day reports NaN rather than a fabricated
+    midnight peak, and ties report their count rather than silently returning the
+    first of several.
+  - `circular_hour_statistics()` and `extreme_timing_summary()` -- pooled timing as
+    **circular** statistics. An hour-of-day is an angle, not a point on a line: the
+    arithmetic mean of hours 23.5 and 0.5 is noon, the one time such a site never
+    peaks, and the error is worst for the sites whose timing is most consistent.
+    Reports a mean hour beside the concentration `r` and a Rayleigh p-value, so a
+    meaningless mean direction announces itself.
+  - `ramping_rates()` and `ramping_rate_summary()` -- rate of change between
+    consecutive observations, per day, as up-ramp, down-ramp and mean absolute rate
+    in **cfs/hr, %/hr and ft/hr**, plus the standard hydropeaking reversal count and
+    exceedance counts against a stated licence limit. Down-ramp is signed and never
+    positive; `dt` is measured on the UTC axis, never on local wall-clock time (which
+    runs backwards across a fall-back transition and turns a modest ramp into a large
+    one of the wrong sign); an interval longer than `max_gap_hours` is counted as a
+    gap rather than averaged in as a gentle ramp.
+  - **Percent-per-hour on a stage series raises.** Gage height is measured from an
+    arbitrary local datum, so a "5% rise in stage" has no physical referent while
+    looking exactly like a regulatory ramping rate. Same stance as `transpose`'s
+    `_require_kind`: refuse rather than return the plausible wrong number.
+- **`USGSgage.download_instantaneous_stage()`** -- NWIS parameter 00065 (gage height),
+  which is the series most FERC and HCP ramping-rate conditions are written against.
+  Shares the whole retrieval path with `download_instantaneous_flow` (chunking, UTC
+  axis, tz-abbreviation mapping, multi-sensor `ts_id` disambiguation), now
+  parameterized over `IV_PARAMETERS` rather than duplicated. Cached on a separate
+  `instantaneous_stage` property so a stage download cannot land where a caller
+  expects `flow_cfs`.
+
+### Changed
+- **`diel_variation` and `diel_variation_summary` moved** from `flowfreq.regime` to
+  `flowfreq.subdaily`, alongside the other instantaneous-series metrics they share
+  their local-day and completeness conventions with. **No import path changed** --
+  both are re-exported from `flowfreq.regime` and from the package top level, and
+  `tests/test_regime.py` was deliberately left importing them from `regime` as the
+  back-compatibility check. The move is to get them type-checked: `pyproject.toml`'s
+  mypy override list exempts `flowfreq.regime` as pre-existing debt and states that
+  nothing new is added to it, so a new module is the only place new public functions
+  are checked at all.
+
 ## [0.8.0]
 
 ### Added
