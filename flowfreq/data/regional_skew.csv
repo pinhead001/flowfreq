@@ -1,0 +1,5 @@
+state,skew_region,skew,skew_mse,effective_record_years,citation,table,status,notes
+WA,TBD,,,,,,pending,Wave 1 (#37): identify the adopted B17C-era regional skew study and transcribe
+OR,TBD,,,,,,pending,Wave 1 (#38): identify the adopted B17C-era regional skew study and transcribe
+ID,TBD,,,,,,pending,Wave 1 (#39): identify the adopted B17C-era regional skew study and transcribe
+MT,TBD,,,,,,pending,Wave 1 (#40): cross-check against GenSkew/SkewSE in vendor/peakfqr/inst/testdata/wymt_ffa_2022A.psf

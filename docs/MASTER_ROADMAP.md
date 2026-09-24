@@ -6,7 +6,8 @@ with Bulletin 17C at gages, published USGS regional regression equations (RREs) 
 sites, a weighted combination of the two where both exist, and documented methods for
 transposition, nonstationarity, and future-condition quantiles.
 
-**Status legend:** `[ ]` open · `[~]` partial · `[x]` done in this repo today.
+**Status legend:** `[ ]` open · `[~]` partial (scaffolded; the linked issue carries the live status) · `[x]` done in this repo today.
+**Phase A epic:** [#27](https://github.com/pinhead001/flowfreq/issues/27) · **Wave 1 epic:** [#28](https://github.com/pinhead001/flowfreq/issues/28) · generated per-state status: `docs/REGRESSION_COVERAGE.md`.
 **Relationship to `TODO.md`:** `TODO.md` is the day-to-day log of open items and history.
 This file is the long-range plan. When an item here starts, give it an entry in `TODO.md`.
 
@@ -48,20 +49,20 @@ Standing rules carried over from this repo's history, which apply to every phase
 ## 1. Data foundation (prerequisite for everything else)
 
 ### 1.1 Gage data retrieval
-- [ ] **Migrate off legacy NWIS web services.** USGS is retiring `waterservices.usgs.gov`
+- [~] [#29](https://github.com/pinhead001/flowfreq/issues/29) **Migrate off legacy NWIS web services.** USGS is retiring `waterservices.usgs.gov`
       in favor of the Water Data OGC APIs (`api.waterdata.usgs.gov`). Verify the peak,
       daily-value, and site-metadata endpoints live, then add an adapter layer so
       `USGSgage` works with both backends. Existing fixtures must stay byte-identical.
-- [ ] Parse **all peak qualification codes** (historic `7`, estimated, regulated `6`/`C`,
+- [~] [#30](https://github.com/pinhead001/flowfreq/issues/30) Parse **all peak qualification codes** (historic `7`, estimated, regulated `6`/`C`,
       urbanization, dam failure, `<`/`>` values) into `PeakRecord` flags. Map each code to
       an explicit B17C treatment: include, censor, exclude, or flag for review.
-- [ ] Retrieve and store **perception thresholds and historical-period information** when
+- [~] [#31](https://github.com/pinhead001/flowfreq/issues/31) Retrieve and store **perception thresholds and historical-period information** when
       published. Accept a PeakFQ `.psf` specification file as input so a published analysis
       can be replicated exactly (`psf` → `EMAParameters`).
-- [ ] **Regulation and urbanization screen.** Use the peak codes, GAGES-II/NID dam storage,
+- [~] [#32](https://github.com/pinhead001/flowfreq/issues/32) **Regulation and urbanization screen.** Use the peak codes, GAGES-II/NID dam storage,
       and NLCD impervious fraction to classify each gage as reference, regulated, or urban.
       Refuse, or require an override for, B17C on a regulated record.
-- [ ] Offline **gage catalog**: expand `flowfreq/data/gage_attributes.csv` (3 rows today) into
+- [~] [#33](https://github.com/pinhead001/flowfreq/issues/33) Offline **gage catalog**: expand `flowfreq/data/gage_attributes.csv` (3 rows today) into
       a versioned national table covering every active and inactive peak-flow site with
       ≥10 years of record. Columns: site_no, name, lat/lon, DA, state, HUC8, years of
       record, regulation class, and the regression region it falls in.
@@ -85,7 +86,7 @@ Standing rules carried over from this repo's history, which apply to every phase
       and document the tolerance.
 
 ### 1.3 Regional skew
-- [ ] **National regional-skew table.** For each jurisdiction, record the currently adopted
+- [~] [#34](https://github.com/pinhead001/flowfreq/issues/34) **National regional-skew table.** For each jurisdiction, record the currently adopted
       skew source: the B17C-era Bayesian WLS/GLS study value and MSE, or a documented
       fallback. Do not use the B17B Plate I map silently.
       The table records the value (or map/raster), MSE, effective record length, report
@@ -120,7 +121,7 @@ Standing rules carried over from this repo's history, which apply to every phase
 ## 3. Regional regression equations: all states and territories
 
 ### 3.1 Architecture
-- [ ] **Equation schema** (`flowfreq/regression/`): a typed, serializable definition holding
+- [~] [#35](https://github.com/pinhead001/flowfreq/issues/35) **Equation schema** (`flowfreq/regression/`): a typed, serializable definition holding
       region ID, statistic (AEP), functional form (log-linear, power, with transforms such as
       `log10(X+1)`), coefficients, variable definitions and units, calibrated
       min/max per variable, SEP / average variance of prediction, model-error variance, and
@@ -166,7 +167,7 @@ basin that dominates its flood hydrology.
 
 | Wave | Region | Jurisdictions (in order) | Notes |
 |---|---|---|---|
-| 1 | Columbia River basin | [ ] WA (pilot) · [ ] OR · [ ] ID · [ ] MT | WA already has a live-verified NSS peak-flow estimate, which makes it the pilot that proves the per-state pipeline end to end. Snowmelt/rain mixed populations and regulated mainstem gages are the main hazards. |
+| 1 | Columbia River basin ([#28](https://github.com/pinhead001/flowfreq/issues/28)) | [#37](https://github.com/pinhead001/flowfreq/issues/37) WA (pilot) · [#38](https://github.com/pinhead001/flowfreq/issues/38) OR · [#39](https://github.com/pinhead001/flowfreq/issues/39) ID · [#40](https://github.com/pinhead001/flowfreq/issues/40) MT | WA already has a live-verified NSS peak-flow estimate, which makes it the pilot that proves the per-state pipeline end to end. Snowmelt/rain mixed populations and regulated mainstem gages are the main hazards. |
 | 2 | Colorado River basin | [ ] CO · [ ] UT · [ ] WY · [ ] NM · [ ] AZ · [ ] NV | CA is a Colorado compact state but goes to wave 3. Arid regions have large SEPs, zero-flow years, and heavy use of PILF (potentially influential low flood) screening. |
 | 3 | West coast and Pacific | [ ] CA · [ ] AK · [ ] HI | OR and WA were done in wave 1. AK and HI are grouped here as Pacific states with sparse networks. |
 | 4a | Upper Mississippi and Great Lakes | [ ] MN · [ ] WI · [ ] IA · [ ] IL · [ ] MO · [ ] MI | MI is mostly Great Lakes drainage, placed here as the nearest wave. |
@@ -306,7 +307,7 @@ Build the **general, nationally applicable framework first (6.3.1)**. Then add
 
 #### 6.3.1 General framework (build first, applies everywhere)
 Recommended approaches, most defensible first:
-- [ ] **Change-factor ("delta") scaling of B17C/RRE quantiles.** Use a pluggable
+- [~] [#36](https://github.com/pinhead001/flowfreq/issues/36) **Change-factor ("delta") scaling of B17C/RRE quantiles.** Use a pluggable
       `ChangeFactorSet` with per-AEP multipliers, scenario, horizon, source citation, and
       applicable geography. The first factor sets are national/federal sources only: FHWA
       HEC-17, NCHRP 15-61 guidance, and NOAA Atlas 15 future precipitation once released,

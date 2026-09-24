@@ -8,6 +8,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Roadmap scaffolding for Phase A (data foundation) and Wave 1 (Columbia River basin)**,
+  per `docs/MASTER_ROADMAP.md`. Types, loaders, validation and tests only: no endpoint was
+  live-verified and no published coefficient or skew value was transcribed.
+  - `flowfreq.peak_codes`: NWIS peak qualification codes, turned into EMA intervals using
+    peakfq 8.1.0's `siteQT` rules (codes 4, 8, 3/O, and 6/C), plus a regulation classifier
+    based only on peak codes. It deliberately has no "reference" class. (#30, #32)
+  - `flowfreq.psf`: a PeakFQ `.psf` specification reader, checked against the vendored WY/MT
+    file and peakfq's own `RegSkew`/`RegMSEG` output. (#31)
+  - `flowfreq.peak_sources`: a pluggable peak-data backend. `nwis-legacy` wraps
+    `USGSgage`. `waterdata-ogc` raises until it is live-verified. (#29)
+  - `flowfreq.catalog` and `tools/build_gage_catalog.py`: the gage catalog schema, a
+    loader, and a build tool that needs network access. (#33)
+  - `flowfreq.regional_skew` and `flowfreq/data/regional_skew.csv`: a regional skew lookup
+    that never returns a `pending` row. Wave 1 rows are pending. (#34)
+  - `flowfreq.regression`: the regression-equation schema, an offline evaluator with range
+    checks and prediction intervals, and multi-region weighting. It includes the table of all
+    56 jurisdictions and their waves, and per-state JSON libraries (Wave 1 files are pending,
+    with no equations). (#35)
+  - `flowfreq.future_flow`: `ChangeFactorSet`, `apply_change_factors`, and precedence of
+    state sets over the national set. It ships no factor values. (#36)
+  - `tools/gen_regression_coverage.py` generates `docs/REGRESSION_COVERAGE.md`. A test fails
+    if the committed report is stale.
+  - `docs/FUTURE_FLOW_GUIDANCE.md`, and a state-rollout issue template.
 - **`flowfreq.subdaily`** -- a new module for instantaneous-series metrics, per
   `docs/SUBDAILY_METRICS_DESIGN.md`. Two families of metric plus the circular
   statistics they need:
