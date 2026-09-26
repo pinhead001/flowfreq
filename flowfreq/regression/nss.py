@@ -11,12 +11,17 @@ equation it evaluated, for example::
 This module turns such a string into the log-linear form of
 :mod:`flowfreq.regression.equations`::
 
-    log10(Q) = b0 + sum_i b_i * T_i(X_i),   T_i in {identity, log10, log10_plus1}
+    log10(Q) = b0 + sum_i b_i * T_i(scale_i * X_i + offset_i),
+    T_i in {identity, log10, log10_plus1}
 
 A term maps as follows:
 
 - ``X^b`` or ``(X)^(b)`` becomes ``log10`` with coefficient ``b``.
 - ``(X+1)^b`` becomes ``log10_plus1``.
+- Any other affine base in one variable, ``(X+c)^b``, ``(X-c)^b``,
+  ``(X/k+c)^b`` or ``(s*X+c)^b``, becomes ``log10`` with ``scale`` and
+  ``offset`` (:class:`~flowfreq.regression.equations.Variable`), stored as
+  written. The scale must be positive.
 - ``10^(c*X)`` becomes ``identity`` with ``c``, and ``/10^(c*X)`` gives ``-c``.
 - Constant factors, ``10^(k)`` included, fold into ``b0``.
 - A scale inside a power term, ``(s*X)^b`` or ``(X/s)^b``, is algebraically
@@ -26,10 +31,10 @@ A term maps as follows:
 ``max(0, E)`` is accepted when ``E`` is itself a product of such terms, because
 that product is strictly positive wherever its terms are defined.
 
-**Anything else is refused, never approximated.** That covers an offset other
-than ``+1`` (``(X+0.01)^b``, ``(X-20)^b``, ``(X/100+1)^b``), a subtracted
-constant (``max(0, E-1)``), logistic ``e^(...)`` forms, and a variable that
-appears under two different transforms. Such a string raises
+**Anything else is refused, never approximated.** That covers a subtracted
+constant outside a power term (``max(0, E-1)``), a base with two variables or a
+negative scale, logistic ``e^(...)`` forms, and a variable that appears under
+two different transforms (or the same transform with two different rescalings). Such a string raises
 :class:`NSSEquationError`. :func:`evaluate_expression` still evaluates it
 directly, so a snapshot can record what NSS computes without claiming to
 represent it.
@@ -44,7 +49,7 @@ import re
 from dataclasses import dataclass
 from typing import Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
-from flowfreq.regression.equations import TRANSFORMS, Citation, RegressionEquation, Variable
+from flowfreq.regression.equations import Citation, RegressionEquation, Variable
 
 __all__ = [
     "NSSEquationError",
@@ -267,6 +272,9 @@ class ParsedEquation:
         ``b0``, log10 space.
     codes, transforms, coefficients : tuple
         One entry per variable, in order of first appearance in the string.
+    scales, offsets : tuple of float
+        Per-variable :attr:`Variable.scale` and :attr:`Variable.offset`. Empty
+        means all defaults (1 and 0).
     notes : tuple of str
         Rewrites a reviewer should know about, such as a scale folded into ``b0``.
     """
@@ -277,29 +285,44 @@ class ParsedEquation:
     transforms: Tuple[str, ...]
     coefficients: Tuple[float, ...]
     notes: Tuple[str, ...] = ()
+    scales: Tuple[float, ...] = ()
+    offsets: Tuple[float, ...] = ()
+
+    def variables(self) -> Tuple[Variable, ...]:
+        """The variables as :class:`Variable` objects, without limits or units."""
+        n = len(self.codes)
+        scales = self.scales or (1.0,) * n
+        offsets = self.offsets or (0.0,) * n
+        return tuple(
+            Variable(code=k, transform=t, scale=sc, offset=off)
+            for k, t, sc, off in zip(self.codes, self.transforms, scales, offsets)
+        )
 
     def log10_value(self, values: Mapping[str, float]) -> float:
         """Evaluate ``log10(Q)`` at the given characteristics."""
         return self.intercept + sum(
-            c * TRANSFORMS[t](float(values[k]))
-            for k, t, c in zip(self.codes, self.transforms, self.coefficients)
+            c * v.apply(float(values[v.code])) for v, c in zip(self.variables(), self.coefficients)
         )
 
     def to_dict(self) -> Dict[str, object]:
         return {
             "intercept": self.intercept,
-            "variables": [{"code": k, "transform": t} for k, t in zip(self.codes, self.transforms)],
+            "variables": [v.to_dict() for v in self.variables()],
             "coefficients": list(self.coefficients),
             "notes": list(self.notes),
         }
 
 
+# A term's form: (transform, scale, offset).
+_Form = Tuple[str, float, float]
+
+
 class _LogLin:
-    """log10 of an expression: ``const + sum coef * T(X)``."""
+    """log10 of an expression: ``const + sum coef * T(scale*X + offset)``."""
 
     def __init__(self) -> None:
         self.const = 0.0
-        self.terms: Dict[str, Tuple[str, float]] = {}
+        self.terms: Dict[str, Tuple[_Form, float]] = {}
         self.order: List[str] = []
         self.notes: List[str] = []
 
@@ -310,9 +333,11 @@ class _LogLin:
         return out
 
     @classmethod
-    def term(cls, code: str, transform: str, coef: float = 1.0) -> "_LogLin":
+    def term(
+        cls, code: str, transform: str, coef: float = 1.0, scale: float = 1.0, offset: float = 0.0
+    ) -> "_LogLin":
         out = cls()
-        out.terms[code] = (transform, coef)
+        out.terms[code] = ((transform, scale, offset), coef)
         out.order.append(code)
         return out
 
@@ -333,8 +358,9 @@ class _LogLin:
                 t0, c0 = out.terms[k]
                 if t0 != t:
                     raise NSSEquationError(
-                        f"{k} appears under two transforms ({t0}, {t}) in {text!r}; "
-                        "RegressionEquation allows one term per variable"
+                        f"{k} appears under two transforms ({_form_text(t0)}, "
+                        f"{_form_text(t)}) in {text!r}; RegressionEquation allows one "
+                        "term per variable"
                     )
                 out.terms[k] = (t, c0 + c)
             else:
@@ -342,6 +368,13 @@ class _LogLin:
                 out.order.append(k)
         out.notes += other.notes
         return out
+
+
+def _form_text(form: _Form) -> str:
+    t, scale, offset = form
+    if scale == 1.0 and offset == 0.0:
+        return t
+    return f"{t}(scale={scale:g}, offset={offset:g})"
 
 
 def _const_value(node: Node) -> Optional[float]:
@@ -428,24 +461,35 @@ def _loglin(node: Node, text: str) -> _LogLin:
         if p is None:
             raise NSSEquationError(f"non-constant exponent on a base other than 10 in {text!r}")
         return _base(left, text).scaled(p)
-    # A sum: only "X + 1" is representable (log10_plus1); "E - 1" and the like are not.
+    # A bare sum: representable only as an affine base in one variable.
     return _base(node, text)
 
 
 def _base(node: Node, text: str) -> _LogLin:
-    """log10 of the base of a power term. Adds the one offset allowed: ``X + 1``."""
+    """log10 of the base of a power term, including an affine base ``s*X + c``.
+
+    ``X + 1`` keeps its historical form, ``log10_plus1``. Any other sum in one
+    variable becomes ``log10`` with ``scale=s`` and ``offset=c``, as written.
+    """
     if node[0] == "bin" and node[1] in "+-":
-        left, right = node[2], node[3]
-        if node[1] == "+" and left[0] == "var" and _const_value(right) == 1.0:
-            _check_variable(left[1], text)
-            return _LogLin.term(left[1], "log10_plus1")
-        if node[1] == "+" and right[0] == "var" and _const_value(left) == 1.0:
-            _check_variable(right[1], text)
-            return _LogLin.term(right[1], "log10_plus1")
-        raise NSSEquationError(
-            f"additive offset cannot be represented exactly (only X+1, as "
-            f"log10_plus1) in {text!r}"
-        )
+        try:
+            c, d, order = _linear(node, text)
+        except NSSEquationError:
+            raise NSSEquationError(
+                f"additive offset in a base that is not affine in one variable in {text!r}"
+            ) from None
+        if len(order) != 1:
+            raise NSSEquationError(
+                f"additive offset in a base with {len(order)} variables in {text!r}; "
+                "only an affine base in one variable is representable"
+            )
+        code = order[0]
+        scale = d[code]
+        if not scale > 0:
+            raise NSSEquationError(f"non-positive scale {scale:g} on {code} in {text!r}")
+        if scale == 1.0 and c == 1.0:
+            return _LogLin.term(code, "log10_plus1")
+        return _LogLin.term(code, "log10", scale=scale, offset=c)
     out = _loglin(node, text)
     if node[0] == "bin" and node[1] in "*/" and out.const != 0.0 and out.terms:
         out.notes.append("scale inside a power term folded into the intercept as b*log10(scale)")
@@ -477,9 +521,11 @@ def parse_equation(equation: str) -> ParsedEquation:
         equation=equation,
         intercept=ll.const,
         codes=tuple(ll.order),
-        transforms=tuple(ll.terms[k][0] for k in ll.order),
+        transforms=tuple(ll.terms[k][0][0] for k in ll.order),
         coefficients=tuple(ll.terms[k][1] for k in ll.order),
         notes=tuple(dict.fromkeys(ll.notes)),
+        scales=tuple(ll.terms[k][0][1] for k in ll.order),
+        offsets=tuple(ll.terms[k][0][2] for k in ll.order),
     )
 
 
@@ -508,13 +554,15 @@ def to_regression_equation(
     units = units or {}
     variables = tuple(
         Variable(
-            code=k,
-            transform=t,
-            units=units.get(k, ""),
-            minimum=limits.get(k, (None, None))[0],
-            maximum=limits.get(k, (None, None))[1],
+            code=v.code,
+            transform=v.transform,
+            units=units.get(v.code, ""),
+            minimum=limits.get(v.code, (None, None))[0],
+            maximum=limits.get(v.code, (None, None))[1],
+            scale=v.scale,
+            offset=v.offset,
         )
-        for k, t in zip(parsed.codes, parsed.transforms)
+        for v in parsed.variables()
     )
     return RegressionEquation(
         region_code=region_code,
