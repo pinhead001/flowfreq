@@ -137,9 +137,10 @@ class TestParseForms:
     @pytest.mark.parametrize(
         "equation",
         [
-            "79*(A)^(0.93)*(C+0.1)^(0.05)",  # offset other than +1
-            "0.000592*A^0.981*(C/100+1)^(-1.52)",  # scaled then +1
-            "max(0,1.04*(10^(-2.1)*A^1.1*(C-20)^1.4))",  # subtraction in base
+            "2*(A+C)^0.5",  # affine base in two variables
+            "2*(1-C)^0.5",  # negative scale
+            "2*(A*C+1)^0.5",  # base not affine
+            "2*A^0.5*(A+1)^0.2",  # one variable, two rescalings
             "max(0,1.53*(10^(-4.9)*A^1.09*C^2.6-1))",  # subtracted constant
             "10^(0.1*A)*A^0.5",  # one variable, two transforms
             "A^C",  # non-constant exponent
@@ -153,6 +154,47 @@ class TestParseForms:
     def test_refuses_what_it_cannot_represent(self, equation):
         with pytest.raises(NSSEquationError):
             parse_equation(equation)
+
+    @pytest.mark.parametrize(
+        "equation, code, scale, offset",
+        [
+            ("79*(A)^(0.93)*(C+0.1)^(0.05)", "C", 1.0, 0.1),
+            ("0.000592*A^0.981*(C/100+1)^(-1.52)", "C", 0.01, 1.0),
+            ("0.000592*A^0.981*(1+C/100)^(-1.52)", "C", 0.01, 1.0),
+            ("max(0,1.04*(10^(-2.1)*A^1.1*(C-10)^1.4))", "C", 1.0, -10.0),
+            ("3*(0.5*B+100)^0.25", "B", 0.5, 100.0),
+        ],
+    )
+    def test_affine_base_emits_scale_and_offset(self, equation, code, scale, offset):
+        parsed = parse_equation(equation)
+        i = parsed.codes.index(code)
+        assert parsed.transforms[i] == "log10"
+        assert parsed.scales[i] == pytest.approx(scale, rel=1e-15)
+        assert parsed.offsets[i] == pytest.approx(offset, rel=1e-15)
+        assert _roundtrip(equation, self.VALUES) < 1e-12
+        var = to_regression_equation(parsed, region_code="R", aep=0.01, citation=CIT).variables[i]
+        assert (var.scale, var.offset) == (parsed.scales[i], parsed.offsets[i])
+        d = parsed.to_dict()["variables"][i]
+        assert d["scale" if scale != 1.0 else "offset"] == pytest.approx(
+            scale if scale != 1.0 else offset
+        )
+
+    def test_plus_one_keeps_log10_plus1(self):
+        parsed = parse_equation("5.0*A^0.674*(C+1)^(-0.026)")
+        assert parsed.scales == (1.0, 1.0) and parsed.offsets == (0.0, 0.0)
+        assert parsed.to_dict()["variables"] == [
+            {"code": "A", "transform": "log10"},
+            {"code": "C", "transform": "log10_plus1"},
+        ]
+
+    def test_idaho_region4_matches_offline_library_form(self):
+        # NSS's string for Idaho region 4 Q80 (snapshot 2026-09-26) parses to the
+        # published form: log10 with scale 0.01 and offset 1 on LC11FOREST.
+        s = "0.000592*DRNAREA^0.981*(LC11FOREST/100+1)^(-1.52)*PRECPRIS10^2.80"
+        parsed = parse_equation(s)
+        assert parsed.codes == ("DRNAREA", "LC11FOREST", "PRECPRIS10")
+        assert parsed.scales == (1.0, 0.01, 1.0) and parsed.offsets == (0.0, 1.0, 0.0)
+        assert parsed.intercept == pytest.approx(math.log10(0.000592), rel=1e-15)
 
     def test_evaluate_expression_handles_refused_forms(self):
         s = "max(0,1.53*(10^(-4.9)*A^1.09*C^2.6-1))"
@@ -169,6 +211,31 @@ class TestParseForms:
         assert evaluate_expression("2^3^2", {}) == 512.0
         assert evaluate_expression("-2^2", {}) == -4.0
         assert parse_expression("10^-1") == ("bin", "^", ("num", 10.0), ("neg", ("num", 1.0)))
+
+    def test_offset_outside_domain_raises(self):
+        parsed = parse_equation("2*(C-20)^1.4")
+        with pytest.raises(ValueError, match="needs C - 20 > 0"):
+            parsed.log10_value({"C": 12.5})
+
+    def test_committed_snapshot_refusals_now_parse(self):
+        """Every equation the committed snapshots refused for an additive offset
+        now parses and reproduces direct evaluation of the NSS string at the
+        snapshot's submitted inputs."""
+        import json
+
+        checked = 0
+        for path in sorted((REPO_ROOT / "data" / "nss_snapshots").glob("*.json")):
+            snap = json.loads(path.read_text(encoding="utf-8"))
+            for region in snap["regions"]:
+                inputs = {p["code"]: p["submitted"] for p in region.get("parameters", [])}
+                for rec in region.get("equations", []):
+                    if not (rec.get("parse_error") or "").startswith("additive offset"):
+                        continue
+                    direct = evaluate_expression(rec["equation"], inputs)
+                    value = 10.0 ** parse_equation(rec["equation"]).log10_value(inputs)
+                    assert value == pytest.approx(direct, rel=1e-12), rec["equation"]
+                    checked += 1
+        assert checked == 17  # 11 Idaho region 4, 6 Portland urban (OR)
 
     def test_variables_in(self):
         assert variables_in("3*A^2*(B+1)^0.5*A") == ["A", "B"]

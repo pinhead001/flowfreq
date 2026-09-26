@@ -17,8 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   retrying its unbounded gating parameters, is recorded as `unresolved` with the reason.
   `parse_equation` rewrites an NSS string exactly into `RegressionEquation` form: the
   `log10`, `log10_plus1` and `10^(c*X)` identity terms, with scales folded into the
-  intercept. It refuses anything else, such as `(X+0.01)^b`, `(X/100+1)^b` or `max(0, E-1)`,
-  rather than approximating it. `statistic_code_to_aep` maps `PK66_7AEP` to 0.667. The
+  intercept. An affine base in one variable, such as `(X+0.01)^b`, `(X-20)^b` or
+  `(X/100+1)^b`, becomes `log10` with `Variable.scale`/`offset`, stored as written. It
+  refuses anything else, such as `max(0, E-1)` or a base in two variables, rather than
+  approximating it. `statistic_code_to_aep` maps `PK66_7AEP` to 0.667. The
   initial snapshot covers WA, ID, MT and OR peak flow: 437 equations, 420 parsed, and every
   parsed equation reproduces NSS within NSS's own 3-significant-figure rounding. Oregon
   regions 2A and 2B are unresolved.
