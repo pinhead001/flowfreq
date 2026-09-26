@@ -8,6 +8,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **`flowfreq.psf_convert`: a PeakFQ `.psf` station converted into a Bulletin 17C analysis**
+  (#31, the converter half). `station_rows` builds the station's EMA rows exactly as peakfq
+  8.1.0's `siteQT` does: codes, `Peak`/`Interval` lines, perception thresholds in file order,
+  gap years, and the no-information rule. `convert_station`/`convert_psf` then map the
+  settings the way `main.R` does. The skew option keeps peakfq's `r_G_mse` sign encoding
+  (weighted `SkewSE**2`, generalized `-SkewSE**2`, station-only sentinel). `LOType`
+  MGBT/FIXED/NONE keeps the `gbthrsh0` encoding, along with `WeightOpt`, `ConfInterval`,
+  `EXTENDED` AEPs and `O EMA`. Output-only options are logged as ignored.
+  `StationInputs.bulletin17c_kwargs(engine)` gives `Bulletin17C` arguments only after
+  rebuilding that engine's rows from them and checking the rows equal `siteQT`'s. When
+  they don't, it raises `UnsupportedSpecError` and names the years.
+  `StationInputs.fortran_reference()` runs any station through `emafitpr` directly.
+  Validated on the vendored WY/MT file (24 stations):
+  - BegYear/EndYear/HistPeaks/GagedPeaks match peakfq for all 24.
+  - Powder River's and Cains Coulee's `emafitpr` rows equal the committed goldens' inputs.
+  - Powder River refits to the golden within 1e-6.
+  - The `Bulletin17C` Fortran route is bit-identical to a direct `siteQT` call on 23 of 24.
+- `flowfreq.watstore`: a reader for legacy WATSTORE (`I ASCI`) peak files, following
+  `readWATSTORE`. It returns the standard peak-frame columns plus `site_no`.
+- `flowfreq.peak_codes.peak_frame_intervals` applies the `siteQT` code rules to a peak frame,
+  and `count_acted_on_codes` counts the codes that change a peak's treatment. `analyze_gage`
+  gains an opt-in `apply_peak_codes` (via `psf_convert.convert_peak_frame`). By default it
+  now logs which treatment-changing codes it is ignoring. It computes nothing different. (#30)
+- `PsfFile.peak_file`, and `O Plot Style`/`O Plot Position` are now read as separate
+  options (both were stored under one `Plot` key, so the second overwrote the first).
 - **Roadmap scaffolding for Phase A (data foundation) and Wave 1 (Columbia River basin)**,
   per `docs/MASTER_ROADMAP.md`. Types, loaders, validation and tests only: no endpoint was
   live-verified and no published coefficient or skew value was transcribed.
@@ -87,6 +112,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   results**: sites with partial-date peaks now return more peaks than before.
 - **`download_peak_flow` read an all-numeric `peak_cd` column as float**, so
   code `7` came back as `"7.0"`. Code columns are now read as strings.
+- `peak_codes.parse_codes` read the date-precision codes `Bd`/`Bm` one character at a
+  time, so the legacy NWIS value `"7,Bd"` (Big Sandy 03606500, WY1897) parsed as
+  {7, B, D}, and `"Bm"` (Orestimba 11274500, WY1947) as {B, M} with an "unrecognised code
+  M" warning. They are now whole codes, and neither changes a peak's EMA interval. A
+  float-formatted code (`"7.0"`, from a code column pandas inferred as float) is read as
+  code 7 rather than {7, 0}. No numeric result changes: D and M were never acted on.
 
 ## [0.8.0]
 
