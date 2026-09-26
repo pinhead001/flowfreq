@@ -63,13 +63,25 @@ def _golden(name):
     return golden
 
 
+def _rounded_rows(ql, qu, tl, tu, dtype):
+    """(ql, qu, tl, tu, dtype) rows with the log10 bounds rounded to 10 decimals."""
+    return [
+        (round(a, 10), round(b, 10), round(c, 10), round(d, 10), int(e))
+        for a, b, c, d, e in zip(ql, qu, tl, tu, dtype)
+    ]
+
+
 @pytest.mark.parametrize("name", sorted(SITES))
 class TestInputsMatchGolden:
     def test_emafit_rows_identical(self, stations, name):
         golden = _golden(name)["inputs"]
         arrays = stations[SITES[name]].emafit_arrays()
+        # Rows are log10 flows. Compared to 10 decimals, not bit-for-bit: numpy's
+        # log10 can differ from the golden's by an ulp across platforms (this
+        # passed on Windows and failed on Linux CI), and 1e-10 in log space is
+        # far below anything that would change which interval a year falls in.
         ours = Counter(
-            zip(
+            _rounded_rows(
                 arrays.ql.tolist(),
                 arrays.qu.tolist(),
                 arrays.tl.tolist(),
@@ -78,7 +90,7 @@ class TestInputsMatchGolden:
             )
         )
         theirs = Counter(
-            zip(golden["ql"], golden["qu"], golden["tl"], golden["tu"], golden["dtype"])
+            _rounded_rows(golden["ql"], golden["qu"], golden["tl"], golden["tu"], golden["dtype"])
         )
         assert ours == theirs
 
