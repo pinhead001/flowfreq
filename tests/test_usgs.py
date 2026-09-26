@@ -21,6 +21,7 @@ from flowfreq.usgs import (
     _chunk_date_range,
     _is_no_data_response,
     _parse_iv_rdb,
+    _parse_peak_dt,
 )
 from tests.fixtures.nwis_rdb import (
     DV_BASIC,
@@ -35,6 +36,7 @@ from tests.fixtures.nwis_rdb import (
     IV_UNKNOWN_TZ,
     IV_WITH_GAPS,
     IV_WRONG_PARAMETER,
+    PEAK_PARTIAL_DATES,
     SITE_EXPANDED,
     SITE_EXPANDED_NO_COORDS,
     SITE_SERIES_CATALOG,
@@ -719,3 +721,56 @@ class TestDownloadDailyFlow:
             frame = USGSgage("12449500").download_daily_flow()
 
         assert len(frame) == 1
+
+
+class TestDownloadPeakFlowPartialDates:
+    """NWIS writes an unknown day or month as ``00``; those peaks must survive.
+
+    ``pd.to_datetime(..., errors="coerce")`` turned ``1897-03-00`` into NaT,
+    which made ``water_year`` NaN and dropped the row -- silently losing the
+    historic peaks, found while verifying the Water Data OGC API (#29).
+    """
+
+    def _download(self) -> pd.DataFrame:
+        with patch("flowfreq.usgs.requests.get") as get:
+            get.return_value = _mock_response(PEAK_PARTIAL_DATES)
+            return USGSgage("03606500").download_peak_flow()
+
+    def test_no_peak_is_dropped(self) -> None:
+        assert len(self._download()) == 6
+
+    def test_historic_peaks_with_unknown_day_are_kept(self) -> None:
+        frame = self._download().set_index("water_year")
+        assert frame.loc[1897, "peak_flow_cfs"] == 25000
+        assert frame.loc[1919, "peak_flow_cfs"] == 21000
+        assert frame.loc[1927, "peak_flow_cfs"] == 18500
+        assert list(frame.loc[[1897, 1919, 1927], "qualification_code"]) == ["7", "7", "7"]
+
+    def test_water_years_follow_peakfq(self) -> None:
+        """Unknown month -> calendar year; unknown day in October -> next year."""
+        assert list(self._download()["water_year"]) == [1897, 1919, 1927, 1930, 1931, 1932]
+
+    def test_placeholder_dates_use_the_first_of_the_month(self) -> None:
+        dates = self._download()["peak_date"]
+        assert dates.iloc[0] == pd.Timestamp("1897-03-01")
+        assert dates.iloc[4] == pd.Timestamp("1931-01-01")
+
+    def test_numeric_only_codes_stay_strings(self) -> None:
+        """An all-numeric ``peak_cd`` column must not be read as float ("7.0")."""
+        codes = self._download()["qualification_code"]
+        assert list(codes) == ["7", "7", "7", "", "", ""]
+
+    def test_a_full_date_is_unchanged(self) -> None:
+        assert self._download()["peak_date"].iloc[3] == pd.Timestamp("1930-01-09")
+
+
+class TestParsePeakDt:
+    def test_garbage_is_nat_not_an_error(self) -> None:
+        parsed = _parse_peak_dt(pd.Series(["1950-05-12", "not a date", "", "1950-13-01"]))
+        assert parsed.iloc[0] == pd.Timestamp("1950-05-12")
+        assert parsed.iloc[1:].isna().all()
+
+    def test_partial_dates_are_logged(self, caplog: pytest.LogCaptureFixture) -> None:
+        with caplog.at_level("INFO", logger="flowfreq.usgs"):
+            _parse_peak_dt(pd.Series(["1897-03-00", "1968-00-00"]), "03606500")
+        assert "2 peak date(s) with unknown day or month" in caplog.text

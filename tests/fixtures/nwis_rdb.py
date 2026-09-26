@@ -205,3 +205,26 @@ agency_cd\tsite_no\tdatetime\ttz_cd\t46_00065\t46_00065_cd\t63681_00065\t63681_0
 USGS\t12345678\t2022-06-15 12:00\tPDT\t4.52\tA\t4.51\tA
 USGS\t12345678\t2022-06-15 12:15\tPDT\t4.55\tA\t4.54\tA
 """
+
+# NWIS peak-flow RDB (``/nwis/peak``) for Big Sandy (03606500), trimmed. The
+# three historic peaks carry an unknown day, which NWIS writes as ``-00``;
+# their values match the Water Data OGC API and the committed Big Sandy
+# fixture. The last two rows are synthetic: an unknown-month zero-flow year
+# (the Orestimba pattern) and an unknown day in October, which must land in
+# the *next* water year.
+PEAK_PARTIAL_DATES = """\
+# U.S. Geological Survey
+# National Water Information System
+#
+# Station name : Big Sandy River at Bruceton, TN
+# Drainage area: 205 square miles
+#
+agency_cd\tsite_no\tpeak_dt\tpeak_tm\tpeak_va\tpeak_cd\tgage_ht\tgage_ht_cd\tyear_last_pk
+5s\t15s\t10d\t6s\t8s\t33s\t8s\t27s\t4s
+USGS\t03606500\t1897-03-00\t\t25000\t7\t\t\t
+USGS\t03606500\t1919-03-00\t\t21000\t7\t\t\t
+USGS\t03606500\t1926-12-00\t\t18500\t7\t\t\t
+USGS\t03606500\t1930-01-09\t\t9100\t\t\t\t
+USGS\t03606500\t1931-00-00\t\t0\t\t\t\t
+USGS\t03606500\t1931-10-00\t\t5000\t\t\t\t
+"""
