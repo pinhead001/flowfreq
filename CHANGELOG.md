@@ -9,11 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **Idaho peak-flow regression equations** (`flowfreq/data/regression/ID.json`, status
-  `partial`, #39): 55 equations, regions 1_2, 3, 5, 6_8 and 7 at all 11 AEPs, from USGS
-  SIR 2016-5083 ver. 1.1 Table 4, Table 5 and Table A5 (covariance), double-entered
-  against the PDF text and matching live NSS at its three-significant-figure output for
-  every region and AEP. Region 4 is left out because its `(F/100 + 1)^b` term has no
-  schema transform yet.
+  `verified`, #39): 66 equations, all 6 regions (1_2, 3, 4, 5, 6_8 and 7) at all 11 AEPs,
+  from USGS SIR 2016-5083 ver. 1.1 Table 4, Table 5 and Table A5 (covariance),
+  double-entered against the PDF text and matching live NSS at its
+  three-significant-figure output for every region and AEP. Region 4's
+  `(F/100 + 1)^b` and region 7's `(Emin/1,000)^b` terms are stored as published with
+  `Variable.scale`/`offset`, so every covariance matrix is Table A5's, unrebased.
 - **Roadmap scaffolding for Phase A (data foundation) and Wave 1 (Columbia River basin)**,
   per `docs/MASTER_ROADMAP.md`. Types, loaders, validation and tests only: no endpoint was
   live-verified and no published coefficient or skew value was transcribed.
