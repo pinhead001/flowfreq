@@ -22,6 +22,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   initial snapshot covers WA, ID, MT and OR peak flow: 437 equations, 420 parsed, and every
   parsed equation reproduces NSS within NSS's own 3-significant-figure rounding. Oregon
   regions 2A and 2B are unresolved.
+- **Water Data OGC API backend for instantaneous values** (`flowfreq.waterdata`, #29).
+  `USGSgage.download_instantaneous_flow` / `download_instantaneous_stage` take a new
+  `backend=` keyword; `"waterdata-ogc"` reads 00060/00065 from
+  `api.waterdata.usgs.gov/ogcapi/v1/collections/continuous` and returns the same frame as
+  the legacy path (UTC index, value column, `datetime_local`, `tz_cd`,
+  `qualification_code`). The default stays `"nwis-legacy"`, whose behaviour is unchanged.
+  A site with several series for the parameter raises `AmbiguousTimeSeriesError` listing
+  them, and `ts_id=` takes the 32-hex `time_series_id`; series are never merged, and
+  conflicting duplicate timestamps within one series raise. Local time is derived from the
+  monitoring location's time-zone fields (IANA zone with DST, fixed offset without). Windows
+  are local calendar days, chunked (`chunk_years` at most 3 under the API's 1100-day cap),
+  paged, half-open so no boundary instant is counted twice, and default to the series'
+  period of record from `time-series-metadata`. `Approved`/`Provisional`/`ESTIMATED` map to
+  `A`/`P`/`e`; other qualifier tokens such as `ICE` are kept verbatim. Tests run offline
+  against trimmed live captures from 2026-09-25 (`tests/fixtures/waterdata_ogc/`, regenerated
+  by `tools/capture_waterdata_fixtures.py`).
+- **`waterdata-ogc` peak backend implemented** (`flowfreq.peak_sources.WaterDataApiBackend`),
+  built against the live Water Data OGC API `peaks` collection, which was verified on
+  2026-09-25. It adds the `USGS-` prefix to the site ID, filters to `parameter_code=00060` so
+  gage-height rows do not duplicate water years, and follows `rel=next` paging. It takes
+  `water_year` from the API's own field. `qualifiers_to_codes` translates qualifier tokens
+  (`HISTORIC`, `LESSTHAN`, …) into the comma-separated NWIS code string that
+  `flowfreq.peak_codes` expects, and drops date-precision and gage-height flags. Unknown tokens
+  are logged at warning level and are never split into characters. An empty result raises.
+  Big Sandy (03606500) and Orestimba (11274500) match their fixtures live. `nwis-legacy`
+  remains the default until the parity test passes. (#29)
 - **Roadmap scaffolding for Phase A (data foundation) and Wave 1 (Columbia River basin)**,
   per `docs/MASTER_ROADMAP.md`. Types, loaders, validation and tests only: no endpoint was
   live-verified and no published coefficient or skew value was transcribed.
@@ -81,6 +107,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   expects `flow_cfs`.
 
 ### Changed
+- **Breaking: no silent regional skew.** `run_ffa`, `compare_engines` and `flowfreq compare`
+  used to fall back to a regional skew of -0.302 (SE 0.55) whenever none was given. They now
+  raise `ValueError` (the CLI raises a usage error) unless the caller makes exactly one choice:
+  - `regional_skew` plus `regional_skew_se`, from a published study;
+  - `station_skew_only=True` (`--station-skew`) for the at-site skew alone; or
+  - `use_default_skew=True` (`--default-skew`) to accept -0.302 explicitly, which logs a
+    warning.
+
+  Why: Bulletin 17C (p. 31) gives no national default, and says the 17B plate 1 estimates
+  "are not recommended for use in flood frequency studies". No publication giving -0.302 has
+  been found; 0.302 is 0.55², plate 1's MSE. peakfq 8.1.0 likewise stops with an error when a
+  weighted skew has no `GenSkew`/`SkewSE`.
+  - The new `resolve_regional_skew()` implements the rule. `run_ffa` now records the choice
+    under `parameters["regional_skew_source"]` (`user`, `default` or `station`).
+  - `regional_skew_se` has no default either, because 0.55 was plate 1's SE.
+  - **Migration:** add `use_default_skew=True` to reproduce old results exactly. Better, pass
+    a published value; `flowfreq.regional_skew.regional_skew_for` covers the states that have
+    one.
+  - `Bulletin17C` itself is unchanged; it never defaulted, and `regional_skew=None` has always
+    meant station skew there.
 - **`diel_variation` and `diel_variation_summary` moved** from `flowfreq.regime` to
   `flowfreq.subdaily`, alongside the other instantaneous-series metrics they share
   their local-day and completeness conventions with. **No import path changed** --
