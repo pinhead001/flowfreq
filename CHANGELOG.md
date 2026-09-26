@@ -65,6 +65,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   parameterized over `IV_PARAMETERS` rather than duplicated. Cached on a separate
   `instantaneous_stage` property so a stage download cannot land where a caller
   expects `flow_cfs`.
+- **`Variable.scale` and `Variable.offset`** in the regression-equation schema
+  (`flowfreq.regression`). The value entering an equation is now
+  `T(scale * x + offset)`, so published terms such as `(FOREST/100 + 1)^b`,
+  `(ELEV/1000)^b` and `(GUTTER + 0.1)^b` are stored exactly as printed, with the
+  published covariance matrix unchanged. Both fields are optional (defaults 1 and 0),
+  so every existing file loads and evaluates identically and `schema_version` stays 1.
+  `log10_plus1` remains as an alias for `log10` with offset 1. `minimum`/`maximum`
+  still apply to the raw value in published units. A transform argument outside its
+  domain (`<= 0` for `log10`) raises a `ValueError` naming the variable, even with
+  `allow_extrapolation=True`. `Variable.to_dict()` writes the JSON form and omits
+  the new fields at their defaults.
 
 ### Changed
 - **`diel_variation` and `diel_variation_summary` moved** from `flowfreq.regime` to
