@@ -171,13 +171,97 @@ class TestCompare:
             return _FakeReport()
 
         monkeypatch.setattr("flowfreq.workflow.compare_engines", _capture)
-        result = CliRunner().invoke(
-            cli, ["compare", "--peaks", str(good_csv), "--default-skew"]
-        )
+        result = CliRunner().invoke(cli, ["compare", "--peaks", str(good_csv), "--default-skew"])
         assert result.exit_code == 0, result.output
         assert seen["use_default_skew"] is True
         assert seen["station_skew_only"] is False
         assert seen["regional_skew"] is None
+
+    def test_historical_and_thresholds_reach_compare_engines(self, tmp_path, monkeypatch):
+        peaks = tmp_path / "peaks.csv"
+        pd.DataFrame({"water_year": [2000, 2001], "peak_flow_cfs": [100.0, 200.0]}).to_csv(
+            peaks, index=False
+        )
+        hist = tmp_path / "hist.csv"
+        pd.DataFrame({"water_year": [1897], "peak_flow_cfs": [25000.0]}).to_csv(hist, index=False)
+        seen = {}
+
+        class _FakeReport:
+            comparison = ComparisonResult(passed=True)
+
+            def to_markdown(self) -> str:
+                return "ok"
+
+        def _capture(**kw):
+            seen.update(kw)
+            return _FakeReport()
+
+        monkeypatch.setattr("flowfreq.workflow.compare_engines", _capture)
+        result = CliRunner().invoke(
+            cli,
+            [
+                "compare",
+                "--station-skew",
+                "--peaks",
+                str(peaks),
+                "--historical",
+                str(hist),
+                "--threshold",
+                "1890",
+                "1929",
+                "18000",
+                "--threshold",
+                "1974",
+                "1987",
+                "5000",
+            ],
+        )
+        assert result.exit_code == 0, result.output
+        assert seen["historical_peaks"] == [(1897, 25000.0)]
+        assert seen["perception_thresholds"] == {(1890, 1929): 18000.0, (1974, 1987): 5000.0}
+
+    def test_neither_flag_passes_none(self, tmp_path, monkeypatch):
+        peaks = tmp_path / "peaks.csv"
+        pd.DataFrame({"water_year": [2000], "peak_flow_cfs": [100.0]}).to_csv(peaks, index=False)
+        seen = {}
+
+        class _FakeReport:
+            comparison = ComparisonResult(passed=True)
+
+            def to_markdown(self) -> str:
+                return "ok"
+
+        monkeypatch.setattr(
+            "flowfreq.workflow.compare_engines", lambda **kw: seen.update(kw) or _FakeReport()
+        )
+        result = CliRunner().invoke(cli, ["compare", "--station-skew", "--peaks", str(peaks)])
+        assert result.exit_code == 0, result.output
+        assert seen["historical_peaks"] is None
+        assert seen["perception_thresholds"] is None
+
+    @pytest.mark.parametrize(
+        "threshold, message",
+        [(["1930", "1920", "100"], "is after end"), (["1920", "1930", "0"], "must be positive")],
+    )
+    def test_bad_threshold_is_a_usage_error(self, tmp_path, threshold, message):
+        peaks = tmp_path / "peaks.csv"
+        pd.DataFrame({"water_year": [2000], "peak_flow_cfs": [100.0]}).to_csv(peaks, index=False)
+        result = CliRunner().invoke(
+            cli, ["compare", "--station-skew", "--peaks", str(peaks), "--threshold", *threshold]
+        )
+        assert result.exit_code == 2
+        assert message in result.output
+
+    def test_historical_csv_needs_the_columns(self, tmp_path):
+        peaks = tmp_path / "peaks.csv"
+        pd.DataFrame({"water_year": [2000], "peak_flow_cfs": [100.0]}).to_csv(peaks, index=False)
+        hist = tmp_path / "hist.csv"
+        pd.DataFrame({"year": [1897], "flow": [25000.0]}).to_csv(hist, index=False)
+        result = CliRunner().invoke(
+            cli, ["compare", "--station-skew", "--peaks", str(peaks), "--historical", str(hist)]
+        )
+        assert result.exit_code == 2
+        assert "--historical CSV is missing" in result.output
 
     def test_output_option_writes_a_file_instead_of_stdout(self, tmp_path, monkeypatch):
         good_csv = tmp_path / "peaks.csv"
