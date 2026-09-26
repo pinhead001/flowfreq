@@ -150,6 +150,8 @@ class FrequencyResults:
     skew_used_mse: Optional[float] = None
     n_zeros: int = 0
     pilf_flows: List[float] = field(default_factory=list)
+    #: peakfq's pseudo effective record length (``as_G_PRL_o``); EMA only.
+    pseudo_record_length: Optional[float] = None
 
 
 @dataclass

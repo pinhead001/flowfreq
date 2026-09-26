@@ -95,5 +95,6 @@ golden:  ## Regenerate Fortran parity golden files (needs the extension)
 	$(PYTHON) tools/gen_fortran_golden.py
 
 clean:  ## Remove build and test artifacts
-	rm -rf build_fortran/mbuild build_fortran/native.ini build_fortran/_emafort*.so
-	rm -rf flowfreq/peakfqr/_emafort*.so .pytest_cache .mypy_cache
+	rm -rf build_fortran/mbuild build_fortran/native.ini build_fortran/_emafort*.so build_fortran/_emafort*.pyd
+	rm -rf flowfreq/peakfqr/_emafort*.so flowfreq/peakfqr/_emafort*.pyd flowfreq/peakfqr/*.dll
+	rm -rf .pytest_cache .mypy_cache
