@@ -5,31 +5,36 @@
 > in progress are tracked under "Roadmap Phase A and Wave 1" in Open Items below.
 
 ## Status
-Last updated: 2026-09-08. Version **0.7.0**.
-Tests: **810 passed, 7 skipped, 1 deselected, 6 xfailed** in ~130 s, via `make clean-verify`
-with the extension genuinely absent (595 before the transposition/QPPQ work below started;
-563 before that, before the Fortran-as-a-selectable-engine work). With the extension built,
-`pytest tests/fortran_parity/` (`make parity`'s exact selection) adds 259 passed, 1
-pre-existing platform-precision failure, 2 xfailed -- see "Done -- the Fortran as a
-selectable engine" for the full account, including the one known failure and why it is not
-this work's to fix.
-CI green on main. (The 608 recorded here on 2026-09-02 was the pre-split suite, which still
-carried the Streamlit app's tests; those moved to `flowfreq-app` in 0.3.0. Run the number, do
-not carry it forward -- it has been wrong in a commit message and a PR body already.)
-Fortran reference: **vendored** at `vendor/peakfqr/` (peakfq 8.1.0, CC0).
-Fortran bridge: builds from those sources via `python build_fortran/build.py`
-(gfortran + meson) and is now **built and checked in CI** by `make parity`.
+Last updated: 2026-09-25. Version **0.8.0** (`pyproject.toml`; tag `v0.8.0` at `cc5baa8`,
+2026-09-11). Unreleased on `main` since: `subdaily.py`, the Phase A / Wave 1 scaffolding
+(PR #26) and the NWIS partial-date fix (PR #41) -- see CHANGELOG.md's Unreleased section.
+Python 3.11–3.14 (`requires-python >= 3.11`; CI matrix in `.github/workflows/ci.yml`).
 
-**2026-09-10/11 addendum**: `flowfreq/streamstats.py` Phase 1 and Phase 2, and three
-small `download_daily_flow` fixes, landed -- see "Done -- StreamStats module Phase 1"
-and "Done -- StreamStats module Phase 2" below. Measured via bare `pytest tests/` (no
-`make`/`clean-verify` -- not installed in that session's environment, see the Windows
-caveats in `CLAUDE.md`), with the Fortran extension present: **1056 passed, 5
-deselected, 7 xfailed**, plus the same 2 pre-existing, environment-specific
-Fortran-precision failures this file already records elsewhere (not this work's to
-fix). Not a `clean-verify` number and not directly comparable to the 810 above;
-recorded here so it isn't lost, not as a
-replacement for it.
+Tests, measured 2026-09-25 on Windows / CPython 3.12 with
+`PYTHONSAFEPATH=1 PYTHONUTF8=1 pytest tests/` (the CI selection; `addopts` deselects
+`requires_network`):
+
+- Extension absent: **1049 passed, 7 skipped, 5 deselected, 6 xfailed**.
+- Extension built (local MSYS2 gfortran): **1228 passed, 2 failed, 5 deselected, 7 xfailed**.
+  The 2 failures are the documented toolchain drift against the Linux-built goldens
+  (CLAUDE.md, Validation Status), not defects:
+  `test_fortran_oracles.py::TestSkewMseOracle::test_reproduces_emafitpr_as_g_mse[big_sandy_03606500]`
+  and `tests/validation/test_reference.py::TestFromEmafit::test_live_call_matches_the_golden_file`.
+  `ci / Fortran parity` is the authoritative parity check.
+
+The strict xfails: four 2012 PeakfqSA manual comparisons (`tests/validation/test_big_sandy.py`,
+a non-reproducible reference), Cains Coulee's `skew_weighted`
+(`tests/fortran_parity/test_wymt_vs_golden.py`, P3 below), the `batch.run_multi_site` bug
+(`tests/test_batch.py`, see "Small open items"), and, with the extension built, Cains
+Coulee's `compare_engines` overall PASS (`test_live_compare_engines.py`), which flips with
+the `skew_weighted` one. Run the number, do not carry it forward -- it has been wrong in a
+commit message and a PR body already.
+
+Every P1, P2 and P3 item is done; the Done sections and "P3 — The `var_mom` port" hold the
+history. Open work is the roadmap (Phase A / Wave 1 below) plus the small items after it.
+Fortran reference: **vendored** at `vendor/peakfqr/` (peakfq 8.1.0, CC0); the bridge builds
+with `python build_fortran/build.py` (gfortran + meson), and CI builds and checks it with
+`make parity`.
 
 ### Environment constraints -- read before starting work
 
@@ -44,8 +49,6 @@ These bit repeatedly and are not discoverable from the code:
   unqualified, this entry cost a session's worth of unnecessary hand-offs -- work was
   set aside as owner-action that the session could have done itself. The web-session
   finding is from `docs/PHASE1_RUNBOOK.md`, which had the distinction right.
-- **`v0.4.0` is now tagged** (confirmed via `git ls-remote --tags origin`, 2026-09-05) --
-  `README.md`'s install line resolves. This item is done; no action needed.
 - **NWIS (`nwis.waterdata.usgs.gov`/`waterservices.usgs.gov`) is blocked by the egress
   proxy, but that does not generalize to every USGS host.** `requires_network` tests
   against NWIS cannot run in a Claude Code session; use the committed fixtures under
@@ -65,38 +68,6 @@ These bit repeatedly and are not discoverable from the code:
   classification, and a mypy version skew. `clean-verify` wipes the tree first.
 - **`vendor/` is a verbatim USGS reference copy. Do not edit anything under it** -- a change
   there silently invalidates every parity comparison made against it.
-
-Every P1 and P2 item is done. **The entire `var_mom` port (TODO.md P3) is now done**, including
-`detrat`, the at-site EMA moment-iteration fix, and the confidence-interval shape fix
-(`VAR_EMAB`/`regmoms`/`ci_ema_m3b`) -- all wired into `Bulletin17C`. What's left is one small,
-understood numerical residual, not a missing routine:
-
-- Big Sandy (37 censored historical gap-year intervals, at-site skew under the HWN floor):
-  weighted skew matches peakfq 8.1.0 to **2.4e-6**, every quantile to **≤0.06%**, mean/std to
-  **~1e-5%** -- the same level Powder River (no censoring at all) has. Confidence intervals now
-  match too: **both bounds within 0.06%** at every AEP tested, asymmetry ratio within 0.0007-0.0022
-  of peakfq's own (was exactly 1.000 everywhere, symmetric by construction, off by as much as 0.4
-  in ratio terms at the AEP-0.01 tail).
-- Cains Coulee (11 PILFs from MGBT, the one parity case whose at-site skew clears the 0.04 HWN
-  floor): at-site skew matches to **0.0002**, native `Wd` to **0.002** against peakfq's 0.184.
-  One real residual remains: `skew_weighted` is still 0.058 skew units off. **Not** a
-  `var_mom`/`mse_ema`/`mn2mvarb` precision limit, as earlier documentation here assumed and a
-  deeper investigation has now corrected -- `mse_ema` called standalone with this site's real
-  post-MGBT group matches the Fortran oracle to 3e-8 relative. The actual gap: `emafitpr`'s own
-  internally-computed, reported `as_G_mse` for this site (0.2212) does not match what the same
-  `mseg_all` Fortran routine gives called standalone with identical inputs (0.0749) -- a ~3x
-  discrepancy, reproducible even from a from-scratch, single-case golden regeneration (ruling
-  out cross-case state contamination), whose exact mechanism inside `emafitpr` was not pinned
-  down despite substantial investigation. See
-  `tests/fortran_parity/test_fortran_oracles.py::TestCainsCouleeAsGMseDiscrepancy` for the full,
-  reproducible account. `tests/fortran_parity/test_wymt_vs_golden.py`'s `test_weighted_skew_matches`
-  is the one still-open `xfail(strict=True)` this leaves in the whole `var_mom`/`detrat`/`var_emab`
-  tree -- and, per its own reasoning, flowfreq's own computation may well be *more* correct than
-  the golden reference here, not less.
-
-The other four `xfail(strict=True)`s left in the suite are all the 2012 PeakfqSA manual
-comparisons (`tests/validation/test_big_sandy.py`), which is a different, non-reproducible
-reference (CLAUDE.md's Test Data section) -- not evidence of anything left to port.
 
 ---
 
@@ -330,6 +301,34 @@ open. Audited 2026-09-25.
         report, and the MT one is superseded and misnumbered. Its
         `RegressionTable` API and blank-template writer are usable as design
         references only.
+
+### Small open items
+
+Each verified still present on 2026-09-25. Where the finding was first recorded
+elsewhere in this file, that entry keeps the history; this list is the open tracker.
+
+- [ ] **#13 Screen donors on basin similarity, not drainage area alone.** Roadmap §5.1
+      (multiple-donor weighting and similarity ranking). The issue was filed against
+      functions that are not in this repo (`screen_donor_ratios`, `assemble_target_fdc`,
+      `PREFERRED_RATIO_BAND`); flowfreq's own area screen is `transpose._check_areas`
+      (area ratio only), and `qppq.rank_donors` ranks by concurrent-flow correlation, which
+      needs a record at the target. No predictor-similarity screen exists in either.
+- [ ] **`batch.run_multi_site` cannot analyze real `fetch_nwis_batch` output.** Dicts
+      in, `PeakRecord` expected, every site swallowed into `{"error": ...}`. Pinned by
+      `tests/test_batch.py::TestAnalyzeSites::test_real_fetch_output_shape_is_analyzable`,
+      `xfail(strict=True)`. The fix needs a decision on which side adapts; see "Modules with
+      no tests".
+- [ ] **`make clean` misses the Windows extension.** `Makefile` `clean` removes
+      `flowfreq/peakfqr/_emafort*.so` only, not `_emafort.cp3xx-win_amd64.pyd` or its four
+      MinGW DLLs, so `make clean-verify` on a Windows machine that has built the extension
+      still tests with it present. See "Done — the Fortran as a selectable engine".
+- [ ] **CLI `compare` has no historical-peak or perception-threshold flags**
+      (`flowfreq/cli.py`, said so in the command's docstring/`--help`). Such records go
+      through `workflow.compare_engines` directly.
+- [ ] **`as_G_PRL_o` (pseudo effective record length) is not surfaced.** Only
+      `validation.reference.ReferenceResult.pseudo_record_length` carries it (from the golden
+      file or a live `emafitpr`); neither engine puts it in `FrequencyResults`. See P3's
+      `VAR_EMAB` entry.
 
 ### Sub-daily metrics follow-ups
 
@@ -837,16 +836,23 @@ the CLOMR/LOMR case this is for.
 
 ### Downstream
 
-- [x] **Keep the app's pin current.** Bumped through every release since -- v0.5.0, v0.6.0,
-      v0.6.1, and now **v0.7.0** -- each time verified rather than assumed:
-      `pip show flowfreq` confirms the tag actually installed, and `flowfreq-app`'s own
-      suite (29 tests) passes identically before and after. v0.7.0 in particular adds
-      `transpose`/`qppq`/`regime.flow_duration_curve`, none of which the app's code path
-      (`workflow.run_ffa` → `Bulletin17C`, never `B17CEngine`) reaches, so **identical
-      output** was the bar and it was met. The app's own `plot_peak_timeseries` copy was
-      deleted in the v0.6.1 switch to this library's `plot_peak_flows_with_thresholds` (see
-      the Follow-ups item below) -- nothing left open on this item. Future bumps follow the
-      same pattern; see `flowfreq-app/CLAUDE.md`'s "one edit, deliberate" note.
+- [ ] **Bump the app's pin to v0.8.0.** `pinhead001/flowfreq-app`'s `requirements.txt`
+      is still `flowfreq @ git+https://github.com/pinhead001/flowfreq@v0.7.0` (its last
+      commit, `3e12af2`/`a9c856b`, 2026-09-08; no open PR there), checked 2026-09-25.
+      v0.8.0 (2026-09-11) adds `streamstats`, which the app does not use, and the
+      `download_daily_flow` fixes, which it does reach: `streamlit_app.py` calls
+      `gage.download_daily_flow(start_date=..., end_date=...)`, so the new date validation
+      and 60 s timeout apply there. The analysis path (`workflow.run_ffa` → `Bulletin17C`) is
+      unchanged, so identical FFA output is still the bar. The next release after that
+      will not be identical: the unreleased partial-date fix (PR #41) keeps peaks the app's
+      `download_peak_flow` call used to drop, so any site with an unknown day or month
+      (Big Sandy's three historic peaks, for one) changes its fitted record.
+
+      History: bumped through v0.5.0, v0.6.0, v0.6.1 and v0.7.0, each verified rather than
+      assumed -- `pip show flowfreq` confirms the tag installed, and the app's own suite (29
+      tests) passes identically before and after. The app's `plot_peak_timeseries` copy was
+      deleted in the v0.6.1 switch to `plot_peak_flows_with_thresholds`. Future bumps follow
+      the same pattern; see `flowfreq-app/CLAUDE.md`'s "one edit, deliberate" note.
 
 ### P3 — The `var_mom` port, now complete
 
@@ -1467,8 +1473,9 @@ done — see the P3 table above and the Done section.)
       Measured after, rather than assumed: **75.4 s → 13.6 s**, two runs each way, identical
       outcomes, and refitting with the cache bypassed gives bit-identical results (max |diff|
       0.0). Bigger than this entry originally estimated, because the suite shares fixtures
-      more heavily than the three-analysis probe suggested. Decorator order is load-bearing
-      and now has a test: `staticmethod` outermost, or Python 3.9 breaks and 3.11 does not.
+      more heavily than the three-analysis probe suggested. Decorator order has a test
+      (`staticmethod` outermost); the reverse broke only on Python 3.9, which is no longer
+      supported.
 
 - [x] **Build the Fortran in one CI job.** New `fortran` job runs `make parity`: build,
       assert the extension imports, then run `tests/fortran_parity/`. The import assertion is
@@ -1476,14 +1483,6 @@ done — see the P3 table above and the Done section.)
       skip all twelve live-vs-golden tests and report green. Verified on Linux/CPython 3.11:
       the extension builds from the vendored sources and the committed goldens are not
       drifted.
-
-- [x] **Lint and smoke-test `app/`.** `app/` joined `PKGS`, so the existing lint job covers it
-      (it was already clean). `tests/test_streamlit_app.py` imports `app/streamlit_app.py`,
-      which is a top-level script, so importing it executes the whole body in Streamlit's bare
-      mode — widgets return defaults, `download_data` is False, nothing contacts NWIS.
-      Confirmed non-vacuous: a `NameError` in an executed branch turns all 13 tests red. Runs
-      in its own `app` job because Streamlit needs Python ≥ 3.10 and the matrix still covers
-      3.9.
 
 ### Fixed after P1/P2: the MOM PILF threshold gap
 
@@ -1500,7 +1499,8 @@ done — see the P3 table above and the Done section.)
       No Fortran oracle exists for this: peakfq 8.1.0 only implements EMA, so unlike the rest of
       the `var_mom` port this is verified by construction (conditional moments checked against a
       direct fit on the surviving peaks; K-factors checked against the `Pc` formula applied by
-      hand) and against `app/ffa_runner`'s existing override tests, not against vendored Fortran.
+      hand) and against the app's `ffa_runner` override tests (now in `flowfreq-app`), not
+      against vendored Fortran.
       `_low_outlier_source()` no longer needs the "reported only" caveat — MOM acts on the
       number it reports now, same as EMA.
 
@@ -1595,8 +1595,8 @@ done — see the P3 table above and the Done section.)
 ---
 
 The 16 phases below were completed in February against the assumption that PeakfqSA was
-a standalone binary. It is not, and `flowfreq/peakfqsa/` wraps an executable that does
-not exist. Kept for the record; see `AGENT_BUILD_INSTRUCTIONS_Claude.md`.
+a standalone binary. It is not, and the `flowfreq/peakfqsa/` wrapper they built has since
+been deleted (P2 above). Kept for the record; see `AGENT_BUILD_INSTRUCTIONS_Claude.md`.
 
 ---
 
@@ -1921,36 +1921,18 @@ subroutine emafitpr(n, ql, qu, tl, tu, dtype,
 
 ---
 
-## Known Limitations
-
-- **Native EMA with historical data**: The native Python EMA implementation can diverge
-  (produce NaN) when processing historical/censored intervals due to numerical instability
-  in the quad integration. This is a known limitation of the existing `bulletin17c.py`
-  implementation. Systematic-only analyses converge reliably.
-
-- **PeakfqSA binary not available**: The PeakfqSA Fortran executable is not available as
-  a standalone binary. The peakfqr R package contains the authoritative Fortran source.
-  The wrapper module is implemented and tested via mocks but cannot be used end-to-end
-  without a standalone executable.
-
-- **Native EMA confidence intervals** — superseded. The Fortran is now vendored, the
-  extension builds, and the question this entry asked has been answered: see the Status
-  block above and `docs/FORTRAN_UPLOAD.md` §6.0 and §6.0b. Two findings worth carrying
-  forward. First, the residual is interval *shape*, not variance magnitude. Second, the
-  2012 PeakfqSA manual values this was measured against are not reproducible by peakfq
-  8.1.0 at all, so part of the original discrepancy was never a defect — the fixture now
-  carries `PEAKFQ_810_*` values for parity work alongside the 2012 ones.
-
 ## Resolved Questions
 
-- PeakfqSA: Not a standalone binary. Use the vendored `vendor/peakfqr/src/` Fortran.
-  `flowfreq/peakfqsa/` wraps a binary that does not exist and is mock-tested only.
+- PeakfqSA: not a standalone binary. The vendored `vendor/peakfqr/src/` Fortran is the
+  reference; `flowfreq/peakfqsa/` was deleted (P2 above).
 - Reference material: vendored into `vendor/peakfqr/` (CC0). No external workspace needed.
 - Big Sandy 2012 manual values: not reproducible by peakfq 8.1.0 — the HWN skew weighting
   postdates the manual and diverges by design on censored records.
 - MGBT: verified line-by-line against the Fortran (`GGBCRITP`/`FP_TNC_CDF`), validated on
   Orestimba Creek (USGS 11274500).
-- Python: CI tests 3.9–3.12; `requires-python >= 3.9`.
-- Regional skew defaults: -0.302 / MSE 0.3025 (Bulletin 17C national map)
-- Git: Commit to dev branch, no push unless asked
-- FrequencyAnalyzer API: Added validate() and to_comparison_dict() to Bulletin17C facade
+- Python: 3.11–3.14, all four in the CI matrix; `requires-python >= 3.11`.
+- Regional skew default: `workflow.B17C_DEFAULT_SKEW = -0.302`, SE 0.55 (MSE 0.3025), is
+  still the silent default in `run_ffa`/`compare_engines` and the CLI. Whether to keep it
+  is an open decision, not a resolved one; see #34 above and roadmap §1.3.
+- FrequencyAnalyzer API: added `validate()` and `to_comparison_dict()` to the `Bulletin17C`
+  facade.

@@ -684,11 +684,25 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
     ):
         super().__init__(peak_flows, regional_skew, regional_skew_mse)
 
+        raw_flows = np.asarray(peak_flows, dtype=float)
         if water_years is not None:
-            self._water_years = np.array(water_years)
+            years = np.asarray(water_years)
+            if len(years) != len(raw_flows):
+                raise ValueError(
+                    f"peak_flows ({len(raw_flows)}) and water_years ({len(years)}) "
+                    "must be the same length"
+                )
         else:
             end_year = datetime.now().year
-            self._water_years = np.arange(end_year - len(peak_flows) + 1, end_year + 1)
+            years = np.arange(end_year - len(raw_flows) + 1, end_year + 1)
+
+        # The base class drops NaN and zero flows from _peak_flows; the years must
+        # be dropped with them, or every peak after the first zero is paired with
+        # the wrong year (zip() in _build_flow_intervals) and the last years fall
+        # off the end. A zero is still an observed year, though -- not a gap -- so
+        # the record's extent and its recorded years keep the zero-flow years.
+        self._water_years = years[~np.isnan(raw_flows) & (raw_flows > 0)]
+        self._recorded_years = years[~np.isnan(raw_flows)]
 
         self._historical_peaks = historical_peaks or []
         self._perception_thresholds = perception_thresholds or {}
@@ -698,11 +712,11 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
 
     def _auto_configure_ema_params(self) -> EMAParameters:
         """Auto-configure EMA parameters from data."""
-        sys_start = int(self._water_years.min())
-        sys_end = int(self._water_years.max())
+        sys_start = int(self._recorded_years.min())
+        sys_end = int(self._recorded_years.max())
 
         all_years = set(range(sys_start, sys_end + 1))
-        recorded_years = set(self._water_years.astype(int))
+        recorded_years = set(self._recorded_years.astype(int))
         gaps = sorted(all_years - recorded_years)
 
         hist_start = None
@@ -785,7 +799,7 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
 
         if self._ema_params.historical_start and self._ema_params.historical_threshold:
             hist_recorded_years = {h[0] for h in self._historical_peaks}
-            sys_years = set(self._water_years.astype(int))
+            sys_years = set(self._recorded_years.astype(int))
 
             for year in range(
                 self._ema_params.historical_start, self._ema_params.historical_end + 1
@@ -1112,6 +1126,33 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
                 wd = 1.0
         as_g_mse = self._adje_skew_mse(mean_log, std_log, at_site_skew, n)
         return n * wd * as_g_mse / r_g_mse
+
+    def _pseudo_record_length(
+        self, mean_log: float, std_log: float, at_site_skew: float, n_systematic: int, n: int
+    ) -> Optional[float]:
+        """peakfq's pseudo effective record length, ``as_G_PRL_o``.
+
+        ``emafit.f:758``: ``eff_n * as_G_mse_Syst / as_G_mse``, where ``eff_n``
+        is the systematic count (at least 10), ``as_G_mse_Syst`` is ``mseg_all``
+        for ``eff_n`` uncensored years, and ``as_G_mse`` is the censoring-aware
+        at-site skew MSE. A diagnostic only -- nothing downstream uses it -- so a
+        failure logs and returns ``None`` rather than failing the fit.
+        """
+        from flowfreq._var_emab import _mseg_all
+
+        eff_n = float(max(n_systematic, 10))
+        try:
+            mse_syst = _mseg_all(
+                np.array([eff_n]),
+                np.array([-99.0]),
+                np.array([99.0]),
+                np.array([0.0, float(std_log) ** 2, float(at_site_skew)]),
+            )
+            mse = self._adje_skew_mse(mean_log, std_log, at_site_skew, n)
+            return eff_n * mse_syst / mse
+        except Exception:
+            logger.warning("Could not compute the pseudo effective record length", exc_info=True)
+            return None
 
     def _ema_iteration(
         self,
@@ -1443,6 +1484,7 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
             mean_log, std_log, skew_station
         )
         at_site_iterations = iteration
+        at_site_moments = (mean_log, std_log, skew_station)
 
         n_systematic = sum(1 for i in self._intervals if i.is_systematic and not i.is_censored)
         n_historical = sum(1 for i in self._intervals if i.is_historical)
@@ -1495,6 +1537,9 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
             ema_converged=converged,
             n_zeros=self._n_zeros,
             pilf_flows=pilf_flows,
+            pseudo_record_length=self._pseudo_record_length(
+                *at_site_moments, n_systematic, n_intervals
+            ),
         )
 
         self._results.quantiles = self.compute_quantiles()
