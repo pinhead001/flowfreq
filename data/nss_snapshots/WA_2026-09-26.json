@@ -1,0 +1,1918 @@
+{
+ "schema": "flowfreq.nss_snapshot/1",
+ "state": "WA",
+ "retrieved_utc": "2026-09-26T05:46:24+00:00",
+ "service": {
+  "templates": "https://streamstats.usgs.gov/nssservices/regions/WA/Scenarios",
+  "estimate": "https://streamstats.usgs.gov/nssservices/Scenarios/Estimate",
+  "unit_system": 2
+ },
+ "tool": "tools/snapshot_nss.py",
+ "note": "Harvested from NSS Scenarios/Estimate at synthetic in-range inputs. NSS supplies no report table, covariance, model-error variance or site count, so this is a cross-check and starting point, not a verified equation library.",
+ "nss_sep_note": "nss_sep is NSS's raw 'sep' field, stored verbatim. It is not confirmed to be the report's log10 standard error of prediction (MT NW region: 0.043 at 4% AEP vs 0.41 at 66.7%), so it is never mapped to sep_log.",
+ "statistic_groups_requested": [
+  "PFS"
+ ],
+ "statistic_groups_missing": [],
+ "summary": {
+  "statistic_groups": 1,
+  "regions": 4,
+  "regions_resolved": 4,
+  "regions_unresolved": 0,
+  "equations": 32,
+  "equations_parsed": 32,
+  "equations_refused": 0,
+  "round_trip_ok": 32,
+  "round_trip_failed": 0
+ },
+ "citations": {
+  "150": {
+   "title": "2016, Magnitude, frequency, and trends of floods at gaged and ungaged sites in Washington, based on data through water year 2014 (ver 1.1, October 2016): U.S. Geological Survey Scientific Investigations Report 2016\u20135118, 70 p.",
+   "author": "Mastin, M.C., Konrad, C.P., Veilleux, A.G., and Tecca, A.E.,",
+   "citation_url": "http://dx.doi.org/10.3133/sir20165118",
+   "last_year_of_data": 2014
+  }
+ },
+ "regions": [
+  {
+   "statistic_group_id": 2,
+   "statistic_group_code": "PFS",
+   "region_id": 717,
+   "region_code": "GC1750",
+   "region_name": "Peak_Region_1_2016_5118",
+   "citation_id": 150,
+   "status": "resolved",
+   "parameters": [
+    {
+     "code": "DRNAREA",
+     "name": "Drainage Area",
+     "units": "mi^2",
+     "min": 0.25,
+     "max": 3310.0,
+     "submitted": 28.766299727285052
+    },
+    {
+     "code": "PRECPRIS10",
+     "name": "Mean Annual Precip PRISM 1981 2010",
+     "units": "in",
+     "min": 9.82,
+     "max": 52.5,
+     "submitted": 22.705726150026564
+    },
+    {
+     "code": "CANOPY_PCT",
+     "name": "Percent Area Under Canopy",
+     "units": "%",
+     "min": 0.0,
+     "max": 77.4,
+     "submitted": 38.7
+    }
+   ],
+   "gating_values": {},
+   "equations": [
+    {
+     "statistic_code": "PK50AEP",
+     "statistic_name": "50-percent AEP flood",
+     "aep": 0.5,
+     "unit": "ft^3/s",
+     "equation": "3.846*DRNAREA^0.745*10^(0.032*PRECPRIS10)/10^(0.0078*CANOPY_PCT)",
+     "nss_value": 125.0,
+     "nss_sep": 0.34565369015397557,
+     "asep_pct": 95.0,
+     "errors": [
+      {
+       "code": "ASEp",
+       "name": "Average standard error of prediction",
+       "value": 95.0
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": {
+      "lower": 33.3,
+      "upper": 469.0
+     },
+     "parsed": {
+      "intercept": 0.5850092799024611,
+      "variables": [
+       {
+        "code": "DRNAREA",
+        "transform": "log10"
+       },
+       {
+        "code": "PRECPRIS10",
+        "transform": "identity"
+       },
+       {
+        "code": "CANOPY_PCT",
+        "transform": "identity"
+       }
+      ],
+      "coefficients": [
+       0.745,
+       0.032,
+       -0.0078
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 124.91111861723591,
+      "nss_rounding_bound": 0.5,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 124.91111861723603,
+      "rel_vs_direct": 9.101418591085206e-16,
+      "rel_vs_nss": 0.0007110510621117783,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK20AEP",
+     "statistic_name": "20-percent AEP flood",
+     "aep": 0.2,
+     "unit": "ft^3/s",
+     "equation": "12.106*DRNAREA^0.713*10^(0.028*PRECPRIS10)/10^(0.0098*CANOPY_PCT)",
+     "nss_value": 240.0,
+     "nss_sep": 0.27714682071027696,
+     "asep_pct": 71.9,
+     "errors": [
+      {
+       "code": "ASEp",
+       "name": "Average standard error of prediction",
+       "value": 71.9
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": {
+      "lower": 83.1,
+      "upper": 693.0
+     },
+     "parsed": {
+      "intercept": 1.0830006695765333,
+      "variables": [
+       {
+        "code": "DRNAREA",
+        "transform": "log10"
+       },
+       {
+        "code": "PRECPRIS10",
+        "transform": "identity"
+       },
+       {
+        "code": "CANOPY_PCT",
+        "transform": "identity"
+       }
+      ],
+      "coefficients": [
+       0.713,
+       0.028,
+       -0.0098
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 239.70952683514548,
+      "nss_rounding_bound": 0.5,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 239.70952683514548,
+      "rel_vs_direct": 0.0,
+      "rel_vs_nss": 0.0012103048535604918,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK10AEP",
+     "statistic_name": "10-percent AEP flood",
+     "aep": 0.1,
+     "unit": "ft^3/s",
+     "equation": "22.08*DRNAREA^0.695*10^(0.026*PRECPRIS10)/10^(0.0107*CANOPY_PCT)",
+     "nss_value": 342.0,
+     "nss_sep": 0.27371735396419145,
+     "asep_pct": 70.7,
+     "errors": [
+      {
+       "code": "ASEp",
+       "name": "Average standard error of prediction",
+       "value": 70.7
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": {
+      "lower": 120.0,
+      "upper": 975.0
+     },
+     "parsed": {
+      "intercept": 1.3439990690571613,
+      "variables": [
+       {
+        "code": "DRNAREA",
+        "transform": "log10"
+       },
+       {
+        "code": "PRECPRIS10",
+        "transform": "identity"
+       },
+       {
+        "code": "CANOPY_PCT",
+        "transform": "identity"
+       }
+      ],
+      "coefficients": [
+       0.695,
+       0.026,
+       -0.0107
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 342.1230458508765,
+      "nss_rounding_bound": 0.5,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 342.12304585087657,
+      "rel_vs_direct": 1.6614904944341206e-16,
+      "rel_vs_nss": 0.0003597831896975586,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK4AEP",
+     "statistic_name": "4-percent AEP flood",
+     "aep": 0.04,
+     "unit": "ft^3/s",
+     "equation": "42.17*DRNAREA^0.674*10^(0.024*PRECPRIS10)/10^(0.0117*CANOPY_PCT)",
+     "nss_value": 502.0,
+     "nss_sep": 0.29469858683077826,
+     "asep_pct": 77.4,
+     "errors": [
+      {
+       "code": "ASEp",
+       "name": "Average standard error of prediction",
+       "value": 77.4
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": {
+      "lower": 163.0,
+      "upper": 1550.0
+     },
+     "parsed": {
+      "intercept": 1.6250036010148634,
+      "variables": [
+       {
+        "code": "DRNAREA",
+        "transform": "log10"
+       },
+       {
+        "code": "PRECPRIS10",
+        "transform": "identity"
+       },
+       {
+        "code": "CANOPY_PCT",
+        "transform": "identity"
+       }
+      ],
+      "coefficients": [
+       0.674,
+       0.024,
+       -0.0117
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 501.69392874574135,
+      "nss_rounding_bound": 0.5,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 501.69392874574163,
+      "rel_vs_direct": 5.665149168031519e-16,
+      "rel_vs_nss": 0.0006097036937417732,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK2AEP",
+     "statistic_name": "2-percent AEP flood",
+     "aep": 0.02,
+     "unit": "ft^3/s",
+     "equation": "63.826*DRNAREA^0.661*10^(0.023*PRECPRIS10)/10^(0.0124*CANOPY_PCT)",
+     "nss_value": 648.0,
+     "nss_sep": 0.31588761369363916,
+     "asep_pct": 84.8,
+     "errors": [
+      {
+       "code": "ASEp",
+       "name": "Average standard error of prediction",
+       "value": 84.8
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": {
+      "lower": 193.0,
+      "upper": 2170.0
+     },
+     "parsed": {
+      "intercept": 1.8049976278802002,
+      "variables": [
+       {
+        "code": "DRNAREA",
+        "transform": "log10"
+       },
+       {
+        "code": "PRECPRIS10",
+        "transform": "identity"
+       },
+       {
+        "code": "CANOPY_PCT",
+        "transform": "identity"
+       }
+      ],
+      "coefficients": [
+       0.661,
+       0.023,
+       -0.0124
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 648.1442225269323,
+      "nss_rounding_bound": 0.5,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 648.1442225269317,
+      "rel_vs_direct": 8.770180599495509e-16,
+      "rel_vs_nss": 0.00022256562798099542,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK1AEP",
+     "statistic_name": "1-percent AEP flood",
+     "aep": 0.01,
+     "unit": "ft^3/s",
+     "equation": "92.47*DRNAREA^0.649*10^(0.022*PRECPRIS10)/10^(0.0130*CANOPY_PCT)",
+     "nss_value": 811.0,
+     "nss_sep": 0.34295525007688876,
+     "asep_pct": 93.6,
+     "errors": [
+      {
+       "code": "ASEp",
+       "name": "Average standard error of prediction",
+       "value": 93.6
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": {
+      "lower": 218.0,
+      "upper": 3010.0
+     },
+     "parsed": {
+      "intercept": 1.966000857628784,
+      "variables": [
+       {
+        "code": "DRNAREA",
+        "transform": "log10"
+       },
+       {
+        "code": "PRECPRIS10",
+        "transform": "identity"
+       },
+       {
+        "code": "CANOPY_PCT",
+        "transform": "identity"
+       }
+      ],
+      "coefficients": [
+       0.649,
+       0.022,
+       -0.013
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 811.4140991106058,
+      "nss_rounding_bound": 0.5,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 811.4140991106052,
+      "rel_vs_direct": 7.005475862831853e-16,
+      "rel_vs_nss": 0.0005106030956907608,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK0_5AEP",
+     "statistic_name": "0.5-percent AEP flood",
+     "aep": 0.005,
+     "unit": "ft^3/s",
+     "equation": "129.42*DRNAREA^0.637*10^(0.021*PRECPRIS10)/10^(0.0136*CANOPY_PCT)",
+     "nss_value": 981.0,
+     "nss_sep": 0.3675633335543226,
+     "asep_pct": 104.0,
+     "errors": [
+      {
+       "code": "ASEp",
+       "name": "Average standard error of prediction",
+       "value": 104.0
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": {
+      "lower": 240.0,
+      "upper": 4000.0
+     },
+     "parsed": {
+      "intercept": 2.1120013954861885,
+      "variables": [
+       {
+        "code": "DRNAREA",
+        "transform": "log10"
+       },
+       {
+        "code": "PRECPRIS10",
+        "transform": "identity"
+       },
+       {
+        "code": "CANOPY_PCT",
+        "transform": "identity"
+       }
+      ],
+      "coefficients": [
+       0.637,
+       0.021,
+       -0.0136
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 981.3202333029267,
+      "nss_rounding_bound": 0.5,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 981.3202333029259,
+      "rel_vs_direct": 8.109563392703958e-16,
+      "rel_vs_nss": 0.00032643557892546917,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK0_2AEP",
+     "statistic_name": "0.2-percent AEP flood",
+     "aep": 0.002,
+     "unit": "ft^3/s",
+     "equation": "193.2*DRNAREA^0.624*10^(0.020*PRECPRIS10)/10^(0.0143*CANOPY_PCT)",
+     "nss_value": 1250.0,
+     "nss_sep": 0.4034966867317429,
+     "asep_pct": 119.0,
+     "errors": [
+      {
+       "code": "ASEp",
+       "name": "Average standard error of prediction",
+       "value": 119.0
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": {
+      "lower": 267.0,
+      "upper": 5850.0
+     },
+     "parsed": {
+      "intercept": 2.2860071220794747,
+      "variables": [
+       {
+        "code": "DRNAREA",
+        "transform": "log10"
+       },
+       {
+        "code": "PRECPRIS10",
+        "transform": "identity"
+       },
+       {
+        "code": "CANOPY_PCT",
+        "transform": "identity"
+       }
+      ],
+      "coefficients": [
+       0.624,
+       0.02,
+       -0.0143
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 1250.4181296720537,
+      "nss_rounding_bound": 5.0,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 1250.4181296720544,
+      "rel_vs_direct": 5.455143444765916e-16,
+      "rel_vs_nss": 0.0003345037376435357,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    }
+   ]
+  },
+  {
+   "statistic_group_id": 2,
+   "statistic_group_code": "PFS",
+   "region_id": 718,
+   "region_code": "GC1751",
+   "region_name": "Peak_Region_2_2016_5118",
+   "citation_id": 150,
+   "status": "resolved",
+   "parameters": [
+    {
+     "code": "DRNAREA",
+     "name": "Drainage Area",
+     "units": "mi^2",
+     "min": 0.42,
+     "max": 1330.0,
+     "submitted": 23.634720222587784
+    },
+    {
+     "code": "PRECPRIS10",
+     "name": "Mean Annual Precip PRISM 1981 2010",
+     "units": "in",
+     "min": 8.86,
+     "max": 84.2,
+     "submitted": 27.3132202422197
+    },
+    {
+     "code": "CANOPY_PCT",
+     "name": "Percent Area Under Canopy",
+     "units": "%",
+     "min": 0.0,
+     "max": 81.8,
+     "submitted": 40.9
+    }
+   ],
+   "gating_values": {},
+   "equations": [
+    {
+     "statistic_code": "PK50AEP",
+     "statistic_name": "50-percent AEP flood",
+     "aep": 0.5,
+     "unit": "ft^3/s",
+     "equation": "1.445*DRNAREA^0.877*10^(0.0253*PRECPRIS10)/10^(0.0020*CANOPY_PCT)",
+     "nss_value": 94.1,
+     "nss_sep": 0.2904372260157319,
+     "asep_pct": 77.2,
+     "errors": [
+      {
+       "code": "ASEp",
+       "name": "Average standard error of prediction",
+       "value": 77.2
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": {
+      "lower": 30.9,
+      "upper": 286.0
+     },
+     "parsed": {
+      "intercept": 0.15986784709256668,
+      "variables": [
+       {
+        "code": "DRNAREA",
+        "transform": "log10"
+       },
+       {
+        "code": "PRECPRIS10",
+        "transform": "identity"
+       },
+       {
+        "code": "CANOPY_PCT",
+        "transform": "identity"
+       }
+      ],
+      "coefficients": [
+       0.877,
+       0.0253,
+       -0.002
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 94.1230686047861,
+      "nss_rounding_bound": 0.05,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 94.12306860478611,
+      "rel_vs_direct": 1.5098163421415897e-16,
+      "rel_vs_nss": 0.0002451498914571561,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK20AEP",
+     "statistic_name": "20-percent AEP flood",
+     "aep": 0.2,
+     "unit": "ft^3/s",
+     "equation": "5.768*DRNAREA^0.860*10^(0.0214*PRECPRIS10)/10^(0.0061*CANOPY_PCT)",
+     "nss_value": 189.0,
+     "nss_sep": 0.2651450705037721,
+     "asep_pct": 69.1,
+     "errors": [
+      {
+       "code": "ASEp",
+       "name": "Average standard error of prediction",
+       "value": 69.1
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": {
+      "lower": 68.5,
+      "upper": 522.0
+     },
+     "parsed": {
+      "intercept": 0.7610252517113726,
+      "variables": [
+       {
+        "code": "DRNAREA",
+        "transform": "log10"
+       },
+       {
+        "code": "PRECPRIS10",
+        "transform": "identity"
+       },
+       {
+        "code": "CANOPY_PCT",
+        "transform": "identity"
+       }
+      ],
+      "coefficients": [
+       0.86,
+       0.0214,
+       -0.0061
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 189.36144778459177,
+      "nss_rounding_bound": 0.5,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 189.3614477845918,
+      "rel_vs_direct": 1.5009237499459308e-16,
+      "rel_vs_nss": 0.0019124221406973713,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK10AEP",
+     "statistic_name": "10-percent AEP flood",
+     "aep": 0.1,
+     "unit": "ft^3/s",
+     "equation": "12.106*DRNAREA^0.847*10^(0.0194*PRECPRIS10)/10^(0.0082*CANOPY_PCT)",
+     "nss_value": 276.0,
+     "nss_sep": 0.27492048039710687,
+     "asep_pct": 72.2,
+     "errors": [
+      {
+       "code": "ASEp",
+       "name": "Average standard error of prediction",
+       "value": 72.2
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": {
+      "lower": 96.3,
+      "upper": 791.0
+     },
+     "parsed": {
+      "intercept": 1.0830006695765333,
+      "variables": [
+       {
+        "code": "DRNAREA",
+        "transform": "log10"
+       },
+       {
+        "code": "PRECPRIS10",
+        "transform": "identity"
+       },
+       {
+        "code": "CANOPY_PCT",
+        "transform": "identity"
+       }
+      ],
+      "coefficients": [
+       0.847,
+       0.0194,
+       -0.0082
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 275.99066106073855,
+      "nss_rounding_bound": 0.5,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 275.99066106073855,
+      "rel_vs_direct": 0.0,
+      "rel_vs_nss": 3.3836736454543534e-05,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK4AEP",
+     "statistic_name": "4-percent AEP flood",
+     "aep": 0.04,
+     "unit": "ft^3/s",
+     "equation": "26.485*DRNAREA^0.833*10^(0.0174*PRECPRIS10)/10^(0.0105*CANOPY_PCT)",
+     "nss_value": 410.0,
+     "nss_sep": 0.3018340304001336,
+     "asep_pct": 81.2,
+     "errors": [
+      {
+       "code": "ASEp",
+       "name": "Average standard error of prediction",
+       "value": 81.2
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": {
+      "lower": 129.0,
+      "upper": 1300.0
+     },
+     "parsed": {
+      "intercept": 1.4229999772716164,
+      "variables": [
+       {
+        "code": "DRNAREA",
+        "transform": "log10"
+       },
+       {
+        "code": "PRECPRIS10",
+        "transform": "identity"
+       },
+       {
+        "code": "CANOPY_PCT",
+        "transform": "identity"
+       }
+      ],
+      "coefficients": [
+       0.833,
+       0.0174,
+       -0.0105
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 410.1734516821028,
+      "nss_rounding_bound": 0.5,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 410.17345168210284,
+      "rel_vs_direct": 1.3858385672621112e-16,
+      "rel_vs_nss": 0.00042305288317764987,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK2AEP",
+     "statistic_name": "2-percent AEP flood",
+     "aep": 0.02,
+     "unit": "ft^3/s",
+     "equation": "43.853*DRNAREA^0.823*10^(0.0162*PRECPRIS10)/10^(0.0119*CANOPY_PCT)",
+     "nss_value": 535.0,
+     "nss_sep": 0.32489998774265033,
+     "asep_pct": 89.2,
+     "errors": [
+      {
+       "code": "ASEp",
+       "name": "Average standard error of prediction",
+       "value": 89.2
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": {
+      "lower": 154.0,
+      "upper": 1860.0
+     },
+     "parsed": {
+      "intercept": 1.6419993089649858,
+      "variables": [
+       {
+        "code": "DRNAREA",
+        "transform": "log10"
+       },
+       {
+        "code": "PRECPRIS10",
+        "transform": "identity"
+       },
+       {
+        "code": "CANOPY_PCT",
+        "transform": "identity"
+       }
+      ],
+      "coefficients": [
+       0.823,
+       0.0162,
+       -0.0119
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 534.8050630861849,
+      "nss_rounding_bound": 0.5,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 534.8050630861851,
+      "rel_vs_direct": 4.2515243616268895e-16,
+      "rel_vs_nss": 0.0003643680632054197,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK1AEP",
+     "statistic_name": "1-percent AEP flood",
+     "aep": 0.01,
+     "unit": "ft^3/s",
+     "equation": "68.549*DRNAREA^0.814*10^(0.0151*PRECPRIS10)/10^(0.0132*CANOPY_PCT)",
+     "nss_value": 671.0,
+     "nss_sep": 0.3464222063257826,
+     "asep_pct": 96.9,
+     "errors": [
+      {
+       "code": "ASEp",
+       "name": "Average standard error of prediction",
+       "value": 96.9
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": {
+      "lower": 178.0,
+      "upper": 2530.0
+     },
+     "parsed": {
+      "intercept": 1.836001123638301,
+      "variables": [
+       {
+        "code": "DRNAREA",
+        "transform": "log10"
+       },
+       {
+        "code": "PRECPRIS10",
+        "transform": "identity"
+       },
+       {
+        "code": "CANOPY_PCT",
+        "transform": "identity"
+       }
+      ],
+      "coefficients": [
+       0.814,
+       0.0151,
+       -0.0132
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 670.8429010323453,
+      "nss_rounding_bound": 0.5,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 670.842901032345,
+      "rel_vs_direct": 3.389372908222354e-16,
+      "rel_vs_nss": 0.0002341266283978753,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK0_5AEP",
+     "statistic_name": "0.5-percent AEP flood",
+     "aep": 0.005,
+     "unit": "ft^3/s",
+     "equation": "103.514*DRNAREA^0.806*10^(0.0141*PRECPRIS10)/10^(0.0145*CANOPY_PCT)",
+     "nss_value": 821.0,
+     "nss_sep": 0.3694843008362731,
+     "asep_pct": 106.0,
+     "errors": [
+      {
+       "code": "ASEp",
+       "name": "Average standard error of prediction",
+       "value": 106.0
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": {
+      "lower": 199.0,
+      "upper": 3380.0
+     },
+     "parsed": {
+      "intercept": 2.0149990909675037,
+      "variables": [
+       {
+        "code": "DRNAREA",
+        "transform": "log10"
+       },
+       {
+        "code": "PRECPRIS10",
+        "transform": "identity"
+       },
+       {
+        "code": "CANOPY_PCT",
+        "transform": "identity"
+       }
+      ],
+      "coefficients": [
+       0.806,
+       0.0141,
+       -0.0145
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 820.6295884085355,
+      "nss_rounding_bound": 0.5,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 820.6295884085353,
+      "rel_vs_direct": 2.770722365545979e-16,
+      "rel_vs_nss": 0.0004511712441714306,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK0_2AEP",
+     "statistic_name": "0.2-percent AEP flood",
+     "aep": 0.002,
+     "unit": "ft^3/s",
+     "equation": "169.82*DRNAREA^0.796*10^(0.0130*PRECPRIS10)/10^(0.0159*CANOPY_PCT)",
+     "nss_value": 1070.0,
+     "nss_sep": 0.40024998640882364,
+     "asep_pct": 120.0,
+     "errors": [
+      {
+       "code": "ASEp",
+       "name": "Average standard error of prediction",
+       "value": 120.0
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": {
+      "lower": 231.0,
+      "upper": 4950.0
+     },
+     "parsed": {
+      "intercept": 2.229988836544811,
+      "variables": [
+       {
+        "code": "DRNAREA",
+        "transform": "log10"
+       },
+       {
+        "code": "PRECPRIS10",
+        "transform": "identity"
+       },
+       {
+        "code": "CANOPY_PCT",
+        "transform": "identity"
+       }
+      ],
+      "coefficients": [
+       0.796,
+       0.013,
+       -0.0159
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 1066.8340544679938,
+      "nss_rounding_bound": 5.0,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 1066.8340544679938,
+      "rel_vs_direct": 0.0,
+      "rel_vs_nss": 0.0029588276000057593,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    }
+   ]
+  },
+  {
+   "statistic_group_id": 2,
+   "statistic_group_code": "PFS",
+   "region_id": 719,
+   "region_code": "GC1752",
+   "region_name": "Peak_Region_3_2016_5118",
+   "citation_id": 150,
+   "status": "resolved",
+   "parameters": [
+    {
+     "code": "DRNAREA",
+     "name": "Drainage Area",
+     "units": "mi^2",
+     "min": 0.08,
+     "max": 2610.0,
+     "submitted": 14.449913494550755
+    },
+    {
+     "code": "PRECPRIS10",
+     "name": "Mean Annual Precip PRISM 1981 2010",
+     "units": "in",
+     "min": 33.2,
+     "max": 168.0,
+     "submitted": 74.68333147362938
+    }
+   ],
+   "gating_values": {},
+   "equations": [
+    {
+     "statistic_code": "PK50AEP",
+     "statistic_name": "50-percent AEP flood",
+     "aep": 0.5,
+     "unit": "ft^3/s",
+     "equation": "0.0294*DRNAREA^0.899*PRECPRIS10^1.750",
+     "nss_value": 615.0,
+     "nss_sep": 0.17762513380825437,
+     "asep_pct": 43.2,
+     "errors": [
+      {
+       "code": "ASEp",
+       "name": "Average standard error of prediction",
+       "value": 43.2
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": {
+      "lower": 312.0,
+      "upper": 1210.0
+     },
+     "parsed": {
+      "intercept": -1.5316526695878427,
+      "variables": [
+       {
+        "code": "DRNAREA",
+        "transform": "log10"
+       },
+       {
+        "code": "PRECPRIS10",
+        "transform": "log10"
+       }
+      ],
+      "coefficients": [
+       0.899,
+       1.75
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 615.4710536687742,
+      "nss_rounding_bound": 0.5,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 615.4710536687741,
+      "rel_vs_direct": 1.8471516579689297e-16,
+      "rel_vs_nss": 0.0007659409248358722,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK20AEP",
+     "statistic_name": "20-percent AEP flood",
+     "aep": 0.2,
+     "unit": "ft^3/s",
+     "equation": "0.0565*DRNAREA^0.895*PRECPRIS10^1.700",
+     "nss_value": 943.0,
+     "nss_sep": 0.18338468413489128,
+     "asep_pct": 44.4,
+     "errors": [
+      {
+       "code": "ASEp",
+       "name": "Average standard error of prediction",
+       "value": 44.4
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": {
+      "lower": 469.0,
+      "upper": 1900.0
+     },
+     "parsed": {
+      "intercept": -1.2479515521805615,
+      "variables": [
+       {
+        "code": "DRNAREA",
+        "transform": "log10"
+       },
+       {
+        "code": "PRECPRIS10",
+        "transform": "log10"
+       }
+      ],
+      "coefficients": [
+       0.895,
+       1.7
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 943.2093660580988,
+      "nss_rounding_bound": 0.5,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 943.2093660580989,
+      "rel_vs_direct": 1.20531921981162e-16,
+      "rel_vs_nss": 0.00022202127051846031,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK10AEP",
+     "statistic_name": "10-percent AEP flood",
+     "aep": 0.1,
+     "unit": "ft^3/s",
+     "equation": "0.0794*DRNAREA^0.895*PRECPRIS10^1.670",
+     "nss_value": 1160.0,
+     "nss_sep": 0.18627452434617664,
+     "asep_pct": 45.6,
+     "errors": [
+      {
+       "code": "ASEp",
+       "name": "Average standard error of prediction",
+       "value": 45.6
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": {
+      "lower": 570.0,
+      "upper": 2360.0
+     },
+     "parsed": {
+      "intercept": -1.1001794975729038,
+      "variables": [
+       {
+        "code": "DRNAREA",
+        "transform": "log10"
+       },
+       {
+        "code": "PRECPRIS10",
+        "transform": "log10"
+       }
+      ],
+      "coefficients": [
+       0.895,
+       1.67
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 1164.6178675801361,
+      "nss_rounding_bound": 5.0,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 1164.6178675801357,
+      "rel_vs_direct": 3.9046915176679054e-16,
+      "rel_vs_nss": 0.0039809203277031725,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK4AEP",
+     "statistic_name": "4-percent AEP flood",
+     "aep": 0.04,
+     "unit": "ft^3/s",
+     "equation": "0.115*DRNAREA^0.896*PRECPRIS10^1.634",
+     "nss_value": 1450.0,
+     "nss_sep": 0.19699237907576284,
+     "asep_pct": 48.1,
+     "errors": [
+      {
+       "code": "ASEp",
+       "name": "Average standard error of prediction",
+       "value": 48.1
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": {
+      "lower": 684.0,
+      "upper": 3070.0
+     },
+     "parsed": {
+      "intercept": -0.9393021596463883,
+      "variables": [
+       {
+        "code": "DRNAREA",
+        "transform": "log10"
+       },
+       {
+        "code": "PRECPRIS10",
+        "transform": "log10"
+       }
+      ],
+      "coefficients": [
+       0.896,
+       1.634
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 1448.0534723379508,
+      "nss_rounding_bound": 5.0,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 1448.053472337952,
+      "rel_vs_direct": 7.851011022270004e-16,
+      "rel_vs_nss": 0.0013424328703779886,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK2AEP",
+     "statistic_name": "2-percent AEP flood",
+     "aep": 0.02,
+     "unit": "ft^3/s",
+     "equation": "0.146*DRNAREA^0.897*PRECPRIS10^1.609",
+     "nss_value": 1650.0,
+     "nss_sep": 0.20473235227432873,
+     "asep_pct": 50.5,
+     "errors": [
+      {
+       "code": "ASEp",
+       "name": "Average standard error of prediction",
+       "value": 50.5
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": {
+      "lower": 756.0,
+      "upper": 3600.0
+     },
+     "parsed": {
+      "intercept": -0.835647144215563,
+      "variables": [
+       {
+        "code": "DRNAREA",
+        "transform": "log10"
+       },
+       {
+        "code": "PRECPRIS10",
+        "transform": "log10"
+       }
+      ],
+      "coefficients": [
+       0.897,
+       1.609
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 1654.8890714581612,
+      "nss_rounding_bound": 5.0,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 1654.8890714581603,
+      "rel_vs_direct": 5.495804627989665e-16,
+      "rel_vs_nss": 0.0029630736110062353,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK1AEP",
+     "statistic_name": "1-percent AEP flood",
+     "aep": 0.01,
+     "unit": "ft^3/s",
+     "equation": "0.182*DRNAREA^0.898*PRECPRIS10^1.587",
+     "nss_value": 1880.0,
+     "nss_sep": 0.20964603713041277,
+     "asep_pct": 51.8,
+     "errors": [
+      {
+       "code": "ASEp",
+       "name": "Average standard error of prediction",
+       "value": 51.8
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": {
+      "lower": 845.0,
+      "upper": 4180.0
+     },
+     "parsed": {
+      "intercept": -0.7399286120149252,
+      "variables": [
+       {
+        "code": "DRNAREA",
+        "transform": "log10"
+       },
+       {
+        "code": "PRECPRIS10",
+        "transform": "log10"
+       }
+      ],
+      "coefficients": [
+       0.898,
+       1.587
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 1881.206039738718,
+      "nss_rounding_bound": 5.0,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 1881.2060397387181,
+      "rel_vs_direct": 1.2086590763593984e-16,
+      "rel_vs_nss": 0.000641510499318148,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK0_5AEP",
+     "statistic_name": "0.5-percent AEP flood",
+     "aep": 0.005,
+     "unit": "ft^3/s",
+     "equation": "0.221*DRNAREA^0.899*PRECPRIS10^1.567",
+     "nss_value": 2100.0,
+     "nss_sep": 0.21932669732152987,
+     "asep_pct": 54.2,
+     "errors": [
+      {
+       "code": "ASEp",
+       "name": "Average standard error of prediction",
+       "value": 54.2
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": {
+      "lower": 910.0,
+      "upper": 4850.0
+     },
+     "parsed": {
+      "intercept": -0.6556077263148893,
+      "variables": [
+       {
+        "code": "DRNAREA",
+        "transform": "log10"
+       },
+       {
+        "code": "PRECPRIS10",
+        "transform": "log10"
+       }
+      ],
+      "coefficients": [
+       0.899,
+       1.567
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 2101.128635801524,
+      "nss_rounding_bound": 5.0,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 2101.128635801524,
+      "rel_vs_direct": 0.0,
+      "rel_vs_nss": 0.0005374456197733664,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK0_2AEP",
+     "statistic_name": "0.2-percent AEP flood",
+     "aep": 0.002,
+     "unit": "ft^3/s",
+     "equation": "0.281*DRNAREA^0.900*PRECPRIS10^1.542",
+     "nss_value": 2400.0,
+     "nss_sep": 0.2306761542765686,
+     "asep_pct": 57.7,
+     "errors": [
+      {
+       "code": "ASEp",
+       "name": "Average standard error of prediction",
+       "value": 57.7
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": {
+      "lower": 996.0,
+      "upper": 5780.0
+     },
+     "parsed": {
+      "intercept": -0.5512936800949201,
+      "variables": [
+       {
+        "code": "DRNAREA",
+        "transform": "log10"
+       },
+       {
+        "code": "PRECPRIS10",
+        "transform": "log10"
+       }
+      ],
+      "coefficients": [
+       0.9,
+       1.542
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 2404.8941233399955,
+      "nss_rounding_bound": 5.0,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 2404.8941233399937,
+      "rel_vs_direct": 7.56369848423757e-16,
+      "rel_vs_nss": 0.0020392180583307133,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    }
+   ]
+  },
+  {
+   "statistic_group_id": 2,
+   "statistic_group_code": "PFS",
+   "region_id": 720,
+   "region_code": "GC1753",
+   "region_name": "Peak_Region_4_2016_5118",
+   "citation_id": 150,
+   "status": "resolved",
+   "parameters": [
+    {
+     "code": "DRNAREA",
+     "name": "Drainage Area",
+     "units": "mi^2",
+     "min": 0.18,
+     "max": 2230.0,
+     "submitted": 20.0349694284768
+    },
+    {
+     "code": "PRECPRIS10",
+     "name": "Mean Annual Precip PRISM 1981 2010",
+     "units": "in",
+     "min": 11.9,
+     "max": 187.0,
+     "submitted": 47.17308554673947
+    }
+   ],
+   "gating_values": {},
+   "equations": [
+    {
+     "statistic_code": "PK50AEP",
+     "statistic_name": "50-percent AEP flood",
+     "aep": 0.5,
+     "unit": "ft^3/s",
+     "equation": "15.346*DRNAREA^0.911*10^(0.0073*PRECPRIS10)",
+     "nss_value": 520.0,
+     "nss_sep": 0.301026890004578,
+     "asep_pct": 52.5,
+     "errors": [
+      {
+       "code": "ASEp",
+       "name": "Average standard error of prediction",
+       "value": 52.5
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": {
+      "lower": 165.0,
+      "upper": 1640.0
+     },
+     "parsed": {
+      "intercept": 1.185995193864714,
+      "variables": [
+       {
+        "code": "DRNAREA",
+        "transform": "log10"
+       },
+       {
+        "code": "PRECPRIS10",
+        "transform": "identity"
+       }
+      ],
+      "coefficients": [
+       0.911,
+       0.0073
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 520.341194451073,
+      "nss_rounding_bound": 0.5,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 520.3411944510732,
+      "rel_vs_direct": 4.369703530451724e-16,
+      "rel_vs_nss": 0.0006561431751407554,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK20AEP",
+     "statistic_name": "20-percent AEP flood",
+     "aep": 0.2,
+     "unit": "ft^3/s",
+     "equation": "29.785*DRNAREA^0.913*10^(0.0060*PRECPRIS10)",
+     "nss_value": 882.0,
+     "nss_sep": 0.29443828296359503,
+     "asep_pct": 50.6,
+     "errors": [
+      {
+       "code": "ASEp",
+       "name": "Average standard error of prediction",
+       "value": 50.6
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": {
+      "lower": 287.0,
+      "upper": 2710.0
+     },
+     "parsed": {
+      "intercept": 1.4739976044348635,
+      "variables": [
+       {
+        "code": "DRNAREA",
+        "transform": "log10"
+       },
+       {
+        "code": "PRECPRIS10",
+        "transform": "identity"
+       }
+      ],
+      "coefficients": [
+       0.913,
+       0.006
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 882.2043325229843,
+      "nss_rounding_bound": 0.5,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 882.2043325229841,
+      "rel_vs_direct": 1.288667869001359e-16,
+      "rel_vs_nss": 0.00023166952719290898,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK10AEP",
+     "statistic_name": "10-percent AEP flood",
+     "aep": 0.1,
+     "unit": "ft^3/s",
+     "equation": "42.073*DRNAREA^0.915*10^(0.0054*PRECPRIS10)",
+     "nss_value": 1170.0,
+     "nss_sep": 0.29566036012179664,
+     "asep_pct": 50.5,
+     "errors": [
+      {
+       "code": "ASEp",
+       "name": "Average standard error of prediction",
+       "value": 50.5
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": {
+      "lower": 379.0,
+      "upper": 3610.0
+     },
+     "parsed": {
+      "intercept": 1.6240034803315624,
+      "variables": [
+       {
+        "code": "DRNAREA",
+        "transform": "log10"
+       },
+       {
+        "code": "PRECPRIS10",
+        "transform": "identity"
+       }
+      ],
+      "coefficients": [
+       0.915,
+       0.0054
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 1174.5588681189051,
+      "nss_rounding_bound": 5.0,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 1174.5588681189051,
+      "rel_vs_direct": 0.0,
+      "rel_vs_nss": 0.0038964684776966996,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK4AEP",
+     "statistic_name": "4-percent AEP flood",
+     "aep": 0.04,
+     "unit": "ft^3/s",
+     "equation": "60.117*DRNAREA^0.918*10^(0.0047*PRECPRIS10)",
+     "nss_value": 1570.0,
+     "nss_sep": 0.3061388530233926,
+     "asep_pct": 51.7,
+     "errors": [
+      {
+       "code": "ASEp",
+       "name": "Average standard error of prediction",
+       "value": 51.7
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": {
+      "lower": 489.0,
+      "upper": 5050.0
+     },
+     "parsed": {
+      "intercept": 1.778997299992817,
+      "variables": [
+       {
+        "code": "DRNAREA",
+        "transform": "log10"
+       },
+       {
+        "code": "PRECPRIS10",
+        "transform": "identity"
+       }
+      ],
+      "coefficients": [
+       0.918,
+       0.0047
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 1569.4692604342536,
+      "nss_rounding_bound": 5.0,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 1569.4692604342542,
+      "rel_vs_direct": 4.346189145118786e-16,
+      "rel_vs_nss": 0.0003380506788189566,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK2AEP",
+     "statistic_name": "2-percent AEP flood",
+     "aep": 0.02,
+     "unit": "ft^3/s",
+     "equation": "75.162*DRNAREA^0.920*10^(0.0043*PRECPRIS10)",
+     "nss_value": 1890.0,
+     "nss_sep": 0.3154688994705268,
+     "asep_pct": 52.9,
+     "errors": [
+      {
+       "code": "ASEp",
+       "name": "Average standard error of prediction",
+       "value": 52.9
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": {
+      "lower": 568.0,
+      "upper": 6290.0
+     },
+     "parsed": {
+      "intercept": 1.8759983278069803,
+      "variables": [
+       {
+        "code": "DRNAREA",
+        "transform": "log10"
+       },
+       {
+        "code": "PRECPRIS10",
+        "transform": "identity"
+       }
+      ],
+      "coefficients": [
+       0.92,
+       0.0043
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 1890.114809866233,
+      "nss_rounding_bound": 5.0,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 1890.1148098662322,
+      "rel_vs_direct": 3.6088867341236864e-16,
+      "rel_vs_nss": 6.074596096943674e-05,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK1AEP",
+     "statistic_name": "1-percent AEP flood",
+     "aep": 0.01,
+     "unit": "ft^3/s",
+     "equation": "91.411*DRNAREA^0.921*10^(0.0040*PRECPRIS10)",
+     "nss_value": 2230.0,
+     "nss_sep": 0.3245337294913351,
+     "asep_pct": 54.2,
+     "errors": [
+      {
+       "code": "ASEp",
+       "name": "Average standard error of prediction",
+       "value": 54.2
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": {
+      "lower": 647.0,
+      "upper": 7690.0
+     },
+     "parsed": {
+      "intercept": 1.9609984599773036,
+      "variables": [
+       {
+        "code": "DRNAREA",
+        "transform": "log10"
+       },
+       {
+        "code": "PRECPRIS10",
+        "transform": "identity"
+       }
+      ],
+      "coefficients": [
+       0.921,
+       0.004
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 2231.71216210463,
+      "nss_rounding_bound": 5.0,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 2231.7121621046317,
+      "rel_vs_direct": 8.150645206102418e-16,
+      "rel_vs_nss": 0.0007677856971442672,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK0_5AEP",
+     "statistic_name": "0.5-percent AEP flood",
+     "aep": 0.005,
+     "unit": "ft^3/s",
+     "equation": "108.89*DRNAREA^0.923*10^(0.0036*PRECPRIS10)",
+     "nss_value": 2560.0,
+     "nss_sep": 0.3334123127118406,
+     "asep_pct": 55.5,
+     "errors": [
+      {
+       "code": "ASEp",
+       "name": "Average standard error of prediction",
+       "value": 55.5
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": {
+      "lower": 718.0,
+      "upper": 9130.0
+     },
+     "parsed": {
+      "intercept": 2.036987997806906,
+      "variables": [
+       {
+        "code": "DRNAREA",
+        "transform": "log10"
+       },
+       {
+        "code": "PRECPRIS10",
+        "transform": "identity"
+       }
+      ],
+      "coefficients": [
+       0.923,
+       0.0036
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 2560.719809642586,
+      "nss_rounding_bound": 5.0,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 2560.719809642586,
+      "rel_vs_direct": 0.0,
+      "rel_vs_nss": 0.000281175641635123,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK0_2AEP",
+     "statistic_name": "0.2-percent AEP flood",
+     "aep": 0.002,
+     "unit": "ft^3/s",
+     "equation": "134.28*DRNAREA^0.926*10^(0.0033*PRECPRIS10)",
+     "nss_value": 3080.0,
+     "nss_sep": 0.34853722877574744,
+     "asep_pct": 58.0,
+     "errors": [
+      {
+       "code": "ASEp",
+       "name": "Average standard error of prediction",
+       "value": 58.0
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": {
+      "lower": 815.0,
+      "upper": 11600.0
+     },
+     "parsed": {
+      "intercept": 2.128011332575975,
+      "variables": [
+       {
+        "code": "DRNAREA",
+        "transform": "log10"
+       },
+       {
+        "code": "PRECPRIS10",
+        "transform": "identity"
+       }
+      ],
+      "coefficients": [
+       0.926,
+       0.0033
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 3084.173748963454,
+      "nss_rounding_bound": 5.0,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 3084.1737489634556,
+      "rel_vs_direct": 5.897817540782819e-16,
+      "rel_vs_nss": 0.0013551132998232587,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    }
+   ]
+  }
+ ]
+}

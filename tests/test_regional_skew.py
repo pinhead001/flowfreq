@@ -21,15 +21,17 @@ def _table(tmp_path, body):
     return p
 
 
-def test_packaged_table_loads_and_wave1_is_pending():
+def test_packaged_table_loads_and_wave1_pending_rows_remain():
+    # WA/OR/ID were transcribed in Wave 1 (tests/test_regional_skew_wave1.py);
+    # MT and Idaho's Snake River Plain have no representable B-GLS skew.
     df = load_table()
-    assert set(df.loc[df["status"] == "pending", "state"]) >= {"WA", "OR", "ID", "MT"}
+    assert set(df.loc[df["status"] == "pending", "state"]) >= {"ID", "MT"}
 
 
-@pytest.mark.parametrize("state", ["WA", "OR", "ID", "MT"])
-def test_pending_rows_are_never_returned(state):
+@pytest.mark.parametrize("state, region", [("MT", None), ("ID", "Snake River Plain")])
+def test_pending_rows_are_never_returned(state, region):
     with pytest.raises(RegionalSkewUnavailable, match="pending"):
-        regional_skew_for(state)
+        regional_skew_for(state, region)
 
 
 def test_no_entry():
