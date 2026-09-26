@@ -8,6 +8,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **`tools/snapshot_nss.py` and `flowfreq.regression.nss`** (#35). NSS templates carry no
+  equations, and neither `apiconfig` nor `RegressionRegions` exposes them. The tool therefore
+  fills each region's parameters with in-range midpoints, calls `Scenarios/Estimate`, and
+  harvests each equation string, `sep` (stored verbatim as `nss_sep`, never as `sep_log`),
+  ASEp, limits and citation into `data/nss_snapshots/<STATE>_<date>.json`. A re-run prints a
+  diff against the previous snapshot. A region that Estimate will not answer, even after
+  retrying its unbounded gating parameters, is recorded as `unresolved` with the reason.
+  `parse_equation` rewrites an NSS string exactly into `RegressionEquation` form: the
+  `log10`, `log10_plus1` and `10^(c*X)` identity terms, with scales folded into the
+  intercept. It refuses anything else, such as `(X+0.01)^b`, `(X/100+1)^b` or `max(0, E-1)`,
+  rather than approximating it. `statistic_code_to_aep` maps `PK66_7AEP` to 0.667. The
+  initial snapshot covers WA, ID, MT and OR peak flow: 437 equations, 420 parsed, and every
+  parsed equation reproduces NSS within NSS's own 3-significant-figure rounding. Oregon
+  regions 2A and 2B are unresolved.
 - **Water Data OGC API backend for instantaneous values** (`flowfreq.waterdata`, #29).
   `USGSgage.download_instantaneous_flow` / `download_instantaneous_stage` take a new
   `backend=` keyword; `"waterdata-ogc"` reads 00060/00065 from
