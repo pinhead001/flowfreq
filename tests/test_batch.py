@@ -102,28 +102,13 @@ class TestAnalyzeSites:
         assert analysis == {}
         assert fetch_errors == {"bad_site": "404 not found"}
 
-    @pytest.mark.xfail(strict=True, reason="real bug: see docstring")
     def test_real_fetch_output_shape_is_analyzable(self):
-        """Pins a genuine interface break between usgs.fetch_nwis_batch and
-        batch.run_multi_site, discovered while writing these tests.
+        """``fetch_nwis_batch`` returns plain dicts; ``analyze_sites`` must fit them.
 
-        ``usgs.fetch_nwis_peaks`` (and therefore ``fetch_nwis_batch``, which
-        just fans it out) returns plain dicts --
-        ``{"year": ..., "flow": ..., "source": "USGS"}`` -- per its own
-        annotated return type ``List[Dict]``. But ``run_multi_site`` feeds
-        those records straight to ``B17CEngine.fit``, which reads ``r.flow``
-        as an *attribute*, not a key, because its real contract is
-        ``List[PeakRecord]``.
-
-        So every real call to ``analyze_sites`` fails for every site with
-        ``'dict' object has no attribute 'flow'`` -- caught by
-        ``run_multi_site``'s broad ``except Exception`` and reported as
-        ``{"error": ...}`` rather than raising, so nothing surfaces the
-        failure short of reading the output. This is not a precision or
-        tolerance issue, and not fixed here: the fix means deciding whether
-        ``usgs.fetch_nwis_batch`` should return ``PeakRecord`` objects or
-        ``run_multi_site``/``analyze_sites`` should adapt dicts, and
-        ``usgs.py`` is outside this lane.
+        Was a strict xfail: ``run_multi_site`` handed the dicts straight to
+        ``B17CEngine.fit``, which reads ``r.flow`` as an attribute, so every real
+        call failed with ``'dict' object has no attribute 'flow'`` -- swallowed
+        into ``{"error": ...}``. ``run_multi_site`` now converts dicts.
         """
         dict_records = [
             {"year": int(y), "flow": float(f), "source": "USGS"}
@@ -142,6 +127,17 @@ class TestAnalyzeSites:
 
             importlib.reload(batch_mod)
         assert "error" not in analysis["03606500"]
+
+    def test_dict_and_peakrecord_inputs_give_the_same_fit(self, records):
+        dicts = [{"year": r.year, "flow": r.flow, "source": r.source} for r in records]
+        from_records = run_multi_site({"s": records})["s"]
+        from_dicts = run_multi_site({"s": dicts})["s"]
+        assert "error" not in from_dicts
+        assert from_dicts["params"] == from_records["params"]
+
+    def test_an_unrecognised_record_type_is_reported_per_site(self):
+        results = run_multi_site({"s": [("1990", 100.0)]})
+        assert "Expected PeakRecord or dict" in results["s"]["error"]
 
 
 class TestBatchSummaryTable:

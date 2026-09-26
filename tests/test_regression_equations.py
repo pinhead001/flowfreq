@@ -160,8 +160,8 @@ class TestJurisdictions:
 class TestLibrary:
     def test_wave1_files_pending_and_empty(self):
         states = available_states()
-        # MT is populated: tests/test_regression_montana.py
-        for code in ("WA", "OR", "ID"):
+        # Populated, each with its own tests/test_regression_<state>.py: WA, ID, MT
+        for code in ("OR",):
             assert states[code] == "pending"
             lib = load_state(code)
             assert lib.equations == []

@@ -11,7 +11,7 @@ does this one, through :mod:`logging`. It never guesses a value for a field
 that is missing.
 
 Roadmap: ``docs/MASTER_ROADMAP.md`` §1.1, issue #31. Converting a parsed
-station into ``Bulletin17C`` arguments is the open half of that issue.
+station into ``Bulletin17C`` arguments is :mod:`flowfreq.psf_convert`.
 """
 
 from __future__ import annotations
@@ -19,7 +19,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 logger = logging.getLogger(__name__)
 
@@ -127,6 +127,18 @@ class PsfFile:
         v = self.output_options.get("ConfInterval")
         return float(v) if v is not None else None
 
+    @property
+    def peak_file(self) -> Optional[Tuple[str, str]]:
+        """``(format, path)`` from the ``I ASCI`` or ``I RDB`` line, if any.
+
+        ``format`` is ``"ASCI"`` (WATSTORE) or ``"RDB"``; ``path`` is as
+        written, relative to the ``.psf`` file's directory.
+        """
+        for tokens in self.input_lines:
+            if len(tokens) >= 2 and tokens[0] in ("ASCI", "RDB"):
+                return tokens[0], tokens[1]
+        return None
+
 
 def _comment(tokens: List[str], n_fixed: int) -> str:
     return " ".join(tokens[n_fixed:]).strip()
@@ -172,7 +184,12 @@ def parse_psf(text: str) -> PsfFile:
             out.input_lines.append(tokens[1:])
             continue
         if key == "O":
-            if len(tokens) >= 3:
+            # "O Plot Style Graphics" and "O Plot Position 0" are two options,
+            # not two values of one "Plot" option; readPSF reads the word after
+            # "Plot" as the option name too.
+            if len(tokens) >= 4 and tokens[1] == "Plot":
+                out.output_options[f"Plot {tokens[2]}"] = " ".join(tokens[3:])
+            elif len(tokens) >= 3:
                 out.output_options[tokens[1]] = " ".join(tokens[2:])
             continue
         if current is None:
