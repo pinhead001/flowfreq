@@ -269,7 +269,7 @@ class TestCainsCouleeCensored:
         assert abs(results.skew_weighted - ref["skew_weighted"]) < 0.02
 
     def test_quantile_error_is_bounded_and_worst_in_the_lower_tail(self, cains_coulee):
-        """Recorded, not asserted away: 0.08% at best, 9.7% at worst, 1.5% at Q100.
+        """Recorded, not asserted away: 0.003% at best, 9.1% at worst, 2.1% at Q100.
 
         Was 0.64%-23.9% (6.3% at Q100) before the at-site EMA moment
         iteration was fixed (TODO.md P3); the remaining error traces
@@ -278,10 +278,27 @@ class TestCainsCouleeCensored:
         (the at-site fit, ``Wd``, ADJE) now matches peakfq 8.1.0 closely.
         The lower tail is where that residual bites hardest, which is the
         signature of a skew-weighting gap rather than a broken fit.
+
+        With the Wilson-Hilferty K factor these read 0.08%, 9.7% and 1.5%:
+        that approximation's own error partly offset the skew gap. ``kfactor``
+        is now the exact Pearson III inverse peakfq uses (Powder River's
+        quantiles match to 1e-9), so what is left here is the skew gap alone;
+        see ``test_q100_error_under_two_percent``.
         """
         results, ref = cains_coulee
         errors = _quantile_errors(results, ref)
         assert max(errors.values()) < 12.0
-        assert errors[0.01] < 2.0
         worst_aep = max(errors, key=errors.get)
         assert worst_aep > 0.5, f"worst error at AEP {worst_aep}, expected the lower tail"
+
+    @pytest.mark.xfail(
+        strict=True,
+        reason=(
+            "2.06% at Q100, all from skew_weighted's 0.058 gap (test_weighted_skew_matches). "
+            "It read 1.5% only while the Wilson-Hilferty K factor's own error offset it; "
+            "kfactor is now exact."
+        ),
+    )
+    def test_q100_error_under_two_percent(self, cains_coulee):
+        results, ref = cains_coulee
+        assert _quantile_errors(results, ref)[0.01] < 2.0

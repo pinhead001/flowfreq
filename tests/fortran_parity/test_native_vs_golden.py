@@ -134,3 +134,18 @@ class TestGoldenProvenance:
                 len(inputs[key]) == n
             ), f"inputs.{key} has {len(inputs[key])} entries, expected {n}"
         assert len(inputs["aeps"]) == len(golden_big_sandy["outputs"]["quantiles"]["yp"])
+
+
+class TestPseudoRecordLength:
+    """``as_G_PRL_o``: peakfq's diagnostic, ``eff_n * as_G_mse_Syst / as_G_mse``.
+
+    Big Sandy is the censored case (the ratio matters); 12363000 has no
+    censoring, so the ratio is 1 and the value is the systematic count.
+    """
+
+    def test_big_sandy(self, golden_big_sandy, native_big_sandy):
+        expected = golden_big_sandy["outputs"]["skew"]["as_G_PRL_o"]
+        assert native_big_sandy._results.pseudo_record_length == pytest.approx(expected, rel=1e-3)
+
+    def test_uncensored_record_is_its_systematic_count(self, native_12363000):
+        assert native_12363000._results.pseudo_record_length == pytest.approx(98.0)

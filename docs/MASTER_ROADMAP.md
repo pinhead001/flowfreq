@@ -31,17 +31,17 @@ Standing rules carried over from this repo's history, which apply to every phase
 |---|---|---|
 | B17C EMA + MGBT, parity with peakfq 8.1.0 | [x] | `bulletin17c.py`, `tests/fortran_parity/` |
 | Fortran engine as a selectable backend | [x] | `fortran_engine.py`, `peakfqr/` |
-| NWIS peak/daily retrieval | [~] legacy NWIS services only | `usgs.py` |
+| NWIS peak/daily retrieval | [~] legacy NWIS services only; OGC backend is a stub | `usgs.py`, `peak_sources.py` |
 | StreamStats delineation + basin characteristics | [x] Phase 1 (no polygon) | `streamstats.py` |
 | NSS regression evaluation via web service | [~] PFS verified live in WA only | `streamstats.py` |
-| Regional skew | [~] caller supplies a scalar | `Bulletin17C(regional_skew=…)` |
-| Offline regression-equation library | [ ] | — |
+| Regional skew | [~] caller supplies a scalar; table schema and loader exist, all rows `pending`; silent -0.302 default in `workflow`/CLI (§1.3) | `Bulletin17C(regional_skew=…)`, `regional_skew.py` |
+| Offline regression-equation library | [~] schema and evaluator; no equations transcribed | `regression/`, `data/regression/` |
 | Gage/regression weighting (B17C App. 9 style) | [ ] | — |
 | Drainage-area-ratio transposition | [x] | `transpose.py` |
 | QPPQ daily-series transfer | [x] | `qppq.py` |
 | Record extension (MOVE) | [ ] | — |
 | Nonstationarity tests / models | [ ] | — |
-| Future-condition quantiles | [ ] | — |
+| Future-condition quantiles | [~] change-factor framework; no factor sets | `future_flow.py` |
 | Low-flow frequency, regime, sub-daily metrics | [x] | `lowflow.py`, `regime.py`, `subdaily.py` |
 
 ---
@@ -53,6 +53,9 @@ Standing rules carried over from this repo's history, which apply to every phase
       in favor of the Water Data OGC APIs (`api.waterdata.usgs.gov`). Verify the peak,
       daily-value, and site-metadata endpoints live, then add an adapter layer so
       `USGSgage` works with both backends. Existing fixtures must stay byte-identical.
+      *Substantive:* the `PeakDataBackend` protocol, `validate_peak_frame`, and
+      `LegacyNwisBackend` (`peak_sources.py`). *Stub:* `WaterDataApiBackend.fetch_peaks`
+      raises `NotImplementedError`, and `USGSgage` does not route through the adapter.
 - [~] [#30](https://github.com/pinhead001/flowfreq/issues/30) Parse **all peak qualification codes** (historic `7`, estimated, regulated `6`/`C`,
       urbanization, dam failure, `<`/`>` values) into `PeakRecord` flags. Map each code to
       an explicit B17C treatment: include, censor, exclude, or flag for review.
@@ -67,6 +70,8 @@ Standing rules carried over from this repo's history, which apply to every phase
       ≥10 years of record. Columns: site_no, name, lat/lon, DA, state, HUC8, years of
       record, regulation class, and the regression region it falls in.
       Rebuild it with a script in `tools/`; never edit it by hand.
+      *Substantive:* the schema and loader (`catalog.py`) and `tools/build_gage_catalog.py`.
+      *Stub:* the data. No catalog has been built; the CSV is still the 3-row seed.
 
 ### 1.2 Geospatial inputs
 - [ ] **Watershed polygon** (the open Phase 1 gap). Verify a live source, such as the
@@ -93,6 +98,10 @@ Standing rules carried over from this repo's history, which apply to every phase
       citation, and validity region.
 - [ ] `regional_skew_at(lat, lon)` lookup returning `(skew, mse, citation)` and plugging
       straight into `Bulletin17C`. Raise, rather than default, where no study applies.
+      **Conflicts with current code, decision pending from the maintainer:**
+      `workflow.B17C_DEFAULT_SKEW = -0.302` is the silent default argument of
+      `run_ffa`/`compare_engines` and the CLI's fallback when `--regional-skew` is omitted.
+      Changing it is user-visible. Tracked in `TODO.md` under #34.
 - [ ] Tooling to **develop a new regional skew** (B-WLS/B-GLS, Veilleux/Reis-Stedinger) for
       jurisdictions without one. This is lower priority and research-grade.
 
@@ -123,7 +132,8 @@ Standing rules carried over from this repo's history, which apply to every phase
 ### 3.1 Architecture
 - [~] [#35](https://github.com/pinhead001/flowfreq/issues/35) **Equation schema** (`flowfreq/regression/`): a typed, serializable definition holding
       region ID, statistic (AEP), functional form (log-linear, power, with transforms such as
-      `log10(X+1)`), coefficients, variable definitions and units, calibrated
+      `log10(X+1)` and rescaled forms such as `log10(X/100 + 1)`, via `Variable.scale`
+      and `Variable.offset`), coefficients, variable definitions and units, calibrated
       min/max per variable, SEP / average variance of prediction, model-error variance, and
       the `(XᵀΛ⁻¹X)⁻¹` matrix where published. Carry the report citation, table number, and
       effective date.
@@ -133,18 +143,32 @@ Standing rules carried over from this repo's history, which apply to every phase
          with no network and pinned to a library version.
       A cross-check test asserts that both backends agree to a tight tolerance for every
       equation.
+      Both halves exist separately (`streamstats.estimate_flow_statistics`,
+      `regression.evaluate`); the shared interface and the cross-check do not.
 - [ ] **Bootstrapping the offline library from NSS.** `GET /nssservices/regions/{r}/Scenarios`
-      and the related equation/citation endpoints expose equations and limits. Write
-      `tools/snapshot_nss.py` to dump every region/statistic group to versioned JSON under
-      `flowfreq/data/regression/`, with a diff report on re-run so equation changes upstream
-      are visible in review.
-- [ ] Out-of-range handling: raise by default; `allow_extrapolation=True` records the
-      violation (same pattern as `transpose.py`).
-- [ ] **Multi-region basins**: area-weighted estimates, following the method each state's
+      returns templates with variable limits but **no equation field**; equation strings
+      appear only in `POST /nssservices/Scenarios/Estimate` results. So
+      `tools/snapshot_nss.py` (not yet written) must POST synthetic in-range inputs for every
+      region, parse each returned equation string into intercept and coefficients, and dump
+      every region/statistic group to versioned JSON under `flowfreq/data/regression/`, with
+      a diff report on re-run so equation changes upstream are visible in review. NSS does
+      not carry the report table number, covariance, model-error variance or `n_sites`;
+      those come from the report (`TODO.md` #35).
+- [x] Out-of-range handling: raise by default; `allow_extrapolation=True` records the
+      violation (same pattern as `transpose.py`). `regression.evaluate` raises
+      `OutOfRangeError`; with the flag it logs and records each violation in
+      `RegressionEstimate.out_of_range`.
+- [~] **Multi-region basins**: area-weighted estimates, following the method each state's
       report prescribes, since some reports weight flows and others weight logs.
-- [ ] **Prediction intervals** at ungaged sites from the equation's variance terms
+      The generic mechanism exists: `regression.evaluate_weighted(..., space="log"|"linear")`,
+      with the caller choosing the space. Per-state rules (which space, and variants such as
+      OR's elevation interpolation between regions 2A/2B) are not recorded anywhere, and
+      the weighted result carries no prediction interval.
+- [x] **Prediction intervals** at ungaged sites from the equation's variance terms
       (Tasker & Driver form). Fall back to average SEP where the covariance matrix is not
-      published, and label it as such.
+      published, and label it as such. `regression.equations._prediction_sd`: model error +
+      `xᵀUx` when covariance and model-error variance are present, else AVP, else SEP;
+      `RegressionEstimate.interval_method` names which. Tested on synthetic equations only.
 - [ ] **Region-of-influence (ROI)** evaluator for states whose published method is ROI
       rather than fixed equations. This requires the state's gage dataset and the ROI
       parameters from the report.
@@ -152,8 +176,9 @@ Standing rules carried over from this repo's history, which apply to every phase
       urban equations where published), applied only where the report says they apply.
 
 ### 3.2 Jurisdiction coverage, rolled out in regional waves
-Build `docs/REGRESSION_COVERAGE.md`, generated by the snapshot tool rather than typed.
-It gets one row per jurisdiction, with columns: NSS peak-flow equations present? · report
+`docs/REGRESSION_COVERAGE.md` is generated by `tools/gen_regression_coverage.py` rather
+than typed, and `tests/test_catalog.py` fails if it is stale. It gets one row per
+jurisdiction. Target columns: NSS peak-flow equations present? · report
 citation(s) and year · number of regions · ROI? · urban equations? · regional skew source ·
 future-flow guidance source · validation worked example located? · offline library
 validated? · status.
@@ -244,6 +269,8 @@ A single entry point, `estimate_at_site(lat, lon, …)`, that decides and docume
       selection** (Archfield & Vogel 2010) as an alternative to nearest/most-similar donor.
 - [ ] **Multiple-donor weighting** (inverse-distance or inverse-variance) and donor ranking by
       hydrologic similarity (DA, slope, precip, BFI screen already in `transpose_low_flow`).
+      [#13](https://github.com/pinhead001/flowfreq/issues/13) measures why area alone is not
+      enough (Methow, orographic precipitation) and asks for a predictor-similarity screen.
 - [ ] **Record extension** (MOVE.1/MOVE.3/KTRL) to lengthen a short gage before transposing
       (shares code with §2's Appendix 8 item).
 - [ ] **Index-flood / regional growth curves** as an option for data-sparse regions
@@ -313,6 +340,9 @@ Recommended approaches, most defensible first:
       HEC-17, NCHRP 15-61 guidance, and NOAA Atlas 15 future precipitation once released,
       mapped to flow through a documented precipitation-to-flow elasticity. This is the
       simplest option to review and should be the default.
+      *Substantive:* the framework (`future_flow.py`). *Stub:* no factor set ships, and
+      `flowfreq/data/future/` does not exist. The module docstring says sets arrive per
+      state wave, contrary to "national first" here; `TODO.md` #36 tracks reconciling them.
 - [ ] **Regression space-for-time.** In RREs whose explanatory variables include
       precipitation or temperature, substitute downscaled projected values (e.g.,
       LOCA2 / CMIP6 ensemble). Report the ensemble spread, not only the median, and flag
@@ -327,11 +357,17 @@ Recommended approaches, most defensible first:
 - [ ] Uncertainty accounting that combines sampling (EMA CI), model (regression SEP), and
       climate-ensemble spread. Present these separately and never collapse them into one
       number without showing the parts.
-- [ ] Output labeling: every future-condition quantile carries scenario, horizon, method, and
+- [~] Output labeling: every future-condition quantile carries scenario, horizon, method, and
       source, and is visually distinct from the regulatory B17C value in plots and reports.
-- [ ] **Precedence rule:** a state factor set, when present and applicable, overrides the
+      `apply_change_factors` keeps `regulatory_flow_cfs` and `future_flow_cfs` as separate
+      columns, and `FutureQuantiles.provenance` carries scenario, horizon, citation, level and
+      legal status. Nothing in `plots.py`/`report.py` renders it yet.
+- [~] **Precedence rule:** a state factor set, when present and applicable, overrides the
       national default. The override is always recorded in provenance, and the national
       result is still reported alongside it for comparison.
+      `future_flow.select_factor_set` implements the override (and raises if two state sets
+      apply), and `FutureQuantiles.provenance["overrode"]` records it. The side-by-side
+      national result is not produced automatically; the caller applies both sets.
 
 #### 6.3.2 State-specific guidance (added per state, during its wave)
 For each state, as part of its definition of done in §3.2:

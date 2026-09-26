@@ -12,7 +12,7 @@ from typing import ClassVar, Dict, List, Optional, Tuple, Union
 import numpy as np
 import pandas as pd
 from scipy import stats
-from scipy.special import gammaln, ndtri
+from scipy.special import gammaln
 
 
 class SkewMethod(Enum):
@@ -150,6 +150,8 @@ class FrequencyResults:
     skew_used_mse: Optional[float] = None
     n_zeros: int = 0
     pilf_flows: List[float] = field(default_factory=list)
+    #: peakfq's pseudo effective record length (``as_G_PRL_o``); EMA only.
+    pseudo_record_length: Optional[float] = None
 
 
 @dataclass
@@ -242,28 +244,48 @@ def assign_year_label(dates: pd.DatetimeIndex, year_type: str) -> np.ndarray:
 #: Maximum absolute skew coefficient considered physically valid for LP3
 #: fitting, matching the domain of the Bulletin 17B/17C Appendix 3
 #: frequency-factor tables. Skew estimates are clipped to this range
-#: because both the Wilson-Hilferty K-factor approximation and the
-#: gamma-moment machinery used by EMA become numerically degenerate
+#: because the gamma-moment machinery used by EMA becomes numerically degenerate
 #: (shape parameter alpha = 4/skew**2 collapses toward 0) well before
 #: this bound, and no real annual-peak record legitimately produces a
 #: station skew this extreme.
 MAX_ABS_SKEW: float = 3.0
 
 
-@lru_cache(maxsize=256)
+@lru_cache(maxsize=1024)
 def kfactor(skew: float, aep: float) -> float:
-    """
-    Calculate K factor for Log-Pearson Type III distribution.
-    Uses Wilson-Hilferty approximation. Cached for performance.
-    """
-    skew = max(-MAX_ABS_SKEW, min(MAX_ABS_SKEW, skew))
-    z = ndtri(1 - aep)
+    """Frequency factor K of the Log-Pearson Type III distribution.
 
-    if abs(skew) < 0.001:
-        return z
+    ``K`` is the standardized Pearson III quantile at non-exceedance
+    probability ``1 - aep``, so the log-space quantile is
+    ``mean + K * std``. Computed exactly as ``emafit.f``'s ``qP3`` (line
+    3266) computes peakfq's quantiles ``yp``: by inverting the incomplete
+    gamma function, blended with the Wilson-Hilferty approximation only for
+    ``|skew| < 0.001``, where the gamma shape ``4/skew**2`` is too large to
+    evaluate and the two agree (``flowfreq._p3_moments.q_p3``, the port of
+    ``qP3`` checked against the Fortran in
+    ``tests/fortran_parity/test_fortran_oracles.py``).
 
-    k = skew / 6
-    return (2 / skew) * ((1 + k * z - k * k) ** 3 - 1)
+    This used Wilson-Hilferty at every skew. That approximation drifts from
+    the exact quantile as ``|skew|`` and the return period grow -- 1.35% at
+    AEP 0.002 for a skew of 0.87 -- so native quantiles disagreed with
+    peakfq's even where the fitted moments were identical.
+
+    Parameters
+    ----------
+    skew : float
+        Skew coefficient, clipped to ``[-MAX_ABS_SKEW, MAX_ABS_SKEW]``.
+    aep : float
+        Annual exceedance probability.
+
+    Returns
+    -------
+    float
+        Frequency factor ``K``.
+    """
+    from ._p3_moments import q_p3
+
+    skew = max(-MAX_ABS_SKEW, min(MAX_ABS_SKEW, float(skew)))
+    return float(q_p3(1.0 - float(aep), np.array([0.0, 1.0, skew])))
 
 
 def kfactor_skew_derivative(skew: float, aep: float, h: float = 1e-4) -> float:
@@ -378,10 +400,10 @@ def lp3_frequency_factor_peakfq(p: float, skew: float) -> float:
     Calculate LP3 frequency factor using PeakFQ methodology.
 
     Uses the exact gamma-distribution transformation (the same inverse-CDF
-    approach as the peakfqr/PeakFQ Fortran reference, per ``qP3sub``), not the
-    Wilson-Hilferty approximation used by :func:`kfactor` elsewhere in this
-    module. Falls back to the normal distribution for zero skew, where the
-    two are identical.
+    approach as the peakfqr/PeakFQ Fortran reference, per ``qP3sub``), as
+    :func:`kfactor` does. Unlike :func:`kfactor` it does not blend in the
+    Wilson-Hilferty approximation for ``|skew| < 0.001``; it falls back to the
+    normal distribution only for ``|skew| < 1e-8``.
 
     Parameters
     ----------

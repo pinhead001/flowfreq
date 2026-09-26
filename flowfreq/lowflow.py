@@ -13,11 +13,8 @@ Method notes
 **Distribution.** Log-Pearson III fit by station skew, reusing the same
 log-space machinery as the high-flow side. Quantiles are computed with
 :func:`flowfreq.core.lp3_frequency_factor_peakfq`, the exact gamma-quantile
-method (matching peakfqr/PeakFQ's own ``qP3sub``), rather than the
-Wilson-Hilferty approximation :func:`flowfreq.core.kfactor` uses on the
-high-flow side -- there is no low-flow generalized-skew map analogous to
-B17C Plate 1 to justify carrying the approximation's error into a tail
-where sample skew is already the least stable parameter. Pass
+method (matching peakfqr/PeakFQ's own ``qP3sub``), as
+:func:`flowfreq.core.kfactor` now does on the high-flow side too. Pass
 ``distribution="lognormal"`` to force skew to zero, which is more stable on
 short or noisy records at the cost of not fitting an asymmetric tail.
 

@@ -4,7 +4,7 @@ flowfreq.batch - Multi-site batch processing for flood frequency analysis
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
 import pandas as pd
 
@@ -12,9 +12,36 @@ from .core import PeakRecord
 from .engine import STANDARD_RETURN_PERIODS, B17CEngine
 from .usgs import fetch_nwis_batch
 
+PeakInput = Union[PeakRecord, Mapping[str, Any]]
+
+
+def _as_peak_records(records: Sequence[PeakInput]) -> List[PeakRecord]:
+    """Accept ``PeakRecord`` objects or ``fetch_nwis_peaks``-style dicts.
+
+    ``usgs.fetch_nwis_peaks`` (and so ``fetch_nwis_batch``) returns plain dicts
+    ``{"year", "flow", "source"}`` -- its documented public contract -- while
+    ``B17CEngine.fit`` reads attributes. Converting here is what lets
+    :func:`analyze_sites` work on real fetched data at all.
+    """
+    out: List[PeakRecord] = []
+    for r in records:
+        if isinstance(r, PeakRecord):
+            out.append(r)
+        elif isinstance(r, Mapping):
+            out.append(
+                PeakRecord(
+                    year=int(r["year"]),
+                    flow=None if r.get("flow") is None else float(r["flow"]),
+                    source=r.get("source"),
+                )
+            )
+        else:
+            raise TypeError(f"Expected PeakRecord or dict peak record, got {type(r).__name__}")
+    return out
+
 
 def run_multi_site(
-    data: Dict[str, List[PeakRecord]],
+    data: Mapping[str, Sequence[PeakInput]],
     return_periods: Sequence[float] = STANDARD_RETURN_PERIODS,
 ) -> Dict[str, Dict[str, Any]]:
     """
@@ -23,7 +50,9 @@ def run_multi_site(
     Parameters
     ----------
     data : dict
-        Mapping of site_no to list of PeakRecord
+        Mapping of site_no to a list of :class:`PeakRecord`, or of the plain
+        ``{"year", "flow", "source"}`` dicts :func:`flowfreq.usgs.fetch_nwis_peaks`
+        returns
     return_periods : sequence of float
         Return periods to compute (default: standard set)
 
@@ -41,7 +70,7 @@ def run_multi_site(
     for site, records in data.items():
         try:
             engine = B17CEngine()
-            engine.fit(records)
+            engine.fit(_as_peak_records(records))
             results[site] = {
                 "params": engine.params,
                 "n": engine.n,
