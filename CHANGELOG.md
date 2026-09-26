@@ -117,6 +117,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   results**: sites with partial-date peaks now return more peaks than before.
 - **`download_peak_flow` read an all-numeric `peak_cd` column as float**, so
   code `7` came back as `"7.0"`. Code columns are now read as strings.
+- **LP3 quantiles used the Wilson-Hilferty approximation instead of the exact Pearson III
+  inverse.** `flowfreq.core.kfactor` computed the frequency factor K with Wilson-Hilferty at
+  every skew. peakfq 8.1.0 computes its quantiles with `emafit.f`'s `qP3` (line 3266). That
+  inverts the incomplete gamma function exactly and uses Wilson-Hilferty only for
+  |skew| < 0.001, where the two agree. The approximation's error grows with |skew| and
+  return period, so native quantiles drifted from peakfq's even where the fitted moments were
+  identical. `kfactor` now calls `flowfreq._p3_moments.q_p3`, the existing port of `qP3`
+  already checked against the Fortran. **This changes results**: every quantile, and every K
+  factor, from `ExpectedMomentsAlgorithm`, `MethodOfMoments`, `Bulletin17C`, the frequency
+  plots and anything else built on `kfactor`/`kfactor_array`. The change grows with |skew|
+  and with smaller AEP. For example, at skew 0.87 and AEP 0.002 the flow is 1.3% lower. EMA
+  confidence bounds are unchanged; they already came from `qP3` inside `var_emab`, so the
+  table's central `flow_cfs` now matches the quantile those bounds were built around.
+  Largest quantile error against peakfq 8.1.0 over each site's AEPs (0.995 to 0.002):
+
+  | Site | Skew used | Worst error, before → after | Q(0.2% AEP) cfs, before → after (peakfq) |
+  |---|---|---|---|
+  | Big Sandy 03606500 | -0.156 | 0.056% → 0.0002% | 31,653 → 31,636 (31,636) |
+  | 12363000 | 0.286 | 0.106% → 1.4e-6% | 154,279 → 154,116 (154,116) |
+  | Powder River 06326500 | -0.184 | 0.100% → 2.7e-7% | 62,145 → 62,083 (62,083) |
+  | Cains Coulee 06327450 | -0.662 | 9.74% → 9.06% | 2,853 → 2,822 (2,928) |
+  | 06185500.11 (live `emafitpr`) | 0.871 | 1.35% → 3e-7% | 160,844 → 158,706 (158,706) |
+  | 06329200.00 (live `emafitpr`) | -0.445 | 0.96% → 1e-5% | 10,358 → 10,260 (10,260) |
+
+  The residual Big Sandy error is the moments' own 2e-6 gap, not the quantile function. On
+  06329200.00 the 1e-5% (4e-8 in log10, at AEP 0.995) is the Fortran's own gamma inverse:
+  `q_p3` and `emafit.f`'s `qp3sub` differ by exactly that on identical moments.
+  Cains Coulee's error is its known weighted-skew gap, which Wilson-Hilferty had been partly
+  hiding. Its Q100 error moves from 1.53% to 2.06%, so the recorded "< 2%" bound becomes a
+  new `xfail(strict=True)` (`test_q100_error_under_two_percent`) with that reason, not a
+  wider tolerance.
 
 ## [0.8.0]
 
