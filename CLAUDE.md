@@ -200,6 +200,20 @@ reference, not less — there is no known defect to fix.
 MGBT is the one part verified line-by-line against the Fortran (`GGBCRITP` / `FP_TNC_CDF`),
 validated on Orestimba Creek (USGS 11274500, B17C Appendix 10).
 
+**A `requires_fortran` parity test failing on a local Windows/MSYS2 build is not necessarily a
+regression.** The golden files were generated with gfortran 13.3.0 on Linux
+(`docs/FORTRAN_UPLOAD.md` §6.0). `emafitpr`'s EMA fit is a fixed point with condition number
+~1e13 -- one ulp of input moves the converged at-site skew by 3e-3 (see
+`tests/fortran_parity/test_fortran_oracles.py`'s module docstring) -- so a newer MSYS2
+gfortran (16.2.0 confirmed to reproduce this) computing the same deterministic Fortran call a
+few ulps differently is enough to fail a `rel=1e-12` oracle check directly, and to get
+amplified into a visibly different `skew_at_site`/`mse_skew` further downstream. Confirmed via
+`git stash` that the failure is identical with or without unrelated changes, and that CI's
+`ci / Fortran parity` job (Ubuntu, `apt-get install gfortran`, the same toolchain family as the
+golden files) stays green. Treat that CI job as the authoritative parity check; a local
+Windows mismatch on these two tests alone, with `ci / Fortran parity` green, is toolchain
+drift, not a code defect.
+
 ## Test Data
 
 - Primary site: Big Sandy River at Bruceton, TN (USGS 03606500). The fixture carries **two**
