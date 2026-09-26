@@ -903,10 +903,17 @@ class USGSgage:
                 if "STATION NAME" in line.upper():
                     self._site_name = line.split(":")[-1].strip()
 
-        df = pd.read_csv(StringIO("\n".join(data_lines)), sep="\t", skiprows=[1])
+        # Codes as strings: a column holding only numeric codes (e.g. "7") and
+        # blanks is otherwise inferred as float, and "7" comes back as "7.0".
+        df = pd.read_csv(
+            StringIO("\n".join(data_lines)),
+            sep="\t",
+            skiprows=[1],
+            dtype={"peak_dt": str, "peak_cd": str, "gage_ht_cd": str},
+        )
 
         df = df[df["agency_cd"] == "USGS"].copy()
-        df["peak_date"] = pd.to_datetime(df["peak_dt"], errors="coerce")
+        df["peak_date"] = _parse_peak_dt(df["peak_dt"], self._site_no)
         df["peak_flow_cfs"] = pd.to_numeric(df["peak_va"], errors="coerce")
 
         df["water_year"] = df["peak_date"].apply(
@@ -1208,6 +1215,51 @@ def _parse_iv_rdb(text: str, ts_id: Optional[str] = None, param_cd: str = "00060
     frame = frame.drop(columns=["_offset_hours"])
     frame.index = index
     return frame[[value_col, *_IV_COLUMNS[1:]]]
+
+
+def _parse_peak_dt(peak_dt: pd.Series, site_no: str = "") -> pd.Series:
+    """Parse NWIS peak dates, including partial dates, the way peakfq does.
+
+    NWIS encodes an unknown day or month as ``00`` (``1897-03-00``,
+    ``1968-00-00``), which :func:`pandas.to_datetime` rejects. Coercing those to
+    NaT, as this parser once did, dropped the row -- and with it, typically, the
+    historic peaks a Bulletin 17C analysis depends on most. Follows peakfq
+    8.1.0's reader (``vendor/peakfqr/R/DataReaderFunctions_shinyapp.R``): an
+    unknown month becomes January, which keeps the peak in the water year equal
+    to its calendar year, and an unknown day becomes the 1st, which cannot
+    change the water year. The returned date is therefore a placeholder where
+    the day or month was unknown; the water year derived from it is exact.
+
+    Parameters
+    ----------
+    peak_dt : pandas.Series
+        ``peak_dt`` strings from the NWIS peak RDB (``YYYY-MM-DD``).
+    site_no : str, optional
+        Used only in the log message.
+
+    Returns
+    -------
+    pandas.Series
+        Datetimes; NaT only where the string is not a date at all.
+    """
+    parts = peak_dt.astype(str).str.strip().str.extract(r"^(\d{4})-(\d{2})-(\d{2})$")
+    year = pd.to_numeric(parts[0], errors="coerce")
+    month = pd.to_numeric(parts[1], errors="coerce")
+    day = pd.to_numeric(parts[2], errors="coerce")
+
+    partial = (month == 0) | (day == 0)
+    if partial.any():
+        logger.info(
+            "Site %s: %d peak date(s) with unknown day or month; placeholder "
+            "month 1 / day 1 used, as peakfq does",
+            site_no,
+            int(partial.sum()),
+        )
+
+    return pd.to_datetime(
+        pd.DataFrame({"year": year, "month": month.replace(0, 1), "day": day.replace(0, 1)}),
+        errors="coerce",
+    )
 
 
 def fetch_nwis_peaks(site_no: str) -> List[Dict]:

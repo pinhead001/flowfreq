@@ -77,6 +77,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   nothing new is added to it, so a new module is the only place new public functions
   are checked at all.
 
+### Fixed
+- **`USGSgage.download_peak_flow` silently dropped peaks with an unknown day or
+  month.** NWIS writes these as `00` (`1897-03-00`), which `pd.to_datetime`
+  coerced to NaT, so the row was lost. Those rows are typically the historic
+  peaks, which a B17C analysis relies on most. Partial dates now follow peakfq
+  8.1.0's reader: an unknown month becomes January, which keeps the water year
+  equal to the calendar year, and an unknown day becomes the 1st. **This changes
+  results**: sites with partial-date peaks now return more peaks than before.
+- **`download_peak_flow` read an all-numeric `peak_cd` column as float**, so
+  code `7` came back as `"7.0"`. Code columns are now read as strings.
+
 ## [0.8.0]
 
 ### Added
