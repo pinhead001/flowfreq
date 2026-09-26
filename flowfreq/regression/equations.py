@@ -5,8 +5,11 @@ An equation has the log-linear form USGS state reports use::
     log10(Q_p) = b0 + sum_i b_i * T_i(X_i)
 
 where each ``T_i`` is the transform the report applies to basin
-characteristic ``X_i`` (``log10``, ``log10(X+1)``, or none). Power-form
-equations, ``Q = 10**b0 * A**b1 * ...``, are the same thing written out.
+characteristic ``X_i`` (``log10``, ``log10(X+1)``, or none), optionally after a
+linear rescaling ``scale * X_i + offset`` (see :class:`Variable`). Power-form
+equations, ``Q = 10**b0 * A**b1 * ...``, are the same thing written out, so a
+published term such as ``(FOREST/100 + 1)**b`` is ``log10`` with ``scale=0.01``
+and ``offset=1``.
 
 The design follows :class:`flowfreq.transpose.RegressionExponents`. An
 equation cannot be built without a citation. Inputs outside the calibrated
@@ -36,6 +39,14 @@ TRANSFORMS: Dict[str, Callable[[float], float]] = {
     "log10_plus1": lambda x: math.log10(x + 1.0),
 }
 
+# Exclusive lower bound on the argument each transform accepts. ``log10_plus1``
+# is ``log10`` with its argument shifted by one, so its bound is -1.
+_DOMAIN_LOWER: Dict[str, Optional[float]] = {
+    "identity": None,
+    "log10": 0.0,
+    "log10_plus1": -1.0,
+}
+
 
 class OutOfRangeError(ValueError):
     """A basin characteristic lies outside the equation's calibrated range."""
@@ -57,13 +68,62 @@ class Citation:
 
 @dataclass(frozen=True)
 class Variable:
-    """An explanatory variable: a StreamStats characteristic code with its limits."""
+    """An explanatory variable: a StreamStats characteristic code with its limits.
+
+    The value entering the regression is ``T(scale * x + offset)``, where ``x``
+    is the characteristic in its published units and ``T`` is ``transform``.
+    The rescaling lets an equation be stored exactly as the report prints it:
+
+    =========================  ==========  =====  ======
+    Published term             transform   scale  offset
+    =========================  ==========  =====  ======
+    ``A**b``                   log10       1      0
+    ``(FOREST + 1)**b``        log10       1      1
+    ``(FOREST/100 + 1)**b``    log10       0.01   1
+    ``(ELEV/1000)**b``         log10       0.001  0
+    ``(GUTTER + 0.1)**b``      log10       1      0.1
+    ``b * (X - 20)``           identity    1      -20
+    =========================  ==========  =====  ======
+
+    ``transform="log10_plus1"`` is kept as a backward-compatible alias for
+    ``log10`` with ``offset`` increased by 1: it evaluates
+    ``log10(scale * x + offset + 1)``.
+
+    Parameters
+    ----------
+    code : str
+        StreamStats characteristic code.
+    transform : {"identity", "log10", "log10_plus1"}, default "log10"
+    units : str
+        Published units of ``x``.
+    minimum, maximum : float, optional
+        Calibrated range of the **raw** characteristic ``x`` in its published
+        units, before ``scale`` and ``offset`` are applied. That is how reports
+        tabulate ranges.
+    scale : float, default 1.0
+        Positive, finite multiplier applied to ``x`` before the transform.
+    offset : float, default 0.0
+        Finite constant added after ``scale`` and before the transform.
+
+    Notes
+    -----
+    A published covariance matrix ``(X^T Lambda^-1 X)^-1`` is in the basis of the
+    *transformed* predictors, ``T(scale * x + offset)``, because that is the
+    design matrix the regression was fitted on. An equation stored as published,
+    with its rescaling in ``scale`` and ``offset``, therefore takes the covariance
+    matrix exactly as printed. Folding a ``log10`` scale into the intercept
+    instead (``b * log10(x / k) = b * log10(x) - b * log10(k)``) moves the
+    predictor basis, and the intercept's row and column of the covariance matrix
+    would have to be transformed to match.
+    """
 
     code: str
     transform: str = "log10"
     units: str = ""
     minimum: Optional[float] = None
     maximum: Optional[float] = None
+    scale: float = 1.0
+    offset: float = 0.0
 
     def __post_init__(self) -> None:
         if self.transform not in TRANSFORMS:
@@ -72,6 +132,63 @@ class Variable:
             )
         if self.minimum is not None and self.maximum is not None and self.minimum > self.maximum:
             raise ValueError(f"{self.code}: minimum {self.minimum} > maximum {self.maximum}")
+        if not (math.isfinite(self.scale) and self.scale > 0):
+            raise ValueError(f"{self.code}: scale must be positive and finite, got {self.scale}")
+        if not math.isfinite(self.offset):
+            raise ValueError(f"{self.code}: offset must be finite, got {self.offset}")
+
+    def apply(self, x: float) -> float:
+        """Return ``T(scale * x + offset)``, the value entering the regression.
+
+        Parameters
+        ----------
+        x : float
+            The characteristic in its published units.
+
+        Returns
+        -------
+        float
+
+        Raises
+        ------
+        ValueError
+            If the transform's argument is outside its domain: ``<= 0`` for
+            ``log10``, ``<= -1`` for ``log10_plus1``. ``allow_extrapolation``
+            cannot override this, because there is no value to extrapolate to.
+        """
+        arg = self.scale * x + self.offset
+        lower = _DOMAIN_LOWER[self.transform]
+        if lower is not None and not arg > lower:
+            raise ValueError(
+                f"{self.code}={x}: {self.transform} needs {self._argument_text()} > "
+                f"{lower:g}, got {arg:g}"
+            )
+        return TRANSFORMS[self.transform](arg)
+
+    def _argument_text(self) -> str:
+        text = self.code if self.scale == 1.0 else f"{self.scale:g}*{self.code}"
+        if self.offset:
+            text += f" {'+' if self.offset > 0 else '-'} {abs(self.offset):g}"
+        return text
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Return the JSON form, omitting ``scale`` and ``offset`` at their defaults.
+
+        Omitting the defaults keeps a variable that does not rescale identical
+        to the form written before ``scale`` and ``offset`` existed.
+        """
+        d: Dict[str, Any] = {"code": self.code, "transform": self.transform}
+        if self.units:
+            d["units"] = self.units
+        if self.minimum is not None:
+            d["minimum"] = self.minimum
+        if self.maximum is not None:
+            d["maximum"] = self.maximum
+        if self.scale != 1.0:
+            d["scale"] = self.scale
+        if self.offset != 0.0:
+            d["offset"] = self.offset
+        return d
 
 
 @dataclass(frozen=True)
@@ -229,6 +346,9 @@ def evaluate(
         If a required characteristic is missing.
     OutOfRangeError
         If an input is outside its limits and ``allow_extrapolation`` is False.
+    ValueError
+        If a transform's argument, ``scale * x + offset``, is outside its domain
+        (``<= 0`` for ``log10``), whatever ``allow_extrapolation`` says.
     """
     missing = [v.code for v in eq.variables if v.code not in characteristics]
     if missing:
@@ -240,7 +360,10 @@ def evaluate(
     if problems:
         logger.warning("Extrapolating %s AEP %s: %s", eq.region_code, eq.aep, "; ".join(problems))
 
-    transformed = np.array([TRANSFORMS[v.transform](values[v.code]) for v in eq.variables])
+    try:
+        transformed = np.array([v.apply(values[v.code]) for v in eq.variables])
+    except ValueError as exc:
+        raise ValueError(f"{eq.region_code} AEP {eq.aep}: {exc}") from None
     log_q = eq.intercept + float(np.dot(eq.coefficients, transformed))
     flow = eq.bias_correction * 10.0**log_q
 

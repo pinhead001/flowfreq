@@ -1,9 +1,4638 @@
 {
   "schema_version": 1,
   "state": "MT",
-  "status": "pending",
+  "status": "verified",
   "issue": 40,
-  "source_reports": [],
-  "equations": [],
-  "notes": "No coefficients transcribed yet. Populate from the cited report or tools/snapshot_nss.py; never by hand from memory."
+  "source_reports": [
+    {
+      "citation": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+      "version": "1.1, February 2018",
+      "doi": "10.3133/sir20155019F",
+      "url": "https://pubs.usgs.gov/publication/sir20155019F",
+      "pdf": "https://pubs.usgs.gov/sir/2015/5019F/sir20155019F.pdf",
+      "covariance_download": "https://pubs.usgs.gov/sir/2015/5019F/sir20155019F_tables.xlsx",
+      "tables": [
+        "Table 3",
+        "Table 1-4",
+        "Table 1-5"
+      ],
+      "nss": {
+        "state_region_id": 30,
+        "citation_id": 88,
+        "regression_region_ids": [
+          313,
+          336,
+          339,
+          342,
+          345,
+          348,
+          351,
+          354
+        ]
+      }
+    }
+  ],
+  "equations": [
+    {
+      "region_code": "W",
+      "region_name": "West hydrologic region (NSS GC1675, regression region 354)",
+      "aep": 0.667,
+      "intercept": -1.3279021420642825,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.6,
+          "maximum": 2465.66
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 14.62,
+          "maximum": 62.02
+        },
+        {
+          "code": "FOREST",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 20.4,
+          "maximum": 99.04
+        }
+      ],
+      "coefficients": [
+        0.943,
+        2.44,
+        -0.84
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.238849,
+      "avp": 0.057,
+      "model_error_variance": 0.054,
+      "covariance": [
+        [
+          0.17808956,
+          -0.0025402344,
+          -0.018736793,
+          -0.076582661
+        ],
+        [
+          -0.0025402344,
+          0.00091036069,
+          0.0013661894,
+          -0.00065986429
+        ],
+        [
+          -0.018736793,
+          0.0013661894,
+          0.036018316,
+          -0.020728656
+        ],
+        [
+          -0.076582661,
+          -0.00065986429,
+          -0.020728656,
+          0.058328445
+        ]
+      ],
+      "n_sites": 113
+    },
+    {
+      "region_code": "W",
+      "region_name": "West hydrologic region (NSS GC1675, regression region 354)",
+      "aep": 0.5,
+      "intercept": -0.8827287043442357,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.6,
+          "maximum": 2465.66
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 14.62,
+          "maximum": 62.02
+        },
+        {
+          "code": "FOREST",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 20.4,
+          "maximum": 99.04
+        }
+      ],
+      "coefficients": [
+        0.92,
+        2.24,
+        -0.845
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.228556,
+      "avp": 0.052,
+      "model_error_variance": 0.05,
+      "covariance": [
+        [
+          0.16259763,
+          -0.0023157174,
+          -0.017109267,
+          -0.069917774
+        ],
+        [
+          -0.0023157174,
+          0.00083956158,
+          0.0012260362,
+          -0.00060072754
+        ],
+        [
+          -0.017109267,
+          0.0012260362,
+          0.03289197,
+          -0.018891159
+        ],
+        [
+          -0.069917774,
+          -0.00060072754,
+          -0.018891159,
+          0.053218972
+        ]
+      ],
+      "n_sites": 113
+    },
+    {
+      "region_code": "W",
+      "region_name": "West hydrologic region (NSS GC1675, regression region 354)",
+      "aep": 0.429,
+      "intercept": -0.7011469235902933,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.6,
+          "maximum": 2465.66
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 14.62,
+          "maximum": 62.02
+        },
+        {
+          "code": "FOREST",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 20.4,
+          "maximum": 99.04
+        }
+      ],
+      "coefficients": [
+        0.91,
+        2.16,
+        -0.847
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.225792,
+      "avp": 0.051,
+      "model_error_variance": 0.049,
+      "covariance": [
+        [
+          0.15925495,
+          -0.0022628591,
+          -0.016815722,
+          -0.068432854
+        ],
+        [
+          -0.0022628591,
+          0.00082487021,
+          0.0011873734,
+          -0.00058613874
+        ],
+        [
+          -0.016815722,
+          0.0011873734,
+          0.032187918,
+          -0.018427238
+        ],
+        [
+          -0.068432854,
+          -0.00058613874,
+          -0.018427238,
+          0.052032708
+        ]
+      ],
+      "n_sites": 113
+    },
+    {
+      "region_code": "W",
+      "region_name": "West hydrologic region (NSS GC1675, regression region 354)",
+      "aep": 0.2,
+      "intercept": -0.042871802323186915,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.6,
+          "maximum": 2465.66
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 14.62,
+          "maximum": 62.02
+        },
+        {
+          "code": "FOREST",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 20.4,
+          "maximum": 99.04
+        }
+      ],
+      "coefficients": [
+        0.876,
+        1.88,
+        -0.864
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.217385,
+      "avp": 0.047,
+      "model_error_variance": 0.045,
+      "covariance": [
+        [
+          0.15468189,
+          -0.0021688113,
+          -0.01694304,
+          -0.06594097
+        ],
+        [
+          -0.0021688113,
+          0.00080534721,
+          0.0010857947,
+          -0.00055430939
+        ],
+        [
+          -0.01694304,
+          0.0010857947,
+          0.03103049,
+          -0.017284834
+        ],
+        [
+          -0.06594097,
+          -0.00055430939,
+          -0.017284834,
+          0.049723874
+        ]
+      ],
+      "n_sites": 113
+    },
+    {
+      "region_code": "W",
+      "region_name": "West hydrologic region (NSS GC1675, regression region 354)",
+      "aep": 0.1,
+      "intercept": 0.3873898263387294,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.6,
+          "maximum": 2465.66
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 14.62,
+          "maximum": 62.02
+        },
+        {
+          "code": "FOREST",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 20.4,
+          "maximum": 99.04
+        }
+      ],
+      "coefficients": [
+        0.853,
+        1.71,
+        -0.875
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.215183,
+      "avp": 0.046,
+      "model_error_variance": 0.044,
+      "covariance": [
+        [
+          0.1599891,
+          -0.0022156337,
+          -0.018209482,
+          -0.067615035
+        ],
+        [
+          -0.0022156337,
+          0.00082904529,
+          0.0010670351,
+          -0.00055527348
+        ],
+        [
+          -0.018209482,
+          0.0010670351,
+          0.031924293,
+          -0.017295169
+        ],
+        [
+          -0.067615035,
+          -0.00055527348,
+          -0.017295169,
+          0.050604168
+        ]
+      ],
+      "n_sites": 113
+    },
+    {
+      "region_code": "W",
+      "region_name": "West hydrologic region (NSS GC1675, regression region 354)",
+      "aep": 0.04,
+      "intercept": 0.8202014594856403,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.6,
+          "maximum": 2465.66
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 14.62,
+          "maximum": 62.02
+        },
+        {
+          "code": "FOREST",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 20.4,
+          "maximum": 99.04
+        }
+      ],
+      "coefficients": [
+        0.831,
+        1.53,
+        -0.89
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.216916,
+      "avp": 0.047,
+      "model_error_variance": 0.044,
+      "covariance": [
+        [
+          0.17378794,
+          -0.0023725238,
+          -0.020664284,
+          -0.072700489
+        ],
+        [
+          -0.0023725238,
+          0.00089046815,
+          0.0010997187,
+          -0.00058013782
+        ],
+        [
+          -0.020664284,
+          0.0010997187,
+          0.03454553,
+          -0.018124893
+        ],
+        [
+          -0.072700489,
+          -0.00058013782,
+          -0.018124893,
+          0.053987452
+        ]
+      ],
+      "n_sites": 113
+    },
+    {
+      "region_code": "W",
+      "region_name": "West hydrologic region (NSS GC1675, regression region 354)",
+      "aep": 0.02,
+      "intercept": 1.0863598306747482,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.6,
+          "maximum": 2465.66
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 14.62,
+          "maximum": 62.02
+        },
+        {
+          "code": "FOREST",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 20.4,
+          "maximum": 99.04
+        }
+      ],
+      "coefficients": [
+        0.818,
+        1.42,
+        -0.896
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.220548,
+      "avp": 0.049,
+      "model_error_variance": 0.046,
+      "covariance": [
+        [
+          0.18745019,
+          -0.0025357052,
+          -0.022886537,
+          -0.077922552
+        ],
+        [
+          -0.0025357052,
+          0.00095189037,
+          0.0011524741,
+          -0.00061145837
+        ],
+        [
+          -0.022886537,
+          0.0011524741,
+          0.037215969,
+          -0.01914637
+        ],
+        [
+          -0.077922552,
+          -0.00061145837,
+          -0.01914637,
+          0.057614631
+        ]
+      ],
+      "n_sites": 113
+    },
+    {
+      "region_code": "W",
+      "region_name": "West hydrologic region (NSS GC1675, regression region 354)",
+      "aep": 0.01,
+      "intercept": 1.3324384599156054,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.6,
+          "maximum": 2465.66
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 14.62,
+          "maximum": 62.02
+        },
+        {
+          "code": "FOREST",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 20.4,
+          "maximum": 99.04
+        }
+      ],
+      "coefficients": [
+        0.806,
+        1.32,
+        -0.904
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.226928,
+      "avp": 0.051,
+      "model_error_variance": 0.048,
+      "covariance": [
+        [
+          0.20490306,
+          -0.002747623,
+          -0.025504879,
+          -0.084794257
+        ],
+        [
+          -0.002747623,
+          0.0010319482,
+          0.0012332837,
+          -0.00065656953
+        ],
+        [
+          -0.025504879,
+          0.0012332837,
+          0.040693023,
+          -0.020638254
+        ],
+        [
+          -0.084794257,
+          -0.00065656953,
+          -0.020638254,
+          0.062517873
+        ]
+      ],
+      "n_sites": 113
+    },
+    {
+      "region_code": "W",
+      "region_name": "West hydrologic region (NSS GC1675, regression region 354)",
+      "aep": 0.005,
+      "intercept": 1.550228353055094,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.6,
+          "maximum": 2465.66
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 14.62,
+          "maximum": 62.02
+        },
+        {
+          "code": "FOREST",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 20.4,
+          "maximum": 99.04
+        }
+      ],
+      "coefficients": [
+        0.796,
+        1.23,
+        -0.91
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.233796,
+      "avp": 0.055,
+      "model_error_variance": 0.051,
+      "covariance": [
+        [
+          0.22335508,
+          -0.0029725243,
+          -0.028249614,
+          -0.092084484
+        ],
+        [
+          -0.0029725243,
+          0.0011169059,
+          0.001322675,
+          -0.00070615617
+        ],
+        [
+          -0.028249614,
+          0.001322675,
+          0.04439218,
+          -0.022251433
+        ],
+        [
+          -0.092084484,
+          -0.00070615617,
+          -0.022251433,
+          0.06774837
+        ]
+      ],
+      "n_sites": 113
+    },
+    {
+      "region_code": "W",
+      "region_name": "West hydrologic region (NSS GC1675, regression region 354)",
+      "aep": 0.002,
+      "intercept": 1.8027737252919758,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.6,
+          "maximum": 2465.66
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 14.62,
+          "maximum": 62.02
+        },
+        {
+          "code": "FOREST",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 20.4,
+          "maximum": 99.04
+        }
+      ],
+      "coefficients": [
+        0.783,
+        1.12,
+        -0.915
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.245569,
+      "avp": 0.06,
+      "model_error_variance": 0.056,
+      "covariance": [
+        [
+          0.25210271,
+          -0.0033226701,
+          -0.032333073,
+          -0.1036218
+        ],
+        [
+          -0.0033226701,
+          0.001250983,
+          0.0014700249,
+          -0.00078715773
+        ],
+        [
+          -0.032333073,
+          0.0014700249,
+          0.050223863,
+          -0.024930225
+        ],
+        [
+          -0.1036218,
+          -0.00078715773,
+          -0.024930225,
+          0.076134116
+        ]
+      ],
+      "n_sites": 113
+    },
+    {
+      "region_code": "NW",
+      "region_name": "Northwest hydrologic region (WLS) (NSS GC1768, regression region 342)",
+      "aep": 0.667,
+      "intercept": 1.1622656142980214,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.43,
+          "maximum": 1556.17
+        }
+      ],
+      "coefficients": [
+        0.92
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.398663,
+      "avp": 0.159,
+      "model_error_variance": 0.15,
+      "covariance": [
+        [
+          0.049376,
+          -0.023541
+        ],
+        [
+          -0.023541,
+          0.0124538
+        ]
+      ],
+      "n_sites": 31
+    },
+    {
+      "region_code": "NW",
+      "region_name": "Northwest hydrologic region (WLS) (NSS GC1768, regression region 342)",
+      "aep": 0.5,
+      "intercept": 1.287801729930226,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.43,
+          "maximum": 1556.17
+        }
+      ],
+      "coefficients": [
+        0.903
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.331431,
+      "avp": 0.11,
+      "model_error_variance": 0.103,
+      "covariance": [
+        [
+          0.03179,
+          -0.01475
+        ],
+        [
+          -0.01475,
+          0.00763
+        ]
+      ],
+      "n_sites": 32
+    },
+    {
+      "region_code": "NW",
+      "region_name": "Northwest hydrologic region (WLS) (NSS GC1768, regression region 342)",
+      "aep": 0.429,
+      "intercept": 1.3502480183341627,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.43,
+          "maximum": 1556.17
+        }
+      ],
+      "coefficients": [
+        0.89
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.306663,
+      "avp": 0.094,
+      "model_error_variance": 0.088,
+      "covariance": [
+        [
+          0.02752,
+          -0.01276
+        ],
+        [
+          -0.01276,
+          0.00659
+        ]
+      ],
+      "n_sites": 32
+    },
+    {
+      "region_code": "NW",
+      "region_name": "Northwest hydrologic region (WLS) (NSS GC1768, regression region 342)",
+      "aep": 0.2,
+      "intercept": 1.6324572921847242,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.43,
+          "maximum": 1556.17
+        }
+      ],
+      "coefficients": [
+        0.838
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.2154,
+      "avp": 0.046,
+      "model_error_variance": 0.043,
+      "covariance": [
+        [
+          0.01572,
+          -0.00722
+        ],
+        [
+          -0.00722,
+          0.00369
+        ]
+      ],
+      "n_sites": 32
+    },
+    {
+      "region_code": "NW",
+      "region_name": "Northwest hydrologic region (WLS) (NSS GC1768, regression region 342)",
+      "aep": 0.1,
+      "intercept": 1.8438554226231612,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.43,
+          "maximum": 1556.17
+        }
+      ],
+      "coefficients": [
+        0.808
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.14508,
+      "avp": 0.021,
+      "model_error_variance": 0.019,
+      "covariance": [
+        [
+          0.01089,
+          -0.0049
+        ],
+        [
+          -0.0049,
+          0.002444
+        ]
+      ],
+      "n_sites": 32
+    },
+    {
+      "region_code": "NW",
+      "region_name": "Northwest hydrologic region (WLS) (NSS GC1768, regression region 342)",
+      "aep": 0.04,
+      "intercept": 2.12057393120585,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.43,
+          "maximum": 1556.17
+        }
+      ],
+      "coefficients": [
+        0.771
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.039483,
+      "avp": 0.002,
+      "model_error_variance": 0.0,
+      "covariance": [
+        [
+          0.008518,
+          -0.003682
+        ],
+        [
+          -0.003682,
+          0.001745
+        ]
+      ],
+      "n_sites": 32
+    },
+    {
+      "region_code": "NW",
+      "region_name": "Northwest hydrologic region (WLS) (NSS GC1768, regression region 342)",
+      "aep": 0.02,
+      "intercept": 2.3483048630481607,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.43,
+          "maximum": 1556.17
+        }
+      ],
+      "coefficients": [
+        0.732
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.048963,
+      "avp": 0.002,
+      "model_error_variance": 0.0,
+      "covariance": [
+        [
+          0.01309,
+          -0.00566
+        ],
+        [
+          -0.00566,
+          0.002683
+        ]
+      ],
+      "n_sites": 32
+    },
+    {
+      "region_code": "NW",
+      "region_name": "Northwest hydrologic region (WLS) (NSS GC1768, regression region 342)",
+      "aep": 0.01,
+      "intercept": 2.569373909615046,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.43,
+          "maximum": 1556.17
+        }
+      ],
+      "coefficients": [
+        0.695
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.058794,
+      "avp": 0.004,
+      "model_error_variance": 0.0,
+      "covariance": [
+        [
+          0.01888,
+          -0.008163
+        ],
+        [
+          -0.008163,
+          0.003869
+        ]
+      ],
+      "n_sites": 32
+    },
+    {
+      "region_code": "NW",
+      "region_name": "Northwest hydrologic region (WLS) (NSS GC1768, regression region 342)",
+      "aep": 0.005,
+      "intercept": 2.787460474518415,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.43,
+          "maximum": 1556.17
+        }
+      ],
+      "coefficients": [
+        0.659
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.069048,
+      "avp": 0.005,
+      "model_error_variance": 0.0,
+      "covariance": [
+        [
+          0.02599,
+          -0.01123
+        ],
+        [
+          -0.01123,
+          0.0053249
+        ]
+      ],
+      "n_sites": 32
+    },
+    {
+      "region_code": "NW",
+      "region_name": "Northwest hydrologic region (WLS) (NSS GC1768, regression region 342)",
+      "aep": 0.002,
+      "intercept": 3.068556895072363,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.43,
+          "maximum": 1556.17
+        }
+      ],
+      "coefficients": [
+        0.614
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.082885,
+      "avp": 0.007,
+      "model_error_variance": 0.0,
+      "covariance": [
+        [
+          0.03757,
+          -0.01624
+        ],
+        [
+          -0.01624,
+          0.0077
+        ]
+      ],
+      "n_sites": 32
+    },
+    {
+      "region_code": "NWF",
+      "region_name": "Northwest Foothills hydrologic region (NSS GC1677, regression region 339)",
+      "aep": 0.667,
+      "intercept": -1.8239087409443189,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.19,
+          "maximum": 1238.09
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 10.13,
+          "maximum": 23.36
+        }
+      ],
+      "coefficients": [
+        0.477,
+        2.44
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.417063,
+      "avp": 0.174,
+      "model_error_variance": 0.153,
+      "covariance": [
+        [
+          1.1741459,
+          0.045028218,
+          -1.0474673
+        ],
+        [
+          0.045028218,
+          0.0078381995,
+          -0.048098111
+        ],
+        [
+          -1.0474673,
+          -0.048098111,
+          0.95015662
+        ]
+      ],
+      "n_sites": 28
+    },
+    {
+      "region_code": "NWF",
+      "region_name": "Northwest Foothills hydrologic region (NSS GC1677, regression region 339)",
+      "aep": 0.5,
+      "intercept": -1.4685210829577449,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.19,
+          "maximum": 1238.09
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 10.13,
+          "maximum": 23.36
+        }
+      ],
+      "coefficients": [
+        0.447,
+        2.39
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.342078,
+      "avp": 0.117,
+      "model_error_variance": 0.103,
+      "covariance": [
+        [
+          0.81836153,
+          0.030873471,
+          -0.7270042
+        ],
+        [
+          0.030873471,
+          0.0051163003,
+          -0.032376477
+        ],
+        [
+          -0.7270042,
+          -0.032376477,
+          0.65583994
+        ]
+      ],
+      "n_sites": 31
+    },
+    {
+      "region_code": "NWF",
+      "region_name": "Northwest Foothills hydrologic region (NSS GC1677, regression region 339)",
+      "aep": 0.429,
+      "intercept": -1.2596373105057561,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.19,
+          "maximum": 1238.09
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 10.13,
+          "maximum": 23.36
+        }
+      ],
+      "coefficients": [
+        0.441,
+        2.31
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.320254,
+      "avp": 0.103,
+      "model_error_variance": 0.09,
+      "covariance": [
+        [
+          0.73743431,
+          0.027725289,
+          -0.65438188
+        ],
+        [
+          0.027725289,
+          0.0046022736,
+          -0.029098128
+        ],
+        [
+          -0.65438188,
+          -0.029098128,
+          0.5898573
+        ]
+      ],
+      "n_sites": 31
+    },
+    {
+      "region_code": "NWF",
+      "region_name": "Northwest Foothills hydrologic region (NSS GC1677, regression region 339)",
+      "aep": 0.2,
+      "intercept": -0.518557371497695,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.19,
+          "maximum": 1238.09
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 10.13,
+          "maximum": 23.36
+        }
+      ],
+      "coefficients": [
+        0.429,
+        2.03
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.253891,
+      "avp": 0.064,
+      "model_error_variance": 0.055,
+      "covariance": [
+        [
+          0.56033321,
+          0.021262993,
+          -0.49514878
+        ],
+        [
+          0.021262993,
+          0.0034700146,
+          -0.022245119
+        ],
+        [
+          -0.49514878,
+          -0.022245119,
+          0.4449225
+        ]
+      ],
+      "n_sites": 31
+    },
+    {
+      "region_code": "NWF",
+      "region_name": "Northwest Foothills hydrologic region (NSS GC1677, regression region 339)",
+      "aep": 0.1,
+      "intercept": -0.0381045263321496,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.19,
+          "maximum": 1238.09
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 10.13,
+          "maximum": 23.36
+        }
+      ],
+      "coefficients": [
+        0.433,
+        1.83
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.228273,
+      "avp": 0.052,
+      "model_error_variance": 0.042,
+      "covariance": [
+        [
+          0.54331273,
+          0.021351226,
+          -0.47938616
+        ],
+        [
+          0.021351226,
+          0.0033610594,
+          -0.022124947
+        ],
+        [
+          -0.47938616,
+          -0.022124947,
+          0.43014644
+        ]
+      ],
+      "n_sites": 31
+    },
+    {
+      "region_code": "NWF",
+      "region_name": "Northwest Foothills hydrologic region (NSS GC1677, regression region 339)",
+      "aep": 0.04,
+      "intercept": 0.5105450102066121,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.19,
+          "maximum": 1238.09
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 10.13,
+          "maximum": 23.36
+        }
+      ],
+      "coefficients": [
+        0.451,
+        1.57
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.224121,
+      "avp": 0.05,
+      "model_error_variance": 0.039,
+      "covariance": [
+        [
+          0.61812421,
+          0.025511752,
+          -0.54563731
+        ],
+        [
+          0.025511752,
+          0.0038611761,
+          -0.026140042
+        ],
+        [
+          -0.54563731,
+          -0.026140042,
+          0.48956951
+        ]
+      ],
+      "n_sites": 31
+    },
+    {
+      "region_code": "NWF",
+      "region_name": "Northwest Foothills hydrologic region (NSS GC1677, regression region 339)",
+      "aep": 0.02,
+      "intercept": 0.8808135922807914,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.19,
+          "maximum": 1238.09
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 10.13,
+          "maximum": 23.36
+        }
+      ],
+      "coefficients": [
+        0.469,
+        1.38
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.237668,
+      "avp": 0.056,
+      "model_error_variance": 0.044,
+      "covariance": [
+        [
+          0.73206699,
+          0.031027749,
+          -0.6471078
+        ],
+        [
+          0.031027749,
+          0.0046209108,
+          -0.031632676
+        ],
+        [
+          -0.6471078,
+          -0.031632676,
+          0.58112606
+        ]
+      ],
+      "n_sites": 31
+    },
+    {
+      "region_code": "NWF",
+      "region_name": "Northwest Foothills hydrologic region (NSS GC1677, regression region 339)",
+      "aep": 0.01,
+      "intercept": 1.212187604403958,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.19,
+          "maximum": 1238.09
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 10.13,
+          "maximum": 23.36
+        }
+      ],
+      "coefficients": [
+        0.487,
+        1.2
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.260584,
+      "avp": 0.068,
+      "model_error_variance": 0.053,
+      "covariance": [
+        [
+          0.88680127,
+          0.038250673,
+          -0.78516777
+        ],
+        [
+          0.038250673,
+          0.0056525064,
+          -0.038889838
+        ],
+        [
+          -0.78516777,
+          -0.038889838,
+          0.70593843
+        ]
+      ],
+      "n_sites": 31
+    },
+    {
+      "region_code": "NWF",
+      "region_name": "Northwest Foothills hydrologic region (NSS GC1677, regression region 339)",
+      "aep": 0.005,
+      "intercept": 1.5198279937757189,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.19,
+          "maximum": 1238.09
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 10.13,
+          "maximum": 23.36
+        }
+      ],
+      "coefficients": [
+        0.505,
+        1.04
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.289411,
+      "avp": 0.084,
+      "model_error_variance": 0.065,
+      "covariance": [
+        [
+          1.0769313,
+          0.046979605,
+          -0.95503451
+        ],
+        [
+          0.046979605,
+          0.0069220007,
+          -0.047699329
+        ],
+        [
+          -0.95503451,
+          -0.047699329,
+          0.85970264
+        ]
+      ],
+      "n_sites": 31
+    },
+    {
+      "region_code": "NWF",
+      "region_name": "Northwest Foothills hydrologic region (NSS GC1677, regression region 339)",
+      "aep": 0.002,
+      "intercept": 1.8842287696326039,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.19,
+          "maximum": 1238.09
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 10.13,
+          "maximum": 23.36
+        }
+      ],
+      "coefficients": [
+        0.53,
+        0.844
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.33301,
+      "avp": 0.111,
+      "model_error_variance": 0.088,
+      "covariance": [
+        [
+          1.376319,
+          0.060597411,
+          -1.2228407
+        ],
+        [
+          0.060597411,
+          0.0089266575,
+          -0.061482217
+        ],
+        [
+          -1.2228407,
+          -0.061482217,
+          1.102398
+        ]
+      ],
+      "n_sites": 31
+    },
+    {
+      "region_code": "NEP",
+      "region_name": "Northeast Plains hydrologic region (NSS GC1678, regression region 336)",
+      "aep": 0.667,
+      "intercept": 0.6989700043360189,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.18,
+          "maximum": 2747.31
+        },
+        {
+          "code": "EL5000",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 30.52
+        }
+      ],
+      "coefficients": [
+        0.674,
+        -0.026
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.37846,
+      "avp": 0.143,
+      "model_error_variance": 0.133,
+      "covariance": [
+        [
+          0.011147564,
+          -0.0042930371,
+          -0.00079969839
+        ],
+        [
+          -0.0042930371,
+          0.0030902214,
+          -0.0017264209
+        ],
+        [
+          -0.00079969839,
+          -0.0017264209,
+          0.017564275
+        ]
+      ],
+      "n_sites": 59
+    },
+    {
+      "region_code": "NEP",
+      "region_name": "Northeast Plains hydrologic region (NSS GC1678, regression region 336)",
+      "aep": 0.5,
+      "intercept": 0.9159272116971158,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.18,
+          "maximum": 2747.31
+        },
+        {
+          "code": "EL5000",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 30.52
+        }
+      ],
+      "coefficients": [
+        0.685,
+        -0.111
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.35029,
+      "avp": 0.123,
+      "model_error_variance": 0.114,
+      "covariance": [
+        [
+          0.008737522,
+          -0.0030631532,
+          -0.0012067498
+        ],
+        [
+          -0.0030631532,
+          0.0021765146,
+          -0.00090006003
+        ],
+        [
+          -0.0012067498,
+          -0.00090006003,
+          0.013232927
+        ]
+      ],
+      "n_sites": 64
+    },
+    {
+      "region_code": "NEP",
+      "region_name": "Northeast Plains hydrologic region (NSS GC1678, regression region 336)",
+      "aep": 0.429,
+      "intercept": 1.0413926851582251,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.18,
+          "maximum": 2747.31
+        },
+        {
+          "code": "EL5000",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 30.52
+        }
+      ],
+      "coefficients": [
+        0.677,
+        -0.131
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.327055,
+      "avp": 0.107,
+      "model_error_variance": 0.099,
+      "covariance": [
+        [
+          0.0079804675,
+          -0.0027510837,
+          -0.00105178
+        ],
+        [
+          -0.0027510837,
+          0.0019366264,
+          -0.00080809309
+        ],
+        [
+          -0.00105178,
+          -0.00080809309,
+          0.011724533
+        ]
+      ],
+      "n_sites": 64
+    },
+    {
+      "region_code": "NEP",
+      "region_name": "Northeast Plains hydrologic region (NSS GC1678, regression region 336)",
+      "aep": 0.2,
+      "intercept": 1.506505032404872,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.18,
+          "maximum": 2747.31
+        },
+        {
+          "code": "EL5000",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 30.52
+        }
+      ],
+      "coefficients": [
+        0.64,
+        -0.196
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.24922,
+      "avp": 0.062,
+      "model_error_variance": 0.057,
+      "covariance": [
+        [
+          0.0060916674,
+          -0.0019286348,
+          -0.00070465034
+        ],
+        [
+          -0.0019286348,
+          0.0013073299,
+          -0.00054888888
+        ],
+        [
+          -0.00070465034,
+          -0.00054888888,
+          0.0077658902
+        ]
+      ],
+      "n_sites": 64
+    },
+    {
+      "region_code": "NEP",
+      "region_name": "Northeast Plains hydrologic region (NSS GC1678, regression region 336)",
+      "aep": 0.1,
+      "intercept": 1.7958800173440752,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.18,
+          "maximum": 2747.31
+        },
+        {
+          "code": "EL5000",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 30.52
+        }
+      ],
+      "coefficients": [
+        0.617,
+        -0.231
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.216483,
+      "avp": 0.047,
+      "model_error_variance": 0.042,
+      "covariance": [
+        [
+          0.0057269907,
+          -0.0017220034,
+          -0.00068035167
+        ],
+        [
+          -0.0017220034,
+          0.0011465563,
+          -0.00045549712
+        ],
+        [
+          -0.00068035167,
+          -0.00045549712,
+          0.0067736386
+        ]
+      ],
+      "n_sites": 64
+    },
+    {
+      "region_code": "NEP",
+      "region_name": "Northeast Plains hydrologic region (NSS GC1678, regression region 336)",
+      "aep": 0.04,
+      "intercept": 2.0827853703164503,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.18,
+          "maximum": 2747.31
+        },
+        {
+          "code": "EL5000",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 30.52
+        }
+      ],
+      "coefficients": [
+        0.594,
+        -0.262
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.202314,
+      "avp": 0.041,
+      "model_error_variance": 0.036,
+      "covariance": [
+        [
+          0.0060642213,
+          -0.001770255,
+          -0.00077992498
+        ],
+        [
+          -0.001770255,
+          0.0011666204,
+          -0.00042030997
+        ],
+        [
+          -0.00077992498,
+          -0.00042030997,
+          0.0069173556
+        ]
+      ],
+      "n_sites": 64
+    },
+    {
+      "region_code": "NEP",
+      "region_name": "Northeast Plains hydrologic region (NSS GC1678, regression region 336)",
+      "aep": 0.02,
+      "intercept": 2.2576785748691846,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.18,
+          "maximum": 2747.31
+        },
+        {
+          "code": "EL5000",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 30.52
+        }
+      ],
+      "coefficients": [
+        0.579,
+        -0.28
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.207685,
+      "avp": 0.043,
+      "model_error_variance": 0.037,
+      "covariance": [
+        [
+          0.006745093,
+          -0.001975271,
+          -0.00090347027
+        ],
+        [
+          -0.001975271,
+          0.0013002084,
+          -0.00044211715
+        ],
+        [
+          -0.00090347027,
+          -0.00044211715,
+          0.0077550124
+        ]
+      ],
+      "n_sites": 64
+    },
+    {
+      "region_code": "NEP",
+      "region_name": "Northeast Plains hydrologic region (NSS GC1678, regression region 336)",
+      "aep": 0.01,
+      "intercept": 2.4099331233312946,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.18,
+          "maximum": 2747.31
+        },
+        {
+          "code": "EL5000",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 30.52
+        }
+      ],
+      "coefficients": [
+        0.565,
+        -0.292
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.221407,
+      "avp": 0.049,
+      "model_error_variance": 0.042,
+      "covariance": [
+        [
+          0.007668467,
+          -0.0022788372,
+          -0.0010527508
+        ],
+        [
+          -0.0022788372,
+          0.0015028046,
+          -0.00049112738
+        ],
+        [
+          -0.0010527508,
+          -0.00049112738,
+          0.0090191114
+        ]
+      ],
+      "n_sites": 64
+    },
+    {
+      "region_code": "NEP",
+      "region_name": "Northeast Plains hydrologic region (NSS GC1678, regression region 336)",
+      "aep": 0.005,
+      "intercept": 2.5440680443502757,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.18,
+          "maximum": 2747.31
+        },
+        {
+          "code": "EL5000",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 30.52
+        }
+      ],
+      "coefficients": [
+        0.552,
+        -0.301
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.239334,
+      "avp": 0.057,
+      "model_error_variance": 0.049,
+      "covariance": [
+        [
+          0.0087418773,
+          -0.0026454433,
+          -0.0012197269
+        ],
+        [
+          -0.0026454433,
+          0.0017496885,
+          -0.00055602084
+        ],
+        [
+          -0.0012197269,
+          -0.00055602084,
+          0.010561252
+        ]
+      ],
+      "n_sites": 64
+    },
+    {
+      "region_code": "NEP",
+      "region_name": "Northeast Plains hydrologic region (NSS GC1678, regression region 336)",
+      "aep": 0.002,
+      "intercept": 2.7041505168397992,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.18,
+          "maximum": 2747.31
+        },
+        {
+          "code": "EL5000",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 30.52
+        }
+      ],
+      "coefficients": [
+        0.535,
+        -0.308
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.265381,
+      "avp": 0.07,
+      "model_error_variance": 0.061,
+      "covariance": [
+        [
+          0.010292727,
+          -0.0031883774,
+          -0.0014587301
+        ],
+        [
+          -0.0031883774,
+          0.0021171412,
+          -0.00065438313
+        ],
+        [
+          -0.0014587301,
+          -0.00065438313,
+          0.012864288
+        ]
+      ],
+      "n_sites": 64
+    },
+    {
+      "region_code": "ECP",
+      "region_name": "East-Central Plains hydrologic region (NSS GC1679, regression region 313)",
+      "aep": 0.667,
+      "intercept": 1.1367205671564067,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.11,
+          "maximum": 2550.96
+        },
+        {
+          "code": "SLOP30_30M",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 31.87
+        },
+        {
+          "code": "ET0306MOD",
+          "transform": "log10",
+          "units": "in/month",
+          "minimum": 0.9,
+          "maximum": 1.57
+        }
+      ],
+      "coefficients": [
+        0.567,
+        0.136,
+        -4.92
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.356848,
+      "avp": 0.127,
+      "model_error_variance": 0.118,
+      "covariance": [
+        [
+          0.005754885,
+          -0.0012031967,
+          -0.0021199304,
+          -0.012650117
+        ],
+        [
+          -0.0012031967,
+          0.0017891587,
+          -0.0007232116,
+          -0.015297963
+        ],
+        [
+          -0.0021199304,
+          -0.0007232116,
+          0.015007285,
+          -0.01553047
+        ],
+        [
+          -0.012650117,
+          -0.015297963,
+          -0.01553047,
+          1.0861858
+        ]
+      ],
+      "n_sites": 85
+    },
+    {
+      "region_code": "ECP",
+      "region_name": "East-Central Plains hydrologic region (NSS GC1679, regression region 313)",
+      "aep": 0.5,
+      "intercept": 1.4099331233312946,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.11,
+          "maximum": 2550.96
+        },
+        {
+          "code": "SLOP30_30M",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 31.87
+        },
+        {
+          "code": "ET0306MOD",
+          "transform": "log10",
+          "units": "in/month",
+          "minimum": 0.9,
+          "maximum": 1.57
+        }
+      ],
+      "coefficients": [
+        0.54,
+        0.112,
+        -4.28
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.344981,
+      "avp": 0.119,
+      "model_error_variance": 0.111,
+      "covariance": [
+        [
+          0.005253366,
+          -0.0010447128,
+          -0.001924683,
+          -0.013308655
+        ],
+        [
+          -0.0010447128,
+          0.001573903,
+          -0.00073570372,
+          -0.012727613
+        ],
+        [
+          -0.001924683,
+          -0.00073570372,
+          0.013756766,
+          -0.011348604
+        ],
+        [
+          -0.013308655,
+          -0.012727613,
+          -0.011348604,
+          0.98059527
+        ]
+      ],
+      "n_sites": 90
+    },
+    {
+      "region_code": "ECP",
+      "region_name": "East-Central Plains hydrologic region (NSS GC1679, regression region 313)",
+      "aep": 0.429,
+      "intercept": 1.5314789170422551,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.11,
+          "maximum": 2550.96
+        },
+        {
+          "code": "SLOP30_30M",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 31.87
+        },
+        {
+          "code": "ET0306MOD",
+          "transform": "log10",
+          "units": "in/month",
+          "minimum": 0.9,
+          "maximum": 1.57
+        }
+      ],
+      "coefficients": [
+        0.534,
+        0.124,
+        -4.28
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.323784,
+      "avp": 0.105,
+      "model_error_variance": 0.097,
+      "covariance": [
+        [
+          0.004866231,
+          -0.00094891854,
+          -0.0017473282,
+          -0.011926762
+        ],
+        [
+          -0.00094891854,
+          0.0014050485,
+          -0.00065021226,
+          -0.011428001
+        ],
+        [
+          -0.0017473282,
+          -0.00065021226,
+          0.012357348,
+          -0.0094252627
+        ],
+        [
+          -0.011926762,
+          -0.011428001,
+          -0.0094252627,
+          0.88734299
+        ]
+      ],
+      "n_sites": 90
+    },
+    {
+      "region_code": "ECP",
+      "region_name": "East-Central Plains hydrologic region (NSS GC1679, regression region 313)",
+      "aep": 0.2,
+      "intercept": 1.9708116108725178,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.11,
+          "maximum": 2550.96
+        },
+        {
+          "code": "SLOP30_30M",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 31.87
+        },
+        {
+          "code": "ET0306MOD",
+          "transform": "log10",
+          "units": "in/month",
+          "minimum": 0.9,
+          "maximum": 1.57
+        }
+      ],
+      "coefficients": [
+        0.509,
+        0.175,
+        -4.11
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.261779,
+      "avp": 0.069,
+      "model_error_variance": 0.063,
+      "covariance": [
+        [
+          0.0040572237,
+          -0.00073014864,
+          -0.0013718001,
+          -0.0088131136
+        ],
+        [
+          -0.00073014864,
+          0.0010200259,
+          -0.00046746893,
+          -0.0086457737
+        ],
+        [
+          -0.0013718001,
+          -0.00046746893,
+          0.0094092873,
+          -0.003712041
+        ],
+        [
+          -0.0088131136,
+          -0.0086457737,
+          -0.003712041,
+          0.69605892
+        ]
+      ],
+      "n_sites": 90
+    },
+    {
+      "region_code": "ECP",
+      "region_name": "East-Central Plains hydrologic region (NSS GC1679, regression region 313)",
+      "aep": 0.1,
+      "intercept": 2.250420002308894,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.11,
+          "maximum": 2550.96
+        },
+        {
+          "code": "SLOP30_30M",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 31.87
+        },
+        {
+          "code": "ET0306MOD",
+          "transform": "log10",
+          "units": "in/month",
+          "minimum": 0.9,
+          "maximum": 1.57
+        }
+      ],
+      "coefficients": [
+        0.489,
+        0.214,
+        -3.9
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.243923,
+      "avp": 0.06,
+      "model_error_variance": 0.053,
+      "covariance": [
+        [
+          0.0040871805,
+          -0.00070912515,
+          -0.0013762179,
+          -0.0085711405
+        ],
+        [
+          -0.00070912515,
+          0.000977039,
+          -0.00045691289,
+          -0.0086012885
+        ],
+        [
+          -0.0013762179,
+          -0.00045691289,
+          0.0094078881,
+          -0.0011403445
+        ],
+        [
+          -0.0085711405,
+          -0.0086012885,
+          -0.0011403445,
+          0.70496143
+        ]
+      ],
+      "n_sites": 90
+    },
+    {
+      "region_code": "ECP",
+      "region_name": "East-Central Plains hydrologic region (NSS GC1679, regression region 313)",
+      "aep": 0.04,
+      "intercept": 2.5276299008713385,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.11,
+          "maximum": 2550.96
+        },
+        {
+          "code": "SLOP30_30M",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 31.87
+        },
+        {
+          "code": "ET0306MOD",
+          "transform": "log10",
+          "units": "in/month",
+          "minimum": 0.9,
+          "maximum": 1.57
+        }
+      ],
+      "coefficients": [
+        0.468,
+        0.254,
+        -3.65
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.250137,
+      "avp": 0.063,
+      "model_error_variance": 0.056,
+      "covariance": [
+        [
+          0.0046457771,
+          -0.00080021896,
+          -0.0016167427,
+          -0.0099025398
+        ],
+        [
+          -0.00080021896,
+          0.0011102351,
+          -0.00053009991,
+          -0.010090143
+        ],
+        [
+          -0.0016167427,
+          -0.00053009991,
+          0.011061322,
+          0.00084787501
+        ],
+        [
+          -0.0099025398,
+          -0.010090143,
+          0.00084787501,
+          0.83351563
+        ]
+      ],
+      "n_sites": 90
+    },
+    {
+      "region_code": "ECP",
+      "region_name": "East-Central Plains hydrologic region (NSS GC1679, regression region 313)",
+      "aep": 0.02,
+      "intercept": 2.696356388733332,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.11,
+          "maximum": 2550.96
+        },
+        {
+          "code": "SLOP30_30M",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 31.87
+        },
+        {
+          "code": "ET0306MOD",
+          "transform": "log10",
+          "units": "in/month",
+          "minimum": 0.9,
+          "maximum": 1.57
+        }
+      ],
+      "coefficients": [
+        0.454,
+        0.279,
+        -3.48
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.26515,
+      "avp": 0.07,
+      "model_error_variance": 0.062,
+      "covariance": [
+        [
+          0.0052681395,
+          -0.00091547805,
+          -0.0018934427,
+          -0.011529433
+        ],
+        [
+          -0.00091547805,
+          0.001280719,
+          -0.00061507516,
+          -0.011794767
+        ],
+        [
+          -0.0018934427,
+          -0.00061507516,
+          0.012926394,
+          0.0019949534
+        ],
+        [
+          -0.011529433,
+          -0.011794767,
+          0.0019949534,
+          0.97588632
+        ]
+      ],
+      "n_sites": 90
+    },
+    {
+      "region_code": "ECP",
+      "region_name": "East-Central Plains hydrologic region (NSS GC1679, regression region 313)",
+      "aep": 0.01,
+      "intercept": 2.840106094456758,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.11,
+          "maximum": 2550.96
+        },
+        {
+          "code": "SLOP30_30M",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 31.87
+        },
+        {
+          "code": "ET0306MOD",
+          "transform": "log10",
+          "units": "in/month",
+          "minimum": 0.9,
+          "maximum": 1.57
+        }
+      ],
+      "coefficients": [
+        0.442,
+        0.299,
+        -3.32
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.285518,
+      "avp": 0.082,
+      "model_error_variance": 0.072,
+      "covariance": [
+        [
+          0.0060136521,
+          -0.0010615629,
+          -0.0022344705,
+          -0.013550156
+        ],
+        [
+          -0.0010615629,
+          0.0014960226,
+          -0.00071775725,
+          -0.013875018
+        ],
+        [
+          -0.0022344705,
+          -0.00071775725,
+          0.015187533,
+          0.0029914448
+        ],
+        [
+          -0.013550156,
+          -0.013875018,
+          0.0029914448,
+          1.1480239
+        ]
+      ],
+      "n_sites": 90
+    },
+    {
+      "region_code": "ECP",
+      "region_name": "East-Central Plains hydrologic region (NSS GC1679, regression region 313)",
+      "aep": 0.005,
+      "intercept": 2.9661417327390325,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.11,
+          "maximum": 2550.96
+        },
+        {
+          "code": "SLOP30_30M",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 31.87
+        },
+        {
+          "code": "ET0306MOD",
+          "transform": "log10",
+          "units": "in/month",
+          "minimum": 0.9,
+          "maximum": 1.57
+        }
+      ],
+      "coefficients": [
+        0.431,
+        0.317,
+        -3.17
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.309447,
+      "avp": 0.096,
+      "model_error_variance": 0.085,
+      "covariance": [
+        [
+          0.0068596277,
+          -0.0012344708,
+          -0.0026315254,
+          -0.015903646
+        ],
+        [
+          -0.0012344708,
+          0.0017497773,
+          -0.00083489064,
+          -0.016278759
+        ],
+        [
+          -0.0026315254,
+          -0.00083489064,
+          0.017788049,
+          0.0038921257
+        ],
+        [
+          -0.015903646,
+          -0.016278759,
+          0.0038921257,
+          1.3458803
+        ]
+      ],
+      "n_sites": 90
+    },
+    {
+      "region_code": "ECP",
+      "region_name": "East-Central Plains hydrologic region (NSS GC1679, regression region 313)",
+      "aep": 0.002,
+      "intercept": 3.110589710299249,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.11,
+          "maximum": 2550.96
+        },
+        {
+          "code": "SLOP30_30M",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 31.87
+        },
+        {
+          "code": "ET0306MOD",
+          "transform": "log10",
+          "units": "in/month",
+          "minimum": 0.9,
+          "maximum": 1.57
+        }
+      ],
+      "coefficients": [
+        0.418,
+        0.337,
+        -2.98
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.343039,
+      "avp": 0.118,
+      "model_error_variance": 0.105,
+      "covariance": [
+        [
+          0.0080745641,
+          -0.0014908862,
+          -0.003214231,
+          -0.019353289
+        ],
+        [
+          -0.0014908862,
+          0.0021241886,
+          -0.0010032054,
+          -0.019787874
+        ],
+        [
+          -0.003214231,
+          -0.0010032054,
+          0.021569155,
+          0.00504857
+        ],
+        [
+          -0.019353289,
+          -0.019787874,
+          0.00504857,
+          1.6339498
+        ]
+      ],
+      "n_sites": 90
+    },
+    {
+      "region_code": "SEP",
+      "region_name": "Southeast Plains hydrologic region (NSS GC1680, regression region 345)",
+      "aep": 0.667,
+      "intercept": 1.2380461031287955,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.1,
+          "maximum": 1962.05
+        },
+        {
+          "code": "FOREST",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 57.64
+        },
+        {
+          "code": "ET0306MOD",
+          "transform": "log10",
+          "units": "in/month",
+          "minimum": 0.96,
+          "maximum": 1.67
+        }
+      ],
+      "coefficients": [
+        0.629,
+        -0.406,
+        -1.99
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.5618,
+      "avp": 0.316,
+      "model_error_variance": 0.294,
+      "covariance": [
+        [
+          0.02404471,
+          -0.00092058779,
+          -0.0091474665,
+          -0.12057777
+        ],
+        [
+          -0.00092058779,
+          0.0048782028,
+          -0.0017876718,
+          -0.033500288
+        ],
+        [
+          -0.0091474665,
+          -0.0017876718,
+          0.016084501,
+          -0.011944768
+        ],
+        [
+          -0.12057777,
+          -0.033500288,
+          -0.011944768,
+          2.0431652
+        ]
+      ],
+      "n_sites": 67
+    },
+    {
+      "region_code": "SEP",
+      "region_name": "Southeast Plains hydrologic region (NSS GC1680, regression region 345)",
+      "aep": 0.5,
+      "intercept": 1.505149978319906,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.1,
+          "maximum": 1962.05
+        },
+        {
+          "code": "FOREST",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 57.64
+        },
+        {
+          "code": "ET0306MOD",
+          "transform": "log10",
+          "units": "in/month",
+          "minimum": 0.96,
+          "maximum": 1.67
+        }
+      ],
+      "coefficients": [
+        0.616,
+        -0.36,
+        -2.33
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.482948,
+      "avp": 0.233,
+      "model_error_variance": 0.217,
+      "covariance": [
+        [
+          0.018086849,
+          -0.00074728668,
+          -0.0068322995,
+          -0.088683862
+        ],
+        [
+          -0.00074728668,
+          0.0036388827,
+          -0.0013667156,
+          -0.02464065
+        ],
+        [
+          -0.0068322995,
+          -0.0013667156,
+          0.012143364,
+          -0.0081670021
+        ],
+        [
+          -0.088683862,
+          -0.02464065,
+          -0.0081670021,
+          1.5083281
+        ]
+      ],
+      "n_sites": 68
+    },
+    {
+      "region_code": "SEP",
+      "region_name": "Southeast Plains hydrologic region (NSS GC1680, regression region 345)",
+      "aep": 0.429,
+      "intercept": 1.6117233080073419,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.1,
+          "maximum": 1962.05
+        },
+        {
+          "code": "FOREST",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 57.64
+        },
+        {
+          "code": "ET0306MOD",
+          "transform": "log10",
+          "units": "in/month",
+          "minimum": 0.96,
+          "maximum": 1.67
+        }
+      ],
+      "coefficients": [
+        0.611,
+        -0.342,
+        -2.43
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.460467,
+      "avp": 0.212,
+      "model_error_variance": 0.197,
+      "covariance": [
+        [
+          0.016644505,
+          -0.00069511448,
+          -0.0062207996,
+          -0.081377255
+        ],
+        [
+          -0.00069511448,
+          0.0033280167,
+          -0.0012596837,
+          -0.022531024
+        ],
+        [
+          -0.0062207996,
+          -0.0012596837,
+          0.011190086,
+          -0.0075608329
+        ],
+        [
+          -0.081377255,
+          -0.022531024,
+          -0.0075608329,
+          1.3834181
+        ]
+      ],
+      "n_sites": 68
+    },
+    {
+      "region_code": "SEP",
+      "region_name": "Southeast Plains hydrologic region (NSS GC1680, regression region 345)",
+      "aep": 0.2,
+      "intercept": 2.0,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.1,
+          "maximum": 1962.05
+        },
+        {
+          "code": "FOREST",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 57.64
+        },
+        {
+          "code": "ET0306MOD",
+          "transform": "log10",
+          "units": "in/month",
+          "minimum": 0.96,
+          "maximum": 1.67
+        }
+      ],
+      "coefficients": [
+        0.59,
+        -0.25,
+        -2.99
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.363784,
+      "avp": 0.132,
+      "model_error_variance": 0.122,
+      "covariance": [
+        [
+          0.011668401,
+          -0.00050745343,
+          -0.0040348048,
+          -0.055885775
+        ],
+        [
+          -0.00050745343,
+          0.0022178567,
+          -0.00088430081,
+          -0.015146857
+        ],
+        [
+          -0.0040348048,
+          -0.00088430081,
+          0.0079070187,
+          -0.0059457612
+        ],
+        [
+          -0.055885775,
+          -0.015146857,
+          -0.0059457612,
+          0.95095873
+        ]
+      ],
+      "n_sites": 68
+    },
+    {
+      "region_code": "SEP",
+      "region_name": "Southeast Plains hydrologic region (NSS GC1680, regression region 345)",
+      "aep": 0.1,
+      "intercept": 2.247973266361807,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.1,
+          "maximum": 1962.05
+        },
+        {
+          "code": "FOREST",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 57.64
+        },
+        {
+          "code": "ET0306MOD",
+          "transform": "log10",
+          "units": "in/month",
+          "minimum": 0.96,
+          "maximum": 1.67
+        }
+      ],
+      "coefficients": [
+        0.573,
+        -0.177,
+        -3.35
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.315548,
+      "avp": 0.1,
+      "model_error_variance": 0.09,
+      "covariance": [
+        [
+          0.010012904,
+          -0.00044098157,
+          -0.0032248257,
+          -0.047349234
+        ],
+        [
+          -0.00044098157,
+          0.0018093551,
+          -0.0007482505,
+          -0.012598283
+        ],
+        [
+          -0.0032248257,
+          -0.0007482505,
+          0.0068162009,
+          -0.0058925576
+        ],
+        [
+          -0.047349234,
+          -0.012598283,
+          -0.0058925576,
+          0.80760824
+        ]
+      ],
+      "n_sites": 68
+    },
+    {
+      "region_code": "SEP",
+      "region_name": "Southeast Plains hydrologic region (NSS GC1680, regression region 345)",
+      "aep": 0.04,
+      "intercept": 2.506505032404872,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.1,
+          "maximum": 1962.05
+        },
+        {
+          "code": "FOREST",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 57.64
+        },
+        {
+          "code": "ET0306MOD",
+          "transform": "log10",
+          "units": "in/month",
+          "minimum": 0.96,
+          "maximum": 1.67
+        }
+      ],
+      "coefficients": [
+        0.553,
+        -0.106,
+        -3.74
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.280956,
+      "avp": 0.079,
+      "model_error_variance": 0.07,
+      "covariance": [
+        [
+          0.0094136442,
+          -0.00041359089,
+          -0.0028130425,
+          -0.044105271
+        ],
+        [
+          -0.00041359089,
+          0.0016018811,
+          -0.00068073283,
+          -0.011507555
+        ],
+        [
+          -0.0028130425,
+          -0.00068073283,
+          0.0064079553,
+          -0.006405325
+        ],
+        [
+          -0.044105271,
+          -0.011507555,
+          -0.006405325,
+          0.75328579
+        ]
+      ],
+      "n_sites": 68
+    },
+    {
+      "region_code": "SEP",
+      "region_name": "Southeast Plains hydrologic region (NSS GC1680, regression region 345)",
+      "aep": 0.02,
+      "intercept": 2.6693168805661123,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.1,
+          "maximum": 1962.05
+        },
+        {
+          "code": "FOREST",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 57.64
+        },
+        {
+          "code": "ET0306MOD",
+          "transform": "log10",
+          "units": "in/month",
+          "minimum": 0.96,
+          "maximum": 1.67
+        }
+      ],
+      "coefficients": [
+        0.541,
+        -0.067,
+        -3.99
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.273346,
+      "avp": 0.075,
+      "model_error_variance": 0.065,
+      "covariance": [
+        [
+          0.0097668716,
+          -0.00042369673,
+          -0.0028378968,
+          -0.045782437
+        ],
+        [
+          -0.00042369673,
+          0.0016144612,
+          -0.00069186668,
+          -0.011825256
+        ],
+        [
+          -0.0028378968,
+          -0.00069186668,
+          0.0066512578,
+          -0.0070183436
+        ],
+        [
+          -0.045782437,
+          -0.011825256,
+          -0.0070183436,
+          0.78130536
+        ]
+      ],
+      "n_sites": 68
+    },
+    {
+      "region_code": "SEP",
+      "region_name": "Southeast Plains hydrologic region (NSS GC1680, regression region 345)",
+      "aep": 0.01,
+      "intercept": 2.812244696800369,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.1,
+          "maximum": 1962.05
+        },
+        {
+          "code": "FOREST",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 57.64
+        },
+        {
+          "code": "ET0306MOD",
+          "transform": "log10",
+          "units": "in/month",
+          "minimum": 0.96,
+          "maximum": 1.67
+        }
+      ],
+      "coefficients": [
+        0.531,
+        -0.039,
+        -4.22
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.277632,
+      "avp": 0.077,
+      "model_error_variance": 0.067,
+      "covariance": [
+        [
+          0.010605356,
+          -0.00045205458,
+          -0.0030622987,
+          -0.049990374
+        ],
+        [
+          -0.00045205458,
+          0.0017286734,
+          -0.00074256126,
+          -0.012825354
+        ],
+        [
+          -0.0030622987,
+          -0.00074256126,
+          0.0072411417,
+          -0.007782159
+        ],
+        [
+          -0.049990374,
+          -0.012825354,
+          -0.007782159,
+          0.85177119
+        ]
+      ],
+      "n_sites": 68
+    },
+    {
+      "region_code": "SEP",
+      "region_name": "Southeast Plains hydrologic region (NSS GC1680, regression region 345)",
+      "aep": 0.005,
+      "intercept": 2.9400181550076634,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.1,
+          "maximum": 1962.05
+        },
+        {
+          "code": "FOREST",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 57.64
+        },
+        {
+          "code": "ET0306MOD",
+          "transform": "log10",
+          "units": "in/month",
+          "minimum": 0.96,
+          "maximum": 1.67
+        }
+      ],
+      "coefficients": [
+        0.522,
+        -0.015,
+        -4.43
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.289223,
+      "avp": 0.084,
+      "model_error_variance": 0.072,
+      "covariance": [
+        [
+          0.011763883,
+          -0.00049227,
+          -0.0034168385,
+          -0.055897455
+        ],
+        [
+          -0.00049227,
+          0.0019095514,
+          -0.00081976358,
+          -0.014273806
+        ],
+        [
+          -0.0034168385,
+          -0.00081976358,
+          0.0080631006,
+          -0.0086525928
+        ],
+        [
+          -0.055897455,
+          -0.014273806,
+          -0.0086525928,
+          0.95067349
+        ]
+      ],
+      "n_sites": 68
+    },
+    {
+      "region_code": "SEP",
+      "region_name": "Southeast Plains hydrologic region (NSS GC1680, regression region 345)",
+      "aep": 0.002,
+      "intercept": 3.093421685162235,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.1,
+          "maximum": 1962.05
+        },
+        {
+          "code": "FOREST",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 57.64
+        },
+        {
+          "code": "ET0306MOD",
+          "transform": "log10",
+          "units": "in/month",
+          "minimum": 0.96,
+          "maximum": 1.67
+        }
+      ],
+      "coefficients": [
+        0.511,
+        0.012,
+        -4.68
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.31316,
+      "avp": 0.098,
+      "model_error_variance": 0.085,
+      "covariance": [
+        [
+          0.013734637,
+          -0.00056140394,
+          -0.0040640603,
+          -0.066089578
+        ],
+        [
+          -0.00056140394,
+          0.0022406195,
+          -0.00095887616,
+          -0.016809718
+        ],
+        [
+          -0.0040640603,
+          -0.00095887616,
+          0.0094717775,
+          -0.0099543089
+        ],
+        [
+          -0.066089578,
+          -0.016809718,
+          -0.0099543089,
+          1.1213388
+        ]
+      ],
+      "n_sites": 68
+    },
+    {
+      "region_code": "UYCM",
+      "region_name": "Upper Yellowstone-Central Mountain hydrologic region (NSS GC1681, regression region 351)",
+      "aep": 0.667,
+      "intercept": 0.43933269383026263,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.39,
+          "maximum": 2039.76
+        },
+        {
+          "code": "EL6000",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 100.0
+        }
+      ],
+      "coefficients": [
+        0.825,
+        0.243
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.408403,
+      "avp": 0.167,
+      "model_error_variance": 0.159,
+      "covariance": [
+        [
+          0.013185817,
+          -0.0036262295,
+          -0.0028871763
+        ],
+        [
+          -0.0036262295,
+          0.0036479137,
+          -0.002102962
+        ],
+        [
+          -0.0028871763,
+          -0.002102962,
+          0.0048758274
+        ]
+      ],
+      "n_sites": 87
+    },
+    {
+      "region_code": "UYCM",
+      "region_name": "Upper Yellowstone-Central Mountain hydrologic region (NSS GC1681, regression region 351)",
+      "aep": 0.5,
+      "intercept": 0.6748611407378116,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.39,
+          "maximum": 2039.76
+        },
+        {
+          "code": "EL6000",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 100.0
+        }
+      ],
+      "coefficients": [
+        0.802,
+        0.194
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.389086,
+      "avp": 0.151,
+      "model_error_variance": 0.144,
+      "covariance": [
+        [
+          0.012215266,
+          -0.0032603158,
+          -0.0026773631
+        ],
+        [
+          -0.0032603158,
+          0.0033128353,
+          -0.001939302
+        ],
+        [
+          -0.0026773631,
+          -0.001939302,
+          0.0044612651
+        ]
+      ],
+      "n_sites": 91
+    },
+    {
+      "region_code": "UYCM",
+      "region_name": "Upper Yellowstone-Central Mountain hydrologic region (NSS GC1681, regression region 351)",
+      "aep": 0.429,
+      "intercept": 0.8061799739838872,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.39,
+          "maximum": 2039.76
+        },
+        {
+          "code": "EL6000",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 100.0
+        }
+      ],
+      "coefficients": [
+        0.792,
+        0.158
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.369238,
+      "avp": 0.136,
+      "model_error_variance": 0.13,
+      "covariance": [
+        [
+          0.011463208,
+          -0.0029720496,
+          -0.0025596691
+        ],
+        [
+          -0.0029720496,
+          0.0030135703,
+          -0.0017635478
+        ],
+        [
+          -0.0025596691,
+          -0.0017635478,
+          0.004107347
+        ]
+      ],
+      "n_sites": 91
+    },
+    {
+      "region_code": "UYCM",
+      "region_name": "Upper Yellowstone-Central Mountain hydrologic region (NSS GC1681, regression region 351)",
+      "aep": 0.2,
+      "intercept": 1.2988530764097066,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.39,
+          "maximum": 2039.76
+        },
+        {
+          "code": "EL6000",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 100.0
+        }
+      ],
+      "coefficients": [
+        0.759,
+        0.028
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.312597,
+      "avp": 0.098,
+      "model_error_variance": 0.092,
+      "covariance": [
+        [
+          0.010100638,
+          -0.0022705553,
+          -0.0024638272
+        ],
+        [
+          -0.0022705553,
+          0.0023072087,
+          -0.0013633277
+        ],
+        [
+          -0.0024638272,
+          -0.0013633277,
+          0.0033719267
+        ]
+      ],
+      "n_sites": 91
+    },
+    {
+      "region_code": "UYCM",
+      "region_name": "Upper Yellowstone-Central Mountain hydrologic region (NSS GC1681, regression region 351)",
+      "aep": 0.1,
+      "intercept": 1.6138418218760693,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.39,
+          "maximum": 2039.76
+        },
+        {
+          "code": "EL6000",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 100.0
+        }
+      ],
+      "coefficients": [
+        0.741,
+        -0.052
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.283781,
+      "avp": 0.081,
+      "model_error_variance": 0.075,
+      "covariance": [
+        [
+          0.0099769397,
+          -0.0019854551,
+          -0.0026062954
+        ],
+        [
+          -0.0019854551,
+          0.0020391586,
+          -0.0012242535
+        ],
+        [
+          -0.0026062954,
+          -0.0012242535,
+          0.0031942002
+        ]
+      ],
+      "n_sites": 91
+    },
+    {
+      "region_code": "UYCM",
+      "region_name": "Upper Yellowstone-Central Mountain hydrologic region (NSS GC1681, regression region 351)",
+      "aep": 0.04,
+      "intercept": 1.9268567089496924,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.39,
+          "maximum": 2039.76
+        },
+        {
+          "code": "EL6000",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 100.0
+        }
+      ],
+      "coefficients": [
+        0.722,
+        -0.125
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.26889,
+      "avp": 0.072,
+      "model_error_variance": 0.067,
+      "covariance": [
+        [
+          0.010659474,
+          -0.0018959428,
+          -0.0029480369
+        ],
+        [
+          -0.0018959428,
+          0.0019806285,
+          -0.0012142563
+        ],
+        [
+          -0.0029480369,
+          -0.0012142563,
+          0.0033262865
+        ]
+      ],
+      "n_sites": 91
+    },
+    {
+      "region_code": "UYCM",
+      "region_name": "Upper Yellowstone-Central Mountain hydrologic region (NSS GC1681, regression region 351)",
+      "aep": 0.02,
+      "intercept": 2.1172712956557644,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.39,
+          "maximum": 2039.76
+        },
+        {
+          "code": "EL6000",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 100.0
+        }
+      ],
+      "coefficients": [
+        0.708,
+        -0.166
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.266696,
+      "avp": 0.071,
+      "model_error_variance": 0.065,
+      "covariance": [
+        [
+          0.011489591,
+          -0.0019341085,
+          -0.0032608348
+        ],
+        [
+          -0.0019341085,
+          0.0020419952,
+          -0.0012676496
+        ],
+        [
+          -0.0032608348,
+          -0.0012676496,
+          0.0035541398
+        ]
+      ],
+      "n_sites": 91
+    },
+    {
+      "region_code": "UYCM",
+      "region_name": "Upper Yellowstone-Central Mountain hydrologic region (NSS GC1681, regression region 351)",
+      "aep": 0.01,
+      "intercept": 2.2764618041732443,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.39,
+          "maximum": 2039.76
+        },
+        {
+          "code": "EL6000",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 100.0
+        }
+      ],
+      "coefficients": [
+        0.695,
+        -0.199
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.271009,
+      "avp": 0.073,
+      "model_error_variance": 0.067,
+      "covariance": [
+        [
+          0.012553519,
+          -0.0020490024,
+          -0.0036134264
+        ],
+        [
+          -0.0020490024,
+          0.0021819415,
+          -0.0013677525
+        ],
+        [
+          -0.0036134264,
+          -0.0013677525,
+          0.0038776666
+        ]
+      ],
+      "n_sites": 91
+    },
+    {
+      "region_code": "UYCM",
+      "region_name": "Upper Yellowstone-Central Mountain hydrologic region (NSS GC1681, regression region 351)",
+      "aep": 0.005,
+      "intercept": 2.4183012913197452,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.39,
+          "maximum": 2039.76
+        },
+        {
+          "code": "EL6000",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 100.0
+        }
+      ],
+      "coefficients": [
+        0.683,
+        -0.227
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.279265,
+      "avp": 0.078,
+      "model_error_variance": 0.071,
+      "covariance": [
+        [
+          0.013767924,
+          -0.002214015,
+          -0.0039901641
+        ],
+        [
+          -0.002214015,
+          0.0023744507,
+          -0.0014998711
+        ],
+        [
+          -0.0039901641,
+          -0.0014998711,
+          0.004264897
+        ]
+      ],
+      "n_sites": 91
+    },
+    {
+      "region_code": "UYCM",
+      "region_name": "Upper Yellowstone-Central Mountain hydrologic region (NSS GC1681, regression region 351)",
+      "aep": 0.002,
+      "intercept": 2.584331224367531,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.39,
+          "maximum": 2039.76
+        },
+        {
+          "code": "EL6000",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 100.0
+        }
+      ],
+      "coefficients": [
+        0.668,
+        -0.258
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.296449,
+      "avp": 0.088,
+      "model_error_variance": 0.079,
+      "covariance": [
+        [
+          0.015646381,
+          -0.0025202813,
+          -0.0045351846
+        ],
+        [
+          -0.0025202813,
+          0.0027252918,
+          -0.0017348192
+        ],
+        [
+          -0.0045351846,
+          -0.0017348192,
+          0.0048970339
+        ]
+      ],
+      "n_sites": 91
+    },
+    {
+      "region_code": "SW",
+      "region_name": "Southwest hydrologic region (NSS GC1682, regression region 348)",
+      "aep": 0.667,
+      "intercept": 0.01703333929878037,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.42,
+          "maximum": 2472.17
+        },
+        {
+          "code": "EL6000",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 100.0
+        }
+      ],
+      "coefficients": [
+        0.971,
+        0.195
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.405181,
+      "avp": 0.164,
+      "model_error_variance": 0.153,
+      "covariance": [
+        [
+          0.068114584,
+          -0.0077620004,
+          -0.028202537
+        ],
+        [
+          -0.0077620004,
+          0.0063984524,
+          -0.0020589521
+        ],
+        [
+          -0.028202537,
+          -0.0020589521,
+          0.017835441
+        ]
+      ],
+      "n_sites": 47
+    },
+    {
+      "region_code": "SW",
+      "region_name": "Southwest hydrologic region (NSS GC1682, regression region 348)",
+      "aep": 0.5,
+      "intercept": 0.3961993470957364,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.42,
+          "maximum": 2472.17
+        },
+        {
+          "code": "EL6000",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 100.0
+        }
+      ],
+      "coefficients": [
+        0.93,
+        0.095
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.350989,
+      "avp": 0.123,
+      "model_error_variance": 0.114,
+      "covariance": [
+        [
+          0.053728529,
+          -0.0062675394,
+          -0.022000801
+        ],
+        [
+          -0.0062675394,
+          0.0048767919,
+          -0.0014346818
+        ],
+        [
+          -0.022000801,
+          -0.0014346818,
+          0.013715091
+        ]
+      ],
+      "n_sites": 48
+    },
+    {
+      "region_code": "SW",
+      "region_name": "Southwest hydrologic region (NSS GC1682, regression region 348)",
+      "aep": 0.429,
+      "intercept": 0.557507201905658,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.42,
+          "maximum": 2472.17
+        },
+        {
+          "code": "EL6000",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 100.0
+        }
+      ],
+      "coefficients": [
+        0.91,
+        0.053
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.334779,
+      "avp": 0.112,
+      "model_error_variance": 0.104,
+      "covariance": [
+        [
+          0.050409464,
+          -0.0058661225,
+          -0.020576387
+        ],
+        [
+          -0.0058661225,
+          0.0044822106,
+          -0.0012811791
+        ],
+        [
+          -0.020576387,
+          -0.0012811791,
+          0.012734015
+        ]
+      ],
+      "n_sites": 48
+    },
+    {
+      "region_code": "SW",
+      "region_name": "Southwest hydrologic region (NSS GC1682, regression region 348)",
+      "aep": 0.2,
+      "intercept": 1.1271047983648077,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.42,
+          "maximum": 2472.17
+        },
+        {
+          "code": "EL6000",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 100.0
+        }
+      ],
+      "coefficients": [
+        0.842,
+        -0.088
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.295865,
+      "avp": 0.088,
+      "model_error_variance": 0.08,
+      "covariance": [
+        [
+          0.04586546,
+          -0.005105493,
+          -0.018674862
+        ],
+        [
+          -0.005105493,
+          0.0037006552,
+          -0.00099538271
+        ],
+        [
+          -0.018674862,
+          -0.00099538271,
+          0.01127796
+        ]
+      ],
+      "n_sites": 48
+    },
+    {
+      "region_code": "SW",
+      "region_name": "Southwest hydrologic region (NSS GC1682, regression region 348)",
+      "aep": 0.1,
+      "intercept": 1.503790683057181,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.42,
+          "maximum": 2472.17
+        },
+        {
+          "code": "EL6000",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 100.0
+        }
+      ],
+      "coefficients": [
+        0.796,
+        -0.177
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.280924,
+      "avp": 0.079,
+      "model_error_variance": 0.072,
+      "covariance": [
+        [
+          0.047072304,
+          -0.0048943533,
+          -0.019351069
+        ],
+        [
+          -0.0048943533,
+          0.003504142,
+          -0.00096835074
+        ],
+        [
+          -0.019351069,
+          -0.00096835074,
+          0.011556696
+        ]
+      ],
+      "n_sites": 48
+    },
+    {
+      "region_code": "SW",
+      "region_name": "Southwest hydrologic region (NSS GC1682, regression region 348)",
+      "aep": 0.04,
+      "intercept": 1.9020028913507294,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.42,
+          "maximum": 2472.17
+        },
+        {
+          "code": "EL6000",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 100.0
+        }
+      ],
+      "coefficients": [
+        0.75,
+        -0.274
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.278529,
+      "avp": 0.078,
+      "model_error_variance": 0.07,
+      "covariance": [
+        [
+          0.052410978,
+          -0.0049757594,
+          -0.021914893
+        ],
+        [
+          -0.0049757594,
+          0.0036147371,
+          -0.0010897276
+        ],
+        [
+          -0.021914893,
+          -0.0010897276,
+          0.013032797
+        ]
+      ],
+      "n_sites": 48
+    },
+    {
+      "region_code": "SW",
+      "region_name": "Southwest hydrologic region (NSS GC1682, regression region 348)",
+      "aep": 0.02,
+      "intercept": 2.1522883443830563,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.42,
+          "maximum": 2472.17
+        },
+        {
+          "code": "EL6000",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 100.0
+        }
+      ],
+      "coefficients": [
+        0.721,
+        -0.336
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.28051,
+      "avp": 0.079,
+      "model_error_variance": 0.07,
+      "covariance": [
+        [
+          0.057314918,
+          -0.005106351,
+          -0.024257028
+        ],
+        [
+          -0.005106351,
+          0.0037760525,
+          -0.0012169191
+        ],
+        [
+          -0.024257028,
+          -0.0012169191,
+          0.014411342
+        ]
+      ],
+      "n_sites": 48
+    },
+    {
+      "region_code": "SW",
+      "region_name": "Southwest hydrologic region (NSS GC1682, regression region 348)",
+      "aep": 0.01,
+      "intercept": 2.376576957056512,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.42,
+          "maximum": 2472.17
+        },
+        {
+          "code": "EL6000",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 100.0
+        }
+      ],
+      "coefficients": [
+        0.696,
+        -0.391
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.286495,
+      "avp": 0.082,
+      "model_error_variance": 0.073,
+      "covariance": [
+        [
+          0.063132365,
+          -0.0053364697,
+          -0.026987942
+        ],
+        [
+          -0.0053364697,
+          0.0040264458,
+          -0.0013767595
+        ],
+        [
+          -0.026987942,
+          -0.0013767595,
+          0.016041047
+        ]
+      ],
+      "n_sites": 48
+    },
+    {
+      "region_code": "SW",
+      "region_name": "Southwest hydrologic region (NSS GC1682, regression region 348)",
+      "aep": 0.005,
+      "intercept": 2.576341350205793,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.42,
+          "maximum": 2472.17
+        },
+        {
+          "code": "EL6000",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 100.0
+        }
+      ],
+      "coefficients": [
+        0.675,
+        -0.442
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.294754,
+      "avp": 0.087,
+      "model_error_variance": 0.077,
+      "covariance": [
+        [
+          0.069534125,
+          -0.0056300003,
+          -0.02996615
+        ],
+        [
+          -0.0056300003,
+          0.0043338603,
+          -0.0015580864
+        ],
+        [
+          -0.02996615,
+          -0.0015580864,
+          0.01783082
+        ]
+      ],
+      "n_sites": 48
+    },
+    {
+      "region_code": "SW",
+      "region_name": "Southwest hydrologic region (NSS GC1682, regression region 348)",
+      "aep": 0.002,
+      "intercept": 2.816241299991783,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.42,
+          "maximum": 2472.17
+        },
+        {
+          "code": "EL6000",
+          "transform": "log10_plus1",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 100.0
+        }
+      ],
+      "coefficients": [
+        0.649,
+        -0.501
+      ],
+      "citation": {
+        "publication": "Sando, Roy, Sando, S.K., McCarthy, P.M., and Dutton, D.M., 2016, Methods for estimating peak-flow frequencies at ungaged sites in Montana based on data through water year 2011 (ver. 1.1, February 2018): U.S. Geological Survey Scientific Investigations Report 2015-5019-F",
+        "table": "Table 1-4; Table 3; Table 1-5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20155019F"
+      },
+      "sep_log": 0.306392,
+      "avp": 0.094,
+      "model_error_variance": 0.083,
+      "covariance": [
+        [
+          0.078263129,
+          -0.0060400803,
+          -0.034023404
+        ],
+        [
+          -0.0060400803,
+          0.0047666238,
+          -0.0018113511
+        ],
+        [
+          -0.034023404,
+          -0.0018113511,
+          0.020277252
+        ]
+      ],
+      "n_sites": 48
+    }
+  ],
+  "notes": "Transcribed from SIR 2015-5019-F ver. 1.1 (February 2018), basin-characteristics equations only. Equations, n, model error variance (sigma_delta^2), MVP and SEP from Table 1-4 and covariance matrices [X^T Lambda^-1 X]^-1 from Table 1-5, both in sir20155019F_tables.xlsx (the PDF only lists the appendix tables); variable limits from Table 3 (report p. 12). Table 1-4 and Table 3 were double-entered (hand transcription vs. a regex parse of the workbook's equation strings and of pdftotext -table output): 696 cells, 0 disagreements; all 80 NSS equation strings (Montana, citation 88) carry the same coefficients. Regions and NSS codes: W GC1675, NW GC1768, NWF GC1677, NEP GC1678, ECP GC1679, SEP GC1680, UYCM GC1681, SW GC1682 (there is no GC1676 in NSS; the Northwest region is GC1768). Variables use NSS codes: CONTDA (report A, contributing drainage area, mi2; the drainage variable is CONTDA, not DRNAREA), PRECIP (P, in.), FOREST (F, percent), EL5000 and EL6000 (E5000, E6000, percent of basin above 5,000/6,000 ft), SLOP30_30M (SLP30, percent), ET0306MOD (ETSPR, mean March-June evapotranspiration, in. per month). Transforms: A, P and ETSPR log10; terms printed as (X + 1)^b use log10_plus1. Intercept = log10 of the printed coefficient. Units: model_error_variance and avp are Table 1-4's sigma_delta^2 and MVP (mean variance of prediction), log10 units squared, as printed. sep_log is Table 1-4's SEP (percent) converted as sqrt(ln(1 + (SEP/100)^2)) / ln(10); SEM and pseudo/adjusted R2 are not stored. n_sites is Table 1-4's n, which is smaller for Q66.7 in several regions (Table 1-4 footnote 1). Covariance order and basis (intercept, then the variables in printed-equation order, all in the transformed basis) is confirmed two ways: the report's Case 1 worked example (p. 21, Southeast Plains Q1: x0 = [1, log A, log(F+1), log ETSPR], x0'Ux0 = 0.00924) and, for every region and AEP, MEV + mean x'Ux over the region's gages in Table 1-3 reproduces Table 1-4's MVP within 0.0013 (MVP is printed to 3 decimals). The Northwest region was fit by weighted least squares, not GLS (ver. 1.1 changed it; Table 1-4 footnote 3, Table 1-5 footnote 2): its model error variance is printed 0.000 for Q4 through Q0.2 and is stored as 0.0, so its site-specific prediction variance is x'Ux alone; its covariance entries are printed to fewer digits than the GLS regions'. Report inconsistency (not in this file): the Case 3 example (p. 24) evaluates the East-Central Plains Q2 equation with a = 433, but Table 1-4 and NSS give 497; Table 1-4 is used. Out of scope: the channel-width equations of Chase and others (SIR 2020-5142; NSS citation 163, 24 regions GC1829-GC1852) are a separate method, combined with basin-characteristics estimates by SEP and cross-correlation weighting that evaluate_weighted does not model; they are not included."
 }

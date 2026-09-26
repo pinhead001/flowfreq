@@ -537,6 +537,7 @@ class USGSgage:
         chunk_years: int = 1,
         ts_id: Optional[str] = None,
         timeout: int = 60,
+        backend: str = "nwis-legacy",
     ) -> pd.DataFrame:
         """Download instantaneous (unit-value) streamflow data from USGS NWIS.
 
@@ -567,6 +568,16 @@ class USGSgage:
             rather than silently picking one.
         timeout : int
             Per-request timeout in seconds. Default 60.
+        backend : str
+            ``"nwis-legacy"`` (default) for the NWIS instantaneous-values
+            service, or ``"waterdata-ogc"`` for the USGS Water Data OGC API
+            (:mod:`flowfreq.waterdata`). The returned frame has the same
+            columns and UTC index either way. On ``"waterdata-ogc"``, ``ts_id``
+            is the 32-hex ``time_series_id``, ``chunk_years`` may be at most 3
+            (the API caps a window at 1100 days), the default start is the
+            series' own period of record from ``time-series-metadata``, and
+            ``datetime_local``/``tz_cd`` are derived from the monitoring
+            location's time zone because the API reports UTC only.
 
         Returns
         -------
@@ -641,8 +652,9 @@ class USGSgage:
         >>> iv.index.tz is not None
         True
         """
-        combined = self._download_instantaneous(
+        combined = self._download_instantaneous_backend(
             "00060",
+            backend=backend,
             start_date=start_date,
             end_date=end_date,
             tz=tz,
@@ -662,6 +674,7 @@ class USGSgage:
         chunk_years: int = 1,
         ts_id: Optional[str] = None,
         timeout: int = 60,
+        backend: str = "nwis-legacy",
     ) -> pd.DataFrame:
         """Download instantaneous (unit-value) gage height from USGS NWIS.
 
@@ -695,6 +708,9 @@ class USGSgage:
             expecting rather than treating as exotic.
         timeout : int
             Per-request timeout in seconds. Default 60.
+        backend : str
+            ``"nwis-legacy"`` (default) or ``"waterdata-ogc"``; see
+            :meth:`download_instantaneous_flow`.
 
         Returns
         -------
@@ -741,8 +757,9 @@ class USGSgage:
         >>> "gage_height_ft" in stage.columns
         True
         """
-        combined = self._download_instantaneous(
+        combined = self._download_instantaneous_backend(
             "00065",
+            backend=backend,
             start_date=start_date,
             end_date=end_date,
             tz=tz,
@@ -752,6 +769,54 @@ class USGSgage:
         )
         self._stage_data = combined
         return combined
+
+    def _download_instantaneous_backend(  # pylint: disable=too-many-arguments
+        self,
+        param_cd: str,
+        *,
+        backend: str,
+        start_date: Optional[str],
+        end_date: Optional[str],
+        tz: Optional[str],
+        chunk_years: int,
+        ts_id: Optional[str],
+        timeout: int,
+    ) -> pd.DataFrame:
+        """Route an instantaneous download to the named backend.
+
+        ``"nwis-legacy"`` goes to :meth:`_download_instantaneous`, unchanged;
+        ``"waterdata-ogc"`` to :func:`flowfreq.waterdata.download_instantaneous`.
+        """
+        if backend == "nwis-legacy":
+            return self._download_instantaneous(
+                param_cd,
+                start_date=start_date,
+                end_date=end_date,
+                tz=tz,
+                chunk_years=chunk_years,
+                ts_id=ts_id,
+                timeout=timeout,
+            )
+        if backend == "waterdata-ogc":
+            # Deferred: flowfreq.waterdata imports from this module.
+            from flowfreq.waterdata import download_instantaneous
+
+            combined = download_instantaneous(
+                self._site_no,
+                param_cd,
+                start_date=start_date,
+                end_date=end_date,
+                chunk_years=chunk_years,
+                ts_id=ts_id,
+                timeout=timeout,
+            )
+            if tz is not None:
+                combined.index = combined.index.tz_convert(tz)
+            return combined
+        raise ValueError(
+            f"Unknown instantaneous-value backend {backend!r}; expected "
+            f"'nwis-legacy' or 'waterdata-ogc'"
+        )
 
     def _download_instantaneous(  # pylint: disable=too-many-arguments
         self,

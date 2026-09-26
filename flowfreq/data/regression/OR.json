@@ -1,9 +1,1160 @@
 {
   "schema_version": 1,
   "state": "OR",
-  "status": "pending",
+  "status": "partial",
   "issue": 38,
-  "source_reports": [],
-  "equations": [],
-  "notes": "No coefficients transcribed yet. Populate from the cited report or tools/snapshot_nss.py; never by hand from memory."
+  "source_reports": [
+    {
+      "citation": "Cooper, R.M., 2005, Estimation of peak discharges for rural, unregulated streams in western Oregon: U.S. Geological Survey Scientific Investigations Report 2005-5116",
+      "version": "2005 (no later version posted)",
+      "doi": "10.3133/sir20055116",
+      "url": "https://pubs.usgs.gov/publication/sir20055116",
+      "pdf": "https://pubs.usgs.gov/sir/2005/5116/pdf/sir2005-5116.pdf",
+      "tables": [
+        "Table 10",
+        "Table 11",
+        "Table 12",
+        "Table 15"
+      ],
+      "nss": {
+        "state_region_id": 41,
+        "citation_id": 118,
+        "regression_region_ids": [
+          478,
+          479,
+          480
+        ]
+      }
+    }
+  ],
+  "equations": [
+    {
+      "region_code": "1",
+      "region_name": "Region 1, coastal watersheds (NSS GC729, regression region 478)",
+      "aep": 0.5,
+      "intercept": -1.2961929347256713,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.28,
+          "maximum": 673.0
+        },
+        {
+          "code": "I24H2Y",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 2.52,
+          "maximum": 5.79
+        },
+        {
+          "code": "JANMAXT2K",
+          "transform": "log10",
+          "units": "degF",
+          "minimum": 42.4,
+          "maximum": 53.9
+        },
+        {
+          "code": "WATCAPORC",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.1,
+          "maximum": 0.23
+        },
+        {
+          "code": "SOILPERM",
+          "transform": "log10",
+          "units": "in/hr",
+          "minimum": 0.72,
+          "maximum": 4.76
+        }
+      ],
+      "coefficients": [
+        0.9489,
+        1.36,
+        1.28,
+        -0.4421,
+        -0.1576
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2005, Estimation of peak discharges for rural, unregulated streams in western Oregon: U.S. Geological Survey Scientific Investigations Report 2005-5116",
+        "table": "Table 10; Table 15",
+        "year": 2005,
+        "url": "https://doi.org/10.3133/sir20055116"
+      },
+      "sep_log": 0.114379,
+      "model_error_variance": 0.011882,
+      "n_sites": 91
+    },
+    {
+      "region_code": "1",
+      "region_name": "Region 1, coastal watersheds (NSS GC729, regression region 478)",
+      "aep": 0.2,
+      "intercept": -1.8807441107220633,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.28,
+          "maximum": 673.0
+        },
+        {
+          "code": "I24H2Y",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 2.52,
+          "maximum": 5.79
+        },
+        {
+          "code": "JANMAXT2K",
+          "transform": "log10",
+          "units": "degF",
+          "minimum": 42.4,
+          "maximum": 53.9
+        },
+        {
+          "code": "WATCAPORC",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.1,
+          "maximum": 0.23
+        },
+        {
+          "code": "SOILPERM",
+          "transform": "log10",
+          "units": "in/hr",
+          "minimum": 0.72,
+          "maximum": 4.76
+        }
+      ],
+      "coefficients": [
+        0.9385,
+        1.272,
+        1.738,
+        -0.5026,
+        -0.2234
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2005, Estimation of peak discharges for rural, unregulated streams in western Oregon: U.S. Geological Survey Scientific Investigations Report 2005-5116",
+        "table": "Table 10; Table 15",
+        "year": 2005,
+        "url": "https://doi.org/10.3133/sir20055116"
+      },
+      "sep_log": 0.108177,
+      "model_error_variance": 0.010477,
+      "n_sites": 91
+    },
+    {
+      "region_code": "1",
+      "region_name": "Region 1, coastal watersheds (NSS GC729, regression region 478)",
+      "aep": 0.1,
+      "intercept": -2.0946899378839143,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.28,
+          "maximum": 673.0
+        },
+        {
+          "code": "I24H2Y",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 2.52,
+          "maximum": 5.79
+        },
+        {
+          "code": "JANMAXT2K",
+          "transform": "log10",
+          "units": "degF",
+          "minimum": 42.4,
+          "maximum": 53.9
+        },
+        {
+          "code": "WATCAPORC",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.1,
+          "maximum": 0.23
+        },
+        {
+          "code": "SOILPERM",
+          "transform": "log10",
+          "units": "in/hr",
+          "minimum": 0.72,
+          "maximum": 4.76
+        }
+      ],
+      "coefficients": [
+        0.9324,
+        1.226,
+        1.926,
+        -0.5267,
+        -0.2552
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2005, Estimation of peak discharges for rural, unregulated streams in western Oregon: U.S. Geological Survey Scientific Investigations Report 2005-5116",
+        "table": "Table 10; Table 15",
+        "year": 2005,
+        "url": "https://doi.org/10.3133/sir20055116"
+      },
+      "sep_log": 0.10942,
+      "model_error_variance": 0.010477,
+      "n_sites": 91
+    },
+    {
+      "region_code": "1",
+      "region_name": "Region 1, coastal watersheds (NSS GC729, regression region 478)",
+      "aep": 0.04,
+      "intercept": -2.2905604258675893,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.28,
+          "maximum": 673.0
+        },
+        {
+          "code": "I24H2Y",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 2.52,
+          "maximum": 5.79
+        },
+        {
+          "code": "JANMAXT2K",
+          "transform": "log10",
+          "units": "degF",
+          "minimum": 42.4,
+          "maximum": 53.9
+        },
+        {
+          "code": "WATCAPORC",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.1,
+          "maximum": 0.23
+        },
+        {
+          "code": "SOILPERM",
+          "transform": "log10",
+          "units": "in/hr",
+          "minimum": 0.72,
+          "maximum": 4.76
+        }
+      ],
+      "coefficients": [
+        0.9258,
+        1.179,
+        2.109,
+        -0.5484,
+        -0.2888
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2005, Estimation of peak discharges for rural, unregulated streams in western Oregon: U.S. Geological Survey Scientific Investigations Report 2005-5116",
+        "table": "Table 10; Table 15",
+        "year": 2005,
+        "url": "https://doi.org/10.3133/sir20055116"
+      },
+      "sep_log": 0.113554,
+      "model_error_variance": 0.011258,
+      "n_sites": 91
+    },
+    {
+      "region_code": "1",
+      "region_name": "Region 1, coastal watersheds (NSS GC729, regression region 478)",
+      "aep": 0.02,
+      "intercept": -2.410273743745763,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.28,
+          "maximum": 673.0
+        },
+        {
+          "code": "I24H2Y",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 2.52,
+          "maximum": 5.79
+        },
+        {
+          "code": "JANMAXT2K",
+          "transform": "log10",
+          "units": "degF",
+          "minimum": 42.4,
+          "maximum": 53.9
+        },
+        {
+          "code": "WATCAPORC",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.1,
+          "maximum": 0.23
+        },
+        {
+          "code": "SOILPERM",
+          "transform": "log10",
+          "units": "in/hr",
+          "minimum": 0.72,
+          "maximum": 4.76
+        }
+      ],
+      "coefficients": [
+        0.9215,
+        1.151,
+        2.223,
+        -0.5605,
+        -0.3111
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2005, Estimation of peak discharges for rural, unregulated streams in western Oregon: U.S. Geological Survey Scientific Investigations Report 2005-5116",
+        "table": "Table 10; Table 15",
+        "year": 2005,
+        "url": "https://doi.org/10.3133/sir20055116"
+      },
+      "sep_log": 0.118494,
+      "model_error_variance": 0.012155,
+      "n_sites": 91
+    },
+    {
+      "region_code": "1",
+      "region_name": "Region 1, coastal watersheds (NSS GC729, regression region 478)",
+      "aep": 0.01,
+      "intercept": -2.5159850373324373,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.28,
+          "maximum": 673.0
+        },
+        {
+          "code": "I24H2Y",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 2.52,
+          "maximum": 5.79
+        },
+        {
+          "code": "JANMAXT2K",
+          "transform": "log10",
+          "units": "degF",
+          "minimum": 42.4,
+          "maximum": 53.9
+        },
+        {
+          "code": "WATCAPORC",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.1,
+          "maximum": 0.23
+        },
+        {
+          "code": "SOILPERM",
+          "transform": "log10",
+          "units": "in/hr",
+          "minimum": 0.72,
+          "maximum": 4.76
+        }
+      ],
+      "coefficients": [
+        0.9176,
+        1.126,
+        2.325,
+        -0.5701,
+        -0.3319
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2005, Estimation of peak discharges for rural, unregulated streams in western Oregon: U.S. Geological Survey Scientific Investigations Report 2005-5116",
+        "table": "Table 10; Table 15",
+        "year": 2005,
+        "url": "https://doi.org/10.3133/sir20055116"
+      },
+      "sep_log": 0.12382,
+      "model_error_variance": 0.013177,
+      "n_sites": 91
+    },
+    {
+      "region_code": "1",
+      "region_name": "Region 1, coastal watersheds (NSS GC729, regression region 478)",
+      "aep": 0.002,
+      "intercept": -2.7235381958267557,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.28,
+          "maximum": 673.0
+        },
+        {
+          "code": "I24H2Y",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 2.52,
+          "maximum": 5.79
+        },
+        {
+          "code": "JANMAXT2K",
+          "transform": "log10",
+          "units": "degF",
+          "minimum": 42.4,
+          "maximum": 53.9
+        },
+        {
+          "code": "WATCAPORC",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.1,
+          "maximum": 0.23
+        },
+        {
+          "code": "SOILPERM",
+          "transform": "log10",
+          "units": "in/hr",
+          "minimum": 0.72,
+          "maximum": 4.76
+        }
+      ],
+      "coefficients": [
+        0.9099,
+        1.078,
+        2.527,
+        -0.5855,
+        -0.377
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2005, Estimation of peak discharges for rural, unregulated streams in western Oregon: U.S. Geological Survey Scientific Investigations Report 2005-5116",
+        "table": "Table 10; Table 15",
+        "year": 2005,
+        "url": "https://doi.org/10.3133/sir20055116"
+      },
+      "sep_log": 0.138021,
+      "model_error_variance": 0.016254,
+      "n_sites": 91
+    },
+    {
+      "region_code": "2A",
+      "region_name": "Region 2A, western interior, mean elevation greater than 3,000 ft (NSS GC730, regression region 479)",
+      "aep": 0.5,
+      "intercept": -2.5059846252428564,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.22,
+          "maximum": 3940.0
+        },
+        {
+          "code": "BSLOPD",
+          "transform": "log10",
+          "units": "degrees",
+          "minimum": 6.24,
+          "maximum": 28.0
+        },
+        {
+          "code": "I24H2Y",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 1.72,
+          "maximum": 4.34
+        },
+        {
+          "code": "JANMINT2K",
+          "transform": "log10",
+          "units": "degF",
+          "minimum": 20.5,
+          "maximum": 34.0
+        },
+        {
+          "code": "JANMAXT2K",
+          "transform": "log10",
+          "units": "degF",
+          "minimum": 33.9,
+          "maximum": 47.3
+        }
+      ],
+      "coefficients": [
+        1.021,
+        0.8124,
+        2.05,
+        3.541,
+        -1.867
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2005, Estimation of peak discharges for rural, unregulated streams in western Oregon: U.S. Geological Survey Scientific Investigations Report 2005-5116",
+        "table": "Table 11; Table 15",
+        "year": 2005,
+        "url": "https://doi.org/10.3133/sir20055116"
+      },
+      "sep_log": 0.162243,
+      "model_error_variance": 0.024323,
+      "n_sites": 107
+    },
+    {
+      "region_code": "2A",
+      "region_name": "Region 2A, western interior, mean elevation greater than 3,000 ft (NSS GC730, regression region 479)",
+      "aep": 0.2,
+      "intercept": -2.106571158220455,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.22,
+          "maximum": 3940.0
+        },
+        {
+          "code": "BSLOPD",
+          "transform": "log10",
+          "units": "degrees",
+          "minimum": 6.24,
+          "maximum": 28.0
+        },
+        {
+          "code": "I24H2Y",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 1.72,
+          "maximum": 4.34
+        },
+        {
+          "code": "JANMINT2K",
+          "transform": "log10",
+          "units": "degF",
+          "minimum": 20.5,
+          "maximum": 34.0
+        },
+        {
+          "code": "JANMAXT2K",
+          "transform": "log10",
+          "units": "degF",
+          "minimum": 33.9,
+          "maximum": 47.3
+        }
+      ],
+      "coefficients": [
+        1.02,
+        0.9022,
+        1.649,
+        3.611,
+        -2.017
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2005, Estimation of peak discharges for rural, unregulated streams in western Oregon: U.S. Geological Survey Scientific Investigations Report 2005-5116",
+        "table": "Table 11; Table 15",
+        "year": 2005,
+        "url": "https://doi.org/10.3133/sir20055116"
+      },
+      "sep_log": 0.14284,
+      "model_error_variance": 0.018388,
+      "n_sites": 107
+    },
+    {
+      "region_code": "2A",
+      "region_name": "Region 2A, western interior, mean elevation greater than 3,000 ft (NSS GC730, regression region 479)",
+      "aep": 0.1,
+      "intercept": -1.810790510417694,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.22,
+          "maximum": 3940.0
+        },
+        {
+          "code": "BSLOPD",
+          "transform": "log10",
+          "units": "degrees",
+          "minimum": 6.24,
+          "maximum": 28.0
+        },
+        {
+          "code": "I24H2Y",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 1.72,
+          "maximum": 4.34
+        },
+        {
+          "code": "JANMINT2K",
+          "transform": "log10",
+          "units": "degF",
+          "minimum": 20.5,
+          "maximum": 34.0
+        },
+        {
+          "code": "JANMAXT2K",
+          "transform": "log10",
+          "units": "degF",
+          "minimum": 33.9,
+          "maximum": 47.3
+        }
+      ],
+      "coefficients": [
+        1.021,
+        0.9506,
+        1.471,
+        3.62,
+        -2.137
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2005, Estimation of peak discharges for rural, unregulated streams in western Oregon: U.S. Geological Survey Scientific Investigations Report 2005-5116",
+        "table": "Table 11; Table 15",
+        "year": 2005,
+        "url": "https://doi.org/10.3133/sir20055116"
+      },
+      "sep_log": 0.137618,
+      "model_error_variance": 0.016882,
+      "n_sites": 107
+    },
+    {
+      "region_code": "2A",
+      "region_name": "Region 2A, western interior, mean elevation greater than 3,000 ft (NSS GC730, regression region 479)",
+      "aep": 0.04,
+      "intercept": -1.47456644657118,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.22,
+          "maximum": 3940.0
+        },
+        {
+          "code": "BSLOPD",
+          "transform": "log10",
+          "units": "degrees",
+          "minimum": 6.24,
+          "maximum": 28.0
+        },
+        {
+          "code": "I24H2Y",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 1.72,
+          "maximum": 4.34
+        },
+        {
+          "code": "JANMINT2K",
+          "transform": "log10",
+          "units": "degF",
+          "minimum": 20.5,
+          "maximum": 34.0
+        },
+        {
+          "code": "JANMAXT2K",
+          "transform": "log10",
+          "units": "degF",
+          "minimum": 33.9,
+          "maximum": 47.3
+        }
+      ],
+      "coefficients": [
+        1.021,
+        0.993,
+        1.321,
+        3.624,
+        -2.278
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2005, Estimation of peak discharges for rural, unregulated streams in western Oregon: U.S. Geological Survey Scientific Investigations Report 2005-5116",
+        "table": "Table 11; Table 15",
+        "year": 2005,
+        "url": "https://doi.org/10.3133/sir20055116"
+      },
+      "sep_log": 0.137618,
+      "model_error_variance": 0.016462,
+      "n_sites": 107
+    },
+    {
+      "region_code": "2A",
+      "region_name": "Region 2A, western interior, mean elevation greater than 3,000 ft (NSS GC730, regression region 479)",
+      "aep": 0.02,
+      "intercept": -1.259558355050234,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.22,
+          "maximum": 3940.0
+        },
+        {
+          "code": "BSLOPD",
+          "transform": "log10",
+          "units": "degrees",
+          "minimum": 6.24,
+          "maximum": 28.0
+        },
+        {
+          "code": "I24H2Y",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 1.72,
+          "maximum": 4.34
+        },
+        {
+          "code": "JANMINT2K",
+          "transform": "log10",
+          "units": "degF",
+          "minimum": 20.5,
+          "maximum": 34.0
+        },
+        {
+          "code": "JANMAXT2K",
+          "transform": "log10",
+          "units": "degF",
+          "minimum": 33.9,
+          "maximum": 47.3
+        }
+      ],
+      "coefficients": [
+        1.022,
+        1.014,
+        1.243,
+        3.624,
+        -2.366
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2005, Estimation of peak discharges for rural, unregulated streams in western Oregon: U.S. Geological Survey Scientific Investigations Report 2005-5116",
+        "table": "Table 11; Table 15",
+        "year": 2005,
+        "url": "https://doi.org/10.3133/sir20055116"
+      },
+      "sep_log": 0.140434,
+      "model_error_variance": 0.016988,
+      "n_sites": 107
+    },
+    {
+      "region_code": "2A",
+      "region_name": "Region 2A, western interior, mean elevation greater than 3,000 ft (NSS GC730, regression region 479)",
+      "aep": 0.01,
+      "intercept": -1.070990014506039,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.22,
+          "maximum": 3940.0
+        },
+        {
+          "code": "BSLOPD",
+          "transform": "log10",
+          "units": "degrees",
+          "minimum": 6.24,
+          "maximum": 28.0
+        },
+        {
+          "code": "I24H2Y",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 1.72,
+          "maximum": 4.34
+        },
+        {
+          "code": "JANMINT2K",
+          "transform": "log10",
+          "units": "degF",
+          "minimum": 20.5,
+          "maximum": 34.0
+        },
+        {
+          "code": "JANMAXT2K",
+          "transform": "log10",
+          "units": "degF",
+          "minimum": 33.9,
+          "maximum": 47.3
+        }
+      ],
+      "coefficients": [
+        1.022,
+        1.03,
+        1.182,
+        3.621,
+        -2.44
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2005, Estimation of peak discharges for rural, unregulated streams in western Oregon: U.S. Geological Survey Scientific Investigations Report 2005-5116",
+        "table": "Table 11; Table 15",
+        "year": 2005,
+        "url": "https://doi.org/10.3133/sir20055116"
+      },
+      "sep_log": 0.14524,
+      "model_error_variance": 0.017952,
+      "n_sites": 107
+    },
+    {
+      "region_code": "2A",
+      "region_name": "Region 2A, western interior, mean elevation greater than 3,000 ft (NSS GC730, regression region 479)",
+      "aep": 0.002,
+      "intercept": -0.7046528516663821,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.22,
+          "maximum": 3940.0
+        },
+        {
+          "code": "BSLOPD",
+          "transform": "log10",
+          "units": "degrees",
+          "minimum": 6.24,
+          "maximum": 28.0
+        },
+        {
+          "code": "I24H2Y",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 1.72,
+          "maximum": 4.34
+        },
+        {
+          "code": "JANMINT2K",
+          "transform": "log10",
+          "units": "degF",
+          "minimum": 20.5,
+          "maximum": 34.0
+        },
+        {
+          "code": "JANMAXT2K",
+          "transform": "log10",
+          "units": "degF",
+          "minimum": 33.9,
+          "maximum": 47.3
+        }
+      ],
+      "coefficients": [
+        1.023,
+        1.053,
+        1.079,
+        3.601,
+        -2.566
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2005, Estimation of peak discharges for rural, unregulated streams in western Oregon: U.S. Geological Survey Scientific Investigations Report 2005-5116",
+        "table": "Table 11; Table 15",
+        "year": 2005,
+        "url": "https://doi.org/10.3133/sir20055116"
+      },
+      "sep_log": 0.159107,
+      "model_error_variance": 0.021327,
+      "n_sites": 107
+    },
+    {
+      "region_code": "2B",
+      "region_name": "Region 2B, western interior, mean elevation less than 3,000 ft (NSS GC731, regression region 480)",
+      "aep": 0.5,
+      "intercept": 0.9607560909017728,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.37,
+          "maximum": 7270.0
+        },
+        {
+          "code": "BSLOPD",
+          "transform": "log10",
+          "units": "degrees",
+          "minimum": 5.62,
+          "maximum": 28.3
+        },
+        {
+          "code": "I24H2Y",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 1.53,
+          "maximum": 4.48
+        }
+      ],
+      "coefficients": [
+        0.9004,
+        0.4695,
+        0.8481
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2005, Estimation of peak discharges for rural, unregulated streams in western Oregon: U.S. Geological Survey Scientific Investigations Report 2005-5116",
+        "table": "Table 12; Table 15",
+        "year": 2005,
+        "url": "https://doi.org/10.3133/sir20055116"
+      },
+      "sep_log": 0.138021,
+      "model_error_variance": 0.018278,
+      "n_sites": 178
+    },
+    {
+      "region_code": "2B",
+      "region_name": "Region 2B, western interior, mean elevation less than 3,000 ft (NSS GC731, regression region 480)",
+      "aep": 0.2,
+      "intercept": 1.162564406523019,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.37,
+          "maximum": 7270.0
+        },
+        {
+          "code": "BSLOPD",
+          "transform": "log10",
+          "units": "degrees",
+          "minimum": 5.62,
+          "maximum": 28.3
+        },
+        {
+          "code": "I24H2Y",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 1.53,
+          "maximum": 4.48
+        }
+      ],
+      "coefficients": [
+        0.9042,
+        0.4735,
+        0.7355
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2005, Estimation of peak discharges for rural, unregulated streams in western Oregon: U.S. Geological Survey Scientific Investigations Report 2005-5116",
+        "table": "Table 12; Table 15",
+        "year": 2005,
+        "url": "https://doi.org/10.3133/sir20055116"
+      },
+      "sep_log": 0.137215,
+      "model_error_variance": 0.017952,
+      "n_sites": 178
+    },
+    {
+      "region_code": "2B",
+      "region_name": "Region 2B, western interior, mean elevation less than 3,000 ft (NSS GC731, regression region 480)",
+      "aep": 0.1,
+      "intercept": 1.266936911159173,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.37,
+          "maximum": 7270.0
+        },
+        {
+          "code": "BSLOPD",
+          "transform": "log10",
+          "units": "degrees",
+          "minimum": 5.62,
+          "maximum": 28.3
+        },
+        {
+          "code": "I24H2Y",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 1.53,
+          "maximum": 4.48
+        }
+      ],
+      "coefficients": [
+        0.9064,
+        0.4688,
+        0.6937
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2005, Estimation of peak discharges for rural, unregulated streams in western Oregon: U.S. Geological Survey Scientific Investigations Report 2005-5116",
+        "table": "Table 12; Table 15",
+        "year": 2005,
+        "url": "https://doi.org/10.3133/sir20055116"
+      },
+      "sep_log": 0.13963,
+      "model_error_variance": 0.018388,
+      "n_sites": 178
+    },
+    {
+      "region_code": "2B",
+      "region_name": "Region 2B, western interior, mean elevation less than 3,000 ft (NSS GC731, regression region 480)",
+      "aep": 0.04,
+      "intercept": 1.375114684692225,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.37,
+          "maximum": 7270.0
+        },
+        {
+          "code": "BSLOPD",
+          "transform": "log10",
+          "units": "degrees",
+          "minimum": 5.62,
+          "maximum": 28.3
+        },
+        {
+          "code": "I24H2Y",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 1.53,
+          "maximum": 4.48
+        }
+      ],
+      "coefficients": [
+        0.9086,
+        0.4615,
+        0.6578
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2005, Estimation of peak discharges for rural, unregulated streams in western Oregon: U.S. Geological Survey Scientific Investigations Report 2005-5116",
+        "table": "Table 12; Table 15",
+        "year": 2005,
+        "url": "https://doi.org/10.3133/sir20055116"
+      },
+      "sep_log": 0.144041,
+      "model_error_variance": 0.019497,
+      "n_sites": 178
+    },
+    {
+      "region_code": "2B",
+      "region_name": "Region 2B, western interior, mean elevation less than 3,000 ft (NSS GC731, regression region 480)",
+      "aep": 0.02,
+      "intercept": 1.443262987458695,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.37,
+          "maximum": 7270.0
+        },
+        {
+          "code": "BSLOPD",
+          "transform": "log10",
+          "units": "degrees",
+          "minimum": 5.62,
+          "maximum": 28.3
+        },
+        {
+          "code": "I24H2Y",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 1.53,
+          "maximum": 4.48
+        }
+      ],
+      "coefficients": [
+        0.9101,
+        0.4559,
+        0.639
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2005, Estimation of peak discharges for rural, unregulated streams in western Oregon: U.S. Geological Survey Scientific Investigations Report 2005-5116",
+        "table": "Table 12; Table 15",
+        "year": 2005,
+        "url": "https://doi.org/10.3133/sir20055116"
+      },
+      "sep_log": 0.148032,
+      "model_error_variance": 0.020633,
+      "n_sites": 178
+    },
+    {
+      "region_code": "2B",
+      "region_name": "Region 2B, western interior, mean elevation less than 3,000 ft (NSS GC731, regression region 480)",
+      "aep": 0.01,
+      "intercept": 1.5031094366713693,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.37,
+          "maximum": 7270.0
+        },
+        {
+          "code": "BSLOPD",
+          "transform": "log10",
+          "units": "degrees",
+          "minimum": 5.62,
+          "maximum": 28.3
+        },
+        {
+          "code": "I24H2Y",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 1.53,
+          "maximum": 4.48
+        }
+      ],
+      "coefficients": [
+        0.9114,
+        0.4501,
+        0.6252
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2005, Estimation of peak discharges for rural, unregulated streams in western Oregon: U.S. Geological Survey Scientific Investigations Report 2005-5116",
+        "table": "Table 12; Table 15",
+        "year": 2005,
+        "url": "https://doi.org/10.3133/sir20055116"
+      },
+      "sep_log": 0.1524,
+      "model_error_variance": 0.021796,
+      "n_sites": 178
+    },
+    {
+      "region_code": "2B",
+      "region_name": "Region 2B, western interior, mean elevation less than 3,000 ft (NSS GC731, regression region 480)",
+      "aep": 0.002,
+      "intercept": 1.6203442997544932,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.37,
+          "maximum": 7270.0
+        },
+        {
+          "code": "BSLOPD",
+          "transform": "log10",
+          "units": "degrees",
+          "minimum": 5.62,
+          "maximum": 28.3
+        },
+        {
+          "code": "I24H2Y",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 1.53,
+          "maximum": 4.48
+        }
+      ],
+      "coefficients": [
+        0.9141,
+        0.4365,
+        0.6059
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2005, Estimation of peak discharges for rural, unregulated streams in western Oregon: U.S. Geological Survey Scientific Investigations Report 2005-5116",
+        "table": "Table 12; Table 15",
+        "year": 2005,
+        "url": "https://doi.org/10.3133/sir20055116"
+      },
+      "sep_log": 0.163807,
+      "model_error_variance": 0.025065,
+      "n_sites": 178
+    }
+  ],
+  "notes": "Transcribed from Cooper, 2005, SIR 2005-5116 (western Oregon only; no revisions on the pubs page). Equations and error statistics from Tables 10 (Region 1), 11 (Region 2A) and 12 (Region 2B), report pp. 35-37; variable limits and station counts from Table 15 (p. 47). Tables 10-12 and 15 were double-entered (hand transcription from rendered pages vs. a regex parse of pdftotext -table output): 225 cells, 0 disagreements. The report's recurrence intervals 2, 5, 10, 25, 50, 100 and 500 years are stored as AEP 0.5, 0.2, 0.1, 0.04, 0.02, 0.01 and 0.002; there is no 200-year (0.5%) equation. All variables are log-transformed (Tables 7-9 headnotes), so every term is log10 and intercept = log10 of the printed coefficient. Variable codes are NSS's: DRNAREA (Area, mi2), I24H2Y (I24-2, 2-year 24-hour precipitation intensity, in.), JANMAXT2K (Mx Jan T, mean maximum January temperature, deg F), JANMINT2K (Mn Jan T, mean minimum January temperature, deg F), WATCAPORC (Soil C, soil storage capacity, in.), SOILPERM (Soil P, soil permeability, in./hr), BSLOPD (Slope, mean watershed slope, degrees). NSS's ORREG2 and ELEV are region-selection (gating) parameters, not regression variables, and are not stored. Error statistics: the report publishes percent standard error of the model, average standard error of sampling, average prediction error and average equivalent years of record. sep_log is the average prediction error converted as sqrt(ln(1 + (p/100)^2)) / ln(10); model_error_variance is the percent standard error of the model converted the same way and squared (log10 units squared). The report publishes no covariance matrix [X^T Lambda^-1 X]^-1 (none in the text or Appendices A-G) and no AVP, so covariance and avp are not stored and intervals use sep_log. n_sites is Table 15's number of stations (91, 107, 178). Every equation reproduces the report's own regression estimates: evaluated at Appendix G's characteristics for the 290 gages with an Appendix D 'R' row, 874 of 2,030 values match exactly at 3 significant figures and 1,091 more within 1%; the largest difference is 1.6%, consistent with Appendix G printing characteristics to about 3 significant figures. Appendix A lists Marks Creek near Roseburg (14312300; mean elevation 752 ft) as Region 2A, but its Appendix D values are the Region 2B equations' (the 2A equations are 55-69% off). Worked examples: Lobster Creek (Region 1, Q100 = 10,200 cfs) reproduces; Quartz Creek (p. 45) reproduces too, but the report's text swaps its region labels (it calls 7,690 cfs the Region 2A estimate and 8,380 the Region 2B one; the equations give 8,428 for 2A and 7,700 for 2B at Table 14's characteristics), and with the labels corrected its arithmetic is equation 8 as printed. Transition zone NOT modelled: for mean elevations between 2,875 and 3,125 ft the report (eq. 7, and eq. 8 for the selected 250-ft zone) blends the two regions linearly on elevation, QT = Q2B (3,125 - E)/250 + Q2A (E - 2,875)/250; below 2,875 ft Region 2B alone applies and above 3,125 ft Region 2A alone. The schema has no elevation-interpolated blend, and evaluate_weighted's fractions are area fractions, so a caller must compute the eq. 8 weights and apply them with space='linear'. Elevation is not a regression variable, so nothing in this file enforces the 2A/2B split. Region 2A and 2B were not cross-checked against NSS: NSS lists them (GC730, GC731) but returns no estimate for them. Out of scope: eastern Oregon (the report covers western Oregon only; Cooper, 2006, OWRD Open File Report SW 06-001, has no NSS equations); NSS's Northwest_Region_2_Thomas_1997 (GC727; Thomas and others, 1997, superseded for western Oregon by this report) and Portland-Vancouver_Urban (GC728; Laenen, 1980, urban equations, outside the rural scope)."
 }

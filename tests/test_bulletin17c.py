@@ -750,3 +750,50 @@ class TestEngineParameter:
         b17c = Bulletin17C(peak_flows=self.FLOWS, water_years=self.YEARS)
         with pytest.raises(ValueError, match="Method-of-Moments"):
             b17c.run_analysis(method="mom", engine="fortran")
+
+
+class TestEMAZeroFlowYears:
+    """Zero (and NaN) flows are dropped from the fit; their years must go with them.
+
+    Regression test: the base class filtered ``_peak_flows`` but EMA kept every
+    water year, so ``zip(flows, years)`` paired each peak after the first zero
+    with the wrong year. Found by the .psf converter's row check (PR #52), which
+    refused 15 of 24 WY/MT stations for it.
+    """
+
+    FLOWS = [0.0, 100.0, 200.0, 0.0, 300.0, np.nan, 400.0]
+    YEARS = [1990, 1991, 1992, 1993, 1994, 1995, 1996]
+
+    def _ema(self, **kwargs):
+        from flowfreq.bulletin17c import ExpectedMomentsAlgorithm
+
+        return ExpectedMomentsAlgorithm(np.array(self.FLOWS), np.array(self.YEARS), **kwargs)
+
+    def test_each_peak_keeps_its_own_year(self):
+        intervals = self._ema()._build_flow_intervals()
+        assert {(i.year, i.lower) for i in intervals} == {
+            (1991, 100.0),
+            (1992, 200.0),
+            (1994, 300.0),
+            (1996, 400.0),
+        }
+
+    def test_zero_flow_years_are_recorded_not_gaps(self):
+        ema = self._ema()
+        # Only the NaN year is missing; the zero years were observed.
+        assert ema._ema_params.systematic_start == 1990
+        assert ema._ema_params.systematic_end == 1996
+        assert ema._ema_params.historical_threshold is not None  # gap at 1995 only
+        assert ema._ema_params.historical_end == 1994
+
+    def test_zero_years_are_not_censored_as_historical(self):
+        ema = self._ema(perception_thresholds={(1985, 1996): 50.0})
+        censored_years = {i.year for i in ema._build_flow_intervals() if i.is_censored}
+        assert 1990 not in censored_years
+        assert 1993 not in censored_years
+
+    def test_length_mismatch_raises(self):
+        from flowfreq.bulletin17c import ExpectedMomentsAlgorithm
+
+        with pytest.raises(ValueError, match="same length"):
+            ExpectedMomentsAlgorithm(np.array([1.0, 2.0]), np.array([2000]))
