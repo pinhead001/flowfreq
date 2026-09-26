@@ -96,11 +96,13 @@ from .usgs import (
 )
 from .workflow import (
     B17C_DEFAULT_SKEW,
+    B17C_DEFAULT_SKEW_SE,
     DEFAULT_AEP,
     DEFAULT_RETURN_INTERVALS,
     SKEW_OPTIONS,
     build_skew_curves_dict,
     compute_skew_tables,
+    resolve_regional_skew,
     run_ffa,
 )
 
@@ -110,6 +112,55 @@ USGSGage = USGSgage
 logger = logging.getLogger(__name__)
 
 
+def _gage_analysis(
+    peak_data,
+    site_no: str,
+    *,
+    method: str,
+    regional_skew: float = None,
+    regional_skew_mse: float = None,
+    historical_peaks: list = None,
+    apply_peak_codes: bool = False,
+) -> Bulletin17C:
+    """Build ``analyze_gage``'s ``Bulletin17C`` from a downloaded peak frame."""
+    if apply_peak_codes:
+        if historical_peaks:
+            raise ValueError(
+                "apply_peak_codes takes historic peaks from code 7; do not also pass "
+                "historical_peaks"
+            )
+        if method.lower() != "ema":
+            raise ValueError("apply_peak_codes needs method='ema'")
+        from .psf_convert import convert_peak_frame
+
+        return convert_peak_frame(
+            peak_data,
+            station_id=site_no,
+            regional_skew=regional_skew,
+            regional_skew_mse=regional_skew_mse,
+        ).to_bulletin17c("native")
+
+    if "qualification_code" in peak_data.columns:
+        from .peak_codes import count_acted_on_codes
+
+        ignored = count_acted_on_codes(peak_data["qualification_code"])
+        if ignored:
+            logger.warning(
+                "USGS %s: peaks carry qualification codes peakfq would act on (%s); "
+                "they are fitted as exact systematic peaks here. Pass "
+                "apply_peak_codes=True to apply them.",
+                site_no,
+                ", ".join(f"code {c}: {n}" for c, n in ignored.items()),
+            )
+    return Bulletin17C(
+        peak_data["peak_flow_cfs"].values,
+        water_years=peak_data["water_year"].values,
+        regional_skew=regional_skew,
+        regional_skew_mse=regional_skew_mse,
+        historical_peaks=historical_peaks,
+    )
+
+
 def analyze_gage(
     site_no: str,
     method: str = "ema",
@@ -117,6 +168,7 @@ def analyze_gage(
     regional_skew_mse: float = None,
     historical_peaks: list = None,
     output_dir: str = "./output",
+    apply_peak_codes: bool = False,
 ) -> dict:
     """
     Complete flood frequency analysis for a USGS gage.
@@ -135,6 +187,16 @@ def analyze_gage(
         Historical peak observations
     output_dir : str
         Output directory
+    apply_peak_codes : bool, default False
+        Apply the NWIS qualification codes the way peakfq 8.1.0 does
+        (:func:`flowfreq.psf_convert.convert_peak_frame`): code 7 peaks are
+        historic, 3/O/6/C peaks are removed, 4/8 peaks are censored. Only
+        for ``method="ema"`` and without ``historical_peaks``. Raises
+        :class:`flowfreq.psf_convert.UnsupportedSpecError` when the native
+        engine cannot express the resulting record exactly (code 4/8
+        peaks, zero flows). Off by default, which keeps every existing result: all
+        peaks are then fitted as exact systematic values, and codes that
+        would have changed that are logged as ignored.
     """
     import os
 
@@ -155,14 +217,14 @@ def analyze_gage(
 
     logger.info("Running Bulletin 17C analysis (method=%s)...", method.upper())
 
-    water_years = gage.peak_data["water_year"].values
-
-    analysis = Bulletin17C(
-        gage.peak_data["peak_flow_cfs"].values,
-        water_years=water_years,
+    analysis = _gage_analysis(
+        gage.peak_data,
+        site_no,
+        method=method,
         regional_skew=regional_skew,
         regional_skew_mse=regional_skew_mse,
         historical_peaks=historical_peaks,
+        apply_peak_codes=apply_peak_codes,
     )
 
     results = analysis.run_analysis(method=method)
