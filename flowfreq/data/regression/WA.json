@@ -1,9 +1,1833 @@
 {
   "schema_version": 1,
   "state": "WA",
-  "status": "pending",
+  "status": "partial",
   "issue": 37,
-  "source_reports": [],
-  "equations": [],
-  "notes": "No coefficients transcribed yet. Populate from the cited report or tools/snapshot_nss.py; never by hand from memory."
+  "source_reports": [
+    {
+      "citation": "Mastin, M.C., Konrad, C.P., Veilleux, A.G., and Tecca, A.E., 2016, Magnitude, frequency, and trends of floods at gaged and ungaged sites in Washington, based on data through water year 2014 (ver. 1.2, November 2017): U.S. Geological Survey Scientific Investigations Report 2016-5118",
+      "version": "1.2, November 2017",
+      "doi": "10.3133/sir20165118",
+      "url": "https://pubs.usgs.gov/publication/sir20165118",
+      "pdf": "https://pubs.usgs.gov/sir/2016/5118/sir20165118.pdf",
+      "covariance_download": "https://pubs.usgs.gov/sir/2016/5118/sir20165118_floodqtools.xlsm",
+      "tables": [
+        "Table 6",
+        "Table 7"
+      ],
+      "nss": {
+        "state_region_id": 51,
+        "citation_id": 150,
+        "regression_region_ids": [
+          717,
+          718,
+          719,
+          720
+        ]
+      }
+    }
+  ],
+  "equations": [
+    {
+      "region_code": "1",
+      "region_name": "Regression Region 1 (NSS GC1750, regression region 717)",
+      "aep": 0.5,
+      "intercept": 0.5850092799024611,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.25,
+          "maximum": 3304
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "identity",
+          "units": "in",
+          "minimum": 9.82,
+          "maximum": 52.45
+        },
+        {
+          "code": "CANOPY_PCT",
+          "transform": "identity",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 77.4
+        }
+      ],
+      "coefficients": [
+        0.745,
+        0.032,
+        -0.0078
+      ],
+      "citation": {
+        "publication": "Mastin, M.C., Konrad, C.P., Veilleux, A.G., and Tecca, A.E., 2016, Magnitude, frequency, and trends of floods at gaged and ungaged sites in Washington, based on data through water year 2014 (ver. 1.2, November 2017): U.S. Geological Survey Scientific Investigations Report 2016-5118",
+        "table": "Table 6; Table 7 (full precision from sir20165118_floodqtools.xlsm)",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165118"
+      },
+      "sep_log": 0.348403,
+      "model_error_variance": 0.113,
+      "covariance": [
+        [
+          0.019164022,
+          -0.0023091143,
+          -0.00065479902,
+          0.0001923244
+        ],
+        [
+          -0.0023091143,
+          0.0016150022,
+          7.9102264e-06,
+          -1.5452192e-05
+        ],
+        [
+          -0.00065479902,
+          7.9102264e-06,
+          4.0330544e-05,
+          -1.6590843e-05
+        ],
+        [
+          0.0001923244,
+          -1.5452192e-05,
+          -1.6590843e-05,
+          1.0051477e-05
+        ]
+      ],
+      "n_sites": 93
+    },
+    {
+      "region_code": "1",
+      "region_name": "Regression Region 1 (NSS GC1750, regression region 717)",
+      "aep": 0.2,
+      "intercept": 1.0830006695765333,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.25,
+          "maximum": 3304
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "identity",
+          "units": "in",
+          "minimum": 9.82,
+          "maximum": 52.45
+        },
+        {
+          "code": "CANOPY_PCT",
+          "transform": "identity",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 77.4
+        }
+      ],
+      "coefficients": [
+        0.713,
+        0.028,
+        -0.0098
+      ],
+      "citation": {
+        "publication": "Mastin, M.C., Konrad, C.P., Veilleux, A.G., and Tecca, A.E., 2016, Magnitude, frequency, and trends of floods at gaged and ungaged sites in Washington, based on data through water year 2014 (ver. 1.2, November 2017): U.S. Geological Survey Scientific Investigations Report 2016-5118",
+        "table": "Table 6; Table 7 (full precision from sir20165118_floodqtools.xlsm)",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165118"
+      },
+      "sep_log": 0.280446,
+      "model_error_variance": 0.072,
+      "covariance": [
+        [
+          0.01523258,
+          -0.0019370547,
+          -0.00046810744,
+          0.00012497027
+        ],
+        [
+          -0.0019370547,
+          0.0011528013,
+          8.380938e-06,
+          -8.7630099e-06
+        ],
+        [
+          -0.00046810744,
+          8.380938e-06,
+          2.8210214e-05,
+          -1.1574344e-05
+        ],
+        [
+          0.00012497027,
+          -8.7630099e-06,
+          -1.1574344e-05,
+          7.0668542e-06
+        ]
+      ],
+      "n_sites": 93
+    },
+    {
+      "region_code": "1",
+      "region_name": "Regression Region 1 (NSS GC1750, regression region 717)",
+      "aep": 0.1,
+      "intercept": 1.3439990690571613,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.25,
+          "maximum": 3304
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "identity",
+          "units": "in",
+          "minimum": 9.82,
+          "maximum": 52.45
+        },
+        {
+          "code": "CANOPY_PCT",
+          "transform": "identity",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 77.4
+        }
+      ],
+      "coefficients": [
+        0.695,
+        0.026,
+        -0.0107
+      ],
+      "citation": {
+        "publication": "Mastin, M.C., Konrad, C.P., Veilleux, A.G., and Tecca, A.E., 2016, Magnitude, frequency, and trends of floods at gaged and ungaged sites in Washington, based on data through water year 2014 (ver. 1.2, November 2017): U.S. Geological Survey Scientific Investigations Report 2016-5118",
+        "table": "Table 6; Table 7 (full precision from sir20165118_floodqtools.xlsm)",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165118"
+      },
+      "sep_log": 0.276411,
+      "model_error_variance": 0.07,
+      "covariance": [
+        [
+          0.015791971,
+          -0.0020214733,
+          -0.0004793082,
+          0.00012646694
+        ],
+        [
+          -0.0020214733,
+          0.0011669537,
+          9.3706662e-06,
+          -8.5581334e-06
+        ],
+        [
+          -0.0004793082,
+          9.3706662e-06,
+          2.8879587e-05,
+          -1.1906702e-05
+        ],
+        [
+          0.00012646694,
+          -8.5581334e-06,
+          -1.1906702e-05,
+          7.2819301e-06
+        ]
+      ],
+      "n_sites": 93
+    },
+    {
+      "region_code": "1",
+      "region_name": "Regression Region 1 (NSS GC1750, regression region 717)",
+      "aep": 0.04,
+      "intercept": 1.6250036010148634,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.25,
+          "maximum": 3304
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "identity",
+          "units": "in",
+          "minimum": 9.82,
+          "maximum": 52.45
+        },
+        {
+          "code": "CANOPY_PCT",
+          "transform": "identity",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 77.4
+        }
+      ],
+      "coefficients": [
+        0.674,
+        0.024,
+        -0.0117
+      ],
+      "citation": {
+        "publication": "Mastin, M.C., Konrad, C.P., Veilleux, A.G., and Tecca, A.E., 2016, Magnitude, frequency, and trends of floods at gaged and ungaged sites in Washington, based on data through water year 2014 (ver. 1.2, November 2017): U.S. Geological Survey Scientific Investigations Report 2016-5118",
+        "table": "Table 6; Table 7 (full precision from sir20165118_floodqtools.xlsm)",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165118"
+      },
+      "sep_log": 0.297617,
+      "model_error_variance": 0.081,
+      "covariance": [
+        [
+          0.018674053,
+          -0.0023865849,
+          -0.00057336246,
+          0.00015357324
+        ],
+        [
+          -0.0023865849,
+          0.0013790186,
+          1.1691159e-05,
+          -1.0558821e-05
+        ],
+        [
+          -0.00057336246,
+          1.1691159e-05,
+          3.4677961e-05,
+          -1.4379117e-05
+        ],
+        [
+          0.00015357324,
+          -1.0558821e-05,
+          -1.4379117e-05,
+          8.79167e-06
+        ]
+      ],
+      "n_sites": 93
+    },
+    {
+      "region_code": "1",
+      "region_name": "Regression Region 1 (NSS GC1750, regression region 717)",
+      "aep": 0.02,
+      "intercept": 1.8049976278802002,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.25,
+          "maximum": 3304
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "identity",
+          "units": "in",
+          "minimum": 9.82,
+          "maximum": 52.45
+        },
+        {
+          "code": "CANOPY_PCT",
+          "transform": "identity",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 77.4
+        }
+      ],
+      "coefficients": [
+        0.661,
+        0.023,
+        -0.0124
+      ],
+      "citation": {
+        "publication": "Mastin, M.C., Konrad, C.P., Veilleux, A.G., and Tecca, A.E., 2016, Magnitude, frequency, and trends of floods at gaged and ungaged sites in Washington, based on data through water year 2014 (ver. 1.2, November 2017): U.S. Geological Survey Scientific Investigations Report 2016-5118",
+        "table": "Table 6; Table 7 (full precision from sir20165118_floodqtools.xlsm)",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165118"
+      },
+      "sep_log": 0.319556,
+      "model_error_variance": 0.093,
+      "covariance": [
+        [
+          0.021489199,
+          -0.0027392688,
+          -0.00066794603,
+          0.00018161996
+        ],
+        [
+          -0.0027392688,
+          0.0015956812,
+          1.387315e-05,
+          -1.2797498e-05
+        ],
+        [
+          -0.00066794603,
+          1.387315e-05,
+          4.0493512e-05,
+          -1.6840004e-05
+        ],
+        [
+          0.00018161996,
+          -1.2797498e-05,
+          -1.6840004e-05,
+          1.0288796e-05
+        ]
+      ],
+      "n_sites": 93
+    },
+    {
+      "region_code": "1",
+      "region_name": "Regression Region 1 (NSS GC1750, regression region 717)",
+      "aep": 0.01,
+      "intercept": 1.966000857628784,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.25,
+          "maximum": 3304
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "identity",
+          "units": "in",
+          "minimum": 9.82,
+          "maximum": 52.45
+        },
+        {
+          "code": "CANOPY_PCT",
+          "transform": "identity",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 77.4
+        }
+      ],
+      "coefficients": [
+        0.649,
+        0.022,
+        -0.013
+      ],
+      "citation": {
+        "publication": "Mastin, M.C., Konrad, C.P., Veilleux, A.G., and Tecca, A.E., 2016, Magnitude, frequency, and trends of floods at gaged and ungaged sites in Washington, based on data through water year 2014 (ver. 1.2, November 2017): U.S. Geological Survey Scientific Investigations Report 2016-5118",
+        "table": "Table 6; Table 7 (full precision from sir20165118_floodqtools.xlsm)",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165118"
+      },
+      "sep_log": 0.344353,
+      "model_error_variance": 0.108,
+      "covariance": [
+        [
+          0.024689019,
+          -0.0031364398,
+          -0.00077821827,
+          0.00021513582
+        ],
+        [
+          -0.0031364398,
+          0.0018490998,
+          1.634219e-05,
+          -1.5602854e-05
+        ],
+        [
+          -0.00077821827,
+          1.634219e-05,
+          4.7270154e-05,
+          -1.9699242e-05
+        ],
+        [
+          0.00021513582,
+          -1.5602854e-05,
+          -1.9699242e-05,
+          1.202254e-05
+        ]
+      ],
+      "n_sites": 93
+    },
+    {
+      "region_code": "1",
+      "region_name": "Regression Region 1 (NSS GC1750, regression region 717)",
+      "aep": 0.005,
+      "intercept": 2.1120013954861885,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.25,
+          "maximum": 3304
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "identity",
+          "units": "in",
+          "minimum": 9.82,
+          "maximum": 52.45
+        },
+        {
+          "code": "CANOPY_PCT",
+          "transform": "identity",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 77.4
+        }
+      ],
+      "coefficients": [
+        0.637,
+        0.021,
+        -0.0136
+      ],
+      "citation": {
+        "publication": "Mastin, M.C., Konrad, C.P., Veilleux, A.G., and Tecca, A.E., 2016, Magnitude, frequency, and trends of floods at gaged and ungaged sites in Washington, based on data through water year 2014 (ver. 1.2, November 2017): U.S. Geological Survey Scientific Investigations Report 2016-5118",
+        "table": "Table 6; Table 7 (full precision from sir20165118_floodqtools.xlsm)",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165118"
+      },
+      "sep_log": 0.371807,
+      "model_error_variance": 0.126,
+      "covariance": [
+        [
+          0.028277602,
+          -0.0035769763,
+          -0.00090535365,
+          0.00025475906
+        ],
+        [
+          -0.0035769763,
+          0.0021417022,
+          1.9085978e-05,
+          -1.9051648e-05
+        ],
+        [
+          -0.00090535365,
+          1.9085978e-05,
+          5.5088342e-05,
+          -2.2991111e-05
+        ],
+        [
+          0.00025475906,
+          -1.9051648e-05,
+          -2.2991111e-05,
+          1.4011718e-05
+        ]
+      ],
+      "n_sites": 93
+    },
+    {
+      "region_code": "1",
+      "region_name": "Regression Region 1 (NSS GC1750, regression region 717)",
+      "aep": 0.002,
+      "intercept": 2.2860071220794747,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.25,
+          "maximum": 3304
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "identity",
+          "units": "in",
+          "minimum": 9.82,
+          "maximum": 52.45
+        },
+        {
+          "code": "CANOPY_PCT",
+          "transform": "identity",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 77.4
+        }
+      ],
+      "coefficients": [
+        0.624,
+        0.02,
+        -0.0143
+      ],
+      "citation": {
+        "publication": "Mastin, M.C., Konrad, C.P., Veilleux, A.G., and Tecca, A.E., 2016, Magnitude, frequency, and trends of floods at gaged and ungaged sites in Washington, based on data through water year 2014 (ver. 1.2, November 2017): U.S. Geological Survey Scientific Investigations Report 2016-5118",
+        "table": "Table 6; Table 7 (full precision from sir20165118_floodqtools.xlsm)",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165118"
+      },
+      "sep_log": 0.407196,
+      "model_error_variance": 0.152,
+      "covariance": [
+        [
+          0.033186415,
+          -0.0041765841,
+          -0.0010818002,
+          0.00031055143
+        ],
+        [
+          -0.0041765841,
+          0.0025474691,
+          2.2916745e-05,
+          -2.40417e-05
+        ],
+        [
+          -0.0010818002,
+          2.2916745e-05,
+          6.5939854e-05,
+          -2.7560758e-05
+        ],
+        [
+          0.00031055143,
+          -2.40417e-05,
+          -2.7560758e-05,
+          1.6769791e-05
+        ]
+      ],
+      "n_sites": 93
+    },
+    {
+      "region_code": "2",
+      "region_name": "Regression Region 2 (NSS GC1751, regression region 718)",
+      "aep": 0.5,
+      "intercept": 0.15986784709256668,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.42,
+          "maximum": 1322
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "identity",
+          "units": "in",
+          "minimum": 8.86,
+          "maximum": 84.2
+        },
+        {
+          "code": "CANOPY_PCT",
+          "transform": "identity",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 81.8
+        }
+      ],
+      "coefficients": [
+        0.877,
+        0.0253,
+        -0.002
+      ],
+      "citation": {
+        "publication": "Mastin, M.C., Konrad, C.P., Veilleux, A.G., and Tecca, A.E., 2016, Magnitude, frequency, and trends of floods at gaged and ungaged sites in Washington, based on data through water year 2014 (ver. 1.2, November 2017): U.S. Geological Survey Scientific Investigations Report 2016-5118",
+        "table": "Table 6; Table 7 (full precision from sir20165118_floodqtools.xlsm)",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165118"
+      },
+      "sep_log": 0.29688,
+      "model_error_variance": 0.082,
+      "covariance": [
+        [
+          0.016351936,
+          -0.0024383899,
+          -0.00012665308,
+          -0.00011532899
+        ],
+        [
+          -0.0024383899,
+          0.0015462302,
+          1.062816e-06,
+          5.2388638e-07
+        ],
+        [
+          -0.00012665308,
+          1.062816e-06,
+          5.5352866e-06,
+          -1.6684268e-06
+        ],
+        [
+          -0.00011532899,
+          5.2388638e-07,
+          -1.6684268e-06,
+          3.3604961e-06
+        ]
+      ],
+      "n_sites": 89
+    },
+    {
+      "region_code": "2",
+      "region_name": "Regression Region 2 (NSS GC1751, regression region 718)",
+      "aep": 0.2,
+      "intercept": 0.7610252517113726,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.42,
+          "maximum": 1322
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "identity",
+          "units": "in",
+          "minimum": 8.86,
+          "maximum": 84.2
+        },
+        {
+          "code": "CANOPY_PCT",
+          "transform": "identity",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 81.8
+        }
+      ],
+      "coefficients": [
+        0.86,
+        0.0214,
+        -0.0061
+      ],
+      "citation": {
+        "publication": "Mastin, M.C., Konrad, C.P., Veilleux, A.G., and Tecca, A.E., 2016, Magnitude, frequency, and trends of floods at gaged and ungaged sites in Washington, based on data through water year 2014 (ver. 1.2, November 2017): U.S. Geological Survey Scientific Investigations Report 2016-5118",
+        "table": "Table 6; Table 7 (full precision from sir20165118_floodqtools.xlsm)",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165118"
+      },
+      "sep_log": 0.2714,
+      "model_error_variance": 0.068,
+      "covariance": [
+        [
+          0.01541056,
+          -0.0023101859,
+          -0.0001148421,
+          -0.00010719225
+        ],
+        [
+          -0.0023101859,
+          0.0013865811,
+          2.1568122e-06,
+          7.5997966e-07
+        ],
+        [
+          -0.0001148421,
+          2.1568122e-06,
+          4.8094591e-06,
+          -1.4492182e-06
+        ],
+        [
+          -0.00010719225,
+          7.5997966e-07,
+          -1.4492182e-06,
+          3.0266263e-06
+        ]
+      ],
+      "n_sites": 89
+    },
+    {
+      "region_code": "2",
+      "region_name": "Regression Region 2 (NSS GC1751, regression region 718)",
+      "aep": 0.1,
+      "intercept": 1.0830006695765333,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.42,
+          "maximum": 1322
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "identity",
+          "units": "in",
+          "minimum": 8.86,
+          "maximum": 84.2
+        },
+        {
+          "code": "CANOPY_PCT",
+          "transform": "identity",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 81.8
+        }
+      ],
+      "coefficients": [
+        0.847,
+        0.0194,
+        -0.0082
+      ],
+      "citation": {
+        "publication": "Mastin, M.C., Konrad, C.P., Veilleux, A.G., and Tecca, A.E., 2016, Magnitude, frequency, and trends of floods at gaged and ungaged sites in Washington, based on data through water year 2014 (ver. 1.2, November 2017): U.S. Geological Survey Scientific Investigations Report 2016-5118",
+        "table": "Table 6; Table 7 (full precision from sir20165118_floodqtools.xlsm)",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165118"
+      },
+      "sep_log": 0.281433,
+      "model_error_variance": 0.073,
+      "covariance": [
+        [
+          0.01713618,
+          -0.0025562481,
+          -0.00012648399,
+          -0.00011984722
+        ],
+        [
+          -0.0025562481,
+          0.0015328161,
+          2.7589292e-06,
+          3.6609291e-07
+        ],
+        [
+          -0.00012648399,
+          2.7589292e-06,
+          5.2784385e-06,
+          -1.6135142e-06
+        ],
+        [
+          -0.00011984722,
+          3.6609291e-07,
+          -1.6135142e-06,
+          3.4039947e-06
+        ]
+      ],
+      "n_sites": 89
+    },
+    {
+      "region_code": "2",
+      "region_name": "Regression Region 2 (NSS GC1751, regression region 718)",
+      "aep": 0.04,
+      "intercept": 1.4229999772716164,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.42,
+          "maximum": 1322
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "identity",
+          "units": "in",
+          "minimum": 8.86,
+          "maximum": 84.2
+        },
+        {
+          "code": "CANOPY_PCT",
+          "transform": "identity",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 81.8
+        }
+      ],
+      "coefficients": [
+        0.833,
+        0.0174,
+        -0.0105
+      ],
+      "citation": {
+        "publication": "Mastin, M.C., Konrad, C.P., Veilleux, A.G., and Tecca, A.E., 2016, Magnitude, frequency, and trends of floods at gaged and ungaged sites in Washington, based on data through water year 2014 (ver. 1.2, November 2017): U.S. Geological Survey Scientific Investigations Report 2016-5118",
+        "table": "Table 6; Table 7 (full precision from sir20165118_floodqtools.xlsm)",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165118"
+      },
+      "sep_log": 0.309148,
+      "model_error_variance": 0.088,
+      "covariance": [
+        [
+          0.020677083,
+          -0.0030757235,
+          -0.00015233755,
+          -0.00014575708
+        ],
+        [
+          -0.0030757235,
+          0.0018769037,
+          3.440448e-06,
+          -5.5064938e-07
+        ],
+        [
+          -0.00015233755,
+          3.440448e-06,
+          6.4587144e-06,
+          -2.0265268e-06
+        ],
+        [
+          -0.00014575708,
+          -5.5064938e-07,
+          -2.0265268e-06,
+          4.23994e-06
+        ]
+      ],
+      "n_sites": 89
+    },
+    {
+      "region_code": "2",
+      "region_name": "Regression Region 2 (NSS GC1751, regression region 718)",
+      "aep": 0.02,
+      "intercept": 1.6419993089649858,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.42,
+          "maximum": 1322
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "identity",
+          "units": "in",
+          "minimum": 8.86,
+          "maximum": 84.2
+        },
+        {
+          "code": "CANOPY_PCT",
+          "transform": "identity",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 81.8
+        }
+      ],
+      "coefficients": [
+        0.823,
+        0.0162,
+        -0.0119
+      ],
+      "citation": {
+        "publication": "Mastin, M.C., Konrad, C.P., Veilleux, A.G., and Tecca, A.E., 2016, Magnitude, frequency, and trends of floods at gaged and ungaged sites in Washington, based on data through water year 2014 (ver. 1.2, November 2017): U.S. Geological Survey Scientific Investigations Report 2016-5118",
+        "table": "Table 6; Table 7 (full precision from sir20165118_floodqtools.xlsm)",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165118"
+      },
+      "sep_log": 0.332334,
+      "model_error_variance": 0.102,
+      "covariance": [
+        [
+          0.023696788,
+          -0.0035226115,
+          -0.00017469986,
+          -0.00016777786
+        ],
+        [
+          -0.0035226115,
+          0.0021799603,
+          3.9471254e-06,
+          -1.4054492e-06
+        ],
+        [
+          -0.00017469986,
+          3.9471254e-06,
+          7.508495e-06,
+          -2.3971e-06
+        ],
+        [
+          -0.00016777786,
+          -1.4054492e-06,
+          -2.3971e-06,
+          4.9679682e-06
+        ]
+      ],
+      "n_sites": 89
+    },
+    {
+      "region_code": "2",
+      "region_name": "Regression Region 2 (NSS GC1751, regression region 718)",
+      "aep": 0.01,
+      "intercept": 1.836001123638301,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.42,
+          "maximum": 1322
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "identity",
+          "units": "in",
+          "minimum": 8.86,
+          "maximum": 84.2
+        },
+        {
+          "code": "CANOPY_PCT",
+          "transform": "identity",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 81.8
+        }
+      ],
+      "coefficients": [
+        0.814,
+        0.0151,
+        -0.0132
+      ],
+      "citation": {
+        "publication": "Mastin, M.C., Konrad, C.P., Veilleux, A.G., and Tecca, A.E., 2016, Magnitude, frequency, and trends of floods at gaged and ungaged sites in Washington, based on data through water year 2014 (ver. 1.2, November 2017): U.S. Geological Survey Scientific Investigations Report 2016-5118",
+        "table": "Table 6; Table 7 (full precision from sir20165118_floodqtools.xlsm)",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165118"
+      },
+      "sep_log": 0.353504,
+      "model_error_variance": 0.116,
+      "covariance": [
+        [
+          0.026692724,
+          -0.0039644286,
+          -0.00019677533,
+          -0.00018965478
+        ],
+        [
+          -0.0039644286,
+          0.0024789637,
+          4.4959958e-06,
+          -2.2814013e-06
+        ],
+        [
+          -0.00019677533,
+          4.4959958e-06,
+          8.5429526e-06,
+          -2.7642321e-06
+        ],
+        [
+          -0.00018965478,
+          -2.2814013e-06,
+          -2.7642321e-06,
+          5.6905477e-06
+        ]
+      ],
+      "n_sites": 89
+    },
+    {
+      "region_code": "2",
+      "region_name": "Regression Region 2 (NSS GC1751, regression region 718)",
+      "aep": 0.005,
+      "intercept": 2.0149990909675037,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.42,
+          "maximum": 1322
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "identity",
+          "units": "in",
+          "minimum": 8.86,
+          "maximum": 84.2
+        },
+        {
+          "code": "CANOPY_PCT",
+          "transform": "identity",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 81.8
+        }
+      ],
+      "coefficients": [
+        0.806,
+        0.0141,
+        -0.0145
+      ],
+      "citation": {
+        "publication": "Mastin, M.C., Konrad, C.P., Veilleux, A.G., and Tecca, A.E., 2016, Magnitude, frequency, and trends of floods at gaged and ungaged sites in Washington, based on data through water year 2014 (ver. 1.2, November 2017): U.S. Geological Survey Scientific Investigations Report 2016-5118",
+        "table": "Table 6; Table 7 (full precision from sir20165118_floodqtools.xlsm)",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165118"
+      },
+      "sep_log": 0.377838,
+      "model_error_variance": 0.132,
+      "covariance": [
+        [
+          0.030005974,
+          -0.0044648284,
+          -0.000221869,
+          -0.00021349998
+        ],
+        [
+          -0.0044648284,
+          0.0028318059,
+          4.9580464e-06,
+          -3.4494535e-06
+        ],
+        [
+          -0.000221869,
+          4.9580464e-06,
+          9.7762831e-06,
+          -3.2099441e-06
+        ],
+        [
+          -0.00021349998,
+          -3.4494535e-06,
+          -3.2099441e-06,
+          6.5232151e-06
+        ]
+      ],
+      "n_sites": 89
+    },
+    {
+      "region_code": "2",
+      "region_name": "Regression Region 2 (NSS GC1751, regression region 718)",
+      "aep": 0.002,
+      "intercept": 2.229988836544811,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.42,
+          "maximum": 1322
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "identity",
+          "units": "in",
+          "minimum": 8.86,
+          "maximum": 84.2
+        },
+        {
+          "code": "CANOPY_PCT",
+          "transform": "identity",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 81.8
+        }
+      ],
+      "coefficients": [
+        0.796,
+        0.013,
+        -0.0159
+      ],
+      "citation": {
+        "publication": "Mastin, M.C., Konrad, C.P., Veilleux, A.G., and Tecca, A.E., 2016, Magnitude, frequency, and trends of floods at gaged and ungaged sites in Washington, based on data through water year 2014 (ver. 1.2, November 2017): U.S. Geological Survey Scientific Investigations Report 2016-5118",
+        "table": "Table 6; Table 7 (full precision from sir20165118_floodqtools.xlsm)",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165118"
+      },
+      "sep_log": 0.409244,
+      "model_error_variance": 0.155,
+      "covariance": [
+        [
+          0.03445906,
+          -0.0051433694,
+          -0.00025590253,
+          -0.00024533784
+        ],
+        [
+          -0.0051433694,
+          0.0033184265,
+          5.5492914e-06,
+          -5.195138e-06
+        ],
+        [
+          -0.00025590253,
+          5.5492914e-06,
+          1.1481721e-05,
+          -3.8338296e-06
+        ],
+        [
+          -0.00024533784,
+          -5.195138e-06,
+          -3.8338296e-06,
+          7.6649136e-06
+        ]
+      ],
+      "n_sites": 89
+    },
+    {
+      "region_code": "3",
+      "region_name": "Regression Region 3 (NSS GC1752, regression region 719)",
+      "aep": 0.5,
+      "intercept": -1.5316526695878427,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.08,
+          "maximum": 2605
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 33.29,
+          "maximum": 168.0
+        }
+      ],
+      "coefficients": [
+        0.899,
+        1.75
+      ],
+      "citation": {
+        "publication": "Mastin, M.C., Konrad, C.P., Veilleux, A.G., and Tecca, A.E., 2016, Magnitude, frequency, and trends of floods at gaged and ungaged sites in Washington, based on data through water year 2014 (ver. 1.2, November 2017): U.S. Geological Survey Scientific Investigations Report 2016-5118",
+        "table": "Table 6; Table 7",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165118"
+      },
+      "sep_log": 0.179725,
+      "model_error_variance": 0.031,
+      "covariance": [
+        [
+          0.03976,
+          9.135e-05,
+          -0.02031
+        ],
+        [
+          9.135e-05,
+          0.0004064,
+          -0.0003276
+        ],
+        [
+          -0.02031,
+          -0.0003276,
+          0.0107
+        ]
+      ],
+      "n_sites": 142
+    },
+    {
+      "region_code": "3",
+      "region_name": "Regression Region 3 (NSS GC1752, regression region 719)",
+      "aep": 0.2,
+      "intercept": -1.2479515521805615,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.08,
+          "maximum": 2605
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 33.29,
+          "maximum": 168.0
+        }
+      ],
+      "coefficients": [
+        0.895,
+        1.7
+      ],
+      "citation": {
+        "publication": "Mastin, M.C., Konrad, C.P., Veilleux, A.G., and Tecca, A.E., 2016, Magnitude, frequency, and trends of floods at gaged and ungaged sites in Washington, based on data through water year 2014 (ver. 1.2, November 2017): U.S. Geological Survey Scientific Investigations Report 2016-5118",
+        "table": "Table 6; Table 7",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165118"
+      },
+      "sep_log": 0.184031,
+      "model_error_variance": 0.033,
+      "covariance": [
+        [
+          0.04405,
+          7.119e-05,
+          -0.02241
+        ],
+        [
+          7.119e-05,
+          0.0004346,
+          -0.00034
+        ],
+        [
+          -0.02241,
+          -0.00034,
+          0.01176
+        ]
+      ],
+      "n_sites": 142
+    },
+    {
+      "region_code": "3",
+      "region_name": "Regression Region 3 (NSS GC1752, regression region 719)",
+      "aep": 0.1,
+      "intercept": -1.1001794975729038,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.08,
+          "maximum": 2605
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 33.29,
+          "maximum": 168.0
+        }
+      ],
+      "coefficients": [
+        0.895,
+        1.67
+      ],
+      "citation": {
+        "publication": "Mastin, M.C., Konrad, C.P., Veilleux, A.G., and Tecca, A.E., 2016, Magnitude, frequency, and trends of floods at gaged and ungaged sites in Washington, based on data through water year 2014 (ver. 1.2, November 2017): U.S. Geological Survey Scientific Investigations Report 2016-5118",
+        "table": "Table 6; Table 7",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165118"
+      },
+      "sep_log": 0.188762,
+      "model_error_variance": 0.034,
+      "covariance": [
+        [
+          0.04871,
+          7.815e-05,
+          -0.02475
+        ],
+        [
+          7.815e-05,
+          0.0004697,
+          -0.0003709
+        ],
+        [
+          -0.02475,
+          -0.0003709,
+          0.01297
+        ]
+      ],
+      "n_sites": 142
+    },
+    {
+      "region_code": "3",
+      "region_name": "Regression Region 3 (NSS GC1752, regression region 719)",
+      "aep": 0.04,
+      "intercept": -0.9393021596463883,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.08,
+          "maximum": 2605
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 33.29,
+          "maximum": 168.0
+        }
+      ],
+      "coefficients": [
+        0.896,
+        1.634
+      ],
+      "citation": {
+        "publication": "Mastin, M.C., Konrad, C.P., Veilleux, A.G., and Tecca, A.E., 2016, Magnitude, frequency, and trends of floods at gaged and ungaged sites in Washington, based on data through water year 2014 (ver. 1.2, November 2017): U.S. Geological Survey Scientific Investigations Report 2016-5118",
+        "table": "Table 6; Table 7",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165118"
+      },
+      "sep_log": 0.198014,
+      "model_error_variance": 0.038,
+      "covariance": [
+        [
+          0.05639,
+          0.0001106,
+          -0.02867
+        ],
+        [
+          0.0001106,
+          0.0005327,
+          -0.0004341
+        ],
+        [
+          -0.02867,
+          -0.0004341,
+          0.01503
+        ]
+      ],
+      "n_sites": 142
+    },
+    {
+      "region_code": "3",
+      "region_name": "Regression Region 3 (NSS GC1752, regression region 719)",
+      "aep": 0.02,
+      "intercept": -0.835647144215563,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.08,
+          "maximum": 2605
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 33.29,
+          "maximum": 168.0
+        }
+      ],
+      "coefficients": [
+        0.897,
+        1.609
+      ],
+      "citation": {
+        "publication": "Mastin, M.C., Konrad, C.P., Veilleux, A.G., and Tecca, A.E., 2016, Magnitude, frequency, and trends of floods at gaged and ungaged sites in Washington, based on data through water year 2014 (ver. 1.2, November 2017): U.S. Geological Survey Scientific Investigations Report 2016-5118",
+        "table": "Table 6; Table 7",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165118"
+      },
+      "sep_log": 0.206915,
+      "model_error_variance": 0.041,
+      "covariance": [
+        [
+          0.0633,
+          0.0001363,
+          -0.03219
+        ],
+        [
+          0.0001363,
+          0.0005914,
+          -0.0004901
+        ],
+        [
+          -0.03219,
+          -0.0004901,
+          0.01688
+        ]
+      ],
+      "n_sites": 142
+    },
+    {
+      "region_code": "3",
+      "region_name": "Regression Region 3 (NSS GC1752, regression region 719)",
+      "aep": 0.01,
+      "intercept": -0.7399286120149252,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.08,
+          "maximum": 2605
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 33.29,
+          "maximum": 168.0
+        }
+      ],
+      "coefficients": [
+        0.898,
+        1.587
+      ],
+      "citation": {
+        "publication": "Mastin, M.C., Konrad, C.P., Veilleux, A.G., and Tecca, A.E., 2016, Magnitude, frequency, and trends of floods at gaged and ungaged sites in Washington, based on data through water year 2014 (ver. 1.2, November 2017): U.S. Geological Survey Scientific Investigations Report 2016-5118",
+        "table": "Table 6; Table 7",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165118"
+      },
+      "sep_log": 0.211627,
+      "model_error_variance": 0.043,
+      "covariance": [
+        [
+          0.06826,
+          0.0001469,
+          -0.03471
+        ],
+        [
+          0.0001469,
+          0.0006309,
+          -0.0005263
+        ],
+        [
+          -0.03471,
+          -0.0005263,
+          0.01819
+        ]
+      ],
+      "n_sites": 142
+    },
+    {
+      "region_code": "3",
+      "region_name": "Regression Region 3 (NSS GC1752, regression region 719)",
+      "aep": 0.005,
+      "intercept": -0.6556077263148893,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.08,
+          "maximum": 2605
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 33.29,
+          "maximum": 168.0
+        }
+      ],
+      "coefficients": [
+        0.899,
+        1.567
+      ],
+      "citation": {
+        "publication": "Mastin, M.C., Konrad, C.P., Veilleux, A.G., and Tecca, A.E., 2016, Magnitude, frequency, and trends of floods at gaged and ungaged sites in Washington, based on data through water year 2014 (ver. 1.2, November 2017): U.S. Geological Survey Scientific Investigations Report 2016-5118",
+        "table": "Table 6; Table 7",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165118"
+      },
+      "sep_log": 0.220261,
+      "model_error_variance": 0.047,
+      "covariance": [
+        [
+          0.0753,
+          0.0001649,
+          -0.03828
+        ],
+        [
+          0.0001649,
+          0.0006911,
+          -0.0005797
+        ],
+        [
+          -0.03828,
+          -0.0005797,
+          0.02007
+        ]
+      ],
+      "n_sites": 142
+    },
+    {
+      "region_code": "3",
+      "region_name": "Regression Region 3 (NSS GC1752, regression region 719)",
+      "aep": 0.002,
+      "intercept": -0.5512936800949201,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.08,
+          "maximum": 2605
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 33.29,
+          "maximum": 168.0
+        }
+      ],
+      "coefficients": [
+        0.9,
+        1.542
+      ],
+      "citation": {
+        "publication": "Mastin, M.C., Konrad, C.P., Veilleux, A.G., and Tecca, A.E., 2016, Magnitude, frequency, and trends of floods at gaged and ungaged sites in Washington, based on data through water year 2014 (ver. 1.2, November 2017): U.S. Geological Survey Scientific Investigations Report 2016-5118",
+        "table": "Table 6; Table 7",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165118"
+      },
+      "sep_log": 0.232675,
+      "model_error_variance": 0.052,
+      "covariance": [
+        [
+          0.08546,
+          0.0001904,
+          -0.04345
+        ],
+        [
+          0.0001904,
+          0.0007792,
+          -0.0006569
+        ],
+        [
+          -0.04345,
+          -0.0006569,
+          0.02277
+        ]
+      ],
+      "n_sites": 142
+    },
+    {
+      "region_code": "4",
+      "region_name": "Regression Region 4 (NSS GC1753, regression region 720)",
+      "aep": 0.5,
+      "intercept": 1.185995193864714,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.18,
+          "maximum": 2230
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "identity",
+          "units": "in",
+          "minimum": 11.94,
+          "maximum": 186.6
+        }
+      ],
+      "coefficients": [
+        0.911,
+        0.0073
+      ],
+      "citation": {
+        "publication": "Mastin, M.C., Konrad, C.P., Veilleux, A.G., and Tecca, A.E., 2016, Magnitude, frequency, and trends of floods at gaged and ungaged sites in Washington, based on data through water year 2014 (ver. 1.2, November 2017): U.S. Geological Survey Scientific Investigations Report 2016-5118",
+        "table": "Table 6; Table 7 (model error variance only)",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165118"
+      },
+      "sep_log": 0.214097,
+      "model_error_variance": 0.045,
+      "n_sites": 139
+    },
+    {
+      "region_code": "4",
+      "region_name": "Regression Region 4 (NSS GC1753, regression region 720)",
+      "aep": 0.2,
+      "intercept": 1.4739976044348635,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.18,
+          "maximum": 2230
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "identity",
+          "units": "in",
+          "minimum": 11.94,
+          "maximum": 186.6
+        }
+      ],
+      "coefficients": [
+        0.913,
+        0.006
+      ],
+      "citation": {
+        "publication": "Mastin, M.C., Konrad, C.P., Veilleux, A.G., and Tecca, A.E., 2016, Magnitude, frequency, and trends of floods at gaged and ungaged sites in Washington, based on data through water year 2014 (ver. 1.2, November 2017): U.S. Geological Survey Scientific Investigations Report 2016-5118",
+        "table": "Table 6; Table 7 (model error variance only)",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165118"
+      },
+      "sep_log": 0.207392,
+      "model_error_variance": 0.042,
+      "n_sites": 139
+    },
+    {
+      "region_code": "4",
+      "region_name": "Regression Region 4 (NSS GC1753, regression region 720)",
+      "aep": 0.1,
+      "intercept": 1.6240034803315624,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.18,
+          "maximum": 2230
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "identity",
+          "units": "in",
+          "minimum": 11.94,
+          "maximum": 186.6
+        }
+      ],
+      "coefficients": [
+        0.915,
+        0.0054
+      ],
+      "citation": {
+        "publication": "Mastin, M.C., Konrad, C.P., Veilleux, A.G., and Tecca, A.E., 2016, Magnitude, frequency, and trends of floods at gaged and ungaged sites in Washington, based on data through water year 2014 (ver. 1.2, November 2017): U.S. Geological Survey Scientific Investigations Report 2016-5118",
+        "table": "Table 6; Table 7 (model error variance only)",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165118"
+      },
+      "sep_log": 0.206915,
+      "model_error_variance": 0.041,
+      "n_sites": 139
+    },
+    {
+      "region_code": "4",
+      "region_name": "Regression Region 4 (NSS GC1753, regression region 720)",
+      "aep": 0.04,
+      "intercept": 1.778997299992817,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.18,
+          "maximum": 2230
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "identity",
+          "units": "in",
+          "minimum": 11.94,
+          "maximum": 186.6
+        }
+      ],
+      "coefficients": [
+        0.918,
+        0.0047
+      ],
+      "citation": {
+        "publication": "Mastin, M.C., Konrad, C.P., Veilleux, A.G., and Tecca, A.E., 2016, Magnitude, frequency, and trends of floods at gaged and ungaged sites in Washington, based on data through water year 2014 (ver. 1.2, November 2017): U.S. Geological Survey Scientific Investigations Report 2016-5118",
+        "table": "Table 6; Table 7 (model error variance only)",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165118"
+      },
+      "sep_log": 0.211263,
+      "model_error_variance": 0.043,
+      "n_sites": 139
+    },
+    {
+      "region_code": "4",
+      "region_name": "Regression Region 4 (NSS GC1753, regression region 720)",
+      "aep": 0.02,
+      "intercept": 1.8759983278069803,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.18,
+          "maximum": 2230
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "identity",
+          "units": "in",
+          "minimum": 11.94,
+          "maximum": 186.6
+        }
+      ],
+      "coefficients": [
+        0.92,
+        0.0043
+      ],
+      "citation": {
+        "publication": "Mastin, M.C., Konrad, C.P., Veilleux, A.G., and Tecca, A.E., 2016, Magnitude, frequency, and trends of floods at gaged and ungaged sites in Washington, based on data through water year 2014 (ver. 1.2, November 2017): U.S. Geological Survey Scientific Investigations Report 2016-5118",
+        "table": "Table 6; Table 7 (model error variance only)",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165118"
+      },
+      "sep_log": 0.215833,
+      "model_error_variance": 0.045,
+      "n_sites": 139
+    },
+    {
+      "region_code": "4",
+      "region_name": "Regression Region 4 (NSS GC1753, regression region 720)",
+      "aep": 0.01,
+      "intercept": 1.9609984599773036,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.18,
+          "maximum": 2230
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "identity",
+          "units": "in",
+          "minimum": 11.94,
+          "maximum": 186.6
+        }
+      ],
+      "coefficients": [
+        0.921,
+        0.004
+      ],
+      "citation": {
+        "publication": "Mastin, M.C., Konrad, C.P., Veilleux, A.G., and Tecca, A.E., 2016, Magnitude, frequency, and trends of floods at gaged and ungaged sites in Washington, based on data through water year 2014 (ver. 1.2, November 2017): U.S. Geological Survey Scientific Investigations Report 2016-5118",
+        "table": "Table 6; Table 7 (model error variance only)",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165118"
+      },
+      "sep_log": 0.22044,
+      "model_error_variance": 0.047,
+      "n_sites": 139
+    },
+    {
+      "region_code": "4",
+      "region_name": "Regression Region 4 (NSS GC1753, regression region 720)",
+      "aep": 0.005,
+      "intercept": 2.036987997806906,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.18,
+          "maximum": 2230
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "identity",
+          "units": "in",
+          "minimum": 11.94,
+          "maximum": 186.6
+        }
+      ],
+      "coefficients": [
+        0.923,
+        0.0036
+      ],
+      "citation": {
+        "publication": "Mastin, M.C., Konrad, C.P., Veilleux, A.G., and Tecca, A.E., 2016, Magnitude, frequency, and trends of floods at gaged and ungaged sites in Washington, based on data through water year 2014 (ver. 1.2, November 2017): U.S. Geological Survey Scientific Investigations Report 2016-5118",
+        "table": "Table 6; Table 7 (model error variance only)",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165118"
+      },
+      "sep_log": 0.225082,
+      "model_error_variance": 0.049,
+      "n_sites": 139
+    },
+    {
+      "region_code": "4",
+      "region_name": "Regression Region 4 (NSS GC1753, regression region 720)",
+      "aep": 0.002,
+      "intercept": 2.128011332575975,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.18,
+          "maximum": 2230
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "identity",
+          "units": "in",
+          "minimum": 11.94,
+          "maximum": 186.6
+        }
+      ],
+      "coefficients": [
+        0.926,
+        0.0033
+      ],
+      "citation": {
+        "publication": "Mastin, M.C., Konrad, C.P., Veilleux, A.G., and Tecca, A.E., 2016, Magnitude, frequency, and trends of floods at gaged and ungaged sites in Washington, based on data through water year 2014 (ver. 1.2, November 2017): U.S. Geological Survey Scientific Investigations Report 2016-5118",
+        "table": "Table 6; Table 7 (model error variance only)",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165118"
+      },
+      "sep_log": 0.234006,
+      "model_error_variance": 0.053,
+      "n_sites": 139
+    }
+  ],
+  "notes": "Transcribed from SIR 2016-5118 ver. 1.2 (November 2017; the version history says ver. 1.2 revised Regression Regions 1 and 2 in Tables 6 and 7). Equations, n, Sp and ranges from Table 6 (report p. 36); model error variance and covariance [X^T Lambda^-1 X]^-1 from Table 7 (pp. 39-42). Table 6 and Table 7 were double-entered (hand transcription from rendered pages vs. a regex parse of pdftotext -table output): 804 cells, 0 disagreements. Every equation also reproduces the report's own Table 8 regional-regression estimates at the Table 5 gage characteristics (4,064 of 4,120 values exact at 3 significant figures, 46 more within 1%), and matches live NSS (Washington, citation 150, regression regions 717-720, codes GC1750-GC1753), whose equation strings carry the same coefficients. Equation forms: Regions 1 and 2 Q = a A^b 10^(cP) / 10^(d CAN); Region 3 Q = a A^b P^c; Region 4 Q = a A^b 10^(cP). Stored as intercept = log10(a), DRNAREA log10, PRECPRIS10 identity (log10 in Region 3), CANOPY_PCT identity with coefficient -d. PRECPRIS10 and CANOPY_PCT are NSS's codes for the report's P (PRISM 1981-2010 mean annual precipitation, Table 5 PRECIP) and CAN (NLCD 2001 area-weighted canopy, percent). Limits are Table 6's ranges; NSS's differ slightly (it rounds them: Region 1 DRNAREA max 3310 vs 3,304; Region 3 PRECPRIS10 min 33.2 vs 33.29). Units: model_error_variance is Table 7's sigma_delta^2 (log10 units squared) as printed. sep_log is Table 6's Sp (average standard error of prediction, percent) converted as sqrt(ln(1 + (Sp/100)^2)) / ln(10). The report publishes no AVP, so avp is not stored; SEM and pseudo-R2 are not stored. n_sites is Table 6's number of stations; with it evaluate() reproduces Table 7's t critical values (1.662, 1.6630, 1.6559, 1.656). Covariance: Regions 1 and 2 are taken at full precision from the report's Flood Q Tools workbook (sir20165118_floodqtools.xlsm, sheet 'Flood Q Regression Tool'), whose values round to Table 7's 4 significant figures except at three cells where Table 7 is misprinted: Region 1 AEP 0.01 (CAN, A) is printed +1.560e-5 below the diagonal but -1.560e-5 above it (workbook -1.5602854e-5); Region 2 AEP 0.5 (P, Intercept) is printed -1.276e-4 below the diagonal but -1.267e-4 above it (workbook -1.2665308e-4); Region 2 AEP 0.1 (P, P) is printed 5.287e-6 (workbook 5.2784385e-6). The workbook matrix reproduces the report's worked example (p. 43: Region 2, AEP 0.01, x'Ux = 0.00868359) exactly; Table 7's rounded values give 0.0086777. Region 3's covariance is Table 7 as printed (the workbook carries the same 4 significant figures). The row order is intercept then A, P, CAN, in the log10(A), raw P, raw CAN basis: MEV + mean x'Ux over each region's calibration gages (Table 5, 'Used in Regional Regression? = Yes') reproduces Sp^2 within 0.5% (Regions 1 and 2) and 1.1% (Region 3). Region 4 carries no covariance: Table 7's Region 4 matrix, applied with raw P as the report's equation form and its Flood Q Tools workbook both do, gives MEV + mean x'Ux of 0.31 to 0.45, 6.7 to 8.3 times Table 6's Sp^2, and its P variance (3.27e-5) would make the P coefficient (0.0073) insignificant (t about 1.3). With P/10 in place of P the same check agrees within about 1% at every AEP, so the matrix appears to be in a P/10 basis, but the report does not say so; it is left out rather than rebased on an inference. Region 4 intervals therefore fall back to sep_log. The Flood Q Tools workbook's own Region 2 DRNAREA range (0.42-1820) disagrees with Table 6 (0.42-1,322) and with NSS (1330); Table 6 is used. The workbook also gives a to more digits than Table 6 at three AEPs (Region 2 AEP 0.002 169.824; Region 4 AEP 0.005 108.893 and 0.002 134.276); Table 6's printed values, which NSS also uses, are stored. NSS labels its citation ver. 1.1 (October 2016) but its Region 1 and 2 coefficients are ver. 1.2's."
 }

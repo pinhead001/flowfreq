@@ -33,8 +33,91 @@ if TYPE_CHECKING:  # pragma: no cover - annotations only
 
 logger = logging.getLogger(__name__)
 
-#: Nationwide B17C default generalized skew (England et al. 2019).
+#: Fallback regional skew, used only when a caller opts in with
+#: ``use_default_skew=True``. **Unsourced**: Bulletin 17C (England and others,
+#: 2019, p. 31) has no national skew value, and says the Bulletin 17B plate 1
+#: estimates "are not recommended for use in flood frequency studies"; no
+#: publication giving -0.302 has been found (0.302 is 0.55**2, plate 1's MSE).
+#: Prefer a published regional skew -- see :mod:`flowfreq.regional_skew`.
 B17C_DEFAULT_SKEW: float = -0.302
+
+#: Standard error paired with :data:`B17C_DEFAULT_SKEW` under the same opt-in.
+B17C_DEFAULT_SKEW_SE: float = 0.55
+
+#: How the skew used by :func:`run_ffa` / :func:`compare_engines` was chosen.
+SKEW_SOURCES: Tuple[str, ...] = ("user", "default", "station")
+
+
+def resolve_regional_skew(
+    regional_skew: Optional[float],
+    regional_skew_se: Optional[float],
+    use_default_skew: bool = False,
+    station_skew_only: bool = False,
+) -> Tuple[Optional[float], Optional[float], str]:
+    """Settle which skew an analysis uses, refusing to pick one silently.
+
+    Exactly one of three choices must be made: supply a regional skew and its
+    standard error; opt in to the unsourced :data:`B17C_DEFAULT_SKEW`; or ask
+    for the station skew alone. This mirrors peakfq 8.1.0, which stops with an
+    error when a weighted or regional skew option has no ``GenSkew``/``SkewSE``
+    (``vendor/peakfqr/R/main.R``) rather than defaulting.
+
+    Parameters
+    ----------
+    regional_skew, regional_skew_se : float or None
+        A published regional skew and its standard error. Both or neither.
+    use_default_skew : bool
+        Opt in to :data:`B17C_DEFAULT_SKEW` / :data:`B17C_DEFAULT_SKEW_SE`.
+        Logs a warning, since the value has no located source.
+    station_skew_only : bool
+        Use the at-site skew with no regional weighting (peakfq's ``Station``).
+
+    Returns
+    -------
+    tuple
+        ``(regional_skew, regional_skew_mse, source)``; skew and MSE are
+        ``None`` for station-only, and *source* is one of :data:`SKEW_SOURCES`.
+
+    Raises
+    ------
+    ValueError
+        When no choice, or more than one, is made, or only one of skew and
+        standard error is given.
+    """
+    supplied = regional_skew is not None or regional_skew_se is not None
+    chosen = int(supplied) + int(use_default_skew) + int(station_skew_only)
+    if chosen == 0:
+        raise ValueError(
+            "No regional skew chosen. Pass regional_skew and regional_skew_se from a "
+            "published study (see flowfreq.regional_skew.regional_skew_for), "
+            "station_skew_only=True for at-site skew alone, or use_default_skew=True to "
+            f"accept the unsourced fallback {B17C_DEFAULT_SKEW} (SE {B17C_DEFAULT_SKEW_SE}). "
+            "Bulletin 17C gives no national default and does not recommend the 17B map."
+        )
+    if chosen > 1:
+        raise ValueError(
+            "Choose one skew source: a supplied regional_skew, use_default_skew, or "
+            "station_skew_only -- not several."
+        )
+    if supplied:
+        if regional_skew is None or regional_skew_se is None:
+            raise ValueError(
+                "regional_skew and regional_skew_se go together; a skew without its "
+                "standard error cannot be weighted."
+            )
+        if regional_skew_se <= 0:
+            raise ValueError(f"regional_skew_se must be positive, got {regional_skew_se}")
+        return float(regional_skew), float(regional_skew_se) ** 2, "user"
+    if use_default_skew:
+        logger.warning(
+            "Using the unsourced fallback regional skew %s (SE %s) at the caller's request; "
+            "Bulletin 17C recommends a published regional skew study instead.",
+            B17C_DEFAULT_SKEW,
+            B17C_DEFAULT_SKEW_SE,
+        )
+        return B17C_DEFAULT_SKEW, B17C_DEFAULT_SKEW_SE**2, "default"
+    return None, None, "station"
+
 
 #: Return intervals reported by :func:`run_ffa` and :func:`compute_skew_tables`.
 DEFAULT_RETURN_INTERVALS: List[float] = [1.5, 2, 5, 10, 25, 50, 100, 200, 500]
@@ -69,10 +152,13 @@ def _low_outlier_source(override: Optional[float]) -> str:
 def run_ffa(
     peak_flows: np.ndarray,
     water_years: np.ndarray,
-    regional_skew: float = B17C_DEFAULT_SKEW,
-    regional_skew_se: float = 0.55,
+    regional_skew: Optional[float] = None,
+    regional_skew_se: Optional[float] = None,
     perception_thresholds: Optional[List[dict]] = None,
     low_outlier_threshold_override: Optional[float] = None,
+    *,
+    use_default_skew: bool = False,
+    station_skew_only: bool = False,
 ) -> dict:
     """Run Bulletin 17C flood frequency analysis.
 
@@ -85,7 +171,9 @@ def run_ffa(
     ``error`` with the other keys left at their empty defaults. That suits an
     interactive caller that wants to show the message rather than crash. A
     caller that would rather have an exception should check ``error`` and
-    raise its own.
+    raise its own. The one exception is the skew choice: making none (or
+    several) is a calling error, not a data error, and raises ``ValueError``
+    before any fitting -- see :func:`resolve_regional_skew`.
 
     Parameters
     ----------
@@ -93,10 +181,10 @@ def run_ffa(
         Annual peak flows in cfs.
     water_years : np.ndarray
         Corresponding water years.
-    regional_skew : float
-        Regional skew coefficient. Defaults to the nationwide B17C value.
-    regional_skew_se : float
-        Regional skew standard error.
+    regional_skew, regional_skew_se : float, optional
+        A published regional skew and its standard error. There is no
+        default: supply these, or set ``station_skew_only`` or
+        ``use_default_skew``.
     perception_thresholds : list of dict, optional
         Each dict has keys ``start_year``, ``end_year``, ``threshold_cfs``
         (legacy) or ``lower_cfs`` / ``upper_cfs``.  Converts to the
@@ -109,20 +197,33 @@ def run_ffa(
         result and censors all peaks below this value.  The threshold actually
         applied, its source and the resulting PILF count come back under
         ``parameters`` so a caller can show which cut produced the fit.
+    use_default_skew : bool
+        Explicitly accept the unsourced :data:`B17C_DEFAULT_SKEW`. Logs a warning.
+    station_skew_only : bool
+        Use the at-site skew with no regional weighting.
 
     Returns
     -------
     dict
         Keys: b17c, converged, method, parameters, quantile_df, error.
 
+    Raises
+    ------
+    ValueError
+        When no skew source, or more than one, is chosen.
+
     Examples
     --------
-    >>> result = run_ffa(peak_flows, water_years)
+    >>> result = run_ffa(peak_flows, water_years, regional_skew=-0.07,
+    ...                  regional_skew_se=0.36)
     >>> result["quantile_df"]["Flow (cfs)"]
 
-    >>> result = run_ffa(peak_flows, water_years, regional_skew=-0.05,
+    >>> result = run_ffa(peak_flows, water_years, station_skew_only=True,
     ...                  low_outlier_threshold_override=500.0)
     """
+    skew, skew_mse, skew_source = resolve_regional_skew(
+        regional_skew, regional_skew_se, use_default_skew, station_skew_only
+    )
     result = {
         "b17c": None,
         "converged": False,
@@ -151,8 +252,8 @@ def run_ffa(
         b17c = Bulletin17C(
             peak_flows=peak_flows,
             water_years=water_years,
-            regional_skew=regional_skew,
-            regional_skew_mse=regional_skew_se**2,
+            regional_skew=skew,
+            regional_skew_mse=skew_mse,
             perception_thresholds=pt_dict,
             user_low_outlier_threshold=lo_override,
         )
@@ -196,7 +297,8 @@ def run_ffa(
                     "skew_station": r.skew_station,
                     "skew_weighted": r.skew_weighted,
                     "skew_used": r.skew_used,
-                    "regional_skew": regional_skew,
+                    "regional_skew": skew,
+                    "regional_skew_source": skew_source,
                     # The low-outlier cut and where it came from. Without these
                     # a caller could offer the override but never show its effect.
                     # Both EMA and MOM censor on it now, so the source is just
@@ -465,8 +567,8 @@ class EngineComparisonReport:
 def compare_engines(
     peak_flows: np.ndarray,
     water_years: Optional[np.ndarray] = None,
-    regional_skew: float = B17C_DEFAULT_SKEW,
-    regional_skew_se: float = 0.55,
+    regional_skew: Optional[float] = None,
+    regional_skew_se: Optional[float] = None,
     historical_peaks: Optional[List[Tuple[int, float]]] = None,
     perception_thresholds: Optional[Dict[Tuple[int, int], float]] = None,
     user_low_outlier_threshold: Optional[float] = None,
@@ -476,6 +578,9 @@ def compare_engines(
     tolerance_pct: float = 1.0,
     parameter_tolerance_pct: float = 0.5,
     ci_tolerance_pct: float = 2.0,
+    *,
+    use_default_skew: bool = False,
+    station_skew_only: bool = False,
 ) -> EngineComparisonReport:
     """Run one record through both engines and compare them.
 
@@ -496,10 +601,9 @@ def compare_engines(
     ----------
     peak_flows, water_years, historical_peaks, perception_thresholds,
     user_low_outlier_threshold, ema_params : see :class:`~flowfreq.bulletin17c.Bulletin17C`.
-    regional_skew, regional_skew_se : float
-        As in :func:`run_ffa`. Defaults to the nationwide B17C generalized
-        skew, so a caller who only wants a quick parity check does not have
-        to look one up.
+    regional_skew, regional_skew_se, use_default_skew, station_skew_only
+        As in :func:`run_ffa`: exactly one skew source must be chosen. Both
+        engines get the same skew, so the comparison is like for like either way.
     aeps : array-like, optional
         Annual exceedance probabilities to compare at. Defaults to
         :attr:`~flowfreq.bulletin17c.FloodFrequencyAnalysis.STANDARD_AEP`.
@@ -518,10 +622,16 @@ def compare_engines(
 
     Raises
     ------
+    ValueError
+        When no skew source, or more than one, is chosen.
     ImportError
         The f2py extension is not built; run
         ``python build_fortran/build.py`` (needs gfortran and meson).
     """
+    skew, skew_mse, _ = resolve_regional_skew(
+        regional_skew, regional_skew_se, use_default_skew, station_skew_only
+    )
+
     import flowfreq.peakfqr  # noqa: F401 -- raise before doing any native work if absent
 
     from .bulletin17c import FloodFrequencyAnalysis
@@ -534,8 +644,8 @@ def compare_engines(
     native = Bulletin17C(
         peak_flows=peak_flows,
         water_years=water_years,
-        regional_skew=regional_skew,
-        regional_skew_mse=regional_skew_se**2,
+        regional_skew=skew,
+        regional_skew_mse=skew_mse,
         historical_peaks=historical_peaks,
         perception_thresholds=perception_thresholds,
         ema_params=ema_params,
@@ -557,8 +667,8 @@ def compare_engines(
         perception_thresholds=perception_thresholds,
         user_low_outlier_threshold=user_low_outlier_threshold,
         ema_params=ema_params,
-        regional_skew=regional_skew,
-        regional_skew_mse=regional_skew_se**2,
+        regional_skew=skew,
+        regional_skew_mse=skew_mse,
         aeps=aeps,
         station_name=site_name,
     )

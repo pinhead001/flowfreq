@@ -1,0 +1,14 @@
+{
+ "type": "Feature",
+ "properties": {
+  "monitoring_location_name": "Yellowstone River at Corwin Springs MT",
+  "state_name": "Montana",
+  "drainage_area": 2615.0,
+  "time_zone_abbreviation": "MST",
+  "uses_daylight_savings": "Y"
+ },
+ "id": "USGS-06191500",
+ "geometry": null,
+ "prev": "USGS-06191400",
+ "next": "USGS-06191550"
+}

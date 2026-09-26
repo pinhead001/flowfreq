@@ -1,0 +1,90 @@
+{
+ "type": "FeatureCollection",
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "45365e571dcf4bd487942d5eee4edfec",
+    "unit_of_measure": "ft^3/s",
+    "parameter_name": "Discharge",
+    "parameter_code": "00060",
+    "statistic_id": "00011",
+    "last_modified": "2026-09-25T06:17:39.868121",
+    "begin": "1990-10-01T12:15:00+00:00",
+    "end": "2026-09-25T12:00:00+00:00",
+    "computation_period_identifier": "Points",
+    "computation_identifier": "Instantaneous",
+    "sublocation_identifier": null,
+    "primary": "Primary",
+    "monitoring_location_id": "USGS-06191500",
+    "web_description": null,
+    "parameter_description": "Discharge, cubic feet per second",
+    "parent_time_series_id": "8e5465b6bfe84434affc8f08c160ad73",
+    "data_gap_interval": "PT1H12M",
+    "statistics_begin": "1924"
+   },
+   "id": "45365e571dcf4bd487942d5eee4edfec",
+   "geometry": null
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "6af5696e9aec4b9481d4b0cd14f6d426",
+    "unit_of_measure": "ft^3/s",
+    "parameter_name": "Discharge",
+    "parameter_code": "00060",
+    "statistic_id": null,
+    "last_modified": "2026-07-06T22:21:21.669358",
+    "begin": "1890-05-28T07:00:00+00:00",
+    "end": "2024-06-10T06:00:00+00:00",
+    "computation_period_identifier": "Water Year",
+    "computation_identifier": "Max At Event Time",
+    "sublocation_identifier": null,
+    "primary": "Primary",
+    "monitoring_location_id": "USGS-06191500",
+    "web_description": null,
+    "parameter_description": "Discharge, cubic feet per second",
+    "parent_time_series_id": "45365e571dcf4bd487942d5eee4edfec",
+    "data_gap_interval": null,
+    "statistics_begin": null
+   },
+   "id": "6af5696e9aec4b9481d4b0cd14f6d426",
+   "geometry": null
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "d7d905ed62124e2a8b63a0171d25cf2a",
+    "unit_of_measure": "ft^3/s",
+    "parameter_name": "Discharge",
+    "parameter_code": "00060",
+    "statistic_id": "00003",
+    "last_modified": "2026-09-25T07:18:36.471709",
+    "begin": "1889-08-01T07:00:00+00:00",
+    "end": "2026-09-23T06:00:00+00:00",
+    "computation_period_identifier": "Daily",
+    "computation_identifier": "Mean",
+    "sublocation_identifier": null,
+    "primary": "Primary",
+    "monitoring_location_id": "USGS-06191500",
+    "web_description": null,
+    "parameter_description": "Discharge, cubic feet per second",
+    "parent_time_series_id": "45365e571dcf4bd487942d5eee4edfec",
+    "data_gap_interval": null,
+    "statistics_begin": null
+   },
+   "id": "d7d905ed62124e2a8b63a0171d25cf2a",
+   "geometry": null
+  }
+ ],
+ "numberReturned": 3,
+ "links": [
+  {
+   "type": "application/geo+json",
+   "rel": "self",
+   "title": "This document as GeoJSON",
+   "href": "https://api.waterdata.usgs.gov/ogcapi/v1/collections/time-series-metadata/items?f=json&monitoring_location_id=USGS-06191500&parameter_code=00060&skipGeometry=true&limit=1000"
+  }
+ ],
+ "timeStamp": "2026-09-26T05:42:06.088650Z"
+}
