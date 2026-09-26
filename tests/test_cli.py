@@ -82,7 +82,7 @@ class TestCompare:
             bad_csv, index=False
         )
         runner = CliRunner()
-        result = runner.invoke(cli, ["compare", "--peaks", str(bad_csv)])
+        result = runner.invoke(cli, ["compare", "--peaks", str(bad_csv), "--station-skew"])
         assert result.exit_code != 0
         assert "water_year" in result.output
         assert "peak_flow_cfs" in result.output
@@ -100,7 +100,7 @@ class TestCompare:
 
         monkeypatch.setattr("flowfreq.workflow.compare_engines", _raise)
         runner = CliRunner()
-        result = runner.invoke(cli, ["compare", "--peaks", str(good_csv)])
+        result = runner.invoke(cli, ["compare", "--station-skew", "--peaks", str(good_csv)])
         assert result.exit_code != 0
         assert "f2py Fortran extension" in result.output
         assert "Traceback" not in result.output
@@ -119,7 +119,7 @@ class TestCompare:
 
         monkeypatch.setattr("flowfreq.workflow.compare_engines", lambda **kw: _FakeReport())
         runner = CliRunner()
-        result = runner.invoke(cli, ["compare", "--peaks", str(good_csv)])
+        result = runner.invoke(cli, ["compare", "--station-skew", "--peaks", str(good_csv)])
         assert result.exit_code == 0, result.output
         assert "# Engine comparison: fake" in result.output
 
@@ -137,8 +137,47 @@ class TestCompare:
 
         monkeypatch.setattr("flowfreq.workflow.compare_engines", lambda **kw: _FakeReport())
         runner = CliRunner()
-        result = runner.invoke(cli, ["compare", "--peaks", str(good_csv)])
+        result = runner.invoke(cli, ["compare", "--station-skew", "--peaks", str(good_csv)])
         assert result.exit_code != 0
+
+    def test_no_skew_choice_is_a_usage_error(self, tmp_path, monkeypatch):
+        good_csv = tmp_path / "peaks.csv"
+        pd.DataFrame(
+            {"water_year": [2000, 2001, 2002], "peak_flow_cfs": [100.0, 200.0, 150.0]}
+        ).to_csv(good_csv, index=False)
+        called = []
+        monkeypatch.setattr("flowfreq.workflow.compare_engines", lambda **kw: called.append(kw))
+        result = CliRunner().invoke(cli, ["compare", "--peaks", str(good_csv)])
+        assert result.exit_code == 2, result.output
+        assert "No regional skew chosen" in result.output
+        assert "Traceback" not in result.output
+        assert not called
+
+    def test_skew_flags_reach_compare_engines(self, tmp_path, monkeypatch):
+        good_csv = tmp_path / "peaks.csv"
+        pd.DataFrame(
+            {"water_year": [2000, 2001, 2002], "peak_flow_cfs": [100.0, 200.0, 150.0]}
+        ).to_csv(good_csv, index=False)
+        seen = {}
+
+        class _FakeReport:
+            comparison = ComparisonResult(passed=True)
+
+            def to_markdown(self) -> str:
+                return "ok"
+
+        def _capture(**kw):
+            seen.update(kw)
+            return _FakeReport()
+
+        monkeypatch.setattr("flowfreq.workflow.compare_engines", _capture)
+        result = CliRunner().invoke(
+            cli, ["compare", "--peaks", str(good_csv), "--use-default-skew"]
+        )
+        assert result.exit_code == 0, result.output
+        assert seen["use_default_skew"] is True
+        assert seen["station_skew_only"] is False
+        assert seen["regional_skew"] is None
 
     def test_output_option_writes_a_file_instead_of_stdout(self, tmp_path, monkeypatch):
         good_csv = tmp_path / "peaks.csv"
@@ -156,7 +195,7 @@ class TestCompare:
         monkeypatch.setattr("flowfreq.workflow.compare_engines", lambda **kw: _FakeReport())
         runner = CliRunner()
         result = runner.invoke(
-            cli, ["compare", "--peaks", str(good_csv), "--output", str(out_path)]
+            cli, ["compare", "--station-skew", "--peaks", str(good_csv), "--output", str(out_path)]
         )
         assert result.exit_code == 0, result.output
         assert out_path.is_file()
