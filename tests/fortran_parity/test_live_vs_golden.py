@@ -46,6 +46,10 @@ pytest.importorskip(
     "flowfreq.peakfqr",
     reason="Fortran extension not built; run python build_fortran/build.py "
     "(see docs/FORTRAN_UPLOAD.md)",
+    # See tests/fortran_parity/test_fortran_oracles.py's exc_type comment: pytest
+    # 9.1 narrowed importorskip's default exc_type to ModuleNotFoundError, but this
+    # module deliberately re-raises as ImportError.
+    exc_type=ImportError,
 )
 
 pytestmark = pytest.mark.requires_fortran
