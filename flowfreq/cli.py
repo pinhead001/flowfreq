@@ -8,7 +8,7 @@ Bulletin 17C implementation.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
+from typing import Dict, List, Optional, Tuple
 
 import click
 
@@ -73,14 +73,56 @@ def benchmark(fmt: str) -> None:
     "--regional-skew",
     type=float,
     default=None,
-    help="Regional skew coefficient. Defaults to the nationwide B17C generalized skew (-0.302).",
+    help=(
+        "Regional skew coefficient from a published study; give --regional-skew-se with it. "
+        "There is no default: pass this, --station-skew, or --default-skew."
+    ),
 )
-@click.option("--regional-skew-se", type=float, default=0.55, help="Regional skew standard error.")
+@click.option("--regional-skew-se", type=float, default=None, help="Regional skew standard error.")
+@click.option(
+    "--station-skew",
+    "station_skew_only",
+    is_flag=True,
+    default=False,
+    help="Use the at-site skew alone, with no regional weighting.",
+)
+@click.option(
+    "--default-skew",
+    "use_default_skew",
+    is_flag=True,
+    default=False,
+    help=(
+        "Explicitly accept the unsourced fallback regional skew (-0.302, SE 0.55). "
+        "Bulletin 17C gives no national default; prefer a published regional study."
+    ),
+)
 @click.option(
     "--low-outlier-threshold",
     type=float,
     default=None,
     help="User-supplied PILF threshold in cfs. Omit to let MGBT decide, as both engines do by default.",
+)
+@click.option(
+    "--historical",
+    "historical_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+    help=(
+        "CSV of historical (non-systematic) peaks, with 'water_year' and 'peak_flow_cfs' "
+        "columns. Use with --threshold to say what flood would have been recorded."
+    ),
+)
+@click.option(
+    "--threshold",
+    "thresholds",
+    type=(int, int, float),
+    multiple=True,
+    metavar="START END LOWER_CFS",
+    help=(
+        "Perception threshold: water years START..END (inclusive), where any peak above "
+        "LOWER_CFS would have been recorded. Repeatable. Years in the period with no peak "
+        "are censored below LOWER_CFS."
+    ),
 )
 @click.option(
     "--tolerance-pct",
@@ -99,8 +141,12 @@ def compare(
     peaks_path: Path,
     site_name: str,
     regional_skew: Optional[float],
-    regional_skew_se: float,
+    regional_skew_se: Optional[float],
+    station_skew_only: bool,
+    use_default_skew: bool,
     low_outlier_threshold: Optional[float],
+    historical_path: Optional[Path],
+    thresholds: Tuple[Tuple[int, int, float], ...],
     tolerance_pct: float,
     output_path: Optional[Path],
 ) -> None:
@@ -111,13 +157,13 @@ def compare(
     without, and it says so rather than silently falling back to anything, per
     ``docs/FORTRAN_ENGINE_DESIGN.md`` section 9.
 
-    Historical peaks and perception thresholds are not yet exposed here --
-    a record that needs them should go through
-    :func:`flowfreq.workflow.compare_engines` directly.
+    Historical peaks (``--historical``) and perception thresholds
+    (``--threshold``) are passed to both engines unchanged, as
+    :func:`flowfreq.workflow.compare_engines` takes them.
     """
     import pandas as pd
 
-    from flowfreq.workflow import B17C_DEFAULT_SKEW, compare_engines
+    from flowfreq.workflow import compare_engines, resolve_regional_skew
 
     peaks_df = pd.read_csv(peaks_path)
     missing = {"water_year", "peak_flow_cfs"} - set(peaks_df.columns)
@@ -127,15 +173,47 @@ def compare(
             "'peak_flow_cfs' (the shape USGSgage.download_peak_flow produces)."
         )
 
-    skew = regional_skew if regional_skew is not None else B17C_DEFAULT_SKEW
+    historical_peaks: Optional[List[Tuple[int, float]]] = None
+    if historical_path is not None:
+        hist_df = pd.read_csv(historical_path)
+        missing = {"water_year", "peak_flow_cfs"} - set(hist_df.columns)
+        if missing:
+            raise click.UsageError(
+                f"--historical CSV is missing column(s) {sorted(missing)}; expected "
+                "'water_year' and 'peak_flow_cfs'."
+            )
+        historical_peaks = [
+            (int(y), float(q)) for y, q in zip(hist_df["water_year"], hist_df["peak_flow_cfs"])
+        ]
+
+    perception_thresholds: Optional[Dict[Tuple[int, int], float]] = None
+    if thresholds:
+        perception_thresholds = {}
+        for start, end, lower in thresholds:
+            if start > end:
+                raise click.UsageError(f"--threshold start {start} is after end {end}.")
+            if lower <= 0:
+                raise click.UsageError(f"--threshold lower bound must be positive, got {lower}.")
+            perception_thresholds[(start, end)] = lower
+
+    # Settle the skew before any fitting, so a missing choice is a usage error
+    # rather than a traceback from deep inside the comparison.
+    try:
+        resolve_regional_skew(regional_skew, regional_skew_se, use_default_skew, station_skew_only)
+    except ValueError as exc:
+        raise click.UsageError(str(exc)) from exc
 
     try:
         report = compare_engines(
             peak_flows=peaks_df["peak_flow_cfs"].to_numpy(dtype=float),
             water_years=peaks_df["water_year"].to_numpy(dtype=int),
-            regional_skew=skew,
+            regional_skew=regional_skew,
             regional_skew_se=regional_skew_se,
+            use_default_skew=use_default_skew,
+            station_skew_only=station_skew_only,
             user_low_outlier_threshold=low_outlier_threshold,
+            historical_peaks=historical_peaks,
+            perception_thresholds=perception_thresholds,
             site_name=site_name,
             tolerance_pct=tolerance_pct,
         )

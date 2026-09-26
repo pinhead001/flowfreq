@@ -1,0 +1,197 @@
+{
+  "_comment": "Trimmed from live api.waterdata.usgs.gov/ogcapi/v1/collections/peaks responses for USGS-03606500 (Big Sandy River at Bruceton, TN), captured 2026-09-25 with parameter_code=00060. page1 carries the real rel=next link from a limit=3 request; page2 is the terminal page (no rel=next). Features are unmodified; only the feature selection and link lists were trimmed.",
+  "page1": {
+    "type": "FeatureCollection",
+    "numberReturned": 3,
+    "features": [
+      {
+        "type": "Feature",
+        "properties": {
+          "time_series_id": "5839f485eb7441129a79c43392d08879",
+          "monitoring_location_id": "USGS-03606500",
+          "parameter_code": "00060",
+          "unit_of_measure": "ft^3/s",
+          "value": "9100",
+          "last_modified": "2026-05-06T08:56:37.466045+00:00",
+          "time": "1930-01-09",
+          "water_year": 1930,
+          "year": 1930,
+          "month": 1,
+          "day": 9,
+          "time_of_day": null,
+          "peak_since": null,
+          "qualifier": null
+        },
+        "id": "c1cefcf7-2f16-4172-b13f-a616684010a2",
+        "geometry": null
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "time_series_id": "5839f485eb7441129a79c43392d08879",
+          "monitoring_location_id": "USGS-03606500",
+          "parameter_code": "00060",
+          "unit_of_measure": "ft^3/s",
+          "value": "5580",
+          "last_modified": "2026-05-06T08:56:37.466045+00:00",
+          "time": "1933-12-18",
+          "water_year": 1934,
+          "year": 1933,
+          "month": 12,
+          "day": 18,
+          "time_of_day": null,
+          "peak_since": null,
+          "qualifier": null
+        },
+        "id": "5b341021-b35e-4fb8-b311-aded4d4a8ffc",
+        "geometry": null
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "time_series_id": "5839f485eb7441129a79c43392d08879",
+          "monitoring_location_id": "USGS-03606500",
+          "parameter_code": "00060",
+          "unit_of_measure": "ft^3/s",
+          "value": "5660",
+          "last_modified": "2026-05-06T08:56:37.466045+00:00",
+          "time": "2019-12-17",
+          "water_year": 2020,
+          "year": 2019,
+          "month": 12,
+          "day": 17,
+          "time_of_day": "05:45:00+00:00",
+          "peak_since": null,
+          "qualifier": null
+        },
+        "id": "36061676-aac3-4fd6-b945-4001bdf6f029",
+        "geometry": null
+      }
+    ],
+    "links": [
+      {
+        "rel": "next",
+        "href": "https://api.waterdata.usgs.gov/ogcapi/v1/collections/peaks/items?cursor=MGI3Yzg1MzAtOTllMy00NzlhLWJjYjMtZDM4NmQ5OGViMDJl&monitoring_location_id=USGS-03606500&parameter_code=00060&skipGeometry=true&limit=3&f=json",
+        "type": "application/geo+json",
+        "title": "Items (next)"
+      },
+      {
+        "type": "application/geo+json",
+        "rel": "self",
+        "title": "This document as GeoJSON",
+        "href": "https://api.waterdata.usgs.gov/ogcapi/v1/collections/peaks/items?f=json&monitoring_location_id=USGS-03606500&parameter_code=00060&skipGeometry=true&limit=3"
+      }
+    ],
+    "timeStamp": "2026-09-26T05:25:45.480873Z"
+  },
+  "page2": {
+    "type": "FeatureCollection",
+    "numberReturned": 4,
+    "features": [
+      {
+        "type": "Feature",
+        "properties": {
+          "time_series_id": "5839f485eb7441129a79c43392d08879",
+          "monitoring_location_id": "USGS-03606500",
+          "parameter_code": "00060",
+          "unit_of_measure": "ft^3/s",
+          "value": "18500",
+          "last_modified": "2026-05-06T08:56:37.466045+00:00",
+          "time": "1926-12-01",
+          "water_year": 1927,
+          "year": 1926,
+          "month": 12,
+          "day": null,
+          "time_of_day": null,
+          "peak_since": null,
+          "qualifier": [
+            "DAYUNKNOWN",
+            "HISTORIC"
+          ]
+        },
+        "id": "fb717feb-e939-42c9-94d7-405bbd2d9673",
+        "geometry": null
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "time_series_id": "5839f485eb7441129a79c43392d08879",
+          "monitoring_location_id": "USGS-03606500",
+          "parameter_code": "00060",
+          "unit_of_measure": "ft^3/s",
+          "value": "30000",
+          "last_modified": "2026-05-06T08:56:37.466045+00:00",
+          "time": "2010-05-02",
+          "water_year": 2010,
+          "year": 2010,
+          "month": 5,
+          "day": 2,
+          "time_of_day": null,
+          "peak_since": null,
+          "qualifier": [
+            "MAXDAILYMEAN"
+          ]
+        },
+        "id": "461d9720-7505-4325-b47f-373ca36bbd0b",
+        "geometry": null
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "time_series_id": "5839f485eb7441129a79c43392d08879",
+          "monitoring_location_id": "USGS-03606500",
+          "parameter_code": "00060",
+          "unit_of_measure": "ft^3/s",
+          "value": "25000",
+          "last_modified": "2026-05-06T08:56:37.466045+00:00",
+          "time": "1897-03-01",
+          "water_year": 1897,
+          "year": 1897,
+          "month": 3,
+          "day": null,
+          "time_of_day": null,
+          "peak_since": null,
+          "qualifier": [
+            "DAYUNKNOWN",
+            "HISTORIC"
+          ]
+        },
+        "id": "ba99a0a1-d86f-4c03-98ae-d843c3f38857",
+        "geometry": null
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "time_series_id": "5839f485eb7441129a79c43392d08879",
+          "monitoring_location_id": "USGS-03606500",
+          "parameter_code": "00060",
+          "unit_of_measure": "ft^3/s",
+          "value": "21000",
+          "last_modified": "2026-05-06T08:56:37.466045+00:00",
+          "time": "1919-03-01",
+          "water_year": 1919,
+          "year": 1919,
+          "month": 3,
+          "day": null,
+          "time_of_day": null,
+          "peak_since": null,
+          "qualifier": [
+            "DAYUNKNOWN",
+            "HISTORIC"
+          ]
+        },
+        "id": "0c62d526-9d65-49f6-b377-832515dfa50a",
+        "geometry": null
+      }
+    ],
+    "links": [
+      {
+        "type": "application/geo+json",
+        "rel": "self",
+        "title": "This document as GeoJSON",
+        "href": "https://api.waterdata.usgs.gov/ogcapi/v1/collections/peaks/items?cursor=MGI3Yzg1MzAtOTllMy00NzlhLWJjYjMtZDM4NmQ5OGViMDJl&monitoring_location_id=USGS-03606500&parameter_code=00060&skipGeometry=true&limit=3&f=json"
+      }
+    ],
+    "timeStamp": "2026-09-26T05:25:45.032237Z"
+  }
+}

@@ -1,0 +1,14 @@
+{
+ "type": "Feature",
+ "properties": {
+  "monitoring_location_name": "OHIO RIVER AT OLMSTED, IL",
+  "state_name": "Illinois",
+  "drainage_area": 203000.0,
+  "time_zone_abbreviation": "CST",
+  "uses_daylight_savings": "Y"
+ },
+ "id": "USGS-03612600",
+ "geometry": null,
+ "prev": "USGS-03612520",
+ "next": "USGS-03613000"
+}

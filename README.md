@@ -67,8 +67,8 @@ from flowfreq import analyze_gage
 
 result = analyze_gage(
     site_no="03606500",          # Big Sandy River at Bruceton TN
-    regional_skew=-0.302,        # Nationwide mean from B17C
-    regional_skew_mse=0.302,     # = SE² = 0.55²
+    regional_skew=-0.07,         # From a published regional skew study for your site;
+    regional_skew_mse=0.36,      # illustrative values. B17C has no national default.
     output_dir="./output",
 )
 # Saves frequency_curve.png, flood_frequency_report.md, etc.
@@ -88,8 +88,8 @@ peak_df = gage.download_peak_flow()
 b17c = Bulletin17C(
     peak_flows=peak_df["peak_flow_cfs"].values,
     water_years=peak_df["water_year"].values.astype(int),
-    regional_skew=-0.302,
-    regional_skew_mse=0.302,      # SE² (0.55² ≈ 0.302)
+    regional_skew=-0.07,          # published regional skew (illustrative)
+    regional_skew_mse=0.36,       # its MSE = SE²
 )
 results = b17c.run_analysis(method="ema")
 
