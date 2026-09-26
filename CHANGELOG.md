@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **`waterdata-ogc` peak backend implemented** (`flowfreq.peak_sources.WaterDataApiBackend`),
+  built against the live Water Data OGC API `peaks` collection, which was verified on
+  2026-09-25. It adds the `USGS-` prefix to the site ID, filters to `parameter_code=00060` so
+  gage-height rows do not duplicate water years, and follows `rel=next` paging. It takes
+  `water_year` from the API's own field. `qualifiers_to_codes` translates qualifier tokens
+  (`HISTORIC`, `LESSTHAN`, …) into the comma-separated NWIS code string that
+  `flowfreq.peak_codes` expects, and drops date-precision and gage-height flags. Unknown tokens
+  are logged at warning level and are never split into characters. An empty result raises.
+  Big Sandy (03606500) and Orestimba (11274500) match their fixtures live. `nwis-legacy`
+  remains the default until the parity test passes. (#29)
 - **Roadmap scaffolding for Phase A (data foundation) and Wave 1 (Columbia River basin)**,
   per `docs/MASTER_ROADMAP.md`. Types, loaders, validation and tests only: no endpoint was
   live-verified and no published coefficient or skew value was transcribed.
