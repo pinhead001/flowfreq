@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Wave 1 regional skew values** in `flowfreq/data/regional_skew.csv` (#34, #37-#40).
+  Each value was transcribed from its primary source and cross-checked against a second
+  report. WA, OR and ID are `verified` for the Pacific Northwest B-GLS CONSTANT model
+  (A.G. Veilleux): G = -0.07, MSE = 0.18 (SE 0.4243), effective record length 41 years.
+  Sources: SIR 2016-5083 app. B, Table B2 p. 53, and SIR 2016-5118 app. A, Table A2 p. 66.
+  Two rows stay `pending`, with the reason in their notes:
+  - Idaho's Snake River Plain gets its own row. SIR 2016-5083 p. 52 says the PNW model is
+    not valid there.
+  - MT: SIR 2025-5019 pp. 9-10 says no B-GLS study covers the state. USGS Montana practice
+    uses the spatially varying B17B Plate I map, which this table never returns.
 - **Roadmap scaffolding for Phase A (data foundation) and Wave 1 (Columbia River basin)**,
   per `docs/MASTER_ROADMAP.md`. Types, loaders, validation and tests only: no endpoint was
   live-verified and no published coefficient or skew value was transcribed.
