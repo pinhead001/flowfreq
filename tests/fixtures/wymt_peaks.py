@@ -57,6 +57,9 @@ class WymtSite:
         their inputs need no perception thresholds.
     expected_74 : dict of str to float
         peakfq 7.4's own results -- cross-check only, never a parity target.
+    historical : dict of int to float
+        Historic peaks by water year; empty unless loaded with
+        ``allow_historic=True``.
     """
 
     site_no: str
@@ -69,6 +72,7 @@ class WymtSite:
     skew_option: str
     n_historical: int
     expected_74: Dict[str, float] = field(default_factory=dict)
+    historical: Dict[int, float] = field(default_factory=dict)
 
     @property
     def is_contiguous(self) -> bool:
@@ -92,13 +96,17 @@ def _site_key(raw: str) -> str:
     return raw.strip().strip('"')
 
 
-def load_site(site_no: str) -> WymtSite:
+def load_site(site_no: str, allow_historic: bool = False) -> WymtSite:
     """Load one site's peaks and settings.
 
     Parameters
     ----------
     site_no : str
         Station number as it appears in the CSVs, e.g. ``"06326500.00"``.
+    allow_historic : bool, optional
+        Return historic peaks (negative water years in the CSV) in
+        ``WymtSite.historical`` instead of raising. For callers that supply
+        the site's perception thresholds themselves.
 
     Returns
     -------
@@ -123,6 +131,7 @@ def load_site(site_no: str) -> WymtSite:
     info = info_rows[key]
 
     peaks: Dict[int, float] = {}
+    historical: Dict[int, float] = {}
     for row in _rows(_PEAKS_CSV):
         if _site_key(row["site_no"]) != key:
             continue
@@ -130,6 +139,9 @@ def load_site(site_no: str) -> WymtSite:
         # used as a parity case has any, and silently folding one in as if it
         # were systematic would misstate the record.
         year = int(row["peak_WY"])
+        if year < 0 and allow_historic:
+            historical[-year] = float(row["peak_va"])
+            continue
         if year < 0:
             raise ValueError(
                 f"site {site_no} carries a historic peak (water year {year}); "
@@ -150,6 +162,7 @@ def load_site(site_no: str) -> WymtSite:
         regional_skew_mse=float(info["RegMSEG"]),
         skew_option=info["SkewOption"],
         n_historical=int(info["HistPeaks"]),
+        historical=historical,
         expected_74={
             "skew": float(info["Skew"]),
             "mean": float(info["Mean"]),

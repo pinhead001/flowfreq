@@ -707,6 +707,11 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         self._historical_peaks = historical_peaks or []
         self._perception_thresholds = perception_thresholds or {}
         self._user_low_outlier_threshold = user_low_outlier_threshold
+        # Whether EMAParameters' single historical period is itself a perception
+        # period for the interval builder (see _threshold_by_year): true when the
+        # caller supplied it, or when _auto_configure_ema_params derived it from the
+        # historical peaks alone. Set by _auto_configure_ema_params otherwise.
+        self._historical_period_is_perception = ema_params is not None
         self._ema_params = ema_params or self._auto_configure_ema_params()
         self._intervals: List[FlowInterval] = []
 
@@ -736,9 +741,11 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         # here; it only reached get_perception_thresholds_table(), a display-only
         # method that never touched the fit itself.
         #
-        # EMAParameters carries a single historical threshold, so multiple historical
-        # perception periods must be collapsed; min() is used because the lowest
-        # threshold is the one that binds.
+        # EMAParameters carries a single historical threshold, so for *reporting*
+        # multiple historical perception periods are collapsed here (min() because
+        # the lowest threshold is the one that binds). The fit does not use this
+        # summary: _build_flow_intervals applies every perception period per year,
+        # as siteQT does (see _threshold_by_year).
         for (start, end), threshold in self._perception_thresholds.items():
             if end < sys_start and threshold > 0:
                 # This is a historical perception period
@@ -758,6 +765,9 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
             if hist_end is None:
                 hist_end = max(max(hist_years), sys_start - 1)
             hist_threshold = max(h[1] for h in self._historical_peaks)
+            # No threshold was declared for these years, so this derived period is
+            # the only perception information the builder has for them.
+            self._historical_period_is_perception = True
         elif gaps and hist_threshold is None:
             first_gap = gaps[0]
             pre_gap_mask = self._water_years < first_gap
@@ -775,44 +785,130 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
             historical_threshold=hist_threshold,
         )
 
+    def _threshold_by_year(self) -> Dict[int, float]:
+        """Lower perception threshold for every water year a period covers.
+
+        ``siteQT`` (``vendor/peakfqr/R/readInputs.R``) assigns each year the
+        ``(tl, tu)`` of every threshold period that covers it, in file order,
+        so a later period overwrites an earlier one for the years they share.
+        This is that map, lower bound only (the upper is always ``Qmax`` in
+        this API), built in the same order:
+
+        1. ``EMAParameters``' historical period, when it is perception
+           information in its own right -- supplied by the caller, or derived
+           by :meth:`_auto_configure_ema_params` from historical peaks given
+           with no threshold. It applies to the years with no systematic
+           observation only, as it always has. When it was instead summarised
+           *from* ``perception_thresholds`` it is skipped: those periods are
+           applied individually below, and their min-threshold envelope would
+           otherwise censor years none of them covers.
+        2. ``perception_thresholds``, in insertion order, later entries
+           winning -- including periods that overlap or lie inside the
+           systematic record.
+
+        A year absent from the map has no declared threshold.
+
+        Returns
+        -------
+        dict of int to float
+        """
+        by_year: Dict[int, float] = {}
+        params = self._ema_params
+        if (
+            self._historical_period_is_perception
+            and params.historical_start is not None
+            and params.historical_end is not None
+            and params.historical_threshold
+        ):
+            systematic = set(self._recorded_years.astype(int))
+            for year in range(int(params.historical_start), int(params.historical_end) + 1):
+                if year not in systematic:
+                    by_year[year] = float(params.historical_threshold)
+        for (start, end), lower in self._perception_thresholds.items():
+            for year in range(int(start), int(end) + 1):
+                by_year[year] = float(lower)
+        return by_year
+
+    def _gap_year_thresholds(self) -> Dict[int, float]:
+        """Years with no observation that a nonzero perception threshold censors.
+
+        ``siteQT`` gives such a year the interval ``(Qmin, tl)``: the flood
+        that year was below the lower threshold, or it would have been
+        recorded. A year whose threshold is zero carries no information and
+        gets no row, as in ``siteQT``.
+        """
+        observed = set(self._recorded_years.astype(int)) | {
+            int(y) for y, _ in self._historical_peaks
+        }
+        return {
+            year: threshold
+            for year, threshold in self._threshold_by_year().items()
+            if year not in observed and threshold > 0
+        }
+
     def _build_flow_intervals(self, low_threshold: float = 0.0) -> List[FlowInterval]:
-        """Build flow intervals for EMA analysis."""
+        """Build one flow interval per water year, following ``siteQT``.
+
+        Every perception-threshold period applies to the years it covers
+        (:meth:`_threshold_by_year`), wherever it falls relative to the
+        systematic record: an observed peak carries its year's threshold as
+        its ``perception_threshold``, and a year with no observation inside a
+        nonzero-threshold period is censored below that threshold.
+
+        ``low_threshold`` is then applied as ``emafit.f``'s ``gbtest`` does
+        (lines 1062-1075): any interval whose upper bound lies below it --
+        systematic, historical or censored -- becomes ``(0, low_threshold)``.
+        """
+        thresholds = self._threshold_by_year()
         intervals = []
 
         for flow, year in zip(self._peak_flows, self._water_years):
             year = int(year)
+            perception = thresholds.get(year, 0.0)
 
             if flow < low_threshold:
                 intervals.append(
                     FlowInterval.from_censored(
-                        lower=0, upper=low_threshold, year=year, perception_threshold=0.0
+                        lower=0, upper=low_threshold, year=year, perception_threshold=perception
                     )
                 )
             else:
-                intervals.append(FlowInterval.from_peak(flow, year))
+                intervals.append(
+                    FlowInterval(lower=flow, upper=flow, year=year, perception_threshold=perception)
+                )
 
         for year, flow in self._historical_peaks:
-            threshold = self._ema_params.historical_threshold or flow
-            intervals.append(
-                FlowInterval.from_historical(flow, year, perception_threshold=threshold)
-            )
-
-        if self._ema_params.historical_start and self._ema_params.historical_threshold:
-            hist_recorded_years = {h[0] for h in self._historical_peaks}
-            sys_years = set(self._recorded_years.astype(int))
-
-            for year in range(
-                self._ema_params.historical_start, self._ema_params.historical_end + 1
-            ):
-                if year not in hist_recorded_years and year not in sys_years:
-                    intervals.append(
-                        FlowInterval.from_censored(
-                            lower=0,
-                            upper=self._ema_params.historical_threshold,
-                            year=year,
-                            perception_threshold=self._ema_params.historical_threshold,
-                        )
+            year = int(year)
+            if year in thresholds:
+                threshold = thresholds[year]
+            else:
+                # No period covers this year: the historical period's threshold,
+                # or failing that the flood itself, is the best available bound.
+                threshold = self._ema_params.historical_threshold or flow
+            if flow < low_threshold:
+                intervals.append(
+                    FlowInterval(
+                        lower=0,
+                        upper=low_threshold,
+                        year=year,
+                        is_historical=True,
+                        perception_threshold=threshold,
                     )
+                )
+            else:
+                intervals.append(
+                    FlowInterval.from_historical(flow, year, perception_threshold=threshold)
+                )
+
+        for year, threshold in self._gap_year_thresholds().items():
+            intervals.append(
+                FlowInterval.from_censored(
+                    lower=0,
+                    upper=max(threshold, low_threshold),
+                    year=year,
+                    perception_threshold=threshold,
+                )
+            )
 
         self._intervals = sorted(intervals, key=lambda x: x.year)
         return self._intervals
@@ -928,37 +1024,34 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         scalar rather than a stored pair. The reconstruction, verified
         against ``tests/fortran_parity/cases.py::build_emafit_inputs`` (the
         existing reference for this exact mapping): a nonzero
-        ``perception_threshold`` means a restricted period -- historical
-        peaks and historical-period gap years both set it to the real
-        threshold -- and gets ``(perception_threshold, QMAX)``; zero means
-        unrestricted -- every systematic-period interval, MGBT-censored
-        PILFs included, since being a low outlier is a censored *value*, not
-        a restricted *perception* -- and gets ``(QMIN, QMAX)``. One rule
-        covers all three cases because ``_build_flow_intervals`` already
-        encodes the distinction that way, not because of ``is_historical``,
-        which the gap-year branch does not set.
+        ``perception_threshold`` means a restricted period -- every interval
+        in a year a nonzero perception period covers, observed or censored,
+        historical or inside the systematic record, carries that year's
+        threshold, as ``siteQT`` gives it -- and gets
+        ``(perception_threshold, QMAX)``; zero means unrestricted and gets
+        ``(QMIN, QMAX)``. Being a low outlier is a censored *value*, not a
+        restricted *perception*, so MGBT-censored PILFs keep their year's
+        threshold too.
 
         MGBT is the one exception to "zero means unrestricted": once MGBT
         (or a user override) determines a real low-outlier cutoff
         (``self._ema_params.low_outlier_threshold``), peakfq's own
-        ``tlema``/``tuema`` raise the perception threshold for the *entire*
-        systematic record to that cutoff -- not just the flagged PILF
-        years -- confirmed against a direct ``emafitpr`` call. flowfreq's
-        ``FlowInterval.perception_threshold`` stays ``0.0`` for PILFs (it
-        models the low outlier as a censored *value*, which is correct for
-        the moment fit itself), so that elevation has to be applied here
-        explicitly, to every systematic interval, rather than read off the
-        interval. Historical-period intervals are untouched: their own
-        threshold already reflects a different, unrelated restriction, and
-        MGBT is computed from systematic peaks only.
+        ``tlema``/``tuema`` raise the perception threshold of *every* row to
+        that cutoff -- not just the flagged PILF years --
+        ``tl(i) = max(tl_in(i), gbcrit)`` for all ``i`` in ``gbtest``
+        (``emafit.f`` line 1072), confirmed against a direct ``emafitpr``
+        call. flowfreq's ``FlowInterval.perception_threshold`` keeps the
+        year's declared threshold (it models the low outlier as a censored
+        *value*, which is correct for the moment fit itself), so that
+        elevation has to be applied here explicitly rather than read off the
+        interval. A historical or perception-period interval whose own
+        threshold is already above the cutoff is unaffected, as in the
+        Fortran.
         """
         low_outlier = self._ema_params.low_outlier_threshold or 0.0
         groups: Dict[Tuple[float, float], int] = {}
         for interval in self._intervals:
-            if interval.is_systematic:
-                tl = max(interval.perception_threshold, low_outlier)
-            else:
-                tl = interval.perception_threshold
+            tl = max(interval.perception_threshold, low_outlier)
             if tl > 0:
                 pair = (np.log10(tl), np.log10(_PERCEPTION_QMAX))
             else:
@@ -1377,7 +1470,16 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         # be present in the test so that their extreme low values push the MGBT
         # sweep into the non-zero range and produce the correct threshold.
         log_zeros = np.full(self._n_zeros, np.log10(1e-88))
-        log_flows_for_mgbt = np.concatenate([self.log_flows, log_zeros])
+        # gbtest (emafit.f lines 966-978) also counts a censored, non-historic
+        # year as a systematic observation, at its upper bound, when that bound is
+        # no larger than the smallest exact systematic peak -- zeros included, so
+        # never when there is a zero. Here that is a perception-period gap year
+        # whose threshold lies at or below every observed peak.
+        less_than: List[float] = []
+        if self._n_zeros == 0 and self.n > 0:
+            smallest = float(np.min(self._peak_flows))
+            less_than = [t for t in self._gap_year_thresholds().values() if t <= smallest]
+        log_flows_for_mgbt = np.concatenate([self.log_flows, np.log10(less_than), log_zeros])
         n = len(log_flows_for_mgbt)
 
         # Need at least 5 observations for a meaningful test
