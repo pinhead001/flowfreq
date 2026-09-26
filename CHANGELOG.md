@@ -87,6 +87,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   results**: sites with partial-date peaks now return more peaks than before.
 - **`download_peak_flow` read an all-numeric `peak_cd` column as float**, so
   code `7` came back as `"7.0"`. Code columns are now read as strings.
+- **The native EMA ignored perception thresholds that were not entirely before the
+  systematic record.** `ExpectedMomentsAlgorithm` honoured only threshold periods ending
+  before the first systematic year, and merged several of those into one period at the
+  smallest threshold. A period over a gap inside the record was dropped, so those years were
+  treated as having no information. It now applies every period to the years it covers, in
+  order with the later period winning, as peakfq 8.1.0's `siteQT` does
+  (`vendor/peakfqr/R/readInputs.R`). A year with no peak inside a nonzero-threshold period is
+  censored below that threshold. An observed peak carries its year's threshold. Two
+  `emafit.f` `gbtest` rules that only matter once such rows exist now apply too. The
+  low-outlier cutoff applies to every row, not only systematic peaks (lines 1062-1075). A
+  censored year whose threshold is no larger than the smallest peak enters MGBT as a
+  systematic observation (lines 966-978). `EMAParameters` is unchanged. Its single
+  historical period is still reported, but when it was summarised from `perception_thresholds`
+  it no longer drives the fit. **This changes results** for any input with a threshold period
+  that overlaps or lies inside the record, or with more than one historical period. Big
+  Sandy, 12363000, Powder River and Cains Coulee are bit-identical, including confidence
+  limits. On the WY/MT stations with in-record thresholds, native against live `emafitpr` on
+  the same inputs:
+
+  | Station | Rows (native / Fortran) | Weighted skew, before → after (Fortran) | Q(1% AEP) cfs, before → after (Fortran) |
+  |---|---|---|---|
+  | 06185500.10 | 74 → 81 / 81 | 1.0372 → 1.0195 (1.0195) | 83,919 → 82,918 (82,607) |
+  | 06324500.00 | 143 → 145 / 145 | 0.3575 → 0.3553 (0.4894) | 38,362 → 38,209 (39,877) |
+  | 06324500.01 | 145 → 145 / 145 | 0.2485 → 0.2485 (0.3100) | 41,353 → 41,353 (42,290) |
+  | 06324710.00 | 17 → 47 / 47 | 0.1943 → 0.1210 (0.1210) | 33,668 → 27,938 (27,934) |
+  | 06325500.00 | 25 → 32 / 32 | -0.1897 → -0.2166 (-0.2166) | 4,087 → 3,923 (3,922) |
+  | 06327700.00 | 11 → 50 / 50 | 0.2507 → -0.0117 (-0.0117) | 14,256 → 7,849 (7,849) |
+
+  Mean, standard deviation and both skews now agree with `emafitpr` to within 3e-6 on four
+  of the six stations. The remaining quantile gap is in the quantile function, not the
+  fit. The 06324500 pair still miss on the weighted skew because `emafitb` switches to the
+  B17B skew MSE when MGBT finds low outliers (`emafit.f` lines 706-710), which the native
+  engine does not do yet. That is a separate defect, marked `xfail(strict=True)` in
+  `tests/fortran_parity/test_live_wymt_perception_thresholds.py`.
 
 ## [0.8.0]
 
