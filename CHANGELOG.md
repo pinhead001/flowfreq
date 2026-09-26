@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Western Oregon peak-flow regression equations** (`flowfreq/data/regression/OR.json`,
+  status `partial`, #38): 21 equations, Regions 1, 2A and 2B at the report's 7 recurrence
+  intervals, from USGS SIR 2005-5116 (Cooper, 2005) Tables 10-12 and 15. Double-entered
+  against the PDF text and reproducing the report's worked examples and its Appendix D
+  regression estimates; Region 1 matches live NSS (GC729). No covariance is published, and
+  the 2A/2B elevation transition zone (eq. 8) is not modelled by the schema.
 - **Montana peak-flow regression equations** (`flowfreq/data/regression/MT.json`, status
   `verified`, #40): 80 basin-characteristics equations, all 8 hydrologic regions at all
   10 AEPs, from USGS SIR 2015-5019-F ver. 1.1 Table 1-4, Table 3 and Table 1-5
