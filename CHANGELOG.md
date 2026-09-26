@@ -8,6 +8,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Water Data OGC API backend for instantaneous values** (`flowfreq.waterdata`, #29).
+  `USGSgage.download_instantaneous_flow` / `download_instantaneous_stage` take a new
+  `backend=` keyword; `"waterdata-ogc"` reads 00060/00065 from
+  `api.waterdata.usgs.gov/ogcapi/v1/collections/continuous` and returns the same frame as
+  the legacy path (UTC index, value column, `datetime_local`, `tz_cd`,
+  `qualification_code`). The default stays `"nwis-legacy"`, whose behaviour is unchanged.
+  A site with several series for the parameter raises `AmbiguousTimeSeriesError` listing
+  them, and `ts_id=` takes the 32-hex `time_series_id`; series are never merged, and
+  conflicting duplicate timestamps within one series raise. Local time is derived from the
+  monitoring location's time-zone fields (IANA zone with DST, fixed offset without). Windows
+  are local calendar days, chunked (`chunk_years` at most 3 under the API's 1100-day cap),
+  paged, half-open so no boundary instant is counted twice, and default to the series'
+  period of record from `time-series-metadata`. `Approved`/`Provisional`/`ESTIMATED` map to
+  `A`/`P`/`e`; other qualifier tokens such as `ICE` are kept verbatim. Tests run offline
+  against trimmed live captures from 2026-09-25 (`tests/fixtures/waterdata_ogc/`, regenerated
+  by `tools/capture_waterdata_fixtures.py`).
 - **`waterdata-ogc` peak backend implemented** (`flowfreq.peak_sources.WaterDataApiBackend`),
   built against the live Water Data OGC API `peaks` collection, which was verified on
   2026-09-25. It adds the `USGS-` prefix to the site ID, filters to `parameter_code=00060` so

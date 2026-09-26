@@ -1,0 +1,14 @@
+{
+ "type": "Feature",
+ "properties": {
+  "monitoring_location_name": "Yellowstone River at Billings MT",
+  "state_name": "Montana",
+  "drainage_area": 11807.0,
+  "time_zone_abbreviation": "MST",
+  "uses_daylight_savings": "Y"
+ },
+ "id": "USGS-06214500",
+ "geometry": null,
+ "prev": "USGS-06214150",
+ "next": "USGS-06214502"
+}
