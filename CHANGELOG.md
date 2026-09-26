@@ -8,6 +8,86 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Western Oregon peak-flow regression equations** (`flowfreq/data/regression/OR.json`,
+  status `partial`, #38): 21 equations, Regions 1, 2A and 2B at the report's 7 recurrence
+  intervals, from USGS SIR 2005-5116 (Cooper, 2005) Tables 10-12 and 15. Double-entered
+  against the PDF text and reproducing the report's worked examples and its Appendix D
+  regression estimates; Region 1 matches live NSS (GC729). No covariance is published, and
+  the 2A/2B elevation transition zone (eq. 8) is not modelled by the schema.
+- **Montana peak-flow regression equations** (`flowfreq/data/regression/MT.json`, status
+  `verified`, #40): 80 basin-characteristics equations, all 8 hydrologic regions at all
+  10 AEPs, from USGS SIR 2015-5019-F ver. 1.1 Table 1-4, Table 3 and Table 1-5
+  (covariance). Double-entered against the workbook and PDF text, reproducing the report's
+  worked examples and every region's MVP, and matching live NSS at its
+  three-significant-figure output for every region and AEP. The Northwest region was fit by
+  WLS. The channel-width equations (SIR 2020-5142) are a separate method and out of scope.
+- **Washington peak-flow regression equations** (`flowfreq/data/regression/WA.json`, status
+  `partial`, #37): 32 equations, regions 1-4 at all 8 AEPs, from USGS SIR 2016-5118 ver. 1.2
+  Table 6 and Table 7, with Regions 1-2 covariance at full precision from the report's Flood
+  Q Tools workbook. Double-entered against the PDF text, reproducing the report's worked
+  example and its Table 8 regression estimates, and matching live NSS at its
+  three-significant-figure output for every region and AEP. Region 4 carries no covariance
+  because Table 7's Region 4 matrix is inconsistent with the equation's raw-P basis.
+- **`flowfreq.donor_similarity`: screen and rank donors on basin similarity, not drainage
+  area alone** (#13). Opt-in; no existing number changes and `flowfreq.transpose`'s area
+  screen is untouched.
+  - `screen_donors`: the area-ratio screen (`DEFAULT_AREA_RATIO_RANGE` by default) plus an
+    optional per-predictor ratio band (e.g. `PRECPRIS10`, `CANOPY_PCT`), reporting each
+    donor's ratios, a combined `pass`/`fail`/`excluded` status and the criterion that failed.
+    No predictor thresholds are shipped; they are local, like the area band.
+  - `rank_donors_by_similarity`: region-of-influence distance in standardized
+    basin-characteristic space (Burn, 1990; log10 drainage area as in Tasker and others,
+    1996), equal weights unless supplied, with per-attribute standardized differences.
+  - `similarity_donor_chooser`: plugs the ranking into `qppq.loocv_qppq`'s `donor_chooser`.
+  - Missing, non-numeric or unit-mismatched attributes exclude a donor with the reason stated,
+    or raise for the target. Nothing is imputed.
+- **`flowfreq.psf_convert`: a PeakFQ `.psf` station converted into a Bulletin 17C analysis**
+  (#31, the converter half). `station_rows` builds the station's EMA rows exactly as peakfq
+  8.1.0's `siteQT` does: codes, `Peak`/`Interval` lines, perception thresholds in file order,
+  gap years, and the no-information rule. `convert_station`/`convert_psf` then map the
+  settings the way `main.R` does. The skew option keeps peakfq's `r_G_mse` sign encoding
+  (weighted `SkewSE**2`, generalized `-SkewSE**2`, station-only sentinel). `LOType`
+  MGBT/FIXED/NONE keeps the `gbthrsh0` encoding, along with `WeightOpt`, `ConfInterval`,
+  `EXTENDED` AEPs and `O EMA`. Output-only options are logged as ignored.
+  `StationInputs.bulletin17c_kwargs(engine)` gives `Bulletin17C` arguments only after
+  rebuilding that engine's rows from them and checking the rows equal `siteQT`'s. When
+  they don't, it raises `UnsupportedSpecError` and names the years.
+  `StationInputs.fortran_reference()` runs any station through `emafitpr` directly.
+  Validated on the vendored WY/MT file (24 stations):
+  - BegYear/EndYear/HistPeaks/GagedPeaks match peakfq for all 24.
+  - Powder River's and Cains Coulee's `emafitpr` rows equal the committed goldens' inputs.
+  - Powder River refits to the golden within 1e-6.
+  - The `Bulletin17C` Fortran route is bit-identical to a direct `siteQT` call on 23 of 24.
+- `flowfreq.watstore`: a reader for legacy WATSTORE (`I ASCI`) peak files, following
+  `readWATSTORE`. It returns the standard peak-frame columns plus `site_no`.
+- `flowfreq.peak_codes.peak_frame_intervals` applies the `siteQT` code rules to a peak frame,
+  and `count_acted_on_codes` counts the codes that change a peak's treatment. `analyze_gage`
+  gains an opt-in `apply_peak_codes` (via `psf_convert.convert_peak_frame`). By default it
+  now logs which treatment-changing codes it is ignoring. It computes nothing different. (#30)
+- `PsfFile.peak_file`, and `O Plot Style`/`O Plot Position` are now read as separate
+  options (both were stored under one `Plot` key, so the second overwrote the first).
+- **Wave 1 regional skew values** in `flowfreq/data/regional_skew.csv` (#34, #37-#40).
+  Each value was transcribed from its primary source and cross-checked against a second
+  report. WA, OR and ID are `verified` for the Pacific Northwest B-GLS CONSTANT model
+  (A.G. Veilleux): G = -0.07, MSE = 0.18 (SE 0.4243), effective record length 41 years.
+  Sources: SIR 2016-5083 app. B, Table B2 p. 53, and SIR 2016-5118 app. A, Table A2 p. 66.
+  Two rows stay `pending`, with the reason in their notes:
+  - Idaho's Snake River Plain gets its own row. SIR 2016-5083 p. 52 says the PNW model is
+    not valid there.
+  - MT: SIR 2025-5019 pp. 9-10 says no B-GLS study covers the state. USGS Montana practice
+    uses the spatially varying B17B Plate I map, which this table never returns.
+- **Idaho peak-flow regression equations** (`flowfreq/data/regression/ID.json`, status
+  `verified`, #39): 66 equations, all 6 regions (1_2, 3, 4, 5, 6_8 and 7) at all 11 AEPs,
+  from USGS SIR 2016-5083 ver. 1.1 Table 4, Table 5 and Table A5 (covariance),
+  double-entered against the PDF text and matching live NSS at its
+  three-significant-figure output for every region and AEP. Region 4's
+  `(F/100 + 1)^b` and region 7's `(Emin/1,000)^b` terms are stored as published with
+  `Variable.scale`/`offset`, so every covariance matrix is Table A5's, unrebased.
+  `partial`, #39): 55 equations, regions 1_2, 3, 5, 6_8 and 7 at all 11 AEPs, from USGS
+  SIR 2016-5083 ver. 1.1 Table 4, Table 5 and Table A5 (covariance), double-entered
+  against the PDF text and matching live NSS at its three-significant-figure output for
+  every region and AEP. Region 4 is left out because its `(F/100 + 1)^b` term has no
+  schema transform yet.
 - **`tools/snapshot_nss.py` and `flowfreq.regression.nss`** (#35). NSS templates carry no
   equations, and neither `apiconfig` nor `RegressionRegions` exposes them. The tool therefore
   fills each region's parameters with in-range midpoints, calls `Scenarios/Estimate`, and
@@ -24,6 +104,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   initial snapshot covers WA, ID, MT and OR peak flow: 437 equations, 420 parsed, and every
   parsed equation reproduces NSS within NSS's own 3-significant-figure rounding. Oregon
   regions 2A and 2B are unresolved.
+- **Water Data OGC API backend for instantaneous values** (`flowfreq.waterdata`, #29).
+  `USGSgage.download_instantaneous_flow` / `download_instantaneous_stage` take a new
+  `backend=` keyword; `"waterdata-ogc"` reads 00060/00065 from
+  `api.waterdata.usgs.gov/ogcapi/v1/collections/continuous` and returns the same frame as
+  the legacy path (UTC index, value column, `datetime_local`, `tz_cd`,
+  `qualification_code`). The default stays `"nwis-legacy"`, whose behaviour is unchanged.
+  A site with several series for the parameter raises `AmbiguousTimeSeriesError` listing
+  them, and `ts_id=` takes the 32-hex `time_series_id`; series are never merged, and
+  conflicting duplicate timestamps within one series raise. Local time is derived from the
+  monitoring location's time-zone fields (IANA zone with DST, fixed offset without). Windows
+  are local calendar days, chunked (`chunk_years` at most 3 under the API's 1100-day cap),
+  paged, half-open so no boundary instant is counted twice, and default to the series'
+  period of record from `time-series-metadata`. `Approved`/`Provisional`/`ESTIMATED` map to
+  `A`/`P`/`e`; other qualifier tokens such as `ICE` are kept verbatim. Tests run offline
+  against trimmed live captures from 2026-09-25 (`tests/fixtures/waterdata_ogc/`, regenerated
+  by `tools/capture_waterdata_fixtures.py`).
+- **`waterdata-ogc` peak backend implemented** (`flowfreq.peak_sources.WaterDataApiBackend`),
+  built against the live Water Data OGC API `peaks` collection, which was verified on
+  2026-09-25. It adds the `USGS-` prefix to the site ID, filters to `parameter_code=00060` so
+  gage-height rows do not duplicate water years, and follows `rel=next` paging. It takes
+  `water_year` from the API's own field. `qualifiers_to_codes` translates qualifier tokens
+  (`HISTORIC`, `LESSTHAN`, …) into the comma-separated NWIS code string that
+  `flowfreq.peak_codes` expects, and drops date-precision and gage-height flags. Unknown tokens
+  are logged at warning level and are never split into characters. An empty result raises.
+  Big Sandy (03606500) and Orestimba (11274500) match their fixtures live. `nwis-legacy`
+  remains the default until the parity test passes. (#29)
 - **Roadmap scaffolding for Phase A (data foundation) and Wave 1 (Columbia River basin)**,
   per `docs/MASTER_ROADMAP.md`. Types, loaders, validation and tests only: no endpoint was
   live-verified and no published coefficient or skew value was transcribed.
@@ -94,6 +200,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the new fields at their defaults.
 
 ### Changed
+- **Breaking: no silent regional skew.** `run_ffa`, `compare_engines` and `flowfreq compare`
+  used to fall back to a regional skew of -0.302 (SE 0.55) whenever none was given. They now
+  raise `ValueError` (the CLI raises a usage error) unless the caller makes exactly one choice:
+  - `regional_skew` plus `regional_skew_se`, from a published study;
+  - `station_skew_only=True` (`--station-skew`) for the at-site skew alone; or
+  - `use_default_skew=True` (`--default-skew`) to accept -0.302 explicitly, which logs a
+    warning.
+
+  Why: Bulletin 17C (p. 31) gives no national default, and says the 17B plate 1 estimates
+  "are not recommended for use in flood frequency studies". No publication giving -0.302 has
+  been found; 0.302 is 0.55², plate 1's MSE. peakfq 8.1.0 likewise stops with an error when a
+  weighted skew has no `GenSkew`/`SkewSE`.
+  - The new `resolve_regional_skew()` implements the rule. `run_ffa` now records the choice
+    under `parameters["regional_skew_source"]` (`user`, `default` or `station`).
+  - `regional_skew_se` has no default either, because 0.55 was plate 1's SE.
+  - **Migration:** add `use_default_skew=True` to reproduce old results exactly. Better, pass
+    a published value; `flowfreq.regional_skew.regional_skew_for` covers the states that have
+    one.
+  - `Bulletin17C` itself is unchanged; it never defaulted, and `regional_skew=None` has always
+    meant station skew there.
 - **`diel_variation` and `diel_variation_summary` moved** from `flowfreq.regime` to
   `flowfreq.subdaily`, alongside the other instantaneous-series metrics they share
   their local-day and completeness conventions with. **No import path changed** --
@@ -114,6 +240,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   results**: sites with partial-date peaks now return more peaks than before.
 - **`download_peak_flow` read an all-numeric `peak_cd` column as float**, so
   code `7` came back as `"7.0"`. Code columns are now read as strings.
+- `peak_codes.parse_codes` read the date-precision codes `Bd`/`Bm` one character at a
+  time, so the legacy NWIS value `"7,Bd"` (Big Sandy 03606500, WY1897) parsed as
+  {7, B, D}, and `"Bm"` (Orestimba 11274500, WY1947) as {B, M} with an "unrecognised code
+  M" warning. They are now whole codes, and neither changes a peak's EMA interval. A
+  float-formatted code (`"7.0"`, from a code column pandas inferred as float) is read as
+  code 7 rather than {7, 0}. No numeric result changes: D and M were never acted on.
 
 ## [0.8.0]
 

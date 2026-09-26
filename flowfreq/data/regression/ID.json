@@ -1,9 +1,3589 @@
 {
   "schema_version": 1,
   "state": "ID",
-  "status": "pending",
+  "status": "verified",
   "issue": 39,
-  "source_reports": [],
-  "equations": [],
-  "notes": "No coefficients transcribed yet. Populate from the cited report or tools/snapshot_nss.py; never by hand from memory."
+  "source_reports": [
+    {
+      "citation": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+      "version": "1.1, April 2017",
+      "doi": "10.3133/sir20165083",
+      "url": "https://pubs.usgs.gov/publication/sir20165083",
+      "pdf": "https://pubs.usgs.gov/sir/2016/5083/sir20165083.pdf",
+      "covariance_download": "https://pubs.usgs.gov/sir/2016/5083/sir20165083_appendixa.xlsx",
+      "tables": [
+        "Table 4",
+        "Table 5",
+        "Table A5"
+      ],
+      "nss": {
+        "state_region_id": 16,
+        "citation_id": 39,
+        "regression_region_ids": [
+          137,
+          138,
+          139,
+          140,
+          141,
+          142
+        ]
+      }
+    }
+  ],
+  "equations": [
+    {
+      "region_code": "1_2",
+      "region_name": "Region 1_2 (NSS GC1735, regression region 137)",
+      "aep": 0.8,
+      "intercept": -3.0888423912600236,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.11,
+          "maximum": 10700
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 21.3,
+          "maximum": 66.8
+        }
+      ],
+      "coefficients": [
+        0.96,
+        2.49
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.263468,
+      "avp": 0.069,
+      "model_error_variance": 0.065,
+      "covariance": [
+        [
+          0.23119184,
+          -0.0053320602,
+          -0.13728578
+        ],
+        [
+          -0.0053320602,
+          0.0016622991,
+          0.0013461013
+        ],
+        [
+          -0.13728578,
+          0.0013461013,
+          0.084337149
+        ]
+      ],
+      "n_sites": 59
+    },
+    {
+      "region_code": "1_2",
+      "region_name": "Region 1_2 (NSS GC1735, regression region 137)",
+      "aep": 0.667,
+      "intercept": -2.85078088734462,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.11,
+          "maximum": 10700
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 21.3,
+          "maximum": 66.8
+        }
+      ],
+      "coefficients": [
+        0.945,
+        2.41
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.258819,
+      "avp": 0.067,
+      "model_error_variance": 0.063,
+      "covariance": [
+        [
+          0.22036281,
+          -0.0050514067,
+          -0.13098814
+        ],
+        [
+          -0.0050514067,
+          0.0015922994,
+          0.0012654483
+        ],
+        [
+          -0.13098814,
+          0.0012654483,
+          0.080519579
+        ]
+      ],
+      "n_sites": 59
+    },
+    {
+      "region_code": "1_2",
+      "region_name": "Region 1_2 (NSS GC1735, regression region 137)",
+      "aep": 0.5,
+      "intercept": -2.623423042943488,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.11,
+          "maximum": 10700
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 21.3,
+          "maximum": 66.8
+        }
+      ],
+      "coefficients": [
+        0.93,
+        2.34
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.257817,
+      "avp": 0.066,
+      "model_error_variance": 0.063,
+      "covariance": [
+        [
+          0.21748869,
+          -0.0049777669,
+          -0.12934508
+        ],
+        [
+          -0.0049777669,
+          0.0015790995,
+          0.0012379556
+        ],
+        [
+          -0.12934508,
+          0.0012379556,
+          0.079549127
+        ]
+      ],
+      "n_sites": 59
+    },
+    {
+      "region_code": "1_2",
+      "region_name": "Region 1_2 (NSS GC1735, regression region 137)",
+      "aep": 0.429,
+      "intercept": -2.5316526695878427,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.11,
+          "maximum": 10700
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 21.3,
+          "maximum": 66.8
+        }
+      ],
+      "coefficients": [
+        0.923,
+        2.32
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.256143,
+      "avp": 0.066,
+      "model_error_variance": 0.062,
+      "covariance": [
+        [
+          0.21451816,
+          -0.0049226856,
+          -0.12756103
+        ],
+        [
+          -0.0049226856,
+          0.0015607885,
+          0.0012215948
+        ],
+        [
+          -0.12756103,
+          0.0012215948,
+          0.07845918
+        ]
+      ],
+      "n_sites": 59
+    },
+    {
+      "region_code": "1_2",
+      "region_name": "Region 1_2 (NSS GC1735, regression region 137)",
+      "aep": 0.2,
+      "intercept": -2.2104192878355744,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.11,
+          "maximum": 10700
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 21.3,
+          "maximum": 66.8
+        }
+      ],
+      "coefficients": [
+        0.899,
+        2.23
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.263468,
+      "avp": 0.069,
+      "model_error_variance": 0.065,
+      "covariance": [
+        [
+          0.22895866,
+          -0.0053126443,
+          -0.13605395
+        ],
+        [
+          -0.0053126443,
+          0.001677687,
+          0.0013031044
+        ],
+        [
+          -0.13605395,
+          0.0013031044,
+          0.083728183
+        ]
+      ],
+      "n_sites": 59
+    },
+    {
+      "region_code": "1_2",
+      "region_name": "Region 1_2 (NSS GC1735, regression region 137)",
+      "aep": 0.1,
+      "intercept": -2.016824927962187,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.11,
+          "maximum": 10700
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 21.3,
+          "maximum": 66.8
+        }
+      ],
+      "coefficients": [
+        0.882,
+        2.18
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.272309,
+      "avp": 0.074,
+      "model_error_variance": 0.07,
+      "covariance": [
+        [
+          0.24751675,
+          -0.0058068533,
+          -0.14695275
+        ],
+        [
+          -0.0058068533,
+          0.0018224822,
+          0.0014107686
+        ],
+        [
+          -0.14695275,
+          0.0014107686,
+          0.090471201
+        ]
+      ],
+      "n_sites": 59
+    },
+    {
+      "region_code": "1_2",
+      "region_name": "Region 1_2 (NSS GC1735, regression region 137)",
+      "aep": 0.04,
+      "intercept": -1.8297382846050425,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.11,
+          "maximum": 10700
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 21.3,
+          "maximum": 66.8
+        }
+      ],
+      "coefficients": [
+        0.865,
+        2.14
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.283528,
+      "avp": 0.08,
+      "model_error_variance": 0.075,
+      "covariance": [
+        [
+          0.27261917,
+          -0.0064808735,
+          -0.16167665
+        ],
+        [
+          -0.0064808735,
+          0.0020185544,
+          0.001555987
+        ],
+        [
+          -0.16167665,
+          0.001555987,
+          0.099584697
+        ]
+      ],
+      "n_sites": 59
+    },
+    {
+      "region_code": "1_2",
+      "region_name": "Region 1_2 (NSS GC1735, regression region 137)",
+      "aep": 0.02,
+      "intercept": -1.7189666327522726,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.11,
+          "maximum": 10700
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 21.3,
+          "maximum": 66.8
+        }
+      ],
+      "coefficients": [
+        0.854,
+        2.12
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.292619,
+      "avp": 0.086,
+      "model_error_variance": 0.08,
+      "covariance": [
+        [
+          0.2933298,
+          -0.007029165,
+          -0.17384361
+        ],
+        [
+          -0.007029165,
+          0.0021798413,
+          0.0016738705
+        ],
+        [
+          -0.17384361,
+          0.0016738705,
+          0.10711775
+        ]
+      ],
+      "n_sites": 59
+    },
+    {
+      "region_code": "1_2",
+      "region_name": "Region 1_2 (NSS GC1735, regression region 137)",
+      "aep": 0.01,
+      "intercept": -1.6216020990518623,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.11,
+          "maximum": 10700
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 21.3,
+          "maximum": 66.8
+        }
+      ],
+      "coefficients": [
+        0.844,
+        2.11
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.304555,
+      "avp": 0.093,
+      "model_error_variance": 0.086,
+      "covariance": [
+        [
+          0.31972602,
+          -0.0077002375,
+          -0.18941816
+        ],
+        [
+          -0.0077002375,
+          0.0023828322,
+          0.0018205175
+        ],
+        [
+          -0.18941816,
+          0.0018205175,
+          0.11675717
+        ]
+      ],
+      "n_sites": 59
+    },
+    {
+      "region_code": "1_2",
+      "region_name": "Region 1_2 (NSS GC1735, regression region 137)",
+      "aep": 0.005,
+      "intercept": -1.5406075122407692,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.11,
+          "maximum": 10700
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 21.3,
+          "maximum": 66.8
+        }
+      ],
+      "coefficients": [
+        0.834,
+        2.1
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.315871,
+      "avp": 0.1,
+      "model_error_variance": 0.093,
+      "covariance": [
+        [
+          0.34637187,
+          -0.0083774646,
+          -0.20514413
+        ],
+        [
+          -0.0083774646,
+          0.0025882194,
+          0.0019678644
+        ],
+        [
+          -0.20514413,
+          0.0019678644,
+          0.12649313
+        ]
+      ],
+      "n_sites": 59
+    },
+    {
+      "region_code": "1_2",
+      "region_name": "Region 1_2 (NSS GC1735, regression region 137)",
+      "aep": 0.002,
+      "intercept": -1.449771646944906,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.11,
+          "maximum": 10700
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 21.3,
+          "maximum": 66.8
+        }
+      ],
+      "coefficients": [
+        0.823,
+        2.09
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.329448,
+      "avp": 0.108,
+      "model_error_variance": 0.101,
+      "covariance": [
+        [
+          0.37964002,
+          -0.0092313628,
+          -0.22476535
+        ],
+        [
+          -0.0092313628,
+          0.0028462689,
+          0.0021517658
+        ],
+        [
+          -0.22476535,
+          0.0021517658,
+          0.13864712
+        ]
+      ],
+      "n_sites": 59
+    },
+    {
+      "region_code": "3",
+      "region_name": "Region 3 (NSS GC1736, regression region 138)",
+      "aep": 0.8,
+      "intercept": 0.9111576087399766,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.13,
+          "maximum": 2500
+        }
+      ],
+      "coefficients": [
+        0.818
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.396313,
+      "avp": 0.158,
+      "model_error_variance": 0.135,
+      "covariance": [
+        [
+          0.084031451,
+          -0.033628955
+        ],
+        [
+          -0.033628955,
+          0.015755374
+        ]
+      ],
+      "n_sites": 13
+    },
+    {
+      "region_code": "3",
+      "region_name": "Region 3 (NSS GC1736, regression region 138)",
+      "aep": 0.667,
+      "intercept": 1.0681858617461617,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.13,
+          "maximum": 2500
+        }
+      ],
+      "coefficients": [
+        0.807
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.369314,
+      "avp": 0.137,
+      "model_error_variance": 0.117,
+      "covariance": [
+        [
+          0.07240866,
+          -0.029006634
+        ],
+        [
+          -0.029006634,
+          0.013602366
+        ]
+      ],
+      "n_sites": 13
+    },
+    {
+      "region_code": "3",
+      "region_name": "Region 3 (NSS GC1736, regression region 138)",
+      "aep": 0.5,
+      "intercept": 1.235528446907549,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.13,
+          "maximum": 2500
+        }
+      ],
+      "coefficients": [
+        0.796
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.337877,
+      "avp": 0.114,
+      "model_error_variance": 0.097,
+      "covariance": [
+        [
+          0.060752251,
+          -0.024280867
+        ],
+        [
+          -0.024280867,
+          0.011380953
+        ]
+      ],
+      "n_sites": 13
+    },
+    {
+      "region_code": "3",
+      "region_name": "Region 3 (NSS GC1736, regression region 138)",
+      "aep": 0.429,
+      "intercept": 1.3031960574204888,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.13,
+          "maximum": 2500
+        }
+      ],
+      "coefficients": [
+        0.792
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.325165,
+      "avp": 0.106,
+      "model_error_variance": 0.09,
+      "covariance": [
+        [
+          0.056580898,
+          -0.022564196
+        ],
+        [
+          -0.022564196,
+          0.010568876
+        ]
+      ],
+      "n_sites": 13
+    },
+    {
+      "region_code": "3",
+      "region_name": "Region 3 (NSS GC1736, regression region 138)",
+      "aep": 0.2,
+      "intercept": 1.551449997972875,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.13,
+          "maximum": 2500
+        }
+      ],
+      "coefficients": [
+        0.777
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.275542,
+      "avp": 0.076,
+      "model_error_variance": 0.064,
+      "covariance": [
+        [
+          0.042759566,
+          -0.016726861
+        ],
+        [
+          -0.016726861,
+          0.0077784389
+        ]
+      ],
+      "n_sites": 13
+    },
+    {
+      "region_code": "3",
+      "region_name": "Region 3 (NSS GC1736, regression region 138)",
+      "aep": 0.1,
+      "intercept": 1.714329759745233,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.13,
+          "maximum": 2500
+        }
+      ],
+      "coefficients": [
+        0.769
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.242202,
+      "avp": 0.059,
+      "model_error_variance": 0.048,
+      "covariance": [
+        [
+          0.035507681,
+          -0.013457117
+        ],
+        [
+          -0.013457117,
+          0.0061839235
+        ]
+      ],
+      "n_sites": 13
+    },
+    {
+      "region_code": "3",
+      "region_name": "Region 3 (NSS GC1736, regression region 138)",
+      "aep": 0.04,
+      "intercept": 1.8790958795000727,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.13,
+          "maximum": 2500
+        }
+      ],
+      "coefficients": [
+        0.764
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.200724,
+      "avp": 0.04,
+      "model_error_variance": 0.032,
+      "covariance": [
+        [
+          0.027980507,
+          -0.010055981
+        ],
+        [
+          -0.010055981,
+          0.004508311
+        ]
+      ],
+      "n_sites": 13
+    },
+    {
+      "region_code": "3",
+      "region_name": "Region 3 (NSS GC1736, regression region 138)",
+      "aep": 0.02,
+      "intercept": 1.9818186071706636,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.13,
+          "maximum": 2500
+        }
+      ],
+      "coefficients": [
+        0.762
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.173122,
+      "avp": 0.03,
+      "model_error_variance": 0.022,
+      "covariance": [
+        [
+          0.023964433,
+          -0.0081205293
+        ],
+        [
+          -0.0081205293,
+          0.0035361489
+        ]
+      ],
+      "n_sites": 13
+    },
+    {
+      "region_code": "3",
+      "region_name": "Region 3 (NSS GC1736, regression region 138)",
+      "aep": 0.01,
+      "intercept": 2.0681858617461617,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.13,
+          "maximum": 2500
+        }
+      ],
+      "coefficients": [
+        0.761
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.145639,
+      "avp": 0.021,
+      "model_error_variance": 0.014,
+      "covariance": [
+        [
+          0.020571213,
+          -0.0064550782
+        ],
+        [
+          -0.0064550782,
+          0.0026924032
+        ]
+      ],
+      "n_sites": 13
+    },
+    {
+      "region_code": "3",
+      "region_name": "Region 3 (NSS GC1736, regression region 138)",
+      "aep": 0.005,
+      "intercept": 2.146128035678238,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.13,
+          "maximum": 2500
+        }
+      ],
+      "coefficients": [
+        0.762
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.12382,
+      "avp": 0.015,
+      "model_error_variance": 0.009,
+      "covariance": [
+        [
+          0.018398144,
+          -0.0053180444
+        ],
+        [
+          -0.0053180444,
+          0.0021029315
+        ]
+      ],
+      "n_sites": 13
+    },
+    {
+      "region_code": "3",
+      "region_name": "Region 3 (NSS GC1736, regression region 138)",
+      "aep": 0.002,
+      "intercept": 2.2329961103921536,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.13,
+          "maximum": 2500
+        }
+      ],
+      "coefficients": [
+        0.764
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.097767,
+      "avp": 0.01,
+      "model_error_variance": 0.003,
+      "covariance": [
+        [
+          0.01626882,
+          -0.0041751526
+        ],
+        [
+          -0.0041751526,
+          0.0015041575
+        ]
+      ],
+      "n_sites": 13
+    },
+    {
+      "region_code": "4",
+      "region_name": "Region 4 (NSS GC1737, regression region 139)",
+      "aep": 0.8,
+      "intercept": -3.2276782932770804,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 5.36,
+          "maximum": 13400
+        },
+        {
+          "code": "LC11FOREST",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 2.35,
+          "maximum": 94.4,
+          "scale": 0.01,
+          "offset": 1.0
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 18.7,
+          "maximum": 46.8
+        }
+      ],
+      "coefficients": [
+        0.981,
+        -1.52,
+        2.8
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.262475,
+      "avp": 0.069,
+      "model_error_variance": 0.059,
+      "covariance": [
+        [
+          0.61740126,
+          -0.019114303,
+          0.38628575,
+          -0.43156678
+        ],
+        [
+          -0.019114303,
+          0.0038067082,
+          -0.018650058,
+          0.0095418787
+        ],
+        [
+          0.38628575,
+          -0.018650058,
+          0.78546459,
+          -0.33244629
+        ],
+        [
+          -0.43156678,
+          0.0095418787,
+          -0.33244629,
+          0.31674193
+        ]
+      ],
+      "n_sites": 28
+    },
+    {
+      "region_code": "4",
+      "region_name": "Region 4 (NSS GC1737, regression region 139)",
+      "aep": 0.667,
+      "intercept": -2.899629454882437,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 5.36,
+          "maximum": 13400
+        },
+        {
+          "code": "LC11FOREST",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 2.35,
+          "maximum": 94.4,
+          "scale": 0.01,
+          "offset": 1.0
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 18.7,
+          "maximum": 46.8
+        }
+      ],
+      "coefficients": [
+        0.972,
+        -1.72,
+        2.69
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.244266,
+      "avp": 0.06,
+      "model_error_variance": 0.051,
+      "covariance": [
+        [
+          0.53147075,
+          -0.01648034,
+          0.33302877,
+          -0.37153297
+        ],
+        [
+          -0.01648034,
+          0.0032874575,
+          -0.016128601,
+          0.0082255725
+        ],
+        [
+          0.33302877,
+          -0.016128601,
+          0.67491133,
+          -0.28620945
+        ],
+        [
+          -0.37153297,
+          0.0082255725,
+          -0.28620945,
+          0.27266687
+        ]
+      ],
+      "n_sites": 28
+    },
+    {
+      "region_code": "4",
+      "region_name": "Region 4 (NSS GC1737, regression region 139)",
+      "aep": 0.5,
+      "intercept": -2.5654310959658013,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 5.36,
+          "maximum": 13400
+        },
+        {
+          "code": "LC11FOREST",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 2.35,
+          "maximum": 94.4,
+          "scale": 0.01,
+          "offset": 1.0
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 18.7,
+          "maximum": 46.8
+        }
+      ],
+      "coefficients": [
+        0.962,
+        -1.93,
+        2.57
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.226112,
+      "avp": 0.051,
+      "model_error_variance": 0.044,
+      "covariance": [
+        [
+          0.45749701,
+          -0.014264886,
+          0.28494022,
+          -0.31937585
+        ],
+        [
+          -0.014264886,
+          0.0028321658,
+          -0.013760346,
+          0.0071038226
+        ],
+        [
+          0.28494022,
+          -0.013760346,
+          0.57934441,
+          -0.24523586
+        ],
+        [
+          -0.31937585,
+          0.0071038226,
+          -0.24523586,
+          0.23419992
+        ]
+      ],
+      "n_sites": 28
+    },
+    {
+      "region_code": "4",
+      "region_name": "Region 4 (NSS GC1737, regression region 139)",
+      "aep": 0.429,
+      "intercept": -2.431798275933005,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 5.36,
+          "maximum": 13400
+        },
+        {
+          "code": "LC11FOREST",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 2.35,
+          "maximum": 94.4,
+          "scale": 0.01,
+          "offset": 1.0
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 18.7,
+          "maximum": 46.8
+        }
+      ],
+      "coefficients": [
+        0.957,
+        -2.01,
+        2.52
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.215725,
+      "avp": 0.047,
+      "model_error_variance": 0.04,
+      "covariance": [
+        [
+          0.41918088,
+          -0.013139312,
+          0.25898084,
+          -0.29213921
+        ],
+        [
+          -0.013139312,
+          0.0025921904,
+          -0.012440108,
+          0.0065269035
+        ],
+        [
+          0.25898084,
+          -0.012440108,
+          0.52970936,
+          -0.22347554
+        ],
+        [
+          -0.29213921,
+          0.0065269035,
+          -0.22347554,
+          0.21403438
+        ]
+      ],
+      "n_sites": 28
+    },
+    {
+      "region_code": "4",
+      "region_name": "Region 4 (NSS GC1737, regression region 139)",
+      "aep": 0.2,
+      "intercept": -1.9100948885606022,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 5.36,
+          "maximum": 13400
+        },
+        {
+          "code": "LC11FOREST",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 2.35,
+          "maximum": 94.4,
+          "scale": 0.01,
+          "offset": 1.0
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 18.7,
+          "maximum": 46.8
+        }
+      ],
+      "coefficients": [
+        0.939,
+        -2.31,
+        2.34
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.187252,
+      "avp": 0.035,
+      "model_error_variance": 0.03,
+      "covariance": [
+        [
+          0.33287347,
+          -0.010748515,
+          0.19544634,
+          -0.22967772
+        ],
+        [
+          -0.010748515,
+          0.0020360339,
+          -0.0090227621,
+          0.0052664951
+        ],
+        [
+          0.19544634,
+          -0.0090227621,
+          0.41670568,
+          -0.17175969
+        ],
+        [
+          -0.22967772,
+          0.0052664951,
+          -0.17175969,
+          0.16737772
+        ]
+      ],
+      "n_sites": 28
+    },
+    {
+      "region_code": "4",
+      "region_name": "Region 4 (NSS GC1737, regression region 139)",
+      "aep": 0.1,
+      "intercept": -1.5543957967264024,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 5.36,
+          "maximum": 13400
+        },
+        {
+          "code": "LC11FOREST",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 2.35,
+          "maximum": 94.4,
+          "scale": 0.01,
+          "offset": 1.0
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 18.7,
+          "maximum": 46.8
+        }
+      ],
+      "coefficients": [
+        0.926,
+        -2.51,
+        2.21
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.175048,
+      "avp": 0.031,
+      "model_error_variance": 0.025,
+      "covariance": [
+        [
+          0.30709997,
+          -0.010298525,
+          0.16952436,
+          -0.20929132
+        ],
+        [
+          -0.010298525,
+          0.0018666198,
+          -0.0074574055,
+          0.004962671
+        ],
+        [
+          0.16952436,
+          -0.0074574055,
+          0.37853861,
+          -0.15219712
+        ],
+        [
+          -0.20929132,
+          0.004962671,
+          -0.15219712,
+          0.15149776
+        ]
+      ],
+      "n_sites": 28
+    },
+    {
+      "region_code": "4",
+      "region_name": "Region 4 (NSS GC1737, regression region 139)",
+      "aep": 0.04,
+      "intercept": -1.111820506081675,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 5.36,
+          "maximum": 13400
+        },
+        {
+          "code": "LC11FOREST",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 2.35,
+          "maximum": 94.4,
+          "scale": 0.01,
+          "offset": 1.0
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 18.7,
+          "maximum": 46.8
+        }
+      ],
+      "coefficients": [
+        0.908,
+        -2.7,
+        2.04
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.163025,
+      "avp": 0.027,
+      "model_error_variance": 0.022,
+      "covariance": [
+        [
+          0.29209409,
+          -0.01012468,
+          0.15070931,
+          -0.1967531
+        ],
+        [
+          -0.01012468,
+          0.0017323637,
+          -0.0060811943,
+          0.0048249938
+        ],
+        [
+          0.15070931,
+          -0.0060811943,
+          0.3598634,
+          -0.13957583
+        ],
+        [
+          -0.1967531,
+          0.0048249938,
+          -0.13957583,
+          0.14156514
+        ]
+      ],
+      "n_sites": 28
+    },
+    {
+      "region_code": "4",
+      "region_name": "Region 4 (NSS GC1737, regression region 139)",
+      "aep": 0.02,
+      "intercept": -0.826813731587726,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 5.36,
+          "maximum": 13400
+        },
+        {
+          "code": "LC11FOREST",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 2.35,
+          "maximum": 94.4,
+          "scale": 0.01,
+          "offset": 1.0
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 18.7,
+          "maximum": 46.8
+        }
+      ],
+      "coefficients": [
+        0.897,
+        -2.82,
+        1.92
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.157534,
+      "avp": 0.025,
+      "model_error_variance": 0.02,
+      "covariance": [
+        [
+          0.28782281,
+          -0.010377147,
+          0.13818184,
+          -0.19125128
+        ],
+        [
+          -0.010377147,
+          0.0017023583,
+          -0.0051804755,
+          0.0048657134
+        ],
+        [
+          0.13818184,
+          -0.0051804755,
+          0.34799712,
+          -0.13145007
+        ],
+        [
+          -0.19125128,
+          0.0048657134,
+          -0.13145007,
+          0.13656211
+        ]
+      ],
+      "n_sites": 28
+    },
+    {
+      "region_code": "4",
+      "region_name": "Region 4 (NSS GC1737, regression region 139)",
+      "aep": 0.01,
+      "intercept": -0.5346171485515817,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 5.36,
+          "maximum": 13400
+        },
+        {
+          "code": "LC11FOREST",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 2.35,
+          "maximum": 94.4,
+          "scale": 0.01,
+          "offset": 1.0
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 18.7,
+          "maximum": 46.8
+        }
+      ],
+      "coefficients": [
+        0.884,
+        -2.92,
+        1.8
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.156746,
+      "avp": 0.025,
+      "model_error_variance": 0.019,
+      "covariance": [
+        [
+          0.30003543,
+          -0.010941779,
+          0.14102358,
+          -0.19876046
+        ],
+        [
+          -0.010941779,
+          0.0017454025,
+          -0.0049844046,
+          0.005133024
+        ],
+        [
+          0.14102358,
+          -0.0049844046,
+          0.36696786,
+          -0.13625475
+        ],
+        [
+          -0.19876046,
+          0.005133024,
+          -0.13625475,
+          0.14174798
+        ]
+      ],
+      "n_sites": 28
+    },
+    {
+      "region_code": "4",
+      "region_name": "Region 4 (NSS GC1737, regression region 139)",
+      "aep": 0.005,
+      "intercept": -0.27245874297144357,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 5.36,
+          "maximum": 13400
+        },
+        {
+          "code": "LC11FOREST",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 2.35,
+          "maximum": 94.4,
+          "scale": 0.01,
+          "offset": 1.0
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 18.7,
+          "maximum": 46.8
+        }
+      ],
+      "coefficients": [
+        0.872,
+        -3.0,
+        1.69
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.156352,
+      "avp": 0.024,
+      "model_error_variance": 0.019,
+      "covariance": [
+        [
+          0.31114066,
+          -0.011570525,
+          0.14106601,
+          -0.20481933
+        ],
+        [
+          -0.011570525,
+          0.0017981473,
+          -0.0046894605,
+          0.0053997622
+        ],
+        [
+          0.14106601,
+          -0.0046894605,
+          0.37986961,
+          -0.13868591
+        ],
+        [
+          -0.20481933,
+          0.0053997622,
+          -0.13868591,
+          0.14557851
+        ]
+      ],
+      "n_sites": 28
+    },
+    {
+      "region_code": "4",
+      "region_name": "Region 4 (NSS GC1737, regression region 139)",
+      "aep": 0.002,
+      "intercept": 0.037426497940623665,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 5.36,
+          "maximum": 13400
+        },
+        {
+          "code": "LC11FOREST",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 2.35,
+          "maximum": 94.4,
+          "scale": 0.01,
+          "offset": 1.0
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 18.7,
+          "maximum": 46.8
+        }
+      ],
+      "coefficients": [
+        0.859,
+        -3.11,
+        1.56
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.160284,
+      "avp": 0.026,
+      "model_error_variance": 0.019,
+      "covariance": [
+        [
+          0.3392325,
+          -0.012815966,
+          0.14947339,
+          -0.22221494
+        ],
+        [
+          -0.012815966,
+          0.0019512926,
+          -0.004705677,
+          0.0059585902
+        ],
+        [
+          0.14947339,
+          -0.004705677,
+          0.41388307,
+          -0.14906394
+        ],
+        [
+          -0.22221494,
+          0.0059585902,
+          -0.14906394,
+          0.15752865
+        ]
+      ],
+      "n_sites": 28
+    },
+    {
+      "region_code": "5",
+      "region_name": "Region 5 (NSS GC1738, regression region 140)",
+      "aep": 0.8,
+      "intercept": -3.500312917381596,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 8.63,
+          "maximum": 1040
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 30.6,
+          "maximum": 49.7
+        }
+      ],
+      "coefficients": [
+        0.934,
+        2.84
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.107347,
+      "avp": 0.012,
+      "model_error_variance": 0.009,
+      "covariance": [
+        [
+          0.43967222,
+          -0.0057999905,
+          -0.27324664
+        ],
+        [
+          -0.0057999905,
+          0.0012276411,
+          0.0020320833
+        ],
+        [
+          -0.27324664,
+          0.0020320833,
+          0.17237101
+        ]
+      ],
+      "n_sites": 20
+    },
+    {
+      "region_code": "5",
+      "region_name": "Region 5 (NSS GC1738, regression region 140)",
+      "aep": 0.667,
+      "intercept": -3.2958494831602008,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 8.63,
+          "maximum": 1040
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 30.6,
+          "maximum": 49.7
+        }
+      ],
+      "coefficients": [
+        0.939,
+        2.75
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.106932,
+      "avp": 0.011,
+      "model_error_variance": 0.01,
+      "covariance": [
+        [
+          0.43386762,
+          -0.0055976963,
+          -0.26998723
+        ],
+        [
+          -0.0055976963,
+          0.0011976381,
+          0.0019495339
+        ],
+        [
+          -0.26998723,
+          0.0019495339,
+          0.17046852
+        ]
+      ],
+      "n_sites": 20
+    },
+    {
+      "region_code": "5",
+      "region_name": "Region 5 (NSS GC1738, regression region 140)",
+      "aep": 0.5,
+      "intercept": -3.0958256317158366,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 8.63,
+          "maximum": 1040
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 30.6,
+          "maximum": 49.7
+        }
+      ],
+      "coefficients": [
+        0.943,
+        2.67
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.107347,
+      "avp": 0.012,
+      "model_error_variance": 0.01,
+      "covariance": [
+        [
+          0.43384155,
+          -0.0055418866,
+          -0.27014708
+        ],
+        [
+          -0.0055418866,
+          0.0011920117,
+          0.0019230127
+        ],
+        [
+          -0.27014708,
+          0.0019230127,
+          0.17065488
+        ]
+      ],
+      "n_sites": 20
+    },
+    {
+      "region_code": "5",
+      "region_name": "Region 5 (NSS GC1738, regression region 140)",
+      "aep": 0.429,
+      "intercept": -3.0070049015686586,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 8.63,
+          "maximum": 1040
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 30.6,
+          "maximum": 49.7
+        }
+      ],
+      "coefficients": [
+        0.944,
+        2.63
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.113141,
+      "avp": 0.013,
+      "model_error_variance": 0.011,
+      "covariance": [
+        [
+          0.48022152,
+          -0.0060910266,
+          -0.29915502
+        ],
+        [
+          -0.0060910266,
+          0.0013137299,
+          0.0021113368
+        ],
+        [
+          -0.29915502,
+          0.0021113368,
+          0.18903015
+        ]
+      ],
+      "n_sites": 20
+    },
+    {
+      "region_code": "5",
+      "region_name": "Region 5 (NSS GC1738, regression region 140)",
+      "aep": 0.2,
+      "intercept": -2.7235381958267557,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 8.63,
+          "maximum": 1040
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 30.6,
+          "maximum": 49.7
+        }
+      ],
+      "coefficients": [
+        0.945,
+        2.53
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.119315,
+      "avp": 0.014,
+      "model_error_variance": 0.012,
+      "covariance": [
+        [
+          0.54001638,
+          -0.0069249262,
+          -0.33630556
+        ],
+        [
+          -0.0069249262,
+          0.0014888102,
+          0.0023969641
+        ],
+        [
+          -0.33630556,
+          0.0023969641,
+          0.21250249
+        ]
+      ],
+      "n_sites": 20
+    },
+    {
+      "region_code": "5",
+      "region_name": "Region 5 (NSS GC1738, regression region 140)",
+      "aep": 0.1,
+      "intercept": -2.5543957967264026,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 8.63,
+          "maximum": 1040
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 30.6,
+          "maximum": 49.7
+        }
+      ],
+      "coefficients": [
+        0.944,
+        2.47
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.125454,
+      "avp": 0.016,
+      "model_error_variance": 0.013,
+      "covariance": [
+        [
+          0.60205267,
+          -0.0078390905,
+          -0.37472429
+        ],
+        [
+          -0.0078390905,
+          0.0016767682,
+          0.0027126493
+        ],
+        [
+          -0.37472429,
+          0.0027126493,
+          0.2367296
+        ]
+      ],
+      "n_sites": 20
+    },
+    {
+      "region_code": "5",
+      "region_name": "Region 5 (NSS GC1738, regression region 140)",
+      "aep": 0.04,
+      "intercept": -2.3767507096020997,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 8.63,
+          "maximum": 1040
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 30.6,
+          "maximum": 49.7
+        }
+      ],
+      "coefficients": [
+        0.941,
+        2.42
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.13196,
+      "avp": 0.017,
+      "model_error_variance": 0.014,
+      "covariance": [
+        [
+          0.67110671,
+          -0.0089256291,
+          -0.41735301
+        ],
+        [
+          -0.0089256291,
+          0.0018956853,
+          0.0030883879
+        ],
+        [
+          -0.41735301,
+          0.0030883879,
+          0.26357649
+        ]
+      ],
+      "n_sites": 20
+    },
+    {
+      "region_code": "5",
+      "region_name": "Region 5 (NSS GC1738, regression region 140)",
+      "aep": 0.02,
+      "intercept": -2.279014255846261,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 8.63,
+          "maximum": 1040
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 30.6,
+          "maximum": 49.7
+        }
+      ],
+      "coefficients": [
+        0.939,
+        2.39
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.142039,
+      "avp": 0.02,
+      "model_error_variance": 0.016,
+      "covariance": [
+        [
+          0.78122451,
+          -0.010439492,
+          -0.48577044
+        ],
+        [
+          -0.010439492,
+          0.0022145821,
+          0.0036094612
+        ],
+        [
+          -0.48577044,
+          0.0036094612,
+          0.30678498
+        ]
+      ],
+      "n_sites": 20
+    },
+    {
+      "region_code": "5",
+      "region_name": "Region 5 (NSS GC1738, regression region 140)",
+      "aep": 0.01,
+      "intercept": -2.191114132640188,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 8.63,
+          "maximum": 1040
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 30.6,
+          "maximum": 49.7
+        }
+      ],
+      "coefficients": [
+        0.936,
+        2.37
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.147235,
+      "avp": 0.022,
+      "model_error_variance": 0.018,
+      "covariance": [
+        [
+          0.84504578,
+          -0.01140964,
+          -0.52524811
+        ],
+        [
+          -0.01140964,
+          0.0024128145,
+          0.0039431101
+        ],
+        [
+          -0.52524811,
+          0.0039431101,
+          0.33167695
+        ]
+      ],
+      "n_sites": 20
+    },
+    {
+      "region_code": "5",
+      "region_name": "Region 5 (NSS GC1738, regression region 140)",
+      "aep": 0.005,
+      "intercept": -2.1203307943679466,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 8.63,
+          "maximum": 1040
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 30.6,
+          "maximum": 49.7
+        }
+      ],
+      "coefficients": [
+        0.934,
+        2.35
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.1524,
+      "avp": 0.023,
+      "model_error_variance": 0.019,
+      "covariance": [
+        [
+          0.91008485,
+          -0.012394109,
+          -0.56549391
+        ],
+        [
+          -0.012394109,
+          0.0026146461,
+          0.0042807125
+        ],
+        [
+          -0.56549391,
+          0.0042807125,
+          0.35706189
+        ]
+      ],
+      "n_sites": 20
+    },
+    {
+      "region_code": "5",
+      "region_name": "Region 5 (NSS GC1738, regression region 140)",
+      "aep": 0.002,
+      "intercept": -2.040005161671584,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 8.63,
+          "maximum": 1040
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 30.6,
+          "maximum": 49.7
+        }
+      ],
+      "coefficients": [
+        0.931,
+        2.34
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.161852,
+      "avp": 0.026,
+      "model_error_variance": 0.021,
+      "covariance": [
+        [
+          1.0277686,
+          -0.0140711,
+          -0.63852266
+        ],
+        [
+          -0.0140711,
+          0.0029653496,
+          0.0048542586
+        ],
+        [
+          -0.63852266,
+          0.0048542586,
+          0.40317967
+        ]
+      ],
+      "n_sites": 20
+    },
+    {
+      "region_code": "6_8",
+      "region_name": "Region 6_8 (NSS GC1739, regression region 141)",
+      "aep": 0.8,
+      "intercept": -2.939302159646388,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.77,
+          "maximum": 3740
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 18.9,
+          "maximum": 54.6
+        }
+      ],
+      "coefficients": [
+        0.783,
+        2.64
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.264128,
+      "avp": 0.07,
+      "model_error_variance": 0.065,
+      "covariance": [
+        [
+          0.33152736,
+          -0.014694027,
+          -0.2017194
+        ],
+        [
+          -0.014694027,
+          0.0033685671,
+          0.0051829452
+        ],
+        [
+          -0.2017194,
+          0.0051829452,
+          0.12874217
+        ]
+      ],
+      "n_sites": 48
+    },
+    {
+      "region_code": "6_8",
+      "region_name": "Region 6_8 (NSS GC1739, regression region 141)",
+      "aep": 0.667,
+      "intercept": -2.598599459218456,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.77,
+          "maximum": 3740
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 18.9,
+          "maximum": 54.6
+        }
+      ],
+      "coefficients": [
+        0.768,
+        2.49
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.253453,
+      "avp": 0.064,
+      "model_error_variance": 0.06,
+      "covariance": [
+        [
+          0.3030942,
+          -0.013383191,
+          -0.18456467
+        ],
+        [
+          -0.013383191,
+          0.0030814608,
+          0.0047079632
+        ],
+        [
+          -0.18456467,
+          0.0047079632,
+          0.11787552
+        ]
+      ],
+      "n_sites": 48
+    },
+    {
+      "region_code": "6_8",
+      "region_name": "Region 6_8 (NSS GC1739, regression region 141)",
+      "aep": 0.5,
+      "intercept": -2.254144804826271,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.77,
+          "maximum": 3740
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 18.9,
+          "maximum": 54.6
+        }
+      ],
+      "coefficients": [
+        0.754,
+        2.34
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.245295,
+      "avp": 0.06,
+      "model_error_variance": 0.056,
+      "covariance": [
+        [
+          0.28367441,
+          -0.012527763,
+          -0.17274553
+        ],
+        [
+          -0.012527763,
+          0.0028850201,
+          0.0044062836
+        ],
+        [
+          -0.17274553,
+          0.0044062836,
+          0.11033287
+        ]
+      ],
+      "n_sites": 48
+    },
+    {
+      "region_code": "6_8",
+      "region_name": "Region 6_8 (NSS GC1739, regression region 141)",
+      "aep": 0.429,
+      "intercept": -2.111820506081675,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.77,
+          "maximum": 3740
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 18.9,
+          "maximum": 54.6
+        }
+      ],
+      "coefficients": [
+        0.748,
+        2.28
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.244609,
+      "avp": 0.06,
+      "model_error_variance": 0.056,
+      "covariance": [
+        [
+          0.28218265,
+          -0.012470925,
+          -0.17181881
+        ],
+        [
+          -0.012470925,
+          0.0028697166,
+          0.0043883526
+        ],
+        [
+          -0.17181881,
+          0.0043883526,
+          0.10973137
+        ]
+      ],
+      "n_sites": 48
+    },
+    {
+      "region_code": "6_8",
+      "region_name": "Region 6_8 (NSS GC1739, regression region 141)",
+      "aep": 0.2,
+      "intercept": -1.6020599913279623,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.77,
+          "maximum": 3740
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 18.9,
+          "maximum": 54.6
+        }
+      ],
+      "coefficients": [
+        0.726,
+        2.05
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.246663,
+      "avp": 0.061,
+      "model_error_variance": 0.057,
+      "covariance": [
+        [
+          0.29115461,
+          -0.012992294,
+          -0.17697316
+        ],
+        [
+          -0.012992294,
+          0.0029586393,
+          0.0046003535
+        ],
+        [
+          -0.17697316,
+          0.0046003535,
+          0.11285656
+        ]
+      ],
+      "n_sites": 48
+    },
+    {
+      "region_code": "6_8",
+      "region_name": "Region 6_8 (NSS GC1739, regression region 141)",
+      "aep": 0.1,
+      "intercept": -1.2724587429714436,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.77,
+          "maximum": 3740
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 18.9,
+          "maximum": 54.6
+        }
+      ],
+      "coefficients": [
+        0.713,
+        1.91
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.25379,
+      "avp": 0.064,
+      "model_error_variance": 0.06,
+      "covariance": [
+        [
+          0.31271976,
+          -0.014092293,
+          -0.18972791
+        ],
+        [
+          -0.014092293,
+          0.0031742584,
+          0.0050216635
+        ],
+        [
+          -0.18972791,
+          0.0050216635,
+          0.12079844
+        ]
+      ],
+      "n_sites": 48
+    },
+    {
+      "region_code": "6_8",
+      "region_name": "Region 6_8 (NSS GC1739, regression region 141)",
+      "aep": 0.04,
+      "intercept": -0.9281179926938746,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.77,
+          "maximum": 3740
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 18.9,
+          "maximum": 54.6
+        }
+      ],
+      "coefficients": [
+        0.698,
+        1.76
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.268072,
+      "avp": 0.072,
+      "model_error_variance": 0.067,
+      "covariance": [
+        [
+          0.35523979,
+          -0.016163539,
+          -0.21512179
+        ],
+        [
+          -0.016163539,
+          0.0036002261,
+          0.005796637
+        ],
+        [
+          -0.21512179,
+          0.005796637,
+          0.13674626
+        ]
+      ],
+      "n_sites": 48
+    },
+    {
+      "region_code": "6_8",
+      "region_name": "Region 6_8 (NSS GC1739, regression region 141)",
+      "aep": 0.02,
+      "intercept": -0.7033348097384688,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.77,
+          "maximum": 3740
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 18.9,
+          "maximum": 54.6
+        }
+      ],
+      "coefficients": [
+        0.688,
+        1.66
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.279073,
+      "avp": 0.078,
+      "model_error_variance": 0.072,
+      "covariance": [
+        [
+          0.38955458,
+          -0.017831093,
+          -0.23562121
+        ],
+        [
+          -0.017831093,
+          0.0039437356,
+          0.0064197587
+        ],
+        [
+          -0.23562121,
+          0.0064197587,
+          0.14962396
+        ]
+      ],
+      "n_sites": 48
+    },
+    {
+      "region_code": "6_8",
+      "region_name": "Region 6_8 (NSS GC1739, regression region 141)",
+      "aep": 0.01,
+      "intercept": -0.5030703519267851,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.77,
+          "maximum": 3740
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 18.9,
+          "maximum": 54.6
+        }
+      ],
+      "coefficients": [
+        0.679,
+        1.58
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.290441,
+      "avp": 0.084,
+      "model_error_variance": 0.078,
+      "covariance": [
+        [
+          0.42558119,
+          -0.01957464,
+          -0.25716026
+        ],
+        [
+          -0.01957464,
+          0.0043042286,
+          0.0070698914
+        ],
+        [
+          -0.25716026,
+          0.0070698914,
+          0.16316447
+        ]
+      ],
+      "n_sites": 48
+    },
+    {
+      "region_code": "6_8",
+      "region_name": "Region 6_8 (NSS GC1739, regression region 141)",
+      "aep": 0.005,
+      "intercept": -0.324221658325915,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.77,
+          "maximum": 3740
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 18.9,
+          "maximum": 54.6
+        }
+      ],
+      "coefficients": [
+        0.67,
+        1.5
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.30183,
+      "avp": 0.091,
+      "model_error_variance": 0.084,
+      "covariance": [
+        [
+          0.46350186,
+          -0.021401233,
+          -0.27985431
+        ],
+        [
+          -0.021401233,
+          0.0046837024,
+          0.007749318
+        ],
+        [
+          -0.27985431,
+          0.007749318,
+          0.1774435
+        ]
+      ],
+      "n_sites": 48
+    },
+    {
+      "region_code": "6_8",
+      "region_name": "Region 6_8 (NSS GC1739, regression region 141)",
+      "aep": 0.002,
+      "intercept": -0.10292299679057967,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.77,
+          "maximum": 3740
+        },
+        {
+          "code": "PRECPRIS10",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 18.9,
+          "maximum": 54.6
+        }
+      ],
+      "coefficients": [
+        0.659,
+        1.41
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.317337,
+      "avp": 0.101,
+      "model_error_variance": 0.093,
+      "covariance": [
+        [
+          0.5161645,
+          -0.023924292,
+          -0.31140736
+        ],
+        [
+          -0.023924292,
+          0.0052107856,
+          0.0086850442
+        ],
+        [
+          -0.31140736,
+          0.0086850442,
+          0.19731703
+        ]
+      ],
+      "n_sites": 48
+    },
+    {
+      "region_code": "7",
+      "region_name": "Region 7 (NSS GC1740, regression region 142)",
+      "aep": 0.8,
+      "intercept": 0.21484384804769785,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.15,
+          "maximum": 1400
+        },
+        {
+          "code": "MINBELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 2230,
+          "maximum": 7020,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.563,
+        1.09
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.436208,
+      "avp": 0.19,
+      "model_error_variance": 0.164,
+      "covariance": [
+        [
+          0.33911621,
+          -0.02971872,
+          -0.42793831
+        ],
+        [
+          -0.02971872,
+          0.0085005981,
+          0.023344969
+        ],
+        [
+          -0.42793831,
+          0.023344969,
+          0.59452243
+        ]
+      ],
+      "n_sites": 24
+    },
+    {
+      "region_code": "7",
+      "region_name": "Region 7 (NSS GC1740, regression region 142)",
+      "aep": 0.667,
+      "intercept": 0.7160033436347992,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.15,
+          "maximum": 1400
+        },
+        {
+          "code": "MINBELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 2230,
+          "maximum": 7020,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.547,
+        0.602
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.407903,
+      "avp": 0.166,
+      "model_error_variance": 0.144,
+      "covariance": [
+        [
+          0.29222107,
+          -0.025593876,
+          -0.36942049
+        ],
+        [
+          -0.025593876,
+          0.0073742595,
+          0.020056331
+        ],
+        [
+          -0.36942049,
+          0.020056331,
+          0.51430269
+        ]
+      ],
+      "n_sites": 24
+    },
+    {
+      "region_code": "7",
+      "region_name": "Region 7 (NSS GC1740, regression region 142)",
+      "aep": 0.5,
+      "intercept": 1.235528446907549,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.15,
+          "maximum": 1400
+        },
+        {
+          "code": "MINBELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 2230,
+          "maximum": 7020,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.529,
+        0.104
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.38185,
+      "avp": 0.146,
+      "model_error_variance": 0.127,
+      "covariance": [
+        [
+          0.25801534,
+          -0.022634178,
+          -0.32584094
+        ],
+        [
+          -0.022634178,
+          0.0065017294,
+          0.017765409
+        ],
+        [
+          -0.32584094,
+          0.017765409,
+          0.45319294
+        ]
+      ],
+      "n_sites": 24
+    },
+    {
+      "region_code": "7",
+      "region_name": "Region 7 (NSS GC1740, regression region 142)",
+      "aep": 0.429,
+      "intercept": 1.4456042032735976,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.15,
+          "maximum": 1400
+        },
+        {
+          "code": "MINBELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 2230,
+          "maximum": 7020,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.523,
+        -0.098
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.371858,
+      "avp": 0.138,
+      "model_error_variance": 0.12,
+      "covariance": [
+        [
+          0.24697402,
+          -0.021700297,
+          -0.31136006
+        ],
+        [
+          -0.021700297,
+          0.0061958518,
+          0.017075824
+        ],
+        [
+          -0.31136006,
+          0.017075824,
+          0.43226376
+        ]
+      ],
+      "n_sites": 24
+    },
+    {
+      "region_code": "7",
+      "region_name": "Region 7 (NSS GC1740, regression region 142)",
+      "aep": 0.2,
+      "intercept": 2.1903316981702914,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.15,
+          "maximum": 1400
+        },
+        {
+          "code": "MINBELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 2230,
+          "maximum": 7020,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.5,
+        -0.808
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.346125,
+      "avp": 0.12,
+      "model_error_variance": 0.103,
+      "covariance": [
+        [
+          0.23156525,
+          -0.020534784,
+          -0.28861633
+        ],
+        [
+          -0.020534784,
+          0.0056157989,
+          0.016447252
+        ],
+        [
+          -0.28861633,
+          0.016447252,
+          0.3956264
+        ]
+      ],
+      "n_sites": 24
+    },
+    {
+      "region_code": "7",
+      "region_name": "Region 7 (NSS GC1740, regression region 142)",
+      "aep": 0.1,
+      "intercept": 2.645422269349092,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.15,
+          "maximum": 1400
+        },
+        {
+          "code": "MINBELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 2230,
+          "maximum": 7020,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.489,
+        -1.24
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.338155,
+      "avp": 0.114,
+      "model_error_variance": 0.097,
+      "covariance": [
+        [
+          0.23942292,
+          -0.021390106,
+          -0.29527601
+        ],
+        [
+          -0.021390106,
+          0.0056061545,
+          0.017428969
+        ],
+        [
+          -0.29527601,
+          0.017428969,
+          0.39978759
+        ]
+      ],
+      "n_sites": 24
+    },
+    {
+      "region_code": "7",
+      "region_name": "Region 7 (NSS GC1740, regression region 142)",
+      "aep": 0.04,
+      "intercept": 3.093421685162235,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.15,
+          "maximum": 1400
+        },
+        {
+          "code": "MINBELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 2230,
+          "maximum": 7020,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.483,
+        -1.65
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.336485,
+      "avp": 0.113,
+      "model_error_variance": 0.095,
+      "covariance": [
+        [
+          0.26079519,
+          -0.023463945,
+          -0.31797688
+        ],
+        [
+          -0.023463945,
+          0.0058568535,
+          0.019490219
+        ],
+        [
+          -0.31797688,
+          0.019490219,
+          0.4245622
+        ]
+      ],
+      "n_sites": 24
+    },
+    {
+      "region_code": "7",
+      "region_name": "Region 7 (NSS GC1740, regression region 142)",
+      "aep": 0.02,
+      "intercept": 3.3654879848909,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.15,
+          "maximum": 1400
+        },
+        {
+          "code": "MINBELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 2230,
+          "maximum": 7020,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.48,
+        -1.91
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.342298,
+      "avp": 0.117,
+      "model_error_variance": 0.097,
+      "covariance": [
+        [
+          0.28421004,
+          -0.025649335,
+          -0.344504
+        ],
+        [
+          -0.025649335,
+          0.0062342114,
+          0.021527397
+        ],
+        [
+          -0.344504,
+          0.021527397,
+          0.45657946
+        ]
+      ],
+      "n_sites": 24
+    },
+    {
+      "region_code": "7",
+      "region_name": "Region 7 (NSS GC1740, regression region 142)",
+      "aep": 0.01,
+      "intercept": 3.6020599913279625,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.15,
+          "maximum": 1400
+        },
+        {
+          "code": "MINBELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 2230,
+          "maximum": 7020,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.478,
+        -2.13
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.348024,
+      "avp": 0.121,
+      "model_error_variance": 0.1,
+      "covariance": [
+        [
+          0.30811846,
+          -0.027867076,
+          -0.37168531
+        ],
+        [
+          -0.027867076,
+          0.0066210103,
+          0.023593382
+        ],
+        [
+          -0.37168531,
+          0.023593382,
+          0.48953418
+        ]
+      ],
+      "n_sites": 24
+    },
+    {
+      "region_code": "7",
+      "region_name": "Region 7 (NSS GC1740, regression region 142)",
+      "aep": 0.005,
+      "intercept": 3.8129133566428557,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.15,
+          "maximum": 1400
+        },
+        {
+          "code": "MINBELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 2230,
+          "maximum": 7020,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.477,
+        -2.33
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.357904,
+      "avp": 0.128,
+      "model_error_variance": 0.105,
+      "covariance": [
+        [
+          0.33643205,
+          -0.030463586,
+          -0.4045865
+        ],
+        [
+          -0.030463586,
+          0.0071269265,
+          0.025945706
+        ],
+        [
+          -0.4045865,
+          0.025945706,
+          0.53067435
+        ]
+      ],
+      "n_sites": 24
+    },
+    {
+      "region_code": "7",
+      "region_name": "Region 7 (NSS GC1740, regression region 142)",
+      "aep": 0.002,
+      "intercept": 4.064457989226918,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.15,
+          "maximum": 1400
+        },
+        {
+          "code": "MINBELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 2230,
+          "maximum": 7020,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.476,
+        -2.56
+      ],
+      "citation": {
+        "publication": "Wood, M.S., Fosness, R.L., Skinner, K.D., and Veilleux, A.G., 2016, Estimating peak-flow frequency statistics for selected gaged and ungaged sites in naturally flowing streams and rivers in Idaho (ver. 1.1, April 2017): U.S. Geological Survey Scientific Investigations Report 2016-5083",
+        "table": "Table 4; Table 5; Table A5",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165083"
+      },
+      "sep_log": 0.371858,
+      "avp": 0.138,
+      "model_error_variance": 0.112,
+      "covariance": [
+        [
+          0.37452281,
+          -0.033943548,
+          -0.44898087
+        ],
+        [
+          -0.033943548,
+          0.0078121498,
+          0.029092164
+        ],
+        [
+          -0.44898087,
+          0.029092164,
+          0.58639312
+        ]
+      ],
+      "n_sites": 24
+    }
+  ],
+  "notes": "All 6 regions (1_2, 3, 4, 5, 6_8, 7) at all 11 AEPs. Transcribed from SIR 2016-5083 ver. 1.1 (April 2017): equations, MEV, AVP, SEP and n from Table 4 (report pages 20-21); variable limits from Table 5 (page 23); covariance matrices [X^T Lambda^-1 X]^-1 from Table A5 of sir20165083_appendixa.xlsx. Values were double-entered (hand transcription vs. programmatic parse of the PDF text) with zero disagreements, and cross-checked against the live NSS service (Idaho = NSS region 16, citation 39). Units: model_error_variance and avp are Table 4's MEV and AVP columns, log10 units squared, copied as printed. sep_log is derived from Table 4's SEP (percent) as sqrt(ln(1 + (SEP/100)^2)) / ln(10); the report's SEM and pseudo-R2 are not stored. Intercept is log10 of the printed power-form coefficient. AEP 0.667 and 0.429 are the report's Q67 and Q43 (1.5- and 2.33-year recurrence; NSS PK66_7AEP and PK42_9AEP). Scaled terms are stored as published, using Variable.scale/offset, so every Table A5 covariance matrix is copied as printed with no rebasing: region 4's (F/100 + 1)^b, F = LC11FOREST in percent, is log10 with scale 0.01 and offset 1, and region 7's (Emin/1,000)^b, Emin = MINBELEV in feet, is log10 with scale 0.001. Limits stay in the published units (percent, feet). Table A5's row order is the intercept followed by the variables in printed-equation order (region 4: A, F, P); for region 4 this was confirmed by MEV + mean x'Ux over Table A2's 28 region 4 sites reproducing Table 4's AVP (to 0.23% when MEV and AVP are recovered from the SEM and SEP percents), while the same check is off by a factor of 25 or more if P and F are swapped or F is taken as log10(F + 1). PRECPRIS10 is NSS's code for the report's mean annual precipitation (Table 2 lists it as PRECIP, PRISM). NSS discrepancies found while cross-checking (NSS, not this file, is wrong): region 1_2 DRNAREA maximum is 107,000 mi2 in NSS but 10,700 in Table 5; NSS reports region 6_8's SEP percentages for region 7."
 }
