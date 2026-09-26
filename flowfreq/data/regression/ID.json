@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "state": "ID",
+  "status": "pending",
+  "issue": 39,
+  "source_reports": [],
+  "equations": [],
+  "notes": "No coefficients transcribed yet. Populate from the cited report or tools/snapshot_nss.py; never by hand from memory."
+}

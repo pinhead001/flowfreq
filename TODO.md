@@ -1,5 +1,8 @@
 # TODO — FlowFreq Hybrid 17C Implementation
 
+> Long-range plan (national 17C + regional regression coverage, transposition,
+> nonstationarity, future quantiles): see `docs/MASTER_ROADMAP.md`.
+
 ## Status
 Last updated: 2026-09-08. Version **0.7.0**.
 Tests: **810 passed, 7 skipped, 1 deselected, 6 xfailed** in ~130 s, via `make clean-verify`
