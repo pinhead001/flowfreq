@@ -73,9 +73,29 @@ def benchmark(fmt: str) -> None:
     "--regional-skew",
     type=float,
     default=None,
-    help="Regional skew coefficient. Defaults to the nationwide B17C generalized skew (-0.302).",
+    help=(
+        "Regional skew coefficient from a published study; give --regional-skew-se with it. "
+        "There is no default: pass this, --station-skew, or --default-skew."
+    ),
 )
-@click.option("--regional-skew-se", type=float, default=0.55, help="Regional skew standard error.")
+@click.option("--regional-skew-se", type=float, default=None, help="Regional skew standard error.")
+@click.option(
+    "--station-skew",
+    "station_skew_only",
+    is_flag=True,
+    default=False,
+    help="Use the at-site skew alone, with no regional weighting.",
+)
+@click.option(
+    "--default-skew",
+    "use_default_skew",
+    is_flag=True,
+    default=False,
+    help=(
+        "Explicitly accept the unsourced fallback regional skew (-0.302, SE 0.55). "
+        "Bulletin 17C gives no national default; prefer a published regional study."
+    ),
+)
 @click.option(
     "--low-outlier-threshold",
     type=float,
@@ -99,7 +119,9 @@ def compare(
     peaks_path: Path,
     site_name: str,
     regional_skew: Optional[float],
-    regional_skew_se: float,
+    regional_skew_se: Optional[float],
+    station_skew_only: bool,
+    use_default_skew: bool,
     low_outlier_threshold: Optional[float],
     tolerance_pct: float,
     output_path: Optional[Path],
@@ -117,7 +139,7 @@ def compare(
     """
     import pandas as pd
 
-    from flowfreq.workflow import B17C_DEFAULT_SKEW, compare_engines
+    from flowfreq.workflow import compare_engines, resolve_regional_skew
 
     peaks_df = pd.read_csv(peaks_path)
     missing = {"water_year", "peak_flow_cfs"} - set(peaks_df.columns)
@@ -127,14 +149,21 @@ def compare(
             "'peak_flow_cfs' (the shape USGSgage.download_peak_flow produces)."
         )
 
-    skew = regional_skew if regional_skew is not None else B17C_DEFAULT_SKEW
+    # Settle the skew before any fitting, so a missing choice is a usage error
+    # rather than a traceback from deep inside the comparison.
+    try:
+        resolve_regional_skew(regional_skew, regional_skew_se, use_default_skew, station_skew_only)
+    except ValueError as exc:
+        raise click.UsageError(str(exc)) from exc
 
     try:
         report = compare_engines(
             peak_flows=peaks_df["peak_flow_cfs"].to_numpy(dtype=float),
             water_years=peaks_df["water_year"].to_numpy(dtype=int),
-            regional_skew=skew,
+            regional_skew=regional_skew,
             regional_skew_se=regional_skew_se,
+            use_default_skew=use_default_skew,
+            station_skew_only=station_skew_only,
             user_low_outlier_threshold=low_outlier_threshold,
             site_name=site_name,
             tolerance_pct=tolerance_pct,

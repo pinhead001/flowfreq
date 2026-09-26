@@ -77,6 +77,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   expects `flow_cfs`.
 
 ### Changed
+- **Breaking: no silent regional skew.** `run_ffa`, `compare_engines` and `flowfreq compare`
+  used to fall back to a regional skew of -0.302 (SE 0.55) whenever none was given. They now
+  raise `ValueError` (the CLI raises a usage error) unless the caller makes exactly one choice:
+  - `regional_skew` plus `regional_skew_se`, from a published study;
+  - `station_skew_only=True` (`--station-skew`) for the at-site skew alone; or
+  - `use_default_skew=True` (`--default-skew`) to accept -0.302 explicitly, which logs a
+    warning.
+
+  Why: Bulletin 17C (p. 31) gives no national default, and says the 17B plate 1 estimates
+  "are not recommended for use in flood frequency studies". No publication giving -0.302 has
+  been found; 0.302 is 0.55², plate 1's MSE. peakfq 8.1.0 likewise stops with an error when a
+  weighted skew has no `GenSkew`/`SkewSE`.
+  - The new `resolve_regional_skew()` implements the rule. `run_ffa` now records the choice
+    under `parameters["regional_skew_source"]` (`user`, `default` or `station`).
+  - `regional_skew_se` has no default either, because 0.55 was plate 1's SE.
+  - **Migration:** add `use_default_skew=True` to reproduce old results exactly. Better, pass
+    a published value; `flowfreq.regional_skew.regional_skew_for` covers the states that have
+    one.
+  - `Bulletin17C` itself is unchanged; it never defaulted, and `regional_skew=None` has always
+    meant station skew there.
 - **`diel_variation` and `diel_variation_summary` moved** from `flowfreq.regime` to
   `flowfreq.subdaily`, alongside the other instantaneous-series metrics they share
   their local-day and completeness conventions with. **No import path changed** --
