@@ -8,7 +8,7 @@ Plan and definitions of done: `docs/MASTER_ROADMAP.md` §3.2.
 | Code | Jurisdiction | Equations | Regions | Equation count | Regional skew | Issue |
 |---|---|---|---:|---:|---|---|
 | WA | Washington | pending | 0 | 0 | pending | #37 |
-| OR | Oregon | pending | 0 | 0 | pending | #38 |
+| OR | Oregon | partial | 3 | 21 | pending | #38 |
 | ID | Idaho | pending | 0 | 0 | pending | #39 |
 | MT | Montana | pending | 0 | 0 | pending | #40 |
 

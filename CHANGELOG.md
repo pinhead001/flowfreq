@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Western Oregon peak-flow regression equations** (`flowfreq/data/regression/OR.json`,
+  status `partial`, #38): 21 equations, Regions 1, 2A and 2B at the report's 7 recurrence
+  intervals, from USGS SIR 2005-5116 (Cooper, 2005) Tables 10-12 and 15. Double-entered
+  against the PDF text and reproducing the report's worked examples and its Appendix D
+  regression estimates; Region 1 matches live NSS (GC729). No covariance is published, and
+  the 2A/2B elevation transition zone (eq. 8) is not modelled by the schema.
 - **Roadmap scaffolding for Phase A (data foundation) and Wave 1 (Columbia River basin)**,
   per `docs/MASTER_ROADMAP.md`. Types, loaders, validation and tests only: no endpoint was
   live-verified and no published coefficient or skew value was transcribed.
