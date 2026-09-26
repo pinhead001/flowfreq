@@ -8,6 +8,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **`flowfreq.donor_similarity`: screen and rank donors on basin similarity, not drainage
+  area alone** (#13). Opt-in; no existing number changes and `flowfreq.transpose`'s area
+  screen is untouched.
+  - `screen_donors`: the area-ratio screen (`DEFAULT_AREA_RATIO_RANGE` by default) plus an
+    optional per-predictor ratio band (e.g. `PRECPRIS10`, `CANOPY_PCT`), reporting each
+    donor's ratios, a combined `pass`/`fail`/`excluded` status and the criterion that failed.
+    No predictor thresholds are shipped; they are local, like the area band.
+  - `rank_donors_by_similarity`: region-of-influence distance in standardized
+    basin-characteristic space (Burn, 1990; log10 drainage area as in Tasker and others,
+    1996), equal weights unless supplied, with per-attribute standardized differences.
+  - `similarity_donor_chooser`: plugs the ranking into `qppq.loocv_qppq`'s `donor_chooser`.
+  - Missing, non-numeric or unit-mismatched attributes exclude a donor with the reason stated,
+    or raise for the target. Nothing is imputed.
 - **`flowfreq.psf_convert`: a PeakFQ `.psf` station converted into a Bulletin 17C analysis**
   (#31, the converter half). `station_rows` builds the station's EMA rows exactly as peakfq
   8.1.0's `siteQT` does: codes, `Peak`/`Interval` lines, perception thresholds in file order,
