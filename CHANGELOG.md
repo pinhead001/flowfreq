@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Washington peak-flow regression equations** (`flowfreq/data/regression/WA.json`, status
+  `partial`, #37): 32 equations, regions 1-4 at all 8 AEPs, from USGS SIR 2016-5118 ver. 1.2
+  Table 6 and Table 7, with Regions 1-2 covariance at full precision from the report's Flood
+  Q Tools workbook. Double-entered against the PDF text, reproducing the report's worked
+  example and its Table 8 regression estimates, and matching live NSS at its
+  three-significant-figure output for every region and AEP. Region 4 carries no covariance
+  because Table 7's Region 4 matrix is inconsistent with the equation's raw-P basis.
 - **`flowfreq.donor_similarity`: screen and rank donors on basin similarity, not drainage
   area alone** (#13). Opt-in; no existing number changes and `flowfreq.transpose`'s area
   screen is untouched.
