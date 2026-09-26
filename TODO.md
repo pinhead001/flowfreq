@@ -267,8 +267,8 @@ open. Audited 2026-09-25.
         - 6 regions (GC1735–GC1740) and 11 AEPs (80 % to 0.2 %).
         - Table 4 has the equations, MEV, AVP, SEP and per-region n. Table 5 has
           the variable ranges. Table A5 has the covariance matrices.
-        - A quirk: NSS writes a `(MINBELEV/1000)^b` term. Fold the scale into
-          the intercept, but keep the limits in feet.
+        - A quirk: NSS writes a `(MINBELEV/1000)^b` term. `Variable.scale`
+          (`scale=0.001`) now stores it as published; the limits stay in feet.
         - Appendix B gives a Pacific Northwest regional skew of −0.07, relevant to
           #34. Its MSE is not yet confirmed.
       - **MT (#40): SIR 2015-5019-F** (Sando, Sando, McCarthy & Dutton, 2016,

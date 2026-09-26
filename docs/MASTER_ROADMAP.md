@@ -132,7 +132,8 @@ Standing rules carried over from this repo's history, which apply to every phase
 ### 3.1 Architecture
 - [~] [#35](https://github.com/pinhead001/flowfreq/issues/35) **Equation schema** (`flowfreq/regression/`): a typed, serializable definition holding
       region ID, statistic (AEP), functional form (log-linear, power, with transforms such as
-      `log10(X+1)`), coefficients, variable definitions and units, calibrated
+      `log10(X+1)` and rescaled forms such as `log10(X/100 + 1)`, via `Variable.scale`
+      and `Variable.offset`), coefficients, variable definitions and units, calibrated
       min/max per variable, SEP / average variance of prediction, model-error variance, and
       the `(XᵀΛ⁻¹X)⁻¹` matrix where published. Carry the report citation, table number, and
       effective date.
