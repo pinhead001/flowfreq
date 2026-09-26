@@ -172,7 +172,7 @@ class TestCompare:
 
         monkeypatch.setattr("flowfreq.workflow.compare_engines", _capture)
         result = CliRunner().invoke(
-            cli, ["compare", "--peaks", str(good_csv), "--use-default-skew"]
+            cli, ["compare", "--peaks", str(good_csv), "--default-skew"]
         )
         assert result.exit_code == 0, result.output
         assert seen["use_default_skew"] is True

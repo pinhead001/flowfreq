@@ -72,7 +72,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   raise `ValueError` (the CLI raises a usage error) unless the caller makes exactly one choice:
   - `regional_skew` plus `regional_skew_se`, from a published study;
   - `station_skew_only=True` (`--station-skew`) for the at-site skew alone; or
-  - `use_default_skew=True` (`--use-default-skew`) to accept -0.302 explicitly, which logs a
+  - `use_default_skew=True` (`--default-skew`) to accept -0.302 explicitly, which logs a
     warning.
 
   Why: Bulletin 17C (p. 31) gives no national default, and says the 17B plate 1 estimates

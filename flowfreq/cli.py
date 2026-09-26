@@ -75,7 +75,7 @@ def benchmark(fmt: str) -> None:
     default=None,
     help=(
         "Regional skew coefficient from a published study; give --regional-skew-se with it. "
-        "There is no default: pass this, --station-skew, or --use-default-skew."
+        "There is no default: pass this, --station-skew, or --default-skew."
     ),
 )
 @click.option("--regional-skew-se", type=float, default=None, help="Regional skew standard error.")
@@ -87,7 +87,8 @@ def benchmark(fmt: str) -> None:
     help="Use the at-site skew alone, with no regional weighting.",
 )
 @click.option(
-    "--use-default-skew",
+    "--default-skew",
+    "use_default_skew",
     is_flag=True,
     default=False,
     help=(
