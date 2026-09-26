@@ -10,7 +10,7 @@ Plan and definitions of done: `docs/MASTER_ROADMAP.md` §3.2.
 | WA | Washington | pending | 0 | 0 | pending | #37 |
 | OR | Oregon | pending | 0 | 0 | pending | #38 |
 | ID | Idaho | pending | 0 | 0 | pending | #39 |
-| MT | Montana | pending | 0 | 0 | pending | #40 |
+| MT | Montana | verified | 8 | 80 | pending | #40 |
 
 ## Wave 2: Colorado River basin
 

@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Montana peak-flow regression equations** (`flowfreq/data/regression/MT.json`, status
+  `verified`, #40): 80 basin-characteristics equations, all 8 hydrologic regions at all
+  10 AEPs, from USGS SIR 2015-5019-F ver. 1.1 Table 1-4, Table 3 and Table 1-5
+  (covariance). Double-entered against the workbook and PDF text, reproducing the report's
+  worked examples and every region's MVP, and matching live NSS at its
+  three-significant-figure output for every region and AEP. The Northwest region was fit by
+  WLS. The channel-width equations (SIR 2020-5142) are a separate method and out of scope.
 - **Roadmap scaffolding for Phase A (data foundation) and Wave 1 (Columbia River basin)**,
   per `docs/MASTER_ROADMAP.md`. Types, loaders, validation and tests only: no endpoint was
   live-verified and no published coefficient or skew value was transcribed.
