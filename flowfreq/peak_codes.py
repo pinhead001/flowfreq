@@ -18,9 +18,13 @@ Roadmap: ``docs/MASTER_ROADMAP.md`` §1.1, issues #30 (codes) and #32
 from __future__ import annotations
 
 import logging
+import math
+import re
 from dataclasses import dataclass
 from enum import Enum
-from typing import FrozenSet, Iterable, Tuple
+from typing import FrozenSet, Iterable, List, Tuple
+
+import pandas as pd
 
 logger = logging.getLogger(__name__)
 
@@ -43,6 +47,10 @@ PEAK_CODE_DESCRIPTIONS: dict[str, str] = {
     "9": "Discharge due to snowmelt, hurricane, ice-jam or debris dam breakup",
     "A": "Year of occurrence is unknown or not exact",
     "B": "Month or day of occurrence is unknown or not exact",
+    # The legacy NWIS peak RDB header lists these two-character codes rather
+    # than a bare B; WATSTORE files use them too.
+    "Bd": "Day of occurrence is unknown or not exact",
+    "Bm": "Month of occurrence is unknown or not exact",
     "C": "All or part of the record affected by urbanization, mining, agricultural changes, "
     "channelization, or other",
     "F": "Peak supplied by another agency",
@@ -74,12 +82,50 @@ class PeakTreatment(str, Enum):
     """Codes 3/O, or 6/C unless urban/regulated peaks are kept: interval [0, inf)."""
 
 
+#: A float-formatted numeric code, as pandas renders an all-numeric code column
+#: it inferred as float ("7.0").
+_FLOAT_CODE = re.compile(r"^\s*(\d+)\.0*\s*$")
+
+
+def _float_code(value: float) -> str:
+    """``7.0`` -> ``"7"``; a non-integral float is kept as its repr and logged."""
+    if float(value).is_integer():
+        return str(int(value))
+    return repr(value)
+
+
+#: One code within a field: the two-character date-precision codes ``Bd``/``Bm``
+#: (any case), else a single non-space character.
+_CODE_TOKEN = re.compile(r"[Bb][DdMm]|\S")
+
+
+def _split_token(token: str) -> List[str]:
+    """One comma-separated piece of a ``peak_cd`` field, as individual codes.
+
+    ``"7.0"`` (a float-inferred code column) is code ``"7"``. ``Bd`` and
+    ``Bm`` are whole codes, normalised to exactly that spelling; single
+    characters are upper-cased. Splitting ``Bd`` into characters first would
+    invent a code D (and ``Bm`` a code M), which is what this used to do.
+    """
+    match = _FLOAT_CODE.match(token)
+    if match:
+        token = match.group(1)
+    out = []
+    for code in _CODE_TOKEN.findall(token):
+        out.append("B" + code[1].lower() if len(code) == 2 else code.upper())
+    return out
+
+
 def parse_codes(peak_cd: object) -> FrozenSet[str]:
     """Split an NWIS ``peak_cd`` field into individual codes.
 
     Accepts comma-separated strings (``"2,6"``), run-together strings
-    (``"26"``), ``None``/NaN, and iterables of codes. Unknown codes are kept
-    and logged once per call so they are never silently dropped.
+    (``"26"``, WATSTORE's ``"4Bm"``), ``None``/NaN, and iterables of codes. The
+    date-precision codes ``Bd`` (day unknown) and ``Bm`` (month unknown) are
+    read whole, as the NWIS peak RDB and WATSTORE both write them. A
+    float-formatted numeric code (``"7.0"`` or ``7.0``, from a code column
+    pandas inferred as float) is read as the integer code. Unknown codes are
+    kept and logged once per call so they are never silently dropped.
 
     Parameters
     ----------
@@ -89,16 +135,19 @@ def parse_codes(peak_cd: object) -> FrozenSet[str]:
     Returns
     -------
     frozenset of str
-        Upper-cased single-character codes.
+        Upper-cased single-character codes, plus ``"Bd"``/``"Bm"`` as spelled.
     """
     if peak_cd is None:
         return frozenset()
-    if isinstance(peak_cd, float):  # NaN from pandas
-        return frozenset()
+    if isinstance(peak_cd, float):
+        if math.isnan(peak_cd):  # NaN from pandas
+            return frozenset()
+        # A code column pandas inferred as float: 7.0 is code "7".
+        peak_cd = _float_code(peak_cd)
     if isinstance(peak_cd, str):
-        chars = [c for c in peak_cd.upper() if not c.isspace() and c != ","]
+        chars = [c for t in peak_cd.split(",") for c in _split_token(t)]
     else:
-        chars = [str(c).strip().upper() for c in peak_cd if str(c).strip()]  # type: ignore[attr-defined]
+        chars = [c for item in peak_cd for c in _split_token(str(item))]  # type: ignore[attr-defined]
     codes = frozenset(chars)
     unknown = codes - PEAK_CODE_DESCRIPTIONS.keys()
     if unknown:
@@ -208,3 +257,105 @@ def classify_from_codes(peak_cds: Iterable[object]) -> Tuple[RegulationClass, fl
     if n_alt:
         return RegulationClass.ALTERED, n_alt / n
     return RegulationClass.NO_CODE_EVIDENCE, 0.0
+
+
+#: Every code ``siteQT`` changes a peak's EMA treatment for.
+ACTED_ON_CODES: FrozenSet[str] = (
+    LESS_THAN_CODES
+    | GREATER_THAN_CODES
+    | ALWAYS_REMOVED_CODES
+    | URBAN_REGULATED_CODES
+    | HISTORIC_CODES
+)
+
+
+def count_acted_on_codes(peak_cds: Iterable[object]) -> dict[str, int]:
+    """How many peaks carry each code that changes their EMA treatment.
+
+    For an analysis path that does not apply codes, to say what it ignored.
+
+    Parameters
+    ----------
+    peak_cds : iterable
+        One raw ``peak_cd`` field per peak.
+
+    Returns
+    -------
+    dict of str to int
+        Code to peak count, only for codes in :data:`ACTED_ON_CODES` that occur.
+    """
+    counts: dict[str, int] = {}
+    for raw in peak_cds:
+        for code in parse_codes(raw) & ACTED_ON_CODES:
+            counts[code] = counts.get(code, 0) + 1
+    return dict(sorted(counts.items()))
+
+
+#: Columns :func:`peak_frame_intervals` adds to a peak frame.
+INTERVAL_COLUMNS: Tuple[str, ...] = ("lower", "upper", "treatment", "is_historic", "codes")
+
+
+def peak_frame_intervals(
+    peaks: pd.DataFrame,
+    *,
+    include_urban_regulated: bool = False,
+) -> pd.DataFrame:
+    """Apply :func:`peak_interval` to every row of a peak frame.
+
+    The bridge from a peak frame -- the ``water_year`` / ``peak_flow_cfs`` /
+    ``qualification_code`` shape :meth:`flowfreq.usgs.USGSgage.download_peak_flow`,
+    :mod:`flowfreq.peak_sources` and :func:`flowfreq.watstore.read_watstore`
+    all return -- to the per-peak EMA treatment ``siteQT`` gives it.
+
+    Rows with no discharge (gage-height-only peaks) are dropped, as ``siteQT``
+    drops them, and the count is logged.
+
+    Parameters
+    ----------
+    peaks : pandas.DataFrame
+        Must have ``water_year`` and ``peak_flow_cfs``. ``qualification_code``
+        is optional; without it every peak is systematic.
+    include_urban_regulated : bool, default False
+        peakfq's ``Urb/Reg = Yes``: keep code 6/C peaks.
+
+    Returns
+    -------
+    pandas.DataFrame
+        A copy of ``peaks`` (discharge-less rows removed) with the columns in
+        :data:`INTERVAL_COLUMNS` appended: ``lower``/``upper`` in cfs (with
+        :data:`Q_MIN`/:data:`Q_MAX` for zero/infinity), ``treatment`` as a
+        :class:`PeakTreatment`, ``is_historic`` (code 7) and ``codes`` (a
+        frozenset).
+
+    Raises
+    ------
+    ValueError
+        On a missing required column or a negative discharge.
+    """
+    missing = [c for c in ("water_year", "peak_flow_cfs") if c not in peaks.columns]
+    if missing:
+        raise ValueError(f"Peak frame missing columns: {missing}")
+    flows = pd.to_numeric(peaks["peak_flow_cfs"], errors="coerce")
+    keep = flows.notna()
+    if not keep.all():
+        logger.warning(
+            "Dropping %d peak(s) with no discharge (gage-height only), as siteQT does",
+            int((~keep).sum()),
+        )
+    out = peaks.loc[keep].copy()
+    out["peak_flow_cfs"] = flows[keep].astype(float)
+    raw_codes = (
+        out["qualification_code"].tolist()
+        if "qualification_code" in out.columns
+        else [None] * len(out)
+    )
+    rows = [
+        peak_interval(float(v), c, include_urban_regulated=include_urban_regulated)
+        for v, c in zip(out["peak_flow_cfs"], raw_codes)
+    ]
+    out["lower"] = [r.lower for r in rows]
+    out["upper"] = [r.upper for r in rows]
+    out["treatment"] = [r.treatment for r in rows]
+    out["is_historic"] = [r.is_historic for r in rows]
+    out["codes"] = pd.Series([r.codes for r in rows], index=out.index, dtype=object)
+    return out
