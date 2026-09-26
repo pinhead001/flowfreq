@@ -97,8 +97,10 @@ ipython_config.py
 # UV
 #   Similar to Pipfile.lock, it is generally recommended to include uv.lock in version control.
 #   This is especially recommended for binary packages to ensure reproducibility, and is more
-#   commonly ignored for libraries.
-#uv.lock
+#   commonly ignored for libraries. flowfreq is a library consumed by flowfreq-app as a pinned
+#   dependency (see CLAUDE.md); its own dependency pins are pip/pyproject.toml, not uv, so the
+#   lockfile is ignored here.
+uv.lock
 
 # poetry
 #   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
