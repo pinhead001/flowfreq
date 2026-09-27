@@ -8,6 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **`flowfreq.regression.oregon`: the western Oregon Region 2A/2B transition-zone blend**
+  (#38). SIR 2005-5116 splits Region 2 on mean watershed elevation at 3,000 ft and blends
+  flows linearly across a zone W ft wide centred there (eq. 7). The report selects
+  W = 250 ft, which is eq. 8: QT = Q2B (3,125 - E)/250 + Q2A (E - 2,875)/250.
+  - `region2_weights(E, width=250)` returns the eq. 7 weights.
+  - `estimate_region2(aep, characteristics, mean_elevation=...)` evaluates only the regions
+    with a positive weight and combines them with `evaluate_weighted(space="linear")`, which
+    expresses eq. 7 exactly. Elevation comes from the argument or NSS's `ELEV`.
+  - Reproduces the report's Quartz Creek example (7,950 cfs; the report's text swaps its
+    2A/2B labels). Selects 2A for McKenzie River near Vida (99,900 cfs) and 2B for Marks
+    Creek, matching Appendix D even though Appendix A mislabels Marks Creek as 2A.
+  - OR stays `partial`: no covariance is published, and NSS returns nothing for 2A/2B.
 - **Peak qualification codes in `run_ffa`, `compare_engines` and `flowfreq compare`**
   (#30). `run_ffa` and `compare_engines` take `peak_codes=`, one NWIS
   `qualification_code` per peak aligned with `peak_flows`, and `apply_peak_codes=`
