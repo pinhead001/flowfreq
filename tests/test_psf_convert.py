@@ -320,13 +320,36 @@ class TestStationInputs:
         assert s.unsupported_reasons("native") == []
         assert s.unsupported_reasons("fortran") == []
 
-    def test_interval_is_unsupported(self):
+    def test_greater_than_peak_is_an_interval_peak(self):
         codes = [""] * len(YEARS)
         codes[3] = "8"
         spec, _ = _spec(BASE)
         s = convert_station(spec, _peaks(codes))
+        assert s.interval_peaks == ((2004, FLOWS[3], Q_MAX),)
+        assert 2004 not in s.water_years
         for engine in ("native", "fortran"):
-            with pytest.raises(UnsupportedSpecError, match="greater-than"):
+            assert s.unsupported_reasons(engine) == []
+            assert s.bulletin17c_kwargs(engine)["interval_peaks"] == [(2004, FLOWS[3], Q_MAX)]
+
+    def test_interval_line_and_upper_threshold(self):
+        spec, _ = _spec(
+            BASE + "PCPT_Thresh 2004 2004 20 400\nInterval 2004 400 1E+20\nInterval 2006 0 50\n"
+        )
+        s = convert_station(spec, _peaks())
+        assert s.interval_peaks == ((2004, 400.0, Q_MAX), (2006, Q_MIN, 50.0))
+        assert s.perception_thresholds[(2004, 2004)] == (20.0, 400.0)
+        assert s.perception_thresholds[(2001, 2015)] == 0.0
+        for engine in ("native", "fortran"):
+            assert s.unsupported_reasons(engine) == []
+
+    def test_historic_interval_peak_is_unsupported(self):
+        codes = [""] * len(YEARS)
+        codes[3] = "4,7"
+        spec, _ = _spec(BASE)
+        s = convert_station(spec, _peaks(codes))
+        assert _row(s.rows, 2004).dtype == 1 and not _row(s.rows, 2004).is_exact
+        for engine in ("native", "fortran"):
+            with pytest.raises(UnsupportedSpecError, match="historic"):
                 s.bulletin17c_kwargs(engine)
 
     def test_zero_flow_supported_natively(self):
@@ -470,14 +493,18 @@ class TestAnalyzeGageWiring:
         b17c.run_analysis()
         assert b17c.results.n_peaks == len(YEARS) - 1
 
-    def test_censored_peaks_are_refused_naming_year_and_code(self):
+    def test_censored_peaks_are_fitted_as_interval_peaks(self):
+        """Codes 4 and 8 are interval peaks now, not a refusal."""
         from flowfreq import _gage_analysis
 
         codes = [""] * len(YEARS)
         codes[2] = "4"
         codes[5] = "8"
-        with pytest.raises(UnsupportedSpecError, match=r"WY2003 \(code 4\), WY2006 \(code 8\)"):
-            _gage_analysis(_peaks(codes), "S1", method="ema")
+        b17c = _gage_analysis(_peaks(codes), "S1", method="ema")
+        assert b17c._interval_peaks == [(2003, Q_MIN, FLOWS[2]), (2006, FLOWS[5], Q_MAX)]
+        b17c.run_analysis()
+        assert b17c.results.n_peaks == len(YEARS)
+        assert b17c.results.n_censored >= 2
 
     def test_mom_without_acted_on_codes_still_works(self):
         from flowfreq import _gage_analysis
@@ -572,12 +599,13 @@ class TestWymt:
             n = sum(1 for r in s.rows if r.dtype == 0 and r.year in recorded)
             assert n == int(info[sid]["GagedPeaks"]), sid
 
-    def test_every_station_runs_through_some_route(self, stations):
-        """Only 06328100 (upper threshold 407 cfs in 2021) needs fortran_reference()."""
+    def test_every_station_runs_through_bulletin17c(self, stations):
+        """None needs fortran_reference() -- 06328100's 2021 greater-than peak and
+        407 cfs upper threshold are interval_peaks and a (lower, upper) threshold."""
         needs_direct = sorted(
             sid for sid, s in stations.items() if s.unsupported_reasons("fortran")
         )
-        assert needs_direct == ["06328100.00"]
+        assert needs_direct == []
 
     def test_skew_settings(self, stations):
         powder = stations["06326500.00"]
