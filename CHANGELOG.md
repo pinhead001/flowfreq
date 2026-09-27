@@ -8,6 +8,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Eastern Oregon peak-flow regression equations** (`flowfreq/data/regression/OR.json`, #38).
+  The source is Cooper, 2006, *Estimation of Peak Discharges for Rural, Unregulated Streams in
+  Eastern Oregon*, Oregon Water Resources Department Open File Report SW 06-001. It is a State
+  of Oregon report, not a USGS one, and it is not in NSS, so there is no NSS cross-check; the
+  citation says both.
+  - 42 equations: flood regions 1-6 at the 7 recurrence intervals, from Tables 21-26, with
+    ranges and station counts from Table 27. They are stored as regions `E1`-`E6`, because
+    western Oregon already uses region code `1`.
+  - `(Elev/1,000)` and `(Aspect/100)` use `Variable.scale`.
+  - Double entry covered 387 cells with 0 disagreements.
+  - Appendix D's regression estimates reproduce to 1.4% at 199 gages. The exception is one
+    report inconsistency, documented: Region 4's 10-year values sit a constant 3.7% above
+    Table 24.
+  - The report's three worked examples reproduce: West Birch Creek, Strawberry Creek and the
+    Middle Fork John Day transfer.
+  - OR stays `partial`.
 - **Western Oregon peak-flow regression equations** (`flowfreq/data/regression/OR.json`,
   status `partial`, #38): 21 equations, Regions 1, 2A and 2B at the report's 7 recurrence
   intervals, from USGS SIR 2005-5116 (Cooper, 2005) Tables 10-12 and 15. Double-entered
