@@ -252,8 +252,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (`tests/test_peak_backend_parity.py`) passed live on 03606500, 11274500 and 01638500: same
   water years, flows and discharge codes. One visible difference: `peak_date` is the API's UTC
   date when the time of day is known, so an evening peak can read one day later than legacy's
-  local date. Water years are unaffected. `USGSgage.download_peak_flow` is unchanged and still
-  reads the legacy service directly.
+  local date. Water years are unaffected. `USGSgage.download_peak_flow` now follows it; see
+  below.
+- **Behaviour change: `USGSgage.download_peak_flow` now reads the Water Data OGC API by
+  default** (#29). This changes the data source for every caller: `analyze_gage`,
+  `fetch_nwis_peaks`, `fetch_nwis_batch`, the examples, and anything downstream. It gains
+  `backend: str = peak_sources.DEFAULT_BACKEND`, and `backend="nwis-legacy"` gives the old
+  RDB path unchanged. `fetch_nwis_peaks` and `fetch_nwis_batch` gain the same `backend`
+  argument and keep their return types. The frame has the same columns either way
+  (`water_year`, `peak_date`, `peak_flow_cfs`, `qualification_code`). The live parity
+  test on 03606500, 11274500 and 01638500 found the same water years, flows and discharge
+  codes on both. Three visible differences:
+  - `peak_date` is a UTC date on the new backend when the time of day is known, so an
+    evening peak can read one day later than the legacy local date. **Water years are
+    unaffected.**
+  - Legacy's date-precision codes `Bd`/`Bm` do not appear in `qualification_code`. The
+    placeholder date carries that information on both backends.
+  - `site_name` and `drainage_area` come from the OGC `monitoring-locations` record, one
+    extra request, instead of the RDB header. The name is therefore upper-case
+    (`BIG SANDY RIVER AT BRUCETON, TN`). If that request fails, the peaks are still
+    returned, the two attributes are left as they were, and a warning is logged.
+
+  The RDB fetch and parse moved to `usgs._download_peak_flow_rdb`, which both
+  `download_peak_flow(backend="nwis-legacy")` and `peak_sources.LegacyNwisBackend` call.
+  The backend no longer calls `download_peak_flow`, which now routes through it and would
+  recurse.
 - **Breaking: no silent regional skew.** `run_ffa`, `compare_engines` and `flowfreq compare`
   used to fall back to a regional skew of -0.302 (SE 0.55) whenever none was given. They now
   raise `ValueError` (the CLI raises a usage error) unless the caller makes exactly one choice:
