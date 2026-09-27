@@ -111,6 +111,13 @@ _HWN_SKEW_FLOOR = 0.04
 _PERCEPTION_QMIN = 1e-20
 _PERCEPTION_QMAX = 1e20
 
+#: ``emafit.f``'s ``gbtmin`` (``data gbtmin/-6.d0/``, in log10): the lower bound
+#: ``gbtest`` gives every interval it censors below the low-outlier cutoff. Not 0:
+#: with a strongly negative skew the P3 lower tail below 1e-6 cfs carries real
+#: mass, and treating the interval as unbounded moved WY/MT 06329570's
+#: quantiles 4.6% off peakfq.
+_GBTMIN = 1e-6
+
 
 def _b17b_skew_mse(n: int, skew: float) -> float:
     """Bulletin 17B empirical MSE of at-site skew.
@@ -712,6 +719,9 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         # the record's extent and its recorded years keep the zero-flow years.
         self._water_years = years[~np.isnan(raw_flows) & (raw_flows > 0)]
         self._recorded_years = years[~np.isnan(raw_flows)]
+        # Zero-flow years get their own row in _build_flow_intervals, as siteQT
+        # gives them one (at Qmin); they are not in _peak_flows, which is logged.
+        self._zero_years = years[~np.isnan(raw_flows) & (raw_flows == 0)]
 
         self._historical_peaks = historical_peaks or []
         self._perception_thresholds = perception_thresholds or {}
@@ -870,7 +880,15 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
 
         ``low_threshold`` is then applied as ``emafit.f``'s ``gbtest`` does
         (lines 1062-1075): any interval whose upper bound lies below it --
-        systematic, historical or censored -- becomes ``(0, low_threshold)``.
+        systematic, historical or censored -- becomes ``(gbtmin,
+        low_threshold)``, with ``gbtmin`` = 1e-6 cfs (:data:`_GBTMIN`).
+
+        A zero-flow year is a row too. ``siteQT`` records it exactly at
+        ``Qmin`` (1e-20, ``main.R``), which is below any MGBT cutoff (zeros
+        enter MGBT as 1e-88), so ``gbtest`` censors it to ``(gbtmin,
+        low_threshold)`` like any other low outlier. Only with no low-outlier
+        threshold at all does it stay an exact ``Qmin`` observation, as it does
+        in peakfq.
         """
         thresholds = self._threshold_by_year()
         intervals = []
@@ -882,12 +900,43 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
             if flow < low_threshold:
                 intervals.append(
                     FlowInterval.from_censored(
-                        lower=0, upper=low_threshold, year=year, perception_threshold=perception
+                        lower=_GBTMIN,
+                        upper=low_threshold,
+                        year=year,
+                        perception_threshold=perception,
                     )
                 )
             else:
                 intervals.append(
                     FlowInterval(lower=flow, upper=flow, year=year, perception_threshold=perception)
+                )
+
+        for year in self._zero_years:
+            year = int(year)
+            perception = thresholds.get(year, 0.0)
+            if low_threshold > 0:
+                intervals.append(
+                    FlowInterval.from_censored(
+                        lower=_GBTMIN,
+                        upper=low_threshold,
+                        year=year,
+                        perception_threshold=perception,
+                    )
+                )
+            else:
+                logger.warning(
+                    "Zero flow in WY %d with no low-outlier threshold: kept as an exact "
+                    "observation at Qmin (%g), as peakfq does",
+                    year,
+                    _PERCEPTION_QMIN,
+                )
+                intervals.append(
+                    FlowInterval(
+                        lower=_PERCEPTION_QMIN,
+                        upper=_PERCEPTION_QMIN,
+                        year=year,
+                        perception_threshold=perception,
+                    )
                 )
 
         for year, flow in self._historical_peaks:
@@ -901,7 +950,7 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
             if flow < low_threshold:
                 intervals.append(
                     FlowInterval(
-                        lower=0,
+                        lower=_GBTMIN,
                         upper=low_threshold,
                         year=year,
                         is_historical=True,
@@ -914,9 +963,12 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
                 )
 
         for year, threshold in self._gap_year_thresholds().items():
+            # siteQT: (Qmin, threshold); gbtest then moves it to (gbtmin, cutoff)
+            # when the threshold lies below the low-outlier cutoff.
+            below_cutoff = threshold < low_threshold
             intervals.append(
                 FlowInterval.from_censored(
-                    lower=0,
+                    lower=_GBTMIN if below_cutoff else _PERCEPTION_QMIN,
                     upper=max(threshold, low_threshold),
                     year=year,
                     perception_threshold=threshold,
@@ -1582,7 +1634,13 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
 
         # Threshold = flow of the first NON-outlier (Fortran: qs(gbnlow+1))
         # zt is 0-based; the n_low_outliers smallest are outliers
-        threshold = 10.0 ** zt[n_low_outliers]
+        # Returned as the original flow, not 10**zt: the log round-trip is not
+        # exact (10**log10(5.0) == 5.000000000000001), and the interval builder
+        # censors `flow < threshold`, so a peak sitting exactly on the cutoff --
+        # which gbtest keeps (emafit.f: `qu .lt. gbcrit`, same log value) --
+        # would be censored too. Seen at WY/MT 06328900 (5.0 cfs) and 06326960.
+        candidates = np.concatenate([self._peak_flows, np.asarray(less_than, dtype=float)])
+        threshold = float(candidates[np.argmin(np.abs(np.log10(candidates) - zt[n_low_outliers]))])
         # Zeros are coded as log10(1e-88) = -88 in zt; restore them as 0.0
         pilf = [0.0 if zt[k] < -80.0 else 10.0 ** zt[k] for k in range(n_low_outliers)]
 

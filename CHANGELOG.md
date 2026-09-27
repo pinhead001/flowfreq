@@ -238,6 +238,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     (+8.9%).
   - USGS 01362100 (HU02) has one code 4 peak (WY1985). It used to fit; it now raises
     unless `apply_peak_codes=False`.
+- **Montana regional skew stays `pending`, with corrected notes.** The PNW B-GLS study *does*
+  cover western Montana (the Columbia River basin; SIR 2016-5118 pp. 1, 23; its 23 MT gages are
+  all in HUC 1701), but USGS Montana deliberately keeps the Bulletin 17B map statewide (SIR
+  2018-5046 pp. 20-21, SE 0.64; SIR 2025-5019 pp. 9-10, SE 0.55), so no table value is adopted.
+- **NSS snapshots refreshed** (`data/nss_snapshots/*_2026-09-27.json`). With the scale/offset
+  parser every peak-flow equation for WA, ID, MT and OR now parses (ID 66/66, OR 19/19; 11 and 6
+  were refused before). NSS's equation strings themselves are unchanged. OR regions 2A/2B still
+  do not resolve through NSS.
 - **`peak_sources.DEFAULT_BACKEND` is now `waterdata-ogc`** (the USGS Water Data OGC API),
   replacing `nwis-legacy`, which USGS is retiring. `get_backend()` with no name returns the new
   backend; `get_backend("nwis-legacy")` still works. Switched because the #29 parity test
@@ -277,6 +285,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   are checked at all.
 
 ### Fixed
+- **`regional_skew_for` returned a verified skew where its study says it is invalid.** With no
+  `skew_region`, it considered only *verified* rows, so `regional_skew_for("ID")` returned the
+  Pacific Northwest value (-0.07) even though Idaho's Snake River Plain row is pending and SIR
+  2016-5083 p. 52 says that value does not apply there. It now raises whenever a state has more
+  than one skew-region row of any status, listing them; name the region. Found while
+  researching Montana's options.
+- **Native EMA: zero-flow years now get a row, and low-outlier censoring matches `gbtest`.**
+  Three fixes, found by running all 24 WY/MT `.psf` stations against live `emafitpr`:
+  - **Zero-flow rows.** `siteQT` records a zero year exactly at `Qmin` (1e-20), and `gbtest`
+    then censors it below the MGBT cutoff like any low outlier. The native engine counted zeros
+    in MGBT but gave them no row. It now does, as peakfq does.
+  - **`gbtmin` lower bound.** Intervals censored below the low-outlier cutoff now run from
+    `gbtest`'s `gbtmin` (1e-6 cfs, `emafit.f:946`), not from 0. With a strongly negative skew
+    the P3 lower tail below 1e-6 carries real mass: WY/MT 06329570 was 4.6% off without it.
+    Gap years not censored by `gbtest` start at `siteQT`'s `Qmin`.
+  - **Exact MGBT cutoff.** The cutoff was returned as `10**log10(flow)`, which is not exact
+    (`10**log10(5.0) == 5.000000000000001`), so a peak sitting exactly on the cutoff was censored
+    too; `gbtest` keeps it. 06328900 was 75% off and 06326960 54%.
+
+  **Results change** for records with zero flows, and for any record whose MGBT cutoff equals
+  an observed peak. On the WY/MT file, every station but 06328100 now runs natively (12 of
+  them have zeros and were refused before); all match live `emafitpr` to within 2e-4 in
+  weighted skew and 0.05% in quantiles, most to about 1e-6 and 0.001%. The existing parity
+  sites (Big Sandy, Powder River, Cains Coulee, 12363000) are unchanged. `psf_convert` no
+  longer refuses zero-flow stations on the native engine.
 - **Native EMA: at-site skew MSE now follows peakfq's B17B switch.** `emafit.f:707-711` uses
   the plain Bulletin 17B `mseg(n, G)` over the whole record (uncapped), not ADJE's
   censoring-adjusted MSE, whenever MGBT computes the low-outlier threshold and finds low

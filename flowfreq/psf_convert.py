@@ -669,13 +669,7 @@ class StationInputs:
                 "SkewOpt Generalized: the native engine has no generalized-skew path "
                 "(negative r_G_mse); use engine='fortran'"
             )
-        if engine == "native" and any(r.is_exact and r.ql <= Q_MIN for r in self.rows):
-            reasons.append(
-                "zero flows: the native engine drops zeros from peak_flows without "
-                "dropping their water years, misaligning the record; use engine='fortran'"
-            )
         if reasons:
-            # The row comparison below would only restate the zero-flow case.
             return reasons
 
         expected = Counter(r.log10() for r in self.rows)

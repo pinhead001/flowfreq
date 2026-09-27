@@ -79,3 +79,39 @@ def test_native_powder_river_matches_live_fortran(stations):
     assert abs(results.std_log - p["std_log"]) < 1e-6
     assert abs(results.skew_weighted - p["skew_weighted"]) < 1e-6
     assert abs(results.skew_station - p["skew_at_site"]) < 1e-6
+
+
+def _zero_flow_stations(stations):
+    return {
+        sid: s for sid, s in stations.items() if any(r.is_exact and r.ql <= 1e-20 for r in s.rows)
+    }
+
+
+def test_every_station_but_06328100_now_runs_natively(stations):
+    """Zero-flow rows closed the last structural gap; 06328100's 407 cfs upper
+    perception threshold is the one thing Bulletin17C still cannot express."""
+    refused = sorted(sid for sid, s in stations.items() if s.unsupported_reasons("native"))
+    assert refused == ["06328100.00"]
+
+
+def test_native_zero_flow_stations_match_live_fortran(stations):
+    """12 WY/MT stations with zero flows, refused natively until zero years got rows.
+
+    Measured worst: weighted skew 8.2e-5 and quantiles 0.012% (06329350);
+    every other station under 1e-5 and 0.004%. Took siteQT's Qmin row for each
+    zero year, gbtest's gbtmin (1e-6) lower bound on censored rows (06329570
+    was 4.6% off without it), and an exact MGBT cutoff (06328900 and 06326960
+    were 75% and 54% off when 10**log10 rounding censored a peak on the cutoff).
+    """
+    zero = {sid: s for sid, s in _zero_flow_stations(stations).items() if sid != "06328100.00"}
+    assert len(zero) == 12
+    for sid, s in zero.items():
+        ref = s.fortran_reference()
+        results = s.run("native")
+        p = ref.parameters
+        assert abs(results.mean_log - p["mean_log"]) < 1e-5, sid
+        assert abs(results.skew_used - p["skew_weighted"]) < 2e-4, sid
+        q = results.quantiles
+        for aep, flow in ref.quantiles.items():
+            got = float(q.loc[np.isclose(q["aep"], aep), "flow_cfs"].iloc[0])
+            assert abs(got / flow - 1) < 5e-4, (sid, aep, got, flow)
