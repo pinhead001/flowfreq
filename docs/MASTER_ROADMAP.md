@@ -98,12 +98,23 @@ Standing rules carried over from this repo's history, which apply to every phase
       citation, and validity region.
 - [ ] `regional_skew_at(lat, lon)` lookup returning `(skew, mse, citation)` and plugging
       straight into `Bulletin17C`. Raise, rather than default, where no study applies.
-      **Conflicts with current code, decision pending from the maintainer:**
-      `workflow.B17C_DEFAULT_SKEW = -0.302` is the silent default argument of
-      `run_ffa`/`compare_engines` and the CLI's fallback when `--regional-skew` is omitted.
-      Changing it is user-visible. Tracked in `TODO.md` under #34.
+      (The silent `-0.302` default is gone: since #44, `run_ffa`/`compare_engines` and the
+      CLI require a supplied skew, station-only, or an explicit `use_default_skew=True`.)
 - [ ] Tooling to **develop a new regional skew** (B-WLS/B-GLS, Veilleux/Reis-Stedinger) for
       jurisdictions without one. This is lower priority and research-grade.
+- [ ] **Complete a Bayesian (B-WLS/B-GLS) regional skew study for Montana.** Montana is the
+      one Wave 1 state with no B17C-era skew: SIR 2025-5019 (pp. 9-10) states no B-WLS/B-GLS
+      study covers any part of MT/ND/SD/WY, and USGS Montana applies the Bulletin 17B map
+      statewide (SE 0.55; SIR 2018-5046 used 0.64), which B17C p. 31 does not recommend. The
+      Pacific Northwest study (SIR 2016-5083 app. B, G = -0.07, MSE 0.18) covers only western
+      MT's Columbia basin (HUC 1701, 23 gages), and USGS Montana does not adopt it.
+      `flowfreq/data/regional_skew.csv` keeps MT `pending` until this exists.
+      Scope: the Missouri basin east of the Divide (and its SW-MT headwaters) and the St.
+      Mary/Belly (Hudson Bay) drainages at minimum, ideally statewide for consistency with
+      USGS MT practice; reuse the gage catalog (#33), peak-code screening (#30/#32), and the
+      tooling item above. Coordinate with the USGS WY-MT Water Science Center, which B17C
+      directs users to consult and which SIR 2025-5019 says anticipates such a study -- a
+      published USGS study, once available, supersedes anything developed here.
 
 ---
 

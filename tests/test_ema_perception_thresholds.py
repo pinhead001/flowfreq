@@ -86,7 +86,11 @@ class TestGapInsideTheRecord:
         for year in range(1960, 1965):
             iv = by_year[year]
             assert iv.is_censored and not iv.is_historical
-            assert (iv.lower, iv.upper, iv.perception_threshold) == (0, 5000.0, 5000.0)
+            assert (iv.lower, iv.upper, iv.perception_threshold) == (
+                1e-20,
+                5000.0,
+                5000.0,
+            )  # (Qmin, tl)
 
     def test_peaks_outside_the_period_are_unrestricted(self):
         by_year = _by_year(self._ema())
@@ -216,7 +220,7 @@ class TestLowOutlierThresholdOnPerceptionRows:
         )
         ema.run_analysis()
         gap = next(iv for iv in ema.intervals if iv.year == 1965)
-        assert (gap.lower, gap.upper) == (0, 800.0)
+        assert (gap.lower, gap.upper) == (1e-6, 800.0)  # gbtest: (gbtmin, cutoff)
         # ... and its perception threshold is raised to the cutoff too.
         nobs, tl, _ = ema._perception_threshold_groups()
         assert list(tl) == [pytest.approx(np.log10(800.0))]
