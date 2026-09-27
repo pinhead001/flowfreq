@@ -20,12 +20,12 @@ the Fortran engine's input.
 
 What ``Bulletin17C`` cannot express
 -----------------------------------
-``siteQT`` rows are more general than ``Bulletin17C``'s arguments (exact
-peaks, historic peaks, lower perception thresholds). A code 4/8 peak, an
-``Interval`` line, an upper threshold below infinity, or a removed peak inside
-a restricted-perception period has no ``Bulletin17C`` equivalent, and the
-native engine additionally mishandles zero flows and perception periods inside
-the systematic record. Rather than approximate any of that,
+``Bulletin17C``'s arguments -- exact systematic and historic peaks, interval
+peaks (code 4/8 peaks and ``Interval`` lines), and ``(lower, upper)``
+perception thresholds -- cover the ``siteQT`` rows of every station in
+peakfq's own test data, but not every row a ``.psf`` can produce: a historic
+(code 7) peak known only as an interval, for one, has no argument. Rather than
+approximate anything,
 :meth:`StationInputs.bulletin17c_kwargs` rebuilds the rows each engine would
 actually fit from the arguments -- ``build_emafit_arrays`` for
 ``engine="fortran"``, ``ExpectedMomentsAlgorithm._build_flow_intervals`` for
@@ -50,6 +50,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 import numpy as np
 import pandas as pd
 
+from .core import PerceptionBound
 from .fortran_engine import EmafitArrays, _gbthrsh0
 from .peak_codes import Q_MAX, Q_MIN, peak_frame_intervals
 from .psf import PsfFile, StationSpec, read_psf
@@ -486,8 +487,9 @@ class StationInputs:
         Exactly known, non-historic peaks (zero flows as 0.0).
     historical_peaks : tuple of (int, float)
         Exactly known peaks carrying code 7.
-    perception_thresholds : dict of (int, int) to float
-        The ``PCPT_Thresh`` lower bounds, in ``.psf`` order (later wins).
+    perception_thresholds : dict of (int, int) to float or (float, float)
+        The ``PCPT_Thresh`` bounds, in ``.psf`` order (later wins): the lower
+        bound alone when the upper is ``1E+20``, else ``(lower, upper)``.
     regional_skew, regional_skew_mse : float or None
         ``None`` for a station-skew analysis; otherwise ``GenSkew`` and the
         signed MSE (``SkewSE**2``, negated for a generalized skew), per
@@ -509,6 +511,11 @@ class StationInputs:
         ``O ConfInterval``, default 0.90.
     aeps : tuple of float
         peakfq's reporting AEPs (extended with ``O EXTENDED YES``).
+    interval_peaks : tuple of (int, float, float)
+        Non-historic years whose peak is known only as an interval
+        ``(water_year, ql, qu)`` in cfs -- code 4/8 peaks and ``Interval``
+        lines -- except the ``(Q_MIN, tl)`` rows ``Bulletin17C`` already
+        builds for an unobserved year from its perception threshold.
     """
 
     station_id: str
@@ -516,7 +523,7 @@ class StationInputs:
     peak_flows: Tuple[float, ...]
     water_years: Tuple[int, ...]
     historical_peaks: Tuple[Tuple[int, float], ...]
-    perception_thresholds: Dict[Tuple[int, int], float]
+    perception_thresholds: Dict[Tuple[int, int], PerceptionBound]
     regional_skew: Optional[float]
     regional_skew_mse: Optional[float]
     skew_option: str
@@ -527,6 +534,7 @@ class StationInputs:
     method: str = "ema"
     confidence: float = _DEFAULT_CONFIDENCE
     aeps: Tuple[float, ...] = PEAKFQ_AEPS
+    interval_peaks: Tuple[Tuple[int, float, float], ...] = ()
     _r_g: float = field(default=0.0, repr=False)
     _r_g_mse: float = field(default=STATION_SKEW_MSE_SENTINEL, repr=False)
 
@@ -585,6 +593,7 @@ class StationInputs:
             "historical_peaks": list(self.historical_peaks) or None,
             "perception_thresholds": dict(self.perception_thresholds) or None,
             "user_low_outlier_threshold": self.user_low_outlier_threshold,
+            "interval_peaks": list(self.interval_peaks) or None,
         }
 
     def _engine_rows(self, engine: str) -> List[Tuple[int, float, float, float, float, int]]:
@@ -599,6 +608,7 @@ class StationInputs:
                 historical_peaks=kw["historical_peaks"],
                 perception_thresholds=kw["perception_thresholds"],
                 user_low_outlier_threshold=kw["user_low_outlier_threshold"],
+                interval_peaks=kw["interval_peaks"],
             )
             return [
                 (int(y), float(a), float(b), float(c), float(d), int(e))
@@ -615,6 +625,7 @@ class StationInputs:
             regional_skew_mse=kw["regional_skew_mse"],
             historical_peaks=kw["historical_peaks"],
             perception_thresholds=kw["perception_thresholds"],
+            interval_peaks=kw["interval_peaks"],
         )
         out = []
         for iv in ema._build_flow_intervals(0.0):
@@ -624,7 +635,7 @@ class StationInputs:
                     ql=max(float(iv.lower), Q_MIN),
                     qu=max(float(iv.upper), Q_MIN),
                     tl=max(float(iv.perception_threshold), Q_MIN),
-                    tu=Q_MAX,
+                    tu=max(float(iv.perception_upper), Q_MIN),
                     dtype=int(iv.is_historical),
                 ).log10()
             )
@@ -678,13 +689,9 @@ class StationInputs:
             differ = sorted({row[0] for row in (expected - actual) + (actual - expected)})
             at = [r for r in self.rows if r.year in set(differ)]
             features = []
-            if any(not r.is_exact and r.ql > Q_MIN for r in at):
-                features.append("greater-than or interval peaks")
-            if any(not r.is_exact and r.qu != r.tl for r in at):
-                features.append("less-than or interval peaks")
-            if any(r.tu < Q_MAX for r in at):
-                features.append("an upper perception threshold below 1E+20")
-            hint = f" ({', '.join(features)} have no Bulletin17C argument)" if features else ""
+            if any(not r.is_exact and r.dtype == 1 for r in at):
+                features.append("a historic (code 7) interval peak")
+            hint = f" ({', '.join(features)} has no Bulletin17C argument)" if features else ""
             reasons.append(
                 f"the {engine} engine would build different EMA rows than siteQT "
                 f"for water years {differ}{hint}; use fortran_reference()"
@@ -801,8 +808,12 @@ class StationInputs:
         )
 
 
-def _thresholds_in_order(spec: StationSpec) -> Dict[Tuple[int, int], float]:
-    """``PCPT_Thresh`` lower bounds keyed by period, preserving "later wins".
+def _thresholds_in_order(spec: StationSpec) -> Dict[Tuple[int, int], PerceptionBound]:
+    """``PCPT_Thresh`` bounds keyed by period, preserving "later wins".
+
+    A threshold whose upper bound is ``Q_MAX`` or more is its lower bound
+    alone (a float, as ``Bulletin17C`` has always taken it); one with a finite
+    upper bound is the ``(lower, upper)`` pair.
 
     A repeated period is moved to the end, so its last value keeps the
     priority ``siteQT`` gives it over every threshold listed before it.
@@ -814,12 +825,15 @@ def _thresholds_in_order(spec: StationSpec) -> Dict[Tuple[int, int], float]:
     holds for a given station -- it does not if a peak falls inside the period
     -- is what :meth:`StationInputs.unsupported_reasons` verifies.
     """
-    out: Dict[Tuple[int, int], float] = {}
+    out: Dict[Tuple[int, int], PerceptionBound] = {}
     for thr in spec.thresholds:
         key = (thr.start, thr.end)
         out.pop(key, None)
         if thr.lower < Q_MAX:
-            out[key] = float(thr.lower)
+            if thr.upper < Q_MAX:
+                out[key] = (float(thr.lower), float(thr.upper))
+            else:
+                out[key] = float(thr.lower)
     return out
 
 
@@ -869,6 +883,12 @@ def convert_station(
 
     systematic = [r for r in rows if r.is_exact and r.dtype == 0]
     historic = [r for r in rows if r.is_exact and r.dtype == 1]
+    # A (Q_MIN, tl) row is what Bulletin17C builds for an unobserved year in a
+    # perception period, so it needs no argument; any other censored,
+    # non-historic row is an interval peak. Either way the row is the same.
+    intervals = [
+        r for r in rows if not r.is_exact and r.dtype == 0 and not (r.ql <= Q_MIN and r.qu == r.tl)
+    ]
     return StationInputs(
         station_id=spec.station_id,
         rows=rows,
@@ -886,6 +906,7 @@ def convert_station(
         method=out.method,
         confidence=out.confidence,
         aeps=out.aeps,
+        interval_peaks=tuple((r.year, r.ql, r.qu) for r in intervals),
         _r_g=r_g,
         _r_g_mse=r_g_mse,
     )

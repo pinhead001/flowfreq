@@ -342,12 +342,15 @@ class TestComparePeakCodes:
         assert result.exit_code == 0, result.output
         assert seen["peak_codes"] is None
 
-    def test_a_censored_code_is_a_clean_error_naming_the_year(self, tmp_path):
-        """Real compare_engines: the code step fails before the extension is needed."""
+    def test_an_uncodable_record_is_a_clean_error_naming_the_year(self, tmp_path):
+        """Real compare_engines: the code step fails before the extension is needed.
+
+        A code 4 peak alone is an interval peak now; a code 4 peak that is also
+        historic (code 7) is still one neither engine can express."""
         peaks = tmp_path / "peaks.csv"
         years = list(range(2001, 2016))
         codes = [""] * len(years)
-        codes[2] = "4"
+        codes[2] = "4,7"
         pd.DataFrame(
             {
                 "water_year": years,
@@ -357,7 +360,7 @@ class TestComparePeakCodes:
         ).to_csv(peaks, index=False)
         result = CliRunner().invoke(cli, ["compare", "--station-skew", "--peaks", str(peaks)])
         assert result.exit_code != 0
-        assert "WY2003 (code 4)" in result.output
+        assert "2003" in result.output and "historic" in result.output
         assert "--ignore-peak-codes" in result.output
         assert "Traceback" not in result.output
 

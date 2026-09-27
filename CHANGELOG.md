@@ -24,6 +24,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Double entry covered 3,648 cells with 0 disagreements.
   - All 240 equations match live NSS (GC1829-GC1852) at 3 significant figures.
   - The report's three worked examples reproduce.
+- **Eastern Oregon peak-flow regression equations** (`flowfreq/data/regression/OR.json`, #38).
+  The source is Cooper, 2006, *Estimation of Peak Discharges for Rural, Unregulated Streams in
+  Eastern Oregon*, Oregon Water Resources Department Open File Report SW 06-001. It is a State
+  of Oregon report, not a USGS one, and it is not in NSS, so there is no NSS cross-check; the
+  citation says both.
+  - 42 equations: flood regions 1-6 at the 7 recurrence intervals, from Tables 21-26, with
+    ranges and station counts from Table 27. They are stored as regions `E1`-`E6`, because
+    western Oregon already uses region code `1`.
+  - `(Elev/1,000)` and `(Aspect/100)` use `Variable.scale`.
+  - Double entry covered 387 cells with 0 disagreements.
+  - Appendix D's regression estimates reproduce to 1.4% at 199 gages. The exception is one
+    report inconsistency, documented: Region 4's 10-year values sit a constant 3.7% above
+    Table 24.
+  - The report's three worked examples reproduce: West Birch Creek, Strawberry Creek and the
+    Middle Fork John Day transfer.
+  - OR stays `partial`.
+- **Interval peaks and upper perception thresholds in `Bulletin17C`**, for both engines.
+  WY/MT 06328100, the last station in peakfq's `wymt_ffa_2022A.psf` the native engine
+  refused, now runs natively.
+  - `interval_peaks=[(water_year, lower_cfs, upper_cfs), ...]` on `Bulletin17C`,
+    `ExpectedMomentsAlgorithm` and `fortran_engine.build_emafit_arrays` /
+    `run_fortran_reference` / `run_fortran_ema`. These are systematic years whose peak was
+    observed but is known only to lie in an interval: `(wy, 0, q)` is less than q (code 4),
+    and `(wy, q, inf)` is greater than q (code 8). The shape is `historical_peaks`' with the
+    value replaced by its bounds.
+    - Rows are built as `siteQT` builds them: bounds floored at `Qmin`, `inf` as `Qmax`, and a
+      `[Qmin, Qmax]` interval dropped as no information.
+    - `gbtest`'s low-outlier rule applies, so an interval whose upper bound lies below the
+      cutoff becomes `(1e-6, cutoff)`.
+    - An interval whose upper bound is at or below the smallest exact peak enters MGBT at that
+      bound, as `gbtest` adds such "less-than" rows (never with a zero in the record).
+    - A year given both an exact and an interval peak raises `ValueError`, as does
+      `method="mom"` with interval peaks.
+  - `perception_thresholds` values may be a `(lower, upper)` pair as well as a float. A float
+    still means `(lower, 1e20)`, and fits bit-for-bit as before. The upper bound is carried
+    per year (the new `FlowInterval.perception_upper`, default `1e20`) into the `(nobs, tl,
+    tu)` groups for the skew MSE, the Halloween weighting and the confidence bounds, and into
+    the Fortran engine's `tu`. As in `emafit.f`, it does not enter the moment fit itself.
+  - `psf_convert`: `StationInputs.interval_peaks`. `perception_thresholds` now emits
+    `(lower, upper)` for a `PCPT_Thresh` with a finite upper bound, so `bulletin17c_kwargs`
+    covers code 4/8 peaks, `Interval` lines and upper thresholds. The `siteQT` row check is
+    unchanged and now passes on all 24 WY/MT stations. The one construct left without an
+    argument is a historic (code 7) interval peak; it is still refused.
+  - 06328100 against live `emafitpr`: weighted skew within 2.0e-5, quantiles within
+    0.0029%, confidence bounds within 0.067%. Across the other 23 WY/MT stations, Big Sandy
+    and 12363000, every native result is unchanged, including the confidence bounds (the
+    comparison ran to 8-12 significant figures before and after).
 - **`flowfreq.regression.oregon`: the western Oregon Region 2A/2B transition-zone blend**
   (#38). SIR 2005-5116 splits Region 2 on mean watershed elevation at 3,000 ft and blends
   flows linearly across a zone W ft wide centred there (eq. 7). The report selects
@@ -44,8 +91,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `--ignore-peak-codes` turns it off. All of these, and `analyze_gage`, go through the new
   `flowfreq.workflow.peak_code_kwargs`, which is `psf_convert.convert_peak_frame` plus
   checks. It checks that each engine will fit rebuilds exactly peakfq's `siteQT` rows,
-  both engines in `compare_engines`, so the comparison stays like for like. A code 4/8
-  peak raises `UnsupportedSpecError` naming the years and codes (`run_ffa` returns it
+  both engines in `compare_engines`, so the comparison stays like for like. Code 4/8
+  peaks are fitted as interval peaks (see the behaviour change below); a record neither
+  engine can express raises `UnsupportedSpecError` naming the years (`run_ffa` returns it
   under `error`), and so does the CLI, as a clean error. Codes peakfq acts on cannot be
   combined with caller-supplied historical peaks or perception thresholds; that raises a
   `ValueError`. `run_ffa` reports what it applied in
@@ -244,6 +292,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the new fields at their defaults.
 
 ### Changed
+- **Behaviour change: peak codes 4 and 8 are fitted, not refused.** `peak_code_kwargs`
+  and so `run_ffa`, `compare_engines`, `analyze_gage` and `flowfreq compare` used to raise
+  `UnsupportedSpecError` for a less-than (code 4) or greater-than (code 8) peak. They now
+  pass it to both engines as an interval peak, as peakfq fits it. A code 7 peak that is
+  also code 4 or 8 is a historic interval, which `Bulletin17C` cannot express, and still
+  raises, naming the year. USGS 01362100 (HU02), station skew, whose WY1985 peak is
+  "< 475 cfs": it used to raise. With `apply_peak_codes=False` it fits the value as exact,
+  with a 1% AEP flow of 3,154 cfs and station skew 0.414. It now fits the interval: 3,139 cfs
+  and 0.367, matching live `emafitpr` to 1e-5% (`compare_engines` passes).
 - **Washington Region 4 covariance: investigated, still not stored** (`WA.json` notes,
   `tests/test_regression_washington.py::TestRegion4CovarianceBasis`, #37). SIR 2016-5118's
   Table 7 Region 4 matrix fits Table 6's Sp only if P is read as P/10. The report does not
@@ -260,9 +317,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   perception threshold for a new site. Code 7 peaks are historic. Codes 3 and O (dam
   failure, opportunistic) remove the peak, and so do 6 and C (regulated, urbanized), as
   `siteQT` does unless `Urb/Reg` is `Yes`. In each case the year becomes missing data.
-  Codes 4 and 8 make the peak a less-than or greater-than interval. `Bulletin17C` has no
-  argument for that, so such a record now raises `UnsupportedSpecError` naming each year
-  and code (`WY1985 (code 4)`) instead of silently fitting the value as exact. A coded
+  Codes 4 and 8 make the peak a less-than or greater-than interval, fitted as
+  `Bulletin17C`'s `interval_peaks` (see the entry above) instead of as an exact value. A coded
   record also needs `method="ema"` and no `historical_peaks`; either otherwise raises a
   `ValueError`. A gage with none of these codes fits exactly as before (tested
   bit-for-bit). **Pass `apply_peak_codes=False` for the old results.** Before/after on
@@ -273,8 +329,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - USGS 06324500, Powder River at Moorhead, MT (WY/MT). One code 7 peak, now historic.
     Station skew went from 0.258 to 0.653, and the 1% AEP flow from 39,228 to 42,728 cfs
     (+8.9%).
-  - USGS 01362100 (HU02) has one code 4 peak (WY1985). It used to fit; it now raises
-    unless `apply_peak_codes=False`.
+  - USGS 01362100 (HU02) has one code 4 peak (WY1985). The 1% AEP flow went from 3,154
+    to 3,139 cfs, and station skew from 0.414 to 0.367.
 - **Montana regional skew stays `pending`, with corrected notes.** The PNW B-GLS study *does*
   cover western Montana (the Columbia River basin; SIR 2016-5118 pp. 1, 23; its 23 MT gages are
   all in HUC 1701), but USGS Montana deliberately keeps the Bulletin 17B map statewide (SIR

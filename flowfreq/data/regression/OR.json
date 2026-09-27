@@ -25,6 +25,23 @@
           480
         ]
       }
+    },
+    {
+      "citation": "Cooper, R.M., 2006, Estimation of peak discharges for rural, unregulated streams in eastern Oregon: State of Oregon, Water Resources Department Open File Report SW 06-001",
+      "publisher": "Oregon Water Resources Department (a state agency report, not USGS)",
+      "version": "March 2006 (PDF created 2017, modified 2019; no revision notes)",
+      "url": "https://www.oregon.gov/owrd/WRDPublications1/EstimationOfPeakDischargesForRuralUnregulatedStreamsInEasternOregon.pdf",
+      "pdf": "https://www.oregon.gov/owrd/WRDPublications1/EstimationOfPeakDischargesForRuralUnregulatedStreamsInEasternOregon.pdf",
+      "tables": [
+        "Table 21",
+        "Table 22",
+        "Table 23",
+        "Table 24",
+        "Table 25",
+        "Table 26",
+        "Table 27"
+      ],
+      "nss": null
     }
   ],
   "equations": [
@@ -1154,7 +1171,1890 @@
       "sep_log": 0.163807,
       "model_error_variance": 0.025065,
       "n_sites": 178
+    },
+    {
+      "region_code": "E1",
+      "region_name": "Eastern Oregon flood region 1, eastern slope of the Cascade Range (OWRD OFR SW 06-001)",
+      "aep": 0.5,
+      "intercept": -0.12401322857151198,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 4.64,
+          "maximum": 525.0
+        },
+        {
+          "code": "BSLOPD",
+          "transform": "log10",
+          "units": "degrees",
+          "minimum": 5.03,
+          "maximum": 19.3
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 2770.0,
+          "maximum": 6060.0,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.8787,
+        1.984,
+        -1.069
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2006, Estimation of peak discharges for rural, unregulated streams in eastern Oregon: Oregon Water Resources Department Open File Report SW 06-001 (State of Oregon report, not a U.S. Geological Survey publication; not in NSS)",
+        "table": "Table 21; Table 27",
+        "year": 2006,
+        "url": "https://www.oregon.gov/owrd/WRDPublications1/EstimationOfPeakDischargesForRuralUnregulatedStreamsInEasternOregon.pdf"
+      },
+      "sep_log": 0.201834,
+      "model_error_variance": 0.036633,
+      "n_sites": 41
+    },
+    {
+      "region_code": "E1",
+      "region_name": "Eastern Oregon flood region 1, eastern slope of the Cascade Range (OWRD OFR SW 06-001)",
+      "aep": 0.2,
+      "intercept": 0.2979792441593624,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 4.64,
+          "maximum": 525.0
+        },
+        {
+          "code": "BSLOPD",
+          "transform": "log10",
+          "units": "degrees",
+          "minimum": 5.03,
+          "maximum": 19.3
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 2770.0,
+          "maximum": 6060.0,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.8392,
+        1.981,
+        -1.315
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2006, Estimation of peak discharges for rural, unregulated streams in eastern Oregon: Oregon Water Resources Department Open File Report SW 06-001 (State of Oregon report, not a U.S. Geological Survey publication; not in NSS)",
+        "table": "Table 21; Table 27",
+        "year": 2006,
+        "url": "https://www.oregon.gov/owrd/WRDPublications1/EstimationOfPeakDischargesForRuralUnregulatedStreamsInEasternOregon.pdf"
+      },
+      "sep_log": 0.171577,
+      "model_error_variance": 0.026196,
+      "n_sites": 41
+    },
+    {
+      "region_code": "E1",
+      "region_name": "Eastern Oregon flood region 1, eastern slope of the Cascade Range (OWRD OFR SW 06-001)",
+      "aep": 0.1,
+      "intercept": 0.513483956704257,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 4.64,
+          "maximum": 525.0
+        },
+        {
+          "code": "BSLOPD",
+          "transform": "log10",
+          "units": "degrees",
+          "minimum": 5.03,
+          "maximum": 19.3
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 2770.0,
+          "maximum": 6060.0,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.8181,
+        1.992,
+        -1.454
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2006, Estimation of peak discharges for rural, unregulated streams in eastern Oregon: Oregon Water Resources Department Open File Report SW 06-001 (State of Oregon report, not a U.S. Geological Survey publication; not in NSS)",
+        "table": "Table 21; Table 27",
+        "year": 2006,
+        "url": "https://www.oregon.gov/owrd/WRDPublications1/EstimationOfPeakDischargesForRuralUnregulatedStreamsInEasternOregon.pdf"
+      },
+      "sep_log": 0.167702,
+      "model_error_variance": 0.024693,
+      "n_sites": 41
+    },
+    {
+      "region_code": "E1",
+      "region_name": "Eastern Oregon flood region 1, eastern slope of the Cascade Range (OWRD OFR SW 06-001)",
+      "aep": 0.04,
+      "intercept": 0.7285161047597667,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 4.64,
+          "maximum": 525.0
+        },
+        {
+          "code": "BSLOPD",
+          "transform": "log10",
+          "units": "degrees",
+          "minimum": 5.03,
+          "maximum": 19.3
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 2770.0,
+          "maximum": 6060.0,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.798,
+        2.011,
+        -1.599
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2006, Estimation of peak discharges for rural, unregulated streams in eastern Oregon: Oregon Water Resources Department Open File Report SW 06-001 (State of Oregon report, not a U.S. Geological Survey publication; not in NSS)",
+        "table": "Table 21; Table 27",
+        "year": 2006,
+        "url": "https://www.oregon.gov/owrd/WRDPublications1/EstimationOfPeakDischargesForRuralUnregulatedStreamsInEasternOregon.pdf"
+      },
+      "sep_log": 0.173122,
+      "model_error_variance": 0.026069,
+      "n_sites": 41
+    },
+    {
+      "region_code": "E1",
+      "region_name": "Eastern Oregon flood region 1, eastern slope of the Cascade Range (OWRD OFR SW 06-001)",
+      "aep": 0.02,
+      "intercept": 0.857030798272624,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 4.64,
+          "maximum": 525.0
+        },
+        {
+          "code": "BSLOPD",
+          "transform": "log10",
+          "units": "degrees",
+          "minimum": 5.03,
+          "maximum": 19.3
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 2770.0,
+          "maximum": 6060.0,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.787,
+        2.027,
+        -1.688
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2006, Estimation of peak discharges for rural, unregulated streams in eastern Oregon: Oregon Water Resources Department Open File Report SW 06-001 (State of Oregon report, not a U.S. Geological Survey publication; not in NSS)",
+        "table": "Table 21; Table 27",
+        "year": 2006,
+        "url": "https://www.oregon.gov/owrd/WRDPublications1/EstimationOfPeakDischargesForRuralUnregulatedStreamsInEasternOregon.pdf"
+      },
+      "sep_log": 0.181558,
+      "model_error_variance": 0.028516,
+      "n_sites": 41
+    },
+    {
+      "region_code": "E1",
+      "region_name": "Eastern Oregon flood region 1, eastern slope of the Cascade Range (OWRD OFR SW 06-001)",
+      "aep": 0.01,
+      "intercept": 0.9657659641826862,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 4.64,
+          "maximum": 525.0
+        },
+        {
+          "code": "BSLOPD",
+          "transform": "log10",
+          "units": "degrees",
+          "minimum": 5.03,
+          "maximum": 19.3
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 2770.0,
+          "maximum": 6060.0,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.7783,
+        2.045,
+        -1.765
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2006, Estimation of peak discharges for rural, unregulated streams in eastern Oregon: Oregon Water Resources Department Open File Report SW 06-001 (State of Oregon report, not a U.S. Geological Survey publication; not in NSS)",
+        "table": "Table 21; Table 27",
+        "year": 2006,
+        "url": "https://www.oregon.gov/owrd/WRDPublications1/EstimationOfPeakDischargesForRuralUnregulatedStreamsInEasternOregon.pdf"
+      },
+      "sep_log": 0.192149,
+      "model_error_variance": 0.031863,
+      "n_sites": 41
+    },
+    {
+      "region_code": "E1",
+      "region_name": "Eastern Oregon flood region 1, eastern slope of the Cascade Range (OWRD OFR SW 06-001)",
+      "aep": 0.002,
+      "intercept": 1.1682027468426308,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 4.64,
+          "maximum": 525.0
+        },
+        {
+          "code": "BSLOPD",
+          "transform": "log10",
+          "units": "degrees",
+          "minimum": 5.03,
+          "maximum": 19.3
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 2770.0,
+          "maximum": 6060.0,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.7636,
+        2.088,
+        -1.912
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2006, Estimation of peak discharges for rural, unregulated streams in eastern Oregon: Oregon Water Resources Department Open File Report SW 06-001 (State of Oregon report, not a U.S. Geological Survey publication; not in NSS)",
+        "table": "Table 21; Table 27",
+        "year": 2006,
+        "url": "https://www.oregon.gov/owrd/WRDPublications1/EstimationOfPeakDischargesForRuralUnregulatedStreamsInEasternOregon.pdf"
+      },
+      "sep_log": 0.221836,
+      "model_error_variance": 0.04239,
+      "n_sites": 41
+    },
+    {
+      "region_code": "E2",
+      "region_name": "Eastern Oregon flood region 2, north-central eastern Oregon (OWRD OFR SW 06-001)",
+      "aep": 0.5,
+      "intercept": 1.500099191915723,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.293,
+          "maximum": 1630.0
+        },
+        {
+          "code": "JANAVPRE2K",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 1.52,
+          "maximum": 7.97
+        },
+        {
+          "code": "JULAVPRE2K",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.234,
+          "maximum": 1.28
+        },
+        {
+          "code": "WATCAPORC",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.102,
+          "maximum": 0.196
+        }
+      ],
+      "coefficients": [
+        0.7947,
+        1.335,
+        -0.542,
+        1.337
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2006, Estimation of peak discharges for rural, unregulated streams in eastern Oregon: Oregon Water Resources Department Open File Report SW 06-001 (State of Oregon report, not a U.S. Geological Survey publication; not in NSS)",
+        "table": "Table 22; Table 27",
+        "year": 2006,
+        "url": "https://www.oregon.gov/owrd/WRDPublications1/EstimationOfPeakDischargesForRuralUnregulatedStreamsInEasternOregon.pdf"
+      },
+      "sep_log": 0.251764,
+      "model_error_variance": 0.056173,
+      "n_sites": 58
+    },
+    {
+      "region_code": "E2",
+      "region_name": "Eastern Oregon flood region 2, north-central eastern Oregon (OWRD OFR SW 06-001)",
+      "aep": 0.2,
+      "intercept": 2.1746411926604483,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.293,
+          "maximum": 1630.0
+        },
+        {
+          "code": "JANAVPRE2K",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 1.52,
+          "maximum": 7.97
+        },
+        {
+          "code": "JULAVPRE2K",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.234,
+          "maximum": 1.28
+        },
+        {
+          "code": "WATCAPORC",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.102,
+          "maximum": 0.196
+        }
+      ],
+      "coefficients": [
+        0.7783,
+        1.037,
+        -0.703,
+        1.615
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2006, Estimation of peak discharges for rural, unregulated streams in eastern Oregon: Oregon Water Resources Department Open File Report SW 06-001 (State of Oregon report, not a U.S. Geological Survey publication; not in NSS)",
+        "table": "Table 22; Table 27",
+        "year": 2006,
+        "url": "https://www.oregon.gov/owrd/WRDPublications1/EstimationOfPeakDischargesForRuralUnregulatedStreamsInEasternOregon.pdf"
+      },
+      "sep_log": 0.186117,
+      "model_error_variance": 0.029306,
+      "n_sites": 58
+    },
+    {
+      "region_code": "E2",
+      "region_name": "Eastern Oregon flood region 2, north-central eastern Oregon (OWRD OFR SW 06-001)",
+      "aep": 0.1,
+      "intercept": 2.402433346219312,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.293,
+          "maximum": 1630.0
+        },
+        {
+          "code": "JANAVPRE2K",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 1.52,
+          "maximum": 7.97
+        },
+        {
+          "code": "JULAVPRE2K",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.234,
+          "maximum": 1.28
+        },
+        {
+          "code": "WATCAPORC",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.102,
+          "maximum": 0.196
+        }
+      ],
+      "coefficients": [
+        0.7706,
+        0.8967,
+        -0.8129,
+        1.622
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2006, Estimation of peak discharges for rural, unregulated streams in eastern Oregon: Oregon Water Resources Department Open File Report SW 06-001 (State of Oregon report, not a U.S. Geological Survey publication; not in NSS)",
+        "table": "Table 22; Table 27",
+        "year": 2006,
+        "url": "https://www.oregon.gov/owrd/WRDPublications1/EstimationOfPeakDischargesForRuralUnregulatedStreamsInEasternOregon.pdf"
+      },
+      "sep_log": 0.164587,
+      "model_error_variance": 0.021796,
+      "n_sites": 58
+    },
+    {
+      "region_code": "E2",
+      "region_name": "Eastern Oregon flood region 2, north-central eastern Oregon (OWRD OFR SW 06-001)",
+      "aep": 0.04,
+      "intercept": 2.565375502714074,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.293,
+          "maximum": 1630.0
+        },
+        {
+          "code": "JANAVPRE2K",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 1.52,
+          "maximum": 7.97
+        },
+        {
+          "code": "JULAVPRE2K",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.234,
+          "maximum": 1.28
+        },
+        {
+          "code": "WATCAPORC",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.102,
+          "maximum": 0.196
+        }
+      ],
+      "coefficients": [
+        0.7617,
+        0.7737,
+        -0.9569,
+        1.556
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2006, Estimation of peak discharges for rural, unregulated streams in eastern Oregon: Oregon Water Resources Department Open File Report SW 06-001 (State of Oregon report, not a U.S. Geological Survey publication; not in NSS)",
+        "table": "Table 22; Table 27",
+        "year": 2006,
+        "url": "https://www.oregon.gov/owrd/WRDPublications1/EstimationOfPeakDischargesForRuralUnregulatedStreamsInEasternOregon.pdf"
+      },
+      "sep_log": 0.15832,
+      "model_error_variance": 0.019161,
+      "n_sites": 58
+    },
+    {
+      "region_code": "E2",
+      "region_name": "Eastern Oregon flood region 2, north-central eastern Oregon (OWRD OFR SW 06-001)",
+      "aep": 0.02,
+      "intercept": 2.6482624057480444,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.293,
+          "maximum": 1630.0
+        },
+        {
+          "code": "JANAVPRE2K",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 1.52,
+          "maximum": 7.97
+        },
+        {
+          "code": "JULAVPRE2K",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.234,
+          "maximum": 1.28
+        },
+        {
+          "code": "WATCAPORC",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.102,
+          "maximum": 0.196
+        }
+      ],
+      "coefficients": [
+        0.7559,
+        0.705,
+        -1.059,
+        1.499
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2006, Estimation of peak discharges for rural, unregulated streams in eastern Oregon: Oregon Water Resources Department Open File Report SW 06-001 (State of Oregon report, not a U.S. Geological Survey publication; not in NSS)",
+        "table": "Table 22; Table 27",
+        "year": 2006,
+        "url": "https://www.oregon.gov/owrd/WRDPublications1/EstimationOfPeakDischargesForRuralUnregulatedStreamsInEasternOregon.pdf"
+      },
+      "sep_log": 0.163807,
+      "model_error_variance": 0.020061,
+      "n_sites": 58
+    },
+    {
+      "region_code": "E2",
+      "region_name": "Eastern Oregon flood region 2, north-central eastern Oregon (OWRD OFR SW 06-001)",
+      "aep": 0.01,
+      "intercept": 2.716504163773217,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.293,
+          "maximum": 1630.0
+        },
+        {
+          "code": "JANAVPRE2K",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 1.52,
+          "maximum": 7.97
+        },
+        {
+          "code": "JULAVPRE2K",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.234,
+          "maximum": 1.28
+        },
+        {
+          "code": "WATCAPORC",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.102,
+          "maximum": 0.196
+        }
+      ],
+      "coefficients": [
+        0.7507,
+        0.6468,
+        -1.154,
+        1.445
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2006, Estimation of peak discharges for rural, unregulated streams in eastern Oregon: Oregon Water Resources Department Open File Report SW 06-001 (State of Oregon report, not a U.S. Geological Survey publication; not in NSS)",
+        "table": "Table 22; Table 27",
+        "year": 2006,
+        "url": "https://www.oregon.gov/owrd/WRDPublications1/EstimationOfPeakDischargesForRuralUnregulatedStreamsInEasternOregon.pdf"
+      },
+      "sep_log": 0.174278,
+      "model_error_variance": 0.022506,
+      "n_sites": 58
+    },
+    {
+      "region_code": "E2",
+      "region_name": "Eastern Oregon flood region 2, north-central eastern Oregon (OWRD OFR SW 06-001)",
+      "aep": 0.002,
+      "intercept": 2.8467699535372186,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.293,
+          "maximum": 1630.0
+        },
+        {
+          "code": "JANAVPRE2K",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 1.52,
+          "maximum": 7.97
+        },
+        {
+          "code": "JULAVPRE2K",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.234,
+          "maximum": 1.28
+        },
+        {
+          "code": "WATCAPORC",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.102,
+          "maximum": 0.196
+        }
+      ],
+      "coefficients": [
+        0.7407,
+        0.53,
+        -1.348,
+        1.33
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2006, Estimation of peak discharges for rural, unregulated streams in eastern Oregon: Oregon Water Resources Department Open File Report SW 06-001 (State of Oregon report, not a U.S. Geological Survey publication; not in NSS)",
+        "table": "Table 22; Table 27",
+        "year": 2006,
+        "url": "https://www.oregon.gov/owrd/WRDPublications1/EstimationOfPeakDischargesForRuralUnregulatedStreamsInEasternOregon.pdf"
+      },
+      "sep_log": 0.211372,
+      "model_error_variance": 0.033658,
+      "n_sites": 58
+    },
+    {
+      "region_code": "E3",
+      "region_name": "Eastern Oregon flood region 3, northeast eastern Oregon (OWRD OFR SW 06-001)",
+      "aep": 0.5,
+      "intercept": 1.3390537357091392,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.24,
+          "maximum": 3870.0
+        }
+      ],
+      "coefficients": [
+        0.7546
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2006, Estimation of peak discharges for rural, unregulated streams in eastern Oregon: Oregon Water Resources Department Open File Report SW 06-001 (State of Oregon report, not a U.S. Geological Survey publication; not in NSS)",
+        "table": "Table 23; Table 27",
+        "year": 2006,
+        "url": "https://www.oregon.gov/owrd/WRDPublications1/EstimationOfPeakDischargesForRuralUnregulatedStreamsInEasternOregon.pdf"
+      },
+      "sep_log": 0.234566,
+      "model_error_variance": 0.052739,
+      "n_sites": 76
+    },
+    {
+      "region_code": "E3",
+      "region_name": "Eastern Oregon flood region 3, northeast eastern Oregon (OWRD OFR SW 06-001)",
+      "aep": 0.2,
+      "intercept": 1.5658478186735176,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.24,
+          "maximum": 3870.0
+        }
+      ],
+      "coefficients": [
+        0.7459
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2006, Estimation of peak discharges for rural, unregulated streams in eastern Oregon: Oregon Water Resources Department Open File Report SW 06-001 (State of Oregon report, not a U.S. Geological Survey publication; not in NSS)",
+        "table": "Table 23; Table 27",
+        "year": 2006,
+        "url": "https://www.oregon.gov/owrd/WRDPublications1/EstimationOfPeakDischargesForRuralUnregulatedStreamsInEasternOregon.pdf"
+      },
+      "sep_log": 0.199983,
+      "model_error_variance": 0.038081,
+      "n_sites": 76
+    },
+    {
+      "region_code": "E3",
+      "region_name": "Eastern Oregon flood region 3, northeast eastern Oregon (OWRD OFR SW 06-001)",
+      "aep": 0.1,
+      "intercept": 1.67833624673218,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.24,
+          "maximum": 3870.0
+        }
+      ],
+      "coefficients": [
+        0.7431
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2006, Estimation of peak discharges for rural, unregulated streams in eastern Oregon: Oregon Water Resources Department Open File Report SW 06-001 (State of Oregon report, not a U.S. Geological Survey publication; not in NSS)",
+        "table": "Table 23; Table 27",
+        "year": 2006,
+        "url": "https://www.oregon.gov/owrd/WRDPublications1/EstimationOfPeakDischargesForRuralUnregulatedStreamsInEasternOregon.pdf"
+      },
+      "sep_log": 0.190646,
+      "model_error_variance": 0.034499,
+      "n_sites": 76
+    },
+    {
+      "region_code": "E3",
+      "region_name": "Eastern Oregon flood region 3, northeast eastern Oregon (OWRD OFR SW 06-001)",
+      "aep": 0.04,
+      "intercept": 1.7916906490201179,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.24,
+          "maximum": 3870.0
+        }
+      ],
+      "coefficients": [
+        0.7415
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2006, Estimation of peak discharges for rural, unregulated streams in eastern Oregon: Oregon Water Resources Department Open File Report SW 06-001 (State of Oregon report, not a U.S. Geological Survey publication; not in NSS)",
+        "table": "Table 23; Table 27",
+        "year": 2006,
+        "url": "https://www.oregon.gov/owrd/WRDPublications1/EstimationOfPeakDischargesForRuralUnregulatedStreamsInEasternOregon.pdf"
+      },
+      "sep_log": 0.189516,
+      "model_error_variance": 0.033797,
+      "n_sites": 76
+    },
+    {
+      "region_code": "E3",
+      "region_name": "Eastern Oregon flood region 3, northeast eastern Oregon (OWRD OFR SW 06-001)",
+      "aep": 0.02,
+      "intercept": 1.8621910310515972,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.24,
+          "maximum": 3870.0
+        }
+      ],
+      "coefficients": [
+        0.7408
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2006, Estimation of peak discharges for rural, unregulated streams in eastern Oregon: Oregon Water Resources Department Open File Report SW 06-001 (State of Oregon report, not a U.S. Geological Survey publication; not in NSS)",
+        "table": "Table 23; Table 27",
+        "year": 2006,
+        "url": "https://www.oregon.gov/owrd/WRDPublications1/EstimationOfPeakDischargesForRuralUnregulatedStreamsInEasternOregon.pdf"
+      },
+      "sep_log": 0.193274,
+      "model_error_variance": 0.034922,
+      "n_sites": 76
+    },
+    {
+      "region_code": "E3",
+      "region_name": "Eastern Oregon flood region 3, northeast eastern Oregon (OWRD OFR SW 06-001)",
+      "aep": 0.01,
+      "intercept": 1.9244343635432306,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.24,
+          "maximum": 3870.0
+        }
+      ],
+      "coefficients": [
+        0.7402
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2006, Estimation of peak discharges for rural, unregulated streams in eastern Oregon: Oregon Water Resources Department Open File Report SW 06-001 (State of Oregon report, not a U.S. Geological Survey publication; not in NSS)",
+        "table": "Table 23; Table 27",
+        "year": 2006,
+        "url": "https://www.oregon.gov/owrd/WRDPublications1/EstimationOfPeakDischargesForRuralUnregulatedStreamsInEasternOregon.pdf"
+      },
+      "sep_log": 0.199612,
+      "model_error_variance": 0.03721,
+      "n_sites": 76
+    },
+    {
+      "region_code": "E3",
+      "region_name": "Eastern Oregon flood region 3, northeast eastern Oregon (OWRD OFR SW 06-001)",
+      "aep": 0.002,
+      "intercept": 2.04883008652835,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.24,
+          "maximum": 3870.0
+        }
+      ],
+      "coefficients": [
+        0.7388
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2006, Estimation of peak discharges for rural, unregulated streams in eastern Oregon: Oregon Water Resources Department Open File Report SW 06-001 (State of Oregon report, not a U.S. Geological Survey publication; not in NSS)",
+        "table": "Table 23; Table 27",
+        "year": 2006,
+        "url": "https://www.oregon.gov/owrd/WRDPublications1/EstimationOfPeakDischargesForRuralUnregulatedStreamsInEasternOregon.pdf"
+      },
+      "sep_log": 0.220763,
+      "model_error_variance": 0.04545,
+      "n_sites": 76
+    },
+    {
+      "region_code": "E4",
+      "region_name": "Eastern Oregon flood region 4, central eastern Oregon (OWRD OFR SW 06-001)",
+      "aep": 0.5,
+      "intercept": 0.021602716028242194,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.7,
+          "maximum": 7630.0
+        },
+        {
+          "code": "BSLOPD",
+          "transform": "log10",
+          "units": "degrees",
+          "minimum": 5.35,
+          "maximum": 22.6
+        },
+        {
+          "code": "JANAVPRE2K",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 1.37,
+          "maximum": 5.28
+        },
+        {
+          "code": "JANMINT2K",
+          "transform": "log10",
+          "units": "degF",
+          "minimum": 16.4,
+          "maximum": 23.1
+        },
+        {
+          "code": "STATSGODEP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 21.3,
+          "maximum": 50.7
+        }
+      ],
+      "coefficients": [
+        0.8723,
+        -0.8984,
+        2.381,
+        2.169,
+        -1.257
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2006, Estimation of peak discharges for rural, unregulated streams in eastern Oregon: Oregon Water Resources Department Open File Report SW 06-001 (State of Oregon report, not a U.S. Geological Survey publication; not in NSS)",
+        "table": "Table 24; Table 27",
+        "year": 2006,
+        "url": "https://www.oregon.gov/owrd/WRDPublications1/EstimationOfPeakDischargesForRuralUnregulatedStreamsInEasternOregon.pdf"
+      },
+      "sep_log": 0.215002,
+      "model_error_variance": 0.039993,
+      "n_sites": 51
+    },
+    {
+      "region_code": "E4",
+      "region_name": "Eastern Oregon flood region 4, central eastern Oregon (OWRD OFR SW 06-001)",
+      "aep": 0.2,
+      "intercept": 1.0622058088197126,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.7,
+          "maximum": 7630.0
+        },
+        {
+          "code": "BSLOPD",
+          "transform": "log10",
+          "units": "degrees",
+          "minimum": 5.35,
+          "maximum": 22.6
+        },
+        {
+          "code": "JANAVPRE2K",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 1.37,
+          "maximum": 5.28
+        },
+        {
+          "code": "JANMINT2K",
+          "transform": "log10",
+          "units": "degF",
+          "minimum": 16.4,
+          "maximum": 23.1
+        },
+        {
+          "code": "STATSGODEP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 21.3,
+          "maximum": 50.7
+        }
+      ],
+      "coefficients": [
+        0.8576,
+        -0.8858,
+        2.025,
+        1.983,
+        -1.53
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2006, Estimation of peak discharges for rural, unregulated streams in eastern Oregon: Oregon Water Resources Department Open File Report SW 06-001 (State of Oregon report, not a U.S. Geological Survey publication; not in NSS)",
+        "table": "Table 24; Table 27",
+        "year": 2006,
+        "url": "https://www.oregon.gov/owrd/WRDPublications1/EstimationOfPeakDischargesForRuralUnregulatedStreamsInEasternOregon.pdf"
+      },
+      "sep_log": 0.190646,
+      "model_error_variance": 0.030776,
+      "n_sites": 51
+    },
+    {
+      "region_code": "E4",
+      "region_name": "Eastern Oregon flood region 4, central eastern Oregon (OWRD OFR SW 06-001)",
+      "aep": 0.1,
+      "intercept": 1.449478399187365,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.7,
+          "maximum": 7630.0
+        },
+        {
+          "code": "BSLOPD",
+          "transform": "log10",
+          "units": "degrees",
+          "minimum": 5.35,
+          "maximum": 22.6
+        },
+        {
+          "code": "JANAVPRE2K",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 1.37,
+          "maximum": 5.28
+        },
+        {
+          "code": "JANMINT2K",
+          "transform": "log10",
+          "units": "degF",
+          "minimum": 16.4,
+          "maximum": 23.1
+        },
+        {
+          "code": "STATSGODEP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 21.3,
+          "maximum": 50.7
+        }
+      ],
+      "coefficients": [
+        0.8509,
+        -0.8835,
+        1.857,
+        1.981,
+        -1.665
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2006, Estimation of peak discharges for rural, unregulated streams in eastern Oregon: Oregon Water Resources Department Open File Report SW 06-001 (State of Oregon report, not a U.S. Geological Survey publication; not in NSS)",
+        "table": "Table 24; Table 27",
+        "year": 2006,
+        "url": "https://www.oregon.gov/owrd/WRDPublications1/EstimationOfPeakDischargesForRuralUnregulatedStreamsInEasternOregon.pdf"
+      },
+      "sep_log": 0.185359,
+      "model_error_variance": 0.028647,
+      "n_sites": 51
+    },
+    {
+      "region_code": "E4",
+      "region_name": "Eastern Oregon flood region 4, central eastern Oregon (OWRD OFR SW 06-001)",
+      "aep": 0.04,
+      "intercept": 1.76544501809015,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.7,
+          "maximum": 7630.0
+        },
+        {
+          "code": "BSLOPD",
+          "transform": "log10",
+          "units": "degrees",
+          "minimum": 5.35,
+          "maximum": 22.6
+        },
+        {
+          "code": "JANAVPRE2K",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 1.37,
+          "maximum": 5.28
+        },
+        {
+          "code": "JANMINT2K",
+          "transform": "log10",
+          "units": "degF",
+          "minimum": 16.4,
+          "maximum": 23.1
+        },
+        {
+          "code": "STATSGODEP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 21.3,
+          "maximum": 50.7
+        }
+      ],
+      "coefficients": [
+        0.8445,
+        -0.8857,
+        1.699,
+        2.043,
+        -1.782
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2006, Estimation of peak discharges for rural, unregulated streams in eastern Oregon: Oregon Water Resources Department Open File Report SW 06-001 (State of Oregon report, not a U.S. Geological Survey publication; not in NSS)",
+        "table": "Table 24; Table 27",
+        "year": 2006,
+        "url": "https://www.oregon.gov/owrd/WRDPublications1/EstimationOfPeakDischargesForRuralUnregulatedStreamsInEasternOregon.pdf"
+      },
+      "sep_log": 0.185359,
+      "model_error_variance": 0.028124,
+      "n_sites": 51
+    },
+    {
+      "region_code": "E4",
+      "region_name": "Eastern Oregon flood region 4, central eastern Oregon (OWRD OFR SW 06-001)",
+      "aep": 0.02,
+      "intercept": 1.924175870301921,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.7,
+          "maximum": 7630.0
+        },
+        {
+          "code": "BSLOPD",
+          "transform": "log10",
+          "units": "degrees",
+          "minimum": 5.35,
+          "maximum": 22.6
+        },
+        {
+          "code": "JANAVPRE2K",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 1.37,
+          "maximum": 5.28
+        },
+        {
+          "code": "JANMINT2K",
+          "transform": "log10",
+          "units": "degF",
+          "minimum": 16.4,
+          "maximum": 23.1
+        },
+        {
+          "code": "STATSGODEP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 21.3,
+          "maximum": 50.7
+        }
+      ],
+      "coefficients": [
+        0.8407,
+        -0.8904,
+        1.61,
+        2.117,
+        -1.865
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2006, Estimation of peak discharges for rural, unregulated streams in eastern Oregon: Oregon Water Resources Department Open File Report SW 06-001 (State of Oregon report, not a U.S. Geological Survey publication; not in NSS)",
+        "table": "Table 24; Table 27",
+        "year": 2006,
+        "url": "https://www.oregon.gov/owrd/WRDPublications1/EstimationOfPeakDischargesForRuralUnregulatedStreamsInEasternOregon.pdf"
+      },
+      "sep_log": 0.188385,
+      "model_error_variance": 0.028647,
+      "n_sites": 51
+    },
+    {
+      "region_code": "E4",
+      "region_name": "Eastern Oregon flood region 4, central eastern Oregon (OWRD OFR SW 06-001)",
+      "aep": 0.01,
+      "intercept": 2.0382226383687185,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.7,
+          "maximum": 7630.0
+        },
+        {
+          "code": "BSLOPD",
+          "transform": "log10",
+          "units": "degrees",
+          "minimum": 5.35,
+          "maximum": 22.6
+        },
+        {
+          "code": "JANAVPRE2K",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 1.37,
+          "maximum": 5.28
+        },
+        {
+          "code": "JANMINT2K",
+          "transform": "log10",
+          "units": "degF",
+          "minimum": 16.4,
+          "maximum": 23.1
+        },
+        {
+          "code": "STATSGODEP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 21.3,
+          "maximum": 50.7
+        }
+      ],
+      "coefficients": [
+        0.8375,
+        -0.8971,
+        1.538,
+        2.205,
+        -1.941
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2006, Estimation of peak discharges for rural, unregulated streams in eastern Oregon: Oregon Water Resources Department Open File Report SW 06-001 (State of Oregon report, not a U.S. Geological Survey publication; not in NSS)",
+        "table": "Table 24; Table 27",
+        "year": 2006,
+        "url": "https://www.oregon.gov/owrd/WRDPublications1/EstimationOfPeakDischargesForRuralUnregulatedStreamsInEasternOregon.pdf"
+      },
+      "sep_log": 0.192899,
+      "model_error_variance": 0.029704,
+      "n_sites": 51
+    },
+    {
+      "region_code": "E4",
+      "region_name": "Eastern Oregon flood region 4, central eastern Oregon (OWRD OFR SW 06-001)",
+      "aep": 0.002,
+      "intercept": 2.184123354239671,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.7,
+          "maximum": 7630.0
+        },
+        {
+          "code": "BSLOPD",
+          "transform": "log10",
+          "units": "degrees",
+          "minimum": 5.35,
+          "maximum": 22.6
+        },
+        {
+          "code": "JANAVPRE2K",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 1.37,
+          "maximum": 5.28
+        },
+        {
+          "code": "JANMINT2K",
+          "transform": "log10",
+          "units": "degF",
+          "minimum": 16.4,
+          "maximum": 23.1
+        },
+        {
+          "code": "STATSGODEP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 21.3,
+          "maximum": 50.7
+        }
+      ],
+      "coefficients": [
+        0.8316,
+        -0.9183,
+        1.416,
+        2.449,
+        -2.097
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2006, Estimation of peak discharges for rural, unregulated streams in eastern Oregon: Oregon Water Resources Department Open File Report SW 06-001 (State of Oregon report, not a U.S. Geological Survey publication; not in NSS)",
+        "table": "Table 24; Table 27",
+        "year": 2006,
+        "url": "https://www.oregon.gov/owrd/WRDPublications1/EstimationOfPeakDischargesForRuralUnregulatedStreamsInEasternOregon.pdf"
+      },
+      "sep_log": 0.206988,
+      "model_error_variance": 0.033658,
+      "n_sites": 51
+    },
+    {
+      "region_code": "E5",
+      "region_name": "Eastern Oregon flood region 5, southwest eastern Oregon (OWRD OFR SW 06-001)",
+      "aep": 0.5,
+      "intercept": -0.38038499425719363,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.609,
+          "maximum": 2992.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4850.0,
+          "maximum": 7050.0,
+          "scale": 0.001
+        },
+        {
+          "code": "JANAVPRE2K",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 1.78,
+          "maximum": 4.46
+        },
+        {
+          "code": "JULAVPRE2K",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.197,
+          "maximum": 0.915
+        }
+      ],
+      "coefficients": [
+        0.6647,
+        2.888,
+        -1.375,
+        -0.6152
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2006, Estimation of peak discharges for rural, unregulated streams in eastern Oregon: Oregon Water Resources Department Open File Report SW 06-001 (State of Oregon report, not a U.S. Geological Survey publication; not in NSS)",
+        "table": "Table 25; Table 27",
+        "year": 2006,
+        "url": "https://www.oregon.gov/owrd/WRDPublications1/EstimationOfPeakDischargesForRuralUnregulatedStreamsInEasternOregon.pdf"
+      },
+      "sep_log": 0.221479,
+      "model_error_variance": 0.040141,
+      "n_sites": 28
+    },
+    {
+      "region_code": "E5",
+      "region_name": "Eastern Oregon flood region 5, southwest eastern Oregon (OWRD OFR SW 06-001)",
+      "aep": 0.2,
+      "intercept": -0.5547072305740282,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.609,
+          "maximum": 2992.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4850.0,
+          "maximum": 7050.0,
+          "scale": 0.001
+        },
+        {
+          "code": "JANAVPRE2K",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 1.78,
+          "maximum": 4.46
+        },
+        {
+          "code": "JULAVPRE2K",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.197,
+          "maximum": 0.915
+        }
+      ],
+      "coefficients": [
+        0.7052,
+        3.441,
+        -1.542,
+        -0.7073
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2006, Estimation of peak discharges for rural, unregulated streams in eastern Oregon: Oregon Water Resources Department Open File Report SW 06-001 (State of Oregon report, not a U.S. Geological Survey publication; not in NSS)",
+        "table": "Table 25; Table 27",
+        "year": 2006,
+        "url": "https://www.oregon.gov/owrd/WRDPublications1/EstimationOfPeakDischargesForRuralUnregulatedStreamsInEasternOregon.pdf"
+      },
+      "sep_log": 0.175432,
+      "model_error_variance": 0.027994,
+      "n_sites": 28
+    },
+    {
+      "region_code": "E5",
+      "region_name": "Eastern Oregon flood region 5, southwest eastern Oregon (OWRD OFR SW 06-001)",
+      "aep": 0.1,
+      "intercept": -0.6524748400013105,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.609,
+          "maximum": 2992.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4850.0,
+          "maximum": 7050.0,
+          "scale": 0.001
+        },
+        {
+          "code": "JANAVPRE2K",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 1.78,
+          "maximum": 4.46
+        },
+        {
+          "code": "JULAVPRE2K",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.197,
+          "maximum": 0.915
+        }
+      ],
+      "coefficients": [
+        0.7254,
+        3.738,
+        -1.612,
+        -0.7485
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2006, Estimation of peak discharges for rural, unregulated streams in eastern Oregon: Oregon Water Resources Department Open File Report SW 06-001 (State of Oregon report, not a U.S. Geological Survey publication; not in NSS)",
+        "table": "Table 25; Table 27",
+        "year": 2006,
+        "url": "https://www.oregon.gov/owrd/WRDPublications1/EstimationOfPeakDischargesForRuralUnregulatedStreamsInEasternOregon.pdf"
+      },
+      "sep_log": 0.162243,
+      "model_error_variance": 0.019835,
+      "n_sites": 28
+    },
+    {
+      "region_code": "E5",
+      "region_name": "Eastern Oregon flood region 5, southwest eastern Oregon (OWRD OFR SW 06-001)",
+      "aep": 0.04,
+      "intercept": -0.7710865940053119,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.609,
+          "maximum": 2992.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4850.0,
+          "maximum": 7050.0,
+          "scale": 0.001
+        },
+        {
+          "code": "JANAVPRE2K",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 1.78,
+          "maximum": 4.46
+        },
+        {
+          "code": "JULAVPRE2K",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.197,
+          "maximum": 0.915
+        }
+      ],
+      "coefficients": [
+        0.7468,
+        4.075,
+        -1.687,
+        -0.7908
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2006, Estimation of peak discharges for rural, unregulated streams in eastern Oregon: Oregon Water Resources Department Open File Report SW 06-001 (State of Oregon report, not a U.S. Geological Survey publication; not in NSS)",
+        "table": "Table 25; Table 27",
+        "year": 2006,
+        "url": "https://www.oregon.gov/owrd/WRDPublications1/EstimationOfPeakDischargesForRuralUnregulatedStreamsInEasternOregon.pdf"
+      },
+      "sep_log": 0.158714,
+      "model_error_variance": 0.01806,
+      "n_sites": 28
+    },
+    {
+      "region_code": "E5",
+      "region_name": "Eastern Oregon flood region 5, southwest eastern Oregon (OWRD OFR SW 06-001)",
+      "aep": 0.02,
+      "intercept": -0.8548035938858182,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.609,
+          "maximum": 2992.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4850.0,
+          "maximum": 7050.0,
+          "scale": 0.001
+        },
+        {
+          "code": "JANAVPRE2K",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 1.78,
+          "maximum": 4.46
+        },
+        {
+          "code": "JULAVPRE2K",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.197,
+          "maximum": 0.915
+        }
+      ],
+      "coefficients": [
+        0.7608,
+        4.302,
+        -1.736,
+        -0.8185
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2006, Estimation of peak discharges for rural, unregulated streams in eastern Oregon: Oregon Water Resources Department Open File Report SW 06-001 (State of Oregon report, not a U.S. Geological Survey publication; not in NSS)",
+        "table": "Table 25; Table 27",
+        "year": 2006,
+        "url": "https://www.oregon.gov/owrd/WRDPublications1/EstimationOfPeakDischargesForRuralUnregulatedStreamsInEasternOregon.pdf"
+      },
+      "sep_log": 0.162634,
+      "model_error_variance": 0.018607,
+      "n_sites": 28
+    },
+    {
+      "region_code": "E5",
+      "region_name": "Eastern Oregon flood region 5, southwest eastern Oregon (OWRD OFR SW 06-001)",
+      "aep": 0.01,
+      "intercept": -0.9303319030884043,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.609,
+          "maximum": 2992.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4850.0,
+          "maximum": 7050.0,
+          "scale": 0.001
+        },
+        {
+          "code": "JANAVPRE2K",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 1.78,
+          "maximum": 4.46
+        },
+        {
+          "code": "JULAVPRE2K",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.197,
+          "maximum": 0.915
+        }
+      ],
+      "coefficients": [
+        0.7737,
+        4.505,
+        -1.781,
+        -0.8428
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2006, Estimation of peak discharges for rural, unregulated streams in eastern Oregon: Oregon Water Resources Department Open File Report SW 06-001 (State of Oregon report, not a U.S. Geological Survey publication; not in NSS)",
+        "table": "Table 25; Table 27",
+        "year": 2006,
+        "url": "https://www.oregon.gov/owrd/WRDPublications1/EstimationOfPeakDischargesForRuralUnregulatedStreamsInEasternOregon.pdf"
+      },
+      "sep_log": 0.170804,
+      "model_error_variance": 0.020175,
+      "n_sites": 28
+    },
+    {
+      "region_code": "E5",
+      "region_name": "Eastern Oregon flood region 5, southwest eastern Oregon (OWRD OFR SW 06-001)",
+      "aep": 0.002,
+      "intercept": -1.0734517753643813,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.609,
+          "maximum": 2992.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4850.0,
+          "maximum": 7050.0,
+          "scale": 0.001
+        },
+        {
+          "code": "JANAVPRE2K",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 1.78,
+          "maximum": 4.46
+        },
+        {
+          "code": "JULAVPRE2K",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.197,
+          "maximum": 0.915
+        }
+      ],
+      "coefficients": [
+        0.8011,
+        4.892,
+        -1.863,
+        -0.8859
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2006, Estimation of peak discharges for rural, unregulated streams in eastern Oregon: Oregon Water Resources Department Open File Report SW 06-001 (State of Oregon report, not a U.S. Geological Survey publication; not in NSS)",
+        "table": "Table 25; Table 27",
+        "year": 2006,
+        "url": "https://www.oregon.gov/owrd/WRDPublications1/EstimationOfPeakDischargesForRuralUnregulatedStreamsInEasternOregon.pdf"
+      },
+      "sep_log": 0.198126,
+      "model_error_variance": 0.027089,
+      "n_sites": 28
+    },
+    {
+      "region_code": "E6",
+      "region_name": "Eastern Oregon flood region 6, southeast eastern Oregon (OWRD OFR SW 06-001)",
+      "aep": 0.5,
+      "intercept": 1.4680517914542377,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.152,
+          "maximum": 453.0
+        },
+        {
+          "code": "ASPECT",
+          "transform": "log10",
+          "units": "degrees",
+          "minimum": 133.0,
+          "maximum": 244.0,
+          "scale": 0.01
+        }
+      ],
+      "coefficients": [
+        0.7718,
+        -2.2
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2006, Estimation of peak discharges for rural, unregulated streams in eastern Oregon: Oregon Water Resources Department Open File Report SW 06-001 (State of Oregon report, not a U.S. Geological Survey publication; not in NSS)",
+        "table": "Table 26; Table 27",
+        "year": 2006,
+        "url": "https://www.oregon.gov/owrd/WRDPublications1/EstimationOfPeakDischargesForRuralUnregulatedStreamsInEasternOregon.pdf"
+      },
+      "sep_log": 0.371858,
+      "model_error_variance": 0.120556,
+      "n_sites": 22
+    },
+    {
+      "region_code": "E6",
+      "region_name": "Eastern Oregon flood region 6, southeast eastern Oregon (OWRD OFR SW 06-001)",
+      "aep": 0.2,
+      "intercept": 1.8753506965792892,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.152,
+          "maximum": 453.0
+        },
+        {
+          "code": "ASPECT",
+          "transform": "log10",
+          "units": "degrees",
+          "minimum": 133.0,
+          "maximum": 244.0,
+          "scale": 0.01
+        }
+      ],
+      "coefficients": [
+        0.7796,
+        -2.556
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2006, Estimation of peak discharges for rural, unregulated streams in eastern Oregon: Oregon Water Resources Department Open File Report SW 06-001 (State of Oregon report, not a U.S. Geological Survey publication; not in NSS)",
+        "table": "Table 26; Table 27",
+        "year": 2006,
+        "url": "https://www.oregon.gov/owrd/WRDPublications1/EstimationOfPeakDischargesForRuralUnregulatedStreamsInEasternOregon.pdf"
+      },
+      "sep_log": 0.316165,
+      "model_error_variance": 0.085989,
+      "n_sites": 22
+    },
+    {
+      "region_code": "E6",
+      "region_name": "Eastern Oregon flood region 6, southeast eastern Oregon (OWRD OFR SW 06-001)",
+      "aep": 0.1,
+      "intercept": 2.0511525224473814,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.152,
+          "maximum": 453.0
+        },
+        {
+          "code": "ASPECT",
+          "transform": "log10",
+          "units": "degrees",
+          "minimum": 133.0,
+          "maximum": 244.0,
+          "scale": 0.01
+        }
+      ],
+      "coefficients": [
+        0.7873,
+        -2.664
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2006, Estimation of peak discharges for rural, unregulated streams in eastern Oregon: Oregon Water Resources Department Open File Report SW 06-001 (State of Oregon report, not a U.S. Geological Survey publication; not in NSS)",
+        "table": "Table 26; Table 27",
+        "year": 2006,
+        "url": "https://www.oregon.gov/owrd/WRDPublications1/EstimationOfPeakDischargesForRuralUnregulatedStreamsInEasternOregon.pdf"
+      },
+      "sep_log": 0.293858,
+      "model_error_variance": 0.074683,
+      "n_sites": 22
+    },
+    {
+      "region_code": "E6",
+      "region_name": "Eastern Oregon flood region 6, southeast eastern Oregon (OWRD OFR SW 06-001)",
+      "aep": 0.04,
+      "intercept": 2.2166935991697545,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.152,
+          "maximum": 453.0
+        },
+        {
+          "code": "ASPECT",
+          "transform": "log10",
+          "units": "degrees",
+          "minimum": 133.0,
+          "maximum": 244.0,
+          "scale": 0.01
+        }
+      ],
+      "coefficients": [
+        0.7977,
+        -2.749
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2006, Estimation of peak discharges for rural, unregulated streams in eastern Oregon: Oregon Water Resources Department Open File Report SW 06-001 (State of Oregon report, not a U.S. Geological Survey publication; not in NSS)",
+        "table": "Table 26; Table 27",
+        "year": 2006,
+        "url": "https://www.oregon.gov/owrd/WRDPublications1/EstimationOfPeakDischargesForRuralUnregulatedStreamsInEasternOregon.pdf"
+      },
+      "sep_log": 0.284477,
+      "model_error_variance": 0.068546,
+      "n_sites": 22
+    },
+    {
+      "region_code": "E6",
+      "region_name": "Eastern Oregon flood region 6, southeast eastern Oregon (OWRD OFR SW 06-001)",
+      "aep": 0.02,
+      "intercept": 2.3176455432211585,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.152,
+          "maximum": 453.0
+        },
+        {
+          "code": "ASPECT",
+          "transform": "log10",
+          "units": "degrees",
+          "minimum": 133.0,
+          "maximum": 244.0,
+          "scale": 0.01
+        }
+      ],
+      "coefficients": [
+        0.8051,
+        -2.808
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2006, Estimation of peak discharges for rural, unregulated streams in eastern Oregon: Oregon Water Resources Department Open File Report SW 06-001 (State of Oregon report, not a U.S. Geological Survey publication; not in NSS)",
+        "table": "Table 26; Table 27",
+        "year": 2006,
+        "url": "https://www.oregon.gov/owrd/WRDPublications1/EstimationOfPeakDischargesForRuralUnregulatedStreamsInEasternOregon.pdf"
+      },
+      "sep_log": 0.284793,
+      "model_error_variance": 0.068199,
+      "n_sites": 22
+    },
+    {
+      "region_code": "E6",
+      "region_name": "Eastern Oregon flood region 6, southeast eastern Oregon (OWRD OFR SW 06-001)",
+      "aep": 0.01,
+      "intercept": 2.4075608494863627,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.152,
+          "maximum": 453.0
+        },
+        {
+          "code": "ASPECT",
+          "transform": "log10",
+          "units": "degrees",
+          "minimum": 133.0,
+          "maximum": 244.0,
+          "scale": 0.01
+        }
+      ],
+      "coefficients": [
+        0.812,
+        -2.872
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2006, Estimation of peak discharges for rural, unregulated streams in eastern Oregon: Oregon Water Resources Department Open File Report SW 06-001 (State of Oregon report, not a U.S. Geological Survey publication; not in NSS)",
+        "table": "Table 26; Table 27",
+        "year": 2006,
+        "url": "https://www.oregon.gov/owrd/WRDPublications1/EstimationOfPeakDischargesForRuralUnregulatedStreamsInEasternOregon.pdf"
+      },
+      "sep_log": 0.289817,
+      "model_error_variance": 0.070287,
+      "n_sites": 22
+    },
+    {
+      "region_code": "E6",
+      "region_name": "Eastern Oregon flood region 6, southeast eastern Oregon (OWRD OFR SW 06-001)",
+      "aep": 0.002,
+      "intercept": 2.590618948206578,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.152,
+          "maximum": 453.0
+        },
+        {
+          "code": "ASPECT",
+          "transform": "log10",
+          "units": "degrees",
+          "minimum": 133.0,
+          "maximum": 244.0,
+          "scale": 0.01
+        }
+      ],
+      "coefficients": [
+        0.8267,
+        -3.039
+      ],
+      "citation": {
+        "publication": "Cooper, R.M., 2006, Estimation of peak discharges for rural, unregulated streams in eastern Oregon: Oregon Water Resources Department Open File Report SW 06-001 (State of Oregon report, not a U.S. Geological Survey publication; not in NSS)",
+        "table": "Table 26; Table 27",
+        "year": 2006,
+        "url": "https://www.oregon.gov/owrd/WRDPublications1/EstimationOfPeakDischargesForRuralUnregulatedStreamsInEasternOregon.pdf"
+      },
+      "sep_log": 0.312923,
+      "model_error_variance": 0.081467,
+      "n_sites": 22
     }
   ],
-  "notes": "Transcribed from Cooper, 2005, SIR 2005-5116 (western Oregon only; no revisions on the pubs page). Equations and error statistics from Tables 10 (Region 1), 11 (Region 2A) and 12 (Region 2B), report pp. 35-37; variable limits and station counts from Table 15 (p. 47). Tables 10-12 and 15 were double-entered (hand transcription from rendered pages vs. a regex parse of pdftotext -table output): 225 cells, 0 disagreements. The report's recurrence intervals 2, 5, 10, 25, 50, 100 and 500 years are stored as AEP 0.5, 0.2, 0.1, 0.04, 0.02, 0.01 and 0.002; there is no 200-year (0.5%) equation. All variables are log-transformed (Tables 7-9 headnotes), so every term is log10 and intercept = log10 of the printed coefficient. Variable codes are NSS's: DRNAREA (Area, mi2), I24H2Y (I24-2, 2-year 24-hour precipitation intensity, in.), JANMAXT2K (Mx Jan T, mean maximum January temperature, deg F), JANMINT2K (Mn Jan T, mean minimum January temperature, deg F), WATCAPORC (Soil C, soil storage capacity, in.), SOILPERM (Soil P, soil permeability, in./hr), BSLOPD (Slope, mean watershed slope, degrees). NSS's ORREG2 and ELEV are region-selection (gating) parameters, not regression variables, and are not stored. Error statistics: the report publishes percent standard error of the model, average standard error of sampling, average prediction error and average equivalent years of record. sep_log is the average prediction error converted as sqrt(ln(1 + (p/100)^2)) / ln(10); model_error_variance is the percent standard error of the model converted the same way and squared (log10 units squared). The report publishes no covariance matrix [X^T Lambda^-1 X]^-1 (none in the text or Appendices A-G) and no AVP, so covariance and avp are not stored and intervals use sep_log. n_sites is Table 15's number of stations (91, 107, 178). Every equation reproduces the report's own regression estimates: evaluated at Appendix G's characteristics for the 290 gages with an Appendix D 'R' row, 874 of 2,030 values match exactly at 3 significant figures and 1,091 more within 1%; the largest difference is 1.6%, consistent with Appendix G printing characteristics to about 3 significant figures. Appendix A lists Marks Creek near Roseburg (14312300; mean elevation 752 ft) as Region 2A, but its Appendix D values are the Region 2B equations' (the 2A equations are 55-69% off). Worked examples: Lobster Creek (Region 1, Q100 = 10,200 cfs) reproduces; Quartz Creek (p. 45) reproduces too, but the report's text swaps its region labels (it calls 7,690 cfs the Region 2A estimate and 8,380 the Region 2B one; the equations give 8,428 for 2A and 7,700 for 2B at Table 14's characteristics), and with the labels corrected its arithmetic is equation 8 as printed. Transition zone: Regions 2A (mean watershed elevation E >= 3,000 ft) and 2B (< 3,000 ft) are blended linearly on elevation across a zone of width W feet centred on 3,000 ft (eq. 7, p. 31: QT = Q2B ((3,000 + W/2) - E)/W + Q2A (E - (3,000 - W/2))/W); the report selected W = 250 ft (Table 13), giving eq. 8 (p. 44): QT = Q2B (3,125 - E)/250 + Q2A (E - 2,875)/250 for E between 2,875 and 3,125 ft, Region 2B alone below 2,875 ft and Region 2A alone above 3,125 ft. The blend is of flows, not logarithms. Elevation is not a regression variable, so this file cannot express the split; flowfreq.regression.oregon.estimate_region2 applies it (mean elevation from its mean_elevation argument or NSS's ELEV), computing the eq. 7 weights and delegating to evaluate_weighted(space='linear'), which expresses eq. 7 exactly. The report gives no prediction interval for a blended estimate. Region 2A and 2B were not cross-checked against NSS: NSS lists them (GC730, GC731) but returns no estimate for them. Out of scope: eastern Oregon (the report covers western Oregon only; Cooper, 2006, OWRD Open File Report SW 06-001, has no NSS equations); NSS's Northwest_Region_2_Thomas_1997 (GC727; Thomas and others, 1997, superseded for western Oregon by this report) and Portland-Vancouver_Urban (GC728; Laenen, 1980, urban equations, outside the rural scope)."
+  "notes": "WESTERN OREGON (regions 1, 2A, 2B). Transcribed from Cooper, 2005, SIR 2005-5116 (western Oregon only; no revisions on the pubs page). Equations and error statistics from Tables 10 (Region 1), 11 (Region 2A) and 12 (Region 2B), report pp. 35-37; variable limits and station counts from Table 15 (p. 47). Tables 10-12 and 15 were double-entered (hand transcription from rendered pages vs. a regex parse of pdftotext -table output): 225 cells, 0 disagreements. The report's recurrence intervals 2, 5, 10, 25, 50, 100 and 500 years are stored as AEP 0.5, 0.2, 0.1, 0.04, 0.02, 0.01 and 0.002; there is no 200-year (0.5%) equation. All variables are log-transformed (Tables 7-9 headnotes), so every term is log10 and intercept = log10 of the printed coefficient. Variable codes are NSS's: DRNAREA (Area, mi2), I24H2Y (I24-2, 2-year 24-hour precipitation intensity, in.), JANMAXT2K (Mx Jan T, mean maximum January temperature, deg F), JANMINT2K (Mn Jan T, mean minimum January temperature, deg F), WATCAPORC (Soil C, soil storage capacity, in.), SOILPERM (Soil P, soil permeability, in./hr), BSLOPD (Slope, mean watershed slope, degrees). NSS's ORREG2 and ELEV are region-selection (gating) parameters, not regression variables, and are not stored. Error statistics: the report publishes percent standard error of the model, average standard error of sampling, average prediction error and average equivalent years of record. sep_log is the average prediction error converted as sqrt(ln(1 + (p/100)^2)) / ln(10); model_error_variance is the percent standard error of the model converted the same way and squared (log10 units squared). The report publishes no covariance matrix [X^T Lambda^-1 X]^-1 (none in the text or Appendices A-G) and no AVP, so covariance and avp are not stored and intervals use sep_log. n_sites is Table 15's number of stations (91, 107, 178). Every equation reproduces the report's own regression estimates: evaluated at Appendix G's characteristics for the 290 gages with an Appendix D 'R' row, 874 of 2,030 values match exactly at 3 significant figures and 1,091 more within 1%; the largest difference is 1.6%, consistent with Appendix G printing characteristics to about 3 significant figures. Appendix A lists Marks Creek near Roseburg (14312300; mean elevation 752 ft) as Region 2A, but its Appendix D values are the Region 2B equations' (the 2A equations are 55-69% off). Worked examples: Lobster Creek (Region 1, Q100 = 10,200 cfs) reproduces; Quartz Creek (p. 45) reproduces too, but the report's text swaps its region labels (it calls 7,690 cfs the Region 2A estimate and 8,380 the Region 2B one; the equations give 8,428 for 2A and 7,700 for 2B at Table 14's characteristics), and with the labels corrected its arithmetic is equation 8 as printed. Transition zone: Regions 2A (mean watershed elevation E >= 3,000 ft) and 2B (< 3,000 ft) are blended linearly on elevation across a zone of width W feet centred on 3,000 ft (eq. 7, p. 31: QT = Q2B ((3,000 + W/2) - E)/W + Q2A (E - (3,000 - W/2))/W); the report selected W = 250 ft (Table 13), giving eq. 8 (p. 44): QT = Q2B (3,125 - E)/250 + Q2A (E - 2,875)/250 for E between 2,875 and 3,125 ft, Region 2B alone below 2,875 ft and Region 2A alone above 3,125 ft. The blend is of flows, not logarithms. Elevation is not a regression variable, so this file cannot express the split; flowfreq.regression.oregon.estimate_region2 applies it (mean elevation from its mean_elevation argument or NSS's ELEV), computing the eq. 7 weights and delegating to evaluate_weighted(space='linear'), which expresses eq. 7 exactly. The report gives no prediction interval for a blended estimate. Region 2A and 2B were not cross-checked against NSS: NSS lists them (GC730, GC731) but returns no estimate for them. Out of scope: NSS's Northwest_Region_2_Thomas_1997 (GC727; Thomas and others, 1997, superseded for western Oregon by this report) and Portland-Vancouver_Urban (GC728; Laenen, 1980, urban equations, outside the rural scope). EASTERN OREGON (regions E1-E6). Source: Cooper, R.M., 2006, Estimation of peak discharges for rural, unregulated streams in eastern Oregon, Oregon Water Resources Department Open File Report SW 06-001 (March 2006). This is a State of Oregon report, not a USGS publication, and it is not in NSS/StreamStats, so there is no NSS cross-check for these regions. The report numbers its flood regions 1-6; they are stored as E1-E6 because western Oregon already uses region code 1. Equations and error statistics from Tables 21-26 (report pp. 64-69); variable limits and station counts from Table 27 (p. 80). Tables 21-27 were double-entered (hand transcription from rendered pages vs. a regex parse of pdftotext -table output): 387 cells, 0 disagreements. Recurrence intervals 2-500 years are stored as AEP 0.5-0.002 as for western Oregon (no 0.5% equation). All equations are power forms fitted in log space (GLSNET, eq. 5-6), so every term is log10 and intercept = log10 of the printed coefficient; (Elev/1,000)^b is stored as ELEV with scale 0.001 and (Aspect/100)^b as ASPECT with scale 0.01, limits in the published units (ft, degrees). Variable codes: the report's characteristics are not computed by StreamStats for eastern Oregon, so each code is the NSS variable catalogue's code for the same characteristic, reusing western Oregon's where the characteristic is shared: DRNAREA (Area, mi2), BSLOPD (Slope, mean watershed slope, degrees), ELEV (Elev, mean watershed elevation, ft), JANAVPRE2K and JULAVPRE2K (Jan P and Jul P, mean January and July precipitation, in.; PRISM 1961-1990 from the Oregon Climate Service, 4,000 m grid per Table 6), WATCAPORC (Soil C, soil storage capacity, in.; NSS's 'available water capacity ... using methods from SIR 2005-5116', the same author's method), JANMINT2K (Mn Jan T, mean minimum January temperature, deg F), STATSGODEP (Soil D, soil depth, in.; NRCS 1:250,000 soils, i.e. STATSGO), ASPECT (Aspect, mean watershed aspect, degrees). Values must be computed as the report defines them (Table 6; Appendix F lists the grids), not taken from StreamStats. Error statistics are converted exactly as for western Oregon: sep_log from the average prediction error, model_error_variance from the percent standard error of the model; no covariance or AVP is published, so intervals use sep_log. n_sites is Table 27's number of stations (41, 58, 76, 51, 28, 22), which matches Appendix A's region counts (276 gages) and Table 5's totals; the captions of Tables 7-12 give different counts (59, 76, 25, 49, 41, 29), which are not used. Every equation reproduces the report's own regression estimates: evaluated at Appendix G's characteristics for the 199 gages with an Appendix D 'R' row (regions from Appendix A; every one within Table 27's ranges), 656 of 1,342 values match exactly at 3 significant figures, 671 more within 1%, and the largest difference is 1.4%, excluding one inconsistency: Region E4's 10-year R values are 2.7% to 4.6% above Table 24's Q(10) equation at all 51 Region 4 gages, a constant ratio (median 1.037, s.d. 0.005, the same scatter as every other region and interval), so Appendix D was computed with a coefficient about 3.7% larger than the printed 28.15 while the exponents agree; Table 24 as printed is stored. Table 25's headnote defines 'Mn Jul T, mean minimum July temperature', but its equations print 'Jul P'; Table 27 gives a Region 5 Jul P range (0.197-0.915 in.) and no Mn Jul T column, and Appendix D reproduces with Jul P (substituting Mn Jul T puts the estimates about 98% off), so Jul P is stored. Table 6 calls the aspect characteristic 'maximum watershed aspect'; Table 26 and Appendix G call it 'mean watershed aspect', which is stored. Worked examples: West Birch Creek above Jack Canyon (Region 2, p. 79, eq. 9): Q100 = 2,470 cfs reproduces; Strawberry Creek above Slide Creek near Prairie City (14037500, Region 4, p. 78): R100 = 169 cfs reproduces; Middle Fork John Day River at the mouth (p. 81, eq. 10, a = Table 24's Q100 area exponent 0.8375): 5,200 x (791/523)^0.8375 = 7,350 cfs reproduces, although the example's Qg = 5,200 matches none of Appendix D's values for 14044000 (S 5,040, R 5,210, W 5,050). Region selection is geographic (Figure 14) and is not encoded here; the report notes the High Lava Plains and the middle third of the Basin and Range belong to no flood region, and the equations are not for spring-dominated streams in regions 2-6."
 }

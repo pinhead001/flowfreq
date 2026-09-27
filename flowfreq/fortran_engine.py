@@ -37,7 +37,15 @@ from typing import Dict, List, Optional, Sequence, Tuple
 import numpy as np
 import pandas as pd
 
-from .core import AnalysisMethod, EMAParameters, FrequencyResults, grubbs_beck_critical_value
+from .core import (
+    AnalysisMethod,
+    EMAParameters,
+    FrequencyResults,
+    PerceptionBound,
+    grubbs_beck_critical_value,
+    normalize_interval_peaks,
+    perception_bounds,
+)
 from .validation.reference import QMAX, QMIN, ReferenceResult
 
 __all__ = [
@@ -88,8 +96,9 @@ class EmafitArrays:
     n_zeros : int
         Count of systematic peaks recorded as exactly zero.
     n_censored : int
-        Count of rows built to fill a gap year against a declared perception
-        threshold (``ql != qu``). Historic and exact-peak rows are not
+        Count of rows built with ``ql != qu``: gap years censored against a
+        declared perception threshold, and interval peaks. Historic and
+        exact-peak rows are not
         censored; MGBT-flagged low outliers are not censored *here* either --
         that censoring happens inside ``emafitpr`` itself, driven by
         ``gbthrsh0``, not by this builder.
@@ -132,9 +141,10 @@ def build_emafit_arrays(
     peak_flows: Sequence[float],
     water_years: Optional[Sequence[int]] = None,
     historical_peaks: Optional[List[Tuple[int, float]]] = None,
-    perception_thresholds: Optional[Dict[Tuple[int, int], float]] = None,
+    perception_thresholds: Optional[Dict[Tuple[int, int], PerceptionBound]] = None,
     user_low_outlier_threshold: Optional[float] = None,
     ema_params: Optional[EMAParameters] = None,
+    interval_peaks: Optional[List[Tuple[int, float, float]]] = None,
 ) -> EmafitArrays:
     """Translate a ``Bulletin17C`` input set into ``emafitpr``'s arrays.
 
@@ -164,9 +174,10 @@ def build_emafit_arrays(
         concept to check, so setting it for exactly these rows (and no
         others) already satisfies "dtype is 1 only for the historic flag,
         not every peak in the historical period."
-    perception_thresholds : dict of (int, int) to float, optional
-        Declared perception-threshold periods, lower bound only (upper is
-        always ``Qmax``, matching every existing caller of this API). Applied
+    perception_thresholds : dict of (int, int) to float or (float, float), optional
+        Declared perception-threshold periods: a float is the lower bound
+        with the upper at ``Qmax``; a ``(lower, upper)`` pair is ``siteQT``'s
+        ``(tl, tu)``, an infinite upper being ``Qmax``. Applied
         in insertion order with a later period overwriting an earlier one for
         any year they both cover -- ``siteQT``'s own documented rule ("the
         last one specified is given priority"), reproduced here as a
@@ -186,6 +197,13 @@ def build_emafit_arrays(
         ``Bulletin17C``'s auto-configuration (historical peaks given without
         an explicit threshold dict) gets the same historical censoring the
         native path would build.
+    interval_peaks : list of (int, float, float), optional
+        ``(water_year, lower_cfs, upper_cfs)`` for systematic peaks known only
+        to lie in an interval (``upper = inf`` for a greater-than peak). Each
+        is the row ``[max(lower, Qmin), upper]`` with its year's ``(tl, tu)``
+        and ``dtype = 0``, as ``siteQT`` builds code 4/8 and ``Interval``
+        rows; one spanning ``[Qmin, Qmax]`` carries no information and, as in
+        ``siteQT``, gets no row.
 
     Returns
     -------
@@ -195,7 +213,8 @@ def build_emafit_arrays(
     ------
     ValueError
         Mismatched ``peak_flows``/``water_years`` lengths, a duplicate water
-        year, or a negative discharge.
+        year, a negative discharge, an invalid interval peak or perception
+        threshold, or a year given both an exact and an interval peak.
     """
     flows_arr = np.asarray(peak_flows, dtype=float)
     if water_years is None:
@@ -210,10 +229,13 @@ def build_emafit_arrays(
         )
 
     historical_peaks_list = list(historical_peaks or [])
-    thresholds = dict(perception_thresholds or {})
+    thresholds = {
+        period: perception_bounds(value) for period, value in (perception_thresholds or {}).items()
+    }
+    intervals = normalize_interval_peaks(interval_peaks)
 
-    # --- year -> declared lower threshold, lowest priority first --------- #
-    threshold_by_year: Dict[int, float] = {}
+    # --- year -> declared (tl, tu), lowest priority first ----------------- #
+    threshold_by_year: Dict[int, Tuple[float, float]] = {}
     if (
         ema_params is not None
         and ema_params.historical_start is not None
@@ -221,10 +243,10 @@ def build_emafit_arrays(
         and ema_params.historical_threshold
     ):
         for year in range(ema_params.historical_start, ema_params.historical_end + 1):
-            threshold_by_year[year] = float(ema_params.historical_threshold)
-    for (start, end), lower in thresholds.items():
+            threshold_by_year[year] = (float(ema_params.historical_threshold), QMAX)
+    for (start, end), pair in thresholds.items():
         for year in range(int(start), int(end) + 1):
-            threshold_by_year[year] = float(lower)  # later entries win, per siteQT
+            threshold_by_year[year] = pair  # later entries win, per siteQT
 
     # --- observed rows ----------------------------------------------------#
     peak_by_year: Dict[int, float] = {}
@@ -248,7 +270,18 @@ def build_emafit_arrays(
             raise ValueError(f"negative historical discharge {flow} for water year {year}")
         historical_by_year[year] = flow
 
-    all_years = set(peak_by_year) | set(historical_by_year) | set(threshold_by_year)
+    interval_by_year: Dict[int, Tuple[float, float]] = {}
+    for year, lower, upper in intervals:
+        if year in peak_by_year or year in historical_by_year:
+            raise ValueError(
+                f"water year {year} has both an exact and an interval peak; "
+                "give each year one or the other"
+            )
+        interval_by_year[year] = (lower, upper)
+
+    all_years = (
+        set(peak_by_year) | set(historical_by_year) | set(interval_by_year) | set(threshold_by_year)
+    )
 
     rows: List[Tuple[int, float, float, float, float, int]] = []
     systematic_peaks: Dict[int, float] = {}
@@ -263,20 +296,27 @@ def build_emafit_arrays(
             # noticed, the same fallback
             # ExpectedMomentsAlgorithm._build_flow_intervals uses
             # (`threshold = self._ema_params.historical_threshold or flow`).
-            row_tl = threshold_by_year.get(year, flow if flow > 0.0 else QMIN)
+            row_tl, row_tu = threshold_by_year.get(year, (flow if flow > 0.0 else QMIN, QMAX))
             # siteQT clamps every tl below Qmin up to Qmin (readInputs.R line
             # 1046) unconditionally -- not only for gap-filled rows -- so a
             # historic peak sitting inside a declared-but-vacuous (0.0)
             # threshold period reads as "unrestricted", the same as no
             # threshold at all, rather than taking log10(0).
             row_tl = max(row_tl, QMIN)
-            rows.append((year, row_ql, row_qu, row_tl, QMAX, 1))
+            rows.append((year, row_ql, row_qu, row_tl, max(row_tu, QMIN), 1))
         elif year in peak_by_year:
             flow = peak_by_year[year]
             row_ql = row_qu = QMIN if flow == 0.0 else flow
-            row_tl = max(threshold_by_year.get(year, QMIN), QMIN)
+            row_tl, row_tu = threshold_by_year.get(year, (QMIN, QMAX))
             systematic_peaks[year] = flow
-            rows.append((year, row_ql, row_qu, row_tl, QMAX, 0))
+            rows.append((year, row_ql, row_qu, max(row_tl, QMIN), max(row_tu, QMIN), 0))
+        elif year in interval_by_year:
+            row_ql, row_qu = interval_by_year[year]
+            if row_ql <= QMIN and row_qu >= QMAX:
+                continue  # no information: siteQT sets tl = Qmax and drops the row
+            row_tl, row_tu = threshold_by_year.get(year, (QMIN, QMAX))
+            rows.append((year, row_ql, row_qu, max(row_tl, QMIN), max(row_tu, QMIN), 0))
+            n_censored += 1
         else:
             # A gap year: no observation, but a perception threshold was
             # declared for it. siteQT (readInputs.R lines ~1030-1051):
@@ -286,10 +326,10 @@ def build_emafit_arrays(
             # exactly like "no information" and dropped, same as an
             # undeclared gap year. Since undeclared years are never added to
             # `all_years` at all, only the vacuous case needs handling here.
-            threshold = threshold_by_year[year]
+            threshold, upper = threshold_by_year[year]
             if threshold <= QMIN:
                 continue
-            rows.append((year, QMIN, threshold, threshold, QMAX, 0))
+            rows.append((year, QMIN, threshold, threshold, max(upper, QMIN), 0))
             n_censored += 1
 
     if len(rows) < 3:
@@ -324,7 +364,7 @@ def run_fortran_reference(
     peak_flows: Sequence[float],
     water_years: Optional[Sequence[int]] = None,
     historical_peaks: Optional[List[Tuple[int, float]]] = None,
-    perception_thresholds: Optional[Dict[Tuple[int, int], float]] = None,
+    perception_thresholds: Optional[Dict[Tuple[int, int], PerceptionBound]] = None,
     user_low_outlier_threshold: Optional[float] = None,
     ema_params: Optional[EMAParameters] = None,
     regional_skew: Optional[float] = None,
@@ -333,6 +373,7 @@ def run_fortran_reference(
     eps: float = 0.90,
     weight_opt: int = 1,
     station_name: str = "",
+    interval_peaks: Optional[List[Tuple[int, float, float]]] = None,
 ) -> Tuple[ReferenceResult, EmafitArrays]:
     """Build the arrays and call the vendored Fortran through the f2py bridge.
 
@@ -387,6 +428,7 @@ def run_fortran_reference(
         perception_thresholds=perception_thresholds,
         user_low_outlier_threshold=user_low_outlier_threshold,
         ema_params=ema_params,
+        interval_peaks=interval_peaks,
     )
 
     if regional_skew is None or regional_skew_mse is None:
@@ -557,7 +599,7 @@ def run_fortran_ema(
     peak_flows: Sequence[float],
     water_years: Optional[Sequence[int]] = None,
     historical_peaks: Optional[List[Tuple[int, float]]] = None,
-    perception_thresholds: Optional[Dict[Tuple[int, int], float]] = None,
+    perception_thresholds: Optional[Dict[Tuple[int, int], PerceptionBound]] = None,
     user_low_outlier_threshold: Optional[float] = None,
     ema_params: Optional[EMAParameters] = None,
     regional_skew: Optional[float] = None,
@@ -566,6 +608,7 @@ def run_fortran_ema(
     eps: float = 0.90,
     weight_opt: int = 1,
     station_name: str = "",
+    interval_peaks: Optional[List[Tuple[int, float, float]]] = None,
 ) -> Tuple[FrequencyResults, ReferenceResult, EmafitArrays]:
     """Run the Fortran EMA end to end: build, call, adapt.
 
@@ -592,6 +635,7 @@ def run_fortran_ema(
         eps=eps,
         weight_opt=weight_opt,
         station_name=station_name,
+        interval_peaks=interval_peaks,
     )
     results = _frequency_results_from_reference(reference, arrays, regional_skew, regional_skew_mse)
     return results, reference, arrays

@@ -5,9 +5,9 @@ vendored Fortran on the ``siteQT`` rows with ``main.R``'s arguments -- what
 peakfq 8.1.0 itself does with this ``.psf``. Two claims are checked against
 it:
 
-* Every station ``Bulletin17C``'s Fortran engine can express (all but
-  06328100, whose 2021 upper threshold of 407 cfs has no ``Bulletin17C``
-  argument) gets bit-identical moments and quantiles through
+* Every station -- 06328100 included, now that ``Bulletin17C`` takes
+  interval peaks and upper perception thresholds -- gets bit-identical
+  moments and quantiles through
   ``Bulletin17C(**kwargs).run_analysis(engine="fortran")``. That pins the
   argument mapping -- including the station-skew sentinel, which
   ``fortran_engine`` sends as ``r_G_mse = 1e10`` where ``main.R`` sends
@@ -61,7 +61,7 @@ def test_fortran_engine_via_bulletin17c_is_bit_identical(stations):
             got = float(q.loc[np.isclose(q["aep"], aep), "flow_cfs"].iloc[0])
             assert got == flow, (sid, aep)
         checked.append(sid)
-    assert len(checked) == len(stations) - 1
+    assert len(checked) == len(stations)
 
 
 def test_every_station_runs_directly(stations):
@@ -87,11 +87,38 @@ def _zero_flow_stations(stations):
     }
 
 
-def test_every_station_but_06328100_now_runs_natively(stations):
-    """Zero-flow rows closed the last structural gap; 06328100's 407 cfs upper
-    perception threshold is the one thing Bulletin17C still cannot express."""
+def test_every_station_now_runs_natively(stations):
+    """Zero-flow rows closed one structural gap; interval peaks and upper
+    perception thresholds closed 06328100's, the last. No station is refused."""
     refused = sorted(sid for sid, s in stations.items() if s.unsupported_reasons("native"))
-    assert refused == ["06328100.00"]
+    assert refused == []
+
+
+def test_native_06328100_matches_live_fortran(stations):
+    """The interval-peak / upper-threshold station, refused natively until both existed.
+
+    2021 is a greater-than peak (``Interval 2021 407 1E+20``, code 8) under a
+    ``(23.5, 407)`` perception threshold; 2008, 2016 and 2020 are less-than
+    rows; two years are zero. Measured: weighted skew 2.0e-5, quantiles
+    0.0029%, confidence bounds 0.067%.
+    """
+    s = stations["06328100.00"]
+    assert s.interval_peaks == ((2021, 407.0, 1e20),)
+    assert s.perception_thresholds[(2021, 2021)] == (23.5, 407.0)
+    ref = s.fortran_reference()
+    results = s.run("native")
+    p = ref.parameters
+    assert abs(results.mean_log - p["mean_log"]) < 1e-5
+    assert abs(results.skew_used - p["skew_weighted"]) < 2e-4
+    q = results.quantiles
+    for aep, flow in ref.quantiles.items():
+        got = float(q.loc[np.isclose(q["aep"], aep), "flow_cfs"].iloc[0])
+        assert abs(got / flow - 1) < 5e-4, (aep, got, flow)
+    cl = results.confidence_limits
+    for aep, (lo, hi) in ref.confidence_intervals.items():
+        row = cl.loc[np.isclose(cl["aep"], aep)]
+        assert abs(float(row["lower_5pct"].iloc[0]) / lo - 1) < 2e-3, aep
+        assert abs(float(row["upper_5pct"].iloc[0]) / hi - 1) < 2e-3, aep
 
 
 def test_native_zero_flow_stations_match_live_fortran(stations):
@@ -104,7 +131,7 @@ def test_native_zero_flow_stations_match_live_fortran(stations):
     were 75% and 54% off when 10**log10 rounding censored a peak on the cutoff).
     """
     zero = {sid: s for sid, s in _zero_flow_stations(stations).items() if sid != "06328100.00"}
-    assert len(zero) == 12
+    assert len(zero) == 12  # 06328100, the 13th, has its own test above
     for sid, s in zero.items():
         ref = s.fortran_reference()
         results = s.run("native")
