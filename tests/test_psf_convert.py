@@ -329,12 +329,13 @@ class TestStationInputs:
             with pytest.raises(UnsupportedSpecError, match="greater-than"):
                 s.bulletin17c_kwargs(engine)
 
-    def test_zero_flow_unsupported_natively(self):
+    def test_zero_flow_supported_natively(self):
+        """Zero years now get siteQT's Qmin row on the native engine too."""
         flows = list(FLOWS)
         flows[2] = 0.0
         spec, _ = _spec(BASE)
         s = convert_station(spec, _peaks(flows=flows))
-        assert any("zero flows" in r for r in s.unsupported_reasons("native"))
+        assert s.unsupported_reasons("native") == []
         assert s.unsupported_reasons("fortran") == []
 
     def test_generalized_skew_unsupported_natively(self):

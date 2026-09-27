@@ -239,6 +239,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   are checked at all.
 
 ### Fixed
+- **Native EMA: zero-flow years now get a row, and low-outlier censoring matches `gbtest`.**
+  Three fixes, found by running all 24 WY/MT `.psf` stations against live `emafitpr`:
+  - **Zero-flow rows.** `siteQT` records a zero year exactly at `Qmin` (1e-20), and `gbtest`
+    then censors it below the MGBT cutoff like any low outlier. The native engine counted zeros
+    in MGBT but gave them no row. It now does, as peakfq does.
+  - **`gbtmin` lower bound.** Intervals censored below the low-outlier cutoff now run from
+    `gbtest`'s `gbtmin` (1e-6 cfs, `emafit.f:946`), not from 0. With a strongly negative skew
+    the P3 lower tail below 1e-6 carries real mass: WY/MT 06329570 was 4.6% off without it.
+    Gap years not censored by `gbtest` start at `siteQT`'s `Qmin`.
+  - **Exact MGBT cutoff.** The cutoff was returned as `10**log10(flow)`, which is not exact
+    (`10**log10(5.0) == 5.000000000000001`), so a peak sitting exactly on the cutoff was censored
+    too; `gbtest` keeps it. 06328900 was 75% off and 06326960 54%.
+
+  **Results change** for records with zero flows, and for any record whose MGBT cutoff equals
+  an observed peak. On the WY/MT file, every station but 06328100 now runs natively (12 of
+  them have zeros and were refused before); all match live `emafitpr` to within 2e-4 in
+  weighted skew and 0.05% in quantiles, most to about 1e-6 and 0.001%. The existing parity
+  sites (Big Sandy, Powder River, Cains Coulee, 12363000) are unchanged. `psf_convert` no
+  longer refuses zero-flow stations on the native engine.
 - **Native EMA: at-site skew MSE now follows peakfq's B17B switch.** `emafit.f:707-711` uses
   the plain Bulletin 17B `mseg(n, G)` over the whole record (uncapped), not ADJE's
   censoring-adjusted MSE, whenever MGBT computes the low-outlier threshold and finds low
