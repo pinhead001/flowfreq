@@ -45,13 +45,17 @@ class TestLibraryShape:
     def test_status_and_regions(self, lib):
         assert lib.status == "verified"
         assert lib.issue == 40
-        assert lib.regions == REGIONS
-        for region in lib.regions:
+        # Channel-width regions (SIR 2020-5142) are "<region>-AC/-BF/-RS":
+        # tests/test_regression_montana_channel_width.py.
+        assert [r for r in lib.regions if "-" not in r] == REGIONS
+        for region in REGIONS:
             assert lib.aeps(region) == AEPS
-        assert len(lib.equations) == 80
+        assert len([e for e in lib.equations if e.region_code in REGIONS]) == 80
 
     def test_every_equation_is_cited_and_complete(self, lib):
         for eq in lib.equations:
+            if eq.region_code not in REGIONS:
+                continue  # channel-width equations: test_regression_montana_channel_width.py
             assert "2015-5019-F" in eq.citation.publication
             assert "ver. 1.1" in eq.citation.publication
             assert "Table 1-4" in eq.citation.table and "Table 1-5" in eq.citation.table
@@ -291,7 +295,8 @@ def test_matches_live_nss(lib, basin):
     """Every region x AEP against NSS Montana (region 30), citation 88.
 
     The channel-width regions (citation 163) need channel-width inputs, so NSS skips
-    them; they are out of scope here. NSS returns three significant figures, so the
+    them here (tests/test_regression_montana_channel_width.py checks those). NSS
+    returns three significant figures, so the
     check is exact agreement after rounding flowfreq's value the same way.
     """
     from flowfreq.streamstats import Characteristic, estimate_flow_statistics

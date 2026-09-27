@@ -8,6 +8,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Montana channel-width peak-flow equations and method weighting** (`MT.json`,
+  `flowfreq.regression.montana`, #40). Source: USGS SIR 2020-5142 ver. 1.1 (Chase and
+  others, 2021).
+  - 240 equations: 8 hydrologic regions × 3 methods × 10 AEPs. The methods are
+    active-channel width (`WACTCH`), bankfull width (`WBANKFULL`) and width from aerial
+    photographs (`CHANWD_RS`), from Tables 2-4, with Table 1 width limits and Tables 7-9
+    covariance.
+  - Each method has its own region code, `<region>-AC`, `-BF` or `-RS`, so the
+    basin-characteristics lookups (`W`, `NW`, ...) are unchanged.
+  - Measurement error is included: `model_error_variance` is σ²δ + MEV, so `evaluate()`
+    gives the report's site intervals.
+  - `montana.estimate_weighted` combines two or three methods at a site with the report's
+    eqs. 5-12, using Table 6's cross-correlations, which are stored in `MT.json`.
+  - Double entry covered 3,648 cells with 0 disagreements.
+  - All 240 equations match live NSS (GC1829-GC1852) at 3 significant figures.
+  - The report's three worked examples reproduce.
 - **`flowfreq.regression.oregon`: the western Oregon Region 2A/2B transition-zone blend**
   (#38). SIR 2005-5116 splits Region 2 on mean watershed elevation at 3,000 ft and blends
   flows linearly across a zone W ft wide centred there (eq. 7). The report selects
