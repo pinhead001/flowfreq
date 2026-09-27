@@ -6,7 +6,9 @@ Tests that would require a live service are marked ``requires_network``.
 
 from __future__ import annotations
 
+import json
 from datetime import date, datetime, timezone
+from pathlib import Path
 from unittest.mock import Mock, patch
 
 import pandas as pd
@@ -14,6 +16,7 @@ import pytest
 import requests
 
 from flowfreq.flowio import load_flow_frame, save_flow_frame
+from flowfreq.peak_sources import DEFAULT_BACKEND
 from flowfreq.usgs import (
     NWIS_TZ_OFFSETS,
     NoInstantaneousDataError,
@@ -22,6 +25,8 @@ from flowfreq.usgs import (
     _is_no_data_response,
     _parse_iv_rdb,
     _parse_peak_dt,
+    fetch_nwis_batch,
+    fetch_nwis_peaks,
 )
 from tests.fixtures.nwis_rdb import (
     DV_BASIC,
@@ -734,7 +739,7 @@ class TestDownloadPeakFlowPartialDates:
     def _download(self) -> pd.DataFrame:
         with patch("flowfreq.usgs.requests.get") as get:
             get.return_value = _mock_response(PEAK_PARTIAL_DATES)
-            return USGSgage("03606500").download_peak_flow()
+            return USGSgage("03606500").download_peak_flow(backend="nwis-legacy")
 
     def test_no_peak_is_dropped(self) -> None:
         assert len(self._download()) == 6
@@ -762,6 +767,160 @@ class TestDownloadPeakFlowPartialDates:
 
     def test_a_full_date_is_unchanged(self) -> None:
         assert self._download()["peak_date"].iloc[3] == pd.Timestamp("1930-01-09")
+
+    def test_header_metadata_is_set(self) -> None:
+        with patch("flowfreq.usgs.requests.get") as get:
+            get.return_value = _mock_response(PEAK_PARTIAL_DATES)
+            gage = USGSgage("03606500")
+            gage.download_peak_flow(backend="nwis-legacy")
+        assert gage.site_name == "Big Sandy River at Bruceton, TN"
+        assert gage.drainage_area == 205.0
+
+
+_FIXTURES = Path(__file__).parent / "fixtures"
+
+
+class _RoutedGet:
+    """``requests.get`` stand-in that answers by URL prefix, in order per prefix.
+
+    ``flowfreq.usgs``, ``flowfreq.peak_sources`` and ``flowfreq.waterdata``
+    all call the one ``requests.get``, so a single patch has to serve every
+    service a download touches -- and record which it touched.
+    """
+
+    def __init__(self, routes: dict) -> None:
+        self.routes = {prefix: list(answers) for prefix, answers in routes.items()}
+        self.urls: list = []
+
+    def __call__(self, url, params=None, timeout=None):
+        assert timeout is not None, "requests must carry a timeout"
+        self.urls.append(url)
+        for prefix, answers in self.routes.items():
+            if url.startswith(prefix):
+                answer = answers.pop(0)
+                if isinstance(answer, Exception):
+                    raise answer
+                response = Mock()
+                response.raise_for_status.return_value = None
+                if isinstance(answer, str):
+                    response.text = answer
+                else:
+                    response.json.return_value = answer
+                return response
+        raise AssertionError(f"unexpected request to {url}")
+
+
+def _ogc_pages() -> list:
+    data = json.loads((_FIXTURES / "waterdata_peaks_03606500.json").read_text(encoding="utf-8"))
+    return [data["page1"], data["page2"]]
+
+
+def _ogc_location() -> dict:
+    return json.loads(
+        (_FIXTURES / "waterdata_ogc" / "loc_03606500.json").read_text(encoding="utf-8")
+    )
+
+
+_PEAKS_OGC = "https://api.waterdata.usgs.gov/ogcapi/v1/collections/peaks/items"
+_LOCATIONS_OGC = "https://api.waterdata.usgs.gov/ogcapi/v1/collections/monitoring-locations"
+
+
+class TestDownloadPeakFlowBackends:
+    """``download_peak_flow`` routes through :mod:`flowfreq.peak_sources` (#29)."""
+
+    def test_default_is_the_water_data_api(self) -> None:
+        get = _RoutedGet({_PEAKS_OGC: _ogc_pages(), _LOCATIONS_OGC: [_ogc_location()]})
+        gage = USGSgage("03606500")
+        with patch("flowfreq.usgs.requests.get", get):
+            frame = gage.download_peak_flow()
+        assert not any(u.startswith(USGSgage.BASE_URL_PEAKS) for u in get.urls)
+        assert list(frame.columns) == [
+            "water_year",
+            "peak_date",
+            "peak_flow_cfs",
+            "qualification_code",
+        ]
+        assert list(frame["water_year"]) == [1897, 1919, 1927, 1930, 1934, 2010, 2020]
+        assert frame is gage.peak_data
+        assert gage.period_of_record == (1897, 2020)
+
+    def test_default_sets_site_metadata_from_monitoring_locations(self) -> None:
+        get = _RoutedGet({_PEAKS_OGC: _ogc_pages(), _LOCATIONS_OGC: [_ogc_location()]})
+        gage = USGSgage("03606500")
+        with patch("flowfreq.usgs.requests.get", get):
+            gage.download_peak_flow()
+        assert gage.site_name == "BIG SANDY RIVER AT BRUCETON, TN"
+        assert gage.drainage_area == 205.0
+
+    def test_metadata_failure_still_returns_the_peaks(self, caplog) -> None:
+        get = _RoutedGet(
+            {_PEAKS_OGC: _ogc_pages(), _LOCATIONS_OGC: [requests.ConnectionError("down")]}
+        )
+        gage = USGSgage("03606500")
+        with patch("flowfreq.usgs.requests.get", get), caplog.at_level("WARNING"):
+            frame = gage.download_peak_flow()
+        assert len(frame) == 7
+        assert gage.site_name is None and gage.drainage_area is None
+        assert "monitoring-location request failed" in caplog.text
+
+    def test_same_frame_shape_on_both_backends(self) -> None:
+        ogc = _RoutedGet({_PEAKS_OGC: _ogc_pages(), _LOCATIONS_OGC: [_ogc_location()]})
+        with patch("flowfreq.usgs.requests.get", ogc):
+            new = USGSgage("03606500").download_peak_flow()
+        with patch("flowfreq.usgs.requests.get", return_value=_mock_response(PEAK_PARTIAL_DATES)):
+            old = USGSgage("03606500").download_peak_flow(backend="nwis-legacy")
+        assert list(new.columns) == list(old.columns)
+        for col in new.columns:
+            assert new[col].dtype.kind == old[col].dtype.kind, col
+        assert isinstance(new.index, pd.RangeIndex) and isinstance(old.index, pd.RangeIndex)
+
+    def test_legacy_backend_reads_the_rdb_service(self) -> None:
+        with patch(
+            "flowfreq.usgs.requests.get", return_value=_mock_response(PEAK_PARTIAL_DATES)
+        ) as get:
+            USGSgage("03606500").download_peak_flow(backend="nwis-legacy")
+        assert get.call_args.args[0] == USGSgage.BASE_URL_PEAKS
+
+    def test_unknown_backend_raises(self) -> None:
+        with patch("flowfreq.usgs.requests.get") as get:
+            with pytest.raises(ValueError, match="Unknown peak backend 'nope'"):
+                USGSgage("03606500").download_peak_flow(backend="nope")
+        get.assert_not_called()
+
+    def test_fetch_nwis_peaks_passes_the_backend(self) -> None:
+        seen = []
+
+        def _fake(self, backend="unset"):
+            seen.append(backend)
+            self._peak_data = pd.DataFrame(
+                {"water_year": [2000], "peak_flow_cfs": [10.0], "qualification_code": [""]}
+            )
+            return self._peak_data
+
+        with patch.object(USGSgage, "download_peak_flow", _fake):
+            assert fetch_nwis_peaks("03606500") == [{"year": 2000, "flow": 10.0, "source": "USGS"}]
+            fetch_nwis_peaks("03606500", backend="nwis-legacy")
+            results, errors = fetch_nwis_batch(["03606500"], workers=1, backend="nwis-legacy")
+        assert seen == [DEFAULT_BACKEND, "nwis-legacy", "nwis-legacy"]
+        assert set(results) == {"03606500"} and errors == {}
+
+    def test_fetch_nwis_batch_reports_a_bad_backend_per_site(self) -> None:
+        results, errors = fetch_nwis_batch(["03606500"], workers=1, backend="nope")
+        assert results == {}
+        assert "Unknown peak backend" in errors["03606500"]
+
+
+@pytest.mark.requires_network
+def test_live_default_download_is_the_water_data_api() -> None:
+    """The new default, live: peaks plus site metadata from the OGC API."""
+    gage = USGSgage("03606500")
+    frame = gage.download_peak_flow()
+    assert list(frame.columns) == ["water_year", "peak_date", "peak_flow_cfs", "qualification_code"]
+    by_year = frame.set_index("water_year")
+    assert by_year.loc[1897, "peak_flow_cfs"] == 25000
+    assert "7" in by_year.loc[1897, "qualification_code"]
+    assert gage.site_name == "BIG SANDY RIVER AT BRUCETON, TN"
+    assert gage.drainage_area == pytest.approx(205.0)
 
 
 class TestParsePeakDt:
