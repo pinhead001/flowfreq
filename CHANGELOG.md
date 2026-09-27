@@ -216,6 +216,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the new fields at their defaults.
 
 ### Changed
+- **Washington Region 4 covariance: investigated, still not stored** (`WA.json` notes,
+  `tests/test_regression_washington.py::TestRegion4CovarianceBasis`, #37). SIR 2016-5118's
+  Table 7 Region 4 matrix fits Table 6's Sp only if P is read as P/10. The report does not
+  document P/10 anywhere: not in the text, the Flood Q Tools workbook's formulas or its VBA.
+  Its own computations use raw P, both the workbook and the WIE weighted estimates in Table 8.
+  Inverted gage by gage, Table 8 implies a regression variance whose median ratio to
+  MEV + x'Ux is 0.985 with raw P and 4.0 with P/10, over 96 Region 4 gages. So neither basis
+  is consistent with the whole report. Region 4 intervals still fall back to `sep_log`, and
+  WA stays `partial`.
 - **Behaviour change: `analyze_gage` now applies NWIS peak qualification codes by default,
   and its results change for any gage whose peaks carry them** (#30). `apply_peak_codes`
   now defaults to `True` (it was an opt-in `False`). Codes are applied as peakfq 8.1.0's
