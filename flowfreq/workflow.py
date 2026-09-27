@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
 import pandas as pd
@@ -119,6 +119,164 @@ def resolve_regional_skew(
     return None, None, "station"
 
 
+def peak_code_kwargs(
+    peak_flows: Sequence[float],
+    water_years: Optional[Sequence[int]],
+    peak_codes: Optional[Sequence[object]],
+    *,
+    apply_peak_codes: bool = True,
+    regional_skew: Optional[float] = None,
+    regional_skew_mse: Optional[float] = None,
+    user_low_outlier_threshold: Optional[float] = None,
+    historical_peaks: Optional[Sequence[Tuple[int, float]]] = None,
+    perception_thresholds: Optional[Mapping[Tuple[int, int], float]] = None,
+    engines: Sequence[str] = ("native",),
+    site_name: str = "site",
+) -> Optional[Dict[str, Any]]:
+    """``Bulletin17C`` arguments for a record whose qualification codes change it.
+
+    The one place the analysis entry points (:func:`flowfreq.analyze_gage`,
+    :func:`run_ffa`, :func:`compare_engines`, ``flowfreq compare``) apply NWIS
+    peak codes, so they all apply them identically: through
+    :func:`flowfreq.psf_convert.convert_peak_frame`, i.e. peakfq 8.1.0's
+    ``siteQT`` rules with PeakFQ's default perception threshold for a new
+    site. Code 7 peaks become historic; codes 3 and O, and 6 and C (peakfq's
+    default ``Urb/Reg = No``), remove the peak, leaving its year as missing
+    data; codes 4 and 8 make it a less-than / greater-than interval.
+
+    Parameters
+    ----------
+    peak_flows, water_years : sequence
+        The record, as for :class:`~flowfreq.bulletin17c.Bulletin17C`.
+    peak_codes : sequence or None
+        One raw NWIS ``qualification_code`` per peak, aligned with
+        ``peak_flows`` (blank/``None``/NaN for none). ``None`` means no codes.
+    apply_peak_codes : bool, default True
+        ``False`` fits every peak as an exact systematic value, as flowfreq
+        did before codes were applied; codes that would have changed that are
+        logged as ignored.
+    regional_skew, regional_skew_mse, user_low_outlier_threshold
+        As for ``Bulletin17C``; carried into the returned arguments.
+    historical_peaks, perception_thresholds
+        The caller's own historic information. With acted-on codes present
+        they are refused rather than merged: the codes already say which
+        peaks are historic, and merging a second account of the historic
+        period into ``siteQT``'s rows is not something this reproduces.
+    engines : sequence of {"native", "fortran"}
+        Every engine that will fit the record. Each must build exactly
+        ``siteQT``'s rows from the returned arguments
+        (:meth:`~flowfreq.psf_convert.StationInputs.bulletin17c_kwargs`), so
+        a comparison gives both engines the same record.
+    site_name : str
+        Used in messages only.
+
+    Returns
+    -------
+    dict or None
+        ``None`` when there is nothing to apply -- no codes, no code that
+        ``siteQT`` acts on, or ``apply_peak_codes=False`` -- and the caller's
+        own arguments stand unchanged. Otherwise ``Bulletin17C`` keyword
+        arguments: ``peak_flows``, ``water_years``, ``historical_peaks``,
+        ``perception_thresholds``, ``user_low_outlier_threshold``,
+        ``regional_skew`` and ``regional_skew_mse``.
+
+    Raises
+    ------
+    ValueError
+        ``peak_codes`` not aligned with the record, or acted-on codes
+        together with ``historical_peaks``/``perception_thresholds``.
+    flowfreq.psf_convert.UnsupportedSpecError
+        A code 4/8 peak, which is a censored interval ``Bulletin17C`` has no
+        argument for (the message names each year and code), or any other
+        record an engine would not fit as ``siteQT`` does, such as zero flows
+        on the native engine. Pass ``apply_peak_codes=False`` to fit the
+        peaks as exact values instead, or use
+        :meth:`~flowfreq.psf_convert.StationInputs.fortran_reference`.
+    """
+    if not engines:
+        raise ValueError("engines must name at least one of 'native', 'fortran'")
+    if peak_codes is None:
+        return None
+    codes = list(peak_codes)
+    flows = np.asarray(peak_flows, dtype=float)
+    if water_years is None:
+        raise ValueError("peak_codes need water_years to say which year each code belongs to")
+    years = np.asarray(water_years)
+    if not len(codes) == len(flows) == len(years):
+        raise ValueError(
+            f"peak_codes has {len(codes)} entries but the record has {len(flows)} peak(s) "
+            f"and {len(years)} water year(s); they must be aligned"
+        )
+
+    from .peak_codes import count_acted_on_codes
+
+    acted_on = count_acted_on_codes(codes)
+    if not acted_on:
+        return None
+    summary = ", ".join(f"code {c}: {n}" for c, n in acted_on.items())
+    if not apply_peak_codes:
+        logger.warning(
+            "%s: peaks carry qualification codes peakfq would act on (%s); they are "
+            "fitted as exact systematic peaks here because peak codes were turned off.",
+            site_name,
+            summary,
+        )
+        return None
+    extra = [
+        name
+        for name, value in (
+            ("historical_peaks", historical_peaks),
+            ("perception_thresholds", perception_thresholds),
+        )
+        if value
+    ]
+    if extra:
+        raise ValueError(
+            f"{site_name}: the peaks carry qualification codes ({summary}), which say "
+            f"themselves which peaks are historic or removed; do not also pass "
+            f"{' or '.join(extra)}. Turn peak codes off to use your own historic "
+            "information with the peaks fitted as exact values."
+        )
+
+    from .peak_codes import PeakTreatment, peak_frame_intervals
+    from .psf_convert import UnsupportedSpecError, convert_peak_frame
+
+    frame = pd.DataFrame(
+        {"water_year": years.astype(int), "peak_flow_cfs": flows, "qualification_code": codes}
+    )
+    censored = peak_frame_intervals(frame)
+    censored = censored[
+        censored["treatment"].isin([PeakTreatment.LESS_THAN, PeakTreatment.GREATER_THAN])
+    ]
+    if not censored.empty:
+        listed = ", ".join(
+            f"WY{int(y)} (code {','.join(sorted(c))})"
+            for y, c in zip(censored["water_year"], censored["codes"])
+        )
+        raise UnsupportedSpecError(
+            f"{site_name}: less-than (code 4) or greater-than (code 8) peaks in {listed}. "
+            "peakfq fits these as censored intervals, which Bulletin17C has no argument "
+            "for, so neither engine here can reproduce it. Turn peak codes off to fit them "
+            "as exact values (the old behaviour), or run "
+            "flowfreq.psf_convert.convert_peak_frame(...).fortran_reference() for peakfq's "
+            "own treatment."
+        )
+
+    inputs = convert_peak_frame(
+        frame,
+        station_id=site_name,
+        regional_skew=regional_skew,
+        regional_skew_mse=regional_skew_mse,
+        low_outlier_threshold=user_low_outlier_threshold,
+    )
+    # Each engine's check rebuilds its own rows; the arguments are the same.
+    kwargs: Dict[str, Any] = {}
+    for engine in engines:
+        kwargs = inputs.bulletin17c_kwargs(engine)
+    logger.info("%s: applying peak qualification codes as peakfq does (%s)", site_name, summary)
+    return kwargs
+
+
 #: Return intervals reported by :func:`run_ffa` and :func:`compute_skew_tables`.
 DEFAULT_RETURN_INTERVALS: List[float] = [1.5, 2, 5, 10, 25, 50, 100, 200, 500]
 
@@ -159,6 +317,8 @@ def run_ffa(
     *,
     use_default_skew: bool = False,
     station_skew_only: bool = False,
+    peak_codes: Optional[Sequence[object]] = None,
+    apply_peak_codes: bool = True,
 ) -> dict:
     """Run Bulletin 17C flood frequency analysis.
 
@@ -201,16 +361,33 @@ def run_ffa(
         Explicitly accept the unsourced :data:`B17C_DEFAULT_SKEW`. Logs a warning.
     station_skew_only : bool
         Use the at-site skew with no regional weighting.
+    peak_codes : sequence, optional
+        One NWIS ``qualification_code`` per peak, aligned with
+        ``peak_flows`` -- the ``qualification_code`` column of the frame
+        :meth:`flowfreq.usgs.USGSgage.download_peak_flow` returns. When given,
+        the codes are applied as peakfq 8.1.0 applies them (see
+        :func:`peak_code_kwargs`): code 7 peaks are historic, 3/O/6/C peaks
+        are removed. A record with no code peakfq acts on is fitted exactly
+        as without ``peak_codes``. A code 4/8 (less-than/greater-than) peak
+        cannot be fitted here and comes back as an ``error``, naming the
+        years and codes.
+    apply_peak_codes : bool, default True
+        ``False`` ignores ``peak_codes`` (logging what was ignored) and fits
+        every peak as an exact systematic value.
 
     Returns
     -------
     dict
         Keys: b17c, converged, method, parameters, quantile_df, error.
+        ``parameters["peak_codes_applied"]`` counts, per code, the peaks
+        whose treatment the codes changed (empty when none were applied).
 
     Raises
     ------
     ValueError
-        When no skew source, or more than one, is chosen.
+        When no skew source, or more than one, is chosen; when
+        ``peak_codes`` is not aligned with ``peak_flows``; or when codes
+        peakfq acts on are combined with ``perception_thresholds``.
 
     Examples
     --------
@@ -224,6 +401,23 @@ def run_ffa(
     skew, skew_mse, skew_source = resolve_regional_skew(
         regional_skew, regional_skew_se, use_default_skew, station_skew_only
     )
+    if peak_codes is not None:
+        if len(peak_codes) != len(peak_flows):
+            raise ValueError(
+                f"peak_codes has {len(peak_codes)} entries for {len(peak_flows)} peak(s); "
+                "they must be aligned"
+            )
+        if apply_peak_codes and perception_thresholds:
+            from .peak_codes import count_acted_on_codes
+
+            acted_on = count_acted_on_codes(peak_codes)
+            if acted_on:
+                raise ValueError(
+                    "peak_codes carrying codes peakfq acts on "
+                    f"({', '.join(f'code {c}: {n}' for c, n in acted_on.items())}) cannot be "
+                    "combined with perception_thresholds; pass apply_peak_codes=False to "
+                    "use your thresholds with every peak fitted as an exact value."
+                )
     result = {
         "b17c": None,
         "converged": False,
@@ -249,23 +443,41 @@ def run_ffa(
             else None
         )
 
-        b17c = Bulletin17C(
-            peak_flows=peak_flows,
-            water_years=water_years,
+        b17c_kwargs: Dict[str, Any] = {
+            "peak_flows": peak_flows,
+            "water_years": water_years,
+            "regional_skew": skew,
+            "regional_skew_mse": skew_mse,
+            "perception_thresholds": pt_dict,
+            "user_low_outlier_threshold": lo_override,
+        }
+        coded = peak_code_kwargs(
+            peak_flows,
+            water_years,
+            peak_codes,
+            apply_peak_codes=apply_peak_codes,
             regional_skew=skew,
             regional_skew_mse=skew_mse,
-            perception_thresholds=pt_dict,
             user_low_outlier_threshold=lo_override,
+            perception_thresholds=pt_dict,
         )
+        codes_applied: Dict[str, int] = {}
+        if coded is not None and peak_codes is not None:
+            from .peak_codes import count_acted_on_codes
+
+            b17c_kwargs = coded
+            codes_applied = count_acted_on_codes(list(peak_codes))
+        b17c = Bulletin17C(**b17c_kwargs)
 
         b17c.run_analysis(method="ema")
         method = "ema"
         converged = bool(b17c.results.ema_converged)
 
-        # Only fall back to MOM when no perception thresholds are in play — MOM has no
-        # mechanism to incorporate censored intervals, so we keep the (non-converged)
-        # EMA result when thresholds extend the record.
-        if not converged and not pt_dict:
+        # Only fall back to MOM when the record is plain systematic peaks -- MOM has no
+        # mechanism to incorporate censored intervals or historic peaks, so we keep the
+        # (non-converged) EMA result when thresholds or applied codes extend the record.
+        extended = b17c_kwargs.get("perception_thresholds") or b17c_kwargs.get("historical_peaks")
+        if not converged and not extended:
             logger.warning("EMA did not converge, falling back to MOM")
             b17c.run_analysis(method="mom")
             method = "mom"
@@ -306,6 +518,7 @@ def run_ffa(
                     "low_outlier_threshold": r.low_outlier_threshold,
                     "n_low_outliers": r.n_low_outliers,
                     "low_outlier_source": _low_outlier_source(lo_override),
+                    "peak_codes_applied": codes_applied,
                 },
                 "quantile_df": quantile_df,
             }
@@ -581,6 +794,8 @@ def compare_engines(
     *,
     use_default_skew: bool = False,
     station_skew_only: bool = False,
+    peak_codes: Optional[Sequence[object]] = None,
+    apply_peak_codes: bool = True,
 ) -> EngineComparisonReport:
     """Run one record through both engines and compare them.
 
@@ -615,6 +830,16 @@ def compare_engines(
         Carried through to :meth:`EngineComparisonReport.to_markdown`'s title.
     tolerance_pct, parameter_tolerance_pct, ci_tolerance_pct : float
         As in :meth:`~flowfreq.bulletin17c.Bulletin17C.validate`.
+    peak_codes : sequence, optional
+        One NWIS ``qualification_code`` per peak, aligned with
+        ``peak_flows``. Applied as in :func:`run_ffa`, through
+        :func:`peak_code_kwargs`, and checked against *both* engines: each
+        must build exactly peakfq's ``siteQT`` rows from the converted
+        arguments, so the comparison stays like for like. Codes peakfq acts
+        on cannot be combined with ``historical_peaks`` or
+        ``perception_thresholds``.
+    apply_peak_codes : bool, default True
+        ``False`` ignores ``peak_codes`` and fits every peak as exact.
 
     Returns
     -------
@@ -623,7 +848,11 @@ def compare_engines(
     Raises
     ------
     ValueError
-        When no skew source, or more than one, is chosen.
+        When no skew source, or more than one, is chosen, or ``peak_codes``
+        cannot be applied (see :func:`peak_code_kwargs`).
+    flowfreq.psf_convert.UnsupportedSpecError
+        A code 4/8 peak, or a coded record either engine would not fit as
+        ``siteQT`` does; the message names the years.
     ImportError
         The f2py extension is not built; run
         ``python build_fortran/build.py`` (needs gfortran and meson).
@@ -631,6 +860,28 @@ def compare_engines(
     skew, skew_mse, _ = resolve_regional_skew(
         regional_skew, regional_skew_se, use_default_skew, station_skew_only
     )
+
+    # Codes first: a record that cannot be coded is the caller's to fix, and
+    # saying so should not need the extension.
+    coded = peak_code_kwargs(
+        peak_flows,
+        water_years,
+        peak_codes,
+        apply_peak_codes=apply_peak_codes,
+        regional_skew=skew,
+        regional_skew_mse=skew_mse,
+        user_low_outlier_threshold=user_low_outlier_threshold,
+        historical_peaks=historical_peaks,
+        perception_thresholds=perception_thresholds,
+        engines=("native", "fortran"),
+        site_name=site_name or "site",
+    )
+    if coded is not None:
+        peak_flows = coded["peak_flows"]
+        water_years = coded["water_years"]
+        historical_peaks = coded["historical_peaks"]
+        perception_thresholds = coded["perception_thresholds"]
+        user_low_outlier_threshold = coded["user_low_outlier_threshold"]
 
     import flowfreq.peakfqr  # noqa: F401 -- raise before doing any native work if absent
 

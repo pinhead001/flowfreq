@@ -285,3 +285,97 @@ class TestCompare:
         assert out_path.is_file()
         assert "# Engine comparison: fake" in out_path.read_text()
         assert "# Engine comparison" not in result.output
+
+
+class TestComparePeakCodes:
+    """``--peaks`` honours a ``qualification_code`` column (#30)."""
+
+    @staticmethod
+    def _capture(monkeypatch):
+        seen: dict = {}
+
+        class _FakeReport:
+            comparison = ComparisonResult(passed=True)
+
+            def to_markdown(self) -> str:
+                return "ok"
+
+        monkeypatch.setattr(
+            "flowfreq.workflow.compare_engines", lambda **kw: seen.update(kw) or _FakeReport()
+        )
+        return seen
+
+    def test_codes_reach_compare_engines_as_strings(self, tmp_path, monkeypatch):
+        peaks = tmp_path / "peaks.csv"
+        pd.DataFrame(
+            {
+                "water_year": [2000, 2001, 2002],
+                "peak_flow_cfs": [100.0, 200.0, 150.0],
+                "qualification_code": ["7", "", "6"],
+            }
+        ).to_csv(peaks, index=False)
+        seen = self._capture(monkeypatch)
+        result = CliRunner().invoke(cli, ["compare", "--station-skew", "--peaks", str(peaks)])
+        assert result.exit_code == 0, result.output
+        # Read as strings: an all-numeric code column must not come back "7.0".
+        assert seen["peak_codes"][0] == "7"
+        assert seen["peak_codes"][2] == "6"
+        assert seen["apply_peak_codes"] is True
+
+    def test_ignore_peak_codes_turns_them_off(self, tmp_path, monkeypatch):
+        peaks = tmp_path / "peaks.csv"
+        pd.DataFrame(
+            {"water_year": [2000], "peak_flow_cfs": [100.0], "qualification_code": ["6"]}
+        ).to_csv(peaks, index=False)
+        seen = self._capture(monkeypatch)
+        result = CliRunner().invoke(
+            cli, ["compare", "--station-skew", "--ignore-peak-codes", "--peaks", str(peaks)]
+        )
+        assert result.exit_code == 0, result.output
+        assert seen["apply_peak_codes"] is False
+
+    def test_no_code_column_passes_none(self, tmp_path, monkeypatch):
+        peaks = tmp_path / "peaks.csv"
+        pd.DataFrame({"water_year": [2000], "peak_flow_cfs": [100.0]}).to_csv(peaks, index=False)
+        seen = self._capture(monkeypatch)
+        result = CliRunner().invoke(cli, ["compare", "--station-skew", "--peaks", str(peaks)])
+        assert result.exit_code == 0, result.output
+        assert seen["peak_codes"] is None
+
+    def test_a_censored_code_is_a_clean_error_naming_the_year(self, tmp_path):
+        """Real compare_engines: the code step fails before the extension is needed."""
+        peaks = tmp_path / "peaks.csv"
+        years = list(range(2001, 2016))
+        codes = [""] * len(years)
+        codes[2] = "4"
+        pd.DataFrame(
+            {
+                "water_year": years,
+                "peak_flow_cfs": [100.0 + 10 * i for i in range(len(years))],
+                "qualification_code": codes,
+            }
+        ).to_csv(peaks, index=False)
+        result = CliRunner().invoke(cli, ["compare", "--station-skew", "--peaks", str(peaks)])
+        assert result.exit_code != 0
+        assert "WY2003 (code 4)" in result.output
+        assert "--ignore-peak-codes" in result.output
+        assert "Traceback" not in result.output
+
+    def test_codes_with_historical_csv_is_a_clean_error(self, tmp_path):
+        peaks = tmp_path / "peaks.csv"
+        pd.DataFrame(
+            {
+                "water_year": [2000, 2001, 2002],
+                "peak_flow_cfs": [100.0, 200.0, 150.0],
+                "qualification_code": ["7", "", ""],
+            }
+        ).to_csv(peaks, index=False)
+        hist = tmp_path / "hist.csv"
+        pd.DataFrame({"water_year": [1897], "peak_flow_cfs": [25000.0]}).to_csv(hist, index=False)
+        result = CliRunner().invoke(
+            cli,
+            ["compare", "--station-skew", "--peaks", str(peaks), "--historical", str(hist)],
+        )
+        assert result.exit_code != 0
+        assert "historical_peaks" in result.output
+        assert "Traceback" not in result.output

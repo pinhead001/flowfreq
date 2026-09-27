@@ -414,14 +414,26 @@ class TestConvertPeakFrame:
 
 
 class TestAnalyzeGageWiring:
-    """``flowfreq.analyze_gage``'s peak-frame -> Bulletin17C step."""
+    """``flowfreq.analyze_gage``'s peak-frame -> Bulletin17C step.
 
-    def test_default_ignores_codes_but_says_so(self, caplog):
+    Codes are applied by default (#30); ``apply_peak_codes=False`` is the old
+    behaviour.
+    """
+
+    def test_codes_are_applied_by_default(self):
+        from flowfreq import _gage_analysis
+
+        codes = [""] * len(YEARS)
+        codes[-1] = "6"
+        b17c = _gage_analysis(_peaks(codes), "S1", method="ema")
+        assert b17c.n == len(YEARS) - 1
+
+    def test_opting_out_ignores_codes_but_says_so(self, caplog):
         from flowfreq import _gage_analysis
 
         codes = [""] * len(YEARS)
         codes[2] = "6"
-        b17c = _gage_analysis(_peaks(codes), "S1", method="ema")
+        b17c = _gage_analysis(_peaks(codes), "S1", method="ema", apply_peak_codes=False)
         assert b17c.n == len(YEARS)
         assert "code 6: 1" in caplog.text
 
@@ -431,13 +443,21 @@ class TestAnalyzeGageWiring:
         _gage_analysis(_peaks(["2"] * len(YEARS)), "S1", method="ema")
         assert "qualification codes" not in caplog.text
 
-    def test_apply_peak_codes(self):
+    def test_a_record_without_acted_on_codes_fits_exactly_as_before(self):
+        """Turning codes on by default changes nothing for an uncoded gage."""
         from flowfreq import _gage_analysis
 
-        codes = [""] * len(YEARS)
-        codes[-1] = "6"
-        b17c = _gage_analysis(_peaks(codes), "S1", method="ema", apply_peak_codes=True)
-        assert b17c.n == len(YEARS) - 1
+        results = []
+        for apply in (True, False):
+            b17c = _gage_analysis(
+                _peaks(["2"] * len(YEARS)), "S1", method="ema", apply_peak_codes=apply
+            )
+            b17c.run_analysis()
+            results.append(b17c.results)
+        on, off = results
+        assert on.mean_log == off.mean_log
+        assert on.skew_station == off.skew_station
+        pd.testing.assert_frame_equal(on.quantiles, off.quantiles)
 
     def test_mid_record_removal_is_missing_data(self):
         """siteQT drops a removed year; the native engine, given the gap, must
@@ -446,17 +466,24 @@ class TestAnalyzeGageWiring:
 
         codes = [""] * len(YEARS)
         codes[2] = "6"
-        b17c = _gage_analysis(_peaks(codes), "S1", method="ema", apply_peak_codes=True)
+        b17c = _gage_analysis(_peaks(codes), "S1", method="ema")
         b17c.run_analysis()
         assert b17c.results.n_peaks == len(YEARS) - 1
 
-    def test_apply_peak_codes_refuses_censored_peaks(self):
+    def test_censored_peaks_are_refused_naming_year_and_code(self):
         from flowfreq import _gage_analysis
 
         codes = [""] * len(YEARS)
         codes[2] = "4"
-        with pytest.raises(UnsupportedSpecError, match="2003"):
-            _gage_analysis(_peaks(codes), "S1", method="ema", apply_peak_codes=True)
+        codes[5] = "8"
+        with pytest.raises(UnsupportedSpecError, match=r"WY2003 \(code 4\), WY2006 \(code 8\)"):
+            _gage_analysis(_peaks(codes), "S1", method="ema")
+
+    def test_mom_without_acted_on_codes_still_works(self):
+        from flowfreq import _gage_analysis
+
+        b17c = _gage_analysis(_peaks(["2"] * len(YEARS)), "S1", method="mom")
+        assert b17c.n == len(YEARS)
 
     @pytest.mark.parametrize(
         "kwargs, match",
@@ -468,8 +495,21 @@ class TestAnalyzeGageWiring:
     def test_apply_peak_codes_errors(self, kwargs, match):
         from flowfreq import _gage_analysis
 
+        codes = [""] * len(YEARS)
+        codes[0] = "7"
         with pytest.raises(ValueError, match=match):
-            _gage_analysis(_peaks(), "S1", apply_peak_codes=True, **kwargs)
+            _gage_analysis(_peaks(codes), "S1", **kwargs)
+
+    @pytest.mark.parametrize(
+        "kwargs",
+        [{"method": "mom"}, {"method": "ema", "historical_peaks": [(1990, 5.0)]}],
+    )
+    def test_opting_out_lifts_those_restrictions(self, kwargs):
+        from flowfreq import _gage_analysis
+
+        codes = [""] * len(YEARS)
+        codes[0] = "7"
+        _gage_analysis(_peaks(codes), "S1", apply_peak_codes=False, **kwargs)
 
 
 class TestReadPsfPeaks:
