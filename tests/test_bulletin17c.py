@@ -797,3 +797,57 @@ class TestEMAZeroFlowYears:
 
         with pytest.raises(ValueError, match="same length"):
             ExpectedMomentsAlgorithm(np.array([1.0, 2.0]), np.array([2000]))
+
+
+class TestAtSiteSkewMseOption:
+    """emafit.f:707-711: B17B skew MSE when MGBT computes the cut and finds PILFs."""
+
+    @staticmethod
+    def _flows(with_pilfs: bool) -> np.ndarray:
+        rng = np.random.default_rng(7)
+        flows = 10 ** rng.normal(3.0, 0.25, 40)
+        if with_pilfs:
+            flows[:4] = [5.0, 6.0, 7.0, 8.0]
+        return flows
+
+    def _ema(self, flows, **kwargs):
+        from flowfreq.bulletin17c import ExpectedMomentsAlgorithm
+
+        ema = ExpectedMomentsAlgorithm(
+            flows,
+            np.arange(1980, 1980 + len(flows)),
+            regional_skew=-0.1,
+            regional_skew_mse=0.12,
+            **kwargs,
+        )
+        ema.run_analysis()
+        return ema
+
+    def test_mgbt_with_low_outliers_uses_b17b(self):
+        ema = self._ema(self._flows(with_pilfs=True))
+        assert ema._results.n_low_outliers > 0
+        assert ema._at_site_option == "B17B"
+
+    def test_mgbt_without_low_outliers_uses_adje(self):
+        ema = self._ema(self._flows(with_pilfs=False))
+        assert ema._results.n_low_outliers == 0
+        assert ema._at_site_option == "ADJE"
+
+    def test_user_threshold_keeps_adje_even_with_low_outliers(self):
+        """A supplied threshold is peakfq's FIXED (gbthrsh0 > -6): no switch."""
+        ema = self._ema(self._flows(with_pilfs=True), user_low_outlier_threshold=10.0)
+        assert ema._results.n_low_outliers > 0
+        assert ema._at_site_option == "ADJE"
+
+    def test_b17b_mode_uses_uncapped_mseg(self):
+        from flowfreq.bulletin17c import _mseg
+
+        ema = self._ema(self._flows(with_pilfs=True))
+        mse = ema._at_site_skew_mse(3.0, 0.25, -0.3, 200)
+        assert mse == pytest.approx(_mseg(200, -0.3))
+
+    def test_mseg_caps_only_in_the_adje_helper(self):
+        from flowfreq.bulletin17c import _b17b_skew_mse, _mseg
+
+        assert _b17b_skew_mse(200, 0.2) == pytest.approx(_mseg(150, 0.2))
+        assert _mseg(200, 0.2) < _mseg(150, 0.2)

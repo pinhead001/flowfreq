@@ -231,6 +231,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   are checked at all.
 
 ### Fixed
+- **Native EMA: at-site skew MSE now follows peakfq's B17B switch.** `emafit.f:707-711` uses
+  the plain Bulletin 17B `mseg(n, G)` over the whole record (uncapped), not ADJE's
+  censoring-adjusted MSE, whenever MGBT computes the low-outlier threshold and finds low
+  outliers, and keeps that choice for the confidence bounds. The native engine always used
+  ADJE. It now switches the same way (`ExpectedMomentsAlgorithm._at_site_option`); a
+  user-supplied threshold keeps ADJE, as peakfq's FIXED option does.
+  **Results change** for sites where MGBT finds low outliers and a regional skew is weighted
+  in: the weighted skew, quantiles and confidence bounds move to peakfq's values.
+
+  | Site | Weighted skew vs peakfq, before -> after | Worst quantile error, before -> after |
+  |---|---|---|
+  | Cains Coulee 06327450 (11 PILFs) | 0.058 -> 6e-6 | 9.06% -> 0.0012% (Q100: 2.06% -> 0.00013%) |
+  | 06324500.00 / .01 (17 PILFs) | off -> within 3e-6 | -- |
+
+  Big Sandy, Powder River and 12363000 (no MGBT low outliers) are unchanged. This resolves the
+  long-standing Cains Coulee `skew_weighted` xfail and the three that followed from it; the
+  "unexplained ~3x `as_G_mse` discrepancy" it was attributed to is this switch (a standalone
+  `mseg_all` call runs ADJE). CLAUDE.md's Validation Status is corrected.
 - **`USGSgage.download_peak_flow` silently dropped peaks with an unknown day or
   month.** NWIS writes these as `00` (`1897-03-00`), which `pd.to_datetime`
   coerced to NaT, so the row was lost. Those rows are typically the historic

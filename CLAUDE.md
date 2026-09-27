@@ -187,15 +187,16 @@ sites this reproduces peakfq 8.1.0 to within measurement noise: weighted skew to
 Sandy, confidence bounds within 0.06% at every AEP tested, asymmetry ratio within
 0.0007-0.0022 of peakfq's own.
 
-One `xfail(strict=True)` remains, on Cains Coulee's `skew_weighted` (off by 0.058 skew units).
-It is **not** a `var_mom`/`mse_ema` precision limit — that was checked directly and ruled out
-(`mse_ema` matches the Fortran oracle to 3e-8 relative at this site's real input). The actual
-gap: `emafitpr`'s own internally-computed `as_G_mse` for this one site disagrees with what
-calling the same `mseg_all` Fortran routine gives standalone on identical inputs, by roughly
-3x, for a reason not pinned down despite investigation (see
-`tests/fortran_parity/test_fortran_oracles.py::TestCainsCouleeAsGMseDiscrepancy` and TODO.md
-P3 for the full account). flowfreq's own computation may be more correct here than the golden
-reference, not less — there is no known defect to fix.
+No parity `xfail` remains; the only strict xfails left are the four 2012 PeakfqSA manual
+comparisons (see Test Data). Cains Coulee's `skew_weighted`, 0.058 skew units off for a long
+time, now matches to 6e-6 (quantiles to 0.0012%). The cause was `emafit.f:707-711`: when MGBT
+computes the low-outlier threshold and finds low outliers, `emafitpr` switches the at-site skew
+MSE from ADJE to the plain Bulletin 17B `mseg(n, G)` over the whole record (uncapped), and
+leaves `at_site_option` there for the confidence bounds too. The native engine now follows the
+same switch (`ExpectedMomentsAlgorithm._at_site_option`); a user-supplied threshold keeps ADJE,
+as peakfq's FIXED option does. The "unexplained ~3x `as_G_mse` discrepancy" this was once
+attributed to is that switch: a standalone `mseg_all` call runs ADJE
+(`tests/fortran_parity/test_fortran_oracles.py::TestCainsCouleeAsGMseDiscrepancy`).
 
 MGBT is the one part verified line-by-line against the Fortran (`GGBCRITP` / `FP_TNC_CDF`),
 validated on Orestimba Creek (USGS 11274500, B17C Appendix 10).

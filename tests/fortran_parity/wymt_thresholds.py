@@ -34,13 +34,6 @@ THRESHOLDS: Dict[str, Dict[Tuple[int, int], float]] = {
     },
 }
 
-#: The subset whose weighted fit does not match ``emafitpr`` yet, for a reason
-#: unrelated to perception thresholds: ``emafitb`` (``emafit.f`` lines 706-710)
-#: computes the at-site skew MSE with the B17B formula alone -- no ADJE
-#: censoring adjustment -- whenever MGBT is run and finds low outliers, and the
-#: native engine always uses ADJE. Both stations have 17 MGBT low outliers.
-B17B_MSE_SWITCH = {"06324500.00", "06324500.01"}
-
 
 def bulletin17c_inputs(site_no: str) -> dict:
     """``ExpectedMomentsAlgorithm``/``build_emafit_arrays`` keyword arguments.

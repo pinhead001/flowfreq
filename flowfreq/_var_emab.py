@@ -76,8 +76,19 @@ _NU_MIN = 5.0
 _C_MIN = 0.5
 
 
-def _mseg_all(nobs: np.ndarray, tl: np.ndarray, tu: np.ndarray, mc: np.ndarray) -> float:
-    """ADJE's at-site skew MSE. ``emafit.f`` ``mseg_all`` (line 1569), 'ADJE' branch.
+def _mseg_all(
+    nobs: np.ndarray,
+    tl: np.ndarray,
+    tu: np.ndarray,
+    mc: np.ndarray,
+    at_site_option: str = "ADJE",
+) -> float:
+    """At-site skew MSE. ``emafit.f`` ``mseg_all`` (line 1569), 'ADJE' or 'B17B' branch.
+
+    ``at_site_option`` mirrors the Fortran's ``/tacg04/`` common: ``emafitpr``
+    leaves it at ``'B17B'`` when MGBT computed the threshold and found low
+    outliers (``emafit.f:707``), and ``'ADJE'`` otherwise. ``'B17B'`` is plain
+    ``mseg(n, G)`` over the whole record, **uncapped** -- only ADJE caps at 150.
 
     Reuses ``ExpectedMomentsAlgorithm._adje_bias_adjustment`` (already
     Fortran-verified, TODO.md P3's "Skew weighting" item) rather than a
@@ -86,9 +97,13 @@ def _mseg_all(nobs: np.ndarray, tl: np.ndarray, tu: np.ndarray, mc: np.ndarray) 
     matches what ``_adje_bias_adjustment`` expects: it calls ``mse_ema``,
     which re-derives its own shift from ``mc[0]`` -- exactly 0 here.
     """
-    from flowfreq.bulletin17c import ExpectedMomentsAlgorithm, _b17b_skew_mse
+    from flowfreq.bulletin17c import ExpectedMomentsAlgorithm, _b17b_skew_mse, _mseg
 
     n = int(round(float(np.sum(nobs))))
+    if at_site_option == "B17B":
+        return _mseg(n, float(mc[2]))
+    if at_site_option != "ADJE":
+        raise ValueError(f"at_site_option must be 'ADJE' or 'B17B', got {at_site_option!r}")
     n_adj = min(n, 150)
     bias_adj = ExpectedMomentsAlgorithm._adje_bias_adjustment(
         tuple(np.asarray(nobs, dtype=float)),
@@ -111,6 +126,7 @@ def regmoms(
     r_m_mse: float = NO_REGIONAL_INFO,
     r_s2: float = 0.0,
     r_s2_mse: float = NO_REGIONAL_INFO,
+    at_site_option: str = "ADJE",
 ) -> np.ndarray:
     """Covariance of the fitted central moments (mean, variance, skew).
 
@@ -133,7 +149,7 @@ def regmoms(
     s_mc = s_mc.copy()
 
     if r_g_mse > 0.0:
-        w_g = r_g_mse / (_mseg_all(nobs, tl, tu, mc) + r_g_mse)
+        w_g = r_g_mse / (_mseg_all(nobs, tl, tu, mc, at_site_option) + r_g_mse)
     elif -98.0 <= r_g_mse <= 0.0:
         w_g = 0.0
     else:  # r_g_mse < -98, or the station-only sentinel r_g_mse >= 1e10
@@ -210,6 +226,7 @@ def var_emab(
     r_m_mse: float = NO_REGIONAL_INFO,
     r_s2_mse: float = NO_REGIONAL_INFO,
     r_g_mse: float = NO_REGIONAL_INFO,
+    at_site_option: str = "ADJE",
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Quantile estimates, their covariance with their own SE, and CIs.
 
@@ -242,14 +259,14 @@ def var_emab(
     mc = np.asarray(mc, dtype=float)
     pq = np.asarray(pq, dtype=float)
 
-    s_mc = regmoms(nobs, tl, tu, mc, r_g_mse, r_m_mse, r_s2, r_s2_mse)
+    s_mc = regmoms(nobs, tl, tu, mc, r_g_mse, r_m_mse, r_s2, r_s2_mse, at_site_option)
     w1, gr_mc1 = _gridmake(mc, s_mc)
     n_outer = len(w1)
 
     w2 = np.empty((n_outer, n_outer))
     gr_mc2 = np.empty((n_outer, n_outer, 3))
     for i in range(n_outer):
-        s_mc_i = regmoms(nobs, tl, tu, gr_mc1[i], r_g_mse, r_m_mse, r_s2, r_s2_mse)
+        s_mc_i = regmoms(nobs, tl, tu, gr_mc1[i], r_g_mse, r_m_mse, r_s2, r_s2_mse, at_site_option)
         w2[i], gr_mc2[i] = _gridmake(gr_mc1[i], s_mc_i)
 
     nq = len(pq)

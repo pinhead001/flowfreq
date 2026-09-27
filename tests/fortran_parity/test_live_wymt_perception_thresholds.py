@@ -15,9 +15,9 @@ Measured on Windows/MSYS2 gfortran, the largest differences on the passing
 stations are 9e-7 on the mean, 2e-6 on the standard deviation and 3e-6 on
 either skew.
 
-Two stations still miss on the weighted fit, for a reason unrelated to
-thresholds, and are ``xfail(strict=True)``: see
-``wymt_thresholds.B17B_MSE_SWITCH``. Their at-site skew and MGBT agree.
+06324500.00/.01 (17 MGBT low outliers each) were ``xfail(strict=True)`` on the
+weighted fit until the native at-site skew MSE followed ``emafit.f:707``'s B17B
+switch; they now match like the rest.
 
 File name starts ``test_live_`` so it sorts after ``test_fortran_oracles.py``;
 see ``test_live_interval_builder.py``'s docstring for why that matters.
@@ -29,7 +29,7 @@ import numpy as np
 import pytest
 
 from tests.fixtures.paths import SKIP_REASON, TESTDATA_AVAILABLE
-from tests.fortran_parity.wymt_thresholds import B17B_MSE_SWITCH, THRESHOLDS, bulletin17c_inputs
+from tests.fortran_parity.wymt_thresholds import THRESHOLDS, bulletin17c_inputs
 
 pytest.importorskip(
     "flowfreq.peakfqr",
@@ -50,16 +50,9 @@ ATOL_SKEW = 1e-3
 ATOL_MEAN = 1e-4
 ATOL_VARIANCE = 1e-5
 
-_B17B_REASON = (
-    "emafitb (emafit.f 706-710) uses the B17B skew MSE, without the ADJE censoring "
-    "adjustment, when MGBT runs and finds low outliers; the native engine always uses "
-    "ADJE, so the regional-skew weight differs. Not a perception-threshold issue."
-)
-
 
 def _weighted_param(site_no):
-    marks = [pytest.mark.xfail(strict=True, reason=_B17B_REASON)]
-    return pytest.param(site_no, marks=marks if site_no in B17B_MSE_SWITCH else [])
+    return pytest.param(site_no)
 
 
 @pytest.fixture(scope="module")
@@ -113,8 +106,6 @@ def test_measured_agreement_is_far_inside_the_tolerance(fits):
     """The tolerances above are loose on purpose; the real gap is ~1e-6."""
     worst = 0.0
     for site_no, (results, reference) in fits.items():
-        if site_no in B17B_MSE_SWITCH:
-            continue
         p = reference.parameters
         worst = max(
             worst,

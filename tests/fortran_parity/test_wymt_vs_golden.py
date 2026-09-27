@@ -23,23 +23,14 @@ What does censoring cost?
     formula and a bias-correction factor sized off the wrong count -- see
     ``tests/fortran_parity/test_fortran_oracles.py::TestMomentIterationOracle``).
     Native ``Wd`` here is 0.186, close to peakfq's 0.184; native at-site
-    skew is -0.708 against peakfq's -0.708. What's left is downstream of
-    all of that: ``skew_weighted`` still carries a real gap (0.058 skew
-    units), and it is *not* a `var_mom`/`mn2mvarb` precision limit --
-    `mse_ema` called standalone with this site's real post-MGBT group
-    matches the Fortran oracle to 3e-8 relative. It traces to `emafitpr`'s
-    own internally-computed `as_G_mse` for this site disagreeing with what
-    the same `mseg_all` routine gives called standalone on identical
-    inputs; see the xfail below for the full account.
+    skew is -0.708 against peakfq's -0.708. The weighted skew, a 0.058
+    skew-unit gap for a long time, now matches to 6e-6: ``emafit.f:707``
+    switches the at-site skew MSE to the plain Bulletin 17B ``mseg(n, G)``
+    whenever MGBT computes the threshold and finds low outliers, and the
+    native engine used ADJE unconditionally until it followed that switch.
 
-Read together they localise the open P3 defect precisely: with no censoring
-the native fit is exact, and every ported piece -- the at-site moment
-iteration, the ADJE bias adjustment, `detrat`, and (independently, per
-routine) `mse_ema`/`var_mom`/`mn2mvarb` -- matches the Fortran to a
-demonstrated tolerance, including at this site's own real, sensitive input.
-What remains is a discrepancy inside `emafitpr` itself that a clean
-composition of correctly-verified routines has no principled way to
-reproduce -- see the xfail below.
+Read together: with no censoring the native fit is exact, and with
+MGBT-produced censoring it is exact too once the B17B/ADJE switch is honoured.
 
 The peakfq 7.4 columns in the fixture CSVs are a sanity cross-check only.
 Parity is against the committed goldens, generated from the vendored 8.1.0
@@ -163,14 +154,13 @@ class TestPowderRiverUncensored:
 
 
 class TestCainsCouleeCensored:
-    """USGS 06327450, 1991-2022. MGBT censors 11 peaks, and the fit diverges.
+    """USGS 06327450, 1991-2022. MGBT censors 11 peaks.
 
     Everything discrete matches: the same 11 PILFs at the same 332 cfs cut.
-    The at-site skew now matches too (0.0002 gap), and so does ``Wd`` (0.002
-    gap against peakfq's 0.184). What still doesn't match is
-    ``skew_weighted`` -- a real residual, and (measured, not assumed) not
-    a `var_mom`/`mse_ema` precision limit; see `test_weighted_skew_matches`'s
-    xfail reason.
+    The at-site skew matches (0.0002 gap) and so does ``Wd`` (0.002 gap
+    against peakfq's 0.184). ``skew_weighted`` matches to 6e-6 now that the
+    at-site skew MSE follows ``emafit.f:707``'s B17B switch; it was 0.058
+    off, the long-standing ``xfail(strict=True)`` here, while it did not.
     """
 
     def test_mgbt_finds_the_same_pilfs(self, cains_coulee):
@@ -240,65 +230,24 @@ class TestCainsCouleeCensored:
         results, ref = cains_coulee
         assert abs(results.skew_station - ref["skew_at_site"]) < 0.02
 
-    @pytest.mark.xfail(
-        strict=True,
-        reason=(
-            "skew_weighted still carries a real 0.058-skew-unit gap. Not "
-            "the at-site fit (skew_station is correct to 0.0002), not "
-            "detrat (native Wd is 0.186 against peakfq's 0.184), and -- "
-            "measured directly, not assumed -- not mse_ema/var_mom/"
-            "mn2mvarb either: called standalone with Cains Coulee's real "
-            "post-MGBT group, mse_ema(kmom=3) matches the Fortran oracle "
-            "to 3e-8 relative. The gap is that emafitpr's own internally-"
-            "computed as_G_mse for this site (0.2212, what the golden "
-            "skew_weighted was built from) does not match what calling "
-            "the same mseg_all Fortran routine standalone gives for the "
-            "identical (nobs, tl, tu, mc) -- 0.0749, reproduced even by a "
-            "from-scratch, single-case golden regeneration, ruling out "
-            "cross-case SAVE state contamination as the cause this time. "
-            "The exact mechanism (likely something in emafitpr's own "
-            "multi-stage internal fitting before the reported value is "
-            "set) was not pinned down despite substantial investigation. "
-            "flowfreq's own composition of independently-verified routines "
-            "has no principled way to reproduce an unexplained number, so "
-            "it is left as is. See TODO.md P3."
-        ),
-    )
     def test_weighted_skew_matches(self, cains_coulee):
+        """Measured 5.9e-6 (was 0.058 before the B17B skew-MSE switch)."""
         results, ref = cains_coulee
-        assert abs(results.skew_weighted - ref["skew_weighted"]) < 0.02
+        assert abs(results.skew_weighted - ref["skew_weighted"]) < 1e-4
 
-    def test_quantile_error_is_bounded_and_worst_in_the_lower_tail(self, cains_coulee):
-        """Recorded, not asserted away: 0.003% at best, 9.1% at worst, 2.1% at Q100.
+    def test_quantiles_match_at_every_aep(self, cains_coulee):
+        """Worst measured 0.0012%, at AEP 0.995.
 
-        Was 0.64%-23.9% (6.3% at Q100) before the at-site EMA moment
-        iteration was fixed (TODO.md P3); the remaining error traces
-        entirely to the one open item, ``skew_weighted``'s own 0.058-skew-unit
-        gap (``test_weighted_skew_matches``) -- everything upstream of it
-        (the at-site fit, ``Wd``, ADJE) now matches peakfq 8.1.0 closely.
-        The lower tail is where that residual bites hardest, which is the
-        signature of a skew-weighting gap rather than a broken fit.
-
-        With the Wilson-Hilferty K factor these read 0.08%, 9.7% and 1.5%:
-        that approximation's own error partly offset the skew gap. ``kfactor``
-        is now the exact Pearson III inverse peakfq uses (Powder River's
-        quantiles match to 1e-9), so what is left here is the skew gap alone;
-        see ``test_q100_error_under_two_percent``.
+        Was 9.1% at worst (2.1% at Q100) while ``skew_weighted`` carried its
+        0.058 gap, and 0.64%-23.9% before the at-site EMA moment iteration was
+        fixed (TODO.md P3). The lower-tail signature that gap left is gone.
         """
         results, ref = cains_coulee
         errors = _quantile_errors(results, ref)
-        assert max(errors.values()) < 12.0
-        worst_aep = max(errors, key=errors.get)
-        assert worst_aep > 0.5, f"worst error at AEP {worst_aep}, expected the lower tail"
+        worst = max(errors, key=errors.get)
+        assert errors[worst] < 0.01, f"worst at AEP {worst}: {errors[worst]:.4f}%"
 
-    @pytest.mark.xfail(
-        strict=True,
-        reason=(
-            "2.06% at Q100, all from skew_weighted's 0.058 gap (test_weighted_skew_matches). "
-            "It read 1.5% only while the Wilson-Hilferty K factor's own error offset it; "
-            "kfactor is now exact."
-        ),
-    )
     def test_q100_error_under_two_percent(self, cains_coulee):
+        """Measured 0.00013% (was 2.06% before the B17B skew-MSE switch)."""
         results, ref = cains_coulee
-        assert _quantile_errors(results, ref)[0.01] < 2.0
+        assert _quantile_errors(results, ref)[0.01] < 0.01
