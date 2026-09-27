@@ -145,3 +145,33 @@ class TestCainsCoulee:
         except FileNotFoundError as exc:
             pytest.skip(str(exc))
         assert report.comparison.passed
+
+
+class TestCodedRecord:
+    """A real coded record (#30): both engines get the same siteQT rows.
+
+    USGS 01426500 from the vendored HU02 WATSTORE file: 50 code 6 (regulated)
+    peaks that peakfq removes and one code 7 historic peak. ``peak_code_kwargs``
+    checks each engine rebuilds ``siteQT``'s rows before either is run, so the
+    comparison is like for like.
+    """
+
+    def test_coded_record_passes(self):
+        from flowfreq.watstore import read_watstore
+        from flowfreq.workflow import compare_engines
+        from tests.fixtures.paths import TESTDATA_AVAILABLE, testdata_path
+
+        if not TESTDATA_AVAILABLE:
+            pytest.skip("peakfqr reference test data not present")
+        frame = read_watstore(testdata_path("extra_tests/HU02_WATSTORE.txt"))
+        site = frame[frame["site_no"].astype(str).str.strip() == "01426500"]
+        report = compare_engines(
+            peak_flows=site["peak_flow_cfs"].to_numpy(),
+            water_years=site["water_year"].to_numpy(),
+            station_skew_only=True,
+            peak_codes=site["qualification_code"].tolist(),
+            site_name="USGS 01426500",
+        )
+        assert report.native.n_peaks == 52
+        assert report.comparison.passed
+        assert report.max_quantile_deviation_pct < 0.2

@@ -3,6 +3,7 @@
 import numpy as np
 import pytest
 
+from flowfreq.psf_convert import UnsupportedSpecError
 from flowfreq.workflow import (
     B17C_DEFAULT_SKEW,
     B17C_DEFAULT_SKEW_SE,
@@ -10,11 +11,15 @@ from flowfreq.workflow import (
     SKEW_OPTIONS,
     _low_outlier_source,
     build_skew_curves_dict,
+    compare_engines,
     compute_skew_tables,
+    peak_code_kwargs,
     resolve_regional_skew,
     run_ffa,
 )
 from tests.fixtures.big_sandy import REGIONAL_SKEW, REGIONAL_SKEW_SD, SYSTEMATIC_PEAKS
+from tests.fixtures.paths import SKIP_REASON, TESTDATA_AVAILABLE
+from tests.fixtures.paths import testdata_path as _testdata
 
 
 def _big_sandy_arrays():
@@ -268,3 +273,193 @@ class TestBuildSkewCurvesDict:
     def test_empty_when_nothing_resolves(self):
         """An empty dict is the documented signal to fall back to the default."""
         assert build_skew_curves_dict({"parameters": {}}, SKEW_OPTIONS) == {}
+
+
+# --------------------------------------------------------------------------- #
+# Peak qualification codes (#30)
+# --------------------------------------------------------------------------- #
+
+_CODE_YEARS = np.arange(2001, 2016)
+_CODE_FLOWS = np.array([float(100 + 37 * i % 211) for i in range(len(_CODE_YEARS))])
+
+
+def _codes(at: dict) -> list:
+    """Blank codes, with ``at[index] = code`` set."""
+    out = [""] * len(_CODE_YEARS)
+    for index, code in at.items():
+        out[index] = code
+    return out
+
+
+class TestPeakCodeKwargs:
+    def test_nothing_to_apply_returns_none(self):
+        assert peak_code_kwargs(_CODE_FLOWS, _CODE_YEARS, None) is None
+        assert peak_code_kwargs(_CODE_FLOWS, _CODE_YEARS, ["2"] * len(_CODE_YEARS)) is None
+
+    def test_opting_out_returns_none_and_logs(self, caplog):
+        kw = peak_code_kwargs(_CODE_FLOWS, _CODE_YEARS, _codes({3: "6"}), apply_peak_codes=False)
+        assert kw is None
+        assert "code 6: 1" in caplog.text
+
+    def test_code_7_is_historic_and_codes_6_and_c_removed(self):
+        kw = peak_code_kwargs(_CODE_FLOWS, _CODE_YEARS, _codes({0: "7", 3: "6", 5: "2,C"}))
+        assert kw["historical_peaks"] == [(2001, _CODE_FLOWS[0])]
+        years = list(kw["water_years"])
+        assert 2001 not in years and 2004 not in years and 2006 not in years
+        assert len(kw["peak_flows"]) == len(_CODE_YEARS) - 3
+
+    def test_both_engines_are_checked(self):
+        kw = peak_code_kwargs(
+            _CODE_FLOWS, _CODE_YEARS, _codes({0: "7"}), engines=("native", "fortran")
+        )
+        assert kw is not None
+
+    def test_skew_and_low_outlier_settings_carry_through(self):
+        kw = peak_code_kwargs(
+            _CODE_FLOWS,
+            _CODE_YEARS,
+            _codes({3: "3"}),
+            regional_skew=-0.07,
+            regional_skew_mse=0.18,
+            user_low_outlier_threshold=120.0,
+        )
+        assert kw["regional_skew"] == -0.07
+        assert kw["regional_skew_mse"] == 0.18
+        assert kw["user_low_outlier_threshold"] == 120.0
+
+    def test_censored_codes_name_each_year_and_code(self):
+        with pytest.raises(UnsupportedSpecError, match=r"WY2003 \(code 4\), WY2005 \(code 8\)"):
+            peak_code_kwargs(_CODE_FLOWS, _CODE_YEARS, _codes({2: "4", 4: "8"}))
+
+    def test_a_removed_code_wins_over_a_censoring_one(self):
+        """siteQT applies 6/C after 4/8, so "4,6" is removed, not censored."""
+        kw = peak_code_kwargs(_CODE_FLOWS, _CODE_YEARS, _codes({2: "4,6"}))
+        assert 2003 not in list(kw["water_years"])
+
+    @pytest.mark.parametrize(
+        "kwargs, match",
+        [
+            ({"historical_peaks": [(1990, 5.0)]}, "historical_peaks"),
+            ({"perception_thresholds": {(1990, 2000): 50.0}}, "perception_thresholds"),
+            ({"engines": ()}, "at least one"),
+        ],
+    )
+    def test_calling_errors(self, kwargs, match):
+        with pytest.raises(ValueError, match=match):
+            peak_code_kwargs(_CODE_FLOWS, _CODE_YEARS, _codes({0: "7"}), **kwargs)
+
+    def test_misaligned_codes_raise(self):
+        with pytest.raises(ValueError, match="aligned"):
+            peak_code_kwargs(_CODE_FLOWS, _CODE_YEARS, ["7"])
+
+    def test_codes_need_water_years(self):
+        with pytest.raises(ValueError, match="water_years"):
+            peak_code_kwargs(_CODE_FLOWS, None, _codes({0: "7"}))
+
+
+def _q100(result: dict) -> float:
+    df = result["quantile_df"].set_index("Return Interval (yr)")
+    return float(df.loc[100, "Flow (cfs)"])
+
+
+class TestRunFFAPeakCodes:
+    def test_codes_are_applied_when_supplied(self):
+        plain = run_ffa(_CODE_FLOWS, _CODE_YEARS, station_skew_only=True)
+        coded = run_ffa(
+            _CODE_FLOWS, _CODE_YEARS, station_skew_only=True, peak_codes=_codes({3: "6"})
+        )
+        assert coded["error"] is None
+        assert coded["parameters"]["peak_codes_applied"] == {"6": 1}
+        assert coded["b17c"].results.n_peaks == len(_CODE_YEARS) - 1
+        assert coded["parameters"]["mean_log"] != plain["parameters"]["mean_log"]
+
+    def test_opting_out_matches_no_codes(self):
+        plain = run_ffa(_CODE_FLOWS, _CODE_YEARS, station_skew_only=True)
+        off = run_ffa(
+            _CODE_FLOWS,
+            _CODE_YEARS,
+            station_skew_only=True,
+            peak_codes=_codes({3: "6"}),
+            apply_peak_codes=False,
+        )
+        assert off["parameters"]["peak_codes_applied"] == {}
+        assert off["parameters"]["mean_log"] == plain["parameters"]["mean_log"]
+
+    def test_codes_peakfq_ignores_change_nothing(self):
+        plain = run_ffa(_CODE_FLOWS, _CODE_YEARS, station_skew_only=True)
+        coded = run_ffa(
+            _CODE_FLOWS, _CODE_YEARS, station_skew_only=True, peak_codes=["2"] * len(_CODE_YEARS)
+        )
+        assert coded["parameters"]["mean_log"] == plain["parameters"]["mean_log"]
+        assert coded["parameters"]["skew_station"] == plain["parameters"]["skew_station"]
+
+    def test_codes_may_be_an_array(self):
+        coded = run_ffa(
+            _CODE_FLOWS,
+            _CODE_YEARS,
+            station_skew_only=True,
+            peak_codes=np.array(_codes({3: "6"}), dtype=object),
+        )
+        assert coded["parameters"]["peak_codes_applied"] == {"6": 1}
+
+    def test_censored_code_comes_back_as_an_error(self):
+        result = run_ffa(
+            _CODE_FLOWS, _CODE_YEARS, station_skew_only=True, peak_codes=_codes({2: "4"})
+        )
+        assert result["b17c"] is None
+        assert "WY2003 (code 4)" in result["error"]
+
+    def test_misaligned_codes_raise(self):
+        with pytest.raises(ValueError, match="aligned"):
+            run_ffa(_CODE_FLOWS, _CODE_YEARS, station_skew_only=True, peak_codes=["7"])
+
+    def test_codes_and_thresholds_together_raise(self):
+        with pytest.raises(ValueError, match="perception_thresholds"):
+            run_ffa(
+                _CODE_FLOWS,
+                _CODE_YEARS,
+                station_skew_only=True,
+                peak_codes=_codes({0: "7"}),
+                perception_thresholds=[
+                    {"start_year": 1990, "end_year": 2000, "threshold_cfs": 50.0}
+                ],
+            )
+
+    @pytest.mark.skipif(not TESTDATA_AVAILABLE, reason=SKIP_REASON)
+    def test_real_regulated_record(self):
+        """USGS 01426500 (HU02 WATSTORE): 50 of 102 peaks carry code 6 and are
+        removed, as peakfq removes them. The CHANGELOG quotes these numbers."""
+        from flowfreq.watstore import read_watstore
+
+        frame = read_watstore(_testdata("extra_tests/HU02_WATSTORE.txt"))
+        site = frame[frame["site_no"].astype(str).str.strip() == "01426500"]
+        flows, years = site["peak_flow_cfs"].to_numpy(), site["water_year"].to_numpy()
+        before = run_ffa(flows, years, station_skew_only=True)
+        after = run_ffa(
+            flows, years, station_skew_only=True, peak_codes=site["qualification_code"].tolist()
+        )
+        assert before["b17c"].results.n_peaks == 102
+        assert after["b17c"].results.n_peaks == 52
+        assert after["parameters"]["peak_codes_applied"] == {"6": 50, "7": 1}
+        assert _q100(before) == pytest.approx(36336, rel=1e-3)
+        assert _q100(after) == pytest.approx(38772, rel=1e-3)
+
+
+class TestCompareEnginesPeakCodes:
+    """The code step runs before the extension is needed, so these run anywhere."""
+
+    def test_censored_code_raises_before_fitting(self):
+        with pytest.raises(UnsupportedSpecError, match=r"WY2003 \(code 4\)"):
+            compare_engines(
+                _CODE_FLOWS, _CODE_YEARS, station_skew_only=True, peak_codes=_codes({2: "4"})
+            )
+
+    def test_codes_and_historical_peaks_together_raise(self):
+        with pytest.raises(ValueError, match="historical_peaks"):
+            compare_engines(
+                _CODE_FLOWS,
+                _CODE_YEARS,
+                station_skew_only=True,
+                peak_codes=_codes({0: "7"}),
+                historical_peaks=[(1990, 500.0)],
+            )

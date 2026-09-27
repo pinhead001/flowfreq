@@ -771,12 +771,45 @@ class TestEMAZeroFlowYears:
 
     def test_each_peak_keeps_its_own_year(self):
         intervals = self._ema()._build_flow_intervals()
-        assert {(i.year, i.lower) for i in intervals} == {
+        assert {(i.year, i.lower) for i in intervals if i.lower > 1.0} == {
             (1991, 100.0),
             (1992, 200.0),
             (1994, 300.0),
             (1996, 400.0),
         }
+
+    def test_zero_years_get_a_row_like_sitqt(self):
+        """siteQT records a zero exactly at Qmin (1e-20); the NaN year gets none."""
+        from flowfreq.bulletin17c import _PERCEPTION_QMIN
+
+        rows = {i.year: i for i in self._ema()._build_flow_intervals()}
+        assert set(rows) == {1990, 1991, 1992, 1993, 1994, 1996}
+        for year in (1990, 1993):
+            assert rows[year].lower == rows[year].upper == _PERCEPTION_QMIN
+
+    def test_mgbt_censors_zero_years_below_the_low_threshold(self):
+        """gbtest: a zero's Qmin row lies below any cutoff, so it becomes (0, cutoff)."""
+        rows = {i.year: i for i in self._ema()._build_flow_intervals(low_threshold=150.0)}
+        for year in (1990, 1993):
+            assert rows[year].is_censored
+            assert (rows[year].lower, rows[year].upper) == (1e-6, 150.0)  # (gbtmin, cutoff)
+        assert rows[1991].is_censored  # 100 < 150: an ordinary PILF
+        assert not rows[1992].is_censored
+
+    def test_a_fit_with_zeros_counts_them_as_rows(self):
+        """End to end: MGBT treats zeros as low outliers and each gets a row."""
+        from flowfreq.bulletin17c import ExpectedMomentsAlgorithm
+
+        rng = np.random.default_rng(3)
+        flows = 10 ** rng.normal(3.0, 0.3, 30)
+        flows[[4, 11, 20]] = 0.0
+        years = np.arange(1990, 2020)
+        ema = ExpectedMomentsAlgorithm(flows, years)
+        results = ema.run_analysis()
+        assert results.n_peaks == 30
+        zero_rows = [i for i in ema._intervals if i.year in (1994, 2001, 2010)]
+        assert len(zero_rows) == 3 and all(i.is_censored for i in zero_rows)
+        assert results.n_low_outliers >= 3
 
     def test_zero_flow_years_are_recorded_not_gaps(self):
         ema = self._ema()

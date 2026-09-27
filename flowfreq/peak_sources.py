@@ -12,6 +12,8 @@ against an endpoint until it has been exercised live. It is the default: the
 parity test against ``nwis-legacy`` (``tests/test_peak_backend_parity.py``)
 passed live on 2026-09-26 -- same water years, flows and discharge codes, dates
 within one day (the API's date is UTC; legacy's is local).
+:meth:`flowfreq.usgs.USGSgage.download_peak_flow` reads through this module
+too, with the same default.
 
 Roadmap: ``docs/MASTER_ROADMAP.md`` §1.1, issue #29.
 """
@@ -71,7 +73,13 @@ def validate_peak_frame(df: pd.DataFrame) -> pd.DataFrame:
 
 
 class LegacyNwisBackend:
-    """The existing NWIS RDB peak service, via :class:`flowfreq.usgs.USGSgage`."""
+    """The legacy NWIS RDB peak service (``nwis.waterdata.usgs.gov/nwis/peak``).
+
+    Reads through :func:`flowfreq.usgs._download_peak_flow_rdb`, the parser
+    ``USGSgage.download_peak_flow(backend="nwis-legacy")`` also uses. It must
+    not call ``download_peak_flow`` itself: that method routes through this
+    module, so the two would recurse.
+    """
 
     name = "nwis-legacy"
 
@@ -87,9 +95,11 @@ class LegacyNwisBackend:
         -------
         pandas.DataFrame
         """
-        from flowfreq.usgs import USGSgage  # deferred: usgs imports plotting deps
+        # Deferred: flowfreq.usgs imports DEFAULT_BACKEND from this module.
+        from flowfreq.usgs import _download_peak_flow_rdb
 
-        return validate_peak_frame(USGSgage(site_no).download_peak_flow())
+        frame, _, _ = _download_peak_flow_rdb(str(site_no).zfill(8))
+        return validate_peak_frame(frame)
 
 
 #: Water Data OGC API ``peaks`` collection items endpoint.
@@ -195,8 +205,8 @@ def qualifiers_to_codes(
 class WaterDataApiBackend:
     """USGS Water Data OGC API ``peaks`` collection (issue #29).
 
-    Live-verified 2026-09-25. Not the default backend until the parity test
-    against ``nwis-legacy`` passes.
+    Live-verified 2026-09-25, and the default backend since the parity test
+    against ``nwis-legacy`` passed live on 2026-09-26.
 
     Parameters
     ----------
