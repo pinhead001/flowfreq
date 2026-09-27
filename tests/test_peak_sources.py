@@ -60,9 +60,9 @@ def test_validate_missing_column():
         validate_peak_frame(_frame().drop(columns="qualification_code"))
 
 
-def test_default_is_legacy_and_protocol_holds():
+def test_default_is_waterdata_and_protocol_holds():
     b = get_backend()
-    assert b.name == DEFAULT_BACKEND == LegacyNwisBackend.name
+    assert b.name == DEFAULT_BACKEND == WaterDataApiBackend.name
     assert isinstance(b, PeakDataBackend)
 
 
@@ -250,7 +250,7 @@ def test_gage_height_token_is_not_a_warning(caplog):
 
 def test_waterdata_backend_is_registered():
     assert isinstance(get_backend("waterdata-ogc"), WaterDataApiBackend)
-    assert DEFAULT_BACKEND == "nwis-legacy"
+    assert isinstance(get_backend("nwis-legacy"), LegacyNwisBackend)
 
 
 @pytest.mark.requires_network

@@ -200,6 +200,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the new fields at their defaults.
 
 ### Changed
+- **`peak_sources.DEFAULT_BACKEND` is now `waterdata-ogc`** (the USGS Water Data OGC API),
+  replacing `nwis-legacy`, which USGS is retiring. `get_backend()` with no name returns the new
+  backend; `get_backend("nwis-legacy")` still works. Switched because the #29 parity test
+  (`tests/test_peak_backend_parity.py`) passed live on 03606500, 11274500 and 01638500: same
+  water years, flows and discharge codes. One visible difference: `peak_date` is the API's UTC
+  date when the time of day is known, so an evening peak can read one day later than legacy's
+  local date. Water years are unaffected. `USGSgage.download_peak_flow` is unchanged and still
+  reads the legacy service directly.
 - **Breaking: no silent regional skew.** `run_ffa`, `compare_engines` and `flowfreq compare`
   used to fall back to a regional skew of -0.302 (SE 0.55) whenever none was given. They now
   raise `ValueError` (the CLI raises a usage error) unless the caller makes exactly one choice:

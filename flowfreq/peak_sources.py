@@ -8,8 +8,10 @@ so callers pick a backend by name and every backend returns the same frame.
 Both backends work. The Water Data API backend was written against the live
 ``peaks`` collection (verified 2026-09-25), per this repository's rule
 (``TODO.md``, ``docs/STREAMSTATS_NSS_ADDENDUM.md``) that no client is written
-against an endpoint until it has been exercised live. The default stays
-``nwis-legacy`` until issue #29's parity test between the two passes.
+against an endpoint until it has been exercised live. It is the default: the
+parity test against ``nwis-legacy`` (``tests/test_peak_backend_parity.py``)
+passed live on 2026-09-26 -- same water years, flows and discharge codes, dates
+within one day (the API's date is UTC; legacy's is local).
 
 Roadmap: ``docs/MASTER_ROADMAP.md`` §1.1, issue #29.
 """
@@ -335,8 +337,9 @@ _BACKENDS: Dict[str, Type[PeakDataBackend]] = {
     WaterDataApiBackend.name: WaterDataApiBackend,
 }
 
-#: Backend used when none is named. Switch only after #29's parity test passes.
-DEFAULT_BACKEND = LegacyNwisBackend.name
+#: Backend used when none is named. Switched from ``nwis-legacy`` once #29's
+#: parity test passed live; USGS is retiring the legacy service.
+DEFAULT_BACKEND = WaterDataApiBackend.name
 
 
 def get_backend(name: str = DEFAULT_BACKEND) -> PeakDataBackend:
