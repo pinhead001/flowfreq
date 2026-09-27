@@ -200,6 +200,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the new fields at their defaults.
 
 ### Changed
+- **Washington Region 4 covariance: investigated, still not stored** (`WA.json` notes,
+  `tests/test_regression_washington.py::TestRegion4CovarianceBasis`, #37). SIR 2016-5118's
+  Table 7 Region 4 matrix fits Table 6's Sp only if P is read as P/10. The report does not
+  document P/10 anywhere: not in the text, the Flood Q Tools workbook's formulas or its VBA.
+  Its own computations use raw P, both the workbook and the WIE weighted estimates in Table 8.
+  Inverted gage by gage, Table 8 implies a regression variance whose median ratio to
+  MEV + x'Ux is 0.985 with raw P and 4.0 with P/10, over 96 Region 4 gages. So neither basis
+  is consistent with the whole report. Region 4 intervals still fall back to `sep_log`, and
+  WA stays `partial`.
 - **`peak_sources.DEFAULT_BACKEND` is now `waterdata-ogc`** (the USGS Water Data OGC API),
   replacing `nwis-legacy`, which USGS is retiring. `get_backend()` with no name returns the new
   backend; `get_backend("nwis-legacy")` still works. Switched because the #29 parity test
