@@ -158,15 +158,34 @@ class TestJurisdictions:
 
 
 class TestLibrary:
-    def test_wave1_files_pending_and_empty(self):
+    @pytest.mark.parametrize("code", ["WA", "OR", "ID", "MT"])
+    def test_wave1_states_are_populated(self, code):
+        """Every Wave 1 state has left 'pending': equations, a cited source, and
+        each equation evaluates in range. Replaces a pending-tuple loop that, once
+        all four were populated, iterated over nothing."""
         states = available_states()
-        # Populated, each with its own tests/test_regression_<state>.py: WA, OR, ID, MT
-        for code in ():
-            assert states[code] == "pending"
-            lib = load_state(code)
-            assert lib.equations == []
-            with pytest.raises(EquationsUnavailable, match="no equations transcribed"):
-                lib.equation("anything", 0.01)
+        assert states[code] in ("partial", "verified"), states[code]
+        lib = load_state(code)
+        assert lib.equations
+        assert lib.source_reports
+        for eq in lib.equations:
+            site = {
+                v.code: (
+                    math.sqrt(v.minimum * v.maximum)
+                    if v.minimum is not None and v.maximum is not None and v.minimum > 0
+                    else (v.minimum + v.maximum) / 2
+                )
+                for v in eq.variables
+            }
+            q = evaluate(eq, site).flow_cfs
+            assert math.isfinite(q) and q > 0, (code, eq.region_code, eq.aep)
+
+    def test_a_pending_state_raises_on_lookup(self):
+        lib = parse_state(
+            {"schema_version": 1, "state": "NV", "status": "pending", "equations": []}
+        )
+        with pytest.raises(EquationsUnavailable, match="no equations transcribed"):
+            lib.equation("anything", 0.01)
 
     def test_unstarted_state(self):
         with pytest.raises(EquationsUnavailable, match="wave has not started"):

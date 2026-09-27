@@ -137,7 +137,10 @@ def regional_skew_for(
     state : str
         Two-letter postal code.
     skew_region : str, optional
-        Needed when the state has more than one verified skew region.
+        Required whenever the state has more than one skew-region row, of
+        *any* status. A pending row marks an area the verified value does not
+        cover (e.g. Idaho's Snake River Plain), so returning the verified row
+        for an unnamed region could apply it where its study says it is invalid.
     path : str or Path, optional
         Table override.
 
@@ -153,6 +156,12 @@ def regional_skew_for(
     df = load_table(path)
     st = state.upper()
     rows = df[df["state"] == st]
+    if skew_region is None and len(rows) > 1:
+        listing = ", ".join(f"{r.skew_region!r} ({r.status})" for r in rows.itertuples())
+        raise RegionalSkewUnavailable(
+            f"{st} has {len(rows)} skew regions: {listing}. Name one with skew_region -- "
+            "a verified value does not apply inside a region still pending."
+        )
     if skew_region is not None:
         rows = rows[rows["skew_region"] == skew_region]
     verified = rows[rows["status"] == "verified"]
