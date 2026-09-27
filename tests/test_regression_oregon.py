@@ -144,6 +144,138 @@ class TestWorkedExamples:
         assert qt == pytest.approx(7950, rel=0.005)
 
 
+QUARTZ_CREEK = {  # Table 14 (report p. 46)
+    "DRNAREA": 42.1,
+    "BSLOPD": 23.8,
+    "I24H2Y": 2.84,
+    "JANMINT2K": 31.0,
+    "JANMAXT2K": 44.3,
+}
+
+
+class TestRegion2TransitionZone:
+    """Equations 7 and 8 (report pp. 31, 44), via flowfreq.regression.oregon."""
+
+    @pytest.mark.parametrize(
+        "elev, w2a",
+        [
+            (2000.0, 0.0),
+            (2875.0, 0.0),  # zone's lower edge: Region 2B alone
+            (2970.0, 0.38),  # Quartz Creek: (2,970 - 2,875) / 250
+            (3000.0, 0.5),
+            (3125.0, 1.0),  # zone's upper edge: Region 2A alone
+            (5000.0, 1.0),
+        ],
+    )
+    def test_equation_8_weights(self, elev, w2a):
+        from flowfreq.regression.oregon import region2_weights
+
+        w = region2_weights(elev)
+        assert w["2A"] == pytest.approx(w2a, abs=1e-15)
+        assert w["2B"] == pytest.approx(1 - w2a, abs=1e-15)
+
+    @pytest.mark.parametrize(
+        "width, lower, upper",
+        [(500.0, 2750.0, 3250.0), (350.0, 2825.0, 3175.0)],  # p. 44 text; Table 13 headnote
+    )
+    def test_equation_7_zone_edges(self, width, lower, upper):
+        from flowfreq.regression.oregon import region2_weights
+
+        assert region2_weights(lower, width)["2A"] == 0.0
+        assert region2_weights(upper, width)["2A"] == 1.0
+        assert region2_weights((lower + upper) / 2, width)["2A"] == pytest.approx(0.5)
+
+    @pytest.mark.parametrize("width", [0.0, -250.0, math.inf, math.nan])
+    def test_invalid_width_raises(self, width):
+        from flowfreq.regression.oregon import region2_weights
+
+        with pytest.raises(ValueError, match="width"):
+            region2_weights(3000.0, width)
+
+    def test_report_arithmetic_for_quartz_creek(self):
+        """Eq. 8 with the report's own component values reproduces its 7,950 cfs.
+
+        The text calls 7,690 the Region 2A value, but eq. 8 puts it in the Q2B slot,
+        and the equations agree it is 2B's (see test_quartz_creek_transition_zone).
+        """
+        from flowfreq.regression.oregon import region2_weights
+
+        w = region2_weights(2970.0)
+        assert _sig3(7690 * w["2B"] + 8380 * w["2A"]) == 7950
+
+    def test_quartz_creek_blend(self, lib):
+        from flowfreq.regression import evaluate_weighted
+        from flowfreq.regression.oregon import estimate_region2
+
+        est = estimate_region2(0.01, QUARTZ_CREEK, mean_elevation=2970.0, lib=lib)
+        assert est.blended
+        q2a = evaluate(lib.equation("2A", 0.01), QUARTZ_CREEK).flow_cfs
+        q2b = evaluate(lib.equation("2B", 0.01), QUARTZ_CREEK).flow_cfs
+        assert est.estimates["2A"].flow_cfs == q2a and est.estimates["2B"].flow_cfs == q2b
+        # Equation 8 exactly, and evaluate_weighted(space="linear") expresses it exactly.
+        assert est.flow_cfs == pytest.approx(
+            q2b * (3125 - 2970) / 250 + q2a * (2970 - 2875) / 250, rel=1e-15
+        )
+        assert est.flow_cfs == evaluate_weighted(
+            [(0.62, est.estimates["2B"]), (0.38, est.estimates["2A"])], space="linear"
+        )
+        # The report's 7,950 used Table 14's rounded temperatures (its 2A value is 8,380
+        # against the equation's 8,428), so agreement is to that rounding.
+        assert est.flow_cfs == pytest.approx(7950, rel=0.005)
+
+    def test_elevation_from_characteristics(self, lib):
+        from flowfreq.regression.oregon import estimate_region2
+
+        a = estimate_region2(0.01, {**QUARTZ_CREEK, "ELEV": 2970.0}, lib=lib)
+        b = estimate_region2(0.01, QUARTZ_CREEK, mean_elevation=2970.0, lib=lib)
+        assert a.flow_cfs == b.flow_cfs
+
+    def test_missing_elevation_raises(self, lib):
+        from flowfreq.regression.oregon import estimate_region2
+
+        with pytest.raises(KeyError, match="ELEV"):
+            estimate_region2(0.01, QUARTZ_CREEK, lib=lib)
+
+    def test_rejects_other_state(self):
+        from flowfreq.regression.oregon import estimate_region2
+
+        with pytest.raises(ValueError, match="Oregon"):
+            estimate_region2(0.01, QUARTZ_CREEK, mean_elevation=2970.0, lib=load_state("WA"))
+
+    def test_mckenzie_river_above_zone_is_region_2a(self, lib):
+        """14162500, Appendix G mean elevation 3,850 ft: R = 99,900 cfs (p. 45)."""
+        from flowfreq.regression.oregon import estimate_region2
+
+        site = {"DRNAREA": 930.0, "BSLOPD": 16.4, "I24H2Y": 3.20, "JANMINT2K": 25.8}
+        site["JANMAXT2K"] = 40.6
+        est = estimate_region2(0.01, site, mean_elevation=3850.0, lib=lib)
+        assert not est.blended and set(est.estimates) == {"2A"}
+        assert est.flow_cfs == pytest.approx(99900, rel=0.01)
+
+    def test_marks_creek_below_zone_is_region_2b(self, lib):
+        """14312300, Appendix G mean elevation 752 ft: Appendix D R100 = 176 cfs.
+
+        Appendix A lists this gage as 2A; its elevation puts it in 2B, which is what
+        Appendix D's regression estimates use. Only 2B's characteristics are needed.
+        """
+        from flowfreq.regression.oregon import estimate_region2
+
+        site = {"DRNAREA": 1.31, "BSLOPD": 11.5, "I24H2Y": 1.79}
+        est = estimate_region2(0.01, site, mean_elevation=752.0, lib=lib, allow_extrapolation=True)
+        assert set(est.estimates) == {"2B"} and est.weights["2B"] == 1.0
+        assert est.flow_cfs == pytest.approx(176, rel=0.01)
+
+    def test_continuous_across_zone_edges(self, lib):
+        from flowfreq.regression.oregon import estimate_region2
+
+        q = {
+            e: estimate_region2(0.01, QUARTZ_CREEK, mean_elevation=e, lib=lib).flow_cfs
+            for e in (2874.999, 2875.0, 2875.001, 3124.999, 3125.0, 3125.001)
+        }
+        assert q[2874.999] == q[2875.0] == pytest.approx(q[2875.001], rel=1e-5)
+        assert q[3125.001] == q[3125.0] == pytest.approx(q[3124.999], rel=1e-5)
+
+
 # Appendix D "R" (regression) estimates at gages, with Appendix G characteristics.
 APPENDIX_D = [
     # McKenzie River near Vida (14162500), Region 2A, 100-year: R = 99,900 (p. 45)

@@ -24,6 +24,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - The report's three worked examples reproduce: West Birch Creek, Strawberry Creek and the
     Middle Fork John Day transfer.
   - OR stays `partial`.
+- **`flowfreq.regression.oregon`: the western Oregon Region 2A/2B transition-zone blend**
+  (#38). SIR 2005-5116 splits Region 2 on mean watershed elevation at 3,000 ft and blends
+  flows linearly across a zone W ft wide centred there (eq. 7). The report selects
+  W = 250 ft, which is eq. 8: QT = Q2B (3,125 - E)/250 + Q2A (E - 2,875)/250.
+  - `region2_weights(E, width=250)` returns the eq. 7 weights.
+  - `estimate_region2(aep, characteristics, mean_elevation=...)` evaluates only the regions
+    with a positive weight and combines them with `evaluate_weighted(space="linear")`, which
+    expresses eq. 7 exactly. Elevation comes from the argument or NSS's `ELEV`.
+  - Reproduces the report's Quartz Creek example (7,950 cfs; the report's text swaps its
+    2A/2B labels). Selects 2A for McKenzie River near Vida (99,900 cfs) and 2B for Marks
+    Creek, matching Appendix D even though Appendix A mislabels Marks Creek as 2A.
+  - OR stays `partial`: no covariance is published, and NSS returns nothing for 2A/2B.
+- **Peak qualification codes in `run_ffa`, `compare_engines` and `flowfreq compare`**
+  (#30). `run_ffa` and `compare_engines` take `peak_codes=`, one NWIS
+  `qualification_code` per peak aligned with `peak_flows`, and `apply_peak_codes=`
+  (default `True`). `flowfreq compare --peaks` reads an optional `qualification_code`
+  column, the frame `download_peak_flow` and the peak backends produce, and
+  `--ignore-peak-codes` turns it off. All of these, and `analyze_gage`, go through the new
+  `flowfreq.workflow.peak_code_kwargs`, which is `psf_convert.convert_peak_frame` plus
+  checks. It checks that each engine will fit rebuilds exactly peakfq's `siteQT` rows,
+  both engines in `compare_engines`, so the comparison stays like for like. A code 4/8
+  peak raises `UnsupportedSpecError` naming the years and codes (`run_ffa` returns it
+  under `error`), and so does the CLI, as a clean error. Codes peakfq acts on cannot be
+  combined with caller-supplied historical peaks or perception thresholds; that raises a
+  `ValueError`. `run_ffa` reports what it applied in
+  `parameters["peak_codes_applied"]`. A record with no code peakfq acts on is fitted
+  exactly as without `peak_codes`.
 - **Western Oregon peak-flow regression equations** (`flowfreq/data/regression/OR.json`,
   status `partial`, #38): 21 equations, Regions 1, 2A and 2B at the report's 7 recurrence
   intervals, from USGS SIR 2005-5116 (Cooper, 2005) Tables 10-12 and 15. Double-entered
@@ -78,8 +105,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `readWATSTORE`. It returns the standard peak-frame columns plus `site_no`.
 - `flowfreq.peak_codes.peak_frame_intervals` applies the `siteQT` code rules to a peak frame,
   and `count_acted_on_codes` counts the codes that change a peak's treatment. `analyze_gage`
-  gains an opt-in `apply_peak_codes` (via `psf_convert.convert_peak_frame`). By default it
-  now logs which treatment-changing codes it is ignoring. It computes nothing different. (#30)
+  gains `apply_peak_codes` (via `psf_convert.convert_peak_frame`). It was opt-in at first
+  and is now on by default; see Changed. With it off, `analyze_gage` logs which
+  treatment-changing codes it is ignoring. (#30)
 - `PsfFile.peak_file`, and `O Plot Style`/`O Plot Position` are now read as separate
   options (both were stored under one `Plot` key, so the second overwrote the first).
 - **Wave 1 regional skew values** in `flowfreq/data/regional_skew.csv` (#34, #37-#40).
@@ -216,14 +244,76 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the new fields at their defaults.
 
 ### Changed
+- **Washington Region 4 covariance: investigated, still not stored** (`WA.json` notes,
+  `tests/test_regression_washington.py::TestRegion4CovarianceBasis`, #37). SIR 2016-5118's
+  Table 7 Region 4 matrix fits Table 6's Sp only if P is read as P/10. The report does not
+  document P/10 anywhere: not in the text, the Flood Q Tools workbook's formulas or its VBA.
+  Its own computations use raw P, both the workbook and the WIE weighted estimates in Table 8.
+  Inverted gage by gage, Table 8 implies a regression variance whose median ratio to
+  MEV + x'Ux is 0.985 with raw P and 4.0 with P/10, over 96 Region 4 gages. So neither basis
+  is consistent with the whole report. Region 4 intervals still fall back to `sep_log`, and
+  WA stays `partial`.
+- **Behaviour change: `analyze_gage` now applies NWIS peak qualification codes by default,
+  and its results change for any gage whose peaks carry them** (#30). `apply_peak_codes`
+  now defaults to `True` (it was an opt-in `False`). Codes are applied as peakfq 8.1.0's
+  `siteQT` applies them (`vendor/peakfqr/R/readInputs.R`), with PeakFQ's default
+  perception threshold for a new site. Code 7 peaks are historic. Codes 3 and O (dam
+  failure, opportunistic) remove the peak, and so do 6 and C (regulated, urbanized), as
+  `siteQT` does unless `Urb/Reg` is `Yes`. In each case the year becomes missing data.
+  Codes 4 and 8 make the peak a less-than or greater-than interval. `Bulletin17C` has no
+  argument for that, so such a record now raises `UnsupportedSpecError` naming each year
+  and code (`WY1985 (code 4)`) instead of silently fitting the value as exact. A coded
+  record also needs `method="ema"` and no `historical_peaks`; either otherwise raises a
+  `ValueError`. A gage with none of these codes fits exactly as before (tested
+  bit-for-bit). **Pass `apply_peak_codes=False` for the old results.** Before/after on
+  real coded records from the vendored WATSTORE files, station skew:
+  - USGS 01426500, West Branch Delaware River at Hale Eddy, NY (HU02). 50 of 102 peaks
+    carry code 6 and one carries code 7. Peaks fitted went from 102 to 52, and the 1% AEP
+    flow from 36,336 to 38,772 cfs (+6.7%). Station skew went from -0.564 to 0.130.
+  - USGS 06324500, Powder River at Moorhead, MT (WY/MT). One code 7 peak, now historic.
+    Station skew went from 0.258 to 0.653, and the 1% AEP flow from 39,228 to 42,728 cfs
+    (+8.9%).
+  - USGS 01362100 (HU02) has one code 4 peak (WY1985). It used to fit; it now raises
+    unless `apply_peak_codes=False`.
+- **Montana regional skew stays `pending`, with corrected notes.** The PNW B-GLS study *does*
+  cover western Montana (the Columbia River basin; SIR 2016-5118 pp. 1, 23; its 23 MT gages are
+  all in HUC 1701), but USGS Montana deliberately keeps the Bulletin 17B map statewide (SIR
+  2018-5046 pp. 20-21, SE 0.64; SIR 2025-5019 pp. 9-10, SE 0.55), so no table value is adopted.
+- **NSS snapshots refreshed** (`data/nss_snapshots/*_2026-09-27.json`). With the scale/offset
+  parser every peak-flow equation for WA, ID, MT and OR now parses (ID 66/66, OR 19/19; 11 and 6
+  were refused before). NSS's equation strings themselves are unchanged. OR regions 2A/2B still
+  do not resolve through NSS.
 - **`peak_sources.DEFAULT_BACKEND` is now `waterdata-ogc`** (the USGS Water Data OGC API),
   replacing `nwis-legacy`, which USGS is retiring. `get_backend()` with no name returns the new
   backend; `get_backend("nwis-legacy")` still works. Switched because the #29 parity test
   (`tests/test_peak_backend_parity.py`) passed live on 03606500, 11274500 and 01638500: same
   water years, flows and discharge codes. One visible difference: `peak_date` is the API's UTC
   date when the time of day is known, so an evening peak can read one day later than legacy's
-  local date. Water years are unaffected. `USGSgage.download_peak_flow` is unchanged and still
-  reads the legacy service directly.
+  local date. Water years are unaffected. `USGSgage.download_peak_flow` now follows it; see
+  below.
+- **Behaviour change: `USGSgage.download_peak_flow` now reads the Water Data OGC API by
+  default** (#29). This changes the data source for every caller: `analyze_gage`,
+  `fetch_nwis_peaks`, `fetch_nwis_batch`, the examples, and anything downstream. It gains
+  `backend: str = peak_sources.DEFAULT_BACKEND`, and `backend="nwis-legacy"` gives the old
+  RDB path unchanged. `fetch_nwis_peaks` and `fetch_nwis_batch` gain the same `backend`
+  argument and keep their return types. The frame has the same columns either way
+  (`water_year`, `peak_date`, `peak_flow_cfs`, `qualification_code`). The live parity
+  test on 03606500, 11274500 and 01638500 found the same water years, flows and discharge
+  codes on both. Three visible differences:
+  - `peak_date` is a UTC date on the new backend when the time of day is known, so an
+    evening peak can read one day later than the legacy local date. **Water years are
+    unaffected.**
+  - Legacy's date-precision codes `Bd`/`Bm` do not appear in `qualification_code`. The
+    placeholder date carries that information on both backends.
+  - `site_name` and `drainage_area` come from the OGC `monitoring-locations` record, one
+    extra request, instead of the RDB header. The name is therefore upper-case
+    (`BIG SANDY RIVER AT BRUCETON, TN`). If that request fails, the peaks are still
+    returned, the two attributes are left as they were, and a warning is logged.
+
+  The RDB fetch and parse moved to `usgs._download_peak_flow_rdb`, which both
+  `download_peak_flow(backend="nwis-legacy")` and `peak_sources.LegacyNwisBackend` call.
+  The backend no longer calls `download_peak_flow`, which now routes through it and would
+  recurse.
 - **Breaking: no silent regional skew.** `run_ffa`, `compare_engines` and `flowfreq compare`
   used to fall back to a regional skew of -0.302 (SE 0.55) whenever none was given. They now
   raise `ValueError` (the CLI raises a usage error) unless the caller makes exactly one choice:
@@ -255,6 +345,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   are checked at all.
 
 ### Fixed
+- **`regional_skew_for` returned a verified skew where its study says it is invalid.** With no
+  `skew_region`, it considered only *verified* rows, so `regional_skew_for("ID")` returned the
+  Pacific Northwest value (-0.07) even though Idaho's Snake River Plain row is pending and SIR
+  2016-5083 p. 52 says that value does not apply there. It now raises whenever a state has more
+  than one skew-region row of any status, listing them; name the region. Found while
+  researching Montana's options.
+- **Native EMA: zero-flow years now get a row, and low-outlier censoring matches `gbtest`.**
+  Three fixes, found by running all 24 WY/MT `.psf` stations against live `emafitpr`:
+  - **Zero-flow rows.** `siteQT` records a zero year exactly at `Qmin` (1e-20), and `gbtest`
+    then censors it below the MGBT cutoff like any low outlier. The native engine counted zeros
+    in MGBT but gave them no row. It now does, as peakfq does.
+  - **`gbtmin` lower bound.** Intervals censored below the low-outlier cutoff now run from
+    `gbtest`'s `gbtmin` (1e-6 cfs, `emafit.f:946`), not from 0. With a strongly negative skew
+    the P3 lower tail below 1e-6 carries real mass: WY/MT 06329570 was 4.6% off without it.
+    Gap years not censored by `gbtest` start at `siteQT`'s `Qmin`.
+  - **Exact MGBT cutoff.** The cutoff was returned as `10**log10(flow)`, which is not exact
+    (`10**log10(5.0) == 5.000000000000001`), so a peak sitting exactly on the cutoff was censored
+    too; `gbtest` keeps it. 06328900 was 75% off and 06326960 54%.
+
+  **Results change** for records with zero flows, and for any record whose MGBT cutoff equals
+  an observed peak. On the WY/MT file, every station but 06328100 now runs natively (12 of
+  them have zeros and were refused before); all match live `emafitpr` to within 2e-4 in
+  weighted skew and 0.05% in quantiles, most to about 1e-6 and 0.001%. The existing parity
+  sites (Big Sandy, Powder River, Cains Coulee, 12363000) are unchanged. `psf_convert` no
+  longer refuses zero-flow stations on the native engine.
 - **Native EMA: at-site skew MSE now follows peakfq's B17B switch.** `emafit.f:707-711` uses
   the plain Bulletin 17B `mseg(n, G)` over the whole record (uncapped), not ADJE's
   censoring-adjusted MSE, whenever MGBT computes the low-outlier threshold and finds low

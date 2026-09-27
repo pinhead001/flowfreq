@@ -66,10 +66,41 @@ def test_default_is_waterdata_and_protocol_holds():
     assert isinstance(b, PeakDataBackend)
 
 
-def test_legacy_backend_wraps_usgsgage(monkeypatch):
-    monkeypatch.setattr("flowfreq.usgs.USGSgage.download_peak_flow", lambda self: _frame())
-    out = LegacyNwisBackend().fetch_peaks("12345678")
+def test_legacy_backend_reads_the_rdb_parser(monkeypatch):
+    seen = []
+
+    def _rdb(site_no, timeout=30):
+        seen.append(site_no)
+        return _frame(), "NAME", 1.0
+
+    monkeypatch.setattr("flowfreq.usgs._download_peak_flow_rdb", _rdb)
+    out = LegacyNwisBackend().fetch_peaks("1234567")
     assert list(out["peak_flow_cfs"]) == [100.0, 200.0]
+    assert tuple(out.columns) == PEAK_COLUMNS
+    assert seen == ["01234567"]  # zero-padded, as USGSgage pads it
+
+
+def test_legacy_backend_does_not_recurse_through_download_peak_flow(monkeypatch):
+    """download_peak_flow routes through this module, so the backend must not call it."""
+    from tests.fixtures.nwis_rdb import PEAK_PARTIAL_DATES
+
+    def _boom(self, backend="x"):
+        raise AssertionError("LegacyNwisBackend called USGSgage.download_peak_flow")
+
+    response = MagicMock()
+    response.text = PEAK_PARTIAL_DATES
+    monkeypatch.setattr("flowfreq.usgs.USGSgage.download_peak_flow", _boom)
+    monkeypatch.setattr("flowfreq.usgs.requests.get", lambda *a, **k: response)
+    out = LegacyNwisBackend().fetch_peaks("03606500")
+    assert list(out["water_year"]) == [1897, 1919, 1927, 1930, 1931, 1932]
+
+
+def test_legacy_backend_rejects_an_empty_response(monkeypatch):
+    response = MagicMock()
+    response.text = "# only comments\n"
+    monkeypatch.setattr("flowfreq.usgs.requests.get", lambda *a, **k: response)
+    with pytest.raises(ValueError, match="No peak flow data"):
+        LegacyNwisBackend().fetch_peaks("03606500")
 
 
 # --- Water Data OGC API backend ----------------------------------------------

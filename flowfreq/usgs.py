@@ -16,6 +16,8 @@ import numpy as np
 import pandas as pd
 import requests
 
+from flowfreq.peak_sources import DEFAULT_BACKEND
+
 logger = logging.getLogger(__name__)
 
 NWIS_TZ_OFFSETS: Dict[str, int] = {
@@ -940,60 +942,63 @@ class USGSgage:
 
         return _parse_iv_rdb(response.text, ts_id=ts_id, param_cd=param_cd)
 
-    def download_peak_flow(self) -> pd.DataFrame:
-        """Download annual peak streamflow data from USGS."""
-        params = {
-            "site_no": self._site_no,
-            "agency_cd": "USGS",
-            "format": "rdb",
-        }
+    def download_peak_flow(self, backend: str = DEFAULT_BACKEND) -> pd.DataFrame:
+        """Download annual peak streamflow data from USGS.
 
-        response = requests.get(self.BASE_URL_PEAKS, params=params, timeout=30)
-        response.raise_for_status()
+        Parameters
+        ----------
+        backend : str, default :data:`flowfreq.peak_sources.DEFAULT_BACKEND`
+            Which USGS service to read, by :mod:`flowfreq.peak_sources` name.
+            The default, ``"waterdata-ogc"``, is the Water Data OGC API
+            ``peaks`` collection. ``"nwis-legacy"`` is the NWIS peak RDB
+            service this method always used before, which USGS is retiring.
 
-        lines = response.text.split("\n")
-        data_lines = [l for l in lines if not l.startswith("#") and l.strip()]
+        Returns
+        -------
+        pandas.DataFrame
+            ``water_year``, ``peak_date``, ``peak_flow_cfs``,
+            ``qualification_code``, whichever backend, also stored as
+            :attr:`peak_data`. On ``"waterdata-ogc"``, ``peak_date`` is the
+            UTC date when the time of day is known, so an evening peak can
+            read one day later than the legacy local date; ``water_year`` is
+            the API's own and matches legacy. Legacy's date-precision codes
+            ``Bd``/``Bm`` are not in the API's ``qualification_code``; the
+            placeholder date carries that information on both.
 
-        if len(data_lines) < 2:
-            raise ValueError(f"No peak flow data found for site {self._site_no}")
+        Notes
+        -----
+        Site metadata is filled in as a side effect, as before. The legacy
+        service parses :attr:`site_name` and :attr:`drainage_area` from the
+        RDB header. The OGC backend reads them from the ``monitoring-locations``
+        collection (:func:`flowfreq.waterdata.fetch_monitoring_location`),
+        whose ``monitoring_location_name`` is upper-case (``"BIG SANDY RIVER
+        AT BRUCETON, TN"``). If that one extra request fails, the peaks are
+        still returned and the two attributes are left as they were, with a
+        warning logged.
 
-        for line in lines:
-            if "#" in line:
-                if "DRAINAGE AREA" in line.upper():
-                    try:
-                        parts = line.split(":")[-1].strip()
-                        self._drainage_area = float(parts.split()[0])
-                    except (ValueError, IndexError):
-                        pass
-                if "STATION NAME" in line.upper():
-                    self._site_name = line.split(":")[-1].strip()
-
-        # Codes as strings: a column holding only numeric codes (e.g. "7") and
-        # blanks is otherwise inferred as float, and "7" comes back as "7.0".
-        df = pd.read_csv(
-            StringIO("\n".join(data_lines)),
-            sep="\t",
-            skiprows=[1],
-            dtype={"peak_dt": str, "peak_cd": str, "gage_ht_cd": str},
-        )
-
-        df = df[df["agency_cd"] == "USGS"].copy()
-        df["peak_date"] = _parse_peak_dt(df["peak_dt"], self._site_no)
-        df["peak_flow_cfs"] = pd.to_numeric(df["peak_va"], errors="coerce")
-
-        df["water_year"] = df["peak_date"].apply(
-            lambda x: x.year + 1 if x.month >= 10 else x.year if pd.notna(x) else np.nan
-        )
-
-        if "peak_cd" in df.columns:
-            df["qualification_code"] = df["peak_cd"].fillna("")
+        Raises
+        ------
+        ValueError
+            For an unknown ``backend``, or a site with no peak data.
+        requests.RequestException
+            If the peak request fails.
+        """
+        if backend == "nwis-legacy":
+            df, name, area = _download_peak_flow_rdb(self._site_no)
+            if name is not None:
+                self._site_name = name
+            if area is not None:
+                self._drainage_area = area
         else:
-            df["qualification_code"] = ""
+            from flowfreq.peak_sources import get_backend
 
-        df = df[["water_year", "peak_date", "peak_flow_cfs", "qualification_code"]].dropna(
-            subset=["water_year", "peak_flow_cfs"]
-        )
-        df["water_year"] = df["water_year"].astype(int)
+            try:
+                source = get_backend(backend)
+            except KeyError as exc:
+                raise ValueError(str(exc.args[0])) from None
+            df = source.fetch_peaks(self._site_no)
+            if backend == "waterdata-ogc":
+                self._site_metadata_from_waterdata()
 
         self._peak_data = df.reset_index(drop=True)
 
@@ -1001,6 +1006,37 @@ class USGSgage:
             del self.__dict__["period_of_record"]
 
         return self._peak_data
+
+    def _site_metadata_from_waterdata(self) -> None:
+        """Set site name and drainage area from the OGC ``monitoring-locations`` record.
+
+        The counterpart of the legacy RDB header's ``Station name`` and
+        ``Drainage area`` lines. A failure is logged, not raised: the peaks
+        are what was asked for.
+        """
+        # Deferred: flowfreq.waterdata imports from this module.
+        from flowfreq.waterdata import fetch_monitoring_location
+
+        try:
+            location = fetch_monitoring_location(self._site_no, timeout=30)
+        except requests.RequestException as exc:
+            logger.warning(
+                "Site %s: monitoring-location request failed (%s); site name and drainage "
+                "area left unset",
+                self._site_no,
+                exc,
+            )
+            return
+        name = location.get("monitoring_location_name")
+        if isinstance(name, str) and name.strip():
+            self._site_name = name.strip()
+        area = location.get("drainage_area")
+        try:
+            area_f = float(area) if area is not None else float("nan")
+        except (TypeError, ValueError):
+            area_f = float("nan")
+        if math.isfinite(area_f):
+            self._drainage_area = area_f
 
     def __repr__(self) -> str:
         return f"USGSgage(site_no='{self._site_no}', name='{self._site_name}')"
@@ -1327,7 +1363,95 @@ def _parse_peak_dt(peak_dt: pd.Series, site_no: str = "") -> pd.Series:
     )
 
 
-def fetch_nwis_peaks(site_no: str) -> List[Dict]:
+def _download_peak_flow_rdb(
+    site_no: str, timeout: float = 30
+) -> Tuple[pd.DataFrame, Optional[str], Optional[float]]:
+    """Fetch and parse a site's annual peaks from the legacy NWIS peak RDB service.
+
+    The one implementation behind both ``USGSgage.download_peak_flow(
+    backend="nwis-legacy")`` and :class:`flowfreq.peak_sources.LegacyNwisBackend`,
+    so neither calls the other.
+
+    Parameters
+    ----------
+    site_no : str
+        USGS site number.
+    timeout : float
+        Request timeout, seconds.
+
+    Returns
+    -------
+    tuple
+        ``(frame, station_name, drainage_area_sqmi)``. The frame has columns
+        ``water_year``, ``peak_date``, ``peak_flow_cfs``, ``qualification_code``;
+        the name and area come from the RDB header and are ``None`` when it
+        does not give them.
+
+    Raises
+    ------
+    ValueError
+        If the response holds no peak rows.
+    requests.RequestException
+        If the request fails.
+    """
+    params = {
+        "site_no": site_no,
+        "agency_cd": "USGS",
+        "format": "rdb",
+    }
+
+    response = requests.get(USGSgage.BASE_URL_PEAKS, params=params, timeout=timeout)
+    response.raise_for_status()
+
+    lines = response.text.split("\n")
+    data_lines = [l for l in lines if not l.startswith("#") and l.strip()]
+
+    if len(data_lines) < 2:
+        raise ValueError(f"No peak flow data found for site {site_no}")
+
+    station_name: Optional[str] = None
+    drainage_area: Optional[float] = None
+    for line in lines:
+        if "#" in line:
+            if "DRAINAGE AREA" in line.upper():
+                try:
+                    parts = line.split(":")[-1].strip()
+                    drainage_area = float(parts.split()[0])
+                except (ValueError, IndexError):
+                    pass
+            if "STATION NAME" in line.upper():
+                station_name = line.split(":")[-1].strip()
+
+    # Codes as strings: a column holding only numeric codes (e.g. "7") and
+    # blanks is otherwise inferred as float, and "7" comes back as "7.0".
+    df = pd.read_csv(
+        StringIO("\n".join(data_lines)),
+        sep="\t",
+        skiprows=[1],
+        dtype={"peak_dt": str, "peak_cd": str, "gage_ht_cd": str},
+    )
+
+    df = df[df["agency_cd"] == "USGS"].copy()
+    df["peak_date"] = _parse_peak_dt(df["peak_dt"], site_no)
+    df["peak_flow_cfs"] = pd.to_numeric(df["peak_va"], errors="coerce")
+
+    df["water_year"] = df["peak_date"].apply(
+        lambda x: x.year + 1 if x.month >= 10 else x.year if pd.notna(x) else np.nan
+    )
+
+    if "peak_cd" in df.columns:
+        df["qualification_code"] = df["peak_cd"].fillna("")
+    else:
+        df["qualification_code"] = ""
+
+    df = df[["water_year", "peak_date", "peak_flow_cfs", "qualification_code"]].dropna(
+        subset=["water_year", "peak_flow_cfs"]
+    )
+    df["water_year"] = df["water_year"].astype(int)
+    return df.reset_index(drop=True), station_name, drainage_area
+
+
+def fetch_nwis_peaks(site_no: str, backend: str = DEFAULT_BACKEND) -> List[Dict]:
     """
     Fetch peak flow records for a single USGS site.
 
@@ -1335,6 +1459,10 @@ def fetch_nwis_peaks(site_no: str) -> List[Dict]:
     ----------
     site_no : str
         USGS site number
+    backend : str, default :data:`flowfreq.peak_sources.DEFAULT_BACKEND`
+        Passed to :meth:`USGSgage.download_peak_flow`. The default is now the
+        Water Data OGC API; ``"nwis-legacy"`` is the service this always used
+        before. The name ``fetch_nwis_peaks`` is kept for compatibility.
 
     Returns
     -------
@@ -1342,7 +1470,7 @@ def fetch_nwis_peaks(site_no: str) -> List[Dict]:
         Peak flow records for the site
     """
     gage = USGSgage(site_no)
-    gage.download_peak_flow()
+    gage.download_peak_flow(backend=backend)
     records = []
     for _, row in gage.peak_data.iterrows():
         records.append(
@@ -1356,7 +1484,7 @@ def fetch_nwis_peaks(site_no: str) -> List[Dict]:
 
 
 def fetch_nwis_batch(
-    sites: List[str], workers: int = 6
+    sites: List[str], workers: int = 6, backend: str = DEFAULT_BACKEND
 ) -> Tuple[Dict[str, List[Dict]], Dict[str, str]]:
     """
     Fetch peak flow records for multiple USGS sites in parallel.
@@ -1367,6 +1495,8 @@ def fetch_nwis_batch(
         USGS site numbers
     workers : int
         Number of parallel workers (default: 6)
+    backend : str, default :data:`flowfreq.peak_sources.DEFAULT_BACKEND`
+        Passed to :func:`fetch_nwis_peaks` for every site.
 
     Returns
     -------
@@ -1381,7 +1511,7 @@ def fetch_nwis_batch(
     errors: Dict[str, str] = {}
 
     with ThreadPoolExecutor(max_workers=workers) as executor:
-        future_to_site = {executor.submit(fetch_nwis_peaks, site): site for site in sites}
+        future_to_site = {executor.submit(fetch_nwis_peaks, site, backend): site for site in sites}
 
         for future in as_completed(future_to_site):
             site = future_to_site[future]

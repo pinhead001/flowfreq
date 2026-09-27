@@ -65,7 +65,8 @@ def benchmark(fmt: str) -> None:
     help=(
         "CSV with 'water_year' and 'peak_flow_cfs' columns -- the same shape "
         "flowfreq.usgs.USGSgage.download_peak_flow produces, so its output can be "
-        "saved straight to CSV and used here."
+        "saved straight to CSV and used here. An optional 'qualification_code' column "
+        "(NWIS peak codes) is applied as peakfq does unless --ignore-peak-codes."
     ),
 )
 @click.option("--site", "site_name", default="", help="Site name/number for the report title.")
@@ -125,6 +126,15 @@ def benchmark(fmt: str) -> None:
     ),
 )
 @click.option(
+    "--ignore-peak-codes",
+    is_flag=True,
+    default=False,
+    help=(
+        "Fit every peak as an exact systematic value, ignoring the CSV's "
+        "'qualification_code' column (the behaviour before codes were applied)."
+    ),
+)
+@click.option(
     "--tolerance-pct",
     type=float,
     default=1.0,
@@ -147,6 +157,7 @@ def compare(
     low_outlier_threshold: Optional[float],
     historical_path: Optional[Path],
     thresholds: Tuple[Tuple[int, int, float], ...],
+    ignore_peak_codes: bool,
     tolerance_pct: float,
     output_path: Optional[Path],
 ) -> None:
@@ -160,12 +171,19 @@ def compare(
     Historical peaks (``--historical``) and perception thresholds
     (``--threshold``) are passed to both engines unchanged, as
     :func:`flowfreq.workflow.compare_engines` takes them.
+
+    A ``qualification_code`` column in the ``--peaks`` CSV is applied to both
+    engines alike, as peakfq 8.1.0's ``siteQT`` applies it (code 7 historic;
+    3/O/6/C removed). A code 4/8 peak has no ``Bulletin17C`` form and is an
+    error naming its year; ``--ignore-peak-codes`` fits every peak as exact.
     """
     import pandas as pd
 
     from flowfreq.workflow import compare_engines, resolve_regional_skew
 
-    peaks_df = pd.read_csv(peaks_path)
+    # Codes as strings: an all-numeric code column ("7") is otherwise read as
+    # float and comes back as "7.0".
+    peaks_df = pd.read_csv(peaks_path, dtype={"qualification_code": str})
     missing = {"water_year", "peak_flow_cfs"} - set(peaks_df.columns)
     if missing:
         raise click.UsageError(
@@ -203,6 +221,12 @@ def compare(
     except ValueError as exc:
         raise click.UsageError(str(exc)) from exc
 
+    peak_codes: Optional[List[object]] = None
+    if "qualification_code" in peaks_df.columns:
+        peak_codes = peaks_df["qualification_code"].tolist()
+
+    from flowfreq.psf_convert import UnsupportedSpecError
+
     try:
         report = compare_engines(
             peak_flows=peaks_df["peak_flow_cfs"].to_numpy(dtype=float),
@@ -216,8 +240,18 @@ def compare(
             perception_thresholds=perception_thresholds,
             site_name=site_name,
             tolerance_pct=tolerance_pct,
+            peak_codes=peak_codes,
+            apply_peak_codes=not ignore_peak_codes,
         )
     except ImportError as exc:
+        raise click.ClickException(str(exc)) from exc
+    except UnsupportedSpecError as exc:
+        raise click.ClickException(
+            f"{exc} (pass --ignore-peak-codes to fit every peak as exact)"
+        ) from exc
+    except ValueError as exc:
+        # Codes peakfq acts on combined with --historical/--threshold, or a
+        # record the engines reject: a clean message, not a traceback.
         raise click.ClickException(str(exc)) from exc
 
     markdown = report.to_markdown()

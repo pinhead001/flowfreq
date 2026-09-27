@@ -197,6 +197,78 @@ class TestCovariance:
         assert est.interval_method == "average standard error of prediction"
 
 
+# Table 7, Regression Region 4 (report p. 42), as printed: (MEV, upper triangle of
+# (X^T Lambda^-1 X)^-1 in the order Intercept, A, P).
+T7_REGION4 = {
+    0.5: (0.045, (4.633e-3, -5.756e-4, -3.314e-4, 4.384e-4, 1.945e-6, 3.270e-5)),
+    0.01: (0.047, (6.467e-3, -6.873e-4, -4.498e-4, 5.221e-4, 8.927e-7, 4.273e-5)),
+    0.002: (0.053, (7.663e-3, -7.937e-4, -5.319e-4, 6.073e-4, 2.921e-7, 5.033e-5)),
+}
+
+
+def _sym3(up):
+    a, b, c, d, e, f = up
+    return np.array([[a, b, c], [b, d, e], [c, e, f]])
+
+
+def _implied_regression_variance(q_sta, q_reg, q_wtd, lo, hi):
+    """Vr recovered from one Table 8 gage/AEP (lines 1-4), assuming WIE's weighting.
+
+    log Qwtd = (Vr log Qsta + Vs log Qreg) / (Vs + Vr) and Vwtd = Vs Vr / (Vs + Vr), with
+    Vwtd from the symmetric 95-percent interval on line 4.
+    """
+    w = (math.log10(q_wtd) - math.log10(q_reg)) / (math.log10(q_sta) - math.log10(q_reg))
+    v_wtd = ((math.log10(hi) - math.log10(lo)) / (2 * stats.norm.ppf(0.975))) ** 2
+    return v_wtd / (1 - w)
+
+
+class TestRegion4CovarianceBasis:
+    """Why Region 4 carries no covariance (WA.json notes).
+
+    Table 7's Region 4 matrix fits Table 6's Sp only if P is read as P/10, but the report
+    never says so, and its own computations (the Flood Q Tools workbook and Table 8's WIE
+    weighted estimates) apply the printed matrix to raw P. These tests pin both halves.
+    """
+
+    def test_workbook_applies_table_7_to_raw_p(self):
+        # 'Flood Q Regression Tool' cell BO6, AEP 0.5, at the sheet's saved inputs
+        # DA = 20 (Q9) and P = 10 (Q11): MMULT over the row [1, LOG10(DA), P].
+        mev, up = T7_REGION4[0.5]
+        x = np.array([1.0, math.log10(20.0), 10.0])
+        assert x @ _sym3(up) @ x == pytest.approx(5.6993483117523099e-4, rel=1e-12)
+
+    @pytest.mark.parametrize(
+        "station, area, precip, aep, table8",
+        [
+            # Table 5 DRNAREA and PRECIP; Table 8 lines 1-4 (Qsta, Qreg, Qwtd, 95% CI).
+            ("12024400", 29.69, 66.7789354799, 0.01, (7290, 3840, 6840, 3720, 12600)),
+            ("12024400", 29.69, 66.7789354799, 0.002, (10100, 5150, 9210, 4280, 19800)),
+            ("12020800", 26.95, 73.3262900034, 0.002, (18500, 4950, 16100, 7690, 33700)),
+        ],
+    )
+    def test_table_8_weights_use_raw_p(self, lib, station, area, precip, aep, table8):
+        q_sta, q_reg, q_wtd, lo, hi = table8
+        chars = {"DRNAREA": area, "PRECPRIS10": precip}
+        assert _sig3(evaluate(lib.equation("4", aep), chars).flow_cfs) == q_reg
+        implied = _implied_regression_variance(q_sta, q_reg, q_wtd, lo, hi)
+        mev, up = T7_REGION4[aep]
+        u = _sym3(up)
+        raw = np.array([1.0, math.log10(area), precip])
+        tenth = np.array([1.0, math.log10(area), precip / 10])
+        assert implied == pytest.approx(mev + raw @ u @ raw, rel=0.05)
+        assert implied / (mev + tenth @ u @ tenth) > 1.5
+
+    def test_inversion_reproduces_stored_region_2_covariance(self, lib):
+        # Control: USGS 12398000 (Table 5: A 142.91186481, P 47.961, CAN 76.8907), AEP 0.002.
+        chars = {"DRNAREA": 142.91186481, "PRECPRIS10": 47.961, "CANOPY_PCT": 76.8907}
+        eq = lib.equation("2", 0.002)
+        assert _sig3(evaluate(eq, chars).flow_cfs) == 2220
+        x = np.array([1.0, math.log10(142.91186481), 47.961, 76.8907])
+        model = eq.model_error_variance + x @ np.asarray(eq.covariance) @ x
+        implied = _implied_regression_variance(6780, 2220, 6060, 3400, 10800)
+        assert implied == pytest.approx(model, rel=0.05)
+
+
 # Live NSS response for Goat Creek (DRNAREA 412.0, PRECPRIS10 45.62, CANOPY_PCT 45.242),
 # recorded in tests/fixtures/streamstats_responses.py (Region 1 = GC1750).
 GOAT_CREEK = {"DRNAREA": 412.0, "PRECPRIS10": 45.62, "CANOPY_PCT": 45.242}
