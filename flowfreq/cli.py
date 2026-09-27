@@ -174,8 +174,9 @@ def compare(
 
     A ``qualification_code`` column in the ``--peaks`` CSV is applied to both
     engines alike, as peakfq 8.1.0's ``siteQT`` applies it (code 7 historic;
-    3/O/6/C removed). A code 4/8 peak has no ``Bulletin17C`` form and is an
-    error naming its year; ``--ignore-peak-codes`` fits every peak as exact.
+    3/O/6/C removed, 4/8 a less-than/greater-than interval). A record neither
+    engine can express exactly is an error naming its years;
+    ``--ignore-peak-codes`` fits every peak as exact.
     """
     import pandas as pd
 

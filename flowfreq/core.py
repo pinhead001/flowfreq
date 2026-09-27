@@ -14,6 +14,86 @@ import pandas as pd
 from scipy import stats
 from scipy.special import gammaln
 
+#: peakfq's ``Qmax`` (``vendor/peakfqr/R/main.R``): the flow standing for "no
+#: upper bound" in an EMA interval or a perception threshold.
+FLOW_QMAX = 1e20
+#: peakfq's ``Qmin``: the flow standing for "no lower bound" (and for zero).
+FLOW_QMIN = 1e-20
+
+#: A ``perception_thresholds`` value: the lower bound alone (upper ``Qmax``), or
+#: a ``(lower, upper)`` pair.
+PerceptionBound = Union[float, Tuple[float, float]]
+
+
+def perception_bounds(value: PerceptionBound) -> Tuple[float, float]:
+    """A ``perception_thresholds`` value as ``(tl, tu)`` in cfs.
+
+    A bare number is the lower bound, with the upper at ``Qmax`` -- the
+    meaning a float has always had in this API. A pair is ``(lower, upper)``;
+    an infinite upper bound is ``Qmax``, peakfq's own "no upper limit".
+
+    Raises
+    ------
+    ValueError
+        A pair that is not two numbers, a NaN bound, or an upper bound below
+        the lower.
+    """
+    if isinstance(value, (tuple, list, np.ndarray)):
+        if len(value) != 2:
+            raise ValueError(
+                f"a perception threshold must be a lower bound or a (lower, upper) pair, "
+                f"got {value!r}"
+            )
+        lower, upper = float(value[0]), float(value[1])
+    else:
+        lower, upper = float(value), FLOW_QMAX
+    if np.isnan(lower) or np.isnan(upper):
+        raise ValueError(f"perception threshold {value!r} has a NaN bound")
+    if np.isinf(upper):
+        upper = FLOW_QMAX
+    if upper < lower:
+        raise ValueError(f"perception threshold {value!r}: upper bound is below the lower")
+    return lower, upper
+
+
+def normalize_interval_peaks(
+    interval_peaks: Optional[List[Tuple[int, float, float]]],
+) -> List[Tuple[int, float, float]]:
+    """Validate ``interval_peaks`` and map them onto ``siteQT``'s row bounds.
+
+    ``siteQT`` (``vendor/peakfqr/R/readInputs.R``) floors every bound at
+    ``Qmin`` and writes "no upper bound" as ``Qmax``; the same is done here,
+    so ``(1990, 0, 2)`` is the row ``[1e-20, 2]`` and ``(1990, 407, inf)`` is
+    ``[407, 1e20]``.
+
+    Raises
+    ------
+    ValueError
+        A negative or NaN bound, an upper bound not above the lower (an exact
+        peak belongs in ``peak_flows``), or a water year given twice.
+    """
+    out: List[Tuple[int, float, float]] = []
+    seen: set[int] = set()
+    for entry in interval_peaks or []:
+        if len(entry) != 3:
+            raise ValueError(
+                f"an interval peak is (water_year, lower_cfs, upper_cfs), got {entry!r}"
+            )
+        year, lower, upper = int(entry[0]), float(entry[1]), float(entry[2])
+        if np.isnan(lower) or np.isnan(upper) or lower < 0:
+            raise ValueError(f"interval peak for water year {year} has an invalid bound: {entry!r}")
+        if not upper > lower:
+            raise ValueError(
+                f"interval peak for water year {year} needs upper > lower, got {entry!r}; "
+                "an exactly known peak belongs in peak_flows"
+            )
+        if year in seen:
+            raise ValueError(f"water year {year} is given more than one interval peak")
+        seen.add(year)
+        upper = FLOW_QMAX if np.isinf(upper) else upper
+        out.append((year, max(lower, FLOW_QMIN), max(upper, FLOW_QMIN)))
+    return out
+
 
 class SkewMethod(Enum):
     """Skew coefficient computation method."""
@@ -64,6 +144,12 @@ class FlowInterval:
     For systematic peaks: lower = upper = observed value
     For censored data: lower and upper define the interval
     For historical peaks: perception_threshold defines detectability
+
+    ``perception_threshold`` and ``perception_upper`` are the year's
+    perception-threshold pair ``(tl, tu)`` in ``siteQT``'s sense -- the range
+    of flows that would have been recorded that year. ``perception_upper``
+    defaults to peakfq's ``Qmax`` (:data:`FLOW_QMAX`, "no upper limit"), which
+    is what every interval had before upper thresholds could be declared.
     """
 
     lower: float
@@ -71,6 +157,7 @@ class FlowInterval:
     year: int
     is_historical: bool = False
     perception_threshold: float = 0.0
+    perception_upper: float = FLOW_QMAX
 
     @property
     def is_censored(self) -> bool:
@@ -86,18 +173,36 @@ class FlowInterval:
 
     @classmethod
     def from_censored(
-        cls, lower: float, upper: float, year: int, perception_threshold: float = 0.0
+        cls,
+        lower: float,
+        upper: float,
+        year: int,
+        perception_threshold: float = 0.0,
+        perception_upper: float = FLOW_QMAX,
     ) -> FlowInterval:
-        return cls(lower=lower, upper=upper, year=year, perception_threshold=perception_threshold)
+        return cls(
+            lower=lower,
+            upper=upper,
+            year=year,
+            perception_threshold=perception_threshold,
+            perception_upper=perception_upper,
+        )
 
     @classmethod
-    def from_historical(cls, flow: float, year: int, perception_threshold: float) -> FlowInterval:
+    def from_historical(
+        cls,
+        flow: float,
+        year: int,
+        perception_threshold: float,
+        perception_upper: float = FLOW_QMAX,
+    ) -> FlowInterval:
         return cls(
             lower=flow,
             upper=flow,
             year=year,
             is_historical=True,
             perception_threshold=perception_threshold,
+            perception_upper=perception_upper,
         )
 
 
