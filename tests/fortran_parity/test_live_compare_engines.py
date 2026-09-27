@@ -123,41 +123,22 @@ class TestSite12363000:
 
 
 class TestCainsCoulee:
-    """The one site with a known, already-documented residual.
+    """MGBT-censored site; the engines agree now.
 
-    Its ``skew_weighted`` gap (0.058 skew units) is the standing
-    ``xfail(strict=True)`` in
-    ``tests/fortran_parity/test_wymt_vs_golden.py::TestCainsCouleeCensored::
-    test_weighted_skew_matches``. ``compare_engines`` surfacing the same
-    known gap as an overall FAIL is correct behaviour, not a bug in the
-    comparison -- so that FAIL is asserted here too, `xfail(strict=True)`
-    the same way, rather than skipped or worked around. If that residual is
-    ever resolved, this xfail should flip at the same time as the one in
-    ``test_wymt_vs_golden.py``.
+    Its ``skew_weighted`` was 0.058 off peakfq (a standing ``xfail(strict=True)``)
+    until the native at-site skew MSE followed ``emafit.f:707``'s switch to the
+    Bulletin 17B formula when MGBT finds low outliers. Both tests here were the
+    comparison-level view of that gap and flipped with it.
     """
 
     def test_quantile_deviation_stays_under_the_measured_bound(self):
-        """Not xfailed: TODO.md P3 already measured this at up to 9.7%, and
-        that bound is not itself in question -- only whether the overall
-        comparison *passes* is."""
+        """Measured about 0.001% (was up to 9.7% before the B17B skew-MSE switch)."""
         try:
             report = _wymt_report("06327450.00", "Cains Coulee")
         except FileNotFoundError as exc:
             pytest.skip(str(exc))
-        assert report.max_quantile_deviation_pct < 15.0
+        assert report.max_quantile_deviation_pct < 0.1
 
-    @pytest.mark.xfail(
-        strict=True,
-        reason=(
-            "Known, documented residual (TODO.md P3, "
-            "test_wymt_vs_golden.py::test_weighted_skew_matches): skew_weighted is "
-            "0.058 skew units off peakfq 8.1.0's own reported value, tracing to "
-            "emafitpr's own internally-computed as_G_mse disagreeing with a standalone "
-            "call to the same mseg_all routine on identical inputs -- not a defect in "
-            "flowfreq's composition of independently-verified routines. Remove this "
-            "xfail if that residual is ever resolved."
-        ),
-    )
     def test_overall_comparison_passes(self):
         try:
             report = _wymt_report("06327450.00", "Cains Coulee")

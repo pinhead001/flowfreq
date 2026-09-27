@@ -107,9 +107,11 @@ def test_compare_rejects_a_csv_missing_the_expected_columns(tmp_path):
 
 
 def test_compare_exits_nonzero_when_engines_disagree():
-    """Cains Coulee's known skew_weighted residual (TODO.md P3) makes the
-    overall comparison FAIL -- the CLI should surface that as a nonzero exit
-    code, the way any other comparison-fails-tolerance CLI would."""
+    """A comparison that fails its tolerance must exit nonzero.
+
+    Cains Coulee used to fail on its own (a 0.058 skew_weighted gap, since
+    fixed); the engines now agree to ~0.001%, so the failure is forced with a
+    tolerance no real comparison can meet."""
     from click.testing import CliRunner
 
     from flowfreq.cli import cli
@@ -138,6 +140,8 @@ def test_compare_exits_nonzero_when_engines_disagree():
                 str(site.regional_skew),
                 "--regional-skew-se",
                 str(site.regional_skew_mse**0.5),
+                "--tolerance-pct",
+                "1e-12",
             ],
         )
     assert result.exit_code != 0

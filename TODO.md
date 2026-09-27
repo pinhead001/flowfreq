@@ -22,13 +22,13 @@ Tests, measured 2026-09-25 on Windows / CPython 3.12 with
   and `tests/validation/test_reference.py::TestFromEmafit::test_live_call_matches_the_golden_file`.
   `ci / Fortran parity` is the authoritative parity check.
 
-The strict xfails: four 2012 PeakfqSA manual comparisons (`tests/validation/test_big_sandy.py`,
-a non-reproducible reference), Cains Coulee's `skew_weighted`
-(`tests/fortran_parity/test_wymt_vs_golden.py`, P3 below), the `batch.run_multi_site` bug
-(`tests/test_batch.py`, see "Small open items"), and, with the extension built, Cains
-Coulee's `compare_engines` overall PASS (`test_live_compare_engines.py`), which flips with
-the `skew_weighted` one. Run the number, do not carry it forward -- it has been wrong in a
-commit message and a PR body already.
+The strict xfails: only the four 2012 PeakfqSA manual comparisons
+(`tests/validation/test_big_sandy.py`, a non-reproducible reference). Cains Coulee's
+`skew_weighted` xfail (P3 below) and its `compare_engines` twin are resolved: the native at-site
+skew MSE now follows `emafit.f:707`'s switch to the Bulletin 17B formula when MGBT finds low
+outliers (see CLAUDE.md, Validation Status). The `batch.run_multi_site` xfail was fixed in #46.
+Run the number, do not carry it forward -- it has been wrong in a commit message and a PR body
+already.
 
 Every P1, P2 and P3 item is done; the Done sections and "P3 — The `var_mom` port" hold the
 history. Open work is the roadmap (Phase A / Wave 1 below) plus the small items after it.
@@ -856,9 +856,13 @@ the CLOMR/LOMR case this is for.
 
 ### P3 — The `var_mom` port, now complete
 
-One `xfail(strict=True)` remains from this whole item: Cains Coulee's `skew_weighted` rung, in
-`tests/fortran_parity/test_wymt_vs_golden.py`. The build fails the moment it starts passing.
-Nothing else is blocked on it, and nothing else in this item is still open.
+**Resolved 2026-09-26: no `xfail` remains from this item.** Cains Coulee's `skew_weighted`
+rung passes, at 6e-6 (quantiles to 0.0012%). The cause was not anything in the `var_mom` port:
+`emafit.f:707-711` switches the at-site skew MSE to the plain Bulletin 17B `mseg(n, G)` when
+MGBT computes the threshold and finds low outliers, and the native engine used ADJE
+unconditionally. The "unexplained ~3x `as_G_mse` discrepancy" recorded below, and in the
+Cains Coulee rows of the tables that follow, is that switch. Those passages are kept as history;
+read them with this in mind.
 
 Everything here bottomed out in `var_mom` and its dependency tree, the one piece of the
 reference implementation that had never been ported before this item started. What follows is

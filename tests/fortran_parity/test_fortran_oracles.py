@@ -188,41 +188,27 @@ class TestSkewMseOracle:
 
 
 class TestCainsCouleeAsGMseDiscrepancy:
-    """A real, unexplained gap found chasing TODO.md P3's last xfail.
+    """A ~3x as_G_mse gap at Cains Coulee -- long unexplained, now explained.
 
     Runs right after ``TestSkewMseOracle`` -- before any ``emafitpr`` call
     in this file -- so its own ``mseg_all_sub`` call is the first Fortran
     entry point touched this process, avoiding the ``SAVE``d-state leak
     the module docstring already documents.
 
-    Everything else this port touches matches the Fortran closely at Cains
-    Coulee's real post-MGBT censoring group (``tl=2.521``, its 332 cfs
-    MGBT cutoff, ``tu=20``, ``n=32``) and its real at-site fit -- but
-    ``emafitpr``'s own internally-computed, reported ``as_G_mse`` for this
-    site (0.2212, committed in the golden file as ``skew.as_G_mse_o``, and
-    what ``skew_weighted`` there was built from) does not match what
-    calling the *same* ``mseg_all`` Fortran routine standalone gives for
-    the *identical* inputs (0.0749). Confirmed reproducible, not a testing
-    artifact: regenerating Cains Coulee's golden file in total isolation
-    (``python tools/gen_fortran_golden.py cains_coulee_06327450``, nothing
-    else in the process) gives the same 0.2212 -- ruling out cross-case
-    contamination as the explanation this time (that would require some
-    *other* case's ``emafitpr`` to have run first). The exact mechanism
-    inside ``emafitpr`` was not pinned down: ``momsadj``'s skew floor is a
-    no-op at this magnitude (-1.41), ``p3est_ema`` computes ``nG`` once
-    before its iteration loop rather than per-iteration (so that is not
-    silently recomputing ``as_G_mse`` differently), and replicating
-    ``emafitpr``'s exact internal ``mse_ema``/``mseg_all`` call sequence
-    (kmom=1, kmom=2, kmom=3, then the ERL "Syst" variant, then kmom=3
-    again) via standalone oracle calls never reproduces the drift either --
-    something earlier in ``emafitpr``'s own multi-stage fit (MGBT, or the
-    first at-site-only ``p3est_ema`` pass under ``at_site_option='B17B'``)
-    is implicated, but which one, and why, is still open.
+    ``emafitpr``'s reported ``as_G_mse`` for this site (0.2212, the golden's
+    ``skew.as_G_mse_o``) differs from a standalone ``mseg_all_sub`` call on
+    the identical ``(nobs, tl, tu, mc)`` (0.0749). This was carried for a long
+    time as an unexplained discrepancy inside ``emafitpr``, and it was the
+    cause of Cains Coulee's ``skew_weighted`` xfail.
 
-    ``flowfreq._mse_ema.mse_ema``/``flowfreq._var_mom.var_mom`` are not the
-    suspects here -- both are independently confirmed exact against the
-    Fortran at this same real point, ruling out the ``var_mom``-precision
-    explanation this xfail carried before this investigation.
+    **The explanation** is ``emafit.f:707-711``: when MGBT computes the
+    threshold (``gbthrsh0 <= -6``) and finds low outliers, ``emafitpr`` sets
+    ``at_site_std = "B17B"`` and never switches ``at_site_option`` back to
+    ADJE, so its ``mseg_all`` returns plain ``mseg(n, G)`` -- 0.2212 here,
+    to 4e-8 (:meth:`test_emafitpr_used_the_b17b_formula`). A standalone
+    ``mseg_all_sub`` call runs under ADJE, which multiplies by the
+    censoring bias adjustment: that is the 0.0749. The native engine now
+    follows the same switch (``ExpectedMomentsAlgorithm._at_site_option``).
     """
 
     #: Cains Coulee 06327450's real post-MGBT censoring group and at-site
@@ -246,19 +232,31 @@ class TestCainsCouleeAsGMseDiscrepancy:
         assert mine == pytest.approx(fortran, rel=1e-6)
 
     def test_mseg_all_sub_disagrees_with_emafitprs_own_as_g_mse_o(self):
-        """The actual gap: not a precision limit, a ~3x discrepancy.
+        """Standalone ``mseg_all_sub`` runs ADJE, so it differs ~3x from emafitpr's.
 
-        ``mseg_all_sub`` here is ADJE's ``bias_adj * mseg(n_adj, skew)``,
-        called standalone with exactly the inputs ``emafitpr`` used to
-        report ``as_G_mse_o`` -- and it does not agree.
+        ``bias_adj * mseg(n_adj, skew)`` on the inputs ``emafitpr`` used; it
+        is *expected* to differ, because ``emafitpr`` was in B17B mode.
         """
         from flowfreq.peakfqr._emafort import mseg_all_sub
 
         standalone = float(mseg_all_sub(self._NOBS, self._TL, self._TU, self._MC_AT_SITE))
         assert standalone == pytest.approx(0.0748857778, rel=1e-6)
-        assert (
-            abs(standalone / self._AS_G_MSE_O - 1) > 0.5
-        ), "if this ever starts agreeing, the mystery is solved -- see the class docstring"
+        assert abs(standalone / self._AS_G_MSE_O - 1) > 0.5
+
+    def test_emafitpr_used_the_b17b_formula(self):
+        """The resolution: emafitpr's as_G_mse is plain mseg(n, G), the B17B branch.
+
+        MGBT found 11 low outliers at this site, so ``emafit.f:707`` sets
+        ``at_site_std = "B17B"``; ``mseg_all`` then returns ``mseg(32, G)``.
+        """
+        from flowfreq._var_emab import _mseg_all
+        from flowfreq.bulletin17c import _mseg
+
+        skew = float(self._MC_AT_SITE[2])
+        assert _mseg(32, skew) == pytest.approx(self._AS_G_MSE_O, rel=1e-7)
+        mc = np.array([0.0, float(self._MC_AT_SITE[1]), skew])
+        b17b = _mseg_all(self._NOBS, self._TL, self._TU, mc, at_site_option="B17B")
+        assert b17b == pytest.approx(self._AS_G_MSE_O, rel=1e-7)
 
 
 class TestDeterminantRatioOracle:

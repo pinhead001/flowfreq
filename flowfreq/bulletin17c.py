@@ -143,10 +143,19 @@ def _b17b_skew_mse(n: int, skew: float) -> float:
     float
         Mean-square error of the at-site skew estimate.
     """
+    return _mseg(min(n, 150), skew)
+
+
+def _mseg(n: int, skew: float) -> float:
+    """``emafit.f`` ``mseg`` (line 1739) exactly: Bulletin 17B's skew MSE, uncapped.
+
+    ``mseg_all``'s 'B17B' branch calls this at the full record length; only
+    the 'ADJE' branch caps n at 150 (:func:`_b17b_skew_mse`).
+    """
     g = abs(skew)
     a = -0.33 + 0.08 * g if g <= 0.9 else -0.52 + 0.30 * g
     b = 0.94 - 0.26 * g if g <= 1.5 else 0.55
-    return float(10.0 ** (a - b * np.log10(min(n, 150) / 10.0)))
+    return float(10.0 ** (a - b * np.log10(n / 10.0)))
 
 
 class FloodFrequencyAnalysis(ABC):
@@ -714,6 +723,10 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         self._historical_period_is_perception = ema_params is not None
         self._ema_params = ema_params or self._auto_configure_ema_params()
         self._intervals: List[FlowInterval] = []
+        # emafit.f:707-711: 'B17B' when MGBT computed the threshold and found low
+        # outliers, else 'ADJE'. Set by run_analysis; read by every at-site skew
+        # MSE (weighting, pseudo record length, the var_emab confidence bounds).
+        self._at_site_option: str = "ADJE"
 
     def _auto_configure_ema_params(self) -> EMAParameters:
         """Auto-configure EMA parameters from data."""
@@ -1099,6 +1112,18 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         )
         return mse_censored / mse_uncensored
 
+    def _at_site_skew_mse(
+        self, mean_log: float, std_log: float, at_site_skew: float, n: int
+    ) -> float:
+        """``as_G_mse``: ``mseg_all`` under the fit's ``at_site_option``.
+
+        'B17B' (MGBT found low outliers, ``emafit.f:707``) is ``mseg(n, G)`` over
+        the whole record, uncapped; 'ADJE' otherwise (:meth:`_adje_skew_mse`).
+        """
+        if self._at_site_option == "B17B":
+            return _mseg(n, at_site_skew)
+        return self._adje_skew_mse(mean_log, std_log, at_site_skew, n)
+
     def _adje_skew_mse(self, mean_log: float, std_log: float, at_site_skew: float, n: int) -> float:
         """``as_G_mse`` under ADJE: ``bias_adj * mseg(min(n,150), G)``.
 
@@ -1217,7 +1242,7 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
                     exc_info=True,
                 )
                 wd = 1.0
-        as_g_mse = self._adje_skew_mse(mean_log, std_log, at_site_skew, n)
+        as_g_mse = self._at_site_skew_mse(mean_log, std_log, at_site_skew, n)
         return n * wd * as_g_mse / r_g_mse
 
     def _pseudo_record_length(
@@ -1240,8 +1265,9 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
                 np.array([-99.0]),
                 np.array([99.0]),
                 np.array([0.0, float(std_log) ** 2, float(at_site_skew)]),
+                self._at_site_option,
             )
-            mse = self._adje_skew_mse(mean_log, std_log, at_site_skew, n)
+            mse = self._at_site_skew_mse(mean_log, std_log, at_site_skew, n)
             return eff_n * mse_syst / mse
         except Exception:
             logger.warning("Could not compute the pseudo effective record length", exc_info=True)
@@ -1576,6 +1602,15 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
             user_threshold=self._user_low_outlier_threshold
         )
         self._ema_params.low_outlier_threshold = low_threshold
+        # emafit.f:707: `if(gbthrsh0 .le. -6 .and. nlow .gt. 0) at_site_std = "B17B"`.
+        # MGBT computed the threshold (no user override) and found low outliers:
+        # peakfq's "temporary fix" drops the ADJE censoring adjustment, because
+        # MGBT's data-driven censoring pushes the skew toward zero and a fixed-
+        # censoring first-order MSE would overstate its uncertainty.
+        mgbt_computed = not (
+            self._user_low_outlier_threshold is not None and self._user_low_outlier_threshold > 0
+        )
+        self._at_site_option = "B17B" if mgbt_computed and n_low_outliers > 0 else "ADJE"
 
         self._build_flow_intervals(low_threshold)
 
@@ -1661,6 +1696,7 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         pq: Tuple[float, ...],
         eps: float,
         r_g_mse: float,
+        at_site_option: str = "ADJE",
     ) -> Tuple[np.ndarray, np.ndarray]:
         """``(ci_low, ci_high)`` in log10 space from ``flowfreq._var_emab.var_emab``.
 
@@ -1674,7 +1710,14 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
 
         mc = np.array([mean_log, var_log, skew])
         _, _, cil, cih, _ = var_emab(
-            np.array(nobs), np.array(tl), np.array(tu), mc, np.array(pq), eps, r_g_mse=r_g_mse
+            np.array(nobs),
+            np.array(tl),
+            np.array(tu),
+            mc,
+            np.array(pq),
+            eps,
+            r_g_mse=r_g_mse,
+            at_site_option=at_site_option,
         )
         return cil, cih
 
@@ -1718,6 +1761,7 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
                 tuple(pq),
                 float(confidence),
                 float(r_g_mse),
+                self._at_site_option,
             )
         except Exception:
             logger.warning(
