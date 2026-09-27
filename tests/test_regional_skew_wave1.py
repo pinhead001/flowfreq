@@ -25,7 +25,7 @@ PNW_ERL = 41.0
 
 @pytest.mark.parametrize("state", ["WA", "OR", "ID"])
 def test_pacific_northwest_rows(state):
-    rs = regional_skew_for(state)
+    rs = regional_skew_for(state, "Pacific Northwest")
     assert rs.skew_region == "Pacific Northwest"
     assert rs.skew == PNW_SKEW
     assert rs.skew_mse == PNW_MSE
@@ -43,7 +43,7 @@ def test_pnw_mse_matches_published_standard_error():
     "state, report", [("WA", "2016-5118"), ("OR", "2016-5083"), ("ID", "2016-5083")]
 )
 def test_citations_name_the_report(state, report):
-    rs = regional_skew_for(state)
+    rs = regional_skew_for(state, "Pacific Northwest")
     assert f"Scientific Investigations Report {report}" in rs.citation
 
 
@@ -75,3 +75,11 @@ def test_wave1_rows_all_have_notes():
     verified = wave1[wave1["status"] == "verified"]
     assert set(verified["state"]) == {"WA", "OR", "ID"}
     assert verified["table"].notna().all()
+
+
+def test_idaho_needs_a_named_region():
+    """ID has a verified PNW row and a pending Snake River Plain row: an unnamed
+    lookup must not return the PNW value, which that study says is invalid on
+    the Plain (SIR 2016-5083 p. 52)."""
+    with pytest.raises(RegionalSkewUnavailable, match="Name one"):
+        regional_skew_for("ID")

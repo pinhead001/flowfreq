@@ -34,6 +34,7 @@ import requests
 
 from flowfreq.peak_codes import parse_codes
 from flowfreq.peak_sources import LegacyNwisBackend, WaterDataApiBackend
+from flowfreq.usgs import USGSgage
 
 #: Big Sandy: unknown-day historic peaks. Orestimba: zero flows with unknown
 #: month (B17C Appendix 10). Potomac at Point of Rocks: a long record with
@@ -41,8 +42,10 @@ from flowfreq.peak_sources import LegacyNwisBackend, WaterDataApiBackend
 PARITY_SITES = ["03606500", "11274500", "01638500"]
 
 
-def _legacy(site_no: str) -> pd.DataFrame:
+def _legacy(site_no: str, via_gage: bool = False) -> pd.DataFrame:
     try:
+        if via_gage:
+            return USGSgage(site_no).download_peak_flow(backend="nwis-legacy")
         return LegacyNwisBackend().fetch_peaks(site_no)
     except (requests.ConnectionError, requests.Timeout) as exc:
         pytest.skip(f"legacy NWIS unreachable from here: {exc}")
@@ -97,6 +100,17 @@ def test_backends_agree(site_no: str) -> None:
     legacy = _legacy(site_no)
     ogc = WaterDataApiBackend().fetch_peaks(site_no)
     problems = _mismatches(legacy, ogc)
+    assert not problems, f"site {site_no}:\n" + "\n".join(problems)
+
+
+@pytest.mark.requires_network
+@pytest.mark.parametrize("site_no", PARITY_SITES)
+def test_download_peak_flow_default_agrees_with_legacy(site_no: str) -> None:
+    """The same gate through ``USGSgage.download_peak_flow``, whose default is now
+    the OGC backend: what every existing caller gets must match what it got."""
+    legacy = _legacy(site_no, via_gage=True)
+    new = USGSgage(site_no).download_peak_flow()
+    problems = _mismatches(legacy, new)
     assert not problems, f"site {site_no}:\n" + "\n".join(problems)
 
 

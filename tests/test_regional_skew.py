@@ -49,7 +49,7 @@ def test_verified_row(tmp_path):
 
 def test_ambiguous_region(tmp_path):
     p = _table(tmp_path, "XX,R1,-0.1,0.12,,C,,verified,\nXX,R2,0.1,0.1,,C,,verified,\n")
-    with pytest.raises(RegionalSkewUnavailable, match="name one"):
+    with pytest.raises(RegionalSkewUnavailable, match="Name one"):
         regional_skew_for("XX", path=p)
     assert regional_skew_for("XX", "R2", path=p).skew == 0.1
 
@@ -72,3 +72,11 @@ def test_regional_skew_requires_citation_and_positive_mse():
         RegionalSkew("WA", "R", 0.0, 0.1, " ")
     with pytest.raises(ValueError, match="skew_mse"):
         RegionalSkew("WA", "R", 0.0, 0.0, "C")
+
+
+def test_a_pending_region_makes_an_unnamed_lookup_ambiguous(tmp_path):
+    """One verified and one pending row: still ambiguous without a region name."""
+    p = _table(tmp_path, "XX,R1,-0.1,0.12,,C,,verified,\nXX,R2,,,,,,pending,\n")
+    with pytest.raises(RegionalSkewUnavailable, match=r"'R2' \(pending\)"):
+        regional_skew_for("XX", path=p)
+    assert regional_skew_for("XX", "R1", path=p).skew == -0.1
