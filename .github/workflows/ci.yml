@@ -51,7 +51,7 @@ jobs:
       #
       # Scoped to a clean install of the base package, not this job's own
       # `.[dev]` environment: black and pytest are deliberately pinned below
-      # their latest patch (black<25, pytest<8 -- see the dev extra's own
+      # their latest major (black<25, pytest<10 -- see the dev extra's own
       # comments on why) and pip itself is just this runner's bootstrap
       # tooling, not a flowfreq dependency. None of those three reach a `pip
       # install flowfreq` user, so a CVE in them would fail this gate for a
@@ -65,7 +65,7 @@ jobs:
           /tmp/audit-env/bin/pip list --format=freeze \
             --exclude pip --exclude setuptools --exclude wheel --exclude flowfreq \
             > /tmp/audit-reqs.txt
-          # Pinned like every other tool here (black<25, pytest<9): unpinned,
+          # Pinned like every other tool here (black<25, pytest<10): unpinned,
           # pip-audit could change scan behavior between runs with no diff in
           # this repo to review, which is exactly the non-reproducibility the
           # pins above this step exist to prevent.

@@ -106,6 +106,9 @@ class TestFromEmafit:
         pytest.importorskip(
             "flowfreq.peakfqr",
             reason="Fortran extension not built; run python build_fortran/build.py",
+            # flowfreq.peakfqr raises ImportError, not ModuleNotFoundError, when the
+            # extension is absent; pytest 9.1 only skips on the latter by default.
+            exc_type=ImportError,
         )
         from tests.fortran_parity.cases import big_sandy_case, build_emafit_inputs
 
