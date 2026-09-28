@@ -112,6 +112,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   estimate (Skookumchuck River near Vail, WA; `docs/STREAMSTATS_NSS_ADDENDUM.md` S6).
   Both results reproduce their own equation strings through
   `flowfreq.regression.nss.evaluate_expression`.
+- **Native EMA fixed point now iterates as `p3est_ema` does** (`emafit.f:1149`): from
+  `(0, 1, 0)`, until `dist_p3` between iterates is at most 1e-10 and has stopped decreasing,
+  averaging iterates past 10,000 to break cycles. It used to start from the sample moments and
+  stop once no moment moved by 1e-6, which left every fit ~1e-6 short of its fixed point.
+  **Results change**, toward peakfq 8.1.0, on every record that needed more than a couple of
+  iterations: at most 0.0035 % in any quantile and 5.5e-4 in at-site skew (WY/MT 06328100),
+  typically 1e-4 %. Against live `emafitpr` on the 24 WY/MT `.psf` stations, at-site skew now
+  agrees to 1e-10 (was 1e-6) and quantiles to ~1e-5 % (was ~1e-3 %), except the two
+  near-zero-skew stations 06328100 (5e-4 %, was 3e-3 %) and 06329350 (0.012 %, unchanged).
+  Big Sandy moves 8e-5 %; 12363000 (uncensored) does not move. `EMAParameters.max_iterations`/`tolerance` now default to
+  20000 / 1e-10 and mean `p3est_ema`'s iteration cap and `dist_p3` bound; `ema_iterations` on
+  an uncensored record is 3 (the Fortran's count), not 1.
+- A record whose EMA used to stop at 100 iterations without converging (for example Big
+  Sandy's systematic record with a 6000 cfs low-outlier override) now converges, so `run_ffa`
+  reports EMA for it rather than falling back to the method of moments.
+- The Wilson-Hilferty/incomplete-gamma blend weight (`_p3_moments._wh_weight`) uses the
+  Fortran's single-precision literals (`0.0007`, `0.0010-0.0007`, `3.14159265359`); affects
+  only `0.0007 < |skew| < 0.001`.
+
+### Known differences
+- A user-supplied (FIXED) low-outlier threshold record reported with a 2e-3 weighted-skew
+  residual is **not** a native defect: `emafitpr`'s own weighted skew there is ill-conditioned
+  (a 1e-5 relative change in `r_G_mse` moves it 2e-3) because `mP3`'s incomplete-gamma
+  evaluation rounds at the 1e-3 level for skews of a few thousandths. Recorded as a strict
+  xfail in `tests/fortran_parity/test_fixed_threshold_live.py`.
+- Big Sandy with a 6000 cfs FIXED threshold (29 of 44 peaks censored): `emafitpr`'s
+  `MN2MVARB` stops after 100 Newton iterations without converging, giving ADJE
+  `as_G_mse` 2.74 where the converged value is 0.064; weighted skew -0.281 (peakfq) vs -0.166
+  (native). Strict xfail in the same file.
 
 ## [0.9.0] - 2026-09-27
 

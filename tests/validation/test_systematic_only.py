@@ -51,10 +51,16 @@ class TestSystematicOnlyEquivalence:
         return b17c
 
     def test_ema_converges_immediately(self, ema_result):
-        """With no censored intervals, EMA should converge in a single iteration."""
+        """With no censored intervals, EMA reaches the sample moments in one step.
+
+        ``p3est_ema`` starts from (0, 1, 0), lands on the sample moments at
+        iteration 1, repeats them at iteration 2 (distance 0, but still
+        decreasing), and stops at iteration 3, the first whose distance has
+        stopped decreasing (``emafit.f:1292``).
+        """
         r = ema_result.results
         assert r.ema_converged
-        assert r.ema_iterations == 1
+        assert r.ema_iterations == 3
         assert r.n_censored == 0
         assert r.n_historical == 0
 
