@@ -25,6 +25,11 @@ therefore always `None` in the shipped implementation; FR-3's `WarningMsg`
 check is done by scanning the `sshydro` response instead of checking
 polygon geometry.
 
+**The polygon, found and verified live 2026-09-27 (S10).** It was in the
+`sshydro` response all along, at `bcrequest.wsresp.featurecollection[0]`.
+`polygon_geojson` is now populated and validated (closed rings, snapped point
+inside, area within 2% of `DRNAREA`).
+
 **All three `requires_network` tests pass against the live service as of
 2026-09-11**, confirming this document's three-call protocol end to end:
 both Methow points reproduce the appendix's published `DRNAREA`/
@@ -279,6 +284,78 @@ loud failure, not a silently empty result.
    happily move a point a long way.
 4. **`bcLabels`.** The delineate response requests `"*"` (all characteristics).
    Should a caller be able to request a subset for speed?
+
+## 10. The watershed polygon (verified live 2026-09-27)
+
+FR-3 asks for the `globalwatershed` polygon; the 2026-09-11 implementation shipped
+without one because the only call it tried for it (`delineate/features/{region}`)
+returned a zero-area Point. The polygon was in the `delineate/sshydro` response the
+whole time. Found by reading USGS's own published workflow notebook, linked from the
+`ss-delineate` OpenAPI description
+(`https://s3.us-east-1.amazonaws.com/streamstats.usgs.gov/StreamStatsFlowStatisticsWorkflow.ipynb`),
+then confirmed live on four basins before any client code was written.
+
+**Protocol.** No extra call. The existing S3 `sshydro` response is:
+
+```
+GET /ss-delineate/v1/delineate/sshydro/{region}?lat={lat}&lon={lon}
+  -> {"stateAbbreviation": "wa",
+      "bcrequest": {
+        "bcLabels": "*",
+        "wsresp": {
+          "workspace_id": "",
+          "featurecollection": [[                      <- a list holding one list
+            {"name": "globalwatershedpoint",
+             "feature": {"type": "FeatureCollection", "features": [
+               {"type": "Feature", "geometry": {"type": "Point", ...},
+                "properties": {"HUCID": "1702", "ExclusionType": 0, "WarningMsg": ""}}]}},
+            {"name": "globalwatershed",
+             "feature": {"type": "FeatureCollection", "features": [
+               {"type": "Feature", "geometry": {"type": "Polygon", ...},
+                "properties": {"GlobalWshd": 1, "Shape_Area": <m^2>, "Shape_Leng": <m>,
+                               "WarningMsg": "", "Edited": 0, "RELATEDOID": " "}}]}}
+          ]]}}}
+```
+
+Coordinates are WGS84 `[lon, lat]` (RFC 7946), no `crs` member. The whole-watershed
+feature is the one with `GlobalWshd == 1`, as the USGS notebook selects it.
+
+**Live evidence (2026-09-27).** Area is the module's own spherical area of the returned
+polygon (`geojson_area_sq_mi`), against ss-hydro's `DRNAREA`. "Inside" is the snapped
+pour point in the polygon, and its distance to the boundary.
+
+| point | vertices | rings | area mi² | DRNAREA | diff | inside, m to edge |
+|---|---:|---:|---:|---:|---:|---|
+| Goat Creek (48.57426, −120.37893) | 4590 | 1 | 411.75 | 412 | −0.06% | yes, 14.8 |
+| Lost River (48.65041, −120.51172) | 3788 | 1 | 251.81 | 252 | −0.08% | yes, 15.1 |
+| Methow nr Pateros (48.0776, −119.9837) | 10309 | 2 (one hole) | 1791.81 | 1793 | −0.07% | yes, 21.1 |
+| WI notebook point (46.42150, −90.73246) | 367 | 1 | 4.960 | 4.96 | 0.0% | yes, 15.0 |
+| Off-network (48.584, −120.370) | 13 | 1 | 0.003 | — | — | `WarningMsg` set |
+
+The off-network point also settles S4's open question of where `WarningMsg` sits: in the
+`properties` of **both** features. Response sizes: 184 kB (Goat Creek), 414 kB (Methow).
+
+**Validation the client applies** (all raise `DegenerateDelineationError`):
+
+1. Exactly one `globalwatershed` feature with `GlobalWshd == 1` (or a lone feature),
+   whose geometry is a `Polygon` or `MultiPolygon`.
+2. Every ring has at least four positions and is closed (first == last).
+3. The snapped pour point is inside the polygon (holes respected), or at most
+   **100 m** outside its boundary. The outlet sits on the boundary by construction; all
+   four live basins put it 15-21 m inside, one or two 10 m DEM cells.
+4. After ss-hydro answers, the polygon's area agrees with `DRNAREA` within
+   **max(2%, 0.01 mi²)**. The observed gap is under 0.1%, from ss-hydro's projected-CRS
+   area and three-significant-figure rounding. 2% is about 30 times that, so it is loose
+   enough for rounding and tight enough to catch a polygon of the wrong basin. When
+   `DRNAREA` was not among the returned characteristics the check is skipped and logged.
+
+Checks 1-3 run before the ss-hydro POST, so a bad polygon never costs the second call.
+
+**Also found: `bcLabels` in the ss-hydro query string is ignored.** Requesting
+`bcLabels=DRNAREA,FOREST`, `DRNAREA;FOREST` or `*` in the query string returned the same
+22 characteristics for the WI point. The USGS notebook sets `bcLabels` inside the
+`bcrequest` body instead (semicolon-delimited). The query parameter this module sends
+therefore does not filter; see TODO.md.
 
 ## Appendix — verification evidence
 

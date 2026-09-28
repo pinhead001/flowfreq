@@ -299,7 +299,7 @@ class TestDownloadInstantaneousStage:
         with patch(
             "flowfreq.usgs.requests.get", return_value=_mock_response(IV_STAGE_BASIC)
         ) as mock_get:
-            gage.download_instantaneous_stage("2022-06-15", "2022-06-15")
+            gage.download_instantaneous_stage("2022-06-15", "2022-06-15", backend="nwis-legacy")
 
         params = mock_get.call_args.kwargs["params"]
         assert mock_get.call_args.args[0] == USGSgage.BASE_URL_IV
@@ -313,9 +313,11 @@ class TestDownloadInstantaneousStage:
         """
         gage = USGSgage("12449950")
         with patch("flowfreq.usgs.requests.get", return_value=_mock_response(IV_BASIC)):
-            gage.download_instantaneous_flow("2022-06-15", "2022-06-15")
+            gage.download_instantaneous_flow("2022-06-15", "2022-06-15", backend="nwis-legacy")
         with patch("flowfreq.usgs.requests.get", return_value=_mock_response(IV_STAGE_BASIC)):
-            stage = gage.download_instantaneous_stage("2022-06-15", "2022-06-15")
+            stage = gage.download_instantaneous_stage(
+                "2022-06-15", "2022-06-15", backend="nwis-legacy"
+            )
 
         assert "flow_cfs" in gage.instantaneous_data.columns
         assert "gage_height_ft" in gage.instantaneous_stage.columns
@@ -327,7 +329,7 @@ class TestDownloadInstantaneousStage:
             "flowfreq.usgs.requests.get", return_value=_mock_response(IV_STAGE_BASIC)
         ) as mock_get:
             df = gage.download_instantaneous_stage(
-                "2020-01-01", "2021-12-31", tz="America/Los_Angeles"
+                "2020-01-01", "2021-12-31", tz="America/Los_Angeles", backend="nwis-legacy"
             )
 
         assert mock_get.call_count == 2
@@ -342,12 +344,14 @@ class TestDownloadInstantaneousStage:
             return_value=_mock_response(IV_NO_DATA_400_BODY, status_code=400),
         ):
             with pytest.raises(NoInstantaneousDataError, match="00065"):
-                gage.download_instantaneous_stage("2022-06-15", "2022-06-15")
+                gage.download_instantaneous_stage("2022-06-15", "2022-06-15", backend="nwis-legacy")
 
     def test_bad_chunk_years_raises(self) -> None:
         gage = USGSgage("12449950")
         with pytest.raises(ValueError, match="chunk_years must be >= 1"):
-            gage.download_instantaneous_stage("2022-06-15", "2022-06-15", chunk_years=0)
+            gage.download_instantaneous_stage(
+                "2022-06-15", "2022-06-15", chunk_years=0, backend="nwis-legacy"
+            )
 
 
 class TestDownloadInstantaneousFlow:
@@ -357,7 +361,7 @@ class TestDownloadInstantaneousFlow:
         """The frame is returned and also stored on the gage."""
         gage = USGSgage("12449950")
         with patch("flowfreq.usgs.requests.get", return_value=_mock_response(IV_BASIC)):
-            df = gage.download_instantaneous_flow("2022-06-15", "2022-06-15")
+            df = gage.download_instantaneous_flow("2022-06-15", "2022-06-15", backend="nwis-legacy")
 
         assert len(df) == 6
         assert gage.instantaneous_data is not None
@@ -367,7 +371,7 @@ class TestDownloadInstantaneousFlow:
         """The unit-value service is used, with no statistic code."""
         gage = USGSgage("12449950")
         with patch("flowfreq.usgs.requests.get", return_value=_mock_response(IV_BASIC)) as mock_get:
-            gage.download_instantaneous_flow("2022-06-15", "2022-06-15")
+            gage.download_instantaneous_flow("2022-06-15", "2022-06-15", backend="nwis-legacy")
 
         url = mock_get.call_args.args[0]
         params = mock_get.call_args.kwargs["params"]
@@ -379,7 +383,7 @@ class TestDownloadInstantaneousFlow:
         """A three-year window is issued as three requests with abutting windows."""
         gage = USGSgage("12449950")
         with patch("flowfreq.usgs.requests.get", return_value=_mock_response(IV_BASIC)) as mock_get:
-            gage.download_instantaneous_flow("2020-01-01", "2022-12-31")
+            gage.download_instantaneous_flow("2020-01-01", "2022-12-31", backend="nwis-legacy")
 
         assert mock_get.call_count == 3
         windows = [
@@ -396,7 +400,7 @@ class TestDownloadInstantaneousFlow:
         """Chunks returning the same instant twice yield one row, not two."""
         gage = USGSgage("12449950")
         with patch("flowfreq.usgs.requests.get", return_value=_mock_response(IV_BASIC)):
-            df = gage.download_instantaneous_flow("2020-01-01", "2022-12-31")
+            df = gage.download_instantaneous_flow("2020-01-01", "2022-12-31", backend="nwis-legacy")
 
         assert len(df) == 6
         assert df.index.is_unique
@@ -410,7 +414,7 @@ class TestDownloadInstantaneousFlow:
             _mock_response(IV_BASIC),
         ]
         with patch("flowfreq.usgs.requests.get", side_effect=responses):
-            df = gage.download_instantaneous_flow("2021-01-01", "2022-12-31")
+            df = gage.download_instantaneous_flow("2021-01-01", "2022-12-31", backend="nwis-legacy")
 
         assert len(df) == 6
 
@@ -422,7 +426,7 @@ class TestDownloadInstantaneousFlow:
             return_value=_mock_response(IV_NO_DATA_400_BODY, status_code=400),
         ):
             with pytest.raises(NoInstantaneousDataError, match="No instantaneous discharge"):
-                gage.download_instantaneous_flow("2022-01-01", "2022-12-31")
+                gage.download_instantaneous_flow("2022-01-01", "2022-12-31", backend="nwis-legacy")
 
     def test_failed_chunk_raises_naming_the_window(self) -> None:
         """A transport failure never comes back as a silently truncated record."""
@@ -433,7 +437,7 @@ class TestDownloadInstantaneousFlow:
         ]
         with patch("flowfreq.usgs.requests.get", side_effect=responses):
             with pytest.raises(requests.RequestException, match="2022-01-01 to 2022-12-31"):
-                gage.download_instantaneous_flow("2021-01-01", "2022-12-31")
+                gage.download_instantaneous_flow("2021-01-01", "2022-12-31", backend="nwis-legacy")
 
     def test_server_error_raises(self) -> None:
         """A 500 is a failure, not an empty window."""
@@ -443,14 +447,14 @@ class TestDownloadInstantaneousFlow:
             return_value=_mock_response("Internal Server Error", status_code=500),
         ):
             with pytest.raises(requests.RequestException):
-                gage.download_instantaneous_flow("2022-01-01", "2022-06-30")
+                gage.download_instantaneous_flow("2022-01-01", "2022-06-30", backend="nwis-legacy")
 
     def test_tz_argument_converts_index(self) -> None:
         """Passing tz returns the index in that zone, same instants."""
         gage = USGSgage("12449950")
         with patch("flowfreq.usgs.requests.get", return_value=_mock_response(IV_BASIC)):
             df = gage.download_instantaneous_flow(
-                "2022-06-15", "2022-06-15", tz="America/Los_Angeles"
+                "2022-06-15", "2022-06-15", tz="America/Los_Angeles", backend="nwis-legacy"
             )
 
         assert str(df.index.tz) == "America/Los_Angeles"
@@ -460,7 +464,9 @@ class TestDownloadInstantaneousFlow:
         """A non-positive chunk size is rejected before any request is made."""
         gage = USGSgage("12449950")
         with pytest.raises(ValueError, match="chunk_years must be >= 1"):
-            gage.download_instantaneous_flow("2022-01-01", "2022-12-31", chunk_years=0)
+            gage.download_instantaneous_flow(
+                "2022-01-01", "2022-12-31", chunk_years=0, backend="nwis-legacy"
+            )
 
     def test_defaults_to_instantaneous_period_of_record(self) -> None:
         """With no dates given, the site's unit-value POR bounds the request."""
@@ -474,7 +480,7 @@ class TestDownloadInstantaneousFlow:
             return _mock_response(IV_BASIC)
 
         with patch("flowfreq.usgs.requests.get", side_effect=_dispatch):
-            gage.download_instantaneous_flow()
+            gage.download_instantaneous_flow(backend="nwis-legacy")
 
         assert gage.iv_por_start == "2007-10-01"
         assert gage.iv_por_end == "2024-09-30"
@@ -489,7 +495,7 @@ class TestDownloadInstantaneousFlow:
             "flowfreq.usgs.requests.get", return_value=_mock_response(SITE_SERIES_CATALOG_NO_UV)
         ) as mock_get:
             with pytest.raises(NoInstantaneousDataError, match="no instantaneous"):
-                gage.download_instantaneous_flow()
+                gage.download_instantaneous_flow(backend="nwis-legacy")
 
         assert all(c.args[0] == USGSgage.BASE_URL_SITE for c in mock_get.call_args_list)
 
@@ -549,7 +555,7 @@ class TestLiveNWIS:
     def test_download_instantaneous_flow_live(self) -> None:
         """Retrieve a short real window from NWIS."""
         gage = USGSgage("12449950")
-        df = gage.download_instantaneous_flow("2022-06-01", "2022-06-07")
+        df = gage.download_instantaneous_flow("2022-06-01", "2022-06-07", backend="nwis-legacy")
 
         assert not df.empty
         assert df.index.tz is not None

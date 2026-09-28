@@ -33,8 +33,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     none were found.
   - `flow_cfs` is always float. Legacy inferred the dtype from the text, so a window of
     whole numbers could come back as int64.
+- **StreamStats watershed polygon.** `delineate_and_get_characteristics` now returns
+  the delineated basin as a GeoJSON Feature in `WatershedCharacteristics.polygon_geojson`
+  (was always `None`), plus its area in `polygon_area_sq_mi`. No extra call: the polygon is
+  in the `delineate/sshydro` response already fetched, verified live on four basins
+  (`docs/STREAMSTATS_MODULE_DESIGN.md` S10). It is validated before it is returned, and a
+  failure raises `DegenerateDelineationError`: rings must be closed, the snapped pour
+  point must be inside (or within 100 m of the boundary), and the area must be within 2%
+  of `DRNAREA`. Live, the area matches `DRNAREA` to under 0.1%. New public helper
+  `geojson_area_sq_mi` computes the area with no GIS dependency. `include_polygon=False`
+  still validates the polygon but drops the geometry, which keeps large caches small.
+  Cache keys changed, so entries cached before this are re-fetched rather than returned
+  without a polygon.
 
 ### Changed
+- **Instantaneous values now come from the USGS Water Data OGC API by default** (#29).
+  `USGSgage.download_instantaneous_flow` and `download_instantaneous_stage` default to
+  `backend="waterdata-ogc"` (`peak_sources.DEFAULT_BACKEND`), as `download_peak_flow` already
+  did; `backend="nwis-legacy"` restores the retiring NWIS service unchanged.
+  - A live parity test, `tests/test_iv_backend_parity.py`, gates the switch. Legacy and OGC
+    agree row for row on the UTC index, values, `datetime_local`, `tz_cd` and
+    `qualification_code` at Big Sandy 03606500 (both 2024 DST transitions), Methow at
+    Pateros 12449950 (snowmelt and winter ice), 06191500, 06214500 (ice-null rows, dropped by
+    both), and Olmsted 03612600 (headwater and tailwater stage, each chosen by `ts_id`).
+  - **`ts_id` changes form with the backend.** On the OGC default it is the 32-hex
+    `time_series_id` (`flowfreq.waterdata.list_instantaneous_series`), not the NWIS DD number.
+    A DD number passed to the OGC backend, or a UUID passed to legacy, now raises a
+    `ValueError` naming the right backend before any request is sent
+    (`flowfreq.usgs.check_ts_id_form`).
+  - `qualification_code` can carry qualifier tokens that the legacy RDB drops on rows that
+    have a value: `A:e:ICE` where legacy says `A:e`, and `A:EQUIP:e`. The approval code and
+    legacy's own tokens are unchanged.
+  - Other OGC differences, documented since #45: `chunk_years` is capped at 3, because the
+    API limits a window to 1100 days. Without `start_date`, the default start is the chosen
+    series' own period of record.
 - **Dev dependency: pytest `>=9.0.3,<10`** (was `>=8.0,<9`). 9.0.3 fixes PYSEC-2026-1845,
   which the 8.x pin carried. The last `importorskip("flowfreq.peakfqr")` without
   `exc_type=ImportError` (`tests/validation/test_reference.py`) is fixed, so the suite skips

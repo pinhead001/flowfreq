@@ -373,6 +373,15 @@ module Phase 2" below. Two things it found are still open:
       merely in numeric range, unlabelled as to which is geographically correct; the
       caller must know. Revisit once/if Phase 1's own polygon gap (below) is closed --
       a real polygon through `Scenarios/ByLocation` may resolve both at once.
+      *Update 2026-09-27:* the polygon gap is closed (design doc S10), so this is now
+      unblocked.
+- [ ] **`characteristic_codes` does not filter.** Found live 2026-09-27 (design doc
+      S10): ss-hydro ignores the `bcLabels` query parameter this module sends -- the
+      same 22 characteristics came back for `*`, a comma list and a semicolon list.
+      USGS's own notebook sets `bcLabels` inside the POSTed `bcrequest` body,
+      semicolon-delimited. Harmless for correctness (a superset comes back) but the
+      documented subset-for-speed never happens, and a code not in the region's default
+      set (e.g. `ELEV1000`) may never be computed.
 - [ ] Low-Flow Statistics (`LFS`, the other group WA supports) was exercised only
       through its client-side validation (correctly skipping 3 of 4 regions as
       out-of-range, 1 for a missing `ELEV1000` characteristic) -- no region actually
@@ -460,7 +469,10 @@ real bugs the mocked suite couldn't, exactly as intended:**
 always `None`.** No call in the verified, working protocol returns the watershed's
 geometry. Obtaining it is an open question for a future session -- worth its own
 live-verification pass (same discipline as everything else here) before attempting
-again, not another guess from the PDF/py script.
+again, not another guess from the PDF/py script. **Closed 2026-09-27**: the polygon
+was in the `sshydro` response all along (`bcrequest.wsresp.featurecollection[0]`,
+feature `globalwatershed`), found via USGS's own workflow notebook and verified live
+on four basins before any code (design doc S10). Now returned and validated.
 
 All three `requires_network` tests now pass against the real service, including both
 Methow points reproducing the design doc's own published `DRNAREA`/`PRECPRIS10`/
