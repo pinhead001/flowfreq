@@ -1,0 +1,698 @@
+[
+ {
+  "statisticGroupID": 2,
+  "statisticGroupName": "Peak-Flow Statistics",
+  "regressionRegions": [
+   {
+    "id": 107,
+    "name": "Region_1_rural_under_1_sqmi_2014_5030",
+    "code": "GC1572",
+    "description": "",
+    "statusID": 4,
+    "methodID": 1,
+    "citationID": 33,
+    "percentWeight": 60.0,
+    "parameters": [
+     {
+      "id": 2237,
+      "name": "Drainage Area",
+      "description": "Area that drains to a point on a stream",
+      "code": "DRNAREA",
+      "unitType": {
+       "id": 35,
+       "unit": "square miles",
+       "abbr": "mi^2"
+      },
+      "value": 0.5,
+      "limits": {
+       "max": 1.0,
+       "min": 0.1
+      }
+     },
+     {
+      "id": 2238,
+      "name": "Percent Impervious NLCD2006",
+      "description": "Percentage of impervious area determined from NLCD 2006 impervious dataset",
+      "code": "LC06IMP",
+      "unitType": {
+       "id": 0,
+       "unit": "percent",
+       "abbr": "%"
+      },
+      "value": 5.0,
+      "limits": {
+       "max": 47.9,
+       "min": 0.0
+      }
+     }
+    ],
+    "results": [
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "50-percent AEP flood",
+      "code": "PK50AEP",
+      "description": "Maximum instantaneous flow that occurs with a 50% annual exceedance probability",
+      "value": 116.0,
+      "sep": 0.1331609773774277,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 31.9
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "163*DRNAREA^0.7089*10^(0.0133*LC06IMP)",
+      "intervalBounds": {
+       "lower": 62.8,
+       "upper": 214.0
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "20-percent AEP flood",
+      "code": "PK20AEP",
+      "description": "Maximum instantaneous flow that occurs with a 20% annual exceedance probability",
+      "value": 191.0,
+      "sep": 0.10774005300822574,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 25.4
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "284*DRNAREA^0.7351*10^(0.0096*LC06IMP)",
+      "intervalBounds": {
+       "lower": 116.0,
+       "upper": 314.0
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "10-percent AEP flood",
+      "code": "PK10AEP",
+      "description": "Maximum instantaneous flow that occurs with a 10% annual exceedance probability",
+      "value": 247.0,
+      "sep": 0.10322445525168134,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 25.0
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "381*DRNAREA^0.7536*10^(0.0076*LC06IMP)",
+      "intervalBounds": {
+       "lower": 154.0,
+       "upper": 397.0
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "4-percent AEP flood",
+      "code": "PK4AEP",
+      "description": "Maximum instantaneous flow that occurs with a 4% annual exceedance probability",
+      "value": 322.0,
+      "sep": 0.11308397649247036,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 27.0
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "518*DRNAREA^0.7752*10^(0.0053*LC06IMP)",
+      "intervalBounds": {
+       "lower": 191.0,
+       "upper": 542.0
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "2-percent AEP flood",
+      "code": "PK2AEP",
+      "description": "Maximum instantaneous flow that occurs with a 2% annual exceedance probability",
+      "value": 381.0,
+      "sep": 0.12213731299594327,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 29.3
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "632*DRNAREA^0.7903*10^(0.0037*LC06IMP)",
+      "intervalBounds": {
+       "lower": 217.0,
+       "upper": 669.0
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "1-percent AEP flood",
+      "code": "PK1AEP",
+      "description": "Maximum instantaneous flow that occurs with a 1% annual exceedance probability",
+      "value": 443.0,
+      "sep": 0.13443162227884975,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 32.1
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "753*DRNAREA^0.8038*10^(0.0024*LC06IMP)",
+      "intervalBounds": {
+       "lower": 238.0,
+       "upper": 823.0
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "0.5-percent AEP flood",
+      "code": "PK0_5AEP",
+      "description": "Maximum instantaneous flow that occurs with a 0.5% annual exceedance probability",
+      "value": 508.0,
+      "sep": 0.14571519664791252,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 35.1
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "884*DRNAREA^0.8181*10^(0.0011*LC06IMP)",
+      "intervalBounds": {
+       "lower": 260.0,
+       "upper": 994.0
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "0.2-percent AEP flood",
+      "code": "PK0_2AEP",
+      "description": "Maximum instantaneous flow that occurs with a 0.2% annual exceedance probability",
+      "value": 594.0,
+      "sep": 0.15528268823994415,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 37.5
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "1045*DRNAREA^0.8160",
+      "intervalBounds": {
+       "lower": 291.0,
+       "upper": 1210.0
+      }
+     }
+    ]
+   },
+   {
+    "id": 108,
+    "name": "Region_3_rural_under_1_sqmi_2014_5030",
+    "code": "GC1573",
+    "description": "",
+    "statusID": 4,
+    "methodID": 1,
+    "citationID": 33,
+    "percentWeight": 40.0,
+    "parameters": [
+     {
+      "id": 2252,
+      "name": "Drainage Area",
+      "description": "Area that drains to a point on a stream",
+      "code": "DRNAREA",
+      "unitType": {
+       "id": 35,
+       "unit": "square miles",
+       "abbr": "mi^2"
+      },
+      "value": 0.5,
+      "limits": {
+       "max": 1.0,
+       "min": 0.14
+      }
+     },
+     {
+      "id": 2253,
+      "name": "Percent Developed from NLCD2006",
+      "description": "Percentage of land-use from NLCD 2006 classes 21-24",
+      "code": "LC06DEV",
+      "unitType": {
+       "id": 0,
+       "unit": "percent",
+       "abbr": "%"
+      },
+      "value": 20.0,
+      "limits": {
+       "max": 98.5,
+       "min": 2.8
+      }
+     }
+    ],
+    "results": [
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "50-percent AEP flood",
+      "code": "PK50AEP",
+      "description": "Maximum instantaneous flow that occurs with a 50% annual exceedance probability",
+      "value": 33.3,
+      "sep": 0.18046841521257076,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 42.5
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "30.0*DRNAREA^0.6605*10^(0.0122*LC06DEV)",
+      "intervalBounds": {
+       "lower": 14.3,
+       "upper": 77.7
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "20-percent AEP flood",
+      "code": "PK20AEP",
+      "description": "Maximum instantaneous flow that occurs with a 20% annual exceedance probability",
+      "value": 54.0,
+      "sep": 0.20181283246199164,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 47.6
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "51.4*DRNAREA^0.6535*10^(0.0109*LC06DEV)",
+      "intervalBounds": {
+       "lower": 20.9,
+       "upper": 139.0
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "10-percent AEP flood",
+      "code": "PK10AEP",
+      "description": "Maximum instantaneous flow that occurs with a 10% annual exceedance probability",
+      "value": 69.7,
+      "sep": 0.21610341457256785,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 51.2
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "68.4*DRNAREA^0.6507*10^(0.0102*LC06DEV)",
+      "intervalBounds": {
+       "lower": 25.3,
+       "upper": 192.0
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "4-percent AEP flood",
+      "code": "PK4AEP",
+      "description": "Maximum instantaneous flow that occurs with a 4% annual exceedance probability",
+      "value": 92.3,
+      "sep": 0.23263185693329994,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 56.0
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "93.3*DRNAREA^0.6472*10^(0.0095*LC06DEV)",
+      "intervalBounds": {
+       "lower": 30.9,
+       "upper": 275.0
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "2-percent AEP flood",
+      "code": "PK2AEP",
+      "description": "Maximum instantaneous flow that occurs with a 2% annual exceedance probability",
+      "value": 110.0,
+      "sep": 0.24752740512268312,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 59.7
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "114*DRNAREA^0.6451*10^(0.0090*LC06DEV)",
+      "intervalBounds": {
+       "lower": 34.4,
+       "upper": 352.0
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "1-percent AEP flood",
+      "code": "PK1AEP",
+      "description": "Maximum instantaneous flow that occurs with a 1% annual exceedance probability",
+      "value": 131.0,
+      "sep": 0.25962012915731303,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 63.5
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "138*DRNAREA^0.6430*10^(0.0086*LC06DEV)",
+      "intervalBounds": {
+       "lower": 38.7,
+       "upper": 444.0
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "0.5-percent AEP flood",
+      "code": "PK0_5AEP",
+      "description": "Maximum instantaneous flow that occurs with a 0.5% annual exceedance probability",
+      "value": 152.0,
+      "sep": 0.2752520090053996,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 67.4
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "163*DRNAREA^0.6413*10^(0.0082*LC06DEV)",
+      "intervalBounds": {
+       "lower": 41.7,
+       "upper": 554.0
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "0.2-percent AEP flood",
+      "code": "PK0_2AEP",
+      "description": "Maximum instantaneous flow that occurs with a 0.2% annual exceedance probability",
+      "value": 184.0,
+      "sep": 0.29424689184147435,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 73.3
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "201*DRNAREA^0.6386*10^(0.0077*LC06DEV)",
+      "intervalBounds": {
+       "lower": 46.2,
+       "upper": 733.0
+      }
+     }
+    ]
+   },
+   {
+    "id": 0,
+    "name": "Area-Averaged",
+    "code": "areaave",
+    "results": [
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "50-percent AEP flood",
+      "code": "PK50AEP",
+      "description": "Maximum instantaneous flow that occurs with a 50% annual exceedance probability",
+      "value": 82.91999999999999,
+      "sep": 0.1331609773774277,
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "Weighted Average",
+      "intervalBounds": {
+       "lower": 43.4,
+       "upper": 159.48000000000002
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "20-percent AEP flood",
+      "code": "PK20AEP",
+      "description": "Maximum instantaneous flow that occurs with a 20% annual exceedance probability",
+      "value": 136.2,
+      "sep": 0.10774005300822574,
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "Weighted Average",
+      "intervalBounds": {
+       "lower": 77.96,
+       "upper": 244.0
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "10-percent AEP flood",
+      "code": "PK10AEP",
+      "description": "Maximum instantaneous flow that occurs with a 10% annual exceedance probability",
+      "value": 176.07999999999998,
+      "sep": 0.10322445525168134,
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "Weighted Average",
+      "intervalBounds": {
+       "lower": 102.52000000000001,
+       "upper": 315.0
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "4-percent AEP flood",
+      "code": "PK4AEP",
+      "description": "Maximum instantaneous flow that occurs with a 4% annual exceedance probability",
+      "value": 230.12,
+      "sep": 0.11308397649247036,
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "Weighted Average",
+      "intervalBounds": {
+       "lower": 126.96,
+       "upper": 435.2
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "2-percent AEP flood",
+      "code": "PK2AEP",
+      "description": "Maximum instantaneous flow that occurs with a 2% annual exceedance probability",
+      "value": 272.6,
+      "sep": 0.12213731299594327,
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "Weighted Average",
+      "intervalBounds": {
+       "lower": 143.95999999999998,
+       "upper": 542.2
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "1-percent AEP flood",
+      "code": "PK1AEP",
+      "description": "Maximum instantaneous flow that occurs with a 1% annual exceedance probability",
+      "value": 318.20000000000005,
+      "sep": 0.13443162227884975,
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "Weighted Average",
+      "intervalBounds": {
+       "lower": 158.28,
+       "upper": 671.4
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "0.5-percent AEP flood",
+      "code": "PK0_5AEP",
+      "description": "Maximum instantaneous flow that occurs with a 0.5% annual exceedance probability",
+      "value": 365.6,
+      "sep": 0.14571519664791252,
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "Weighted Average",
+      "intervalBounds": {
+       "lower": 172.68,
+       "upper": 818.0
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "0.2-percent AEP flood",
+      "code": "PK0_2AEP",
+      "description": "Maximum instantaneous flow that occurs with a 0.2% annual exceedance probability",
+      "value": 430.0,
+      "sep": 0.15528268823994415,
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "Weighted Average",
+      "intervalBounds": {
+       "lower": 193.07999999999998,
+       "upper": 1019.2
+      }
+     }
+    ]
+   }
+  ],
+  "links": [
+   {
+    "rel": "Citations",
+    "href": "https://streamstats.usgs.gov/nssservices/citations?regressionregions=107,108,0",
+    "method": "GET"
+   }
+  ]
+ }
+]

@@ -1,0 +1,12 @@
+[
+ {
+  "id": 718,
+  "name": "Peak_Region_2_2016_5118",
+  "code": "GC1751",
+  "description": "Regression region Percent Area computed with a Mask Area of 412.10223242631525 sqr. miles and overlay Area of 412.10196610222056 sqr miles",
+  "citationID": 150,
+  "statusID": 4,
+  "percentWeight": 100.0,
+  "area": 412.10196610222056
+ }
+]

@@ -365,7 +365,7 @@ than fixed:
 Phase 2 itself (NSS flow-statistics estimation) is done -- see "Done -- StreamStats
 module Phase 2" below. Two things it found are still open:
 
-- [ ] **Region selection without a watershed polygon.** NSS defines several
+- [x] **Region selection without a watershed polygon.** NSS defines several
       independently-calibrated `regressionRegions` per statistic group within a state
       (WA Peak-Flow: four), and confirmed live, nothing filters them by location --
       not `ByLocation` with a bare point (Phase 1 produces no polygon to try instead).
@@ -374,7 +374,14 @@ module Phase 2" below. Two things it found are still open:
       caller must know. Revisit once/if Phase 1's own polygon gap (below) is closed --
       a real polygon through `Scenarios/ByLocation` may resolve both at once.
       *Update 2026-09-27:* the polygon gap is closed (design doc S10), so this is now
-      unblocked.
+      unblocked. **Done 2026-09-27** (addendum S5): `locate_regression_regions` POSTs
+      the polygon to `regions/{region}/regressionregions/bylocation`, verified live, and
+      `estimate_flow_statistics(watershed_polygon=...)` estimates only the located
+      regions. Each carries NSS's area `percent_weight`, plus NSS's own area-weighted
+      `areaave` result when a basin spans regions. Goat Creek is `GC1751` (3,290 cfs), not
+      `GC1750` (4,370). The old all-in-range behaviour stays available without a polygon or
+      with `include_unlocated=True`. Still open from this: WA low-flow regions
+      `GC1434`/`GC1556`/`GC1558` have no geometry in NSS and can never be located.
 - [ ] **`characteristic_codes` does not filter.** Found live 2026-09-27 (design doc
       S10): ss-hydro ignores the `bcLabels` query parameter this module sends -- the
       same 22 characteristics came back for `*`, a comma list and a semicolon list.

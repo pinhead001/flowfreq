@@ -1,0 +1,1091 @@
+[
+ {
+  "statisticGroupID": 2,
+  "statisticGroupName": "Peak-Flow Statistics",
+  "regressionRegions": [
+   {
+    "id": 717,
+    "name": "Peak_Region_1_2016_5118",
+    "code": "GC1750",
+    "description": "",
+    "statusID": 4,
+    "methodID": 1,
+    "citationID": 150,
+    "parameters": [
+     {
+      "id": 19532,
+      "name": "Drainage Area",
+      "description": "Area that drains to a point on a stream",
+      "code": "DRNAREA",
+      "unitType": {
+       "id": 35,
+       "unit": "square miles",
+       "abbr": "mi^2"
+      },
+      "value": 412.0,
+      "limits": {
+       "max": 3310.0,
+       "min": 0.25
+      }
+     },
+     {
+      "id": 19533,
+      "name": "Mean Annual Precip PRISM 1981 2010",
+      "description": "Basin average mean annual precipitation for 1981 to 2010 from PRISM",
+      "code": "PRECPRIS10",
+      "unitType": {
+       "id": 36,
+       "unit": "inches",
+       "abbr": "in"
+      },
+      "value": 45.62,
+      "limits": {
+       "max": 52.5,
+       "min": 9.82
+      }
+     },
+     {
+      "id": 19534,
+      "name": "Percent Area Under Canopy",
+      "description": "Percentage of drainage area covered by canopy as described in OK SIR 2009_5267",
+      "code": "CANOPY_PCT",
+      "unitType": {
+       "id": 0,
+       "unit": "percent",
+       "abbr": "%"
+      },
+      "value": 45.242,
+      "limits": {
+       "max": 77.4,
+       "min": 0.0
+      }
+     }
+    ],
+    "results": [
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "50-percent AEP flood",
+      "code": "PK50AEP",
+      "description": "Maximum instantaneous flow that occurs with a 50% annual exceedance probability",
+      "value": 4370.0,
+      "sep": 0.350768271099932,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 95.0
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "3.846*DRNAREA^0.745*10^(0.032*PRECPRIS10)/10^(0.0078*CANOPY_PCT)",
+      "intervalBounds": {
+       "lower": 1140.0,
+       "upper": 16700.0
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "20-percent AEP flood",
+      "code": "PK20AEP",
+      "description": "Maximum instantaneous flow that occurs with a 20% annual exceedance probability",
+      "value": 6050.0,
+      "sep": 0.28093883640234,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 71.9
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "12.106*DRNAREA^0.713*10^(0.028*PRECPRIS10)/10^(0.0098*CANOPY_PCT)",
+      "intervalBounds": {
+       "lower": 2060.0,
+       "upper": 17700.0
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "10-percent AEP flood",
+      "code": "PK10AEP",
+      "description": "Maximum instantaneous flow that occurs with a 10% annual exceedance probability",
+      "value": 7300.0,
+      "sep": 0.2774393248922756,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 70.7
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "22.08*DRNAREA^0.695*10^(0.026*PRECPRIS10)/10^(0.0107*CANOPY_PCT)",
+      "intervalBounds": {
+       "lower": 2520.0,
+       "upper": 21100.0
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "4-percent AEP flood",
+      "code": "PK4AEP",
+      "description": "Maximum instantaneous flow that occurs with a 4% annual exceedance probability",
+      "value": 8970.0,
+      "sep": 0.29883074956864847,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 77.4
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "42.17*DRNAREA^0.674*10^(0.024*PRECPRIS10)/10^(0.0117*CANOPY_PCT)",
+      "intervalBounds": {
+       "lower": 2860.0,
+       "upper": 28100.0
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "2-percent AEP flood",
+      "code": "PK2AEP",
+      "description": "Maximum instantaneous flow that occurs with a 2% annual exceedance probability",
+      "value": 10500.0,
+      "sep": 0.3204176230151951,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 84.8
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "63.826*DRNAREA^0.661*10^(0.023*PRECPRIS10)/10^(0.0124*CANOPY_PCT)",
+      "intervalBounds": {
+       "lower": 3080.0,
+       "upper": 35800.0
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "1-percent AEP flood",
+      "code": "PK1AEP",
+      "description": "Maximum instantaneous flow that occurs with a 1% annual exceedance probability",
+      "value": 12000.0,
+      "sep": 0.350645387186932,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 93.6
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "92.47*DRNAREA^0.649*10^(0.022*PRECPRIS10)/10^(0.0130*CANOPY_PCT)",
+      "intervalBounds": {
+       "lower": 3140.0,
+       "upper": 45900.0
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "0.5-percent AEP flood",
+      "code": "PK0_5AEP",
+      "description": "Maximum instantaneous flow that occurs with a 0.5% annual exceedance probability",
+      "value": 13200.0,
+      "sep": 0.37301725888937026,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 104.0
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "129.42*DRNAREA^0.637*10^(0.021*PRECPRIS10)/10^(0.0136*CANOPY_PCT)",
+      "intervalBounds": {
+       "lower": 3170.0,
+       "upper": 55000.0
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "0.2-percent AEP flood",
+      "code": "PK0_2AEP",
+      "description": "Maximum instantaneous flow that occurs with a 0.2% annual exceedance probability",
+      "value": 15200.0,
+      "sep": 0.4095340115349434,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 119.0
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "193.2*DRNAREA^0.624*10^(0.020*PRECPRIS10)/10^(0.0143*CANOPY_PCT)",
+      "intervalBounds": {
+       "lower": 3170.0,
+       "upper": 72900.0
+      }
+     }
+    ]
+   },
+   {
+    "id": 718,
+    "name": "Peak_Region_2_2016_5118",
+    "code": "GC1751",
+    "description": "",
+    "statusID": 4,
+    "methodID": 1,
+    "citationID": 150,
+    "parameters": [
+     {
+      "id": 19556,
+      "name": "Drainage Area",
+      "description": "Area that drains to a point on a stream",
+      "code": "DRNAREA",
+      "unitType": {
+       "id": 35,
+       "unit": "square miles",
+       "abbr": "mi^2"
+      },
+      "value": 412.0,
+      "limits": {
+       "max": 1330.0,
+       "min": 0.42
+      }
+     },
+     {
+      "id": 19557,
+      "name": "Mean Annual Precip PRISM 1981 2010",
+      "description": "Basin average mean annual precipitation for 1981 to 2010 from PRISM",
+      "code": "PRECPRIS10",
+      "unitType": {
+       "id": 36,
+       "unit": "inches",
+       "abbr": "in"
+      },
+      "value": 45.62,
+      "limits": {
+       "max": 84.2,
+       "min": 8.86
+      }
+     },
+     {
+      "id": 19558,
+      "name": "Percent Area Under Canopy",
+      "description": "Percentage of drainage area covered by canopy as described in OK SIR 2009_5267",
+      "code": "CANOPY_PCT",
+      "unitType": {
+       "id": 0,
+       "unit": "percent",
+       "abbr": "%"
+      },
+      "value": 45.242,
+      "limits": {
+       "max": 81.8,
+       "min": 0.0
+      }
+     }
+    ],
+    "results": [
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "50-percent AEP flood",
+      "code": "PK50AEP",
+      "description": "Maximum instantaneous flow that occurs with a 50% annual exceedance probability",
+      "value": 3290.0,
+      "sep": 0.29330164688489085,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 77.2
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "1.445*DRNAREA^0.877*10^(0.0253*PRECPRIS10)/10^(0.0020*CANOPY_PCT)",
+      "intervalBounds": {
+       "lower": 1070.0,
+       "upper": 10100.0
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "20-percent AEP flood",
+      "code": "PK20AEP",
+      "description": "Maximum instantaneous flow that occurs with a 20% annual exceedance probability",
+      "value": 5130.0,
+      "sep": 0.2674998192069807,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 69.1
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "5.768*DRNAREA^0.860*10^(0.0214*PRECPRIS10)/10^(0.0061*CANOPY_PCT)",
+      "intervalBounds": {
+       "lower": 1840.0,
+       "upper": 14300.0
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "10-percent AEP flood",
+      "code": "PK10AEP",
+      "description": "Maximum instantaneous flow that occurs with a 10% annual exceedance probability",
+      "value": 6480.0,
+      "sep": 0.27735556914621795,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 72.2
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "12.106*DRNAREA^0.847*10^(0.0194*PRECPRIS10)/10^(0.0082*CANOPY_PCT)",
+      "intervalBounds": {
+       "lower": 2240.0,
+       "upper": 18700.0
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "4-percent AEP flood",
+      "code": "PK4AEP",
+      "description": "Maximum instantaneous flow that occurs with a 4% annual exceedance probability",
+      "value": 8320.0,
+      "sep": 0.3046034732602349,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 81.2
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "26.485*DRNAREA^0.833*10^(0.0174*PRECPRIS10)/10^(0.0105*CANOPY_PCT)",
+      "intervalBounds": {
+       "lower": 2590.0,
+       "upper": 26700.0
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "2-percent AEP flood",
+      "code": "PK2AEP",
+      "description": "Maximum instantaneous flow that occurs with a 2% annual exceedance probability",
+      "value": 9880.0,
+      "sep": 0.3279751569996714,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 89.2
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "43.853*DRNAREA^0.823*10^(0.0162*PRECPRIS10)/10^(0.0119*CANOPY_PCT)",
+      "intervalBounds": {
+       "lower": 2810.0,
+       "upper": 34700.0
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "1-percent AEP flood",
+      "code": "PK1AEP",
+      "description": "Maximum instantaneous flow that occurs with a 1% annual exceedance probability",
+      "value": 11400.0,
+      "sep": 0.3497720720358967,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 96.9
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "68.549*DRNAREA^0.814*10^(0.0151*PRECPRIS10)/10^(0.0132*CANOPY_PCT)",
+      "intervalBounds": {
+       "lower": 2990.0,
+       "upper": 43500.0
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "0.5-percent AEP flood",
+      "code": "PK0_5AEP",
+      "description": "Maximum instantaneous flow that occurs with a 0.5% annual exceedance probability",
+      "value": 12900.0,
+      "sep": 0.37319209609934156,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 106.0
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "103.514*DRNAREA^0.806*10^(0.0141*PRECPRIS10)/10^(0.0145*CANOPY_PCT)",
+      "intervalBounds": {
+       "lower": 3090.0,
+       "upper": 53900.0
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "0.2-percent AEP flood",
+      "code": "PK0_2AEP",
+      "description": "Maximum instantaneous flow that occurs with a 0.2% annual exceedance probability",
+      "value": 15300.0,
+      "sep": 0.40442060226318655,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 120.0
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "169.82*DRNAREA^0.796*10^(0.0130*PRECPRIS10)/10^(0.0159*CANOPY_PCT)",
+      "intervalBounds": {
+       "lower": 3250.0,
+       "upper": 72000.0
+      }
+     }
+    ]
+   },
+   {
+    "id": 719,
+    "name": "Peak_Region_3_2016_5118",
+    "code": "GC1752",
+    "description": "",
+    "statusID": 4,
+    "methodID": 1,
+    "citationID": 150,
+    "parameters": [
+     {
+      "id": 19580,
+      "name": "Drainage Area",
+      "description": "Area that drains to a point on a stream",
+      "code": "DRNAREA",
+      "unitType": {
+       "id": 35,
+       "unit": "square miles",
+       "abbr": "mi^2"
+      },
+      "value": 412.0,
+      "limits": {
+       "max": 2610.0,
+       "min": 0.08
+      }
+     },
+     {
+      "id": 19581,
+      "name": "Mean Annual Precip PRISM 1981 2010",
+      "description": "Basin average mean annual precipitation for 1981 to 2010 from PRISM",
+      "code": "PRECPRIS10",
+      "unitType": {
+       "id": 36,
+       "unit": "inches",
+       "abbr": "in"
+      },
+      "value": 45.62,
+      "limits": {
+       "max": 168.0,
+       "min": 33.2
+      }
+     }
+    ],
+    "results": [
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "50-percent AEP flood",
+      "code": "PK50AEP",
+      "description": "Maximum instantaneous flow that occurs with a 50% annual exceedance probability",
+      "value": 5280.0,
+      "sep": 0.18230197908001242,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 43.2
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "0.0294*DRNAREA^0.899*PRECPRIS10^1.750",
+      "intervalBounds": {
+       "lower": 2630.0,
+       "upper": 10600.0
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "20-percent AEP flood",
+      "code": "PK20AEP",
+      "description": "Maximum instantaneous flow that occurs with a 20% annual exceedance probability",
+      "value": 8180.0,
+      "sep": 0.18829051553096643,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 44.4
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "0.0565*DRNAREA^0.895*PRECPRIS10^1.700",
+      "intervalBounds": {
+       "lower": 3990.0,
+       "upper": 16800.0
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "10-percent AEP flood",
+      "code": "PK10AEP",
+      "description": "Maximum instantaneous flow that occurs with a 10% annual exceedance probability",
+      "value": 10300.0,
+      "sep": 0.19154016970967547,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 45.6
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "0.0794*DRNAREA^0.895*PRECPRIS10^1.670",
+      "intervalBounds": {
+       "lower": 4960.0,
+       "upper": 21400.0
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "4-percent AEP flood",
+      "code": "PK4AEP",
+      "description": "Maximum instantaneous flow that occurs with a 4% annual exceedance probability",
+      "value": 13000.0,
+      "sep": 0.20268870620111998,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 48.1
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "0.115*DRNAREA^0.896*PRECPRIS10^1.634",
+      "intervalBounds": {
+       "lower": 6000.0,
+       "upper": 28200.0
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "2-percent AEP flood",
+      "code": "PK2AEP",
+      "description": "Maximum instantaneous flow that occurs with a 2% annual exceedance probability",
+      "value": 15100.0,
+      "sep": 0.21084305815155469,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 50.5
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "0.146*DRNAREA^0.897*PRECPRIS10^1.609",
+      "intervalBounds": {
+       "lower": 6760.0,
+       "upper": 33700.0
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "1-percent AEP flood",
+      "code": "PK1AEP",
+      "description": "Maximum instantaneous flow that occurs with a 1% annual exceedance probability",
+      "value": 17400.0,
+      "sep": 0.21603294014254235,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 51.8
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "0.182*DRNAREA^0.898*PRECPRIS10^1.587",
+      "intervalBounds": {
+       "lower": 7640.0,
+       "upper": 39700.0
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "0.5-percent AEP flood",
+      "code": "PK0_5AEP",
+      "description": "Maximum instantaneous flow that occurs with a 0.5% annual exceedance probability",
+      "value": 19700.0,
+      "sep": 0.2260122354119808,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 54.2
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "0.221*DRNAREA^0.899*PRECPRIS10^1.567",
+      "intervalBounds": {
+       "lower": 8320.0,
+       "upper": 46600.0
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "0.2-percent AEP flood",
+      "code": "PK0_2AEP",
+      "description": "Maximum instantaneous flow that occurs with a 0.2% annual exceedance probability",
+      "value": 22900.0,
+      "sep": 0.23787456204742952,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 57.7
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "0.281*DRNAREA^0.900*PRECPRIS10^1.542",
+      "intervalBounds": {
+       "lower": 9250.0,
+       "upper": 56700.0
+      }
+     }
+    ]
+   },
+   {
+    "id": 720,
+    "name": "Peak_Region_4_2016_5118",
+    "code": "GC1753",
+    "description": "",
+    "statusID": 4,
+    "methodID": 1,
+    "citationID": 150,
+    "parameters": [
+     {
+      "id": 19596,
+      "name": "Drainage Area",
+      "description": "Area that drains to a point on a stream",
+      "code": "DRNAREA",
+      "unitType": {
+       "id": 35,
+       "unit": "square miles",
+       "abbr": "mi^2"
+      },
+      "value": 412.0,
+      "limits": {
+       "max": 2230.0,
+       "min": 0.18
+      }
+     },
+     {
+      "id": 19597,
+      "name": "Mean Annual Precip PRISM 1981 2010",
+      "description": "Basin average mean annual precipitation for 1981 to 2010 from PRISM",
+      "code": "PRECPRIS10",
+      "unitType": {
+       "id": 36,
+       "unit": "inches",
+       "abbr": "in"
+      },
+      "value": 45.62,
+      "limits": {
+       "max": 187.0,
+       "min": 11.9
+      }
+     }
+    ],
+    "results": [
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "50-percent AEP flood",
+      "code": "PK50AEP",
+      "description": "Maximum instantaneous flow that occurs with a 50% annual exceedance probability",
+      "value": 7970.0,
+      "sep": 0.2964830699212656,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 52.5
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "15.346*DRNAREA^0.911*10^(0.0073*PRECPRIS10)",
+      "intervalBounds": {
+       "lower": 2570.0,
+       "upper": 24700.0
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "20-percent AEP flood",
+      "code": "PK20AEP",
+      "description": "Maximum instantaneous flow that occurs with a 20% annual exceedance probability",
+      "value": 13600.0,
+      "sep": 0.2897849245760596,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 50.6
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "29.785*DRNAREA^0.913*10^(0.0060*PRECPRIS10)",
+      "intervalBounds": {
+       "lower": 4500.0,
+       "upper": 41100.0
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "10-percent AEP flood",
+      "code": "PK10AEP",
+      "description": "Maximum instantaneous flow that occurs with a 10% annual exceedance probability",
+      "value": 18300.0,
+      "sep": 0.2907582392522062,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 50.5
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "42.073*DRNAREA^0.915*10^(0.0054*PRECPRIS10)",
+      "intervalBounds": {
+       "lower": 6040.0,
+       "upper": 55500.0
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "4-percent AEP flood",
+      "code": "PK4AEP",
+      "description": "Maximum instantaneous flow that occurs with a 4% annual exceedance probability",
+      "value": 24800.0,
+      "sep": 0.3008561364674801,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 51.7
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "60.117*DRNAREA^0.918*10^(0.0047*PRECPRIS10)",
+      "intervalBounds": {
+       "lower": 7870.0,
+       "upper": 78100.0
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "2-percent AEP flood",
+      "code": "PK2AEP",
+      "description": "Maximum instantaneous flow that occurs with a 2% annual exceedance probability",
+      "value": 30100.0,
+      "sep": 0.30988630498061204,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 52.9
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "75.162*DRNAREA^0.920*10^(0.0043*PRECPRIS10)",
+      "intervalBounds": {
+       "lower": 9230.0,
+       "upper": 98100.0
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "1-percent AEP flood",
+      "code": "PK1AEP",
+      "description": "Maximum instantaneous flow that occurs with a 1% annual exceedance probability",
+      "value": 35600.0,
+      "sep": 0.3186608848901528,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 54.2
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "91.411*DRNAREA^0.921*10^(0.0040*PRECPRIS10)",
+      "intervalBounds": {
+       "lower": 10600.0,
+       "upper": 120000.0
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "0.5-percent AEP flood",
+      "code": "PK0_5AEP",
+      "description": "Maximum instantaneous flow that occurs with a 0.5% annual exceedance probability",
+      "value": 41200.0,
+      "sep": 0.3272559305162593,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 55.5
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "108.89*DRNAREA^0.923*10^(0.0036*PRECPRIS10)",
+      "intervalBounds": {
+       "lower": 11800.0,
+       "upper": 143000.0
+      }
+     },
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "0.2-percent AEP flood",
+      "code": "PK0_2AEP",
+      "description": "Maximum instantaneous flow that occurs with a 0.2% annual exceedance probability",
+      "value": 50100.0,
+      "sep": 0.341979216852503,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error of prediction",
+        "code": "ASEp",
+        "value": 58.0
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "134.28*DRNAREA^0.926*10^(0.0033*PRECPRIS10)",
+      "intervalBounds": {
+       "lower": 13600.0,
+       "upper": 185000.0
+      }
+     }
+    ]
+   }
+  ],
+  "links": [
+   {
+    "rel": "Citations",
+    "href": "https://streamstats.usgs.gov/nssservices/citations?regressionregions=717,718,719,720",
+    "method": "GET"
+   }
+  ]
+ }
+]

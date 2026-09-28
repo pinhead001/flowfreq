@@ -1,0 +1,72 @@
+[
+ {
+  "id": 102,
+  "name": "Region_1_Urban_under_3_sqmi_2014_5030",
+  "code": "GC1539",
+  "description": "Regression region Percent Area computed with a Mask Area of 805.4346082841638 sqr. miles and overlay Area of 355.3884068631156 sqr miles",
+  "citationID": 33,
+  "statusID": 4,
+  "percentWeight": 44.0,
+  "area": 355.3884068631156
+ },
+ {
+  "id": 103,
+  "name": "Region_1_Urban_over_3_sqmi_2014_5030",
+  "code": "GC1540",
+  "description": "Regression region Percent Area computed with a Mask Area of 805.4346082841638 sqr. miles and overlay Area of 355.3884068631156 sqr miles",
+  "citationID": 33,
+  "statusID": 4,
+  "percentWeight": 44.0,
+  "area": 355.3884068631156
+ },
+ {
+  "id": 104,
+  "name": "Region_3_Urban_2014_5030",
+  "code": "GC1541",
+  "description": "Regression region Percent Area computed with a Mask Area of 805.4346082841638 sqr. miles and overlay Area of 256.63905091681437 sqr miles",
+  "citationID": 33,
+  "statusID": 4,
+  "percentWeight": 32.0,
+  "area": 256.63905091681437
+ },
+ {
+  "id": 105,
+  "name": "Region_4_Urban_2014_5030",
+  "code": "GC1542",
+  "description": "Regression region Percent Area computed with a Mask Area of 805.4346082841638 sqr. miles and overlay Area of 193.40715050423074 sqr miles",
+  "citationID": 33,
+  "statusID": 4,
+  "percentWeight": 24.0,
+  "area": 193.40715050423074
+ },
+ {
+  "id": 107,
+  "name": "Region_1_rural_under_1_sqmi_2014_5030",
+  "code": "GC1572",
+  "description": "Regression region Percent Area computed with a Mask Area of 805.4346082841638 sqr. miles and overlay Area of 355.3884068631156 sqr miles",
+  "citationID": 33,
+  "statusID": 4,
+  "percentWeight": 44.0,
+  "area": 355.3884068631156
+ },
+ {
+  "id": 108,
+  "name": "Region_3_rural_under_1_sqmi_2014_5030",
+  "code": "GC1573",
+  "description": "Regression region Percent Area computed with a Mask Area of 805.4346082841638 sqr. miles and overlay Area of 256.63905091681437 sqr miles",
+  "citationID": 33,
+  "statusID": 4,
+  "percentWeight": 32.0,
+  "area": 256.63905091681437
+ },
+ {
+  "id": 963,
+  "name": "Peak_Southeast_US_GA_2023_5006",
+  "code": "GC1934",
+  "description": "Regression region Percent Area computed with a Mask Area of 805.4346082841638 sqr. miles and overlay Area of 805.4346082841605 sqr miles",
+  "citationID": 191,
+  "statusID": 4,
+  "percentWeight": 100.0,
+  "area": 805.4346082841605
+ }
+]

@@ -287,3 +287,38 @@ NSS_ESTIMATE_500_BODY = (
     '{"code":500,"message":"An error occured while processing your request. '
     'See messages for more information.","content":"Internal Server Error Occured"}'
 )
+
+# --- NSS region selection by watershed polygon (addendum S5). Live captures,
+# --- 2026-09-27, under tests/fixtures/streamstats/.
+
+# GET /nssservices/regions/WA/Scenarios?statisticgroups=PFS,LFS&unitsystem=2 -- the
+# full WA template: four Peak-Flow regions (GC1750-GC1753), four Low-Flow regions.
+NSS_SCENARIOS_WA_PFS_LFS = load_capture("nss_scenarios_WA_PFS_LFS.json")
+
+# POST /nssservices/regions/WA/regressionregions/bylocation with Goat Creek's polygon:
+# one region, Peak Region 2 (GC1751), 100% -- not GC1750, which the older fixtures use.
+NSS_BYLOCATION_WA_GOAT_CREEK = load_capture("nss_bylocation_WA_goat_creek.json")
+
+# POST /nssservices/Scenarios/Estimate for Goat Creek's real characteristics: GC1751
+# only (50% AEP 3,290 cfs), and all four PFS regions (4,370 / 3,290 / 5,280 / 7,970).
+NSS_ESTIMATE_WA_GOAT_CREEK_GC1751 = load_capture("nss_estimate_WA_goat_creek_GC1751.json")
+NSS_ESTIMATE_WA_GOAT_CREEK_ALL_PFS = load_capture("nss_estimate_WA_goat_creek_all_PFS.json")
+
+# Ogeechee River near Louisville, GA (USGS 02200500, DRNAREA 805): the one live basin
+# found that spans several regions of a state's own study. The sshydro capture is a
+# MultiPolygon (three one-cell islands), exterior ring trimmed from 22119 to 722
+# vertices; region-scoped bylocation puts it 44/32/24% in SIR 2014-5030 regions 1/3/4
+# (ss-hydro's own PCTREG1/3/4 are 44.05/31.87/24.08), and 100% in GC1934.
+DELINEATE_SSHYDRO_GA_OGEECHEE = load_capture("sshydro_GA_ogeechee_louisville_trimmed.json")
+NSS_BYLOCATION_GA_OGEECHEE = load_capture("nss_bylocation_GA_ogeechee_louisville.json")
+
+# GET /nssservices/regions/GA/Scenarios?statisticgroups=PFS&unitsystem=2&
+# regressionregions=GC1572,GC1573 -- two GA rural (<1 mi^2) regions, used to exercise
+# NSS's area averaging.
+NSS_SCENARIOS_GA_RURAL_UNDER_1 = load_capture("nss_scenarios_GA_PFS_rural_under_1sqmi.json")
+
+# POST /nssservices/Scenarios/Estimate with those two regions carrying percentWeight
+# 60 and 40 (chosen for the test, not from a basin) and DRNAREA=0.5, LC06IMP=5,
+# LC06DEV=20: NSS appends a third region, code "areaave", name "Area-Averaged", whose
+# values are the weighted mean (0.6*116 + 0.4*33.3 = 82.92 for PK50AEP).
+NSS_ESTIMATE_GA_AREA_AVERAGED = load_capture("nss_estimate_GA_area_averaged.json")
