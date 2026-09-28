@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **StreamStats watershed polygon.** `delineate_and_get_characteristics` now returns
+  the delineated basin as a GeoJSON Feature in `WatershedCharacteristics.polygon_geojson`
+  (was always `None`), plus its area in `polygon_area_sq_mi`. No extra call: the polygon is
+  in the `delineate/sshydro` response already fetched, verified live on four basins
+  (`docs/STREAMSTATS_MODULE_DESIGN.md` S10). It is validated before it is returned, and a
+  failure raises `DegenerateDelineationError`: rings must be closed, the snapped pour
+  point must be inside (or within 100 m of the boundary), and the area must be within 2%
+  of `DRNAREA`. Live, the area matches `DRNAREA` to under 0.1%. New public helper
+  `geojson_area_sq_mi` computes the area with no GIS dependency. `include_polygon=False`
+  still validates the polygon but drops the geometry, which keeps large caches small.
+  Cache keys changed, so entries cached before this are re-fetched rather than returned
+  without a polygon.
+
 ### Changed
 - **Instantaneous values now come from the USGS Water Data OGC API by default** (#29).
   `USGSgage.download_instantaneous_flow` and `download_instantaneous_stage` default to

@@ -1,13 +1,26 @@
-"""Captured-shape StreamStats API payloads for delineation/characteristics tests.
+"""StreamStats API payloads for delineation/characteristics tests.
 
-Values are plausible for the Methow River basin, WA (the design doc's own
-verification points, ``docs/STREAMSTATS_MODULE_DESIGN.md`` appendix). The snap shape is
-confirmed live (2026-09-11); basin characteristics per the design doc (2026-09-09/10).
-The ``ss-delineate`` ``sshydro`` chaining response's overall shape
-(``{"stateAbbreviation", "bcrequest"}``) is confirmed live; the exact nesting of a
-``WarningMsg`` within it is not, hence ``_find_warning_msg``'s recursive scan rather
-than a fixed path.
+Values are for the Methow River basin, WA (the design doc's own verification points,
+``docs/STREAMSTATS_MODULE_DESIGN.md`` appendix). The snap shape is confirmed live
+(2026-09-11); basin characteristics per the design doc (2026-09-09/10).
+
+The ``delineate/sshydro`` responses are live captures (2026-09-27) stored as JSON under
+``tests/fixtures/streamstats/`` (see the comment on each constant for how it was
+trimmed). They carry the watershed polygon (design doc S10) and, for the off-network
+point, the real nesting of ``WarningMsg``.
 """
+
+import json
+from pathlib import Path
+from typing import Any
+
+_CAPTURES = Path(__file__).parent / "streamstats"
+
+
+def load_capture(name: str) -> Any:
+    """A fresh copy of a committed live capture, so a test may mutate it freely."""
+    return json.loads((_CAPTURES / name).read_text(encoding="utf-8"))
+
 
 # A successful pourpoint snap: the point lies close to the stream network. `output` is
 # a GeoJSON Point -- coordinates are [lon, lat], confirmed live 2026-09-11.
@@ -18,6 +31,14 @@ SNAP_GOOD = {
     "couldSnap": True,
 }
 
+# Methow River near Pateros (USGS 12449950's site), live 2026-09-27.
+SNAP_METHOW_PATEROS = {
+    "region": "WA",
+    "input": {"type": "Point", "coordinates": [-119.9837, 48.0776]},
+    "output": {"type": "Point", "coordinates": [-119.98382843100944, 48.0772686409578]},
+    "couldSnap": True,
+}
+
 # The point is off the flowline -- the service will not snap it. The whole point of
 # this fixture is that FR-1 forbids proceeding to delineation from here.
 SNAP_UNSNAPPABLE = {
@@ -25,37 +46,33 @@ SNAP_UNSNAPPABLE = {
     "output": {},
 }
 
-# The ss-delineate 'sshydro' chaining response: the bcrequest body to POST to ss-hydro.
-# This is the one ss-delineate call the shipped pipeline actually makes -- an earlier
-# version also called `delineate/features/{region}` for a watershed polygon, but that
-# was found live to return an unrelated point feature, not a polygon, and was removed;
-# see flowfreq/streamstats.py's module docstring.
-DELINEATE_SSHYDRO_GOOD = {
-    "stateAbbreviation": "WA",
-    "bcrequest": {
-        "cid": "WA20260910120000123",
-        "rcode": "WA",
-        "workspaceID": "WA20260910120000123",
-    },
-}
+# The ss-delineate 'sshydro' response for Goat Creek: the bcrequest body to POST to
+# ss-hydro, which also carries the globalwatershed polygon. Live capture 2026-09-27,
+# polygon trimmed from 4590 to 332 vertices (every vertex within 2 km of the pour point
+# kept, every 20th elsewhere): area 411.72 mi^2 against DRNAREA 412.0.
+DELINEATE_SSHYDRO_GOOD = load_capture("sshydro_WA_goat_creek_trimmed.json")
 
-# The design doc's own captured failure mode (S4): HTTP 200 carrying the exact
-# WarningMsg string it recorded live for an unsnappable point. The precise nesting of
-# WarningMsg within this chaining variant's response was not independently
-# re-confirmed (module docstring), so it's placed inside bcrequest here defensively --
-# _find_warning_msg scans the whole structure, not one fixed path. This fixture -- and
-# the test asserting it raises -- is the whole point of this module.
-DELINEATE_SSHYDRO_WITH_WARNING = {
-    "stateAbbreviation": "WA",
-    "bcrequest": {
-        "cid": "WA20260910120000124",
-        "rcode": "WA",
-        "workspaceID": "WA20260910120000124",
-        "WarningMsg": (
-            ", Point not snappable using ss-pourpoint API service; " "results may be inaccurate."
-        ),
-    },
-}
+# Methow near Pateros: 1793 mi^2, and its polygon has a hole (an interior ring). Live
+# capture 2026-09-27, exterior ring trimmed the same way from 10309 to 358 vertices,
+# hole kept whole: area 1792.80 mi^2 against DRNAREA 1793.0.
+DELINEATE_SSHYDRO_METHOW_PATEROS = load_capture("sshydro_WA_methow_pateros_trimmed.json")
+
+# ss-hydro's answer for the Methow at Pateros, trimmed to DRNAREA (live 2026-09-27).
+HYDRO_CHARACTERISTICS_METHOW_PATEROS = [
+    {
+        "code": "DRNAREA",
+        "name": "Drainage Area",
+        "description": "Area that drains to a point on a stream",
+        "value": 1793.0,
+        "unit": "square miles",
+        "msg": "Local AreaOp successful",
+    }
+]
+
+# The design doc's own failure mode (S4), captured live 2026-09-27 and verbatim: HTTP
+# 200, a 13-vertex hillslope sliver, and the WarningMsg in both features' properties.
+# This fixture -- and the test asserting it raises -- is the whole point of this module.
+DELINEATE_SSHYDRO_WITH_WARNING = load_capture("sshydro_WA_offnetwork.json")
 
 # No bcrequest payload -- ss-hydro has nothing usable to compute from.
 DELINEATE_SSHYDRO_MALFORMED = {"stateAbbreviation": "WA"}

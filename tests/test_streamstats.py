@@ -7,6 +7,7 @@ Tests that would require the live service are marked ``requires_network``.
 from __future__ import annotations
 
 import json as json_module
+import math
 from concurrent.futures import ThreadPoolExecutor
 from unittest.mock import Mock, patch
 
@@ -15,6 +16,8 @@ import requests
 
 from flowfreq.streamstats import (
     MAX_CONCURRENCY,
+    POLYGON_AREA_RTOL,
+    SQ_M_PER_SQ_MI,
     Characteristic,
     DegenerateDelineationError,
     FlowStatisticEstimate,
@@ -29,10 +32,12 @@ from flowfreq.streamstats import (
     UnsupportedRegionError,
     WatershedCharacteristics,
     _fill_and_validate_regions,
+    _point_in_geometry,
     batch_estimate_flow_statistics,
     batch_get_characteristics,
     delineate_and_get_characteristics,
     estimate_flow_statistics,
+    geojson_area_sq_mi,
     list_regions,
     list_statistic_groups,
     snap_point,
@@ -40,9 +45,11 @@ from flowfreq.streamstats import (
 from tests.fixtures.streamstats_responses import (
     DELINEATE_SSHYDRO_GOOD,
     DELINEATE_SSHYDRO_MALFORMED,
+    DELINEATE_SSHYDRO_METHOW_PATEROS,
     DELINEATE_SSHYDRO_WITH_WARNING,
     HYDRO_CHARACTERISTICS_GOOD,
     HYDRO_CHARACTERISTICS_MALFORMED,
+    HYDRO_CHARACTERISTICS_METHOW_PATEROS,
     HYDRO_CHARACTERISTICS_MISSING_VALUE,
     HYDRO_CHARACTERISTICS_WRAPPED,
     NSS_CITATIONS_RESPONSE,
@@ -53,7 +60,9 @@ from tests.fixtures.streamstats_responses import (
     NSS_STATISTIC_GROUPS_WA,
     RESPONSE_422_MISSING_REGION,
     SNAP_GOOD,
+    SNAP_METHOW_PATEROS,
     SNAP_UNSNAPPABLE,
+    load_capture,
 )
 
 
@@ -392,6 +401,232 @@ class TestDelineateAndGetCharacteristics:
         assert len(result.provenance.request_urls) == 2
         assert result.provenance.requested_at_utc
         assert result.provenance.server_used
+
+
+def _run_delineation(snap, sshydro, hydro, **kwargs):
+    """Run the pipeline against one snap/sshydro/ss-hydro triple; returns (result, post)."""
+    with (
+        patch(
+            "flowfreq.streamstats.requests.get",
+            side_effect=[_mock_response(snap), _mock_response(sshydro)],
+        ),
+        patch("flowfreq.streamstats.requests.post", return_value=_mock_response(hydro)) as post,
+    ):
+        lon, lat = snap["input"]["coordinates"]
+        return delineate_and_get_characteristics("WA", lat, lon, **kwargs), post
+
+
+def _outer_ring(sshydro):
+    for entry in sshydro["bcrequest"]["wsresp"]["featurecollection"][0]:
+        if entry["name"] == "globalwatershed":
+            return entry["feature"]["features"][0]["geometry"]["coordinates"][0]
+    raise AssertionError("no globalwatershed in capture")
+
+
+class TestWatershedPolygon:
+    """Design doc S10: the globalwatershed polygon, returned only once validated."""
+
+    def test_goat_creek_polygon_returned_and_validated(self) -> None:
+        result, _ = _run_delineation(SNAP_GOOD, DELINEATE_SSHYDRO_GOOD, HYDRO_CHARACTERISTICS_GOOD)
+
+        feature = result.polygon_geojson
+        assert feature is not None
+        assert feature["type"] == "Feature"
+        assert feature["geometry"]["type"] == "Polygon"
+        ring = feature["geometry"]["coordinates"][0]
+        assert ring[0] == ring[-1]
+        assert feature["properties"]["GlobalWshd"] == 1
+        # Trimmed capture: 411.72 mi^2 against ss-hydro's DRNAREA of 412.0.
+        assert result.polygon_area_sq_mi == pytest.approx(411.72, abs=0.01)
+        assert result.polygon_area_sq_mi == pytest.approx(412.0, rel=POLYGON_AREA_RTOL)
+
+    def test_hole_is_subtracted_from_area(self) -> None:
+        result, _ = _run_delineation(
+            SNAP_METHOW_PATEROS,
+            DELINEATE_SSHYDRO_METHOW_PATEROS,
+            HYDRO_CHARACTERISTICS_METHOW_PATEROS,
+        )
+
+        rings = result.polygon_geojson["geometry"]["coordinates"]
+        assert len(rings) == 2  # the live capture's exterior ring and one hole
+        exterior_only = geojson_area_sq_mi({"type": "Polygon", "coordinates": [rings[0]]})
+        assert result.polygon_area_sq_mi < exterior_only
+        assert result.polygon_area_sq_mi == pytest.approx(1792.80, abs=0.01)
+
+    def test_include_polygon_false_validates_but_drops_geometry(self) -> None:
+        result, _ = _run_delineation(
+            SNAP_GOOD,
+            DELINEATE_SSHYDRO_GOOD,
+            HYDRO_CHARACTERISTICS_GOOD,
+            include_polygon=False,
+        )
+
+        assert result.polygon_geojson is None
+        assert result.polygon_area_sq_mi == pytest.approx(411.72, abs=0.01)
+
+    def test_include_polygon_false_still_rejects_a_bad_polygon(self) -> None:
+        with pytest.raises(DegenerateDelineationError, match="DRNAREA"):
+            _run_delineation(
+                SNAP_GOOD,
+                DELINEATE_SSHYDRO_GOOD,
+                HYDRO_CHARACTERISTICS_METHOW_PATEROS,
+                include_polygon=False,
+            )
+
+    def test_area_disagreeing_with_drnarea_raises(self) -> None:
+        """Goat Creek's 412 mi^2 polygon against the Methow's 1793 mi^2 DRNAREA."""
+        with pytest.raises(DegenerateDelineationError, match="disagrees with DRNAREA"):
+            _run_delineation(
+                SNAP_GOOD, DELINEATE_SSHYDRO_GOOD, HYDRO_CHARACTERISTICS_METHOW_PATEROS
+            )
+
+    def test_drnarea_in_square_kilometres_is_converted(self) -> None:
+        hydro = [dict(HYDRO_CHARACTERISTICS_GOOD[0], value=1067.08, unit="square kilometers")]
+        result, _ = _run_delineation(SNAP_GOOD, DELINEATE_SSHYDRO_GOOD, hydro)
+
+        assert result.polygon_area_sq_mi == pytest.approx(412.0, rel=POLYGON_AREA_RTOL)
+
+    def test_unrecognised_drnarea_unit_raises(self) -> None:
+        hydro = [dict(HYDRO_CHARACTERISTICS_GOOD[0], unit="acres")]
+        with pytest.raises(StreamStatsResponseError, match="unrecognised unit"):
+            _run_delineation(SNAP_GOOD, DELINEATE_SSHYDRO_GOOD, hydro)
+
+    def test_missing_drnarea_skips_only_the_area_check(self) -> None:
+        hydro = [c for c in HYDRO_CHARACTERISTICS_GOOD if c["code"] != "DRNAREA"]
+        result, _ = _run_delineation(SNAP_GOOD, DELINEATE_SSHYDRO_GOOD, hydro)
+
+        assert result.polygon_geojson is not None
+        assert "DRNAREA" not in result
+
+    def test_snapped_point_outside_polygon_raises_before_ss_hydro(self) -> None:
+        """The Methow's pour point is ~60 km from Goat Creek's basin."""
+        with pytest.raises(DegenerateDelineationError, match="outside the delineated"):
+            _run_delineation(
+                SNAP_METHOW_PATEROS, DELINEATE_SSHYDRO_GOOD, HYDRO_CHARACTERISTICS_GOOD
+            )
+
+    @staticmethod
+    def _goat_shifted_west(metres: float):
+        sshydro = load_capture("sshydro_WA_goat_creek_trimmed.json")
+        lon, lat = SNAP_GOOD["output"]["coordinates"]
+        ring = _outer_ring(sshydro)
+        shift = metres / (111320.0 * math.cos(math.radians(lat)))
+        ring[:] = [[x - shift, y] for x, y in ring]
+        geometry = {"type": "Polygon", "coordinates": [ring]}
+        return sshydro, _point_in_geometry(lon, lat, geometry)
+
+    def test_snapped_point_just_outside_boundary_is_accepted(self) -> None:
+        """The outlet sits on the boundary by construction; a few metres out is fine."""
+        sshydro, inside = self._goat_shifted_west(40.0)  # pour point ends ~24 m outside
+        assert not inside
+
+        result, _ = _run_delineation(SNAP_GOOD, sshydro, HYDRO_CHARACTERISTICS_GOOD)
+
+        assert result.polygon_geojson is not None
+
+    def test_snapped_point_beyond_boundary_tolerance_raises(self) -> None:
+        sshydro, inside = self._goat_shifted_west(250.0)  # pour point ends ~230 m outside
+        assert not inside
+
+        with pytest.raises(DegenerateDelineationError, match="outside the delineated"):
+            _run_delineation(SNAP_GOOD, sshydro, HYDRO_CHARACTERISTICS_GOOD)
+
+    def test_unclosed_ring_raises_before_ss_hydro(self) -> None:
+        sshydro = load_capture("sshydro_WA_goat_creek_trimmed.json")
+        _outer_ring(sshydro).pop()
+        with (
+            patch(
+                "flowfreq.streamstats.requests.get",
+                side_effect=[_mock_response(SNAP_GOOD), _mock_response(sshydro)],
+            ),
+            patch("flowfreq.streamstats.requests.post") as post,
+        ):
+            with pytest.raises(DegenerateDelineationError, match="not closed"):
+                delineate_and_get_characteristics("WA", 48.57426, -120.37893)
+        post.assert_not_called()
+
+    def test_ring_with_too_few_positions_raises(self) -> None:
+        sshydro = load_capture("sshydro_WA_goat_creek_trimmed.json")
+        ring = _outer_ring(sshydro)
+        ring[:] = [ring[0], ring[1], ring[0]]
+        with pytest.raises(DegenerateDelineationError, match="fewer than 4"):
+            _run_delineation(SNAP_GOOD, sshydro, HYDRO_CHARACTERISTICS_GOOD)
+
+    def test_missing_globalwatershed_raises(self) -> None:
+        sshydro = load_capture("sshydro_WA_goat_creek_trimmed.json")
+        entries = sshydro["bcrequest"]["wsresp"]["featurecollection"][0]
+        entries[:] = [e for e in entries if e["name"] != "globalwatershed"]
+        with pytest.raises(DegenerateDelineationError, match="no globalwatershed"):
+            _run_delineation(SNAP_GOOD, sshydro, HYDRO_CHARACTERISTICS_GOOD)
+
+    def test_point_geometry_in_place_of_polygon_raises(self) -> None:
+        """What `delineate/features` returned live: a zero-area Point, not a basin."""
+        sshydro = load_capture("sshydro_WA_goat_creek_trimmed.json")
+        for entry in sshydro["bcrequest"]["wsresp"]["featurecollection"][0]:
+            if entry["name"] == "globalwatershed":
+                entry["feature"]["features"][0]["geometry"] = {
+                    "type": "Point",
+                    "coordinates": SNAP_GOOD["output"]["coordinates"],
+                }
+        with pytest.raises(DegenerateDelineationError, match="not a Polygon"):
+            _run_delineation(SNAP_GOOD, sshydro, HYDRO_CHARACTERISTICS_GOOD)
+
+    def test_missing_wsresp_is_a_response_shape_error(self) -> None:
+        sshydro = load_capture("sshydro_WA_goat_creek_trimmed.json")
+        del sshydro["bcrequest"]["wsresp"]
+        with pytest.raises(StreamStatsResponseError, match="featurecollection"):
+            _run_delineation(SNAP_GOOD, sshydro, HYDRO_CHARACTERISTICS_GOOD)
+
+    def test_cache_round_trip_keeps_polygon(self, tmp_path) -> None:
+        cache = StreamStatsCache(tmp_path / "cache.json")
+        first, _ = _run_delineation(
+            SNAP_GOOD, DELINEATE_SSHYDRO_GOOD, HYDRO_CHARACTERISTICS_GOOD, cache=cache
+        )
+        with patch(
+            "flowfreq.streamstats.requests.get",
+            side_effect=AssertionError("cache hit must not touch the network"),
+        ):
+            second = delineate_and_get_characteristics(
+                "WA", 48.57426, -120.37893, cache=StreamStatsCache(tmp_path / "cache.json")
+            )
+
+        assert second.polygon_geojson == first.polygon_geojson
+        assert second.polygon_area_sq_mi == first.polygon_area_sq_mi
+
+
+class TestGeojsonArea:
+    def test_lat_lon_rectangle_matches_spherical_zone_formula(self) -> None:
+        """A lon/lat rectangle's exact spherical area is R^2 * dlon * (sin phi2 - sin phi1)."""
+        lon1, lon2, lat1, lat2 = -120.0, -119.5, 48.0, 48.5
+        ring = [[lon1, lat1], [lon2, lat1], [lon2, lat2], [lon1, lat2], [lon1, lat1]]
+        r = 6378137.0
+        exact = (
+            r**2
+            * math.radians(lon2 - lon1)
+            * (math.sin(math.radians(lat2)) - math.sin(math.radians(lat1)))
+            / SQ_M_PER_SQ_MI
+        )
+
+        area = geojson_area_sq_mi({"type": "Polygon", "coordinates": [ring]})
+
+        assert area == pytest.approx(exact, rel=1e-9)
+
+    def test_ring_orientation_does_not_matter(self) -> None:
+        ring = [[0.0, 0.0], [0.1, 0.0], [0.1, 0.1], [0.0, 0.1], [0.0, 0.0]]
+        cw = geojson_area_sq_mi({"type": "Polygon", "coordinates": [ring]})
+        ccw = geojson_area_sq_mi({"type": "Polygon", "coordinates": [ring[::-1]]})
+        assert cw == pytest.approx(ccw)
+
+    def test_multipolygon_sums_its_parts(self) -> None:
+        a = [[0.0, 0.0], [0.1, 0.0], [0.1, 0.1], [0.0, 0.1], [0.0, 0.0]]
+        b = [[1.0, 0.0], [1.1, 0.0], [1.1, 0.1], [1.0, 0.1], [1.0, 0.0]]
+        one = geojson_area_sq_mi({"type": "Polygon", "coordinates": [a]})
+        both = geojson_area_sq_mi({"type": "MultiPolygon", "coordinates": [[a], [b]]})
+        assert both == pytest.approx(2 * one, rel=1e-6)
+
+    def test_non_polygon_raises(self) -> None:
+        with pytest.raises(DegenerateDelineationError):
+            geojson_area_sq_mi({"type": "Point", "coordinates": [0.0, 0.0]})
 
 
 class TestStreamStatsCache:
@@ -861,6 +1096,27 @@ class TestLiveStreamStats:
     def test_offnetwork_point_raises(self) -> None:
         with pytest.raises((UnsnappablePointError, DegenerateDelineationError)):
             delineate_and_get_characteristics("WA", 48.584, -120.370)
+
+    def test_goat_creek_polygon_matches_drnarea(self) -> None:
+        """Design doc S10: the live polygon, validated, agrees with DRNAREA."""
+        result = delineate_and_get_characteristics(
+            "WA", 48.57426, -120.37893, characteristic_codes=["DRNAREA"]
+        )
+
+        assert result.polygon_geojson is not None
+        assert result.polygon_geojson["geometry"]["type"] in ("Polygon", "MultiPolygon")
+        # 411.75 mi^2 live on 2026-09-27 against DRNAREA 412.
+        assert result.polygon_area_sq_mi == pytest.approx(result["DRNAREA"].value, rel=0.005)
+
+    def test_methow_at_pateros_polygon_with_hole(self) -> None:
+        result = delineate_and_get_characteristics(
+            "WA", 48.0776, -119.9837, characteristic_codes=["DRNAREA"]
+        )
+
+        assert result.polygon_geojson is not None
+        assert len(result.polygon_geojson["geometry"]["coordinates"]) >= 2
+        # 1791.81 mi^2 live on 2026-09-27 against DRNAREA 1793.
+        assert result.polygon_area_sq_mi == pytest.approx(result["DRNAREA"].value, rel=0.005)
 
 
 @pytest.mark.requires_network

@@ -32,7 +32,7 @@ Standing rules carried over from this repo's history, which apply to every phase
 | B17C EMA + MGBT, parity with peakfq 8.1.0 | [x] | `bulletin17c.py`, `tests/fortran_parity/` |
 | Fortran engine as a selectable backend | [x] | `fortran_engine.py`, `peakfqr/` |
 | NWIS peak/daily retrieval | [~] legacy NWIS services only; OGC backend is a stub | `usgs.py`, `peak_sources.py` |
-| StreamStats delineation + basin characteristics | [x] Phase 1 (no polygon) | `streamstats.py` |
+| StreamStats delineation + basin characteristics | [x] Phase 1, with validated watershed polygon | `streamstats.py` |
 | NSS regression evaluation via web service | [~] PFS verified live in WA only | `streamstats.py` |
 | Regional skew | [~] caller supplies a scalar; table schema and loader exist, all rows `pending`; silent -0.302 default in `workflow`/CLI (§1.3) | `Bulletin17C(regional_skew=…)`, `regional_skew.py` |
 | Offline regression-equation library | [~] schema and evaluator; no equations transcribed | `regression/`, `data/regression/` |
@@ -74,9 +74,11 @@ Standing rules carried over from this repo's history, which apply to every phase
       *Stub:* the data. No catalog has been built; the CSV is still the 3-row seed.
 
 ### 1.2 Geospatial inputs
-- [ ] **Watershed polygon** (the open Phase 1 gap). Verify a live source, such as the
+- [x] **Watershed polygon** (the open Phase 1 gap). Verify a live source, such as the
       StreamStats `delineate` geometry or the NLDI `basin` endpoint, and populate
-      `WatershedCharacteristics.polygon_geojson`.
+      `WatershedCharacteristics.polygon_geojson`. *Done 2026-09-27:* it is in the
+      `delineate/sshydro` response already fetched; verified live and validated against
+      `DRNAREA` (`docs/STREAMSTATS_MODULE_DESIGN.md` S10).
 - [ ] **NLDI integration** for upstream/downstream navigation. This is needed for
       same-stream donor search (§5) and for nested-gage checks.
 - [ ] **Regression-region polygons** for every jurisdiction. Source these from the report
