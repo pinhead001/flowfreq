@@ -28,6 +28,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Other OGC differences, documented since #45: `chunk_years` is capped at 3, because the
     API limits a window to 1100 days. Without `start_date`, the default start is the chosen
     series' own period of record.
+- **Dev dependency: pytest `>=9.0.3,<10`** (was `>=8.0,<9`). 9.0.3 fixes PYSEC-2026-1845,
+  which the 8.x pin carried. The last `importorskip("flowfreq.peakfqr")` without
+  `exc_type=ImportError` (`tests/validation/test_reference.py`) is fixed, so the suite skips
+  rather than errors on pytest 9.1 when the Fortran extension is absent. Supersedes
+  dependabot #18.
 
 ## [0.9.0] - 2026-09-27
 
