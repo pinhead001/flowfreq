@@ -89,6 +89,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   rather than errors on pytest 9.1 when the Fortran extension is absent. Supersedes
   dependabot #18.
 
+### Fixed
+- **StreamStats `characteristic_codes` now filters.** ss-hydro's parameter is `BCs`, per
+  its OpenAPI; the `bcLabels` this module sent was silently ignored, so every call
+  computed the region's full set (`docs/STREAMSTATS_MODULE_DESIGN.md` S11, verified live).
+  Codes are now sent semicolon-delimited, and `BCs=*` by default.
+- **A characteristic ss-hydro cannot compute no longer becomes a value of -999.** The
+  service answers such a code with HTTP 200, `value: -999.0` and "Basin Characteristic not
+  found in database". Those entries now go to the new
+  `WatershedCharacteristics.unavailable` field, never to `characteristics`.
+- **NSS low-flow standard errors were dropped.** WA's Low-Flow equations report their
+  standard error under code `SE`, not `ASEp`, so `standard_error_pct` was always `None`.
+  Both codes are read now, and the one used is recorded in
+  `FlowStatisticEstimate.standard_error_code`. Found in the first live Low-Flow
+  estimate (Skookumchuck River near Vail, WA; `docs/STREAMSTATS_NSS_ADDENDUM.md` S6).
+  Both results reproduce their own equation strings through
+  `flowfreq.regression.nss.evaluate_expression`.
+
 ## [0.9.0] - 2026-09-27
 
 **Breaking changes -- read before upgrading:**

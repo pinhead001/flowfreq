@@ -1,0 +1,132 @@
+[
+ {
+  "statisticGroupID": 4,
+  "statisticGroupName": "Low-Flow Statistics",
+  "regressionRegions": [
+   {
+    "id": 714,
+    "name": "Low_Flow_Western_1_var_2012_5078",
+    "code": "GC1556",
+    "description": "",
+    "statusID": 3,
+    "citationID": 149,
+    "parameters": [
+     {
+      "id": 19526,
+      "name": "Drainage Area",
+      "description": "Area that drains to a point on a stream",
+      "code": "DRNAREA",
+      "unitType": {
+       "id": 35,
+       "unit": "square miles",
+       "abbr": "mi^2"
+      },
+      "value": 39.9,
+      "limits": {
+       "max": 48.9,
+       "min": 0.1
+      }
+     }
+    ],
+    "results": [
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "7 Day 10 Year Low Flow",
+      "code": "M7D10Y",
+      "description": "7-Day mean low-flow that occurs on average once in 10 years",
+      "value": 16.2,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error (of either estimate or prediction)",
+        "code": "SE",
+        "value": 133.0
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "0.15*DRNAREA^1.27"
+     }
+    ]
+   },
+   {
+    "id": 715,
+    "name": "Low_Flow_Western_2_var_2012_5078",
+    "code": "GC1557",
+    "description": "",
+    "statusID": 4,
+    "methodID": 4,
+    "citationID": 149,
+    "parameters": [
+     {
+      "id": 19527,
+      "name": "Drainage Area",
+      "description": "Area that drains to a point on a stream",
+      "code": "DRNAREA",
+      "unitType": {
+       "id": 35,
+       "unit": "square miles",
+       "abbr": "mi^2"
+      },
+      "value": 39.9,
+      "limits": {
+       "max": 48.9,
+       "min": 0.1
+      }
+     },
+     {
+      "id": 19528,
+      "name": "Mean Annual Precipitation",
+      "description": "Mean Annual Precipitation",
+      "code": "PRECIP",
+      "unitType": {
+       "id": 36,
+       "unit": "inches",
+       "abbr": "in"
+      },
+      "value": 71.07,
+      "limits": {
+       "max": 143.0,
+       "min": 25.1
+      }
+     }
+    ],
+    "results": [
+     {
+      "equivalentYears": 0.0,
+      "id": 0,
+      "name": "7 Day 10 Year Low Flow",
+      "code": "M7D10Y",
+      "description": "7-Day mean low-flow that occurs on average once in 10 years",
+      "value": 12.0,
+      "errors": [
+       {
+        "id": 0,
+        "name": "Average standard error (of either estimate or prediction)",
+        "code": "SE",
+        "value": 114.0
+       }
+      ],
+      "unit": {
+       "id": 44,
+       "unit": "cubic feet per second",
+       "abbr": "ft^3/s"
+      },
+      "equation": "0.000848*DRNAREA^1.17*PRECIP^1.23"
+     }
+    ]
+   }
+  ],
+  "links": [
+   {
+    "rel": "Citations",
+    "href": "https://streamstats.usgs.gov/nssservices/citations?regressionregions=714,715",
+    "method": "GET"
+   }
+  ]
+ }
+]

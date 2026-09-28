@@ -15,6 +15,7 @@ from unittest.mock import Mock, patch
 import pytest
 import requests
 
+from flowfreq.regression.nss import evaluate_expression
 from flowfreq.streamstats import (
     MAX_CONCURRENCY,
     POLYGON_AREA_RTOL,
@@ -54,6 +55,7 @@ from tests.fixtures.streamstats_responses import (
     HYDRO_CHARACTERISTICS_MALFORMED,
     HYDRO_CHARACTERISTICS_METHOW_PATEROS,
     HYDRO_CHARACTERISTICS_MISSING_VALUE,
+    HYDRO_CHARACTERISTICS_WITH_UNAVAILABLE,
     HYDRO_CHARACTERISTICS_WRAPPED,
     NSS_BYLOCATION_GA_OGEECHEE,
     NSS_BYLOCATION_WA_GOAT_CREEK,
@@ -63,8 +65,10 @@ from tests.fixtures.streamstats_responses import (
     NSS_ESTIMATE_RESPONSE_PFS,
     NSS_ESTIMATE_WA_GOAT_CREEK_ALL_PFS,
     NSS_ESTIMATE_WA_GOAT_CREEK_GC1751,
+    NSS_ESTIMATE_WA_LFS_SKOOKUMCHUCK,
     NSS_SCENARIO_TEMPLATE_PFS,
     NSS_SCENARIOS_GA_RURAL_UNDER_1,
+    NSS_SCENARIOS_WA_LFS,
     NSS_SCENARIOS_WA_PFS_LFS,
     NSS_STATISTIC_GROUPS_ALL,
     NSS_STATISTIC_GROUPS_WA,
@@ -347,7 +351,7 @@ class TestDelineateAndGetCharacteristics:
         ):
             delineate_and_get_characteristics("WA", 48.57430, -120.37890)
 
-        assert mock_post.call_args.kwargs["params"]["bcLabels"] == "*"
+        assert mock_post.call_args.kwargs["params"]["BCs"] == "*"
 
     def test_bc_labels_uses_requested_codes(self) -> None:
         with (
@@ -361,7 +365,7 @@ class TestDelineateAndGetCharacteristics:
                 "WA", 48.57430, -120.37890, characteristic_codes=["DRNAREA", "PRECPRIS10"]
             )
 
-        assert mock_post.call_args.kwargs["params"]["bcLabels"] == "DRNAREA,PRECPRIS10"
+        assert mock_post.call_args.kwargs["params"]["BCs"] == "DRNAREA;PRECPRIS10"
 
     def test_region_is_never_inferred(self) -> None:
         """FR-8: the region passed through is exactly the one the caller supplied."""
@@ -1359,6 +1363,105 @@ class TestAreaAveraging:
         assert "percentWeight" not in bodies[0][0]["regressionRegions"][0]
 
 
+class TestUnavailableCharacteristic:
+    """Design doc S11: ss-hydro's -999 'not found' sentinel is never a characteristic."""
+
+    def test_sentinel_goes_to_unavailable_not_characteristics(self) -> None:
+        # Goat Creek's own DRNAREA, so the polygon-area check passes, plus the live
+        # sentinel entry.
+        hydro = [HYDRO_CHARACTERISTICS_GOOD[0], HYDRO_CHARACTERISTICS_WITH_UNAVAILABLE[1]]
+        result, _ = _run_delineation(SNAP_GOOD, DELINEATE_SSHYDRO_GOOD, hydro)
+
+        assert "ELEV1000" not in result
+        assert result.unavailable == {"ELEV1000": "Basin Characteristic not found in database"}
+        assert "DRNAREA" in result
+
+    def test_unavailable_round_trips(self) -> None:
+        snap = SnapResult(48.5, -120.3, 48.5, -120.3, True, 0.0)
+        wc = WatershedCharacteristics("WA", snap, None, unavailable={"ELEV1000": "not found"})
+
+        assert WatershedCharacteristics.from_dict(wc.to_dict()).unavailable == {
+            "ELEV1000": "not found"
+        }
+
+    def test_nss_placeholder_is_also_refused(self) -> None:
+        hydro = [dict(HYDRO_CHARACTERISTICS_GOOD[1], value=-999.99)]
+        result, _ = _run_delineation(SNAP_GOOD, DELINEATE_SSHYDRO_GOOD, hydro)
+
+        assert "PRECPRIS10" not in result
+        assert "PRECPRIS10" in result.unavailable
+
+
+SKOOKUMCHUCK_CHARACTERISTICS = {
+    "DRNAREA": Characteristic("DRNAREA", "", "", 39.9, "square miles"),
+    "PRECIP": Characteristic("PRECIP", "", "", 71.07, "inches"),
+}
+
+
+class TestLowFlowEstimates:
+    """Addendum S6: WA Low-Flow Statistics, from live captures."""
+
+    def _run(self):
+        def get(url, **kwargs):
+            if url.endswith("/Scenarios"):
+                return _mock_response(copy.deepcopy(NSS_SCENARIOS_WA_LFS))
+            if url.endswith("/nssservices/citations"):
+                return _mock_response([])
+            return _nss_get_dispatch(url, **kwargs)
+
+        with (
+            patch("flowfreq.streamstats.requests.get", side_effect=get),
+            patch(
+                "flowfreq.streamstats.requests.post",
+                return_value=_mock_response(NSS_ESTIMATE_WA_LFS_SKOOKUMCHUCK),
+            ) as post,
+        ):
+            results, skipped = estimate_flow_statistics("WA", SKOOKUMCHUCK_CHARACTERISTICS, ["LFS"])
+        return results, skipped, post
+
+    def test_regions_without_their_characteristics_are_skipped(self) -> None:
+        _, skipped, post = self._run()
+
+        assert "ELEV1000" in skipped["LFS:GC1434"]
+        assert "TAU_ANN_G" in skipped["LFS:GC1558"]
+        submitted = [
+            r["code"] for s in post.call_args.kwargs["json"] for r in s["regressionRegions"]
+        ]
+        assert submitted == ["GC1556", "GC1557"]
+
+    def test_standard_error_read_from_se_code(self) -> None:
+        results, _, _ = self._run()
+        by_code = {r.region_code: r["M7D10Y"] for r in results}
+
+        assert by_code["GC1556"].standard_error_pct == 133.0
+        assert by_code["GC1557"].standard_error_pct == 114.0
+        assert {e.standard_error_code for e in by_code.values()} == {"SE"}
+
+    def test_values_match_their_own_equations(self) -> None:
+        """NSS's number is its own equation evaluated, to its 3-significant-figure
+        rounding -- checked independently with flowfreq.regression.nss's parser."""
+        results, _, _ = self._run()
+        values = {k: c.value for k, c in SKOOKUMCHUCK_CHARACTERISTICS.items()}
+
+        for region in results:
+            est = region["M7D10Y"]
+            assert est.equation  # e.g. "0.000848*DRNAREA^1.17*PRECIP^1.23"
+            assert evaluate_expression(est.equation, values) == pytest.approx(est.value, rel=0.005)
+
+    def test_asep_still_preferred_for_peak_flow(self) -> None:
+        with (
+            patch("flowfreq.streamstats.requests.get", side_effect=_nss_get_dispatch),
+            patch(
+                "flowfreq.streamstats.requests.post",
+                return_value=_mock_response(NSS_ESTIMATE_RESPONSE_PFS),
+            ),
+        ):
+            results, _ = estimate_flow_statistics("WA", GOAT_CHARACTERISTICS, ["PFS"])
+
+        assert results[0]["PK50AEP"].standard_error_pct == 95.0
+        assert results[0]["PK50AEP"].standard_error_code == "ASEp"
+
+
 class TestBatchEstimateFlowStatistics:
     def test_regions_selected_by_each_points_own_polygon(self) -> None:
         def get(url, **kwargs):
@@ -1541,3 +1644,35 @@ class TestLiveNSS:
         urban = {c: weights[c] for c in ("GC1539", "GC1541", "GC1542")}
         assert urban == pytest.approx({"GC1539": 44.0, "GC1541": 32.0, "GC1542": 24.0}, abs=2)
         assert sum(urban.values()) == pytest.approx(100.0, abs=0.5)
+
+    def test_skookumchuck_low_flow_matches_its_equations(self) -> None:
+        """Addendum S6: the first live LFS estimate. Skookumchuck River near Vail, WA
+        (39.9 mi^2, inside the western-WA regions' 0.1-48.9 range)."""
+        watershed = delineate_and_get_characteristics(
+            "WA",
+            46.7726,
+            -122.59401,
+            characteristic_codes=["DRNAREA", "PRECIP", "ELEV1000"],
+            include_polygon=False,
+        )
+        # BCs filters now: exactly what was asked for, and WA cannot compute ELEV1000.
+        assert set(watershed.characteristics) == {"DRNAREA", "PRECIP"}
+        assert "ELEV1000" in watershed.unavailable
+
+        results, skipped = estimate_flow_statistics(
+            "WA", watershed.characteristics, statistic_group_codes=["LFS"]
+        )
+
+        assert "ELEV1000" in skipped["LFS:GC1434"]
+        by_code = {r.region_code: r for r in results}
+        assert {"GC1556", "GC1557"} <= set(by_code)
+        values = {k: c.value for k, c in watershed.characteristics.items()}
+        for code in ("GC1556", "GC1557"):
+            est = by_code[code]["M7D10Y"]
+            assert est.unit == "ft^3/s"
+            assert est.standard_error_code == "SE" and est.standard_error_pct
+            assert evaluate_expression(est.equation, values) == pytest.approx(est.value, rel=0.005)
+            assert by_code[code].citation is not None
+            assert "Curran" in by_code[code].citation.author
+        # 16.2 and 12.0 cfs live on 2026-09-28.
+        assert by_code["GC1557"]["M7D10Y"].value == pytest.approx(12.0, rel=0.05)

@@ -355,7 +355,38 @@ Checks 1-3 run before the ss-hydro POST, so a bad polygon never costs the second
 `bcLabels=DRNAREA,FOREST`, `DRNAREA;FOREST` or `*` in the query string returned the same
 22 characteristics for the WI point. The USGS notebook sets `bcLabels` inside the
 `bcrequest` body instead (semicolon-delimited). The query parameter this module sends
-therefore does not filter; see TODO.md.
+therefore does not filter; see TODO.md. (Resolved in S11.)
+
+## 11. Requesting a subset of characteristics (verified live 2026-09-28)
+
+**The parameter is `BCs`, not `bcLabels`.** The ss-hydro 1.4.0 OpenAPI
+(`https://streamstats.usgs.gov/ss-hydro/openapi.json`) lists the query parameters of
+`POST /v1/basin-characteristics/calculate-using-ssdelineate/` as `region`, `lat`, `lon`
+and an optional `BCs`. `bcLabels` belongs to the `BasinCharacteristicsRequest` body
+schema of the *other* endpoint, `/calculate`. Against Skookumchuck River near Vail, WA
+(46.7723, −122.5939):
+
+| request | characteristics returned |
+|---|---|
+| `bcLabels=DRNAREA;ELEV1000;PRECIP` in the query | all 11 (ignored) |
+| `bcLabels` set inside the POSTed `bcrequest` body | all 11 (ignored) |
+| `BCs=DRNAREA;PRECIP` | exactly `DRNAREA`, `PRECIP` |
+| `BCs=DRNAREA,PRECIP` | the same (commas accepted too) |
+| `BCs=*` | all 11 |
+
+The client now sends `BCs`, semicolon-delimited as the OpenAPI describes, and `*` by
+default. FR-4 still applies: the parameter is always stated explicitly.
+`GET /ss-hydro/v1/basin-characteristics/{region}` lists what a region computes. WA
+computes 11: `DRNAREA ELEV CANOPY_PCT PRECIP MINBELEV PRECPRIS10 BSLDEM30M NFSL30
+SLOP30_30M ELEVMAX RELIEF`.
+
+**Another "a 200 is not an answer": a code the region cannot compute comes back as
+-999.** `BCs=DRNAREA;ELEV1000` returned HTTP 200. The `ELEV1000` entry had
+`"value": -999.0` and `"msg": "Basin Characteristic not found in database"`. Parsed
+naively, that is a characteristic with value -999. The client now moves any entry
+carrying -999.0, or NSS's own -999.99 placeholder, into
+`WatershedCharacteristics.unavailable` (code → message), logs a warning, and never
+lets it into `characteristics`.
 
 ## Appendix — verification evidence
 
