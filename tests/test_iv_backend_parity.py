@@ -244,17 +244,20 @@ def map_dd_to_time_series_id(
 
 
 def _skip_if_legacy_unreachable(exc: requests.RequestException) -> None:
-    """Skip on a transport failure or a proxy block; anything else is a real failure.
+    """Skip on a transport failure, a proxy block or a legacy 5xx; else fail.
 
-    The legacy IV path re-raises a chunk failure as a plain
-    ``RequestException`` naming the window, so the original is its ``__cause__``.
+    The legacy service is being retired and answered a transient 503 during
+    this work, which says nothing about parity. The legacy IV path re-raises a
+    chunk failure as a plain ``RequestException`` naming the window, so the
+    original is its ``__cause__``.
     """
     for err in (exc, exc.__cause__):
         if isinstance(err, (requests.ConnectionError, requests.Timeout)):
             pytest.skip(f"legacy NWIS unreachable from here: {exc}")
         if isinstance(err, requests.HTTPError) and err.response is not None:
-            if err.response.status_code in (403, 407):
-                pytest.skip(f"legacy NWIS blocked from here: {exc}")
+            status = err.response.status_code
+            if status in (403, 407) or status >= 500:
+                pytest.skip(f"legacy NWIS unavailable from here (HTTP {status}): {exc}")
 
 
 def _legacy(site_no: str, method: str, start: str, end: str, **kw: object) -> pd.DataFrame:
@@ -436,6 +439,31 @@ class TestIvMismatches:
         a = _frame(_FALL_BACK)
         b = a.rename(columns={"flow_cfs": "gage_height_ft"})
         assert "OGC columns" in iv_mismatches(a, b, "flow_cfs")[0]
+
+
+class TestLegacySkip:
+    """Which legacy failures skip the live gate, and which fail it."""
+
+    @staticmethod
+    def _wrapped(status: int) -> requests.RequestException:
+        response = requests.Response()
+        response.status_code = status
+        wrapped = requests.RequestException("Instantaneous-value request failed ...")
+        wrapped.__cause__ = requests.HTTPError(f"{status}", response=response)
+        return wrapped
+
+    @pytest.mark.parametrize("status", [403, 407, 502, 503])
+    def test_blocked_or_down_skips(self, status: int) -> None:
+        with pytest.raises(pytest.skip.Exception):
+            _skip_if_legacy_unreachable(self._wrapped(status))
+
+    def test_connection_error_skips(self) -> None:
+        with pytest.raises(pytest.skip.Exception):
+            _skip_if_legacy_unreachable(requests.ConnectionError("refused"))
+
+    @pytest.mark.parametrize("status", [400, 404])
+    def test_client_errors_do_not_skip(self, status: int) -> None:
+        _skip_if_legacy_unreachable(self._wrapped(status))  # returns; caller re-raises
 
 
 _OLMSTED_HEADER = """\
