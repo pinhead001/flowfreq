@@ -632,7 +632,7 @@ class TestDownloadDailyFlow:
     def test_a_date_range_is_sent_even_when_the_caller_supplies_none(self) -> None:
         with patch("flowfreq.usgs.requests.get") as get:
             get.return_value = _mock_response(DV_BASIC)
-            USGSgage("12449500").download_daily_flow()
+            USGSgage("12449500").download_daily_flow(backend="nwis-legacy")
 
         params = get.call_args.kwargs["params"]
         assert "startDT" in params and "endDT" in params
@@ -641,7 +641,7 @@ class TestDownloadDailyFlow:
     def test_the_default_range_spans_the_period_of_record(self) -> None:
         with patch("flowfreq.usgs.requests.get") as get:
             get.return_value = _mock_response(DV_BASIC)
-            USGSgage("12449500").download_daily_flow()
+            USGSgage("12449500").download_daily_flow(backend="nwis-legacy")
 
         params = get.call_args.kwargs["params"]
         assert params["startDT"] == USGSgage.DEFAULT_START_DATE
@@ -661,7 +661,7 @@ class TestDownloadDailyFlow:
         ):
             mock_datetime.now.return_value = fixed_now
             get.return_value = _mock_response(DV_BASIC)
-            USGSgage("12449500").download_daily_flow()
+            USGSgage("12449500").download_daily_flow(backend="nwis-legacy")
 
         assert get.call_args.kwargs["params"]["endDT"] == "2026-01-01"
         mock_datetime.now.assert_called_with(timezone.utc)
@@ -672,7 +672,9 @@ class TestDownloadDailyFlow:
     def test_caller_supplied_dates_are_passed_through(self) -> None:
         with patch("flowfreq.usgs.requests.get") as get:
             get.return_value = _mock_response(DV_BASIC)
-            USGSgage("12449500").download_daily_flow(start_date="1919-06-01", end_date="2025-09-30")
+            USGSgage("12449500").download_daily_flow(
+                start_date="1919-06-01", end_date="2025-09-30", backend="nwis-legacy"
+            )
 
         params = get.call_args.kwargs["params"]
         assert params["startDT"] == "1919-06-01"
@@ -686,14 +688,14 @@ class TestDownloadDailyFlow:
         """
         with patch("flowfreq.usgs.requests.get") as get:
             get.return_value = _mock_response(DV_BASIC)
-            USGSgage("12449500").download_daily_flow()
+            USGSgage("12449500").download_daily_flow(backend="nwis-legacy")
 
         assert get.call_args.kwargs["timeout"] == 60
 
     def test_timeout_is_configurable(self) -> None:
         with patch("flowfreq.usgs.requests.get") as get:
             get.return_value = _mock_response(DV_BASIC)
-            USGSgage("12449500").download_daily_flow(timeout=120)
+            USGSgage("12449500").download_daily_flow(timeout=120, backend="nwis-legacy")
 
         assert get.call_args.kwargs["timeout"] == 120
 
@@ -702,7 +704,7 @@ class TestDownloadDailyFlow:
         with patch("flowfreq.usgs.requests.get") as get:
             with pytest.raises(ValueError, match="after end_date"):
                 USGSgage("12449500").download_daily_flow(
-                    start_date="2025-01-01", end_date="2020-01-01"
+                    start_date="2025-01-01", end_date="2020-01-01", backend="nwis-legacy"
                 )
 
         get.assert_not_called()
@@ -710,14 +712,16 @@ class TestDownloadDailyFlow:
     def test_malformed_date_raises(self) -> None:
         with patch("flowfreq.usgs.requests.get") as get:
             with pytest.raises(ValueError):
-                USGSgage("12449500").download_daily_flow(start_date="not-a-date")
+                USGSgage("12449500").download_daily_flow(
+                    start_date="not-a-date", backend="nwis-legacy"
+                )
 
         get.assert_not_called()
 
     def test_parses_a_daily_record(self) -> None:
         with patch("flowfreq.usgs.requests.get") as get:
             get.return_value = _mock_response(DV_BASIC)
-            frame = USGSgage("12449500").download_daily_flow()
+            frame = USGSgage("12449500").download_daily_flow(backend="nwis-legacy")
 
         assert len(frame) == 5
         assert frame["flow_cfs"].iloc[0] == 221
@@ -729,7 +733,7 @@ class TestDownloadDailyFlow:
         which is why the range is now always sent."""
         with patch("flowfreq.usgs.requests.get") as get:
             get.return_value = _mock_response(DV_SINGLE_DAY)
-            frame = USGSgage("12449500").download_daily_flow()
+            frame = USGSgage("12449500").download_daily_flow(backend="nwis-legacy")
 
         assert len(frame) == 1
 

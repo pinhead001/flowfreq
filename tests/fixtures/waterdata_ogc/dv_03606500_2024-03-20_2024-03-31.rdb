@@ -1,0 +1,41 @@
+# ---------------------------------- WARNING ----------------------------------------
+# Some of the data that you have obtained from this U.S. Geological Survey database may not 
+# have received Director's approval.  Any such data values are qualified as provisional and 
+# are subject to revision.  Provisional data are released on the condition that neither the 
+# USGS nor the United States Government may be held liable for any damages resulting from its use.
+#  Go to http://help.waterdata.usgs.gov/policies/provisional-data-statement for more information.
+#
+# File-format description:  http://help.waterdata.usgs.gov/faq/about-tab-delimited-output
+# Automated-retrieval info: http://help.waterdata.usgs.gov/faq/automated-retrievals
+#
+# Contact:   gs-w_support_nwisweb@usgs.gov
+#
+# Data for the following 1 site(s) are contained in this file
+#    USGS 03606500 BIG SANDY RIVER AT BRUCETON, TN
+# -----------------------------------------------------------------------------------
+#
+# TS_ID - An internal number representing a time series.
+# IV_TS_ID - An internal number representing the Instantaneous Value time series from which the daily statistic is calculated.
+#
+# Data provided for site 03606500
+#    TS_ID       Parameter    Statistic  IV_TS_ID       Description
+#    294401      00060        00003      131580         Discharge, cubic feet per second (Mean)
+#
+# Data-value qualification codes included in this output:
+#     A  Approved for publication -- Processing and review completed.
+#     e  Value has been estimated.
+#
+agency_cd	site_no	datetime	294401_00060_00003	294401_00060_00003_cd
+5s	15s	20d	14n	10s
+USGS	03606500	2024-03-20	143	A
+USGS	03606500	2024-03-21	145	A
+USGS	03606500	2024-03-22	148	A
+USGS	03606500	2024-03-23	169	A
+USGS	03606500	2024-03-24	155	A
+USGS	03606500	2024-03-25	171	A:e
+USGS	03606500	2024-03-26	601	A:e
+USGS	03606500	2024-03-27	412	A:e
+USGS	03606500	2024-03-28	218	A
+USGS	03606500	2024-03-29	178	A
+USGS	03606500	2024-03-30	163	A
+USGS	03606500	2024-03-31	153	A
