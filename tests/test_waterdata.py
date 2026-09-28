@@ -5,10 +5,9 @@ Offline: every HTTP call is served from trimmed live captures in
 payloads built in the shape of those captures. Live checks are marked
 ``requires_network``.
 
-There is no live legacy-vs-OGC comparison: the legacy NWIS service is not
-reachable from where these were written. Parity is checked against the frame
-*contract* instead -- the columns, index and dtypes the legacy parser produces
-from the committed RDB fixtures.
+The live legacy-vs-OGC comparison is ``tests/test_iv_backend_parity.py``; here
+parity is checked against the frame *contract* -- the columns, index and
+dtypes the legacy parser produces from the committed RDB fixtures.
 """
 
 from __future__ import annotations
@@ -23,7 +22,7 @@ import pytest
 import requests
 
 from flowfreq import waterdata
-from flowfreq.usgs import NoInstantaneousDataError, USGSgage, _parse_iv_rdb
+from flowfreq.usgs import NoInstantaneousDataError, USGSgage, _parse_iv_rdb, check_ts_id_form
 from flowfreq.waterdata import (
     MAX_TIME_ENVELOPE_DAYS,
     AmbiguousTimeSeriesError,
@@ -346,7 +345,9 @@ class TestMultiSensor:
                 ts_id=OLMSTED_TAILWATER,
             )
 
-    @pytest.mark.parametrize("bad", ["45", "0123456789abcdef0123456789abcdef"])
+    # A DD number such as "45" is refused earlier, with its own message
+    # (TestTsIdForm); these are OGC-shaped or free-form ids naming no series.
+    @pytest.mark.parametrize("bad", ["HEADWATER", "0123456789abcdef0123456789abcdef"])
     def test_unknown_ts_id_raises(self, bad: str) -> None:
         api = FakeApi(OLMSTED, "00065", _fixed("iv_03612600_00065_tailwater"))
         with pytest.raises(ValueError, match="does not match any") as info:
@@ -604,24 +605,53 @@ def _legacy_response(text: str) -> Mock:
 
 
 class TestBackendSwitch:
-    def test_default_is_legacy_and_unchanged(self) -> None:
+    def test_default_is_waterdata(self) -> None:
+        """Issue #29: the IV default is the OGC API, identical to naming it."""
+        api = FakeApi(BIG_SANDY, "00060", _fixed("iv_03606500_00060_dst"))
+        with patch("flowfreq.waterdata.requests.get", side_effect=api):
+            with patch.object(
+                USGSgage,
+                "_download_instantaneous",
+                side_effect=AssertionError("legacy NWIS must not run by default"),
+            ):
+                default = USGSgage(BIG_SANDY).download_instantaneous_flow(
+                    "2024-11-02", "2024-11-03"
+                )
+                explicit = USGSgage(BIG_SANDY).download_instantaneous_flow(
+                    "2024-11-02", "2024-11-03", backend="waterdata-ogc"
+                )
+        pd.testing.assert_frame_equal(default, explicit)
+        assert len(default) == 12
+
+    def test_stage_default_is_waterdata(self) -> None:
+        api = FakeApi(OLMSTED, "00065", _fixed("iv_03612600_00065_tailwater"))
+        with patch("flowfreq.waterdata.requests.get", side_effect=api):
+            with patch.object(
+                USGSgage,
+                "_download_instantaneous",
+                side_effect=AssertionError("legacy NWIS must not run by default"),
+            ):
+                df = USGSgage(OLMSTED).download_instantaneous_stage(
+                    "2024-05-31", "2024-05-31", ts_id=OLMSTED_TAILWATER
+                )
+        assert "gage_height_ft" in df.columns and len(df) == 3
+
+    def test_legacy_backend_still_available_and_unchanged(self) -> None:
         with patch("flowfreq.usgs.requests.get", return_value=_legacy_response(IV_BASIC)):
             with patch(
                 "flowfreq.waterdata.download_instantaneous",
-                side_effect=AssertionError("OGC backend must not run by default"),
+                side_effect=AssertionError("OGC backend must not run when legacy is named"),
             ):
-                default = USGSgage("12449950").download_instantaneous_flow(
-                    "2022-06-15", "2022-06-15"
-                )
-                explicit = USGSgage("12449950").download_instantaneous_flow(
+                df = USGSgage("12449950").download_instantaneous_flow(
                     "2022-06-15", "2022-06-15", backend="nwis-legacy"
                 )
-        pd.testing.assert_frame_equal(default, explicit)
-        pd.testing.assert_frame_equal(default, _parse_iv_rdb(IV_BASIC))
+        pd.testing.assert_frame_equal(df, _parse_iv_rdb(IV_BASIC))
 
-    def test_stage_default_is_legacy(self) -> None:
+    def test_legacy_stage_unchanged(self) -> None:
         with patch("flowfreq.usgs.requests.get", return_value=_legacy_response(IV_STAGE_BASIC)):
-            df = USGSgage("12449950").download_instantaneous_stage("2022-06-15", "2022-06-15")
+            df = USGSgage("12449950").download_instantaneous_stage(
+                "2022-06-15", "2022-06-15", backend="nwis-legacy"
+            )
         pd.testing.assert_frame_equal(df, _parse_iv_rdb(IV_STAGE_BASIC, param_cd="00065"))
 
     def test_waterdata_backend_routes_and_applies_tz(self) -> None:
@@ -648,6 +678,62 @@ class TestBackendSwitch:
             USGSgage(BIG_SANDY).download_instantaneous_flow(
                 "2024-01-01", "2024-01-02", backend="nwis"
             )
+
+
+class TestTsIdForm:
+    """A ts_id written for the other backend is refused before any request.
+
+    The default changed from legacy (DD numbers) to OGC (32-hex UUIDs), so a
+    caller still passing ``ts_id="60629"`` must be told why, not handed a
+    "does not match" after three requests.
+    """
+
+    @pytest.mark.parametrize("method", ["flow", "stage"])
+    def test_dd_number_on_default_backend_raises_with_guidance(self, method: str) -> None:
+        # flowfreq.usgs and flowfreq.waterdata share one ``requests`` module,
+        # so this single patch refuses a request from either backend.
+        with patch("flowfreq.waterdata.requests.get", side_effect=AssertionError("no request")):
+            fetch = getattr(USGSgage(OLMSTED), f"download_instantaneous_{method}")
+            with pytest.raises(ValueError) as info:
+                fetch("2024-11-02", "2024-11-02", ts_id="60629")
+        message = str(info.value)
+        assert "legacy NWIS DD number" in message
+        assert "backend='nwis-legacy'" in message
+        assert "list_instantaneous_series" in message
+
+    def test_dd_number_refused_by_waterdata_directly(self) -> None:
+        with patch(
+            "flowfreq.waterdata.requests.get", side_effect=AssertionError("no request expected")
+        ):
+            with pytest.raises(ValueError, match="legacy NWIS DD number"):
+                download_instantaneous(OLMSTED, "00065", ts_id=" 323512 ")
+
+    @pytest.mark.parametrize("uuid", [OLMSTED_TAILWATER, "7ca46507-7c26-415c-93fd-0549c697a270"])
+    def test_uuid_on_legacy_backend_raises(self, uuid: str) -> None:
+        with patch("flowfreq.usgs.requests.get", side_effect=AssertionError("no request expected")):
+            with pytest.raises(ValueError, match="Water Data OGC time_series_id"):
+                USGSgage(OLMSTED).download_instantaneous_stage(
+                    "2024-11-02", "2024-11-02", ts_id=uuid, backend="nwis-legacy"
+                )
+
+    def test_matching_forms_pass(self) -> None:
+        check_ts_id_form(None, "waterdata-ogc")
+        check_ts_id_form(None, "nwis-legacy")
+        check_ts_id_form(OLMSTED_TAILWATER, "waterdata-ogc")
+        check_ts_id_form("60629", "nwis-legacy")
+
+    def test_dd_number_on_legacy_still_selects_the_series(self) -> None:
+        text = (
+            "agency_cd\tsite_no\tdatetime\ttz_cd\t60629_00065\t60629_00065_cd"
+            "\t323512_00065\t323512_00065_cd\n"
+            "5s\t15s\t20d\t6s\t14n\t10s\t14n\t10s\n"
+            "USGS\t03612600\t2024-11-02 00:00\tCDT\t22.90\tP\t11.79\tP\n"
+        )
+        with patch("flowfreq.usgs.requests.get", return_value=_legacy_response(text)):
+            df = USGSgage(OLMSTED).download_instantaneous_stage(
+                "2024-11-02", "2024-11-02", ts_id="323512", backend="nwis-legacy"
+            )
+        assert df["gage_height_ft"].tolist() == [11.79]
 
 
 # ----------------------------------------------------------------------------

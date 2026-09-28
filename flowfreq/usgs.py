@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import logging
 import math
+import re
 from datetime import datetime, timezone
 from functools import cached_property
 from io import StringIO
@@ -539,20 +540,24 @@ class USGSgage:
         chunk_years: int = 1,
         ts_id: Optional[str] = None,
         timeout: int = 60,
-        backend: str = "nwis-legacy",
+        backend: str = DEFAULT_BACKEND,
     ) -> pd.DataFrame:
-        """Download instantaneous (unit-value) streamflow data from USGS NWIS.
+        """Download instantaneous (unit-value) streamflow data from USGS.
 
-        Retrieves parameter 00060 (discharge, cfs) from the NWIS instantaneous
-        values service. Unlike the daily service there is no statistic code:
-        every recorded value is returned, typically at a 15-minute interval.
+        Retrieves parameter 00060 (discharge, cfs), by default from the USGS
+        Water Data OGC API ``continuous`` collection (:mod:`flowfreq.waterdata`)
+        and optionally from the legacy NWIS instantaneous-values service. There
+        is no statistic code: every recorded value is returned, typically at a
+        15-minute interval.
 
         Parameters
         ----------
         start_date : str, optional
-            First date to retrieve, ``YYYY-MM-DD``. Defaults to the start of
-            the site's instantaneous period of record, which is looked up from
-            the NWIS site service if not already known.
+            First date to retrieve, ``YYYY-MM-DD``, a calendar day local to the
+            gage. Defaults to the start of the instantaneous period of record:
+            the chosen series' ``begin`` from ``time-series-metadata`` on
+            ``"waterdata-ogc"``, or the NWIS site service's ``uv`` period on
+            ``"nwis-legacy"``.
         end_date : str, optional
             Last date to retrieve, ``YYYY-MM-DD``, inclusive. Defaults to the
             end of the instantaneous period of record.
@@ -564,22 +569,34 @@ class USGSgage:
             Number of years per HTTP request. Default 1. See Notes on the
             practical request limit.
         ts_id : str, optional
-            NWIS time-series (DD) identifier, used to disambiguate sites that
-            report discharge from more than one sensor. If a site returns
-            multiple 00060 series and this is not given, the call raises
-            rather than silently picking one.
+            Time-series identifier, used to disambiguate sites that report
+            discharge from more than one sensor. If a site has multiple 00060
+            series and this is not given, the call raises rather than silently
+            picking one. **Its form depends on** ``backend``: on the default
+            ``"waterdata-ogc"`` it is the 32-hex ``time_series_id`` (list them
+            with :func:`flowfreq.waterdata.list_instantaneous_series`); on
+            ``"nwis-legacy"`` it is the NWIS DD number (``"60629"``). Passing
+            one form to the other backend raises a ``ValueError`` saying so,
+            before any request is sent, rather than failing to match.
         timeout : int
             Per-request timeout in seconds. Default 60.
-        backend : str
-            ``"nwis-legacy"`` (default) for the NWIS instantaneous-values
-            service, or ``"waterdata-ogc"`` for the USGS Water Data OGC API
-            (:mod:`flowfreq.waterdata`). The returned frame has the same
-            columns and UTC index either way. On ``"waterdata-ogc"``, ``ts_id``
-            is the 32-hex ``time_series_id``, ``chunk_years`` may be at most 3
-            (the API caps a window at 1100 days), the default start is the
-            series' own period of record from ``time-series-metadata``, and
+        backend : str, default :data:`flowfreq.peak_sources.DEFAULT_BACKEND`
+            ``"waterdata-ogc"`` (the default since issue #29) for the USGS
+            Water Data OGC API (:mod:`flowfreq.waterdata`), or
+            ``"nwis-legacy"`` for the NWIS instantaneous-values service, which
+            USGS is retiring. The returned frame has the same columns and UTC
+            index either way, and a live parity test
+            (``tests/test_iv_backend_parity.py``) checks the two agree row for
+            row. On ``"waterdata-ogc"``, ``ts_id`` is the 32-hex
+            ``time_series_id``, ``chunk_years`` may be at most 3 (the API caps a
+            window at 1100 days), the default start is the series' own period
+            of record from ``time-series-metadata``, and
             ``datetime_local``/``tz_cd`` are derived from the monitoring
-            location's time zone because the API reports UTC only.
+            location's time zone because the API reports UTC only. Its
+            ``qualification_code`` can also carry qualifier tokens the legacy
+            RDB leaves out on rows that have a value (``A:e:ICE``,
+            ``A:EQUIP:e``); the approval code and legacy's own tokens are the
+            same.
 
         Returns
         -------
@@ -593,7 +610,7 @@ class USGSgage:
             - ``tz_cd`` : the NWIS time-zone abbreviation for that record
               (e.g. ``PST``, ``PDT``)
             - ``qualification_code`` : NWIS data qualifier (``P`` provisional,
-              ``A`` approved, ``e`` estimated)
+              ``A`` approved, ``e`` estimated), ``:``-joined; see ``backend``
 
         Raises
         ------
@@ -676,12 +693,12 @@ class USGSgage:
         chunk_years: int = 1,
         ts_id: Optional[str] = None,
         timeout: int = 60,
-        backend: str = "nwis-legacy",
+        backend: str = DEFAULT_BACKEND,
     ) -> pd.DataFrame:
-        """Download instantaneous (unit-value) gage height from USGS NWIS.
+        """Download instantaneous (unit-value) gage height from USGS.
 
-        Retrieves parameter 00065 (gage height, feet) from the NWIS
-        instantaneous values service. Every argument, the chunking, the UTC
+        Retrieves parameter 00065 (gage height, feet), by default from the
+        Water Data OGC API. Every argument, the backend, the chunking, the UTC
         axis and the multi-sensor ``ts_id`` rule are exactly
         :meth:`download_instantaneous_flow`'s -- see that method's Notes, all
         of which apply here -- and the only difference in the returned frame is
@@ -703,15 +720,17 @@ class USGSgage:
         chunk_years : int
             Years per HTTP request. Default 1.
         ts_id : str, optional
-            NWIS time-series (DD) identifier, to disambiguate a site that
-            reports gage height from more than one sensor. Multiple 00065
-            series are *more* common than multiple 00060 ones -- a site can
-            carry separate primary and backup stage sensors -- so this is worth
-            expecting rather than treating as exotic.
+            Time-series identifier, to disambiguate a site that reports gage
+            height from more than one sensor: the 32-hex ``time_series_id`` on
+            ``"waterdata-ogc"``, the NWIS DD number on ``"nwis-legacy"`` (see
+            :meth:`download_instantaneous_flow`). Multiple 00065 series are
+            *more* common than multiple 00060 ones -- a site can carry separate
+            headwater and tailwater, or primary and backup, stage sensors -- so
+            this is worth expecting rather than treating as exotic.
         timeout : int
             Per-request timeout in seconds. Default 60.
-        backend : str
-            ``"nwis-legacy"`` (default) or ``"waterdata-ogc"``; see
+        backend : str, default :data:`flowfreq.peak_sources.DEFAULT_BACKEND`
+            ``"waterdata-ogc"`` (default) or ``"nwis-legacy"``; see
             :meth:`download_instantaneous_flow`.
 
         Returns
@@ -788,7 +807,10 @@ class USGSgage:
 
         ``"nwis-legacy"`` goes to :meth:`_download_instantaneous`, unchanged;
         ``"waterdata-ogc"`` to :func:`flowfreq.waterdata.download_instantaneous`.
+        A ``ts_id`` in the other backend's form is refused first.
         """
+        if backend in IV_BACKENDS:
+            check_ts_id_form(ts_id, backend, param_cd)
         if backend == "nwis-legacy":
             return self._download_instantaneous(
                 param_cd,
@@ -1060,6 +1082,62 @@ IV_PARAMETERS: Dict[str, Tuple[str, str]] = {
     "00060": ("flow_cfs", "discharge"),
     "00065": ("gage_height_ft", "gage height"),
 }
+
+
+#: Instantaneous-value backends :meth:`USGSgage.download_instantaneous_flow`
+#: accepts. The default is :data:`flowfreq.peak_sources.DEFAULT_BACKEND`.
+IV_BACKENDS: Tuple[str, ...] = ("waterdata-ogc", "nwis-legacy")
+
+_LEGACY_TS_ID = re.compile(r"^\d+$")
+_WATERDATA_TS_ID = re.compile(r"^[0-9a-f]{32}$")
+
+
+def check_ts_id_form(ts_id: Optional[str], backend: str, param_cd: str = "00060") -> None:
+    """Refuse a ``ts_id`` written for the other instantaneous backend.
+
+    The two backends name a series differently: legacy NWIS by its DD number
+    (``"60629"``), the Water Data OGC API by a 32-hex ``time_series_id``
+    (``"15beb94252164ce0b9a77a90edce7528"``, dashes optional). Since the
+    default backend changed from legacy to OGC (issue #29), a caller still
+    passing a DD number would otherwise meet a "does not match" error only
+    after several requests, or -- worse -- be tempted to drop ``ts_id`` and
+    take whatever a single-sensor window returns. This check runs before any
+    request and says which backend the value belongs to.
+
+    Parameters
+    ----------
+    ts_id : str, optional
+        The caller's ``ts_id``; ``None`` always passes.
+    backend : str
+        ``"waterdata-ogc"`` or ``"nwis-legacy"``.
+    param_cd : str
+        For the message.
+
+    Raises
+    ------
+    ValueError
+        ``ts_id`` is a DD number on ``"waterdata-ogc"``, or a 32-hex
+        ``time_series_id`` on ``"nwis-legacy"``.
+    """
+    if ts_id is None:
+        return
+    text = str(ts_id).strip()
+    if backend == "waterdata-ogc" and _LEGACY_TS_ID.match(text):
+        raise ValueError(
+            f"ts_id={ts_id!r} is a legacy NWIS DD number, but the backend is "
+            f"'waterdata-ogc' (the default since issue #29), where ts_id is the 32-hex "
+            f"time_series_id. Either pass backend='nwis-legacy' to keep using DD numbers, "
+            f"or look the series up with "
+            f"flowfreq.waterdata.list_instantaneous_series(site_no, {param_cd!r}) -- its "
+            f"sublocation_identifier/web_description match the description legacy NWIS "
+            f"prints beside the DD number."
+        )
+    if backend == "nwis-legacy" and _WATERDATA_TS_ID.match(text.lower().replace("-", "")):
+        raise ValueError(
+            f"ts_id={ts_id!r} is a Water Data OGC time_series_id, but the backend is "
+            f"'nwis-legacy', where ts_id is the NWIS DD number (e.g. '60629'). Pass "
+            f"backend='waterdata-ogc' to use it."
+        )
 
 
 def _iv_value_column(param_cd: str) -> str:

@@ -8,9 +8,10 @@ the legacy path returns -- a tz-aware UTC index plus ``<value column>``,
 ``datetime_local``, ``tz_cd`` and ``qualification_code`` -- so
 :mod:`flowfreq.subdaily` works on either unchanged.
 
-It is reached through ``USGSgage.download_instantaneous_flow(...,
-backend="waterdata-ogc")`` (and the ``_stage`` twin); the legacy service stays
-the default. Issue #29.
+It is the default backend of ``USGSgage.download_instantaneous_flow`` (and the
+``_stage`` twin) since a live parity test against the legacy service
+(``tests/test_iv_backend_parity.py``) passed; ``backend="nwis-legacy"`` still
+selects the legacy service. Issue #29.
 
 Every endpoint and behaviour this module relies on was exercised live on
 2026-09-25 (captures under ``tests/fixtures/waterdata_ogc/``):
@@ -48,6 +49,7 @@ from flowfreq.usgs import (
     _chunk_date_range,
     _empty_iv_frame,
     _iv_value_column,
+    check_ts_id_form,
 )
 
 logger = logging.getLogger(__name__)
@@ -761,7 +763,8 @@ def download_instantaneous(
         :data:`MAX_TIME_ENVELOPE_DAYS`). Each window is also paged.
     ts_id : str, optional
         ``time_series_id`` (32-hex UUID) selecting one series where the site
-        has several. Required in that case.
+        has several. Required in that case. A legacy NWIS DD number is refused
+        before any request (:func:`flowfreq.usgs.check_ts_id_form`).
     timeout : int
         Per-request timeout in seconds.
 
@@ -787,6 +790,7 @@ def download_instantaneous(
     """
     value_col = _iv_value_column(param_cd)
     description = IV_PARAMETERS[param_cd][1]
+    check_ts_id_form(ts_id, "waterdata-ogc", param_cd)
     if start_date is not None and end_date is not None:
         # Fail on an oversized chunk before any request; the check is repeated
         # below on the real local-day bounds.
