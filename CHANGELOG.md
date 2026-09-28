@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-09-27
+
+**Breaking changes -- read before upgrading:**
+- `run_ffa`, `compare_engines` and `flowfreq compare` no longer default the regional skew to
+  -0.302: pass a published skew and SE, `station_skew_only=True` (`--station-skew`), or
+  `use_default_skew=True` (`--default-skew`) to keep the old numbers.
+- `USGSgage.download_peak_flow` and `peak_sources.DEFAULT_BACKEND` now read the USGS Water Data
+  OGC API; `backend="nwis-legacy"` restores the old service. `peak_date` is a UTC date there.
+- NWIS peak qualification codes are applied by default (`apply_peak_codes=True`): historic,
+  less-/greater-than, regulated/urban and opportunistic peaks are treated as peakfq's `siteQT`
+  does. `apply_peak_codes=False` / `--ignore-peak-codes` restores the old behaviour.
+- Several native-EMA fixes move results toward peakfq 8.1.0 (zero-flow years, perception
+  thresholds, exact LP3 quantiles, the B17B skew-MSE switch, near-zero-skew bounds); see Fixed.
+
 ### Added
 - **Montana channel-width peak-flow equations and method weighting** (`MT.json`,
   `flowfreq.regression.montana`, #40). Source: USGS SIR 2020-5142 ver. 1.1 (Chase and
