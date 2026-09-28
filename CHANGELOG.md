@@ -401,6 +401,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   are checked at all.
 
 ### Fixed
+- **EMA confidence bounds at near-zero skew now match peakfq.** When |weighted skew| <=
+  skewmin (0.06324555), `emafit.f` section 4.2 computes the bounds with `var_emab` at -skewmin
+  and +skewmin and interpolates them linearly in skew; the native engine evaluated `var_emab`
+  at the skew itself. Bounds on such records were 0.77-0.96% off live `emafitpr`; they now
+  agree to ~0.002%. Quantiles are unaffected (they still use the actual skew). **Results
+  change** only for the confidence limits of fits whose weighted skew is within +/-0.0632.
 - **`regional_skew_for` returned a verified skew where its study says it is invalid.** With no
   `skew_region`, it considered only *verified* rows, so `regional_skew_for("ID")` returned the
   Pacific Northwest value (-0.07) even though Idaho's Snake River Plain row is pending and SIR

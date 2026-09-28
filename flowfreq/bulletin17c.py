@@ -121,6 +121,11 @@ _PERCEPTION_QMAX = 1e20
 #: quantiles 4.6% off peakfq.
 _GBTMIN = 1e-6
 
+#: ``emafit.f``'s ``skewmin`` (line 626): at or below this |skew| the Fortran
+#: interpolates the confidence bounds between var_emab at -skewmin and +skewmin
+#: (section 4.2) instead of evaluating them at the skew itself.
+_CI_SKEWMIN = 0.06324555
+
 
 def _b17b_skew_mse(n: int, skew: float) -> float:
     """Bulletin 17B empirical MSE of at-site skew.
@@ -1931,19 +1936,35 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
             self._regional_skew_mse if self._regional_skew_mse is not None else NO_REGIONAL_INFO
         )
         pq = 1.0 - np.asarray(aep, dtype=float)
-        try:
-            cil, cih = self._cohn_confidence_bounds(
+        skew = float(self._results.skew_used)
+
+        def bounds(g: float) -> Tuple[np.ndarray, np.ndarray]:
+            return self._cohn_confidence_bounds(
                 tuple(nobs),
                 tuple(tl),
                 tuple(tu),
                 float(self._results.mean_log),
                 float(self._results.std_log) ** 2,
-                float(self._results.skew_used),
+                g,
                 tuple(pq),
                 float(confidence),
                 float(r_g_mse),
                 self._at_site_option,
             )
+
+        try:
+            if abs(skew) > _CI_SKEWMIN:
+                cil, cih = bounds(skew)
+            else:
+                # emafit.f section 4.2 (lines 822-850): for skews close to zero the
+                # Fortran runs var_emab at -skewmin and +skewmin and interpolates
+                # the bounds linearly in skew, preserving mean and variance, rather
+                # than evaluating var_emab at the near-zero skew itself.
+                cil_neg, cih_neg = bounds(-_CI_SKEWMIN)
+                cil_pos, cih_pos = bounds(_CI_SKEWMIN)
+                wt = (skew + _CI_SKEWMIN) / (2.0 * _CI_SKEWMIN)
+                cil = (1.0 - wt) * cil_neg + wt * cil_pos
+                cih = (1.0 - wt) * cih_neg + wt * cih_pos
         except Exception:
             logger.warning(
                 "Cohn asymmetric CI shape (var_emab) failed; using the symmetric approximation",

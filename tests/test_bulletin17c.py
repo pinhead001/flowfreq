@@ -884,3 +884,56 @@ class TestAtSiteSkewMseOption:
 
         assert _b17b_skew_mse(200, 0.2) == pytest.approx(_mseg(150, 0.2))
         assert _mseg(200, 0.2) < _mseg(150, 0.2)
+
+
+class TestNearZeroSkewConfidenceBounds:
+    """emafit.f section 4.2: interpolate the bounds between var_emab at +/-skewmin."""
+
+    def _ema(self):
+        from flowfreq.bulletin17c import ExpectedMomentsAlgorithm
+
+        rng = np.random.default_rng(1)
+        flows = 10 ** rng.normal(3.0, 0.25, 50)
+        ema = ExpectedMomentsAlgorithm(
+            flows, np.arange(1970, 2020), regional_skew=0.0, regional_skew_mse=0.02
+        )
+        ema.run_analysis()
+        return ema
+
+    def test_bounds_are_the_linear_blend_of_the_two_edges(self):
+        from flowfreq.bulletin17c import _CI_SKEWMIN
+
+        ema = self._ema()
+        g = ema._results.skew_used
+        assert abs(g) < _CI_SKEWMIN
+        aep = np.array([0.1, 0.01])
+        ci = ema.compute_confidence_limits(aep)
+
+        nobs, tl, tu = ema._perception_threshold_groups()
+        args = (
+            tuple(nobs),
+            tuple(tl),
+            tuple(tu),
+            float(ema._results.mean_log),
+            float(ema._results.std_log) ** 2,
+        )
+        rest = (tuple(1.0 - aep), 0.90, 0.02, ema._at_site_option)
+        lo_n, hi_n = ema._cohn_confidence_bounds(*args, -_CI_SKEWMIN, *rest)
+        lo_p, hi_p = ema._cohn_confidence_bounds(*args, _CI_SKEWMIN, *rest)
+        wt = (g + _CI_SKEWMIN) / (2 * _CI_SKEWMIN)
+        np.testing.assert_allclose(
+            np.log10(ci["lower_5pct"].to_numpy()), (1 - wt) * lo_n + wt * lo_p, rtol=1e-12
+        )
+        np.testing.assert_allclose(
+            np.log10(ci["upper_5pct"].to_numpy()), (1 - wt) * hi_n + wt * hi_p, rtol=1e-12
+        )
+
+    def test_quantiles_stay_exact_at_the_skew_itself(self):
+        """Only the bounds are interpolated; the quantile uses the real skew."""
+        from flowfreq.core import kfactor
+
+        ema = self._ema()
+        r = ema._results
+        q = ema.compute_quantiles(np.array([0.01]))["flow_cfs"].iloc[0]
+        expected = 10 ** (r.mean_log + kfactor(r.skew_used, 0.01) * r.std_log)
+        assert q == pytest.approx(expected, rel=1e-10)
