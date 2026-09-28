@@ -1,4 +1,9 @@
-"""USGS Water Data OGC API backend for instantaneous values.
+"""USGS Water Data OGC API backend for instantaneous and daily values.
+
+Daily means (00060, statistic 00003) come from the ``daily`` collection through
+:func:`download_daily`, the default body of ``USGSgage.download_daily_flow``;
+the facts it relies on are in that function's docstring. The rest of this
+docstring is about instantaneous values.
 
 USGS is retiring the legacy NWIS instantaneous-values service
 (``waterservices.usgs.gov/nwis/iv``) in favour of the Water Data OGC APIs at
@@ -669,8 +674,9 @@ def _drop_identical_duplicates(frame: pd.DataFrame, time_series_id: str) -> pd.D
     dup = frame.index.duplicated(keep=False)
     if not dup.any():
         return frame
+    key = str(frame.index.name or "index")
     block = frame[dup].reset_index()
-    conflicting = block.groupby("datetime").nunique(dropna=False).gt(1).any(axis=1)
+    conflicting = block.groupby(key).nunique(dropna=False).gt(1).any(axis=1)
     if conflicting.any():
         stamps = [ts.isoformat() for ts in conflicting[conflicting].index[:5]]
         raise ValueError(
@@ -847,3 +853,269 @@ def download_instantaneous(
         index=index,
     )
     return out[[value_col, *_IV_COLUMNS[1:]]]
+
+
+# ----------------------------------------------------------------------------
+# Daily values
+# ----------------------------------------------------------------------------
+
+#: Statistic code of a daily-mean series.
+DAILY_MEAN_STATISTIC = "00003"
+
+#: Parameter codes :func:`download_daily` retrieves, mapped to the value column
+#: :meth:`flowfreq.usgs.USGSgage.download_daily_flow` has always returned.
+DAILY_PARAMETERS: Dict[str, str] = {"00060": "flow_cfs"}
+
+
+def _empty_daily_frame(value_col: str) -> pd.DataFrame:
+    return pd.DataFrame(
+        {
+            value_col: pd.Series(dtype=float),
+            "qualification_code": pd.Series(dtype=object),
+        },
+        index=pd.DatetimeIndex([], name="date"),
+    )
+
+
+def _daily_value_column(param_cd: str) -> str:
+    if param_cd not in DAILY_PARAMETERS:
+        raise ValueError(
+            f"Unsupported daily parameter code {param_cd!r}; known: {sorted(DAILY_PARAMETERS)}"
+        )
+    return DAILY_PARAMETERS[param_cd]
+
+
+def parse_daily_features(
+    features: Sequence[Mapping[str, Any]],
+    param_cd: str = "00060",
+    ts_id: Optional[str] = None,
+) -> pd.DataFrame:
+    """Parse ``daily`` features into a date-indexed frame.
+
+    Parameters
+    ----------
+    features : sequence of dict
+        GeoJSON features from the ``daily`` collection, in any order.
+    param_cd : str
+        Parameter code every row must carry; one of :data:`DAILY_PARAMETERS`.
+    ts_id : str, optional
+        The ``time_series_id`` requested, if one was. Without it the rows must
+        all come from one series.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Index ``date`` (naive ``datetime64``, the gage's local calendar day as
+        the API reports it), sorted and unique; columns ``<value>`` (float) and
+        ``qualification_code`` (:func:`map_qualification_code`, as on the
+        instantaneous path: ``A``, ``P:e``, ``A:e:ICE``). Rows with a null
+        value -- ice-affected or equipment-outage days with no published
+        value -- are dropped, as the legacy parser drops their ``Ice`` /
+        ``Eqp`` text.
+
+    Raises
+    ------
+    AmbiguousTimeSeriesError
+        Rows from more than one series and no ``ts_id``. Every site checked
+        live (2026-09-27) has one daily-mean discharge series; a second is
+        refused rather than merged or picked, as on the instantaneous path.
+    ValueError
+        A row with another parameter, a statistic other than
+        :data:`DAILY_MEAN_STATISTIC` (the ``statistic_id`` filter was lost:
+        without it the collection returns every daily statistic side by
+        side), a series other than ``ts_id``, or conflicting values for one
+        date.
+    """
+    value_col = _daily_value_column(param_cd)
+    if not features:
+        return _empty_daily_frame(value_col)
+
+    dates: List[Any] = []
+    values: List[Any] = []
+    codes: List[str] = []
+    series_seen: Dict[str, int] = {}
+    wanted = None if ts_id is None else ts_id.strip().lower().replace("-", "")
+    for feature in features:
+        props = feature.get("properties") or {}
+        row_pc = props.get("parameter_code")
+        if row_pc is not None and row_pc != param_cd:
+            raise ValueError(f"Water Data API returned parameter {row_pc!r}, expected {param_cd}")
+        row_stat = props.get("statistic_id")
+        if row_stat is not None and row_stat != DAILY_MEAN_STATISTIC:
+            raise ValueError(
+                f"Water Data API returned statistic {row_stat!r}, expected "
+                f"{DAILY_MEAN_STATISTIC} (daily mean); refusing to mix daily statistics"
+            )
+        row_ts = str(props.get("time_series_id") or "")
+        if wanted is not None and row_ts.lower().replace("-", "") != wanted:
+            raise ValueError(
+                f"Water Data API returned a row from time series {row_ts!r} while "
+                f"{ts_id!r} was requested; refusing to merge series"
+            )
+        series_seen[row_ts] = series_seen.get(row_ts, 0) + 1
+        dates.append(props.get("time"))
+        values.append(props.get("value"))
+        codes.append(map_qualification_code(props.get("approval_status"), props.get("qualifier")))
+
+    if len(series_seen) > 1:
+        listing = ", ".join(f"{k} ({n} rows)" for k, n in sorted(series_seen.items()))
+        raise AmbiguousTimeSeriesError(
+            f"The daily collection returned {len(series_seen)} separate {param_cd} daily-mean "
+            f"series: {listing}. Pass ts_id=<time_series_id> to "
+            f"flowfreq.waterdata.download_daily to choose one; series are never merged."
+        )
+
+    index = pd.DatetimeIndex(pd.to_datetime(pd.Series(dates, dtype=object)), name="date")
+    frame = pd.DataFrame(
+        {
+            value_col: pd.to_numeric(pd.Series(values, dtype=object), errors="coerce")
+            .astype(float)
+            .to_numpy(),
+            "qualification_code": pd.Series(codes, dtype=object).to_numpy(),
+        },
+        index=index,
+    )
+    frame = frame[frame.index.notna()]
+
+    null_values = frame[value_col].isna()
+    if null_values.any():
+        logger.debug(
+            "Dropping %d daily row(s) with no value (qualifiers: %s)",
+            int(null_values.sum()),
+            sorted(set(frame.loc[null_values, "qualification_code"])),
+        )
+        frame = frame[~null_values]
+
+    series_id = next(iter(series_seen))
+    return _drop_identical_duplicates(frame.sort_index(kind="stable"), series_id)
+
+
+def daily_time_param(start_date: Optional[str], end_date: Optional[str]) -> Optional[str]:
+    """The ``daily`` collection's ``time`` filter for a local-day range.
+
+    Parameters
+    ----------
+    start_date, end_date : str, optional
+        Inclusive ``YYYY-MM-DD`` bounds; a missing one leaves that end open
+        (``..``).
+
+    Returns
+    -------
+    str or None
+        A date-only interval such as ``"2024-01-01/2024-12-31"``, or ``None``
+        when neither bound is given -- the parameter is then omitted, which the
+        collection answers with the full period of record (it has no span
+        limit, unlike ``continuous``).
+
+    Raises
+    ------
+    ValueError
+        A bound that is not a date, or ``start_date`` after ``end_date``.
+    """
+    if start_date is None and end_date is None:
+        return None
+    lo = _parse_day(start_date, "start_date")
+    hi = _parse_day(end_date, "end_date")
+    if lo is not None and hi is not None and lo > hi:
+        raise ValueError(f"start_date {start_date} is after end_date {end_date}")
+    return "/".join(".." if b is None else b.strftime("%Y-%m-%d") for b in (lo, hi))
+
+
+def _parse_day(value: Optional[str], label: str) -> Optional[pd.Timestamp]:
+    if value is None:
+        return None
+    try:
+        ts = pd.Timestamp(value)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"Could not parse {label} {value!r}") from exc
+    if pd.isna(ts):
+        raise ValueError(f"Could not parse {label} {value!r}")
+    return ts
+
+
+def download_daily(
+    site_no: str,
+    param_cd: str = "00060",
+    *,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+    ts_id: Optional[str] = None,
+    timeout: int = 60,
+) -> pd.DataFrame:
+    """Daily mean values for one parameter from the Water Data OGC API.
+
+    The ``backend="waterdata-ogc"`` body of
+    :meth:`flowfreq.usgs.USGSgage.download_daily_flow`, which keeps only the
+    value column; call this directly to get ``qualification_code`` as well.
+
+    Live-verified 2026-09-25/27 against the ``daily`` collection:
+
+    - ``time`` is a date-only interval of the gage's local calendar days
+      (``2024-01-01/2024-12-31``), inclusive at both ends, with no span
+      limit; omitted, it returns the full period of record.
+    - ``value`` is a decimal string; ``approval_status`` and ``qualifier``
+      (e.g. ``["ESTIMATED", "ICE"]``) are the instantaneous path's fields.
+    - Without ``statistic_id=00003`` the collection returns every daily
+      statistic, so the filter is always sent (and checked per row).
+    - Pages cap at :data:`PAGE_LIMIT` rows and follow ``links[rel=next]``.
+      Rows arrive in arbitrary order, so the frame is sorted here.
+
+    Parameters
+    ----------
+    site_no : str
+        USGS site number, without the ``USGS-`` prefix (added here; without
+        it the API silently returns zero rows).
+    param_cd : str
+        ``"00060"`` (discharge), the only parameter in
+        :data:`DAILY_PARAMETERS`.
+    start_date, end_date : str, optional
+        ``YYYY-MM-DD`` local calendar days, inclusive. A missing bound leaves
+        that end of the interval open; both missing is the full record.
+    ts_id : str, optional
+        ``time_series_id`` (32-hex UUID), for a site with more than one
+        daily-mean series.
+    timeout : int
+        Per-request timeout in seconds.
+
+    Returns
+    -------
+    pandas.DataFrame
+        As :func:`parse_daily_features`: index ``date``; columns
+        ``flow_cfs`` and ``qualification_code``.
+
+    Raises
+    ------
+    ValueError
+        No rows at all for the site and window (the legacy path's
+        ``"No daily data found"``), a malformed or reversed range, or as
+        :func:`parse_daily_features`.
+    AmbiguousTimeSeriesError
+        Several daily-mean series and no ``ts_id``.
+    requests.RequestException
+        Any page failed; no partial frame is returned.
+    """
+    _daily_value_column(param_cd)
+    params: Dict[str, Any] = {
+        "f": "json",
+        "monitoring_location_id": _location_id(site_no),
+        "parameter_code": param_cd,
+        "statistic_id": DAILY_MEAN_STATISTIC,
+        "skipGeometry": "true",
+        "limit": PAGE_LIMIT,
+    }
+    time_param = daily_time_param(start_date, end_date)
+    if time_param is not None:
+        params["time"] = time_param
+    if ts_id is not None:
+        params["time_series_id"] = ts_id.strip().lower().replace("-", "")
+
+    features = _get_all_features(
+        f"{WATERDATA_BASE_URL}/daily/items",
+        params,
+        timeout,
+        f"daily values for site {site_no}, parameter {param_cd}, time {time_param or 'all'}",
+    )
+    if not features:
+        window = f" between {start_date} and {end_date}" if time_param is not None else ""
+        raise ValueError(f"No daily data found for site {site_no}{window} on the Water Data API")
+    return parse_daily_features(features, param_cd, ts_id)

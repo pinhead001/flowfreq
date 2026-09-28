@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **`flowfreq.waterdata.download_daily`**: daily mean values (00060, statistic 00003) from
+  the USGS Water Data OGC API `daily` collection, with paging and `ts_id`. It returns
+  `flow_cfs` plus the same `qualification_code` as the instantaneous backend (`A`, `P:e`,
+  `A:e:ICE`).
+  - Captures under `tests/fixtures/waterdata_ogc/daily_*` are paired with legacy `dv_*.rdb`
+    captures of the same windows (`tools/capture_daily_fixtures.py`).
+
+### Changed
+- **`USGSgage.download_daily_flow` now reads the Water Data OGC API by default** (#29).
+  The new `backend` argument defaults to `peak_sources.DEFAULT_BACKEND` (`"waterdata-ogc"`);
+  `backend="nwis-legacy"` gives the old NWIS daily-values service, unchanged.
+  - The return shape is unchanged: index `date`, one column `flow_cfs`. The default range is
+    also unchanged: `DEFAULT_START_DATE` to today's UTC date.
+  - A live parity test, `tests/test_daily_backend_parity.py`, gates the switch. Every day
+    matched on these records:
+    - the whole records of Big Sandy 03606500 and Methow at Twisp 12449500;
+    - water years with estimated, equipment-affected and ice-affected days at 03606500,
+      12449500 and Yellowstone at Billings 06214500.
+  - **Ice:** days with a published ice estimate are numbers on both backends. Days without
+    one are dropped by both: legacy reads its `Ice` text as NaN, and the API returns a null
+    value. Where the API publishes a number for a day legacy writes as `Ice`, it keeps the
+    number, since that is USGS's estimate. The test classifies such days separately, and
+    none were found.
+  - `flow_cfs` is always float. Legacy inferred the dtype from the text, so a window of
+    whole numbers could come back as int64.
+
 ### Changed
 - **Dev dependency: pytest `>=9.0.3,<10`** (was `>=8.0,<9`). 9.0.3 fixes PYSEC-2026-1845,
   which the 8.x pin carried. The last `importorskip("flowfreq.peakfqr")` without

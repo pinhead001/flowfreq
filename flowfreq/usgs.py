@@ -442,6 +442,7 @@ class USGSgage:
         end_date: Optional[str] = None,
         *,
         timeout: int = 60,
+        backend: str = DEFAULT_BACKEND,
     ) -> pd.DataFrame:
         """Download mean daily streamflow data from USGS.
 
@@ -455,20 +456,53 @@ class USGSgage:
             period-of-record request this method sends by default can return
             tens of thousands of RDB rows for a long-running, high-frequency
             site, well past what a tight timeout is sized for.
+        backend : str, default :data:`flowfreq.peak_sources.DEFAULT_BACKEND`
+            ``"waterdata-ogc"`` (the default since issue #29) reads the USGS
+            Water Data OGC API ``daily`` collection
+            (:func:`flowfreq.waterdata.download_daily`); ``"nwis-legacy"`` the
+            NWIS daily-values service this method always used before, which
+            USGS is retiring. The frame is the same shape either way, and a
+            live parity test (``tests/test_daily_backend_parity.py``) checks
+            the two agree day for day. See Notes on ice.
 
         Returns
         -------
         pd.DataFrame
-            Daily mean flows indexed by date.
+            Daily mean flows indexed by ``date`` (naive, the gage's local
+            calendar day), one column ``flow_cfs``. Days with no published
+            value are absent, not NaN.
 
         Raises
         ------
         ValueError
             start_date or end_date is not a parseable date, or start_date is
-            after end_date.
+            after end_date; an unknown ``backend``; or no daily data for the
+            site. On ``"waterdata-ogc"``, also
+            :class:`flowfreq.waterdata.AmbiguousTimeSeriesError` (a
+            ``ValueError``) if the site has more than one daily-mean series --
+            call :func:`flowfreq.waterdata.download_daily` with ``ts_id``.
+        requests.RequestException
+            The request failed.
 
         Notes
         -----
+        **Ice.** An ice-affected day is either an estimate or nothing. Where
+        USGS published an estimate, both backends return the number (OGC
+        qualifiers ``["ESTIMATED", "ICE"]``, legacy code ``A:e``). Where it
+        published none -- typically provisional winter data -- legacy writes
+        the text ``Ice`` in the value column and the OGC API a null value
+        with qualifier ``["ICE"]``; both backends drop the day. So neither
+        backend turns an ice day into NaN in the returned frame, and on every
+        record compared live the two return the same days. The difference is
+        only in what is kept alongside: the qualifier, which
+        :func:`flowfreq.waterdata.download_daily` returns as
+        ``qualification_code`` (``A:e:ICE``) and which this method, like the
+        legacy path, leaves out.
+
+        ``flow_cfs`` is always float on ``"waterdata-ogc"``. The legacy parser
+        infers the dtype from the RDB text, so a window whose values are all
+        whole numbers comes back as int64 there.
+
         A date range is **always** sent, even when the caller supplies none.
         The NWIS daily-values service answers a range-less request by
         returning only the most recent day, and a one-row frame is not an
@@ -481,14 +515,41 @@ class USGSgage:
         receive) a narrower range than intended, with no error to signal it.
         """
         _validate_daily_flow_range(start_date, end_date)
+        start = start_date or self.DEFAULT_START_DATE
+        end = end_date or datetime.now(timezone.utc).date().isoformat()
 
+        if backend == "nwis-legacy":
+            df = self._download_daily_flow_legacy(start, end, timeout)
+        elif backend == "waterdata-ogc":
+            # Deferred: flowfreq.waterdata imports from this module.
+            from flowfreq.waterdata import download_daily
+
+            daily = download_daily(
+                self._site_no, "00060", start_date=start, end_date=end, timeout=timeout
+            )
+            df = daily[["flow_cfs"]]
+        else:
+            raise ValueError(
+                f"Unknown daily-value backend {backend!r}; expected 'waterdata-ogc' or "
+                f"'nwis-legacy'"
+            )
+
+        self._daily_data = df
+        return df
+
+    def _download_daily_flow_legacy(self, start: str, end: str, timeout: int) -> pd.DataFrame:
+        """Daily means from the legacy NWIS daily-values RDB service, unchanged.
+
+        The ``backend="nwis-legacy"`` body of :meth:`download_daily_flow`, which
+        has already resolved and validated the range.
+        """
         params = {
             "format": "rdb",
             "sites": self._site_no,
             "parameterCd": "00060",
             "statCd": "00003",
-            "startDT": start_date or self.DEFAULT_START_DATE,
-            "endDT": end_date or datetime.now(timezone.utc).date().isoformat(),
+            "startDT": start,
+            "endDT": end,
         }
 
         response = requests.get(self.BASE_URL_DAILY, params=params, timeout=timeout)
@@ -525,10 +586,7 @@ class USGSgage:
         df["date"] = pd.to_datetime(df[date_col])
         df["flow_cfs"] = pd.to_numeric(df[flow_col], errors="coerce")
         df = df[["date", "flow_cfs"]].dropna()
-        df = df.set_index("date")
-
-        self._daily_data = df
-        return df
+        return df.set_index("date")
 
     def download_instantaneous_flow(  # pylint: disable=too-many-arguments
         self,

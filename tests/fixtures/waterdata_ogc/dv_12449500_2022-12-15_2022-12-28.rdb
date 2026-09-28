@@ -1,0 +1,43 @@
+# ---------------------------------- WARNING ----------------------------------------
+# Some of the data that you have obtained from this U.S. Geological Survey database may not 
+# have received Director's approval.  Any such data values are qualified as provisional and 
+# are subject to revision.  Provisional data are released on the condition that neither the 
+# USGS nor the United States Government may be held liable for any damages resulting from its use.
+#  Go to http://help.waterdata.usgs.gov/policies/provisional-data-statement for more information.
+#
+# File-format description:  http://help.waterdata.usgs.gov/faq/about-tab-delimited-output
+# Automated-retrieval info: http://help.waterdata.usgs.gov/faq/automated-retrievals
+#
+# Contact:   gs-w_support_nwisweb@usgs.gov
+#
+# Data for the following 1 site(s) are contained in this file
+#    USGS 12449500 METHOW RIVER AT TWISP, WA
+# -----------------------------------------------------------------------------------
+#
+# TS_ID - An internal number representing a time series.
+# IV_TS_ID - An internal number representing the Instantaneous Value time series from which the daily statistic is calculated.
+#
+# Data provided for site 12449500
+#    TS_ID       Parameter    Statistic  IV_TS_ID       Description
+#    149792      00060        00003      151763         Discharge, cubic feet per second (Mean)
+#
+# Data-value qualification codes included in this output:
+#     A  Approved for publication -- Processing and review completed.
+#     e  Value has been estimated.
+#
+agency_cd	site_no	datetime	149792_00060_00003	149792_00060_00003_cd
+5s	15s	20d	14n	10s
+USGS	12449500	2022-12-15	239	A
+USGS	12449500	2022-12-16	256	A
+USGS	12449500	2022-12-17	259	A
+USGS	12449500	2022-12-18	248	A
+USGS	12449500	2022-12-19	232	A
+USGS	12449500	2022-12-20	223	A:e
+USGS	12449500	2022-12-21	224	A:e
+USGS	12449500	2022-12-22	237	A:e
+USGS	12449500	2022-12-23	248	A:e
+USGS	12449500	2022-12-24	299	A:e
+USGS	12449500	2022-12-25	286	A
+USGS	12449500	2022-12-26	302	A
+USGS	12449500	2022-12-27	301	A
+USGS	12449500	2022-12-28	297	A

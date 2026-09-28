@@ -25,6 +25,24 @@ Files (``tests/fixtures/waterdata_ogc/*.json``):
 - ``iv_06214500_00060_ice`` -- Yellowstone at Billings, ``qualifier: ["ICE"]`` with
   null values.
 - ``iv_06191500_00060_estimated`` -- one ``["ESTIMATED"]`` approved row.
+
+Daily values, captured 2026-09-27 by ``tools/capture_daily_fixtures.py``. Each
+``daily_*.json`` is the ``daily`` collection (00060, statistic 00003) and has a
+twin ``dv_<site>_<start>_<end>.rdb``, the legacy NWIS daily-values RDB for the
+same window, so the offline tests compare the two parsers on real payloads:
+
+- ``daily_03606500_00060_equip`` / ``dv_03606500_2024-03-20_2024-03-31`` --
+  Big Sandy, approved; 2024-03-25..27 are ``["EQUIP", "ESTIMATED"]`` (legacy
+  ``A:e``). Rows arrive unsorted.
+- ``daily_03606500_00060_page{1,2,3}`` -- the same window at ``limit=5``,
+  following ``links[rel=next]``.
+- ``daily_12449500_00060_ice_estimated`` / ``dv_12449500_2022-12-15_2022-12-28``
+  -- Methow at Twisp; 2022-12-20..24 are ice-affected *estimates*, numeric on
+  both (``["ESTIMATED", "ICE"]``, legacy ``A:e``).
+- ``daily_06214500_00060_ice_null`` / ``dv_06214500_2026-01-10_2026-01-25`` --
+  Yellowstone at Billings, provisional; 2026-01-18..25 have no value: null with
+  ``["ICE"]`` on the API, the text ``Ice`` on legacy.
+- ``daily_03606500_00060_empty`` -- 1900, before the record: zero features.
 """
 
 from __future__ import annotations
@@ -47,3 +65,8 @@ def load(name: str) -> Dict[str, Any]:
     with open(FIXTURE_DIR / f"{name}.json", encoding="utf-8") as handle:
         data: Dict[str, Any] = json.load(handle)
     return data
+
+
+def load_rdb(name: str) -> str:
+    """Return the named legacy RDB capture (file stem, no ``.rdb``) as text."""
+    return (FIXTURE_DIR / f"{name}.rdb").read_text(encoding="utf-8")
