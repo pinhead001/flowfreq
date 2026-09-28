@@ -10,8 +10,8 @@ Phase 2 (``docs/STREAMSTATS_NSS_ADDENDUM.md``): feed those characteristics into 
 low-flow, ...), each carrying its own regression equation and a resolved citation.
 **Region selection across NSS's regressionRegions is not automatic** -- see
 :func:`estimate_flow_statistics`'s docstring and the addendum S4 before assuming a
-single "the" answer for a point; StreamStats itself does not resolve this without a
-watershed polygon, which Phase 1 does not produce.
+single "the" answer for a point. Phase 1 now returns the watershed polygon NSS needs to
+resolve this, but :func:`estimate_flow_statistics` does not use it yet.
 
 **Governing principle (design doc S4): a 200 is not an answer.** StreamStats can
 delineate a hillslope sliver for an unsnappable point and return HTTP 200 with a
@@ -28,21 +28,17 @@ first since that is what the live service actually returns, and falling back to 
 handful of flat ``lat``/``lon``-style keys only in case some other region or a future
 service version answers differently.
 
-**No watershed polygon, confirmed live 2026-09-11.** An earlier version of this module
-also called ``ss-delineate/v1/delineate/features/{region}`` (borrowed from the
-unverified ff-idea02 PDF/py transcript, the same source whose ``ss-hydro`` endpoint
-guess was already known wrong) to obtain and FR-3-validate the ``globalwatershed``
-polygon. Called live with the region's real, snapped ``lat``/``lon``, it returns HTTP
-200 with a single ``Point`` feature of zero ``Shape_Area``/``Shape_Leng`` -- an echo of
-the snapped pour point, not a delineated basin -- so it was never the right call and has
-been removed from the pipeline. This module now follows exactly the three-call protocol
-docs/STREAMSTATS_MODULE_DESIGN.md S3 verified end to end (snap, ``delineate/sshydro``,
-``ss-hydro``), none of which returns a polygon; :attr:`WatershedCharacteristics.
-polygon_geojson` is always ``None``. FR-3's ``WarningMsg`` check is done by
-:func:`_find_warning_msg`, a recursive scan of the ``sshydro`` response, rather than a
-polygon-degeneracy check, since no polygon is available to check. Obtaining the actual
-watershed geometry remains an open question -- worth its own live-verification pass
-before attempting again, per TODO.md.
+**The watershed polygon, verified live 2026-09-27 (design doc S10).** It was in the
+``delineate/sshydro`` response all along, at ``bcrequest.wsresp.featurecollection[0]``
+as the feature named ``globalwatershed`` -- the same place USGS's own published
+workflow notebook reads it from. (An earlier version of this module called
+``ss-delineate/v1/delineate/features/{region}`` for it and, called with the snapped
+point, got back only a zero-area Point, so it was removed and ``polygon_geojson`` was
+``None`` until this.) :func:`delineate_and_get_characteristics` now validates that
+polygon before returning it -- rings closed, snapped point inside, geodesic area within
+2% of ``DRNAREA`` -- and FR-3's ``WarningMsg`` check (:func:`_find_warning_msg`, a
+recursive scan) is confirmed live to find the warning in the ``globalwatershedpoint``
+and ``globalwatershed`` feature properties.
 """
 
 from __future__ import annotations
@@ -87,6 +83,30 @@ USER_AGENT: str = "flowfreq/streamstats (https://github.com/pinhead001/flowfreq)
 #: enforced as a ceiling on caller-requested concurrency, not a target -- NFR-2 asks for
 #: serial-by-default besides.
 MAX_CONCURRENCY: int = 4
+
+#: Square metres per international square mile (1609.344 m squared).
+SQ_M_PER_SQ_MI: float = 1609.344**2
+
+#: Watershed-polygon validation tolerances (design doc S10, verified live 2026-09-27).
+#: The polygon's geodesic area must match ss-hydro's own ``DRNAREA`` to within
+#: ``POLYGON_AREA_RTOL`` relative, or ``POLYGON_AREA_ATOL_SQ_MI`` absolute, whichever is
+#: larger. Observed live: 0.06-0.07% on Goat Creek, Lost River and the Methow at Pateros,
+#: 0.0% on a 4.96 mi^2 WI basin -- the gap being ss-hydro's projected-CRS area and its
+#: three-significant-figure rounding. 2% is ~30x that, loose enough never to trip on
+#: rounding and tight enough to catch a polygon of the wrong basin.
+POLYGON_AREA_RTOL: float = 0.02
+POLYGON_AREA_ATOL_SQ_MI: float = 0.01
+
+#: The snapped pour point is the outlet, so it sits on the basin boundary by
+#: construction. Observed live it falls 15-21 m *inside* the polygon (one 10 m DEM cell
+#: or two); it is accepted inside the polygon, or outside it by no more than this.
+POUR_POINT_BOUNDARY_TOL_M: float = 100.0
+
+#: Sphere radius for the polygon area: the WGS84 semi-major axis, the value the
+#: Chamberlain-Duquette spherical approximation is normally paired with (as in
+#: ``geojson-area``/Turf). Observed within 0.1% of ss-delineate's own projected
+#: ``Shape_Area`` on every basin checked live.
+_EARTH_RADIUS_M: float = 6378137.0
 
 
 class UnsnappablePointError(ValueError):
@@ -217,15 +237,22 @@ class WatershedCharacteristics:
     snap : SnapResult
         The snap that preceded delineation.
     polygon_geojson : dict, optional
-        Reserved for the watershed's GeoJSON geometry; always ``None`` in this version.
-        The verified delineation protocol (:func:`delineate_and_get_characteristics`)
-        has no call that returns the polygon -- see the module docstring. Would be a
-        plain dict, not a shapely geometry, if populated: NFR-6 keeps this module free
-        of a hard GIS dependency.
+        The delineated watershed as a GeoJSON ``Feature`` (RFC 7946: WGS84,
+        ``[lon, lat]`` order) whose geometry is a ``Polygon`` or ``MultiPolygon``,
+        exactly as ``ss-delineate`` returned it as its ``globalwatershed`` feature, and
+        validated before being returned: every ring closed, the snapped pour point
+        inside it, and its area consistent with ``DRNAREA`` (see
+        :func:`delineate_and_get_characteristics`). A plain dict, not a shapely
+        geometry: NFR-6 keeps this module free of a hard GIS dependency. ``None`` when
+        the caller passed ``include_polygon=False`` (the polygon is still validated),
+        or for a result deserialized from a dict saved before polygons were returned.
     characteristics : dict of str to Characteristic
         Keyed by StreamStats parameter code (e.g. ``DRNAREA``, ``PRECPRIS10``).
     provenance : Provenance
         How and when this result was obtained.
+    polygon_area_sq_mi : float, optional
+        Geodesic area of the watershed polygon, square miles (:func:`geojson_area_sq_mi`).
+        Set whenever a polygon was validated, including with ``include_polygon=False``.
     """
 
     region: str
@@ -233,6 +260,7 @@ class WatershedCharacteristics:
     polygon_geojson: Optional[Dict[str, Any]]
     characteristics: Dict[str, Characteristic] = field(default_factory=dict)
     provenance: Optional[Provenance] = None
+    polygon_area_sq_mi: Optional[float] = None
 
     def __getitem__(self, code: str) -> Characteristic:
         return self.characteristics[code]
@@ -247,6 +275,7 @@ class WatershedCharacteristics:
             "polygon_geojson": self.polygon_geojson,
             "characteristics": {k: v.to_dict() for k, v in self.characteristics.items()},
             "provenance": self.provenance.to_dict() if self.provenance else None,
+            "polygon_area_sq_mi": self.polygon_area_sq_mi,
         }
 
     @classmethod
@@ -260,6 +289,7 @@ class WatershedCharacteristics:
                 code: Characteristic.from_dict(c) for code, c in data["characteristics"].items()
             },
             provenance=Provenance.from_dict(provenance) if provenance else None,
+            polygon_area_sq_mi=data.get("polygon_area_sq_mi"),
         )
 
 
@@ -304,7 +334,16 @@ class StreamStatsCache:
         self._path.write_text(json.dumps(self._data, indent=2), encoding="utf-8")
 
 
-def _cache_key(region: str, lat: float, lon: float, bc_labels: str) -> str:
+#: Bumped when a cached result's *content* changes shape, so an entry written by an
+#: older version of this module is re-fetched rather than returned missing a field.
+#: ``poly1``: results carry a validated watershed polygon (2026-09-27); entries
+#: written before that have ``polygon_geojson=None`` and must not satisfy a lookup.
+_CACHE_SCHEMA: str = "poly1"
+
+
+def _cache_key(
+    region: str, lat: float, lon: float, bc_labels: str, include_polygon: bool = True
+) -> str:
     """Cache key from the *requested* coordinate, not the snapped one.
 
     The design doc (NFR-1) describes the key as snapped lat/lon, but keying on the
@@ -322,6 +361,8 @@ def _cache_key(region: str, lat: float, lon: float, bc_labels: str) -> str:
             SS_DELINEATE_VERSION,
             SS_HYDRO_VERSION,
             bc_labels,
+            _CACHE_SCHEMA,
+            "polygon" if include_polygon else "nopolygon",
         ]
     )
 
@@ -505,10 +546,11 @@ def snap_point(region: str, lat: float, lon: float, *, timeout: float = 45.0) ->
 def _find_warning_msg(obj: Any) -> str:
     """Recursively search a JSON-like structure for a non-empty ``WarningMsg`` string.
 
-    The design doc's own live testing (S4) found this key on an unsnappable point's
-    delineation response; the exact nesting within the ``sshydro`` chaining variant's
-    response was not independently re-confirmed (see the module docstring), so this
-    scans the whole structure defensively rather than assuming one exact path.
+    Confirmed live 2026-09-27 on the design doc's off-network point: the ``sshydro``
+    response carries it in the ``properties`` of both the ``globalwatershedpoint`` and
+    the ``globalwatershed`` features under ``bcrequest.wsresp.featurecollection[0]``.
+    The whole structure is still scanned rather than those two paths, so a warning
+    that moves elsewhere is caught rather than silently missed.
     """
     if isinstance(obj, dict):
         for key, value in obj.items():
@@ -524,6 +566,209 @@ def _find_warning_msg(obj: Any) -> str:
             if found:
                 return found
     return ""
+
+
+def _polygons_of(geometry: Dict[str, Any]) -> List[List[List[List[float]]]]:
+    """The polygons of a GeoJSON Polygon/MultiPolygon, each a list of rings."""
+    gtype = geometry.get("type")
+    coords = geometry.get("coordinates")
+    if gtype == "Polygon" and isinstance(coords, list):
+        return [coords]
+    if gtype == "MultiPolygon" and isinstance(coords, list):
+        return list(coords)
+    raise DegenerateDelineationError(
+        f"Watershed geometry is {gtype!r}, not a Polygon or MultiPolygon with coordinates"
+    )
+
+
+def _ring_area_m2(ring: Sequence[Sequence[float]]) -> float:
+    """Unsigned area of one closed ``[lon, lat]`` ring on a sphere, square metres.
+
+    The Chamberlain-Duquette approximation (JPL Publication 07-03, 2007) that
+    ``geojson-area`` and Turf use: exact for a sphere up to the great-circle-vs-rhumb
+    treatment of each edge, which on a basin's metre-scale DEM edges is negligible.
+    """
+    total = 0.0
+    for (lon1, lat1, *_), (lon2, lat2, *_) in zip(ring[:-1], ring[1:]):
+        total += math.radians(lon2 - lon1) * (
+            2.0 + math.sin(math.radians(lat1)) + math.sin(math.radians(lat2))
+        )
+    return abs(total) * _EARTH_RADIUS_M**2 / 2.0
+
+
+def geojson_area_sq_mi(geometry: Dict[str, Any]) -> float:
+    """Geodesic area of a GeoJSON Polygon or MultiPolygon, in square miles.
+
+    Coordinates are ``[lon, lat]`` in WGS84 (RFC 7946). Each polygon's first ring is its
+    exterior and the rest are holes, which are subtracted. No GIS dependency (NFR-6).
+
+    Parameters
+    ----------
+    geometry : dict
+        A GeoJSON geometry object (not a Feature).
+
+    Returns
+    -------
+    float
+        Area in square miles.
+
+    Raises
+    ------
+    DegenerateDelineationError
+        *geometry* is not a Polygon or MultiPolygon.
+    """
+    area_m2 = 0.0
+    for polygon in _polygons_of(geometry):
+        if not polygon:
+            continue
+        area_m2 += _ring_area_m2(polygon[0]) - sum(_ring_area_m2(h) for h in polygon[1:])
+    return area_m2 / SQ_M_PER_SQ_MI
+
+
+def _point_in_ring(lon: float, lat: float, ring: Sequence[Sequence[float]]) -> bool:
+    """Even-odd ray-casting test in lon/lat, adequate at basin scale."""
+    inside = False
+    for (x1, y1, *_), (x2, y2, *_) in zip(ring[:-1], ring[1:]):
+        if (y1 > lat) != (y2 > lat) and lon < (x2 - x1) * (lat - y1) / (y2 - y1) + x1:
+            inside = not inside
+    return inside
+
+
+def _point_in_geometry(lon: float, lat: float, geometry: Dict[str, Any]) -> bool:
+    for polygon in _polygons_of(geometry):
+        if polygon and _point_in_ring(lon, lat, polygon[0]):
+            if not any(_point_in_ring(lon, lat, hole) for hole in polygon[1:]):
+                return True
+    return False
+
+
+def _distance_to_boundary_m(lon: float, lat: float, geometry: Dict[str, Any]) -> float:
+    """Shortest distance from a point to any ring edge, metres (local equirectangular)."""
+    kx = math.cos(math.radians(lat)) * math.pi * _EARTH_RADIUS_M / 180.0
+    ky = math.pi * _EARTH_RADIUS_M / 180.0
+    best = math.inf
+    for polygon in _polygons_of(geometry):
+        for ring in polygon:
+            for (x1, y1, *_), (x2, y2, *_) in zip(ring[:-1], ring[1:]):
+                ax, ay = (x1 - lon) * kx, (y1 - lat) * ky
+                dx, dy = (x2 - x1) * kx, (y2 - y1) * ky
+                seg2 = dx * dx + dy * dy
+                t = 0.0 if seg2 == 0 else max(0.0, min(1.0, -(ax * dx + ay * dy) / seg2))
+                best = min(best, math.hypot(ax + t * dx, ay + t * dy))
+    return best
+
+
+def _extract_global_watershed(sshydro_data: Dict[str, Any]) -> Dict[str, Any]:
+    """The ``globalwatershed`` GeoJSON Feature from a ``delineate/sshydro`` response.
+
+    Verified live 2026-09-27 (design doc S10), and matching USGS's own published
+    workflow notebook: the polygon is at
+    ``bcrequest.wsresp.featurecollection[0]``, a list of ``{"name", "feature"}``
+    entries, where the entry named ``globalwatershed`` holds a FeatureCollection whose
+    Feature with ``properties.GlobalWshd == 1`` is the whole watershed.
+    """
+    try:
+        collections = sshydro_data["bcrequest"]["wsresp"]["featurecollection"]
+        entries = collections[0]
+    except (KeyError, IndexError, TypeError) as exc:
+        raise StreamStatsResponseError(
+            "ss-delineate sshydro response carried no bcrequest.wsresp.featurecollection "
+            "to take the watershed polygon from"
+        ) from exc
+
+    for entry in entries if isinstance(entries, list) else []:
+        if not isinstance(entry, dict) or entry.get("name") != "globalwatershed":
+            continue
+        features = (entry.get("feature") or {}).get("features") or []
+        whole = [
+            f
+            for f in features
+            if isinstance(f, dict) and (f.get("properties") or {}).get("GlobalWshd") == 1
+        ]
+        if len(whole) == 1:
+            return whole[0]
+        if not whole and len(features) == 1 and isinstance(features[0], dict):
+            return features[0]
+        raise DegenerateDelineationError(
+            f"globalwatershed carried {len(features)} features, {len(whole)} marked "
+            "GlobalWshd=1; expected exactly one whole-watershed feature"
+        )
+    raise DegenerateDelineationError(
+        "ss-delineate sshydro response carried no globalwatershed feature (FR-3)"
+    )
+
+
+def _validate_watershed_polygon(
+    feature: Dict[str, Any], snapped_lat: float, snapped_lon: float
+) -> float:
+    """FR-3 geometry checks on the ``globalwatershed`` feature; returns its area (mi^2).
+
+    Raises :class:`DegenerateDelineationError` unless every ring is closed with at least
+    four positions, the area is positive, and the snapped pour point is inside the
+    polygon or within :data:`POUR_POINT_BOUNDARY_TOL_M` of its boundary. The area-vs-
+    ``DRNAREA`` check needs ss-hydro's answer and is done separately
+    (:func:`_check_polygon_area`).
+    """
+    geometry = feature.get("geometry")
+    if not isinstance(geometry, dict):
+        raise DegenerateDelineationError("globalwatershed feature has no geometry")
+    polygons = _polygons_of(geometry)
+    if not polygons:
+        raise DegenerateDelineationError("globalwatershed geometry has no polygons")
+    for polygon in polygons:
+        if not polygon:
+            raise DegenerateDelineationError("globalwatershed polygon has no rings")
+        for ring in polygon:
+            if not isinstance(ring, list) or len(ring) < 4:
+                raise DegenerateDelineationError(
+                    "globalwatershed ring has fewer than 4 positions (RFC 7946 S3.1.6)"
+                )
+            if list(ring[0][:2]) != list(ring[-1][:2]):
+                raise DegenerateDelineationError(
+                    f"globalwatershed ring is not closed: first {ring[0]} != last {ring[-1]}"
+                )
+
+    area_sq_mi = geojson_area_sq_mi(geometry)
+    if not area_sq_mi > 0.0:
+        raise DegenerateDelineationError("globalwatershed polygon has zero area")
+
+    if not _point_in_geometry(snapped_lon, snapped_lat, geometry):
+        distance = _distance_to_boundary_m(snapped_lon, snapped_lat, geometry)
+        if distance > POUR_POINT_BOUNDARY_TOL_M:
+            raise DegenerateDelineationError(
+                f"Snapped pour point ({snapped_lat}, {snapped_lon}) lies {distance:.0f} m "
+                f"outside the delineated watershed (tolerance "
+                f"{POUR_POINT_BOUNDARY_TOL_M:.0f} m); the polygon is not this point's basin"
+            )
+    return area_sq_mi
+
+
+def _check_polygon_area(area_sq_mi: float, characteristics: Dict[str, Characteristic]) -> None:
+    """Raise unless the polygon's area agrees with ss-hydro's own ``DRNAREA``.
+
+    Skipped, with a log message, when ``DRNAREA`` was not among the characteristics
+    returned: there is then nothing independent to compare against.
+    """
+    drnarea = characteristics.get("DRNAREA")
+    if drnarea is None:
+        logger.info("DRNAREA not returned; watershed polygon area check skipped")
+        return
+    unit = drnarea.unit.strip().lower()
+    if unit in ("square miles", "mi^2", "sq mi", "square mile"):
+        expected = drnarea.value
+    elif unit in ("square kilometers", "square kilometres", "km^2", "sq km"):
+        expected = drnarea.value * 1.0e6 / SQ_M_PER_SQ_MI
+    else:
+        raise StreamStatsResponseError(
+            f"DRNAREA came back in unrecognised unit {drnarea.unit!r}; cannot check the "
+            "watershed polygon's area against it"
+        )
+    tolerance = max(POLYGON_AREA_RTOL * expected, POLYGON_AREA_ATOL_SQ_MI)
+    if abs(area_sq_mi - expected) > tolerance:
+        raise DegenerateDelineationError(
+            f"Watershed polygon area {area_sq_mi:.4g} mi^2 disagrees with DRNAREA "
+            f"{expected:.4g} mi^2 by more than {tolerance:.3g} mi^2"
+        )
 
 
 def _parse_characteristics(hydro_data: Any) -> Dict[str, Characteristic]:
@@ -570,6 +815,7 @@ def delineate_and_get_characteristics(
     cache: Optional[StreamStatsCache] = None,
     default_server: str = DEFAULT_SERVER,
     timeout: float = 60.0,
+    include_polygon: bool = True,
 ) -> WatershedCharacteristics:
     """Snap, delineate, and compute basin characteristics for one pour point.
 
@@ -578,8 +824,14 @@ def delineate_and_get_characteristics(
     ``ss-hydro`` needs (validated for a ``WarningMsg`` per FR-3), and the ``ss-hydro``
     POST itself (FR-5/FR-6). Both ``ss-delineate``/``ss-hydro`` calls are pinned to the
     same server (design doc S3 -- ``ss-hydro`` reads temporary files ``ss-delineate``
-    left on that specific node). No watershed polygon is returned -- see the module
-    docstring for why.
+    left on that specific node).
+
+    The watershed polygon comes from the same ``delineate/sshydro`` response (design
+    doc S10, verified live 2026-09-27) and is validated before anything is returned:
+    every ring closed, the snapped pour point inside it (or within
+    :data:`POUR_POINT_BOUNDARY_TOL_M` of the boundary it sits on), and its geodesic
+    area within :data:`POLYGON_AREA_RTOL` of ss-hydro's own ``DRNAREA``. A polygon
+    failing any of these raises :class:`DegenerateDelineationError`.
 
     Parameters
     ----------
@@ -599,6 +851,11 @@ def delineate_and_get_characteristics(
     timeout : float
         Per-request timeout in seconds. StreamStats delineation and characteristics
         calls have been observed to take 6-11 s each under good conditions (NFR-3).
+    include_polygon : bool
+        Keep the validated polygon on the result (default). ``False`` still validates
+        it and records its area, but drops the geometry itself -- a large basin's
+        polygon is several hundred kB, which a cache of many points rewrites on every
+        entry.
 
     Returns
     -------
@@ -611,7 +868,7 @@ def delineate_and_get_characteristics(
         See each exception's docstring; see also S7 of the design doc.
     """
     bc_labels = ",".join(characteristic_codes) if characteristic_codes else "*"
-    cache_key = _cache_key(region, lat, lon, bc_labels)
+    cache_key = _cache_key(region, lat, lon, bc_labels, include_polygon)
 
     if cache is not None:
         cached = cache.get(cache_key)
@@ -660,13 +917,13 @@ def delineate_and_get_characteristics(
             f"bcrequest payload to pass to ss-hydro: {sshydro_data!r}"
         )
 
-    # No watershed polygon is available through this protocol: the one endpoint that
-    # looked plausible for it (`ss-delineate/v1/delineate/features/{region}`, borrowed
-    # from the unverified PDF/py script) was tried live and returns an unrelated,
-    # zero-area Point feature echoing the snapped pour point, not a basin polygon --
-    # not the design doc's own literally-verified protocol, which never called it. See
-    # the module docstring.
-    polygon_geojson: Optional[Dict[str, Any]] = None
+    # The watershed polygon rides in the same response (design doc S10). Geometry is
+    # checked here, before the ss-hydro call is paid for; its area can only be checked
+    # against DRNAREA once ss-hydro has answered.
+    watershed_feature = _extract_global_watershed(sshydro_data)
+    polygon_area_sq_mi = _validate_watershed_polygon(
+        watershed_feature, snap.snapped_lat, snap.snapped_lon
+    )
 
     hydro_url = (
         f"https://{server_used}.{GENERIC_HOST}"
@@ -697,6 +954,15 @@ def delineate_and_get_characteristics(
         ) from exc
 
     characteristics = _parse_characteristics(hydro_data)
+    _check_polygon_area(polygon_area_sq_mi, characteristics)
+
+    polygon_geojson: Optional[Dict[str, Any]] = None
+    if include_polygon:
+        polygon_geojson = {
+            "type": "Feature",
+            "geometry": watershed_feature["geometry"],
+            "properties": dict(watershed_feature.get("properties") or {}),
+        }
 
     provenance = Provenance(
         service_versions={"ss-delineate": SS_DELINEATE_VERSION, "ss-hydro": SS_HYDRO_VERSION},
@@ -711,6 +977,7 @@ def delineate_and_get_characteristics(
         polygon_geojson=polygon_geojson,
         characteristics=characteristics,
         provenance=provenance,
+        polygon_area_sq_mi=polygon_area_sq_mi,
     )
 
     if cache is not None:
@@ -753,6 +1020,7 @@ def batch_get_characteristics(
     characteristic_codes: Optional[Sequence[str]] = None,
     validate_regions: bool = True,
     timeout: float = 60.0,
+    include_polygon: bool = True,
 ) -> Tuple[Dict[str, WatershedCharacteristics], Dict[str, str]]:
     """Delineate and fetch characteristics for many pour points (FR-7).
 
@@ -779,6 +1047,8 @@ def batch_get_characteristics(
         region code, before issuing any delineation calls.
     timeout : float
         Per-request timeout in seconds, passed through to every point.
+    include_polygon : bool
+        Passed through to :func:`delineate_and_get_characteristics`.
 
     Returns
     -------
@@ -813,6 +1083,7 @@ def batch_get_characteristics(
             characteristic_codes=characteristic_codes,
             cache=cache,
             timeout=timeout,
+            include_polygon=include_polygon,
         )
 
     results: Dict[str, WatershedCharacteristics] = {}
