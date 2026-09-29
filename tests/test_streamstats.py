@@ -6,6 +6,7 @@ Tests that would require the live service are marked ``requires_network``.
 
 from __future__ import annotations
 
+import copy
 import json as json_module
 import math
 from concurrent.futures import ThreadPoolExecutor
@@ -40,9 +41,11 @@ from flowfreq.streamstats import (
     geojson_area_sq_mi,
     list_regions,
     list_statistic_groups,
+    locate_regression_regions,
     snap_point,
 )
 from tests.fixtures.streamstats_responses import (
+    DELINEATE_SSHYDRO_GA_OGEECHEE,
     DELINEATE_SSHYDRO_GOOD,
     DELINEATE_SSHYDRO_MALFORMED,
     DELINEATE_SSHYDRO_METHOW_PATEROS,
@@ -52,10 +55,17 @@ from tests.fixtures.streamstats_responses import (
     HYDRO_CHARACTERISTICS_METHOW_PATEROS,
     HYDRO_CHARACTERISTICS_MISSING_VALUE,
     HYDRO_CHARACTERISTICS_WRAPPED,
+    NSS_BYLOCATION_GA_OGEECHEE,
+    NSS_BYLOCATION_WA_GOAT_CREEK,
     NSS_CITATIONS_RESPONSE,
     NSS_ESTIMATE_500_BODY,
+    NSS_ESTIMATE_GA_AREA_AVERAGED,
     NSS_ESTIMATE_RESPONSE_PFS,
+    NSS_ESTIMATE_WA_GOAT_CREEK_ALL_PFS,
+    NSS_ESTIMATE_WA_GOAT_CREEK_GC1751,
     NSS_SCENARIO_TEMPLATE_PFS,
+    NSS_SCENARIOS_GA_RURAL_UNDER_1,
+    NSS_SCENARIOS_WA_PFS_LFS,
     NSS_STATISTIC_GROUPS_ALL,
     NSS_STATISTIC_GROUPS_WA,
     RESPONSE_422_MISSING_REGION,
@@ -721,6 +731,17 @@ class TestRegionFlowEstimatesSerialization:
         assert restored["PK50AEP"].value == pytest.approx(4370.0)
         assert restored.citation is not None
         assert restored.citation.citation_id == 150
+        assert restored.located is None and restored.percent_weight is None
+
+    def test_location_labels_round_trip(self) -> None:
+        region = RegionFlowEstimates(
+            "areaave", "Area-Averaged", "PFS", "Peak-Flow Statistics", located=True
+        )
+        region.area_averaged = True
+        labelled = RegionFlowEstimates("GC1751", "", "PFS", "", percent_weight=100.0)
+
+        assert RegionFlowEstimates.from_dict(region.to_dict()).area_averaged is True
+        assert RegionFlowEstimates.from_dict(labelled.to_dict()).percent_weight == 100.0
 
 
 class TestListRegions:
@@ -1028,7 +1049,348 @@ class TestEstimateFlowStatistics:
         assert region_estimates[0].citation is None
 
 
+def _global_watershed(sshydro):
+    for entry in sshydro["bcrequest"]["wsresp"]["featurecollection"][0]:
+        if entry["name"] == "globalwatershed":
+            return entry["feature"]["features"][0]
+    raise AssertionError("no globalwatershed in capture")
+
+
+GOAT_POLYGON = _global_watershed(DELINEATE_SSHYDRO_GOOD)
+OGEECHEE_POLYGON = _global_watershed(DELINEATE_SSHYDRO_GA_OGEECHEE)
+
+GOAT_CHARACTERISTICS = {
+    "DRNAREA": Characteristic("DRNAREA", "", "", 412.0, "square miles"),
+    "PRECPRIS10": Characteristic("PRECPRIS10", "", "", 45.62, "inches"),
+    "CANOPY_PCT": Characteristic("CANOPY_PCT", "", "", 45.242, "percent"),
+}
+
+
+def _wa_pfs_template():
+    return [s for s in copy.deepcopy(NSS_SCENARIOS_WA_PFS_LFS) if s["statisticGroupID"] == 2]
+
+
+class TestLocateRegressionRegions:
+    """Addendum S5: which NSS regions a watershed polygon falls in."""
+
+    def test_goat_creek_is_in_peak_region_2(self) -> None:
+        with patch(
+            "flowfreq.streamstats.requests.post",
+            return_value=_mock_response(NSS_BYLOCATION_WA_GOAT_CREEK),
+        ) as post:
+            located = locate_regression_regions("WA", GOAT_POLYGON)
+
+        assert [(r.code, r.percent_weight) for r in located] == [("GC1751", 100.0)]
+        assert located[0].region_id == 718
+        assert located[0].citation_id == 150
+        url = post.call_args.args[0]
+        assert url.endswith("/nssservices/regions/WA/regressionregions/bylocation")
+        # The body is the bare geometry, not the Feature (as the USGS notebook posts it).
+        assert post.call_args.kwargs["json"] == GOAT_POLYGON["geometry"]
+
+    def test_basin_spanning_regions_reports_area_weights(self) -> None:
+        with patch(
+            "flowfreq.streamstats.requests.post",
+            return_value=_mock_response(NSS_BYLOCATION_GA_OGEECHEE),
+        ):
+            located = locate_regression_regions("GA", OGEECHEE_POLYGON["geometry"])
+
+        weights = {r.code: r.percent_weight for r in located}
+        assert weights["GC1541"] == 32.0  # SIR 2014-5030 region 3
+        assert weights["GC1542"] == 24.0  # region 4
+        assert weights["GC1572"] == 44.0  # region 1
+        assert weights["GC1934"] == 100.0  # the 2023 Southeast US method, whole basin
+        assert sum(weights[c] for c in ("GC1539", "GC1541", "GC1542")) == 100.0
+
+    def test_answer_about_another_polygon_is_refused(self) -> None:
+        """Goat Creek's 412 mi^2 at 100% cannot describe the 807 mi^2 Ogeechee basin."""
+        with patch(
+            "flowfreq.streamstats.requests.post",
+            return_value=_mock_response(NSS_BYLOCATION_WA_GOAT_CREEK),
+        ):
+            with pytest.raises(StreamStatsResponseError, match="percentWeight"):
+                locate_regression_regions("GA", OGEECHEE_POLYGON)
+
+    def test_overlap_larger_than_basin_is_refused(self) -> None:
+        answer = copy.deepcopy(NSS_BYLOCATION_WA_GOAT_CREEK)
+        answer[0]["area"] = 900.0
+        with patch("flowfreq.streamstats.requests.post", return_value=_mock_response(answer)):
+            with pytest.raises(StreamStatsResponseError, match="not about this polygon"):
+                locate_regression_regions("WA", GOAT_POLYGON)
+
+    def test_entry_missing_percent_weight_is_refused(self) -> None:
+        answer = copy.deepcopy(NSS_BYLOCATION_WA_GOAT_CREEK)
+        del answer[0]["percentWeight"]
+        with patch("flowfreq.streamstats.requests.post", return_value=_mock_response(answer)):
+            with pytest.raises(StreamStatsResponseError, match="missing"):
+                locate_regression_regions("WA", GOAT_POLYGON)
+
+    def test_rejected_request_raises(self) -> None:
+        body = (
+            '{"code":400,"message":"Geometry is not of type: Polygon,MultiPolygon",'
+            '"content":"Bad Request Received"}'
+        )
+        with patch(
+            "flowfreq.streamstats.requests.post",
+            return_value=_mock_response(status_code=400, text=body),
+        ):
+            with pytest.raises(StreamStatsResponseError, match="Polygon,MultiPolygon"):
+                locate_regression_regions("WA", GOAT_POLYGON)
+
+    def test_point_geometry_is_refused_before_any_request(self) -> None:
+        point = {"type": "Point", "coordinates": [-120.37893, 48.57426]}
+        with patch("flowfreq.streamstats.requests.post") as post:
+            with pytest.raises(DegenerateDelineationError):
+                locate_regression_regions("WA", point)
+        post.assert_not_called()
+
+    def test_empty_answer_means_no_region(self) -> None:
+        with patch("flowfreq.streamstats.requests.post", return_value=_mock_response([])):
+            assert locate_regression_regions("WA", GOAT_POLYGON) == []
+
+
+def _nss_dispatch_for(template):
+    def dispatch(url, **kwargs):
+        if url.endswith("/Scenarios"):
+            return _mock_response(copy.deepcopy(template))
+        return _nss_get_dispatch(url, **kwargs)
+
+    return dispatch
+
+
+def _post_router(bylocation, estimate):
+    """Route bylocation and Scenarios/Estimate POSTs; records the estimate bodies."""
+    bodies = []
+
+    def post(url, **kwargs):
+        if url.endswith("/bylocation"):
+            return _mock_response(bylocation)
+        if url.endswith("/Scenarios/Estimate"):
+            bodies.append(copy.deepcopy(kwargs["json"]))
+            return _mock_response(estimate)
+        raise AssertionError(f"unexpected POST {url}")
+
+    return post, bodies
+
+
+class TestEstimateWithLocation:
+    """estimate_flow_statistics with a watershed polygon (addendum S5)."""
+
+    def test_only_the_located_region_is_estimated(self) -> None:
+        post, bodies = _post_router(NSS_BYLOCATION_WA_GOAT_CREEK, NSS_ESTIMATE_WA_GOAT_CREEK_GC1751)
+        with (
+            patch(
+                "flowfreq.streamstats.requests.get",
+                side_effect=_nss_dispatch_for(_wa_pfs_template()),
+            ),
+            patch("flowfreq.streamstats.requests.post", side_effect=post),
+        ):
+            results, skipped = estimate_flow_statistics(
+                "WA", GOAT_CHARACTERISTICS, ["PFS"], watershed_polygon=GOAT_POLYGON
+            )
+
+        submitted = [r["code"] for s in bodies[0] for r in s["regressionRegions"]]
+        assert submitted == ["GC1751"]
+        assert [r.region_code for r in results] == ["GC1751"]
+        assert results[0].located is True
+        assert results[0].percent_weight == 100.0
+        assert results[0]["PK50AEP"].value == pytest.approx(3290.0)
+        for code in ("GC1750", "GC1752", "GC1753"):
+            assert "not in this regression region" in skipped[f"PFS:{code}"]
+        # A single region: nothing to average, and no weights sent.
+        assert "percentWeight" not in bodies[0][0]["regressionRegions"][0]
+        assert "PFS:areaave" not in skipped
+
+    def test_include_unlocated_keeps_every_in_range_region_labelled(self) -> None:
+        post, bodies = _post_router(
+            NSS_BYLOCATION_WA_GOAT_CREEK, NSS_ESTIMATE_WA_GOAT_CREEK_ALL_PFS
+        )
+        with (
+            patch(
+                "flowfreq.streamstats.requests.get",
+                side_effect=_nss_dispatch_for(_wa_pfs_template()),
+            ),
+            patch("flowfreq.streamstats.requests.post", side_effect=post),
+        ):
+            results, _ = estimate_flow_statistics(
+                "WA",
+                GOAT_CHARACTERISTICS,
+                ["PFS"],
+                watershed_polygon=GOAT_POLYGON,
+                include_unlocated=True,
+            )
+
+        labels = {r.region_code: (r.located, r.percent_weight) for r in results}
+        assert labels == {
+            "GC1750": (False, None),
+            "GC1751": (True, 100.0),
+            "GC1752": (False, None),
+            "GC1753": (False, None),
+        }
+        assert all("percentWeight" not in r for s in bodies[0] for r in s["regressionRegions"])
+
+    def test_without_polygon_behaviour_is_unchanged(self) -> None:
+        with (
+            patch(
+                "flowfreq.streamstats.requests.get",
+                side_effect=_nss_dispatch_for(_wa_pfs_template()),
+            ),
+            patch(
+                "flowfreq.streamstats.requests.post",
+                return_value=_mock_response(NSS_ESTIMATE_WA_GOAT_CREEK_ALL_PFS),
+            ) as post,
+        ):
+            results, _ = estimate_flow_statistics("WA", GOAT_CHARACTERISTICS, ["PFS"])
+
+        assert post.call_count == 1  # no bylocation call
+        assert {r.region_code for r in results} == {"GC1750", "GC1751", "GC1752", "GC1753"}
+        assert all(r.located is None and r.percent_weight is None for r in results)
+
+    def test_no_located_region_estimates_nothing(self) -> None:
+        post, bodies = _post_router([], NSS_ESTIMATE_WA_GOAT_CREEK_ALL_PFS)
+        with (
+            patch(
+                "flowfreq.streamstats.requests.get",
+                side_effect=_nss_dispatch_for(_wa_pfs_template()),
+            ),
+            patch("flowfreq.streamstats.requests.post", side_effect=post),
+        ):
+            results, skipped = estimate_flow_statistics(
+                "WA", GOAT_CHARACTERISTICS, ["PFS"], watershed_polygon=GOAT_POLYGON
+            )
+
+        assert results == []
+        assert bodies == []
+        assert len(skipped) == 4
+
+
+GA_CHARACTERISTICS = {
+    "DRNAREA": Characteristic("DRNAREA", "", "", 0.5, "square miles"),
+    "LC06IMP": Characteristic("LC06IMP", "", "", 5.0, "percent"),
+    "LC06DEV": Characteristic("LC06DEV", "", "", 20.0, "percent"),
+}
+
+
+def _ga_located(weights):
+    """A bylocation answer for the Ogeechee polygon with the given percent weights."""
+    area = geojson_area_sq_mi(OGEECHEE_POLYGON["geometry"])
+    ids = {"GC1572": 107, "GC1573": 108}
+    return [
+        {
+            "id": ids[code],
+            "name": code,
+            "code": code,
+            "citationID": 33,
+            "statusID": 4,
+            "percentWeight": w,
+            "area": area * w / 100.0,
+        }
+        for code, w in weights.items()
+    ]
+
+
+class TestAreaAveraging:
+    """NSS's own area-weighted average for a basin spanning regions (addendum S5)."""
+
+    def _run(self, weights, estimate=NSS_ESTIMATE_GA_AREA_AVERAGED, characteristics=None):
+        post, bodies = _post_router(_ga_located(weights), estimate)
+        with (
+            patch(
+                "flowfreq.streamstats.requests.get",
+                side_effect=_nss_dispatch_for(NSS_SCENARIOS_GA_RURAL_UNDER_1),
+            ),
+            patch("flowfreq.streamstats.requests.post", side_effect=post),
+        ):
+            results, skipped = estimate_flow_statistics(
+                "GA",
+                characteristics or GA_CHARACTERISTICS,
+                ["PFS"],
+                watershed_polygon=OGEECHEE_POLYGON,
+            )
+        return results, skipped, bodies
+
+    def test_weights_sent_and_average_returned(self) -> None:
+        results, skipped, bodies = self._run({"GC1572": 60.0, "GC1573": 40.0})
+
+        sent = {r["code"]: r.get("percentWeight") for r in bodies[0][0]["regressionRegions"]}
+        assert sent == {"GC1572": 60.0, "GC1573": 40.0}
+        average = [r for r in results if r.area_averaged]
+        assert len(average) == 1
+        assert average[0].region_code == "areaave"
+        assert average[0]["PK50AEP"].value == pytest.approx(0.6 * 116.0 + 0.4 * 33.3)
+        weights = {r.region_code: r.percent_weight for r in results if not r.area_averaged}
+        assert weights == {"GC1572": 60.0, "GC1573": 40.0}
+        assert skipped == {}
+
+    def test_tampered_average_is_refused(self) -> None:
+        estimate = copy.deepcopy(NSS_ESTIMATE_GA_AREA_AVERAGED)
+        estimate[0]["regressionRegions"][2]["results"][0]["value"] = 116.0
+        with pytest.raises(StreamStatsResponseError, match="weighted mean"):
+            self._run({"GC1572": 60.0, "GC1573": 40.0}, estimate=estimate)
+
+    def test_missing_average_is_refused(self) -> None:
+        estimate = copy.deepcopy(NSS_ESTIMATE_GA_AREA_AVERAGED)
+        del estimate[0]["regressionRegions"][2]
+        with pytest.raises(StreamStatsResponseError, match="no area average"):
+            self._run({"GC1572": 60.0, "GC1573": 40.0}, estimate=estimate)
+
+    def test_weights_not_summing_to_100_are_not_sent(self) -> None:
+        """Live: NSS silently computes no average for 60 + 30."""
+        estimate = copy.deepcopy(NSS_ESTIMATE_GA_AREA_AVERAGED)
+        del estimate[0]["regressionRegions"][2]
+        results, skipped, bodies = self._run({"GC1572": 60.0, "GC1573": 30.0}, estimate)
+
+        assert all("percentWeight" not in r for r in bodies[0][0]["regressionRegions"])
+        assert "sum to 90" in skipped["PFS:areaave"]
+        assert not any(r.area_averaged for r in results)
+
+    def test_out_of_range_located_region_blocks_the_average(self) -> None:
+        characteristics = dict(GA_CHARACTERISTICS)
+        characteristics["LC06DEV"] = Characteristic("LC06DEV", "", "", 1.0, "percent")
+        estimate = copy.deepcopy(NSS_ESTIMATE_GA_AREA_AVERAGED)
+        estimate[0]["regressionRegions"] = estimate[0]["regressionRegions"][:1]
+        results, skipped, bodies = self._run(
+            {"GC1572": 60.0, "GC1573": 40.0}, estimate, characteristics
+        )
+
+        assert "outside this region's valid range" in skipped["PFS:GC1573"]
+        assert "GC1573" in skipped["PFS:areaave"]
+        assert [r.region_code for r in results] == ["GC1572"]
+        assert "percentWeight" not in bodies[0][0]["regressionRegions"][0]
+
+
 class TestBatchEstimateFlowStatistics:
+    def test_regions_selected_by_each_points_own_polygon(self) -> None:
+        def get(url, **kwargs):
+            if url.endswith("/pourpoint/v1/snap/str900"):
+                return _mock_response(SNAP_GOOD)
+            if "/ss-delineate/" in url:
+                return _mock_response(DELINEATE_SSHYDRO_GOOD)
+            return _nss_dispatch_for(_wa_pfs_template())(url, **kwargs)
+
+        nss_post, bodies = _post_router(
+            NSS_BYLOCATION_WA_GOAT_CREEK, NSS_ESTIMATE_WA_GOAT_CREEK_GC1751
+        )
+
+        def post(url, **kwargs):
+            if "/ss-hydro/" in url:
+                return _mock_response(HYDRO_CHARACTERISTICS_GOOD)
+            return nss_post(url, **kwargs)
+
+        with (
+            patch("flowfreq.streamstats.requests.get", side_effect=get),
+            patch("flowfreq.streamstats.requests.post", side_effect=post),
+        ):
+            estimates, skipped, errors = batch_estimate_flow_statistics(
+                [("goat_creek", "WA", 48.57426, -120.37893)],
+                statistic_group_codes=["PFS"],
+                validate_regions=False,
+            )
+
+        assert errors == {}
+        assert [(r.region_code, r.located) for r in estimates["goat_creek"]] == [("GC1751", True)]
+        assert "PFS:GC1750" in skipped["goat_creek"]
+
     def test_delineation_failure_reported_as_error(self) -> None:
         with patch(
             "flowfreq.streamstats.requests.get", return_value=_mock_response(SNAP_UNSNAPPABLE)
@@ -1062,6 +1424,7 @@ class TestBatchEstimateFlowStatistics:
                 [("goat_creek", "WA", 48.57430, -120.37890)],
                 statistic_group_codes=["PFS"],
                 validate_regions=False,
+                select_by_location=False,
             )
 
         assert errors == {}
@@ -1126,6 +1489,8 @@ class TestLiveNSS:
     """
 
     def test_goat_creek_peak_flow_estimate_is_plausible(self) -> None:
+        """Without a polygon every in-range region is returned; GC1750 is one of them
+        but is not where Goat Creek is (see the located test below)."""
         watershed = delineate_and_get_characteristics("WA", 48.57426, -120.37893)
 
         region_estimates, skipped = estimate_flow_statistics(
@@ -1140,3 +1505,39 @@ class TestLiveNSS:
         assert "DRNAREA" in result["PK50AEP"].equation
         assert result.citation is not None
         assert "Mastin" in result.citation.author
+
+    def test_goat_creek_located_in_peak_region_2(self) -> None:
+        """Addendum S5: the polygon picks GC1751, 100%, and only it is estimated."""
+        watershed = delineate_and_get_characteristics("WA", 48.57426, -120.37893)
+        assert watershed.polygon_geojson is not None
+
+        located = locate_regression_regions("WA", watershed.polygon_geojson)
+        assert [(r.code, r.percent_weight) for r in located] == [("GC1751", 100.0)]
+
+        region_estimates, skipped = estimate_flow_statistics(
+            "WA",
+            watershed.characteristics,
+            statistic_group_codes=["PFS"],
+            watershed_polygon=watershed.polygon_geojson,
+        )
+
+        assert [(r.region_code, r.located) for r in region_estimates] == [("GC1751", True)]
+        # 3,290 cfs live 2026-09-27; GC1750's 4,370 was never this basin's answer.
+        assert region_estimates[0]["PK50AEP"].value == pytest.approx(3290.0, rel=0.02)
+        assert {"PFS:GC1750", "PFS:GC1752", "PFS:GC1753"} <= set(skipped)
+
+    def test_ogeechee_spans_three_regions_with_area_weights(self) -> None:
+        """A live multi-region basin: SIR 2014-5030 regions 1/3/4 at 44/32/24%."""
+        watershed = delineate_and_get_characteristics(
+            "GA", 32.9676527079592, -82.3904040828971, characteristic_codes=["DRNAREA"]
+        )
+        assert watershed.polygon_geojson is not None
+
+        weights = {
+            r.code: r.percent_weight
+            for r in locate_regression_regions("GA", watershed.polygon_geojson)
+        }
+
+        urban = {c: weights[c] for c in ("GC1539", "GC1541", "GC1542")}
+        assert urban == pytest.approx({"GC1539": 44.0, "GC1541": 32.0, "GC1542": 24.0}, abs=2)
+        assert sum(urban.values()) == pytest.approx(100.0, abs=0.5)

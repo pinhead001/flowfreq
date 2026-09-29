@@ -8,10 +8,10 @@ area, precipitation, canopy, ...) as regression predictors.
 Phase 2 (``docs/STREAMSTATS_NSS_ADDENDUM.md``): feed those characteristics into NSS
 (National Streamflow Statistics) to compute actual flow-statistic estimates (peak-flow,
 low-flow, ...), each carrying its own regression equation and a resolved citation.
-**Region selection across NSS's regressionRegions is not automatic** -- see
-:func:`estimate_flow_statistics`'s docstring and the addendum S4 before assuming a
-single "the" answer for a point. Phase 1 now returns the watershed polygon NSS needs to
-resolve this, but :func:`estimate_flow_statistics` does not use it yet.
+**Region selection across NSS's regressionRegions** is by the watershed polygon Phase 1
+returns: :func:`locate_regression_regions` asks NSS which regions it falls in, with
+area percentages (addendum S5), and :func:`estimate_flow_statistics` estimates only
+those when given the polygon. Without one it returns every in-range region, unlabelled.
 
 **Governing principle (design doc S4): a 200 is not an answer.** StreamStats can
 delineate a hillslope sliver for an unsnappable point and return HTTP 200 with a
@@ -1181,8 +1181,8 @@ class RegionFlowEstimates:
 
     A state commonly defines several independently-calibrated regressionRegions per
     statistic group (WA Peak-Flow: four) -- this is one of them, not "the" answer
-    for a point. See :func:`estimate_flow_statistics`'s docstring on region
-    selection before treating one of these as authoritative for a given location.
+    for a point. ``located`` says whether NSS placed the watershed in it (``None`` when
+    no polygon was given); see :func:`estimate_flow_statistics` on region selection.
     """
 
     region_code: str
@@ -1191,6 +1191,16 @@ class RegionFlowEstimates:
     statistic_group_name: str
     estimates: Dict[str, FlowStatisticEstimate] = field(default_factory=dict)
     citation: Optional[RegressionCitation] = None
+    #: ``True`` when NSS placed the watershed polygon in this region, ``False`` when it
+    #: did not, ``None`` when no polygon was supplied (location was never checked).
+    located: Optional[bool] = None
+    #: NSS's own area percentage of the watershed in this region (``percentWeight``
+    #: from ``bylocation``); ``None`` unless located. For the area-averaged result,
+    #: ``None`` too -- it is the whole basin.
+    percent_weight: Optional[float] = None
+    #: ``True`` only for NSS's own ``areaave`` result: the percent-weighted mean of the
+    #: located regions' estimates, returned when the basin spans several regions.
+    area_averaged: bool = False
 
     def __getitem__(self, code: str) -> FlowStatisticEstimate:
         return self.estimates[code]
@@ -1206,6 +1216,9 @@ class RegionFlowEstimates:
             "statistic_group_name": self.statistic_group_name,
             "estimates": {k: v.to_dict() for k, v in self.estimates.items()},
             "citation": self.citation.to_dict() if self.citation else None,
+            "located": self.located,
+            "percent_weight": self.percent_weight,
+            "area_averaged": self.area_averaged,
         }
 
     @classmethod
@@ -1220,7 +1233,155 @@ class RegionFlowEstimates:
                 code: FlowStatisticEstimate.from_dict(e) for code, e in data["estimates"].items()
             },
             citation=RegressionCitation.from_dict(citation) if citation else None,
+            located=data.get("located"),
+            percent_weight=data.get("percent_weight"),
+            area_averaged=bool(data.get("area_averaged", False)),
         )
+
+
+@dataclass
+class RegressionRegionLocation:
+    """One NSS regression region a watershed polygon overlaps (addendum S5).
+
+    Attributes
+    ----------
+    percent_weight : float
+        NSS's own percentage of the watershed's area in this region, as NSS reports it
+        (rounded to a whole percent). It is what NSS weights by when area-averaging.
+    area_sq_mi : float
+        The overlap area, square miles, unrounded.
+    """
+
+    region_id: int
+    code: str
+    name: str
+    percent_weight: float
+    area_sq_mi: float
+    citation_id: Optional[int] = None
+
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "RegressionRegionLocation":
+        return cls(**data)
+
+
+#: How far NSS's rounded ``percentWeight`` may sit from ``100 * area / basin area``
+#: before a ``bylocation`` answer is refused: 0.5 for NSS's whole-percent rounding plus
+#: 1.0 for the gap between NSS's projected area and this module's spherical one
+#: (0.3% at most live). Observed live: 89/11 against 89.46/10.54 (Goat Creek, national
+#: regions), 44/32/24 against 44.12/31.86/24.01 (Ogeechee, GA).
+_PERCENT_WEIGHT_TOL: float = 1.5
+
+#: How close the ``percentWeight`` of the located regions of one statistic group must
+#: sum to 100 for NSS to area-average them. Confirmed live: 60+40 returns an
+#: ``areaave`` result; 60+30 returns none, and no error either.
+_WEIGHT_SUM_TOL: float = 0.5
+
+
+def _geometry_of(watershed_polygon: Dict[str, Any]) -> Dict[str, Any]:
+    """The geometry of a GeoJSON Feature, or the object itself if it is a geometry."""
+    if watershed_polygon.get("type") == "Feature":
+        geometry = watershed_polygon.get("geometry")
+        if not isinstance(geometry, dict):
+            raise ValueError("watershed_polygon is a Feature with no geometry")
+        return geometry
+    return watershed_polygon
+
+
+def locate_regression_regions(
+    region: str,
+    watershed_polygon: Dict[str, Any],
+    *,
+    timeout: float = 60.0,
+) -> List[RegressionRegionLocation]:
+    """The NSS regression regions a watershed polygon falls in, with area percentages.
+
+    ``POST /nssservices/regions/{region}/regressionregions/bylocation`` with the bare
+    GeoJSON geometry as the body, verified live 2026-09-27 (addendum S5). Scoped to
+    *region*: the unscoped ``/regressionregions/bylocation`` also returns national
+    studies and neighbouring states' regions (Oregon's low-flow regions for a WA basin
+    on the Columbia), none of which a WA scenario can use.
+
+    Every answer is checked against the polygon it was asked about: each region's
+    overlap area may not exceed the basin's by more than :data:`POLYGON_AREA_RTOL`, and
+    each ``percentWeight`` must agree with ``100 * area / basin area`` to within
+    1.5 percentage points.
+
+    Parameters
+    ----------
+    region : str
+        StreamStats/NSS region code, e.g. ``"WA"``. Never inferred.
+    watershed_polygon : dict
+        A GeoJSON Polygon/MultiPolygon, or a Feature carrying one -- for instance
+        :attr:`WatershedCharacteristics.polygon_geojson`. NSS refuses a bare Point
+        (``400 "Geometry is not of type: Polygon,MultiPolygon"``, confirmed live).
+
+    Returns
+    -------
+    list of RegressionRegionLocation
+        Possibly empty: a basin outside every region that has geometry in NSS. Some
+        regions have none (WA's low-flow ``GC1434``, ``GC1556``, ``GC1558``,
+        ``statusID`` 3) and so can never be located.
+
+    Raises
+    ------
+    StreamStatsResponseError
+        A rejected request, or an answer that fails the checks above.
+    StreamStatsTransportError
+        Transport failure after retrying.
+    """
+    geometry = _geometry_of(watershed_polygon)
+    basin_sq_mi = geojson_area_sq_mi(geometry)
+    url = f"https://{GENERIC_HOST}/nssservices/regions/{region}/regressionregions/bylocation"
+    response = _request_with_backoff(requests.post, url, json_body=geometry, timeout=timeout)
+    if response.status_code >= 400:
+        raise StreamStatsResponseError(
+            f"NSS bylocation for region {region!r} was rejected "
+            f"({response.status_code}): {response.text}"
+        )
+    try:
+        data = response.json()
+    except ValueError as exc:
+        raise StreamStatsResponseError(
+            f"NSS bylocation response for region {region!r} was not valid JSON"
+        ) from exc
+    if not isinstance(data, list):
+        raise StreamStatsResponseError(
+            f"Expected a list of regression regions from {url}, got {type(data).__name__}"
+        )
+
+    located: List[RegressionRegionLocation] = []
+    for item in data:
+        try:
+            loc = RegressionRegionLocation(
+                region_id=int(item["id"]),
+                code=str(item["code"]),
+                name=str(item.get("name", "")),
+                percent_weight=float(item["percentWeight"]),
+                area_sq_mi=float(item["area"]),
+                citation_id=(
+                    int(item["citationID"]) if item.get("citationID") is not None else None
+                ),
+            )
+        except (KeyError, TypeError, ValueError) as exc:
+            raise StreamStatsResponseError(
+                f"NSS bylocation entry missing id/code/percentWeight/area: {item!r}"
+            ) from exc
+        if loc.area_sq_mi < 0 or loc.area_sq_mi > basin_sq_mi * (1.0 + POLYGON_AREA_RTOL):
+            raise StreamStatsResponseError(
+                f"NSS placed {loc.area_sq_mi:.4g} mi^2 of a {basin_sq_mi:.4g} mi^2 basin in "
+                f"region {loc.code}; the answer is not about this polygon"
+            )
+        implied = 100.0 * loc.area_sq_mi / basin_sq_mi
+        if abs(loc.percent_weight - implied) > _PERCENT_WEIGHT_TOL:
+            raise StreamStatsResponseError(
+                f"NSS gave region {loc.code} percentWeight {loc.percent_weight} but an "
+                f"area of {loc.area_sq_mi:.4g} of {basin_sq_mi:.4g} mi^2 ({implied:.1f}%)"
+            )
+        located.append(loc)
+    return located
 
 
 def list_statistic_groups(
@@ -1335,6 +1496,63 @@ def _fetch_citations(region_ids: Sequence[int], *, timeout: float) -> Dict[int, 
     }
 
 
+def _parse_region_results(rr: Dict[str, Any]) -> Dict[str, FlowStatisticEstimate]:
+    """Parse one regressionRegion's ``results`` from a ``Scenarios/Estimate`` answer."""
+    estimates: Dict[str, FlowStatisticEstimate] = {}
+    for stat in rr.get("results", []) or []:
+        errors = stat.get("errors") or []
+        sep = next((e.get("value") for e in errors if e.get("code") == "ASEp"), None)
+        bounds = stat.get("intervalBounds") or {}
+        try:
+            code = str(stat["code"])
+            value = float(stat["value"])
+        except (KeyError, TypeError, ValueError) as exc:
+            raise StreamStatsResponseError(
+                f"NSS result entry missing code/value: {stat!r}"
+            ) from exc
+        estimates[code] = FlowStatisticEstimate(
+            code=code,
+            name=str(stat.get("name", "")),
+            description=str(stat.get("description", "")),
+            value=value,
+            unit=str((stat.get("unit") or {}).get("abbr", "")),
+            equation=str(stat.get("equation", "")),
+            standard_error_pct=sep,
+            interval_lower=bounds.get("lower"),
+            interval_upper=bounds.get("upper"),
+        )
+    return estimates
+
+
+#: NSS's own area-averaged pseudo-region in a ``Scenarios/Estimate`` answer (live).
+_AREA_AVERAGED_CODE: str = "areaave"
+
+
+def _check_area_average(
+    average: RegionFlowEstimates,
+    weighted: Sequence[RegionFlowEstimates],
+    weights: Dict[str, float],
+) -> None:
+    """Raise unless NSS's ``areaave`` values are the percent-weighted mean it claims.
+
+    Confirmed live (addendum S5) that NSS computes ``sum(w_i * Q_i) / 100`` over the
+    values it returns for each region -- 0.6*116 + 0.4*33.3 = 82.92 exactly. Checked
+    here to 0.5% rather than trusted.
+    """
+    for code, est in average.estimates.items():
+        parts = [(weights[r.region_code], r.estimates.get(code)) for r in weighted]
+        if any(p is None for _, p in parts):
+            raise StreamStatsResponseError(
+                f"NSS area-averaged {code} has no counterpart in every weighted region"
+            )
+        expected = sum(w * p.value for w, p in parts if p is not None) / 100.0
+        if not math.isclose(est.value, expected, rel_tol=0.005, abs_tol=1e-9):
+            raise StreamStatsResponseError(
+                f"NSS area-averaged {code} = {est.value} but the percent-weighted mean of "
+                f"its regions is {expected:.6g}"
+            )
+
+
 def estimate_flow_statistics(
     region: str,
     characteristics: Dict[str, Characteristic],
@@ -1342,25 +1560,35 @@ def estimate_flow_statistics(
     *,
     unit_system: int = 2,
     timeout: float = 60.0,
+    watershed_polygon: Optional[Dict[str, Any]] = None,
+    include_unlocated: bool = False,
 ) -> Tuple[List[RegionFlowEstimates], Dict[str, str]]:
     """Estimate NSS regression flow statistics from real basin characteristics.
 
     Phase 2 (``docs/STREAMSTATS_NSS_ADDENDUM.md``). Given characteristics Phase 1's
-    :func:`delineate_and_get_characteristics` already produced, computes every
-    regression equation NSS defines for the region -- across every regressionRegion
-    within every requested statistic group -- skipping (never silently computing)
-    any region whose required parameters are missing or fall outside that region's
-    own declared valid range (addendum S3).
+    :func:`delineate_and_get_characteristics` already produced, computes the
+    regression equations NSS defines for the region, skipping (never silently
+    computing) any regressionRegion whose required parameters are missing or fall
+    outside that region's own declared valid range (addendum S3).
 
-    **Region selection is not automatic.** NSS defines multiple, independently
-    calibrated regressionRegions per statistic group within a state (WA Peak-Flow
-    has four), and no available call filters them by location: Phase 1 provides no
-    watershed polygon, and confirmed live, NSS's own ``ByLocation`` call does not
-    filter on a bare point either. Every geographically-plausible region computes a
-    result with no error as long as its parameters are merely in numeric range --
-    picking the geographically-correct one among the returned regions is the
-    caller's responsibility, the same way FR-8 makes the StreamStats region itself
-    the caller's responsibility one level up.
+    **Region selection.** NSS defines several independently calibrated
+    regressionRegions per statistic group within a state (WA Peak-Flow has four) and
+    computes an answer for every one it is handed, whether or not the basin is in it.
+    Pass ``watershed_polygon`` (e.g. :attr:`WatershedCharacteristics.polygon_geojson`)
+    and the regions are resolved by :func:`locate_regression_regions` (addendum S5):
+
+    - only the regions the polygon falls in are estimated, each labelled
+      ``located=True`` with NSS's own area ``percent_weight``;
+    - when the located regions of one statistic group are all in range and their
+      weights sum to 100, NSS's own area-weighted mean comes back as an extra
+      :class:`RegionFlowEstimates` with ``area_averaged=True`` (code ``areaave``),
+      checked against the weighted mean of the regions' values;
+    - ``include_unlocated=True`` keeps the other in-range regions too, labelled
+      ``located=False``, and then requests no area average (NSS computes none for a
+      mix of weighted and unweighted regions -- confirmed live).
+
+    Without a polygon the behaviour is unchanged from before: every in-range region is
+    returned with ``located=None``, and choosing among them is the caller's job.
 
     Parameters
     ----------
@@ -1377,16 +1605,21 @@ def estimate_flow_statistics(
         1=Metric, 2=US Customary (default), 3=Universal.
     timeout : float
         Per-request timeout in seconds.
+    watershed_polygon : dict, optional
+        The basin as a GeoJSON Polygon/MultiPolygon or a Feature carrying one.
+    include_unlocated : bool
+        With a polygon, also return in-range regions the basin is not in.
 
     Returns
     -------
     tuple
         ``(region_estimates, skipped)`` -- ``region_estimates`` is a list of
         :class:`RegionFlowEstimates`, one per (statistic group, regressionRegion)
-        pair that had every required parameter in range; ``skipped`` maps
-        ``"{statistic_group_code}:{region_code}"`` to why it was excluded. Mirrors
-        FR-7's batch shape one level deeper: one bad regression region never
-        excludes its siblings.
+        estimated, plus any area-averaged result; ``skipped`` maps
+        ``"{statistic_group_code}:{region_code}"`` to why that region was excluded,
+        and ``"{statistic_group_code}:areaave"`` to why no area average was requested
+        for a basin that spans several regions. One bad regression region never
+        excludes its siblings (FR-7's batch shape, one level deeper).
 
     Raises
     ------
@@ -1397,6 +1630,13 @@ def estimate_flow_statistics(
         statistic_group_codes = [g["code"] for g in list_statistic_groups(region, timeout=timeout)]
 
     id_to_code = {g["id"]: g["code"] for g in list_statistic_groups(timeout=timeout)}
+
+    locations: Optional[Dict[str, RegressionRegionLocation]] = None
+    if watershed_polygon is not None:
+        locations = {
+            loc.code: loc
+            for loc in locate_regression_regions(region, watershed_polygon, timeout=timeout)
+        }
 
     templates_url = f"https://{GENERIC_HOST}/nssservices/regions/{region}/Scenarios"
     templates_params = {
@@ -1421,13 +1661,49 @@ def estimate_flow_statistics(
 
     skipped: Dict[str, str] = {}
     to_submit: List[Dict[str, Any]] = []
+    #: statistic group code -> {region code: percent weight} submitted for averaging
+    averaged_weights: Dict[str, Dict[str, float]] = {}
     for scenario in templates:
         group_code = id_to_code.get(scenario.get("statisticGroupID"), "")
+        template_regions = scenario.get("regressionRegions", [])
+        if locations is not None and not include_unlocated:
+            for rr in template_regions:
+                code = str(rr.get("code", "?"))
+                if code not in locations:
+                    skipped[f"{group_code}:{code}"] = (
+                        "the watershed is not in this regression region (NSS bylocation)"
+                    )
+            scenario = dict(scenario)
+            scenario["regressionRegions"] = [
+                rr for rr in template_regions if str(rr.get("code")) in locations
+            ]
         filled, region_skips = _fill_and_validate_regions(scenario, characteristics)
         for region_code, reason in region_skips.items():
             skipped[f"{group_code}:{region_code}"] = reason
-        if filled["regressionRegions"]:
-            to_submit.append(filled)
+        if not filled["regressionRegions"]:
+            continue
+
+        if locations is not None and not include_unlocated:
+            located_here = [str(rr.get("code")) for rr in scenario["regressionRegions"]]
+            if len(located_here) > 1:
+                weights = {c: locations[c].percent_weight for c in located_here}
+                total = sum(weights.values())
+                if region_skips:
+                    skipped[f"{group_code}:areaave"] = (
+                        f"basin spans {', '.join(located_here)} but "
+                        f"{', '.join(sorted(region_skips))} could not be estimated, so no "
+                        "area-weighted average"
+                    )
+                elif abs(total - 100.0) > _WEIGHT_SUM_TOL:
+                    skipped[f"{group_code}:areaave"] = (
+                        f"located regions' weights sum to {total:g}, not 100, so NSS "
+                        "would not area-average them"
+                    )
+                else:
+                    for rr in filled["regressionRegions"]:
+                        rr["percentWeight"] = weights[str(rr.get("code"))]
+                    averaged_weights[group_code] = weights
+        to_submit.append(filled)
 
     if not to_submit:
         return [], skipped
@@ -1458,46 +1734,44 @@ def estimate_flow_statistics(
     for scenario in results:
         group_code = id_to_code.get(scenario.get("statisticGroupID"), "")
         group_name = str(scenario.get("statisticGroupName", ""))
+        group_items: List[RegionFlowEstimates] = []
+        average: Optional[RegionFlowEstimates] = None
         for rr in scenario.get("regressionRegions", []):
-            estimates: Dict[str, FlowStatisticEstimate] = {}
-            for stat in rr.get("results", []) or []:
-                errors = stat.get("errors") or []
-                sep = next((e.get("value") for e in errors if e.get("code") == "ASEp"), None)
-                bounds = stat.get("intervalBounds") or {}
-                try:
-                    code = str(stat["code"])
-                    value = float(stat["value"])
-                except (KeyError, TypeError, ValueError) as exc:
-                    raise StreamStatsResponseError(
-                        f"NSS result entry missing code/value: {stat!r}"
-                    ) from exc
-                estimates[code] = FlowStatisticEstimate(
-                    code=code,
-                    name=str(stat.get("name", "")),
-                    description=str(stat.get("description", "")),
-                    value=value,
-                    unit=str((stat.get("unit") or {}).get("abbr", "")),
-                    equation=str(stat.get("equation", "")),
-                    standard_error_pct=sep,
-                    interval_lower=bounds.get("lower"),
-                    interval_upper=bounds.get("upper"),
-                )
-            region_id = rr.get("id")
-            citation_id = rr.get("citationID")
-            if region_id is not None:
-                region_ids.append(region_id)
-            parsed.append(
-                (
-                    citation_id,
-                    RegionFlowEstimates(
-                        region_code=str(rr.get("code", "")),
-                        region_name=str(rr.get("name", "")),
-                        statistic_group_code=group_code,
-                        statistic_group_name=group_name,
-                        estimates=estimates,
-                    ),
-                )
+            code = str(rr.get("code", ""))
+            item = RegionFlowEstimates(
+                region_code=code,
+                region_name=str(rr.get("name", "")),
+                statistic_group_code=group_code,
+                statistic_group_name=group_name,
+                estimates=_parse_region_results(rr),
             )
+            if code == _AREA_AVERAGED_CODE:
+                if group_code not in averaged_weights:
+                    raise StreamStatsResponseError(
+                        f"NSS returned an area average for {group_code} that was not asked for"
+                    )
+                item.area_averaged = True
+                item.located = True
+                average = item
+                parsed.append((None, item))
+                continue
+            if locations is not None:
+                loc = locations.get(code)
+                item.located = loc is not None
+                item.percent_weight = loc.percent_weight if loc is not None else None
+            region_id = rr.get("id")
+            if isinstance(region_id, int) and region_id > 0:
+                region_ids.append(region_id)
+            group_items.append(item)
+            parsed.append((rr.get("citationID"), item))
+
+        if group_code in averaged_weights:
+            if average is None:
+                raise StreamStatsResponseError(
+                    f"NSS returned no area average for {group_code} although the located "
+                    "regions were submitted with weights summing to 100"
+                )
+            _check_area_average(average, group_items, averaged_weights[group_code])
 
     citations_by_id: Dict[int, RegressionCitation] = {}
     if region_ids:
@@ -1526,6 +1800,8 @@ def batch_estimate_flow_statistics(
     cache: Optional[StreamStatsCache] = None,
     validate_regions: bool = True,
     timeout: float = 60.0,
+    select_by_location: bool = True,
+    include_unlocated: bool = False,
 ) -> Tuple[Dict[str, List[RegionFlowEstimates]], Dict[str, Dict[str, str]], Dict[str, str]]:
     """Delineate, then estimate flow statistics, for many pour points.
 
@@ -1542,6 +1818,12 @@ def batch_estimate_flow_statistics(
         Passed through to :func:`estimate_flow_statistics` for every point.
     concurrency, cache, validate_regions, timeout
         Passed through to :func:`batch_get_characteristics`.
+    select_by_location : bool
+        Pass each point's own watershed polygon to :func:`estimate_flow_statistics`
+        so NSS regions are chosen by location (default). ``False`` restores the old
+        every-in-range-region behaviour.
+    include_unlocated : bool
+        Passed through to :func:`estimate_flow_statistics`.
 
     Returns
     -------
@@ -1575,6 +1857,8 @@ def batch_estimate_flow_statistics(
                 statistic_group_codes=statistic_group_codes,
                 unit_system=unit_system,
                 timeout=timeout,
+                watershed_polygon=watershed.polygon_geojson if select_by_location else None,
+                include_unlocated=include_unlocated,
             )
             estimates[point_id] = region_estimates
             if point_skipped:
