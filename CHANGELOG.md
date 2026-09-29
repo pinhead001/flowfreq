@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **`FrequencyResults.n_low_outliers` is now peakfq's `gbnlow`** on the native engine, as it
+  already was on the Fortran one: the number of EMA rows `gbtest` recodes below the
+  low-outlier cutoff (`emafit.f` lines 1062-1076). That count covers exact peaks, zero-flow
+  years, interval and historic rows, and years with no peak that a perception threshold below
+  the cutoff censors. It used to be MGBT's own count of flagged peaks.
+  - **Result change:** on the 24 WY/MT `.psf` stations the count changes at three stations,
+    06328100 (17 -> 20), 06326960 (12 -> 15) and 06177820 (6 -> 8), and now equals `gbnlow`
+    at all 24. No moment, quantile or bound moves.
+  - The old count is kept as the new `FrequencyResults.n_mgbt_outliers` (also
+    `Bulletin17C.n_mgbt_outliers` and `run_ffa`'s `parameters["n_mgbt_outliers"]`). It counts
+    the members of `gbtest`'s MGBT sample below the threshold. With a user threshold it now
+    also counts `gbtest`'s qualifying less-than values. The Fortran engine derives the same
+    number from its arrays.
+  - The frequency plots label the threshold and count "peak(s) below PILF threshold" with
+    `n_mgbt_outliers`, since they mean peaks. The Markdown report shows both counts.
+
 ### Added
 - **Regional skew by location** (`flowfreq.regional_skew`, roadmap §1.3):
   `regional_skew_at_huc(huc, state=None)`, `regional_skew_at(lat, lon)` and

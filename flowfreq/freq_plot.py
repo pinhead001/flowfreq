@@ -133,7 +133,10 @@ def plot_frequency_curve(
     # Separate PILF (below low-outlier threshold) from normal peaks for markers
     peak_flows = b17c._peak_flows  # noqa: SLF001
     pilf_set = set(r.pilf_flows) if r.pilf_flows else set()
-    pilf_threshold = r.low_outlier_threshold if r.n_low_outliers > 0 else None
+    # Peaks the low-outlier test flagged; n_low_outliers (peakfq's gbnlow) also
+    # counts censored gap-year rows, which are not plotted peaks.
+    n_flagged = r.n_mgbt_outliers if r.n_mgbt_outliers is not None else r.n_low_outliers
+    pilf_threshold = r.low_outlier_threshold if n_flagged > 0 else None
 
     sorted_flows = np.sort(peak_flows)[::-1]
     n_obs = len(sorted_flows)
@@ -255,13 +258,13 @@ def plot_frequency_curve(
         ax.plot(x_cl, upper_ec, color=_EXTRA_CURVE_COLOR, linestyle=":", linewidth=0.7, alpha=0.55)
 
     # --- Low outlier threshold ---
-    if r.low_outlier_threshold > 0 and r.n_low_outliers > 0:
+    if r.low_outlier_threshold > 0 and n_flagged > 0:
         ax.axhline(
             r.low_outlier_threshold,
             color="red",
             linestyle="--",
             alpha=0.7,
-            label=f"MGBT Threshold ({r.n_low_outliers} PILF)",
+            label=f"MGBT Threshold ({n_flagged} PILF)",
         )
 
     # --- Axes ---
@@ -322,8 +325,8 @@ def plot_frequency_curve(
         f"\u03c3(log Q) = {std_log:.4f}\n"
         f"{skew_lines}"
     )
-    if r.n_low_outliers > 0:
-        stats_text += f"\n{r.n_low_outliers} peak(s) below PILF threshold"
+    if n_flagged > 0:
+        stats_text += f"\n{n_flagged} peak(s) below PILF threshold"
     if r.n_zeros > 0:
         stats_text += f"\n{r.n_zeros} zero flow(s) not displayed"
     ax.annotate(

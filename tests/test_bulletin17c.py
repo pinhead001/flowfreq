@@ -937,3 +937,61 @@ class TestNearZeroSkewConfidenceBounds:
         q = ema.compute_quantiles(np.array([0.01]))["flow_cfs"].iloc[0]
         expected = 10 ** (r.mean_log + kfactor(r.skew_used, 0.01) * r.std_log)
         assert q == pytest.approx(expected, rel=1e-10)
+
+
+class TestLowOutlierCounts:
+    """``n_low_outliers`` is peakfq's ``gbnlow``; ``n_mgbt_outliers`` the flagged peaks."""
+
+    @staticmethod
+    def _record():
+        rng = np.random.default_rng(7)
+        years = np.arange(1960, 2010)
+        flows = np.round(10 ** rng.normal(3.0, 0.35, len(years)), 0)
+        gaps = [1970, 1971, 1972]  # no peak, censored below a 50 cfs perception threshold
+        keep = ~np.isin(years, gaps)
+        return flows[keep], years[keep], gaps
+
+    def test_gap_years_below_the_cutoff_are_low_outlier_rows(self):
+        flows, years, gaps = self._record()
+        # Above the smallest peak, so gbtest does not put the gap years into
+        # the test's own sample; below the 300 cfs cutoff, so it censors them.
+        perception = (float(flows.min()) + 300.0) / 2.0
+        b = Bulletin17C(
+            flows,
+            years,
+            user_low_outlier_threshold=300.0,
+            perception_thresholds={(1960, 2009): perception},
+        )
+        r = b.run_analysis(method="ema")
+        below = int(np.sum(flows < 300.0))
+        assert below > 0
+        assert r.n_mgbt_outliers == below
+        assert r.n_low_outliers == below + len(gaps)
+        assert b.n_mgbt_outliers == below
+
+    def test_less_than_gap_years_are_in_the_tests_sample(self):
+        """A gap year censored no higher than the smallest peak joins MGBT's sample."""
+        flows, years, gaps = self._record()
+        r = Bulletin17C(
+            flows,
+            years,
+            user_low_outlier_threshold=300.0,
+            perception_thresholds={(1960, 2009): float(flows.min()) / 2.0},
+        ).run_analysis(method="ema")
+        below = int(np.sum(flows < 300.0))
+        assert r.n_mgbt_outliers == r.n_low_outliers == below + len(gaps)
+
+    def test_gap_years_above_the_cutoff_are_not(self):
+        flows, years, _gaps = self._record()
+        r = Bulletin17C(
+            flows,
+            years,
+            user_low_outlier_threshold=300.0,
+            perception_thresholds={(1960, 2009): 400.0},
+        ).run_analysis(method="ema")
+        assert r.n_low_outliers == r.n_mgbt_outliers == int(np.sum(flows < 300.0))
+
+    def test_method_of_moments_reports_both_alike(self):
+        flows, years, _gaps = self._record()
+        r = Bulletin17C(flows, years, user_low_outlier_threshold=300.0).run_analysis(method="mom")
+        assert r.n_low_outliers == r.n_mgbt_outliers == int(np.sum(flows < 300.0))
