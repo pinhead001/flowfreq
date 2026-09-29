@@ -85,7 +85,10 @@ Standing rules carried over from this repo's history, which apply to every phase
       data releases on ScienceBase or from the StreamStats state layers, and store them as
       compressed GeoPackage/Parquet with the citation. This removes the open "region
       selection without a polygon" item: point-in-polygon picks the region, including
-      area-weighted multi-region basins.
+      area-weighted multi-region basins. *Partly superseded 2026-09-27:* online, NSS's
+      own `regressionregions/bylocation` now selects regions from the watershed polygon,
+      with area weights (`streamstats.locate_regression_regions`, addendum S5). An
+      offline store is still needed for the offline backend.
 - [ ] **Local basin-characteristic computation (fallback).** For jurisdictions or
       characteristics StreamStats does not serve, compute the common RRE variables (DRNAREA,
       PRECIP, slope, forest %, impervious %, storage %, elevation) from NHDPlus HR, 3DEP,

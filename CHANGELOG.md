@@ -21,6 +21,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `A:e:ICE`).
   - Captures under `tests/fixtures/waterdata_ogc/daily_*` are paired with legacy `dv_*.rdb`
     captures of the same windows (`tools/capture_daily_fixtures.py`).
+- **NSS region selection by watershed polygon.** `locate_regression_regions(region,
+  polygon)` asks NSS which regression regions a basin falls in, and with what area
+  percentage (`POST /nssservices/regions/{region}/regressionregions/bylocation`, verified
+  live; `docs/STREAMSTATS_NSS_ADDENDUM.md` S5). The answer is checked against the
+  polygon's own area.
+  - `estimate_flow_statistics(..., watershed_polygon=...)` now estimates only the located
+    regions, labelled `located=True` with `percent_weight`.
+  - When a basin spans several in-range regions whose weights sum to 100, NSS's own
+    area-weighted mean is returned as an extra result with `area_averaged=True`, after
+    checking it against the weighted mean.
+  - `include_unlocated=True`, or passing no polygon, keeps the old every-in-range-region
+    behaviour.
+  - `batch_estimate_flow_statistics` uses each point's own polygon by default
+    (`select_by_location=False` to opt out).
+  - Goat Creek, WA locates to Peak Region 2 (`GC1751`, 50% AEP 3,290 cfs), not the Region
+    1 (`GC1750`, 4,370 cfs) the earlier live test pinned.
 
 ### Changed
 - **`USGSgage.download_daily_flow` now reads the Water Data OGC API by default** (#29).
