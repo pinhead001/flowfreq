@@ -170,13 +170,121 @@ def _rfc3339(ts: pd.Timestamp) -> str:
 # ----------------------------------------------------------------------------
 
 
+#: Environment variable holding a Water Data API key. Without a key the API
+#: allows 1000 requests per hour per IP (HTTP 429 beyond that); a key, from
+#: https://api.waterdata.usgs.gov/signup/, raises the limit. Sent as ``X-Api-Key``.
+API_KEY_ENV = "USGS_API_KEY"
+
+#: HTTP statuses retried with backoff: rate-limited, and transient unavailability.
+RETRY_STATUSES = frozenset({429, 503})
+
+#: Retries after the first attempt, and the backoff cap in seconds.
+MAX_RETRIES = 4
+MAX_BACKOFF_S = 60.0
+
+_api_key: Optional[str] = None
+
+
+def set_api_key(key: Optional[str]) -> None:
+    """Set the Water Data API key for this process, overriding ``USGS_API_KEY``.
+
+    Parameters
+    ----------
+    key : str or None
+        The key, or ``None`` to fall back to the environment variable.
+    """
+    global _api_key
+    _api_key = key.strip() if key else None
+
+
+def _current_api_key() -> Optional[str]:
+    import os
+
+    key = _api_key if _api_key is not None else os.environ.get(API_KEY_ENV, "")
+    return key.strip() or None
+
+
+def _retry_delay(response: requests.Response, attempt: int) -> float:
+    """Seconds to wait before retry ``attempt`` (1-based): ``Retry-After`` if sent."""
+    header = response.headers.get("Retry-After", "")
+    try:
+        return min(max(float(header), 0.0), MAX_BACKOFF_S)
+    except ValueError:
+        return min(2.0**attempt, MAX_BACKOFF_S)
+
+
+def request(url: str, params: Optional[Mapping[str, Any]], timeout: float) -> requests.Response:
+    """GET from the Water Data API with the API key and 429/503 backoff.
+
+    Every call to ``api.waterdata.usgs.gov`` in flowfreq goes through here, so the
+    key and the retry policy apply to peaks, instantaneous and daily values, and
+    monitoring-location metadata alike.
+
+    Parameters
+    ----------
+    url : str
+    params : mapping, optional
+        Query parameters; ``None`` for a ``next`` link that already carries them.
+    timeout : float
+        Per-attempt timeout, seconds.
+
+    Returns
+    -------
+    requests.Response
+        The final response, already checked with ``raise_for_status``.
+
+    Raises
+    ------
+    requests.HTTPError
+        After :data:`MAX_RETRIES` retries still return 429/503, or on any other
+        error status. A 429 or 403 message says how to supply an API key.
+    """
+    import time
+
+    key = _current_api_key()
+    extra: Dict[str, Any] = {"headers": {"X-Api-Key": key}} if key else {}
+    attempt = 0
+    while True:
+        response = requests.get(url, params=params, timeout=timeout, **extra)
+        if response.status_code in RETRY_STATUSES and attempt < MAX_RETRIES:
+            attempt += 1
+            delay = _retry_delay(response, attempt)
+            logger.warning(
+                "Water Data API returned %d; retry %d/%d in %.0f s",
+                response.status_code,
+                attempt,
+                MAX_RETRIES,
+                delay,
+            )
+            time.sleep(delay)
+            continue
+        try:
+            response.raise_for_status()
+        except requests.HTTPError as exc:
+            if response.status_code == 429:
+                raise requests.HTTPError(
+                    f"{exc}. Rate limited after {MAX_RETRIES} retries: without an API key "
+                    f"the Water Data API allows 1000 requests/hour per IP. Set {API_KEY_ENV} "
+                    "or call flowfreq.waterdata.set_api_key() "
+                    "(keys: https://api.waterdata.usgs.gov/signup/).",
+                    response=response,
+                ) from exc
+            if response.status_code == 403 and key:
+                raise requests.HTTPError(
+                    f"{exc}. The Water Data API rejected the API key from "
+                    f"{API_KEY_ENV}/set_api_key().",
+                    response=response,
+                ) from exc
+            raise
+        return response
+
+
 def _get_json(
     url: str, params: Optional[Mapping[str, Any]], timeout: int, what: str
 ) -> Dict[str, Any]:
     """GET a JSON document, naming the request in any failure."""
     try:
-        response = requests.get(url, params=params, timeout=timeout)
-        response.raise_for_status()
+        response = request(url, params, timeout)
         payload = response.json()
     except (requests.RequestException, ValueError) as exc:
         raise requests.RequestException(f"Water Data API request failed ({what}): {exc}") from exc
