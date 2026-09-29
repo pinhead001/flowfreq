@@ -89,6 +89,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   rather than errors on pytest 9.1 when the Fortran extension is absent. Supersedes
   dependabot #18.
 
+### Fixed
+- **`diel_variation` marks the two daylight-saving days of each year correctly.**
+  `expected_obs` was a fixed 1440 minutes divided by the median step. It is now each local
+  day's actual length (23 or 25 hours on a transition day) divided by that step, the
+  convention `daily_extreme_timing` and `ramping_rates` already used.
+  - **Numbers that move:** only `expected_obs` and `complete`, and only on the
+    spring-forward and fall-back days of a zone that observes DST (e.g. 2024-03-10 and
+    2024-11-03 in `America/*` zones). At 15-minute sampling a spring-forward day now expects
+    92 readings, not 96, and a fall-back day expects 100, not 96. So a gap-free
+    spring-forward day is now `complete` at any `min_completeness_frac`, where it was
+    incomplete above 23/24 (~0.958). At the default 0.9, a spring-forward day with 83-86
+    readings becomes complete, and a fall-back day with 87-89 readings becomes incomplete.
+    `diel_variation_summary` changes only through those `complete` flags.
+  - Every other day, and every day in a zone without DST (`UTC`, `America/Phoenix`,
+    `Pacific/Honolulu`), is unchanged. `range_cfs`, `cv`, `n_obs` and the min/max/mean/std
+    columns never depended on `expected_obs` and are unchanged everywhere.
+  - `expected_obs` is now float64 in all three functions. It was an object column,
+    because the local-day length was computed through a tz-aware `.to_numpy()`.
+
 ## [0.9.0] - 2026-09-27
 
 **Breaking changes -- read before upgrading:**
