@@ -166,6 +166,7 @@ behavior. NSS has its own version, found live, and in one respect it is **worse*
 4. Low-Flow Statistics (`LFS`, the other group WA supports) was not exercised live
    here -- only Peak-Flow (`PFS`). Worth one confirmation pass before assuming the
    shape generalizes, though there is no structural reason to expect it differs.
+   *Done 2026-09-28, S6.* The shape does generalize except for the error code.
 
 ## 5. Region selection by watershed polygon (verified live 2026-09-27)
 
@@ -262,3 +263,42 @@ watershed_polygon=..., include_unlocated=False)`):
 4. With no polygon the old behaviour is unchanged: every in-range region is returned
    with `located=None`. `batch_estimate_flow_statistics` passes each point's own
    polygon unless `select_by_location=False`.
+
+## 6. Low-Flow Statistics, live (2026-09-28)
+
+**WA's four LFS regions** (`GET /nssservices/regions/WA/Scenarios?statisticgroups=LFS`):
+
+| code | name | parameters (limits) | status |
+|---|---|---|---|
+| `GC1434` | Low_Flow_Nooksack_Basin_2009_5170 | DRNAREA 1.1-786, ELEV1000 0.091-4.27 ("Elevation in Thousands", 1000 ft) | 3, no geometry |
+| `GC1556` | Low_Flow_Western_1_var_2012_5078 | DRNAREA 0.1-48.9 | 3, no geometry |
+| `GC1557` | Low_Flow_Western_2_var_2012_5078 | DRNAREA 0.1-48.9, PRECIP 25.1-143 | 4, has geometry |
+| `GC1558` | Low_Flow_Western_3_var_2012_5078 | DRNAREA 0.1-48.9, PRECIP 25.1-143, TAU_ANN_G 19-129 | 3, no geometry |
+
+Citations resolve to Curran and Olsen (2009), SIR 2009-5170 (`GC1434`), and Curran, Eng
+and Konrad (2012), SIR 2012-5078 (the others).
+
+**`ELEV1000` is unobtainable from StreamStats in WA.** WA's ss-hydro computes 11
+characteristics (`GET /ss-hydro/v1/basin-characteristics/WA`), and `ELEV1000` is not
+among them. Requesting it returns the -999 "not found" sentinel (design doc S11).
+`TAU_ANN_G` is not among them either. So `GC1434` and `GC1558` can only be estimated
+from caller-supplied values. This module does not derive `ELEV1000` from `ELEV`,
+because whether it means mean-basin or outlet elevation was not verified.
+
+**Live estimate.** Skookumchuck River near Vail (USGS 12025700 site; snapped 46.77233,
+−122.59394). Characteristics came live through `BCs=DRNAREA;PRECIP`: DRNAREA 39.9 mi²,
+PRECIP 71.07 in.
+
+| region | statistic | NSS value | equation | `evaluate_expression` | error |
+|---|---|---:|---|---:|---|
+| `GC1556` | M7D10Y | 16.2 ft³/s | `0.15*DRNAREA^1.27` | 16.193 | `SE` 133 |
+| `GC1557` | M7D10Y | 12.0 ft³/s | `0.000848*DRNAREA^1.17*PRECIP^1.23` | 11.998 | `SE` 114 |
+
+Both reproduce through `flowfreq.regression.nss`'s own parser to NSS's
+three-significant-figure rounding. Neither result carries `intervalBounds`.
+
+**The one shape difference, and a bug it exposed.** The error statistic's code is
+`"SE"` ("Average standard error (of either estimate or prediction)"), where PFS uses
+`"ASEp"`. The client read only `ASEp`, so every low-flow `standard_error_pct` was
+`None`, the same value S3 treats as a soft out-of-range signal. The client now reads
+`ASEp`, then `SE`, and records which one in `FlowStatisticEstimate.standard_error_code`.

@@ -1,0 +1,184 @@
+[
+ {
+  "statisticGroupID": 4,
+  "statisticGroupName": "Low-Flow Statistics",
+  "regressionRegions": [
+   {
+    "id": 713,
+    "name": "Low_Flow_Nooksack_Basin_2009_5170",
+    "code": "GC1434",
+    "description": "",
+    "statusID": 3,
+    "citationID": 148,
+    "parameters": [
+     {
+      "id": 19502,
+      "name": "Drainage Area",
+      "description": "Area that drains to a point on a stream",
+      "code": "DRNAREA",
+      "unitType": {
+       "id": 35,
+       "unit": "square miles",
+       "abbr": "mi^2"
+      },
+      "value": -999.99,
+      "limits": {
+       "max": 786.0,
+       "min": 1.1
+      }
+     },
+     {
+      "id": 19503,
+      "name": "Elevation in Thousands",
+      "description": "Elevation in Thousands",
+      "code": "ELEV1000",
+      "unitType": {
+       "id": 38,
+       "unit": "thousands of feet",
+       "abbr": "1000 ft"
+      },
+      "value": -999.99,
+      "limits": {
+       "max": 4.27,
+       "min": 0.091
+      }
+     }
+    ]
+   },
+   {
+    "id": 714,
+    "name": "Low_Flow_Western_1_var_2012_5078",
+    "code": "GC1556",
+    "description": "",
+    "statusID": 3,
+    "citationID": 149,
+    "parameters": [
+     {
+      "id": 19526,
+      "name": "Drainage Area",
+      "description": "Area that drains to a point on a stream",
+      "code": "DRNAREA",
+      "unitType": {
+       "id": 35,
+       "unit": "square miles",
+       "abbr": "mi^2"
+      },
+      "value": -999.99,
+      "limits": {
+       "max": 48.9,
+       "min": 0.1
+      }
+     }
+    ]
+   },
+   {
+    "id": 715,
+    "name": "Low_Flow_Western_2_var_2012_5078",
+    "code": "GC1557",
+    "description": "",
+    "statusID": 4,
+    "methodID": 4,
+    "citationID": 149,
+    "parameters": [
+     {
+      "id": 19527,
+      "name": "Drainage Area",
+      "description": "Area that drains to a point on a stream",
+      "code": "DRNAREA",
+      "unitType": {
+       "id": 35,
+       "unit": "square miles",
+       "abbr": "mi^2"
+      },
+      "value": -999.99,
+      "limits": {
+       "max": 48.9,
+       "min": 0.1
+      }
+     },
+     {
+      "id": 19528,
+      "name": "Mean Annual Precipitation",
+      "description": "Mean Annual Precipitation",
+      "code": "PRECIP",
+      "unitType": {
+       "id": 36,
+       "unit": "inches",
+       "abbr": "in"
+      },
+      "value": -999.99,
+      "limits": {
+       "max": 143.0,
+       "min": 25.1
+      }
+     }
+    ]
+   },
+   {
+    "id": 716,
+    "name": "Low_Flow_Western_3_var_2012_5078",
+    "code": "GC1558",
+    "description": "",
+    "statusID": 3,
+    "citationID": 149,
+    "parameters": [
+     {
+      "id": 19529,
+      "name": "Drainage Area",
+      "description": "Area that drains to a point on a stream",
+      "code": "DRNAREA",
+      "unitType": {
+       "id": 35,
+       "unit": "square miles",
+       "abbr": "mi^2"
+      },
+      "value": -999.99,
+      "limits": {
+       "max": 48.9,
+       "min": 0.1
+      }
+     },
+     {
+      "id": 19530,
+      "name": "Mean Annual Precipitation",
+      "description": "Mean Annual Precipitation",
+      "code": "PRECIP",
+      "unitType": {
+       "id": 36,
+       "unit": "inches",
+       "abbr": "in"
+      },
+      "value": -999.99,
+      "limits": {
+       "max": 143.0,
+       "min": 25.1
+      }
+     },
+     {
+      "id": 19531,
+      "name": "Tau Annual from Grid",
+      "description": "Tau, Average annual base-flow recession time constant as defined in SIR 2008-5065",
+      "code": "TAU_ANN_G",
+      "unitType": {
+       "id": 0,
+       "unit": "days",
+       "abbr": "days"
+      },
+      "value": -999.99,
+      "limits": {
+       "max": 129.0,
+       "min": 19.0
+      }
+     }
+    ]
+   }
+  ],
+  "links": [
+   {
+    "rel": "Citations",
+    "href": "https://streamstats.usgs.gov/nssservices/citations?regressionregions=713,714,715,716",
+    "method": "GET"
+   }
+  ]
+ }
+]

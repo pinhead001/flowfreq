@@ -322,3 +322,39 @@ NSS_SCENARIOS_GA_RURAL_UNDER_1 = load_capture("nss_scenarios_GA_PFS_rural_under_
 # LC06DEV=20: NSS appends a third region, code "areaave", name "Area-Averaged", whose
 # values are the weighted mean (0.6*116 + 0.4*33.3 = 82.92 for PK50AEP).
 NSS_ESTIMATE_GA_AREA_AVERAGED = load_capture("nss_estimate_GA_area_averaged.json")
+
+# --- Low-Flow Statistics (LFS), live 2026-09-28 (addendum S6).
+
+# ss-hydro's answer when asked (BCs=DRNAREA;ELEV1000) for a characteristic the region
+# does not compute: HTTP 200 and a -999 sentinel. code/value/unit/msg are as returned
+# live for Skookumchuck River near Vail, WA; the ELEV1000 entry's name/description were
+# not recorded and are filled in here. WA computes 11 characteristics; ELEV1000 is not
+# one of them.
+HYDRO_CHARACTERISTICS_WITH_UNAVAILABLE = [
+    {
+        "name": "Drainage Area",
+        "description": "Area that drains to a point on a stream",
+        "code": "DRNAREA",
+        "unit": "square miles",
+        "value": 39.9,
+        "msg": "Local AreaOp successful",
+    },
+    {
+        "name": "ELEV1000",
+        "description": "",
+        "code": "ELEV1000",
+        "unit": "",
+        "value": -999.0,
+        "msg": "Basin Characteristic not found in database",
+    },
+]
+
+# GET /nssservices/regions/WA/Scenarios?statisticgroups=LFS&unitsystem=2 -- WA's four
+# Low-Flow regions: GC1434 (Nooksack, DRNAREA+ELEV1000), GC1556 (DRNAREA),
+# GC1557 (DRNAREA+PRECIP), GC1558 (DRNAREA+PRECIP+TAU_ANN_G).
+NSS_SCENARIOS_WA_LFS = load_capture("nss_scenarios_WA_LFS.json")
+
+# POST /nssservices/Scenarios/Estimate for GC1556 and GC1557 with Skookumchuck River
+# near Vail's live characteristics (DRNAREA 39.9, PRECIP 71.07): M7D10Y 16.2 and 12.0
+# cfs, standard error reported under code "SE" (133 and 114), not "ASEp".
+NSS_ESTIMATE_WA_LFS_SKOOKUMCHUCK = load_capture("nss_estimate_WA_LFS_skookumchuck_vail.json")
