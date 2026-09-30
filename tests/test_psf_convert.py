@@ -23,7 +23,6 @@ from flowfreq.psf_convert import (
     PEAKFQ_AEPS_EXTENDED,
     STATION_SKEW_MSE_SENTINEL,
     StationInputs,
-    UnsupportedSpecError,
     convert_peak_frame,
     convert_psf,
     convert_station,
@@ -342,15 +341,26 @@ class TestStationInputs:
         for engine in ("native", "fortran"):
             assert s.unsupported_reasons(engine) == []
 
-    def test_historic_interval_peak_is_unsupported(self):
+    def test_historic_interval_peak_is_supported(self):
+        """Code 7 with 4: siteQT's (Qmin, q) row with dtype = 1, built by both engines."""
         codes = [""] * len(YEARS)
         codes[3] = "4,7"
+        codes[5] = "7,8"
         spec, _ = _spec(BASE)
         s = convert_station(spec, _peaks(codes))
-        assert _row(s.rows, 2004).dtype == 1 and not _row(s.rows, 2004).is_exact
+        row = _row(s.rows, 2004)
+        assert row.dtype == 1 and not row.is_exact
+        assert s.historical_interval_peaks == (
+            (2004, Q_MIN, FLOWS[3]),
+            (2006, FLOWS[5], Q_MAX),
+        )
+        assert 2004 not in s.water_years and 2004 not in dict(s.historical_peaks)
+        assert s.interval_peaks == ()
         for engine in ("native", "fortran"):
-            with pytest.raises(UnsupportedSpecError, match="historic"):
-                s.bulletin17c_kwargs(engine)
+            assert s.unsupported_reasons(engine) == []
+            assert s.bulletin17c_kwargs(engine)["historical_interval_peaks"] == list(
+                s.historical_interval_peaks
+            )
 
     def test_zero_flow_supported_natively(self):
         """Zero years now get siteQT's Qmin row on the native engine too."""

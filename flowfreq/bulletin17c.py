@@ -720,13 +720,21 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         ``q`` (code 8), or any other bounds (a ``.psf`` ``Interval`` line).
         Shaped like ``historical_peaks`` -- one tuple per year -- with the
         single value replaced by its bounds.
+    historical_interval_peaks : list of (int, float, float), optional
+        Historic peaks known only as an interval, ``(water_year, lower_cfs,
+        upper_cfs)`` as for ``interval_peaks``: a peak carrying code 7 and
+        code 4 or 8. ``siteQT`` gives it the interval row with ``dtype = 1``
+        (``vendor/peakfqr/R/readInputs.R``), so it is a historic row --
+        outside MGBT's sample, as ``gbtest`` takes only ``dtype = 0`` rows --
+        not a systematic one. Its perception bounds are its year's
+        ``perception_thresholds`` entry, or unrestricted without one.
 
     Raises
     ------
     ValueError
         Mismatched ``peak_flows``/``water_years``, an invalid perception
-        threshold or interval peak, or a water year given both an exact
-        (systematic or historical) and an interval peak.
+        threshold or interval peak, or a water year given more than one peak
+        (exact, historical, interval or historical interval).
     """
 
     def __init__(
@@ -740,6 +748,7 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         perception_thresholds: Dict[Tuple[int, int], PerceptionBound] = None,
         user_low_outlier_threshold: Optional[float] = None,
         interval_peaks: Optional[List[Tuple[int, float, float]]] = None,
+        historical_interval_peaks: Optional[List[Tuple[int, float, float]]] = None,
     ):
         super().__init__(peak_flows, regional_skew, regional_skew_mse)
 
@@ -774,15 +783,23 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
             for period, value in self._perception_thresholds.items()
         }
         self._interval_peaks = normalize_interval_peaks(interval_peaks)
+        self._historical_interval_peaks = normalize_interval_peaks(historical_interval_peaks)
         interval_years = {year for year, _, _ in self._interval_peaks}
-        clash = sorted(
-            interval_years
-            & (set(self._recorded_years.astype(int)) | {int(y) for y, _ in self._historical_peaks})
-        )
+        historical_interval_years = {year for year, _, _ in self._historical_interval_peaks}
+        exact_years = set(self._recorded_years.astype(int)) | {
+            int(y) for y, _ in self._historical_peaks
+        }
+        clash = sorted(interval_years & exact_years)
         if clash:
             raise ValueError(
                 f"water year(s) {clash} have both an exact and an interval peak; "
                 "give each year one or the other"
+            )
+        clash = sorted(historical_interval_years & (exact_years | interval_years))
+        if clash:
+            raise ValueError(
+                f"water year(s) {clash} have a historical interval peak and another peak; "
+                "give each year one peak"
             )
         # Years with a systematic observation, exact or interval: the record's
         # extent, and the years a threshold period cannot censor as gaps.
@@ -931,9 +948,11 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         dict of int to (float, float)
             The year's ``(tl, tu)``.
         """
-        observed = set(self._systematic_years.astype(int)) | {
-            int(y) for y, _ in self._historical_peaks
-        }
+        observed = (
+            set(self._systematic_years.astype(int))
+            | {int(y) for y, _ in self._historical_peaks}
+            | {int(y) for y, _, _ in self._historical_interval_peaks}
+        )
         return {
             year: pair
             for year, pair in self._threshold_by_year().items()
@@ -1064,6 +1083,26 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
                     lower=lower,
                     upper=upper,
                     year=year,
+                    perception_threshold=perception,
+                    perception_upper=upper_perception,
+                )
+            )
+
+        for year, lower, upper in self._historical_interval_peaks:
+            if lower <= _PERCEPTION_QMIN and upper >= _PERCEPTION_QMAX:
+                continue  # [Qmin, Qmax]: no information; siteQT drops the row
+            # A historic (dtype = 1) row: outside MGBT's sample, but gbtest still
+            # recodes it below the cutoff and counts it in nlow.
+            perception, upper_perception = thresholds.get(year, unrestricted)
+            if upper < low_threshold:
+                n_below += 1
+                lower, upper = _GBTMIN, low_threshold
+            intervals.append(
+                FlowInterval(
+                    lower=lower,
+                    upper=upper,
+                    year=year,
+                    is_historical=True,
                     perception_threshold=perception,
                     perception_upper=upper_perception,
                 )
@@ -2126,6 +2165,11 @@ class Bulletin17C:
     * ``interval_peaks`` lists systematic years whose peak is known only to
       lie in ``(lower_cfs, upper_cfs)`` -- ``(wy, 0, q)`` for "less than q",
       ``(wy, q, inf)`` for "greater than q". EMA only.
+    * ``historical_interval_peaks`` is the same for historic peaks (a code 7
+      peak that is also code 4 or 8): ``siteQT``'s interval row with
+      ``dtype = 1``. Kept apart from ``interval_peaks`` as
+      ``historical_peaks`` is kept apart from ``peak_flows``, so each
+      argument's tuple shape stays one meaning. EMA only.
 
     Examples
     --------
@@ -2154,9 +2198,11 @@ class Bulletin17C:
         ema_params: EMAParameters = None,
         user_low_outlier_threshold: Optional[float] = None,
         interval_peaks: Optional[List[Tuple[int, float, float]]] = None,
+        historical_interval_peaks: Optional[List[Tuple[int, float, float]]] = None,
     ):
         self._peak_flows = np.array(peak_flows)
         self._interval_peaks = interval_peaks
+        self._historical_interval_peaks = historical_interval_peaks
         self._water_years = water_years
         self._regional_skew = regional_skew
         self._regional_skew_mse = regional_skew_mse
@@ -2281,16 +2327,17 @@ class Bulletin17C:
                 regional_skew_mse=self._regional_skew_mse,
                 aeps=FloodFrequencyAnalysis.STANDARD_AEP,
                 interval_peaks=self._interval_peaks,
+                historical_interval_peaks=self._historical_interval_peaks,
             )
             return self._results
 
         self._fortran_reference = None
         self._fortran_arrays = None
         if method == AnalysisMethod.MOM:
-            if self._interval_peaks:
+            if self._interval_peaks or self._historical_interval_peaks:
                 raise ValueError(
-                    "method='mom' cannot use interval_peaks; the method of moments has no "
-                    "censored observations -- use method='ema'"
+                    "method='mom' cannot use interval_peaks or historical_interval_peaks; "
+                    "the method of moments has no censored observations -- use method='ema'"
                 )
             self._analyzer = MethodOfMoments(
                 self._peak_flows,
@@ -2309,6 +2356,7 @@ class Bulletin17C:
                 perception_thresholds=self._perception_thresholds,
                 user_low_outlier_threshold=self._user_low_outlier_threshold,
                 interval_peaks=self._interval_peaks,
+                historical_interval_peaks=self._historical_interval_peaks,
             )
 
         self._results = self._analyzer.run_analysis()
@@ -2368,6 +2416,7 @@ class Bulletin17C:
             aeps=aep,
             eps=confidence,
             interval_peaks=self._interval_peaks,
+            historical_interval_peaks=self._historical_interval_peaks,
         )
         return quantile_frames(reference)
 
