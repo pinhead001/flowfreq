@@ -9,7 +9,9 @@ What these tests pin down:
 
 * Everything up to the regional weighting matches: the at-site moments, the
   FIXED branch of ``gbtest`` (5 rows censored at 300 cfs, ADJE kept), and
-  ``nG`` to 5e-5 (``Wd`` and ADJE's ``as_G_mse`` are within 3.4e-5 and 1.4e-5).
+  ``Wd`` and ADJE's ``as_G_mse`` to within the band ``emafitpr``'s own values
+  span under 1-3 ulp input nudges (4.2e-4 relative for ``as_G_mse``; Linux
+  and Windows gfortran builds disagree with each other by 3.2e-4 there).
 * The weighted skew does not, and cannot be made to: at a skew this close
   to zero ``emafitpr``'s own answer is not a smooth function of its inputs.
   ``mP3`` evaluates a censored interval's moments through ``DGAMDF``
@@ -84,23 +86,61 @@ def test_fixed_branch_and_at_site_fit_match(fits):
     assert abs(n.skew_station - f.skew_station) < 1e-7
 
 
+#: Log-space rows nudged, and by how many ulps, to measure how far emafitpr's
+#: own ``Wd``/``as_G_mse`` move under rounding-level input changes.
+_ULP_NUDGES = [(i, 1 + k % 3) for k, i in enumerate(range(4, 48, 4))]
+
+
+def _emafitpr_skew_weighting(ql, qu, arrays):
+    from flowfreq.validation.reference import ReferenceResult
+
+    p = ReferenceResult.from_emafit(
+        ql=list(ql),
+        qu=list(qu),
+        tl=arrays.tl.tolist(),
+        tu=arrays.tu.tolist(),
+        dtype=arrays.dtype.tolist(),
+        aeps=[0.01],
+        regional_skew=-0.1,
+        regional_skew_mse=0.3,
+        gbthrsh0=arrays.gbthrsh0,
+    ).parameters
+    return p["weight_factor"], p["mse_skew"], p
+
+
 def test_regional_weighting_inputs_match(fits):
-    """``nG = n * Wd * as_G_mse / r_G_mse`` agrees with ``emafitpr``'s to 1e-4."""
-    from flowfreq.fortran_engine import run_fortran_reference
+    """Native ``Wd``/``as_G_mse`` agree with ``emafitpr``'s to within its own rounding band.
+
+    Both come out of ``var_mom``/``mn2mvarb`` evaluated at the at-site
+    moments, and on this record ``emafitpr``'s values are not reproducible
+    across compilers: CI's Linux gfortran 13 gives ``as_G_mse`` 0.1712686,
+    Windows MSYS2 gfortran 0.1712146 (3.2e-4 apart), while the native value
+    is 0.1712170 on both. Nudging one exact log flow by 1-3 ulps moves the
+    Fortran's own ``as_G_mse`` over a 4.2e-4 relative band (``Wd`` over
+    2.1e-4) on the same build. So the claim tested is the one both platforms
+    can make: the native value differs from the unperturbed Fortran one by
+    no more than the width of the band the Fortran itself spans under those
+    rounding-level nudges, measured live on whatever build runs the test.
+    """
+    from flowfreq.fortran_engine import build_emafit_arrays
 
     native, _ = fits
     flows, years = _record()
-    reference, _arrays = run_fortran_reference(
-        flows,
-        years,
-        user_low_outlier_threshold=THRESHOLD,
-        regional_skew=-0.1,
-        regional_skew_mse=0.3,
-    )
-    p = reference.parameters
+    arrays = build_emafit_arrays(flows, years, user_low_outlier_threshold=THRESHOLD)
+    wd_f, asg_f, p = _emafitpr_skew_weighting(arrays.ql, arrays.qu, arrays)
+    wds, asgs = [wd_f], [asg_f]
+    for row, ulps in _ULP_NUDGES:
+        assert arrays.ql[row] == arrays.qu[row]  # an exact peak
+        ql, qu = arrays.ql.copy(), arrays.qu.copy()
+        for _ in range(ulps):
+            ql[row] = np.nextafter(ql[row], np.inf)
+        qu[row] = ql[row]
+        wd_i, asg_i, _p = _emafitpr_skew_weighting(ql, qu, arrays)
+        wds.append(wd_i)
+        asgs.append(asg_i)
+
     ema = native._analyzer
     nobs, tl, tu = ema._perception_threshold_groups()
-    r = native.results
     # The at-site moments the Fortran weights with are cmoms(:,2).
     at_site = (p["mean_log_at_site"], p["std_log_at_site"], p["skew_at_site"])
     n_rows = len(ema.intervals)
@@ -114,9 +154,14 @@ def test_regional_weighting_inputs_match(fits):
         n_rows,
     )
     as_g_mse = ema._at_site_skew_mse(at_site[0], at_site[1], at_site[2], n_rows)
-    assert wd == pytest.approx(p["weight_factor"], rel=1e-4)
-    assert as_g_mse == pytest.approx(p["mse_skew"], rel=3e-5)
-    assert r.skew_station == pytest.approx(at_site[2], abs=1e-7)
+
+    asg_band = max(asgs) - min(asgs)
+    wd_band = max(wds) - min(wds)
+    # The band is real (rounding moves the Fortran), but small next to the value.
+    assert 0.0 < asg_band < 1e-3 * asg_f
+    assert abs(as_g_mse - asg_f) <= asg_band
+    assert abs(wd - wd_f) <= max(wd_band, 1e-4 * wd_f)
+    assert native.results.skew_station == pytest.approx(at_site[2], abs=1e-7)
 
 
 def test_emafitpr_weighted_skew_is_ill_conditioned_here():
