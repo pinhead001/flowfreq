@@ -31,6 +31,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     Plain.
 
 ### Added
+- **Water Data API key and backoff.** Every call to `api.waterdata.usgs.gov` (peaks,
+  instantaneous and daily values, monitoring locations) now goes through
+  `flowfreq.waterdata.request`: it sends an `X-Api-Key` from `USGS_API_KEY` or
+  `waterdata.set_api_key()`, retries HTTP 429/503 up to 4 times honouring `Retry-After`
+  (else exponential backoff, capped at 60 s), and on a persistent 429 says how to supply a
+  key. Without a key the API allows 1000 requests/hour per IP, which bulk use of the new
+  default backends reaches. A rejected key (403) is reported, not retried.
 - **`flowfreq.waterdata.download_daily`**: daily mean values (00060, statistic 00003) from
   the USGS Water Data OGC API `daily` collection, with paging and `ts_id`. It returns
   `flow_cfs` plus the same `qualification_code` as the instantaneous backend (`A`, `P:e`,
@@ -111,6 +118,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `exc_type=ImportError` (`tests/validation/test_reference.py`) is fixed, so the suite skips
   rather than errors on pytest 9.1 when the Fortran extension is absent. Supersedes
   dependabot #18.
+
+### Fixed
+- **StreamStats `characteristic_codes` now filters.** ss-hydro's parameter is `BCs`, per
+  its OpenAPI; the `bcLabels` this module sent was silently ignored, so every call
+  computed the region's full set (`docs/STREAMSTATS_MODULE_DESIGN.md` S11, verified live).
+  Codes are now sent semicolon-delimited, and `BCs=*` by default.
+- **A characteristic ss-hydro cannot compute no longer becomes a value of -999.** The
+  service answers such a code with HTTP 200, `value: -999.0` and "Basin Characteristic not
+  found in database". Those entries now go to the new
+  `WatershedCharacteristics.unavailable` field, never to `characteristics`.
+- **NSS low-flow standard errors were dropped.** WA's Low-Flow equations report their
+  standard error under code `SE`, not `ASEp`, so `standard_error_pct` was always `None`.
+  Both codes are read now, and the one used is recorded in
+  `FlowStatisticEstimate.standard_error_code`. Found in the first live Low-Flow
+  estimate (Skookumchuck River near Vail, WA; `docs/STREAMSTATS_NSS_ADDENDUM.md` S6).
+  Both results reproduce their own equation strings through
+  `flowfreq.regression.nss.evaluate_expression`.
 
 ## [0.9.0] - 2026-09-27
 

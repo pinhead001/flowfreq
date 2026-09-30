@@ -382,20 +382,40 @@ module Phase 2" below. Two things it found are still open:
       `GC1750` (4,370). The old all-in-range behaviour stays available without a polygon or
       with `include_unlocated=True`. Still open from this: WA low-flow regions
       `GC1434`/`GC1556`/`GC1558` have no geometry in NSS and can never be located.
-- [ ] **`characteristic_codes` does not filter.** Found live 2026-09-27 (design doc
+- [x] **`characteristic_codes` does not filter.** Found live 2026-09-27 (design doc
       S10): ss-hydro ignores the `bcLabels` query parameter this module sends -- the
       same 22 characteristics came back for `*`, a comma list and a semicolon list.
       USGS's own notebook sets `bcLabels` inside the POSTed `bcrequest` body,
       semicolon-delimited. Harmless for correctness (a superset comes back) but the
       documented subset-for-speed never happens, and a code not in the region's default
-      set (e.g. `ELEV1000`) may never be computed.
-- [ ] Low-Flow Statistics (`LFS`, the other group WA supports) was exercised only
+      set (e.g. `ELEV1000`) may never be computed. **Fixed 2026-09-28** (design doc
+      S11): the real query parameter is `BCs` (ss-hydro OpenAPI); `bcLabels` is
+      ignored in the query and in the body alike. A code the region cannot compute
+      comes back as HTTP 200 with value -999 and is now kept out of `characteristics`
+      (listed in `WatershedCharacteristics.unavailable`).
+- [x] Low-Flow Statistics (`LFS`, the other group WA supports) was exercised only
       through its client-side validation (correctly skipping 3 of 4 regions as
       out-of-range, 1 for a missing `ELEV1000` characteristic) -- no region actually
       returned a Low-Flow estimate live. Only Peak-Flow (`PFS`) has a confirmed,
       complete live estimate. Worth a live pass with a point that actually has
       `ELEV1000` and falls in a valid drainage-area range before trusting `LFS`
       results the way `PFS` is now trusted.
+      **Done 2026-09-28** (addendum S6), with one part not possible as written: **no WA
+      point has `ELEV1000`.** WA's ss-hydro computes 11 characteristics and `ELEV1000`
+      is not among them. Asking for it returns the -999 "not found" sentinel. Its region,
+      `GC1434` (Nooksack, SIR 2009-5170), also has no geometry in NSS. So `GC1434` cannot
+      be reached through StreamStats at all; it needs a caller-supplied `ELEV1000`, and
+      what elevation that means was not verified. The live pass therefore used the western
+      WA regions StreamStats does serve:
+      - Skookumchuck River near Vail (DRNAREA 39.9, PRECIP 71.07) gives M7D10Y of 16.2 cfs
+        (`GC1556`, `0.15*DRNAREA^1.27`) and 12.0 cfs (`GC1557`,
+        `0.000848*DRNAREA^1.17*PRECIP^1.23`). Both reproduce independently through
+        `flowfreq.regression.nss.evaluate_expression` to NSS's 3-significant-figure
+        rounding.
+      - It found a real bug: LFS reports its standard error under code `SE`, not `ASEp`,
+        so `standard_error_pct` was always `None` for low flows. Fixed, and the code used
+        is recorded in `standard_error_code`.
+      - Pinned by `TestLiveNSS::test_skookumchuck_low_flow_matches_its_equations`.
 
 ### Done — StreamStats module Phase 2: NSS flow-statistics estimation
 
