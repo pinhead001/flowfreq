@@ -38,6 +38,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (else exponential backoff, capped at 60 s), and on a persistent 429 says how to supply a
   key. Without a key the API allows 1000 requests/hour per IP, which bulk use of the new
   default backends reaches. A rejected key (403) is reported, not retried.
+- **Paired discharge and stage retrieval.**
+  `USGSgage.download_instantaneous_flow_and_stage(start, end, *, tz, chunk_years, ts_id_flow,
+  ts_id_stage, timeout, backend)` downloads 00060 and 00065 for one window and backend and
+  returns them on one index. The public `join_flow_and_stage(flow, stage)` pairs frames
+  already on hand.
+  - **Alignment:** an outer join on the UTC instant. An instant only one series reported
+    keeps the other's value and code NaN. Nothing is interpolated or nearest-matched.
+  - Each parameter keeps its own code in `qualification_code_flow` and
+    `qualification_code_stage`.
+  - `datetime_local`/`tz_cd` must agree at every shared instant. A disagreement raises
+    `ValueError` rather than picking one frame's value.
+  - A site with no stage record raises `NoInstantaneousDataError`; there is no silent
+    flow-only fallback. Both `ts_id`s are checked for backend form before any request.
 - **`flowfreq.waterdata.download_daily`**: daily mean values (00060, statistic 00003) from
   the USGS Water Data OGC API `daily` collection, with paging and `ts_id`. It returns
   `flow_cfs` plus the same `qualification_code` as the instantaneous backend (`A`, `P:e`,

@@ -341,11 +341,14 @@ than fixed:
       **Done for v0.10.0:** it now uses each local day's actual length, like
       `daily_extreme_timing` and `ramping_rates`. Only `expected_obs`/`complete`
       on the two transition days moved; CHANGELOG Fixed says exactly which.
-- [ ] **Paired stage-and-discharge retrieval.** `download_instantaneous_flow`
+- [x] **Paired stage-and-discharge retrieval.** `download_instantaneous_flow`
       and `download_instantaneous_stage` are separate calls returning separate
       frames. Anyone comparing a cfs/hr limit against a ft/hr one joins them on
       the index by hand. A single call retrieving both parameters onto one index
       is the natural next step and is not built.
+      **Done:** `USGSgage.download_instantaneous_flow_and_stage` and
+      `join_flow_and_stage`: an outer join on UTC with NaN, never interpolation,
+      per-parameter qualification codes, and mismatched local time refused.
 - [ ] **No validation against a published ramping-rate or peak-timing figure for
       a real gage.** Every number in `subdaily.py` is checked against synthetic
       series with known analytic answers and against internal consistency, which
