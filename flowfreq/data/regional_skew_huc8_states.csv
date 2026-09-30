@@ -1,0 +1,252 @@
+huc8,name,states
+17010101,Middle Kootenai,"CN,ID,MT"
+17010102,Fisher,MT
+17010103,Yaak,"CN,ID,MT"
+17010104,Lower Kootenai,"CN,ID,MT"
+17010105,Moyie,"CN,ID,MT"
+17010106,Elk,"CN,MT"
+17010107,Headwaters Kootenai River,CN
+17010108,Upper Kootenai River,CN
+17010109,Duncan River,CN
+17010110,Slocan River,CN
+17010201,Upper Clark Fork,MT
+17010202,Flint-Rock,MT
+17010203,Blackfoot,MT
+17010204,Middle Clark Fork,"ID,MT"
+17010205,Bitterroot,"ID,MT"
+17010206,North Fork Flathead,"CN,MT"
+17010207,Middle Fork Flathead,MT
+17010208,Flathead Lake,MT
+17010209,South Fork Flathead,MT
+17010210,Stillwater,MT
+17010211,Swan,MT
+17010212,Lower Flathead,MT
+17010213,Lower Clark Fork,"ID,MT"
+17010214,Pend Oreille Lake,"ID,WA"
+17010215,Priest,"CN,ID,WA"
+17010216,Pend Oreille,"CN,ID,WA"
+17010301,Upper Coeur d'Alene,"ID,MT"
+17010302,South Fork Coeur d'Alene,"ID,MT"
+17010303,Coeur d'Alene Lake,"ID,WA"
+17010304,St. Joe,"ID,MT"
+17010305,Upper Spokane,"ID,WA"
+17010306,Hangman,"ID,WA"
+17010307,Lower Spokane,WA
+17010308,Little Spokane,"ID,WA"
+17020001,Franklin D. Roosevelt Lake,"CN,WA"
+17020002,Kettle,"CN,WA"
+17020003,Colville,WA
+17020004,Sanpoil,WA
+17020005,Chief Joseph,WA
+17020006,Okanogan,"CN,WA"
+17020007,Similkameen,"CN,WA"
+17020008,Methow,WA
+17020009,Lake Chelan,WA
+17020010,Upper Columbia-Entiat,WA
+17020011,Wenatchee,WA
+17020012,Moses Coulee,WA
+17020013,Upper Crab,WA
+17020014,Banks Lake,WA
+17020015,Lower Crab,WA
+17020016,Upper Columbia-Priest Rapids,WA
+17020017,Headwaters Columbia River,CN
+17020018,Canoe River-McNaughton Lake,CN
+17020019,McNaughton Lake-Columbia River,CN
+17020020,Goldstream River-Columbia River,CN
+17020021,Upper Arrow Lake-Columbia River,CN
+17030001,Upper Yakima,WA
+17030002,Naches,WA
+17030003,Lower Yakima,WA
+17040101,Snake Headwaters,WY
+17040102,Gros Ventre,WY
+17040103,Greys-Hoback,"ID,WY"
+17040104,Palisades,"ID,WY"
+17040105,Salt,"ID,WY"
+17040201,Idaho Falls,ID
+17040202,Upper Henrys,"ID,MT,WY"
+17040203,Lower Henrys,"ID,WY"
+17040204,Teton,"ID,WY"
+17040205,Willow,ID
+17040206,American Falls,ID
+17040207,Blackfoot,ID
+17040208,Portneuf,ID
+17040209,Lake Walcott,ID
+17040210,Raft,"ID,UT"
+17040211,Goose,"ID,NV,UT"
+17040212,Upper Snake-Rock,ID
+17040213,Salmon Falls,"ID,NV"
+17040214,Beaver-Camas,"ID,MT"
+17040215,Medicine Lodge,"ID,MT"
+17040216,Birch,"ID,MT"
+17040217,Little Lost,ID
+17040218,Big Lost,ID
+17040219,Big Wood,ID
+17040220,Camas,ID
+17040221,Little Wood,ID
+17050101,C.J. Strike Reservoir,ID
+17050102,Bruneau,"ID,NV"
+17050103,Middle Snake-Succor,"ID,OR"
+17050104,Upper Owyhee,"ID,NV"
+17050105,South Fork Owyhee,"ID,NV,OR"
+17050106,East Little Owyhee,"ID,NV,OR"
+17050107,Middle Owyhee,"ID,NV,OR"
+17050108,Jordan,"ID,OR"
+17050109,Crooked-Rattlesnake,OR
+17050110,Lower Owyhee,OR
+17050111,North and Middle Forks Boise,ID
+17050112,Boise-Mores,ID
+17050113,South Fork Boise,ID
+17050114,Lower Boise,ID
+17050115,Middle Snake-Payette,"ID,OR"
+17050116,Upper Malheur,OR
+17050117,Lower Malheur,OR
+17050118,Bully,OR
+17050119,Willow,OR
+17050120,South Fork Payette,ID
+17050121,Middle Fork Payette,ID
+17050122,Payette,ID
+17050123,North Fork Payette,ID
+17050124,Weiser,ID
+17050201,Brownlee Reservoir,"ID,OR"
+17050202,Burnt,OR
+17050203,Powder,OR
+17060101,Hells Canyon,"ID,OR"
+17060102,Imnaha,OR
+17060103,Lower Snake-Asotin,"ID,OR,WA"
+17060104,Upper Grande Ronde,OR
+17060105,Wallowa,OR
+17060106,Lower Grande Ronde,"OR,WA"
+17060107,Lower Snake-Tucannon,"ID,WA"
+17060108,Palouse,"ID,WA"
+17060109,Rock,"ID,WA"
+17060110,Lower Snake,WA
+17060201,Upper Salmon,ID
+17060202,Pahsimeroi,ID
+17060203,Middle Salmon-Panther,"ID,MT"
+17060204,Lemhi,"ID,MT"
+17060205,Upper Middle Fork Salmon,ID
+17060206,Lower Middle Fork Salmon,ID
+17060207,Middle Salmon-Chamberlain,"ID,MT"
+17060208,South Fork Salmon,ID
+17060209,Lower Salmon,ID
+17060210,Little Salmon,ID
+17060301,Upper Selway,"ID,MT"
+17060302,Lower Selway,"ID,MT"
+17060303,Lochsa,"ID,MT"
+17060304,Middle Fork Clearwater,ID
+17060305,South Fork Clearwater,ID
+17060306,Clearwater,"ID,WA"
+17060307,Upper North Fork Clearwater,"ID,MT"
+17060308,Lower North Fork Clearwater,ID
+17070101,Middle Columbia-Lake Wallula,"OR,WA"
+17070102,Walla Walla,"OR,WA"
+17070103,Umatilla,OR
+17070104,Willow,OR
+17070105,Middle Columbia-Hood,"OR,WA"
+17070106,Klickitat,WA
+17070201,Upper John Day,OR
+17070202,North Fork John Day,OR
+17070203,Middle Fork John Day,OR
+17070204,Lower John Day,OR
+17070301,Upper Deschutes,OR
+17070302,Little Deschutes,OR
+17070303,Beaver-South Fork,OR
+17070304,Upper Crooked,OR
+17070305,Lower Crooked,OR
+17070306,Lower Deschutes,OR
+17070307,Trout,OR
+17080001,Lower Columbia-Sandy,"OR,WA"
+17080002,Lewis,WA
+17080003,Lower Columbia-Clatskanie,"OR,WA"
+17080004,Upper Cowlitz,WA
+17080005,Lower Cowlitz,WA
+17080006,Lower Columbia,"OR,WA"
+17090001,Middle Fork Willamette,OR
+17090002,Coast Fork Willamette,OR
+17090003,Upper Willamette,OR
+17090004,Mckenzie,OR
+17090005,North Santiam,OR
+17090006,South Santiam,OR
+17090007,Middle Willamette,OR
+17090008,Yamhill,OR
+17090009,Molalla-Pudding,OR
+17090010,Tualatin,OR
+17090011,Clackamas,OR
+17090012,Lower Willamette,OR
+17100101,Hoh-Quillayute,WA
+17100102,Queets-Quinault,WA
+17100103,Upper Chehalis,WA
+17100104,Lower Chehalis,WA
+17100105,Grays Harbor,WA
+17100106,Willapa Bay,"OR,WA"
+17100201,Necanicum,OR
+17100202,Nehalem,OR
+17100203,Wilson-Trusk-Nestuccu,OR
+17100204,Siletz-Yaquina,OR
+17100205,Alsea,OR
+17100206,Siuslaw,OR
+17100207,Siltcoos,OR
+17100301,North Umpqua,OR
+17100302,South Umpqua,OR
+17100303,Umpqua,OR
+17100304,Coos,OR
+17100305,Coquille,OR
+17100306,Sixes,OR
+17100307,Upper Rogue,OR
+17100308,Middle Rogue,OR
+17100309,Applegate,"CA,OR"
+17100310,Lower Rogue,OR
+17100311,Illinois,"CA,OR"
+17100312,Chetco,"CA,OR"
+17110001,Sumas River,"CN,WA"
+17110002,Strait of Georgia,"CN,WA"
+17110003,San Juan Islands,"CN,WA"
+17110004,Nooksack,"CN,WA"
+17110005,Upper Skagit,"CN,WA"
+17110006,Sauk,WA
+17110007,Lower Skagit,WA
+17110008,Stillaguamish,WA
+17110009,Skykomish,WA
+17110010,Snoqualmie,WA
+17110011,Snohomish,WA
+17110012,Lake Washington,WA
+17110013,Duwamish,WA
+17110014,Puyallup,WA
+17110015,Nisqually,WA
+17110016,Deschutes,WA
+17110017,Skokomish,WA
+17110018,Hood Canal,WA
+17110019,Puget Sound,WA
+17110020,Dungeness-Elwha,"CN,WA"
+17110021,Crescent-Hoko,"CN,WA"
+17120001,Harney-Malheur Lakes,OR
+17120002,Silvies,OR
+17120003,Donner und Blitzen,OR
+17120004,Silver,OR
+17120005,Summer Lake,OR
+17120006,Lake Abert,OR
+17120007,Warner Lakes,"CA,NV,OR"
+17120008,Guano,"NV,OR"
+17120009,Alvord Lake,"NV,OR"
+18010101,Smith,"CA,OR"
+18010102,Mad-Redwood,CA
+18010103,Upper Eel,CA
+18010104,Middle Fork Eel,CA
+18010105,Lower Eel,CA
+18010106,South Fork Eel,CA
+18010107,Mattole,CA
+18010108,Big-Navarro-Garcia,CA
+18010109,Gualala-Salmon,CA
+18010110,Russian,CA
+18010201,Williamson,OR
+18010202,Sprague,OR
+18010203,Upper Klamath Lake,OR
+18010204,Lost,"CA,OR"
+18010205,Butte,"CA,OR"
+18010206,Upper Klamath,"CA,OR"
+18010207,Shasta,CA
+18010208,Scott,CA
+18010209,Lower Klamath,"CA,OR"
+18010210,Salmon,CA
+18010211,Trinity,CA
+18010212,South Fork Trinity,CA
