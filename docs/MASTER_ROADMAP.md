@@ -112,8 +112,13 @@ Standing rules carried over from this repo's history, which apply to every phase
       exclusion. The Oregon closed basins and the Klamath are left `unresolved`: the report's
       region wording omits them, although 5 of its gages are there. Every further verified
       study needs its own HUC rows.
-- [ ] Tooling to **develop a new regional skew** (B-WLS/B-GLS, Veilleux/Reis-Stedinger) for
+- [x] Tooling to **develop a new regional skew** (B-WLS/B-GLS, Veilleux/Reis-Stedinger) for
       jurisdictions without one. This is lower priority and research-grade.
+      `flowfreq.skew_study`: B-WLS/B-GLS with a correlation-distance cross-correlation model
+      and the full diagnostic set. Validated by refitting the Pacific Northwest CONSTANT
+      model from SIR 2016-5083 Table B1, which reproduces Tables B2/B3 to their printed
+      precision. MBV* is the exception: 9.3 against 10, because the gage historical periods
+      are approximated from NWIS.
 - [ ] **Complete a Bayesian (B-WLS/B-GLS) regional skew study for Montana.** Montana is the
       one Wave 1 state with no B17C-era skew: SIR 2025-5019 (pp. 9-10) states no B-WLS/B-GLS
       study covers any part of MT/ND/SD/WY, and USGS Montana applies the Bulletin 17B map
@@ -127,6 +132,12 @@ Standing rules carried over from this repo's history, which apply to every phase
       tooling item above. Coordinate with the USGS WY-MT Water Science Center, which B17C
       directs users to consult and which SIR 2025-5019 says anticipates such a study -- a
       published USGS study, once available, supersedes anything developed here.
+      *Provisional, not USGS:* `docs/MONTANA_REGIONAL_SKEW_PROVISIONAL.md` gives a statewide
+      B-WLS/B-GLS result built from the Water Data OGC API with flowfreq's EMA/MGB. Its
+      inputs are in `data/skew_study/` and `tools/build_montana_skew_study.py` regenerates
+      them. It is recorded in that report and here only, not in `regional_skew.csv`: that
+      table has no provisional status, and MT stays `pending`. This item stays open for a
+      published USGS study.
 
 ---
 

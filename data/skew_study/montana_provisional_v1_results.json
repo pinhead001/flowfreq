@@ -1,0 +1,273 @@
+{
+ "version": "montana-provisional-v1",
+ "status": "provisional -- NOT a USGS study; do not use as a default",
+ "last_water_year": 2025,
+ "n_sites": 284,
+ "screen": {
+  "min_years": 25,
+  "codes_removed": [
+   "5",
+   "6",
+   "C"
+  ]
+ },
+ "correlation_model": {
+  "a": 0.18552648618673256,
+  "b": -0.257336355690097,
+  "c": -0.008675425252138765,
+  "n_pairs": 2893,
+  "min_concurrent": 50
+ },
+ "kappa": 2.8,
+ "models": {
+  "CONSTANT": {
+   "beta_constant": -0.02736,
+   "sd_constant": 0.08612,
+   "sigma2": 0.35358,
+   "sigma2_sd": 0.04246,
+   "asev": 0.00742,
+   "avp_new": 0.36099,
+   "effective_record_length": 23.34329,
+   "pseudo_r2": 0.0,
+   "evr": 0.49851,
+   "mbv": 3.74553,
+   "n_sites": 284.0
+  },
+  "EAST": {
+   "beta_constant": 0.01257,
+   "beta_east_of_divide": -0.04747,
+   "sd_constant": 0.15858,
+   "sd_east_of_divide": 0.16428,
+   "sigma2": 0.35577,
+   "sigma2_sd": 0.04263,
+   "asev": 0.01109,
+   "avp_new": 0.36685,
+   "effective_record_length": 23.05629,
+   "pseudo_r2": 0.0,
+   "evr": 0.49582,
+   "mbv": 3.73726,
+   "n_sites": 284.0
+  },
+  "LOGDA": {
+   "beta_constant": -0.16107,
+   "beta_log_da": 0.07878,
+   "sd_constant": 0.12315,
+   "sd_log_da": 0.04232,
+   "sigma2": 0.3567,
+   "sigma2_sd": 0.04257,
+   "asev": 0.01006,
+   "avp_new": 0.36675,
+   "effective_record_length": 23.06253,
+   "pseudo_r2": 0.0,
+   "evr": 0.49686,
+   "mbv": 3.81645,
+   "n_sites": 284.0
+  },
+  "ALT": {
+   "beta_constant": -0.54528,
+   "beta_alt_kft": 0.14464,
+   "sd_constant": 0.22146,
+   "sd_alt_kft": 0.05647,
+   "sigma2": 0.33672,
+   "sigma2_sd": 0.04119,
+   "asev": 0.01144,
+   "avp_new": 0.34816,
+   "effective_record_length": 24.00316,
+   "pseudo_r2": 0.04768,
+   "evr": 0.53196,
+   "mbv": 3.93105,
+   "n_sites": 284.0
+  },
+  "LAT": {
+   "beta_constant": -2.48334,
+   "beta_lat": 0.05236,
+   "sd_constant": 2.39879,
+   "sd_lat": 0.05104,
+   "sigma2": 0.35491,
+   "sigma2_sd": 0.04258,
+   "asev": 0.01126,
+   "avp_new": 0.36617,
+   "effective_record_length": 23.0894,
+   "pseudo_r2": 0.0,
+   "evr": 0.49848,
+   "mbv": 3.76372,
+   "n_sites": 284.0
+  },
+  "CONSTANT_EAST_ONLY": {
+   "beta_constant": -0.03498,
+   "sd_constant": 0.09184,
+   "sigma2": 0.36986,
+   "sigma2_sd": 0.04774,
+   "asev": 0.00843,
+   "avp_new": 0.37829,
+   "effective_record_length": 22.52365,
+   "pseudo_r2": 0.0,
+   "evr": 0.47022,
+   "mbv": 3.50604,
+   "n_sites": 238.0
+  },
+  "CONSTANT_PRL35": {
+   "beta_constant": -0.07031,
+   "sd_constant": 0.08764,
+   "sigma2": 0.32643,
+   "sigma2_sd": 0.04372,
+   "asev": 0.00768,
+   "avp_new": 0.33411,
+   "effective_record_length": 24.81556,
+   "pseudo_r2": 0.0,
+   "evr": 0.42016,
+   "mbv": 3.27391,
+   "n_sites": 204.0
+  },
+  "CONSTANT_DA_LE_3000": {
+   "beta_constant": -0.02135,
+   "sd_constant": 0.08825,
+   "sigma2": 0.36363,
+   "sigma2_sd": 0.04469,
+   "asev": 0.00779,
+   "avp_new": 0.37142,
+   "effective_record_length": 22.83715,
+   "pseudo_r2": 0.0,
+   "evr": 0.49654,
+   "mbv": 3.59789,
+   "n_sites": 270.0
+  },
+  "CONSTANT_THROUGH_1980": {
+   "beta_constant": -0.05144,
+   "sd_constant": 0.08963,
+   "sigma2": 0.36085,
+   "sigma2_sd": 0.04402,
+   "asev": 0.00803,
+   "avp_new": 0.36888,
+   "effective_record_length": 22.97133,
+   "pseudo_r2": 0.0,
+   "evr": 0.47696,
+   "mbv": 3.90702,
+   "n_sites": 262.0
+  },
+  "CONSTANT_kappa2.8": {
+   "beta_constant": -0.02736,
+   "sd_constant": 0.08612,
+   "sigma2": 0.35358,
+   "sigma2_sd": 0.04246,
+   "asev": 0.00742,
+   "avp_new": 0.36099,
+   "effective_record_length": 23.34329,
+   "pseudo_r2": 0.0,
+   "evr": 0.49851,
+   "mbv": 3.74553,
+   "n_sites": 284.0
+  },
+  "CONSTANT_kappa3.3": {
+   "beta_constant": -0.02736,
+   "sd_constant": 0.07489,
+   "sigma2": 0.35231,
+   "sigma2_sd": 0.04291,
+   "asev": 0.00561,
+   "avp_new": 0.35792,
+   "effective_record_length": 23.4975,
+   "pseudo_r2": 0.0,
+   "evr": 0.5003,
+   "mbv": 2.83238,
+   "n_sites": 284.0
+  }
+ },
+ "high_influence": [
+  {
+   "site_no": "06078500",
+   "skew": 2.7683626042224905,
+   "prl": 44.0,
+   "residual": 3.173
+  },
+  {
+   "site_no": "06109530",
+   "skew": 2.8795423844283357,
+   "prl": 23.839070467206135,
+   "residual": 3.632
+  },
+  {
+   "site_no": "12356000",
+   "skew": 2.5426255134321916,
+   "prl": 25.0,
+   "residual": 3.18
+  },
+  {
+   "site_no": "06031950",
+   "skew": 2.0334725338239568,
+   "prl": 51.0,
+   "residual": 2.3
+  },
+  {
+   "site_no": "06102500",
+   "skew": 2.0957993990257333,
+   "prl": 35.546512274276566,
+   "residual": 2.477
+  },
+  {
+   "site_no": "05014500",
+   "skew": 1.6848491045065956,
+   "prl": 111.0,
+   "residual": 1.803
+  },
+  {
+   "site_no": "12356500",
+   "skew": 2.0074712512221544,
+   "prl": 24.54494501494339,
+   "residual": 2.526
+  },
+  {
+   "site_no": "06125520",
+   "skew": 1.7117954799189083,
+   "prl": 38.26148128298277,
+   "residual": 2.008
+  },
+  {
+   "site_no": "06336500",
+   "skew": 1.824252045416829,
+   "prl": 31.182470592205217,
+   "residual": 2.203
+  },
+  {
+   "site_no": "06088500",
+   "skew": 1.407450123617915,
+   "prl": 80.0,
+   "residual": 1.54
+  },
+  {
+   "site_no": "06093200",
+   "skew": 1.3388835351551747,
+   "prl": 51.0,
+   "residual": 1.524
+  },
+  {
+   "site_no": "06101520",
+   "skew": -1.3957500545202646,
+   "prl": 38.35592284231341,
+   "residual": -1.587
+  },
+  {
+   "site_no": "06110000",
+   "skew": 1.24664607549388,
+   "prl": 51.48791138881662,
+   "residual": 1.419
+  },
+  {
+   "site_no": "12304300",
+   "skew": 1.2854246941496992,
+   "prl": 32.0,
+   "residual": 1.554
+  },
+  {
+   "site_no": "06073000",
+   "skew": 1.3285918496005804,
+   "prl": 28.745483490094657,
+   "residual": 1.633
+  }
+ ],
+ "exclusions": {
+  "< 25 pre-regulation peaks": 661,
+  "used": 284,
+  "redundant": 52,
+  "HUC  outside MT basins": 1
+ }
+}
