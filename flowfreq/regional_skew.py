@@ -388,7 +388,7 @@ def regional_skew_at_huc(
             outer = matches[matches["rule"] != "boundary"]
             if outer.empty:
                 raise RegionalSkewUnavailable(f"No verified regional skew study covers HUC {huc}")
-            best = outer.loc[outer["huc"].str.len().idxmax()]
+            best = outer.iloc[int(outer["huc"].str.len().to_numpy().argmax())]
             region, rule = str(best["skew_region"]), str(best["rule"])
     if rule == "excluded":
         rows = table[table["skew_region"] == region]
