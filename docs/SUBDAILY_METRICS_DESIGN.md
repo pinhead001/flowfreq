@@ -332,10 +332,10 @@ error case. The tests that carry the actual risk:
 - `diel_variation`'s fixed-1440 `expected_obs` mismarks the two DST
   transition days each year (S3.4). Left alone to avoid moving already-reported
   numbers; filed in `TODO.md`.
-- **Stage-discharge pairing.** Retrieving 00060 and 00065 in one call, on one
-  index, is the natural next step for anyone comparing a cfs/hr limit to a
-  ft/hr one. Two separate calls and a join work today; a combined retrieval is
-  not built.
+- **Stage-discharge pairing** is built:
+  `USGSgage.download_instantaneous_flow_and_stage` / `join_flow_and_stage`, an
+  outer join on the UTC instant with NaN where one sensor did not report (no
+  interpolation), each parameter keeping its own `qualification_code`.
 - **No validation against a published ramping-rate figure.** Every number
   here is checked against synthetic series with known analytic answers and
   against internal consistency. That is enough to catch the errors S3.3 and

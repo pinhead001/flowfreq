@@ -345,11 +345,14 @@ than fixed:
       changing it moves numbers `diel_variation` has already reported. Fix it
       together with the next release that is allowed to move those, not as a
       drive-by.
-- [ ] **Paired stage-and-discharge retrieval.** `download_instantaneous_flow`
+- [x] **Paired stage-and-discharge retrieval.** `download_instantaneous_flow`
       and `download_instantaneous_stage` are separate calls returning separate
       frames. Anyone comparing a cfs/hr limit against a ft/hr one joins them on
       the index by hand. A single call retrieving both parameters onto one index
       is the natural next step and is not built.
+      **Done:** `USGSgage.download_instantaneous_flow_and_stage` and
+      `join_flow_and_stage`: an outer join on UTC with NaN, never interpolation,
+      per-parameter qualification codes, and mismatched local time refused.
 - [ ] **No validation against a published ramping-rate or peak-timing figure for
       a real gage.** Every number in `subdaily.py` is checked against synthetic
       series with known analytic answers and against internal consistency, which
