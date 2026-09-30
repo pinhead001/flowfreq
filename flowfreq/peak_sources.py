@@ -221,9 +221,10 @@ class WaterDataApiBackend:
 
     def _get_page(self, url: str, params: Optional[Dict[str, Any]], site_no: str) -> Dict[str, Any]:
         """GET one page of items and return its decoded JSON."""
+        from flowfreq.waterdata import request  # deferred: waterdata imports usgs
+
         try:
-            response = requests.get(url, params=params, timeout=self.timeout)
-            response.raise_for_status()
+            response = request(url, params, self.timeout)
             payload = response.json()
         except requests.RequestException as exc:
             raise requests.RequestException(

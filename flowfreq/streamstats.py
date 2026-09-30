@@ -253,6 +253,10 @@ class WatershedCharacteristics:
     polygon_area_sq_mi : float, optional
         Geodesic area of the watershed polygon, square miles (:func:`geojson_area_sq_mi`).
         Set whenever a polygon was validated, including with ``include_polygon=False``.
+    unavailable : dict of str to str
+        Requested characteristics ss-hydro answered with its -999 "not found"
+        sentinel, code to the service's message (design doc S11). Never in
+        ``characteristics``.
     """
 
     region: str
@@ -261,6 +265,7 @@ class WatershedCharacteristics:
     characteristics: Dict[str, Characteristic] = field(default_factory=dict)
     provenance: Optional[Provenance] = None
     polygon_area_sq_mi: Optional[float] = None
+    unavailable: Dict[str, str] = field(default_factory=dict)
 
     def __getitem__(self, code: str) -> Characteristic:
         return self.characteristics[code]
@@ -276,6 +281,7 @@ class WatershedCharacteristics:
             "characteristics": {k: v.to_dict() for k, v in self.characteristics.items()},
             "provenance": self.provenance.to_dict() if self.provenance else None,
             "polygon_area_sq_mi": self.polygon_area_sq_mi,
+            "unavailable": dict(self.unavailable),
         }
 
     @classmethod
@@ -290,6 +296,7 @@ class WatershedCharacteristics:
             },
             provenance=Provenance.from_dict(provenance) if provenance else None,
             polygon_area_sq_mi=data.get("polygon_area_sq_mi"),
+            unavailable=dict(data.get("unavailable") or {}),
         )
 
 
@@ -771,10 +778,20 @@ def _check_polygon_area(area_sq_mi: float, characteristics: Dict[str, Characteri
         )
 
 
-def _parse_characteristics(hydro_data: Any) -> Dict[str, Characteristic]:
+#: ss-hydro's value for a requested characteristic it cannot compute (design doc S11):
+#: HTTP 200, ``value: -999.0``, ``msg: "Basin Characteristic not found in database"``.
+#: NSS uses -999.99 as its own "no value" placeholder; both are refused as data.
+_MISSING_VALUE_SENTINELS: Tuple[float, ...] = (-999.0, -999.99)
+
+
+def _parse_characteristics(hydro_data: Any) -> Tuple[Dict[str, Characteristic], Dict[str, str]]:
     """Parse the ss-hydro basin-characteristics response (design doc S3): a list of
     ``{name, description, code, unit, value, msg}`` objects, optionally wrapped in a
     ``{"parameters": [...]}`` envelope.
+
+    Returns ``(characteristics, unavailable)``. An entry carrying the service's
+    missing-value sentinel is never a characteristic: it goes into ``unavailable``,
+    code to the service's message, so -999 can never reach a regression equation.
     """
     if isinstance(hydro_data, dict) and "parameters" in hydro_data:
         items = hydro_data["parameters"]
@@ -787,6 +804,7 @@ def _parse_characteristics(hydro_data: Any) -> Dict[str, Characteristic]:
         )
 
     characteristics: Dict[str, Characteristic] = {}
+    unavailable: Dict[str, str] = {}
     for item in items:
         try:
             code = str(item["code"])
@@ -795,6 +813,10 @@ def _parse_characteristics(hydro_data: Any) -> Dict[str, Characteristic]:
             raise StreamStatsResponseError(
                 f"ss-hydro characteristic entry missing code/value: {item!r}"
             ) from exc
+        if value in _MISSING_VALUE_SENTINELS:
+            unavailable[code] = str(item.get("msg") or f"value {value}")
+            logger.warning("ss-hydro could not compute %s: %s", code, unavailable[code])
+            continue
         characteristics[code] = Characteristic(
             code=code,
             name=str(item.get("name", "")),
@@ -803,7 +825,7 @@ def _parse_characteristics(hydro_data: Any) -> Dict[str, Characteristic]:
             unit=str(item.get("unit", "")),
             msg=str(item.get("msg") or ""),
         )
-    return characteristics
+    return characteristics, unavailable
 
 
 def delineate_and_get_characteristics(
@@ -841,8 +863,10 @@ def delineate_and_get_characteristics(
         Decimal-degree pour point, WGS84.
     characteristic_codes : sequence of str, optional
         StreamStats characteristic codes to request (resolves design doc S9.4).
-        Defaults to all (``bcLabels=*``). Every request explicitly states this
-        parameter rather than relying on a service default (FR-4).
+        Sent as ss-hydro's ``BCs`` query parameter, semicolon-delimited; defaults to
+        all (``BCs=*``). Every request states it explicitly rather than relying on a
+        service default (FR-4). A code the region does not compute is left out of
+        ``characteristics`` and listed in ``unavailable`` (design doc S11).
     cache : StreamStatsCache, optional
         When given, a cache hit skips all network calls; a miss populates it.
     default_server : str
@@ -867,7 +891,7 @@ def delineate_and_get_characteristics(
     StreamStatsResponseError, StreamStatsTransportError
         See each exception's docstring; see also S7 of the design doc.
     """
-    bc_labels = ",".join(characteristic_codes) if characteristic_codes else "*"
+    bc_labels = ";".join(characteristic_codes) if characteristic_codes else "*"
     cache_key = _cache_key(region, lat, lon, bc_labels, include_polygon)
 
     if cache is not None:
@@ -933,7 +957,10 @@ def delineate_and_get_characteristics(
         "region": region,
         "lat": snap.snapped_lat,
         "lon": snap.snapped_lon,
-        "bcLabels": bc_labels,
+        # ss-hydro 1.4.0's OpenAPI names this `BCs`. The `bcLabels` this module sent until
+        # 2026-09-28 was silently ignored, in the query string and in the body alike
+        # (design doc S11).
+        "BCs": bc_labels,
     }
     hydro_response = _request_with_backoff(
         requests.post, hydro_url, params=hydro_params, json_body=bcrequest, timeout=timeout
@@ -953,7 +980,7 @@ def delineate_and_get_characteristics(
             f"ss-hydro response for region {region!r} was not valid JSON"
         ) from exc
 
-    characteristics = _parse_characteristics(hydro_data)
+    characteristics, unavailable = _parse_characteristics(hydro_data)
     _check_polygon_area(polygon_area_sq_mi, characteristics)
 
     polygon_geojson: Optional[Dict[str, Any]] = None
@@ -977,6 +1004,7 @@ def delineate_and_get_characteristics(
         polygon_geojson=polygon_geojson,
         characteristics=characteristics,
         provenance=provenance,
+        unavailable=unavailable,
         polygon_area_sq_mi=polygon_area_sq_mi,
     )
 
@@ -1150,11 +1178,16 @@ class FlowStatisticEstimate:
         ``"3.846*DRNAREA^0.745*10^(0.032*PRECPRIS10)/10^(0.0078*CANOPY_PCT)"`` --
         returned directly by the service, not reconstructed.
     standard_error_pct : float, optional
-        NSS's own "ASEp" (average standard error of prediction), confusingly
-        labelled ``errors`` in the raw response (a prediction-error statistic, not
-        a failure indicator). ``None`` when NSS did not return one -- observed
-        live for a wildly out-of-range input (addendum S3), so its absence is a
-        soft signal worth noticing even though it is not a hard failure marker.
+        NSS's own standard error, in percent, from the confusingly named ``errors``
+        list of the raw response (a prediction-error statistic, not a failure
+        indicator). Peak-flow equations report it as ``ASEp`` (average standard error
+        of prediction); WA's low-flow equations as ``SE`` ("average standard error
+        (of either estimate or prediction)"), confirmed live 2026-09-28 (addendum
+        S6). ``None`` when NSS returned neither -- observed live for a wildly
+        out-of-range input (addendum S3), so its absence is a soft signal worth
+        noticing even though it is not a hard failure marker.
+    standard_error_code : str, optional
+        Which of those two NSS codes ``standard_error_pct`` came from.
     """
 
     code: str
@@ -1166,6 +1199,7 @@ class FlowStatisticEstimate:
     standard_error_pct: Optional[float] = None
     interval_lower: Optional[float] = None
     interval_upper: Optional[float] = None
+    standard_error_code: Optional[str] = None
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
@@ -1384,6 +1418,11 @@ def locate_regression_regions(
     return located
 
 
+#: NSS ``errors`` codes read as the standard error, in order of preference: ``ASEp``
+#: on peak-flow equations, ``SE`` on WA's low-flow ones (both confirmed live).
+_STANDARD_ERROR_CODES: Tuple[str, ...] = ("ASEp", "SE")
+
+
 def list_statistic_groups(
     region: Optional[str] = None, *, timeout: float = 30.0
 ) -> List[Dict[str, Any]]:
@@ -1500,8 +1539,9 @@ def _parse_region_results(rr: Dict[str, Any]) -> Dict[str, FlowStatisticEstimate
     """Parse one regressionRegion's ``results`` from a ``Scenarios/Estimate`` answer."""
     estimates: Dict[str, FlowStatisticEstimate] = {}
     for stat in rr.get("results", []) or []:
-        errors = stat.get("errors") or []
-        sep = next((e.get("value") for e in errors if e.get("code") == "ASEp"), None)
+        errors = {e.get("code"): e.get("value") for e in stat.get("errors") or []}
+        se_code = next((c for c in _STANDARD_ERROR_CODES if c in errors), None)
+        sep = errors[se_code] if se_code is not None else None
         bounds = stat.get("intervalBounds") or {}
         try:
             code = str(stat["code"])
@@ -1518,6 +1558,7 @@ def _parse_region_results(rr: Dict[str, Any]) -> Dict[str, FlowStatisticEstimate
             unit=str((stat.get("unit") or {}).get("abbr", "")),
             equation=str(stat.get("equation", "")),
             standard_error_pct=sep,
+            standard_error_code=se_code,
             interval_lower=bounds.get("lower"),
             interval_upper=bounds.get("upper"),
         )
