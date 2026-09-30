@@ -357,7 +357,13 @@ def regional_skew_at_huc(
             f"No verified regional skew study covers HUC {huc}. Supply "
             "regional_skew/regional_skew_mse explicitly (Bulletin 17C p. 31: consult the USGS)."
         )
-    best = matches.loc[matches["huc"].str.len().idxmax()] if not matches.empty else None
+    # Positional, not .loc[idxmax()]: idxmax returns a Hashable that newer
+    # pandas-stubs (CI) reject as a .loc key; the row chosen is identical.
+    best = (
+        matches.iloc[int(matches["huc"].str.len().to_numpy().argmax())]
+        if not matches.empty
+        else None
+    )
     outcomes = {(str(r.skew_region), str(r.rule)) for r in finer.itertuples()}
     if best is not None:
         outcomes.discard((str(best["skew_region"]), str(best["rule"])))
