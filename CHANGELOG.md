@@ -29,8 +29,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Cross-check: 284 of the study's 290 gages resolve to the PNW value. The other 6 are the
     5 unresolved gages and one on the ID/UT border that needs `state=`. None falls on the
     Plain.
-
-### Added
+- **`subdaily` checked against a published figure for a real gage.**
+  `tests/test_subdaily_published.py` (`requires_network`) runs `daily_extreme_timing` on
+  USGS 01578310 (Susquehanna at Conowingo, MD) against Exelon (2012), *Final Study Report:
+  Downstream Flow Ramping and Stranding Study, RSP 3.8*, Conowingo Hydroelectric Project, FERC
+  No. 405.
+  - Five discharges from SS4.1.1/4.3.1 match exactly at the report's 100-cfs precision:
+    141,000 cfs on 2010-10-03, the 26,100 / 46,200 / 80,000 cfs morning survey peaks, and the
+    36,500 cfs prior-day peak. The 80,000 cfs peak falls at 08:45 EST, inside the report's
+    0600-0900 h.
+  - One figure, 80,900 vs 81,100 cfs, is recorded in the test module and not pinned. The
+    report's one-hour stage declines need a fixed-window ramp metric that `ramping_rates`
+    does not have; it is filed in TODO.md.
 - **Water Data API key and backoff.** Every call to `api.waterdata.usgs.gov` (peaks,
   instantaneous and daily values, monitoring locations) now goes through
   `flowfreq.waterdata.request`: it sends an `X-Api-Key` from `USGS_API_KEY` or

@@ -336,10 +336,14 @@ error case. The tests that carry the actual risk:
   index, is the natural next step for anyone comparing a cfs/hr limit to a
   ft/hr one. Two separate calls and a join work today; a combined retrieval is
   not built.
-- **No validation against a published ramping-rate figure.** Every number
-  here is checked against synthetic series with known analytic answers and
-  against internal consistency. That is enough to catch the errors S3.3 and
-  S4.1 are about, and it is *not* the same as reproducing a published
-  hydropeaking statistic for a real gage -- which needs live NWIS, blocked in
-  this environment (see `TODO.md`'s environment constraints). Treat the
-  metrics as verified in arithmetic and unverified against the literature.
+- **Validation against a published figure** (2026-09-30), for daily extremes
+  only. Exelon (2012), *Final Study Report: Downstream Flow Ramping and
+  Stranding Study, RSP 3.8*, Conowingo Hydroelectric Project, FERC No. 405,
+  SS4.1.1/4.3.1, gives discharges at USGS 01578310 that
+  `daily_extreme_timing` reproduces exactly: 141,000 cfs on 2010-10-03, morning
+  peaks of 26,100 / 46,200 / 80,000 cfs, and 36,500 cfs on 2010-04-28. One
+  figure disagrees by 200 cfs (80,900 reported vs 81,100 on 2010-05-12). See
+  `tests/test_subdaily_published.py` for the verbatim quotations. The report's
+  one-hour stage declines are a fixed-window metric that `ramping_rates` does
+  not compute (TODO.md). **Ramping rates themselves therefore remain verified
+  in arithmetic only.**
