@@ -146,15 +146,14 @@ def _local_day_hours(dates: DateColumn, tz: str) -> np.ndarray:
     for `expected_obs` so that the two transition days of each year are not
     mismarked as incomplete (spring) or over-complete (autumn).
     """
-    starts = pd.to_datetime(pd.Series(list(dates))).dt.tz_localize(
+    naive = pd.to_datetime(pd.Series(list(dates)))
+    starts = naive.dt.tz_localize(tz, ambiguous=True, nonexistent="shift_forward")
+    ends = (naive + pd.Timedelta(days=1)).dt.tz_localize(
         tz, ambiguous=True, nonexistent="shift_forward"
     )
-    ends = (
-        (pd.to_datetime(pd.Series(list(dates))) + pd.Timedelta(days=1))
-        .dt.tz_localize(tz, ambiguous=True, nonexistent="shift_forward")
-        .to_numpy()
-    )
-    return (ends - starts.to_numpy()) / np.timedelta64(1, "h")
+    # Subtracted as Series, not via .to_numpy(): a tz-aware .to_numpy() is an
+    # object array of Timestamps, which made expected_obs an object column.
+    return np.asarray((ends - starts).dt.total_seconds() / 3600.0, dtype=float)
 
 
 def diel_variation(
@@ -229,10 +228,16 @@ def diel_variation(
     at least two points) -- both are reported as computed, with `complete`
     correctly False.
 
-    **Expected observations per day** are inferred from the *median* time
-    step across the entire input, not a hardcoded assumption like 15
-    minutes -- NWIS's most common instantaneous interval, but not the only
-    one a logger might report at. If the sampling interval genuinely
+    **Expected observations per day** are the day's actual local length
+    divided by the *median* time step across the entire input, not a
+    hardcoded assumption like 15 minutes -- NWIS's most common
+    instantaneous interval, but not the only one a logger might report at.
+    The length is 24 hours on almost every day, but 23 on a daylight-saving
+    spring-forward day and 25 on a fall-back day, so a full record of either
+    reads as exactly complete. (Before v0.10.0 this used a fixed 24 hours,
+    which marked a full spring-forward day incomplete at any
+    `min_completeness_frac` above 23/24 and a full fall-back day as 25/24
+    complete.) If the sampling interval genuinely
     changes partway through the record (e.g. a logger upgrade from hourly
     to 15-minute reporting), this single global median will misjudge
     completeness for whichever era doesn't match it; split the record at
@@ -257,12 +262,7 @@ def diel_variation(
     local_index = _local_index(iv_data, tz)
     flows = _valid_values(iv_data, "flow_cfs")
 
-    # A fixed 1440 minutes, deliberately, unlike daily_extreme_timing and
-    # ramping_rates, which use the actual local-day length. Changing it here
-    # would move numbers this function has already reported; see the design
-    # doc S3.4 and TODO.md. The only days affected are the two
-    # daylight-saving transitions of each year.
-    expected_obs = 1440.0 / _median_step_minutes(local_index)
+    step_minutes = _median_step_minutes(local_index)
 
     df = pd.DataFrame({"date": local_index.date, "flow_cfs": flows.to_numpy()})
     grouped = df.groupby("date")["flow_cfs"]
@@ -274,10 +274,13 @@ def diel_variation(
         result["mean_flow_cfs"] > 0, result["std_flow_cfs"] / result["mean_flow_cfs"], np.nan
     )
     result["n_obs"] = grouped.apply(lambda s: int(s.notna().sum()))
-    result["expected_obs"] = expected_obs
-    result["complete"] = result["n_obs"] >= (expected_obs * min_completeness_frac)
+    # Each local day's actual length, as in daily_extreme_timing and
+    # ramping_rates: 23 hours on a spring-forward day, 25 on a fall-back day.
+    daily = pd.DataFrame(result).reset_index()
+    daily["expected_obs"] = _local_day_hours(daily["date"], tz) * 60.0 / step_minutes
+    daily["complete"] = daily["n_obs"] >= (daily["expected_obs"] * min_completeness_frac)
 
-    return result.reset_index().sort_values("date").reset_index(drop=True)
+    return daily.sort_values("date").reset_index(drop=True)
 
 
 def diel_variation_summary(daily_diel: pd.DataFrame) -> pd.Series:
@@ -515,8 +518,8 @@ def daily_extreme_timing(
     time, not errors, and local time is what a diel question asks about.
     ``expected_obs`` accounts for it: it is computed from each day's actual
     length, not from a fixed 1440 minutes, so the two transition days of a
-    year are not mismarked. (:func:`diel_variation` predates this and still
-    uses the fixed 1440 -- see the design doc S3.4.)
+    year are not mismarked. :func:`diel_variation` and :func:`ramping_rates`
+    use the same convention.
 
     **Completeness does not gate the values**, matching
     :func:`diel_variation`: a day missing some readings still usually

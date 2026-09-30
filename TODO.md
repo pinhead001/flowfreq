@@ -336,15 +336,11 @@ elsewhere in this file, that entry keeps the history; this list is the open trac
 Unreleased CHANGELOG entry). Three things it left open, all recorded rather
 than fixed:
 
-- [ ] **`diel_variation`'s `expected_obs` is a fixed 1440 minutes / median step,
-      so it mismarks the two daylight-saving transition days of every year** --
-      the spring day (23 local hours) reads as incomplete at any
-      `min_completeness_frac` above ~0.96, and the autumn day (25 hours) reads
-      as more than complete. `daily_extreme_timing` and `ramping_rates` use each
-      day's actual local length and do not have this. Left alone deliberately:
-      changing it moves numbers `diel_variation` has already reported. Fix it
-      together with the next release that is allowed to move those, not as a
-      drive-by.
+- [x] **`diel_variation`'s `expected_obs` is a fixed 1440 minutes / median step,
+      so it mismarks the two daylight-saving transition days of every year.**
+      **Done for v0.10.0:** it now uses each local day's actual length, like
+      `daily_extreme_timing` and `ramping_rates`. Only `expected_obs`/`complete`
+      on the two transition days moved; CHANGELOG Fixed says exactly which.
 - [x] **Paired stage-and-discharge retrieval.** `download_instantaneous_flow`
       and `download_instantaneous_stage` are separate calls returning separate
       frames. Anyone comparing a cfs/hr limit against a ft/hr one joins them on
