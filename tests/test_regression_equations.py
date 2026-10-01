@@ -158,11 +158,12 @@ class TestJurisdictions:
 
 
 class TestLibrary:
-    @pytest.mark.parametrize("code", ["WA", "OR", "ID", "MT"])
-    def test_wave1_states_are_populated(self, code):
-        """Every Wave 1 state has left 'pending': equations, a cited source, and
-        each equation evaluates in range. Replaces a pending-tuple loop that, once
-        all four were populated, iterated over nothing."""
+    @pytest.mark.parametrize("code", ["WA", "OR", "ID", "MT", "UT"])
+    def test_states_are_populated(self, code):
+        """Every populated state (Wave 1, then Wave 2 as each lands) has left
+        'pending': equations, a cited source, and each equation evaluates in range.
+        Replaces a pending-tuple loop that, once all four Wave 1 states were
+        populated, iterated over nothing."""
         states = available_states()
         assert states[code] in ("partial", "verified"), states[code]
         lib = load_state(code)

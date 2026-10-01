@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Utah peak-flow regression equations** (`flowfreq/data/regression/UT.json`, Wave 2, #96),
+  `status: "partial"`: 63 equations in 8 regions.
+  - SIR 2007-5158 ver. 4.0: regions 1-7 at 8 AEPs (Table 5, limits Table 8). The
+    exponential terms (`1.39^(ELEV/1,000)`, `1.07^PRECIP`, `2.72^(...)`) are identity
+    transforms with `scale`.
+  - SIR 2006-5306: Navajo Nation region 8, 7 AEPs.
+  - Partial because region 2 does not match NSS: Table 5 prints its precipitation bases to
+    3 significant figures, while NSS uses 4 (for example 1.07 against 1.074). The printed
+    values are stored; the gap is pinned by tests. Every other region and AEP equals live
+    NSS at 3 significant figures. NSS snapshot `data/nss_snapshots/UT_2026-10-01.json`.
 - **Regional skew by location** (`flowfreq.regional_skew`, roadmap §1.3):
   `regional_skew_at_huc(huc, state=None)`, `regional_skew_at(lat, lon)` and
   `regional_skew_for_site(site_no)`. They return the verified regional skew for the study
