@@ -175,6 +175,7 @@ def analyze_gage(
     historical_peaks: list = None,
     output_dir: str = "./output",
     apply_peak_codes: bool = True,
+    allow_regulated: bool = False,
 ) -> dict:
     """
     Complete flood frequency analysis for a USGS gage.
@@ -209,6 +210,19 @@ def analyze_gage(
         ``False`` restores the old behaviour -- every peak fitted as an
         exact systematic value, with ignored codes logged. It was opt-in
         (default ``False``) before.
+    allow_regulated : bool, default False
+        The gage is screened for regulation (:mod:`flowfreq.regulation`:
+        the packaged GAGES-II screen plus code 6 in the downloaded peaks)
+        before fitting. A gage classed ``regulated`` raises
+        :class:`flowfreq.regulation.RegulatedRecordError` unless this is
+        ``True``; the override is recorded in ``site_classification``. A gage
+        with no classification proceeds, with a warning.
+
+    Returns
+    -------
+    dict
+        Keys ``gage``, ``analysis``, ``results``, ``figures``,
+        ``report_path`` and ``site_classification`` (the screen's provenance).
     """
     import os
 
@@ -226,6 +240,17 @@ def analyze_gage(
     gage.download_peak_flow()
     logger.info("Downloaded %d annual peak flow records", len(gage.peak_data))
     logger.info("Site name: %s", gage.site_name)
+
+    from .regulation import classify_site, require_unregulated
+
+    codes = (
+        gage.peak_data["qualification_code"].tolist()
+        if "qualification_code" in gage.peak_data.columns
+        else None
+    )
+    site_classification = require_unregulated(
+        classify_site(site_no, codes), allow_regulated=allow_regulated
+    )
 
     logger.info("Running Bulletin 17C analysis (method=%s)...", method.upper())
 
@@ -264,6 +289,7 @@ def analyze_gage(
         "results": results,
         "figures": figures,
         "report_path": report_path,
+        "site_classification": site_classification,
     }
 
 

@@ -65,6 +65,15 @@ Standing rules carried over from this repo's history, which apply to every phase
 - [~] [#32](https://github.com/pinhead001/flowfreq/issues/32) **Regulation and urbanization screen.** Use the peak codes, GAGES-II/NID dam storage,
       and NLCD impervious fraction to classify each gage as reference, regulated, or urban.
       Refuse, or require an override for, B17C on a regulated record.
+      *Substantive:* `flowfreq/regulation.py` and `data/regulation_screen.csv.gz` (all
+      9,322 GAGES-II gages, built by `tools/build_regulation_screen.py`): GAGES-II `Ref`
+      → reference; NID-2009 storage over 127.8 days of mean runoff (Dudley and others
+      2018) → regulated; NLCD-2006 impervious over 5% (SIR 2016-5118 p. 23) → urban;
+      peak code 6 → regulated. `analyze_gage` refuses a regulated gage, and `run_ffa`
+      does too when it is given `site_no=`, unless `allow_regulated=True`, which is
+      recorded in provenance. *Open:* current-NID storage (the live national CSV needs
+      basin polygons to sum upstream), the NLCD impervious time series, and gages outside
+      GAGES-II, which only have peak-code evidence.
 - [~] [#33](https://github.com/pinhead001/flowfreq/issues/33) Offline **gage catalog**: expand `flowfreq/data/gage_attributes.csv` (3 rows today) into
       a versioned national table covering every active and inactive peak-flow site with
       ≥10 years of record. Columns: site_no, name, lat/lon, DA, state, HUC8, years of
