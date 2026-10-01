@@ -504,6 +504,34 @@ def quantile_frames(reference: ReferenceResult) -> Tuple[pd.DataFrame, pd.DataFr
     return quantiles, confidence_limits
 
 
+def _mgbt_flagged(arrays: EmafitArrays, threshold: float) -> int:
+    """How many members of ``gbtest``'s MGBT sample lie below *threshold* (cfs).
+
+    The sample (``emafit.f`` lines 956-978): every exact ``dtype = 0`` row,
+    zeros included, plus every censored ``dtype = 0`` row whose upper bound is
+    no larger than the smallest of those, at that upper bound. This is
+    ``FrequencyResults.n_mgbt_outliers``; ``gbnlow`` (``n_low_outliers``)
+    counts rows instead.
+    """
+    if threshold <= 0.0:
+        return 0
+    # threshold is 10**gbval, and gbval is itself a sample value: allow for
+    # the round trip so the first non-outlier is not counted.
+    cutoff = float(np.log10(threshold)) - 1e-12
+    exact = [
+        float(qu) for ql, qu, dt in zip(arrays.ql, arrays.qu, arrays.dtype) if ql == qu and dt == 0
+    ]
+    if not exact:
+        return 0
+    smallest = min(exact)
+    sample = exact + [
+        float(qu)
+        for ql, qu, dt in zip(arrays.ql, arrays.qu, arrays.dtype)
+        if ql != qu and dt == 0 and qu <= smallest
+    ]
+    return sum(1 for value in sample if value < cutoff)
+
+
 def _frequency_results_from_reference(
     reference: ReferenceResult,
     arrays: EmafitArrays,
@@ -576,6 +604,7 @@ def _frequency_results_from_reference(
         n_historical=reference.n_historical,
         n_censored=arrays.n_censored,
         n_low_outliers=reference.low_outlier_count,
+        n_mgbt_outliers=_mgbt_flagged(arrays, threshold),
         mean_log=p["mean_log"],
         std_log=p["std_log"],
         skew_station=skew_station,

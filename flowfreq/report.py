@@ -176,7 +176,7 @@ This report presents a flood frequency analysis for USGS streamgage {site_no} ({
 | Systematic Record | {r.n_systematic} |
 | Historical Observations | {r.n_historical} |
 | Censored Observations | {r.n_censored} |
-| Low Outliers (MGB) | {r.n_low_outliers} |
+| Low Outliers (MGB) | {r.n_mgbt_outliers if r.n_mgbt_outliers is not None else r.n_low_outliers} |
 | Mean of Log Q | {r.mean_log:.4f} |
 | Standard Deviation of Log Q | {r.std_log:.4f} |
 | Station Skew Coefficient | {r.skew_station:.4f} |
@@ -197,7 +197,8 @@ This report presents a flood frequency analysis for USGS streamgage {site_no} ({
 |-----------|-------|
 | MGB Critical Value (K_n) | {r.mgb_critical_value:.4f} |
 | Low Outlier Threshold | {r.low_outlier_threshold:,.0f} cfs |
-| Number of Low Outliers | {r.n_low_outliers} |
+| Peaks Flagged by the Test | {r.n_mgbt_outliers if r.n_mgbt_outliers is not None else r.n_low_outliers} |
+| Rows Censored as Low Outliers (peakfq) | {r.n_low_outliers} |
 
 ## 4. Flood Frequency Estimates
 

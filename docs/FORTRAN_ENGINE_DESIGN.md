@@ -149,7 +149,8 @@ Available from `emafitpr`, whose output groups are
 | `mean_log`, `std_log`, `skew_station`, `skew_weighted` | `parameters` dict via `cmoms_to_parameters` (`skew_at_site` is the station skew) |
 | `n_peaks`, `n_systematic`, `n_historical` | direct |
 | `low_outlier_threshold` | `10 ** mgbt.gbval`, guarded by the `> -6` sentinel |
-| `n_low_outliers` | `mgbt.gbnlow` |
+| `n_low_outliers` | `mgbt.gbnlow` (the native engine counts the same rows) |
+| `n_mgbt_outliers` | derived: `gbtest`'s MGBT sample below the threshold |
 | `n_zeros` | `mgbt.gbnzero` |
 | `quantiles`, `confidence_limits` | `quantiles.yp / ci_low / ci_high`, log10 → cfs, into DataFrames matching the native column names |
 | `skew_used_mse` | `skew.as_G_mse_o` |

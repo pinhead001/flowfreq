@@ -502,7 +502,10 @@ def run_ffa(
                     # Both EMA and MOM censor on it now, so the source is just
                     # whether it came from MGBT or the user.
                     "low_outlier_threshold": r.low_outlier_threshold,
+                    # peakfq's gbnlow: every row censored below the cut, gap
+                    # years included; n_mgbt_outliers is the peaks it flagged.
                     "n_low_outliers": r.n_low_outliers,
+                    "n_mgbt_outliers": r.n_mgbt_outliers,
                     "low_outlier_source": _low_outlier_source(lo_override),
                     "peak_codes_applied": codes_applied,
                 },

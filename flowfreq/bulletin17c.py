@@ -428,7 +428,8 @@ class FloodFrequencyAnalysis(ABC):
             ax.plot(x_cl, cl["upper_5pct"], "b--", linewidth=1, alpha=0.7)
 
         # Low outliers
-        if self._results.low_outlier_threshold > 0 and self._results.n_low_outliers > 0:
+        n_flagged = self._results.n_mgbt_outliers or 0
+        if self._results.low_outlier_threshold > 0 and n_flagged > 0:
             threshold = self._results.low_outlier_threshold
             low_outliers = self._peak_flows[self._peak_flows < threshold]
             for lo in low_outliers:
@@ -447,7 +448,7 @@ class FloodFrequencyAnalysis(ABC):
                 color="red",
                 linestyle=":",
                 alpha=0.7,
-                label=f"Low Outlier Threshold ({self._results.n_low_outliers})",
+                label=f"Low Outlier Threshold ({n_flagged})",
             )
 
         ax.set_yscale(yscale)
@@ -604,6 +605,7 @@ class MethodOfMoments(FloodFrequencyAnalysis):
             n_historical=0,
             n_censored=n_low_outliers,
             n_low_outliers=n_low_outliers,
+            n_mgbt_outliers=n_low_outliers,
             mean_log=mean_log,
             std_log=std_log,
             skew_station=skew_station,
@@ -803,6 +805,8 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         # outliers, else 'ADJE'. Set by run_analysis; read by every at-site skew
         # MSE (weighting, pseudo record length, the var_emab confidence bounds).
         self._at_site_option: str = "ADJE"
+        # gbtest's nlow for the last _build_flow_intervals call.
+        self._n_rows_below_cutoff = 0
 
     def _auto_configure_ema_params(self) -> EMAParameters:
         """Auto-configure EMA parameters from data."""
@@ -991,12 +995,16 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         thresholds = self._threshold_by_year()
         unrestricted = (0.0, _PERCEPTION_QMAX)
         intervals = []
+        # gbtest's nlow (emafit.f:1063-1068): every row whose upper bound lies
+        # below the cutoff, whatever kind of row it is.
+        n_below = 0
 
         for flow, year in zip(self._peak_flows, self._water_years):
             year = int(year)
             perception, upper_perception = thresholds.get(year, unrestricted)
 
             if flow < low_threshold:
+                n_below += 1
                 intervals.append(
                     FlowInterval.from_censored(
                         lower=_GBTMIN,
@@ -1021,6 +1029,7 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
             year = int(year)
             perception, upper_perception = thresholds.get(year, unrestricted)
             if low_threshold > 0:
+                n_below += 1
                 intervals.append(
                     FlowInterval.from_censored(
                         lower=_GBTMIN,
@@ -1052,6 +1061,7 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
                 continue  # [Qmin, Qmax]: no information; siteQT drops the row
             perception, upper_perception = thresholds.get(year, unrestricted)
             if upper < low_threshold:
+                n_below += 1
                 lower, upper = _GBTMIN, low_threshold
             intervals.append(
                 FlowInterval.from_censored(
@@ -1073,6 +1083,7 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
                 threshold = self._ema_params.historical_threshold or flow
                 upper_perception = _PERCEPTION_QMAX
             if flow < low_threshold:
+                n_below += 1
                 intervals.append(
                     FlowInterval(
                         lower=_GBTMIN,
@@ -1097,6 +1108,7 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
             # siteQT: (Qmin, threshold); gbtest then moves it to (gbtmin, cutoff)
             # when the threshold lies below the low-outlier cutoff.
             below_cutoff = threshold < low_threshold
+            n_below += int(below_cutoff)
             intervals.append(
                 FlowInterval.from_censored(
                     lower=_GBTMIN if below_cutoff else _PERCEPTION_QMIN,
@@ -1108,6 +1120,7 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
             )
 
         self._intervals = sorted(intervals, key=lambda x: x.year)
+        self._n_rows_below_cutoff = n_below
         return self._intervals
 
     def _compute_ema_moments(self, mean_log: float, std_log: float, skew: float) -> "_ExpectedSums":
@@ -1704,7 +1717,9 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
             zero_pilf: List[float] = [0.0] * self._n_zeros
             nonzero_pilf = sorted([f for f in self._peak_flows if f < user_threshold])
             pilf = zero_pilf + nonzero_pilf
-            return float(user_threshold), len(pilf), pilf
+            # gbtest's sample also holds the qualifying less-than values.
+            flagged = len(pilf) + sum(1 for u in self._less_than_uppers() if u < user_threshold)
+            return float(user_threshold), flagged, pilf
 
         # Include zero-flow years as log10(1e-88) = -88, matching Fortran MGBTP
         # which uses MAX(1D-88,X) before LOG10 (probfun.f line 1547).  Zeros must
@@ -1816,7 +1831,7 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         skew_station = n * np.sum((log_flows - mean_log) ** 3) / ((n - 1) * (n - 2) * std_log**3)
         skew_station = float(np.clip(skew_station, -MAX_ABS_SKEW, MAX_ABS_SKEW))
 
-        low_threshold, n_low_outliers, pilf_flows = self._multiple_grubbs_beck(
+        low_threshold, n_mgbt_outliers, pilf_flows = self._multiple_grubbs_beck(
             user_threshold=self._user_low_outlier_threshold
         )
         self._ema_params.low_outlier_threshold = low_threshold
@@ -1828,7 +1843,9 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         mgbt_computed = not (
             self._user_low_outlier_threshold is not None and self._user_low_outlier_threshold > 0
         )
-        self._at_site_option = "B17B" if mgbt_computed and n_low_outliers > 0 else "ADJE"
+        # nlow here is gbtest's row count, but it is positive exactly when MGBT
+        # flagged something: a positive cutoff always has a flagged value under it.
+        self._at_site_option = "B17B" if mgbt_computed and n_mgbt_outliers > 0 else "ADJE"
 
         self._build_flow_intervals(low_threshold)
 
@@ -1874,7 +1891,8 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
             n_systematic=n_systematic,
             n_historical=n_historical,
             n_censored=n_censored,
-            n_low_outliers=n_low_outliers,
+            n_low_outliers=self._n_rows_below_cutoff,
+            n_mgbt_outliers=n_mgbt_outliers,
             mean_log=mean_log,
             std_log=std_log,
             skew_station=skew_station,
@@ -2233,6 +2251,10 @@ class Bulletin17C:
     @property
     def n_low_outliers(self) -> Optional[int]:
         return self._results.n_low_outliers if self._results else None
+
+    @property
+    def n_mgbt_outliers(self) -> Optional[int]:
+        return self._results.n_mgbt_outliers if self._results else None
 
     def run_analysis(
         self, method: Union[str, AnalysisMethod] = "ema", engine: str = "native"

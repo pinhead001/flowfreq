@@ -239,7 +239,16 @@ class EMAParameters:
 
 @dataclass
 class FrequencyResults:
-    """Results from flood frequency analysis."""
+    """Results from flood frequency analysis.
+
+    ``n_low_outliers`` is the number of low-outlier rows as peakfq reports it
+    (``emafitpr``'s ``gbnlow``, ``gbtest`` in ``emafit.f`` lines 1062-1076):
+    every record row whose upper bound lies below the low-outlier cutoff and
+    is recoded to ``(gbtmin, cutoff)`` -- exact peaks, zero-flow years,
+    interval and historic rows, and years with no peak that a perception
+    threshold below the cutoff censors. ``n_mgbt_outliers`` counts only the
+    peaks the test flagged.
+    """
 
     n_peaks: int
     n_systematic: int
@@ -264,6 +273,14 @@ class FrequencyResults:
     pilf_flows: List[float] = field(default_factory=list)
     #: peakfq's pseudo effective record length (``as_G_PRL_o``); EMA only.
     pseudo_record_length: Optional[float] = None
+    #: Peaks the low-outlier test itself flagged: the members of MGBT's sample
+    #: (exact systematic peaks, zeros, and ``gbtest``'s qualifying less-than
+    #: values) below the threshold -- MGBT's ``klow``, or with a user threshold
+    #: the sample values under it. ``n_low_outliers`` is peakfq's ``gbnlow``
+    #: instead: every EMA *row* ``gbtest`` recodes below the cutoff, which also
+    #: counts perception-threshold gap years and historic or interval rows
+    #: under it. ``None`` when the producer does not report it.
+    n_mgbt_outliers: Optional[int] = None
 
 
 @dataclass
