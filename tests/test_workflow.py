@@ -178,8 +178,27 @@ class TestPilfOverride:
         assert zero["parameters"]["low_outlier_source"] == "MGBT"
         assert zero["parameters"]["mean_log"] == none["parameters"]["mean_log"]
 
-    def test_mom_fallback_censors_on_the_override(self):
-        """A high override stops EMA converging, and MOM now censors on it too.
+    @pytest.fixture
+    def ema_never_converges(self, monkeypatch):
+        """Force the MOM fallback.
+
+        A 6000 cfs override used to trip it on its own: the fixed point then
+        stopped after 100 iterations, short of convergence. Following
+        ``p3est_ema``'s own iteration limit it converges (827 iterations), as
+        it does in peakfq, so the fallback is exercised directly instead.
+        """
+        from flowfreq.bulletin17c import ExpectedMomentsAlgorithm
+
+        real = ExpectedMomentsAlgorithm._ema_fixed_point
+
+        def not_converged(self, *args, **kwargs):
+            mean, std, skew, _converged, iterations = real(self, *args, **kwargs)
+            return mean, std, skew, False, iterations
+
+        monkeypatch.setattr(ExpectedMomentsAlgorithm, "_ema_fixed_point", not_converged)
+
+    def test_mom_fallback_censors_on_the_override(self, ema_never_converges):
+        """When EMA does not converge, MOM censors on the override too.
 
         MethodOfMoments applies the Bulletin 17B conditional-probability
         adjustment, so the number reported as the threshold is also the one
@@ -196,7 +215,7 @@ class TestPilfOverride:
         assert result["parameters"]["low_outlier_threshold"] == pytest.approx(6000.0)
         assert result["parameters"]["low_outlier_source"] == "override"
 
-    def test_mom_fallback_moments_shift_with_the_override(self):
+    def test_mom_fallback_moments_shift_with_the_override(self, ema_never_converges):
         """The claim the label makes must actually hold: MOM censors now."""
         flows, years = _big_sandy_arrays()
         forced = run_ffa(
