@@ -336,29 +336,45 @@ elsewhere in this file, that entry keeps the history; this list is the open trac
 Unreleased CHANGELOG entry). Three things it left open, all recorded rather
 than fixed:
 
-- [ ] **`diel_variation`'s `expected_obs` is a fixed 1440 minutes / median step,
-      so it mismarks the two daylight-saving transition days of every year** --
-      the spring day (23 local hours) reads as incomplete at any
-      `min_completeness_frac` above ~0.96, and the autumn day (25 hours) reads
-      as more than complete. `daily_extreme_timing` and `ramping_rates` use each
-      day's actual local length and do not have this. Left alone deliberately:
-      changing it moves numbers `diel_variation` has already reported. Fix it
-      together with the next release that is allowed to move those, not as a
-      drive-by.
-- [ ] **Paired stage-and-discharge retrieval.** `download_instantaneous_flow`
+- [x] **`diel_variation`'s `expected_obs` is a fixed 1440 minutes / median step,
+      so it mismarks the two daylight-saving transition days of every year.**
+      **Done for v0.10.0:** it now uses each local day's actual length, like
+      `daily_extreme_timing` and `ramping_rates`. Only `expected_obs`/`complete`
+      on the two transition days moved; CHANGELOG Fixed says exactly which.
+- [x] **Paired stage-and-discharge retrieval.** `download_instantaneous_flow`
       and `download_instantaneous_stage` are separate calls returning separate
       frames. Anyone comparing a cfs/hr limit against a ft/hr one joins them on
       the index by hand. A single call retrieving both parameters onto one index
       is the natural next step and is not built.
-- [ ] **No validation against a published ramping-rate or peak-timing figure for
-      a real gage.** Every number in `subdaily.py` is checked against synthetic
-      series with known analytic answers and against internal consistency, which
-      catches the circular-mean and local-`dt` errors the module exists to avoid
-      -- and is *not* the same as reproducing a published hydropeaking statistic.
-      That needs live NWIS, blocked from a Claude Code session (see the
-      environment constraints above). Treat the metrics as verified in arithmetic
-      and unverified against the literature until someone runs a real gage
-      through them.
+      **Done:** `USGSgage.download_instantaneous_flow_and_stage` and
+      `join_flow_and_stage`: an outer join on UTC with NaN, never interpolation,
+      per-parameter qualification codes, and mismatched local time refused.
+- [x] **No validation against a published ramping-rate or peak-timing figure for
+      a real gage.** **Done (2026-09-30), for daily extremes:** Exelon (2012), *Final Study Report: Downstream Flow Ramping and Stranding Study, RSP 3.8*, Conowingo Hydroelectric Project, FERC No. 405,
+      SS4.1.1/4.3.1, states discharge figures read from USGS 01578310
+      (Susquehanna at Conowingo). `daily_extreme_timing` on the approved 15-minute
+      record, grouped on America/New_York days, reproduces 141,000 cfs (2010-10-03),
+      the morning peaks 26,100 / 46,200 / 80,000 cfs (Studies 9-11) and the Study 1
+      prior-day peak 36,500 cfs **exactly**. The 80,000 falls at 08:45 EST, inside
+      the report's "0600-0900 h". These are pinned in
+      `tests/test_subdaily_published.py` (`requires_network`). The Study 3 prior-day
+      peak does not agree (reported 80,900; the record's 2010-05-12 maximum is 81,100)
+      and is recorded, not pinned. Searched without finding a usable figure:
+      Bevelhimer et al. (2015, RRA) gives no per-gage values and uses 2003-2009
+      hourly data; Hells Canyon and Glen Canyon give limits, not observed rates;
+      HESS 26:3393 (2022) gives no per-gage diel values. Abernethy et al. (2021,
+      Ecosphere) and "Vanishing weekly hydropeaking cycles" (Nat. Commun., 2021,
+      doi:10.1038/s41467-021-27465-4) were not accessible (403 or captcha).
+      Nothing was found for Methow 12449950 diel timing.
+- [ ] **No fixed-window ramp metric.** The same report states hydropeaking as a
+      stage decline over "the initial one-hour following reduction to minimum
+      flow" (2.8 / 4.2 / 5.6 / 3.1 ft, Studies 9-12), as compliance limits
+      usually are ("1 ft per hour"). `ramping_rates` reports only per-interval
+      (15-minute) rates, which are not that number. A plain rolling one-hour
+      maximum decline on 01578310 gage height gives 2.76 / 4.20 / 5.60 / 3.29 ft,
+      so three of four agree at 0.1 ft. A `window_hours=` option on
+      `ramping_rates` would make this reproducible from the library. Study 12's
+      3.29 vs 3.1 would need explaining first.
 
 ### Next — StreamStats Phase 2 follow-ups
 

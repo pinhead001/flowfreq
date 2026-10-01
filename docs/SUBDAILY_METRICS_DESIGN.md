@@ -159,12 +159,13 @@ question is asking about.
 
 One thing does follow from it. `expected_obs` here is computed from the
 **actual local-day length** (`day_hours * 60 / step_minutes`), not from a
-fixed 1440 minutes. `diel_variation` uses the fixed 1440 and so marks the two
-transition days of every year as `complete=False` (spring) or as more complete
-than a full day (autumn) for no real reason. That is a latent wart in
-`diel_variation`, left alone here rather than fixed: changing it would move
-numbers already reported from that function. It is recorded in `TODO.md`
-instead.
+fixed 1440 minutes. `diel_variation` originally used the fixed 1440 and so
+marked the two transition days of every year as `complete=False` (spring) or
+as more complete than a full day (autumn) for no real reason. That was left
+alone at first because fixing it moves numbers already reported from that
+function; it was fixed in v0.10.0, and all three per-day functions now share
+the actual-length convention. Only `expected_obs` and `complete` on the two
+transition days changed -- range, CV and `n_obs` never depended on it.
 
 ## S4. Ramping rate
 
@@ -329,17 +330,18 @@ error case. The tests that carry the actual risk:
 
 ## S7. Open, and not attempted here
 
-- `diel_variation`'s fixed-1440 `expected_obs` mismarks the two DST
-  transition days each year (S3.4). Left alone to avoid moving already-reported
-  numbers; filed in `TODO.md`.
-- **Stage-discharge pairing.** Retrieving 00060 and 00065 in one call, on one
-  index, is the natural next step for anyone comparing a cfs/hr limit to a
-  ft/hr one. Two separate calls and a join work today; a combined retrieval is
-  not built.
-- **No validation against a published ramping-rate figure.** Every number
-  here is checked against synthetic series with known analytic answers and
-  against internal consistency. That is enough to catch the errors S3.3 and
-  S4.1 are about, and it is *not* the same as reproducing a published
-  hydropeaking statistic for a real gage -- which needs live NWIS, blocked in
-  this environment (see `TODO.md`'s environment constraints). Treat the
-  metrics as verified in arithmetic and unverified against the literature.
+- **Stage-discharge pairing** is built:
+  `USGSgage.download_instantaneous_flow_and_stage` / `join_flow_and_stage`, an
+  outer join on the UTC instant with NaN where one sensor did not report (no
+  interpolation), each parameter keeping its own `qualification_code`.
+- **Validation against a published figure** (2026-09-30), for daily extremes
+  only. Exelon (2012), *Final Study Report: Downstream Flow Ramping and
+  Stranding Study, RSP 3.8*, Conowingo Hydroelectric Project, FERC No. 405,
+  SS4.1.1/4.3.1, gives discharges at USGS 01578310 that
+  `daily_extreme_timing` reproduces exactly: 141,000 cfs on 2010-10-03, morning
+  peaks of 26,100 / 46,200 / 80,000 cfs, and 36,500 cfs on 2010-04-28. One
+  figure disagrees by 200 cfs (80,900 reported vs 81,100 on 2010-05-12). See
+  `tests/test_subdaily_published.py` for the verbatim quotations. The report's
+  one-hour stage declines are a fixed-window metric that `ramping_rates` does
+  not compute (TODO.md). **Ramping rates themselves therefore remain verified
+  in arithmetic only.**

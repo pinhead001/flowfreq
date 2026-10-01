@@ -34,7 +34,7 @@ Standing rules carried over from this repo's history, which apply to every phase
 | NWIS peak/daily retrieval | [~] legacy NWIS services only; OGC backend is a stub | `usgs.py`, `peak_sources.py` |
 | StreamStats delineation + basin characteristics | [x] Phase 1, with validated watershed polygon | `streamstats.py` |
 | NSS regression evaluation via web service | [~] PFS verified live in WA only | `streamstats.py` |
-| Regional skew | [~] caller supplies a scalar; table schema and loader exist, all rows `pending`; silent -0.302 default in `workflow`/CLI (§1.3) | `Bulletin17C(regional_skew=…)`, `regional_skew.py` |
+| Regional skew | [~] verified PNW rows (WA/OR/ID); location lookup by hydrologic unit (`regional_skew_at`, `regional_skew_for_site`); other states pending (§1.3) | `regional_skew.py`, `data/regional_skew*.csv` |
 | Offline regression-equation library | [~] schema and evaluator; no equations transcribed | `regression/`, `data/regression/` |
 | Gage/regression weighting (B17C App. 9 style) | [ ] | — |
 | Drainage-area-ratio transposition | [x] | `transpose.py` |
@@ -101,10 +101,17 @@ Standing rules carried over from this repo's history, which apply to every phase
       fallback. Do not use the B17B Plate I map silently.
       The table records the value (or map/raster), MSE, effective record length, report
       citation, and validity region.
-- [ ] `regional_skew_at(lat, lon)` lookup returning `(skew, mse, citation)` and plugging
+- [x] `regional_skew_at(lat, lon)` lookup returning `(skew, mse, citation)` and plugging
       straight into `Bulletin17C`. Raise, rather than default, where no study applies.
       (The silent `-0.302` default is gone: since #44, `run_ffa`/`compare_engines` and the
       CLI require a supplied skew, station-only, or an explicit `use_default_skew=True`.)
+      Membership is by hydrologic unit (`data/regional_skew_hucs.csv`, built by
+      `tools/build_regional_skew_hucs.py`): `regional_skew_at_huc`, `regional_skew_at`
+      (WBD point query) and `regional_skew_for_site` (the monitoring location's HUC). Only
+      the Pacific Northwest study is defined so far, including its Snake River Plain
+      exclusion. The Oregon closed basins and the Klamath are left `unresolved`: the report's
+      region wording omits them, although 5 of its gages are there. Every further verified
+      study needs its own HUC rows.
 - [ ] Tooling to **develop a new regional skew** (B-WLS/B-GLS, Veilleux/Reis-Stedinger) for
       jurisdictions without one. This is lower priority and research-grade.
 - [ ] **Complete a Bayesian (B-WLS/B-GLS) regional skew study for Montana.** Montana is the
