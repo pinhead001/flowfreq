@@ -208,7 +208,14 @@ class FlowInterval:
 
 @dataclass
 class EMAParameters:
-    """Parameters for EMA analysis."""
+    """Parameters for EMA analysis.
+
+    ``max_iterations`` and ``tolerance`` bound the EMA fixed point, which
+    follows ``p3est_ema`` (``emafit.f:1149``): at most ``max_iterations``
+    iterations (the Fortran's ``nsize - 1`` = 20000), stopping once
+    ``dist_p3`` between successive iterates is at most ``tolerance`` (1e-10,
+    ``emafit.f:1180``) and no longer decreasing.
+    """
 
     systematic_start: int
     systematic_end: int
@@ -216,8 +223,8 @@ class EMAParameters:
     historical_end: Optional[int] = None
     historical_threshold: Optional[float] = None
     low_outlier_threshold: Optional[float] = None
-    max_iterations: int = 100
-    tolerance: float = 1e-6
+    max_iterations: int = 20000
+    tolerance: float = 1e-10
 
     @property
     def systematic_years(self) -> int:
