@@ -62,6 +62,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Cross-check: 284 of the study's 290 gages resolve to the PNW value. The other 6 are the
     5 unresolved gages and one on the ID/UT border that needs `state=`. None falls on the
     Plain.
+- **Regional skew development tooling** (`flowfreq.skew_study`, roadmap §1.3): the
+  B-WLS/B-GLS procedure of Veilleux and others (2011) and Reis and others (2005), as SIR
+  2016-5083 app. B and SIR 2012-5130 app. 3 print it.
+  - Station inputs: unbiased station skews (eq. B5); pseudo record length (B2); the
+    Griffis-Stedinger sampling variance at the OLS regional skew (B6-B7).
+  - Cross-correlation of concurrent skews (B8-B10), from a fitted Fisher-Z
+    correlation-distance model (B11).
+  - Model error variance posterior, with the exponential prior (λ = 10).
+  - Diagnostics: GLS precision of the WLS parameters, ASEV, AVPnew, effective record
+    length, pseudo-R², EVR, MBV*, leverage and influence.
+  - `station_skew()` takes a station's skew, MSE and PRL from flowfreq's own EMA with MGBT,
+    using the same ADJE/B17B `as_G_mse` switch as a regular fit.
+- **Validated against the Pacific Northwest study.** The model is refitted from SIR 2016-5083
+  Table B1's own inputs, with gage historical periods taken from NWIS. It reproduces Tables
+  B2/B3: β = -0.07 (SD 0.10), σ²δ = 0.17 (SD 0.022), AVPnew 0.18, 41 years effective record
+  length, EVR 0.7. MBV* comes out 9.3 against a published 10. 17 of the 19 published
+  high-influence gages are recovered. Inputs: `tests/fixtures/skew_study/pnw_table_b1.csv`
+  (`tools/build_pnw_skew_validation_data.py`).
+- **Provisional Montana regional skew study.** Not a USGS study, not a default, and not in
+  `regional_skew.csv`. Inputs are in `data/skew_study/` (`tools/build_montana_skew_study.py`,
+  from the Water Data OGC API). `docs/MONTANA_REGIONAL_SKEW_PROVISIONAL.md` gives the
+  result, diagnostics and limitations.
+
+### Added
 - **`subdaily` checked against a published figure for a real gage.**
   `tests/test_subdaily_published.py` (`requires_network`) runs `daily_extreme_timing` on
   USGS 01578310 (Susquehanna at Conowingo, MD) against Exelon (2012), *Final Study Report:
