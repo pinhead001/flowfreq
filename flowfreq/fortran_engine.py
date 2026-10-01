@@ -145,6 +145,7 @@ def build_emafit_arrays(
     user_low_outlier_threshold: Optional[float] = None,
     ema_params: Optional[EMAParameters] = None,
     interval_peaks: Optional[List[Tuple[int, float, float]]] = None,
+    historical_interval_peaks: Optional[List[Tuple[int, float, float]]] = None,
 ) -> EmafitArrays:
     """Translate a ``Bulletin17C`` input set into ``emafitpr``'s arrays.
 
@@ -204,6 +205,10 @@ def build_emafit_arrays(
         and ``dtype = 0``, as ``siteQT`` builds code 4/8 and ``Interval``
         rows; one spanning ``[Qmin, Qmax]`` carries no information and, as in
         ``siteQT``, gets no row.
+    historical_interval_peaks : list of (int, float, float), optional
+        Historic peaks known only as an interval (code 7 with 4 or 8), shaped
+        like ``interval_peaks``. The same row, with ``dtype = 1``, as
+        ``siteQT`` builds it.
 
     Returns
     -------
@@ -233,6 +238,7 @@ def build_emafit_arrays(
         period: perception_bounds(value) for period, value in (perception_thresholds or {}).items()
     }
     intervals = normalize_interval_peaks(interval_peaks)
+    historical_intervals = normalize_interval_peaks(historical_interval_peaks)
 
     # --- year -> declared (tl, tu), lowest priority first ----------------- #
     threshold_by_year: Dict[int, Tuple[float, float]] = {}
@@ -279,8 +285,21 @@ def build_emafit_arrays(
             )
         interval_by_year[year] = (lower, upper)
 
+    historical_interval_by_year: Dict[int, Tuple[float, float]] = {}
+    for year, lower, upper in historical_intervals:
+        if year in peak_by_year or year in historical_by_year or year in interval_by_year:
+            raise ValueError(
+                f"water year {year} has a historical interval peak and another peak; "
+                "give each year one peak"
+            )
+        historical_interval_by_year[year] = (lower, upper)
+
     all_years = (
-        set(peak_by_year) | set(historical_by_year) | set(interval_by_year) | set(threshold_by_year)
+        set(peak_by_year)
+        | set(historical_by_year)
+        | set(interval_by_year)
+        | set(historical_interval_by_year)
+        | set(threshold_by_year)
     )
 
     rows: List[Tuple[int, float, float, float, float, int]] = []
@@ -310,12 +329,13 @@ def build_emafit_arrays(
             row_tl, row_tu = threshold_by_year.get(year, (QMIN, QMAX))
             systematic_peaks[year] = flow
             rows.append((year, row_ql, row_qu, max(row_tl, QMIN), max(row_tu, QMIN), 0))
-        elif year in interval_by_year:
-            row_ql, row_qu = interval_by_year[year]
+        elif year in interval_by_year or year in historical_interval_by_year:
+            historic = year in historical_interval_by_year
+            row_ql, row_qu = (historical_interval_by_year if historic else interval_by_year)[year]
             if row_ql <= QMIN and row_qu >= QMAX:
                 continue  # no information: siteQT sets tl = Qmax and drops the row
             row_tl, row_tu = threshold_by_year.get(year, (QMIN, QMAX))
-            rows.append((year, row_ql, row_qu, max(row_tl, QMIN), max(row_tu, QMIN), 0))
+            rows.append((year, row_ql, row_qu, max(row_tl, QMIN), max(row_tu, QMIN), int(historic)))
             n_censored += 1
         else:
             # A gap year: no observation, but a perception threshold was
@@ -374,6 +394,7 @@ def run_fortran_reference(
     weight_opt: int = 1,
     station_name: str = "",
     interval_peaks: Optional[List[Tuple[int, float, float]]] = None,
+    historical_interval_peaks: Optional[List[Tuple[int, float, float]]] = None,
 ) -> Tuple[ReferenceResult, EmafitArrays]:
     """Build the arrays and call the vendored Fortran through the f2py bridge.
 
@@ -429,6 +450,7 @@ def run_fortran_reference(
         user_low_outlier_threshold=user_low_outlier_threshold,
         ema_params=ema_params,
         interval_peaks=interval_peaks,
+        historical_interval_peaks=historical_interval_peaks,
     )
 
     if regional_skew is None or regional_skew_mse is None:
@@ -638,6 +660,7 @@ def run_fortran_ema(
     weight_opt: int = 1,
     station_name: str = "",
     interval_peaks: Optional[List[Tuple[int, float, float]]] = None,
+    historical_interval_peaks: Optional[List[Tuple[int, float, float]]] = None,
 ) -> Tuple[FrequencyResults, ReferenceResult, EmafitArrays]:
     """Run the Fortran EMA end to end: build, call, adapt.
 
@@ -665,6 +688,7 @@ def run_fortran_ema(
         weight_opt=weight_opt,
         station_name=station_name,
         interval_peaks=interval_peaks,
+        historical_interval_peaks=historical_interval_peaks,
     )
     results = _frequency_results_from_reference(reference, arrays, regional_skew, regional_skew_mse)
     return results, reference, arrays

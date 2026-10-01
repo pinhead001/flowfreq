@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Historic interval peaks** (a peak coded 7 and 4 or 8): the new `historical_interval_peaks`
+  argument to `Bulletin17C`, `ExpectedMomentsAlgorithm`, `fortran_engine.build_emafit_arrays`,
+  `run_fortran_reference` and `run_fortran_ema`, shaped like `interval_peaks`:
+  `(water_year, lower_cfs, upper_cfs)`.
+  - Both engines build the row the way `siteQT` does: the interval with `dtype = 1`. That keeps
+    it out of MGBT's sample, since `gbtest` samples only `dtype = 0` rows. It is still recoded
+    below the low-outlier cutoff and counted in `n_low_outliers`.
+  - It is a separate argument, not a fourth element of `interval_peaks`, for the same reason
+    `historical_peaks` is separate from `peak_flows`: each argument keeps one tuple shape and
+    one meaning, and existing callers are untouched.
+  - `psf_convert` (`StationInputs.historical_interval_peaks`) and `peak_code_kwargs` /
+    `run_ffa` / `compare_engines` / `analyze_gage` now pass such peaks through.
+  - **Result change:** a record with a code 7+4 or 7+8 peak is now fitted rather than refused
+    with `UnsupportedSpecError`. No record that fitted before changes.
+
 ### Changed
 - **`FrequencyResults.n_low_outliers` is now peakfq's `gbnlow`** on the native engine, as it
   already was on the Fortran one: the number of EMA rows `gbtest` recodes below the

@@ -143,7 +143,8 @@ def peak_code_kwargs(
     site. Code 7 peaks become historic; codes 3 and O, and 6 and C (peakfq's
     default ``Urb/Reg = No``), remove the peak, leaving its year as missing
     data; codes 4 and 8 make it a less-than / greater-than interval, passed to
-    ``Bulletin17C`` as ``interval_peaks``.
+    ``Bulletin17C`` as ``interval_peaks`` -- or, on a code 7 peak, as
+    ``historical_interval_peaks``.
 
     Parameters
     ----------
@@ -179,8 +180,10 @@ def peak_code_kwargs(
         own arguments stand unchanged. Otherwise ``Bulletin17C`` keyword
         arguments: ``peak_flows``, ``water_years``, ``historical_peaks``,
         ``perception_thresholds``, ``user_low_outlier_threshold``,
-        ``regional_skew``, ``regional_skew_mse`` and ``interval_peaks`` (the
-        code 4/8 peaks as ``(water_year, lower_cfs, upper_cfs)``, or ``None``).
+        ``regional_skew``, ``regional_skew_mse``, ``interval_peaks`` (the
+        code 4/8 peaks as ``(water_year, lower_cfs, upper_cfs)``, or ``None``)
+        and ``historical_interval_peaks`` (the same for code 7 peaks that are
+        also code 4 or 8).
 
     Raises
     ------
@@ -189,8 +192,9 @@ def peak_code_kwargs(
         together with ``historical_peaks``/``perception_thresholds``.
     flowfreq.psf_convert.UnsupportedSpecError
         A record an engine would not fit as ``siteQT`` does (the message
-        names the years), such as a code 7 peak that is also code 4 or 8 -- a
-        historic interval, which ``Bulletin17C`` has no argument for. Pass
+        names the years). Every peak-code combination ``siteQT`` acts on,
+        historic intervals (code 7 with 4 or 8) included, is expressible, so
+        this is a guard rather than an expected outcome. Pass
         ``apply_peak_codes=False`` to fit the peaks as exact values instead,
         or use :meth:`~flowfreq.psf_convert.StationInputs.fortran_reference`.
     """
@@ -462,6 +466,7 @@ def run_ffa(
             b17c_kwargs.get("perception_thresholds")
             or b17c_kwargs.get("historical_peaks")
             or b17c_kwargs.get("interval_peaks")
+            or b17c_kwargs.get("historical_interval_peaks")
         )
         if not converged and not extended:
             logger.warning("EMA did not converge, falling back to MOM")
@@ -842,7 +847,8 @@ def compare_engines(
     flowfreq.psf_convert.UnsupportedSpecError
         A coded record either engine would not fit as ``siteQT`` does; the
         message names the years. Code 4/8 peaks are not such a record: both
-        engines get them as ``interval_peaks``.
+        engines get them as ``interval_peaks`` (``historical_interval_peaks``
+        on a code 7 peak).
     ImportError
         The f2py extension is not built; run
         ``python build_fortran/build.py`` (needs gfortran and meson).
@@ -867,6 +873,7 @@ def compare_engines(
         site_name=site_name or "site",
     )
     interval_peaks = None
+    historical_interval_peaks = None
     if coded is not None:
         peak_flows = coded["peak_flows"]
         water_years = coded["water_years"]
@@ -874,6 +881,7 @@ def compare_engines(
         perception_thresholds = coded["perception_thresholds"]
         user_low_outlier_threshold = coded["user_low_outlier_threshold"]
         interval_peaks = coded.get("interval_peaks")
+        historical_interval_peaks = coded.get("historical_interval_peaks")
 
     import flowfreq.peakfqr  # noqa: F401 -- raise before doing any native work if absent
 
@@ -894,6 +902,7 @@ def compare_engines(
         ema_params=ema_params,
         user_low_outlier_threshold=user_low_outlier_threshold,
         interval_peaks=interval_peaks,
+        historical_interval_peaks=historical_interval_peaks,
     )
     native.run_analysis(method="ema", engine="native")
     # Recompute at *aeps* explicitly: run_analysis() always fits at
@@ -916,6 +925,7 @@ def compare_engines(
         aeps=aeps,
         station_name=site_name,
         interval_peaks=interval_peaks,
+        historical_interval_peaks=historical_interval_peaks,
     )
 
     comparison = native.validate(
