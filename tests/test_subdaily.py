@@ -178,8 +178,8 @@ class TestDailyExtremeTiming:
         assert timing["min_value"].iloc[0] == 40.0
 
     def test_expected_obs_uses_actual_local_day_length(self) -> None:
-        """Unlike diel_variation's fixed 1440 minutes: a 25-hour fall-back day
-        expects 100 quarter-hours, not 96, so it is not mismarked."""
+        """A 25-hour fall-back day expects 100 quarter-hours, not 96, so it is
+        not mismarked (diel_variation shares this; see TestDielVariationDst)."""
         idx = pd.date_range("2020-10-31", "2020-11-02 23:45", freq="15min", tz="UTC")
         iv = pd.DataFrame({"flow_cfs": 100 + np.arange(len(idx)) * 0.1}, index=idx)
         timing = daily_extreme_timing(iv, tz=PACIFIC).set_index("date")
@@ -515,6 +515,7 @@ class TestModuleHelpers:
         dates = [pd.Timestamp(d).date() for d in ("2020-10-31", "2020-11-01", "2021-03-14")]
         hours = _local_day_hours(dates, PACIFIC)
         assert list(hours) == [24.0, 25.0, 23.0]
+        assert hours.dtype == np.float64  # was object before v0.10.0
 
     def test_resolve_units_known_and_override(self) -> None:
         assert _resolve_units("flow_cfs", None) == "cfs"
@@ -522,6 +523,87 @@ class TestModuleHelpers:
         assert _resolve_units("anything", "m3s") == "m3s"
         assert KNOWN_VALUE_UNITS["flow_cfs"] == "cfs"
         assert "ft" not in TRUE_ZERO_UNITS
+
+
+def _full_local_record(start: str, end: str, tz: str, step: str = "15min") -> pd.DataFrame:
+    """Every `step` from local midnight of `start` to local midnight after `end`,
+    built on the UTC axis so a DST day holds exactly its real 23 or 25 hours of
+    readings. A diel sinusoid keeps range and CV non-trivial."""
+    first = pd.Timestamp(start).tz_localize(tz).tz_convert("UTC")
+    last = (pd.Timestamp(end) + pd.Timedelta(days=1)).tz_localize(tz).tz_convert("UTC")
+    idx = pd.date_range(first, last, freq=step, inclusive="left")
+    hours = idx.tz_convert(tz).hour.to_numpy()
+    return pd.DataFrame({"flow_cfs": 100.0 + 20.0 * np.sin(2 * np.pi * hours / 24)}, index=idx)
+
+
+class TestDielVariationDst:
+    """diel_variation's expected_obs follows each local day's real length.
+
+    Until v0.10.0 it used a fixed 1440 minutes, so a gap-free spring-forward
+    day (92 quarter-hours) read as incomplete at min_completeness_frac above
+    23/24, and a gap-free fall-back day (100) as 25/24 complete.
+    """
+
+    SPRING, FALL = pd.Timestamp("2021-03-14").date(), pd.Timestamp("2021-11-07").date()
+
+    def _around(self, tz: str) -> pd.DataFrame:
+        spring = _full_local_record("2021-03-13", "2021-03-15", tz)
+        fall = _full_local_record("2021-11-06", "2021-11-08", tz)
+        return diel_variation(pd.concat([spring, fall]), tz=tz, min_completeness_frac=1.0)
+
+    def test_spring_forward_day_is_complete_at_full_coverage(self) -> None:
+        daily = self._around(PACIFIC).set_index("date")
+        assert daily.loc[self.SPRING, "n_obs"] == 92
+        assert daily.loc[self.SPRING, "expected_obs"] == pytest.approx(92.0)
+        assert bool(daily.loc[self.SPRING, "complete"])
+
+    def test_fall_back_day_expects_100_not_96(self) -> None:
+        daily = self._around(PACIFIC).set_index("date")
+        assert daily.loc[self.FALL, "n_obs"] == 100
+        assert daily.loc[self.FALL, "expected_obs"] == pytest.approx(100.0)
+        assert bool(daily.loc[self.FALL, "complete"])
+
+    def test_one_missing_reading_on_fall_back_day_is_incomplete(self) -> None:
+        """At frac=1.0 a 99-reading 25-hour day must fail; with the old fixed
+        96 it passed. The error case for the same fix."""
+        iv = _full_local_record("2021-11-06", "2021-11-08", PACIFIC)
+        local_dates = iv.index.tz_convert(PACIFIC).date
+        drop = np.flatnonzero(local_dates == self.FALL)[10]
+        daily = diel_variation(iv.drop(iv.index[drop]), tz=PACIFIC, min_completeness_frac=1.0)
+        row = daily.set_index("date").loc[self.FALL]
+        assert row["n_obs"] == 99 and not bool(row["complete"])
+
+    def test_ordinary_days_either_side_are_unchanged(self) -> None:
+        daily = self._around(PACIFIC)
+        ordinary = daily[~daily["date"].isin([self.SPRING, self.FALL])]
+        assert len(ordinary) == 4
+        assert (ordinary["expected_obs"] == 96.0).all()
+        assert ordinary["complete"].all()
+
+    def test_range_and_cv_do_not_depend_on_expected_obs(self) -> None:
+        daily = self._around(PACIFIC).set_index("date")
+        assert daily.loc[self.SPRING, "range_cfs"] == pytest.approx(40.0)
+        assert daily.loc[self.FALL, "cv"] > 0
+
+    @pytest.mark.parametrize("tz", ["America/Phoenix", "UTC", "Pacific/Honolulu"])
+    def test_no_dst_zone_is_24_hours_every_day(self, tz: str) -> None:
+        daily = self._around(tz)
+        assert len(daily) == 6
+        assert (daily["n_obs"] == 96).all()
+        assert (daily["expected_obs"] == 96.0).all()
+        assert daily["complete"].all()
+
+    def test_matches_daily_extreme_timing(self) -> None:
+        """All three per-day functions share one expected_obs convention."""
+        iv = pd.concat(
+            [
+                _full_local_record("2021-03-13", "2021-03-15", PACIFIC),
+                _full_local_record("2021-11-06", "2021-11-08", PACIFIC),
+            ]
+        )
+        diel = diel_variation(iv, tz=PACIFIC)
+        timing = daily_extreme_timing(iv, tz=PACIFIC)
+        np.testing.assert_allclose(diel["expected_obs"], timing["expected_obs"])
 
 
 class TestDielVariationStillWorksFromHere:

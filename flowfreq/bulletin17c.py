@@ -126,6 +126,10 @@ _GBTMIN = 1e-6
 #: (section 4.2) instead of evaluating them at the skew itself.
 _CI_SKEWMIN = 0.06324555
 
+#: ``p3est_ema`` (emafit.f:1278) starts averaging iterates past this many, to
+#: break a 2- or 3-cycle.
+_P3EST_CYCLE_ITER = 10000
+
 
 def _b17b_skew_mse(n: int, skew: float) -> float:
     """Bulletin 17B empirical MSE of at-site skew.
@@ -1185,12 +1189,26 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         skew: float,
         n_regional: float = 0.0,
     ) -> Tuple[float, float, float, bool, int]:
-        """Iterate :meth:`_ema_iteration` to convergence.
+        """Iterate :meth:`_ema_iteration` to convergence, as ``p3est_ema`` does.
+
+        ``p3est_ema`` (``emafit.f:1149``) starts every fit from ``(mean,
+        variance, skew) = (0, 1, 0)``, whatever it is fitting, and stops only
+        once ``dist_p3`` between successive iterates is at most 1e-10 *and*
+        has stopped decreasing -- i.e. at the fixed point's own rounding
+        floor. Past 10,000 iterations it averages each iterate with the five
+        before it, to break a 2- or 3-cycle. All of that is reproduced here.
+        The stopping rule is what matters: this loop used to stop once no
+        moment moved by 1e-6, which left the at-site skew ~1e-6 short of the
+        fixed point -- the residual that dominated native-vs-``emafitpr``
+        differences on every parity record (1e-6 in skew, 1e-3 % in
+        quantiles), now 1e-10 and 1e-6 %. ``EMAParameters.max_iterations``/
+        ``tolerance`` bound the loop and the ``dist_p3`` test.
 
         Parameters
         ----------
         mean_log, std_log, skew : float
-            Starting estimates.
+            Unused: kept for the call signature. ``p3est_ema`` always starts
+            from ``(0, 1, 0)``.
         n_regional : float, optional
             Equivalent years of record for the regional skew; 0 fits at-site.
 
@@ -1199,21 +1217,35 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         tuple
             ``(mean, std, skew, converged, iterations)``.
         """
+        tolerance = self._ema_params.tolerance
+        history: List[Tuple[float, float, float]] = [(0.0, 1.0, 0.0)]  # (mean, var, skew)
+        d_prev = 0.0
         converged = False
         iteration = 0
-        for iteration in range(self._ema_params.max_iterations):
+        for iteration in range(1, self._ema_params.max_iterations + 1):
+            mean_p, var_p, skew_p = history[-1]
             new_mean, new_std, new_skew = self._ema_iteration(
-                mean_log, std_log, skew, n_regional=n_regional
+                mean_p, float(np.sqrt(var_p)), skew_p, n_regional=n_regional
             )
-            converged = (
-                abs(new_mean - mean_log) < self._ema_params.tolerance
-                and abs(new_std - std_log) < self._ema_params.tolerance
-                and abs(new_skew - skew) < self._ema_params.tolerance
+            current = (float(new_mean), float(new_std) ** 2, float(new_skew))
+            if iteration + 1 > _P3EST_CYCLE_ITER and len(history) >= 5:
+                # emafit.f:1278: eliminate cycles of length 2 or 3
+                window = [current] + history[-5:]
+                current = tuple(float(sum(m[j] for m in window) / 6.0) for j in range(3))
+            # dist_p3 (emafit.f:1453)
+            d = (
+                (mean_p - current[0]) ** 2 / current[1]
+                + (var_p - current[1]) ** 2 / current[1] ** 2 / 10.0
+                + (skew_p - current[2]) ** 2 / 100.0
             )
-            mean_log, std_log, skew = new_mean, new_std, new_skew
-            if converged:
+            history.append(current)
+            del history[:-6]
+            if d <= tolerance and d >= d_prev:
+                converged = True
                 break
-        return mean_log, std_log, skew, converged, iteration + 1
+            d_prev = d
+        mean_log, var_log, skew = history[-1]
+        return mean_log, float(np.sqrt(var_log)), skew, converged, iteration
 
     def _perception_threshold_groups(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """(nobs, tl, tu): perception-threshold groups in log10 space, var_mom's convention.

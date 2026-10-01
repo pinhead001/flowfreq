@@ -92,3 +92,22 @@ class TestMP3:
         lo, hi = 3.5, 3.6
         moments = m_p3(lo, hi, m, 1)
         assert lo <= moments[0] <= hi
+
+
+class TestWilsonHilfertyWeightLiterals:
+    """``_wh_weight`` uses the Fortran's single-precision literals."""
+
+    def test_span_is_folded_in_single_precision(self):
+        from flowfreq import _p3_moments as pm
+
+        assert pm._WH_LOW == float(np.float32(0.0007))
+        assert pm._WH_SPAN == float(np.float32(0.0010) - np.float32(0.0007))
+        assert pm._WH_SPAN != 0.0010 - 0.0007
+
+    def test_weights_at_the_ends_of_the_blend(self):
+        from flowfreq import _p3_moments as pm
+
+        assert pm._wh_weight(0.0) == (0.0, 1.0)
+        assert pm._wh_weight(0.5) == (1.0, 0.0)
+        wg, wwh = pm._wh_weight(0.00085)
+        assert 0.0 < wg < 1.0 and wg + wwh == pytest.approx(1.0)

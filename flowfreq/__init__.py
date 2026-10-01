@@ -93,6 +93,7 @@ from .usgs import (
     USGSgage,
     fetch_nwis_batch,
     fetch_nwis_peaks,
+    join_flow_and_stage,
 )
 from .workflow import (
     B17C_DEFAULT_SKEW,
@@ -350,6 +351,7 @@ __all__ = [
     "NoInstantaneousDataError",
     "fetch_nwis_peaks",
     "fetch_nwis_batch",
+    "join_flow_and_stage",
     "save_flow_frame",
     "load_flow_frame",
     # Hydrograph

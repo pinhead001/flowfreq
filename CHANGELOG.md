@@ -46,8 +46,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Cross-check: 284 of the study's 290 gages resolve to the PNW value. The other 6 are the
     5 unresolved gages and one on the ID/UT border that needs `state=`. None falls on the
     Plain.
-
-### Added
+- **`subdaily` checked against a published figure for a real gage.**
+  `tests/test_subdaily_published.py` (`requires_network`) runs `daily_extreme_timing` on
+  USGS 01578310 (Susquehanna at Conowingo, MD) against Exelon (2012), *Final Study Report:
+  Downstream Flow Ramping and Stranding Study, RSP 3.8*, Conowingo Hydroelectric Project, FERC
+  No. 405.
+  - Five discharges from SS4.1.1/4.3.1 match exactly at the report's 100-cfs precision:
+    141,000 cfs on 2010-10-03, the 26,100 / 46,200 / 80,000 cfs morning survey peaks, and the
+    36,500 cfs prior-day peak. The 80,000 cfs peak falls at 08:45 EST, inside the report's
+    0600-0900 h.
+  - One figure, 80,900 vs 81,100 cfs, is recorded in the test module and not pinned. The
+    report's one-hour stage declines need a fixed-window ramp metric that `ramping_rates`
+    does not have; it is filed in TODO.md.
 - **Water Data API key and backoff.** Every call to `api.waterdata.usgs.gov` (peaks,
   instantaneous and daily values, monitoring locations) now goes through
   `flowfreq.waterdata.request`: it sends an `X-Api-Key` from `USGS_API_KEY` or
@@ -55,6 +65,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (else exponential backoff, capped at 60 s), and on a persistent 429 says how to supply a
   key. Without a key the API allows 1000 requests/hour per IP, which bulk use of the new
   default backends reaches. A rejected key (403) is reported, not retried.
+- **Paired discharge and stage retrieval.**
+  `USGSgage.download_instantaneous_flow_and_stage(start, end, *, tz, chunk_years, ts_id_flow,
+  ts_id_stage, timeout, backend)` downloads 00060 and 00065 for one window and backend and
+  returns them on one index. The public `join_flow_and_stage(flow, stage)` pairs frames
+  already on hand.
+  - **Alignment:** an outer join on the UTC instant. An instant only one series reported
+    keeps the other's value and code NaN. Nothing is interpolated or nearest-matched.
+  - Each parameter keeps its own code in `qualification_code_flow` and
+    `qualification_code_stage`.
+  - `datetime_local`/`tz_cd` must agree at every shared instant. A disagreement raises
+    `ValueError` rather than picking one frame's value.
+  - A site with no stage record raises `NoInstantaneousDataError`; there is no silent
+    flow-only fallback. Both `ts_id`s are checked for backend form before any request.
 - **`flowfreq.waterdata.download_daily`**: daily mean values (00060, statistic 00003) from
   the USGS Water Data OGC API `daily` collection, with paging and `ts_id`. It returns
   `flow_cfs` plus the same `qualification_code` as the instantaneous backend (`A`, `P:e`,
@@ -137,6 +160,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   dependabot #18.
 
 ### Fixed
+- **`diel_variation` marks the two daylight-saving days of each year correctly.**
+  `expected_obs` was a fixed 1440 minutes divided by the median step. It is now each local
+  day's actual length (23 or 25 hours on a transition day) divided by that step, the
+  convention `daily_extreme_timing` and `ramping_rates` already used.
+  - **Numbers that move:** only `expected_obs` and `complete`, and only on the
+    spring-forward and fall-back days of a zone that observes DST (e.g. 2024-03-10 and
+    2024-11-03 in `America/*` zones). At 15-minute sampling a spring-forward day now expects
+    92 readings, not 96, and a fall-back day expects 100, not 96. So a gap-free
+    spring-forward day is now `complete` at any `min_completeness_frac`, where it was
+    incomplete above 23/24 (~0.958). At the default 0.9, a spring-forward day with 83-86
+    readings becomes complete, and a fall-back day with 87-89 readings becomes incomplete.
+    `diel_variation_summary` changes only through those `complete` flags.
+  - Every other day, and every day in a zone without DST (`UTC`, `America/Phoenix`,
+    `Pacific/Honolulu`), is unchanged. `range_cfs`, `cv`, `n_obs` and the min/max/mean/std
+    columns never depended on `expected_obs` and are unchanged everywhere.
+  - `expected_obs` is now float64 in all three functions. It was an object column,
+    because the local-day length was computed through a tz-aware `.to_numpy()`.
 - **StreamStats `characteristic_codes` now filters.** ss-hydro's parameter is `BCs`, per
   its OpenAPI; the `bcLabels` this module sent was silently ignored, so every call
   computed the region's full set (`docs/STREAMSTATS_MODULE_DESIGN.md` S11, verified live).
@@ -152,6 +192,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   estimate (Skookumchuck River near Vail, WA; `docs/STREAMSTATS_NSS_ADDENDUM.md` S6).
   Both results reproduce their own equation strings through
   `flowfreq.regression.nss.evaluate_expression`.
+- **Native EMA fixed point now iterates as `p3est_ema` does** (`emafit.f:1149`): from
+  `(0, 1, 0)`, until `dist_p3` between iterates is at most 1e-10 and has stopped decreasing,
+  averaging iterates past 10,000 to break cycles. It used to start from the sample moments and
+  stop once no moment moved by 1e-6, which left every fit ~1e-6 short of its fixed point.
+  **Results change**, toward peakfq 8.1.0, on every record that needed more than a couple of
+  iterations: at most 0.0035 % in any quantile and 5.5e-4 in at-site skew (WY/MT 06328100),
+  typically 1e-4 %. Against live `emafitpr` on the 24 WY/MT `.psf` stations, at-site skew now
+  agrees to 1e-10 (was 1e-6) and quantiles to ~1e-5 % (was ~1e-3 %), except the two
+  near-zero-skew stations 06328100 (5e-4 %, was 3e-3 %) and 06329350 (0.012 %, unchanged).
+  Big Sandy moves 8e-5 %; 12363000 (uncensored) does not move. `EMAParameters.max_iterations`/`tolerance` now default to
+  20000 / 1e-10 and mean `p3est_ema`'s iteration cap and `dist_p3` bound; `ema_iterations` on
+  an uncensored record is 3 (the Fortran's count), not 1.
+- A record whose EMA used to stop at 100 iterations without converging (for example Big
+  Sandy's systematic record with a 6000 cfs low-outlier override) now converges, so `run_ffa`
+  reports EMA for it rather than falling back to the method of moments.
+- The Wilson-Hilferty/incomplete-gamma blend weight (`_p3_moments._wh_weight`) uses the
+  Fortran's single-precision literals (`0.0007`, `0.0010-0.0007`, `3.14159265359`); affects
+  only `0.0007 < |skew| < 0.001`.
+
+### Known differences
+- A user-supplied (FIXED) low-outlier threshold record reported with a 2e-3 weighted-skew
+  residual is **not** a native defect: `emafitpr`'s own weighted skew there is ill-conditioned
+  (a 1e-5 relative change in `r_G_mse` moves it 2e-3) because `mP3`'s incomplete-gamma
+  evaluation rounds at the 1e-3 level for skews of a few thousandths. Recorded as a strict
+  xfail in `tests/fortran_parity/test_fixed_threshold_live.py`.
+- Big Sandy with a 6000 cfs FIXED threshold (29 of 44 peaks censored): `emafitpr`'s
+  `MN2MVARB` stops after 100 Newton iterations without converging, giving ADJE
+  `as_G_mse` 2.74 where the converged value is 0.064; weighted skew -0.281 (peakfq) vs -0.166
+  (native). Strict xfail in the same file.
 
 ## [0.9.0] - 2026-09-27
 
