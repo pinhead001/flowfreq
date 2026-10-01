@@ -243,13 +243,14 @@ open. Audited 2026-09-25.
         produce a `verified` state file.
       - [ ] `estimate_flow_statistics` discards NSS's `sep` field, which appears to
         be the log10 standard error of prediction and maps to `sep_log`. Keep it.
-- [ ] **#36 Future-flow `ChangeFactorSet` framework.** `flowfreq/future_flow.py`
-      (`ChangeFactorSet`, `select_factor_set` with state-over-national precedence,
-      and `apply_change_factors`, which keeps both current and future columns) is
-      implemented. **It ships no factor values**, and `flowfreq/data/future/` does
-      not exist. Roadmap §6.3.1 wants the national sets (HEC-17, NCHRP 15-61)
-      first, whereas the module docstring says sets arrive per-state wave by wave.
-      Reconcile the two.
+- [ ] **#36 Future-flow `ChangeFactorSet` framework.** The framework, the
+      `data/future/*.factors.json` loader and the national source review are done.
+      HEC-17 (2016) and NCHRP 15-61 (2019) were checked against the primary documents:
+      both give methods and single-site worked examples, no tabulated national factors,
+      so no national set ships (see `docs/FUTURE_FLOW_GUIDANCE.md`). The module
+      docstring now says "national first". Open: NOAA Atlas 15 Volume 2 once published
+      (plus a cited precipitation-to-flow elasticity), and producing the national result
+      alongside a state override automatically.
 - [ ] **#37 WA (pilot).** Everything is pending: `data/regression/WA.json`, the
       skew row, and the WA section of `docs/FUTURE_FLOW_GUIDANCE.md`. The source
       report is known and already live in NSS: Mastin, Konrad, Veilleux & Tecca

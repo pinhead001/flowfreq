@@ -8,6 +8,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **National future-flow source review** (`flowfreq.future_flow`, roadmap §6.3.1, #36).
+  FHWA HEC-17 (2nd ed., 2016) and NCHRP Project 15-61 (2019) were read against the primary
+  PDFs. Neither tabulates national per-AEP flood change factors; both give methods for
+  deriving site-specific factors from downscaled projections, with single-site worked
+  examples. **No national factor set ships**, by design. The review, with every table and
+  page checked, is in `flowfreq/data/future/national_sources.json`
+  (`national_source_review()`) and `docs/FUTURE_FLOW_GUIDANCE.md`. NOAA Atlas 15 future
+  precipitation is not yet published.
+  - `available_factor_sets()` and `factor_set_from_dict()` load transcribed sets from
+    `flowfreq/data/future/*.factors.json` (none yet), for the state waves to fill.
+  - The module docstring now says national sources first, matching the roadmap.
+  - A test reproduces NCHRP 15-61 Table 7.1 (p. 80) with `apply_change_factors`.
+
+### Added
 - **Regional skew by location** (`flowfreq.regional_skew`, roadmap §1.3):
   `regional_skew_at_huc(huc, state=None)`, `regional_skew_at(lat, lon)` and
   `regional_skew_for_site(site_no)`. They return the verified regional skew for the study
