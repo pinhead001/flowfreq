@@ -126,6 +126,10 @@ _GBTMIN = 1e-6
 #: (section 4.2) instead of evaluating them at the skew itself.
 _CI_SKEWMIN = 0.06324555
 
+#: ``p3est_ema`` (emafit.f:1278) starts averaging iterates past this many, to
+#: break a 2- or 3-cycle.
+_P3EST_CYCLE_ITER = 10000
+
 
 def _b17b_skew_mse(n: int, skew: float) -> float:
     """Bulletin 17B empirical MSE of at-site skew.
@@ -424,7 +428,8 @@ class FloodFrequencyAnalysis(ABC):
             ax.plot(x_cl, cl["upper_5pct"], "b--", linewidth=1, alpha=0.7)
 
         # Low outliers
-        if self._results.low_outlier_threshold > 0 and self._results.n_low_outliers > 0:
+        n_flagged = self._results.n_mgbt_outliers or 0
+        if self._results.low_outlier_threshold > 0 and n_flagged > 0:
             threshold = self._results.low_outlier_threshold
             low_outliers = self._peak_flows[self._peak_flows < threshold]
             for lo in low_outliers:
@@ -443,7 +448,7 @@ class FloodFrequencyAnalysis(ABC):
                 color="red",
                 linestyle=":",
                 alpha=0.7,
-                label=f"Low Outlier Threshold ({self._results.n_low_outliers})",
+                label=f"Low Outlier Threshold ({n_flagged})",
             )
 
         ax.set_yscale(yscale)
@@ -600,6 +605,7 @@ class MethodOfMoments(FloodFrequencyAnalysis):
             n_historical=0,
             n_censored=n_low_outliers,
             n_low_outliers=n_low_outliers,
+            n_mgbt_outliers=n_low_outliers,
             mean_log=mean_log,
             std_log=std_log,
             skew_station=skew_station,
@@ -718,13 +724,21 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         ``q`` (code 8), or any other bounds (a ``.psf`` ``Interval`` line).
         Shaped like ``historical_peaks`` -- one tuple per year -- with the
         single value replaced by its bounds.
+    historical_interval_peaks : list of (int, float, float), optional
+        Historic peaks known only as an interval, ``(water_year, lower_cfs,
+        upper_cfs)`` as for ``interval_peaks``: a peak carrying code 7 and
+        code 4 or 8. ``siteQT`` gives it the interval row with ``dtype = 1``
+        (``vendor/peakfqr/R/readInputs.R``), so it is a historic row --
+        outside MGBT's sample, as ``gbtest`` takes only ``dtype = 0`` rows --
+        not a systematic one. Its perception bounds are its year's
+        ``perception_thresholds`` entry, or unrestricted without one.
 
     Raises
     ------
     ValueError
         Mismatched ``peak_flows``/``water_years``, an invalid perception
-        threshold or interval peak, or a water year given both an exact
-        (systematic or historical) and an interval peak.
+        threshold or interval peak, or a water year given more than one peak
+        (exact, historical, interval or historical interval).
     """
 
     def __init__(
@@ -738,6 +752,7 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         perception_thresholds: Dict[Tuple[int, int], PerceptionBound] = None,
         user_low_outlier_threshold: Optional[float] = None,
         interval_peaks: Optional[List[Tuple[int, float, float]]] = None,
+        historical_interval_peaks: Optional[List[Tuple[int, float, float]]] = None,
     ):
         super().__init__(peak_flows, regional_skew, regional_skew_mse)
 
@@ -772,15 +787,23 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
             for period, value in self._perception_thresholds.items()
         }
         self._interval_peaks = normalize_interval_peaks(interval_peaks)
+        self._historical_interval_peaks = normalize_interval_peaks(historical_interval_peaks)
         interval_years = {year for year, _, _ in self._interval_peaks}
-        clash = sorted(
-            interval_years
-            & (set(self._recorded_years.astype(int)) | {int(y) for y, _ in self._historical_peaks})
-        )
+        historical_interval_years = {year for year, _, _ in self._historical_interval_peaks}
+        exact_years = set(self._recorded_years.astype(int)) | {
+            int(y) for y, _ in self._historical_peaks
+        }
+        clash = sorted(interval_years & exact_years)
         if clash:
             raise ValueError(
                 f"water year(s) {clash} have both an exact and an interval peak; "
                 "give each year one or the other"
+            )
+        clash = sorted(historical_interval_years & (exact_years | interval_years))
+        if clash:
+            raise ValueError(
+                f"water year(s) {clash} have a historical interval peak and another peak; "
+                "give each year one peak"
             )
         # Years with a systematic observation, exact or interval: the record's
         # extent, and the years a threshold period cannot censor as gaps.
@@ -799,6 +822,8 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         # outliers, else 'ADJE'. Set by run_analysis; read by every at-site skew
         # MSE (weighting, pseudo record length, the var_emab confidence bounds).
         self._at_site_option: str = "ADJE"
+        # gbtest's nlow for the last _build_flow_intervals call.
+        self._n_rows_below_cutoff = 0
 
     def _auto_configure_ema_params(self) -> EMAParameters:
         """Auto-configure EMA parameters from data."""
@@ -927,9 +952,11 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         dict of int to (float, float)
             The year's ``(tl, tu)``.
         """
-        observed = set(self._systematic_years.astype(int)) | {
-            int(y) for y, _ in self._historical_peaks
-        }
+        observed = (
+            set(self._systematic_years.astype(int))
+            | {int(y) for y, _ in self._historical_peaks}
+            | {int(y) for y, _, _ in self._historical_interval_peaks}
+        )
         return {
             year: pair
             for year, pair in self._threshold_by_year().items()
@@ -987,12 +1014,16 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         thresholds = self._threshold_by_year()
         unrestricted = (0.0, _PERCEPTION_QMAX)
         intervals = []
+        # gbtest's nlow (emafit.f:1063-1068): every row whose upper bound lies
+        # below the cutoff, whatever kind of row it is.
+        n_below = 0
 
         for flow, year in zip(self._peak_flows, self._water_years):
             year = int(year)
             perception, upper_perception = thresholds.get(year, unrestricted)
 
             if flow < low_threshold:
+                n_below += 1
                 intervals.append(
                     FlowInterval.from_censored(
                         lower=_GBTMIN,
@@ -1017,6 +1048,7 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
             year = int(year)
             perception, upper_perception = thresholds.get(year, unrestricted)
             if low_threshold > 0:
+                n_below += 1
                 intervals.append(
                     FlowInterval.from_censored(
                         lower=_GBTMIN,
@@ -1048,12 +1080,33 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
                 continue  # [Qmin, Qmax]: no information; siteQT drops the row
             perception, upper_perception = thresholds.get(year, unrestricted)
             if upper < low_threshold:
+                n_below += 1
                 lower, upper = _GBTMIN, low_threshold
             intervals.append(
                 FlowInterval.from_censored(
                     lower=lower,
                     upper=upper,
                     year=year,
+                    perception_threshold=perception,
+                    perception_upper=upper_perception,
+                )
+            )
+
+        for year, lower, upper in self._historical_interval_peaks:
+            if lower <= _PERCEPTION_QMIN and upper >= _PERCEPTION_QMAX:
+                continue  # [Qmin, Qmax]: no information; siteQT drops the row
+            # A historic (dtype = 1) row: outside MGBT's sample, but gbtest still
+            # recodes it below the cutoff and counts it in nlow.
+            perception, upper_perception = thresholds.get(year, unrestricted)
+            if upper < low_threshold:
+                n_below += 1
+                lower, upper = _GBTMIN, low_threshold
+            intervals.append(
+                FlowInterval(
+                    lower=lower,
+                    upper=upper,
+                    year=year,
+                    is_historical=True,
                     perception_threshold=perception,
                     perception_upper=upper_perception,
                 )
@@ -1069,6 +1122,7 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
                 threshold = self._ema_params.historical_threshold or flow
                 upper_perception = _PERCEPTION_QMAX
             if flow < low_threshold:
+                n_below += 1
                 intervals.append(
                     FlowInterval(
                         lower=_GBTMIN,
@@ -1093,6 +1147,7 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
             # siteQT: (Qmin, threshold); gbtest then moves it to (gbtmin, cutoff)
             # when the threshold lies below the low-outlier cutoff.
             below_cutoff = threshold < low_threshold
+            n_below += int(below_cutoff)
             intervals.append(
                 FlowInterval.from_censored(
                     lower=_GBTMIN if below_cutoff else _PERCEPTION_QMIN,
@@ -1104,6 +1159,7 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
             )
 
         self._intervals = sorted(intervals, key=lambda x: x.year)
+        self._n_rows_below_cutoff = n_below
         return self._intervals
 
     def _compute_ema_moments(self, mean_log: float, std_log: float, skew: float) -> "_ExpectedSums":
@@ -1172,12 +1228,26 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         skew: float,
         n_regional: float = 0.0,
     ) -> Tuple[float, float, float, bool, int]:
-        """Iterate :meth:`_ema_iteration` to convergence.
+        """Iterate :meth:`_ema_iteration` to convergence, as ``p3est_ema`` does.
+
+        ``p3est_ema`` (``emafit.f:1149``) starts every fit from ``(mean,
+        variance, skew) = (0, 1, 0)``, whatever it is fitting, and stops only
+        once ``dist_p3`` between successive iterates is at most 1e-10 *and*
+        has stopped decreasing -- i.e. at the fixed point's own rounding
+        floor. Past 10,000 iterations it averages each iterate with the five
+        before it, to break a 2- or 3-cycle. All of that is reproduced here.
+        The stopping rule is what matters: this loop used to stop once no
+        moment moved by 1e-6, which left the at-site skew ~1e-6 short of the
+        fixed point -- the residual that dominated native-vs-``emafitpr``
+        differences on every parity record (1e-6 in skew, 1e-3 % in
+        quantiles), now 1e-10 and 1e-6 %. ``EMAParameters.max_iterations``/
+        ``tolerance`` bound the loop and the ``dist_p3`` test.
 
         Parameters
         ----------
         mean_log, std_log, skew : float
-            Starting estimates.
+            Unused: kept for the call signature. ``p3est_ema`` always starts
+            from ``(0, 1, 0)``.
         n_regional : float, optional
             Equivalent years of record for the regional skew; 0 fits at-site.
 
@@ -1186,21 +1256,35 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         tuple
             ``(mean, std, skew, converged, iterations)``.
         """
+        tolerance = self._ema_params.tolerance
+        history: List[Tuple[float, float, float]] = [(0.0, 1.0, 0.0)]  # (mean, var, skew)
+        d_prev = 0.0
         converged = False
         iteration = 0
-        for iteration in range(self._ema_params.max_iterations):
+        for iteration in range(1, self._ema_params.max_iterations + 1):
+            mean_p, var_p, skew_p = history[-1]
             new_mean, new_std, new_skew = self._ema_iteration(
-                mean_log, std_log, skew, n_regional=n_regional
+                mean_p, float(np.sqrt(var_p)), skew_p, n_regional=n_regional
             )
-            converged = (
-                abs(new_mean - mean_log) < self._ema_params.tolerance
-                and abs(new_std - std_log) < self._ema_params.tolerance
-                and abs(new_skew - skew) < self._ema_params.tolerance
+            current = (float(new_mean), float(new_std) ** 2, float(new_skew))
+            if iteration + 1 > _P3EST_CYCLE_ITER and len(history) >= 5:
+                # emafit.f:1278: eliminate cycles of length 2 or 3
+                window = [current] + history[-5:]
+                current = tuple(float(sum(m[j] for m in window) / 6.0) for j in range(3))
+            # dist_p3 (emafit.f:1453)
+            d = (
+                (mean_p - current[0]) ** 2 / current[1]
+                + (var_p - current[1]) ** 2 / current[1] ** 2 / 10.0
+                + (skew_p - current[2]) ** 2 / 100.0
             )
-            mean_log, std_log, skew = new_mean, new_std, new_skew
-            if converged:
+            history.append(current)
+            del history[:-6]
+            if d <= tolerance and d >= d_prev:
+                converged = True
                 break
-        return mean_log, std_log, skew, converged, iteration + 1
+            d_prev = d
+        mean_log, var_log, skew = history[-1]
+        return mean_log, float(np.sqrt(var_log)), skew, converged, iteration
 
     def _perception_threshold_groups(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """(nobs, tl, tu): perception-threshold groups in log10 space, var_mom's convention.
@@ -1672,7 +1756,9 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
             zero_pilf: List[float] = [0.0] * self._n_zeros
             nonzero_pilf = sorted([f for f in self._peak_flows if f < user_threshold])
             pilf = zero_pilf + nonzero_pilf
-            return float(user_threshold), len(pilf), pilf
+            # gbtest's sample also holds the qualifying less-than values.
+            flagged = len(pilf) + sum(1 for u in self._less_than_uppers() if u < user_threshold)
+            return float(user_threshold), flagged, pilf
 
         # Include zero-flow years as log10(1e-88) = -88, matching Fortran MGBTP
         # which uses MAX(1D-88,X) before LOG10 (probfun.f line 1547).  Zeros must
@@ -1784,7 +1870,7 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         skew_station = n * np.sum((log_flows - mean_log) ** 3) / ((n - 1) * (n - 2) * std_log**3)
         skew_station = float(np.clip(skew_station, -MAX_ABS_SKEW, MAX_ABS_SKEW))
 
-        low_threshold, n_low_outliers, pilf_flows = self._multiple_grubbs_beck(
+        low_threshold, n_mgbt_outliers, pilf_flows = self._multiple_grubbs_beck(
             user_threshold=self._user_low_outlier_threshold
         )
         self._ema_params.low_outlier_threshold = low_threshold
@@ -1796,7 +1882,9 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         mgbt_computed = not (
             self._user_low_outlier_threshold is not None and self._user_low_outlier_threshold > 0
         )
-        self._at_site_option = "B17B" if mgbt_computed and n_low_outliers > 0 else "ADJE"
+        # nlow here is gbtest's row count, but it is positive exactly when MGBT
+        # flagged something: a positive cutoff always has a flagged value under it.
+        self._at_site_option = "B17B" if mgbt_computed and n_mgbt_outliers > 0 else "ADJE"
 
         self._build_flow_intervals(low_threshold)
 
@@ -1842,7 +1930,8 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
             n_systematic=n_systematic,
             n_historical=n_historical,
             n_censored=n_censored,
-            n_low_outliers=n_low_outliers,
+            n_low_outliers=self._n_rows_below_cutoff,
+            n_mgbt_outliers=n_mgbt_outliers,
             mean_log=mean_log,
             std_log=std_log,
             skew_station=skew_station,
@@ -2108,6 +2197,11 @@ class Bulletin17C:
     * ``interval_peaks`` lists systematic years whose peak is known only to
       lie in ``(lower_cfs, upper_cfs)`` -- ``(wy, 0, q)`` for "less than q",
       ``(wy, q, inf)`` for "greater than q". EMA only.
+    * ``historical_interval_peaks`` is the same for historic peaks (a code 7
+      peak that is also code 4 or 8): ``siteQT``'s interval row with
+      ``dtype = 1``. Kept apart from ``interval_peaks`` as
+      ``historical_peaks`` is kept apart from ``peak_flows``, so each
+      argument's tuple shape stays one meaning. EMA only.
 
     Examples
     --------
@@ -2136,9 +2230,11 @@ class Bulletin17C:
         ema_params: EMAParameters = None,
         user_low_outlier_threshold: Optional[float] = None,
         interval_peaks: Optional[List[Tuple[int, float, float]]] = None,
+        historical_interval_peaks: Optional[List[Tuple[int, float, float]]] = None,
     ):
         self._peak_flows = np.array(peak_flows)
         self._interval_peaks = interval_peaks
+        self._historical_interval_peaks = historical_interval_peaks
         self._water_years = water_years
         self._regional_skew = regional_skew
         self._regional_skew_mse = regional_skew_mse
@@ -2202,6 +2298,10 @@ class Bulletin17C:
     def n_low_outliers(self) -> Optional[int]:
         return self._results.n_low_outliers if self._results else None
 
+    @property
+    def n_mgbt_outliers(self) -> Optional[int]:
+        return self._results.n_mgbt_outliers if self._results else None
+
     def run_analysis(
         self, method: Union[str, AnalysisMethod] = "ema", engine: str = "native"
     ) -> FrequencyResults:
@@ -2259,16 +2359,17 @@ class Bulletin17C:
                 regional_skew_mse=self._regional_skew_mse,
                 aeps=FloodFrequencyAnalysis.STANDARD_AEP,
                 interval_peaks=self._interval_peaks,
+                historical_interval_peaks=self._historical_interval_peaks,
             )
             return self._results
 
         self._fortran_reference = None
         self._fortran_arrays = None
         if method == AnalysisMethod.MOM:
-            if self._interval_peaks:
+            if self._interval_peaks or self._historical_interval_peaks:
                 raise ValueError(
-                    "method='mom' cannot use interval_peaks; the method of moments has no "
-                    "censored observations -- use method='ema'"
+                    "method='mom' cannot use interval_peaks or historical_interval_peaks; "
+                    "the method of moments has no censored observations -- use method='ema'"
                 )
             self._analyzer = MethodOfMoments(
                 self._peak_flows,
@@ -2287,6 +2388,7 @@ class Bulletin17C:
                 perception_thresholds=self._perception_thresholds,
                 user_low_outlier_threshold=self._user_low_outlier_threshold,
                 interval_peaks=self._interval_peaks,
+                historical_interval_peaks=self._historical_interval_peaks,
             )
 
         self._results = self._analyzer.run_analysis()
@@ -2346,6 +2448,7 @@ class Bulletin17C:
             aeps=aep,
             eps=confidence,
             interval_peaks=self._interval_peaks,
+            historical_interval_peaks=self._historical_interval_peaks,
         )
         return quantile_frames(reference)
 

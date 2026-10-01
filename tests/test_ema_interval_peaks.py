@@ -308,3 +308,85 @@ class TestFortranBuilderAgrees:
             (1991, 3.0, 4.0),
         ]
         assert normalize_interval_peaks(None) == []
+
+
+class TestHistoricalIntervalPeaks:
+    """Code 7 with 4 or 8: siteQT's censored row with dtype = 1."""
+
+    KW = dict(
+        historical_peaks=[(1950, 5000.0)],
+        perception_thresholds={(1940, 1980): 3000.0, (1981, 2010): 0.0},
+        historical_interval_peaks=[(1945, 3000.0, np.inf), (1960, 0.0, 120.0)],
+    )
+
+    def test_rows_are_historic_intervals(self):
+        by_year = _by_year(_ema(**self.KW))
+        greater = by_year[1945]
+        assert greater.is_historical and greater.is_censored
+        assert (greater.lower, greater.upper) == (3000.0, FLOW_QMAX)
+        assert greater.perception_threshold == 3000.0
+        less = by_year[1960]
+        assert less.is_historical and (less.lower, less.upper) == (FLOW_QMIN, 120.0)
+
+    def test_years_are_observed_not_gap_years(self):
+        ema = _ema(**self.KW)
+        assert 1945 not in ema._gap_year_thresholds()
+        assert 1960 not in ema._gap_year_thresholds()
+
+    def test_outside_mgbts_sample(self):
+        """gbtest takes only dtype = 0 rows into MGBT, even below the smallest peak."""
+        assert _ema(**self.KW)._less_than_uppers() == []
+
+    def test_recoded_and_counted_below_the_cutoff(self):
+        ema = _ema(**self.KW)
+        by_year = {iv.year: iv for iv in ema._build_flow_intervals(150.0)}
+        assert (by_year[1960].lower, by_year[1960].upper) == (_GBTMIN, 150.0)
+        assert by_year[1960].is_historical
+        assert (by_year[1945].lower, by_year[1945].upper) == (3000.0, FLOW_QMAX)
+        assert ema._n_rows_below_cutoff == 1  # no systematic peak is below 150
+
+    def test_no_information_interval_has_no_row(self):
+        kw = dict(self.KW, historical_interval_peaks=[(1945, 0.0, np.inf)])
+        assert 1945 not in _by_year(_ema(**kw))
+
+    def test_fortran_builder_agrees_with_dtype_1(self):
+        flows, years = _record(())
+        ema = ExpectedMomentsAlgorithm(flows, water_years=years, **self.KW)
+        arrays = build_emafit_arrays(flows, water_years=years, **self.KW)
+        assert _native_rows(ema) == _fortran_rows(arrays)
+        dtype = dict(zip(arrays.years, arrays.dtype))
+        assert dtype[1945] == dtype[1960] == dtype[1950] == 1
+        assert sum(arrays.dtype) == 3
+        historic = {iv.year for iv in ema._build_flow_intervals(0.0) if iv.is_historical}
+        assert historic == {1945, 1950, 1960}
+
+    @pytest.mark.parametrize(
+        "extra, match",
+        [
+            (dict(historical_peaks=[(1945, 4000.0)]), "historical interval"),
+            (dict(interval_peaks=[(1945, 0.0, 10.0)]), "historical interval"),
+        ],
+    )
+    def test_conflicts_raise(self, extra, match):
+        kw = dict(self.KW, **extra)
+        with pytest.raises(ValueError, match=match):
+            _ema(**kw)
+        flows, years = _record(())
+        with pytest.raises(ValueError, match=match):
+            build_emafit_arrays(flows, water_years=years, **kw)
+
+    def test_systematic_year_conflict_raises(self):
+        with pytest.raises(ValueError, match="historical interval"):
+            _ema(historical_interval_peaks=[(1990, 0.0, 10.0)])
+
+    def test_mom_refuses(self):
+        flows, years = _record(())
+        b = Bulletin17C(flows, years, historical_interval_peaks=[(1960, 0.0, 120.0)])
+        with pytest.raises(ValueError, match="historical_interval_peaks"):
+            b.run_analysis(method="mom")
+
+    def test_ema_fits_and_counts(self):
+        flows, years = _record(())
+        r = Bulletin17C(flows, years, **self.KW).run_analysis(method="ema")
+        assert r.n_historical == 3
+        assert r.n_peaks == len(years) + 3 + 38  # and 1940-1980's 38 gap years

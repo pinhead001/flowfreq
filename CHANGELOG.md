@@ -8,6 +8,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Historic interval peaks** (a peak coded 7 and 4 or 8): the new `historical_interval_peaks`
+  argument to `Bulletin17C`, `ExpectedMomentsAlgorithm`, `fortran_engine.build_emafit_arrays`,
+  `run_fortran_reference` and `run_fortran_ema`, shaped like `interval_peaks`:
+  `(water_year, lower_cfs, upper_cfs)`.
+  - Both engines build the row the way `siteQT` does: the interval with `dtype = 1`. That keeps
+    it out of MGBT's sample, since `gbtest` samples only `dtype = 0` rows. It is still recoded
+    below the low-outlier cutoff and counted in `n_low_outliers`.
+  - It is a separate argument, not a fourth element of `interval_peaks`, for the same reason
+    `historical_peaks` is separate from `peak_flows`: each argument keeps one tuple shape and
+    one meaning, and existing callers are untouched.
+  - `psf_convert` (`StationInputs.historical_interval_peaks`) and `peak_code_kwargs` /
+    `run_ffa` / `compare_engines` / `analyze_gage` now pass such peaks through.
+  - **Result change:** a record with a code 7+4 or 7+8 peak is now fitted rather than refused
+    with `UnsupportedSpecError`. No record that fitted before changes.
+
+### Changed
+- **`FrequencyResults.n_low_outliers` is now peakfq's `gbnlow`** on the native engine, as it
+  already was on the Fortran one: the number of EMA rows `gbtest` recodes below the
+  low-outlier cutoff (`emafit.f` lines 1062-1076). That count covers exact peaks, zero-flow
+  years, interval and historic rows, and years with no peak that a perception threshold below
+  the cutoff censors. It used to be MGBT's own count of flagged peaks.
+  - **Result change:** on the 24 WY/MT `.psf` stations the count changes at three stations,
+    06328100 (17 -> 20), 06326960 (12 -> 15) and 06177820 (6 -> 8), and now equals `gbnlow`
+    at all 24. No moment, quantile or bound moves.
+  - The old count is kept as the new `FrequencyResults.n_mgbt_outliers` (also
+    `Bulletin17C.n_mgbt_outliers` and `run_ffa`'s `parameters["n_mgbt_outliers"]`). It counts
+    the members of `gbtest`'s MGBT sample below the threshold. With a user threshold it now
+    also counts `gbtest`'s qualifying less-than values. The Fortran engine derives the same
+    number from its arrays.
+  - The frequency plots label the threshold and count "peak(s) below PILF threshold" with
+    `n_mgbt_outliers`, since they mean peaks. The Markdown report shows both counts.
+
+### Added
 - **Regional skew by location** (`flowfreq.regional_skew`, roadmap §1.3):
   `regional_skew_at_huc(huc, state=None)`, `regional_skew_at(lat, lon)` and
   `regional_skew_for_site(site_no)`. They return the verified regional skew for the study
@@ -53,6 +86,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   result, diagnostics and limitations.
 
 ### Added
+- **`subdaily` checked against a published figure for a real gage.**
+  `tests/test_subdaily_published.py` (`requires_network`) runs `daily_extreme_timing` on
+  USGS 01578310 (Susquehanna at Conowingo, MD) against Exelon (2012), *Final Study Report:
+  Downstream Flow Ramping and Stranding Study, RSP 3.8*, Conowingo Hydroelectric Project, FERC
+  No. 405.
+  - Five discharges from SS4.1.1/4.3.1 match exactly at the report's 100-cfs precision:
+    141,000 cfs on 2010-10-03, the 26,100 / 46,200 / 80,000 cfs morning survey peaks, and the
+    36,500 cfs prior-day peak. The 80,000 cfs peak falls at 08:45 EST, inside the report's
+    0600-0900 h.
+  - One figure, 80,900 vs 81,100 cfs, is recorded in the test module and not pinned. The
+    report's one-hour stage declines need a fixed-window ramp metric that `ramping_rates`
+    does not have; it is filed in TODO.md.
 - **Water Data API key and backoff.** Every call to `api.waterdata.usgs.gov` (peaks,
   instantaneous and daily values, monitoring locations) now goes through
   `flowfreq.waterdata.request`: it sends an `X-Api-Key` from `USGS_API_KEY` or
@@ -187,6 +232,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   estimate (Skookumchuck River near Vail, WA; `docs/STREAMSTATS_NSS_ADDENDUM.md` S6).
   Both results reproduce their own equation strings through
   `flowfreq.regression.nss.evaluate_expression`.
+- **Native EMA fixed point now iterates as `p3est_ema` does** (`emafit.f:1149`): from
+  `(0, 1, 0)`, until `dist_p3` between iterates is at most 1e-10 and has stopped decreasing,
+  averaging iterates past 10,000 to break cycles. It used to start from the sample moments and
+  stop once no moment moved by 1e-6, which left every fit ~1e-6 short of its fixed point.
+  **Results change**, toward peakfq 8.1.0, on every record that needed more than a couple of
+  iterations: at most 0.0035 % in any quantile and 5.5e-4 in at-site skew (WY/MT 06328100),
+  typically 1e-4 %. Against live `emafitpr` on the 24 WY/MT `.psf` stations, at-site skew now
+  agrees to 1e-10 (was 1e-6) and quantiles to ~1e-5 % (was ~1e-3 %), except the two
+  near-zero-skew stations 06328100 (5e-4 %, was 3e-3 %) and 06329350 (0.012 %, unchanged).
+  Big Sandy moves 8e-5 %; 12363000 (uncensored) does not move. `EMAParameters.max_iterations`/`tolerance` now default to
+  20000 / 1e-10 and mean `p3est_ema`'s iteration cap and `dist_p3` bound; `ema_iterations` on
+  an uncensored record is 3 (the Fortran's count), not 1.
+- A record whose EMA used to stop at 100 iterations without converging (for example Big
+  Sandy's systematic record with a 6000 cfs low-outlier override) now converges, so `run_ffa`
+  reports EMA for it rather than falling back to the method of moments.
+- The Wilson-Hilferty/incomplete-gamma blend weight (`_p3_moments._wh_weight`) uses the
+  Fortran's single-precision literals (`0.0007`, `0.0010-0.0007`, `3.14159265359`); affects
+  only `0.0007 < |skew| < 0.001`.
+
+### Known differences
+- A user-supplied (FIXED) low-outlier threshold record reported with a 2e-3 weighted-skew
+  residual is **not** a native defect: `emafitpr`'s own weighted skew there is ill-conditioned
+  (a 1e-5 relative change in `r_G_mse` moves it 2e-3) because `mP3`'s incomplete-gamma
+  evaluation rounds at the 1e-3 level for skews of a few thousandths. Recorded as a strict
+  xfail in `tests/fortran_parity/test_fixed_threshold_live.py`.
+- Big Sandy with a 6000 cfs FIXED threshold (29 of 44 peaks censored): `emafitpr`'s
+  `MN2MVARB` stops after 100 Newton iterations without converging, giving ADJE
+  `as_G_mse` 2.74 where the converged value is 0.064; weighted skew -0.281 (peakfq) vs -0.166
+  (native). Strict xfail in the same file.
 
 ## [0.9.0] - 2026-09-27
 
