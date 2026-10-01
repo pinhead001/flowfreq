@@ -1,0 +1,3092 @@
+{
+  "schema_version": 1,
+  "state": "CO",
+  "status": "verified",
+  "issue": 93,
+  "source_reports": [
+    {
+      "citation": "Capesius, J.P., and Stephens, V.C., 2009, Regional regression equations for estimation of natural streamflow statistics in Colorado (ver. 1.2, April 2014): U.S. Geological Survey Scientific Investigations Report 2009-5136",
+      "version": "1.2, April 2014",
+      "doi": "10.3133/sir20095136",
+      "url": "https://pubs.usgs.gov/publication/sir20095136",
+      "pdf": "https://pubs.usgs.gov/sir/2009/5136/pdf/SIR09-5136.pdf",
+      "tables": [
+        "Figure 3",
+        "Figure 4",
+        "Figure 5",
+        "Figure 6"
+      ],
+      "nss": {
+        "state_region_id": 9,
+        "citation_id": 20,
+        "regression_region_ids": [
+          58,
+          59,
+          61,
+          62
+        ]
+      }
+    },
+    {
+      "citation": "Kohn, M.S., Stevens, M.R., Harden, T.M., Godaire, J.E., Klinger, R.E., and Mommandi, A., 2016, Paleoflood investigations to improve peak-streamflow regional-regression equations for natural streamflow in eastern Colorado, 2015: U.S. Geological Survey Scientific Investigations Report 2016-5099",
+      "version": "1.0 (no revisions listed on the pubs page)",
+      "doi": "10.3133/sir20165099",
+      "url": "https://pubs.usgs.gov/publication/sir20165099",
+      "pdf": "https://pubs.usgs.gov/sir/2016/5099/sir20165099.pdf",
+      "covariance_download": "https://pubs.usgs.gov/sir/2016/5099/sir20165099_Appendix6.zip",
+      "tables": [
+        "Figure 9",
+        "Figure 10",
+        "Appendix 6"
+      ],
+      "nss": {
+        "state_region_id": 9,
+        "citation_id": 21,
+        "regression_region_ids": [
+          60,
+          81
+        ]
+      }
+    },
+    {
+      "citation": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+      "version": "1.0 (no revisions listed on the pubs page)",
+      "doi": "10.3133/sir20065306",
+      "url": "https://pubs.usgs.gov/publication/sir20065306",
+      "pdf": "https://pubs.usgs.gov/sir/2006/5306/pdf/sir2006-5306_508.pdf",
+      "tables": [
+        "Table 1",
+        "Table 2"
+      ],
+      "nss": {
+        "state_region_id": 9,
+        "citation_id": 11,
+        "regression_region_ids": [
+          63,
+          64
+        ]
+      }
+    }
+  ],
+  "notes": "Three reports, as NSS combines them for Colorado's peak-flow statistic group (NSS region 9). (1) Capesius and Stephens, SIR 2009-5136 ver. 1.2 (April 2014; versions 1.1 and 1.2 changed Table 1 and the WLS SEPs only, and the version history states that no GLS peak-flow value changed): Mountain, Northwest, Rio Grande and Southwest regions, 8 AEPs each, from figures 3-6 (pp. 20, 22, 24, 26), which print each equation as Q = 10^b0 A^b1 ... with b0 to 2 decimals; the intercept is that printed exponent. The report's fifth (Plains) region is superseded by SIR 2016-5099 and is not stored. Ranges are the figures' 'approximate range of predictor variables'. A7500 is 'percentage of A above 7,500 feet of elevation plus 1' (figure 2 and p. 17: 1 percent is added before the log transform), stored as EL7500 (percent above 7,500 ft) with transform log10 and offset 1; its limits (0-100) are the raw percentage. S is NSS BSLDEM10M (mean basin slope, percent); P is PRECIP (mean annual precipitation, in.). Error statistics: sep_log is the printed SEP (percent) converted as sqrt(ln(1 + (SEP/100)^2)) / ln(10); model_error_variance is the printed SME (standard model error, percent) converted the same way and squared. The report publishes no AVP and no covariance matrix, so intervals use sep_log. pseudo-R2 is not stored. The Northwest Q200 and Q500 equations are printed without the report's 'boxed check mark', meaning their residual plots suggest bias for some basin characteristics (pp. 18-19). (2) Kohn and others, SIR 2016-5099: Foothills and Plains hydrologic regions (eastern Colorado, split at 104 degrees W), 8 AEPs each, from figures 9 and 10 (pp. 25-26), with b0 printed to 3 decimals. Variables: A = DRNAREA, 6P100 = I6H100Y (6-hour, 100-year precipitation, in.), C = STATSCLAY (percent clay, STATSGO), Eout = OUTLETELEV (basin outlet elevation, ft), S = BSLDEM10M (mean basin slope, percent); all log10. Appendix 6 is each regression's WREG v1.05 output: model_error_variance and avp are its 'Model Error Variance' and 'Avg Variance of Prediction' (log10 units squared, 3 decimals), and the covariance is InvXLX.txt ([X^T Lambda^-1 X]^-1, intercept then the variables in equation order, as printed). sep_log is the figures' SEP converted as above. Appendix 6's coefficients equal the figures' for all 16 equations; at every calibration site MEV + x'Ux reproduces WREG's printed variance of prediction, and MEV + mean x'Ux reproduces the AVP. (3) Waltemeyer, SIR 2006-5306 (Navajo Nation in AZ, UT, CO and NM): Region 8 and the High Elevation region (mean basin elevation above 7,500 ft), which NSS lists for Colorado, 7 AEPs each (2-500 years; no 200-year equation), from Table 2 (p. 7), limits from Table 1 (p. 6). Equations are printed as K x 10^n A^a ...; intercept = log10(K x 10^n). sep_log is Table 2's average standard error of prediction in log units and model_error_variance the square of its average standard error of regression in log units (the model error, p. 8). No covariance is published. S is printed as 'average basin slope, in percent', but its values (0.0231-0.4447) and the worked example (0.2422) are ft/ft, which is NSS's BSLDEM30ff ('Mean Basin Slope from 30m DEM ft/ft'); units are stored as ft/ft. Table 1 prints the region 8 elevation maximum as 7,750 with footnote 1 (pdftotext reads it as 17,750); the text on p. 6 confirms 7,750. n_sites are the per-region gage counts on p. 6 (62 and 27 of 146). Checks against the reports' own per-gage estimates: SIR 2016-5099 Appendix 5's regression estimates QP(g)r at all 187 listed gages (1,496 values) equal the stored equations at 3 significant figures. SIR 2006-5306 Appendix 1's 'predicted' lines agree for the High Elevation region (median ratio 0.996-1.002 by AEP), but for region 8 Table 2's equations give a constant fraction of them per AEP (median ratio 0.958-0.997, spread under 1%) that a refit shows to be coefficient rounding (e.g. Table 2's E exponent -2.10 against a fitted -2.094), and the region 8 2-year predicted values come from a different model with an S term (refit: 6.36e8 A^0.426 S^0.282 E^-1.74), not Table 2's Q2 = 1.08e7 A^0.457 E^-1.35. The p. 9 worked example (region 8 Q100, A 523, S 0.2422, E 6,940) prints 8,510 ft3/s, but Table 2's equation, restated in the example itself, gives 9,296. Table 2 as printed is stored, as NSS also uses it. Region codes are unique across the three reports: Mountain, Northwest, RioGrande, Southwest, Foothills, Plains, Navajo8 and NavajoHighElev. All values were double-entered (hand transcription from rendered pages vs. a programmatic parse of the PDF word boxes) with zero disagreements, and every region and AEP was cross-checked against live NSS at NSS's 3 significant figures.",
+  "equations": [
+    {
+      "region_code": "Mountain",
+      "region_name": "Mountain hydrologic region (SIR 2009-5136; NSS GC1204)",
+      "aep": 0.5,
+      "intercept": -2.05,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.0,
+          "maximum": 1060.0
+        },
+        {
+          "code": "BSLDEM10M",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 7.6,
+          "maximum": 60.2
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 18.0,
+          "maximum": 47.0
+        }
+      ],
+      "coefficients": [
+        0.78,
+        0.17,
+        2.1
+      ],
+      "citation": {
+        "publication": "Capesius, J.P., and Stephens, V.C., 2009, Regional regression equations for estimation of natural streamflow statistics in Colorado (ver. 1.2, April 2014): U.S. Geological Survey Scientific Investigations Report 2009-5136",
+        "table": "Figure 3 (p. 20)",
+        "year": 2009,
+        "url": "https://doi.org/10.3133/sir20095136"
+      },
+      "sep_log": 0.201464,
+      "model_error_variance": 0.0391066,
+      "n_sites": 141
+    },
+    {
+      "region_code": "Mountain",
+      "region_name": "Mountain hydrologic region (SIR 2009-5136; NSS GC1204)",
+      "aep": 0.2,
+      "intercept": -1.51,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.0,
+          "maximum": 1060.0
+        },
+        {
+          "code": "BSLDEM10M",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 7.6,
+          "maximum": 60.2
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 18.0,
+          "maximum": 47.0
+        }
+      ],
+      "coefficients": [
+        0.77,
+        0.16,
+        1.85
+      ],
+      "citation": {
+        "publication": "Capesius, J.P., and Stephens, V.C., 2009, Regional regression equations for estimation of natural streamflow statistics in Colorado (ver. 1.2, April 2014): U.S. Geological Survey Scientific Investigations Report 2009-5136",
+        "table": "Figure 3 (p. 20)",
+        "year": 2009,
+        "url": "https://doi.org/10.3133/sir20095136"
+      },
+      "sep_log": 0.1827,
+      "model_error_variance": 0.0319996,
+      "n_sites": 141
+    },
+    {
+      "region_code": "Mountain",
+      "region_name": "Mountain hydrologic region (SIR 2009-5136; NSS GC1204)",
+      "aep": 0.1,
+      "intercept": -1.2,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.0,
+          "maximum": 1060.0
+        },
+        {
+          "code": "BSLDEM10M",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 7.6,
+          "maximum": 60.2
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 18.0,
+          "maximum": 47.0
+        }
+      ],
+      "coefficients": [
+        0.77,
+        0.14,
+        1.71
+      ],
+      "citation": {
+        "publication": "Capesius, J.P., and Stephens, V.C., 2009, Regional regression equations for estimation of natural streamflow statistics in Colorado (ver. 1.2, April 2014): U.S. Geological Survey Scientific Investigations Report 2009-5136",
+        "table": "Figure 3 (p. 20)",
+        "year": 2009,
+        "url": "https://doi.org/10.3133/sir20095136"
+      },
+      "sep_log": 0.171191,
+      "model_error_variance": 0.0279937,
+      "n_sites": 141
+    },
+    {
+      "region_code": "Mountain",
+      "region_name": "Mountain hydrologic region (SIR 2009-5136; NSS GC1204)",
+      "aep": 0.04,
+      "intercept": -0.9,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.0,
+          "maximum": 1060.0
+        },
+        {
+          "code": "BSLDEM10M",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 7.6,
+          "maximum": 60.2
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 18.0,
+          "maximum": 47.0
+        }
+      ],
+      "coefficients": [
+        0.75,
+        0.16,
+        1.55
+      ],
+      "citation": {
+        "publication": "Capesius, J.P., and Stephens, V.C., 2009, Regional regression equations for estimation of natural streamflow statistics in Colorado (ver. 1.2, April 2014): U.S. Geological Survey Scientific Investigations Report 2009-5136",
+        "table": "Figure 3 (p. 20)",
+        "year": 2009,
+        "url": "https://doi.org/10.3133/sir20095136"
+      },
+      "sep_log": 0.167313,
+      "model_error_variance": 0.0267048,
+      "n_sites": 141
+    },
+    {
+      "region_code": "Mountain",
+      "region_name": "Mountain hydrologic region (SIR 2009-5136; NSS GC1204)",
+      "aep": 0.02,
+      "intercept": -0.68,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.0,
+          "maximum": 1060.0
+        },
+        {
+          "code": "BSLDEM10M",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 7.6,
+          "maximum": 60.2
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 18.0,
+          "maximum": 47.0
+        }
+      ],
+      "coefficients": [
+        0.75,
+        0.16,
+        1.45
+      ],
+      "citation": {
+        "publication": "Capesius, J.P., and Stephens, V.C., 2009, Regional regression equations for estimation of natural streamflow statistics in Colorado (ver. 1.2, April 2014): U.S. Geological Survey Scientific Investigations Report 2009-5136",
+        "table": "Figure 3 (p. 20)",
+        "year": 2009,
+        "url": "https://doi.org/10.3133/sir20095136"
+      },
+      "sep_log": 0.163416,
+      "model_error_variance": 0.0241999,
+      "n_sites": 141
+    },
+    {
+      "region_code": "Mountain",
+      "region_name": "Mountain hydrologic region (SIR 2009-5136; NSS GC1204)",
+      "aep": 0.01,
+      "intercept": -0.46,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.0,
+          "maximum": 1060.0
+        },
+        {
+          "code": "BSLDEM10M",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 7.6,
+          "maximum": 60.2
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 18.0,
+          "maximum": 47.0
+        }
+      ],
+      "coefficients": [
+        0.75,
+        0.14,
+        1.35
+      ],
+      "citation": {
+        "publication": "Capesius, J.P., and Stephens, V.C., 2009, Regional regression equations for estimation of natural streamflow statistics in Colorado (ver. 1.2, April 2014): U.S. Geological Survey Scientific Investigations Report 2009-5136",
+        "table": "Figure 3 (p. 20)",
+        "year": 2009,
+        "url": "https://doi.org/10.3133/sir20095136"
+      },
+      "sep_log": 0.151608,
+      "model_error_variance": 0.0206327,
+      "n_sites": 141
+    },
+    {
+      "region_code": "Mountain",
+      "region_name": "Mountain hydrologic region (SIR 2009-5136; NSS GC1204)",
+      "aep": 0.005,
+      "intercept": -0.28,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.0,
+          "maximum": 1060.0
+        },
+        {
+          "code": "BSLDEM10M",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 7.6,
+          "maximum": 60.2
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 18.0,
+          "maximum": 47.0
+        }
+      ],
+      "coefficients": [
+        0.75,
+        0.13,
+        1.26
+      ],
+      "citation": {
+        "publication": "Capesius, J.P., and Stephens, V.C., 2009, Regional regression equations for estimation of natural streamflow statistics in Colorado (ver. 1.2, April 2014): U.S. Geological Survey Scientific Investigations Report 2009-5136",
+        "table": "Figure 3 (p. 20)",
+        "year": 2009,
+        "url": "https://doi.org/10.3133/sir20095136"
+      },
+      "sep_log": 0.151608,
+      "model_error_variance": 0.0206327,
+      "n_sites": 141
+    },
+    {
+      "region_code": "Mountain",
+      "region_name": "Mountain hydrologic region (SIR 2009-5136; NSS GC1204)",
+      "aep": 0.002,
+      "intercept": -0.06,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.0,
+          "maximum": 1060.0
+        },
+        {
+          "code": "BSLDEM10M",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 7.6,
+          "maximum": 60.2
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 18.0,
+          "maximum": 47.0
+        }
+      ],
+      "coefficients": [
+        0.74,
+        0.15,
+        1.14
+      ],
+      "citation": {
+        "publication": "Capesius, J.P., and Stephens, V.C., 2009, Regional regression equations for estimation of natural streamflow statistics in Colorado (ver. 1.2, April 2014): U.S. Geological Survey Scientific Investigations Report 2009-5136",
+        "table": "Figure 3 (p. 20)",
+        "year": 2009,
+        "url": "https://doi.org/10.3133/sir20095136"
+      },
+      "sep_log": 0.13963,
+      "model_error_variance": 0.0173067,
+      "n_sites": 141
+    },
+    {
+      "region_code": "Northwest",
+      "region_name": "Northwest hydrologic region (SIR 2009-5136; NSS GC1205)",
+      "aep": 0.5,
+      "intercept": -1.15,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.0,
+          "maximum": 5250.0
+        },
+        {
+          "code": "EL7500",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "offset": 1.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 8.0,
+          "maximum": 49.0
+        }
+      ],
+      "coefficients": [
+        0.75,
+        -0.41,
+        2.15
+      ],
+      "citation": {
+        "publication": "Capesius, J.P., and Stephens, V.C., 2009, Regional regression equations for estimation of natural streamflow statistics in Colorado (ver. 1.2, April 2014): U.S. Geological Survey Scientific Investigations Report 2009-5136",
+        "table": "Figure 4 (p. 22)",
+        "year": 2009,
+        "url": "https://doi.org/10.3133/sir20095136"
+      },
+      "sep_log": 0.393945,
+      "model_error_variance": 0.145809,
+      "n_sites": 90
+    },
+    {
+      "region_code": "Northwest",
+      "region_name": "Northwest hydrologic region (SIR 2009-5136; NSS GC1205)",
+      "aep": 0.2,
+      "intercept": -0.49,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.0,
+          "maximum": 5250.0
+        },
+        {
+          "code": "EL7500",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "offset": 1.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 8.0,
+          "maximum": 49.0
+        }
+      ],
+      "coefficients": [
+        0.76,
+        -0.54,
+        2.0
+      ],
+      "citation": {
+        "publication": "Capesius, J.P., and Stephens, V.C., 2009, Regional regression equations for estimation of natural streamflow statistics in Colorado (ver. 1.2, April 2014): U.S. Geological Survey Scientific Investigations Report 2009-5136",
+        "table": "Figure 4 (p. 22)",
+        "year": 2009,
+        "url": "https://doi.org/10.3133/sir20095136"
+      },
+      "sep_log": 0.328879,
+      "model_error_variance": 0.100703,
+      "n_sites": 90
+    },
+    {
+      "region_code": "Northwest",
+      "region_name": "Northwest hydrologic region (SIR 2009-5136; NSS GC1205)",
+      "aep": 0.1,
+      "intercept": -0.1,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.0,
+          "maximum": 5250.0
+        },
+        {
+          "code": "EL7500",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "offset": 1.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 8.0,
+          "maximum": 49.0
+        }
+      ],
+      "coefficients": [
+        0.75,
+        -0.63,
+        1.93
+      ],
+      "citation": {
+        "publication": "Capesius, J.P., and Stephens, V.C., 2009, Regional regression equations for estimation of natural streamflow statistics in Colorado (ver. 1.2, April 2014): U.S. Geological Survey Scientific Investigations Report 2009-5136",
+        "table": "Figure 4 (p. 22)",
+        "year": 2009,
+        "url": "https://doi.org/10.3133/sir20095136"
+      },
+      "sep_log": 0.302437,
+      "model_error_variance": 0.084175,
+      "n_sites": 90
+    },
+    {
+      "region_code": "Northwest",
+      "region_name": "Northwest hydrologic region (SIR 2009-5136; NSS GC1205)",
+      "aep": 0.04,
+      "intercept": 0.35,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.0,
+          "maximum": 5250.0
+        },
+        {
+          "code": "EL7500",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "offset": 1.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 8.0,
+          "maximum": 49.0
+        }
+      ],
+      "coefficients": [
+        0.75,
+        -0.72,
+        1.82
+      ],
+      "citation": {
+        "publication": "Capesius, J.P., and Stephens, V.C., 2009, Regional regression equations for estimation of natural streamflow statistics in Colorado (ver. 1.2, April 2014): U.S. Geological Survey Scientific Investigations Report 2009-5136",
+        "table": "Figure 4 (p. 22)",
+        "year": 2009,
+        "url": "https://doi.org/10.3133/sir20095136"
+      },
+      "sep_log": 0.286998,
+      "model_error_variance": 0.0752138,
+      "n_sites": 90
+    },
+    {
+      "region_code": "Northwest",
+      "region_name": "Northwest hydrologic region (SIR 2009-5136; NSS GC1205)",
+      "aep": 0.02,
+      "intercept": 0.65,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.0,
+          "maximum": 5250.0
+        },
+        {
+          "code": "EL7500",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "offset": 1.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 8.0,
+          "maximum": 49.0
+        }
+      ],
+      "coefficients": [
+        0.74,
+        -0.77,
+        1.74
+      ],
+      "citation": {
+        "publication": "Capesius, J.P., and Stephens, V.C., 2009, Regional regression equations for estimation of natural streamflow statistics in Colorado (ver. 1.2, April 2014): U.S. Geological Survey Scientific Investigations Report 2009-5136",
+        "table": "Figure 4 (p. 22)",
+        "year": 2009,
+        "url": "https://doi.org/10.3133/sir20095136"
+      },
+      "sep_log": 0.286998,
+      "model_error_variance": 0.0734461,
+      "n_sites": 90
+    },
+    {
+      "region_code": "Northwest",
+      "region_name": "Northwest hydrologic region (SIR 2009-5136; NSS GC1205)",
+      "aep": 0.01,
+      "intercept": 0.93,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.0,
+          "maximum": 5250.0
+        },
+        {
+          "code": "EL7500",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "offset": 1.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 8.0,
+          "maximum": 49.0
+        }
+      ],
+      "coefficients": [
+        0.74,
+        -0.81,
+        1.65
+      ],
+      "citation": {
+        "publication": "Capesius, J.P., and Stephens, V.C., 2009, Regional regression equations for estimation of natural streamflow statistics in Colorado (ver. 1.2, April 2014): U.S. Geological Survey Scientific Investigations Report 2009-5136",
+        "table": "Figure 4 (p. 22)",
+        "year": 2009,
+        "url": "https://doi.org/10.3133/sir20095136"
+      },
+      "sep_log": 0.290129,
+      "model_error_variance": 0.0752138,
+      "n_sites": 90
+    },
+    {
+      "region_code": "Northwest",
+      "region_name": "Northwest hydrologic region (SIR 2009-5136; NSS GC1205)",
+      "aep": 0.005,
+      "intercept": 1.2,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.0,
+          "maximum": 5250.0
+        },
+        {
+          "code": "EL7500",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "offset": 1.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 8.0,
+          "maximum": 49.0
+        }
+      ],
+      "coefficients": [
+        0.73,
+        -0.85,
+        1.56
+      ],
+      "citation": {
+        "publication": "Capesius, J.P., and Stephens, V.C., 2009, Regional regression equations for estimation of natural streamflow statistics in Colorado (ver. 1.2, April 2014): U.S. Geological Survey Scientific Investigations Report 2009-5136",
+        "table": "Figure 4 (p. 22)",
+        "year": 2009,
+        "url": "https://doi.org/10.3133/sir20095136"
+      },
+      "sep_log": 0.293239,
+      "model_error_variance": 0.0752138,
+      "n_sites": 90
+    },
+    {
+      "region_code": "Northwest",
+      "region_name": "Northwest hydrologic region (SIR 2009-5136; NSS GC1205)",
+      "aep": 0.002,
+      "intercept": 1.53,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.0,
+          "maximum": 5250.0
+        },
+        {
+          "code": "EL7500",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "offset": 1.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 8.0,
+          "maximum": 49.0
+        }
+      ],
+      "coefficients": [
+        0.72,
+        -0.88,
+        1.44
+      ],
+      "citation": {
+        "publication": "Capesius, J.P., and Stephens, V.C., 2009, Regional regression equations for estimation of natural streamflow statistics in Colorado (ver. 1.2, April 2014): U.S. Geological Survey Scientific Investigations Report 2009-5136",
+        "table": "Figure 4 (p. 22)",
+        "year": 2009,
+        "url": "https://doi.org/10.3133/sir20095136"
+      },
+      "sep_log": 0.302437,
+      "model_error_variance": 0.078775,
+      "n_sites": 90
+    },
+    {
+      "region_code": "RioGrande",
+      "region_name": "Rio Grande hydrologic region (SIR 2009-5136; NSS GC1207)",
+      "aep": 0.5,
+      "intercept": -3.0,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.0,
+          "maximum": 517.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 19.0,
+          "maximum": 45.0
+        }
+      ],
+      "coefficients": [
+        1.0,
+        2.46
+      ],
+      "citation": {
+        "publication": "Capesius, J.P., and Stephens, V.C., 2009, Regional regression equations for estimation of natural streamflow statistics in Colorado (ver. 1.2, April 2014): U.S. Geological Survey Scientific Investigations Report 2009-5136",
+        "table": "Figure 5 (p. 24)",
+        "year": 2009,
+        "url": "https://doi.org/10.3133/sir20095136"
+      },
+      "sep_log": 0.264458,
+      "model_error_variance": 0.0647515,
+      "n_sites": 44
+    },
+    {
+      "region_code": "RioGrande",
+      "region_name": "Rio Grande hydrologic region (SIR 2009-5136; NSS GC1207)",
+      "aep": 0.2,
+      "intercept": -2.04,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.0,
+          "maximum": 517.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 19.0,
+          "maximum": 45.0
+        }
+      ],
+      "coefficients": [
+        0.95,
+        2.02
+      ],
+      "citation": {
+        "publication": "Capesius, J.P., and Stephens, V.C., 2009, Regional regression equations for estimation of natural streamflow statistics in Colorado (ver. 1.2, April 2014): U.S. Geological Survey Scientific Investigations Report 2009-5136",
+        "table": "Figure 5 (p. 24)",
+        "year": 2009,
+        "url": "https://doi.org/10.3133/sir20095136"
+      },
+      "sep_log": 0.230355,
+      "model_error_variance": 0.0498473,
+      "n_sites": 44
+    },
+    {
+      "region_code": "RioGrande",
+      "region_name": "Rio Grande hydrologic region (SIR 2009-5136; NSS GC1207)",
+      "aep": 0.1,
+      "intercept": -1.55,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.0,
+          "maximum": 517.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 19.0,
+          "maximum": 45.0
+        }
+      ],
+      "coefficients": [
+        0.93,
+        1.8
+      ],
+      "citation": {
+        "publication": "Capesius, J.P., and Stephens, V.C., 2009, Regional regression equations for estimation of natural streamflow statistics in Colorado (ver. 1.2, April 2014): U.S. Geological Survey Scientific Investigations Report 2009-5136",
+        "table": "Figure 5 (p. 24)",
+        "year": 2009,
+        "url": "https://doi.org/10.3133/sir20095136"
+      },
+      "sep_log": 0.219687,
+      "model_error_variance": 0.0436053,
+      "n_sites": 44
+    },
+    {
+      "region_code": "RioGrande",
+      "region_name": "Rio Grande hydrologic region (SIR 2009-5136; NSS GC1207)",
+      "aep": 0.04,
+      "intercept": -1.01,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.0,
+          "maximum": 517.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 19.0,
+          "maximum": 45.0
+        }
+      ],
+      "coefficients": [
+        0.91,
+        1.55
+      ],
+      "citation": {
+        "publication": "Capesius, J.P., and Stephens, V.C., 2009, Regional regression equations for estimation of natural streamflow statistics in Colorado (ver. 1.2, April 2014): U.S. Geological Survey Scientific Investigations Report 2009-5136",
+        "table": "Figure 5 (p. 24)",
+        "year": 2009,
+        "url": "https://doi.org/10.3133/sir20095136"
+      },
+      "sep_log": 0.212464,
+      "model_error_variance": 0.0405877,
+      "n_sites": 44
+    },
+    {
+      "region_code": "RioGrande",
+      "region_name": "Rio Grande hydrologic region (SIR 2009-5136; NSS GC1207)",
+      "aep": 0.02,
+      "intercept": -0.66,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.0,
+          "maximum": 517.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 19.0,
+          "maximum": 45.0
+        }
+      ],
+      "coefficients": [
+        0.89,
+        1.39
+      ],
+      "citation": {
+        "publication": "Capesius, J.P., and Stephens, V.C., 2009, Regional regression equations for estimation of natural streamflow statistics in Colorado (ver. 1.2, April 2014): U.S. Geological Survey Scientific Investigations Report 2009-5136",
+        "table": "Figure 5 (p. 24)",
+        "year": 2009,
+        "url": "https://doi.org/10.3133/sir20095136"
+      },
+      "sep_log": 0.208819,
+      "model_error_variance": 0.0391066,
+      "n_sites": 44
+    },
+    {
+      "region_code": "RioGrande",
+      "region_name": "Rio Grande hydrologic region (SIR 2009-5136; NSS GC1207)",
+      "aep": 0.01,
+      "intercept": -0.19,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.0,
+          "maximum": 517.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 19.0,
+          "maximum": 45.0
+        }
+      ],
+      "coefficients": [
+        0.87,
+        1.17
+      ],
+      "citation": {
+        "publication": "Capesius, J.P., and Stephens, V.C., 2009, Regional regression equations for estimation of natural streamflow statistics in Colorado (ver. 1.2, April 2014): U.S. Geological Survey Scientific Investigations Report 2009-5136",
+        "table": "Figure 5 (p. 24)",
+        "year": 2009,
+        "url": "https://doi.org/10.3133/sir20095136"
+      },
+      "sep_log": 0.208819,
+      "model_error_variance": 0.0391066,
+      "n_sites": 44
+    },
+    {
+      "region_code": "RioGrande",
+      "region_name": "Rio Grande hydrologic region (SIR 2009-5136; NSS GC1207)",
+      "aep": 0.005,
+      "intercept": -0.03,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.0,
+          "maximum": 517.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 19.0,
+          "maximum": 45.0
+        }
+      ],
+      "coefficients": [
+        0.86,
+        1.11
+      ],
+      "citation": {
+        "publication": "Capesius, J.P., and Stephens, V.C., 2009, Regional regression equations for estimation of natural streamflow statistics in Colorado (ver. 1.2, April 2014): U.S. Geological Survey Scientific Investigations Report 2009-5136",
+        "table": "Figure 5 (p. 24)",
+        "year": 2009,
+        "url": "https://doi.org/10.3133/sir20095136"
+      },
+      "sep_log": 0.212464,
+      "model_error_variance": 0.0405877,
+      "n_sites": 44
+    },
+    {
+      "region_code": "RioGrande",
+      "region_name": "Rio Grande hydrologic region (SIR 2009-5136; NSS GC1207)",
+      "aep": 0.002,
+      "intercept": 0.52,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.0,
+          "maximum": 517.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 19.0,
+          "maximum": 45.0
+        }
+      ],
+      "coefficients": [
+        0.84,
+        0.85
+      ],
+      "citation": {
+        "publication": "Capesius, J.P., and Stephens, V.C., 2009, Regional regression equations for estimation of natural streamflow statistics in Colorado (ver. 1.2, April 2014): U.S. Geological Survey Scientific Investigations Report 2009-5136",
+        "table": "Figure 5 (p. 24)",
+        "year": 2009,
+        "url": "https://doi.org/10.3133/sir20095136"
+      },
+      "sep_log": 0.219687,
+      "model_error_variance": 0.0405877,
+      "n_sites": 44
+    },
+    {
+      "region_code": "Southwest",
+      "region_name": "Southwest hydrologic region (SIR 2009-5136; NSS GC1208)",
+      "aep": 0.5,
+      "intercept": 1.67,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.0,
+          "maximum": 4390.0
+        },
+        {
+          "code": "EL7500",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "offset": 1.0
+        }
+      ],
+      "coefficients": [
+        0.64,
+        -0.1
+      ],
+      "citation": {
+        "publication": "Capesius, J.P., and Stephens, V.C., 2009, Regional regression equations for estimation of natural streamflow statistics in Colorado (ver. 1.2, April 2014): U.S. Geological Survey Scientific Investigations Report 2009-5136",
+        "table": "Figure 6 (p. 26)",
+        "year": 2009,
+        "url": "https://doi.org/10.3133/sir20095136"
+      },
+      "sep_log": 0.334527,
+      "model_error_variance": 0.106292,
+      "n_sites": 78
+    },
+    {
+      "region_code": "Southwest",
+      "region_name": "Southwest hydrologic region (SIR 2009-5136; NSS GC1208)",
+      "aep": 0.2,
+      "intercept": 2.13,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.0,
+          "maximum": 4390.0
+        },
+        {
+          "code": "EL7500",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "offset": 1.0
+        }
+      ],
+      "coefficients": [
+        0.62,
+        -0.19
+      ],
+      "citation": {
+        "publication": "Capesius, J.P., and Stephens, V.C., 2009, Regional regression equations for estimation of natural streamflow statistics in Colorado (ver. 1.2, April 2014): U.S. Geological Survey Scientific Investigations Report 2009-5136",
+        "table": "Figure 6 (p. 26)",
+        "year": 2009,
+        "url": "https://doi.org/10.3133/sir20095136"
+      },
+      "sep_log": 0.277471,
+      "model_error_variance": 0.0734461,
+      "n_sites": 78
+    },
+    {
+      "region_code": "Southwest",
+      "region_name": "Southwest hydrologic region (SIR 2009-5136; NSS GC1208)",
+      "aep": 0.1,
+      "intercept": 2.36,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.0,
+          "maximum": 4390.0
+        },
+        {
+          "code": "EL7500",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "offset": 1.0
+        }
+      ],
+      "coefficients": [
+        0.61,
+        -0.23
+      ],
+      "citation": {
+        "publication": "Capesius, J.P., and Stephens, V.C., 2009, Regional regression equations for estimation of natural streamflow statistics in Colorado (ver. 1.2, April 2014): U.S. Geological Survey Scientific Investigations Report 2009-5136",
+        "table": "Figure 6 (p. 26)",
+        "year": 2009,
+        "url": "https://doi.org/10.3133/sir20095136"
+      },
+      "sep_log": 0.264458,
+      "model_error_variance": 0.0647515,
+      "n_sites": 78
+    },
+    {
+      "region_code": "Southwest",
+      "region_name": "Southwest hydrologic region (SIR 2009-5136; NSS GC1208)",
+      "aep": 0.04,
+      "intercept": 2.61,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.0,
+          "maximum": 4390.0
+        },
+        {
+          "code": "EL7500",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "offset": 1.0
+        }
+      ],
+      "coefficients": [
+        0.6,
+        -0.27
+      ],
+      "citation": {
+        "publication": "Capesius, J.P., and Stephens, V.C., 2009, Regional regression equations for estimation of natural streamflow statistics in Colorado (ver. 1.2, April 2014): U.S. Geological Survey Scientific Investigations Report 2009-5136",
+        "table": "Figure 6 (p. 26)",
+        "year": 2009,
+        "url": "https://doi.org/10.3133/sir20095136"
+      },
+      "sep_log": 0.261149,
+      "model_error_variance": 0.0630445,
+      "n_sites": 78
+    },
+    {
+      "region_code": "Southwest",
+      "region_name": "Southwest hydrologic region (SIR 2009-5136; NSS GC1208)",
+      "aep": 0.02,
+      "intercept": 2.77,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.0,
+          "maximum": 4390.0
+        },
+        {
+          "code": "EL7500",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "offset": 1.0
+        }
+      ],
+      "coefficients": [
+        0.59,
+        -0.3
+      ],
+      "citation": {
+        "publication": "Capesius, J.P., and Stephens, V.C., 2009, Regional regression equations for estimation of natural streamflow statistics in Colorado (ver. 1.2, April 2014): U.S. Geological Survey Scientific Investigations Report 2009-5136",
+        "table": "Figure 6 (p. 26)",
+        "year": 2009,
+        "url": "https://doi.org/10.3133/sir20095136"
+      },
+      "sep_log": 0.264458,
+      "model_error_variance": 0.0630445,
+      "n_sites": 78
+    },
+    {
+      "region_code": "Southwest",
+      "region_name": "Southwest hydrologic region (SIR 2009-5136; NSS GC1208)",
+      "aep": 0.01,
+      "intercept": 2.91,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.0,
+          "maximum": 4390.0
+        },
+        {
+          "code": "EL7500",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "offset": 1.0
+        }
+      ],
+      "coefficients": [
+        0.59,
+        -0.33
+      ],
+      "citation": {
+        "publication": "Capesius, J.P., and Stephens, V.C., 2009, Regional regression equations for estimation of natural streamflow statistics in Colorado (ver. 1.2, April 2014): U.S. Geological Survey Scientific Investigations Report 2009-5136",
+        "table": "Figure 6 (p. 26)",
+        "year": 2009,
+        "url": "https://doi.org/10.3133/sir20095136"
+      },
+      "sep_log": 0.271009,
+      "model_error_variance": 0.0664698,
+      "n_sites": 78
+    },
+    {
+      "region_code": "Southwest",
+      "region_name": "Southwest hydrologic region (SIR 2009-5136; NSS GC1208)",
+      "aep": 0.005,
+      "intercept": 3.04,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.0,
+          "maximum": 4390.0
+        },
+        {
+          "code": "EL7500",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "offset": 1.0
+        }
+      ],
+      "coefficients": [
+        0.58,
+        -0.36
+      ],
+      "citation": {
+        "publication": "Capesius, J.P., and Stephens, V.C., 2009, Regional regression equations for estimation of natural streamflow statistics in Colorado (ver. 1.2, April 2014): U.S. Geological Survey Scientific Investigations Report 2009-5136",
+        "table": "Figure 6 (p. 26)",
+        "year": 2009,
+        "url": "https://doi.org/10.3133/sir20095136"
+      },
+      "sep_log": 0.277471,
+      "model_error_variance": 0.0699381,
+      "n_sites": 78
+    },
+    {
+      "region_code": "Southwest",
+      "region_name": "Southwest hydrologic region (SIR 2009-5136; NSS GC1208)",
+      "aep": 0.002,
+      "intercept": 3.21,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.0,
+          "maximum": 4390.0
+        },
+        {
+          "code": "EL7500",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "offset": 1.0
+        }
+      ],
+      "coefficients": [
+        0.58,
+        -0.39
+      ],
+      "citation": {
+        "publication": "Capesius, J.P., and Stephens, V.C., 2009, Regional regression equations for estimation of natural streamflow statistics in Colorado (ver. 1.2, April 2014): U.S. Geological Survey Scientific Investigations Report 2009-5136",
+        "table": "Figure 6 (p. 26)",
+        "year": 2009,
+        "url": "https://doi.org/10.3133/sir20095136"
+      },
+      "sep_log": 0.290129,
+      "model_error_variance": 0.0752138,
+      "n_sites": 78
+    },
+    {
+      "region_code": "Foothills",
+      "region_name": "Foothills hydrologic region (SIR 2016-5099; NSS GC1698)",
+      "aep": 0.5,
+      "intercept": 9.952,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.6,
+          "maximum": 2850.0
+        },
+        {
+          "code": "I6H100Y",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 2.38,
+          "maximum": 4.89
+        },
+        {
+          "code": "STATSCLAY",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 9.87,
+          "maximum": 37.5
+        },
+        {
+          "code": "OUTLETELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4290.0,
+          "maximum": 8270.0
+        }
+      ],
+      "coefficients": [
+        0.626,
+        1.401,
+        0.836,
+        -2.774
+      ],
+      "citation": {
+        "publication": "Kohn, M.S., Stevens, M.R., Harden, T.M., Godaire, J.E., Klinger, R.E., and Mommandi, A., 2016, Paleoflood investigations to improve peak-streamflow regional-regression equations for natural streamflow in eastern Colorado, 2015: U.S. Geological Survey Scientific Investigations Report 2016-5099",
+        "table": "Figure 9; Appendix 6",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165099"
+      },
+      "sep_log": 0.403316,
+      "avp": 0.163,
+      "model_error_variance": 0.152,
+      "covariance": [
+        [
+          8.4171981,
+          -0.053064651,
+          -0.88155887,
+          -0.020758793,
+          -2.0692383
+        ],
+        [
+          -0.053064651,
+          0.0038990885,
+          0.013121605,
+          -0.0042888849,
+          0.011815256
+        ],
+        [
+          -0.88155887,
+          0.013121605,
+          0.66472517,
+          -0.082386682,
+          0.16163751
+        ],
+        [
+          -0.020758793,
+          -0.0042888849,
+          -0.082386682,
+          0.11591936,
+          -0.020880357
+        ],
+        [
+          -2.0692383,
+          0.011815256,
+          0.16163751,
+          -0.020880357,
+          0.52621651
+        ]
+      ],
+      "n_sites": 89
+    },
+    {
+      "region_code": "Foothills",
+      "region_name": "Foothills hydrologic region (SIR 2016-5099; NSS GC1698)",
+      "aep": 0.2,
+      "intercept": 11.424,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.6,
+          "maximum": 2850.0
+        },
+        {
+          "code": "I6H100Y",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 2.38,
+          "maximum": 4.89
+        },
+        {
+          "code": "STATSCLAY",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 9.87,
+          "maximum": 37.5
+        },
+        {
+          "code": "OUTLETELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4290.0,
+          "maximum": 8270.0
+        }
+      ],
+      "coefficients": [
+        0.594,
+        2.052,
+        0.935,
+        -3.164
+      ],
+      "citation": {
+        "publication": "Kohn, M.S., Stevens, M.R., Harden, T.M., Godaire, J.E., Klinger, R.E., and Mommandi, A., 2016, Paleoflood investigations to improve peak-streamflow regional-regression equations for natural streamflow in eastern Colorado, 2015: U.S. Geological Survey Scientific Investigations Report 2016-5099",
+        "table": "Figure 9; Appendix 6",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165099"
+      },
+      "sep_log": 0.326025,
+      "avp": 0.106,
+      "model_error_variance": 0.097,
+      "covariance": [
+        [
+          5.9033016,
+          -0.038454644,
+          -0.62282027,
+          -0.027849377,
+          -1.4455998
+        ],
+        [
+          -0.038454644,
+          0.0027218451,
+          0.0090489124,
+          -0.002824264,
+          0.0085724807
+        ],
+        [
+          -0.62282027,
+          0.0090489124,
+          0.46414804,
+          -0.057894162,
+          0.11539879
+        ],
+        [
+          -0.027849377,
+          -0.002824264,
+          -0.057894162,
+          0.085482671,
+          -0.012676553
+        ],
+        [
+          -1.4455998,
+          0.0085724807,
+          0.11539879,
+          -0.012676553,
+          0.36648749
+        ]
+      ],
+      "n_sites": 89
+    },
+    {
+      "region_code": "Foothills",
+      "region_name": "Foothills hydrologic region (SIR 2016-5099; NSS GC1698)",
+      "aep": 0.1,
+      "intercept": 12.107,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.6,
+          "maximum": 2850.0
+        },
+        {
+          "code": "I6H100Y",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 2.38,
+          "maximum": 4.89
+        },
+        {
+          "code": "STATSCLAY",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 9.87,
+          "maximum": 37.5
+        },
+        {
+          "code": "OUTLETELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4290.0,
+          "maximum": 8270.0
+        }
+      ],
+      "coefficients": [
+        0.584,
+        2.372,
+        0.974,
+        -3.341
+      ],
+      "citation": {
+        "publication": "Kohn, M.S., Stevens, M.R., Harden, T.M., Godaire, J.E., Klinger, R.E., and Mommandi, A., 2016, Paleoflood investigations to improve peak-streamflow regional-regression equations for natural streamflow in eastern Colorado, 2015: U.S. Geological Survey Scientific Investigations Report 2016-5099",
+        "table": "Figure 9; Appendix 6",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165099"
+      },
+      "sep_log": 0.305459,
+      "avp": 0.094,
+      "model_error_variance": 0.086,
+      "covariance": [
+        [
+          5.609891,
+          -0.037522887,
+          -0.5872291,
+          -0.037058701,
+          -1.37022
+        ],
+        [
+          -0.037522887,
+          0.0025442016,
+          0.0086746174,
+          -0.0024108216,
+          0.0083259976
+        ],
+        [
+          -0.5872291,
+          0.0086746174,
+          0.43266709,
+          -0.053883773,
+          0.10920543
+        ],
+        [
+          -0.037058701,
+          -0.0024108216,
+          -0.053883773,
+          0.081521177,
+          -0.0096622729
+        ],
+        [
+          -1.37022,
+          0.0083259976,
+          0.10920543,
+          -0.0096622729,
+          0.34648736
+        ]
+      ],
+      "n_sites": 89
+    },
+    {
+      "region_code": "Foothills",
+      "region_name": "Foothills hydrologic region (SIR 2016-5099; NSS GC1698)",
+      "aep": 0.04,
+      "intercept": 12.675,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.6,
+          "maximum": 2850.0
+        },
+        {
+          "code": "I6H100Y",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 2.38,
+          "maximum": 4.89
+        },
+        {
+          "code": "STATSCLAY",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 9.87,
+          "maximum": 37.5
+        },
+        {
+          "code": "OUTLETELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4290.0,
+          "maximum": 8270.0
+        }
+      ],
+      "coefficients": [
+        0.578,
+        2.725,
+        0.998,
+        -3.486
+      ],
+      "citation": {
+        "publication": "Kohn, M.S., Stevens, M.R., Harden, T.M., Godaire, J.E., Klinger, R.E., and Mommandi, A., 2016, Paleoflood investigations to improve peak-streamflow regional-regression equations for natural streamflow in eastern Colorado, 2015: U.S. Geological Survey Scientific Investigations Report 2016-5099",
+        "table": "Figure 9; Appendix 6",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165099"
+      },
+      "sep_log": 0.305459,
+      "avp": 0.093,
+      "model_error_variance": 0.085,
+      "covariance": [
+        [
+          5.9414929,
+          -0.040806467,
+          -0.61235636,
+          -0.049939593,
+          -1.4481228
+        ],
+        [
+          -0.040806467,
+          0.0026258539,
+          0.0093925916,
+          -0.0021268201,
+          0.0089691189
+        ],
+        [
+          -0.61235636,
+          0.0093925916,
+          0.44456064,
+          -0.054475955,
+          0.11381602
+        ],
+        [
+          -0.049939593,
+          -0.0021268201,
+          -0.054475955,
+          0.083665462,
+          -0.0070938146
+        ],
+        [
+          -1.4481228,
+          0.0089691189,
+          0.11381602,
+          -0.0070938146,
+          0.3652233
+        ]
+      ],
+      "n_sites": 89
+    },
+    {
+      "region_code": "Foothills",
+      "region_name": "Foothills hydrologic region (SIR 2016-5099; NSS GC1698)",
+      "aep": 0.02,
+      "intercept": 12.977,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.6,
+          "maximum": 2850.0
+        },
+        {
+          "code": "I6H100Y",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 2.38,
+          "maximum": 4.89
+        },
+        {
+          "code": "STATSCLAY",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 9.87,
+          "maximum": 37.5
+        },
+        {
+          "code": "OUTLETELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4290.0,
+          "maximum": 8270.0
+        }
+      ],
+      "coefficients": [
+        0.575,
+        2.963,
+        1.01,
+        -3.564
+      ],
+      "citation": {
+        "publication": "Kohn, M.S., Stevens, M.R., Harden, T.M., Godaire, J.E., Klinger, R.E., and Mommandi, A., 2016, Paleoflood investigations to improve peak-streamflow regional-regression equations for natural streamflow in eastern Colorado, 2015: U.S. Geological Survey Scientific Investigations Report 2016-5099",
+        "table": "Figure 9; Appendix 6",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165099"
+      },
+      "sep_log": 0.3144,
+      "avp": 0.099,
+      "model_error_variance": 0.091,
+      "covariance": [
+        [
+          6.5678209,
+          -0.045570429,
+          -0.67122152,
+          -0.059918289,
+          -1.5995779
+        ],
+        [
+          -0.045570429,
+          0.0028648796,
+          0.010508584,
+          -0.0021232591,
+          0.0099655228
+        ],
+        [
+          -0.67122152,
+          0.010508584,
+          0.48397823,
+          -0.058492048,
+          0.12452486
+        ],
+        [
+          -0.059918289,
+          -0.0021232591,
+          -0.058492048,
+          0.090315318,
+          -0.0062153131
+        ],
+        [
+          -1.5995779,
+          0.0099655228,
+          0.12452486,
+          -0.0062153131,
+          0.40298081
+        ]
+      ],
+      "n_sites": 89
+    },
+    {
+      "region_code": "Foothills",
+      "region_name": "Foothills hydrologic region (SIR 2016-5099; NSS GC1698)",
+      "aep": 0.01,
+      "intercept": 13.244,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.6,
+          "maximum": 2850.0
+        },
+        {
+          "code": "I6H100Y",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 2.38,
+          "maximum": 4.89
+        },
+        {
+          "code": "STATSCLAY",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 9.87,
+          "maximum": 37.5
+        },
+        {
+          "code": "OUTLETELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4290.0,
+          "maximum": 8270.0
+        }
+      ],
+      "coefficients": [
+        0.572,
+        3.19,
+        1.013,
+        -3.631
+      ],
+      "citation": {
+        "publication": "Kohn, M.S., Stevens, M.R., Harden, T.M., Godaire, J.E., Klinger, R.E., and Mommandi, A., 2016, Paleoflood investigations to improve peak-streamflow regional-regression equations for natural streamflow in eastern Colorado, 2015: U.S. Geological Survey Scientific Investigations Report 2016-5099",
+        "table": "Figure 9; Appendix 6",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165099"
+      },
+      "sep_log": 0.328879,
+      "avp": 0.108,
+      "model_error_variance": 0.099,
+      "covariance": [
+        [
+          7.3152209,
+          -0.051035335,
+          -0.74413241,
+          -0.069581139,
+          -1.7808901
+        ],
+        [
+          -0.051035335,
+          0.0031649994,
+          0.011773405,
+          -0.0021928684,
+          0.011120849
+        ],
+        [
+          -0.74413241,
+          0.011773405,
+          0.53397538,
+          -0.063875134,
+          0.13790521
+        ],
+        [
+          -0.069581139,
+          -0.0021928684,
+          -0.063875134,
+          0.098978463,
+          -0.0058841076
+        ],
+        [
+          -1.7808901,
+          0.011120849,
+          0.13790521,
+          -0.0058841076,
+          0.44838012
+        ]
+      ],
+      "n_sites": 89
+    },
+    {
+      "region_code": "Foothills",
+      "region_name": "Foothills hydrologic region (SIR 2016-5099; NSS GC1698)",
+      "aep": 0.005,
+      "intercept": 13.495,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.6,
+          "maximum": 2850.0
+        },
+        {
+          "code": "I6H100Y",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 2.38,
+          "maximum": 4.89
+        },
+        {
+          "code": "STATSCLAY",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 9.87,
+          "maximum": 37.5
+        },
+        {
+          "code": "OUTLETELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4290.0,
+          "maximum": 8270.0
+        }
+      ],
+      "coefficients": [
+        0.57,
+        3.386,
+        1.024,
+        -3.697
+      ],
+      "citation": {
+        "publication": "Kohn, M.S., Stevens, M.R., Harden, T.M., Godaire, J.E., Klinger, R.E., and Mommandi, A., 2016, Paleoflood investigations to improve peak-streamflow regional-regression equations for natural streamflow in eastern Colorado, 2015: U.S. Geological Survey Scientific Investigations Report 2016-5099",
+        "table": "Figure 9; Appendix 6",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165099"
+      },
+      "sep_log": 0.345581,
+      "avp": 0.119,
+      "model_error_variance": 0.109,
+      "covariance": [
+        [
+          8.1852491,
+          -0.057252957,
+          -0.82973716,
+          -0.079950559,
+          -1.9922333
+        ],
+        [
+          -0.057252957,
+          0.0035245844,
+          0.013233301,
+          -0.002352207,
+          0.01245026
+        ],
+        [
+          -0.82973716,
+          0.013233301,
+          0.59421649,
+          -0.070475734,
+          0.15355519
+        ],
+        [
+          -0.079950559,
+          -0.002352207,
+          -0.070475734,
+          0.10964972,
+          -0.0058436617
+        ],
+        [
+          -1.9922333,
+          0.01245026,
+          0.15355519,
+          -0.0058436617,
+          0.50141699
+        ]
+      ],
+      "n_sites": 89
+    },
+    {
+      "region_code": "Foothills",
+      "region_name": "Foothills hydrologic region (SIR 2016-5099; NSS GC1698)",
+      "aep": 0.002,
+      "intercept": 13.82,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.6,
+          "maximum": 2850.0
+        },
+        {
+          "code": "I6H100Y",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 2.38,
+          "maximum": 4.89
+        },
+        {
+          "code": "STATSCLAY",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 9.87,
+          "maximum": 37.5
+        },
+        {
+          "code": "OUTLETELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4290.0,
+          "maximum": 8270.0
+        }
+      ],
+      "coefficients": [
+        0.566,
+        3.621,
+        1.038,
+        -3.783
+      ],
+      "citation": {
+        "publication": "Kohn, M.S., Stevens, M.R., Harden, T.M., Godaire, J.E., Klinger, R.E., and Mommandi, A., 2016, Paleoflood investigations to improve peak-streamflow regional-regression equations for natural streamflow in eastern Colorado, 2015: U.S. Geological Survey Scientific Investigations Report 2016-5099",
+        "table": "Figure 9; Appendix 6",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165099"
+      },
+      "sep_log": 0.371858,
+      "avp": 0.138,
+      "model_error_variance": 0.126,
+      "covariance": [
+        [
+          9.5215146,
+          -0.066574441,
+          -0.96257949,
+          -0.09425933,
+          -2.31734
+        ],
+        [
+          -0.066574441,
+          0.0040881238,
+          0.015449431,
+          -0.0026662801,
+          0.014452654
+        ],
+        [
+          -0.96257949,
+          0.015449431,
+          0.6890504,
+          -0.081213335,
+          0.17788772
+        ],
+        [
+          -0.09425933,
+          -0.0026662801,
+          -0.081213335,
+          0.12673627,
+          -0.006329108
+        ],
+        [
+          -2.31734,
+          0.014452654,
+          0.17788772,
+          -0.006329108,
+          0.58318002
+        ]
+      ],
+      "n_sites": 89
+    },
+    {
+      "region_code": "Plains",
+      "region_name": "Plains hydrologic region (SIR 2016-5099; NSS GC1206)",
+      "aep": 0.5,
+      "intercept": -1.033,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.26,
+          "maximum": 3560.0
+        },
+        {
+          "code": "BSLDEM10M",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 0.41,
+          "maximum": 21.9
+        },
+        {
+          "code": "STATSCLAY",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 5.2,
+          "maximum": 38.5
+        }
+      ],
+      "coefficients": [
+        0.378,
+        0.683,
+        1.742
+      ],
+      "citation": {
+        "publication": "Kohn, M.S., Stevens, M.R., Harden, T.M., Godaire, J.E., Klinger, R.E., and Mommandi, A., 2016, Paleoflood investigations to improve peak-streamflow regional-regression equations for natural streamflow in eastern Colorado, 2015: U.S. Geological Survey Scientific Investigations Report 2016-5099",
+        "table": "Figure 10; Appendix 6",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165099"
+      },
+      "sep_log": 0.43412,
+      "avp": 0.189,
+      "model_error_variance": 0.179,
+      "covariance": [
+        [
+          0.3647018,
+          -0.011691647,
+          -0.02653893,
+          -0.23980636
+        ],
+        [
+          -0.011691647,
+          0.0023353372,
+          0.00018551521,
+          0.0048697966
+        ],
+        [
+          -0.02653893,
+          0.00018551521,
+          0.017357309,
+          0.011718221
+        ],
+        [
+          -0.23980636,
+          0.0048697966,
+          0.011718221,
+          0.16680992
+        ]
+      ],
+      "n_sites": 99
+    },
+    {
+      "region_code": "Plains",
+      "region_name": "Plains hydrologic region (SIR 2016-5099; NSS GC1206)",
+      "aep": 0.2,
+      "intercept": -0.934,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.26,
+          "maximum": 3560.0
+        },
+        {
+          "code": "BSLDEM10M",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 0.41,
+          "maximum": 21.9
+        },
+        {
+          "code": "STATSCLAY",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 5.2,
+          "maximum": 38.5
+        }
+      ],
+      "coefficients": [
+        0.385,
+        0.652,
+        2.046
+      ],
+      "citation": {
+        "publication": "Kohn, M.S., Stevens, M.R., Harden, T.M., Godaire, J.E., Klinger, R.E., and Mommandi, A., 2016, Paleoflood investigations to improve peak-streamflow regional-regression equations for natural streamflow in eastern Colorado, 2015: U.S. Geological Survey Scientific Investigations Report 2016-5099",
+        "table": "Figure 10; Appendix 6",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165099"
+      },
+      "sep_log": 0.366753,
+      "avp": 0.135,
+      "model_error_variance": 0.126,
+      "covariance": [
+        [
+          0.27033227,
+          -0.0086368233,
+          -0.020531237,
+          -0.17709564
+        ],
+        [
+          -0.0086368233,
+          0.0017777155,
+          0.00010884163,
+          0.0034713156
+        ],
+        [
+          -0.020531237,
+          0.00010884163,
+          0.014212638,
+          0.0088189078
+        ],
+        [
+          -0.17709564,
+          0.0034713156,
+          0.0088189078,
+          0.12343671
+        ]
+      ],
+      "n_sites": 99
+    },
+    {
+      "region_code": "Plains",
+      "region_name": "Plains hydrologic region (SIR 2016-5099; NSS GC1206)",
+      "aep": 0.1,
+      "intercept": -0.877,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.26,
+          "maximum": 3560.0
+        },
+        {
+          "code": "BSLDEM10M",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 0.41,
+          "maximum": 21.9
+        },
+        {
+          "code": "STATSCLAY",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 5.2,
+          "maximum": 38.5
+        }
+      ],
+      "coefficients": [
+        0.39,
+        0.64,
+        2.19
+      ],
+      "citation": {
+        "publication": "Kohn, M.S., Stevens, M.R., Harden, T.M., Godaire, J.E., Klinger, R.E., and Mommandi, A., 2016, Paleoflood investigations to improve peak-streamflow regional-regression equations for natural streamflow in eastern Colorado, 2015: U.S. Geological Survey Scientific Investigations Report 2016-5099",
+        "table": "Figure 10; Appendix 6",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165099"
+      },
+      "sep_log": 0.369314,
+      "avp": 0.136,
+      "model_error_variance": 0.127,
+      "covariance": [
+        [
+          0.2800353,
+          -0.0089194229,
+          -0.021683035,
+          -0.18327544
+        ],
+        [
+          -0.0089194229,
+          0.0018579332,
+          7.9705313e-05,
+          0.0035475499
+        ],
+        [
+          -0.021683035,
+          7.9705313e-05,
+          0.015275367,
+          0.0094109449
+        ],
+        [
+          -0.18327544,
+          0.0035475499,
+          0.0094109449,
+          0.12760268
+        ]
+      ],
+      "n_sites": 99
+    },
+    {
+      "region_code": "Plains",
+      "region_name": "Plains hydrologic region (SIR 2016-5099; NSS GC1206)",
+      "aep": 0.04,
+      "intercept": -0.797,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.26,
+          "maximum": 3560.0
+        },
+        {
+          "code": "BSLDEM10M",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 0.41,
+          "maximum": 21.9
+        },
+        {
+          "code": "STATSCLAY",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 5.2,
+          "maximum": 38.5
+        }
+      ],
+      "coefficients": [
+        0.396,
+        0.621,
+        2.329
+      ],
+      "citation": {
+        "publication": "Kohn, M.S., Stevens, M.R., Harden, T.M., Godaire, J.E., Klinger, R.E., and Mommandi, A., 2016, Paleoflood investigations to improve peak-streamflow regional-regression equations for natural streamflow in eastern Colorado, 2015: U.S. Geological Survey Scientific Investigations Report 2016-5099",
+        "table": "Figure 10; Appendix 6",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165099"
+      },
+      "sep_log": 0.393945,
+      "avp": 0.155,
+      "model_error_variance": 0.145,
+      "covariance": [
+        [
+          0.32598461,
+          -0.010342276,
+          -0.025396775,
+          -0.21342549
+        ],
+        [
+          -0.010342276,
+          0.0021613332,
+          5.2026469e-05,
+          0.0041268545
+        ],
+        [
+          -0.025396775,
+          5.2026469e-05,
+          0.017954195,
+          0.011309268
+        ],
+        [
+          -0.21342549,
+          0.0041268545,
+          0.011309268,
+          0.14821391
+        ]
+      ],
+      "n_sites": 99
+    },
+    {
+      "region_code": "Plains",
+      "region_name": "Plains hydrologic region (SIR 2016-5099; NSS GC1206)",
+      "aep": 0.02,
+      "intercept": -0.728,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.26,
+          "maximum": 3560.0
+        },
+        {
+          "code": "BSLDEM10M",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 0.41,
+          "maximum": 21.9
+        },
+        {
+          "code": "STATSCLAY",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 5.2,
+          "maximum": 38.5
+        }
+      ],
+      "coefficients": [
+        0.399,
+        0.606,
+        2.408
+      ],
+      "citation": {
+        "publication": "Kohn, M.S., Stevens, M.R., Harden, T.M., Godaire, J.E., Klinger, R.E., and Mommandi, A., 2016, Paleoflood investigations to improve peak-streamflow regional-regression equations for natural streamflow in eastern Colorado, 2015: U.S. Geological Survey Scientific Investigations Report 2016-5099",
+        "table": "Figure 10; Appendix 6",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165099"
+      },
+      "sep_log": 0.416886,
+      "avp": 0.175,
+      "model_error_variance": 0.163,
+      "covariance": [
+        [
+          0.37233793,
+          -0.011762279,
+          -0.029047956,
+          -0.24389654
+        ],
+        [
+          -0.011762279,
+          0.0024598568,
+          3.5248326e-05,
+          0.0047115583
+        ],
+        [
+          -0.029047956,
+          3.5248326e-05,
+          0.020504752,
+          0.013110756
+        ],
+        [
+          -0.24389654,
+          0.0047115583,
+          0.013110756,
+          0.16915927
+        ]
+      ],
+      "n_sites": 99
+    },
+    {
+      "region_code": "Plains",
+      "region_name": "Plains hydrologic region (SIR 2016-5099; NSS GC1206)",
+      "aep": 0.01,
+      "intercept": -0.654,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.26,
+          "maximum": 3560.0
+        },
+        {
+          "code": "BSLDEM10M",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 0.41,
+          "maximum": 21.9
+        },
+        {
+          "code": "STATSCLAY",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 5.2,
+          "maximum": 38.5
+        }
+      ],
+      "coefficients": [
+        0.403,
+        0.593,
+        2.47
+      ],
+      "citation": {
+        "publication": "Kohn, M.S., Stevens, M.R., Harden, T.M., Godaire, J.E., Klinger, R.E., and Mommandi, A., 2016, Paleoflood investigations to improve peak-streamflow regional-regression equations for natural streamflow in eastern Colorado, 2015: U.S. Geological Survey Scientific Investigations Report 2016-5099",
+        "table": "Figure 10; Appendix 6",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165099"
+      },
+      "sep_log": 0.444421,
+      "avp": 0.198,
+      "model_error_variance": 0.185,
+      "covariance": [
+        [
+          0.42560284,
+          -0.013376158,
+          -0.033241318,
+          -0.27891169
+        ],
+        [
+          -0.013376158,
+          0.0028001368,
+          1.7393955e-05,
+          0.0053736396
+        ],
+        [
+          -0.033241318,
+          1.7393955e-05,
+          0.023420083,
+          0.015137594
+        ],
+        [
+          -0.27891169,
+          0.0053736396,
+          0.015137594,
+          0.19329415
+        ]
+      ],
+      "n_sites": 99
+    },
+    {
+      "region_code": "Plains",
+      "region_name": "Plains hydrologic region (SIR 2016-5099; NSS GC1206)",
+      "aep": 0.005,
+      "intercept": -0.577,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.26,
+          "maximum": 3560.0
+        },
+        {
+          "code": "BSLDEM10M",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 0.41,
+          "maximum": 21.9
+        },
+        {
+          "code": "STATSCLAY",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 5.2,
+          "maximum": 38.5
+        }
+      ],
+      "coefficients": [
+        0.407,
+        0.581,
+        2.518
+      ],
+      "citation": {
+        "publication": "Kohn, M.S., Stevens, M.R., Harden, T.M., Godaire, J.E., Klinger, R.E., and Mommandi, A., 2016, Paleoflood investigations to improve peak-streamflow regional-regression equations for natural streamflow in eastern Colorado, 2015: U.S. Geological Survey Scientific Investigations Report 2016-5099",
+        "table": "Figure 10; Appendix 6",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165099"
+      },
+      "sep_log": 0.471496,
+      "avp": 0.222,
+      "model_error_variance": 0.208,
+      "covariance": [
+        [
+          0.48141108,
+          -0.015038811,
+          -0.037661002,
+          -0.31559588
+        ],
+        [
+          -0.015038811,
+          0.0031536788,
+          -1.7096981e-06,
+          0.0060488986
+        ],
+        [
+          -0.037661002,
+          -1.7096981e-06,
+          0.026491752,
+          0.017251652
+        ],
+        [
+          -0.31559588,
+          0.0060488986,
+          0.017251652,
+          0.21861872
+        ]
+      ],
+      "n_sites": 99
+    },
+    {
+      "region_code": "Plains",
+      "region_name": "Plains hydrologic region (SIR 2016-5099; NSS GC1206)",
+      "aep": 0.002,
+      "intercept": -0.473,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.26,
+          "maximum": 3560.0
+        },
+        {
+          "code": "BSLDEM10M",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 0.41,
+          "maximum": 21.9
+        },
+        {
+          "code": "STATSCLAY",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 5.2,
+          "maximum": 38.5
+        }
+      ],
+      "coefficients": [
+        0.412,
+        0.567,
+        2.567
+      ],
+      "citation": {
+        "publication": "Kohn, M.S., Stevens, M.R., Harden, T.M., Godaire, J.E., Klinger, R.E., and Mommandi, A., 2016, Paleoflood investigations to improve peak-streamflow regional-regression equations for natural streamflow in eastern Colorado, 2015: U.S. Geological Survey Scientific Investigations Report 2016-5099",
+        "table": "Figure 10; Appendix 6",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165099"
+      },
+      "sep_log": 0.506174,
+      "avp": 0.256,
+      "model_error_variance": 0.24,
+      "covariance": [
+        [
+          0.55980312,
+          -0.01736525,
+          -0.043881906,
+          -0.36713896
+        ],
+        [
+          -0.01736525,
+          0.0036496446,
+          -2.9889299e-05,
+          0.0069925416
+        ],
+        [
+          -0.043881906,
+          -2.9889299e-05,
+          0.0308068,
+          0.020208577
+        ],
+        [
+          -0.36713896,
+          0.0069925416,
+          0.020208577,
+          0.25424324
+        ]
+      ],
+      "n_sites": 99
+    },
+    {
+      "region_code": "Navajo8",
+      "region_name": "Navajo Nation Region 8 (SIR 2006-5306; NSS GC1209)",
+      "aep": 0.5,
+      "intercept": 7.033423755486949,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.06,
+          "maximum": 4350
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4320,
+          "maximum": 7750
+        }
+      ],
+      "coefficients": [
+        0.457,
+        -1.35
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.397,
+      "model_error_variance": 0.148996,
+      "n_sites": 62
+    },
+    {
+      "region_code": "Navajo8",
+      "region_name": "Navajo Nation Region 8 (SIR 2006-5306; NSS GC1209)",
+      "aep": 0.2,
+      "intercept": 10.232996110392154,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.06,
+          "maximum": 4350
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0231,
+          "maximum": 0.4447
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4320,
+          "maximum": 7750
+        }
+      ],
+      "coefficients": [
+        0.372,
+        0.36,
+        -1.98
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.294,
+      "model_error_variance": 0.079524,
+      "n_sites": 62
+    },
+    {
+      "region_code": "Navajo8",
+      "region_name": "Navajo Nation Region 8 (SIR 2006-5306; NSS GC1209)",
+      "aep": 0.1,
+      "intercept": 10.943988875073773,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.06,
+          "maximum": 4350
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0231,
+          "maximum": 0.4447
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4320,
+          "maximum": 7750
+        }
+      ],
+      "coefficients": [
+        0.343,
+        0.395,
+        -2.1
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.25,
+      "model_error_variance": 0.056644,
+      "n_sites": 62
+    },
+    {
+      "region_code": "Navajo8",
+      "region_name": "Navajo Nation Region 8 (SIR 2006-5306; NSS GC1209)",
+      "aep": 0.04,
+      "intercept": 11.592176757395867,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.06,
+          "maximum": 4350
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0231,
+          "maximum": 0.4447
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4320,
+          "maximum": 7750
+        }
+      ],
+      "coefficients": [
+        0.31,
+        0.432,
+        -2.19
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.22,
+      "model_error_variance": 0.042436,
+      "n_sites": 62
+    },
+    {
+      "region_code": "Navajo8",
+      "region_name": "Navajo Nation Region 8 (SIR 2006-5306; NSS GC1209)",
+      "aep": 0.02,
+      "intercept": 11.927883410330708,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.06,
+          "maximum": 4350
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0231,
+          "maximum": 0.4447
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4320,
+          "maximum": 7750
+        }
+      ],
+      "coefficients": [
+        0.287,
+        0.46,
+        -2.23
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.214,
+      "model_error_variance": 0.039601,
+      "n_sites": 62
+    },
+    {
+      "region_code": "Navajo8",
+      "region_name": "Navajo Nation Region 8 (SIR 2006-5306; NSS GC1209)",
+      "aep": 0.01,
+      "intercept": 12.1846914308176,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.06,
+          "maximum": 4350
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0231,
+          "maximum": 0.4447
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4320,
+          "maximum": 7750
+        }
+      ],
+      "coefficients": [
+        0.265,
+        0.477,
+        -2.25
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.219,
+      "model_error_variance": 0.041209,
+      "n_sites": 62
+    },
+    {
+      "region_code": "Navajo8",
+      "region_name": "Navajo Nation Region 8 (SIR 2006-5306; NSS GC1209)",
+      "aep": 0.002,
+      "intercept": 12.627365856592732,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.06,
+          "maximum": 4350
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0231,
+          "maximum": 0.4447
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4320,
+          "maximum": 7750
+        }
+      ],
+      "coefficients": [
+        0.224,
+        0.513,
+        -2.28
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.256,
+      "model_error_variance": 0.056169,
+      "n_sites": 62
+    },
+    {
+      "region_code": "NavajoHighElev",
+      "region_name": "Navajo Nation Region High Elevation (mean basin elevation > 7,500 ft) (SIR 2006-5306; NSS GC1210)",
+      "aep": 0.5,
+      "intercept": 1.0374264979406236,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.7,
+          "maximum": 1200
+        }
+      ],
+      "coefficients": [
+        0.767
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.208,
+      "model_error_variance": 0.039601,
+      "n_sites": 27
+    },
+    {
+      "region_code": "NavajoHighElev",
+      "region_name": "Navajo Nation Region High Elevation (mean basin elevation > 7,500 ft) (SIR 2006-5306; NSS GC1210)",
+      "aep": 0.2,
+      "intercept": 1.4487063199050798,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.7,
+          "maximum": 1200
+        }
+      ],
+      "coefficients": [
+        0.711
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.168,
+      "model_error_variance": 0.024964,
+      "n_sites": 27
+    },
+    {
+      "region_code": "NavajoHighElev",
+      "region_name": "Navajo Nation Region High Elevation (mean basin elevation > 7,500 ft) (SIR 2006-5306; NSS GC1210)",
+      "aep": 0.1,
+      "intercept": 1.670245853074124,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.7,
+          "maximum": 1200
+        }
+      ],
+      "coefficients": [
+        0.68
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.16,
+      "model_error_variance": 0.022201,
+      "n_sites": 27
+    },
+    {
+      "region_code": "NavajoHighElev",
+      "region_name": "Navajo Nation Region High Elevation (mean basin elevation > 7,500 ft) (SIR 2006-5306; NSS GC1210)",
+      "aep": 0.04,
+      "intercept": 1.9074113607745862,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.7,
+          "maximum": 1200
+        }
+      ],
+      "coefficients": [
+        0.646
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.164,
+      "model_error_variance": 0.023104,
+      "n_sites": 27
+    },
+    {
+      "region_code": "NavajoHighElev",
+      "region_name": "Navajo Nation Region High Elevation (mean basin elevation > 7,500 ft) (SIR 2006-5306; NSS GC1210)",
+      "aep": 0.02,
+      "intercept": 2.060697840353612,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.7,
+          "maximum": 1200
+        }
+      ],
+      "coefficients": [
+        0.623
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.173,
+      "model_error_variance": 0.0256,
+      "n_sites": 27
+    },
+    {
+      "region_code": "NavajoHighElev",
+      "region_name": "Navajo Nation Region High Elevation (mean basin elevation > 7,500 ft) (SIR 2006-5306; NSS GC1210)",
+      "aep": 0.01,
+      "intercept": 2.2013971243204513,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.7,
+          "maximum": 1200
+        }
+      ],
+      "coefficients": [
+        0.602
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.186,
+      "model_error_variance": 0.029584,
+      "n_sites": 27
+    },
+    {
+      "region_code": "NavajoHighElev",
+      "region_name": "Navajo Nation Region High Elevation (mean basin elevation > 7,500 ft) (SIR 2006-5306; NSS GC1210)",
+      "aep": 0.002,
+      "intercept": 2.4885507165004443,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.7,
+          "maximum": 1200
+        }
+      ],
+      "coefficients": [
+        0.557
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.222,
+      "model_error_variance": 0.042025,
+      "n_sites": 27
+    }
+  ]
+}
