@@ -336,20 +336,19 @@ elsewhere in this file, that entry keeps the history; this list is the open trac
 Unreleased CHANGELOG entry). Three things it left open, all recorded rather
 than fixed:
 
-- [ ] **`diel_variation`'s `expected_obs` is a fixed 1440 minutes / median step,
-      so it mismarks the two daylight-saving transition days of every year** --
-      the spring day (23 local hours) reads as incomplete at any
-      `min_completeness_frac` above ~0.96, and the autumn day (25 hours) reads
-      as more than complete. `daily_extreme_timing` and `ramping_rates` use each
-      day's actual local length and do not have this. Left alone deliberately:
-      changing it moves numbers `diel_variation` has already reported. Fix it
-      together with the next release that is allowed to move those, not as a
-      drive-by.
-- [ ] **Paired stage-and-discharge retrieval.** `download_instantaneous_flow`
+- [x] **`diel_variation`'s `expected_obs` is a fixed 1440 minutes / median step,
+      so it mismarks the two daylight-saving transition days of every year.**
+      **Done for v0.10.0:** it now uses each local day's actual length, like
+      `daily_extreme_timing` and `ramping_rates`. Only `expected_obs`/`complete`
+      on the two transition days moved; CHANGELOG Fixed says exactly which.
+- [x] **Paired stage-and-discharge retrieval.** `download_instantaneous_flow`
       and `download_instantaneous_stage` are separate calls returning separate
       frames. Anyone comparing a cfs/hr limit against a ft/hr one joins them on
       the index by hand. A single call retrieving both parameters onto one index
       is the natural next step and is not built.
+      **Done:** `USGSgage.download_instantaneous_flow_and_stage` and
+      `join_flow_and_stage`: an outer join on UTC with NaN, never interpolation,
+      per-parameter qualification codes, and mismatched local time refused.
 - [x] **No validation against a published ramping-rate or peak-timing figure for
       a real gage.** **Done (2026-09-30), for daily extremes:** Exelon (2012), *Final Study Report: Downstream Flow Ramping and Stranding Study, RSP 3.8*, Conowingo Hydroelectric Project, FERC No. 405,
       SS4.1.1/4.3.1, states discharge figures read from USGS 01578310

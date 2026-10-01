@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 from functools import cached_property
 from io import StringIO
 from pathlib import Path
-from typing import ClassVar, Dict, List, Optional, Tuple
+from typing import Any, ClassVar, Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -714,8 +714,8 @@ class USGSgage:
 
         **Gage height** for the same site and window comes from
         :meth:`download_instantaneous_stage`, which is this method with
-        parameter 00065; the two are separate calls returning separate frames,
-        joinable on the index.
+        parameter 00065. :meth:`download_instantaneous_flow_and_stage`
+        retrieves both onto one index.
 
         **Storage.** For a series of this size Parquet is the format worth
         reaching for — it round-trips the tz-aware index and float dtypes
@@ -848,6 +848,101 @@ class USGSgage:
         )
         self._stage_data = combined
         return combined
+
+    def download_instantaneous_flow_and_stage(  # pylint: disable=too-many-arguments
+        self,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+        *,
+        tz: Optional[str] = None,
+        chunk_years: int = 1,
+        ts_id_flow: Optional[str] = None,
+        ts_id_stage: Optional[str] = None,
+        timeout: int = 60,
+        backend: str = DEFAULT_BACKEND,
+    ) -> pd.DataFrame:
+        """Download instantaneous discharge and gage height onto one index.
+
+        Calls :meth:`download_instantaneous_flow` and
+        :meth:`download_instantaneous_stage` for the same window and backend,
+        then joins them with :func:`join_flow_and_stage`. For anyone comparing
+        a cfs/hr ramping limit against a ft/hr one, or looking at the two
+        series side by side, this replaces the join done by hand.
+
+        Parameters
+        ----------
+        start_date, end_date : str, optional
+            ``YYYY-MM-DD`` window bounds, inclusive, applied to both
+            parameters. If omitted, each parameter defaults to its own period
+            of record, as in the single-parameter methods.
+        tz : str, optional
+            IANA time zone for the returned index; default ``None`` leaves it
+            in UTC. The join itself is always on UTC.
+        chunk_years : int
+            Years per HTTP request, for each parameter. Default 1.
+        ts_id_flow, ts_id_stage : str, optional
+            Time-series identifiers for the 00060 and 00065 series, in the form
+            ``backend`` expects (see :meth:`download_instantaneous_flow`). Kept
+            separate because a site's discharge and stage series have different
+            identifiers, and a site with one discharge series may still carry
+            several stage sensors.
+        timeout : int
+            Per-request timeout in seconds. Default 60.
+        backend : str, default :data:`flowfreq.peak_sources.DEFAULT_BACKEND`
+            ``"waterdata-ogc"`` (default) or ``"nwis-legacy"``, used for both
+            parameters. Mixing backends in one frame is not offered.
+
+        Returns
+        -------
+        pd.DataFrame
+            See :func:`join_flow_and_stage`: columns ``flow_cfs``,
+            ``gage_height_ft``, ``datetime_local``, ``tz_cd``,
+            ``qualification_code_flow``, ``qualification_code_stage``, on the
+            union of the two series' timestamps. A reading present in only one
+            series leaves the other's value and qualification code NaN; nothing
+            is interpolated.
+
+        Raises
+        ------
+        NoInstantaneousDataError
+            Either parameter has no record in the window. The paired call does
+            not fall back to one parameter; use the single-parameter methods if
+            a site may have no stage record, which is common.
+        ValueError
+            As the single-parameter methods, or the two series disagree on
+            ``datetime_local``/``tz_cd`` at a shared timestamp (see
+            :func:`join_flow_and_stage`).
+        requests.RequestException
+            A chunk request failed; nothing partial is returned.
+
+        Notes
+        -----
+        Both single-parameter downloads are cached as usual, so
+        :attr:`instantaneous_data` and :attr:`instantaneous_stage` hold the
+        unjoined frames afterwards.
+
+        Examples
+        --------
+        >>> gage = USGSgage("12449950")
+        >>> both = gage.download_instantaneous_flow_and_stage(
+        ...     "2022-06-01", "2022-06-07"
+        ... )  # doctest: +SKIP
+        >>> both[["flow_cfs", "gage_height_ft"]].dropna()  # doctest: +SKIP
+        """
+        # Both ts_ids are checked before the first request, so a bad stage
+        # ts_id does not cost a full discharge download first.
+        if backend in IV_BACKENDS:
+            check_ts_id_form(ts_id_flow, backend, "00060")
+            check_ts_id_form(ts_id_stage, backend, "00065")
+        common: Dict[str, Any] = {
+            "tz": tz,
+            "chunk_years": chunk_years,
+            "timeout": timeout,
+            "backend": backend,
+        }
+        flow = self.download_instantaneous_flow(start_date, end_date, ts_id=ts_id_flow, **common)
+        stage = self.download_instantaneous_stage(start_date, end_date, ts_id=ts_id_stage, **common)
+        return join_flow_and_stage(flow, stage)
 
     def _download_instantaneous_backend(  # pylint: disable=too-many-arguments
         self,
@@ -1223,6 +1318,142 @@ def _empty_iv_frame(value_col: str = "flow_cfs") -> pd.DataFrame:
         },
         index=pd.DatetimeIndex([], tz="UTC", name="datetime"),
     )
+
+
+#: Columns of :func:`join_flow_and_stage`'s result, in order.
+PAIRED_IV_COLUMNS: Tuple[str, ...] = (
+    "flow_cfs",
+    "gage_height_ft",
+    "datetime_local",
+    "tz_cd",
+    "qualification_code_flow",
+    "qualification_code_stage",
+)
+
+
+def join_flow_and_stage(flow: pd.DataFrame, stage: pd.DataFrame) -> pd.DataFrame:
+    """Join an instantaneous discharge frame and a gage-height frame on UTC.
+
+    Takes frames shaped like the output of
+    :meth:`USGSgage.download_instantaneous_flow` and
+    :meth:`USGSgage.download_instantaneous_stage` and puts them on one index.
+    :meth:`USGSgage.download_instantaneous_flow_and_stage` downloads and calls
+    this; it is public so frames already on hand (loaded with
+    :func:`flowfreq.flowio.load_flow_frame`, say) can be paired without
+    another download.
+
+    Parameters
+    ----------
+    flow : pd.DataFrame
+        tz-aware index, columns ``flow_cfs``, ``datetime_local``, ``tz_cd``,
+        ``qualification_code``.
+    stage : pd.DataFrame
+        tz-aware index, columns ``gage_height_ft``, ``datetime_local``,
+        ``tz_cd``, ``qualification_code``.
+
+    Returns
+    -------
+    pd.DataFrame
+        Indexed by the union of the two frames' instants, sorted, in
+        ``flow``'s time zone. Columns are :data:`PAIRED_IV_COLUMNS`:
+        ``flow_cfs``, ``gage_height_ft``, ``datetime_local``, ``tz_cd``,
+        ``qualification_code_flow``, ``qualification_code_stage``.
+
+    Raises
+    ------
+    TypeError
+        Either index is not tz-aware, so the two cannot be placed on one
+        instant axis.
+    KeyError
+        A required column is missing.
+    ValueError
+        Either index has duplicate timestamps, or the two frames disagree on
+        ``datetime_local`` or ``tz_cd`` at a timestamp they share.
+
+    Notes
+    -----
+    **Alignment is an outer join on the UTC instant, and nothing is
+    interpolated.** Discharge and stage usually report at the same 15-minute
+    marks, but not always: one sensor can have a gap, an ice or
+    equipment-affected reading the other lacks, a different logging
+    interval, or a record that starts later. Every instant either series
+    reported is kept. Where only one reported, the other's value and
+    qualification code are NaN. A stage reading at 12:07 and a discharge at
+    12:00 are two rows, never one; pairing them would need an interpolation
+    or nearest-match rule this function does not choose for you. Use
+    ``.dropna(subset=["flow_cfs", "gage_height_ft"])`` for only the instants
+    both reported.
+
+    **Qualification codes stay separate.** A discharge value can be estimated
+    (``e``) or ice-affected while the stage at the same instant is not, and
+    the reverse, so each parameter keeps its own code.
+
+    **Local time must agree.** ``datetime_local`` and ``tz_cd`` describe the
+    instant, not the parameter, so at a shared timestamp the two frames must
+    carry the same pair. If they do not, one of them is wrong (a frame from
+    another site, or a hand-edited one), and this raises rather than picking
+    one. At an instant only one frame has, that frame's pair is used.
+    """
+    required = {
+        "flow": (flow, "flow_cfs"),
+        "stage": (stage, "gage_height_ft"),
+    }
+    utc: Dict[str, pd.DataFrame] = {}
+    for name, (frame, value_col) in required.items():
+        index = pd.DatetimeIndex(frame.index)
+        if index.tz is None:
+            raise TypeError(
+                f"The {name} frame has a naive index; both frames need a tz-aware index "
+                f"to be joined on UTC."
+            )
+        missing = [
+            c
+            for c in (value_col, "datetime_local", "tz_cd", "qualification_code")
+            if c not in frame.columns
+        ]
+        if missing:
+            raise KeyError(f"The {name} frame is missing column(s) {missing}.")
+        if not index.is_unique:
+            raise ValueError(
+                f"The {name} frame has duplicate timestamps; the download methods drop "
+                f"them, so this frame did not come straight from one."
+            )
+        utc[name] = frame.set_axis(index.tz_convert("UTC"))
+
+    f, s = utc["flow"], utc["stage"]
+    shared = f.index.intersection(s.index)
+    for col in ("datetime_local", "tz_cd"):
+        a, b = f.loc[shared, col], s.loc[shared, col]
+        differ = ~((a == b) | (a.isna() & b.isna()))
+        if differ.any():
+            first = differ[differ].index[0]
+            raise ValueError(
+                f"Discharge and stage disagree on {col} at {int(differ.sum())} shared "
+                f"timestamp(s), first at {first} UTC (discharge {a[first]!r}, stage "
+                f"{b[first]!r}). They describe the same instant, so one frame is wrong; "
+                f"refusing to pick one."
+            )
+
+    joined = pd.concat(
+        [
+            f[["flow_cfs"]],
+            s[["gage_height_ft"]],
+            f[["qualification_code"]].rename(
+                columns={"qualification_code": "qualification_code_flow"}
+            ),
+            s[["qualification_code"]].rename(
+                columns={"qualification_code": "qualification_code_stage"}
+            ),
+        ],
+        axis=1,
+        join="outer",
+    ).sort_index()
+    for col in ("datetime_local", "tz_cd"):
+        joined[col] = f[col].combine_first(s[col]).reindex(joined.index)
+
+    joined.index = joined.index.tz_convert(pd.DatetimeIndex(flow.index).tz)
+    joined.index.name = "datetime"
+    return joined[list(PAIRED_IV_COLUMNS)]
 
 
 def _is_no_data_response(text: str) -> bool:
