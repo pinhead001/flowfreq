@@ -42,6 +42,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     it upstream needs basin polygons) and the NLCD impervious time series.
 
 ### Added
+- **Arizona peak-flow regression equations** (`flowfreq/data/regression/AZ.json`, Wave 2,
+  #102), `status: "partial"`: 53 equations. SIR 2014-5211 flood regions 1-4 at 8 AEPs with
+  Table 12 model error variance and covariance, and SIR 2006-5306 Navajo Nation regions 8,
+  11 and High Elevation. Partial because region 5's `10^(a - b DRNAREA^-c)` form has no
+  schema representation. The p. 34 worked example (Q1 149,714 ft3/s, 90% interval
+  98,000-229,000) reproduces; every stored equation equals live NSS at 3 significant
+  figures. NSS snapshot `data/nss_snapshots/AZ_2026-10-01.json`.
 - **National future-flow source review** (`flowfreq.future_flow`, roadmap §6.3.1, #36).
   FHWA HEC-17 (2nd ed., 2016) and NCHRP Project 15-61 (2019) were read against the primary
   PDFs. Neither tabulates national per-AEP flood change factors; both give methods for

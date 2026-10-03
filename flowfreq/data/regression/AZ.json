@@ -1,0 +1,2404 @@
+{
+  "schema_version": 1,
+  "state": "AZ",
+  "status": "partial",
+  "issue": 102,
+  "source_reports": [
+    {
+      "citation": "Paretti, N.V., Kennedy, J.R., Turney, L.A., and Veilleux, A.G., 2014, Methods for estimating magnitude and frequency of floods in Arizona, developed with unregulated and rural peak-flow data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2014-5211",
+      "version": "1.0 (no revisions listed on the pubs page)",
+      "doi": "10.3133/sir20145211",
+      "url": "https://pubs.usgs.gov/publication/sir20145211",
+      "pdf": "https://pubs.usgs.gov/sir/2014/5211/downloads/sir2014-5211.pdf",
+      "covariance_download": "https://pubs.usgs.gov/sir/2014/5211/downloads/SIR2014-5211_tables.xlsx",
+      "tables": [
+        "Table 9",
+        "Table 10",
+        "Table 11",
+        "Table 12"
+      ],
+      "nss": {
+        "state_region_id": 5,
+        "citation_id": 12,
+        "regression_region_ids": [
+          27,
+          28,
+          29,
+          30,
+          31
+        ]
+      }
+    },
+    {
+      "citation": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+      "version": "1.0 (no revisions listed on the pubs page)",
+      "doi": "10.3133/sir20065306",
+      "url": "https://pubs.usgs.gov/publication/sir20065306",
+      "pdf": "https://pubs.usgs.gov/sir/2006/5306/pdf/sir2006-5306_508.pdf",
+      "tables": [
+        "Table 1",
+        "Table 2"
+      ],
+      "nss": {
+        "state_region_id": 5,
+        "citation_id": 11,
+        "regression_region_ids": [
+          24,
+          25,
+          26
+        ]
+      }
+    }
+  ],
+  "notes": "Two reports, as NSS combines them for Arizona's peak-flow group (NSS region 5). (1) Paretti, Kennedy, Turney and Veilleux, SIR 2014-5211 (no revisions listed): flood regions 1-4 at 8 AEPs (50-0.2 percent), equations from Table 9 (pp. 28-29), MSE/SEP/pseudo-R2/SEM/AVP from Table 10 (pp. 30-31), ranges and number of sites from Table 11 (p. 33), and MEV, t and covariance U from Table 12 in SIR2014-5211_tables.xlsx. REGION 5 (Southeastern Basin and Range) IS NOT STORED: its equations have the form Q = 10^(a - b DRNAREA^-c) (Table 9), i.e. a raw power of drainage area inside the log-linear sum, which the schema's transforms (identity or log10 of scale*x + offset) cannot express; Table 10's statistics and Table 12's 2x2 matrices exist for it. NSS also rounds region 5's 4-percent b, printed 2.988, to 2.99. Storage: intercept = log10 of the printed coefficient; drainage area uses NSS's code CONTDA (the report's 'DRNAREA', GIS contributing drainage area; NSS's Arizona regions use CONTDA), log10; PRECIP (mean annual precipitation, in.) log10; the term 10^(c ELEV/1,000) is ELEV with transform identity, scale 0.001 and coefficient c, which is also Table 12's basis ('ELEV/1000'). Region 3 drops ELEV at 4 percent and rarer AEPs (Table 9; Table 11 footnote a lists only 4, 1, 0.5 and 0.2, omitting 2, but Table 9 and Table 12 have no ELEV at 2 percent either), and region 4's 50-percent equation uses drainage area alone. Table 11 prints region 2's drainage-area maximum as '1,6017'; NSS uses 16,017, and 16,017 is stored. Error statistics: model_error_variance is Table 12's MEV (full precision; it equals Table 10's SEM converted to log10 units squared within 0.002); avp is Table 10's AVP (log10 units squared, 3 decimals); sep_log is Table 10's SEP (percent) converted as sqrt(ln(1 + (SEP/100)^2)) / ln(10) (the inverse of the report's eq. 7); covariance is Table 12's U = (X^T Lambda^-1 X)^-1 in the order intercept, DRNAREA, PRECIP, ELEV/1000 as labelled, copied at full precision; n_sites is Table 11's number of sites (41, 85, 68, 77); Table 12's t values correspond to n - p degrees of freedom. Checks: the p. 34 worked example (region 4 Q1 at USGS 09508500, DRNAREA 5,499, PRECIP 19.6, ELEV 5,573) gives 149,714 ft3/s as printed, SEp,i 0.1104 (printed 0.1105; x'Ux 0.001322 against the printed 0.0013066, which the report computed from unrounded StreamStats characteristics), and a 90-percent interval of 98,000-229,000 ft3/s as printed (t = 1.666 from Table 12). Table 14's regression estimates at the regression gages (Table 1 characteristics) agree with the equations at the median within 0.7 percent in every region and AEP, 2,517 of 2,616 values within 1 percent; the rest are a few large or redundant gages whose Table 1 characteristics evidently differ from the regression inputs. MEV + x'Ux reproduces Table 13's regression variance of prediction within 3-decimal rounding at 1,713 of 2,128 site-AEPs, and MEV + mean x'Ux reproduces Table 10's AVP within 0.0021. NSS selects region 1 (High Elevation) when ELEV is 7,500 ft or more and regions 2 and 5 below; ELEV is not a regression variable there. (2) Waltemeyer, SIR 2006-5306 (Navajo Nation): regions 8, 11 and High Elevation, which NSS lists for Arizona (GC843-GC845), stored exactly as in CO.json, UT.json and NM.json. Values were double-entered (hand transcription from rendered pages vs. a programmatic parse of the PDF text) with zero disagreements, and every stored region and AEP equals live NSS at its 3 significant figures.",
+  "equations": [
+    {
+      "region_code": "1",
+      "region_name": "Flood region 1 (High Elevation) (SIR 2014-5211; NSS GC1618)",
+      "aep": 0.5,
+      "intercept": 1.2405492482825997,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.26,
+          "maximum": 711.0
+        }
+      ],
+      "coefficients": [
+        0.655
+      ],
+      "citation": {
+        "publication": "Paretti, N.V., Kennedy, J.R., Turney, L.A., and Veilleux, A.G., 2014, Methods for estimating magnitude and frequency of floods in Arizona, developed with unregulated and rural peak-flow data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2014-5211",
+        "table": "Table 9; Table 10; Table 11; Table 12",
+        "year": 2014,
+        "url": "https://doi.org/10.3133/sir20145211"
+      },
+      "sep_log": 0.323438,
+      "avp": 0.105,
+      "model_error_variance": 0.09905108080424517,
+      "covariance": [
+        [
+          0.020694396,
+          -0.010802574
+        ],
+        [
+          -0.010802574,
+          0.0065541766
+        ]
+      ],
+      "n_sites": 41
+    },
+    {
+      "region_code": "1",
+      "region_name": "Flood region 1 (High Elevation) (SIR 2014-5211; NSS GC1618)",
+      "aep": 0.2,
+      "intercept": 1.6242820958356683,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.26,
+          "maximum": 711.0
+        }
+      ],
+      "coefficients": [
+        0.625
+      ],
+      "citation": {
+        "publication": "Paretti, N.V., Kennedy, J.R., Turney, L.A., and Veilleux, A.G., 2014, Methods for estimating magnitude and frequency of floods in Arizona, developed with unregulated and rural peak-flow data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2014-5211",
+        "table": "Table 9; Table 10; Table 11; Table 12",
+        "year": 2014,
+        "url": "https://doi.org/10.3133/sir20145211"
+      },
+      "sep_log": 0.255808,
+      "avp": 0.065,
+      "model_error_variance": 0.0616364995220129,
+      "covariance": [
+        [
+          0.013913011,
+          -0.0071730295
+        ],
+        [
+          -0.0071730295,
+          0.0043235617
+        ]
+      ],
+      "n_sites": 41
+    },
+    {
+      "region_code": "1",
+      "region_name": "Flood region 1 (High Elevation) (SIR 2014-5211; NSS GC1618)",
+      "aep": 0.1,
+      "intercept": 1.816241299991783,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.26,
+          "maximum": 711.0
+        }
+      ],
+      "coefficients": [
+        0.613
+      ],
+      "citation": {
+        "publication": "Paretti, N.V., Kennedy, J.R., Turney, L.A., and Veilleux, A.G., 2014, Methods for estimating magnitude and frequency of floods in Arizona, developed with unregulated and rural peak-flow data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2014-5211",
+        "table": "Table 9; Table 10; Table 11; Table 12",
+        "year": 2014,
+        "url": "https://doi.org/10.3133/sir20145211"
+      },
+      "sep_log": 0.234566,
+      "avp": 0.055,
+      "model_error_variance": 0.05167317415717055,
+      "covariance": [
+        [
+          0.012542482,
+          -0.0064185692
+        ],
+        [
+          -0.0064185692,
+          0.0038476687
+        ]
+      ],
+      "n_sites": 41
+    },
+    {
+      "region_code": "1",
+      "region_name": "Flood region 1 (High Elevation) (SIR 2014-5211; NSS GC1618)",
+      "aep": 0.04,
+      "intercept": 2.012837224705172,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.26,
+          "maximum": 711.0
+        }
+      ],
+      "coefficients": [
+        0.604
+      ],
+      "citation": {
+        "publication": "Paretti, N.V., Kennedy, J.R., Turney, L.A., and Veilleux, A.G., 2014, Methods for estimating magnitude and frequency of floods in Arizona, developed with unregulated and rural peak-flow data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2014-5211",
+        "table": "Table 9; Table 10; Table 11; Table 12",
+        "year": 2014,
+        "url": "https://doi.org/10.3133/sir20145211"
+      },
+      "sep_log": 0.223265,
+      "avp": 0.05,
+      "model_error_variance": 0.04658405073662155,
+      "covariance": [
+        [
+          0.012369138,
+          -0.006288759
+        ],
+        [
+          -0.006288759,
+          0.0037467181
+        ]
+      ],
+      "n_sites": 41
+    },
+    {
+      "region_code": "1",
+      "region_name": "Flood region 1 (High Elevation) (SIR 2014-5211; NSS GC1618)",
+      "aep": 0.02,
+      "intercept": 2.1335389083702174,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.26,
+          "maximum": 711.0
+        }
+      ],
+      "coefficients": [
+        0.601
+      ],
+      "citation": {
+        "publication": "Paretti, N.V., Kennedy, J.R., Turney, L.A., and Veilleux, A.G., 2014, Methods for estimating magnitude and frequency of floods in Arizona, developed with unregulated and rural peak-flow data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2014-5211",
+        "table": "Table 9; Table 10; Table 11; Table 12",
+        "year": 2014,
+        "url": "https://doi.org/10.3133/sir20145211"
+      },
+      "sep_log": 0.223622,
+      "avp": 0.05,
+      "model_error_variance": 0.04661524774091703,
+      "covariance": [
+        [
+          0.013014555,
+          -0.0066022015
+        ],
+        [
+          -0.0066022015,
+          0.0039213525
+        ]
+      ],
+      "n_sites": 41
+    },
+    {
+      "region_code": "1",
+      "region_name": "Flood region 1 (High Elevation) (SIR 2014-5211; NSS GC1618)",
+      "aep": 0.01,
+      "intercept": 2.2380461031287955,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.26,
+          "maximum": 711.0
+        }
+      ],
+      "coefficients": [
+        0.599
+      ],
+      "citation": {
+        "publication": "Paretti, N.V., Kennedy, J.R., Turney, L.A., and Veilleux, A.G., 2014, Methods for estimating magnitude and frequency of floods in Arizona, developed with unregulated and rural peak-flow data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2014-5211",
+        "table": "Table 9; Table 10; Table 11; Table 12",
+        "year": 2014,
+        "url": "https://doi.org/10.3133/sir20145211"
+      },
+      "sep_log": 0.227884,
+      "avp": 0.052,
+      "model_error_variance": 0.0483096137321382,
+      "covariance": [
+        [
+          0.013994957,
+          -0.0070930541
+        ],
+        [
+          -0.0070930541,
+          0.0042041639
+        ]
+      ],
+      "n_sites": 41
+    },
+    {
+      "region_code": "1",
+      "region_name": "Flood region 1 (High Elevation) (SIR 2014-5211; NSS GC1618)",
+      "aep": 0.005,
+      "intercept": 2.3324384599156054,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.26,
+          "maximum": 711.0
+        }
+      ],
+      "coefficients": [
+        0.599
+      ],
+      "citation": {
+        "publication": "Paretti, N.V., Kennedy, J.R., Turney, L.A., and Veilleux, A.G., 2014, Methods for estimating magnitude and frequency of floods in Arizona, developed with unregulated and rural peak-flow data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2014-5211",
+        "table": "Table 9; Table 10; Table 11; Table 12",
+        "year": 2014,
+        "url": "https://doi.org/10.3133/sir20145211"
+      },
+      "sep_log": 0.235614,
+      "avp": 0.056,
+      "model_error_variance": 0.051544403227665056,
+      "covariance": [
+        [
+          0.015288845,
+          -0.0077503073
+        ],
+        [
+          -0.0077503073,
+          0.0045886113
+        ]
+      ],
+      "n_sites": 41
+    },
+    {
+      "region_code": "1",
+      "region_name": "Flood region 1 (High Elevation) (SIR 2014-5211; NSS GC1618)",
+      "aep": 0.002,
+      "intercept": 2.4456042032735974,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.26,
+          "maximum": 711.0
+        }
+      ],
+      "coefficients": [
+        0.599
+      ],
+      "citation": {
+        "publication": "Paretti, N.V., Kennedy, J.R., Turney, L.A., and Veilleux, A.G., 2014, Methods for estimating magnitude and frequency of floods in Arizona, developed with unregulated and rural peak-flow data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2014-5211",
+        "table": "Table 9; Table 10; Table 11; Table 12",
+        "year": 2014,
+        "url": "https://doi.org/10.3133/sir20145211"
+      },
+      "sep_log": 0.250069,
+      "avp": 0.063,
+      "model_error_variance": 0.05804514352183202,
+      "covariance": [
+        [
+          0.017446099,
+          -0.0088567356
+        ],
+        [
+          -0.0088567356,
+          0.0052421082
+        ]
+      ],
+      "n_sites": 41
+    },
+    {
+      "region_code": "2",
+      "region_name": "Flood region 2 (Colorado Plateau) (SIR 2014-5211; NSS GC1619)",
+      "aep": 0.5,
+      "intercept": 1.7259116322950483,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.103,
+          "maximum": 16017.0
+        }
+      ],
+      "coefficients": [
+        0.505
+      ],
+      "citation": {
+        "publication": "Paretti, N.V., Kennedy, J.R., Turney, L.A., and Veilleux, A.G., 2014, Methods for estimating magnitude and frequency of floods in Arizona, developed with unregulated and rural peak-flow data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2014-5211",
+        "table": "Table 9; Table 10; Table 11; Table 12",
+        "year": 2014,
+        "url": "https://doi.org/10.3133/sir20145211"
+      },
+      "sep_log": 0.415332,
+      "avp": 0.173,
+      "model_error_variance": 0.16779593657361813,
+      "covariance": [
+        [
+          0.0068675982,
+          -0.0025688505
+        ],
+        [
+          -0.0025688505,
+          0.0015301238
+        ]
+      ],
+      "n_sites": 85
+    },
+    {
+      "region_code": "2",
+      "region_name": "Flood region 2 (Colorado Plateau) (SIR 2014-5211; NSS GC1619)",
+      "aep": 0.2,
+      "intercept": 2.1522883443830563,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.103,
+          "maximum": 16017.0
+        }
+      ],
+      "coefficients": [
+        0.476
+      ],
+      "citation": {
+        "publication": "Paretti, N.V., Kennedy, J.R., Turney, L.A., and Veilleux, A.G., 2014, Methods for estimating magnitude and frequency of floods in Arizona, developed with unregulated and rural peak-flow data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2014-5211",
+        "table": "Table 9; Table 10; Table 11; Table 12",
+        "year": 2014,
+        "url": "https://doi.org/10.3133/sir20145211"
+      },
+      "sep_log": 0.326598,
+      "avp": 0.107,
+      "model_error_variance": 0.10330752179545998,
+      "covariance": [
+        [
+          0.0048558322,
+          -0.0017609901
+        ],
+        [
+          -0.0017609901,
+          0.001013522
+        ]
+      ],
+      "n_sites": 85
+    },
+    {
+      "region_code": "2",
+      "region_name": "Flood region 2 (Colorado Plateau) (SIR 2014-5211; NSS GC1619)",
+      "aep": 0.1,
+      "intercept": 2.3729120029701067,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.103,
+          "maximum": 16017.0
+        }
+      ],
+      "coefficients": [
+        0.46
+      ],
+      "citation": {
+        "publication": "Paretti, N.V., Kennedy, J.R., Turney, L.A., and Veilleux, A.G., 2014, Methods for estimating magnitude and frequency of floods in Arizona, developed with unregulated and rural peak-flow data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2014-5211",
+        "table": "Table 9; Table 10; Table 11; Table 12",
+        "year": 2014,
+        "url": "https://doi.org/10.3133/sir20145211"
+      },
+      "sep_log": 0.292308,
+      "avp": 0.085,
+      "model_error_variance": 0.08247597263077593,
+      "covariance": [
+        [
+          0.004341262,
+          -0.0015463703
+        ],
+        [
+          -0.0015463703,
+          0.00086824854
+        ]
+      ],
+      "n_sites": 85
+    },
+    {
+      "region_code": "2",
+      "region_name": "Flood region 2 (Colorado Plateau) (SIR 2014-5211; NSS GC1619)",
+      "aep": 0.04,
+      "intercept": 2.6085260335771943,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.103,
+          "maximum": 16017.0
+        }
+      ],
+      "coefficients": [
+        0.442
+      ],
+      "citation": {
+        "publication": "Paretti, N.V., Kennedy, J.R., Turney, L.A., and Veilleux, A.G., 2014, Methods for estimating magnitude and frequency of floods in Arizona, developed with unregulated and rural peak-flow data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2014-5211",
+        "table": "Table 9; Table 10; Table 11; Table 12",
+        "year": 2014,
+        "url": "https://doi.org/10.3133/sir20145211"
+      },
+      "sep_log": 0.269706,
+      "avp": 0.073,
+      "model_error_variance": 0.07007767398521725,
+      "covariance": [
+        [
+          0.0041952464,
+          -0.0014727856
+        ],
+        [
+          -0.0014727856,
+          0.00080652646
+        ]
+      ],
+      "n_sites": 85
+    },
+    {
+      "region_code": "2",
+      "region_name": "Flood region 2 (Colorado Plateau) (SIR 2014-5211; NSS GC1619)",
+      "aep": 0.02,
+      "intercept": 2.75815462196739,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.103,
+          "maximum": 16017.0
+        }
+      ],
+      "coefficients": [
+        0.431
+      ],
+      "citation": {
+        "publication": "Paretti, N.V., Kennedy, J.R., Turney, L.A., and Veilleux, A.G., 2014, Methods for estimating magnitude and frequency of floods in Arizona, developed with unregulated and rural peak-flow data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2014-5211",
+        "table": "Table 9; Table 10; Table 11; Table 12",
+        "year": 2014,
+        "url": "https://doi.org/10.3133/sir20145211"
+      },
+      "sep_log": 0.263137,
+      "avp": 0.069,
+      "model_error_variance": 0.06741940535678105,
+      "covariance": [
+        [
+          0.0042920378,
+          -0.0014982893
+        ],
+        [
+          -0.0014982893,
+          0.00080988654
+        ]
+      ],
+      "n_sites": 85
+    },
+    {
+      "region_code": "2",
+      "region_name": "Flood region 2 (Colorado Plateau) (SIR 2014-5211; NSS GC1619)",
+      "aep": 0.01,
+      "intercept": 2.890979596989689,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.103,
+          "maximum": 16017.0
+        }
+      ],
+      "coefficients": [
+        0.421
+      ],
+      "citation": {
+        "publication": "Paretti, N.V., Kennedy, J.R., Turney, L.A., and Veilleux, A.G., 2014, Methods for estimating magnitude and frequency of floods in Arizona, developed with unregulated and rural peak-flow data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2014-5211",
+        "table": "Table 9; Table 10; Table 11; Table 12",
+        "year": 2014,
+        "url": "https://doi.org/10.3133/sir20145211"
+      },
+      "sep_log": 0.265446,
+      "avp": 0.07,
+      "model_error_variance": 0.06748859565696319,
+      "covariance": [
+        [
+          0.0045518699,
+          -0.0015880611
+        ],
+        [
+          -0.0015880611,
+          0.0008528671
+        ]
+      ],
+      "n_sites": 85
+    },
+    {
+      "region_code": "2",
+      "region_name": "Flood region 2 (Colorado Plateau) (SIR 2014-5211; NSS GC1619)",
+      "aep": 0.005,
+      "intercept": 3.011993114659257,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.103,
+          "maximum": 16017.0
+        }
+      ],
+      "coefficients": [
+        0.413
+      ],
+      "citation": {
+        "publication": "Paretti, N.V., Kennedy, J.R., Turney, L.A., and Veilleux, A.G., 2014, Methods for estimating magnitude and frequency of floods in Arizona, developed with unregulated and rural peak-flow data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2014-5211",
+        "table": "Table 9; Table 10; Table 11; Table 12",
+        "year": 2014,
+        "url": "https://doi.org/10.3133/sir20145211"
+      },
+      "sep_log": 0.270358,
+      "avp": 0.073,
+      "model_error_variance": 0.07002532403618944,
+      "covariance": [
+        [
+          0.0048701214,
+          -0.0017005447
+        ],
+        [
+          -0.0017005447,
+          0.00090966948
+        ]
+      ],
+      "n_sites": 85
+    },
+    {
+      "region_code": "2",
+      "region_name": "Flood region 2 (Colorado Plateau) (SIR 2014-5211; NSS GC1619)",
+      "aep": 0.002,
+      "intercept": 3.1550322287909704,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.103,
+          "maximum": 16017.0
+        }
+      ],
+      "coefficients": [
+        0.403
+      ],
+      "citation": {
+        "publication": "Paretti, N.V., Kennedy, J.R., Turney, L.A., and Veilleux, A.G., 2014, Methods for estimating magnitude and frequency of floods in Arizona, developed with unregulated and rural peak-flow data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2014-5211",
+        "table": "Table 9; Table 10; Table 11; Table 12",
+        "year": 2014,
+        "url": "https://doi.org/10.3133/sir20145211"
+      },
+      "sep_log": 0.283528,
+      "avp": 0.08,
+      "model_error_variance": 0.07693688148417861,
+      "covariance": [
+        [
+          0.0054214144,
+          -0.0019009164
+        ],
+        [
+          -0.0019009164,
+          0.0010166135
+        ]
+      ],
+      "n_sites": 85
+    },
+    {
+      "region_code": "3",
+      "region_name": "Flood region 3 (Western Basin and Range) (SIR 2014-5211; NSS GC1620)",
+      "aep": 0.5,
+      "intercept": 0.4440447959180762,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.082,
+          "maximum": 1725.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 3.7,
+          "maximum": 22.2
+        },
+        {
+          "code": "ELEV",
+          "transform": "identity",
+          "units": "ft",
+          "minimum": 283.0,
+          "maximum": 6404.0,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.462,
+        2.229,
+        -0.351
+      ],
+      "citation": {
+        "publication": "Paretti, N.V., Kennedy, J.R., Turney, L.A., and Veilleux, A.G., 2014, Methods for estimating magnitude and frequency of floods in Arizona, developed with unregulated and rural peak-flow data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2014-5211",
+        "table": "Table 9; Table 10; Table 11; Table 12",
+        "year": 2014,
+        "url": "https://doi.org/10.3133/sir20145211"
+      },
+      "sep_log": 0.383079,
+      "avp": 0.147,
+      "model_error_variance": 0.1367325308941012,
+      "covariance": [
+        [
+          0.099179815,
+          0.0018649233,
+          -0.11236866,
+          0.0058306092
+        ],
+        [
+          0.0018649233,
+          0.0022684123,
+          -0.0046693817,
+          -1.1095359e-06
+        ],
+        [
+          -0.11236866,
+          -0.0046693817,
+          0.14899242,
+          -0.013008037
+        ],
+        [
+          0.0058306092,
+          -1.1095359e-06,
+          -0.013008037,
+          0.0030506701
+        ]
+      ],
+      "n_sites": 68
+    },
+    {
+      "region_code": "3",
+      "region_name": "Flood region 3 (Western Basin and Range) (SIR 2014-5211; NSS GC1620)",
+      "aep": 0.2,
+      "intercept": 1.1072099696478683,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.082,
+          "maximum": 1725.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 3.7,
+          "maximum": 22.2
+        },
+        {
+          "code": "ELEV",
+          "transform": "identity",
+          "units": "ft",
+          "minimum": 283.0,
+          "maximum": 6404.0,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.474,
+        1.706,
+        -0.208
+      ],
+      "citation": {
+        "publication": "Paretti, N.V., Kennedy, J.R., Turney, L.A., and Veilleux, A.G., 2014, Methods for estimating magnitude and frequency of floods in Arizona, developed with unregulated and rural peak-flow data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2014-5211",
+        "table": "Table 9; Table 10; Table 11; Table 12",
+        "year": 2014,
+        "url": "https://doi.org/10.3133/sir20145211"
+      },
+      "sep_log": 0.213915,
+      "avp": 0.046,
+      "model_error_variance": 0.04120040635655943,
+      "covariance": [
+        [
+          0.042630069,
+          0.00056333377,
+          -0.047703035,
+          0.0027450904
+        ],
+        [
+          0.00056333377,
+          0.00090672504,
+          -0.0016615971,
+          -2.4110196e-05
+        ],
+        [
+          -0.047703035,
+          -0.0016615971,
+          0.062191889,
+          -0.005656888
+        ],
+        [
+          0.0027450904,
+          -2.4110196e-05,
+          -0.005656888,
+          0.0013310988
+        ]
+      ],
+      "n_sites": 68
+    },
+    {
+      "region_code": "3",
+      "region_name": "Flood region 3 (Western Basin and Range) (SIR 2014-5211; NSS GC1620)",
+      "aep": 0.1,
+      "intercept": 1.4265112613645752,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.082,
+          "maximum": 1725.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 3.7,
+          "maximum": 22.2
+        },
+        {
+          "code": "ELEV",
+          "transform": "identity",
+          "units": "ft",
+          "minimum": 283.0,
+          "maximum": 6404.0,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.479,
+        1.447,
+        -0.132
+      ],
+      "citation": {
+        "publication": "Paretti, N.V., Kennedy, J.R., Turney, L.A., and Veilleux, A.G., 2014, Methods for estimating magnitude and frequency of floods in Arizona, developed with unregulated and rural peak-flow data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2014-5211",
+        "table": "Table 9; Table 10; Table 11; Table 12",
+        "year": 2014,
+        "url": "https://doi.org/10.3133/sir20145211"
+      },
+      "sep_log": 0.140835,
+      "avp": 0.02,
+      "model_error_variance": 0.01646234461145011,
+      "covariance": [
+        [
+          0.030186899,
+          0.00026501869,
+          -0.033516613,
+          0.0021201007
+        ],
+        [
+          0.00026501869,
+          0.0005900674,
+          -0.00095733679,
+          -3.5141781e-05
+        ],
+        [
+          -0.033516613,
+          -0.00095733679,
+          0.043084417,
+          -0.0041027455
+        ],
+        [
+          0.0021201007,
+          -3.5141781e-05,
+          -0.0041027455,
+          0.00097233773
+        ]
+      ],
+      "n_sites": 68
+    },
+    {
+      "region_code": "3",
+      "region_name": "Flood region 3 (Western Basin and Range) (SIR 2014-5211; NSS GC1620)",
+      "aep": 0.04,
+      "intercept": 1.9498777040368747,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.082,
+          "maximum": 1725.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 3.7,
+          "maximum": 22.2
+        }
+      ],
+      "coefficients": [
+        0.495,
+        0.839
+      ],
+      "citation": {
+        "publication": "Paretti, N.V., Kennedy, J.R., Turney, L.A., and Veilleux, A.G., 2014, Methods for estimating magnitude and frequency of floods in Arizona, developed with unregulated and rural peak-flow data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2014-5211",
+        "table": "Table 9; Table 10; Table 11; Table 12",
+        "year": 2014,
+        "url": "https://doi.org/10.3133/sir20145211"
+      },
+      "sep_log": 0.128306,
+      "avp": 0.016,
+      "model_error_variance": 0.0135962262182656,
+      "covariance": [
+        [
+          0.030444404,
+          0.00037836724,
+          -0.029189118
+        ],
+        [
+          0.00037836724,
+          0.00065795909,
+          -0.0012540644
+        ],
+        [
+          -0.029189118,
+          -0.0012540644,
+          0.030513143
+        ]
+      ],
+      "n_sites": 68
+    },
+    {
+      "region_code": "3",
+      "region_name": "Flood region 3 (Western Basin and Range) (SIR 2014-5211; NSS GC1620)",
+      "aep": 0.02,
+      "intercept": 2.110589710299249,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.082,
+          "maximum": 1725.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 3.7,
+          "maximum": 22.2
+        }
+      ],
+      "coefficients": [
+        0.505,
+        0.831
+      ],
+      "citation": {
+        "publication": "Paretti, N.V., Kennedy, J.R., Turney, L.A., and Veilleux, A.G., 2014, Methods for estimating magnitude and frequency of floods in Arizona, developed with unregulated and rural peak-flow data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2014-5211",
+        "table": "Table 9; Table 10; Table 11; Table 12",
+        "year": 2014,
+        "url": "https://doi.org/10.3133/sir20145211"
+      },
+      "sep_log": 0.13196,
+      "avp": 0.017,
+      "model_error_variance": 0.014138326441688267,
+      "covariance": [
+        [
+          0.035087472,
+          0.00045479711,
+          -0.033757948
+        ],
+        [
+          0.00045479711,
+          0.00075824046,
+          -0.0014623635
+        ],
+        [
+          -0.033757948,
+          -0.0014623635,
+          0.035306366
+        ]
+      ],
+      "n_sites": 68
+    },
+    {
+      "region_code": "3",
+      "region_name": "Flood region 3 (Western Basin and Range) (SIR 2014-5211; NSS GC1620)",
+      "aep": 0.01,
+      "intercept": 2.2624510897304293,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.082,
+          "maximum": 1725.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 3.7,
+          "maximum": 22.2
+        }
+      ],
+      "coefficients": [
+        0.516,
+        0.812
+      ],
+      "citation": {
+        "publication": "Paretti, N.V., Kennedy, J.R., Turney, L.A., and Veilleux, A.G., 2014, Methods for estimating magnitude and frequency of floods in Arizona, developed with unregulated and rural peak-flow data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2014-5211",
+        "table": "Table 9; Table 10; Table 11; Table 12",
+        "year": 2014,
+        "url": "https://doi.org/10.3133/sir20145211"
+      },
+      "sep_log": 0.166146,
+      "avp": 0.028,
+      "model_error_variance": 0.023528484843983583,
+      "covariance": [
+        [
+          0.045597964,
+          0.00064685195,
+          -0.044223929
+        ],
+        [
+          0.00064685195,
+          0.0010087962,
+          -0.0019685536
+        ],
+        [
+          -0.044223929,
+          -0.0019685536,
+          0.046414937
+        ]
+      ],
+      "n_sites": 68
+    },
+    {
+      "region_code": "3",
+      "region_name": "Flood region 3 (Western Basin and Range) (SIR 2014-5211; NSS GC1620)",
+      "aep": 0.005,
+      "intercept": 2.4082399653118496,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.082,
+          "maximum": 1725.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 3.7,
+          "maximum": 22.2
+        }
+      ],
+      "coefficients": [
+        0.527,
+        0.789
+      ],
+      "citation": {
+        "publication": "Paretti, N.V., Kennedy, J.R., Turney, L.A., and Veilleux, A.G., 2014, Methods for estimating magnitude and frequency of floods in Arizona, developed with unregulated and rural peak-flow data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2014-5211",
+        "table": "Table 9; Table 10; Table 11; Table 12",
+        "year": 2014,
+        "url": "https://doi.org/10.3133/sir20145211"
+      },
+      "sep_log": 0.215725,
+      "avp": 0.046,
+      "model_error_variance": 0.04120040635655943,
+      "covariance": [
+        [
+          0.061157495,
+          0.00095533291,
+          -0.059784303
+        ],
+        [
+          0.00095533291,
+          0.0013918513,
+          -0.0027513975
+        ],
+        [
+          -0.059784303,
+          -0.0027513975,
+          0.06299696
+        ]
+      ],
+      "n_sites": 68
+    },
+    {
+      "region_code": "3",
+      "region_name": "Flood region 3 (Western Basin and Range) (SIR 2014-5211; NSS GC1620)",
+      "aep": 0.002,
+      "intercept": 2.584331224367531,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.082,
+          "maximum": 1725.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 3.7,
+          "maximum": 22.2
+        }
+      ],
+      "coefficients": [
+        0.539,
+        0.758
+      ],
+      "citation": {
+        "publication": "Paretti, N.V., Kennedy, J.R., Turney, L.A., and Veilleux, A.G., 2014, Methods for estimating magnitude and frequency of floods in Arizona, developed with unregulated and rural peak-flow data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2014-5211",
+        "table": "Table 9; Table 10; Table 11; Table 12",
+        "year": 2014,
+        "url": "https://doi.org/10.3133/sir20145211"
+      },
+      "sep_log": 0.281306,
+      "avp": 0.079,
+      "model_error_variance": 0.07189788427939346,
+      "covariance": [
+        [
+          0.085727539,
+          0.0014719599,
+          -0.0844062
+        ],
+        [
+          0.0014719599,
+          0.0020067709,
+          -0.0040254912
+        ],
+        [
+          -0.0844062,
+          -0.0040254912,
+          0.089285845
+        ]
+      ],
+      "n_sites": 68
+    },
+    {
+      "region_code": "4",
+      "region_name": "Flood region 4 (Central Highlands) (SIR 2014-5211; NSS GC1621)",
+      "aep": 0.5,
+      "intercept": 1.737987326333431,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.059,
+          "maximum": 18044.0
+        }
+      ],
+      "coefficients": [
+        0.664
+      ],
+      "citation": {
+        "publication": "Paretti, N.V., Kennedy, J.R., Turney, L.A., and Veilleux, A.G., 2014, Methods for estimating magnitude and frequency of floods in Arizona, developed with unregulated and rural peak-flow data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2014-5211",
+        "table": "Table 9; Table 10; Table 11; Table 12",
+        "year": 2014,
+        "url": "https://doi.org/10.3133/sir20145211"
+      },
+      "sep_log": 0.365207,
+      "avp": 0.133,
+      "model_error_variance": 0.12918906752808457,
+      "covariance": [
+        [
+          0.0058350311,
+          -0.001994207
+        ],
+        [
+          -0.001994207,
+          0.0011244853
+        ]
+      ],
+      "n_sites": 77
+    },
+    {
+      "region_code": "4",
+      "region_name": "Flood region 4 (Central Highlands) (SIR 2014-5211; NSS GC1621)",
+      "aep": 0.2,
+      "intercept": 1.7092699609758308,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.059,
+          "maximum": 18044.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 10.8,
+          "maximum": 33.5
+        },
+        {
+          "code": "ELEV",
+          "transform": "identity",
+          "units": "ft",
+          "minimum": 3274.0,
+          "maximum": 7451.0,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.658,
+        0.903,
+        -0.135
+      ],
+      "citation": {
+        "publication": "Paretti, N.V., Kennedy, J.R., Turney, L.A., and Veilleux, A.G., 2014, Methods for estimating magnitude and frequency of floods in Arizona, developed with unregulated and rural peak-flow data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2014-5211",
+        "table": "Table 9; Table 10; Table 11; Table 12",
+        "year": 2014,
+        "url": "https://doi.org/10.3133/sir20145211"
+      },
+      "sep_log": 0.230355,
+      "avp": 0.053,
+      "model_error_variance": 0.051126560949255176,
+      "covariance": [
+        [
+          0.13194169,
+          -0.00040960119,
+          -0.10869135,
+          0.0023849003
+        ],
+        [
+          -0.00040960119,
+          0.00054892646,
+          0.00024375555,
+          -0.00017727625
+        ],
+        [
+          -0.10869135,
+          0.00024375555,
+          0.10744754,
+          -0.0060413322
+        ],
+        [
+          0.0023849003,
+          -0.00017727625,
+          -0.0060413322,
+          0.0010761323
+        ]
+      ],
+      "n_sites": 77
+    },
+    {
+      "region_code": "4",
+      "region_name": "Flood region 4 (Central Highlands) (SIR 2014-5211; NSS GC1621)",
+      "aep": 0.1,
+      "intercept": 1.6354837468149122,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.059,
+          "maximum": 18044.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 10.8,
+          "maximum": 33.5
+        },
+        {
+          "code": "ELEV",
+          "transform": "identity",
+          "units": "ft",
+          "minimum": 3274.0,
+          "maximum": 7451.0,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.643,
+        1.204,
+        -0.15
+      ],
+      "citation": {
+        "publication": "Paretti, N.V., Kennedy, J.R., Turney, L.A., and Veilleux, A.G., 2014, Methods for estimating magnitude and frequency of floods in Arizona, developed with unregulated and rural peak-flow data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2014-5211",
+        "table": "Table 9; Table 10; Table 11; Table 12",
+        "year": 2014,
+        "url": "https://doi.org/10.3133/sir20145211"
+      },
+      "sep_log": 0.168479,
+      "avp": 0.028,
+      "model_error_variance": 0.025716198956391077,
+      "covariance": [
+        [
+          0.089801063,
+          -0.00028758192,
+          -0.074141219,
+          0.0016107379
+        ],
+        [
+          -0.00028758192,
+          0.00037336158,
+          0.00014447314,
+          -0.00012509624
+        ],
+        [
+          -0.074141219,
+          0.00014447314,
+          0.073178311,
+          -0.0040007614
+        ],
+        [
+          0.0016107379,
+          -0.00012509624,
+          -0.0040007614,
+          0.00070589983
+        ]
+      ],
+      "n_sites": 77
+    },
+    {
+      "region_code": "4",
+      "region_name": "Flood region 4 (Central Highlands) (SIR 2014-5211; NSS GC1621)",
+      "aep": 0.04,
+      "intercept": 1.526339277389844,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.059,
+          "maximum": 18044.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 10.8,
+          "maximum": 33.5
+        },
+        {
+          "code": "ELEV",
+          "transform": "identity",
+          "units": "ft",
+          "minimum": 3274.0,
+          "maximum": 7451.0,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.624,
+        1.528,
+        -0.16
+      ],
+      "citation": {
+        "publication": "Paretti, N.V., Kennedy, J.R., Turney, L.A., and Veilleux, A.G., 2014, Methods for estimating magnitude and frequency of floods in Arizona, developed with unregulated and rural peak-flow data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2014-5211",
+        "table": "Table 9; Table 10; Table 11; Table 12",
+        "year": 2014,
+        "url": "https://doi.org/10.3133/sir20145211"
+      },
+      "sep_log": 0.123412,
+      "avp": 0.015,
+      "model_error_variance": 0.012988291155340967,
+      "covariance": [
+        [
+          0.072017545,
+          -0.00025921166,
+          -0.059398585,
+          0.0012491994
+        ],
+        [
+          -0.00025921166,
+          0.00029139185,
+          0.00012230883,
+          -0.00010462882
+        ],
+        [
+          -0.059398585,
+          0.00012230883,
+          0.058285437,
+          -0.0030649602
+        ],
+        [
+          0.0012491994,
+          -0.00010462882,
+          -0.0030649602,
+          0.00053854357
+        ]
+      ],
+      "n_sites": 77
+    },
+    {
+      "region_code": "4",
+      "region_name": "Flood region 4 (Central Highlands) (SIR 2014-5211; NSS GC1621)",
+      "aep": 0.02,
+      "intercept": 1.4885507165004443,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.059,
+          "maximum": 18044.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 10.8,
+          "maximum": 33.5
+        },
+        {
+          "code": "ELEV",
+          "transform": "identity",
+          "units": "ft",
+          "minimum": 3274.0,
+          "maximum": 7451.0,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.614,
+        1.687,
+        -0.161
+      ],
+      "citation": {
+        "publication": "Paretti, N.V., Kennedy, J.R., Turney, L.A., and Veilleux, A.G., 2014, Methods for estimating magnitude and frequency of floods in Arizona, developed with unregulated and rural peak-flow data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2014-5211",
+        "table": "Table 9; Table 10; Table 11; Table 12",
+        "year": 2014,
+        "url": "https://doi.org/10.3133/sir20145211"
+      },
+      "sep_log": 0.115615,
+      "avp": 0.013,
+      "model_error_variance": 0.011073241460184907,
+      "covariance": [
+        [
+          0.075731029,
+          -0.00029073858,
+          -0.062359182,
+          0.0012893521
+        ],
+        [
+          -0.00029073858,
+          0.00030000036,
+          0.00014623134,
+          -0.00011166216
+        ],
+        [
+          -0.062359182,
+          0.00014623134,
+          0.060964235,
+          -0.0031627684
+        ],
+        [
+          0.0012893521,
+          -0.00011166216,
+          -0.0031627684,
+          0.00055674558
+        ]
+      ],
+      "n_sites": 77
+    },
+    {
+      "region_code": "4",
+      "region_name": "Flood region 4 (Central Highlands) (SIR 2014-5211; NSS GC1621)",
+      "aep": 0.01,
+      "intercept": 1.4771212547196624,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.059,
+          "maximum": 18044.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 10.8,
+          "maximum": 33.5
+        },
+        {
+          "code": "ELEV",
+          "transform": "identity",
+          "units": "ft",
+          "minimum": 3274.0,
+          "maximum": 7451.0,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.605,
+        1.805,
+        -0.161
+      ],
+      "citation": {
+        "publication": "Paretti, N.V., Kennedy, J.R., Turney, L.A., and Veilleux, A.G., 2014, Methods for estimating magnitude and frequency of floods in Arizona, developed with unregulated and rural peak-flow data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2014-5211",
+        "table": "Table 9; Table 10; Table 11; Table 12",
+        "year": 2014,
+        "url": "https://doi.org/10.3133/sir20145211"
+      },
+      "sep_log": 0.115615,
+      "avp": 0.013,
+      "model_error_variance": 0.010872894521135056,
+      "covariance": [
+        [
+          0.083730441,
+          -0.00033286065,
+          -0.06886383,
+          0.0014090869
+        ],
+        [
+          -0.00033286065,
+          0.00032654096,
+          0.00017840187,
+          -0.00012452547
+        ],
+        [
+          -0.06886383,
+          0.00017840187,
+          0.067154871,
+          -0.0034616256
+        ],
+        [
+          0.0014090869,
+          -0.00012452547,
+          -0.0034616256,
+          0.00061076115
+        ]
+      ],
+      "n_sites": 77
+    },
+    {
+      "region_code": "4",
+      "region_name": "Flood region 4 (Central Highlands) (SIR 2014-5211; NSS GC1621)",
+      "aep": 0.005,
+      "intercept": 1.4857214264815801,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.059,
+          "maximum": 18044.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 10.8,
+          "maximum": 33.5
+        },
+        {
+          "code": "ELEV",
+          "transform": "identity",
+          "units": "ft",
+          "minimum": 3274.0,
+          "maximum": 7451.0,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.598,
+        1.893,
+        -0.161
+      ],
+      "citation": {
+        "publication": "Paretti, N.V., Kennedy, J.R., Turney, L.A., and Veilleux, A.G., 2014, Methods for estimating magnitude and frequency of floods in Arizona, developed with unregulated and rural peak-flow data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2014-5211",
+        "table": "Table 9; Table 10; Table 11; Table 12",
+        "year": 2014,
+        "url": "https://doi.org/10.3133/sir20145211"
+      },
+      "sep_log": 0.123003,
+      "avp": 0.015,
+      "model_error_variance": 0.013817732675381875,
+      "covariance": [
+        [
+          0.096013313,
+          -0.00038302525,
+          -0.078919887,
+          0.0016078105
+        ],
+        [
+          -0.00038302525,
+          0.00037133506,
+          0.00021861189,
+          -0.00014364648
+        ],
+        [
+          -0.078919887,
+          0.00021861189,
+          0.076863941,
+          -0.0039603381
+        ],
+        [
+          0.0016078105,
+          -0.00014364648,
+          -0.0039603381,
+          0.00070050129
+        ]
+      ],
+      "n_sites": 77
+    },
+    {
+      "region_code": "4",
+      "region_name": "Flood region 4 (Central Highlands) (SIR 2014-5211; NSS GC1621)",
+      "aep": 0.002,
+      "intercept": 1.5224442335063197,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.059,
+          "maximum": 18044.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 10.8,
+          "maximum": 33.5
+        },
+        {
+          "code": "ELEV",
+          "transform": "identity",
+          "units": "ft",
+          "minimum": 3274.0,
+          "maximum": 7451.0,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.591,
+        1.976,
+        -0.16
+      ],
+      "citation": {
+        "publication": "Paretti, N.V., Kennedy, J.R., Turney, L.A., and Veilleux, A.G., 2014, Methods for estimating magnitude and frequency of floods in Arizona, developed with unregulated and rural peak-flow data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2014-5211",
+        "table": "Table 9; Table 10; Table 11; Table 12",
+        "year": 2014,
+        "url": "https://doi.org/10.3133/sir20145211"
+      },
+      "sep_log": 0.147634,
+      "avp": 0.022,
+      "model_error_variance": 0.018278323496026753,
+      "covariance": [
+        [
+          0.12311022,
+          -0.00046992317,
+          -0.10120573,
+          0.0020698549
+        ],
+        [
+          -0.00046992317,
+          0.00047679945,
+          0.00029401343,
+          -0.00018506305
+        ],
+        [
+          -0.10120573,
+          0.00029401343,
+          0.098594529,
+          -0.0051260165
+        ],
+        [
+          0.0020698549,
+          -0.00018506305,
+          -0.0051260165,
+          0.00091005977
+        ]
+      ],
+      "n_sites": 77
+    },
+    {
+      "region_code": "Navajo8",
+      "region_name": "Navajo Nation Region 8 (SIR 2006-5306; NSS GC843)",
+      "aep": 0.5,
+      "intercept": 7.033423755486949,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.06,
+          "maximum": 4350
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4320,
+          "maximum": 7750
+        }
+      ],
+      "coefficients": [
+        0.457,
+        -1.35
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.397,
+      "model_error_variance": 0.148996,
+      "n_sites": 62
+    },
+    {
+      "region_code": "Navajo8",
+      "region_name": "Navajo Nation Region 8 (SIR 2006-5306; NSS GC843)",
+      "aep": 0.2,
+      "intercept": 10.232996110392154,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.06,
+          "maximum": 4350
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0231,
+          "maximum": 0.4447
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4320,
+          "maximum": 7750
+        }
+      ],
+      "coefficients": [
+        0.372,
+        0.36,
+        -1.98
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.294,
+      "model_error_variance": 0.079524,
+      "n_sites": 62
+    },
+    {
+      "region_code": "Navajo8",
+      "region_name": "Navajo Nation Region 8 (SIR 2006-5306; NSS GC843)",
+      "aep": 0.1,
+      "intercept": 10.943988875073773,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.06,
+          "maximum": 4350
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0231,
+          "maximum": 0.4447
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4320,
+          "maximum": 7750
+        }
+      ],
+      "coefficients": [
+        0.343,
+        0.395,
+        -2.1
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.25,
+      "model_error_variance": 0.056644,
+      "n_sites": 62
+    },
+    {
+      "region_code": "Navajo8",
+      "region_name": "Navajo Nation Region 8 (SIR 2006-5306; NSS GC843)",
+      "aep": 0.04,
+      "intercept": 11.592176757395867,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.06,
+          "maximum": 4350
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0231,
+          "maximum": 0.4447
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4320,
+          "maximum": 7750
+        }
+      ],
+      "coefficients": [
+        0.31,
+        0.432,
+        -2.19
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.22,
+      "model_error_variance": 0.042436,
+      "n_sites": 62
+    },
+    {
+      "region_code": "Navajo8",
+      "region_name": "Navajo Nation Region 8 (SIR 2006-5306; NSS GC843)",
+      "aep": 0.02,
+      "intercept": 11.927883410330708,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.06,
+          "maximum": 4350
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0231,
+          "maximum": 0.4447
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4320,
+          "maximum": 7750
+        }
+      ],
+      "coefficients": [
+        0.287,
+        0.46,
+        -2.23
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.214,
+      "model_error_variance": 0.039601,
+      "n_sites": 62
+    },
+    {
+      "region_code": "Navajo8",
+      "region_name": "Navajo Nation Region 8 (SIR 2006-5306; NSS GC843)",
+      "aep": 0.01,
+      "intercept": 12.1846914308176,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.06,
+          "maximum": 4350
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0231,
+          "maximum": 0.4447
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4320,
+          "maximum": 7750
+        }
+      ],
+      "coefficients": [
+        0.265,
+        0.477,
+        -2.25
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.219,
+      "model_error_variance": 0.041209,
+      "n_sites": 62
+    },
+    {
+      "region_code": "Navajo8",
+      "region_name": "Navajo Nation Region 8 (SIR 2006-5306; NSS GC843)",
+      "aep": 0.002,
+      "intercept": 12.627365856592732,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.06,
+          "maximum": 4350
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0231,
+          "maximum": 0.4447
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4320,
+          "maximum": 7750
+        }
+      ],
+      "coefficients": [
+        0.224,
+        0.513,
+        -2.28
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.256,
+      "model_error_variance": 0.056169,
+      "n_sites": 62
+    },
+    {
+      "region_code": "Navajo11",
+      "region_name": "Navajo Nation Region 11 (SIR 2006-5306; NSS GC845)",
+      "aep": 0.5,
+      "intercept": 2.484299839346786,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.11,
+          "maximum": 2150
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0177,
+          "maximum": 0.1545
+        }
+      ],
+      "coefficients": [
+        0.476,
+        0.608
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.367,
+      "model_error_variance": 0.121104,
+      "n_sites": 34
+    },
+    {
+      "region_code": "Navajo11",
+      "region_name": "Navajo Nation Region 11 (SIR 2006-5306; NSS GC845)",
+      "aep": 0.2,
+      "intercept": 2.926342446625655,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.11,
+          "maximum": 2150
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0177,
+          "maximum": 0.1545
+        }
+      ],
+      "coefficients": [
+        0.471,
+        0.653
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.296,
+      "model_error_variance": 0.077284,
+      "n_sites": 34
+    },
+    {
+      "region_code": "Navajo11",
+      "region_name": "Navajo Nation Region 11 (SIR 2006-5306; NSS GC845)",
+      "aep": 0.1,
+      "intercept": 3.173186268412274,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.11,
+          "maximum": 2150
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0177,
+          "maximum": 0.1545
+        }
+      ],
+      "coefficients": [
+        0.466,
+        0.688
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.28,
+      "model_error_variance": 0.068644,
+      "n_sites": 34
+    },
+    {
+      "region_code": "Navajo11",
+      "region_name": "Navajo Nation Region 11 (SIR 2006-5306; NSS GC845)",
+      "aep": 0.04,
+      "intercept": 3.4456042032735974,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.11,
+          "maximum": 2150
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0177,
+          "maximum": 0.1545
+        }
+      ],
+      "coefficients": [
+        0.46,
+        0.73
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.282,
+      "model_error_variance": 0.069169,
+      "n_sites": 34
+    },
+    {
+      "region_code": "Navajo11",
+      "region_name": "Navajo Nation Region 11 (SIR 2006-5306; NSS GC845)",
+      "aep": 0.02,
+      "intercept": 3.622214022966295,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.11,
+          "maximum": 2150
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0177,
+          "maximum": 0.1545
+        }
+      ],
+      "coefficients": [
+        0.455,
+        0.759
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.295,
+      "model_error_variance": 0.075076,
+      "n_sites": 34
+    },
+    {
+      "region_code": "Navajo11",
+      "region_name": "Navajo Nation Region 11 (SIR 2006-5306; NSS GC845)",
+      "aep": 0.01,
+      "intercept": 3.780317312140151,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.11,
+          "maximum": 2150
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0177,
+          "maximum": 0.1545
+        }
+      ],
+      "coefficients": [
+        0.45,
+        0.784
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.313,
+      "model_error_variance": 0.0841,
+      "n_sites": 34
+    },
+    {
+      "region_code": "Navajo11",
+      "region_name": "Navajo Nation Region 11 (SIR 2006-5306; NSS GC845)",
+      "aep": 0.002,
+      "intercept": 4.096910013008056,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.11,
+          "maximum": 2150
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0177,
+          "maximum": 0.1545
+        }
+      ],
+      "coefficients": [
+        0.439,
+        0.836
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.363,
+      "model_error_variance": 0.112896,
+      "n_sites": 34
+    },
+    {
+      "region_code": "NavajoHighElev",
+      "region_name": "Navajo Nation Region High Elevation (mean basin elevation > 7,500 ft) (SIR 2006-5306; NSS GC844)",
+      "aep": 0.5,
+      "intercept": 1.0374264979406236,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.7,
+          "maximum": 1200
+        }
+      ],
+      "coefficients": [
+        0.767
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.208,
+      "model_error_variance": 0.039601,
+      "n_sites": 27
+    },
+    {
+      "region_code": "NavajoHighElev",
+      "region_name": "Navajo Nation Region High Elevation (mean basin elevation > 7,500 ft) (SIR 2006-5306; NSS GC844)",
+      "aep": 0.2,
+      "intercept": 1.4487063199050798,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.7,
+          "maximum": 1200
+        }
+      ],
+      "coefficients": [
+        0.711
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.168,
+      "model_error_variance": 0.024964,
+      "n_sites": 27
+    },
+    {
+      "region_code": "NavajoHighElev",
+      "region_name": "Navajo Nation Region High Elevation (mean basin elevation > 7,500 ft) (SIR 2006-5306; NSS GC844)",
+      "aep": 0.1,
+      "intercept": 1.670245853074124,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.7,
+          "maximum": 1200
+        }
+      ],
+      "coefficients": [
+        0.68
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.16,
+      "model_error_variance": 0.022201,
+      "n_sites": 27
+    },
+    {
+      "region_code": "NavajoHighElev",
+      "region_name": "Navajo Nation Region High Elevation (mean basin elevation > 7,500 ft) (SIR 2006-5306; NSS GC844)",
+      "aep": 0.04,
+      "intercept": 1.9074113607745862,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.7,
+          "maximum": 1200
+        }
+      ],
+      "coefficients": [
+        0.646
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.164,
+      "model_error_variance": 0.023104,
+      "n_sites": 27
+    },
+    {
+      "region_code": "NavajoHighElev",
+      "region_name": "Navajo Nation Region High Elevation (mean basin elevation > 7,500 ft) (SIR 2006-5306; NSS GC844)",
+      "aep": 0.02,
+      "intercept": 2.060697840353612,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.7,
+          "maximum": 1200
+        }
+      ],
+      "coefficients": [
+        0.623
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.173,
+      "model_error_variance": 0.0256,
+      "n_sites": 27
+    },
+    {
+      "region_code": "NavajoHighElev",
+      "region_name": "Navajo Nation Region High Elevation (mean basin elevation > 7,500 ft) (SIR 2006-5306; NSS GC844)",
+      "aep": 0.01,
+      "intercept": 2.2013971243204513,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.7,
+          "maximum": 1200
+        }
+      ],
+      "coefficients": [
+        0.602
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.186,
+      "model_error_variance": 0.029584,
+      "n_sites": 27
+    },
+    {
+      "region_code": "NavajoHighElev",
+      "region_name": "Navajo Nation Region High Elevation (mean basin elevation > 7,500 ft) (SIR 2006-5306; NSS GC844)",
+      "aep": 0.002,
+      "intercept": 2.4885507165004443,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.7,
+          "maximum": 1200
+        }
+      ],
+      "coefficients": [
+        0.557
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.222,
+      "model_error_variance": 0.042025,
+      "n_sites": 27
+    }
+  ]
+}
