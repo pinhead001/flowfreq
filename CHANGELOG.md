@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **National gage catalog** (`flowfreq.catalog`, roadmap §1.1, #33).
+  `flowfreq/data/gage_catalog.csv.gz` lists every USGS peak-flow site, active or
+  inactive, with at least 10 water years of discharge peaks. Each row has site_no, name,
+  lat/lon, drainage area, state, HUC8, years of record (count, first, last), the
+  regulation class from #32's screen and peak codes, and the regression region.
+  - Regression region is filled for Wave 1 only (WA, OR, ID, MT). It is the NSS region
+    code of the StreamStats peak-flow polygon that contains the gage point. Elsewhere it
+    is blank.
+  - `data/gage_catalog.meta.json` records the build date, sources and counts.
+  - `load_catalog()` reads `.csv` or `.csv.gz` and now also validates the HUC8 and
+    regulation class.
+  - New helpers for the build: `peaks_by_site`, `location_fields`, `build_rows`,
+    `write_catalog` and `load_catalog_meta`.
+- `tools/build_gage_catalog.py` rebuilds the catalog from the Water Data OGC API.
+  - Two bulk queries per state (`peaks` by `state_code`, and `monitoring-locations`)
+    replace one or two requests per site. The national build took about 250 requests (20,745 sites, 56 jurisdictions).
+  - Every request goes through `waterdata.request`.
+  - Responses are cached per state, so a rate-limited build resumes. `--all` builds every
+    state and territory; `--states` rebuilds and merges the states you name.
+  - The per-site `--sites` mode remains. Its peak backend now defaults to
+    `waterdata-ogc` (it was `nwis-legacy`).
+
 ### Changed
 - **Regression-file status is now defined** (`flowfreq.regression.library.STATUSES`):
   `verified` means everything the cited reports publish for the stored regions is stored,
@@ -15,6 +38,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   covariance can still be `verified`; `partial` means something the reports *do* publish is
   missing or unresolved. Under it **Oregon moves from `partial` to `verified`**; Washington
   stays `partial` (its region 4 covariance is published but deliberately not stored).
+- `catalog_row`'s `regulation_class` comes from `flowfreq.regulation.classify_site`
+  (`reference`/`regulated`/`urban`/`unknown`) instead of peak codes alone
+  (`regulated`/`altered`/`no_code_evidence`). `n_peaks` counts distinct water years with
+  a discharge, not rows. `GageAttributes` and its 3-row `gage_attributes.csv` are
+  unchanged.
 - **`analyze_gage` now refuses a regulated gage** (#32). Before fitting, it classifies
   the gage with the new regulation screen. A gage classed `regulated` raises
   `flowfreq.regulation.RegulatedRecordError`, a `ValueError` subclass, unless you pass
@@ -26,6 +54,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `run_ffa` calls are unchanged.
 
 ### Added
+- **Nevada peak-flow regression equations** (`flowfreq/data/regression/NV.json`, Wave 2,
+  #104), `status: "partial"`: 35 equations from WSP 2433 (the only report NSS uses for
+  Nevada), regions 1, 2, 3, 5 (GLS) and 6, 10 (hybrid) at 2-100 years. Partial because the
+  report has no range table (stored limits are NSS's), region 6's 2-year equation is printed
+  `Q=0`, and hybrid errors are not comparable standard errors and are not stored. The
+  worked example reproduces; every stored equation equals live NSS at 3 significant figures.
+  NSS snapshot `data/nss_snapshots/NV_2026-10-01.json`.
 - **Regulation / urbanization screen** (`flowfreq.regulation`, roadmap §1.1, #32).
   `classify_site(site_no, peak_codes=None)` returns `reference`, `regulated`, `urban`
   or `unknown`, with the evidence behind it. `require_unregulated()` is the B17C refusal
@@ -49,6 +84,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     it upstream needs basin polygons) and the NLCD impervious time series.
 
 ### Added
+- **Arizona peak-flow regression equations** (`flowfreq/data/regression/AZ.json`, Wave 2,
+  #102), `status: "partial"`: 53 equations. SIR 2014-5211 flood regions 1-4 at 8 AEPs with
+  Table 12 model error variance and covariance, and SIR 2006-5306 Navajo Nation regions 8,
+  11 and High Elevation. Partial because region 5's `10^(a - b DRNAREA^-c)` form has no
+  schema representation. The p. 34 worked example (Q1 149,714 ft3/s, 90% interval
+  98,000-229,000) reproduces; every stored equation equals live NSS at 3 significant
+  figures. NSS snapshot `data/nss_snapshots/AZ_2026-10-01.json`.
+- **New Mexico peak-flow regression equations** (`flowfreq/data/regression/NM.json`, Wave 2,
+  #100), `status: "verified"`: 91 equations. SIR 2008-5119 flood regions 1-9 (63 equations,
+  Tables 1-2) and SIR 2006-5306 Navajo Nation regions 8, 11, High Elevation and 6, at 7 AEPs
+  each. Double-entered with 0 disagreements; Appendix 1's predicted values and the p. 11
+  worked example reproduce; all 91 equations equal live NSS at 3 significant figures (the
+  2008 regions through NSS's `HIGHREG` gating). Table 1's "12,7000" is stored as 12,700.
+  NSS snapshot `data/nss_snapshots/NM_2026-10-01.json`.
 - **Wyoming peak-flow regression equations** (`flowfreq/data/regression/WY.json`, Wave 2,
   #98), `status: "verified"`: 60 equations, regions 1-6 at 10 AEPs (1.5-500 years), from
   WRIR 03-4107 Tables 1-7. Shifted terms such as `((ELEV - 3,000)/1,000)^b` and

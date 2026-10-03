@@ -79,8 +79,12 @@ Standing rules carried over from this repo's history, which apply to every phase
       ≥10 years of record. Columns: site_no, name, lat/lon, DA, state, HUC8, years of
       record, regulation class, and the regression region it falls in.
       Rebuild it with a script in `tools/`; never edit it by hand.
-      *Substantive:* the schema and loader (`catalog.py`) and `tools/build_gage_catalog.py`.
-      *Stub:* the data. No catalog has been built; the CSV is still the 3-row seed.
+      *Substantive:* `data/gage_catalog.csv.gz` (national, built 2026-10 from the Water
+      Data API `peaks` and `monitoring-locations` collections by
+      `tools/build_gage_catalog.py`), with the schema validated on load. The regulation
+      class comes from #32. *Partial:* `regression_region` is filled for Wave 1 states
+      only, by point-in-polygon against the StreamStats peak-region layers. Other states
+      are added in their waves.
 
 ### 1.2 Geospatial inputs
 - [x] **Watershed polygon** (the open Phase 1 gap). Verify a live source, such as the

@@ -1,0 +1,3248 @@
+{
+  "schema_version": 1,
+  "state": "NM",
+  "status": "verified",
+  "issue": 100,
+  "source_reports": [
+    {
+      "citation": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+      "version": "1.0 (no revisions listed on the pubs page)",
+      "doi": "10.3133/sir20085119",
+      "url": "https://pubs.usgs.gov/publication/sir20085119",
+      "pdf": "https://pubs.usgs.gov/sir/2008/5119/pdf/sir2008-5119.pdf",
+      "tables": [
+        "Table 1",
+        "Table 2",
+        "Appendix 1"
+      ],
+      "nss": {
+        "state_region_id": 35,
+        "citation_id": 97,
+        "regression_region_ids": [
+          397,
+          398,
+          399,
+          400,
+          401,
+          402,
+          403,
+          404,
+          405
+        ],
+        "gating_parameter": "HIGHREG = the region's GC number"
+      }
+    },
+    {
+      "citation": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+      "version": "1.0 (no revisions listed on the pubs page)",
+      "doi": "10.3133/sir20065306",
+      "url": "https://pubs.usgs.gov/publication/sir20065306",
+      "pdf": "https://pubs.usgs.gov/sir/2006/5306/pdf/sir2006-5306_508.pdf",
+      "tables": [
+        "Table 1",
+        "Table 2"
+      ],
+      "nss": {
+        "state_region_id": 35,
+        "citation_id": 11,
+        "regression_region_ids": [
+          393,
+          394,
+          395,
+          396
+        ]
+      }
+    }
+  ],
+  "notes": "Two reports. (1) Waltemeyer, SIR 2008-5119 (no revisions listed on the pubs page), the current statewide New Mexico report and NSS's citation 97 for New Mexico (NSS region 35): flood regions 1-9 at 7 recurrence intervals (2-500 years; no 200-year equation), equations and errors from Table 2 (pp. 9-10), limits from Table 1 (p. 8). In NSS these regions are gated by the parameter HIGHREG, which must equal the region's GC number (GC1092-GC1100 for regions 1-9); HIGHREG is a selector, not a regression variable, and is not stored. Equations are printed as K x 10^n A^a ...; intercept = log10(K x 10^n) (region 8's Q2 prints '8.990 x' with no power of ten; NSS uses 8.99). Variables, all log10: A = DRNAREA (mi2); S = BSLDEM30ff (the report labels average basin slope 'percent (ft/ft*100)', but its values, e.g. 0.0205-0.2023, and the worked example's 0.2422 are ft/ft, as NSS's BSLDEM30ff is); Pa = PRECIP (mean annual precipitation 1961-90, in.); E/1,000 = ELEV with scale 0.001 (the report divides elevation by 1,000); I24,100 = I24H100YA2 (NSS's code, whose name says NOAA Atlas 2, while Table 1 footnote 1 says the data are from NOAA Atlas 14, Bonnin and others, 2004). Error statistics: Table 2 prints log units directly; sep_log is the average standard error of prediction in log units and model_error_variance the square of the average standard error of regression in log units (the model error, p. 11). No covariance and no AVP are published, so intervals use sep_log. n_sites are the Appendix 1 gage counts per region (29, 62, 12, 29, 64, 23, 14, 28, 32; 293 in all, the report's total). Table 1 prints region 2's drainage-area maximum as '12,7000'; Appendix 1's largest region 2 gage is 12,700 mi2 and NSS uses 12,700, so 12,700 is stored. Other report inconsistencies (values stored as Table 1/Table 2 print them): Table 1's region 8 drainage-area maximum (1,200) exceeds every region 8 gage in Appendix 1 (largest 430), and Table 1's ranges for regions 6 and 8 equal SIR 2006-5306's Region 6 and High Elevation ranges; station number 09367680 is printed for two different gages (map 62, Chaco Wash, and map 65, Catron Wash); Appendix 1 gives 08478800's GIS drainage area as 1.80 mi2, but its predicted values and Appendix 2 use 0.20; a few Appendix 1 predicted values are misprinted (08390100 Q100 606,300 where the equation gives 60,600; 08480700 Q100 4,193 against 418; 07227100 Q2 330 against 3,020; 07153500 Q10 10,600 against 11,700). Apart from those, Appendix 1's predicted lines agree with Table 2: of 2,051 values, 2,034 are within 3% (median ratio by region and AEP 0.994-1.007). The p. 11 worked example (region 2 Q100, A 523, S 0.2422, E 6,940) prints 10,800 ft3/s; the equation gives 10,745 (0.5% lower), within the example's rounding of intermediate factors. (2) Waltemeyer, SIR 2006-5306 (Navajo Nation): regions 8, 11, High Elevation and 6, which NSS also lists for New Mexico (GC1088-GC1091), stored exactly as in CO.json and UT.json (region codes Navajo8, Navajo11, NavajoHighElev, Navajo6). Not stored: WSP 2433 (Thomas and others, 1997; NSS GC1079-GC1087), whose New Mexico regions SIR 2008-5119 updates. All values were double-entered (hand transcription from rendered pages vs. a programmatic parse of the PDF text) with zero disagreements, and every region and AEP equals live NSS at its 3 significant figures.",
+  "equations": [
+    {
+      "region_code": "1",
+      "region_name": "Northeast plains flood region (1) (SIR 2008-5119; NSS GC1092)",
+      "aep": 0.5,
+      "intercept": 6.916980047320382,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.536,
+          "maximum": 10800.0
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0205,
+          "maximum": 0.2023
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 14.5,
+          "maximum": 20.15
+        }
+      ],
+      "coefficients": [
+        0.562,
+        0.351,
+        -3.81
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.32,
+      "model_error_variance": 0.088804,
+      "n_sites": 29
+    },
+    {
+      "region_code": "1",
+      "region_name": "Northeast plains flood region (1) (SIR 2008-5119; NSS GC1092)",
+      "aep": 0.2,
+      "intercept": 8.59538598080914,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.536,
+          "maximum": 10800.0
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0205,
+          "maximum": 0.2023
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 14.5,
+          "maximum": 20.15
+        }
+      ],
+      "coefficients": [
+        0.54,
+        0.52,
+        -4.69
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.27,
+      "model_error_variance": 0.0625,
+      "n_sites": 29
+    },
+    {
+      "region_code": "1",
+      "region_name": "Northeast plains flood region (1) (SIR 2008-5119; NSS GC1092)",
+      "aep": 0.1,
+      "intercept": 9.419955748489757,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.536,
+          "maximum": 10800.0
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0205,
+          "maximum": 0.2023
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 14.5,
+          "maximum": 20.15
+        }
+      ],
+      "coefficients": [
+        0.533,
+        0.615,
+        -5.1
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.249,
+      "model_error_variance": 0.052441,
+      "n_sites": 29
+    },
+    {
+      "region_code": "1",
+      "region_name": "Northeast plains flood region (1) (SIR 2008-5119; NSS GC1092)",
+      "aep": 0.04,
+      "intercept": 10.246498580795802,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.536,
+          "maximum": 10800.0
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0205,
+          "maximum": 0.2023
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 14.5,
+          "maximum": 20.15
+        }
+      ],
+      "coefficients": [
+        0.53,
+        0.721,
+        -5.5
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.231,
+      "model_error_variance": 0.0441,
+      "n_sites": 29
+    },
+    {
+      "region_code": "1",
+      "region_name": "Northeast plains flood region (1) (SIR 2008-5119; NSS GC1092)",
+      "aep": 0.02,
+      "intercept": 10.738780558484368,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.536,
+          "maximum": 10800.0
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0205,
+          "maximum": 0.2023
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 14.5,
+          "maximum": 20.15
+        }
+      ],
+      "coefficients": [
+        0.53,
+        0.789,
+        -5.73
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.223,
+      "model_error_variance": 0.04,
+      "n_sites": 29
+    },
+    {
+      "region_code": "1",
+      "region_name": "Northeast plains flood region (1) (SIR 2008-5119; NSS GC1092)",
+      "aep": 0.01,
+      "intercept": 11.146128035678238,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.536,
+          "maximum": 10800.0
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0205,
+          "maximum": 0.2023
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 14.5,
+          "maximum": 20.15
+        }
+      ],
+      "coefficients": [
+        0.531,
+        0.85,
+        -5.9
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.218,
+      "model_error_variance": 0.038025,
+      "n_sites": 29
+    },
+    {
+      "region_code": "1",
+      "region_name": "Northeast plains flood region (1) (SIR 2008-5119; NSS GC1092)",
+      "aep": 0.002,
+      "intercept": 11.830845192308612,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.536,
+          "maximum": 10800.0
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0205,
+          "maximum": 0.2023
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 14.5,
+          "maximum": 20.15
+        }
+      ],
+      "coefficients": [
+        0.537,
+        0.966,
+        -6.15
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.219,
+      "model_error_variance": 0.036481,
+      "n_sites": 29
+    },
+    {
+      "region_code": "2",
+      "region_name": "Northwest plateau flood region (2) (SIR 2008-5119; NSS GC1093)",
+      "aep": 0.5,
+      "intercept": 1.9847972570892929,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.059,
+          "maximum": 12700.0
+        }
+      ],
+      "coefficients": [
+        0.428
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.427,
+      "model_error_variance": 0.175561,
+      "n_sites": 62
+    },
+    {
+      "region_code": "2",
+      "region_name": "Northwest plateau flood region (2) (SIR 2008-5119; NSS GC1093)",
+      "aep": 0.2,
+      "intercept": 4.098989639401177,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.059,
+          "maximum": 12700.0
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0231,
+          "maximum": 0.4447
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4320.0,
+          "maximum": 7520.0,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.365,
+        0.365,
+        -1.69
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.332,
+      "model_error_variance": 0.101124,
+      "n_sites": 62
+    },
+    {
+      "region_code": "2",
+      "region_name": "Northwest plateau flood region (2) (SIR 2008-5119; NSS GC1093)",
+      "aep": 0.1,
+      "intercept": 4.466422722433792,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.059,
+          "maximum": 12700.0
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0231,
+          "maximum": 0.4447
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4320.0,
+          "maximum": 7520.0,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.344,
+        0.395,
+        -1.84
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.287,
+      "model_error_variance": 0.075076,
+      "n_sites": 62
+    },
+    {
+      "region_code": "2",
+      "region_name": "Northwest plateau flood region (2) (SIR 2008-5119; NSS GC1093)",
+      "aep": 0.04,
+      "intercept": 4.825101411598003,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.059,
+          "maximum": 12700.0
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0231,
+          "maximum": 0.4447
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4320.0,
+          "maximum": 7520.0,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.323,
+        0.424,
+        -1.95
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.252,
+      "model_error_variance": 0.056644,
+      "n_sites": 62
+    },
+    {
+      "region_code": "2",
+      "region_name": "Northwest plateau flood region (2) (SIR 2008-5119; NSS GC1093)",
+      "aep": 0.02,
+      "intercept": 5.025715383901341,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.059,
+          "maximum": 12700.0
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0231,
+          "maximum": 0.4447
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4320.0,
+          "maximum": 7520.0,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.308,
+        0.442,
+        -1.99
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.24,
+      "model_error_variance": 0.051076,
+      "n_sites": 62
+    },
+    {
+      "region_code": "2",
+      "region_name": "Northwest plateau flood region (2) (SIR 2008-5119; NSS GC1093)",
+      "aep": 0.01,
+      "intercept": 5.184975190698261,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.059,
+          "maximum": 12700.0
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0231,
+          "maximum": 0.4447
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4320.0,
+          "maximum": 7520.0,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.295,
+        0.457,
+        -1.99
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.238,
+      "model_error_variance": 0.049729,
+      "n_sites": 62
+    },
+    {
+      "region_code": "2",
+      "region_name": "Northwest plateau flood region (2) (SIR 2008-5119; NSS GC1093)",
+      "aep": 0.002,
+      "intercept": 5.470557485217274,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.059,
+          "maximum": 12700.0
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0231,
+          "maximum": 0.4447
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4320.0,
+          "maximum": 7520.0,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.267,
+        0.482,
+        -1.97
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.26,
+      "model_error_variance": 0.058564,
+      "n_sites": 62
+    },
+    {
+      "region_code": "3",
+      "region_name": "Southeast mountain flood region (3) (SIR 2008-5119; NSS GC1094)",
+      "aep": 0.5,
+      "intercept": 4.325925955771466,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 3.35,
+          "maximum": 716.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4890.0,
+          "maximum": 8820.0,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.611,
+        -3.16
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.381,
+      "model_error_variance": 0.113569,
+      "n_sites": 12
+    },
+    {
+      "region_code": "3",
+      "region_name": "Southeast mountain flood region (3) (SIR 2008-5119; NSS GC1094)",
+      "aep": 0.2,
+      "intercept": 5.177824971864681,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 3.35,
+          "maximum": 716.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4890.0,
+          "maximum": 8820.0,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.662,
+        -3.81
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.359,
+      "model_error_variance": 0.099856,
+      "n_sites": 12
+    },
+    {
+      "region_code": "3",
+      "region_name": "Southeast mountain flood region (3) (SIR 2008-5119; NSS GC1094)",
+      "aep": 0.1,
+      "intercept": 5.559906625036112,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 3.35,
+          "maximum": 716.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4890.0,
+          "maximum": 8820.0,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.698,
+        -4.09
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.351,
+      "model_error_variance": 0.094249,
+      "n_sites": 12
+    },
+    {
+      "region_code": "3",
+      "region_name": "Southeast mountain flood region (3) (SIR 2008-5119; NSS GC1094)",
+      "aep": 0.04,
+      "intercept": 5.91270020819086,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 3.35,
+          "maximum": 716.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4890.0,
+          "maximum": 8820.0,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.744,
+        -4.34
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.345,
+      "model_error_variance": 0.089401,
+      "n_sites": 12
+    },
+    {
+      "region_code": "3",
+      "region_name": "Southeast mountain flood region (3) (SIR 2008-5119; NSS GC1094)",
+      "aep": 0.02,
+      "intercept": 6.110252917353403,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 3.35,
+          "maximum": 716.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4890.0,
+          "maximum": 8820.0,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.776,
+        -4.47
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.342,
+      "model_error_variance": 0.086436,
+      "n_sites": 12
+    },
+    {
+      "region_code": "3",
+      "region_name": "Southeast mountain flood region (3) (SIR 2008-5119; NSS GC1094)",
+      "aep": 0.01,
+      "intercept": 6.268577971882843,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 3.35,
+          "maximum": 716.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4890.0,
+          "maximum": 8820.0,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.808,
+        -4.57
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.341,
+      "model_error_variance": 0.084681,
+      "n_sites": 12
+    },
+    {
+      "region_code": "3",
+      "region_name": "Southeast mountain flood region (3) (SIR 2008-5119; NSS GC1094)",
+      "aep": 0.002,
+      "intercept": 6.535294120042771,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 3.35,
+          "maximum": 716.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4890.0,
+          "maximum": 8820.0,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.876,
+        -4.71
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.344,
+      "model_error_variance": 0.083521,
+      "n_sites": 12
+    },
+    {
+      "region_code": "4",
+      "region_name": "Southeast plains flood region (4) (SIR 2008-5119; NSS GC1095)",
+      "aep": 0.5,
+      "intercept": 3.6786094165589263,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.14,
+          "maximum": 4460.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 3970.0,
+          "maximum": 7620.0,
+          "scale": 0.001
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0194,
+          "maximum": 0.1966
+        }
+      ],
+      "coefficients": [
+        0.467,
+        -1.36,
+        0.589
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.362,
+      "model_error_variance": 0.112896,
+      "n_sites": 29
+    },
+    {
+      "region_code": "4",
+      "region_name": "Southeast plains flood region (4) (SIR 2008-5119; NSS GC1095)",
+      "aep": 0.2,
+      "intercept": 4.582631439489637,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.14,
+          "maximum": 4460.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 3970.0,
+          "maximum": 7620.0,
+          "scale": 0.001
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0194,
+          "maximum": 0.1966
+        }
+      ],
+      "coefficients": [
+        0.465,
+        -2.05,
+        0.532
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.233,
+      "model_error_variance": 0.045369,
+      "n_sites": 29
+    },
+    {
+      "region_code": "4",
+      "region_name": "Southeast plains flood region (4) (SIR 2008-5119; NSS GC1095)",
+      "aep": 0.1,
+      "intercept": 4.981682727371285,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.14,
+          "maximum": 4460.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 3970.0,
+          "maximum": 7620.0,
+          "scale": 0.001
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0194,
+          "maximum": 0.1966
+        }
+      ],
+      "coefficients": [
+        0.46,
+        -2.31,
+        0.494
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.18,
+      "model_error_variance": 0.025281,
+      "n_sites": 29
+    },
+    {
+      "region_code": "4",
+      "region_name": "Southeast plains flood region (4) (SIR 2008-5119; NSS GC1095)",
+      "aep": 0.04,
+      "intercept": 5.409087369447835,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.14,
+          "maximum": 4460.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 3970.0,
+          "maximum": 7620.0,
+          "scale": 0.001
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0194,
+          "maximum": 0.1966
+        }
+      ],
+      "coefficients": [
+        0.448,
+        -2.54,
+        0.477
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.151,
+      "model_error_variance": 0.015876,
+      "n_sites": 29
+    },
+    {
+      "region_code": "4",
+      "region_name": "Southeast plains flood region (4) (SIR 2008-5119; NSS GC1095)",
+      "aep": 0.02,
+      "intercept": 5.723701893991268,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.14,
+          "maximum": 4460.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 3970.0,
+          "maximum": 7620.0,
+          "scale": 0.001
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0194,
+          "maximum": 0.1966
+        }
+      ],
+      "coefficients": [
+        0.436,
+        -2.72,
+        0.483
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.158,
+      "model_error_variance": 0.0169,
+      "n_sites": 29
+    },
+    {
+      "region_code": "4",
+      "region_name": "Southeast plains flood region (4) (SIR 2008-5119; NSS GC1095)",
+      "aep": 0.01,
+      "intercept": 6.024074987307427,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.14,
+          "maximum": 4460.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 3970.0,
+          "maximum": 7620.0,
+          "scale": 0.001
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0194,
+          "maximum": 0.1966
+        }
+      ],
+      "coefficients": [
+        0.426,
+        -2.89,
+        0.489
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.182,
+      "model_error_variance": 0.023104,
+      "n_sites": 29
+    },
+    {
+      "region_code": "4",
+      "region_name": "Southeast plains flood region (4) (SIR 2008-5119; NSS GC1095)",
+      "aep": 0.002,
+      "intercept": 6.613524702853653,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.14,
+          "maximum": 4460.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 3970.0,
+          "maximum": 7620.0,
+          "scale": 0.001
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0194,
+          "maximum": 0.1966
+        }
+      ],
+      "coefficients": [
+        0.404,
+        -3.24,
+        0.484
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.261,
+      "model_error_variance": 0.051529,
+      "n_sites": 29
+    },
+    {
+      "region_code": "5",
+      "region_name": "Northern mountain flood region (5) (SIR 2008-5119; NSS GC1096)",
+      "aep": 0.5,
+      "intercept": 0.47856649559384334,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.606,
+          "maximum": 3120.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 7570.0,
+          "maximum": 11500.0,
+          "scale": 0.001
+        },
+        {
+          "code": "I24H100YA2",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 3.08,
+          "maximum": 5.51
+        }
+      ],
+      "coefficients": [
+        0.805,
+        -1.61,
+        3.41
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.306,
+      "model_error_variance": 0.087616,
+      "n_sites": 64
+    },
+    {
+      "region_code": "5",
+      "region_name": "Northern mountain flood region (5) (SIR 2008-5119; NSS GC1096)",
+      "aep": 0.2,
+      "intercept": 1.575187844927661,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.606,
+          "maximum": 3120.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 7570.0,
+          "maximum": 11500.0,
+          "scale": 0.001
+        },
+        {
+          "code": "I24H100YA2",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 3.08,
+          "maximum": 5.51
+        }
+      ],
+      "coefficients": [
+        0.761,
+        -2.58,
+        3.76
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.257,
+      "model_error_variance": 0.061009,
+      "n_sites": 64
+    },
+    {
+      "region_code": "5",
+      "region_name": "Northern mountain flood region (5) (SIR 2008-5119; NSS GC1096)",
+      "aep": 0.1,
+      "intercept": 2.2105860249051563,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.606,
+          "maximum": 3120.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 7570.0,
+          "maximum": 11500.0,
+          "scale": 0.001
+        },
+        {
+          "code": "I24H100YA2",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 3.08,
+          "maximum": 5.51
+        }
+      ],
+      "coefficients": [
+        0.736,
+        -3.14,
+        3.93
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.242,
+      "model_error_variance": 0.054289,
+      "n_sites": 64
+    },
+    {
+      "region_code": "5",
+      "region_name": "Northern mountain flood region (5) (SIR 2008-5119; NSS GC1096)",
+      "aep": 0.04,
+      "intercept": 2.9192873405043827,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.606,
+          "maximum": 3120.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 7570.0,
+          "maximum": 11500.0,
+          "scale": 0.001
+        },
+        {
+          "code": "I24H100YA2",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 3.08,
+          "maximum": 5.51
+        }
+      ],
+      "coefficients": [
+        0.709,
+        -3.76,
+        4.1
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.242,
+      "model_error_variance": 0.053824,
+      "n_sites": 64
+    },
+    {
+      "region_code": "5",
+      "region_name": "Northern mountain flood region (5) (SIR 2008-5119; NSS GC1096)",
+      "aep": 0.02,
+      "intercept": 3.388988785124714,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.606,
+          "maximum": 3120.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 7570.0,
+          "maximum": 11500.0,
+          "scale": 0.001
+        },
+        {
+          "code": "I24H100YA2",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 3.08,
+          "maximum": 5.51
+        }
+      ],
+      "coefficients": [
+        0.691,
+        -4.17,
+        4.21
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.253,
+      "model_error_variance": 0.058564,
+      "n_sites": 64
+    },
+    {
+      "region_code": "5",
+      "region_name": "Northern mountain flood region (5) (SIR 2008-5119; NSS GC1096)",
+      "aep": 0.01,
+      "intercept": 3.8190171986890595,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.606,
+          "maximum": 3120.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 7570.0,
+          "maximum": 11500.0,
+          "scale": 0.001
+        },
+        {
+          "code": "I24H100YA2",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 3.08,
+          "maximum": 5.51
+        }
+      ],
+      "coefficients": [
+        0.675,
+        -4.55,
+        4.32
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.268,
+      "model_error_variance": 0.066049,
+      "n_sites": 64
+    },
+    {
+      "region_code": "5",
+      "region_name": "Northern mountain flood region (5) (SIR 2008-5119; NSS GC1096)",
+      "aep": 0.002,
+      "intercept": 4.716921073166761,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.606,
+          "maximum": 3120.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 7570.0,
+          "maximum": 11500.0,
+          "scale": 0.001
+        },
+        {
+          "code": "I24H100YA2",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 3.08,
+          "maximum": 5.51
+        }
+      ],
+      "coefficients": [
+        0.642,
+        -5.36,
+        4.55
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.318,
+      "model_error_variance": 0.092416,
+      "n_sites": 64
+    },
+    {
+      "region_code": "6",
+      "region_name": "Central mountain valley flood region (6) (SIR 2008-5119; NSS GC1097)",
+      "aep": 0.5,
+      "intercept": 2.1231980750319988,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.18,
+          "maximum": 7220.0
+        }
+      ],
+      "coefficients": [
+        0.42
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.394,
+      "model_error_variance": 0.141376,
+      "n_sites": 23
+    },
+    {
+      "region_code": "6",
+      "region_name": "Central mountain valley flood region (6) (SIR 2008-5119; NSS GC1097)",
+      "aep": 0.2,
+      "intercept": 2.500099191915723,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.18,
+          "maximum": 7220.0
+        }
+      ],
+      "coefficients": [
+        0.394
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.313,
+      "model_error_variance": 0.088804,
+      "n_sites": 23
+    },
+    {
+      "region_code": "6",
+      "region_name": "Central mountain valley flood region (6) (SIR 2008-5119; NSS GC1097)",
+      "aep": 0.1,
+      "intercept": 2.690727543870367,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.18,
+          "maximum": 7220.0
+        }
+      ],
+      "coefficients": [
+        0.383
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.284,
+      "model_error_variance": 0.072361,
+      "n_sites": 23
+    },
+    {
+      "region_code": "6",
+      "region_name": "Central mountain valley flood region (6) (SIR 2008-5119; NSS GC1097)",
+      "aep": 0.04,
+      "intercept": 2.8920946026904804,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.18,
+          "maximum": 7220.0
+        }
+      ],
+      "coefficients": [
+        0.372
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.267,
+      "model_error_variance": 0.063504,
+      "n_sites": 23
+    },
+    {
+      "region_code": "6",
+      "region_name": "Central mountain valley flood region (6) (SIR 2008-5119; NSS GC1097)",
+      "aep": 0.02,
+      "intercept": 3.021602716028242,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.18,
+          "maximum": 7220.0
+        }
+      ],
+      "coefficients": [
+        0.365
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.265,
+      "model_error_variance": 0.061504,
+      "n_sites": 23
+    },
+    {
+      "region_code": "6",
+      "region_name": "Central mountain valley flood region (6) (SIR 2008-5119; NSS GC1097)",
+      "aep": 0.01,
+      "intercept": 3.137986732723532,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.18,
+          "maximum": 7220.0
+        }
+      ],
+      "coefficients": [
+        0.359
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.268,
+      "model_error_variance": 0.063001,
+      "n_sites": 23
+    },
+    {
+      "region_code": "6",
+      "region_name": "Central mountain valley flood region (6) (SIR 2008-5119; NSS GC1097)",
+      "aep": 0.002,
+      "intercept": 3.371806458507416,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.18,
+          "maximum": 7220.0
+        }
+      ],
+      "coefficients": [
+        0.348
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.292,
+      "model_error_variance": 0.074529,
+      "n_sites": 23
+    },
+    {
+      "region_code": "7",
+      "region_name": "Southwest desert flood region (7) (SIR 2008-5119; NSS GC1098)",
+      "aep": 0.5,
+      "intercept": 2.1658376246901283,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.2,
+          "maximum": 2820.0
+        }
+      ],
+      "coefficients": [
+        0.454
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.251,
+      "model_error_variance": 0.054289,
+      "n_sites": 14
+    },
+    {
+      "region_code": "7",
+      "region_name": "Southwest desert flood region (7) (SIR 2008-5119; NSS GC1098)",
+      "aep": 0.2,
+      "intercept": 2.4435758797502576,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.2,
+          "maximum": 2820.0
+        }
+      ],
+      "coefficients": [
+        0.468
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.196,
+      "model_error_variance": 0.0324,
+      "n_sites": 14
+    },
+    {
+      "region_code": "7",
+      "region_name": "Southwest desert flood region (7) (SIR 2008-5119; NSS GC1098)",
+      "aep": 0.1,
+      "intercept": 2.5886078047426864,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.2,
+          "maximum": 2820.0
+        }
+      ],
+      "coefficients": [
+        0.477
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.173,
+      "model_error_variance": 0.024649,
+      "n_sites": 14
+    },
+    {
+      "region_code": "7",
+      "region_name": "Southwest desert flood region (7) (SIR 2008-5119; NSS GC1098)",
+      "aep": 0.04,
+      "intercept": 2.7432745235119333,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.2,
+          "maximum": 2820.0
+        }
+      ],
+      "coefficients": [
+        0.488
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.157,
+      "model_error_variance": 0.0196,
+      "n_sites": 14
+    },
+    {
+      "region_code": "7",
+      "region_name": "Southwest desert flood region (7) (SIR 2008-5119; NSS GC1098)",
+      "aep": 0.02,
+      "intercept": 2.8422971343280654,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.2,
+          "maximum": 2820.0
+        }
+      ],
+      "coefficients": [
+        0.497
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.155,
+      "model_error_variance": 0.018496,
+      "n_sites": 14
+    },
+    {
+      "region_code": "7",
+      "region_name": "Southwest desert flood region (7) (SIR 2008-5119; NSS GC1098)",
+      "aep": 0.01,
+      "intercept": 2.93033763573773,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.2,
+          "maximum": 2820.0
+        }
+      ],
+      "coefficients": [
+        0.506
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.159,
+      "model_error_variance": 0.019044,
+      "n_sites": 14
+    },
+    {
+      "region_code": "7",
+      "region_name": "Southwest desert flood region (7) (SIR 2008-5119; NSS GC1098)",
+      "aep": 0.002,
+      "intercept": 3.1055101847699738,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.2,
+          "maximum": 2820.0
+        }
+      ],
+      "coefficients": [
+        0.529
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.186,
+      "model_error_variance": 0.026244,
+      "n_sites": 14
+    },
+    {
+      "region_code": "8",
+      "region_name": "Southwest mountain flood region (8) (SIR 2008-5119; NSS GC1099)",
+      "aep": 0.5,
+      "intercept": 0.9537596917332288,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.7,
+          "maximum": 1200.0
+        }
+      ],
+      "coefficients": [
+        0.8
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.223,
+      "model_error_variance": 0.045369,
+      "n_sites": 28
+    },
+    {
+      "region_code": "8",
+      "region_name": "Southwest mountain flood region (8) (SIR 2008-5119; NSS GC1099)",
+      "aep": 0.2,
+      "intercept": 1.4007106367732314,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.7,
+          "maximum": 1200.0
+        }
+      ],
+      "coefficients": [
+        0.728
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.186,
+      "model_error_variance": 0.030976,
+      "n_sites": 28
+    },
+    {
+      "region_code": "8",
+      "region_name": "Southwest mountain flood region (8) (SIR 2008-5119; NSS GC1099)",
+      "aep": 0.1,
+      "intercept": 1.6344772701607315,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.7,
+          "maximum": 1200.0
+        }
+      ],
+      "coefficients": [
+        0.691
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.18,
+      "model_error_variance": 0.028561,
+      "n_sites": 28
+    },
+    {
+      "region_code": "8",
+      "region_name": "Southwest mountain flood region (8) (SIR 2008-5119; NSS GC1099)",
+      "aep": 0.04,
+      "intercept": 1.8829796540372992,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.7,
+          "maximum": 1200.0
+        }
+      ],
+      "coefficients": [
+        0.652
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.185,
+      "model_error_variance": 0.029584,
+      "n_sites": 28
+    },
+    {
+      "region_code": "8",
+      "region_name": "Southwest mountain flood region (8) (SIR 2008-5119; NSS GC1099)",
+      "aep": 0.02,
+      "intercept": 2.0433622780211294,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.7,
+          "maximum": 1200.0
+        }
+      ],
+      "coefficients": [
+        0.626
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.195,
+      "model_error_variance": 0.032761,
+      "n_sites": 28
+    },
+    {
+      "region_code": "8",
+      "region_name": "Southwest mountain flood region (8) (SIR 2008-5119; NSS GC1099)",
+      "aep": 0.01,
+      "intercept": 2.187238619831479,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.7,
+          "maximum": 1200.0
+        }
+      ],
+      "coefficients": [
+        0.603
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.208,
+      "model_error_variance": 0.037249,
+      "n_sites": 28
+    },
+    {
+      "region_code": "8",
+      "region_name": "Southwest mountain flood region (8) (SIR 2008-5119; NSS GC1099)",
+      "aep": 0.002,
+      "intercept": 2.478854967528663,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.7,
+          "maximum": 1200.0
+        }
+      ],
+      "coefficients": [
+        0.557
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.246,
+      "model_error_variance": 0.052441,
+      "n_sites": 28
+    },
+    {
+      "region_code": "9",
+      "region_name": "Northern Arizona flood region (9) (SIR 2008-5119; NSS GC1100)",
+      "aep": 0.5,
+      "intercept": 2.6094876898532853,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.107,
+          "maximum": 2150.0
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0177,
+          "maximum": 0.1545
+        }
+      ],
+      "coefficients": [
+        0.495,
+        0.777
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.36,
+      "model_error_variance": 0.1156,
+      "n_sites": 32
+    },
+    {
+      "region_code": "9",
+      "region_name": "Northern Arizona flood region (9) (SIR 2008-5119; NSS GC1100)",
+      "aep": 0.2,
+      "intercept": 3.012415374762433,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.107,
+          "maximum": 2150.0
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0177,
+          "maximum": 0.1545
+        }
+      ],
+      "coefficients": [
+        0.488,
+        0.787
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.286,
+      "model_error_variance": 0.071824,
+      "n_sites": 32
+    },
+    {
+      "region_code": "9",
+      "region_name": "Northern Arizona flood region (9) (SIR 2008-5119; NSS GC1100)",
+      "aep": 0.1,
+      "intercept": 3.2430380486862944,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.107,
+          "maximum": 2150.0
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0177,
+          "maximum": 0.1545
+        }
+      ],
+      "coefficients": [
+        0.481,
+        0.805
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.27,
+      "model_error_variance": 0.063001,
+      "n_sites": 32
+    },
+    {
+      "region_code": "9",
+      "region_name": "Northern Arizona flood region (9) (SIR 2008-5119; NSS GC1100)",
+      "aep": 0.04,
+      "intercept": 3.4992745818922173,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.107,
+          "maximum": 2150.0
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0177,
+          "maximum": 0.1545
+        }
+      ],
+      "coefficients": [
+        0.473,
+        0.831
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.276,
+      "model_error_variance": 0.065025,
+      "n_sites": 32
+    },
+    {
+      "region_code": "9",
+      "region_name": "Northern Arizona flood region (9) (SIR 2008-5119; NSS GC1100)",
+      "aep": 0.02,
+      "intercept": 3.666705136119899,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.107,
+          "maximum": 2150.0
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0177,
+          "maximum": 0.1545
+        }
+      ],
+      "coefficients": [
+        0.466,
+        0.85
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.292,
+      "model_error_variance": 0.072361,
+      "n_sites": 32
+    },
+    {
+      "region_code": "9",
+      "region_name": "Northern Arizona flood region (9) (SIR 2008-5119; NSS GC1100)",
+      "aep": 0.01,
+      "intercept": 3.8178296997456056,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.107,
+          "maximum": 2150.0
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0177,
+          "maximum": 0.1545
+        }
+      ],
+      "coefficients": [
+        0.46,
+        0.867
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.313,
+      "model_error_variance": 0.083521,
+      "n_sites": 32
+    },
+    {
+      "region_code": "9",
+      "region_name": "Northern Arizona flood region (9) (SIR 2008-5119; NSS GC1100)",
+      "aep": 0.002,
+      "intercept": 4.125481265700594,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.107,
+          "maximum": 2150.0
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0177,
+          "maximum": 0.1545
+        }
+      ],
+      "coefficients": [
+        0.446,
+        0.904
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2008, Analysis of the magnitude and frequency of peak discharge and maximum observed peak discharge in New Mexico and surrounding areas: U.S. Geological Survey Scientific Investigations Report 2008-5119",
+        "table": "Table 2; Table 1",
+        "year": 2008,
+        "url": "https://doi.org/10.3133/sir20085119"
+      },
+      "sep_log": 0.373,
+      "model_error_variance": 0.119025,
+      "n_sites": 32
+    },
+    {
+      "region_code": "Navajo8",
+      "region_name": "Navajo Nation Region 8 (SIR 2006-5306; NSS GC1088)",
+      "aep": 0.5,
+      "intercept": 7.033423755486949,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.06,
+          "maximum": 4350
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4320,
+          "maximum": 7750
+        }
+      ],
+      "coefficients": [
+        0.457,
+        -1.35
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.397,
+      "model_error_variance": 0.148996,
+      "n_sites": 62
+    },
+    {
+      "region_code": "Navajo8",
+      "region_name": "Navajo Nation Region 8 (SIR 2006-5306; NSS GC1088)",
+      "aep": 0.2,
+      "intercept": 10.232996110392154,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.06,
+          "maximum": 4350
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0231,
+          "maximum": 0.4447
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4320,
+          "maximum": 7750
+        }
+      ],
+      "coefficients": [
+        0.372,
+        0.36,
+        -1.98
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.294,
+      "model_error_variance": 0.079524,
+      "n_sites": 62
+    },
+    {
+      "region_code": "Navajo8",
+      "region_name": "Navajo Nation Region 8 (SIR 2006-5306; NSS GC1088)",
+      "aep": 0.1,
+      "intercept": 10.943988875073773,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.06,
+          "maximum": 4350
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0231,
+          "maximum": 0.4447
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4320,
+          "maximum": 7750
+        }
+      ],
+      "coefficients": [
+        0.343,
+        0.395,
+        -2.1
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.25,
+      "model_error_variance": 0.056644,
+      "n_sites": 62
+    },
+    {
+      "region_code": "Navajo8",
+      "region_name": "Navajo Nation Region 8 (SIR 2006-5306; NSS GC1088)",
+      "aep": 0.04,
+      "intercept": 11.592176757395867,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.06,
+          "maximum": 4350
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0231,
+          "maximum": 0.4447
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4320,
+          "maximum": 7750
+        }
+      ],
+      "coefficients": [
+        0.31,
+        0.432,
+        -2.19
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.22,
+      "model_error_variance": 0.042436,
+      "n_sites": 62
+    },
+    {
+      "region_code": "Navajo8",
+      "region_name": "Navajo Nation Region 8 (SIR 2006-5306; NSS GC1088)",
+      "aep": 0.02,
+      "intercept": 11.927883410330708,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.06,
+          "maximum": 4350
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0231,
+          "maximum": 0.4447
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4320,
+          "maximum": 7750
+        }
+      ],
+      "coefficients": [
+        0.287,
+        0.46,
+        -2.23
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.214,
+      "model_error_variance": 0.039601,
+      "n_sites": 62
+    },
+    {
+      "region_code": "Navajo8",
+      "region_name": "Navajo Nation Region 8 (SIR 2006-5306; NSS GC1088)",
+      "aep": 0.01,
+      "intercept": 12.1846914308176,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.06,
+          "maximum": 4350
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0231,
+          "maximum": 0.4447
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4320,
+          "maximum": 7750
+        }
+      ],
+      "coefficients": [
+        0.265,
+        0.477,
+        -2.25
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.219,
+      "model_error_variance": 0.041209,
+      "n_sites": 62
+    },
+    {
+      "region_code": "Navajo8",
+      "region_name": "Navajo Nation Region 8 (SIR 2006-5306; NSS GC1088)",
+      "aep": 0.002,
+      "intercept": 12.627365856592732,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.06,
+          "maximum": 4350
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0231,
+          "maximum": 0.4447
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4320,
+          "maximum": 7750
+        }
+      ],
+      "coefficients": [
+        0.224,
+        0.513,
+        -2.28
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.256,
+      "model_error_variance": 0.056169,
+      "n_sites": 62
+    },
+    {
+      "region_code": "Navajo11",
+      "region_name": "Navajo Nation Region 11 (SIR 2006-5306; NSS GC1090)",
+      "aep": 0.5,
+      "intercept": 2.484299839346786,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.11,
+          "maximum": 2150
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0177,
+          "maximum": 0.1545
+        }
+      ],
+      "coefficients": [
+        0.476,
+        0.608
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.367,
+      "model_error_variance": 0.121104,
+      "n_sites": 34
+    },
+    {
+      "region_code": "Navajo11",
+      "region_name": "Navajo Nation Region 11 (SIR 2006-5306; NSS GC1090)",
+      "aep": 0.2,
+      "intercept": 2.926342446625655,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.11,
+          "maximum": 2150
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0177,
+          "maximum": 0.1545
+        }
+      ],
+      "coefficients": [
+        0.471,
+        0.653
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.296,
+      "model_error_variance": 0.077284,
+      "n_sites": 34
+    },
+    {
+      "region_code": "Navajo11",
+      "region_name": "Navajo Nation Region 11 (SIR 2006-5306; NSS GC1090)",
+      "aep": 0.1,
+      "intercept": 3.173186268412274,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.11,
+          "maximum": 2150
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0177,
+          "maximum": 0.1545
+        }
+      ],
+      "coefficients": [
+        0.466,
+        0.688
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.28,
+      "model_error_variance": 0.068644,
+      "n_sites": 34
+    },
+    {
+      "region_code": "Navajo11",
+      "region_name": "Navajo Nation Region 11 (SIR 2006-5306; NSS GC1090)",
+      "aep": 0.04,
+      "intercept": 3.4456042032735974,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.11,
+          "maximum": 2150
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0177,
+          "maximum": 0.1545
+        }
+      ],
+      "coefficients": [
+        0.46,
+        0.73
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.282,
+      "model_error_variance": 0.069169,
+      "n_sites": 34
+    },
+    {
+      "region_code": "Navajo11",
+      "region_name": "Navajo Nation Region 11 (SIR 2006-5306; NSS GC1090)",
+      "aep": 0.02,
+      "intercept": 3.622214022966295,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.11,
+          "maximum": 2150
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0177,
+          "maximum": 0.1545
+        }
+      ],
+      "coefficients": [
+        0.455,
+        0.759
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.295,
+      "model_error_variance": 0.075076,
+      "n_sites": 34
+    },
+    {
+      "region_code": "Navajo11",
+      "region_name": "Navajo Nation Region 11 (SIR 2006-5306; NSS GC1090)",
+      "aep": 0.01,
+      "intercept": 3.780317312140151,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.11,
+          "maximum": 2150
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0177,
+          "maximum": 0.1545
+        }
+      ],
+      "coefficients": [
+        0.45,
+        0.784
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.313,
+      "model_error_variance": 0.0841,
+      "n_sites": 34
+    },
+    {
+      "region_code": "Navajo11",
+      "region_name": "Navajo Nation Region 11 (SIR 2006-5306; NSS GC1090)",
+      "aep": 0.002,
+      "intercept": 4.096910013008056,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.11,
+          "maximum": 2150
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0177,
+          "maximum": 0.1545
+        }
+      ],
+      "coefficients": [
+        0.439,
+        0.836
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.363,
+      "model_error_variance": 0.112896,
+      "n_sites": 34
+    },
+    {
+      "region_code": "NavajoHighElev",
+      "region_name": "Navajo Nation Region High Elevation (mean basin elevation > 7,500 ft) (SIR 2006-5306; NSS GC1089)",
+      "aep": 0.5,
+      "intercept": 1.0374264979406236,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.7,
+          "maximum": 1200
+        }
+      ],
+      "coefficients": [
+        0.767
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.208,
+      "model_error_variance": 0.039601,
+      "n_sites": 27
+    },
+    {
+      "region_code": "NavajoHighElev",
+      "region_name": "Navajo Nation Region High Elevation (mean basin elevation > 7,500 ft) (SIR 2006-5306; NSS GC1089)",
+      "aep": 0.2,
+      "intercept": 1.4487063199050798,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.7,
+          "maximum": 1200
+        }
+      ],
+      "coefficients": [
+        0.711
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.168,
+      "model_error_variance": 0.024964,
+      "n_sites": 27
+    },
+    {
+      "region_code": "NavajoHighElev",
+      "region_name": "Navajo Nation Region High Elevation (mean basin elevation > 7,500 ft) (SIR 2006-5306; NSS GC1089)",
+      "aep": 0.1,
+      "intercept": 1.670245853074124,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.7,
+          "maximum": 1200
+        }
+      ],
+      "coefficients": [
+        0.68
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.16,
+      "model_error_variance": 0.022201,
+      "n_sites": 27
+    },
+    {
+      "region_code": "NavajoHighElev",
+      "region_name": "Navajo Nation Region High Elevation (mean basin elevation > 7,500 ft) (SIR 2006-5306; NSS GC1089)",
+      "aep": 0.04,
+      "intercept": 1.9074113607745862,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.7,
+          "maximum": 1200
+        }
+      ],
+      "coefficients": [
+        0.646
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.164,
+      "model_error_variance": 0.023104,
+      "n_sites": 27
+    },
+    {
+      "region_code": "NavajoHighElev",
+      "region_name": "Navajo Nation Region High Elevation (mean basin elevation > 7,500 ft) (SIR 2006-5306; NSS GC1089)",
+      "aep": 0.02,
+      "intercept": 2.060697840353612,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.7,
+          "maximum": 1200
+        }
+      ],
+      "coefficients": [
+        0.623
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.173,
+      "model_error_variance": 0.0256,
+      "n_sites": 27
+    },
+    {
+      "region_code": "NavajoHighElev",
+      "region_name": "Navajo Nation Region High Elevation (mean basin elevation > 7,500 ft) (SIR 2006-5306; NSS GC1089)",
+      "aep": 0.01,
+      "intercept": 2.2013971243204513,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.7,
+          "maximum": 1200
+        }
+      ],
+      "coefficients": [
+        0.602
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.186,
+      "model_error_variance": 0.029584,
+      "n_sites": 27
+    },
+    {
+      "region_code": "NavajoHighElev",
+      "region_name": "Navajo Nation Region High Elevation (mean basin elevation > 7,500 ft) (SIR 2006-5306; NSS GC1089)",
+      "aep": 0.002,
+      "intercept": 2.4885507165004443,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.7,
+          "maximum": 1200
+        }
+      ],
+      "coefficients": [
+        0.557
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.222,
+      "model_error_variance": 0.042025,
+      "n_sites": 27
+    },
+    {
+      "region_code": "Navajo6",
+      "region_name": "Navajo Nation Region 6 (SIR 2006-5306; NSS GC1091)",
+      "aep": 0.5,
+      "intercept": 2.1231980750319988,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.18,
+          "maximum": 7220
+        }
+      ],
+      "coefficients": [
+        0.42
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.39,
+      "model_error_variance": 0.141376,
+      "n_sites": 23
+    },
+    {
+      "region_code": "Navajo6",
+      "region_name": "Navajo Nation Region 6 (SIR 2006-5306; NSS GC1091)",
+      "aep": 0.2,
+      "intercept": 2.500099191915723,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.18,
+          "maximum": 7220
+        }
+      ],
+      "coefficients": [
+        0.394
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.307,
+      "model_error_variance": 0.088804,
+      "n_sites": 23
+    },
+    {
+      "region_code": "Navajo6",
+      "region_name": "Navajo Nation Region 6 (SIR 2006-5306; NSS GC1091)",
+      "aep": 0.1,
+      "intercept": 2.690727543870367,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.18,
+          "maximum": 7220
+        }
+      ],
+      "coefficients": [
+        0.383
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.277,
+      "model_error_variance": 0.072361,
+      "n_sites": 23
+    },
+    {
+      "region_code": "Navajo6",
+      "region_name": "Navajo Nation Region 6 (SIR 2006-5306; NSS GC1091)",
+      "aep": 0.04,
+      "intercept": 2.8920946026904804,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.18,
+          "maximum": 7220
+        }
+      ],
+      "coefficients": [
+        0.372
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.26,
+      "model_error_variance": 0.063504,
+      "n_sites": 23
+    },
+    {
+      "region_code": "Navajo6",
+      "region_name": "Navajo Nation Region 6 (SIR 2006-5306; NSS GC1091)",
+      "aep": 0.02,
+      "intercept": 3.0211892990699383,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.18,
+          "maximum": 7220
+        }
+      ],
+      "coefficients": [
+        0.365
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.256,
+      "model_error_variance": 0.061504,
+      "n_sites": 23
+    },
+    {
+      "region_code": "Navajo6",
+      "region_name": "Navajo Nation Region 6 (SIR 2006-5306; NSS GC1091)",
+      "aep": 0.01,
+      "intercept": 3.137986732723532,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.18,
+          "maximum": 7220
+        }
+      ],
+      "coefficients": [
+        0.359
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.26,
+      "model_error_variance": 0.063001,
+      "n_sites": 23
+    },
+    {
+      "region_code": "Navajo6",
+      "region_name": "Navajo Nation Region 6 (SIR 2006-5306; NSS GC1091)",
+      "aep": 0.002,
+      "intercept": 3.371806458507416,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.18,
+          "maximum": 7220
+        }
+      ],
+      "coefficients": [
+        0.345
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.284,
+      "model_error_variance": 0.074529,
+      "n_sites": 23
+    }
+  ]
+}

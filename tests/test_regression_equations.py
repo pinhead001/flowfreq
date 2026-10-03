@@ -158,7 +158,7 @@ class TestJurisdictions:
 
 
 class TestLibrary:
-    @pytest.mark.parametrize("code", ["WA", "OR", "ID", "MT", "WY", "UT", "CO"])
+    @pytest.mark.parametrize("code", ["WA", "OR", "ID", "MT", "CO", "NV", "AZ", "NM", "WY", "UT"])
     def test_states_are_populated(self, code):
         """Every populated state (Wave 1, then Wave 2 as each lands) has left
         'pending': equations, a cited source, and each equation evaluates in range.
