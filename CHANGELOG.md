@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Wyoming peak-flow regression equations** (`flowfreq/data/regression/WY.json`, Wave 2,
+  #98), `status: "verified"`: 60 equations, regions 1-6 at 10 AEPs (1.5-500 years), from
+  WRIR 03-4107 Tables 1-7. Shifted terms such as `((ELEV - 3,000)/1,000)^b` and
+  `(LNG - 100)^c` are stored with `scale`/`offset`. Double-entered with 0 disagreements;
+  all four worked examples (pp. 30-33) reproduce; all 60 equations equal live NSS at 3
+  significant figures. NSS snapshot `data/nss_snapshots/WY_2026-10-01.json`.
 - **Historic interval peaks** (a peak coded 7 and 4 or 8): the new `historical_interval_peaks`
   argument to `Bulletin17C`, `ExpectedMomentsAlgorithm`, `fortran_engine.build_emafit_arrays`,
   `run_fortran_reference` and `run_fortran_ema`, shaped like `interval_peaks`:

@@ -1,0 +1,2270 @@
+{
+  "schema_version": 1,
+  "state": "WY",
+  "status": "verified",
+  "issue": 98,
+  "source_reports": [
+    {
+      "citation": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+      "version": "original release (no revisions listed on the pubs page)",
+      "doi": "10.3133/wri034107",
+      "url": "https://pubs.usgs.gov/publication/wri034107",
+      "pdf": "https://pubs.usgs.gov/wri/wri034107/pdf/wri034107.pdf",
+      "tables": [
+        "Table 1",
+        "Table 2",
+        "Table 3",
+        "Table 4",
+        "Table 5",
+        "Table 6",
+        "Table 7",
+        "Table 10"
+      ],
+      "nss": {
+        "state_region_id": 54,
+        "citation_id": 157,
+        "regression_region_ids": [
+          746,
+          747,
+          748,
+          749,
+          750,
+          751
+        ]
+      }
+    }
+  ],
+  "notes": "Miller, WRIR 03-4107 (2003), the report NSS uses for Wyoming's peak-flow group (NSS region 54, citation 157). Regions 1-6 at the 10 recurrence intervals 1.5-500 years (AEP 0.667, 0.5, 0.429, 0.2, 0.1, 0.04, 0.02, 0.01, 0.005, 0.002), from Tables 1-6 (pp. 20-26), limits from Table 7 (p. 29). No version history; the pubs page lists the original release only. SIR 2026-5120 (Wyoming, data through 2021) covers mean, n-day and duration statistics, not peak-flow frequency, so it does not supersede this report. All terms are power forms, stored as published with Variable scale/offset: ((ELEV - 3,000)/1,000)^b is ELEV log10 with scale 0.001 and offset -3; (LNG - 100)^c is LONG_OUT (longitude of basin outlet, positive degrees west) log10 with offset -100; (LAT - 40)^c is LAT_OUT log10 with offset -40; AREA = DRNAREA, SOIL = SOILINDEX (mean basin soils hydrologic index), MAR = MARAVPRE (mean March precipitation, 1961-90), JAN = JANAVPRE (mean January precipitation) are log10. Region 4's Q200 and Q500 print the latitude factor before MAR; the terms are the same and are stored in the order AREA, MAR, LAT for every AEP. Limits are Table 7's, in published units. Intercept = log10 of the printed coefficient. Error statistics: sep_log is the printed SE_P (average standard error of prediction, percent) converted as sqrt(ln(1 + (SE_P/100)^2)) / ln(10); model_error_variance is SE_E (average standard error of estimate, which the report describes as the average model error, p. 17) converted the same way and squared. No covariance and no AVP are published, so intervals use sep_log. The tables also print 95-percent prediction-interval factors (10^(t sep), t from n - p degrees of freedom, p. 19 footnote 2) and equivalent years; neither has a schema field. n_sites: the report does not print n per region; it is the count of each region's gages in Table 10 (139, 74, 65, 20, 37, 29; 364 in all, the study's total), and with these counts 10^(t(0.975, n - p) sep_log) reproduces every printed upper 95-percent factor within the rounding of the 2-significant-figure SE_P. Worked examples (pp. 30-33) reproduce: Murphy Creek region 3 Q100 8,900 ft3/s; North Fork Crazy Woman Creek Q25, region 1 2,080 and region 3 4,630, area-weighted 2,800; Coney Creek region 1 Q50 182; Poison Creek region 2 Q100 6,000. Values were double-entered (hand transcription from rendered pages vs. a programmatic parse of the PDF word boxes) with zero disagreements, and every region and AEP equals live NSS at its 3 significant figures.",
+  "equations": [
+    {
+      "region_code": "1",
+      "region_name": "Region 1, Rocky Mountains (WRIR 03-4107; NSS GC1239)",
+      "aep": 0.667,
+      "intercept": -0.8996294548824371,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.52,
+          "maximum": 2620.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 5950.0,
+          "maximum": 10700.0,
+          "scale": 0.001,
+          "offset": -3.0
+        },
+        {
+          "code": "LONG_OUT",
+          "transform": "log10",
+          "units": "decimal degrees",
+          "minimum": 105.21,
+          "maximum": 111.34,
+          "offset": -100.0
+        }
+      ],
+      "coefficients": [
+        0.885,
+        2.56,
+        0.032
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 1; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.226821,
+      "model_error_variance": 0.0498473,
+      "n_sites": 139
+    },
+    {
+      "region_code": "1",
+      "region_name": "Region 1, Rocky Mountains (WRIR 03-4107; NSS GC1239)",
+      "aep": 0.5,
+      "intercept": -0.5044556624535516,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.52,
+          "maximum": 2620.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 5950.0,
+          "maximum": 10700.0,
+          "scale": 0.001,
+          "offset": -3.0
+        },
+        {
+          "code": "LONG_OUT",
+          "transform": "log10",
+          "units": "decimal degrees",
+          "minimum": 105.21,
+          "maximum": 111.34,
+          "offset": -100.0
+        }
+      ],
+      "coefficients": [
+        0.866,
+        2.32,
+        -0.069
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 1; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.205152,
+      "model_error_variance": 0.0405877,
+      "n_sites": 139
+    },
+    {
+      "region_code": "1",
+      "region_name": "Region 1, Rocky Mountains (WRIR 03-4107; NSS GC1239)",
+      "aep": 0.429,
+      "intercept": -0.3391345219961308,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.52,
+          "maximum": 2620.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 5950.0,
+          "maximum": 10700.0,
+          "scale": 0.001,
+          "offset": -3.0
+        },
+        {
+          "code": "LONG_OUT",
+          "transform": "log10",
+          "units": "decimal degrees",
+          "minimum": 105.21,
+          "maximum": 111.34,
+          "offset": -100.0
+        }
+      ],
+      "coefficients": [
+        0.858,
+        2.22,
+        -0.11
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 1; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.194022,
+      "model_error_variance": 0.0362025,
+      "n_sites": 139
+    },
+    {
+      "region_code": "1",
+      "region_name": "Region 1, Rocky Mountains (WRIR 03-4107; NSS GC1239)",
+      "aep": 0.2,
+      "intercept": 0.2764618041732441,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.52,
+          "maximum": 2620.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 5950.0,
+          "maximum": 10700.0,
+          "scale": 0.001,
+          "offset": -3.0
+        },
+        {
+          "code": "LONG_OUT",
+          "transform": "log10",
+          "units": "decimal degrees",
+          "minimum": 105.21,
+          "maximum": 111.34,
+          "offset": -100.0
+        }
+      ],
+      "coefficients": [
+        0.829,
+        1.85,
+        -0.262
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 1; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.163416,
+      "model_error_variance": 0.02544,
+      "n_sites": 139
+    },
+    {
+      "region_code": "1",
+      "region_name": "Region 1, Rocky Mountains (WRIR 03-4107; NSS GC1239)",
+      "aep": 0.1,
+      "intercept": 0.6730209071288962,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.52,
+          "maximum": 2620.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 5950.0,
+          "maximum": 10700.0,
+          "scale": 0.001,
+          "offset": -3.0
+        },
+        {
+          "code": "LONG_OUT",
+          "transform": "log10",
+          "units": "decimal degrees",
+          "minimum": 105.21,
+          "maximum": 111.34,
+          "offset": -100.0
+        }
+      ],
+      "coefficients": [
+        0.81,
+        1.6,
+        -0.357
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 1; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.151608,
+      "model_error_variance": 0.0217957,
+      "n_sites": 139
+    },
+    {
+      "region_code": "1",
+      "region_name": "Region 1, Rocky Mountains (WRIR 03-4107; NSS GC1239)",
+      "aep": 0.04,
+      "intercept": 1.08278537031645,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.52,
+          "maximum": 2620.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 5950.0,
+          "maximum": 10700.0,
+          "scale": 0.001,
+          "offset": -3.0
+        },
+        {
+          "code": "LONG_OUT",
+          "transform": "log10",
+          "units": "decimal degrees",
+          "minimum": 105.21,
+          "maximum": 111.34,
+          "offset": -100.0
+        }
+      ],
+      "coefficients": [
+        0.79,
+        1.34,
+        -0.451
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 1; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.147634,
+      "model_error_variance": 0.0206327,
+      "n_sites": 139
+    },
+    {
+      "region_code": "1",
+      "region_name": "Region 1, Rocky Mountains (WRIR 03-4107; NSS GC1239)",
+      "aep": 0.02,
+      "intercept": 1.3483048630481607,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.52,
+          "maximum": 2620.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 5950.0,
+          "maximum": 10700.0,
+          "scale": 0.001,
+          "offset": -3.0
+        },
+        {
+          "code": "LONG_OUT",
+          "transform": "log10",
+          "units": "decimal degrees",
+          "minimum": 105.21,
+          "maximum": 111.34,
+          "offset": -100.0
+        }
+      ],
+      "coefficients": [
+        0.776,
+        1.16,
+        -0.51
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 1; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.151608,
+      "model_error_variance": 0.0217957,
+      "n_sites": 139
+    },
+    {
+      "region_code": "1",
+      "region_name": "Region 1, Rocky Mountains (WRIR 03-4107; NSS GC1239)",
+      "aep": 0.01,
+      "intercept": 1.586587304671755,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.52,
+          "maximum": 2620.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 5950.0,
+          "maximum": 10700.0,
+          "scale": 0.001,
+          "offset": -3.0
+        },
+        {
+          "code": "LONG_OUT",
+          "transform": "log10",
+          "units": "decimal degrees",
+          "minimum": 105.21,
+          "maximum": 111.34,
+          "offset": -100.0
+        }
+      ],
+      "coefficients": [
+        0.764,
+        1.0,
+        -0.562
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 1; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.159499,
+      "model_error_variance": 0.0241999,
+      "n_sites": 139
+    },
+    {
+      "region_code": "1",
+      "region_name": "Region 1, Rocky Mountains (WRIR 03-4107; NSS GC1239)",
+      "aep": 0.005,
+      "intercept": 1.808210972924222,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.52,
+          "maximum": 2620.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 5950.0,
+          "maximum": 10700.0,
+          "scale": 0.001,
+          "offset": -3.0
+        },
+        {
+          "code": "LONG_OUT",
+          "transform": "log10",
+          "units": "decimal degrees",
+          "minimum": 105.21,
+          "maximum": 111.34,
+          "offset": -100.0
+        }
+      ],
+      "coefficients": [
+        0.752,
+        0.857,
+        -0.611
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 1; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.167313,
+      "model_error_variance": 0.0267048,
+      "n_sites": 139
+    },
+    {
+      "region_code": "1",
+      "region_name": "Region 1, Rocky Mountains (WRIR 03-4107; NSS GC1239)",
+      "aep": 0.002,
+      "intercept": 2.0791812460476247,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.52,
+          "maximum": 2620.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 5950.0,
+          "maximum": 10700.0,
+          "scale": 0.001,
+          "offset": -3.0
+        },
+        {
+          "code": "LONG_OUT",
+          "transform": "log10",
+          "units": "decimal degrees",
+          "minimum": 105.21,
+          "maximum": 111.34,
+          "offset": -100.0
+        }
+      ],
+      "coefficients": [
+        0.738,
+        0.674,
+        -0.67
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 1; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.178884,
+      "model_error_variance": 0.0306417,
+      "n_sites": 139
+    },
+    {
+      "region_code": "2",
+      "region_name": "Region 2, Central Basins and Northern Plains (WRIR 03-4107; NSS GC1240)",
+      "aep": 0.667,
+      "intercept": 1.250420002308894,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.06,
+          "maximum": 2070.0
+        }
+      ],
+      "coefficients": [
+        0.486
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 2; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.442389,
+      "model_error_variance": 0.18846,
+      "n_sites": 74
+    },
+    {
+      "region_code": "2",
+      "region_name": "Region 2, Central Basins and Northern Plains (WRIR 03-4107; NSS GC1240)",
+      "aep": 0.5,
+      "intercept": 1.4756711883244296,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.06,
+          "maximum": 2070.0
+        }
+      ],
+      "coefficients": [
+        0.475
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 2; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.393945,
+      "model_error_variance": 0.149568,
+      "n_sites": 74
+    },
+    {
+      "region_code": "2",
+      "region_name": "Region 2, Central Basins and Northern Plains (WRIR 03-4107; NSS GC1240)",
+      "aep": 0.429,
+      "intercept": 1.5693739096150459,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.06,
+          "maximum": 2070.0
+        }
+      ],
+      "coefficients": [
+        0.47
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 2; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.374383,
+      "model_error_variance": 0.134508,
+      "n_sites": 74
+    },
+    {
+      "region_code": "2",
+      "region_name": "Region 2, Central Basins and Northern Plains (WRIR 03-4107; NSS GC1240)",
+      "aep": 0.2,
+      "intercept": 1.9079485216122722,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.06,
+          "maximum": 2070.0
+        }
+      ],
+      "coefficients": [
+        0.455
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 2; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.308461,
+      "model_error_variance": 0.091468,
+      "n_sites": 74
+    },
+    {
+      "region_code": "2",
+      "region_name": "Region 2, Central Basins and Northern Plains (WRIR 03-4107; NSS GC1240)",
+      "aep": 0.1,
+      "intercept": 2.1271047983648077,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.06,
+          "maximum": 2070.0
+        }
+      ],
+      "coefficients": [
+        0.447
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 2; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.271009,
+      "model_error_variance": 0.0699381,
+      "n_sites": 74
+    },
+    {
+      "region_code": "2",
+      "region_name": "Region 2, Central Basins and Northern Plains (WRIR 03-4107; NSS GC1240)",
+      "aep": 0.04,
+      "intercept": 2.3521825181113627,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.06,
+          "maximum": 2070.0
+        }
+      ],
+      "coefficients": [
+        0.439
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 2; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.240822,
+      "model_error_variance": 0.0546935,
+      "n_sites": 74
+    },
+    {
+      "region_code": "2",
+      "region_name": "Region 2, Central Basins and Northern Plains (WRIR 03-4107; NSS GC1240)",
+      "aep": 0.02,
+      "intercept": 2.4927603890268375,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.06,
+          "maximum": 2070.0
+        }
+      ],
+      "coefficients": [
+        0.434
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 2; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.230355,
+      "model_error_variance": 0.0482623,
+      "n_sites": 74
+    },
+    {
+      "region_code": "2",
+      "region_name": "Region 2, Central Basins and Northern Plains (WRIR 03-4107; NSS GC1240)",
+      "aep": 0.01,
+      "intercept": 2.6180480967120925,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.06,
+          "maximum": 2070.0
+        }
+      ],
+      "coefficients": [
+        0.43
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 2; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.226821,
+      "model_error_variance": 0.0482623,
+      "n_sites": 74
+    },
+    {
+      "region_code": "2",
+      "region_name": "Region 2, Central Basins and Northern Plains (WRIR 03-4107; NSS GC1240)",
+      "aep": 0.005,
+      "intercept": 2.72916478969277,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.06,
+          "maximum": 2070.0
+        }
+      ],
+      "coefficients": [
+        0.427
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 2; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.230355,
+      "model_error_variance": 0.0498473,
+      "n_sites": 74
+    },
+    {
+      "region_code": "2",
+      "region_name": "Region 2, Central Basins and Northern Plains (WRIR 03-4107; NSS GC1240)",
+      "aep": 0.002,
+      "intercept": 2.862131379313037,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.06,
+          "maximum": 2070.0
+        }
+      ],
+      "coefficients": [
+        0.425
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 2; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.244266,
+      "model_error_variance": 0.0546935,
+      "n_sites": 74
+    },
+    {
+      "region_code": "3",
+      "region_name": "Region 3, Eastern Basins and Eastern Plains (WRIR 03-4107; NSS GC1241)",
+      "aep": 0.667,
+      "intercept": 0.04921802267018165,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.2,
+          "maximum": 1230.0
+        },
+        {
+          "code": "SOILINDEX",
+          "transform": "log10",
+          "units": "dimensionless",
+          "minimum": 2.1,
+          "maximum": 4.0
+        }
+      ],
+      "coefficients": [
+        0.401,
+        3.01
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 3; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.425622,
+      "model_error_variance": 0.171946,
+      "n_sites": 65
+    },
+    {
+      "region_code": "3",
+      "region_name": "Region 3, Eastern Basins and Eastern Plains (WRIR 03-4107; NSS GC1241)",
+      "aep": 0.5,
+      "intercept": 0.35793484700045375,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.2,
+          "maximum": 1230.0
+        },
+        {
+          "code": "SOILINDEX",
+          "transform": "log10",
+          "units": "dimensionless",
+          "minimum": 2.1,
+          "maximum": 4.0
+        }
+      ],
+      "coefficients": [
+        0.402,
+        2.9
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 3; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.35632,
+      "model_error_variance": 0.119426,
+      "n_sites": 65
+    },
+    {
+      "region_code": "3",
+      "region_name": "Region 3, Eastern Basins and Eastern Plains (WRIR 03-4107; NSS GC1241)",
+      "aep": 0.429,
+      "intercept": 0.4913616938342727,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.2,
+          "maximum": 1230.0
+        },
+        {
+          "code": "SOILINDEX",
+          "transform": "log10",
+          "units": "dimensionless",
+          "minimum": 2.1,
+          "maximum": 4.0
+        }
+      ],
+      "coefficients": [
+        0.403,
+        2.84
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 3; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.331713,
+      "model_error_variance": 0.102563,
+      "n_sites": 65
+    },
+    {
+      "region_code": "3",
+      "region_name": "Region 3, Eastern Basins and Eastern Plains (WRIR 03-4107; NSS GC1241)",
+      "aep": 0.2,
+      "intercept": 1.0043213737826426,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.2,
+          "maximum": 1230.0
+        },
+        {
+          "code": "SOILINDEX",
+          "transform": "log10",
+          "units": "dimensionless",
+          "minimum": 2.1,
+          "maximum": 4.0
+        }
+      ],
+      "coefficients": [
+        0.407,
+        2.6
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 3; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.244266,
+      "model_error_variance": 0.0546935,
+      "n_sites": 65
+    },
+    {
+      "region_code": "3",
+      "region_name": "Region 3, Eastern Basins and Eastern Plains (WRIR 03-4107; NSS GC1241)",
+      "aep": 0.1,
+      "intercept": 1.3404441148401183,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.2,
+          "maximum": 1230.0
+        },
+        {
+          "code": "SOILINDEX",
+          "transform": "log10",
+          "units": "dimensionless",
+          "minimum": 2.1,
+          "maximum": 4.0
+        }
+      ],
+      "coefficients": [
+        0.41,
+        2.44
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 3; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.208819,
+      "model_error_variance": 0.0391066,
+      "n_sites": 65
+    },
+    {
+      "region_code": "3",
+      "region_name": "Region 3, Eastern Basins and Eastern Plains (WRIR 03-4107; NSS GC1241)",
+      "aep": 0.04,
+      "intercept": 1.6884198220027107,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.2,
+          "maximum": 1230.0
+        },
+        {
+          "code": "SOILINDEX",
+          "transform": "log10",
+          "units": "dimensionless",
+          "minimum": 2.1,
+          "maximum": 4.0
+        }
+      ],
+      "coefficients": [
+        0.416,
+        2.27
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 3; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.190269,
+      "model_error_variance": 0.0319996,
+      "n_sites": 65
+    },
+    {
+      "region_code": "3",
+      "region_name": "Region 3, Eastern Basins and Eastern Plains (WRIR 03-4107; NSS GC1241)",
+      "aep": 0.02,
+      "intercept": 1.9079485216122722,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.2,
+          "maximum": 1230.0
+        },
+        {
+          "code": "SOILINDEX",
+          "transform": "log10",
+          "units": "dimensionless",
+          "minimum": 2.1,
+          "maximum": 4.0
+        }
+      ],
+      "coefficients": [
+        0.423,
+        2.16
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 3; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.197754,
+      "model_error_variance": 0.0333794,
+      "n_sites": 65
+    },
+    {
+      "region_code": "3",
+      "region_name": "Region 3, Eastern Basins and Eastern Plains (WRIR 03-4107; NSS GC1241)",
+      "aep": 0.01,
+      "intercept": 2.103803720955957,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.2,
+          "maximum": 1230.0
+        },
+        {
+          "code": "SOILINDEX",
+          "transform": "log10",
+          "units": "dimensionless",
+          "minimum": 2.1,
+          "maximum": 4.0
+        }
+      ],
+      "coefficients": [
+        0.432,
+        2.05
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 3; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.208819,
+      "model_error_variance": 0.0376447,
+      "n_sites": 65
+    },
+    {
+      "region_code": "3",
+      "region_name": "Region 3, Eastern Basins and Eastern Plains (WRIR 03-4107; NSS GC1241)",
+      "aep": 0.005,
+      "intercept": 2.285557309007774,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.2,
+          "maximum": 1230.0
+        },
+        {
+          "code": "SOILINDEX",
+          "transform": "log10",
+          "units": "dimensionless",
+          "minimum": 2.1,
+          "maximum": 4.0
+        }
+      ],
+      "coefficients": [
+        0.441,
+        1.94
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 3; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.226821,
+      "model_error_variance": 0.0451408,
+      "n_sites": 65
+    },
+    {
+      "region_code": "3",
+      "region_name": "Region 3, Eastern Basins and Eastern Plains (WRIR 03-4107; NSS GC1241)",
+      "aep": 0.002,
+      "intercept": 2.509202522331103,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.2,
+          "maximum": 1230.0
+        },
+        {
+          "code": "SOILINDEX",
+          "transform": "log10",
+          "units": "dimensionless",
+          "minimum": 2.1,
+          "maximum": 4.0
+        }
+      ],
+      "coefficients": [
+        0.454,
+        1.8
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 3; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.261149,
+      "model_error_variance": 0.0579952,
+      "n_sites": 65
+    },
+    {
+      "region_code": "4",
+      "region_name": "Region 4, Eastern Mountains (WRIR 03-4107; NSS GC1242)",
+      "aep": 0.667,
+      "intercept": 0.6304278750250238,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.2,
+          "maximum": 471.0
+        },
+        {
+          "code": "MARAVPRE",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.71,
+          "maximum": 4.63
+        },
+        {
+          "code": "LAT_OUT",
+          "transform": "log10",
+          "units": "decimal degrees",
+          "minimum": 40.54,
+          "maximum": 44.57,
+          "offset": -40.0
+        }
+      ],
+      "coefficients": [
+        0.518,
+        1.42,
+        -0.435
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 4; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.216086,
+      "model_error_variance": 0.0362025,
+      "n_sites": 20
+    },
+    {
+      "region_code": "4",
+      "region_name": "Region 4, Eastern Mountains (WRIR 03-4107; NSS GC1242)",
+      "aep": 0.5,
+      "intercept": 0.7965743332104297,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.2,
+          "maximum": 471.0
+        },
+        {
+          "code": "MARAVPRE",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.71,
+          "maximum": 4.63
+        },
+        {
+          "code": "LAT_OUT",
+          "transform": "log10",
+          "units": "decimal degrees",
+          "minimum": 40.54,
+          "maximum": 44.57,
+          "offset": -40.0
+        }
+      ],
+      "coefficients": [
+        0.506,
+        1.33,
+        -0.315
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 4; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.216086,
+      "model_error_variance": 0.0362025,
+      "n_sites": 20
+    },
+    {
+      "region_code": "4",
+      "region_name": "Region 4, Eastern Mountains (WRIR 03-4107; NSS GC1242)",
+      "aep": 0.429,
+      "intercept": 0.8615344108590378,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.2,
+          "maximum": 471.0
+        },
+        {
+          "code": "MARAVPRE",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.71,
+          "maximum": 4.63
+        },
+        {
+          "code": "LAT_OUT",
+          "transform": "log10",
+          "units": "decimal degrees",
+          "minimum": 40.54,
+          "maximum": 44.57,
+          "offset": -40.0
+        }
+      ],
+      "coefficients": [
+        0.503,
+        1.3,
+        -0.262
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 4; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.216086,
+      "model_error_variance": 0.0362025,
+      "n_sites": 20
+    },
+    {
+      "region_code": "4",
+      "region_name": "Region 4, Eastern Mountains (WRIR 03-4107; NSS GC1242)",
+      "aep": 0.2,
+      "intercept": 1.0863598306747482,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.2,
+          "maximum": 471.0
+        },
+        {
+          "code": "MARAVPRE",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.71,
+          "maximum": 4.63
+        },
+        {
+          "code": "LAT_OUT",
+          "transform": "log10",
+          "units": "decimal degrees",
+          "minimum": 40.54,
+          "maximum": 44.57,
+          "offset": -40.0
+        }
+      ],
+      "coefficients": [
+        0.506,
+        1.19,
+        -0.048
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 4; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.216086,
+      "model_error_variance": 0.0347805,
+      "n_sites": 20
+    },
+    {
+      "region_code": "4",
+      "region_name": "Region 4, Eastern Mountains (WRIR 03-4107; NSS GC1242)",
+      "aep": 0.1,
+      "intercept": 1.2278867046136734,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.2,
+          "maximum": 471.0
+        },
+        {
+          "code": "MARAVPRE",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.71,
+          "maximum": 4.63
+        },
+        {
+          "code": "LAT_OUT",
+          "transform": "log10",
+          "units": "decimal degrees",
+          "minimum": 40.54,
+          "maximum": 44.57,
+          "offset": -40.0
+        }
+      ],
+      "coefficients": [
+        0.518,
+        1.12,
+        0.107
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 4; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.219687,
+      "model_error_variance": 0.0347805,
+      "n_sites": 20
+    },
+    {
+      "region_code": "4",
+      "region_name": "Region 4, Eastern Mountains (WRIR 03-4107; NSS GC1242)",
+      "aep": 0.04,
+      "intercept": 1.3710678622717363,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.2,
+          "maximum": 471.0
+        },
+        {
+          "code": "MARAVPRE",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.71,
+          "maximum": 4.63
+        },
+        {
+          "code": "LAT_OUT",
+          "transform": "log10",
+          "units": "decimal degrees",
+          "minimum": 40.54,
+          "maximum": 44.57,
+          "offset": -40.0
+        }
+      ],
+      "coefficients": [
+        0.536,
+        1.05,
+        0.283
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 4; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.219687,
+      "model_error_variance": 0.0319996,
+      "n_sites": 20
+    },
+    {
+      "region_code": "4",
+      "region_name": "Region 4, Eastern Mountains (WRIR 03-4107; NSS GC1242)",
+      "aep": 0.02,
+      "intercept": 1.4638929889859074,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.2,
+          "maximum": 471.0
+        },
+        {
+          "code": "MARAVPRE",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.71,
+          "maximum": 4.63
+        },
+        {
+          "code": "LAT_OUT",
+          "transform": "log10",
+          "units": "decimal degrees",
+          "minimum": 40.54,
+          "maximum": 44.57,
+          "offset": -40.0
+        }
+      ],
+      "coefficients": [
+        0.549,
+        1.01,
+        0.403
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 4; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.219687,
+      "model_error_variance": 0.0306417,
+      "n_sites": 20
+    },
+    {
+      "region_code": "4",
+      "region_name": "Region 4, Eastern Mountains (WRIR 03-4107; NSS GC1242)",
+      "aep": 0.01,
+      "intercept": 1.5477747053878226,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.2,
+          "maximum": 471.0
+        },
+        {
+          "code": "MARAVPRE",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.71,
+          "maximum": 4.63
+        },
+        {
+          "code": "LAT_OUT",
+          "transform": "log10",
+          "units": "decimal degrees",
+          "minimum": 40.54,
+          "maximum": 44.57,
+          "offset": -40.0
+        }
+      ],
+      "coefficients": [
+        0.562,
+        0.963,
+        0.517
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 4; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.219687,
+      "model_error_variance": 0.0306417,
+      "n_sites": 20
+    },
+    {
+      "region_code": "4",
+      "region_name": "Region 4, Eastern Mountains (WRIR 03-4107; NSS GC1242)",
+      "aep": 0.005,
+      "intercept": 1.6253124509616739,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.2,
+          "maximum": 471.0
+        },
+        {
+          "code": "MARAVPRE",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.71,
+          "maximum": 4.63
+        },
+        {
+          "code": "LAT_OUT",
+          "transform": "log10",
+          "units": "decimal degrees",
+          "minimum": 40.54,
+          "maximum": 44.57,
+          "offset": -40.0
+        }
+      ],
+      "coefficients": [
+        0.573,
+        0.922,
+        0.626
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 4; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.223265,
+      "model_error_variance": 0.0293062,
+      "n_sites": 20
+    },
+    {
+      "region_code": "4",
+      "region_name": "Region 4, Eastern Mountains (WRIR 03-4107; NSS GC1242)",
+      "aep": 0.002,
+      "intercept": 1.7201593034059568,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.2,
+          "maximum": 471.0
+        },
+        {
+          "code": "MARAVPRE",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.71,
+          "maximum": 4.63
+        },
+        {
+          "code": "LAT_OUT",
+          "transform": "log10",
+          "units": "decimal degrees",
+          "minimum": 40.54,
+          "maximum": 44.57,
+          "offset": -40.0
+        }
+      ],
+      "coefficients": [
+        0.585,
+        0.873,
+        0.766
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 4; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.226821,
+      "model_error_variance": 0.0293062,
+      "n_sites": 20
+    },
+    {
+      "region_code": "5",
+      "region_name": "Region 5, Overthrust Belt (WRIR 03-4107; NSS GC1243)",
+      "aep": 0.667,
+      "intercept": 0.31806333496276157,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.77,
+          "maximum": 564.0
+        },
+        {
+          "code": "JANAVPRE",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.94,
+          "maximum": 8.77
+        }
+      ],
+      "coefficients": [
+        0.871,
+        1.02
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 5; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.251087,
+      "model_error_variance": 0.0579952,
+      "n_sites": 37
+    },
+    {
+      "region_code": "5",
+      "region_name": "Region 5, Overthrust Belt (WRIR 03-4107; NSS GC1243)",
+      "aep": 0.5,
+      "intercept": 0.48713837547718647,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.77,
+          "maximum": 564.0
+        },
+        {
+          "code": "JANAVPRE",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.94,
+          "maximum": 8.77
+        }
+      ],
+      "coefficients": [
+        0.869,
+        0.884
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 5; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.244266,
+      "model_error_variance": 0.0546935,
+      "n_sites": 37
+    },
+    {
+      "region_code": "5",
+      "region_name": "Region 5, Overthrust Belt (WRIR 03-4107; NSS GC1243)",
+      "aep": 0.429,
+      "intercept": 0.5538830266438743,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.77,
+          "maximum": 564.0
+        },
+        {
+          "code": "JANAVPRE",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.94,
+          "maximum": 8.77
+        }
+      ],
+      "coefficients": [
+        0.868,
+        0.831
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 5; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.244266,
+      "model_error_variance": 0.0546935,
+      "n_sites": 37
+    },
+    {
+      "region_code": "5",
+      "region_name": "Region 5, Overthrust Belt (WRIR 03-4107; NSS GC1243)",
+      "aep": 0.2,
+      "intercept": 0.791690649020118,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.77,
+          "maximum": 564.0
+        },
+        {
+          "code": "JANAVPRE",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.94,
+          "maximum": 8.77
+        }
+      ],
+      "coefficients": [
+        0.864,
+        0.643
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 5; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.244266,
+      "model_error_variance": 0.0546935,
+      "n_sites": 37
+    },
+    {
+      "region_code": "5",
+      "region_name": "Region 5, Overthrust Belt (WRIR 03-4107; NSS GC1243)",
+      "aep": 0.1,
+      "intercept": 0.9400181550076633,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.77,
+          "maximum": 564.0
+        },
+        {
+          "code": "JANAVPRE",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.94,
+          "maximum": 8.77
+        }
+      ],
+      "coefficients": [
+        0.861,
+        0.529
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 5; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.247688,
+      "model_error_variance": 0.0563376,
+      "n_sites": 37
+    },
+    {
+      "region_code": "5",
+      "region_name": "Region 5, Overthrust Belt (WRIR 03-4107; NSS GC1243)",
+      "aep": 0.04,
+      "intercept": 1.089905111439398,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.77,
+          "maximum": 564.0
+        },
+        {
+          "code": "JANAVPRE",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.94,
+          "maximum": 8.77
+        }
+      ],
+      "coefficients": [
+        0.857,
+        0.415
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 5; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.254463,
+      "model_error_variance": 0.0596659,
+      "n_sites": 37
+    },
+    {
+      "region_code": "5",
+      "region_name": "Region 5, Overthrust Belt (WRIR 03-4107; NSS GC1243)",
+      "aep": 0.02,
+      "intercept": 1.1818435879447726,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.77,
+          "maximum": 564.0
+        },
+        {
+          "code": "JANAVPRE",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.94,
+          "maximum": 8.77
+        }
+      ],
+      "coefficients": [
+        0.853,
+        0.346
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 5; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.261149,
+      "model_error_variance": 0.0613491,
+      "n_sites": 37
+    },
+    {
+      "region_code": "5",
+      "region_name": "Region 5, Overthrust Belt (WRIR 03-4107; NSS GC1243)",
+      "aep": 0.01,
+      "intercept": 1.2624510897304295,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.77,
+          "maximum": 564.0
+        },
+        {
+          "code": "JANAVPRE",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.94,
+          "maximum": 8.77
+        }
+      ],
+      "coefficients": [
+        0.85,
+        0.287
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 5; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.267745,
+      "model_error_variance": 0.0647515,
+      "n_sites": 37
+    },
+    {
+      "region_code": "5",
+      "region_name": "Region 5, Overthrust Belt (WRIR 03-4107; NSS GC1243)",
+      "aep": 0.005,
+      "intercept": 1.334453751150931,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.77,
+          "maximum": 564.0
+        },
+        {
+          "code": "JANAVPRE",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.94,
+          "maximum": 8.77
+        }
+      ],
+      "coefficients": [
+        0.847,
+        0.235
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 5; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.271009,
+      "model_error_variance": 0.0664698,
+      "n_sites": 37
+    },
+    {
+      "region_code": "5",
+      "region_name": "Region 5, Overthrust Belt (WRIR 03-4107; NSS GC1243)",
+      "aep": 0.002,
+      "intercept": 1.4183012913197455,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.77,
+          "maximum": 564.0
+        },
+        {
+          "code": "JANAVPRE",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 0.94,
+          "maximum": 8.77
+        }
+      ],
+      "coefficients": [
+        0.842,
+        0.176
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 5; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.280669,
+      "model_error_variance": 0.0699381,
+      "n_sites": 37
+    },
+    {
+      "region_code": "6",
+      "region_name": "Region 6, High Desert (WRIR 03-4107; NSS GC1244)",
+      "aep": 0.667,
+      "intercept": 1.1038037209559568,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.26,
+          "maximum": 1180.0
+        },
+        {
+          "code": "LAT_OUT",
+          "transform": "log10",
+          "units": "decimal degrees",
+          "minimum": 41.02,
+          "maximum": 42.59,
+          "offset": -40.0
+        }
+      ],
+      "coefficients": [
+        0.626,
+        -1.18
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 6; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.280669,
+      "model_error_variance": 0.0681988,
+      "n_sites": 29
+    },
+    {
+      "region_code": "6",
+      "region_name": "Region 6, High Desert (WRIR 03-4107; NSS GC1244)",
+      "aep": 0.5,
+      "intercept": 1.3463529744506386,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.26,
+          "maximum": 1180.0
+        },
+        {
+          "code": "LAT_OUT",
+          "transform": "log10",
+          "units": "decimal degrees",
+          "minimum": 41.02,
+          "maximum": 42.59,
+          "offset": -40.0
+        }
+      ],
+      "coefficients": [
+        0.608,
+        -1.24
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 6; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.261149,
+      "model_error_variance": 0.0579952,
+      "n_sites": 29
+    },
+    {
+      "region_code": "6",
+      "region_name": "Region 6, High Desert (WRIR 03-4107; NSS GC1244)",
+      "aep": 0.429,
+      "intercept": 1.4487063199050798,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.26,
+          "maximum": 1180.0
+        },
+        {
+          "code": "LAT_OUT",
+          "transform": "log10",
+          "units": "decimal degrees",
+          "minimum": 41.02,
+          "maximum": 42.59,
+          "offset": -40.0
+        }
+      ],
+      "coefficients": [
+        0.6,
+        -1.26
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 6; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.254463,
+      "model_error_variance": 0.0563376,
+      "n_sites": 29
+    },
+    {
+      "region_code": "6",
+      "region_name": "Region 6, High Desert (WRIR 03-4107; NSS GC1244)",
+      "aep": 0.2,
+      "intercept": 1.8221680793680175,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.26,
+          "maximum": 1180.0
+        },
+        {
+          "code": "LAT_OUT",
+          "transform": "log10",
+          "units": "decimal degrees",
+          "minimum": 41.02,
+          "maximum": 42.59,
+          "offset": -40.0
+        }
+      ],
+      "coefficients": [
+        0.567,
+        -1.35
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 6; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.237355,
+      "model_error_variance": 0.0466933,
+      "n_sites": 29
+    },
+    {
+      "region_code": "6",
+      "region_name": "Region 6, High Desert (WRIR 03-4107; NSS GC1244)",
+      "aep": 0.1,
+      "intercept": 2.0644579892269186,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.26,
+          "maximum": 1180.0
+        },
+        {
+          "code": "LAT_OUT",
+          "transform": "log10",
+          "units": "decimal degrees",
+          "minimum": 41.02,
+          "maximum": 42.59,
+          "offset": -40.0
+        }
+      ],
+      "coefficients": [
+        0.544,
+        -1.4
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 6; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.230355,
+      "model_error_variance": 0.0451408,
+      "n_sites": 29
+    },
+    {
+      "region_code": "6",
+      "region_name": "Region 6, High Desert (WRIR 03-4107; NSS GC1244)",
+      "aep": 0.04,
+      "intercept": 2.3096301674258988,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.26,
+          "maximum": 1180.0
+        },
+        {
+          "code": "LAT_OUT",
+          "transform": "log10",
+          "units": "decimal degrees",
+          "minimum": 41.02,
+          "maximum": 42.59,
+          "offset": -40.0
+        }
+      ],
+      "coefficients": [
+        0.52,
+        -1.44
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 6; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.233866,
+      "model_error_variance": 0.0451408,
+      "n_sites": 29
+    },
+    {
+      "region_code": "6",
+      "region_name": "Region 6, High Desert (WRIR 03-4107; NSS GC1244)",
+      "aep": 0.02,
+      "intercept": 2.462397997898956,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.26,
+          "maximum": 1180.0
+        },
+        {
+          "code": "LAT_OUT",
+          "transform": "log10",
+          "units": "decimal degrees",
+          "minimum": 41.02,
+          "maximum": 42.59,
+          "offset": -40.0
+        }
+      ],
+      "coefficients": [
+        0.504,
+        -1.46
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 6; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.240822,
+      "model_error_variance": 0.0466933,
+      "n_sites": 29
+    },
+    {
+      "region_code": "6",
+      "region_name": "Region 6, High Desert (WRIR 03-4107; NSS GC1244)",
+      "aep": 0.01,
+      "intercept": 2.595496221825574,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.26,
+          "maximum": 1180.0
+        },
+        {
+          "code": "LAT_OUT",
+          "transform": "log10",
+          "units": "decimal degrees",
+          "minimum": 41.02,
+          "maximum": 42.59,
+          "offset": -40.0
+        }
+      ],
+      "coefficients": [
+        0.489,
+        -1.47
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 6; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.251087,
+      "model_error_variance": 0.0514479,
+      "n_sites": 29
+    },
+    {
+      "region_code": "6",
+      "region_name": "Region 6, High Desert (WRIR 03-4107; NSS GC1244)",
+      "aep": 0.005,
+      "intercept": 2.7151673578484576,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.26,
+          "maximum": 1180.0
+        },
+        {
+          "code": "LAT_OUT",
+          "transform": "log10",
+          "units": "decimal degrees",
+          "minimum": 41.02,
+          "maximum": 42.59,
+          "offset": -40.0
+        }
+      ],
+      "coefficients": [
+        0.476,
+        -1.48
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 6; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.264458,
+      "model_error_variance": 0.0563376,
+      "n_sites": 29
+    },
+    {
+      "region_code": "6",
+      "region_name": "Region 6, High Desert (WRIR 03-4107; NSS GC1244)",
+      "aep": 0.002,
+      "intercept": 2.8567288903828825,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1.26,
+          "maximum": 1180.0
+        },
+        {
+          "code": "LAT_OUT",
+          "transform": "log10",
+          "units": "decimal degrees",
+          "minimum": 41.02,
+          "maximum": 42.59,
+          "offset": -40.0
+        }
+      ],
+      "coefficients": [
+        0.459,
+        -1.49
+      ],
+      "citation": {
+        "publication": "Miller, K.A., 2003, Peak-flow characteristics of Wyoming streams: U.S. Geological Survey Water-Resources Investigations Report 03-4107",
+        "table": "Table 6; Table 7",
+        "year": 2003,
+        "url": "https://doi.org/10.3133/wri034107"
+      },
+      "sep_log": 0.283844,
+      "model_error_variance": 0.0647515,
+      "n_sites": 29
+    }
+  ]
+}
