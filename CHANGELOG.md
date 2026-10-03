@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-10-03
+
+**Breaking or behaviour changes -- read before upgrading:**
+- Instantaneous and daily values now default to the USGS Water Data OGC API, like peaks did
+  in 0.9.0 (`backend="nwis-legacy"` restores the old service). Set `USGS_API_KEY` for bulk
+  use: without one the API allows 1000 requests/hour per IP.
+- `analyze_gage` refuses a gage classified as regulated (GAGES-II storage, peak code 6)
+  unless `allow_regulated=True`; `run_ffa` screens only when given `site_no=`.
+- `FrequencyResults.n_low_outliers` is now peakfq's `gbnlow`; MGBT's own count is
+  `n_mgbt_outliers`.
+- Native-EMA results move closer to peakfq 8.1.0: the fixed point iterates as `p3est_ema`
+  does, and confidence bounds at |skew| <= 0.0632 are interpolated as `emafit.f` does.
+- `diel_variation` completeness on daylight-saving transition days now uses the day's real
+  length.
+
 ### Added
 - **National gage catalog** (`flowfreq.catalog`, roadmap §1.1, #33).
   `flowfreq/data/gage_catalog.csv.gz` lists every USGS peak-flow site, active or
@@ -29,31 +44,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     state and territory; `--states` rebuilds and merges the states you name.
   - The per-site `--sites` mode remains. Its peak backend now defaults to
     `waterdata-ogc` (it was `nwis-legacy`).
-
-### Changed
-- **Regression-file status is now defined** (`flowfreq.regression.library.STATUSES`):
-  `verified` means everything the cited reports publish for the stored regions is stored,
-  double-entered and cross-checked (live NSS where it serves the region, otherwise the
-  report's own worked examples and per-gage estimates) -- a report that publishes no
-  covariance can still be `verified`; `partial` means something the reports *do* publish is
-  missing or unresolved. Under it **Oregon moves from `partial` to `verified`**; Washington
-  stays `partial` (its region 4 covariance is published but deliberately not stored).
-- `catalog_row`'s `regulation_class` comes from `flowfreq.regulation.classify_site`
-  (`reference`/`regulated`/`urban`/`unknown`) instead of peak codes alone
-  (`regulated`/`altered`/`no_code_evidence`). `n_peaks` counts distinct water years with
-  a discharge, not rows. `GageAttributes` and its 3-row `gage_attributes.csv` are
-  unchanged.
-- **`analyze_gage` now refuses a regulated gage** (#32). Before fitting, it classifies
-  the gage with the new regulation screen. A gage classed `regulated` raises
-  `flowfreq.regulation.RegulatedRecordError`, a `ValueError` subclass, unless you pass
-  `allow_regulated=True`. A gage is classed `regulated` when the GAGES-II screen says so,
-  or when any downloaded peak carries code 6. The override is logged and recorded in the
-  returned `site_classification`. Gages classed reference, urban or unknown are fitted
-  as before. So is a gage with no classification (not in GAGES-II, no code 6), with a
-  warning. `run_ffa` screens only when you pass the new `site_no=`, so existing
-  `run_ffa` calls are unchanged.
-
-### Added
 - **Nevada peak-flow regression equations** (`flowfreq/data/regression/NV.json`, Wave 2,
   #104), `status: "partial"`: 35 equations from WSP 2433 (the only report NSS uses for
   Nevada), regions 1, 2, 3, 5 (GLS) and 6, 10 (hybrid) at 2-100 years. Partial because the
@@ -82,8 +72,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     regulated record rather than fitting it.
   - Not yet included: current-NID storage (the live national CSV is verified, but summing
     it upstream needs basin polygons) and the NLCD impervious time series.
-
-### Added
 - **Arizona peak-flow regression equations** (`flowfreq/data/regression/AZ.json`, Wave 2,
   #102), `status: "partial"`: 53 equations. SIR 2014-5211 flood regions 1-4 at 8 AEPs with
   Table 12 model error variance and covariance, and SIR 2006-5306 Navajo Nation regions 8,
@@ -130,25 +118,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     `run_ffa` / `compare_engines` / `analyze_gage` now pass such peaks through.
   - **Result change:** a record with a code 7+4 or 7+8 peak is now fitted rather than refused
     with `UnsupportedSpecError`. No record that fitted before changes.
-
-### Changed
-- **`FrequencyResults.n_low_outliers` is now peakfq's `gbnlow`** on the native engine, as it
-  already was on the Fortran one: the number of EMA rows `gbtest` recodes below the
-  low-outlier cutoff (`emafit.f` lines 1062-1076). That count covers exact peaks, zero-flow
-  years, interval and historic rows, and years with no peak that a perception threshold below
-  the cutoff censors. It used to be MGBT's own count of flagged peaks.
-  - **Result change:** on the 24 WY/MT `.psf` stations the count changes at three stations,
-    06328100 (17 -> 20), 06326960 (12 -> 15) and 06177820 (6 -> 8), and now equals `gbnlow`
-    at all 24. No moment, quantile or bound moves.
-  - The old count is kept as the new `FrequencyResults.n_mgbt_outliers` (also
-    `Bulletin17C.n_mgbt_outliers` and `run_ffa`'s `parameters["n_mgbt_outliers"]`). It counts
-    the members of `gbtest`'s MGBT sample below the threshold. With a user threshold it now
-    also counts `gbtest`'s qualifying less-than values. The Fortran engine derives the same
-    number from its arrays.
-  - The frequency plots label the threshold and count "peak(s) below PILF threshold" with
-    `n_mgbt_outliers`, since they mean peaks. The Markdown report shows both counts.
-
-### Added
 - **Utah peak-flow regression equations** (`flowfreq/data/regression/UT.json`, Wave 2, #96),
   `status: "partial"`: 63 equations in 8 regions.
   - SIR 2007-5158 ver. 4.0: regions 1-7 at 8 AEPs (Table 5, limits Table 8). The
@@ -213,8 +182,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `regional_skew.csv`. Inputs are in `data/skew_study/` (`tools/build_montana_skew_study.py`,
   from the Water Data OGC API). `docs/MONTANA_REGIONAL_SKEW_PROVISIONAL.md` gives the
   result, diagnostics and limitations.
-
-### Added
 - **`subdaily` checked against a published figure for a real gage.**
   `tests/test_subdaily_published.py` (`requires_network`) runs `daily_extreme_timing` on
   USGS 01578310 (Susquehanna at Conowingo, MD) against Exelon (2012), *Final Study Report:
@@ -271,6 +238,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     1 (`GC1750`, 4,370 cfs) the earlier live test pinned.
 
 ### Changed
+- **Regression-file status is now defined** (`flowfreq.regression.library.STATUSES`):
+  `verified` means everything the cited reports publish for the stored regions is stored,
+  double-entered and cross-checked (live NSS where it serves the region, otherwise the
+  report's own worked examples and per-gage estimates) -- a report that publishes no
+  covariance can still be `verified`; `partial` means something the reports *do* publish is
+  missing or unresolved. Under it **Oregon moves from `partial` to `verified`**; Washington
+  stays `partial` (its region 4 covariance is published but deliberately not stored).
+- `catalog_row`'s `regulation_class` comes from `flowfreq.regulation.classify_site`
+  (`reference`/`regulated`/`urban`/`unknown`) instead of peak codes alone
+  (`regulated`/`altered`/`no_code_evidence`). `n_peaks` counts distinct water years with
+  a discharge, not rows. `GageAttributes` and its 3-row `gage_attributes.csv` are
+  unchanged.
+- **`analyze_gage` now refuses a regulated gage** (#32). Before fitting, it classifies
+  the gage with the new regulation screen. A gage classed `regulated` raises
+  `flowfreq.regulation.RegulatedRecordError`, a `ValueError` subclass, unless you pass
+  `allow_regulated=True`. A gage is classed `regulated` when the GAGES-II screen says so,
+  or when any downloaded peak carries code 6. The override is logged and recorded in the
+  returned `site_classification`. Gages classed reference, urban or unknown are fitted
+  as before. So is a gage with no classification (not in GAGES-II, no code 6), with a
+  warning. `run_ffa` screens only when you pass the new `site_no=`, so existing
+  `run_ffa` calls are unchanged.
+- **`FrequencyResults.n_low_outliers` is now peakfq's `gbnlow`** on the native engine, as it
+  already was on the Fortran one: the number of EMA rows `gbtest` recodes below the
+  low-outlier cutoff (`emafit.f` lines 1062-1076). That count covers exact peaks, zero-flow
+  years, interval and historic rows, and years with no peak that a perception threshold below
+  the cutoff censors. It used to be MGBT's own count of flagged peaks.
+  - **Result change:** on the 24 WY/MT `.psf` stations the count changes at three stations,
+    06328100 (17 -> 20), 06326960 (12 -> 15) and 06177820 (6 -> 8), and now equals `gbnlow`
+    at all 24. No moment, quantile or bound moves.
+  - The old count is kept as the new `FrequencyResults.n_mgbt_outliers` (also
+    `Bulletin17C.n_mgbt_outliers` and `run_ffa`'s `parameters["n_mgbt_outliers"]`). It counts
+    the members of `gbtest`'s MGBT sample below the threshold. With a user threshold it now
+    also counts `gbtest`'s qualifying less-than values. The Fortran engine derives the same
+    number from its arrays.
+  - The frequency plots label the threshold and count "peak(s) below PILF threshold" with
+    `n_mgbt_outliers`, since they mean peaks. The Markdown report shows both counts.
 - **`USGSgage.download_daily_flow` now reads the Water Data OGC API by default** (#29).
   The new `backend` argument defaults to `peak_sources.DEFAULT_BACKEND` (`"waterdata-ogc"`);
   `backend="nwis-legacy"` gives the old NWIS daily-values service, unchanged.
@@ -300,8 +303,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   still validates the polygon but drops the geometry, which keeps large caches small.
   Cache keys changed, so entries cached before this are re-fetched rather than returned
   without a polygon.
-
-### Changed
 - **Instantaneous values now come from the USGS Water Data OGC API by default** (#29).
   `USGSgage.download_instantaneous_flow` and `download_instantaneous_stage` default to
   `backend="waterdata-ogc"` (`peak_sources.DEFAULT_BACKEND`), as `download_peak_flow` already
