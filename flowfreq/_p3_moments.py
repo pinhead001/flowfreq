@@ -45,6 +45,22 @@ __all__ = [
 ]
 
 
+def _f32(value: float) -> float:
+    """A default-kind (single-precision) Fortran real literal, as a double.
+
+    peakfq is compiled without ``-fdefault-real-8``, so an unsuffixed literal
+    such as ``0.0007`` is a single-precision real, widened when it meets a
+    double.
+    """
+    return float(np.float32(value))
+
+
+_WH_LOW = _f32(0.0007)
+# ``(0.0010-0.0007)`` is two single-precision literals, folded in single precision.
+_WH_SPAN = float(np.float32(0.0010) - np.float32(0.0007))
+_WH_PI = _f32(3.14159265359)
+
+
 def _wh_weight(skew: float) -> Tuple[float, float]:
     """(wg, wwh): weight on the incomplete-gamma vs. Wilson-Hilferty solution.
 
@@ -52,8 +68,8 @@ def _wh_weight(skew: float) -> Tuple[float, float]:
     (e.g. ``pP3`` at emafit.f:3231) so that pure-gamma code near skew = 0,
     where alpha = 4/skew**2 blows up, is never evaluated.
     """
-    w = max(0.0, (abs(skew) - 0.0007) / (0.0010 - 0.0007))
-    wwh = 0.0 if w >= 1.0 else (1.0 + math.cos(math.pi * w)) / 2.0
+    w = max(0.0, (abs(skew) - _WH_LOW) / _WH_SPAN)
+    wwh = 0.0 if w >= 1.0 else (1.0 + math.cos(_WH_PI * w)) / 2.0
     return 1.0 - wwh, wwh
 
 
