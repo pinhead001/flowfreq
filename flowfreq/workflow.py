@@ -305,6 +305,8 @@ def run_ffa(
     station_skew_only: bool = False,
     peak_codes: Optional[Sequence[object]] = None,
     apply_peak_codes: bool = True,
+    site_no: Optional[str] = None,
+    allow_regulated: bool = False,
 ) -> dict:
     """Run Bulletin 17C flood frequency analysis.
 
@@ -360,6 +362,16 @@ def run_ffa(
     apply_peak_codes : bool, default True
         ``False`` ignores ``peak_codes`` (logging what was ignored) and fits
         every peak as an exact systematic value.
+    site_no : str, optional
+        Opt in to the regulation screen (:mod:`flowfreq.regulation`). The
+        gage is classified from the packaged GAGES-II screen and from
+        ``peak_codes``. A ``regulated`` gage raises
+        :class:`~flowfreq.regulation.RegulatedRecordError` before fitting
+        unless ``allow_regulated``. A gage with no classification proceeds,
+        with a warning. Omitted, no screen runs, as before.
+    allow_regulated : bool, default False
+        Fit a gage the screen classes regulated. Recorded as
+        ``parameters["site_classification"]["regulation_override"]``.
 
     Returns
     -------
@@ -367,6 +379,8 @@ def run_ffa(
         Keys: b17c, converged, method, parameters, quantile_df, error.
         ``parameters["peak_codes_applied"]`` counts, per code, the peaks
         whose treatment the codes changed (empty when none were applied).
+        ``parameters["site_classification"]`` is the screen's provenance when
+        ``site_no`` is given, else ``None``.
 
     Raises
     ------
@@ -374,6 +388,9 @@ def run_ffa(
         When no skew source, or more than one, is chosen; when
         ``peak_codes`` is not aligned with ``peak_flows``; or when codes
         peakfq acts on are combined with ``perception_thresholds``.
+    flowfreq.regulation.RegulatedRecordError
+        A ``ValueError`` subclass: ``site_no`` is classified regulated and
+        ``allow_regulated`` is False.
 
     Examples
     --------
@@ -404,6 +421,13 @@ def run_ffa(
                     "combined with perception_thresholds; pass apply_peak_codes=False to "
                     "use your thresholds with every peak fitted as an exact value."
                 )
+    site_classification: Optional[Dict[str, Any]] = None
+    if site_no is not None:
+        from .regulation import classify_site, require_unregulated
+
+        site_classification = require_unregulated(
+            classify_site(site_no, peak_codes), allow_regulated=allow_regulated
+        )
     result = {
         "b17c": None,
         "converged": False,
@@ -513,6 +537,7 @@ def run_ffa(
                     "n_mgbt_outliers": r.n_mgbt_outliers,
                     "low_outlier_source": _low_outlier_source(lo_override),
                     "peak_codes_applied": codes_applied,
+                    "site_classification": site_classification,
                 },
                 "quantile_df": quantile_df,
             }

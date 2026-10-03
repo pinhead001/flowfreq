@@ -194,10 +194,15 @@ open. Audited 2026-09-25.
       Open: the converter from a parsed station to `Bulletin17C`/`EMAParameters`
       arguments, which `psf.py`'s own docstring calls "the open half", and the
       retrieval of published perception thresholds.
-- [ ] **#32 Regulation / urbanization screen.** Only step 1 exists:
-      `peak_codes.classify_from_codes`, which by design has no `REFERENCE` class.
-      Open: GAGES-II/NID storage, NLCD impervious fraction, and refusing B17C on a
-      regulated record without an override.
+- [ ] **#32 Regulation / urbanization screen.** Steps 1, 2 and the refusal are done.
+      `flowfreq.regulation` combines the packaged GAGES-II screen with peak code 6, and
+      `analyze_gage` (and `run_ffa` when given `site_no=`) refuses a regulated gage
+      unless `allow_regulated=True`. Open:
+      - Current NID storage. The national CSV is live
+        (`nid.sec.usace.army.mil/api/nation/csv`), but summing it upstream needs basin
+        polygons and point-in-polygon, which flowfreq does not depend on.
+      - The NLCD impervious **time series** (step 3). GAGES-II carries NLCD 2006 only.
+      - Gages outside GAGES-II, which have peak-code evidence only.
 - [ ] **#33 National gage catalog.** `flowfreq/catalog.py` (schema and loader) and
       `tools/build_gage_catalog.py` exist. The tool needs network access and a
       hand-supplied `--sites` list; auto-discovery waits on #29. No catalog has been

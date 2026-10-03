@@ -7,6 +7,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **`analyze_gage` now refuses a regulated gage** (#32). Before fitting, it classifies
+  the gage with the new regulation screen. A gage classed `regulated` raises
+  `flowfreq.regulation.RegulatedRecordError`, a `ValueError` subclass, unless you pass
+  `allow_regulated=True`. A gage is classed `regulated` when the GAGES-II screen says so,
+  or when any downloaded peak carries code 6. The override is logged and recorded in the
+  returned `site_classification`. Gages classed reference, urban or unknown are fitted
+  as before. So is a gage with no classification (not in GAGES-II, no code 6), with a
+  warning. `run_ffa` screens only when you pass the new `site_no=`, so existing
+  `run_ffa` calls are unchanged.
+
+### Added
+- **Regulation / urbanization screen** (`flowfreq.regulation`, roadmap §1.1, #32).
+  `classify_site(site_no, peak_codes=None)` returns `reference`, `regulated`, `urban`
+  or `unknown`, with the evidence behind it. `require_unregulated()` is the B17C refusal
+  with an explicit override.
+  - Packaged table `flowfreq/data/regulation_screen.csv.gz`: 9,322 GAGES-II gages,
+    117 KiB. For each gage it holds the class, the NID-2009 storage, the normalized
+    storage, NLCD-2006 impervious %, the source and the date. Rebuild it from the
+    ScienceBase release (Falcone 2011, doi:10.5066/P96CPHOT) with
+    `tools/build_regulation_screen.py`.
+  - Rules, each cited:
+    - GAGES-II `Ref` → reference.
+    - Dam storage over 127.8 days of mean annual runoff → regulated. That is the
+      75th-percentile cutoff of Dudley and others (2018), doi:10.5066/P9AEGXY0. It
+      agrees with their Regulated class on 481 of 527 gages.
+    - Impervious cover over 5% → urban (Mastin and others 2016, SIR 2016-5118 p. 23).
+    - Peak code 6 → regulated. Code 5 is recorded but not decisive, as in SIR 2016-5118
+      p. 20.
+  - Bulletin 17C sets no regulation threshold (p. 36), so this screen refuses to fit a
+    regulated record rather than fitting it.
+  - Not yet included: current-NID storage (the live national CSV is verified, but summing
+    it upstream needs basin polygons) and the NLCD impervious time series.
+
 ### Added
 - **National future-flow source review** (`flowfreq.future_flow`, roadmap §6.3.1, #36).
   FHWA HEC-17 (2nd ed., 2016) and NCHRP Project 15-61 (2019) were read against the primary
