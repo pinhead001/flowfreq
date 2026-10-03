@@ -3,7 +3,6 @@
 import numpy as np
 import pytest
 
-from flowfreq.psf_convert import UnsupportedSpecError
 from flowfreq.workflow import (
     B17C_DEFAULT_SKEW,
     B17C_DEFAULT_SKEW_SE,
@@ -178,8 +177,27 @@ class TestPilfOverride:
         assert zero["parameters"]["low_outlier_source"] == "MGBT"
         assert zero["parameters"]["mean_log"] == none["parameters"]["mean_log"]
 
-    def test_mom_fallback_censors_on_the_override(self):
-        """A high override stops EMA converging, and MOM now censors on it too.
+    @pytest.fixture
+    def ema_never_converges(self, monkeypatch):
+        """Force the MOM fallback.
+
+        A 6000 cfs override used to trip it on its own: the fixed point then
+        stopped after 100 iterations, short of convergence. Following
+        ``p3est_ema``'s own iteration limit it converges (827 iterations), as
+        it does in peakfq, so the fallback is exercised directly instead.
+        """
+        from flowfreq.bulletin17c import ExpectedMomentsAlgorithm
+
+        real = ExpectedMomentsAlgorithm._ema_fixed_point
+
+        def not_converged(self, *args, **kwargs):
+            mean, std, skew, _converged, iterations = real(self, *args, **kwargs)
+            return mean, std, skew, False, iterations
+
+        monkeypatch.setattr(ExpectedMomentsAlgorithm, "_ema_fixed_point", not_converged)
+
+    def test_mom_fallback_censors_on_the_override(self, ema_never_converges):
+        """When EMA does not converge, MOM censors on the override too.
 
         MethodOfMoments applies the Bulletin 17B conditional-probability
         adjustment, so the number reported as the threshold is also the one
@@ -196,7 +214,7 @@ class TestPilfOverride:
         assert result["parameters"]["low_outlier_threshold"] == pytest.approx(6000.0)
         assert result["parameters"]["low_outlier_source"] == "override"
 
-    def test_mom_fallback_moments_shift_with_the_override(self):
+    def test_mom_fallback_moments_shift_with_the_override(self, ema_never_converges):
         """The claim the label makes must actually hold: MOM censors now."""
         flows, years = _big_sandy_arrays()
         forced = run_ffa(
@@ -336,10 +354,14 @@ class TestPeakCodeKwargs:
         years = list(kw["water_years"])
         assert 2003 not in years and 2005 not in years
 
-    def test_a_historic_interval_is_refused_naming_the_year(self):
-        """Code 7 with 4 is a historic interval, which Bulletin17C cannot express."""
-        with pytest.raises(UnsupportedSpecError, match=r"2003.*historic"):
-            peak_code_kwargs(_CODE_FLOWS, _CODE_YEARS, _codes({2: "4,7"}))
+    def test_a_historic_interval_becomes_a_historical_interval_peak(self):
+        """Code 7 with 4 is siteQT's (Qmin, q) row with dtype = 1, for both engines."""
+        kw = peak_code_kwargs(
+            _CODE_FLOWS, _CODE_YEARS, _codes({2: "4,7"}), engines=("native", "fortran")
+        )
+        assert kw["historical_interval_peaks"] == [(2003, 1e-20, _CODE_FLOWS[2])]
+        assert kw["interval_peaks"] is None
+        assert 2003 not in list(kw["water_years"])
 
     def test_a_removed_code_wins_over_a_censoring_one(self):
         """siteQT applies 6/C after 4/8, so "4,6" is removed, not censored."""
@@ -421,12 +443,15 @@ class TestRunFFAPeakCodes:
         assert result["b17c"].results.n_peaks == len(_CODE_YEARS)
         assert result["b17c"].results.n_censored == 1
 
-    def test_historic_interval_comes_back_as_an_error(self):
+    def test_historic_interval_is_fitted_as_a_historic_row(self):
         result = run_ffa(
             _CODE_FLOWS, _CODE_YEARS, station_skew_only=True, peak_codes=_codes({2: "4,7"})
         )
-        assert result["b17c"] is None
-        assert "2003" in result["error"]
+        assert result["error"] is None
+        r = result["b17c"].results
+        assert r.n_peaks == len(_CODE_YEARS)
+        assert r.n_historical == 1
+        assert r.n_censored == 1
 
     def test_misaligned_codes_raise(self):
         with pytest.raises(ValueError, match="aligned"):
@@ -486,11 +511,13 @@ class TestRunFFAPeakCodes:
 class TestCompareEnginesPeakCodes:
     """The code step runs before the extension is needed, so these run anywhere."""
 
-    def test_uncodable_record_raises_before_fitting(self):
-        with pytest.raises(UnsupportedSpecError, match=r"2003.*historic"):
-            compare_engines(
-                _CODE_FLOWS, _CODE_YEARS, station_skew_only=True, peak_codes=_codes({2: "4,7"})
-            )
+    def test_historic_interval_reaches_both_engines(self):
+        pytest.importorskip("flowfreq.peakfqr", exc_type=ImportError)
+        report = compare_engines(
+            _CODE_FLOWS, _CODE_YEARS, station_skew_only=True, peak_codes=_codes({2: "4,7"})
+        )
+        assert report.native.n_historical == report.reference.n_historical == 1
+        assert report.comparison.passed
 
     def test_censored_codes_reach_both_engines(self):
         pytest.importorskip("flowfreq.peakfqr", exc_type=ImportError)

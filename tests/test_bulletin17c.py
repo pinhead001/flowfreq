@@ -937,3 +937,110 @@ class TestNearZeroSkewConfidenceBounds:
         q = ema.compute_quantiles(np.array([0.01]))["flow_cfs"].iloc[0]
         expected = 10 ** (r.mean_log + kfactor(r.skew_used, 0.01) * r.std_log)
         assert q == pytest.approx(expected, rel=1e-10)
+
+
+class TestLowOutlierCounts:
+    """``n_low_outliers`` is peakfq's ``gbnlow``; ``n_mgbt_outliers`` the flagged peaks."""
+
+    @staticmethod
+    def _record():
+        rng = np.random.default_rng(7)
+        years = np.arange(1960, 2010)
+        flows = np.round(10 ** rng.normal(3.0, 0.35, len(years)), 0)
+        gaps = [1970, 1971, 1972]  # no peak, censored below a 50 cfs perception threshold
+        keep = ~np.isin(years, gaps)
+        return flows[keep], years[keep], gaps
+
+    def test_gap_years_below_the_cutoff_are_low_outlier_rows(self):
+        flows, years, gaps = self._record()
+        # Above the smallest peak, so gbtest does not put the gap years into
+        # the test's own sample; below the 300 cfs cutoff, so it censors them.
+        perception = (float(flows.min()) + 300.0) / 2.0
+        b = Bulletin17C(
+            flows,
+            years,
+            user_low_outlier_threshold=300.0,
+            perception_thresholds={(1960, 2009): perception},
+        )
+        r = b.run_analysis(method="ema")
+        below = int(np.sum(flows < 300.0))
+        assert below > 0
+        assert r.n_mgbt_outliers == below
+        assert r.n_low_outliers == below + len(gaps)
+        assert b.n_mgbt_outliers == below
+
+    def test_less_than_gap_years_are_in_the_tests_sample(self):
+        """A gap year censored no higher than the smallest peak joins MGBT's sample."""
+        flows, years, gaps = self._record()
+        r = Bulletin17C(
+            flows,
+            years,
+            user_low_outlier_threshold=300.0,
+            perception_thresholds={(1960, 2009): float(flows.min()) / 2.0},
+        ).run_analysis(method="ema")
+        below = int(np.sum(flows < 300.0))
+        assert r.n_mgbt_outliers == r.n_low_outliers == below + len(gaps)
+
+    def test_gap_years_above_the_cutoff_are_not(self):
+        flows, years, _gaps = self._record()
+        r = Bulletin17C(
+            flows,
+            years,
+            user_low_outlier_threshold=300.0,
+            perception_thresholds={(1960, 2009): 400.0},
+        ).run_analysis(method="ema")
+        assert r.n_low_outliers == r.n_mgbt_outliers == int(np.sum(flows < 300.0))
+
+    def test_method_of_moments_reports_both_alike(self):
+        flows, years, _gaps = self._record()
+        r = Bulletin17C(flows, years, user_low_outlier_threshold=300.0).run_analysis(method="mom")
+        assert r.n_low_outliers == r.n_mgbt_outliers == int(np.sum(flows < 300.0))
+
+
+class TestP3estEmaFixedPoint:
+    """``_ema_fixed_point`` follows ``p3est_ema``'s start and stopping rule."""
+
+    @staticmethod
+    def _ema(**extra):
+        rng = np.random.default_rng(7)
+        years = np.arange(1960, 2010)
+        flows = np.round(10 ** rng.normal(3.0, 0.35, len(years)), 0)
+        ema = ExpectedMomentsAlgorithm(flows, years, user_low_outlier_threshold=300.0, **extra)
+        ema.run_analysis()
+        return ema
+
+    @staticmethod
+    def _dist_p3(prev, cur):
+        # emafit.f dist_p3, on (mean, variance, skew)
+        return (
+            (prev[0] - cur[0]) ** 2 / cur[1]
+            + (prev[1] - cur[1]) ** 2 / cur[1] ** 2 / 10.0
+            + (prev[2] - cur[2]) ** 2 / 100.0
+        )
+
+    def test_converges_to_the_dist_p3_floor(self):
+        ema = self._ema()
+        mean, std, skew, converged, iterations = ema._ema_fixed_point(9.0, 9.0, 9.0)
+        assert converged
+        assert 1 < iterations < ema._ema_params.max_iterations
+        nxt = ema._ema_iteration(mean, std, skew)
+        assert self._dist_p3((mean, std**2, skew), (nxt[0], nxt[1] ** 2, nxt[2])) <= 1e-10
+
+    def test_start_is_ignored(self):
+        """p3est_ema always starts from (0, 1, 0), so the given start cannot matter."""
+        ema = self._ema()
+        a = ema._ema_fixed_point(0.0, 1.0, 0.0)
+        b = ema._ema_fixed_point(2.9, 0.3, 0.05)
+        assert a == b
+
+    def test_iteration_cap_reports_non_convergence(self):
+        ema = self._ema()
+        ema._ema_params.max_iterations = 2
+        *_moments, converged, iterations = ema._ema_fixed_point(0.0, 1.0, 0.0)
+        assert not converged
+        assert iterations == 2
+
+    def test_defaults_are_p3est_emas(self):
+        params = self._ema()._ema_params
+        assert params.max_iterations == 20000
+        assert params.tolerance == 1e-10

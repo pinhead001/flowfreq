@@ -248,13 +248,14 @@ open. Audited 2026-09-25.
         produce a `verified` state file.
       - [ ] `estimate_flow_statistics` discards NSS's `sep` field, which appears to
         be the log10 standard error of prediction and maps to `sep_log`. Keep it.
-- [ ] **#36 Future-flow `ChangeFactorSet` framework.** `flowfreq/future_flow.py`
-      (`ChangeFactorSet`, `select_factor_set` with state-over-national precedence,
-      and `apply_change_factors`, which keeps both current and future columns) is
-      implemented. **It ships no factor values**, and `flowfreq/data/future/` does
-      not exist. Roadmap §6.3.1 wants the national sets (HEC-17, NCHRP 15-61)
-      first, whereas the module docstring says sets arrive per-state wave by wave.
-      Reconcile the two.
+- [ ] **#36 Future-flow `ChangeFactorSet` framework.** The framework, the
+      `data/future/*.factors.json` loader and the national source review are done.
+      HEC-17 (2016) and NCHRP 15-61 (2019) were checked against the primary documents:
+      both give methods and single-site worked examples, no tabulated national factors,
+      so no national set ships (see `docs/FUTURE_FLOW_GUIDANCE.md`). The module
+      docstring now says "national first". Open: NOAA Atlas 15 Volume 2 once published
+      (plus a cited precipitation-to-flow elasticity), and producing the national result
+      alongside a state override automatically.
 - [ ] **#37 WA (pilot).** Everything is pending: `data/regression/WA.json`, the
       skew row, and the WA section of `docs/FUTURE_FLOW_GUIDANCE.md`. The source
       report is known and already live in NSS: Mastin, Konrad, Veilleux & Tecca
@@ -354,15 +355,32 @@ than fixed:
       **Done:** `USGSgage.download_instantaneous_flow_and_stage` and
       `join_flow_and_stage`: an outer join on UTC with NaN, never interpolation,
       per-parameter qualification codes, and mismatched local time refused.
-- [ ] **No validation against a published ramping-rate or peak-timing figure for
-      a real gage.** Every number in `subdaily.py` is checked against synthetic
-      series with known analytic answers and against internal consistency, which
-      catches the circular-mean and local-`dt` errors the module exists to avoid
-      -- and is *not* the same as reproducing a published hydropeaking statistic.
-      That needs live NWIS, blocked from a Claude Code session (see the
-      environment constraints above). Treat the metrics as verified in arithmetic
-      and unverified against the literature until someone runs a real gage
-      through them.
+- [x] **No validation against a published ramping-rate or peak-timing figure for
+      a real gage.** **Done (2026-09-30), for daily extremes:** Exelon (2012), *Final Study Report: Downstream Flow Ramping and Stranding Study, RSP 3.8*, Conowingo Hydroelectric Project, FERC No. 405,
+      SS4.1.1/4.3.1, states discharge figures read from USGS 01578310
+      (Susquehanna at Conowingo). `daily_extreme_timing` on the approved 15-minute
+      record, grouped on America/New_York days, reproduces 141,000 cfs (2010-10-03),
+      the morning peaks 26,100 / 46,200 / 80,000 cfs (Studies 9-11) and the Study 1
+      prior-day peak 36,500 cfs **exactly**. The 80,000 falls at 08:45 EST, inside
+      the report's "0600-0900 h". These are pinned in
+      `tests/test_subdaily_published.py` (`requires_network`). The Study 3 prior-day
+      peak does not agree (reported 80,900; the record's 2010-05-12 maximum is 81,100)
+      and is recorded, not pinned. Searched without finding a usable figure:
+      Bevelhimer et al. (2015, RRA) gives no per-gage values and uses 2003-2009
+      hourly data; Hells Canyon and Glen Canyon give limits, not observed rates;
+      HESS 26:3393 (2022) gives no per-gage diel values. Abernethy et al. (2021,
+      Ecosphere) and "Vanishing weekly hydropeaking cycles" (Nat. Commun., 2021,
+      doi:10.1038/s41467-021-27465-4) were not accessible (403 or captcha).
+      Nothing was found for Methow 12449950 diel timing.
+- [ ] **No fixed-window ramp metric.** The same report states hydropeaking as a
+      stage decline over "the initial one-hour following reduction to minimum
+      flow" (2.8 / 4.2 / 5.6 / 3.1 ft, Studies 9-12), as compliance limits
+      usually are ("1 ft per hour"). `ramping_rates` reports only per-interval
+      (15-minute) rates, which are not that number. A plain rolling one-hour
+      maximum decline on 01578310 gage height gives 2.76 / 4.20 / 5.60 / 3.29 ft,
+      so three of four agree at 0.1 ft. A `window_hours=` option on
+      `ramping_rates` would make this reproducible from the library. Study 12's
+      3.29 vs 3.1 would need explaining first.
 
 ### Next — StreamStats Phase 2 follow-ups
 

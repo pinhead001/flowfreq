@@ -120,7 +120,7 @@ include = ["flowfreq*"]
 # It happened to work; it is not contractual, and it forced data* into
 # packages.find above. The file now lives in flowfreq/data/ where it is
 # addressed normally.
-"flowfreq" = ["data/*.csv", "data/*.csv.gz", "data/regression/*.json", "py.typed"]
+"flowfreq" = ["data/*.csv", "data/*.csv.gz", "data/regression/*.json", "data/future/*.json", "py.typed"]
 # Benchmark cases must ship with the package: flowfreq benchmark used to read
 # them out of tests/, which is not packaged, so the command failed for every
 # installed user.
