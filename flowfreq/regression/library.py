@@ -23,6 +23,19 @@ from flowfreq.regression.jurisdictions import jurisdiction
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "data" / "regression"
 SCHEMA_VERSION = 1
+#: How faithfully a state file transcribes its source reports -- a statement about
+#: the transcription, not about how much the reports themselves publish:
+#:
+#: - ``pending``: no equations transcribed yet.
+#: - ``partial``: something the cited reports *do* publish is missing or unresolved
+#:   -- a region or AEP not stored (e.g. a form the schema cannot express), a
+#:   published covariance or other statistic deliberately left out, or a
+#:   cross-check that disagrees with the report or NSS beyond rounding.
+#: - ``verified``: everything the cited reports publish for the stored regions is
+#:   stored, double-entered against the source, and cross-checked -- against live
+#:   NSS where NSS serves the region, and otherwise against the report's own
+#:   worked examples and per-gage estimates. A report that publishes no covariance
+#:   (or no AVP) can still be ``verified``; intervals then fall back to ``sep_log``.
 STATUSES = frozenset({"pending", "partial", "verified"})
 
 

@@ -31,6 +31,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     `waterdata-ogc` (it was `nwis-legacy`).
 
 ### Changed
+- **Regression-file status is now defined** (`flowfreq.regression.library.STATUSES`):
+  `verified` means everything the cited reports publish for the stored regions is stored,
+  double-entered and cross-checked (live NSS where it serves the region, otherwise the
+  report's own worked examples and per-gage estimates) -- a report that publishes no
+  covariance can still be `verified`; `partial` means something the reports *do* publish is
+  missing or unresolved. Under it **Oregon moves from `partial` to `verified`**; Washington
+  stays `partial` (its region 4 covariance is published but deliberately not stored).
 - `catalog_row`'s `regulation_class` comes from `flowfreq.regulation.classify_site`
   (`reference`/`regulated`/`urban`/`unknown`) instead of peak codes alone
   (`regulated`/`altered`/`no_code_evidence`). `n_peaks` counts distinct water years with
