@@ -9,7 +9,11 @@ on this library.
 ## Features
 
 - **USGS Data Retrieval** — Download mean daily flow, annual peak flow, and
-  instantaneous (unit-value, sub-daily) flow from NWIS for any gage
+  instantaneous (unit-value, sub-daily) flow and stage for any gage, from the USGS Water
+  Data OGC API by default (`backend="nwis-legacy"` for the legacy NWIS services). NWIS peak
+  qualification codes are applied as peakfq 8.1.0 applies them
+- **PeakFQ inputs** — Read PeakFQ `.psf` specification files and WATSTORE peak files, and
+  run them as Bulletin 17C analyses
 - **Bulletin 17C Analysis**
   - Expected Moments Algorithm (EMA) — the current USGS standard method
   - Method of Moments (MOM) fallback
@@ -17,6 +21,14 @@ on this library.
   - Multiple Grubbs-Beck test (MGBT) for low outlier detection
   - 90% confidence intervals (5%/95% limits)
   - Station / weighted / regional skew comparison
+  - Regional skew lookup by site or location where a verified study applies
+    (`flowfreq.regional_skew`; Pacific Northwest so far)
+  - Native engine, or the vendored USGS peakfq 8.1.0 Fortran as a selectable engine
+- **Regional regression** — Offline USGS peak-flow regression equations for WA, OR, ID,
+  MT, CO, UT, WY, NM, AZ and NV with prediction intervals (`flowfreq.regression`), and
+  StreamStats delineation, basin characteristics and NSS estimates (`flowfreq.streamstats`)
+- **Transposition** — Drainage-area-ratio transfer to ungaged sites, QPPQ daily-series
+  transfer, and donor screening by basin similarity
 - **Low-Flow Frequency Analysis** — Annual minimum *n*-day mean flow (7Q10-style
   statistics), climatic/water/calendar year definitions, LP3 or lognormal
   fit, zero-flow-year handling, analytic and bootstrap confidence intervals
@@ -29,7 +41,8 @@ on this library.
   flow series (`flowfreq.flowio`)
 - **Hydrograph Plotting** — Daily time series, summary hydrograph, flow duration curve
 - **Frequency Curve** — Log-probability axis, LP3 fitted curve, CI band, multi-skew overlay
-- **CLI** — `flowfreq validate` and `flowfreq benchmark` for numerical validation
+- **CLI** — `flowfreq validate` and `flowfreq benchmark` for numerical validation;
+  `flowfreq compare` to run both engines on a peak CSV
 - **Reports** — Automated Markdown technical reports
 
 ## Installation
@@ -53,10 +66,14 @@ pip install -e ".[dev]"
 Or install a released version straight from GitHub:
 
 ```bash
-pip install git+https://github.com/pinhead001/flowfreq@v0.7.0
+pip install git+https://github.com/pinhead001/flowfreq@v0.9.0
 ```
 
 **Dependencies:** `numpy`, `pandas`, `matplotlib`, `scipy`, `requests`, `click`, `pyarrow`
+
+**Water Data API key (optional).** Without a key the USGS Water Data API allows 1000
+requests per hour per IP. For bulk use, set `USGS_API_KEY` (or call
+`flowfreq.waterdata.set_api_key()`). Rate-limited requests are retried with backoff either way.
 
 ## Quick Start
 
@@ -64,14 +81,22 @@ pip install git+https://github.com/pinhead001/flowfreq@v0.7.0
 
 ```python
 from flowfreq import analyze_gage
+from flowfreq.regional_skew import regional_skew_for_site
+
+site = "12449500"                         # Methow River at Twisp, WA
+skew = regional_skew_for_site(site)       # Pacific Northwest study: G = -0.07, MSE 0.18
+# Raises RegionalSkewUnavailable where no verified study applies. B17C has no
+# national default, so there you supply a published skew and its MSE yourself.
 
 result = analyze_gage(
-    site_no="03606500",          # Big Sandy River at Bruceton TN
-    regional_skew=-0.07,         # From a published regional skew study for your site;
-    regional_skew_mse=0.36,      # illustrative values. B17C has no national default.
+    site_no=site,
+    regional_skew=skew.skew,
+    regional_skew_mse=skew.skew_mse,
     output_dir="./output",
 )
 # Saves frequency_curve.png, flood_frequency_report.md, etc.
+# A gage the regulation screen classes as regulated is refused unless
+# allow_regulated=True.
 ```
 
 ### Step-by-step analysis
@@ -81,15 +106,17 @@ import numpy as np
 from flowfreq import USGSgage, Bulletin17C
 
 # 1. Download data
-gage = USGSgage("03606500")
+gage = USGSgage("12449500")
 peak_df = gage.download_peak_flow()
 
-# 2. Run EMA
+# 2. Run EMA. This fits every peak as an exact systematic value. To apply NWIS
+# peak codes (historic, less-/greater-than, regulated), use flowfreq.workflow.run_ffa
+# or analyze_gage, which apply them by default.
 b17c = Bulletin17C(
     peak_flows=peak_df["peak_flow_cfs"].values,
     water_years=peak_df["water_year"].values.astype(int),
-    regional_skew=-0.07,          # published regional skew (illustrative)
-    regional_skew_mse=0.36,       # its MSE = SE²
+    regional_skew=-0.07,          # Pacific Northwest regional skew (SIR 2016-5083 app. B)
+    regional_skew_mse=0.18,       # its MSE (SE 0.42)
 )
 results = b17c.run_analysis(method="ema")
 
@@ -108,7 +135,18 @@ fig.savefig("frequency_curve.png", dpi=300, bbox_inches="tight")
 
 | Module | Purpose |
 |--------|---------|
-| `flowfreq.usgs` | `USGSgage` — NWIS daily/peak/instantaneous data download |
+| `flowfreq.usgs` | `USGSgage` — daily/peak/instantaneous flow and stage download |
+| `flowfreq.waterdata` / `flowfreq.peak_sources` | Water Data OGC API client (default) and peak-data backends |
+| `flowfreq.peak_codes` | NWIS peak qualification codes → Bulletin 17C treatment |
+| `flowfreq.psf` / `flowfreq.psf_convert` / `flowfreq.watstore` | PeakFQ `.psf` and WATSTORE readers; `.psf` → `Bulletin17C` |
+| `flowfreq.fortran_engine` | The vendored peakfq 8.1.0 Fortran as a selectable engine |
+| `flowfreq.regional_skew` / `flowfreq.skew_study` | Regional skew lookup; B-WLS/B-GLS regional skew development |
+| `flowfreq.regulation` / `flowfreq.catalog` | Regulation/urbanization screen; national gage catalog |
+| `flowfreq.regression` | Offline regional regression equations and evaluator |
+| `flowfreq.streamstats` | StreamStats delineation, basin characteristics, NSS estimates |
+| `flowfreq.transpose` / `flowfreq.qppq` / `flowfreq.donor_similarity` | Transposition to ungaged sites, QPPQ, donor screening |
+| `flowfreq.future_flow` | Future-condition change-factor framework |
+| `flowfreq.subdaily` | Sub-daily metrics: extreme timing, ramping rates |
 | `flowfreq.bulletin17c` | `Bulletin17C` — EMA/MOM analysis, quantiles, CI, plots |
 | `flowfreq.core` | `FrequencyResults`, `LowFlowResults`, `kfactor`, `grubbs_beck_critical_value` |
 | `flowfreq.lowflow` | `LowFlowFrequency` — annual *n*-day low-flow frequency analysis |
@@ -125,14 +163,17 @@ fig.savefig("frequency_curve.png", dpi=300, bbox_inches="tight")
 ### `USGSgage`
 
 ```python
-gage = USGSgage("03606500")
+gage = USGSgage("03606500")          # Big Sandy River at Bruceton, TN
 gage.fetch_site_info()              # Populates site_name, drainage_area, POR dates
+                                    # (still the legacy NWIS site service)
 
 daily_df = gage.download_daily_flow(start_date="2000-01-01")
 # → DataFrame indexed by date, column: flow_cfs
 
 peak_df = gage.download_peak_flow()
 # → DataFrame: water_year, peak_date, peak_flow_cfs, qualification_code
+# peak_date is a UTC date on the default Water Data API backend.
+# backend="nwis-legacy" on any download_* method uses the legacy NWIS services.
 ```
 
 ### `Bulletin17C`
@@ -235,6 +276,9 @@ flowfreq benchmark
 
 # Benchmark report (JSON)
 flowfreq benchmark --format json
+
+# Native vs Fortran engine on a peak CSV (needs the built Fortran extension)
+flowfreq compare --peaks peaks.csv --regional-skew -0.07 --regional-skew-se 0.4243
 ```
 
 ## Web Application
@@ -265,17 +309,26 @@ this library as a pinned dependency; see that repo's README to run or deploy it.
 
 ## Bulletin 17C Technical Notes
 
-**Weighted skew** (per B17C §6):
+**Weighted skew:** the station and regional skews are weighted by inverse MSE.
 ```
-MSE_station = (6/n) × (1 + (6/n)G² + (15/n²)G⁴)
 w_regional  = MSE_station / (MSE_station + MSE_regional)
-G_weighted  = w_station × G_station + w_regional × G_regional
+G_weighted  = (1 − w_regional) × G_station + w_regional × G_regional
 ```
+`MSE_station` depends on the method:
+- **EMA** (the default) follows peakfq 8.1.0's HWN weighting. The at-site MSE is ADJE, the
+  censoring-aware adjustment of Bulletin 17B's `10^(A − B·log10(n/10))`, and the weight also
+  carries the Halloween determinant ratio `Wd`. When MGBT finds low outliers, the at-site
+  MSE switches to the unadjusted Bulletin 17B formula, as `emafit.f` does.
+- **MOM** uses B17C Appendix 4 eq. A4-2:
+  `[6n(n−1) / ((n−2)(n+1)(n+3))] × (1 + (6/n)G² + (15/n²)G⁴)`.
 
 **90% confidence intervals:**
+- **EMA** uses Cohn and others' EMA variance with peakfq's asymmetric bounds
+  (`flowfreq._var_emab`), matching peakfq 8.1.0.
+- **MOM** uses the classical approximation:
 ```
-Var(X_p) = σ² × [1/n + K² × (1 + 0.75G²) / (2(n-1))]
-CI = Q̂ ± 1.645 × σ × √Var_factor
+Var(log Q_p) = S² × (1/n) × [1 + K·G + (K²/2)(1 + 0.75G²)] + S² × (∂K/∂G)² × MSE_G
+CI = log Q̂_p ± z × √Var
 ```
 
 **Skew options** — Any combination of station, weighted, and regional skew can be selected to overlay multiple LP3 curves on the frequency plot and produce separate frequency tables for comparison.
@@ -288,6 +341,8 @@ England, J.F., Jr., et al., 2019, Guidelines for determining flood flow frequenc
 
 | Version | Changes |
 |---------|---------|
+| **v0.9.0** | Water Data OGC API as the default peak backend; NWIS peak codes applied by default; no silent regional skew default (pass a published skew, `station_skew_only=True` or `use_default_skew=True`); `.psf` input; native-EMA fixes toward peakfq 8.1.0 (zero-flow years, per-year perception thresholds, interval peaks, exact LP3 quantiles, B17B skew-MSE switch, near-zero-skew bounds); WA/OR/ID/MT regression equations; Pacific Northwest regional skew. See CHANGELOG.md. |
+| **v0.8.0** | `flowfreq.streamstats`: StreamStats delineation and basin characteristics (Phase 1) and NSS flow-statistic estimates (Phase 2); `download_daily_flow` timeout and date-range fixes |
 | **v0.7.0** | Transposition of computed flows to ungaged sites (`flowfreq.transpose`: flood, flow-duration and low-flow, each with mandatory exponent provenance); QPPQ daily-series transfer with melt-timing tools (`flowfreq.qppq`); standalone `regime.flow_duration_curve` |
 | **v0.6.1** | `plot_peak_flows_with_thresholds` gains a `yscale` toggle, closing the last app/library plot-dedupe gap (verified numerically equivalent to the app's old values) |
 | **v0.6.0** | `plot_peak_flows_with_thresholds` gains PILF/MGBT hollow-bar censoring, closing the app/library plot dedupe; mypy fix in `fortran_engine.py`; `make clean` now also wipes `.mypy_cache` |
