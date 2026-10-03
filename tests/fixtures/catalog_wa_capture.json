@@ -1,0 +1,1926 @@
+{
+"_about": "Trimmed live capture (2026-09-30) of the Water Data API peaks and monitoring-locations bulk queries for state_code=53, for three sites: 12048000 (GAGES-II Ref), 12045500 (code-6 regulated peaks), 12027000 (fewer than 10 peaks). Used by tests/test_catalog.py.",
+"peaks": [
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 2011,
+"value": "22300",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12027000",
+"water_year": 1948,
+"value": "699",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1991,
+"value": "28700",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1958,
+"value": "10500",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1958,
+"value": "2330",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1957,
+"value": "22100",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12027000",
+"water_year": 1947,
+"value": "934",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 2025,
+"value": "2520",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1972,
+"value": "3500",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1930,
+"value": "920",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1944,
+"value": "1520",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1936,
+"value": "4680",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1938,
+"value": "5380",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1950,
+"value": "6820",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12027000",
+"water_year": 1949,
+"value": "930",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 2003,
+"value": "3330",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1902,
+"value": "33600",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1973,
+"value": "3630",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1949,
+"value": "5370",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 2013,
+"value": "11100",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 2019,
+"value": "12300",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1995,
+"value": "4850",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1954,
+"value": "9820",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 2015,
+"value": "5610",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1938,
+"value": "18600",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1964,
+"value": "12400",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1939,
+"value": "17100",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1930,
+"value": "7150",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1993,
+"value": "1610",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1976,
+"value": "19500",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1945,
+"value": "14000",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1985,
+"value": "1610",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1929,
+"value": "1000",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1974,
+"value": "22600",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 2022,
+"value": "25200",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1989,
+"value": "7720",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1977,
+"value": "5340",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1996,
+"value": "23900",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1940,
+"value": "4010",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1957,
+"value": "3880",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 2016,
+"value": "5160",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1963,
+"value": "3670",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1948,
+"value": "2790",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1962,
+"value": "1380",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1968,
+"value": "17300",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 2009,
+"value": "13700",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1941,
+"value": "10800",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1949,
+"value": "2820",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1962,
+"value": "8140",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1956,
+"value": "21400",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1964,
+"value": "2630",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1944,
+"value": "10000",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1981,
+"value": "27700",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1922,
+"value": "21400",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1978,
+"value": "18500",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1929,
+"value": "9800",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 2020,
+"value": "17200",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 2017,
+"value": "14600",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1923,
+"value": "9880",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12027000",
+"water_year": 1946,
+"value": "890",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1967,
+"value": "16300",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 2001,
+"value": "7240",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1983,
+"value": "3710",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1927,
+"value": "7600",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1901,
+"value": "20600",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1985,
+"value": "8760",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 2021,
+"value": "14700",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 2006,
+"value": "3090",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1969,
+"value": "10300",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1934,
+"value": "26700",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1983,
+"value": "22300",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1943,
+"value": "6770",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 2021,
+"value": "2800",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1988,
+"value": "3300",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1947,
+"value": "13000",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1960,
+"value": "22900",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1984,
+"value": "21700",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1982,
+"value": "14200",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1966,
+"value": "1370",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1963,
+"value": "21700",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1951,
+"value": "14300",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 2003,
+"value": "14200",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1959,
+"value": "15400",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 2008,
+"value": "35900",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1946,
+"value": "1200",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12027000",
+"water_year": 1945,
+"value": "830",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1900,
+"value": "30200",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 2014,
+"value": "2370",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1973,
+"value": "12900",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 2018,
+"value": "3780",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1970,
+"value": "8070",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 2010,
+"value": "18600",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 2012,
+"value": "2220",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1979,
+"value": "8180",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 2020,
+"value": "2500",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12027000",
+"water_year": 1950,
+"value": "990",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1980,
+"value": "26100",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1970,
+"value": "1850",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 2015,
+"value": "15800",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 2007,
+"value": "20900",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1996,
+"value": "4500",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1968,
+"value": "3920",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1924,
+"value": "6340",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1942,
+"value": "4120",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1932,
+"value": "16200",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 2010,
+"value": "3900",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1943,
+"value": "1010",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 2005,
+"value": "14700",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1994,
+"value": "3240",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1971,
+"value": "1480",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1941,
+"value": "2400",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1993,
+"value": "6780",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1947,
+"value": "2530",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1952,
+"value": "5380",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1981,
+"value": "4040",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1980,
+"value": "5350",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1951,
+"value": "4600",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1920,
+"value": "11000",
+"qualifier": [
+"MAXDAILYMEAN"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 2000,
+"value": "3490",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1992,
+"value": "18100",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1978,
+"value": "2440",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1955,
+"value": "14300",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 2024,
+"value": "2670",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1959,
+"value": "2900",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1961,
+"value": "5900",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1995,
+"value": "16700",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1971,
+"value": "7270",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1988,
+"value": "10400",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1960,
+"value": "4800",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1997,
+"value": "23100",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1925,
+"value": "3120",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 2006,
+"value": "11600",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 2013,
+"value": "1840",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1899,
+"value": "5820",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1998,
+"value": "16000",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1967,
+"value": "2960",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1927,
+"value": "2860",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 2004,
+"value": "5920",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1935,
+"value": "25200",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1990,
+"value": "3650",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1939,
+"value": "3850",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1940,
+"value": "15600",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1953,
+"value": "2480",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1954,
+"value": "3990",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1989,
+"value": "1300",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 2014,
+"value": "12300",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1998,
+"value": "2970",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1952,
+"value": "1860",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1945,
+"value": "3380",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 2023,
+"value": "2470",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1933,
+"value": "9640",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1942,
+"value": "17100",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1965,
+"value": "1850",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1948,
+"value": "18000",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 2025,
+"value": "14200",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1975,
+"value": "2170",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 2017,
+"value": "3500",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1898,
+"value": "41600",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 2000,
+"value": "15500",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1990,
+"value": "17700",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1977,
+"value": "973",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1987,
+"value": "19800",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1928,
+"value": "1400",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1986,
+"value": "6560",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1956,
+"value": "6750",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 2011,
+"value": "5820",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 2023,
+"value": "13400",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1966,
+"value": "8110",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1994,
+"value": "16200",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1992,
+"value": "5090",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 2024,
+"value": "15400",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1969,
+"value": "1660",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1975,
+"value": "14200",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1999,
+"value": "4640",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1991,
+"value": "7120",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1925,
+"value": "9500",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 2004,
+"value": "29700",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1997,
+"value": "5990",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 2002,
+"value": "7610",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1984,
+"value": "5510",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1926,
+"value": "6550",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 2016,
+"value": "25900",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 2008,
+"value": "3690",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1961,
+"value": "22100",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1982,
+"value": "3240",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1950,
+"value": "30000",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 2018,
+"value": "21600",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 2019,
+"value": "2600",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1999,
+"value": "19100",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1924,
+"value": "14200",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1953,
+"value": "11100",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1987,
+"value": "3220",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 2001,
+"value": "938",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1979,
+"value": "1460",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 2012,
+"value": "10300",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1965,
+"value": "9790",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1976,
+"value": "5150",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1928,
+"value": "10700",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1986,
+"value": "25700",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1926,
+"value": "740",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1955,
+"value": "3570",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1931,
+"value": "12100",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1972,
+"value": "9790",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 2002,
+"value": "25700",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1937,
+"value": "8870",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1946,
+"value": "5910",
+"qualifier": [
+"REGULATED"
+]
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 2009,
+"value": "2350",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12045500",
+"water_year": 1921,
+"value": "11700",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 1974,
+"value": "4320",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 2022,
+"value": "4210",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 2007,
+"value": "2530",
+"qualifier": null
+}
+},
+{
+"properties": {
+"monitoring_location_id": "USGS-12048000",
+"water_year": 2005,
+"value": "3620",
+"qualifier": null
+}
+}
+],
+"locations": [
+{
+"type": "Feature",
+"properties": {
+"monitoring_location_name": "LINCOLN CREEK NEAR ROCHESTER, WA",
+"state_code": "53",
+"hydrologic_unit_code": "171001030403",
+"drainage_area": 19.3
+},
+"id": "USGS-12027000",
+"geometry": {
+"type": "Point",
+"coordinates": [
+-123.179030118552,
+46.7359339623974
+]
+}
+},
+{
+"type": "Feature",
+"properties": {
+"monitoring_location_name": "ELWHA RIVER AT MCDONALD BR NEAR PORT ANGELES, WA",
+"state_code": "53",
+"hydrologic_unit_code": "171100200512",
+"drainage_area": 269.0
+},
+"id": "USGS-12045500",
+"geometry": {
+"type": "Point",
+"coordinates": [
+-123.58321362238982,
+48.05478017852923
+]
+}
+},
+{
+"type": "Feature",
+"properties": {
+"monitoring_location_name": "DUNGENESS RIVER NEAR SEQUIM, WA",
+"state_code": "53",
+"hydrologic_unit_code": "171100200306",
+"drainage_area": 156.0
+},
+"id": "USGS-12048000",
+"geometry": {
+"type": "Point",
+"coordinates": [
+-123.13267726887,
+48.0142578056225
+]
+}
+}
+]
+}

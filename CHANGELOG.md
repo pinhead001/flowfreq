@@ -7,7 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **National gage catalog** (`flowfreq.catalog`, roadmap §1.1, #33).
+  `flowfreq/data/gage_catalog.csv.gz` lists every USGS peak-flow site, active or
+  inactive, with at least 10 water years of discharge peaks. Each row has site_no, name,
+  lat/lon, drainage area, state, HUC8, years of record (count, first, last), the
+  regulation class from #32's screen and peak codes, and the regression region.
+  - Regression region is filled for Wave 1 only (WA, OR, ID, MT). It is the NSS region
+    code of the StreamStats peak-flow polygon that contains the gage point. Elsewhere it
+    is blank.
+  - `data/gage_catalog.meta.json` records the build date, sources and counts.
+  - `load_catalog()` reads `.csv` or `.csv.gz` and now also validates the HUC8 and
+    regulation class.
+  - New helpers for the build: `peaks_by_site`, `location_fields`, `build_rows`,
+    `write_catalog` and `load_catalog_meta`.
+- `tools/build_gage_catalog.py` rebuilds the catalog from the Water Data OGC API.
+  - Two bulk queries per state (`peaks` by `state_code`, and `monitoring-locations`)
+    replace one or two requests per site. The national build took about 250 requests (20,745 sites, 56 jurisdictions).
+  - Every request goes through `waterdata.request`.
+  - Responses are cached per state, so a rate-limited build resumes. `--all` builds every
+    state and territory; `--states` rebuilds and merges the states you name.
+  - The per-site `--sites` mode remains. Its peak backend now defaults to
+    `waterdata-ogc` (it was `nwis-legacy`).
+
 ### Changed
+- `catalog_row`'s `regulation_class` comes from `flowfreq.regulation.classify_site`
+  (`reference`/`regulated`/`urban`/`unknown`) instead of peak codes alone
+  (`regulated`/`altered`/`no_code_evidence`). `n_peaks` counts distinct water years with
+  a discharge, not rows. `GageAttributes` and its 3-row `gage_attributes.csv` are
+  unchanged.
 - **`analyze_gage` now refuses a regulated gage** (#32). Before fitting, it classifies
   the gage with the new regulation screen. A gage classed `regulated` raises
   `flowfreq.regulation.RegulatedRecordError`, a `ValueError` subclass, unless you pass
