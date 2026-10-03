@@ -17,10 +17,10 @@ Plan and definitions of done: `docs/MASTER_ROADMAP.md` §3.2.
 | Code | Jurisdiction | Equations | Regions | Equation count | Regional skew | Issue |
 |---|---|---|---:|---:|---|---|
 | CO | Colorado | verified | 8 | 62 | not started | #93 |
-| UT | Utah | not started | 0 | 0 | not started |  |
-| WY | Wyoming | not started | 0 | 0 | not started |  |
-| NM | New Mexico | not started | 0 | 0 | not started |  |
-| AZ | Arizona | not started | 0 | 0 | not started |  |
+| UT | Utah | partial | 8 | 63 | not started | #96 |
+| WY | Wyoming | verified | 6 | 60 | not started | #98 |
+| NM | New Mexico | verified | 13 | 91 | not started | #100 |
+| AZ | Arizona | partial | 7 | 53 | not started | #102 |
 | NV | Nevada | partial | 6 | 35 | not started | #104 |
 
 ## Wave 3: West coast and Pacific

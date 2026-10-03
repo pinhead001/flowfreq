@@ -203,10 +203,14 @@ open. Audited 2026-09-25.
         polygons and point-in-polygon, which flowfreq does not depend on.
       - The NLCD impervious **time series** (step 3). GAGES-II carries NLCD 2006 only.
       - Gages outside GAGES-II, which have peak-code evidence only.
-- [ ] **#33 National gage catalog.** `flowfreq/catalog.py` (schema and loader) and
-      `tools/build_gage_catalog.py` exist. The tool needs network access and a
-      hand-supplied `--sites` list; auto-discovery waits on #29. No catalog has been
-      built, so `flowfreq/data/gage_attributes.csv` is still the 3-row seed.
+- [ ] **#33 National gage catalog.** Built. `flowfreq/data/gage_catalog.csv.gz` covers
+      every USGS peak site with at least 10 years, nationally, and is rebuilt by
+      `tools/build_gage_catalog.py` with Water Data API bulk queries per state.
+      Open: `regression_region` is filled for Wave 1 only (WA/OR/ID/MT). It comes from the
+      gage point, so a basin that crosses a boundary needs
+      `streamstats.locate_regression_regions`. Western Oregon's region 2A/2B split is by
+      basin mean elevation, so those rows list `GC729;GC730;GC731`. The other waves'
+      region layers are added as each state is developed.
 - [ ] **#34 Regional skew table and lookup.** `flowfreq/regional_skew.py`
       (`load_table`, `regional_skew_for`, which never returns a `pending` row) is
       implemented. `flowfreq/data/regional_skew.csv` has four Wave 1 rows, all
