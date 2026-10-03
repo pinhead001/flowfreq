@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **New Mexico peak-flow regression equations** (`flowfreq/data/regression/NM.json`, Wave 2,
+  #100), `status: "verified"`: 91 equations. SIR 2008-5119 flood regions 1-9 (63 equations,
+  Tables 1-2) and SIR 2006-5306 Navajo Nation regions 8, 11, High Elevation and 6, at 7 AEPs
+  each. Double-entered with 0 disagreements; Appendix 1's predicted values and the p. 11
+  worked example reproduce; all 91 equations equal live NSS at 3 significant figures (the
+  2008 regions through NSS's `HIGHREG` gating). Table 1's "12,7000" is stored as 12,700.
+  NSS snapshot `data/nss_snapshots/NM_2026-10-01.json`.
 - **Historic interval peaks** (a peak coded 7 and 4 or 8): the new `historical_interval_peaks`
   argument to `Bulletin17C`, `ExpectedMomentsAlgorithm`, `fortran_engine.build_emafit_arrays`,
   `run_fortran_reference` and `run_fortran_ema`, shaped like `interval_peaks`:
