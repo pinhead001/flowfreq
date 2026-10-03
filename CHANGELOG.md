@@ -70,6 +70,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     it upstream needs basin polygons) and the NLCD impervious time series.
 
 ### Added
+- **Arizona peak-flow regression equations** (`flowfreq/data/regression/AZ.json`, Wave 2,
+  #102), `status: "partial"`: 53 equations. SIR 2014-5211 flood regions 1-4 at 8 AEPs with
+  Table 12 model error variance and covariance, and SIR 2006-5306 Navajo Nation regions 8,
+  11 and High Elevation. Partial because region 5's `10^(a - b DRNAREA^-c)` form has no
+  schema representation. The p. 34 worked example (Q1 149,714 ft3/s, 90% interval
+  98,000-229,000) reproduces; every stored equation equals live NSS at 3 significant
+  figures. NSS snapshot `data/nss_snapshots/AZ_2026-10-01.json`.
 - **New Mexico peak-flow regression equations** (`flowfreq/data/regression/NM.json`, Wave 2,
   #100), `status: "verified"`: 91 equations. SIR 2008-5119 flood regions 1-9 (63 equations,
   Tables 1-2) and SIR 2006-5306 Navajo Nation regions 8, 11, High Elevation and 6, at 7 AEPs
