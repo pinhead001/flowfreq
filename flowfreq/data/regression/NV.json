@@ -1,0 +1,1219 @@
+{
+  "schema_version": 1,
+  "state": "NV",
+  "status": "partial",
+  "issue": 104,
+  "source_reports": [
+    {
+      "citation": "Thomas, B.E., Hjalmarson, H.W., and Waltemeyer, S.D., 1997, Methods for estimating magnitude and frequency of floods in the southwestern United States: U.S. Geological Survey Water-Supply Paper 2433",
+      "version": "1997 release with errata sheet (pages 48 and 52, Tables 11 and 13: regions not used in Nevada)",
+      "doi": "10.3133/wsp2433",
+      "url": "https://pubs.usgs.gov/publication/wsp2433",
+      "pdf": "https://pubs.usgs.gov/wsp/2433/report.pdf",
+      "tables": [
+        "Table 5",
+        "Table 6",
+        "Table 7",
+        "Table 9",
+        "Table 10",
+        "Table 14"
+      ],
+      "nss": {
+        "state_region_id": 32,
+        "citation_id": 17,
+        "regression_region_ids": [
+          363,
+          364,
+          365,
+          366,
+          367,
+          368
+        ]
+      }
+    }
+  ],
+  "notes": "Thomas, Hjalmarson and Waltemeyer, 1997, WSP 2433, the only report NSS uses for Nevada's peak-flow group (NSS region 32, citation 17); no newer Nevada peak-flow report is on the pubs warehouse. The report's errata sheet corrects Tables 11 and 13 (regions 7 and 9), which Nevada does not use. Stored: the six flood regions NSS lists for Nevada at the report's 6 recurrence intervals (2-100 years; AEP 0.5-0.01; the report has no 200- or 500-year equations): High-Elevation Region 1 (Table 5, 165 stations), Northwest Region 2 (Table 6, 108), South-Central Idaho Region 3 (Table 7, 35) and Eastern Sierras Region 5 (Table 9, 37), all generalized least squares, and the hybrid-method Northern Great Basin Region 6 (Table 10, 80) and Southern Great Basin Region 10 (Table 14, 104). Region 6's 2-year equation is printed 'Q=0' and is not stored (NSS returns 0). Storage: intercept = log10 of the printed coefficient; AREA = DRNAREA, PREC = PRECIP (mean annual precipitation, in.), all log10; (ELEV/1,000)^b is ELEV log10 with scale 0.001; [(LAT - 28)/10]^b is NSS's LAT_GAGE (latitude of the site, decimal degrees) log10 with scale 0.1 and offset -2.8. Limits: the report has no range table; it defines applicability by 'clouds of common values' in its joint-distribution figures (figs. 18, 20, 22, 29 and others), so the minimum and maximum stored for each variable are NSS's limits (snapshot 2026-10-01), not the report's, and are a looser test than the report's clouds. Error statistics: for the GLS regions sep_log is the printed average standard error of prediction (percent) converted as sqrt(ln(1 + (SEP/100)^2)) / ln(10). For the hybrid regions the report prints an 'estimated average standard error of regression, in log units' (region 6: 1.47, 1.12, 0.796, 1.10, 1.84 for 5-100 years; region 10: 1.14, 0.602, 0.675, 0.949, 0.928, 1.23) that it says includes much of the within-station residual variance and is not comparable to a regression standard error; it is not stored, so hybrid equations carry no interval. No model error variance, AVP or covariance is published. Equivalent years of record are not stored. n_sites is each table's station count. The report's transition rules (averaging across a 700-ft band at the High-Elevation Region 1 boundary, and drainage-area weighting across regions, eqs. 6-7) are not modelled. The PDF is a scanned page image with an unreliable text layer, so the second entry was NSS's equation strings and ASEp values, parsed programmatically: 161 cells, 0 disagreements against the hand transcription from the rendered pages. The p. 39-40 worked example reproduces: region 6 Q10 362 and Q100 2,120 ft3/s, region 10 Q10 2,450 and Q100 13,800 ft3/s at A = 57 mi2, ELEV = 6,500 ft. Every stored equation equals live NSS at its 3 significant figures.",
+  "equations": [
+    {
+      "region_code": "1",
+      "region_name": "High-Elevation Region 1 (WSP 2433, GLS; NSS GC160)",
+      "aep": 0.5,
+      "intercept": -0.906578314837765,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "minimum": 0.6,
+          "maximum": 1060.0,
+          "units": "mi2"
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "minimum": 11.0,
+          "maximum": 43.0,
+          "units": "in"
+        }
+      ],
+      "coefficients": [
+        0.845,
+        1.44
+      ],
+      "citation": {
+        "publication": "Thomas, B.E., Hjalmarson, H.W., and Waltemeyer, S.D., 1997, Methods for estimating magnitude and frequency of floods in the southwestern United States: U.S. Geological Survey Water-Supply Paper 2433",
+        "table": "Table 5; limits from NSS (report has no range table)",
+        "year": 1997,
+        "url": "https://doi.org/10.3133/wsp2433"
+      },
+      "n_sites": 165,
+      "sep_log": 0.237355
+    },
+    {
+      "region_code": "1",
+      "region_name": "High-Elevation Region 1 (WSP 2433, GLS; NSS GC160)",
+      "aep": 0.2,
+      "intercept": -0.20134935455473107,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "minimum": 0.6,
+          "maximum": 1060.0,
+          "units": "mi2"
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "minimum": 11.0,
+          "maximum": 43.0,
+          "units": "in"
+        }
+      ],
+      "coefficients": [
+        0.807,
+        1.12
+      ],
+      "citation": {
+        "publication": "Thomas, B.E., Hjalmarson, H.W., and Waltemeyer, S.D., 1997, Methods for estimating magnitude and frequency of floods in the southwestern United States: U.S. Geological Survey Water-Supply Paper 2433",
+        "table": "Table 5; limits from NSS (report has no range table)",
+        "year": 1997,
+        "url": "https://doi.org/10.3133/wsp2433"
+      },
+      "n_sites": 165,
+      "sep_log": 0.212464
+    },
+    {
+      "region_code": "1",
+      "region_name": "High-Elevation Region 1 (WSP 2433, GLS; NSS GC160)",
+      "aep": 0.1,
+      "intercept": 0.1553360374650618,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "minimum": 0.6,
+          "maximum": 1060.0,
+          "units": "mi2"
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "minimum": 11.0,
+          "maximum": 43.0,
+          "units": "in"
+        }
+      ],
+      "coefficients": [
+        0.786,
+        0.958
+      ],
+      "citation": {
+        "publication": "Thomas, B.E., Hjalmarson, H.W., and Waltemeyer, S.D., 1997, Methods for estimating magnitude and frequency of floods in the southwestern United States: U.S. Geological Survey Water-Supply Paper 2433",
+        "table": "Table 5; limits from NSS (report has no range table)",
+        "year": 1997,
+        "url": "https://doi.org/10.3133/wsp2433"
+      },
+      "n_sites": 165,
+      "sep_log": 0.197754
+    },
+    {
+      "region_code": "1",
+      "region_name": "High-Elevation Region 1 (WSP 2433, GLS; NSS GC160)",
+      "aep": 0.04,
+      "intercept": 0.4885507165004443,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "minimum": 0.6,
+          "maximum": 1060.0,
+          "units": "mi2"
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "minimum": 11.0,
+          "maximum": 43.0,
+          "units": "in"
+        }
+      ],
+      "coefficients": [
+        0.768,
+        0.811
+      ],
+      "citation": {
+        "publication": "Thomas, B.E., Hjalmarson, H.W., and Waltemeyer, S.D., 1997, Methods for estimating magnitude and frequency of floods in the southwestern United States: U.S. Geological Survey Water-Supply Paper 2433",
+        "table": "Table 5; limits from NSS (report has no range table)",
+        "year": 1997,
+        "url": "https://doi.org/10.3133/wsp2433"
+      },
+      "n_sites": 165,
+      "sep_log": 0.190269
+    },
+    {
+      "region_code": "1",
+      "region_name": "High-Elevation Region 1 (WSP 2433, GLS; NSS GC160)",
+      "aep": 0.02,
+      "intercept": 0.6766936096248666,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "minimum": 0.6,
+          "maximum": 1060.0,
+          "units": "mi2"
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "minimum": 11.0,
+          "maximum": 43.0,
+          "units": "in"
+        }
+      ],
+      "coefficients": [
+        0.758,
+        0.732
+      ],
+      "citation": {
+        "publication": "Thomas, B.E., Hjalmarson, H.W., and Waltemeyer, S.D., 1997, Methods for estimating magnitude and frequency of floods in the southwestern United States: U.S. Geological Survey Water-Supply Paper 2433",
+        "table": "Table 5; limits from NSS (report has no range table)",
+        "year": 1997,
+        "url": "https://doi.org/10.3133/wsp2433"
+      },
+      "n_sites": 165,
+      "sep_log": 0.190269
+    },
+    {
+      "region_code": "1",
+      "region_name": "High-Elevation Region 1 (WSP 2433, GLS; NSS GC160)",
+      "aep": 0.01,
+      "intercept": 0.8312296938670634,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "minimum": 0.6,
+          "maximum": 1060.0,
+          "units": "mi2"
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "minimum": 11.0,
+          "maximum": 43.0,
+          "units": "in"
+        }
+      ],
+      "coefficients": [
+        0.75,
+        0.668
+      ],
+      "citation": {
+        "publication": "Thomas, B.E., Hjalmarson, H.W., and Waltemeyer, S.D., 1997, Methods for estimating magnitude and frequency of floods in the southwestern United States: U.S. Geological Survey Water-Supply Paper 2433",
+        "table": "Table 5; limits from NSS (report has no range table)",
+        "year": 1997,
+        "url": "https://doi.org/10.3133/wsp2433"
+      },
+      "n_sites": 165,
+      "sep_log": 0.190269
+    },
+    {
+      "region_code": "2",
+      "region_name": "Northwest Region 2 (WSP 2433, GLS; NSS GC161)",
+      "aep": 0.5,
+      "intercept": 1.1172712956557642,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "minimum": 0.8,
+          "maximum": 1680.0,
+          "units": "mi2"
+        }
+      ],
+      "coefficients": [
+        0.713
+      ],
+      "citation": {
+        "publication": "Thomas, B.E., Hjalmarson, H.W., and Waltemeyer, S.D., 1997, Methods for estimating magnitude and frequency of floods in the southwestern United States: U.S. Geological Survey Water-Supply Paper 2433",
+        "table": "Table 6; limits from NSS (report has no range table)",
+        "year": 1997,
+        "url": "https://doi.org/10.3133/wsp2433"
+      },
+      "n_sites": 108,
+      "sep_log": 0.280669
+    },
+    {
+      "region_code": "2",
+      "region_name": "Northwest Region 2 (WSP 2433, GLS; NSS GC161)",
+      "aep": 0.2,
+      "intercept": 1.3502480183341627,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "minimum": 0.8,
+          "maximum": 1680.0,
+          "units": "mi2"
+        }
+      ],
+      "coefficients": [
+        0.723
+      ],
+      "citation": {
+        "publication": "Thomas, B.E., Hjalmarson, H.W., and Waltemeyer, S.D., 1997, Methods for estimating magnitude and frequency of floods in the southwestern United States: U.S. Geological Survey Water-Supply Paper 2433",
+        "table": "Table 6; limits from NSS (report has no range table)",
+        "year": 1997,
+        "url": "https://doi.org/10.3133/wsp2433"
+      },
+      "n_sites": 108,
+      "sep_log": 0.261149
+    },
+    {
+      "region_code": "2",
+      "region_name": "Northwest Region 2 (WSP 2433, GLS; NSS GC161)",
+      "aep": 0.1,
+      "intercept": 1.745855195173729,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "minimum": 0.8,
+          "maximum": 1680.0,
+          "units": "mi2"
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "minimum": 3540.0,
+          "maximum": 7950.0,
+          "units": "ft",
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.727,
+        -0.353
+      ],
+      "citation": {
+        "publication": "Thomas, B.E., Hjalmarson, H.W., and Waltemeyer, S.D., 1997, Methods for estimating magnitude and frequency of floods in the southwestern United States: U.S. Geological Survey Water-Supply Paper 2433",
+        "table": "Table 6; limits from NSS (report has no range table)",
+        "year": 1997,
+        "url": "https://doi.org/10.3133/wsp2433"
+      },
+      "n_sites": 108,
+      "sep_log": 0.244266
+    },
+    {
+      "region_code": "2",
+      "region_name": "Northwest Region 2 (WSP 2433, GLS; NSS GC161)",
+      "aep": 0.04,
+      "intercept": 1.927883410330707,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "minimum": 0.8,
+          "maximum": 1680.0,
+          "units": "mi2"
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "minimum": 3540.0,
+          "maximum": 7950.0,
+          "units": "ft",
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.737,
+        -0.438
+      ],
+      "citation": {
+        "publication": "Thomas, B.E., Hjalmarson, H.W., and Waltemeyer, S.D., 1997, Methods for estimating magnitude and frequency of floods in the southwestern United States: U.S. Geological Survey Water-Supply Paper 2433",
+        "table": "Table 6; limits from NSS (report has no range table)",
+        "year": 1997,
+        "url": "https://doi.org/10.3133/wsp2433"
+      },
+      "n_sites": 108,
+      "sep_log": 0.244266
+    },
+    {
+      "region_code": "2",
+      "region_name": "Northwest Region 2 (WSP 2433, GLS; NSS GC161)",
+      "aep": 0.02,
+      "intercept": 2.0530784434834195,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "minimum": 0.8,
+          "maximum": 1680.0,
+          "units": "mi2"
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "minimum": 3540.0,
+          "maximum": 7950.0,
+          "units": "ft",
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.746,
+        -0.511
+      ],
+      "citation": {
+        "publication": "Thomas, B.E., Hjalmarson, H.W., and Waltemeyer, S.D., 1997, Methods for estimating magnitude and frequency of floods in the southwestern United States: U.S. Geological Survey Water-Supply Paper 2433",
+        "table": "Table 6; limits from NSS (report has no range table)",
+        "year": 1997,
+        "url": "https://doi.org/10.3133/wsp2433"
+      },
+      "n_sites": 108,
+      "sep_log": 0.254463
+    },
+    {
+      "region_code": "2",
+      "region_name": "Northwest Region 2 (WSP 2433, GLS; NSS GC161)",
+      "aep": 0.01,
+      "intercept": 2.1702617153949575,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "minimum": 0.8,
+          "maximum": 1680.0,
+          "units": "mi2"
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "minimum": 3540.0,
+          "maximum": 7950.0,
+          "units": "ft",
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.752,
+        -0.584
+      ],
+      "citation": {
+        "publication": "Thomas, B.E., Hjalmarson, H.W., and Waltemeyer, S.D., 1997, Methods for estimating magnitude and frequency of floods in the southwestern United States: U.S. Geological Survey Water-Supply Paper 2433",
+        "table": "Table 6; limits from NSS (report has no range table)",
+        "year": 1997,
+        "url": "https://doi.org/10.3133/wsp2433"
+      },
+      "n_sites": 108,
+      "sep_log": 0.267745
+    },
+    {
+      "region_code": "3",
+      "region_name": "South-Central Idaho Region 3 (WSP 2433, GLS; NSS GC162)",
+      "aep": 0.5,
+      "intercept": -0.3526170298853802,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "minimum": 2.2,
+          "maximum": 1450.0,
+          "units": "mi2"
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "minimum": 10.0,
+          "maximum": 41.0,
+          "units": "in"
+        }
+      ],
+      "coefficients": [
+        0.649,
+        1.15
+      ],
+      "citation": {
+        "publication": "Thomas, B.E., Hjalmarson, H.W., and Waltemeyer, S.D., 1997, Methods for estimating magnitude and frequency of floods in the southwestern United States: U.S. Geological Survey Water-Supply Paper 2433",
+        "table": "Table 7; limits from NSS (report has no range table)",
+        "year": 1997,
+        "url": "https://doi.org/10.3133/wsp2433"
+      },
+      "n_sites": 35,
+      "sep_log": 0.32315
+    },
+    {
+      "region_code": "3",
+      "region_name": "South-Central Idaho Region 3 (WSP 2433, GLS; NSS GC162)",
+      "aep": 0.2,
+      "intercept": 0.08278537031645007,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "minimum": 2.2,
+          "maximum": 1450.0,
+          "units": "mi2"
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "minimum": 10.0,
+          "maximum": 41.0,
+          "units": "in"
+        }
+      ],
+      "coefficients": [
+        0.639,
+        0.995
+      ],
+      "citation": {
+        "publication": "Thomas, B.E., Hjalmarson, H.W., and Waltemeyer, S.D., 1997, Methods for estimating magnitude and frequency of floods in the southwestern United States: U.S. Geological Survey Water-Supply Paper 2433",
+        "table": "Table 7; limits from NSS (report has no range table)",
+        "year": 1997,
+        "url": "https://doi.org/10.3133/wsp2433"
+      },
+      "n_sites": 35,
+      "sep_log": 0.3144
+    },
+    {
+      "region_code": "3",
+      "region_name": "South-Central Idaho Region 3 (WSP 2433, GLS; NSS GC162)",
+      "aep": 0.1,
+      "intercept": 0.29885307640970665,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "minimum": 2.2,
+          "maximum": 1450.0,
+          "units": "mi2"
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "minimum": 10.0,
+          "maximum": 41.0,
+          "units": "in"
+        }
+      ],
+      "coefficients": [
+        0.633,
+        0.924
+      ],
+      "citation": {
+        "publication": "Thomas, B.E., Hjalmarson, H.W., and Waltemeyer, S.D., 1997, Methods for estimating magnitude and frequency of floods in the southwestern United States: U.S. Geological Survey Water-Supply Paper 2433",
+        "table": "Table 7; limits from NSS (report has no range table)",
+        "year": 1997,
+        "url": "https://doi.org/10.3133/wsp2433"
+      },
+      "n_sites": 35,
+      "sep_log": 0.305459
+    },
+    {
+      "region_code": "3",
+      "region_name": "South-Central Idaho Region 3 (WSP 2433, GLS; NSS GC162)",
+      "aep": 0.04,
+      "intercept": 0.5276299008713387,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "minimum": 2.2,
+          "maximum": 1450.0,
+          "units": "mi2"
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "minimum": 10.0,
+          "maximum": 41.0,
+          "units": "in"
+        }
+      ],
+      "coefficients": [
+        0.627,
+        0.849
+      ],
+      "citation": {
+        "publication": "Thomas, B.E., Hjalmarson, H.W., and Waltemeyer, S.D., 1997, Methods for estimating magnitude and frequency of floods in the southwestern United States: U.S. Geological Survey Water-Supply Paper 2433",
+        "table": "Table 7; limits from NSS (report has no range table)",
+        "year": 1997,
+        "url": "https://doi.org/10.3133/wsp2433"
+      },
+      "n_sites": 35,
+      "sep_log": 0.299392
+    },
+    {
+      "region_code": "3",
+      "region_name": "South-Central Idaho Region 3 (WSP 2433, GLS; NSS GC162)",
+      "aep": 0.02,
+      "intercept": 0.6720978579357175,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "minimum": 2.2,
+          "maximum": 1450.0,
+          "units": "mi2"
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "minimum": 10.0,
+          "maximum": 41.0,
+          "units": "in"
+        }
+      ],
+      "coefficients": [
+        0.625,
+        0.802
+      ],
+      "citation": {
+        "publication": "Thomas, B.E., Hjalmarson, H.W., and Waltemeyer, S.D., 1997, Methods for estimating magnitude and frequency of floods in the southwestern United States: U.S. Geological Survey Water-Supply Paper 2433",
+        "table": "Table 7; limits from NSS (report has no range table)",
+        "year": 1997,
+        "url": "https://doi.org/10.3133/wsp2433"
+      },
+      "n_sites": 35,
+      "sep_log": 0.296326
+    },
+    {
+      "region_code": "3",
+      "region_name": "South-Central Idaho Region 3 (WSP 2433, GLS; NSS GC162)",
+      "aep": 0.01,
+      "intercept": 0.8075350280688532,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "minimum": 2.2,
+          "maximum": 1450.0,
+          "units": "mi2"
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "minimum": 10.0,
+          "maximum": 41.0,
+          "units": "in"
+        }
+      ],
+      "coefficients": [
+        0.621,
+        0.757
+      ],
+      "citation": {
+        "publication": "Thomas, B.E., Hjalmarson, H.W., and Waltemeyer, S.D., 1997, Methods for estimating magnitude and frequency of floods in the southwestern United States: U.S. Geological Survey Water-Supply Paper 2433",
+        "table": "Table 7; limits from NSS (report has no range table)",
+        "year": 1997,
+        "url": "https://doi.org/10.3133/wsp2433"
+      },
+      "n_sites": 35,
+      "sep_log": 0.299392
+    },
+    {
+      "region_code": "5",
+      "region_name": "Eastern Sierras Region 5 (WSP 2433, GLS; NSS GC163)",
+      "aep": 0.5,
+      "intercept": -1.47755576649368,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "minimum": 4.1,
+          "maximum": 360.0,
+          "units": "mi2"
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "minimum": 5770.0,
+          "maximum": 10500.0,
+          "units": "ft",
+          "scale": 0.001
+        },
+        {
+          "code": "LAT_GAGE",
+          "transform": "log10",
+          "minimum": 36.44,
+          "maximum": 39.5,
+          "units": "decimal degrees",
+          "scale": 0.1,
+          "offset": -2.8
+        }
+      ],
+      "coefficients": [
+        0.853,
+        2.68,
+        4.1
+      ],
+      "citation": {
+        "publication": "Thomas, B.E., Hjalmarson, H.W., and Waltemeyer, S.D., 1997, Methods for estimating magnitude and frequency of floods in the southwestern United States: U.S. Geological Survey Water-Supply Paper 2433",
+        "table": "Table 9; limits from NSS (report has no range table)",
+        "year": 1997,
+        "url": "https://doi.org/10.3133/wsp2433"
+      },
+      "n_sites": 37,
+      "sep_log": 0.442389
+    },
+    {
+      "region_code": "5",
+      "region_name": "Eastern Sierras Region 5 (WSP 2433, GLS; NSS GC163)",
+      "aep": 0.2,
+      "intercept": 0.38381536598043126,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "minimum": 4.1,
+          "maximum": 360.0,
+          "units": "mi2"
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "minimum": 5770.0,
+          "maximum": 10500.0,
+          "units": "ft",
+          "scale": 0.001
+        },
+        {
+          "code": "LAT_GAGE",
+          "transform": "log10",
+          "minimum": 36.44,
+          "maximum": 39.5,
+          "units": "decimal degrees",
+          "scale": 0.1,
+          "offset": -2.8
+        }
+      ],
+      "coefficients": [
+        0.823,
+        1.01,
+        4.1
+      ],
+      "citation": {
+        "publication": "Thomas, B.E., Hjalmarson, H.W., and Waltemeyer, S.D., 1997, Methods for estimating magnitude and frequency of floods in the southwestern United States: U.S. Geological Survey Water-Supply Paper 2433",
+        "table": "Table 9; limits from NSS (report has no range table)",
+        "year": 1997,
+        "url": "https://doi.org/10.3133/wsp2433"
+      },
+      "n_sites": 37,
+      "sep_log": 0.364173
+    },
+    {
+      "region_code": "5",
+      "region_name": "Eastern Sierras Region 5 (WSP 2433, GLS; NSS GC163)",
+      "aep": 0.1,
+      "intercept": 1.4471580313422192,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "minimum": 4.1,
+          "maximum": 360.0,
+          "units": "mi2"
+        },
+        {
+          "code": "LAT_GAGE",
+          "transform": "log10",
+          "minimum": 36.44,
+          "maximum": 39.5,
+          "units": "decimal degrees",
+          "scale": 0.1,
+          "offset": -2.8
+        }
+      ],
+      "coefficients": [
+        0.826,
+        4.3
+      ],
+      "citation": {
+        "publication": "Thomas, B.E., Hjalmarson, H.W., and Waltemeyer, S.D., 1997, Methods for estimating magnitude and frequency of floods in the southwestern United States: U.S. Geological Survey Water-Supply Paper 2433",
+        "table": "Table 9; limits from NSS (report has no range table)",
+        "year": 1997,
+        "url": "https://doi.org/10.3133/wsp2433"
+      },
+      "n_sites": 37,
+      "sep_log": 0.317337
+    },
+    {
+      "region_code": "5",
+      "region_name": "Eastern Sierras Region 5 (WSP 2433, GLS; NSS GC163)",
+      "aep": 0.04,
+      "intercept": 2.629409599102719,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "minimum": 4.1,
+          "maximum": 360.0,
+          "units": "mi2"
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "minimum": 5770.0,
+          "maximum": 10500.0,
+          "units": "ft",
+          "scale": 0.001
+        },
+        {
+          "code": "LAT_GAGE",
+          "transform": "log10",
+          "minimum": 36.44,
+          "maximum": 39.5,
+          "units": "decimal degrees",
+          "scale": 0.1,
+          "offset": -2.8
+        }
+      ],
+      "coefficients": [
+        0.812,
+        -1.1,
+        4.3
+      ],
+      "citation": {
+        "publication": "Thomas, B.E., Hjalmarson, H.W., and Waltemeyer, S.D., 1997, Methods for estimating magnitude and frequency of floods in the southwestern United States: U.S. Geological Survey Water-Supply Paper 2433",
+        "table": "Table 9; limits from NSS (report has no range table)",
+        "year": 1997,
+        "url": "https://doi.org/10.3133/wsp2433"
+      },
+      "n_sites": 37,
+      "sep_log": 0.326025
+    },
+    {
+      "region_code": "5",
+      "region_name": "Eastern Sierras Region 5 (WSP 2433, GLS; NSS GC163)",
+      "aep": 0.02,
+      "intercept": 3.307496037913213,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "minimum": 4.1,
+          "maximum": 360.0,
+          "units": "mi2"
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "minimum": 5770.0,
+          "maximum": 10500.0,
+          "units": "ft",
+          "scale": 0.001
+        },
+        {
+          "code": "LAT_GAGE",
+          "transform": "log10",
+          "minimum": 36.44,
+          "maximum": 39.5,
+          "units": "decimal degrees",
+          "scale": 0.1,
+          "offset": -2.8
+        }
+      ],
+      "coefficients": [
+        0.798,
+        -1.71,
+        4.4
+      ],
+      "citation": {
+        "publication": "Thomas, B.E., Hjalmarson, H.W., and Waltemeyer, S.D., 1997, Methods for estimating magnitude and frequency of floods in the southwestern United States: U.S. Geological Survey Water-Supply Paper 2433",
+        "table": "Table 9; limits from NSS (report has no range table)",
+        "year": 1997,
+        "url": "https://doi.org/10.3133/wsp2433"
+      },
+      "n_sites": 37,
+      "sep_log": 0.337321
+    },
+    {
+      "region_code": "5",
+      "region_name": "Eastern Sierras Region 5 (WSP 2433, GLS; NSS GC163)",
+      "aep": 0.01,
+      "intercept": 3.845098040014257,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "minimum": 4.1,
+          "maximum": 360.0,
+          "units": "mi2"
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "minimum": 5770.0,
+          "maximum": 10500.0,
+          "units": "ft",
+          "scale": 0.001
+        },
+        {
+          "code": "LAT_GAGE",
+          "transform": "log10",
+          "minimum": 36.44,
+          "maximum": 39.5,
+          "units": "decimal degrees",
+          "scale": 0.1,
+          "offset": -2.8
+        }
+      ],
+      "coefficients": [
+        0.782,
+        -2.18,
+        4.6
+      ],
+      "citation": {
+        "publication": "Thomas, B.E., Hjalmarson, H.W., and Waltemeyer, S.D., 1997, Methods for estimating magnitude and frequency of floods in the southwestern United States: U.S. Geological Survey Water-Supply Paper 2433",
+        "table": "Table 9; limits from NSS (report has no range table)",
+        "year": 1997,
+        "url": "https://doi.org/10.3133/wsp2433"
+      },
+      "n_sites": 37,
+      "sep_log": 0.348295
+    },
+    {
+      "region_code": "6",
+      "region_name": "Northern Great Basin Region 6 (WSP 2433, hybrid; NSS GC164)",
+      "aep": 0.2,
+      "intercept": 1.505149978319906,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "minimum": 0.2,
+          "maximum": 210.0,
+          "units": "mi2"
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "minimum": 4770.0,
+          "maximum": 9960.0,
+          "units": "ft",
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.8,
+        -0.66
+      ],
+      "citation": {
+        "publication": "Thomas, B.E., Hjalmarson, H.W., and Waltemeyer, S.D., 1997, Methods for estimating magnitude and frequency of floods in the southwestern United States: U.S. Geological Survey Water-Supply Paper 2433",
+        "table": "Table 10; limits from NSS (report has no range table)",
+        "year": 1997,
+        "url": "https://doi.org/10.3133/wsp2433"
+      },
+      "n_sites": 80
+    },
+    {
+      "region_code": "6",
+      "region_name": "Northern Great Basin Region 6 (WSP 2433, hybrid; NSS GC164)",
+      "aep": 0.1,
+      "intercept": 2.7708520116421442,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "minimum": 0.2,
+          "maximum": 210.0,
+          "units": "mi2"
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "minimum": 4770.0,
+          "maximum": 9960.0,
+          "units": "ft",
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.62,
+        -1.6
+      ],
+      "citation": {
+        "publication": "Thomas, B.E., Hjalmarson, H.W., and Waltemeyer, S.D., 1997, Methods for estimating magnitude and frequency of floods in the southwestern United States: U.S. Geological Survey Water-Supply Paper 2433",
+        "table": "Table 10; limits from NSS (report has no range table)",
+        "year": 1997,
+        "url": "https://doi.org/10.3133/wsp2433"
+      },
+      "n_sites": 80
+    },
+    {
+      "region_code": "6",
+      "region_name": "Northern Great Basin Region 6 (WSP 2433, hybrid; NSS GC164)",
+      "aep": 0.04,
+      "intercept": 3.505149978319906,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "minimum": 0.2,
+          "maximum": 210.0,
+          "units": "mi2"
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "minimum": 4770.0,
+          "maximum": 9960.0,
+          "units": "ft",
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.62,
+        -2.1
+      ],
+      "citation": {
+        "publication": "Thomas, B.E., Hjalmarson, H.W., and Waltemeyer, S.D., 1997, Methods for estimating magnitude and frequency of floods in the southwestern United States: U.S. Geological Survey Water-Supply Paper 2433",
+        "table": "Table 10; limits from NSS (report has no range table)",
+        "year": 1997,
+        "url": "https://doi.org/10.3133/wsp2433"
+      },
+      "n_sites": 80
+    },
+    {
+      "region_code": "6",
+      "region_name": "Northern Great Basin Region 6 (WSP 2433, hybrid; NSS GC164)",
+      "aep": 0.02,
+      "intercept": 3.724275869600789,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "minimum": 0.2,
+          "maximum": 210.0,
+          "units": "mi2"
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "minimum": 4770.0,
+          "maximum": 9960.0,
+          "units": "ft",
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.64,
+        -2.1
+      ],
+      "citation": {
+        "publication": "Thomas, B.E., Hjalmarson, H.W., and Waltemeyer, S.D., 1997, Methods for estimating magnitude and frequency of floods in the southwestern United States: U.S. Geological Survey Water-Supply Paper 2433",
+        "table": "Table 10; limits from NSS (report has no range table)",
+        "year": 1997,
+        "url": "https://doi.org/10.3133/wsp2433"
+      },
+      "n_sites": 80
+    },
+    {
+      "region_code": "6",
+      "region_name": "Northern Great Basin Region 6 (WSP 2433, hybrid; NSS GC164)",
+      "aep": 0.01,
+      "intercept": 4.301029995663981,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "minimum": 0.2,
+          "maximum": 210.0,
+          "units": "mi2"
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "minimum": 4770.0,
+          "maximum": 9960.0,
+          "units": "ft",
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.51,
+        -2.3
+      ],
+      "citation": {
+        "publication": "Thomas, B.E., Hjalmarson, H.W., and Waltemeyer, S.D., 1997, Methods for estimating magnitude and frequency of floods in the southwestern United States: U.S. Geological Survey Water-Supply Paper 2433",
+        "table": "Table 10; limits from NSS (report has no range table)",
+        "year": 1997,
+        "url": "https://doi.org/10.3133/wsp2433"
+      },
+      "n_sites": 80
+    },
+    {
+      "region_code": "10",
+      "region_name": "Southern Great Basin Region 10 (WSP 2433, hybrid; NSS GC165)",
+      "aep": 0.5,
+      "intercept": 1.0791812460476249,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "minimum": 0.1,
+          "maximum": 1000.0,
+          "units": "mi2"
+        }
+      ],
+      "coefficients": [
+        0.58
+      ],
+      "citation": {
+        "publication": "Thomas, B.E., Hjalmarson, H.W., and Waltemeyer, S.D., 1997, Methods for estimating magnitude and frequency of floods in the southwestern United States: U.S. Geological Survey Water-Supply Paper 2433",
+        "table": "Table 14; limits from NSS (report has no range table)",
+        "year": 1997,
+        "url": "https://doi.org/10.3133/wsp2433"
+      },
+      "n_sites": 104
+    },
+    {
+      "region_code": "10",
+      "region_name": "Southern Great Basin Region 10 (WSP 2433, hybrid; NSS GC165)",
+      "aep": 0.2,
+      "intercept": 1.9294189257142926,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "minimum": 0.1,
+          "maximum": 1000.0,
+          "units": "mi2"
+        }
+      ],
+      "coefficients": [
+        0.59
+      ],
+      "citation": {
+        "publication": "Thomas, B.E., Hjalmarson, H.W., and Waltemeyer, S.D., 1997, Methods for estimating magnitude and frequency of floods in the southwestern United States: U.S. Geological Survey Water-Supply Paper 2433",
+        "table": "Table 14; limits from NSS (report has no range table)",
+        "year": 1997,
+        "url": "https://doi.org/10.3133/wsp2433"
+      },
+      "n_sites": 104
+    },
+    {
+      "region_code": "10",
+      "region_name": "Southern Great Basin Region 10 (WSP 2433, hybrid; NSS GC165)",
+      "aep": 0.1,
+      "intercept": 2.3010299956639813,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "minimum": 0.1,
+          "maximum": 1000.0,
+          "units": "mi2"
+        }
+      ],
+      "coefficients": [
+        0.62
+      ],
+      "citation": {
+        "publication": "Thomas, B.E., Hjalmarson, H.W., and Waltemeyer, S.D., 1997, Methods for estimating magnitude and frequency of floods in the southwestern United States: U.S. Geological Survey Water-Supply Paper 2433",
+        "table": "Table 14; limits from NSS (report has no range table)",
+        "year": 1997,
+        "url": "https://doi.org/10.3133/wsp2433"
+      },
+      "n_sites": 104
+    },
+    {
+      "region_code": "10",
+      "region_name": "Southern Great Basin Region 10 (WSP 2433, hybrid; NSS GC165)",
+      "aep": 0.04,
+      "intercept": 2.6020599913279625,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "minimum": 0.1,
+          "maximum": 1000.0,
+          "units": "mi2"
+        }
+      ],
+      "coefficients": [
+        0.65
+      ],
+      "citation": {
+        "publication": "Thomas, B.E., Hjalmarson, H.W., and Waltemeyer, S.D., 1997, Methods for estimating magnitude and frequency of floods in the southwestern United States: U.S. Geological Survey Water-Supply Paper 2433",
+        "table": "Table 14; limits from NSS (report has no range table)",
+        "year": 1997,
+        "url": "https://doi.org/10.3133/wsp2433"
+      },
+      "n_sites": 104
+    },
+    {
+      "region_code": "10",
+      "region_name": "Southern Great Basin Region 10 (WSP 2433, hybrid; NSS GC165)",
+      "aep": 0.02,
+      "intercept": 2.7708520116421442,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "minimum": 0.1,
+          "maximum": 1000.0,
+          "units": "mi2"
+        }
+      ],
+      "coefficients": [
+        0.67
+      ],
+      "citation": {
+        "publication": "Thomas, B.E., Hjalmarson, H.W., and Waltemeyer, S.D., 1997, Methods for estimating magnitude and frequency of floods in the southwestern United States: U.S. Geological Survey Water-Supply Paper 2433",
+        "table": "Table 14; limits from NSS (report has no range table)",
+        "year": 1997,
+        "url": "https://doi.org/10.3133/wsp2433"
+      },
+      "n_sites": 104
+    },
+    {
+      "region_code": "10",
+      "region_name": "Southern Great Basin Region 10 (WSP 2433, hybrid; NSS GC165)",
+      "aep": 0.01,
+      "intercept": 2.929418925714293,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "minimum": 0.1,
+          "maximum": 1000.0,
+          "units": "mi2"
+        }
+      ],
+      "coefficients": [
+        0.69
+      ],
+      "citation": {
+        "publication": "Thomas, B.E., Hjalmarson, H.W., and Waltemeyer, S.D., 1997, Methods for estimating magnitude and frequency of floods in the southwestern United States: U.S. Geological Survey Water-Supply Paper 2433",
+        "table": "Table 14; limits from NSS (report has no range table)",
+        "year": 1997,
+        "url": "https://doi.org/10.3133/wsp2433"
+      },
+      "n_sites": 104
+    }
+  ]
+}

@@ -19,6 +19,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `run_ffa` calls are unchanged.
 
 ### Added
+- **Nevada peak-flow regression equations** (`flowfreq/data/regression/NV.json`, Wave 2,
+  #104), `status: "partial"`: 35 equations from WSP 2433 (the only report NSS uses for
+  Nevada), regions 1, 2, 3, 5 (GLS) and 6, 10 (hybrid) at 2-100 years. Partial because the
+  report has no range table (stored limits are NSS's), region 6's 2-year equation is printed
+  `Q=0`, and hybrid errors are not comparable standard errors and are not stored. The
+  worked example reproduces; every stored equation equals live NSS at 3 significant figures.
+  NSS snapshot `data/nss_snapshots/NV_2026-10-01.json`.
 - **Regulation / urbanization screen** (`flowfreq.regulation`, roadmap §1.1, #32).
   `classify_site(site_no, peak_codes=None)` returns `reference`, `regulated`, `urban`
   or `unknown`, with the evidence behind it. `require_unregulated()` is the B17C refusal

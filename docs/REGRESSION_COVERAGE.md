@@ -21,7 +21,7 @@ Plan and definitions of done: `docs/MASTER_ROADMAP.md` §3.2.
 | WY | Wyoming | not started | 0 | 0 | not started |  |
 | NM | New Mexico | not started | 0 | 0 | not started |  |
 | AZ | Arizona | not started | 0 | 0 | not started |  |
-| NV | Nevada | not started | 0 | 0 | not started |  |
+| NV | Nevada | partial | 6 | 35 | not started | #104 |
 
 ## Wave 3: West coast and Pacific
 
