@@ -202,10 +202,11 @@ def analyze_gage(
         fitted exactly as before. With them the result changes, and needs
         ``method="ema"`` and no ``historical_peaks`` (a ``ValueError``
         otherwise). Code 4/8 peaks are fitted as censored intervals
-        (``Bulletin17C``'s ``interval_peaks``), as peakfq fits them. Raises
-        :class:`flowfreq.psf_convert.UnsupportedSpecError`, naming the years,
-        when the native engine cannot express the coded record exactly (a
-        code 7 peak that is also code 4 or 8).
+        (``Bulletin17C``'s ``interval_peaks``, or ``historical_interval_peaks``
+        for a code 7 peak that is also code 4 or 8), as peakfq fits them.
+        Raises :class:`flowfreq.psf_convert.UnsupportedSpecError`, naming the
+        years, if the native engine could not express the coded record
+        exactly.
         ``False`` restores the old behaviour -- every peak fitted as an
         exact systematic value, with ignored codes logged. It was opt-in
         (default ``False``) before.
