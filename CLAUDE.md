@@ -47,7 +47,14 @@ repo bumps its pin.
 ```bash
 pip install -e ".[dev]"
 
-# Full suite. ~95-100 s. It was ~15 s until the confidence-interval shape fix
+# Full suite. ~340 s, measured 2026-10-03 on a Windows developer machine
+# (CPython 3.12, Fortran extension absent; 2529 tests). CI's test jobs grew too, from
+# about 3 min per interpreter at v0.9.0 to 5-10 min. The slowest tests (`--durations`)
+# are EMA fits on heavily censored records, e.g. test_workflow.py's TestPilfOverride
+# at ~20 s each. The likely cause, not bisected, is #81: the fixed point now iterates
+# as p3est_ema does (up to 20000 iterations, to a 1e-10 tolerance), where it used to
+# stop at 1e-6 or 100 iterations. This note said ~95-100 s before 0.10.0's changes
+# (not re-measured on this machine). It was ~15 s until the confidence-interval shape fix
 # (flowfreq._var_emab.var_emab, TODO.md P3): nine regmoms calls per analysis,
 # each a full var_mom/mn2mvarb solve. @lru_cache'd like the rest of this
 # port's expensive pieces, so repeated fits of the same fixture are cheap,
@@ -143,10 +150,44 @@ CI should test the supported Python matrix.
   `grubbs_beck_critical_value`, `log_pearson3_*`, `compute_ci_lp3`)
 - **`bulletin17c.py`** — `FloodFrequencyAnalysis` (ABC), `MethodOfMoments`,
   `ExpectedMomentsAlgorithm`, `Bulletin17C` (facade), and the MGBT three-sweep
-- **`usgs.py`** — `USGSgage` NWIS retrieval, `GageAttributes`
-- **`lowflow.py`** / **`regime.py`** — low-flow frequency and flow-regime metrics
+- **`fortran_engine.py`** — the vendored `emafitpr` as a selectable engine (`engine="fortran"`)
+- **`workflow.py`** — `run_ffa` / `compare_engines` entry points, `peak_code_kwargs`
+- **`usgs.py`** — `USGSgage` retrieval (peaks, daily, instantaneous, paired flow+stage),
+  `GageAttributes`
+- **`waterdata.py`** — USGS Water Data OGC API client: `request` (API key, 429/503 backoff),
+  instantaneous and daily values
+- **`peak_sources.py`** — peak-data backends (`waterdata-ogc` default, `nwis-legacy`)
+- **`peak_codes.py`** — NWIS peak qualification codes → B17C treatment (peakfq's `siteQT`)
+- **`psf.py`** / **`psf_convert.py`** / **`watstore.py`** — PeakFQ `.psf` reader, `.psf` →
+  `Bulletin17C` arguments, legacy WATSTORE peak-file reader
+- **`regulation.py`** — regulation/urbanization screen (GAGES-II + peak code 6) and the
+  regulated-record refusal
+- **`catalog.py`** — national gage catalog (`data/gage_catalog.csv.gz`)
+- **`regional_skew.py`** — verified regional skew by state, HUC or location;
+  **`skew_study.py`** — B-WLS/B-GLS regional skew development
+- **`regression/`** — offline regional regression equations: `equations` (schema,
+  evaluator, prediction intervals), `library` (per-state JSON, status definitions),
+  `jurisdictions` (the 56 jurisdictions and their waves), `nss` (NSS equation parser),
+  `oregon` / `montana` (state-specific procedures)
+- **`streamstats.py`** — StreamStats delineation, basin characteristics, NSS estimates
+- **`transpose.py`** / **`qppq.py`** / **`donor_similarity.py`** — transposition to ungaged
+  sites, QPPQ daily transfer, donor screening and ranking by basin similarity
+- **`future_flow.py`** — future-condition change-factor framework
+- **`lowflow.py`** / **`regime.py`** / **`subdaily.py`** — low-flow frequency, flow-regime and
+  sub-daily metrics
 - **`engine.py`**, **`batch.py`**, **`report.py`**, **`hydrograph.py`**, **`plots.py`**,
-  **`freq_plot.py`**
+  **`freq_plot.py`**, **`flowio.py`**, **`cli.py`**
+
+## Data Sources
+
+The USGS Water Data OGC API (`api.waterdata.usgs.gov`) is the default backend for annual
+peaks (#63/#70), instantaneous values (#77) and daily values (#79), each switched behind a
+live parity test against legacy NWIS. Every call goes through `waterdata.request` (#84): it
+sends an `X-Api-Key` from `USGS_API_KEY` or `waterdata.set_api_key()`, and retries HTTP
+429/503 with `Retry-After` or exponential backoff. Without a key the API allows 1000
+requests/hour per IP. Legacy NWIS remains available with `backend="nwis-legacy"`. On the OGC
+backend an IV `ts_id` is the 32-hex `time_series_id`, not the NWIS DD number, and
+`peak_date` is a UTC date.
 
 ## Conventions
 
@@ -187,9 +228,48 @@ sites this reproduces peakfq 8.1.0 to within measurement noise: weighted skew to
 Sandy, confidence bounds within 0.06% at every AEP tested, asymmetry ratio within
 0.0007-0.0022 of peakfq's own.
 
-No parity `xfail` remains; the only strict xfails left are the four 2012 PeakfqSA manual
-comparisons (see Test Data). Cains Coulee's `skew_weighted`, 0.058 skew units off for a long
-time, now matches to 6e-6 (quantiles to 0.0012%). The cause was `emafit.f:707-711`: when MGBT
+**Beyond the golden files: all 24 WY/MT stations** in
+`vendor/peakfqr/inst/testdata/wymt_ffa_2022A.psf` now run natively (through `psf_convert`)
+and match a live `emafitpr` call on the same inputs. What it took, by PR:
+
+- every perception-threshold period applied per year, as `siteQT` does (#61);
+- the exact Pearson III inverse for LP3 quantiles (#62);
+- the B17B at-site skew-MSE switch when MGBT finds low outliers (#64, below);
+- zero-flow rows, the `gbtmin` censoring bound and the exact MGBT cutoff (#66);
+- interval peaks (codes 4/8) and upper perception thresholds (#72);
+- confidence bounds interpolated between ±`skewmin` at near-zero skew (#74);
+- the EMA fixed point iterating as `p3est_ema` does (#81): at-site skew to 1e-10 and
+  quantiles to ~1e-5 % (the near-zero-skew stations 06328100 and 06329350 to 5e-4 % and
+  0.012 %).
+
+#90 then added historic interval peaks (code 7 with 4 or 8, `historical_interval_peaks`),
+the one `siteQT` construct still refused. No vendored record has one, so it is checked
+against live `emafitpr` on a synthetic record
+(`tests/fortran_parity/test_historic_interval_peaks_live.py`).
+
+`FrequencyResults.n_low_outliers` is peakfq's `gbnlow` on both engines (#88): every EMA row
+`gbtest` recodes below the cutoff. MGBT's own count of flagged peaks is `n_mgbt_outliers`.
+
+The strict xfails, from `grep -rn -A1 "xfail(" tests/` (the marker spans lines, so a
+one-line `grep "xfail(strict=True"` finds only docstrings):
+
+- `tests/validation/test_big_sandy.py`: four comparisons against the 2012 PeakfqSA manual
+  (quantiles at AEP 0.99 and 0.995, confidence bounds at 0.01 and 0.02). That reference is not
+  reproducible by peakfq 8.1.0 (see Test Data).
+- `tests/fortran_parity/test_fixed_threshold_live.py` (`requires_fortran`, from #81), two
+  places where `emafitpr` itself is the problem:
+  - `test_weighted_skew_matches_emafitpr`: a synthetic record with a FIXED 300 cfs threshold
+    and at-site skew 0.056. `emafitpr`'s weighted skew is ill-conditioned there, because
+    `mP3`'s incomplete gamma rounds at 1e-3 for skews of a few thousandths. Native -0.0037
+    sits inside the Fortran's own 1e-5-perturbation band of -0.0073 to -0.0003.
+  - `test_big_sandy_6000_weighted_skew_matches`: Big Sandy's systematic record with a
+    6000 cfs FIXED threshold (29 of 44 censored). `emafitpr`'s `MN2MVARB` stops after 100
+    Newton iterations without converging and returns that iterate unflagged. Its ADJE
+    `as_G_mse` is 2.74 against 0.064 at the true root, giving weighted skew -0.281 (peakfq)
+    vs -0.166 (native). The at-site fit agrees to 5e-8.
+
+The B17B switch (#64) closed the last golden-file xfail. Cains Coulee's `skew_weighted`, 0.058
+skew units off for a long time, now matches to 6e-6 (quantiles to 0.0012%). The cause was `emafit.f:707-711`: when MGBT
 computes the low-outlier threshold and finds low outliers, `emafitpr` switches the at-site skew
 MSE from ADJE to the plain Bulletin 17B `mseg(n, G)` over the whole record (uncapped), and
 leaves `at_site_option` there for the confidence bounds too. The native engine now follows the
