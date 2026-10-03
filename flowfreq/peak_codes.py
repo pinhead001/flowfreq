@@ -223,8 +223,8 @@ class RegulationClass(str, Enum):
     """Gage classification from peak-code evidence alone.
 
     There is deliberately no ``REFERENCE`` member: the absence of a code is
-    not evidence that a basin is unregulated. Reference status needs NID/
-    GAGES-II data (issue #32, steps 2-3).
+    not evidence that a basin is unregulated. Reference status needs basin
+    attributes; :mod:`flowfreq.regulation` adds them from GAGES-II (issue #32).
     """
 
     REGULATED = "regulated"

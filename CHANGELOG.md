@@ -7,6 +7,85 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **`analyze_gage` now refuses a regulated gage** (#32). Before fitting, it classifies
+  the gage with the new regulation screen. A gage classed `regulated` raises
+  `flowfreq.regulation.RegulatedRecordError`, a `ValueError` subclass, unless you pass
+  `allow_regulated=True`. A gage is classed `regulated` when the GAGES-II screen says so,
+  or when any downloaded peak carries code 6. The override is logged and recorded in the
+  returned `site_classification`. Gages classed reference, urban or unknown are fitted
+  as before. So is a gage with no classification (not in GAGES-II, no code 6), with a
+  warning. `run_ffa` screens only when you pass the new `site_no=`, so existing
+  `run_ffa` calls are unchanged.
+
+### Added
+- **Regulation / urbanization screen** (`flowfreq.regulation`, roadmap §1.1, #32).
+  `classify_site(site_no, peak_codes=None)` returns `reference`, `regulated`, `urban`
+  or `unknown`, with the evidence behind it. `require_unregulated()` is the B17C refusal
+  with an explicit override.
+  - Packaged table `flowfreq/data/regulation_screen.csv.gz`: 9,322 GAGES-II gages,
+    117 KiB. For each gage it holds the class, the NID-2009 storage, the normalized
+    storage, NLCD-2006 impervious %, the source and the date. Rebuild it from the
+    ScienceBase release (Falcone 2011, doi:10.5066/P96CPHOT) with
+    `tools/build_regulation_screen.py`.
+  - Rules, each cited:
+    - GAGES-II `Ref` → reference.
+    - Dam storage over 127.8 days of mean annual runoff → regulated. That is the
+      75th-percentile cutoff of Dudley and others (2018), doi:10.5066/P9AEGXY0. It
+      agrees with their Regulated class on 481 of 527 gages.
+    - Impervious cover over 5% → urban (Mastin and others 2016, SIR 2016-5118 p. 23).
+    - Peak code 6 → regulated. Code 5 is recorded but not decisive, as in SIR 2016-5118
+      p. 20.
+  - Bulletin 17C sets no regulation threshold (p. 36), so this screen refuses to fit a
+    regulated record rather than fitting it.
+  - Not yet included: current-NID storage (the live national CSV is verified, but summing
+    it upstream needs basin polygons) and the NLCD impervious time series.
+
+### Added
+- **National future-flow source review** (`flowfreq.future_flow`, roadmap §6.3.1, #36).
+  FHWA HEC-17 (2nd ed., 2016) and NCHRP Project 15-61 (2019) were read against the primary
+  PDFs. Neither tabulates national per-AEP flood change factors; both give methods for
+  deriving site-specific factors from downscaled projections, with single-site worked
+  examples. **No national factor set ships**, by design. The review, with every table and
+  page checked, is in `flowfreq/data/future/national_sources.json`
+  (`national_source_review()`) and `docs/FUTURE_FLOW_GUIDANCE.md`. NOAA Atlas 15 future
+  precipitation is not yet published.
+  - `available_factor_sets()` and `factor_set_from_dict()` load transcribed sets from
+    `flowfreq/data/future/*.factors.json` (none yet), for the state waves to fill.
+  - The module docstring now says national sources first, matching the roadmap.
+  - A test reproduces NCHRP 15-61 Table 7.1 (p. 80) with `apply_change_factors`.
+- **Historic interval peaks** (a peak coded 7 and 4 or 8): the new `historical_interval_peaks`
+  argument to `Bulletin17C`, `ExpectedMomentsAlgorithm`, `fortran_engine.build_emafit_arrays`,
+  `run_fortran_reference` and `run_fortran_ema`, shaped like `interval_peaks`:
+  `(water_year, lower_cfs, upper_cfs)`.
+  - Both engines build the row the way `siteQT` does: the interval with `dtype = 1`. That keeps
+    it out of MGBT's sample, since `gbtest` samples only `dtype = 0` rows. It is still recoded
+    below the low-outlier cutoff and counted in `n_low_outliers`.
+  - It is a separate argument, not a fourth element of `interval_peaks`, for the same reason
+    `historical_peaks` is separate from `peak_flows`: each argument keeps one tuple shape and
+    one meaning, and existing callers are untouched.
+  - `psf_convert` (`StationInputs.historical_interval_peaks`) and `peak_code_kwargs` /
+    `run_ffa` / `compare_engines` / `analyze_gage` now pass such peaks through.
+  - **Result change:** a record with a code 7+4 or 7+8 peak is now fitted rather than refused
+    with `UnsupportedSpecError`. No record that fitted before changes.
+
+### Changed
+- **`FrequencyResults.n_low_outliers` is now peakfq's `gbnlow`** on the native engine, as it
+  already was on the Fortran one: the number of EMA rows `gbtest` recodes below the
+  low-outlier cutoff (`emafit.f` lines 1062-1076). That count covers exact peaks, zero-flow
+  years, interval and historic rows, and years with no peak that a perception threshold below
+  the cutoff censors. It used to be MGBT's own count of flagged peaks.
+  - **Result change:** on the 24 WY/MT `.psf` stations the count changes at three stations,
+    06328100 (17 -> 20), 06326960 (12 -> 15) and 06177820 (6 -> 8), and now equals `gbnlow`
+    at all 24. No moment, quantile or bound moves.
+  - The old count is kept as the new `FrequencyResults.n_mgbt_outliers` (also
+    `Bulletin17C.n_mgbt_outliers` and `run_ffa`'s `parameters["n_mgbt_outliers"]`). It counts
+    the members of `gbtest`'s MGBT sample below the threshold. With a user threshold it now
+    also counts `gbtest`'s qualifying less-than values. The Fortran engine derives the same
+    number from its arrays.
+  - The frequency plots label the threshold and count "peak(s) below PILF threshold" with
+    `n_mgbt_outliers`, since they mean peaks. The Markdown report shows both counts.
+
 ### Added
 - **Utah peak-flow regression equations** (`flowfreq/data/regression/UT.json`, Wave 2, #96),
   `status: "partial"`: 63 equations in 8 regions.
@@ -18,6 +97,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     3 significant figures, while NSS uses 4 (for example 1.07 against 1.074). The printed
     values are stored; the gap is pinned by tests. Every other region and AEP equals live
     NSS at 3 significant figures. NSS snapshot `data/nss_snapshots/UT_2026-10-01.json`.
+- **Colorado peak-flow regression equations** (`flowfreq/data/regression/CO.json`, Wave 2,
+  #93), `status: "verified"`: 62 equations in 8 regions, the three reports NSS combines for
+  Colorado.
+  - SIR 2009-5136 ver. 1.2: Mountain, Northwest, Rio Grande and Southwest, 8 AEPs each
+    (figures 3-6; SEP and SME, no covariance published).
+  - SIR 2016-5099: Foothills and Plains, 8 AEPs each (figures 9-10), with model error
+    variance, AVP and covariance from the Appendix 6 WREG output.
+  - SIR 2006-5306 (Navajo Nation): region 8 and the High Elevation region, 7 AEPs each.
+  - Double-entered with 0 disagreements; all 62 equations equal live NSS at its 3
+    significant figures; SIR 2016-5099 Appendix 5's 1,496 per-gage regression estimates
+    reproduce. NSS snapshot `data/nss_snapshots/CO_2026-10-01.json`.
 - **Regional skew by location** (`flowfreq.regional_skew`, roadmap §1.3):
   `regional_skew_at_huc(huc, state=None)`, `regional_skew_at(lat, lon)` and
   `regional_skew_for_site(site_no)`. They return the verified regional skew for the study
@@ -39,6 +129,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Cross-check: 284 of the study's 290 gages resolve to the PNW value. The other 6 are the
     5 unresolved gages and one on the ID/UT border that needs `state=`. None falls on the
     Plain.
+- **Regional skew development tooling** (`flowfreq.skew_study`, roadmap §1.3): the
+  B-WLS/B-GLS procedure of Veilleux and others (2011) and Reis and others (2005), as SIR
+  2016-5083 app. B and SIR 2012-5130 app. 3 print it.
+  - Station inputs: unbiased station skews (eq. B5); pseudo record length (B2); the
+    Griffis-Stedinger sampling variance at the OLS regional skew (B6-B7).
+  - Cross-correlation of concurrent skews (B8-B10), from a fitted Fisher-Z
+    correlation-distance model (B11).
+  - Model error variance posterior, with the exponential prior (λ = 10).
+  - Diagnostics: GLS precision of the WLS parameters, ASEV, AVPnew, effective record
+    length, pseudo-R², EVR, MBV*, leverage and influence.
+  - `station_skew()` takes a station's skew, MSE and PRL from flowfreq's own EMA with MGBT,
+    using the same ADJE/B17B `as_G_mse` switch as a regular fit.
+- **Validated against the Pacific Northwest study.** The model is refitted from SIR 2016-5083
+  Table B1's own inputs, with gage historical periods taken from NWIS. It reproduces Tables
+  B2/B3: β = -0.07 (SD 0.10), σ²δ = 0.17 (SD 0.022), AVPnew 0.18, 41 years effective record
+  length, EVR 0.7. MBV* comes out 9.3 against a published 10. 17 of the 19 published
+  high-influence gages are recovered. Inputs: `tests/fixtures/skew_study/pnw_table_b1.csv`
+  (`tools/build_pnw_skew_validation_data.py`).
+- **Provisional Montana regional skew study.** Not a USGS study, not a default, and not in
+  `regional_skew.csv`. Inputs are in `data/skew_study/` (`tools/build_montana_skew_study.py`,
+  from the Water Data OGC API). `docs/MONTANA_REGIONAL_SKEW_PROVISIONAL.md` gives the
+  result, diagnostics and limitations.
+
+### Added
 - **`subdaily` checked against a published figure for a real gage.**
   `tests/test_subdaily_published.py` (`requires_network`) runs `daily_extreme_timing` on
   USGS 01578310 (Susquehanna at Conowingo, MD) against Exelon (2012), *Final Study Report:
@@ -185,6 +299,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   estimate (Skookumchuck River near Vail, WA; `docs/STREAMSTATS_NSS_ADDENDUM.md` S6).
   Both results reproduce their own equation strings through
   `flowfreq.regression.nss.evaluate_expression`.
+- **Native EMA fixed point now iterates as `p3est_ema` does** (`emafit.f:1149`): from
+  `(0, 1, 0)`, until `dist_p3` between iterates is at most 1e-10 and has stopped decreasing,
+  averaging iterates past 10,000 to break cycles. It used to start from the sample moments and
+  stop once no moment moved by 1e-6, which left every fit ~1e-6 short of its fixed point.
+  **Results change**, toward peakfq 8.1.0, on every record that needed more than a couple of
+  iterations: at most 0.0035 % in any quantile and 5.5e-4 in at-site skew (WY/MT 06328100),
+  typically 1e-4 %. Against live `emafitpr` on the 24 WY/MT `.psf` stations, at-site skew now
+  agrees to 1e-10 (was 1e-6) and quantiles to ~1e-5 % (was ~1e-3 %), except the two
+  near-zero-skew stations 06328100 (5e-4 %, was 3e-3 %) and 06329350 (0.012 %, unchanged).
+  Big Sandy moves 8e-5 %; 12363000 (uncensored) does not move. `EMAParameters.max_iterations`/`tolerance` now default to
+  20000 / 1e-10 and mean `p3est_ema`'s iteration cap and `dist_p3` bound; `ema_iterations` on
+  an uncensored record is 3 (the Fortran's count), not 1.
+- A record whose EMA used to stop at 100 iterations without converging (for example Big
+  Sandy's systematic record with a 6000 cfs low-outlier override) now converges, so `run_ffa`
+  reports EMA for it rather than falling back to the method of moments.
+- The Wilson-Hilferty/incomplete-gamma blend weight (`_p3_moments._wh_weight`) uses the
+  Fortran's single-precision literals (`0.0007`, `0.0010-0.0007`, `3.14159265359`); affects
+  only `0.0007 < |skew| < 0.001`.
+
+### Known differences
+- A user-supplied (FIXED) low-outlier threshold record reported with a 2e-3 weighted-skew
+  residual is **not** a native defect: `emafitpr`'s own weighted skew there is ill-conditioned
+  (a 1e-5 relative change in `r_G_mse` moves it 2e-3) because `mP3`'s incomplete-gamma
+  evaluation rounds at the 1e-3 level for skews of a few thousandths. Recorded as a strict
+  xfail in `tests/fortran_parity/test_fixed_threshold_live.py`.
+- Big Sandy with a 6000 cfs FIXED threshold (29 of 44 peaks censored): `emafitpr`'s
+  `MN2MVARB` stops after 100 Newton iterations without converging, giving ADJE
+  `as_G_mse` 2.74 where the converged value is 0.064; weighted skew -0.281 (peakfq) vs -0.166
+  (native). Strict xfail in the same file.
 
 ## [0.9.0] - 2026-09-27
 

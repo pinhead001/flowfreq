@@ -154,7 +154,8 @@ results.skew_station      # station skew
 results.skew_weighted     # weighted skew (None if no regional)
 results.skew_used         # skew used in quantile calculation
 results.ema_converged     # bool
-results.n_low_outliers    # MGBT-flagged low outliers
+results.n_low_outliers    # rows censored as low outliers (peakfq's gbnlow)
+results.n_mgbt_outliers   # of which, peaks the MGBT (or fixed threshold) flagged
 results.low_outlier_threshold  # MGBT threshold (cfs)
 
 # Quantile table

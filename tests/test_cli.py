@@ -342,11 +342,12 @@ class TestComparePeakCodes:
         assert result.exit_code == 0, result.output
         assert seen["peak_codes"] is None
 
-    def test_an_uncodable_record_is_a_clean_error_naming_the_year(self, tmp_path):
-        """Real compare_engines: the code step fails before the extension is needed.
+    def test_a_historic_interval_record_compares(self, tmp_path):
+        """Real compare_engines: a code 4 peak that is also historic (code 7) is fitted.
 
-        A code 4 peak alone is an interval peak now; a code 4 peak that is also
-        historic (code 7) is still one neither engine can express."""
+        It used to be refused as a record neither engine could express; both
+        now build siteQT's dtype = 1 interval row for it."""
+        pytest.importorskip("flowfreq.peakfqr", exc_type=ImportError)
         peaks = tmp_path / "peaks.csv"
         years = list(range(2001, 2016))
         codes = [""] * len(years)
@@ -359,9 +360,8 @@ class TestComparePeakCodes:
             }
         ).to_csv(peaks, index=False)
         result = CliRunner().invoke(cli, ["compare", "--station-skew", "--peaks", str(peaks)])
-        assert result.exit_code != 0
-        assert "2003" in result.output and "historic" in result.output
-        assert "--ignore-peak-codes" in result.output
+        assert result.exit_code == 0, result.output
+        assert "**PASS**" in result.output
         assert "Traceback" not in result.output
 
     def test_codes_with_historical_csv_is_a_clean_error(self, tmp_path):

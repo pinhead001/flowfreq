@@ -194,10 +194,15 @@ open. Audited 2026-09-25.
       Open: the converter from a parsed station to `Bulletin17C`/`EMAParameters`
       arguments, which `psf.py`'s own docstring calls "the open half", and the
       retrieval of published perception thresholds.
-- [ ] **#32 Regulation / urbanization screen.** Only step 1 exists:
-      `peak_codes.classify_from_codes`, which by design has no `REFERENCE` class.
-      Open: GAGES-II/NID storage, NLCD impervious fraction, and refusing B17C on a
-      regulated record without an override.
+- [ ] **#32 Regulation / urbanization screen.** Steps 1, 2 and the refusal are done.
+      `flowfreq.regulation` combines the packaged GAGES-II screen with peak code 6, and
+      `analyze_gage` (and `run_ffa` when given `site_no=`) refuses a regulated gage
+      unless `allow_regulated=True`. Open:
+      - Current NID storage. The national CSV is live
+        (`nid.sec.usace.army.mil/api/nation/csv`), but summing it upstream needs basin
+        polygons and point-in-polygon, which flowfreq does not depend on.
+      - The NLCD impervious **time series** (step 3). GAGES-II carries NLCD 2006 only.
+      - Gages outside GAGES-II, which have peak-code evidence only.
 - [ ] **#33 National gage catalog.** `flowfreq/catalog.py` (schema and loader) and
       `tools/build_gage_catalog.py` exist. The tool needs network access and a
       hand-supplied `--sites` list; auto-discovery waits on #29. No catalog has been
@@ -243,13 +248,14 @@ open. Audited 2026-09-25.
         produce a `verified` state file.
       - [ ] `estimate_flow_statistics` discards NSS's `sep` field, which appears to
         be the log10 standard error of prediction and maps to `sep_log`. Keep it.
-- [ ] **#36 Future-flow `ChangeFactorSet` framework.** `flowfreq/future_flow.py`
-      (`ChangeFactorSet`, `select_factor_set` with state-over-national precedence,
-      and `apply_change_factors`, which keeps both current and future columns) is
-      implemented. **It ships no factor values**, and `flowfreq/data/future/` does
-      not exist. Roadmap §6.3.1 wants the national sets (HEC-17, NCHRP 15-61)
-      first, whereas the module docstring says sets arrive per-state wave by wave.
-      Reconcile the two.
+- [ ] **#36 Future-flow `ChangeFactorSet` framework.** The framework, the
+      `data/future/*.factors.json` loader and the national source review are done.
+      HEC-17 (2016) and NCHRP 15-61 (2019) were checked against the primary documents:
+      both give methods and single-site worked examples, no tabulated national factors,
+      so no national set ships (see `docs/FUTURE_FLOW_GUIDANCE.md`). The module
+      docstring now says "national first". Open: NOAA Atlas 15 Volume 2 once published
+      (plus a cited precipitation-to-flow elasticity), and producing the national result
+      alongside a state override automatically.
 - [ ] **#37 WA (pilot).** Everything is pending: `data/regression/WA.json`, the
       skew row, and the WA section of `docs/FUTURE_FLOW_GUIDANCE.md`. The source
       report is known and already live in NSS: Mastin, Konrad, Veilleux & Tecca
