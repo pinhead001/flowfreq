@@ -1,0 +1,79 @@
+{
+  "_about": "Survey of national/federal sources for future-condition flood change factors (roadmap section 6.3.1, issue #36). Each entry records what the primary source actually tabulates. No entry here is a ChangeFactorSet: none of these sources publishes a national, per-AEP flood-flow multiplier table. Tables listed under tables_examined are site-specific worked examples and are recorded so the next reader need not re-check them.",
+  "reviewed": "2026-09-30",
+  "sources": [
+    {
+      "id": "fhwa-hec17-2016",
+      "citation": "Kilgore, R.T., Herrmann, G.R., Thomas, W.O., Jr., and Thompson, D.B., 2016, Highways in the River Environment - Floodplains, Extreme Events, Risk, and Resilience: Federal Highway Administration Hydraulic Engineering Circular No. 17, 2nd ed., Publication No. FHWA-HIF-16-018, June 2016.",
+      "url": "https://www.fhwa.dot.gov/engineering/hydraulics/pubs/hif16018.pdf",
+      "provides": "method",
+      "method_summary": "A level-of-analysis framework (Chapter 7, Levels 1-5, Tables 7.1-7.4) for deciding how far to go in projecting future floods: trend analysis of gauged records, and rainfall-runoff or regression analyses driven by downscaled climate-model precipitation, chosen per project. No national flow multipliers.",
+      "tabulated_national_factors": false,
+      "tables_examined": [
+        {
+          "table": "Table 4.1",
+          "page": "4-14",
+          "content": "Stockley Branch at Stockley, DE (01484500): B17B quantiles with and without adjusting the mean for a trend (0.50, 0.10, 0.01 AEP).",
+          "why_not_a_factor_set": "One gauge; a nonstationarity adjustment to the present, not a future-horizon projection. The text (p. 4-14) warns against extrapolating the trend."
+        },
+        {
+          "table": "Table 8.1",
+          "page": "8-3",
+          "content": "Bridge 02315, Barkhamsted, CT (ConnDOT case study): 100- and 500-year peaks from TP-40 versus Precip.net rainfall.",
+          "why_not_a_factor_set": "One site; compares two historical rainfall datasets, not a future scenario."
+        },
+        {
+          "table": "Tables 8.2 and 8.3",
+          "page": "8-8 to 8-9",
+          "content": "Airport Boulevard culvert, Mobile, AL: 24-hour rainfall and TR-20 peak flows for 'wetter'/'drier' 2070-2099 narratives.",
+          "why_not_a_factor_set": "One culvert, one rainfall-runoff model, and future land use mixed into the flows."
+        },
+        {
+          "table": "(text, no table)",
+          "page": "8-5",
+          "content": "MnDOT culverts #5648 and #5722: ranges of percent increase in 1-percent-chance discharge (16-60 and 5-36 percent).",
+          "why_not_a_factor_set": "Two sites, reported as ranges across scenarios, not per-AEP factors."
+        }
+      ]
+    },
+    {
+      "id": "nchrp-15-61-2019",
+      "citation": "Kilgore, R., Thomas, W.O., Jr., Douglass, S., Webb, B., Hayhoe, K., Stoner, A., Jacobs, J.M., Thompson, D.B., Herrmann, G.R., Douglas, E., and Anderson, C., 2019, Applying Climate Change Information to Hydrologic and Coastal Design of Transportation Infrastructure: Design Practices: NCHRP Project 15-61, Transportation Research Board, March 15, 2019 (preliminary, unedited version). Companion final report: NCHRP Project 15-61 Final Report, same authors and date.",
+      "url": "https://onlinepubs.trb.org/Onlinepubs/nchrp/docs/NCHRP1561DesignPracticesGuide_rev.pdf",
+      "companion_url": "https://onlinepubs.trb.org/onlinepubs/nchrp/docs/NCHRP1561FinalReport.pdf",
+      "provides": "method",
+      "method_summary": "Procedures (Design Practices Guide Table 4.1, p. 28) by hydrologic method: trend projection of gauged records (Ch. 5), future 24-hour and sub-daily precipitation from an ensemble of downscaled GCM ratios for rainfall-runoff models (Ch. 6), substituting projected climate variables into USGS regression equations (Ch. 7), the flood-index method scaling a historical flood-frequency curve by a projected 0.1-AEP flood (Ch. 8), and continuous simulation (Ch. 9). Every factor is derived per site from downscaled projections. No national flow multipliers.",
+      "tabulated_national_factors": false,
+      "tables_examined": [
+        {
+          "table": "Design Practices Tables 6.6-6.9",
+          "page": "54-56",
+          "content": "Denver, CO example: future/baseline 24-hour precipitation quantile ratios by model, and their ensemble summary, for 2000-2049 and 2050-2099 (RCP6.0).",
+          "why_not_a_factor_set": "One location, and precipitation ratios rather than flow ratios."
+        },
+        {
+          "table": "Design Practices Table 7.1",
+          "page": "80",
+          "content": "Flows from a USGS New York regression equation (Lumia et al. 2006) with historical and projected mean annual precipitation (MAP ratio 1.25), 0.5-0.01 AEP.",
+          "why_not_a_factor_set": "The source labels it a hypothetical increase in MAP for one 100 mi2 watershed. Used in tests/test_future_flow.py as a published worked example of applying per-AEP ratios, never as data."
+        },
+        {
+          "table": "Design Practices Table 8.1",
+          "page": "87",
+          "content": "Pajarito Creek at Newkirk, NM (07225000): flood-index ratios and projected flood-frequency curve.",
+          "why_not_a_factor_set": "One gauge."
+        }
+      ],
+      "note": "The TRB record (TRID 1695369) lists this as NCHRP Project 15-61, 154 pp., with no Web-Only Document number; a 'Web-Only Document 255' designation could not be confirmed."
+    },
+    {
+      "id": "noaa-atlas-15",
+      "citation": "NOAA National Weather Service, Office of Water Prediction, NOAA Atlas 15: National Precipitation Frequency Atlas of the United States (in development).",
+      "url": "https://water.noaa.gov/about/atlas15",
+      "provides": "not yet published",
+      "method_summary": "Volume 2 will give model-based future precipitation-frequency estimates. As of the review date the CONUS estimates are preliminary (peer review, September 2026) with publication planned for 2027; only a 2024 Montana pilot exists. Even when published it is precipitation, and roadmap section 6.3.1 requires a documented precipitation-to-flow elasticity before it can become a flow change-factor set.",
+      "tabulated_national_factors": false,
+      "tables_examined": []
+    }
+  ]
+}

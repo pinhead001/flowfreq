@@ -16,8 +16,8 @@ Plan and definitions of done: `docs/MASTER_ROADMAP.md` §3.2.
 
 | Code | Jurisdiction | Equations | Regions | Equation count | Regional skew | Issue |
 |---|---|---|---:|---:|---|---|
-| CO | Colorado | not started | 0 | 0 | not started |  |
-| UT | Utah | not started | 0 | 0 | not started |  |
+| CO | Colorado | verified | 8 | 62 | not started | #93 |
+| UT | Utah | partial | 8 | 63 | not started | #96 |
 | WY | Wyoming | verified | 6 | 60 | not started | #98 |
 | NM | New Mexico | not started | 0 | 0 | not started |  |
 | AZ | Arizona | not started | 0 | 0 | not started |  |

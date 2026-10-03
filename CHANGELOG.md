@@ -7,6 +7,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **`analyze_gage` now refuses a regulated gage** (#32). Before fitting, it classifies
+  the gage with the new regulation screen. A gage classed `regulated` raises
+  `flowfreq.regulation.RegulatedRecordError`, a `ValueError` subclass, unless you pass
+  `allow_regulated=True`. A gage is classed `regulated` when the GAGES-II screen says so,
+  or when any downloaded peak carries code 6. The override is logged and recorded in the
+  returned `site_classification`. Gages classed reference, urban or unknown are fitted
+  as before. So is a gage with no classification (not in GAGES-II, no code 6), with a
+  warning. `run_ffa` screens only when you pass the new `site_no=`, so existing
+  `run_ffa` calls are unchanged.
+
+### Added
+- **Regulation / urbanization screen** (`flowfreq.regulation`, roadmap §1.1, #32).
+  `classify_site(site_no, peak_codes=None)` returns `reference`, `regulated`, `urban`
+  or `unknown`, with the evidence behind it. `require_unregulated()` is the B17C refusal
+  with an explicit override.
+  - Packaged table `flowfreq/data/regulation_screen.csv.gz`: 9,322 GAGES-II gages,
+    117 KiB. For each gage it holds the class, the NID-2009 storage, the normalized
+    storage, NLCD-2006 impervious %, the source and the date. Rebuild it from the
+    ScienceBase release (Falcone 2011, doi:10.5066/P96CPHOT) with
+    `tools/build_regulation_screen.py`.
+  - Rules, each cited:
+    - GAGES-II `Ref` → reference.
+    - Dam storage over 127.8 days of mean annual runoff → regulated. That is the
+      75th-percentile cutoff of Dudley and others (2018), doi:10.5066/P9AEGXY0. It
+      agrees with their Regulated class on 481 of 527 gages.
+    - Impervious cover over 5% → urban (Mastin and others 2016, SIR 2016-5118 p. 23).
+    - Peak code 6 → regulated. Code 5 is recorded but not decisive, as in SIR 2016-5118
+      p. 20.
+  - Bulletin 17C sets no regulation threshold (p. 36), so this screen refuses to fit a
+    regulated record rather than fitting it.
+  - Not yet included: current-NID storage (the live national CSV is verified, but summing
+    it upstream needs basin polygons) and the NLCD impervious time series.
+
 ### Added
 - **Wyoming peak-flow regression equations** (`flowfreq/data/regression/WY.json`, Wave 2,
   #98), `status: "verified"`: 60 equations, regions 1-6 at 10 AEPs (1.5-500 years), from
@@ -14,6 +48,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `(LNG - 100)^c` are stored with `scale`/`offset`. Double-entered with 0 disagreements;
   all four worked examples (pp. 30-33) reproduce; all 60 equations equal live NSS at 3
   significant figures. NSS snapshot `data/nss_snapshots/WY_2026-10-01.json`.
+- **National future-flow source review** (`flowfreq.future_flow`, roadmap §6.3.1, #36).
+  FHWA HEC-17 (2nd ed., 2016) and NCHRP Project 15-61 (2019) were read against the primary
+  PDFs. Neither tabulates national per-AEP flood change factors; both give methods for
+  deriving site-specific factors from downscaled projections, with single-site worked
+  examples. **No national factor set ships**, by design. The review, with every table and
+  page checked, is in `flowfreq/data/future/national_sources.json`
+  (`national_source_review()`) and `docs/FUTURE_FLOW_GUIDANCE.md`. NOAA Atlas 15 future
+  precipitation is not yet published.
+  - `available_factor_sets()` and `factor_set_from_dict()` load transcribed sets from
+    `flowfreq/data/future/*.factors.json` (none yet), for the state waves to fill.
+  - The module docstring now says national sources first, matching the roadmap.
+  - A test reproduces NCHRP 15-61 Table 7.1 (p. 80) with `apply_change_factors`.
 - **Historic interval peaks** (a peak coded 7 and 4 or 8): the new `historical_interval_peaks`
   argument to `Bulletin17C`, `ExpectedMomentsAlgorithm`, `fortran_engine.build_emafit_arrays`,
   `run_fortran_reference` and `run_fortran_ema`, shaped like `interval_peaks`:
@@ -47,6 +93,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     `n_mgbt_outliers`, since they mean peaks. The Markdown report shows both counts.
 
 ### Added
+- **Utah peak-flow regression equations** (`flowfreq/data/regression/UT.json`, Wave 2, #96),
+  `status: "partial"`: 63 equations in 8 regions.
+  - SIR 2007-5158 ver. 4.0: regions 1-7 at 8 AEPs (Table 5, limits Table 8). The
+    exponential terms (`1.39^(ELEV/1,000)`, `1.07^PRECIP`, `2.72^(...)`) are identity
+    transforms with `scale`.
+  - SIR 2006-5306: Navajo Nation region 8, 7 AEPs.
+  - Partial because region 2 does not match NSS: Table 5 prints its precipitation bases to
+    3 significant figures, while NSS uses 4 (for example 1.07 against 1.074). The printed
+    values are stored; the gap is pinned by tests. Every other region and AEP equals live
+    NSS at 3 significant figures. NSS snapshot `data/nss_snapshots/UT_2026-10-01.json`.
+- **Colorado peak-flow regression equations** (`flowfreq/data/regression/CO.json`, Wave 2,
+  #93), `status: "verified"`: 62 equations in 8 regions, the three reports NSS combines for
+  Colorado.
+  - SIR 2009-5136 ver. 1.2: Mountain, Northwest, Rio Grande and Southwest, 8 AEPs each
+    (figures 3-6; SEP and SME, no covariance published).
+  - SIR 2016-5099: Foothills and Plains, 8 AEPs each (figures 9-10), with model error
+    variance, AVP and covariance from the Appendix 6 WREG output.
+  - SIR 2006-5306 (Navajo Nation): region 8 and the High Elevation region, 7 AEPs each.
+  - Double-entered with 0 disagreements; all 62 equations equal live NSS at its 3
+    significant figures; SIR 2016-5099 Appendix 5's 1,496 per-gage regression estimates
+    reproduce. NSS snapshot `data/nss_snapshots/CO_2026-10-01.json`.
 - **Regional skew by location** (`flowfreq.regional_skew`, roadmap §1.3):
   `regional_skew_at_huc(huc, state=None)`, `regional_skew_at(lat, lon)` and
   `regional_skew_for_site(site_no)`. They return the verified regional skew for the study
