@@ -87,6 +87,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     `n_mgbt_outliers`, since they mean peaks. The Markdown report shows both counts.
 
 ### Added
+- **Colorado peak-flow regression equations** (`flowfreq/data/regression/CO.json`, Wave 2,
+  #93), `status: "verified"`: 62 equations in 8 regions, the three reports NSS combines for
+  Colorado.
+  - SIR 2009-5136 ver. 1.2: Mountain, Northwest, Rio Grande and Southwest, 8 AEPs each
+    (figures 3-6; SEP and SME, no covariance published).
+  - SIR 2016-5099: Foothills and Plains, 8 AEPs each (figures 9-10), with model error
+    variance, AVP and covariance from the Appendix 6 WREG output.
+  - SIR 2006-5306 (Navajo Nation): region 8 and the High Elevation region, 7 AEPs each.
+  - Double-entered with 0 disagreements; all 62 equations equal live NSS at its 3
+    significant figures; SIR 2016-5099 Appendix 5's 1,496 per-gage regression estimates
+    reproduce. NSS snapshot `data/nss_snapshots/CO_2026-10-01.json`.
 - **Regional skew by location** (`flowfreq.regional_skew`, roadmap §1.3):
   `regional_skew_at_huc(huc, state=None)`, `regional_skew_at(lat, lon)` and
   `regional_skew_for_site(site_no)`. They return the verified regional skew for the study
