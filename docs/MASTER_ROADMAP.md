@@ -374,9 +374,12 @@ Recommended approaches, most defensible first:
       HEC-17, NCHRP 15-61 guidance, and NOAA Atlas 15 future precipitation once released,
       mapped to flow through a documented precipitation-to-flow elasticity. This is the
       simplest option to review and should be the default.
-      *Substantive:* the framework (`future_flow.py`). *Stub:* no factor set ships, and
-      `flowfreq/data/future/` does not exist. The module docstring says sets arrive per
-      state wave, contrary to "national first" here; `TODO.md` #36 tracks reconciling them.
+      *Substantive:* the framework (`future_flow.py`), the `data/future/*.factors.json`
+      loader (`available_factor_sets`), and a review of the national sources against the
+      primary documents (`data/future/national_sources.json`, `docs/FUTURE_FLOW_GUIDANCE.md`).
+      HEC-17 and NCHRP 15-61 give methods and single-site examples, **not tabulated national
+      factors**, so no national set ships; NOAA Atlas 15 Volume 2 is unpublished (planned
+      2027). Revisit then.
 - [ ] **Regression space-for-time.** In RREs whose explanatory variables include
       precipitation or temperature, substitute downscaled projected values (e.g.,
       LOCA2 / CMIP6 ensemble). Report the ensemble spread, not only the median, and flag
