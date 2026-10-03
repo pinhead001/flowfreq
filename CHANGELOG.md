@@ -42,6 +42,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     it upstream needs basin polygons) and the NLCD impervious time series.
 
 ### Added
+- **Wyoming peak-flow regression equations** (`flowfreq/data/regression/WY.json`, Wave 2,
+  #98), `status: "verified"`: 60 equations, regions 1-6 at 10 AEPs (1.5-500 years), from
+  WRIR 03-4107 Tables 1-7. Shifted terms such as `((ELEV - 3,000)/1,000)^b` and
+  `(LNG - 100)^c` are stored with `scale`/`offset`. Double-entered with 0 disagreements;
+  all four worked examples (pp. 30-33) reproduce; all 60 equations equal live NSS at 3
+  significant figures. NSS snapshot `data/nss_snapshots/WY_2026-10-01.json`.
 - **National future-flow source review** (`flowfreq.future_flow`, roadmap §6.3.1, #36).
   FHWA HEC-17 (2nd ed., 2016) and NCHRP Project 15-61 (2019) were read against the primary
   PDFs. Neither tabulates national per-AEP flood change factors; both give methods for

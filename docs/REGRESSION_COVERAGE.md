@@ -18,7 +18,7 @@ Plan and definitions of done: `docs/MASTER_ROADMAP.md` §3.2.
 |---|---|---|---:|---:|---|---|
 | CO | Colorado | verified | 8 | 62 | not started | #93 |
 | UT | Utah | partial | 8 | 63 | not started | #96 |
-| WY | Wyoming | not started | 0 | 0 | not started |  |
+| WY | Wyoming | verified | 6 | 60 | not started | #98 |
 | NM | New Mexico | not started | 0 | 0 | not started |  |
 | AZ | Arizona | not started | 0 | 0 | not started |  |
 | NV | Nevada | not started | 0 | 0 | not started |  |
