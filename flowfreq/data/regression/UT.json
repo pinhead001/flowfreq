@@ -1,0 +1,2275 @@
+{
+  "schema_version": 1,
+  "state": "UT",
+  "status": "partial",
+  "issue": 96,
+  "source_reports": [
+    {
+      "citation": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+      "version": "4.0, March 10, 2008",
+      "doi": "10.3133/sir20075158",
+      "url": "https://pubs.usgs.gov/publication/sir20075158",
+      "pdf": "https://pubs.usgs.gov/sir/2007/5158/pdf/SIR2007_5158_v4.pdf",
+      "revision_history": "https://pubs.usgs.gov/sir/2007/5158/pdf/RevisionHistoryV4.pdf",
+      "tables": [
+        "Table 5",
+        "Table 8"
+      ],
+      "nss": {
+        "state_region_id": 48,
+        "citation_id": 140,
+        "regression_region_ids": [
+          681,
+          682,
+          683,
+          684,
+          685,
+          686,
+          687
+        ]
+      }
+    },
+    {
+      "citation": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+      "version": "1.0 (no revisions listed on the pubs page)",
+      "doi": "10.3133/sir20065306",
+      "url": "https://pubs.usgs.gov/publication/sir20065306",
+      "pdf": "https://pubs.usgs.gov/sir/2006/5306/pdf/sir2006-5306_508.pdf",
+      "tables": [
+        "Table 1",
+        "Table 2"
+      ],
+      "nss": {
+        "state_region_id": 48,
+        "citation_id": 11,
+        "regression_region_ids": [
+          680
+        ]
+      }
+    }
+  ],
+  "notes": "Two reports, as NSS combines them for Utah's peak-flow statistic group (NSS region 48). (1) Kenney, Wilkowske and Wright, SIR 2007-5158 ver. 4.0 (March 10, 2008): regions 1-7 at the 8 recurrence intervals 2-500 years (AEP 0.5-0.002), from Table 5 (pp. 13-14), with limits from Table 8 (p. 18). Version 2.0 rewrote region 1's elevation term as 1.xx^(ELEV/1,000) and version 4.0 printed region 2's PK200 base unrounded (1.055, footnote 1); both are as stored. Table 5 prints power and exponential forms, all exactly representable: intercept = log10 of the printed coefficient; DRNAREA is log10; region 1's b^(ELEV/1,000) is ELEV with transform identity, scale 0.001 and coefficient log10(b); region 2's b^PRECIP is PRECIP identity with coefficient log10(b); region 4's 2.72^(c1 (ELEV/1,000) + c2 BSLDEM10M) is ELEV identity, scale 0.001, coefficient c1 log10(2.72), and BSLDEM10M identity, coefficient c2 log10(2.72) (the report prints the base as 2.72, as NSS uses it; it is not e); region 5's (HERBUPLND + 1)^b is NSS's LU92HRBN (percent herbaceous upland, NLCD 1992) with log10 and offset 1; region 6's (ELEV/1,000)^b is ELEV log10 with scale 0.001. Limits are Table 8's, in the published units. Error statistics: sep_log is Table 5's average standard error of prediction (percent) converted as sqrt(ln(1 + (SEP/100)^2)) / ln(10) (the inverse of the report's eq. 5); model_error_variance is Table 5's model error (percent) converted the same way and squared. Equivalent years of record are not stored. The report publishes no AVP value and no covariance matrix, so intervals use sep_log. n_sites is each region's station count from Table 5's region headers. The report has no worked example. REGION 2 DOES NOT MATCH NSS: Table 5 prints region 2's precipitation bases to 3 significant figures (1.07, 1.07, 1.06, 1.06, 1.06, 1.06, 1.055, 1.05), but NSS evaluates 1.074, 1.067, 1.064, 1.059, 1.059, 1.057, 1.055 and 1.054. Only PK200 (the base the report marks 'not rounded for accuracy purposes') agrees. At PRECIP = 35 in. the printed PK2 is 12% below NSS. The report's printed bases are stored; NSS's are not readable from the report. (2) Waltemeyer, SIR 2006-5306 (Navajo Nation): region 8, the only Navajo region NSS lists for Utah (GC959), 7 AEPs (no 200-year equation), from Table 2 (p. 7) with limits from Table 1 (p. 6); stored exactly as in CO.json: intercept log10(K x 10^n), sep_log the prediction error in log units, model_error_variance the squared regression error in log units, slope BSLDEM30ff in ft/ft (the report labels it percent, but its values and NSS's definition are ft/ft), n_sites 62. Report inconsistencies there (documented in CO.json too): the p. 9 worked example prints 8,510 ft3/s where Table 2's equation gives 9,296; Appendix 1's region 8 predicted values use unrounded coefficients, and its 2-year values a different model with a slope term. Region codes: 1-7 and Navajo8. Values were double-entered (hand transcription from rendered pages vs. a programmatic parse of the PDF word boxes and text) with zero disagreements, and cross-checked against live NSS (Utah = NSS region 48, citations 140 and 11): every region and AEP agrees at NSS's 3 significant figures except region 2 at the 7 AEPs above.",
+  "equations": [
+    {
+      "region_code": "1",
+      "region_name": "Region 1 (SIR 2007-5158; NSS GC960)",
+      "aep": 0.5,
+      "intercept": 0.18184358794477254,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 3.62,
+          "maximum": 390.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "identity",
+          "units": "ft",
+          "minimum": 6420.0,
+          "maximum": 10500.0,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.677,
+        0.14301480025409505
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.247688,
+      "model_error_variance": 0.0563376,
+      "n_sites": 46
+    },
+    {
+      "region_code": "1",
+      "region_name": "Region 1 (SIR 2007-5158; NSS GC960)",
+      "aep": 0.2,
+      "intercept": 0.7395723444500919,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 3.62,
+          "maximum": 390.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "identity",
+          "units": "ft",
+          "minimum": 6420.0,
+          "maximum": 10500.0,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.614,
+        0.11394335230683679
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.219687,
+      "model_error_variance": 0.0451408,
+      "n_sites": 46
+    },
+    {
+      "region_code": "1",
+      "region_name": "Region 1 (SIR 2007-5158; NSS GC960)",
+      "aep": 0.1,
+      "intercept": 1.0128372247051722,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 3.62,
+          "maximum": 390.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "identity",
+          "units": "ft",
+          "minimum": 6420.0,
+          "maximum": 10500.0,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.581,
+        0.09691001300805642
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.216086,
+      "model_error_variance": 0.0436053,
+      "n_sites": 46
+    },
+    {
+      "region_code": "1",
+      "region_name": "Region 1 (SIR 2007-5158; NSS GC960)",
+      "aep": 0.04,
+      "intercept": 1.294466226161593,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 3.62,
+          "maximum": 390.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "identity",
+          "units": "ft",
+          "minimum": 6420.0,
+          "maximum": 10500.0,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.547,
+        0.08278537031645007
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.223265,
+      "model_error_variance": 0.0451408,
+      "n_sites": 46
+    },
+    {
+      "region_code": "1",
+      "region_name": "Region 1 (SIR 2007-5158; NSS GC960)",
+      "aep": 0.02,
+      "intercept": 1.4683473304121573,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 3.62,
+          "maximum": 390.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "identity",
+          "units": "ft",
+          "minimum": 6420.0,
+          "maximum": 10500.0,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.524,
+        0.07554696139253074
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.230355,
+      "model_error_variance": 0.0498473,
+      "n_sites": 46
+    },
+    {
+      "region_code": "1",
+      "region_name": "Region 1 (SIR 2007-5158; NSS GC960)",
+      "aep": 0.01,
+      "intercept": 1.606381365110605,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 3.62,
+          "maximum": 390.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "identity",
+          "units": "ft",
+          "minimum": 6420.0,
+          "maximum": 10500.0,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.512,
+        0.06818586174616162
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.233866,
+      "model_error_variance": 0.0498473,
+      "n_sites": 46
+    },
+    {
+      "region_code": "1",
+      "region_name": "Region 1 (SIR 2007-5158; NSS GC960)",
+      "aep": 0.005,
+      "intercept": 1.765668554759014,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 3.62,
+          "maximum": 390.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "identity",
+          "units": "ft",
+          "minimum": 6420.0,
+          "maximum": 10500.0,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.483,
+        0.06069784035361165
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.251087,
+      "model_error_variance": 0.0579952,
+      "n_sites": 46
+    },
+    {
+      "region_code": "1",
+      "region_name": "Region 1 (SIR 2007-5158; NSS GC960)",
+      "aep": 0.002,
+      "intercept": 1.931457870689005,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 3.62,
+          "maximum": 390.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "identity",
+          "units": "ft",
+          "minimum": 6420.0,
+          "maximum": 10500.0,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.457,
+        0.05307844348341968
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.267745,
+      "model_error_variance": 0.0647515,
+      "n_sites": 46
+    },
+    {
+      "region_code": "2",
+      "region_name": "Region 2 (SIR 2007-5158; NSS GC961)",
+      "aep": 0.5,
+      "intercept": -0.23284413391781958,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.14,
+          "maximum": 84.1
+        },
+        {
+          "code": "PRECIP",
+          "transform": "identity",
+          "units": "in",
+          "minimum": 16.5,
+          "maximum": 53.7
+        }
+      ],
+      "coefficients": [
+        0.847,
+        0.029383777685209667
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.277471,
+      "model_error_variance": 0.0681988,
+      "n_sites": 32
+    },
+    {
+      "region_code": "2",
+      "region_name": "Region 2 (SIR 2007-5158; NSS GC961)",
+      "aep": 0.2,
+      "intercept": 0.1931245983544616,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.14,
+          "maximum": 84.1
+        },
+        {
+          "code": "PRECIP",
+          "transform": "identity",
+          "units": "in",
+          "minimum": 16.5,
+          "maximum": 53.7
+        }
+      ],
+      "coefficients": [
+        0.747,
+        0.029383777685209667
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.233866,
+      "model_error_variance": 0.0482623,
+      "n_sites": 32
+    },
+    {
+      "region_code": "2",
+      "region_name": "Region 2 (SIR 2007-5158; NSS GC961)",
+      "aep": 0.1,
+      "intercept": 0.3996737214810381,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.14,
+          "maximum": 84.1
+        },
+        {
+          "code": "PRECIP",
+          "transform": "identity",
+          "units": "in",
+          "minimum": 16.5,
+          "maximum": 53.7
+        }
+      ],
+      "coefficients": [
+        0.703,
+        0.02530586526477026
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.216086,
+      "model_error_variance": 0.0420875,
+      "n_sites": 32
+    },
+    {
+      "region_code": "2",
+      "region_name": "Region 2 (SIR 2007-5158; NSS GC961)",
+      "aep": 0.04,
+      "intercept": 0.6020599913279624,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.14,
+          "maximum": 84.1
+        },
+        {
+          "code": "PRECIP",
+          "transform": "identity",
+          "units": "in",
+          "minimum": 16.5,
+          "maximum": 53.7
+        }
+      ],
+      "coefficients": [
+        0.661,
+        0.02530586526477026
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.208819,
+      "model_error_variance": 0.0376447,
+      "n_sites": 32
+    },
+    {
+      "region_code": "2",
+      "region_name": "Region 2 (SIR 2007-5158; NSS GC961)",
+      "aep": 0.02,
+      "intercept": 0.7291647896927701,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.14,
+          "maximum": 84.1
+        },
+        {
+          "code": "PRECIP",
+          "transform": "identity",
+          "units": "in",
+          "minimum": 16.5,
+          "maximum": 53.7
+        }
+      ],
+      "coefficients": [
+        0.635,
+        0.02530586526477026
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.205152,
+      "model_error_variance": 0.0362025,
+      "n_sites": 32
+    },
+    {
+      "region_code": "2",
+      "region_name": "Region 2 (SIR 2007-5158; NSS GC961)",
+      "aep": 0.01,
+      "intercept": 0.8401060944567578,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.14,
+          "maximum": 84.1
+        },
+        {
+          "code": "PRECIP",
+          "transform": "identity",
+          "units": "in",
+          "minimum": 16.5,
+          "maximum": 53.7
+        }
+      ],
+      "coefficients": [
+        0.613,
+        0.02530586526477026
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.205152,
+      "model_error_variance": 0.0362025,
+      "n_sites": 32
+    },
+    {
+      "region_code": "2",
+      "region_name": "Region 2 (SIR 2007-5158; NSS GC961)",
+      "aep": 0.005,
+      "intercept": 0.9439888750737718,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.14,
+          "maximum": 84.1
+        },
+        {
+          "code": "PRECIP",
+          "transform": "identity",
+          "units": "in",
+          "minimum": 16.5,
+          "maximum": 53.7
+        }
+      ],
+      "coefficients": [
+        0.592,
+        0.023252459633711444
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.208819,
+      "model_error_variance": 0.0376447,
+      "n_sites": 32
+    },
+    {
+      "region_code": "2",
+      "region_name": "Region 2 (SIR 2007-5158; NSS GC961)",
+      "aep": 0.002,
+      "intercept": 1.0791812460476249,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.14,
+          "maximum": 84.1
+        },
+        {
+          "code": "PRECIP",
+          "transform": "identity",
+          "units": "in",
+          "minimum": 16.5,
+          "maximum": 53.7
+        }
+      ],
+      "coefficients": [
+        0.555,
+        0.021189299069938092
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.212464,
+      "model_error_variance": 0.0391066,
+      "n_sites": 32
+    },
+    {
+      "region_code": "3",
+      "region_name": "Region 3 (SIR 2007-5158; NSS GC962)",
+      "aep": 0.5,
+      "intercept": 1.1613680022349748,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 5.72,
+          "maximum": 66.5
+        }
+      ],
+      "coefficients": [
+        0.328
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.703057,
+      "model_error_variance": 0.428598,
+      "n_sites": 14
+    },
+    {
+      "region_code": "3",
+      "region_name": "Region 3 (SIR 2007-5158; NSS GC962)",
+      "aep": 0.2,
+      "intercept": 1.677606952720493,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 5.72,
+          "maximum": 66.5
+        }
+      ],
+      "coefficients": [
+        0.287
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.542608,
+      "model_error_variance": 0.252905,
+      "n_sites": 14
+    },
+    {
+      "region_code": "3",
+      "region_name": "Region 3 (SIR 2007-5158; NSS GC962)",
+      "aep": 0.1,
+      "intercept": 1.92272545799326,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 5.72,
+          "maximum": 66.5
+        }
+      ],
+      "coefficients": [
+        0.289
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.475164,
+      "model_error_variance": 0.190278,
+      "n_sites": 14
+    },
+    {
+      "region_code": "3",
+      "region_name": "Region 3 (SIR 2007-5158; NSS GC962)",
+      "aep": 0.04,
+      "intercept": 2.1702617153949575,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 5.72,
+          "maximum": 66.5
+        }
+      ],
+      "coefficients": [
+        0.298
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.432017,
+      "model_error_variance": 0.155193,
+      "n_sites": 14
+    },
+    {
+      "region_code": "3",
+      "region_name": "Region 3 (SIR 2007-5158; NSS GC962)",
+      "aep": 0.02,
+      "intercept": 2.3324384599156054,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 5.72,
+          "maximum": 66.5
+        }
+      ],
+      "coefficients": [
+        0.302
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.427769,
+      "model_error_variance": 0.149568,
+      "n_sites": 14
+    },
+    {
+      "region_code": "3",
+      "region_name": "Region 3 (SIR 2007-5158; NSS GC962)",
+      "aep": 0.01,
+      "intercept": 2.4771212547196626,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 5.72,
+          "maximum": 66.5
+        }
+      ],
+      "coefficients": [
+        0.303
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.444421,
+      "model_error_variance": 0.160799,
+      "n_sites": 14
+    },
+    {
+      "region_code": "3",
+      "region_name": "Region 3 (SIR 2007-5158; NSS GC962)",
+      "aep": 0.005,
+      "intercept": 2.6138418218760693,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 5.72,
+          "maximum": 66.5
+        }
+      ],
+      "coefficients": [
+        0.301
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.471496,
+      "model_error_variance": 0.179319,
+      "n_sites": 14
+    },
+    {
+      "region_code": "3",
+      "region_name": "Region 3 (SIR 2007-5158; NSS GC962)",
+      "aep": 0.002,
+      "intercept": 2.7774268223893115,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 5.72,
+          "maximum": 66.5
+        }
+      ],
+      "coefficients": [
+        0.299
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.517336,
+      "model_error_variance": 0.217065,
+      "n_sites": 14
+    },
+    {
+      "region_code": "4",
+      "region_name": "Region 4 (SIR 2007-5158; NSS GC963)",
+      "aep": 0.5,
+      "intercept": -1.080921907623926,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.95,
+          "maximum": 667.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "identity",
+          "units": "ft",
+          "minimum": 8130.0,
+          "maximum": 10900.0,
+          "scale": 0.001
+        },
+        {
+          "code": "BSLDEM10M",
+          "transform": "identity",
+          "units": "percent",
+          "minimum": 9.67,
+          "maximum": 40.3
+        }
+      ],
+      "coefficients": [
+        0.822,
+        0.28507720104643436,
+        -0.01694818725733375
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.201464,
+      "model_error_variance": 0.0362025,
+      "n_sites": 42
+    },
+    {
+      "region_code": "4",
+      "region_name": "Region 4 (SIR 2007-5158; NSS GC963)",
+      "aep": 0.2,
+      "intercept": -0.44490555142168087,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.95,
+          "maximum": 667.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "identity",
+          "units": "ft",
+          "minimum": 8130.0,
+          "maximum": 10900.0,
+          "scale": 0.001
+        },
+        {
+          "code": "BSLDEM10M",
+          "transform": "identity",
+          "units": "percent",
+          "minimum": 9.67,
+          "maximum": 40.3
+        }
+      ],
+      "coefficients": [
+        0.816,
+        0.23336350146636473,
+        -0.015209911641196958
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.155563,
+      "model_error_variance": 0.0217957,
+      "n_sites": 42
+    },
+    {
+      "region_code": "4",
+      "region_name": "Region 4 (SIR 2007-5158; NSS GC963)",
+      "aep": 0.1,
+      "intercept": -0.12320502379929942,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.95,
+          "maximum": 667.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "identity",
+          "units": "ft",
+          "minimum": 8130.0,
+          "maximum": 10900.0,
+          "scale": 0.001
+        },
+        {
+          "code": "BSLDEM10M",
+          "transform": "identity",
+          "units": "percent",
+          "minimum": 9.67,
+          "maximum": 40.3
+        }
+      ],
+      "coefficients": [
+        0.811,
+        0.21728445201709937,
+        -0.01390620492909436
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.147634,
+      "model_error_variance": 0.0183877,
+      "n_sites": 42
+    },
+    {
+      "region_code": "4",
+      "region_name": "Region 4 (SIR 2007-5158; NSS GC963)",
+      "aep": 0.04,
+      "intercept": 0.21484384804769785,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.95,
+          "maximum": 667.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "identity",
+          "units": "ft",
+          "minimum": 8130.0,
+          "maximum": 10900.0,
+          "scale": 0.001
+        },
+        {
+          "code": "BSLDEM10M",
+          "transform": "identity",
+          "units": "percent",
+          "minimum": 9.67,
+          "maximum": 40.3
+        }
+      ],
+      "coefficients": [
+        0.804,
+        0.17991152627015827,
+        -0.013037067121025961
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.147634,
+      "model_error_variance": 0.0183877,
+      "n_sites": 42
+    },
+    {
+      "region_code": "4",
+      "region_name": "Region 4 (SIR 2007-5158; NSS GC963)",
+      "aep": 0.02,
+      "intercept": 0.42813479402878885,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.95,
+          "maximum": 667.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "identity",
+          "units": "ft",
+          "minimum": 8130.0,
+          "maximum": 10900.0,
+          "scale": 0.001
+        },
+        {
+          "code": "BSLDEM10M",
+          "transform": "identity",
+          "units": "percent",
+          "minimum": 9.67,
+          "maximum": 40.3
+        }
+      ],
+      "coefficients": [
+        0.798,
+        0.16209420120475612,
+        -0.012167929312957565
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.155563,
+      "model_error_variance": 0.0206327,
+      "n_sites": 42
+    },
+    {
+      "region_code": "4",
+      "region_name": "Region 4 (SIR 2007-5158; NSS GC963)",
+      "aep": 0.01,
+      "intercept": 0.6211762817750351,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.95,
+          "maximum": 667.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "identity",
+          "units": "ft",
+          "minimum": 8130.0,
+          "maximum": 10900.0,
+          "scale": 0.001
+        },
+        {
+          "code": "BSLDEM10M",
+          "transform": "identity",
+          "units": "percent",
+          "minimum": 9.67,
+          "maximum": 40.3
+        }
+      ],
+      "coefficients": [
+        0.792,
+        0.14514601394742238,
+        -0.00999508479278657
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.163416,
+      "model_error_variance": 0.0229849,
+      "n_sites": 42
+    },
+    {
+      "region_code": "4",
+      "region_name": "Region 4 (SIR 2007-5158; NSS GC963)",
+      "aep": 0.005,
+      "intercept": 0.798650645445269,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.95,
+          "maximum": 667.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "identity",
+          "units": "ft",
+          "minimum": 8130.0,
+          "maximum": 10900.0,
+          "scale": 0.001
+        },
+        {
+          "code": "BSLDEM10M",
+          "transform": "identity",
+          "units": "percent",
+          "minimum": 9.67,
+          "maximum": 40.3
+        }
+      ],
+      "coefficients": [
+        0.786,
+        0.1299361023062254,
+        -0.009125946984718174
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.178884,
+      "model_error_variance": 0.0267048,
+      "n_sites": 42
+    },
+    {
+      "region_code": "4",
+      "region_name": "Region 4 (SIR 2007-5158; NSS GC963)",
+      "aep": 0.002,
+      "intercept": 1.021189299069938,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 2.95,
+          "maximum": 667.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "identity",
+          "units": "ft",
+          "minimum": 8130.0,
+          "maximum": 10900.0,
+          "scale": 0.001
+        },
+        {
+          "code": "BSLDEM10M",
+          "transform": "identity",
+          "units": "percent",
+          "minimum": 9.67,
+          "maximum": 40.3
+        }
+      ],
+      "coefficients": [
+        0.778,
+        0.11124963943275488,
+        -0.007822240272615577
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.194022,
+      "model_error_variance": 0.0319996,
+      "n_sites": 42
+    },
+    {
+      "region_code": "5",
+      "region_name": "Region 5 (SIR 2007-5158; NSS GC964)",
+      "aep": 0.5,
+      "intercept": 0.6354837468149122,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.91,
+          "maximum": 629.0
+        },
+        {
+          "code": "LU92HRBN",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 2.14,
+          "maximum": 15.6,
+          "offset": 1.0
+        }
+      ],
+      "coefficients": [
+        0.623,
+        0.503
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.358956,
+      "model_error_variance": 0.115664,
+      "n_sites": 35
+    },
+    {
+      "region_code": "5",
+      "region_name": "Region 5 (SIR 2007-5158; NSS GC964)",
+      "aep": 0.2,
+      "intercept": 1.0681858617461617,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.91,
+          "maximum": 629.0
+        },
+        {
+          "code": "LU92HRBN",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 2.14,
+          "maximum": 15.6,
+          "offset": 1.0
+        }
+      ],
+      "coefficients": [
+        0.575,
+        0.425
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.240822,
+      "model_error_variance": 0.0482623,
+      "n_sites": 35
+    },
+    {
+      "region_code": "5",
+      "region_name": "Region 5 (SIR 2007-5158; NSS GC964)",
+      "aep": 0.1,
+      "intercept": 1.2648178230095364,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.91,
+          "maximum": 629.0
+        },
+        {
+          "code": "LU92HRBN",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 2.14,
+          "maximum": 15.6,
+          "offset": 1.0
+        }
+      ],
+      "coefficients": [
+        0.555,
+        0.388
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.205152,
+      "model_error_variance": 0.0347805,
+      "n_sites": 35
+    },
+    {
+      "region_code": "5",
+      "region_name": "Region 5 (SIR 2007-5158; NSS GC964)",
+      "aep": 0.04,
+      "intercept": 1.4593924877592308,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.91,
+          "maximum": 629.0
+        },
+        {
+          "code": "LU92HRBN",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 2.14,
+          "maximum": 15.6,
+          "offset": 1.0
+        }
+      ],
+      "coefficients": [
+        0.538,
+        0.352
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.201464,
+      "model_error_variance": 0.0319996,
+      "n_sites": 35
+    },
+    {
+      "region_code": "5",
+      "region_name": "Region 5 (SIR 2007-5158; NSS GC964)",
+      "aep": 0.02,
+      "intercept": 1.5843312243675307,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.91,
+          "maximum": 629.0
+        },
+        {
+          "code": "LU92HRBN",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 2.14,
+          "maximum": 15.6,
+          "offset": 1.0
+        }
+      ],
+      "coefficients": [
+        0.536,
+        0.331
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.216086,
+      "model_error_variance": 0.0376447,
+      "n_sites": 35
+    },
+    {
+      "region_code": "5",
+      "region_name": "Region 5 (SIR 2007-5158; NSS GC964)",
+      "aep": 0.01,
+      "intercept": 1.7007037171450194,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.91,
+          "maximum": 629.0
+        },
+        {
+          "code": "LU92HRBN",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 2.14,
+          "maximum": 15.6,
+          "offset": 1.0
+        }
+      ],
+      "coefficients": [
+        0.515,
+        0.316
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.244266,
+      "model_error_variance": 0.0466933,
+      "n_sites": 35
+    },
+    {
+      "region_code": "5",
+      "region_name": "Region 5 (SIR 2007-5158; NSS GC964)",
+      "aep": 0.005,
+      "intercept": 1.8109042806687004,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.91,
+          "maximum": 629.0
+        },
+        {
+          "code": "LU92HRBN",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 2.14,
+          "maximum": 15.6,
+          "offset": 1.0
+        }
+      ],
+      "coefficients": [
+        0.504,
+        0.3
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.277471,
+      "model_error_variance": 0.0613491,
+      "n_sites": 35
+    },
+    {
+      "region_code": "5",
+      "region_name": "Region 5 (SIR 2007-5158; NSS GC964)",
+      "aep": 0.002,
+      "intercept": 1.9459607035775686,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.91,
+          "maximum": 629.0
+        },
+        {
+          "code": "LU92HRBN",
+          "transform": "log10",
+          "units": "percent",
+          "minimum": 2.14,
+          "maximum": 15.6,
+          "offset": 1.0
+        }
+      ],
+      "coefficients": [
+        0.489,
+        0.285
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.32315,
+      "model_error_variance": 0.085989,
+      "n_sites": 35
+    },
+    {
+      "region_code": "6",
+      "region_name": "Region 6 (SIR 2007-5158; NSS GC965)",
+      "aep": 0.5,
+      "intercept": 3.6180480967120925,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.87,
+          "maximum": 532.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4300.0,
+          "maximum": 9380.0,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.553,
+        -2.45
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.38185,
+      "model_error_variance": 0.142046,
+      "n_sites": 99
+    },
+    {
+      "region_code": "6",
+      "region_name": "Region 6 (SIR 2007-5158; NSS GC965)",
+      "aep": 0.2,
+      "intercept": 4.117271295655764,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.87,
+          "maximum": 532.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4300.0,
+          "maximum": 9380.0,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.479,
+        -2.44
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.305459,
+      "model_error_variance": 0.0896358,
+      "n_sites": 99
+    },
+    {
+      "region_code": "6",
+      "region_name": "Region 6 (SIR 2007-5158; NSS GC965)",
+      "aep": 0.1,
+      "intercept": 4.392696953259666,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.87,
+          "maximum": 532.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4300.0,
+          "maximum": 9380.0,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.444,
+        -2.47
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.274251,
+      "model_error_variance": 0.0716873,
+      "n_sites": 99
+    },
+    {
+      "region_code": "6",
+      "region_name": "Region 6 (SIR 2007-5158; NSS GC965)",
+      "aep": 0.04,
+      "intercept": 4.694605198933568,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.87,
+          "maximum": 532.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4300.0,
+          "maximum": 9380.0,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.411,
+        -2.51
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.247688,
+      "model_error_variance": 0.0579952,
+      "n_sites": 99
+    },
+    {
+      "region_code": "6",
+      "region_name": "Region 6 (SIR 2007-5158; NSS GC965)",
+      "aep": 0.02,
+      "intercept": 4.888740960682893,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.87,
+          "maximum": 532.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4300.0,
+          "maximum": 9380.0,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.391,
+        -2.54
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.240822,
+      "model_error_variance": 0.0546935,
+      "n_sites": 99
+    },
+    {
+      "region_code": "6",
+      "region_name": "Region 6 (SIR 2007-5158; NSS GC965)",
+      "aep": 0.01,
+      "intercept": 5.060697840353612,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.87,
+          "maximum": 532.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4300.0,
+          "maximum": 9380.0,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.391,
+        -2.58
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.244266,
+      "model_error_variance": 0.0546935,
+      "n_sites": 99
+    },
+    {
+      "region_code": "6",
+      "region_name": "Region 6 (SIR 2007-5158; NSS GC965)",
+      "aep": 0.005,
+      "intercept": 5.220108088040055,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.87,
+          "maximum": 532.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4300.0,
+          "maximum": 9380.0,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.361,
+        -2.61
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.247688,
+      "model_error_variance": 0.0579952,
+      "n_sites": 99
+    },
+    {
+      "region_code": "6",
+      "region_name": "Region 6 (SIR 2007-5158; NSS GC965)",
+      "aep": 0.002,
+      "intercept": 5.41161970596323,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.87,
+          "maximum": 532.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4300.0,
+          "maximum": 9380.0,
+          "scale": 0.001
+        }
+      ],
+      "coefficients": [
+        0.344,
+        -2.65
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.261149,
+      "model_error_variance": 0.0630445,
+      "n_sites": 99
+    },
+    {
+      "region_code": "7",
+      "region_name": "Region 7 (SIR 2007-5158; NSS GC966)",
+      "aep": 0.5,
+      "intercept": 1.2648178230095364,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 5.43,
+          "maximum": 1670.0
+        }
+      ],
+      "coefficients": [
+        0.63
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.293239,
+      "model_error_variance": 0.0769903,
+      "n_sites": 25
+    },
+    {
+      "region_code": "7",
+      "region_name": "Region 7 (SIR 2007-5158; NSS GC966)",
+      "aep": 0.2,
+      "intercept": 1.8286598965353198,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 5.43,
+          "maximum": 1670.0
+        }
+      ],
+      "coefficients": [
+        0.539
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.348295,
+      "model_error_variance": 0.108162,
+      "n_sites": 25
+    },
+    {
+      "region_code": "7",
+      "region_name": "Region 7 (SIR 2007-5158; NSS GC966)",
+      "aep": 0.1,
+      "intercept": 2.1271047983648077,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 5.43,
+          "maximum": 1670.0
+        }
+      ],
+      "coefficients": [
+        0.487
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.38674,
+      "model_error_variance": 0.134508,
+      "n_sites": 25
+    },
+    {
+      "region_code": "7",
+      "region_name": "Region 7 (SIR 2007-5158; NSS GC966)",
+      "aep": 0.04,
+      "intercept": 2.444044795918076,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 5.43,
+          "maximum": 1670.0
+        }
+      ],
+      "coefficients": [
+        0.429
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.436208,
+      "model_error_variance": 0.170095,
+      "n_sites": 25
+    },
+    {
+      "region_code": "7",
+      "region_name": "Region 7 (SIR 2007-5158; NSS GC966)",
+      "aep": 0.02,
+      "intercept": 2.649334858712142,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 5.43,
+          "maximum": 1670.0
+        }
+      ],
+      "coefficients": [
+        0.39
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.469643,
+      "model_error_variance": 0.19751,
+      "n_sites": 25
+    },
+    {
+      "region_code": "7",
+      "region_name": "Region 7 (SIR 2007-5158; NSS GC966)",
+      "aep": 0.01,
+      "intercept": 2.8344207036815328,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 5.43,
+          "maximum": 1670.0
+        }
+      ],
+      "coefficients": [
+        0.355
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.49958,
+      "model_error_variance": 0.224047,
+      "n_sites": 25
+    },
+    {
+      "region_code": "7",
+      "region_name": "Region 7 (SIR 2007-5158; NSS GC966)",
+      "aep": 0.005,
+      "intercept": 3.0043213737826426,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 5.43,
+          "maximum": 1670.0
+        }
+      ],
+      "coefficients": [
+        0.321
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.529538,
+      "model_error_variance": 0.251245,
+      "n_sites": 25
+    },
+    {
+      "region_code": "7",
+      "region_name": "Region 7 (SIR 2007-5158; NSS GC966)",
+      "aep": 0.002,
+      "intercept": 3.2095150145426308,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 5.43,
+          "maximum": 1670.0
+        }
+      ],
+      "coefficients": [
+        0.28
+      ],
+      "citation": {
+        "publication": "Kenney, T.A., Wilkowske, C.D., and Wright, S.J., 2007, Methods for estimating magnitude and frequency of peak flows for natural streams in Utah (ver. 4.0, March 10, 2008): U.S. Geological Survey Scientific Investigations Report 2007-5158",
+        "table": "Table 5; Table 8",
+        "year": 2007,
+        "url": "https://doi.org/10.3133/sir20075158"
+      },
+      "sep_log": 0.565584,
+      "model_error_variance": 0.286685,
+      "n_sites": 25
+    },
+    {
+      "region_code": "Navajo8",
+      "region_name": "Navajo Nation Region 8 (SIR 2006-5306; NSS GC959)",
+      "aep": 0.5,
+      "intercept": 7.033423755486949,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.06,
+          "maximum": 4350
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4320,
+          "maximum": 7750
+        }
+      ],
+      "coefficients": [
+        0.457,
+        -1.35
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.397,
+      "model_error_variance": 0.148996,
+      "n_sites": 62
+    },
+    {
+      "region_code": "Navajo8",
+      "region_name": "Navajo Nation Region 8 (SIR 2006-5306; NSS GC959)",
+      "aep": 0.2,
+      "intercept": 10.232996110392154,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.06,
+          "maximum": 4350
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0231,
+          "maximum": 0.4447
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4320,
+          "maximum": 7750
+        }
+      ],
+      "coefficients": [
+        0.372,
+        0.36,
+        -1.98
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.294,
+      "model_error_variance": 0.079524,
+      "n_sites": 62
+    },
+    {
+      "region_code": "Navajo8",
+      "region_name": "Navajo Nation Region 8 (SIR 2006-5306; NSS GC959)",
+      "aep": 0.1,
+      "intercept": 10.943988875073773,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.06,
+          "maximum": 4350
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0231,
+          "maximum": 0.4447
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4320,
+          "maximum": 7750
+        }
+      ],
+      "coefficients": [
+        0.343,
+        0.395,
+        -2.1
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.25,
+      "model_error_variance": 0.056644,
+      "n_sites": 62
+    },
+    {
+      "region_code": "Navajo8",
+      "region_name": "Navajo Nation Region 8 (SIR 2006-5306; NSS GC959)",
+      "aep": 0.04,
+      "intercept": 11.592176757395867,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.06,
+          "maximum": 4350
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0231,
+          "maximum": 0.4447
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4320,
+          "maximum": 7750
+        }
+      ],
+      "coefficients": [
+        0.31,
+        0.432,
+        -2.19
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.22,
+      "model_error_variance": 0.042436,
+      "n_sites": 62
+    },
+    {
+      "region_code": "Navajo8",
+      "region_name": "Navajo Nation Region 8 (SIR 2006-5306; NSS GC959)",
+      "aep": 0.02,
+      "intercept": 11.927883410330708,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.06,
+          "maximum": 4350
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0231,
+          "maximum": 0.4447
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4320,
+          "maximum": 7750
+        }
+      ],
+      "coefficients": [
+        0.287,
+        0.46,
+        -2.23
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.214,
+      "model_error_variance": 0.039601,
+      "n_sites": 62
+    },
+    {
+      "region_code": "Navajo8",
+      "region_name": "Navajo Nation Region 8 (SIR 2006-5306; NSS GC959)",
+      "aep": 0.01,
+      "intercept": 12.1846914308176,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.06,
+          "maximum": 4350
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0231,
+          "maximum": 0.4447
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4320,
+          "maximum": 7750
+        }
+      ],
+      "coefficients": [
+        0.265,
+        0.477,
+        -2.25
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.219,
+      "model_error_variance": 0.041209,
+      "n_sites": 62
+    },
+    {
+      "region_code": "Navajo8",
+      "region_name": "Navajo Nation Region 8 (SIR 2006-5306; NSS GC959)",
+      "aep": 0.002,
+      "intercept": 12.627365856592732,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.06,
+          "maximum": 4350
+        },
+        {
+          "code": "BSLDEM30ff",
+          "transform": "log10",
+          "units": "ft/ft",
+          "minimum": 0.0231,
+          "maximum": 0.4447
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 4320,
+          "maximum": 7750
+        }
+      ],
+      "coefficients": [
+        0.224,
+        0.513,
+        -2.28
+      ],
+      "citation": {
+        "publication": "Waltemeyer, S.D., 2006, Analysis of the magnitude and frequency of peak discharges for the Navajo Nation in Arizona, Utah, Colorado, and New Mexico: U.S. Geological Survey Scientific Investigations Report 2006-5306",
+        "table": "Table 2; Table 1",
+        "year": 2006,
+        "url": "https://doi.org/10.3133/sir20065306"
+      },
+      "sep_log": 0.256,
+      "model_error_variance": 0.056169,
+      "n_sites": 62
+    }
+  ]
+}

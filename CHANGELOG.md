@@ -70,6 +70,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     it upstream needs basin polygons) and the NLCD impervious time series.
 
 ### Added
+- **New Mexico peak-flow regression equations** (`flowfreq/data/regression/NM.json`, Wave 2,
+  #100), `status: "verified"`: 91 equations. SIR 2008-5119 flood regions 1-9 (63 equations,
+  Tables 1-2) and SIR 2006-5306 Navajo Nation regions 8, 11, High Elevation and 6, at 7 AEPs
+  each. Double-entered with 0 disagreements; Appendix 1's predicted values and the p. 11
+  worked example reproduce; all 91 equations equal live NSS at 3 significant figures (the
+  2008 regions through NSS's `HIGHREG` gating). Table 1's "12,7000" is stored as 12,700.
+  NSS snapshot `data/nss_snapshots/NM_2026-10-01.json`.
+- **Wyoming peak-flow regression equations** (`flowfreq/data/regression/WY.json`, Wave 2,
+  #98), `status: "verified"`: 60 equations, regions 1-6 at 10 AEPs (1.5-500 years), from
+  WRIR 03-4107 Tables 1-7. Shifted terms such as `((ELEV - 3,000)/1,000)^b` and
+  `(LNG - 100)^c` are stored with `scale`/`offset`. Double-entered with 0 disagreements;
+  all four worked examples (pp. 30-33) reproduce; all 60 equations equal live NSS at 3
+  significant figures. NSS snapshot `data/nss_snapshots/WY_2026-10-01.json`.
 - **National future-flow source review** (`flowfreq.future_flow`, roadmap §6.3.1, #36).
   FHWA HEC-17 (2nd ed., 2016) and NCHRP Project 15-61 (2019) were read against the primary
   PDFs. Neither tabulates national per-AEP flood change factors; both give methods for
@@ -115,6 +128,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     `n_mgbt_outliers`, since they mean peaks. The Markdown report shows both counts.
 
 ### Added
+- **Utah peak-flow regression equations** (`flowfreq/data/regression/UT.json`, Wave 2, #96),
+  `status: "partial"`: 63 equations in 8 regions.
+  - SIR 2007-5158 ver. 4.0: regions 1-7 at 8 AEPs (Table 5, limits Table 8). The
+    exponential terms (`1.39^(ELEV/1,000)`, `1.07^PRECIP`, `2.72^(...)`) are identity
+    transforms with `scale`.
+  - SIR 2006-5306: Navajo Nation region 8, 7 AEPs.
+  - Partial because region 2 does not match NSS: Table 5 prints its precipitation bases to
+    3 significant figures, while NSS uses 4 (for example 1.07 against 1.074). The printed
+    values are stored; the gap is pinned by tests. Every other region and AEP equals live
+    NSS at 3 significant figures. NSS snapshot `data/nss_snapshots/UT_2026-10-01.json`.
 - **Colorado peak-flow regression equations** (`flowfreq/data/regression/CO.json`, Wave 2,
   #93), `status: "verified"`: 62 equations in 8 regions, the three reports NSS combines for
   Colorado.
