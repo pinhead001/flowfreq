@@ -34,7 +34,10 @@ def _pct(sep_log: float) -> float:
 
 class TestLibraryShape:
     def test_status_and_regions(self, lib):
-        assert lib.status == "partial"
+        # verified per library.STATUSES: everything both reports publish is stored
+        # and cross-checked against their own per-gage estimates and worked
+        # examples (NSS serves only region 1); no covariance is published.
+        assert lib.status == "verified"
         assert lib.issue == 38
         assert lib.regions == ["1", "2A", "2B", "E1", "E2", "E3", "E4", "E5", "E6"]
         for region in lib.regions:

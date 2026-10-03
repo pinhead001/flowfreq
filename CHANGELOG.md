@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+- **Regression-file status is now defined** (`flowfreq.regression.library.STATUSES`):
+  `verified` means everything the cited reports publish for the stored regions is stored,
+  double-entered and cross-checked (live NSS where it serves the region, otherwise the
+  report's own worked examples and per-gage estimates) -- a report that publishes no
+  covariance can still be `verified`; `partial` means something the reports *do* publish is
+  missing or unresolved. Under it **Oregon moves from `partial` to `verified`**; Washington
+  stays `partial` (its region 4 covariance is published but deliberately not stored).
 - **`analyze_gage` now refuses a regulated gage** (#32). Before fitting, it classifies
   the gage with the new regulation screen. A gage classed `regulated` raises
   `flowfreq.regulation.RegulatedRecordError`, a `ValueError` subclass, unless you pass
