@@ -17,16 +17,32 @@ Rules this module holds to:
   the state in question (:func:`select_factor_set`). The override is recorded,
   and the national result is still available for comparison.
 
-No factor values ship with this module. Each set is transcribed from its
-source with a citation, under ``flowfreq/data/future/``, as each state's wave
-reaches it (issue #36).
+Where factor sets come from (roadmap §6.3.1, issue #36): national sources
+first, then state guidance as each state's rollout wave reaches it (§6.3.2).
+Both kinds live under ``flowfreq/data/future/`` as ``*.factors.json`` files,
+each transcribed from a primary source with its table and page, and are
+loaded by :func:`available_factor_sets`.
+
+**No national factor set ships, and that is deliberate.** The national
+sources the roadmap names were reviewed against the primary documents
+(:func:`national_source_review`, ``data/future/national_sources.json``):
+FHWA HEC-17 (2016) and NCHRP Project 15-61 (2019) give *methods* for deriving
+site-specific factors from downscaled climate projections, plus site-specific
+worked examples, but tabulate no national per-AEP flood multipliers. NOAA
+Atlas 15 future precipitation is not yet published. Nothing is invented to
+fill the gap; ``docs/FUTURE_FLOW_GUIDANCE.md`` records the status. A caller
+with a site-specific factor set derived by one of those methods builds a
+:class:`ChangeFactorSet` directly.
 """
 
 from __future__ import annotations
 
+import json
 import logging
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Sequence, Tuple
+from importlib import resources
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -230,3 +246,149 @@ def apply_change_factors(
         logger.warning(msg)
         notes.append(msg)
     return FutureQuantiles(table=table, factor_set=factor_set, overrode=overrode, notes=notes)
+
+
+# --------------------------------------------------------------------------
+# Shipped data: factor-set files and the national source review
+# --------------------------------------------------------------------------
+
+#: Suffix of a transcribed factor-set file under ``flowfreq/data/future/``.
+FACTOR_SET_SUFFIX = ".factors.json"
+_REQUIRED_KEYS = ("name", "aeps", "factors", "scenario", "horizon", "citation")
+
+
+def _data_dir() -> Path:
+    return Path(str(resources.files("flowfreq") / "data" / "future"))
+
+
+def factor_set_from_dict(d: Dict[str, Any]) -> ChangeFactorSet:
+    """Build a :class:`ChangeFactorSet` from its JSON form.
+
+    Parameters
+    ----------
+    d : dict
+        Keys ``name``, ``aeps``, ``factors``, ``scenario``, ``horizon`` and
+        ``citation`` are required; ``level``, ``geography`` and
+        ``legal_status`` are optional. Other keys (for example ``table`` or
+        ``page`` notes) are ignored.
+
+    Raises
+    ------
+    KeyError
+        If a required key is missing.
+    ValueError
+        If the values fail :class:`ChangeFactorSet` validation.
+    """
+    missing = [k for k in _REQUIRED_KEYS if k not in d]
+    if missing:
+        raise KeyError(f"factor set missing key(s) {missing}")
+    return ChangeFactorSet(
+        name=str(d["name"]),
+        aeps=tuple(float(a) for a in d["aeps"]),
+        factors=tuple(float(f) for f in d["factors"]),
+        scenario=str(d["scenario"]),
+        horizon=str(d["horizon"]),
+        citation=str(d["citation"]),
+        level=str(d.get("level", "national")),
+        geography=tuple(str(g) for g in d.get("geography", ())),
+        legal_status=str(d.get("legal_status", "informational")),
+    )
+
+
+def available_factor_sets(
+    directory: Optional[Union[str, Path]] = None,
+    *,
+    level: Optional[str] = None,
+) -> Tuple[ChangeFactorSet, ...]:
+    """Load every transcribed factor set shipped under ``data/future/``.
+
+    Each ``*.factors.json`` file holds one set (an object) or several (a list).
+    **None ship today** (see the module docstring), so this returns an empty
+    tuple until a source with tabulated factors is transcribed.
+
+    Parameters
+    ----------
+    directory : str or Path, optional
+        Read from here instead of the packaged data directory.
+    level : {"national", "state"}, optional
+        Return only sets at this level.
+
+    Returns
+    -------
+    tuple of ChangeFactorSet
+        Sorted by name.
+
+    Raises
+    ------
+    ValueError
+        If ``level`` is not a known level, or two files define the same name.
+    """
+    if level is not None and level not in LEVELS:
+        raise ValueError(f"level must be one of {sorted(LEVELS)}")
+    root = Path(directory) if directory is not None else _data_dir()
+    sets: Dict[str, ChangeFactorSet] = {}
+    for path in sorted(root.glob(f"*{FACTOR_SET_SUFFIX}")):
+        raw = json.loads(path.read_text(encoding="utf-8"))
+        for entry in raw if isinstance(raw, list) else [raw]:
+            fs = factor_set_from_dict(entry)
+            if fs.name in sets:
+                raise ValueError(f"duplicate factor set name {fs.name!r} in {path.name}")
+            sets[fs.name] = fs
+    out = sorted(sets.values(), key=lambda s: s.name)
+    return tuple(s for s in out if level is None or s.level == level)
+
+
+@dataclass(frozen=True)
+class SourceReview:
+    """What one national source was found to provide (``national_sources.json``).
+
+    Attributes
+    ----------
+    id : str
+    citation : str
+    url : str
+    provides : str
+        ``"method"``, ``"factors"`` or ``"not yet published"``.
+    tabulated_national_factors : bool
+        Whether the source publishes a national per-AEP flow-multiplier table.
+    method_summary : str
+    tables_examined : tuple of dict
+        Each table checked, with ``table``, ``page``, ``content`` and
+        ``why_not_a_factor_set``.
+    """
+
+    id: str
+    citation: str
+    url: str
+    provides: str
+    tabulated_national_factors: bool
+    method_summary: str
+    tables_examined: Tuple[Dict[str, str], ...] = ()
+
+
+def national_source_review(path: Optional[Union[str, Path]] = None) -> Tuple[SourceReview, ...]:
+    """The review of national future-flow sources behind the empty national default.
+
+    Parameters
+    ----------
+    path : str or Path, optional
+        Read this file instead of the packaged ``data/future/national_sources.json``.
+
+    Returns
+    -------
+    tuple of SourceReview
+    """
+    p = Path(path) if path is not None else _data_dir() / "national_sources.json"
+    raw = json.loads(p.read_text(encoding="utf-8"))
+    return tuple(
+        SourceReview(
+            id=s["id"],
+            citation=s["citation"],
+            url=s["url"],
+            provides=s["provides"],
+            tabulated_national_factors=bool(s["tabulated_national_factors"]),
+            method_summary=s["method_summary"],
+            tables_examined=tuple(dict(t) for t in s.get("tables_examined", [])),
+        )
+        for s in raw["sources"]
+    )
