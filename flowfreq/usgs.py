@@ -200,6 +200,65 @@ def _first_float(df: pd.DataFrame, column: str) -> Optional[float]:
     return None if math.isnan(value) else value
 
 
+def _first_str(df: pd.DataFrame, column: str) -> Optional[str]:
+    """First value of *column* as a stripped string, or None if absent or blank."""
+    if column not in df.columns or len(df) == 0:
+        return None
+    value = df[column].iloc[0]
+    if not isinstance(value, str) or not value.strip():
+        return None
+    return value.strip()
+
+
+def _read_site_rdb(text: str) -> Optional[pd.DataFrame]:
+    """A legacy NWIS site-service RDB response as an all-string frame.
+
+    Every column is read as ``str``: a numeric read would turn ``parm_cd``
+    ``"00060"`` into ``60`` and ``huc_cd`` ``"06040005"`` into ``6040005``.
+    Blank fields are NaN. None when the response has no data rows.
+    """
+    data_lines = [line for line in text.split("\n") if not line.startswith("#") and line.strip()]
+    if len(data_lines) < 2:
+        return None
+    return pd.read_csv(StringIO("\n".join(data_lines)), sep="\t", skiprows=[1], dtype=str)
+
+
+def _catalog_period(
+    df: pd.DataFrame, data_type_cd: str, stat_cd: Optional[str], parm_cd: str = "00060"
+) -> Tuple[Optional[str], Optional[str]]:
+    """Begin and end date of one discharge series in a ``seriesCatalogOutput`` listing.
+
+    The listing has a row per series of *every* parameter -- the site service
+    ignores ``parameterCd`` when asked for the catalog -- so the rows are
+    filtered on ``data_type_cd``, ``parm_cd`` and, for daily values,
+    ``stat_cd`` (00003, the daily mean). Taking the first ``dv`` row instead
+    picked up 12449500's 2002 water-temperature series (00010), which sorts
+    ahead of discharge. Several matching rows (more than one sensor) give the
+    envelope of their dates. A column the listing lacks is not filtered on.
+
+    Returns
+    -------
+    (str or None, str or None)
+        ``begin_date`` and ``end_date`` as NWIS writes them; ``(None, None)``
+        when no row matches.
+    """
+    if "data_type_cd" not in df.columns:
+        return None, None
+    rows = df[df["data_type_cd"].str.strip() == data_type_cd]
+    if "parm_cd" in rows.columns:
+        rows = rows[rows["parm_cd"].str.strip() == parm_cd]
+    if stat_cd is not None and "stat_cd" in rows.columns:
+        rows = rows[rows["stat_cd"].str.strip() == stat_cd]
+    if rows.empty:
+        return None, None
+    begins = rows["begin_date"].dropna() if "begin_date" in rows.columns else pd.Series([])
+    ends = rows["end_date"].dropna() if "end_date" in rows.columns else pd.Series([])
+    return (
+        str(begins.min()) if len(begins) else None,
+        str(ends.max()) if len(ends) else None,
+    )
+
+
 class USGSgage:
     """Class to handle USGS gage data retrieval and storage."""
 
@@ -228,6 +287,8 @@ class USGSgage:
         self._stage_data: Optional[pd.DataFrame] = None
         self._iv_por_start: Optional[str] = None
         self._iv_por_end: Optional[str] = None
+        self._huc: Optional[str] = None
+        self._state_code: Optional[str] = None
 
     @property
     def site_no(self) -> str:
@@ -275,16 +336,31 @@ class USGSgage:
 
     @property
     def latitude(self) -> Optional[float]:
-        """Decimal-degree latitude from the NWIS site service, or None."""
+        """Decimal-degree latitude from :meth:`fetch_site_info`, or None."""
         return self._latitude
 
     @property
     def longitude(self) -> Optional[float]:
-        """Decimal-degree longitude from the NWIS site service, or None.
+        """Decimal-degree longitude from :meth:`fetch_site_info`, or None.
 
-        Negative in the western hemisphere, as NWIS reports it.
+        Negative in the western hemisphere, as USGS reports it.
         """
         return self._longitude
+
+    @property
+    def huc(self) -> Optional[str]:
+        """Hydrologic unit code from :meth:`fetch_site_info`, or None.
+
+        A string, so leading zeros survive (``"06040005"``). Its length depends
+        on the backend: 12 digits from the Water Data API, 8 from the legacy
+        NWIS site service.
+        """
+        return self._huc
+
+    @property
+    def state_code(self) -> Optional[str]:
+        """Two-digit state FIPS code from :meth:`fetch_site_info` (``"53"``), or None."""
+        return self._state_code
 
     @property
     def instantaneous_data(self) -> Optional[pd.DataFrame]:
@@ -329,15 +405,48 @@ class USGSgage:
             )
         return None
 
-    def fetch_site_info(self, use_local_first: bool = True) -> None:
-        """Fetch site information (name, drainage area, POR).
+    def fetch_site_info(self, use_local_first: bool = True, backend: str = DEFAULT_BACKEND) -> None:
+        """Fetch site information: name, drainage area, location, periods of record.
+
+        Sets :attr:`site_name`, :attr:`drainage_area`, :attr:`latitude`,
+        :attr:`longitude`, :attr:`huc`, :attr:`state_code`,
+        :attr:`daily_por_start`/:attr:`daily_por_end` (daily-mean discharge,
+        00060/00003) and :attr:`iv_por_start`/:attr:`iv_por_end`
+        (instantaneous discharge). Every period-of-record date is a
+        ``YYYY-MM-DD`` string of the gage's local calendar. A metadata field
+        already set (from ``gage_attributes.csv``, or a previous call) is not
+        overwritten; the periods of record always are.
+
+        A failed request is logged, not raised, and its message kept in
+        ``_last_api_error``; whatever the other request returned is still set.
 
         Parameters
         ----------
         use_local_first : bool
             If True, check local gage_attributes.csv first for site name and
             drainage area before falling back to USGS API. Default True.
+        backend : str, default :data:`flowfreq.peak_sources.DEFAULT_BACKEND`
+            ``"waterdata-ogc"``: the Water Data OGC API's
+            ``monitoring-locations`` record and ``time-series-metadata`` for
+            discharge. ``"nwis-legacy"``: the legacy NWIS site service
+            (``siteOutput=expanded`` and ``seriesCatalogOutput=true``). The two
+            agree on every attribute for the sites compared live
+            (``tests/test_site_info_backend_parity.py``) except where the
+            services themselves differ: :attr:`huc` is 12 digits on the API and
+            8 on legacy, the coordinates carry more decimal places on the API,
+            and the end dates can be a day or so apart because each service
+            refreshes its catalog on its own schedule.
+
+        Raises
+        ------
+        ValueError
+            An unknown ``backend``, before any request is made.
         """
+        if backend not in IV_BACKENDS:
+            raise ValueError(
+                f"Unknown site-information backend {backend!r}; expected 'waterdata-ogc' or "
+                "'nwis-legacy'"
+            )
         # First try to get attributes from local file
         if use_local_first:
             local_attrs = GageAttributes.get_attributes(self._site_no)
@@ -352,19 +461,89 @@ class USGSgage:
                     except (ValueError, TypeError):
                         pass
 
-        # Fetch from USGS Site Service API for POR dates and any missing info
-        self._fetch_from_usgs_site_service()
+        self._last_api_error: Optional[str] = None
+        if backend == "nwis-legacy":
+            self._fetch_from_usgs_site_service()
+        else:
+            self._fetch_from_waterdata()
+
+    def _record_api_error(self, what: str, exc: Exception) -> None:
+        logger.warning("%s request failed for %s: %s", what, self._site_no, exc)
+        if self._last_api_error:
+            self._last_api_error += f"; {exc}"
+        else:
+            self._last_api_error = str(exc)
+
+    def _missing_site_metadata(self) -> bool:
+        return any(
+            value is None
+            for value in (
+                self._site_name,
+                self._drainage_area,
+                self._latitude,
+                self._longitude,
+                self._huc,
+                self._state_code,
+            )
+        )
+
+    def _set_missing(self, values: Dict[str, Any]) -> None:
+        """Set each ``_<name>`` attribute from ``values`` where it is still None."""
+        for name, value in values.items():
+            if value is not None and getattr(self, f"_{name}") is None:
+                setattr(self, f"_{name}", value)
+
+    def _fetch_from_waterdata(self) -> None:
+        """The ``backend="waterdata-ogc"`` body of :meth:`fetch_site_info`.
+
+        Two requests: the ``monitoring-locations`` feature (metadata, and the
+        time zone that turns the metadata's UTC instants into local dates),
+        then ``time-series-metadata`` for discharge (00060), from which the
+        daily-mean (statistic 00003) and instantaneous (00011) series give the
+        two periods of record. The annual-maximum series the same query
+        returns is ignored.
+        """
+        # Deferred: flowfreq.waterdata imports from this module.
+        from flowfreq.waterdata import (
+            DAILY_MEAN_STATISTIC,
+            INSTANTANEOUS_STATISTIC,
+            fetch_monitoring_location_feature,
+            fetch_time_series_metadata,
+            series_period_of_record,
+            site_attributes,
+            site_zone,
+        )
+
+        zone = None
+        try:
+            feature = fetch_monitoring_location_feature(self._site_no, timeout=30)
+        except requests.RequestException as exc:
+            self._record_api_error("Monitoring-location", exc)
+        else:
+            self._set_missing(site_attributes(feature))
+            zone = site_zone(feature)
+
+        try:
+            series = fetch_time_series_metadata(self._site_no, "00060", timeout=30)
+        except requests.RequestException as exc:
+            self._record_api_error("Time-series metadata", exc)
+            return
+        self._daily_por_start, self._daily_por_end = series_period_of_record(
+            series, DAILY_MEAN_STATISTIC, zone
+        )
+        self._iv_por_start, self._iv_por_end = series_period_of_record(
+            series, INSTANTANEOUS_STATISTIC, zone
+        )
 
     def _fetch_from_usgs_site_service(self) -> None:
-        """Fetch site info from USGS Site Service API.
+        """The ``backend="nwis-legacy"`` body of :meth:`fetch_site_info`.
 
         Makes two separate API calls because siteOutput=expanded and
         seriesCatalogOutput=true cannot be combined in a single request.
         """
-        self._last_api_error: Optional[str] = None
-
-        # Call 1: site metadata (name, drainage area, lat/lon) via siteOutput=expanded
-        if self._site_name is None or self._drainage_area is None or self._latitude is None:
+        # Call 1: site metadata (name, drainage area, lat/lon, HUC, state) via
+        # siteOutput=expanded
+        if self._missing_site_metadata():
             params_site = {
                 "format": "rdb",
                 "sites": self._site_no,
@@ -374,28 +553,24 @@ class USGSgage:
             try:
                 response = requests.get(self.BASE_URL_SITE, params=params_site, timeout=30)
                 response.raise_for_status()
-
-                lines = response.text.split("\n")
-                data_lines = [l for l in lines if not l.startswith("#") and l.strip()]
-
-                if len(data_lines) >= 2:
-                    df = pd.read_csv(StringIO("\n".join(data_lines)), sep="\t", skiprows=[1])
-
-                    if self._site_name is None and "station_nm" in df.columns and len(df) > 0:
-                        self._site_name = df["station_nm"].iloc[0]
-
-                    for attr, column in (
-                        ("_drainage_area", "drain_area_va"),
-                        ("_latitude", "dec_lat_va"),
-                        ("_longitude", "dec_long_va"),
-                    ):
-                        if getattr(self, attr) is None:
-                            setattr(self, attr, _first_float(df, column))
+                df = _read_site_rdb(response.text)
+                if df is not None and len(df) > 0:
+                    self._set_missing(
+                        {
+                            "site_name": _first_str(df, "station_nm"),
+                            "drainage_area": _first_float(df, "drain_area_va"),
+                            "latitude": _first_float(df, "dec_lat_va"),
+                            "longitude": _first_float(df, "dec_long_va"),
+                            "huc": _first_str(df, "huc_cd"),
+                            "state_code": _first_str(df, "state_cd"),
+                        }
+                    )
             except Exception as e:
-                logger.warning("Site metadata request failed for %s: %s", self._site_no, e)
-                self._last_api_error = str(e)
+                self._record_api_error("Site metadata", e)
 
-        # Call 2: Get period of record with seriesCatalogOutput=true
+        # Call 2: Get period of record with seriesCatalogOutput=true. The
+        # service ignores parameterCd here and lists every parameter's series,
+        # so the rows are filtered to discharge below.
         params_por = {
             "format": "rdb",
             "sites": self._site_no,
@@ -406,36 +581,13 @@ class USGSgage:
         try:
             response = requests.get(self.BASE_URL_SITE, params=params_por, timeout=30)
             response.raise_for_status()
-
-            lines = response.text.split("\n")
-            data_lines = [l for l in lines if not l.startswith("#") and l.strip()]
-
-            if len(data_lines) >= 2:
-                df = pd.read_csv(StringIO("\n".join(data_lines)), sep="\t", skiprows=[1])
-
-                # Get daily value POR (data_type_cd == 'dv' for daily values)
-                if "data_type_cd" in df.columns:
-                    dv_rows = df[df["data_type_cd"] == "dv"]
-                    if len(dv_rows) > 0:
-                        if "begin_date" in df.columns:
-                            self._daily_por_start = str(dv_rows["begin_date"].iloc[0])
-                        if "end_date" in df.columns:
-                            self._daily_por_end = str(dv_rows["end_date"].iloc[0])
-
-                    # Instantaneous (unit-value) POR, data_type_cd == 'uv'.
-                    # Usually starts around 2007 and is much shorter than 'dv'.
-                    uv_rows = df[df["data_type_cd"] == "uv"]
-                    if len(uv_rows) > 0:
-                        if "begin_date" in df.columns:
-                            self._iv_por_start = str(uv_rows["begin_date"].iloc[0])
-                        if "end_date" in df.columns:
-                            self._iv_por_end = str(uv_rows["end_date"].iloc[0])
+            df = _read_site_rdb(response.text)
+            if df is not None:
+                self._daily_por_start, self._daily_por_end = _catalog_period(df, "dv", "00003")
+                # Instantaneous (unit-value) POR. Often much shorter than 'dv'.
+                self._iv_por_start, self._iv_por_end = _catalog_period(df, "uv", None)
         except Exception as e:
-            logger.warning("Period-of-record request failed for %s: %s", self._site_no, e)
-            if self._last_api_error:
-                self._last_api_error += f"; {str(e)}"
-            else:
-                self._last_api_error = str(e)
+            self._record_api_error("Period-of-record", e)
 
     def download_daily_flow(
         self,
@@ -1064,7 +1216,8 @@ class USGSgage:
             return start_date, end_date
 
         if self._iv_por_start is None and self._iv_por_end is None:
-            self.fetch_site_info()
+            # This window feeds the legacy IV service, so its catalog bounds it.
+            self.fetch_site_info(backend="nwis-legacy")
 
         if self._iv_por_start is None and start_date is None:
             raise NoInstantaneousDataError(

@@ -568,7 +568,7 @@ class TestSiteCoordinates:
     def test_parses_latitude_and_longitude(self) -> None:
         gage = USGSgage("03606500")
         with patch("flowfreq.usgs.requests.get", return_value=_mock_response(SITE_EXPANDED)):
-            gage.fetch_site_info()
+            gage.fetch_site_info(backend="nwis-legacy")
 
         assert gage.latitude == pytest.approx(36.0389722)
         assert gage.longitude == pytest.approx(-88.2450000)
@@ -577,7 +577,7 @@ class TestSiteCoordinates:
         """Sign is carried through as NWIS reports it, not normalised to positive."""
         gage = USGSgage("03606500")
         with patch("flowfreq.usgs.requests.get", return_value=_mock_response(SITE_EXPANDED)):
-            gage.fetch_site_info()
+            gage.fetch_site_info(backend="nwis-legacy")
 
         assert gage.longitude < 0
 
@@ -587,7 +587,7 @@ class TestSiteCoordinates:
         with patch(
             "flowfreq.usgs.requests.get", return_value=_mock_response(SITE_EXPANDED_NO_COORDS)
         ):
-            gage.fetch_site_info()
+            gage.fetch_site_info(backend="nwis-legacy")
 
         assert gage.latitude is None
         assert gage.longitude is None
@@ -608,14 +608,14 @@ class TestSiteCoordinates:
         gage = USGSgage("03606500")
         rdb = SITE_EXPANDED_NO_COORDS.replace("\t205\n", "\t\n")
         with patch("flowfreq.usgs.requests.get", return_value=_mock_response(rdb)):
-            gage.fetch_site_info()
+            gage.fetch_site_info(backend="nwis-legacy")
 
         assert gage.drainage_area is None
 
     def test_drainage_area_still_parses_when_present(self) -> None:
         gage = USGSgage("03606500")
         with patch("flowfreq.usgs.requests.get", return_value=_mock_response(SITE_EXPANDED)):
-            gage.fetch_site_info()
+            gage.fetch_site_info(backend="nwis-legacy")
 
         assert gage.drainage_area == pytest.approx(205.0)
 
