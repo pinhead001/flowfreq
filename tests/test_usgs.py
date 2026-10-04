@@ -862,6 +862,23 @@ class TestDownloadPeakFlowBackends:
         assert gage.site_name == "BIG SANDY RIVER AT BRUCETON, TN"
         assert gage.drainage_area == 205.0
 
+    def test_peak_path_sets_every_site_attribute(self) -> None:
+        """Not just name and area: the attributes fetch_site_info sets from the
+        same record (HUC, FIPS state, location). loc_12449500.json is the one
+        untrimmed monitoring-locations capture."""
+        feature = json.loads(
+            (_FIXTURES / "waterdata_ogc" / "loc_12449500.json").read_text(encoding="utf-8")
+        )
+        gage = USGSgage("12449500")
+        with patch("flowfreq.waterdata.fetch_monitoring_location_feature", return_value=feature):
+            gage._site_metadata_from_waterdata()
+        assert gage.drainage_area == 1301.0
+        assert gage.huc == "170200080610"
+        assert gage.state_code == "53"
+        assert gage.latitude == pytest.approx(48.3651, abs=1e-4)
+        assert gage.longitude == pytest.approx(-120.1162, abs=1e-4)
+        assert gage.site_name
+
     def test_metadata_failure_still_returns_the_peaks(self, caplog) -> None:
         get = _RoutedGet(
             {_PEAKS_OGC: _ogc_pages(), _LOCATIONS_OGC: [requests.ConnectionError("down")]}
@@ -871,6 +888,7 @@ class TestDownloadPeakFlowBackends:
             frame = gage.download_peak_flow()
         assert len(frame) == 7
         assert gage.site_name is None and gage.drainage_area is None
+        assert gage.huc is None and gage.latitude is None
         assert "monitoring-location request failed" in caplog.text
 
     def test_same_frame_shape_on_both_backends(self) -> None:

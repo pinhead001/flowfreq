@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **`download_peak_flow` set only name and drainage area on the Water Data backend.** It now
+  sets every attribute `fetch_site_info` takes from the same `monitoring-locations` record
+  (`waterdata.site_attributes`): latitude/longitude, 12-digit HUC and FIPS state code too.
+  A failure there is still logged, and the peaks are still returned.
+
 ## [0.10.1] - 2026-10-03
 
 ### Changed
