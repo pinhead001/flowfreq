@@ -19,6 +19,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Two live tests were brittle: the 06214500 ice-day test pinned provisional dates that USGS
   has since revised (it now asserts the invariant), and the NID test failed rather than
   skipped on a local DNS failure.
+### Fixed
+- **`download_peak_flow` set only name and drainage area on the Water Data backend.** It now
+  sets every attribute `fetch_site_info` takes from the same `monitoring-locations` record
+  (`waterdata.site_attributes`): latitude/longitude, 12-digit HUC and FIPS state code too.
+  A failure there is still logged, and the peaks are still returned.
 
 ## [0.10.1] - 2026-10-03
 

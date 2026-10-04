@@ -1336,35 +1336,30 @@ class USGSgage:
         return self._peak_data
 
     def _site_metadata_from_waterdata(self) -> None:
-        """Set site name and drainage area from the OGC ``monitoring-locations`` record.
+        """Set the site attributes from the OGC ``monitoring-locations`` record.
 
         The counterpart of the legacy RDB header's ``Station name`` and
-        ``Drainage area`` lines. A failure is logged, not raised: the peaks
-        are what was asked for.
+        ``Drainage area`` lines, and now the same attributes
+        :meth:`fetch_site_info` sets from that record: name, drainage area,
+        latitude/longitude, HUC and state code (``waterdata.site_attributes``).
+        A value the record has replaces the current one; one it lacks leaves it
+        alone. A failure is logged, not raised: the peaks are what was asked for.
         """
         # Deferred: flowfreq.waterdata imports from this module.
-        from flowfreq.waterdata import fetch_monitoring_location
+        from flowfreq.waterdata import fetch_monitoring_location_feature, site_attributes
 
         try:
-            location = fetch_monitoring_location(self._site_no, timeout=30)
+            feature = fetch_monitoring_location_feature(self._site_no, timeout=30)
         except requests.RequestException as exc:
             logger.warning(
-                "Site %s: monitoring-location request failed (%s); site name and drainage "
-                "area left unset",
+                "Site %s: monitoring-location request failed (%s); site attributes left unset",
                 self._site_no,
                 exc,
             )
             return
-        name = location.get("monitoring_location_name")
-        if isinstance(name, str) and name.strip():
-            self._site_name = name.strip()
-        area = location.get("drainage_area")
-        try:
-            area_f = float(area) if area is not None else float("nan")
-        except (TypeError, ValueError):
-            area_f = float("nan")
-        if math.isfinite(area_f):
-            self._drainage_area = area_f
+        for name, value in site_attributes(feature).items():
+            if value is not None:
+                setattr(self, f"_{name}", value)
 
     def __repr__(self) -> str:
         return f"USGSgage(site_no='{self._site_no}', name='{self._site_name}')"
