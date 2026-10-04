@@ -43,6 +43,19 @@ same window, so the offline tests compare the two parsers on real payloads:
   Yellowstone at Billings, provisional; 2026-01-18..25 have no value: null with
   ``["ICE"]`` on the API, the text ``Ice`` on legacy.
 - ``daily_03606500_00060_empty`` -- 1900, before the record: zero features.
+
+Site information, captured live 2026-10-03 for ``tests/test_site_info.py``, all
+Methow River at Twisp (12449500):
+
+- ``loc_12449500`` -- monitoring-locations feature, *with* its ``Point``
+  geometry, properties trimmed to the ones ``fetch_site_info`` reads plus the
+  datums.
+- ``meta_12449500_00060`` -- discharge time-series-metadata (annual max,
+  instantaneous, daily mean), ``thresholds`` removed.
+- ``site_catalog_12449500.rdb`` -- legacy ``seriesCatalogOutput=true``, every
+  row except the water-quality (``qw``) ones after the first two. The first
+  ``dv`` row is water temperature (00010, 2002-04-18..2002-09-29).
+- ``site_expanded_12449500.rdb`` -- legacy ``siteOutput=expanded``, verbatim.
 """
 
 from __future__ import annotations

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import math
 
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -18,6 +19,7 @@ from flowfreq.peak_codes import (
     peak_frame_intervals,
     peak_interval,
 )
+from flowfreq.workflow import peak_code_kwargs, run_ffa
 
 
 class TestParseCodes:
@@ -198,3 +200,140 @@ class TestPeakFrameIntervals:
         frame.loc[0, "peak_flow_cfs"] = -1.0
         with pytest.raises(ValueError, match="Negative"):
             peak_frame_intervals(frame)
+
+
+# --------------------------------------------------------------------------- #
+# Missing codes in every spelling, pd.NA above all
+# --------------------------------------------------------------------------- #
+
+#: Every way an uncoded peak reaches this module. ``pd.NA`` is what a
+#: ``qualification_code`` column read with a nullable ``string`` dtype holds;
+#: it used to raise ``TypeError`` (``iter(pd.NA)``).
+_MISSING = [pd.NA, None, math.nan, np.nan, np.float64("nan"), ""]
+
+
+def _nullable_codes(coded: dict, n: int) -> pd.Series:
+    """A ``string``-dtype code column of length ``n``: ``pd.NA`` except at ``coded``."""
+    out = pd.Series([pd.NA] * n, dtype="string")
+    for index, code in coded.items():
+        out[index] = code
+    return out
+
+
+class TestMissingCodes:
+    @pytest.mark.parametrize("missing", _MISSING, ids=repr)
+    def test_parse_codes_reads_each_as_no_code(self, missing):
+        assert parse_codes(missing) == frozenset()
+
+    def test_parse_codes_on_a_nullable_string_column(self):
+        codes = _nullable_codes({0: "7", 2: "2,6"}, 4)
+        assert [parse_codes(c) for c in codes] == [
+            frozenset({"7"}),
+            frozenset(),
+            frozenset({"2", "6"}),
+            frozenset(),
+        ]
+
+    def test_parse_codes_skips_missing_items_in_an_iterable(self):
+        """A missing item is no code, not the characters of ``"<NA>"`` or ``"nan"``."""
+        assert parse_codes(["7", pd.NA, None, math.nan, ""]) == frozenset({"7"})
+        assert parse_codes(_nullable_codes({1: "4"}, 3)) == frozenset({"4"})
+
+    def test_parse_codes_splits_comma_lists_inside_an_iterable(self):
+        assert parse_codes(["2,6", "C"]) == frozenset({"2", "6", "C"})
+
+    @pytest.mark.parametrize("missing", _MISSING, ids=repr)
+    def test_peak_interval_is_systematic(self, missing):
+        iv = peak_interval(500.0, missing)
+        assert iv.treatment is PeakTreatment.SYSTEMATIC
+        assert iv.lower == iv.upper == 500.0
+        assert iv.codes == frozenset()
+
+    def test_peak_interval_still_rejects_a_negative_value(self):
+        with pytest.raises(ValueError, match="Negative"):
+            peak_interval(-1.0, pd.NA)
+
+    def test_classify_from_codes(self):
+        assert classify_from_codes(_nullable_codes({}, 5)) == (
+            RegulationClass.NO_CODE_EVIDENCE,
+            0.0,
+        )
+        cls, frac = classify_from_codes(_nullable_codes({1: "6"}, 4))
+        assert cls is RegulationClass.REGULATED
+        assert frac == pytest.approx(0.25)
+
+    def test_count_acted_on_codes(self):
+        assert count_acted_on_codes(_nullable_codes({}, 5)) == {}
+        assert count_acted_on_codes(_nullable_codes({0: "7", 3: "4,7"}, 5)) == {
+            "4": 1,
+            "7": 2,
+        }
+
+    def test_peak_frame_intervals(self):
+        frame = pd.DataFrame(
+            {
+                "water_year": [2001, 2002, 2003, 2004],
+                "peak_flow_cfs": [100.0, 200.0, 300.0, 400.0],
+                "qualification_code": _nullable_codes({1: "4", 3: "7"}, 4),
+            }
+        )
+        out = peak_frame_intervals(frame)
+        assert list(out["treatment"]) == [
+            PeakTreatment.SYSTEMATIC,
+            PeakTreatment.LESS_THAN,
+            PeakTreatment.SYSTEMATIC,
+            PeakTreatment.SYSTEMATIC,
+        ]
+        assert list(out["is_historic"]) == [False, False, False, True]
+        assert out["codes"].iloc[0] == frozenset()
+
+    def test_peak_frame_intervals_error_case_unchanged(self):
+        frame = pd.DataFrame({"water_year": [2001], "qualification_code": _nullable_codes({}, 1)})
+        with pytest.raises(ValueError, match="missing columns"):
+            peak_frame_intervals(frame)
+
+
+_RUN_YEARS = np.arange(2001, 2016)
+_RUN_FLOWS = np.array([float(100 + 37 * i % 211) for i in range(len(_RUN_YEARS))])
+
+
+class TestWorkflowWithNullableCodes:
+    """``workflow.peak_code_kwargs``, directly and through ``run_ffa(peak_codes=...)``."""
+
+    def test_all_missing_matches_no_codes(self):
+        plain = run_ffa(_RUN_FLOWS, _RUN_YEARS, station_skew_only=True)
+        coded = run_ffa(
+            _RUN_FLOWS,
+            _RUN_YEARS,
+            station_skew_only=True,
+            peak_codes=_nullable_codes({}, len(_RUN_YEARS)),
+        )
+        assert coded["error"] is None
+        assert coded["parameters"]["mean_log"] == plain["parameters"]["mean_log"]
+
+    def test_coded_peaks_are_applied_alongside_missing_ones(self):
+        coded = run_ffa(
+            _RUN_FLOWS,
+            _RUN_YEARS,
+            station_skew_only=True,
+            peak_codes=_nullable_codes({3: "6"}, len(_RUN_YEARS)),
+        )
+        assert coded["error"] is None
+        assert coded["parameters"]["peak_codes_applied"] == {"6": 1}
+        assert coded["b17c"].results.n_peaks == len(_RUN_YEARS) - 1
+
+    def test_peak_code_kwargs_directly(self):
+        n = len(_RUN_YEARS)
+        assert peak_code_kwargs(_RUN_FLOWS, _RUN_YEARS, _nullable_codes({}, n)) is None
+        kw = peak_code_kwargs(_RUN_FLOWS, _RUN_YEARS, _nullable_codes({0: "7"}, n))
+        assert kw is not None
+        assert kw["historical_peaks"] == [(2001, _RUN_FLOWS[0])]
+
+    def test_misaligned_nullable_codes_still_raise(self):
+        with pytest.raises(ValueError, match="aligned"):
+            run_ffa(
+                _RUN_FLOWS,
+                _RUN_YEARS,
+                station_skew_only=True,
+                peak_codes=_nullable_codes({}, 3),
+            )
