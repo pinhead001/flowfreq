@@ -355,13 +355,39 @@ def fetch_monitoring_location(site_no: str, timeout: int = 60) -> Dict[str, Any]
     requests.RequestException
         The request failed.
     """
-    payload = _get_json(
+    return dict(fetch_monitoring_location_feature(site_no, timeout).get("properties") or {})
+
+
+def fetch_monitoring_location_feature(site_no: str, timeout: int = 60) -> Dict[str, Any]:
+    """Return a site's whole monitoring-locations GeoJSON feature.
+
+    :func:`fetch_monitoring_location` keeps only ``properties``; this keeps
+    ``geometry`` too, which is where the coordinates are (a ``Point``,
+    ``[longitude, latitude]`` in decimal degrees).
+
+    Parameters
+    ----------
+    site_no : str
+        USGS site number, without the ``USGS-`` prefix.
+    timeout : int
+        Request timeout in seconds.
+
+    Returns
+    -------
+    dict
+        The feature: ``id``, ``properties``, ``geometry``.
+
+    Raises
+    ------
+    requests.RequestException
+        The request failed.
+    """
+    return _get_json(
         f"{WATERDATA_BASE_URL}/monitoring-locations/items/{_location_id(site_no)}",
         {"f": "json"},
         timeout,
         f"monitoring location {site_no}",
     )
-    return dict(payload.get("properties") or {})
 
 
 def resolve_local_zone(tz_abbreviation: Optional[str], uses_dst: Optional[str]) -> LocalZone:
@@ -451,6 +477,50 @@ def _local_zone_arg(zone: LocalZone) -> Union[str, timezone]:
 # ----------------------------------------------------------------------------
 
 
+def fetch_time_series_metadata(
+    site_no: str, param_cd: str, timeout: int = 60
+) -> List[Dict[str, Any]]:
+    """Every ``time-series-metadata`` feature a site has for one parameter.
+
+    Instantaneous, daily-statistic and annual-maximum series alike; callers
+    pick by ``statistic_id`` / ``computation_identifier``. Features whose
+    ``parameter_code`` is not ``param_cd`` are dropped, should the service
+    ever return one despite the filter.
+
+    Parameters
+    ----------
+    site_no : str
+        USGS site number.
+    param_cd : str
+        Parameter code, e.g. ``"00060"``.
+    timeout : int
+        Request timeout in seconds.
+
+    Returns
+    -------
+    list of dict
+        GeoJSON features, possibly empty.
+
+    Raises
+    ------
+    requests.RequestException
+        The request failed.
+    """
+    features = _get_all_features(
+        f"{WATERDATA_BASE_URL}/time-series-metadata/items",
+        {
+            "f": "json",
+            "monitoring_location_id": _location_id(site_no),
+            "parameter_code": param_cd,
+            "skipGeometry": "true",
+            "limit": 1000,
+        },
+        timeout,
+        f"time-series metadata for {site_no} {param_cd}",
+    )
+    return [f for f in features if (f.get("properties") or {}).get("parameter_code") == param_cd]
+
+
 def list_instantaneous_series(
     site_no: str, param_cd: str, timeout: int = 60
 ) -> List[TimeSeriesInfo]:
@@ -474,23 +544,9 @@ def list_instantaneous_series(
     list of TimeSeriesInfo
         Possibly empty; sorted by ``time_series_id`` for a stable error message.
     """
-    features = _get_all_features(
-        f"{WATERDATA_BASE_URL}/time-series-metadata/items",
-        {
-            "f": "json",
-            "monitoring_location_id": _location_id(site_no),
-            "parameter_code": param_cd,
-            "skipGeometry": "true",
-            "limit": 1000,
-        },
-        timeout,
-        f"time-series metadata for {site_no} {param_cd}",
-    )
     series: List[TimeSeriesInfo] = []
-    for feature in features:
+    for feature in fetch_time_series_metadata(site_no, param_cd, timeout):
         props = feature.get("properties") or {}
-        if props.get("parameter_code") != param_cd:
-            continue
         if props.get("statistic_id") != INSTANTANEOUS_STATISTIC:
             continue
         series.append(
@@ -1231,3 +1287,154 @@ def download_daily(
         window = f" between {start_date} and {end_date}" if time_param is not None else ""
         raise ValueError(f"No daily data found for site {site_no}{window} on the Water Data API")
     return parse_daily_features(features, param_cd, ts_id)
+
+
+# ----------------------------------------------------------------------------
+# Site information
+# ----------------------------------------------------------------------------
+
+#: ``computation_identifier`` of each statistic :func:`series_period_of_record`
+#: understands, the fallback when a series carries no ``statistic_id``.
+_COMPUTATION_IDENTIFIERS: Dict[str, str] = {
+    DAILY_MEAN_STATISTIC: "Mean",
+    INSTANTANEOUS_STATISTIC: "Instantaneous",
+}
+
+
+def _matches_statistic(props: Mapping[str, Any], statistic_id: str) -> bool:
+    stat = props.get("statistic_id")
+    if stat is not None:
+        return bool(stat == statistic_id)
+    return props.get("computation_identifier") == _COMPUTATION_IDENTIFIERS.get(statistic_id)
+
+
+def _local_date(ts: pd.Timestamp, zone: Optional[LocalZone], whole_day: bool) -> str:
+    """The gage-local calendar date of a UTC metadata timestamp, ``YYYY-MM-DD``.
+
+    A daily series' ``begin``/``end`` is the UTC instant of a local midnight
+    (``1919-06-01T07:00:00+00:00`` is midnight PDT), so ``whole_day`` rounds
+    to the nearest local day rather than truncating: a zone rule an hour off
+    the service's own (historic DST, say) then still lands on the right day.
+    An instantaneous ``begin``/``end`` is a reading's own time, so it is
+    truncated to its local day. With no zone, UTC stands in -- for a US site,
+    west of Greenwich, local midnight is the same UTC date.
+    """
+    local = ts.tz_convert(_local_zone_arg(zone)) if zone is not None else ts
+    naive = local.tz_localize(None)
+    if whole_day:
+        naive = naive + pd.Timedelta(hours=12)
+    return str(naive.normalize().strftime("%Y-%m-%d"))
+
+
+def series_period_of_record(
+    features: Iterable[Mapping[str, Any]],
+    statistic_id: str,
+    zone: Optional[LocalZone] = None,
+) -> Tuple[Optional[str], Optional[str]]:
+    """First and last local date of the series with one statistic.
+
+    Parameters
+    ----------
+    features : iterable of dict
+        ``time-series-metadata`` features for one parameter, as from
+        :func:`fetch_time_series_metadata`.
+    statistic_id : str
+        :data:`DAILY_MEAN_STATISTIC` (daily means; dates rounded to the local
+        day) or :data:`INSTANTANEOUS_STATISTIC` (instantaneous; truncated). A
+        series with no ``statistic_id`` matches on ``computation_identifier``
+        (``Mean`` / ``Instantaneous``) instead.
+    zone : str or (datetime.timezone, str), optional
+        From :func:`resolve_local_zone`; ``None`` uses UTC dates.
+
+    Returns
+    -------
+    (str or None, str or None)
+        ``YYYY-MM-DD`` begin and end. Several matching series (more than one
+        sensor) give the envelope of those flagged primary, or of all of them
+        when none is; ``(None, None)`` when nothing matches.
+
+    Raises
+    ------
+    ValueError
+        ``statistic_id`` is not one this function understands.
+    """
+    if statistic_id not in _COMPUTATION_IDENTIFIERS:
+        raise ValueError(
+            f"Unsupported statistic_id {statistic_id!r}; known: {sorted(_COMPUTATION_IDENTIFIERS)}"
+        )
+    matches = [
+        props
+        for props in ((f.get("properties") or {}) for f in features)
+        if _matches_statistic(props, statistic_id)
+    ]
+    primary = [p for p in matches if str(p.get("primary") or "").lower() == "primary"]
+    chosen = primary or matches
+    begins = [b for b in (_parse_optional_ts(p.get("begin")) for p in chosen) if b is not None]
+    ends = [e for e in (_parse_optional_ts(p.get("end")) for p in chosen) if e is not None]
+    whole_day = statistic_id == DAILY_MEAN_STATISTIC
+    return (
+        _local_date(min(begins), zone, whole_day) if begins else None,
+        _local_date(max(ends), zone, whole_day) if ends else None,
+    )
+
+
+def _optional_float(value: Any) -> Optional[float]:
+    try:
+        out = float(value)
+    except (TypeError, ValueError):
+        return None
+    return out if pd.notna(out) else None
+
+
+def _optional_str(value: Any) -> Optional[str]:
+    return value.strip() if isinstance(value, str) and value.strip() else None
+
+
+def site_attributes(feature: Mapping[str, Any]) -> Dict[str, Any]:
+    """The ``USGSgage`` site attributes in a monitoring-locations feature.
+
+    Parameters
+    ----------
+    feature : dict
+        From :func:`fetch_monitoring_location_feature`.
+
+    Returns
+    -------
+    dict
+        ``site_name`` (``monitoring_location_name``), ``drainage_area``
+        (square miles), ``latitude`` and ``longitude`` (decimal degrees, from
+        the ``Point`` geometry), ``huc`` (``hydrologic_unit_code``, 12 digits
+        where the legacy site service gave 8) and ``state_code`` (two-digit
+        FIPS). A field the record lacks is ``None``, never NaN.
+    """
+    props = feature.get("properties") or {}
+    geometry = feature.get("geometry") or {}
+    coords = geometry.get("coordinates") if geometry.get("type") == "Point" else None
+    lon = lat = None
+    if isinstance(coords, (list, tuple)) and len(coords) >= 2:
+        lon, lat = _optional_float(coords[0]), _optional_float(coords[1])
+    return {
+        "site_name": _optional_str(props.get("monitoring_location_name")),
+        "drainage_area": _optional_float(props.get("drainage_area")),
+        "latitude": lat,
+        "longitude": lon,
+        "huc": _optional_str(props.get("hydrologic_unit_code")),
+        "state_code": _optional_str(props.get("state_code")),
+    }
+
+
+def site_zone(feature: Mapping[str, Any]) -> Optional[LocalZone]:
+    """The local-time rule of a monitoring-locations feature, or ``None``.
+
+    :func:`resolve_local_zone` on the feature's time-zone fields, with an
+    unknown or missing zone logged and returned as ``None`` (period-of-record
+    dates then fall back to UTC dates) rather than raised.
+    """
+    props = feature.get("properties") or {}
+    try:
+        return resolve_local_zone(
+            props.get("time_zone_abbreviation"), props.get("uses_daylight_savings")
+        )
+    except ValueError as exc:
+        logger.info("%s: %s; period-of-record dates are UTC dates", feature.get("id"), exc)
+        return None

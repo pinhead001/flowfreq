@@ -7,6 +7,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+**Behaviour change:** `USGSgage.fetch_site_info` now reads the Water Data OGC API by
+default, like peaks, daily and instantaneous values; `backend="nwis-legacy"` restores the
+legacy site service.
+
+### Added
+- `USGSgage.huc` (hydrologic unit code, a string so leading zeros survive) and
+  `USGSgage.state_code` (two-digit FIPS), set by `fetch_site_info`.
+- `flowfreq.waterdata`: `fetch_monitoring_location_feature` (the whole feature, geometry
+  included), `fetch_time_series_metadata`, `series_period_of_record`, `site_attributes`
+  and `site_zone`.
+
+### Fixed
+- **Period of record from another parameter.** The legacy `fetch_site_info` took the first
+  `dv`/`uv` row of the NWIS series catalog, which lists every parameter (the service
+  ignores `parameterCd` there). At 12449500 the first daily row is 2002 water temperature,
+  so `daily_por_start/end` came out 2002-04-18..2002-09-29 and a caller bounding a download
+  with them got 165 days of discharge instead of 1919-2026. Rows are now filtered to
+  discharge (`parm_cd` 00060), with `stat_cd` 00003 for daily values, and the RDB is read
+  as strings so the codes keep their leading zeros. Several matching series give the
+  envelope of their dates.
+- **`fetch_site_info` no longer depends on legacy NWIS** (`waterservices.usgs.gov/nwis/site/`,
+  503s on 2026-10-03). The default backend reads `monitoring-locations` (name, drainage
+  area, coordinates, HUC, state) and discharge `time-series-metadata` (the daily-mean,
+  statistic 00003, and instantaneous, 00011, periods of record, converted from UTC to
+  the gage's local calendar day). Every attribute keeps its name and type. Live parity
+  against legacy for 03606500, 12449500 and 12358500
+  (`tests/test_site_info_backend_parity.py`) agrees exactly on name, drainage area,
+  state and both start dates. Genuine differences between the services:
+  - the API's HUC is 12 digits, legacy's 8 (the 8 are the 12's prefix);
+  - coordinates agree to better than 1e-7 degree, but legacy rounds to 7-8 decimal places
+    and the API does not (both NAD83);
+  - end dates can differ by a day or two, as each service refreshes on its own schedule
+    (on 2026-10-03 legacy listed daily means to 10-02, the API to 10-01).
+  The legacy instantaneous download (`backend="nwis-legacy"`) still bounds a dateless
+  request with the legacy catalog.
+- **`peak_codes` raised `TypeError` on `pd.NA`.** A `qualification_code` column read with a
+  nullable `string` dtype holds `pd.NA` for an uncoded peak; `parse_codes` tried to
+  iterate it. `pd.NA`, `None`, NaN and `""` now all mean "no code", as a whole field or as
+  an item in a list, through `parse_codes`, `peak_interval`, `classify_from_codes`,
+  `peak_frame_intervals`, `count_acted_on_codes` and `run_ffa(peak_codes=...)`. A
+  comma-separated item inside a list (`["2,6"]`) is now split like a bare string.
+
 ## [0.10.0] - 2026-10-03
 
 **Breaking or behaviour changes -- read before upgrading:**

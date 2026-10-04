@@ -24,6 +24,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import FrozenSet, Iterable, List, Tuple
 
+import numpy as np
 import pandas as pd
 
 logger = logging.getLogger(__name__)
@@ -116,11 +117,31 @@ def _split_token(token: str) -> List[str]:
     return out
 
 
+def _is_missing(value: object) -> bool:
+    """Whether a code field (or one item of one) means "no code".
+
+    ``None``, NaN (float or NumPy), ``pd.NA`` and ``pd.NaT`` all do. ``pd.NA``
+    is what a nullable ``string`` column holds for an uncoded peak, and it
+    cannot be used in a boolean context or iterated: ``bool(pd.NA)`` raises
+    ``TypeError``, which is how it used to escape :func:`parse_codes`. An empty
+    or blank string means "no code" too, but needs no special case: it splits
+    into no codes.
+    """
+    if value is None or value is pd.NA or value is pd.NaT:
+        return True
+    if isinstance(value, (float, np.floating)):
+        return math.isnan(value)
+    return False
+
+
 def parse_codes(peak_cd: object) -> FrozenSet[str]:
     """Split an NWIS ``peak_cd`` field into individual codes.
 
     Accepts comma-separated strings (``"2,6"``), run-together strings
-    (``"26"``, WATSTORE's ``"4Bm"``), ``None``/NaN, and iterables of codes. The
+    (``"26"``, WATSTORE's ``"4Bm"``), and iterables of codes. ``None``, NaN,
+    ``pd.NA`` (a nullable ``string`` column's uncoded peak) and ``""`` all mean
+    "no code" and give an empty set, as does a missing item inside an
+    iterable. The
     date-precision codes ``Bd`` (day unknown) and ``Bm`` (month unknown) are
     read whole, as the NWIS peak RDB and WATSTORE both write them. A
     float-formatted numeric code (``"7.0"`` or ``7.0``, from a code column
@@ -137,17 +158,21 @@ def parse_codes(peak_cd: object) -> FrozenSet[str]:
     frozenset of str
         Upper-cased single-character codes, plus ``"Bd"``/``"Bm"`` as spelled.
     """
-    if peak_cd is None:
+    if _is_missing(peak_cd):
         return frozenset()
     if isinstance(peak_cd, float):
-        if math.isnan(peak_cd):  # NaN from pandas
-            return frozenset()
         # A code column pandas inferred as float: 7.0 is code "7".
         peak_cd = _float_code(peak_cd)
     if isinstance(peak_cd, str):
         chars = [c for t in peak_cd.split(",") for c in _split_token(t)]
     else:
-        chars = [c for item in peak_cd for c in _split_token(str(item))]  # type: ignore[attr-defined]
+        chars = [
+            c
+            for item in peak_cd  # type: ignore[attr-defined]
+            if not _is_missing(item)
+            for t in str(item).split(",")
+            for c in _split_token(t)
+        ]
     codes = frozenset(chars)
     unknown = codes - PEAK_CODE_DESCRIPTIONS.keys()
     if unknown:
