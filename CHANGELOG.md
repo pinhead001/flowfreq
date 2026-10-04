@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.1] - 2026-10-03
+
 ### Changed
 - **Native EMA is 5-10x faster, with results unchanged.** Since 0.10.0 the fixed point iterates
   as `p3est_ema` does (#81), so it needs many more iterations: 13 to 45 on Big Sandy, and 100
