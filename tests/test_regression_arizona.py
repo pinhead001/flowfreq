@@ -4,7 +4,8 @@ Sources, as NSS combines them for Arizona's peak-flow statistic group:
 
 - Paretti, Kennedy, Turney and Veilleux, 2014, USGS SIR 2014-5211: Table 9 (equations),
   Table 10 (errors), Table 11 (ranges, n) and Table 12 (MEV, covariance; in
-  SIR2014-5211_tables.xlsx). Flood regions 1-4; region 5 is a schema gap.
+  SIR2014-5211_tables.xlsx), and Tables 13-14 (per-gage variance and regression
+  estimates, same workbook). Flood regions 1-5; region 5 is the ``power`` form.
 - Waltemeyer, 2006, USGS SIR 2006-5306 (Navajo Nation): regions 8, 11, High Elevation.
 
 Every literal number below is copied from those reports, or from a dated live NSS
@@ -39,21 +40,20 @@ def _sig3(x: float) -> float:
 
 class TestLibraryShape:
     def test_status_and_regions(self, lib):
-        assert lib.status == "partial"
+        assert lib.status == "verified"
         assert lib.issue == 102
-        assert lib.regions == ["1", "2", "3", "4", "Navajo11", "Navajo8", "NavajoHighElev"]
-        for region in "1234":
+        assert lib.regions == ["1", "2", "3", "4", "5", "Navajo11", "Navajo8", "NavajoHighElev"]
+        for region in "12345":
             assert lib.aeps(region) == AEPS
         for region in ("Navajo11", "Navajo8", "NavajoHighElev"):
             assert lib.aeps(region) == AEPS_NAVAJO
-        assert len(lib.equations) == 53
+        assert len(lib.equations) == 61
 
-    def test_region_5_is_absent(self, lib):
-        """Region 5's 10^(a - b DRNAREA^-c) has no schema representation."""
+    def test_unpublished_aep_raises(self, lib):
         with pytest.raises(EquationsUnavailable):
-            lib.equation("5", 0.01)
+            lib.equation("Navajo8", 0.005)
 
-    @pytest.mark.parametrize("region, n", [("1", 41), ("2", 85), ("3", 68), ("4", 77)])
+    @pytest.mark.parametrize("region, n", [("1", 41), ("2", 85), ("3", 68), ("4", 77), ("5", 73)])
     def test_n_sites_from_table_11(self, lib, region, n):
         assert {e.n_sites for e in lib.equations if e.region_code == region} == {n}
 
@@ -65,6 +65,7 @@ class TestLibraryShape:
             ("2", {"CONTDA": (0.103, 16017)}),
             ("3", {"CONTDA": (0.082, 1725), "PRECIP": (3.7, 22.2), "ELEV": (283, 6404)}),
             ("4", {"CONTDA": (0.059, 18044), "PRECIP": (10.8, 33.5), "ELEV": (3274, 7451)}),
+            ("5", {"CONTDA": (0.155, 2925)}),
         ],
     )
     def test_limits_from_table_11(self, lib, region, limits):
@@ -112,12 +113,37 @@ class TestPrintedForms:
             printed(BASIN), rel=1e-12
         )
 
+    # Table 9, p. 29: region 5 is printed 10^(a - b DRNAREA^-c).
+    REGION_5 = [
+        (0.5, 6.363, 4.386, 0.060),
+        (0.2, 5.868, 3.506, 0.080),
+        (0.1, 5.778, 3.218, 0.090),
+        (0.04, 5.757, 2.988, 0.100),
+        (0.02, 5.696, 2.795, 0.110),
+        (0.01, 5.651, 2.634, 0.120),
+        (0.005, 5.761, 2.638, 0.120),
+        (0.002, 5.750, 2.502, 0.130),
+    ]
+
+    @pytest.mark.parametrize("aep, a, b, c", REGION_5)
+    def test_region_5_printed_form(self, lib, aep, a, b, c):
+        eq = lib.equation("5", aep)
+        (v,) = eq.variables
+        assert (v.code, v.transform, v.exponent) == ("CONTDA", "power", -c)
+        assert (eq.intercept, eq.coefficients) == (a, (-b,))
+        for area in (0.155, 1.0, 19.6, 254.0, 2925.0):
+            assert evaluate(eq, {"CONTDA": area}).flow_cfs == pytest.approx(
+                10 ** (a - b * area ** (-c)), rel=1e-12
+            )
+
     @pytest.mark.parametrize(
         "region, aep, sep_pct, sem_pct, avp",
         [
             ("1", 0.5, 86.1, 83.1, 0.105),
             ("2", 0.01, 67.3, 65.6, 0.070),
             ("4", 0.01, 27.1, 24.4, 0.013),
+            ("5", 0.5, 86.6, 84.7, 0.106),
+            ("5", 0.04, 45.8, 44.3, 0.036),
         ],
     )
     def test_error_statistics(self, lib, region, aep, sep_pct, sem_pct, avp):
@@ -154,6 +180,45 @@ class TestCovariance:
         assert stats.t.ppf(0.95, 77 - 4) == pytest.approx(1.666, abs=1e-3)
         assert est.interval[1] == pytest.approx(est.flow_cfs * t, rel=1e-3)
 
+    def test_region_5_q2_from_table_12(self, lib):
+        eq = lib.equation("5", 0.5)
+        assert eq.model_error_variance == 0.10194855619891681
+        assert eq.covariance == ((7.1368555e-2, -8.4067178e-2), (-8.4067178e-2, 0.10193545))
+        assert eq.n_sites == 73
+
+    # Tables 13 and 14 (SIR2014-5211_tables.xlsx) at two region 5 regression gages
+    # (Table 1 drainage area): the regression estimate R (ft3/s) and its variance of
+    # prediction VPr (log units squared) at the 8 AEPs, 50 to 0.2 percent.
+    REGION_5_GAGES = [
+        (
+            "09470800",  # Garden Canyon near Fort Huachuca
+            8.6,
+            [322, 825, 1340, 2230, 3090, 4130, 5290, 7220],
+            [0.104, 0.060, 0.045, 0.035, 0.032, 0.031, 0.030, 0.031],
+        ),
+        (
+            "09485000",  # Rincon Creek near Tucson
+            44.7,
+            [743, 1910, 3110, 5170, 7180, 9580, 12300, 16700],
+            [0.104, 0.059, 0.045, 0.035, 0.032, 0.031, 0.030, 0.031],
+        ),
+    ]
+
+    @pytest.mark.parametrize("site, area, r, vpr", REGION_5_GAGES)
+    def test_region_5_per_gage_tables_13_and_14(self, lib, site, area, r, vpr):
+        """Region 5's Table 12 matrix is in the basis x = [1, DRNAREA^-c]: MEV + x'Ux
+        is Table 13's VPr within 0.001, and the estimate is Table 14's R at 3
+        significant figures. That includes 4 percent, where NSS's b = 2.99 is not."""
+        for aep, q, v in zip(AEPS, r, vpr):
+            eq = lib.equation("5", aep)
+            est = evaluate(eq, {"CONTDA": area})
+            assert _sig3(est.flow_cfs) == q, (site, aep)
+            x = np.array([1.0, area ** eq.variables[0].exponent])
+            assert eq.model_error_variance + x @ np.array(eq.covariance) @ x == pytest.approx(
+                v, abs=1e-3
+            )
+            assert est.interval_method.startswith("site-specific")
+
 
 # Live NSS responses, fetched 2026-10-02 (3 significant figures).
 NSS_RECORDED = [
@@ -167,7 +232,23 @@ NSS_RECORDED = [
     (BASIN, "Navajo11", 0.01, 5770),
     ({"CONTDA": 200.0}, "1", 0.5, 559),
     ({"CONTDA": 200.0}, "1", 0.01, 4130),
+    # Region 5, fetched 2026-10-04.
+    (BASIN, "5", 0.5, 784),
+    (BASIN, "5", 0.01, 10100),
+    ({"CONTDA": 1.0}, "5", 0.2, 230),
 ]
+
+# Live NSS, 2026-10-04: region 5 at 4 percent, which NSS evaluates with b = 2.99 in
+# place of the printed 2.988. With 2.99 the value equals NSS; with 2.988 it does not.
+NSS_REGION_5_Q25 = [(50.0, 5430), (10.0, 2410), (1.0, 585)]
+
+
+@pytest.mark.parametrize("area, nss", NSS_REGION_5_Q25)
+def test_region_5_q25_nss_rounds_b(lib, area, nss):
+    ours = evaluate(lib.equation("5", 0.04), {"CONTDA": area}).flow_cfs
+    assert _sig3(ours) != nss
+    assert _sig3(10 ** (5.757 - 2.99 * area**-0.1)) == nss
+    assert abs(ours / nss - 1) < 0.005
 
 
 @pytest.mark.parametrize("site, region, aep, nss", NSS_RECORDED)
@@ -180,6 +261,7 @@ NSS_CODE_TO_REGION = {
     "GC1619": "2",
     "GC1620": "3",
     "GC1621": "4",
+    "GC1622": "5",
     "GC843": "Navajo8",
     "GC844": "NavajoHighElev",
     "GC845": "Navajo11",
@@ -206,20 +288,22 @@ NSS_STAT_TO_AEP = {
     ],
 )
 def test_matches_live_nss(lib, basin):
-    """Every stored region NSS (region 5, Arizona) returns equals flowfreq at 3 significant
-    figures. GC1622 (region 5) is not stored and is skipped."""
+    """Every region NSS (region 5, Arizona) returns equals flowfreq at 3 significant
+    figures, except flood region 5 at 4 percent, where NSS rounds b = 2.988 to 2.99."""
     from flowfreq.streamstats import Characteristic, estimate_flow_statistics
 
     chars = {k: Characteristic(k, k, "", v, "") for k, v in basin.items()}
     results, _ = estimate_flow_statistics("AZ", chars, ["PFS"])
     compared = 0
     for r in results:
-        if r.region_code not in NSS_CODE_TO_REGION:
-            assert r.region_code == "GC1622"
-            continue
         region = NSS_CODE_TO_REGION[r.region_code]
         for code, est in r.estimates.items():
             ours = evaluate(lib.equation(region, NSS_STAT_TO_AEP[code]), basin).flow_cfs
-            assert _sig3(ours) == est.value, (region, code, est.value, ours)
+            if (region, code) == ("5", "PK4AEP"):
+                nss_form = 10 ** (5.757 - 2.99 * basin["CONTDA"] ** -0.1)
+                assert _sig3(nss_form) == est.value, (basin, est.value, nss_form)
+                assert abs(ours / est.value - 1) < 0.005
+            else:
+                assert _sig3(ours) == est.value, (region, code, est.value, ours)
             compared += 1
     assert compared > 0

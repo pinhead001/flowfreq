@@ -187,6 +187,60 @@ class TestParseForms:
             {"code": "C", "transform": "log10_plus1"},
         ]
 
+    def test_power_inside_exponent_of_10(self):
+        # Arizona region 5's form, 10^(a - b*X^(-c)): power with exponent -c and
+        # coefficient -b, a folded into b0.
+        s = "10^(6.363-4.386*CONTDA^(-0.060))"
+        parsed = parse_equation(s)
+        assert parsed.codes == ("CONTDA",) and parsed.transforms == ("power",)
+        assert parsed.exponents == (-0.06,)
+        assert parsed.coefficients == pytest.approx((-4.386,), rel=1e-15)
+        assert parsed.intercept == pytest.approx(6.363, rel=1e-15)
+        assert _roundtrip(s, {"CONTDA": 37.0}) < 1e-12
+        var = to_regression_equation(parsed, region_code="5", aep=0.5, citation=CIT).variables[0]
+        assert (var.transform, var.exponent) == ("power", -0.06)
+        assert parsed.to_dict()["variables"] == [
+            {"code": "CONTDA", "transform": "power", "exponent": -0.06}
+        ]
+
+    def test_power_one_inside_exponent_stays_identity(self):
+        parsed = parse_equation("10^(0.5*A^1)")
+        assert parsed.transforms == ("identity",) and parsed.exponents == (None,)
+
+    @pytest.mark.parametrize(
+        "equation",
+        [
+            "10^(A^0.5+A)",  # one variable, two powers
+            "10^(1-A^0.5*C)",  # product of variables
+            "10^(A^C)",  # non-constant power
+            "2*(A^0.5+1)^0.3",  # power inside an affine base
+        ],
+    )
+    def test_power_refusals(self, equation):
+        with pytest.raises(NSSEquationError):
+            parse_equation(equation)
+
+    def test_committed_snapshot_power_refusals_now_parse(self):
+        """The committed AZ snapshot refused region 5's eight strings ("exponent of
+        10 is not linear"); each now parses to ``power`` and reproduces direct
+        evaluation at the snapshot's submitted inputs."""
+        import json
+
+        checked = 0
+        for path in sorted((REPO_ROOT / "data" / "nss_snapshots").glob("*.json")):
+            snap = json.loads(path.read_text(encoding="utf-8"))
+            for region in snap["regions"]:
+                inputs = {p["code"]: p["submitted"] for p in region.get("parameters", [])}
+                for rec in region.get("equations", []):
+                    if not (rec.get("parse_error") or "").startswith("exponent of 10 is not"):
+                        continue
+                    parsed = parse_equation(rec["equation"])
+                    assert parsed.transforms == ("power",)
+                    direct = evaluate_expression(rec["equation"], inputs)
+                    assert 10.0 ** parsed.log10_value(inputs) == pytest.approx(direct, rel=1e-12)
+                    checked += 1
+        assert checked == 8
+
     def test_idaho_region4_matches_offline_library_form(self):
         # NSS's string for Idaho region 4 Q80 (snapshot 2026-09-26) parses to the
         # published form: log10 with scale 0.01 and offset 1 on LC11FOREST.

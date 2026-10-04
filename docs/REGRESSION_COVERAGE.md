@@ -20,7 +20,7 @@ Plan and definitions of done: `docs/MASTER_ROADMAP.md` §3.2.
 | UT | Utah | partial | 8 | 63 | not started | #96 |
 | WY | Wyoming | verified | 6 | 60 | not started | #98 |
 | NM | New Mexico | verified | 13 | 91 | not started | #100 |
-| AZ | Arizona | partial | 7 | 53 | not started | #102 |
+| AZ | Arizona | verified | 8 | 61 | not started | #102 |
 | NV | Nevada | partial | 6 | 35 | not started | #104 |
 
 ## Wave 3: West coast and Pacific

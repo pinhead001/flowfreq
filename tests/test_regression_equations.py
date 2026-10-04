@@ -364,7 +364,10 @@ class TestScaleOffset:
 
         for path in sorted(DATA_DIR.glob("*.json")):
             for eq in load_state(path.stem).equations:
-                if any(v.scale != 1.0 or v.offset != 0.0 for v in eq.variables):
+                if any(
+                    v.scale != 1.0 or v.offset != 0.0 or v.exponent is not None
+                    for v in eq.variables
+                ):
                     continue
                 vals = {}
                 for v in eq.variables:
@@ -376,3 +379,93 @@ class TestScaleOffset:
                     for b, v in zip(eq.coefficients, eq.variables)
                 )
                 assert evaluate(eq, vals).log_flow == pytest.approx(old, rel=0, abs=1e-12)
+
+
+class TestPowerTransform:
+    """``transform="power"``: the value is ``(scale*x + offset) ** exponent``.
+
+    It expresses a raw power inside the log-linear sum, ``Q = 10**(a - b*A**-c)``.
+    The numbers are synthetic.
+    """
+
+    def _eq(self, var, coef, intercept=3.0, **kw):
+        return _eq(variables=(var,), coefficients=(coef,), intercept=intercept, **kw)
+
+    def test_value(self):
+        eq = self._eq(Variable("A", "power", "mi2", exponent=-0.25), -2.0)
+        # 10**(3 - 2 * 16**-0.25) = 10**2
+        assert evaluate(eq, {"A": 16.0}).log_flow == pytest.approx(2.0, abs=1e-15)
+
+    def test_scale_and_offset_apply_before_the_power(self):
+        v = Variable("X", "power", scale=0.5, offset=1.0, exponent=2.0)
+        assert v.apply(6.0) == pytest.approx(16.0)
+
+    @pytest.mark.parametrize("x", [0.0, -1.0])
+    def test_nonpositive_base_raises(self, x):
+        eq = self._eq(Variable("A", "power", exponent=-0.1), -1.0)
+        with pytest.raises(ValueError, match=r"power needs A > 0"):
+            evaluate(eq, {"A": x}, allow_extrapolation=True)
+
+    @pytest.mark.parametrize(
+        "kw",
+        [
+            {"transform": "power"},
+            {"transform": "power", "exponent": 0.0},
+            {"transform": "power", "exponent": math.inf},
+            {"transform": "log10", "exponent": 0.5},
+            {"transform": "identity", "exponent": 2.0},
+        ],
+    )
+    def test_exponent_required_with_power_only(self, kw):
+        with pytest.raises(ValueError, match="exponent"):
+            Variable("A", **kw)
+
+    def test_json_round_trip_and_omitted_when_unset(self):
+        d = {"code": "A", "transform": "power", "units": "mi2", "minimum": 0.1, "exponent": -0.1}
+        assert Variable(**d).to_dict() == d
+        assert "exponent" not in Variable("A").to_dict()
+        eq = RegressionEquation.from_dict(
+            {
+                "region_code": "R",
+                "aep": 0.01,
+                "intercept": 5.0,
+                "variables": [d],
+                "coefficients": [-2.5],
+                "citation": {"publication": "Synthetic", "table": "T"},
+            }
+        )
+        assert eq.variables[0].exponent == -0.1
+        assert evaluate(eq, {"A": 10.0}).log_flow == pytest.approx(5.0 - 2.5 * 10.0**-0.1)
+
+    def test_covariance_basis_is_the_powered_value(self):
+        # x = [1, A**k], so x'Ux uses the powered value, as a report's design matrix does.
+        from scipy import stats
+
+        cov = ((0.04, -0.03), (-0.03, 0.05))
+        eq = self._eq(
+            Variable("A", "power", exponent=-0.5),
+            -1.0,
+            covariance=cov,
+            model_error_variance=0.01,
+            n_sites=30,
+        )
+        est = evaluate(eq, {"A": 4.0})
+        x = (1.0, 0.5)
+        xux = sum(x[i] * cov[i][j] * x[j] for i in range(2) for j in range(2))
+        half = stats.t.ppf(0.95, 28) * math.sqrt(0.01 + xux)
+        assert est.interval[1] == pytest.approx(est.flow_cfs * 10**half, rel=1e-12)
+
+    def test_unknown_transform_lists_power(self):
+        with pytest.raises(ValueError, match="power"):
+            Variable("A", transform="sqrt")
+
+    def test_packaged_files_without_power_are_unchanged(self):
+        # Backward compatibility: no file written before ``power`` existed carries
+        # ``exponent``, and every one still loads.
+        from flowfreq.regression.library import DATA_DIR
+
+        for path in sorted(DATA_DIR.glob("*.json")):
+            lib = load_state(path.stem)
+            for eq in lib.equations:
+                for v in eq.variables:
+                    assert (v.transform == "power") == (v.exponent is not None)

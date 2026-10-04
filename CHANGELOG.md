@@ -14,6 +14,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   scheduled run opens or updates a `live-tests` issue. Set the optional `USGS_API_KEY`
   repository secret to avoid the API's per-IP rate limit
   (keys: https://api.waterdata.usgs.gov/signup/).
+- **Arizona flood region 5; `AZ.json` is now `verified`** (#102). Region 5 (SIR 2014-5211,
+  Southeastern Basin and Range) is printed `Q = 10^(a - b·DRNAREA^-c)`, a raw power inside the
+  log-linear sum. `Variable` gains `transform="power"` with an `exponent` parameter (value
+  `(scale·x + offset)^exponent`), so it is stored as intercept `a`, coefficient `-b`, exponent
+  `-c`, with Table 10's statistics and Table 12's MEV and covariance. Backward compatible:
+  `exponent` is optional, omitted from JSON when unset, and allowed only with `power`; every
+  existing file loads and evaluates unchanged. `nss.parse_equation` now parses
+  `10^(a-b*X^(k))` to the same form, so the committed AZ snapshot's eight region 5 refusals
+  parse. Checks: double entry 648 cells, 0 disagreements; Table 12's basis
+  `[1, DRNAREA^-c]` reproduces Table 10's AVP within 0.0006; Table 14's per-gage estimates
+  all within 0.8%; live NSS equal at 3 significant figures except the 4-percent AEP, where
+  NSS rounds the printed b = 2.988 to 2.99 (Table 14 agrees with 2.988).
 
 ### Fixed
 - Two live tests were brittle: the 06214500 ice-day test pinned provisional dates that USGS
