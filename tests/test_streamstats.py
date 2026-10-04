@@ -1044,6 +1044,8 @@ class TestEstimateFlowStatistics:
                 "flowfreq.streamstats.requests.post",
                 return_value=_mock_response(NSS_ESTIMATE_RESPONSE_PFS),
             ),
+            # The 500 is retried with real backoff (2 s + 4 s) otherwise.
+            patch("flowfreq.streamstats.time.sleep", return_value=None),
         ):
             region_estimates, _ = estimate_flow_statistics(
                 "WA", _GOOD_CHARACTERISTICS, statistic_group_codes=["PFS"]

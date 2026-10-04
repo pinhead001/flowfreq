@@ -50,6 +50,7 @@ Nothing in this module is wired into ``ExpectedMomentsAlgorithm``/
 from __future__ import annotations
 
 import math
+from functools import lru_cache
 from typing import Tuple
 
 import numpy as np
@@ -215,6 +216,49 @@ def ci_ema_m3b(yp: float, cv_yp_syp: np.ndarray, eps: float) -> Tuple[float, flo
     return ci_low, ci_high, var_yp
 
 
+@lru_cache(maxsize=256)
+def _quadrature_grids(
+    nobs_t: Tuple[float, ...],
+    tl_t: Tuple[float, ...],
+    tu_t: Tuple[float, ...],
+    mc_t: Tuple[float, ...],
+    r_g_mse: float,
+    r_m_mse: float,
+    r_s2: float,
+    r_s2_mse: float,
+    at_site_option: str,
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """``VAR_EMAB``'s outer and inner quadrature grids: ``(w1, gr_mc1, w2, gr_mc2)``.
+
+    The nine ``regmoms`` solves are the whole cost of ``var_emab`` and depend
+    only on the fit, not on the quantiles or the confidence level -- so a
+    caller asking for bounds at a second AEP list or ``eps`` (the facade's
+    ``compute_confidence_limits`` after ``run_analysis``, a report at other
+    return periods) reuses them rather than redoing every solve. Pure
+    function of hashable inputs; the arrays are returned read-only since the
+    cache shares them between callers.
+    """
+    nobs = np.array(nobs_t, dtype=float)
+    tl = np.array(tl_t, dtype=float)
+    tu = np.array(tu_t, dtype=float)
+    mc = np.array(mc_t, dtype=float)
+
+    s_mc = regmoms(nobs, tl, tu, mc, r_g_mse, r_m_mse, r_s2, r_s2_mse, at_site_option)
+    w1, gr_mc1 = _gridmake(mc, s_mc)
+    n_outer = len(w1)
+
+    w2 = np.empty((n_outer, n_outer))
+    gr_mc2 = np.empty((n_outer, n_outer, 3))
+    for i in range(n_outer):
+        s_mc_i = regmoms(nobs, tl, tu, gr_mc1[i], r_g_mse, r_m_mse, r_s2, r_s2_mse, at_site_option)
+        w2[i], gr_mc2[i] = _gridmake(gr_mc1[i], s_mc_i)
+
+    grids = (np.array(w1, dtype=float), np.array(gr_mc1, dtype=float), w2, gr_mc2)
+    for arr in grids:
+        arr.setflags(write=False)
+    return grids
+
+
 def var_emab(
     nobs: np.ndarray,
     tl: np.ndarray,
@@ -259,15 +303,18 @@ def var_emab(
     mc = np.asarray(mc, dtype=float)
     pq = np.asarray(pq, dtype=float)
 
-    s_mc = regmoms(nobs, tl, tu, mc, r_g_mse, r_m_mse, r_s2, r_s2_mse, at_site_option)
-    w1, gr_mc1 = _gridmake(mc, s_mc)
+    w1, gr_mc1, w2, gr_mc2 = _quadrature_grids(
+        tuple(nobs.tolist()),
+        tuple(tl.tolist()),
+        tuple(tu.tolist()),
+        tuple(mc.tolist()),
+        float(r_g_mse),
+        float(r_m_mse),
+        float(r_s2),
+        float(r_s2_mse),
+        at_site_option,
+    )
     n_outer = len(w1)
-
-    w2 = np.empty((n_outer, n_outer))
-    gr_mc2 = np.empty((n_outer, n_outer, 3))
-    for i in range(n_outer):
-        s_mc_i = regmoms(nobs, tl, tu, gr_mc1[i], r_g_mse, r_m_mse, r_s2, r_s2_mse, at_site_option)
-        w2[i], gr_mc2[i] = _gridmake(gr_mc1[i], s_mc_i)
 
     nq = len(pq)
     yp = np.empty(nq)

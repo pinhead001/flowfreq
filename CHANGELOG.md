@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **Native EMA is 5-10x faster, with results unchanged.** Since 0.10.0 the fixed point iterates
+  as `p3est_ema` does (#81), so it needs many more iterations: 13 to 45 on Big Sandy, and 100
+  to 827 with a 6000 cfs threshold. Each iteration's censored groups go through `m_p3`'s
+  50-digit incomplete gamma, and that dominated the run time. The test suite went from about
+  200 s at v0.9.0 to about 340 s on a Windows developer machine. Three changes, none of
+  which changes the iteration or its stopping rule:
+  - `_p3_moments._fp_g1_mom_trc_batch` gets P(alpha + k, x) for k = 1..kmax from P(alpha, x)
+    by the exact recurrence P(a+1, x) = P(a, x) - x^a e^-x / Gamma(a+1), instead of solving
+    each one separately. That is 2 solves per bound pair instead of 2 + 2*kmax.
+  - `_p3_moments._lower_gamma_reg` runs its series and continued-fraction loops in
+    fixed-point integers instead of on `mpf` objects, at the same 50-digit precision.
+  - `var_emab`'s nine `regmoms` solves are cached apart from the quantiles they are
+    evaluated at (`_var_emab._quadrature_grids`). A second call at other AEPs or another
+    confidence level reuses them.
+
+  MGBT's integrand now calls the scipy distributions' `_ppf`/`_pdf`/`_cdf` hooks directly
+  (same values, bit for bit), which makes it 7x faster.
+
+  **Numeric change: none.** The moments agree with the previous code to 1e-41 relative at
+  the 50-digit working precision. Means, standard deviations, at-site and weighted skews,
+  quantiles, 90% bounds and iteration counts are bit-identical for all 24 WY/MT `.psf`
+  stations, Big Sandy and 12363000. A 6000 cfs fixed-threshold Big Sandy fit (827
+  iterations) takes 2.2 s instead of 12.9 s, and the 26-record set takes 18 s instead of
+  209 s. The test suite, without the Fortran extension, takes 70 s instead of 336 s. Its
+  slowest test is 2 s; before, `TestPilfOverride`'s MOM-fallback tests took 20 s each.
+- A StreamStats test no longer sleeps through 6 s of real retry backoff.
 **Behaviour change:** `USGSgage.fetch_site_info` now reads the Water Data OGC API by
 default, like peaks, daily and instantaneous values; `backend="nwis-legacy"` restores the
 legacy site service.
