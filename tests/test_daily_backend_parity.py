@@ -228,13 +228,19 @@ def test_backends_agree_over_a_water_year(site_no: str, start: str, end: str, wh
 
 @pytest.mark.requires_network
 def test_ice_days_without_a_value_are_absent_from_both() -> None:
-    """06214500 WY2026: provisional ``Ice`` days are dropped by both backends."""
+    """06214500 WY2026: days legacy reports without a value are dropped by both backends.
+
+    Asserts the invariant, not a fixed date list: these are provisional
+    values, and USGS revises them -- the ``Ice`` labels this window carried on
+    2026-09-28 (2026-01-18 to 01-25) were gone by 2026-10-04. Whichever days
+    legacy marks with text instead of a number, neither backend may return a
+    value for them, and the two must otherwise agree.
+    """
     start, end = "2026-01-10", "2026-01-25"
     legacy = parse_legacy_daily(_legacy_rdb("06214500", start, end), "06214500")
     ogc = download_daily("06214500", start_date=start, end_date=end)
-    ice = pd.date_range("2026-01-18", "2026-01-25", name="date")
-    assert set(legacy.text_values.index) >= set(ice)
-    assert not ogc.index.isin(ice).any() and not legacy.frame.index.isin(ice).any()
+    no_value = legacy.text_values.index
+    assert not ogc.index.isin(no_value).any() and not legacy.frame.index.isin(no_value).any()
     assert not daily_mismatches(legacy, ogc).problems
 
 
