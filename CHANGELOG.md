@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Scheduled live-service tests** (`.github/workflows/live.yml`): the `requires_network`
+  suite (Water Data API vs legacy NWIS parity for peaks, IV, daily and site info; NSS;
+  StreamStats; NID; published-figure checks) runs every Monday and on demand. A failed
+  scheduled run opens or updates a `live-tests` issue. Set the optional `USGS_API_KEY`
+  repository secret to avoid the API's per-IP rate limit
+  (keys: https://api.waterdata.usgs.gov/signup/).
+
+### Fixed
+- Two live tests were brittle: the 06214500 ice-day test pinned provisional dates that USGS
+  has since revised (it now asserts the invariant), and the NID test failed rather than
+  skipped on a local DNS failure.
 ### Fixed
 - **`download_peak_flow` set only name and drainage area on the Water Data backend.** It now
   sets every attribute `fetch_site_info` takes from the same `monitoring-locations` record

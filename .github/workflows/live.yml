@@ -1,0 +1,60 @@
+name: Live services
+
+# The requires_network tests -- the parity gates between the Water Data OGC API
+# and legacy NWIS (peaks, instantaneous, daily, site info), NSS and StreamStats,
+# NID, and the published-figure checks -- are deselected by default (pyproject
+# addopts) because they need the network. They are the only thing that notices
+# when a USGS service changes shape under us, so they run here on a schedule
+# instead of never.
+#
+# USGS_API_KEY is optional: without it the Water Data API allows about 1000
+# requests per hour per IP, and a shared runner's IP may already have spent
+# some. flowfreq.waterdata reads it from the environment (keys:
+# https://api.waterdata.usgs.gov/signup/). Legacy-NWIS parity tests skip, not
+# fail, when that service returns 5xx.
+
+on:
+  schedule:
+    - cron: '17 9 * * 1'  # Mondays 09:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+
+      - name: Install
+        run: pip install -e ".[dev]"
+
+      # A later -m overrides addopts' "not requires_network".
+      - name: Live tests
+        env:
+          USGS_API_KEY: ${{ secrets.USGS_API_KEY }}
+        run: pytest tests/ -m requires_network -rs
+
+      # A failed scheduled run is easy to miss in the Actions tab, so it opens
+      # an issue -- or comments on the one already open -- labelled live-tests.
+      - name: Report failure
+        if: failure() && github.event_name == 'schedule'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          gh label create live-tests --color B60205 \
+            --description "Scheduled live-service tests" 2>/dev/null || true
+          existing=$(gh issue list --label live-tests --state open --json number --jq '.[0].number')
+          body="The scheduled live-service tests failed: $RUN_URL"
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "$body"
+          else
+            gh issue create --title "Live-service tests failing" --label live-tests --body "$body"
+          fi
