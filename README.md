@@ -71,9 +71,42 @@ pip install git+https://github.com/pinhead001/flowfreq@v0.10.1
 
 **Dependencies:** `numpy`, `pandas`, `matplotlib`, `scipy`, `requests`, `click`, `pyarrow`
 
-**Water Data API key (optional).** Without a key the USGS Water Data API allows 1000
-requests per hour per IP. For bulk use, set `USGS_API_KEY` (or call
-`flowfreq.waterdata.set_api_key()`). Rate-limited requests are retried with backoff either way.
+### USGS Water Data API key (optional)
+
+Peaks, daily and instantaneous values, and site information come from the USGS Water Data
+API (`api.waterdata.usgs.gov`). Without a key it allows about **1000 requests per hour per IP
+address**; past that it answers HTTP 429. flowfreq retries 429s with backoff, so occasional
+use needs nothing, but bulk work -- batch analyses, the gage catalog build, regional-skew
+studies -- can hit the limit. A key raises it.
+
+1. **Get a key:** https://api.waterdata.usgs.gov/signup/
+2. **Set it** (pick one):
+
+   ```powershell
+   # PowerShell -- current session only
+   $env:USGS_API_KEY = "your-key-here"
+
+   # PowerShell or cmd -- persistent for your user (open a new terminal afterwards)
+   setx USGS_API_KEY "your-key-here"
+   ```
+
+   ```bash
+   # bash / Git Bash -- current session; add to ~/.bashrc to persist
+   export USGS_API_KEY="your-key-here"
+   ```
+
+   ```python
+   # or in code, overriding the environment variable for this process
+   from flowfreq import waterdata
+   waterdata.set_api_key("your-key-here")
+   ```
+
+3. **Check it is picked up:** `python -c "import os; print(bool(os.environ.get('USGS_API_KEY')))"`.
+   flowfreq sends it as the `X-Api-Key` header on every Water Data API request; a rejected key
+   raises an error that says so rather than being retried.
+
+Never commit a key. In GitHub Actions, add it as the repository secret `USGS_API_KEY`
+(Settings → Secrets and variables → Actions); the weekly live-service workflow reads it.
 
 ## Quick Start
 
