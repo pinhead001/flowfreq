@@ -32,6 +32,7 @@ from typing import Tuple
 
 import mpmath
 import numpy as np
+from mpmath.libmp import from_man_exp, to_fixed
 from scipy import stats
 from scipy.special import ndtri
 
@@ -221,6 +222,11 @@ def q_p3(q: float, m: np.ndarray) -> float:
 #: at k=5-6 on Big Sandy's own censoring thresholds.
 _GAMMA_MOMENT_DPS = 50
 
+#: Extra bits, beyond the working precision, of _lower_gamma_reg's fixed-point
+#: scale. Absorbs the floor rounding of a few hundred to a few thousand
+#: series/continued-fraction steps with room to spare.
+_FIXED_GUARD_BITS = 64
+
 
 def _lower_gamma_reg(a: mpmath.mpf, x: mpmath.mpf) -> mpmath.mpf:
     """Regularized lower incomplete gamma P(a, x), a, x >= 0, a arbitrary.
@@ -234,47 +240,77 @@ def _lower_gamma_reg(a: mpmath.mpf, x: mpmath.mpf) -> mpmath.mpf:
     fraction algorithm (Numerical Recipes ``gammp``/``gammq``), which
     converges in O(sqrt(a)) terms in both regimes regardless of how large a
     is, evaluated at ``mpmath``'s working precision.
+
+    The two loops run in fixed-point integer arithmetic, as ``mpmath``'s own
+    series code does, rather than on ``mpf`` objects: hundreds of terms per
+    call, and this function is the innermost cost of every EMA iteration,
+    ``mse_ema`` and ``var_emab`` -- where per-operation ``mpf`` allocation,
+    dispatch and renormalization made it the single largest cost in the test
+    suite. The fixed-point scale carries ``_FIXED_GUARD_BITS`` beyond the
+    working precision plus twice the integer bits of ``max(a, x)``, so the
+    result agrees with the ``mpf`` evaluation to ~1e-48 relative at 50
+    digits -- the working precision's own rounding level, some thirty orders
+    below anything that survives the conversion to float64 (see
+    ``tests/test_p3_moments.py``).
     """
     if x <= 0:
         return mpmath.mpf(0)
+    a = mpmath.mpf(a)
+    x = mpmath.mpf(x)
+    prec, rnd = mpmath.mp._prec_rounding
     eps = mpmath.mpf(10) ** (-(mpmath.mp.dps + 5))
+    wp = prec + _FIXED_GUARD_BITS + 2 * max(int(x), int(a), 1).bit_length()
+    one = 1 << wp
+    eps_f = to_fixed(eps._mpf_, wp)
+    a_f = to_fixed(a._mpf_, wp)
+    x_f = to_fixed(x._mpf_, wp)
     maxiter = 2_000_000
     if x < a + 1:
-        ap = a
-        s = 1 / a
-        d = s
+        s_f = (one << wp) // a_f
+        d_f = s_f
+        ap_f = a_f
         for _ in range(maxiter):
-            ap += 1
-            d *= x / ap
-            s += d
-            if abs(d) < abs(s) * eps:
+            ap_f += one
+            d_f = (d_f * x_f) // ap_f
+            s_f += d_f
+            if d_f * one < s_f * eps_f:  # d < s * eps
                 break
         else:
             raise RuntimeError("_lower_gamma_reg: series did not converge")
+        s = mpmath.mp.make_mpf(from_man_exp(s_f, -wp, prec, rnd))
         return s * mpmath.e ** (-x + a * mpmath.log(x) - mpmath.loggamma(a))
-    fpmin = mpmath.mpf(10) ** (-(mpmath.mp.dps + 20))
-    b = x + 1 - a
-    c = 1 / fpmin
-    d = 1 / b
-    h = d
+    # Modified Lentz continued fraction for Q(a, x).
+    fpmin_f = to_fixed((mpmath.mpf(10) ** (-(mpmath.mp.dps + 20)))._mpf_, wp)
+    b_f = x_f + one - a_f
+    c_f = (one << wp) // fpmin_f
+    d_f = (one << wp) // b_f
+    h_f = d_f
     for i in range(1, maxiter + 1):
-        an = -i * (i - a)
-        b += 2
-        d = an * d + b
-        if abs(d) < fpmin:
-            d = fpmin
-        c = b + an / c
-        if abs(c) < fpmin:
-            c = fpmin
-        d = 1 / d
-        delta = d * c
-        h *= delta
-        if abs(delta - 1) < eps:
+        an_f = -i * (i * one - a_f)
+        b_f += 2 * one
+        d_f = ((an_f * d_f) >> wp) + b_f
+        if abs(d_f) < fpmin_f:
+            d_f = fpmin_f
+        c_f = b_f + (an_f << wp) // c_f
+        if abs(c_f) < fpmin_f:
+            c_f = fpmin_f
+        d_f = (one << wp) // d_f
+        delta_f = (d_f * c_f) >> wp
+        h_f = (h_f * delta_f) >> wp
+        if abs(delta_f - one) < eps_f:
             break
     else:
         raise RuntimeError("_lower_gamma_reg: continued fraction did not converge")
+    h = mpmath.mp.make_mpf(from_man_exp(h_f, -wp, prec, rnd))
     gammcf = mpmath.e ** (-x + a * mpmath.log(x) - mpmath.loggamma(a)) * h
     return 1 - gammcf
+
+
+def _gamma_term(a: mpmath.mpf, x: mpmath.mpf) -> mpmath.mpf:
+    """``x**a * exp(-x) / Gamma(a + 1)``, the step in P(a+1, x) = P(a, x) - term."""
+    if x <= 0:
+        return mpmath.mpf(0)
+    return mpmath.e ** (a * mpmath.log(x) - x - mpmath.loggamma(a + 1))
 
 
 def _fp_g1_mom_trc_batch(alpha, tl, tu, kmax: int) -> list:
@@ -290,11 +326,30 @@ def _fp_g1_mom_trc_batch(alpha, tl, tu, kmax: int) -> list:
     tl1 = max(min(mpmath.mpf(0), tu), tl)
     if tl1 == tu:
         return [tl1**k for k in range(1, kmax + 1)]
-    down = _lower_gamma_reg(alpha, tu) - _lower_gamma_reg(alpha, tl1)
+    p_tu = _lower_gamma_reg(alpha, tu)
+    p_tl = _lower_gamma_reg(alpha, tl1)
+    down = p_tu - p_tl
+    # P(alpha + k, x) for k = 1..kmax from P(alpha, x) by the exact upward
+    # recurrence P(a + 1, x) = P(a, x) - x**a * exp(-x) / Gamma(a + 1)
+    # (DLMF 8.8.5), instead of 2*kmax further _lower_gamma_reg solves. Each
+    # of those is an O(sqrt(alpha))-term series or continued fraction in
+    # mpmath, and alpha = 4/skew**2 runs to 1e5-1e6 on real records: this
+    # was the single largest cost in the test suite (the EMA fixed point,
+    # mse_ema and var_emab all bottom out here). The recurrence terms are
+    # evaluated at the same working precision as P itself, so the k-th
+    # truncated moment keeps the ~50-digit accuracy the direct solve had --
+    # verified unchanged in float64 against the mp3 Fortran oracle
+    # (tests/fortran_parity/test_fortran_oracles.py::TestMP3Port).
+    term_tu = _gamma_term(alpha, tu)
+    term_tl = _gamma_term(alpha, tl1)
     result = []
     for k in range(1, kmax + 1):
+        p_tu -= term_tu
+        p_tl -= term_tl
+        term_tu = term_tu * tu / (alpha + k)
+        term_tl = term_tl * tl1 / (alpha + k)
         if down > 0:
-            up = _lower_gamma_reg(alpha + k, tu) - _lower_gamma_reg(alpha + k, tl1)
+            up = p_tu - p_tl
             ans = up / down
             for j in range(k):
                 ans *= alpha + j

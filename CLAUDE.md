@@ -47,19 +47,21 @@ repo bumps its pin.
 ```bash
 pip install -e ".[dev]"
 
-# Full suite. ~340 s, measured 2026-10-03 on a Windows developer machine
-# (CPython 3.12, Fortran extension absent; 2529 tests). CI's test jobs grew too, from
-# about 3 min per interpreter at v0.9.0 to 5-10 min. The slowest tests (`--durations`)
-# are EMA fits on heavily censored records, e.g. test_workflow.py's TestPilfOverride
-# at ~20 s each. The likely cause, not bisected, is #81: the fixed point now iterates
-# as p3est_ema does (up to 20000 iterations, to a 1e-10 tolerance), where it used to
-# stop at 1e-6 or 100 iterations. This note said ~95-100 s before 0.10.0's changes
-# (not re-measured on this machine). It was ~15 s until the confidence-interval shape fix
-# (flowfreq._var_emab.var_emab, TODO.md P3): nine regmoms calls per analysis,
-# each a full var_mom/mn2mvarb solve. @lru_cache'd like the rest of this
-# port's expensive pieces, so repeated fits of the same fixture are cheap,
-# but the first fit of any given fixture still pays it. A single cold
-# run_analysis() with a regional skew supplied costs a few seconds.
+# Full suite. ~70 s, measured 2026-10-03 on a Windows developer machine (CPython 3.12,
+# Fortran extension absent; 2541 tests), and ~355 s with the extension present.
+# That extra ~285 s is almost all live emafitpr calls in the vendored Fortran;
+# test_fixed_threshold_live.py alone takes ~190 s (twelve ~13 s calls in
+# test_regional_weighting_inputs_match). The native code accounts for very little of it.
+# History, same machine: ~200 s at v0.9.0 (1970 tests), then ~340 s (absent) / ~880 s (present) at
+# 0.10.0, because #81 made the EMA fixed point iterate as p3est_ema does (Big Sandy 13 -> 45
+# iterations, a 6000 cfs FIXED threshold 100 -> 827). Each iteration costs one m_p3 per
+# censored group, and m_p3 is a 50-digit mpmath incomplete gamma. The perf fix that
+# followed changed no results and no iteration counts. The incomplete gamma runs its loops in
+# fixed-point integers and gets P(a+k, x) by recurrence; var_emab's regmoms grids are cached
+# apart from the AEPs; MGBT's integrand skips scipy.stats' wrappers. Profile before
+# assuming the fixed point is the problem again: it is cheap per iteration now, and
+# _lower_gamma_reg / var_emab are where a cold fit's time goes. A single cold
+# run_analysis() with a regional skew supplied costs ~0.5-1.5 s.
 pytest tests/ -v
 
 # What CI actually runs -- the same thing. The marker selection lives in

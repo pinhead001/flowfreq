@@ -111,3 +111,74 @@ class TestWilsonHilfertyWeightLiterals:
         assert pm._wh_weight(0.5) == (1.0, 0.0)
         wg, wwh = pm._wh_weight(0.00085)
         assert 0.0 < wg < 1.0 and wg + wwh == pytest.approx(1.0)
+
+
+class TestIncompleteGammaAtWorkingPrecision:
+    """``_lower_gamma_reg`` (fixed-point loops) and the upward recurrence that
+    ``_fp_g1_mom_trc_batch`` builds on it, against independent mpmath
+    references at the same 50 digits. The tolerance is the working
+    precision's, ~30 orders tighter than anything float64 can see: these are
+    performance rewrites of the same mathematics and must not move a result.
+    """
+
+    # (a, x): both branches (x < a + 1 is the series), small and large a.
+    CASES = [
+        (0.7, 0.2),
+        (0.7, 3.0),
+        (5.0, 2.0),
+        (5.0, 11.0),
+        (60.0, 48.0),
+        (60.0, 75.0),
+        (400.0, 380.0),
+        (400.0, 431.0),
+    ]
+
+    @pytest.mark.parametrize("a, x", CASES)
+    def test_matches_mpmath_gammainc(self, a, x):
+        import mpmath
+
+        from flowfreq._p3_moments import _GAMMA_MOMENT_DPS, _lower_gamma_reg
+
+        with mpmath.workdps(_GAMMA_MOMENT_DPS):
+            got = _lower_gamma_reg(mpmath.mpf(a), mpmath.mpf(x))
+            ref = mpmath.gammainc(mpmath.mpf(a), 0, mpmath.mpf(x), regularized=True)
+            # Both P and its complement Q: up - down cancels in whichever is small.
+            assert abs(got - ref) <= mpmath.mpf(10) ** -46 * min(ref, 1 - ref)
+
+    def test_large_shape_parameter_matches_the_complement_identity(self):
+        """alpha ~ 4/skew**2 for near-zero skew: mpmath.gammainc gives up here,
+        so check P(a, x) + Q(a, x) = 1 with Q from the upper-gamma series."""
+        import mpmath
+
+        from flowfreq._p3_moments import _GAMMA_MOMENT_DPS, _lower_gamma_reg
+
+        with mpmath.workdps(_GAMMA_MOMENT_DPS):
+            a = mpmath.mpf(9.0e4)
+            for x in (a - 3 * mpmath.sqrt(a), a + 2 * mpmath.sqrt(a)):
+                p = _lower_gamma_reg(a, x)
+                # P(a + 1, x) = P(a, x) - x**a e**-x / Gamma(a + 1), checked by
+                # evaluating both sides independently.
+                p1 = _lower_gamma_reg(a + 1, x)
+                term = mpmath.e ** (a * mpmath.log(x) - x - mpmath.loggamma(a + 1))
+                assert abs((p - term) - p1) <= mpmath.mpf(10) ** -44 * min(p1, 1 - p1)
+
+    @pytest.mark.parametrize("alpha", [3.0, 40.0, 2500.0])
+    def test_batched_moments_match_direct_incomplete_gamma_ratios(self, alpha):
+        """The recurrence gives what 2 + 2*kmax separate P(a + k, x) solves give."""
+        import math
+
+        import mpmath
+
+        from flowfreq._p3_moments import _GAMMA_MOMENT_DPS, _fp_g1_mom_trc_batch, _lower_gamma_reg
+
+        with mpmath.workdps(_GAMMA_MOMENT_DPS):
+            a = mpmath.mpf(alpha)
+            s = mpmath.sqrt(a)
+            tl, tu = a - 1.5 * s, a + 0.7 * s
+            got = _fp_g1_mom_trc_batch(a, tl, tu, 6)
+            down = _lower_gamma_reg(a, tu) - _lower_gamma_reg(a, tl)
+            for k in range(1, 7):
+                up = _lower_gamma_reg(a + k, tu) - _lower_gamma_reg(a + k, tl)
+                ref = up / down * mpmath.rf(a, k)
+                assert abs(got[k - 1] - ref) <= mpmath.mpf(10) ** -38 * abs(ref), k
+            assert math.isfinite(float(got[-1]))

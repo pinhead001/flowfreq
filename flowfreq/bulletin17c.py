@@ -36,6 +36,21 @@ from .core import (
     perception_bounds,
 )
 
+# MGBT's integrand (``_mgbt_pvalue._fggb``) is evaluated ~360 times per
+# p-value and ~8000 times per analysis. The public ``stats.<dist>.ppf/pdf/cdf``
+# wrappers spend most of each call on argument broadcasting and validation
+# (``argsreduce``) around a one-element special-function call. These are the
+# distributions' own ``_ppf``/``_pdf``/``_cdf`` hooks -- exactly what the
+# wrappers dispatch to once the arguments are known valid, which the
+# integrand already guarantees (0 < p < 1, shape parameters > 0) -- with loc
+# 0 and scale 1. They are called on one-element arrays, as the wrappers call
+# them, because numpy's array and scalar paths for exp() can differ in the
+# last ulp; that way the p-value is bit-for-bit the same as before.
+_beta_ppf = stats.beta._ppf
+_norm_ppf = stats.norm._ppf
+_norm_pdf = stats.norm._pdf
+_norm_cdf = stats.norm._cdf
+
 
 class _ExpectedSums(NamedTuple):
     """Non-central sums from one EMA pass, split the way the Fortran splits them.
@@ -1659,15 +1674,15 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
             if pzr <= 0.0 or pzr >= 1.0:
                 return 0.0
             # r-th order statistic value via beta → normal transform
-            pr = float(stats.beta.ppf(pzr, r, n + 1 - r))
+            pr = float(_beta_ppf(np.array([pzr]), np.array([r]), np.array([n + 1 - r]))[0])
             if pr <= 0.0 or pr >= 1.0:
                 return 0.0
-            zr = float(stats.norm.ppf(pr))
+            zr = float(_norm_ppf(np.array([pr]))[0])
             if not np.isfinite(zr):
                 return 0.0
 
             # Truncated-normal moments of the upper (nc) observations
-            h = float(stats.norm.pdf(zr)) / max(1e-10, 1.0 - pr)
+            h = float(_norm_pdf(np.array([zr]))[0]) / max(1e-10, 1.0 - pr)
             ex1 = h
             ex2 = 1.0 + h * zr
             ex3 = 2.0 * ex1 + h * zr**2
@@ -1711,7 +1726,7 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
             # when NU > 20, use Abramowitz & Stegun p.949 normal approximation
             if df > 20.0:
                 z_approx = (q * (1.0 - 1.0 / (4.0 * df)) - ncp) / np.sqrt(1.0 + q**2 / (2.0 * df))
-                tnc_cdf = float(stats.norm.cdf(z_approx))
+                tnc_cdf = float(_norm_cdf(np.array([z_approx]))[0])
             else:
                 tnc_cdf = float(stats.nct.cdf(q, df, ncp))
             return 1.0 - tnc_cdf
