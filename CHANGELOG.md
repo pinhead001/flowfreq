@@ -26,6 +26,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `[1, DRNAREA^-c]` reproduces Table 10's AVP within 0.0006; Table 14's per-gage estimates
   all within 0.8%; live NSS equal at 3 significant figures except the 4-percent AEP, where
   NSS rounds the printed b = 2.988 to 2.99 (Table 14 agrees with 2.988).
+- **Nevada transition zones and calibrated ranges** (#104). `flowfreq.regression.nevada`
+  implements WSP 2433's equations 6 and 7 (p. 19): `estimate_area_weighted` for a basin in two
+  low- to middle-elevation regions, and `estimate_elevation_transition` for a site within
+  700 ft below the High-Elevation Region 1 boundary (7,500 ft south of 41° latitude; north
+  of it the caller passes the boundary read from figure 5). Both reproduce the report's worked
+  examples (pp. 41 and 44). `NV.json`'s variable limits are now the range over the gages each
+  region used, from the report's data section (pp. 109-195), in place of NSS's untraceable
+  limits; the selection rules reproduce every table's station count, and every stored limit
+  was checked on the rendered page. NV stays `partial`: region 6's printed 2-year `Q=0` and
+  the hybrid regions' non-comparable error statistics are still not stored.
 
 ### Fixed
 - Two live tests were brittle: the 06214500 ice-day test pinned provisional dates that USGS
