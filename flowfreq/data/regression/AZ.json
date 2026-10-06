@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "state": "AZ",
-  "status": "partial",
+  "status": "verified",
   "issue": 102,
   "source_reports": [
     {
@@ -50,7 +50,7 @@
       }
     }
   ],
-  "notes": "Two reports, as NSS combines them for Arizona's peak-flow group (NSS region 5). (1) Paretti, Kennedy, Turney and Veilleux, SIR 2014-5211 (no revisions listed): flood regions 1-4 at 8 AEPs (50-0.2 percent), equations from Table 9 (pp. 28-29), MSE/SEP/pseudo-R2/SEM/AVP from Table 10 (pp. 30-31), ranges and number of sites from Table 11 (p. 33), and MEV, t and covariance U from Table 12 in SIR2014-5211_tables.xlsx. REGION 5 (Southeastern Basin and Range) IS NOT STORED: its equations have the form Q = 10^(a - b DRNAREA^-c) (Table 9), i.e. a raw power of drainage area inside the log-linear sum, which the schema's transforms (identity or log10 of scale*x + offset) cannot express; Table 10's statistics and Table 12's 2x2 matrices exist for it. NSS also rounds region 5's 4-percent b, printed 2.988, to 2.99. Storage: intercept = log10 of the printed coefficient; drainage area uses NSS's code CONTDA (the report's 'DRNAREA', GIS contributing drainage area; NSS's Arizona regions use CONTDA), log10; PRECIP (mean annual precipitation, in.) log10; the term 10^(c ELEV/1,000) is ELEV with transform identity, scale 0.001 and coefficient c, which is also Table 12's basis ('ELEV/1000'). Region 3 drops ELEV at 4 percent and rarer AEPs (Table 9; Table 11 footnote a lists only 4, 1, 0.5 and 0.2, omitting 2, but Table 9 and Table 12 have no ELEV at 2 percent either), and region 4's 50-percent equation uses drainage area alone. Table 11 prints region 2's drainage-area maximum as '1,6017'; NSS uses 16,017, and 16,017 is stored. Error statistics: model_error_variance is Table 12's MEV (full precision; it equals Table 10's SEM converted to log10 units squared within 0.002); avp is Table 10's AVP (log10 units squared, 3 decimals); sep_log is Table 10's SEP (percent) converted as sqrt(ln(1 + (SEP/100)^2)) / ln(10) (the inverse of the report's eq. 7); covariance is Table 12's U = (X^T Lambda^-1 X)^-1 in the order intercept, DRNAREA, PRECIP, ELEV/1000 as labelled, copied at full precision; n_sites is Table 11's number of sites (41, 85, 68, 77); Table 12's t values correspond to n - p degrees of freedom. Checks: the p. 34 worked example (region 4 Q1 at USGS 09508500, DRNAREA 5,499, PRECIP 19.6, ELEV 5,573) gives 149,714 ft3/s as printed, SEp,i 0.1104 (printed 0.1105; x'Ux 0.001322 against the printed 0.0013066, which the report computed from unrounded StreamStats characteristics), and a 90-percent interval of 98,000-229,000 ft3/s as printed (t = 1.666 from Table 12). Table 14's regression estimates at the regression gages (Table 1 characteristics) agree with the equations at the median within 0.7 percent in every region and AEP, 2,517 of 2,616 values within 1 percent; the rest are a few large or redundant gages whose Table 1 characteristics evidently differ from the regression inputs. MEV + x'Ux reproduces Table 13's regression variance of prediction within 3-decimal rounding at 1,713 of 2,128 site-AEPs, and MEV + mean x'Ux reproduces Table 10's AVP within 0.0021. NSS selects region 1 (High Elevation) when ELEV is 7,500 ft or more and regions 2 and 5 below; ELEV is not a regression variable there. (2) Waltemeyer, SIR 2006-5306 (Navajo Nation): regions 8, 11 and High Elevation, which NSS lists for Arizona (GC843-GC845), stored exactly as in CO.json, UT.json and NM.json. Values were double-entered (hand transcription from rendered pages vs. a programmatic parse of the PDF text) with zero disagreements, and every stored region and AEP equals live NSS at its 3 significant figures.",
+  "notes": "Two reports, as NSS combines them for Arizona's peak-flow group (NSS region 5). (1) Paretti, Kennedy, Turney and Veilleux, SIR 2014-5211 (no revisions listed): flood regions 1-5 at 8 AEPs (50-0.2 percent), equations from Table 9 (pp. 28-29), MSE/SEP/pseudo-R2/SEM/AVP from Table 10 (pp. 30-31), ranges and number of sites from Table 11 (p. 33), and MEV, t and covariance U from Table 12 in SIR2014-5211_tables.xlsx. Region 5 (Southeastern Basin and Range) is printed Q = 10^(a - b DRNAREA^-c) (Table 9, p. 29), a raw power of drainage area inside the log-linear sum. It is stored with transform 'power' (exponent -c), coefficient -b and intercept a; Table 12's 2x2 matrices (labelled Intercept, DRNAREA) are in that basis, x = [1, DRNAREA^-c]: MEV + mean x'Ux over the 67 region 5 regression gages of Table 1 reproduces Table 10's AVP within 0.0006 at every AEP, against 0.04-0.29 too large with the sign of the term flipped. NSS rounds region 5's 4-percent b, printed 2.988, to 2.99 (up to 0.43 percent higher flows); the printed 2.988 is stored, and Table 14's 4-percent regression estimates at the region 5 gages agree with it at 3 significant figures at 65 of 67 gages against 17 of 67 with 2.99. Storage: intercept = log10 of the printed coefficient; drainage area uses NSS's code CONTDA (the report's 'DRNAREA', GIS contributing drainage area; NSS's Arizona regions use CONTDA), log10; PRECIP (mean annual precipitation, in.) log10; the term 10^(c ELEV/1,000) is ELEV with transform identity, scale 0.001 and coefficient c, which is also Table 12's basis ('ELEV/1000'). Region 3 drops ELEV at 4 percent and rarer AEPs (Table 9; Table 11 footnote a lists only 4, 1, 0.5 and 0.2, omitting 2, but Table 9 and Table 12 have no ELEV at 2 percent either), and region 4's 50-percent equation uses drainage area alone. Table 11 prints region 2's drainage-area maximum as '1,6017'; NSS uses 16,017, and 16,017 is stored. Error statistics: model_error_variance is Table 12's MEV (full precision; it equals Table 10's SEM converted to log10 units squared within 0.002); avp is Table 10's AVP (log10 units squared, 3 decimals); sep_log is Table 10's SEP (percent) converted as sqrt(ln(1 + (SEP/100)^2)) / ln(10) (the inverse of the report's eq. 7); covariance is Table 12's U = (X^T Lambda^-1 X)^-1 in the order intercept, DRNAREA, PRECIP, ELEV/1000 as labelled, copied at full precision; n_sites is Table 11's number of sites (41, 85, 68, 77, 73); Table 12's t values correspond to n - p degrees of freedom. Checks: the p. 34 worked example (region 4 Q1 at USGS 09508500, DRNAREA 5,499, PRECIP 19.6, ELEV 5,573) gives 149,714 ft3/s as printed, SEp,i 0.1104 (printed 0.1105; x'Ux 0.001322 against the printed 0.0013066, which the report computed from unrounded StreamStats characteristics), and a 90-percent interval of 98,000-229,000 ft3/s as printed (t = 1.666 from Table 12). Table 14's regression estimates at the regression gages (Table 1 characteristics) agree with the equations at the median within 0.7 percent in every region and AEP, 2,597 of 2,664 values within 1 percent (region 5: all 536 within 0.8 percent, 507 equal at 3 significant figures); the rest are a few large or redundant gages in regions 2-4 whose Table 1 characteristics evidently differ from the regression inputs. MEV + x'Ux reproduces Table 13's regression variance of prediction within 3-decimal rounding at 2,130 of 2,664 site-AEPs (region 5: 417 of 536, worst 0.0031), and MEV + mean x'Ux reproduces Table 10's AVP within 0.0021. The report's only worked example is region 4's; for region 5 the per-gage check is Table 14 and Table 13 at, for example, USGS 09470800 (Garden Canyon near Fort Huachuca, DRNAREA 8.6) and 09485000 (Rincon Creek near Tucson, DRNAREA 44.7), every AEP equal at 3 significant figures. NSS selects region 1 (High Elevation) when ELEV is 7,500 ft or more and regions 2-5 below; ELEV is not a regression variable there. (2) Waltemeyer, SIR 2006-5306 (Navajo Nation): regions 8, 11 and High Elevation, which NSS lists for Arizona (GC843-GC845), stored exactly as in CO.json, UT.json and NM.json. Values were double-entered (hand transcription from rendered pages vs. a programmatic parse of the PDF text) with zero disagreements, and every stored region and AEP equals live NSS at its 3 significant figures, except region 5's 4-percent AEP where NSS's rounded b = 2.99 explains the difference (at most 0.43 percent; with 2.99 every value equals NSS).",
   "equations": [
     {
       "region_code": "1",
@@ -1672,6 +1672,318 @@
         ]
       ],
       "n_sites": 77
+    },
+    {
+      "region_code": "5",
+      "region_name": "Flood region 5 (Southeastern Basin and Range) (SIR 2014-5211; NSS GC1622)",
+      "aep": 0.5,
+      "intercept": 6.363,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "power",
+          "units": "mi2",
+          "minimum": 0.155,
+          "maximum": 2925.0,
+          "exponent": -0.06
+        }
+      ],
+      "coefficients": [
+        -4.386
+      ],
+      "citation": {
+        "publication": "Paretti, N.V., Kennedy, J.R., Turney, L.A., and Veilleux, A.G., 2014, Methods for estimating magnitude and frequency of floods in Arizona, developed with unregulated and rural peak-flow data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2014-5211",
+        "table": "Table 9; Table 10; Table 11; Table 12",
+        "year": 2014,
+        "url": "https://doi.org/10.3133/sir20145211"
+      },
+      "sep_log": 0.324877,
+      "avp": 0.106,
+      "model_error_variance": 0.10194855619891681,
+      "covariance": [
+        [
+          0.071368555,
+          -0.084067178
+        ],
+        [
+          -0.084067178,
+          0.10193545
+        ]
+      ],
+      "n_sites": 73
+    },
+    {
+      "region_code": "5",
+      "region_name": "Flood region 5 (Southeastern Basin and Range) (SIR 2014-5211; NSS GC1622)",
+      "aep": 0.2,
+      "intercept": 5.868,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "power",
+          "units": "mi2",
+          "minimum": 0.155,
+          "maximum": 2925.0,
+          "exponent": -0.08
+        }
+      ],
+      "coefficients": [
+        -3.506
+      ],
+      "citation": {
+        "publication": "Paretti, N.V., Kennedy, J.R., Turney, L.A., and Veilleux, A.G., 2014, Methods for estimating magnitude and frequency of floods in Arizona, developed with unregulated and rural peak-flow data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2014-5211",
+        "table": "Table 9; Table 10; Table 11; Table 12",
+        "year": 2014,
+        "url": "https://doi.org/10.3133/sir20145211"
+      },
+      "sep_log": 0.24598,
+      "avp": 0.06,
+      "model_error_variance": 0.05794529027474865,
+      "covariance": [
+        [
+          0.025976305,
+          -0.031883692
+        ],
+        [
+          -0.031883692,
+          0.041418603
+        ]
+      ],
+      "n_sites": 73
+    },
+    {
+      "region_code": "5",
+      "region_name": "Flood region 5 (Southeastern Basin and Range) (SIR 2014-5211; NSS GC1622)",
+      "aep": 0.1,
+      "intercept": 5.778,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "power",
+          "units": "mi2",
+          "minimum": 0.155,
+          "maximum": 2925.0,
+          "exponent": -0.09
+        }
+      ],
+      "coefficients": [
+        -3.218
+      ],
+      "citation": {
+        "publication": "Paretti, N.V., Kennedy, J.R., Turney, L.A., and Veilleux, A.G., 2014, Methods for estimating magnitude and frequency of floods in Arizona, developed with unregulated and rural peak-flow data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2014-5211",
+        "table": "Table 9; Table 10; Table 11; Table 12",
+        "year": 2014,
+        "url": "https://doi.org/10.3133/sir20145211"
+      },
+      "sep_log": 0.213915,
+      "avp": 0.046,
+      "model_error_variance": 0.04352902769031027,
+      "covariance": [
+        [
+          0.017568645,
+          -0.02198852
+        ],
+        [
+          -0.02198852,
+          0.029673632
+        ]
+      ],
+      "n_sites": 73
+    },
+    {
+      "region_code": "5",
+      "region_name": "Flood region 5 (Southeastern Basin and Range) (SIR 2014-5211; NSS GC1622)",
+      "aep": 0.04,
+      "intercept": 5.757,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "power",
+          "units": "mi2",
+          "minimum": 0.155,
+          "maximum": 2925.0,
+          "exponent": -0.1
+        }
+      ],
+      "coefficients": [
+        -2.988
+      ],
+      "citation": {
+        "publication": "Paretti, N.V., Kennedy, J.R., Turney, L.A., and Veilleux, A.G., 2014, Methods for estimating magnitude and frequency of floods in Arizona, developed with unregulated and rural peak-flow data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2014-5211",
+        "table": "Table 9; Table 10; Table 11; Table 12",
+        "year": 2014,
+        "url": "https://doi.org/10.3133/sir20145211"
+      },
+      "sep_log": 0.189516,
+      "avp": 0.036,
+      "model_error_variance": 0.0337695513726071,
+      "covariance": [
+        [
+          0.013231949,
+          -0.016885578
+        ],
+        [
+          -0.016885578,
+          0.023717676
+        ]
+      ],
+      "n_sites": 73
+    },
+    {
+      "region_code": "5",
+      "region_name": "Flood region 5 (Southeastern Basin and Range) (SIR 2014-5211; NSS GC1622)",
+      "aep": 0.02,
+      "intercept": 5.696,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "power",
+          "units": "mi2",
+          "minimum": 0.155,
+          "maximum": 2925.0,
+          "exponent": -0.11
+        }
+      ],
+      "coefficients": [
+        -2.795
+      ],
+      "citation": {
+        "publication": "Paretti, N.V., Kennedy, J.R., Turney, L.A., and Veilleux, A.G., 2014, Methods for estimating magnitude and frequency of floods in Arizona, developed with unregulated and rural peak-flow data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2014-5211",
+        "table": "Table 9; Table 10; Table 11; Table 12",
+        "year": 2014,
+        "url": "https://doi.org/10.3133/sir20145211"
+      },
+      "sep_log": 0.180795,
+      "avp": 0.033,
+      "model_error_variance": 0.030533984466937086,
+      "covariance": [
+        [
+          0.011178633,
+          -0.014485873
+        ],
+        [
+          -0.014485873,
+          0.021085841
+        ]
+      ],
+      "n_sites": 73
+    },
+    {
+      "region_code": "5",
+      "region_name": "Flood region 5 (Southeastern Basin and Range) (SIR 2014-5211; NSS GC1622)",
+      "aep": 0.01,
+      "intercept": 5.651,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "power",
+          "units": "mi2",
+          "minimum": 0.155,
+          "maximum": 2925.0,
+          "exponent": -0.12
+        }
+      ],
+      "coefficients": [
+        -2.634
+      ],
+      "citation": {
+        "publication": "Paretti, N.V., Kennedy, J.R., Turney, L.A., and Veilleux, A.G., 2014, Methods for estimating magnitude and frequency of floods in Arizona, developed with unregulated and rural peak-flow data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2014-5211",
+        "table": "Table 9; Table 10; Table 11; Table 12",
+        "year": 2014,
+        "url": "https://doi.org/10.3133/sir20145211"
+      },
+      "sep_log": 0.177352,
+      "avp": 0.031,
+      "model_error_variance": 0.029213575324070346,
+      "covariance": [
+        [
+          0.0099444123,
+          -0.013053175
+        ],
+        [
+          -0.013053175,
+          0.019652663
+        ]
+      ],
+      "n_sites": 73
+    },
+    {
+      "region_code": "5",
+      "region_name": "Flood region 5 (Southeastern Basin and Range) (SIR 2014-5211; NSS GC1622)",
+      "aep": 0.005,
+      "intercept": 5.761,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "power",
+          "units": "mi2",
+          "minimum": 0.155,
+          "maximum": 2925.0,
+          "exponent": -0.12
+        }
+      ],
+      "coefficients": [
+        -2.638
+      ],
+      "citation": {
+        "publication": "Paretti, N.V., Kennedy, J.R., Turney, L.A., and Veilleux, A.G., 2014, Methods for estimating magnitude and frequency of floods in Arizona, developed with unregulated and rural peak-flow data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2014-5211",
+        "table": "Table 9; Table 10; Table 11; Table 12",
+        "year": 2014,
+        "url": "https://doi.org/10.3133/sir20145211"
+      },
+      "sep_log": 0.176585,
+      "avp": 0.031,
+      "model_error_variance": 0.02885735998206809,
+      "covariance": [
+        [
+          0.010541635,
+          -0.013889038
+        ],
+        [
+          -0.013889038,
+          0.020961509
+        ]
+      ],
+      "n_sites": 73
+    },
+    {
+      "region_code": "5",
+      "region_name": "Flood region 5 (Southeastern Basin and Range) (SIR 2014-5211; NSS GC1622)",
+      "aep": 0.002,
+      "intercept": 5.75,
+      "variables": [
+        {
+          "code": "CONTDA",
+          "transform": "power",
+          "units": "mi2",
+          "minimum": 0.155,
+          "maximum": 2925.0,
+          "exponent": -0.13
+        }
+      ],
+      "coefficients": [
+        -2.502
+      ],
+      "citation": {
+        "publication": "Paretti, N.V., Kennedy, J.R., Turney, L.A., and Veilleux, A.G., 2014, Methods for estimating magnitude and frequency of floods in Arizona, developed with unregulated and rural peak-flow data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2014-5211",
+        "table": "Table 9; Table 10; Table 11; Table 12",
+        "year": 2014,
+        "url": "https://doi.org/10.3133/sir20145211"
+      },
+      "sep_log": 0.179649,
+      "avp": 0.032,
+      "model_error_variance": 0.028765283332469558,
+      "covariance": [
+        [
+          0.010000987,
+          -0.013321559
+        ],
+        [
+          -0.013321559,
+          0.020745869
+        ]
+      ],
+      "n_sites": 73
     },
     {
       "region_code": "Navajo8",
