@@ -40,6 +40,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     NM's nine regions all carry one statewide polygon; NSS picks among them by the
     `HIGHREG` basin characteristic, which needs a delineation per gage.
   - The Navajo Nation regions also have no geometry.
+- **Wave 1 and 2 definition-of-done QA** (roadmap §3.2): `flowfreq.validation.wave_qa`
+  (border geometry without a GIS dependency, NSS/StreamStats-to-library region mapping,
+  one state's equations on a basin with area weighting, the discrepancy test, log-space
+  bias/RMSE summaries and a drainage-area-ratio leave-one-out harness) and
+  `tools/wave_qa.py`, which runs the cross-border consistency check, the equation-vs-B17C
+  validation and the transposition LOOCV for WA/OR/ID/MT and CO/UT/WY/NM/AZ/NV from a
+  resumable cache. Findings in `docs/WAVE_QA_W1_W2.md` (tables and CSVs in
+  `docs/wave_qa/`); no equation was changed. Of 89 border site-pairs evaluable on both
+  sides, one disagrees beyond the SEP-based threshold (Tongue River near Dayton, WY vs MT,
+  2-year). Systematic offsets: ID above MT in the Idaho panhandle, WY above MT, WA below
+  ID at the 2-year. Nevada could not be evaluated (no region geometry), nor WY/NM as the
+  neighbouring state. Wave vignette:
+  `docs/vignettes/wave1_wave2_ungaged.py`, one offline ungaged estimate per state with
+  region weighting and 90 % prediction intervals.
 - **Scheduled live-service tests** (`.github/workflows/live.yml`): the `requires_network`
   suite (Water Data API vs legacy NWIS parity for peaks, IV, daily and site info; NSS;
   StreamStats; NID; published-figure checks) runs every Monday and on demand. A failed

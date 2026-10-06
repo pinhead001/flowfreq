@@ -1,0 +1,183 @@
+{
+  "WA": {
+    "site_no": "14112000",
+    "site_name": "LITTLE KLICKITAT RIVER NEAR GOLDENDALE, WA",
+    "outlet": [
+      45.844124,
+      -120.796392
+    ],
+    "streamstats_region": "WA",
+    "captured": "2026-10-04",
+    "region_weights": {
+      "1": 0.0092,
+      "4": 0.9908
+    },
+    "characteristics": {
+      "CANOPY_PCT": 17.698,
+      "DRNAREA": 82.2,
+      "PRECPRIS10": 21.05
+    },
+    "b17c_q1pct": 7183.2,
+    "b17c_n": 27
+  },
+  "OR": {
+    "site_no": "13292000",
+    "site_name": "IMNAHA RIVER AT IMNAHA, OR",
+    "outlet": [
+      45.562459,
+      -116.833561
+    ],
+    "streamstats_region": "OR",
+    "captured": "2026-10-04",
+    "region_weights": {
+      "E3": 1.0
+    },
+    "characteristics": {
+      "DRNAREA": 626.0
+    },
+    "b17c_q1pct": 10879.5,
+    "b17c_n": 85
+  },
+  "ID": {
+    "site_no": "13338000",
+    "site_name": "SF CLEARWATER RIVER NR GRANGEVILLE ID",
+    "outlet": [
+      45.911183,
+      -116.008687
+    ],
+    "streamstats_region": "ID",
+    "captured": "2026-10-04",
+    "region_weights": {
+      "1_2": 0.0045,
+      "4": 0.9932,
+      "5": 0.0023
+    },
+    "characteristics": {
+      "DRNAREA": 839.0,
+      "LC11FOREST": 89.861,
+      "PRECPRIS10": 34.69
+    },
+    "b17c_q1pct": 12828.9,
+    "b17c_n": 51
+  },
+  "MT": {
+    "site_no": "06037500",
+    "site_name": "Madison River near West Yellowstone, MT",
+    "outlet": [
+      44.657268,
+      -111.067857
+    ],
+    "streamstats_region": "MT",
+    "captured": "2026-10-04",
+    "region_weights": {
+      "UYCM": 0.2545,
+      "SW": 0.7455
+    },
+    "characteristics": {
+      "CONTDA": 435.0,
+      "EL6000": 100.0
+    },
+    "b17c_q1pct": 2840.1,
+    "b17c_n": 99
+  },
+  "CO": {
+    "site_no": "09253000",
+    "site_name": "LITTLE SNAKE RIVER NEAR SLATER, CO",
+    "outlet": [
+      40.999416,
+      -107.143451
+    ],
+    "streamstats_region": "CO",
+    "captured": "2026-10-04",
+    "region_weights": {
+      "Mountain": 0.828,
+      "Northwest": 0.172
+    },
+    "characteristics": {
+      "BSLDEM10M": 22.48,
+      "DRNAREA": 252.0,
+      "EL7500": 91.88,
+      "PRECIP": 32.804
+    },
+    "b17c_q1pct": 4674.2,
+    "b17c_n": 79
+  },
+  "UT": {
+    "site_no": "09406000",
+    "site_name": "VIRGIN RIVER AT VIRGIN, UT",
+    "outlet": [
+      37.203769,
+      -113.180714
+    ],
+    "streamstats_region": "UT",
+    "captured": "2026-10-04",
+    "region_weights": {
+      "7": 1.0
+    },
+    "characteristics": {
+      "DRNAREA": 947.0
+    },
+    "b17c_q1pct": 19432.5,
+    "b17c_n": 109
+  },
+  "WY": {
+    "site_no": "06186500",
+    "site_name": "Yellowstone River at Yellowstone Lk Outlet YNP",
+    "outlet": [
+      44.567309,
+      -110.380481
+    ],
+    "streamstats_region": "WY",
+    "captured": "2026-10-04",
+    "region_weights": {
+      "1": 1.0
+    },
+    "characteristics": {
+      "DRNAREA": 995.0,
+      "ELEV": 8698.91,
+      "LONG_OUT": 110.38048060731603
+    },
+    "b17c_q1pct": 9941.0,
+    "b17c_n": 101
+  },
+  "NM": {
+    "site_no": "08248000",
+    "site_name": "LOS PINOS RIVER NEAR ORTIZ, CO",
+    "outlet": [
+      36.982121,
+      -106.073668
+    ],
+    "streamstats_region": "NM",
+    "captured": "2026-10-04",
+    "region_weights": {
+      "5": 1.0
+    },
+    "characteristics": {
+      "DRNAREA": 153.0,
+      "ELEV": 9862.77,
+      "I24H100YA2": 4.442
+    },
+    "b17c_q1pct": 2909.0,
+    "b17c_n": 106
+  },
+  "AZ": {
+    "site_no": "09444500",
+    "site_name": "SAN FRANCISCO RIVER AT CLIFTON, AZ",
+    "outlet": [
+      33.0562,
+      -109.298854
+    ],
+    "streamstats_region": "AZ",
+    "captured": "2026-10-04",
+    "region_weights": {
+      "4": 1.0
+    },
+    "characteristics": {
+      "CONTDA": 2764.0,
+      "ELEV": 6811.647,
+      "PRECIP": 20.878
+    },
+    "b17c_q1pct": 111918.5,
+    "b17c_n": 119
+  }
+}

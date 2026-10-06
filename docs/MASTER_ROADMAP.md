@@ -277,8 +277,8 @@ basin that dominates its flood hydrology.
 
 | Wave | Region | Jurisdictions (in order) | Notes |
 |---|---|---|---|
-| 1 | Columbia River basin ([#28](https://github.com/pinhead001/flowfreq/issues/28), closed) | [#37](https://github.com/pinhead001/flowfreq/issues/37) WA (pilot): partial · [#38](https://github.com/pinhead001/flowfreq/issues/38) OR: verified · [#39](https://github.com/pinhead001/flowfreq/issues/39) ID: verified · [#40](https://github.com/pinhead001/flowfreq/issues/40) MT: verified | All four issues closed. WA stays `partial` because its published region 4 covariance is not stored (#65). Regional skew: PNW for WA/OR/ID; MT pending (§1.3). The wave's cross-border consistency check has not been run, although Wave 2 has started. Snowmelt/rain mixed populations and regulated mainstem gages are the main hazards. |
-| 2 | Colorado River basin | [#93](https://github.com/pinhead001/flowfreq/issues/93) CO: verified · [#96](https://github.com/pinhead001/flowfreq/issues/96) UT: partial · [#98](https://github.com/pinhead001/flowfreq/issues/98) WY: verified · [#100](https://github.com/pinhead001/flowfreq/issues/100) NM: verified · [#102](https://github.com/pinhead001/flowfreq/issues/102) AZ: verified · [#104](https://github.com/pinhead001/flowfreq/issues/104) NV: partial | Equations landed for all six (#94, #97, #99, #101, #103, #106); CO, WY and NM issues are closed. UT: region 2's printed bases differ from NSS's. AZ: region 5 stored with the `power` transform. NV: no published range table, region 6's 2-year equation printed `Q=0`. No regional skew, future-flow guidance or cross-border check yet. CA is a Colorado compact state but goes to wave 3. Arid regions have large SEPs, zero-flow years, and heavy use of PILF (potentially influential low flood) screening. |
+| 1 | Columbia River basin ([#28](https://github.com/pinhead001/flowfreq/issues/28), closed) | [#37](https://github.com/pinhead001/flowfreq/issues/37) WA (pilot): partial · [#38](https://github.com/pinhead001/flowfreq/issues/38) OR: verified · [#39](https://github.com/pinhead001/flowfreq/issues/39) ID: verified · [#40](https://github.com/pinhead001/flowfreq/issues/40) MT: verified | All four issues closed. WA stays `partial` because its published region 4 covariance is not stored (#65). Regional skew: PNW for WA/OR/ID; MT pending (§1.3). Wave-level QA ran 2026-10-06 with Wave 2 (`docs/WAVE_QA_W1_W2.md`): no per-site flag on a Wave 1-internal border; systematic offsets ID above MT in the panhandle (1.83x at 1 %, MT West carried into wetter basins) and WA below ID at the 2-year (0.68x); OR's eastern variables and `ELEV` are not computed by OR StreamStats. Snowmelt/rain mixed populations and regulated mainstem gages are the main hazards. |
+| 2 | Colorado River basin | [#93](https://github.com/pinhead001/flowfreq/issues/93) CO: verified · [#96](https://github.com/pinhead001/flowfreq/issues/96) UT: partial · [#98](https://github.com/pinhead001/flowfreq/issues/98) WY: verified · [#100](https://github.com/pinhead001/flowfreq/issues/100) NM: verified · [#102](https://github.com/pinhead001/flowfreq/issues/102) AZ: verified · [#104](https://github.com/pinhead001/flowfreq/issues/104) NV: partial | Equations landed for all six (#94, #97, #99, #101, #103, #106); CO, WY and NM issues are closed. UT: region 2's printed bases differ from NSS's. AZ: region 5 stored with the `power` transform. NV: no published range table, region 6's 2-year equation printed `Q=0`. No regional skew or future-flow guidance yet. Wave-level QA ran 2026-10-06 (`docs/WAVE_QA_W1_W2.md`): 1 of 89 evaluable border site-pairs beyond the SEP threshold (Tongue River, WY-MT, Q2, MT plains polygon over a Bighorn basin); WY above MT at 10 %/50 %; no offset inside Wave 2. NV not evaluable (no region geometry in NSS or StreamStats); WY/NM regions locatable only on their own delineations (`WYPK_IND`, `HIGHREG`). CA is a Colorado compact state but goes to wave 3. Arid regions have large SEPs, zero-flow years, and heavy use of PILF (potentially influential low flood) screening. |
 | 3 | West coast and Pacific | [ ] CA · [ ] AK · [ ] HI | OR and WA were done in wave 1. AK and HI are grouped here as Pacific states with sparse networks. |
 | 4a | Upper Mississippi and Great Lakes | [ ] MN · [ ] WI · [ ] IA · [ ] IL · [ ] MO · [ ] MI | MI is mostly Great Lakes drainage, placed here as the nearest wave. |
 | 4b | Missouri basin | [ ] ND · [ ] SD · [ ] NE · [ ] KS | Snowmelt/ice-jam peaks and prairie non-contributing area. |
@@ -313,11 +313,16 @@ Per jurisdiction, the definition of done:
       published" counts as a valid, recorded answer.
 
 Per wave, the definition of done:
-- [ ] **Cross-border consistency check:** evaluate each state's equations on border gages
+- [~] **Cross-border consistency check:** evaluate each state's equations on border gages
       and on basins that straddle the line. Report the discontinuity at the border by AEP.
-      Large jumps are documented, not smoothed.
-- [ ] Transposition LOOCV (§5.2) run on the wave's gage network.
-- [ ] A wave vignette with one worked ungaged-site example per state.
+      Large jumps are documented, not smoothed. *Waves 1 and 2: run* (`tools/wave_qa.py`,
+      `docs/WAVE_QA_W1_W2.md`). Open for Nevada (no region geometry) and for WY/NM as the
+      neighbouring state.
+- [~] Transposition LOOCV (§5.2) run on the wave's gage network. *Waves 1 and 2:*
+      drainage-area ratio, 980 targets in seven states, median absolute error 0.15-0.20
+      log10 by AEP; WY, NM and NV not covered (no region for the exponent).
+- [~] A wave vignette with one worked ungaged-site example per state. *Waves 1 and 2:*
+      `docs/vignettes/wave1_wave2_ungaged.py`, 9 of 10 states (no NV region can be located).
 
 **Expected gaps to plan for (verify each one; these are not assumptions to code against):**
 - Some states publish equations only in report PDFs that are not yet in NSS, or have newer
@@ -504,7 +509,8 @@ For each state, as part of its definition of done in §3.2:
 - [~] **Per-state regression validation:** worked examples (§3.2). Done for the ten
       transcribed states (Wave 1 and Wave 2). Each state's tests reproduce the report's
       worked examples or per-gage estimates and compare every equation with live NSS.
-- [ ] **Transposition LOOCV** per region (§5.2).
+- [~] **Transposition LOOCV** per region (§5.2). Waves 1 and 2 done for the drainage-area
+      ratio (`docs/WAVE_QA_W1_W2.md`, `docs/wave_qa/dar_loocv_by_region.csv`).
 - [ ] **Nonstationarity methods** validated against published USGS/USACE case studies
       (e.g., USACE NSD tool outputs on the same record).
 - [x] Golden-file regeneration tooling analogous to `tools/gen_fortran_golden.py` for the
