@@ -8,6 +8,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Gage catalog regression regions for Wave 2 (#33): CO, UT and AZ.**
+  `tools/build_gage_catalog.py` now places Colorado, Utah and Arizona gages by
+  point-in-polygon in the peak-flow regions of the reports `data/regression/` stores. The
+  polygons come from NSS `regressionregions/{id}?includeGeometry=true` and are cached per
+  region, so a rebuild resumes. CO and UT gages get one region each. Every AZ row reads
+  `GC1618;<region 2-5>`, because NSS selects High Elevation region 1 by mean basin elevation
+  (7,500 ft or more), not by location; this is the same convention as western Oregon's 2A/2B
+  rows.
+  - With these, 4,209 rows carry a region, up from 2,554: 806 in CO, 443 of 445 in UT and
+    406 in AZ.
+  - All 36 sampled CO, UT and AZ rows matched NSS's own `bylocation` answer for the gage
+    point.
+  - The catalog file stays at 659 KiB.
+  - WY, NV and NM stay blank, verified live 2026-10-04. NSS returns no geometry for any WY
+    or NV peak region, and `bylocation` and the `nss/regions` MapServer have none either.
+    NM's nine regions all carry one statewide polygon; NSS picks among them by the
+    `HIGHREG` basin characteristic, which needs a delineation per gage.
+  - The Navajo Nation regions also have no geometry.
 - **Scheduled live-service tests** (`.github/workflows/live.yml`): the `requires_network`
   suite (Water Data API vs legacy NWIS parity for peaks, IV, daily and site info; NSS;
   StreamStats; NID; published-figure checks) runs every Monday and on demand. A failed
