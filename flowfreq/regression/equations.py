@@ -5,8 +5,8 @@ An equation has the log-linear form USGS state reports use::
     log10(Q_p) = b0 + sum_i b_i * T_i(X_i)
 
 where each ``T_i`` is the transform the report applies to basin
-characteristic ``X_i`` (``log10``, ``log10(X+1)``, or none), optionally after a
-linear rescaling ``scale * X_i + offset`` (see :class:`Variable`). Power-form
+characteristic ``X_i`` (``log10``, ``log10(X+1)``, a power ``X**k``, or none),
+optionally after a linear rescaling ``scale * X_i + offset`` (see :class:`Variable`). Power-form
 equations, ``Q = 10**b0 * A**b1 * ...``, are the same thing written out, so a
 published term such as ``(FOREST/100 + 1)**b`` is ``log10`` with ``scale=0.01``
 and ``offset=1``.
@@ -39,12 +39,19 @@ TRANSFORMS: Dict[str, Callable[[float], float]] = {
     "log10_plus1": lambda x: math.log10(x + 1.0),
 }
 
+#: Transforms that take a parameter, so cannot live in :data:`TRANSFORMS`:
+#: ``power`` is ``x**exponent`` and needs :attr:`Variable.exponent`.
+PARAMETRIC_TRANSFORMS = frozenset({"power"})
+
 # Exclusive lower bound on the argument each transform accepts. ``log10_plus1``
-# is ``log10`` with its argument shifted by one, so its bound is -1.
+# is ``log10`` with its argument shifted by one, so its bound is -1. ``power``
+# needs a positive base, because a real power of a non-positive number is
+# undefined or not real for a general (negative, fractional) exponent.
 _DOMAIN_LOWER: Dict[str, Optional[float]] = {
     "identity": None,
     "log10": 0.0,
     "log10_plus1": -1.0,
+    "power": 0.0,
 }
 
 
@@ -83,7 +90,14 @@ class Variable:
     ``(ELEV/1000)**b``         log10       0.001  0
     ``(GUTTER + 0.1)**b``      log10       1      0.1
     ``b * (X - 20)``           identity    1      -20
+    ``10**(b * A**-c)``        power       1      0       (``exponent=-c``)
     =========================  ==========  =====  ======
+
+    ``transform="power"`` evaluates ``(scale * x + offset) ** exponent``. It is
+    for a raw power of a characteristic *inside* the log-linear sum, as in
+    Arizona's region 5, ``Q = 10**(a - b * A**-c)`` (SIR 2014-5211, Table 9):
+    intercept ``a``, coefficient ``-b``, exponent ``-c``. An ordinary power-form
+    term ``A**b`` is still ``log10`` with coefficient ``b``.
 
     ``transform="log10_plus1"`` is kept as a backward-compatible alias for
     ``log10`` with ``offset`` increased by 1: it evaluates
@@ -93,7 +107,7 @@ class Variable:
     ----------
     code : str
         StreamStats characteristic code.
-    transform : {"identity", "log10", "log10_plus1"}, default "log10"
+    transform : {"identity", "log10", "log10_plus1", "power"}, default "log10"
     units : str
         Published units of ``x``.
     minimum, maximum : float, optional
@@ -104,6 +118,9 @@ class Variable:
         Positive, finite multiplier applied to ``x`` before the transform.
     offset : float, default 0.0
         Finite constant added after ``scale`` and before the transform.
+    exponent : float, optional
+        Required with ``transform="power"`` (finite and non-zero) and not
+        allowed with any other transform.
 
     Notes
     -----
@@ -124,11 +141,24 @@ class Variable:
     maximum: Optional[float] = None
     scale: float = 1.0
     offset: float = 0.0
+    exponent: Optional[float] = None
 
     def __post_init__(self) -> None:
-        if self.transform not in TRANSFORMS:
+        if self.transform not in TRANSFORMS and self.transform not in PARAMETRIC_TRANSFORMS:
             raise ValueError(
-                f"Unknown transform {self.transform!r}; choose from {sorted(TRANSFORMS)}"
+                f"Unknown transform {self.transform!r}; choose from "
+                f"{sorted(set(TRANSFORMS) | PARAMETRIC_TRANSFORMS)}"
+            )
+        if self.transform == "power":
+            if self.exponent is None or not math.isfinite(self.exponent) or self.exponent == 0:
+                raise ValueError(
+                    f"{self.code}: transform 'power' needs a finite, non-zero exponent, "
+                    f"got {self.exponent}"
+                )
+        elif self.exponent is not None:
+            raise ValueError(
+                f"{self.code}: exponent is only used with transform 'power', "
+                f"not {self.transform!r}"
             )
         if self.minimum is not None and self.maximum is not None and self.minimum > self.maximum:
             raise ValueError(f"{self.code}: minimum {self.minimum} > maximum {self.maximum}")
@@ -153,7 +183,7 @@ class Variable:
         ------
         ValueError
             If the transform's argument is outside its domain: ``<= 0`` for
-            ``log10``, ``<= -1`` for ``log10_plus1``. ``allow_extrapolation``
+            ``log10`` and ``power``, ``<= -1`` for ``log10_plus1``. ``allow_extrapolation``
             cannot override this, because there is no value to extrapolate to.
         """
         arg = self.scale * x + self.offset
@@ -163,6 +193,9 @@ class Variable:
                 f"{self.code}={x}: {self.transform} needs {self._argument_text()} > "
                 f"{lower:g}, got {arg:g}"
             )
+        if self.transform == "power":
+            assert self.exponent is not None  # enforced in __post_init__
+            return float(arg**self.exponent)
         return TRANSFORMS[self.transform](arg)
 
     def _argument_text(self) -> str:
@@ -172,10 +205,10 @@ class Variable:
         return text
 
     def to_dict(self) -> Dict[str, Any]:
-        """Return the JSON form, omitting ``scale`` and ``offset`` at their defaults.
+        """Return the JSON form, omitting ``scale``, ``offset`` and ``exponent`` when unset.
 
         Omitting the defaults keeps a variable that does not rescale identical
-        to the form written before ``scale`` and ``offset`` existed.
+        to the form written before ``scale``, ``offset`` and ``exponent`` existed.
         """
         d: Dict[str, Any] = {"code": self.code, "transform": self.transform}
         if self.units:
@@ -188,6 +221,8 @@ class Variable:
             d["scale"] = self.scale
         if self.offset != 0.0:
             d["offset"] = self.offset
+        if self.exponent is not None:
+            d["exponent"] = self.exponent
         return d
 
 
@@ -348,7 +383,7 @@ def evaluate(
         If an input is outside its limits and ``allow_extrapolation`` is False.
     ValueError
         If a transform's argument, ``scale * x + offset``, is outside its domain
-        (``<= 0`` for ``log10``), whatever ``allow_extrapolation`` says.
+        (``<= 0`` for ``log10`` and ``power``), whatever ``allow_extrapolation`` says.
     """
     missing = [v.code for v in eq.variables if v.code not in characteristics]
     if missing:

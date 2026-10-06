@@ -12,7 +12,7 @@ This module turns such a string into the log-linear form of
 :mod:`flowfreq.regression.equations`::
 
     log10(Q) = b0 + sum_i b_i * T_i(scale_i * X_i + offset_i),
-    T_i in {identity, log10, log10_plus1}
+    T_i in {identity, log10, log10_plus1, power}
 
 A term maps as follows:
 
@@ -23,6 +23,9 @@ A term maps as follows:
   ``offset`` (:class:`~flowfreq.regression.equations.Variable`), stored as
   written. The scale must be positive.
 - ``10^(c*X)`` becomes ``identity`` with ``c``, and ``/10^(c*X)`` gives ``-c``.
+- ``10^(a - b*X^(k))``, a constant power of a variable inside the exponent of
+  10 (Arizona region 5), becomes ``power`` with ``exponent=k`` and coefficient
+  ``-b``; ``a`` folds into ``b0``.
 - Constant factors, ``10^(k)`` included, fold into ``b0``.
 - A scale inside a power term, ``(s*X)^b`` or ``(X/s)^b``, is algebraically
   ``s^b * X^b``. It folds into the intercept as ``b*log10(s)``, so the equation
@@ -275,6 +278,9 @@ class ParsedEquation:
     scales, offsets : tuple of float
         Per-variable :attr:`Variable.scale` and :attr:`Variable.offset`. Empty
         means all defaults (1 and 0).
+    exponents : tuple of float or None
+        Per-variable :attr:`Variable.exponent`, set only for ``power``. Empty
+        means none.
     notes : tuple of str
         Rewrites a reviewer should know about, such as a scale folded into ``b0``.
     """
@@ -287,15 +293,17 @@ class ParsedEquation:
     notes: Tuple[str, ...] = ()
     scales: Tuple[float, ...] = ()
     offsets: Tuple[float, ...] = ()
+    exponents: Tuple[Optional[float], ...] = ()
 
     def variables(self) -> Tuple[Variable, ...]:
         """The variables as :class:`Variable` objects, without limits or units."""
         n = len(self.codes)
         scales = self.scales or (1.0,) * n
         offsets = self.offsets or (0.0,) * n
+        exponents: Tuple[Optional[float], ...] = self.exponents or (None,) * n
         return tuple(
-            Variable(code=k, transform=t, scale=sc, offset=off)
-            for k, t, sc, off in zip(self.codes, self.transforms, scales, offsets)
+            Variable(code=k, transform=t, scale=sc, offset=off, exponent=ex)
+            for k, t, sc, off, ex in zip(self.codes, self.transforms, scales, offsets, exponents)
         )
 
     def log10_value(self, values: Mapping[str, float]) -> float:
@@ -313,8 +321,8 @@ class ParsedEquation:
         }
 
 
-# A term's form: (transform, scale, offset).
-_Form = Tuple[str, float, float]
+# A term's form: (transform, scale, offset, exponent).
+_Form = Tuple[str, float, float, Optional[float]]
 
 
 class _LogLin:
@@ -334,10 +342,16 @@ class _LogLin:
 
     @classmethod
     def term(
-        cls, code: str, transform: str, coef: float = 1.0, scale: float = 1.0, offset: float = 0.0
+        cls,
+        code: str,
+        transform: str,
+        coef: float = 1.0,
+        scale: float = 1.0,
+        offset: float = 0.0,
+        exponent: Optional[float] = None,
     ) -> "_LogLin":
         out = cls()
-        out.terms[code] = ((transform, scale, offset), coef)
+        out.terms[code] = ((transform, scale, offset, exponent), coef)
         out.order.append(code)
         return out
 
@@ -371,7 +385,9 @@ class _LogLin:
 
 
 def _form_text(form: _Form) -> str:
-    t, scale, offset = form
+    t, scale, offset, exponent = form
+    if exponent is not None:
+        t = f"{t}^{exponent:g}"
     if scale == 1.0 and offset == 0.0:
         return t
     return f"{t}(scale={scale:g}, offset={offset:g})"
@@ -392,34 +408,49 @@ def _check_variable(name: str, text: str) -> None:
         raise NSSEquationError(f"unsupported identifier {name!r} in {text!r}")
 
 
-def _linear(node: Node, text: str) -> Tuple[float, Dict[str, float], List[str]]:
-    """``node`` as ``const + sum c*X`` (the exponent of a ``10^(...)`` term)."""
+# ``_linear``'s result: constant, coefficient per variable, variable order, and
+# the exponent of each variable that enters as a power ``X^k`` (absent: ``X``).
+_Linear = Tuple[float, Dict[str, float], List[str], Dict[str, float]]
+
+
+def _linear(node: Node, text: str) -> _Linear:
+    """``node`` as ``const + sum c*X`` or ``c*X^k`` (the exponent of a ``10^(...)`` term)."""
     kind = node[0]
     if kind == "num":
-        return float(node[1]), {}, []
+        return float(node[1]), {}, [], {}
     if kind == "var":
         _check_variable(node[1], text)
-        return 0.0, {node[1]: 1.0}, [node[1]]
+        return 0.0, {node[1]: 1.0}, [node[1]], {}
     if kind == "neg":
-        c, d, o = _linear(node[1], text)
-        return -c, {k: -v for k, v in d.items()}, o
+        c, d, o, e = _linear(node[1], text)
+        return -c, {k: -v for k, v in d.items()}, o, e
     if kind == "bin" and node[1] in "+-":
-        c1, d1, o1 = _linear(node[2], text)
-        c2, d2, o2 = _linear(node[3], text)
+        c1, d1, o1, e1 = _linear(node[2], text)
+        c2, d2, o2, e2 = _linear(node[3], text)
         sign = 1.0 if node[1] == "+" else -1.0
         d = dict(d1)
         for k, v in d2.items():
+            if k in d and e1.get(k) != e2.get(k):
+                raise NSSEquationError(
+                    f"{k} appears with two different powers in an exponent of 10 in {text!r}"
+                )
             d[k] = d.get(k, 0.0) + sign * v
-        return c1 + sign * c2, d, o1 + [k for k in o2 if k not in o1]
+        return c1 + sign * c2, d, o1 + [k for k in o2 if k not in o1], {**e1, **e2}
     if kind == "bin" and node[1] in "*/":
         left, right = _const_value(node[2]), _const_value(node[3])
         if node[1] == "*" and left is not None:
-            c, d, o = _linear(node[3], text)
-            return left * c, {k: left * v for k, v in d.items()}, o
+            c, d, o, e = _linear(node[3], text)
+            return left * c, {k: left * v for k, v in d.items()}, o, e
         if right is not None:
             s = right if node[1] == "*" else 1.0 / right
-            c, d, o = _linear(node[2], text)
-            return s * c, {k: s * v for k, v in d.items()}, o
+            c, d, o, e = _linear(node[2], text)
+            return s * c, {k: s * v for k, v in d.items()}, o, e
+    if kind == "bin" and node[1] == "^" and node[2][0] == "var":
+        p = _const_value(node[3])
+        if p is not None and p != 0.0:
+            code = node[2][1]
+            _check_variable(code, text)
+            return 0.0, {code: 1.0}, [code], ({} if p == 1.0 else {code: p})
     raise NSSEquationError(f"exponent of 10 is not linear in the variables in {text!r}")
 
 
@@ -452,10 +483,14 @@ def _loglin(node: Node, text: str) -> _LogLin:
         return _loglin(left, text).plus(_loglin(right, text).scaled(-1.0), text)
     if op == "^":
         if _const_value(left) == 10.0:
-            c, d, o = _linear(right, text)
+            c, d, o, e = _linear(right, text)
             out = _LogLin.constant(c)
             for k in o:
-                out = out.plus(_LogLin.term(k, "identity", d[k]), text)
+                if k in e:
+                    term = _LogLin.term(k, "power", d[k], exponent=e[k])
+                else:
+                    term = _LogLin.term(k, "identity", d[k])
+                out = out.plus(term, text)
             return out
         p = _const_value(right)
         if p is None:
@@ -473,11 +508,15 @@ def _base(node: Node, text: str) -> _LogLin:
     """
     if node[0] == "bin" and node[1] in "+-":
         try:
-            c, d, order = _linear(node, text)
+            c, d, order, powers = _linear(node, text)
         except NSSEquationError:
             raise NSSEquationError(
                 f"additive offset in a base that is not affine in one variable in {text!r}"
             ) from None
+        if powers:
+            raise NSSEquationError(
+                f"additive offset in a base that is not affine in one variable in {text!r}"
+            )
         if len(order) != 1:
             raise NSSEquationError(
                 f"additive offset in a base with {len(order)} variables in {text!r}; "
@@ -526,6 +565,7 @@ def parse_equation(equation: str) -> ParsedEquation:
         notes=tuple(dict.fromkeys(ll.notes)),
         scales=tuple(ll.terms[k][0][1] for k in ll.order),
         offsets=tuple(ll.terms[k][0][2] for k in ll.order),
+        exponents=tuple(ll.terms[k][0][3] for k in ll.order),
     )
 
 
@@ -561,6 +601,7 @@ def to_regression_equation(
             maximum=limits.get(v.code, (None, None))[1],
             scale=v.scale,
             offset=v.offset,
+            exponent=v.exponent,
         )
         for v in parsed.variables()
     )
