@@ -132,9 +132,13 @@ Audited 2026-10-03 against `git log v0.9.0..origin/main`, `CHANGELOG.md` and
       loader and the national source review are done (#92). HEC-17 (2016) and NCHRP 15-61
       (2019), checked against the primary documents, give methods and single-site worked
       examples but **no tabulated national factors**, so no national set ships
-      (`docs/FUTURE_FLOW_GUIDANCE.md`). Open: NOAA Atlas 15 Volume 2 once published (plus
-      a cited precipitation-to-flow elasticity), and producing the national result
-      alongside a state override automatically.
+      (`docs/FUTURE_FLOW_GUIDANCE.md`). The Wave 1 and Wave 2 state survey found no state
+      that tabulates per-AEP factors either (WA requires one, read per site from WDFW's
+      tool), so no state set ships. NCHRP 15-61's Ch. 6/7/8 procedures are implemented and
+      reproduce its Tables 6.8-6.9, 7.1 and 8.1; `apply_with_precedence` reports the
+      national result alongside a state override. Open: NOAA Atlas 15 Volume 2 once
+      published (plus a cited precipitation-to-flow elasticity), and the unretrieved NMDOT
+      (2018) and NDOT (2006) drainage manuals.
 - [x] **#37 WA (pilot)**, `partial` (#55); the issue is closed.
       - [ ] Table 7's region 4 covariance is published but not stored, which is what keeps
             WA `partial`. Its `P/10` scaling is undocumented and contradicted by Table 8
@@ -170,8 +174,9 @@ unresolved.
       NSS's. Region 6's 2-year equation is printed `Q=0`, and hybrid-method errors are not
       comparable standard errors and are not stored.
 
-No Wave 2 state has a regional skew yet, and none has its §6.3.2 future-flow guidance or
-the wave's cross-border consistency check (roadmap §3.2).
+No Wave 2 state has a regional skew yet, or the wave's cross-border consistency check
+(roadmap §3.2). Their §6.3.2 future-flow guidance is recorded: none tabulates factors
+(`docs/FUTURE_FLOW_GUIDANCE.md`).
 
 ### Small open items
 

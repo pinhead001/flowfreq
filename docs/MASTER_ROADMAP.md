@@ -447,7 +447,9 @@ Recommended approaches, most defensible first:
       primary documents (`data/future/national_sources.json`, `docs/FUTURE_FLOW_GUIDANCE.md`;
       #92). The issue stays open. HEC-17 and NCHRP 15-61 give methods and single-site examples, **not tabulated national
       factors**, so no national set ships; NOAA Atlas 15 Volume 2 is unpublished (planned
-      2027). Revisit then.
+      2027). Revisit then. NCHRP 15-61's mechanical per-site procedures are implemented
+      (`ensemble_ratio_summary`, Ch. 6; `regression_change_factors`, Ch. 7;
+      `index_flood_projection`, Ch. 8), each reproducing the Guide's worked example.
 - [ ] **Regression space-for-time.** In RREs whose explanatory variables include
       precipitation or temperature, substitute downscaled projected values (e.g.,
       LOCA2 / CMIP6 ensemble). Report the ensemble spread, not only the median, and flag
@@ -471,8 +473,9 @@ Recommended approaches, most defensible first:
       national default. The override is always recorded in provenance, and the national
       result is still reported alongside it for comparison.
       `future_flow.select_factor_set` implements the override (and raises if two state sets
-      apply), and `FutureQuantiles.provenance["overrode"]` records it. The side-by-side
-      national result is not produced automatically; the caller applies both sets.
+      apply), and `FutureQuantiles.provenance["overrode"]` records it.
+      `apply_with_precedence` produces the national result alongside a state override,
+      labelled (`FutureQuantiles.national`, `national_*` columns, `provenance["basis"]`).
 
 #### 6.3.2 State-specific guidance (added per state, during its wave)
 For each state, as part of its definition of done in §3.2:

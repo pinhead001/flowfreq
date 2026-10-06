@@ -8,6 +8,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Future flow: state survey, NCHRP 15-61 procedures, side-by-side precedence** (#36).
+  The Wave 1 and Wave 2 states (WA, OR, ID, MT, CO, UT, WY, NM, AZ, NV) were surveyed
+  against their DOT manuals and related state and USGS reports. None tabulates per-AEP flood
+  multipliers, so no `<STATE>.factors.json` ships; `docs/FUTURE_FLOW_GUIDANCE.md` records
+  each state's findings and a status table. Washington *requires* a 2080s 100-year factor
+  (WSDOT Hydraulics Manual 2026, §7-3.5.5), but it is read per site from WDFW's tool, not a
+  table. Three NCHRP 15-61 per-site procedures are implemented on user-supplied
+  projections, each reproducing the Guide's worked example: `ensemble_ratio_summary`
+  (Ch. 6, Tables 6.8-6.9), `regression_change_factors` (Ch. 7, Table 7.1 from Lumia et al.
+  2006's equations; strict range check) and `index_flood_projection` (Ch. 8, Table 8.1).
+  Reproducing Table 7.1 shows its 0.2-AEP flows about 4 percent below the equation's, with
+  the ratio intact. `apply_with_precedence` applies the governing set and reports the
+  national result alongside a state override, labelled (`FutureQuantiles.national`,
+  `national_*` columns, `provenance["basis"]`). `ChangeFactorSet` gains `level="site"`.
 - **Gage catalog regression regions for Wave 2 (#33): CO, UT and AZ.**
   `tools/build_gage_catalog.py` now places Colorado, Utah and Arizona gages by
   point-in-polygon in the peak-flow regions of the reports `data/regression/` stores. The
