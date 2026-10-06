@@ -98,9 +98,13 @@ Standing rules carried over from this repo's history, which apply to every phase
       Data API `peaks` and `monitoring-locations` collections by
       `tools/build_gage_catalog.py`), with the schema validated on load. The regulation
       class comes from #32 (#105: 20,745 sites, 56 jurisdictions). *Partial:*
-      `regression_region` is filled for Wave 1 states only, by point-in-polygon against the
-      StreamStats peak-region layers. The Wave 2 states, whose equations have landed, are
-      not filled yet.
+      `regression_region` is filled by gage point-in-polygon for Wave 1 (StreamStats
+      peak-region layers) and for Wave 2's CO, UT and AZ (NSS `regressionregions`
+      geometry). AZ rows list High Elevation region 1 as a candidate beside their
+      region 2-5, because region 1 is chosen by mean basin elevation. WY, NV and NM
+      stay blank: NSS has no locatable region geometry for WY or NV, and NM's regions
+      are selected by the `HIGHREG` basin characteristic, which takes a delineation per
+      gage.
 
 ### 1.2 Geospatial inputs
 - [x] **Watershed polygon** (the open Phase 1 gap). Verify a live source, such as the

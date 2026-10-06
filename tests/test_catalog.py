@@ -166,6 +166,63 @@ def test_assign_regions_point_in_polygon():
     assert tool.assign_regions(sites, polys) == {"in": "GC1750;GC730;GC731"}
 
 
+def test_nss_region_rings_feed_assign_regions():
+    """NSS GeoJSON (Multi)Polygons -> rounded rings, holes and parts counted even-odd."""
+    tool = _tool()
+    outer = [[0, 0], [4, 0], [4, 4], [0, 4], [0, 0]]
+    hole = [[1, 1], [2, 1], [2, 2], [1, 2], [1, 1]]
+    part = [[10.123456789, 10], [11, 10], [11, 11], [10, 11], [10.123456789, 10]]
+    multi = {"type": "MultiPolygon", "coordinates": [[outer, hole], [part]]}
+    rings = tool.nss_region_rings(multi)
+    assert len(rings) == 3 and rings[2][0] == [10.12346, 10.0]
+    assert tool.nss_region_rings({"type": "Point", "coordinates": [0, 0]}) == []
+    whole = {"type": "Polygon", "coordinates": [[[-1, -1], [20, -1], [20, 20], [-1, 20], [-1, -1]]]}
+    polys = [
+        {"gridcode": "GC1621", "rings": rings},
+        {"gridcode": "GC1618", "rings": tool.nss_region_rings(whole)},  # statewide, like AZ 1
+    ]
+    sites = {
+        "a": {"latitude": 0.5, "longitude": 0.5},
+        "hole": {"latitude": 1.5, "longitude": 1.5},
+        "b": {"latitude": 10.5, "longitude": 10.5},
+    }
+    assert tool.assign_regions(sites, polys) == {
+        "a": "GC1618;GC1621",
+        "hole": "GC1618",
+        "b": "GC1618;GC1621",
+    }
+
+
+def test_nss_region_polygons_uses_cache(tmp_path, monkeypatch):
+    """A cached region is never refetched (resumable builds); one is fetched otherwise."""
+    tool = _tool()
+    monkeypatch.setattr(tool, "NSS_REGION_IDS", {"ZZ": (1, 2)})
+    cached = {"gridcode": "GC1", "rings": [[[0, 0], [1, 0], [1, 1], [0, 0]]]}
+    (tmp_path / "nss_regions").mkdir()
+    (tmp_path / "nss_regions" / "1.json").write_text(json.dumps(cached))
+
+    class Resp:
+        def raise_for_status(self):
+            pass
+
+        def json(self):
+            return {
+                "code": "GC2",
+                "location": {"geometry": {"type": "Polygon", "coordinates": cached["rings"]}},
+            }
+
+    calls = []
+
+    def fake_get(url, params, timeout):
+        calls.append(url)
+        return Resp()
+
+    monkeypatch.setattr(tool.requests, "get", fake_get)
+    got = tool.nss_region_polygons("ZZ", tmp_path, refresh=False)
+    assert [g["gridcode"] for g in got] == ["GC1", "GC2"]
+    assert calls == [f"{tool.NSS_REGRESSION_REGIONS}/2"]
+
+
 # ------------------------------------------------- packaged catalog ---------
 
 
@@ -179,11 +236,40 @@ def test_packaged_catalog(packaged):
     assert len(packaged) == meta["rows"]
     assert (packaged["n_peaks"] >= meta["min_years"]).all()
     assert packaged["regulation_class"].value_counts().to_dict() == meta["regulation_class_counts"]
-    wave1 = packaged["state"].isin(["WA", "OR", "ID", "MT"])
+    located = packaged["state"].isin(["WA", "OR", "ID", "MT", "CO", "UT", "AZ"])
     filled = packaged["regression_region"].notna()
-    assert not (filled & ~wave1).any()  # regions only for Wave 1
-    assert filled[wave1].mean() > 0.8
+    assert not (filled & ~located).any()  # Wave 1, and Wave 2's CO, UT and AZ, only
+    for state, share in {
+        "WA": 0.8,
+        "OR": 0.8,
+        "MT": 0.8,
+        "CO": 0.99,
+        "UT": 0.99,
+        "AZ": 0.99,
+    }.items():
+        assert filled[packaged["state"] == state].mean() > share, state
     assert packaged["regression_region"].dropna().str.fullmatch(r"GC\d+(;GC\d+)*").all()
+    assert meta["regression_region_filled"] == int(filled.sum())
+
+
+def test_packaged_catalog_wave2_regions(packaged):
+    """CO and UT regions are disjoint; AZ lists High Elevation (GC1618) as a candidate."""
+    reg = packaged.dropna(subset=["regression_region"]).set_index("site_no")
+    co = reg[reg["state"] == "CO"]["regression_region"]
+    assert set(co) <= {"GC1204", "GC1205", "GC1206", "GC1207", "GC1208", "GC1698"}
+    ut = reg[reg["state"] == "UT"]["regression_region"]
+    assert set(ut) <= {f"GC{n}" for n in range(960, 967)}
+    az = reg[reg["state"] == "AZ"]["regression_region"]
+    assert set(az) == {"GC1618;GC1619", "GC1618;GC1620", "GC1618;GC1621", "GC1618;GC1622"}
+    # Known gages: Crystal River above Avalanche Creek (Roaring Fork basin, CO
+    # Northwest region) and East Canyon Creek near Morgan, UT. When built, 36 of 36
+    # sampled CO/UT/AZ rows matched NSS's own bylocation answer for the gage point.
+    assert reg.loc["09081600", "regression_region"] == "GC1205"
+    assert reg.loc["10134500", "regression_region"].startswith("GC96")
+    # No verified point-in-region source for WY, NV and NM: blank.
+    assert (
+        not packaged[packaged["state"].isin(["WY", "NV", "NM"])]["regression_region"].notna().any()
+    )
 
 
 def test_packaged_catalog_known_sites(packaged):
@@ -231,6 +317,26 @@ def test_waterdata_bulk_filters_are_live():
     ).json()["features"]
     f = location_fields(locs[0])
     assert f["state"] == "WA" and f["latitude"] is not None
+
+
+@pytest.mark.requires_network
+def test_nss_wave2_region_ids_are_live():
+    """The NSS ids the tool fetches still name the peak-flow regions it expects."""
+    import requests
+
+    tool = _tool()
+    for state, ids in tool.NSS_REGION_IDS.items():
+        listed = requests.get(
+            f"https://streamstats.usgs.gov/nssservices/regions/{state}/regressionregions",
+            params={"statisticgroups": 2},
+            timeout=60,
+        ).json()
+        assert set(ids) <= {r["id"] for r in listed}, state
+    # Wyoming's peak regions still carry no geometry (why WY stays blank).
+    wy = requests.get(
+        f"{tool.NSS_REGRESSION_REGIONS}/746", params={"includeGeometry": "true"}, timeout=60
+    )
+    assert not ((wy.json().get("location") or {}).get("geometry"))
 
 
 def test_regression_coverage_doc_is_current():

@@ -3,7 +3,7 @@
 The catalog lists every USGS peak-flow site with at least 10 water years of
 discharge peaks, with the attributes the rest of the roadmap selects on:
 name, location, drainage area, state, HUC8, years of record, regulation
-class, and (Wave 1 states) regression region. It is rebuilt by
+class, and (Wave 1 and Wave 2 states) regression region. It is rebuilt by
 ``tools/build_gage_catalog.py`` from the Water Data OGC API ``peaks`` and
 ``monitoring-locations`` collections and is never edited by hand. The packaged
 file is ``data/gage_catalog.csv.gz``, with its build metadata in
@@ -14,12 +14,17 @@ Columns:
 - ``regulation_class``: :func:`flowfreq.regulation.classify_site` on the
   site's peak codes plus the packaged GAGES-II screen: ``reference``,
   ``regulated``, ``urban`` or ``unknown``.
-- ``regression_region``: the NSS region code(s) (``GC1750``) of the
-  StreamStats peak-flow region polygon containing the **gage location**,
-  ``;``-joined when the polygon names several (western Oregon's 2A/2B split
-  is by basin mean elevation, not location). Filled for WA, OR, ID and MT
-  only and blank elsewhere. A basin that crosses a region boundary needs the
-  area-weighted lookup, :func:`flowfreq.streamstats.locate_regression_regions`.
+- ``regression_region``: the NSS region code(s) (``GC1750``) of the peak-flow
+  region polygon(s) containing the **gage location**, ``;``-joined when
+  several apply because the choice depends on a basin attribute rather than
+  location: western Oregon's 2A/2B split by basin mean elevation, and Arizona's
+  High Elevation region 1 (``GC1618``, mean elevation 7,500 ft or more),
+  which every Arizona row lists beside its region 2-5. Filled for Wave 1 (WA,
+  OR, ID, MT) and for CO, UT and AZ of Wave 2. It is blank for WY, NV and NM,
+  where no verified source places a point in a region (see
+  ``tools/build_gage_catalog.py``), and for every other state. A basin that
+  crosses a region boundary needs the area-weighted lookup,
+  :func:`flowfreq.streamstats.locate_regression_regions`.
 
 The 3-row ``gage_attributes.csv`` seed that :class:`flowfreq.usgs.GageAttributes`
 reads is unchanged.
