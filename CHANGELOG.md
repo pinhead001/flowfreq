@@ -27,6 +27,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   all within 0.8%; live NSS equal at 3 significant figures except the 4-percent AEP, where
   NSS rounds the printed b = 2.988 to 2.99 (Table 14 agrees with 2.988).
 
+### Changed
+- **Utah region 2: no published source for NSS's 4-digit precipitation bases** (#96).
+  SIR 2007-5158 ver. 4.0 prints region 2's `b^PRECIP` bases to 3 significant figures, while
+  NSS evaluates 4. A search for a primary source found none: ver. 4.0 is still current, its
+  revision history changes only PK200's base, the PDF's text layer and appendix carry nothing
+  more, and no spreadsheet or data release exists. `UT.json` keeps the printed values, its
+  notes record the search, and UT stays `partial`.
+
 ### Fixed
 - Two live tests were brittle: the 06214500 ice-day test pinned provisional dates that USGS
   has since revised (it now asserts the invariant), and the NID test failed rather than
