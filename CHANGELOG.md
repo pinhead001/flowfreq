@@ -14,6 +14,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   scheduled run opens or updates a `live-tests` issue. Set the optional `USGS_API_KEY`
   repository secret to avoid the API's per-IP rate limit
   (keys: https://api.waterdata.usgs.gov/signup/).
+- **Regulation screen on current basin data (#32), opt-in and per site.**
+  `classify_site(site_no, use_current_nid=True, use_current_impervious=True)` re-applies the
+  screen's two attribute rules to today's data instead of GAGES-II's 2009/2006 snapshot. It
+  delineates the basin with StreamStats unless given a `watershed=`. The default stays
+  offline.
+  - *Dam storage:* the current National Inventory of Dams (`load_nid`) is summed over the dams
+    inside the watershed polygon (`nid_storage_in_basin`). It is normalized as before:
+    127.8 days of mean runoff (Dudley and others 2018). The runoff is GAGES-II `RUNAVE7100`,
+    now stored in `regulation_screen.csv.gz` as `runave7100_mm`. Outside GAGES-II it is the
+    gage's mean daily flow over complete water years. The NID is downloaded once (67 MB),
+    then a 1.3 MB extract is cached under `~/.flowfreq/nid` (or `$FLOWFREQ_CACHE/nid`),
+    refreshed after 90 days, and used stale if the host is unreachable. Associated
+    structures, which repeat their parent dam's storage, are dropped. Point-in-polygon is
+    numpy ray casting, with no geospatial dependency. On five dammed GAGES-II basins the sums
+    agree with `STOR_NID_2009` to within 15%.
+  - *Impervious cover:* the newest NLCD impervious epoch StreamStats computes for the region
+    (`NLCD_IMPERVIOUS_CODES`: 2001, 2006, 2011, 2016, 2019, 2021 or 2023, verified live
+    against every region's list). The year and the whole series are recorded: GA, NC, SC and
+    VA have three or more epochs. Some regions compute none, including WA, MT, NM, IL, WI, NJ,
+    VT, ME, LA, WV and AK; there the GAGES-II 2006 value stands. CO's `LC11IMP` is recorded
+    but not used. It reads about 2.6 times GAGES-II's NLCD 2006 at both gages checked
+    (`IMPERVIOUS_UNVERIFIED_REGIONS`), whereas GA and TN agreed.
+  - A StreamStats "River is regulated" delineation warning is taken as `regulated`.
+  - A GAGES-II `Ref` gage stays `reference`, with a note if current data would cross a
+    threshold. Gages outside GAGES-II can now be classed `regulated` or `urban` on current
+    data. Service failures are recorded in `basis` and never raised. The evidence is in the
+    new `SiteClassification.current`, which provenance includes.
 - **Arizona flood region 5; `AZ.json` is now `verified`** (#102). Region 5 (SIR 2014-5211,
   Southeastern Basin and Range) is printed `Q = 10^(a - b·DRNAREA^-c)`, a raw power inside the
   log-linear sum. `Variable` gains `transform="power"` with an `exponent` parameter (value
@@ -26,6 +53,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `[1, DRNAREA^-c]` reproduces Table 10's AVP within 0.0006; Table 14's per-gage estimates
   all within 0.8%; live NSS equal at 3 significant figures except the 4-percent AEP, where
   NSS rounds the printed b = 2.988 to 2.99 (Table 14 agrees with 2.988).
+- **Nevada transition zones and calibrated ranges** (#104). `flowfreq.regression.nevada`
+  implements WSP 2433's equations 6 and 7 (p. 19): `estimate_area_weighted` for a basin in two
+  low- to middle-elevation regions, and `estimate_elevation_transition` for a site within
+  700 ft below the High-Elevation Region 1 boundary (7,500 ft south of 41° latitude; north
+  of it the caller passes the boundary read from figure 5). Both reproduce the report's worked
+  examples (pp. 41 and 44). `NV.json`'s variable limits are now the range over the gages each
+  region used, from the report's data section (pp. 109-195), in place of NSS's untraceable
+  limits; the selection rules reproduce every table's station count, and every stored limit
+  was checked on the rendered page. NV stays `partial`: region 6's printed 2-year `Q=0` and
+  the hybrid regions' non-comparable error statistics are still not stored.
 
 ### Changed
 - **Utah region 2: no published source for NSS's 4-digit precipitation bases** (#96).
@@ -39,7 +76,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Two live tests were brittle: the 06214500 ice-day test pinned provisional dates that USGS
   has since revised (it now asserts the invariant), and the NID test failed rather than
   skipped on a local DNS failure.
-### Fixed
 - **`download_peak_flow` set only name and drainage area on the Water Data backend.** It now
   sets every attribute `fetch_site_info` takes from the same `monitoring-locations` record
   (`waterdata.site_attributes`): latitude/longitude, 12-digit HUC and FIPS state code too.

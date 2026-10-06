@@ -9,10 +9,12 @@ mocked except in the ``requires_network`` tests.
 
 from __future__ import annotations
 
+import contextlib
 from typing import Any, Dict, List
 
 import pandas as pd
 import pytest
+import requests
 
 import flowfreq.regional_skew as rs_mod
 from flowfreq.regional_skew import (
@@ -290,18 +292,52 @@ def test_regional_skew_for_site_without_huc(monkeypatch):
 # ----------------------------------------------------------------------------
 
 
+@contextlib.contextmanager
+def _skip_on_service_outage():
+    """Skip, not fail, when a remote service is down (5xx, connection, timeout).
+
+    The weekly live run failed on 2026-10-05 on a 504 Gateway Time-out from
+    hydro.nationalmap.gov (WBD). An outage is not a regression in this code; a
+    4xx or a wrong answer still fails.
+    """
+    try:
+        yield
+    except requests.HTTPError as exc:
+        status = exc.response.status_code if exc.response is not None else 0
+        if status >= 500:
+            pytest.skip(f"remote service unavailable: {exc}")
+        raise
+    except (requests.ConnectionError, requests.Timeout) as exc:
+        pytest.skip(f"remote service unreachable: {exc}")
+
+
 @pytest.mark.requires_network
 def test_live_point_lookups():
-    assert regional_skew_at(46.87676389, -113.9321194).skew == PNW_SKEW  # 12340500
-    assert regional_skew_at(44.25916667, -112.4102778).skew == PNW_SKEW  # 13116500
-    with pytest.raises(RegionalSkewUnavailable, match="Snake River Plain"):
-        regional_skew_at(43.12527778, -112.5188889)  # 13069500
-    with pytest.raises(RegionalSkewUnavailable):
-        regional_skew_at(45.800119, -108.468031)  # 06214500
+    with _skip_on_service_outage():
+        assert regional_skew_at(46.87676389, -113.9321194).skew == PNW_SKEW  # 12340500
+        assert regional_skew_at(44.25916667, -112.4102778).skew == PNW_SKEW  # 13116500
+        with pytest.raises(RegionalSkewUnavailable, match="Snake River Plain"):
+            regional_skew_at(43.12527778, -112.5188889)  # 13069500
+        with pytest.raises(RegionalSkewUnavailable):
+            regional_skew_at(45.800119, -108.468031)  # 06214500
 
 
 @pytest.mark.requires_network
 def test_live_site_lookup():
-    assert regional_skew_for_site("12048000").state == "WA"
-    with pytest.raises(RegionalSkewUnavailable):
-        regional_skew_for_site("06214500")
+    with _skip_on_service_outage():
+        assert regional_skew_for_site("12048000").state == "WA"
+        with pytest.raises(RegionalSkewUnavailable):
+            regional_skew_for_site("06214500")
+
+
+def test_outage_helper_skips_5xx_but_not_4xx():
+    resp = requests.Response()
+    resp.status_code = 504
+    with pytest.raises(pytest.skip.Exception):
+        with _skip_on_service_outage():
+            raise requests.HTTPError("504", response=resp)
+    resp4 = requests.Response()
+    resp4.status_code = 404
+    with pytest.raises(requests.HTTPError):
+        with _skip_on_service_outage():
+            raise requests.HTTPError("404", response=resp4)

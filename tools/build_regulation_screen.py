@@ -48,11 +48,14 @@ Classification rules, each from a published source (first match wins):
 Peak-code evidence (code 6) is added at run time by
 :func:`flowfreq.regulation.classify_site`, not stored here.
 
-Not used: the current National Inventory of Dams. Its national CSV
-(https://nid.sec.usace.army.mil/api/nation/csv, 67 MB, "Data Last Updated
-2026-9-23") was verified live, but summing it upstream of each gage needs
-basin polygons and a point-in-polygon pass that flowfreq's dependencies do not
-include; GAGES-II's STOR_NID_2009 is the 2009 NID already summed per basin.
+``runave7100_mm`` (GAGES-II ``RUNAVE7100``) is stored so that
+:func:`flowfreq.regulation.classify_site`'s opt-in current-NID refinement can
+normalize today's storage by the same runoff the 2009 value used.
+
+The current National Inventory of Dams is not summed here: that needs a
+watershed polygon per gage, which only a StreamStats delineation provides, so
+it is an opt-in, per-site refinement at run time
+(``classify_site(..., use_current_nid=True)``), not a table column.
 
 Usage::
 
@@ -99,6 +102,7 @@ COLUMNS = (
     "stor_nid_2009_ml_km2",
     "norm_storage_days",
     "imperv_pct_2006",
+    "runave7100_mm",
     "basis",
     "source",
     "source_date",
@@ -164,12 +168,14 @@ def build(cache: Path) -> pd.DataFrame:
         .merge(t["conterm_pop_infrastr"][["STAID", "IMPNLCD06"]], on="STAID", how="left")
     )
     runoff = pd.to_numeric(con["RUNAVE7100"], errors="coerce")
+    con["RUNAVE7100"] = runoff
     con["norm"] = np.where(runoff > 0, con["STOR_NID_2009"] / runoff * 365.0, np.nan)
     ak = t["AKHIPR_bas_classif"][["STAID", "CLASS"]].merge(
         t["AKHIPR_hydromod_dams"][["STAID", "NDAMS_2009", "STOR_NID_2009"]], on="STAID"
     )
     ak["norm"] = np.nan
     ak["IMPNLCD06"] = np.nan
+    ak["RUNAVE7100"] = np.nan
     both = pd.concat([con, ak], ignore_index=True)
     rows = []
     for r in both.itertuples(index=False):
@@ -186,6 +192,7 @@ def build(cache: Path) -> pd.DataFrame:
                 "stor_nid_2009_ml_km2": round(float(r.STOR_NID_2009), 2),
                 "norm_storage_days": None if norm is None else round(norm, 1),
                 "imperv_pct_2006": None if imp is None else round(imp, 2),
+                "runave7100_mm": None if pd.isna(r.RUNAVE7100) else round(float(r.RUNAVE7100), 1),
                 "basis": basis,
                 "source": SOURCE,
                 "source_date": SOURCE_DATE,

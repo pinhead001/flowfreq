@@ -166,3 +166,159 @@ def test_matches_live_nss(lib, basin):
             assert _sig3(ours) == est.value, (region, code, est.value, ours)
             compared += 1
     assert compared == 35
+
+
+# Data section (pp. 109-195), the gages used in each region: minimum and maximum of each
+# explanatory variable, with the station that sets it, read from the rendered rows.
+DATA_SECTION_RANGES = [
+    ("1", "DRNAREA", 0.30, 1061.0),  # 10205100 Sheep Creek; 09119000 Tomichi Creek
+    ("1", "PRECIP", 10.0, 45.0),  # 09204700; 09352500
+    ("2", "DRNAREA", 0.16, 1680.0),  # 13172668; 14040500 John Day River at Picture Gorge
+    ("2", "ELEV", 2700.0, 9090.0),  # 13228300 Lytle Creek; 10316500 Lamoille Creek
+    ("3", "DRNAREA", 2.22, 1450.0),  # 13145700; 13105000 Salmon Falls Creek
+    ("3", "PRECIP", 10.0, 46.0),  # 13075600; 13047500 Falls River
+    ("5", "DRNAREA", 0.64, 886.0),  # 10336635; 10311000 Carson River near Carson City
+    ("5", "ELEV", 5770.0, 10500.0),  # 10311450; 10265700
+    ("5", "LAT_GAGE", 36.439, 39.501),  # 10286000; 10342000
+    ("6", "DRNAREA", 0.20, 1670.0),  # 10249140; 09418500 Meadow Valley Wash
+    ("6", "ELEV", 3340.0, 9960.0),  # 09415800; 10249900 Chiatovich Creek
+    ("10", "DRNAREA", 0.01, 1693.0),  # 09429250; 10255885 San Felipe Creek
+]
+
+
+@pytest.mark.parametrize("region, code, lo, hi", DATA_SECTION_RANGES)
+def test_limits_from_data_section(lib, region, code, lo, hi):
+    for eq in (e for e in lib.equations if e.region_code == region):
+        for v in eq.variables:
+            if v.code == code:
+                assert (v.minimum, v.maximum) == (lo, hi)
+                assert "data section" in eq.citation.table
+
+
+def test_ranges_contain_nss_limits(lib):
+    """NSS's limits (snapshot 2026-10-01) lie inside the data-section ranges, to NSS's rounding."""
+    nss = {
+        ("1", "DRNAREA"): (0.6, 1060.0),
+        ("1", "PRECIP"): (11.0, 43.0),
+        ("2", "DRNAREA"): (0.8, 1680.0),
+        ("2", "ELEV"): (3540.0, 7950.0),
+        ("3", "DRNAREA"): (2.2, 1450.0),
+        ("3", "PRECIP"): (10.0, 41.0),
+        ("5", "DRNAREA"): (4.1, 360.0),
+        ("5", "ELEV"): (5770.0, 10500.0),
+        ("5", "LAT_GAGE"): (36.44, 39.5),
+        ("6", "DRNAREA"): (0.2, 210.0),
+        ("6", "ELEV"): (4770.0, 9960.0),
+        ("10", "DRNAREA"): (0.1, 1000.0),
+    }
+    for (region, code), (lo, hi) in nss.items():
+        v = {v.code: v for v in lib.equation(region, 0.01).variables}[code]
+        assert v.minimum <= lo * 1.01 and hi <= v.maximum * 1.01, (region, code)
+
+
+class TestTransitionZones:
+    """WSP 2433 p. 19, equations 6 and 7; worked examples pp. 39-44."""
+
+    def test_boundary_south_of_41(self):
+        from flowfreq.regression.nevada import high_elevation_boundary_ft
+
+        assert high_elevation_boundary_ft(37.0) == 7500.0
+        assert high_elevation_boundary_ft(41.0) == 7500.0
+
+    def test_boundary_north_of_41_is_graphical_only(self):
+        from flowfreq.regression.nevada import high_elevation_boundary_ft
+
+        with pytest.raises(ValueError, match="figure 5"):
+            high_elevation_boundary_ft(41.5)
+
+    @pytest.mark.parametrize(
+        "elev, low", [(6700.0, 1.0), (6800.0, 1.0), (7150.0, 0.5), (7500.0, 0.0), (8000.0, 0.0)]
+    )
+    def test_elevation_weights(self, elev, low):
+        from flowfreq.regression.nevada import elevation_transition_weights
+
+        w = elevation_transition_weights(elev, 7500.0)
+        assert w["low"] == pytest.approx(low) and w["high"] == pytest.approx(1 - low)
+
+    def test_equation_6_worked_example(self, lib):
+        """p. 41: 21 mi2 in Region 6 and 36 mi2 in Region 10, ELEV 6,500 ft:
+        Q10(w) = (362x21 + 2,450x36)/57 = 1,680; Q100(w) = (2,120x21 + 13,800x36)/57 = 9,500."""
+        from flowfreq.regression.nevada import estimate_area_weighted
+
+        chars = {"DRNAREA": 57.0, "ELEV": 6500.0}
+        q10 = estimate_area_weighted(0.1, {"6": 21.0, "10": 36.0}, chars, lib=lib)
+        q100 = estimate_area_weighted(0.01, {"6": 21.0, "10": 36.0}, chars, lib=lib)
+        assert q10.weights == pytest.approx({"6": 21 / 57, "10": 36 / 57})
+        assert q10.blended and q10.method == "area (eq. 6)"
+        # The report weights its rounded component flows; the unrounded ones agree to rounding.
+        assert (362 * 21 + 2450 * 36) / 57 == pytest.approx(1680, abs=5)
+        assert (2120 * 21 + 13800 * 36) / 57 == pytest.approx(9500, abs=50)
+        assert round(q10.flow_cfs, -1) == 1680
+        assert round(q100.flow_cfs, -2) == 9500
+
+    def test_equation_7_worked_example(self, lib):
+        """pp. 42-44: Region 8 site at 7,100 ft, B = 7,500 ft; A 45 mi2, PREC 28 in.
+        Region 1 gives Q2 375 and Q50 975; with Region 8's 433 and 2,440 the weighted
+        values are 408 and 1,810 ft3/s. Region 8 is not a Nevada region, so its printed
+        flows are combined here with the stored Region 1 equations."""
+        from flowfreq.regression.nevada import (
+            elevation_transition_weights,
+            high_elevation_boundary_ft,
+        )
+
+        w = elevation_transition_weights(7100.0, high_elevation_boundary_ft(37.0))
+        assert w["low"] == pytest.approx(400 / 700)
+        r1 = {"DRNAREA": 45.0, "PRECIP": 28.0}
+        q2_h = evaluate(lib.equation("1", 0.5), r1).flow_cfs
+        q50_h = evaluate(lib.equation("1", 0.02), r1).flow_cfs
+        assert (_sig3(q2_h), _sig3(q50_h)) == (375, 975)
+        assert _sig3(433 * w["low"] + q2_h * w["high"]) == 408
+        assert _sig3(2440 * w["low"] + q50_h * w["high"]) == 1810
+
+    def test_elevation_transition_blends_nevada_regions(self, lib):
+        from flowfreq.regression.nevada import estimate_elevation_transition
+
+        chars = {"DRNAREA": 50.0, "PRECIP": 20.0, "ELEV": 6500.0}
+        mid = estimate_elevation_transition(
+            0.01, "2", chars, site_elevation=7150.0, latitude=38.0, lib=lib
+        )
+        q2 = evaluate(lib.equation("2", 0.01), chars).flow_cfs
+        q1 = evaluate(lib.equation("1", 0.01), chars).flow_cfs
+        assert mid.flow_cfs == pytest.approx(0.5 * q2 + 0.5 * q1, rel=1e-12)
+        assert mid.weights == {"2": 0.5, "1": 0.5} and mid.method == "site elevation (eq. 7)"
+        below = estimate_elevation_transition(
+            0.01, "2", chars, site_elevation=6000.0, latitude=38.0, lib=lib
+        )
+        assert not below.blended and below.flow_cfs == pytest.approx(q2, rel=1e-12)
+        above = estimate_elevation_transition(
+            0.01, "2", chars, site_elevation=7600.0, latitude=38.0, lib=lib
+        )
+        assert list(above.estimates) == ["1"] and above.flow_cfs == pytest.approx(q1, rel=1e-12)
+        north = estimate_elevation_transition(
+            0.01, "2", chars, site_elevation=6600.0, boundary_ft=7000.0, lib=lib
+        )
+        assert north.weights["2"] == pytest.approx(400 / 700)
+
+    def test_errors(self, lib):
+        from flowfreq.regression.nevada import estimate_area_weighted, estimate_elevation_transition
+
+        chars = {"DRNAREA": 50.0, "PRECIP": 20.0, "ELEV": 6500.0}
+        with pytest.raises(ValueError, match="figure 5"):
+            estimate_elevation_transition(0.01, "2", chars, site_elevation=6600.0, latitude=41.5)
+        with pytest.raises(ValueError, match="latitude"):
+            estimate_elevation_transition(0.01, "2", chars, site_elevation=6600.0)
+        with pytest.raises(ValueError, match="Region 1"):
+            estimate_elevation_transition(
+                0.01, "1", chars, site_elevation=7000.0, latitude=38.0, lib=lib
+            )
+        with pytest.raises(ValueError, match="equation 7"):
+            estimate_area_weighted(0.01, {"1": 10.0, "2": 40.0}, chars, lib=lib)
+        with pytest.raises(ValueError, match="exactly two"):
+            estimate_area_weighted(0.01, {"2": 50.0}, chars, lib=lib)
+        with pytest.raises(ValueError, match="positive"):
+            estimate_area_weighted(0.01, {"2": 0.0, "10": 0.0}, chars, lib=lib)
+        with pytest.raises(ValueError, match="Nevada"):
+            estimate_area_weighted(0.01, {"2": 1.0, "10": 1.0}, chars, lib=load_state("AZ"))
+        # Region 6's 2-year equation is printed Q = 0 and is not stored.
+        with pytest.raises(EquationsUnavailable):
+            estimate_area_weighted(0.5, {"6": 21.0, "10": 36.0}, chars, lib=lib)
