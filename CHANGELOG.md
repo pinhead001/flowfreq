@@ -64,6 +64,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   was checked on the rendered page. NV stays `partial`: region 6's printed 2-year `Q=0` and
   the hybrid regions' non-comparable error statistics are still not stored.
 
+### Changed
+- **Utah region 2: no published source for NSS's 4-digit precipitation bases** (#96).
+  SIR 2007-5158 ver. 4.0 prints region 2's `b^PRECIP` bases to 3 significant figures, while
+  NSS evaluates 4. A search for a primary source found none: ver. 4.0 is still current, its
+  revision history changes only PK200's base, the PDF's text layer and appendix carry nothing
+  more, and no spreadsheet or data release exists. `UT.json` keeps the printed values, its
+  notes record the search, and UT stays `partial`.
+
 ### Fixed
 - Two live tests were brittle: the 06214500 ice-day test pinned provisional dates that USGS
   has since revised (it now asserts the invariant), and the NID test failed rather than

@@ -189,6 +189,13 @@ class TestPrintedForms:
 class TestRegion2Rounding:
     """Table 5 prints region 2's bases to 3 significant figures; NSS uses 4."""
 
+    def test_no_published_source_for_nss_bases(self, lib):
+        """No later version, errata, appendix or data release gives 4-digit bases
+        (searched 2026-10-06), so the printed values stay and UT stays partial."""
+        assert lib.status == "partial"
+        assert "no published source" in lib.notes
+        assert "4.0 (March 10, 2008) is still the current release" in lib.notes
+
     def test_stored_bases_are_the_printed_ones(self, lib):
         for aep, b in zip(AEPS_8, REGION2_PRINTED, strict=True):
             eq = lib.equation("2", aep)
