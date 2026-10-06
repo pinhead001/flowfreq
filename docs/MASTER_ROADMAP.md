@@ -70,7 +70,7 @@ Standing rules carried over from this repo's history, which apply to every phase
       `wymt_ffa_2022A.psf` run natively and match live `emafitpr`. Published perception
       thresholds are not retrievable: the Water Data API carries none, so they stay
       analyst inputs or come from a `.psf`.
-- [~] [#32](https://github.com/pinhead001/flowfreq/issues/32) **Regulation and urbanization screen.** Use the peak codes, GAGES-II/NID dam storage,
+- [x] [#32](https://github.com/pinhead001/flowfreq/issues/32) **Regulation and urbanization screen.** Use the peak codes, GAGES-II/NID dam storage,
       and NLCD impervious fraction to classify each gage as reference, regulated, or urban.
       Refuse, or require an override for, B17C on a regulated record.
       *Substantive:* `flowfreq/regulation.py` and `data/regulation_screen.csv.gz` (all
@@ -79,9 +79,16 @@ Standing rules carried over from this repo's history, which apply to every phase
       2018) → regulated; NLCD-2006 impervious over 5% (SIR 2016-5118 p. 23) → urban;
       peak code 6 → regulated. `analyze_gage` refuses a regulated gage, and `run_ffa`
       does too when it is given `site_no=`, unless `allow_regulated=True`, which is
-      recorded in provenance. *Open:* current-NID storage (the live national CSV needs
-      basin polygons to sum upstream), the NLCD impervious time series, and gages outside
-      GAGES-II, which only have peak-code evidence.
+      recorded in provenance. *Current data (opt-in):*
+      `classify_site(..., use_current_nid=True, use_current_impervious=True)` re-applies
+      the same rules to today's NID storage inside the StreamStats watershed polygon
+      (pure-numpy point-in-polygon; within 15% of GAGES-II's NID-2009 sums on the five dammed
+      basins checked) and to the newest NLCD impervious epoch StreamStats computes for
+      the region (2001-2023 depending on region; GA, NC, SC and VA give a time series),
+      which also classifies gages outside GAGES-II. *Not available from any verified
+      source:* impervious cover in StreamStats regions with no NLCD impervious
+      characteristic (WA, MT, NM and others), and CO's `LC11IMP`, which failed the
+      cross-check against GAGES-II and is recorded but not used.
 - [~] [#33](https://github.com/pinhead001/flowfreq/issues/33) Offline **gage catalog**: expand `flowfreq/data/gage_attributes.csv` (3 rows today) into
       a versioned national table covering every active and inactive peak-flow site with
       ≥10 years of record. Columns: site_no, name, lat/lon, DA, state, HUC8, years of
@@ -91,9 +98,13 @@ Standing rules carried over from this repo's history, which apply to every phase
       Data API `peaks` and `monitoring-locations` collections by
       `tools/build_gage_catalog.py`), with the schema validated on load. The regulation
       class comes from #32 (#105: 20,745 sites, 56 jurisdictions). *Partial:*
-      `regression_region` is filled for Wave 1 states only, by point-in-polygon against the
-      StreamStats peak-region layers. The Wave 2 states, whose equations have landed, are
-      not filled yet.
+      `regression_region` is filled by gage point-in-polygon for Wave 1 (StreamStats
+      peak-region layers) and for Wave 2's CO, UT and AZ (NSS `regressionregions`
+      geometry). AZ rows list High Elevation region 1 as a candidate beside their
+      region 2-5, because region 1 is chosen by mean basin elevation. WY, NV and NM
+      stay blank: NSS has no locatable region geometry for WY or NV, and NM's regions
+      are selected by the `HIGHREG` basin characteristic, which takes a delineation per
+      gage.
 
 ### 1.2 Geospatial inputs
 - [x] **Watershed polygon** (the open Phase 1 gap). Verify a live source, such as the

@@ -15,10 +15,12 @@ How (live-verified 2026-09-30):
    one.
 3. Regulation class: :func:`flowfreq.regulation.classify_site` with the
    site's peak codes and the packaged GAGES-II screen (#32).
-4. Regression region (WA, OR, ID, MT only): point-in-polygon of the gage
-   location against the StreamStats peak-flow region polygons
-   (``gis.streamstats.usgs.gov/.../nss/regions/MapServer``, layers 40, 31, 11,
-   22). Blank elsewhere; see :mod:`flowfreq.catalog` for what the code means.
+4. Regression region: point-in-polygon of the gage location against the
+   peak-flow region polygons. Wave 1 (WA, OR, ID, MT) uses the StreamStats
+   ``nss/regions`` MapServer (layers 40, 31, 11, 22). Wave 2 (CO, UT, AZ) uses
+   NSS ``regressionregions/{id}?includeGeometry=true`` (:data:`NSS_REGION_IDS`,
+   which also says why WY, NV and NM stay blank). Every other state is blank;
+   see :mod:`flowfreq.catalog` for what the code means.
 
 Every Water Data request goes through :func:`flowfreq.waterdata.request`,
 which sends ``USGS_API_KEY`` if set and backs off on 429/503. Without a key
@@ -92,6 +94,38 @@ REGION_LAYERS: Dict[str, tuple] = {
 }
 #: GRIDCODE values that are not regression regions (helper/urban codes).
 NON_REGION_CODES = frozenset({"GC0", "GC10001", "GC10003"})
+
+NSS_REGRESSION_REGIONS = "https://streamstats.usgs.gov/nssservices/regressionregions"
+#: Wave 2 peak-flow regions: state -> NSS regression-region ids whose polygons
+#: come from ``regressionregions/{id}?includeGeometry=true``. The ids are those
+#: ``nssservices/regions/{state}/regressionregions?statisticgroups=2`` lists for
+#: the reports ``flowfreq/data/regression/{state}.json`` stores (2026-10-04):
+#:
+#: - CO, SIR 2009-5136 and SIR 2016-5099: six disjoint regions, so each gage
+#:   gets one code.
+#: - UT, SIR 2007-5158: seven disjoint regions, one code each.
+#: - AZ, SIR 2014-5211: region 1 (High Elevation, GC1618) covers the whole
+#:   state, because NSS picks it by mean basin elevation of 7,500 ft or more,
+#:   not by location. Every gage therefore reads ``GC1618;<its region 2-5>``,
+#:   the same way western Oregon's 2A/2B rows list candidates. Region 5
+#:   (GC1622) is kept even though its equations are not stored, so a gage
+#:   there is not left blank.
+#:
+#: These are left blank because no verified source places a point in a region:
+#:
+#: - WY (WRIR 03-4107) and NV (WSP 2433): NSS returns no geometry for any
+#:   peak region, ``bylocation`` returns none of them, and the nss/regions
+#:   MapServer has no WY or NV layer.
+#: - NM (SIR 2008-5119): all nine regions carry the same statewide polygon
+#:   (MapServer ``pkdummy``). NSS picks the region by the ``HIGHREG`` basin
+#:   characteristic, which needs a delineation per gage.
+#: - The Navajo Nation regions (SIR 2006-5306) that NSS lists for CO, UT, NM
+#:   and AZ have no geometry either.
+NSS_REGION_IDS: Dict[str, tuple] = {
+    "CO": (58, 59, 60, 61, 62, 81),
+    "UT": (681, 682, 683, 684, 685, 686, 687),
+    "AZ": (27, 28, 29, 30, 31),
+}
 
 
 class Paced:
@@ -230,6 +264,57 @@ def region_polygons(state: str, cache: Path, refresh: bool) -> List[dict]:
     return list(_cached(cache / f"regions_{state}.json", refresh, fetch))
 
 
+def nss_region_rings(geometry: Mapping[str, Any], digits: int = 5) -> List[List[List[float]]]:
+    """Every ring of a GeoJSON (Multi)Polygon, rounded to ``digits`` decimal degrees.
+
+    :func:`assign_regions` counts crossings over all of a region's rings, so
+    exterior rings, holes and disjoint parts need no bookkeeping. 1e-5 degrees
+    is about 1 m, far below the regions' own resolution.
+    """
+    gtype = geometry.get("type")
+    coords = geometry.get("coordinates") or []
+    polys = coords if gtype == "MultiPolygon" else [coords] if gtype == "Polygon" else []
+    return [
+        [[round(float(x), digits), round(float(y), digits)] for x, y, *_ in ring]
+        for poly in polys
+        for ring in poly
+        if len(ring) >= 4
+    ]
+
+
+def nss_region_polygons(state: str, cache: Path, refresh: bool) -> List[dict]:
+    """The state's :data:`NSS_REGION_IDS` polygons, one cached file per region."""
+    out = []
+    for rid in NSS_REGION_IDS[state]:
+
+        def fetch(rid: int = rid) -> dict:
+            last: Optional[BaseException] = None
+            for attempt in range(3):
+                try:
+                    r = requests.get(
+                        f"{NSS_REGRESSION_REGIONS}/{rid}",
+                        params={"includeGeometry": "true"},
+                        timeout=900,
+                    )
+                    r.raise_for_status()
+                    payload = r.json()
+                    break
+                except (requests.RequestException, ValueError) as exc:
+                    last = exc
+                    logger.warning("NSS region %d: %s (attempt %d)", rid, exc, attempt + 1)
+                    time.sleep(10 * (attempt + 1))
+            else:
+                raise RuntimeError(f"NSS regression region {rid} not retrieved") from last
+            geometry = (payload.get("location") or {}).get("geometry") or {}
+            rings = nss_region_rings(geometry)
+            if not rings:
+                raise RuntimeError(f"NSS regression region {rid} has no polygon")
+            return {"gridcode": payload["code"], "rings": rings}
+
+        out.append(_cached(cache / "nss_regions" / f"{rid}.json", refresh, fetch))
+    return out
+
+
 def assign_regions(
     sites: Mapping[str, Mapping[str, Any]], polygons: Sequence[Mapping[str, Any]]
 ) -> Dict[str, str]:
@@ -268,10 +353,11 @@ def build_state(api: Paced, state: str, cache: Path, refresh: bool, min_years: i
         if feat:
             locs[site] = location_fields(feat)
     regions: Dict[str, str] = {}
+    located = {s: locs[s] for s in peaks if s in locs}
     if state in REGION_LAYERS:
-        regions = assign_regions(
-            {s: locs[s] for s in peaks if s in locs}, region_polygons(state, cache, refresh)
-        )
+        regions = assign_regions(located, region_polygons(state, cache, refresh))
+    elif state in NSS_REGION_IDS:
+        regions = assign_regions(located, nss_region_polygons(state, cache, refresh))
     df = build_rows(peaks, locs, min_years=min_years, regions=regions, default_state=state)
     # A site is listed under the state its location record names; drop rows the
     # state's peak query returned for a site located elsewhere (it is built there).
@@ -390,8 +476,8 @@ def main(argv: Optional[List[str]] = None) -> int:
         "sites_source": "USGS Water Data OGC API, collections/monitoring-locations",
         "regulation_source": "flowfreq.regulation (GAGES-II screen + peak code 6), issue #32",
         "regression_region_source": (
-            "StreamStats nss/regions MapServer peak-flow polygons, gage point-in-polygon; "
-            "WA, OR, ID, MT only"
+            "gage point-in-polygon: StreamStats nss/regions MapServer peak-flow polygons "
+            "(WA, OR, ID, MT); NSS regressionregions geometry (CO, UT, AZ)"
         ),
         "regulation_class_counts": {
             str(k): int(v) for k, v in new["regulation_class"].value_counts().items()
