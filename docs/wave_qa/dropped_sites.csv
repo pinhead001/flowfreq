@@ -1,0 +1,94 @@
+site_no,home,reason,detail
+09439000,AZ,delineation failed,"AZ: UnsnappablePointError: StreamStats could not snap (32.724444, -109.099167) to the stream network in region 'AZ'; move the point rather than retrying | NM: StreamStatsResponseError: ss-delineate ss"
+09442000,AZ,delineation failed,AZ: StreamStatsTransportError: StreamStats request to https://prodweba.streamstats.usgs.gov/ss-hydro/v1/basin-characteristics/calculate-using-ssdelineate/ failed after 3 attempts | NM: StreamStatsResp
+09448500,AZ,drainage-area mismatch,StreamStats 0.9 vs catalog 7856.78 mi2
+09537500,AZ,drainage-area mismatch,StreamStats 1231.0 vs catalog 1023.0 mi2
+09458500,AZ,delineation failed,"AZ: UnsnappablePointError: StreamStats could not snap (32.847288, -109.715914) to the stream network in region 'AZ'; move the point rather than retrying | NM: StreamStatsResponseError: ss-delineate ss"
+09466500,AZ,drainage-area mismatch,StreamStats 0.04 vs catalog 11470.0 mi2
+09404200,AZ,delineation failed,"AZ: StreamStatsResponseError: ss-delineate sshydro request for region 'AZ' at (35.77333654312551, -113.36352331330183) was rejected: {""detail"":""Delineation not allowed at this point.""} | NV: Unsnappab"
+09426500,AZ,drainage-area mismatch,StreamStats 261.0 vs catalog 5054.0 mi2
+09402300,AZ,delineation failed,AZ: StreamStatsTransportError: StreamStats request to https://prodweba.streamstats.usgs.gov/ss-hydro/v1/basin-characteristics/calculate-using-ssdelineate/ failed after 3 attempts | UT: UnsnappablePoin
+09402000,AZ,drainage-area mismatch,StreamStats 0.42 vs catalog 26459.0 mi2
+08252000,CO,delineation failed,"CO: DegenerateDelineationError: StreamStats delineation warning at (37.000709369459074, -105.72249903959246) in region 'CO': STREAMFLOW REGULATED--EQUATIONS DO NOT APPLY | NM: StreamStatsResponseError"
+09350500,CO,no DRNAREA returned,polygon 1963 mi2
+09363500,CO,no DRNAREA returned,polygon 1103 mi2
+09349800,CO,no DRNAREA returned,polygon 654 mi2
+09361500,CO,no DRNAREA returned,polygon 702 mi2
+09306290,CO,delineation failed,"CO: DegenerateDelineationError: StreamStats delineation warning at (40.17990650068555, -108.56575902567259) in region 'CO': STREAMFLOW REGULATED--EQUATIONS DO NOT APPLY | UT: DegenerateDelineationErro"
+09260050,CO,delineation failed,"CO: DegenerateDelineationError: StreamStats delineation warning at (40.45180389367459, -108.52493354355913) in region 'CO': STREAMFLOW REGULATED--EQUATIONS DO NOT APPLY | UT: DegenerateDelineationErro"
+09260000,CO,no DRNAREA returned,polygon 4037 mi2
+09251000,CO,delineation failed,"CO: UnsnappablePointError: StreamStats could not snap (40.502731, -108.033448) to the stream network in region 'CO'; move the point rather than retrying | WY: UnsnappablePointError: StreamStats could "
+09255000,CO,delineation failed,"CO: UnsnappablePointError: StreamStats could not snap (40.9825, -107.382222) to the stream network in region 'CO'; move the point rather than retrying | WY: UnsnappablePointError: StreamStats could no"
+06620000,CO,delineation failed,"CO: DegenerateDelineationError: StreamStats delineation warning at (40.93662186352115, -106.33928243658154) in region 'CO': STREAMFLOW REGULATED--EQUATIONS DO NOT APPLY | WY: DegenerateDelineationErro"
+06618500,CO,no DRNAREA returned,polygon 256 mi2
+09244490,CO,delineation failed,"CO: UnsnappablePointError: StreamStats could not snap (40.517931, -107.398944) to the stream network in region 'CO'; move the point rather than retrying | WY: UnsnappablePointError: StreamStats could "
+09244410,CO,delineation failed,"CO: UnsnappablePointError: StreamStats could not snap (40.488308, -107.159778) to the stream network in region 'CO'; move the point rather than retrying | WY: UnsnappablePointError: StreamStats could "
+09247600,CO,delineation failed,"CO: UnsnappablePointError: StreamStats could not snap (40.480789, -107.614268) to the stream network in region 'CO'; move the point rather than retrying | WY: UnsnappablePointError: StreamStats could "
+12305500,ID,delineation failed,"ID: DegenerateDelineationError: StreamStats delineation warning at (48.59807872324412, -116.09251137932576) in region 'ID': FOREST, SLOP30_10M, PRECIP, NFSL30_10M, ELEV, BSLDEM10M, NFSL30_30M, SLOP30_"
+12307500,ID,delineation failed,"ID: DegenerateDelineationError: StreamStats delineation warning at (48.77410241919276, -116.1583503001453) in region 'ID': FOREST, SLOP30_10M, PRECIP, NFSL30_10M, ELEV, BSLDEM10M, NFSL30_30M, SLOP30_3"
+12306500,ID,delineation failed,"ID: DegenerateDelineationError: StreamStats delineation warning at (48.99941919675726, -116.18010605842915) in region 'ID': FOREST, SLOP30_10M, PRECIP, NFSL30_10M, ELEV, BSLDEM10M, NFSL30_30M, SLOP30_"
+12411000,ID,delineation failed,"ID: UnsnappablePointError: StreamStats could not snap (47.706111, -115.979167) to the stream network in region 'ID'; move the point rather than retrying | MT: UnsnappablePointError: StreamStats could "
+13302500,ID,drainage-area mismatch,StreamStats 0.04 vs catalog 3737.0 mi2
+12309500,ID,delineation failed,"ID: UnsnappablePointError: StreamStats could not snap (48.698056, -116.3125) to the stream network in region 'ID'; move the point rather than retrying | MT: StreamStatsResponseError: ss-delineate sshy"
+13108500,ID,drainage-area mismatch,StreamStats 0.23 vs catalog 221.0 mi2
+13340600,ID,delineation failed,"ID: UnsnappablePointError: StreamStats could not snap (46.840556, -115.621111) to the stream network in region 'ID'; move the point rather than retrying | MT: UnsnappablePointError: StreamStats could "
+13336500,ID,delineation failed,"ID: UnsnappablePointError: StreamStats could not snap (46.086667, -115.513889) to the stream network in region 'ID'; move the point rather than retrying | MT: UnsnappablePointError: StreamStats could "
+13162500,ID,drainage-area mismatch,StreamStats 0.47 vs catalog 84.6 mi2
+13266000,ID,delineation failed,"ID: UnsnappablePointError: StreamStats could not snap (44.27, -116.772222) to the stream network in region 'ID'; move the point rather than retrying | OR: DegenerateDelineationError: StreamStats delin"
+13172735,ID,drainage-area mismatch,StreamStats 5.51 vs catalog 14.0 mi2
+13172720,ID,drainage-area mismatch,StreamStats 6.41 vs catalog 12.3 mi2
+13078000,ID,drainage-area mismatch,StreamStats 0.14 vs catalog 409.0 mi2
+12395000,ID,delineation failed,"ID: DegenerateDelineationError: StreamStats delineation warning at (48.208383977035574, -116.91522338957337) in region 'ID': FOREST, SLOP30_10M, PRECIP, NFSL30_10M, ELEV, BSLDEM10M, NFSL30_30M, SLOP30"
+12394000,ID,delineation failed,"ID: DegenerateDelineationError: StreamStats delineation warning at (48.45188670241399, -116.90033679123141) in region 'ID': FOREST, SLOP30_10M, PRECIP, NFSL30_10M, ELEV, BSLDEM10M, NFSL30_30M, SLOP30_"
+12393500,ID,delineation failed,"ID: DegenerateDelineationError: StreamStats delineation warning at (48.49298260139817, -116.8941534510653) in region 'ID': FOREST, SLOP30_10M, PRECIP, NFSL30_10M, ELEV, BSLDEM10M, NFSL30_30M, SLOP30_3"
+13341570,ID,drainage-area mismatch,StreamStats 0.11 vs catalog 583.0 mi2
+13028500,ID,delineation failed,"ID: UnsnappablePointError: StreamStats could not snap (43.16381, -111.064658) to the stream network in region 'ID'; move the point rather than retrying | WY: UnsnappablePointError: StreamStats could n"
+13029500,ID,delineation failed,"ID: UnsnappablePointError: StreamStats could not snap (43.180556, -111.115278) to the stream network in region 'ID'; move the point rather than retrying | WY: UnsnappablePointError: StreamStats could "
+13055000,ID,delineation failed,"ID: DegenerateDelineationError: StreamStats delineation warning at (43.926895822660995, -111.61384194861883) in region 'ID': UNDEFINED AREA: SNAKE RIVER PLAIN. NO STREAMFLOW ESTIMATES AVAILABLE | WY: "
+13055340,ID,delineation failed,"ID: DegenerateDelineationError: StreamStats delineation warning at (43.83512811191479, -111.7778301161643) in region 'ID': UNDEFINED AREA: SNAKE RIVER PLAIN. NO STREAMFLOW ESTIMATES AVAILABLE | WY: Un"
+12351200,MT,drainage-area mismatch,StreamStats 27.7 vs catalog 2342.0 mi2
+06191000,MT,delineation failed,"MT: DegenerateDelineationError: StreamStats delineation warning at (44.99244814640411, -110.69121277210255) in region 'MT': Flow statistics not enabled for Wyoming | WY: DegenerateDelineationError: St"
+06333850,MT,delineation failed,"MT: UnsnappablePointError: StreamStats could not snap (45.064594, -104.533722) to the stream network in region 'MT'; move the point rather than retrying | WY: DegenerateDelineationError: StreamStats d"
+06209510,MT,drainage-area mismatch,StreamStats 0.1 vs catalog 124.0 mi2
+06294500,MT,drainage-area mismatch,StreamStats 0.05 vs catalog 22417.0 mi2
+06295000,MT,delineation failed,"MT: DegenerateDelineationError: StreamStats delineation warning at (46.26665311239256, -106.69111836289584) in region 'MT': Flow statistics not enabled for this stream reach | WY: UnsnappablePointErro"
+09356500,NM,drainage-area mismatch,StreamStats 0.22 vs catalog 3560.0 mi2
+08252500,NM,drainage-area mismatch,StreamStats 0.21 vs catalog 25.1 mi2
+08283500,NM,drainage-area mismatch,StreamStats 0.04 vs catalog 405.0 mi2
+07214000,NM,delineation failed,"NM: DegenerateDelineationError: StreamStats delineation warning at (35.92016582104529, -104.35462297139347) in region 'NM': STREAMFLOW REGULATED--EQUATIONS DO NOT APPLY | CO: UnsnappablePointError: St"
+13177800,NV,delineation failed,"NV: UnsnappablePointError: StreamStats could not snap (41.799898, -116.484273) to the stream network in region 'NV'; move the point rather than retrying | ID: UnsnappablePointError: StreamStats could "
+10243260,NV,drainage-area mismatch,StreamStats 8.94 vs catalog 11.0 mi2
+13289500,OR,delineation failed,"OR: UnsnappablePointError: StreamStats could not snap (44.769327, -117.070451) to the stream network in region 'OR'; move the point rather than retrying | ID: UnsnappablePointError: StreamStats could "
+13227000,OR,delineation failed,"OR: DegenerateDelineationError: StreamStats delineation warning at (43.958358885947504, -117.34252860861085) in region 'OR': THE FOLLOWING FLOW ESTIMATES ARE INVALID IN THIS AREA: M7D2Y09, M7D10Y09, D"
+13226500,OR,delineation failed,"OR: DegenerateDelineationError: StreamStats delineation warning at (44.01916619804248, -117.46130978991509) in region 'OR': THE FOLLOWING FLOW ESTIMATES ARE INVALID IN THIS AREA: M7D2Y09, M7D10Y09, DE"
+13182000,OR,delineation failed,"OR: UnsnappablePointError: StreamStats could not snap (43.22599, -117.488776) to the stream network in region 'OR'; move the point rather than retrying | ID: UnsnappablePointError: StreamStats could n"
+14211820,OR,drainage-area mismatch,StreamStats 18.6 vs catalog nan mi2
+14138900,OR,drainage-area mismatch,StreamStats 0.33 vs catalog 8.32 mi2
+14137000,OR,drainage-area mismatch,StreamStats 0.11 vs catalog 264.0 mi2
+14087500,OR,delineation failed,"OR: UnsnappablePointError: StreamStats could not snap (44.560952, -121.2706) to the stream network in region 'OR'; move the point rather than retrying | WA: UnsnappablePointError: StreamStats could no"
+09408195,UT,delineation failed,"UT: DegenerateDelineationError: StreamStats delineation warning at (37.00174482275828, -113.4686539282863) in region 'UT': OUTSIDE BOUNDARY OF DATASET | AZ: StreamStatsResponseError: ss-delineate sshy"
+09177500,UT,delineation failed,"UT: DegenerateDelineationError: StreamStats delineation warning at (38.51882133044183, -109.10980340589724) in region 'UT': OUTSIDE BOUNDARY OF DATASET | CO: StreamStatsResponseError: ss-delineate ssh"
+09306500,UT,delineation failed,"UT: DegenerateDelineationError: StreamStats delineation warning at (39.979181944233716, -109.1787286464072) in region 'UT': REGULATED; SLOW DELINEATION: SOFTWARE LIMITATION - LARGE BASIN | CO: Unsnapp"
+13079000,UT,drainage-area mismatch,StreamStats 58.4 vs catalog 20.2 mi2
+10020500,UT,delineation failed,"UT: DegenerateDelineationError: StreamStats delineation warning at (41.523416069582915, -111.04860204695818) in region 'UT': OUTSIDE BOUNDARY OF DATASET | WY: DegenerateDelineationError: StreamStats d"
+12427000,WA,delineation failed,"WA: DegenerateDelineationError: StreamStats delineation warning at (48.02213951792314, -117.27353278361346) in region 'WA': Approx 160 sq mi of noncontrib area upstream. Adjust drainage area before co"
+12395800,WA,delineation failed,"WA: UnsnappablePointError: StreamStats could not snap (48.196846, -117.29494) to the stream network in region 'WA'; move the point rather than retrying | ID: UnsnappablePointError: StreamStats could n"
+12431000,WA,delineation failed,"WA: DegenerateDelineationError: StreamStats delineation warning at (47.78495332535259, -117.40453483628801) in region 'WA': Approx 160 sq mi of noncontrib area upstream. Adjust drainage area before co"
+12431500,WA,delineation failed,"WA: DegenerateDelineationError: StreamStats delineation warning at (47.7808852461939, -117.49612681734537) in region 'WA': Approx 160 sq mi of noncontrib area upstream. Adjust drainage area before com"
+12405500,WA,drainage-area mismatch,StreamStats 0.15 vs catalog 64500.0 mi2
+13351000,WA,drainage-area mismatch,StreamStats 0.54 vs catalog 2500.0 mi2
+12404500,WA,delineation failed,"WA: StreamStatsResponseError: ss-delineate sshydro request for region 'WA' at (48.984078764815955, -118.21600982282096) was rejected: {""detail"":""Delineation not allowed at this point.""} | ID: Unsnappa"
+14126300,WA,drainage-area mismatch,StreamStats 0.91 vs catalog 0.54 mi2
+14248100,WA,delineation failed,"WA: UnsnappablePointError: StreamStats could not snap (46.251221, -123.398463) to the stream network in region 'WA'; move the point rather than retrying | OR: DegenerateDelineationError: StreamStats d"
+14211900,WA,delineation failed,"WA: DegenerateDelineationError: StreamStats delineation warning at (45.651951942752156, -122.65712214729896) in region 'WA': URBAN AREA: STREAMFLOW ESTIMATES MAY NOT BE VALID | OR: DegenerateDelineati"
+14223500,WA,drainage-area mismatch,StreamStats 0.13 vs catalog 198.0 mi2
+12010000,WA,drainage-area mismatch,StreamStats 0.07 vs catalog 54.8 mi2
+14242580,WA,drainage-area mismatch,StreamStats 0.1 vs catalog 496.0 mi2
+14219500,WA,delineation failed,"WA: UnsnappablePointError: StreamStats could not snap (45.963722, -122.384542) to the stream network in region 'WA'; move the point rather than retrying | OR: DegenerateDelineationError: StreamStats d"
+12029700,WA,delineation failed,"WA: UnsnappablePointError: StreamStats could not snap (46.830654, -123.25987) to the stream network in region 'WA'; move the point rather than retrying | OR: UnsnappablePointError: StreamStats could n"
+13027500,WY,drainage-area mismatch,StreamStats 0.04 vs catalog 856.0 mi2
+13046680,WY,drainage-area mismatch,StreamStats 70.2 vs catalog 86.9 mi2
+13010065,WY,drainage-area mismatch,StreamStats 0.05 vs catalog 486.0 mi2
+06190540,WY,drainage-area mismatch,StreamStats 0.04 vs catalog nan mi2
+06317000,WY,delineation failed,WY: StreamStatsTransportError: StreamStats request to https://prodweba.streamstats.usgs.gov/ss-hydro/v1/basin-characteristics/calculate-using-ssdelineate/ failed after 3 attempts | MT: DegenerateDelin
+09225300,WY,delineation failed,"WY: UnsnappablePointError: StreamStats could not snap (41.061048, -109.61878) to the stream network in region 'WY'; move the point rather than retrying | UT: DegenerateDelineationError: StreamStats de"

@@ -1,0 +1,155 @@
+site_no,pair,side,state,reason
+09419910,NV-AZ,home,NV,no equation: NV: no peak-flow region located
+09419570,NV-AZ,home,NV,no equation: NV: no peak-flow region located
+13105000,NV-ID,home,NV,no equation: NV: no peak-flow region located
+13161500,NV-ID,home,NV,no equation: NV: no peak-flow region located
+13162225,NV-ID,home,NV,no equation: NV: no peak-flow region located
+10353000,NV-OR,home,NV,no equation: NV: no peak-flow region located
+10352500,NV-OR,home,NV,no equation: NV: no peak-flow region located
+10353600,NV-OR,home,NV,no equation: NV: no peak-flow region located
+10353500,NV-OR,home,NV,no equation: NV: no peak-flow region located
+10243240,NV-UT,home,NV,no equation: NV: no peak-flow region located
+14113200,OR-WA,home,OR,"missing 'BSLOPD', 'ELEV'"
+14120000,OR-WA,home,OR,"missing 'BSLOPD', 'ELEV'"
+14011000,OR-WA,home,OR,"missing 'JANAVPRE2K', 'JULAVPRE2K', 'WATCAPORC'"
+14138850,OR-WA,home,OR,missing 'ELEV'
+14048000,OR-WA,home,OR,"missing 'JANAVPRE2K', 'JULAVPRE2K', 'WATCAPORC'"
+14048300,OR-WA,home,OR,"missing 'JANAVPRE2K', 'JULAVPRE2K', 'WATCAPORC'"
+14010800,OR-WA,home,OR,"missing 'JANAVPRE2K', 'JULAVPRE2K', 'WATCAPORC'"
+14138870,OR-WA,home,OR,missing 'ELEV'
+14139700,OR-WA,home,OR,missing 'ELEV'
+14139800,OR-WA,home,OR,missing 'ELEV'
+14141500,OR-WA,home,OR,missing 'ELEV'
+14010000,OR-WA,home,OR,"missing 'JANAVPRE2K', 'JULAVPRE2K', 'WATCAPORC'"
+14251500,OR-WA,home,OR,"missing 'I24H2Y', 'JANMAXT2K', 'WATCAPORC', 'SOILPERM'"
+13349210,WA-ID,home,WA,missing 'CANOPY_PCT'
+10041000,WY-ID,home,WY,missing 'JANAVPRE'
+13025500,WY-ID,home,WY,missing 'JANAVPRE'
+13023000,WY-ID,home,WY,missing 'JANAVPRE'
+13025000,WY-ID,home,WY,missing 'JANAVPRE'
+13024500,WY-ID,home,WY,missing 'JANAVPRE'
+13016450,WY-ID,home,WY,missing 'JANAVPRE'
+10032000,WY-ID,home,WY,missing 'JANAVPRE'
+13016305,WY-ID,home,WY,missing 'JANAVPRE'
+10027000,WY-UT,home,WY,missing 'JANAVPRE'
+09383500,AZ-NM,neighbor,NM,no equation: NM: no peak-flow region located
+09444200,AZ-NM,neighbor,NM,no equation: NM: no peak-flow region located
+09444500,AZ-NM,neighbor,NM,no equation: NM: no peak-flow region located
+09396100,AZ-NM,neighbor,NM,no equation: NM: no peak-flow region located
+09457000,AZ-NM,neighbor,NM,no equation: NM: no peak-flow region located
+09414900,AZ-NV,neighbor,NV,no equation: NV: no peak-flow region located
+09366500,CO-NM,neighbor,NM,no equation: NM: no peak-flow region located
+09346400,CO-NM,neighbor,NM,no equation: NM: no peak-flow region located
+09355000,CO-NM,neighbor,NM,no equation: NM: no peak-flow region located
+09363200,CO-NM,neighbor,NM,no equation: NM: no peak-flow region located
+09366000,CO-NM,neighbor,NM,no equation: NM: no peak-flow region located
+09363100,CO-NM,neighbor,NM,no equation: NM: no peak-flow region located
+08248500,CO-NM,neighbor,NM,no equation: NM: no peak-flow region located
+07126000,CO-NM,neighbor,NM,no equation: NM: no peak-flow region located
+07128000,CO-NM,neighbor,NM,no equation: NM: no peak-flow region located
+09253000,CO-WY,neighbor,WY,no equation: WY: no peak-flow region located
+09258000,CO-WY,neighbor,WY,no equation: WY: no peak-flow region located
+13305000,ID-MT,neighbor,MT,missing 'EL6000'
+13305310,ID-MT,neighbor,MT,missing 'EL6000'
+13116000,ID-MT,neighbor,MT,missing 'EL6000'
+13113000,ID-MT,neighbor,MT,missing 'EL6000'
+13116500,ID-MT,neighbor,MT,missing 'EL6000'
+13082500,ID-NV,neighbor,NV,no equation: NV: no peak-flow region located
+13083000,ID-NV,neighbor,NV,no equation: NV: no peak-flow region located
+13168500,ID-NV,neighbor,NV,no equation: NV: no peak-flow region located
+13178000,ID-OR,neighbor,OR,missing 'ASPECT'
+13345000,ID-WA,neighbor,WA,missing 'CANOPY_PCT'
+12415200,ID-WA,neighbor,WA,missing 'CANOPY_PCT'
+13342450,ID-WA,neighbor,WA,missing 'CANOPY_PCT'
+13046995,ID-WY,neighbor,WY,no equation: WY: no peak-flow region located
+13052200,ID-WY,neighbor,WY,no equation: WY: no peak-flow region located
+13032000,ID-WY,neighbor,WY,no equation: WY: no peak-flow region located
+13047500,ID-WY,neighbor,WY,no equation: WY: no peak-flow region located
+13054000,ID-WY,neighbor,WY,no equation: WY: no peak-flow region located
+13047600,ID-WY,neighbor,WY,no equation: WY: no peak-flow region located
+13049500,ID-WY,neighbor,WY,no equation: WY: no peak-flow region located
+06187915,MT-WY,neighbor,WY,no equation: WY: no peak-flow region located
+06289000,MT-WY,neighbor,WY,no equation: WY: no peak-flow region located
+06037500,MT-WY,neighbor,WY,no equation: WY: no peak-flow region located
+06207500,MT-WY,neighbor,WY,no equation: WY: no peak-flow region located
+06306300,MT-WY,neighbor,WY,no equation: WY: no peak-flow region located
+06290000,MT-WY,neighbor,WY,no equation: WY: no peak-flow region located
+06334000,MT-WY,neighbor,WY,no equation: WY: no peak-flow region located
+06209500,MT-WY,neighbor,WY,no equation: WY: no peak-flow region located
+06306900,MT-WY,neighbor,WY,no equation: WY: no peak-flow region located
+06324995,MT-WY,neighbor,WY,no equation: WY: no peak-flow region located
+06191500,MT-WY,neighbor,WY,no equation: WY: no peak-flow region located
+06291500,MT-WY,neighbor,WY,no equation: WY: no peak-flow region located
+06210000,MT-WY,neighbor,WY,no equation: WY: no peak-flow region located
+06334100,MT-WY,neighbor,WY,no equation: WY: no peak-flow region located
+06290500,MT-WY,neighbor,WY,no equation: WY: no peak-flow region located
+06307600,MT-WY,neighbor,WY,no equation: WY: no peak-flow region located
+06325500,MT-WY,neighbor,WY,no equation: WY: no peak-flow region located
+06208500,MT-WY,neighbor,WY,no equation: WY: no peak-flow region located
+06040000,MT-WY,neighbor,WY,no equation: WY: no peak-flow region located
+06293500,MT-WY,neighbor,WY,no equation: WY: no peak-flow region located
+06192500,MT-WY,neighbor,WY,no equation: WY: no peak-flow region located
+06288500,MT-WY,neighbor,WY,no equation: WY: no peak-flow region located
+06214500,MT-WY,neighbor,WY,no equation: WY: no peak-flow region located
+06307830,MT-WY,neighbor,WY,no equation: WY: no peak-flow region located
+06294700,MT-WY,neighbor,WY,no equation: WY: no peak-flow region located
+06054500,MT-WY,neighbor,WY,no equation: WY: no peak-flow region located
+07153500,NM-CO,neighbor,CO,"missing 'BSLDEM10M', 'STATSCLAY'"
+09346200,NM-CO,neighbor,CO,missing 'EL7500'
+09367000,NM-CO,neighbor,CO,missing 'EL7500'
+09368020,NM-CO,neighbor,CO,missing 'EL7500'
+07201000,NM-CO,neighbor,CO,missing 'STATSCLAY'
+07154400,NM-CO,neighbor,CO,"missing 'BSLDEM10M', 'STATSCLAY'"
+07201200,NM-CO,neighbor,CO,missing 'STATSCLAY'
+07199000,NM-CO,neighbor,CO,missing 'STATSCLAY'
+09364500,NM-CO,neighbor,CO,missing 'EL7500'
+07203000,NM-CO,neighbor,CO,missing 'STATSCLAY'
+13161500,NV-ID,neighbor,ID,missing 'MINBELEV'
+13162225,NV-ID,neighbor,ID,missing 'MINBELEV'
+10353000,NV-OR,neighbor,OR,missing 'ASPECT'
+10352500,NV-OR,neighbor,OR,missing 'ASPECT'
+10353600,NV-OR,neighbor,OR,missing 'ASPECT'
+10353500,NV-OR,neighbor,OR,missing 'ASPECT'
+10366000,OR-NV,neighbor,NV,no equation: NV: no peak-flow region located
+10406500,OR-NV,neighbor,NV,no equation: NV: no peak-flow region located
+13333000,OR-WA,neighbor,WA,missing 'CANOPY_PCT'
+14011000,OR-WA,neighbor,WA,missing 'CANOPY_PCT'
+14048000,OR-WA,neighbor,WA,missing 'CANOPY_PCT'
+14010800,OR-WA,neighbor,WA,missing 'CANOPY_PCT'
+14010000,OR-WA,neighbor,WA,missing 'CANOPY_PCT'
+09182000,UT-CO,neighbor,CO,missing 'EL7500'
+09185500,UT-CO,neighbor,CO,missing 'EL7500'
+10172952,UT-ID,neighbor,ID,missing 'MINBELEV'
+10172870,UT-NV,neighbor,NV,no equation: NV: no peak-flow region located
+10011500,UT-WY,neighbor,WY,no equation: WY: no peak-flow region located
+09217900,UT-WY,neighbor,WY,no equation: WY: no peak-flow region located
+09226500,UT-WY,neighbor,WY,no equation: WY: no peak-flow region located
+10023000,UT-WY,neighbor,WY,no equation: WY: no peak-flow region located
+14013000,WA-OR,neighbor,OR,"missing 'JANAVPRE2K', 'JULAVPRE2K', 'WATCAPORC'"
+14144600,WA-OR,neighbor,OR,"missing 'BSLOPD', 'I24H2Y'"
+14125500,WA-OR,neighbor,OR,missing 'BSLOPD'
+14223800,WA-OR,neighbor,OR,"missing 'BSLOPD', 'I24H2Y'"
+14143200,WA-OR,neighbor,OR,"missing 'BSLOPD', 'I24H2Y'"
+14128500,WA-OR,neighbor,OR,missing 'BSLOPD'
+14123500,WA-OR,neighbor,OR,missing 'BSLOPD'
+14125200,WA-OR,neighbor,OR,missing 'BSLOPD'
+14019100,WA-OR,neighbor,OR,"missing 'JANAVPRE2K', 'JULAVPRE2K', 'WATCAPORC'"
+14013500,WA-OR,neighbor,OR,"missing 'JANAVPRE2K', 'JULAVPRE2K', 'WATCAPORC'"
+14247500,WA-OR,neighbor,OR,"missing 'BSLOPD', 'I24H2Y'"
+14245000,WA-OR,neighbor,OR,"missing 'BSLOPD', 'I24H2Y'"
+14143500,WA-OR,neighbor,OR,"missing 'BSLOPD', 'I24H2Y'"
+14123000,WA-OR,neighbor,OR,missing 'BSLOPD'
+14223000,WA-OR,neighbor,OR,"missing 'BSLOPD', 'I24H2Y'"
+14113000,WA-OR,neighbor,OR,"missing 'JANAVPRE2K', 'JULAVPRE2K', 'WATCAPORC'"
+14013700,WA-OR,neighbor,OR,"missing 'JANAVPRE2K', 'JULAVPRE2K', 'WATCAPORC'"
+14034320,WA-OR,neighbor,OR,"missing 'JANAVPRE2K', 'JULAVPRE2K', 'WATCAPORC'"
+14015900,WA-OR,neighbor,OR,"missing 'JANAVPRE2K', 'JULAVPRE2K', 'WATCAPORC'"
+12010600,WA-OR,neighbor,OR,"missing 'I24H2Y', 'JANMAXT2K', 'WATCAPORC', 'SOILPERM'"
+14127000,WA-OR,neighbor,OR,missing 'BSLOPD'
+14250500,WA-OR,neighbor,OR,"missing 'I24H2Y', 'JANMAXT2K', 'WATCAPORC', 'SOILPERM'"
+14249000,WA-OR,neighbor,OR,"missing 'I24H2Y', 'JANMAXT2K', 'WATCAPORC', 'SOILPERM'"
+14144550,WA-OR,neighbor,OR,"missing 'BSLOPD', 'I24H2Y'"
+14243500,WA-OR,neighbor,OR,"missing 'BSLOPD', 'I24H2Y'"
+14112200,WA-OR,neighbor,OR,"missing 'JANAVPRE2K', 'JULAVPRE2K', 'WATCAPORC'"
+14112000,WA-OR,neighbor,OR,"missing 'JANAVPRE2K', 'JULAVPRE2K', 'WATCAPORC'"
+06755000,WY-CO,neighbor,CO,"missing 'I6H100Y', 'STATSCLAY', 'OUTLETELEV'"

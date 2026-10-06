@@ -1,0 +1,2 @@
+site_no,home,neighbor,site_name,kind,km,frac_nb,da,home_regions,neighbor_regions,neighbor_how,proxies,aeps,worst_ratio,worst_thr_ratio
+06298000,WY,MT,"TONGUE RIVER NEAR DAYTON, WY",border,16.85,0.0,206.0,1:1.00,SEP:1.00;UYCM:0.00,region layer,FOREST=LC16FOREST,0.5,10.524751396330442,7.285098251168417

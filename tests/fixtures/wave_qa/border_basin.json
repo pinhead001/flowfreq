@@ -1,0 +1,67 @@
+{
+  "_source": "tools/wave_qa.py cache, USGS 06006000 (Red Rock Cr ab Lakes, nr Lakeview, MT), StreamStats MT delineation 2026-10-04; trimmed to the characteristics the located equations read",
+  "site_no": "06006000",
+  "home": "MT",
+  "neighbor": "ID",
+  "characteristics": {
+    "CONTDA": 35.8,
+    "DRNAREA": 35.8,
+    "EL6000": 100.0,
+    "PRECIP": 36.447
+  },
+  "outlet": [
+    44.61589566447149,
+    -111.62544371772088
+  ],
+  "located_home": [
+    [
+      "GC1682",
+      99.45454545454545
+    ]
+  ],
+  "located_neighbor": [
+    [
+      "GC1739",
+      100.0
+    ]
+  ],
+  "b17c": {
+    "0.5": [
+      152.7386729542857,
+      134.76720861462744,
+      172.81806025823536
+    ],
+    "0.1": [
+      239.41138000978785,
+      210.9987026875304,
+      285.7960121786302
+    ],
+    "0.01": [
+      334.96379131449515,
+      277.0026332167359,
+      481.05830722269
+    ]
+  },
+  "aeps": [
+    0.5,
+    0.1,
+    0.01
+  ],
+  "expected": [
+    {
+      "home_q": 107.57741204357666,
+      "neighbor_q": 373.0538946374928,
+      "flag_hn": false
+    },
+    {
+      "home_q": 243.1737483100246,
+      "neighbor_q": 658.0120817742027,
+      "flag_hn": false
+    },
+    {
+      "home_q": 472.4870246022974,
+      "neighbor_q": 1045.7836465867451,
+      "flag_hn": false
+    }
+  ]
+}
