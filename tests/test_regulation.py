@@ -151,6 +151,23 @@ def test_run_ffa_refuses_regulated_site():
         )
 
 
+def test_run_ffa_says_when_codes_remove_every_peak():
+    """Code C on every peak (29 Wave 1/2 gages) left nothing to fit."""
+    r = run_ffa(PEAKS, YEARS, station_skew_only=True, peak_codes=["C"] * len(PEAKS))
+    assert r["error"] is not None
+    assert "no systematic peaks remain" in r["error"] and "code C: 12" in r["error"]
+    assert "apply_peak_codes=False" in r["error"]
+    # With codes off the same record fits.
+    r = run_ffa(
+        PEAKS,
+        YEARS,
+        station_skew_only=True,
+        peak_codes=["C"] * len(PEAKS),
+        apply_peak_codes=False,
+    )
+    assert r["error"] is None
+
+
 def test_run_ffa_override_is_recorded():
     r = run_ffa(PEAKS, YEARS, station_skew_only=True, site_no=REGULATED_SITE, allow_regulated=True)
     assert r["error"] is None

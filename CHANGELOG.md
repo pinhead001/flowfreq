@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.2] - 2026-10-06
+
 ### Added
 - **Future flow: state survey, NCHRP 15-61 procedures, side-by-side precedence** (#36).
   The Wave 1 and Wave 2 states (WA, OR, ID, MT, CO, UT, WY, NM, AZ, NV) were surveyed
@@ -126,6 +128,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   sets every attribute `fetch_site_info` takes from the same `monitoring-locations` record
   (`waterdata.site_attributes`): latitude/longitude, 12-digit HUC and FIPS state code too.
   A failure there is still logged, and the peaks are still returned.
+- **The Water Data peaks backend returned more than one row for some water years**, and
+  `validate_peak_frame` then refused the record (25 of the Wave 1/2 QA gages). There are two
+  causes, both checked live on 2026-10-06. Some sites have two discharge peak time series
+  that repeat the same peaks (13296000: 31 years doubled). Some years carry a secondary
+  peak beside the annual one (09447000 WY 2016, 13113000 WY 2018). Exact copies are now
+  dropped, and in each year the largest row is kept as the annual peak, with its own date
+  and codes; dropped secondary peaks are logged as a warning. All three sites now match
+  legacy NWIS row for row.
+- **`run_ffa` failed with `zero-size array to reduction operation minimum` when peak codes
+  removed every peak**, e.g. code C (urbanization) on every peak at 29 Wave 1/2 gages.
+  `peak_code_kwargs` now raises a `ValueError` naming the codes and pointing to
+  `apply_peak_codes=False`; `run_ffa` reports it in `result["error"]`.
 
 ## [0.10.1] - 2026-10-03
 

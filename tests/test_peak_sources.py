@@ -220,6 +220,37 @@ def test_waterdata_skips_gage_height_rows(monkeypatch, pages, caplog):
     assert "00065" in caplog.text
 
 
+def test_waterdata_same_peak_from_two_time_series_is_kept_once(monkeypatch, pages, caplog):
+    """13296000: two discharge series repeat the same peaks."""
+    page1, page2 = copy.deepcopy(pages)
+    twin = copy.deepcopy(page2["features"][0])
+    twin["id"] = "another-series-row"
+    twin["properties"]["time_series_id"] = "another-series"
+    page2["features"].append(twin)
+    with caplog.at_level(logging.WARNING, logger="flowfreq.peak_sources"):
+        df, _ = _fetch(monkeypatch, page1, page2)
+    assert len(df) == 7 and df["water_year"].is_unique
+    assert "more than one peak" not in caplog.text  # an exact copy is not news
+
+
+def test_waterdata_secondary_peak_keeps_the_annual_one(monkeypatch, pages, caplog):
+    """09447000 WY 2016: the largest row is the annual peak, as legacy NWIS lists."""
+    page1, page2 = copy.deepcopy(pages)
+    annual = page2["features"][0]["properties"]
+    second = copy.deepcopy(page2["features"][0])
+    second["properties"].update(
+        value=str(float(annual["value"]) / 3), time="1927-03-01", qualifier=["ESTIMATED"]
+    )
+    page2["features"].insert(0, second)  # ahead of the annual peak in API order
+    with caplog.at_level(logging.WARNING, logger="flowfreq.peak_sources"):
+        df, _ = _fetch(monkeypatch, page1, page2)
+    row = df.set_index("water_year").loc[annual["water_year"]]
+    assert row["peak_flow_cfs"] == float(annual["value"])
+    assert row["peak_date"] == pd.Timestamp(annual["time"])
+    assert row["qualification_code"] == "7"  # the kept row's own codes, not the dropped one's
+    assert "more than one peak" in caplog.text and str(annual["water_year"]) in caplog.text
+
+
 @pytest.mark.parametrize(
     "tokens, expected",
     [
