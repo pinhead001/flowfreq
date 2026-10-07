@@ -188,8 +188,9 @@ def peak_code_kwargs(
     Raises
     ------
     ValueError
-        ``peak_codes`` not aligned with the record, or acted-on codes
-        together with ``historical_peaks``/``perception_thresholds``.
+        ``peak_codes`` not aligned with the record, acted-on codes together
+        with ``historical_peaks``/``perception_thresholds``, or codes that
+        remove every systematic peak.
     flowfreq.psf_convert.UnsupportedSpecError
         A record an engine would not fit as ``siteQT`` does (the message
         names the years). Every peak-code combination ``siteQT`` acts on,
@@ -255,6 +256,15 @@ def peak_code_kwargs(
         regional_skew_mse=regional_skew_mse,
         low_outlier_threshold=user_low_outlier_threshold,
     )
+    if not inputs.peak_flows:
+        # Every peak removed (e.g. code C on all of them). Without this the fit
+        # dies on an empty array with a message that names nothing.
+        raise ValueError(
+            f"{site_name}: no systematic peaks remain after applying peak qualification "
+            f"codes ({summary}). Codes 3/O always remove a peak, and 6/C remove it under "
+            "peakfq's default Urb/Reg = No. Turn peak codes off (apply_peak_codes=False) "
+            "to fit every peak as an exact value."
+        )
     # Each engine's check rebuilds its own rows; the arguments are the same.
     kwargs: Dict[str, Any] = {}
     for engine in engines:

@@ -339,8 +339,57 @@ class WaterDataApiBackend:
             )
             df = df.loc[~incomplete].copy()
         df["water_year"] = df["water_year"].astype(int)
-        df = df.sort_values("water_year", kind="stable").reset_index(drop=True)
+        df = _one_peak_per_water_year(df, site)
         return validate_peak_frame(df)
+
+
+def _one_peak_per_water_year(df: pd.DataFrame, site: str) -> pd.DataFrame:
+    """Reduce Water Data API peak rows to one annual peak per water year.
+
+    The API can return more than one row for a water year, in two ways (seen
+    2026-10-06; legacy NWIS lists one row per year in both cases):
+
+    - the same peak once per time series, when a site has two discharge peak
+      series covering the same years (13296000: 31 years doubled);
+    - a secondary peak alongside the annual one (09447000 WY 2016: 236 cfs and
+      70.4 cfs; 13113000 WY 2018: 575 cfs and 547 cfs).
+
+    Exact copies are dropped. Of the rows left in a year, the largest is the
+    annual peak and is kept with its own date and codes, which is the row
+    legacy NWIS publishes for every case above.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        Columns :data:`PEAK_COLUMNS`, with complete water years and values.
+    site : str
+        Used in log messages only.
+
+    Returns
+    -------
+    pandas.DataFrame
+        One row per water year, sorted by water year.
+    """
+    n = len(df)
+    df = df.drop_duplicates(subset=list(PEAK_COLUMNS))
+    if len(df) < n:
+        logger.info("Site %s: dropped %d duplicated peak row(s)", site, n - len(df))
+    multi = df["water_year"].duplicated(keep=False)
+    if multi.any():
+        extra = df[multi].sort_values("peak_flow_cfs", ascending=False, kind="stable")
+        dropped = extra[extra["water_year"].duplicated(keep="first")]
+        listed = dropped.sort_values("water_year", kind="stable")
+        years = [int(y) for y in listed["water_year"].tolist()]
+        flows = [float(q) for q in listed["peak_flow_cfs"].tolist()]
+        logger.warning(
+            "Site %s: more than one peak in water year(s) %s; kept the largest in each "
+            "as the annual peak, dropped %s",
+            site,
+            sorted(set(years)),
+            ", ".join(f"WY {y} {q:g} cfs" for y, q in zip(years, flows)),
+        )
+        df = df.drop(index=dropped.index)
+    return df.sort_values("water_year", kind="stable").reset_index(drop=True)
 
 
 _BACKENDS: Dict[str, Type[PeakDataBackend]] = {
