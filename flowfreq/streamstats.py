@@ -46,6 +46,9 @@ from __future__ import annotations
 import json
 import logging
 import math
+import os
+import tempfile
+import threading
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import asdict, dataclass, field
@@ -313,11 +316,20 @@ class StreamStatsCache:
     filter never silently reuses a stale entry. Loads on construction and writes
     through on every ``set``, so a populated cache works with no network at all,
     including no snap call.
+
+    Safe to share between the worker threads of :func:`batch_get_characteristics`:
+    ``set`` serializes under a lock and replaces the file atomically, so a crash
+    mid-write leaves the previous file rather than a truncated one. It is not
+    safe to share one cache *file* between processes -- the last writer wins.
+    Every ``set`` rewrites the whole file, so with polygons included (tens of MB
+    for a hundred basins) writes dominate a batch of cache misses; concurrent
+    workers wait on each other's writes, not on StreamStats.
     """
 
     def __init__(self, path: Optional[Path] = None) -> None:
         self._path = path or _default_cache_path()
         self._data: Dict[str, Dict[str, Any]] = {}
+        self._lock = threading.Lock()
         self._load()
 
     def _load(self) -> None:
@@ -333,12 +345,30 @@ class StreamStatsCache:
                 self._data = {}
 
     def get(self, key: str) -> Optional[Dict[str, Any]]:
-        return self._data.get(key)
+        with self._lock:
+            return self._data.get(key)
 
     def set(self, key: str, value: Dict[str, Any]) -> None:
-        self._data[key] = value
-        self._path.parent.mkdir(parents=True, exist_ok=True)
-        self._path.write_text(json.dumps(self._data, indent=2), encoding="utf-8")
+        with self._lock:
+            # Committed to memory only once it is on disk, so an entry that
+            # cannot be serialized or written never stays behind to fail every
+            # later write too. The copy is shallow: one dict of references.
+            updated = {**self._data, key: value}
+            # Compact: polygons make the file tens of MB, and indenting more
+            # than doubled it and every write that rewrites it.
+            text = json.dumps(updated, separators=(",", ":"))
+            self._path.parent.mkdir(parents=True, exist_ok=True)
+            fd, tmp_name = tempfile.mkstemp(
+                dir=self._path.parent, prefix=f".{self._path.name}.", suffix=".tmp"
+            )
+            try:
+                with os.fdopen(fd, "w", encoding="utf-8") as handle:
+                    handle.write(text)
+                os.replace(tmp_name, self._path)
+            except BaseException:
+                Path(tmp_name).unlink(missing_ok=True)
+                raise
+            self._data = updated
 
 
 #: Bumped when a cached result's *content* changes shape, so an entry written by an
