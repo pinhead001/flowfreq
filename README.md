@@ -66,7 +66,7 @@ pip install -e ".[dev]"
 Or install a released version straight from GitHub:
 
 ```bash
-pip install git+https://github.com/pinhead001/flowfreq@v0.10.2
+pip install git+https://github.com/pinhead001/flowfreq@v0.10.3
 ```
 
 **Dependencies:** `numpy`, `pandas`, `matplotlib`, `scipy`, `requests`, `click`, `pyarrow`
@@ -374,6 +374,7 @@ England, J.F., Jr., et al., 2019, Guidelines for determining flood flow frequenc
 
 | Version | Changes |
 |---------|---------|
+| **v0.10.3** | `StreamStatsCache` thread-safe and written atomically: concurrent batch delineation no longer reports cached successes as failures. See CHANGELOG.md. |
 | **v0.10.2** | Water Data peaks reduced to one annual peak per water year (duplicate time series, secondary peaks); clear error when peak codes remove every peak; `download_peak_flow` sets every site attribute; Wave 1/2 cross-border QA; AZ region 5 (AZ verified); Wave 2 catalog regions (CO/UT/AZ); opt-in NID/NLCD regulation screen; NCHRP 15-61 future-flow procedures; weekly live-service CI. See CHANGELOG.md. |
 | **v0.10.1** | `fetch_site_info` on the Water Data API (discharge-only period of record); `pd.NA` peak codes accepted; native EMA 5-10x faster with bit-identical results. See CHANGELOG.md. |
 | **v0.10.0** | Water Data OGC API default for instantaneous and daily values, API key and 429 backoff; regulation screen (refuses regulated gages unless overridden); national gage catalog; `n_low_outliers` = peakfq `gbnlow`; native EMA reproduces peakfq 8.1.0 on all 24 WY/MT stations; Wave 2 regression equations (CO/UT/WY/NM/AZ/NV); `regional_skew_at`; B-WLS/B-GLS skew tooling; StreamStats polygon and region selection; paired stage/discharge. See CHANGELOG.md. |

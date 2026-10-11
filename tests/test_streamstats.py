@@ -683,6 +683,40 @@ class TestStreamStatsCache:
         cache = StreamStatsCache(path)
         assert cache.get("anything") is None
 
+    def test_concurrent_sets_neither_raise_nor_lose_entries(self, tmp_path) -> None:
+        # batch_get_characteristics writes through from several worker threads.
+        # Serializing the dict while another thread inserted into it raised
+        # "dictionary changed size during iteration", and the point whose write
+        # raised was reported as a failed delineation.
+        path = tmp_path / "cache.json"
+        cache = StreamStatsCache(path)
+        payload = {"rows": [{"value": i, "label": "x" * 40} for i in range(500)]}
+        keys = [f"k{thread}-{i}" for thread in range(8) for i in range(15)]
+
+        with ThreadPoolExecutor(max_workers=8) as executor:
+            futures = [executor.submit(cache.set, key, payload) for key in keys]
+            errors = [future.exception() for future in futures]
+
+        assert errors == [None] * len(keys)
+        on_disk = json_module.loads(path.read_text(encoding="utf-8"))
+        assert sorted(on_disk) == sorted(keys)
+
+    def test_failed_write_leaves_file_and_cache_usable(self, tmp_path) -> None:
+        path = tmp_path / "cache.json"
+        cache = StreamStatsCache(path)
+        cache.set("good", {"value": 1})
+        before = path.read_text(encoding="utf-8")
+
+        with pytest.raises(TypeError):
+            cache.set("bad", {"value": object()})
+
+        assert path.read_text(encoding="utf-8") == before
+        assert cache.get("bad") is None
+        assert list(tmp_path.iterdir()) == [path]
+        # The rejected entry must not poison every later write.
+        cache.set("later", {"value": 2})
+        assert sorted(StreamStatsCache(path)._data) == ["good", "later"]
+
 
 class TestWatershedCharacteristicsSerialization:
     def test_to_dict_from_dict_round_trip(self) -> None:
