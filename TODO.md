@@ -5,31 +5,32 @@
 > in progress are tracked under "Roadmap Phase A, Wave 1 and Wave 2" in Open Items below.
 
 ## Status
-Last updated: 2026-10-03. Version **0.9.0** is released (`pyproject.toml`; tag `v0.9.0` at
-`8944bb4`, PR #75, 2026-09-27). **0.10.0 is pending.** 26 PRs have merged since (#76-#107),
-listed in CHANGELOG.md's Unreleased section.
+Last updated: 2026-10-11. Version **0.10.2** is released (`pyproject.toml`; tag `v0.10.2`,
+PR #125, 2026-10-06), after v0.10.0 (#109) and v0.10.1 (#112), both 2026-10-03.
+CHANGELOG.md's Unreleased section is empty: nothing has merged since v0.10.2.
 Python 3.11–3.14 (`requires-python >= 3.11`; CI matrix in `.github/workflows/ci.yml`).
 
-Tests, measured 2026-10-03 on Windows / CPython 3.12 with
-`PYTHONSAFEPATH=1 PYTHONUTF8=1 pytest tests/` (the CI selection; `addopts` deselects
-`requires_network`):
-
-- Extension absent: **2529 passed, 18 skipped, 100 deselected, 4 xfailed** (341 s).
-- Extension built: not re-measured for this update. `ci / Fortran parity` is the
-  authoritative parity check; on a local MSYS2 gfortran build, expect the documented
-  toolchain drift against the Linux-built goldens (CLAUDE.md, Validation Status).
+Tests: **not re-measured for this update.** The last recorded count is v0.10.1's release
+note (#112, Windows, extension built): **2832 passed, 104 deselected, 6 xfailed**, plus
+the 2 documented local gfortran-drift failures (CLAUDE.md, Validation Status). #111 cut
+the suite without the extension from 336 s to 71 s. v0.10.2 (#125) added tests after
+that, so the count is stale; `ci / Fortran parity` is the authoritative parity check.
+Live-service tests (`requires_network`) now run weekly in `.github/workflows/live.yml`
+(#114), which opens or updates a live-tests issue when a scheduled run fails; none is
+open as of 2026-10-11.
 
 The strict xfails are listed in CLAUDE.md (Validation Status). There are four 2012 PeakfqSA
-manual comparisons in `tests/validation/test_big_sandy.py`, which run everywhere and are the
-4 xfailed above. There are also two in `tests/fortran_parity/test_fixed_threshold_live.py`,
-which need the extension and are where `emafitpr` itself is ill-conditioned (a FIXED threshold
-at near-zero skew) or unconverged (`MN2MVARB` on Big Sandy with a 6000 cfs threshold), both
-from #81. Run the number, do not carry it forward -- it has been wrong in a commit message
-and a PR body already.
+manual comparisons in `tests/validation/test_big_sandy.py`, which run everywhere. There are
+also two in `tests/fortran_parity/test_fixed_threshold_live.py`, which need the extension
+and are where `emafitpr` itself is ill-conditioned (a FIXED threshold at near-zero skew) or
+unconverged (`MN2MVARB` on Big Sandy with a 6000 cfs threshold), both from #81. Run the
+number, do not carry it forward -- it has been wrong in a commit message and a PR body
+already.
 
 Every P1, P2 and P3 item is done; the Done sections and "P3 — The `var_mom` port" hold the
-history. Open work is the roadmap (Phase A, Wave 1 and Wave 2 below), the fixed-window ramp
-metric, and the app's pin bump.
+history. Open work is the roadmap (#33, #36, the Montana skew and the three `partial`
+states below), the fixed-window ramp metric, and the app's pin bump. No PR is open, and no
+remote branch carries unmerged work (checked 2026-10-11).
 Fortran reference: **vendored** at `vendor/peakfqr/` (peakfq 8.1.0, CC0); the bridge builds
 with `python build_fortran/build.py` (gfortran + meson), and CI builds and checks it with
 `make parity`.
@@ -77,9 +78,10 @@ These bit repeatedly and are not discoverable from the code:
 started. PR #26 scaffolded Phase A and Wave 1. Since then almost every item has been
 delivered; this section keeps one line of history per item and the open remainder.
 Audited 2026-10-03 against `git log v0.9.0..origin/main`, `CHANGELOG.md` and
-`gh issue list --state all`.
+`gh issue list --state all`; updated 2026-10-11 for #110-#125. Open issues on
+2026-10-11: #27 (Phase A epic), #33, #36, #96 (UT), #104 (NV).
 
-**Phase A: data foundation (#27, epic, open while #32 and #33 are open)**
+**Phase A: data foundation (#27, epic, open while #33 is open)**
 
 - [x] **#29 Water Data OGC API migration** (closed). The OGC API is the default backend
       for peaks (#42, parity #49, default #63, `USGSgage.download_peak_flow` routed
@@ -99,21 +101,29 @@ Audited 2026-10-03 against `git log v0.9.0..origin/main`, `CHANGELOG.md` and
 - [x] **#31 PeakFQ `.psf` reader and converter** (closed). `psf.py`, `psf_convert.py`
       (#52) and `watstore.py`. All 24 WY/MT stations in `wymt_ffa_2022A.psf` convert and
       match live `emafitpr` (CLAUDE.md, Validation Status).
-- [ ] **#32 Regulation / urbanization screen** (open). Done in #95: `flowfreq.regulation`
+- [x] **#32 Regulation / urbanization screen** (closed). #95: `flowfreq.regulation`
       combines the packaged GAGES-II screen (9,322 gages) with peak code 6, and
       `analyze_gage` (and `run_ffa` given `site_no=`) refuses a regulated gage unless
-      `allow_regulated=True`. Open:
-      - Current NID storage. The national CSV is live
-        (`nid.sec.usace.army.mil/api/nation/csv`), but summing it upstream needs basin
-        polygons and point-in-polygon, which flowfreq does not depend on.
-      - The NLCD impervious **time series** (step 3). GAGES-II carries NLCD 2006 only.
-      - Gages outside GAGES-II, which have peak-code evidence only.
+      `allow_regulated=True`. #117 closed the three gaps #95 left, opt-in per site via
+      `classify_site(..., use_current_nid=True, use_current_impervious=True)`:
+      - current NID storage summed inside the StreamStats watershed polygon (numpy ray
+        casting, no GIS dependency), within 15 % of `STOR_NID_2009` on five dammed basins;
+      - the newest NLCD impervious epoch StreamStats computes (2001-2023), with year and
+        series recorded. CO's `LC11IMP` failed the GAGES-II cross-check, so it is recorded
+        but not used;
+      - gages outside GAGES-II can now be classed regulated or urban. A StreamStats
+        "River is regulated" delineation warning is decisive.
 - [ ] **#33 National gage catalog** (open). Built in #105:
       `flowfreq/data/gage_catalog.csv.gz` covers 20,745 USGS peak sites with at least 10
       water years, nationally, rebuilt by `tools/build_gage_catalog.py` with two Water
-      Data API bulk queries per state. Open: `regression_region` is filled for Wave 1
-      only (WA/OR/ID/MT), not for the Wave 2 states whose equations have since landed.
-      It comes from the gage point, so a basin that crosses a boundary needs
+      Data API bulk queries per state. `regression_region` is filled for Wave 1
+      (WA/OR/ID/MT) and, since #122, CO/UT/AZ by point-in-polygon on NSS region
+      geometry (4,209 rows with a region, was 2,554; 36 of 36 sampled rows match NSS
+      `bylocation`). AZ rows list High Elevation region 1 (GC1618) beside regions 2-5,
+      since NSS selects it by mean basin elevation. Open: **WY, NV and NM stay blank**:
+      WY and NV regions have no geometry in NSS or the nss/regions MapServer, and NM's
+      regions share one statewide polygon (selected by `HIGHREG`). The region comes from
+      the gage point, so a basin that crosses a boundary needs
       `streamstats.locate_regression_regions`. Western Oregon's 2A/2B split is by basin
       mean elevation, so those rows list `GC729;GC730;GC731`.
 - [x] **#34 Regional skew table and lookup** (closed). Pacific Northwest rows for
@@ -165,17 +175,29 @@ unresolved.
 - [x] **#93 CO**, `verified` (#94).
 - [ ] **#96 UT**, `partial` (#97). Region 2 does not match NSS: Table 5 prints its
       precipitation bases to 3 significant figures, NSS uses 4 (1.07 against 1.074). The
-      printed values are stored and the gap is pinned by tests.
+      printed values are stored and the gap is pinned by tests. #121 searched for a
+      4-digit primary source and found none (SIR 2007-5158 ver. 4.0 is current, its
+      revisions touch only PK200, and no data release exists; NSS cites only this report).
+      Stays `partial` unless USGS publishes the bases.
 - [x] **#98 WY**, `verified` (#99).
 - [x] **#100 NM**, `verified` (#101).
-- [ ] **#102 AZ**, `partial` (#103). Region 5's `10^(a - b DRNAREA^-c)` form has no schema
-      representation, so region 5 is not stored.
-- [ ] **#104 NV**, `partial` (#106). WSP 2433 has no range table, so the stored limits are
-      NSS's. Region 6's 2-year equation is printed `Q=0`, and hybrid-method errors are not
-      comparable standard errors and are not stored.
+- [x] **#102 AZ**, `verified` (#103, #116). Region 5's `10^(a - b DRNAREA^-c)` form is
+      stored through `Variable(transform="power", exponent=...)` (#116, backward
+      compatible), with Table 12's covariance; `nss.parse_equation` parses it too.
+- [ ] **#104 NV**, `partial` (#106, #120). #120 replaced NSS's limits with the range over
+      the gages each region used (WSP 2433's data section, pp. 109-195, reproducing every
+      table's n) and added the transition zones in `flowfreq.regression.nevada` (eqs. 6
+      and 7, reproducing the p. 41 and p. 44 worked examples). Still `partial`: region 6's
+      2-year equation is printed `Q=0`, and the hybrid regions' errors are not comparable
+      standard errors, so neither is stored.
 
-No Wave 2 state has a regional skew yet, or the wave's cross-border consistency check
-(roadmap §3.2). Their §6.3.2 future-flow guidance is recorded: none tabulates factors
+No Wave 2 state has a regional skew yet. The definition-of-done QA for Waves 1 and 2 ran
+in #124 (`flowfreq.validation.wave_qa`, `tools/wave_qa.py`, `docs/WAVE_QA_W1_W2.md`, and a
+vignette at `docs/vignettes/wave1_wave2_ungaged.py`): cross-border check, drainage-area-ratio
+LOOCV, and B17C at 2,281 gages. 1 of 89 evaluable border site-pairs exceeded the threshold
+(Tongue River near Dayton, WY vs MT, 2-year); systematic offsets ID > MT in the Idaho
+panhandle, WY > MT, and WA < ID at the 2-year. NV is not evaluable (no region geometry).
+No equation was changed; whether the offsets need action is not decided. Their §6.3.2 future-flow guidance is recorded: none tabulates factors
 (`docs/FUTURE_FLOW_GUIDANCE.md`).
 
 ### Small open items
@@ -759,23 +781,31 @@ the CLOMR/LOMR case this is for.
 
 - [ ] **Bump the app's pin.** `pinhead001/flowfreq-app`'s `requirements.txt` is still
       `flowfreq @ git+https://github.com/pinhead001/flowfreq@v0.7.0` (its last commit,
-      `a9c856b`, 2026-09-08), checked 2026-10-03. It has skipped v0.8.0 and v0.9.0, and
-      0.10.0 is pending. Identical FFA output is **not** the bar for this bump. v0.9.0
-      changed results on purpose:
+      `a9c856b`, 2026-09-08), checked 2026-10-11. It has skipped v0.8.0 through v0.10.2.
+      Identical FFA output is **not** the bar for this bump. v0.9.0 changed results on
+      purpose:
       - no silent `-0.302` regional skew default (#44). The app's `run_ffa` call passes
         `regional_skew`/`regional_skew_se` explicitly, so this one should not break it;
-      - the Water Data OGC API by default for peaks, with UTC `peak_date`, and IV and
-        daily follow in 0.10.0;
+      - the Water Data OGC API by default for peaks, with UTC `peak_date`;
       - peak codes applied by default (#68);
       - the partial-date fix (#41), which keeps peaks the app's `download_peak_flow` call
         used to drop (Big Sandy's three historic peaks, for one);
       - the native-EMA fixes (#61-#66, #72, #74).
 
       0.10.0 adds:
+      - the OGC API by default for IV and daily values too (#77, #79);
       - the `p3est_ema` fixed point (#81, quantiles move by at most 0.0035 %);
       - `n_low_outliers` as `gbnlow` (#88);
       - `analyze_gage`'s regulated-gage refusal (#95). `run_ffa` screens only when it is
         given `site_no=`, so the app's current call is not affected.
+
+      0.10.1 and 0.10.2 add:
+      - `fetch_site_info` on the OGC API by default, with a discharge-only period of
+        record (#110), and every site attribute set by `download_peak_flow` (#113);
+      - one peak per water year from the OGC backend: duplicates dropped, the largest row
+        kept (#125). This changes the fitted record at sites such as 13296000, 09447000
+        and 13113000, matching legacy NWIS;
+      - a `ValueError` naming the codes when peak codes remove every systematic peak (#125).
 
       So the bump needs a deliberate review of the changed numbers, not just a one-line edit.
 
