@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.3] - 2026-10-10
+
+### Fixed
+- **`StreamStatsCache` was not thread-safe.** `batch_get_characteristics(concurrency>1)`
+  writes through from several worker threads; serializing the cache while another thread
+  inserted into it raised `RuntimeError: dictionary changed size during iteration`, and
+  the point whose write raised was reported as a failed delineation although StreamStats
+  had answered. Seen live on 2026-10-07: 19 of 118 Methow pour points at concurrency 4,
+  all present in the cache and recovered by a concurrency-1 re-run. The 0.10.0 cache-key
+  change made it likely (every point a miss, and each write re-serializing a 50 MB file of
+  polygons). `set` and `get` now hold a lock.
+- **A failed cache write could truncate the cache file**, and an unserializable entry
+  stayed in memory and failed every later write. The file is now written to a temporary
+  sibling and swapped in with `os.replace`, and an entry reaches memory only once it is
+  on disk.
+
+### Changed
+- `StreamStatsCache` writes compact JSON instead of `indent=2`. With polygons cached the
+  indentation more than doubled the file (50 MB to about 21 MB for 113 Methow basins) and
+  the time of every write, which now happens under the lock. Existing files load
+  unchanged; keys and entries are the same.
+
 ## [0.10.2] - 2026-10-06
 
 ### Added
