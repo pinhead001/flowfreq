@@ -20,7 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   polygons). `set` and `get` now hold a lock.
 - **A failed cache write could truncate the cache file**, and an unserializable entry
   stayed in memory and failed every later write. The file is now written to a temporary
-  sibling and swapped in with `os.replace`, and a rejected entry is rolled back.
+  sibling and swapped in with `os.replace`, and an entry reaches memory only once it is
+  on disk.
 
 ### Changed
 - `StreamStatsCache` writes compact JSON instead of `indent=2`. With polygons cached the

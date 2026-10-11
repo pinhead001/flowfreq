@@ -350,21 +350,13 @@ class StreamStatsCache:
 
     def set(self, key: str, value: Dict[str, Any]) -> None:
         with self._lock:
-            had_key = key in self._data
-            previous = self._data.get(key)
-            self._data[key] = value
-            try:
-                # Compact: polygons make the file tens of MB, and indenting
-                # more than doubled it and every write that rewrites it.
-                text = json.dumps(self._data, separators=(",", ":"))
-            except (TypeError, ValueError):
-                # An unserializable entry must not stay behind and fail every
-                # later write too.
-                if had_key:
-                    self._data[key] = previous
-                else:
-                    del self._data[key]
-                raise
+            # Committed to memory only once it is on disk, so an entry that
+            # cannot be serialized or written never stays behind to fail every
+            # later write too. The copy is shallow: one dict of references.
+            updated = {**self._data, key: value}
+            # Compact: polygons make the file tens of MB, and indenting more
+            # than doubled it and every write that rewrites it.
+            text = json.dumps(updated, separators=(",", ":"))
             self._path.parent.mkdir(parents=True, exist_ok=True)
             fd, tmp_name = tempfile.mkstemp(
                 dir=self._path.parent, prefix=f".{self._path.name}.", suffix=".tmp"
@@ -376,6 +368,7 @@ class StreamStatsCache:
             except BaseException:
                 Path(tmp_name).unlink(missing_ok=True)
                 raise
+            self._data = updated
 
 
 #: Bumped when a cached result's *content* changes shape, so an entry written by an
