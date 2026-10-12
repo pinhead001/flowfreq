@@ -77,8 +77,8 @@ Open at v0.10.4 and carried into the 0.11.0 (countrywide) cycle. Details are in 
 Phase A / Wave entries below.
 
 - [ ] **Partial states.**
-      - WA region 4 covariance (#65): Table 7 is published, but its `P/10` scaling is
-        undocumented and contradicted by Table 8, so it is not stored.
+      - ~~WA region 4 covariance (#65)~~: stored in the `P/10` basis after a GLS refit
+        (`docs/WA_REGION4_REFIT.md`); WA is `verified`.
       - UT region 2 (#96): NSS evaluates 4-digit precipitation bases where SIR 2007-5158
         prints 3. A search found no primary source for the extra digit.
       - NV region 6 and the hybrid regions (#104): the printed 2-year `Q=0` and the hybrid
@@ -178,10 +178,11 @@ Audited 2026-10-03 against `git log v0.9.0..origin/main`, `CHANGELOG.md` and
       national result alongside a state override. Open: NOAA Atlas 15 Volume 2 once
       published (plus a cited precipitation-to-flow elasticity), and the unretrieved NMDOT
       (2018) and NDOT (2006) drainage manuals.
-- [x] **#37 WA (pilot)**, `partial` (#55); the issue is closed.
-      - [ ] Table 7's region 4 covariance is published but not stored, which is what keeps
-            WA `partial`. Its `P/10` scaling is undocumented and contradicted by Table 8
-            (#65).
+- [x] **#37 WA (pilot)**, `verified` since the Region 4 refit (Northwest studies task 4;
+      `docs/WA_REGION4_REFIT.md`). A GLS refit of the report's own data and Table 6's Sp both
+      put Table 7's Region 4 matrix in the `P/10` basis, so it is stored with PRECPRIS10
+      `scale = 0.1`. The report's workbook and Table 8 apply it to raw P (#65); flowfreq's
+      Region 4 intervals are about 3x narrower than the workbook's.
 - [x] **#38 OR**, `verified` since #107: western Oregon SIR 2005-5116 (#57), the 2A/2B
       blend (#67), eastern Oregon OWRD OFR SW 06-001 (#71). No covariance is published.
 - [x] **#39 ID**, `verified` (#48, #59).
