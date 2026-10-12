@@ -93,7 +93,7 @@ Phase A / Wave entries below.
       stays out of the table) and for all of Wave 2 (roadmap §1.3). No Wave 2 state has a
       row in `regional_skew.csv`.
 - [x] **Northwest studies plan** (`docs/superpowers/plans/2026-10-11-northwest-regional-studies.md`), done 2026-10-12
-      except WA (#132, awaiting the maintainer's decision). Follow-on:
+      (WA merged as #132 after the maintainer's go-ahead). Follow-on:
       `docs/superpowers/plans/2026-10-12-oregon-regression-update.md`. Oregon StreamStats
       returned only 9-13 basin characteristics on 2026-10-12 (a missing-raster error), so it is
       not evaluating Cooper's western-Oregon variables (I24H2Y, JANMAXT2K). Re-check it, and
