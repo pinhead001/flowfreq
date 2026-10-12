@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Arizona regional skew** (Wave 2). Paretti and others (2014, SIR 2014-5211, appendix 1):
+  a statewide B-GLS constant, G = -0.09, MSE 0.08, effective record length 85 years
+  (Table 1-2, p. 55), `verified`. Every HUC8 the WBD lists as touching Arizona (84, of which
+  33 are shared with NM, UT, NV, CA, CO or Mexico) is a member valid in AZ only, so a site
+  in a shared HUC8 needs its state, and the New Mexico side of one raises.
 - **Montana regional skew study v2 (provisional, not USGS)** (Northwest studies tasks 5-8;
   `docs/MONTANA_REGIONAL_SKEW_V2.md`). 300 gages, including WY/ID gages in shared basins, with
   the GAGES-II screen and StreamStats basin centroids, elevation and precipitation.

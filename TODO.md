@@ -90,8 +90,8 @@ Phase A / Wave entries below.
       representable in the table. A published USGS study is still wanted.
 - [x] **Snake River Plain skew**: not feasible, 2 of 47 gages (`docs/SNAKE_RIVER_PLAIN_SKEW.md`).
 - [ ] **Regional skew** for MT (a published USGS Bayesian study; the provisional #91 study
-      stays out of the table) and for all of Wave 2 (roadmap §1.3). No Wave 2 state has a
-      row in `regional_skew.csv`.
+      stays out of the table) and for the rest of Wave 2 (roadmap §1.3). Arizona is done
+      (SIR 2014-5211 app. 1, G = -0.09, MSE 0.08, 84 HUC8s valid in AZ only).
 - [x] **Northwest studies plan** (`docs/superpowers/plans/2026-10-11-northwest-regional-studies.md`), done 2026-10-12
       (WA merged as #132 after the maintainer's go-ahead). Follow-on:
       `docs/superpowers/plans/2026-10-12-oregon-regression-update.md`. Oregon StreamStats
@@ -216,7 +216,7 @@ unresolved.
       region's gages. Still open: region 6's 2-year equation is printed `Q=0`, and
       hybrid-method errors are not comparable standard errors; neither is stored.
 
-No Wave 2 state has a regional skew yet. The wave's cross-border consistency check
+Arizona has a verified regional skew (SIR 2014-5211 app. 1); the other Wave 2 states do not yet. The wave's cross-border consistency check
 (roadmap §3.2) ran 2026-10-06 (`docs/WAVE_QA_W1_W2.md`). Their §6.3.2 future-flow guidance is recorded: none tabulates factors
 (`docs/FUTURE_FLOW_GUIDANCE.md`).
 
