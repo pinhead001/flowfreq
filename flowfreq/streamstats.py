@@ -927,7 +927,7 @@ def delineate_and_get_characteristics(
     if cache is not None:
         cached = cache.get(cache_key)
         if cached is not None:
-            logger.info("StreamStats cache hit for %s", cache_key)
+            logger.debug("StreamStats cache hit for %s", cache_key)
             return WatershedCharacteristics.from_dict(cached)
 
     snap = snap_point(region, lat, lon, timeout=timeout)
