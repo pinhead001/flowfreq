@@ -176,8 +176,11 @@ def test_snake_river_plain_boundary_decided_by_point(monkeypatch, on_plain):
     ],
 )
 def test_eastern_montana_raises(huc, what):
-    with pytest.raises(RegionalSkewUnavailable, match="No verified regional skew study"):
+    # Only the provisional flowfreq study (docs/MONTANA_REGIONAL_SKEW_V2.md) covers
+    # these; without opt-in they still refuse.
+    with pytest.raises(RegionalSkewUnavailable, match="provisional"):
         regional_skew_at_huc(huc, "MT")
+    assert regional_skew_at_huc(huc, "MT", allow_provisional=True).provisional
 
 
 def test_state_with_no_study_raises():

@@ -115,6 +115,13 @@ OR_CLOSED_HUC4: Dict[str, str] = {
     ),
 }
 
+#: Provisional flowfreq study (not USGS): Montana east of the Continental Divide.
+MT_EAST = "Montana east of the Divide (provisional)"
+MT_EAST_SOURCE = (
+    "flowfreq Montana skew study v2 (docs/MONTANA_REGIONAL_SKEW_V2.md; "
+    "tools/build_montana_skew_study_v2.py); NOT a USGS study"
+)
+
 UNRESOLVED: Dict[str, str] = {
     "1801": (
         "Klamath-Northern California coastal. Not in the study region as SIR 2016-5118 "
@@ -186,12 +193,24 @@ def _inside(paths: Sequence[MplPath], pts: np.ndarray) -> np.ndarray:
 
 def huc8_states() -> List[Tuple[str, str, str]]:
     feats = _query_all(
-        f"{WBD}/4", "huc8 LIKE '17%' OR huc8 LIKE '1801%'", "huc8,name,states", geometry=False
+        f"{WBD}/4",
+        "huc8 LIKE '17%' OR huc8 LIKE '1801%' OR states LIKE '%MT%'",
+        "huc8,name,states",
+        geometry=False,
     )
     rows = {
         (f["attributes"]["huc8"], f["attributes"]["name"], f["attributes"]["states"]) for f in feats
     }
     return sorted(rows)
+
+
+def montana_east_huc8() -> List[Tuple[str, str, str]]:
+    """(huc8, name, states) for HUC8s in regions 10 and 09 that touch Montana."""
+    rows = [r for r in huc8_states() if r[0][:2] in ("10", "09") and "MT" in r[2].split(",")]
+    if not rows:
+        raise RuntimeError("WBD returned no HUC8 in regions 09/10 touching MT")
+    print(f"Montana east of the Divide: {len(rows)} HUC8")
+    return rows
 
 
 def snake_river_plain() -> List[Tuple[str, str, str, float]]:
@@ -242,6 +261,8 @@ def build() -> Tuple[str, str]:
         w.writerow([huc4, PNW, "member", PNW_STATES, PNW_SOURCE, what])
     for huc4, why in OR_CLOSED_HUC4.items():
         w.writerow([huc4, OR_CLOSED, "member", "OR", OR_CLOSED_SOURCE, why])
+    for huc8, name, touches in montana_east_huc8():
+        w.writerow([huc8, MT_EAST, "member", "MT", MT_EAST_SOURCE, f"{name}; WBD states {touches}"])
     for huc4, why in UNRESOLVED.items():
         w.writerow([huc4, PNW, "unresolved", "", PNW_SOURCE, why])
     for huc12, rule, name, frac in snake_river_plain():

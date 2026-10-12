@@ -1,5 +1,9 @@
 # Provisional Montana regional skew (B-WLS/B-GLS)
 
+> **Superseded by v2** (`docs/MONTANA_REGIONAL_SKEW_V2.md`), which adds neighbouring-state
+> gages, the GAGES-II screen, StreamStats basin characteristics and a PeakFQ cross-check. v2's
+> east-of-Divide constant is in `regional_skew.csv` as a provisional (opt-in) row.
+
 > **This is not a USGS study.** It was developed with flowfreq's own tooling
 > (`flowfreq.skew_study`) as a research product. It is **not** a default anywhere in
 > flowfreq, it is **not** in `flowfreq/data/regional_skew.csv` (whose schema has only

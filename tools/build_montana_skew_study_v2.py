@@ -408,6 +408,16 @@ def fit(args: argparse.Namespace) -> Dict[str, Any]:
         if np.all(t >= 2.0):
             eligible[name] = m.avp_new
     selected = min(eligible, key=lambda k: eligible[k])
+    # The table row covers MT east of the Divide (HUC2 10/09); west of it the
+    # verified PNW study applies. So its constant is fitted on those gages only.
+    east = np.flatnonzero(used["east"].to_numpy() == 1)
+    for label, cols in (("CONSTANT_EAST_ONLY", []), ("PRECIP_EAST_ONLY", ["precip_10in"])):
+        x = used.loc[east, cols].to_numpy(float) if cols else None
+        m = v1.fit_regional_skew(
+            g[east], p[east], x, cols or None, correlation=corr[np.ix_(east, east)],
+            kappa=args.kappa,
+        )  # fmt: skip
+        models[label] = v1._model_dict(m)
     top = np.argsort(-const.influence)[:15]
     results: Dict[str, Any] = {
         "version": VERSION,
