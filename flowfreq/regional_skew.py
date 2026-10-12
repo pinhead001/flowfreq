@@ -10,6 +10,9 @@ Two rules the table enforces:
 - A row is usable only when ``status == "verified"``, meaning it has been
   transcribed from its cited report and second-checked. ``pending`` rows exist
   so that the gaps are visible, and they are never returned as values.
+- ``provisional`` rows are flowfreq-developed studies (USGS procedures, not a
+  USGS publication). They are returned only to a caller who passes
+  ``allow_provisional=True``, and always with an advisory saying so.
 - There is no silent fallback to the Bulletin 17B Plate I map. A caller who
   wants a fallback must pass one explicitly, and it is labelled as such.
 
@@ -41,7 +44,10 @@ COLUMNS = (
     "status",
     "notes",
 )
-STATUSES = frozenset({"pending", "verified"})
+STATUSES = frozenset({"pending", "verified", "provisional"})
+
+#: Prefix of the advisory every provisional result carries.
+PROVISIONAL_PREFIX = "PROVISIONAL (not USGS)"
 
 
 class RegionalSkewUnavailable(LookupError):
@@ -61,8 +67,10 @@ class RegionalSkew:
     effective_record_years: Optional[float] = None
     #: Set when the value comes from a study whose region covers the point but
     #: which the state itself has not adopted (e.g. the Pacific Northwest study
-    #: in western Montana). Empty otherwise.
+    #: in western Montana), or for any provisional value. Empty otherwise.
     advisory: str = ""
+    #: True when the value is a flowfreq-developed (non-USGS) study.
+    provisional: bool = False
 
     def __post_init__(self) -> None:
         if not self.citation.strip():
@@ -89,7 +97,7 @@ def load_table(path: Union[str, Path, None] = None) -> pd.DataFrame:
     ------
     ValueError
         On missing columns, an unknown status, a duplicate (state, region)
-        pair, or a verified row missing a value or citation.
+        pair, or a verified or provisional row missing a value or citation.
     """
     df = pd.read_csv(path or DEFAULT_TABLE, dtype={"state": str, "skew_region": str, "table": str})
     missing = [c for c in COLUMNS if c not in df.columns]
@@ -103,14 +111,29 @@ def load_table(path: Union[str, Path, None] = None) -> pd.DataFrame:
         raise ValueError(
             f"duplicate (state, skew_region): {df.loc[dup, ['state', 'skew_region']].values.tolist()}"
         )
-    verified = df[df["status"] == "verified"]
-    for col in ("skew", "skew_mse", "citation"):
-        if verified[col].isna().any():
-            raise ValueError(f"verified row(s) missing {col}")
+    for status in ("verified", "provisional"):
+        rows = df[df["status"] == status]
+        for col in ("skew", "skew_mse", "citation"):
+            if rows[col].isna().any():
+                raise ValueError(f"{status} row(s) missing {col}")
     return df
 
 
-def available(state: str, path: Union[str, Path, None] = None) -> List[str]:
+def _usable(allow_provisional: bool) -> Set[str]:
+    return {"verified", "provisional"} if allow_provisional else {"verified"}
+
+
+def _provisional_advisory(region: str) -> str:
+    return (
+        f"{PROVISIONAL_PREFIX}: the {region} skew is a flowfreq-developed study following "
+        "USGS procedures, not a published USGS study. Read its notes in regional_skew.csv; "
+        "Bulletin 17C p. 31 directs users to consult the USGS."
+    )
+
+
+def available(
+    state: str, path: Union[str, Path, None] = None, *, allow_provisional: bool = False
+) -> List[str]:
     """List the verified skew regions for a state.
 
     Parameters
@@ -119,13 +142,15 @@ def available(state: str, path: Union[str, Path, None] = None) -> List[str]:
         Two-letter postal code.
     path : str or Path, optional
         Table override.
+    allow_provisional : bool
+        Also list provisional (non-USGS) regions.
 
     Returns
     -------
     list of str
     """
     df = load_table(path)
-    rows = df[(df["state"] == state.upper()) & (df["status"] == "verified")]
+    rows = df[(df["state"] == state.upper()) & df["status"].isin(_usable(allow_provisional))]
     return sorted(rows["skew_region"].tolist())
 
 
@@ -134,6 +159,7 @@ def regional_skew_for(
     skew_region: Optional[str] = None,
     *,
     path: Union[str, Path, None] = None,
+    allow_provisional: bool = False,
 ) -> RegionalSkew:
     """Return the verified regional skew for a state and skew region.
 
@@ -148,6 +174,9 @@ def regional_skew_for(
         for an unnamed region could apply it where its study says it is invalid.
     path : str or Path, optional
         Table override.
+    allow_provisional : bool
+        Also return a provisional (flowfreq-developed, non-USGS) row. The
+        result then has ``provisional=True`` and an advisory.
 
     Returns
     -------
@@ -156,7 +185,7 @@ def regional_skew_for(
     Raises
     ------
     RegionalSkewUnavailable
-        If there is no verified row, or the region is ambiguous.
+        If there is no usable row, or the region is ambiguous.
     """
     df = load_table(path)
     st = state.upper()
@@ -169,10 +198,14 @@ def regional_skew_for(
         )
     if skew_region is not None:
         rows = rows[rows["skew_region"] == skew_region]
-    verified = rows[rows["status"] == "verified"]
+    verified = rows[rows["status"].isin(_usable(allow_provisional))]
     if verified.empty:
-        pending = rows[rows["status"] == "pending"]
-        why = "pending transcription" if not pending.empty else "no entry"
+        if (rows["status"] == "provisional").any():
+            why = "provisional, not USGS; pass allow_provisional=True to use it"
+        elif (rows["status"] == "pending").any():
+            why = "pending transcription"
+        else:
+            why = "no entry"
         raise RegionalSkewUnavailable(
             f"No verified regional skew for {st}"
             + (f" region {skew_region!r}" if skew_region else "")
@@ -184,6 +217,10 @@ def regional_skew_for(
         )
     r = verified.iloc[0]
     erl = r["effective_record_years"]
+    provisional = r["status"] == "provisional"
+    advisory = _provisional_advisory(str(r["skew_region"])) if provisional else ""
+    if advisory:
+        logger.warning("%s: %s", st, advisory)
     return RegionalSkew(
         state=st,
         skew_region=str(r["skew_region"]),
@@ -192,6 +229,8 @@ def regional_skew_for(
         citation=str(r["citation"]),
         table="" if pd.isna(r["table"]) else str(r["table"]),
         effective_record_years=None if pd.isna(erl) else float(erl),
+        advisory=advisory,
+        provisional=bool(provisional),
     )
 
 
@@ -296,6 +335,7 @@ def regional_skew_at_huc(
     states_path: Union[str, Path, None] = None,
     point: Optional[Tuple[float, float]] = None,
     timeout: int = 60,
+    allow_provisional: bool = False,
 ) -> RegionalSkew:
     """Return the verified regional skew for a hydrologic unit.
 
@@ -325,11 +365,15 @@ def regional_skew_at_huc(
         (:data:`IDAHO_REGIONS_QUERY_URL`). Without it such an HU raises.
     timeout : int
         Request timeout for that query, seconds.
+    allow_provisional : bool
+        Also accept a provisional (flowfreq-developed, non-USGS) study. The
+        result then has ``provisional=True`` and an advisory.
 
     Returns
     -------
     RegionalSkew
-        With ``advisory`` set when the study covers the site but the state has
+        With ``advisory`` set when the value is provisional, or when the
+        study covers the site but the state has
         no verified row adopting it (western Montana: USGS Montana applies the
         Bulletin 17B map statewide instead; see the MT row's notes).
 
@@ -422,8 +466,14 @@ def regional_skew_at_huc(
             f"{st} is outside the {region} study (which covers {', '.join(sorted(valid))})."
         )
 
-    verified = table[(table["skew_region"] == region) & (table["status"] == "verified")]
+    in_region = table[table["skew_region"] == region]
+    verified = in_region[in_region["status"].isin(_usable(allow_provisional))]
     if verified.empty:
+        if (in_region["status"] == "provisional").any():
+            raise RegionalSkewUnavailable(
+                f"The {region} skew is provisional (a flowfreq study, not USGS); pass "
+                "allow_provisional=True to use it."
+            )
         raise RegionalSkewUnavailable(f"No verified row for skew region {region!r}")
     values = verified[["skew", "skew_mse", "effective_record_years"]].drop_duplicates()
     if len(values) != 1:
@@ -442,6 +492,11 @@ def regional_skew_at_huc(
             logger.warning("HUC %s: %s", huc, advisory)
     else:
         r = own.iloc[0]
+    provisional = r["status"] == "provisional"
+    if provisional:
+        note = _provisional_advisory(region)
+        logger.warning("HUC %s: %s", huc, note)
+        advisory = f"{note} {advisory}".strip()
     erl = r["effective_record_years"]
     return RegionalSkew(
         state=st or ",".join(sorted(touched)),
@@ -452,10 +507,13 @@ def regional_skew_at_huc(
         table="" if pd.isna(r["table"]) else str(r["table"]),
         effective_record_years=None if pd.isna(erl) else float(erl),
         advisory=advisory,
+        provisional=bool(provisional),
     )
 
 
-def regional_skew_for_site(site_no: str, *, timeout: int = 60) -> RegionalSkew:
+def regional_skew_for_site(
+    site_no: str, *, timeout: int = 60, allow_provisional: bool = False
+) -> RegionalSkew:
     """Regional skew for a USGS monitoring location, from its own HUC.
 
     Uses the Water Data API monitoring-locations record
@@ -468,6 +526,8 @@ def regional_skew_for_site(site_no: str, *, timeout: int = 60) -> RegionalSkew:
         USGS site number.
     timeout : int
         Request timeout, seconds.
+    allow_provisional : bool
+        Passed to :func:`regional_skew_at_huc`.
 
     Returns
     -------
@@ -487,7 +547,7 @@ def regional_skew_for_site(site_no: str, *, timeout: int = 60) -> RegionalSkew:
     if not huc:
         raise RegionalSkewUnavailable(f"Site {site_no} has no hydrologic_unit_code on record")
     state = STATE_FIPS.get(str(props.get("state_code") or "").zfill(2))
-    return regional_skew_at_huc(huc, state)
+    return regional_skew_at_huc(huc, state, allow_provisional=allow_provisional)
 
 
 def huc12_at(lat: float, lon: float, *, timeout: int = 60) -> Tuple[str, List[str]]:
@@ -545,7 +605,12 @@ def huc12_at(lat: float, lon: float, *, timeout: int = 60) -> Tuple[str, List[st
 
 
 def regional_skew_at(
-    lat: float, lon: float, state: Optional[str] = None, *, timeout: int = 60
+    lat: float,
+    lon: float,
+    state: Optional[str] = None,
+    *,
+    timeout: int = 60,
+    allow_provisional: bool = False,
 ) -> RegionalSkew:
     """Regional skew for a point, via the Watershed Boundary Dataset HU12 there.
 
@@ -561,6 +626,8 @@ def regional_skew_at(
         state; needed only for an HU12 on a state line the study stops at.
     timeout : int
         Request timeout, seconds.
+    allow_provisional : bool
+        Passed to :func:`regional_skew_at_huc`.
 
     Returns
     -------
@@ -577,7 +644,9 @@ def regional_skew_at(
     huc, states = huc12_at(lat, lon, timeout=timeout)
     if state is None and len(states) == 1:
         state = states[0]
-    return regional_skew_at_huc(huc, state, point=(lat, lon), timeout=timeout)
+    return regional_skew_at_huc(
+        huc, state, point=(lat, lon), timeout=timeout, allow_provisional=allow_provisional
+    )
 
 
 def _on_snake_river_plain(lat: float, lon: float, *, timeout: int = 60) -> bool:
