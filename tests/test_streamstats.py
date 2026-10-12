@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import copy
 import json as json_module
+import logging
 import math
 from concurrent.futures import ThreadPoolExecutor
 from unittest.mock import Mock, patch
@@ -606,6 +607,21 @@ class TestWatershedPolygon:
 
         assert second.polygon_geojson == first.polygon_geojson
         assert second.polygon_area_sq_mi == first.polygon_area_sq_mi
+
+    def test_cache_hit_logs_below_info(self, tmp_path, caplog) -> None:
+        # One INFO line per cached point buried a batch run's real messages.
+        cache = StreamStatsCache(tmp_path / "cache.json")
+        _run_delineation(SNAP_GOOD, DELINEATE_SSHYDRO_GOOD, HYDRO_CHARACTERISTICS_GOOD, cache=cache)
+        caplog.set_level(logging.DEBUG, logger="flowfreq.streamstats")
+        with patch(
+            "flowfreq.streamstats.requests.get",
+            side_effect=AssertionError("cache hit must not touch the network"),
+        ):
+            delineate_and_get_characteristics("WA", 48.57426, -120.37893, cache=cache)
+
+        hits = [r for r in caplog.records if "cache hit" in r.getMessage()]
+        assert hits
+        assert all(r.levelno == logging.DEBUG for r in hits)
 
 
 class TestGeojsonArea:
