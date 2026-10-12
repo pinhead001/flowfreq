@@ -131,6 +131,16 @@ first is on you at every invocation:
   extra pins `black>=24.0,<25`; black 26 formats differently, so an unpinned install has you
   "fix" correctly formatted files and turn CI red.
 
+## Branches and Releases
+
+`main` carries the next minor release as a `.dev0` version (currently `0.11.0.dev0`), so
+`flowfreq.__version__` shows whether a session is running development code or a release.
+Patch releases for the current minor line come from `release/0.10.x`: branch a fix from it,
+PR it there, and tag `v0.10.N` on that merge commit. Port the fix to `main` as well.
+Downstream projects (methow-flow, flowfreq-app) pin release tags such as
+`flowfreq @ git+https://github.com/pinhead001/flowfreq@v0.10.4`, so work on `main` never
+reaches them. Never move or delete a pushed release tag.
+
 ## Python Compatibility
 
 flowfreq supports Python 3.11–3.14.

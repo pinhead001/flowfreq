@@ -75,7 +75,10 @@ jobs:
         uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # v1.14.2
 
       # Extract this version's own CHANGELOG.md section for the release body,
-      # rather than writing a second copy of the same notes by hand.
+      # rather than writing a second copy of the same notes by hand. The
+      # heading carries a date (`## [0.10.4] - 2026-10-12`), so the pattern
+      # accepts anything after the bracket; without that, v0.10.3's release
+      # shipped "(no matching CHANGELOG.md section found)".
       - name: Extract changelog section
         id: changelog
         env:
@@ -85,7 +88,7 @@ jobs:
           import os, re
           version = os.environ['TAG'].lstrip('v')
           text = open('CHANGELOG.md', encoding='utf-8').read()
-          pattern = rf'^## \[{re.escape(version)}\]\n(.*?)(?=^## \[|\Z)'
+          pattern = rf'^## \[{re.escape(version)}\][^\n]*\n(.*?)(?=^## \[|\Z)'
           m = re.search(pattern, text, re.MULTILINE | re.DOTALL)
           section = m.group(1).strip() if m else '(no matching CHANGELOG.md section found)'
           with open('release_notes.md', 'w', encoding='utf-8') as f:
