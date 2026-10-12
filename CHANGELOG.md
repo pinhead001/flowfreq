@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **New Mexico regional skew row, `pending`.** Records why NM has no verified skew yet:
+  Waltemeyer (2008, SIR 2008-5119 p. 5) uses zero with MSE 0.31, a B17B-era value. Its
+  successor, Tillery and others (2026), reports -0.145 (SE 0.454), but as of 2026-10-12 the
+  report is unpublished and its data release (doi:10.5066/P9QWEXCY) has been withdrawn for
+  revision. `regional_skew_for("NM")` now says "pending transcription" instead of "no entry".
 - **Arizona regional skew** (Wave 2). Paretti and others (2014, SIR 2014-5211, appendix 1):
   a statewide B-GLS constant, G = -0.09, MSE 0.08, effective record length 85 years
   (Table 1-2, p. 55), `verified`. Every HUC8 the WBD lists as touching Arizona (84, of which

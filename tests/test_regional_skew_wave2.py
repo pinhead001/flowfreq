@@ -82,3 +82,11 @@ def test_new_mexico_only_huc8_has_no_study():
     # 09430500 Gila River near Gila, NM.
     with pytest.raises(RegionalSkewUnavailable, match="No verified regional skew study"):
         regional_skew_at_huc("150400010907", "NM")
+
+
+def test_new_mexico_is_pending_until_tillery_2026_is_published():
+    row = load_table().set_index(["state", "skew_region"]).loc[("NM", "New Mexico")]
+    assert row["status"] == "pending"
+    assert "SIR 2008-5119, p. 5" in row["notes"] and "10.5066/P9QWEXCY" in row["notes"]
+    with pytest.raises(RegionalSkewUnavailable, match="NM.*pending transcription"):
+        regional_skew_for("NM")
