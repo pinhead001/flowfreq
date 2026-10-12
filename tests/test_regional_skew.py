@@ -118,3 +118,18 @@ def test_available_lists_verified_only_by_default(tmp_path):
     p = _table(tmp_path, body)
     assert available("XX", path=p) == ["A"]
     assert available("XX", path=p, allow_provisional=True) == ["A", "B"]
+
+
+def test_provisional_row_never_changes_a_default_lookup(tmp_path):
+    body = 'XX,A,-0.1,0.3,25,"C",T,verified,n\nXX,B,0.2,0.3,25,"C",T,provisional,n\n'
+    rs = regional_skew_for("XX", path=_table(tmp_path, body))
+    assert rs.skew_region == "A" and not rs.provisional
+
+
+def test_oregon_default_lookup_unchanged_by_its_provisional_row():
+    rs = regional_skew_for("OR")
+    assert rs.skew_region == "Pacific Northwest" and rs.skew == -0.07 and not rs.provisional
+    prov = regional_skew_for(
+        "OR", "Pacific Northwest (Oregon closed basins, provisional)", allow_provisional=True
+    )
+    assert prov.provisional and prov.skew == -0.07 and prov.skew_mse == 0.18

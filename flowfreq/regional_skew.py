@@ -190,6 +190,14 @@ def regional_skew_for(
     df = load_table(path)
     st = state.upper()
     rows = df[df["state"] == st]
+    if skew_region is None and not allow_provisional:
+        # Without opt-in a provisional row is invisible, so it cannot make an
+        # unnamed lookup ambiguous (Oregon's closed-basin extension must not
+        # change regional_skew_for("OR")). A state with only provisional rows
+        # keeps them, so the error can say how to opt in.
+        visible = rows[rows["status"] != "provisional"]
+        if not visible.empty:
+            rows = visible
     if skew_region is None and len(rows) > 1:
         listing = ", ".join(f"{r.skew_region!r} ({r.status})" for r in rows.itertuples())
         raise RegionalSkewUnavailable(

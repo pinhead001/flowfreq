@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Oregon closed basins (HUC4 1712): a provisional Pacific Northwest skew** (Northwest
+  studies task 9, `docs/OREGON_UNRESOLVED_SKEW.md`). SIR 2016-5118 leaves 1712 and 1801
+  (Klamath) out of the PNW study region, so lookups there refused. A B-GLS test of the 8
+  screened Oregon gages in 1712 is consistent with G = -0.07 (t = -0.59), so 1712 is now a
+  member of "Pacific Northwest (Oregon closed basins, provisional)": G = -0.07, MSE 0.18,
+  Oregon only, returned only with `allow_provisional=True`. The Klamath stays `unresolved`
+  (2 gages). `tools/pnw_edge_skew_test.py`.
+- `regional_skew_for` without `allow_provisional` now ignores provisional rows when deciding
+  whether an unnamed lookup is ambiguous. `regional_skew_for("OR")` still returns the
+  verified PNW row.
 - **`flowfreq.regression.gls`: GLS regression for flood quantiles** (roadmap §3.3). It is the
   Stedinger-Tasker procedure as USGS WREG implements it (Eng and others, 2009, TM 4-A8):
   - `lp3_quantile_sampling_variance`: the station log-quantile sampling variance, with a

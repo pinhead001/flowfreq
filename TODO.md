@@ -83,6 +83,8 @@ Phase A / Wave entries below.
         prints 3. A search found no primary source for the extra digit.
       - NV region 6 and the hybrid regions (#104): the printed 2-year `Q=0` and the hybrid
         method's non-comparable error statistics have no schema representation.
+- [x] **Oregon closed basins (1712)**: provisional PNW member after a B-GLS applicability
+      test (`docs/OREGON_UNRESOLVED_SKEW.md`). The Klamath (1801) stays unresolved (2 gages).
 - [ ] **Regional skew** for MT (a published USGS Bayesian study; the provisional #91 study
       stays out of the table) and for all of Wave 2 (roadmap §1.3). No Wave 2 state has a
       row in `regional_skew.csv`.
