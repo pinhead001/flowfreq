@@ -145,10 +145,16 @@ Standing rules carried over from this repo's history, which apply to every phase
       Membership is by hydrologic unit (`data/regional_skew_hucs.csv`, built by
       `tools/build_regional_skew_hucs.py`): `regional_skew_at_huc`, `regional_skew_at`
       (WBD point query) and `regional_skew_for_site` (the monitoring location's HUC). Only
-      the Pacific Northwest study is defined so far, including its Snake River Plain
-      exclusion. The Oregon closed basins and the Klamath are left `unresolved`: the report's
-      region wording omits them, although 5 of its gages are there. Every further verified
-      study needs its own HUC rows.
+      the Pacific Northwest study is verified so far, including its Snake River Plain
+      exclusion. The Klamath is left `unresolved`: the report's region wording omits it,
+      although one of its gages is there. Every further verified study needs its own HUC
+      rows. *Provisional (opt-in, `allow_provisional=True`, #130):*
+      - the Oregon closed basins (1712), where a B-GLS test is consistent with the PNW
+        value (#133, `docs/OREGON_UNRESOLVED_SKEW.md`);
+      - Montana east of the Divide (#134).
+
+      The Snake River Plain was tested and is not feasible: 2 usable gages
+      (`docs/SNAKE_RIVER_PLAIN_SKEW.md`).
 - [x] Tooling to **develop a new regional skew** (B-WLS/B-GLS, Veilleux/Reis-Stedinger) for
       jurisdictions without one. This is lower priority and research-grade.
       `flowfreq.skew_study`: B-WLS/B-GLS with a correlation-distance cross-correlation model
@@ -172,9 +178,13 @@ Standing rules carried over from this repo's history, which apply to every phase
       *Provisional, not USGS (#91):* `docs/MONTANA_REGIONAL_SKEW_PROVISIONAL.md` gives a statewide
       B-WLS/B-GLS result built from the Water Data OGC API with flowfreq's EMA/MGB. Its
       inputs are in `data/skew_study/` and `tools/build_montana_skew_study.py` regenerates
-      them. It is recorded in that report and here only, not in `regional_skew.csv`: that
-      table has no provisional status, and MT stays `pending`. This item stays open for a
-      published USGS study.
+      them.
+      *v2, provisional (#134, `docs/MONTANA_REGIONAL_SKEW_V2.md`):* 300 gages, including WY/ID
+      gages in shared basins, the GAGES-II screen and StreamStats basin characteristics;
+      station skews cross-checked against PeakFQ (median |Δ| 0.0003). Mean annual
+      precipitation is significant (t = 4.4). The east-of-Divide constant, G = -0.04 with MSE
+      0.385 (above the B17B map's 0.302), is in `regional_skew.csv` as an opt-in
+      `provisional` row. This item stays open for a published USGS study.
 
 ---
 
