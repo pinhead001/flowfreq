@@ -39,6 +39,12 @@ Sources, all live-verified when this script was written (2026-09-27):
   region 0 -- so ``regional_skew_at(lat, lon)`` resolves it with a point query
   against the same layer, and a HUC-only lookup raises. Area fractions are
   estimated by grid sampling (~250 m).
+- Arizona study region (added 2026-10-11): SIR 2014-5211 p. 1 (abstract) and
+  p. 54 -- a "statewide regional skew" (B-GLS constant model), so the study
+  covers Arizona and stops at the state line, although its 307 gages include
+  some in neighboring states (app. 1, p. 49). Every HUC8 the WBD lists as
+  touching AZ is a ``member`` valid in AZ only; one shared with NM, UT, NV,
+  CA, CO or Mexico therefore needs the site's state.
 - HU boundaries and states: USGS Watershed Boundary Dataset map service
   (``hydro.nationalmap.gov/arcgis/rest/services/wbd/MapServer``).
 
@@ -82,6 +88,12 @@ PNW_SOURCE = (
 SRP_SOURCE = (
     "SIR 2016-5083 p. 52 (PNW skew invalid in region 0), p. 17 and p. 9 fig. 3 (region 0 defined); "
     "region polygons from StreamStats nss/regions layer 11 (Peak_Flow_Region_*_2016_5083)"
+)
+
+AZ = "Arizona"
+AZ_SOURCE = (
+    "SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 "
+    "(https://doi.org/10.3133/sir20145211)"
 )
 
 #: HUC4s of the PNW study region, with the part of the report's wording each
@@ -194,7 +206,7 @@ def _inside(paths: Sequence[MplPath], pts: np.ndarray) -> np.ndarray:
 def huc8_states() -> List[Tuple[str, str, str]]:
     feats = _query_all(
         f"{WBD}/4",
-        "huc8 LIKE '17%' OR huc8 LIKE '1801%' OR states LIKE '%MT%'",
+        "huc8 LIKE '17%' OR huc8 LIKE '1801%' OR states LIKE '%MT%' OR states LIKE '%AZ%'",
         "huc8,name,states",
         geometry=False,
     )
@@ -210,6 +222,16 @@ def montana_east_huc8() -> List[Tuple[str, str, str]]:
     if not rows:
         raise RuntimeError("WBD returned no HUC8 in regions 09/10 touching MT")
     print(f"Montana east of the Divide: {len(rows)} HUC8")
+    return rows
+
+
+def arizona_huc8() -> List[Tuple[str, str, str]]:
+    """(huc8, name, states) for every HUC8 the WBD lists as touching Arizona."""
+    rows = [r for r in huc8_states() if "AZ" in r[2].split(",")]
+    if not rows:
+        raise RuntimeError("WBD returned no HUC8 touching AZ")
+    shared = sum(1 for r in rows if r[2] != "AZ")
+    print(f"Arizona: {len(rows)} HUC8 ({shared} shared with another state or Mexico)")
     return rows
 
 
@@ -267,6 +289,8 @@ def build() -> Tuple[str, str]:
         w.writerow([huc4, PNW, "unresolved", "", PNW_SOURCE, why])
     for huc12, rule, name, frac in snake_river_plain():
         w.writerow([huc12, SRP, rule, "", SRP_SOURCE, f"{name}; {frac:.0%} of area in region 0"])
+    for huc8, name, touches in arizona_huc8():
+        w.writerow([huc8, AZ, "member", "AZ", AZ_SOURCE, f"{name}; WBD states {touches}"])
 
     states = io.StringIO()
     w = csv.writer(states, lineterminator="\n")
