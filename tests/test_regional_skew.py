@@ -80,3 +80,41 @@ def test_a_pending_region_makes_an_unnamed_lookup_ambiguous(tmp_path):
     with pytest.raises(RegionalSkewUnavailable, match=r"'R2' \(pending\)"):
         regional_skew_for("XX", path=p)
     assert regional_skew_for("XX", "R1", path=p).skew == -0.1
+
+
+# ----------------------------------------------------------------------------
+# provisional rows (non-USGS studies): opt-in only
+# ----------------------------------------------------------------------------
+
+
+def test_provisional_row_needs_opt_in(tmp_path):
+    p = _table(tmp_path, 'XX,Test,-0.1,0.3,25,"Cite, 2026",T1,provisional,n\n')
+    with pytest.raises(RegionalSkewUnavailable, match="provisional"):
+        regional_skew_for("XX", path=p)
+    rs = regional_skew_for("XX", path=p, allow_provisional=True)
+    assert rs.provisional and rs.skew == -0.1 and rs.skew_mse == 0.3
+    assert rs.advisory.startswith("PROVISIONAL (not USGS)")
+
+
+def test_provisional_region_keeps_unnamed_lookup_ambiguous(tmp_path):
+    # A provisional row covers an area the verified one does not (like a
+    # pending row), so an unnamed lookup must not silently pick either.
+    body = 'XX,A,-0.1,0.3,25,"C",T,verified,n\nXX,B,0.2,0.3,25,"C",T,provisional,n\n'
+    p = _table(tmp_path, body)
+    with pytest.raises(RegionalSkewUnavailable, match="Name one"):
+        regional_skew_for("XX", path=p, allow_provisional=True)
+    a = regional_skew_for("XX", "A", path=p, allow_provisional=True)
+    assert not a.provisional and a.advisory == ""
+    assert regional_skew_for("XX", "B", path=p, allow_provisional=True).provisional
+
+
+def test_provisional_row_missing_value_rejected(tmp_path):
+    with pytest.raises(ValueError, match="provisional row"):
+        load_table(_table(tmp_path, 'XX,T,,0.3,25,"C",T,provisional,n\n'))
+
+
+def test_available_lists_verified_only_by_default(tmp_path):
+    body = 'XX,A,-0.1,0.3,25,"C",T,verified,n\nXX,B,0.2,0.3,25,"C",T,provisional,n\n'
+    p = _table(tmp_path, body)
+    assert available("XX", path=p) == ["A"]
+    assert available("XX", path=p, allow_provisional=True) == ["A", "B"]
