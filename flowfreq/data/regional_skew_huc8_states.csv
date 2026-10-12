@@ -81,6 +81,90 @@ huc8,name,states
 10110203,Middle Little Missouri,"MT,ND"
 10110204,Beaver,"MT,ND"
 10120202,Lower Belle Fourche,"MT,SD,WY"
+14070006,Lower Lake Powell,"AZ,UT"
+14070007,Paria,"AZ,UT"
+14080105,Middle San Juan,"AZ,CO,NM"
+14080106,Chaco,"AZ,NM"
+14080201,Lower San Juan-Four Corners,"AZ,CO,NM,UT"
+14080204,Chinle,"AZ,NM,UT"
+14080205,Lower San Juan,"AZ,UT"
+15010001,Lower Colorado-Marble Canyon,AZ
+15010002,Grand Canyon,AZ
+15010003,Kanab,"AZ,UT"
+15010004,Havasu Canyon,AZ
+15010005,Lake Mead,"AZ,NV"
+15010006,Grand Wash,"AZ,NV"
+15010007,Red Lake,AZ
+15010009,Fort Pearce Wash,"AZ,UT"
+15010010,Lower Virgin,"AZ,NV,UT"
+15010014,Detrital Wash,AZ
+15020001,Little Colorado Headwaters,"AZ,NM"
+15020002,Upper Little Colorado,"AZ,NM"
+15020003,Carrizo Wash,"AZ,NM"
+15020004,Zuni,"AZ,NM"
+15020005,Silver,AZ
+15020006,Upper Puerco,"AZ,NM"
+15020007,Lower Puerco,AZ
+15020008,Middle Little Colorado,AZ
+15020009,Leroux Wash,AZ
+15020010,Chevelon Canyon,AZ
+15020011,Cottonwood Wash,AZ
+15020012,Corn-Oraibi,AZ
+15020013,Polacca Wash,AZ
+15020014,Jadito Wash,AZ
+15020015,Canyon Diablo,AZ
+15020016,Lower Little Colorado,AZ
+15020017,Dinnebito Wash,AZ
+15020018,Moenkopi Wash,AZ
+15030101,Havasu-Mohave Lakes,"AZ,CA,NV"
+15030103,Sacramento Wash,AZ
+15030104,Imperial Reservoir,"AZ,CA"
+15030105,Bouse Wash,AZ
+15030106,Tyson Wash,AZ
+15030107,Lower Colorado,"AZ,CA,MX"
+15030108,Yuma Desert,"AZ,MX"
+15030201,Big Sandy,AZ
+15030202,Burro,AZ
+15030203,Santa Maria,AZ
+15030204,Bill Williams,AZ
+15040002,Upper Gila-Mangas,"AZ,NM"
+15040003,Animas Valley,"AZ,NM"
+15040004,San Francisco,"AZ,NM"
+15040005,Upper Gila-San Carlos Reservoir,AZ
+15040006,San Simon,"AZ,NM"
+15040007,San Carlos,AZ
+15050100,Middle Gila,AZ
+15050201,Willcox Playa,AZ
+15050202,Upper San Pedro,"AZ,MX"
+15050203,Lower San Pedro,AZ
+15050301,Upper Santa Cruz,"AZ,MX"
+15050302,Rillito,AZ
+15050303,Lower Santa Cruz,AZ
+15050304,Brawley Wash,AZ
+15050305,Aguirre Valley,AZ
+15050306,Santa Rosa Wash,AZ
+15060101,Black,AZ
+15060102,White,AZ
+15060103,Upper Salt,AZ
+15060104,Carrizo,AZ
+15060105,Tonto,AZ
+15060106,Lower Salt,AZ
+15060201,Big Chino-Williamson Valley,AZ
+15060202,Upper Verde,AZ
+15060203,Lower Verde,AZ
+15070101,Lower Gila-Painted Rock Reservoir,AZ
+15070102,Agua Fria,AZ
+15070103,Hassayampa,AZ
+15070104,Centennial Wash,AZ
+15070201,Lower Gila,AZ
+15070202,Tenmile Wash,AZ
+15070203,San Cristobal Wash,AZ
+15080101,San Simon Wash,"AZ,MX"
+15080102,Rio Sonoyta,"AZ,MX"
+15080103,Tule Desert,"AZ,MX"
+15080200,Rio De La Concepcion,"AZ,MX"
+15080301,Whitewater Draw,"AZ,MX"
+15080302,San Bernardino Valley,"AZ,MX,NM"
 17010101,Middle Kootenai,"CN,ID,MT"
 17010102,Fisher,MT
 17010103,Yaak,"CN,ID,MT"
