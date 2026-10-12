@@ -85,6 +85,10 @@ Phase A / Wave entries below.
         method's non-comparable error statistics have no schema representation.
 - [x] **Oregon closed basins (1712)**: provisional PNW member after a B-GLS applicability
       test (`docs/OREGON_UNRESOLVED_SKEW.md`). The Klamath (1801) stays unresolved (2 gages).
+- [x] **Montana skew v2** (provisional, opt-in): east-of-Divide G = -0.04, MSE 0.385
+      (`docs/MONTANA_REGIONAL_SKEW_V2.md`). PRECIP is the significant covariate but is not
+      representable in the table. A published USGS study is still wanted.
+- [x] **Snake River Plain skew**: not feasible, 2 of 47 gages (`docs/SNAKE_RIVER_PLAIN_SKEW.md`).
 - [ ] **Regional skew** for MT (a published USGS Bayesian study; the provisional #91 study
       stays out of the table) and for all of Wave 2 (roadmap §1.3). No Wave 2 state has a
       row in `regional_skew.csv`.

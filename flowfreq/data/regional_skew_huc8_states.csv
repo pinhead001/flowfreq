@@ -1,4 +1,86 @@
 huc8,name,states
+09040001,St. Marys,"CN,MT"
+09040002,Belly,"CN,MT"
+10020001,Red Rock,"ID,MT"
+10020002,Beaverhead,MT
+10020003,Ruby,MT
+10020004,Big Hole,"ID,MT"
+10020005,Jefferson,MT
+10020006,Boulder,MT
+10020007,Madison,"ID,MT,WY"
+10020008,Gallatin,"MT,WY"
+10030101,Upper Missouri,MT
+10030102,Upper Missouri-Dearborn,MT
+10030103,Smith,MT
+10030104,Sun,MT
+10030105,Belt,MT
+10030201,Two Medicine,MT
+10030202,Cut Bank,MT
+10030203,Marias,"CN,MT"
+10030204,Willow,MT
+10030205,Teton,MT
+10040101,Bullwhacker-Dog,MT
+10040102,Arrow,MT
+10040103,Judith,MT
+10040104,Fort Peck Reservoir,MT
+10040105,Big Dry,MT
+10040106,Little Dry,MT
+10040201,Upper Musselshell,MT
+10040202,Middle Musselshell,MT
+10040203,Flatwillow,MT
+10040204,Box Elder,MT
+10040205,Lower Musselshell,MT
+10050001,Milk Headwaters,"CN,MT"
+10050002,Upper Milk,"CN,MT"
+10050003,Wild Horse Lake,"CN,MT"
+10050004,Middle Milk,MT
+10050005,Big Sandy,MT
+10050006,Sage,"CN,MT"
+10050007,Lodge,"CN,MT"
+10050008,Battle,"CN,MT"
+10050009,Peoples,MT
+10050010,Cottonwood,"CN,MT"
+10050011,Whitewater,"CN,MT"
+10050012,Lower Milk,MT
+10050013,Frenchman,"CN,MT"
+10050014,Beaver,MT
+10050015,Rock,"CN,MT"
+10050016,Porcupine,MT
+10060001,Prairie Elk-Wolf,MT
+10060002,Redwater,MT
+10060003,Poplar,"CN,MT"
+10060004,West Fork Poplar,"CN,MT"
+10060005,Charlie-Little Muddy,"MT,ND"
+10060006,Big Muddy,"CN,MT,ND"
+10060007,Brush Lake Closed Basin,"CN,MT,ND"
+10070001,Yellowstone Headwaters,"MT,WY"
+10070002,Upper Yellowstone,"MT,WY"
+10070003,Shields,MT
+10070004,Upper Yellowstone-Lake Basin,MT
+10070005,Stillwater,MT
+10070006,Clarks Fork Yellowstone,"MT,WY"
+10070007,Upper Yellowstone-Pompeys Pillar,MT
+10070008,Pryor,MT
+10080010,Big Horn Lake,"MT,WY"
+10080014,Shoshone,"MT,WY"
+10080015,Lower Bighorn,MT
+10080016,Little Bighorn,"MT,WY"
+10090101,Upper Tongue,"MT,WY"
+10090102,Lower Tongue,MT
+10090207,Middle Powder,"MT,WY"
+10090208,Little Powder,"MT,WY"
+10090209,Lower Powder,MT
+10090210,Mizpah,MT
+10100001,Lower Yellowstone-Sunday,MT
+10100002,Big Porcupine,MT
+10100003,Rosebud,MT
+10100004,Lower Yellowstone,"MT,ND"
+10100005,O'Fallon,MT
+10110201,Upper Little Missouri,"MT,ND,SD,WY"
+10110202,Boxelder,"MT,ND,SD"
+10110203,Middle Little Missouri,"MT,ND"
+10110204,Beaver,"MT,ND"
+10120202,Lower Belle Fourche,"MT,SD,WY"
 17010101,Middle Kootenai,"CN,ID,MT"
 17010102,Fisher,MT
 17010103,Yaak,"CN,ID,MT"
