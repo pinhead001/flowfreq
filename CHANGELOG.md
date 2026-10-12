@@ -8,6 +8,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Montana regional skew study v2 (provisional, not USGS)** (Northwest studies tasks 5-8;
+  `docs/MONTANA_REGIONAL_SKEW_V2.md`). 300 gages, including WY/ID gages in shared basins, with
+  the GAGES-II screen and StreamStats basin centroids, elevation and precipitation.
+  - Mean annual precipitation is the significant predictor (t = 4.4).
+  - The table gets the east-of-Divide constant as "Montana east of the Divide (provisional)":
+    G = -0.04, MSE 0.385, 82 HUC8s, Montana only, opt-in. Its MSE exceeds the B17B map's
+    0.302.
+  - flowfreq's station skews match USGS PeakFQ on the SIR 2025-5019 data release, with a
+    median |Δ| of 0.0003 over 63 analyses (`tools/check_montana_station_skews.py`).
+- **Snake River Plain skew: not feasible** (`docs/SNAKE_RIVER_PLAIN_SKEW.md`). Only 2 of the
+  47 region-0 gages pass the screens, so the ID row stays `pending`.
+- **Oregon closed basins (HUC4 1712): a provisional Pacific Northwest skew** (Northwest
+  studies task 9, `docs/OREGON_UNRESOLVED_SKEW.md`). SIR 2016-5118 leaves 1712 and 1801
+  (Klamath) out of the PNW study region, so lookups there refused. A B-GLS test of the 8
+  screened Oregon gages in 1712 is consistent with G = -0.07 (t = -0.59), so 1712 is now a
+  member of "Pacific Northwest (Oregon closed basins, provisional)": G = -0.07, MSE 0.18,
+  Oregon only, returned only with `allow_provisional=True`. The Klamath stays `unresolved`
+  (2 gages). `tools/pnw_edge_skew_test.py`.
+- `regional_skew_for` without `allow_provisional` now ignores provisional rows when deciding
+  whether an unnamed lookup is ambiguous. `regional_skew_for("OR")` still returns the
+  verified PNW row.
 - **Washington Region 4 covariance; `WA.json` is now `verified`** (Northwest studies task 4,
   `docs/WA_REGION4_REFIT.md`). Table 7's Region 4 matrix, double-entered at all 8 AEPs
   (48 cells, 0 disagreements), is stored in the `[1, log10 A, P/10]` basis: PRECPRIS10

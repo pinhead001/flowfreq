@@ -1,0 +1,12 @@
+{
+ "status": "provisional analysis -- NOT a USGS study",
+ "min_sites": 20,
+ "region0_peak_sites": 47,
+ "screened_in": 2,
+ "exclusions": {
+  "< 25 pre-regulation peaks": 39,
+  "no drainage area": 6,
+  "used": 2
+ },
+ "decision": "not feasible"
+}
