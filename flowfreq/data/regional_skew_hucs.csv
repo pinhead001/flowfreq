@@ -305,3 +305,87 @@ huc,skew_region,rule,valid_states,source,notes
 170402210403,Snake River Plain,boundary,,"SIR 2016-5083 p. 52 (PNW skew invalid in region 0), p. 17 and p. 9 fig. 3 (region 0 defined); region polygons from StreamStats nss/regions layer 11 (Peak_Flow_Region_*_2016_5083)",Lower Fish Creek; 8% of area in region 0
 170402210901,Snake River Plain,excluded,,"SIR 2016-5083 p. 52 (PNW skew invalid in region 0), p. 17 and p. 9 fig. 3 (region 0 defined); region polygons from StreamStats nss/regions layer 11 (Peak_Flow_Region_*_2016_5083)",Star Lake Ranch; 100% of area in region 0
 170402210902,Snake River Plain,excluded,,"SIR 2016-5083 p. 52 (PNW skew invalid in region 0), p. 17 and p. 9 fig. 3 (region 0 defined); region polygons from StreamStats nss/regions layer 11 (Peak_Flow_Region_*_2016_5083)",City of Dietrich; 100% of area in region 0
+14070006,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)","Lower Lake Powell; WBD states AZ,UT"
+14070007,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)","Paria; WBD states AZ,UT"
+14080105,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)","Middle San Juan; WBD states AZ,CO,NM"
+14080106,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)","Chaco; WBD states AZ,NM"
+14080201,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)","Lower San Juan-Four Corners; WBD states AZ,CO,NM,UT"
+14080204,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)","Chinle; WBD states AZ,NM,UT"
+14080205,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)","Lower San Juan; WBD states AZ,UT"
+15010001,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Lower Colorado-Marble Canyon; WBD states AZ
+15010002,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Grand Canyon; WBD states AZ
+15010003,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)","Kanab; WBD states AZ,UT"
+15010004,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Havasu Canyon; WBD states AZ
+15010005,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)","Lake Mead; WBD states AZ,NV"
+15010006,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)","Grand Wash; WBD states AZ,NV"
+15010007,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Red Lake; WBD states AZ
+15010009,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)","Fort Pearce Wash; WBD states AZ,UT"
+15010010,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)","Lower Virgin; WBD states AZ,NV,UT"
+15010014,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Detrital Wash; WBD states AZ
+15020001,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)","Little Colorado Headwaters; WBD states AZ,NM"
+15020002,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)","Upper Little Colorado; WBD states AZ,NM"
+15020003,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)","Carrizo Wash; WBD states AZ,NM"
+15020004,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)","Zuni; WBD states AZ,NM"
+15020005,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Silver; WBD states AZ
+15020006,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)","Upper Puerco; WBD states AZ,NM"
+15020007,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Lower Puerco; WBD states AZ
+15020008,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Middle Little Colorado; WBD states AZ
+15020009,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Leroux Wash; WBD states AZ
+15020010,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Chevelon Canyon; WBD states AZ
+15020011,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Cottonwood Wash; WBD states AZ
+15020012,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Corn-Oraibi; WBD states AZ
+15020013,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Polacca Wash; WBD states AZ
+15020014,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Jadito Wash; WBD states AZ
+15020015,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Canyon Diablo; WBD states AZ
+15020016,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Lower Little Colorado; WBD states AZ
+15020017,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Dinnebito Wash; WBD states AZ
+15020018,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Moenkopi Wash; WBD states AZ
+15030101,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)","Havasu-Mohave Lakes; WBD states AZ,CA,NV"
+15030103,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Sacramento Wash; WBD states AZ
+15030104,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)","Imperial Reservoir; WBD states AZ,CA"
+15030105,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Bouse Wash; WBD states AZ
+15030106,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Tyson Wash; WBD states AZ
+15030107,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)","Lower Colorado; WBD states AZ,CA,MX"
+15030108,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)","Yuma Desert; WBD states AZ,MX"
+15030201,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Big Sandy; WBD states AZ
+15030202,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Burro; WBD states AZ
+15030203,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Santa Maria; WBD states AZ
+15030204,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Bill Williams; WBD states AZ
+15040002,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)","Upper Gila-Mangas; WBD states AZ,NM"
+15040003,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)","Animas Valley; WBD states AZ,NM"
+15040004,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)","San Francisco; WBD states AZ,NM"
+15040005,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Upper Gila-San Carlos Reservoir; WBD states AZ
+15040006,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)","San Simon; WBD states AZ,NM"
+15040007,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",San Carlos; WBD states AZ
+15050100,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Middle Gila; WBD states AZ
+15050201,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Willcox Playa; WBD states AZ
+15050202,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)","Upper San Pedro; WBD states AZ,MX"
+15050203,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Lower San Pedro; WBD states AZ
+15050301,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)","Upper Santa Cruz; WBD states AZ,MX"
+15050302,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Rillito; WBD states AZ
+15050303,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Lower Santa Cruz; WBD states AZ
+15050304,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Brawley Wash; WBD states AZ
+15050305,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Aguirre Valley; WBD states AZ
+15050306,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Santa Rosa Wash; WBD states AZ
+15060101,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Black; WBD states AZ
+15060102,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",White; WBD states AZ
+15060103,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Upper Salt; WBD states AZ
+15060104,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Carrizo; WBD states AZ
+15060105,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Tonto; WBD states AZ
+15060106,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Lower Salt; WBD states AZ
+15060201,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Big Chino-Williamson Valley; WBD states AZ
+15060202,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Upper Verde; WBD states AZ
+15060203,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Lower Verde; WBD states AZ
+15070101,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Lower Gila-Painted Rock Reservoir; WBD states AZ
+15070102,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Agua Fria; WBD states AZ
+15070103,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Hassayampa; WBD states AZ
+15070104,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Centennial Wash; WBD states AZ
+15070201,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Lower Gila; WBD states AZ
+15070202,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",Tenmile Wash; WBD states AZ
+15070203,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)",San Cristobal Wash; WBD states AZ
+15080101,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)","San Simon Wash; WBD states AZ,MX"
+15080102,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)","Rio Sonoyta; WBD states AZ,MX"
+15080103,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)","Tule Desert; WBD states AZ,MX"
+15080200,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)","Rio De La Concepcion; WBD states AZ,MX"
+15080301,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)","Whitewater Draw; WBD states AZ,MX"
+15080302,Arizona,member,AZ,"SIR 2014-5211 p. 1 (abstract), p. 54 and Table 1-2 p. 55 (https://doi.org/10.3133/sir20145211)","San Bernardino Valley; WBD states AZ,MX,NM"
