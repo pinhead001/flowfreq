@@ -8,6 +8,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Washington Region 4 covariance; `WA.json` is now `verified`** (Northwest studies task 4,
+  `docs/WA_REGION4_REFIT.md`). Table 7's Region 4 matrix, double-entered at all 8 AEPs
+  (48 cells, 0 disagreements), is stored in the `[1, log10 A, P/10]` basis: PRECPRIS10
+  gets `scale = 0.1` and its coefficient ×10, so estimates are unchanged. Two checks pick that
+  basis:
+  - Table 6's Sp is reproduced within 0.5 % with P/10, and is 2.6-2.9× too large with raw P;
+  - a GLS refit of the report's own data (`tools/wa_region4_refit.py`) gives the P variance at
+    1.23× Table 7's printed value with P/10, against 0.012× with raw P.
+
+  **Behaviour change:** Region 4 prediction intervals are now site-specific and about 3×
+  narrower than the report's Flood Q Tools workbook, which applies the matrix to raw P.
+- **Washington SIR 2016-5118 regression dataset** (`data/regression_study/`, built by
+  `tools/build_wa_gls_dataset.py`). It comes from the report's Table 2/5/8 spreadsheets,
+  plus flowfreq EMA estimates for the 51 Idaho/Oregon calibration gages that Table 8 omits.
+  `tools/_xlsx.py` reads `.xlsx` with the standard library.
 - **`flowfreq.regression.gls`: GLS regression for flood quantiles** (roadmap §3.3). It is the
   Stedinger-Tasker procedure as USGS WREG implements it (Eng and others, 2009, TM 4-A8):
   - `lp3_quantile_sampling_variance`: the station log-quantile sampling variance, with a

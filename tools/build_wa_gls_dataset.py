@@ -18,9 +18,16 @@ Line 1 is a log-Pearson III fit with the weighted skew, so its log10 moments
 (``mu``, ``sd``, ``skew_w``) are recovered from its eight quantiles by least
 squares. The ``fit_max_rel_err`` column records how well they reproduce them.
 
+Table 8 prints Washington gages only. ``--ema`` writes
+``wa_2016_5118_idor_ema.csv``: flowfreq EMA quantiles for the 51 Idaho and
+Oregon calibration gages. On 18 Washington control gages, the same computation
+reproduces Table 8 line 1 with a median ratio of 1.000 and an IQR within
+1 percent (AEP 0.5, 0.01, 0.002).
+
 Usage::
 
-    python tools/build_wa_gls_dataset.py --cache <dir>
+    python tools/build_wa_gls_dataset.py --cache <dir>          # sites CSV
+    python tools/build_wa_gls_dataset.py --cache <dir> --ema    # ID/OR supplement
 """
 
 from __future__ import annotations
@@ -177,11 +184,73 @@ def build(cache: Path) -> List[Dict[str, object]]:
     return out
 
 
+def ema_site(site: str, cache: Path) -> Dict[str, object]:
+    """flowfreq EMA at one gage: peaks through WY2014, PNW skew -0.07 (MSE 0.18).
+
+    The report's procedure (SIR 2016-5118 p. 13): EMA with the multiple
+    Grubbs-Beck test, weighting the station skew with the Pacific Northwest
+    regional skew. Table 2's perception thresholds are not applied; peak codes
+    are, as ``run_ffa`` does by default. The result is cached as JSON per site.
+    """
+    import json
+
+    from flowfreq.usgs import USGSgage
+    from flowfreq.workflow import run_ffa
+
+    path = cache / f"ema_{site}.json"
+    if path.exists():
+        return dict(json.loads(path.read_text()))
+    pk = USGSgage(site).download_peak_flow()
+    pk = pk[pk["water_year"] <= 2014]
+    r = run_ffa(
+        pk["peak_flow_cfs"].to_numpy(),
+        pk["water_year"].to_numpy(),
+        regional_skew=-0.07,
+        regional_skew_se=0.18**0.5,
+        peak_codes=pk["qualification_code"].tolist(),
+        site_no=site,
+        allow_regulated=True,
+    )
+    if r.get("error"):
+        raise RuntimeError(f"{site}: {r['error']}")
+    qd = r["quantile_df"]
+    aep = qd["AEP (%)"].to_numpy()[::-1]
+    flow = qd["Flow (cfs)"].to_numpy()[::-1]
+    p = r["parameters"]
+    rec: Dict[str, object] = {f"q_{a}": float(np.interp(a, aep, flow)) for a in AEPS}
+    rec.update(sd=float(p["std_log"]), skew_w=float(p["skew_weighted"]), n_wy2014=len(pk))
+    path.write_text(json.dumps(rec))
+    return rec
+
+
+def build_ema_supplement(cache: Path) -> Path:
+    """Station quantiles for the calibration gages Table 8 does not print (ID, OR)."""
+    import pandas as pd
+
+    d = pd.read_csv(OUT, dtype={"site_no": str})
+    todo = d.loc[d["used"] & d["q_0.01"].isna(), "site_no"].tolist()
+    rows = []
+    for site in todo:
+        rows.append({"site_no": site, **ema_site(site, cache)})
+    out = OUT.with_name("wa_2016_5118_idor_ema.csv")
+    pd.DataFrame(rows).to_csv(out, index=False, lineterminator="\n")
+    print(f"wrote {out.relative_to(ROOT)}: {len(rows)} gages")
+    return out
+
+
 def main(argv: Sequence[str]) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--cache", type=Path, required=True, help="download cache directory")
+    ap.add_argument(
+        "--ema",
+        action="store_true",
+        help="also compute flowfreq EMA for the ID/OR calibration gages (Water Data API)",
+    )
     args = ap.parse_args(list(argv))
     args.cache.mkdir(parents=True, exist_ok=True)
+    if args.ema:
+        build_ema_supplement(args.cache)
+        return 0
     rows = build(args.cache)
     fields: List[str] = []
     for r in rows:

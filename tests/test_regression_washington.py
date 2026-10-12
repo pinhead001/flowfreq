@@ -11,8 +11,10 @@ itself: the tests check the file against the source, not against itself.
 from __future__ import annotations
 
 import math
+from pathlib import Path
 
 import numpy as np
+import pandas as pd
 import pytest
 from scipy import stats
 
@@ -35,7 +37,7 @@ def _sig3(x: float) -> float:
 
 class TestLibraryShape:
     def test_status_and_regions(self, lib):
-        assert lib.status == "partial"
+        assert lib.status == "verified"
         assert lib.issue == 37
         assert lib.regions == ["1", "2", "3", "4"]
         for region in lib.regions:
@@ -50,11 +52,8 @@ class TestLibraryShape:
             assert eq.model_error_variance is not None and eq.sep_log is not None
             assert eq.avp is None  # the report publishes no AVP
 
-    def test_covariance_present_except_region_4(self, lib):
+    def test_covariance_present_in_every_region(self, lib):
         for eq in lib.equations:
-            if eq.region_code == "4":
-                assert eq.covariance is None  # see WA.json notes: basis inconsistent
-                continue
             u = np.asarray(eq.covariance)
             assert np.allclose(u, u.T)
             assert np.all(np.linalg.eigvalsh(u) > 0)
@@ -192,18 +191,47 @@ class TestCovariance:
         assert round(est.interval[0]) == 825
         assert _sig3(est.interval[1]) == 12300
 
-    def test_region_4_falls_back_to_average_sep(self, lib):
-        est = evaluate(lib.equation("4", 0.01), BASIN)
-        assert est.interval_method == "average standard error of prediction"
+    def test_region_4_interval_is_site_specific_in_the_p_over_10_basis(self, lib):
+        eq = lib.equation("4", 0.01)
+        est = evaluate(eq, BASIN)
+        assert est.interval_method.startswith("site-specific")
+        x = np.array([1.0, math.log10(BASIN["DRNAREA"]), BASIN["PRECPRIS10"] / 10])
+        s_i = math.sqrt(eq.model_error_variance + x @ np.asarray(eq.covariance) @ x)
+        lo, hi = est.interval
+        assert math.log10(hi / est.flow_cfs) == pytest.approx(
+            stats.t.ppf(0.95, eq.n_sites - 3) * s_i, rel=1e-6
+        )
 
 
 # Table 7, Regression Region 4 (report p. 42), as printed: (MEV, upper triangle of
-# (X^T Lambda^-1 X)^-1 in the order Intercept, A, P).
+# (X^T Lambda^-1 X)^-1 in the order Intercept, A, P). Double-entered from the rendered
+# page and the PDF text layer: 48 cells, 0 disagreements.
 T7_REGION4 = {
     0.5: (0.045, (4.633e-3, -5.756e-4, -3.314e-4, 4.384e-4, 1.945e-6, 3.270e-5)),
+    0.2: (0.042, (4.694e-3, -5.551e-4, -3.316e-4, 4.210e-4, 1.681e-6, 3.227e-5)),
+    0.1: (0.041, (4.976e-3, -5.679e-4, -3.492e-4, 4.296e-4, 1.524e-6, 3.368e-5)),
+    0.04: (0.043, (5.531e-3, -6.098e-4, -3.864e-4, 4.616e-4, 1.296e-6, 3.698e-5)),
+    0.02: (0.045, (5.998e-3, -6.482e-4, -4.180e-4, 4.915e-4, 1.106e-6, 3.985e-5)),
     0.01: (0.047, (6.467e-3, -6.873e-4, -4.498e-4, 5.221e-4, 8.927e-7, 4.273e-5)),
+    0.005: (0.049, (6.935e-3, -7.268e-4, -4.816e-4, 5.534e-4, 6.506e-7, 4.563e-5)),
     0.002: (0.053, (7.663e-3, -7.937e-4, -5.319e-4, 6.073e-4, 2.921e-7, 5.033e-5)),
 }
+
+# Table 6, Region 4: the printed P coefficient c of Q = a A^b 10^(cP), by AEP.
+T6_REGION4_C = {
+    0.5: 0.0073,
+    0.2: 0.006,
+    0.1: 0.0054,
+    0.04: 0.0047,
+    0.02: 0.0043,
+    0.01: 0.004,
+    0.005: 0.0036,
+    0.002: 0.0033,
+}
+
+REGION4_SITES = (
+    Path(__file__).resolve().parents[1] / "data" / "regression_study" / "wa_2016_5118_sites.csv"
+)
 
 
 def _sym3(up):
@@ -223,11 +251,13 @@ def _implied_regression_variance(q_sta, q_reg, q_wtd, lo, hi):
 
 
 class TestRegion4CovarianceBasis:
-    """Why Region 4 carries no covariance (WA.json notes).
+    """Region 4's covariance basis (WA.json notes; docs/WA_REGION4_REFIT.md).
 
-    Table 7's Region 4 matrix fits Table 6's Sp only if P is read as P/10, but the report
-    never says so, and its own computations (the Flood Q Tools workbook and Table 8's WIE
-    weighted estimates) apply the printed matrix to raw P. These tests pin both halves.
+    Table 7's Region 4 matrix is the regression's in the basis [1, log10 A, P/10]: that is
+    the basis in which it reproduces Table 6's Sp, and an independent GLS refit of the
+    report's data agrees. It is stored that way (PRECPRIS10 scale 0.1). The report's own
+    downstream computations (the Flood Q Tools workbook and Table 8's WIE weighted
+    estimates) apply it to raw P instead; the first two tests below pin that usage.
     """
 
     def test_workbook_applies_table_7_to_raw_p(self):
@@ -267,6 +297,41 @@ class TestRegion4CovarianceBasis:
         model = eq.model_error_variance + x @ np.asarray(eq.covariance) @ x
         implied = _implied_regression_variance(6780, 2220, 6060, 3400, 10800)
         assert implied == pytest.approx(model, rel=0.05)
+
+    @pytest.mark.parametrize("aep", sorted(T7_REGION4))
+    def test_stored_in_the_p_over_10_basis(self, lib, aep):
+        eq = lib.equation("4", aep)
+        precip = eq.variables[1]
+        assert precip.code == "PRECPRIS10" and precip.scale == 0.1
+        assert eq.coefficients[1] == pytest.approx(10 * T6_REGION4_C[aep], abs=1e-12)
+        mev, up = T7_REGION4[aep]
+        assert eq.model_error_variance == mev
+        np.testing.assert_array_equal(np.asarray(eq.covariance), _sym3(up))
+
+    @pytest.mark.parametrize("aep", sorted(T7_REGION4))
+    def test_stored_basis_reproduces_table_6_sp(self, lib, aep):
+        # MEV + mean x'Ux over the 139 calibration gages (Table 5, used = Yes) equals
+        # Sp^2 within 1 % at every AEP; with raw P the same check is 2.6-2.9 times Sp.
+        sites = pd.read_csv(REGION4_SITES, dtype={"site_no": str})
+        cal = sites[sites["used"] & (sites["region"] == 4)]
+        assert len(cal) == 139
+        eq = lib.equation("4", aep)
+        u = np.asarray(eq.covariance)
+        x = np.column_stack(
+            [np.ones(len(cal)), np.log10(cal["DRNAREA"]), 0.1 * cal["PRECIP"].to_numpy()]
+        )
+        avp = eq.model_error_variance + float(np.mean(np.einsum("ij,jk,ik->i", x, u, x)))
+        assert math.sqrt(avp) == pytest.approx(eq.sep_log, rel=0.01)
+        raw = x.copy()
+        raw[:, 2] *= 10
+        avp_raw = eq.model_error_variance + float(np.mean(np.einsum("ij,jk,ik->i", raw, u, raw)))
+        assert math.sqrt(avp_raw) / eq.sep_log > 2.5
+
+    def test_estimates_unchanged_and_interval_site_specific(self, lib):
+        # 12024400 (Table 5: A 29.69, P 66.7789354799): Table 8 line 2 at AEP 0.01 is 3840.
+        est = evaluate(lib.equation("4", 0.01), {"DRNAREA": 29.69, "PRECPRIS10": 66.7789354799})
+        assert _sig3(est.flow_cfs) == 3840
+        assert est.interval_method.startswith("site-specific")
 
 
 # Live NSS response for Goat Creek (DRNAREA 412.0, PRECPRIS10 45.62, CANOPY_PCT 45.242),
