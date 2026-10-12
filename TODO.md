@@ -5,9 +5,9 @@
 > in progress are tracked under "Roadmap Phase A, Wave 1 and Wave 2" in Open Items below.
 
 ## Status
-Last updated: 2026-10-03. Version **0.9.0** is released (`pyproject.toml`; tag `v0.9.0` at
-`8944bb4`, PR #75, 2026-09-27). **0.10.0 is pending.** 26 PRs have merged since (#76-#107),
-listed in CHANGELOG.md's Unreleased section.
+Last updated: 2026-10-11. Version **0.10.4** is released (tag `v0.10.4`, PR #127) and on
+PyPI. `main` is **0.11.0.dev0** (#128); 0.10.x patches come from `release/0.10.x`
+(CLAUDE.md, Branches and Releases). The test counts below are from 2026-10-03.
 Python 3.11–3.14 (`requires-python >= 3.11`; CI matrix in `.github/workflows/ci.yml`).
 
 Tests, measured 2026-10-03 on Windows / CPython 3.12 with
@@ -28,8 +28,8 @@ from #81. Run the number, do not carry it forward -- it has been wrong in a comm
 and a PR body already.
 
 Every P1, P2 and P3 item is done; the Done sections and "P3 — The `var_mom` port" hold the
-history. Open work is the roadmap (Phase A, Wave 1 and Wave 2 below), the fixed-window ramp
-metric, and the app's pin bump.
+history. Open work is the roadmap: "Carried into 0.11.0" below, then Phase A, Wave 1 and
+Wave 2, and the fixed-window ramp metric.
 Fortran reference: **vendored** at `vendor/peakfqr/` (peakfq 8.1.0, CC0); the bridge builds
 with `python build_fortran/build.py` (gfortran + meson), and CI builds and checks it with
 `make parity`.
@@ -71,6 +71,25 @@ These bit repeatedly and are not discoverable from the code:
 
 ## Open Items (prioritised)
 
+### Carried into 0.11.0
+
+Open at v0.10.4 and carried into the 0.11.0 (countrywide) cycle. Details are in the
+Phase A / Wave entries below.
+
+- [ ] **Partial states.**
+      - WA region 4 covariance (#65): Table 7 is published, but its `P/10` scaling is
+        undocumented and contradicted by Table 8, so it is not stored.
+      - UT region 2 (#96): NSS evaluates 4-digit precipitation bases where SIR 2007-5158
+        prints 3. A search found no primary source for the extra digit.
+      - NV region 6 and the hybrid regions (#104): the printed 2-year `Q=0` and the hybrid
+        method's non-comparable error statistics have no schema representation.
+- [ ] **Regional skew** for MT (a published USGS Bayesian study; the provisional #91 study
+      stays out of the table) and for all of Wave 2 (roadmap §1.3). No Wave 2 state has a
+      row in `regional_skew.csv`.
+- [ ] **Future flow (#36), kept open** (decided 2026-10-11). No state tabulates per-AEP
+      factors. The issue stays open for WDFW-style per-site tools rather than closing on
+      the survey.
+
 ### Roadmap Phase A, Wave 1 and Wave 2 (issues #27–#40, #93–#104)
 
 `docs/MASTER_ROADMAP.md` requires a TODO.md entry for every roadmap item that has
@@ -99,7 +118,8 @@ Audited 2026-10-03 against `git log v0.9.0..origin/main`, `CHANGELOG.md` and
 - [x] **#31 PeakFQ `.psf` reader and converter** (closed). `psf.py`, `psf_convert.py`
       (#52) and `watstore.py`. All 24 WY/MT stations in `wymt_ffa_2022A.psf` convert and
       match live `emafitpr` (CLAUDE.md, Validation Status).
-- [ ] **#32 Regulation / urbanization screen** (open). Done in #95: `flowfreq.regulation`
+- [x] **#32 Regulation / urbanization screen** (closed 2026-10-06; v0.10.2 added the opt-in
+      NID/NLCD current-data screen, see CHANGELOG.md). Done in #95: `flowfreq.regulation`
       combines the packaged GAGES-II screen (9,322 gages) with peak code 6, and
       `analyze_gage` (and `run_ffa` given `site_no=`) refuses a regulated gage unless
       `allow_regulated=True`. Open:
@@ -165,17 +185,19 @@ unresolved.
 - [x] **#93 CO**, `verified` (#94).
 - [ ] **#96 UT**, `partial` (#97). Region 2 does not match NSS: Table 5 prints its
       precipitation bases to 3 significant figures, NSS uses 4 (1.07 against 1.074). The
-      printed values are stored and the gap is pinned by tests.
+      printed values are stored and the gap is pinned by tests. v0.10.2 recorded a search
+      for a primary source of the fourth digit; none exists (CHANGELOG.md).
 - [x] **#98 WY**, `verified` (#99).
 - [x] **#100 NM**, `verified` (#101).
-- [ ] **#102 AZ**, `partial` (#103). Region 5's `10^(a - b DRNAREA^-c)` form has no schema
-      representation, so region 5 is not stored.
-- [ ] **#104 NV**, `partial` (#106). WSP 2433 has no range table, so the stored limits are
-      NSS's. Region 6's 2-year equation is printed `Q=0`, and hybrid-method errors are not
-      comparable standard errors and are not stored.
+- [x] **#102 AZ**, `verified` since v0.10.2: region 5's `10^(a - b DRNAREA^-c)` form is
+      stored with `Variable(transform="power")`.
+- [ ] **#104 NV**, `partial` (#106). v0.10.2 added the transition-zone equations
+      (`flowfreq.regression.nevada`) and replaced NSS's limits with the ranges of each
+      region's gages. Still open: region 6's 2-year equation is printed `Q=0`, and
+      hybrid-method errors are not comparable standard errors; neither is stored.
 
-No Wave 2 state has a regional skew yet, or the wave's cross-border consistency check
-(roadmap §3.2). Their §6.3.2 future-flow guidance is recorded: none tabulates factors
+No Wave 2 state has a regional skew yet. The wave's cross-border consistency check
+(roadmap §3.2) ran 2026-10-06 (`docs/WAVE_QA_W1_W2.md`). Their §6.3.2 future-flow guidance is recorded: none tabulates factors
 (`docs/FUTURE_FLOW_GUIDANCE.md`).
 
 ### Small open items
