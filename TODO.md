@@ -104,7 +104,12 @@ Phase A / Wave entries below.
 - [ ] **New Mexico: newer USGS report** (Wave 2). Tillery and others (2026) supersedes
       Waltemeyer (2008), which `NM.json` uses. It has nine flood regions, data through
       WY2020, and a regional skew of -0.145 (SE 0.454). Data release:
-      https://doi.org/10.5066/P9QWEXCY. Not transcribed yet.
+      https://doi.org/10.5066/P9QWEXCY. Blocked as of 2026-10-12: the report is not in the
+      USGS Publications Warehouse, NM StreamStats still cites Waltemeyer (2008), and the data
+      release was withdrawn for revision on 2026-09-29 (its files are no longer public). The
+      NM skew row is `pending` with both values in its notes (Waltemeyer 2008 p. 5: zero, MSE
+      0.31, B17B-era). Re-check the Publications Warehouse and the data release; transcribe
+      the skew, its region and the nine regions' equations from the published report.
 - [ ] **Future flow (#36), kept open** (decided 2026-10-11). No state tabulates per-AEP
       factors. The issue stays open for WDFW-style per-site tools rather than closing on
       the survey.
