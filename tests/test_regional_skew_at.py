@@ -341,3 +341,45 @@ def test_outage_helper_skips_5xx_but_not_4xx():
     with pytest.raises(requests.HTTPError):
         with _skip_on_service_outage():
             raise requests.HTTPError("404", response=resp4)
+
+
+# ----------------------------------------------------------------------------
+# provisional regions through the HUC lookup
+# ----------------------------------------------------------------------------
+
+
+def _provisional_tables(tmp_path):
+    skew = tmp_path / "skew.csv"
+    skew.write_text(
+        "state,skew_region,skew,skew_mse,effective_record_years,citation,table,status,notes\n"
+        'MT,Test Region,-0.05,0.33,25,"flowfreq study",T,provisional,n\n'
+    )
+    hucs = tmp_path / "hucs.csv"
+    hucs.write_text(
+        "huc,skew_region,rule,valid_states,source,notes\n"
+        "1003,Test Region,member,MT,src,Missouri headwaters\n"
+    )
+    return skew, hucs
+
+
+def test_provisional_huc_region_needs_opt_in(tmp_path):
+    skew, hucs = _provisional_tables(tmp_path)
+    kw = dict(path=skew, huc_path=hucs)
+    with pytest.raises(RegionalSkewUnavailable, match="provisional"):
+        regional_skew_at_huc("100301021602", "MT", **kw)
+    rs = regional_skew_at_huc("100301021602", "MT", allow_provisional=True, **kw)
+    assert rs.provisional and rs.skew == -0.05
+    assert rs.advisory.startswith("PROVISIONAL (not USGS)")
+
+
+def test_provisional_huc_region_respects_valid_states(tmp_path):
+    skew, hucs = _provisional_tables(tmp_path)
+    with pytest.raises(RegionalSkewUnavailable, match="WY is outside"):
+        regional_skew_at_huc("100301021602", "WY", path=skew, huc_path=hucs, allow_provisional=True)
+
+
+def test_packaged_lookups_unchanged_by_opt_in():
+    # No packaged provisional rows change a verified answer.
+    a = regional_skew_at_huc(PNW_SITES["12048000"][0], "WA")
+    b = regional_skew_at_huc(PNW_SITES["12048000"][0], "WA", allow_provisional=True)
+    assert a == b and not b.provisional
