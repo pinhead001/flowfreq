@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **`flowfreq.regression.gls`: GLS regression for flood quantiles** (roadmap §3.3). It is the
+  Stedinger-Tasker procedure as USGS WREG implements it (Eng and others, 2009, TM 4-A8):
+  - `lp3_quantile_sampling_variance`: the station log-quantile sampling variance, with a
+    regional-skew MSE term;
+  - `WregCorrelation` and `fit_correlation`: the correlation-distance model
+    `theta^(d/(alpha d + 1))`;
+  - `sampling_covariance`: the full Sigma, zero where records do not overlap;
+  - `fit_gls`: method-of-moments model error variance, `(X' Lambda^-1 X)^-1`, AVP, SEP,
+    pseudo-R², leverage and influence.
+
+  Tested against OLS (zero sampling error) and simulated data. Validation against a
+  published USGS regression is task 4 of the Northwest studies plan (Washington SIR
+  2016-5118).
+
 ## [0.10.4] - 2026-10-12
 
 ### Changed
