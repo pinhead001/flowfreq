@@ -100,18 +100,27 @@ PNW_HUC4: Dict[str, str] = {
     "1711": "Puget Sound",
 }
 
-UNRESOLVED: Dict[str, str] = {
+#: Provisional (flowfreq-tested, not USGS) extension of the PNW study.
+OR_CLOSED = "Pacific Northwest (Oregon closed basins, provisional)"
+OR_CLOSED_SOURCE = (
+    "SIR 2016-5083 app. B (https://doi.org/10.3133/sir20165083) value; applicability tested "
+    "in docs/OREGON_UNRESOLVED_SKEW.md (tools/pnw_edge_skew_test.py)"
+)
+OR_CLOSED_HUC4: Dict[str, str] = {
     "1712": (
-        "Oregon closed basins. Not in the study region as SIR 2016-5118 pp. 1, 23 define it "
-        "(Columbia basin, OR/WA coast, remainder of WA), yet 4 of the 290 study gages are "
-        "here (SIR 2016-5083 Table B1, e.g. 10396000). Unresolved: use "
-        "regional_skew_for('OR', 'Pacific Northwest') deliberately, or consult the USGS."
+        "Oregon closed basins. Not in the PNW study region as SIR 2016-5118 pp. 1, 23 define "
+        "it, though 4 study gages are here (SIR 2016-5083 Table B1). A B-GLS test of 8 "
+        "screened Oregon gages here is consistent with G = -0.07 (t = -0.59); provisional, "
+        "Oregon only."
     ),
+}
+
+UNRESOLVED: Dict[str, str] = {
     "1801": (
         "Klamath-Northern California coastal. Not in the study region as SIR 2016-5118 "
         "pp. 1, 23 define it, yet 1 of the 290 study gages (11502500, Williamson River, OR) "
-        "is here (SIR 2016-5083 Table B1). Unresolved for the same reason as 1712; the "
-        "California part is outside the study entirely."
+        "is here (SIR 2016-5083 Table B1). Unresolved: only 2 screened Oregon gages, too few "
+        "to test (docs/OREGON_UNRESOLVED_SKEW.md); the California part is outside the study."
     ),
 }
 
@@ -231,6 +240,8 @@ def build() -> Tuple[str, str]:
     w.writerow(["huc", "skew_region", "rule", "valid_states", "source", "notes"])
     for huc4, what in PNW_HUC4.items():
         w.writerow([huc4, PNW, "member", PNW_STATES, PNW_SOURCE, what])
+    for huc4, why in OR_CLOSED_HUC4.items():
+        w.writerow([huc4, OR_CLOSED, "member", "OR", OR_CLOSED_SOURCE, why])
     for huc4, why in UNRESOLVED.items():
         w.writerow([huc4, PNW, "unresolved", "", PNW_SOURCE, why])
     for huc12, rule, name, frac in snake_river_plain():

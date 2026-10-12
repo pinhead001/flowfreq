@@ -1,0 +1,53 @@
+{
+ "status": "provisional analysis -- NOT a USGS study",
+ "pnw_skew": -0.07,
+ "rule": "|t| < 2 -> consistent",
+ "combined": {
+  "n": 10,
+  "constant": {
+   "beta_constant": -0.10726,
+   "sd_constant": 0.18796,
+   "sigma2": 0.04832,
+   "sigma2_sd": 0.04844,
+   "asev": 0.03533,
+   "avp_new": 0.08365,
+   "effective_record_length": 80.7628,
+   "pseudo_r2": 0.0,
+   "evr": 2.7245,
+   "mbv": 2.06542,
+   "n_sites": 10.0
+  },
+  "t_vs_pnw": -0.2,
+  "decision": "consistent"
+ },
+ "by_basin": {
+  "Oregon closed basins": {
+   "n": 8,
+   "constant": {
+    "beta_constant": -0.1946,
+    "sd_constant": 0.21009,
+    "sigma2": 0.05109,
+    "sigma2_sd": 0.05369,
+    "asev": 0.04414,
+    "avp_new": 0.09523,
+    "effective_record_length": 73.40806,
+    "pseudo_r2": 0.0,
+    "evr": 2.75115,
+    "mbv": 1.94424,
+    "n_sites": 8.0
+   },
+   "t_vs_pnw": -0.59,
+   "decision": "consistent"
+  },
+  "Klamath": {
+   "n": 2
+  }
+ },
+ "exclusions": {
+  "< 25 pre-regulation peaks": 53,
+  "used": 10,
+  "redundant": 4,
+  "no drainage area": 1
+ },
+ "mean_station_skew": -0.16
+}
