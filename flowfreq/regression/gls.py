@@ -250,9 +250,10 @@ def _gls_at(
     y: FloatArray, X: FloatArray, sigma: FloatArray, gamma2: float
 ) -> Tuple[FloatArray, FloatArray, FloatArray]:
     lam = sigma + gamma2 * np.eye(len(y))
-    lam_inv = np.linalg.inv(lam)
-    cov = np.linalg.inv(X.T @ lam_inv @ X)
-    beta = cov @ X.T @ lam_inv @ y
+    # np.asarray(..., float64): newer numpy stubs type linalg.inv as floating[Any].
+    lam_inv = np.asarray(np.linalg.inv(lam), dtype=np.float64)
+    cov = np.asarray(np.linalg.inv(X.T @ lam_inv @ X), dtype=np.float64)
+    beta = np.asarray(cov @ X.T @ lam_inv @ y, dtype=np.float64)
     return beta, cov, lam_inv
 
 
