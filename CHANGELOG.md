@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.4] - 2026-10-12
+
 ### Changed
 
 - `delineate_and_get_characteristics` logs a StreamStats cache hit at DEBUG instead of INFO. At INFO, a re-run of a 118-point batch printed one line per cached point and buried the messages worth reading.
