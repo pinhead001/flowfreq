@@ -92,11 +92,15 @@ Phase A / Wave entries below.
 - [ ] **Regional skew** for MT (a published USGS Bayesian study; the provisional #91 study
       stays out of the table) and for all of Wave 2 (roadmap §1.3). No Wave 2 state has a
       row in `regional_skew.csv`.
-- [ ] **Northwest studies plan** (`docs/superpowers/plans/2026-10-11-northwest-regional-studies.md`).
-      A 2026-10-11 search found no newer USGS report for WA, MT, ID or OR, so the gaps above
-      are being closed with studies that follow published USGS procedures. Their results
-      enter `regional_skew.csv` only as `provisional`, which callers must opt into
-      (`allow_provisional=True`).
+- [x] **Northwest studies plan** (`docs/superpowers/plans/2026-10-11-northwest-regional-studies.md`), done 2026-10-12
+      except WA (#132, awaiting the maintainer's decision). Follow-on:
+      `docs/superpowers/plans/2026-10-12-oregon-regression-update.md`. Oregon StreamStats
+      returned only 9-13 basin characteristics on 2026-10-12 (a missing-raster error), so it is
+      not evaluating Cooper's western-Oregon variables (I24H2Y, JANMAXT2K). Re-check it, and
+      report it to StreamStats. Open issue: #135 (06163400 vs PeakFQ). A 2026-10-11 search
+      found no newer USGS report for WA, MT, ID or OR. The studies follow published USGS
+      procedures, and their results enter `regional_skew.csv` only as `provisional`, which
+      callers must opt into (`allow_provisional=True`).
 - [ ] **New Mexico: newer USGS report** (Wave 2). Tillery and others (2026) supersedes
       Waltemeyer (2008), which `NM.json` uses. It has nine flood regions, data through
       WY2020, and a regional skew of -0.145 (SE 0.454). Data release:
