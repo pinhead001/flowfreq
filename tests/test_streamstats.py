@@ -611,9 +611,7 @@ class TestWatershedPolygon:
     def test_cache_hit_logs_below_info(self, tmp_path, caplog) -> None:
         # One INFO line per cached point buried a batch run's real messages.
         cache = StreamStatsCache(tmp_path / "cache.json")
-        _run_delineation(
-            SNAP_GOOD, DELINEATE_SSHYDRO_GOOD, HYDRO_CHARACTERISTICS_GOOD, cache=cache
-        )
+        _run_delineation(SNAP_GOOD, DELINEATE_SSHYDRO_GOOD, HYDRO_CHARACTERISTICS_GOOD, cache=cache)
         caplog.set_level(logging.DEBUG, logger="flowfreq.streamstats")
         with patch(
             "flowfreq.streamstats.requests.get",
