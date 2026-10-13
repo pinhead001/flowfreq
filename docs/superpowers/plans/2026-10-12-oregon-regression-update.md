@@ -65,15 +65,20 @@ Report it to the StreamStats team either way.
 
 ---
 
-### Task 1: `provisional` status for regression equation sets (schema decision)
+### Task 1: `provisional` status for regression equation sets (schema decision) — done
 
-- Add `provisional` to `flowfreq/regression/library.py` `STATUSES`.
-- `load_state(code)` keeps returning the published set.
-- `load_state(code, allow_provisional=True)` may return an alternative `OR_provisional.json`
-  set, carrying an advisory.
-- Tests: the default is unchanged, opt-in returns the provisional set, and the coverage doc
-  lists both.
-- **Needs the maintainer's agreement on the file layout before implementation.**
+Approved by the maintainer 2026-10-12, implemented in `tests/test_regression_provisional.py`'s PR.
+
+- [x] `provisional` added to `flowfreq/regression/library.py` `STATUSES`.
+- [x] `load_state(code)` keeps returning the published set; a published file claiming
+  `provisional` is refused.
+- [x] `load_state(code, allow_provisional=True)` returns
+  `flowfreq/data/regression/provisional/<CODE>.json` when it exists, with `advisory` set and
+  a logged warning. A subdirectory rather than the proposed `OR_provisional.json`: the
+  top-level `*.json` glob (`available_states`, the coverage generator, two test loops) treats
+  every stem as a state code.
+- [x] `provisional_states()` lists them; `docs/REGRESSION_COVERAGE.md` marks a state that has
+  one ("+ provisional set").
 
 ### Task 2: Oregon station dataset
 

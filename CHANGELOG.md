@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Provisional regression equation sets** (Oregon regression update plan, task 1).
+  Equations flowfreq develops itself go in `flowfreq/data/regression/provisional/<CODE>.json`
+  with `status: "provisional"`. `load_state(code)` is unchanged; `load_state(code,
+  allow_provisional=True)` returns the provisional set when there is one, with
+  `StateLibrary.advisory` set and a logged warning. `provisional_states()` lists them. None is
+  packaged yet.
 - **New Mexico regional skew row, `pending`.** Records why NM has no verified skew yet:
   Waltemeyer (2008, SIR 2008-5119 p. 5) uses zero with MSE 0.31, a B17B-era value. Its
   successor, Tillery and others (2026), reports -0.145 (SE 0.454), but as of 2026-10-12 the
