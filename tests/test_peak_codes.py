@@ -28,7 +28,7 @@ class TestParseCodes:
         [
             ("2,6", {"2", "6"}),
             ("26", {"2", "6"}),
-            ("4, c", {"4", "C"}),
+            ("4, c", {"4", "c"}),  # case kept, as siteQT's grepl matches (#135)
             ("", set()),
             (None, set()),
             (math.nan, set()),
@@ -66,6 +66,12 @@ class TestPeakInterval:
         assert peak_interval(500.0, code).treatment is PeakTreatment.REMOVED
         kept = peak_interval(500.0, code, include_urban_regulated=True)
         assert (kept.lower, kept.upper) == (500.0, 500.0)
+
+    def test_lowercase_c_is_not_code_c(self):
+        # siteQT's grepl("C", peak_cd) is case-sensitive, so peakfq keeps a peak
+        # coded "c" (SIR 2025-5019's 06163400, #135).
+        iv = peak_interval(500.0, "c2")
+        assert (iv.lower, iv.upper, iv.treatment) == (500.0, 500.0, PeakTreatment.SYSTEMATIC)
 
     def test_removal_wins_over_censoring(self):
         # siteQT applies 4/8 first, then 3/O and 6/C, so removal wins.

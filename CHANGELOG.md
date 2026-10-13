@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **Peak codes keep their case** (#135). `flowfreq.peak_codes` upper-cased single-character
+  codes, so a lowercase `c` in a WATSTORE file became code C (urbanized) and the peak was
+  dropped. peakfq's `siteQT` matches `"C"` case-sensitively and keeps it. On SIR 2025-5019's
+  examples, 06163400.00 (39 such peaks) now gives station skew 0.2159 against PeakFQ's 0.216
+  (was 3.0), and 06151000.00 -0.9788 against -0.979 (was -1.054). The Water Data API and
+  legacy NWIS backends already emit upper-case codes, so online results do not change.
+
 ### Added
 - **Provisional regression equation sets** (Oregon regression update plan, task 1).
   Equations flowfreq develops itself go in `flowfreq/data/regression/provisional/<CODE>.json`
