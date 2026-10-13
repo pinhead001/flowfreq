@@ -88,7 +88,10 @@ def test_new_mexico_is_pending_until_tillery_2026_is_published():
     row = load_table().set_index(["state", "skew_region"]).loc[("NM", "New Mexico")]
     assert row["status"] == "pending"
     assert "SIR 2008-5119, p. 5" in row["notes"] and "10.5066/P9QWEXCY" in row["notes"]
-    with pytest.raises(RegionalSkewUnavailable, match=r"NM \(pending: No verified regional skew for New Mexico; see"):
+    with pytest.raises(
+        RegionalSkewUnavailable,
+        match=r"NM \(pending: No verified regional skew for New Mexico; see",
+    ):
         regional_skew_for("NM")
 
 
