@@ -110,7 +110,17 @@ Original task text:
     both studies used;
   - the median ratio is within 1 %, as on the Washington controls.
 
-### Task 3: Basin characteristics
+### Task 3: Basin characteristics — done
+
+Done 2026-10-13 (`tools/build_oregon_basin_characteristics.py`,
+`data/regression_study/oregon_basin_characteristics.csv`; `docs/OREGON_REGRESSION_UPDATE.md`).
+Oregon StreamStats re-checked 2026-10-13: still 9-13 characteristics. Characteristics from
+PRISM 1991-2020 (PRECIP, JANMAXT), NOAA Atlas 2 (I24H2Y) and 3DEP (ELEV, BSLOPD; forest
+cover not computed) over StreamStats polygons. StreamStats mis-snapped about a quarter of the
+gages, so polygons are accepted only within 10 % of the NWIS area, with NLDI basins as the
+fallback (470 StreamStats, 109 NLDI, 81 neither).
+
+Original task text:
 
 - Re-check Oregon StreamStats first.
 - If it still fails, compute from national sources in `tools/`, each recorded with source and
@@ -122,14 +132,29 @@ Original task text:
   - forest cover from NLCD 2021.
 - Candidate set: DRNAREA, PRECIP, I24H2Y, ELEV, slope, forest, JANMAXT (PRISM).
 
-### Task 4: Regions
+### Task 4: Regions — done
+
+NSS region geometry is unusable (western basins hit 1, 2A and 2B at 100 %; eastern regions
+have none), so regions are HUC sets: W/E split, then HUC6 residual clusters split off
+automatically (|t| >= 2, >= 25 gages each side): 171003, 170701, 170800, 170900. No merges
+tested.
+
+Original task text:
 
 - Start from the current regions (western 1, 2A, 2B; OWRD's six eastern).
 - Test with residual clustering from a statewide GLS, and merge where coefficients don't differ
   significantly.
 - Document every boundary change.
 
-### Task 5: GLS fits, diagnostics and comparison
+### Task 5: GLS fits, diagnostics and comparison — done
+
+Six regions stored as `provisional/OR.json` (`tools/oregon_regression_fit.py --store`,
+`tests/test_oregon_regression_update.py`). SEP at 1 % AEP: West 36-54 %, East 67-94 %,
+above the current equations' 29-36 % and 41-75 % in every region. LOOCV against the current
+equations at the same gages was not possible (their inputs cannot be computed); leave-one-out
+SEPs are reported instead. Next gain: a soil-permeability variable.
+
+Original task text:
 
 - Per region and AEP: variable selection by t ≥ 2 and VIF < 5, then SEP, pseudo-R², leverage
   and influence.

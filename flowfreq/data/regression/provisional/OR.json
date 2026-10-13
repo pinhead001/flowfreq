@@ -1,0 +1,3515 @@
+{
+ "schema_version": 1,
+ "state": "OR",
+ "status": "provisional",
+ "source_reports": [
+  "flowfreq provisional Oregon regression update (2026), NOT a USGS study; docs/OREGON_REGRESSION_UPDATE.md"
+ ],
+ "equations": [
+  {
+   "region_code": "E",
+   "region_name": "East of the Cascade crest (all other HUCs), less split HUC6s",
+   "aep": 0.5,
+   "intercept": 0.3330998627549624,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.15,
+     "maximum": 10372.6
+    },
+    {
+     "code": "ELEV_3DEP",
+     "transform": "identity",
+     "units": "ft",
+     "minimum": 1533.36,
+     "maximum": 7502.15,
+     "scale": 0.001
+    },
+    {
+     "code": "I24H2Y_NA2",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 0.87605,
+     "maximum": 4.89357
+    }
+   ],
+   "coefficients": [
+    0.8184171952729096,
+    0.07623695260634498,
+    1.2252122029121573
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.35914857271367573,
+   "avp": 0.12898769728227044,
+   "model_error_variance": 0.12442274207607014,
+   "covariance": [
+    [
+     0.03722694958379912,
+     -0.0033373943799486867,
+     -0.004697790769690859,
+     -0.018201132739366348
+    ],
+    [
+     -0.0033373943799486997,
+     0.0011143362111735323,
+     0.00012152459722863528,
+     0.0016791597610624066
+    ],
+    [
+     -0.004697790769690856,
+     0.00012152459722863335,
+     0.0008343284664311932,
+     0.0006199813724020262
+    ],
+    [
+     -0.018201132739366268,
+     0.0016791597610623953,
+     0.0006199813724020163,
+     0.04281458002504959
+    ]
+   ],
+   "n_sites": 177
+  },
+  {
+   "region_code": "E",
+   "region_name": "East of the Cascade crest (all other HUCs), less split HUC6s",
+   "aep": 0.2,
+   "intercept": 1.0795064696146264,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.15,
+     "maximum": 10372.6
+    },
+    {
+     "code": "ELEV_3DEP",
+     "transform": "identity",
+     "units": "ft",
+     "minimum": 1533.36,
+     "maximum": 7502.15,
+     "scale": 0.001
+    },
+    {
+     "code": "I24H2Y_NA2",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 0.87605,
+     "maximum": 4.89357
+    }
+   ],
+   "coefficients": [
+    0.7738692661050435,
+    0.006478497561358607,
+    0.9233368216569405
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.31586663845575397,
+   "avp": 0.099771733289338,
+   "model_error_variance": 0.09568446562181825,
+   "covariance": [
+    [
+     0.03430483510355664,
+     -0.0032769960635517766,
+     -0.004164879825881547,
+     -0.01623333304581212
+    ],
+    [
+     -0.003276996063551802,
+     0.0009796435307172862,
+     0.00015190309470996093,
+     0.001588683502494509
+    ],
+    [
+     -0.004164879825881534,
+     0.00015190309470995619,
+     0.0007044344191671895,
+     0.0006227927467199453
+    ],
+    [
+     -0.01623333304581217,
+     0.001588683502494509,
+     0.0006227927467199548,
+     0.03512045638079393
+    ]
+   ],
+   "n_sites": 177
+  },
+  {
+   "region_code": "E",
+   "region_name": "East of the Cascade crest (all other HUCs), less split HUC6s",
+   "aep": 0.1,
+   "intercept": 1.4466542872244903,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.15,
+     "maximum": 10372.6
+    },
+    {
+     "code": "ELEV_3DEP",
+     "transform": "identity",
+     "units": "ft",
+     "minimum": 1533.36,
+     "maximum": 7502.15,
+     "scale": 0.001
+    },
+    {
+     "code": "I24H2Y_NA2",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 0.87605,
+     "maximum": 4.89357
+    }
+   ],
+   "coefficients": [
+    0.7522629147171479,
+    -0.027284096256630506,
+    0.7869313951524615
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.3106764319797627,
+   "avp": 0.0965198453876761,
+   "model_error_variance": 0.09200645359397205,
+   "covariance": [
+    [
+     0.038159424750375814,
+     -0.0037283863491694813,
+     -0.004508678286795218,
+     -0.017771283428042593
+    ],
+    [
+     -0.003728386349169493,
+     0.001042965120212668,
+     0.00019163692155698786,
+     0.0017911929590178417
+    ],
+    [
+     -0.004508678286795209,
+     0.0001916369215569857,
+     0.000736364368307706,
+     0.0007336672764215287
+    ],
+    [
+     -0.017771283428042677,
+     0.0017911929590178417,
+     0.0007336672764215443,
+     0.03595679864925248
+    ]
+   ],
+   "n_sites": 177
+  },
+  {
+   "region_code": "E",
+   "region_name": "East of the Cascade crest (all other HUCs), less split HUC6s",
+   "aep": 0.04,
+   "intercept": 1.7970558852545797,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.15,
+     "maximum": 10372.6
+    },
+    {
+     "code": "ELEV_3DEP",
+     "transform": "identity",
+     "units": "ft",
+     "minimum": 1533.36,
+     "maximum": 7502.15,
+     "scale": 0.001
+    },
+    {
+     "code": "I24H2Y_NA2",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 0.87605,
+     "maximum": 4.89357
+    }
+   ],
+   "coefficients": [
+    0.7326610214452496,
+    -0.0586797740709792,
+    0.664214677417092
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.3189464736020084,
+   "avp": 0.10172685302315664,
+   "model_error_variance": 0.09601829854910253,
+   "covariance": [
+    [
+     0.04760387091160597,
+     -0.004585124537712826,
+     -0.0054946682743643145,
+     -0.021668562492918098
+    ],
+    [
+     -0.004585124537712817,
+     0.0012141745398497837,
+     0.00025359916802634313,
+     0.0021998905759676906
+    ],
+    [
+     -0.005494668274364317,
+     0.00025359916802634416,
+     0.0008660713563258939,
+     0.0009431816274990017
+    ],
+    [
+     -0.021668562492918087,
+     0.0021998905759676953,
+     0.0009431816274989974,
+     0.04103058557520151
+    ]
+   ],
+   "n_sites": 177
+  },
+  {
+   "region_code": "E",
+   "region_name": "East of the Cascade crest (all other HUCs), less split HUC6s",
+   "aep": 0.02,
+   "intercept": 1.9997134300259425,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.15,
+     "maximum": 10372.6
+    },
+    {
+     "code": "ELEV_3DEP",
+     "transform": "identity",
+     "units": "ft",
+     "minimum": 1533.36,
+     "maximum": 7502.15,
+     "scale": 0.001
+    },
+    {
+     "code": "I24H2Y_NA2",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 0.87605,
+     "maximum": 4.89357
+    }
+   ],
+   "coefficients": [
+    0.721777056329269,
+    -0.07637212029553342,
+    0.596424180191513
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.3311066733637541,
+   "avp": 0.10963162914601177,
+   "model_error_variance": 0.10267055887211023,
+   "covariance": [
+    [
+     0.05703341947208952,
+     -0.0053457282041816725,
+     -0.006524968691644744,
+     -0.02546851242975013
+    ],
+    [
+     -0.0053457282041817185,
+     0.001384156561407478,
+     0.00030506450532134024,
+     0.002567556231084044
+    ],
+    [
+     -0.006524968691644706,
+     0.0003050645053213317,
+     0.001010199361336155,
+     0.0011238570068263837
+    ],
+    [
+     -0.025468512429750415,
+     0.002567556231084046,
+     0.0011238570068264353,
+     0.046790175450117946
+    ]
+   ],
+   "n_sites": 177
+  },
+  {
+   "region_code": "E",
+   "region_name": "East of the Cascade crest (all other HUCs), less split HUC6s",
+   "aep": 0.01,
+   "intercept": 2.1688973899872104,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.15,
+     "maximum": 10372.6
+    },
+    {
+     "code": "ELEV_3DEP",
+     "transform": "identity",
+     "units": "ft",
+     "minimum": 1533.36,
+     "maximum": 7502.15,
+     "scale": 0.001
+    },
+    {
+     "code": "I24H2Y_NA2",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 0.87605,
+     "maximum": 4.89357
+    }
+   ],
+   "coefficients": [
+    0.7128297120047368,
+    -0.09090126314080635,
+    0.5419622084853618
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.34585598398946427,
+   "avp": 0.11961636166132057,
+   "model_error_variance": 0.1111824525560565,
+   "covariance": [
+    [
+     0.06787981903798641,
+     -0.006168731246708348,
+     -0.00773652667935901,
+     -0.02973334325422672
+    ],
+    [
+     -0.006168731246708351,
+     0.0015789295231839213,
+     0.0003592490356783512,
+     0.0029662506244213884
+    ],
+    [
+     -0.007736526679359016,
+     0.0003592490356783519,
+     0.001183814732163137,
+     0.0013099885627552705
+    ],
+    [
+     -0.02973334325422661,
+     0.002966250624421374,
+     0.0013099885627552567,
+     0.05373511763988151
+    ]
+   ],
+   "n_sites": 177
+  },
+  {
+   "region_code": "E",
+   "region_name": "East of the Cascade crest (all other HUCs), less split HUC6s",
+   "aep": 0.005,
+   "intercept": 2.314662124177842,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.15,
+     "maximum": 10372.6
+    },
+    {
+     "code": "ELEV_3DEP",
+     "transform": "identity",
+     "units": "ft",
+     "minimum": 1533.36,
+     "maximum": 7502.15,
+     "scale": 0.001
+    },
+    {
+     "code": "I24H2Y_NA2",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 0.87605,
+     "maximum": 4.89357
+    }
+   ],
+   "coefficients": [
+    0.7051896805303647,
+    -0.10329284189669487,
+    0.49718545935389674
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.3619827794641322,
+   "avp": 0.13103153262857856,
+   "model_error_variance": 0.12095529518246662,
+   "covariance": [
+    [
+     0.07981890866071217,
+     -0.007037783884542668,
+     -0.009091781709228886,
+     -0.03432135045193167
+    ],
+    [
+     -0.00703778388454262,
+     0.0017934700009098904,
+     0.00041549717579569725,
+     0.003386978182937802
+    ],
+    [
+     -0.009091781709228905,
+     0.0004154971757957046,
+     0.0013811828822037403,
+     0.0014940223218177708
+    ],
+    [
+     -0.03432135045193167,
+     0.0033869781829378195,
+     0.0014940223218177632,
+     0.06162984928168044
+    ]
+   ],
+   "n_sites": 177
+  },
+  {
+   "region_code": "E",
+   "region_name": "East of the Cascade crest (all other HUCs), less split HUC6s",
+   "aep": 0.002,
+   "intercept": 2.480972153816717,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.15,
+     "maximum": 10372.6
+    },
+    {
+     "code": "ELEV_3DEP",
+     "transform": "identity",
+     "units": "ft",
+     "minimum": 1533.36,
+     "maximum": 7502.15,
+     "scale": 0.001
+    },
+    {
+     "code": "I24H2Y_NA2",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 0.87605,
+     "maximum": 4.89357
+    }
+   ],
+   "coefficients": [
+    0.6965715475247818,
+    -0.11736028310523855,
+    0.4495467883253037
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.3842737952532237,
+   "avp": 0.14766634971831646,
+   "model_error_variance": 0.135219009991719,
+   "covariance": [
+    [
+     0.09690923381885291,
+     -0.008240565937602853,
+     -0.01106079455068893,
+     -0.04073326079493015
+    ],
+    [
+     -0.008240565937602883,
+     0.002101941052565363,
+     0.0004922890744757317,
+     0.003967945860804408
+    ],
+    [
+     -0.011060794550688924,
+     0.0004922890744757279,
+     0.0016720933284888086,
+     0.0017260986621650048
+    ],
+    [
+     -0.040733260794930115,
+     0.0039679458608043935,
+     0.0017260986621650037,
+     0.0732791529673668
+    ]
+   ],
+   "n_sites": 177
+  },
+  {
+   "region_code": "E-170701",
+   "region_name": "Middle Columbia (HUC6 170701), split from E",
+   "aep": 0.5,
+   "intercept": -0.6918619652302009,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.69,
+     "maximum": 1658.0
+    },
+    {
+     "code": "ELEV_3DEP",
+     "transform": "identity",
+     "units": "ft",
+     "minimum": 1131.92,
+     "maximum": 5173.86,
+     "scale": 0.001
+    },
+    {
+     "code": "PRECIP_PRISM9120",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 12.2712,
+     "maximum": 98.2931
+    }
+   ],
+   "coefficients": [
+    0.8849216088413795,
+    -0.12499614195787012,
+    1.4847939698770958
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.332711808908584,
+   "avp": 0.1106971477872221,
+   "model_error_variance": 0.10049557118329791,
+   "covariance": [
+    [
+     0.12302311951914398,
+     -0.004488299527922298,
+     -0.004442873652853119,
+     -0.060106301268828356
+    ],
+    [
+     -0.004488299527922282,
+     0.0033140038200669994,
+     -0.00046601091846637977,
+     -0.0003579178011288706
+    ],
+    [
+     -0.0044428736528528655,
+     -0.000466010918466377,
+     0.003006283457787126,
+     -0.002955189040109354
+    ],
+    [
+     -0.06010630126882895,
+     -0.00035791780112886585,
+     -0.002955189040109195,
+     0.04422237811440327
+    ]
+   ],
+   "n_sites": 58
+  },
+  {
+   "region_code": "E-170701",
+   "region_name": "Middle Columbia (HUC6 170701), split from E",
+   "aep": 0.2,
+   "intercept": 0.46620225778491897,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.69,
+     "maximum": 1658.0
+    },
+    {
+     "code": "ELEV_3DEP",
+     "transform": "identity",
+     "units": "ft",
+     "minimum": 1131.92,
+     "maximum": 5173.86,
+     "scale": 0.001
+    },
+    {
+     "code": "PRECIP_PRISM9120",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 12.2712,
+     "maximum": 98.2931
+    }
+   ],
+   "coefficients": [
+    0.820604469695611,
+    -0.18818236204038058,
+    1.1235908352955761
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.2501807993433302,
+   "avp": 0.06259043236006764,
+   "model_error_variance": 0.055056560803490036,
+   "covariance": [
+    [
+     0.09519606956639515,
+     -0.005327763204861225,
+     -0.0036776697181150728,
+     -0.04205757196551896
+    ],
+    [
+     -0.005327763204861202,
+     0.002225684097445061,
+     -0.00013496668407616397,
+     0.0006470774253402485
+    ],
+    [
+     -0.003677669718115023,
+     -0.0001349666840761707,
+     0.0017757147109275849,
+     -0.0013522502571280087
+    ],
+    [
+     -0.042057571965519104,
+     0.0006470774253402755,
+     -0.0013522502571279888,
+     0.027668242153937053
+    ]
+   ],
+   "n_sites": 58
+  },
+  {
+   "region_code": "E-170701",
+   "region_name": "Middle Columbia (HUC6 170701), split from E",
+   "aep": 0.1,
+   "intercept": 1.023072620727997,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.69,
+     "maximum": 1658.0
+    },
+    {
+     "code": "ELEV_3DEP",
+     "transform": "identity",
+     "units": "ft",
+     "minimum": 1131.92,
+     "maximum": 5173.86,
+     "scale": 0.001
+    },
+    {
+     "code": "PRECIP_PRISM9120",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 12.2712,
+     "maximum": 98.2931
+    }
+   ],
+   "coefficients": [
+    0.7919911422243382,
+    -0.2163037593339108,
+    0.9473364088045838
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.23013692438858008,
+   "avp": 0.05296300396703503,
+   "model_error_variance": 0.04503405619421049,
+   "covariance": [
+    [
+     0.10291416639235867,
+     -0.0067893972706772445,
+     -0.00416822693851536,
+     -0.04264266679990405
+    ],
+    [
+     -0.006789397270677262,
+     0.0021604708701848086,
+     -3.975680051472487e-06,
+     0.0012357051724185583
+    ],
+    [
+     -0.004168226938515374,
+     -3.975680051473283e-06,
+     0.0015706360885244623,
+     -0.0008485346364548605
+    ],
+    [
+     -0.04264266679990403,
+     0.0012357051724185511,
+     -0.0008485346364548689,
+     0.02573643241884522
+    ]
+   ],
+   "n_sites": 58
+  },
+  {
+   "region_code": "E-170701",
+   "region_name": "Middle Columbia (HUC6 170701), split from E",
+   "aep": 0.04,
+   "intercept": 1.533941005474965,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.69,
+     "maximum": 1658.0
+    },
+    {
+     "code": "ELEV_3DEP",
+     "transform": "identity",
+     "units": "ft",
+     "minimum": 1131.92,
+     "maximum": 5173.86,
+     "scale": 0.001
+    },
+    {
+     "code": "PRECIP_PRISM9120",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 12.2712,
+     "maximum": 98.2931
+    }
+   ],
+   "coefficients": [
+    0.7674179920177089,
+    -0.2384405046235228,
+    0.7815812701488383
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.23301892617410644,
+   "avp": 0.054297819955333664,
+   "model_error_variance": 0.04403318047497102,
+   "covariance": [
+    [
+     0.13573662017797858,
+     -0.009617674507349249,
+     -0.005696046759513591,
+     -0.05358723922426669
+    ],
+    [
+     -0.009617674507349344,
+     0.002520605287807496,
+     0.00012838969741165517,
+     0.002075077180905792
+    ],
+    [
+     -0.005696046759513641,
+     0.00012838969741165408,
+     0.0017031138335962225,
+     -0.0004623895949457452
+    ],
+    [
+     -0.053587239224266434,
+     0.0020750771809057355,
+     -0.00046238959494577635,
+     0.029765640786473414
+    ]
+   ],
+   "n_sites": 58
+  },
+  {
+   "region_code": "E-170701",
+   "region_name": "Middle Columbia (HUC6 170701), split from E",
+   "aep": 0.02,
+   "intercept": 1.8031114543651712,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.69,
+     "maximum": 1658.0
+    },
+    {
+     "code": "ELEV_3DEP",
+     "transform": "identity",
+     "units": "ft",
+     "minimum": 1131.92,
+     "maximum": 5173.86,
+     "scale": 0.001
+    },
+    {
+     "code": "PRECIP_PRISM9120",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 12.2712,
+     "maximum": 98.2931
+    }
+   ],
+   "coefficients": [
+    0.7547134261187791,
+    -0.24805657668473885,
+    0.6932538841942748
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.24657634549039223,
+   "avp": 0.06079989415539727,
+   "model_error_variance": 0.04780708744109504,
+   "covariance": [
+    [
+     0.1728368897446267,
+     -0.01235948034466757,
+     -0.007342036405140699,
+     -0.0670543594369676
+    ],
+    [
+     -0.012359480344667462,
+     0.003006183237846837,
+     0.00022443410316968783,
+     0.0028062058656510244
+    ],
+    [
+     -0.007342036405140663,
+     0.0002244341031696884,
+     0.001975302627246014,
+     -0.0002451209847245559
+    ],
+    [
+     -0.06705435943696783,
+     0.0028062058656510847,
+     -0.00024512098472453345,
+     0.0358669199776884
+    ]
+   ],
+   "n_sites": 58
+  },
+  {
+   "region_code": "E-170701",
+   "region_name": "Middle Columbia (HUC6 170701), split from E",
+   "aep": 0.01,
+   "intercept": 2.0019006938359083,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.69,
+     "maximum": 1658.0
+    },
+    {
+     "code": "ELEV_3DEP",
+     "transform": "identity",
+     "units": "ft",
+     "minimum": 1131.92,
+     "maximum": 5173.86,
+     "scale": 0.001
+    },
+    {
+     "code": "PRECIP_PRISM9120",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 12.2712,
+     "maximum": 98.2931
+    }
+   ],
+   "coefficients": [
+    0.744989411379725,
+    -0.25391768401295095,
+    0.6285975212879396
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.26444111361248035,
+   "avp": 0.06992910256860875,
+   "model_error_variance": 0.053608734797650104,
+   "covariance": [
+    [
+     0.21768707963568928,
+     -0.015543853919962762,
+     -0.009302813310896862,
+     -0.08366770800617755
+    ],
+    [
+     -0.015543853919962833,
+     0.003622852651300518,
+     0.00032569355662318586,
+     0.0036228659457952328
+    ],
+    [
+     -0.009302813310896767,
+     0.0003256935566231733,
+     0.002340421191005901,
+     -5.035119414276049e-05
+    ],
+    [
+     -0.08366770800617765,
+     0.003622865945795219,
+     -5.035119414272236e-05,
+     0.043710787304675425
+    ]
+   ],
+   "n_sites": 58
+  },
+  {
+   "region_code": "E-170701",
+   "region_name": "Middle Columbia (HUC6 170701), split from E",
+   "aep": 0.005,
+   "intercept": 2.1486965399923634,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.69,
+     "maximum": 1658.0
+    },
+    {
+     "code": "ELEV_3DEP",
+     "transform": "identity",
+     "units": "ft",
+     "minimum": 1131.92,
+     "maximum": 5173.86,
+     "scale": 0.001
+    },
+    {
+     "code": "PRECIP_PRISM9120",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 12.2712,
+     "maximum": 98.2931
+    }
+   ],
+   "coefficients": [
+    0.7372534142572948,
+    -0.25723486006949914,
+    0.5820664070049872
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.2840377787857748,
+   "avp": 0.08067745977755675,
+   "model_error_variance": 0.06057079723054156,
+   "covariance": [
+    [
+     0.268495411228083,
+     -0.01910552367962123,
+     -0.011507426646384987,
+     -0.10263895488550742
+    ],
+    [
+     -0.019105523679621043,
+     0.0043425109935214135,
+     0.00043482083103106865,
+     0.00451685585715105
+    ],
+    [
+     -0.011507426646384905,
+     0.00043482083103106367,
+     0.0027712655650920844,
+     0.0001353051979878582
+    ],
+    [
+     -0.1026389548855078,
+     0.004516855857151163,
+     0.00013530519798789686,
+     0.05281778520041361
+    ]
+   ],
+   "n_sites": 58
+  },
+  {
+   "region_code": "E-170701",
+   "region_name": "Middle Columbia (HUC6 170701), split from E",
+   "aep": 0.002,
+   "intercept": 2.2829776910873663,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.69,
+     "maximum": 1658.0
+    },
+    {
+     "code": "ELEV_3DEP",
+     "transform": "identity",
+     "units": "ft",
+     "minimum": 1131.92,
+     "maximum": 5173.86,
+     "scale": 0.001
+    },
+    {
+     "code": "PRECIP_PRISM9120",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 12.2712,
+     "maximum": 98.2931
+    }
+   ],
+   "coefficients": [
+    0.7291899710967927,
+    -0.2588635657421227,
+    0.5418603217917686
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.31035344585048596,
+   "avp": 0.09631926135127053,
+   "model_error_variance": 0.07068300429134673,
+   "covariance": [
+    [
+     0.3424569875426419,
+     -0.02428835850637133,
+     -0.01470022250659306,
+     -0.1303494696708431
+    ],
+    [
+     -0.024288358506371902,
+     0.005418313562431281,
+     0.0005918979613543816,
+     0.005797535145276453
+    ],
+    [
+     -0.014700222506593242,
+     0.0005918979613543846,
+     0.0034121721204048118,
+     0.00037391599047472725
+    ],
+    [
+     -0.130349469670842,
+     0.005797535145276124,
+     0.0003739159904746299,
+     0.06623654635656279
+    ]
+   ],
+   "n_sites": 58
+  },
+  {
+   "region_code": "W",
+   "region_name": "West of the Cascade crest (HUC4 1708, 1709, 1710; HUC6 180101), less split HUC6s",
+   "aep": 0.5,
+   "intercept": -0.030923065451138466,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.302507,
+     "maximum": 673.0
+    },
+    {
+     "code": "ELEV_3DEP",
+     "transform": "identity",
+     "units": "ft",
+     "minimum": 381.029,
+     "maximum": 2718.53,
+     "scale": 0.001
+    },
+    {
+     "code": "PRECIP_PRISM9120",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 61.7639,
+     "maximum": 154.566
+    }
+   ],
+   "coefficients": [
+    0.976741700437465,
+    0.0854698804682005,
+    0.9398611119111339
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.11952123593627018,
+   "avp": 0.014285325839733562,
+   "model_error_variance": 0.012734881385150647,
+   "covariance": [
+    [
+     0.12324229001218899,
+     -0.001164633540966405,
+     0.001063836900787777,
+     -0.06136588066408546
+    ],
+    [
+     -0.0011646335409664353,
+     0.00039779917965177355,
+     -0.00018122318882121699,
+     0.0004032919852735866
+    ],
+    [
+     0.001063836900787732,
+     -0.00018122318882121596,
+     0.0010444096124219405,
+     -0.0010364558514096584
+    ],
+    [
+     -0.061365880664085395,
+     0.00040329198527357064,
+     -0.00103645585140968,
+     0.031149688367438914
+    ]
+   ],
+   "n_sites": 53
+  },
+  {
+   "region_code": "W",
+   "region_name": "West of the Cascade crest (HUC4 1708, 1709, 1710; HUC6 180101), less split HUC6s",
+   "aep": 0.2,
+   "intercept": 0.30319668780904746,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.302507,
+     "maximum": 673.0
+    },
+    {
+     "code": "ELEV_3DEP",
+     "transform": "identity",
+     "units": "ft",
+     "minimum": 381.029,
+     "maximum": 2718.53,
+     "scale": 0.001
+    },
+    {
+     "code": "PRECIP_PRISM9120",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 61.7639,
+     "maximum": 154.566
+    }
+   ],
+   "coefficients": [
+    0.9651095176215292,
+    0.11614802812502802,
+    0.8348724066383257
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.1249158109912945,
+   "avp": 0.015603959835612814,
+   "model_error_variance": 0.013853612621089447,
+   "covariance": [
+    [
+     0.13600656384655005,
+     -0.001314448610353961,
+     0.001272377350470139,
+     -0.06770245523068408
+    ],
+    [
+     -0.0013144486103540808,
+     0.00044147743917332175,
+     -0.00020236358349931424,
+     0.00045223777795041353
+    ],
+    [
+     0.0012723773504701432,
+     -0.000202363583499312,
+     0.0011685451278400827,
+     -0.0012045336021524028
+    ],
+    [
+     -0.06770245523068395,
+     0.00045223777795035157,
+     -0.001204533602152398,
+     0.034382727365287837
+    ]
+   ],
+   "n_sites": 53
+  },
+  {
+   "region_code": "W",
+   "region_name": "West of the Cascade crest (HUC4 1708, 1709, 1710; HUC6 180101), less split HUC6s",
+   "aep": 0.1,
+   "intercept": 0.4722380074680775,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.302507,
+     "maximum": 673.0
+    },
+    {
+     "code": "ELEV_3DEP",
+     "transform": "identity",
+     "units": "ft",
+     "minimum": 381.029,
+     "maximum": 2718.53,
+     "scale": 0.001
+    },
+    {
+     "code": "PRECIP_PRISM9120",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 61.7639,
+     "maximum": 154.566
+    }
+   ],
+   "coefficients": [
+    0.9600339234258191,
+    0.130054607061817,
+    0.7833918206643287
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.1312387317971495,
+   "avp": 0.017223604723724143,
+   "model_error_variance": 0.015134965667422135,
+   "covariance": [
+    [
+     0.1523218867062621,
+     -0.0015199843595599491,
+     0.0015588981045931859,
+     -0.07577589973315839
+    ],
+    [
+     -0.0015199843595599665,
+     0.0005019895537264856,
+     -0.0002316865926554409,
+     0.0005215903416578535
+    ],
+    [
+     0.0015588981045933288,
+     -0.00023168659265544318,
+     0.0013639792606572267,
+     -0.0014444822256143484
+    ],
+    [
+     -0.07577589973315851,
+     0.0005215903416578467,
+     -0.0014444822256142792,
+     0.03851131208797209
+    ]
+   ],
+   "n_sites": 53
+  },
+  {
+   "region_code": "W",
+   "region_name": "West of the Cascade crest (HUC4 1708, 1709, 1710; HUC6 180101), less split HUC6s",
+   "aep": 0.04,
+   "intercept": 0.6490077407403402,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.302507,
+     "maximum": 673.0
+    },
+    {
+     "code": "ELEV_3DEP",
+     "transform": "identity",
+     "units": "ft",
+     "minimum": 381.029,
+     "maximum": 2718.53,
+     "scale": 0.001
+    },
+    {
+     "code": "PRECIP_PRISM9120",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 61.7639,
+     "maximum": 154.566
+    }
+   ],
+   "coefficients": [
+    0.955115880042655,
+    0.14185987006343412,
+    0.7326239222687521
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.13979828932189087,
+   "avp": 0.019543561697327103,
+   "model_error_variance": 0.0167830428756086,
+   "covariance": [
+    [
+     0.17703990265133793,
+     -0.0018042475464373068,
+     0.002084428890052429,
+     -0.08803422323274969
+    ],
+    [
+     -0.0018042475464373235,
+     0.0005963957581659047,
+     -0.00027713365878158136,
+     0.000617220225209965
+    ],
+    [
+     0.0020844288900524863,
+     -0.00027713365878158104,
+     0.0017258925426764042,
+     -0.0018811571263246244
+    ],
+    [
+     -0.0880342232327497,
+     0.0006172202252099563,
+     -0.001881157126324595,
+     0.04483112601896052
+    ]
+   ],
+   "n_sites": 53
+  },
+  {
+   "region_code": "W",
+   "region_name": "West of the Cascade crest (HUC4 1708, 1709, 1710; HUC6 180101), less split HUC6s",
+   "aep": 0.02,
+   "intercept": 0.7619943848459435,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.302507,
+     "maximum": 673.0
+    },
+    {
+     "code": "ELEV_3DEP",
+     "transform": "identity",
+     "units": "ft",
+     "minimum": 381.029,
+     "maximum": 2718.53,
+     "scale": 0.001
+    },
+    {
+     "code": "PRECIP_PRISM9120",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 61.7639,
+     "maximum": 154.566
+    }
+   ],
+   "coefficients": [
+    0.9520145218997147,
+    0.14809471169562816,
+    0.7018421446392703
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.1461736910796033,
+   "avp": 0.021366747963835298,
+   "model_error_variance": 0.01793725144859841,
+   "covariance": [
+    [
+     0.19760705137025153,
+     -0.0020169995427849483,
+     0.0025713547949459212,
+     -0.09825462968414678
+    ],
+    [
+     -0.0020169995427850077,
+     0.0006763715370485711,
+     -0.00031287819888264196,
+     0.0006875680817258602
+    ],
+    [
+     0.0025713547949458384,
+     -0.00031287819888264044,
+     0.002067455182254674,
+     -0.0022861018341248703
+    ],
+    [
+     -0.09825462968414662,
+     0.0006875680817258291,
+     -0.0022861018341249085,
+     0.050134432991226156
+    ]
+   ],
+   "n_sites": 53
+  },
+  {
+   "region_code": "W",
+   "region_name": "West of the Cascade crest (HUC4 1708, 1709, 1710; HUC6 180101), less split HUC6s",
+   "aep": 0.01,
+   "intercept": 0.8631838732594048,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.302507,
+     "maximum": 673.0
+    },
+    {
+     "code": "ELEV_3DEP",
+     "transform": "identity",
+     "units": "ft",
+     "minimum": 381.029,
+     "maximum": 2718.53,
+     "scale": 0.001
+    },
+    {
+     "code": "PRECIP_PRISM9120",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 61.7639,
+     "maximum": 154.566
+    }
+   ],
+   "coefficients": [
+    0.949152912491291,
+    0.15322637201986455,
+    0.6749554077535862
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.15247414038815724,
+   "avp": 0.023248363487107484,
+   "model_error_variance": 0.019021058654708947,
+   "covariance": [
+    [
+     0.21978856497926413,
+     -0.002222691019222921,
+     0.0031181444666622234,
+     -0.10929634192694385
+    ],
+    [
+     -0.0022226910192229537,
+     0.0007630689497786178,
+     -0.00034774428091307956,
+     0.0007536098192896569
+    ],
+    [
+     0.0031181444666620725,
+     -0.00034774428091307886,
+     0.0024601130607326788,
+     -0.0027433922275034955
+    ],
+    [
+     -0.10929634192694364,
+     0.0007536098192896397,
+     -0.0027433922275035692,
+     0.055887558607146975
+    ]
+   ],
+   "n_sites": 53
+  },
+  {
+   "region_code": "W",
+   "region_name": "West of the Cascade crest (HUC4 1708, 1709, 1710; HUC6 180101), less split HUC6s",
+   "aep": 0.005,
+   "intercept": 0.9555870431784335,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.302507,
+     "maximum": 673.0
+    },
+    {
+     "code": "ELEV_3DEP",
+     "transform": "identity",
+     "units": "ft",
+     "minimum": 381.029,
+     "maximum": 2718.53,
+     "scale": 0.001
+    },
+    {
+     "code": "PRECIP_PRISM9120",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 61.7639,
+     "maximum": 154.566
+    }
+   ],
+   "coefficients": [
+    0.9463950492349932,
+    0.15788974620995197,
+    0.6505158267009037
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.1587384520780835,
+   "avp": 0.02519789616814601,
+   "model_error_variance": 0.020053820506942006,
+   "covariance": [
+    [
+     0.24367496193804528,
+     -0.0024184026835219995,
+     0.0037123494834626577,
+     -0.12120709116582704
+    ],
+    [
+     -0.002418402683522021,
+     0.0008562479321834014,
+     -0.00038061818514151735,
+     0.0008137172355240209
+    ],
+    [
+     0.0037123494834624456,
+     -0.0003806181851415148,
+     0.0028984253630970095,
+     -0.003244549117087702
+    ],
+    [
+     -0.1212070911658269,
+     0.0008137172355240085,
+     -0.0032445491170878054,
+     0.06211224362181842
+    ]
+   ],
+   "n_sites": 53
+  },
+  {
+   "region_code": "W",
+   "region_name": "West of the Cascade crest (HUC4 1708, 1709, 1710; HUC6 180101), less split HUC6s",
+   "aep": 0.002,
+   "intercept": 1.0673237990529731,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.302507,
+     "maximum": 673.0
+    },
+    {
+     "code": "ELEV_3DEP",
+     "transform": "identity",
+     "units": "ft",
+     "minimum": 381.029,
+     "maximum": 2718.53,
+     "scale": 0.001
+    },
+    {
+     "code": "PRECIP_PRISM9120",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 61.7639,
+     "maximum": 154.566
+    }
+   ],
+   "coefficients": [
+    0.942788875042057,
+    0.1638968964126802,
+    0.6205145521409262
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.16700285889199976,
+   "avp": 0.02788995487810118,
+   "model_error_variance": 0.021368662874927377,
+   "covariance": [
+    [
+     0.2779890080461366,
+     -0.0026584972958675194,
+     0.004554528797564748,
+     -0.13835146295929207
+    ],
+    [
+     -0.002658497295867587,
+     0.0009891487445276494,
+     -0.0004198750382818971,
+     0.0008821159446640895
+    ],
+    [
+     0.004554528797564728,
+     -0.0004198750382818959,
+     0.0035406375450981933,
+     -0.00396384424951108
+    ],
+    [
+     -0.138351462959292,
+     0.0008821159446640551,
+     -0.003963844249511089,
+     0.07109509275840571
+    ]
+   ],
+   "n_sites": 53
+  },
+  {
+   "region_code": "W-170800",
+   "region_name": "Lower Columbia (HUC6 170800), split from W",
+   "aep": 0.5,
+   "intercept": 0.8818878052199876,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.4,
+     "maximum": 2229.0
+    },
+    {
+     "code": "BSLOPD_3DEP",
+     "transform": "log10",
+     "units": "degrees",
+     "minimum": 1.66811,
+     "maximum": 25.6744
+    }
+   ],
+   "coefficients": [
+    0.811290377927371,
+    1.0171762464563239
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.21608554502029642,
+   "avp": 0.04669296276671855,
+   "model_error_variance": 0.043610485218534674,
+   "covariance": [
+    [
+     0.02884466583310237,
+     0.0009775380873189743,
+     -0.025330333563381133
+    ],
+    [
+     0.0009775380873189843,
+     0.0014677933499597463,
+     -0.002625062280937165
+    ],
+    [
+     -0.02533033356338115,
+     -0.0026250622809371573,
+     0.02538130814831785
+    ]
+   ],
+   "n_sites": 52
+  },
+  {
+   "region_code": "W-170800",
+   "region_name": "Lower Columbia (HUC6 170800), split from W",
+   "aep": 0.2,
+   "intercept": 1.0847115600466537,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.4,
+     "maximum": 2229.0
+    },
+    {
+     "code": "BSLOPD_3DEP",
+     "transform": "log10",
+     "units": "degrees",
+     "minimum": 1.66811,
+     "maximum": 25.6744
+    }
+   ],
+   "coefficients": [
+    0.8161007115324596,
+    0.9746775896253169
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.2175550450121326,
+   "avp": 0.047330197610231044,
+   "model_error_variance": 0.04409523060505983,
+   "covariance": [
+    [
+     0.029889806717920846,
+     0.0009527315705963122,
+     -0.026030067266153763
+    ],
+    [
+     0.0009527315705963319,
+     0.0014965804898231104,
+     -0.0026457832780123194
+    ],
+    [
+     -0.026030067266153794,
+     -0.002645783278012303,
+     0.025947264992560965
+    ]
+   ],
+   "n_sites": 52
+  },
+  {
+   "region_code": "W-170800",
+   "region_name": "Lower Columbia (HUC6 170800), split from W",
+   "aep": 0.1,
+   "intercept": 1.197881796069845,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.4,
+     "maximum": 2229.0
+    },
+    {
+     "code": "BSLOPD_3DEP",
+     "transform": "log10",
+     "units": "degrees",
+     "minimum": 1.66811,
+     "maximum": 25.6744
+    }
+   ],
+   "coefficients": [
+    0.8186529278772994,
+    0.9470907588781348
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.2182288721267784,
+   "avp": 0.04762384062972581,
+   "model_error_variance": 0.04414833312133768,
+   "covariance": [
+    [
+     0.030975456789171858,
+     0.0009161214147798443,
+     -0.02666320685757511
+    ],
+    [
+     0.000916121414779839,
+     0.0015218439204563057,
+     -0.002649520057415635
+    ],
+    [
+     -0.0266632068575751,
+     -0.0026495200574156393,
+     0.026424903229733985
+    ]
+   ],
+   "n_sites": 52
+  },
+  {
+   "region_code": "W-170800",
+   "region_name": "Lower Columbia (HUC6 170800), split from W",
+   "aep": 0.04,
+   "intercept": 1.3252612705609361,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.4,
+     "maximum": 2229.0
+    },
+    {
+     "code": "BSLOPD_3DEP",
+     "transform": "log10",
+     "units": "degrees",
+     "minimum": 1.66811,
+     "maximum": 25.6744
+    }
+   ],
+   "coefficients": [
+    0.8217171749703154,
+    0.9112387511652689
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.21861335398274287,
+   "avp": 0.04779179853958404,
+   "model_error_variance": 0.04380630021917269,
+   "covariance": [
+    [
+     0.03266688887771542,
+     0.0008691748592692531,
+     -0.02756457607338322
+    ],
+    [
+     0.0008691748592692601,
+     0.0015604251628237396,
+     -0.002650237161329945
+    ],
+    [
+     -0.027564576073383223,
+     -0.002650237161329939,
+     0.027094860331988557
+    ]
+   ],
+   "n_sites": 52
+  },
+  {
+   "region_code": "W-170800",
+   "region_name": "Lower Columbia (HUC6 170800), split from W",
+   "aep": 0.02,
+   "intercept": 1.410586232915847,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.4,
+     "maximum": 2229.0
+    },
+    {
+     "code": "BSLOPD_3DEP",
+     "transform": "log10",
+     "units": "degrees",
+     "minimum": 1.66811,
+     "maximum": 25.6744
+    }
+   ],
+   "coefficients": [
+    0.8237820316374813,
+    0.8849131152274022
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.21870532099438877,
+   "avp": 0.04783201743125863,
+   "model_error_variance": 0.04332267292579792,
+   "covariance": [
+    [
+     0.03408132621329871,
+     0.000845531231304318,
+     -0.028282750143273142
+    ],
+    [
+     0.0008455312313043225,
+     0.0015955202564362017,
+     -0.002654536140463764
+    ],
+    [
+     -0.028282750143273142,
+     -0.0026545361404637594,
+     0.02764007910570504
+    ]
+   ],
+   "n_sites": 52
+  },
+  {
+   "region_code": "W-170800",
+   "region_name": "Lower Columbia (HUC6 170800), split from W",
+   "aep": 0.01,
+   "intercept": 1.4881419169104908,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.4,
+     "maximum": 2229.0
+    },
+    {
+     "code": "BSLOPD_3DEP",
+     "transform": "log10",
+     "units": "degrees",
+     "minimum": 1.66811,
+     "maximum": 25.6744
+    }
+   ],
+   "coefficients": [
+    0.8255134604213262,
+    0.8601896517316383
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.21877408152694977,
+   "avp": 0.04786209874796046,
+   "model_error_variance": 0.04272787041898559,
+   "covariance": [
+    [
+     0.035569439064668744,
+     0.0008388868060078234,
+     -0.029033125391964336
+    ],
+    [
+     0.0008388868060078185,
+     0.0016371831396692813,
+     -0.002667095779999725
+    ],
+    [
+     -0.02903312539196433,
+     -0.0026670957799997284,
+     0.02823431510144735
+    ]
+   ],
+   "n_sites": 52
+  },
+  {
+   "region_code": "W-170800",
+   "region_name": "Lower Columbia (HUC6 170800), split from W",
+   "aep": 0.005,
+   "intercept": 1.558735228986563,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.4,
+     "maximum": 2229.0
+    },
+    {
+     "code": "BSLOPD_3DEP",
+     "transform": "log10",
+     "units": "degrees",
+     "minimum": 1.66811,
+     "maximum": 25.6744
+    }
+   ],
+   "coefficients": [
+    0.8268367036337139,
+    0.837628704701982
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.2188784641215632,
+   "avp": 0.04790778205621443,
+   "model_error_variance": 0.04207047130304935,
+   "covariance": [
+    [
+     0.03710033155658066,
+     0.0008522277429877576,
+     -0.029820324996312656
+    ],
+    [
+     0.0008522277429877511,
+     0.0016858754647892053,
+     -0.0026903517973222773
+    ],
+    [
+     -0.029820324996312642,
+     -0.0026903517973222825,
+     0.02889058334466543
+    ]
+   ],
+   "n_sites": 52
+  },
+  {
+   "region_code": "W-170800",
+   "region_name": "Lower Columbia (HUC6 170800), split from W",
+   "aep": 0.002,
+   "intercept": 1.6425376881857994,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.4,
+     "maximum": 2229.0
+    },
+    {
+     "code": "BSLOPD_3DEP",
+     "transform": "log10",
+     "units": "degrees",
+     "minimum": 1.66811,
+     "maximum": 25.6744
+    }
+   ],
+   "coefficients": [
+    0.8279136334245085,
+    0.8113839850764201
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.21904032075827312,
+   "avp": 0.04797866211788718,
+   "model_error_variance": 0.04113646178326298,
+   "covariance": [
+    [
+     0.039142349295731994,
+     0.000900767780826358,
+     -0.03092146063372984
+    ],
+    [
+     0.0009007677808263411,
+     0.001760360674828469,
+     -0.0027381231009092092
+    ],
+    [
+     -0.030921460633729823,
+     -0.0027381231009092227,
+     0.029864641079651897
+    ]
+   ],
+   "n_sites": 52
+  },
+  {
+   "region_code": "W-170900",
+   "region_name": "Willamette (HUC6 170900), split from W",
+   "aep": 0.5,
+   "intercept": -4.102585775269295,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.21,
+     "maximum": 7236.42
+    },
+    {
+     "code": "BSLOPD_3DEP",
+     "transform": "log10",
+     "units": "degrees",
+     "minimum": 1.78822,
+     "maximum": 29.6157
+    },
+    {
+     "code": "JANMAXT_PRISM9120",
+     "transform": "identity",
+     "units": "degF",
+     "minimum": 34.8244,
+     "maximum": 47.6981
+    },
+    {
+     "code": "PRECIP_PRISM9120",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 43.6862,
+     "maximum": 105.297
+    }
+   ],
+   "coefficients": [
+    0.9307742046089006,
+    0.5716067997145513,
+    0.05991673807130743,
+    1.4013800500712899
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.1613060036259863,
+   "avp": 0.026019626805786702,
+   "model_error_variance": 0.02453564809876321,
+   "covariance": [
+    [
+     0.3546684073167847,
+     0.00039383934885261617,
+     0.016300189610945173,
+     -0.003306719455069841,
+     -0.1246326342555822
+    ],
+    [
+     0.00039383934885268355,
+     0.00029010278971661836,
+     -9.26462866753947e-05,
+     -8.137972828373214e-06,
+     -0.0002446065464742907
+    ],
+    [
+     0.016300189610944683,
+     -9.264628667539946e-05,
+     0.008424090922039175,
+     -4.248232639898013e-05,
+     -0.012992680064442014
+    ],
+    [
+     -0.003306719455069911,
+     -8.137972828372785e-06,
+     -4.248232639898843e-05,
+     4.3948691649689006e-05,
+     0.0007983897362230275
+    ],
+    [
+     -0.12463263425558031,
+     -0.00024460654647426164,
+     -0.01299268006444209,
+     0.0007983897362229846,
+     0.05695311452572131
+    ]
+   ],
+   "n_sites": 130
+  },
+  {
+   "region_code": "W-170900",
+   "region_name": "Willamette (HUC6 170900), split from W",
+   "aep": 0.2,
+   "intercept": -3.6854538938430803,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.21,
+     "maximum": 7236.42
+    },
+    {
+     "code": "BSLOPD_3DEP",
+     "transform": "log10",
+     "units": "degrees",
+     "minimum": 1.78822,
+     "maximum": 29.6157
+    },
+    {
+     "code": "JANMAXT_PRISM9120",
+     "transform": "identity",
+     "units": "degF",
+     "minimum": 34.8244,
+     "maximum": 47.6981
+    },
+    {
+     "code": "PRECIP_PRISM9120",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 43.6862,
+     "maximum": 105.297
+    }
+   ],
+   "coefficients": [
+    0.9270415421544893,
+    0.5737717366242867,
+    0.058417796474319064,
+    1.3033215262104507
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.16106807543743673,
+   "avp": 0.025942924925119806,
+   "model_error_variance": 0.024395259686052242,
+   "covariance": [
+    [
+     0.3578066464573506,
+     0.0004409826182654163,
+     0.016438374999810716,
+     -0.003336317036045437,
+     -0.12576472200047553
+    ],
+    [
+     0.0004409826182656114,
+     0.00030151572457836533,
+     -8.335710054397126e-05,
+     -9.059515722790364e-06,
+     -0.000270697442480785
+    ],
+    [
+     0.016438374999806535,
+     -8.335710054398317e-05,
+     0.008487564440756601,
+     -4.4168950013380925e-05,
+     -0.013089633134354172
+    ],
+    [
+     -0.0033363170360455967,
+     -9.059515722788477e-06,
+     -4.4168950013427654e-05,
+     4.438709944676525e-05,
+     0.0008065416860589586
+    ],
+    [
+     -0.12576472200046937,
+     -0.0002706974424807162,
+     -0.013089633134355343,
+     0.0008065416860588453,
+     0.05747362965668965
+    ]
+   ],
+   "n_sites": 130
+  },
+  {
+   "region_code": "W-170900",
+   "region_name": "Willamette (HUC6 170900), split from W",
+   "aep": 0.1,
+   "intercept": -3.48265039345264,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.21,
+     "maximum": 7236.42
+    },
+    {
+     "code": "BSLOPD_3DEP",
+     "transform": "log10",
+     "units": "degrees",
+     "minimum": 1.78822,
+     "maximum": 29.6157
+    },
+    {
+     "code": "JANMAXT_PRISM9120",
+     "transform": "identity",
+     "units": "degF",
+     "minimum": 34.8244,
+     "maximum": 47.6981
+    },
+    {
+     "code": "PRECIP_PRISM9120",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 43.6862,
+     "maximum": 105.297
+    }
+   ],
+   "coefficients": [
+    0.9249301630935078,
+    0.5758114361206949,
+    0.05773551864493567,
+    1.2569345177446705
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.16454155724460368,
+   "avp": 0.02707392406047919,
+   "model_error_variance": 0.025299394691657314,
+   "covariance": [
+    [
+     0.38210516378257176,
+     0.0005505729192247813,
+     0.017401049464182354,
+     -0.003574490451839545,
+     -0.13393427256126417
+    ],
+    [
+     0.0005505729192246723,
+     0.00033138703627286843,
+     -8.481883819096042e-05,
+     -1.1295890844279074e-05,
+     -0.00030638003291482915
+    ],
+    [
+     0.017401049464177466,
+     -8.481883819096097e-05,
+     0.00899894780135941,
+     -4.708092043240311e-05,
+     -0.013866844426156717
+    ],
+    [
+     -0.0035744904518398477,
+     -1.1295890844280564e-05,
+     -4.708092043246452e-05,
+     4.771496484945892e-05,
+     0.0008620019528722674
+    ],
+    [
+     -0.13393427256125395,
+     -0.0003063800329148528,
+     -0.013866844426157926,
+     0.0008620019528720645,
+     0.061094966389267175
+    ]
+   ],
+   "n_sites": 130
+  },
+  {
+   "region_code": "W-170900",
+   "region_name": "Willamette (HUC6 170900), split from W",
+   "aep": 0.04,
+   "intercept": -3.285534114303853,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.21,
+     "maximum": 7236.42
+    },
+    {
+     "code": "BSLOPD_3DEP",
+     "transform": "log10",
+     "units": "degrees",
+     "minimum": 1.78822,
+     "maximum": 29.6157
+    },
+    {
+     "code": "JANMAXT_PRISM9120",
+     "transform": "identity",
+     "units": "degF",
+     "minimum": 34.8244,
+     "maximum": 47.6981
+    },
+    {
+     "code": "PRECIP_PRISM9120",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 43.6862,
+     "maximum": 105.297
+    }
+   ],
+   "coefficients": [
+    0.9222738198663069,
+    0.5802017210864696,
+    0.05725659369766697,
+    1.2095051387102005
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.17063438473604908,
+   "avp": 0.029116093254250023,
+   "model_error_variance": 0.02683015465114595,
+   "covariance": [
+    [
+     0.4298254138462391,
+     0.0008142685558118756,
+     0.019148826729728986,
+     -0.0040557016371769216,
+     -0.14962085943684467
+    ],
+    [
+     0.0008142685558118995,
+     0.0003854642644779355,
+     -9.565589103982561e-05,
+     -1.603663349651634e-05,
+     -0.0003722612664665779
+    ],
+    [
+     0.019148826729729156,
+     -9.56558910398235e-05,
+     0.009952630891234738,
+     -5.105106280824447e-05,
+     -0.015317998083551203
+    ],
+    [
+     -0.004055701637176835,
+     -1.6036633496515865e-05,
+     -5.10510628082345e-05,
+     5.451883977352331e-05,
+     0.0009708228011291512
+    ],
+    [
+     -0.14962085943684686,
+     -0.00037226126646657773,
+     -0.015317998083551334,
+     0.000970822801129205,
+     0.06798278834347549
+    ]
+   ],
+   "n_sites": 130
+  },
+  {
+   "region_code": "W-170900",
+   "region_name": "Willamette (HUC6 170900), split from W",
+   "aep": 0.02,
+   "intercept": -3.175556682846971,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.21,
+     "maximum": 7236.42
+    },
+    {
+     "code": "BSLOPD_3DEP",
+     "transform": "log10",
+     "units": "degrees",
+     "minimum": 1.78822,
+     "maximum": 29.6157
+    },
+    {
+     "code": "JANMAXT_PRISM9120",
+     "transform": "identity",
+     "units": "degF",
+     "minimum": 34.8244,
+     "maximum": 47.6981
+    },
+    {
+     "code": "PRECIP_PRISM9120",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 43.6862,
+     "maximum": 105.297
+    }
+   ],
+   "coefficients": [
+    0.920109774690948,
+    0.5845005027959763,
+    0.05717405847407761,
+    1.180962360137424
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.17564389459837346,
+   "avp": 0.030850777709684522,
+   "model_error_variance": 0.02806020483636481,
+   "covariance": [
+    [
+     0.47444349418000664,
+     0.0010708392722008128,
+     0.020729330181778582,
+     -0.004512169873596008,
+     -0.1640993433236617
+    ],
+    [
+     0.0010708392722008904,
+     0.00043401647586699204,
+     -0.00010890226777753388,
+     -2.04080906670949e-05,
+     -0.0004269380604113107
+    ],
+    [
+     0.0207293301817803,
+     -0.00010890226777753582,
+     0.010811653000660513,
+     -5.4192786736122835e-05,
+     -0.016640823985548506
+    ],
+    [
+     -0.00451216987359594,
+     -2.0408090667094084e-05,
+     -5.4192786736100724e-05,
+     6.1022315437175904e-05,
+     0.00107175179362244
+    ],
+    [
+     -0.16409934332366438,
+     -0.0004269380604112868,
+     -0.01664082398554809,
+     0.0010717517936224908,
+     0.07432353568881253
+    ]
+   ],
+   "n_sites": 130
+  },
+  {
+   "region_code": "W-170900",
+   "region_name": "Willamette (HUC6 170900), split from W",
+   "aep": 0.01,
+   "intercept": -3.0912702994487065,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.21,
+     "maximum": 7236.42
+    },
+    {
+     "code": "BSLOPD_3DEP",
+     "transform": "log10",
+     "units": "degrees",
+     "minimum": 1.78822,
+     "maximum": 29.6157
+    },
+    {
+     "code": "JANMAXT_PRISM9120",
+     "transform": "identity",
+     "units": "degF",
+     "minimum": 34.8244,
+     "maximum": 47.6981
+    },
+    {
+     "code": "PRECIP_PRISM9120",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 43.6862,
+     "maximum": 105.297
+    }
+   ],
+   "coefficients": [
+    0.9176655839417979,
+    0.5894494287173941,
+    0.05728725336175381,
+    1.1572400651462798
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.1806840891353494,
+   "avp": 0.032646740066670885,
+   "model_error_variance": 0.02928960114168122,
+   "covariance": [
+    [
+     0.5248343770694526,
+     0.001355777433376649,
+     0.02251582446698028,
+     -0.005031182858023798,
+     -0.18035588249954976
+    ],
+    [
+     0.0013557774333765955,
+     0.00048769675759538977,
+     -0.00012570934595361374,
+     -2.514573054494254e-05,
+     -0.0004812783751984005
+    ],
+    [
+     0.022515824466979455,
+     -0.00012570934595361276,
+     0.011758110254703372,
+     -5.777832221239539e-05,
+     -0.018122556407604483
+    ],
+    [
+     -0.005031182858023768,
+     -2.5145730544942876e-05,
+     -5.777832221240161e-05,
+     6.845270122912915e-05,
+     0.0011848336283466123
+    ],
+    [
+     -0.18035588249954992,
+     -0.0004812783751984222,
+     -0.018122556407604785,
+     0.0011848336283466249,
+     0.08144464237666246
+    ]
+   ],
+   "n_sites": 130
+  },
+  {
+   "region_code": "W-170900",
+   "region_name": "Willamette (HUC6 170900), split from W",
+   "aep": 0.005,
+   "intercept": -3.0267018509524943,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.21,
+     "maximum": 7236.42
+    },
+    {
+     "code": "BSLOPD_3DEP",
+     "transform": "log10",
+     "units": "degrees",
+     "minimum": 1.78822,
+     "maximum": 29.6157
+    },
+    {
+     "code": "JANMAXT_PRISM9120",
+     "transform": "identity",
+     "units": "degF",
+     "minimum": 34.8244,
+     "maximum": 47.6981
+    },
+    {
+     "code": "PRECIP_PRISM9120",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 43.6862,
+     "maximum": 105.297
+    }
+   ],
+   "coefficients": [
+    0.9148818498453716,
+    0.5949964951410245,
+    0.05754993352886922,
+    1.1371770313706142
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.18560880985676873,
+   "avp": 0.03445063029644613,
+   "model_error_variance": 0.030492997920297176,
+   "covariance": [
+    [
+     0.5801996232481534,
+     0.0016596398123968391,
+     0.024511050586901232,
+     -0.005603857000695901,
+     -0.1981720870215903
+    ],
+    [
+     0.001659639812396749,
+     0.000545709812629108,
+     -0.00014555429132469632,
+     -3.0121500662711388e-05,
+     -0.0005344578900971117
+    ],
+    [
+     0.024511050586904323,
+     -0.00014555429132467686,
+     0.012776524489215228,
+     -6.211995464036321e-05,
+     -0.019746770210045506
+    ],
+    [
+     -0.005603857000695691,
+     -3.0121500662711273e-05,
+     -6.211995464032379e-05,
+     7.668176606696856e-05,
+     0.001308396651647962
+    ],
+    [
+     -0.198172087021597,
+     -0.0005344578900971746,
+     -0.01974677021004475,
+     0.001308396651648099,
+     0.08925464207124947
+    ]
+   ],
+   "n_sites": 130
+  },
+  {
+   "region_code": "W-170900",
+   "region_name": "Willamette (HUC6 170900), split from W",
+   "aep": 0.002,
+   "intercept": -2.963322205283575,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.21,
+     "maximum": 7236.42
+    },
+    {
+     "code": "BSLOPD_3DEP",
+     "transform": "log10",
+     "units": "degrees",
+     "minimum": 1.78822,
+     "maximum": 29.6157
+    },
+    {
+     "code": "JANMAXT_PRISM9120",
+     "transform": "identity",
+     "units": "degF",
+     "minimum": 34.8244,
+     "maximum": 47.6981
+    },
+    {
+     "code": "PRECIP_PRISM9120",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 43.6862,
+     "maximum": 105.297
+    }
+   ],
+   "coefficients": [
+    0.9106682025964962,
+    0.6032574230032781,
+    0.05805489200879276,
+    1.1146022194378742
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.191822545150041,
+   "avp": 0.03679588882783952,
+   "model_error_variance": 0.03202358345142964,
+   "covariance": [
+    [
+     0.6602394603074644,
+     0.0020818954515861706,
+     0.02747822955406651,
+     -0.006434409033559305,
+     -0.22392383566616245
+    ],
+    [
+     0.0020818954515862574,
+     0.0006280412536534423,
+     -0.00017554026383670023,
+     -3.6961274874323505e-05,
+     -0.0006035920450036073
+    ],
+    [
+     0.027478229554066053,
+     -0.00017554026383670532,
+     0.014217421573503178,
+     -6.94711377991682e-05,
+     -0.022094932057340845
+    ],
+    [
+     -0.006434409033559293,
+     -3.696127487432255e-05,
+     -6.94711377991729e-05,
+     8.865312886184634e-05,
+     0.001486599161636158
+    ],
+    [
+     -0.22392383566616253,
+     -0.0006035920450035801,
+     -0.022094932057340977,
+     0.0014865991616361627,
+     0.10054961554372835
+    ]
+   ],
+   "n_sites": 130
+  },
+  {
+   "region_code": "W-171003",
+   "region_name": "Southern Oregon Coastal (HUC6 171003), split from W",
+   "aep": 0.5,
+   "intercept": -3.8918964231987827,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.75,
+     "maximum": 3938.56
+    },
+    {
+     "code": "BSLOPD_3DEP",
+     "transform": "log10",
+     "units": "degrees",
+     "minimum": 7.05966,
+     "maximum": 29.0362
+    },
+    {
+     "code": "JANMAXT_PRISM9120",
+     "transform": "identity",
+     "units": "degF",
+     "minimum": 35.4005,
+     "maximum": 53.0253
+    },
+    {
+     "code": "PRECIP_PRISM9120",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 27.3992,
+     "maximum": 149.518
+    }
+   ],
+   "coefficients": [
+    0.9998687502222384,
+    0.5754805514444898,
+    0.06066236776667694,
+    1.113602386397778
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.19796213152742015,
+   "avp": 0.03918900551887959,
+   "model_error_variance": 0.03655872255027388,
+   "covariance": [
+    [
+     0.13139620613563838,
+     -0.0026933203405114536,
+     -0.0065552646615438725,
+     -0.0014679437626766254,
+     -0.02804731778688011
+    ],
+    [
+     -0.0026933203405114254,
+     0.0005291057997688931,
+     0.00018539626633028514,
+     2.6297943432797256e-05,
+     0.0001511760554706212
+    ],
+    [
+     -0.00655526466154095,
+     0.00018539626633021323,
+     0.03297378518589773,
+     -0.0006714050098319359,
+     -0.0023011158122104754
+    ],
+    [
+     -0.0014679437626767483,
+     2.6297943432799994e-05,
+     -0.000671405009831893,
+     5.92691790369441e-05,
+     -0.00025789489608372864
+    ],
+    [
+     -0.028047317786879043,
+     0.000151176055470617,
+     -0.0023011158122100226,
+     -0.00025789489608376437,
+     0.023817984707393006
+    ]
+   ],
+   "n_sites": 107
+  },
+  {
+   "region_code": "W-171003",
+   "region_name": "Southern Oregon Coastal (HUC6 171003), split from W",
+   "aep": 0.2,
+   "intercept": -3.1057771932638873,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.75,
+     "maximum": 3938.56
+    },
+    {
+     "code": "BSLOPD_3DEP",
+     "transform": "log10",
+     "units": "degrees",
+     "minimum": 7.05966,
+     "maximum": 29.0362
+    },
+    {
+     "code": "JANMAXT_PRISM9120",
+     "transform": "identity",
+     "units": "degF",
+     "minimum": 35.4005,
+     "maximum": 53.0253
+    },
+    {
+     "code": "PRECIP_PRISM9120",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 27.3992,
+     "maximum": 149.518
+    }
+   ],
+   "coefficients": [
+    0.9920324287598541,
+    0.7741772421003066,
+    0.05151673408494472,
+    0.8834450337042854
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.1874462071700011,
+   "avp": 0.03513608058241897,
+   "model_error_variance": 0.032599186496329924,
+   "covariance": [
+    [
+     0.1248705104786446,
+     -0.0025549224776205393,
+     -0.005960449320839763,
+     -0.0014150303031306042,
+     -0.026010536338897255
+    ],
+    [
+     -0.0025549224776205805,
+     0.0004858636709062681,
+     0.00013655388276810398,
+     2.522640625808255e-05,
+     0.0001655965736436789
+    ],
+    [
+     -0.005960449320839667,
+     0.0001365538827680998,
+     0.03045790925707738,
+     -0.000616042254651997,
+     -0.0022191038465712368
+    ],
+    [
+     -0.0014150303031305515,
+     2.52264062580815e-05,
+     -0.000616042254652027,
+     5.5202349628870585e-05,
+     -0.0002251933002647729
+    ],
+    [
+     -0.02601053633889866,
+     0.00016559657364368665,
+     -0.0022191038465704115,
+     -0.00022519330026476566,
+     0.021712143225707768
+    ]
+   ],
+   "n_sites": 107
+  },
+  {
+   "region_code": "W-171003",
+   "region_name": "Southern Oregon Coastal (HUC6 171003), split from W",
+   "aep": 0.1,
+   "intercept": -2.6854168671206,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.75,
+     "maximum": 3938.56
+    },
+    {
+     "code": "BSLOPD_3DEP",
+     "transform": "log10",
+     "units": "degrees",
+     "minimum": 7.05966,
+     "maximum": 29.0362
+    },
+    {
+     "code": "JANMAXT_PRISM9120",
+     "transform": "identity",
+     "units": "degF",
+     "minimum": 35.4005,
+     "maximum": 53.0253
+    },
+    {
+     "code": "PRECIP_PRISM9120",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 27.3992,
+     "maximum": 149.518
+    }
+   ],
+   "coefficients": [
+    0.9882016430752737,
+    0.8674560637039405,
+    0.046029418793347,
+    0.7806896609393423
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.18841519301115164,
+   "avp": 0.035500284957429525,
+   "model_error_variance": 0.03265577883139521,
+   "covariance": [
+    [
+     0.1337559060453417,
+     -0.002634940789303082,
+     -0.005577558749542184,
+     -0.0015415909920620306,
+     -0.027474840929734404
+    ],
+    [
+     -0.0026349407893030558,
+     0.0004999552902691655,
+     0.00011873768772172531,
+     2.5838359077118173e-05,
+     0.00018615028403819167
+    ],
+    [
+     -0.005577558749539557,
+     0.00011873768772167103,
+     0.032180433553285724,
+     -0.0006491273586727996,
+     -0.002648128732149682
+    ],
+    [
+     -0.0015415909920620235,
+     2.5838359077118485e-05,
+     -0.0006491273586727629,
+     5.838400799488237e-05,
+     -0.00021914344580804
+    ],
+    [
+     -0.027474840929736455,
+     0.00018615028403823623,
+     -0.0026481287321492224,
+     -0.00021914344580801028,
+     0.02253485488269116
+    ]
+   ],
+   "n_sites": 107
+  },
+  {
+   "region_code": "W-171003",
+   "region_name": "Southern Oregon Coastal (HUC6 171003), split from W",
+   "aep": 0.04,
+   "intercept": -2.242551441740558,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.75,
+     "maximum": 3938.56
+    },
+    {
+     "code": "BSLOPD_3DEP",
+     "transform": "log10",
+     "units": "degrees",
+     "minimum": 7.05966,
+     "maximum": 29.0362
+    },
+    {
+     "code": "JANMAXT_PRISM9120",
+     "transform": "identity",
+     "units": "degF",
+     "minimum": 35.4005,
+     "maximum": 53.0253
+    },
+    {
+     "code": "PRECIP_PRISM9120",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 27.3992,
+     "maximum": 149.518
+    }
+   ],
+   "coefficients": [
+    0.9842360604798339,
+    0.9542205080768046,
+    0.039923374835815095,
+    0.6875660273307904
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.19439423626947894,
+   "avp": 0.037789119094794,
+   "model_error_variance": 0.03416285849771016,
+   "covariance": [
+    [
+     0.15666696228004678,
+     -0.0027782383437608207,
+     -0.004536589243635378,
+     -0.0018622518300957444,
+     -0.03167000937386491
+    ],
+    [
+     -0.0027782383437608108,
+     0.0005439230646638151,
+     0.00010943954239769197,
+     2.6882771063917178e-05,
+     0.00020446452584801947
+    ],
+    [
+     -0.004536589243636796,
+     0.00010943954239772356,
+     0.03709476420878865,
+     -0.0007492645594098149,
+     -0.0037641567402210197
+    ],
+    [
+     -0.0018622518300957795,
+     2.6882771063917198e-05,
+     -0.000749264559409837,
+     6.723548689226941e-05,
+     -0.00021133406069458446
+    ],
+    [
+     -0.03167000937386306,
+     0.00020446452584800307,
+     -0.0037641567402212145,
+     -0.00021133406069461836,
+     0.025167986847190408
+    ]
+   ],
+   "n_sites": 107
+  },
+  {
+   "region_code": "W-171003",
+   "region_name": "Southern Oregon Coastal (HUC6 171003), split from W",
+   "aep": 0.02,
+   "intercept": -1.9755215825301748,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.75,
+     "maximum": 3938.56
+    },
+    {
+     "code": "BSLOPD_3DEP",
+     "transform": "log10",
+     "units": "degrees",
+     "minimum": 7.05966,
+     "maximum": 29.0362
+    },
+    {
+     "code": "JANMAXT_PRISM9120",
+     "transform": "identity",
+     "units": "degF",
+     "minimum": 35.4005,
+     "maximum": 53.0253
+    },
+    {
+     "code": "PRECIP_PRISM9120",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 27.3992,
+     "maximum": 149.518
+    }
+   ],
+   "coefficients": [
+    0.9817824982634937,
+    0.9979697793005973,
+    0.036172435950862565,
+    0.6396157476137907
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.20075102622299829,
+   "avp": 0.04030097452958694,
+   "model_error_variance": 0.03589069492986781,
+   "covariance": [
+    [
+     0.18017466051671838,
+     -0.002897487160080199,
+     -0.0035388572629142276,
+     -0.0021940118001655914,
+     -0.0359460447713681
+    ],
+    [
+     -0.00289748716008019,
+     0.0005912721470556351,
+     0.00011530773917381306,
+     2.7723121600013752e-05,
+     0.00020897170224271275
+    ],
+    [
+     -0.0035388572629130154,
+     0.00011530773917381113,
+     0.04218247952808494,
+     -0.0008534888464819583,
+     -0.0048875286280479465
+    ],
+    [
+     -0.0021940118001654947,
+     2.7723121600012024e-05,
+     -0.0008534888464819433,
+     7.649545452378457e-05,
+     -0.00020492403609997858
+    ],
+    [
+     -0.035946044771371366,
+     0.00020897170224276268,
+     -0.004887528628047685,
+     -0.00020492403609991816,
+     0.02791740674612574
+    ]
+   ],
+   "n_sites": 107
+  },
+  {
+   "region_code": "W-171003",
+   "region_name": "Southern Oregon Coastal (HUC6 171003), split from W",
+   "aep": 0.01,
+   "intercept": -1.7584931706873395,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.75,
+     "maximum": 3938.56
+    },
+    {
+     "code": "BSLOPD_3DEP",
+     "transform": "log10",
+     "units": "degrees",
+     "minimum": 7.05966,
+     "maximum": 29.0362
+    },
+    {
+     "code": "JANMAXT_PRISM9120",
+     "transform": "identity",
+     "units": "degF",
+     "minimum": 35.4005,
+     "maximum": 53.0253
+    },
+    {
+     "code": "PRECIP_PRISM9120",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 27.3992,
+     "maximum": 149.518
+    }
+   ],
+   "coefficients": [
+    0.9796294650781043,
+    1.0259827212927872,
+    0.03312723866691955,
+    0.6066821566352381
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.2078274559467541,
+   "avp": 0.04319225144530003,
+   "model_error_variance": 0.03790976192749495,
+   "covariance": [
+    [
+     0.2073374314181898,
+     -0.0030257219393805593,
+     -0.0026414167111461955,
+     -0.0025801631878925968,
+     -0.04073232567378456
+    ],
+    [
+     -0.003025721939380631,
+     0.0006483061444824653,
+     0.0001309002375266796,
+     2.8636013789908866e-05,
+     0.0002067124042108498
+    ],
+    [
+     -0.002641416711142335,
+     0.00013090023752661994,
+     0.04808191448454173,
+     -0.0009725635888974116,
+     -0.006128179110586081
+    ],
+    [
+     -0.0025801631878929043,
+     2.8636013789912715e-05,
+     -0.0009725635888973842,
+     8.73744330880675e-05,
+     -0.00020063368719403188
+    ],
+    [
+     -0.04073232567377925,
+     0.0002067124042107532,
+     -0.006128179110584757,
+     -0.00020063368719417507,
+     0.031087762458534497
+    ]
+   ],
+   "n_sites": 107
+  },
+  {
+   "region_code": "W-171003",
+   "region_name": "Southern Oregon Coastal (HUC6 171003), split from W",
+   "aep": 0.005,
+   "intercept": -1.5831982280645733,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.75,
+     "maximum": 3938.56
+    },
+    {
+     "code": "BSLOPD_3DEP",
+     "transform": "log10",
+     "units": "degrees",
+     "minimum": 7.05966,
+     "maximum": 29.0362
+    },
+    {
+     "code": "JANMAXT_PRISM9120",
+     "transform": "identity",
+     "units": "degF",
+     "minimum": 35.4005,
+     "maximum": 53.0253
+    },
+    {
+     "code": "PRECIP_PRISM9120",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 27.3992,
+     "maximum": 149.518
+    }
+   ],
+   "coefficients": [
+    0.9776258899621872,
+    1.0411838866354262,
+    0.030688002964878364,
+    0.5857149383083273
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.21515376502633965,
+   "avp": 0.04629114260500937,
+   "model_error_variance": 0.04009848385159745,
+   "covariance": [
+    [
+     0.23706303706049883,
+     -0.003166714814363023,
+     -0.00203828939650348,
+     -0.0030053066943332126,
+     -0.045750019816067154
+    ],
+    [
+     -0.0031667148143629665,
+     0.0007132042279874941,
+     0.00015297779826800006,
+     2.9707376213023054e-05,
+     0.0002001626009177503
+    ],
+    [
+     -0.002038289396500397,
+     0.00015297779826794645,
+     0.05457485458390686,
+     -0.0011003161765292722,
+     -0.007409191839575364
+    ],
+    [
+     -0.003005306694333254,
+     2.9707376213025067e-05,
+     -0.0011003161765292136,
+     9.949203973127873e-05,
+     -0.00020050558658882042
+    ],
+    [
+     -0.045750019816068174,
+     0.0002001626009177648,
+     -0.007409191839575247,
+     -0.00020050558658880148,
+     0.03454171297538879
+    ]
+   ],
+   "n_sites": 107
+  },
+  {
+   "region_code": "W-171003",
+   "region_name": "Southern Oregon Coastal (HUC6 171003), split from W",
+   "aep": 0.002,
+   "intercept": -1.4016098534375252,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.75,
+     "maximum": 3938.56
+    },
+    {
+     "code": "BSLOPD_3DEP",
+     "transform": "log10",
+     "units": "degrees",
+     "minimum": 7.05966,
+     "maximum": 29.0362
+    },
+    {
+     "code": "JANMAXT_PRISM9120",
+     "transform": "identity",
+     "units": "degF",
+     "minimum": 35.4005,
+     "maximum": 53.0253
+    },
+    {
+     "code": "PRECIP_PRISM9120",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 27.3992,
+     "maximum": 149.518
+    }
+   ],
+   "coefficients": [
+    0.9750110871569422,
+    1.0462881115868823,
+    0.028195625229589974,
+    0.571963842062861
+   ],
+   "citation": {
+    "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
+    "table": "data/regression_study/oregon_regression_results.json",
+    "year": 2026
+   },
+   "sep_log": 0.2247683879284458,
+   "avp": 0.05052082821195231,
+   "model_error_variance": 0.04311526189517737,
+   "covariance": [
+    [
+     0.27912810468734905,
+     -0.0033787908458437475,
+     -0.001861325607073456,
+     -0.0036105752835759834,
+     -0.052459831181528235
+    ],
+    [
+     -0.0033787908458437987,
+     0.0008086328218168173,
+     0.00018703542031604613,
+     3.150741732284365e-05,
+     0.00018857428723811242
+    ],
+    [
+     -0.0018613256070757745,
+     0.00018703542031610855,
+     0.06384610246717268,
+     -0.001276146592943957,
+     -0.009098258295187414
+    ],
+    [
+     -0.003610575283575971,
+     3.150741732284155e-05,
+     -0.0012761465929440124,
+     0.00011698582775317986,
+     -0.0002084872001041887
+    ],
+    [
+     -0.05245983118152704,
+     0.00018857428723809705,
+     -0.00909825829518721,
+     -0.00020848720010421915,
+     0.03940135296321614
+    ]
+   ],
+   "n_sites": 107
+  }
+ ],
+ "notes": "Developed by flowfreq following the USGS GLS procedure (WREG). Regions are hydrologic-unit sets: {\"1708\": \"W\", \"1709\": \"W\", \"1710\": \"W\", \"180101\": \"W\", \"171003\": \"W-171003\", \"170701\": \"E-170701\", \"170800\": \"W-170800\", \"170900\": \"W-170900\"}; any other HUC is region E. Variable codes name their sources (PRISM 1991-2020 normals, NOAA Atlas 2, 3DEP): values of same-named StreamStats characteristics are not interchangeable. See docs/OREGON_REGRESSION_UPDATE.md."
+}
