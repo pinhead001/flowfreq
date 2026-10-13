@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Oregon regression station dataset** (Oregon regression update plan, task 2;
+  `tools/build_oregon_regression_dataset.py`, `data/regression_study/oregon_stations.csv`).
+  It covers Oregon gages and WA/ID/NV/CA gages within 25 miles of the state, with
+  pre-regulation records of at least 10 nonzero peaks through WY2025. Each gets EMA/MGBT
+  quantiles at 8 AEPs, weighted with the regional skew its HUC12 resolves to. 660 gages
+  are kept. On the 29 gages shared with SIR 2016-5083 Table A2, the median ratio to USGS's
+  quantiles is 0.999-1.001.
+
 ## [0.11.0] - 2026-10-13
 
 Countrywide regional-regression and regional-skew work (roadmap Waves 1 and 2, the

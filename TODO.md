@@ -106,7 +106,7 @@ Phase A / Wave entries below.
       `docs/superpowers/plans/2026-10-12-oregon-regression-update.md`. Oregon StreamStats
       returned only 9-13 basin characteristics on 2026-10-12 (a missing-raster error), so it is
       not evaluating Cooper's western-Oregon variables (I24H2Y, JANMAXT2K). Re-check it, and
-      report it to StreamStats. #135 (06163400 vs PeakFQ) fixed: lowercase peak codes. A 2026-10-11 search
+      report it to StreamStats. Oregon plan Task 2 (station dataset) done 2026-10-13. #135 (06163400 vs PeakFQ) fixed: lowercase peak codes. A 2026-10-11 search
       found no newer USGS report for WA, MT, ID or OR. The studies follow published USGS
       procedures, and their results enter `regional_skew.csv` only as `provisional`, which
       callers must opt into (`allow_provisional=True`).
@@ -237,7 +237,22 @@ Arizona has a verified regional skew (SIR 2014-5211 app. 1). CO, UT, WY and NV h
 
 ### Small open items
 
-All closed; each verified in the code on 2026-10-03.
+- [ ] **Unmapped Water Data peak qualifier tokens.** `peak_sources.QUALIFIER_TOKEN_CODES`
+      warns on `YEARUNKNOWN` (NWIS code A, year not exact) and on gage-height flags
+      (`BACKWATER`, `NOTMAXGH`, `EQUIP`, `ICE`, `BLWMIN`), plus `OTHERAGENCY`. None changes
+      a B17C treatment (peakfq ignores A), but a bulk download logs one warning per row:
+      hundreds in the Oregon dataset build. Map A like `DAYUNKNOWN` and the rest like
+      `GHNOTASSCPKQ`.
+- [ ] **Live-service tests (#140).** Re-run 2026-10-13 still fails, on outside services:
+      the NID national CSV returns 403, and StreamStats reports "Cannot find a 'wshprecip'
+      raster for watershed 1710" (no PRECIP in Washington). Re-run; if the NID 403
+      persists, the test needs a new URL or request header.
+- [ ] **v0.10.4 GitHub release.** Deleted 2026-10-13 to re-attach the dists; the workflow
+      re-run cannot recreate it (PyPI refuses the duplicate upload; `skip-existing` landed
+      in 0.11.0, after the tag). Recreate it from PyPI's files with `gh release create
+      v0.10.4 --verify-tag` and the CHANGELOG section as notes.
+
+Earlier items, all closed; each verified in the code on 2026-10-03.
 
 - [x] **#13 Screen donors on basin similarity, not drainage area alone.**
       `flowfreq.donor_similarity` (#54): `screen_donors` (area plus per-predictor bands)
