@@ -240,16 +240,19 @@ Arizona has a verified regional skew (SIR 2014-5211 app. 1). CO, UT, WY and NV h
 
 ### Small open items
 
-- [ ] **Unmapped Water Data peak qualifier tokens.** `peak_sources.QUALIFIER_TOKEN_CODES`
+- [x] **Unmapped Water Data peak qualifier tokens.** Done in #149. `peak_sources.QUALIFIER_TOKEN_CODES`
       warns on `YEARUNKNOWN` (NWIS code A, year not exact) and on gage-height flags
       (`BACKWATER`, `NOTMAXGH`, `EQUIP`, `ICE`, `BLWMIN`), plus `OTHERAGENCY`. None changes
       a B17C treatment (peakfq ignores A), but a bulk download logs one warning per row:
       hundreds in the Oregon dataset build. Map A like `DAYUNKNOWN` and the rest like
       `GHNOTASSCPKQ`.
-- [ ] **Live-service tests (#140).** Re-run 2026-10-13 still fails, on outside services:
-      the NID national CSV returns 403, and StreamStats reports "Cannot find a 'wshprecip'
-      raster for watershed 1710" (no PRECIP in Washington). Re-run; if the NID 403
-      persists, the test needs a new URL or request header.
+- [ ] **Live-service tests (#140).** Re-run 2026-10-13 (evening): 106 passed. StreamStats
+      computes PRECIP in Washington again. Only NID fails: `api/nation/csv` returns 403 with
+      NID's own proxy error body (`ERR_BAD_REQUEST`, "Request failed with status code 403")
+      whatever the User-Agent, and the export's S3 object is access-denied. So it is broken
+      on NID's side, not refused for our request. `api/nation/gpkg` still downloads (302 to
+      `api/docs/public?url=...nation.gpkg`). Wait for the CSV, or move `load_nid` to the
+      GeoPackage (stdlib `sqlite3` can read it); that switch is a maintainer decision.
 - [ ] **v0.10.4 GitHub release.** Deleted 2026-10-13 to re-attach the dists; the workflow
       re-run cannot recreate it (PyPI refuses the duplicate upload; `skip-existing` landed
       in 0.11.0, after the tag). Recreate it from PyPI's files with `gh release create
@@ -307,7 +310,10 @@ is open.
       Ecosphere) and "Vanishing weekly hydropeaking cycles" (Nat. Commun., 2021,
       doi:10.1038/s41467-021-27465-4) were not accessible (403 or captcha).
       Nothing was found for Methow 12449950 diel timing.
-- [ ] **No fixed-window ramp metric.** The same report states hydropeaking as a
+- [x] **No fixed-window ramp metric.** Done in #152: `ramping_rates(window_hours=1)` gives
+      2.76 / 4.20 / 5.60 / 3.29 ft on the survey mornings, and Studies 9-11 are pinned. Study 12's
+      published 3.1 is the window one reading earlier (3.09 ft), a convention that gives 3.97
+      against 4.2 for Study 10, so the report is inconsistent there. Original entry: The same report states hydropeaking as a
       stage decline over "the initial one-hour following reduction to minimum
       flow" (2.8 / 4.2 / 5.6 / 3.1 ft, Studies 9-12), as compliance limits
       usually are ("1 ft per hour"). `ramping_rates` reports only per-interval
