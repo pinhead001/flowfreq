@@ -15,15 +15,11 @@ import pytest
 
 CSV = Path(__file__).resolve().parents[1] / "data" / "skew_study" / "sir2025_5019_station_skews.csv"
 
-#: Analyses where flowfreq and PeakFQ 7.5.1 disagree by more than 0.2, with why.
-KNOWN_DISAGREEMENTS = {
-    # PeakFQ 0.216 (57 peaks); flowfreq native 3.0 and the vendored emafitpr
-    # (peakfq 8.1.0) 3.26 on the same converted inputs (70 rows). The EMA engines
-    # agree; the difference is in the .psf conversion of this record (a 0-1 cfs
-    # interval peak in 1968 and stacked 6000 cfs historical thresholds) or between
-    # PeakFQ 7.5.1 and 8.1.0. Not yet resolved.
-    "06163400.00": "conversion or PeakFQ-version difference; EMA engines agree",
-}
+#: Analyses where flowfreq and PeakFQ 7.5.1 disagree by more than 0.2. Empty since
+#: #135: 06163400.00 differed (3.0 against 0.216) because flowfreq upper-cased its
+#: lowercase "c" peak codes into code C and dropped 39 peaks; siteQT matches "C"
+#: case-sensitively and keeps them.
+KNOWN_DISAGREEMENTS: dict = {}
 
 
 @pytest.fixture(scope="module")
@@ -51,8 +47,8 @@ def test_montana_basin_analyses_match_peakfq(checks):
     assert (mt["skew_diff"].abs() < 0.01).mean() > 0.95
 
 
-@pytest.mark.parametrize("analysis_id", sorted(KNOWN_DISAGREEMENTS))
-@pytest.mark.xfail(strict=True, reason="documented PeakFQ disagreement; see KNOWN_DISAGREEMENTS")
-def test_known_disagreements(checks, analysis_id):
-    row = checks.set_index("analysis_id").loc[analysis_id]
-    assert abs(row["skew_diff"]) < 0.2
+def test_lowercase_c_records_match(checks):
+    # The two analyses whose WATSTORE peaks carry lowercase "c" codes (#135).
+    rows = checks.set_index("analysis_id").loc[["06151000.00", "06163400.00"]]
+    assert (rows["skew_diff"].abs() < 0.001).all()
+    assert (rows["flowfreq_n"] > 90).all()

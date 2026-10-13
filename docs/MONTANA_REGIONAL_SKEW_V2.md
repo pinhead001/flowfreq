@@ -57,7 +57,7 @@ finding with a better-specified study; it does not overturn it.
 | Regulation screened by peak codes only | Plus the packaged GAGES-II screen: a `regulated`/`urban` gage is out unless the record was cut at a coded regulation start (14 excluded) |
 | Gage locations for redundancy and correlation distances | StreamStats basin centroids (area-weighted centroid of the delineated polygon) |
 | Few explanatory variables (gage altitude, area, latitude) | StreamStats `ELEV` and `PRECIP`; distance to the Continental Divide; a Front indicator |
-| Station skews not cross-checked against PeakFQ | `tools/check_montana_station_skews.py`, on the SIR 2025-5019 data release's 63 analyses: median \|Δ station skew\| 0.0003. One analysis (06163400.00) differs, but flowfreq and the vendored `emafitpr` agree with each other there; it is a `.psf` conversion or PeakFQ-version difference |
+| Station skews not cross-checked against PeakFQ | `tools/check_montana_station_skews.py`, on the SIR 2025-5019 data release's 63 analyses: median \|Δ station skew\| 0.0003, all 63 within 0.01. 06163400.00 differed (3.0 against 0.216) until #135: flowfreq upper-cased lowercase `c` peak codes into code C and dropped 39 peaks, where peakfq's `siteQT` keeps them |
 
 The Continental Divide is the WBD boundary between HUC2 region 17 and regions 10/09: 702
 boundary vertices in the study box. Distance is great-circle miles from the basin centroid,
