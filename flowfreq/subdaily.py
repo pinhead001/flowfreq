@@ -702,6 +702,7 @@ def ramping_rates(
     max_gap_hours: Optional[float] = None,
     interval_label: str = "end",
     min_completeness_frac: float = 0.9,
+    window_hours: Optional[float] = None,
 ) -> pd.DataFrame:
     """Per-day rate of change of an instantaneous series -- ramping rates.
 
@@ -748,6 +749,10 @@ def ramping_rates(
     min_completeness_frac : float
         Fraction of the day's expected observation count required for
         ``complete``. Default 0.9.
+    window_hours : float, optional
+        Also report the largest net change over a fixed window of this many
+        hours, the form compliance limits are stated in ("1 ft per hour").
+        Default ``None``, no window columns. See Notes.
 
     Returns
     -------
@@ -770,6 +775,10 @@ def ramping_rates(
         - ``n_intervals_gapped`` : intervals dropped for exceeding
           `max_gap_hours`
         - ``n_obs``, ``expected_obs``, ``complete``
+        - ``max_rise_<u>_in_<w>h``, ``max_fall_<u>_in_<w>h``,
+          ``n_windows`` : present only when `window_hours` is given, with
+          ``w`` its value (``1h``, ``0.5h``). The fall is signed, ``<= 0``,
+          like the down-ramp. NaN when the day has no complete window.
 
     Notes
     -----
@@ -820,11 +829,22 @@ def ramping_rates(
     produces these. The absolute rate for the same interval is still
     reported.
 
+    **A fixed-window change is not a per-interval rate.** A limit such as
+    "1 ft per hour" is a net change over an hour, and the steepest 15-minute
+    rate of a 15-minute record overstates it. With `window_hours`, each valid
+    observation at UTC time ``t`` is paired with the valid observation at
+    exactly ``t - window_hours``; where there is none, no window is formed
+    rather than one being interpolated. Both ends are real readings, so a
+    hole inside the window does not bias the net change and `max_gap_hours`
+    does not apply. The window counts in the local day of its end or start,
+    per `interval_label`, like an interval.
+
     Raises
     ------
     ValueError
         Fewer than two timestamps; `interval_label` not in
-        :data:`INTERVAL_LABELS`; `max_gap_hours` not positive; `relative` is
+        :data:`INTERVAL_LABELS`; `max_gap_hours` or `window_hours` not
+        positive; `relative` is
         True for a series whose units are not in :data:`TRUE_ZERO_UNITS`; or
         units could not be inferred for `value_col`.
     KeyError
@@ -868,6 +888,8 @@ def ramping_rates(
         max_gap_hours = DEFAULT_MAX_GAP_MULTIPLE * step_minutes / 60.0
     elif max_gap_hours <= 0:
         raise ValueError(f"max_gap_hours must be positive, got {max_gap_hours}")
+    if window_hours is not None and window_hours <= 0:
+        raise ValueError(f"window_hours must be positive, got {window_hours}")
 
     intervals = _build_intervals(
         local_index, values, tz, max_gap_hours=max_gap_hours, interval_label=interval_label
@@ -884,11 +906,71 @@ def ramping_rates(
     daily = daily.join(counts, how="left")
     daily["n_obs"] = daily["n_obs"].fillna(0).astype(int)
 
+    if window_hours is not None:
+        windows = _window_changes(
+            local_index,
+            values,
+            window_hours=window_hours,
+            unit=unit,
+            interval_label=interval_label,
+        )
+        daily = daily.join(windows, how="left")
+        daily["n_windows"] = daily["n_windows"].fillna(0).astype(int)
+
     daily = daily.reset_index()
     daily["expected_obs"] = _local_day_hours(daily["date"], tz) * 60.0 / step_minutes
     daily["complete"] = daily["n_obs"] >= (daily["expected_obs"] * min_completeness_frac)
 
     return daily.reset_index(drop=True)
+
+
+def _window_changes(
+    local_index: pd.DatetimeIndex,
+    values: pd.Series,
+    *,
+    window_hours: float,
+    unit: str,
+    interval_label: str,
+) -> pd.DataFrame:
+    """Per-day largest rise and fall over a fixed window, indexed by date.
+
+    A window joins two valid observations exactly `window_hours` apart on the
+    UTC axis; an end with no partner forms no window.
+    """
+    label = f"{window_hours:g}h"
+    rise_col = f"max_rise_{unit}_in_{label}"
+    fall_col = f"max_fall_{unit}_in_{label}"
+
+    valid = pd.DataFrame(
+        {"local": local_index, "value": values.to_numpy()},
+        index=local_index.tz_convert("UTC"),
+    ).dropna(subset=["value"])
+    valid = valid[~valid.index.duplicated(keep="first")]
+
+    start_times = pd.DatetimeIndex(valid.index) - pd.Timedelta(hours=window_hours)
+    change = valid["value"].to_numpy() - valid["value"].reindex(start_times).to_numpy()
+    formed = ~np.isnan(change)
+
+    label_times = (
+        valid["local"] if interval_label == "end" else start_times.tz_convert(local_index.tz)
+    )
+    work = pd.DataFrame({"date": pd.DatetimeIndex(label_times).date, "change": change}).loc[formed]
+
+    if work.empty:
+        empty = pd.DataFrame(columns=[rise_col, fall_col, "n_windows"])
+        empty.index.name = "date"
+        return empty
+
+    grouped = work.groupby("date", sort=True)["change"]
+    out = pd.DataFrame(
+        {
+            rise_col: grouped.apply(lambda s: s.clip(lower=0).max()),
+            fall_col: grouped.apply(lambda s: s.clip(upper=0).min()),
+            "n_windows": grouped.size(),
+        }
+    )
+    out.index.name = "date"
+    return out
 
 
 def _build_intervals(
