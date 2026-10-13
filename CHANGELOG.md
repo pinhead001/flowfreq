@@ -16,6 +16,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   are kept. On the 29 gages shared with SIR 2016-5083 Table A2, the median ratio to USGS's
   quantiles is 0.999-1.001.
 
+## [0.11.0] - 2026-10-13
+
+Countrywide regional-regression and regional-skew work (roadmap Waves 1 and 2, the
+Northwest studies plan). Patch releases for 0.10 continue from `release/0.10.x`.
+
+### Release process
+- **The release workflow can be re-run.** The PyPI step now passes `skip-existing: true`, so
+  a re-run after a failed "Create GitHub Release" step skips the files PyPI already has and
+  goes on to create the release. v0.10.4's re-run stopped at PyPI's "File already exists".
+
 ### Fixed
 - **Peak codes keep their case** (#135). `flowfreq.peak_codes` upper-cased single-character
   codes, so a lowercase `c` in a WATSTORE file became code C (urbanized) and the peak was

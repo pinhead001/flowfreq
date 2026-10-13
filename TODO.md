@@ -80,8 +80,7 @@ Phase A / Wave entries below.
       - ~~WA region 4 covariance (#65)~~: stored in the `P/10` basis after a GLS refit
         (`docs/WA_REGION4_REFIT.md`); WA is `verified`.
       - ~~UT region 2 (#96)~~: NSS's 4-digit precipitation bases are stored; each rounds to
-        SIR 2007-5158's printed 3-digit base. UT is `verified` (maintainer decision pending
-        on the PR).
+        SIR 2007-5158's printed 3-digit base. UT is `verified` (#144, merged 2026-10-13).
       - NV region 6 and the hybrid regions (#104): the printed 2-year `Q=0` and the hybrid
         method's non-comparable error statistics have no schema representation.
 - [x] **Oregon closed basins (1712)**: provisional PNW member after a B-GLS applicability

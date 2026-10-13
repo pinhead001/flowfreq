@@ -66,7 +66,7 @@ pip install -e ".[dev]"
 Or install a released version straight from GitHub:
 
 ```bash
-pip install git+https://github.com/pinhead001/flowfreq@v0.10.4
+pip install git+https://github.com/pinhead001/flowfreq@v0.11.0
 ```
 
 **Dependencies:** `numpy`, `pandas`, `matplotlib`, `scipy`, `requests`, `click`, `pyarrow`
@@ -374,6 +374,7 @@ England, J.F., Jr., et al., 2019, Guidelines for determining flood flow frequenc
 
 | Version | Changes |
 |---------|---------|
+| **v0.11.0** | Countrywide groundwork: provisional equation sets (`load_state(..., allow_provisional=True)`); GLS regression (`flowfreq.regression.gls`); WA and UT `verified`; regional skew for AZ, provisional MT east-of-Divide and Oregon 1712 rows, pending rows citing what USGS uses in CO/UT/WY/NV/NM; peak codes keep their case (#135). See CHANGELOG.md. |
 | **v0.10.4** | StreamStats cache hits log at DEBUG, not INFO: a cached batch re-run no longer prints one line per point. See CHANGELOG.md. |
 | **v0.10.3** | `StreamStatsCache` thread-safe and written atomically: concurrent batch delineation no longer reports cached successes as failures. See CHANGELOG.md. |
 | **v0.10.2** | Water Data peaks reduced to one annual peak per water year (duplicate time series, secondary peaks); clear error when peak codes remove every peak; `download_peak_flow` sets every site attribute; Wave 1/2 cross-border QA; AZ region 5 (AZ verified); Wave 2 catalog regions (CO/UT/AZ); opt-in NID/NLCD regulation screen; NCHRP 15-61 future-flow procedures; weekly live-service CI. See CHANGELOG.md. |
