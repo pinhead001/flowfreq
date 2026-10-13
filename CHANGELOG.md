@@ -15,6 +15,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   quantiles at 8 AEPs, weighted with the regional skew its HUC12 resolves to. 660 gages
   are kept. On the 29 gages shared with SIR 2016-5083 Table A2, the median ratio to USGS's
   quantiles is 0.999-1.001.
+- **Provisional Oregon peak-flow equations** (Oregon regression update plan, tasks 3-5;
+  `docs/OREGON_REGRESSION_UPDATE.md`). They are NOT USGS, and only
+  `load_state("OR", allow_provisional=True)` returns them. Six HUC-defined regions are fitted
+  by GLS on 577 gages. The basin characteristics come from PRISM 1991-2020, NOAA Atlas 2 and
+  3DEP over StreamStats or NLDI polygons (`tools/build_oregon_basin_characteristics.py`);
+  Oregon StreamStats still cannot compute the current equations' inputs. Every region is
+  less precise than the current equations (SEP at 1 % AEP: 36-94 % against 29-75 %), so
+  the published set remains the default and is preferred wherever its inputs are
+  available.
+- `study` optional extra (`rasterio`) for the raster-reading tools under `tools/`.
 
 ## [0.11.0] - 2026-10-13
 

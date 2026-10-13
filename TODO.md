@@ -106,7 +106,10 @@ Phase A / Wave entries below.
       `docs/superpowers/plans/2026-10-12-oregon-regression-update.md`. Oregon StreamStats
       returned only 9-13 basin characteristics on 2026-10-12 (a missing-raster error), so it is
       not evaluating Cooper's western-Oregon variables (I24H2Y, JANMAXT2K). Re-check it, and
-      report it to StreamStats. Oregon plan Task 2 (station dataset) done 2026-10-13. #135 (06163400 vs PeakFQ) fixed: lowercase peak codes. A 2026-10-11 search
+      report it to StreamStats. Oregon plan Tasks 2-5 done 2026-10-13: a provisional
+      six-region set in `provisional/OR.json`, less precise than the current equations
+      (`docs/OREGON_REGRESSION_UPDATE.md`). Its next improvement is a soil-permeability
+      variable (gNATSGO/STATSGO2) for the High Cascades basins. #135 (06163400 vs PeakFQ) fixed: lowercase peak codes. A 2026-10-11 search
       found no newer USGS report for WA, MT, ID or OR. The studies follow published USGS
       procedures, and their results enter `regional_skew.csv` only as `provisional`, which
       callers must opt into (`allow_provisional=True`).

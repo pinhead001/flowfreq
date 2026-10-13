@@ -103,6 +103,13 @@ dev = [
     "types-requests",
 ]
 
+# Raster reading for the regression-study tools under tools/ (basin
+# characteristics from PRISM and NOAA Atlas 2 grids). Nothing under flowfreq/
+# imports it, and CI does not install it.
+study = [
+    "rasterio>=1.3,<2",
+]
+
 [project.scripts]
 flowfreq = "flowfreq.cli:cli"
 
