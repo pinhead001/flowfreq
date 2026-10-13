@@ -71,8 +71,15 @@ jobs:
       - name: Check distributions
         run: twine check dist/*
 
+      # skip-existing: PyPI never accepts the same file twice, so without it a
+      # re-run (after the GitHub Release step below failed) stops here with
+      # "400 File already exists" and never reaches that step again -- which is
+      # what happened to v0.10.4. A file that is already there is identical: the
+      # tag pins the source, and the version check above pins the version.
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # v1.14.2
+        with:
+          skip-existing: true
 
       # Extract this version's own CHANGELOG.md section for the release body,
       # rather than writing a second copy of the same notes by hand. The
