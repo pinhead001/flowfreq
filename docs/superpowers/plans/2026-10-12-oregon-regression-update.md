@@ -67,7 +67,7 @@ Report it to the StreamStats team either way.
 
 ### Task 1: `provisional` status for regression equation sets (schema decision) — done
 
-Approved by the maintainer 2026-10-12, implemented in `tests/test_regression_provisional.py`'s PR.
+Approved by the maintainer 2026-10-12; implemented in #141 (`tests/test_regression_provisional.py`).
 
 - [x] `provisional` added to `flowfreq/regression/library.py` `STATUSES`.
 - [x] `load_state(code)` keeps returning the published set; a published file claiming
