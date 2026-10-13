@@ -26,13 +26,14 @@ sys.path.insert(0, str(REPO_ROOT))
 
 from flowfreq.regional_skew import load_table  # noqa: E402
 from flowfreq.regression.jurisdictions import JURISDICTIONS, WAVE_NAMES  # noqa: E402
-from flowfreq.regression.library import DATA_DIR, load_state  # noqa: E402
+from flowfreq.regression.library import DATA_DIR, load_state, provisional_states  # noqa: E402
 
 OUT = REPO_ROOT / "docs" / "REGRESSION_COVERAGE.md"
 
 
 def render() -> str:
     skew = load_table()
+    provisional = set(provisional_states())
     lines = [
         "# Regression coverage",
         "",
@@ -52,6 +53,8 @@ def render() -> str:
                 lib = load_state(j.code)
                 eq_status, n_reg, n_eq = lib.status, len(lib.regions), len(lib.equations)
                 issue = f"#{lib.issue}" if lib.issue else ""
+                if j.code in provisional:
+                    eq_status += " (+ provisional set)"
             else:
                 eq_status, n_reg, n_eq, issue = "not started", 0, 0, ""
             rows = skew[skew["state"] == j.code]

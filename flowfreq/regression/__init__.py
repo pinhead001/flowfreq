@@ -25,6 +25,7 @@ from flowfreq.regression.library import (
     StateLibrary,
     available_states,
     load_state,
+    provisional_states,
 )
 
 __all__ = [
@@ -43,5 +44,6 @@ __all__ = [
     "evaluate_weighted",
     "jurisdiction",
     "load_state",
+    "provisional_states",
     "wave",
 ]

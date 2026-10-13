@@ -8,12 +8,20 @@ estimate raises :class:`EquationsUnavailable`, never a default value.
 Populate the files from the cited report or from ``tools/snapshot_nss.py``,
 never by hand from memory.
 
+Equation sets flowfreq develops itself (for example a Bulletin 17C-era GLS
+update of a state's B17B-era equations) are *not* published USGS equations.
+They live in ``flowfreq/data/regression/provisional/<CODE>.json`` with
+``status: "provisional"``, and :func:`load_state` returns one only when the
+caller passes ``allow_provisional=True``. The default lookup is never changed by
+a provisional file, mirroring :mod:`flowfreq.regional_skew`.
+
 Roadmap: ``docs/MASTER_ROADMAP.md`` §3.1-3.2, issues #35 and #37-#40.
 """
 
 from __future__ import annotations
 
 import json
+import logging
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
@@ -21,7 +29,11 @@ from typing import Any, Dict, List, Optional, Union
 from flowfreq.regression.equations import RegressionEquation
 from flowfreq.regression.jurisdictions import jurisdiction
 
+logger = logging.getLogger(__name__)
+
 DATA_DIR = Path(__file__).resolve().parent.parent / "data" / "regression"
+#: Subdirectory of the data directory holding flowfreq-developed equation sets.
+PROVISIONAL_SUBDIR = "provisional"
 SCHEMA_VERSION = 1
 #: How faithfully a state file transcribes its source reports -- a statement about
 #: the transcription, not about how much the reports themselves publish:
@@ -36,7 +48,10 @@ SCHEMA_VERSION = 1
 #:   NSS where NSS serves the region, and otherwise against the report's own
 #:   worked examples and per-gage estimates. A report that publishes no covariance
 #:   (or no AVP) can still be ``verified``; intervals then fall back to ``sep_log``.
-STATUSES = frozenset({"pending", "partial", "verified"})
+#: - ``provisional``: developed by flowfreq following published USGS procedure, not
+#:   a USGS publication. Allowed only under ``provisional/``, and returned only on
+#:   opt-in (``load_state(code, allow_provisional=True)``).
+STATUSES = frozenset({"pending", "partial", "verified", "provisional"})
 
 
 class EquationsUnavailable(LookupError):
@@ -53,6 +68,12 @@ class StateLibrary:
     source_reports: List[Dict[str, Any]] = field(default_factory=list)
     issue: Optional[int] = None
     notes: str = ""
+    advisory: str = ""
+
+    @property
+    def provisional(self) -> bool:
+        """True for a flowfreq-developed (non-USGS) equation set."""
+        return self.status == "provisional"
 
     @property
     def regions(self) -> List[str]:
@@ -118,7 +139,20 @@ def parse_state(data: Dict[str, Any]) -> StateLibrary:
     )
 
 
-def load_state(code: str, data_dir: Union[str, Path, None] = None) -> StateLibrary:
+def _provisional_advisory(code: str) -> str:
+    return (
+        f"PROVISIONAL (not USGS): the {code} equations were developed by flowfreq following "
+        "published USGS procedure and have not been reviewed or published by the USGS. The "
+        f"published set is load_state({code!r}). A USGS report supersedes this one."
+    )
+
+
+def load_state(
+    code: str,
+    data_dir: Union[str, Path, None] = None,
+    *,
+    allow_provisional: bool = False,
+) -> StateLibrary:
     """Load one jurisdiction's equation library.
 
     Parameters
@@ -127,6 +161,10 @@ def load_state(code: str, data_dir: Union[str, Path, None] = None) -> StateLibra
         Two-letter postal code.
     data_dir : str or Path, optional
         Override the packaged data directory.
+    allow_provisional : bool
+        Return the jurisdiction's provisional (flowfreq-developed, non-USGS) set
+        from ``provisional/<CODE>.json`` when there is one, with ``advisory`` set
+        and a logged warning. Without one, the published set is returned as usual.
 
     Returns
     -------
@@ -136,17 +174,47 @@ def load_state(code: str, data_dir: Union[str, Path, None] = None) -> StateLibra
     ------
     EquationsUnavailable
         If the jurisdiction has no file yet (its wave has not started).
+    ValueError
+        If a published file claims ``provisional`` status, or a file under
+        ``provisional/`` claims any other status or another jurisdiction.
     """
     code = jurisdiction(code).code
-    path = Path(data_dir or DATA_DIR) / f"{code}.json"
+    root = Path(data_dir or DATA_DIR)
+    if allow_provisional:
+        prov = root / PROVISIONAL_SUBDIR / f"{code}.json"
+        if prov.exists():
+            lib = parse_state(json.loads(prov.read_text(encoding="utf-8")))
+            if lib.status != "provisional" or lib.state != code:
+                raise ValueError(
+                    f"{prov}: a provisional set must have status 'provisional' and state "
+                    f"{code!r}, got {lib.status!r} / {lib.state!r}"
+                )
+            lib.advisory = _provisional_advisory(code)
+            logger.warning("%s", lib.advisory)
+            return lib
+    path = root / f"{code}.json"
     if not path.exists():
         raise EquationsUnavailable(f"{code}: no regression library file; its wave has not started")
-    return parse_state(json.loads(path.read_text(encoding="utf-8")))
+    lib = parse_state(json.loads(path.read_text(encoding="utf-8")))
+    if lib.provisional:
+        raise ValueError(
+            f"{path}: status 'provisional' belongs under {PROVISIONAL_SUBDIR}/, not in place of "
+            "the published set"
+        )
+    return lib
 
 
 def available_states(data_dir: Union[str, Path, None] = None) -> Dict[str, str]:
-    """Map every jurisdiction with a library file to its status."""
+    """Map every jurisdiction with a published library file to its status.
+
+    Provisional sets are not listed; see :func:`provisional_states`.
+    """
     out: Dict[str, str] = {}
     for p in sorted(Path(data_dir or DATA_DIR).glob("*.json")):
         out[p.stem] = parse_state(json.loads(p.read_text(encoding="utf-8"))).status
     return out
+
+
+def provisional_states(data_dir: Union[str, Path, None] = None) -> List[str]:
+    """Jurisdictions with a provisional (flowfreq-developed) equation set, sorted."""
+    return sorted(p.stem for p in (Path(data_dir or DATA_DIR) / PROVISIONAL_SUBDIR).glob("*.json"))
