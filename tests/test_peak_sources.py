@@ -268,6 +268,8 @@ def test_waterdata_secondary_peak_keeps_the_annual_one(monkeypatch, pages, caplo
         (["EVENT"], "9"),
         (["OPPORTUNISTIC"], "O"),
         (["REVISED"], "R"),
+        (["OTHERAGENCY", "HISTORIC"], "F,7"),
+        (["YEARUNKNOWN", "HISTORIC"], "7"),
         (["GHNOTASSCPKQ", "ESTIMATED"], "2"),
         ("HISTORIC", "7"),
     ],
@@ -303,11 +305,29 @@ def test_unknown_token_warns_and_is_never_split(caplog):
     assert any(r.levelno == logging.WARNING for r in caplog.records)
 
 
-def test_gage_height_token_is_not_a_warning(caplog):
+@pytest.mark.parametrize(
+    "token", ["GHNOTASSCPKQ", "BACKWATER", "NOTMAXGH", "EQUIP", "ICE", "BLWMIN"]
+)
+def test_gage_height_token_is_not_a_warning(caplog, token):
     with caplog.at_level(logging.DEBUG, logger="flowfreq.peak_sources"):
-        assert qualifiers_to_codes(["GHNOTASSCPKQ"]) == ""
+        assert qualifiers_to_codes([token]) == ""
     assert not any(r.levelno >= logging.WARNING for r in caplog.records)
-    assert "GHNOTASSCPKQ" in caplog.text
+    assert token in caplog.text
+
+
+@pytest.mark.parametrize("token", ["YEARUNKNOWN", "OTHERAGENCY"])
+def test_informational_token_is_not_a_warning(caplog, token):
+    with caplog.at_level(logging.WARNING, logger="flowfreq.peak_sources"):
+        qualifiers_to_codes([token])
+    assert not caplog.records
+
+
+def test_informational_tokens_leave_treatment_unchanged():
+    plain = peak_interval(100.0, qualifiers_to_codes(["HISTORIC"]))
+    for token in ("YEARUNKNOWN", "OTHERAGENCY", "BACKWATER", "ICE"):
+        flagged = peak_interval(100.0, qualifiers_to_codes([token, "HISTORIC"]))
+        assert flagged.treatment == plain.treatment
+        assert flagged.is_historic == plain.is_historic
 
 
 def test_waterdata_backend_is_registered():
