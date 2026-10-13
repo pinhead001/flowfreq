@@ -104,16 +104,19 @@ def _split_token(token: str) -> List[str]:
     """One comma-separated piece of a ``peak_cd`` field, as individual codes.
 
     ``"7.0"`` (a float-inferred code column) is code ``"7"``. ``Bd`` and
-    ``Bm`` are whole codes, normalised to exactly that spelling; single
-    characters are upper-cased. Splitting ``Bd`` into characters first would
-    invent a code D (and ``Bm`` a code M), which is what this used to do.
+    ``Bm`` are whole codes, normalised to exactly that spelling. Single
+    characters keep their case, because ``siteQT`` matches them case-sensitively
+    (``grepl("C", peak_cd)``): a lowercase ``c`` is not code C, and peakfq keeps
+    such a peak. Upper-casing it removed 39 peaks of SIR 2025-5019's 06163400
+    (Denniel Creek, Saskatchewan; #135). Splitting ``Bd`` into characters first
+    would invent a code D (and ``Bm`` a code M), which is what this used to do.
     """
     match = _FLOAT_CODE.match(token)
     if match:
         token = match.group(1)
     out = []
     for code in _CODE_TOKEN.findall(token):
-        out.append("B" + code[1].lower() if len(code) == 2 else code.upper())
+        out.append("B" + code[1].lower() if len(code) == 2 else code)
     return out
 
 
@@ -156,7 +159,7 @@ def parse_codes(peak_cd: object) -> FrozenSet[str]:
     Returns
     -------
     frozenset of str
-        Upper-cased single-character codes, plus ``"Bd"``/``"Bm"`` as spelled.
+        Single-character codes as written (case kept), plus ``"Bd"``/``"Bm"``.
     """
     if _is_missing(peak_cd):
         return frozenset()
