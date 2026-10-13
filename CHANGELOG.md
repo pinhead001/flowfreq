@@ -25,6 +25,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   to +14% (2-, 10- and 500-year). They now equal StreamStats at every AEP.
 
 ### Added
+- **Pending regional skew rows for CO, UT, WY and NV.** None has a B-WLS/B-GLS study. Each
+  row cites what USGS uses instead: the Bulletin 17B Plate I map in Colorado (SIR 2025-5047
+  p. 7, SIR 2016-5099 p. 19) and Wyoming (SIR 2025-5019 pp. 9-10), Perica and Stayner's
+  (2004) contour map in Utah (SIR 2007-5158 p. 6), and WSP 2433's zero with MSE 0.31 in
+  Nevada (pp. 74-79). A pending lookup's error now gives the first sentence of the row's
+  notes.
 - **Provisional regression equation sets** (Oregon regression update plan, task 1).
   Equations flowfreq develops itself go in `flowfreq/data/regression/provisional/<CODE>.json`
   with `status: "provisional"`. `load_state(code)` is unchanged; `load_state(code,
@@ -35,7 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Waltemeyer (2008, SIR 2008-5119 p. 5) uses zero with MSE 0.31, a B17B-era value. Its
   successor, Tillery and others (2026), reports -0.145 (SE 0.454), but as of 2026-10-12 the
   report is unpublished and its data release (doi:10.5066/P9QWEXCY) has been withdrawn for
-  revision. `regional_skew_for("NM")` now says "pending transcription" instead of "no entry".
+  revision. `regional_skew_for("NM")` now says why it is pending instead of "no entry".
 - **Arizona regional skew** (Wave 2). Paretti and others (2014, SIR 2014-5211, appendix 1):
   a statewide B-GLS constant, G = -0.09, MSE 0.08, effective record length 85 years
   (Table 1-2, p. 55), `verified`. Every HUC8 the WBD lists as touching Arizona (84, of which

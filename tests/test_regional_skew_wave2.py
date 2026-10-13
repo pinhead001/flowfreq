@@ -88,5 +88,27 @@ def test_new_mexico_is_pending_until_tillery_2026_is_published():
     row = load_table().set_index(["state", "skew_region"]).loc[("NM", "New Mexico")]
     assert row["status"] == "pending"
     assert "SIR 2008-5119, p. 5" in row["notes"] and "10.5066/P9QWEXCY" in row["notes"]
-    with pytest.raises(RegionalSkewUnavailable, match="NM.*pending transcription"):
+    with pytest.raises(
+        RegionalSkewUnavailable,
+        match=r"NM \(pending: No verified regional skew for New Mexico; see",
+    ):
         regional_skew_for("NM")
+
+
+@pytest.mark.parametrize(
+    "state, report",
+    [
+        ("CO", "SIR 2025-5047"),
+        ("UT", "SIR 2007-5158"),
+        ("WY", "SIR 2025-5019"),
+        ("NV", "WSP 2433"),
+    ],
+)
+def test_wave2_states_without_a_bayesian_study_are_pending(state, report):
+    row = load_table().set_index("state").loc[state]
+    assert row["status"] == "pending" and report in row["notes"]
+    with pytest.raises(
+        RegionalSkewUnavailable,
+        match=rf"{state} \(pending: No B-WLS/B-GLS regional skew study covers",
+    ):
+        regional_skew_for(state)
