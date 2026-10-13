@@ -211,7 +211,10 @@ def regional_skew_for(
         if (rows["status"] == "provisional").any():
             why = "provisional, not USGS; pass allow_provisional=True to use it"
         elif (rows["status"] == "pending").any():
-            why = "pending transcription"
+            # The notes' first sentence says why: no study exists, the report is
+            # unpublished, or the value is not representable.
+            note = str(rows.loc[rows["status"] == "pending", "notes"].iloc[0])
+            why = "pending: " + note.split(". ", 1)[0].rstrip(".") + "; see regional_skew.csv"
         else:
             why = "no entry"
         raise RegionalSkewUnavailable(

@@ -91,7 +91,16 @@ Phase A / Wave entries below.
 - [x] **Snake River Plain skew**: not feasible, 2 of 47 gages (`docs/SNAKE_RIVER_PLAIN_SKEW.md`).
 - [ ] **Regional skew** for MT (a published USGS Bayesian study; the provisional #91 study
       stays out of the table) and for the rest of Wave 2 (roadmap §1.3). Arizona is done
-      (SIR 2014-5211 app. 1, G = -0.09, MSE 0.08, 84 HUC8s valid in AZ only).
+      (SIR 2014-5211 app. 1, G = -0.09, MSE 0.08, 84 HUC8s valid in AZ only). CO, UT, WY
+      and NV were checked 2026-10-12 and have no B-WLS/B-GLS study; each has a `pending` row
+      saying what USGS uses instead (CO and WY: the B17B Plate I map; UT: the Perica and
+      Stayner 2004 contour map; NV: WSP 2433's zero, MSE 0.31). NM waits on Tillery 2026.
+- [ ] **Colorado: SIR 2025-5047** (Kohn, Mast and Gross, 2026) replaces Capesius and
+      Stephens (2009) for central and western Colorado: four elevation regions (Plateau,
+      Mid-Elevation, Sub-Alpine, Alpine), 418 gages through WY2019, tables as CSV on the pubs
+      page. NSS still serves the 2009 equations (citations 11, 20, 21, checked 2026-10-12),
+      so `CO.json` matches StreamStats today. Transcribe when NSS adopts it, or earlier as a
+      second CO set if wanted.
 - [x] **Northwest studies plan** (`docs/superpowers/plans/2026-10-11-northwest-regional-studies.md`), done 2026-10-12
       (WA merged as #132 after the maintainer's go-ahead). Follow-on:
       `docs/superpowers/plans/2026-10-12-oregon-regression-update.md`. Oregon StreamStats
@@ -221,7 +230,7 @@ unresolved.
       region's gages. Still open: region 6's 2-year equation is printed `Q=0`, and
       hybrid-method errors are not comparable standard errors; neither is stored.
 
-Arizona has a verified regional skew (SIR 2014-5211 app. 1); the other Wave 2 states do not yet. The wave's cross-border consistency check
+Arizona has a verified regional skew (SIR 2014-5211 app. 1). CO, UT, WY and NV have no B-GLS study (pending rows); NM waits on its 2026 report. The wave's cross-border consistency check
 (roadmap §3.2) ran 2026-10-06 (`docs/WAVE_QA_W1_W2.md`). Their §6.3.2 future-flow guidance is recorded: none tabulates factors
 (`docs/FUTURE_FLOW_GUIDANCE.md`).
 
