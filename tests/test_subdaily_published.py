@@ -44,12 +44,16 @@ What does not agree, and is recorded rather than pinned
   the report's precision. Possible causes are record revision after 2012, or
   the report reading a different instant. The difference is not explained, so
   it is not asserted.
-- **The one-hour stage declines** (S4.3.1: 2.8, 4.2, 5.6 and 3.1 ft for
-  Studies 9-12) are fixed-window changes over an hour. No
-  :mod:`flowfreq.subdaily` function computes that: ``ramping_rates`` reports
-  per-interval (15-minute) rates. A plain rolling one-hour maximum decline on
-  the same gage-height record gives 2.76, 4.20, 5.60 and 3.29 ft. Three match
-  at 0.1 ft; Study 12 does not. See TODO.md.
+- **Study 12's one-hour stage decline.** S4.3.1 gives 2.8, 4.2, 5.6 and
+  3.1 ft "over the initial one-hour following reduction to minimum flow" for
+  Studies 9-12. ``ramping_rates(window_hours=1)`` on the gage-height record,
+  over the morning before each survey (06:00-11:00 local), gives 2.76, 4.20,
+  5.60 and 3.29 ft. The first three are pinned. Study 12's 3.1 is the window
+  one reading earlier (08:45-09:45 EST, 12.97 to 9.88 ft, 3.09 ft), but the
+  same convention gives 3.97 ft for Study 10 against the report's 4.2, so the
+  report is not consistent and Study 12 is not asserted. The whole-day
+  maxima are larger (6.01 ft on Oct 27, 5.25 ft on Nov 17, both evening
+  drawdowns), which is why the morning is selected.
 """
 
 from __future__ import annotations
@@ -57,7 +61,7 @@ from __future__ import annotations
 import pandas as pd
 import pytest
 
-from flowfreq.subdaily import daily_extreme_timing
+from flowfreq.subdaily import daily_extreme_timing, ramping_rates
 from flowfreq.usgs import USGSgage
 
 SITE = "01578310"  # Susquehanna River at Conowingo, MD
@@ -122,3 +126,20 @@ class TestConowingoSpring2010:
         row = _day(daily_extreme_timing(iv, tz=TZ), "2010-04-28")
         assert row["max_value"] == 36_500.0
         assert bool(row["complete"])
+
+
+class TestConowingoOneHourStageDecline:
+    """S4.3.1's one-hour stage declines, Studies 9-11."""
+
+    @pytest.mark.parametrize(
+        "study, date, published_ft",
+        [(9, "2010-10-27", 2.8), (10, "2010-11-03", 4.2), (11, "2010-11-10", 5.6)],
+    )
+    def test_one_hour_decline_before_the_survey(
+        self, study: int, date: str, published_ft: float
+    ) -> None:
+        stage = USGSgage(SITE).download_instantaneous_stage(date, date)
+        local = stage.tz_convert(TZ)
+        morning = stage[(local.index.hour >= 6) & (local.index.hour < 11)]
+        row = _day(ramping_rates(morning, tz=TZ, value_col="gage_height_ft", window_hours=1), date)
+        assert round(-row["max_fall_ft_in_1h"], 1) == published_ft, f"Study {study}"
