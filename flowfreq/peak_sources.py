@@ -122,16 +122,18 @@ QUALIFIER_TOKEN_CODES: Dict[str, str] = {
     "GREATERTHAN": "8",
     "EVENT": "9",
     "URBAN": "C",
+    "OTHERAGENCY": "F",
     "OPPORTUNISTIC": "O",
     "REVISED": "R",
 }
 
 #: Tokens describing the precision of ``time``, not the discharge. The date
 #: itself already carries the placeholder (day 01 / January), as peakfq does.
-DATE_PRECISION_TOKENS = frozenset({"DAYUNKNOWN", "MONTHUNKNOWN"})
+#: ``YEARUNKNOWN`` is NWIS code A, which peakfq ignores.
+DATE_PRECISION_TOKENS = frozenset({"DAYUNKNOWN", "MONTHUNKNOWN", "YEARUNKNOWN"})
 
 #: Gage-height flags that can appear on discharge rows; not discharge codes.
-GAGE_HEIGHT_TOKENS = frozenset({"GHNOTASSCPKQ"})
+GAGE_HEIGHT_TOKENS = frozenset({"GHNOTASSCPKQ", "BACKWATER", "NOTMAXGH", "EQUIP", "ICE", "BLWMIN"})
 
 _REQUEST_TIMEOUT_S = 60.0
 _PAGE_LIMIT = 50_000
