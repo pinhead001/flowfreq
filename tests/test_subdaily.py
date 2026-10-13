@@ -447,6 +447,53 @@ class TestRampingRates:
             ramping_rates(iv, tz="UTC")
 
 
+class TestRampingRatesWindow:
+    """Tests for ramping_rates(window_hours=...)."""
+
+    @staticmethod
+    def _stage_drop() -> pd.DataFrame:
+        """Flat at 12 ft, then 1.0 ft per 15 minutes for four steps to 8 ft."""
+        idx = pd.date_range("2021-06-01", periods=96, freq="15min", tz="UTC")
+        stage = np.full(96, 12.0)
+        stage[40:44] = 12.0 - np.arange(1, 5)
+        stage[44:] = 8.0
+        return pd.DataFrame({"gage_height_ft": stage}, index=idx)
+
+    def test_window_change_is_the_net_change_over_the_hour(self) -> None:
+        """Four 1-ft falls inside one hour are a 4 ft/hr window change, while
+        the per-interval rate reads 4 ft/hr only by coincidence of the step."""
+        ramps = ramping_rates(
+            self._stage_drop(), tz="UTC", value_col="gage_height_ft", window_hours=1.0
+        )
+        row = ramps.iloc[0]
+        assert row["max_fall_ft_in_1h"] == pytest.approx(-4.0)
+        assert row["max_rise_ft_in_1h"] == 0.0
+        assert row["n_windows"] == 92  # the first four readings have no partner
+
+    def test_half_hour_window_and_column_label(self) -> None:
+        ramps = ramping_rates(
+            self._stage_drop(), tz="UTC", value_col="gage_height_ft", window_hours=0.5
+        )
+        assert ramps["max_fall_ft_in_0.5h"].iloc[0] == pytest.approx(-2.0)
+
+    def test_no_window_columns_by_default(self) -> None:
+        ramps = ramping_rates(self._stage_drop(), tz="UTC", value_col="gage_height_ft")
+        assert not any("_in_" in c for c in ramps.columns)
+        assert "n_windows" not in ramps.columns
+
+    def test_missing_partner_forms_no_window(self) -> None:
+        """No reading exactly an hour earlier means no window, never an
+        interpolated one."""
+        iv = self._stage_drop().iloc[::5]  # 75-minute spacing
+        ramps = ramping_rates(iv, tz="UTC", value_col="gage_height_ft", window_hours=1.0)
+        assert ramps["n_windows"].iloc[0] == 0
+        assert np.isnan(ramps["max_fall_ft_in_1h"].iloc[0])
+
+    def test_window_hours_must_be_positive(self) -> None:
+        with pytest.raises(ValueError, match="window_hours"):
+            ramping_rates(self._stage_drop(), tz="UTC", value_col="gage_height_ft", window_hours=0)
+
+
 class TestRampingRateSummary:
     """Tests for ramping_rate_summary."""
 
