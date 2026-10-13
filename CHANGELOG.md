@@ -15,6 +15,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (was 3.0), and 06151000.00 -0.9788 against -0.979 (was -1.054). The Water Data API and
   legacy NWIS backends already emit upper-case codes, so online results do not change.
 
+### Changed
+- **Utah region 2 uses NSS's unrounded precipitation bases; `UT.json` is `verified`** (#96).
+  SIR 2007-5158 Table 5 prints the bases b in b^PRECIP to 3 significant figures (1.07); NSS
+  evaluates 4 (1.074). No published source gives the fourth digit, but every NSS base rounds
+  to the printed one, and the base the report marks "not rounded" (PK200, 1.055) is
+  identical, so the printed values are NSS's rounded. Region 2 estimates change by
+  (NSS base / printed base)^PRECIP: at 35 in. of precipitation, from -9% (5- and 100-year)
+  to +14% (2-, 10- and 500-year). They now equal StreamStats at every AEP.
+
 ### Added
 - **Pending regional skew rows for CO, UT, WY and NV.** None has a B-WLS/B-GLS study. Each
   row cites what USGS uses instead: the Bulletin 17B Plate I map in Colorado (SIR 2025-5047

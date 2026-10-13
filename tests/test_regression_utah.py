@@ -62,7 +62,7 @@ def _pct(sep_log: float) -> float:
 
 class TestLibraryShape:
     def test_status_and_regions(self, lib):
-        assert lib.status == "partial"
+        assert lib.status == "verified"
         assert lib.issue == 96
         assert lib.regions == ["1", "2", "3", "4", "5", "6", "7", "Navajo8"]
         for region in "1234567":
@@ -119,7 +119,8 @@ class TestPrintedForms:
         [
             ("1", 0.5, lambda b: 1.52 * b["DRNAREA"] ** 0.677 * 1.39 ** (b["ELEV"] / 1000)),
             ("1", 0.002, lambda b: 85.4 * b["DRNAREA"] ** 0.457 * 1.13 ** (b["ELEV"] / 1000)),
-            ("2", 0.5, lambda b: 0.585 * b["DRNAREA"] ** 0.847 * 1.07 ** b["PRECIP"]),
+            # Region 2's base is NSS's unrounded 1.074 (printed 1.07; #96).
+            ("2", 0.5, lambda b: 0.585 * b["DRNAREA"] ** 0.847 * 1.074 ** b["PRECIP"]),
             ("2", 0.005, lambda b: 8.79 * b["DRNAREA"] ** 0.592 * 1.055 ** b["PRECIP"]),
             ("3", 0.01, lambda b: 300 * b["DRNAREA"] ** 0.303),
             (
@@ -186,39 +187,38 @@ class TestPrintedForms:
         )
 
 
-class TestRegion2Rounding:
-    """Table 5 prints region 2's bases to 3 significant figures; NSS uses 4."""
+class TestRegion2Bases:
+    """Table 5 prints region 2's bases to 3 significant figures; NSS holds 4 (#96).
 
-    def test_no_published_source_for_nss_bases(self, lib):
-        """No later version, errata, appendix or data release gives 4-digit bases
-        (searched 2026-10-06), so the printed values stay and UT stays partial."""
-        assert lib.status == "partial"
-        assert "no published source" in lib.notes
-        assert "4.0 (March 10, 2008) is still the current release" in lib.notes
+    The NSS bases are stored: each rounds to the printed base, and the one the report
+    leaves unrounded (PK200, 1.055) is identical, so the printed values are their
+    rounding. No published source gives the 4 digits (searched 2026-10-06 and 10-12).
+    """
 
-    def test_stored_bases_are_the_printed_ones(self, lib):
-        for aep, b in zip(AEPS_8, REGION2_PRINTED, strict=True):
+    def test_status_and_provenance(self, lib):
+        assert lib.status == "verified"
+        assert "REGION 2 BASES ARE NSS'S" in lib.notes
+        for aep, p, n in zip(AEPS_8, REGION2_PRINTED, REGION2_NSS, strict=True):
+            table = lib.equation("2", aep).citation.table
+            if p != n:
+                assert f"printed as {p}" in table and f"base {n} from NSS" in table
+
+    def test_stored_bases_are_nss(self, lib):
+        for aep, b in zip(AEPS_8, REGION2_NSS, strict=True):
             eq = lib.equation("2", aep)
             assert eq.coefficients[1] == pytest.approx(math.log10(b), rel=1e-12)
 
-    def test_only_the_unrounded_pk200_base_agrees_with_nss(self):
-        assert [p == n for p, n in zip(REGION2_PRINTED, REGION2_NSS)] == [
-            False,
-            False,
-            False,
-            False,
-            False,
-            False,
-            True,
-            False,
-        ]
+    def test_printed_bases_are_the_nss_bases_rounded(self):
+        # PK200 (index 6) is the base the report prints unrounded, 1.055.
+        rounded = [float(f"{n:.3g}") for i, n in enumerate(REGION2_NSS) if i != 6]
+        assert rounded == [p for i, p in enumerate(REGION2_PRINTED) if i != 6]
+        assert REGION2_NSS[6] == REGION2_PRINTED[6] == 1.055
 
-    def test_size_of_the_discrepancy(self, lib):
-        # At PRECIP = 35 in., the printed 2-year equation is 12% below NSS's.
+    def test_size_of_the_rounding(self, lib):
+        # At PRECIP = 35 in., the printed 2-year equation is 12% below the stored one.
         est = evaluate(lib.equation("2", 0.5), BASIN)
-        nss_form = 0.585 * 30**0.847 * 1.074**35
-        assert est.flow_cfs / nss_form == pytest.approx((1.07 / 1.074) ** 35, rel=1e-12)
-        assert est.flow_cfs / nss_form == pytest.approx(0.878, abs=1e-3)
+        printed_form = 0.585 * 30**0.847 * 1.07**35
+        assert printed_form / est.flow_cfs == pytest.approx(0.878, abs=1e-3)
 
 
 # Live NSS responses, fetched 2026-10-01 (NSS rounds to 3 significant figures).
@@ -239,7 +239,7 @@ NSS_RECORDED = [
     (LOW_BASIN, "Navajo8", 0.01, 10600),
     (LOW_BASIN, "Navajo8", 0.002, 18400),
 ]
-# NSS's region 2 values at BASIN, which the printed equations do not reproduce.
+# NSS's region 2 values at BASIN (the printed bases would not reproduce them).
 NSS_REGION2_AT_BASIN = [127, 192, 240, 282, 346, 387, 429, 499]
 
 
@@ -248,10 +248,9 @@ def test_worked_example_matches_recorded_nss(lib, basin, region, aep, nss):
     assert _sig3(evaluate(lib.equation(region, aep), basin).flow_cfs) == nss
 
 
-def test_recorded_nss_region_2_is_the_unrounded_bases(lib):
-    for aep, nss, p, n in zip(AEPS_8, NSS_REGION2_AT_BASIN, REGION2_PRINTED, REGION2_NSS):
-        ours = evaluate(lib.equation("2", aep), BASIN).flow_cfs
-        assert ours * (n / p) ** BASIN["PRECIP"] == pytest.approx(nss, rel=5e-3), aep
+def test_recorded_nss_region_2(lib):
+    for aep, nss in zip(AEPS_8, NSS_REGION2_AT_BASIN, strict=True):
+        assert _sig3(evaluate(lib.equation("2", aep), BASIN).flow_cfs) == nss, aep
 
 
 NSS_CODE_TO_REGION = {
@@ -309,9 +308,8 @@ NSS_STAT_TO_AEP = {
 def test_matches_live_nss(lib, basin, n_regions):
     """Every in-range region x AEP against NSS region 48 (Utah), citations 140 and 11.
 
-    Exact agreement at NSS's 3 significant figures, except region 2 at the seven AEPs
-    whose printed base is rounded: there NSS equals the printed equation rescaled by
-    (NSS base / printed base)^PRECIP.
+    Exact agreement at NSS's 3 significant figures, region 2 included since its
+    bases are NSS's (#96).
     """
     from flowfreq.streamstats import Characteristic, estimate_flow_statistics
 
@@ -323,7 +321,4 @@ def test_matches_live_nss(lib, basin, n_regions):
         for code, est in r.estimates.items():
             aep = NSS_STAT_TO_AEP[code]
             ours = evaluate(lib.equation(region, aep), basin).flow_cfs
-            if region == "2" and aep != 0.005:
-                i = AEPS_8.index(aep)
-                ours *= (REGION2_NSS[i] / REGION2_PRINTED[i]) ** basin["PRECIP"]
             assert _sig3(ours) == est.value, (region, code, est.value, ours)

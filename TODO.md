@@ -79,8 +79,9 @@ Phase A / Wave entries below.
 - [ ] **Partial states.**
       - ~~WA region 4 covariance (#65)~~: stored in the `P/10` basis after a GLS refit
         (`docs/WA_REGION4_REFIT.md`); WA is `verified`.
-      - UT region 2 (#96): NSS evaluates 4-digit precipitation bases where SIR 2007-5158
-        prints 3. A search found no primary source for the extra digit.
+      - ~~UT region 2 (#96)~~: NSS's 4-digit precipitation bases are stored; each rounds to
+        SIR 2007-5158's printed 3-digit base. UT is `verified` (maintainer decision pending
+        on the PR).
       - NV region 6 and the hybrid regions (#104): the printed 2-year `Q=0` and the hybrid
         method's non-comparable error statistics have no schema representation.
 - [x] **Oregon closed basins (1712)**: provisional PNW member after a B-GLS applicability
@@ -217,10 +218,11 @@ does not block it. `partial` means something the reports *do* publish is missing
 unresolved.
 
 - [x] **#93 CO**, `verified` (#94).
-- [ ] **#96 UT**, `partial` (#97). Region 2 does not match NSS: Table 5 prints its
-      precipitation bases to 3 significant figures, NSS uses 4 (1.07 against 1.074). The
-      printed values are stored and the gap is pinned by tests. v0.10.2 recorded a search
-      for a primary source of the fourth digit; none exists (CHANGELOG.md).
+- [x] **#96 UT**, `verified` (#97, region 2 bases 2026-10-12). Table 5 prints region 2's
+      precipitation bases to 3 significant figures, NSS uses 4 (1.07 against 1.074). No
+      published source gives the fourth digit, but every NSS base rounds to the printed
+      one and the base the report leaves unrounded (PK200) is identical, so NSS's are
+      stored, with both values in each equation's citation. Region 2 now matches live NSS.
 - [x] **#98 WY**, `verified` (#99).
 - [x] **#100 NM**, `verified` (#101).
 - [x] **#102 AZ**, `verified` since v0.10.2: region 5's `10^(a - b DRNAREA^-c)` form is
