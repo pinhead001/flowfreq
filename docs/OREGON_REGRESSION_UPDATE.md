@@ -12,15 +12,15 @@ Oregon regression update plan, tasks 2-5
 
 - **Prefer the current equations wherever you can evaluate them.** The provisional
   equations are less precise in every region. At the 1-percent AEP:
-  - West (by sub-region): SEP 36-54 %, against Cooper (2005)'s 29-36 %;
-  - East: 67-94 %, against OWRD's 41-75 %.
+  - West (by sub-region): SEP 36-51 %, against Cooper (2005)'s 29-36 %;
+  - East: 67-91 %, against OWRD's 41-75 %.
 - **What the set offers.** Bulletin 17C station statistics (EMA/MGBT, PNW regional
   skew, peaks through WY2025), and inputs that can all be computed today.
 - **Why that matters.** Oregon StreamStats was re-checked on 2026-10-12 and
   2026-10-13 and still does not compute the current western equations' I24H2Y,
   JANMAXT2K, WATCAPORC or SOILPERM. So `OR.json` regions 1, 2A and 2B cannot
   currently be evaluated through StreamStats.
-- **Likely cause of the gap: no soil or geology variable.** The largest negative
+- **A soil-permeability variable helps a little, not enough.** The largest negative
   residuals are spring-fed High Cascades basins:
   - Waldo Lake outlet;
   - Thielsen Creek;
@@ -28,8 +28,15 @@ Oregon regression update plan, tasks 2-5
   - North Umpqua at Toketee Falls.
 
   Their floods are small for their size and precipitation. Cooper captured this
-  with SOILPERM and WATCAPORC. Adding a national permeability grid (gNATSGO/STATSGO2)
-  is the obvious next improvement.
+  with SOILPERM and WATCAPORC. STATSGO2 saturated hydraulic conductivity
+  (`SOILKSAT_STATSGO2`, added 2026-10-13) enters three regions with the expected
+  negative sign and lowers their 1-percent SEP by 2-3 points (below). It barely
+  moves the High Cascades residuals (Thielsen Creek -0.58 to -0.56 log units,
+  Clearwater -0.45 to -0.41, Waldo Lake unchanged at -0.52). All four basins sit
+  in the same STATSGO2 map unit (4.2 in./hr, 2.5 times the median), which also
+  covers basins that flood normally. What sets them apart is groundwater storage
+  in young High Cascades lava, and Waldo Lake's own storage. Neither is a soil
+  property at 1:250,000. A geology variable is the next thing to try (Limits).
 
 ## Data
 
@@ -79,6 +86,23 @@ used and every other characteristic is computed over it from one national source
 | `I24H2Y_NA2` | NOAA Atlas 2 2-year 24-hour precipitation, HDSC western U.S. grid (NAD27) | in |
 | `ELEV_3DEP` | USGS 3DEP 1/3 arc-second DEM, basin mean (3DEP ImageServer) | ft |
 | `BSLOPD_3DEP` | 3DEP `Slope Degrees` raster function, basin mean | degrees |
+| `SOILKSAT_STATSGO2` | NRCS STATSGO2 via Soil Data Access, rasterized at 15 arc-seconds (below) | in./hr |
+
+**Soil permeability (`soils` stage).** `SOILKSAT` is computed as Wolock's (1997)
+STATSGO PERMAVE was:
+1. Each component's horizon `ksat_r` is averaged, weighted by thickness, over the
+   whole profile. Bedrock horizons coded 0 count; horizons with no Ksat do not.
+2. Each map unit's value is the mean of its components' values, weighted by
+   `comppct_r`. Components with no horizon data (rock outcrop, water) are left out.
+3. The result is rasterized from SDA's `gsmmupolygon` polygons, generalized to
+   0.002°. Eight slivers that generalized to lines or geometry collections are
+   dropped.
+
+gNATSGO was not used:
+- it is a 30 m mukey raster plus tables, a far larger download;
+- where SSURGO has gaps, which includes much of the Cascade national-forest land,
+  it fills them from STATSGO2 or raster soil surveys. Whether that gives the High
+  Cascades basins more detail than STATSGO2 has not been checked.
 
 **Why the codes name their source.** A same-named StreamStats characteristic
 (PRECIP, ELEV, I24H2Y) comes from other grids, and the codes keep one from being
@@ -117,10 +141,15 @@ The splits, in order:
 
 | Split | From | Gages | t |
 |---|---|---|---|
-| 171003 Southern Oregon Coastal (Umpqua, Rogue, south coast) | W | 107 | 4.0 |
 | 170701 Middle Columbia | E | 58 | 3.6 |
-| 170800 Lower Columbia | W | 52 | 2.9 |
-| 170900 Willamette | W | 130 | 2.8 |
+| 171003 Southern Oregon Coastal (Umpqua, Rogue, south coast) | W | 107 | 3.4 |
+| 170800 Lower Columbia | W | 52 | 2.7 |
+| 170900 Willamette | W | 130 | 2.3 |
+
+The same four splits come out with and without `SOILKSAT` among the candidates;
+only their order and t values changed. (Without it, the order was 171003, 170701,
+170800, 170900, with t = 4.0, 3.6, 2.9, 2.8.) `--splits` adopts a given list
+without re-deriving it.
 
 The West remainder is the coast:
 - 171001 Washington Coastal;
@@ -151,10 +180,25 @@ is used at all eight AEPs.
 |---|---|---|---|---|---|
 | W (coastal) | 53 | DRNAREA, ELEV, PRECIP | 28 / 36 / 40 | 28 / 33 | 0.98 |
 | W-170900 Willamette | 130 | DRNAREA, BSLOPD, JANMAXT, PRECIP | 38 / 43 / 46 | 39 / 40 | 0.96 |
-| W-171003 Southern Oregon Coastal | 107 | DRNAREA, BSLOPD, JANMAXT, PRECIP | 48 / 51 / 55 | 50 / 48 | 0.95 |
-| W-170800 Lower Columbia | 52 | DRNAREA, BSLOPD | 53 / 54 / 54 | 56 / 59 | 0.94 |
+| W-171003 Southern Oregon Coastal | 107 | DRNAREA, BSLOPD, JANMAXT, PRECIP, SOILKSAT | 47 / 49 / 54 | 50 / 47 | 0.95 |
+| W-170800 Lower Columbia | 52 | DRNAREA, BSLOPD, SOILKSAT | 50 / 51 / 51 | 52 / 57 | 0.95 |
 | E-170701 Middle Columbia | 58 | DRNAREA, ELEV, PRECIP | 89 / 67 / 82 | 93 / 59 | 0.84 |
-| E (rest of the east) | 177 | DRNAREA, ELEV, I24H2Y | 99 / 94 / 109 | 102 / 94 | 0.76 |
+| E (rest of the east) | 177 | DRNAREA, ELEV, I24H2Y, SOILKSAT | 94 / 91 / 105 | 97 / 94 | 0.77 |
+
+**What `SOILKSAT` changed.** Before it was a candidate, the three regions above
+that now use it had these SEPs (50 / 1 / 0.2 % AEP):
+- W-171003: 48 / 51 / 55, with DRNAREA, BSLOPD, JANMAXT, PRECIP;
+- W-170800: 53 / 54 / 54, with DRNAREA, BSLOPD;
+- E: 99 / 94 / 109, with DRNAREA, ELEV, I24H2Y.
+
+Its coefficient is about -0.3 to -0.4 at the 1 % AEP, with t = -2.4 to -2.7.
+Elsewhere it is not selected:
+- in the Willamette it has t = -0.2 alone, and VIF > 5 beside JANMAXT and PRECIP,
+  so it carries the same High Cascades signal as the climate variables;
+- in W and E-170701 it has |t| < 2.
+
+Even the best subset of all seven candidates (every term |t| ≥ 2, VIF < 5) beats
+the forward selection in no region.
 
 **Comparison.** The current equations' published SEPs at the same three AEPs:
 - Region 1: 27 / 29 / 33;
@@ -172,8 +216,8 @@ The plan's LOOCV "against the current equations at the same gages" was not
 possible, because those equations' inputs cannot be computed. The leave-one-out
 SEPs above are the substitute.
 
-**Leverage.** Highest in W-170800 (0.48, Lower Columbia, where 52 gages span
-0.2-1,800 mi²). Everywhere else it is 0.28 or less.
+**Leverage.** Highest in W-170800 (0.57 with SOILKSAT, up from 0.48; Lower
+Columbia, where 52 gages span 0.2-1,800 mi²). Everywhere else it is 0.28 or less.
 
 ## Using the set
 
@@ -195,8 +239,12 @@ file's `notes`.
 
 ## Limits and next steps
 
-- No soil or geology variable. This is the most likely gain, especially for the
-  High Cascades.
+- No geology variable. STATSGO2 Ksat does not separate the spring-fed High
+  Cascades basins (see Bottom line). Candidates to try next, to address that
+  residual:
+  - the fraction of each basin on Quaternary High Cascades volcanic rocks (USGS
+    SGMC or the DOGAMI state geologic map);
+  - a lake/storage percentage (NHD waterbodies) for basins like Waldo Lake.
 - Regions follow outlet HUC6s. A basin is in one region, and none straddles
   (plan Review Focus 5 is satisfied by construction).
 - East region SEPs stay near 90 %. Eastern Oregon's crest-stage records are short

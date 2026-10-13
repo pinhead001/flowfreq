@@ -78,6 +78,7 @@ CANDIDATES: Dict[str, Tuple[str, str, str, float, str]] = {
     "JANMAXT": ("JANMAXT", "JANMAXT_PRISM9120", "identity", 1.0, "degF"),
     "ELEV/1000": ("ELEV", "ELEV_3DEP", "identity", 0.001, "ft"),
     "log10 BSLOPD": ("BSLOPD", "BSLOPD_3DEP", "log10", 1.0, "degrees"),
+    "log10 SOILKSAT": ("SOILKSAT", "SOILKSAT_STATSGO2", "log10", 1.0, "in/hr"),
 }
 FORCED = ("log10 DRNAREA",)
 
@@ -290,9 +291,23 @@ def split_regions(df: pd.DataFrame) -> List[Dict[str, Any]]:
         steps.append({"split": huc6, "from": parent, "region": code, "n": n, "t": round(t, 2)})
 
 
-def run(store: bool) -> Dict[str, Any]:
+def fixed_splits(df: pd.DataFrame, huc6s: Sequence[str]) -> List[Dict[str, Any]]:
+    """Adopt the given HUC6 splits, in order, without re-deriving them (``--splits``)."""
+    steps: List[Dict[str, Any]] = []
+    for huc6 in huc6s:
+        parent = region_of(huc6)
+        code = f"{parent}-{huc6}"
+        SPLITS[huc6] = code
+        REGION_NAMES[code] = f"{HUC6_NAMES.get(huc6, 'HUC6')} (HUC6 {huc6}), split from {parent}"
+        df["region"] = df["huc"].map(region_of)
+        n = int((df["region"] == code).sum())
+        steps.append({"split": huc6, "from": parent, "region": code, "n": n, "t": None})
+    return steps
+
+
+def run(store: bool, splits_given: Optional[Sequence[str]] = None) -> Dict[str, Any]:
     df = load()
-    splits = split_regions(df)
+    splits = split_regions(df) if splits_given is None else fixed_splits(df, splits_given)
     out: Dict[str, Any] = {
         "status": "provisional -- NOT a USGS study",
         "n_sites": len(df),
@@ -389,7 +404,7 @@ def write_provisional(equations: List[Dict[str, Any]], df: pd.DataFrame) -> None
             "Developed by flowfreq following the USGS GLS procedure (WREG). Regions are "
             f"hydrologic-unit sets: {json.dumps(hucs)}; any other HUC is region E. "
             "Variable codes name their sources (PRISM 1991-2020 normals, NOAA Atlas 2, "
-            "3DEP): values of same-named StreamStats characteristics are not "
+            "3DEP, STATSGO2 Ksat): values of same-named StreamStats characteristics are not "
             "interchangeable. See docs/OREGON_REGRESSION_UPDATE.md."
         ),
     }
@@ -400,8 +415,13 @@ def write_provisional(equations: List[Dict[str, Any]], df: pd.DataFrame) -> None
 def main(argv: Sequence[str]) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--store", action="store_true")
+    ap.add_argument(
+        "--splits",
+        default=None,
+        help="comma-separated HUC6 splits to adopt in order instead of re-deriving them",
+    )
     args = ap.parse_args(list(argv))
-    out = run(args.store)
+    out = run(args.store, None if args.splits is None else args.splits.split(","))
     for region, reg in out["regions"].items():
         f = reg["fits"]["0.01"]
         print(region, reg["n"], reg["variables"], "SEP %.1f%%" % f["sep_percent"],
