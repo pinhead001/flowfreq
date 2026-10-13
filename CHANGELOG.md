@@ -25,6 +25,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the published set remains the default and is preferred wherever its inputs are
   available.
 - `study` optional extra (`rasterio`) for the raster-reading tools under `tools/`.
+- **`ramping_rates(window_hours=...)`** (#152): the day's largest net rise and fall over a
+  fixed window, the form compliance limits are stated in ("1 ft per hour"). Each reading is
+  paired with the reading exactly that many hours earlier; with no partner, no window is
+  formed. It reproduces Exelon (2012) S4.3.1's one-hour stage declines at Conowingo
+  (01578310) for Studies 9-11. Study 12 is recorded, not pinned.
+
+### Fixed
+- **Water Data peak qualifiers no longer warn per row** (#149). `YEARUNKNOWN` (NWIS code A) is
+  dropped like `DAYUNKNOWN`, `OTHERAGENCY` maps to code F, and the gage-height flags
+  `BACKWATER`, `NOTMAXGH`, `EQUIP`, `ICE` and `BLWMIN` are dropped like `GHNOTASSCPKQ`.
+  None changes a B17C treatment.
 
 ## [0.11.0] - 2026-10-13
 
