@@ -80,7 +80,23 @@ Approved by the maintainer 2026-10-12; implemented in #141 (`tests/test_regressi
 - [x] `provisional_states()` lists them; `docs/REGRESSION_COVERAGE.md` marks a state that has
   one ("+ provisional set").
 
-### Task 2: Oregon station dataset
+### Task 2: Oregon station dataset — done
+
+Done 2026-10-13 (`data/regression_study/oregon_stations.csv`,
+`tests/test_oregon_regression_dataset.py`). 660 gages kept of 1223 candidates (OR 520,
+WA 93, ID 24, CA 18, NV 5). Decisions the plan left open:
+- minimum record 10 years (SIR 2016-5118 and 2016-5083 use 10 for regression gages, against
+  the skew studies' 25), counted as nonzero peaks: 22 mostly-zero-flow gages dropped (EMA on
+  two or three nonzero values gives an SD near 10 log units);
+- the Columbia at The Dalles excluded (drainage area > 20,000 mi2, mostly outside the study);
+- nested pairs flagged in `redundant_with` rather than dropped; GLS handles them (Task 5).
+
+Skew sources: PNW 600 gages; the provisional closed-basin row 17 (Oregon gages in 1712);
+station-only 43, all Klamath (1801) or NV/CA. The SIR 2016-5083 check covers 29 shared gages;
+median ratio 0.9994-1.0009 at the 8 AEPs. The 4 beyond 5 % all have Table A3 perception
+thresholds, which the check does not apply.
+
+Original task text:
 
 - `tools/build_oregon_regression_dataset.py`. Every OR peak-flow gage, plus border gages within
   25 mi (WA, ID, NV, CA), from bulk OGC queries with `USGS_API_KEY`.
