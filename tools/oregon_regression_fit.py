@@ -79,7 +79,11 @@ CANDIDATES: Dict[str, Tuple[str, str, str, float, str]] = {
     "ELEV/1000": ("ELEV", "ELEV_3DEP", "identity", 0.001, "ft"),
     "log10 BSLOPD": ("BSLOPD", "BSLOPD_3DEP", "log10", 1.0, "degrees"),
     "log10 SOILKSAT": ("SOILKSAT", "SOILKSAT_STATSGO2", "log10", 1.0, "in/hr"),
+    "VOLCQP/100": ("VOLCQP", "VOLCQP_SGMC", "identity", 0.01, "percent"),
+    "log10 (LAKEAREA+1)": ("LAKEAREA", "LAKEAREA_NHD", "log10", 1.0, "percent"),
 }
+#: Offsets added after scaling, before the transform (``Variable.offset``).
+OFFSETS: Dict[str, float] = {"log10 (LAKEAREA+1)": 1.0}
 FORCED = ("log10 DRNAREA",)
 
 #: Base regions by HUC prefix (longest prefix wins); anything unlisted is East.
@@ -124,7 +128,7 @@ def load() -> pd.DataFrame:
 
 def column(df: pd.DataFrame, name: str) -> np.ndarray:
     col, _, transform, scale, _ = CANDIDATES[name]
-    x = df[col].to_numpy(dtype=float) * scale
+    x = df[col].to_numpy(dtype=float) * scale + OFFSETS.get(name, 0.0)
     return np.log10(x) if transform == "log10" else x
 
 
@@ -305,7 +309,22 @@ def fixed_splits(df: pd.DataFrame, huc6s: Sequence[str]) -> List[Dict[str, Any]]
     return steps
 
 
-def run(store: bool, splits_given: Optional[Sequence[str]] = None) -> Dict[str, Any]:
+def stored_variables(region: str) -> List[str]:
+    """The design-column names of ``region``'s equations in the stored provisional set."""
+    data = json.loads(PROVISIONAL.read_text(encoding="utf-8"))
+    by_code = {c[1]: name for name, c in CANDIDATES.items()}
+    for e in data["equations"]:
+        if e["region_code"] == region:
+            return [by_code[v["code"]] for v in e["variables"]]
+    raise KeyError(f"region {region!r} is not in {PROVISIONAL.name}")
+
+
+def run(
+    store: bool,
+    splits_given: Optional[Sequence[str]] = None,
+    hold: Sequence[str] = (),
+) -> Dict[str, Any]:
+    """Fit every region; ``hold`` regions keep the stored set's variables instead of selecting."""
     df = load()
     splits = split_regions(df) if splits_given is None else fixed_splits(df, splits_given)
     out: Dict[str, Any] = {
@@ -319,7 +338,11 @@ def run(store: bool, splits_given: Optional[Sequence[str]] = None) -> Dict[str, 
     equations: List[Dict[str, Any]] = []
     for region, g in sorted(df.groupby("region")):
         g = g.reset_index(drop=True)
-        names, sel_log = select(g)
+        if region in hold:
+            names = stored_variables(str(region))
+            sel_log = [{"held": names, "from": PROVISIONAL.name}]
+        else:
+            names, sel_log = select(g)
         X = design(g, names)
         res01 = fit(g, names, SELECT_AEP)
         reg: Dict[str, Any] = {
@@ -367,6 +390,8 @@ def equation_json(
         }
         if scale != 1.0:
             v["scale"] = scale
+        if OFFSETS.get(n, 0.0):
+            v["offset"] = OFFSETS[n]
         variables.append(v)
     return {
         "region_code": region,
@@ -404,7 +429,7 @@ def write_provisional(equations: List[Dict[str, Any]], df: pd.DataFrame) -> None
             "Developed by flowfreq following the USGS GLS procedure (WREG). Regions are "
             f"hydrologic-unit sets: {json.dumps(hucs)}; any other HUC is region E. "
             "Variable codes name their sources (PRISM 1991-2020 normals, NOAA Atlas 2, "
-            "3DEP, STATSGO2 Ksat): values of same-named StreamStats characteristics are not "
+            "3DEP, STATSGO2 Ksat, USGS SGMC, NHD): values of same-named StreamStats characteristics are not "
             "interchangeable. See docs/OREGON_REGRESSION_UPDATE.md."
         ),
     }
@@ -420,8 +445,14 @@ def main(argv: Sequence[str]) -> int:
         default=None,
         help="comma-separated HUC6 splits to adopt in order instead of re-deriving them",
     )
+    ap.add_argument(
+        "--hold",
+        default="",
+        help="comma-separated regions that keep the stored provisional set's variables",
+    )
     args = ap.parse_args(list(argv))
-    out = run(args.store, None if args.splits is None else args.splits.split(","))
+    splits = None if args.splits is None else args.splits.split(",")
+    out = run(args.store, splits, [r for r in args.hold.split(",") if r])
     for region, reg in out["regions"].items():
         f = reg["fits"]["0.01"]
         print(region, reg["n"], reg["variables"], "SEP %.1f%%" % f["sep_percent"],

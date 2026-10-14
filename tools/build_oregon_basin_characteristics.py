@@ -32,6 +32,13 @@ of these gages.
                       Wolock's (1997) STATSGO PERMAVE; rasterized at 15
                       arc-seconds from the polygons and tables NRCS Soil Data
                       Access serves (``gsmmupolygon``, areasymbol ``US``)
+``VOLCQP``            percent of the basin on volcanic rock no older than
+                      Pliocene: USGS SGMC (Horton and others, 2017) units with
+                      ``generalize`` "Igneous, volcanic" and an ``age_max`` in the
+                      Pliocene or Quaternary; rasterized at 15 arc-seconds
+``LAKEAREA``          percent of the basin under lakes, ponds and reservoirs
+                      of at least 0.05 km2 (NHD high-resolution waterbodies,
+                      FTYPE 390 and 436); rasterized at 5 arc-seconds
 ====================  ==========================================================
 
 Each zonal mean is the mean of the raster cells whose centres fall inside the
@@ -48,11 +55,15 @@ Stages, each cached under ``--cache`` and resumable:
 - ``soils`` (before ``characteristics``): STATSGO2 polygons and
   component/horizon tables from Soil Data Access over the cached basins'
   extent, rasterized to ``<rasters>/statsgo2_ksat_15s.tif``.
+- ``geology`` (before ``characteristics``): young volcanic SGMC units and NHD
+  lakes over the same extent, from their ArcGIS feature services, rasterized
+  to ``<rasters>/sgmc_volcqp_15s.tif`` and ``<rasters>/nhd_lakes_5s.tif``.
 
 Usage::
 
     python tools/build_oregon_basin_characteristics.py --cache <dir> basins
     python tools/build_oregon_basin_characteristics.py --cache <dir> --rasters <dir> soils
+    python tools/build_oregon_basin_characteristics.py --cache <dir> --rasters <dir> geology
     python tools/build_oregon_basin_characteristics.py --cache <dir> --rasters <dir> characteristics
 """
 
@@ -88,6 +99,9 @@ RASTERS: Dict[str, Tuple[str, float, float]] = {
     "I24H2Y": ("na2_westus_2yr24hr/na2_westus_2yr24hr.asc", 1e-5, 0.0),
     # um/s -> in./hr (the raster the ``soils`` stage writes)
     "SOILKSAT": ("statsgo2_ksat_15s.tif", 3.6 / 25.4, 0.0),
+    # 0/1 cells -> percent (the ``geology`` stage)
+    "VOLCQP": ("sgmc_volcqp_15s.tif", 100.0, 0.0),
+    "LAKEAREA": ("nhd_lakes_5s.tif", 100.0, 0.0),
 }
 SOURCES = {
     "DRNAREA": "StreamStats delineation, or NLDI basin where StreamStats mis-snapped "
@@ -103,6 +117,13 @@ SOURCES = {
     "SOILKSAT": "NRCS STATSGO2 (U.S. General Soil Map) via Soil Data Access, retrieved "
     "2026-10-13: horizon ksat_r thickness-weighted per component, components weighted "
     "by comppct_r, rasterized at 15 arc-seconds (in./hr)",
+    "VOLCQP": "USGS State Geologic Map Compilation (Horton and others, 2017, DS 1052, "
+    "doi:10.5066/F7WH2N65) via the energy.usgs.gov State_Geological_Map_Compilation "
+    "feature service, retrieved 2026-10-14: percent of basin on units with generalize "
+    "'Igneous, volcanic' and age_max Pliocene or Quaternary, 15 arc-second raster",
+    "LAKEAREA": "USGS NHD high-resolution Waterbody (hydro.nationalmap.gov nhd MapServer "
+    "layer 12), retrieved 2026-10-14: percent of basin under FTYPE 390 (LakePond) or "
+    "436 (Reservoir) with AREASQKM >= 0.05, 5 arc-second raster",
 }
 #: A basin is accepted when its area is within this fraction of the NWIS area.
 AREA_TOL = 0.10
@@ -118,6 +139,19 @@ SDA = "https://sdmdataaccess.sc.egov.usda.gov/tabular/post.rest"
 SOIL_REDUCE = 0.002
 SOIL_RES = 1.0 / 240.0
 SOIL_NODATA = -9999.0
+
+SGMC = (
+    "https://energy.usgs.gov/arcgis/rest/services/Hosted/State_Geological_Map_Compilation/"
+    "FeatureServer/1/query"
+)
+#: Volcanic units no older than Pliocene (their oldest age, ``age_max``).
+SGMC_WHERE = (
+    "generalize = 'Igneous, volcanic' AND "
+    "(age_max LIKE '%Quaternary%' OR age_max LIKE '%Pliocene%')"
+)
+NHD_WATERBODY = "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/12/query"
+NHD_WHERE = "FTYPE IN (390, 436) AND AREASQKM >= 0.05"
+LAKE_RES = 1.0 / 720.0
 
 log = logging.getLogger("or_basins")
 
@@ -464,6 +498,97 @@ def soils(cache: Path, rasters: Path) -> Path:
     return path
 
 
+def arcgis_features(
+    url: str,
+    where: str,
+    bounds: Tuple[float, float, float, float],
+    order_by: str,
+    cache: Path,
+    reduce_deg: float,
+    page: int = 2000,
+) -> List[Dict[str, Any]]:
+    """GeoJSON features of an ArcGIS feature query over ``bounds``, paged and cached.
+
+    Each page is cached as ``<cache>/page_<offset>.json``; geometry comes back in
+    EPSG:4326, generalized by ``reduce_deg`` degrees.
+    """
+    cache.mkdir(parents=True, exist_ok=True)
+    x0, y0, x1, y1 = bounds
+    env = {"xmin": x0, "ymin": y0, "xmax": x1, "ymax": y1, "spatialReference": {"wkid": 4326}}
+    feats: List[Dict[str, Any]] = []
+    offset = 0
+    while True:
+        f = cache / f"page_{offset:06d}.json"
+        if not f.exists():
+            params = {
+                "where": where,
+                "geometry": json.dumps(env),
+                "geometryType": "esriGeometryEnvelope",
+                "inSR": 4326,
+                "spatialRel": "esriSpatialRelIntersects",
+                "outFields": order_by,
+                "outSR": 4326,
+                "maxAllowableOffset": reduce_deg,
+                "orderByFields": order_by,
+                "resultOffset": offset,
+                "resultRecordCount": page,
+                "f": "geojson",
+            }
+            r = requests.get(url, params=params, timeout=600)
+            r.raise_for_status()
+            d = r.json()
+            if "features" not in d:
+                raise RuntimeError(f"{url}: {str(d)[:300]}")
+            f.write_text(json.dumps(d["features"]), encoding="utf-8")
+            log.info("%s: page at %d, %d features", cache.name, offset, len(d["features"]))
+        got = json.loads(f.read_text(encoding="utf-8"))
+        feats += got
+        if len(got) < page:
+            return feats
+        offset += page
+
+
+def _write_mask(
+    path: Path, feats: List[Dict[str, Any]], bounds: Tuple[float, float, float, float], res: float
+) -> float:
+    """Rasterize ``feats`` to a 0/1 uint8 GeoTIFF over ``bounds``; returns the fraction set."""
+    import rasterio
+    from rasterio.features import rasterize
+    from rasterio.transform import from_origin
+
+    x0, y0, x1, y1 = bounds
+    width = int(np.ceil((x1 - x0) / res))
+    height = int(np.ceil((y1 - y0) / res))
+    transform = from_origin(x0, y1, res, res)
+    shapes = [(ft["geometry"], 1) for ft in feats if ft.get("geometry")]
+    mask = rasterize(shapes, out_shape=(height, width), transform=transform, fill=0, dtype="uint8")
+    profile = dict(driver="GTiff", width=width, height=height, count=1, dtype="uint8",
+                   crs="EPSG:4326", transform=transform, nodata=255, compress="deflate")  # fmt: skip
+    with rasterio.open(path, "w", **profile) as dst:
+        dst.write(mask, 1)
+    return float(mask.mean())
+
+
+def geology(cache: Path, rasters: Path) -> None:
+    """Stage ``geology``: SGMC young-volcanic and NHD lake masks over the basins' extent.
+
+    Both are presence masks (1 inside a selected polygon, 0 elsewhere), so a
+    basin's zonal mean is the fraction of its area covered. SGMC's units are not
+    reconciled across state lines, so a unit's age and class follow the source
+    state map.
+    """
+    bounds = _basin_bounds(cache)
+    rasters.mkdir(parents=True, exist_ok=True)
+    volc = arcgis_features(SGMC, SGMC_WHERE, bounds, "fid", cache / "sgmc", SOIL_REDUCE / 2)
+    frac = _write_mask(rasters / RASTERS["VOLCQP"][0], volc, bounds, SOIL_RES)
+    log.info(
+        "geology: %d SGMC young volcanic polygons, %.1f %% of the extent", len(volc), 100 * frac
+    )
+    lakes = arcgis_features(NHD_WATERBODY, NHD_WHERE, bounds, "OBJECTID", cache / "nhd", 0.0002)
+    frac = _write_mask(rasters / RASTERS["LAKEAREA"][0], lakes, bounds, LAKE_RES)
+    log.info("geology: %d NHD lakes and reservoirs, %.2f %% of the extent", len(lakes), 100 * frac)
+
+
 def characteristics(cache: Path, rasters: Path) -> pd.DataFrame:
     import rasterio
 
@@ -517,7 +642,7 @@ def characteristics(cache: Path, rasters: Path) -> pd.DataFrame:
 
 def main(argv: Sequence[str]) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    ap.add_argument("stage", choices=["basins", "soils", "characteristics"])
+    ap.add_argument("stage", choices=["basins", "soils", "geology", "characteristics"])
     ap.add_argument("--cache", type=Path, default=ROOT / ".cache" / "or_basins")
     ap.add_argument("--rasters", type=Path, default=None)
     ap.add_argument("--concurrency", type=int, default=3)
@@ -532,6 +657,9 @@ def main(argv: Sequence[str]) -> int:
         return 0
     if args.rasters is None:
         raise SystemExit(f"{args.stage} needs --rasters")
+    if args.stage == "geology":
+        geology(args.cache, args.rasters)
+        return 0
     if args.stage == "soils":
         soils(args.cache, args.rasters)
         return 0
