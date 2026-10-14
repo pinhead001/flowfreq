@@ -6,56 +6,82 @@ USGS Scientific Investigations Report 2025-5047, <https://doi.org/10.3133/sir202
 
 ## Where it is and how to get it
 
-`flowfreq/data/regression/provisional/CO.json` holds the 32 peak-flow equations from Table 1:
-four regions (Alpine, SubAlpine, MidElevation, Plateau), each at AEP 0.5 to 0.002. Load them with
-`load_state("CO", allow_provisional=True)`. The default `load_state("CO")` still returns the
-2009/2016/2006 set in `CO.json`, which is the set NSS serves.
+`flowfreq/data/regression/awaiting_nss/CO.json` holds the 32 peak-flow equations from Table 1:
+four regions (Alpine, SubAlpine, MidElevation, Plateau), each at AEP 0.5 to 0.002. The file has
+status `awaiting_nss`, which means published by the USGS but not yet served by NSS/StreamStats.
 
-This is a USGS report, not a flowfreq study. It is filed under `provisional/` only because that
-folder is the library's one opt-in mechanism. The advisory `load_state` attaches to every
-provisional set says "developed by flowfreq", and that is wrong for this file. The file's `notes`
-field gives the correct provenance.
+Load it with `load_state("CO", allow_awaiting_nss=True)`. The default `load_state("CO")` is
+unchanged and returns the 2009/2016/2006 set in `CO.json`, which is the set NSS serves. The
+advisory on this set reads "NOT YET IN STREAMSTATS (USGS-published) ...". It replaces the
+"developed by flowfreq" wording that provisional sets carry.
 
-## NSS / StreamStats status (checked 2026-10-13)
+### Why it has its own folder instead of `provisional/`
 
-- Not adopted. Public NSS (`streamstats.usgs.gov/nssservices`) still lists only citations 11, 20
-  and 21 for Colorado.
-- NSS has a draft of this report: citation 200, "2023, Peak-, Mean-, and Low-Streamflow ...
-  2019", with regression regions 995-998 (`CO_Peakflow_*_SIR_2023_XXXX`). It has status 2,
-  "Review", which means it is disabled for public users and enabled only on staging
-  (`test.streamstats.usgs.gov`). The staging equation strings match Table 1 term for term, and
-  the tests reproduce its returned values.
-- When NSS approves it, review whether these equations should move into `CO.json`. In
-  `CO.json` they would replace the Mountain, Northwest, Rio Grande and Southwest regions, and
-  Foothills, Plains and Navajo would stay.
+The loader binds each opt-in folder to one status. Its consistency check is "a file under
+`<folder>/` must have status X". There are three reasons not to share `provisional/`:
 
-## What the schema stores and what it leaves out
+- A provisional set (flowfreq-developed) and an awaiting-NSS set (USGS-published) are different
+  claims, and each gets its own advisory.
+- A state can have both at once, and each folder holds one `<CODE>.json`.
+- Moving a set to `CO.json` once NSS adopts it is just a matter of moving the file.
 
-- Form: `Q = 10^b0 · AREA^b1 · 10^(c1·X1 + c2·X2 [+ c3·X3])`. DRNAREA is `log10` and every other
-  variable is `identity`, exactly as printed.
-- Region selection is by mean basin elevation (ELEV, ft NAVD 88): Alpine > 10,490; Sub-Alpine
-  9,493-10,490; Mid-Elevation 8,015-9,492; Plateau < 8,014. The library does not pick the region;
-  the caller does. NSS staging uses slightly different, gap-free bounds. See the JSON notes.
-- Variable codes are those printed in Table 1. NSS staging renames four of them: BSLDEM10M is
-  ALTBSLDEM, ELEV is ALTELEV, I24H100Y is ALI24H100Y and PRECIP is PRECPRIS10.
-- Limits are the single pooled range Table 1 prints for all regions. The report publishes no
-  per-region ranges. Per Table 1.1, Alpine and Sub-Alpine gages span only about 0.8-1,450 mi2,
+If both opt-ins are requested, the USGS set wins, because a USGS report supersedes a flowfreq one.
+
+## Keying: NSS staging citation 200, as is
+
+NSS has this report only as a staging draft: citation 200, regression regions 995-998, status
+2 "Review". That status means it is disabled for public NSS and StreamStats and visible only on
+`test.streamstats.usgs.gov` (checked 2026-10-13). Public NSS still lists only citations 11, 20
+and 21 for Colorado.
+
+By the maintainer's decision, the file uses NSS's variable codes, units, limits and region
+bounds, so StreamStats basin characteristics will feed it directly once NSS approves the
+report. The coefficients are Table 1's, and NSS's equation strings match them term for term.
+The report's own codes and bounds are kept for traceability in the `variable_codes` and
+`region_selection` fields and in `notes`.
+
+| Table 1 term | Report code | Stored (NSS) code | Units |
+|---|---|---|---|
+| AREA | DRNAREA | DRNAREA | mi2 (log10) |
+| LONG | LONG_CENT | LONG_CENT | decimal degrees |
+| SLOPE | BSLDEM10M | ALTBSLDEM | percent |
+| MEANELEV | ELEV | ALTELEV | ft NAVD 88 |
+| SWE | APR1_SWE | APR1_SWE | inches |
+| P100Y24H / 100Y24H | I24H100Y | ALI24H100Y | inches |
+| PPTANN | PRECIP | PRECPRIS10 | inches |
+
+Region bounds on mean basin elevation:
+
+- NSS (stored): Alpine `ALTELEV>=10490`; SubAlpine `[9492, 10490)`; MidElevation
+  `[8014, 9492)`; Plateau `<8014`.
+- Report: Alpine > 10,490; Sub-Alpine 9,493-10,490; Mid-Elevation 8,015-9,492; Plateau < 8,014.
+  These leave 1-ft gaps and put exactly 10,490 ft in Sub-Alpine.
+
+The library does not select a region; the caller does.
+
+## What is not stored
+
+- **Per-region limits:** the report publishes none. NSS's limits are the single pooled range
+  from Table 1. Per Table 1.1, Alpine and Sub-Alpine gages span only about 0.8-1,450 mi2,
   against the pooled maximum of 22,629 mi2.
-- Error statistics: SEP becomes `sep_log` and SME becomes `model_error_variance` (same conversion
-  as `CO.json`). No covariance or per-site AVP is published, so intervals use `sep_log`. The data
-  release (doi:10.5066/P9Q5AMFV), which the report says holds the final models, is "Under
-  Revision" and unavailable.
-- Not stored: mean, monthly, 7-day minimum and maximum and flow-duration equations (Tables 2-5),
-  the drainage-area-ratio exponents (Table 6) and pseudo-R2.
-- Basins in two regions: the report weights flows (not logs) by area fraction, so use
+- **Covariance and per-site AVP:** neither is published, so intervals use `sep_log`. The data
+  release (doi:10.5066/P9Q5AMFV) is "Under Revision" and unavailable.
+- **Other tables:** Tables 2-6 (mean, monthly, low, 7-day maximum and flow-duration
+  equations, and the DAR exponents) are not stored, and neither is pseudo-R2.
+- **Two-region basins:** the report weights flows (not logs) by area fraction, so use
   `evaluate_weighted(..., space="linear")`.
 
 ## Checks
 
 `tests/test_regression_colorado_2025.py` covers:
 
-- Every coefficient, N, SEP and SME is typed from Table 1 and compared with the JSON. The JSON
-  itself was parsed from the report's JATS XML (MathML) and matched against an independent parse
-  of the PDF text layer, with zero disagreements.
-- Evaluations at two input sets per region match NSS staging within its 3-significant-figure
-  rounding. The report has no worked example or per-gage regression estimates to check against.
+- **Table 1 values:** every coefficient, N, SEP and SME is typed from Table 1 and compared with
+  the JSON. The JSON itself was parsed from the report's XML and matched against an independent
+  parse of the PDF text, with zero disagreements.
+- **NSS limits:** they equal Table 1's printed ranges to Table 1's rounding.
+- **NSS evaluations:** at two input sets per region, results match NSS staging within its
+  3-significant-figure rounding.
+
+`tests/test_regression_awaiting_nss.py` covers the status itself: it loads only on opt-in, its
+advisory text is correct, and an awaiting-NSS file in the wrong place, or with the wrong status
+or state, is refused.

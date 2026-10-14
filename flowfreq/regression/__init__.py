@@ -24,6 +24,7 @@ from flowfreq.regression.library import (
     EquationsUnavailable,
     StateLibrary,
     available_states,
+    awaiting_nss_states,
     load_state,
     provisional_states,
 )
@@ -40,6 +41,7 @@ __all__ = [
     "Variable",
     "WAVE_NAMES",
     "available_states",
+    "awaiting_nss_states",
     "evaluate",
     "evaluate_weighted",
     "jurisdiction",

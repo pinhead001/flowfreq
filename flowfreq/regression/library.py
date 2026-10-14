@@ -15,6 +15,15 @@ They live in ``flowfreq/data/regression/provisional/<CODE>.json`` with
 caller passes ``allow_provisional=True``. The default lookup is never changed by
 a provisional file, mirroring :mod:`flowfreq.regional_skew`.
 
+USGS-published equations that NSS/StreamStats does not serve yet (a newer report
+than the one NSS uses, or one NSS holds only as a staging draft) live in
+``flowfreq/data/regression/awaiting_nss/<CODE>.json`` with
+``status: "awaiting_nss"``, and :func:`load_state` returns one only when the caller
+passes ``allow_awaiting_nss=True``. They get their own folder rather than sharing
+``provisional/``: the loader keys each opt-in folder to exactly one status, the two
+are different claims (USGS-published versus flowfreq-developed), and a state can
+have both at once (one ``<CODE>.json`` per folder).
+
 Roadmap: ``docs/MASTER_ROADMAP.md`` §3.1-3.2, issues #35 and #37-#40.
 """
 
@@ -34,6 +43,8 @@ logger = logging.getLogger(__name__)
 DATA_DIR = Path(__file__).resolve().parent.parent / "data" / "regression"
 #: Subdirectory of the data directory holding flowfreq-developed equation sets.
 PROVISIONAL_SUBDIR = "provisional"
+#: Subdirectory holding USGS-published sets that NSS/StreamStats does not serve yet.
+AWAITING_NSS_SUBDIR = "awaiting_nss"
 SCHEMA_VERSION = 1
 #: How faithfully a state file transcribes its source reports -- a statement about
 #: the transcription, not about how much the reports themselves publish:
@@ -51,7 +62,14 @@ SCHEMA_VERSION = 1
 #: - ``provisional``: developed by flowfreq following published USGS procedure, not
 #:   a USGS publication. Allowed only under ``provisional/``, and returned only on
 #:   opt-in (``load_state(code, allow_provisional=True)``).
-STATUSES = frozenset({"pending", "partial", "verified", "provisional"})
+#: - ``awaiting_nss``: published by the USGS and transcribed to the ``verified``
+#:   standard (double-entered against the report and cross-checked), but not yet
+#:   served by NSS/StreamStats, which still serves the set in ``<CODE>.json``.
+#:   Allowed only under ``awaiting_nss/``, and returned only on opt-in
+#:   (``load_state(code, allow_awaiting_nss=True)``).
+STATUSES = frozenset({"pending", "partial", "verified", "provisional", "awaiting_nss"})
+#: Opt-in statuses, each with the one subdirectory allowed to hold it.
+OPT_IN_SUBDIRS = {"provisional": PROVISIONAL_SUBDIR, "awaiting_nss": AWAITING_NSS_SUBDIR}
 
 
 class EquationsUnavailable(LookupError):
@@ -74,6 +92,11 @@ class StateLibrary:
     def provisional(self) -> bool:
         """True for a flowfreq-developed (non-USGS) equation set."""
         return self.status == "provisional"
+
+    @property
+    def awaiting_nss(self) -> bool:
+        """True for a USGS-published set that NSS/StreamStats does not serve yet."""
+        return self.status == "awaiting_nss"
 
     @property
     def regions(self) -> List[str]:
@@ -147,11 +170,43 @@ def _provisional_advisory(code: str) -> str:
     )
 
 
+def _awaiting_nss_advisory(code: str, lib: StateLibrary) -> str:
+    reports = "; ".join(
+        str(r.get("citation", "")) if isinstance(r, dict) else str(r) for r in lib.source_reports
+    )
+    return (
+        f"NOT YET IN STREAMSTATS (USGS-published): the {code} equations from {reports} are "
+        "published by the USGS but not yet served by NSS/StreamStats, which still uses the "
+        f"set in load_state({code!r}). StreamStats estimates will not match these until NSS "
+        "adopts them."
+    )
+
+
+def _load_opt_in(root: Path, code: str, status: str) -> Optional[StateLibrary]:
+    """Load ``<subdir>/<CODE>.json`` for an opt-in status, or None if there is none."""
+    path = root / OPT_IN_SUBDIRS[status] / f"{code}.json"
+    if not path.exists():
+        return None
+    lib = parse_state(json.loads(path.read_text(encoding="utf-8")))
+    if lib.status != status or lib.state != code:
+        raise ValueError(
+            f"{path}: a set under {OPT_IN_SUBDIRS[status]}/ must have status {status!r} and "
+            f"state {code!r}, got {lib.status!r} / {lib.state!r}"
+        )
+    if status == "provisional":
+        lib.advisory = _provisional_advisory(code)
+    else:
+        lib.advisory = _awaiting_nss_advisory(code, lib)
+    logger.warning("%s", lib.advisory)
+    return lib
+
+
 def load_state(
     code: str,
     data_dir: Union[str, Path, None] = None,
     *,
     allow_provisional: bool = False,
+    allow_awaiting_nss: bool = False,
 ) -> StateLibrary:
     """Load one jurisdiction's equation library.
 
@@ -165,6 +220,12 @@ def load_state(
         Return the jurisdiction's provisional (flowfreq-developed, non-USGS) set
         from ``provisional/<CODE>.json`` when there is one, with ``advisory`` set
         and a logged warning. Without one, the published set is returned as usual.
+    allow_awaiting_nss : bool
+        Return the jurisdiction's USGS-published set that NSS/StreamStats does not
+        serve yet, from ``awaiting_nss/<CODE>.json``, when there is one, with
+        ``advisory`` set and a logged warning. Without one, the published set is
+        returned as usual. If both flags are set and both files exist, this set
+        wins, because a USGS report supersedes a flowfreq-developed one.
 
     Returns
     -------
@@ -175,31 +236,28 @@ def load_state(
     EquationsUnavailable
         If the jurisdiction has no file yet (its wave has not started).
     ValueError
-        If a published file claims ``provisional`` status, or a file under
-        ``provisional/`` claims any other status or another jurisdiction.
+        If a published file claims an opt-in status (``provisional`` or
+        ``awaiting_nss``), or a file in an opt-in folder claims any other status
+        or another jurisdiction.
     """
     code = jurisdiction(code).code
     root = Path(data_dir or DATA_DIR)
-    if allow_provisional:
-        prov = root / PROVISIONAL_SUBDIR / f"{code}.json"
-        if prov.exists():
-            lib = parse_state(json.loads(prov.read_text(encoding="utf-8")))
-            if lib.status != "provisional" or lib.state != code:
-                raise ValueError(
-                    f"{prov}: a provisional set must have status 'provisional' and state "
-                    f"{code!r}, got {lib.status!r} / {lib.state!r}"
-                )
-            lib.advisory = _provisional_advisory(code)
-            logger.warning("%s", lib.advisory)
-            return lib
+    for status, wanted in (
+        ("awaiting_nss", allow_awaiting_nss),
+        ("provisional", allow_provisional),
+    ):
+        if wanted:
+            opt_in = _load_opt_in(root, code, status)
+            if opt_in is not None:
+                return opt_in
     path = root / f"{code}.json"
     if not path.exists():
         raise EquationsUnavailable(f"{code}: no regression library file; its wave has not started")
     lib = parse_state(json.loads(path.read_text(encoding="utf-8")))
-    if lib.provisional:
+    if lib.status in OPT_IN_SUBDIRS:
         raise ValueError(
-            f"{path}: status 'provisional' belongs under {PROVISIONAL_SUBDIR}/, not in place of "
-            "the published set"
+            f"{path}: status {lib.status!r} belongs under {OPT_IN_SUBDIRS[lib.status]}/, not in "
+            "place of the published set"
         )
     return lib
 
@@ -207,7 +265,8 @@ def load_state(
 def available_states(data_dir: Union[str, Path, None] = None) -> Dict[str, str]:
     """Map every jurisdiction with a published library file to its status.
 
-    Provisional sets are not listed; see :func:`provisional_states`.
+    Opt-in sets are not listed; see :func:`provisional_states` and
+    :func:`awaiting_nss_states`.
     """
     out: Dict[str, str] = {}
     for p in sorted(Path(data_dir or DATA_DIR).glob("*.json")):
@@ -218,3 +277,9 @@ def available_states(data_dir: Union[str, Path, None] = None) -> Dict[str, str]:
 def provisional_states(data_dir: Union[str, Path, None] = None) -> List[str]:
     """Jurisdictions with a provisional (flowfreq-developed) equation set, sorted."""
     return sorted(p.stem for p in (Path(data_dir or DATA_DIR) / PROVISIONAL_SUBDIR).glob("*.json"))
+
+
+def awaiting_nss_states(data_dir: Union[str, Path, None] = None) -> List[str]:
+    """Jurisdictions with a USGS-published set NSS/StreamStats does not serve yet, sorted."""
+    root = Path(data_dir or DATA_DIR) / AWAITING_NSS_SUBDIR
+    return sorted(p.stem for p in root.glob("*.json"))
