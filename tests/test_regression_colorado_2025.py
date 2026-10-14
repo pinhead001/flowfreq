@@ -3,13 +3,15 @@
 Kohn, Mast and Gross, 2026, USGS SIR 2025-5047, Table 1 (pp. 20-22): GLS peak-flow
 equations for four elevation regions of central and western Colorado. NSS still serves
 the 2009/2016/2006 equations in ``CO.json``, so this USGS set lives in
-``provisional/CO.json`` and is returned only with ``allow_provisional=True``.
+``awaiting_nss/CO.json`` (status ``awaiting_nss``) and is returned only with
+``allow_awaiting_nss=True``. It is keyed as NSS's staging draft of the report has it
+(citation 200: variable codes, limits, region bounds); the coefficients are Table 1's.
 
 Every literal number below is typed from the report's Table 1 or copied from a dated
 NSS staging response, never from the JSON itself: the tests check the file against the
 source, not against itself. The report prints no worked example, so the evaluation
-check uses NSS's staging draft of this report (test.streamstats.usgs.gov, citation 200,
-regression regions 995-998, status "Review", fetched 2026-10-13).
+check uses NSS's staging draft (test.streamstats.usgs.gov, citation 200, regression
+regions 995-998, status "Review", fetched 2026-10-13).
 """
 
 from __future__ import annotations
@@ -140,23 +142,46 @@ TABLE1 = {
     ],
 }
 
-# Table 1 headnote: one pooled range for all four regions, in published units.
-RANGES = {
-    "DRNAREA": (0.22, 22629.0, "log10"),
-    "LONG_CENT": (-110.219, -105.093, "identity"),
-    "BSLDEM10M": (3.37, 69.4, "identity"),
-    "ELEV": (4808.0, 11954.0, "identity"),
-    "APR1_SWE": (0.0, 33.8, "identity"),
-    "I24H100Y": (2.19, 5.21, "identity"),
-    "PRECIP": (7.71, 61.6, "identity"),
+# Table 1 headnote: one pooled range for all four regions, in published units, keyed by
+# the report's codes. The file stores NSS's limits; these must agree to Table 1's rounding.
+TABLE1_RANGES = {
+    "DRNAREA": (0.22, 22629.0),
+    "LONG_CENT": (-110.219, -105.093),
+    "BSLDEM10M": (3.37, 69.4),
+    "ELEV": (4808.0, 11954.0),
+    "APR1_SWE": (0.0, 33.8),
+    "I24H100Y": (2.19, 5.21),
+    "PRECIP": (7.71, 61.6),
 }
 
 # NSS staging codes for the report's variables (same quantity, different name).
 NSS_CODE = {
+    "DRNAREA": "DRNAREA",
+    "LONG_CENT": "LONG_CENT",
+    "APR1_SWE": "APR1_SWE",
     "BSLDEM10M": "ALTBSLDEM",
     "ELEV": "ALTELEV",
     "I24H100Y": "ALI24H100Y",
     "PRECIP": "PRECPRIS10",
+}
+
+# NSS staging scenario limits (regions 995-998, identical in each) and units, 2026-10-13.
+NSS_LIMITS = {
+    "DRNAREA": (0.22, 22629.0, "mi2"),
+    "LONG_CENT": (-110.218802642652, -105.093183176045, "decimal degrees"),
+    "ALTBSLDEM": (3.37, 69.38562279, "percent"),
+    "ALTELEV": (4808.0, 11954.0, "ft"),
+    "APR1_SWE": (0.0, 33.8, "in"),
+    "ALI24H100Y": (2.1935174416934, 5.21209717237366, "in"),
+    "PRECPRIS10": (7.71, 61.6, "in"),
+}
+
+# NSS staging limitation criteria (GET /regressionregions/{id}), 2026-10-13.
+NSS_REGIONS = {
+    "Alpine": (995, "GC1949", "ALTELEV>=10490"),
+    "SubAlpine": (996, "GC1950", "(ALTELEV>=9492) AND (ALTELEV<10490)"),
+    "MidElevation": (997, "GC1951", "(ALTELEV>=8014) AND (ALTELEV<9492)"),
+    "Plateau": (998, "GC1952", "ALTELEV<8014"),
 }
 
 # NSS staging Estimate, 2026-10-13: inputs (NSS codes) and returned values, 2 to 500 years.
@@ -217,30 +242,29 @@ def _pct_to_log(p: float) -> float:
     return math.sqrt(math.log(1.0 + (p / 100.0) ** 2)) / math.log(10.0)
 
 
-def _from_nss(inputs: dict) -> dict:
-    back = {v: k for k, v in NSS_CODE.items()}
-    return {back.get(k, k): v for k, v in inputs.items()}
-
-
 @pytest.fixture(scope="module")
 def lib():
-    return load_state("CO", allow_provisional=True)
+    return load_state("CO", allow_awaiting_nss=True)
 
 
 def test_default_lookup_still_returns_the_nss_served_set():
     published = load_state("CO")
-    assert published.status == "verified" and not published.provisional
+    assert published.status == "verified" and not published.awaiting_nss
     assert "Mountain" in published.regions and "Alpine" not in published.regions
     assert len(published.equations) == 62
+    # The provisional opt-in does not reach this set either.
+    assert load_state("CO", allow_provisional=True).status == "verified"
 
 
 def test_opt_in_returns_sir_2025_5047(lib):
-    assert lib.state == "CO" and lib.provisional
+    assert lib.state == "CO" and lib.awaiting_nss and not lib.provisional
     assert lib.regions == ["Alpine", "MidElevation", "Plateau", "SubAlpine"]
     assert len(lib.equations) == 32
     assert lib.source_reports[0]["doi"] == "10.3133/sir20255047"
     assert lib.source_reports[0]["nss"]["adopted"] is False
-    assert "NOT a flowfreq-developed set" in lib.notes
+    assert lib.source_reports[0]["nss"]["staging_citation_id"] == 200
+    assert lib.advisory.startswith("NOT YET IN STREAMSTATS (USGS-published)")
+    assert "2025-5047" in lib.advisory
     for region in TABLE1:
         assert lib.aeps(region) == sorted(AEP_OF_RP.values(), reverse=True)
 
@@ -250,30 +274,61 @@ def test_every_value_matches_table1(lib, region):
     for rp, b0, b1, terms, n, _pr2, sep, sme in TABLE1[region]:
         eq = lib.equation(region, AEP_OF_RP[rp])
         assert eq.intercept == b0
-        assert [v.code for v in eq.variables] == ["DRNAREA"] + [c for c, _ in terms]
+        # Stored under NSS's codes, in Table 1's order.
+        assert [v.code for v in eq.variables] == ["DRNAREA"] + [NSS_CODE[c] for c, _ in terms]
         assert list(eq.coefficients) == [b1] + [k for _, k in terms]
         assert eq.n_sites == n
         assert eq.sep_log == pytest.approx(_pct_to_log(sep), abs=5e-7)
         assert eq.model_error_variance == pytest.approx(_pct_to_log(sme) ** 2, abs=5e-8)
         assert eq.covariance is None and eq.avp is None
         assert eq.citation.table.startswith("Table 1") and eq.citation.year == 2026
+        assert "citation 200" in eq.citation.table
         assert "2025-5047" in eq.citation.publication
 
 
-def test_variables_carry_the_pooled_published_ranges(lib):
+def test_variables_carry_nss_limits_and_units(lib):
     for eq in lib.equations:
         for v in eq.variables:
-            lo, hi, transform = RANGES[v.code]
-            assert (v.minimum, v.maximum, v.transform) == (lo, hi, transform)
+            lo, hi, units = NSS_LIMITS[v.code]
+            assert (v.minimum, v.maximum, v.units) == (lo, hi, units)
+            assert v.transform == ("log10" if v.code == "DRNAREA" else "identity")
             assert v.scale == 1.0 and v.offset == 0.0
+
+
+@pytest.mark.parametrize("report_code", sorted(TABLE1_RANGES))
+def test_nss_limits_are_table1_ranges_unrounded(report_code):
+    lo, hi, _ = NSS_LIMITS[NSS_CODE[report_code]]
+    t_lo, t_hi = TABLE1_RANGES[report_code]
+    # Table 1 prints 3 significant figures (or whole feet / square miles).
+    assert lo == pytest.approx(t_lo, rel=2e-3, abs=1e-9)
+    assert hi == pytest.approx(t_hi, rel=2e-3, abs=1e-9)
+
+
+def test_variable_code_map_and_region_bounds_are_recorded(lib):
+    import json
+
+    from flowfreq.regression.library import AWAITING_NSS_SUBDIR, DATA_DIR
+
+    raw = json.loads((DATA_DIR / AWAITING_NSS_SUBDIR / "CO.json").read_text(encoding="utf-8"))
+    assert {k: v for k, v in raw["variable_codes"].items() if k != "_comment"} == NSS_CODE
+    for region, (rid, gc, criteria) in NSS_REGIONS.items():
+        sel = raw["region_selection"][region]
+        assert (sel["nss_regression_region_id"], sel["nss_code"], sel["nss_criteria"]) == (
+            rid,
+            gc,
+            criteria,
+        )
+        names = {e.region_name for e in lib.equations if e.region_code == region}
+        assert len(names) == 1 and criteria in names.pop()
+    # The report's own bounds stay on record for traceability.
+    assert "9,493-10,490" in lib.notes and "8,015-9,492" in lib.notes
 
 
 @pytest.mark.parametrize("region", sorted(NSS_STAGING))
 def test_reproduces_nss_staging_draft(lib, region):
     for inputs, values in NSS_STAGING[region]:
-        basin = _from_nss(inputs)
         for rp, expected in zip(AEP_OF_RP, values):
-            got = evaluate(lib.equation(region, AEP_OF_RP[rp]), basin).flow_cfs
+            got = evaluate(lib.equation(region, AEP_OF_RP[rp]), inputs).flow_cfs
             # NSS rounds to three significant figures.
             half_unit = 0.5 * 10.0 ** (math.floor(math.log10(expected)) - 2)
             assert abs(got - expected) <= half_unit * 1.0001, (region, rp, got, expected)
@@ -282,24 +337,28 @@ def test_reproduces_nss_staging_draft(lib, region):
 @pytest.mark.parametrize("region", sorted(NSS_STAGING))
 def test_quantiles_rise_with_rarer_aeps(lib, region):
     for inputs, _ in NSS_STAGING[region]:
-        basin = _from_nss(inputs)
-        flows = [evaluate(lib.equation(region, a), basin).flow_cfs for a in AEP_OF_RP.values()]
+        flows = [evaluate(lib.equation(region, a), inputs).flow_cfs for a in AEP_OF_RP.values()]
         assert flows == sorted(flows)
 
 
 def test_intervals_fall_back_to_sep(lib):
-    est = evaluate(lib.equation("Alpine", 0.01), _from_nss(NSS_STAGING["Alpine"][0][0]))
+    est = evaluate(lib.equation("Alpine", 0.01), NSS_STAGING["Alpine"][0][0])
     assert est.interval_method == "average standard error of prediction"
     lo, hi = est.interval
     assert lo < est.flow_cfs < hi
 
 
 def test_out_of_range_input_raises(lib):
-    basin = {"DRNAREA": 100.0, "ELEV": 7000.0, "I24H100Y": 6.0}
-    with pytest.raises(OutOfRangeError, match="I24H100Y"):
+    basin = {"DRNAREA": 100.0, "ALTELEV": 7000.0, "ALI24H100Y": 6.0}
+    with pytest.raises(OutOfRangeError, match="ALI24H100Y"):
         evaluate(lib.equation("Plateau", 0.01), basin)
     est = evaluate(lib.equation("Plateau", 0.01), basin, allow_extrapolation=True)
     assert est.extrapolated
+
+
+def test_report_codes_are_not_accepted(lib):
+    with pytest.raises(KeyError, match="ALTELEV"):
+        evaluate(lib.equation("Plateau", 0.01), {"DRNAREA": 100.0, "ELEV": 7000.0, "I24H100Y": 3})
 
 
 def test_unpublished_aep_raises(lib):

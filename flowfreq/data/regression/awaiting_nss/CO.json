@@ -1,7 +1,7 @@
 {
  "schema_version": 1,
  "state": "CO",
- "status": "provisional",
+ "status": "awaiting_nss",
  "source_reports": [
   {
    "citation": "Kohn, M.S., Mast, M.A., and Gross, T.A., 2026, Peak-, mean-, and low-streamflow regional-regression equations for natural streamflow in central and western Colorado, 2019: U.S. Geological Survey Scientific Investigations Report 2025-5047, 38 p.",
@@ -19,6 +19,7 @@
    "nss": {
     "adopted": false,
     "checked": "2026-10-13",
+    "staging_host": "test.streamstats.usgs.gov",
     "staging_citation_id": 200,
     "staging_regression_region_ids": [
      995,
@@ -30,10 +31,42 @@
    }
   }
  ],
+ "region_selection": {
+  "Alpine": {
+   "nss_criteria": "ALTELEV>=10490",
+   "nss_regression_region_id": 995,
+   "nss_code": "GC1949"
+  },
+  "SubAlpine": {
+   "nss_criteria": "(ALTELEV>=9492) AND (ALTELEV<10490)",
+   "nss_regression_region_id": 996,
+   "nss_code": "GC1950"
+  },
+  "MidElevation": {
+   "nss_criteria": "(ALTELEV>=8014) AND (ALTELEV<9492)",
+   "nss_regression_region_id": 997,
+   "nss_code": "GC1951"
+  },
+  "Plateau": {
+   "nss_criteria": "ALTELEV<8014",
+   "nss_regression_region_id": 998,
+   "nss_code": "GC1952"
+  }
+ },
+ "variable_codes": {
+  "_comment": "report Table 1 StreamStats code -> stored NSS staging code",
+  "DRNAREA": "DRNAREA",
+  "LONG_CENT": "LONG_CENT",
+  "APR1_SWE": "APR1_SWE",
+  "BSLDEM10M": "ALTBSLDEM",
+  "ELEV": "ALTELEV",
+  "I24H100Y": "ALI24H100Y",
+  "PRECIP": "PRECPRIS10"
+ },
  "equations": [
   {
    "region_code": "Alpine",
-   "region_name": "Alpine (mean basin elevation greater than 10,490 ft NAVD 88)",
+   "region_name": "Alpine (NSS staging GC1949, region 995, CO_Peakflow_Alpine_SIR_2023_XXXX; selected by ALTELEV>=10490)",
    "aep": 0.5,
    "intercept": 0.244,
    "variables": [
@@ -45,11 +78,11 @@
      "maximum": 22629.0
     },
     {
-     "code": "BSLDEM10M",
+     "code": "ALTBSLDEM",
      "transform": "identity",
      "units": "percent",
      "minimum": 3.37,
-     "maximum": 69.4
+     "maximum": 69.38562279
     },
     {
      "code": "APR1_SWE",
@@ -66,7 +99,7 @@
    ],
    "citation": {
     "publication": "Kohn, M.S., Mast, M.A., and Gross, T.A., 2026, Peak-, mean-, and low-streamflow regional-regression equations for natural streamflow in central and western Colorado, 2019: U.S. Geological Survey Scientific Investigations Report 2025-5047",
-    "table": "Table 1 (pp. 20-22)",
+    "table": "Table 1 (pp. 20-22); variable codes, limits and region bounds as NSS staging citation 200, regression region 995 (GC1949)",
     "year": 2026,
     "url": "https://doi.org/10.3133/sir20255047"
    },
@@ -76,7 +109,7 @@
   },
   {
    "region_code": "Alpine",
-   "region_name": "Alpine (mean basin elevation greater than 10,490 ft NAVD 88)",
+   "region_name": "Alpine (NSS staging GC1949, region 995, CO_Peakflow_Alpine_SIR_2023_XXXX; selected by ALTELEV>=10490)",
    "aep": 0.2,
    "intercept": 0.526,
    "variables": [
@@ -88,11 +121,11 @@
      "maximum": 22629.0
     },
     {
-     "code": "BSLDEM10M",
+     "code": "ALTBSLDEM",
      "transform": "identity",
      "units": "percent",
      "minimum": 3.37,
-     "maximum": 69.4
+     "maximum": 69.38562279
     },
     {
      "code": "APR1_SWE",
@@ -109,7 +142,7 @@
    ],
    "citation": {
     "publication": "Kohn, M.S., Mast, M.A., and Gross, T.A., 2026, Peak-, mean-, and low-streamflow regional-regression equations for natural streamflow in central and western Colorado, 2019: U.S. Geological Survey Scientific Investigations Report 2025-5047",
-    "table": "Table 1 (pp. 20-22)",
+    "table": "Table 1 (pp. 20-22); variable codes, limits and region bounds as NSS staging citation 200, regression region 995 (GC1949)",
     "year": 2026,
     "url": "https://doi.org/10.3133/sir20255047"
    },
@@ -119,7 +152,7 @@
   },
   {
    "region_code": "Alpine",
-   "region_name": "Alpine (mean basin elevation greater than 10,490 ft NAVD 88)",
+   "region_name": "Alpine (NSS staging GC1949, region 995, CO_Peakflow_Alpine_SIR_2023_XXXX; selected by ALTELEV>=10490)",
    "aep": 0.1,
    "intercept": 0.664,
    "variables": [
@@ -131,11 +164,11 @@
      "maximum": 22629.0
     },
     {
-     "code": "BSLDEM10M",
+     "code": "ALTBSLDEM",
      "transform": "identity",
      "units": "percent",
      "minimum": 3.37,
-     "maximum": 69.4
+     "maximum": 69.38562279
     },
     {
      "code": "APR1_SWE",
@@ -152,7 +185,7 @@
    ],
    "citation": {
     "publication": "Kohn, M.S., Mast, M.A., and Gross, T.A., 2026, Peak-, mean-, and low-streamflow regional-regression equations for natural streamflow in central and western Colorado, 2019: U.S. Geological Survey Scientific Investigations Report 2025-5047",
-    "table": "Table 1 (pp. 20-22)",
+    "table": "Table 1 (pp. 20-22); variable codes, limits and region bounds as NSS staging citation 200, regression region 995 (GC1949)",
     "year": 2026,
     "url": "https://doi.org/10.3133/sir20255047"
    },
@@ -162,7 +195,7 @@
   },
   {
    "region_code": "Alpine",
-   "region_name": "Alpine (mean basin elevation greater than 10,490 ft NAVD 88)",
+   "region_name": "Alpine (NSS staging GC1949, region 995, CO_Peakflow_Alpine_SIR_2023_XXXX; selected by ALTELEV>=10490)",
    "aep": 0.04,
    "intercept": 0.803,
    "variables": [
@@ -174,11 +207,11 @@
      "maximum": 22629.0
     },
     {
-     "code": "BSLDEM10M",
+     "code": "ALTBSLDEM",
      "transform": "identity",
      "units": "percent",
      "minimum": 3.37,
-     "maximum": 69.4
+     "maximum": 69.38562279
     },
     {
      "code": "APR1_SWE",
@@ -195,7 +228,7 @@
    ],
    "citation": {
     "publication": "Kohn, M.S., Mast, M.A., and Gross, T.A., 2026, Peak-, mean-, and low-streamflow regional-regression equations for natural streamflow in central and western Colorado, 2019: U.S. Geological Survey Scientific Investigations Report 2025-5047",
-    "table": "Table 1 (pp. 20-22)",
+    "table": "Table 1 (pp. 20-22); variable codes, limits and region bounds as NSS staging citation 200, regression region 995 (GC1949)",
     "year": 2026,
     "url": "https://doi.org/10.3133/sir20255047"
    },
@@ -205,7 +238,7 @@
   },
   {
    "region_code": "Alpine",
-   "region_name": "Alpine (mean basin elevation greater than 10,490 ft NAVD 88)",
+   "region_name": "Alpine (NSS staging GC1949, region 995, CO_Peakflow_Alpine_SIR_2023_XXXX; selected by ALTELEV>=10490)",
    "aep": 0.02,
    "intercept": 0.888,
    "variables": [
@@ -217,11 +250,11 @@
      "maximum": 22629.0
     },
     {
-     "code": "BSLDEM10M",
+     "code": "ALTBSLDEM",
      "transform": "identity",
      "units": "percent",
      "minimum": 3.37,
-     "maximum": 69.4
+     "maximum": 69.38562279
     },
     {
      "code": "APR1_SWE",
@@ -238,7 +271,7 @@
    ],
    "citation": {
     "publication": "Kohn, M.S., Mast, M.A., and Gross, T.A., 2026, Peak-, mean-, and low-streamflow regional-regression equations for natural streamflow in central and western Colorado, 2019: U.S. Geological Survey Scientific Investigations Report 2025-5047",
-    "table": "Table 1 (pp. 20-22)",
+    "table": "Table 1 (pp. 20-22); variable codes, limits and region bounds as NSS staging citation 200, regression region 995 (GC1949)",
     "year": 2026,
     "url": "https://doi.org/10.3133/sir20255047"
    },
@@ -248,7 +281,7 @@
   },
   {
    "region_code": "Alpine",
-   "region_name": "Alpine (mean basin elevation greater than 10,490 ft NAVD 88)",
+   "region_name": "Alpine (NSS staging GC1949, region 995, CO_Peakflow_Alpine_SIR_2023_XXXX; selected by ALTELEV>=10490)",
    "aep": 0.01,
    "intercept": 0.961,
    "variables": [
@@ -260,11 +293,11 @@
      "maximum": 22629.0
     },
     {
-     "code": "BSLDEM10M",
+     "code": "ALTBSLDEM",
      "transform": "identity",
      "units": "percent",
      "minimum": 3.37,
-     "maximum": 69.4
+     "maximum": 69.38562279
     },
     {
      "code": "APR1_SWE",
@@ -281,7 +314,7 @@
    ],
    "citation": {
     "publication": "Kohn, M.S., Mast, M.A., and Gross, T.A., 2026, Peak-, mean-, and low-streamflow regional-regression equations for natural streamflow in central and western Colorado, 2019: U.S. Geological Survey Scientific Investigations Report 2025-5047",
-    "table": "Table 1 (pp. 20-22)",
+    "table": "Table 1 (pp. 20-22); variable codes, limits and region bounds as NSS staging citation 200, regression region 995 (GC1949)",
     "year": 2026,
     "url": "https://doi.org/10.3133/sir20255047"
    },
@@ -291,7 +324,7 @@
   },
   {
    "region_code": "Alpine",
-   "region_name": "Alpine (mean basin elevation greater than 10,490 ft NAVD 88)",
+   "region_name": "Alpine (NSS staging GC1949, region 995, CO_Peakflow_Alpine_SIR_2023_XXXX; selected by ALTELEV>=10490)",
    "aep": 0.005,
    "intercept": 1.03,
    "variables": [
@@ -303,11 +336,11 @@
      "maximum": 22629.0
     },
     {
-     "code": "BSLDEM10M",
+     "code": "ALTBSLDEM",
      "transform": "identity",
      "units": "percent",
      "minimum": 3.37,
-     "maximum": 69.4
+     "maximum": 69.38562279
     },
     {
      "code": "APR1_SWE",
@@ -324,7 +357,7 @@
    ],
    "citation": {
     "publication": "Kohn, M.S., Mast, M.A., and Gross, T.A., 2026, Peak-, mean-, and low-streamflow regional-regression equations for natural streamflow in central and western Colorado, 2019: U.S. Geological Survey Scientific Investigations Report 2025-5047",
-    "table": "Table 1 (pp. 20-22)",
+    "table": "Table 1 (pp. 20-22); variable codes, limits and region bounds as NSS staging citation 200, regression region 995 (GC1949)",
     "year": 2026,
     "url": "https://doi.org/10.3133/sir20255047"
    },
@@ -334,7 +367,7 @@
   },
   {
    "region_code": "Alpine",
-   "region_name": "Alpine (mean basin elevation greater than 10,490 ft NAVD 88)",
+   "region_name": "Alpine (NSS staging GC1949, region 995, CO_Peakflow_Alpine_SIR_2023_XXXX; selected by ALTELEV>=10490)",
    "aep": 0.002,
    "intercept": 1.1,
    "variables": [
@@ -346,11 +379,11 @@
      "maximum": 22629.0
     },
     {
-     "code": "BSLDEM10M",
+     "code": "ALTBSLDEM",
      "transform": "identity",
      "units": "percent",
      "minimum": 3.37,
-     "maximum": 69.4
+     "maximum": 69.38562279
     },
     {
      "code": "APR1_SWE",
@@ -367,7 +400,7 @@
    ],
    "citation": {
     "publication": "Kohn, M.S., Mast, M.A., and Gross, T.A., 2026, Peak-, mean-, and low-streamflow regional-regression equations for natural streamflow in central and western Colorado, 2019: U.S. Geological Survey Scientific Investigations Report 2025-5047",
-    "table": "Table 1 (pp. 20-22)",
+    "table": "Table 1 (pp. 20-22); variable codes, limits and region bounds as NSS staging citation 200, regression region 995 (GC1949)",
     "year": 2026,
     "url": "https://doi.org/10.3133/sir20255047"
    },
@@ -377,7 +410,7 @@
   },
   {
    "region_code": "SubAlpine",
-   "region_name": "Sub-Alpine (mean basin elevation 9,493 to 10,490 ft NAVD 88)",
+   "region_name": "Sub-Alpine (NSS staging GC1950, region 996, CO_Peakflow_Sub_Alpine_SIR_2023_XXXX; selected by (ALTELEV>=9492) AND (ALTELEV<10490))",
    "aep": 0.5,
    "intercept": -6.29,
    "variables": [
@@ -392,15 +425,15 @@
      "code": "LONG_CENT",
      "transform": "identity",
      "units": "decimal degrees",
-     "minimum": -110.219,
-     "maximum": -105.093
+     "minimum": -110.218802642652,
+     "maximum": -105.093183176045
     },
     {
-     "code": "I24H100Y",
+     "code": "ALI24H100Y",
      "transform": "identity",
      "units": "in",
-     "minimum": 2.19,
-     "maximum": 5.21
+     "minimum": 2.1935174416934,
+     "maximum": 5.21209717237366
     },
     {
      "code": "APR1_SWE",
@@ -418,7 +451,7 @@
    ],
    "citation": {
     "publication": "Kohn, M.S., Mast, M.A., and Gross, T.A., 2026, Peak-, mean-, and low-streamflow regional-regression equations for natural streamflow in central and western Colorado, 2019: U.S. Geological Survey Scientific Investigations Report 2025-5047",
-    "table": "Table 1 (pp. 20-22)",
+    "table": "Table 1 (pp. 20-22); variable codes, limits and region bounds as NSS staging citation 200, regression region 996 (GC1950)",
     "year": 2026,
     "url": "https://doi.org/10.3133/sir20255047"
    },
@@ -428,7 +461,7 @@
   },
   {
    "region_code": "SubAlpine",
-   "region_name": "Sub-Alpine (mean basin elevation 9,493 to 10,490 ft NAVD 88)",
+   "region_name": "Sub-Alpine (NSS staging GC1950, region 996, CO_Peakflow_Sub_Alpine_SIR_2023_XXXX; selected by (ALTELEV>=9492) AND (ALTELEV<10490))",
    "aep": 0.2,
    "intercept": -6.05,
    "variables": [
@@ -443,15 +476,15 @@
      "code": "LONG_CENT",
      "transform": "identity",
      "units": "decimal degrees",
-     "minimum": -110.219,
-     "maximum": -105.093
+     "minimum": -110.218802642652,
+     "maximum": -105.093183176045
     },
     {
-     "code": "I24H100Y",
+     "code": "ALI24H100Y",
      "transform": "identity",
      "units": "in",
-     "minimum": 2.19,
-     "maximum": 5.21
+     "minimum": 2.1935174416934,
+     "maximum": 5.21209717237366
     },
     {
      "code": "APR1_SWE",
@@ -469,7 +502,7 @@
    ],
    "citation": {
     "publication": "Kohn, M.S., Mast, M.A., and Gross, T.A., 2026, Peak-, mean-, and low-streamflow regional-regression equations for natural streamflow in central and western Colorado, 2019: U.S. Geological Survey Scientific Investigations Report 2025-5047",
-    "table": "Table 1 (pp. 20-22)",
+    "table": "Table 1 (pp. 20-22); variable codes, limits and region bounds as NSS staging citation 200, regression region 996 (GC1950)",
     "year": 2026,
     "url": "https://doi.org/10.3133/sir20255047"
    },
@@ -479,7 +512,7 @@
   },
   {
    "region_code": "SubAlpine",
-   "region_name": "Sub-Alpine (mean basin elevation 9,493 to 10,490 ft NAVD 88)",
+   "region_name": "Sub-Alpine (NSS staging GC1950, region 996, CO_Peakflow_Sub_Alpine_SIR_2023_XXXX; selected by (ALTELEV>=9492) AND (ALTELEV<10490))",
    "aep": 0.1,
    "intercept": -5.94,
    "variables": [
@@ -494,15 +527,15 @@
      "code": "LONG_CENT",
      "transform": "identity",
      "units": "decimal degrees",
-     "minimum": -110.219,
-     "maximum": -105.093
+     "minimum": -110.218802642652,
+     "maximum": -105.093183176045
     },
     {
-     "code": "I24H100Y",
+     "code": "ALI24H100Y",
      "transform": "identity",
      "units": "in",
-     "minimum": 2.19,
-     "maximum": 5.21
+     "minimum": 2.1935174416934,
+     "maximum": 5.21209717237366
     },
     {
      "code": "APR1_SWE",
@@ -520,7 +553,7 @@
    ],
    "citation": {
     "publication": "Kohn, M.S., Mast, M.A., and Gross, T.A., 2026, Peak-, mean-, and low-streamflow regional-regression equations for natural streamflow in central and western Colorado, 2019: U.S. Geological Survey Scientific Investigations Report 2025-5047",
-    "table": "Table 1 (pp. 20-22)",
+    "table": "Table 1 (pp. 20-22); variable codes, limits and region bounds as NSS staging citation 200, regression region 996 (GC1950)",
     "year": 2026,
     "url": "https://doi.org/10.3133/sir20255047"
    },
@@ -530,7 +563,7 @@
   },
   {
    "region_code": "SubAlpine",
-   "region_name": "Sub-Alpine (mean basin elevation 9,493 to 10,490 ft NAVD 88)",
+   "region_name": "Sub-Alpine (NSS staging GC1950, region 996, CO_Peakflow_Sub_Alpine_SIR_2023_XXXX; selected by (ALTELEV>=9492) AND (ALTELEV<10490))",
    "aep": 0.04,
    "intercept": -5.79,
    "variables": [
@@ -545,15 +578,15 @@
      "code": "LONG_CENT",
      "transform": "identity",
      "units": "decimal degrees",
-     "minimum": -110.219,
-     "maximum": -105.093
+     "minimum": -110.218802642652,
+     "maximum": -105.093183176045
     },
     {
-     "code": "I24H100Y",
+     "code": "ALI24H100Y",
      "transform": "identity",
      "units": "in",
-     "minimum": 2.19,
-     "maximum": 5.21
+     "minimum": 2.1935174416934,
+     "maximum": 5.21209717237366
     },
     {
      "code": "APR1_SWE",
@@ -571,7 +604,7 @@
    ],
    "citation": {
     "publication": "Kohn, M.S., Mast, M.A., and Gross, T.A., 2026, Peak-, mean-, and low-streamflow regional-regression equations for natural streamflow in central and western Colorado, 2019: U.S. Geological Survey Scientific Investigations Report 2025-5047",
-    "table": "Table 1 (pp. 20-22)",
+    "table": "Table 1 (pp. 20-22); variable codes, limits and region bounds as NSS staging citation 200, regression region 996 (GC1950)",
     "year": 2026,
     "url": "https://doi.org/10.3133/sir20255047"
    },
@@ -581,7 +614,7 @@
   },
   {
    "region_code": "SubAlpine",
-   "region_name": "Sub-Alpine (mean basin elevation 9,493 to 10,490 ft NAVD 88)",
+   "region_name": "Sub-Alpine (NSS staging GC1950, region 996, CO_Peakflow_Sub_Alpine_SIR_2023_XXXX; selected by (ALTELEV>=9492) AND (ALTELEV<10490))",
    "aep": 0.02,
    "intercept": -5.67,
    "variables": [
@@ -596,15 +629,15 @@
      "code": "LONG_CENT",
      "transform": "identity",
      "units": "decimal degrees",
-     "minimum": -110.219,
-     "maximum": -105.093
+     "minimum": -110.218802642652,
+     "maximum": -105.093183176045
     },
     {
-     "code": "I24H100Y",
+     "code": "ALI24H100Y",
      "transform": "identity",
      "units": "in",
-     "minimum": 2.19,
-     "maximum": 5.21
+     "minimum": 2.1935174416934,
+     "maximum": 5.21209717237366
     },
     {
      "code": "APR1_SWE",
@@ -622,7 +655,7 @@
    ],
    "citation": {
     "publication": "Kohn, M.S., Mast, M.A., and Gross, T.A., 2026, Peak-, mean-, and low-streamflow regional-regression equations for natural streamflow in central and western Colorado, 2019: U.S. Geological Survey Scientific Investigations Report 2025-5047",
-    "table": "Table 1 (pp. 20-22)",
+    "table": "Table 1 (pp. 20-22); variable codes, limits and region bounds as NSS staging citation 200, regression region 996 (GC1950)",
     "year": 2026,
     "url": "https://doi.org/10.3133/sir20255047"
    },
@@ -632,7 +665,7 @@
   },
   {
    "region_code": "SubAlpine",
-   "region_name": "Sub-Alpine (mean basin elevation 9,493 to 10,490 ft NAVD 88)",
+   "region_name": "Sub-Alpine (NSS staging GC1950, region 996, CO_Peakflow_Sub_Alpine_SIR_2023_XXXX; selected by (ALTELEV>=9492) AND (ALTELEV<10490))",
    "aep": 0.01,
    "intercept": -5.56,
    "variables": [
@@ -647,15 +680,15 @@
      "code": "LONG_CENT",
      "transform": "identity",
      "units": "decimal degrees",
-     "minimum": -110.219,
-     "maximum": -105.093
+     "minimum": -110.218802642652,
+     "maximum": -105.093183176045
     },
     {
-     "code": "I24H100Y",
+     "code": "ALI24H100Y",
      "transform": "identity",
      "units": "in",
-     "minimum": 2.19,
-     "maximum": 5.21
+     "minimum": 2.1935174416934,
+     "maximum": 5.21209717237366
     },
     {
      "code": "APR1_SWE",
@@ -673,7 +706,7 @@
    ],
    "citation": {
     "publication": "Kohn, M.S., Mast, M.A., and Gross, T.A., 2026, Peak-, mean-, and low-streamflow regional-regression equations for natural streamflow in central and western Colorado, 2019: U.S. Geological Survey Scientific Investigations Report 2025-5047",
-    "table": "Table 1 (pp. 20-22)",
+    "table": "Table 1 (pp. 20-22); variable codes, limits and region bounds as NSS staging citation 200, regression region 996 (GC1950)",
     "year": 2026,
     "url": "https://doi.org/10.3133/sir20255047"
    },
@@ -683,7 +716,7 @@
   },
   {
    "region_code": "SubAlpine",
-   "region_name": "Sub-Alpine (mean basin elevation 9,493 to 10,490 ft NAVD 88)",
+   "region_name": "Sub-Alpine (NSS staging GC1950, region 996, CO_Peakflow_Sub_Alpine_SIR_2023_XXXX; selected by (ALTELEV>=9492) AND (ALTELEV<10490))",
    "aep": 0.005,
    "intercept": -5.43,
    "variables": [
@@ -698,15 +731,15 @@
      "code": "LONG_CENT",
      "transform": "identity",
      "units": "decimal degrees",
-     "minimum": -110.219,
-     "maximum": -105.093
+     "minimum": -110.218802642652,
+     "maximum": -105.093183176045
     },
     {
-     "code": "I24H100Y",
+     "code": "ALI24H100Y",
      "transform": "identity",
      "units": "in",
-     "minimum": 2.19,
-     "maximum": 5.21
+     "minimum": 2.1935174416934,
+     "maximum": 5.21209717237366
     },
     {
      "code": "APR1_SWE",
@@ -724,7 +757,7 @@
    ],
    "citation": {
     "publication": "Kohn, M.S., Mast, M.A., and Gross, T.A., 2026, Peak-, mean-, and low-streamflow regional-regression equations for natural streamflow in central and western Colorado, 2019: U.S. Geological Survey Scientific Investigations Report 2025-5047",
-    "table": "Table 1 (pp. 20-22)",
+    "table": "Table 1 (pp. 20-22); variable codes, limits and region bounds as NSS staging citation 200, regression region 996 (GC1950)",
     "year": 2026,
     "url": "https://doi.org/10.3133/sir20255047"
    },
@@ -734,7 +767,7 @@
   },
   {
    "region_code": "SubAlpine",
-   "region_name": "Sub-Alpine (mean basin elevation 9,493 to 10,490 ft NAVD 88)",
+   "region_name": "Sub-Alpine (NSS staging GC1950, region 996, CO_Peakflow_Sub_Alpine_SIR_2023_XXXX; selected by (ALTELEV>=9492) AND (ALTELEV<10490))",
    "aep": 0.002,
    "intercept": -5.27,
    "variables": [
@@ -749,15 +782,15 @@
      "code": "LONG_CENT",
      "transform": "identity",
      "units": "decimal degrees",
-     "minimum": -110.219,
-     "maximum": -105.093
+     "minimum": -110.218802642652,
+     "maximum": -105.093183176045
     },
     {
-     "code": "I24H100Y",
+     "code": "ALI24H100Y",
      "transform": "identity",
      "units": "in",
-     "minimum": 2.19,
-     "maximum": 5.21
+     "minimum": 2.1935174416934,
+     "maximum": 5.21209717237366
     },
     {
      "code": "APR1_SWE",
@@ -775,7 +808,7 @@
    ],
    "citation": {
     "publication": "Kohn, M.S., Mast, M.A., and Gross, T.A., 2026, Peak-, mean-, and low-streamflow regional-regression equations for natural streamflow in central and western Colorado, 2019: U.S. Geological Survey Scientific Investigations Report 2025-5047",
-    "table": "Table 1 (pp. 20-22)",
+    "table": "Table 1 (pp. 20-22); variable codes, limits and region bounds as NSS staging citation 200, regression region 996 (GC1950)",
     "year": 2026,
     "url": "https://doi.org/10.3133/sir20255047"
    },
@@ -785,7 +818,7 @@
   },
   {
    "region_code": "MidElevation",
-   "region_name": "Mid-Elevation (mean basin elevation 8,015 to 9,492 ft NAVD 88)",
+   "region_name": "Mid-Elevation (NSS staging GC1951, region 997, CO_Peakflow_Mid_Elevation_SIR_2023_XXXX; selected by (ALTELEV>=8014) AND (ALTELEV<9492))",
    "aep": 0.5,
    "intercept": -6.73,
    "variables": [
@@ -800,11 +833,11 @@
      "code": "LONG_CENT",
      "transform": "identity",
      "units": "decimal degrees",
-     "minimum": -110.219,
-     "maximum": -105.093
+     "minimum": -110.218802642652,
+     "maximum": -105.093183176045
     },
     {
-     "code": "PRECIP",
+     "code": "PRECPRIS10",
      "transform": "identity",
      "units": "in",
      "minimum": 7.71,
@@ -818,7 +851,7 @@
    ],
    "citation": {
     "publication": "Kohn, M.S., Mast, M.A., and Gross, T.A., 2026, Peak-, mean-, and low-streamflow regional-regression equations for natural streamflow in central and western Colorado, 2019: U.S. Geological Survey Scientific Investigations Report 2025-5047",
-    "table": "Table 1 (pp. 20-22)",
+    "table": "Table 1 (pp. 20-22); variable codes, limits and region bounds as NSS staging citation 200, regression region 997 (GC1951)",
     "year": 2026,
     "url": "https://doi.org/10.3133/sir20255047"
    },
@@ -828,7 +861,7 @@
   },
   {
    "region_code": "MidElevation",
-   "region_name": "Mid-Elevation (mean basin elevation 8,015 to 9,492 ft NAVD 88)",
+   "region_name": "Mid-Elevation (NSS staging GC1951, region 997, CO_Peakflow_Mid_Elevation_SIR_2023_XXXX; selected by (ALTELEV>=8014) AND (ALTELEV<9492))",
    "aep": 0.2,
    "intercept": -7.21,
    "variables": [
@@ -843,11 +876,11 @@
      "code": "LONG_CENT",
      "transform": "identity",
      "units": "decimal degrees",
-     "minimum": -110.219,
-     "maximum": -105.093
+     "minimum": -110.218802642652,
+     "maximum": -105.093183176045
     },
     {
-     "code": "PRECIP",
+     "code": "PRECPRIS10",
      "transform": "identity",
      "units": "in",
      "minimum": 7.71,
@@ -861,7 +894,7 @@
    ],
    "citation": {
     "publication": "Kohn, M.S., Mast, M.A., and Gross, T.A., 2026, Peak-, mean-, and low-streamflow regional-regression equations for natural streamflow in central and western Colorado, 2019: U.S. Geological Survey Scientific Investigations Report 2025-5047",
-    "table": "Table 1 (pp. 20-22)",
+    "table": "Table 1 (pp. 20-22); variable codes, limits and region bounds as NSS staging citation 200, regression region 997 (GC1951)",
     "year": 2026,
     "url": "https://doi.org/10.3133/sir20255047"
    },
@@ -871,7 +904,7 @@
   },
   {
    "region_code": "MidElevation",
-   "region_name": "Mid-Elevation (mean basin elevation 8,015 to 9,492 ft NAVD 88)",
+   "region_name": "Mid-Elevation (NSS staging GC1951, region 997, CO_Peakflow_Mid_Elevation_SIR_2023_XXXX; selected by (ALTELEV>=8014) AND (ALTELEV<9492))",
    "aep": 0.1,
    "intercept": -7.33,
    "variables": [
@@ -886,11 +919,11 @@
      "code": "LONG_CENT",
      "transform": "identity",
      "units": "decimal degrees",
-     "minimum": -110.219,
-     "maximum": -105.093
+     "minimum": -110.218802642652,
+     "maximum": -105.093183176045
     },
     {
-     "code": "PRECIP",
+     "code": "PRECPRIS10",
      "transform": "identity",
      "units": "in",
      "minimum": 7.71,
@@ -904,7 +937,7 @@
    ],
    "citation": {
     "publication": "Kohn, M.S., Mast, M.A., and Gross, T.A., 2026, Peak-, mean-, and low-streamflow regional-regression equations for natural streamflow in central and western Colorado, 2019: U.S. Geological Survey Scientific Investigations Report 2025-5047",
-    "table": "Table 1 (pp. 20-22)",
+    "table": "Table 1 (pp. 20-22); variable codes, limits and region bounds as NSS staging citation 200, regression region 997 (GC1951)",
     "year": 2026,
     "url": "https://doi.org/10.3133/sir20255047"
    },
@@ -914,7 +947,7 @@
   },
   {
    "region_code": "MidElevation",
-   "region_name": "Mid-Elevation (mean basin elevation 8,015 to 9,492 ft NAVD 88)",
+   "region_name": "Mid-Elevation (NSS staging GC1951, region 997, CO_Peakflow_Mid_Elevation_SIR_2023_XXXX; selected by (ALTELEV>=8014) AND (ALTELEV<9492))",
    "aep": 0.04,
    "intercept": -7.36,
    "variables": [
@@ -929,11 +962,11 @@
      "code": "LONG_CENT",
      "transform": "identity",
      "units": "decimal degrees",
-     "minimum": -110.219,
-     "maximum": -105.093
+     "minimum": -110.218802642652,
+     "maximum": -105.093183176045
     },
     {
-     "code": "PRECIP",
+     "code": "PRECPRIS10",
      "transform": "identity",
      "units": "in",
      "minimum": 7.71,
@@ -947,7 +980,7 @@
    ],
    "citation": {
     "publication": "Kohn, M.S., Mast, M.A., and Gross, T.A., 2026, Peak-, mean-, and low-streamflow regional-regression equations for natural streamflow in central and western Colorado, 2019: U.S. Geological Survey Scientific Investigations Report 2025-5047",
-    "table": "Table 1 (pp. 20-22)",
+    "table": "Table 1 (pp. 20-22); variable codes, limits and region bounds as NSS staging citation 200, regression region 997 (GC1951)",
     "year": 2026,
     "url": "https://doi.org/10.3133/sir20255047"
    },
@@ -957,7 +990,7 @@
   },
   {
    "region_code": "MidElevation",
-   "region_name": "Mid-Elevation (mean basin elevation 8,015 to 9,492 ft NAVD 88)",
+   "region_name": "Mid-Elevation (NSS staging GC1951, region 997, CO_Peakflow_Mid_Elevation_SIR_2023_XXXX; selected by (ALTELEV>=8014) AND (ALTELEV<9492))",
    "aep": 0.02,
    "intercept": -7.36,
    "variables": [
@@ -972,11 +1005,11 @@
      "code": "LONG_CENT",
      "transform": "identity",
      "units": "decimal degrees",
-     "minimum": -110.219,
-     "maximum": -105.093
+     "minimum": -110.218802642652,
+     "maximum": -105.093183176045
     },
     {
-     "code": "PRECIP",
+     "code": "PRECPRIS10",
      "transform": "identity",
      "units": "in",
      "minimum": 7.71,
@@ -990,7 +1023,7 @@
    ],
    "citation": {
     "publication": "Kohn, M.S., Mast, M.A., and Gross, T.A., 2026, Peak-, mean-, and low-streamflow regional-regression equations for natural streamflow in central and western Colorado, 2019: U.S. Geological Survey Scientific Investigations Report 2025-5047",
-    "table": "Table 1 (pp. 20-22)",
+    "table": "Table 1 (pp. 20-22); variable codes, limits and region bounds as NSS staging citation 200, regression region 997 (GC1951)",
     "year": 2026,
     "url": "https://doi.org/10.3133/sir20255047"
    },
@@ -1000,7 +1033,7 @@
   },
   {
    "region_code": "MidElevation",
-   "region_name": "Mid-Elevation (mean basin elevation 8,015 to 9,492 ft NAVD 88)",
+   "region_name": "Mid-Elevation (NSS staging GC1951, region 997, CO_Peakflow_Mid_Elevation_SIR_2023_XXXX; selected by (ALTELEV>=8014) AND (ALTELEV<9492))",
    "aep": 0.01,
    "intercept": -7.33,
    "variables": [
@@ -1015,11 +1048,11 @@
      "code": "LONG_CENT",
      "transform": "identity",
      "units": "decimal degrees",
-     "minimum": -110.219,
-     "maximum": -105.093
+     "minimum": -110.218802642652,
+     "maximum": -105.093183176045
     },
     {
-     "code": "PRECIP",
+     "code": "PRECPRIS10",
      "transform": "identity",
      "units": "in",
      "minimum": 7.71,
@@ -1033,7 +1066,7 @@
    ],
    "citation": {
     "publication": "Kohn, M.S., Mast, M.A., and Gross, T.A., 2026, Peak-, mean-, and low-streamflow regional-regression equations for natural streamflow in central and western Colorado, 2019: U.S. Geological Survey Scientific Investigations Report 2025-5047",
-    "table": "Table 1 (pp. 20-22)",
+    "table": "Table 1 (pp. 20-22); variable codes, limits and region bounds as NSS staging citation 200, regression region 997 (GC1951)",
     "year": 2026,
     "url": "https://doi.org/10.3133/sir20255047"
    },
@@ -1043,7 +1076,7 @@
   },
   {
    "region_code": "MidElevation",
-   "region_name": "Mid-Elevation (mean basin elevation 8,015 to 9,492 ft NAVD 88)",
+   "region_name": "Mid-Elevation (NSS staging GC1951, region 997, CO_Peakflow_Mid_Elevation_SIR_2023_XXXX; selected by (ALTELEV>=8014) AND (ALTELEV<9492))",
    "aep": 0.005,
    "intercept": -7.29,
    "variables": [
@@ -1058,11 +1091,11 @@
      "code": "LONG_CENT",
      "transform": "identity",
      "units": "decimal degrees",
-     "minimum": -110.219,
-     "maximum": -105.093
+     "minimum": -110.218802642652,
+     "maximum": -105.093183176045
     },
     {
-     "code": "PRECIP",
+     "code": "PRECPRIS10",
      "transform": "identity",
      "units": "in",
      "minimum": 7.71,
@@ -1076,7 +1109,7 @@
    ],
    "citation": {
     "publication": "Kohn, M.S., Mast, M.A., and Gross, T.A., 2026, Peak-, mean-, and low-streamflow regional-regression equations for natural streamflow in central and western Colorado, 2019: U.S. Geological Survey Scientific Investigations Report 2025-5047",
-    "table": "Table 1 (pp. 20-22)",
+    "table": "Table 1 (pp. 20-22); variable codes, limits and region bounds as NSS staging citation 200, regression region 997 (GC1951)",
     "year": 2026,
     "url": "https://doi.org/10.3133/sir20255047"
    },
@@ -1086,7 +1119,7 @@
   },
   {
    "region_code": "MidElevation",
-   "region_name": "Mid-Elevation (mean basin elevation 8,015 to 9,492 ft NAVD 88)",
+   "region_name": "Mid-Elevation (NSS staging GC1951, region 997, CO_Peakflow_Mid_Elevation_SIR_2023_XXXX; selected by (ALTELEV>=8014) AND (ALTELEV<9492))",
    "aep": 0.002,
    "intercept": -7.23,
    "variables": [
@@ -1101,11 +1134,11 @@
      "code": "LONG_CENT",
      "transform": "identity",
      "units": "decimal degrees",
-     "minimum": -110.219,
-     "maximum": -105.093
+     "minimum": -110.218802642652,
+     "maximum": -105.093183176045
     },
     {
-     "code": "PRECIP",
+     "code": "PRECPRIS10",
      "transform": "identity",
      "units": "in",
      "minimum": 7.71,
@@ -1119,7 +1152,7 @@
    ],
    "citation": {
     "publication": "Kohn, M.S., Mast, M.A., and Gross, T.A., 2026, Peak-, mean-, and low-streamflow regional-regression equations for natural streamflow in central and western Colorado, 2019: U.S. Geological Survey Scientific Investigations Report 2025-5047",
-    "table": "Table 1 (pp. 20-22)",
+    "table": "Table 1 (pp. 20-22); variable codes, limits and region bounds as NSS staging citation 200, regression region 997 (GC1951)",
     "year": 2026,
     "url": "https://doi.org/10.3133/sir20255047"
    },
@@ -1129,7 +1162,7 @@
   },
   {
    "region_code": "Plateau",
-   "region_name": "Plateau (mean basin elevation less than 8,014 ft NAVD 88)",
+   "region_name": "Plateau (NSS staging GC1952, region 998, CO_Peakflow_Plateau_SIR_2023_XXXX; selected by ALTELEV<8014)",
    "aep": 0.5,
    "intercept": 2.37,
    "variables": [
@@ -1141,18 +1174,18 @@
      "maximum": 22629.0
     },
     {
-     "code": "ELEV",
+     "code": "ALTELEV",
      "transform": "identity",
      "units": "ft",
      "minimum": 4808.0,
      "maximum": 11954.0
     },
     {
-     "code": "I24H100Y",
+     "code": "ALI24H100Y",
      "transform": "identity",
      "units": "in",
-     "minimum": 2.19,
-     "maximum": 5.21
+     "minimum": 2.1935174416934,
+     "maximum": 5.21209717237366
     }
    ],
    "coefficients": [
@@ -1162,7 +1195,7 @@
    ],
    "citation": {
     "publication": "Kohn, M.S., Mast, M.A., and Gross, T.A., 2026, Peak-, mean-, and low-streamflow regional-regression equations for natural streamflow in central and western Colorado, 2019: U.S. Geological Survey Scientific Investigations Report 2025-5047",
-    "table": "Table 1 (pp. 20-22)",
+    "table": "Table 1 (pp. 20-22); variable codes, limits and region bounds as NSS staging citation 200, regression region 998 (GC1952)",
     "year": 2026,
     "url": "https://doi.org/10.3133/sir20255047"
    },
@@ -1172,7 +1205,7 @@
   },
   {
    "region_code": "Plateau",
-   "region_name": "Plateau (mean basin elevation less than 8,014 ft NAVD 88)",
+   "region_name": "Plateau (NSS staging GC1952, region 998, CO_Peakflow_Plateau_SIR_2023_XXXX; selected by ALTELEV<8014)",
    "aep": 0.2,
    "intercept": 2.77,
    "variables": [
@@ -1184,18 +1217,18 @@
      "maximum": 22629.0
     },
     {
-     "code": "ELEV",
+     "code": "ALTELEV",
      "transform": "identity",
      "units": "ft",
      "minimum": 4808.0,
      "maximum": 11954.0
     },
     {
-     "code": "I24H100Y",
+     "code": "ALI24H100Y",
      "transform": "identity",
      "units": "in",
-     "minimum": 2.19,
-     "maximum": 5.21
+     "minimum": 2.1935174416934,
+     "maximum": 5.21209717237366
     }
    ],
    "coefficients": [
@@ -1205,7 +1238,7 @@
    ],
    "citation": {
     "publication": "Kohn, M.S., Mast, M.A., and Gross, T.A., 2026, Peak-, mean-, and low-streamflow regional-regression equations for natural streamflow in central and western Colorado, 2019: U.S. Geological Survey Scientific Investigations Report 2025-5047",
-    "table": "Table 1 (pp. 20-22)",
+    "table": "Table 1 (pp. 20-22); variable codes, limits and region bounds as NSS staging citation 200, regression region 998 (GC1952)",
     "year": 2026,
     "url": "https://doi.org/10.3133/sir20255047"
    },
@@ -1215,7 +1248,7 @@
   },
   {
    "region_code": "Plateau",
-   "region_name": "Plateau (mean basin elevation less than 8,014 ft NAVD 88)",
+   "region_name": "Plateau (NSS staging GC1952, region 998, CO_Peakflow_Plateau_SIR_2023_XXXX; selected by ALTELEV<8014)",
    "aep": 0.1,
    "intercept": 2.98,
    "variables": [
@@ -1227,18 +1260,18 @@
      "maximum": 22629.0
     },
     {
-     "code": "ELEV",
+     "code": "ALTELEV",
      "transform": "identity",
      "units": "ft",
      "minimum": 4808.0,
      "maximum": 11954.0
     },
     {
-     "code": "I24H100Y",
+     "code": "ALI24H100Y",
      "transform": "identity",
      "units": "in",
-     "minimum": 2.19,
-     "maximum": 5.21
+     "minimum": 2.1935174416934,
+     "maximum": 5.21209717237366
     }
    ],
    "coefficients": [
@@ -1248,7 +1281,7 @@
    ],
    "citation": {
     "publication": "Kohn, M.S., Mast, M.A., and Gross, T.A., 2026, Peak-, mean-, and low-streamflow regional-regression equations for natural streamflow in central and western Colorado, 2019: U.S. Geological Survey Scientific Investigations Report 2025-5047",
-    "table": "Table 1 (pp. 20-22)",
+    "table": "Table 1 (pp. 20-22); variable codes, limits and region bounds as NSS staging citation 200, regression region 998 (GC1952)",
     "year": 2026,
     "url": "https://doi.org/10.3133/sir20255047"
    },
@@ -1258,7 +1291,7 @@
   },
   {
    "region_code": "Plateau",
-   "region_name": "Plateau (mean basin elevation less than 8,014 ft NAVD 88)",
+   "region_name": "Plateau (NSS staging GC1952, region 998, CO_Peakflow_Plateau_SIR_2023_XXXX; selected by ALTELEV<8014)",
    "aep": 0.04,
    "intercept": 3.21,
    "variables": [
@@ -1270,18 +1303,18 @@
      "maximum": 22629.0
     },
     {
-     "code": "ELEV",
+     "code": "ALTELEV",
      "transform": "identity",
      "units": "ft",
      "minimum": 4808.0,
      "maximum": 11954.0
     },
     {
-     "code": "I24H100Y",
+     "code": "ALI24H100Y",
      "transform": "identity",
      "units": "in",
-     "minimum": 2.19,
-     "maximum": 5.21
+     "minimum": 2.1935174416934,
+     "maximum": 5.21209717237366
     }
    ],
    "coefficients": [
@@ -1291,7 +1324,7 @@
    ],
    "citation": {
     "publication": "Kohn, M.S., Mast, M.A., and Gross, T.A., 2026, Peak-, mean-, and low-streamflow regional-regression equations for natural streamflow in central and western Colorado, 2019: U.S. Geological Survey Scientific Investigations Report 2025-5047",
-    "table": "Table 1 (pp. 20-22)",
+    "table": "Table 1 (pp. 20-22); variable codes, limits and region bounds as NSS staging citation 200, regression region 998 (GC1952)",
     "year": 2026,
     "url": "https://doi.org/10.3133/sir20255047"
    },
@@ -1301,7 +1334,7 @@
   },
   {
    "region_code": "Plateau",
-   "region_name": "Plateau (mean basin elevation less than 8,014 ft NAVD 88)",
+   "region_name": "Plateau (NSS staging GC1952, region 998, CO_Peakflow_Plateau_SIR_2023_XXXX; selected by ALTELEV<8014)",
    "aep": 0.02,
    "intercept": 3.36,
    "variables": [
@@ -1313,18 +1346,18 @@
      "maximum": 22629.0
     },
     {
-     "code": "ELEV",
+     "code": "ALTELEV",
      "transform": "identity",
      "units": "ft",
      "minimum": 4808.0,
      "maximum": 11954.0
     },
     {
-     "code": "I24H100Y",
+     "code": "ALI24H100Y",
      "transform": "identity",
      "units": "in",
-     "minimum": 2.19,
-     "maximum": 5.21
+     "minimum": 2.1935174416934,
+     "maximum": 5.21209717237366
     }
    ],
    "coefficients": [
@@ -1334,7 +1367,7 @@
    ],
    "citation": {
     "publication": "Kohn, M.S., Mast, M.A., and Gross, T.A., 2026, Peak-, mean-, and low-streamflow regional-regression equations for natural streamflow in central and western Colorado, 2019: U.S. Geological Survey Scientific Investigations Report 2025-5047",
-    "table": "Table 1 (pp. 20-22)",
+    "table": "Table 1 (pp. 20-22); variable codes, limits and region bounds as NSS staging citation 200, regression region 998 (GC1952)",
     "year": 2026,
     "url": "https://doi.org/10.3133/sir20255047"
    },
@@ -1344,7 +1377,7 @@
   },
   {
    "region_code": "Plateau",
-   "region_name": "Plateau (mean basin elevation less than 8,014 ft NAVD 88)",
+   "region_name": "Plateau (NSS staging GC1952, region 998, CO_Peakflow_Plateau_SIR_2023_XXXX; selected by ALTELEV<8014)",
    "aep": 0.01,
    "intercept": 3.5,
    "variables": [
@@ -1356,18 +1389,18 @@
      "maximum": 22629.0
     },
     {
-     "code": "ELEV",
+     "code": "ALTELEV",
      "transform": "identity",
      "units": "ft",
      "minimum": 4808.0,
      "maximum": 11954.0
     },
     {
-     "code": "I24H100Y",
+     "code": "ALI24H100Y",
      "transform": "identity",
      "units": "in",
-     "minimum": 2.19,
-     "maximum": 5.21
+     "minimum": 2.1935174416934,
+     "maximum": 5.21209717237366
     }
    ],
    "coefficients": [
@@ -1377,7 +1410,7 @@
    ],
    "citation": {
     "publication": "Kohn, M.S., Mast, M.A., and Gross, T.A., 2026, Peak-, mean-, and low-streamflow regional-regression equations for natural streamflow in central and western Colorado, 2019: U.S. Geological Survey Scientific Investigations Report 2025-5047",
-    "table": "Table 1 (pp. 20-22)",
+    "table": "Table 1 (pp. 20-22); variable codes, limits and region bounds as NSS staging citation 200, regression region 998 (GC1952)",
     "year": 2026,
     "url": "https://doi.org/10.3133/sir20255047"
    },
@@ -1387,7 +1420,7 @@
   },
   {
    "region_code": "Plateau",
-   "region_name": "Plateau (mean basin elevation less than 8,014 ft NAVD 88)",
+   "region_name": "Plateau (NSS staging GC1952, region 998, CO_Peakflow_Plateau_SIR_2023_XXXX; selected by ALTELEV<8014)",
    "aep": 0.005,
    "intercept": 3.63,
    "variables": [
@@ -1399,18 +1432,18 @@
      "maximum": 22629.0
     },
     {
-     "code": "ELEV",
+     "code": "ALTELEV",
      "transform": "identity",
      "units": "ft",
      "minimum": 4808.0,
      "maximum": 11954.0
     },
     {
-     "code": "I24H100Y",
+     "code": "ALI24H100Y",
      "transform": "identity",
      "units": "in",
-     "minimum": 2.19,
-     "maximum": 5.21
+     "minimum": 2.1935174416934,
+     "maximum": 5.21209717237366
     }
    ],
    "coefficients": [
@@ -1420,7 +1453,7 @@
    ],
    "citation": {
     "publication": "Kohn, M.S., Mast, M.A., and Gross, T.A., 2026, Peak-, mean-, and low-streamflow regional-regression equations for natural streamflow in central and western Colorado, 2019: U.S. Geological Survey Scientific Investigations Report 2025-5047",
-    "table": "Table 1 (pp. 20-22)",
+    "table": "Table 1 (pp. 20-22); variable codes, limits and region bounds as NSS staging citation 200, regression region 998 (GC1952)",
     "year": 2026,
     "url": "https://doi.org/10.3133/sir20255047"
    },
@@ -1430,7 +1463,7 @@
   },
   {
    "region_code": "Plateau",
-   "region_name": "Plateau (mean basin elevation less than 8,014 ft NAVD 88)",
+   "region_name": "Plateau (NSS staging GC1952, region 998, CO_Peakflow_Plateau_SIR_2023_XXXX; selected by ALTELEV<8014)",
    "aep": 0.002,
    "intercept": 3.78,
    "variables": [
@@ -1442,18 +1475,18 @@
      "maximum": 22629.0
     },
     {
-     "code": "ELEV",
+     "code": "ALTELEV",
      "transform": "identity",
      "units": "ft",
      "minimum": 4808.0,
      "maximum": 11954.0
     },
     {
-     "code": "I24H100Y",
+     "code": "ALI24H100Y",
      "transform": "identity",
      "units": "in",
-     "minimum": 2.19,
-     "maximum": 5.21
+     "minimum": 2.1935174416934,
+     "maximum": 5.21209717237366
     }
    ],
    "coefficients": [
@@ -1463,7 +1496,7 @@
    ],
    "citation": {
     "publication": "Kohn, M.S., Mast, M.A., and Gross, T.A., 2026, Peak-, mean-, and low-streamflow regional-regression equations for natural streamflow in central and western Colorado, 2019: U.S. Geological Survey Scientific Investigations Report 2025-5047",
-    "table": "Table 1 (pp. 20-22)",
+    "table": "Table 1 (pp. 20-22); variable codes, limits and region bounds as NSS staging citation 200, regression region 998 (GC1952)",
     "year": 2026,
     "url": "https://doi.org/10.3133/sir20255047"
    },
@@ -1472,5 +1505,5 @@
    "n_sites": 105
   }
  ],
- "notes": "NOT a flowfreq-developed set: this is a USGS publication, Kohn, Mast and Gross, SIR 2025-5047 (published 2026; pubs page revised 2026-05-18), stored under provisional/ only so that it is opt-in (load_state('CO', allow_provisional=True)) while NSS/StreamStats still serve the 2009/2016/2006 equations in CO.json (NSS citations 20, 21 and 11). The generic provisional advisory that load_state attaches ('developed by flowfreq ... not reviewed or published by the USGS') is therefore inaccurate for this file; this note is authoritative. Scope: peak-flow equations only (Table 1, pp. 20-22): GLS (WREG) regressions for the 2-, 5-, 10-, 25-, 50-, 100-, 200- and 500-year peaks (AEP 0.5-0.002) in four hydrologic regions defined by mean basin elevation (ft NAVD 88): Alpine > 10,490 (105 gages), Sub-Alpine 9,493-10,490 (104), Mid-Elevation 8,015-9,492 (104), Plateau < 8,014 (105); 418 gages through WY2019, none used in two regions. The region is chosen from the basin's mean elevation, not from a map (p. 9), so the regions have no geographic boundaries; flowfreq does not select the region, the caller does. The report's boundaries leave 1-ft gaps (8,014-8,015 and 9,492-9,493) and put exactly 10,490 ft in Sub-Alpine. NSS's staging draft (below) instead uses ALTELEV >= 10490 Alpine, [9492, 10490) Sub-Alpine, [8014, 9492) Mid-Elevation, < 8014 Plateau. The mean-annual, mean-monthly, 7-day minimum and maximum and flow-duration equations (Tables 2-5) and the drainage-area-ratio exponents (Table 6) are not stored. Form: each equation is printed as Q = 10^b0 AREA^b1 10^(c1*X1 + c2*X2 [+ c3*X3]) (eq. 5); DRNAREA is the only log10-transformed predictor and every other variable enters untransformed (transform identity), exactly as printed. Variable codes are the StreamStats codes printed in Table 1's 'approximate range' row: AREA = DRNAREA (mi2); LONG = LONG_CENT (longitude of basin centroid, decimal degrees NAD 83, negative west); SLOPE = BSLDEM10M (mean basin slope, percent, from 1/3 arc-second 3DEP); MEANELEV = ELEV (mean basin elevation, ft NAVD 88); SWE = APR1_SWE (April 1 snow-water equivalent, in.; Table 1.2 lists the SNODAS April 1 SWE in meters but Table 1's range 0-33.8 is in inches, and NSS's staging draft uses inches); P100Y24H/100Y24H = I24H100Y (24-hour, 100-year precipitation, in.; NOAA Atlas 2/14); PPTANN = PRECIP (mean annual precipitation, in., 800-m PRISM). The Sub-Alpine rows print the 24-hour variable as P100Y24H and the Plateau rows as 100Y24H; the header defines one variable, 100Y24H. NSS's staging draft names four of these differently, ALTBSLDEM, ALTELEV, ALI24H100Y and PRECPRIS10 (DRNAREA, LONG_CENT and APR1_SWE are the same), which suggests StreamStats will compute 'alternate' versions of slope, elevation and the 100-year rainfall for these equations; the report's own codes are stored. Limits: the report publishes one pooled 'approximate range of predictor variables' for all four regions (Table 1 headnote), and those pooled ranges are stored on every equation, as NSS's staging draft also uses them. Per-region ranges are not published (the data release, doi:10.5066/P9Q5AMFV, is 'Under Revision' and unavailable as of 2026-10-13). Table 1.1's per-gage drainage areas give the per-region spans Alpine 0.89-1,310, Sub-Alpine 0.76-1,450, Mid-Elevation 1.79-17,100 and Plateau 0.22-22,600 mi2 (five Alpine/Sub-Alpine gages list #N/A), so the pooled DRNAREA limit of 22,629 mi2 is far outside what the Alpine and Sub-Alpine fits saw; extrapolation warnings will not catch that. Error statistics: sep_log is Table 1's SEP (percent, the square root of the mean GLS variance of prediction, p. 13) converted as sqrt(ln(1 + (SEP/100)^2)) / ln(10); model_error_variance is the SME (standard model error, percent) converted the same way and squared, the convention CO.json uses for SIR 2009-5136. No AVP beyond the SEP and no covariance matrix (X'L^-1X)^-1 is printed; the report says the final regression models are in the data release, which is unavailable, so intervals fall back to sep_log. pseudo-R2 is not stored (Table 1 prints it). n_sites is Table 1's N, and Table 1.1's per-gage region column gives the same counts. Area-weighting (p. 32): for a basin in two regions the report weights the flows (not their logs) by drainage-area fraction; use evaluate_weighted(..., space='linear'). Double entry: the stored values were parsed from the report's JATS XML (MathML) and checked against an independent parse of the PDF text layer (intercepts, all coefficients, N, pseudo-R2 and SEP for all 32 equations, and the SME column in order), with zero disagreements, and are typed a third time in tests/test_regression_colorado_2025.py. The report prints no worked example and no per-gage regression estimates, so the evaluation cross-check is against NSS's staging draft of this report (test.streamstats.usgs.gov, citation 200, regions 995-998, status 'Review', not public in NSS or StreamStats), whose equation strings match Table 1 term for term and whose returned values (3 significant figures) at two input sets per region the stored equations reproduce."
+ "notes": "USGS-published, not yet served by NSS/StreamStats (status awaiting_nss): Kohn, Mast and Gross, SIR 2025-5047 (published 2026; pubs page revised 2026-05-18). NSS still serves the 2009/2016/2006 equations in CO.json (citations 20, 21, 11); load this set with load_state('CO', allow_awaiting_nss=True). NSS holds the report as a staging draft, citation 200 ('2023, Peak-, Mean-, and Low-Streamflow ... 2019', placeholder URL), regression regions 995-998, status 2 'Review' (disabled for public NSS and StreamStats users, enabled on test.streamstats.usgs.gov); checked 2026-10-13. Keying: by the maintainer's decision the set is stored as NSS staging citation 200 has it, so that StreamStats basin characteristics feed it directly once NSS approves it: NSS's variable codes, units and limits, and NSS's region bounds. The coefficients, intercepts, SEP, SME and N are Table 1's (pp. 20-22), and NSS's staging equation strings match them term for term. Variable codes (report Table 1 code -> stored NSS code): AREA DRNAREA -> DRNAREA (mi2, log10); LONG LONG_CENT -> LONG_CENT (basin-centroid longitude, decimal degrees NAD 83, negative west); SLOPE BSLDEM10M -> ALTBSLDEM ('Alternate mean basin slope', percent); MEANELEV ELEV -> ALTELEV ('Alternate mean basin elevation', ft NAVD 88); SWE APR1_SWE -> APR1_SWE (mean April 1 snow-water equivalent, inches, as NSS and Table 1's range 0-33.8 have it; Table 1.2 lists the SNODAS April 1 SWE in meters); P100Y24H/100Y24H I24H100Y -> ALI24H100Y ('Alternate 24-hour, 100-year rainfall', in.; the Sub-Alpine rows print P100Y24H and the Plateau rows 100Y24H for the one variable the headnote defines); PPTANN PRECIP -> PRECPRIS10 (mean annual precipitation, PRISM 1981-2010, in.). All but DRNAREA enter untransformed (identity), as printed: Q = 10^b0 AREA^b1 10^(c1*X1 + c2*X2 [+ c3*X3]) (eq. 5). The top-level variable_codes map records the same correspondence. Limits are NSS's, which are the pooled ranges of Table 1's headnote at full precision: Table 1 prints AREA 0.22-22,629 mi2, LONG -110.219 to -105.093, SLOPE 3.37-69.4, MEANELEV 4,808-11,954, SWE 0-33.8, 100Y24H 2.19-5.21 and PPTANN 7.71-61.6; NSS has 0.22-22629, -110.218802642652 to -105.093183176045, 3.37-69.38562279, 4808-11954, 0-33.8, 2.1935174416934-5.21209717237366 and 7.71-61.6. No per-region ranges are published. Table 1.1's per-gage drainage areas span Alpine 0.89-1,310, Sub-Alpine 0.76-1,450, Mid-Elevation 1.79-17,100 and Plateau 0.22-22,600 mi2 (five Alpine/Sub-Alpine gages list #N/A), so the pooled 22,629 mi2 maximum is far outside the Alpine and Sub-Alpine fits and extrapolation warnings will not catch that. Region selection (the caller's job; the library does not select regions) is by mean basin elevation, ALTELEV, with NSS's gap-free bounds, recorded per region in region_selection and in region_name: Alpine ALTELEV >= 10490; SubAlpine 9492 <= ALTELEV < 10490; MidElevation 8014 <= ALTELEV < 9492; Plateau ALTELEV < 8014 (NSS's description of the Plateau limitation says 'less than 9014', a typo for its criteria string 'ALTELEV<8014'). The report's own bounds (Table 1 headnote and p. 9) are Alpine > 10,490; Sub-Alpine 9,493-10,490; Mid-Elevation 8,015-9,492; Plateau < 8,014 ft, which leave 1-ft gaps and put exactly 10,490 ft in Sub-Alpine rather than Alpine. Gages: 105, 104, 104 and 105 (418 through WY2019), none used in two regions. Error statistics: sep_log is Table 1's SEP (percent, the square root of the mean GLS variance of prediction, p. 13) converted as sqrt(ln(1 + (SEP/100)^2)) / ln(10); NSS returns the same SEP as ASEp. model_error_variance is the SME (percent) converted the same way and squared, the CO.json convention. No covariance matrix or per-site AVP is published; the report puts the final models in its data release (doi:10.5066/P9Q5AMFV), which is 'Under Revision' and unavailable as of 2026-10-13, so intervals fall back to sep_log. pseudo-R2 is not stored. Not stored: Tables 2-5 (mean-annual, mean-monthly, 7-day minimum and maximum, flow-duration) and Table 6 (drainage-area-ratio exponents). For a basin in two regions the report weights the flows, not their logs, by area fraction (p. 32): evaluate_weighted(..., space='linear'). Double entry: values were parsed from the report's JATS XML (MathML) and checked against an independent parse of the PDF text layer (intercepts, coefficients, N, pseudo-R2 and SEP for all 32 equations, and the SME column in order) with zero disagreements, and are typed a third time in tests/test_regression_colorado_2025.py, which also reproduces NSS staging Estimate values (3 significant figures) at two input sets per region."
 }
