@@ -25,6 +25,13 @@ of these gages.
 ``ELEV``              USGS 3DEP 1/3 arc-second DEM, basin mean, from the 3DEP
                       ImageServer (ft)
 ``BSLOPD``            the same, through its ``Slope Degrees`` function (degrees)
+``SOILKSAT``          STATSGO2 saturated hydraulic conductivity (in./hr): each
+                      component's horizon ``ksat_r`` averaged by thickness over
+                      its profile, then the components averaged by
+                      ``comppct_r`` (those with no horizon data left out), as
+                      Wolock's (1997) STATSGO PERMAVE; rasterized at 15
+                      arc-seconds from the polygons and tables NRCS Soil Data
+                      Access serves (``gsmmupolygon``, areasymbol ``US``)
 ====================  ==========================================================
 
 Each zonal mean is the mean of the raster cells whose centres fall inside the
@@ -38,10 +45,14 @@ Stages, each cached under ``--cache`` and resumable:
   ``oregon_stations.csv`` keeps, in its own state's StreamStats region.
 - ``characteristics``: the zonal statistics; writes
   ``data/regression_study/oregon_basin_characteristics.csv``.
+- ``soils`` (before ``characteristics``): STATSGO2 polygons and
+  component/horizon tables from Soil Data Access over the cached basins'
+  extent, rasterized to ``<rasters>/statsgo2_ksat_15s.tif``.
 
 Usage::
 
     python tools/build_oregon_basin_characteristics.py --cache <dir> basins
+    python tools/build_oregon_basin_characteristics.py --cache <dir> --rasters <dir> soils
     python tools/build_oregon_basin_characteristics.py --cache <dir> --rasters <dir> characteristics
 """
 
@@ -50,6 +61,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import re
 import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Tuple
@@ -74,6 +86,8 @@ RASTERS: Dict[str, Tuple[str, float, float]] = {
     ),
     # in. * 100000 -> in.
     "I24H2Y": ("na2_westus_2yr24hr/na2_westus_2yr24hr.asc", 1e-5, 0.0),
+    # um/s -> in./hr (the raster the ``soils`` stage writes)
+    "SOILKSAT": ("statsgo2_ksat_15s.tif", 3.6 / 25.4, 0.0),
 }
 SOURCES = {
     "DRNAREA": "StreamStats delineation, or NLDI basin where StreamStats mis-snapped "
@@ -86,6 +100,9 @@ SOURCES = {
     "computeStatisticsHistograms at 30 m",
     "BSLOPD": "USGS 3DEP via the 3DEPElevation ImageServer, Slope Degrees raster "
     "function, basin mean at 30 m",
+    "SOILKSAT": "NRCS STATSGO2 (U.S. General Soil Map) via Soil Data Access, retrieved "
+    "2026-10-13: horizon ksat_r thickness-weighted per component, components weighted "
+    "by comppct_r, rasterized at 15 arc-seconds (in./hr)",
 }
 #: A basin is accepted when its area is within this fraction of the NWIS area.
 AREA_TOL = 0.10
@@ -94,6 +111,13 @@ DEP = (
     "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/"
     "computeStatisticsHistograms"
 )
+
+SDA = "https://sdmdataaccess.sc.egov.usda.gov/tabular/post.rest"
+#: Douglas-Peucker tolerance (degrees) for the STATSGO2 polygons: ~200 m, against
+#: a 1:250,000 source and a 15 arc-second (~460 m) raster.
+SOIL_REDUCE = 0.002
+SOIL_RES = 1.0 / 240.0
+SOIL_NODATA = -9999.0
 
 log = logging.getLogger("or_basins")
 
@@ -289,6 +313,157 @@ def resolve_basin(
     return None, None, why, ss_ratio
 
 
+def sda_query(query: str, timeout: float = 600.0) -> List[Dict[str, Any]]:
+    """Rows of a Soil Data Access query, as dicts keyed by column name."""
+    r = requests.post(SDA, json={"query": query, "format": "JSON+COLUMNNAME"}, timeout=timeout)
+    r.raise_for_status()
+    table = r.json().get("Table") or []
+    if not table:
+        return []
+    cols = table[0]
+    return [dict(zip(cols, row)) for row in table[1:]]
+
+
+def _wkt_polygon(body: str) -> List[List[List[float]]]:
+    """Rings of one WKT polygon body, ``(x y, ...), (x y, ...)`` with or without outer parens."""
+    rings = []
+    for ring in re.split(r"\)\s*,\s*\(", body):
+        ring = ring.replace("(", "").replace(")", "").strip()
+        if ring:
+            rings.append([[float(v) for v in xy.split()[:2]] for xy in ring.split(",")])
+    return rings
+
+
+def wkt_to_geojson(wkt: str) -> Dict[str, Any]:
+    """GeoJSON for a WKT ``POLYGON`` or ``MULTIPOLYGON`` (SDA's ``STAsText``).
+
+    Raises ``ValueError`` for any other geometry type.
+    """
+    m = re.match(r"\s*([A-Za-z]+)\s*(.*)$", wkt, re.S)
+    if m is None:
+        raise ValueError("not WKT")
+    kind, body = m.group(1).upper(), m.group(2).strip()
+    if kind == "POLYGON":
+        return {"type": "Polygon", "coordinates": _wkt_polygon(body[1:-1])}
+    if kind == "MULTIPOLYGON":
+        parts = re.split(r"\)\)\s*,\s*\(\(", body[1:-1])
+        return {"type": "MultiPolygon", "coordinates": [_wkt_polygon(p) for p in parts]}
+    raise ValueError(f"unsupported WKT geometry {kind!r}")
+
+
+def mapunit_ksat(rows: pd.DataFrame) -> pd.Series:
+    """Map-unit Ksat (um/s) from component/horizon rows, indexed by ``mukey``.
+
+    ``rows`` has ``mukey, cokey, comppct_r, hzdept_r, hzdepb_r, ksat_r``, one per
+    horizon (a component without horizons has NaN depths). A component's Ksat
+    is its horizons' ``ksat_r`` weighted by thickness; a map unit's is its
+    components' weighted by ``comppct_r``, over the components that have one.
+    A map unit with none (water, rock outcrop only) is absent from the result.
+    """
+    h = rows.dropna(subset=["hzdept_r", "hzdepb_r", "ksat_r"]).copy()
+    h["thick"] = (h["hzdepb_r"] - h["hzdept_r"]).clip(lower=0.0)
+    h = h[h["thick"] > 0]
+    h["kt"] = h["ksat_r"] * h["thick"]
+    comp = h.groupby(["mukey", "cokey"]).agg(kt=("kt", "sum"), t=("thick", "sum")).reset_index()
+    comp["ksat"] = comp["kt"] / comp["t"]
+    pct = rows.drop_duplicates("cokey").set_index("cokey")["comppct_r"]
+    comp["w"] = comp["cokey"].map(pct).fillna(0.0).astype(float)
+    comp = comp[comp["w"] > 0]
+    comp["kw"] = comp["ksat"] * comp["w"]
+    g = comp.groupby("mukey")
+    return (g["kw"].sum() / g["w"].sum()).rename("ksat_um_s")
+
+
+def _basin_bounds(cache: Path) -> Tuple[float, float, float, float]:
+    """Bounding box (lon0, lat0, lon1, lat1) of every cached basin polygon, padded 0.05 deg."""
+    xs: List[float] = []
+    ys: List[float] = []
+    for sub in ("basins", "nldi"):
+        for f in (cache / sub).glob("*.json"):
+            g = json.loads(f.read_text(encoding="utf-8")).get("geometry")
+            for poly in _polygons(g) if g else []:
+                ring = np.asarray(poly[0], dtype=float)
+                xs += [float(ring[:, 0].min()), float(ring[:, 0].max())]
+                ys += [float(ring[:, 1].min()), float(ring[:, 1].max())]
+    return min(xs) - 0.05, min(ys) - 0.05, max(xs) + 0.05, max(ys) + 0.05
+
+
+def soils(cache: Path, rasters: Path) -> Path:
+    """Stage ``soils``: the STATSGO2 Ksat raster (um/s) over the basins' extent.
+
+    Soil Data Access responses are cached under ``<cache>/statsgo2``, so a rerun
+    only rasterizes.
+    """
+    import rasterio
+    from rasterio.features import rasterize
+    from rasterio.transform import from_origin
+
+    d = cache / "statsgo2"
+    d.mkdir(parents=True, exist_ok=True)
+    x0, y0, x1, y1 = _basin_bounds(cache)
+    bbox = f"POLYGON(({x0} {y0},{x1} {y0},{x1} {y1},{x0} {y1},{x0} {y0}))"
+    where = f"mupolygongeo.STIntersects(geometry::STGeomFromText('{bbox}',4326))=1"
+    f_keys = d / "mukeys.json"
+    if not f_keys.exists():
+        rows = sda_query(f"SELECT DISTINCT mukey FROM gsmmupolygon WHERE {where}")
+        f_keys.write_text(json.dumps(sorted(int(r["mukey"]) for r in rows)))
+    mukeys: List[int] = json.loads(f_keys.read_text())
+    log.info("soils: %d STATSGO2 map units in %s", len(mukeys), (x0, y0, x1, y1))
+
+    f_tab = d / "horizons.csv"
+    if not f_tab.exists():
+        parts = []
+        for i in range(0, len(mukeys), 300):
+            keys = ",".join(str(k) for k in mukeys[i : i + 300])
+            q = (
+                "SELECT c.mukey, c.cokey, c.comppct_r, h.hzdept_r, h.hzdepb_r, h.ksat_r "
+                "FROM component c LEFT JOIN chorizon h ON h.cokey = c.cokey "
+                f"WHERE c.mukey IN ({keys})"
+            )
+            parts.append(pd.DataFrame(sda_query(q)))
+        pd.concat(parts).to_csv(f_tab, index=False)
+    tab = pd.read_csv(f_tab)
+    for c in ("comppct_r", "hzdept_r", "hzdepb_r", "ksat_r"):
+        tab[c] = pd.to_numeric(tab[c], errors="coerce")
+    ksat = mapunit_ksat(tab)
+    log.info("soils: Ksat for %d of %d map units", len(ksat), len(mukeys))
+
+    shapes: List[Tuple[Dict[str, Any], int]] = []
+    for i in range(0, len(mukeys), 40):
+        f = d / f"poly_{i:05d}.json"
+        if not f.exists():
+            keys = ",".join(str(k) for k in mukeys[i : i + 40])
+            rows = sda_query(
+                f"SELECT mukey, mupolygongeo.Reduce({SOIL_REDUCE}).STAsText() AS wkt "
+                f"FROM gsmmupolygon WHERE mukey IN ({keys}) AND {where}"
+            )
+            f.write_text(json.dumps(rows))
+            log.info("soils: polygons %d/%d", min(i + 40, len(mukeys)), len(mukeys))
+        for r in json.loads(f.read_text()):
+            try:
+                shapes.append((wkt_to_geojson(r["wkt"]), int(r["mukey"])))
+            except ValueError as exc:
+                log.warning("mukey %s: %s", r["mukey"], exc)
+
+    width = int(np.ceil((x1 - x0) / SOIL_RES))
+    height = int(np.ceil((y1 - y0) / SOIL_RES))
+    transform = from_origin(x0, y1, SOIL_RES, SOIL_RES)
+    mu = rasterize(shapes, out_shape=(height, width), transform=transform, fill=0, dtype="int32")
+    uniq, inv = np.unique(mu, return_inverse=True)
+    lut = ksat.to_dict()
+    vals = np.array([lut.get(int(k), SOIL_NODATA) for k in uniq], dtype="float32")
+    out = vals[inv].reshape(mu.shape)
+    path = rasters / RASTERS["SOILKSAT"][0]
+    rasters.mkdir(parents=True, exist_ok=True)
+    profile = dict(driver="GTiff", width=width, height=height, count=1, dtype="float32",
+                   crs="EPSG:4326", transform=transform, nodata=SOIL_NODATA, compress="deflate")  # fmt: skip
+    with rasterio.open(path, "w", **profile) as dst:
+        dst.write(out, 1)
+    covered = 100.0 * float((out != SOIL_NODATA).mean())
+    log.info("soils: wrote %s (%d x %d), %.1f %% of cells with Ksat", path, width, height, covered)
+    return path
+
+
 def characteristics(cache: Path, rasters: Path) -> pd.DataFrame:
     import rasterio
 
@@ -342,7 +517,7 @@ def characteristics(cache: Path, rasters: Path) -> pd.DataFrame:
 
 def main(argv: Sequence[str]) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    ap.add_argument("stage", choices=["basins", "characteristics"])
+    ap.add_argument("stage", choices=["basins", "soils", "characteristics"])
     ap.add_argument("--cache", type=Path, default=ROOT / ".cache" / "or_basins")
     ap.add_argument("--rasters", type=Path, default=None)
     ap.add_argument("--concurrency", type=int, default=3)
@@ -356,7 +531,10 @@ def main(argv: Sequence[str]) -> int:
         log.info("basins: %d delineated, %d failed", len(out) - len(bad), len(bad))
         return 0
     if args.rasters is None:
-        raise SystemExit("characteristics needs --rasters")
+        raise SystemExit(f"{args.stage} needs --rasters")
+    if args.stage == "soils":
+        soils(args.cache, args.rasters)
+        return 0
     characteristics(args.cache, args.rasters)
     return 0
 
