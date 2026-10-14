@@ -76,13 +76,14 @@ These bit repeatedly and are not discoverable from the code:
 Open at v0.10.4 and carried into the 0.11.0 (countrywide) cycle. Details are in the
 Phase A / Wave entries below.
 
-- [ ] **Partial states.**
+- [x] **Partial states.** None left: NV is `verified` since #157.
       - ~~WA region 4 covariance (#65)~~: stored in the `P/10` basis after a GLS refit
         (`docs/WA_REGION4_REFIT.md`); WA is `verified`.
       - ~~UT region 2 (#96)~~: NSS's 4-digit precipitation bases are stored; each rounds to
         SIR 2007-5158's printed 3-digit base. UT is `verified` (#144, merged 2026-10-13).
-      - NV region 6 and the hybrid regions (#104): the printed 2-year `Q=0` and the hybrid
-        method's non-comparable error statistics have no schema representation.
+      - ~~NV region 6 and the hybrid regions (#104)~~: region 6's 2-year `Q=0` is a
+        `form="constant"` equation, and the 11 hybrid errors are `published_errors` that never
+        feed an interval (#157, `docs/NEVADA_REGION6_SCHEMA.md`).
 - [x] **Oregon closed basins (1712)**: provisional PNW member after a B-GLS applicability
       test (`docs/OREGON_UNRESOLVED_SKEW.md`). The Klamath (1801) stays unresolved (2 gages).
 - [x] **Montana skew v2** (provisional, opt-in): east-of-Divide G = -0.04, MSE 0.385
@@ -95,7 +96,12 @@ Phase A / Wave entries below.
       and NV were checked 2026-10-12 and have no B-WLS/B-GLS study; each has a `pending` row
       saying what USGS uses instead (CO and WY: the B17B Plate I map; UT: the Perica and
       Stayner 2004 contour map; NV: WSP 2433's zero, MSE 0.31). NM waits on Tillery 2026.
-- [ ] **Colorado: SIR 2025-5047** (Kohn, Mast and Gross, 2026) replaces Capesius and
+- [x] **Colorado: SIR 2025-5047** (#151, #156): stored in `awaiting_nss/CO.json`, a new
+      opt-in status for USGS-published sets NSS does not serve yet
+      (`load_state("CO", allow_awaiting_nss=True)`). It uses NSS staging citation 200's codes,
+      region bounds and limits, with Table 1's coefficients. Once NSS publishes citation 200,
+      it replaces the Mountain, Northwest, Rio Grande and Southwest regions in `CO.json`.
+      Original entry: (Kohn, Mast and Gross, 2026) replaces Capesius and
       Stephens (2009) for central and western Colorado: four elevation regions (Plateau,
       Mid-Elevation, Sub-Alpine, Alpine), 418 gages through WY2019, tables as CSV on the pubs
       page. NSS still serves the 2009 equations (citations 11, 20, 21, checked 2026-10-12),
@@ -108,8 +114,12 @@ Phase A / Wave entries below.
       not evaluating Cooper's western-Oregon variables (I24H2Y, JANMAXT2K). Re-check it, and
       report it to StreamStats. Oregon plan Tasks 2-5 done 2026-10-13: a provisional
       six-region set in `provisional/OR.json`, less precise than the current equations
-      (`docs/OREGON_REGRESSION_UPDATE.md`). Its next improvement is a soil-permeability
-      variable (gNATSGO/STATSGO2) for the High Cascades basins. #135 (06163400 vs PeakFQ) fixed: lowercase peak codes. A 2026-10-11 search
+      (`docs/OREGON_REGRESSION_UPDATE.md`). Soil Ksat (STATSGO2, #153) and young-volcanic
+      geology and lake area (SGMC/NHD, #158) followed. Only region E's stored equations changed
+      (SEP at 1 % AEP 94 -> 86 %), and every region is still less precise than the current
+      equations. Open: selecting variables at more than one AEP (W-171003 gains at 1 % but loses
+      at 50 %); a High Cascades flag from Oregon's state geologic map, because SGMC codes some
+      QT units as Miocene; and lake area for Waldo Lake (t = -1.9). #135 (06163400 vs PeakFQ) fixed: lowercase peak codes. A 2026-10-11 search
       found no newer USGS report for WA, MT, ID or OR. The studies follow published USGS
       procedures, and their results enter `regional_skew.csv` only as `provisional`, which
       callers must opt into (`allow_provisional=True`).
@@ -229,7 +239,7 @@ unresolved.
 - [x] **#100 NM**, `verified` (#101).
 - [x] **#102 AZ**, `verified` since v0.10.2: region 5's `10^(a - b DRNAREA^-c)` form is
       stored with `Variable(transform="power")`.
-- [ ] **#104 NV**, `partial` (#106). v0.10.2 added the transition-zone equations
+- [x] **#104 NV**, `verified` since #157. Before that, `partial` (#106). v0.10.2 added the transition-zone equations
       (`flowfreq.regression.nevada`) and replaced NSS's limits with the ranges of each
       region's gages. Still open: region 6's 2-year equation is printed `Q=0`, and
       hybrid-method errors are not comparable standard errors; neither is stored.
