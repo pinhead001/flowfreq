@@ -421,6 +421,23 @@ def test_regression_change_factors_needs_a_projected_variable():
         regression_change_factors([], NY_HIST, {"PRECIP": 40.0}, **kw)
 
 
+def test_regression_change_factors_refuses_a_printed_constant():
+    # Nevada Region 6's 2-year equation is printed Q=0 (WSP 2433, Table 10): 0/0.
+    zero = RegressionEquation(
+        "X",
+        0.5,
+        None,
+        (Variable("PRECIP", minimum=31.6, maximum=49.8),),
+        (0.0,),
+        Citation("synthetic", "T1"),
+        form="constant",
+        constant_cfs=0.0,
+    )
+    kw = dict(name="n", scenario="s", horizon="h", citation="c")
+    with pytest.raises(ValueError, match="printed constant"):
+        regression_change_factors([zero], NY_HIST, {"PRECIP": 40.0}, **kw)
+
+
 # --------------------------------------------------------------------------
 # NCHRP 15-61 Ch. 8: index-flood method, Table 8.1 (p. 87)
 # --------------------------------------------------------------------------

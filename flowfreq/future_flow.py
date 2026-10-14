@@ -699,7 +699,10 @@ def regression_change_factors(
         If ``equations`` is empty or repeats an AEP, if ``projected`` changes
         nothing, or if an equation uses none of the changed inputs (the Guide,
         Section 7.3: such an equation "is not equipped to estimate future
-        conditions").
+        conditions"). Also for a printed constant equation (``form="constant"``,
+        such as Nevada Region 6's 2-year ``Q=0``): it is not a function of basin
+        characteristics, and at zero flow the change factor is undefined. (A
+        log-linear equation's flow is always positive.)
     KeyError
         If an equation input, or a projected input's historical value, is missing.
     flowfreq.regression.equations.OutOfRangeError
@@ -732,6 +735,12 @@ def regression_change_factors(
             raise ValueError(
                 f"{eq.region_code} AEP {eq.aep} uses none of the projected inputs "
                 f"{sorted(changed)}, so cannot estimate future conditions (NCHRP 15-61 §7.3)"
+            )
+        if eq.form == "constant":
+            raise ValueError(
+                f"{eq.region_code} AEP {eq.aep} is a printed constant (Q={eq.constant_cfs:g}), "
+                "not a regression on basin characteristics, so it cannot estimate future "
+                "conditions"
             )
         q_hist = evaluate(eq, historical).flow_cfs
         q_proj = evaluate(eq, future).flow_cfs

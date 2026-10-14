@@ -35,6 +35,13 @@ The report's third transition zone (a site near a boundary whose basin lies in o
 region, for which "a straight average ... may be appropriate") is a judgement call,
 not a formula, and is not implemented. The report gives no prediction interval for a
 weighted estimate; each component keeps its own.
+
+Region 6's 2-year equation is printed ``Q=0`` (Table 10, p. 46) and is stored with
+``form="constant"``. Linear weighting handles it as the report's equations imply: a zero
+component adds nothing, so eq. 6 at AEP 0.5 with Region 6 is the other region's estimate
+times its area share, and eq. 7 with ``low_region="6"`` is ``(1 - w) * QT(h)``. The
+hybrid regions (6 and 10) carry their printed errors in ``published_errors``, which are
+not standard errors of prediction, so their components have no interval.
 """
 
 from __future__ import annotations
@@ -197,7 +204,9 @@ def estimate_area_weighted(
     ----------
     aep : float
         Annual exceedance probability (0.5 to 0.01; the report has no 200- or 500-year
-        equations, and Region 6's 2-year equation is printed ``Q=0``, so is not stored).
+        equations). Region 6's 2-year equation is printed ``Q=0`` and is stored as a
+        constant, so at AEP 0.5 Region 6 contributes zero flow and the result is the
+        other region's estimate times its share of the drainage area.
     region_areas : mapping of str to float
         Drainage area in each of the two regions, square miles, keyed by region code.
     characteristics : mapping of str to float

@@ -535,7 +535,9 @@ def estimate_state(
     KeyError
         A characteristic an equation needs is missing.
     ValueError
-        A transform's argument is outside its domain.
+        A transform's argument is outside its domain, or a contributing equation is a
+        printed constant (Nevada Region 6's 2-year ``Q=0``), which has no log flow or
+        standard error to compare.
     """
     if not weights:
         raise EquationsUnavailable(f"{lib.state}: no peak-flow region located")
@@ -560,7 +562,13 @@ def estimate_state(
                 oor.extend(f"{k}: {p}" for p in e.out_of_range)
                 codes_used.update(e.inputs)
             continue
-        est = evaluate(lib.equation(region, aep), characteristics, allow_extrapolation=True)
+        eq = lib.equation(region, aep)
+        if eq.form == "constant":
+            raise ValueError(
+                f"{lib.state} region {region} AEP {aep} is a printed constant "
+                f"(Q={eq.constant_cfs:g}); not comparable"
+            )
+        est = evaluate(eq, characteristics, allow_extrapolation=True)
         flows.append((w, est.flow_cfs))
         seps.append((w, est.equation.sep_log))
         oor.extend(f"{region}: {p}" for p in est.out_of_range)
@@ -945,12 +953,14 @@ def dar_loocv(
 def area_exponent(lib: StateLibrary, region: str, aep: float) -> Optional[float]:
     """The drainage-area exponent of a region's equation (DRNAREA or CONTDA, log10).
 
-    ``None`` when the region has no equation at that AEP or its area term is not a
-    plain ``log10`` of area.
+    ``None`` when the region has no equation at that AEP, the equation is a printed
+    constant (``form="constant"``), or its area term is not a plain ``log10`` of area.
     """
     try:
         eq = lib.equation(region, aep)
     except EquationsUnavailable:
+        return None
+    if eq.form == "constant":
         return None
     for v, c in zip(eq.variables, eq.coefficients):
         if (
