@@ -16,7 +16,7 @@ Plan and definitions of done: `docs/MASTER_ROADMAP.md` §3.2.
 
 | Code | Jurisdiction | Equations | Regions | Equation count | Regional skew | Issue |
 |---|---|---|---:|---:|---|---|
-| CO | Colorado | verified (+ provisional set) | 8 | 62 | pending | #93 |
+| CO | Colorado | verified (+ newer USGS set, not yet in NSS) | 8 | 62 | pending | #93 |
 | UT | Utah | verified | 8 | 63 | pending | #96 |
 | WY | Wyoming | verified | 6 | 60 | pending | #98 |
 | NM | New Mexico | verified | 13 | 91 | pending | #100 |
