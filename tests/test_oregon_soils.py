@@ -1,8 +1,13 @@
-"""The STATSGO2 Ksat helpers in tools/build_oregon_basin_characteristics.py (``soils`` stage)."""
+"""Soil and geology helpers in tools/build_oregon_basin_characteristics.py.
+
+The ``soils`` (STATSGO2 Ksat) and ``geology`` (SGMC young volcanics, NHD lakes)
+stages; no network access.
+"""
 
 from __future__ import annotations
 
 import importlib.util
+import json
 from pathlib import Path
 from types import ModuleType
 
@@ -69,3 +74,21 @@ def test_soilksat_raster_is_converted_to_inches_per_hour(tool):
     # 1 um/s = 3.6 mm/hr = 0.1417 in./hr
     assert 1.0 * scale + offset == pytest.approx(0.14173, rel=1e-4)
     assert "SOILKSAT" in tool.SOURCES
+
+
+def test_arcgis_features_reads_cached_pages_until_a_short_one(tool, tmp_path):
+    # A full page of 2, then a short page of 1, both cached: no network.
+    feat = {"type": "Feature", "geometry": None, "properties": {}}
+    (tmp_path / "page_000000.json").write_text(json.dumps([feat, feat]))
+    (tmp_path / "page_000002.json").write_text(json.dumps([feat]))
+    got = tool.arcgis_features("http://invalid", "1=1", (0, 0, 1, 1), "fid", tmp_path, 0.0, page=2)
+    assert len(got) == 3
+
+
+def test_geology_selects_young_volcanic_units_and_lakes(tool):
+    assert "Igneous, volcanic" in tool.SGMC_WHERE
+    assert "Pliocene" in tool.SGMC_WHERE and "Quaternary" in tool.SGMC_WHERE
+    assert "390" in tool.NHD_WHERE and "436" in tool.NHD_WHERE
+    for name in ("VOLCQP", "LAKEAREA"):
+        assert tool.RASTERS[name][1] == 100.0  # mean of a 0/1 mask -> percent
+        assert name in tool.SOURCES

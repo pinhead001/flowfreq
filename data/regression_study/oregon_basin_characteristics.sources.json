@@ -5,5 +5,7 @@
  "I24H2Y": "NOAA Atlas 2 (Miller and others, 1973), western U.S. 2-yr 24-hr grid, NOAA HDSC digitization (15 arc-second, NAD27)",
  "ELEV": "USGS 3DEP 1/3 arc-second DEM via the 3DEPElevation ImageServer, computeStatisticsHistograms at 30 m",
  "BSLOPD": "USGS 3DEP via the 3DEPElevation ImageServer, Slope Degrees raster function, basin mean at 30 m",
- "SOILKSAT": "NRCS STATSGO2 (U.S. General Soil Map) via Soil Data Access, retrieved 2026-10-13: horizon ksat_r thickness-weighted per component, components weighted by comppct_r, rasterized at 15 arc-seconds (in./hr)"
+ "SOILKSAT": "NRCS STATSGO2 (U.S. General Soil Map) via Soil Data Access, retrieved 2026-10-13: horizon ksat_r thickness-weighted per component, components weighted by comppct_r, rasterized at 15 arc-seconds (in./hr)",
+ "VOLCQP": "USGS State Geologic Map Compilation (Horton and others, 2017, DS 1052, doi:10.5066/F7WH2N65) via the energy.usgs.gov State_Geological_Map_Compilation feature service, retrieved 2026-10-14: percent of basin on units with generalize 'Igneous, volcanic' and age_max Pliocene or Quaternary, 15 arc-second raster",
+ "LAKEAREA": "USGS NHD high-resolution Waterbody (hydro.nationalmap.gov nhd MapServer layer 12), retrieved 2026-10-14: percent of basin under FTYPE 390 (LakePond) or 436 (Reservoir) with AREASQKM >= 0.05, 5 arc-second raster"
 }

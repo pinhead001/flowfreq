@@ -28,6 +28,8 @@ COLUMNS = {
     "ELEV_3DEP": "ELEV",
     "BSLOPD_3DEP": "BSLOPD",
     "SOILKSAT_STATSGO2": "SOILKSAT",
+    "VOLCQP_SGMC": "VOLCQP",
+    "LAKEAREA_NHD": "LAKEAREA",
 }
 
 
@@ -64,6 +66,19 @@ def test_characteristics_are_physically_plausible(basins):
     assert ok["BSLOPD"].dropna().between(0, 45).all()
     # STATSGO2 Ksat, in./hr: every accepted basin has one
     assert ok["SOILKSAT"].between(0.05, 50).all()
+    # percentages of the basin
+    assert ok["VOLCQP"].between(0, 100).all()
+    assert ok["LAKEAREA"].between(0, 100).all()
+
+
+def test_high_cascades_basins_are_on_young_volcanics(basins):
+    # Thielsen Creek, Clearwater above Trap Creek, North Umpqua at Toketee Falls,
+    # Waldo Lake outlet: all at least half on Pliocene-Quaternary volcanic rock,
+    # against a dataset median of zero; Waldo is a third lake.
+    ok = basins[basins["basin_source"].notna()].set_index("site_no")
+    assert (ok.loc[["14312700", "14314500", "14315500", "14147000"], "VOLCQP"] > 50).all()
+    assert ok["VOLCQP"].median() == 0
+    assert ok.loc["14147000", "LAKEAREA"] > 25
 
 
 def test_high_cascades_soils_are_more_permeable_than_the_median(basins):
@@ -82,6 +97,8 @@ def test_every_characteristic_records_its_source():
         "ELEV",
         "BSLOPD",
         "SOILKSAT",
+        "VOLCQP",
+        "LAKEAREA",
     }
 
 
