@@ -160,7 +160,7 @@ Audited 2026-10-03 against `git log v0.9.0..origin/main`, `CHANGELOG.md` and
       `analyze_gage` (and `run_ffa` given `site_no=`) refuses a regulated gage unless
       `allow_regulated=True`. Open:
       - Current NID storage. The national CSV is live
-        (`nid.sec.usace.army.mil/api/nation/csv`), but summing it upstream needs basin
+        (`nid.sec.usace.army.mil/api/nation/gpkg`, #155), but summing it upstream needs basin
         polygons and point-in-polygon, which flowfreq does not depend on.
       - The NLCD impervious **time series** (step 3). GAGES-II carries NLCD 2006 only.
       - Gages outside GAGES-II, which have peak-code evidence only.
@@ -246,13 +246,12 @@ Arizona has a verified regional skew (SIR 2014-5211 app. 1). CO, UT, WY and NV h
       a B17C treatment (peakfq ignores A), but a bulk download logs one warning per row:
       hundreds in the Oregon dataset build. Map A like `DAYUNKNOWN` and the rest like
       `GHNOTASSCPKQ`.
-- [ ] **Live-service tests (#140).** Re-run 2026-10-13 (evening): 106 passed. StreamStats
-      computes PRECIP in Washington again. Only NID fails: `api/nation/csv` returns 403 with
-      NID's own proxy error body (`ERR_BAD_REQUEST`, "Request failed with status code 403")
-      whatever the User-Agent, and the export's S3 object is access-denied. So it is broken
-      on NID's side, not refused for our request. `api/nation/gpkg` still downloads (302 to
-      `api/docs/public?url=...nation.gpkg`). Wait for the CSV, or move `load_nid` to the
-      GeoPackage (stdlib `sqlite3` can read it); that switch is a maintainer decision.
+- [x] **Live-service tests (#140).** Re-run 2026-10-13: 106 passed, and StreamStats computes
+      PRECIP in Washington again. NID's national CSV (`api/nation/csv`) returns 403 from NID's
+      own proxy, and its S3 object is access-denied, so `load_nid` now reads the national
+      GeoPackage (`api/nation/gpkg`) with stdlib `sqlite3` (#155). Its `dams` table holds the
+      CSV's values as the same text. All four live regulation tests pass, including the end-to-end
+      classification, which had been skipping.
 - [ ] **v0.10.4 GitHub release.** Deleted 2026-10-13 to re-attach the dists; the workflow
       re-run cannot recreate it (PyPI refuses the duplicate upload; `skip-existing` landed
       in 0.11.0, after the tag). Recreate it from PyPI's files with `gh release create

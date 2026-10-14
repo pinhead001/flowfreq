@@ -32,6 +32,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (01578310) for Studies 9-11. Study 12 is recorded, not pinned.
 
 ### Fixed
+- **`load_nid` reads the NID national GeoPackage** (#155). The national CSV has returned 403
+  from NID's own proxy since 2026-10-13. `load_nid` now downloads `api/nation/gpkg` (82 MB),
+  reads its `dams` table with `sqlite3` (new `parse_nid_gpkg`, the same filtering as
+  `parse_nid_csv`, which is kept), and deletes it after writing the usual cached extract.
+  The two dams with no NID ID are no longer merged into one by the dedupe.
 - **Water Data peak qualifiers no longer warn per row** (#149). `YEARUNKNOWN` (NWIS code A) is
   dropped like `DAYUNKNOWN`, `OTHERAGENCY` maps to code F, and the gage-height flags
   `BACKWATER`, `NOTMAXGH`, `EQUIP`, `ICE` and `BLWMIN` are dropped like `GHNOTASSCPKQ`.

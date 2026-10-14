@@ -5,6 +5,7 @@ from __future__ import annotations
 import gzip
 import json
 import logging
+import sqlite3
 
 import numpy as np
 import pandas as pd
@@ -232,20 +233,21 @@ def test_gagesii_release_still_published():
 
 
 @pytest.mark.requires_network
-def test_nid_national_csv_is_live():
-    """NID's national download answers (used by load_nid)."""
+def test_nid_national_gpkg_is_live():
+    """NID's national GeoPackage answers (used by load_nid). The CSV export has
+    returned 403 from NID's own proxy since 2026-10-13, so it is not tested."""
     try:
-        r = requests.get("https://nid.sec.usace.army.mil/api/nation/csv", stream=True, timeout=60)
+        r = requests.get(reg.NID_GPKG_URL, stream=True, timeout=60)
     except (requests.ConnectionError, requests.Timeout) as exc:
         # A local resolver/network failure is not a NID change (seen 2026-10-04:
         # the host resolves via public DNS but not from one developer machine).
         pytest.skip(f"NID unreachable from here: {exc}")
     try:
         assert r.status_code == 200
-        head = next(r.iter_content(200)).decode("utf-8", "replace")
+        head = next(r.iter_content(16))
     finally:
         r.close()
-    assert head.startswith("Data Last Updated")
+    assert head == b"SQLite format 3\x00"
 
 
 # ------------------------------------------- current NID / NLCD (opt-in) -----
@@ -284,6 +286,63 @@ def test_parse_nid_csv_drops_associated_and_unlocated():
     assert dams["nid_id"].is_unique and dams["latitude"].notna().all()
 
 
+def _write_nid_gpkg(path, rows=None, updated="2026-09-23"):
+    """A minimal NID GeoPackage ``dams`` table: the CSV fixture's rows, text
+    columns, and NULL where the CSV cell is empty, as the real export has them."""
+    import csv
+    import io
+
+    if rows is None:
+        _, _, body = _nid_text().partition("\n")
+        rows = list(csv.DictReader(io.StringIO(body)))
+    cols = list(reg.NID_GPKG_COLUMNS)
+    con = sqlite3.connect(path)
+    con.execute(
+        "CREATE TABLE dams ("
+        + ", ".join(f'"{c}" TEXT' for c in cols)
+        + ', "dataUpdated" TEXT, "geom" BLOB)'
+    )
+    for row in rows:
+        values = [row.get(reg.NID_GPKG_COLUMNS[c], "") or None for c in cols]
+        con.execute(
+            f"INSERT INTO dams VALUES ({', '.join('?' * (len(cols) + 2))})",
+            [*values, updated, None],
+        )
+    con.commit()
+    con.close()
+    return path
+
+
+def test_parse_nid_gpkg_matches_the_csv(tmp_path):
+    from_csv, csv_updated = reg.parse_nid_csv(_nid_text())
+    from_gpkg, gpkg_updated = reg.parse_nid_gpkg(_write_nid_gpkg(tmp_path / "n.gpkg"))
+    assert gpkg_updated == csv_updated == "2026-09-23"
+    pd.testing.assert_frame_equal(from_gpkg, from_csv)
+
+
+def test_parse_nid_gpkg_keeps_dams_without_an_id(tmp_path):
+    blank = {"NID ID": "", "Latitude": "44.86", "Longitude": "-117.11"}
+    rows = [
+        {**blank, "Is Associated Structure?": "No"},
+        {**blank, "Latitude": "39.38", "Is Associated Structure?": "No"},
+        {"NID ID": "UT00001", "Latitude": "40.0", "Longitude": "-111.0"},
+        {"NID ID": "UT00001", "Latitude": "40.0", "Longitude": "-111.0"},
+    ]
+    dams, _ = reg.parse_nid_gpkg(_write_nid_gpkg(tmp_path / "b.gpkg", rows))
+    assert list(dams["nid_id"]) == ["", "", "UT00001"]
+
+
+def test_parse_nid_gpkg_rejects_other_files(tmp_path):
+    text = tmp_path / "not.gpkg"
+    text.write_text("Data Last Updated:,2026-9-23\n", encoding="utf-8")
+    with pytest.raises(ValueError):
+        reg.parse_nid_gpkg(text)
+    other = tmp_path / "other.gpkg"
+    sqlite3.connect(other).execute("CREATE TABLE dams (nidId TEXT)").connection.close()
+    with pytest.raises(ValueError, match="missing columns"):
+        reg.parse_nid_gpkg(other)
+
+
 def test_parse_nid_csv_rejects_other_text():
     with pytest.raises(ValueError, match="last-updated"):
         reg.parse_nid_csv("Dam Name,NID ID\nx,y\n")
@@ -292,17 +351,18 @@ def test_parse_nid_csv_rejects_other_text():
 def test_load_nid_caches_and_falls_back(tmp_path, monkeypatch, caplog):
     calls = []
 
-    def fake_download(timeout, retries):
+    def fake_download(timeout, retries, dest):
         calls.append(1)
-        return _nid_text()
+        _write_nid_gpkg(dest)
 
     monkeypatch.setattr(reg, "_download_nid", fake_download)
     inv = reg.load_nid(tmp_path)
     assert len(inv.dams) == 31 and inv.data_last_updated == "2026-09-23" and calls == [1]
     assert (tmp_path / reg.NID_CACHE_FILE).exists()
+    assert not list(tmp_path.glob("*.gpkg*"))  # the download is not kept
     assert len(reg.load_nid(tmp_path).dams) == 31 and calls == [1]  # served from cache
 
-    def down(timeout, retries):
+    def down(timeout, retries, dest):
         raise reg.NIDUnavailableError("host unreachable")
 
     monkeypatch.setattr(reg, "_download_nid", down)

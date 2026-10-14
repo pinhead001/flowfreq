@@ -24,7 +24,7 @@ evidence:
    :func:`classify_site`'s ``use_current_nid`` and ``use_current_impervious``.
 
    - *Dam storage* is the current National Inventory of Dams
-     (https://nid.sec.usace.army.mil/api/nation/csv, :func:`load_nid`) summed
+     (https://nid.sec.usace.army.mil/api/nation/gpkg, :func:`load_nid`) summed
      over the dams inside the StreamStats watershed polygon
      (:func:`nid_storage_in_basin`), normalized exactly as the packaged rule
      is: days = storage per unit area / mean annual runoff * 365.
@@ -51,6 +51,7 @@ import json
 import logging
 import math
 import os
+import sqlite3
 import time
 from dataclasses import dataclass, field
 from datetime import date, datetime, timezone
@@ -227,6 +228,20 @@ def _clean(value: Any) -> Any:
 #: 2026-10-03: 67 MB, first line ``Data Last Updated:,2026-9-23``, then a header
 #: and 92,766 rows.
 NID_CSV_URL = "https://nid.sec.usace.army.mil/api/nation/csv"
+#: National Inventory of Dams, national GeoPackage download, which :func:`load_nid`
+#: uses. From 2026-10-13 the CSV returned 403 from NID's own proxy while this kept
+#: working: an 82 MB SQLite file whose ``dams`` table holds the CSV's values as the
+#: same text, 92,625 rows (2026-10-14).
+NID_GPKG_URL = "https://nid.sec.usace.army.mil/api/nation/gpkg"
+#: GeoPackage ``dams`` columns read, and the CSV header each corresponds to.
+NID_GPKG_COLUMNS: Dict[str, str] = {
+    "nidId": "NID ID",
+    "latitude": "Latitude",
+    "longitude": "Longitude",
+    "nidStorage": "NID Storage (Acre-Ft)",
+    "yearCompleted": "Year Completed",
+    "isAssociatedStructureId": "Is Associated Structure?",
+}
 #: Columns kept from the NID CSV, and the names they are stored under.
 NID_SOURCE_COLUMNS: Dict[str, str] = {
     "NID ID": "nid_id",
@@ -303,30 +318,90 @@ def parse_nid_csv(text: str) -> Tuple[pd.DataFrame, str]:
     missing = [c for c in NID_SOURCE_COLUMNS if c not in raw.columns]
     if missing:
         raise ValueError(f"NID CSV missing columns: {missing}")
+    return _normalize_nid(raw), updated
+
+
+def parse_nid_gpkg(path: Union[str, Path]) -> Tuple[pd.DataFrame, str]:
+    """Parse the NID national GeoPackage (:data:`NID_GPKG_URL`).
+
+    Parameters
+    ----------
+    path : str or Path
+        The downloaded ``.gpkg`` file.
+
+    Returns
+    -------
+    (pandas.DataFrame, str)
+        The dams (:data:`NID_COLUMNS`), filtered as :func:`parse_nid_csv`
+        filters them, and the date of the newest ``dataUpdated`` as
+        ``YYYY-MM-DD``: the GeoPackage has no single last-updated line, and its
+        newest row update is what the CSV's line reports.
+
+    Raises
+    ------
+    ValueError
+        If the file is not a GeoPackage with a ``dams`` table holding the
+        needed columns.
+    """
+    try:
+        con = sqlite3.connect(f"file:{Path(path).as_posix()}?mode=ro", uri=True)
+    except sqlite3.Error as exc:
+        raise ValueError(f"cannot open NID GeoPackage {path}: {exc}") from exc
+    try:
+        try:
+            have = {row[1] for row in con.execute('PRAGMA table_info("dams")')}
+        except sqlite3.DatabaseError as exc:
+            raise ValueError(f"{path} is not a GeoPackage: {exc}") from exc
+        needed = [*NID_GPKG_COLUMNS, "dataUpdated"]
+        missing = [c for c in needed if c not in have]
+        if missing:
+            raise ValueError(f"NID GeoPackage dams table missing columns: {missing}")
+        select = ", ".join(f'"{c}"' for c in NID_GPKG_COLUMNS)
+        raw = pd.read_sql_query(f"SELECT {select} FROM dams", con)
+        (newest,) = con.execute("SELECT MAX(dataUpdated) FROM dams").fetchone()
+    finally:
+        con.close()
+    if not newest:
+        raise ValueError("NID GeoPackage has no dataUpdated values")
+    updated = date.fromisoformat(str(newest)[:10]).isoformat()
+    # Text like the CSV's; NULL becomes "" rather than the string "None".
+    raw = raw.astype(object).where(raw.notna(), "").astype(str)
+    raw = raw.rename(columns=NID_GPKG_COLUMNS)
+    return _normalize_nid(raw), updated
+
+
+def _normalize_nid(raw: pd.DataFrame) -> pd.DataFrame:
+    """The NID rows :func:`load_nid` keeps, from CSV-named text columns."""
     df = raw[list(NID_SOURCE_COLUMNS)].rename(columns=NID_SOURCE_COLUMNS)
     df = df[df["associated"].str.strip().str.lower() != "yes"].drop(columns="associated")
     for col in ("latitude", "longitude", "nid_storage_acft", "year_completed"):
         df[col] = pd.to_numeric(df[col], errors="coerce")
     df = df.dropna(subset=["latitude", "longitude"])
     df["nid_storage_acft"] = df["nid_storage_acft"].fillna(0.0)
-    df = df.drop_duplicates("nid_id").sort_values("nid_id").reset_index(drop=True)
-    return df.loc[:, list(NID_COLUMNS)], updated
+    # A blank NID ID is a real dam without one (2 in 2026-10), not a duplicate.
+    df = df[~(df["nid_id"].str.strip().ne("") & df.duplicated("nid_id"))]
+    df = df.sort_values("nid_id", kind="stable").reset_index(drop=True)
+    return df.loc[:, list(NID_COLUMNS)]
 
 
-def _download_nid(timeout: float, retries: int) -> str:
+def _download_nid(timeout: float, retries: int, dest: Path) -> None:
+    """Download the national GeoPackage to `dest`."""
     last: Optional[BaseException] = None
     for attempt in range(retries):
         try:
-            r = requests.get(NID_CSV_URL, timeout=timeout)
-            r.raise_for_status()
-            return r.content.decode("utf-8-sig", errors="replace")
+            with requests.get(NID_GPKG_URL, timeout=timeout, stream=True) as r:
+                r.raise_for_status()
+                with open(dest, "wb") as fh:
+                    for chunk in r.iter_content(1 << 20):
+                        fh.write(chunk)
+            return
         except requests.RequestException as exc:
             # The NID host has been seen to fail DNS resolution intermittently.
             last = exc
             logger.warning("NID download failed (attempt %d/%d): %s", attempt + 1, retries, exc)
             if attempt < retries - 1:
                 time.sleep(5.0 * (attempt + 1))
-    raise NIDUnavailableError(f"could not download {NID_CSV_URL}: {last}") from last
+    raise NIDUnavailableError(f"could not download {NID_GPKG_URL}: {last}") from last
 
 
 def load_nid(
@@ -339,8 +414,8 @@ def load_nid(
 ) -> NIDInventory:
     """The current National Inventory of Dams, cached in the user cache.
 
-    The first call downloads the 67 MB national CSV (:data:`NID_CSV_URL`) and
-    keeps a 1.3 MB extract, ``nid_national.csv.gz``, under :func:`nid_cache_dir`;
+    The first call downloads the 82 MB national GeoPackage (:data:`NID_GPKG_URL`),
+    reads it with :func:`parse_nid_gpkg`, deletes it, and keeps a 1.3 MB extract, ``nid_national.csv.gz``, under :func:`nid_cache_dir`;
     later calls read that. Nothing is written into the package.
 
     Parameters
@@ -374,19 +449,23 @@ def load_nid(
         age = (date.today() - date.fromisoformat(meta["retrieved"])).days
         if not refresh and age <= max_age_days:
             return _read_nid_cache(data_path, meta)
-    try:
-        text = _download_nid(timeout, retries)
-    except NIDUnavailableError:
-        if meta:
-            logger.warning("Using the stale NID cache retrieved %s", meta["retrieved"])
-            return _read_nid_cache(data_path, meta)
-        raise
-    dams, updated = parse_nid_csv(text)
     folder.mkdir(parents=True, exist_ok=True)
+    download = folder / "nid_national.gpkg.part"
+    try:
+        try:
+            _download_nid(timeout, retries, download)
+        except NIDUnavailableError:
+            if meta:
+                logger.warning("Using the stale NID cache retrieved %s", meta["retrieved"])
+                return _read_nid_cache(data_path, meta)
+            raise
+        dams, updated = parse_nid_gpkg(download)
+    finally:
+        download.unlink(missing_ok=True)
     with gzip.GzipFile(data_path, "wb", mtime=0) as fh:
         fh.write(dams.to_csv(index=False).encode("utf-8"))
     meta = {
-        "source": NID_CSV_URL,
+        "source": NID_GPKG_URL,
         "data_last_updated": updated,
         "retrieved": datetime.now(timezone.utc).date().isoformat(),
         "rows": len(dams),
