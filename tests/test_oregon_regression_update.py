@@ -27,6 +27,7 @@ COLUMNS = {
     "JANMAXT_PRISM9120": "JANMAXT",
     "ELEV_3DEP": "ELEV",
     "BSLOPD_3DEP": "BSLOPD",
+    "SOILKSAT_STATSGO2": "SOILKSAT",
 }
 
 
@@ -61,11 +62,27 @@ def test_characteristics_are_physically_plausible(basins):
     assert ok["I24H2Y"].dropna().between(0.5, 8).all()
     assert ok["ELEV"].dropna().between(0, 10000).all()
     assert ok["BSLOPD"].dropna().between(0, 45).all()
+    # STATSGO2 Ksat, in./hr: every accepted basin has one
+    assert ok["SOILKSAT"].between(0.05, 50).all()
+
+
+def test_high_cascades_soils_are_more_permeable_than_the_median(basins):
+    # Waldo Lake outlet, Clearwater River above Trap Creek: pumice and ash soils.
+    ok = basins[basins["basin_source"].notna()].set_index("site_no")
+    assert (ok.loc[["14147000", "14314500"], "SOILKSAT"] > 1.5 * ok["SOILKSAT"].median()).all()
 
 
 def test_every_characteristic_records_its_source():
     sources = json.loads((DATA / "oregon_basin_characteristics.sources.json").read_text())
-    assert set(sources) == {"DRNAREA", "PRECIP", "JANMAXT", "I24H2Y", "ELEV", "BSLOPD"}
+    assert set(sources) == {
+        "DRNAREA",
+        "PRECIP",
+        "JANMAXT",
+        "I24H2Y",
+        "ELEV",
+        "BSLOPD",
+        "SOILKSAT",
+    }
 
 
 def test_default_oregon_lookup_is_the_published_set():
@@ -85,7 +102,7 @@ def test_variable_codes_name_their_source(provisional):
     # would let one be substituted silently.
     codes = {v.code for e in provisional.equations for v in e.variables}
     assert codes <= set(COLUMNS)
-    assert codes & {"PRECIP", "ELEV", "I24H2Y", "JANMAXT", "BSLOPD"} == set()
+    assert codes & {"PRECIP", "ELEV", "I24H2Y", "JANMAXT", "BSLOPD", "SOILPERM"} == set()
 
 
 def test_regions_have_enough_gages(results):
