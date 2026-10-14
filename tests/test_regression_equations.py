@@ -179,6 +179,9 @@ class TestLibrary:
                 for v in eq.variables
             }
             q = evaluate(eq, site).flow_cfs
+            if eq.form == "constant":  # NV region 6 Q2, printed Q=0
+                assert q == eq.constant_cfs, (code, eq.region_code, eq.aep)
+                continue
             assert math.isfinite(q) and q > 0, (code, eq.region_code, eq.aep)
 
     def test_a_pending_state_raises_on_lookup(self):
@@ -364,6 +367,8 @@ class TestScaleOffset:
 
         for path in sorted(DATA_DIR.glob("*.json")):
             for eq in load_state(path.stem).equations:
+                if eq.form == "constant":  # NV region 6 Q2 = 0; TestConstantForm
+                    continue
                 if any(
                     v.scale != 1.0 or v.offset != 0.0 or v.exponent is not None
                     for v in eq.variables
@@ -469,3 +474,173 @@ class TestPowerTransform:
             for eq in lib.equations:
                 for v in eq.variables:
                     assert (v.transform == "power") == (v.exponent is not None)
+
+
+def _const(**kw):
+    base = dict(
+        region_code="R6",
+        aep=0.5,
+        intercept=None,
+        variables=(Variable("DRNAREA", "log10", "mi2", 1.0, 1000.0),),
+        coefficients=(0.0,),
+        citation=CIT,
+        form="constant",
+        constant_cfs=0.0,
+    )
+    base.update(kw)
+    return RegressionEquation(**base)
+
+
+class TestConstantForm:
+    """``form="constant"``: a printed constant flow such as ``Q=0``. Synthetic numbers."""
+
+    def test_default_form_is_loglinear(self):
+        eq = _eq()
+        assert (eq.form, eq.constant_cfs, eq.published_errors) == ("loglinear", None, ())
+
+    def test_value_and_no_interval(self):
+        est = evaluate(_const(), {"DRNAREA": 10.0})
+        assert est.flow_cfs == 0.0 and est.log_flow == -math.inf
+        assert est.interval is None and est.interval_level is None
+        assert est.interval_method == "none: printed constant (Q=0)"
+        assert est.inputs == {"DRNAREA": 10.0}
+
+    def test_positive_constant(self):
+        est = evaluate(_const(constant_cfs=5.0), {"DRNAREA": 10.0})
+        assert est.flow_cfs == 5.0 and est.log_flow == pytest.approx(math.log10(5.0))
+
+    def test_range_checked(self):
+        eq = _const()
+        with pytest.raises(OutOfRangeError):
+            evaluate(eq, {"DRNAREA": 5000.0})
+        est = evaluate(eq, {"DRNAREA": 5000.0}, allow_extrapolation=True)
+        assert est.flow_cfs == 0.0 and est.extrapolated
+        with pytest.raises(KeyError):
+            evaluate(eq, {})
+
+    @pytest.mark.parametrize(
+        "kw, match",
+        [
+            ({"constant_cfs": None}, "constant_cfs"),
+            ({"constant_cfs": -1.0}, "constant_cfs"),
+            ({"constant_cfs": math.nan}, "constant_cfs"),
+            ({"intercept": 1.0}, "no intercept"),
+            ({"coefficients": (0.5,)}, "zero"),
+            ({"sep_log": 0.3}, "error statistics"),
+            ({"covariance": ((1.0, 0.0), (0.0, 1.0))}, "error statistics"),
+            ({"bias_correction": 1.1}, "bias correction"),
+            ({"form": "piecewise"}, "Unknown form"),
+        ],
+    )
+    def test_invalid(self, kw, match):
+        with pytest.raises(ValueError, match=match):
+            _const(**kw)
+
+    def test_loglinear_needs_intercept_and_no_constant(self):
+        with pytest.raises(ValueError, match="intercept"):
+            _eq(intercept=None)
+        with pytest.raises(ValueError, match="constant_cfs"):
+            _eq(constant_cfs=0.0)
+
+    def test_from_dict(self):
+        d = {
+            "region_code": "R6",
+            "aep": 0.5,
+            "form": "constant",
+            "constant_cfs": 0,
+            "variables": [{"code": "DRNAREA", "transform": "log10", "maximum": 100.0}],
+            "citation": {"publication": "Synthetic", "table": "T1"},
+        }
+        eq = RegressionEquation.from_dict(d)
+        assert (eq.form, eq.constant_cfs, eq.intercept, eq.coefficients) == (
+            "constant",
+            0.0,
+            None,
+            (0.0,),
+        )
+        with pytest.raises(ValueError, match="no intercept"):
+            RegressionEquation.from_dict({**d, "intercept": 1.0})
+
+    def test_missing_intercept_fails_loudly(self):
+        """A loglinear entry with no intercept -- which is what a reader that predates
+        ``form`` sees in a constant entry -- raises ``KeyError``, never a default."""
+        d = {
+            "region_code": "R6",
+            "aep": 0.5,
+            "variables": [{"code": "DRNAREA", "transform": "log10"}],
+            "coefficients": [0.0],
+            "constant_cfs": 0,
+            "citation": {"publication": "Synthetic", "table": "T1"},
+        }
+        with pytest.raises(KeyError, match="intercept"):
+            RegressionEquation.from_dict(d)
+
+    def test_weighting(self):
+        zero = evaluate(_const(), {"DRNAREA": 10.0})
+        other = evaluate(_eq(), {"DRNAREA": 10.0, "PRECIP": 20.0})
+        assert evaluate_weighted([(0.25, zero), (0.75, other)], space="linear") == pytest.approx(
+            0.75 * other.flow_cfs
+        )
+        with pytest.raises(ValueError, match="R6 AEP 0.5 has flow 0 cfs; weight in linear"):
+            evaluate_weighted([(0.25, zero), (0.75, other)], space="log")
+
+
+class TestPublishedErrors:
+    """``published_errors``: printed statistics that are not standard errors of prediction."""
+
+    def _pe(self, **kw):
+        from flowfreq.regression import PublishedError
+
+        base = dict(kind="hybrid_standard_error_of_regression", value=1.2, units="log units")
+        base.update(kw)
+        return PublishedError(**base)
+
+    def test_never_sets_an_interval(self):
+        eq = _eq(published_errors=(self._pe(),))
+        est = evaluate(eq, {"DRNAREA": 10.0, "PRECIP": 20.0})
+        assert est.interval is None
+        assert "is not a standard error of prediction" in est.interval_method
+        assert "hybrid_standard_error_of_regression" in est.interval_method
+
+    def test_sep_log_still_used_when_present(self):
+        eq = _eq(sep_log=0.25, published_errors=(self._pe(),))
+        est = evaluate(eq, {"DRNAREA": 10.0, "PRECIP": 20.0})
+        assert est.interval is not None
+        assert est.interval_method == "average standard error of prediction"
+
+    def test_no_statistics_leaves_method_none(self):
+        est = evaluate(_eq(), {"DRNAREA": 10.0, "PRECIP": 20.0})
+        assert est.interval is None and est.interval_method is None
+
+    @pytest.mark.parametrize(
+        "kw, match",
+        [
+            ({"kind": "sep"}, "Unknown published-error kind"),
+            ({"units": " "}, "units"),
+            ({"value": -0.1}, "value"),
+            ({"value": math.inf}, "value"),
+        ],
+    )
+    def test_invalid(self, kw, match):
+        with pytest.raises(ValueError, match=match):
+            self._pe(**kw)
+
+    def test_json_round_trip(self):
+        pe = self._pe(source="Table 10, p. 46")
+        assert pe.to_dict() == {
+            "kind": "hybrid_standard_error_of_regression",
+            "value": 1.2,
+            "units": "log units",
+            "source": "Table 10, p. 46",
+        }
+        assert "source" not in self._pe().to_dict()
+        d = {
+            "region_code": "R1",
+            "aep": 0.01,
+            "intercept": 2.0,
+            "variables": [{"code": "DRNAREA", "transform": "log10"}],
+            "coefficients": [0.7],
+            "citation": {"publication": "Synthetic", "table": "T1"},
+            "published_errors": [pe.to_dict()],
+        }
+        assert RegressionEquation.from_dict(d).published_errors == (pe,)

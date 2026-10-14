@@ -104,7 +104,11 @@ class StateLibrary:
         return sorted({e.region_code for e in self.equations})
 
     def aeps(self, region_code: str) -> List[float]:
-        """AEPs published for a region, largest first."""
+        """AEPs published for a region, largest first.
+
+        A printed constant (``form="constant"``, such as Nevada Region 6's 2-year
+        ``Q=0``) is published, so its AEP is included.
+        """
         return sorted({e.aep for e in self.equations if e.region_code == region_code}, reverse=True)
 
     def equation(self, region_code: str, aep: float) -> RegressionEquation:

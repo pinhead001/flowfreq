@@ -8,10 +8,13 @@ dated live NSS response, never from ``NV.json`` itself.
 from __future__ import annotations
 
 import math
+from pathlib import Path
 
 import pytest
 
-from flowfreq.regression import EquationsUnavailable, evaluate, load_state
+from flowfreq.regression import EquationsUnavailable, OutOfRangeError, evaluate, load_state
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
 
 AEPS = [0.5, 0.2, 0.1, 0.04, 0.02, 0.01]
 BASIN = {"DRNAREA": 50.0, "PRECIP": 20.0, "ELEV": 6500.0, "LAT_GAGE": 38.0}
@@ -28,18 +31,55 @@ def _sig3(x: float) -> float:
 
 class TestLibraryShape:
     def test_status_and_regions(self, lib):
-        assert lib.status == "partial"
+        assert lib.status == "verified"
         assert lib.issue == 104
         assert lib.regions == ["1", "10", "2", "3", "5", "6"]
-        for region in ("1", "2", "3", "5", "10"):
+        for region in ("1", "2", "3", "5", "6", "10"):
             assert lib.aeps(region) == AEPS
-        assert lib.aeps("6") == AEPS[1:]
-        assert len(lib.equations) == 35
+        assert len(lib.equations) == 36
 
-    def test_region_6_two_year_is_not_stored(self, lib):
-        """Table 10 prints the 2-year equation as Q = 0."""
-        with pytest.raises(EquationsUnavailable):
-            lib.equation("6", 0.5)
+    def test_region_6_two_year_is_the_printed_constant(self, lib):
+        """Table 10 (p. 46) prints the 2-year equation as Q = 0."""
+        eq = lib.equation("6", 0.5)
+        assert (eq.form, eq.constant_cfs, eq.intercept) == ("constant", 0.0, None)
+        est = evaluate(eq, BASIN)
+        assert est.flow_cfs == 0.0 and est.log_flow == -math.inf
+        assert est.interval is None and "printed constant" in est.interval_method
+        assert eq.published_errors == ()  # Table 10 prints '--'
+
+    def test_region_6_two_year_is_range_checked(self, lib):
+        """The constant carries region 6's ranges, the same as its 5-year equation."""
+        eq = lib.equation("6", 0.5)
+        assert eq.variables == lib.equation("6", 0.2).variables
+        assert set(eq.coefficients) == {0.0}
+        with pytest.raises(OutOfRangeError):
+            evaluate(eq, {"DRNAREA": 5000.0, "ELEV": 6500.0})
+        with pytest.raises(KeyError):
+            evaluate(eq, {"DRNAREA": 50.0})
+
+    def test_only_constant_is_region_6_two_year(self, lib):
+        from flowfreq.regression.library import DATA_DIR
+
+        constants = [
+            (path.stem, e.region_code, e.aep)
+            for path in sorted(DATA_DIR.glob("*.json"))
+            for e in load_state(path.stem).equations
+            if e.form == "constant"
+        ]
+        assert constants == [("NV", "6", 0.5)]
+
+    def test_constant_entry_has_no_intercept_key(self):
+        """A reader that predates ``form`` does ``float(d["intercept"])``: it must fail
+        loudly on the constant cell, not misread it."""
+        import json
+
+        from flowfreq.regression.library import DATA_DIR
+
+        data = json.loads((DATA_DIR / "NV.json").read_text(encoding="utf-8"))
+        (cell,) = [e for e in data["equations"] if e.get("form") == "constant"]
+        assert "intercept" not in cell and "coefficients" not in cell
+        with pytest.raises(KeyError, match="intercept"):
+            float(cell["intercept"])
 
     @pytest.mark.parametrize(
         "region, n", [("1", 165), ("2", 108), ("3", 35), ("5", 37), ("6", 80), ("10", 104)]
@@ -47,11 +87,75 @@ class TestLibraryShape:
     def test_n_sites(self, lib, region, n):
         assert {e.n_sites for e in lib.equations if e.region_code == region} == {n}
 
-    def test_hybrid_regions_carry_no_error_statistics(self, lib):
+    def test_hybrid_regions_carry_no_prediction_error(self, lib):
         for region in ("6", "10"):
             for eq in (e for e in lib.equations if e.region_code == region):
                 assert eq.sep_log is None and eq.model_error_variance is None
-        assert evaluate(lib.equation("10", 0.01), BASIN).interval is None
+                assert eq.avp is None and eq.covariance is None
+                est = evaluate(eq, BASIN)
+                assert est.interval is None and est.interval_method.startswith("none")
+
+    @pytest.mark.parametrize(
+        "region, source, printed",
+        [
+            # Table 10, p. 46 (2-year: '--'); Table 14, p. 54. "Estimated average standard
+            # error of regression, in log units", copied from the rendered pages.
+            ("6", "Table 10, p. 46", {5: 1.47, 10: 1.12, 25: 0.796, 50: 1.10, 100: 1.84}),
+            (
+                "10",
+                "Table 14, p. 54",
+                {2: 1.14, 5: 0.602, 10: 0.675, 25: 0.949, 50: 0.928, 100: 1.23},
+            ),
+        ],
+    )
+    def test_hybrid_published_errors(self, lib, region, source, printed):
+        stored = {}
+        for eq in (e for e in lib.equations if e.region_code == region and e.form != "constant"):
+            (pe,) = eq.published_errors
+            assert (pe.kind, pe.units, pe.source) == (
+                "hybrid_standard_error_of_regression",
+                "log units",
+                source,
+            )
+            stored[round(1 / eq.aep)] = pe.value
+        assert stored == printed
+
+    def test_hybrid_published_errors_match_nss_snapshot(self, lib):
+        """NSS carries 6 of the 11 hybrid errors, under the GLS regions' 'SE' code."""
+        import json
+
+        snap = REPO_ROOT / "data" / "nss_snapshots" / "NV_2026-10-01.json"
+        if not snap.exists():
+            pytest.skip("NSS snapshot not present")
+        cells = []
+
+        def walk(o):
+            if isinstance(o, dict):
+                if o.get("region_code") in ("GC164", "GC165") and "equations" in o:
+                    cells.extend((o["region_code"], e) for e in o["equations"])
+                for v in o.values():
+                    walk(v)
+            elif isinstance(o, list):
+                for v in o:
+                    walk(v)
+
+        walk(json.loads(snap.read_text(encoding="utf-8")))
+        compared = set()
+        for code, e in cells:
+            se = [x["value"] for x in e["errors"] if x["code"] == "SE"]
+            if not se:
+                continue
+            eq = lib.equation(NSS_CODE_TO_REGION[code], NSS_STAT_TO_AEP[e["statistic_code"]])
+            assert eq.published_errors[0].value == se[0], (code, e["statistic_code"])
+            compared.add((code, e["statistic_code"]))
+        assert len(compared) == 6
+
+    def test_no_other_state_has_published_errors(self):
+        from flowfreq.regression.library import DATA_DIR
+
+        for path in sorted(DATA_DIR.glob("*.json")):
+            if path.stem != "NV":
+                assert not any(e.published_errors for e in load_state(path.stem).equations)
 
     def test_latitude_term(self, lib):
         v = {v.code: v for v in lib.equation("5", 0.01).variables}["LAT_GAGE"]
@@ -161,11 +265,10 @@ def test_matches_live_nss(lib, basin):
         for code, est in r.estimates.items():
             if region == "6" and code == "PK50AEP":
                 assert est.value == 0  # Table 10: Q = 0
-                continue
             ours = evaluate(lib.equation(region, NSS_STAT_TO_AEP[code]), basin).flow_cfs
             assert _sig3(ours) == est.value, (region, code, est.value, ours)
             compared += 1
-    assert compared == 35
+    assert compared == 36
 
 
 # Data section (pp. 109-195), the gages used in each region: minimum and maximum of each
@@ -319,6 +422,38 @@ class TestTransitionZones:
             estimate_area_weighted(0.01, {"2": 0.0, "10": 0.0}, chars, lib=lib)
         with pytest.raises(ValueError, match="Nevada"):
             estimate_area_weighted(0.01, {"2": 1.0, "10": 1.0}, chars, lib=load_state("AZ"))
-        # Region 6's 2-year equation is printed Q = 0 and is not stored.
+        # Region 1 has no 200-year equation.
         with pytest.raises(EquationsUnavailable):
-            estimate_area_weighted(0.5, {"6": 21.0, "10": 36.0}, chars, lib=lib)
+            estimate_elevation_transition(
+                0.002, "2", chars, site_elevation=7150.0, latitude=38.0, lib=lib
+            )
+
+    def test_equation_6_with_region_6_two_year_constant(self, lib):
+        """Region 6's Q2 is printed 0, so eq. 6 at AEP 0.5 is Region 10's Q2 x 36/57."""
+        from flowfreq.regression.nevada import estimate_area_weighted
+
+        chars = {"DRNAREA": 57.0, "ELEV": 6500.0}
+        w = estimate_area_weighted(0.5, {"6": 21.0, "10": 36.0}, chars, lib=lib)
+        q2_10 = evaluate(lib.equation("10", 0.5), chars).flow_cfs
+        assert q2_10 == pytest.approx(12 * 57**0.58, rel=1e-12)  # Table 14: Q = 12 AREA^0.58
+        assert w.flow_cfs == pytest.approx(q2_10 * 36 / 57, rel=1e-12)
+        assert w.blended and w.estimates["6"].flow_cfs == 0.0
+
+    def test_equation_7_with_region_6_two_year_constant(self, lib):
+        from flowfreq.regression.nevada import estimate_elevation_transition
+
+        chars = {"DRNAREA": 50.0, "PRECIP": 20.0, "ELEV": 6500.0}
+        mid = estimate_elevation_transition(
+            0.5, "6", chars, site_elevation=7150.0, latitude=38.0, lib=lib
+        )
+        q1 = evaluate(lib.equation("1", 0.5), chars).flow_cfs
+        assert mid.flow_cfs == pytest.approx(0.5 * q1, rel=1e-12)
+
+    def test_constant_cannot_be_weighted_in_log_space(self, lib):
+        from flowfreq.regression import evaluate_weighted
+
+        chars = {"DRNAREA": 57.0, "ELEV": 6500.0}
+        e6 = evaluate(lib.equation("6", 0.5), chars)
+        e10 = evaluate(lib.equation("10", 0.5), chars)
+        with pytest.raises(ValueError, match="6 AEP 0.5.*linear space"):
+            evaluate_weighted([(0.4, e6), (0.6, e10)], space="log")
