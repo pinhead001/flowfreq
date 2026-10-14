@@ -7,6 +7,7 @@ See ``docs/MASTER_ROADMAP.md`` §3. This package is the offline evaluator.
 from flowfreq.regression.equations import (
     Citation,
     OutOfRangeError,
+    PublishedError,
     RegressionEquation,
     RegressionEstimate,
     Variable,
@@ -34,6 +35,7 @@ __all__ = [
     "JURISDICTIONS",
     "Jurisdiction",
     "OutOfRangeError",
+    "PublishedError",
     "RegressionEquation",
     "RegressionEstimate",
     "StateLibrary",

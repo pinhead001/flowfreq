@@ -1,6 +1,8 @@
 # Nevada region 6 and the hybrid regions: a schema proposal
 
-Issue #104. Design only; nothing here is implemented yet.
+Issue #104. **Implemented** on this branch (A1 + B1, §5), with the maintainer's answers to
+the decisions recorded in §8. NV is now `verified`. Sections 1-4 are the design as
+proposed and are kept for the record.
 
 `NV.json` is `partial` for two things WSP 2433 publishes that the equation schema
 (`flowfreq/regression/equations.py`) cannot hold:
@@ -189,18 +191,21 @@ from `lib.equation("6", 0.5)`. `nevada.py`'s transition functions catch it and u
 ```json
 "published_errors": [
   {"kind": "hybrid_standard_error_of_regression", "value": 1.47, "units": "log units",
-   "comparable_to_sep": false, "source": "Table 10, p. 46"}
+   "source": "Table 10, p. 46"}
 ]
 ```
 
 - `RegressionEquation.published_errors: Tuple[PublishedError, ...] = ()`. `PublishedError` is a
-  frozen dataclass with `kind: str`, `value: float`, `units: str` (required, non-empty),
-  `comparable_to_sep: bool = False` and `source: str = ""`. `kind` comes from a closed set,
-  starting with `{"hybrid_standard_error_of_regression"}`, so a typo fails at load time.
+  frozen dataclass with `kind: str`, `value: float`, `units: str` (required, non-empty) and
+  `source: str = ""`. `kind` comes from a closed set, starting with
+  `{"hybrid_standard_error_of_regression"}`, so a typo fails at load time. Every entry is by
+  definition *not* comparable to a SEP: a comparable statistic goes in `sep_log`. (The draft
+  had a `comparable_to_sep` flag here; the implementation dropped it, because a flag that
+  must always be false invites misuse.)
 - `_prediction_sd` never reads it, so hybrid equations keep `interval = None`. `evaluate` sets
-  `interval_method = "none: published error is not a prediction error (WSP 2433 p. 99)"`
-  whenever an equation has no comparable statistic but does have `published_errors`. Callers
-  then see *why* there is no interval instead of a bare `None`.
+  `interval_method = "none: the published error (<kind>) is not a standard error of
+  prediction"` whenever an equation has no comparable statistic but does have
+  `published_errors`. Callers then see *why* there is no interval instead of a bare `None`.
 - Region 6's 2-year constant has no entry, because the report prints `--`.
 
 Trade-offs:
@@ -253,8 +258,8 @@ recorded in notes rather than in fields.
 - **Evaluator.**
   - The constant short-circuit in `evaluate`.
   - The `interval_method` explanation.
-  - `evaluate_weighted(space="log")` raises `ValueError("... region 6 AEP 0.5 is a printed
-    constant 0; weight in linear space")` on a zero component.
+  - `evaluate_weighted(space="log")` raises `ValueError("cannot weight in log space: 6 AEP
+    0.5 has flow 0 cfs; weight in linear space")` on a zero component.
 - **Nevada.**
   - `NV.json` gains region 6 AEP 0.5 (36 equations) with region 6's DRNAREA and ELEV ranges.
   - It gains 11 `published_errors` entries, from the Table 10 and Table 14 values in §1.
@@ -263,9 +268,11 @@ recorded in notes rather than in fields.
     eq. 6 with region 6 returns `Q2_10 · A10/A`, and eq. 7 with `low_region="6"` returns
     `w_high · Q2_1`.
 - **Consumers.**
-  - `wave_qa` skips equations with `form == "constant"` in its discrepancy screen and reports
-    them as not evaluable, the way it already treats a missing SEP.
-  - `future_flow` raises a `ValueError` on a constant (or zero) historical flow; see D4.
+  - `wave_qa.estimate_state` raises `ValueError` when a contributing equation has
+    `form == "constant"`, so `try_estimate_state` reports the cell as "not evaluable" and the
+    discrepancy screen never sees a `-inf` log flow. `area_exponent` returns `None` for it.
+  - `future_flow.regression_change_factors` raises a `ValueError` on a constant equation; see
+    D4. (A log-linear equation's flow is always positive, so no other zero can reach it.)
 - **What a caller sees.** `evaluate(load_state("NV").equation("6", 0.5), basin)` returns
   `flow_cfs == 0.0` with `interval is None` and an `interval_method` string saying why. For
   hybrid equations, `eq.published_errors` lists the printed values while `sep_log` stays
@@ -280,9 +287,9 @@ recorded in notes rather than in fields.
 | `flowfreq/regression/library.py` | docstring only, noting that `aeps()` includes constant-form cells; the status text is unchanged under A1 + B1 |
 | `flowfreq/regression/nevada.py` | docstrings (module, `estimate_area_weighted`) |
 | `flowfreq/data/regression/NV.json` | +1 equation, +11 `published_errors`, notes, status |
-| `flowfreq/validation/wave_qa.py` | skip constant-form equations |
-| `flowfreq/future_flow.py` | refuse a zero historical flow |
-| `tools/snapshot_nss.py` (optional) | recognise NSS's `0*(...)^(0)` as the constant form instead of a `parse_error` |
+| `flowfreq/validation/wave_qa.py` | constant-form equations not evaluable; `area_exponent` returns `None` |
+| `flowfreq/future_flow.py` | refuse a constant-form equation |
+| `tools/snapshot_nss.py` (optional, **not done**) | recognise NSS's `0*(...)^(0)` as the constant form instead of a `parse_error` |
 | `docs/REGRESSION_COVERAGE.md` | regenerate with `tools/gen_regression_coverage.py` |
 | `TODO.md`, `CHANGELOG.md`, `docs/MASTER_ROADMAP.md` | at implementation time, not in this PR |
 
@@ -314,8 +321,9 @@ recorded in notes rather than in fields.
 - `status == "verified"`; `lib.aeps("6") == AEPS`; 36 equations. Replace
   `test_region_6_two_year_is_not_stored` with a test that evaluates it to 0 at `BASIN`.
 - The hybrid published errors equal the Table 10 and Table 14 literals copied from the report
-  (as the existing tests copy them). They are `comparable_to_sep is False`, `sep_log` stays
-  `None`, and `evaluate(...).interval is None` for all 11 equations.
+  (as the existing tests copy them). `sep_log` stays `None`, and
+  `evaluate(...).interval is None` for all 11 equations. An offline test checks the 6 values
+  NSS carries against `data/nss_snapshots/NV_2026-10-01.json`.
 - `estimate_area_weighted(0.5, {"6": 21.0, "10": 36.0}, ...)` equals the region 10 Q2 at the
   whole-basin characteristics times 36/57, replacing the `EquationsUnavailable` assertion in
   `test_errors`. Eq. 7 with `low_region="6"` at AEP 0.5 gives `w_high · Q2_1`.
@@ -325,24 +333,30 @@ recorded in notes rather than in fields.
 
 Elsewhere:
 
-- `tests/test_wave_qa.py`: a constant-form equation is excluded from the discrepancy screen and
-  not flagged.
+- `tests/test_wave_qa.py`: a constant-form equation is "not evaluable" and is never compared.
 - `tests/test_future_flow.py`: a change factor on a constant-zero equation raises `ValueError`.
 
-## 8. Decisions for the maintainer
+## 8. Decisions (resolved)
 
-- **D1. Range-check the `Q=0` cell?** The proposal says yes, using region 6's DRNAREA and ELEV
-  ranges, so that a site outside region 6's calibration is refused at every AEP and not only
-  at 5-100 years. NSS also range-checks the cell (its GC164 parameters carry limits). The
-  alternative is a constant with no variables, which is accepted anywhere.
-- **D2. Equivalent years of record.** All six NV tables print them, and so do the WY and OR
-  reports, and no state stores them. WY is `verified` without them, so the precedent is that
-  they are outside the `verified` bar. Should `published_errors` (or a sibling list) take them
-  now, or should the precedent be written into `library.py`'s status definition?
-- **D3. `SCHEMA_VERSION`.** It can stay 1, because the change is additive and an old reader
-  fails loudly on the constant form. Bumping to 2 would mean `parse_state` accepting {1, 2}.
-- **D4. `future_flow` on a zero flow:** raise (as proposed) or return `change_factor = None`?
-- **D5. Is `log_flow = -inf` acceptable** on `RegressionEstimate`, or should a constant-zero
-  estimate carry `log_flow = None`? `None` would make the field `Optional` for every caller.
-- **D6. Release line.** This is a schema addition, so it would land on `main` (0.12.0). It
-  would not be backported to `release/0.11.x`.
+The maintainer answered D1 and D3, and asked for the doc's recommendation on the rest.
+
+- **D1. Range-check the `Q=0` cell: yes.** It carries region 6's DRNAREA and ELEV ranges
+  (the same `Variable`s as the 5-year equation), so a site outside region 6's calibration is
+  refused at every AEP, not only at 5-100 years. NSS also range-checks the cell: its GC164
+  parameters carry limits.
+- **D2. Equivalent years of record: not stored.** All six NV tables print them, and so do the
+  WY and OR reports, and no state stores them. WY is `verified` without them, so NV follows
+  the same precedent, and the `NV.json` notes say so. `published_errors` is for error
+  statistics, and equivalent years are not one. A future sibling field could hold them for
+  every state at once.
+- **D3. `SCHEMA_VERSION` stays 1.** The change is additive, and an old reader fails loudly on
+  the constant form, because the entry has no `intercept` key
+  (`tests/test_regression_nevada.py::test_constant_entry_has_no_intercept_key` and
+  `tests/test_regression_equations.py::TestConstantForm::test_missing_intercept_fails_loudly`).
+- **D4. `future_flow` raises** `ValueError` on a constant-form equation. It does not return
+  `change_factor = None`, so a table of factors never has a hole in it.
+- **D5. `log_flow = -inf`** for a constant zero. The field stays a plain `float` for every
+  caller, and the two consumers that would be misled by it (log-space weighting and
+  `wave_qa`) refuse it explicitly.
+- **D6. `main` only (0.12.0).** No backport to `release/0.11.x`, since this is a schema
+  addition.

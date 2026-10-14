@@ -187,6 +187,17 @@ class TestEstimates:
         est, why = qa.try_estimate_state(libs["NV"], {"10": 1.0}, {"DRNAREA": 10.0}, 0.002)
         assert est is None and why.startswith("no equation")
 
+    def test_printed_constant_is_not_evaluable(self, libs):
+        # NV Region 6's 2-year equation is printed Q=0: no log flow, no SE to compare.
+        chars = {"DRNAREA": 57.0, "ELEV": 6500.0}
+        with pytest.raises(ValueError, match="printed constant"):
+            qa.estimate_state(libs["NV"], {"6": 0.4, "10": 0.6}, chars, 0.5)
+        est, why = qa.try_estimate_state(libs["NV"], {"6": 1.0}, chars, 0.5)
+        assert est is None and why.startswith("not evaluable") and "printed constant" in why
+        assert qa.try_estimate_state(libs["NV"], {"6": 1.0}, chars, 0.2)[0] is not None
+        assert qa.area_exponent(libs["NV"], "6", 0.5) is None
+        assert qa.area_exponent(libs["NV"], "6", 0.2) == 0.8
+
 
 class TestDiscrepancy:
     def test_threshold_and_flag(self):

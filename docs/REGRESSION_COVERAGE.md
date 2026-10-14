@@ -21,7 +21,7 @@ Plan and definitions of done: `docs/MASTER_ROADMAP.md` §3.2.
 | WY | Wyoming | verified | 6 | 60 | pending | #98 |
 | NM | New Mexico | verified | 13 | 91 | pending | #100 |
 | AZ | Arizona | verified | 8 | 61 | verified | #102 |
-| NV | Nevada | partial | 6 | 35 | pending | #104 |
+| NV | Nevada | verified | 6 | 36 | pending | #104 |
 
 ## Wave 3: West coast and Pacific
 
