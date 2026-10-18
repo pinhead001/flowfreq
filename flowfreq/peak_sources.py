@@ -135,6 +135,14 @@ DATE_PRECISION_TOKENS = frozenset({"DAYUNKNOWN", "MONTHUNKNOWN", "YEARUNKNOWN"})
 #: Gage-height flags that can appear on discharge rows; not discharge codes.
 GAGE_HEIGHT_TOKENS = frozenset({"GHNOTASSCPKQ", "BACKWATER", "NOTMAXGH", "EQUIP", "ICE", "BLWMIN"})
 
+#: Record-status flags with no NWIS peak code. Legacy NWIS carries no code for any of
+#: them on the same peaks (checked 2026-10-18): ``UNAVAIL`` (08340500 WY2015),
+#: ``RATINGDEV`` (08302500 WY2017) and ``DISCONTINUED`` (09257000 WY2022) have an empty
+#: ``peak_cd``; ``TEST`` sits beside 1,5 (13105000 WY2004), Bd (10323200 WY1979) and 5
+#: (09416000 WY2020), each its neighbouring tokens' code; ``ZEROFLOW`` (1030909087
+#: WY2020) is a 0.00 peak with Bm, month unknown, and the value already says zero.
+STATUS_TOKENS = frozenset({"UNAVAIL", "RATINGDEV", "DISCONTINUED", "TEST", "ZEROFLOW"})
+
 _REQUEST_TIMEOUT_S = 60.0
 _PAGE_LIMIT = 50_000
 _MAX_PAGES = 1_000
@@ -167,8 +175,8 @@ def qualifiers_to_codes(
         Comma-separated NWIS codes in token order (``"1"``, ``"2,7"``), the
         format of the legacy RDB ``peak_cd`` column and of
         :func:`flowfreq.peak_codes.parse_codes`; ``""`` when there are none.
-        Date-precision tokens are dropped, and gage-height tokens are dropped
-        with a debug log. An unrecognised token is logged at warning level and
+        Date-precision tokens are dropped, and gage-height and record-status
+        tokens are dropped with a debug log. An unrecognised token is logged at warning level and
         left out: it has no code, and passing it through would have it read as
         single-character codes.
     """
@@ -181,11 +189,13 @@ def qualifiers_to_codes(
         token = str(raw).strip().upper()
         if not token or token in DATE_PRECISION_TOKENS:
             continue
-        if token in GAGE_HEIGHT_TOKENS:
+        if token in GAGE_HEIGHT_TOKENS or token in STATUS_TOKENS:
+            kind = "gage-height" if token in GAGE_HEIGHT_TOKENS else "record-status"
             logger.debug(
-                "Site %s WY %s: gage-height qualifier %s ignored on a discharge peak",
+                "Site %s WY %s: %s qualifier %s ignored on a discharge peak",
                 site_no,
                 water_year,
+                kind,
                 token,
             )
             continue

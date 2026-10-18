@@ -66,6 +66,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the other regions are unchanged, and all remain less precise than the current equations.
 
 ### Fixed
+- **Five more Water Data peak qualifier tokens** are recognised: `UNAVAIL`, `RATINGDEV`,
+  `DISCONTINUED`, `TEST` and `ZEROFLOW`. None has an NWIS peak code (legacy NWIS carries none
+  on the same peaks), so each is dropped with a debug log instead of a warning, and B17C
+  treatment is unchanged. A national catalog rebuild logged them.
 - **`load_nid` reads the NID national GeoPackage** (#155). The national CSV has returned 403
   from NID's own proxy since 2026-10-13. `load_nid` now downloads `api/nation/gpkg` (82 MB),
   reads its `dams` table with `sqlite3` (new `parse_nid_gpkg`, the same filtering as
