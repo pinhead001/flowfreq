@@ -166,6 +166,85 @@ def test_assign_regions_point_in_polygon():
     assert tool.assign_regions(sites, polys) == {"in": "GC1750;GC730;GC731"}
 
 
+def test_name_similarity():
+    tool = _tool()
+    sim = tool.name_similarity
+    assert sim("Cleve Creek near Ely, Nev.", "CLEVE CK NR ELY, NV") > 0.9
+    assert sim("Fatterson Wash Tributary", "PATTERSON WASH TRIB NR PIOCHE, NV") >= 0.75  # OCR
+    assert sim("North Fork Tesuque Creek near", "NF TESUQUE C NR SANTA FE, NM") >= 0.75
+    assert sim("Jim Creek near Tuscarora, Nev.", "MAHALA CR AT STATE HWY 225 NR TUSCARORA") < 0.75
+    assert sim("", "ANY NAME") == 0.0
+
+
+def test_assign_from_station_table():
+    tool = _tool()
+    codes = {"6": "GC164", "2": "GC161"}
+    sites = {
+        "1": {"site_name": "CLEVE CK NR ELY, NV", "latitude": 39.216},
+        "2": {"site_name": "MAHALA CR AT STATE HWY 225 NR TUSCARORA, NV", "latitude": 41.297},
+        "3": {"site_name": "PALMETTO WASH NR OASIS", "latitude": 37.45},
+        "4": {"site_name": "SOME GAGE", "latitude": 44.6203},
+        "5": {"site_name": "TWO GAGES ONE NUMBER", "latitude": 36.0},
+        "6": {"site_name": "OUTSIDE CK", "latitude": 40.0},
+        "7": {"site_name": "NOT LISTED", "latitude": 40.0},
+        "8": {"site_name": "NO CHECKS", "latitude": None},
+    }
+    table = {
+        "1": [
+            {
+                "report_name": "Cleve Creek near Ely, Nev.",
+                "latitude": "39.216",
+                "report_region": "6",
+            }
+        ],
+        "2": [
+            {"report_name": "Jim Creek near Tuscarora", "latitude": "41.297", "report_region": "2"}
+        ],
+        "3": [
+            {"report_name": "Palmetto Wash near Oasis", "latitude": "38.5", "report_region": "6"}
+        ],
+        "4": [{"report_name": "", "latitude": "44.6203", "report_region": "2"}],  # WY: no name
+        "5": [
+            {"report_name": "Two Gages One Number", "latitude": "", "report_region": "6"},
+            {"report_name": "Two Gages One Number", "latitude": "", "report_region": "2"},
+        ],
+        "6": [{"report_name": "Outside Creek", "latitude": "", "report_region": "4"}],
+        "8": [{"report_name": "", "latitude": "", "report_region": "6"}],
+    }
+    # 2: name conflict; 3: latitude conflict; 5: two regions; 6: not a state region;
+    # 7: not listed; 8: nothing to check against.
+    assert tool.assign_from_station_table(sites, table, codes) == {"1": "GC164", "4": "GC161"}
+
+
+def test_station_tables_match_their_reports():
+    """The committed tables still pass the extraction tool's count checks, and their
+    NSS codes are the ones the state's equation library cites for each region."""
+    import csv
+    import json
+
+    tool = _tool()
+    spec = importlib.util.spec_from_file_location(
+        "extract_station_regions", REPO_ROOT / "tools" / "extract_station_regions.py"
+    )
+    ext = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(ext)
+    expected_rows = {"WY": 364, "NV": 1322, "NM": 293}
+    for state, (name, codes) in tool.STATION_TABLES.items():
+        with (tool.STATION_TABLE_DIR / name).open(encoding="utf-8", newline="") as f:
+            rows = list(csv.DictReader(f))
+        assert len(rows) == expected_rows[state]
+        ext.check_counts(state, rows)
+        lib = json.loads(
+            (REPO_ROOT / "flowfreq" / "data" / "regression" / f"{state}.json").read_text("utf-8")
+        )
+        cited = {e["region_code"]: e["region_name"] for e in lib["equations"]}
+        for region, code in codes.items():
+            assert f"NSS {code})" in cited[region] or f"NSS {code};" in cited[region], (
+                state,
+                region,
+            )
+
+
 def test_nss_region_rings_feed_assign_regions():
     """NSS GeoJSON (Multi)Polygons -> rounded rings, holes and parts counted even-odd."""
     tool = _tool()
@@ -236,9 +315,9 @@ def test_packaged_catalog(packaged):
     assert len(packaged) == meta["rows"]
     assert (packaged["n_peaks"] >= meta["min_years"]).all()
     assert packaged["regulation_class"].value_counts().to_dict() == meta["regulation_class_counts"]
-    located = packaged["state"].isin(["WA", "OR", "ID", "MT", "CO", "UT", "AZ"])
+    located = packaged["state"].isin(["WA", "OR", "ID", "MT", "CO", "UT", "AZ", "WY", "NV", "NM"])
     filled = packaged["regression_region"].notna()
-    assert not (filled & ~located).any()  # Wave 1, and Wave 2's CO, UT and AZ, only
+    assert not (filled & ~located).any()  # Waves 1 and 2 only
     for state, share in {
         "WA": 0.8,
         "OR": 0.8,
@@ -246,6 +325,11 @@ def test_packaged_catalog(packaged):
         "CO": 0.99,
         "UT": 0.99,
         "AZ": 0.99,
+        # Station tables: only the gages each report used (WY 251 of 504, NV 151 of 342,
+        # NM 193 of 405 when built 2026-10-18).
+        "WY": 0.45,
+        "NV": 0.4,
+        "NM": 0.4,
     }.items():
         assert filled[packaged["state"] == state].mean() > share, state
     assert packaged["regression_region"].dropna().str.fullmatch(r"GC\d+(;GC\d+)*").all()
@@ -266,10 +350,26 @@ def test_packaged_catalog_wave2_regions(packaged):
     # sampled CO/UT/AZ rows matched NSS's own bylocation answer for the gage point.
     assert reg.loc["09081600", "regression_region"] == "GC1205"
     assert reg.loc["10134500", "regression_region"].startswith("GC96")
-    # No verified point-in-region source for WY, NV and NM: blank.
-    assert (
-        not packaged[packaged["state"].isin(["WY", "NV", "NM"])]["regression_region"].notna().any()
-    )
+
+
+def test_packaged_catalog_station_table_regions(packaged):
+    """WY, NV and NM take the region each report prints for its gages, one code each."""
+    tool = _tool()
+    reg = packaged.dropna(subset=["regression_region"]).set_index("site_no")
+    for state, (_, codes) in tool.STATION_TABLES.items():
+        assert set(reg[reg["state"] == state]["regression_region"]) <= set(codes.values())
+    # WSP 2433 data section p. 146: Cleve and Steptoe Creeks near Ely, region 6.
+    assert reg.loc["10243700", "regression_region"] == "GC164"
+    assert reg.loc["10244950", "regression_region"] == "GC164"
+    # WRIR 03-4107 Table 10: Cache Creek near Jackson, region 5 (Overthrust Belt).
+    assert reg.loc["13018300", "regression_region"] == "GC1243"
+    # SIR 2008-5119 Appendix 1: Dry Cimarron River near Guy, Northeast plains (1).
+    assert reg.loc["07153500", "regression_region"] == "GC1092"
+    # Not in the report (regulated main stems): blank.
+    by = packaged.set_index("site_no")
+    assert pd.isna(by.loc["06279500", "regression_region"])  # Bighorn River at Kane, WY
+    # Station number printed in the report, but for a different gage: blank.
+    assert pd.isna(by.loc["10317430", "regression_region"])  # Mahala Cr / 'Jim Creek'
 
 
 def test_packaged_catalog_known_sites(packaged):
