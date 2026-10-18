@@ -42,6 +42,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   "constant", constant_cfs=...)` and `PublishedError`. Nevada region 6's printed 2-year
   `Q=0` and WSP 2433's 11 hybrid-method errors are stored, and NV is `verified`. Log-space
   weighting, `future_flow` change factors and wave QA refuse or skip a zero flow.
+- **Equivalent years of record and gaged-site weighting for Nevada**:
+  `RegressionEquation.equivalent_years` (informational; no evaluator reads it) holds WSP 2433's
+  35 printed values, which agree with NSS's `equivalentYears` in every cell. The new
+  `flowfreq.regression.nevada.weight_gaged_estimate` is the report's eq. 1,
+  `(QT(s) N + QT(r) E) / (N + E)`, and reproduces the data section's weighted 5- to 100-year
+  peaks for two region 6 gages within the printed values' rounding. Region 6's 2-year cell
+  prints no E and is refused unless one is passed.
+- **`flowfreq.regression.nss.parse_constant_equation`**: NSS's form of a printed `Q=0`
+  (`0*(...)^(0)`, Nevada region 6's 2-year equation) becomes a `form="constant"` equation with
+  its variables kept for the range check. `tools/snapshot_nss.py` falls back to it, so a live
+  Nevada snapshot parses all 36 equations (35 before).
 - **Oregon provisional equations: soil and geology candidates** (#153, #158). STATSGO2 Ksat,
   the SGMC young-volcanic fraction (`VOLCQP_SGMC`) and NHD lake area (`LAKEAREA_NHD`) are
   added as basin characteristics. Region E's equations improve (SEP at 1 % AEP 94 -> 86 %);

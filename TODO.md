@@ -84,6 +84,9 @@ Phase A / Wave entries below.
       - ~~NV region 6 and the hybrid regions (#104)~~: region 6's 2-year `Q=0` is a
         `form="constant"` equation, and the 11 hybrid errors are `published_errors` that never
         feed an interval (#157, `docs/NEVADA_REGION6_SCHEMA.md`).
+        Its equivalent years of record are stored too, with the report's gaged-site
+        weighting (eq. 1), and `tools/snapshot_nss.py` parses NSS's `0*(...)^(0)` as the
+        constant form.
 - [x] **Oregon closed basins (1712)**: provisional PNW member after a B-GLS applicability
       test (`docs/OREGON_UNRESOLVED_SKEW.md`). The Klamath (1801) stays unresolved (2 gages).
 - [x] **Montana skew v2** (provisional, opt-in): east-of-Divide G = -0.04, MSE 0.385

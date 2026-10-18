@@ -529,6 +529,7 @@ class TestConstantForm:
             ({"sep_log": 0.3}, "error statistics"),
             ({"covariance": ((1.0, 0.0), (0.0, 1.0))}, "error statistics"),
             ({"bias_correction": 1.1}, "bias correction"),
+            ({"equivalent_years": 2.0}, "error statistics"),
             ({"form": "piecewise"}, "Unknown form"),
         ],
     )
@@ -644,3 +645,34 @@ class TestPublishedErrors:
             "published_errors": [pe.to_dict()],
         }
         assert RegressionEquation.from_dict(d).published_errors == (pe,)
+
+
+class TestEquivalentYears:
+    """``equivalent_years``: the report's equivalent years of record. Synthetic numbers."""
+
+    def test_default_none_and_evaluation_unchanged(self):
+        assert _eq().equivalent_years is None
+        vals = {"DRNAREA": 10.0, "PRECIP": 20.0}
+        with_e, without = evaluate(_eq(equivalent_years=3.2), vals), evaluate(_eq(), vals)
+        assert (with_e.flow_cfs, with_e.log_flow, with_e.interval) == (
+            without.flow_cfs,
+            without.log_flow,
+            without.interval,
+        )
+
+    @pytest.mark.parametrize("bad", [0.0, -1.0, math.nan, math.inf])
+    def test_invalid(self, bad):
+        with pytest.raises(ValueError, match="equivalent_years"):
+            _eq(equivalent_years=bad)
+
+    def test_from_dict(self):
+        d = {
+            "region_code": "R1",
+            "aep": 0.01,
+            "intercept": 2.0,
+            "variables": [{"code": "DRNAREA", "transform": "log10"}],
+            "coefficients": [0.7],
+            "citation": {"publication": "Synthetic", "table": "T1"},
+        }
+        assert RegressionEquation.from_dict(d).equivalent_years is None
+        assert RegressionEquation.from_dict({**d, "equivalent_years": 4}).equivalent_years == 4.0
