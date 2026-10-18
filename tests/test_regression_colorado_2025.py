@@ -341,6 +341,20 @@ def test_quantiles_rise_with_rarer_aeps(lib, region):
         assert flows == sorted(flows)
 
 
+def test_swe_is_in_inches(lib):
+    """Table 1.2 lists SNODAS SWE in meters, but the equations use inches: Table 1 prints
+    "(in inches): 0-33.8", and only in inches does the coefficient's span over that range
+    matter (docs/COLORADO_SIR_2025_5047.md)."""
+    lo, hi = TABLE1_RANGES["APR1_SWE"]
+    for eq in lib.equations:
+        for v, b in zip(eq.variables, eq.coefficients):
+            if v.code != "APR1_SWE":
+                continue
+            assert (v.units, v.transform, v.minimum, v.maximum) == ("in", "identity", lo, hi)
+            assert b * (hi - lo) > 0.5  # > a factor of 3 across the range, in inches
+            assert b * (hi - lo) / 39.37 < 0.05  # < 12 % if the range were meters
+
+
 def test_intervals_fall_back_to_sep(lib):
     est = evaluate(lib.equation("Alpine", 0.01), NSS_STAGING["Alpine"][0][0])
     assert est.interval_method == "average standard error of prediction"

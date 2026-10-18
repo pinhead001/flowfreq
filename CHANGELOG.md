@@ -36,6 +36,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   with `load_state(code, allow_awaiting_nss=True)`, with a warning naming the set
   StreamStats still uses. Colorado's SIR 2025-5047 set (#151) moved there and is keyed to
   NSS staging citation 200 (codes, region bounds, limits), with Table 1's coefficients.
+  Its April 1 SWE is in inches, as stored. Table 1.2's "meters" is the SNODAS grid's unit,
+  and Tables 1-5, the 0-33.8 range and the coefficients all imply inches.
 - **Constant equations and published non-SEP errors** (#157): `RegressionEquation(form=
   "constant", constant_cfs=...)` and `PublishedError`. Nevada region 6's printed 2-year
   `Q=0` and WSP 2433's 11 hybrid-method errors are stored, and NV is `verified`. Log-space

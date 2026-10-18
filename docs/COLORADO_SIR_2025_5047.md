@@ -50,6 +50,25 @@ The report's own codes and bounds are kept for traceability in the `variable_cod
 | P100Y24H / 100Y24H | I24H100Y | ALI24H100Y | inches |
 | PPTANN | PRECIP | PRECPRIS10 | inches |
 
+**SWE is in inches.** Table 1.2, the list of candidate characteristics, gives "snow water
+equivalent (SNODAS) April 1" in meters, which raised the question of which unit the equations
+use. They use inches:
+
+- Every equation table, Tables 1-5, prints "SWE, snow-water
+  equivalent on April 1 (in inches): 0–33.8" (Table 3: 0–32.3).
+- A basin-mean April 1 SWE of 33.8 in (0.86 m) is ordinary for a high Colorado basin.
+  33.8 m is impossible.
+- The coefficients are sized for inches. Alpine's 1 % AEP coefficient, 0.0377 per unit in
+  log10, spans 1.27 log units (a factor of about 19) over 0–33.8. Over a range in meters,
+  0–0.86, it would move flows by under 10 %, which is too small to explain why SWE was
+  selected.
+- NSS staging declares `APR1_SWE` in inches with limits 0–33.8, and its evaluations match
+  the stored equations.
+
+Table 1.2's unit is the SNODAS grid's own. The report never says it converted, so this rests
+on the four points above, not on a printed statement. Checked 2026-10-18;
+`tests/test_regression_colorado_2025.py::test_swe_is_in_inches` pins it.
+
 Region bounds on mean basin elevation:
 
 - NSS (stored): Alpine `ALTELEV>=10490`; SubAlpine `[9492, 10490)`; MidElevation

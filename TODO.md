@@ -101,6 +101,8 @@ Phase A / Wave entries below.
       (`load_state("CO", allow_awaiting_nss=True)`). It uses NSS staging citation 200's codes,
       region bounds and limits, with Table 1's coefficients. Once NSS publishes citation 200,
       it replaces the Mountain, Northwest, Rio Grande and Southwest regions in `CO.json`.
+      SWE is in inches, as stored, although Table 1.2 lists SNODAS SWE in meters
+      (`docs/COLORADO_SIR_2025_5047.md`, checked 2026-10-18).
       Original entry: (Kohn, Mast and Gross, 2026) replaces Capesius and
       Stephens (2009) for central and western Colorado: four elevation regions (Plateau,
       Mid-Elevation, Sub-Alpine, Alpine), 418 gages through WY2019, tables as CSV on the pubs
