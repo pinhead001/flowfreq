@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Gage catalog regions for WY, NV and NM.** These states have no region polygons, so their
+  `regression_region` comes from the region each report prints for its own gages: WRIR 03-4107
+  Table 10, WSP 2433's data section and SIR 2008-5119 Appendix 1. `tools/extract_station_regions.py`
+  transcribes them to `data/catalog_regions/`, and checks every region's count against the
+  report. The catalog builder accepts a row only when the station name, and the latitude where
+  printed, agree with the gage's Water Data record. 595 gages are filled (WY 251, NV 151,
+  NM 193). 5 listed gages whose report name disagrees with Water Data's stay blank.
 - **Oregon regression station dataset** (Oregon regression update plan, task 2;
   `tools/build_oregon_regression_dataset.py`, `data/regression_study/oregon_stations.csv`).
   It covers Oregon gages and WA/ID/NV/CA gages within 25 miles of the state, with
