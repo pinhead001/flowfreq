@@ -30,6 +30,7 @@ COLUMNS = {
     "SOILKSAT_STATSGO2": "SOILKSAT",
     "VOLCQP_SGMC": "VOLCQP",
     "LAKEAREA_NHD": "LAKEAREA",
+    "VOLCQP_OGDC": "VOLCQP_OG",
 }
 
 
@@ -99,6 +100,7 @@ def test_every_characteristic_records_its_source():
         "SOILKSAT",
         "VOLCQP",
         "LAKEAREA",
+        "VOLCQP_OG",
     }
 
 
@@ -158,3 +160,50 @@ def test_quantiles_rise_with_rarer_aeps_at_each_regions_median_basin(provisional
             for a in AEPS
         ]
         assert all(b > a for a, b in zip(flows, flows[1:])), region
+
+
+def test_the_state_map_counts_more_young_volcanic_rock_in_the_high_cascades(basins):
+    # OGDC-8 dates the High Cascades platform lavas Quaternary where SGMC
+    # counts much less: Waldo Lake outlet 51 % (SGMC) -> 95 % (OGDC-8).
+    ok = basins[basins["basin_source"].notna()].set_index("site_no")
+    hc = ["14147000", "14314500", "14315500"]
+    assert (ok.loc[hc, "VOLCQP_OG"] > ok.loc[hc, "VOLCQP"] + 10).all()
+    assert ok.loc["14147000", "VOLCQP_OG"] > 90
+    assert ok["VOLCQP_OG"].between(0, 100).all()
+    assert ok["VOLCQP_OG"].median() == 0
+
+
+def _sep_percent(e) -> float:
+    return 100.0 * float(np.sqrt(np.exp(np.log(10.0) ** 2 * e.sep_log**2) - 1.0))
+
+
+@pytest.mark.parametrize(
+    "region, codes, before",
+    [
+        # (50 %, 1 %, 0.2 % AEP) SEPs of the equations these replaced on 2026-10-18
+        ("W-171003", {"DRNAREA", "PRECIP_PRISM9120", "VOLCQP_OGDC"}, (47.43, 48.98, 53.65)),
+        (
+            "E",
+            {"DRNAREA", "I24H2Y_NA2", "ELEV_3DEP", "BSLOPD_3DEP", "VOLCQP_OGDC"},
+            (89.81, 86.48, 100.77),
+        ),
+    ],
+)
+def test_multi_aep_selection_replaced_a_region_only_where_no_worse(
+    provisional, results, region, codes, before
+):
+    assert results["select_mode"] == "multi"
+    for aep, sep_before in zip((0.5, 0.01, 0.002), before):
+        e = provisional.equation(region, aep)
+        assert {v.code for v in e.variables} == codes
+        assert _sep_percent(e) <= sep_before
+    fits = results["regions"][region]["fits"]
+    assert max(fits[a]["max_leverage"] for a in ("0.5", "0.1", "0.01", "0.002")) <= 0.5
+
+
+def test_w171003_volcanic_term_lowers_floods(provisional):
+    for aep in AEPS:
+        e = provisional.equation("W-171003", aep)
+        coef = dict(zip((v.code for v in e.variables), e.coefficients))
+        assert coef["VOLCQP_OGDC"] < 0
+        assert coef["PRECIP_PRISM9120"] > 0
