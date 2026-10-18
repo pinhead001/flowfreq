@@ -42,6 +42,17 @@ component adds nothing, so eq. 6 at AEP 0.5 with Region 6 is the other region's 
 times its area share, and eq. 7 with ``low_region="6"`` is ``(1 - w) * QT(h)``. The
 hybrid regions (6 and 10) carry their printed errors in ``published_errors``, which are
 not standard errors of prediction, so their components have no interval.
+
+**Gaged sites** (equation 1, p. 14; Sauer, 1974)::
+
+    QT(w) = (QT(s) * N + QT(r) * E) / (N + E)
+
+weights the station estimate ``QT(s)``, from ``N`` years of station record, with the
+regression estimate ``QT(r)``, whose equivalent years of record ``E`` (Hardison, 1971) the
+report prints with each equation and the library stores as
+:attr:`~flowfreq.regression.RegressionEquation.equivalent_years`. It is linear in flow.
+:func:`weight_gaged_estimate` implements it. Region 6's 2-year cell prints no ``E``
+(``--``), so it is refused unless the caller passes one.
 """
 
 from __future__ import annotations
@@ -317,3 +328,55 @@ def estimate_elevation_transition(
         allow_extrapolation,
         interval_level,
     )
+
+
+def weight_gaged_estimate(
+    station_cfs: float,
+    years_of_record: float,
+    estimate: RegressionEstimate,
+    *,
+    equivalent_years: Optional[float] = None,
+) -> float:
+    """Equation 1: weight a gaged site's station estimate with the regression estimate.
+
+    ``QT(w) = (QT(s) * N + QT(r) * E) / (N + E)`` (WSP 2433, p. 14; Sauer, 1974), in
+    flow, not its logarithm.
+
+    Parameters
+    ----------
+    station_cfs : float
+        ``QT(s)``, the station's flood-frequency estimate at the AEP, cubic feet per second.
+    years_of_record : float
+        ``N``, the years of station data used to compute ``QT(s)``.
+    estimate : RegressionEstimate
+        ``QT(r)``, from :func:`flowfreq.regression.evaluate` at the site.
+    equivalent_years : float, optional
+        ``E``. Defaults to the equation's printed
+        :attr:`~flowfreq.regression.RegressionEquation.equivalent_years`.
+
+    Returns
+    -------
+    float
+        The weighted flow in cfs.
+
+    Raises
+    ------
+    ValueError
+        If the station flow is negative or not finite, ``N`` is not positive, or ``E`` is
+        neither given nor printed for the equation (region 6's 2-year ``Q=0``).
+    """
+    if not (math.isfinite(station_cfs) and station_cfs >= 0.0):
+        raise ValueError(f"station_cfs must be finite and non-negative, got {station_cfs}")
+    if not (math.isfinite(years_of_record) and years_of_record > 0.0):
+        raise ValueError(f"years_of_record must be finite and positive, got {years_of_record}")
+    eq = estimate.equation
+    e = eq.equivalent_years if equivalent_years is None else float(equivalent_years)
+    if e is None:
+        raise ValueError(
+            f"region {eq.region_code} AEP {eq.aep} has no printed equivalent years of record; "
+            "pass equivalent_years"
+        )
+    if not (math.isfinite(e) and e > 0.0):
+        raise ValueError(f"equivalent_years must be finite and positive, got {e}")
+    n = float(years_of_record)
+    return (station_cfs * n + estimate.flow_cfs * e) / (n + e)

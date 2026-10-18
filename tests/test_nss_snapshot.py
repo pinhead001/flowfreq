@@ -15,10 +15,12 @@ from pathlib import Path
 
 import pytest
 
-from flowfreq.regression.equations import Citation, evaluate
+from flowfreq.regression.equations import Citation, OutOfRangeError, evaluate
 from flowfreq.regression.nss import (
     NSSEquationError,
+    ParsedConstant,
     evaluate_expression,
+    parse_constant_equation,
     parse_equation,
     parse_expression,
     statistic_code_to_aep,
@@ -313,6 +315,78 @@ class TestToRegressionEquation:
     def test_bad_aep_raises(self):
         with pytest.raises(ValueError):
             to_regression_equation(parse_equation("2*A"), region_code="R", aep=1.5, citation=CIT)
+
+
+NV_Q0 = "0*(0*(DRNAREA))^(0)*(0*(ELEV))^(0)"  # NSS GC164 PK50AEP (snapshot 2026-10-01)
+
+
+class TestParseConstant:
+    """NSS's form of a printed ``Q=0``: a product with a literal zero factor."""
+
+    def test_nevada_region_6_two_year(self):
+        with pytest.raises(NSSEquationError, match="non-positive factor"):
+            parse_equation(NV_Q0)
+        parsed = parse_constant_equation(NV_Q0)
+        assert parsed == ParsedConstant(equation=NV_Q0, value=0.0, codes=("DRNAREA", "ELEV"))
+        assert evaluate_expression(NV_Q0, {"DRNAREA": 50.0, "ELEV": 6500.0}) == 0.0
+        assert parsed.to_dict()["form"] == "constant"
+
+    def test_to_regression_equation_is_range_checked(self):
+        eq = to_regression_equation(
+            parse_constant_equation(NV_Q0),
+            region_code="GC164",
+            aep=0.5,
+            citation=CIT,
+            limits={"DRNAREA": (0.2, 210.0), "ELEV": (4770.0, 9960.0)},
+            units={"DRNAREA": "mi2", "ELEV": "ft"},
+        )
+        assert (eq.form, eq.constant_cfs, eq.intercept, eq.coefficients) == (
+            "constant",
+            0.0,
+            None,
+            (0.0, 0.0),
+        )
+        assert evaluate(eq, {"DRNAREA": 50.0, "ELEV": 6500.0}).flow_cfs == 0.0
+        with pytest.raises(OutOfRangeError):
+            evaluate(eq, {"DRNAREA": 500.0, "ELEV": 6500.0})
+
+    @pytest.mark.parametrize(
+        "equation",
+        ["0", "2*DRNAREA^0.5", "0/DRNAREA", "0+0*DRNAREA", "0.5*0.1*DRNAREA", "0*bad$"],
+    )
+    def test_refuses_anything_else(self, equation):
+        with pytest.raises(NSSEquationError):
+            parse_constant_equation(equation)
+
+    def test_tool_records_the_constant(self):
+        stat = {"code": "PK50AEP", "name": "50 percent AEP flood", "equation": NV_Q0, "value": 0}
+        region = {
+            "code": "GC164",
+            "name": "Region 6",
+            "parameters": [
+                {"code": "DRNAREA", "limits": {"min": 0.2, "max": 210.0}},
+                {"code": "ELEV", "limits": {"min": 4770.0, "max": 9960.0}},
+            ],
+        }
+        rec = tool._equation_record(stat, region, {"DRNAREA": 50.0, "ELEV": 6500.0}, CIT)
+        assert rec["parse_error"] is None
+        assert rec["parsed"]["form"] == "constant" and rec["parsed"]["constant_cfs"] == 0.0
+        assert rec["round_trip"]["ok"] and rec["round_trip"]["evaluated"] == 0.0
+
+    def test_committed_snapshot_constant_refusal_now_parses(self):
+        import json
+
+        snap = json.loads(
+            (REPO_ROOT / "data" / "nss_snapshots" / "NV_2026-10-01.json").read_text("utf-8")
+        )
+        refused = [
+            rec
+            for region in snap["regions"]
+            for rec in region["equations"]
+            if (rec.get("parse_error") or "").startswith("non-positive factor")
+        ]
+        assert [r["equation"] for r in refused] == [NV_Q0]
+        assert parse_constant_equation(NV_Q0).value == refused[0]["nss_value"]
 
 
 class TestStatisticCodeToAep:

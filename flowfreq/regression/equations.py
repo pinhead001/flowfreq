@@ -335,6 +335,12 @@ class RegressionEquation:
     published_errors : tuple of PublishedError
         Printed error statistics that are not standard errors of prediction. They never
         set an interval.
+    equivalent_years : float, optional
+        The report's equivalent years of record for the estimate (Hardison, 1971), finite
+        and positive. Informational: no evaluator reads it. A report that weights a gaged
+        site's station estimate with the regression estimate by years of record (Sauer,
+        1974) uses it there, as :func:`flowfreq.regression.nevada.weight_gaged_estimate`
+        does. Not allowed on a constant equation.
     """
 
     region_code: str
@@ -353,6 +359,7 @@ class RegressionEquation:
     form: str = "loglinear"
     constant_cfs: Optional[float] = None
     published_errors: Tuple[PublishedError, ...] = ()
+    equivalent_years: Optional[float] = None
 
     def __post_init__(self) -> None:
         if self.form not in FORMS:
@@ -379,6 +386,9 @@ class RegressionEquation:
                 raise ValueError(f"covariance must be {k}x{k}")
         if self.bias_correction <= 0:
             raise ValueError("bias_correction must be positive")
+        ey = self.equivalent_years
+        if ey is not None and not (math.isfinite(ey) and ey > 0):
+            raise ValueError(f"equivalent_years must be finite and positive, got {ey}")
 
     def _check_constant(self) -> None:
         where = f"{self.region_code} AEP {self.aep}"
@@ -391,7 +401,13 @@ class RegressionEquation:
             raise ValueError(f"{where}: a constant equation's coefficients must all be zero")
         stats_set = [
             name
-            for name in ("sep_log", "avp", "model_error_variance", "covariance")
+            for name in (
+                "sep_log",
+                "avp",
+                "model_error_variance",
+                "covariance",
+                "equivalent_years",
+            )
             if getattr(self, name) is not None
         ]
         if stats_set:
@@ -423,6 +439,7 @@ class RegressionEquation:
             intercept = float(d["intercept"])
             coefficients = tuple(float(c) for c in d["coefficients"])
         constant = d.get("constant_cfs")
+        ey = d.get("equivalent_years")
         return cls(
             region_code=str(d["region_code"]),
             region_name=str(d.get("region_name", "")),
@@ -440,6 +457,7 @@ class RegressionEquation:
             form=form,
             constant_cfs=None if constant is None else float(constant),
             published_errors=tuple(PublishedError(**p) for p in d.get("published_errors", [])),
+            equivalent_years=None if ey is None else float(ey),
         )
 
 
