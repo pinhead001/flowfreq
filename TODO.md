@@ -182,9 +182,13 @@ Audited 2026-10-03 against `git log v0.9.0..origin/main`, `CHANGELOG.md` and
 - [ ] **#33 National gage catalog** (open). Built in #105:
       `flowfreq/data/gage_catalog.csv.gz` covers 20,745 USGS peak sites with at least 10
       water years, nationally, rebuilt by `tools/build_gage_catalog.py` with two Water
-      Data API bulk queries per state. Open: `regression_region` is filled for Wave 1
-      only (WA/OR/ID/MT), not for the Wave 2 states whose equations have since landed.
-      It comes from the gage point, so a basin that crosses a boundary needs
+      Data API bulk queries per state. `regression_region` is filled for all of Waves 1
+      and 2. WA/OR/ID/MT and CO/UT/AZ use point-in-polygon. WY, NV and NM have no region
+      polygons, so they use the region each report prints for its gages
+      (`tools/extract_station_regions.py`, `data/catalog_regions/`): 251 of 504 WY,
+      151 of 342 NV and 193 of 405 NM gages (2026-10-18). The rest were not in the
+      reports and stay blank. A point-in-polygon region comes from the gage point,
+      so a basin that crosses a boundary needs
       `streamstats.locate_regression_regions`. Western Oregon's 2A/2B split is by basin
       mean elevation, so those rows list `GC729;GC730;GC731`.
 - [x] **#34 Regional skew table and lookup** (closed). Pacific Northwest rows for

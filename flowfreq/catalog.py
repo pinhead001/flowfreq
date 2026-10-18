@@ -20,9 +20,12 @@ Columns:
   location: western Oregon's 2A/2B split by basin mean elevation, and Arizona's
   High Elevation region 1 (``GC1618``, mean elevation 7,500 ft or more),
   which every Arizona row lists beside its region 2-5. Filled for Wave 1 (WA,
-  OR, ID, MT) and for CO, UT and AZ of Wave 2. It is blank for WY, NV and NM,
-  where no verified source places a point in a region (see
-  ``tools/build_gage_catalog.py``), and for every other state. A basin that
+  OR, ID, MT) and for CO, UT and AZ of Wave 2. WY, NV and NM have no region
+  polygons, so their rows carry the region each report prints for the gages it
+  used (WRIR 03-4107 Table 10, WSP 2433's data section, SIR 2008-5119 Appendix
+  1; ``data/catalog_regions/``), accepted only where the report's station name
+  and latitude agree with the gage's; their other gages are blank (see
+  ``tools/build_gage_catalog.py``). Every other state is blank. A basin that
   crosses a region boundary needs the area-weighted lookup,
   :func:`flowfreq.streamstats.locate_regression_regions`.
 
