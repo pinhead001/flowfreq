@@ -64,6 +64,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the SGMC young-volcanic fraction (`VOLCQP_SGMC`) and NHD lake area (`LAKEAREA_NHD`) are
   added as basin characteristics. Region E's equations improve (SEP at 1 % AEP 94 -> 86 %);
   the other regions are unchanged, and all remain less precise than the current equations.
+  #164 adds selection of one variable set across four AEPs (`tools/oregon_regression_fit.py
+  --select multi`), and the OGDC-8 young-volcanic fraction (`VOLCQP_OGDC`). W-171003 and E
+  improve at every AEP; for W-171003, SEP at 1 % AEP goes from 49 to 42 %.
 
 ### Fixed
 - **Five more Water Data peak qualifier tokens** are recognised: `UNAVAIL`, `RATINGDEV`,

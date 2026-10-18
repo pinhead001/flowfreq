@@ -122,9 +122,16 @@ Phase A / Wave entries below.
       (`docs/OREGON_REGRESSION_UPDATE.md`). Soil Ksat (STATSGO2, #153) and young-volcanic
       geology and lake area (SGMC/NHD, #158) followed. Only region E's stored equations changed
       (SEP at 1 % AEP 94 -> 86 %), and every region is still less precise than the current
-      equations. Open: selecting variables at more than one AEP (W-171003 gains at 1 % but loses
-      at 50 %); a High Cascades flag from Oregon's state geologic map, because SGMC codes some
-      QT units as Miocene; and lake area for Waldo Lake (t = -1.9). #135 (06163400 vs PeakFQ) fixed: lowercase peak codes. A 2026-10-11 search
+      equations. #164 then added one variable set chosen across the 50/10/1/0.2 % AEPs
+      (`--select multi`, with a leverage limit of 0.5), and a young-volcanic fraction from
+      Oregon's state geologic map (OGDC-8, `VOLCQP_OGDC`). W-171003's SEP is now
+      47/42/46 % (it was 47/49/54) and E's 85/85/99 % (it was 90/87/101). Lake area for
+      Waldo Lake is still not significant (t = -1.9), and Waldo's own leverage is 0.55-0.96.
+      Open:
+      - a baseflow or groundwater variable for the High Cascades, whose 1 % residuals are
+        still -0.30 to -0.39;
+      - whether lake-dominated basins should be flagged as outside the equations;
+      - whether W-170800's stored set, with leverage 0.59, should face the same limit. #135 (06163400 vs PeakFQ) fixed: lowercase peak codes. A 2026-10-11 search
       found no newer USGS report for WA, MT, ID or OR. The studies follow published USGS
       procedures, and their results enter `regional_skew.csv` only as `provisional`, which
       callers must opt into (`allow_provisional=True`).

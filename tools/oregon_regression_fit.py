@@ -30,17 +30,29 @@ at AEP 0.01 while every added term has |t| >= 2 and every VIF < 5, and the
 selected set is used at all eight AEPs. Leave-one-out cross-validation gives a
 prediction SEP to set beside the AVP-based one and the current equations'.
 
+``--select multi`` instead chooses one set for all AEPs from several
+(:data:`SELECT_AEPS`): the best subset of up to :data:`MAX_TERMS` added
+variables minimizing the mean, over those AEPs, of the set's average variance
+of prediction relative to the DRNAREA-only model's (:func:`criterion`). Every
+term needs |t| >= 2 at AEP 0.01 and at more than half the selection AEPs, every
+VIF < 5, and the maximum leverage at every selection AEP at most
+:data:`MAX_LEVERAGE`. A region already in the stored provisional set keeps its
+stored variables unless the new set's SEP is no worse at any of
+:data:`GUARD_AEPS` (:func:`no_worse`).
+
 Writes ``data/regression_study/oregon_regression_results.json`` and, with
 ``--store``, ``flowfreq/data/regression/provisional/OR.json``.
 
 Usage::
 
-    python tools/oregon_regression_fit.py [--store]
+    python tools/oregon_regression_fit.py [--store] [--splits H1,H2,...] [--hold R1,...]
+        [--select forward|multi]
 """
 
 from __future__ import annotations
 
 import argparse
+import itertools
 import json
 import math
 import sys
@@ -67,6 +79,14 @@ PNW_SKEW_MSE = 0.18
 #: Skew MSE for a station-only fit: the Bulletin 17B skew map's.
 AT_SITE_SKEW_MSE = 0.302
 SELECT_AEP = 0.01
+#: ``--select multi``: the AEPs one variable set is chosen across ...
+SELECT_AEPS = (0.5, 0.1, 0.01, 0.002)
+#: ... the AEPs at which it must be no worse than the stored set's to replace it ...
+GUARD_AEPS = (0.5, 0.01, 0.002)
+#: ... the largest GLS leverage any site may have at a selection AEP ...
+MAX_LEVERAGE = 0.5
+#: ... and the most variables added to the forced ones.
+MAX_TERMS = 5
 
 #: Explanatory variables: design-column name -> (CSV column, stored code, transform,
 #: scale, units). Codes name their source so a StreamStats value of a same-named
@@ -80,6 +100,7 @@ CANDIDATES: Dict[str, Tuple[str, str, str, float, str]] = {
     "log10 BSLOPD": ("BSLOPD", "BSLOPD_3DEP", "log10", 1.0, "degrees"),
     "log10 SOILKSAT": ("SOILKSAT", "SOILKSAT_STATSGO2", "log10", 1.0, "in/hr"),
     "VOLCQP/100": ("VOLCQP", "VOLCQP_SGMC", "identity", 0.01, "percent"),
+    "VOLCQP_OG/100": ("VOLCQP_OG", "VOLCQP_OGDC", "identity", 0.01, "percent"),
     "log10 (LAKEAREA+1)": ("LAKEAREA", "LAKEAREA_NHD", "log10", 1.0, "percent"),
 }
 #: Offsets added after scaling, before the transform (``Variable.offset``).
@@ -142,10 +163,11 @@ def sigma(df: pd.DataFrame, X: np.ndarray, aep: float) -> np.ndarray:
     n = df["n_peaks"].to_numpy(dtype=float)
     skew = df["skew_weighted"].fillna(df["skew_station"]).to_numpy(dtype=float)
     mse = np.where(df["skew_weighted"].notna(), PNW_SKEW_MSE, AT_SITE_SKEW_MSE)
-    var = np.concatenate(
-        [lp3_quantile_sampling_variance(sd[i : i + 1], skew[i : i + 1], n[i : i + 1], aep, mse[i])
-         for i in range(len(df))]
-    )  # fmt: skip
+    # One vectorized call per skew MSE (elementwise, so the same as site by site).
+    var = np.empty(len(df))
+    for m in np.unique(mse):
+        i = mse == m
+        var[i] = lp3_quantile_sampling_variance(sd[i], skew[i], n[i], aep, float(m))
     y0 = df["first_wy"].to_numpy(dtype=float)
     y1 = df["last_wy"].to_numpy(dtype=float)
     # Overlap of the record spans, capped at each record's peak count: a record
@@ -216,6 +238,113 @@ def select(df: pd.DataFrame) -> Tuple[List[str], List[Dict[str, Any]]]:
             return names, log
         names.append(best[1])
         log.append({"added": best[1], "avp": best[0]})
+
+
+def evaluate_set(
+    df: pd.DataFrame, names: Sequence[str], aeps: Sequence[float]
+) -> Dict[float, Dict[str, Any]]:
+    """AVP, SEP, t values of the added terms and maximum leverage of a set at each AEP."""
+    out: Dict[float, Dict[str, Any]] = {}
+    for aep in aeps:
+        res = fit(df, names, aep)
+        out[aep] = {
+            "avp": res.avp,
+            "sep_percent": res.sep_percent,
+            "t": t_values(res)[1 + len(FORCED) :],
+            "max_leverage": float(res.leverage.max()),
+        }
+    return out
+
+
+def criterion(ev: Dict[float, Dict[str, Any]], base: Dict[float, Dict[str, Any]]) -> float:
+    """Mean over the AEPs of ``ev``'s AVP relative to ``base``'s (each AEP weighs equally)."""
+    return float(np.mean([ev[a]["avp"] / base[a]["avp"] for a in ev]))
+
+
+def rejection(ev: Dict[float, Dict[str, Any]], max_leverage: float = MAX_LEVERAGE) -> Optional[str]:
+    """Why a set fails the ``--select multi`` rules, or None if it passes.
+
+    Every added term needs |t| >= 2 at :data:`SELECT_AEP` (when it is among the
+    AEPs) and at more than half of them; no site's leverage may exceed
+    ``max_leverage`` at any of them.
+    """
+    t = np.abs(np.array([ev[a]["t"] for a in ev], dtype=float))
+    if t.size:
+        if SELECT_AEP in ev and np.any(np.abs(ev[SELECT_AEP]["t"]) < 2.0):
+            return f"|t| < 2 at AEP {SELECT_AEP}"
+        if np.any((t >= 2.0).sum(axis=0) * 2 <= len(ev)):
+            return "|t| < 2 at half the AEPs or more"
+    lev = max(ev[a]["max_leverage"] for a in ev)
+    if lev > max_leverage:
+        return f"leverage {lev:.2f} > {max_leverage}"
+    return None
+
+
+def select_multi(
+    df: pd.DataFrame,
+    aeps: Sequence[float] = SELECT_AEPS,
+    max_leverage: float = MAX_LEVERAGE,
+    max_terms: int = MAX_TERMS,
+) -> Tuple[List[str], List[Dict[str, Any]]]:
+    """Best subset across ``aeps`` (``--select multi``): one set for every AEP.
+
+    Every subset of up to ``max_terms`` candidates is added to :data:`FORCED`;
+    sets with a VIF >= 5, a rank-deficient design or a :func:`rejection` are
+    skipped, and the one minimizing :func:`criterion` is returned. The log
+    holds the five best sets that passed, and the best one that failed only on
+    leverage when it would have won.
+    """
+    base = evaluate_set(df, FORCED, aeps)
+    others = [c for c in CANDIDATES if c not in FORCED]
+    passed: List[Tuple[float, List[str], Dict[float, Dict[str, Any]]]] = []
+    lev_fail: Optional[Tuple[float, List[str], str]] = None
+    for k in range(0, max_terms + 1):
+        for combo in itertools.combinations(others, k):
+            names = [*FORCED, *combo]
+            X = design(df, names)
+            if np.linalg.matrix_rank(X) < X.shape[1]:
+                continue
+            if X.shape[1] > 2 and max(vif(X)) >= 5.0:
+                continue
+            ev = evaluate_set(df, names, aeps)
+            why = rejection(ev, max_leverage)
+            crit = criterion(ev, base)
+            if why is None:
+                passed.append((crit, names, ev))
+            elif why.startswith("leverage") and (lev_fail is None or crit < lev_fail[0]):
+                lev_fail = (crit, names, why)
+    passed.sort(key=lambda r: r[0])
+    log: List[Dict[str, Any]] = [
+        {
+            "set": names,
+            "criterion": round(crit, 4),
+            "sep_percent": {str(a): round(ev[a]["sep_percent"], 1) for a in aeps},
+            "max_leverage": round(max(ev[a]["max_leverage"] for a in aeps), 2),
+        }
+        for crit, names, ev in passed[:5]
+    ]
+    if lev_fail is not None and (not passed or lev_fail[0] < passed[0][0]):
+        log.append(
+            {"set": lev_fail[1], "criterion": round(lev_fail[0], 4), "rejected": lev_fail[2]}
+        )
+    return (list(passed[0][1]) if passed else list(FORCED)), log
+
+
+def no_worse(
+    df: pd.DataFrame,
+    new: Sequence[str],
+    old: Sequence[str],
+    aeps: Sequence[float] = GUARD_AEPS,
+) -> Tuple[bool, Dict[str, Any]]:
+    """Whether ``new``'s SEP is no worse than ``old``'s at every one of ``aeps``."""
+    sep_new = {a: fit(df, new, a).sep_percent for a in aeps}
+    sep_old = {a: fit(df, old, a).sep_percent for a in aeps}
+    ok = all(sep_new[a] <= sep_old[a] for a in aeps)
+    info = {
+        "sep_percent_new": {str(a): round(sep_new[a], 2) for a in aeps},
+        "sep_percent_stored": {str(a): round(sep_old[a], 2) for a in aeps},
+    }
+    return ok, info
 
 
 def huc6_clusters(
@@ -309,6 +438,23 @@ def fixed_splits(df: pd.DataFrame, huc6s: Sequence[str]) -> List[Dict[str, Any]]
     return steps
 
 
+def choose(df: pd.DataFrame, region: str, mode: str) -> Tuple[List[str], List[Dict[str, Any]]]:
+    """A region's variables: forward selection, or ``multi`` guarded by the stored set."""
+    if mode == "forward":
+        return select(df)
+    names, log = select_multi(df)
+    try:
+        stored = stored_variables(region)
+    except KeyError:
+        return names, log + [{"adopted": names, "stored": None}]
+    if sorted(stored) == sorted(names):
+        return stored, log + [{"adopted": stored, "same_as_stored": True}]
+    ok, info = no_worse(df, names, stored)
+    if ok:
+        return names, log + [{"adopted": names, "replaces": stored, **info}]
+    return stored, log + [{"kept_stored": stored, "rejected": names, **info}]
+
+
 def stored_variables(region: str) -> List[str]:
     """The design-column names of ``region``'s equations in the stored provisional set."""
     data = json.loads(PROVISIONAL.read_text(encoding="utf-8"))
@@ -323,8 +469,14 @@ def run(
     store: bool,
     splits_given: Optional[Sequence[str]] = None,
     hold: Sequence[str] = (),
+    select_mode: str = "forward",
 ) -> Dict[str, Any]:
-    """Fit every region; ``hold`` regions keep the stored set's variables instead of selecting."""
+    """Fit every region; ``hold`` regions keep the stored set's variables instead of selecting.
+
+    ``select_mode`` is ``forward`` (:func:`select`) or ``multi`` (:func:`choose`).
+    """
+    if select_mode not in ("forward", "multi"):
+        raise ValueError(f"select_mode must be 'forward' or 'multi', got {select_mode!r}")
     df = load()
     splits = split_regions(df) if splits_given is None else fixed_splits(df, splits_given)
     out: Dict[str, Any] = {
@@ -332,6 +484,7 @@ def run(
         "n_sites": len(df),
         "n_by_region": df["region"].value_counts().to_dict(),
         "region_splits": splits,
+        "select_mode": select_mode,
         "regions": {},
         "current_equation_sep_percent": current_seps(),
     }
@@ -342,7 +495,7 @@ def run(
             names = stored_variables(str(region))
             sel_log = [{"held": names, "from": PROVISIONAL.name}]
         else:
-            names, sel_log = select(g)
+            names, sel_log = choose(g, str(region), select_mode)
         X = design(g, names)
         res01 = fit(g, names, SELECT_AEP)
         reg: Dict[str, Any] = {
@@ -429,7 +582,7 @@ def write_provisional(equations: List[Dict[str, Any]], df: pd.DataFrame) -> None
             "Developed by flowfreq following the USGS GLS procedure (WREG). Regions are "
             f"hydrologic-unit sets: {json.dumps(hucs)}; any other HUC is region E. "
             "Variable codes name their sources (PRISM 1991-2020 normals, NOAA Atlas 2, "
-            "3DEP, STATSGO2 Ksat, USGS SGMC, NHD): values of same-named StreamStats characteristics are not "
+            "3DEP, STATSGO2 Ksat, USGS SGMC, DOGAMI OGDC-8, NHD): values of same-named StreamStats characteristics are not "
             "interchangeable. See docs/OREGON_REGRESSION_UPDATE.md."
         ),
     }
@@ -450,9 +603,15 @@ def main(argv: Sequence[str]) -> int:
         default="",
         help="comma-separated regions that keep the stored provisional set's variables",
     )
+    ap.add_argument(
+        "--select",
+        choices=["forward", "multi"],
+        default="forward",
+        help="forward selection at AEP 0.01, or one best subset across several AEPs",
+    )
     args = ap.parse_args(list(argv))
     splits = None if args.splits is None else args.splits.split(",")
-    out = run(args.store, splits, [r for r in args.hold.split(",") if r])
+    out = run(args.store, splits, [r for r in args.hold.split(",") if r], args.select)
     for region, reg in out["regions"].items():
         f = reg["fits"]["0.01"]
         print(region, reg["n"], reg["variables"], "SEP %.1f%%" % f["sep_percent"],

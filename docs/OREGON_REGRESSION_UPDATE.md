@@ -13,7 +13,7 @@ Oregon regression update plan, tasks 2-5
 - **Prefer the current equations wherever you can evaluate them.** The provisional
   equations are less precise in every region. At the 1-percent AEP:
   - West (by sub-region): SEP 36-51 %, against Cooper (2005)'s 29-36 %;
-  - East: 67-86 %, against OWRD's 41-75 %.
+  - East: 67-85 %, against OWRD's 41-75 %.
 - **What the set offers.** Bulletin 17C station statistics (EMA/MGBT, PNW regional
   skew, peaks through WY2025), and inputs that can all be computed today.
 - **Why that matters.** Oregon StreamStats was re-checked on 2026-10-12 and
@@ -61,10 +61,33 @@ Oregon regression update plan, tasks 2-5
     - Clearwater -0.41 to -0.35.
 
     The 1 % SEP falls from 49 to 44. But the 50 % AEP SEP rises from 47 to 57,
-    and leverage reaches 0.67, so the stored W-171003 equations are kept
-    (`--hold`).
+    and leverage reaches 0.67, so the stored W-171003 equations were kept
+    (`--hold`). That was superseded on 2026-10-18 (next bullet).
   - **Willamette:** neither variable is selected, and Waldo Lake stays at -0.52.
     `LAKEAREA` has t = -1.9 there and would cut Waldo's residual to -0.33.
+- **Selecting at four AEPs, with Oregon's own geologic map, fixes W-171003
+  (2026-10-18).** Two things changed (details in
+  [Multi-AEP selection, OGDC-8 and Waldo Lake](#multi-aep-selection-ogdc-8-and-waldo-lake-2026-10-18)):
+  - `--select multi` picks one variable set across the 50, 10, 1 and 0.2 % AEPs,
+    with a leverage limit of 0.5;
+  - `VOLCQP_OGDC` classifies young volcanic rock in Oregon from the DOGAMI state
+    map (OGDC-8) instead of SGMC. It puts Waldo at 95 % (SGMC 51 %), Clearwater
+    at 87 % (69 %) and Toketee at 64 % (52 %).
+
+  The results:
+  - **W-171003** becomes DRNAREA, PRECIP, VOLCQP_OGDC. Its SEP is 47 / 42 / 46
+    (50 / 1 / 0.2 % AEP), against 47 / 49 / 54 stored, with LOOCV 49 / 37 and a
+    maximum leverage of 0.15. The stored equations are replaced.
+  - **E** becomes DRNAREA, I24H2Y, ELEV, BSLOPD, VOLCQP_OGDC: 85 / 85 / 99,
+    against 90 / 86 / 101. Replaced.
+  - **The other four regions** select their stored sets again, or keep them
+    under the rule that a new set must be no worse at every one of those AEPs
+    (W-170800).
+  - **The High Cascades residuals barely move.** At the 1 % AEP, Thielsen is
+    -0.39 log units, Clearwater -0.30 and Toketee -0.36. The gain is spread
+    over the region's other basins.
+  - **Waldo Lake is not resolved.** `LAKEAREA` stays below |t| = 2 in the
+    Willamette (t = -1.9), and Waldo itself carries leverage 0.55 there.
 
 ## Data
 
@@ -116,6 +139,7 @@ used and every other characteristic is computed over it from one national source
 | `BSLOPD_3DEP` | 3DEP `Slope Degrees` raster function, basin mean | degrees |
 | `SOILKSAT_STATSGO2` | NRCS STATSGO2 via Soil Data Access, rasterized at 15 arc-seconds (below) | in./hr |
 | `VOLCQP_SGMC` | USGS State Geologic Map Compilation (Horton and others, 2017), young volcanic units, 15 arc-second mask (below) | percent of basin |
+| `VOLCQP_OGDC` | In Oregon, DOGAMI Oregon Geologic Data Compilation release 8 (OGDC-8; Darin and others, 2025), young volcanic units; elsewhere the `VOLCQP_SGMC` mask; 15 arc-second (below) | percent of basin |
 | `LAKEAREA_NHD` | NHD high-resolution waterbodies, lakes/ponds and reservoirs ≥ 0.05 km², 5 arc-second mask | percent of basin |
 
 **Soil permeability (`soils` stage).** `SOILKSAT` is computed as Wolock's (1997)
@@ -154,6 +178,51 @@ That is a national rule on SGMC's standardized fields. Two limits:
 - **State lines.** SGMC units are not reconciled across states, so the WA, ID, CA
   and NV basins are classified from their own state maps. Holocene pumice and
   ash deposits mapped as unconsolidated are not counted.
+
+**The Oregon state map (`ogdc` stage, added 2026-10-18).** `VOLCQP_OGDC` answers
+the age-coding limit. Its source is the Oregon Geologic Data Compilation,
+release 8 (Darin and others, 2025; DOGAMI Digital Data Series OGDC-8), which
+supersedes OGDC-7. It is read from DOGAMI's map service,
+`gis.dogami.oregon.gov` Public/OGDC MapServer layer 2, whose service
+description is "OGDCv8". The rule uses the service's thematic fields:
+- `ThematicRockType` is "volcanic rocks", "vent and pyroclastic rocks" or
+  "volcaniclastic rocks". The last includes the Mazama pumice and ash.
+  Intrusive rocks are left out.
+- `ThematicAge` begins no earlier than the Pliocene: Holocene, Pleistocene,
+  Quaternary, Pliocene, Pliocene/Pleistocene, Pliocene/Quaternary, or
+  Tertiary/Quaternary. In this layer the volcanic Tertiary/Quaternary units are
+  27 km² of late High Cascade lavas.
+- Ranges that reach back into the Miocene are left out. That covers
+  Miocene/Pliocene (the early High Cascade lavas and the Deschutes Formation),
+  Miocene/Quaternary and Miocene/Pleistocene.
+
+The service returned 12,491 polygons.
+
+OGDC maps Oregon only. Outside the state (TIGERweb boundary, generalized to
+0.001°), each cell takes the `VOLCQP_SGMC` mask's value, so the WA, ID, CA and
+NV basins keep the SGMC classification. The two variables correlate at 0.88
+over the 579 basins, and 52 basins differ by more than 10 points:
+
+| Basin | `VOLCQP_SGMC` % | `VOLCQP_OGDC` % |
+|---|---|---|
+| Thielsen Creek (14312700) | 92 | 99 |
+| Clearwater above Trap Creek (14314500) | 69 | 87 |
+| North Umpqua at Toketee Falls (14315500) | 52 | 64 |
+| Waldo Lake outlet (14147000) | 51 | 95 |
+
+Inside the Waldo basin, OGDC maps 94 % as Quaternary "lavas of Cascade
+platform", 8 % as Quaternary vents and 6 % as Holocene sediment. SGMC counts
+only 51 %. The SGMC units left out there were not inventoried; the `QTmv`
+example above suggests they are Miocene-coded.
+
+The largest drops are small basins on Miocene/Pliocene early High Cascade
+lava, which SGMC calls Pliocene. One is 14209100 (4 mi²), 100 to 0 %. Another
+is 14158950, which is 87 % Quaternary glacial and alluvial sediment over
+platform lava. OGDC counts neither.
+
+The OGDC-7 bundle (`OGDC-7_publication-bundle.zip`, Esri file geodatabase) was
+downloaded too but not used: OGDC-8 supersedes it, and the venv has no GDAL
+vector bindings to read a file geodatabase.
 
 `LAKEAREA` counts NHD FTYPE 390 (lake/pond) and 436 (reservoir) of at least
 0.05 km². It enters the regressions as log10(LAKEAREA + 1), stored as a `log10`
@@ -230,16 +299,29 @@ refit:
 **Variables.** log10 DRNAREA is forced. The others enter by forward selection at
 AEP 0.01 while every added term has |t| ≥ 2 and every VIF < 5. The selected set
 is used at all eight AEPs. `--hold` keeps a region's stored variables instead
-of selecting them; W-171003 is held (below).
+of selecting them. Since 2026-10-18 the stored set comes from `--select multi`
+instead (see
+[Multi-AEP selection, OGDC-8 and Waldo Lake](#multi-aep-selection-ogdc-8-and-waldo-lake-2026-10-18)):
+
+```
+python tools/oregon_regression_fit.py --splits 170701,171003,170800,170900 --select multi --store
+```
+
+The stored set (2026-10-18):
 
 | Region | Gages | Variables | SEP % (50 / 1 / 0.2 % AEP) | LOOCV SEP % (50 / 1 %) | Pseudo-R² (1 %) |
 |---|---|---|---|---|---|
 | W (coastal) | 53 | DRNAREA, ELEV, PRECIP | 28 / 36 / 40 | 28 / 33 | 0.98 |
 | W-170900 Willamette | 130 | DRNAREA, BSLOPD, JANMAXT, PRECIP | 38 / 43 / 46 | 39 / 40 | 0.96 |
-| W-171003 Southern Oregon Coastal | 107 | DRNAREA, BSLOPD, JANMAXT, PRECIP, SOILKSAT | 47 / 49 / 54 | 50 / 47 | 0.95 |
+| W-171003 Southern Oregon Coastal | 107 | DRNAREA, PRECIP, VOLCQP_OGDC | 47 / 42 / 46 | 49 / 37 | 0.96 |
 | W-170800 Lower Columbia | 52 | DRNAREA, BSLOPD, SOILKSAT | 50 / 51 / 51 | 52 / 57 | 0.95 |
 | E-170701 Middle Columbia | 58 | DRNAREA, ELEV, PRECIP | 89 / 67 / 82 | 93 / 59 | 0.84 |
-| E (rest of the east) | 177 | DRNAREA, ELEV, VOLCQP, I24H2Y, LAKEAREA | 90 / 86 / 101 | 93 / 89 | 0.79 |
+| E (rest of the east) | 177 | DRNAREA, I24H2Y, ELEV, BSLOPD, VOLCQP_OGDC | 85 / 85 / 99 | 89 / 87 | 0.80 |
+
+Until 2026-10-18 the W-171003 equations used DRNAREA, BSLOPD, JANMAXT, PRECIP
+and SOILKSAT (SEP 47 / 49 / 54, LOOCV 50 / 47). The E equations used DRNAREA,
+ELEV, VOLCQP_SGMC, I24H2Y and LAKEAREA (SEP 90 / 86 / 101, LOOCV 93 / 89). The
+subsections below describe those sets.
 
 **What `VOLCQP` and `LAKEAREA` changed** (2026-10-14; regions held at the four
 splits above with `--splits`):
@@ -247,13 +329,13 @@ splits above with `--splits`):
 | Region | SEP before | SEP after | LOOCV before | LOOCV after | Stored |
 |---|---|---|---|---|---|
 | E | 94 / 91 / 105 | 90 / 86 / 101 | 97 / 94 | 93 / 89 | **replaced** |
-| W-171003 | 47 / 49 / 54 | 57 / 44 / 48 | 50 / 47 | 63 / 46 | kept (`--hold`) |
+| W-171003 | 47 / 49 / 54 | 57 / 44 / 48 | 50 / 47 | 63 / 46 | kept (`--hold`); replaced 2026-10-18 |
 | W, W-170800, W-170900, E-170701 | unchanged | | | | neither selected |
 
 SEP is at the 50 / 1 / 0.2 % AEPs and LOOCV at 50 / 1 %. In both columns,
 "before" is the set that used `SOILKSAT`.
 
-**Region E.** E's 1 % equation is:
+**Region E (the 2026-10-14 set, since replaced).** Its 1 % equation was:
 
 > log10 Q = 2.00 + 0.737 log10 DRNAREA − 0.084 ELEV/1000 − 0.605 VOLCQP/100
 > + 1.26 log10 I24H2Y − 0.388 log10(LAKEAREA+1)
@@ -322,6 +404,158 @@ SEPs above are the substitute.
 **Leverage.** Highest in W-170800 (0.57 with SOILKSAT, up from 0.48; Lower
 Columbia, where 52 gages span 0.2-1,800 mi²). Everywhere else it is 0.28 or less.
 
+## Multi-AEP selection, OGDC-8 and Waldo Lake (2026-10-18)
+
+This section covers the three next steps that "Limits and next steps" listed on
+2026-10-14. Regions are held at the four splits with `--splits`.
+
+### Selection at four AEPs (`--select multi`)
+
+The forward selection above works at the 1 % AEP alone. That is why W-171003's
+geology set won at the 1 % AEP and lost at the 50 % AEP.
+
+`--select multi` chooses one set for all eight AEPs, as USGS studies do:
+1. Every subset of up to five candidates is added to log10 DRNAREA.
+2. Sets with a VIF of 5 or more are dropped.
+3. Each remaining set is fitted at the 50, 10, 1 and 0.2 % AEPs.
+4. The criterion is the mean, over those four AEPs, of the set's average
+   variance of prediction divided by the DRNAREA-only model's. So each AEP
+   weighs the same, however large its variances.
+
+A set must pass three rules:
+- every added term has |t| ≥ 2 at the 1 % AEP;
+- every added term has |t| ≥ 2 at more than half the four AEPs;
+- no site's GLS leverage exceeds 0.5 at any of them.
+
+The leverage guard is aimed at the W-171003 set of 2026-10-14. Its 0.67 belongs
+to Eel Creek at Lakeside (14323300), a 10.6 mi² basin that is 10 % Eel Lake.
+The next-largest lake share in W-171003 is Toketee's 1.7 %. So that one basin
+gives `LAKEAREA` its slope in the region.
+
+A region already in the stored file keeps its stored variables unless the
+selected set's SEP is no worse at every one of the 50, 1 and 0.2 % AEPs.
+`VOLCQP_OGDC` is among the candidates (next subsection).
+
+| Region | Selected | SEP selected (50 / 1 / 0.2 %) | SEP stored before | Outcome |
+|---|---|---|---|---|
+| W-171003 | DRNAREA, PRECIP, VOLCQP_OGDC | 47.3 / 41.9 / 45.9 | 47.4 / 49.0 / 53.7 | **replaced** |
+| E | DRNAREA, I24H2Y, ELEV, BSLOPD, VOLCQP_OGDC | 84.9 / 85.3 / 99.3 | 89.8 / 86.5 / 100.8 | **replaced** |
+| W-170800 | DRNAREA, BSLOPD | 53.0 / 53.8 / 53.8 | 50.4 / 51.2 / 50.9 | stored kept (worse everywhere) |
+| W, W-170900, E-170701 | their stored sets | | | unchanged |
+
+W-170800's stored set has a maximum leverage of 0.59, above the guard, so the
+selection cannot pick it. The high-leverage gage is Burnt Bridge Creek at
+Vancouver, WA (14211900): 23 mi², the region's flattest basin (1.7°) and its
+highest Ksat (6.7 in./hr). The stored set stays because the guard only blocks
+new sets. This is an open question.
+
+**The new W-171003 equations.** The 1 % equation is:
+
+> log10 Q = 0.747 + 0.964 log10 DRNAREA + 0.862 log10 PRECIP − 0.900 VOLCQP_OGDC/100
+
+At the 1 % AEP, the t values are:
+- DRNAREA 44.0;
+- PRECIP 5.7;
+- VOLCQP_OGDC -10.9.
+
+The VIF is 1.04 and the maximum leverage 0.15. The LOOCV SEP is 49.5 % at the
+50 % AEP and 37.1 % at the 1 % AEP. Before, it was 50 and 47.
+
+BSLOPD, JANMAXT and SOILKSAT drop out. In the old set with VOLCQP_OGDC added,
+at the 1 % AEP:
+- BSLOPD has t = 0.2;
+- JANMAXT has t = -1.1;
+- SOILKSAT has t = -2.1, but -1.5 at the 50 % AEP.
+
+That set also has a VIF of 6.5.
+
+The same set with the SGMC variable gives 49.3 / 46.8 / 51.2. So most of the
+gain comes from the state map.
+
+**The new E equations.** The 1 % equation is:
+
+> log10 Q = 2.28 + 0.739 log10 DRNAREA + 1.56 log10 I24H2Y − 0.075 ELEV/1000
+> − 0.373 log10 BSLOPD − 0.896 VOLCQP_OGDC/100
+
+VOLCQP_OGDC (t = -5.0 at the 1 % AEP) replaces
+VOLCQP_SGMC, and `LAKEAREA` drops out. Added to DRNAREA, I24H2Y, ELEV and
+VOLCQP_OGDC, LAKEAREA has t = -1.7 at the 1 % AEP and -1.1 at the 50 % AEP. BSLOPD enters with a negative
+coefficient: t = -2.4 at the 1 % AEP and -1.7 at the 50 % AEP. ELEV's
+coefficient changes sign between the 50 % AEP (t = +3.4) and the 1 % AEP
+(t = -2.3), as it did in the stored E set. The maximum leverage is 0.18 and the
+LOOCV 88.5 / 86.5, against 93 / 89 before.
+
+### OGDC-8 against SGMC for the High Cascades
+
+With the same companion variables, the OGDC-8 variable fits better than the SGMC
+one:
+
+| Region | Set | SEP with VOLCQP_SGMC | SEP with VOLCQP_OGDC |
+|---|---|---|---|
+| W-171003 | DRNAREA, PRECIP, + volcanic | 49.3 / 46.8 / 51.2 | 47.3 / 41.9 / 45.9 |
+| W-171003 | DRNAREA, BSLOPD, PRECIP, + volcanic | 49.7 / 45.7 / 50.4 | 46.9 / 42.8 / 47.3 |
+| W-171003 | stored 2026-10-14 set + volcanic | 45.5 / 45.4 / 50.2 | 44.8 / 42.8 / 47.2 (VIF 6.5) |
+| E | DRNAREA, I24H2Y, ELEV, BSLOPD, + volcanic | 91.2 / 87.9 / 102.8 | 84.9 / 85.3 / 99.3 |
+| W-170900 | stored set + volcanic | 38.4 / 43.6 / 46.6 (t = -1.2) | 38.3 / 43.6 / 46.6 (t = -0.4) |
+
+The four High Cascades residuals did not follow (1 % AEP, log10 units):
+
+| Basin | Stored before (2026-10-14) | DRNAREA, PRECIP, VOLCQP_SGMC | DRNAREA, PRECIP, VOLCQP_OGDC (stored now) |
+|---|---|---|---|
+| Thielsen Creek | -0.56 | -0.31 | -0.39 |
+| Clearwater above Trap Creek | -0.41 | -0.35 | -0.30 |
+| North Umpqua at Toketee Falls | -0.36 | -0.39 | -0.36 |
+| Waldo Lake outlet (W-170900) | -0.52 | not in the region | -0.52 (VOLCQP_OGDC not selected) |
+
+Thielsen was already 92 % young volcanic under SGMC, so OGDC hardly changes its
+value. Toketee's residual falls only with `LAKEAREA`, to about -0.17: Diamond
+and Lemolo Lakes lie upstream. That set fails the leverage guard on Eel Creek.
+The better region-wide SEP comes from basins whose young-volcanic share OGDC
+corrects, not from these four. At about -0.3 to -0.4 log units, these basins'
+1 % floods are still only 40-50 % of what the equations predict. Whatever else
+sets them apart, such as groundwater-fed baseflow or snowmelt timing, is not in
+the candidate set.
+
+### Waldo Lake and `LAKEAREA` in the Willamette
+
+| Set (W-170900, 130 gages) | SEP (50 / 1 / 0.2 %) | t of the lake term (50 / 1 %) | Max leverage | Waldo residual (1 %) |
+|---|---|---|---|---|
+| stored: DRNAREA, BSLOPD, JANMAXT, PRECIP | 38.5 / 43.5 / 46.4 | | 0.24 | -0.52 |
+| + log10(LAKEAREA+1) | 38.2 / 43.2 / 46.1 | -1.9 / -1.9 | 0.55 (Waldo) | -0.33 |
+| + LAKEAREA/100 (lake fraction, untransformed) | 37.0 / 41.4 / 43.8 | -3.4 / -3.6 | 0.96 (Waldo) | +0.02 |
+| + VOLCQP_OGDC + log10(LAKEAREA+1) | 38.0 / 43.3 / 46.3 | -1.9 / -1.9 | 0.56 (Waldo) | -0.33 |
+
+**`LAKEAREA` is not significant in the Willamette.** On the log scale it stays at
+t = -1.9 and lowers the SEP by only 0.3 points. It also puts leverage 0.55 on
+Waldo itself.
+
+**The untransformed lake fraction is significant, but only through Waldo.** It
+has t = -3.6, but Waldo's leverage is 0.96: the term exists to fit Waldo.
+Waldo is 32 % lake; the next-largest share in the region is 4.2 % (North Fork
+of the Middle Fork Willamette, 14147500). Its residual then goes to zero by
+construction.
+
+Neither set is adopted. Waldo is better treated as a special case, for example
+by flagging basins with large natural lake storage as outside the equations'
+range, than by a regional term that one gage determines.
+
+### Sources for this section
+
+- Darin, M.H., McClaughry, J.D., Azzopardi, C.J.M., Franczyk, J.J., and Madin,
+  I.P., 2025, Oregon Geologic Data Compilation, release 8 (OGDC-8): Oregon
+  Department of Geology and Mineral Industries Digital Data Series OGDC-8
+  (https://www.oregon.gov/dogami/pubs/Pages/dds/p-OGDC-8.aspx; NGMDB
+  https://ngmdb.usgs.gov/Prodesc/proddesc_118650.htm). It was read through the
+  map service
+  https://gis.dogami.oregon.gov/arcgis/rest/services/Public/OGDC/MapServer (layer
+  2) on 2026-10-18.
+- Franczyk, J.J., Madin, I.P., Duda, C.J.M., and McClaughry, J.D., Oregon
+  Geologic Data Compilation, release 7 (OGDC-7)
+  (https://pubs.oregon.gov/dogami/dds/p-OGDC-7.htm). Superseded by OGDC-8 and
+  not used.
+- U.S. Census Bureau TIGERweb, State_County MapServer layer 0: the Oregon
+  boundary.
+
 ## Using the set
 
 ```python
@@ -342,13 +576,22 @@ file's `notes`.
 
 ## Limits and next steps
 
-- The High Cascades residual is only partly resolved. `VOLCQP` separates the
-  spring-fed basins, but in W-171003 it costs precision at the 50 % AEP, so it
-  is not stored there. Next steps:
-  - selecting variables at more than one AEP;
-  - a High Cascades volcanic flag built from the DOGAMI state map's `Q`/`QT`
-    labels, which would avoid SGMC's age coding (see Data);
-  - testing `LAKEAREA` in the Willamette with Waldo Lake's outlet storage in mind.
+- The High Cascades residual is only partly resolved. The 2026-10-14 next steps
+  were done on 2026-10-18:
+  - multi-AEP selection;
+  - the DOGAMI OGDC-8 volcanic variable;
+  - `LAKEAREA` in the Willamette.
+
+  W-171003's 1 % SEP fell from 49 to 42 %. Thielsen, Clearwater and Toketee
+  remain at -0.30 to -0.39 log units, and Waldo at -0.52. Open questions:
+  - Whether to flag lake-dominated basins (Waldo, Eel Creek) as outside the
+    equations instead of fitting them.
+  - Whether a groundwater or baseflow variable can separate the spring-fed
+    basins. One example is the BFI grid of Wolock (2003).
+  - Whether W-170800's stored set should face the same leverage guard
+    (0.59, Burnt Bridge Creek).
+  - Whether OGDC-8's Quaternary glacial sediment over platform lava should
+    count as young volcanic.
 - Regions follow outlet HUC6s. A basin is in one region, and none straddles
   (plan Review Focus 5 is satisfied by construction).
 - East region SEPs stay near 90 %. Eastern Oregon's crest-stage records are short

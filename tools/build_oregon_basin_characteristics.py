@@ -36,6 +36,12 @@ of these gages.
                       Pliocene: USGS SGMC (Horton and others, 2017) units with
                       ``generalize`` "Igneous, volcanic" and an ``age_max`` in the
                       Pliocene or Quaternary; rasterized at 15 arc-seconds
+``VOLCQP_OG``         as ``VOLCQP``, but classified in Oregon from the DOGAMI
+                      Oregon Geologic Data Compilation, release 8 (OGDC-8;
+                      Darin and others, 2025): units whose ``ThematicRockType``
+                      is volcanic, vent/pyroclastic or volcaniclastic and whose
+                      ``ThematicAge`` begins no earlier than the Pliocene. Outside
+                      Oregon, which OGDC does not map, the SGMC mask is used.
 ``LAKEAREA``          percent of the basin under lakes, ponds and reservoirs
                       of at least 0.05 km2 (NHD high-resolution waterbodies,
                       FTYPE 390 and 436); rasterized at 5 arc-seconds
@@ -58,12 +64,17 @@ Stages, each cached under ``--cache`` and resumable:
 - ``geology`` (before ``characteristics``): young volcanic SGMC units and NHD
   lakes over the same extent, from their ArcGIS feature services, rasterized
   to ``<rasters>/sgmc_volcqp_15s.tif`` and ``<rasters>/nhd_lakes_5s.tif``.
+- ``ogdc`` (after ``geology``, before ``characteristics``): young volcanic
+  OGDC-8 units from DOGAMI's OGDC map service, on the SGMC mask's grid, with
+  the SGMC mask outside Oregon (TIGERweb state boundary), rasterized to
+  ``<rasters>/ogdc_volcqp_15s.tif``.
 
 Usage::
 
     python tools/build_oregon_basin_characteristics.py --cache <dir> basins
     python tools/build_oregon_basin_characteristics.py --cache <dir> --rasters <dir> soils
     python tools/build_oregon_basin_characteristics.py --cache <dir> --rasters <dir> geology
+    python tools/build_oregon_basin_characteristics.py --cache <dir> --rasters <dir> ogdc
     python tools/build_oregon_basin_characteristics.py --cache <dir> --rasters <dir> characteristics
 """
 
@@ -102,6 +113,8 @@ RASTERS: Dict[str, Tuple[str, float, float]] = {
     # 0/1 cells -> percent (the ``geology`` stage)
     "VOLCQP": ("sgmc_volcqp_15s.tif", 100.0, 0.0),
     "LAKEAREA": ("nhd_lakes_5s.tif", 100.0, 0.0),
+    # 0/1 cells -> percent (the ``ogdc`` stage)
+    "VOLCQP_OG": ("ogdc_volcqp_15s.tif", 100.0, 0.0),
 }
 SOURCES = {
     "DRNAREA": "StreamStats delineation, or NLDI basin where StreamStats mis-snapped "
@@ -121,6 +134,12 @@ SOURCES = {
     "doi:10.5066/F7WH2N65) via the energy.usgs.gov State_Geological_Map_Compilation "
     "feature service, retrieved 2026-10-14: percent of basin on units with generalize "
     "'Igneous, volcanic' and age_max Pliocene or Quaternary, 15 arc-second raster",
+    "VOLCQP_OG": "Oregon: DOGAMI Oregon Geologic Data Compilation release 8 (OGDC-8; "
+    "Darin and others, 2025) via the gis.dogami.oregon.gov Public/OGDC MapServer layer 2, "
+    "retrieved 2026-10-18: percent of basin on units with ThematicRockType volcanic rocks, "
+    "vent and pyroclastic rocks or volcaniclastic rocks and a ThematicAge beginning no "
+    "earlier than the Pliocene; outside Oregon (TIGERweb boundary) the VOLCQP SGMC mask; "
+    "15 arc-second raster",
     "LAKEAREA": "USGS NHD high-resolution Waterbody (hydro.nationalmap.gov nhd MapServer "
     "layer 12), retrieved 2026-10-14: percent of basin under FTYPE 390 (LakePond) or "
     "436 (Reservoir) with AREASQKM >= 0.05, 5 arc-second raster",
@@ -148,6 +167,36 @@ SGMC = (
 SGMC_WHERE = (
     "generalize = 'Igneous, volcanic' AND "
     "(age_max LIKE '%Quaternary%' OR age_max LIKE '%Pliocene%')"
+)
+OGDC = "https://gis.dogami.oregon.gov/arcgis/rest/services/Public/OGDC/MapServer/2/query"
+#: OGDC-8 ``ThematicRockType`` values counted as volcanic. Volcaniclastic rocks
+#: include the Mazama pumice and ash; intrusive rocks (plugs, dikes) are left out.
+OGDC_VOLCANIC = ("volcanic rocks", "vent and pyroclastic rocks", "volcaniclastic rocks")
+#: OGDC-8 ``ThematicAge`` values that begin no earlier than the Pliocene. The
+#: Tertiary/Quaternary volcanic units are late High Cascade lavas ("QT" labels);
+#: Miocene/Pliocene and other ranges reaching into the Miocene (early High
+#: Cascade, Deschutes Formation) are left out.
+OGDC_YOUNG = (
+    "Holocene",
+    "Pleistocene",
+    "Quaternary",
+    "Pliocene",
+    "Pliocene/Pleistocene",
+    "Pliocene/Quaternary",
+    "Tertiary/Quaternary",
+)
+
+
+def _sql_in(field: str, values: Sequence[str]) -> str:
+    return f"{field} IN (" + ", ".join(f"'{v}'" for v in values) + ")"
+
+
+OGDC_WHERE = (
+    f"{_sql_in('ThematicRockType', OGDC_VOLCANIC)} AND {_sql_in('ThematicAge', OGDC_YOUNG)}"
+)
+STATE_BOUNDARY = (
+    "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/"
+    "MapServer/0/query"
 )
 NHD_WATERBODY = "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/12/query"
 NHD_WHERE = "FTYPE IN (390, 436) AND AREASQKM >= 0.05"
@@ -589,6 +638,76 @@ def geology(cache: Path, rasters: Path) -> None:
     log.info("geology: %d NHD lakes and reservoirs, %.2f %% of the extent", len(lakes), 100 * frac)
 
 
+def oregon_polygon(cache: Path) -> Dict[str, Any]:
+    """Oregon's boundary (GeoJSON, EPSG:4326, generalized to 0.001 degree), cached."""
+    f = cache / "oregon_state_0p001.json"
+    if not f.exists():
+        r = requests.get(
+            STATE_BOUNDARY,
+            params={
+                "where": "STUSAB='OR'",
+                "outFields": "STUSAB",
+                "outSR": 4326,
+                "maxAllowableOffset": 0.001,
+                "f": "geojson",
+            },
+            timeout=300,
+        )
+        r.raise_for_status()
+        f.write_text(json.dumps(r.json()["features"][0]["geometry"]), encoding="utf-8")
+    return dict(json.loads(f.read_text(encoding="utf-8")))
+
+
+def merge_state_mask(inside: np.ndarray, state: np.ndarray, fallback: np.ndarray) -> np.ndarray:
+    """``state`` where ``inside`` is set, ``fallback`` elsewhere (all 0/1 arrays, one grid).
+
+    OGDC maps Oregon only; a basin reaching into a neighbouring state takes
+    that state's SGMC classification there instead of zero.
+    """
+    if not inside.shape == state.shape == fallback.shape:
+        raise ValueError(f"grids differ: {inside.shape}, {state.shape}, {fallback.shape}")
+    return np.where(inside.astype(bool), state, fallback).astype("uint8")
+
+
+def ogdc(cache: Path, rasters: Path) -> None:
+    """Stage ``ogdc``: young volcanic OGDC-8 units in Oregon, SGMC's outside it.
+
+    Written on the grid of the ``geology`` stage's SGMC mask, which must exist.
+    """
+    import rasterio
+    from rasterio.features import rasterize
+
+    sgmc_path = rasters / RASTERS["VOLCQP"][0]
+    if not sgmc_path.exists():
+        raise SystemExit(f"{sgmc_path} is missing: run the geology stage first")
+    bounds = _basin_bounds(cache)
+    feats = arcgis_features(OGDC, OGDC_WHERE, bounds, "OBJECTID", cache / "ogdc8", SOIL_REDUCE / 2)
+    with rasterio.open(sgmc_path) as src:
+        fallback = src.read(1)
+        profile = {
+            k: v for k, v in src.profile.items() if k not in ("blockxsize", "blockysize", "tiled")
+        }
+        transform = src.transform
+    shapes = [(ft["geometry"], 1) for ft in feats if ft.get("geometry")]
+    young = rasterize(shapes, out_shape=fallback.shape, transform=transform, fill=0, dtype="uint8")
+    inside = rasterize(
+        [(oregon_polygon(cache), 1)],
+        out_shape=fallback.shape,
+        transform=transform,
+        fill=0,
+        dtype="uint8",
+    )
+    mask = merge_state_mask(inside, young, fallback)
+    with rasterio.open(rasters / RASTERS["VOLCQP_OG"][0], "w", **profile) as dst:
+        dst.write(mask, 1)
+    log.info(
+        "ogdc: %d OGDC-8 young volcanic polygons; %.1f %% of the extent (SGMC %.1f %%)",
+        len(feats),
+        100 * float(mask.mean()),
+        100 * float(fallback.mean()),
+    )
+
+
 def characteristics(cache: Path, rasters: Path) -> pd.DataFrame:
     import rasterio
 
@@ -642,7 +761,7 @@ def characteristics(cache: Path, rasters: Path) -> pd.DataFrame:
 
 def main(argv: Sequence[str]) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    ap.add_argument("stage", choices=["basins", "soils", "geology", "characteristics"])
+    ap.add_argument("stage", choices=["basins", "soils", "geology", "ogdc", "characteristics"])
     ap.add_argument("--cache", type=Path, default=ROOT / ".cache" / "or_basins")
     ap.add_argument("--rasters", type=Path, default=None)
     ap.add_argument("--concurrency", type=int, default=3)
@@ -659,6 +778,9 @@ def main(argv: Sequence[str]) -> int:
         raise SystemExit(f"{args.stage} needs --rasters")
     if args.stage == "geology":
         geology(args.cache, args.rasters)
+        return 0
+    if args.stage == "ogdc":
+        ogdc(args.cache, args.rasters)
         return 0
     if args.stage == "soils":
         soils(args.cache, args.rasters)

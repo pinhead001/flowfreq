@@ -92,3 +92,30 @@ def test_geology_selects_young_volcanic_units_and_lakes(tool):
     for name in ("VOLCQP", "LAKEAREA"):
         assert tool.RASTERS[name][1] == 100.0  # mean of a 0/1 mask -> percent
         assert name in tool.SOURCES
+
+
+def test_ogdc_selects_volcanic_units_no_older_than_pliocene(tool):
+    assert set(tool.OGDC_VOLCANIC) == {
+        "volcanic rocks",
+        "vent and pyroclastic rocks",
+        "volcaniclastic rocks",
+    }
+    assert "Quaternary" in tool.OGDC_YOUNG and "Pliocene/Quaternary" in tool.OGDC_YOUNG
+    # ranges reaching into the Miocene (early High Cascade, Deschutes Formation) are out
+    assert not any("Miocene" in a for a in tool.OGDC_YOUNG)
+    for v in (*tool.OGDC_VOLCANIC, *tool.OGDC_YOUNG):
+        assert f"'{v}'" in tool.OGDC_WHERE
+    assert tool.OGDC_WHERE.startswith("ThematicRockType IN (")
+    assert tool.RASTERS["VOLCQP_OG"][1] == 100.0
+    assert "OGDC-8" in tool.SOURCES["VOLCQP_OG"]
+
+
+def test_merge_state_mask_takes_the_state_map_inside_and_sgmc_outside(tool):
+    inside = np.array([[1, 1], [0, 0]], dtype="uint8")
+    state = np.array([[1, 0], [1, 1]], dtype="uint8")
+    sgmc = np.array([[0, 1], [0, 1]], dtype="uint8")
+    got = tool.merge_state_mask(inside, state, sgmc)
+    assert got.tolist() == [[1, 0], [0, 1]]
+    assert got.dtype == np.uint8
+    with pytest.raises(ValueError, match="grids differ"):
+        tool.merge_state_mask(inside, state, sgmc[:1])
