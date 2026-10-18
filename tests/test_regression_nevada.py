@@ -457,3 +457,116 @@ class TestTransitionZones:
         e10 = evaluate(lib.equation("10", 0.5), chars)
         with pytest.raises(ValueError, match="6 AEP 0.5.*linear space"):
             evaluate_weighted([(0.4, e6), (0.6, e10)], space="log")
+
+
+# Equivalent years of record, the last column of Tables 5, 6, 7, 9 (pp. 36, 38, 40, 45),
+# 10 (p. 46) and 14 (p. 54), 2 to 100 years. Region 6's 2-year cell prints '--'.
+EQUIVALENT_YEARS = {
+    "1": [0.16, 0.62, 1.34, 2.50, 3.37, 4.19],
+    "2": [0.96, 1.80, 3.07, 4.64, 5.47, 6.05],
+    "3": [0.29, 0.49, 0.77, 1.23, 1.57, 1.92],
+    "5": [0.21, 0.73, 1.69, 2.62, 3.26, 3.80],
+    "6": [None, 0.233, 0.748, 2.52, 1.75, 0.794],
+    "10": [0.618, 3.13, 3.45, 2.49, 3.22, 2.22],
+}
+
+
+class TestEquivalentYears:
+    @pytest.mark.parametrize("region", sorted(EQUIVALENT_YEARS))
+    def test_printed(self, lib, region):
+        stored = [lib.equation(region, aep).equivalent_years for aep in AEPS]
+        assert stored == EQUIVALENT_YEARS[region]
+
+    def test_match_nss_snapshot(self, lib):
+        """NSS's equivalentYears (snapshot 2026-10-01) agree in all 35 printed cells; NSS
+        gives 0 for region 6's 2-year cell, which the report prints as '--'."""
+        import json
+
+        snap = REPO_ROOT / "data" / "nss_snapshots" / "NV_2026-10-01.json"
+        if not snap.exists():
+            pytest.skip("NSS snapshot not present")
+        compared = 0
+        for region in json.loads(snap.read_text(encoding="utf-8"))["regions"]:
+            for rec in region["equations"]:
+                eq = lib.equation(
+                    NSS_CODE_TO_REGION[region["region_code"]],
+                    NSS_STAT_TO_AEP[rec["statistic_code"]],
+                )
+                if eq.equivalent_years is None:
+                    assert (eq.region_code, eq.aep, rec["equivalent_years"]) == ("6", 0.5, 0.0)
+                else:
+                    assert eq.equivalent_years == rec["equivalent_years"]
+                    compared += 1
+        assert compared == 35
+
+
+# Data section, p. 147: systematic years N (p. 146), drainage area, mean basin elevation,
+# and the station (top) and weighted (bottom) 5- to 100-year peaks, cfs.
+GAGED = {
+    "10243700 Cleve Creek near Ely": (
+        29,
+        {"DRNAREA": 31.8, "ELEV": 8770.0},
+        [88, 130, 201, 270, 356],
+        [89, 131, 208, 284, 368],
+    ),
+    "10244950 Steptoe Creek near Ely": (
+        20,
+        {"DRNAREA": 11.1, "ELEV": 8940.0},
+        [42, 57, 79, 97, 117],
+        [42, 58, 86, 109, 129],
+    ),
+}
+
+
+class TestGagedSiteWeighting:
+    @pytest.mark.parametrize("station", sorted(GAGED))
+    def test_equation_1_reproduces_data_section(self, lib, station):
+        """Within the rounding of the printed station values (the report weighted the
+        unrounded ones): at most 1 cfs."""
+        from flowfreq.regression.nevada import weight_gaged_estimate
+
+        n, basin, station_q, weighted = GAGED[station]
+        for aep, qs, qw in zip(AEPS[1:], station_q, weighted):
+            est = evaluate(lib.equation("6", aep), basin)
+            assert weight_gaged_estimate(qs, n, est) == pytest.approx(qw, abs=1.0), aep
+
+    def test_formula(self, lib):
+        from flowfreq.regression.nevada import weight_gaged_estimate
+
+        est = evaluate(lib.equation("10", 0.01), {"DRNAREA": 50.0})
+        e = 2.22
+        assert weight_gaged_estimate(1000.0, 30, est) == pytest.approx(
+            (1000.0 * 30 + est.flow_cfs * e) / (30 + e), rel=1e-15
+        )
+        assert weight_gaged_estimate(1000.0, 30, est, equivalent_years=10.0) == pytest.approx(
+            (1000.0 * 30 + est.flow_cfs * 10.0) / 40.0, rel=1e-15
+        )
+
+    def test_region_6_two_year_needs_an_explicit_e(self, lib):
+        """The data section's weighted 2-year values are below the station's (Cleve Creek
+        45 to 40), consistent with Q=0 and an unprinted E of about 3 years."""
+        from flowfreq.regression.nevada import weight_gaged_estimate
+
+        est = evaluate(lib.equation("6", 0.5), GAGED["10243700 Cleve Creek near Ely"][1])
+        with pytest.raises(ValueError, match="no printed equivalent years"):
+            weight_gaged_estimate(45.0, 29, est)
+        assert weight_gaged_estimate(45.0, 29, est, equivalent_years=3.6) == pytest.approx(
+            45.0 * 29 / 32.6
+        )
+
+    @pytest.mark.parametrize(
+        "kw, match",
+        [
+            ({"station_cfs": -1.0}, "station_cfs"),
+            ({"station_cfs": math.nan}, "station_cfs"),
+            ({"years_of_record": 0}, "years_of_record"),
+            ({"equivalent_years": 0.0}, "equivalent_years"),
+        ],
+    )
+    def test_errors(self, lib, kw, match):
+        from flowfreq.regression.nevada import weight_gaged_estimate
+
+        args = {"station_cfs": 100.0, "years_of_record": 20, **kw}
+        est = evaluate(lib.equation("10", 0.01), {"DRNAREA": 50.0})
+        with pytest.raises(ValueError, match=match):
+            weight_gaged_estimate(args.pop("station_cfs"), args.pop("years_of_record"), est, **args)

@@ -289,7 +289,7 @@ recorded in notes rather than in fields.
 | `flowfreq/data/regression/NV.json` | +1 equation, +11 `published_errors`, notes, status |
 | `flowfreq/validation/wave_qa.py` | constant-form equations not evaluable; `area_exponent` returns `None` |
 | `flowfreq/future_flow.py` | refuse a constant-form equation |
-| `tools/snapshot_nss.py` (optional, **not done**) | recognise NSS's `0*(...)^(0)` as the constant form instead of a `parse_error` |
+| `tools/snapshot_nss.py` (done after #157) | recognise NSS's `0*(...)^(0)` as the constant form instead of a `parse_error`: `flowfreq.regression.nss.parse_constant_equation` |
 | `docs/REGRESSION_COVERAGE.md` | regenerate with `tools/gen_regression_coverage.py` |
 | `TODO.md`, `CHANGELOG.md`, `docs/MASTER_ROADMAP.md` | at implementation time, not in this PR |
 
@@ -344,11 +344,14 @@ The maintainer answered D1 and D3, and asked for the doc's recommendation on the
   (the same `Variable`s as the 5-year equation), so a site outside region 6's calibration is
   refused at every AEP, not only at 5-100 years. NSS also range-checks the cell: its GC164
   parameters carry limits.
-- **D2. Equivalent years of record: not stored.** All six NV tables print them, and so do the
-  WY and OR reports, and no state stores them. WY is `verified` without them, so NV follows
-  the same precedent, and the `NV.json` notes say so. `published_errors` is for error
-  statistics, and equivalent years are not one. A future sibling field could hold them for
-  every state at once.
+- **D2. Equivalent years of record: stored, after #157.** #157 left them out because
+  they are not an error statistic and no state stored them. They are now a sibling field,
+  `RegressionEquation.equivalent_years`, which no evaluator reads. NV's 35 printed values
+  agree with NSS's `equivalentYears` in every cell. They feed the report's gaged-site
+  weighting, eq. 1 (p. 14), `flowfreq.regression.nevada.weight_gaged_estimate`. Region 6's
+  2-year cell prints `--`, so it has none. The data section's weighted 2-year values there
+  are still below the station values (Cleve Creek 10243700: 45 to 40 cfs), which with
+  `QT(r) = 0` implies an unprinted E of about 3 years.
 - **D3. `SCHEMA_VERSION` stays 1.** The change is additive, and an old reader fails loudly on
   the constant form, because the entry has no `intercept` key
   (`tests/test_regression_nevada.py::test_constant_entry_has_no_intercept_key` and

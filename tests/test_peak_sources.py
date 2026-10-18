@@ -315,6 +315,22 @@ def test_gage_height_token_is_not_a_warning(caplog, token):
     assert token in caplog.text
 
 
+@pytest.mark.parametrize("token", ["UNAVAIL", "RATINGDEV", "DISCONTINUED", "TEST", "ZEROFLOW"])
+def test_record_status_token_is_not_a_warning(caplog, token):
+    """No NWIS peak code: legacy NWIS has none on the same peaks (see STATUS_TOKENS)."""
+    with caplog.at_level(logging.DEBUG, logger="flowfreq.peak_sources"):
+        assert qualifiers_to_codes([token]) == ""
+    assert not any(r.levelno >= logging.WARNING for r in caplog.records)
+    assert f"record-status qualifier {token}" in caplog.text
+
+
+def test_record_status_tokens_keep_their_neighbours_codes():
+    # 13105000 WY2004: Water Data MAXDAILYMEAN, TEST, UNKNOWNREGULATION; NWIS peak_cd 1,5.
+    assert qualifiers_to_codes(["MAXDAILYMEAN", "TEST", "UNKNOWNREGULATION"]) == "1,5"
+    # 1030909087 WY2020: MONTHUNKNOWN, ZEROFLOW; NWIS Bm, which peakfq ignores.
+    assert qualifiers_to_codes(["MONTHUNKNOWN", "ZEROFLOW"]) == ""
+
+
 @pytest.mark.parametrize("token", ["YEARUNKNOWN", "OTHERAGENCY"])
 def test_informational_token_is_not_a_warning(caplog, token):
     with caplog.at_level(logging.WARNING, logger="flowfreq.peak_sources"):
@@ -324,7 +340,7 @@ def test_informational_token_is_not_a_warning(caplog, token):
 
 def test_informational_tokens_leave_treatment_unchanged():
     plain = peak_interval(100.0, qualifiers_to_codes(["HISTORIC"]))
-    for token in ("YEARUNKNOWN", "OTHERAGENCY", "BACKWATER", "ICE"):
+    for token in ("YEARUNKNOWN", "OTHERAGENCY", "BACKWATER", "ICE", "UNAVAIL", "TEST"):
         flagged = peak_interval(100.0, qualifiers_to_codes([token, "HISTORIC"]))
         assert flagged.treatment == plain.treatment
         assert flagged.is_historic == plain.is_historic

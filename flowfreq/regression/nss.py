@@ -42,6 +42,14 @@ two different transforms (or the same transform with two different rescalings). 
 directly, so a snapshot can record what NSS computes without claiming to
 represent it.
 
+One non-log-linear form is recognised separately. NSS writes a printed constant
+``Q=0`` (Nevada region 6's 2-year equation, WSP 2433 Table 10) as a product with a
+literal zero factor, ``0*(0*(DRNAREA))^(0)*(0*(ELEV))^(0)``, which
+:func:`parse_equation` refuses (``non-positive factor``).
+:func:`parse_constant_equation` reads it as a :class:`ParsedConstant`, and
+:func:`to_regression_equation` turns that into ``form="constant"`` with
+``constant_cfs=0``, its variables kept for the range check only.
+
 Roadmap: ``docs/MASTER_ROADMAP.md`` §3.1, issue #35.
 """
 
@@ -56,8 +64,10 @@ from flowfreq.regression.equations import Citation, RegressionEquation, Variable
 
 __all__ = [
     "NSSEquationError",
+    "ParsedConstant",
     "ParsedEquation",
     "evaluate_expression",
+    "parse_constant_equation",
     "parse_equation",
     "parse_expression",
     "statistic_code_to_aep",
@@ -569,8 +579,70 @@ def parse_equation(equation: str) -> ParsedEquation:
     )
 
 
+@dataclass(frozen=True)
+class ParsedConstant:
+    """An NSS equation that is a constant flow, such as NSS's form of a printed ``Q=0``.
+
+    Attributes
+    ----------
+    equation : str
+        The NSS string it came from.
+    value : float
+        The constant flow, cfs.
+    codes : tuple of str
+        The variables the string names, in order of first appearance. They carry the
+        region's limits for the range check and no coefficient.
+    """
+
+    equation: str
+    value: float
+    codes: Tuple[str, ...]
+
+    def variables(self) -> Tuple[Variable, ...]:
+        """The variables as :class:`Variable` objects, without limits or units."""
+        return tuple(Variable(code=k, transform="log10") for k in self.codes)
+
+    def to_dict(self) -> Dict[str, object]:
+        return {
+            "form": "constant",
+            "constant_cfs": self.value,
+            "variables": [v.to_dict() for v in self.variables()],
+        }
+
+
+def _factors(node: Node) -> List[Node]:
+    """The factors of a product ``a*b*...``; any other node is one factor."""
+    if node[0] == "bin" and node[1] == "*":
+        return _factors(node[2]) + _factors(node[3])
+    return [node]
+
+
+def parse_constant_equation(equation: str) -> ParsedConstant:
+    """Read an NSS string that is a product with a literal zero factor as ``Q=0``.
+
+    Only that form is accepted: the top-level expression must be a product (``*``
+    only, no division) one of whose factors is the literal ``0``. Its other factors are
+    ignored, as in ``0*(0*(DRNAREA))^(0)*(0*(ELEV))^(0)``, so the result is exactly 0
+    wherever NSS's own evaluation is defined.
+
+    Raises
+    ------
+    NSSEquationError
+        If the string is malformed, is not such a product, or names an unsupported
+        identifier.
+    """
+    node = parse_expression(equation)
+    factors = _factors(node)
+    if len(factors) < 2 or not any(_const_value(f) == 0.0 for f in factors):
+        raise NSSEquationError(f"not a product with a literal zero factor: {equation!r}")
+    codes = list(dict.fromkeys(_variables(node)))
+    for code in codes:
+        _check_variable(code, equation)
+    return ParsedConstant(equation=equation, value=0.0, codes=tuple(codes))
+
+
 def to_regression_equation(
-    parsed: ParsedEquation,
+    parsed: Union[ParsedEquation, ParsedConstant],
     *,
     region_code: str,
     aep: float,
@@ -581,6 +653,7 @@ def to_regression_equation(
 ) -> RegressionEquation:
     """Build a :class:`RegressionEquation` from a parsed NSS string.
 
+    A :class:`ParsedConstant` gives ``form="constant"`` with zero coefficients.
     NSS supplies no report table, covariance, model-error variance or site
     count, so the result carries only what NSS does. ``sep_log`` is left unset
     because NSS's ``sep`` field is not confirmed to be the report's log10 SEP.
@@ -605,6 +678,18 @@ def to_regression_equation(
         )
         for v in parsed.variables()
     )
+    if isinstance(parsed, ParsedConstant):
+        return RegressionEquation(
+            region_code=region_code,
+            region_name=region_name,
+            aep=aep,
+            intercept=None,
+            variables=variables,
+            coefficients=(0.0,) * len(variables),
+            citation=citation,
+            form="constant",
+            constant_cfs=parsed.value,
+        )
     return RegressionEquation(
         region_code=region_code,
         region_name=region_name,

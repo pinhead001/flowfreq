@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Gage catalog regions for WY, NV and NM.** These states have no region polygons, so their
+  `regression_region` comes from the region each report prints for its own gages: WRIR 03-4107
+  Table 10, WSP 2433's data section and SIR 2008-5119 Appendix 1. `tools/extract_station_regions.py`
+  transcribes them to `data/catalog_regions/`, and checks every region's count against the
+  report. The catalog builder accepts a row only when the station name, and the latitude where
+  printed, agree with the gage's Water Data record. 595 gages are filled (WY 251, NV 151,
+  NM 193). 5 listed gages whose report name disagrees with Water Data's stay blank.
 - **Oregon regression station dataset** (Oregon regression update plan, task 2;
   `tools/build_oregon_regression_dataset.py`, `data/regression_study/oregon_stations.csv`).
   It covers Oregon gages and WA/ID/NV/CA gages within 25 miles of the state, with
@@ -36,16 +43,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   with `load_state(code, allow_awaiting_nss=True)`, with a warning naming the set
   StreamStats still uses. Colorado's SIR 2025-5047 set (#151) moved there and is keyed to
   NSS staging citation 200 (codes, region bounds, limits), with Table 1's coefficients.
+  Its April 1 SWE is in inches, as stored. Table 1.2's "meters" is the SNODAS grid's unit,
+  and Tables 1-5, the 0-33.8 range and the coefficients all imply inches.
 - **Constant equations and published non-SEP errors** (#157): `RegressionEquation(form=
   "constant", constant_cfs=...)` and `PublishedError`. Nevada region 6's printed 2-year
   `Q=0` and WSP 2433's 11 hybrid-method errors are stored, and NV is `verified`. Log-space
   weighting, `future_flow` change factors and wave QA refuse or skip a zero flow.
+- **Equivalent years of record and gaged-site weighting for Nevada**:
+  `RegressionEquation.equivalent_years` (informational; no evaluator reads it) holds WSP 2433's
+  35 printed values, which agree with NSS's `equivalentYears` in every cell. The new
+  `flowfreq.regression.nevada.weight_gaged_estimate` is the report's eq. 1,
+  `(QT(s) N + QT(r) E) / (N + E)`, and reproduces the data section's weighted 5- to 100-year
+  peaks for two region 6 gages within the printed values' rounding. Region 6's 2-year cell
+  prints no E and is refused unless one is passed.
+- **`flowfreq.regression.nss.parse_constant_equation`**: NSS's form of a printed `Q=0`
+  (`0*(...)^(0)`, Nevada region 6's 2-year equation) becomes a `form="constant"` equation with
+  its variables kept for the range check. `tools/snapshot_nss.py` falls back to it, so a live
+  Nevada snapshot parses all 36 equations (35 before).
 - **Oregon provisional equations: soil and geology candidates** (#153, #158). STATSGO2 Ksat,
   the SGMC young-volcanic fraction (`VOLCQP_SGMC`) and NHD lake area (`LAKEAREA_NHD`) are
   added as basin characteristics. Region E's equations improve (SEP at 1 % AEP 94 -> 86 %);
   the other regions are unchanged, and all remain less precise than the current equations.
 
 ### Fixed
+- **Five more Water Data peak qualifier tokens** are recognised: `UNAVAIL`, `RATINGDEV`,
+  `DISCONTINUED`, `TEST` and `ZEROFLOW`. None has an NWIS peak code (legacy NWIS carries none
+  on the same peaks), so each is dropped with a debug log instead of a warning, and B17C
+  treatment is unchanged. A national catalog rebuild logged them.
 - **`load_nid` reads the NID national GeoPackage** (#155). The national CSV has returned 403
   from NID's own proxy since 2026-10-13. `load_nid` now downloads `api/nation/gpkg` (82 MB),
   reads its `dams` table with `sqlite3` (new `parse_nid_gpkg`, the same filtering as

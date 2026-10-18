@@ -84,6 +84,9 @@ Phase A / Wave entries below.
       - ~~NV region 6 and the hybrid regions (#104)~~: region 6's 2-year `Q=0` is a
         `form="constant"` equation, and the 11 hybrid errors are `published_errors` that never
         feed an interval (#157, `docs/NEVADA_REGION6_SCHEMA.md`).
+        Its equivalent years of record are stored too, with the report's gaged-site
+        weighting (eq. 1), and `tools/snapshot_nss.py` parses NSS's `0*(...)^(0)` as the
+        constant form.
 - [x] **Oregon closed basins (1712)**: provisional PNW member after a B-GLS applicability
       test (`docs/OREGON_UNRESOLVED_SKEW.md`). The Klamath (1801) stays unresolved (2 gages).
 - [x] **Montana skew v2** (provisional, opt-in): east-of-Divide G = -0.04, MSE 0.385
@@ -101,6 +104,8 @@ Phase A / Wave entries below.
       (`load_state("CO", allow_awaiting_nss=True)`). It uses NSS staging citation 200's codes,
       region bounds and limits, with Table 1's coefficients. Once NSS publishes citation 200,
       it replaces the Mountain, Northwest, Rio Grande and Southwest regions in `CO.json`.
+      SWE is in inches, as stored, although Table 1.2 lists SNODAS SWE in meters
+      (`docs/COLORADO_SIR_2025_5047.md`, checked 2026-10-18).
       Original entry: (Kohn, Mast and Gross, 2026) replaces Capesius and
       Stephens (2009) for central and western Colorado: four elevation regions (Plateau,
       Mid-Elevation, Sub-Alpine, Alpine), 418 gages through WY2019, tables as CSV on the pubs
@@ -177,9 +182,13 @@ Audited 2026-10-03 against `git log v0.9.0..origin/main`, `CHANGELOG.md` and
 - [ ] **#33 National gage catalog** (open). Built in #105:
       `flowfreq/data/gage_catalog.csv.gz` covers 20,745 USGS peak sites with at least 10
       water years, nationally, rebuilt by `tools/build_gage_catalog.py` with two Water
-      Data API bulk queries per state. Open: `regression_region` is filled for Wave 1
-      only (WA/OR/ID/MT), not for the Wave 2 states whose equations have since landed.
-      It comes from the gage point, so a basin that crosses a boundary needs
+      Data API bulk queries per state. `regression_region` is filled for all of Waves 1
+      and 2. WA/OR/ID/MT and CO/UT/AZ use point-in-polygon. WY, NV and NM have no region
+      polygons, so they use the region each report prints for its gages
+      (`tools/extract_station_regions.py`, `data/catalog_regions/`): 251 of 504 WY,
+      151 of 342 NV and 193 of 405 NM gages (2026-10-18). The rest were not in the
+      reports and stay blank. A point-in-polygon region comes from the gage point,
+      so a basin that crosses a boundary needs
       `streamstats.locate_regression_regions`. Western Oregon's 2A/2B split is by basin
       mean elevation, so those rows list `GC729;GC730;GC731`.
 - [x] **#34 Regional skew table and lookup** (closed). Pacific Northwest rows for

@@ -32,7 +32,7 @@
       }
     }
   ],
-  "notes": "Thomas, Hjalmarson and Waltemeyer, 1997, WSP 2433, the only report NSS uses for Nevada's peak-flow group (NSS region 32, citation 17); no newer Nevada peak-flow report is on the pubs warehouse. The report's errata sheet corrects Tables 11 and 13 (regions 7 and 9), which Nevada does not use. Stored: the six flood regions NSS lists for Nevada at the report's 6 recurrence intervals (2-100 years; AEP 0.5-0.01; the report has no 200- or 500-year equations): High-Elevation Region 1 (Table 5, 165 stations), Northwest Region 2 (Table 6, 108), South-Central Idaho Region 3 (Table 7, 35) and Eastern Sierras Region 5 (Table 9, 37), all generalized least squares, and the hybrid-method Northern Great Basin Region 6 (Table 10, 80) and Southern Great Basin Region 10 (Table 14, 104). Region 6's 2-year equation is printed 'Q=0' (Table 10, p. 46) and is stored as form 'constant' with constant_cfs 0 and no intercept; its variables are region 6's DRNAREA and ELEV, for the range check only (every coefficient zero), so a site outside region 6's gages is refused at every AEP. NSS's equation for the cell is '0*(0*(DRNAREA))^(0)*(0*(ELEV))^(0)' and returns 0. Storage: intercept = log10 of the printed coefficient; AREA = DRNAREA, PREC = PRECIP (mean annual precipitation, in.), all log10; (ELEV/1,000)^b is ELEV log10 with scale 0.001; [(LAT - 28)/10]^b is NSS's LAT_GAGE (latitude of the site, decimal degrees) log10 with scale 0.1 and offset -2.8. Limits: the report has no range table. It says the equations apply to sites 'within the range of explanatory variables for the gaged sites that were used to develop the equations' and, more narrowly, within the 'cloud of common values' drawn on its joint-distribution figures (p. 16; figs. 18, 20, 22, 26, 27, 29 and others), and that they are 'for basins of less than 200 mi2', with 'judicious use' up to the cloud's limits. The minimum and maximum stored for each variable are the first of these, the range over the gages used, computed from the report's data section ('Basin, climatic, and flood characteristics for streamflow-gaging stations', pp. 109-195): a station is used in a GLS region when its relation code shows neither U (undefined relation) nor O (regional outlier deleted from the GLS analysis) and it has every explanatory variable; the hybrid regions use every listed station (p. 16). Those rules reproduce every table's station count exactly (165, 108, 35, 37, 80, 104). The values were read by a word-box parse of the scan's OCR layer and every minimum and maximum (24 values) and the runner-up on each side was checked against the rendered rows, with 0 disagreements; drainage areas and latitudes of the 594 listed stations in these regions that are also in flowfreq's gage catalog were compared with NWIS, and every difference beyond 10 percent was checked on the rendered page and is the report's own value. One printed value is set aside: 14041500 (North Fork John Day River near Dale, region 2) has drainage area '5,200', without the two decimals every other area carries; NWIS gives 525 mi2, and the station's weighted estimates (data section, second line) fall below its station estimates at every interval, which the region 2 equation implies at 525 mi2 and not at 5,200 mi2. The ranges are wider than NSS's limits in most regions (snapshot 2026-10-01; region 1 DRNAREA 0.6-1,060 and PRECIP 11-43; region 2 DRNAREA 0.8-1,680 and ELEV 3,540-7,950; region 3 DRNAREA 2.2-1,450 and PRECIP 10-41; region 5 DRNAREA 4.1-360, ELEV 5,770-10,500 and LAT_GAGE 36.44-39.5; region 6 DRNAREA 0.2-210 and ELEV 4,770-9,960; region 10 DRNAREA 0.1-1,000). NSS's limits are not traceable to a published table; several equal a runner-up value in the data section, and region 5's DRNAREA limits match the extent of the cloud in figs. 26-27, which leaves out the two outermost gages. A site inside the stored range can still be outside the report's cloud, so the figures remain the report's applicability test. Error statistics: for the GLS regions sep_log is the printed average standard error of prediction (percent) converted as sqrt(ln(1 + (SEP/100)^2)) / ln(10). For the hybrid regions the report prints an 'estimated average standard error of regression, in log units' (region 6: 1.47, 1.12, 0.796, 1.10, 1.84 for 5-100 years; region 10: 1.14, 0.602, 0.675, 0.949, 0.928, 1.23) that it says includes much of the within-station residual variance and is not comparable to a regression standard error (headnotes of Tables 10 and 14; pp. 99-100: 'too large to have much meaning'). Each is stored as printed, unconverted, in the equation's published_errors (kind hybrid_standard_error_of_regression, units 'log units'), which the evaluator never reads: sep_log stays empty and hybrid equations carry no interval. The 11 values were double-entered from the rendered pages of Tables 10 (p. 46) and 14 (p. 54) and from the PDF's text layer, 0 disagreements; NSS carries 6 of them (region 6: 1.47, 1.12, 1.10, 1.84; region 10: 1.14, 1.23), under the same 'SE' code as the GLS regions' percent errors, and all 6 agree. No model error variance, AVP or covariance is published. Equivalent years of record are not stored; no state stores them (WY is verified without them), so they are outside the verified bar. n_sites is each table's station count. Transition zones (p. 19, eqs. 6-7; worked examples pp. 39-44) are in flowfreq.regression.nevada: estimate_area_weighted (eq. 6, a basin in two low- to middle-elevation regions, flows weighted by the drainage area in each, both evaluated with the whole basin's characteristics) and estimate_elevation_transition (eq. 7, a site whose elevation E is within 700 ft below the High-Elevation Region 1 boundary B, weight (B - E)/700 on the low region and the rest on Region 1). B is 7,500 ft south of 41 degrees latitude (p. 19); north of 41 degrees the report gives it only as the line on fig. 5, so the caller must pass it. The p. 41 example (regions 6 and 10, 21 and 36 mi2) gives Q10 1,680 and Q100 9,500 ft3/s, and the p. 44 example (region 8 and Region 1, site at 7,100 ft) gives Q2 408 and Q50 1,810 ft3/s, both as printed. The PDF is a scanned page image with an unreliable text layer, so the second entry was NSS's equation strings and ASEp values, parsed programmatically: 161 cells, 0 disagreements against the hand transcription from the rendered pages. The p. 39-40 worked example reproduces: region 6 Q10 362 and Q100 2,120 ft3/s, region 10 Q10 2,450 and Q100 13,800 ft3/s at A = 57 mi2, ELEV = 6,500 ft. Every stored equation equals live NSS at its 3 significant figures, region 6's 2-year constant included (36 cells). Status is 'verified' (#104): region 6's 'Q=0' and the hybrid regions' error statistics, the two items that kept it 'partial', are stored as described above (docs/NEVADA_REGION6_SCHEMA.md).",
+  "notes": "Thomas, Hjalmarson and Waltemeyer, 1997, WSP 2433, the only report NSS uses for Nevada's peak-flow group (NSS region 32, citation 17); no newer Nevada peak-flow report is on the pubs warehouse. The report's errata sheet corrects Tables 11 and 13 (regions 7 and 9), which Nevada does not use. Stored: the six flood regions NSS lists for Nevada at the report's 6 recurrence intervals (2-100 years; AEP 0.5-0.01; the report has no 200- or 500-year equations): High-Elevation Region 1 (Table 5, 165 stations), Northwest Region 2 (Table 6, 108), South-Central Idaho Region 3 (Table 7, 35) and Eastern Sierras Region 5 (Table 9, 37), all generalized least squares, and the hybrid-method Northern Great Basin Region 6 (Table 10, 80) and Southern Great Basin Region 10 (Table 14, 104). Region 6's 2-year equation is printed 'Q=0' (Table 10, p. 46) and is stored as form 'constant' with constant_cfs 0 and no intercept; its variables are region 6's DRNAREA and ELEV, for the range check only (every coefficient zero), so a site outside region 6's gages is refused at every AEP. NSS's equation for the cell is '0*(0*(DRNAREA))^(0)*(0*(ELEV))^(0)' and returns 0. Storage: intercept = log10 of the printed coefficient; AREA = DRNAREA, PREC = PRECIP (mean annual precipitation, in.), all log10; (ELEV/1,000)^b is ELEV log10 with scale 0.001; [(LAT - 28)/10]^b is NSS's LAT_GAGE (latitude of the site, decimal degrees) log10 with scale 0.1 and offset -2.8. Limits: the report has no range table. It says the equations apply to sites 'within the range of explanatory variables for the gaged sites that were used to develop the equations' and, more narrowly, within the 'cloud of common values' drawn on its joint-distribution figures (p. 16; figs. 18, 20, 22, 26, 27, 29 and others), and that they are 'for basins of less than 200 mi2', with 'judicious use' up to the cloud's limits. The minimum and maximum stored for each variable are the first of these, the range over the gages used, computed from the report's data section ('Basin, climatic, and flood characteristics for streamflow-gaging stations', pp. 109-195): a station is used in a GLS region when its relation code shows neither U (undefined relation) nor O (regional outlier deleted from the GLS analysis) and it has every explanatory variable; the hybrid regions use every listed station (p. 16). Those rules reproduce every table's station count exactly (165, 108, 35, 37, 80, 104). The values were read by a word-box parse of the scan's OCR layer and every minimum and maximum (24 values) and the runner-up on each side was checked against the rendered rows, with 0 disagreements; drainage areas and latitudes of the 594 listed stations in these regions that are also in flowfreq's gage catalog were compared with NWIS, and every difference beyond 10 percent was checked on the rendered page and is the report's own value. One printed value is set aside: 14041500 (North Fork John Day River near Dale, region 2) has drainage area '5,200', without the two decimals every other area carries; NWIS gives 525 mi2, and the station's weighted estimates (data section, second line) fall below its station estimates at every interval, which the region 2 equation implies at 525 mi2 and not at 5,200 mi2. The ranges are wider than NSS's limits in most regions (snapshot 2026-10-01; region 1 DRNAREA 0.6-1,060 and PRECIP 11-43; region 2 DRNAREA 0.8-1,680 and ELEV 3,540-7,950; region 3 DRNAREA 2.2-1,450 and PRECIP 10-41; region 5 DRNAREA 4.1-360, ELEV 5,770-10,500 and LAT_GAGE 36.44-39.5; region 6 DRNAREA 0.2-210 and ELEV 4,770-9,960; region 10 DRNAREA 0.1-1,000). NSS's limits are not traceable to a published table; several equal a runner-up value in the data section, and region 5's DRNAREA limits match the extent of the cloud in figs. 26-27, which leaves out the two outermost gages. A site inside the stored range can still be outside the report's cloud, so the figures remain the report's applicability test. Error statistics: for the GLS regions sep_log is the printed average standard error of prediction (percent) converted as sqrt(ln(1 + (SEP/100)^2)) / ln(10). For the hybrid regions the report prints an 'estimated average standard error of regression, in log units' (region 6: 1.47, 1.12, 0.796, 1.10, 1.84 for 5-100 years; region 10: 1.14, 0.602, 0.675, 0.949, 0.928, 1.23) that it says includes much of the within-station residual variance and is not comparable to a regression standard error (headnotes of Tables 10 and 14; pp. 99-100: 'too large to have much meaning'). Each is stored as printed, unconverted, in the equation's published_errors (kind hybrid_standard_error_of_regression, units 'log units'), which the evaluator never reads: sep_log stays empty and hybrid equations carry no interval. The 11 values were double-entered from the rendered pages of Tables 10 (p. 46) and 14 (p. 54) and from the PDF's text layer, 0 disagreements; NSS carries 6 of them (region 6: 1.47, 1.12, 1.10, 1.84; region 10: 1.14, 1.23), under the same 'SE' code as the GLS regions' percent errors, and all 6 agree. No model error variance, AVP or covariance is published. Equivalent years of record (the last column of Tables 5, 6, 7, 9, 10 and 14) are stored as printed in equivalent_years, 35 values; region 6's 2-year cell prints '--' and has none. They were read from the rendered tables (pp. 36, 38, 40, 45, 46, 54) and agree with NSS's equivalentYears (snapshot 2026-10-01) in all 35 cells; NSS gives 0 for region 6's 2-year cell. They are the E of the report's gaged-site weighting, eq. 1 (p. 14, Sauer, 1974): QT(w) = (QT(s) N + QT(r) E) / (N + E), linear in flow, N the station's years of record; flowfreq.regression.nevada.weight_gaged_estimate implements it. On Cleve Creek near Ely (10243700, region 6, N = 29, 31.8 mi2, 8,770 ft) and Steptoe Creek near Ely (10244950, region 6, N = 20, 11.1 mi2, 8,940 ft), eq. 1 reproduces the data section's weighted 5- to 100-year estimates (p. 147) within the rounding of the printed station values. The data section's weighted 2-year values in region 6 are below the station values (Cleve Creek 45 to 40), which with QT(r) = 0 implies an E of about 3 years that the report does not print, so the 2-year cell is not weighted. n_sites is each table's station count. Transition zones (p. 19, eqs. 6-7; worked examples pp. 39-44) are in flowfreq.regression.nevada: estimate_area_weighted (eq. 6, a basin in two low- to middle-elevation regions, flows weighted by the drainage area in each, both evaluated with the whole basin's characteristics) and estimate_elevation_transition (eq. 7, a site whose elevation E is within 700 ft below the High-Elevation Region 1 boundary B, weight (B - E)/700 on the low region and the rest on Region 1). B is 7,500 ft south of 41 degrees latitude (p. 19); north of 41 degrees the report gives it only as the line on fig. 5, so the caller must pass it. The p. 41 example (regions 6 and 10, 21 and 36 mi2) gives Q10 1,680 and Q100 9,500 ft3/s, and the p. 44 example (region 8 and Region 1, site at 7,100 ft) gives Q2 408 and Q50 1,810 ft3/s, both as printed. The PDF is a scanned page image with an unreliable text layer, so the second entry was NSS's equation strings and ASEp values, parsed programmatically: 161 cells, 0 disagreements against the hand transcription from the rendered pages. The p. 39-40 worked example reproduces: region 6 Q10 362 and Q100 2,120 ft3/s, region 10 Q10 2,450 and Q100 13,800 ft3/s at A = 57 mi2, ELEV = 6,500 ft. Every stored equation equals live NSS at its 3 significant figures, region 6's 2-year constant included (36 cells). Status is 'verified' (#104): region 6's 'Q=0' and the hybrid regions' error statistics, the two items that kept it 'partial', are stored as described above (docs/NEVADA_REGION6_SCHEMA.md).",
   "equations": [
     {
       "region_code": "1",
@@ -66,7 +66,8 @@
         "url": "https://doi.org/10.3133/wsp2433"
       },
       "n_sites": 165,
-      "sep_log": 0.237355
+      "sep_log": 0.237355,
+      "equivalent_years": 0.16
     },
     {
       "region_code": "1",
@@ -100,7 +101,8 @@
         "url": "https://doi.org/10.3133/wsp2433"
       },
       "n_sites": 165,
-      "sep_log": 0.212464
+      "sep_log": 0.212464,
+      "equivalent_years": 0.62
     },
     {
       "region_code": "1",
@@ -134,7 +136,8 @@
         "url": "https://doi.org/10.3133/wsp2433"
       },
       "n_sites": 165,
-      "sep_log": 0.197754
+      "sep_log": 0.197754,
+      "equivalent_years": 1.34
     },
     {
       "region_code": "1",
@@ -168,7 +171,8 @@
         "url": "https://doi.org/10.3133/wsp2433"
       },
       "n_sites": 165,
-      "sep_log": 0.190269
+      "sep_log": 0.190269,
+      "equivalent_years": 2.5
     },
     {
       "region_code": "1",
@@ -202,7 +206,8 @@
         "url": "https://doi.org/10.3133/wsp2433"
       },
       "n_sites": 165,
-      "sep_log": 0.190269
+      "sep_log": 0.190269,
+      "equivalent_years": 3.37
     },
     {
       "region_code": "1",
@@ -236,7 +241,8 @@
         "url": "https://doi.org/10.3133/wsp2433"
       },
       "n_sites": 165,
-      "sep_log": 0.190269
+      "sep_log": 0.190269,
+      "equivalent_years": 4.19
     },
     {
       "region_code": "2",
@@ -262,7 +268,8 @@
         "url": "https://doi.org/10.3133/wsp2433"
       },
       "n_sites": 108,
-      "sep_log": 0.280669
+      "sep_log": 0.280669,
+      "equivalent_years": 0.96
     },
     {
       "region_code": "2",
@@ -288,7 +295,8 @@
         "url": "https://doi.org/10.3133/wsp2433"
       },
       "n_sites": 108,
-      "sep_log": 0.261149
+      "sep_log": 0.261149,
+      "equivalent_years": 1.8
     },
     {
       "region_code": "2",
@@ -323,7 +331,8 @@
         "url": "https://doi.org/10.3133/wsp2433"
       },
       "n_sites": 108,
-      "sep_log": 0.244266
+      "sep_log": 0.244266,
+      "equivalent_years": 3.07
     },
     {
       "region_code": "2",
@@ -358,7 +367,8 @@
         "url": "https://doi.org/10.3133/wsp2433"
       },
       "n_sites": 108,
-      "sep_log": 0.244266
+      "sep_log": 0.244266,
+      "equivalent_years": 4.64
     },
     {
       "region_code": "2",
@@ -393,7 +403,8 @@
         "url": "https://doi.org/10.3133/wsp2433"
       },
       "n_sites": 108,
-      "sep_log": 0.254463
+      "sep_log": 0.254463,
+      "equivalent_years": 5.47
     },
     {
       "region_code": "2",
@@ -428,7 +439,8 @@
         "url": "https://doi.org/10.3133/wsp2433"
       },
       "n_sites": 108,
-      "sep_log": 0.267745
+      "sep_log": 0.267745,
+      "equivalent_years": 6.05
     },
     {
       "region_code": "3",
@@ -462,7 +474,8 @@
         "url": "https://doi.org/10.3133/wsp2433"
       },
       "n_sites": 35,
-      "sep_log": 0.32315
+      "sep_log": 0.32315,
+      "equivalent_years": 0.29
     },
     {
       "region_code": "3",
@@ -496,7 +509,8 @@
         "url": "https://doi.org/10.3133/wsp2433"
       },
       "n_sites": 35,
-      "sep_log": 0.3144
+      "sep_log": 0.3144,
+      "equivalent_years": 0.49
     },
     {
       "region_code": "3",
@@ -530,7 +544,8 @@
         "url": "https://doi.org/10.3133/wsp2433"
       },
       "n_sites": 35,
-      "sep_log": 0.305459
+      "sep_log": 0.305459,
+      "equivalent_years": 0.77
     },
     {
       "region_code": "3",
@@ -564,7 +579,8 @@
         "url": "https://doi.org/10.3133/wsp2433"
       },
       "n_sites": 35,
-      "sep_log": 0.299392
+      "sep_log": 0.299392,
+      "equivalent_years": 1.23
     },
     {
       "region_code": "3",
@@ -598,7 +614,8 @@
         "url": "https://doi.org/10.3133/wsp2433"
       },
       "n_sites": 35,
-      "sep_log": 0.296326
+      "sep_log": 0.296326,
+      "equivalent_years": 1.57
     },
     {
       "region_code": "3",
@@ -632,7 +649,8 @@
         "url": "https://doi.org/10.3133/wsp2433"
       },
       "n_sites": 35,
-      "sep_log": 0.299392
+      "sep_log": 0.299392,
+      "equivalent_years": 1.92
     },
     {
       "region_code": "5",
@@ -677,7 +695,8 @@
         "url": "https://doi.org/10.3133/wsp2433"
       },
       "n_sites": 37,
-      "sep_log": 0.442389
+      "sep_log": 0.442389,
+      "equivalent_years": 0.21
     },
     {
       "region_code": "5",
@@ -722,7 +741,8 @@
         "url": "https://doi.org/10.3133/wsp2433"
       },
       "n_sites": 37,
-      "sep_log": 0.364173
+      "sep_log": 0.364173,
+      "equivalent_years": 0.73
     },
     {
       "region_code": "5",
@@ -758,7 +778,8 @@
         "url": "https://doi.org/10.3133/wsp2433"
       },
       "n_sites": 37,
-      "sep_log": 0.317337
+      "sep_log": 0.317337,
+      "equivalent_years": 1.69
     },
     {
       "region_code": "5",
@@ -803,7 +824,8 @@
         "url": "https://doi.org/10.3133/wsp2433"
       },
       "n_sites": 37,
-      "sep_log": 0.326025
+      "sep_log": 0.326025,
+      "equivalent_years": 2.62
     },
     {
       "region_code": "5",
@@ -848,7 +870,8 @@
         "url": "https://doi.org/10.3133/wsp2433"
       },
       "n_sites": 37,
-      "sep_log": 0.337321
+      "sep_log": 0.337321,
+      "equivalent_years": 3.26
     },
     {
       "region_code": "5",
@@ -893,7 +916,8 @@
         "url": "https://doi.org/10.3133/wsp2433"
       },
       "n_sites": 37,
-      "sep_log": 0.348295
+      "sep_log": 0.348295,
+      "equivalent_years": 3.8
     },
     {
       "region_code": "6",
@@ -966,7 +990,8 @@
           "units": "log units",
           "source": "Table 10, p. 46"
         }
-      ]
+      ],
+      "equivalent_years": 0.233
     },
     {
       "region_code": "6",
@@ -1008,7 +1033,8 @@
           "units": "log units",
           "source": "Table 10, p. 46"
         }
-      ]
+      ],
+      "equivalent_years": 0.748
     },
     {
       "region_code": "6",
@@ -1050,7 +1076,8 @@
           "units": "log units",
           "source": "Table 10, p. 46"
         }
-      ]
+      ],
+      "equivalent_years": 2.52
     },
     {
       "region_code": "6",
@@ -1092,7 +1119,8 @@
           "units": "log units",
           "source": "Table 10, p. 46"
         }
-      ]
+      ],
+      "equivalent_years": 1.75
     },
     {
       "region_code": "6",
@@ -1134,7 +1162,8 @@
           "units": "log units",
           "source": "Table 10, p. 46"
         }
-      ]
+      ],
+      "equivalent_years": 0.794
     },
     {
       "region_code": "10",
@@ -1167,7 +1196,8 @@
           "units": "log units",
           "source": "Table 14, p. 54"
         }
-      ]
+      ],
+      "equivalent_years": 0.618
     },
     {
       "region_code": "10",
@@ -1200,7 +1230,8 @@
           "units": "log units",
           "source": "Table 14, p. 54"
         }
-      ]
+      ],
+      "equivalent_years": 3.13
     },
     {
       "region_code": "10",
@@ -1233,7 +1264,8 @@
           "units": "log units",
           "source": "Table 14, p. 54"
         }
-      ]
+      ],
+      "equivalent_years": 3.45
     },
     {
       "region_code": "10",
@@ -1266,7 +1298,8 @@
           "units": "log units",
           "source": "Table 14, p. 54"
         }
-      ]
+      ],
+      "equivalent_years": 2.49
     },
     {
       "region_code": "10",
@@ -1299,7 +1332,8 @@
           "units": "log units",
           "source": "Table 14, p. 54"
         }
-      ]
+      ],
+      "equivalent_years": 3.22
     },
     {
       "region_code": "10",
@@ -1332,7 +1366,8 @@
           "units": "log units",
           "source": "Table 14, p. 54"
         }
-      ]
+      ],
+      "equivalent_years": 2.22
     }
   ]
 }

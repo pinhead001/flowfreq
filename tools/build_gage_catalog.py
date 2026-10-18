@@ -19,8 +19,11 @@ How (live-verified 2026-09-30):
    peak-flow region polygons. Wave 1 (WA, OR, ID, MT) uses the StreamStats
    ``nss/regions`` MapServer (layers 40, 31, 11, 22). Wave 2 (CO, UT, AZ) uses
    NSS ``regressionregions/{id}?includeGeometry=true`` (:data:`NSS_REGION_IDS`,
-   which also says why WY, NV and NM stay blank). Every other state is blank;
-   see :mod:`flowfreq.catalog` for what the code means.
+   which also says why WY, NV and NM have no polygons). WY, NV and NM instead
+   take the region each report prints for its own gages
+   (:data:`STATION_TABLES`, transcribed by ``tools/extract_station_regions.py``);
+   their other gages are blank. Every other state is blank; see
+   :mod:`flowfreq.catalog` for what the code means.
 
 Every Water Data request goes through :func:`flowfreq.waterdata.request`,
 which sends ``USGS_API_KEY`` if set and backs off on 429/503. Without a key
@@ -43,13 +46,16 @@ site) with a selectable ``--backend`` (default ``waterdata-ogc``, previously
 from __future__ import annotations
 
 import argparse
+import csv
 import datetime as dt
+import difflib
 import json
 import logging
+import re
 import sys
 import time
 from pathlib import Path
-from typing import Any, Dict, List, Mapping, Optional, Sequence
+from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
 import pandas as pd
@@ -111,7 +117,8 @@ NSS_REGRESSION_REGIONS = "https://streamstats.usgs.gov/nssservices/regressionreg
 #:   (GC1622) is kept even though its equations are not stored, so a gage
 #:   there is not left blank.
 #:
-#: These are left blank because no verified source places a point in a region:
+#: These have no region polygons, so their gages take the region the report
+#: prints for each (:data:`STATION_TABLES`):
 #:
 #: - WY (WRIR 03-4107) and NV (WSP 2433): NSS returns no geometry for any
 #:   peak region, ``bylocation`` returns none of them, and the nss/regions
@@ -120,12 +127,105 @@ NSS_REGRESSION_REGIONS = "https://streamstats.usgs.gov/nssservices/regressionreg
 #:   (MapServer ``pkdummy``). NSS picks the region by the ``HIGHREG`` basin
 #:   characteristic, which needs a delineation per gage.
 #: - The Navajo Nation regions (SIR 2006-5306) that NSS lists for CO, UT, NM
-#:   and AZ have no geometry either.
+#:   and AZ have no geometry either, and are left blank.
 NSS_REGION_IDS: Dict[str, tuple] = {
     "CO": (58, 59, 60, 61, 62, 81),
     "UT": (681, 682, 683, 684, 685, 686, 687),
     "AZ": (27, 28, 29, 30, 31),
 }
+
+#: States whose regions have no polygon, by the region each report prints for its own
+#: gages: state -> (table under ``data/catalog_regions/``, report region -> NSS code).
+#: ``tools/extract_station_regions.py`` builds the tables; the NSS codes are the ones
+#: ``flowfreq/data/regression/{state}.json`` cites for each region.
+STATION_TABLES: Dict[str, Tuple[str, Dict[str, str]]] = {
+    "WY": ("WY_wri034107.csv", {str(n): f"GC{1238 + n}" for n in range(1, 7)}),
+    "NV": (
+        "NV_wsp2433.csv",
+        {"1": "GC160", "2": "GC161", "3": "GC162", "5": "GC163", "6": "GC164", "10": "GC165"},
+    ),
+    "NM": ("NM_sir20085119.csv", {str(n): f"GC{1091 + n}" for n in range(1, 10)}),
+}
+STATION_TABLE_DIR = REPO_ROOT / "data" / "catalog_regions"
+#: A table row is a gage's only when its name agrees with the gage's Water Data name
+#: (difflib ratio after expanding abbreviations) and, where the table has one, its
+#: latitude agrees to this many degrees.
+NAME_SIMILARITY = 0.75
+LATITUDE_TOLERANCE = 0.1
+
+# fmt: off
+_ABBREVIATIONS = {
+    "s": "south", "n": "north", "e": "east", "w": "west", "m": "middle", "l": "little",
+    "ck": "creek", "cr": "creek", "rv": "river", "r": "river", "nr": "near",
+    "trib": "tributary", "cyn": "canyon", "fk": "fork", "spgs": "springs",
+    "mtn": "mountain", "res": "reservoir", "re": "reservoir", "c": "creek", "crk": "creek",
+    "nf": "north fork", "sf": "south fork", "ef": "east fork", "wf": "west fork",
+    "mf": "middle fork", "can": "canyon", "tr": "tributary", "ab": "above", "abv": "above",
+    "bl": "below", "blw": "below", "ariz": "arizona", "st": "state",
+}
+# fmt: on
+
+
+def _norm_name(name: str) -> str:
+    words = re.sub(r"[^a-z ]", "", re.sub(r"[,.]", " ", name.lower().replace("'", ""))).split()
+    return " ".join(_ABBREVIATIONS.get(w, w) for w in words)
+
+
+def name_similarity(report_name: str, site_name: str) -> float:
+    """How well a report's (often truncated) station name matches a Water Data name.
+
+    The report name is compared with the same-length prefix of the site name, so a
+    name the report wraps onto a second line still matches its first line.
+    """
+    rep, site = _norm_name(report_name), _norm_name(site_name)
+    if not rep:
+        return 0.0
+    return difflib.SequenceMatcher(None, rep, site[: len(rep)]).ratio()
+
+
+def load_station_table(state: str, directory: Path = STATION_TABLE_DIR) -> Dict[str, List[dict]]:
+    """The state's :data:`STATION_TABLES` rows, by station number (a report may
+    print one number for two gages, so each number maps to a list)."""
+    name, _ = STATION_TABLES[state]
+    rows: Dict[str, List[dict]] = {}
+    with (directory / name).open(encoding="utf-8", newline="") as f:
+        for r in csv.DictReader(f):
+            rows.setdefault(r["site_no"], []).append(r)
+    return rows
+
+
+def assign_from_station_table(
+    sites: Mapping[str, Mapping[str, Any]],
+    table: Mapping[str, Sequence[Mapping[str, str]]],
+    codes: Mapping[str, str],
+) -> Dict[str, str]:
+    """NSS region code of each site the report lists, after checking it is the same gage.
+
+    A row is accepted when its name (if it has one) has :func:`name_similarity` of at
+    least :data:`NAME_SIMILARITY` to the site's name and its latitude (if it has one)
+    is within :data:`LATITUDE_TOLERANCE` degrees; a row with neither is not accepted.
+    A site is assigned only when exactly one region survives, and only a region in
+    ``codes`` (the state's own equations) counts.
+    """
+    out: Dict[str, str] = {}
+    for site, loc in sites.items():
+        regions = set()
+        for row in table.get(site, ()):
+            checks = []
+            if row.get("report_name"):
+                checks.append(
+                    name_similarity(row["report_name"], str(loc.get("site_name") or ""))
+                    >= NAME_SIMILARITY
+                )
+            if row.get("latitude") and loc.get("latitude") is not None:
+                checks.append(
+                    abs(float(row["latitude"]) - float(loc["latitude"])) < LATITUDE_TOLERANCE
+                )
+            if checks and all(checks) and row["report_region"] in codes:
+                regions.add(codes[row["report_region"]])
+        if len(regions) == 1:
+            out[site] = regions.pop()
+    return out
 
 
 class Paced:
@@ -358,6 +458,10 @@ def build_state(api: Paced, state: str, cache: Path, refresh: bool, min_years: i
         regions = assign_regions(located, region_polygons(state, cache, refresh))
     elif state in NSS_REGION_IDS:
         regions = assign_regions(located, nss_region_polygons(state, cache, refresh))
+    elif state in STATION_TABLES:
+        regions = assign_from_station_table(
+            located, load_station_table(state), STATION_TABLES[state][1]
+        )
     df = build_rows(peaks, locs, min_years=min_years, regions=regions, default_state=state)
     # A site is listed under the state its location record names; drop rows the
     # state's peak query returned for a site located elsewhere (it is built there).

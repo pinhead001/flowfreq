@@ -15,7 +15,10 @@ each state and statistic group this tool:
    ``equivalentYears``, statistic code, region id/code/name, citation and the
    parameter limits and units;
 5. parses the equation with :func:`flowfreq.regression.nss.parse_equation` and
-   round-trips it (see below).
+   round-trips it (see below). A string it refuses that is NSS's form of a printed
+   ``Q=0`` (a product with a literal zero factor, Nevada region 6's 2-year equation)
+   is read by :func:`flowfreq.regression.nss.parse_constant_equation` instead, and
+   recorded as ``form: constant``.
 
 **Gating parameters.** Some parameters have no limits and act as region
 selectors. Oregon's ``ORREG2`` must equal the region's GC number (729) before
@@ -66,7 +69,7 @@ import sys
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 import requests
 
@@ -76,7 +79,10 @@ sys.path.insert(0, str(REPO_ROOT))
 from flowfreq.regression.equations import Citation, OutOfRangeError, evaluate  # noqa: E402
 from flowfreq.regression.nss import (  # noqa: E402
     NSSEquationError,
+    ParsedConstant,
+    ParsedEquation,
     evaluate_expression,
+    parse_constant_equation,
     parse_equation,
     statistic_code_to_aep,
     to_regression_equation,
@@ -265,12 +271,17 @@ def _equation_record(
         rt["nss_rounding_bound"] = bound
         rt["direct_within_nss_rounding"] = abs(direct - float(nss_value)) <= bound * (1 + 1e-9)
 
+    parsed: Union[ParsedEquation, ParsedConstant]
     try:
         parsed = parse_equation(equation)
     except NSSEquationError as exc:
-        rec["parse_error"] = str(exc)
-        rec["round_trip"] = rt
-        return rec
+        # NSS's form of a printed Q=0 (Nevada region 6, 2-year) is not log-linear.
+        try:
+            parsed = parse_constant_equation(equation)
+        except NSSEquationError:
+            rec["parse_error"] = str(exc)
+            rec["round_trip"] = rt
+            return rec
     rec["parsed"] = parsed.to_dict()
 
     limits = {
@@ -294,6 +305,9 @@ def _equation_record(
             )
             evaluated = evaluate(eq, inputs).flow_cfs
             rt["method"] = "flowfreq.regression.equations.evaluate"
+        elif isinstance(parsed, ParsedConstant):
+            evaluated = parsed.value
+            rt["method"] = "ParsedConstant.value (statistic is not an AEP)"
         else:
             evaluated = 10.0 ** parsed.log10_value(inputs)
             rt["method"] = "ParsedEquation.log10_value (statistic is not an AEP)"
