@@ -69,6 +69,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   improve at every AEP; for W-171003, SEP at 1 % AEP goes from 49 to 42 %.
 
 ### Fixed
+- **Map-service gateway errors are retried (#140).** The Watershed Boundary Dataset HU12 query
+  behind `regional_skew_at`, and StreamStats' Idaho region query, now retry HTTP 502/503/504 and
+  timeouts twice, after 2 s and 4 s, before failing. One 504 from `hydro.nationalmap.gov` failed
+  the 2026-10-19 scheduled live run. A 4xx is still not retried.
 - **Five more Water Data peak qualifier tokens** are recognised: `UNAVAIL`, `RATINGDEV`,
   `DISCONTINUED`, `TEST` and `ZEROFLOW`. None has an NWIS peak code (legacy NWIS carries none
   on the same peaks), so each is dropped with a debug log instead of a warning, and B17C

@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import logging
 import math
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Tuple, Union
@@ -272,6 +273,40 @@ IDAHO_REGIONS_QUERY_URL = (
 #: point of 12340500 (Clark Fork above Missoula) returns 170102040104, the
 #: HU12 the Water Data API gives as that site's ``hydrologic_unit_code``.
 WBD_HU12_QUERY_URL = "https://hydro.nationalmap.gov/arcgis/rest/services/wbd/MapServer/6/query"
+
+#: Gateway statuses the WBD and StreamStats map services return while overloaded
+#: (a 504 from WBD failed the 2026-10-19 scheduled live run, #140). Retried.
+RETRY_STATUSES = frozenset({502, 503, 504})
+
+#: Attempts per map-service query, and the first backoff in seconds (doubling).
+MAX_ATTEMPTS = 3
+BACKOFF_S = 2.0
+
+
+def _map_service_get(url: str, params: Dict[str, str], timeout: int) -> requests.Response:
+    """GET an ArcGIS map-service query, retrying gateway errors and timeouts.
+
+    Any other error status is returned for the caller's ``raise_for_status``:
+    a 4xx will fail the same way again.
+    """
+    for attempt in range(1, MAX_ATTEMPTS + 1):
+        try:
+            response = requests.get(url, params=params, timeout=timeout)
+        except (requests.Timeout, requests.ConnectionError) as exc:
+            if attempt == MAX_ATTEMPTS:
+                raise
+            reason = str(exc)
+        else:
+            if response.status_code not in RETRY_STATUSES or attempt == MAX_ATTEMPTS:
+                return response
+            reason = f"HTTP {response.status_code}"
+        delay = BACKOFF_S * 2 ** (attempt - 1)
+        logger.warning(
+            "%s: %s; retry %d/%d in %.0f s", url, reason, attempt, MAX_ATTEMPTS - 1, delay
+        )
+        time.sleep(delay)
+    raise AssertionError("unreachable")  # pragma: no cover
+
 
 #: FIPS state code to postal code, for Water Data API monitoring locations.
 STATE_FIPS: Dict[str, str] = {
@@ -600,7 +635,7 @@ def huc12_at(lat: float, lon: float, *, timeout: int = 60) -> Tuple[str, List[st
         "f": "json",
     }
     try:
-        response = requests.get(WBD_HU12_QUERY_URL, params=params, timeout=timeout)
+        response = _map_service_get(WBD_HU12_QUERY_URL, params, timeout)
         response.raise_for_status()
         payload = response.json()
     except (requests.RequestException, ValueError) as exc:
@@ -673,7 +708,7 @@ def _on_snake_river_plain(lat: float, lon: float, *, timeout: int = 60) -> bool:
         "f": "json",
     }
     try:
-        response = requests.get(IDAHO_REGIONS_QUERY_URL, params=params, timeout=timeout)
+        response = _map_service_get(IDAHO_REGIONS_QUERY_URL, params, timeout)
         response.raise_for_status()
         payload = response.json()
     except (requests.RequestException, ValueError) as exc:
