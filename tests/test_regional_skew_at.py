@@ -231,11 +231,13 @@ def test_malformed_huc(huc):
 
 
 class _Resp:
-    def __init__(self, payload: Dict[str, Any]) -> None:
+    def __init__(self, payload: Any = None, status: int = 200) -> None:
         self._payload = payload
+        self.status_code = status
 
     def raise_for_status(self) -> None:
-        return None
+        if self.status_code >= 400:
+            raise requests.HTTPError(f"{self.status_code} Server Error")
 
     def json(self) -> Dict[str, Any]:
         return self._payload
@@ -389,3 +391,55 @@ def test_packaged_lookups_unchanged_by_opt_in():
     a = regional_skew_at_huc(PNW_SITES["12048000"][0], "WA")
     b = regional_skew_at_huc(PNW_SITES["12048000"][0], "WA", allow_provisional=True)
     assert a == b and not b.provisional
+
+
+# ----------------------------------------------------------------------------
+# Map-service retries (#140)
+# ----------------------------------------------------------------------------
+
+
+def _scripted_get(monkeypatch, replies: List[Any]) -> List[float]:
+    """Make ``requests.get`` answer ``replies`` in order; return the sleeps taken."""
+    sleeps: List[float] = []
+    it = iter(replies)
+
+    def fake_get(url, params=None, timeout=None):
+        reply = next(it)
+        if isinstance(reply, BaseException):
+            raise reply
+        return reply
+
+    monkeypatch.setattr(rs_mod.requests, "get", fake_get)
+    monkeypatch.setattr(rs_mod.time, "sleep", sleeps.append)
+    return sleeps
+
+
+HU12_PAYLOAD = {"features": [{"attributes": {"huc12": "170102040104", "states": "MT"}}]}
+
+
+def test_huc12_at_retries_a_gateway_timeout(monkeypatch):
+    sleeps = _scripted_get(
+        monkeypatch, [_Resp(status=504), requests.Timeout("read timed out"), _Resp(HU12_PAYLOAD)]
+    )
+    assert rs_mod.huc12_at(46.8, -114.0) == ("170102040104", ["MT"])
+    assert sleeps == [2.0, 4.0]
+
+
+def test_huc12_at_gives_up_after_three_attempts(monkeypatch):
+    sleeps = _scripted_get(monkeypatch, [_Resp(status=504)] * 3)
+    with pytest.raises(requests.RequestException, match="WBD HU12 query failed.*504"):
+        rs_mod.huc12_at(46.8, -114.0)
+    assert sleeps == [2.0, 4.0]
+
+
+def test_huc12_at_does_not_retry_a_client_error(monkeypatch):
+    sleeps = _scripted_get(monkeypatch, [_Resp(status=400)])
+    with pytest.raises(requests.RequestException, match="400"):
+        rs_mod.huc12_at(46.8, -114.0)
+    assert sleeps == []
+
+
+def test_snake_river_plain_query_retries(monkeypatch):
+    sleeps = _scripted_get(monkeypatch, [_Resp(status=502), _Resp({"features": []})])
+    assert rs_mod._on_snake_river_plain(43.1, -112.5) is True
+    assert sleeps == [2.0]
