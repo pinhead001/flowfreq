@@ -676,3 +676,51 @@ class TestEquivalentYears:
         }
         assert RegressionEquation.from_dict(d).equivalent_years is None
         assert RegressionEquation.from_dict({**d, "equivalent_years": 4}).equivalent_years == 4.0
+
+
+class TestApplicabilityLimits:
+    """``applicability``: ranges on characteristics an equation does not use. Synthetic."""
+
+    LAKE = Variable("LAKEAREA", "identity", "percent", maximum=5.0)
+    VALS = {"DRNAREA": 10.0, "PRECIP": 20.0}
+
+    def test_inside_the_limit_evaluates_as_without_it(self):
+        with_l = evaluate(_eq(applicability=(self.LAKE,)), {**self.VALS, "LAKEAREA": 2.0})
+        without = evaluate(_eq(), self.VALS)
+        assert (with_l.flow_cfs, with_l.interval) == (without.flow_cfs, without.interval)
+        assert not with_l.extrapolated
+        assert with_l.inputs == self.VALS
+
+    def test_outside_the_limit_raises_unless_extrapolating(self):
+        eq = _eq(applicability=(self.LAKE,))
+        vals = {**self.VALS, "LAKEAREA": 32.0}
+        with pytest.raises(OutOfRangeError, match="LAKEAREA=32.0 > max 5.0"):
+            evaluate(eq, vals)
+        est = evaluate(eq, vals, allow_extrapolation=True)
+        assert est.extrapolated and est.flow_cfs == evaluate(_eq(), self.VALS).flow_cfs
+
+    def test_the_limited_characteristic_is_required(self):
+        with pytest.raises(KeyError, match="LAKEAREA"):
+            evaluate(_eq(applicability=(self.LAKE,)), self.VALS)
+
+    def test_a_limit_needs_a_bound_and_a_code_of_its_own(self):
+        with pytest.raises(ValueError, match="no minimum or maximum"):
+            _eq(applicability=(Variable("LAKEAREA", "identity"),))
+        with pytest.raises(ValueError, match="repeat"):
+            _eq(applicability=(Variable("PRECIP", "identity", maximum=90.0),))
+        with pytest.raises(ValueError, match="repeat"):
+            _eq(applicability=(self.LAKE, self.LAKE))
+
+    def test_from_dict(self):
+        d = {
+            "region_code": "R1",
+            "aep": 0.01,
+            "intercept": 2.0,
+            "variables": [{"code": "DRNAREA", "transform": "log10"}],
+            "coefficients": [0.7],
+            "citation": {"publication": "Synthetic", "table": "T1"},
+        }
+        assert RegressionEquation.from_dict(d).applicability == ()
+        lim = {"code": "LAKEAREA", "transform": "identity", "units": "percent", "maximum": 5.0}
+        eq = RegressionEquation.from_dict({**d, "applicability": [lim]})
+        assert eq.applicability == (self.LAKE,)

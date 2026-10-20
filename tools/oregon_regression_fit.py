@@ -38,7 +38,11 @@ term needs |t| >= 2 at AEP 0.01 and at more than half the selection AEPs, every
 VIF < 5, and the maximum leverage at every selection AEP at most
 :data:`MAX_LEVERAGE`. A region already in the stored provisional set keeps its
 stored variables unless the new set's SEP is no worse at any of
-:data:`GUARD_AEPS` (:func:`no_worse`).
+:data:`GUARD_AEPS` (:func:`no_worse`), or the stored set itself fails those
+rules (:func:`rejection`; since 2026-10-20).
+
+Every stored equation carries a lake-area applicability limit,
+:data:`LAKE_LIMIT_PERCENT` (``--lake-limit``), PROPOSED and awaiting approval.
 
 Writes ``data/regression_study/oregon_regression_results.json`` and, with
 ``--store``, ``flowfreq/data/regression/provisional/OR.json``.
@@ -102,7 +106,17 @@ CANDIDATES: Dict[str, Tuple[str, str, str, float, str]] = {
     "VOLCQP/100": ("VOLCQP", "VOLCQP_SGMC", "identity", 0.01, "percent"),
     "VOLCQP_OG/100": ("VOLCQP_OG", "VOLCQP_OGDC", "identity", 0.01, "percent"),
     "log10 (LAKEAREA+1)": ("LAKEAREA", "LAKEAREA_NHD", "log10", 1.0, "percent"),
+    "BFI/100": ("BFI", "BFI_WOLOCK2003", "identity", 0.01, "percent"),
 }
+#: Applicability limit on lake and reservoir area (``LAKEAREA_NHD``, percent of
+#: the basin): a basin above it is outside every stored equation. PROPOSED
+#: 2026-10-20, awaiting approval (docs/OREGON_REGRESSION_UPDATE.md, "Lake-dominated
+#: basins"). The five calibration basins above 5 % (Waldo Lake 32 %, Odell Creek
+#: 15 %, Grizzly Creek 11 %, Eel Creek 10 %, Cultus Creek 7 %) average -0.38 log
+#: units at the 1 % AEP; none lies between 4.2 and 6.6 %. ``--lake-limit`` overrides
+#: it, and ``--lake-limit 0`` leaves it out.
+LAKE_LIMIT_PERCENT = 5.0
+LAKE_CODE = ("LAKEAREA", "LAKEAREA_NHD", "percent")
 #: Offsets added after scaling, before the transform (``Variable.offset``).
 OFFSETS: Dict[str, float] = {"log10 (LAKEAREA+1)": 1.0}
 FORCED = ("log10 DRNAREA",)
@@ -449,6 +463,12 @@ def choose(df: pd.DataFrame, region: str, mode: str) -> Tuple[List[str], List[Di
         return names, log + [{"adopted": names, "stored": None}]
     if sorted(stored) == sorted(names):
         return stored, log + [{"adopted": stored, "same_as_stored": True}]
+    # The stored set faces the same rules as a new one: one that fails them
+    # (W-170800's, at leverage 0.59 on Burnt Bridge Creek) is not kept.
+    why = rejection(evaluate_set(df, stored, SELECT_AEPS), MAX_LEVERAGE)
+    if why is not None:
+        ok, info = no_worse(df, names, stored)
+        return names, log + [{"adopted": names, "replaces_failing": stored, "why": why, **info}]
     ok, info = no_worse(df, names, stored)
     if ok:
         return names, log + [{"adopted": names, "replaces": stored, **info}]
@@ -470,10 +490,14 @@ def run(
     splits_given: Optional[Sequence[str]] = None,
     hold: Sequence[str] = (),
     select_mode: str = "forward",
+    lake_limit: Optional[float] = LAKE_LIMIT_PERCENT,
 ) -> Dict[str, Any]:
     """Fit every region; ``hold`` regions keep the stored set's variables instead of selecting.
 
     ``select_mode`` is ``forward`` (:func:`select`) or ``multi`` (:func:`choose`).
+    ``lake_limit`` is the lake-area applicability limit written into every stored
+    equation (:func:`equation_json`); the calibration gages above it are listed in
+    the results, not dropped from the fits.
     """
     if select_mode not in ("forward", "multi"):
         raise ValueError(f"select_mode must be 'forward' or 'multi', got {select_mode!r}")
@@ -485,6 +509,8 @@ def run(
         "n_by_region": df["region"].value_counts().to_dict(),
         "region_splits": splits,
         "select_mode": select_mode,
+        "lake_limit_percent": lake_limit or None,
+        "gages_above_lake_limit": lake_screen(df, lake_limit),
         "regions": {},
         "current_equation_sep_percent": current_seps(),
     }
@@ -520,17 +546,39 @@ def run(
                 "max_leverage": float(res.leverage.max()),
                 "loocv_sep_percent": loocv_sep(g, names, aep) if aep in (0.5, 0.01) else None,
             }
-            equations.append(equation_json(region, g, names, aep, res))
+            equations.append(equation_json(region, g, names, aep, res, lake_limit))
         out["regions"][region] = reg
     OUT.write_text(json.dumps(out, indent=1, default=float) + "\n", encoding="utf-8")
     if store:
-        write_provisional(equations, df)
+        write_provisional(equations, df, lake_limit)
     return out
 
 
+def lake_screen(df: pd.DataFrame, lake_limit: Optional[float]) -> List[Dict[str, Any]]:
+    """The gages whose lake area exceeds ``lake_limit`` percent, largest first."""
+    if not lake_limit:
+        return []
+    col = LAKE_CODE[0]
+    over = df[df[col] > lake_limit].sort_values(col, ascending=False)
+    return [
+        {"site_no": r.site_no, "region": r.region, "lake_percent": round(float(r[col]), 2)}
+        for _, r in over.iterrows()
+    ]
+
+
 def equation_json(
-    region: str, g: pd.DataFrame, names: Sequence[str], aep: float, res: GLSResult
+    region: str,
+    g: pd.DataFrame,
+    names: Sequence[str],
+    aep: float,
+    res: GLSResult,
+    lake_limit: Optional[float] = LAKE_LIMIT_PERCENT,
 ) -> Dict[str, Any]:
+    """One stored equation; ``lake_limit`` (percent, None or 0 for none) caps lake area.
+
+    The cap is an ``applicability`` limit on ``LAKEAREA_NHD``, or, when the
+    region uses lake area as a variable, that variable's ``maximum``.
+    """
     variables = []
     for n in names:
         col, code, transform, scale, units = CANDIDATES[n]
@@ -541,11 +589,25 @@ def equation_json(
             "minimum": float(g[col].min()),
             "maximum": float(g[col].max()),
         }
+        if lake_limit and code == LAKE_CODE[1]:
+            v["maximum"] = min(v["maximum"], float(lake_limit))
         if scale != 1.0:
             v["scale"] = scale
         if OFFSETS.get(n, 0.0):
             v["offset"] = OFFSETS[n]
         variables.append(v)
+    applicability: List[Dict[str, Any]] = []
+    if lake_limit and LAKE_CODE[1] not in {v["code"] for v in variables}:
+        applicability.append(
+            {
+                "code": LAKE_CODE[1],
+                "transform": "identity",
+                "units": LAKE_CODE[2],
+                "minimum": 0.0,
+                "maximum": float(lake_limit),
+            }
+        )
+    extra = {"applicability": applicability} if applicability else {}
     return {
         "region_code": region,
         "region_name": REGION_NAMES.get(region, region),
@@ -564,10 +626,13 @@ def equation_json(
         "model_error_variance": res.model_error_variance,
         "covariance": res.cov_beta.tolist(),
         "n_sites": len(g),
+        **extra,
     }
 
 
-def write_provisional(equations: List[Dict[str, Any]], df: pd.DataFrame) -> None:
+def write_provisional(
+    equations: List[Dict[str, Any]], df: pd.DataFrame, lake_limit: Optional[float] = None
+) -> None:
     hucs = {**BASE_REGIONS, **SPLITS}
     data = {
         "schema_version": 1,
@@ -582,8 +647,15 @@ def write_provisional(equations: List[Dict[str, Any]], df: pd.DataFrame) -> None
             "Developed by flowfreq following the USGS GLS procedure (WREG). Regions are "
             f"hydrologic-unit sets: {json.dumps(hucs)}; any other HUC is region E. "
             "Variable codes name their sources (PRISM 1991-2020 normals, NOAA Atlas 2, "
-            "3DEP, STATSGO2 Ksat, USGS SGMC, DOGAMI OGDC-8, NHD): values of same-named StreamStats characteristics are not "
-            "interchangeable. See docs/OREGON_REGRESSION_UPDATE.md."
+            "3DEP, STATSGO2 Ksat, USGS SGMC, DOGAMI OGDC-8, NHD, Wolock BFI): values of "
+            "same-named StreamStats characteristics are not interchangeable. "
+            + (
+                f"Each equation's applicability limit LAKEAREA_NHD <= {lake_limit:g} percent "
+                "(lakes and reservoirs) is a PROPOSED cutoff awaiting approval. "
+                if lake_limit
+                else ""
+            )
+            + "See docs/OREGON_REGRESSION_UPDATE.md."
         ),
     }
     PROVISIONAL.parent.mkdir(parents=True, exist_ok=True)
@@ -609,9 +681,16 @@ def main(argv: Sequence[str]) -> int:
         default="forward",
         help="forward selection at AEP 0.01, or one best subset across several AEPs",
     )
+    ap.add_argument(
+        "--lake-limit",
+        type=float,
+        default=LAKE_LIMIT_PERCENT,
+        help="lake-area applicability limit, percent of the basin (0: none); proposed",
+    )
     args = ap.parse_args(list(argv))
     splits = None if args.splits is None else args.splits.split(",")
-    out = run(args.store, splits, [r for r in args.hold.split(",") if r], args.select)
+    hold = [r for r in args.hold.split(",") if r]
+    out = run(args.store, splits, hold, args.select, args.lake_limit)
     for region, reg in out["regions"].items():
         f = reg["fits"]["0.01"]
         print(region, reg["n"], reg["variables"], "SEP %.1f%%" % f["sep_percent"],

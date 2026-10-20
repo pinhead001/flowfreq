@@ -45,6 +45,8 @@ of these gages.
 ``LAKEAREA``          percent of the basin under lakes, ponds and reservoirs
                       of at least 0.05 km2 (NHD high-resolution waterbodies,
                       FTYPE 390 and 436); rasterized at 5 arc-seconds
+``BFI``               base-flow index, percent: USGS 1-km BFI grid (Wolock,
+                      2003), resampled bilinearly to 30 arc-seconds
 ====================  ==========================================================
 
 Each zonal mean is the mean of the raster cells whose centres fall inside the
@@ -68,6 +70,8 @@ Stages, each cached under ``--cache`` and resumable:
   OGDC-8 units from DOGAMI's OGDC map service, on the SGMC mask's grid, with
   the SGMC mask outside Oregon (TIGERweb state boundary), rasterized to
   ``<rasters>/ogdc_volcqp_15s.tif``.
+- ``bfi`` (before ``characteristics``): Wolock's (2003) base-flow index grid,
+  downloaded to ``<cache>/bfi`` and warped to ``<rasters>/bfi_wolock2003_30s.tif``.
 
 Usage::
 
@@ -75,6 +79,7 @@ Usage::
     python tools/build_oregon_basin_characteristics.py --cache <dir> --rasters <dir> soils
     python tools/build_oregon_basin_characteristics.py --cache <dir> --rasters <dir> geology
     python tools/build_oregon_basin_characteristics.py --cache <dir> --rasters <dir> ogdc
+    python tools/build_oregon_basin_characteristics.py --cache <dir> --rasters <dir> bfi
     python tools/build_oregon_basin_characteristics.py --cache <dir> --rasters <dir> characteristics
 """
 
@@ -115,6 +120,8 @@ RASTERS: Dict[str, Tuple[str, float, float]] = {
     "LAKEAREA": ("nhd_lakes_5s.tif", 100.0, 0.0),
     # 0/1 cells -> percent (the ``ogdc`` stage)
     "VOLCQP_OG": ("ogdc_volcqp_15s.tif", 100.0, 0.0),
+    # percent (the ``bfi`` stage)
+    "BFI": ("bfi_wolock2003_30s.tif", 1.0, 0.0),
 }
 SOURCES = {
     "DRNAREA": "StreamStats delineation, or NLDI basin where StreamStats mis-snapped "
@@ -143,6 +150,10 @@ SOURCES = {
     "LAKEAREA": "USGS NHD high-resolution Waterbody (hydro.nationalmap.gov nhd MapServer "
     "layer 12), retrieved 2026-10-14: percent of basin under FTYPE 390 (LakePond) or "
     "436 (Reservoir) with AREASQKM >= 0.05, 5 arc-second raster",
+    "BFI": "USGS base-flow index grid for the conterminous United States (Wolock, 2003, "
+    "Open-File Report 03-263), 1-km Albers grid bfi48grd from "
+    "water.usgs.gov/GIS/dsdl/bfi48grd.zip, retrieved 2026-10-20, resampled bilinearly to "
+    "30 arc-seconds (percent)",
 }
 #: A basin is accepted when its area is within this fraction of the NWIS area.
 AREA_TOL = 0.10
@@ -198,6 +209,10 @@ STATE_BOUNDARY = (
     "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/"
     "MapServer/0/query"
 )
+#: Wolock (2003) base-flow index grid, an ArcInfo grid zipped with its info/ table.
+BFI_URL = "https://water.usgs.gov/GIS/dsdl/bfi48grd.zip"
+BFI_RES = 1.0 / 120.0
+BFI_NODATA = -9999.0
 NHD_WATERBODY = "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/12/query"
 NHD_WHERE = "FTYPE IN (390, 436) AND AREASQKM >= 0.05"
 LAKE_RES = 1.0 / 720.0
@@ -708,6 +723,86 @@ def ogdc(cache: Path, rasters: Path) -> None:
     )
 
 
+def safe_extract(zip_path: Path, dest: Path) -> List[Path]:
+    """Extract ``zip_path`` into ``dest``, refusing members that would land outside it."""
+    import zipfile
+
+    dest = dest.resolve()
+    out: List[Path] = []
+    with zipfile.ZipFile(zip_path) as zf:
+        for name in zf.namelist():
+            target = (dest / name).resolve()
+            if target != dest and dest not in target.parents:
+                raise ValueError(f"{zip_path.name}: member {name!r} escapes {dest}")
+            out.append(target)
+        zf.extractall(dest)
+    return out
+
+
+def warp_to_geographic(
+    src_path: Path, bounds: Tuple[float, float, float, float], res: float, nodata: float
+) -> Tuple[np.ndarray, Any]:
+    """Band 1 of ``src_path`` warped bilinearly onto an EPSG:4326 grid over ``bounds``.
+
+    Returns the float32 array (``nodata`` where the source has none) and its
+    affine transform. The source's own no-data cells are not interpolated into.
+    """
+    import rasterio
+    from rasterio.transform import from_origin
+    from rasterio.warp import Resampling, reproject
+
+    x0, y0, x1, y1 = bounds
+    width = int(np.ceil((x1 - x0) / res))
+    height = int(np.ceil((y1 - y0) / res))
+    transform = from_origin(x0, y1, res, res)
+    out = np.full((height, width), nodata, dtype="float32")
+    with rasterio.open(src_path) as src:
+        reproject(
+            source=src.read(1).astype("float32"),
+            destination=out,
+            src_transform=src.transform,
+            src_crs=src.crs,
+            src_nodata=src.nodata,
+            dst_transform=transform,
+            dst_crs="EPSG:4326",
+            dst_nodata=nodata,
+            resampling=Resampling.bilinear,
+        )
+    return out, transform
+
+
+def bfi(cache: Path, rasters: Path) -> Path:
+    """Stage ``bfi``: Wolock's (2003) base-flow index, resampled to 30 arc-seconds.
+
+    The 1-km Albers ArcInfo grid (``bfi48grd``, BFI in percent, 255 = no data)
+    is downloaded once to ``<cache>/bfi`` and warped bilinearly onto a
+    geographic grid over the cached basins' extent.
+    """
+    import rasterio
+
+    d = cache / "bfi"
+    d.mkdir(parents=True, exist_ok=True)
+    zpath = d / "bfi48grd.zip"
+    if not zpath.exists():
+        r = requests.get(BFI_URL, timeout=600)
+        r.raise_for_status()
+        zpath.write_bytes(r.content)
+    grid = d / "bfi48grd"
+    if not (grid / "hdr.adf").exists():
+        safe_extract(zpath, d)
+    out, transform = warp_to_geographic(grid, _basin_bounds(cache), BFI_RES, BFI_NODATA)
+    height, width = out.shape
+    rasters.mkdir(parents=True, exist_ok=True)
+    path = rasters / RASTERS["BFI"][0]
+    profile = dict(driver="GTiff", width=width, height=height, count=1, dtype="float32",
+                   crs="EPSG:4326", transform=transform, nodata=BFI_NODATA, compress="deflate")  # fmt: skip
+    with rasterio.open(path, "w", **profile) as dst:
+        dst.write(out, 1)
+    valid = out[out != BFI_NODATA]
+    log.info("bfi: wrote %s (%d x %d), median BFI %.0f %%", path, width, height, np.median(valid))
+    return path
+
+
 def characteristics(cache: Path, rasters: Path) -> pd.DataFrame:
     import rasterio
 
@@ -761,7 +856,9 @@ def characteristics(cache: Path, rasters: Path) -> pd.DataFrame:
 
 def main(argv: Sequence[str]) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    ap.add_argument("stage", choices=["basins", "soils", "geology", "ogdc", "characteristics"])
+    ap.add_argument(
+        "stage", choices=["basins", "soils", "geology", "ogdc", "bfi", "characteristics"]
+    )
     ap.add_argument("--cache", type=Path, default=ROOT / ".cache" / "or_basins")
     ap.add_argument("--rasters", type=Path, default=None)
     ap.add_argument("--concurrency", type=int, default=3)
@@ -784,6 +881,9 @@ def main(argv: Sequence[str]) -> int:
         return 0
     if args.stage == "soils":
         soils(args.cache, args.rasters)
+        return 0
+    if args.stage == "bfi":
+        bfi(args.cache, args.rasters)
         return 0
     characteristics(args.cache, args.rasters)
     return 0
