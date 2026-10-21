@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Record extension by MOVE.1** (`flowfreq.record_extension`: `fit_move1`, `extend_record`,
+  `Move1`). This is Hirsch (1982) Maintenance Of Variance Extension in base-10 logs. It
+  lengthens a short gage's record over a correlated long-record index gage's, keeping
+  the short gage's concurrent mean and variance, so a duration or frequency curve built
+  from the result is not flattened the way an OLS extension flattens it. Pairs with a
+  zero flow are excluded from the fit and counted. An index-gage zero gives no estimate.
+  It does not do lags, seasonal fits, or B17C Appendix 8's MOVE.3 effective record
+  length for peaks; the module docstring says so.
 - **Gage catalog regions for WY, NV and NM.** These states have no region polygons, so their
   `regression_region` comes from the region each report prints for its own gages: WRIR 03-4107
   Table 10, WSP 2433's data section and SIR 2008-5119 Appendix 1. `tools/extract_station_regions.py`

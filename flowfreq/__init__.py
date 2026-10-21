@@ -50,6 +50,7 @@ from .qppq import (
     rank_donors,
     seasonal_curves,
 )
+from .record_extension import Move1, extend_record, fit_move1
 from .regime import (
     BASEFLOW_METHODS,
     DEFAULT_EXCEEDANCE_PCT,
@@ -333,6 +334,10 @@ __all__ = [
     "loocv_qppq",
     "SNOWMELT_SEASONS",
     "MONTHLY_SEASONS",
+    # Record extension
+    "Move1",
+    "fit_move1",
+    "extend_record",
     # Transposition to an ungaged site
     "RegressionExponents",
     "TransposedResults",
