@@ -136,7 +136,7 @@ Phase A / Wave entries below.
         average -0.38 at 1 %. The cutoff needs the maintainer's approval, and dropping
         those gages from the calibration waits on it.
       - **W-170800 leverage.** W-170800 is refitted under the leverage limit as DRNAREA,
-        BSLOPD. Its 1 % SEP rises from 51.6 to 53.6 %.
+        BSLOPD. Its 1 % SEP rises from 51.2 to 53.7 %.
 
       Still open after #166:
       - a High Cascades groundwater variable other than BFI;
