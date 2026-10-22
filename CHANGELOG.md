@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Variance-based gage-transfer weighting** (`flowfreq.transfer_variance`;
+  `docs/TRANSPOSITION_DESIGN.md` section 11). This replaces a fixed area-ratio band with a
+  measured error model. `build_pairs` takes flow-connected gage pairs, which the caller
+  supplies. `fit_dissimilarity` fits the dissimilarity variance
+  `s2_d = s0 + sum s_k x_k^2` (in `|log AR|` and, optionally, differences such as
+  precipitation) to the pairs' squared transfer errors. Before fitting, it subtracts each
+  pair's known sampling variance `V_i + V_j - 2 C_ij`, because the receiving gage's "truth"
+  is itself an estimate and nested gages' sampling errors are correlated
+  (`sampling_covariance_frame` labels `regression.gls.sampling_covariance` by site).
+  Coefficients are constrained `>= 0`, and the fit reports which ones bind. `combine`
+  merges several donors and the regression by GLS on their covariance.
+  `estimate_donor_correlation` supplies the two-donor correlation. `solve_band` gives
+  the derived band `AR*`, where a transfer's variance equals the regression's, and
+  `bootstrap_band` gives its interval from resampling gages. `leave_one_out` scores the
+  blend, transfers alone and the regression alone, by error and by 90 % interval
+  coverage. On synthetic networks with a known error term, it recovers the coefficients
+  and the intervals cover at the nominal rate. The module does not find the nesting, and
+  it only approximates correlated errors; the module docstring says how.
+
 ## [0.12.0] - 2026-10-21
 
 MOVE.1 record extension, Nevada and Colorado equation-set work, catalog regions for WY/NV/NM,
