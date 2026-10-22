@@ -209,6 +209,11 @@ backend an IV `ts_id` is the 32-hex `time_series_id`, not the NWIS DD number, an
 - No bare `except:`; no `print()` in library code — use `logging.getLogger(__name__)`
 - Tests for every public function (happy path + one error case minimum)
 - All data in log10 space when interfacing with Fortran conventions
+- **Notation in docs, docstrings and comments.** A flow-duration quantile is a lowercase q:
+  q10, q50, q95 is the daily flow equaled or exceeded on 10, 50, 95 percent of days. Flood
+  quantiles keep the capital (Q2, Q100, Q1%) or are given as AEP in percent. The case keeps
+  an AEP-indexed value from being read as a duration-indexed one, which `_require_kind`
+  enforces in code. Identifiers and column names are unaffected.
 - **Known-failing tests are `xfail(strict=True)`, never skipped or hidden behind a widened
   tolerance.** Strict means the build fails the moment one starts passing, which is the alarm
   you want. Do not add one without saying so.
