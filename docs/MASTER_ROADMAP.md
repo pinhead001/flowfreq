@@ -206,10 +206,11 @@ Standing rules carried over from this repo's history, which apply to every phase
       the published appendix values as a per-state validation (§7).
 - [ ] **B17C Appendix 8 record extension** (MOVE.1/MOVE.3) from a correlated long-record
       gage, feeding the extended record into EMA with correct effective-record accounting.
-- [ ] **B17C Appendix 9-style weighting** of the at-site estimate with the regression
-      estimate by inverse variance: `log Qw = (log Qg·V_r + log Qr·V_g)/(V_g+V_r)`. This
-      needs the regression prediction variance (§3.3) and the EMA variance, which already
-      exists.
+- [x] **B17C Appendix 9-style weighting** of the at-site estimate with the regression
+      estimate by inverse variance: `log Qw = (log Qg·V_r + log Qr·V_g)/(V_g+V_r)`.
+      *Done:* `gage_weighting.weight_with_regression`, with the EMA variance exposed as
+      `confidence_limits["variance_log"]` (peakfq's `var_est`) and the regression's as
+      `RegressionEstimate.prediction_variance`. The two are treated as independent.
 - [ ] Mixed-population analysis (e.g., snowmelt vs. rain, tropical vs. frontal). At minimum,
       detect and warn; then support separate fits combined by the probability-union rule.
 - [ ] Crippen-Bue / envelope-curve sanity check on every quantile. It is a flag, not a
@@ -567,6 +568,11 @@ For each state, as part of its definition of done in §3.2:
 | F | §6.1 stationarity detection + report; §6.3.1 general future-flow framework | Default screening; national future-flow default |
 | G | **State rollout by wave** (§3.2): 1 Columbia → 2 Colorado → 3 West coast/Pacific → 4a–d Mississippi → 5 East coast → 6 Territories. Each state includes its §6.3.2 guidance. | "Supported" status per jurisdiction |
 | H | §6.2 nonstationary models; §3.3 GLS toolkit, ROI, geostatistics | Gap-filling and research |
+
+**Current order (2026-10-21):** items serving the methow-flow analysis come first: §2's
+quantile variance and Appendix 9 weighting, §1.2/§5.2 nested-gage finding, and §5.1's
+regression-weighted and two-gage transfers. `TODO.md`, "Priorities for methow-flow",
+holds the full ordering.
 
 Phases A–E are the critical path to the first supported state. F can proceed in parallel
 because it depends only on peak data, which already exists. G is the long tail: it is

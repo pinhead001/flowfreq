@@ -185,6 +185,8 @@ CI should test the supported Python matrix.
 - **`streamstats.py`** — StreamStats delineation, basin characteristics, NSS estimates
 - **`transpose.py`** / **`qppq.py`** / **`donor_similarity.py`** — transposition to ungaged
   sites, QPPQ daily transfer, donor screening and ranking by basin similarity
+- **`gage_weighting.py`** — Bulletin 17C Appendix 9 weighting of at-site and regression
+  estimates by inverse variance (`confidence_limits["variance_log"]`, peakfq's `var_est`)
 - **`transfer_variance.py`** — variance-based weighting of gage transfers against the
   regression: pair-fitted dissimilarity variance, GLS blend, derived area-ratio band,
   leave-one-out coverage

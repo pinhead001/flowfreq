@@ -918,9 +918,11 @@ class TestNearZeroSkewConfidenceBounds:
             float(ema._results.std_log) ** 2,
         )
         rest = (tuple(1.0 - aep), 0.90, 0.02, ema._at_site_option)
-        lo_n, hi_n = ema._cohn_confidence_bounds(*args, -_CI_SKEWMIN, *rest)
-        lo_p, hi_p = ema._cohn_confidence_bounds(*args, _CI_SKEWMIN, *rest)
+        lo_n, hi_n, _ = ema._cohn_confidence_bounds(*args, -_CI_SKEWMIN, *rest)
+        lo_p, hi_p, var_p = ema._cohn_confidence_bounds(*args, _CI_SKEWMIN, *rest)
         wt = (g + _CI_SKEWMIN) / (2 * _CI_SKEWMIN)
+        # var_est is the +skewmin call's, not blended (emafit.f lines 836-856).
+        np.testing.assert_allclose(ci["variance_log"].to_numpy(), var_p, rtol=1e-12)
         np.testing.assert_allclose(
             np.log10(ci["lower_5pct"].to_numpy()), (1 - wt) * lo_n + wt * lo_p, rtol=1e-12
         )

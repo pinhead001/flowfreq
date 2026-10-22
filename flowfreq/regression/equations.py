@@ -496,6 +496,9 @@ class RegressionEstimate:
     interval_level: Optional[float] = None
     interval_method: Optional[str] = None
     inputs: Dict[str, float] = field(default_factory=dict)
+    #: Variance of prediction, log10 units squared: ``interval_method``'s quantity,
+    #: squared. ``None`` when the equation publishes no standard error of prediction.
+    prediction_variance: Optional[float] = None
 
     @property
     def extrapolated(self) -> bool:
@@ -622,6 +625,7 @@ def evaluate(
         interval_level=interval_level if interval else None,
         interval_method=method,
         inputs=values,
+        prediction_variance=None if sd is None else sd**2,
     )
 
 
