@@ -229,7 +229,7 @@ never a fabricated default.
 
 Different problem, and the right answer depends on what the caller wants.
 
-### If they want duration *statistics* (Q10%, Q50%, Q95%)
+### If they want duration *statistics* (q10, q50, q95)
 
 Same area-ratio machinery, different exponent set: `b` varies substantially
 across the duration curve — near-linear at the wet end (high flows are
@@ -268,7 +268,7 @@ transposition first.
 
 ### Zero flows
 
-If the donor's Q95 (or any transposed duration statistic) is zero, the ratio
+If the donor's q95 (or any transposed duration statistic) is zero, the ratio
 method is degenerate: `0 * anything` is `0`, which asserts a fact about the
 target that the donor's record does not support. Return `None` with a stated
 reason, never a zero. `LowFlowResults` already treats zero-flow years as a
