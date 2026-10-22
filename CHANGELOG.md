@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.13.0] - 2026-10-21
+
+Variance-based weighting of gage transfers against the regional regression.
+Patch releases for 0.12 continue from `release/0.12.x`.
+
 ### Added
 - **Variance-based gage-transfer weighting** (`flowfreq.transfer_variance`;
   `docs/TRANSPOSITION_DESIGN.md` section 11). This replaces a fixed area-ratio band with a
