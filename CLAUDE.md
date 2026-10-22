@@ -133,13 +133,13 @@ first is on you at every invocation:
 
 ## Branches and Releases
 
-`main` carries the next minor release as a `.dev0` version (currently `0.13.0.dev0`), so
+`main` carries the next minor release as a `.dev0` version (currently `0.14.0.dev0`), so
 `flowfreq.__version__` shows whether a session is running development code or a release.
-Patch releases for the current minor line come from `release/0.12.x` (cut at `v0.12.0`): branch
-a fix from it, PR it there, and tag `v0.12.N` on that merge commit. Port the fix to `main` as
-well. `release/0.11.x` and `release/0.10.x` are kept for reference.
+Patch releases for the current minor line come from `release/0.13.x` (cut at `v0.13.0`): branch
+a fix from it, PR it there, and tag `v0.13.N` on that merge commit. Port the fix to `main` as
+well. `release/0.12.x`, `release/0.11.x` and `release/0.10.x` are kept for reference.
 Downstream projects (methow-flow, flowfreq-app) pin release tags such as
-`flowfreq @ git+https://github.com/pinhead001/flowfreq@v0.12.0`, so work on `main` never
+`flowfreq @ git+https://github.com/pinhead001/flowfreq@v0.13.0`, so work on `main` never
 reaches them. Never move or delete a pushed release tag.
 
 ## Python Compatibility
