@@ -37,6 +37,15 @@ from .flowio import load_flow_frame, save_flow_frame
 from .gage_weighting import weight_with_regression
 from .hydrograph import Hydrograph
 from .lowflow import LOW_FLOW_YEAR_TYPES, LowFlowFrequency, annual_minimum_flow
+from .nesting import (
+    Basin,
+    NLDISite,
+    basin_from_watershed,
+    connections,
+    flow_relation,
+    nested_gage_pairs,
+    nldi_upstream_sites,
+)
 from .qppq import (
     MONTHLY_SEASONS,
     SNOWMELT_SEASONS,
@@ -367,6 +376,13 @@ __all__ = [
     "RegressionWeightedTransfer",
     "regression_weighted_transfer",
     "weight_with_regression",
+    "Basin",
+    "NLDISite",
+    "basin_from_watershed",
+    "connections",
+    "flow_relation",
+    "nested_gage_pairs",
+    "nldi_upstream_sites",
     "Band",
     "BandBootstrap",
     "BlendResult",
