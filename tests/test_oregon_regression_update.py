@@ -211,8 +211,8 @@ def test_w171003_volcanic_term_lowers_floods(provisional):
         assert coef["PRECIP_PRISM9120"] > 0
 
 
-def test_every_stored_equation_carries_the_proposed_lake_limit(provisional, results):
-    # PROPOSED 2026-10-20, awaiting approval: basins over 5 % lake area are
+def test_every_stored_equation_carries_the_lake_limit(provisional, results):
+    # Adopted 2026-10-21: basins over 5 % lake area are
     # outside the equations. Waldo Lake (32 %) and Eel Creek (10 %) are two.
     limit = results["lake_limit_percent"]
     assert limit == 5.0

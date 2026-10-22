@@ -4127,5 +4127,5 @@
    ]
   }
  ],
- "notes": "Developed by flowfreq following the USGS GLS procedure (WREG). Regions are hydrologic-unit sets: {\"1708\": \"W\", \"1709\": \"W\", \"1710\": \"W\", \"180101\": \"W\", \"170701\": \"E-170701\", \"171003\": \"W-171003\", \"170800\": \"W-170800\", \"170900\": \"W-170900\"}; any other HUC is region E. Variable codes name their sources (PRISM 1991-2020 normals, NOAA Atlas 2, 3DEP, STATSGO2 Ksat, USGS SGMC, DOGAMI OGDC-8, NHD, Wolock BFI): values of same-named StreamStats characteristics are not interchangeable. Each equation's applicability limit LAKEAREA_NHD <= 5 percent (lakes and reservoirs) is a PROPOSED cutoff awaiting approval. See docs/OREGON_REGRESSION_UPDATE.md."
+ "notes": "Developed by flowfreq following the USGS GLS procedure (WREG). Regions are hydrologic-unit sets: {\"1708\": \"W\", \"1709\": \"W\", \"1710\": \"W\", \"180101\": \"W\", \"170701\": \"E-170701\", \"171003\": \"W-171003\", \"170800\": \"W-170800\", \"170900\": \"W-170900\"}; any other HUC is region E. Variable codes name their sources (PRISM 1991-2020 normals, NOAA Atlas 2, 3DEP, STATSGO2 Ksat, USGS SGMC, DOGAMI OGDC-8, NHD, Wolock BFI): values of same-named StreamStats characteristics are not interchangeable. Each equation's applicability limit LAKEAREA_NHD <= 5 percent (lakes and reservoirs), adopted 2026-10-21. See docs/OREGON_REGRESSION_UPDATE.md."
 }

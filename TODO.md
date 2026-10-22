@@ -127,20 +127,20 @@ Phase A / Wave entries below.
       Oregon's state geologic map (OGDC-8, `VOLCQP_OGDC`). W-171003's SEP is now
       47/42/46 % (it was 47/49/54) and E's 85/85/99 % (it was 90/87/101). Lake area for
       Waldo Lake is still not significant (t = -1.9), and Waldo's own leverage is 0.55-0.96.
-      #166 (open, CI green, awaiting the maintainer) takes the three follow-ups:
+      #166 (merged 2026-10-21) takes the three follow-ups:
       - **High Cascades base flow.** Wolock's (2003) BFI grid (`BFI_WOLOCK2003`) was tested
         and not adopted. It is selected in no region, and the High Cascades 1 % residuals
         stay at -0.30 to -0.39.
-      - **Lake-dominated basins.** It proposes a `LAKEAREA_NHD <= 5 %` applicability limit,
-        through a new `RegressionEquation.applicability` field. The five gages above 5 %
-        average -0.38 at 1 %. The cutoff needs the maintainer's approval, and dropping
-        those gages from the calibration waits on it.
+      - **Lake-dominated basins.** A `LAKEAREA_NHD <= 5 %` applicability limit, through a new
+        `RegressionEquation.applicability` field, adopted with #166's merge. The five gages
+        above 5 % average -0.38 at 1 %.
       - **W-170800 leverage.** W-170800 is refitted under the leverage limit as DRNAREA,
         BSLOPD. Its 1 % SEP rises from 51.2 to 53.7 %.
 
       Still open after #166:
       - a High Cascades groundwater variable other than BFI;
-      - the lake-limit decision and the refit without those gages.
+      - whether to refit without the five gages above the lake limit (1 % SEP -6 points in
+        W-171003, -3 in W-170900).
 
       #135 (06163400 vs PeakFQ) fixed: lowercase peak codes. A 2026-10-11 search
       found no newer USGS report for WA, MT, ID or OR. The studies follow published USGS
