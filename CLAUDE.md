@@ -187,6 +187,7 @@ CI should test the supported Python matrix.
   sites, QPPQ daily transfer, donor screening and ranking by basin similarity
 - **`gage_weighting.py`** — Bulletin 17C Appendix 9 weighting of at-site and regression
   estimates by inverse variance (`confidence_limits["variance_log"]`, peakfq's `var_est`)
+- **`nesting.py`** — flow-connected gage pairs from StreamStats polygons and NLDI navigation
 - **`transfer_variance.py`** — variance-based weighting of gage transfers against the
   regression: pair-fitted dissimilarity variance, GLS blend, derived area-ratio band,
   leave-one-out coverage

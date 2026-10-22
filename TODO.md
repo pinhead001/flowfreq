@@ -83,7 +83,7 @@ Tier 1 -- unblocks the transfer-variance work:
        width, and `transfer_variance` takes `V_g`/`V_i` from WREG's formula, which ignores
        censoring and historic periods. Check against `emafitpr`'s `var_est`, then move the
        weighting upstream.
-2. [ ] **Nested-gage finder** (§1.2 NLDI, §5.2 same-stream check). The missing input to
+2. [x] **Nested-gage finder** (§1.2 NLDI, §5.2 same-stream check). The missing input to
        `build_pairs`. Upstream methow-flow's `flow_relation` (polygon containment) and add
        NLDI navigation for gages without a cached polygon.
 3. [ ] **Regression-weighted drainage-area ratio** (§5.1, the SIR 2016-5118 / Sauer form).

@@ -112,8 +112,10 @@ Standing rules carried over from this repo's history, which apply to every phase
       `WatershedCharacteristics.polygon_geojson`. *Done 2026-09-27:* it is in the
       `delineate/sshydro` response already fetched; verified live and validated against
       `DRNAREA` (`docs/STREAMSTATS_MODULE_DESIGN.md` S10).
-- [ ] **NLDI integration** for upstream/downstream navigation. This is needed for
-      same-stream donor search (§5) and for nested-gage checks.
+- [~] **NLDI integration** for upstream/downstream navigation. This is needed for
+      same-stream donor search (§5) and for nested-gage checks. *Nested-gage checks
+      done:* `nesting.nldi_upstream_sites` and `nested_gage_pairs`, cross-checked against
+      StreamStats polygons. Same-stream donor search is still open.
 - [ ] **Regression-region polygons** for every jurisdiction. Source these from the report
       data releases on ScienceBase or from the StreamStats state layers, and store them as
       compressed GeoPackage/Parquet with the citation. This removes the open "region
@@ -401,7 +403,8 @@ A single entry point, `estimate_at_site(lat, lon, …)`, that decides and docume
 
 ### 5.2 Guardrails
 - [x] Area-ratio band, probability-kind checks, extrapolation flags (existing pattern).
-- [ ] Same-stream / nested-basin check via NLDI. Refuse cross-basin DAR unless forced.
+- [~] Same-stream / nested-basin check via NLDI. Refuse cross-basin DAR unless forced.
+      *The check exists* (`nesting.nested_gage_pairs`); `transpose` does not call it yet.
 - [ ] Regulation check. Refuse a regulated donor for an unregulated target and the
       reverse, unless forced. The per-gage classification exists
       (`regulation.classify_site`, §1.1); `transpose` and `qppq` do not use it yet.

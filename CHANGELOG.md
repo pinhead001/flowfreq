@@ -23,6 +23,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `weight_with_regression` back-solved the at-site variance from the interval width; this
   takes peakfq's own value.
 
+- **Nested-gage finding** (`flowfreq.nesting`). `nested_gage_pairs` names every
+  flow-connected pair among a list of gages from two independent sources: StreamStats basin
+  polygons (`flow_relation`, outlet inside the other's polygon and area not larger) and NLDI
+  upstream-with-tributaries navigation (`nldi_upstream_sites`, `api.water.usgs.gov/nldi`,
+  verified live; two sites on one flowline are ordered by NHDPlus measure). Each pair
+  carries both verdicts and a `conflict` flag where they differ. `connections` turns the
+  result into the pair list `transfer_variance.build_pairs` takes. `Basin`,
+  `basin_from_watershed` and `flow_relation` come from methow-flow's `reach_flows`, made
+  general.
+
 ### Changed
 - `docs/MASTER_ROADMAP.md` and `TODO.md` record a priority order for the work that serves the
   methow-flow analysis.
