@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.14.0] - 2026-10-22
+
+The first three methow-flow priorities: the variance of each quantile estimate with Bulletin 17C
+Appendix 9 gage weighting, nested-gage finding from polygons and NLDI, and the SIR 2016-5118
+regression-weighted area-ratio transfer. Patch releases for 0.13 continue from `release/0.13.x`.
+
 ### Added
 - **Variance of each quantile estimate.** `FrequencyResults.confidence_limits` carries
   `variance_log`, the variance of the log10 quantile estimate. For EMA it is peakfq's
