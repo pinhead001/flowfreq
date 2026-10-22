@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-10-21
+
+MOVE.1 record extension, Nevada and Colorado equation-set work, catalog regions for WY/NV/NM,
+and the provisional Oregon regression update. Patch releases for 0.11 continue from
+`release/0.11.x`.
+
 ### Added
 - **Record extension by MOVE.1** (`flowfreq.record_extension`: `fit_move1`, `extend_record`,
   `Move1`). This is Hirsch (1982) Maintenance Of Variance Extension in base-10 logs. It
@@ -75,6 +81,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   #164 adds selection of one variable set across four AEPs (`tools/oregon_regression_fit.py
   --select multi`), and the OGDC-8 young-volcanic fraction (`VOLCQP_OGDC`). W-171003 and E
   improve at every AEP; for W-171003, SEP at 1 % AEP goes from 49 to 42 %.
+- **Applicability limits on regression equations** (#166). `RegressionEquation.applicability`
+  holds ranges on characteristics an equation does not use. `evaluate` requires them as inputs
+  and range-checks them like variables; they carry no coefficient or covariance entry. The
+  provisional Oregon equations use it for `LAKEAREA_NHD <= 5` percent: the five calibration
+  basins above 5 % average -0.38 log units at the 1 % AEP. The same PR tests Wolock's (2003)
+  base-flow index (not adopted) and refits W-170800 as DRNAREA, BSLOPD (leverage 0.59 -> 0.48).
 
 ### Fixed
 - **Map-service gateway errors are retried (#140).** The Watershed Boundary Dataset HU12 query

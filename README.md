@@ -66,7 +66,7 @@ pip install -e ".[dev]"
 Or install a released version straight from GitHub:
 
 ```bash
-pip install git+https://github.com/pinhead001/flowfreq@v0.11.0
+pip install git+https://github.com/pinhead001/flowfreq@v0.12.0
 ```
 
 **Dependencies:** `numpy`, `pandas`, `matplotlib`, `scipy`, `requests`, `click`, `pyarrow`
@@ -374,6 +374,7 @@ England, J.F., Jr., et al., 2019, Guidelines for determining flood flow frequenc
 
 | Version | Changes |
 |---------|---------|
+| **v0.12.0** | Record extension by MOVE.1 (`flowfreq.record_extension`); regression-equation applicability limits; `awaiting_nss` status (CO SIR 2025-5047); NV `verified` with constant equations, equivalent years and gaged-site weighting; catalog regions for WY/NV/NM; provisional Oregon equations; `ramping_rates(window_hours=)`; NID GeoPackage; map-service retries. See CHANGELOG.md. |
 | **v0.11.0** | Countrywide groundwork: provisional equation sets (`load_state(..., allow_provisional=True)`); GLS regression (`flowfreq.regression.gls`); WA and UT `verified`; regional skew for AZ, provisional MT east-of-Divide and Oregon 1712 rows, pending rows citing what USGS uses in CO/UT/WY/NV/NM; peak codes keep their case (#135). See CHANGELOG.md. |
 | **v0.10.4** | StreamStats cache hits log at DEBUG, not INFO: a cached batch re-run no longer prints one line per point. See CHANGELOG.md. |
 | **v0.10.3** | `StreamStatsCache` thread-safe and written atomically: concurrent batch delineation no longer reports cached successes as failures. See CHANGELOG.md. |
