@@ -185,6 +185,9 @@ CI should test the supported Python matrix.
 - **`streamstats.py`** — StreamStats delineation, basin characteristics, NSS estimates
 - **`transpose.py`** / **`qppq.py`** / **`donor_similarity.py`** — transposition to ungaged
   sites, QPPQ daily transfer, donor screening and ranking by basin similarity
+- **`transfer_variance.py`** — variance-based weighting of gage transfers against the
+  regression: pair-fitted dissimilarity variance, GLS blend, derived area-ratio band,
+  leave-one-out coverage
 - **`future_flow.py`** — future-condition change-factor framework
 - **`lowflow.py`** / **`regime.py`** / **`subdaily.py`** — low-flow frequency, flow-regime and
   sub-daily metrics

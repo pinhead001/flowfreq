@@ -370,8 +370,125 @@ exponent-plumbing bug that no eyeball review would.
    area ratio departs from 1. That needs the *full* regression equation, not
    just its area exponent, and a decision about whose basin characteristics
    to use. Deliberately out of scope for the first pass; note it so the API
-   does not foreclose it.
+   does not foreclose it. **Answered in section 11** (0.13.0).
 4. **Does the target need its own AEP set?** Transposing preserves AEPs by
    construction, so no — but a caller who wants an AEP at the target and did
    not compute it at the donor cannot get it by transposition. Worth an
    explicit error rather than a quiet empty row.
+
+---
+
+## 11. Addendum (0.13.0): variance-based transfer weighting
+
+`flowfreq.transfer_variance` answers open question 3. It replaces a fixed
+area-ratio band with a measured error model, and combines transfers with the
+regression by inverse variance. The motivating scope is methow-flow
+`docs/TRANSFER_VARIANCE_SCOPE.md` (Peak Region 2, SIR 2016-5118). This
+section records what the module takes, what it returns, and what it cannot
+do.
+
+### The model
+
+For AEP `p`, donor `i` and target `t`, in log10 units:
+
+```
+T    = y_i + b(p) * L,             L = log10(A_t / A_i)
+V_T  = V_i + L^2 Var(b) + s2_d
+s2_d = s0 + sum_k s_k * x_k^2      x_k = log_ar, d_precip, ... (caller's choice)
+```
+
+`s2_d`, the dissimilarity variance, is the one new quantity. It is fitted from
+flow-connected gage pairs. For a pair with at-site estimates `y_i`, `y_j`:
+
+```
+e_ij    = y_i + b * L_ij - y_j
+E[e^2]  = V_i + V_j - 2 C_ij + L^2 Var(b) + s2_d
+```
+
+The receiving gage's own sampling error is subtracted (`V_j`), because the
+"truth" there is also an estimate. So is the sampling covariance `C_ij`:
+nested gages share most of their flood years, so their sampling errors are
+positively correlated and largely cancel in `e_ij`. Leaving `-2 C_ij` out would
+over-subtract and drive `s2_d` low.
+
+### What already existed, and what it supplies
+
+| Need | Source | Notes |
+|---|---|---|
+| `b(p)`, with citation | `RegressionExponents.exponent_at` | `T` is `transpose_frequency`'s arithmetic in logs; a test pins the two together |
+| `V_i`, `C_ij` | `regression.gls.sampling_covariance` (WREG form) | Wrapped as `sampling_covariance_frame`, labelled by site, so order cannot slip. Any labelled matrix may be supplied instead. |
+| `V_R` at the target | `regression.equations.evaluate` | `_prediction_sd` is the site-specific `MEV + x0' U x0` when the equation carries a covariance |
+| `V_g`, the donor's estimate variance in application | caller | `evaluate_weighted` is **not** this: it area-weights estimates across regions. A B17C Appendix 9 weighted estimate's variance, or the at-site sampling variance, is the caller's to supply. |
+
+The fit uses **at-site** estimates and their sampling (co)variances, not
+estimates weighted with the regression. A weighted value carries the
+regression's error, which would then sit on both sides of the combination.
+
+### Functions
+
+| Function | Takes | Returns |
+|---|---|---|
+| `build_pairs` | a gage table (`site_no`, `drainage_area_sqmi`, `log_q`, and `variance` or a covariance frame), an explicit list of connected pairs, the exponents and AEP, `Var(b)`, attribute columns | one row per connected pair: `log_ar`, `transfer`, `error`, `known_variance`, `d_<attr>` |
+| `fit_dissimilarity` | the pair table and the terms | `DissimilarityModel`: coefficients `>= 0`, which constraints bind, `n_pairs`, `n_gages`, standardized residuals, a binned check of `e^2 - known` against `|log_ar|` |
+| `estimate_donor_correlation` | as `build_pairs`, plus a fitted model | the correlation of two donors' dissimilarity errors at a shared receiver, and how many such triples there were |
+| `combine` | the model, the target's transfers, the regression and its variance, correlations | `BlendResult`: estimate, variance, interval, weights, covariance |
+| `solve_band` / `bootstrap_band` | the model, `V_g`, `V_R`, `Var(b)`, other features | the ratio `AR*` where `V_T = V_R`, and its interval from resampling **gages** |
+| `leave_one_out` | the gage table with regression columns, the connections | per gage: blend, transfer-only and regression-only errors, and interval coverage |
+
+Each pair enters the fit **once**. The scope said "both directions", but
+`e_ji = -e_ij` exactly, so the reversed pair has the same `e^2` and every
+fitted term is even in the pair's differences. Counting both would double `n`
+and leave the estimate unchanged.
+
+The fit is weighted least squares on `z = e^2 - known`, with weights
+`1 / E[e^2]^2` (for normal errors `Var(e^2) = 2 E[e^2]^2`), iterated, under
+`s_k >= 0` (`scipy.optimize.nnls`). When a coefficient is held at zero, the
+model says so and a warning is logged. That is the scope's "truth-noise
+subtraction can drive `s2_d` negative" risk, made visible.
+
+The combination is generalized least squares on the estimates' covariance
+matrix `C`: `w = C^-1 1 / (1' C^-1 1)`, `V = 1 / (1' C^-1 1)`. Two
+donors' covariance is `C_ik + L_i L_k Var(b) + rho_d s_i s_k`. With strong
+correlation a weight can be negative. That is correct GLS, and the weights are
+returned so it shows.
+
+Because `s2_d` is even in `L`, the derived band is symmetric in log space:
+`(1/AR*, AR*)`. When `V_g + s0 + (other terms) >= V_R`, no ratio makes the
+transfer better and the band is empty. When nothing grows with `L`, the band is
+unbounded. The bootstrap resamples gages with replacement and keeps a pair
+`m_i * m_j` times, where `m` counts how often each end was drawn. Pairs share
+gages, and resampling pairs would understate the spread.
+
+The leave-one-out run refits `s2_d` without the held-out gage, then blends its
+connected neighbours' transfers with its regression value. Coverage is checked
+against the variance of `estimate - y_j`, which is
+`V_blend + V_j - 2 sum_k w_k C_kj`. The observed value is itself an estimate. A
+naive check of the 90 % interval against `V_blend` alone is reported too, as
+the scope defined it.
+
+### What it cannot do
+
+- **It does not find the nesting.** Flow connection is an input: a list of
+  pairs from StreamStats polygon nesting, NLDI navigation or a map. The
+  module cannot tell a nested pair from two gages that merely share a HUC8.
+- **Correlated errors are approximated.** Three correlations are inputs or
+  moment estimates, not modelled:
+  - `C_ij` comes from WREG's distance model, which was fitted to regional
+    pairs and probably understates the correlation of nested gages.
+  - `rho_d`, the correlation between two donors' dissimilarity errors, is a
+    single pooled moment estimate, clipped to `[-1, 1]`. Few receivers have
+    two donors.
+  - `Cov(T, R)` defaults to zero. Most gages calibrated the regression, so a
+    transfer's error and the regression's are correlated near a gage.
+    `regression_correlation` is a scalar the caller sets, not something
+    estimated.
+- **`Var(b)`'s error is common to every pair.** It is treated as independent
+  per pair, which the scope showed is negligible (`<= 0.0025` against `s2_d` of
+  order 0.1).
+- **No period-of-record adjustment.** Pairs fitted over different years carry
+  extra variance into `s2_d`, which makes it conservative. Restrict to
+  overlapping pairs before building them if that matters.
+- **One AEP per fit.** Fitting at 0.5, 0.1 and 0.01 and deciding whether to pool
+  is the caller's loop.
+- **Log space throughout.** `10 ** estimate` is a median, not a mean, as for
+  every regression estimate in this library.
