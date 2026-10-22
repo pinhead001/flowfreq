@@ -39,7 +39,7 @@ Standing rules carried over from this repo's history, which apply to every phase
 | Gage/regression weighting (B17C App. 9 style) | [ ] | — |
 | Drainage-area-ratio transposition | [x] | `transpose.py` |
 | QPPQ daily-series transfer | [x] | `qppq.py` |
-| Record extension (MOVE) | [ ] | — |
+| Record extension (MOVE) | [~] MOVE.1 for daily records; MOVE.3 / App. 8 peaks open | `record_extension.py` |
 | Nonstationarity tests / models | [ ] | — |
 | Future-condition quantiles | [~] change-factor framework and national source review; no factor sets (none published nationally) | `future_flow.py` |
 | Low-flow frequency, regime, sub-daily metrics | [x] | `lowflow.py`, `regime.py`, `subdaily.py` |
@@ -392,7 +392,7 @@ A single entry point, `estimate_at_site(lat, lon, …)`, that decides and docume
       *Ranking done* (#13 closed, #54): `donor_similarity.screen_donors` and
       `rank_donors_by_similarity` (Burn 1990 region-of-influence distance). Multiple-donor
       weighting is still open.
-- [ ] **Record extension** (MOVE.1/MOVE.3/KTRL) to lengthen a short gage before transposing
+- [~] **Record extension** (MOVE.1/MOVE.3/KTRL) to lengthen a short gage before transposing
       (shares code with §2's Appendix 8 item).
 - [ ] **Index-flood / regional growth curves** as an option for data-sparse regions
       (territories, Alaska), clearly labeled as non-USGS-standard where it is.
