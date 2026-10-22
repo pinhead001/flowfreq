@@ -149,3 +149,32 @@ class TestPseudoRecordLength:
 
     def test_uncensored_record_is_its_systematic_count(self, native_12363000):
         assert native_12363000._results.pseudo_record_length == pytest.approx(98.0)
+
+
+class TestQuantileVariance:
+    """``confidence_limits["variance_log"]`` is peakfq's ``var_est``.
+
+    ``emafit.f`` line 856 returns ``cv_yp_syp(1,1,i)``, the variance of the
+    log10 quantile estimate from ``VAR_EMAB``. Bulletin 17C Appendix 9 weights
+    an at-site estimate with a regression by this variance. Measured on Big
+    Sandy: within 2.5e-6 relative at every golden AEP.
+    """
+
+    @pytest.mark.parametrize("aep", [0.5, 0.2, 0.1, 0.04, 0.02, 0.01, 0.005, 0.002])
+    def test_big_sandy(self, golden_big_sandy, native_big_sandy, aep):
+        i = aep_index(golden_big_sandy, aep)
+        expected = golden_big_sandy["outputs"]["quantiles"]["var_est"][i]
+        ci = native_big_sandy.compute_confidence_limits(np.array([aep]))
+        assert float(ci["variance_log"].iloc[0]) == pytest.approx(expected, rel=1e-4)
+
+    @pytest.mark.parametrize("aep", [0.5, 0.1, 0.01, 0.002])
+    def test_12363000(self, golden_12363000, native_12363000, aep):
+        i = aep_index(golden_12363000, aep)
+        expected = golden_12363000["outputs"]["quantiles"]["var_est"][i]
+        ci = native_12363000.compute_confidence_limits(np.array([aep]))
+        assert float(ci["variance_log"].iloc[0]) == pytest.approx(expected, rel=1e-4)
+
+    def test_results_carry_it(self, native_big_sandy):
+        cl = native_big_sandy.results.confidence_limits
+        assert "variance_log" in cl.columns
+        assert (cl["variance_log"] > 0).all()

@@ -34,6 +34,7 @@ from .core import (
     kfactor_array,
 )
 from .flowio import load_flow_frame, save_flow_frame
+from .gage_weighting import weight_with_regression
 from .hydrograph import Hydrograph
 from .lowflow import LOW_FLOW_YEAR_TYPES, LowFlowFrequency, annual_minimum_flow
 from .qppq import (
@@ -359,6 +360,7 @@ __all__ = [
     "transpose_frequency",
     "transpose_duration",
     "transpose_low_flow",
+    "weight_with_regression",
     "Band",
     "BandBootstrap",
     "BlendResult",

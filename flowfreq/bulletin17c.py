@@ -310,7 +310,14 @@ class FloodFrequencyAnalysis(ABC):
     def compute_confidence_limits(
         self, aep: np.ndarray = None, confidence: float = 0.90
     ) -> pd.DataFrame:
-        """Compute confidence limits for quantile estimates."""
+        """Compute confidence limits for quantile estimates.
+
+        ``variance_log`` is the variance of each log10 quantile estimate: here
+        the Bulletin 17B/17C approximation the symmetric bounds are formed
+        from, and for EMA peakfq's ``var_est``. Bulletin 17C Appendix 9 weights
+        an at-site estimate with a regression by it
+        (:func:`flowfreq.gage_weighting.weight_with_regression`).
+        """
         if self._results is None:
             self.run_analysis()
 
@@ -355,6 +362,7 @@ class FloodFrequencyAnalysis(ABC):
                 "flow_cfs": 10**log_Q,
                 "lower_5pct": 10**log_lower,
                 "upper_5pct": 10**log_upper,
+                "variance_log": var_log,
             }
         )
 
@@ -1987,8 +1995,11 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         eps: float,
         r_g_mse: float,
         at_site_option: str = "ADJE",
-    ) -> Tuple[np.ndarray, np.ndarray]:
-        """``(ci_low, ci_high)`` in log10 space from ``flowfreq._var_emab.var_emab``.
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """``(ci_low, ci_high, var_yp)`` in log10 space from ``flowfreq._var_emab.var_emab``.
+
+        ``var_yp`` is ``cv_yp_syp[:, 0, 0]``, the variance of each log10
+        quantile estimate (``emafit.f``'s ``var_est``).
 
         ``@lru_cache`` for the same reason ``_adje_bias_adjustment``/
         ``_detrat_wd`` have one -- this is the most expensive piece in the
@@ -1999,7 +2010,7 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         from flowfreq._var_emab import var_emab
 
         mc = np.array([mean_log, var_log, skew])
-        _, _, cil, cih, _ = var_emab(
+        _, cv_yp_syp, cil, cih, _ = var_emab(
             np.array(nobs),
             np.array(tl),
             np.array(tu),
@@ -2009,7 +2020,7 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
             r_g_mse=r_g_mse,
             at_site_option=at_site_option,
         )
-        return cil, cih
+        return cil, cih, np.asarray(cv_yp_syp[:, 0, 0], dtype=float)
 
     def compute_confidence_limits(
         self, aep: np.ndarray = None, confidence: float = 0.90
@@ -2042,7 +2053,7 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         pq = 1.0 - np.asarray(aep, dtype=float)
         skew = float(self._results.skew_used)
 
-        def bounds(g: float) -> Tuple[np.ndarray, np.ndarray]:
+        def bounds(g: float) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
             return self._cohn_confidence_bounds(
                 tuple(nobs),
                 tuple(tl),
@@ -2058,14 +2069,16 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
 
         try:
             if abs(skew) > _CI_SKEWMIN:
-                cil, cih = bounds(skew)
+                cil, cih, var = bounds(skew)
             else:
                 # emafit.f section 4.2 (lines 822-850): for skews close to zero the
                 # Fortran runs var_emab at -skewmin and +skewmin and interpolates
                 # the bounds linearly in skew, preserving mean and variance, rather
                 # than evaluating var_emab at the near-zero skew itself.
-                cil_neg, cih_neg = bounds(-_CI_SKEWMIN)
-                cil_pos, cih_pos = bounds(_CI_SKEWMIN)
+                cil_neg, cih_neg, _ = bounds(-_CI_SKEWMIN)
+                cil_pos, cih_pos, var = bounds(_CI_SKEWMIN)
+                # var_est is not interpolated: emafit.f overwrites cv_yp_syp with
+                # the second (+skewmin) call and returns that (lines 836-856).
                 wt = (skew + _CI_SKEWMIN) / (2.0 * _CI_SKEWMIN)
                 cil = (1.0 - wt) * cil_neg + wt * cil_pos
                 cih = (1.0 - wt) * cih_neg + wt * cih_pos
@@ -2078,6 +2091,7 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
 
         base["lower_5pct"] = 10.0**cil
         base["upper_5pct"] = 10.0**cih
+        base["variance_log"] = var
         return base
 
     @property

@@ -71,6 +71,37 @@ These bit repeatedly and are not discoverable from the code:
 
 ## Open Items (prioritised)
 
+### Priorities for methow-flow (set 2026-10-21)
+
+Roadmap items ordered by what they do for the methow-flow analysis (gage transfer in Peak
+Region 2, `flowfreq.transfer_variance` since v0.13.0). Roadmap section in brackets.
+
+Tier 1 -- unblocks the transfer-variance work:
+1. [x] **EMA variance of each quantile estimate, then B17C Appendix 9 gage weighting**
+       (§2). `FrequencyResults` does not carry it, so methow-flow's
+       `reach_flows.weight_with_regression` back-solves a variance from the 90 % interval
+       width, and `transfer_variance` takes `V_g`/`V_i` from WREG's formula, which ignores
+       censoring and historic periods. Check against `emafitpr`'s `var_est`, then move the
+       weighting upstream.
+2. [ ] **Nested-gage finder** (§1.2 NLDI, §5.2 same-stream check). The missing input to
+       `build_pairs`. Upstream methow-flow's `flow_relation` (polygon containment) and add
+       NLDI navigation for gages without a cached polygon.
+3. [ ] **Regression-weighted drainage-area ratio** (§5.1, the SIR 2016-5118 / Sauer form).
+       Method 2 in the transfer-variance validation.
+
+Tier 2 -- fixes known Methow biases or moves general code upstream:
+4. [ ] **Interpolation between two gages** (§5.1): upstream methow-flow's bracketing
+       (`choose_bracketing_gages`, `bracketed_peak_flows`) and reconcile it with
+       `transfer_variance.combine`.
+5. [ ] **GLS validation against SIR 2016-5118** (§3.3, Northwest task 4), so Peak Region 2
+       can be refitted rather than corrected by a residual line (it is 1.41-2.04x low at
+       four of five Methow gages).
+6. [ ] **Regulation guardrail in `transpose` and `qppq`** (§5.2), with a caller-supplied
+       flag for diversions GAGES-II does not see (Beaver Creek).
+
+Tier 3: transfer variance for duration curves; stationarity screening (§6.1); mixed
+snowmelt/rain-on-snow populations (§2, warn only); scheduled live-network CI (§7).
+
 ### Carried into 0.11.0
 
 Open at v0.10.4 and carried into the 0.11.0 (countrywide) cycle. Details are in the

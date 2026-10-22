@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Variance of each quantile estimate.** `FrequencyResults.confidence_limits` carries
+  `variance_log`, the variance of the log10 quantile estimate. For EMA it is peakfq's
+  `var_est` (`cv_yp_syp[1,1]` from `VAR_EMAB`), within 2.5e-6 relative of the Big Sandy
+  golden file at every AEP; at near-zero skew it is the +skewmin call's value, as
+  `emafit.f` returns. The Fortran engine passes `var_est` through. Method of moments
+  reports the variance its symmetric bounds come from.
+- **`RegressionEstimate.prediction_variance`**: the variance of prediction its interval uses
+  (site-specific, AVP or SEP squared, as `interval_method` says), or `None`.
+- **Bulletin 17C Appendix 9 weighting** (`flowfreq.gage_weighting.weight_with_regression`):
+  at-site and regression log estimates combined by inverse variance, with the weighted
+  variance and interval. AEPs with no regression, no variance of prediction, or a
+  regression outside its calibrated range are left unweighted and say why. methow-flow's
+  `weight_with_regression` back-solved the at-site variance from the interval width; this
+  takes peakfq's own value.
+
+### Changed
+- `docs/MASTER_ROADMAP.md` and `TODO.md` record a priority order for the work that serves the
+  methow-flow analysis.
+
 ## [0.13.0] - 2026-10-21
 
 Variance-based weighting of gage transfers against the regional regression.

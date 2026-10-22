@@ -496,7 +496,8 @@ def quantile_frames(reference: ReferenceResult) -> Tuple[pd.DataFrame, pd.DataFr
     tuple of (pd.DataFrame, pd.DataFrame)
         ``quantiles`` has ``aep``, ``return_period``, ``flow_cfs``,
         ``log_flow``, ``K_factor``; ``confidence_limits`` has ``aep``,
-        ``return_period``, ``flow_cfs``, ``lower_5pct``, ``upper_5pct``.
+        ``return_period``, ``flow_cfs``, ``lower_5pct``, ``upper_5pct`` and
+        ``variance_log`` (``emafitpr``'s ``var_est``).
     """
     p = reference.parameters
     aeps = sorted(reference.quantiles, reverse=True)
@@ -521,6 +522,7 @@ def quantile_frames(reference: ReferenceResult) -> Tuple[pd.DataFrame, pd.DataFr
             "flow_cfs": [reference.quantiles.get(a, np.nan) for a in ci_aeps],
             "lower_5pct": [reference.confidence_intervals[a][0] for a in ci_aeps],
             "upper_5pct": [reference.confidence_intervals[a][1] for a in ci_aeps],
+            "variance_log": [reference.variance.get(a, np.nan) for a in ci_aeps],
         }
     )
     return quantiles, confidence_limits

@@ -50,3 +50,23 @@ def test_near_zero_skew_bounds_match_live_fortran(seed, regional_skew):
         lo, hi = ref.confidence_intervals[aep]
         assert ci["lower_5pct"].iloc[i] == pytest.approx(lo, rel=1e-4), aep
         assert ci["upper_5pct"].iloc[i] == pytest.approx(hi, rel=1e-4), aep
+
+
+@pytest.mark.parametrize("seed, regional_skew", [(1, 0.0), (2, 0.03), (5, -0.04)])
+def test_near_zero_skew_variance_matches_live_fortran(seed, regional_skew):
+    """``var_est`` there is the +skewmin call's, not interpolated (emafit.f 836-856)."""
+    from flowfreq.bulletin17c import Bulletin17C
+    from flowfreq.fortran_engine import run_fortran_reference
+
+    rng = np.random.default_rng(seed)
+    flows = 10 ** rng.normal(3.0, 0.25, 50)
+    years = np.arange(1970, 2020)
+    kwargs = dict(regional_skew=regional_skew, regional_skew_mse=0.02)
+
+    native = Bulletin17C(flows, years, **kwargs)
+    native.run_analysis(method="ema")
+    ci = native.compute_confidence_limits(np.array(AEPS))
+
+    ref, _ = run_fortran_reference(flows, water_years=years, aeps=AEPS, **kwargs)
+    for i, aep in enumerate(AEPS):
+        assert ci["variance_log"].iloc[i] == pytest.approx(ref.variance[aep], rel=1e-4), aep
