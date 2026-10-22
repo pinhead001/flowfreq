@@ -25,6 +25,13 @@ Two published things are not log-linear, and the schema stores them explicitly:
 
 See ``docs/NEVADA_REGION6_SCHEMA.md`` for that design.
 
+An equation can also carry **applicability limits** (``applicability``): ranges
+on basin characteristics it does not use, outside which it does not apply. A
+lake-storage limit is one, where a basin with more lake area than the
+calibration's is outside the equations even though lake area is not a term.
+They are checked with the variables' own ranges and need the characteristic as
+an input.
+
 The schema follows :class:`flowfreq.transpose.RegressionExponents`. An
 equation cannot be built without a citation. Inputs outside the calibrated
 range raise by default, and ``allow_extrapolation=True`` computes the value
@@ -341,6 +348,12 @@ class RegressionEquation:
         site's station estimate with the regression estimate by years of record (Sauer,
         1974) uses it there, as :func:`flowfreq.regression.nevada.weight_gaged_estimate`
         does. Not allowed on a constant equation.
+    applicability : tuple of Variable
+        Applicability limits: characteristics the equation does not use, each with a
+        ``minimum`` and/or ``maximum`` outside which the equation does not apply. They
+        carry no coefficient and no covariance entry; :func:`evaluate` range-checks
+        them like the variables, so each must be supplied. A code may not repeat a
+        variable's (set that variable's range instead).
     """
 
     region_code: str
@@ -360,6 +373,7 @@ class RegressionEquation:
     constant_cfs: Optional[float] = None
     published_errors: Tuple[PublishedError, ...] = ()
     equivalent_years: Optional[float] = None
+    applicability: Tuple[Variable, ...] = ()
 
     def __post_init__(self) -> None:
         if self.form not in FORMS:
@@ -380,6 +394,14 @@ class RegressionEquation:
         codes = [v.code for v in self.variables]
         if len(set(codes)) != len(codes):
             raise ValueError(f"duplicate variable codes: {codes}")
+        limit_codes = [v.code for v in self.applicability]
+        if len(set(limit_codes)) != len(limit_codes) or set(limit_codes) & set(codes):
+            raise ValueError(
+                f"applicability limits {limit_codes} repeat a code or a variable's ({codes})"
+            )
+        for v in self.applicability:
+            if v.minimum is None and v.maximum is None:
+                raise ValueError(f"applicability limit {v.code} has no minimum or maximum")
         if self.covariance is not None:
             k = 1 + len(self.variables)
             if len(self.covariance) != k or any(len(r) != k for r in self.covariance):
@@ -458,6 +480,7 @@ class RegressionEquation:
             constant_cfs=None if constant is None else float(constant),
             published_errors=tuple(PublishedError(**p) for p in d.get("published_errors", [])),
             equivalent_years=None if ey is None else float(ey),
+            applicability=tuple(Variable(**v) for v in d.get("applicability", [])),
         )
 
 
@@ -482,7 +505,7 @@ class RegressionEstimate:
 
 def _check_range(eq: RegressionEquation, values: Mapping[str, float]) -> List[str]:
     problems = []
-    for v in eq.variables:
+    for v in (*eq.variables, *eq.applicability):
         x = values[v.code]
         if v.minimum is not None and x < v.minimum:
             problems.append(f"{v.code}={x} < min {v.minimum}")
@@ -518,7 +541,8 @@ def evaluate(
     ----------
     eq : RegressionEquation
     characteristics : mapping of str to float
-        Basin characteristics keyed by StreamStats code.
+        Basin characteristics keyed by StreamStats code, including those of the
+        equation's ``applicability`` limits.
     allow_extrapolation : bool, default False
         Compute the value even outside the calibrated range, and record it.
     interval_level : float, default 0.90
@@ -546,11 +570,12 @@ def evaluate(
         If a transform's argument, ``scale * x + offset``, is outside its domain
         (``<= 0`` for ``log10`` and ``power``), whatever ``allow_extrapolation`` says.
     """
-    missing = [v.code for v in eq.variables if v.code not in characteristics]
+    needed = (*eq.variables, *eq.applicability)
+    missing = [v.code for v in needed if v.code not in characteristics]
     if missing:
         raise KeyError(f"Missing basin characteristic(s) for {eq.region_code}: {missing}")
     values = {v.code: float(characteristics[v.code]) for v in eq.variables}
-    problems = _check_range(eq, values)
+    problems = _check_range(eq, {v.code: float(characteristics[v.code]) for v in needed})
     if problems and not allow_extrapolation:
         raise OutOfRangeError(f"{eq.region_code} AEP {eq.aep}: " + "; ".join(problems))
     if problems:

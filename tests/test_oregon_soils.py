@@ -119,3 +119,55 @@ def test_merge_state_mask_takes_the_state_map_inside_and_sgmc_outside(tool):
     assert got.dtype == np.uint8
     with pytest.raises(ValueError, match="grids differ"):
         tool.merge_state_mask(inside, state, sgmc[:1])
+
+
+def test_bfi_raster_is_wolocks_grid_in_percent(tool):
+    path, scale, offset = tool.RASTERS["BFI"]
+    assert (scale, offset) == (1.0, 0.0)
+    assert path.endswith(".tif")
+    assert "Wolock, 2003" in tool.SOURCES["BFI"]
+    assert tool.BFI_URL.endswith("bfi48grd.zip")
+
+
+def test_safe_extract_writes_members_and_refuses_escapes(tool, tmp_path):
+    import zipfile
+
+    good = tmp_path / "good.zip"
+    with zipfile.ZipFile(good, "w") as zf:
+        zf.writestr("bfi48grd/hdr.adf", "x")
+        zf.writestr("info/arc.dir", "y")
+    out = tmp_path / "out"
+    out.mkdir()
+    tool.safe_extract(good, out)
+    assert (out / "bfi48grd" / "hdr.adf").read_text() == "x"
+    bad = tmp_path / "bad.zip"
+    with zipfile.ZipFile(bad, "w") as zf:
+        zf.writestr("../evil.txt", "z")
+    with pytest.raises(ValueError, match="escapes"):
+        tool.safe_extract(bad, out)
+    assert not (tmp_path / "evil.txt").exists()
+
+
+def test_warp_to_geographic_keeps_values_and_no_data(tool, tmp_path):
+    rasterio = pytest.importorskip("rasterio")
+    from rasterio.transform import from_origin
+
+    # A 1-km Albers (EPSG:5070) grid of BFI 40 over western Oregon, with its
+    # eastern half no data (255), as bfi48grd codes it.
+    data = np.full((60, 60), 40, dtype="uint8")
+    data[:, 30:] = 255
+    src = tmp_path / "bfi.tif"
+    profile = dict(driver="GTiff", width=60, height=60, count=1, dtype="uint8",
+                   crs="EPSG:5070", transform=from_origin(-2200000.0, 2800000.0, 1000.0, 1000.0),
+                   nodata=255)  # fmt: skip
+    with rasterio.open(src, "w", **profile) as dst:
+        dst.write(data, 1)
+    with rasterio.open(src) as s:
+        from rasterio.warp import transform_bounds
+
+        b = transform_bounds(s.crs, "EPSG:4326", *s.bounds)
+    out, transform = tool.warp_to_geographic(src, b, 1 / 120, -9999.0)
+    valid = out[out != -9999.0]
+    assert valid.size > 0 and np.allclose(valid, 40.0)
+    assert (out == -9999.0).sum() > 0  # the no-data half is not interpolated into
+    assert transform.a == pytest.approx(1 / 120)

@@ -15,7 +15,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from flowfreq.regression import evaluate, load_state
+from flowfreq.regression import OutOfRangeError, evaluate, load_state
 
 DATA = Path(__file__).resolve().parents[1] / "data" / "regression_study"
 AEPS = (0.5, 0.2, 0.1, 0.04, 0.02, 0.01, 0.005, 0.002)
@@ -31,6 +31,7 @@ COLUMNS = {
     "VOLCQP_SGMC": "VOLCQP",
     "LAKEAREA_NHD": "LAKEAREA",
     "VOLCQP_OGDC": "VOLCQP_OG",
+    "BFI_WOLOCK2003": "BFI",
 }
 
 
@@ -101,6 +102,7 @@ def test_every_characteristic_records_its_source():
         "VOLCQP",
         "LAKEAREA",
         "VOLCQP_OG",
+        "BFI",
     }
 
 
@@ -135,7 +137,7 @@ def test_stored_equations_reproduce_the_fit(provisional, basins, results):
     for e in provisional.equations:
         if e.aep != 0.01:
             continue
-        chars = {v.code: float(site[COLUMNS[v.code]]) for v in e.variables}
+        chars = {v.code: float(site[COLUMNS[v.code]]) for v in (*e.variables, *e.applicability)}
         est = evaluate(e, chars, allow_extrapolation=True)
         x = [1.0]
         for v in e.variables:
@@ -207,3 +209,38 @@ def test_w171003_volcanic_term_lowers_floods(provisional):
         coef = dict(zip((v.code for v in e.variables), e.coefficients))
         assert coef["VOLCQP_OGDC"] < 0
         assert coef["PRECIP_PRISM9120"] > 0
+
+
+def test_every_stored_equation_carries_the_proposed_lake_limit(provisional, results):
+    # PROPOSED 2026-10-20, awaiting approval: basins over 5 % lake area are
+    # outside the equations. Waldo Lake (32 %) and Eel Creek (10 %) are two.
+    limit = results["lake_limit_percent"]
+    assert limit == 5.0
+    for e in provisional.equations:
+        (lim,) = [v for v in e.applicability if v.code == "LAKEAREA_NHD"]
+        assert lim.maximum == limit
+    over = {r["site_no"]: r["lake_percent"] for r in results["gages_above_lake_limit"]}
+    assert set(over) == {"14147000", "14055500", "11513000", "14323300", "14051000"}
+    assert all(p > limit for p in over.values())
+    e = provisional.equation("W-170900", 0.01)
+    waldo = {"DRNAREA": 29.4, "BSLOPD_3DEP": 10.0, "JANMAXT_PRISM9120": 38.0,
+             "PRECIP_PRISM9120": 77.4, "LAKEAREA_NHD": 32.1}  # fmt: skip
+    with pytest.raises(OutOfRangeError, match="LAKEAREA_NHD"):
+        evaluate(e, waldo)
+
+
+def test_w170800_meets_the_leverage_limit(provisional, results):
+    # The 2026-10-14 set (DRNAREA, BSLOPD, SOILKSAT) put leverage 0.59 on Burnt
+    # Bridge Creek, whose Ksat alone gave SOILKSAT its slope; replaced 2026-10-20.
+    fits = results["regions"]["W-170800"]["fits"]
+    assert max(fits[a]["max_leverage"] for a in ("0.5", "0.1", "0.01", "0.002")) <= 0.5
+    for aep in AEPS:
+        codes = {v.code for v in provisional.equation("W-170800", aep).variables}
+        assert codes == {"DRNAREA", "BSLOPD_3DEP"}
+
+
+def test_the_baseflow_index_is_high_in_the_high_cascades(basins):
+    ok = basins[basins["basin_source"].notna()].set_index("site_no")
+    assert ok["BFI"].between(0, 100).all()
+    hc = ["14312700", "14314500", "14315500", "14147000"]
+    assert (ok.loc[hc, "BFI"] > ok["BFI"].quantile(0.9)).all()

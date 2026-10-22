@@ -130,6 +130,21 @@ def test_choose_keeps_the_stored_set_unless_the_new_one_is_no_worse(tool, monkey
     assert log[-1]["kept_stored"] == names
 
 
+def test_choose_replaces_a_stored_set_that_fails_the_leverage_guard(tool, monkeypatch):
+    # PRECIP's slope comes from one basin far outside the others: the stored set
+    # fits better but breaks the leverage limit, so the selection replaces it.
+    df = region(outlier=True)
+    full = tool.evaluate_set(df, ["log10 DRNAREA", "log10 PRECIP"], tool.SELECT_AEPS)
+    lev_full = max(e["max_leverage"] for e in full.values())
+    monkeypatch.setattr(tool, "MAX_LEVERAGE", lev_full - 0.05)
+    monkeypatch.setattr(tool, "select_multi", lambda d: (["log10 DRNAREA"], []))
+    monkeypatch.setattr(tool, "stored_variables", lambda r: ["log10 DRNAREA", "log10 PRECIP"])
+    names, log = tool.choose(df, "X", "multi")
+    assert names == ["log10 DRNAREA"]
+    assert log[-1]["replaces_failing"] == ["log10 DRNAREA", "log10 PRECIP"]
+    assert log[-1]["why"].startswith("leverage")
+
+
 def test_choose_adopts_the_selection_for_a_region_not_yet_stored(tool, monkeypatch):
     def missing(r: str) -> list:
         raise KeyError(r)
@@ -143,3 +158,48 @@ def test_choose_adopts_the_selection_for_a_region_not_yet_stored(tool, monkeypat
 def test_run_rejects_an_unknown_select_mode(tool):
     with pytest.raises(ValueError, match="select_mode"):
         tool.run(False, select_mode="best")
+
+
+def _with_lakes(lakes: list) -> pd.DataFrame:
+    g = region(m=len(lakes))
+    g["LAKEAREA"] = lakes
+    g["region"] = "W"
+    return g
+
+
+def test_lake_screen_lists_gages_above_the_limit_largest_first(tool):
+    g = _with_lakes([0.0, 32.1, 4.2, 6.7] + [0.0] * 36)
+    got = tool.lake_screen(g, 5.0)
+    assert [r["lake_percent"] for r in got] == [32.1, 6.7]
+    assert got[0]["site_no"] == g["site_no"][1] and got[0]["region"] == "W"
+    assert tool.lake_screen(g, None) == [] and tool.lake_screen(g, 0.0) == []
+
+
+def test_stored_equations_carry_the_lake_limit(tool):
+    from flowfreq.regression import OutOfRangeError, RegressionEquation, evaluate
+
+    g = _with_lakes([0.0, 32.1] + [1.0] * 38)
+    names = ["log10 DRNAREA", "log10 PRECIP"]
+    res = tool.fit(g, names, 0.01)
+    d = tool.equation_json("W", g, names, 0.01, res, lake_limit=5.0)
+    assert d["applicability"] == [
+        {"code": "LAKEAREA_NHD", "transform": "identity", "units": "percent",
+         "minimum": 0.0, "maximum": 5.0}
+    ]  # fmt: skip
+    eq = RegressionEquation.from_dict(d)
+    chars = {"DRNAREA": 50.0, "PRECIP_PRISM9120": 60.0}
+    assert evaluate(eq, {**chars, "LAKEAREA_NHD": 4.0}).flow_cfs > 0
+    with pytest.raises(OutOfRangeError, match="LAKEAREA_NHD"):
+        evaluate(eq, {**chars, "LAKEAREA_NHD": 32.1})
+    assert "applicability" not in tool.equation_json("W", g, names, 0.01, res, lake_limit=None)
+
+
+def test_a_lake_area_variable_takes_the_limit_as_its_maximum(tool, monkeypatch):
+    lake = ("LAKEAREA", "LAKEAREA_NHD", "log10", 1.0, "percent")
+    monkeypatch.setitem(tool.CANDIDATES, "log10 (LAKEAREA+1)", lake)
+    monkeypatch.setitem(tool.OFFSETS, "log10 (LAKEAREA+1)", 1.0)
+    g = _with_lakes(list(np.linspace(0.0, 8.0, 40)))
+    names = ["log10 DRNAREA", "log10 (LAKEAREA+1)"]
+    d = tool.equation_json("W", g, names, 0.01, tool.fit(g, names, 0.01), lake_limit=5.0)
+    assert "applicability" not in d
+    assert d["variables"][1]["maximum"] == 5.0 and d["variables"][1]["offset"] == 1.0

@@ -115,7 +115,16 @@
      0.026943673774537283
     ]
    ],
-   "n_sites": 177
+   "n_sites": 177,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   },
   {
    "region_code": "E",
@@ -226,7 +235,16 @@
      0.02130927880138557
     ]
    ],
-   "n_sites": 177
+   "n_sites": 177,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   },
   {
    "region_code": "E",
@@ -337,7 +355,16 @@
      0.021704747366071826
     ]
    ],
-   "n_sites": 177
+   "n_sites": 177,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   },
   {
    "region_code": "E",
@@ -448,7 +475,16 @@
      0.024802591838606967
     ]
    ],
-   "n_sites": 177
+   "n_sites": 177,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   },
   {
    "region_code": "E",
@@ -559,7 +595,16 @@
      0.028298044664959134
     ]
    ],
-   "n_sites": 177
+   "n_sites": 177,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   },
   {
    "region_code": "E",
@@ -670,7 +715,16 @@
      0.03245566286893167
     ]
    ],
-   "n_sites": 177
+   "n_sites": 177,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   },
   {
    "region_code": "E",
@@ -781,7 +835,16 @@
      0.03711091577118123
     ]
    ],
-   "n_sites": 177
+   "n_sites": 177,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   },
   {
    "region_code": "E",
@@ -892,7 +955,16 @@
      0.04385339181297376
     ]
    ],
-   "n_sites": 177
+   "n_sites": 177,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   },
   {
    "region_code": "E-170701",
@@ -962,7 +1034,16 @@
      0.04422237811440327
     ]
    ],
-   "n_sites": 58
+   "n_sites": 58,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   },
   {
    "region_code": "E-170701",
@@ -1032,7 +1113,16 @@
      0.027668242153937053
     ]
    ],
-   "n_sites": 58
+   "n_sites": 58,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   },
   {
    "region_code": "E-170701",
@@ -1102,7 +1192,16 @@
      0.02573643241884522
     ]
    ],
-   "n_sites": 58
+   "n_sites": 58,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   },
   {
    "region_code": "E-170701",
@@ -1172,7 +1271,16 @@
      0.029765640786473414
     ]
    ],
-   "n_sites": 58
+   "n_sites": 58,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   },
   {
    "region_code": "E-170701",
@@ -1242,7 +1350,16 @@
      0.0358669199776884
     ]
    ],
-   "n_sites": 58
+   "n_sites": 58,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   },
   {
    "region_code": "E-170701",
@@ -1312,7 +1429,16 @@
      0.043710787304675425
     ]
    ],
-   "n_sites": 58
+   "n_sites": 58,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   },
   {
    "region_code": "E-170701",
@@ -1382,7 +1508,16 @@
      0.05281778520041361
     ]
    ],
-   "n_sites": 58
+   "n_sites": 58,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   },
   {
    "region_code": "E-170701",
@@ -1452,7 +1587,16 @@
      0.06623654635656279
     ]
    ],
-   "n_sites": 58
+   "n_sites": 58,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   },
   {
    "region_code": "W",
@@ -1522,7 +1666,16 @@
      0.031149688367438914
     ]
    ],
-   "n_sites": 53
+   "n_sites": 53,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   },
   {
    "region_code": "W",
@@ -1592,7 +1745,16 @@
      0.034382727365287837
     ]
    ],
-   "n_sites": 53
+   "n_sites": 53,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   },
   {
    "region_code": "W",
@@ -1662,7 +1824,16 @@
      0.03851131208797209
     ]
    ],
-   "n_sites": 53
+   "n_sites": 53,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   },
   {
    "region_code": "W",
@@ -1732,7 +1903,16 @@
      0.04483112601896052
     ]
    ],
-   "n_sites": 53
+   "n_sites": 53,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   },
   {
    "region_code": "W",
@@ -1802,7 +1982,16 @@
      0.050134432991226156
     ]
    ],
-   "n_sites": 53
+   "n_sites": 53,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   },
   {
    "region_code": "W",
@@ -1872,7 +2061,16 @@
      0.055887558607146975
     ]
    ],
-   "n_sites": 53
+   "n_sites": 53,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   },
   {
    "region_code": "W",
@@ -1942,7 +2140,16 @@
      0.06211224362181842
     ]
    ],
-   "n_sites": 53
+   "n_sites": 53,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   },
   {
    "region_code": "W",
@@ -2012,13 +2219,22 @@
      0.07109509275840571
     ]
    ],
-   "n_sites": 53
+   "n_sites": 53,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   },
   {
    "region_code": "W-170800",
    "region_name": "Lower Columbia (HUC6 170800), split from W",
    "aep": 0.5,
-   "intercept": 0.991398435003664,
+   "intercept": 0.8818878052199876,
    "variables": [
     {
      "code": "DRNAREA",
@@ -2033,61 +2249,53 @@
      "units": "degrees",
      "minimum": 1.66811,
      "maximum": 25.6744
-    },
-    {
-     "code": "SOILKSAT_STATSGO2",
-     "transform": "log10",
-     "units": "in/hr",
-     "minimum": 0.88442,
-     "maximum": 6.68973
     }
    ],
    "coefficients": [
-    0.8529130125807995,
-    0.9983927607839569,
-    -0.38846021054296
+    0.811290377927371,
+    1.0171762464563239
    ],
    "citation": {
     "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
     "table": "data/regression_study/oregon_regression_results.json",
     "year": 2026
    },
-   "sep_log": 0.20680347338638408,
-   "avp": 0.042767676604672865,
-   "model_error_variance": 0.03913835203310204,
+   "sep_log": 0.21608554502029642,
+   "avp": 0.04669296276671855,
+   "model_error_variance": 0.043610485218534674,
    "covariance": [
     [
-     0.02787845296911984,
-     0.0015601127622068228,
-     -0.02317499840472489,
-     -0.0064091512622919625
+     0.02884466583310237,
+     0.0009775380873189743,
+     -0.025330333563381133
     ],
     [
-     0.0015601127622068302,
-     0.0015965571154426589,
-     -0.002464810355190754,
-     -0.0025602453579938924
+     0.0009775380873189843,
+     0.0014677933499597463,
+     -0.002625062280937165
     ],
     [
-     -0.023174998404724926,
-     -0.0024648103551907496,
-     0.022978617638164795,
-     0.0009375091378121742
-    ],
-    [
-     -0.006409151262291932,
-     -0.0025602453579938885,
-     0.0009375091378121428,
-     0.02404089565849506
+     -0.02533033356338115,
+     -0.0026250622809371573,
+     0.02538130814831785
     ]
    ],
-   "n_sites": 52
+   "n_sites": 52,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   },
   {
    "region_code": "W-170800",
    "region_name": "Lower Columbia (HUC6 170800), split from W",
    "aep": 0.2,
-   "intercept": 1.193491356360709,
+   "intercept": 1.0847115600466537,
    "variables": [
     {
      "code": "DRNAREA",
@@ -2102,61 +2310,53 @@
      "units": "degrees",
      "minimum": 1.66811,
      "maximum": 25.6744
-    },
-    {
-     "code": "SOILKSAT_STATSGO2",
-     "transform": "log10",
-     "units": "in/hr",
-     "minimum": 0.88442,
-     "maximum": 6.68973
     }
    ],
    "coefficients": [
-    0.8545731547191773,
-    0.9538197015287113,
-    -0.36359462557269584
+    0.8161007115324596,
+    0.9746775896253169
    ],
    "citation": {
     "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
     "table": "data/regression_study/oregon_regression_results.json",
     "year": 2026
    },
-   "sep_log": 0.21006504998249728,
-   "avp": 0.044127325224149076,
-   "model_error_variance": 0.040273115329651714,
+   "sep_log": 0.2175550450121326,
+   "avp": 0.047330197610231044,
+   "model_error_variance": 0.04409523060505983,
    "covariance": [
     [
-     0.029550051510169137,
-     0.0016062125332459685,
-     -0.024305024551165143,
-     -0.006967759803162471
+     0.029889806717920846,
+     0.0009527315705963122,
+     -0.026030067266153763
     ],
     [
-     0.0016062125332459638,
-     0.0016516312197433136,
-     -0.002546413247032348,
-     -0.0026365098915219574
+     0.0009527315705963319,
+     0.0014965804898231104,
+     -0.0026457832780123194
     ],
     [
-     -0.02430502455116516,
-     -0.002546413247032359,
-     0.023933976199782717,
-     0.0011298537438714311
-    ],
-    [
-     -0.00696775980316243,
-     -0.0026365098915219426,
-     0.0011298537438713724,
-     0.02502300344373126
+     -0.026030067266153794,
+     -0.002645783278012303,
+     0.025947264992560965
     ]
    ],
-   "n_sites": 52
+   "n_sites": 52,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   },
   {
    "region_code": "W-170800",
    "region_name": "Lower Columbia (HUC6 170800), split from W",
    "aep": 0.1,
-   "intercept": 1.3148341801361514,
+   "intercept": 1.197881796069845,
    "variables": [
     {
      "code": "DRNAREA",
@@ -2171,61 +2371,53 @@
      "units": "degrees",
      "minimum": 1.66811,
      "maximum": 25.6744
-    },
-    {
-     "code": "SOILKSAT_STATSGO2",
-     "transform": "log10",
-     "units": "in/hr",
-     "minimum": 0.88442,
-     "maximum": 6.68973
     }
    ],
    "coefficients": [
-    0.8563194163838751,
-    0.9211527802861217,
-    -0.36131135600106956
+    0.8186529278772994,
+    0.9470907588781348
    ],
    "citation": {
     "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
     "table": "data/regression_study/oregon_regression_results.json",
     "year": 2026
    },
-   "sep_log": 0.2109996848879386,
-   "avp": 0.04452086702280939,
-   "model_error_variance": 0.040395925399350975,
+   "sep_log": 0.2182288721267784,
+   "avp": 0.04762384062972581,
+   "model_error_variance": 0.04414833312133768,
    "covariance": [
     [
-     0.0310024813852918,
-     0.0016324354979400902,
-     -0.02510007122585431,
-     -0.007620202866057605
+     0.030975456789171858,
+     0.0009161214147798443,
+     -0.02666320685757511
     ],
     [
-     0.0016324354979400852,
-     0.0016779146966396051,
-     -0.002588167658407215,
-     -0.0026638651326059627
+     0.000916121414779839,
+     0.0015218439204563057,
+     -0.002649520057415635
     ],
     [
-     -0.025100071225854267,
-     -0.0025881676584072174,
-     0.024497558585878147,
-     0.0014325005947104297
-    ],
-    [
-     -0.007620202866057684,
-     -0.0026638651326059666,
-     0.0014325005947105048,
-     0.025684472983948166
+     -0.0266632068575751,
+     -0.0026495200574156393,
+     0.026424903229733985
     ]
    ],
-   "n_sites": 52
+   "n_sites": 52,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   },
   {
    "region_code": "W-170800",
    "region_name": "Lower Columbia (HUC6 170800), split from W",
    "aep": 0.04,
-   "intercept": 1.461038457172891,
+   "intercept": 1.3252612705609361,
    "variables": [
     {
      "code": "DRNAREA",
@@ -2240,61 +2432,53 @@
      "units": "degrees",
      "minimum": 1.66811,
      "maximum": 25.6744
-    },
-    {
-     "code": "SOILKSAT_STATSGO2",
-     "transform": "log10",
-     "units": "in/hr",
-     "minimum": 0.88442,
-     "maximum": 6.68973
     }
    ],
    "coefficients": [
-    0.859585725757744,
-    0.8751221209736132,
-    -0.37176965216004354
+    0.8217171749703154,
+    0.9112387511652689
    ],
    "citation": {
     "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
     "table": "data/regression_study/oregon_regression_results.json",
     "year": 2026
    },
-   "sep_log": 0.21092232430766758,
-   "avp": 0.0444882268913489,
-   "model_error_variance": 0.03982798516466849,
+   "sep_log": 0.21861335398274287,
+   "avp": 0.04779179853958404,
+   "model_error_variance": 0.04380630021917269,
    "covariance": [
     [
-     0.033153533166006915,
-     0.0016761710817026307,
-     -0.026121956283698653,
-     -0.008693998124662023
+     0.03266688887771542,
+     0.0008691748592692531,
+     -0.02756457607338322
     ],
     [
-     0.0016761710817026136,
-     0.0017030580804363957,
-     -0.0026346457538973553,
-     -0.0026748851903676727
+     0.0008691748592692601,
+     0.0015604251628237396,
+     -0.002650237161329945
     ],
     [
-     -0.026121956283698646,
-     -0.00263464575389737,
-     0.025140537025772725,
-     0.001972501959110411
-    ],
-    [
-     -0.008693998124661944,
-     -0.0026748851903676697,
-     0.0019725019591103447,
-     0.026527906950494107
+     -0.027564576073383223,
+     -0.002650237161329939,
+     0.027094860331988557
     ]
    ],
-   "n_sites": 52
+   "n_sites": 52,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   },
   {
    "region_code": "W-170800",
    "region_name": "Lower Columbia (HUC6 170800), split from W",
    "aep": 0.02,
-   "intercept": 1.5641205887372696,
+   "intercept": 1.410586232915847,
    "variables": [
     {
      "code": "DRNAREA",
@@ -2309,61 +2493,53 @@
      "units": "degrees",
      "minimum": 1.66811,
      "maximum": 25.6744
-    },
-    {
-     "code": "SOILKSAT_STATSGO2",
-     "transform": "log10",
-     "units": "in/hr",
-     "minimum": 0.88442,
-     "maximum": 6.68973
     }
    ],
    "coefficients": [
-    0.8622568107763288,
-    0.8397332398073718,
-    -0.385412654170023
+    0.8237820316374813,
+    0.8849131152274022
    ],
    "citation": {
     "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
     "table": "data/regression_study/oregon_regression_results.json",
     "year": 2026
    },
-   "sep_log": 0.2103463032175174,
-   "avp": 0.04424556727727577,
-   "model_error_variance": 0.03904672173852936,
+   "sep_log": 0.21870532099438877,
+   "avp": 0.04783201743125863,
+   "model_error_variance": 0.04332267292579792,
    "covariance": [
     [
-     0.034916723020705635,
-     0.0017200155249486706,
-     -0.026898449991370983,
-     -0.009580354487245977
+     0.03408132621329871,
+     0.000845531231304318,
+     -0.028282750143273142
     ],
     [
-     0.001720015524948665,
-     0.0017212664947021047,
-     -0.002668927511411911,
-     -0.00267026719395759
+     0.0008455312313043225,
+     0.0015955202564362017,
+     -0.002654536140463764
     ],
     [
-     -0.026898449991370966,
-     -0.0026689275114119134,
-     0.025613086301133868,
-     0.002418310659571892
-    ],
-    [
-     -0.009580354487246003,
-     -0.002670267193957592,
-     0.002418310659571911,
-     0.027177796639630127
+     -0.028282750143273142,
+     -0.0026545361404637594,
+     0.02764007910570504
     ]
    ],
-   "n_sites": 52
+   "n_sites": 52,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   },
   {
    "region_code": "W-170800",
    "region_name": "Lower Columbia (HUC6 170800), split from W",
    "aep": 0.01,
-   "intercept": 1.66020544210791,
+   "intercept": 1.4881419169104908,
    "variables": [
     {
      "code": "DRNAREA",
@@ -2378,61 +2554,53 @@
      "units": "degrees",
      "minimum": 1.66811,
      "maximum": 25.6744
-    },
-    {
-     "code": "SOILKSAT_STATSGO2",
-     "transform": "log10",
-     "units": "in/hr",
-     "minimum": 0.88442,
-     "maximum": 6.68973
     }
    ],
    "coefficients": [
-    0.8646356569531047,
-    0.8059116182038142,
-    -0.4007295949029239
+    0.8255134604213262,
+    0.8601896517316383
    ],
    "citation": {
     "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
     "table": "data/regression_study/oregon_regression_results.json",
     "year": 2026
    },
-   "sep_log": 0.20967981487662068,
-   "avp": 0.043965624766693925,
-   "model_error_variance": 0.03812777498236098,
+   "sep_log": 0.21877408152694977,
+   "avp": 0.04786209874796046,
+   "model_error_variance": 0.04272787041898559,
    "covariance": [
     [
-     0.03675733849960009,
-     0.0017757316351134206,
-     -0.027699238089555694,
-     -0.010470492571015453
+     0.035569439064668744,
+     0.0008388868060078234,
+     -0.029033125391964336
     ],
     [
-     0.001775731635113419,
-     0.0017436503179351014,
-     -0.0027070453848874166,
-     -0.0026600771563207778
+     0.0008388868060078185,
+     0.0016371831396692813,
+     -0.002667095779999725
     ],
     [
-     -0.027699238089555683,
-     -0.0027070453848874166,
-     0.026124664191819417,
-     0.0028469633807049794
-    ],
-    [
-     -0.010470492571015474,
-     -0.0026600771563207825,
-     0.0028469633807050023,
-     0.027869813304747377
+     -0.02903312539196433,
+     -0.0026670957799997284,
+     0.02823431510144735
     ]
    ],
-   "n_sites": 52
+   "n_sites": 52,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   },
   {
    "region_code": "W-170800",
    "region_name": "Lower Columbia (HUC6 170800), split from W",
    "aep": 0.005,
-   "intercept": 1.748585800424311,
+   "intercept": 1.558735228986563,
    "variables": [
     {
      "code": "DRNAREA",
@@ -2447,61 +2615,53 @@
      "units": "degrees",
      "minimum": 1.66811,
      "maximum": 25.6744
-    },
-    {
-     "code": "SOILKSAT_STATSGO2",
-     "transform": "log10",
-     "units": "in/hr",
-     "minimum": 0.88442,
-     "maximum": 6.68973
     }
    ],
    "coefficients": [
-    0.8664672889507075,
-    0.7749472292341095,
-    -0.41579947507520965
+    0.8268367036337139,
+    0.837628704701982
    ],
    "citation": {
     "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
     "table": "data/regression_study/oregon_regression_results.json",
     "year": 2026
    },
-   "sep_log": 0.20909932422550495,
-   "avp": 0.04372252739156284,
-   "model_error_variance": 0.03716779475667091,
+   "sep_log": 0.2188784641215632,
+   "avp": 0.04790778205621443,
+   "model_error_variance": 0.04207047130304935,
    "covariance": [
     [
-     0.0386436820445742,
-     0.0018450792918807762,
-     -0.02853925438211052,
-     -0.011338137356635853
+     0.03710033155658066,
+     0.0008522277429877576,
+     -0.029820324996312656
     ],
     [
-     0.0018450792918807632,
-     0.0017727947964615621,
-     -0.002752109714992552,
-     -0.0026483786524168483
+     0.0008522277429877511,
+     0.0016858754647892053,
+     -0.0026903517973222773
     ],
     [
-     -0.028539254382110545,
-     -0.0027521097149925656,
-     0.026707635756974175,
-     0.003235403163113233
-    ],
-    [
-     -0.011338137356635749,
-     -0.002648378652416841,
-     0.003235403163113138,
-     0.028626047154244907
+     -0.029820324996312642,
+     -0.0026903517973222825,
+     0.02889058334466543
     ]
    ],
-   "n_sites": 52
+   "n_sites": 52,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   },
   {
    "region_code": "W-170800",
    "region_name": "Lower Columbia (HUC6 170800), split from W",
    "aep": 0.002,
-   "intercept": 1.8534313190481735,
+   "intercept": 1.6425376881857994,
    "variables": [
     {
      "code": "DRNAREA",
@@ -2516,55 +2676,47 @@
      "units": "degrees",
      "minimum": 1.66811,
      "maximum": 25.6744
-    },
-    {
-     "code": "SOILKSAT_STATSGO2",
-     "transform": "log10",
-     "units": "in/hr",
-     "minimum": 0.88442,
-     "maximum": 6.68973
     }
    ],
    "coefficients": [
-    0.8678977927147637,
-    0.7392159868146677,
-    -0.4338295705252685
+    0.8279136334245085,
+    0.8113839850764201
    ],
    "citation": {
     "publication": "flowfreq provisional Oregon regression (NOT a USGS study), tools/oregon_regression_fit.py",
     "table": "data/regression_study/oregon_regression_results.json",
     "year": 2026
    },
-   "sep_log": 0.2085115895168848,
-   "avp": 0.04347708296285786,
-   "model_error_variance": 0.035901908407292855,
+   "sep_log": 0.21904032075827312,
+   "avp": 0.04797866211788718,
+   "model_error_variance": 0.04113646178326298,
    "covariance": [
     [
-     0.04115870722188636,
-     0.0019584405679664556,
-     -0.029720578272218,
-     -0.012444144292562586
+     0.039142349295731994,
+     0.000900767780826358,
+     -0.03092146063372984
     ],
     [
-     0.0019584405679664327,
-     0.0018227296335805007,
-     -0.0028246309899700424,
-     -0.00263420097278855
+     0.0009007677808263411,
+     0.001760360674828469,
+     -0.0027381231009092092
     ],
     [
-     -0.02972057827221796,
-     -0.0028246309899700593,
-     0.02761269079058898,
-     0.003678175419372136
-    ],
-    [
-     -0.012444144292562579,
-     -0.0026342009727885543,
-     0.0036781754193721348,
-     0.02974130560457575
+     -0.030921460633729823,
+     -0.0027381231009092227,
+     0.029864641079651897
     ]
    ],
-   "n_sites": 52
+   "n_sites": 52,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   },
   {
    "region_code": "W-170900",
@@ -2652,7 +2804,16 @@
      0.05695311452572131
     ]
    ],
-   "n_sites": 130
+   "n_sites": 130,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   },
   {
    "region_code": "W-170900",
@@ -2740,7 +2901,16 @@
      0.05747362965668965
     ]
    ],
-   "n_sites": 130
+   "n_sites": 130,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   },
   {
    "region_code": "W-170900",
@@ -2828,7 +2998,16 @@
      0.061094966389267175
     ]
    ],
-   "n_sites": 130
+   "n_sites": 130,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   },
   {
    "region_code": "W-170900",
@@ -2916,7 +3095,16 @@
      0.06798278834347549
     ]
    ],
-   "n_sites": 130
+   "n_sites": 130,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   },
   {
    "region_code": "W-170900",
@@ -3004,7 +3192,16 @@
      0.07432353568881253
     ]
    ],
-   "n_sites": 130
+   "n_sites": 130,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   },
   {
    "region_code": "W-170900",
@@ -3092,7 +3289,16 @@
      0.08144464237666246
     ]
    ],
-   "n_sites": 130
+   "n_sites": 130,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   },
   {
    "region_code": "W-170900",
@@ -3180,7 +3386,16 @@
      0.08925464207124947
     ]
    ],
-   "n_sites": 130
+   "n_sites": 130,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   },
   {
    "region_code": "W-170900",
@@ -3268,7 +3483,16 @@
      0.10054961554372835
     ]
    ],
-   "n_sites": 130
+   "n_sites": 130,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   },
   {
    "region_code": "W-171003",
@@ -3338,7 +3562,16 @@
      0.005876604889455776
     ]
    ],
-   "n_sites": 107
+   "n_sites": 107,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   },
   {
    "region_code": "W-171003",
@@ -3408,7 +3641,16 @@
      0.004780642402970445
     ]
    ],
-   "n_sites": 107
+   "n_sites": 107,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   },
   {
    "region_code": "W-171003",
@@ -3478,7 +3720,16 @@
      0.004757581615024108
     ]
    ],
-   "n_sites": 107
+   "n_sites": 107,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   },
   {
    "region_code": "W-171003",
@@ -3548,7 +3799,16 @@
      0.005260545335125487
     ]
    ],
-   "n_sites": 107
+   "n_sites": 107,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   },
   {
    "region_code": "W-171003",
@@ -3618,7 +3878,16 @@
      0.005930106432210418
     ]
    ],
-   "n_sites": 107
+   "n_sites": 107,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   },
   {
    "region_code": "W-171003",
@@ -3688,7 +3957,16 @@
      0.0067932565624175285
     ]
    ],
-   "n_sites": 107
+   "n_sites": 107,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   },
   {
    "region_code": "W-171003",
@@ -3758,7 +4036,16 @@
      0.007817957832071546
     ]
    ],
-   "n_sites": 107
+   "n_sites": 107,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   },
   {
    "region_code": "W-171003",
@@ -3828,8 +4115,17 @@
      0.009384436005548709
     ]
    ],
-   "n_sites": 107
+   "n_sites": 107,
+   "applicability": [
+    {
+     "code": "LAKEAREA_NHD",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 5.0
+    }
+   ]
   }
  ],
- "notes": "Developed by flowfreq following the USGS GLS procedure (WREG). Regions are hydrologic-unit sets: {\"1708\": \"W\", \"1709\": \"W\", \"1710\": \"W\", \"180101\": \"W\", \"170701\": \"E-170701\", \"171003\": \"W-171003\", \"170800\": \"W-170800\", \"170900\": \"W-170900\"}; any other HUC is region E. Variable codes name their sources (PRISM 1991-2020 normals, NOAA Atlas 2, 3DEP, STATSGO2 Ksat, USGS SGMC, DOGAMI OGDC-8, NHD): values of same-named StreamStats characteristics are not interchangeable. See docs/OREGON_REGRESSION_UPDATE.md."
+ "notes": "Developed by flowfreq following the USGS GLS procedure (WREG). Regions are hydrologic-unit sets: {\"1708\": \"W\", \"1709\": \"W\", \"1710\": \"W\", \"180101\": \"W\", \"170701\": \"E-170701\", \"171003\": \"W-171003\", \"170800\": \"W-170800\", \"170900\": \"W-170900\"}; any other HUC is region E. Variable codes name their sources (PRISM 1991-2020 normals, NOAA Atlas 2, 3DEP, STATSGO2 Ksat, USGS SGMC, DOGAMI OGDC-8, NHD, Wolock BFI): values of same-named StreamStats characteristics are not interchangeable. Each equation's applicability limit LAKEAREA_NHD <= 5 percent (lakes and reservoirs) is a PROPOSED cutoff awaiting approval. See docs/OREGON_REGRESSION_UPDATE.md."
 }

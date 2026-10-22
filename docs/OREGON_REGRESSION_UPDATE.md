@@ -88,6 +88,18 @@ Oregon regression update plan, tasks 2-5
     over the region's other basins.
   - **Waldo Lake is not resolved.** `LAKEAREA` stays below |t| = 2 in the
     Willamette (t = -1.9), and Waldo itself carries leverage 0.55 there.
+- **Base flow, lake storage and leverage (2026-10-20).** Details in
+  [Base-flow index, lake limit and W-170800 leverage](#base-flow-index-lake-limit-and-w-170800-leverage-2026-10-20):
+  - **Wolock's (2003) base-flow index is not adopted.** It is high in the High
+    Cascades basins (76-81 %, median 59 %). But in W-171003 it is not
+    significant at the 1 % AEP (t = -0.1), and the three residuals do not move.
+  - **A lake-area limit is proposed, awaiting approval.** Every equation now
+    carries `LAKEAREA_NHD <= 5` percent as an applicability limit. The five
+    calibration basins above 5 % average -0.38 log units at the 1 % AEP. Up to
+    5 %, there is no trend.
+  - **W-170800** becomes DRNAREA, BSLOPD. Its SEP is 53 / 54 / 54, against
+    50 / 51 / 51 stored, and its maximum leverage is 0.48 instead of 0.59. The
+    stored set's SOILKSAT term rested on Burnt Bridge Creek alone.
 
 ## Data
 
@@ -141,6 +153,7 @@ used and every other characteristic is computed over it from one national source
 | `VOLCQP_SGMC` | USGS State Geologic Map Compilation (Horton and others, 2017), young volcanic units, 15 arc-second mask (below) | percent of basin |
 | `VOLCQP_OGDC` | In Oregon, DOGAMI Oregon Geologic Data Compilation release 8 (OGDC-8; Darin and others, 2025), young volcanic units; elsewhere the `VOLCQP_SGMC` mask; 15 arc-second (below) | percent of basin |
 | `LAKEAREA_NHD` | NHD high-resolution waterbodies, lakes/ponds and reservoirs ≥ 0.05 km², 5 arc-second mask | percent of basin |
+| `BFI_WOLOCK2003` | USGS base-flow index grid (Wolock, 2003), 1 km, resampled to 30 arc-seconds (`bfi` stage, added 2026-10-20) | percent |
 
 **Soil permeability (`soils` stage).** `SOILKSAT` is computed as Wolock's (1997)
 STATSGO PERMAVE was:
@@ -307,14 +320,14 @@ instead (see
 python tools/oregon_regression_fit.py --splits 170701,171003,170800,170900 --select multi --store
 ```
 
-The stored set (2026-10-18):
+The stored set (2026-10-18; W-170800 replaced 2026-10-20):
 
 | Region | Gages | Variables | SEP % (50 / 1 / 0.2 % AEP) | LOOCV SEP % (50 / 1 %) | Pseudo-R² (1 %) |
 |---|---|---|---|---|---|
 | W (coastal) | 53 | DRNAREA, ELEV, PRECIP | 28 / 36 / 40 | 28 / 33 | 0.98 |
 | W-170900 Willamette | 130 | DRNAREA, BSLOPD, JANMAXT, PRECIP | 38 / 43 / 46 | 39 / 40 | 0.96 |
 | W-171003 Southern Oregon Coastal | 107 | DRNAREA, PRECIP, VOLCQP_OGDC | 47 / 42 / 46 | 49 / 37 | 0.96 |
-| W-170800 Lower Columbia | 52 | DRNAREA, BSLOPD, SOILKSAT | 50 / 51 / 51 | 52 / 57 | 0.95 |
+| W-170800 Lower Columbia | 52 | DRNAREA, BSLOPD | 53 / 54 / 54 | 56 / 59 | 0.94 |
 | E-170701 Middle Columbia | 58 | DRNAREA, ELEV, PRECIP | 89 / 67 / 82 | 93 / 59 | 0.84 |
 | E (rest of the east) | 177 | DRNAREA, I24H2Y, ELEV, BSLOPD, VOLCQP_OGDC | 85 / 85 / 99 | 89 / 87 | 0.80 |
 
@@ -447,7 +460,9 @@ W-170800's stored set has a maximum leverage of 0.59, above the guard, so the
 selection cannot pick it. The high-leverage gage is Burnt Bridge Creek at
 Vancouver, WA (14211900): 23 mi², the region's flattest basin (1.7°) and its
 highest Ksat (6.7 in./hr). The stored set stays because the guard only blocks
-new sets. This is an open question.
+new sets. This is an open question. (Resolved on 2026-10-20: the stored set now
+faces the guard too, and W-170800 becomes DRNAREA, BSLOPD; see
+[W-170800 under the leverage limit](#w-170800-under-the-leverage-limit).)
 
 **The new W-171003 equations.** The 1 % equation is:
 
@@ -556,6 +571,192 @@ range, than by a regional term that one gage determines.
 - U.S. Census Bureau TIGERweb, State_County MapServer layer 0: the Oregon
   boundary.
 
+## Base-flow index, lake limit and W-170800 leverage (2026-10-20)
+
+This section covers three of the open questions that "Limits and next steps"
+listed on 2026-10-18. Regions are held at the four splits, and the stored set
+comes from the same command as before (`--select multi --store`).
+
+### A base-flow variable for the High Cascades (`BFI_WOLOCK2003`)
+
+**Source.** The `bfi` stage of `tools/build_oregon_basin_characteristics.py`
+reads the USGS base-flow index grid for the conterminous United States
+(Wolock, 2003, Open-File Report 03-263):
+- the 1-km Albers ArcInfo grid `bfi48grd`, from
+  `water.usgs.gov/GIS/dsdl/bfi48grd.zip`;
+- warped bilinearly to 30 arc-seconds (`bfi_wolock2003_30s.tif`);
+- BFI in percent: the base-flow share of streamflow, interpolated between
+  gages.
+
+**Values.** The four High Cascades basins sit at the top of the range:
+
+| Basin | BFI % |
+|---|---|
+| Thielsen Creek (14312700) | 79 |
+| Clearwater above Trap Creek (14314500) | 76 |
+| North Umpqua at Toketee Falls (14315500) | 76 |
+| Waldo Lake outlet (14147000) | 81 |
+| median of the 579 basins | 59 |
+
+BFI correlates with ELEV at 0.71 and with `VOLCQP_OGDC` at 0.50.
+
+**Result: not adopted.** BFI is a candidate in every region, and `--select multi`
+does not pick it in any of them:
+
+| Region | Set | SEP % (50 / 10 / 1 / 0.2 % AEP) | t of BFI (50 / 1 %) | 1 % residuals: Thielsen / Clearwater / Toketee |
+|---|---|---|---|---|
+| W-171003 | stored: DRNAREA, PRECIP, VOLCQP_OGDC | 47.3 / 39.3 / 41.9 / 45.9 | | -0.39 / -0.30 / -0.36 |
+| W-171003 | stored + BFI | 43.7 / 39.0 / 42.8 / 47.2 | -4.1 / -0.1 | -0.39 / -0.29 / -0.36 |
+| W-171003 | DRNAREA, PRECIP, BFI | 49.3 / 50.4 / 56.5 / 60.5 | -10.5 / -5.9 | -0.81 / -0.65 / -0.51 |
+| E | stored: DRNAREA, I24H2Y, ELEV, BSLOPD, VOLCQP_OGDC | 84.9 / 71.9 / 85.3 / 99.3 | | |
+| E | DRNAREA, I24H2Y, ELEV, VOLCQP_OGDC, BFI (selected, then refused) | 85.1 / 71.9 / 84.3 / 97.3 | -1.5 / -2.6 | |
+| W-170900 | stored + BFI | 38.6 / 39.7 / 43.6 / 46.2 (VIF 8.0) | -1.1 / 1.3 | Waldo -0.52 to -0.47 |
+
+- **W-171003.** BFI is significant at the 50 % AEP but not at the 1 % AEP
+  (t = -0.1). It lowers the 50 % SEP by 3.6 points and raises the 1 and 0.2 %
+  SEPs by about 1 point each. The three residuals do not move. Used in place of
+  `VOLCQP_OGDC` it is much worse, so the young-volcanic map carries the
+  signal that BFI carries, and more.
+- **E.** The selection's best set swaps BSLOPD for BFI. Its SEP is lower at the
+  1 and 0.2 % AEPs (by 1.0 and 2.0 points) and higher at the 50 % AEP (by 0.2). So
+  the stored set is kept under the no-worse rule. The swapped set's LOOCV SEP
+  is also worse at both AEPs checked: 89.0 / 86.8 against 88.5 / 86.5 (50 / 1 %).
+- **W, W-170800, E-170701.** |t| < 2 at the 1 % AEP.
+
+**Why it does not help.** The grid is interpolated between gages at 1 km. The
+three basins sit at 76-79 %, and so do other basins in the region whose
+floods are normal. Their deficit at the 1 % AEP, about -0.3 to -0.4 log units,
+is not explained by a smoothed base-flow share. `BFI` stays in the
+characteristics file and among the candidates. No other groundwater proxy was
+tried: the BFI grid could be obtained, and it was the first candidate.
+
+### Lake-dominated basins: a proposed applicability limit
+
+**This is a proposal awaiting approval.** Every stored equation now carries
+`LAKEAREA_NHD <= 5` percent as an applicability limit, which `evaluate` checks
+like a variable's range. For a basin over 5 % lake area, `evaluate` raises
+`OutOfRangeError`, unless `allow_extrapolation=True`, which computes the value
+and records the violation. The value is
+`LAKE_LIMIT_PERCENT` in `tools/oregon_regression_fit.py`. To change it, rerun
+the fit with `--lake-limit X`; `--lake-limit 0` removes it.
+
+The equation schema gained an `applicability` field for this
+(`RegressionEquation.applicability`): ranges on characteristics an equation
+does not use. A limit carries no coefficient and no covariance entry.
+
+**Evidence.** The stored equations' residuals were binned by `LAKEAREA_NHD`
+(NHD lakes, ponds and reservoirs of at least 0.05 km²), over the 577
+calibration basins:
+- the table gives each class's mean residual, in log10 units (observed minus
+  predicted);
+- t is the mean over its standard error, with sites treated as independent.
+
+| Lake area | Basins | 50 % AEP | 10 % AEP | 1 % AEP | t (1 %) |
+|---|---|---|---|---|---|
+| ≤ 0.5 % | 515 | +0.02 | +0.01 | +0.04 | 3.1 |
+| 0.5-1 % | 20 | -0.05 | -0.03 | -0.00 | -0.0 |
+| 1-2 % | 28 | -0.01 | -0.02 | -0.03 | -0.6 |
+| 2-5 % | 9 | -0.01 | -0.02 | -0.02 | -0.3 |
+| **> 5 %** | **5** | **-0.32** | **-0.36** | **-0.38** | **-2.9** |
+
+Up to 5 % there is no trend. Above it, every basin is overpredicted at the
+1 % AEP:
+
+| Gage | Region | Lake % | Residual (50 / 1 %) | Standardized (1 %) |
+|---|---|---|---|---|
+| Waldo Lake outlet (14147000) | W-170900 | 32.1 | -0.48 / -0.52 | -2.6 |
+| Odell Creek near Crescent (14055500) | E | 15.0 | -0.25 / -0.19 | -0.6 |
+| Grizzly Creek near Lilyglen (11513000) | E | 10.5 | +0.06 / -0.09 | -0.2 |
+| Eel Creek at Lakeside (14323300) | W-171003 | 10.1 | -0.64 / -0.79 | -4.0 |
+| Cultus Creek above Crane Prairie Reservoir (14051000) | E | 6.7 | -0.27 / -0.32 | -1.0 |
+
+The standardized residual divides by the site's own prediction error (model
+error plus sampling variance). Region E's model error is large. So its three
+lake basins are each within the noise there, while Waldo and Eel Creek are not.
+
+**Why 5 %.** No calibration basin lies between 4.2 % and 6.7 %:
+- 4.2 % is the North Fork of the Middle Fork Willamette (14147500), residual
+  +0.03;
+- 6.7 % is Cultus Creek.
+
+Any cutoff in that gap splits the gages the same way, and 5 % is a round number
+inside it. Five of the 577 gages exceed it. A lower cutoff gains nothing:
+- at 3 % it would add two Willamette basins with residuals near zero;
+- at 2 % it would add seven more.
+
+**Dropping these gages from the calibration was tested, not stored.** Each
+region was refitted with its stored variables (SEP % at 50 / 10 / 1 / 0.2 %):
+
+| Region | Gages | All gages | Without the > 5 % basins |
+|---|---|---|---|
+| W-171003 | 107 → 106 (Eel Creek) | 47.3 / 39.3 / 41.9 / 45.9 | 43.7 / 33.9 / 35.8 / 40.0 |
+| W-170900 | 130 → 129 (Waldo) | 38.5 / 39.3 / 43.5 / 46.4 | 36.7 / 37.2 / 40.9 / 43.4 |
+| E | 177 → 174 | 84.9 / 71.9 / 85.3 / 99.3 | 85.5 / 72.2 / 86.0 / 100.3 |
+
+Leaving out the out-of-range gages is consistent with the limit. It lowers
+the 1 % SEP by 6 points in W-171003 and by 3 in W-170900. It is not done here,
+because it ties the equations to the cutoff, which is not yet approved.
+
+**USGS practice.** USGS reports handle lake storage in two ways:
+- **As a variable.** Minnesota's peak-flow regressions use lake and storage area
+  as explanatory variables. Ohio StreamStats limits percent storage (NLCD) to
+  0-19 % in its valid ranges, and warns outside them.
+- **As a scope limit.** Reports define their equations for unregulated streams,
+  without large reservoirs, as Cooper (2005) does for western Oregon.
+
+The limit here follows the first pattern: a percent-storage range, checked
+like a variable's. Lake area itself does not enter the equations. These
+precedents come from a web search on 2026-10-20 and were not checked
+against the reports' own tables.
+
+### W-170800 under the leverage limit
+
+**The problem.** On 2026-10-18 the stored W-170800 set (DRNAREA, BSLOPD,
+SOILKSAT) had a maximum leverage of 0.59, above the 0.5 limit. The gage was
+Burnt Bridge Creek at Vancouver, WA (14211900):
+- 23 mi²;
+- slope 1.7°, the region's flattest;
+- Ksat 6.7 in./hr, the region's most permeable (the next-largest is 4.6).
+
+Without that one gage, SOILKSAT's t falls from -2.4 to -1.0 at the 1 % AEP. So
+the term rests on one gage, as `LAKEAREA` rested on Waldo in the Willamette.
+
+**The change.** `choose` now holds a stored set to the same rules as a new one.
+A stored set that fails them is replaced by the selection, even when the
+selection's SEP is higher. W-170800 is the only region this changes:
+
+| Set | SEP % (50 / 10 / 1 / 0.2 %) | LOOCV SEP % (50 / 1 %) | Max leverage | Pseudo-R² (1 %) |
+|---|---|---|---|---|
+| DRNAREA, BSLOPD, SOILKSAT (stored before) | 50.4 / 51.6 / 51.2 / 50.9 | 51.8 / 57.2 | 0.59 | 0.95 |
+| **DRNAREA, BSLOPD (stored now)** | **53.0 / 53.6 / 53.7 / 53.8** | **56.1 / 59.0** | **0.48** | **0.94** |
+| DRNAREA, PRECIP, SOILKSAT (next best) | 53.2 / 54.3 / 54.3 / 54.1 | 56.0 / 57.7 | 0.27 | |
+
+**The cost.** SEP rises by 2.5-2.9 points and the 1 % LOOCV by 1.8. The new
+1 % equation is:
+
+> log10 Q = 1.488 + 0.826 log10 DRNAREA + 0.860 log10 BSLOPD
+
+The t values are 20.4 for DRNAREA and 5.1 for BSLOPD. Burnt Bridge Creek still
+has the region's largest leverage, 0.48. Its 52 gages span 0.2-1,800 mi², so
+the Lower Columbia has the least leverage to spare of any region.
+
+### Stored changes (2026-10-20)
+
+- **W-170800:** all eight AEPs, now DRNAREA and BSLOPD (above).
+- **Every equation:** gains the proposed `LAKEAREA_NHD` applicability limit.
+- **Unchanged:** every other region's coefficients, covariances and error
+  statistics are bit-identical to the 2026-10-18 set.
+
+### Sources for this section
+
+- Wolock, D.M., 2003, Base-flow index grid for the conterminous United States:
+  U.S. Geological Survey Open-File Report 03-263, 1-km raster
+  (https://water.usgs.gov/GIS/metadata/usgswrd/XML/bfi48grd.xml). Retrieved
+  2026-10-20 from https://water.usgs.gov/GIS/dsdl/bfi48grd.zip.
+- Cooper, R.M., 2005, Estimation of peak discharges for rural, unregulated
+  streams in western Oregon: U.S. Geological Survey Scientific Investigations
+  Report 2005-5116 (https://pubs.usgs.gov/sir/2005/5116).
+
 ## Using the set
 
 ```python
@@ -564,8 +765,13 @@ from flowfreq.regression import evaluate, load_state
 lib = load_state("OR", allow_provisional=True)    # logs the PROVISIONAL warning
 eq = lib.equation("W-170900", 0.01)               # Willamette, 1 % AEP
 est = evaluate(eq, {"DRNAREA": 120.0, "BSLOPD_3DEP": 18.0,
-                    "JANMAXT_PRISM9120": 45.0, "PRECIP_PRISM9120": 70.0})
+                    "JANMAXT_PRISM9120": 45.0, "PRECIP_PRISM9120": 70.0,
+                    "LAKEAREA_NHD": 0.4})
 ```
+
+`LAKEAREA_NHD` is required by the proposed lake-area limit (every equation's
+`applicability`), even where it is not a variable. A basin over 5 % lake area
+raises `OutOfRangeError`.
 
 **Picking the region.** Use the HUC6 of the basin outlet: 171003, 170701, 170800
 and 170900 have their own regions. Otherwise use W for HUC4 1708, 1709 and 1710
@@ -583,13 +789,18 @@ file's `notes`.
   - `LAKEAREA` in the Willamette.
 
   W-171003's 1 % SEP fell from 49 to 42 %. Thielsen, Clearwater and Toketee
-  remain at -0.30 to -0.39 log units, and Waldo at -0.52. Open questions:
-  - Whether to flag lake-dominated basins (Waldo, Eel Creek) as outside the
-    equations instead of fitting them.
-  - Whether a groundwater or baseflow variable can separate the spring-fed
-    basins. One example is the BFI grid of Wolock (2003).
-  - Whether W-170800's stored set should face the same leverage guard
-    (0.59, Burnt Bridge Creek).
+  remain at -0.30 to -0.39 log units, and Waldo at -0.52. Three open questions
+  were taken up on 2026-10-20:
+  - Wolock's BFI grid does not separate the spring-fed basins (not adopted).
+  - Lake-dominated basins are flagged by a 5 % `LAKEAREA_NHD` applicability
+    limit, which is **proposed and awaiting approval**. Whether to also drop
+    the five gages above it from the calibration is open: that lowers the 1 %
+    SEP by 6 points in W-171003 and by 3 in W-170900.
+  - W-170800's stored set now faces the leverage guard and was replaced.
+
+  Still open:
+  - What else separates Thielsen, Clearwater and Toketee, such as snowmelt
+    timing or a finer groundwater map than a 1-km interpolated grid.
   - Whether OGDC-8's Quaternary glacial sediment over platform lava should
     count as young volcanic.
 - Regions follow outlet HUC6s. A basin is in one region, and none straddles
