@@ -378,10 +378,12 @@ A single entry point, `estimate_at_site(lat, lon, …)`, that decides and docume
 
 ### 5.1 Methods to implement (most common in USGS state reports first)
 - [x] **Drainage-area ratio** with regression exponent `b(p)` (`transpose_frequency`).
-- [ ] **Regression-weighted drainage-area ratio** (the Sauer / USGS state-report method):
-      `Q_u,w = Q_u,r · [R − (2|A_g−A_u|/A_g)(R−1)]`, with `R = Q_g,w/Q_g,r`, valid for
-      `0.5 ≤ A_u/A_g ≤ 1.5`. This is the form most state reports and StreamStats use for
-      sites near a gage; each state's exact variant must be taken from its report.
+- [~] **Regression-weighted drainage-area ratio.** Each state's exact variant must be taken
+      from its report. *Done for SIR 2016-5118 (Washington):* `transpose.regression_weighted_transfer`,
+      Ries (2007) eqs. 11-12, `Q_u,wtd = (2ΔA/A_g) Q_u,reg + (1 − 2ΔA/A_g)(A_u/A_g)^b Q_g,wtd`
+      for `0.5 ≤ A_u/A_g ≤ 1.5`, linear in flow, reproducing the report's Mineral Creek
+      example. (An earlier draft of this item gave a Sauer `R`-ratio form; that is not
+      SIR 2016-5118's.) Other states' variants are open.
 - [ ] **Interpolation between two gages** on the same stream (upstream and downstream),
       per the state's report where one is prescribed.
 - [x] **QPPQ** daily-series transfer (`qppq.py`). Follow-up: **map-correlation donor

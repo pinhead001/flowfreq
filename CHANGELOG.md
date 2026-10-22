@@ -22,6 +22,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   regression outside its calibrated range are left unweighted and say why. methow-flow's
   `weight_with_regression` back-solved the at-site variance from the interval width; this
   takes peakfq's own value.
+- **Regression-weighted area-ratio transfer** (`transpose.regression_weighted_transfer`):
+  Ries (2007) as SIR 2016-5118 eqs. 11-12 gives it for an ungaged site within 0.5-1.5 times
+  a streamgage's area on the same stream. The gage's weighted estimate is transferred by
+  `(A_u/A_g)^b` and then weighted with the ungaged site's regression estimate, linearly in
+  flow, by `2|A_g - A_u|/A_g`. It reproduces the report's Mineral Creek example (12083000,
+  2 % AEP, 7,530 cfs). The roadmap's earlier "Sauer R-ratio" formula was not SIR
+  2016-5118's and is corrected.
 
 ### Changed
 - `docs/MASTER_ROADMAP.md` and `TODO.md` record a priority order for the work that serves the

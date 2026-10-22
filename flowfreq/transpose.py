@@ -40,7 +40,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import Optional, Sequence, Tuple, Union
+from typing import NamedTuple, Optional, Sequence, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -1316,4 +1316,114 @@ def transpose_low_flow(
         quantiles=quantiles,
         confidence_limits=pd.DataFrame(),
         provenance=provenance,
+    )
+
+
+#: The area-ratio range of Ries (2007) as SIR 2016-5118 applies it: the ungaged
+#: site's drainage area between 0.5 and 1.5 times the streamgage's.
+RIES_2007_RANGE: Tuple[float, float] = (0.5, 1.5)
+
+
+class RegressionWeightedTransfer(NamedTuple):
+    """Result of :func:`regression_weighted_transfer`, array-shaped like its inputs.
+
+    Attributes
+    ----------
+    flow_cfs : numpy.ndarray
+        ``Q_(u)wtd``, the weighted estimate at the ungaged site (eq. 12).
+    transferred_cfs : numpy.ndarray
+        ``Q_(u)g``, the gage estimate transferred by the area ratio (eq. 11).
+    regression_weight : numpy.ndarray
+        ``2 dA / A_g``, the weight on the regression estimate.
+    area_ratio : float
+        ``A_u / A_g``.
+    """
+
+    flow_cfs: np.ndarray
+    transferred_cfs: np.ndarray
+    regression_weight: np.ndarray
+    area_ratio: float
+
+
+def regression_weighted_transfer(
+    gage_weighted_cfs: Union[float, Sequence[float], np.ndarray],
+    ungaged_regression_cfs: Union[float, Sequence[float], np.ndarray],
+    gage_area_sqmi: float,
+    ungaged_area_sqmi: float,
+    exponent: Union[float, Sequence[float], np.ndarray],
+) -> RegressionWeightedTransfer:
+    """Flood quantiles at an ungaged site near a streamgage on the same stream.
+
+    Ries (2007) as SIR 2016-5118 (Mastin and others, 2016, p. 44-45) gives it,
+    for ``0.5 <= A_u / A_g <= 1.5``::
+
+        Q_(u)g   = (A_u / A_g) ** b * Q_(g)wtd                              (11)
+        Q_(u)wtd = (2 dA / A_g) Q_(u)reg + (1 - 2 dA / A_g) Q_(u)g          (12)
+
+    with ``dA = |A_g - A_u|``. The weighting is linear in flow, not in logs:
+    the transfer has all the weight at a ratio of 1 and none at the band edges,
+    where the estimate is the regression's. Reproduces the report's Mineral
+    Creek example (12083000, 2 % AEP: 7,530 cfs).
+
+    Parameters
+    ----------
+    gage_weighted_cfs : float or array_like
+        ``Q_(g)wtd``: the streamgage's weighted estimate (at-site weighted
+        with the regression, :func:`flowfreq.gage_weighting.weight_with_regression`),
+        one per AEP.
+    ungaged_regression_cfs : float or array_like
+        ``Q_(u)reg``: the regression estimate at the ungaged site, one per AEP.
+    gage_area_sqmi, ungaged_area_sqmi : float
+        ``A_g`` and ``A_u``, same units.
+    exponent : float or array_like
+        ``b``: the drainage-area exponent of the regional regression, per AEP.
+        Its citation is the caller's, as for :class:`RegressionExponents`.
+
+    Returns
+    -------
+    RegressionWeightedTransfer
+
+    Raises
+    ------
+    ValueError
+        An area is not positive, the ratio is outside :data:`RIES_2007_RANGE`
+        (the method is not defined there; use the regression), a flow is
+        negative or not finite, or the arrays do not broadcast.
+
+    References
+    ----------
+    Ries, K.G., III, 2007, The national streamflow statistics program: U.S.
+    Geological Survey Techniques and Methods 4-A6.
+    """
+    for label, area in (("gage", gage_area_sqmi), ("ungaged", ungaged_area_sqmi)):
+        if not (np.isfinite(area) and area > 0):
+            raise ValueError(f"{label} drainage area must be positive, got {area!r}")
+    ratio = float(ungaged_area_sqmi) / float(gage_area_sqmi)
+    low, high = RIES_2007_RANGE
+    if not low <= ratio <= high:
+        raise ValueError(
+            f"area ratio {ratio:.4f} is outside {RIES_2007_RANGE}, where Ries (2007) does not "
+            "apply; use the regression estimate at the ungaged site"
+        )
+    q_g, q_r, b = np.broadcast_arrays(
+        np.asarray(gage_weighted_cfs, dtype=float),
+        np.asarray(ungaged_regression_cfs, dtype=float),
+        np.asarray(exponent, dtype=float),
+    )
+    if (
+        not (np.all(np.isfinite(q_g)) and np.all(np.isfinite(q_r)))
+        or (q_g < 0).any()
+        or (q_r < 0).any()
+    ):
+        raise ValueError("every flow must be finite and non-negative")
+    transferred = ratio**b * q_g
+    w = np.full(
+        q_g.shape,
+        2.0 * abs(float(gage_area_sqmi) - float(ungaged_area_sqmi)) / float(gage_area_sqmi),
+    )
+    return RegressionWeightedTransfer(
+        flow_cfs=w * q_r + (1.0 - w) * transferred,
+        transferred_cfs=transferred,
+        regression_weight=w,
+        area_ratio=ratio,
     )

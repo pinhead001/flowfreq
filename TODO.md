@@ -86,7 +86,7 @@ Tier 1 -- unblocks the transfer-variance work:
 2. [ ] **Nested-gage finder** (§1.2 NLDI, §5.2 same-stream check). The missing input to
        `build_pairs`. Upstream methow-flow's `flow_relation` (polygon containment) and add
        NLDI navigation for gages without a cached polygon.
-3. [ ] **Regression-weighted drainage-area ratio** (§5.1, the SIR 2016-5118 / Sauer form).
+3. [x] **Regression-weighted drainage-area ratio** (§5.1, the SIR 2016-5118 / Sauer form).
        Method 2 in the transfer-variance validation.
 
 Tier 2 -- fixes known Methow biases or moves general code upstream:
