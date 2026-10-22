@@ -42,7 +42,7 @@ stored variables unless the new set's SEP is no worse at any of
 rules (:func:`rejection`; since 2026-10-20).
 
 Every stored equation carries a lake-area applicability limit,
-:data:`LAKE_LIMIT_PERCENT` (``--lake-limit``), PROPOSED and awaiting approval.
+:data:`LAKE_LIMIT_PERCENT` (``--lake-limit``), adopted 2026-10-21.
 
 Writes ``data/regression_study/oregon_regression_results.json`` and, with
 ``--store``, ``flowfreq/data/regression/provisional/OR.json``.
@@ -109,8 +109,8 @@ CANDIDATES: Dict[str, Tuple[str, str, str, float, str]] = {
     "BFI/100": ("BFI", "BFI_WOLOCK2003", "identity", 0.01, "percent"),
 }
 #: Applicability limit on lake and reservoir area (``LAKEAREA_NHD``, percent of
-#: the basin): a basin above it is outside every stored equation. PROPOSED
-#: 2026-10-20, awaiting approval (docs/OREGON_REGRESSION_UPDATE.md, "Lake-dominated
+#: the basin): a basin above it is outside every stored equation. Proposed
+#: 2026-10-20, adopted 2026-10-21 (docs/OREGON_REGRESSION_UPDATE.md, "Lake-dominated
 #: basins"). The five calibration basins above 5 % (Waldo Lake 32 %, Odell Creek
 #: 15 %, Grizzly Creek 11 %, Eel Creek 10 %, Cultus Creek 7 %) average -0.38 log
 #: units at the 1 % AEP; none lies between 4.2 and 6.6 %. ``--lake-limit`` overrides
@@ -651,7 +651,7 @@ def write_provisional(
             "same-named StreamStats characteristics are not interchangeable. "
             + (
                 f"Each equation's applicability limit LAKEAREA_NHD <= {lake_limit:g} percent "
-                "(lakes and reservoirs) is a PROPOSED cutoff awaiting approval. "
+                "(lakes and reservoirs), adopted 2026-10-21. "
                 if lake_limit
                 else ""
             )
@@ -685,7 +685,7 @@ def main(argv: Sequence[str]) -> int:
         "--lake-limit",
         type=float,
         default=LAKE_LIMIT_PERCENT,
-        help="lake-area applicability limit, percent of the basin (0: none); proposed",
+        help="lake-area applicability limit, percent of the basin (0: none)",
     )
     args = ap.parse_args(list(argv))
     splits = None if args.splits is None else args.splits.split(",")

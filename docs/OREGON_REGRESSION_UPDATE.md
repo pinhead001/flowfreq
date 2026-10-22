@@ -93,7 +93,7 @@ Oregon regression update plan, tasks 2-5
   - **Wolock's (2003) base-flow index is not adopted.** It is high in the High
     Cascades basins (76-81 %, median 59 %). But in W-171003 it is not
     significant at the 1 % AEP (t = -0.1), and the three residuals do not move.
-  - **A lake-area limit is proposed, awaiting approval.** Every equation now
+  - **A lake-area limit is adopted** (approved with #166's merge, 2026-10-21). Every equation now
     carries `LAKEAREA_NHD <= 5` percent as an applicability limit. The five
     calibration basins above 5 % average -0.38 log units at the 1 % AEP. Up to
     5 %, there is no trend.
@@ -630,9 +630,9 @@ is not explained by a smoothed base-flow share. `BFI` stays in the
 characteristics file and among the candidates. No other groundwater proxy was
 tried: the BFI grid could be obtained, and it was the first candidate.
 
-### Lake-dominated basins: a proposed applicability limit
+### Lake-dominated basins: an applicability limit
 
-**This is a proposal awaiting approval.** Every stored equation now carries
+**Adopted 2026-10-21** (proposed 2026-10-20, approved with #166's merge). Every stored equation carries
 `LAKEAREA_NHD <= 5` percent as an applicability limit, which `evaluate` checks
 like a variable's range. For a basin over 5 % lake area, `evaluate` raises
 `OutOfRangeError`, unless `allow_extrapolation=True`, which computes the value
@@ -743,7 +743,7 @@ the Lower Columbia has the least leverage to spare of any region.
 ### Stored changes (2026-10-20)
 
 - **W-170800:** all eight AEPs, now DRNAREA and BSLOPD (above).
-- **Every equation:** gains the proposed `LAKEAREA_NHD` applicability limit.
+- **Every equation:** gains the `LAKEAREA_NHD` applicability limit (adopted 2026-10-21).
 - **Unchanged:** every other region's coefficients, covariances and error
   statistics are bit-identical to the 2026-10-18 set.
 
@@ -769,7 +769,7 @@ est = evaluate(eq, {"DRNAREA": 120.0, "BSLOPD_3DEP": 18.0,
                     "LAKEAREA_NHD": 0.4})
 ```
 
-`LAKEAREA_NHD` is required by the proposed lake-area limit (every equation's
+`LAKEAREA_NHD` is required by the lake-area limit (every equation's
 `applicability`), even where it is not a variable. A basin over 5 % lake area
 raises `OutOfRangeError`.
 
@@ -793,7 +793,7 @@ file's `notes`.
   were taken up on 2026-10-20:
   - Wolock's BFI grid does not separate the spring-fed basins (not adopted).
   - Lake-dominated basins are flagged by a 5 % `LAKEAREA_NHD` applicability
-    limit, which is **proposed and awaiting approval**. Whether to also drop
+    limit, adopted on 2026-10-21. Whether to also drop
     the five gages above it from the calibration is open: that lowers the 1 %
     SEP by 6 points in W-171003 and by 3 in W-170900.
   - W-170800's stored set now faces the leverage guard and was replaced.
