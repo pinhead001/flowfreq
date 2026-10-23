@@ -115,6 +115,16 @@ attribute in methow-flow waits on (`docs/EDT_ATTRIBUTE_CROSSWALK.md` §6 there):
        donor relation holds across it.
 9. [ ] **Mixed snowmelt/rain-on-snow populations** (§2, warn only).
 10. [ ] **Scheduled live-network CI** (§7).
+11. [ ] **Naturalization add-back** (§5.2). Gaged flow plus the diversions upstream of a
+       site, net of return flow (canal seepage), as a daily or monthly series a transfer can
+       start from. `qppq` says it does not naturalize, so a regulated donor carries its
+       regulation into every transfer. Inputs are caller-supplied (diversion rates,
+       return fractions, periods in effect); estimating them is out of scope. In
+       methow-flow it is the §16 low-flow template (the 2002 canal inventory).
+12. [ ] **Uncertainty in choosing the dissimilarity power** (#181 follow-up).
+       `bootstrap_band` holds a `powers=` choice fixed, so the band interval leaves out
+       the uncertainty in choosing it. Re-run `profile_power` inside each replicate and
+       report how often each grid power wins alongside the interval.
 
 Raised by methow-flow's Peak Region 2 run (methow-flow #29, merged 2026-10-22):
 - [x] **Non-squared dissimilarity terms** (#181, PR #184): `powers=` on
@@ -123,7 +133,7 @@ Raised by methow-flow's Peak Region 2 run (methow-flow #29, merged 2026-10-22):
       `log_ar` power on the Region 2 pairs and, if one power fits the full 1-3,000x range,
       drop the two-model stopgap (within-4x band fit plus full-range fit) and its own fold
       loop. Still open here: the bootstrap holds the power fixed, so the band interval
-      leaves out the uncertainty in choosing it.
+      leaves out the uncertainty in choosing it (item 12).
 - [x] **Indefinite blend covariance from a negative donor rho** (#177). `leave_one_out`
       floors fold estimates at 0 (`min_donor_correlation`), reports the raw estimate and a
       clipped flag, and records a gage it cannot score with a `note` instead of aborting.
