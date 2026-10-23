@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   about 3.5 decades of area ratio, a quadratic in `log_ar` under-predicts the excess about
   3x at small ratios (methow-flow, Peak Region 2).
 
+## [0.14.1] - 2026-10-22
+
 ### Fixed
 - **`transfer_variance.leave_one_out` no longer aborts on a negative donor correlation**
   (#177). A fold's re-estimated `rho` could be negative, and with `k` donors any
