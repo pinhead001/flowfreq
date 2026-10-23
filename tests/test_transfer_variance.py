@@ -23,6 +23,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
+import flowfreq.transfer_variance as tv
 from flowfreq.regression.gls import WregCorrelation
 from flowfreq.transfer_variance import (
     BlendResult,
@@ -638,6 +639,106 @@ def test_leave_one_out_uses_a_fixed_donor_correlation():
         gages, conns, EXPONENTS, 0.01, terms=["log_ar"], sampling_cov=cov, donor_correlation=0.25
     )
     assert (out["donor_correlation"] == 0.25).all()
+
+
+def _two_networks() -> Tuple[pd.DataFrame, List[Tuple[str, str]], pd.DataFrame]:
+    """Chains of three gages (two donors each) beside chains of five (four donors each)."""
+    small, c_small, v_small = make_network(20, 3, s0=0.01, s1=0.02, seed=37)
+    big, c_big, v_big = make_network(20, 5, s0=0.01, s1=0.02, seed=38)
+    big["site_no"] = "x" + big["site_no"]
+    c_big = [("x" + a, "x" + b) for a, b in c_big]
+    v_big = v_big.rename(index=lambda s: "x" + s, columns=lambda s: "x" + s)
+    cov = pd.concat([v_small, v_big]).fillna(0.0)
+    return pd.concat([small, big], ignore_index=True), c_small + c_big, cov[cov.index]
+
+
+class TestNegativeDonorCorrelation:
+    """#177: a negative donor correlation with several donors is not a covariance."""
+
+    def _transfers(self, k: int) -> pd.DataFrame:
+        return pd.DataFrame(
+            {
+                "donor": [f"d{i}" for i in range(k)],
+                "transfer": 3.0 + 0.01 * np.arange(k),
+                "donor_variance": 0.01,
+                "log_ar": 0.1 * (np.arange(k) + 1),
+            }
+        )
+
+    def test_combine_names_the_bound(self):
+        # Four donors allow rho > -1/3, whatever the sampling covariance adds.
+        with pytest.raises(ValueError, match=r"-1/\(k - 1\) = -0.3333 for 4 donors"):
+            combine(_model(0.02, 0.04), self._transfers(4), None, donor_correlation=-0.4)
+
+    def test_combine_accepts_a_negative_correlation_inside_the_bound(self):
+        out = combine(_model(0.02, 0.04), self._transfers(4), None, donor_correlation=-0.3)
+        assert np.all(np.linalg.eigvalsh(out.covariance.to_numpy()) > 0)
+
+    def test_two_donors_take_any_correlation_above_minus_one(self):
+        out = combine(_model(0.02, 0.04), self._transfers(2), None, donor_correlation=-0.9)
+        assert out.weights.sum() == pytest.approx(1.0)
+
+    def test_the_bound_ignores_donors_without_dissimilarity_variance(self):
+        # With s2_d = 0 the correlation multiplies nothing.
+        out = combine(_model(0.0, 0.0), self._transfers(4), None, donor_correlation=-0.9)
+        assert out.weights.sum() == pytest.approx(1.0)
+
+    def test_leave_one_out_floors_a_negative_fold_estimate(self, monkeypatch):
+        gages, conns, cov = make_network(30, 5, s0=0.01, s1=0.02, seed=34)
+        monkeypatch.setattr(tv, "_rho_from_triples", lambda tri, model, mask: (-0.6, 10))
+        out = leave_one_out(gages, conns, EXPONENTS, 0.01, terms=["log_ar"], sampling_cov=cov)
+        assert len(out) == 150 and out["note"].eq("").all()
+        assert (out["donor_correlation"] == 0.0).all()
+        assert (out["donor_correlation_estimate"] == -0.6).all()
+        assert out["donor_correlation_clipped"].all()
+
+    def test_min_donor_correlation_none_keeps_the_estimate(self, monkeypatch):
+        gages, conns, cov = make_network(30, 3, s0=0.01, s1=0.02, seed=35)
+        monkeypatch.setattr(tv, "_rho_from_triples", lambda tri, model, mask: (-0.2, 10))
+        out = leave_one_out(
+            gages,
+            conns,
+            EXPONENTS,
+            0.01,
+            terms=["log_ar"],
+            sampling_cov=cov,
+            min_donor_correlation=None,
+        )
+        assert (out["donor_correlation"] == -0.2).all()
+        assert not out["donor_correlation_clipped"].any()
+
+    def test_a_failing_gage_is_recorded_and_the_run_continues(self):
+        # A fixed rho of -0.5 is a covariance for two donors but not for four.
+        gages, conns, cov = _two_networks()
+        out = leave_one_out(
+            gages,
+            conns,
+            EXPONENTS,
+            0.01,
+            terms=["log_ar"],
+            sampling_cov=cov,
+            donor_correlation=-0.5,
+        )
+        assert len(out) == 160
+        four = out["n_donors"] == 4
+        assert out.loc[four, "note"].str.contains(r"-1/\(k - 1\)").all()
+        assert out.loc[four, ["blend", "transfer_only", "blend_covered"]].isna().all().all()
+        assert out.loc[~four, "note"].eq("").all() and out.loc[~four, "blend"].notna().all()
+
+    def test_a_fixed_correlation_is_not_floored(self):
+        gages, conns, cov = make_network(30, 3, s0=0.01, s1=0.02, seed=36)
+        out = leave_one_out(
+            gages,
+            conns,
+            EXPONENTS,
+            0.01,
+            terms=["log_ar"],
+            sampling_cov=cov,
+            donor_correlation=-0.2,
+        )
+        assert (out["donor_correlation"] == -0.2).all()
+        assert out["donor_correlation_estimate"].isna().all()
+        assert not out["donor_correlation_clipped"].any()
 
 
 def test_combine_refuses_a_covariance_that_is_not_positive_definite():

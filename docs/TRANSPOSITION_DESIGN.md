@@ -506,7 +506,10 @@ interval, and the bootstrap does not re-choose it. Check the winner's
     pairs and probably understates the correlation of nested gages.
   - `rho_d`, the correlation between two donors' dissimilarity errors, is a
     single pooled moment estimate, clipped to `[-1, 1]`. Few receivers have
-    two donors.
+    two donors. With `k` donors the donor block is a covariance only for
+    `rho_d > -1/(k - 1)`, and `combine` refuses anything lower. The model
+    implies `rho_d >= 0`, because two donors' errors share the receiver's own
+    deviation, so `leave_one_out` floors its fold estimates at 0 (#177).
   - `Cov(T, R)` defaults to zero. Most gages calibrated the regression, so a
     transfer's error and the regression's are correlated near a gage.
     `regression_correlation` is a scalar the caller sets, not something
