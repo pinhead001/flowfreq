@@ -100,8 +100,21 @@ Tier 2 -- fixes known Methow biases or moves general code upstream:
 6. [ ] **Regulation guardrail in `transpose` and `qppq`** (§5.2), with a caller-supplied
        flag for diversions GAGES-II does not see (Beaver Creek).
 
-Tier 3: transfer variance for duration curves; stationarity screening (§6.1); mixed
-snowmelt/rain-on-snow populations (§2, warn only); scheduled live-network CI (§7).
+Tier 3 -- ordered for the per-reach monthly mean flows (WY1992-2025) that every EDT flow
+attribute in methow-flow waits on (`docs/EDT_ATTRIBUTE_CROSSWALK.md` §6 there):
+7. [ ] **Transfer variance for monthly and duration flows** (§5.1). Extend
+       `transfer_variance` from flood quantiles to a monthly mean per calendar month and
+       to duration quantiles: pairs and `s2_d` fitted per month, the GLS blend and
+       leave-one-out unchanged. Open questions: the exponent `b` per month (no
+       duration-indexed exponent set is published for the Methow), sampling covariance of
+       monthly means across nested gages, and months with zero flow (the Mazama gage's
+       October-March dry days), where log space fails. Needs item 6 first, since
+       diversions move the low-flow months most.
+8. [ ] **Stationarity screening** (§6.1). The EDT attributes compare two periods (§15
+       Q2, §16 low flow, §18 TQmean), and a monthly transfer over WY1992-2025 assumes the
+       donor relation holds across it.
+9. [ ] **Mixed snowmelt/rain-on-snow populations** (§2, warn only).
+10. [ ] **Scheduled live-network CI** (§7).
 
 Raised by methow-flow's Peak Region 2 run (methow-flow #29, merged 2026-10-22):
 - [x] **Non-squared dissimilarity terms** (#181, PR #184): `powers=` on
