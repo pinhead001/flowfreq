@@ -102,6 +102,13 @@ Tier 2 -- fixes known Methow biases or moves general code upstream:
 Tier 3: transfer variance for duration curves; stationarity screening (§6.1); mixed
 snowmelt/rain-on-snow populations (§2, warn only); scheduled live-network CI (§7).
 
+Raised by methow-flow's Peak Region 2 run (methow-flow #29, merged 2026-10-22):
+- [x] **Indefinite blend covariance from a negative donor rho** (#177). `leave_one_out`
+      floors fold estimates at 0 (`min_donor_correlation`), reports the raw estimate and a
+      clipped flag, and records a gage it cannot score with a `note` instead of aborting.
+      `combine` names the `-1/(k-1)` bound. methow-flow can drop its own floored full-data
+      `rho` workaround.
+
 ### Carried into 0.11.0
 
 Open at v0.10.4 and carried into the 0.11.0 (countrywide) cycle. Details are in the
