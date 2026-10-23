@@ -66,7 +66,7 @@ pip install -e ".[dev]"
 Or install a released version straight from GitHub:
 
 ```bash
-pip install git+https://github.com/pinhead001/flowfreq@v0.14.0
+pip install git+https://github.com/pinhead001/flowfreq@v0.14.1
 ```
 
 **Dependencies:** `numpy`, `pandas`, `matplotlib`, `scipy`, `requests`, `click`, `pyarrow`
@@ -374,6 +374,7 @@ England, J.F., Jr., et al., 2019, Guidelines for determining flood flow frequenc
 
 | Version | Changes |
 |---------|---------|
+| **v0.14.1** | `transfer_variance.leave_one_out` no longer aborts on a negative fold donor correlation: fold estimates floored at 0, unscorable gages recorded with a `note` (#177). See CHANGELOG.md. |
 | **v0.14.0** | Quantile-estimate variance (`confidence_limits["variance_log"]`, peakfq's `var_est`) and B17C Appendix 9 weighting (`flowfreq.gage_weighting`); nested-gage pairs from StreamStats polygons and NLDI (`flowfreq.nesting`); SIR 2016-5118 regression-weighted area-ratio transfer (`transpose.regression_weighted_transfer`). See CHANGELOG.md. |
 | **v0.13.0** | Variance-based gage-transfer weighting (`flowfreq.transfer_variance`): pair-fitted dissimilarity variance, GLS blend of donors and regression, derived area-ratio band with a gage-resampled bootstrap, leave-one-out coverage. See CHANGELOG.md. |
 | **v0.12.0** | Record extension by MOVE.1 (`flowfreq.record_extension`); regression-equation applicability limits; `awaiting_nss` status (CO SIR 2025-5047); NV `verified` with constant equations, equivalent years and gaged-site weighting; catalog regions for WY/NV/NM; provisional Oregon equations; `ramping_rates(window_hours=)`; NID GeoPackage; map-service retries. See CHANGELOG.md. |
