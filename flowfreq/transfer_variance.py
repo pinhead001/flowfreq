@@ -27,8 +27,10 @@ The receiving gage's own sampling variance ``V_j`` is subtracted because the
 "truth" there is also an estimate. Nested gages share most of their flood
 years, so the sampling covariance ``C_ij`` is subtracted too
 (:func:`flowfreq.regression.gls.sampling_covariance`, labelled by
-:func:`sampling_covariance_frame`). ``s2_d = s0 + sum_k s_k x_k^2`` is fitted
-to ``e^2 - known`` by iterated weighted least squares under ``s_k >= 0``.
+:func:`sampling_covariance_frame`). ``s2_d = s0 + sum_k s_k |x_k|^p_k`` is
+fitted to ``e^2 - known`` by iterated weighted least squares under
+``s_k >= 0``. Each power ``p_k`` is fixed by the caller (default 2);
+:func:`profile_power` compares a grid of them for one term.
 
 What this module cannot do
 --------------------------
@@ -59,12 +61,12 @@ from __future__ import annotations
 import logging
 import math
 from collections import Counter
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
 import pandas as pd
-from scipy.optimize import nnls
+from scipy.optimize import brentq, nnls
 from scipy.stats import norm
 
 from flowfreq.regression.gls import WregCorrelation, sampling_covariance
@@ -74,6 +76,9 @@ logger = logging.getLogger(__name__)
 
 #: Name of the intercept ``s0`` in :attr:`DissimilarityModel.coefficients`.
 CONST = "const"
+
+#: Power a dissimilarity term enters with unless the caller says otherwise.
+DEFAULT_POWER = 2.0
 
 #: Label of the regression row and column in :func:`combine`'s output.
 REGRESSION = "regression"
@@ -312,7 +317,7 @@ def _pairs(
 
 @dataclass(frozen=True)
 class DissimilarityModel:
-    """A fitted dissimilarity variance ``s2_d = s0 + sum_k s_k x_k^2``.
+    """A fitted dissimilarity variance ``s2_d = s0 + sum_k s_k |x_k|^p_k``.
 
     Attributes
     ----------
@@ -336,6 +341,9 @@ class DissimilarityModel:
     by_ratio : pd.DataFrame
         A model-free check: pairs binned by ``|log_ar|``, with
         ``abs_log_ar_mid``, ``n_pairs``, ``mean_excess`` and ``mean_fitted``.
+    powers : dict of str to float
+        ``p_k`` per term. A term not listed enters squared, so a model built
+        without ``powers`` is the original ``s0 + sum_k s_k x_k^2``.
     """
 
     terms: Tuple[str, ...]
@@ -347,6 +355,11 @@ class DissimilarityModel:
     converged: bool
     residuals: pd.DataFrame
     by_ratio: pd.DataFrame
+    powers: Dict[str, float] = field(default_factory=dict)
+
+    def power(self, term: str) -> float:
+        """``p_k`` for ``term``: its stored power, or 2."""
+        return float(self.powers.get(term, DEFAULT_POWER))
 
     def variance(self, **features: float) -> float:
         """``s2_d`` for one transfer.
@@ -354,7 +367,7 @@ class DissimilarityModel:
         Parameters
         ----------
         **features : float
-            A value for every term, signed or not (each enters squared).
+            A value for every term, signed or not (each enters as ``|x|^p``).
 
         Raises
         ------
@@ -366,12 +379,29 @@ class DissimilarityModel:
             raise KeyError(f"no value for dissimilarity term(s) {missing}")
         return float(
             self.coefficients[CONST]
-            + sum(self.coefficients[t] * float(features[t]) ** 2 for t in self.terms)
+            + sum(
+                self.coefficients[t] * abs(float(features[t])) ** self.power(t) for t in self.terms
+            )
         )
 
 
-def _design(pairs: pd.DataFrame, terms: Sequence[str]) -> np.ndarray:
-    cols = [np.ones(len(pairs))] + [pairs[t].to_numpy(dtype=float) ** 2 for t in terms]
+def _check_powers(terms: Sequence[str], powers: Optional[Mapping[str, float]]) -> Dict[str, float]:
+    """Every term's power, defaulting to 2."""
+    given = dict(powers or {})
+    unknown = sorted(set(given) - set(terms))
+    if unknown:
+        raise KeyError(f"powers given for term(s) {unknown} that are not in terms {list(terms)}")
+    out = {t: float(given.get(t, DEFAULT_POWER)) for t in terms}
+    bad = {t: p for t, p in out.items() if not (math.isfinite(p) and p > 0.0)}
+    if bad:
+        raise ValueError(f"every power must be finite and > 0, got {bad}")
+    return out
+
+
+def _design(pairs: pd.DataFrame, terms: Sequence[str], powers: Mapping[str, float]) -> np.ndarray:
+    cols = [np.ones(len(pairs))] + [
+        np.abs(pairs[t].to_numpy(dtype=float)) ** powers[t] for t in terms
+    ]
     return np.column_stack(cols)
 
 
@@ -423,10 +453,11 @@ def fit_dissimilarity(
     pairs: pd.DataFrame,
     terms: Sequence[str] = ("log_ar",),
     *,
+    powers: Optional[Mapping[str, float]] = None,
     max_iter: int = _MAX_ITER,
     n_bins: int = 5,
 ) -> DissimilarityModel:
-    """Fit ``s2_d = s0 + sum_k s_k x_k^2`` to the pairs' squared errors.
+    """Fit ``s2_d = s0 + sum_k s_k |x_k|^p_k`` to the pairs' squared errors.
 
     Weighted least squares on ``e^2 - known_variance``, weighted by
     ``1 / E[e^2]^2`` (for normal errors ``Var(e^2) = 2 E[e^2]^2``) and
@@ -435,12 +466,20 @@ def fit_dissimilarity(
     ``bound_terms`` and logged: it means the known variance already explains
     more than that term's share of the scatter.
 
+    The powers are fixed, so the fit stays linear in the coefficients.
+    :func:`profile_power` compares fits over a grid of powers.
+
     Parameters
     ----------
     pairs : pd.DataFrame
         From :func:`build_pairs`.
     terms : sequence of str, default ("log_ar",)
-        Pair columns entering squared, after the intercept.
+        Pair columns entering after the intercept.
+    powers : mapping of str to float, optional
+        ``p_k`` for any term, ``> 0``. A term not listed enters squared.
+        Over a wide range of area ratios a quadratic in ``log_ar`` is pulled
+        by the extreme pairs (flowfreq #181); ``{"log_ar": 1}`` is the usual
+        alternative.
     max_iter : int, default 50
         Reweighting iterations.
     n_bins : int, default 5
@@ -453,22 +492,35 @@ def fit_dissimilarity(
     Raises
     ------
     KeyError
-        A term, or ``error`` / ``known_variance``, is not a column.
+        A term, or ``error`` / ``known_variance``, is not a column, or a power
+        is given for a term not in ``terms``.
     ValueError
-        Fewer pairs than coefficients plus one.
+        Fewer pairs than coefficients plus one, or a power that is not
+        finite and positive.
     """
-    return _fit(pairs, tuple(terms), max_iter=max_iter, n_bins=n_bins, warn=True)
+    return _fit(
+        pairs,
+        tuple(terms),
+        _check_powers(terms, powers),
+        max_iter=max_iter,
+        n_bins=n_bins,
+        warn=True,
+    )
 
 
 def _fit(
     pairs: pd.DataFrame,
     terms: Tuple[str, ...],
+    powers: Mapping[str, float],
     *,
     max_iter: int = _MAX_ITER,
     n_bins: int = 5,
     warn: bool,
 ) -> DissimilarityModel:
-    """:func:`fit_dissimilarity`; ``warn=False`` for refits inside a resampling loop."""
+    """:func:`fit_dissimilarity`; ``warn=False`` for refits inside a resampling loop.
+
+    ``powers`` has already been through :func:`_check_powers`.
+    """
     needed = ["error", "known_variance", "log_ar", *terms]
     missing = [c for c in needed if c not in pairs.columns]
     if missing:
@@ -480,7 +532,7 @@ def _fit(
     e = pairs["error"].to_numpy(dtype=float)
     known = pairs["known_variance"].to_numpy(dtype=float)
     z = e**2 - known
-    F = _design(pairs, terms)
+    F = _design(pairs, terms, powers)
     coef, iterations, converged = _nnls_irls(F, z, known, max_iter)
     if warn and not converged:
         logger.warning("fit_dissimilarity did not settle in %d iterations", max_iter)
@@ -519,7 +571,114 @@ def _fit(
         converged=converged,
         residuals=residuals,
         by_ratio=_by_ratio(pairs, z, fitted, n_bins),
+        powers=dict(powers),
     )
+
+
+@dataclass(frozen=True)
+class PowerProfile:
+    """Fits of one term's power over a grid, from :func:`profile_power`.
+
+    Attributes
+    ----------
+    term : str
+        The term whose power was varied.
+    table : pd.DataFrame
+        One row per power, in grid order: ``power``, ``log_likelihood``,
+        ``converged``, ``bound_terms`` (comma-joined) and each coefficient
+        under its name.
+    models : dict of float to DissimilarityModel
+        The fit at each power, with its own ``by_ratio`` check.
+    best_power : float
+        The power with the largest log-likelihood.
+    """
+
+    term: str
+    table: pd.DataFrame
+    models: Dict[float, DissimilarityModel]
+    best_power: float
+
+    @property
+    def best(self) -> DissimilarityModel:
+        """The fit at :attr:`best_power`."""
+        return self.models[self.best_power]
+
+
+def profile_power(
+    pairs: pd.DataFrame,
+    terms: Sequence[str] = ("log_ar",),
+    *,
+    term: str = "log_ar",
+    grid: Sequence[float] = (0.5, 1.0, 1.5, 2.0, 2.5, 3.0),
+    powers: Optional[Mapping[str, float]] = None,
+    max_iter: int = _MAX_ITER,
+    n_bins: int = 5,
+) -> PowerProfile:
+    """Fit :func:`fit_dissimilarity` at each power of one term and compare.
+
+    Fits are compared by the Gaussian log-likelihood of the pair errors,
+    ``e ~ N(0, known + s2_d)``. The weighted residual sum of the reweighting
+    fit is not comparable across powers, because its weights depend on the
+    fit; the likelihood is. Every fit has the same number of coefficients, so
+    no penalty is needed. Read the winner's ``by_ratio`` as well: a grid
+    point only wins against the other grid points.
+
+    Parameters
+    ----------
+    pairs : pd.DataFrame
+        From :func:`build_pairs`.
+    terms : sequence of str, default ("log_ar",)
+        Passed to :func:`fit_dissimilarity`.
+    term : str, default "log_ar"
+        The term whose power is profiled. It must be in ``terms``.
+    grid : sequence of float
+        Powers to try, each ``> 0``.
+    powers : mapping of str to float, optional
+        Fixed powers for the other terms.
+    max_iter, n_bins
+        Passed to :func:`fit_dissimilarity`.
+
+    Returns
+    -------
+    PowerProfile
+
+    Raises
+    ------
+    ValueError
+        ``term`` is not in ``terms``, or the grid is empty.
+    """
+    terms = tuple(terms)
+    if term not in terms:
+        raise ValueError(f"term {term!r} is not in terms {list(terms)}")
+    if len(grid) == 0:
+        raise ValueError("grid of powers is empty")
+    models: Dict[float, DissimilarityModel] = {}
+    rows = []
+    for p in grid:
+        model = _fit(
+            pairs,
+            terms,
+            _check_powers(terms, {**(powers or {}), term: p}),
+            max_iter=max_iter,
+            n_bins=n_bins,
+            warn=False,
+        )
+        e = pairs["error"].to_numpy(dtype=float)
+        expected = model.residuals["expected"].to_numpy(dtype=float)
+        ll = -0.5 * float(np.sum(np.log(2.0 * math.pi * expected) + e**2 / expected))
+        models[float(p)] = model
+        rows.append(
+            {
+                "power": float(p),
+                "log_likelihood": ll,
+                "converged": model.converged,
+                "bound_terms": ",".join(model.bound_terms),
+                **model.coefficients,
+            }
+        )
+    table = pd.DataFrame(rows)
+    best = float(grid[int(np.argmax(table["log_likelihood"].to_numpy()))])
+    return PowerProfile(term=term, table=table, models=models, best_power=best)
 
 
 def estimate_donor_correlation(
@@ -626,7 +785,8 @@ def _rho_from_triples(
             raise KeyError(f"no value for dissimilarity term(s) {missing}")
         total = np.full(n, model.coefficients[CONST])
         for t in model.terms:
-            total = total + model.coefficients[t] * tri[f"{t}_{side}"][mask].astype(float) ** 2
+            x = np.abs(tri[f"{t}_{side}"][mask].astype(float))
+            total = total + model.coefficients[t] * x ** model.power(t)
         return total
 
     den = float(np.sum(np.sqrt(s2("i") * s2("k"))))
@@ -838,8 +998,12 @@ def solve_band(
 ) -> Band:
     """The ratio ``AR*`` at which a transfer's variance equals the regression's.
 
-    ``V_T(L) = V_g + L^2 (Var(b) + s_log_ar) + s0 + sum_other s_k x_k^2``, so
-    ``L* = sqrt((V_R - V_g - s0 - other) / (Var(b) + s_log_ar))``.
+    ``V_T(L) = V_g + s0 + other + L^2 Var(b) + s_log_ar |L|^p``, and ``L*``
+    solves ``V_T(L*) = V_R``. With ``g = V_R - V_g - s0 - other``:
+
+    - ``p = 2``: ``L* = sqrt(g / (Var(b) + s_log_ar))``;
+    - ``p = 1``: the positive root of ``Var(b) L^2 + s_log_ar L - g``;
+    - otherwise a bracketed root, since ``V_T`` increases in ``|L|``.
 
     Parameters
     ----------
@@ -867,13 +1031,30 @@ def solve_band(
     if missing:
         raise KeyError(f"no value for dissimilarity term(s) {missing}")
     fixed = model.variance(log_ar=0.0, **{t: float(v) for t, v in others.items() if v is not None})
-    slope = exponent_variance + model.coefficients.get("log_ar", 0.0)
+    vb = exponent_variance
+    s1 = model.coefficients.get("log_ar", 0.0)
     gap = regression_variance - gage_variance - fixed
     if gap <= 0.0:
         return _band_from(0.0)
-    if slope <= 0.0:
+    if vb <= 0.0 and s1 <= 0.0:
         return _band_from(math.inf)
-    return _band_from(math.sqrt(gap / slope))
+    return _band_from(_ratio_root(gap, vb, s1, model.power("log_ar")))
+
+
+def _ratio_root(gap: float, vb: float, s1: float, p: float) -> float:
+    """``L >= 0`` with ``vb L^2 + s1 L^p = gap``; ``gap > 0`` and ``vb`` or ``s1 > 0``."""
+    if s1 <= 0.0:
+        return math.sqrt(gap / vb)
+    if p == 2.0:
+        return math.sqrt(gap / (vb + s1))
+    if vb <= 0.0:
+        return float((gap / s1) ** (1.0 / p))
+    if p == 1.0:
+        # The positive root, written to avoid cancellation when vb is small.
+        return 2.0 * gap / (s1 + math.sqrt(s1 * s1 + 4.0 * vb * gap))
+    # Each term alone reaching gap bounds the root from above.
+    hi = min(math.sqrt(gap / vb), (gap / s1) ** (1.0 / p))
+    return float(brentq(lambda L: vb * L * L + s1 * L**p - gap, 0.0, hi, xtol=1e-14))
 
 
 def _resample_pairs_by_gage(pairs: pd.DataFrame, counts: Mapping[str, int]) -> pd.DataFrame:
@@ -928,6 +1109,7 @@ def bootstrap_band(
     n_boot: int = 1000,
     level: float = 0.90,
     seed: Optional[int] = None,
+    powers: Optional[Mapping[str, float]] = None,
     **features: float,
 ) -> BandBootstrap:
     """:func:`solve_band` with an interval from resampling gages.
@@ -947,13 +1129,17 @@ def bootstrap_band(
     n_boot : int, default 1000
     level : float, default 0.90
     seed : int, optional
+    powers : mapping of str to float, optional
+        Passed to :func:`fit_dissimilarity`, for the full fit and every
+        replicate. The powers are held fixed, not re-chosen per replicate.
 
     Returns
     -------
     BandBootstrap
     """
+    fixed_powers = _check_powers(terms, powers)
     estimate = solve_band(
-        fit_dissimilarity(pairs, terms),
+        fit_dissimilarity(pairs, terms, powers=fixed_powers),
         gage_variance=gage_variance,
         regression_variance=regression_variance,
         exponent_variance=exponent_variance,
@@ -968,7 +1154,7 @@ def bootstrap_band(
         sample = _resample_pairs_by_gage(pairs, drawn)
         try:
             # A replicate's bound coefficient is not news; its band records it.
-            model = _fit(sample, tuple(terms), warn=False)
+            model = _fit(sample, tuple(terms), fixed_powers, warn=False)
         except ValueError:
             failed += 1
             continue
@@ -1013,6 +1199,7 @@ def leave_one_out(
     donor_correlation: Optional[float] = None,
     regression_correlation: float = 0.0,
     level: float = 0.90,
+    powers: Optional[Mapping[str, float]] = None,
 ) -> pd.DataFrame:
     """Score the weighting by holding out each connected gage in turn.
 
@@ -1041,6 +1228,8 @@ def leave_one_out(
     regression_correlation : float, default 0.0
         Passed to :func:`combine`.
     level : float, default 0.90
+    powers : mapping of str to float, optional
+        Passed to :func:`fit_dissimilarity` for every fold's refit.
 
     Returns
     -------
@@ -1053,6 +1242,7 @@ def leave_one_out(
         ``regression_covered``. Errors are estimate minus observed, log10.
     """
     b = _exponent(exponents, aep, "leave_one_out")
+    fixed_powers = _check_powers(terms, powers)
     net = _Network(gages, sampling_cov, attributes)
     conns = _check_connections(connections, net.sites)
     pairs = _pairs(net, conns, b, exponent_variance)
@@ -1071,7 +1261,9 @@ def leave_one_out(
         if not nbrs:
             continue
         try:
-            model = _fit(pairs.loc[(donor != j) & (receiver != j)], tuple(terms), warn=False)
+            model = _fit(
+                pairs.loc[(donor != j) & (receiver != j)], tuple(terms), fixed_powers, warn=False
+            )
         except ValueError:
             continue
         rho = donor_correlation
