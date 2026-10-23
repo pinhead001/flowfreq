@@ -5,9 +5,10 @@
 > in progress are tracked under "Roadmap Phase A, Wave 1 and Wave 2" in Open Items below.
 
 ## Status
-Last updated: 2026-10-11. Version **0.10.4** is released (tag `v0.10.4`, PR #127) and on
-PyPI. `main` is **0.11.0.dev0** (#128); 0.10.x patches come from `release/0.10.x`
-(CLAUDE.md, Branches and Releases). The test counts below are from 2026-10-03.
+Last updated: 2026-10-22. Version **0.14.0** is released (tag `v0.14.0`, PR #182). `main` is
+**0.15.0.dev0** (#183); 0.14.x patches come from `release/0.14.x` (CLAUDE.md, Branches and
+Releases). The test counts below are from 2026-10-03; on 2026-10-22 `make check` ran
+3418 passed, 112 deselected, 6 xfailed with the extension built locally.
 Python 3.11–3.14 (`requires-python >= 3.11`; CI matrix in `.github/workflows/ci.yml`).
 
 Tests, measured 2026-10-03 on Windows / CPython 3.12 with
@@ -101,6 +102,20 @@ Tier 2 -- fixes known Methow biases or moves general code upstream:
 
 Tier 3: transfer variance for duration curves; stationarity screening (§6.1); mixed
 snowmelt/rain-on-snow populations (§2, warn only); scheduled live-network CI (§7).
+
+Raised by methow-flow's Peak Region 2 run (methow-flow #29, merged 2026-10-22):
+- [x] **Non-squared dissimilarity terms** (#181, PR #184): `powers=` on
+      `fit_dissimilarity`, `bootstrap_band` and `leave_one_out`, `solve_band` for any power,
+      and `profile_power` to choose one by likelihood. Next, in methow-flow: profile the
+      `log_ar` power on the Region 2 pairs and, if one power fits the full 1-3,000x range,
+      drop the two-model stopgap (within-4x band fit plus full-range fit) and its own fold
+      loop. Still open here: the bootstrap holds the power fixed, so the band interval
+      leaves out the uncertainty in choosing it.
+- [ ] **Indefinite blend covariance from a negative donor rho** (#177). `leave_one_out`
+      re-estimates `rho` per fold, and `rho <= -1/(k-1)` with `k` donors makes `combine`'s
+      covariance indefinite, aborting the run. methow-flow passes one full-data `rho`
+      floored at zero. Fix candidates: bound `rho` below by the donor count, or catch and
+      fall back per fold.
 
 ### Carried into 0.11.0
 

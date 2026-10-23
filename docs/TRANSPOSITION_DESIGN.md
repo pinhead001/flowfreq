@@ -394,7 +394,7 @@ For AEP `p`, donor `i` and target `t`, in log10 units:
 ```
 T    = y_i + b(p) * L,             L = log10(A_t / A_i)
 V_T  = V_i + L^2 Var(b) + s2_d
-s2_d = s0 + sum_k s_k * x_k^2      x_k = log_ar, d_precip, ... (caller's choice)
+s2_d = s0 + sum_k s_k * |x_k|^p_k  x_k = log_ar, d_precip, ... (caller's choice); p_k = 2 unless set
 ```
 
 `s2_d`, the dissimilarity variance, is the one new quantity. It is fitted from
@@ -465,6 +465,35 @@ against the variance of `estimate - y_j`, which is
 `V_blend + V_j - 2 sum_k w_k C_kj`. The observed value is itself an estimate. A
 naive check of the 90 % interval against `V_blend` alone is reported too, as
 the scope defined it.
+
+### Non-squared terms (0.15.0, #181)
+
+Every term entered squared until 0.15.0. On methow-flow's Peak Region 2 pairs,
+which span about 3.5 decades of area ratio, a quadratic in `L` is pulled by the
+extreme pairs. It under-predicts the excess about 3x at small ratios, where a
+band is decided, over-predicts in the middle, and under-predicts again at the
+top. Fitted on the pairs within 4x only, its shape changes with the range.
+
+A term may now enter as `|x_k|^p_k`, with `p_k > 0` fixed by the caller
+(`powers={"log_ar": 1}`). The fit stays linear in the coefficients, so NNLS and
+the reweighting are unchanged, and `DissimilarityModel.powers` carries the
+powers to `variance`, `combine`, the donor correlation and `solve_band`.
+`bootstrap_band` and `leave_one_out` take the same `powers` and hold them fixed
+across replicates and folds.
+
+`solve_band` solves `Var(b) L^2 + s_log_ar |L|^p = g`, with
+`g = V_R - V_g - s0 - other`. The left side increases in `|L|`, so there is one
+root. It has a closed form for `p = 2` and `p = 1` (a quadratic in `|L|`), and
+for any `p` when `Var(b) = 0`; otherwise it is found by Brent's method between
+0 and the smaller of the two single-term roots.
+
+`profile_power` fits a grid of powers for one term and ranks the fits by the
+Gaussian log-likelihood of the pair errors, `e ~ N(0, known + s2_d)`. The
+reweighted residual sum is not comparable across powers, because its weights
+depend on the fit. Every fit has the same number of coefficients, so no penalty
+is applied. The chosen power is a grid point, not an estimate with an
+interval, and the bootstrap does not re-choose it. Check the winner's
+`by_ratio` before relying on it.
 
 ### What it cannot do
 

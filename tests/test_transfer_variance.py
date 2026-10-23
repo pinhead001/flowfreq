@@ -27,12 +27,14 @@ from flowfreq.regression.gls import WregCorrelation
 from flowfreq.transfer_variance import (
     BlendResult,
     DissimilarityModel,
+    PowerProfile,
     bootstrap_band,
     build_pairs,
     combine,
     estimate_donor_correlation,
     fit_dissimilarity,
     leave_one_out,
+    profile_power,
     sampling_covariance_frame,
     solve_band,
 )
@@ -650,3 +652,179 @@ def test_combine_refuses_a_covariance_that_is_not_positive_definite():
     bad = pd.DataFrame([[0.01, 0.5], [0.5, 0.01]], index=["a", "b"], columns=["a", "b"])
     with pytest.raises(ValueError, match="positive definite"):
         combine(_model(0.0, 0.0), transfers, regression=None, donor_cov=bad)
+
+
+# --------------------------------------------------------------------------- powers (#181)
+
+
+def make_pairs(
+    n: int, *, s0: float, s1: float, power: float, known: float = 0.01, seed: int = 0
+) -> pd.DataFrame:
+    """A pair table drawn directly from ``e ~ N(0, known + s0 + s1 |L|^power)``."""
+    rng = np.random.default_rng(seed)
+    L = rng.uniform(-3.5, 3.5, n)
+    e = rng.normal(0.0, np.sqrt(known + s0 + s1 * np.abs(L) ** power))
+    return pd.DataFrame(
+        {
+            "donor": [f"d{k}" for k in range(n)],
+            "receiver": [f"r{k}" for k in range(n)],
+            "log_ar": L,
+            "error": e,
+            "known_variance": known,
+        }
+    )
+
+
+def _model_p(s0: float, s1: float, power: float) -> DissimilarityModel:
+    return DissimilarityModel(
+        terms=("log_ar",),
+        coefficients={"const": s0, "log_ar": s1},
+        bound_terms=(),
+        n_pairs=100,
+        n_gages=80,
+        iterations=1,
+        converged=True,
+        residuals=pd.DataFrame(),
+        by_ratio=pd.DataFrame(),
+        powers={"log_ar": power},
+    )
+
+
+class TestPowers:
+    def test_default_power_is_two(self):
+        assert _model(0.01, 0.04).power("log_ar") == 2.0
+        model = fit_dissimilarity(make_pairs(200, s0=0.02, s1=0.03, power=2.0))
+        assert model.powers == {"log_ar": 2.0}
+
+    def test_variance_applies_the_power_to_the_absolute_value(self):
+        assert _model_p(0.01, 0.04, 1.0).variance(log_ar=-0.5) == pytest.approx(0.01 + 0.04 * 0.5)
+        assert _model_p(0.01, 0.04, 1.5).variance(log_ar=-0.25) == pytest.approx(
+            0.01 + 0.04 * 0.25**1.5
+        )
+
+    def test_recovers_a_linear_term(self):
+        pairs = make_pairs(6000, s0=0.02, s1=0.05, power=1.0, seed=41)
+        model = fit_dissimilarity(pairs, powers={"log_ar": 1.0})
+        assert model.powers == {"log_ar": 1.0}
+        assert model.coefficients["const"] == pytest.approx(0.02, abs=0.006)
+        assert model.coefficients["log_ar"] == pytest.approx(0.05, abs=0.008)
+
+    def test_power_two_is_the_default_fit(self):
+        pairs = make_pairs(300, s0=0.02, s1=0.03, power=2.0, seed=42)
+        a = fit_dissimilarity(pairs)
+        b = fit_dissimilarity(pairs, powers={"log_ar": 2.0})
+        assert a.coefficients == b.coefficients
+
+    def test_bad_powers_raise(self):
+        pairs = make_pairs(50, s0=0.02, s1=0.03, power=2.0)
+        with pytest.raises(ValueError, match="> 0"):
+            fit_dissimilarity(pairs, powers={"log_ar": 0.0})
+        with pytest.raises(KeyError, match="d_precip"):
+            fit_dissimilarity(pairs, powers={"d_precip": 1.0})
+
+
+class TestProfilePower:
+    @pytest.mark.parametrize("true_power", [1.0, 2.0])
+    def test_picks_the_generating_power(self, true_power):
+        pairs = make_pairs(4000, s0=0.02, s1=0.05, power=true_power, seed=43)
+        prof = profile_power(pairs, grid=(0.5, 1.0, 1.5, 2.0, 3.0))
+        assert isinstance(prof, PowerProfile)
+        assert prof.best_power == true_power
+        assert prof.best.powers == {"log_ar": true_power}
+        assert list(prof.table["power"]) == [0.5, 1.0, 1.5, 2.0, 3.0]
+        assert {"log_likelihood", "converged", "const", "log_ar"} <= set(prof.table.columns)
+        assert set(prof.models) == {0.5, 1.0, 1.5, 2.0, 3.0}
+        assert prof.models[1.5].by_ratio["n_pairs"].sum() == len(pairs)
+
+    def test_log_likelihood_is_gaussian(self):
+        pairs = make_pairs(100, s0=0.02, s1=0.05, power=1.0, seed=44)
+        prof = profile_power(pairs, grid=(1.0,))
+        expected = prof.models[1.0].residuals["expected"].to_numpy()
+        e = pairs["error"].to_numpy()
+        ll = -0.5 * float(np.sum(np.log(2.0 * np.pi * expected) + e**2 / expected))
+        assert prof.table["log_likelihood"].iloc[0] == pytest.approx(ll)
+
+    def test_term_and_grid_are_checked(self):
+        pairs = make_pairs(50, s0=0.02, s1=0.03, power=2.0)
+        with pytest.raises(ValueError, match="d_precip"):
+            profile_power(pairs, term="d_precip")
+        with pytest.raises(ValueError, match="grid"):
+            profile_power(pairs, grid=())
+
+
+class TestSolveBandPowers:
+    @staticmethod
+    def _check_edge(model: DissimilarityModel, L: float, vb: float) -> None:
+        v_t = 0.01 + L**2 * vb + model.variance(log_ar=L)
+        assert v_t == pytest.approx(0.09, rel=1e-9)
+
+    def test_linear_term_has_a_closed_form(self):
+        model = _model_p(0.02, 0.04, 1.0)
+        band = solve_band(
+            model, gage_variance=0.01, regression_variance=0.09, exponent_variance=0.002
+        )
+        gap = 0.09 - 0.01 - 0.02
+        L = (-0.04 + np.sqrt(0.04**2 + 4 * 0.002 * gap)) / (2 * 0.002)
+        assert band.half_width_log == pytest.approx(L)
+        self._check_edge(model, band.half_width_log, 0.002)
+
+    def test_linear_term_without_exponent_variance(self):
+        band = solve_band(_model_p(0.02, 0.04, 1.0), gage_variance=0.01, regression_variance=0.09)
+        assert band.half_width_log == pytest.approx(0.06 / 0.04)
+
+    @pytest.mark.parametrize("power", [0.5, 1.5, 3.0])
+    def test_other_powers_by_root(self, power):
+        model = _model_p(0.02, 0.04, power)
+        band = solve_band(
+            model, gage_variance=0.01, regression_variance=0.09, exponent_variance=0.002
+        )
+        assert 0.0 < band.half_width_log < np.inf
+        self._check_edge(model, band.half_width_log, 0.002)
+
+    def test_bootstrap_uses_the_powers(self):
+        pairs = make_pairs(400, s0=0.02, s1=0.04, power=1.0, seed=45)
+        result = bootstrap_band(
+            pairs,
+            ["log_ar"],
+            gage_variance=0.01,
+            regression_variance=0.09,
+            n_boot=20,
+            seed=1,
+            powers={"log_ar": 1.0},
+        )
+        direct = solve_band(
+            fit_dissimilarity(pairs, powers={"log_ar": 1.0}),
+            gage_variance=0.01,
+            regression_variance=0.09,
+        )
+        assert result.estimate == direct
+
+
+def test_donor_correlation_uses_the_powers():
+    # c receives from a (log ratio +1) and b (log ratio -2): one triple.
+    gages = pd.DataFrame(
+        {
+            "site_no": ["a", "b", "c"],
+            "drainage_area_sqmi": [10.0, 10000.0, 100.0],
+            "log_q": [2.0, 3.4, 2.7],
+            "variance": [0.01, 0.01, 0.01],
+        }
+    )
+    conns = [("a", "c"), ("b", "c")]
+    product = (2.0 + B * 1.0 - 2.7) * (3.4 + B * -2.0 - 2.7) - 0.01
+    for power in (1.0, 2.0):
+        rho, n = estimate_donor_correlation(
+            gages, conns, EXPONENTS, 0.01, _model_p(0.1, 0.4, power)
+        )
+        s_a, s_b = 0.1 + 0.4, 0.1 + 0.4 * 2.0**power
+        assert n == 1
+        assert rho == pytest.approx(product / np.sqrt(s_a * s_b))
+
+
+def test_leave_one_out_refits_with_the_powers():
+    gages, conns, cov = make_network(40, 3, s0=0.01, s1=0.02, seed=34)
+    default = leave_one_out(gages, conns, EXPONENTS, 0.01, sampling_cov=cov)
+    squared = leave_one_out(gages, conns, EXPONENTS, 0.01, sampling_cov=cov, powers={"log_ar": 2.0})
+    linear = leave_one_out(gages, conns, EXPONENTS, 0.01, sampling_cov=cov, powers={"log_ar": 1.0})
+    pd.testing.assert_frame_equal(default, squared)
+    assert not np.allclose(default["blend"], linear["blend"])

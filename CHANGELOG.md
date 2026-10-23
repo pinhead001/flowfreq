@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Non-squared dissimilarity terms** in `flowfreq.transfer_variance` (#181). A term of
+  `s2_d` can enter as `|x|^p`: `fit_dissimilarity(pairs, powers={"log_ar": 1})`. The
+  default is still 2, so existing fits are unchanged. `DissimilarityModel.powers` carries
+  the powers to `variance`, `combine` and the donor correlation; `bootstrap_band` and
+  `leave_one_out` take `powers` too. `solve_band` solves the new form: a closed form for
+  `p = 1` and `p = 2`, a bracketed root otherwise.
+- **`profile_power`** fits one term's power over a grid and ranks the fits by Gaussian
+  log-likelihood, returning a `PowerProfile` with every fit and its binned check. Over
+  about 3.5 decades of area ratio, a quadratic in `log_ar` under-predicts the excess about
+  3x at small ratios (methow-flow, Peak Region 2).
+
 ## [0.14.0] - 2026-10-22
 
 The first three methow-flow priorities: the variance of each quantile estimate with Bulletin 17C
