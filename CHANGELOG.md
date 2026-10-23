@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **`transfer_variance.leave_one_out` no longer aborts on a negative donor correlation**
+  (#177). A fold's re-estimated `rho` could be negative, and with `k` donors any
+  `rho <= -1/(k - 1)` leaves the donors' errors without a valid covariance, so `combine`
+  raised and the whole run stopped. Fold estimates are now floored at 0
+  (`min_donor_correlation=0.0`; `None` keeps the estimate). Two donors' errors at one receiver
+  share that receiver's deviation, so a negative estimate is noise. New columns
+  `donor_correlation_estimate` and `donor_correlation_clipped` report the raw value and
+  whether the floor applied. A gage whose fold still cannot be refitted or combined is
+  recorded with NaN estimates and a `note` instead of being dropped or stopping the run.
+  `combine` now names the `-1/(k - 1)` bound when it refuses a donor correlation.
+
 ## [0.14.0] - 2026-10-22
 
 The first three methow-flow priorities: the variance of each quantile estimate with Bulletin 17C
