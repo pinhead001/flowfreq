@@ -111,11 +111,11 @@ Raised by methow-flow's Peak Region 2 run (methow-flow #29, merged 2026-10-22):
       drop the two-model stopgap (within-4x band fit plus full-range fit) and its own fold
       loop. Still open here: the bootstrap holds the power fixed, so the band interval
       leaves out the uncertainty in choosing it.
-- [ ] **Indefinite blend covariance from a negative donor rho** (#177). `leave_one_out`
-      re-estimates `rho` per fold, and `rho <= -1/(k-1)` with `k` donors makes `combine`'s
-      covariance indefinite, aborting the run. methow-flow passes one full-data `rho`
-      floored at zero. Fix candidates: bound `rho` below by the donor count, or catch and
-      fall back per fold.
+- [x] **Indefinite blend covariance from a negative donor rho** (#177). `leave_one_out`
+      floors fold estimates at 0 (`min_donor_correlation`), reports the raw estimate and a
+      clipped flag, and records a gage it cannot score with a `note` instead of aborting.
+      `combine` names the `-1/(k-1)` bound. methow-flow can drop its own floored full-data
+      `rho` workaround.
 
 ### Carried into 0.11.0
 

@@ -701,6 +701,11 @@ def estimate_donor_correlation(
     and ``rho`` is the pooled moment estimate
     ``sum(e_ij e_kj - known) / sum(s_ij s_kj)``, clipped to ``[-1, 1]``.
 
+    The two errors share the receiver's own deviation, so under the model
+    ``rho`` is not negative, and a negative estimate is sampling noise. It is
+    returned as estimated. :func:`combine` refuses ``rho <= -1/(k - 1)`` with
+    ``k`` donors, and :func:`leave_one_out` floors its fold estimates at 0.
+
     Parameters
     ----------
     gages, connections, exponents, aep, exponent_variance, sampling_cov, attributes
@@ -841,6 +846,18 @@ def _check_rho(name: str, rho: float) -> None:
         raise ValueError(f"{name} correlation must be in [-1, 1], got {rho}")
 
 
+def _check_donor_bound(rho: float, k: int) -> None:
+    # rho * s s' + (1 - rho) diag(s^2) is S [(1 - rho) I + rho 1 1'] S, positive
+    # definite exactly when rho > -1/(k - 1). The other blocks are covariances
+    # and cannot repair it.
+    if k >= 2 and rho <= -1.0 / (k - 1):
+        raise ValueError(
+            f"donor correlation {rho:.4g} is not above -1/(k - 1) = {-1.0 / (k - 1):.4f} "
+            f"for {k} donors with dissimilarity variance, so their errors have no "
+            "positive definite covariance"
+        )
+
+
 def combine(
     model: DissimilarityModel,
     transfers: pd.DataFrame,
@@ -877,7 +894,8 @@ def combine(
         uncorrelated.
     donor_correlation : float, default 0.0
         Correlation of two donors' dissimilarity errors
-        (:func:`estimate_donor_correlation`).
+        (:func:`estimate_donor_correlation`). With ``k`` donors whose
+        ``s2_d`` is positive it must exceed ``-1/(k - 1)``.
     regression_correlation : float, default 0.0
         Correlation of a transfer's error with the regression's.
     level : float, default 0.90
@@ -890,8 +908,9 @@ def combine(
     Raises
     ------
     ValueError
-        Nothing to combine, a correlation outside ``[-1, 1]``, or a
-        covariance matrix that is not positive definite.
+        Nothing to combine, a correlation outside ``[-1, 1]``, a donor
+        correlation at or below ``-1/(k - 1)``, or a covariance matrix that is
+        not positive definite.
     """
     _check_rho("donor", donor_correlation)
     _check_rho("regression", regression_correlation)
@@ -915,6 +934,7 @@ def combine(
         ]
     )
     k = len(donors)
+    _check_donor_bound(donor_correlation, int(np.count_nonzero(s > 0.0)))
     m = k + (regression is not None)
     C = np.zeros((m, m))
     C[:k, :k] = (
@@ -1197,6 +1217,7 @@ def leave_one_out(
     sampling_cov: Optional[pd.DataFrame] = None,
     attributes: Sequence[str] = (),
     donor_correlation: Optional[float] = None,
+    min_donor_correlation: Optional[float] = 0.0,
     regression_correlation: float = 0.0,
     level: float = 0.90,
     powers: Optional[Mapping[str, float]] = None,
@@ -1225,6 +1246,11 @@ def leave_one_out(
     donor_correlation : float, optional
         Fixed donor correlation; ``None`` estimates it in each fold
         (:func:`estimate_donor_correlation`), and uses 0 where it cannot.
+    min_donor_correlation : float or None, default 0.0
+        Floor on a fold's estimated correlation. A negative estimate is noise
+        (see :func:`estimate_donor_correlation`), and with several donors it
+        can leave no valid covariance (#177). ``None`` uses the estimate as it
+        is. A fixed ``donor_correlation`` is never floored.
     regression_correlation : float, default 0.0
         Passed to :func:`combine`.
     level : float, default 0.90
@@ -1234,12 +1260,17 @@ def leave_one_out(
     Returns
     -------
     pd.DataFrame
-        One row per scored gage: ``site_no``, ``n_donors``,
-        ``donor_correlation`` (the fold's value), ``observed``,
-        ``blend``, ``blend_variance``, ``blend_error``, ``blend_covered``,
-        ``blend_covered_naive``, ``transfer_only``, ``transfer_error``,
-        ``transfer_covered``, ``regression``, ``regression_error``,
-        ``regression_covered``. Errors are estimate minus observed, log10.
+        One row per connected gage: ``site_no``, ``n_donors``,
+        ``donor_correlation`` (the value the fold used),
+        ``donor_correlation_estimate`` (the fold's estimate before the floor,
+        NaN when fixed or not estimable), ``donor_correlation_clipped``,
+        ``observed``, ``blend``, ``blend_variance``, ``blend_error``,
+        ``blend_covered``, ``blend_covered_naive``, ``transfer_only``,
+        ``transfer_error``, ``transfer_covered``, ``regression``,
+        ``regression_error``, ``regression_covered`` and ``note``. Errors are
+        estimate minus observed, log10. A gage whose fold cannot be refitted or
+        combined is not scored: its estimates are NaN, ``note`` says why
+        (it is empty otherwise), and the run carries on.
     """
     b = _exponent(exponents, aep, "leave_one_out")
     fixed_powers = _check_powers(terms, powers)
@@ -1255,21 +1286,56 @@ def leave_one_out(
     donor = pairs["donor"].to_numpy()
     receiver = pairs["receiver"].to_numpy()
 
-    rows = []
+    unscored = dict.fromkeys(
+        [
+            "blend",
+            "blend_variance",
+            "blend_error",
+            "blend_covered",
+            "blend_covered_naive",
+            "transfer_only",
+            "transfer_error",
+            "transfer_covered",
+            "regression",
+            "regression_error",
+            "regression_covered",
+        ],
+        np.nan,
+    )
+    rows: List[Dict[str, object]] = []
     for j in net.sites:
         nbrs = neighbours.get(j, [])
         if not nbrs:
             continue
+        row: Dict[str, object] = {
+            "site_no": j,
+            "n_donors": len(nbrs),
+            "donor_correlation": np.nan,
+            "donor_correlation_estimate": np.nan,
+            "donor_correlation_clipped": False,
+            "observed": net.log_q[j],
+            **unscored,
+            "note": "",
+        }
         try:
             model = _fit(
                 pairs.loc[(donor != j) & (receiver != j)], tuple(terms), fixed_powers, warn=False
             )
-        except ValueError:
+        except ValueError as exc:
+            row["note"] = f"s2_d refit failed: {exc}"
+            rows.append(row)
             continue
         rho = donor_correlation
         if rho is None:
             outside = (tri["i"] != j) & (tri["k"] != j) & (tri["j"] != j)
             rho = _rho_from_triples(tri, model, outside)[0]
+            if rho is not None:
+                row["donor_correlation_estimate"] = rho
+                if min_donor_correlation is not None and rho < min_donor_correlation:
+                    rho = min_donor_correlation
+                    row["donor_correlation_clipped"] = True
+        rho_d = 0.0 if rho is None else rho
+        row["donor_correlation"] = rho_d
         trows = []
         for i in nbrs:
             x = net.features(i, j)
@@ -1283,31 +1349,35 @@ def leave_one_out(
             )
         transfers = pd.DataFrame(trows)
         dcov = net.cov_frame(nbrs)
-        rho_d = 0.0 if rho is None else rho
-        t_only = combine(
-            model,
-            transfers,
-            None,
-            exponent_variance=exponent_variance,
-            donor_cov=dcov,
-            donor_correlation=rho_d,
-            level=level,
-        )
         reg = (reg_q[j], reg_v[j]) if has_reg else None
-        blend = (
-            t_only
-            if reg is None
-            else combine(
+        try:
+            t_only = combine(
                 model,
                 transfers,
-                reg,
+                None,
                 exponent_variance=exponent_variance,
                 donor_cov=dcov,
                 donor_correlation=rho_d,
-                regression_correlation=regression_correlation,
                 level=level,
             )
-        )
+            blend = (
+                t_only
+                if reg is None
+                else combine(
+                    model,
+                    transfers,
+                    reg,
+                    exponent_variance=exponent_variance,
+                    donor_cov=dcov,
+                    donor_correlation=rho_d,
+                    regression_correlation=regression_correlation,
+                    level=level,
+                )
+            )
+        except ValueError as exc:
+            row["note"] = f"combine failed: {exc}"
+            rows.append(row)
+            continue
         y = net.log_q[j]
         v_j = net.cov(j, j)
         c_kj = np.array([net.cov(i, j) for i in nbrs])
@@ -1324,23 +1394,18 @@ def leave_one_out(
 
         b_err, b_cov, b_naive = scored(blend)
         t_err, t_cov, _ = scored(t_only)
-        row: Dict[str, object] = {
-            "site_no": j,
-            "n_donors": len(nbrs),
-            "donor_correlation": rho_d,
-            "observed": y,
-            "blend": blend.log_q,
-            "blend_variance": blend.variance,
-            "blend_error": b_err,
-            "blend_covered": b_cov,
-            "blend_covered_naive": b_naive,
-            "transfer_only": t_only.log_q,
-            "transfer_error": t_err,
-            "transfer_covered": t_cov,
-            "regression": np.nan,
-            "regression_error": np.nan,
-            "regression_covered": np.nan,
-        }
+        row.update(
+            {
+                "blend": blend.log_q,
+                "blend_variance": blend.variance,
+                "blend_error": b_err,
+                "blend_covered": b_cov,
+                "blend_covered_naive": b_naive,
+                "transfer_only": t_only.log_q,
+                "transfer_error": t_err,
+                "transfer_covered": t_cov,
+            }
+        )
         if reg is not None:
             r_err = reg[0] - y
             row["regression"] = reg[0]
