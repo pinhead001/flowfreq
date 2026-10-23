@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.14.1] - 2026-10-22
+
 ### Fixed
 - **`transfer_variance.leave_one_out` no longer aborts on a negative donor correlation**
   (#177). A fold's re-estimated `rho` could be negative, and with `k` donors any
