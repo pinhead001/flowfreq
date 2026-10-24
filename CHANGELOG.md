@@ -18,6 +18,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   log-likelihood, returning a `PowerProfile` with every fit and its binned check. Over
   about 3.5 decades of area ratio, a quadratic in `log_ar` under-predicts the excess about
   3x at small ratios (methow-flow, Peak Region 2).
+- **Regulation guardrail on transfers** (roadmap §5.2, TODO tier 2 #6).
+  `transpose_frequency`, `transpose_duration`, `transpose_low_flow`, `qppq` and
+  `regression_weighted_transfer` take `donor_regulation` and `target_regulation` (a
+  `SiteClassification` or `SiteClass`) and refuse a regulated site on one side only with
+  `RegulationMismatchError`, unless `allow_regulation_mismatch=True`. What was checked is
+  recorded in a new `regulation` field on `TranspositionProvenance`, `QppqResult` and
+  `RegressionWeightedTransfer`, and in `TransposedResults.to_markdown()`. Both are optional:
+  without them a transfer proceeds as before, logs a warning, and records
+  `regulation_checked=False`. The check itself is `regulation.check_transfer_regulation`.
+- **`classify_site(..., known_diversions="...")`** marks a site regulated for a diversion the
+  screen cannot see (an irrigation canal with no dam and no code-6 peaks, such as Beaver Creek
+  in the Methow). The description is recorded in `basis`, `SiteClassification.caller_regulated`
+  is set, and `require_unregulated` refuses a B17C fit on it.
 
 ## [0.14.1] - 2026-10-22
 

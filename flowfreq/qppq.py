@@ -61,6 +61,9 @@ What this module does not do
   overstate summer flow, confidently.
 - **It does not naturalize.** A regulated donor transfers its regulation.
   Choose unregulated donors or naturalize first, and be consistent.
+  :func:`qppq` refuses a regulated donor for an unregulated target, and the
+  reverse, when given both sites' ``donor_regulation``/``target_regulation``
+  (:func:`flowfreq.regulation.check_transfer_regulation`).
 - **Donor ranking here is not the map-correlation method.**
   :func:`rank_donors` needs *some* record at the target. Selecting a donor
   for a truly ungaged site by kriging the correlation field (Archfield &
@@ -76,6 +79,8 @@ from typing import Any, Callable, Dict, Mapping, Optional, Sequence, Tuple, Unio
 import numpy as np
 import pandas as pd
 from scipy.special import ndtri
+
+from flowfreq.regulation import RegulationStatus, check_transfer_regulation
 
 logger = logging.getLogger(__name__)
 
@@ -365,6 +370,8 @@ class QppqResult:
         describe the days being transferred.
     seasonal : bool
     donor_label, target_label : str
+    regulation : dict, optional
+        What :func:`flowfreq.regulation.check_transfer_regulation` returned.
     """
 
     series: pd.DataFrame
@@ -374,6 +381,7 @@ class QppqResult:
     donor_label: str = ""
     target_label: str = ""
     notes: Tuple[str, ...] = field(default_factory=tuple)
+    regulation: Optional[Dict[str, Any]] = None
 
 
 def qppq(
@@ -385,6 +393,9 @@ def qppq(
     flow_column: str = "flow_cfs",
     donor_label: str = "",
     target_label: str = "",
+    donor_regulation: RegulationStatus = None,
+    target_regulation: RegulationStatus = None,
+    allow_regulation_mismatch: bool = False,
 ) -> QppqResult:
     """Transfer a donor's daily series to a target through both FDCs.
 
@@ -400,6 +411,13 @@ def qppq(
         Required (or defaulted) when curves are dicts. Defaults to
         :data:`SNOWMELT_SEASONS`.
     flow_column, donor_label, target_label : str, optional
+    donor_regulation, target_regulation : SiteClassification, SiteClass or None, optional
+        Each site's regulation status (:func:`flowfreq.regulation.classify_site`).
+        A regulated site on one side only is refused; without both the
+        transfer proceeds with a warning and ``regulation`` says it was not
+        checked. See :func:`flowfreq.regulation.check_transfer_regulation`.
+    allow_regulation_mismatch : bool, optional
+        Transfer across a regulation mismatch anyway, recording the override.
 
     Returns
     -------
@@ -408,7 +426,12 @@ def qppq(
     Raises
     ------
     ValueError, TypeError
+        ``RegulationMismatchError`` (a ``ValueError``) for a regulation
+        mismatch without ``allow_regulation_mismatch``.
     """
+    regulation = check_transfer_regulation(
+        donor_regulation, target_regulation, allow_mismatch=allow_regulation_mismatch
+    )
     if flow_column not in donor_daily.columns:
         raise KeyError(f"donor_daily has no {flow_column!r} column")
     if not isinstance(donor_daily.index, pd.DatetimeIndex):
@@ -514,6 +537,7 @@ def qppq(
         donor_label=donor_label,
         target_label=target_label,
         notes=tuple(notes),
+        regulation=regulation,
     )
 
 

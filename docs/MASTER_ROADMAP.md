@@ -407,9 +407,12 @@ A single entry point, `estimate_at_site(lat, lon, …)`, that decides and docume
 - [x] Area-ratio band, probability-kind checks, extrapolation flags (existing pattern).
 - [~] Same-stream / nested-basin check via NLDI. Refuse cross-basin DAR unless forced.
       *The check exists* (`nesting.nested_gage_pairs`); `transpose` does not call it yet.
-- [ ] Regulation check. Refuse a regulated donor for an unregulated target and the
-      reverse, unless forced. The per-gage classification exists
-      (`regulation.classify_site`, §1.1); `transpose` and `qppq` do not use it yet.
+- [x] Regulation check. Refuse a regulated donor for an unregulated target and the
+      reverse, unless forced. `transpose_*`, `qppq` and `regression_weighted_transfer` take
+      `donor_regulation`/`target_regulation` (`regulation.check_transfer_regulation`);
+      `classify_site(known_diversions=...)` marks a diversion the screen cannot see. The
+      statuses are optional (a warning without them), and the transfer functions do not
+      classify sites themselves.
 - [ ] Leave-one-out validation harness for each method on a state's gage network. This
       reports bias and RMSE in log space by AEP, so method choice is evidence-based per
       region.

@@ -40,13 +40,14 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import NamedTuple, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, NamedTuple, Optional, Sequence, Tuple, Union
 
 import numpy as np
 import pandas as pd
 from scipy.special import ndtri
 
 from flowfreq.core import FrequencyResults, LowFlowResults
+from flowfreq.regulation import RegulationStatus, check_transfer_regulation
 
 logger = logging.getLogger(__name__)
 
@@ -435,6 +436,10 @@ class TranspositionProvenance:
         when the caller passed ``allow_out_of_range=True``.
     donor_site_no, target_name : str, optional
         Labels for the report.
+    regulation : dict, optional
+        What :func:`flowfreq.regulation.check_transfer_regulation` returned:
+        each side's regulation status, whether both were supplied
+        (``regulation_checked``) and whether a mismatch was overridden.
     """
 
     donor_area_sqmi: float
@@ -455,6 +460,7 @@ class TranspositionProvenance:
     monotonic: bool = True
     hydrogeologic_setting: Optional[str] = None
     bfi_difference: Optional[float] = None
+    regulation: Optional[Dict[str, Any]] = None
 
     @property
     def extrapolated_aeps(self) -> np.ndarray:
@@ -611,6 +617,24 @@ class TransposedResults:
                 "controlled by baseflow storage and geology rather than drainage area; "
                 "where the target's own basin characteristics are available, a published "
                 "low-flow regression is the better tool than transposition."
+            )
+
+        reg = p.regulation
+        if reg is None or not reg["regulation_checked"]:
+            lines.append(
+                "- **Regulation was not checked**: no regulation status was supplied for "
+                "both donor and target. A regulated donor transfers its regulation."
+            )
+        elif reg["regulation_override"]:
+            lines.append(
+                f"- **Regulation mismatch, transferred by override**: donor "
+                f"{reg['donor']['site_class']}, target {reg['target']['site_class']}. "
+                "The transferred flows carry the donor's regulation, or lack of it."
+            )
+        elif reg["donor"]["site_class"] == "regulated":
+            lines.append(
+                "- Donor and target are both regulated. The transfer carries the donor's "
+                "regulation, which matches the target's only if the two are regulated alike."
             )
 
         if p.bfi_difference is not None:
@@ -812,6 +836,9 @@ def transpose_frequency(
     max_aep: Optional[float] = None,
     donor_site_no: Optional[str] = None,
     target_name: Optional[str] = None,
+    donor_regulation: RegulationStatus = None,
+    target_regulation: RegulationStatus = None,
+    allow_regulation_mismatch: bool = False,
 ) -> TransposedResults:
     """Transpose a donor gage's fitted flood quantiles to an ungaged target.
 
@@ -849,6 +876,13 @@ def transpose_frequency(
         (default) transposes everything present.
     donor_site_no, target_name : str, optional
         Labels for the report.
+    donor_regulation, target_regulation : SiteClassification, SiteClass or None, optional
+        Each site's regulation status (:func:`flowfreq.regulation.classify_site`).
+        A regulated site on one side only is refused; without both the
+        transfer proceeds with a warning and the provenance says it was not
+        checked. See :func:`flowfreq.regulation.check_transfer_regulation`.
+    allow_regulation_mismatch : bool, optional
+        Transfer across a regulation mismatch anyway, recording the override.
 
     Returns
     -------
@@ -860,8 +894,14 @@ def transpose_frequency(
         If an area is not positive, the donor has no quantiles, ``max_aep``
         leaves nothing to transpose, or the area ratio is outside
         ``area_ratio_range`` without ``allow_out_of_range``.
+    RegulationMismatchError
+        One site is regulated and the other is not, without
+        ``allow_regulation_mismatch`` (a ``ValueError``).
     """
     _require_kind(exponents, "aep", "transpose_frequency")
+    regulation = check_transfer_regulation(
+        donor_regulation, target_regulation, allow_mismatch=allow_regulation_mismatch
+    )
     area_ratio, in_range = _check_areas(
         donor_area_sqmi,
         target_area_sqmi,
@@ -954,6 +994,7 @@ def transpose_frequency(
         donor_site_no=donor_site_no,
         target_name=target_name,
         monotonic=monotonic,
+        regulation=regulation,
     )
 
     return TransposedResults(
@@ -977,6 +1018,9 @@ def transpose_duration(
     on_non_monotonic: str = "raise",
     donor_site_no: Optional[str] = None,
     target_name: Optional[str] = None,
+    donor_regulation: RegulationStatus = None,
+    target_regulation: RegulationStatus = None,
+    allow_regulation_mismatch: bool = False,
 ) -> TransposedResults:
     """Transpose flow-duration statistics to an ungaged target.
 
@@ -1004,6 +1048,13 @@ def transpose_duration(
         As :func:`transpose_frequency`.
     donor_site_no, target_name : str, optional
         Labels for the report.
+    donor_regulation, target_regulation : SiteClassification, SiteClass or None, optional
+        Each site's regulation status (:func:`flowfreq.regulation.classify_site`).
+        A regulated site on one side only is refused; without both the
+        transfer proceeds with a warning and the provenance says it was not
+        checked. See :func:`flowfreq.regulation.check_transfer_regulation`.
+    allow_regulation_mismatch : bool, optional
+        Transfer across a regulation mismatch anyway, recording the override.
 
     Returns
     -------
@@ -1017,6 +1068,8 @@ def transpose_duration(
     ValueError
         If the exponent set is indexed by the wrong kind of probability, the
         curve is empty, or the areas fail their checks.
+    RegulationMismatchError
+        As for :func:`transpose_frequency`.
     KeyError
         If the curve lacks a flow or probability column.
 
@@ -1028,6 +1081,9 @@ def transpose_duration(
     in the report rather than quietly reported as zero flow.
     """
     _require_kind(exponents, "exceedance", "transpose_duration")
+    regulation = check_transfer_regulation(
+        donor_regulation, target_regulation, allow_mismatch=allow_regulation_mismatch
+    )
     area_ratio, in_range = _check_areas(
         donor_area_sqmi,
         target_area_sqmi,
@@ -1110,6 +1166,7 @@ def transpose_duration(
         statistic="flow duration",
         degenerate_count=n_degenerate,
         monotonic=monotonic,
+        regulation=regulation,
     )
 
     return TransposedResults(
@@ -1138,6 +1195,9 @@ def transpose_low_flow(
     max_p_zero: float = 0.0,
     donor_site_no: Optional[str] = None,
     target_name: Optional[str] = None,
+    donor_regulation: RegulationStatus = None,
+    target_regulation: RegulationStatus = None,
+    allow_regulation_mismatch: bool = False,
 ) -> TransposedResults:
     """Transpose low-flow statistics to an ungaged target, under protest.
 
@@ -1193,6 +1253,13 @@ def transpose_low_flow(
         As :func:`transpose_frequency`, with a tighter default band.
     donor_site_no, target_name : str, optional
         Labels for the report.
+    donor_regulation, target_regulation : SiteClassification, SiteClass or None, optional
+        Each site's regulation status (:func:`flowfreq.regulation.classify_site`).
+        A regulated site on one side only is refused; without both the
+        transfer proceeds with a warning and the provenance says it was not
+        checked. See :func:`flowfreq.regulation.check_transfer_regulation`.
+    allow_regulation_mismatch : bool, optional
+        Transfer across a regulation mismatch anyway, recording the override.
 
     Returns
     -------
@@ -1205,6 +1272,8 @@ def transpose_low_flow(
         If the exponent kind is wrong, ``hydrogeologic_setting`` is empty,
         the donor carries no quantiles, any donor statistic is zero, or the
         donor's ``p_zero`` exceeds ``max_p_zero``.
+    RegulationMismatchError
+        As for :func:`transpose_frequency`.
     """
     if not hydrogeologic_setting or not hydrogeologic_setting.strip():
         raise ValueError(
@@ -1216,6 +1285,9 @@ def transpose_low_flow(
         )
 
     _require_kind(exponents, "non_exceedance", "transpose_low_flow")
+    regulation = check_transfer_regulation(
+        donor_regulation, target_regulation, allow_mismatch=allow_regulation_mismatch
+    )
     area_ratio, in_range = _check_areas(
         donor_area_sqmi,
         target_area_sqmi,
@@ -1310,6 +1382,7 @@ def transpose_low_flow(
         hydrogeologic_setting=hydrogeologic_setting,
         bfi_difference=bfi_difference,
         monotonic=monotonic,
+        regulation=regulation,
     )
 
     return TransposedResults(
@@ -1337,12 +1410,15 @@ class RegressionWeightedTransfer(NamedTuple):
         ``2 dA / A_g``, the weight on the regression estimate.
     area_ratio : float
         ``A_u / A_g``.
+    regulation : dict, optional
+        What :func:`flowfreq.regulation.check_transfer_regulation` returned.
     """
 
     flow_cfs: np.ndarray
     transferred_cfs: np.ndarray
     regression_weight: np.ndarray
     area_ratio: float
+    regulation: Optional[Dict[str, Any]] = None
 
 
 def regression_weighted_transfer(
@@ -1351,6 +1427,10 @@ def regression_weighted_transfer(
     gage_area_sqmi: float,
     ungaged_area_sqmi: float,
     exponent: Union[float, Sequence[float], np.ndarray],
+    *,
+    donor_regulation: RegulationStatus = None,
+    target_regulation: RegulationStatus = None,
+    allow_regulation_mismatch: bool = False,
 ) -> RegressionWeightedTransfer:
     """Flood quantiles at an ungaged site near a streamgage on the same stream.
 
@@ -1378,6 +1458,9 @@ def regression_weighted_transfer(
     exponent : float or array_like
         ``b``: the drainage-area exponent of the regional regression, per AEP.
         Its citation is the caller's, as for :class:`RegressionExponents`.
+    donor_regulation, target_regulation : SiteClassification, SiteClass or None, optional
+    allow_regulation_mismatch : bool, optional
+        As for :func:`transpose_frequency`; the streamgage is the donor.
 
     Returns
     -------
@@ -1389,12 +1472,17 @@ def regression_weighted_transfer(
         An area is not positive, the ratio is outside :data:`RIES_2007_RANGE`
         (the method is not defined there; use the regression), a flow is
         negative or not finite, or the arrays do not broadcast.
+    RegulationMismatchError
+        One site is regulated and the other is not (a ``ValueError``).
 
     References
     ----------
     Ries, K.G., III, 2007, The national streamflow statistics program: U.S.
     Geological Survey Techniques and Methods 4-A6.
     """
+    regulation = check_transfer_regulation(
+        donor_regulation, target_regulation, allow_mismatch=allow_regulation_mismatch
+    )
     for label, area in (("gage", gage_area_sqmi), ("ungaged", ungaged_area_sqmi)):
         if not (np.isfinite(area) and area > 0):
             raise ValueError(f"{label} drainage area must be positive, got {area!r}")
@@ -1426,4 +1514,5 @@ def regression_weighted_transfer(
         transferred_cfs=transferred,
         regression_weight=w,
         area_ratio=ratio,
+        regulation=regulation,
     )

@@ -42,6 +42,15 @@ rather than fitted: :func:`require_unregulated` raises
 :class:`RegulatedRecordError` unless the caller passes an explicit override,
 and the override is recorded in the returned provenance. A gage with no
 classification at all proceeds, with a warning.
+
+A diversion none of this sees -- an irrigation canal with no dam and no code-6
+peaks -- is the caller's to declare: ``classify_site(..., known_diversions=...)``
+classes the site ``regulated`` and records the description.
+
+The same classes guard transfers (roadmap §5.2):
+:func:`check_transfer_regulation` refuses a regulated donor for an unregulated
+target, and the reverse, and ``transpose_*`` and ``qppq`` call it with their
+``donor_regulation`` and ``target_regulation`` arguments.
 """
 
 from __future__ import annotations
@@ -113,6 +122,10 @@ class RegulatedRecordError(ValueError):
     """Bulletin 17C was asked to fit a record classified as regulated."""
 
 
+class RegulationMismatchError(ValueError):
+    """A transfer was asked to carry flows between a regulated and an unregulated site."""
+
+
 class NIDUnavailableError(RuntimeError):
     """The National Inventory of Dams could not be downloaded and no cached copy exists."""
 
@@ -136,6 +149,9 @@ class SiteClassification:
         Current-data evidence from the opt-in refinement (empty when it was
         not requested): NID storage, impervious time series, their dates and
         sources, and any reason a piece could not be computed.
+    caller_regulated : bool
+        The caller marked the site regulated (``known_diversions``), for a
+        diversion or regulation none of the screen's evidence sees.
     """
 
     site_no: str
@@ -146,6 +162,7 @@ class SiteClassification:
     n_peaks_code5: int = 0
     n_peaks: int = 0
     current: Dict[str, Any] = field(default_factory=dict)
+    caller_regulated: bool = False
 
     @property
     def in_table(self) -> bool:
@@ -171,6 +188,7 @@ class SiteClassification:
             "n_peaks_code5": self.n_peaks_code5,
             "n_peaks": self.n_peaks,
             "current": dict(self.current),
+            "caller_regulated": self.caller_regulated,
         }
 
 
@@ -895,6 +913,7 @@ def classify_site(
     mean_flow_cfs: Optional[float] = None,
     nid: Optional[NIDInventory] = None,
     streamstats_cache: Optional["StreamStatsCache"] = None,
+    known_diversions: Optional[str] = None,
 ) -> SiteClassification:
     """Classify a gage from the screen table, current basin data and peak codes.
 
@@ -917,7 +936,8 @@ def classify_site(
     5. Otherwise ``unknown`` (a gage outside GAGES-II can never be shown to
        be ``reference`` this way).
 
-    Peak code 6 makes the record ``regulated`` in every case.
+    Peak code 6 makes the record ``regulated`` in every case, and so does
+    ``known_diversions``.
 
     Parameters
     ----------
@@ -934,6 +954,12 @@ def classify_site(
         Opt in to current NLCD impervious cover from StreamStats.
     watershed, region, lat, lon, mean_flow_cfs, nid, streamstats_cache
         Passed to :func:`current_basin_evidence`.
+    known_diversions : str, optional
+        The caller's description of a diversion or regulation the screen
+        cannot see -- GAGES-II, the NID and peak codes all miss an irrigation
+        canal with no dam and no code-6 peaks. Given, the site is
+        ``regulated`` and the description is recorded in ``basis`` as
+        ``"caller: <text>"``.
 
     Returns
     -------
@@ -942,6 +968,8 @@ def classify_site(
         table and nothing else decides it.
     """
     site_no = str(site_no).strip()
+    if known_diversions is not None and not str(known_diversions).strip():
+        raise ValueError("known_diversions must describe the diversion, not be blank")
     tab = table if table is not None else _load(str(_default_path()))
     attributes: Dict[str, Any] = {}
     basis = []
@@ -983,6 +1011,9 @@ def classify_site(
             basis.append(f"peak code 6 (regulation or diversion) on {n6} of {n} peaks")
         if n5:
             basis.append(f"peak code 5 (unknown degree) on {n5} of {n} peaks; not decisive")
+    if known_diversions is not None:
+        site_class = SiteClass.REGULATED
+        basis.append(f"caller: {str(known_diversions).strip()}")
     return SiteClassification(
         site_no=site_no,
         site_class=site_class,
@@ -992,6 +1023,7 @@ def classify_site(
         n_peaks_code5=n5,
         n_peaks=n,
         current=current,
+        caller_regulated=known_diversions is not None,
     )
 
 
@@ -1085,6 +1117,7 @@ def require_unregulated(
         not classification.in_table
         and classification.n_peaks_code6 == 0
         and not classification.has_current_evidence
+        and not classification.caller_regulated
     ):
         logger.warning(
             "USGS %s has no regulation classification (not in GAGES-II); proceeding "
@@ -1095,4 +1128,122 @@ def require_unregulated(
         logger.info(
             "USGS %s is classified urban (%s)", classification.site_no, classification.basis
         )
+    return prov
+
+
+#: What :func:`check_transfer_regulation` accepts for each side of a transfer.
+RegulationStatus = Union[SiteClassification, SiteClass, None]
+
+
+def _describe(status: Union[SiteClassification, SiteClass]) -> Dict[str, Any]:
+    if isinstance(status, SiteClassification):
+        return {
+            "site_no": status.site_no,
+            "site_class": status.site_class.value,
+            "basis": list(status.basis),
+        }
+    return {"site_class": status.value}
+
+
+def _label(side: str, status: Union[SiteClassification, SiteClass]) -> str:
+    if isinstance(status, SiteClassification):
+        reasons = "; ".join(status.basis) or "no basis recorded"
+        return f"{side} USGS {status.site_no} is {status.site_class.value} ({reasons})"
+    return f"{side} is {status.value} (as given)"
+
+
+def _is_regulated(status: Union[SiteClassification, SiteClass]) -> bool:
+    cls = status.site_class if isinstance(status, SiteClassification) else status
+    return cls is SiteClass.REGULATED
+
+
+def check_transfer_regulation(
+    donor: RegulationStatus,
+    target: RegulationStatus,
+    *,
+    allow_mismatch: bool = False,
+) -> Dict[str, Any]:
+    """Refuse a transfer between a regulated and an unregulated site.
+
+    Roadmap §5.2. A regulated donor carries its regulation into every
+    transferred flow, and an unregulated donor carries none into a regulated
+    target; either way the transfer returns a plausible wrong number. Only
+    ``regulated`` against anything else is a mismatch: ``reference``,
+    ``urban`` and ``unknown`` are all treated as unregulated, as
+    :func:`require_unregulated` treats them, and recorded.
+
+    Two regulated sites proceed with a warning: the transfer is consistent,
+    but what it carries is the donor's regulation, which equals the target's
+    only if the two are regulated alike. A side that is ``None`` was not
+    supplied; the transfer proceeds with a warning and the provenance says the
+    check was not made.
+
+    Parameters
+    ----------
+    donor, target : SiteClassification, SiteClass or None
+        Each site's regulation status. A :class:`SiteClassification` (from
+        :func:`classify_site`, perhaps with ``known_diversions``) carries its
+        reasons into the provenance; a bare :class:`SiteClass` is the caller's
+        assertion.
+    allow_mismatch : bool, default False
+        Transfer across a mismatch anyway. Logged as a warning and recorded.
+
+    Returns
+    -------
+    dict
+        ``donor`` and ``target`` (each side's class, and site and basis when
+        known; ``None`` when not supplied), ``regulation_checked`` (both sides
+        supplied) and ``regulation_override`` (a mismatch was crossed because
+        of ``allow_mismatch``).
+
+    Raises
+    ------
+    RegulationMismatchError
+        Exactly one side is regulated and ``allow_mismatch`` is False.
+    TypeError
+        A side is neither a :class:`SiteClassification`, a :class:`SiteClass`
+        nor ``None``.
+    """
+    for side, status in (("donor", donor), ("target", target)):
+        if status is not None and not isinstance(status, (SiteClassification, SiteClass)):
+            raise TypeError(
+                f"{side} regulation must be a SiteClassification, a SiteClass or None, "
+                f"got {type(status).__name__}"
+            )
+    prov: Dict[str, Any] = {
+        "donor": None if donor is None else _describe(donor),
+        "target": None if target is None else _describe(target),
+        "regulation_checked": donor is not None and target is not None,
+        "regulation_override": False,
+    }
+    if donor is None or target is None:
+        missing = " and ".join(s for s, v in (("donor", donor), ("target", target)) if v is None)
+        logger.warning(
+            "transfer regulation not checked: no regulation status for the %s. Pass "
+            "donor_regulation and target_regulation (regulation.classify_site) to check it.",
+            missing,
+        )
+        return prov
+
+    d_reg, t_reg = _is_regulated(donor), _is_regulated(target)
+    if d_reg and t_reg:
+        logger.warning(
+            "donor and target are both regulated (%s; %s); the transfer carries the donor's "
+            "regulation, which matches the target's only if the two are regulated alike",
+            _label("donor", donor),
+            _label("target", target),
+        )
+    elif d_reg or t_reg:
+        why = f"{_label('donor', donor)}; {_label('target', target)}"
+        if not allow_mismatch:
+            raise RegulationMismatchError(
+                f"regulation mismatch: {why}. A regulated donor transfers its regulation to "
+                "the target, and an unregulated one transfers none to a regulated target. "
+                "Pass allow_regulation_mismatch=True to transfer anyway; the override is "
+                "recorded in the result."
+            )
+        logger.warning(
+            "regulation mismatch (%s); transferring because allow_regulation_mismatch=True", why
+        )
+        prov["regulation_override"] = True
     return prov

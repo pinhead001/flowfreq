@@ -97,8 +97,10 @@ Tier 2 -- fixes known Methow biases or moves general code upstream:
 5. [ ] **GLS validation against SIR 2016-5118** (§3.3, Northwest task 4), so Peak Region 2
        can be refitted rather than corrected by a residual line (it is 1.41-2.04x low at
        four of five Methow gages).
-6. [ ] **Regulation guardrail in `transpose` and `qppq`** (§5.2), with a caller-supplied
-       flag for diversions GAGES-II does not see (Beaver Creek).
+6. [x] **Regulation guardrail in `transpose` and `qppq`** (§5.2), with a caller-supplied
+       flag for diversions GAGES-II does not see (Beaver Creek):
+       `donor_regulation`/`target_regulation` on every transfer, and
+       `classify_site(known_diversions=...)`.
 
 Tier 3 -- ordered for the per-reach monthly mean flows (WY1992-2025) that every EDT flow
 attribute in methow-flow waits on (`docs/EDT_ATTRIBUTE_CROSSWALK.md` §6 there):
