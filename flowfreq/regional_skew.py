@@ -393,8 +393,8 @@ def regional_skew_at_huc(
 
     Skew studies define their regions by drainage, so membership is decided
     by hydrologic unit: the most specific (longest) prefix of ``huc`` listed
-    in ``regional_skew_hucs.csv`` decides. Nothing is defaulted -- a unit no
-    verified study covers raises.
+    in ``regional_skew_hucs.csv`` decides. A unit with membership that no
+    verified study covers raises; nothing is defaulted there.
 
     A unit with no membership row at all (the HUC table encodes only some
     studies) falls back to the site's state: if the state has exactly one row
@@ -464,10 +464,7 @@ def regional_skew_at_huc(
     # query ambiguous (e.g. a HUC8 part of which is Snake River Plain).
     finer = hucs[hucs["huc"].str.startswith(huc) & (hucs["huc"].str.len() > len(huc))]
     if matches.empty and finer.empty:
-        no_study = (
-            f"No verified regional skew study covers HUC {huc}. Supply "
-            "regional_skew/regional_skew_mse explicitly (Bulletin 17C p. 31: consult the USGS)."
-        )
+        no_study = _no_study(huc)
         if not allow_state_fallback:
             raise RegionalSkewUnavailable(no_study)
         return _state_fallback(huc, st, no_study, path, states_path, allow_provisional)
@@ -578,6 +575,24 @@ def regional_skew_at_huc(
         effective_record_years=None if pd.isna(erl) else float(erl),
         advisory=advisory,
         provisional=bool(provisional),
+    )
+
+
+def _no_study(huc: str) -> str:
+    """The refusal for a unit no membership row covers."""
+    return (
+        f"No verified regional skew study covers HUC {huc}. Supply "
+        "regional_skew/regional_skew_mse explicitly (Bulletin 17C p. 31: consult the USGS)."
+    )
+
+
+def _has_membership(huc: str, huc_path: Union[str, Path, None] = None) -> bool:
+    """True if a membership row covers ``huc``, or lies inside it."""
+    hucs = load_huc_table(huc_path)
+    listed = hucs["huc"]
+    return bool(
+        any(huc.startswith(h) for h in listed)
+        or (listed.str.startswith(huc) & (listed.str.len() > len(huc))).any()
     )
 
 
@@ -756,12 +771,17 @@ def regional_skew_at(
     lat, lon : float
         WGS84 decimal degrees of the site (the gage or basin outlet).
     state : str, optional
-        Postal code of the site. Taken from the HU12 when it lies in one
-        state; needed only for an HU12 on a state line the study stops at.
+        Postal code of the site. Taken from the HU12 when its WBD ``states``
+        name one state. Needed for an HU12 on a state line the study stops
+        at, and for a border HU12 (WBD names several states) that no
+        membership row covers: the state-level fallback then needs to know
+        which state's row applies.
     timeout : int
         Request timeout, seconds.
     allow_provisional, allow_state_fallback : bool
-        Passed to :func:`regional_skew_at_huc`.
+        Passed to :func:`regional_skew_at_huc`. With the fallback on, an HU12
+        no membership row covers takes its state's single usable row, with a
+        ``STATE-LEVEL FALLBACK`` advisory.
 
     Returns
     -------
@@ -770,14 +790,24 @@ def regional_skew_at(
     Raises
     ------
     RegionalSkewUnavailable
-        No verified study covers the point (see :func:`regional_skew_at_huc`),
-        or its HU12 crosses into a state the study does not cover.
+        No verified study covers the point and the state-level fallback does
+        not apply (see :func:`regional_skew_at_huc`); the HU12 is on a state
+        border, no membership row covers it and ``state`` was not given (the
+        message names the states WBD reports); or the HU12 crosses into a
+        state the study does not cover.
     requests.RequestException
         The WBD request failed.
     """
     huc, states = huc12_at(lat, lon, timeout=timeout)
     if state is None and len(states) == 1:
         state = states[0]
+    if state is None and len(states) > 1 and allow_state_fallback and not _has_membership(huc):
+        # The fallback would otherwise consult the HUC8-states table, which
+        # lists only some HUC8s and could contradict what WBD just reported.
+        raise RegionalSkewUnavailable(
+            f"{_no_study(huc)} HUC {huc} touches {', '.join(sorted(states))}; "
+            "pass state= to choose the state-level fallback."
+        )
     return regional_skew_at_huc(
         huc,
         state,

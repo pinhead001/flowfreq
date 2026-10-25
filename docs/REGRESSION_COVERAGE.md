@@ -75,7 +75,7 @@ Plan and definitions of done: `docs/MASTER_ROADMAP.md` §3.2.
 
 | Code | Jurisdiction | Equations | Regions | Equation count | Regional skew | Issue |
 |---|---|---|---:|---:|---|---|
-| ME | Maine | not started | 0 | 0 | pending |  |
+| ME | Maine | not started | 0 | 0 | verified |  |
 | NH | New Hampshire | not started | 0 | 0 | verified |  |
 | VT | Vermont | not started | 0 | 0 | pending |  |
 | MA | Massachusetts | not started | 0 | 0 | pending, verified |  |

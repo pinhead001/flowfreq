@@ -37,6 +37,22 @@ def test_pending_rows_are_never_returned(state, region):
         regional_skew_for(state, region)
 
 
+def test_verified_row_without_effective_record_length_loads(tmp_path):
+    p = _table(tmp_path, "ZZ,Statewide,0.02,0.09,,cite,p. 9,verified,no ERL printed\n")
+    df = load_table(p)
+    assert df["status"].iloc[0] == "verified"
+    rs = regional_skew_for("ZZ", path=p)
+    assert (rs.skew, rs.skew_mse, rs.effective_record_years) == (0.02, 0.09, None)
+
+
+def test_maine_is_verified_without_an_effective_record_length():
+    # SIR 2020-5092 p. 9 prints G and AVPnew (= MSE) but no effective record length.
+    rs = regional_skew_for("ME")
+    assert (rs.skew, rs.skew_mse) == (0.020, 0.09)
+    assert rs.effective_record_years is None
+    assert "sir20205092" in rs.citation
+
+
 def test_no_entry(tmp_path):
     # Every jurisdiction now has a row in the packaged table, so use a private one.
     p = _table(tmp_path, "XX,R1,-0.1,0.12,50,Report 1,Table 2,verified,\n")

@@ -278,6 +278,57 @@ def test_regional_skew_at_bad_coordinates():
         regional_skew_at(146.0, -113.9)
 
 
+def _hu12(huc: str, states: List[str]):
+    def fake(lat: float, lon: float, *, timeout: int = 60):
+        return huc, states
+
+    return fake
+
+
+def test_regional_skew_at_border_hu12_names_the_wbd_states(monkeypatch):
+    # An IA/MN border HU12 outside every encoded study: the refusal names the
+    # states WBD reported, not the HUC8-states table (which lists no 0708 HUC8).
+    monkeypatch.setattr(rs_mod, "huc12_at", _hu12("070802090101", ["MN", "IA"]))
+    with pytest.raises(RegionalSkewUnavailable) as exc:
+        regional_skew_at(43.5, -93.0)
+    msg = str(exc.value)
+    assert "touches IA, MN; pass state= to choose the state-level fallback" in msg
+    assert "no known state" not in msg
+    rs = regional_skew_at(43.5, -93.0, state="IA")  # the caller picks the state
+    assert (rs.state, rs.skew) == ("IA", -0.40)
+    assert rs.advisory.startswith("STATE-LEVEL FALLBACK")
+
+
+def test_regional_skew_at_single_state_hu12_falls_back(monkeypatch):
+    monkeypatch.setattr(rs_mod, "huc12_at", _hu12("070802090101", ["IA"]))
+    rs = regional_skew_at(43.5, -93.0)
+    assert (rs.state, rs.skew) == ("IA", -0.40)
+    assert rs.advisory.startswith("STATE-LEVEL FALLBACK")
+
+
+def test_regional_skew_at_border_hu12_with_membership_skips_the_check(monkeypatch):
+    # Membership decides there, so the WBD states never block it.
+    monkeypatch.setattr(rs_mod, "huc12_at", _hu12("170401030103", ["ID", "WY"]))
+    with pytest.raises(RegionalSkewUnavailable) as exc:
+        regional_skew_at(43.5, -110.8)
+    assert "state-level fallback" not in str(exc.value)
+
+
+def test_regional_skew_at_passes_the_flag(monkeypatch):
+    seen: Dict[str, Any] = {}
+    monkeypatch.setattr(rs_mod, "huc12_at", _hu12("070802090101", ["IA", "MN"]))
+
+    def fake(huc, state, **kw):
+        seen.update(kw, huc=huc, state=state)
+        raise RegionalSkewUnavailable("stop")
+
+    monkeypatch.setattr(rs_mod, "regional_skew_at_huc", fake)
+    with pytest.raises(RegionalSkewUnavailable, match="stop"):
+        regional_skew_at(43.5, -93.0, allow_state_fallback=False)
+    assert seen["allow_state_fallback"] is False
+    assert (seen["huc"], seen["state"]) == ("070802090101", None)
+
+
 def test_regional_skew_for_site_mocked(monkeypatch):
     import flowfreq.waterdata as wd
 
