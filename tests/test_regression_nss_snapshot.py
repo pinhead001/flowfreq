@@ -6,10 +6,13 @@ default ``load_state``. Its advisory says the equations are not checked against 
 source report.
 
 ``tests/fixtures/nss_snapshot_TN_trimmed.json`` is the 2026-10-25 Tennessee snapshot
-trimmed to two regions: GC2015 with three equations, and GC341 marked ``unresolved``.
-GC2015's 0.2% AEP equation string is synthetic -- a region-indicator interaction, the
-GA/NC/SC form the parser refuses -- so that the fixture carries one refusal; its
-``parse_error`` is the parser's message for that string.
+trimmed to two regions: GC2015 with three equations, and GC341. Two things in it are
+invented, as its ``note`` says: GC341 was flipped to ``unresolved`` with a made-up
+reason, and GC2015's 0.2% AEP equation string is synthetic -- a region-indicator
+interaction, the GA/NC/SC form the parser refuses -- so that the fixture carries one
+refusal; its ``parse_error`` is the parser's message for that string. (The real string
+is ``65.8*(DRNAREA^0.701)*(CLIMFAC2YR^2.928)``.) The printed-constant case is built
+inline by ``test_constant_q0_is_stored_as_a_constant``.
 """
 
 from __future__ import annotations
@@ -245,6 +248,98 @@ def test_snapshot_to_library_builds_equations_and_unparsed(trimmed):
     assert lib.unparsed[1]["region_code"] == "GC341" and lib.unparsed[1]["equation"] == ""
 
 
+def test_stored_order_is_stable(trimmed):
+    # Reverse the harvest order: the stored order must not follow it.
+    trimmed["regions"].reverse()
+    for region in trimmed["regions"]:
+        region["equations"] = list(reversed(region.get("equations") or []))
+    data = snapshot_to_library(trimmed)
+    assert data is not None
+    assert [(e["region_code"], e["aep"]) for e in data["equations"]] == [
+        ("GC2015", 0.5),
+        ("GC2015", 0.01),
+    ]
+    assert [(u["region_code"], u["statistic_code"]) for u in data["unparsed"]] == [
+        ("GC2015", "PK0_2AEP"),
+        ("GC341", ""),
+    ]
+
+
+def test_constant_q0_is_stored_as_a_constant(trimmed):
+    # NSS's form of a printed Q=0 (CA GC30): parse_equation refuses it, and the
+    # parse_constant_equation retry is the only way form="constant" enters a library.
+    q0 = copy.deepcopy(trimmed["regions"][0]["equations"][0])
+    q0.update(
+        statistic_code="PK10AEP",
+        aep=0.1,
+        equation="0*(0*(DRNAREA))^(0)",
+        asep_pct=30.0,
+        parsed=None,
+        parse_error=None,
+    )
+    trimmed["regions"][0]["equations"].append(q0)
+    data = snapshot_to_library(trimmed)
+    assert data is not None
+    lib = parse_state(data)
+    eq = lib.equation("GC2015", 0.1)
+    assert eq.form == "constant" and eq.constant_cfs == 0.0
+    # A positive ASEp does not give a constant an error.
+    assert eq.sep_log is None
+    assert eq.citation.table == "NSS region 1062 (GC2015), citation 210"
+    assert eq.citation.year == 2025
+    assert lib.aeps("GC2015") == [0.5, 0.1, 0.01]
+    # Appended last in the harvest, stored between the 50% and 1% equations.
+    assert [e["aep"] for e in data["equations"]] == [0.5, 0.1, 0.01]
+    assert [u["statistic_code"] for u in lib.unparsed] == ["PK0_2AEP", ""]
+
+
+@pytest.mark.parametrize(
+    "author, title, year",
+    [
+        # LA citation 62: the title opens with the report number, not the year.
+        ("TR No.", "60, (1998) Floods in Louisiana, magnitude and frequency", 1998),
+        # PR citation 172: the year is in the author field.
+        (
+            "Ryan, P.J., and others, 2021,",
+            "Magnitude and frequency of floods in Puerto Rico through the 2019 water year",
+            2021,
+        ),
+        ("Anon.", "Flood-frequency equations, no date given", None),
+    ],
+)
+def test_citation_year_is_the_first_year_in_author_and_title(trimmed, author, title, year):
+    trimmed["citations"]["210"].update(author=author, title=title)
+    lib = parse_state(snapshot_to_library(trimmed))
+    assert lib.equation("GC2015", 0.5).citation.year == year
+
+
+def test_parse_state_reads_nulls_as_empty(tmp_path):
+    data: Dict[str, Any] = {
+        "schema_version": 1,
+        "state": "TN",
+        "status": "nss_snapshot",
+        "source_reports": [{"citation": "Synthetic report"}],
+        "equations": [EQ],
+        "retrieved_utc": None,
+        "notes": None,
+        "unparsed": None,
+    }
+    lib = parse_state(data)
+    assert lib.retrieved_utc == "" and lib.notes == "" and lib.unparsed == []
+    path = tmp_path / NSS_SNAPSHOT_SUBDIR / "TN.json"
+    path.parent.mkdir(parents=True)
+    path.write_text(json.dumps(data), encoding="utf-8")
+    advisory = load_state("TN", data_dir=tmp_path, allow_nss_snapshot=True).advisory
+    assert "on an unrecorded date" in advisory and "None" not in advisory
+
+
+def test_notes_count_one_unparsed_in_the_singular(trimmed):
+    trimmed["regions"] = trimmed["regions"][:1]
+    data = snapshot_to_library(trimmed)
+    assert data is not None
+    assert "1 unparsed equation or region," in data["notes"]
+
+
 def test_source_reports_and_notes(trimmed):
     data = snapshot_to_library(trimmed)
     assert data is not None
@@ -264,7 +359,8 @@ def test_source_reports_and_notes(trimmed):
     assert data["issue"] is None
     assert "data/nss_snapshots/TN_2026-10-25.json" in data["notes"]
     assert "2026-10-25T17:20:40+00:00" in data["notes"]
-    assert "2 equations stored" in data["notes"] and "2 unparsed" in data["notes"]
+    assert "2 equations stored" in data["notes"]
+    assert "2 unparsed equations or regions," in data["notes"]
 
 
 def test_equations_round_trip_through_json(trimmed):
