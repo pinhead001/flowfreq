@@ -485,6 +485,47 @@ class RegressionEquation:
             applicability=tuple(Variable(**v) for v in d.get("applicability", [])),
         )
 
+    def to_dict(self) -> Dict[str, Any]:
+        """Return the JSON form :meth:`from_dict` reads, omitting unset optional fields.
+
+        A ``form="constant"`` equation is written without ``intercept``, as
+        :meth:`from_dict` requires.
+        """
+        d: Dict[str, Any] = {"region_code": self.region_code}
+        if self.region_name:
+            d["region_name"] = self.region_name
+        d["aep"] = self.aep
+        if self.form != "loglinear":
+            d["form"] = self.form
+        if self.intercept is not None:
+            d["intercept"] = self.intercept
+        d["variables"] = [v.to_dict() for v in self.variables]
+        d["coefficients"] = list(self.coefficients)
+        if self.constant_cfs is not None:
+            d["constant_cfs"] = self.constant_cfs
+        citation: Dict[str, Any] = {
+            "publication": self.citation.publication,
+            "table": self.citation.table,
+        }
+        if self.citation.year is not None:
+            citation["year"] = self.citation.year
+        if self.citation.url:
+            citation["url"] = self.citation.url
+        d["citation"] = citation
+        for name in ("sep_log", "avp", "model_error_variance", "n_sites", "equivalent_years"):
+            value = getattr(self, name)
+            if value is not None:
+                d[name] = value
+        if self.covariance is not None:
+            d["covariance"] = [list(row) for row in self.covariance]
+        if self.bias_correction != 1.0:
+            d["bias_correction"] = self.bias_correction
+        if self.published_errors:
+            d["published_errors"] = [p.to_dict() for p in self.published_errors]
+        if self.applicability:
+            d["applicability"] = [v.to_dict() for v in self.applicability]
+        return d
+
 
 @dataclass(frozen=True)
 class RegressionEstimate:

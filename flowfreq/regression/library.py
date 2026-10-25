@@ -24,6 +24,13 @@ passes ``allow_awaiting_nss=True``. They get their own folder rather than sharin
 are different claims (USGS-published versus flowfreq-developed), and a state can
 have both at once (one ``<CODE>.json`` per folder).
 
+Equations harvested from the USGS NSS web service and parsed by flowfreq, but not
+checked against the source report, live in
+``flowfreq/data/regression/nss_snapshot/<CODE>.json`` with ``status:
+"nss_snapshot"``, and :func:`load_state` returns one only when the caller passes
+``allow_nss_snapshot=True``. :func:`flowfreq.regression.nss_library.snapshot_to_library`
+generates them from ``tools/snapshot_nss.py`` output.
+
 Roadmap: ``docs/MASTER_ROADMAP.md`` §3.1-3.2, issues #35 and #37-#40.
 """
 
@@ -45,6 +52,8 @@ DATA_DIR = Path(__file__).resolve().parent.parent / "data" / "regression"
 PROVISIONAL_SUBDIR = "provisional"
 #: Subdirectory holding USGS-published sets that NSS/StreamStats does not serve yet.
 AWAITING_NSS_SUBDIR = "awaiting_nss"
+#: Subdirectory holding sets harvested from NSS and not checked against the report.
+NSS_SNAPSHOT_SUBDIR = "nss_snapshot"
 SCHEMA_VERSION = 1
 #: How faithfully a state file transcribes its source reports -- a statement about
 #: the transcription, not about how much the reports themselves publish:
@@ -67,9 +76,21 @@ SCHEMA_VERSION = 1
 #:   served by NSS/StreamStats, which still serves the set in ``<CODE>.json``.
 #:   Allowed only under ``awaiting_nss/``, and returned only on opt-in
 #:   (``load_state(code, allow_awaiting_nss=True)``).
-STATUSES = frozenset({"pending", "partial", "verified", "provisional", "awaiting_nss"})
+#: - ``nss_snapshot``: harvested from the USGS NSS web service and parsed by
+#:   flowfreq, but not checked against the source report ("available with
+#:   caveat", never ``verified``). Equations NSS serves that flowfreq cannot parse,
+#:   and regions NSS would not resolve, are listed in ``unparsed``. Allowed only
+#:   under ``nss_snapshot/``, and returned only on opt-in
+#:   (``load_state(code, allow_nss_snapshot=True)``).
+STATUSES = frozenset(
+    {"pending", "partial", "verified", "provisional", "awaiting_nss", "nss_snapshot"}
+)
 #: Opt-in statuses, each with the one subdirectory allowed to hold it.
-OPT_IN_SUBDIRS = {"provisional": PROVISIONAL_SUBDIR, "awaiting_nss": AWAITING_NSS_SUBDIR}
+OPT_IN_SUBDIRS = {
+    "provisional": PROVISIONAL_SUBDIR,
+    "awaiting_nss": AWAITING_NSS_SUBDIR,
+    "nss_snapshot": NSS_SNAPSHOT_SUBDIR,
+}
 
 
 class EquationsUnavailable(LookupError):
@@ -87,6 +108,12 @@ class StateLibrary:
     issue: Optional[int] = None
     notes: str = ""
     advisory: str = ""
+    #: Published equations or regions that could not be stored (``nss_snapshot`` sets):
+    #: dicts with ``region_code``, ``region_name``, ``statistic_code``, ``aep``,
+    #: ``equation`` (empty for an unresolved region) and ``reason``.
+    unparsed: List[Dict[str, Any]] = field(default_factory=list)
+    #: When the NSS snapshot behind an ``nss_snapshot`` set was retrieved (ISO 8601 UTC).
+    retrieved_utc: str = ""
 
     @property
     def provisional(self) -> bool:
@@ -97,6 +124,11 @@ class StateLibrary:
     def awaiting_nss(self) -> bool:
         """True for a USGS-published set that NSS/StreamStats does not serve yet."""
         return self.status == "awaiting_nss"
+
+    @property
+    def nss_snapshot(self) -> bool:
+        """True for a set harvested from NSS and not checked against the source report."""
+        return self.status == "nss_snapshot"
 
     @property
     def regions(self) -> List[str]:
@@ -163,6 +195,8 @@ def parse_state(data: Dict[str, Any]) -> StateLibrary:
         source_reports=list(data.get("source_reports", [])),
         issue=data.get("issue"),
         notes=str(data.get("notes", "")),
+        unparsed=[dict(u) for u in data.get("unparsed", [])],
+        retrieved_utc=str(data.get("retrieved_utc", "")),
     )
 
 
@@ -186,6 +220,18 @@ def _awaiting_nss_advisory(code: str, lib: StateLibrary) -> str:
     )
 
 
+def _nss_snapshot_advisory(code: str, lib: StateLibrary) -> str:
+    date = lib.retrieved_utc[:10] or "an unrecorded date"
+    return (
+        f"NSS SNAPSHOT (not report-verified): the {code} equations were harvested from the "
+        f"USGS NSS web service on {date} and parsed by flowfreq. They have not been checked "
+        "against the source report and carry no covariance or model-error variance; "
+        "intervals use NSS's average standard error of prediction where NSS reports one. "
+        f"{len(lib.unparsed)} published equations or regions could not be parsed and are "
+        "listed in StateLibrary.unparsed."
+    )
+
+
 def _load_opt_in(root: Path, code: str, status: str) -> Optional[StateLibrary]:
     """Load ``<subdir>/<CODE>.json`` for an opt-in status, or None if there is none."""
     path = root / OPT_IN_SUBDIRS[status] / f"{code}.json"
@@ -199,8 +245,10 @@ def _load_opt_in(root: Path, code: str, status: str) -> Optional[StateLibrary]:
         )
     if status == "provisional":
         lib.advisory = _provisional_advisory(code)
-    else:
+    elif status == "awaiting_nss":
         lib.advisory = _awaiting_nss_advisory(code, lib)
+    else:
+        lib.advisory = _nss_snapshot_advisory(code, lib)
     logger.warning("%s", lib.advisory)
     return lib
 
@@ -211,6 +259,7 @@ def load_state(
     *,
     allow_provisional: bool = False,
     allow_awaiting_nss: bool = False,
+    allow_nss_snapshot: bool = False,
 ) -> StateLibrary:
     """Load one jurisdiction's equation library.
 
@@ -230,6 +279,12 @@ def load_state(
         ``advisory`` set and a logged warning. Without one, the published set is
         returned as usual. If both flags are set and both files exist, this set
         wins, because a USGS report supersedes a flowfreq-developed one.
+    allow_nss_snapshot : bool
+        Return the jurisdiction's set harvested from the NSS web service, from
+        ``nss_snapshot/<CODE>.json``, when there is one, with ``advisory`` set and
+        a logged warning. Without one, the published set is returned as usual.
+        It ranks last among the opt-in sets: ``awaiting_nss``, then
+        ``provisional``, then ``nss_snapshot``.
 
     Returns
     -------
@@ -240,15 +295,16 @@ def load_state(
     EquationsUnavailable
         If the jurisdiction has no file yet (its wave has not started).
     ValueError
-        If a published file claims an opt-in status (``provisional`` or
-        ``awaiting_nss``), or a file in an opt-in folder claims any other status
-        or another jurisdiction.
+        If a published file claims an opt-in status (``provisional``,
+        ``awaiting_nss`` or ``nss_snapshot``), or a file in an opt-in folder claims
+        any other status or another jurisdiction.
     """
     code = jurisdiction(code).code
     root = Path(data_dir or DATA_DIR)
     for status, wanted in (
         ("awaiting_nss", allow_awaiting_nss),
         ("provisional", allow_provisional),
+        ("nss_snapshot", allow_nss_snapshot),
     ):
         if wanted:
             opt_in = _load_opt_in(root, code, status)
@@ -269,8 +325,8 @@ def load_state(
 def available_states(data_dir: Union[str, Path, None] = None) -> Dict[str, str]:
     """Map every jurisdiction with a published library file to its status.
 
-    Opt-in sets are not listed; see :func:`provisional_states` and
-    :func:`awaiting_nss_states`.
+    Opt-in sets are not listed; see :func:`provisional_states`,
+    :func:`awaiting_nss_states` and :func:`nss_snapshot_states`.
     """
     out: Dict[str, str] = {}
     for p in sorted(Path(data_dir or DATA_DIR).glob("*.json")):
@@ -286,4 +342,10 @@ def provisional_states(data_dir: Union[str, Path, None] = None) -> List[str]:
 def awaiting_nss_states(data_dir: Union[str, Path, None] = None) -> List[str]:
     """Jurisdictions with a USGS-published set NSS/StreamStats does not serve yet, sorted."""
     root = Path(data_dir or DATA_DIR) / AWAITING_NSS_SUBDIR
+    return sorted(p.stem for p in root.glob("*.json"))
+
+
+def nss_snapshot_states(data_dir: Union[str, Path, None] = None) -> List[str]:
+    """Jurisdictions with a set harvested from NSS (not report-verified), sorted."""
+    root = Path(data_dir or DATA_DIR) / NSS_SNAPSHOT_SUBDIR
     return sorted(p.stem for p in root.glob("*.json"))
