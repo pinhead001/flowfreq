@@ -3,8 +3,9 @@
 Each snapshot written by ``tools/snapshot_nss.py`` is turned into
 ``<out>/<CODE>.json`` by :func:`flowfreq.regression.nss_library.snapshot_to_library`.
 A jurisdiction is skipped when it already has a published set
-(``<published-dir>/<CODE>.json``), or when its snapshot has no regions (NSS
-serves no peak-flow equations there).
+(``<published-dir>/<CODE>.json``), when its snapshot has no regions (NSS
+serves no peak-flow equations there), or when none of its regions yields an equation
+(every region unresolved or refused): a library with no equations is not written.
 
 A snapshot that cannot be read (invalid JSON, no ``state``), or a second snapshot
 for a jurisdiction already given, is reported with its path and skipped; the rest
@@ -71,6 +72,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         library = snapshot_to_library(snapshot)
         if library is None:
             print(f"skipped {code}: no NSS peak-flow regions")
+            continue
+        if not library["equations"]:
+            print(f"skipped {code}: no parseable equations")
             continue
         args.out.mkdir(parents=True, exist_ok=True)
         (args.out / f"{code}.json").write_text(

@@ -35,7 +35,7 @@ Standing rules carried over from this repo's history, which apply to every phase
 | StreamStats delineation + basin characteristics | [x] Phase 1, with validated watershed polygon | `streamstats.py` |
 | NSS regression evaluation via web service | [x] PFS and LFS verified live in WA; regions selected by watershed polygon | `streamstats.py` |
 | Regional skew | [~] verified PNW rows (WA/OR/ID) and Arizona; location lookup by hydrologic unit (`regional_skew_at`, `regional_skew_for_site`); B-WLS/B-GLS tooling; MT and the rest of Wave 2 pending (§1.3) | `regional_skew.py`, `skew_study.py`, `data/regional_skew*.csv` |
-| Offline regression-equation library | [~] schema, evaluator and NSS snapshot tool; 10 states transcribed (Wave 1 and Wave 2), 6 `verified` and 4 `partial` | `regression/`, `data/regression/`, `tools/snapshot_nss.py` |
+| Offline regression-equation library | [~] schema, evaluator and NSS snapshot tool; 10 states transcribed (Wave 1 and Wave 2), 6 `verified` and 4 `partial`; a further 41 jurisdictions carry an opt-in `nss_snapshot` set (2026-10-25, 1817 equations) | `regression/`, `data/regression/`, `tools/snapshot_nss.py` |
 | Gage/regression weighting (B17C App. 9 style) | [ ] | — |
 | Drainage-area-ratio transposition | [x] | `transpose.py` |
 | QPPQ daily-series transfer | [x] | `qppq.py` |
@@ -294,13 +294,13 @@ basin that dominates its flood hydrology.
 |---|---|---|---|
 | 1 | Columbia River basin ([#28](https://github.com/pinhead001/flowfreq/issues/28), closed) | [#37](https://github.com/pinhead001/flowfreq/issues/37) WA (pilot): partial · [#38](https://github.com/pinhead001/flowfreq/issues/38) OR: verified · [#39](https://github.com/pinhead001/flowfreq/issues/39) ID: verified · [#40](https://github.com/pinhead001/flowfreq/issues/40) MT: verified | All four issues closed. WA stays `partial` because its published region 4 covariance is not stored (#65). Regional skew: PNW for WA/OR/ID; MT pending (§1.3). Wave-level QA ran 2026-10-06 with Wave 2 (`docs/WAVE_QA_W1_W2.md`): no per-site flag on a Wave 1-internal border; systematic offsets ID above MT in the panhandle (1.83x at 1 %, MT West carried into wetter basins) and WA below ID at the 2-year (0.68x); OR's eastern variables and `ELEV` are not computed by OR StreamStats. Snowmelt/rain mixed populations and regulated mainstem gages are the main hazards. |
 | 2 | Colorado River basin | [#93](https://github.com/pinhead001/flowfreq/issues/93) CO: verified · [#96](https://github.com/pinhead001/flowfreq/issues/96) UT: verified · [#98](https://github.com/pinhead001/flowfreq/issues/98) WY: verified · [#100](https://github.com/pinhead001/flowfreq/issues/100) NM: verified · [#102](https://github.com/pinhead001/flowfreq/issues/102) AZ: verified · [#104](https://github.com/pinhead001/flowfreq/issues/104) NV: partial | Equations landed for all six (#94, #97, #99, #101, #103, #106); CO, WY and NM issues are closed. UT: region 2 stores NSS's unrounded precipitation bases (the report prints them to 3 significant figures). AZ: region 5 stored with the `power` transform. NV: no published range table, region 6's 2-year equation printed `Q=0`. Regional skew: AZ verified (SIR 2014-5211 app. 1); CO, UT, WY, NV pending (no B-GLS study), NM pending (2026 report unpublished). No future-flow factors tabulated. Wave-level QA ran 2026-10-06 (`docs/WAVE_QA_W1_W2.md`): 1 of 89 evaluable border site-pairs beyond the SEP threshold (Tongue River, WY-MT, Q2, MT plains polygon over a Bighorn basin); WY above MT at 10 %/50 %; no offset inside Wave 2. NV not evaluable (no region geometry in NSS or StreamStats); WY/NM regions locatable only on their own delineations (`WYPK_IND`, `HIGHREG`). CA is a Colorado compact state but goes to wave 3. Arid regions have large SEPs, zero-flow years, and heavy use of PILF (potentially influential low flood) screening. |
-| 3 | West coast and Pacific | [ ] CA · [ ] AK · [ ] HI | OR and WA were done in wave 1. AK and HI are grouped here as Pacific states with sparse networks. |
-| 4a | Upper Mississippi and Great Lakes | [ ] MN · [ ] WI · [ ] IA · [ ] IL · [ ] MO · [ ] MI | MI is mostly Great Lakes drainage, placed here as the nearest wave. |
-| 4b | Missouri basin | [ ] ND · [ ] SD · [ ] NE · [ ] KS | Snowmelt/ice-jam peaks and prairie non-contributing area. |
-| 4c | Ohio basin | [ ] OH · [ ] IN · [ ] KY · [ ] TN · [ ] WV | TN holds the Big Sandy primary test site. |
-| 4d | Lower Mississippi, Arkansas-Red, and Gulf | [ ] AR · [ ] LA · [ ] MS · [ ] OK · [ ] TX | TX is mostly Gulf drainage, placed here for its Red River border and shared skew work with OK/LA. |
-| 5 | East coast | [ ] ME · [ ] NH · [ ] VT · [ ] MA · [ ] RI · [ ] CT · [ ] NY · [ ] NJ · [ ] PA · [ ] DE · [ ] MD · [ ] DC · [ ] VA · [ ] NC · [ ] SC · [ ] GA · [ ] FL · [ ] AL | AL (Mobile basin, Gulf) is grouped with GA/FL because Southeast regional skew and regression studies span those states. |
-| 6 | Territories | [ ] PR · [ ] USVI · [ ] Guam · [ ] CNMI · [ ] American Samoa | Expect old, sparse, or absent equations. Document the fallback for each: nearest applicable equations, index-flood from the few gages, or "not supported" with the reason. |
+| 3 | West coast and Pacific | [ ] CA · [ ] AK · [ ] HI | CA, AK and HI have an `nss_snapshot` set (not supported). OR and WA were done in wave 1. AK and HI are grouped here as Pacific states with sparse networks. |
+| 4a | Upper Mississippi and Great Lakes | [ ] MN · [ ] WI · [ ] IA · [ ] IL · [ ] MO · [ ] MI | All six have an `nss_snapshot` set (not supported). MI is mostly Great Lakes drainage, placed here as the nearest wave. |
+| 4b | Missouri basin | [ ] ND · [ ] SD · [ ] NE · [ ] KS | All four have an `nss_snapshot` set (not supported). Snowmelt/ice-jam peaks and prairie non-contributing area. |
+| 4c | Ohio basin | [ ] OH · [ ] IN · [ ] KY · [ ] TN · [ ] WV | All five have an `nss_snapshot` set (not supported). TN holds the Big Sandy primary test site. |
+| 4d | Lower Mississippi, Arkansas-Red, and Gulf | [ ] AR · [ ] LA · [ ] MS · [ ] OK · [ ] TX | All five have an `nss_snapshot` set (not supported); AR, LA and MS leave `sep_log` unset where NSS ASEp is below 1. TX is mostly Gulf drainage, placed here for its Red River border and shared skew work with OK/LA. |
+| 5 | East coast | [ ] ME · [ ] NH · [ ] VT · [ ] MA · [ ] RI · [ ] CT · [ ] NY · [ ] NJ · [ ] PA · [ ] DE · [ ] MD · [ ] DC · [ ] VA · [ ] NC · [ ] SC · [ ] GA · [ ] FL · [ ] AL | All but DC have an `nss_snapshot` set (not supported): 17 of 18. GA, NC and SC refuse 8 region-indicator equations each, and NY has 2 unresolved urban regions. AL (Mobile basin, Gulf) is grouped with GA/FL because Southeast regional skew and regression studies span those states. |
+| 6 | Territories | [ ] PR · [ ] USVI · [ ] Guam · [ ] CNMI · [ ] American Samoa | Expect old, sparse, or absent equations. Document the fallback for each: nearest applicable equations, index-flood from the few gages, or "not supported" with the reason. PR has an `nss_snapshot` set (not supported); USVI, Guam, CNMI and American Samoa have none (NSS serves no regions). |
 
 **Equation status** (the `status` field of `flowfreq/data/regression/<STATE>.json`, defined
 in `flowfreq/regression/library.py`, #107) describes how faithfully a file transcribes its
@@ -309,7 +309,11 @@ publish for the stored regions is stored, double-entered and cross-checked, agai
 where NSS serves the region and otherwise against the report's own worked examples and
 per-gage estimates. A report that publishes no covariance can still be `verified`.
 `partial`: something the reports *do* publish is missing or unresolved. `pending`: nothing
-transcribed. This is narrower than the per-jurisdiction definition of done below, which also
+transcribed. `nss_snapshot`: harvested from the NSS web service and parsed by machine, not
+transcribed or double-entered, kept under `data/regression/nss_snapshot/` and returned only
+on `load_state(..., allow_nss_snapshot=True)`; it is a stage before `verified`, never
+`verified` itself, and the equations the parser refuses are listed in the library's
+`unparsed`, not dropped. This is narrower than the per-jurisdiction definition of done below, which also
 needs skew, polygons, the B17C appendix re-run and future-flow guidance.
 
 All 56 jurisdictions are covered: 50 states, DC, and 5 territories. Wave boundaries are

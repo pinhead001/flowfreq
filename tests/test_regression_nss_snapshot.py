@@ -473,6 +473,22 @@ def test_build_tool_writes_skips_and_reports(tmp_path, capsys, trimmed):
     assert len(parse_state(json.loads(text)).equations) == 2
 
 
+def test_build_tool_skips_a_snapshot_with_no_parseable_equations(tmp_path, capsys, trimmed):
+    """Every region unresolved (Indiana before its gating fix): no empty library is written."""
+    unresolved = copy.deepcopy(trimmed)
+    unresolved["state"] = "IN"
+    for region in unresolved["regions"]:
+        region["status"] = "unresolved"
+        region["unresolved_reason"] = "Estimate returned no results"
+    snap = tmp_path / "IN.json"
+    snap.write_text(json.dumps(unresolved), encoding="utf-8")
+
+    assert _run_build_tool(tmp_path, [snap]) == 0
+
+    assert capsys.readouterr().out.splitlines() == ["skipped IN: no parseable equations"]
+    assert not (tmp_path / "out" / "IN.json").exists()
+
+
 def test_build_tool_reports_bad_snapshots_and_continues(tmp_path, capsys, trimmed):
     snaps = tmp_path / "snaps"
     snaps.mkdir()
