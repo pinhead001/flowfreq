@@ -27,79 +27,79 @@ Plan and definitions of done: `docs/MASTER_ROADMAP.md` §3.2.
 
 | Code | Jurisdiction | Equations | Regions | Equation count | Regional skew | Issue |
 |---|---|---|---:|---:|---|---|
-| CA | California | not started | 0 | 0 | not started |  |
-| AK | Alaska | not started | 0 | 0 | not started |  |
-| HI | Hawaii | not started | 0 | 0 | not started |  |
+| CA | California | not started | 0 | 0 | pending |  |
+| AK | Alaska | not started | 0 | 0 | pending, verified |  |
+| HI | Hawaii | not started | 0 | 0 | verified |  |
 
 ## Wave 4a: Upper Mississippi and Great Lakes
 
 | Code | Jurisdiction | Equations | Regions | Equation count | Regional skew | Issue |
 |---|---|---|---:|---:|---|---|
-| MN | Minnesota | not started | 0 | 0 | not started |  |
-| WI | Wisconsin | not started | 0 | 0 | not started |  |
-| IA | Iowa | not started | 0 | 0 | not started |  |
-| IL | Illinois | not started | 0 | 0 | not started |  |
-| MO | Missouri | not started | 0 | 0 | not started |  |
-| MI | Michigan | not started | 0 | 0 | not started |  |
+| MN | Minnesota | not started | 0 | 0 | pending |  |
+| WI | Wisconsin | not started | 0 | 0 | pending |  |
+| IA | Iowa | not started | 0 | 0 | verified |  |
+| IL | Illinois | not started | 0 | 0 | pending |  |
+| MO | Missouri | not started | 0 | 0 | verified |  |
+| MI | Michigan | not started | 0 | 0 | verified |  |
 
 ## Wave 4b: Missouri basin
 
 | Code | Jurisdiction | Equations | Regions | Equation count | Regional skew | Issue |
 |---|---|---|---:|---:|---|---|
-| ND | North Dakota | not started | 0 | 0 | not started |  |
-| SD | South Dakota | not started | 0 | 0 | not started |  |
-| NE | Nebraska | not started | 0 | 0 | not started |  |
-| KS | Kansas | not started | 0 | 0 | not started |  |
+| ND | North Dakota | not started | 0 | 0 | pending |  |
+| SD | South Dakota | not started | 0 | 0 | pending |  |
+| NE | Nebraska | not started | 0 | 0 | pending |  |
+| KS | Kansas | not started | 0 | 0 | pending |  |
 
 ## Wave 4c: Ohio basin
 
 | Code | Jurisdiction | Equations | Regions | Equation count | Regional skew | Issue |
 |---|---|---|---:|---:|---|---|
-| OH | Ohio | not started | 0 | 0 | not started |  |
-| IN | Indiana | not started | 0 | 0 | not started |  |
-| KY | Kentucky | not started | 0 | 0 | not started |  |
-| TN | Tennessee | not started | 0 | 0 | not started |  |
-| WV | West Virginia | not started | 0 | 0 | not started |  |
+| OH | Ohio | not started | 0 | 0 | verified |  |
+| IN | Indiana | not started | 0 | 0 | verified |  |
+| KY | Kentucky | not started | 0 | 0 | verified |  |
+| TN | Tennessee | not started | 0 | 0 | verified |  |
+| WV | West Virginia | not started | 0 | 0 | verified |  |
 
 ## Wave 4d: Lower Mississippi, Arkansas-Red, and Gulf
 
 | Code | Jurisdiction | Equations | Regions | Equation count | Regional skew | Issue |
 |---|---|---|---:|---:|---|---|
-| AR | Arkansas | not started | 0 | 0 | not started |  |
-| LA | Louisiana | not started | 0 | 0 | not started |  |
-| MS | Mississippi | not started | 0 | 0 | not started |  |
-| OK | Oklahoma | not started | 0 | 0 | not started |  |
-| TX | Texas | not started | 0 | 0 | not started |  |
+| AR | Arkansas | not started | 0 | 0 | verified |  |
+| LA | Louisiana | not started | 0 | 0 | pending, verified |  |
+| MS | Mississippi | not started | 0 | 0 | pending |  |
+| OK | Oklahoma | not started | 0 | 0 | pending |  |
+| TX | Texas | not started | 0 | 0 | pending |  |
 
 ## Wave 5: East coast
 
 | Code | Jurisdiction | Equations | Regions | Equation count | Regional skew | Issue |
 |---|---|---|---:|---:|---|---|
-| ME | Maine | not started | 0 | 0 | not started |  |
-| NH | New Hampshire | not started | 0 | 0 | not started |  |
-| VT | Vermont | not started | 0 | 0 | not started |  |
-| MA | Massachusetts | not started | 0 | 0 | not started |  |
-| RI | Rhode Island | not started | 0 | 0 | not started |  |
-| CT | Connecticut | not started | 0 | 0 | not started |  |
-| NY | New York | not started | 0 | 0 | not started |  |
-| NJ | New Jersey | not started | 0 | 0 | not started |  |
-| PA | Pennsylvania | not started | 0 | 0 | not started |  |
-| DE | Delaware | not started | 0 | 0 | not started |  |
-| MD | Maryland | not started | 0 | 0 | not started |  |
-| DC | District of Columbia | not started | 0 | 0 | not started |  |
-| VA | Virginia | not started | 0 | 0 | not started |  |
-| NC | North Carolina | not started | 0 | 0 | not started |  |
-| SC | South Carolina | not started | 0 | 0 | not started |  |
-| GA | Georgia | not started | 0 | 0 | not started |  |
-| FL | Florida | not started | 0 | 0 | not started |  |
-| AL | Alabama | not started | 0 | 0 | not started |  |
+| ME | Maine | not started | 0 | 0 | pending |  |
+| NH | New Hampshire | not started | 0 | 0 | verified |  |
+| VT | Vermont | not started | 0 | 0 | pending |  |
+| MA | Massachusetts | not started | 0 | 0 | pending, verified |  |
+| RI | Rhode Island | not started | 0 | 0 | verified |  |
+| CT | Connecticut | not started | 0 | 0 | verified |  |
+| NY | New York | not started | 0 | 0 | pending, verified |  |
+| NJ | New Jersey | not started | 0 | 0 | pending |  |
+| PA | Pennsylvania | not started | 0 | 0 | pending, verified |  |
+| DE | Delaware | not started | 0 | 0 | pending |  |
+| MD | Maryland | not started | 0 | 0 | pending, verified |  |
+| DC | District of Columbia | not started | 0 | 0 | pending |  |
+| VA | Virginia | not started | 0 | 0 | verified |  |
+| NC | North Carolina | not started | 0 | 0 | verified |  |
+| SC | South Carolina | not started | 0 | 0 | verified |  |
+| GA | Georgia | not started | 0 | 0 | verified |  |
+| FL | Florida | not started | 0 | 0 | pending |  |
+| AL | Alabama | not started | 0 | 0 | pending |  |
 
 ## Wave 6: Territories
 
 | Code | Jurisdiction | Equations | Regions | Equation count | Regional skew | Issue |
 |---|---|---|---:|---:|---|---|
-| PR | Puerto Rico | not started | 0 | 0 | not started |  |
-| VI | U.S. Virgin Islands | not started | 0 | 0 | not started |  |
-| GU | Guam | not started | 0 | 0 | not started |  |
-| MP | Northern Mariana Islands | not started | 0 | 0 | not started |  |
-| AS | American Samoa | not started | 0 | 0 | not started |  |
+| PR | Puerto Rico | not started | 0 | 0 | verified |  |
+| VI | U.S. Virgin Islands | not started | 0 | 0 | pending |  |
+| GU | Guam | not started | 0 | 0 | pending |  |
+| MP | Northern Mariana Islands | not started | 0 | 0 | pending |  |
+| AS | American Samoa | not started | 0 | 0 | pending |  |

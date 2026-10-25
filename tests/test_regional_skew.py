@@ -135,3 +135,11 @@ def test_oregon_default_lookup_unchanged_by_its_provisional_row():
         "OR", "Pacific Northwest (Oregon closed basins, provisional)", allow_provisional=True
     )
     assert prov.provisional and prov.skew == -0.07 and prov.skew_mse == 0.18
+
+
+def test_every_jurisdiction_has_a_skew_row():
+    from flowfreq.regression.jurisdictions import JURISDICTIONS
+
+    codes = {j.code for j in JURISDICTIONS}
+    assert len(codes) == 56
+    assert codes <= set(load_table()["state"])
