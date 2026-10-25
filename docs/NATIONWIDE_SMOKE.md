@@ -21,12 +21,8 @@ Failures by kind:
 |---|---|---|
 | ungaged OutOfRangeError | 4 | MO, MT, NM, OR |
 | ungaged EquationsUnavailable | 3 | MN, NV, WY |
-| move the point rather than retrying | 2 | AK, IL |
 | ungaged HTTPError | 2 | MI, NE |
 | ungaged UnsnappablePointError | 2 | AK, IL |
-| I24H2Y=2.501 < min 2.52 | 1 | OR |
-| IMPNLCD01=0.248 < min 2.3 | 1 | MO |
-| PRECIP=27.32 > max 20.15 | 1 | NM |
 | ungaged DegenerateDelineationError | 1 | ND |
 
 ## Results

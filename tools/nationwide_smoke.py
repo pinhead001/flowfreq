@@ -19,6 +19,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import re
 import sys
 import time
 from collections import defaultdict
@@ -135,14 +136,10 @@ def _fmt(v: Any) -> str:
 
 def _kinds(error: Optional[str]) -> List[str]:
     """Turn ``'gaged: A: x; ungaged: B: y'`` into ``['gaged A', 'ungaged B']``."""
-    kinds = []
-    for part in (error or "").split("; "):
-        side, _, rest = part.partition(": ")
-        if rest:
-            kinds.append(f"{side} {rest.split(':', 1)[0]}")
-        elif part:
-            kinds.append(part)
-    return kinds
+    return [
+        f"{side} {name}"
+        for side, name in re.findall(r"(?:^|; )(gaged|ungaged): (\w+):", error or "")
+    ]
 
 
 def write_report(
