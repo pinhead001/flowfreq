@@ -21,7 +21,7 @@ A term maps as follows:
 - Any other affine base in one variable, ``(X+c)^b``, ``(X-c)^b``,
   ``(X/k+c)^b`` or ``(s*X+c)^b``, becomes ``log10`` with ``scale`` and
   ``offset`` (:class:`~flowfreq.regression.equations.Variable`), stored as
-  written. The scale must be positive.
+  written. A negated base, ``(-1*(X-c))^b`` or ``(c-X)^b``, has ``scale=-1``.
 - ``10^(c*X)`` becomes ``identity`` with ``c``, and ``/10^(c*X)`` gives ``-c``.
 - ``10^(a - b*X^(k))``, a constant power of a variable inside the exponent of
   10 (Arizona region 5), becomes ``power`` with ``exponent=k`` and coefficient
@@ -611,24 +611,38 @@ def _loglin(node: Node, text: str) -> _LogLin:
     return _base(node, text)
 
 
+def _negated(node: Node) -> bool:
+    """Whether ``node`` is ``-E`` or ``E`` times or over a negative constant."""
+    if node[0] == "neg":
+        return True
+    if node[0] != "bin" or node[1] not in "*/":
+        return False
+    left, right = _const_product(node[2]), _const_product(node[3])
+    return (left is not None and left < 0) or (right is not None and right < 0)
+
+
 def _base(node: Node, text: str) -> _LogLin:
     """log10 of the base of a power term, including an affine base ``s*X + c``.
 
     ``X + 1`` keeps its historical form, ``log10_plus1``. Any other sum in one
-    variable becomes ``log10`` with ``scale=s`` and ``offset=c``, as written.
+    variable becomes ``log10`` with ``scale=s`` and ``offset=c``, as written. A
+    negated base, ``-E`` or ``-k*E``, is affine too: ``(-1*(X-13))`` and
+    ``(13-X)`` both give ``scale=-1``, ``offset=13``.
     """
-    if node[0] == "bin" and node[1] in "+-":
+    negated = _negated(node)
+    if negated or (node[0] == "bin" and node[1] in "+-"):
+        refusal = (
+            f"negated base that is not affine in one variable in {text!r}"
+            if negated
+            else f"additive offset in a base that is not affine in one variable in {text!r}"
+        )
         try:
             lin = _linear(node, text)
         except NSSEquationError:
-            raise NSSEquationError(
-                f"additive offset in a base that is not affine in one variable in {text!r}"
-            ) from None
+            raise NSSEquationError(refusal) from None
         c, d, order = lin.const, lin.coefs, lin.order
         if lin.powers or lin.logs:
-            raise NSSEquationError(
-                f"additive offset in a base that is not affine in one variable in {text!r}"
-            )
+            raise NSSEquationError(refusal)
         if len(order) != 1:
             raise NSSEquationError(
                 f"additive offset in a base with {len(order)} variables in {text!r}; "
@@ -636,8 +650,8 @@ def _base(node: Node, text: str) -> _LogLin:
             )
         code = order[0]
         scale = d[code]
-        if not scale > 0:
-            raise NSSEquationError(f"non-positive scale {scale:g} on {code} in {text!r}")
+        if scale == 0.0:
+            raise NSSEquationError(f"zero scale on {code} in {text!r}")
         if scale == 1.0 and c == 1.0:
             return _LogLin.term(code, "log10_plus1")
         return _LogLin.term(code, "log10", scale=scale, offset=c)

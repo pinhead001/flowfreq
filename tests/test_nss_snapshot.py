@@ -140,7 +140,6 @@ class TestParseForms:
         "equation",
         [
             "2*(A+C)^0.5",  # affine base in two variables
-            "2*(1-C)^0.5",  # negative scale
             "2*(A*C+1)^0.5",  # base not affine
             "2*A^0.5*(A+1)^0.2",  # one variable, two rescalings
             "max(0,1.53*(10^(-4.9)*A^1.09*C^2.6-1))",  # subtracted constant
@@ -406,6 +405,51 @@ def test_logN_affine_base_keeps_scale_and_offset():
     ],
 )
 def test_logN_unrepresentable_forms_refused(equation, match):
+    with pytest.raises(NSSEquationError, match=match):
+        parse_equation(equation)
+
+
+# A negated affine base, (-1*(X-c))^p (15 NSS equations in FL, KY and OH).
+_NEG_FL = "214*(DRNAREA)^(1.13)*(-1*(BDF-13))^(-0.59)*(CSL10_85)^(0.73)"
+
+
+def test_negated_affine_base():
+    p = parse_equation(_NEG_FL)
+    i = p.codes.index("BDF")
+    assert p.transforms[i] == "log10"
+    assert (p.scales[i], p.offsets[i]) == (-1.0, 13.0)
+    assert p.coefficients[i] == pytest.approx(-0.59)
+
+
+def test_negated_base_round_trip():
+    inputs = {"DRNAREA": 10.0, "BDF": 4.0, "CSL10_85": 20.0}
+    assert 10 ** parse_equation(_NEG_FL).log10_value(inputs) == pytest.approx(
+        evaluate_expression(_NEG_FL, inputs), rel=1e-12
+    )
+
+
+@pytest.mark.parametrize(
+    "base", ["(-1*(BDF-13))", "(13-BDF)", "((BDF-13)*-1)", "(-(BDF-13))", "((BDF-13)/-1)"]
+)
+def test_negated_base_spellings_agree(base):
+    p = parse_equation(f"2*{base}^(-0.59)")
+    assert (p.transforms, p.scales, p.offsets) == (("log10",), (-1.0,), (13.0,))
+    assert p.coefficients == pytest.approx((-0.59,))
+
+
+def test_negated_base_out_of_domain_raises_naming_the_code():
+    with pytest.raises(ValueError, match="BDF: log10 argument -1 is not positive"):
+        parse_equation(_NEG_FL).log10_value({"DRNAREA": 10.0, "BDF": 14.0, "CSL10_85": 20.0})
+
+
+@pytest.mark.parametrize(
+    "equation, match",
+    [
+        ("2*(-1*(A*C))^0.5", "negated base that is not affine"),
+        ("2*(A-A+13)^0.5", "zero scale"),
+    ],
+)
+def test_unrepresentable_affine_bases_refused(equation, match):
     with pytest.raises(NSSEquationError, match=match):
         parse_equation(equation)
 

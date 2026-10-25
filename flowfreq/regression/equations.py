@@ -145,7 +145,8 @@ class Variable:
         units, before ``scale`` and ``offset`` are applied. That is how reports
         tabulate ranges.
     scale : float, default 1.0
-        Positive, finite multiplier applied to ``x`` before the transform.
+        Finite, non-zero multiplier applied to ``x`` before the transform. A
+        negative scale is NSS's negated base, ``(-1*(x - 13))^b``.
     offset : float, default 0.0
         Finite constant added after ``scale`` and before the transform.
     exponent : float, optional
@@ -192,8 +193,8 @@ class Variable:
             )
         if self.minimum is not None and self.maximum is not None and self.minimum > self.maximum:
             raise ValueError(f"{self.code}: minimum {self.minimum} > maximum {self.maximum}")
-        if not (math.isfinite(self.scale) and self.scale > 0):
-            raise ValueError(f"{self.code}: scale must be positive and finite, got {self.scale}")
+        if not (math.isfinite(self.scale) and self.scale != 0):
+            raise ValueError(f"{self.code}: scale must be finite and non-zero, got {self.scale}")
         if not math.isfinite(self.offset):
             raise ValueError(f"{self.code}: offset must be finite, got {self.offset}")
 
@@ -219,9 +220,10 @@ class Variable:
         arg = self.scale * x + self.offset
         lower = _DOMAIN_LOWER[self.transform]
         if lower is not None and not arg > lower:
+            bound = "positive" if lower == 0 else f"above {lower:g}"
             raise ValueError(
-                f"{self.code}={x}: {self.transform} needs {self._argument_text()} > "
-                f"{lower:g}, got {arg:g}"
+                f"{self.code}: {self.transform} argument {arg:g} is not {bound}; "
+                f"{self.transform} needs {self._argument_text()} > {lower:g} at {self.code}={x}"
             )
         if self.transform == "power":
             assert self.exponent is not None  # enforced in __post_init__
