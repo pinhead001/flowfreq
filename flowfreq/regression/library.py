@@ -194,9 +194,9 @@ def parse_state(data: Dict[str, Any]) -> StateLibrary:
         equations=eqs,
         source_reports=list(data.get("source_reports", [])),
         issue=data.get("issue"),
-        notes=str(data.get("notes", "")),
-        unparsed=[dict(u) for u in data.get("unparsed", [])],
-        retrieved_utc=str(data.get("retrieved_utc", "")),
+        notes=str(data.get("notes") or ""),
+        unparsed=[dict(u) for u in data.get("unparsed") or []],
+        retrieved_utc=str(data.get("retrieved_utc") or ""),
     )
 
 
