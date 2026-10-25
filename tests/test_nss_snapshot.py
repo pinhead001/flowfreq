@@ -140,7 +140,6 @@ class TestParseForms:
         "equation",
         [
             "2*(A+C)^0.5",  # affine base in two variables
-            "2*(1-C)^0.5",  # negative scale
             "2*(A*C+1)^0.5",  # base not affine
             "2*A^0.5*(A+1)^0.2",  # one variable, two rescalings
             "max(0,1.53*(10^(-4.9)*A^1.09*C^2.6-1))",  # subtracted constant
@@ -295,6 +294,164 @@ class TestParseForms:
 
     def test_variables_in(self):
         assert variables_in("3*A^2*(B+1)^0.5*A") == ["A", "B"]
+
+
+# NSS codes with lower-case letters (AR, TX, MS, OK, MD).
+_MIXED_CASE_INPUTS = {
+    "DRNAREA": 50.0,
+    "CSLBlue": 20.0,
+    "BSHAPELFP": 3.0,
+    "CSL10_85fm": 20.0,
+    "IMPERV": 5.0,
+    "SOILCorD": 30.0,
+}
+
+
+@pytest.mark.parametrize(
+    "equation, codes",
+    [
+        (
+            "10^2.183*DRNAREA^0.678*CSLBlue^0.239*BSHAPELFP^(-0.324)",
+            ("DRNAREA", "CSLBlue", "BSHAPELFP"),
+        ),
+        (
+            "207*DRNAREA^0.676*CSL10_85fm^0.159*BSHAPELFP^-0.390",
+            ("DRNAREA", "CSL10_85fm", "BSHAPELFP"),
+        ),
+        (
+            "5.18*DRNAREA^0.694*(IMPERV+1)^(0.382)*(SOILCorD+1)^(0.414)",
+            ("DRNAREA", "IMPERV", "SOILCorD"),
+        ),
+    ],
+)
+def test_mixed_case_identifiers_parse(equation, codes):
+    parsed = parse_equation(equation)
+    assert parsed.codes == codes
+    assert parsed.transforms[1] in ("log10", "log10_plus1")
+    direct = evaluate_expression(equation, _MIXED_CASE_INPUTS)
+    assert 10.0 ** parsed.log10_value(_MIXED_CASE_INPUTS) == pytest.approx(direct, rel=1e-12)
+
+
+@pytest.mark.parametrize("template", ["2*DRNAREA^0.5*{}^0.3", "2*DRNAREA^0.5*{}"])
+@pytest.mark.parametrize("name", ["max", "logN", "LogN", "e", "exp"])
+def test_mixed_case_function_name_as_variable_refused(name, template):
+    with pytest.raises(NSSEquationError, match="unsupported identifier"):
+        parse_equation(template.format(name))
+
+
+# NSS's logN(X, b) inside 10^(...) (88 equations in MN, WI and MA).
+_LOGN_MN = "10^(24.074+0.744*logN(DRNAREA,10)-0.297*logN((LAKEAREA+1),10)-13.720*logN(LAT_OUT,10))"
+_LOGN_WI = (
+    "10^(0.9357+0.8398*logN(DRNAREA,10)-0.6685*logN(SSURGOKSAT,10)"
+    "-0.3740*logN((LC01HERB+1),10)-0.5143*logN((LC01WATER+1),10)+0.4227*I24H10Y)"
+)
+_LOGN_MA = "10^(1.631+0.801*LogN(DRNAREA,10)+0.589*0.001*(ELEV/3.28084)-1.137*0.01*(LC06STOR))"
+
+
+def test_logN_terms_parse_to_log10():
+    p = parse_equation(_LOGN_MN)
+    assert p.intercept == pytest.approx(24.074)
+    assert p.codes == ("DRNAREA", "LAKEAREA", "LAT_OUT")
+    assert p.transforms == ("log10", "log10_plus1", "log10")
+    assert p.coefficients == pytest.approx((0.744, -0.297, -13.720))
+
+
+def test_identity_terms_with_folded_constants():
+    p = parse_equation(_LOGN_MA)
+    i = p.codes.index("ELEV")
+    assert p.transforms[i] == "identity"
+    assert p.coefficients[i] == pytest.approx(0.589 * 0.001 / 3.28084)
+    assert any("folded" in n for n in p.notes)
+
+
+def test_logN_wisconsin_round_trip():
+    values = {
+        "DRNAREA": 120.0,
+        "SSURGOKSAT": 15.0,
+        "LC01HERB": 30.0,
+        "LC01WATER": 2.5,
+        "I24H10Y": 4.1,
+    }
+    parsed = parse_equation(_LOGN_WI)
+    assert parsed.transforms == ("log10", "log10", "log10_plus1", "log10_plus1", "identity")
+    direct = evaluate_expression(_LOGN_WI, values)
+    assert 10.0 ** parsed.log10_value(values) == pytest.approx(direct, rel=1e-12)
+
+
+def test_logN_other_base_scales_coefficient():
+    s = "10^(1.5+0.7*logN(DRNAREA,2))"
+    parsed = parse_equation(s)
+    assert parsed.transforms == ("log10",)
+    assert parsed.coefficients == pytest.approx((0.7 / math.log10(2.0),))
+    assert _roundtrip(s, {"DRNAREA": 37.0}) < 1e-12
+
+
+def test_logN_affine_base_keeps_scale_and_offset():
+    s = "10^(0.5+0.3*logN((2*DRNAREA+3),10))"
+    parsed = parse_equation(s)
+    assert (parsed.transforms, parsed.scales, parsed.offsets) == (("log10",), (2.0,), (3.0,))
+    assert _roundtrip(s, {"DRNAREA": 37.0}) < 1e-12
+
+
+@pytest.mark.parametrize(
+    "equation, match",
+    [
+        ("10^(1+logN(DRNAREA))", "positive constant base"),  # one argument
+        ("10^(1+logN(DRNAREA,ELEV))", "positive constant base"),  # variable base
+        ("10^(1+logN(DRNAREA,-10))", "positive constant base"),
+        ("10^(1+logN(DRNAREA,1))", "positive constant base"),
+        ("10^(1+0.5*logN(DRNAREA,10)+0.1*DRNAREA)", "two different forms"),
+        ("10^(1+0.5*logN((A*C+1),10))", "not affine"),
+    ],
+)
+def test_logN_unrepresentable_forms_refused(equation, match):
+    with pytest.raises(NSSEquationError, match=match):
+        parse_equation(equation)
+
+
+# A negated affine base, (-1*(X-c))^p (15 NSS equations in FL, KY and OH).
+_NEG_FL = "214*(DRNAREA)^(1.13)*(-1*(BDF-13))^(-0.59)*(CSL10_85)^(0.73)"
+
+
+def test_negated_affine_base():
+    p = parse_equation(_NEG_FL)
+    i = p.codes.index("BDF")
+    assert p.transforms[i] == "log10"
+    assert (p.scales[i], p.offsets[i]) == (-1.0, 13.0)
+    assert p.coefficients[i] == pytest.approx(-0.59)
+
+
+def test_negated_base_round_trip():
+    inputs = {"DRNAREA": 10.0, "BDF": 4.0, "CSL10_85": 20.0}
+    assert 10 ** parse_equation(_NEG_FL).log10_value(inputs) == pytest.approx(
+        evaluate_expression(_NEG_FL, inputs), rel=1e-12
+    )
+
+
+@pytest.mark.parametrize(
+    "base", ["(-1*(BDF-13))", "(13-BDF)", "((BDF-13)*-1)", "(-(BDF-13))", "((BDF-13)/-1)"]
+)
+def test_negated_base_spellings_agree(base):
+    p = parse_equation(f"2*{base}^(-0.59)")
+    assert (p.transforms, p.scales, p.offsets) == (("log10",), (-1.0,), (13.0,))
+    assert p.coefficients == pytest.approx((-0.59,))
+
+
+def test_negated_base_out_of_domain_raises_naming_the_code():
+    with pytest.raises(ValueError, match="BDF: log10 argument -1 is not positive"):
+        parse_equation(_NEG_FL).log10_value({"DRNAREA": 10.0, "BDF": 14.0, "CSL10_85": 20.0})
+
+
+@pytest.mark.parametrize(
+    "equation, match",
+    [
+        ("2*(-1*(A*C))^0.5", "negated base that is not affine"),
+        ("2*(A-A+13)^0.5", "zero scale"),
+    ],
+)
+def test_unrepresentable_affine_bases_refused(equation, match):
+    with pytest.raises(NSSEquationError, match=match):
+        parse_equation(equation)
 
 
 class TestToRegressionEquation:
