@@ -46,7 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - **Indiana's NSS regions now resolve** in `tools/snapshot_nss.py`. Its bounded regional
   parameters are the region number itself, so the harvest tries the region's GC number for a
-  bounded parameter before the unbounded gating values, and a region with no unbounded
+  bounded parameter after the unbounded gating values (so a region that already resolved keeps its gate), and a region with no unbounded
   parameter is retried instead of reported unresolved. Indiana: 8 regions, 48 equations.
 
 ## [0.15.0] - 2026-10-25

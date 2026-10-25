@@ -499,7 +499,9 @@ def test_build_tool_reports_bad_snapshots_and_continues(tmp_path, capsys, trimme
     first = snaps / "TN_a.json"
     first.write_text(json.dumps(trimmed), encoding="utf-8")
     second = snaps / "TN_b.json"
-    second.write_text(json.dumps(dict(trimmed, retrieved_utc="2026-10-26T00:00:00+00:00")))
+    second.write_text(
+        json.dumps(dict(trimmed, retrieved_utc="2026-10-26T00:00:00+00:00")), encoding="utf-8"
+    )
 
     assert _run_build_tool(tmp_path, [bad_json, no_state, first, second]) == 1
 
@@ -528,9 +530,14 @@ def test_every_snapshot_library_loads_and_evaluates(code):
 
     lib = load_state(code, allow_nss_snapshot=True)
     assert lib.nss_snapshot and lib.equations
-    eq = lib.equations[0]
-    mid = {v.code: _midpoint(v) for v in eq.variables}
-    assert evaluate(eq, mid).flow_cfs > 0
+    for eq in lib.equations:
+        mid = {v.code: _midpoint(v) for v in eq.variables}
+        flow = evaluate(eq, mid).flow_cfs
+        if eq.form == "constant":
+            # CA GC30 at AEP 0.5 is a genuine printed Q = 0.
+            assert flow >= 0, eq
+        else:
+            assert flow > 0, eq
 
 
 def test_snapshot_states_are_the_41():
