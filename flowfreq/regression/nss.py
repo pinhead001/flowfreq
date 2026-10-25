@@ -57,7 +57,7 @@ from __future__ import annotations
 
 import math
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
 from flowfreq.regression.equations import Citation, RegressionEquation, Variable
@@ -257,6 +257,8 @@ def _eval(node: Node, values: Mapping[str, float]) -> float:
             return max(args)
         if node[1] == "exp" and len(args) == 1:
             return math.exp(args[0])
+        if node[1] in _LOG_FUNCTIONS and len(args) == 2:
+            return math.log(args[0], args[1])
         raise NSSEquationError(f"unknown function {node[1]!r}")
     op, a, b = node[1], _eval(node[2], values), _eval(node[3], values)
     if op == "+":
@@ -423,49 +425,139 @@ def _check_variable(name: str, text: str) -> None:
         raise NSSEquationError(f"unsupported identifier {name!r} in {text!r}")
 
 
-# ``_linear``'s result: constant, coefficient per variable, variable order, and
-# the exponent of each variable that enters as a power ``X^k`` (absent: ``X``).
-_Linear = Tuple[float, Dict[str, float], List[str], Dict[str, float]]
+def _const_product(node: Node) -> Optional[float]:
+    """The value of a literal or a product/quotient of literals; None otherwise."""
+    value = _const_value(node)
+    if value is not None or node[0] != "bin" or node[1] not in "*/":
+        return value
+    left, right = _const_product(node[2]), _const_product(node[3])
+    if left is None or right is None or (node[1] == "/" and right == 0.0):
+        return None
+    return left * right if node[1] == "*" else left / right
+
+
+_LogForm = Tuple[str, float, float]
+
+
+@dataclass
+class _Linear:
+    """``_linear``'s result: ``const + sum coefs[X] * T(X)`` over ``order``.
+
+    ``T(X)`` is ``X`` itself unless ``X`` enters as a power ``X^k`` (``powers[X]``
+    is ``k``) or as a logarithm (``logs[X]`` is the ``(transform, scale, offset)``
+    of a log10 term, as :class:`Variable` defines them).
+    """
+
+    const: float = 0.0
+    coefs: Dict[str, float] = field(default_factory=dict)
+    order: List[str] = field(default_factory=list)
+    powers: Dict[str, float] = field(default_factory=dict)
+    logs: Dict[str, _LogForm] = field(default_factory=dict)
+    notes: List[str] = field(default_factory=list)
+
+    def is_identity(self, code: str) -> bool:
+        return code not in self.powers and code not in self.logs
+
+    def scaled(self, s: float) -> "_Linear":
+        return _Linear(
+            self.const * s,
+            {k: s * v for k, v in self.coefs.items()},
+            list(self.order),
+            dict(self.powers),
+            dict(self.logs),
+            list(self.notes),
+        )
+
+    def plus(self, other: "_Linear", sign: float, text: str) -> "_Linear":
+        out = self.scaled(1.0)
+        out.const += sign * other.const
+        for k in other.order:
+            if k in out.coefs:
+                if (out.powers.get(k), out.logs.get(k)) != (
+                    other.powers.get(k),
+                    other.logs.get(k),
+                ):
+                    raise NSSEquationError(
+                        f"{k} appears in two different forms in an exponent of 10 in {text!r}"
+                    )
+                out.coefs[k] += sign * other.coefs[k]
+            else:
+                out.coefs[k] = sign * other.coefs[k]
+                out.order.append(k)
+        out.powers.update(other.powers)
+        out.logs.update(other.logs)
+        out.notes += other.notes
+        return out
+
+
+def _log_term(node: Node, text: str) -> _Linear:
+    """NSS's ``logN(E, b)``: ``log10(E) / log10(b)``, with ``E`` read as :func:`_base` does."""
+    args = node[2]
+    b = _const_value(args[1]) if len(args) == 2 else None
+    if b is None or not b > 0 or b == 1.0:
+        raise NSSEquationError(
+            f"{node[1]} needs two arguments, the second a positive constant base other "
+            f"than 1, in {text!r}"
+        )
+    inner = _base(args[0], text)
+    s = 1.0 / math.log10(b)
+    out = _Linear(const=inner.const * s, notes=list(inner.notes))
+    if b != 10.0:
+        out.notes.append("logN(E, b) rewritten as log10(E)/log10(b)")
+    for k in inner.order:
+        (transform, scale, offset, exponent), coef = inner.terms[k]
+        out.coefs[k] = coef * s
+        out.order.append(k)
+        if transform == "power" and exponent is not None:
+            out.powers[k] = exponent
+        elif transform != "identity":
+            out.logs[k] = (transform, scale, offset)
+    return out
 
 
 def _linear(node: Node, text: str) -> _Linear:
-    """``node`` as ``const + sum c*X`` or ``c*X^k`` (the exponent of a ``10^(...)`` term)."""
+    """``node`` as ``const + sum c*T(X)`` (the exponent of a ``10^(...)`` term).
+
+    ``T(X)`` is ``X``, a power ``X^k``, or ``logN(E, b)`` on an affine base ``E``.
+    """
     kind = node[0]
     if kind == "num":
-        return float(node[1]), {}, [], {}
+        return _Linear(const=float(node[1]))
     if kind == "var":
         _check_variable(node[1], text)
-        return 0.0, {node[1]: 1.0}, [node[1]], {}
+        return _Linear(coefs={node[1]: 1.0}, order=[node[1]])
     if kind == "neg":
-        c, d, o, e = _linear(node[1], text)
-        return -c, {k: -v for k, v in d.items()}, o, e
+        return _linear(node[1], text).scaled(-1.0)
+    if kind == "call" and node[1] in _LOG_FUNCTIONS:
+        return _log_term(node, text)
     if kind == "bin" and node[1] in "+-":
-        c1, d1, o1, e1 = _linear(node[2], text)
-        c2, d2, o2, e2 = _linear(node[3], text)
         sign = 1.0 if node[1] == "+" else -1.0
-        d = dict(d1)
-        for k, v in d2.items():
-            if k in d and e1.get(k) != e2.get(k):
-                raise NSSEquationError(
-                    f"{k} appears with two different powers in an exponent of 10 in {text!r}"
-                )
-            d[k] = d.get(k, 0.0) + sign * v
-        return c1 + sign * c2, d, o1 + [k for k in o2 if k not in o1], {**e1, **e2}
+        return _linear(node[2], text).plus(_linear(node[3], text), sign, text)
     if kind == "bin" and node[1] in "*/":
-        left, right = _const_value(node[2]), _const_value(node[3])
+        left, right = _const_product(node[2]), _const_product(node[3])
         if node[1] == "*" and left is not None:
-            c, d, o, e = _linear(node[3], text)
-            return left * c, {k: left * v for k, v in d.items()}, o, e
-        if right is not None:
+            s, factor, operand = left, node[2], node[3]
+        elif right is not None and (node[1] == "*" or right != 0.0):
             s = right if node[1] == "*" else 1.0 / right
-            c, d, o, e = _linear(node[2], text)
-            return s * c, {k: s * v for k, v in d.items()}, o, e
+            factor, operand = node[3], node[2]
+        else:
+            raise NSSEquationError(f"exponent of 10 is not linear in the variables in {text!r}")
+        inner = _linear(operand, text)
+        identity = [k for k in inner.order if inner.is_identity(k)]
+        if identity and (
+            _const_value(factor) is None or any(abs(inner.coefs[k]) != 1.0 for k in identity)
+        ):
+            inner.notes.append(
+                "constant factors folded into the coefficient of " + ", ".join(identity)
+            )
+        return inner.scaled(s)
     if kind == "bin" and node[1] == "^" and node[2][0] == "var":
         p = _const_value(node[3])
         if p is not None and p != 0.0:
             code = node[2][1]
             _check_variable(code, text)
-            return 0.0, {code: 1.0}, [code], ({} if p == 1.0 else {code: p})
+            powers = {} if p == 1.0 else {code: p}
+            return _Linear(coefs={code: 1.0}, order=[code], powers=powers)
     raise NSSEquationError(f"exponent of 10 is not linear in the variables in {text!r}")
 
 
@@ -498,13 +590,17 @@ def _loglin(node: Node, text: str) -> _LogLin:
         return _loglin(left, text).plus(_loglin(right, text).scaled(-1.0), text)
     if op == "^":
         if _const_value(left) == 10.0:
-            c, d, o, e = _linear(right, text)
-            out = _LogLin.constant(c)
-            for k in o:
-                if k in e:
-                    term = _LogLin.term(k, "power", d[k], exponent=e[k])
+            lin = _linear(right, text)
+            out = _LogLin.constant(lin.const)
+            out.notes = list(lin.notes)
+            for k in lin.order:
+                if k in lin.logs:
+                    transform, scale, offset = lin.logs[k]
+                    term = _LogLin.term(k, transform, lin.coefs[k], scale, offset)
+                elif k in lin.powers:
+                    term = _LogLin.term(k, "power", lin.coefs[k], exponent=lin.powers[k])
                 else:
-                    term = _LogLin.term(k, "identity", d[k])
+                    term = _LogLin.term(k, "identity", lin.coefs[k])
                 out = out.plus(term, text)
             return out
         p = _const_value(right)
@@ -523,12 +619,13 @@ def _base(node: Node, text: str) -> _LogLin:
     """
     if node[0] == "bin" and node[1] in "+-":
         try:
-            c, d, order, powers = _linear(node, text)
+            lin = _linear(node, text)
         except NSSEquationError:
             raise NSSEquationError(
                 f"additive offset in a base that is not affine in one variable in {text!r}"
             ) from None
-        if powers:
+        c, d, order = lin.const, lin.coefs, lin.order
+        if lin.powers or lin.logs:
             raise NSSEquationError(
                 f"additive offset in a base that is not affine in one variable in {text!r}"
             )

@@ -340,6 +340,76 @@ def test_mixed_case_function_name_as_variable_refused(name, template):
         parse_equation(template.format(name))
 
 
+# NSS's logN(X, b) inside 10^(...) (88 equations in MN, WI and MA).
+_LOGN_MN = "10^(24.074+0.744*logN(DRNAREA,10)-0.297*logN((LAKEAREA+1),10)-13.720*logN(LAT_OUT,10))"
+_LOGN_WI = (
+    "10^(0.9357+0.8398*logN(DRNAREA,10)-0.6685*logN(SSURGOKSAT,10)"
+    "-0.3740*logN((LC01HERB+1),10)-0.5143*logN((LC01WATER+1),10)+0.4227*I24H10Y)"
+)
+_LOGN_MA = "10^(1.631+0.801*LogN(DRNAREA,10)+0.589*0.001*(ELEV/3.28084)-1.137*0.01*(LC06STOR))"
+
+
+def test_logN_terms_parse_to_log10():
+    p = parse_equation(_LOGN_MN)
+    assert p.intercept == pytest.approx(24.074)
+    assert p.codes == ("DRNAREA", "LAKEAREA", "LAT_OUT")
+    assert p.transforms == ("log10", "log10_plus1", "log10")
+    assert p.coefficients == pytest.approx((0.744, -0.297, -13.720))
+
+
+def test_identity_terms_with_folded_constants():
+    p = parse_equation(_LOGN_MA)
+    i = p.codes.index("ELEV")
+    assert p.transforms[i] == "identity"
+    assert p.coefficients[i] == pytest.approx(0.589 * 0.001 / 3.28084)
+    assert any("folded" in n for n in p.notes)
+
+
+def test_logN_wisconsin_round_trip():
+    values = {
+        "DRNAREA": 120.0,
+        "SSURGOKSAT": 15.0,
+        "LC01HERB": 30.0,
+        "LC01WATER": 2.5,
+        "I24H10Y": 4.1,
+    }
+    parsed = parse_equation(_LOGN_WI)
+    assert parsed.transforms == ("log10", "log10", "log10_plus1", "log10_plus1", "identity")
+    direct = evaluate_expression(_LOGN_WI, values)
+    assert 10.0 ** parsed.log10_value(values) == pytest.approx(direct, rel=1e-12)
+
+
+def test_logN_other_base_scales_coefficient():
+    s = "10^(1.5+0.7*logN(DRNAREA,2))"
+    parsed = parse_equation(s)
+    assert parsed.transforms == ("log10",)
+    assert parsed.coefficients == pytest.approx((0.7 / math.log10(2.0),))
+    assert _roundtrip(s, {"DRNAREA": 37.0}) < 1e-12
+
+
+def test_logN_affine_base_keeps_scale_and_offset():
+    s = "10^(0.5+0.3*logN((2*DRNAREA+3),10))"
+    parsed = parse_equation(s)
+    assert (parsed.transforms, parsed.scales, parsed.offsets) == (("log10",), (2.0,), (3.0,))
+    assert _roundtrip(s, {"DRNAREA": 37.0}) < 1e-12
+
+
+@pytest.mark.parametrize(
+    "equation, match",
+    [
+        ("10^(1+logN(DRNAREA))", "positive constant base"),  # one argument
+        ("10^(1+logN(DRNAREA,ELEV))", "positive constant base"),  # variable base
+        ("10^(1+logN(DRNAREA,-10))", "positive constant base"),
+        ("10^(1+logN(DRNAREA,1))", "positive constant base"),
+        ("10^(1+0.5*logN(DRNAREA,10)+0.1*DRNAREA)", "two different forms"),
+        ("10^(1+0.5*logN((A*C+1),10))", "not affine"),
+    ],
+)
+def test_logN_unrepresentable_forms_refused(equation, match):
+    with pytest.raises(NSSEquationError, match=match):
+        parse_equation(equation)
+
+
 class TestToRegressionEquation:
     def test_limits_and_units_carried(self):
         parsed = parse_equation("2*A^0.5*10^(0.01*C)")
