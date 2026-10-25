@@ -4,12 +4,15 @@ from __future__ import annotations
 
 import pytest
 
+import flowfreq.regional_skew as rs_mod
 from flowfreq.regional_skew import (
     RegionalSkew,
     RegionalSkewUnavailable,
     available,
     load_table,
+    regional_skew_at_huc,
     regional_skew_for,
+    regional_skew_for_site,
 )
 
 HEADER = "state,skew_region,skew,skew_mse,effective_record_years,citation,table,status,notes\n"
@@ -34,9 +37,27 @@ def test_pending_rows_are_never_returned(state, region):
         regional_skew_for(state, region)
 
 
-def test_no_entry():
+def test_verified_row_without_effective_record_length_loads(tmp_path):
+    p = _table(tmp_path, "ZZ,Statewide,0.02,0.09,,cite,p. 9,verified,no ERL printed\n")
+    df = load_table(p)
+    assert df["status"].iloc[0] == "verified"
+    rs = regional_skew_for("ZZ", path=p)
+    assert (rs.skew, rs.skew_mse, rs.effective_record_years) == (0.02, 0.09, None)
+
+
+def test_maine_is_verified_without_an_effective_record_length():
+    # SIR 2020-5092 p. 9 prints G and AVPnew (= MSE) but no effective record length.
+    rs = regional_skew_for("ME")
+    assert (rs.skew, rs.skew_mse) == (0.020, 0.09)
+    assert rs.effective_record_years is None
+    assert "sir20205092" in rs.citation
+
+
+def test_no_entry(tmp_path):
+    # Every jurisdiction now has a row in the packaged table, so use a private one.
+    p = _table(tmp_path, "XX,R1,-0.1,0.12,50,Report 1,Table 2,verified,\n")
     with pytest.raises(RegionalSkewUnavailable, match="no entry"):
-        regional_skew_for("FL")
+        regional_skew_for("FL", path=p)
 
 
 def test_verified_row(tmp_path):
@@ -133,3 +154,135 @@ def test_oregon_default_lookup_unchanged_by_its_provisional_row():
         "OR", "Pacific Northwest (Oregon closed basins, provisional)", allow_provisional=True
     )
     assert prov.provisional and prov.skew == -0.07 and prov.skew_mse == 0.18
+
+
+def test_every_jurisdiction_has_a_skew_row():
+    from flowfreq.regression.jurisdictions import JURISDICTIONS
+
+    codes = {j.code for j in JURISDICTIONS}
+    assert len(codes) == 56
+    assert codes <= set(load_table()["state"])
+
+
+def test_tennessee_unnamed_lookup_returns_skew_region_2():
+    rs = regional_skew_for("TN")
+    assert rs.skew_region == "Skew Region 2 (Gulf of America drainage)"
+    assert rs.skew == 0.048 and rs.skew_mse == 0.16
+
+
+# ----------------------------------------------------------------------------
+# State-level fallback in the HUC lookup (task C3)
+# ----------------------------------------------------------------------------
+
+FALLBACK_SKEW = (
+    "IA,Iowa (statewide),-0.40,0.16,50,Report IA,Table A2,verified,ia\n"
+    "WV,SR1,0.1,0.2,40,Report WV,T,verified,wv1\n"
+    "WV,SR2,0.05,0.2,40,Report WV,T,verified,wv2\n"
+    "TX,Texas (statewide),,,,Report TX,,pending,No study is published yet. More.\n"
+    "MA,New England,0.37,0.14,56,Report NE,T2,verified,ne\n"
+    "MA,Cape Cod and the Islands,,,,Report NE,,pending,Excluded from the study. More.\n"
+    "OK,Oklahoma test,0.2,0.3,25,flowfreq study,T,provisional,ok\n"
+    "WA,Pacific Northwest,-0.07,0.18,70,Report PNW,T,verified,pnw\n"
+)
+
+
+def _fallback_tables(tmp_path):
+    hucs = tmp_path / "hucs.csv"
+    hucs.write_text(
+        "huc,skew_region,rule,valid_states,source,notes\n"
+        "1711,Pacific Northwest,member,WA,src,Puget Sound\n"
+    )
+    states = tmp_path / "states.csv"
+    states.write_text(
+        'huc8,name,states\n07080105,Iowa only,IA\n07080209,Shared,"IA,MN"\n'
+        "17110020,Dungeness,WA\n"
+    )
+    return dict(path=_table(tmp_path, FALLBACK_SKEW), huc_path=hucs, states_path=states)
+
+
+def test_huc_without_membership_falls_back_to_the_single_verified_state_row(tmp_path, caplog):
+    kw = _fallback_tables(tmp_path)
+    for state in ("IA", None):  # given, or inferred from a one-state HUC8
+        rs = regional_skew_at_huc("070801050101", state, **kw)
+        assert (rs.state, rs.skew_region, rs.skew, rs.skew_mse) == (
+            "IA",
+            "Iowa (statewide)",
+            -0.4,
+            0.16,
+        )
+        assert rs.advisory == (
+            "STATE-LEVEL FALLBACK: no HUC membership is encoded for IA; the 'Iowa (statewide)' "
+            "value applies statewide and may not cover every basin in HUC 070801050101. "
+            "See the row's notes."
+        )
+        assert not rs.provisional
+    assert "STATE-LEVEL FALLBACK" in caplog.text
+
+
+def test_fallback_is_refused_when_the_state_has_several_verified_rows(tmp_path):
+    with pytest.raises(RegionalSkewUnavailable, match="'SR1'.*'SR2'.*regional_skew_for"):
+        regional_skew_at_huc("050500010101", "WV", **_fallback_tables(tmp_path))
+
+
+def test_fallback_is_refused_when_a_pending_region_shares_the_state(tmp_path):
+    # Cape Cod is outside the New England study: a statewide value would cover it.
+    with pytest.raises(RegionalSkewUnavailable, match=r"'Cape Cod and the Islands' \(pending\)"):
+        regional_skew_at_huc("010900020101", "MA", **_fallback_tables(tmp_path))
+
+
+def test_fallback_does_not_apply_to_pending_only_states(tmp_path):
+    with pytest.raises(
+        RegionalSkewUnavailable, match="No verified regional skew study covers HUC.*No study"
+    ):
+        regional_skew_at_huc("120902050101", "TX", **_fallback_tables(tmp_path))
+
+
+def test_fallback_takes_provisional_rows_only_on_opt_in(tmp_path):
+    kw = _fallback_tables(tmp_path)
+    with pytest.raises(RegionalSkewUnavailable, match="allow_provisional=True"):
+        regional_skew_at_huc("111302010101", "OK", **kw)
+    rs = regional_skew_at_huc("111302010101", "OK", allow_provisional=True, **kw)
+    assert rs.provisional and rs.skew == 0.2
+    assert rs.advisory.startswith("PROVISIONAL (not USGS)")
+    assert "STATE-LEVEL FALLBACK" in rs.advisory
+
+
+def test_fallback_can_be_turned_off(tmp_path):
+    with pytest.raises(RegionalSkewUnavailable, match="No verified regional skew study covers HUC"):
+        regional_skew_at_huc(
+            "070801050101", "IA", allow_state_fallback=False, **_fallback_tables(tmp_path)
+        )
+
+
+def test_fallback_needs_an_unambiguous_state(tmp_path):
+    with pytest.raises(RegionalSkewUnavailable, match="IA, MN.*state="):
+        regional_skew_at_huc("070802090101", **_fallback_tables(tmp_path))
+
+
+def test_membership_rows_still_win(tmp_path, monkeypatch):
+    def boom(*a, **k):
+        raise AssertionError("fallback consulted")
+
+    monkeypatch.setattr(rs_mod, "regional_skew_for", boom)
+    rs = regional_skew_at_huc("171100200306", **_fallback_tables(tmp_path))
+    assert (rs.skew_region, rs.skew, rs.advisory) == ("Pacific Northwest", -0.07, "")
+
+
+def test_for_site_passes_the_flag(monkeypatch):
+    import flowfreq.waterdata as wd
+
+    seen = {}
+    monkeypatch.setattr(
+        wd,
+        "fetch_monitoring_location",
+        lambda site, timeout=60: {"hydrologic_unit_code": "070801050101", "state_code": "19"},
+    )
+
+    def fake(huc, state, **kw):
+        seen.update(kw, huc=huc, state=state)
+        raise RegionalSkewUnavailable("stop")
+
+    monkeypatch.setattr(rs_mod, "regional_skew_at_huc", fake)
+    with pytest.raises(RegionalSkewUnavailable):
+        regional_skew_for_site("05454500", allow_state_fallback=False)
+    assert seen["allow_state_fallback"] is False and seen["state"] == "IA"
