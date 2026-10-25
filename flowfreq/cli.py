@@ -12,6 +12,10 @@ from typing import Dict, List, Optional, Tuple
 
 import click
 
+from flowfreq.regression.library import EquationsUnavailable
+from flowfreq.streamstats import UnsnappablePointError, UnsupportedRegionError
+from flowfreq.ungaged import estimate_at_site
+
 
 @click.group()
 def cli() -> None:
@@ -264,6 +268,57 @@ def compare(
 
     if not report.comparison.passed:
         raise SystemExit(1)
+
+
+@cli.command()
+@click.option("--lat", type=float, required=True, help="Site latitude, decimal degrees.")
+@click.option("--lon", type=float, required=True, help="Site longitude, decimal degrees.")
+@click.option("--state", required=True, help="Two-letter jurisdiction code (e.g. MT).")
+@click.option(
+    "--aep",
+    "aeps",
+    type=float,
+    multiple=True,
+    help="Annual exceedance probability (fraction); repeat for several. Default: the standard set.",
+)
+@click.option(
+    "--allow-nss-snapshot",
+    is_flag=True,
+    help="Accept equations from the unreviewed NSS snapshot tier.",
+)
+@click.option(
+    "--allow-extrapolation",
+    is_flag=True,
+    help="Allow basin characteristics outside the equations' calibrated range.",
+)
+def ungaged(
+    lat: float,
+    lon: float,
+    state: str,
+    aeps: Tuple[float, ...],
+    allow_nss_snapshot: bool,
+    allow_extrapolation: bool,
+) -> None:
+    """Estimate flood-frequency quantiles at an ungaged site (regional regression).
+
+    Delineates the basin with StreamStats, evaluates the state's offline
+    regression equations and prints the estimate with its provenance as
+    Markdown. Exits 1 with the message when no equations are available, the
+    point cannot be snapped to a stream, or the region is unsupported.
+    """
+    try:
+        estimate = estimate_at_site(
+            lat,
+            lon,
+            state=state,
+            aeps=list(aeps) if aeps else None,
+            allow_nss_snapshot=allow_nss_snapshot,
+            allow_extrapolation=allow_extrapolation,
+        )
+    except (EquationsUnavailable, UnsnappablePointError, UnsupportedRegionError) as exc:
+        click.echo(str(exc), err=True)
+        raise SystemExit(1) from exc
+    click.echo(estimate.to_markdown())
 
 
 if __name__ == "__main__":

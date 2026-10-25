@@ -382,3 +382,75 @@ class TestComparePeakCodes:
         assert result.exit_code != 0
         assert "historical_peaks" in result.output
         assert "Traceback" not in result.output
+
+
+class _FakeEstimate:
+    def to_markdown(self) -> str:
+        return "# Ungaged estimate\nSYNTHETIC-MARKDOWN"
+
+
+class TestUngaged:
+    def test_prints_markdown_and_passes_options(self, monkeypatch):
+        calls = {}
+
+        def fake(lat, lon, **kw):
+            calls.update(lat=lat, lon=lon, **kw)
+            return _FakeEstimate()
+
+        monkeypatch.setattr("flowfreq.cli.estimate_at_site", fake)
+        result = CliRunner().invoke(
+            cli,
+            [
+                "ungaged", "--lat", "46.5", "--lon", "-110.2", "--state", "MT",
+                "--aep", "0.01", "--aep", "0.1",
+                "--allow-nss-snapshot", "--allow-extrapolation",
+            ],
+        )  # fmt: skip
+        assert result.exit_code == 0, result.output
+        assert "SYNTHETIC-MARKDOWN" in result.output
+        assert calls["lat"] == 46.5 and calls["lon"] == -110.2 and calls["state"] == "MT"
+        assert calls["aeps"] == [0.01, 0.1]
+        assert calls["allow_nss_snapshot"] is True
+        assert calls["allow_extrapolation"] is True
+
+    def test_defaults_leave_aeps_unset(self, monkeypatch):
+        calls = {}
+
+        def fake(lat, lon, **kw):
+            calls.update(kw)
+            return _FakeEstimate()
+
+        monkeypatch.setattr("flowfreq.cli.estimate_at_site", fake)
+        result = CliRunner().invoke(
+            cli, ["ungaged", "--lat", "46.5", "--lon", "-110.2", "--state", "MT"]
+        )
+        assert result.exit_code == 0, result.output
+        assert calls["aeps"] is None
+        assert calls["allow_nss_snapshot"] is False
+        assert calls["allow_extrapolation"] is False
+
+    @pytest.mark.parametrize(
+        "exc_name", ["EquationsUnavailable", "UnsnappablePointError", "UnsupportedRegionError"]
+    )
+    def test_known_errors_exit_one_with_message(self, monkeypatch, exc_name):
+        from flowfreq.regression.library import EquationsUnavailable
+        from flowfreq.streamstats import UnsnappablePointError, UnsupportedRegionError
+
+        exc = {
+            "EquationsUnavailable": EquationsUnavailable,
+            "UnsnappablePointError": UnsnappablePointError,
+            "UnsupportedRegionError": UnsupportedRegionError,
+        }[exc_name]
+
+        def fake(lat, lon, **kw):
+            raise exc("no equations for the test")
+
+        monkeypatch.setattr("flowfreq.cli.estimate_at_site", fake)
+        result = CliRunner().invoke(cli, ["ungaged", "--lat", "1", "--lon", "2", "--state", "ZZ"])
+        assert result.exit_code == 1
+        assert "no equations for the test" in result.output
+        assert "Traceback" not in result.output
+
+    def test_requires_state(self):
+        result = CliRunner().invoke(cli, ["ungaged", "--lat", "1", "--lon", "2"])
+        assert result.exit_code != 0
