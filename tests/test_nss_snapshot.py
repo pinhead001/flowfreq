@@ -333,10 +333,11 @@ def test_mixed_case_identifiers_parse(equation, codes):
     assert 10.0 ** parsed.log10_value(_MIXED_CASE_INPUTS) == pytest.approx(direct, rel=1e-12)
 
 
-@pytest.mark.parametrize("name", ["max", "logN", "LogN"])
-def test_mixed_case_function_name_as_variable_refused(name):
+@pytest.mark.parametrize("template", ["2*DRNAREA^0.5*{}^0.3", "2*DRNAREA^0.5*{}"])
+@pytest.mark.parametrize("name", ["max", "logN", "LogN", "e", "exp"])
+def test_mixed_case_function_name_as_variable_refused(name, template):
     with pytest.raises(NSSEquationError, match="unsupported identifier"):
-        parse_equation(f"2*DRNAREA^0.5*{name}^0.3")
+        parse_equation(template.format(name))
 
 
 class TestToRegressionEquation:

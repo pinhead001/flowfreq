@@ -97,6 +97,9 @@ _TOKEN = re.compile(
 _VARIABLE = re.compile(r"^[A-Za-z][A-Za-z0-9_]*$")
 _FUNCTIONS = frozenset({"max"})
 _LOG_FUNCTIONS = frozenset({"logN", "LogN"})
+# Names that are never a variable code: functions, and the constant e and
+# function exp that _eval knows.
+_RESERVED = _FUNCTIONS | _LOG_FUNCTIONS | frozenset({"e", "exp"})
 
 
 def _tokenize(text: str) -> List[Tuple[str, str]]:
@@ -416,7 +419,7 @@ def _const_value(node: Node) -> Optional[float]:
 
 
 def _check_variable(name: str, text: str) -> None:
-    if not _VARIABLE.match(name) or name in _FUNCTIONS | _LOG_FUNCTIONS:
+    if not _VARIABLE.match(name) or name in _RESERVED:
         raise NSSEquationError(f"unsupported identifier {name!r} in {text!r}")
 
 
