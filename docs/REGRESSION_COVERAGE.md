@@ -27,79 +27,79 @@ Plan and definitions of done: `docs/MASTER_ROADMAP.md` §3.2.
 
 | Code | Jurisdiction | Equations | Regions | Equation count | Regional skew | Issue |
 |---|---|---|---:|---:|---|---|
-| CA | California | nss snapshot (72 eqs, 0 unparsed) | 10 | 72 | not started |  |
-| AK | Alaska | nss snapshot (16 eqs, 0 unparsed) | 2 | 16 | not started |  |
-| HI | Hawaii | nss snapshot (80 eqs, 0 unparsed) | 10 | 80 | not started |  |
+| CA | California | nss snapshot (72 eqs, 0 unparsed) | 10 | 72 | pending |  |
+| AK | Alaska | nss snapshot (16 eqs, 0 unparsed) | 2 | 16 | pending, verified |  |
+| HI | Hawaii | nss snapshot (80 eqs, 0 unparsed) | 10 | 80 | verified |  |
 
 ## Wave 4a: Upper Mississippi and Great Lakes
 
 | Code | Jurisdiction | Equations | Regions | Equation count | Regional skew | Issue |
 |---|---|---|---:|---:|---|---|
-| MN | Minnesota | nss snapshot (48 eqs, 0 unparsed) | 6 | 48 | not started |  |
-| WI | Wisconsin | nss snapshot (44 eqs, 0 unparsed) | 6 | 44 | not started |  |
-| IA | Iowa | nss snapshot (48 eqs, 0 unparsed) | 6 | 48 | not started |  |
-| IL | Illinois | nss snapshot (104 eqs, 0 unparsed) | 13 | 104 | not started |  |
-| MO | Missouri | nss snapshot (31 eqs, 0 unparsed) | 4 | 31 | not started |  |
-| MI | Michigan | nss snapshot (25 eqs, 0 unparsed) | 5 | 25 | not started |  |
+| MN | Minnesota | nss snapshot (48 eqs, 0 unparsed) | 6 | 48 | pending |  |
+| WI | Wisconsin | nss snapshot (44 eqs, 0 unparsed) | 6 | 44 | pending |  |
+| IA | Iowa | nss snapshot (48 eqs, 0 unparsed) | 6 | 48 | verified |  |
+| IL | Illinois | nss snapshot (104 eqs, 0 unparsed) | 13 | 104 | pending |  |
+| MO | Missouri | nss snapshot (31 eqs, 0 unparsed) | 4 | 31 | verified |  |
+| MI | Michigan | nss snapshot (25 eqs, 0 unparsed) | 5 | 25 | verified |  |
 
 ## Wave 4b: Missouri basin
 
 | Code | Jurisdiction | Equations | Regions | Equation count | Regional skew | Issue |
 |---|---|---|---:|---:|---|---|
-| ND | North Dakota | nss snapshot (21 eqs, 0 unparsed) | 3 | 21 | not started |  |
-| SD | South Dakota | nss snapshot (49 eqs, 0 unparsed) | 7 | 49 | not started |  |
-| NE | Nebraska | nss snapshot (64 eqs, 0 unparsed) | 8 | 64 | not started |  |
-| KS | Kansas | nss snapshot (16 eqs, 0 unparsed) | 2 | 16 | not started |  |
+| ND | North Dakota | nss snapshot (21 eqs, 0 unparsed) | 3 | 21 | pending |  |
+| SD | South Dakota | nss snapshot (49 eqs, 0 unparsed) | 7 | 49 | pending |  |
+| NE | Nebraska | nss snapshot (64 eqs, 0 unparsed) | 8 | 64 | pending |  |
+| KS | Kansas | nss snapshot (16 eqs, 0 unparsed) | 2 | 16 | pending |  |
 
 ## Wave 4c: Ohio basin
 
 | Code | Jurisdiction | Equations | Regions | Equation count | Regional skew | Issue |
 |---|---|---|---:|---:|---|---|
-| OH | Ohio | nss snapshot (62 eqs, 0 unparsed) | 9 | 62 | not started |  |
-| IN | Indiana | nss snapshot (48 eqs, 0 unparsed) | 8 | 48 | not started |  |
-| KY | Kentucky | nss snapshot (62 eqs, 0 unparsed) | 8 | 62 | not started |  |
-| TN | Tennessee | nss snapshot (139 eqs, 0 unparsed) | 19 | 139 | not started |  |
-| WV | West Virginia | nss snapshot (48 eqs, 0 unparsed) | 6 | 48 | not started |  |
+| OH | Ohio | nss snapshot (62 eqs, 0 unparsed) | 9 | 62 | verified |  |
+| IN | Indiana | nss snapshot (48 eqs, 0 unparsed) | 8 | 48 | verified |  |
+| KY | Kentucky | nss snapshot (62 eqs, 0 unparsed) | 8 | 62 | verified |  |
+| TN | Tennessee | nss snapshot (139 eqs, 0 unparsed) | 19 | 139 | verified |  |
+| WV | West Virginia | nss snapshot (48 eqs, 0 unparsed) | 6 | 48 | verified |  |
 
 ## Wave 4d: Lower Mississippi, Arkansas-Red, and Gulf
 
 | Code | Jurisdiction | Equations | Regions | Equation count | Regional skew | Issue |
 |---|---|---|---:|---:|---|---|
-| AR | Arkansas | nss snapshot (43 eqs, 0 unparsed) | 6 | 43 | not started |  |
-| LA | Louisiana | nss snapshot (38 eqs, 0 unparsed) | 5 | 38 | not started |  |
-| MS | Mississippi | nss snapshot (32 eqs, 0 unparsed) | 4 | 32 | not started |  |
-| OK | Oklahoma | nss snapshot (42 eqs, 0 unparsed) | 6 | 42 | not started |  |
-| TX | Texas | nss snapshot (65 eqs, 0 unparsed) | 10 | 65 | not started |  |
+| AR | Arkansas | nss snapshot (43 eqs, 0 unparsed) | 6 | 43 | verified |  |
+| LA | Louisiana | nss snapshot (38 eqs, 0 unparsed) | 5 | 38 | pending, verified |  |
+| MS | Mississippi | nss snapshot (32 eqs, 0 unparsed) | 4 | 32 | pending |  |
+| OK | Oklahoma | nss snapshot (42 eqs, 0 unparsed) | 6 | 42 | pending |  |
+| TX | Texas | nss snapshot (65 eqs, 0 unparsed) | 10 | 65 | pending |  |
 
 ## Wave 5: East coast
 
 | Code | Jurisdiction | Equations | Regions | Equation count | Regional skew | Issue |
 |---|---|---|---:|---:|---|---|
-| ME | Maine | nss snapshot (16 eqs, 0 unparsed) | 2 | 16 | not started |  |
-| NH | New Hampshire | nss snapshot (14 eqs, 0 unparsed) | 2 | 14 | not started |  |
-| VT | Vermont | nss snapshot (16 eqs, 0 unparsed) | 2 | 16 | not started |  |
-| MA | Massachusetts | nss snapshot (8 eqs, 0 unparsed) | 1 | 8 | not started |  |
-| RI | Rhode Island | nss snapshot (7 eqs, 0 unparsed) | 1 | 7 | not started |  |
-| CT | Connecticut | nss snapshot (16 eqs, 0 unparsed) | 2 | 16 | not started |  |
-| NY | New York | nss snapshot (120 eqs, 2 unparsed) | 12 | 120 | not started |  |
-| NJ | New Jersey | nss snapshot (35 eqs, 0 unparsed) | 5 | 35 | not started |  |
-| PA | Pennsylvania | nss snapshot (40 eqs, 0 unparsed) | 5 | 40 | not started |  |
-| DE | Delaware | nss snapshot (24 eqs, 0 unparsed) | 3 | 24 | not started |  |
-| MD | Maryland | nss snapshot (40 eqs, 0 unparsed) | 4 | 40 | not started |  |
-| DC | District of Columbia | not started | 0 | 0 | not started |  |
-| VA | Virginia | nss snapshot (88 eqs, 0 unparsed) | 11 | 88 | not started |  |
-| NC | North Carolina | nss snapshot (24 eqs, 8 unparsed) | 3 | 24 | not started |  |
-| SC | South Carolina | nss snapshot (24 eqs, 8 unparsed) | 3 | 24 | not started |  |
-| GA | Georgia | nss snapshot (32 eqs, 8 unparsed) | 4 | 32 | not started |  |
-| FL | Florida | nss snapshot (52 eqs, 0 unparsed) | 7 | 52 | not started |  |
-| AL | Alabama | nss snapshot (48 eqs, 0 unparsed) | 6 | 48 | not started |  |
+| ME | Maine | nss snapshot (16 eqs, 0 unparsed) | 2 | 16 | verified |  |
+| NH | New Hampshire | nss snapshot (14 eqs, 0 unparsed) | 2 | 14 | verified |  |
+| VT | Vermont | nss snapshot (16 eqs, 0 unparsed) | 2 | 16 | pending |  |
+| MA | Massachusetts | nss snapshot (8 eqs, 0 unparsed) | 1 | 8 | pending, verified |  |
+| RI | Rhode Island | nss snapshot (7 eqs, 0 unparsed) | 1 | 7 | verified |  |
+| CT | Connecticut | nss snapshot (16 eqs, 0 unparsed) | 2 | 16 | verified |  |
+| NY | New York | nss snapshot (120 eqs, 2 unparsed) | 12 | 120 | pending, verified |  |
+| NJ | New Jersey | nss snapshot (35 eqs, 0 unparsed) | 5 | 35 | pending |  |
+| PA | Pennsylvania | nss snapshot (40 eqs, 0 unparsed) | 5 | 40 | pending, verified |  |
+| DE | Delaware | nss snapshot (24 eqs, 0 unparsed) | 3 | 24 | pending |  |
+| MD | Maryland | nss snapshot (40 eqs, 0 unparsed) | 4 | 40 | pending, verified |  |
+| DC | District of Columbia | not started | 0 | 0 | pending |  |
+| VA | Virginia | nss snapshot (88 eqs, 0 unparsed) | 11 | 88 | verified |  |
+| NC | North Carolina | nss snapshot (24 eqs, 8 unparsed) | 3 | 24 | verified |  |
+| SC | South Carolina | nss snapshot (24 eqs, 8 unparsed) | 3 | 24 | verified |  |
+| GA | Georgia | nss snapshot (32 eqs, 8 unparsed) | 4 | 32 | verified |  |
+| FL | Florida | nss snapshot (52 eqs, 0 unparsed) | 7 | 52 | pending |  |
+| AL | Alabama | nss snapshot (48 eqs, 0 unparsed) | 6 | 48 | pending |  |
 
 ## Wave 6: Territories
 
 | Code | Jurisdiction | Equations | Regions | Equation count | Regional skew | Issue |
 |---|---|---|---:|---:|---|---|
-| PR | Puerto Rico | nss snapshot (16 eqs, 0 unparsed) | 2 | 16 | not started |  |
-| VI | U.S. Virgin Islands | not started | 0 | 0 | not started |  |
-| GU | Guam | not started | 0 | 0 | not started |  |
-| MP | Northern Mariana Islands | not started | 0 | 0 | not started |  |
-| AS | American Samoa | not started | 0 | 0 | not started |  |
+| PR | Puerto Rico | nss snapshot (16 eqs, 0 unparsed) | 2 | 16 | verified |  |
+| VI | U.S. Virgin Islands | not started | 0 | 0 | pending |  |
+| GU | Guam | not started | 0 | 0 | pending |  |
+| MP | Northern Mariana Islands | not started | 0 | 0 | pending |  |
+| AS | American Samoa | not started | 0 | 0 | pending |  |
