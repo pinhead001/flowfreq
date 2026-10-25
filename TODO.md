@@ -96,6 +96,8 @@ Plan: `docs/superpowers/plans/2026-10-25-nationwide-rollout.md`; design:
       the 41 jurisdictions logs 41. By design while the sets are unreviewed; quiet it as sets
       are verified, or add a way to silence it for a sweep.
 
+No issues are open for the parked items yet.
+
 ### Priorities for methow-flow (set 2026-10-21)
 
 Roadmap items ordered by what they do for the methow-flow analysis (gage transfer in Peak

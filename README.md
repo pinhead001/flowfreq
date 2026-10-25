@@ -26,10 +26,11 @@ on this library.
   - Native engine, or the vendored USGS peakfq 8.1.0 Fortran as a selectable engine
 - **Regional regression** — Offline USGS peak-flow regression equations for WA, OR, ID,
   MT, CO, UT, WY, NM, AZ and NV with prediction intervals (`flowfreq.regression`).
-  Coverage has three tiers: 10 jurisdictions with a published set (6 verified, 4 partial),
-  41 with an `nss_snapshot` set harvested from the NSS web service and parsed by machine
-  (unreviewed, so returned only on `load_state(code, allow_nss_snapshot=True)`), and 5
-  (DC, VI, GU, MP, AS) with none. Also StreamStats delineation, basin characteristics and NSS estimates (`flowfreq.streamstats`)
+  Coverage has three tiers: 10 verified jurisdictions, 41 with an `nss_snapshot` set
+  harvested from the NSS web service and parsed by machine (unreviewed, so returned only on
+  `load_state(code, allow_nss_snapshot=True)`), and 5 (DC, VI, GU, MP, AS) with none.
+  Also StreamStats delineation, basin characteristics and NSS estimates
+  (`flowfreq.streamstats`)
 - **Transposition** — Drainage-area-ratio transfer to ungaged sites, QPPQ daily-series
   transfer, and donor screening by basin similarity
 - **Low-Flow Frequency Analysis** — Annual minimum *n*-day mean flow (7Q10-style
