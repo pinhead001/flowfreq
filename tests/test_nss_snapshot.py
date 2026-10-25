@@ -598,6 +598,35 @@ class TestToolHelpers:
         assert {"ORREG2": tool.UNBOUNDED_DEFAULT} not in cands
         assert tool._gating_candidates({"code": "GC1", "parameters": []}) == []
 
+    def test_gating_candidates_include_a_bounded_region_id_parameter(self):
+        region = {
+            "code": "GC1005",
+            "parameters": [
+                {"code": "HIGHREG", "limits": {"min": 1005, "max": 1012}},
+                {"code": "CONTDA", "limits": {"min": 0.27, "max": 13706}},
+            ],
+        }
+        cands = tool._gating_candidates(region)
+        assert cands[0] == {"HIGHREG": 1005.0}
+        assert tool._fill(region, cands[0])["parameters"][0]["value"] == 1005.0
+
+    def test_gating_candidates_try_region_id_before_unbounded_fallbacks(self):
+        region = {
+            "code": "GC729",
+            "parameters": [
+                {"code": "REGID", "limits": {"min": 700, "max": 800}},
+                {"code": "ORREG2", "limits": None},
+            ],
+        }
+        cands = tool._gating_candidates(region)
+        assert cands[0] == {"REGID": 729.0, "ORREG2": 729.0}
+        assert {"ORREG2": 729.0} in cands
+        assert {"ORREG2": tool.UNBOUNDED_DEFAULT} not in cands
+
+    def test_gating_candidates_ignore_bounds_not_containing_gc_number(self):
+        region = {"code": "GC5", "parameters": [{"code": "A", "limits": {"min": 10, "max": 20}}]}
+        assert tool._gating_candidates(region) == []
+
     def test_rounding_bound(self):
         assert tool._rounding_bound(4370.0) == pytest.approx(5.0)
         assert tool._rounding_bound(0.0123) == pytest.approx(0.00005)

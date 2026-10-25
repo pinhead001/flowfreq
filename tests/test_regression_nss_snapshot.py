@@ -15,6 +15,7 @@ GA/NC/SC form the parser refuses -- so that the fixture carries one refusal; its
 from __future__ import annotations
 
 import copy
+import importlib.util
 import json
 import logging
 import math
@@ -310,3 +311,39 @@ def test_regression_equation_to_dict_round_trips(trimmed):
     lib = parse_state(snapshot_to_library(trimmed))
     for eq in lib.equations:
         assert RegressionEquation.from_dict(eq.to_dict()) == eq
+
+
+# --------------------------------------------------------------------------- generator tool
+
+
+def _load_build_tool():
+    path = Path(__file__).resolve().parent.parent / "tools" / "build_nss_snapshot_library.py"
+    spec = importlib.util.spec_from_file_location("build_nss_snapshot_library", path)
+    assert spec is not None and spec.loader is not None
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def test_build_tool_writes_skips_and_reports(tmp_path, capsys, trimmed):
+    snaps = tmp_path / "snaps"
+    snaps.mkdir()
+    (snaps / "TN.json").write_text(json.dumps(trimmed), encoding="utf-8")
+    (snaps / "WY.json").write_text(json.dumps(dict(trimmed, state="WY")), encoding="utf-8")
+    dc = {"state": "DC", "retrieved_utc": "2026-10-25T17:20:40+00:00", "regions": []}
+    (snaps / "DC.json").write_text(json.dumps(dc), encoding="utf-8")
+    out = tmp_path / "out"
+
+    argv = [a for c in ("TN", "WY", "DC") for a in ("--snapshot", str(snaps / f"{c}.json"))]
+    assert _load_build_tool().main(argv + ["--out", str(out)]) == 0
+
+    assert capsys.readouterr().out.splitlines() == [
+        "TN: 2 equations, 2 unparsed",
+        "skipped WY: published set exists",
+        "skipped DC: no NSS peak-flow regions",
+    ]
+    assert sorted(p.name for p in out.iterdir()) == ["TN.json"]
+    text = (out / "TN.json").read_text(encoding="utf-8")
+    assert text.endswith("}\n")
+    assert json.loads(text) == snapshot_to_library(trimmed)
+    assert len(parse_state(json.loads(text)).equations) == 2
