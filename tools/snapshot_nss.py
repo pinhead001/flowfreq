@@ -26,8 +26,9 @@ Estimate answers at all. A region that Estimate drops, or returns with no
 results, is retried with each unbounded parameter set to the region's GC
 number, 0 and 1. A bounded parameter can gate too: Indiana's ``HIGHREG`` is
 bounded 1005-1012 and must equal the region's GC number, which its midpoint never
-is, so a bounded parameter whose limits contain the GC number is tried at that
-number first. A region that still answers nothing is recorded as
+is. So a bounded parameter with integral limits less than ``REGION_ID_MAX_SPAN``
+apart that contain the GC number is also tried at that number, after the
+unbounded-parameter values. A region that still answers nothing is recorded as
 ``unresolved`` with the reason, never dropped.
 
 **Round trip.** Each parsed equation is evaluated with
@@ -110,6 +111,8 @@ NSS_SIG_FIGS = 3
 #: Values tried, per unbounded parameter, for a region Estimate did not answer.
 GATING_FALLBACKS = (0.0, 1.0)
 UNBOUNDED_DEFAULT = 1.0
+#: A bounded parameter is a region-id gate only if its integral limits are closer than this.
+REGION_ID_MAX_SPAN = 100
 
 NSS_SEP_NOTE = (
     "nss_sep is NSS's raw 'sep' field, stored verbatim. It is not confirmed to be the "
@@ -207,26 +210,32 @@ def _estimate(scenario: Dict[str, Any], timeout: float) -> List[Dict[str, Any]]:
 
 
 def _region_id_parameters(region: Dict[str, Any], gc: float) -> List[str]:
-    """Bounded parameters whose limits contain the region's GC number, tightest first.
+    """Bounded region-id parameters whose limits contain the GC number, tightest first.
 
     Indiana gates its regions on ``HIGHREG`` bounded 1005-1012: a region answers only
-    when that parameter equals its own GC number, which the midpoint never is.
+    when that parameter equals its own GC number, which the midpoint never is. Only
+    integral limits less than ``REGION_ID_MAX_SPAN`` apart qualify, so a basin
+    characteristic such as a drainage area bounded 0.27-13706 is never taken for a gate.
     """
     found: List[Tuple[float, str]] = []
     for p in region.get("parameters", []):
         limits = p.get("limits") or {}
-        lo, hi = limits.get("min"), limits.get("max")
-        if lo is not None and hi is not None and float(lo) <= gc <= float(hi):
-            found.append((float(hi) - float(lo), p["code"]))
+        if limits.get("min") is None or limits.get("max") is None:
+            continue
+        lo, hi = float(limits["min"]), float(limits["max"])
+        integral = lo == int(lo) and hi == int(hi)
+        if integral and hi - lo < REGION_ID_MAX_SPAN and lo <= gc <= hi:
+            found.append((hi - lo, p["code"]))
     return [code for _, code in sorted(found, key=lambda t: t[0])]
 
 
 def _gating_candidates(region: Dict[str, Any]) -> List[Dict[str, float]]:
     """Gating values to retry a region with, after the first submission went unanswered.
 
-    A bounded parameter whose limits contain the region's GC number is tried at that
-    number first, combined with every unbounded-parameter combination; then the
-    unbounded parameters alone are tried at the GC number and ``GATING_FALLBACKS``.
+    The unbounded parameters are tried first, at the GC number and
+    ``GATING_FALLBACKS``, so a region that resolves that way keeps the gate it always
+    had. Then each region-id parameter (:func:`_region_id_parameters`) is set to the GC
+    number, combined with every unbounded-parameter combination.
     """
     codes = _unbounded(region)
     gc = _gc_number(str(region.get("code", "")))
@@ -240,7 +249,7 @@ def _gating_candidates(region: Dict[str, Any]) -> List[Dict[str, float]]:
     if gc is not None:
         ids = _region_id_parameters(region, gc)
         with_ids = [{code: gc, **combo} for code in ids for combo in combos]
-    return with_ids + [c for c in combos if c != first]
+    return [c for c in combos if c != first] + with_ids
 
 
 # ---------------------------------------------------------------------------

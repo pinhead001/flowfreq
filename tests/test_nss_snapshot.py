@@ -610,18 +610,53 @@ class TestToolHelpers:
         assert cands[0] == {"HIGHREG": 1005.0}
         assert tool._fill(region, cands[0])["parameters"][0]["value"] == 1005.0
 
-    def test_gating_candidates_try_region_id_before_unbounded_fallbacks(self):
+    def test_gating_candidates_try_unbounded_before_region_id(self):
         region = {
             "code": "GC729",
             "parameters": [
-                {"code": "REGID", "limits": {"min": 700, "max": 800}},
+                {"code": "REGID", "limits": {"min": 700, "max": 780}},
                 {"code": "ORREG2", "limits": None},
             ],
         }
         cands = tool._gating_candidates(region)
-        assert cands[0] == {"REGID": 729.0, "ORREG2": 729.0}
-        assert {"ORREG2": 729.0} in cands
+        assert cands[0] == {"ORREG2": 729.0}
+        with_id = [i for i, c in enumerate(cands) if "REGID" in c]
+        without = [i for i, c in enumerate(cands) if "REGID" not in c]
+        assert with_id and max(without) < min(with_id)
+        assert cands[with_id[0]] == {"REGID": 729.0, "ORREG2": 729.0}
         assert {"ORREG2": tool.UNBOUNDED_DEFAULT} not in cands
+
+    def test_resolved_unbounded_gate_is_tried_before_bounded_parameter(self):
+        # New Mexico GC1092: HIGHREG is unbounded, and a narrow integral range
+        # containing 1092 must not pre-empt the gate the region resolves with.
+        region = {
+            "code": "GC1092",
+            "parameters": [
+                {"code": "SUBREG", "limits": {"min": 1090, "max": 1100}},
+                {"code": "HIGHREG", "limits": None},
+            ],
+        }
+        cands = tool._gating_candidates(region)
+        assert cands[0] == {"HIGHREG": 1092.0}
+        first_bounded = next(i for i, c in enumerate(cands) if "SUBREG" in c)
+        assert cands.index({"HIGHREG": 1092.0}) < first_bounded
+
+    @pytest.mark.parametrize(
+        "limits",
+        [{"min": 0.536, "max": 10800}, {"min": 1, "max": 13706}, {"min": 1000.5, "max": 1100}],
+    )
+    def test_basin_characteristic_range_is_not_a_region_id(self, limits):
+        region = {
+            "code": "GC1092",
+            "parameters": [
+                {"code": "DRNAREA", "limits": limits},
+                {"code": "HIGHREG", "limits": None},
+            ],
+        }
+        cands = tool._gating_candidates(region)
+        assert all("DRNAREA" not in c for c in cands)
+        all_bounded = {"code": "GC1092", "parameters": [{"code": "DRNAREA", "limits": limits}]}
+        assert tool._gating_candidates(all_bounded) == []
 
     def test_gating_candidates_ignore_bounds_not_containing_gc_number(self):
         region = {"code": "GC5", "parameters": [{"code": "A", "limits": {"min": 10, "max": 20}}]}

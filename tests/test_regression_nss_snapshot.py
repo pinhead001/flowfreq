@@ -325,6 +325,16 @@ def _load_build_tool():
     return mod
 
 
+def _run_build_tool(tmp_path: Path, snapshots: Any, *extra: str) -> int:
+    published = tmp_path / "published"
+    published.mkdir(exist_ok=True)
+    (published / "WY.json").write_text("{}", encoding="utf-8")
+    argv = [a for p in snapshots for a in ("--snapshot", str(p))]
+    argv += ["--out", str(tmp_path / "out"), "--published-dir", str(published), *extra]
+    result: int = _load_build_tool().main(argv)
+    return result
+
+
 def test_build_tool_writes_skips_and_reports(tmp_path, capsys, trimmed):
     snaps = tmp_path / "snaps"
     snaps.mkdir()
@@ -334,8 +344,7 @@ def test_build_tool_writes_skips_and_reports(tmp_path, capsys, trimmed):
     (snaps / "DC.json").write_text(json.dumps(dc), encoding="utf-8")
     out = tmp_path / "out"
 
-    argv = [a for c in ("TN", "WY", "DC") for a in ("--snapshot", str(snaps / f"{c}.json"))]
-    assert _load_build_tool().main(argv + ["--out", str(out)]) == 0
+    assert _run_build_tool(tmp_path, [snaps / f"{c}.json" for c in ("TN", "WY", "DC")]) == 0
 
     assert capsys.readouterr().out.splitlines() == [
         "TN: 2 equations, 2 unparsed",
@@ -347,3 +356,26 @@ def test_build_tool_writes_skips_and_reports(tmp_path, capsys, trimmed):
     assert text.endswith("}\n")
     assert json.loads(text) == snapshot_to_library(trimmed)
     assert len(parse_state(json.loads(text)).equations) == 2
+
+
+def test_build_tool_reports_bad_snapshots_and_continues(tmp_path, capsys, trimmed):
+    snaps = tmp_path / "snaps"
+    snaps.mkdir()
+    bad_json = snaps / "bad.json"
+    bad_json.write_text("{not json", encoding="utf-8")
+    no_state = snaps / "nostate.json"
+    no_state.write_text(json.dumps({"regions": []}), encoding="utf-8")
+    first = snaps / "TN_a.json"
+    first.write_text(json.dumps(trimmed), encoding="utf-8")
+    second = snaps / "TN_b.json"
+    second.write_text(json.dumps(dict(trimmed, retrieved_utc="2026-10-26T00:00:00+00:00")))
+
+    assert _run_build_tool(tmp_path, [bad_json, no_state, first, second]) == 1
+
+    lines = capsys.readouterr().out.splitlines()
+    assert lines[0].startswith(f"error {bad_json}: cannot read snapshot (JSONDecodeError")
+    assert lines[1].startswith(f"error {no_state}: cannot read snapshot (KeyError")
+    assert lines[2] == "TN: 2 equations, 2 unparsed"
+    assert lines[3] == f"error TN: two snapshots given, {first} and {second}; skipped {second}"
+    written = json.loads((tmp_path / "out" / "TN.json").read_text(encoding="utf-8"))
+    assert written == snapshot_to_library(trimmed)
