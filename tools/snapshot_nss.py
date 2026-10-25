@@ -24,7 +24,11 @@ each state and statistic group this tool:
 selectors. Oregon's ``ORREG2`` must equal the region's GC number (729) before
 Estimate answers at all. A region that Estimate drops, or returns with no
 results, is retried with each unbounded parameter set to the region's GC
-number, 0 and 1. A region that still answers nothing is recorded as
+number, 0 and 1. A bounded parameter can gate too: Indiana's ``HIGHREG`` is
+bounded 1005-1012 and must equal the region's GC number, which its midpoint never
+is. So a bounded parameter with integral limits less than ``REGION_ID_MAX_SPAN``
+apart that contain the GC number is also tried at that number, after the
+unbounded-parameter values. A region that still answers nothing is recorded as
 ``unresolved`` with the reason, never dropped.
 
 **Round trip.** Each parsed equation is evaluated with
@@ -107,6 +111,8 @@ NSS_SIG_FIGS = 3
 #: Values tried, per unbounded parameter, for a region Estimate did not answer.
 GATING_FALLBACKS = (0.0, 1.0)
 UNBOUNDED_DEFAULT = 1.0
+#: A bounded parameter is a region-id gate only if its integral limits are closer than this.
+REGION_ID_MAX_SPAN = 100
 
 NSS_SEP_NOTE = (
     "nss_sep is NSS's raw 'sep' field, stored verbatim. It is not confirmed to be the "
@@ -151,11 +157,18 @@ def _gc_number(region_code: str) -> Optional[float]:
 
 
 def _fill(region: Dict[str, Any], gating: Dict[str, float]) -> Dict[str, Any]:
-    """Copy a template region, with every parameter given a value."""
+    """Copy a template region, with every parameter given a value.
+
+    A parameter named in ``gating`` takes that value; any other takes its in-range
+    synthetic value, or ``UNBOUNDED_DEFAULT`` when it has no limits.
+    """
     out = json.loads(json.dumps(region))
     for p in out.get("parameters", []):
         value = synthetic_value(p.get("limits"))
-        p["value"] = gating.get(p["code"], UNBOUNDED_DEFAULT) if value is None else value
+        if p["code"] in gating:
+            p["value"] = gating[p["code"]]
+        else:
+            p["value"] = UNBOUNDED_DEFAULT if value is None else value
     return out
 
 
@@ -196,18 +209,47 @@ def _estimate(scenario: Dict[str, Any], timeout: float) -> List[Dict[str, Any]]:
     return [rr for sc in data for rr in sc.get("regressionRegions", []) or []]
 
 
+def _region_id_parameters(region: Dict[str, Any], gc: float) -> List[str]:
+    """Bounded region-id parameters whose limits contain the GC number, tightest first.
+
+    Indiana gates its regions on ``HIGHREG`` bounded 1005-1012: a region answers only
+    when that parameter equals its own GC number, which the midpoint never is. Only
+    integral limits less than ``REGION_ID_MAX_SPAN`` apart qualify, so a basin
+    characteristic such as a drainage area bounded 0.27-13706 is never taken for a gate.
+    """
+    found: List[Tuple[float, str]] = []
+    for p in region.get("parameters", []):
+        limits = p.get("limits") or {}
+        if limits.get("min") is None or limits.get("max") is None:
+            continue
+        lo, hi = float(limits["min"]), float(limits["max"])
+        integral = lo == int(lo) and hi == int(hi)
+        if integral and hi - lo < REGION_ID_MAX_SPAN and lo <= gc <= hi:
+            found.append((hi - lo, p["code"]))
+    return [code for _, code in sorted(found, key=lambda t: t[0])]
+
+
 def _gating_candidates(region: Dict[str, Any]) -> List[Dict[str, float]]:
+    """Gating values to retry a region with, after the first submission went unanswered.
+
+    The unbounded parameters are tried first, at the GC number and
+    ``GATING_FALLBACKS``, so a region that resolves that way keeps the gate it always
+    had. Then each region-id parameter (:func:`_region_id_parameters`) is set to the GC
+    number, combined with every unbounded-parameter combination.
+    """
     codes = _unbounded(region)
-    if not codes:
-        return []
-    values: List[float] = []
     gc = _gc_number(str(region.get("code", "")))
+    values: List[float] = []
     if gc is not None:
         values.append(gc)
     values += [v for v in GATING_FALLBACKS if v not in values]
     combos = [dict(zip(codes, combo)) for combo in itertools.product(values, repeat=len(codes))]
     first = {c: UNBOUNDED_DEFAULT for c in codes}
-    return [c for c in combos if c != first]
+    with_ids: List[Dict[str, float]] = []
+    if gc is not None:
+        ids = _region_id_parameters(region, gc)
+        with_ids = [{code: gc, **combo} for code in ids for combo in combos]
+    return [c for c in combos if c != first] + with_ids
 
 
 # ---------------------------------------------------------------------------
@@ -375,7 +417,7 @@ def _region_record(
             else "Estimate omitted the region from its response"
         )
         if tried:
-            why += f"; tried unbounded-parameter values {tried}"
+            why += f"; tried gating values {tried}"
         elif not _unbounded(template):
             why += " (all parameters bounded; submitted in-range midpoints)"
         rec["unresolved_reason"] = why
@@ -426,9 +468,11 @@ def snapshot_state(
                 ans = answered.get(tmpl["id"])
                 gating = first_gating[tmpl["id"]]
                 tried: List[Dict[str, float]] = []
-                if not (ans or {}).get("results") and gating:
-                    tried.append(gating)
-                    for cand in _gating_candidates(tmpl):
+                cands = [] if (ans or {}).get("results") else _gating_candidates(tmpl)
+                if cands:
+                    if gating:
+                        tried.append(gating)
+                    for cand in cands:
                         tried.append(cand)
                         retry = _fill(tmpl, cand)
                         one = dict(body, regressionRegions=[retry])

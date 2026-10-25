@@ -5,7 +5,8 @@ It reads three sources:
 - ``flowfreq.regression.jurisdictions``: all 56 jurisdictions and their waves
 - ``flowfreq/data/regression/*.json``: equation library status per state, flagging
   any opt-in ``provisional/`` (flowfreq-developed) or ``awaiting_nss/``
-  (USGS-published, not yet in NSS) set
+  (USGS-published, not yet in NSS) set, or a ``nss_snapshot/`` set harvested from NSS
+  for a jurisdiction with no transcribed library
 - ``flowfreq/data/regional_skew.csv``: regional skew status per state
 
 The report is generated, never typed, so it cannot drift from the data.
@@ -32,6 +33,7 @@ from flowfreq.regression.library import (  # noqa: E402
     DATA_DIR,
     awaiting_nss_states,
     load_state,
+    nss_snapshot_states,
     provisional_states,
 )
 
@@ -42,6 +44,7 @@ def render() -> str:
     skew = load_table()
     provisional = set(provisional_states())
     awaiting = set(awaiting_nss_states())
+    snapshot = set(nss_snapshot_states())
     lines = [
         "# Regression coverage",
         "",
@@ -65,6 +68,11 @@ def render() -> str:
                     eq_status += " (+ provisional set)"
                 if j.code in awaiting:
                     eq_status += " (+ newer USGS set, not yet in NSS)"
+            elif j.code in snapshot:
+                lib = load_state(j.code, allow_nss_snapshot=True)
+                n_reg, n_eq = len(lib.regions), len(lib.equations)
+                eq_status = f"nss snapshot ({n_eq} eqs, {len(lib.unparsed)} unparsed)"
+                issue = ""
             else:
                 eq_status, n_reg, n_eq, issue = "not started", 0, 0, ""
             rows = skew[skew["state"] == j.code]

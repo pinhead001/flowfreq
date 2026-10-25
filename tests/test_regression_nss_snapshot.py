@@ -18,6 +18,7 @@ inline by ``test_constant_q0_is_stored_as_a_constant``.
 from __future__ import annotations
 
 import copy
+import importlib.util
 import json
 import logging
 import math
@@ -386,6 +387,25 @@ def test_asep_zero_or_missing_leaves_sep_log_unset(trimmed, asep):
     assert lib.equation("GC2015", 0.01).sep_log is not None
 
 
+def test_asep_below_one_leaves_sep_log_unset_and_notes_the_region(trimmed):
+    trimmed["regions"][0]["equations"][0]["asep_pct"] = 0.5
+    data = snapshot_to_library(trimmed)
+    lib = parse_state(data)
+    assert lib.equation("GC2015", 0.5).sep_log is None
+    assert lib.equation("GC2015", 0.01).sep_log is not None
+    assert "GC2015" in data["notes"] and "not converted" in data["notes"]
+
+
+@pytest.mark.parametrize("code", nss_snapshot_states())
+def test_every_stored_sep_log_is_plausible(code):
+    # Bounds are wider than the 0.05-0.6 first proposed: genuine percentage ASEps in the
+    # sweep give AL 0.039-0.048 (ASEp ~9-11%) and CA GC1534 0.61-0.90 (ASEp ~150-856%).
+    # The unconverted bad values would have been ~0.002, far below the floor.
+    for eq in load_state(code, allow_nss_snapshot=True).equations:
+        if eq.sep_log is not None:
+            assert 0.03 <= eq.sep_log <= 1.0, (code, eq.region_code, eq.aep, eq.sep_log)
+
+
 def test_snapshot_without_regions_returns_none():
     snapshot = {"state": "DC", "retrieved_utc": "2026-10-25T17:20:40+00:00", "regions": []}
     assert snapshot_to_library(snapshot) is None
@@ -406,3 +426,134 @@ def test_regression_equation_to_dict_round_trips(trimmed):
     lib = parse_state(snapshot_to_library(trimmed))
     for eq in lib.equations:
         assert RegressionEquation.from_dict(eq.to_dict()) == eq
+
+
+# --------------------------------------------------------------------------- generator tool
+
+
+def _load_build_tool():
+    path = Path(__file__).resolve().parent.parent / "tools" / "build_nss_snapshot_library.py"
+    spec = importlib.util.spec_from_file_location("build_nss_snapshot_library", path)
+    assert spec is not None and spec.loader is not None
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def _run_build_tool(tmp_path: Path, snapshots: Any, *extra: str) -> int:
+    published = tmp_path / "published"
+    published.mkdir(exist_ok=True)
+    (published / "WY.json").write_text("{}", encoding="utf-8")
+    argv = [a for p in snapshots for a in ("--snapshot", str(p))]
+    argv += ["--out", str(tmp_path / "out"), "--published-dir", str(published), *extra]
+    result: int = _load_build_tool().main(argv)
+    return result
+
+
+def test_build_tool_writes_skips_and_reports(tmp_path, capsys, trimmed):
+    snaps = tmp_path / "snaps"
+    snaps.mkdir()
+    (snaps / "TN.json").write_text(json.dumps(trimmed), encoding="utf-8")
+    (snaps / "WY.json").write_text(json.dumps(dict(trimmed, state="WY")), encoding="utf-8")
+    dc = {"state": "DC", "retrieved_utc": "2026-10-25T17:20:40+00:00", "regions": []}
+    (snaps / "DC.json").write_text(json.dumps(dc), encoding="utf-8")
+    out = tmp_path / "out"
+
+    assert _run_build_tool(tmp_path, [snaps / f"{c}.json" for c in ("TN", "WY", "DC")]) == 0
+
+    assert capsys.readouterr().out.splitlines() == [
+        "TN: 2 equations, 2 unparsed",
+        "skipped WY: published set exists",
+        "skipped DC: no NSS peak-flow regions",
+    ]
+    assert sorted(p.name for p in out.iterdir()) == ["TN.json"]
+    text = (out / "TN.json").read_text(encoding="utf-8")
+    assert text.endswith("}\n")
+    assert json.loads(text) == snapshot_to_library(trimmed)
+    assert len(parse_state(json.loads(text)).equations) == 2
+
+
+def test_build_tool_skips_a_snapshot_with_no_parseable_equations(tmp_path, capsys, trimmed):
+    """Every region unresolved (Indiana before its gating fix): no empty library is written."""
+    unresolved = copy.deepcopy(trimmed)
+    unresolved["state"] = "IN"
+    for region in unresolved["regions"]:
+        region["status"] = "unresolved"
+        region["unresolved_reason"] = "Estimate returned no results"
+    snap = tmp_path / "IN.json"
+    snap.write_text(json.dumps(unresolved), encoding="utf-8")
+
+    assert _run_build_tool(tmp_path, [snap]) == 0
+
+    assert capsys.readouterr().out.splitlines() == ["skipped IN: no parseable equations"]
+    assert not (tmp_path / "out" / "IN.json").exists()
+
+
+def test_build_tool_reports_bad_snapshots_and_continues(tmp_path, capsys, trimmed):
+    snaps = tmp_path / "snaps"
+    snaps.mkdir()
+    bad_json = snaps / "bad.json"
+    bad_json.write_text("{not json", encoding="utf-8")
+    no_state = snaps / "nostate.json"
+    no_state.write_text(json.dumps({"regions": []}), encoding="utf-8")
+    first = snaps / "TN_a.json"
+    first.write_text(json.dumps(trimmed), encoding="utf-8")
+    second = snaps / "TN_b.json"
+    second.write_text(
+        json.dumps(dict(trimmed, retrieved_utc="2026-10-26T00:00:00+00:00")), encoding="utf-8"
+    )
+
+    assert _run_build_tool(tmp_path, [bad_json, no_state, first, second]) == 1
+
+    lines = capsys.readouterr().out.splitlines()
+    assert lines[0].startswith(f"error {bad_json}: cannot read snapshot (JSONDecodeError")
+    assert lines[1].startswith(f"error {no_state}: cannot read snapshot (KeyError")
+    assert lines[2] == "TN: 2 equations, 2 unparsed"
+    assert lines[3] == f"error TN: two snapshots given, {first} and {second}; skipped {second}"
+    written = json.loads((tmp_path / "out" / "TN.json").read_text(encoding="utf-8"))
+    assert written == snapshot_to_library(trimmed)
+
+
+# --- the committed library: 41 jurisdictions harvested 2026-10-25 -------------------
+
+
+def _midpoint(v) -> float:
+    lo, hi = v.minimum, v.maximum
+    if lo is None or hi is None:
+        return 1.0
+    return math.sqrt(lo * hi) if lo > 0 else (lo + hi) / 2
+
+
+@pytest.mark.parametrize("code", nss_snapshot_states())
+def test_every_snapshot_library_loads_and_evaluates(code):
+    from flowfreq.regression.equations import evaluate
+
+    lib = load_state(code, allow_nss_snapshot=True)
+    assert lib.nss_snapshot and lib.equations
+    for eq in lib.equations:
+        mid = {v.code: _midpoint(v) for v in eq.variables}
+        flow = evaluate(eq, mid).flow_cfs
+        if eq.form == "constant":
+            # CA GC30 at AEP 0.5 is a genuine printed Q = 0.
+            assert flow >= 0, eq
+        else:
+            assert flow > 0, eq
+
+
+def test_snapshot_states_are_the_41():
+    assert len(nss_snapshot_states()) == 41
+
+
+def test_unparsed_entries_are_the_known_26():
+    # Observed in the 2026-10-25 sweep: 26 entries in all.
+    #   24 = GA, NC and SC, 8 each: the region-indicator interaction equations the
+    #        parser refuses (tools/snapshot_nss.py reported "8 refused" for each).
+    #    2 = New York's two urban regions (WRI84_4350 Method 1 and Method 2 Urban
+    #        Peak, GC1077/GC1078), for which NSS Estimate returned no results; the
+    #        library lists each region, not equations, under unparsed.
+    # Every other state, including Indiana's 8 regions, resolves fully.
+    by_state = {
+        c: len(load_state(c, allow_nss_snapshot=True).unparsed) for c in nss_snapshot_states()
+    }
+    assert {c: n for c, n in by_state.items() if n} == {"GA": 8, "NC": 8, "SC": 8, "NY": 2}
+    assert sum(by_state.values()) == 26

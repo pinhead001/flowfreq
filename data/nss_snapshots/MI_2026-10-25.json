@@ -1,0 +1,3063 @@
+{
+ "schema": "flowfreq.nss_snapshot/1",
+ "state": "MI",
+ "retrieved_utc": "2026-10-25T18:37:16+00:00",
+ "service": {
+  "templates": "https://streamstats.usgs.gov/nssservices/regions/MI/Scenarios",
+  "estimate": "https://streamstats.usgs.gov/nssservices/Scenarios/Estimate",
+  "unit_system": 2
+ },
+ "tool": "tools/snapshot_nss.py",
+ "note": "Harvested from NSS Scenarios/Estimate at synthetic in-range inputs. NSS supplies no report table, covariance, model-error variance or site count, so this is a cross-check and starting point, not a verified equation library.",
+ "nss_sep_note": "nss_sep is NSS's raw 'sep' field, stored verbatim. It is not confirmed to be the report's log10 standard error of prediction (MT NW region: 0.043 at 4% AEP vs 0.41 at 66.7%), so it is never mapped to sep_log.",
+ "statistic_groups_requested": [
+  "PFS"
+ ],
+ "statistic_groups_missing": [],
+ "summary": {
+  "statistic_groups": 1,
+  "regions": 5,
+  "regions_resolved": 5,
+  "regions_unresolved": 0,
+  "equations": 25,
+  "equations_parsed": 25,
+  "equations_refused": 0,
+  "round_trip_ok": 25,
+  "round_trip_failed": 0
+ },
+ "citations": {
+  "79": {
+   "title": "1984, Statistical Methods for Estimating Flow Characteristics of Michigan Streams: U.S. Geological Survey Water-Resources Investigations Report 84-4207, 80 p.",
+   "author": "Holtschlag, D.J. and Croskey, H.M.,",
+   "citation_url": "https://pubs.er.usgs.gov/publication/wri844207",
+   "last_year_of_data": 1982
+  }
+ },
+ "regions": [
+  {
+   "statistic_group_id": 2,
+   "statistic_group_code": "PFS",
+   "region_id": 277,
+   "region_code": "GC106",
+   "region_name": "Region_1",
+   "citation_id": 79,
+   "status": "resolved",
+   "parameters": [
+    {
+     "code": "CONTDA",
+     "name": "Contributing Drainage Area",
+     "units": "mi^2",
+     "min": 1.0,
+     "max": 1000.0,
+     "submitted": 31.622776601683793
+    },
+    {
+     "code": "CSL10_85",
+     "name": "Stream Slope 10 and 85 Method",
+     "units": "ft/mi",
+     "min": 0.5,
+     "max": 60.0,
+     "submitted": 5.477225575051661
+    },
+    {
+     "code": "PLCHSWAMP",
+     "name": "Percent Length of Main Channel Swamps",
+     "units": "%",
+     "min": 0.0,
+     "max": 100.0,
+     "submitted": 50.0
+    },
+    {
+     "code": "SLENRAT",
+     "name": "Slenderness Ratio",
+     "units": "dim",
+     "min": 2.0,
+     "max": 25.0,
+     "submitted": 7.0710678118654755
+    },
+    {
+     "code": "I24H100Y",
+     "name": "24 Hour 100 Year Precipitation",
+     "units": "in",
+     "min": 3.5,
+     "max": 5.3,
+     "submitted": 4.306971093471606
+    },
+    {
+     "code": "OUTWASH",
+     "name": "Percent Outwash",
+     "units": "%",
+     "min": 0.0,
+     "max": 100.0,
+     "submitted": 50.0
+    },
+    {
+     "code": "MUCK",
+     "name": "Percent Peat and Muck",
+     "units": "%",
+     "min": 0.0,
+     "max": 50.0,
+     "submitted": 25.0
+    },
+    {
+     "code": "MORTILL",
+     "name": "End Moraines of Fine Textured Till",
+     "units": "%",
+     "min": 0.0,
+     "max": 50.0,
+     "submitted": 25.0
+    },
+    {
+     "code": "MEDTILL",
+     "name": "Percent Medium Till",
+     "units": "%",
+     "min": 0.0,
+     "max": 100.0,
+     "submitted": 50.0
+    },
+    {
+     "code": "PCLAY",
+     "name": "Percent Lacustrine Clay and Silt",
+     "units": "%",
+     "min": 0.0,
+     "max": 75.0,
+     "submitted": 37.5
+    },
+    {
+     "code": "TILROCK",
+     "name": "Percent Thin Till over Bedrock",
+     "units": "%",
+     "min": 0.0,
+     "max": 100.0,
+     "submitted": 50.0
+    },
+    {
+     "code": "CRSTILL",
+     "name": "Percent Coarse Till",
+     "units": "%",
+     "min": 0.0,
+     "max": 100.0,
+     "submitted": 50.0
+    }
+   ],
+   "gating_values": {},
+   "equations": [
+    {
+     "statistic_code": "PK20AEP",
+     "statistic_name": "20-percent AEP flood",
+     "aep": 0.2,
+     "unit": "ft^3/s",
+     "equation": "4.809*(CONTDA)^(0.8931)*(CSL10_85)^(0.2164)*(PLCHSWAMP+1)^(-0.1741)*(SLENRAT)^(-0.1148)*(I24H100Y)^(1.0458)*(OUTWASH+1)^(-0.1524)*(MUCK+1)^(0.1669)*(MORTILL+1)^(0.1017)*(MEDTILL+1)^(0.0884)*(PCLAY+1)^(0.0905)*(TILROCK+1)^(0.0963)*(CRSTILL+1)^(0.04)",
+     "nss_value": 1250.0,
+     "nss_sep": null,
+     "asep_pct": null,
+     "errors": [
+      {
+       "code": "SE",
+       "name": "Average standard error (of either estimate or prediction)",
+       "value": 29.8
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": null,
+     "parsed": {
+      "intercept": 0.6820547770738072,
+      "variables": [
+       {
+        "code": "CONTDA",
+        "transform": "log10"
+       },
+       {
+        "code": "CSL10_85",
+        "transform": "log10"
+       },
+       {
+        "code": "PLCHSWAMP",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "SLENRAT",
+        "transform": "log10"
+       },
+       {
+        "code": "I24H100Y",
+        "transform": "log10"
+       },
+       {
+        "code": "OUTWASH",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MUCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MORTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MEDTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "PCLAY",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "TILROCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "CRSTILL",
+        "transform": "log10_plus1"
+       }
+      ],
+      "coefficients": [
+       0.8931,
+       0.2164,
+       -0.1741,
+       -0.1148,
+       1.0458,
+       -0.1524,
+       0.1669,
+       0.1017,
+       0.0884,
+       0.0905,
+       0.0963,
+       0.04
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 1250.088743459118,
+      "nss_rounding_bound": 5.0,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 1250.0887434591186,
+      "rel_vs_direct": 5.456580821951892e-16,
+      "rel_vs_nss": 7.099476729490561e-05,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK10AEP",
+     "statistic_name": "10-percent AEP flood",
+     "aep": 0.1,
+     "unit": "ft^3/s",
+     "equation": "4.59*(CONTDA)^(0.8902)*(CSL10_85)^(0.2256)*(PLCHSWAMP+1)^(-0.1749)*(SLENRAT)^(-0.124)*(I24H100Y)^(1.1936)*(OUTWASH+1)^(-0.1548)*(MUCK+1)^(0.166)*(MORTILL+1)^(0.11)*(MEDTILL+1)^(0.1004)*(PCLAY+1)^(0.0999)*(TILROCK+1)^(0.0901)*(CRSTILL+1)^(0.0443)",
+     "nss_value": 1590.0,
+     "nss_sep": null,
+     "asep_pct": null,
+     "errors": [
+      {
+       "code": "SE",
+       "name": "Average standard error (of either estimate or prediction)",
+       "value": 30.4
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": null,
+     "parsed": {
+      "intercept": 0.6618126855372612,
+      "variables": [
+       {
+        "code": "CONTDA",
+        "transform": "log10"
+       },
+       {
+        "code": "CSL10_85",
+        "transform": "log10"
+       },
+       {
+        "code": "PLCHSWAMP",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "SLENRAT",
+        "transform": "log10"
+       },
+       {
+        "code": "I24H100Y",
+        "transform": "log10"
+       },
+       {
+        "code": "OUTWASH",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MUCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MORTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MEDTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "PCLAY",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "TILROCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "CRSTILL",
+        "transform": "log10_plus1"
+       }
+      ],
+      "coefficients": [
+       0.8902,
+       0.2256,
+       -0.1749,
+       -0.124,
+       1.1936,
+       -0.1548,
+       0.166,
+       0.11,
+       0.1004,
+       0.0999,
+       0.0901,
+       0.0443
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 1592.998004789508,
+      "nss_rounding_bound": 5.0,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 1592.9980047895094,
+      "rel_vs_direct": 8.563990968963313e-16,
+      "rel_vs_nss": 0.001885537603465046,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK4AEP",
+     "statistic_name": "4-percent AEP flood",
+     "aep": 0.04,
+     "unit": "ft^3/s",
+     "equation": "3.987*(CONTDA)^(0.8878)*(CSL10_85)^(0.2372)*(PLCHSWAMP+1)^(-0.1744)*(SLENRAT)^(-0.1351)*(I24H100Y)^(1.4077)*(OUTWASH+1)^(-0.1564)*(MUCK+1)^(0.1666)*(MORTILL+1)^(0.1194)*(MEDTILL+1)^(0.1117)*(PCLAY+1)^(0.1091)*(TILROCK+1)^(0.0831)*(CRSTILL+1)^(0.0489)",
+     "nss_value": 2060.0,
+     "nss_sep": null,
+     "asep_pct": null,
+     "errors": [
+      {
+       "code": "SE",
+       "name": "Average standard error (of either estimate or prediction)",
+       "value": 31.4
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": null,
+     "parsed": {
+      "intercept": 0.6006462356623945,
+      "variables": [
+       {
+        "code": "CONTDA",
+        "transform": "log10"
+       },
+       {
+        "code": "CSL10_85",
+        "transform": "log10"
+       },
+       {
+        "code": "PLCHSWAMP",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "SLENRAT",
+        "transform": "log10"
+       },
+       {
+        "code": "I24H100Y",
+        "transform": "log10"
+       },
+       {
+        "code": "OUTWASH",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MUCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MORTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MEDTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "PCLAY",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "TILROCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "CRSTILL",
+        "transform": "log10_plus1"
+       }
+      ],
+      "coefficients": [
+       0.8878,
+       0.2372,
+       -0.1744,
+       -0.1351,
+       1.4077,
+       -0.1564,
+       0.1666,
+       0.1194,
+       0.1117,
+       0.1091,
+       0.0831,
+       0.0489
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 2062.6143613565764,
+      "nss_rounding_bound": 5.0,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 2062.6143613565764,
+      "rel_vs_direct": 0.0,
+      "rel_vs_nss": 0.0012691074546487427,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK2AEP",
+     "statistic_name": "2-percent AEP flood",
+     "aep": 0.02,
+     "unit": "ft^3/s",
+     "equation": "3.519*(CONTDA)^(0.886)*(CSL10_85)^(0.2464)*(PLCHSWAMP+1)^(-0.1738)*(SLENRAT)^(-0.1414)*(I24H100Y)^(1.5657)*(OUTWASH+1)^(-0.1569)*(MUCK+1)^(0.1681)*(MORTILL+1)^(0.1254)*(MEDTILL+1)^(0.1184)*(PCLAY+1)^(0.1142)*(TILROCK+1)^(0.0784)*(CRSTILL+1)^(0.0521)",
+     "nss_value": 2440.0,
+     "nss_sep": null,
+     "asep_pct": null,
+     "errors": [
+      {
+       "code": "SE",
+       "name": "Average standard error (of either estimate or prediction)",
+       "value": 33.1
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": null,
+     "parsed": {
+      "intercept": 0.5464192668351917,
+      "variables": [
+       {
+        "code": "CONTDA",
+        "transform": "log10"
+       },
+       {
+        "code": "CSL10_85",
+        "transform": "log10"
+       },
+       {
+        "code": "PLCHSWAMP",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "SLENRAT",
+        "transform": "log10"
+       },
+       {
+        "code": "I24H100Y",
+        "transform": "log10"
+       },
+       {
+        "code": "OUTWASH",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MUCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MORTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MEDTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "PCLAY",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "TILROCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "CRSTILL",
+        "transform": "log10_plus1"
+       }
+      ],
+      "coefficients": [
+       0.886,
+       0.2464,
+       -0.1738,
+       -0.1414,
+       1.5657,
+       -0.1569,
+       0.1681,
+       0.1254,
+       0.1184,
+       0.1142,
+       0.0784,
+       0.0521
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 2437.145802538709,
+      "nss_rounding_bound": 5.0,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 2437.1458025387096,
+      "rel_vs_direct": 1.8659012949195163e-16,
+      "rel_vs_nss": 0.0011697530579058888,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK1AEP",
+     "statistic_name": "1-percent AEP flood",
+     "aep": 0.01,
+     "unit": "ft^3/s",
+     "equation": "3.035*(CONTDA)^(0.8853)*(CSL10_85)^(0.2558)*(PLCHSWAMP+1)^(-0.1727)*(SLENRAT)^(-0.1487)*(I24H100Y)^(1.7299)*(OUTWASH+1)^(-0.1574)*(MUCK+1)^(0.1703)*(MORTILL+1)^(0.1308)*(MEDTILL+1)^(0.1242)*(PCLAY+1)^(0.1181)*(TILROCK+1)^(0.074)*(CRSTILL+1)^(0.0539)",
+     "nss_value": 2820.0,
+     "nss_sep": null,
+     "asep_pct": null,
+     "errors": [
+      {
+       "code": "SE",
+       "name": "Average standard error (of either estimate or prediction)",
+       "value": 33.0
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": null,
+     "parsed": {
+      "intercept": 0.48215869541127643,
+      "variables": [
+       {
+        "code": "CONTDA",
+        "transform": "log10"
+       },
+       {
+        "code": "CSL10_85",
+        "transform": "log10"
+       },
+       {
+        "code": "PLCHSWAMP",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "SLENRAT",
+        "transform": "log10"
+       },
+       {
+        "code": "I24H100Y",
+        "transform": "log10"
+       },
+       {
+        "code": "OUTWASH",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MUCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MORTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MEDTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "PCLAY",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "TILROCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "CRSTILL",
+        "transform": "log10_plus1"
+       }
+      ],
+      "coefficients": [
+       0.8853,
+       0.2558,
+       -0.1727,
+       -0.1487,
+       1.7299,
+       -0.1574,
+       0.1703,
+       0.1308,
+       0.1242,
+       0.1181,
+       0.074,
+       0.0539
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 2817.5333539999897,
+      "nss_rounding_bound": 5.0,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 2817.533353999992,
+      "rel_vs_direct": 8.0699550591099375e-16,
+      "rel_vs_nss": 0.0008746971631234187,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    }
+   ]
+  },
+  {
+   "statistic_group_id": 2,
+   "statistic_group_code": "PFS",
+   "region_id": 278,
+   "region_code": "GC107",
+   "region_name": "Region_2",
+   "citation_id": 79,
+   "status": "resolved",
+   "parameters": [
+    {
+     "code": "CONTDA",
+     "name": "Contributing Drainage Area",
+     "units": "mi^2",
+     "min": 1.0,
+     "max": 1000.0,
+     "submitted": 31.622776601683793
+    },
+    {
+     "code": "CSL10_85",
+     "name": "Stream Slope 10 and 85 Method",
+     "units": "ft/mi",
+     "min": 0.5,
+     "max": 60.0,
+     "submitted": 5.477225575051661
+    },
+    {
+     "code": "PLCHSWAMP",
+     "name": "Percent Length of Main Channel Swamps",
+     "units": "%",
+     "min": 0.0,
+     "max": 100.0,
+     "submitted": 50.0
+    },
+    {
+     "code": "SLENRAT",
+     "name": "Slenderness Ratio",
+     "units": "dim",
+     "min": 2.0,
+     "max": 25.0,
+     "submitted": 7.0710678118654755
+    },
+    {
+     "code": "I24H100Y",
+     "name": "24 Hour 100 Year Precipitation",
+     "units": "in",
+     "min": 3.5,
+     "max": 5.3,
+     "submitted": 4.306971093471606
+    },
+    {
+     "code": "OUTWASH",
+     "name": "Percent Outwash",
+     "units": "%",
+     "min": 0.0,
+     "max": 100.0,
+     "submitted": 50.0
+    },
+    {
+     "code": "MUCK",
+     "name": "Percent Peat and Muck",
+     "units": "%",
+     "min": 0.0,
+     "max": 50.0,
+     "submitted": 25.0
+    },
+    {
+     "code": "MORTILL",
+     "name": "End Moraines of Fine Textured Till",
+     "units": "%",
+     "min": 0.0,
+     "max": 50.0,
+     "submitted": 25.0
+    },
+    {
+     "code": "MEDTILL",
+     "name": "Percent Medium Till",
+     "units": "%",
+     "min": 0.0,
+     "max": 100.0,
+     "submitted": 50.0
+    },
+    {
+     "code": "PCLAY",
+     "name": "Percent Lacustrine Clay and Silt",
+     "units": "%",
+     "min": 0.0,
+     "max": 75.0,
+     "submitted": 37.5
+    },
+    {
+     "code": "TILROCK",
+     "name": "Percent Thin Till over Bedrock",
+     "units": "%",
+     "min": 0.0,
+     "max": 100.0,
+     "submitted": 50.0
+    },
+    {
+     "code": "CRSTILL",
+     "name": "Percent Coarse Till",
+     "units": "%",
+     "min": 0.0,
+     "max": 100.0,
+     "submitted": 50.0
+    }
+   ],
+   "gating_values": {},
+   "equations": [
+    {
+     "statistic_code": "PK20AEP",
+     "statistic_name": "20-percent AEP flood",
+     "aep": 0.2,
+     "unit": "ft^3/s",
+     "equation": "4.965*(CONTDA)^(0.8931)*(CSL10_85)^(0.2164)*(PLCHSWAMP+1)^(-0.1741)*(SLENRAT)^(-0.1148)*(I24H100Y)^(1.0458)*(OUTWASH+1)^(-0.1524)*(MUCK+1)^(0.1669)*(MORTILL+1)^(0.1017)*(MEDTILL+1)^(0.0884)*(PCLAY+1)^(0.0905)*(TILROCK+1)^(0.0963)*(CRSTILL+1)^(0.04)",
+     "nss_value": 1290.0,
+     "nss_sep": null,
+     "asep_pct": null,
+     "errors": [
+      {
+       "code": "SE",
+       "name": "Average standard error (of either estimate or prediction)",
+       "value": 31.1
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": null,
+     "parsed": {
+      "intercept": 0.6959192528314,
+      "variables": [
+       {
+        "code": "CONTDA",
+        "transform": "log10"
+       },
+       {
+        "code": "CSL10_85",
+        "transform": "log10"
+       },
+       {
+        "code": "PLCHSWAMP",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "SLENRAT",
+        "transform": "log10"
+       },
+       {
+        "code": "I24H100Y",
+        "transform": "log10"
+       },
+       {
+        "code": "OUTWASH",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MUCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MORTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MEDTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "PCLAY",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "TILROCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "CRSTILL",
+        "transform": "log10_plus1"
+       }
+      ],
+      "coefficients": [
+       0.8931,
+       0.2164,
+       -0.1741,
+       -0.1148,
+       1.0458,
+       -0.1524,
+       0.1669,
+       0.1017,
+       0.0884,
+       0.0905,
+       0.0963,
+       0.04
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 1290.6405929038303,
+      "nss_rounding_bound": 5.0,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 1290.6405929038299,
+      "rel_vs_direct": 3.523423588152622e-16,
+      "rel_vs_nss": 0.0004965836463797547,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK10AEP",
+     "statistic_name": "10-percent AEP flood",
+     "aep": 0.1,
+     "unit": "ft^3/s",
+     "equation": "4.775*(CONTDA)^(0.8902)*(CSL10_85)^(0.2256)*(PLCHSWAMP+1)^(-0.1749)*(SLENRAT)^(-0.124)*(I24H100Y)^(1.1936)*(OUTWASH+1)^(-0.1548)*(MUCK+1)^(0.166)*(MORTILL+1)^(0.11)*(MEDTILL+1)^(0.1004)*(PCLAY+1)^(0.0999)*(TILROCK+1)^(0.0901)*(CRSTILL+1)^(0.0443)",
+     "nss_value": 1660.0,
+     "nss_sep": null,
+     "asep_pct": null,
+     "errors": [
+      {
+       "code": "SE",
+       "name": "Average standard error (of either estimate or prediction)",
+       "value": 32.5
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": null,
+     "parsed": {
+      "intercept": 0.6789733759197651,
+      "variables": [
+       {
+        "code": "CONTDA",
+        "transform": "log10"
+       },
+       {
+        "code": "CSL10_85",
+        "transform": "log10"
+       },
+       {
+        "code": "PLCHSWAMP",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "SLENRAT",
+        "transform": "log10"
+       },
+       {
+        "code": "I24H100Y",
+        "transform": "log10"
+       },
+       {
+        "code": "OUTWASH",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MUCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MORTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MEDTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "PCLAY",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "TILROCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "CRSTILL",
+        "transform": "log10_plus1"
+       }
+      ],
+      "coefficients": [
+       0.8902,
+       0.2256,
+       -0.1749,
+       -0.124,
+       1.1936,
+       -0.1548,
+       0.166,
+       0.11,
+       0.1004,
+       0.0999,
+       0.0901,
+       0.0443
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 1657.2038067254687,
+      "nss_rounding_bound": 5.0,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 1657.203806725471,
+      "rel_vs_direct": 1.3720320609962167e-15,
+      "rel_vs_nss": 0.0016844537798367829,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK4AEP",
+     "statistic_name": "4-percent AEP flood",
+     "aep": 0.04,
+     "unit": "ft^3/s",
+     "equation": "4.195*(CONTDA)^(0.8878)*(CSL10_85)^(0.2372)*(PLCHSWAMP+1)^(-0.1744)*(SLENRAT)^(-0.1351)*(I24H100Y)^(1.4077)*(OUTWASH+1)^(-0.1564)*(MUCK+1)^(0.1666)*(MORTILL+1)^(0.1194)*(MEDTILL+1)^(0.1117)*(PCLAY+1)^(0.1091)*(TILROCK+1)^(0.0831)*(CRSTILL+1)^(0.0489)",
+     "nss_value": 2170.0,
+     "nss_sep": null,
+     "asep_pct": null,
+     "errors": [
+      {
+       "code": "SE",
+       "name": "Average standard error (of either estimate or prediction)",
+       "value": 34.7
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": null,
+     "parsed": {
+      "intercept": 0.6227319651647191,
+      "variables": [
+       {
+        "code": "CONTDA",
+        "transform": "log10"
+       },
+       {
+        "code": "CSL10_85",
+        "transform": "log10"
+       },
+       {
+        "code": "PLCHSWAMP",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "SLENRAT",
+        "transform": "log10"
+       },
+       {
+        "code": "I24H100Y",
+        "transform": "log10"
+       },
+       {
+        "code": "OUTWASH",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MUCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MORTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MEDTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "PCLAY",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "TILROCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "CRSTILL",
+        "transform": "log10_plus1"
+       }
+      ],
+      "coefficients": [
+       0.8878,
+       0.2372,
+       -0.1744,
+       -0.1351,
+       1.4077,
+       -0.1564,
+       0.1666,
+       0.1194,
+       0.1117,
+       0.1091,
+       0.0831,
+       0.0489
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 2170.220026559027,
+      "nss_rounding_bound": 5.0,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 2170.2200265590254,
+      "rel_vs_direct": 6.28619234899631e-16,
+      "rel_vs_nss": 0.00010139472766148735,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK2AEP",
+     "statistic_name": "2-percent AEP flood",
+     "aep": 0.02,
+     "unit": "ft^3/s",
+     "equation": "3.733*(CONTDA)^(0.886)*(CSL10_85)^(0.2464)*(PLCHSWAMP+1)^(-0.1738)*(SLENRAT)^(-0.1414)*(I24H100Y)^(1.5657)*(OUTWASH+1)^(-0.1569)*(MUCK+1)^(0.1681)*(MORTILL+1)^(0.1254)*(MEDTILL+1)^(0.1184)*(PCLAY+1)^(0.1142)*(TILROCK+1)^(0.0784)*(CRSTILL+1)^(0.0521)",
+     "nss_value": 2590.0,
+     "nss_sep": null,
+     "asep_pct": null,
+     "errors": [
+      {
+       "code": "SE",
+       "name": "Average standard error (of either estimate or prediction)",
+       "value": 37.0
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": null,
+     "parsed": {
+      "intercept": 0.5720579899263045,
+      "variables": [
+       {
+        "code": "CONTDA",
+        "transform": "log10"
+       },
+       {
+        "code": "CSL10_85",
+        "transform": "log10"
+       },
+       {
+        "code": "PLCHSWAMP",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "SLENRAT",
+        "transform": "log10"
+       },
+       {
+        "code": "I24H100Y",
+        "transform": "log10"
+       },
+       {
+        "code": "OUTWASH",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MUCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MORTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MEDTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "PCLAY",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "TILROCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "CRSTILL",
+        "transform": "log10_plus1"
+       }
+      ],
+      "coefficients": [
+       0.886,
+       0.2464,
+       -0.1738,
+       -0.1414,
+       1.5657,
+       -0.1569,
+       0.1681,
+       0.1254,
+       0.1184,
+       0.1142,
+       0.0784,
+       0.0521
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 2585.3552943668647,
+      "nss_rounding_bound": 5.0,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 2585.3552943668647,
+      "rel_vs_direct": 0.0,
+      "rel_vs_nss": 0.001793322638276195,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK1AEP",
+     "statistic_name": "1-percent AEP flood",
+     "aep": 0.01,
+     "unit": "ft^3/s",
+     "equation": "3.249*(CONTDA)^(0.8853)*(CSL10_85)^(0.2558)*(PLCHSWAMP+1)^(-0.1727)*(SLENRAT)^(-0.1487)*(I24H100Y)^(1.7299)*(OUTWASH+1)^(-0.1574)*(MUCK+1)^(0.1703)*(MORTILL+1)^(0.1308)*(MEDTILL+1)^(0.1242)*(PCLAY+1)^(0.1181)*(TILROCK+1)^(0.074)*(CRSTILL+1)^(0.0539)",
+     "nss_value": 3020.0,
+     "nss_sep": null,
+     "asep_pct": null,
+     "errors": [
+      {
+       "code": "SE",
+       "name": "Average standard error (of either estimate or prediction)",
+       "value": 39.5
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": null,
+     "parsed": {
+      "intercept": 0.5117497113449828,
+      "variables": [
+       {
+        "code": "CONTDA",
+        "transform": "log10"
+       },
+       {
+        "code": "CSL10_85",
+        "transform": "log10"
+       },
+       {
+        "code": "PLCHSWAMP",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "SLENRAT",
+        "transform": "log10"
+       },
+       {
+        "code": "I24H100Y",
+        "transform": "log10"
+       },
+       {
+        "code": "OUTWASH",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MUCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MORTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MEDTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "PCLAY",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "TILROCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "CRSTILL",
+        "transform": "log10_plus1"
+       }
+      ],
+      "coefficients": [
+       0.8853,
+       0.2558,
+       -0.1727,
+       -0.1487,
+       1.7299,
+       -0.1574,
+       0.1703,
+       0.1308,
+       0.1242,
+       0.1181,
+       0.074,
+       0.0539
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 3016.199626736727,
+      "nss_rounding_bound": 5.0,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 3016.1996267367313,
+      "rel_vs_direct": 1.3569148811301195e-15,
+      "rel_vs_nss": 0.0012584017428042182,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    }
+   ]
+  },
+  {
+   "statistic_group_id": 2,
+   "statistic_group_code": "PFS",
+   "region_id": 279,
+   "region_code": "GC108",
+   "region_name": "Region_3",
+   "citation_id": 79,
+   "status": "resolved",
+   "parameters": [
+    {
+     "code": "CONTDA",
+     "name": "Contributing Drainage Area",
+     "units": "mi^2",
+     "min": 1.0,
+     "max": 1000.0,
+     "submitted": 31.622776601683793
+    },
+    {
+     "code": "CSL10_85",
+     "name": "Stream Slope 10 and 85 Method",
+     "units": "ft/mi",
+     "min": 0.5,
+     "max": 60.0,
+     "submitted": 5.477225575051661
+    },
+    {
+     "code": "PLCHSWAMP",
+     "name": "Percent Length of Main Channel Swamps",
+     "units": "%",
+     "min": 0.0,
+     "max": 100.0,
+     "submitted": 50.0
+    },
+    {
+     "code": "SLENRAT",
+     "name": "Slenderness Ratio",
+     "units": "dim",
+     "min": 2.0,
+     "max": 25.0,
+     "submitted": 7.0710678118654755
+    },
+    {
+     "code": "I24H100Y",
+     "name": "24 Hour 100 Year Precipitation",
+     "units": "in",
+     "min": 3.5,
+     "max": 5.3,
+     "submitted": 4.306971093471606
+    },
+    {
+     "code": "OUTWASH",
+     "name": "Percent Outwash",
+     "units": "%",
+     "min": 0.0,
+     "max": 100.0,
+     "submitted": 50.0
+    },
+    {
+     "code": "MUCK",
+     "name": "Percent Peat and Muck",
+     "units": "%",
+     "min": 0.0,
+     "max": 50.0,
+     "submitted": 25.0
+    },
+    {
+     "code": "MORTILL",
+     "name": "End Moraines of Fine Textured Till",
+     "units": "%",
+     "min": 0.0,
+     "max": 50.0,
+     "submitted": 25.0
+    },
+    {
+     "code": "MEDTILL",
+     "name": "Percent Medium Till",
+     "units": "%",
+     "min": 0.0,
+     "max": 100.0,
+     "submitted": 50.0
+    },
+    {
+     "code": "PCLAY",
+     "name": "Percent Lacustrine Clay and Silt",
+     "units": "%",
+     "min": 0.0,
+     "max": 75.0,
+     "submitted": 37.5
+    },
+    {
+     "code": "TILROCK",
+     "name": "Percent Thin Till over Bedrock",
+     "units": "%",
+     "min": 0.0,
+     "max": 100.0,
+     "submitted": 50.0
+    },
+    {
+     "code": "CRSTILL",
+     "name": "Percent Coarse Till",
+     "units": "%",
+     "min": 0.0,
+     "max": 100.0,
+     "submitted": 50.0
+    }
+   ],
+   "gating_values": {},
+   "equations": [
+    {
+     "statistic_code": "PK20AEP",
+     "statistic_name": "20-percent AEP flood",
+     "aep": 0.2,
+     "unit": "ft^3/s",
+     "equation": "4.856*(CONTDA)^(0.8931)*(CSL10_85)^(0.2164)*(PLCHSWAMP+1)^(-0.1741)*(SLENRAT)^(-0.1148)*(I24H100Y)^(1.0458)*(OUTWASH+1)^(-0.1524)*(MUCK+1)^(0.1669)*(MORTILL+1)^(0.1017)*(MEDTILL+1)^(0.0884)*(PCLAY+1)^(0.0905)*(TILROCK+1)^(0.0963)*(CRSTILL+1)^(0.04)",
+     "nss_value": 1260.0,
+     "nss_sep": null,
+     "asep_pct": null,
+     "errors": [
+      {
+       "code": "SE",
+       "name": "Average standard error (of either estimate or prediction)",
+       "value": 24.7
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": null,
+     "parsed": {
+      "intercept": 0.6862786780672011,
+      "variables": [
+       {
+        "code": "CONTDA",
+        "transform": "log10"
+       },
+       {
+        "code": "CSL10_85",
+        "transform": "log10"
+       },
+       {
+        "code": "PLCHSWAMP",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "SLENRAT",
+        "transform": "log10"
+       },
+       {
+        "code": "I24H100Y",
+        "transform": "log10"
+       },
+       {
+        "code": "OUTWASH",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MUCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MORTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MEDTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "PCLAY",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "TILROCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "CRSTILL",
+        "transform": "log10_plus1"
+       }
+      ],
+      "coefficients": [
+       0.8931,
+       0.2164,
+       -0.1741,
+       -0.1148,
+       1.0458,
+       -0.1524,
+       0.1669,
+       0.1017,
+       0.0884,
+       0.0905,
+       0.0963,
+       0.04
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 1262.306287843101,
+      "nss_rounding_bound": 5.0,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 1262.3062878431022,
+      "rel_vs_direct": 9.006279919263683e-16,
+      "rel_vs_nss": 0.001830387177065202,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK10AEP",
+     "statistic_name": "10-percent AEP flood",
+     "aep": 0.1,
+     "unit": "ft^3/s",
+     "equation": "4.636*(CONTDA)^(0.8902)*(CSL10_85)^(0.2256)*(PLCHSWAMP+1)^(-0.1749)*(SLENRAT)^(-0.124)*(I24H100Y)^(1.1936)*(OUTWASH+1)^(-0.1548)*(MUCK+1)^(0.166)*(MORTILL+1)^(0.11)*(MEDTILL+1)^(0.1004)*(PCLAY+1)^(0.0999)*(TILROCK+1)^(0.0901)*(CRSTILL+1)^(0.0443)",
+     "nss_value": 1610.0,
+     "nss_sep": null,
+     "asep_pct": null,
+     "errors": [
+      {
+       "code": "SE",
+       "name": "Average standard error (of either estimate or prediction)",
+       "value": 27.0
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": null,
+     "parsed": {
+      "intercept": 0.6661434272915584,
+      "variables": [
+       {
+        "code": "CONTDA",
+        "transform": "log10"
+       },
+       {
+        "code": "CSL10_85",
+        "transform": "log10"
+       },
+       {
+        "code": "PLCHSWAMP",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "SLENRAT",
+        "transform": "log10"
+       },
+       {
+        "code": "I24H100Y",
+        "transform": "log10"
+       },
+       {
+        "code": "OUTWASH",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MUCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MORTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MEDTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "PCLAY",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "TILROCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "CRSTILL",
+        "transform": "log10_plus1"
+       }
+      ],
+      "coefficients": [
+       0.8902,
+       0.2256,
+       -0.1749,
+       -0.124,
+       1.1936,
+       -0.1548,
+       0.166,
+       0.11,
+       0.1004,
+       0.0999,
+       0.0901,
+       0.0443
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 1608.9626906762876,
+      "nss_rounding_bound": 5.0,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 1608.96269067629,
+      "rel_vs_direct": 1.5544862813594969e-15,
+      "rel_vs_nss": 0.0006442915054098793,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK4AEP",
+     "statistic_name": "4-percent AEP flood",
+     "aep": 0.04,
+     "unit": "ft^3/s",
+     "equation": "4.026*(CONTDA)^(0.8878)*(CSL10_85)^(0.2372)*(PLCHSWAMP+1)^(-0.1744)*(SLENRAT)^(-0.1351)*(I24H100Y)^(1.4077)*(OUTWASH+1)^(-0.1564)*(MUCK+1)^(0.1666)*(MORTILL+1)^(0.1194)*(MEDTILL+1)^(0.1117)*(PCLAY+1)^(0.1091)*(TILROCK+1)^(0.0831)*(CRSTILL+1)^(0.0489)",
+     "nss_value": 2080.0,
+     "nss_sep": null,
+     "asep_pct": null,
+     "errors": [
+      {
+       "code": "SE",
+       "name": "Average standard error (of either estimate or prediction)",
+       "value": 30.1
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": null,
+     "parsed": {
+      "intercept": 0.6048737705526357,
+      "variables": [
+       {
+        "code": "CONTDA",
+        "transform": "log10"
+       },
+       {
+        "code": "CSL10_85",
+        "transform": "log10"
+       },
+       {
+        "code": "PLCHSWAMP",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "SLENRAT",
+        "transform": "log10"
+       },
+       {
+        "code": "I24H100Y",
+        "transform": "log10"
+       },
+       {
+        "code": "OUTWASH",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MUCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MORTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MEDTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "PCLAY",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "TILROCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "CRSTILL",
+        "transform": "log10_plus1"
+       }
+      ],
+      "coefficients": [
+       0.8878,
+       0.2372,
+       -0.1744,
+       -0.1351,
+       1.4077,
+       -0.1564,
+       0.1666,
+       0.1194,
+       0.1117,
+       0.1091,
+       0.0831,
+       0.0489
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 2082.790423582036,
+      "nss_rounding_bound": 5.0,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 2082.7904235820333,
+      "rel_vs_direct": 1.3100137557893453e-15,
+      "rel_vs_nss": 0.001341549799054484,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK2AEP",
+     "statistic_name": "2-percent AEP flood",
+     "aep": 0.02,
+     "unit": "ft^3/s",
+     "equation": "3.551*(CONTDA)^(0.886)*(CSL10_85)^(0.2464)*(PLCHSWAMP+1)^(-0.1738)*(SLENRAT)^(-0.1414)*(I24H100Y)^(1.5657)*(OUTWASH+1)^(-0.1569)*(MUCK+1)^(0.1681)*(MORTILL+1)^(0.1254)*(MEDTILL+1)^(0.1184)*(PCLAY+1)^(0.1142)*(TILROCK+1)^(0.0784)*(CRSTILL+1)^(0.0521)",
+     "nss_value": 2460.0,
+     "nss_sep": null,
+     "asep_pct": null,
+     "errors": [
+      {
+       "code": "SE",
+       "name": "Average standard error (of either estimate or prediction)",
+       "value": 32.7
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": null,
+     "parsed": {
+      "intercept": 0.5503506723016155,
+      "variables": [
+       {
+        "code": "CONTDA",
+        "transform": "log10"
+       },
+       {
+        "code": "CSL10_85",
+        "transform": "log10"
+       },
+       {
+        "code": "PLCHSWAMP",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "SLENRAT",
+        "transform": "log10"
+       },
+       {
+        "code": "I24H100Y",
+        "transform": "log10"
+       },
+       {
+        "code": "OUTWASH",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MUCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MORTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MEDTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "PCLAY",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "TILROCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "CRSTILL",
+        "transform": "log10_plus1"
+       }
+      ],
+      "coefficients": [
+       0.886,
+       0.2464,
+       -0.1738,
+       -0.1414,
+       1.5657,
+       -0.1569,
+       0.1681,
+       0.1254,
+       0.1184,
+       0.1142,
+       0.0784,
+       0.0521
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 2459.30796954105,
+      "nss_rounding_bound": 5.0,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 2459.30796954105,
+      "rel_vs_direct": 0.0,
+      "rel_vs_nss": 0.0002813131946950529,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK1AEP",
+     "statistic_name": "1-percent AEP flood",
+     "aep": 0.01,
+     "unit": "ft^3/s",
+     "equation": "3.06*(CONTDA)^(0.8853)*(CSL10_85)^(0.2558)*(PLCHSWAMP+1)^(-0.1727)*(SLENRAT)^(-0.1487)*(I24H100Y)^(1.7299)*(OUTWASH+1)^(-0.1574)*(MUCK+1)^(0.1703)*(MORTILL+1)^(0.1308)*(MEDTILL+1)^(0.1242)*(PCLAY+1)^(0.1181)*(TILROCK+1)^(0.074)*(CRSTILL+1)^(0.0539)",
+     "nss_value": 2840.0,
+     "nss_sep": null,
+     "asep_pct": null,
+     "errors": [
+      {
+       "code": "SE",
+       "name": "Average standard error (of either estimate or prediction)",
+       "value": 35.0
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": null,
+     "parsed": {
+      "intercept": 0.48572142648158,
+      "variables": [
+       {
+        "code": "CONTDA",
+        "transform": "log10"
+       },
+       {
+        "code": "CSL10_85",
+        "transform": "log10"
+       },
+       {
+        "code": "PLCHSWAMP",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "SLENRAT",
+        "transform": "log10"
+       },
+       {
+        "code": "I24H100Y",
+        "transform": "log10"
+       },
+       {
+        "code": "OUTWASH",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MUCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MORTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MEDTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "PCLAY",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "TILROCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "CRSTILL",
+        "transform": "log10_plus1"
+       }
+      ],
+      "coefficients": [
+       0.8853,
+       0.2558,
+       -0.1727,
+       -0.1487,
+       1.7299,
+       -0.1574,
+       0.1703,
+       0.1308,
+       0.1242,
+       0.1181,
+       0.074,
+       0.0539
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 2840.742030721571,
+      "nss_rounding_bound": 5.0,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 2840.7420307215752,
+      "rel_vs_direct": 1.4407243296705094e-15,
+      "rel_vs_nss": 0.0002612784230898758,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    }
+   ]
+  },
+  {
+   "statistic_group_id": 2,
+   "statistic_group_code": "PFS",
+   "region_id": 280,
+   "region_code": "GC109",
+   "region_name": "Region_4",
+   "citation_id": 79,
+   "status": "resolved",
+   "parameters": [
+    {
+     "code": "CONTDA",
+     "name": "Contributing Drainage Area",
+     "units": "mi^2",
+     "min": 1.0,
+     "max": 1000.0,
+     "submitted": 31.622776601683793
+    },
+    {
+     "code": "CSL10_85",
+     "name": "Stream Slope 10 and 85 Method",
+     "units": "ft/mi",
+     "min": 0.5,
+     "max": 60.0,
+     "submitted": 5.477225575051661
+    },
+    {
+     "code": "PLCHSWAMP",
+     "name": "Percent Length of Main Channel Swamps",
+     "units": "%",
+     "min": 0.0,
+     "max": 100.0,
+     "submitted": 50.0
+    },
+    {
+     "code": "SLENRAT",
+     "name": "Slenderness Ratio",
+     "units": "dim",
+     "min": 2.0,
+     "max": 25.0,
+     "submitted": 7.0710678118654755
+    },
+    {
+     "code": "I24H100Y",
+     "name": "24 Hour 100 Year Precipitation",
+     "units": "in",
+     "min": 3.5,
+     "max": 5.3,
+     "submitted": 4.306971093471606
+    },
+    {
+     "code": "OUTWASH",
+     "name": "Percent Outwash",
+     "units": "%",
+     "min": 0.0,
+     "max": 100.0,
+     "submitted": 50.0
+    },
+    {
+     "code": "MUCK",
+     "name": "Percent Peat and Muck",
+     "units": "%",
+     "min": 0.0,
+     "max": 50.0,
+     "submitted": 25.0
+    },
+    {
+     "code": "MORTILL",
+     "name": "End Moraines of Fine Textured Till",
+     "units": "%",
+     "min": 0.0,
+     "max": 50.0,
+     "submitted": 25.0
+    },
+    {
+     "code": "MEDTILL",
+     "name": "Percent Medium Till",
+     "units": "%",
+     "min": 0.0,
+     "max": 100.0,
+     "submitted": 50.0
+    },
+    {
+     "code": "PCLAY",
+     "name": "Percent Lacustrine Clay and Silt",
+     "units": "%",
+     "min": 0.0,
+     "max": 75.0,
+     "submitted": 37.5
+    },
+    {
+     "code": "TILROCK",
+     "name": "Percent Thin Till over Bedrock",
+     "units": "%",
+     "min": 0.0,
+     "max": 100.0,
+     "submitted": 50.0
+    },
+    {
+     "code": "CRSTILL",
+     "name": "Percent Coarse Till",
+     "units": "%",
+     "min": 0.0,
+     "max": 100.0,
+     "submitted": 50.0
+    }
+   ],
+   "gating_values": {},
+   "equations": [
+    {
+     "statistic_code": "PK20AEP",
+     "statistic_name": "20-percent AEP flood",
+     "aep": 0.2,
+     "unit": "ft^3/s",
+     "equation": "5.206*(CONTDA)^(0.8931)*(CSL10_85)^(0.2164)*(PLCHSWAMP+1)^(-0.1741)*(SLENRAT)^(-0.1148)*(I24H100Y)^(1.0458)*(OUTWASH+1)^(-0.1524)*(MUCK+1)^(0.1669)*(MORTILL+1)^(0.1017)*(MEDTILL+1)^(0.0884)*(PCLAY+1)^(0.0905)*(TILROCK+1)^(0.0963)*(CRSTILL+1)^(0.04)",
+     "nss_value": 1350.0,
+     "nss_sep": null,
+     "asep_pct": null,
+     "errors": [
+      {
+       "code": "SE",
+       "name": "Average standard error (of either estimate or prediction)",
+       "value": 34.8
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": null,
+     "parsed": {
+      "intercept": 0.7165041637732169,
+      "variables": [
+       {
+        "code": "CONTDA",
+        "transform": "log10"
+       },
+       {
+        "code": "CSL10_85",
+        "transform": "log10"
+       },
+       {
+        "code": "PLCHSWAMP",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "SLENRAT",
+        "transform": "log10"
+       },
+       {
+        "code": "I24H100Y",
+        "transform": "log10"
+       },
+       {
+        "code": "OUTWASH",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MUCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MORTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MEDTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "PCLAY",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "TILROCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "CRSTILL",
+        "transform": "log10_plus1"
+       }
+      ],
+      "coefficients": [
+       0.8931,
+       0.2164,
+       -0.1741,
+       -0.1148,
+       1.0458,
+       -0.1524,
+       0.1669,
+       0.1017,
+       0.0884,
+       0.0905,
+       0.0963,
+       0.04
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 1353.288001340854,
+      "nss_rounding_bound": 5.0,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 1353.288001340854,
+      "rel_vs_direct": 0.0,
+      "rel_vs_nss": 0.0024355565487807055,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK10AEP",
+     "statistic_name": "10-percent AEP flood",
+     "aep": 0.1,
+     "unit": "ft^3/s",
+     "equation": "4.962*(CONTDA)^(0.8902)*(CSL10_85)^(0.2256)*(PLCHSWAMP+1)^(-0.1749)*(SLENRAT)^(-0.124)*(I24H100Y)^(1.1936)*(OUTWASH+1)^(-0.1548)*(MUCK+1)^(0.166)*(MORTILL+1)^(0.11)*(MEDTILL+1)^(0.1004)*(PCLAY+1)^(0.0999)*(TILROCK+1)^(0.0901)*(CRSTILL+1)^(0.0443)",
+     "nss_value": 1720.0,
+     "nss_sep": null,
+     "asep_pct": null,
+     "errors": [
+      {
+       "code": "SE",
+       "name": "Average standard error (of either estimate or prediction)",
+       "value": 37.5
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": null,
+     "parsed": {
+      "intercept": 0.6956567599361902,
+      "variables": [
+       {
+        "code": "CONTDA",
+        "transform": "log10"
+       },
+       {
+        "code": "CSL10_85",
+        "transform": "log10"
+       },
+       {
+        "code": "PLCHSWAMP",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "SLENRAT",
+        "transform": "log10"
+       },
+       {
+        "code": "I24H100Y",
+        "transform": "log10"
+       },
+       {
+        "code": "OUTWASH",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MUCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MORTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MEDTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "PCLAY",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "TILROCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "CRSTILL",
+        "transform": "log10_plus1"
+       }
+      ],
+      "coefficients": [
+       0.8902,
+       0.2256,
+       -0.1749,
+       -0.124,
+       1.1936,
+       -0.1548,
+       0.166,
+       0.11,
+       0.1004,
+       0.0999,
+       0.0901,
+       0.0443
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 1722.1037254391154,
+      "nss_rounding_bound": 5.0,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 1722.1037254391165,
+      "rel_vs_direct": 6.601625444636169e-16,
+      "rel_vs_nss": 0.0012230961855328418,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK4AEP",
+     "statistic_name": "4-percent AEP flood",
+     "aep": 0.04,
+     "unit": "ft^3/s",
+     "equation": "4.295*(CONTDA)^(0.8878)*(CSL10_85)^(0.2372)*(PLCHSWAMP+1)^(-0.1744)*(SLENRAT)^(-0.1351)*(I24H100Y)^(1.4077)*(OUTWASH+1)^(-0.1564)*(MUCK+1)^(0.1666)*(MORTILL+1)^(0.1194)*(MEDTILL+1)^(0.1117)*(PCLAY+1)^(0.1091)*(TILROCK+1)^(0.0831)*(CRSTILL+1)^(0.0489)",
+     "nss_value": 2220.0,
+     "nss_sep": null,
+     "asep_pct": null,
+     "errors": [
+      {
+       "code": "SE",
+       "name": "Average standard error (of either estimate or prediction)",
+       "value": 40.5
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": null,
+     "parsed": {
+      "intercept": 0.6329631681672611,
+      "variables": [
+       {
+        "code": "CONTDA",
+        "transform": "log10"
+       },
+       {
+        "code": "CSL10_85",
+        "transform": "log10"
+       },
+       {
+        "code": "PLCHSWAMP",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "SLENRAT",
+        "transform": "log10"
+       },
+       {
+        "code": "I24H100Y",
+        "transform": "log10"
+       },
+       {
+        "code": "OUTWASH",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MUCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MORTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MEDTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "PCLAY",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "TILROCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "CRSTILL",
+        "transform": "log10_plus1"
+       }
+      ],
+      "coefficients": [
+       0.8878,
+       0.2372,
+       -0.1744,
+       -0.1351,
+       1.4077,
+       -0.1564,
+       0.1666,
+       0.1194,
+       0.1117,
+       0.1091,
+       0.0831,
+       0.0489
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 2221.9535194448194,
+      "nss_rounding_bound": 5.0,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 2221.9535194448185,
+      "rel_vs_direct": 4.093221094922705e-16,
+      "rel_vs_nss": 0.0008799637138822249,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK2AEP",
+     "statistic_name": "2-percent AEP flood",
+     "aep": 0.02,
+     "unit": "ft^3/s",
+     "equation": "3.778*(CONTDA)^(0.886)*(CSL10_85)^(0.2464)*(PLCHSWAMP+1)^(-0.1738)*(SLENRAT)^(-0.1414)*(I24H100Y)^(1.5657)*(OUTWASH+1)^(-0.1569)*(MUCK+1)^(0.1681)*(MORTILL+1)^(0.1254)*(MEDTILL+1)^(0.1184)*(PCLAY+1)^(0.1142)*(TILROCK+1)^(0.0784)*(CRSTILL+1)^(0.0521)",
+     "nss_value": 2620.0,
+     "nss_sep": null,
+     "asep_pct": null,
+     "errors": [
+      {
+       "code": "SE",
+       "name": "Average standard error (of either estimate or prediction)",
+       "value": 42.7
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": null,
+     "parsed": {
+      "intercept": 0.5772619535858148,
+      "variables": [
+       {
+        "code": "CONTDA",
+        "transform": "log10"
+       },
+       {
+        "code": "CSL10_85",
+        "transform": "log10"
+       },
+       {
+        "code": "PLCHSWAMP",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "SLENRAT",
+        "transform": "log10"
+       },
+       {
+        "code": "I24H100Y",
+        "transform": "log10"
+       },
+       {
+        "code": "OUTWASH",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MUCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MORTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MEDTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "PCLAY",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "TILROCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "CRSTILL",
+        "transform": "log10_plus1"
+       }
+      ],
+      "coefficients": [
+       0.886,
+       0.2464,
+       -0.1738,
+       -0.1414,
+       1.5657,
+       -0.1569,
+       0.1681,
+       0.1254,
+       0.1184,
+       0.1142,
+       0.0784,
+       0.0521
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 2616.520841713908,
+      "nss_rounding_bound": 5.0,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 2616.520841713907,
+      "rel_vs_direct": 3.475969643632493e-16,
+      "rel_vs_nss": 0.0013279230099591697,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK1AEP",
+     "statistic_name": "1-percent AEP flood",
+     "aep": 0.01,
+     "unit": "ft^3/s",
+     "equation": "3.243*(CONTDA)^(0.8853)*(CSL10_85)^(0.2558)*(PLCHSWAMP+1)^(-0.1727)*(SLENRAT)^(-0.1487)*(I24H100Y)^(1.7299)*(OUTWASH+1)^(-0.1574)*(MUCK+1)^(0.1703)*(MORTILL+1)^(0.1308)*(MEDTILL+1)^(0.1242)*(PCLAY+1)^(0.1181)*(TILROCK+1)^(0.074)*(CRSTILL+1)^(0.0539)",
+     "nss_value": 3010.0,
+     "nss_sep": null,
+     "asep_pct": null,
+     "errors": [
+      {
+       "code": "SE",
+       "name": "Average standard error (of either estimate or prediction)",
+       "value": 44.5
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": null,
+     "parsed": {
+      "intercept": 0.5109469486729727,
+      "variables": [
+       {
+        "code": "CONTDA",
+        "transform": "log10"
+       },
+       {
+        "code": "CSL10_85",
+        "transform": "log10"
+       },
+       {
+        "code": "PLCHSWAMP",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "SLENRAT",
+        "transform": "log10"
+       },
+       {
+        "code": "I24H100Y",
+        "transform": "log10"
+       },
+       {
+        "code": "OUTWASH",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MUCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MORTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MEDTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "PCLAY",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "TILROCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "CRSTILL",
+        "transform": "log10_plus1"
+       }
+      ],
+      "coefficients": [
+       0.8853,
+       0.2558,
+       -0.1727,
+       -0.1487,
+       1.7299,
+       -0.1574,
+       0.1703,
+       0.1308,
+       0.1242,
+       0.1181,
+       0.074,
+       0.0539
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 3010.6295443235467,
+      "nss_rounding_bound": 5.0,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 3010.629544323551,
+      "rel_vs_direct": 1.3594253619462718e-15,
+      "rel_vs_nss": 0.00020915093805674994,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    }
+   ]
+  },
+  {
+   "statistic_group_id": 2,
+   "statistic_group_code": "PFS",
+   "region_id": 281,
+   "region_code": "GC110",
+   "region_name": "Region_5",
+   "citation_id": 79,
+   "status": "resolved",
+   "parameters": [
+    {
+     "code": "CONTDA",
+     "name": "Contributing Drainage Area",
+     "units": "mi^2",
+     "min": 1.0,
+     "max": 1000.0,
+     "submitted": 31.622776601683793
+    },
+    {
+     "code": "CSL10_85",
+     "name": "Stream Slope 10 and 85 Method",
+     "units": "ft/mi",
+     "min": 0.5,
+     "max": 60.0,
+     "submitted": 5.477225575051661
+    },
+    {
+     "code": "PLCHSWAMP",
+     "name": "Percent Length of Main Channel Swamps",
+     "units": "%",
+     "min": 0.0,
+     "max": 100.0,
+     "submitted": 50.0
+    },
+    {
+     "code": "SLENRAT",
+     "name": "Slenderness Ratio",
+     "units": "dim",
+     "min": 2.0,
+     "max": 25.0,
+     "submitted": 7.0710678118654755
+    },
+    {
+     "code": "I24H100Y",
+     "name": "24 Hour 100 Year Precipitation",
+     "units": "in",
+     "min": 3.5,
+     "max": 5.3,
+     "submitted": 4.306971093471606
+    },
+    {
+     "code": "OUTWASH",
+     "name": "Percent Outwash",
+     "units": "%",
+     "min": 0.0,
+     "max": 100.0,
+     "submitted": 50.0
+    },
+    {
+     "code": "MUCK",
+     "name": "Percent Peat and Muck",
+     "units": "%",
+     "min": 0.0,
+     "max": 50.0,
+     "submitted": 25.0
+    },
+    {
+     "code": "MORTILL",
+     "name": "End Moraines of Fine Textured Till",
+     "units": "%",
+     "min": 0.0,
+     "max": 50.0,
+     "submitted": 25.0
+    },
+    {
+     "code": "MEDTILL",
+     "name": "Percent Medium Till",
+     "units": "%",
+     "min": 0.0,
+     "max": 100.0,
+     "submitted": 50.0
+    },
+    {
+     "code": "PCLAY",
+     "name": "Percent Lacustrine Clay and Silt",
+     "units": "%",
+     "min": 0.0,
+     "max": 75.0,
+     "submitted": 37.5
+    },
+    {
+     "code": "TILROCK",
+     "name": "Percent Thin Till over Bedrock",
+     "units": "%",
+     "min": 0.0,
+     "max": 100.0,
+     "submitted": 50.0
+    },
+    {
+     "code": "CRSTILL",
+     "name": "Percent Coarse Till",
+     "units": "%",
+     "min": 0.0,
+     "max": 100.0,
+     "submitted": 50.0
+    }
+   ],
+   "gating_values": {},
+   "equations": [
+    {
+     "statistic_code": "PK20AEP",
+     "statistic_name": "20-percent AEP flood",
+     "aep": 0.2,
+     "unit": "ft^3/s",
+     "equation": "4.46*(CONTDA)^(0.8931)*(CSL10_85)^(0.2164)*(PLCHSWAMP+1)^(-0.1741)*(SLENRAT)^(-0.1148)*(I24H100Y)^(1.0458)*(OUTWASH+1)^(-0.1524)*(MUCK+1)^(0.1669)*(MORTILL+1)^(0.1017)*(MEDTILL+1)^(0.0884)*(PCLAY+1)^(0.0905)*(TILROCK+1)^(0.0963)*(CRSTILL+1)^(0.04)",
+     "nss_value": 1160.0,
+     "nss_sep": null,
+     "asep_pct": null,
+     "errors": [
+      {
+       "code": "SE",
+       "name": "Average standard error (of either estimate or prediction)",
+       "value": 26.1
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": null,
+     "parsed": {
+      "intercept": 0.6493348587121419,
+      "variables": [
+       {
+        "code": "CONTDA",
+        "transform": "log10"
+       },
+       {
+        "code": "CSL10_85",
+        "transform": "log10"
+       },
+       {
+        "code": "PLCHSWAMP",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "SLENRAT",
+        "transform": "log10"
+       },
+       {
+        "code": "I24H100Y",
+        "transform": "log10"
+       },
+       {
+        "code": "OUTWASH",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MUCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MORTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MEDTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "PCLAY",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "TILROCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "CRSTILL",
+        "transform": "log10_plus1"
+       }
+      ],
+      "coefficients": [
+       0.8931,
+       0.2164,
+       -0.1741,
+       -0.1148,
+       1.0458,
+       -0.1524,
+       0.1669,
+       0.1017,
+       0.0884,
+       0.0905,
+       0.0963,
+       0.04
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 1159.3669777142159,
+      "nss_rounding_bound": 5.0,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 1159.3669777142165,
+      "rel_vs_direct": 5.883564388512703e-16,
+      "rel_vs_nss": 0.0005457088670547019,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK10AEP",
+     "statistic_name": "10-percent AEP flood",
+     "aep": 0.1,
+     "unit": "ft^3/s",
+     "equation": "4.339*(CONTDA)^(0.8902)*(CSL10_85)^(0.2256)*(PLCHSWAMP+1)^(-0.1749)*(SLENRAT)^(-0.124)*(I24H100Y)^(1.1936)*(OUTWASH+1)^(-0.1548)*(MUCK+1)^(0.166)*(MORTILL+1)^(0.11)*(MEDTILL+1)^(0.1004)*(PCLAY+1)^(0.0999)*(TILROCK+1)^(0.0901)*(CRSTILL+1)^(0.0443)",
+     "nss_value": 1510.0,
+     "nss_sep": null,
+     "asep_pct": null,
+     "errors": [
+      {
+       "code": "SE",
+       "name": "Average standard error (of either estimate or prediction)",
+       "value": 27.7
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": null,
+     "parsed": {
+      "intercept": 0.637389650129212,
+      "variables": [
+       {
+        "code": "CONTDA",
+        "transform": "log10"
+       },
+       {
+        "code": "CSL10_85",
+        "transform": "log10"
+       },
+       {
+        "code": "PLCHSWAMP",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "SLENRAT",
+        "transform": "log10"
+       },
+       {
+        "code": "I24H100Y",
+        "transform": "log10"
+       },
+       {
+        "code": "OUTWASH",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MUCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MORTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MEDTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "PCLAY",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "TILROCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "CRSTILL",
+        "transform": "log10_plus1"
+       }
+      ],
+      "coefficients": [
+       0.8902,
+       0.2256,
+       -0.1749,
+       -0.124,
+       1.1936,
+       -0.1548,
+       0.166,
+       0.11,
+       0.1004,
+       0.0999,
+       0.0901,
+       0.0443
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 1505.8863491899072,
+      "nss_rounding_bound": 5.0,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 1505.8863491899099,
+      "rel_vs_direct": 1.8118791678977467e-15,
+      "rel_vs_nss": 0.0027242720596623317,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK4AEP",
+     "statistic_name": "4-percent AEP flood",
+     "aep": 0.04,
+     "unit": "ft^3/s",
+     "equation": "3.848*(CONTDA)^(0.8878)*(CSL10_85)^(0.2372)*(PLCHSWAMP+1)^(-0.1744)*(SLENRAT)^(-0.1351)*(I24H100Y)^(1.4077)*(OUTWASH+1)^(-0.1564)*(MUCK+1)^(0.1666)*(MORTILL+1)^(0.1194)*(MEDTILL+1)^(0.1117)*(PCLAY+1)^(0.1091)*(TILROCK+1)^(0.0831)*(CRSTILL+1)^(0.0489)",
+     "nss_value": 1990.0,
+     "nss_sep": null,
+     "asep_pct": null,
+     "errors": [
+      {
+       "code": "SE",
+       "name": "Average standard error (of either estimate or prediction)",
+       "value": 29.8
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": null,
+     "parsed": {
+      "intercept": 0.5852350633657754,
+      "variables": [
+       {
+        "code": "CONTDA",
+        "transform": "log10"
+       },
+       {
+        "code": "CSL10_85",
+        "transform": "log10"
+       },
+       {
+        "code": "PLCHSWAMP",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "SLENRAT",
+        "transform": "log10"
+       },
+       {
+        "code": "I24H100Y",
+        "transform": "log10"
+       },
+       {
+        "code": "OUTWASH",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MUCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MORTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MEDTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "PCLAY",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "TILROCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "CRSTILL",
+        "transform": "log10_plus1"
+       }
+      ],
+      "coefficients": [
+       0.8878,
+       0.2372,
+       -0.1744,
+       -0.1351,
+       1.4077,
+       -0.1564,
+       0.1666,
+       0.1194,
+       0.1117,
+       0.1091,
+       0.0831,
+       0.0489
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 1990.7048062453239,
+      "nss_rounding_bound": 5.0,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 1990.704806245322,
+      "rel_vs_direct": 9.13741403466373e-16,
+      "rel_vs_nss": 0.0003541739926241512,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK2AEP",
+     "statistic_name": "2-percent AEP flood",
+     "aep": 0.02,
+     "unit": "ft^3/s",
+     "equation": "3.439*(CONTDA)^(0.886)*(CSL10_85)^(0.2464)*(PLCHSWAMP+1)^(-0.1738)*(SLENRAT)^(-0.1414)*(I24H100Y)^(1.5657)*(OUTWASH+1)^(-0.1569)*(MUCK+1)^(0.1681)*(MORTILL+1)^(0.1254)*(MEDTILL+1)^(0.1184)*(PCLAY+1)^(0.1142)*(TILROCK+1)^(0.0784)*(CRSTILL+1)^(0.0521)",
+     "nss_value": 2380.0,
+     "nss_sep": null,
+     "asep_pct": null,
+     "errors": [
+      {
+       "code": "SE",
+       "name": "Average standard error (of either estimate or prediction)",
+       "value": 31.4
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": null,
+     "parsed": {
+      "intercept": 0.5364321758220135,
+      "variables": [
+       {
+        "code": "CONTDA",
+        "transform": "log10"
+       },
+       {
+        "code": "CSL10_85",
+        "transform": "log10"
+       },
+       {
+        "code": "PLCHSWAMP",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "SLENRAT",
+        "transform": "log10"
+       },
+       {
+        "code": "I24H100Y",
+        "transform": "log10"
+       },
+       {
+        "code": "OUTWASH",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MUCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MORTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MEDTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "PCLAY",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "TILROCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "CRSTILL",
+        "transform": "log10_plus1"
+       }
+      ],
+      "coefficients": [
+       0.886,
+       0.2464,
+       -0.1738,
+       -0.1414,
+       1.5657,
+       -0.1569,
+       0.1681,
+       0.1254,
+       0.1184,
+       0.1142,
+       0.0784,
+       0.0521
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 2381.740385032856,
+      "nss_rounding_bound": 5.0,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 2381.7403850328546,
+      "rel_vs_direct": 5.727920898652322e-16,
+      "rel_vs_nss": 0.0007312542154851458,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    },
+    {
+     "statistic_code": "PK1AEP",
+     "statistic_name": "1-percent AEP flood",
+     "aep": 0.01,
+     "unit": "ft^3/s",
+     "equation": "2.993*(CONTDA)^(0.8853)*(CSL10_85)^(0.2558)*(PLCHSWAMP+1)^(-0.1727)*(SLENRAT)^(-0.1487)*(I24H100Y)^(1.7299)*(OUTWASH+1)^(-0.1574)*(MUCK+1)^(0.1703)*(MORTILL+1)^(0.1308)*(MEDTILL+1)^(0.1242)*(PCLAY+1)^(0.1181)*(TILROCK+1)^(0.074)*(CRSTILL+1)^(0.0539)",
+     "nss_value": 2780.0,
+     "nss_sep": null,
+     "asep_pct": null,
+     "errors": [
+      {
+       "code": "SE",
+       "name": "Average standard error (of either estimate or prediction)",
+       "value": 33.1
+      }
+     ],
+     "equivalent_years": 0.0,
+     "interval_bounds": null,
+     "parsed": {
+      "intercept": 0.4761067168401914,
+      "variables": [
+       {
+        "code": "CONTDA",
+        "transform": "log10"
+       },
+       {
+        "code": "CSL10_85",
+        "transform": "log10"
+       },
+       {
+        "code": "PLCHSWAMP",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "SLENRAT",
+        "transform": "log10"
+       },
+       {
+        "code": "I24H100Y",
+        "transform": "log10"
+       },
+       {
+        "code": "OUTWASH",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MUCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MORTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "MEDTILL",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "PCLAY",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "TILROCK",
+        "transform": "log10_plus1"
+       },
+       {
+        "code": "CRSTILL",
+        "transform": "log10_plus1"
+       }
+      ],
+      "coefficients": [
+       0.8853,
+       0.2558,
+       -0.1727,
+       -0.1487,
+       1.7299,
+       -0.1574,
+       0.1703,
+       0.1308,
+       0.1242,
+       0.1181,
+       0.074,
+       0.0539
+      ],
+      "notes": []
+     },
+     "parse_error": null,
+     "round_trip": {
+      "direct": 2778.542777107733,
+      "nss_rounding_bound": 5.0,
+      "direct_within_nss_rounding": true,
+      "method": "flowfreq.regression.equations.evaluate",
+      "evaluated": 2778.5427771077357,
+      "rel_vs_direct": 9.819838398021513e-16,
+      "rel_vs_nss": 0.000524180896497959,
+      "within_nss_rounding": true,
+      "ok": true
+     }
+    }
+   ]
+  }
+ ]
+}
