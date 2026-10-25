@@ -183,10 +183,13 @@ def test_eastern_montana_raises(huc, what):
     assert regional_skew_at_huc(huc, "MT", allow_provisional=True).provisional
 
 
-def test_state_with_no_study_raises():
-    # Big Sandy River at Bruceton, TN (03606500).
+def test_state_with_no_huc_membership_raises_or_falls_back():
+    # Big Sandy River at Bruceton, TN (03606500). No study has HUC membership
+    # here; TN's single verified row applies only as a labelled state fallback.
     with pytest.raises(RegionalSkewUnavailable, match="No verified regional skew study"):
-        regional_skew_at_huc("060400050505", "TN")
+        regional_skew_at_huc("060400050505", "TN", allow_state_fallback=False)
+    rs = regional_skew_at_huc("060400050505", "TN")
+    assert rs.state == "TN" and rs.advisory.startswith("STATE-LEVEL FALLBACK")
 
 
 @pytest.mark.parametrize(
