@@ -1,11 +1,12 @@
 """Flood-frequency estimates at ungaged sites from published regression equations.
 
 This module holds :class:`SiteEstimate`, the result of an estimate at an ungaged
-location, and :func:`assemble`, the pure assembly of that estimate from inputs a
-caller has already fetched: the located NSS regression regions, the basin
-characteristics, and a state's equation library. Nothing here touches the network;
-the delineation, region location and library loading that feed it belong to the
-``estimate_at_site`` entry point built on top.
+location; :func:`assemble`, the pure assembly of that estimate from inputs a caller
+has already fetched (the located NSS regression regions, the basin characteristics,
+and a state's equation library); and :func:`estimate_at_site`, the entry point that
+fetches those inputs -- the library from the packaged data, the delineation and the
+region location from StreamStats -- and assembles them, weighting in a caller's
+at-site fit when the basin lies in a single region.
 
 Assembly rules
 --------------
@@ -31,18 +32,35 @@ from __future__ import annotations
 import logging
 import re
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any, Dict, List, Mapping, Optional, Sequence, Set, Tuple, Union
 
 import numpy as np
 import pandas as pd
 
+from flowfreq.core import FrequencyResults
+from flowfreq.gage_weighting import weight_with_regression
 from flowfreq.regression.equations import RegressionEstimate, evaluate, evaluate_weighted
-from flowfreq.regression.library import EquationsUnavailable, StateLibrary
-from flowfreq.streamstats import RegressionRegionLocation
+from flowfreq.regression.jurisdictions import jurisdiction
+from flowfreq.regression.library import (
+    OPT_IN_SUBDIRS,
+    EquationsUnavailable,
+    StateLibrary,
+    available_states,
+    load_state,
+    nss_snapshot_states,
+)
+from flowfreq.streamstats import (
+    RegressionRegionLocation,
+    StreamStatsCache,
+    delineate_and_get_characteristics,
+    locate_regression_regions,
+)
 
 logger = logging.getLogger(__name__)
 
-__all__ = ["Assembly", "SiteEstimate", "assemble", "region_for_nss_code"]
+__all__ = ["Assembly", "SiteEstimate", "assemble", "estimate_at_site", "region_for_nss_code"]
 
 #: Columns of :attr:`SiteEstimate.quantiles`, in order.
 QUANTILE_COLUMNS: Tuple[str, ...] = (
@@ -491,6 +509,230 @@ class SiteEstimate:
                 "dropped: " + ", ".join(zero_weight) + "."
             )
         return "\n".join(lines)
+
+
+def _nss_served(data_dir: Union[str, Path, None]) -> Set[str]:
+    """Jurisdictions NSS serves peak-flow regions for: a published or snapshot file.
+
+    Computed at call time from the library directory, so it follows the packaged data
+    (or a ``data_dir`` override) rather than a list that would go stale.
+    """
+    return set(available_states(data_dir)) | set(nss_snapshot_states(data_dir))
+
+
+def _load_library(
+    code: str,
+    data_dir: Union[str, Path, None],
+    *,
+    allow_nss_snapshot: bool,
+    allow_provisional: bool,
+) -> StateLibrary:
+    """``load_state`` whose no-file error says whether NSS serves the jurisdiction."""
+    try:
+        return load_state(
+            code,
+            data_dir,
+            allow_nss_snapshot=allow_nss_snapshot,
+            allow_provisional=allow_provisional,
+        )
+    except EquationsUnavailable as err:
+        served = code in _nss_served(data_dir)
+        message = (
+            f"{code}: no regression library file. NSS {'serves' if served else 'serves no'} "
+            "peak-flow regions for this jurisdiction"
+        )
+        # A served jurisdiction without a published file has only a snapshot, which
+        # load_state returns on opt-in alone: say so.
+        if code in nss_snapshot_states(data_dir):
+            message += (
+                "; its harvested NSS set is available with allow_nss_snapshot=True "
+                "(not report-verified)"
+            )
+        raise EquationsUnavailable(message) from err
+
+
+def estimate_at_site(
+    lat: float,
+    lon: float,
+    *,
+    state: str,
+    aeps: Optional[Sequence[float]] = None,
+    at_site: Optional[FrequencyResults] = None,
+    allow_nss_snapshot: bool = False,
+    allow_provisional: bool = False,
+    allow_extrapolation: bool = False,
+    weighting_space: str = "log",
+    cache: Optional[StreamStatsCache] = None,
+    timeout: float = 60.0,
+    data_dir: Union[str, Path, None] = None,
+) -> SiteEstimate:
+    """Estimate flood quantiles at an ungaged site from the state's regression equations.
+
+    Loads the jurisdiction's equation library, delineates the basin and fetches its
+    characteristics from StreamStats
+    (:func:`~flowfreq.streamstats.delineate_and_get_characteristics`), locates the NSS
+    regression regions the basin overlaps
+    (:func:`~flowfreq.streamstats.locate_regression_regions`), and hands the three to
+    :func:`assemble`. The library is loaded first, so a jurisdiction without one is
+    refused before any network call.
+
+    Parameters
+    ----------
+    lat, lon : float
+        The pour point, decimal degrees WGS84. StreamStats snaps it to the stream
+        network; the snap is recorded in ``provenance["snap"]``.
+    state : str
+        Two-letter jurisdiction code: the StreamStats region and the equation library.
+        Never inferred from the coordinate.
+    aeps : sequence of float, optional
+        AEPs to estimate, in the caller's order; ``None`` means every AEP all the regions
+        used publish, largest first.
+    at_site : FrequencyResults, optional
+        A Bulletin 17C fit at the site. When the basin lies in a single regression
+        region, it is weighted with the regression by inverse variance
+        (:func:`~flowfreq.gage_weighting.weight_with_regression`, Bulletin 17C
+        Appendix 9) and the result carries the weighted frame; a basin spanning several
+        regions has an area-weighted flow with no variance of prediction, so the fit is
+        returned unweighted and ``provenance["weighting"]`` says so.
+    allow_nss_snapshot, allow_provisional : bool
+        Opt in to the jurisdiction's ``nss_snapshot`` or ``provisional`` equation set
+        (:func:`~flowfreq.regression.library.load_state`). The set's advisory is
+        returned in ``advisory``.
+    allow_extrapolation : bool
+        Evaluate outside an equation's calibrated range and flag the row, instead of
+        raising :class:`~flowfreq.regression.equations.OutOfRangeError`. Also lets an
+        extrapolated regression take part in the at-site weighting.
+    weighting_space : {"log", "linear"}
+        How a multi-region basin's estimates are area-averaged.
+    cache : StreamStatsCache, optional
+        Passed to the delineation.
+    timeout : float
+        Per-request timeout, seconds, for both StreamStats calls.
+    data_dir : str or Path, optional
+        Override the packaged library directory (a test and override hook, passed to
+        :func:`~flowfreq.regression.library.load_state`; the NSS-coverage check in the
+        no-file error reads the same directory).
+
+    Returns
+    -------
+    SiteEstimate
+        ``method`` is ``"at-site weighted with regression"`` when the fit was weighted
+        in, else ``"regression"``. ``provenance`` carries ``snap``, ``delineation``
+        (polygon area, unavailable characteristics, the StreamStats provenance),
+        ``library`` (status, file, retrieval date), ``regions_located`` (every region
+        NSS returned, before matching), ``missing_characteristics``,
+        ``zero_weight_regions``, ``out_of_range`` (AEP to NSS code to the inputs
+        outside their range), ``weighting``, ``options`` and ``estimated_at_utc``.
+
+    Raises
+    ------
+    EquationsUnavailable
+        If the jurisdiction has no library file; the message says whether NSS serves
+        peak-flow regions for it at all (DC and four territories have none). Also the
+        :func:`assemble` cases: no located region in the library, every region dropped,
+        no AEP in common, or a requested AEP not published.
+    OutOfRangeError
+        An input outside its calibrated range without ``allow_extrapolation``.
+    ValueError
+        An unknown ``weighting_space``; a weighted ``Q=0`` in log space; or an
+        ``at_site`` whose ``confidence_limits`` lack ``variance_log``.
+    UnsnappablePointError, DegenerateDelineationError, StreamStatsResponseError, \
+    StreamStatsTransportError
+        From StreamStats, unchanged.
+    """
+    code = jurisdiction(state).code
+    lib = _load_library(
+        code,
+        data_dir,
+        allow_nss_snapshot=allow_nss_snapshot,
+        allow_provisional=allow_provisional,
+    )
+    ws = delineate_and_get_characteristics(code, lat, lon, cache=cache, timeout=timeout)
+    if ws.polygon_geojson is None:
+        # The delineation is asked for its polygon; a cache entry saved before polygons
+        # were returned is the one way to arrive here without one.
+        raise ValueError(
+            f"{code}: StreamStats returned no watershed polygon at {lat}, {lon}; the NSS "
+            "regions cannot be located without one"
+        )
+    located = locate_regression_regions(code, ws.polygon_geojson, timeout=timeout)
+    characteristics = {k: c.value for k, c in ws.characteristics.items()}
+
+    assembly = assemble(
+        lib,
+        located,
+        characteristics,
+        aeps=aeps,
+        allow_extrapolation=allow_extrapolation,
+        weighting_space=weighting_space,
+    )
+
+    method = "regression"
+    weighted: Optional[pd.DataFrame] = None
+    if at_site is None:
+        weighting = "no at-site fit supplied"
+    elif len(assembly.used) == 1:
+        regression = [per_region[0][1] for per_region in assembly.estimates.values()]
+        weighted = weight_with_regression(
+            at_site, regression, allow_extrapolated=allow_extrapolation
+        )
+        method = "at-site weighted with regression"
+        weighting = f"at-site fit weighted with regression region {assembly.used[0].code}"
+    else:
+        weighting = (
+            f"at-site fit not weighted: the basin spans {len(assembly.used)} regression "
+            f"regions ({_codes(assembly.used)}), whose area-weighted flow carries no "
+            "variance of prediction"
+        )
+
+    out_of_range: Dict[float, Dict[str, List[str]]] = {}
+    for aep, per_region in assembly.estimates.items():
+        for region, (_, est) in zip(assembly.used, per_region):
+            if est.out_of_range:
+                out_of_range.setdefault(aep, {})[region.code] = list(est.out_of_range)
+
+    subdir = OPT_IN_SUBDIRS.get(lib.status)
+    provenance: Dict[str, Any] = {
+        "snap": ws.snap.to_dict(),
+        "delineation": {
+            "polygon_area_sq_mi": ws.polygon_area_sq_mi,
+            "unavailable": dict(ws.unavailable),
+            "streamstats": ws.provenance.to_dict() if ws.provenance else None,
+        },
+        "library": {
+            "status": lib.status,
+            "file": f"{subdir}/{code}.json" if subdir else f"{code}.json",
+            "retrieved_utc": lib.retrieved_utc,
+        },
+        "regions_located": [r.to_dict() for r in located],
+        "missing_characteristics": assembly.missing,
+        "zero_weight_regions": [r.code for r in assembly.zero_weight],
+        "out_of_range": out_of_range,
+        "weighting": weighting,
+        "options": {
+            "allow_nss_snapshot": allow_nss_snapshot,
+            "allow_provisional": allow_provisional,
+            "allow_extrapolation": allow_extrapolation,
+            "weighting_space": weighting_space,
+        },
+        "estimated_at_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+    }
+    return SiteEstimate(
+        lat=lat,
+        lon=lon,
+        state=code,
+        method=method,
+        quantiles=assembly.quantiles,
+        regions=assembly.used,
+        unmatched_regions=assembly.unmatched,
+        characteristics=characteristics,
+        library_status=lib.status,
+        advisory=lib.advisory,
+        estimates=assembly.estimates,
+        region_codes=assembly.region_codes,
+        weighted=weighted,
+        provenance=provenance,
+    )
 
 
 def _cfs(value: float) -> str:

@@ -117,6 +117,7 @@ from .transpose import (
     transpose_frequency,
     transpose_low_flow,
 )
+from .ungaged import SiteEstimate, estimate_at_site
 from .usgs import (
     GageAttributes,
     NoInstantaneousDataError,
@@ -402,6 +403,9 @@ __all__ = [
     "PROBABILITY_KINDS",
     "DEFAULT_AREA_RATIO_RANGE",
     "LOW_FLOW_AREA_RATIO_RANGE",
+    # Regression estimate at an ungaged site
+    "SiteEstimate",
+    "estimate_at_site",
     # Low-flow frequency analysis
     "LowFlowResults",
     "LowFlowFrequency",

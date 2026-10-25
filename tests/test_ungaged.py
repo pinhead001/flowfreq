@@ -8,11 +8,16 @@ not carry.
 
 from __future__ import annotations
 
+import json
 import math
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
+import numpy as np
 import pandas as pd
 import pytest
 
+from flowfreq.bulletin17c import Bulletin17C
 from flowfreq.regression.equations import (
     Citation,
     OutOfRangeError,
@@ -20,9 +25,16 @@ from flowfreq.regression.equations import (
     RegressionEstimate,
     Variable,
 )
-from flowfreq.regression.library import EquationsUnavailable, StateLibrary
-from flowfreq.streamstats import RegressionRegionLocation
-from flowfreq.ungaged import Assembly, SiteEstimate, assemble, region_for_nss_code
+from flowfreq.regression.library import NSS_SNAPSHOT_SUBDIR, EquationsUnavailable, StateLibrary
+from flowfreq.streamstats import (
+    Characteristic,
+    Provenance,
+    RegressionRegionLocation,
+    SnapResult,
+    UnsnappablePointError,
+    WatershedCharacteristics,
+)
+from flowfreq.ungaged import Assembly, SiteEstimate, assemble, estimate_at_site, region_for_nss_code
 
 CIT1 = Citation(publication="Synthetic report one", table="T1", year=2020)
 CIT2 = Citation(publication="Synthetic report two", table="T2", year=2021)
@@ -379,3 +391,318 @@ class TestSiteEstimate:
         )
         assert est.weighted is None and est.provenance == {} and est.region_codes == {}
         assert "XX" in est.to_markdown()
+
+
+# --------------------------------------------------------------- estimate_at_site
+#
+# StreamStats is faked at the two names ``estimate_at_site`` calls, with the WA entry of
+# the wave 1/2 vignette capture (Little Klickitat River near Goldendale, 14112000): a
+# basin NSS places 0.92% in region 1 (GC1750) and 99.08% in region 4 (GC1753) of the
+# verified WA library.
+
+VIGNETTE = Path(__file__).parent.parent / "docs" / "vignettes" / "wave1_wave2_sites.json"
+WA_NSS_CODES = {"1": "GC1750", "4": "GC1753"}
+
+
+def _wa_site() -> Dict[str, Any]:
+    site: Dict[str, Any] = json.loads(VIGNETTE.read_text(encoding="utf-8"))["WA"]
+    return site
+
+
+def _watershed(site: Dict[str, Any], lat: float, lon: float) -> WatershedCharacteristics:
+    return WatershedCharacteristics(
+        region=site["streamstats_region"],
+        snap=SnapResult(lat, lon, lat + 1e-4, lon - 1e-4, True, 13.2),
+        polygon_geojson={
+            "type": "Feature",
+            "geometry": {"type": "Polygon", "coordinates": [[[lon, lat], [lon + 0.1, lat]]]},
+        },
+        characteristics={
+            code: Characteristic(code, code, "", value, "unit")
+            for code, value in site["characteristics"].items()
+        },
+        provenance=Provenance(
+            service_versions={"ss-hydro": "1.0"},
+            request_urls=["https://example.invalid/ss-hydro"],
+            requested_at_utc="2026-10-04T00:00:00+00:00",
+            server_used="prodweba",
+        ),
+        polygon_area_sq_mi=site["characteristics"]["DRNAREA"],
+        unavailable={"ELEV": "not found"},
+    )
+
+
+class Fakes:
+    """Recording stand-ins for the two StreamStats calls."""
+
+    def __init__(self, site: Dict[str, Any]) -> None:
+        self.site = site
+        self.regions: List[RegressionRegionLocation] = [
+            RegressionRegionLocation(
+                region_id=i,
+                code=WA_NSS_CODES[code],
+                name=f"Regression Region {code}",
+                percent_weight=100.0 * weight,
+                area_sq_mi=weight * site["characteristics"]["DRNAREA"],
+            )
+            for i, (code, weight) in enumerate(site["region_weights"].items(), start=717)
+        ]
+        self.delineate_calls: List[Dict[str, Any]] = []
+        self.locate_calls: List[Dict[str, Any]] = []
+        self.watershed: Optional[WatershedCharacteristics] = None
+
+    def delineate(self, region: str, lat: float, lon: float, **kw: Any) -> WatershedCharacteristics:
+        self.delineate_calls.append({"region": region, "lat": lat, "lon": lon, **kw})
+        self.watershed = _watershed(self.site, lat, lon)
+        return self.watershed
+
+    def locate(
+        self, region: str, polygon: Dict[str, Any], **kw: Any
+    ) -> List[RegressionRegionLocation]:
+        self.locate_calls.append({"region": region, "polygon": polygon, **kw})
+        return list(self.regions)
+
+
+@pytest.fixture
+def fakes(monkeypatch) -> Fakes:
+    f = Fakes(_wa_site())
+    monkeypatch.setattr("flowfreq.ungaged.delineate_and_get_characteristics", f.delineate)
+    monkeypatch.setattr("flowfreq.ungaged.locate_regression_regions", f.locate)
+    return f
+
+
+@pytest.fixture
+def tmp_data_dir(tmp_path: Path) -> Path:
+    """A library directory holding only an ``nss_snapshot`` Tennessee set (one region)."""
+    path = tmp_path / NSS_SNAPSHOT_SUBDIR / "TN.json"
+    path.parent.mkdir(parents=True)
+    data = {
+        "schema_version": 1,
+        "state": "TN",
+        "status": "nss_snapshot",
+        "source_reports": [{"citation": "Synthetic report"}],
+        "retrieved_utc": "2026-10-25T17:20:40+00:00",
+        "equations": [
+            {
+                "region_code": "GC2015",
+                "aep": 0.01,
+                "intercept": 2.0,
+                "variables": [{"code": "DRNAREA"}],
+                "coefficients": [0.7],
+                "citation": {"publication": "Synthetic", "table": "T1"},
+            }
+        ],
+    }
+    path.write_text(json.dumps(data), encoding="utf-8")
+    return tmp_path
+
+
+@pytest.fixture(scope="module")
+def big_sandy_results():
+    """A real Big Sandy EMA fit, whose confidence_limits carry ``variance_log``."""
+    from tests.fixtures.big_sandy import REGIONAL_SKEW, REGIONAL_SKEW_SD, SYSTEMATIC_PEAKS
+
+    years = np.array(sorted(SYSTEMATIC_PEAKS))
+    flows = np.array([SYSTEMATIC_PEAKS[y] for y in years], dtype=float)
+    b17c = Bulletin17C(
+        peak_flows=flows,
+        water_years=years,
+        regional_skew=REGIONAL_SKEW,
+        regional_skew_mse=REGIONAL_SKEW_SD**2,
+    )
+    return b17c.run_analysis(method="ema")
+
+
+WA_LAT, WA_LON = 45.844124, -120.796392
+
+
+class TestEstimateAtSite:
+    def test_washington_site_uses_the_verified_library_and_two_regions(self, fakes):
+        from flowfreq.regression.library import load_state
+
+        est = estimate_at_site(WA_LAT, WA_LON, state="WA", cache=None, timeout=12.5)
+        assert isinstance(est, SiteEstimate)
+        assert (est.lat, est.lon, est.state) == (WA_LAT, WA_LON, "WA")
+        assert est.method == "regression"
+        assert est.library_status == "verified" and est.advisory == ""
+        assert est.weighted is None
+        # The two StreamStats calls receive exactly what the caller passed.
+        assert fakes.delineate_calls == [
+            {"region": "WA", "lat": WA_LAT, "lon": WA_LON, "cache": None, "timeout": 12.5}
+        ]
+        assert fakes.locate_calls == [
+            {"region": "WA", "polygon": fakes.watershed.polygon_geojson, "timeout": 12.5}
+        ]
+        # Both located GC codes map to library regions 1 and 4 through their names.
+        assert est.regions == fakes.regions
+        assert est.unmatched_regions == []
+        assert est.region_codes == {"GC1750": "1", "GC1753": "4"}
+        assert [est.region_codes[r.code] for r in est.regions] == ["1", "4"]
+        assert est.characteristics == fakes.site["characteristics"]
+        # Default AEPs: everything the WA library publishes, largest first.
+        lib = load_state("WA")
+        assert list(est.quantiles["aep"]) == sorted(lib.aeps("4"), reverse=True)
+        assert list(est.estimates) == list(est.quantiles["aep"])
+        fractions = [f for f, _ in est.estimates[0.01]]
+        assert fractions == pytest.approx([0.0092, 0.9908])
+        assert est.quantiles.set_index("aep").loc[0.01, "regions"] == "GC1750, GC1753"
+        assert (
+            est.quantiles.set_index("aep").loc[0.01, "interval_method"]
+            == "none: area-weighted across 2 regions"
+        )
+        assert not est.quantiles["extrapolated"].any()
+        text = est.to_markdown()
+        assert "| GC1753 | Regression Region 4 | 0.991 |" in text
+
+    def test_requested_aeps_and_options_reach_the_assembly(self, fakes):
+        est = estimate_at_site(
+            WA_LAT,
+            WA_LON,
+            state="WA",
+            aeps=[0.01, 0.5],
+            weighting_space="linear",
+            allow_extrapolation=True,
+        )
+        assert list(est.quantiles["aep"]) == [0.01, 0.5]
+        q1 = est.estimates[0.01][0][1].flow_cfs
+        q4 = est.estimates[0.01][1][1].flow_cfs
+        assert est.quantiles.loc[0, "flow_cfs"] == pytest.approx(0.0092 * q1 + 0.9908 * q4)
+        assert est.provenance["options"] == {
+            "allow_nss_snapshot": False,
+            "allow_provisional": False,
+            "allow_extrapolation": True,
+            "weighting_space": "linear",
+        }
+
+    def test_snapshot_state_needs_the_flag(self, fakes, tmp_data_dir):
+        fakes.regions = [
+            RegressionRegionLocation(
+                region_id=1, code="GC2015", name="Region 1", percent_weight=100.0, area_sq_mi=82.2
+            )
+        ]
+        with pytest.raises(
+            EquationsUnavailable,
+            match=r"^TN: no regression library file\. NSS serves peak-flow regions for this "
+            r"jurisdiction",
+        ) as info:
+            estimate_at_site(36.0, -86.0, state="TN", data_dir=tmp_data_dir)
+        assert "allow_nss_snapshot=True" in str(info.value)
+        assert fakes.delineate_calls == []  # refused before any network call
+
+        est = estimate_at_site(
+            36.0, -86.0, state="TN", data_dir=tmp_data_dir, allow_nss_snapshot=True
+        )
+        assert est.library_status == "nss_snapshot"
+        assert est.advisory.startswith("NSS SNAPSHOT (not report-verified): the TN equations")
+        assert est.provenance["library"] == {
+            "status": "nss_snapshot",
+            "file": "nss_snapshot/TN.json",
+            "retrieved_utc": "2026-10-25T17:20:40+00:00",
+        }
+        assert list(est.quantiles["aep"]) == [0.01]
+        assert est.quantiles.loc[0, "flow_cfs"] == pytest.approx(
+            10 ** (2.0 + 0.7 * math.log10(82.2))
+        )
+        assert "Advisory: NSS SNAPSHOT" in est.to_markdown()
+
+    def test_no_library_file_names_nss_coverage(self, fakes):
+        with pytest.raises(
+            EquationsUnavailable,
+            match=r"^DC: no regression library file\. NSS serves no peak-flow regions for "
+            r"this jurisdiction$",
+        ):
+            estimate_at_site(38.9, -77.0, state="DC")
+        assert fakes.delineate_calls == [] and fakes.locate_calls == []
+
+    def test_no_library_file_in_an_override_directory(self, fakes, tmp_data_dir):
+        # With data_dir the coverage check reads that directory: TN has a snapshot file
+        # there and WA has nothing, however many packaged files say otherwise.
+        with pytest.raises(EquationsUnavailable, match="WA: .*NSS serves no peak-flow"):
+            estimate_at_site(WA_LAT, WA_LON, state="WA", data_dir=tmp_data_dir)
+
+    def test_at_site_results_are_weighted_in_a_single_region(self, fakes, big_sandy_results):
+        fakes.regions = [fakes.regions[1]]  # GC1753 alone
+        est = estimate_at_site(WA_LAT, WA_LON, state="WA", at_site=big_sandy_results)
+        assert est.method == "at-site weighted with regression"
+        assert [r.code for r in est.regions] == ["GC1753"]
+        assert est.weighted is not None
+        w = est.weighted.set_index("aep")
+        assert "variance_log" in w.columns and "weighted_flow_cfs" in w.columns
+        # One row per at-site AEP; the regression's AEPs are weighted, the rest noted.
+        assert list(est.weighted["aep"]) == list(big_sandy_results.confidence_limits["aep"])
+        assert np.isfinite(w.loc[0.01, "weighted_flow_cfs"])
+        assert w.loc[0.01, "regression_flow_cfs"] == pytest.approx(
+            est.quantiles.set_index("aep").loc[0.01, "flow_cfs"]
+        )
+        assert w.loc[0.995, "note"] == "no regression estimate at this AEP"
+        assert est.provenance["weighting"] == "at-site fit weighted with regression region GC1753"
+        assert "## At-site weighted with regression" in est.to_markdown()
+
+    def test_at_site_in_two_regions_is_not_weighted(self, fakes, big_sandy_results):
+        est = estimate_at_site(WA_LAT, WA_LON, state="WA", at_site=big_sandy_results)
+        assert est.method == "regression"
+        assert est.weighted is None
+        assert est.provenance["weighting"] == (
+            "at-site fit not weighted: the basin spans 2 regression regions (GC1750, GC1753), "
+            "whose area-weighted flow carries no variance of prediction"
+        )
+
+    def test_no_at_site_fit_says_so(self, fakes):
+        est = estimate_at_site(WA_LAT, WA_LON, state="WA")
+        assert est.provenance["weighting"] == "no at-site fit supplied"
+
+    def test_provenance_carries_snap_delineation_and_status(self, fakes):
+        est = estimate_at_site(WA_LAT, WA_LON, state="WA")
+        p = est.provenance
+        ws = fakes.watershed
+        assert p["snap"] == ws.snap.to_dict()
+        assert p["snap"]["snapped_lat"] == pytest.approx(WA_LAT + 1e-4)
+        assert p["delineation"] == {
+            "polygon_area_sq_mi": 82.2,
+            "unavailable": {"ELEV": "not found"},
+            "streamstats": ws.provenance.to_dict(),
+        }
+        assert p["library"] == {"status": "verified", "file": "WA.json", "retrieved_utc": ""}
+        assert p["regions_located"] == [r.to_dict() for r in fakes.regions]
+        assert p["missing_characteristics"] == {} and p["zero_weight_regions"] == []
+        assert p["out_of_range"] == {}
+        assert p["estimated_at_utc"].endswith("+00:00")
+        assert p["weighting"] == "no at-site fit supplied"
+
+    def test_provenance_records_out_of_range_inputs(self, fakes):
+        fakes.site["characteristics"]["DRNAREA"] = 50000.0
+        est = estimate_at_site(
+            WA_LAT, WA_LON, state="WA", aeps=[0.01, 0.5], allow_extrapolation=True
+        )
+        assert est.quantiles["extrapolated"].all()
+        out = est.provenance["out_of_range"]
+        assert set(out) == {0.01, 0.5}
+        assert set(out[0.01]) == {"GC1750", "GC1753"}
+        assert out[0.01]["GC1753"] == list(est.estimates[0.01][1][1].out_of_range)
+        assert any("DRNAREA=50000.0 > max" in s for s in out[0.01]["GC1753"])
+
+    def test_streamstats_errors_propagate_unchanged(self, fakes, monkeypatch):
+        def unsnappable(region, lat, lon, **kw):
+            raise UnsnappablePointError("no stream within tolerance")
+
+        monkeypatch.setattr("flowfreq.ungaged.delineate_and_get_characteristics", unsnappable)
+        with pytest.raises(UnsnappablePointError, match="no stream within tolerance"):
+            estimate_at_site(WA_LAT, WA_LON, state="WA")
+
+    def test_a_delineation_without_a_polygon_is_refused_before_locating(self, fakes, monkeypatch):
+        def no_polygon(region, lat, lon, **kw):
+            ws = fakes.delineate(region, lat, lon, **kw)
+            ws.polygon_geojson = None
+            return ws
+
+        monkeypatch.setattr("flowfreq.ungaged.delineate_and_get_characteristics", no_polygon)
+        with pytest.raises(ValueError, match="WA: StreamStats returned no watershed polygon"):
+            estimate_at_site(WA_LAT, WA_LON, state="WA")
+        assert fakes.locate_calls == []
+
+    def test_exported_from_the_package(self):
+        import flowfreq
+
+        assert flowfreq.estimate_at_site is estimate_at_site
+        assert flowfreq.SiteEstimate is SiteEstimate
+        assert "estimate_at_site" in flowfreq.__all__ and "SiteEstimate" in flowfreq.__all__
