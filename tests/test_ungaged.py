@@ -301,3 +301,12 @@ class TestSiteEstimate:
         )
         assert est.weighted is None and est.provenance == {}
         assert "XX" in est.to_markdown()
+
+    def test_to_markdown_renders_a_weighted_frame(self):
+        weighted = pd.DataFrame(
+            {"aep": [0.01], "at_site": [12345.6], "weighted": [11000.0], "extrapolated": [False]}
+        )
+        text = _estimate([_region("GC1", 100.0)], weighted=weighted).to_markdown()
+        assert "## At-site weighted with regression" in text
+        assert "| aep | at_site | weighted | extrapolated |" in text
+        assert "| 0.01 | 12,345.6 | 11,000 | False |" in text

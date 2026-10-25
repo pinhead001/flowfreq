@@ -447,8 +447,12 @@ def _frame_table(frame: pd.DataFrame) -> List[str]:
     cols = [str(c) for c in frame.columns]
     lines = ["| " + " | ".join(cols) + " |", "|" + "---|" * len(cols)]
     for _, row in frame.iterrows():
-        cells = [
-            f"{v:,.6g}" if isinstance(v, (int, float)) and not pd.isna(v) else str(v) for v in row
-        ]
+        cells = [_cell(v) for v in row]
         lines.append("| " + " | ".join(cells) + " |")
     return lines
+
+
+def _cell(value: Any) -> str:
+    if isinstance(value, (int, float)) and not isinstance(value, bool) and not pd.isna(value):
+        return f"{value:,.6g}"
+    return str(value)
