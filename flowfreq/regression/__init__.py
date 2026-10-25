@@ -27,8 +27,10 @@ from flowfreq.regression.library import (
     available_states,
     awaiting_nss_states,
     load_state,
+    nss_snapshot_states,
     provisional_states,
 )
+from flowfreq.regression.nss_library import asep_to_sep_log, snapshot_to_library
 
 __all__ = [
     "Citation",
@@ -42,12 +44,15 @@ __all__ = [
     "StateLibrary",
     "Variable",
     "WAVE_NAMES",
+    "asep_to_sep_log",
     "available_states",
     "awaiting_nss_states",
     "evaluate",
     "evaluate_weighted",
     "jurisdiction",
     "load_state",
+    "nss_snapshot_states",
     "provisional_states",
+    "snapshot_to_library",
     "wave",
 ]
