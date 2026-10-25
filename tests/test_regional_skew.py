@@ -34,9 +34,11 @@ def test_pending_rows_are_never_returned(state, region):
         regional_skew_for(state, region)
 
 
-def test_no_entry():
+def test_no_entry(tmp_path):
+    # Every jurisdiction now has a row in the packaged table, so use a private one.
+    p = _table(tmp_path, "XX,R1,-0.1,0.12,50,Report 1,Table 2,verified,\n")
     with pytest.raises(RegionalSkewUnavailable, match="no entry"):
-        regional_skew_for("FL")
+        regional_skew_for("FL", path=p)
 
 
 def test_verified_row(tmp_path):
