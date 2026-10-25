@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.0] - 2026-10-25
+
+The last tier 2 methow-flow item and a transfer-variance follow-up: the regulation guardrail
+on every transfer, and non-squared dissimilarity terms with `profile_power` to choose the
+power by likelihood. Patch releases for 0.14 continue from `release/0.14.x`.
+
 ### Added
 - **Non-squared dissimilarity terms** in `flowfreq.transfer_variance` (#181). A term of
   `s2_d` can enter as `|x|^p`: `fit_dissimilarity(pairs, powers={"log_ar": 1})`. The
