@@ -34,7 +34,14 @@ from flowfreq.streamstats import (
     UnsnappablePointError,
     WatershedCharacteristics,
 )
-from flowfreq.ungaged import Assembly, SiteEstimate, assemble, estimate_at_site, region_for_nss_code
+from flowfreq.ungaged import (
+    Assembly,
+    OverlappingRegionsError,
+    SiteEstimate,
+    assemble,
+    estimate_at_site,
+    region_for_nss_code,
+)
 
 CIT1 = Citation(publication="Synthetic report one", table="T1", year=2020)
 CIT2 = Citation(publication="Synthetic report two", table="T2", year=2021)
@@ -307,8 +314,8 @@ class TestAssemble:
         ]
 
 
-def _estimate(regions, **kw) -> SiteEstimate:
-    a = assemble(LIB, regions, CHARS, **KW)
+def _estimate(regions, assembly: Optional[Assembly] = None, **kw) -> SiteEstimate:
+    a = assembly if assembly is not None else assemble(LIB, regions, CHARS, **KW)
     base = dict(
         lat=45.0,
         lon=-110.0,
@@ -391,6 +398,93 @@ class TestSiteEstimate:
         )
         assert est.weighted is None and est.provenance == {} and est.region_codes == {}
         assert "XX" in est.to_markdown()
+
+
+class TestOverlappingRegions:
+    """NSS serves superseded and current equation sets for one area side by side, each
+    at 100 %: they are alternatives, and only a caller can choose between them."""
+
+    def test_overlapping_regions_raise_naming_candidates(self):
+        regions = [_region("GC1", 100.0), _region("GC2", 100.0)]
+        with pytest.raises(OverlappingRegionsError) as info:
+            assemble(LIB, regions, CHARS, **KW)
+        exc = info.value
+        assert isinstance(exc, EquationsUnavailable)
+        assert exc.candidates == [
+            ("GC1", "Region 1 (NSS GC1)", 2020),
+            ("GC2", "Region 2, Plains (WRIR 03-4107; NSS GC2)", 2021),
+        ]
+        text = str(exc)
+        assert "GC1" in text and "GC2" in text and "2020" in text and "2021" in text
+        assert "region=" in text and "--region" in text
+
+    def test_overlap_with_region_chosen_uses_only_that_region(self):
+        regions = [_region("GC1", 100.0), _region("GC2", 100.0)]
+        a = assemble(LIB, regions, CHARS, region="GC2", **KW)
+        assert [r.code for r in a.used] == ["GC2"]
+        assert a.alternatives == [regions[0]]
+        ((fraction, est),) = a.estimates[0.01]
+        assert fraction == 1.0
+        row = a.quantiles.set_index("aep").loc[0.01]
+        assert row["flow_cfs"] == pytest.approx(_flow("R2", 0.01))
+        assert est.interval is not None
+        assert (row["lower"], row["upper"]) == pytest.approx(est.interval)
+        assert row["regions"] == "GC2"
+
+    def test_region_may_be_given_as_library_code(self):
+        regions = [_region("GC1", 100.0), _region("GC2", 100.0)]
+        a = assemble(LIB, regions, CHARS, region="R2", **KW)
+        assert [r.code for r in a.used] == ["GC2"]
+        assert a.alternatives == [regions[0]]
+
+    def test_partition_is_unchanged_by_the_overlap_check(self):
+        regions = [_region("GC1", 60.0), _region("GC2", 40.0)]
+        a = assemble(LIB, regions, CHARS, **KW)
+        assert a.alternatives == []
+        assert [f for f, _ in a.estimates[0.1]] == pytest.approx([0.6, 0.4])
+
+    def test_overlap_tolerance_matches_nss_rounding(self):
+        a = assemble(LIB, [_region("GC1", 51.0), _region("GC2", 50.0)], CHARS, **KW)
+        assert len(a.used) == 2 and a.alternatives == []
+        with pytest.raises(OverlappingRegionsError):
+            assemble(LIB, [_region("GC1", 100.0), _region("GC2", 2.0)], CHARS, **KW)
+
+    def test_unknown_region_choice_raises_naming_candidates(self):
+        regions = [_region("GC1", 100.0), _region("GC2", 100.0)]
+        with pytest.raises(OverlappingRegionsError, match="GC9") as info:
+            assemble(LIB, regions, CHARS, region="GC9", **KW)
+        assert [c[0] for c in info.value.candidates] == ["GC1", "GC2"]
+        assert "GC1" in str(info.value) and "GC2" in str(info.value)
+
+    def test_skipped_region_is_not_a_candidate(self):
+        # GC4 lacks PRECIP and is skipped first; GC1 alone remains, so no overlap.
+        regions = [_region("GC1", 100.0), _region("GC4", 100.0)]
+        a = assemble(LIB, regions, CHARS, **KW)
+        assert [r.code for r in a.used] == ["GC1"] and a.alternatives == []
+
+    def test_to_markdown_lists_alternatives(self):
+        regions = [_region("GC1", 100.0), _region("GC2", 100.0)]
+        a = assemble(LIB, regions, CHARS, region="GC1", **KW)
+        est = _estimate(
+            regions,
+            assembly=a,
+            provenance={
+                "alternative_regions": [
+                    {
+                        "code": "GC2",
+                        "name": "Located GC2",
+                        "region_code": "R2",
+                        "citation": "Synthetic report two (2021), table T2",
+                        "year": 2021,
+                    }
+                ]
+            },
+        )
+        text = est.to_markdown()
+        assert "| GC1 | Located GC1 | 1.000 |" in text
+        assert "Not used (alternative NSS equation sets)" in text
+        assert "GC2 (Located GC2): Synthetic report two (2021), table T2" in text
+        assert "area-weighted" not in text
 
 
 # --------------------------------------------------------------- estimate_at_site
@@ -572,6 +666,7 @@ class TestEstimateAtSite:
             "allow_provisional": False,
             "allow_extrapolation": True,
             "weighting_space": "linear",
+            "region": None,
         }
 
     def test_snapshot_state_needs_the_flag(self, fakes, tmp_data_dir):
@@ -699,6 +794,30 @@ class TestEstimateAtSite:
         with pytest.raises(ValueError, match="WA: StreamStats returned no watershed polygon"):
             estimate_at_site(WA_LAT, WA_LON, state="WA")
         assert fakes.locate_calls == []
+
+    def test_overlapping_regions_need_a_choice(self, fakes):
+        for r in fakes.regions:
+            r.percent_weight = 100.0
+        with pytest.raises(OverlappingRegionsError, match="GC1750"):
+            estimate_at_site(WA_LAT, WA_LON, state="WA")
+
+    def test_region_choice_reaches_the_assembly_and_provenance(self, fakes, big_sandy_results):
+        for r in fakes.regions:
+            r.percent_weight = 100.0
+        est = estimate_at_site(
+            WA_LAT, WA_LON, state="WA", region="GC1753", at_site=big_sandy_results
+        )
+        assert [r.code for r in est.regions] == ["GC1753"]
+        assert est.method == "at-site weighted with regression"
+        (alt,) = est.provenance["alternative_regions"]
+        assert alt["code"] == "GC1750" and alt["region_code"] == "1"
+        assert alt["citation"] and alt["year"]
+        assert est.provenance["options"]["region"] == "GC1753"
+        assert "Not used (alternative NSS equation sets)" in est.to_markdown()
+
+    def test_no_overlap_leaves_alternatives_empty(self, fakes):
+        est = estimate_at_site(WA_LAT, WA_LON, state="WA")
+        assert est.provenance["alternative_regions"] == []
 
     def test_exported_from_the_package(self):
         import flowfreq

@@ -24,8 +24,18 @@ Values observed 2026-10-25:
   03431800; 36.320022, -87.051194), about 25 miles northwest of Nashville, in the same
   Cumberland basin: snapped 9 m, 97.7 sq mi. Located regions GC344, GC2016 and GC2020
   at 100 % each (GC1419 and GC2069 had no library region). Library status
-  ``nss_snapshot`` with the "NSS SNAPSHOT (not report-verified)" advisory. 1 % AEP
-  19,624 cfs, with no prediction interval (the snapshot carries no covariance).
+  ``nss_snapshot`` with the "NSS SNAPSHOT (not report-verified)" advisory. Averaged
+  1/3 each (before overlap detection), the 1 % AEP was 19,624 cfs with no interval.
+
+  The three are not a partition but alternative equation sets for the same area:
+  GC344 ``MultiVariable_Area_2`` (WRIR 03-4176, 2003; CONTDA, CSL10_85), superseded by
+  SIR 2024-5130 (2025), which NSS serves as two sets, GC2016
+  ``TN_Peakflow_Region_2_SIR_2024-5130`` (DRNAREA, CSL10_85, LC11IMPALT) and GC2020
+  ``TN_DAO_Peakflow_Region_2_SIR_2024_5130`` (drainage area only). Both 2024 sets are
+  rural; they differ as multivariable versus drainage-area-only, not rural versus
+  urban, so the lower-numbered one, GC2016 (also the report's full multivariable set),
+  is chosen with ``region="GC2016"``. Without ``region`` the estimate is refused with
+  :class:`~flowfreq.ungaged.OverlappingRegionsError` listing the three.
 """
 
 from __future__ import annotations
@@ -36,6 +46,7 @@ from pathlib import Path
 import pytest
 
 from flowfreq import estimate_at_site
+from flowfreq.ungaged import OverlappingRegionsError
 
 SITES = Path(__file__).parents[1] / "docs" / "vignettes" / "wave1_wave2_sites.json"
 
@@ -57,12 +68,27 @@ def test_washington_little_klickitat_matches_gage():
     assert est.library_status == "verified"
 
 
-@pytest.mark.requires_network
-def test_tennessee_snapshot_estimate_carries_advisory():
-    # Sycamore Creek near Ashland City, TN (03431800); see the module docstring for why
-    # not downtown Nashville.
-    est = estimate_at_site(36.320022, -87.051194, state="TN", allow_nss_snapshot=True)
+TN_LAT, TN_LON = 36.320022, -87.051194
 
+
+@pytest.mark.requires_network
+def test_tennessee_overlapping_regions_are_refused_without_a_choice():
+    # Sycamore Creek near Ashland City, TN (03431800); see the module docstring for why
+    # not downtown Nashville, and for the three overlapping equation sets.
+    with pytest.raises(OverlappingRegionsError) as info:
+        estimate_at_site(TN_LAT, TN_LON, state="TN", allow_nss_snapshot=True)
+    years = {code: year for code, _, year in info.value.candidates}
+    assert years == {"GC344": 2003, "GC2016": 2025, "GC2020": 2025}
+    assert "--region" in str(info.value)
+
+
+@pytest.mark.requires_network
+def test_tennessee_snapshot_estimate_with_chosen_region():
+    # GC2016, SIR 2024-5130's multivariable set: see the module docstring.
+    est = estimate_at_site(TN_LAT, TN_LON, state="TN", allow_nss_snapshot=True, region="GC2016")
+
+    assert [r.code for r in est.regions] == ["GC2016"]
+    assert {a["code"] for a in est.provenance["alternative_regions"]} == {"GC344", "GC2020"}
     q100 = float(est.quantiles.loc[est.quantiles["aep"] == 0.01, "flow_cfs"].iloc[0])
     assert q100 > 0
     assert est.library_status == "nss_snapshot"

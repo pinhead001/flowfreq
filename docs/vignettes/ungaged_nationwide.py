@@ -10,7 +10,10 @@ equations and prints the report. It needs the network and takes a minute or two.
 * Tennessee (NSS snapshot library, so ``allow_nss_snapshot=True``): Sycamore Creek near
   Ashland City, a Cumberland tributary northwest of Nashville. Downtown Nashville is not
   on StreamStats' stream network and the Cumberland River there is outside the
-  equations' range, so a smaller stream nearby stands in.
+  equations' range, so a smaller stream nearby stands in. NSS returns three
+  overlapping equation sets there (WRIR 03-4176's GC344 and SIR 2024-5130's GC2016 and
+  GC2020), alternatives rather than a partition, so ``region="GC2016"`` chooses the
+  current report's multivariable set; the other two are listed as not used.
 
 Run::
 
@@ -35,7 +38,9 @@ def main() -> None:
 
     print("\n" + "=" * 72 + "\n")
     print("Tennessee: Sycamore Creek near Ashland City (USGS 03431800), NSS snapshot\n")
-    est = estimate_at_site(36.320022, -87.051194, state="TN", allow_nss_snapshot=True)
+    est = estimate_at_site(
+        36.320022, -87.051194, state="TN", allow_nss_snapshot=True, region="GC2016"
+    )
     print(est.to_markdown())
 
 

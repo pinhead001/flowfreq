@@ -287,6 +287,14 @@ def compare(
     is_flag=True,
     help="Allow basin characteristics outside the equations' calibrated range.",
 )
+@click.option(
+    "--region",
+    default=None,
+    help=(
+        "Where NSS returns overlapping regions (alternative equation sets for the same "
+        "area), the one to use: an NSS code (e.g. GC2016) or library region code."
+    ),
+)
 def ungaged(
     lat: float,
     lon: float,
@@ -294,13 +302,16 @@ def ungaged(
     aeps: Tuple[float, ...],
     allow_nss_snapshot: bool,
     allow_extrapolation: bool,
+    region: Optional[str],
 ) -> None:
     """Estimate flood-frequency quantiles at an ungaged site (regional regression).
 
     Delineates the basin with StreamStats, evaluates the state's offline
     regression equations and prints the estimate with its provenance as
     Markdown. Exits 1 with the message when no equations are available, the
-    point cannot be snapped to a stream, or the region is unsupported.
+    point cannot be snapped to a stream, or the region is unsupported. When NSS
+    returns overlapping regions (alternative equation sets for one area), lists
+    them one per line and exits 1 until --region chooses one.
     """
     import requests
 
@@ -315,6 +326,7 @@ def ungaged(
             aeps=list(aeps) if aeps else None,
             allow_nss_snapshot=allow_nss_snapshot,
             allow_extrapolation=allow_extrapolation,
+            region=region,
         )
     except OutOfRangeError as exc:
         raise click.ClickException(f"{exc} (pass --allow-extrapolation to proceed)") from exc

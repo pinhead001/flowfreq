@@ -428,6 +428,7 @@ class TestUngaged:
         assert calls["aeps"] is None
         assert calls["allow_nss_snapshot"] is False
         assert calls["allow_extrapolation"] is False
+        assert calls["region"] is None
 
     @pytest.mark.parametrize(
         "exc_name", ["EquationsUnavailable", "UnsnappablePointError", "UnsupportedRegionError"]
@@ -450,6 +451,38 @@ class TestUngaged:
         assert result.exit_code == 1
         assert "no equations for the test" in result.output
         assert "Traceback" not in result.output
+
+    def test_cli_region_option_and_overlap_message(self, monkeypatch):
+        from flowfreq.ungaged import OverlappingRegionsError
+
+        calls = {}
+
+        def fake(lat, lon, **kw):
+            calls.update(kw)
+            if kw["region"] is None:
+                raise OverlappingRegionsError(
+                    "TN",
+                    [
+                        ("GC344", "MultiVariable_Area_2", 2003),
+                        ("GC2016", "TN_Peakflow_Region_2_SIR_2024-5130", 2025),
+                    ],
+                )
+            return _FakeEstimate()
+
+        monkeypatch.setattr("flowfreq.ungaged.estimate_at_site", fake)
+        base = ["ungaged", "--lat", "36.3", "--lon", "-87.0", "--state", "TN"]
+        result = CliRunner().invoke(cli, base)
+        assert result.exit_code == 1
+        assert "Traceback" not in result.output
+        lines = result.output.splitlines()
+        assert any("GC344" in ln and "2003" in ln and "GC2016" not in ln for ln in lines)
+        assert any("GC2016" in ln and "2025" in ln and "GC344" not in ln for ln in lines)
+        assert "--region" in result.output
+
+        result = CliRunner().invoke(cli, base + ["--region", "GC2016"])
+        assert result.exit_code == 0, result.output
+        assert calls["region"] == "GC2016"
+        assert "SYNTHETIC-MARKDOWN" in result.output
 
     def test_requires_state(self):
         result = CliRunner().invoke(cli, ["ungaged", "--lat", "1", "--lon", "2"])

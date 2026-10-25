@@ -21,6 +21,11 @@ Assembly rules
   basin does not carry is skipped and the missing codes are reported by its NSS code.
 - The default AEPs are those every region that remains publishes, largest first; none in
   common raises :class:`~flowfreq.regression.library.EquationsUnavailable`.
+- NSS serves superseded and current equation sets for one area side by side, each at
+  its full ``percent_weight``. When the remaining regions' weights sum to more than
+  100 % (beyond NSS's whole-percent rounding) they are alternatives, not a partition:
+  ``region=`` chooses one and the others are reported as ``alternatives``; without a
+  choice :class:`OverlappingRegionsError` lists the candidates.
 - Area fractions come from NSS's ``percent_weight`` (what NSS itself weights by),
   renormalised over the regions actually used.
 - One region gives its own prediction interval; several give an area-weighted flow with
@@ -52,6 +57,7 @@ from flowfreq.regression.library import (
     nss_snapshot_states,
 )
 from flowfreq.streamstats import (
+    _PERCENT_WEIGHT_TOL,
     RegressionRegionLocation,
     StreamStatsCache,
     delineate_and_get_characteristics,
@@ -60,7 +66,14 @@ from flowfreq.streamstats import (
 
 logger = logging.getLogger(__name__)
 
-__all__ = ["Assembly", "SiteEstimate", "assemble", "estimate_at_site", "region_for_nss_code"]
+__all__ = [
+    "Assembly",
+    "OverlappingRegionsError",
+    "SiteEstimate",
+    "assemble",
+    "estimate_at_site",
+    "region_for_nss_code",
+]
 
 #: Columns of :attr:`SiteEstimate.quantiles`, in order.
 QUANTILE_COLUMNS: Tuple[str, ...] = (
@@ -123,6 +136,70 @@ def _codes(regions: Sequence[RegressionRegionLocation]) -> str:
     return ", ".join(r.code for r in regions) or "none"
 
 
+#: ``(NSS code, library region name, citation year)`` for one candidate region.
+Candidate = Tuple[str, str, Optional[int]]
+
+
+class OverlappingRegionsError(EquationsUnavailable):
+    """The located NSS regions overlap: they are alternative equation sets, not a partition.
+
+    NSS serves superseded and current equation sets for the same area side by side,
+    each at its full ``percent_weight``; averaging them would blend two estimates of the
+    same thing. A caller chooses one with ``region=`` (API) or ``--region`` (CLI).
+
+    Parameters
+    ----------
+    state : str
+        The jurisdiction.
+    candidates : list of (str, str, int or None)
+        ``(NSS code, library region name, citation year)`` for every region that could
+        be used, in the located order.
+    region : str, optional
+        A choice that matched none of the candidates, named in the message.
+
+    Attributes
+    ----------
+    candidates : list of (str, str, int or None)
+    """
+
+    def __init__(
+        self, state: str, candidates: Sequence[Candidate], region: Optional[str] = None
+    ) -> None:
+        self.candidates: List[Candidate] = list(candidates)
+        head = (
+            f"{state}: region {region!r} is not one of the overlapping NSS regions"
+            if region is not None
+            else f"{state}: the located NSS regions overlap (alternative equation sets for "
+            "the same area, not a partition)"
+        )
+        listing = "\n".join(
+            f"  {code}: {name} ({year if year is not None else 'year unknown'})"
+            for code, name, year in self.candidates
+        )
+        super().__init__(
+            f"{head}; choose one with region= (API) or --region (CLI), by NSS code or "
+            f"library region code:\n{listing}"
+        )
+
+
+def _region_name(lib: StateLibrary, lib_code: str) -> str:
+    """The library's name for a region (its first named equation's), else the code."""
+    for e in lib.equations:
+        if e.region_code == lib_code and e.region_name:
+            return e.region_name
+    return lib_code
+
+
+def _region_citation(lib: StateLibrary, lib_code: str) -> Tuple[str, Optional[int]]:
+    """``(citation text, year)`` of a region's first equation, as ``to_markdown`` cites it."""
+    for e in lib.equations:
+        if e.region_code == lib_code:
+            c = e.citation
+            text = c.publication + (f" ({c.year})" if c.year else "") + f", table {c.table}"
+            return text, c.year
+    return "", None
+
+
 @dataclass
 class Assembly:
     """What :func:`assemble` produces: the estimate and what was left out of it.
@@ -147,6 +224,9 @@ class Assembly:
     missing : dict
         NSS region code to the characteristic codes the basin lacks, for every matched
         region skipped for that reason.
+    alternatives : list of RegressionRegionLocation
+        Overlapping regions set aside when ``region`` chose another (empty when the
+        regions partition the basin).
     """
 
     quantiles: pd.DataFrame
@@ -156,6 +236,7 @@ class Assembly:
     unmatched: List[RegressionRegionLocation]
     zero_weight: List[RegressionRegionLocation]
     missing: Dict[str, List[str]]
+    alternatives: List[RegressionRegionLocation] = field(default_factory=list)
 
 
 def assemble(
@@ -166,6 +247,7 @@ def assemble(
     aeps: Optional[Sequence[float]],
     allow_extrapolation: bool,
     weighting_space: str,
+    region: Optional[str] = None,
 ) -> Assembly:
     """Assemble the regression estimate for a basin from pre-fetched inputs.
 
@@ -186,6 +268,14 @@ def assemble(
     weighting_space : {"log", "linear"}
         How a multi-region basin's estimates are area-averaged
         (:func:`~flowfreq.regression.equations.evaluate_weighted`).
+    region : str, optional
+        The region to use when the regions overlap, by NSS code or library
+        ``region_code``. Overlap means the ``percent_weight`` of the regions remaining
+        after the zero-weight and missing-characteristic steps sums to more than 100 %
+        plus NSS's rounding tolerance (the 1.5 points ``streamstats`` allows); the
+        chosen region is then used alone (fraction 1.0) and the others are returned in
+        ``alternatives``. A partition is unaffected, and ``region`` is ignored there
+        with a logged warning.
 
     Returns
     -------
@@ -193,6 +283,8 @@ def assemble(
 
     Raises
     ------
+    OverlappingRegionsError
+        If the regions overlap and ``region`` is not given or matches none of them.
     EquationsUnavailable
         If no located region matches the library; if every matched region has zero
         weight or lacks a basin characteristic; if the regions used publish no AEP in
@@ -204,14 +296,15 @@ def assemble(
         From :func:`evaluate_weighted`: an unknown ``weighting_space``, or a printed
         ``Q=0`` weighted in log space.
     """
+    choice = region
     matched: List[Tuple[RegressionRegionLocation, str]] = []
     unmatched: List[RegressionRegionLocation] = []
-    for region in regions:
-        lib_code = region_for_nss_code(lib, region.code)
+    for loc in regions:
+        lib_code = region_for_nss_code(lib, loc.code)
         if lib_code is None:
-            unmatched.append(region)
+            unmatched.append(loc)
         else:
-            matched.append((region, lib_code))
+            matched.append((loc, lib_code))
     if not matched:
         raise EquationsUnavailable(
             f"{lib.state}: none of the located NSS regions ({_codes(regions)}) matches a "
@@ -224,10 +317,10 @@ def assemble(
             _codes(unmatched),
             ", ".join(r.code for r, _ in matched),
         )
-    region_codes = {region.code: lib_code for region, lib_code in matched}
+    region_codes = {loc.code: lib_code for loc, lib_code in matched}
 
-    zero_weight = [region for region, _ in matched if not region.percent_weight > 0]
-    weighted = [(region, lib_code) for region, lib_code in matched if region.percent_weight > 0]
+    zero_weight = [loc for loc, _ in matched if not loc.percent_weight > 0]
+    weighted = [(loc, lib_code) for loc, lib_code in matched if loc.percent_weight > 0]
     if not weighted:
         raise EquationsUnavailable(
             f"{lib.state}: every matched NSS region ({_codes(zero_weight)}) has zero weight"
@@ -237,27 +330,57 @@ def assemble(
 
     missing: Dict[str, List[str]] = {}
     used: List[Tuple[RegressionRegionLocation, str]] = []
-    for region, lib_code in weighted:
+    for loc, lib_code in weighted:
         # Every equation the region publishes, whatever AEPs were requested: a region
         # that lacks a characteristic is skipped before an unpublished requested AEP
         # could be raised for it.
         check = lib.aeps(lib_code)
         absent = [c for c in _needed_codes(lib, lib_code, check) if c not in characteristics]
         if absent:
-            missing[region.code] = absent
+            missing[loc.code] = absent
             logger.warning(
                 "%s: skipping region %s, basin characteristics missing %s",
                 lib.state,
-                region.code,
+                loc.code,
                 absent,
             )
         else:
-            used.append((region, lib_code))
+            used.append((loc, lib_code))
     if not used:
         raise EquationsUnavailable(
             f"{lib.state}: every matched region needs a basin characteristic the site "
             "lacks: "
             + "; ".join(f"{code} needs {', '.join(codes)}" for code, codes in missing.items())
+        )
+
+    alternatives: List[RegressionRegionLocation] = []
+    if sum(r.percent_weight for r, _ in used) > 100.0 + _PERCENT_WEIGHT_TOL:
+        candidates = [
+            (r.code, _region_name(lib, lib_code), _region_citation(lib, lib_code)[1])
+            for r, lib_code in used
+        ]
+        if choice is None:
+            raise OverlappingRegionsError(lib.state, candidates)
+        # An NSS code is unambiguous; a library code is the fallback.
+        chosen = next((pair for pair in used if pair[0].code == choice), None)
+        if chosen is None:
+            chosen = next((pair for pair in used if pair[1] == choice), None)
+        if chosen is None:
+            raise OverlappingRegionsError(lib.state, candidates, choice)
+        alternatives = [r for r, _ in used if r is not chosen[0]]
+        logger.info(
+            "%s: overlapping NSS regions; using %s, alternatives %s",
+            lib.state,
+            chosen[0].code,
+            _codes(alternatives),
+        )
+        used = [chosen]
+    elif choice is not None:
+        logger.warning(
+            "%s: region=%r ignored: the located regions (%s) partition the basin",
+            lib.state,
+            choice,
+            ", ".join(r.code for r, _ in used),
         )
 
     if aeps is None:
@@ -267,16 +390,16 @@ def assemble(
             raise EquationsUnavailable(
                 f"{lib.state}: the regions used publish no AEP in common: "
                 + "; ".join(
-                    f"{region.code} at {', '.join(f'{a:g}' for a in lib.aeps(lib_code))}"
-                    for region, lib_code in used
+                    f"{loc.code} at {', '.join(f'{a:g}' for a in lib.aeps(lib_code))}"
+                    for loc, lib_code in used
                 )
             )
     else:
         aep_list = [float(a) for a in aeps]
 
-    total = sum(region.percent_weight for region, _ in used)
-    fractions = [region.percent_weight / total for region, _ in used]
-    region_label = ", ".join(region.code for region, _ in used)
+    total = sum(loc.percent_weight for loc, _ in used)
+    fractions = [loc.percent_weight / total for loc, _ in used]
+    region_label = ", ".join(loc.code for loc, _ in used)
 
     estimates: Dict[float, RegionEstimates] = {}
     rows: List[Dict[str, Any]] = []
@@ -324,11 +447,12 @@ def assemble(
     return Assembly(
         quantiles=pd.DataFrame(rows, columns=list(QUANTILE_COLUMNS)),
         estimates=estimates,
-        used=[region for region, _ in used],
+        used=[loc for loc, _ in used],
         region_codes=region_codes,
         unmatched=unmatched,
         zero_weight=zero_weight,
         missing=missing,
+        alternatives=alternatives,
     )
 
 
@@ -371,7 +495,9 @@ class SiteEstimate:
         fills from the :class:`Assembly`: ``"missing_characteristics"``
         (:attr:`Assembly.missing`) for the skipped-region caveat and
         ``"zero_weight_regions"`` (the NSS codes of :attr:`Assembly.zero_weight`) for
-        the dropped-region caveat.
+        the dropped-region caveat, and ``"alternative_regions"`` (dicts with ``code``,
+        ``name``, ``region_code``, ``citation``, ``year``) for the alternative
+        equation sets not used.
     """
 
     lat: float
@@ -436,6 +562,13 @@ class SiteEstimate:
                 lines.append(f"| {r.code} | {r.name} | {fraction:.3f} | {source} |")
         else:
             lines.append("No regression region was used.")
+        alternatives = self.provenance.get("alternative_regions")
+        if alternatives:
+            lines.extend(["", "Not used (alternative NSS equation sets):", ""])
+            lines.extend(
+                f"- {a['code']} ({a['name']}): {a['citation'] or 'citation unknown'}"
+                for a in alternatives
+            )
         if self.unmatched_regions:
             lines.append("")
             lines.append(
@@ -565,6 +698,7 @@ def estimate_at_site(
     cache: Optional[StreamStatsCache] = None,
     timeout: float = 60.0,
     data_dir: Union[str, Path, None] = None,
+    region: Optional[str] = None,
 ) -> SiteEstimate:
     """Estimate flood quantiles at an ungaged site from the state's regression equations.
 
@@ -612,6 +746,11 @@ def estimate_at_site(
         Override the packaged library directory (a test and override hook, passed to
         :func:`~flowfreq.regression.library.load_state`; the NSS-coverage check in the
         no-file error reads the same directory).
+    region : str, optional
+        Where NSS returns overlapping regions (alternative equation sets for the same
+        area, such as a superseded report and its replacement), the one to use, by NSS
+        code or library ``region_code`` (:func:`assemble`). The others are listed in
+        ``provenance["alternative_regions"]``.
 
     Returns
     -------
@@ -621,11 +760,16 @@ def estimate_at_site(
         (polygon area, unavailable characteristics, the StreamStats provenance),
         ``library`` (status, file, retrieval date), ``regions_located`` (every region
         NSS returned, before matching), ``missing_characteristics``,
-        ``zero_weight_regions``, ``out_of_range`` (AEP to NSS code to the inputs
+        ``zero_weight_regions``, ``alternative_regions`` (the overlapping regions
+        set aside by ``region``, with citation and year), ``out_of_range`` (AEP to NSS
+        code to the inputs
         outside their range), ``weighting``, ``options`` and ``estimated_at_utc``.
 
     Raises
     ------
+    OverlappingRegionsError
+        The located regions overlap and ``region`` does not choose one of them; the
+        message and ``candidates`` list them.
     EquationsUnavailable
         If the jurisdiction has no library file; the message says whether NSS serves
         peak-flow regions for it at all (DC and four territories have none). Also the
@@ -665,6 +809,7 @@ def estimate_at_site(
         aeps=aeps,
         allow_extrapolation=allow_extrapolation,
         weighting_space=weighting_space,
+        region=region,
     )
 
     method = "regression"
@@ -687,9 +832,9 @@ def estimate_at_site(
 
     out_of_range: Dict[float, Dict[str, List[str]]] = {}
     for aep, per_region in assembly.estimates.items():
-        for region, (_, est) in zip(assembly.used, per_region):
+        for used_region, (_, est) in zip(assembly.used, per_region):
             if est.out_of_range:
-                out_of_range.setdefault(aep, {})[region.code] = list(est.out_of_range)
+                out_of_range.setdefault(aep, {})[used_region.code] = list(est.out_of_range)
 
     subdir = OPT_IN_SUBDIRS.get(lib.status)
     provenance: Dict[str, Any] = {
@@ -707,6 +852,9 @@ def estimate_at_site(
         "regions_located": [r.to_dict() for r in located],
         "missing_characteristics": assembly.missing,
         "zero_weight_regions": [r.code for r in assembly.zero_weight],
+        "alternative_regions": [
+            _alternative(lib, r, assembly.region_codes[r.code]) for r in assembly.alternatives
+        ],
         "out_of_range": out_of_range,
         "weighting": weighting,
         "options": {
@@ -714,6 +862,7 @@ def estimate_at_site(
             "allow_provisional": allow_provisional,
             "allow_extrapolation": allow_extrapolation,
             "weighting_space": weighting_space,
+            "region": region,
         },
         "estimated_at_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     }
@@ -733,6 +882,18 @@ def estimate_at_site(
         weighted=weighted,
         provenance=provenance,
     )
+
+
+def _alternative(lib: StateLibrary, r: RegressionRegionLocation, lib_code: str) -> Dict[str, Any]:
+    """A provenance entry for an overlapping region set aside."""
+    citation, year = _region_citation(lib, lib_code)
+    return {
+        "code": r.code,
+        "name": r.name,
+        "region_code": lib_code,
+        "citation": citation,
+        "year": year,
+    }
 
 
 def _cfs(value: float) -> str:
