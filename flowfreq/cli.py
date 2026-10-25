@@ -12,10 +12,6 @@ from typing import Dict, List, Optional, Tuple
 
 import click
 
-from flowfreq.regression.library import EquationsUnavailable
-from flowfreq.streamstats import UnsnappablePointError, UnsupportedRegionError
-from flowfreq.ungaged import estimate_at_site
-
 
 @click.group()
 def cli() -> None:
@@ -277,7 +273,7 @@ def compare(
 @click.option(
     "--aep",
     "aeps",
-    type=float,
+    type=click.FloatRange(0.0, 1.0, min_open=True, max_open=True),
     multiple=True,
     help="Annual exceedance probability (fraction); repeat for several. Default: the standard set.",
 )
@@ -306,6 +302,11 @@ def ungaged(
     Markdown. Exits 1 with the message when no equations are available, the
     point cannot be snapped to a stream, or the region is unsupported.
     """
+    import requests
+
+    from flowfreq.regression.equations import OutOfRangeError
+    from flowfreq.ungaged import estimate_at_site
+
     try:
         estimate = estimate_at_site(
             lat,
@@ -315,9 +316,12 @@ def ungaged(
             allow_nss_snapshot=allow_nss_snapshot,
             allow_extrapolation=allow_extrapolation,
         )
-    except (EquationsUnavailable, UnsnappablePointError, UnsupportedRegionError) as exc:
-        click.echo(str(exc), err=True)
-        raise SystemExit(1) from exc
+    except OutOfRangeError as exc:
+        raise click.ClickException(f"{exc} (pass --allow-extrapolation to proceed)") from exc
+    except KeyError as exc:  # unknown --state: KeyError quotes str(); use the message
+        raise click.ClickException(str(exc.args[0]) if exc.args else "unknown key") from exc
+    except (ValueError, LookupError, requests.RequestException) as exc:
+        raise click.ClickException(str(exc)) from exc
     click.echo(estimate.to_markdown())
 
 

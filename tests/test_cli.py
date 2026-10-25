@@ -397,7 +397,7 @@ class TestUngaged:
             calls.update(lat=lat, lon=lon, **kw)
             return _FakeEstimate()
 
-        monkeypatch.setattr("flowfreq.cli.estimate_at_site", fake)
+        monkeypatch.setattr("flowfreq.ungaged.estimate_at_site", fake)
         result = CliRunner().invoke(
             cli,
             [
@@ -420,7 +420,7 @@ class TestUngaged:
             calls.update(kw)
             return _FakeEstimate()
 
-        monkeypatch.setattr("flowfreq.cli.estimate_at_site", fake)
+        monkeypatch.setattr("flowfreq.ungaged.estimate_at_site", fake)
         result = CliRunner().invoke(
             cli, ["ungaged", "--lat", "46.5", "--lon", "-110.2", "--state", "MT"]
         )
@@ -445,7 +445,7 @@ class TestUngaged:
         def fake(lat, lon, **kw):
             raise exc("no equations for the test")
 
-        monkeypatch.setattr("flowfreq.cli.estimate_at_site", fake)
+        monkeypatch.setattr("flowfreq.ungaged.estimate_at_site", fake)
         result = CliRunner().invoke(cli, ["ungaged", "--lat", "1", "--lon", "2", "--state", "ZZ"])
         assert result.exit_code == 1
         assert "no equations for the test" in result.output
@@ -454,3 +454,41 @@ class TestUngaged:
     def test_requires_state(self):
         result = CliRunner().invoke(cli, ["ungaged", "--lat", "1", "--lon", "2"])
         assert result.exit_code != 0
+
+    def test_out_of_range_hints_at_extrapolation_flag(self, monkeypatch):
+        from flowfreq.regression.equations import OutOfRangeError
+
+        def fake(lat, lon, **kw):
+            raise OutOfRangeError("DRNAREA 5 below calibrated minimum 10")
+
+        monkeypatch.setattr("flowfreq.ungaged.estimate_at_site", fake)
+        result = CliRunner().invoke(cli, ["ungaged", "--lat", "1", "--lon", "2", "--state", "MT"])
+        assert result.exit_code == 1
+        assert "Error: DRNAREA 5 below calibrated minimum 10" in result.output
+        assert "--allow-extrapolation" in result.output
+        assert "Traceback" not in result.output
+
+    def test_transport_error_is_one_line_exit_one(self, monkeypatch):
+        import requests
+
+        def fake(lat, lon, **kw):
+            raise requests.ConnectionError("StreamStats unreachable")
+
+        monkeypatch.setattr("flowfreq.ungaged.estimate_at_site", fake)
+        result = CliRunner().invoke(cli, ["ungaged", "--lat", "1", "--lon", "2", "--state", "MT"])
+        assert result.exit_code == 1
+        assert "Error: StreamStats unreachable" in result.output
+        assert "Traceback" not in result.output
+
+    def test_unknown_state_is_clean_error(self):
+        # No monkeypatch: the unknown code is rejected before any network call.
+        result = CliRunner().invoke(cli, ["ungaged", "--lat", "1", "--lon", "2", "--state", "ZZ"])
+        assert result.exit_code == 1
+        assert "Unknown jurisdiction code 'ZZ'" in result.output
+        assert "Traceback" not in result.output
+
+    def test_aep_out_of_range_rejected(self):
+        result = CliRunner().invoke(
+            cli, ["ungaged", "--lat", "1", "--lon", "2", "--state", "MT", "--aep", "1.5"]
+        )
+        assert result.exit_code == 2
