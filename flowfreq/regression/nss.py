@@ -93,8 +93,10 @@ _TOKEN = re.compile(
     r"|(?P<name>[A-Za-z_][A-Za-z0-9_]*)"
     r"|(?P<op>[-+*/^(),]))"
 )
-_VARIABLE = re.compile(r"^[A-Z][A-Z0-9_]*$")
+# NSS codes may carry lower-case letters (CSLBlue, CSL10_85fm, SOILCorD).
+_VARIABLE = re.compile(r"^[A-Za-z][A-Za-z0-9_]*$")
 _FUNCTIONS = frozenset({"max"})
+_LOG_FUNCTIONS = frozenset({"logN", "LogN"})
 
 
 def _tokenize(text: str) -> List[Tuple[str, str]]:
@@ -414,7 +416,7 @@ def _const_value(node: Node) -> Optional[float]:
 
 
 def _check_variable(name: str, text: str) -> None:
-    if not _VARIABLE.match(name):
+    if not _VARIABLE.match(name) or name in _FUNCTIONS | _LOG_FUNCTIONS:
         raise NSSEquationError(f"unsupported identifier {name!r} in {text!r}")
 
 

@@ -297,6 +297,48 @@ class TestParseForms:
         assert variables_in("3*A^2*(B+1)^0.5*A") == ["A", "B"]
 
 
+# NSS codes with lower-case letters (AR, TX, MS, OK, MD).
+_MIXED_CASE_INPUTS = {
+    "DRNAREA": 50.0,
+    "CSLBlue": 20.0,
+    "BSHAPELFP": 3.0,
+    "CSL10_85fm": 20.0,
+    "IMPERV": 5.0,
+    "SOILCorD": 30.0,
+}
+
+
+@pytest.mark.parametrize(
+    "equation, codes",
+    [
+        (
+            "10^2.183*DRNAREA^0.678*CSLBlue^0.239*BSHAPELFP^(-0.324)",
+            ("DRNAREA", "CSLBlue", "BSHAPELFP"),
+        ),
+        (
+            "207*DRNAREA^0.676*CSL10_85fm^0.159*BSHAPELFP^-0.390",
+            ("DRNAREA", "CSL10_85fm", "BSHAPELFP"),
+        ),
+        (
+            "5.18*DRNAREA^0.694*(IMPERV+1)^(0.382)*(SOILCorD+1)^(0.414)",
+            ("DRNAREA", "IMPERV", "SOILCorD"),
+        ),
+    ],
+)
+def test_mixed_case_identifiers_parse(equation, codes):
+    parsed = parse_equation(equation)
+    assert parsed.codes == codes
+    assert parsed.transforms[1] in ("log10", "log10_plus1")
+    direct = evaluate_expression(equation, _MIXED_CASE_INPUTS)
+    assert 10.0 ** parsed.log10_value(_MIXED_CASE_INPUTS) == pytest.approx(direct, rel=1e-12)
+
+
+@pytest.mark.parametrize("name", ["max", "logN", "LogN"])
+def test_mixed_case_function_name_as_variable_refused(name):
+    with pytest.raises(NSSEquationError, match="unsupported identifier"):
+        parse_equation(f"2*DRNAREA^0.5*{name}^0.3")
+
+
 class TestToRegressionEquation:
     def test_limits_and_units_carried(self):
         parsed = parse_equation("2*A^0.5*10^(0.01*C)")
