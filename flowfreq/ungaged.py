@@ -11,13 +11,17 @@ Assembly rules
 --------------
 - Each located region is mapped to a library region with
   :func:`region_for_nss_code`. A region with no library match is reported in
-  ``unmatched_regions`` and the estimate proceeds on the rest; if none matches,
+  ``unmatched`` and the estimate proceeds on the rest; if none matches,
   :class:`~flowfreq.regression.library.EquationsUnavailable` names the codes.
-- A matched region whose equations need a characteristic the basin does not carry is
-  skipped and the missing codes are reported by region code.
+- A matched region with ``percent_weight`` 0 (NSS rounds to a whole percent, so a sliver
+  under 0.5% arrives as 0) contributes nothing and is dropped before anything is
+  evaluated, so a basin effectively in one region keeps that region's interval.
+- A matched region whose equations (at any AEP it publishes) need a characteristic the
+  basin does not carry is skipped and the missing codes are reported by its NSS code.
+- The default AEPs are those every region that remains publishes, largest first; none in
+  common raises :class:`~flowfreq.regression.library.EquationsUnavailable`.
 - Area fractions come from NSS's ``percent_weight`` (what NSS itself weights by),
   renormalised over the regions actually used.
-- The default AEPs are those every matched region publishes, largest first.
 - One region gives its own prediction interval; several give an area-weighted flow with
   no interval and ``interval_method="none: area-weighted across N regions"``.
 """
@@ -38,7 +42,7 @@ from flowfreq.streamstats import RegressionRegionLocation
 
 logger = logging.getLogger(__name__)
 
-__all__ = ["SiteEstimate", "assemble", "region_for_nss_code"]
+__all__ = ["Assembly", "SiteEstimate", "assemble", "region_for_nss_code"]
 
 #: Columns of :attr:`SiteEstimate.quantiles`, in order.
 QUANTILE_COLUMNS: Tuple[str, ...] = (
@@ -97,6 +101,45 @@ def _needed_codes(lib: StateLibrary, region_code: str, aeps: Sequence[float]) ->
     return codes
 
 
+def _codes(regions: Sequence[RegressionRegionLocation]) -> str:
+    return ", ".join(r.code for r in regions) or "none"
+
+
+@dataclass
+class Assembly:
+    """What :func:`assemble` produces: the estimate and what was left out of it.
+
+    Attributes
+    ----------
+    quantiles : pandas.DataFrame
+        One row per AEP with :data:`QUANTILE_COLUMNS`. ``regions`` is the NSS codes
+        used, comma-separated; ``lower``, ``upper`` and ``interval_level`` are NaN where
+        there is no interval.
+    estimates : dict
+        AEP to the ``(fraction, RegressionEstimate)`` pairs used for that row, in the
+        order of ``used``. A single region carries fraction 1.0.
+    used : list of RegressionRegionLocation
+        The located regions the estimate rests on, in their original order.
+    region_codes : dict
+        NSS code to library ``region_code`` for every matched region (used or skipped).
+    unmatched : list of RegressionRegionLocation
+        Located regions with no library match.
+    zero_weight : list of RegressionRegionLocation
+        Matched regions with ``percent_weight`` 0, dropped unevaluated.
+    missing : dict
+        NSS region code to the characteristic codes the basin lacks, for every matched
+        region skipped for that reason.
+    """
+
+    quantiles: pd.DataFrame
+    estimates: Dict[float, RegionEstimates]
+    used: List[RegressionRegionLocation]
+    region_codes: Dict[str, str]
+    unmatched: List[RegressionRegionLocation]
+    zero_weight: List[RegressionRegionLocation]
+    missing: Dict[str, List[str]]
+
+
 def assemble(
     lib: StateLibrary,
     regions: Sequence[RegressionRegionLocation],
@@ -105,12 +148,7 @@ def assemble(
     aeps: Optional[Sequence[float]],
     allow_extrapolation: bool,
     weighting_space: str,
-) -> Tuple[
-    pd.DataFrame,
-    Dict[float, RegionEstimates],
-    List[RegressionRegionLocation],
-    Dict[str, List[str]],
-]:
+) -> Assembly:
     """Assemble the regression estimate for a basin from pre-fetched inputs.
 
     Parameters
@@ -122,8 +160,8 @@ def assemble(
     characteristics : mapping of str to float
         Basin characteristics keyed by StreamStats code.
     aeps : sequence of float, optional
-        AEPs to estimate, kept in the caller's order. ``None`` means every AEP all
-        matched regions publish, largest first.
+        AEPs to estimate, kept in the caller's order. ``None`` means every AEP all the
+        regions used publish, largest first.
     allow_extrapolation : bool
         Evaluate outside an equation's calibrated range and flag the row, instead of
         raising :class:`~flowfreq.regression.equations.OutOfRangeError`.
@@ -133,26 +171,15 @@ def assemble(
 
     Returns
     -------
-    quantiles : pandas.DataFrame
-        One row per AEP with :data:`QUANTILE_COLUMNS`. ``regions`` is the NSS codes
-        used, comma-separated; ``lower``, ``upper`` and ``interval_level`` are NaN
-        where there is no interval.
-    estimates : dict
-        AEP to the list of ``(fraction, RegressionEstimate)`` pairs used for that row,
-        in the order of ``regions``.
-    unmatched : list of RegressionRegionLocation
-        Located regions with no library match.
-    missing : dict
-        NSS region code to the characteristic codes the basin lacks, for every matched
-        region that was skipped for that reason.
+    Assembly
 
     Raises
     ------
     EquationsUnavailable
-        If no located region matches the library, or a requested AEP is not published
-        for a matched region.
-    KeyError
-        If every matched region is missing a characteristic.
+        If no located region matches the library; if every matched region has zero
+        weight or lacks a basin characteristic; if the regions used publish no AEP in
+        common and none was requested; or if a requested AEP is not published for a
+        region used.
     OutOfRangeError
         If an input is outside its range and ``allow_extrapolation`` is False.
     ValueError
@@ -168,29 +195,36 @@ def assemble(
         else:
             matched.append((region, lib_code))
     if not matched:
-        codes = ", ".join(r.code for r in regions) or "none"
         raise EquationsUnavailable(
-            f"{lib.state}: none of the located NSS regions ({codes}) matches a library "
-            f"region ({', '.join(lib.regions) or 'none'})"
+            f"{lib.state}: none of the located NSS regions ({_codes(regions)}) matches a "
+            f"library region ({', '.join(lib.regions) or 'none'})"
         )
     if unmatched:
         logger.warning(
             "%s: no library region for located NSS region(s) %s; estimating on %s",
             lib.state,
-            ", ".join(r.code for r in unmatched),
+            _codes(unmatched),
             ", ".join(r.code for r, _ in matched),
         )
+    region_codes = {region.code: lib_code for region, lib_code in matched}
 
-    if aeps is None:
-        published = [set(lib.aeps(lib_code)) for _, lib_code in matched]
-        aep_list = sorted(set.intersection(*published), reverse=True)
-    else:
-        aep_list = [float(a) for a in aeps]
+    zero_weight = [region for region, _ in matched if not region.percent_weight > 0]
+    weighted = [(region, lib_code) for region, lib_code in matched if region.percent_weight > 0]
+    if not weighted:
+        raise EquationsUnavailable(
+            f"{lib.state}: every matched NSS region ({_codes(zero_weight)}) has zero weight"
+        )
+    if zero_weight:
+        logger.info("%s: dropping zero-weight NSS region(s) %s", lib.state, _codes(zero_weight))
 
     missing: Dict[str, List[str]] = {}
     used: List[Tuple[RegressionRegionLocation, str]] = []
-    for region, lib_code in matched:
-        absent = [c for c in _needed_codes(lib, lib_code, aep_list) if c not in characteristics]
+    for region, lib_code in weighted:
+        # Every equation the region publishes, whatever AEPs were requested: a region
+        # that lacks a characteristic is skipped before an unpublished requested AEP
+        # could be raised for it.
+        check = lib.aeps(lib_code)
+        absent = [c for c in _needed_codes(lib, lib_code, check) if c not in characteristics]
         if absent:
             missing[region.code] = absent
             logger.warning(
@@ -202,10 +236,25 @@ def assemble(
         else:
             used.append((region, lib_code))
     if not used:
-        raise KeyError(
+        raise EquationsUnavailable(
             f"{lib.state}: every matched region needs a basin characteristic the site "
-            f"lacks: {missing}"
+            "lacks: "
+            + "; ".join(f"{code} needs {', '.join(codes)}" for code, codes in missing.items())
         )
+
+    if aeps is None:
+        common = set.intersection(*(set(lib.aeps(lib_code)) for _, lib_code in used))
+        aep_list = sorted(common, reverse=True)
+        if not aep_list:
+            raise EquationsUnavailable(
+                f"{lib.state}: the regions used publish no AEP in common: "
+                + "; ".join(
+                    f"{region.code} at {', '.join(f'{a:g}' for a in lib.aeps(lib_code))}"
+                    for region, lib_code in used
+                )
+            )
+    else:
+        aep_list = [float(a) for a in aeps]
 
     total = sum(region.percent_weight for region, _ in used)
     fractions = [region.percent_weight / total for region, _ in used]
@@ -254,8 +303,15 @@ def assemble(
                     "regions": region_label,
                 }
             )
-    frame = pd.DataFrame(rows, columns=list(QUANTILE_COLUMNS))
-    return frame, estimates, unmatched, missing
+    return Assembly(
+        quantiles=pd.DataFrame(rows, columns=list(QUANTILE_COLUMNS)),
+        estimates=estimates,
+        used=[region for region, _ in used],
+        region_codes=region_codes,
+        unmatched=unmatched,
+        zero_weight=zero_weight,
+        missing=missing,
+    )
 
 
 @dataclass
@@ -272,9 +328,9 @@ class SiteEstimate:
         ``"regression"``, or ``"at-site weighted with regression"`` when a caller's
         at-site fit was weighted in.
     quantiles : pandas.DataFrame
-        One row per AEP with :data:`QUANTILE_COLUMNS` (see :func:`assemble`).
+        One row per AEP with :data:`QUANTILE_COLUMNS` (see :class:`Assembly`).
     regions : list of RegressionRegionLocation
-        The located regions the estimate used.
+        The located regions the estimate used (:attr:`Assembly.used`).
     unmatched_regions : list of RegressionRegionLocation
         Located regions with no library match, excluded and renormalised away.
     characteristics : dict
@@ -285,12 +341,19 @@ class SiteEstimate:
         The library's advisory text, if any.
     estimates : dict
         AEP to ``(fraction, RegressionEstimate)`` pairs, one per region used.
+    region_codes : dict
+        NSS code to library ``region_code`` (:attr:`Assembly.region_codes`); it is how
+        :meth:`to_markdown` finds each located region's citation.
     weighted : pandas.DataFrame, optional
         Bulletin 17C Appendix 9 weighting of an at-site fit with the regression, when
         the caller supplied one and the basin lies in a single region.
     provenance : dict
         How the inputs were obtained: snap, delineation, library file status,
-        out-of-range codes, missing characteristics, timestamps.
+        out-of-range codes, timestamps. :meth:`to_markdown` reads two keys the caller
+        fills from the :class:`Assembly`: ``"missing_characteristics"``
+        (:attr:`Assembly.missing`) for the skipped-region caveat and
+        ``"zero_weight_regions"`` (the NSS codes of :attr:`Assembly.zero_weight`) for
+        the dropped-region caveat.
     """
 
     lat: float
@@ -304,14 +367,9 @@ class SiteEstimate:
     library_status: str
     advisory: str
     estimates: Dict[float, RegionEstimates]
+    region_codes: Dict[str, str] = field(default_factory=dict)
     weighted: Optional[pd.DataFrame] = None
     provenance: Dict[str, Any] = field(default_factory=dict)
-
-    def _fractions(self) -> Dict[str, float]:
-        """Library region code to area fraction, from the first AEP's estimates."""
-        for per_region in self.estimates.values():
-            return {e.equation.region_code: f for f, e in per_region}
-        return {}
 
     def _citations(self) -> Dict[str, str]:
         """Library region code to the publication its equations cite."""
@@ -342,8 +400,6 @@ class SiteEstimate:
         if self.advisory:
             lines.append(f"- Advisory: {self.advisory}")
         lines.extend(["", "## Regression regions", ""])
-        fractions = self._fractions()
-        citations = self._citations()
         if self.regions:
             lines.extend(
                 [
@@ -351,18 +407,15 @@ class SiteEstimate:
                     "|---|---|---:|---|",
                 ]
             )
-            # assemble() evaluates the regions used in the order of ``regions``, so the
-            # library codes pair positionally; a list of another length (a caller that
-            # kept skipped regions) falls back to the NSS code itself.
-            lib_codes = list(fractions)
-            positional = len(lib_codes) == len(self.regions)
-            for i, r in enumerate(self.regions):
-                lib_code = lib_codes[i] if positional else r.code
-                fraction = fractions.get(lib_code)
-                fraction_text = "" if fraction is None else f"{fraction:.3f}"
-                lines.append(
-                    f"| {r.code} | {r.name} | {fraction_text} | {citations.get(lib_code, '')} |"
-                )
+            citations = self._citations()
+            # The fractions are what assemble() used: percent_weight renormalised over
+            # the regions used. Each located region finds its library equation, and so
+            # its citation, through region_codes rather than by position.
+            total = sum(r.percent_weight for r in self.regions)
+            for r in self.regions:
+                fraction = r.percent_weight / total if total > 0 else float("nan")
+                source = citations.get(self.region_codes.get(r.code, r.code), "")
+                lines.append(f"| {r.code} | {r.name} | {fraction:.3f} | {source} |")
         else:
             lines.append("No regression region was used.")
         if self.unmatched_regions:
@@ -431,6 +484,12 @@ class SiteEstimate:
                 + "; ".join(f"{code} needs {', '.join(codes)}" for code, codes in missing.items())
                 + "."
             )
+        zero_weight = self.provenance.get("zero_weight_regions")
+        if zero_weight:
+            lines.append(
+                "- Regions NSS located at 0% of the basin (an overlap under half a percent), "
+                "dropped: " + ", ".join(zero_weight) + "."
+            )
         return "\n".join(lines)
 
 
@@ -447,8 +506,7 @@ def _frame_table(frame: pd.DataFrame) -> List[str]:
     cols = [str(c) for c in frame.columns]
     lines = ["| " + " | ".join(cols) + " |", "|" + "---|" * len(cols)]
     for _, row in frame.iterrows():
-        cells = [_cell(v) for v in row]
-        lines.append("| " + " | ".join(cells) + " |")
+        lines.append("| " + " | ".join(_cell(v) for v in row) + " |")
     return lines
 
 

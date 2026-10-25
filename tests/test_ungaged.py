@@ -22,7 +22,7 @@ from flowfreq.regression.equations import (
 )
 from flowfreq.regression.library import EquationsUnavailable, StateLibrary
 from flowfreq.streamstats import RegressionRegionLocation
-from flowfreq.ungaged import SiteEstimate, assemble, region_for_nss_code
+from flowfreq.ungaged import Assembly, SiteEstimate, assemble, region_for_nss_code
 
 CIT1 = Citation(publication="Synthetic report one", table="T1", year=2020)
 CIT2 = Citation(publication="Synthetic report two", table="T2", year=2021)
@@ -121,10 +121,13 @@ class TestRegionForNssCode:
 
 class TestAssemble:
     def test_single_region_keeps_its_interval(self):
-        frame, estimates, unmatched, missing = assemble(LIB, [_region("GC1", 100.0)], CHARS, **KW)
-        assert unmatched == [] and missing == {}
-        row = frame.set_index("aep").loc[0.01]
-        ((fraction, est),) = estimates[0.01]
+        a = assemble(LIB, [_region("GC1", 100.0)], CHARS, **KW)
+        assert isinstance(a, Assembly)
+        assert a.unmatched == [] and a.zero_weight == [] and a.missing == {}
+        assert [r.code for r in a.used] == ["GC1"]
+        assert a.region_codes == {"GC1": "GC1"}
+        row = a.quantiles.set_index("aep").loc[0.01]
+        ((fraction, est),) = a.estimates[0.01]
         assert fraction == 1.0
         assert isinstance(est, RegressionEstimate)
         assert row["flow_cfs"] == pytest.approx(_flow("GC1", 0.01))
@@ -137,9 +140,10 @@ class TestAssemble:
 
     def test_two_regions_area_weighted_in_log_space(self):
         regions = [_region("GC1", 60.0), _region("GC2", 40.0)]
-        frame, estimates, unmatched, missing = assemble(LIB, regions, CHARS, **KW)
-        assert unmatched == [] and missing == {}
-        row = frame.set_index("aep").loc[0.1]
+        a = assemble(LIB, regions, CHARS, **KW)
+        assert a.unmatched == [] and a.missing == {}
+        assert a.region_codes == {"GC1": "GC1", "GC2": "R2"}
+        row = a.quantiles.set_index("aep").loc[0.1]
         q1, q2 = _flow("GC1", 0.1), _flow("R2", 0.1)
         expected = 10 ** (0.6 * math.log10(q1) + 0.4 * math.log10(q2))
         assert row["flow_cfs"] == pytest.approx(expected)
@@ -147,29 +151,26 @@ class TestAssemble:
         assert pd.isna(row["interval_level"])
         assert row["interval_method"] == "none: area-weighted across 2 regions"
         assert row["regions"] == "GC1, GC2"
-        assert [(f, e.equation.region_code) for f, e in estimates[0.1]] == [
+        assert [(f, e.equation.region_code) for f, e in a.estimates[0.1]] == [
             (0.6, "GC1"),
             (0.4, "R2"),
         ]
 
     def test_linear_weighting_space(self):
         regions = [_region("GC1", 60.0), _region("GC2", 40.0)]
-        frame, *_ = assemble(
-            LIB, regions, CHARS, **{**KW, "aeps": [0.1], "weighting_space": "linear"}
-        )
+        a = assemble(LIB, regions, CHARS, **{**KW, "aeps": [0.1], "weighting_space": "linear"})
         expected = 0.6 * _flow("GC1", 0.1) + 0.4 * _flow("R2", 0.1)
-        assert frame.loc[0, "flow_cfs"] == pytest.approx(expected)
+        assert a.quantiles.loc[0, "flow_cfs"] == pytest.approx(expected)
 
     def test_fractions_renormalise_after_an_unmatched_region(self):
         regions = [_region("GC1", 60.0), _region("GC2", 30.0), _region("GC3", 10.0)]
-        frame, estimates, unmatched, missing = assemble(
-            LIB, regions, CHARS, **{**KW, "aeps": [0.01]}
-        )
-        assert unmatched == [regions[2]]
-        assert missing == {}
-        fractions = [f for f, _ in estimates[0.01]]
+        a = assemble(LIB, regions, CHARS, **{**KW, "aeps": [0.01]})
+        assert a.unmatched == [regions[2]]
+        assert a.missing == {}
+        assert a.used == regions[:2]
+        fractions = [f for f, _ in a.estimates[0.01]]
         assert fractions == pytest.approx([2 / 3, 1 / 3])
-        assert frame.loc[0, "regions"] == "GC1, GC2"
+        assert a.quantiles.loc[0, "regions"] == "GC1, GC2"
 
     def test_no_matching_region_raises_naming_the_codes(self):
         regions = [_region("GC9", 70.0), _region("GC8", 30.0)]
@@ -178,19 +179,57 @@ class TestAssemble:
         with pytest.raises(EquationsUnavailable, match="GC8"):
             assemble(LIB, regions, CHARS, **KW)
 
+    def test_zero_weight_region_is_dropped_before_evaluation(self):
+        # NSS rounds percent_weight to a whole percent, so a sliver arrives as 0. GC4
+        # would need PRECIP (missing) and, with DRNAREA out of range, would raise
+        # OutOfRangeError if it were evaluated; dropped first, it does neither, and the
+        # basin keeps GC1's own interval instead of taking the multi-region path.
+        regions = [_region("GC1", 100.0), _region("GC4", 0.0)]
+        a = assemble(LIB, regions, CHARS, **KW)
+        assert a.zero_weight == [regions[1]]
+        assert a.missing == {} and a.unmatched == []
+        assert a.used == [regions[0]]
+        assert a.region_codes == {"GC1": "GC1", "GC4": "R4"}
+        row = a.quantiles.set_index("aep").loc[0.01]
+        assert [(f, e.equation.region_code) for f, e in a.estimates[0.01]] == [(1.0, "GC1")]
+        assert row["interval_method"] == a.estimates[0.01][0][1].interval_method
+        assert row["lower"] == pytest.approx(a.estimates[0.01][0][1].interval[0])
+        assert row["regions"] == "GC1"
+        big = {"DRNAREA": 5000.0, "PRECIP": 30.0}
+        a = assemble(LIB, regions, big, **{**KW, "aeps": [0.01], "allow_extrapolation": True})
+        assert [e.equation.region_code for _, e in a.estimates[0.01]] == ["GC1"]
+
+    def test_every_region_zero_weight_raises(self):
+        with pytest.raises(EquationsUnavailable, match="GC1.*zero weight"):
+            assemble(LIB, [_region("GC1", 0.0)], CHARS, **KW)
+
     def test_missing_characteristic_skips_the_region_and_records_it(self):
         regions = [_region("GC1", 50.0), _region("GC4", 50.0)]
-        frame, estimates, unmatched, missing = assemble(LIB, regions, CHARS, **KW)
-        assert unmatched == []
-        assert missing == {"GC4": ["PRECIP"]}
+        a = assemble(LIB, regions, CHARS, **KW)
+        assert a.unmatched == []
+        assert a.missing == {"GC4": ["PRECIP"]}
+        assert a.used == [regions[0]]
         # GC1 carries the whole basin once GC4 is skipped, interval included.
-        assert [(f, e.equation.region_code) for f, e in estimates[0.5]] == [(1.0, "GC1")]
-        assert frame.loc[0, "regions"] == "GC1"
-        assert frame.loc[0, "interval_method"] == estimates[0.5][0][1].interval_method
-        assert frame.loc[0, "lower"] == pytest.approx(estimates[0.5][0][1].interval[0])
+        assert [(f, e.equation.region_code) for f, e in a.estimates[0.5]] == [(1.0, "GC1")]
+        assert a.quantiles.loc[0, "regions"] == "GC1"
+        assert a.quantiles.loc[0, "interval_method"] == a.estimates[0.5][0][1].interval_method
+        assert a.quantiles.loc[0, "lower"] == pytest.approx(a.estimates[0.5][0][1].interval[0])
+
+    def test_skipped_region_does_not_narrow_the_default_aeps(self):
+        # GC4 publishes no 0.002; once it is skipped the default AEPs are GC1's alone.
+        a = assemble(LIB, [_region("GC1", 50.0), _region("GC4", 50.0)], CHARS, **KW)
+        assert list(a.quantiles["aep"]) == [0.5, 0.1, 0.01, 0.002]
+
+    def test_skip_happens_before_an_unpublished_requested_aep_can_raise(self):
+        # GC4 neither publishes 0.002 nor has PRECIP; it is skipped, not a failure.
+        regions = [_region("GC1", 50.0), _region("GC4", 50.0)]
+        a = assemble(LIB, regions, CHARS, **{**KW, "aeps": [0.002]})
+        assert a.missing == {"GC4": ["PRECIP"]}
+        assert list(a.quantiles["aep"]) == [0.002]
+        assert a.quantiles.loc[0, "flow_cfs"] == pytest.approx(_flow("GC1", 0.002))
 
     def test_every_region_missing_a_characteristic_raises(self):
-        with pytest.raises(KeyError, match="PRECIP"):
+        with pytest.raises(EquationsUnavailable, match="GC4 needs PRECIP"):
             assemble(LIB, [_region("GC4", 100.0)], CHARS, **KW)
 
     def test_extrapolated_flag_follows_out_of_range(self):
@@ -198,12 +237,12 @@ class TestAssemble:
         with pytest.raises(OutOfRangeError):
             assemble(LIB, [_region("GC1", 100.0)], big, **{**KW, "aeps": [0.01]})
         regions = [_region("GC1", 60.0), _region("GC2", 40.0)]
-        frame, estimates, _, _ = assemble(
+        a = assemble(
             LIB, regions, big, aeps=[0.01], allow_extrapolation=True, weighting_space="log"
         )
-        assert bool(frame.loc[0, "extrapolated"]) is True
-        assert all(e.extrapolated for _, e in estimates[0.01])
-        in_range, *_ = assemble(
+        assert bool(a.quantiles.loc[0, "extrapolated"]) is True
+        assert all(e.extrapolated for _, e in a.estimates[0.01])
+        in_range = assemble(
             LIB,
             [_region("GC1", 100.0)],
             CHARS,
@@ -211,19 +250,31 @@ class TestAssemble:
             allow_extrapolation=True,
             weighting_space="log",
         )
-        assert bool(in_range.loc[0, "extrapolated"]) is False
+        assert bool(in_range.quantiles.loc[0, "extrapolated"]) is False
 
     def test_default_aeps_are_the_intersection_largest_first(self):
         regions = [_region("GC1", 60.0), _region("GC2", 40.0)]
-        frame, estimates, _, _ = assemble(LIB, regions, CHARS, **KW)
-        assert list(frame["aep"]) == [0.5, 0.1, 0.01]
-        assert list(estimates) == [0.5, 0.1, 0.01]
-        alone, *_ = assemble(LIB, [_region("GC1", 100.0)], CHARS, **KW)
-        assert list(alone["aep"]) == [0.5, 0.1, 0.01, 0.002]
+        a = assemble(LIB, regions, CHARS, **KW)
+        assert list(a.quantiles["aep"]) == [0.5, 0.1, 0.01]
+        assert list(a.estimates) == [0.5, 0.1, 0.01]
+        alone = assemble(LIB, [_region("GC1", 100.0)], CHARS, **KW)
+        assert list(alone.quantiles["aep"]) == [0.5, 0.1, 0.01, 0.002]
+
+    def test_disjoint_default_aeps_raise_naming_the_regions(self):
+        lib = StateLibrary(
+            state="XX",
+            status="verified",
+            equations=[_eq("GC1", 0.5, 2.0), _eq("GC2", 0.01, 2.0)],
+        )
+        regions = [_region("GC1", 60.0), _region("GC2", 40.0)]
+        with pytest.raises(
+            EquationsUnavailable, match=r"no AEP in common: GC1 at 0.5; GC2 at 0.01"
+        ):
+            assemble(lib, regions, CHARS, **KW)
 
     def test_requested_aeps_keep_the_caller_order(self):
-        frame, *_ = assemble(LIB, [_region("GC1", 100.0)], CHARS, **{**KW, "aeps": [0.01, 0.5]})
-        assert list(frame["aep"]) == [0.01, 0.5]
+        a = assemble(LIB, [_region("GC1", 100.0)], CHARS, **{**KW, "aeps": [0.01, 0.5]})
+        assert list(a.quantiles["aep"]) == [0.01, 0.5]
 
     def test_unpublished_requested_aep_raises(self):
         regions = [_region("GC1", 60.0), _region("GC2", 40.0)]
@@ -231,8 +282,8 @@ class TestAssemble:
             assemble(LIB, regions, CHARS, **{**KW, "aeps": [0.002]})
 
     def test_frame_columns(self):
-        frame, *_ = assemble(LIB, [_region("GC1", 100.0)], CHARS, **KW)
-        assert list(frame.columns) == [
+        a = assemble(LIB, [_region("GC1", 100.0)], CHARS, **KW)
+        assert list(a.quantiles.columns) == [
             "aep",
             "flow_cfs",
             "lower",
@@ -245,20 +296,24 @@ class TestAssemble:
 
 
 def _estimate(regions, **kw) -> SiteEstimate:
-    frame, estimates, unmatched, missing = assemble(LIB, regions, CHARS, **KW)
+    a = assemble(LIB, regions, CHARS, **KW)
     base = dict(
         lat=45.0,
         lon=-110.0,
         state="XX",
         method="regression",
-        quantiles=frame,
-        regions=[r for r in regions if r not in unmatched and r.code not in missing],
-        unmatched_regions=unmatched,
+        quantiles=a.quantiles,
+        regions=a.used,
+        unmatched_regions=a.unmatched,
         characteristics=dict(CHARS),
         library_status=LIB.status,
         advisory="Synthetic advisory text.",
-        estimates=estimates,
-        provenance={"missing_characteristics": missing},
+        estimates=a.estimates,
+        region_codes=a.region_codes,
+        provenance={
+            "missing_characteristics": a.missing,
+            "zero_weight_regions": [r.code for r in a.zero_weight],
+        },
     )
     base.update(kw)
     return SiteEstimate(**base)
@@ -269,21 +324,44 @@ class TestSiteEstimate:
         regions = [_region("GC1", 60.0), _region("GC2", 30.0), _region("GC3", 10.0)]
         text = _estimate(regions).to_markdown()
         assert "45.0" in text and "-110.0" in text and "XX" in text
-        assert "GC1" in text and "Located GC1" in text
-        assert "0.667" in text and "0.333" in text
-        assert "Synthetic report one" in text and "Synthetic report two" in text
+        assert "| GC1 | Located GC1 | 0.667 | Synthetic report one (2020), table T1 |" in text
+        assert "| GC2 | Located GC2 | 0.333 | Synthetic report two (2021), table T2 |" in text
         assert "GC3" in text  # the unmatched region is reported, not silently dropped
         assert "Synthetic advisory text." in text
         assert "DRNAREA" in text and "100" in text
         assert "| 0.01 |" in text
         assert "none: area-weighted across 2 regions" in text
 
+    def test_to_markdown_two_nss_codes_on_one_library_region(self):
+        # GC2 reaches R2 through its name and R2 by equality: two rows, one citation.
+        regions = [_region("GC2", 75.0), _region("R2", 25.0)]
+        text = _estimate(regions).to_markdown()
+        assert "| GC2 | Located GC2 | 0.750 | Synthetic report two (2021), table T2 |" in text
+        assert "| R2 | Located R2 | 0.250 | Synthetic report two (2021), table T2 |" in text
+
     def test_to_markdown_single_region_shows_interval(self):
         est = _estimate([_region("GC1", 100.0)])
         text = est.to_markdown()
         lower = est.quantiles.set_index("aep").loc[0.01, "lower"]
         assert f"{lower:,.0f}" in text
-        assert "1.000" in text  # the single region's fraction
+        assert "| GC1 | Located GC1 | 1.000 |" in text
+
+    def test_to_markdown_caveats_name_skipped_and_dropped_regions(self):
+        regions = [_region("GC1", 50.0), _region("GC4", 50.0), _region("GC2", 0.0)]
+        text = _estimate(regions).to_markdown()
+        assert "GC4 needs PRECIP" in text
+        assert "dropped: GC2." in text
+        assert "| GC1 | Located GC1 | 1.000 |" in text
+        assert "| GC4 |" not in text and "| GC2 |" not in text
+
+    def test_to_markdown_renders_a_weighted_frame(self):
+        weighted = pd.DataFrame(
+            {"aep": [0.01], "at_site": [12345.6], "weighted": [11000.0], "extrapolated": [False]}
+        )
+        text = _estimate([_region("GC1", 100.0)], weighted=weighted).to_markdown()
+        assert "## At-site weighted with regression" in text
+        assert "| aep | at_site | weighted | extrapolated |" in text
+        assert "| 0.01 | 12,345.6 | 11,000 | False |" in text
 
     def test_weighted_and_provenance_default_empty(self):
         est = SiteEstimate(
@@ -299,14 +377,5 @@ class TestSiteEstimate:
             advisory="",
             estimates={},
         )
-        assert est.weighted is None and est.provenance == {}
+        assert est.weighted is None and est.provenance == {} and est.region_codes == {}
         assert "XX" in est.to_markdown()
-
-    def test_to_markdown_renders_a_weighted_frame(self):
-        weighted = pd.DataFrame(
-            {"aep": [0.01], "at_site": [12345.6], "weighted": [11000.0], "extrapolated": [False]}
-        )
-        text = _estimate([_region("GC1", 100.0)], weighted=weighted).to_markdown()
-        assert "## At-site weighted with regression" in text
-        assert "| aep | at_site | weighted | extrapolated |" in text
-        assert "| 0.01 | 12,345.6 | 11,000 | False |" in text
