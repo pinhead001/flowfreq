@@ -379,3 +379,43 @@ def test_build_tool_reports_bad_snapshots_and_continues(tmp_path, capsys, trimme
     assert lines[3] == f"error TN: two snapshots given, {first} and {second}; skipped {second}"
     written = json.loads((tmp_path / "out" / "TN.json").read_text(encoding="utf-8"))
     assert written == snapshot_to_library(trimmed)
+
+
+# --- the committed library: 41 jurisdictions harvested 2026-10-25 -------------------
+
+
+def _midpoint(v) -> float:
+    lo, hi = v.minimum, v.maximum
+    if lo is None or hi is None:
+        return 1.0
+    return math.sqrt(lo * hi) if lo > 0 else (lo + hi) / 2
+
+
+@pytest.mark.parametrize("code", nss_snapshot_states())
+def test_every_snapshot_library_loads_and_evaluates(code):
+    from flowfreq.regression.equations import evaluate
+
+    lib = load_state(code, allow_nss_snapshot=True)
+    assert lib.nss_snapshot and lib.equations
+    eq = lib.equations[0]
+    mid = {v.code: _midpoint(v) for v in eq.variables}
+    assert evaluate(eq, mid).flow_cfs > 0
+
+
+def test_snapshot_states_are_the_41():
+    assert len(nss_snapshot_states()) == 41
+
+
+def test_unparsed_total_is_only_the_region_indicator_forms():
+    # Observed in the 2026-10-25 sweep: 26 entries in all.
+    #   24 = GA, NC and SC, 8 each: the region-indicator interaction equations the
+    #        parser refuses (tools/snapshot_nss.py reported "8 refused" for each).
+    #    2 = New York's two urban regions (WRI84_4350 Method 1 and Method 2 Urban
+    #        Peak, GC1077/GC1078), for which NSS Estimate returned no results; the
+    #        library lists each region, not equations, under unparsed.
+    # Every other state, including Indiana's 8 regions, resolves fully.
+    by_state = {
+        c: len(load_state(c, allow_nss_snapshot=True).unparsed) for c in nss_snapshot_states()
+    }
+    assert {c: n for c, n in by_state.items() if n} == {"GA": 8, "NC": 8, "SC": 8, "NY": 2}
+    assert sum(by_state.values()) == 26

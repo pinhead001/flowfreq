@@ -1,0 +1,32 @@
+{
+ "schema": "flowfreq.nss_snapshot/1",
+ "state": "VI",
+ "retrieved_utc": "2026-10-25T18:39:16+00:00",
+ "service": {
+  "templates": "https://streamstats.usgs.gov/nssservices/regions/VI/Scenarios",
+  "estimate": "https://streamstats.usgs.gov/nssservices/Scenarios/Estimate",
+  "unit_system": 2
+ },
+ "tool": "tools/snapshot_nss.py",
+ "note": "Harvested from NSS Scenarios/Estimate at synthetic in-range inputs. NSS supplies no report table, covariance, model-error variance or site count, so this is a cross-check and starting point, not a verified equation library.",
+ "nss_sep_note": "nss_sep is NSS's raw 'sep' field, stored verbatim. It is not confirmed to be the report's log10 standard error of prediction (MT NW region: 0.043 at 4% AEP vs 0.41 at 66.7%), so it is never mapped to sep_log.",
+ "statistic_groups_requested": [
+  "PFS"
+ ],
+ "statistic_groups_missing": [
+  "PFS"
+ ],
+ "summary": {
+  "statistic_groups": 0,
+  "regions": 0,
+  "regions_resolved": 0,
+  "regions_unresolved": 0,
+  "equations": 0,
+  "equations_parsed": 0,
+  "equations_refused": 0,
+  "round_trip_ok": 0,
+  "round_trip_failed": 0
+ },
+ "citations": {},
+ "regions": []
+}
