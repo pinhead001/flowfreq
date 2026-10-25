@@ -72,6 +72,32 @@ These bit repeatedly and are not discoverable from the code:
 
 ## Open Items (prioritised)
 
+### Nationwide rollout (2026-10-25 plan)
+
+Plan: `docs/superpowers/plans/2026-10-25-nationwide-rollout.md`; design:
+`docs/superpowers/specs/2026-10-25-nationwide-rollout-design.md` ("NSS sweep" and "A. The
+`nss_snapshot` tier").
+
+- [x] **A. `nss_snapshot` tier and the 41-jurisdiction sweep.** Three NSS parser extensions
+      (mixed-case codes, `logN` in the exponent of 10, negated affine bases), Indiana gating,
+      `snapshot_to_library`, `tools/build_nss_snapshot_library.py`, opt-in
+      `load_state(..., allow_nss_snapshot=True)`, and 41 jurisdictions with 1817 equations
+      (1441 with `sep_log`). A snapshot is not "supported": every jurisdiction still owes the
+      roadmap 3.2 definition of done.
+- [ ] **Parked: 24 region-indicator equations** in GA, NC and SC (8 each), where an NSS
+      equation selects its coefficients with a region indicator. They sit in
+      `StateLibrary.unparsed`; they need a parser form, or hand transcription.
+- [ ] **Parked: New York's 2 urban regions** (GC1077, GC1078, WRI84_4350 Method 1 and 2 Urban
+      Peak). NSS's Estimate returns no results for them, so the harvest cannot resolve them.
+- [ ] **Parked: ASEp below 1** on 32 LA, AR and MS equations. `sep_log` is unset because the
+      units of NSS's ASEp there are unconfirmed (percent, or already a log10 error). Read
+      the reports and set it from the source.
+- [ ] **Parked: the advisory warning.** Every snapshot load logs one, so a coverage run over
+      the 41 jurisdictions logs 41. By design while the sets are unreviewed; quiet it as sets
+      are verified, or add a way to silence it for a sweep.
+
+No issues are open for the parked items yet.
+
 ### Priorities for methow-flow (set 2026-10-21)
 
 Roadmap items ordered by what they do for the methow-flow analysis (gage transfer in Peak

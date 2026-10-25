@@ -7,6 +7,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **`nss_snapshot` equation status** (nationwide rollout, workstream A). A set harvested
+  from the USGS NSS web service and parsed by machine, not transcribed from the reports and
+  not double-entered, so it is never `verified`. It lives under
+  `flowfreq/data/regression/nss_snapshot/` and, like the provisional and `awaiting_nss`
+  sets, is returned only on opt-in: `load_state(code, allow_nss_snapshot=True)`. A published
+  set always wins, and `awaiting_nss` wins over a snapshot when both are opted in. The
+  default lookup is unchanged. Loading a snapshot logs an advisory (also on
+  `StateLibrary.advisory`) saying the set is unreviewed and how many equations were
+  refused. `nss_snapshot_states()` lists the jurisdictions that have one, and
+  `StateLibrary.unparsed` lists the equations NSS serves that the parser refused, each with
+  its region, equation string and reason, so the gap is visible rather than silent.
+- **`snapshot_to_library`** (`flowfreq.regression.nss_library`) turns a `tools/snapshot_nss.py`
+  snapshot into a library dict, and **`tools/build_nss_snapshot_library.py`** writes one file
+  per snapshot. It never overrides a published set, skips a jurisdiction with no regions or
+  with no parseable equations (every region unresolved or refused), reports an unreadable or
+  duplicate snapshot and carries on, and exits 1 if any were bad.
+- **`RegressionEquation.to_dict()`**, the inverse of `from_dict`, so a parsed equation can be
+  stored and round-tripped.
+- **Three NSS parser extensions** (`flowfreq.regression.nss`), each checked by evaluating the
+  parsed form against the NSS string. Mixed-case variable codes (`CSLBlue`, `CSL10_85fm`,
+  `SOILCorD`); `e` and `exp` are refused as codes, as `logN` already was. `logN(X, b)` and
+  `LogN` in the exponent of 10, with constant products such as `0.589*0.001` folded into the
+  coefficient (Minnesota, Massachusetts). Negated affine bases such as `(-1*(BDF-13))^p`,
+  which `Variable` now carries as a negative `scale` (Florida); an argument outside the
+  domain raises an error naming the variable.
+- **41 jurisdictions with an `nss_snapshot` set**, harvested 2026-10-25: 1817 equations
+  stored. 26 equations are not parsed: 24 region-indicator forms in Georgia, North Carolina and
+  South Carolina (8 each), and New York's 2 urban regions (GC1077, GC1078), which NSS does not
+  resolve. DC, VI, GU, MP and AS have no NSS peak-flow regions and no file. Arizona, Colorado,
+  New Mexico, Nevada, Utah and Wyoming keep their published sets. `sep_log` is set on 1441
+  equations. NSS's ASEp is read as a percent; where it is below 1 (32 equations in Louisiana,
+  Arkansas and Mississippi) its units are unconfirmed, so `sep_log` is left unset and the
+  library notes name the regions. `docs/REGRESSION_COVERAGE.md` shows each as
+  `nss snapshot (N eqs, M unparsed)`.
+
+### Fixed
+- **Indiana's NSS regions now resolve** in `tools/snapshot_nss.py`. Its bounded regional
+  parameters are the region number itself, so the harvest tries the region's GC number for a
+  bounded parameter after the unbounded gating values (so a region that already resolved keeps its gate), and a region with no unbounded
+  parameter is retried instead of reported unresolved. Indiana: 8 regions, 48 equations.
+
 ## [0.15.0] - 2026-10-25
 
 The last tier 2 methow-flow item and a transfer-variance follow-up: the regulation guardrail
