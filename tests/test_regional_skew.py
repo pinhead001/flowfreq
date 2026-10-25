@@ -143,3 +143,9 @@ def test_every_jurisdiction_has_a_skew_row():
     codes = {j.code for j in JURISDICTIONS}
     assert len(codes) == 56
     assert codes <= set(load_table()["state"])
+
+
+def test_tennessee_unnamed_lookup_returns_skew_region_2():
+    rs = regional_skew_for("TN")
+    assert rs.skew_region == "Skew Region 2 (Gulf of America drainage)"
+    assert rs.skew == 0.048 and rs.skew_mse == 0.16
