@@ -58,7 +58,7 @@ Plan and definitions of done: `docs/MASTER_ROADMAP.md` §3.2.
 | OH | Ohio | not started | 0 | 0 | verified |  |
 | IN | Indiana | not started | 0 | 0 | verified |  |
 | KY | Kentucky | not started | 0 | 0 | verified |  |
-| TN | Tennessee | not started | 0 | 0 | verified |  |
+| TN | Tennessee | not started | 0 | 0 | pending, verified |  |
 | WV | West Virginia | not started | 0 | 0 | verified |  |
 
 ## Wave 4d: Lower Mississippi, Arkansas-Red, and Gulf
