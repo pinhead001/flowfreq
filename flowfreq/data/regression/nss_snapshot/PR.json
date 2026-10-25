@@ -36,6 +36,7 @@
    "citation": {
     "publication": "Ryan, P.J., Gotvald, A.J., and Hazelbaker, C.L., 2021, Development of regression equations for the estimation of the magnitude and frequency of floods at rural, unregulated gaged and ungaged streams in Puerto Rico through water year 2017: U.S. Geological Survey Scientific Investigations Report 2021\u20135062, 37 p.",
     "table": "NSS region 843 (GC1862), citation 172",
+    "year": 2021,
     "url": "https://doi.org/10.3133/sir20215062"
    },
    "sep_log": 0.2321135427844693
@@ -60,6 +61,7 @@
    "citation": {
     "publication": "Ryan, P.J., Gotvald, A.J., and Hazelbaker, C.L., 2021, Development of regression equations for the estimation of the magnitude and frequency of floods at rural, unregulated gaged and ungaged streams in Puerto Rico through water year 2017: U.S. Geological Survey Scientific Investigations Report 2021\u20135062, 37 p.",
     "table": "NSS region 843 (GC1862), citation 172",
+    "year": 2021,
     "url": "https://doi.org/10.3133/sir20215062"
    },
    "sep_log": 0.1598918930109526
@@ -84,6 +86,7 @@
    "citation": {
     "publication": "Ryan, P.J., Gotvald, A.J., and Hazelbaker, C.L., 2021, Development of regression equations for the estimation of the magnitude and frequency of floods at rural, unregulated gaged and ungaged streams in Puerto Rico through water year 2017: U.S. Geological Survey Scientific Investigations Report 2021\u20135062, 37 p.",
     "table": "NSS region 843 (GC1862), citation 172",
+    "year": 2021,
     "url": "https://doi.org/10.3133/sir20215062"
    },
    "sep_log": 0.1420386158353035
@@ -108,6 +111,7 @@
    "citation": {
     "publication": "Ryan, P.J., Gotvald, A.J., and Hazelbaker, C.L., 2021, Development of regression equations for the estimation of the magnitude and frequency of floods at rural, unregulated gaged and ungaged streams in Puerto Rico through water year 2017: U.S. Geological Survey Scientific Investigations Report 2021\u20135062, 37 p.",
     "table": "NSS region 843 (GC1862), citation 172",
+    "year": 2021,
     "url": "https://doi.org/10.3133/sir20215062"
    },
    "sep_log": 0.141236435329665
@@ -132,9 +136,35 @@
    "citation": {
     "publication": "Ryan, P.J., Gotvald, A.J., and Hazelbaker, C.L., 2021, Development of regression equations for the estimation of the magnitude and frequency of floods at rural, unregulated gaged and ungaged streams in Puerto Rico through water year 2017: U.S. Geological Survey Scientific Investigations Report 2021\u20135062, 37 p.",
     "table": "NSS region 843 (GC1862), citation 172",
+    "year": 2021,
     "url": "https://doi.org/10.3133/sir20215062"
    },
    "sep_log": 0.1456394552582986
+  },
+  {
+   "region_code": "GC1862",
+   "region_name": "Region_2_Peakflow_SIR_2021_5062",
+   "aep": 0.01,
+   "intercept": 3.65,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi^2",
+     "minimum": 0.42,
+     "maximum": 208.0
+    }
+   ],
+   "coefficients": [
+    0.78
+   ],
+   "citation": {
+    "publication": "Ryan, P.J., Gotvald, A.J., and Hazelbaker, C.L., 2021, Development of regression equations for the estimation of the magnitude and frequency of floods at rural, unregulated gaged and ungaged streams in Puerto Rico through water year 2017: U.S. Geological Survey Scientific Investigations Report 2021\u20135062, 37 p.",
+    "table": "NSS region 843 (GC1862), citation 172",
+    "year": 2021,
+    "url": "https://doi.org/10.3133/sir20215062"
+   },
+   "sep_log": 0.1516077111849573
   },
   {
    "region_code": "GC1862",
@@ -156,6 +186,7 @@
    "citation": {
     "publication": "Ryan, P.J., Gotvald, A.J., and Hazelbaker, C.L., 2021, Development of regression equations for the estimation of the magnitude and frequency of floods at rural, unregulated gaged and ungaged streams in Puerto Rico through water year 2017: U.S. Geological Survey Scientific Investigations Report 2021\u20135062, 37 p.",
     "table": "NSS region 843 (GC1862), citation 172",
+    "year": 2021,
     "url": "https://doi.org/10.3133/sir20215062"
    },
    "sep_log": 0.15753361587019332
@@ -180,33 +211,10 @@
    "citation": {
     "publication": "Ryan, P.J., Gotvald, A.J., and Hazelbaker, C.L., 2021, Development of regression equations for the estimation of the magnitude and frequency of floods at rural, unregulated gaged and ungaged streams in Puerto Rico through water year 2017: U.S. Geological Survey Scientific Investigations Report 2021\u20135062, 37 p.",
     "table": "NSS region 843 (GC1862), citation 172",
+    "year": 2021,
     "url": "https://doi.org/10.3133/sir20215062"
    },
    "sep_log": 0.08051622289289753
-  },
-  {
-   "region_code": "GC1862",
-   "region_name": "Region_2_Peakflow_SIR_2021_5062",
-   "aep": 0.01,
-   "intercept": 3.65,
-   "variables": [
-    {
-     "code": "DRNAREA",
-     "transform": "log10",
-     "units": "mi^2",
-     "minimum": 0.42,
-     "maximum": 208.0
-    }
-   ],
-   "coefficients": [
-    0.78
-   ],
-   "citation": {
-    "publication": "Ryan, P.J., Gotvald, A.J., and Hazelbaker, C.L., 2021, Development of regression equations for the estimation of the magnitude and frequency of floods at rural, unregulated gaged and ungaged streams in Puerto Rico through water year 2017: U.S. Geological Survey Scientific Investigations Report 2021\u20135062, 37 p.",
-    "table": "NSS region 843 (GC1862), citation 172",
-    "url": "https://doi.org/10.3133/sir20215062"
-   },
-   "sep_log": 0.1516077111849573
   },
   {
    "region_code": "GC1863",
@@ -228,6 +236,7 @@
    "citation": {
     "publication": "Ryan, P.J., Gotvald, A.J., and Hazelbaker, C.L., 2021, Development of regression equations for the estimation of the magnitude and frequency of floods at rural, unregulated gaged and ungaged streams in Puerto Rico through water year 2017: U.S. Geological Survey Scientific Investigations Report 2021\u20135062, 37 p.",
     "table": "NSS region 844 (GC1863), citation 172",
+    "year": 2021,
     "url": "https://doi.org/10.3133/sir20215062"
    },
    "sep_log": 0.19289874588781047
@@ -252,6 +261,7 @@
    "citation": {
     "publication": "Ryan, P.J., Gotvald, A.J., and Hazelbaker, C.L., 2021, Development of regression equations for the estimation of the magnitude and frequency of floods at rural, unregulated gaged and ungaged streams in Puerto Rico through water year 2017: U.S. Geological Survey Scientific Investigations Report 2021\u20135062, 37 p.",
     "table": "NSS region 844 (GC1863), citation 172",
+    "year": 2021,
     "url": "https://doi.org/10.3133/sir20215062"
    },
    "sep_log": 0.1472350719353543
@@ -276,6 +286,7 @@
    "citation": {
     "publication": "Ryan, P.J., Gotvald, A.J., and Hazelbaker, C.L., 2021, Development of regression equations for the estimation of the magnitude and frequency of floods at rural, unregulated gaged and ungaged streams in Puerto Rico through water year 2017: U.S. Geological Survey Scientific Investigations Report 2021\u20135062, 37 p.",
     "table": "NSS region 844 (GC1863), citation 172",
+    "year": 2021,
     "url": "https://doi.org/10.3133/sir20215062"
    },
    "sep_log": 0.12667696774764745
@@ -300,6 +311,7 @@
    "citation": {
     "publication": "Ryan, P.J., Gotvald, A.J., and Hazelbaker, C.L., 2021, Development of regression equations for the estimation of the magnitude and frequency of floods at rural, unregulated gaged and ungaged streams in Puerto Rico through water year 2017: U.S. Geological Survey Scientific Investigations Report 2021\u20135062, 37 p.",
     "table": "NSS region 844 (GC1863), citation 172",
+    "year": 2021,
     "url": "https://doi.org/10.3133/sir20215062"
    },
    "sep_log": 0.10983383085074924
@@ -324,6 +336,7 @@
    "citation": {
     "publication": "Ryan, P.J., Gotvald, A.J., and Hazelbaker, C.L., 2021, Development of regression equations for the estimation of the magnitude and frequency of floods at rural, unregulated gaged and ungaged streams in Puerto Rico through water year 2017: U.S. Geological Survey Scientific Investigations Report 2021\u20135062, 37 p.",
     "table": "NSS region 844 (GC1863), citation 172",
+    "year": 2021,
     "url": "https://doi.org/10.3133/sir20215062"
    },
    "sep_log": 0.102774841834035
@@ -348,6 +361,7 @@
    "citation": {
     "publication": "Ryan, P.J., Gotvald, A.J., and Hazelbaker, C.L., 2021, Development of regression equations for the estimation of the magnitude and frequency of floods at rural, unregulated gaged and ungaged streams in Puerto Rico through water year 2017: U.S. Geological Survey Scientific Investigations Report 2021\u20135062, 37 p.",
     "table": "NSS region 844 (GC1863), citation 172",
+    "year": 2021,
     "url": "https://doi.org/10.3133/sir20215062"
    },
    "sep_log": 0.09525616292670941
@@ -372,6 +386,7 @@
    "citation": {
     "publication": "Ryan, P.J., Gotvald, A.J., and Hazelbaker, C.L., 2021, Development of regression equations for the estimation of the magnitude and frequency of floods at rural, unregulated gaged and ungaged streams in Puerto Rico through water year 2017: U.S. Geological Survey Scientific Investigations Report 2021\u20135062, 37 p.",
     "table": "NSS region 844 (GC1863), citation 172",
+    "year": 2021,
     "url": "https://doi.org/10.3133/sir20215062"
    },
    "sep_log": 0.08685182947735899
@@ -396,6 +411,7 @@
    "citation": {
     "publication": "Ryan, P.J., Gotvald, A.J., and Hazelbaker, C.L., 2021, Development of regression equations for the estimation of the magnitude and frequency of floods at rural, unregulated gaged and ungaged streams in Puerto Rico through water year 2017: U.S. Geological Survey Scientific Investigations Report 2021\u20135062, 37 p.",
     "table": "NSS region 844 (GC1863), citation 172",
+    "year": 2021,
     "url": "https://doi.org/10.3133/sir20215062"
    },
    "sep_log": 0.08051622289289753

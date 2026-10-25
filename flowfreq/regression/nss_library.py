@@ -39,6 +39,12 @@ logger = logging.getLogger(__name__)
 _YEAR = re.compile(r"\b(1[89]\d\d|20\d\d)\b")
 
 
+#: An NSS ASEp below this is not read as a percentage: every plausible percentage ASEp
+#: in the 2026-10-25 sweep was 9 or more, while a few regions report 0.39-0.61, which
+#: converts to a near-zero ``sep_log`` and a falsely tight interval.
+ASEP_PCT_FLOOR = 1.0
+
+
 def asep_to_sep_log(asep_pct: float) -> float:
     """Convert an average standard error of prediction in percent to log10 units.
 
@@ -161,6 +167,7 @@ def snapshot_to_library(snapshot: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     equations: List[Dict[str, Any]] = []
     unparsed: List[Dict[str, Any]] = []
     cited: Dict[str, None] = {}
+    low_asep: Dict[str, None] = {}
     harvested = skipped = 0
     for region in regions:
         if region.get("citation_id") is not None:
@@ -199,7 +206,10 @@ def snapshot_to_library(snapshot: Dict[str, Any]) -> Optional[Dict[str, Any]]:
             )
             asep = rec.get("asep_pct")
             if eq.form == "loglinear" and asep is not None and float(asep) > 0:
-                eq = dataclasses.replace(eq, sep_log=asep_to_sep_log(float(asep)))
+                if float(asep) >= ASEP_PCT_FLOOR:
+                    eq = dataclasses.replace(eq, sep_log=asep_to_sep_log(float(asep)))
+                else:
+                    low_asep.setdefault(str(region["region_code"]), None)
             equations.append(eq.to_dict())
 
     source_reports = [
@@ -225,6 +235,13 @@ def snapshot_to_library(snapshot: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         f"{_plural(len(equations), 'equation')} stored, {_plural(len(unparsed), 'unparsed equation or region', 'unparsed equations or regions')}, "
         f"{_plural(skipped, 'non-AEP statistic')} skipped."
     )
+    if low_asep:
+        notes += (
+            f" NSS's ASEp is below {ASEP_PCT_FLOOR:g} in region(s) {', '.join(low_asep)}; "
+            "those values are not plausible percentages, NSS's units there are "
+            "unconfirmed (possibly log10 units) and were not converted, so sep_log is "
+            "unset for the affected equations."
+        )
     logger.debug("%s: %s", state, notes)
     return {
         "schema_version": SCHEMA_VERSION,

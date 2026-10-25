@@ -387,6 +387,25 @@ def test_asep_zero_or_missing_leaves_sep_log_unset(trimmed, asep):
     assert lib.equation("GC2015", 0.01).sep_log is not None
 
 
+def test_asep_below_one_leaves_sep_log_unset_and_notes_the_region(trimmed):
+    trimmed["regions"][0]["equations"][0]["asep_pct"] = 0.5
+    data = snapshot_to_library(trimmed)
+    lib = parse_state(data)
+    assert lib.equation("GC2015", 0.5).sep_log is None
+    assert lib.equation("GC2015", 0.01).sep_log is not None
+    assert "GC2015" in data["notes"] and "not converted" in data["notes"]
+
+
+@pytest.mark.parametrize("code", nss_snapshot_states())
+def test_every_stored_sep_log_is_plausible(code):
+    # Bounds are wider than the 0.05-0.6 first proposed: genuine percentage ASEps in the
+    # sweep give AL 0.039-0.048 (ASEp ~9-11%) and CA GC1534 0.61-0.90 (ASEp ~150-856%).
+    # The unconverted bad values would have been ~0.002, far below the floor.
+    for eq in load_state(code, allow_nss_snapshot=True).equations:
+        if eq.sep_log is not None:
+            assert 0.03 <= eq.sep_log <= 1.0, (code, eq.region_code, eq.aep, eq.sep_log)
+
+
 def test_snapshot_without_regions_returns_none():
     snapshot = {"state": "DC", "retrieved_utc": "2026-10-25T17:20:40+00:00", "regions": []}
     assert snapshot_to_library(snapshot) is None
@@ -502,7 +521,7 @@ def test_snapshot_states_are_the_41():
     assert len(nss_snapshot_states()) == 41
 
 
-def test_unparsed_total_is_only_the_region_indicator_forms():
+def test_unparsed_entries_are_the_known_26():
     # Observed in the 2026-10-25 sweep: 26 entries in all.
     #   24 = GA, NC and SC, 8 each: the region-indicator interaction equations the
     #        parser refuses (tools/snapshot_nss.py reported "8 refused" for each).

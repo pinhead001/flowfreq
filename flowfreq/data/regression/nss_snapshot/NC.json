@@ -877,50 +877,10 @@
   {
    "region_code": "GC1936",
    "region_name": "Peak_Southeast_US_NC_2023_5006",
-   "statistic_code": "PK50AEP",
-   "aep": 0.5,
-   "equation": "10^(1.82+0.00354*PCTREG1-0.00202*PCTREG3+0.00187*PCTREG5)*DRNAREA^(0.646+0.00224*PCTREG2)*PCTREG4^(0)",
-   "reason": "non-constant exponent on a base other than 10 in '10^(1.82+0.00354*PCTREG1-0.00202*PCTREG3+0.00187*PCTREG5)*DRNAREA^(0.646+0.00224*PCTREG2)*PCTREG4^(0)'"
-  },
-  {
-   "region_code": "GC1936",
-   "region_name": "Peak_Southeast_US_NC_2023_5006",
-   "statistic_code": "PK20AEP",
-   "aep": 0.2,
-   "equation": "10^(2.12+0.00306*PCTREG1-0.00244*PCTREG3+0.00229*PCTREG5)*DRNAREA^(0.631+0.00199*PCTREG2)",
-   "reason": "non-constant exponent on a base other than 10 in '10^(2.12+0.00306*PCTREG1-0.00244*PCTREG3+0.00229*PCTREG5)*DRNAREA^(0.631+0.00199*PCTREG2)'"
-  },
-  {
-   "region_code": "GC1936",
-   "region_name": "Peak_Southeast_US_NC_2023_5006",
-   "statistic_code": "PK10AEP",
-   "aep": 0.1,
-   "equation": "10^(2.28+0.00278*PCTREG1-0.00265*PCTREG3+0.00251*PCTREG5)*DRNAREA^(0.623+0.00187*PCTREG2)",
-   "reason": "non-constant exponent on a base other than 10 in '10^(2.28+0.00278*PCTREG1-0.00265*PCTREG3+0.00251*PCTREG5)*DRNAREA^(0.623+0.00187*PCTREG2)'"
-  },
-  {
-   "region_code": "GC1936",
-   "region_name": "Peak_Southeast_US_NC_2023_5006",
-   "statistic_code": "PK4AEP",
-   "aep": 0.04,
-   "equation": "10^(2.44+0.00251*PCTREG1-0.00286*PCTREG3+0.00276*PCTREG5)*DRNAREA^(0.615+0.00175*PCTREG2)",
-   "reason": "non-constant exponent on a base other than 10 in '10^(2.44+0.00251*PCTREG1-0.00286*PCTREG3+0.00276*PCTREG5)*DRNAREA^(0.615+0.00175*PCTREG2)'"
-  },
-  {
-   "region_code": "GC1936",
-   "region_name": "Peak_Southeast_US_NC_2023_5006",
-   "statistic_code": "PK2AEP",
-   "aep": 0.02,
-   "equation": "10^(2.55+0.00233*PCTREG1-0.00299*PCTREG3+0.00293*PCTREG5)*DRNAREA^(0.610+0.00168*PCTREG2)",
-   "reason": "non-constant exponent on a base other than 10 in '10^(2.55+0.00233*PCTREG1-0.00299*PCTREG3+0.00293*PCTREG5)*DRNAREA^(0.610+0.00168*PCTREG2)'"
-  },
-  {
-   "region_code": "GC1936",
-   "region_name": "Peak_Southeast_US_NC_2023_5006",
-   "statistic_code": "PK1AEP",
-   "aep": 0.01,
-   "equation": "10^(2.64+0.00218*PCTREG1-0.00311*PCTREG3+0.00309*PCTREG5)*DRNAREA^(0.605+0.00161*PCTREG2)",
-   "reason": "non-constant exponent on a base other than 10 in '10^(2.64+0.00218*PCTREG1-0.00311*PCTREG3+0.00309*PCTREG5)*DRNAREA^(0.605+0.00161*PCTREG2)'"
+   "statistic_code": "PK0_2AEP",
+   "aep": 0.002,
+   "equation": "10^(2.81+0.00188*PCTREG1-0.00333*PCTREG3+0.00342*PCTREG5)*DRNAREA^(0.597+0.00150*PCTREG2)",
+   "reason": "non-constant exponent on a base other than 10 in '10^(2.81+0.00188*PCTREG1-0.00333*PCTREG3+0.00342*PCTREG5)*DRNAREA^(0.597+0.00150*PCTREG2)'"
   },
   {
    "region_code": "GC1936",
@@ -933,10 +893,50 @@
   {
    "region_code": "GC1936",
    "region_name": "Peak_Southeast_US_NC_2023_5006",
-   "statistic_code": "PK0_2AEP",
-   "aep": 0.002,
-   "equation": "10^(2.81+0.00188*PCTREG1-0.00333*PCTREG3+0.00342*PCTREG5)*DRNAREA^(0.597+0.00150*PCTREG2)",
-   "reason": "non-constant exponent on a base other than 10 in '10^(2.81+0.00188*PCTREG1-0.00333*PCTREG3+0.00342*PCTREG5)*DRNAREA^(0.597+0.00150*PCTREG2)'"
+   "statistic_code": "PK10AEP",
+   "aep": 0.1,
+   "equation": "10^(2.28+0.00278*PCTREG1-0.00265*PCTREG3+0.00251*PCTREG5)*DRNAREA^(0.623+0.00187*PCTREG2)",
+   "reason": "non-constant exponent on a base other than 10 in '10^(2.28+0.00278*PCTREG1-0.00265*PCTREG3+0.00251*PCTREG5)*DRNAREA^(0.623+0.00187*PCTREG2)'"
+  },
+  {
+   "region_code": "GC1936",
+   "region_name": "Peak_Southeast_US_NC_2023_5006",
+   "statistic_code": "PK1AEP",
+   "aep": 0.01,
+   "equation": "10^(2.64+0.00218*PCTREG1-0.00311*PCTREG3+0.00309*PCTREG5)*DRNAREA^(0.605+0.00161*PCTREG2)",
+   "reason": "non-constant exponent on a base other than 10 in '10^(2.64+0.00218*PCTREG1-0.00311*PCTREG3+0.00309*PCTREG5)*DRNAREA^(0.605+0.00161*PCTREG2)'"
+  },
+  {
+   "region_code": "GC1936",
+   "region_name": "Peak_Southeast_US_NC_2023_5006",
+   "statistic_code": "PK20AEP",
+   "aep": 0.2,
+   "equation": "10^(2.12+0.00306*PCTREG1-0.00244*PCTREG3+0.00229*PCTREG5)*DRNAREA^(0.631+0.00199*PCTREG2)",
+   "reason": "non-constant exponent on a base other than 10 in '10^(2.12+0.00306*PCTREG1-0.00244*PCTREG3+0.00229*PCTREG5)*DRNAREA^(0.631+0.00199*PCTREG2)'"
+  },
+  {
+   "region_code": "GC1936",
+   "region_name": "Peak_Southeast_US_NC_2023_5006",
+   "statistic_code": "PK2AEP",
+   "aep": 0.02,
+   "equation": "10^(2.55+0.00233*PCTREG1-0.00299*PCTREG3+0.00293*PCTREG5)*DRNAREA^(0.610+0.00168*PCTREG2)",
+   "reason": "non-constant exponent on a base other than 10 in '10^(2.55+0.00233*PCTREG1-0.00299*PCTREG3+0.00293*PCTREG5)*DRNAREA^(0.610+0.00168*PCTREG2)'"
+  },
+  {
+   "region_code": "GC1936",
+   "region_name": "Peak_Southeast_US_NC_2023_5006",
+   "statistic_code": "PK4AEP",
+   "aep": 0.04,
+   "equation": "10^(2.44+0.00251*PCTREG1-0.00286*PCTREG3+0.00276*PCTREG5)*DRNAREA^(0.615+0.00175*PCTREG2)",
+   "reason": "non-constant exponent on a base other than 10 in '10^(2.44+0.00251*PCTREG1-0.00286*PCTREG3+0.00276*PCTREG5)*DRNAREA^(0.615+0.00175*PCTREG2)'"
+  },
+  {
+   "region_code": "GC1936",
+   "region_name": "Peak_Southeast_US_NC_2023_5006",
+   "statistic_code": "PK50AEP",
+   "aep": 0.5,
+   "equation": "10^(1.82+0.00354*PCTREG1-0.00202*PCTREG3+0.00187*PCTREG5)*DRNAREA^(0.646+0.00224*PCTREG2)*PCTREG4^(0)",
+   "reason": "non-constant exponent on a base other than 10 in '10^(1.82+0.00354*PCTREG1-0.00202*PCTREG3+0.00187*PCTREG5)*DRNAREA^(0.646+0.00224*PCTREG2)*PCTREG4^(0)'"
   }
  ]
 }
