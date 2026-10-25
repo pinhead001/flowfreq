@@ -295,11 +295,23 @@ class TestScaleOffset:
             evaluate(self._one(var), {var.code: x}, allow_extrapolation=True)
 
     def test_error_names_the_argument(self):
-        with pytest.raises(ValueError, match=r"0\.01\*F \+ 1 > 0, got -0\.5"):
+        with pytest.raises(
+            ValueError,
+            match=r"F: log10 argument -0\.5 is not positive; log10 needs 0\.01\*F \+ 1 > 0",
+        ):
             Variable("F", scale=0.01, offset=1.0).apply(-150.0)
 
+    def test_negative_scale_applies(self):
+        # NSS's (-1*(BDF-13))^b: log10(13 - BDF).
+        assert Variable("BDF", scale=-1.0, offset=13.0).apply(3.0) == pytest.approx(1.0)
+
+    def test_negative_scale_out_of_domain_names_the_code(self):
+        v = Variable(code="BDF", transform="log10", scale=-1.0, offset=13.0)
+        with pytest.raises(ValueError, match="BDF: log10 argument"):
+            v.apply(14.0)
+
     @pytest.mark.parametrize(
-        "kw", [{"scale": 0.0}, {"scale": -1.0}, {"scale": math.inf}, {"offset": math.nan}]
+        "kw", [{"scale": 0.0}, {"scale": math.inf}, {"scale": -math.inf}, {"offset": math.nan}]
     )
     def test_invalid_scale_offset(self, kw):
         with pytest.raises(ValueError):
