@@ -60,6 +60,24 @@ def _by_aep(regression: Sequence[RegressionEstimate]) -> Dict[float, RegressionE
     return out
 
 
+def require_variance_log(results: FrequencyResults) -> pd.DataFrame:
+    """Return ``results.confidence_limits``, refusing one without ``variance_log``.
+
+    Raises
+    ------
+    ValueError
+        ``confidence_limits`` is missing or has no ``variance_log`` column (an analysis
+        run before the column existed).
+    """
+    cl = results.confidence_limits
+    if cl is None or "variance_log" not in cl.columns:
+        raise ValueError(
+            "results.confidence_limits has no 'variance_log' column; rerun the analysis "
+            "with this version of flowfreq"
+        )
+    return cl
+
+
 def weight_with_regression(
     results: FrequencyResults,
     regression: Sequence[RegressionEstimate],
@@ -106,12 +124,7 @@ def weight_with_regression(
     """
     if not 0.0 < level < 1.0:
         raise ValueError(f"level must be in (0, 1), got {level}")
-    cl = results.confidence_limits
-    if cl is None or "variance_log" not in cl.columns:
-        raise ValueError(
-            "results.confidence_limits has no 'variance_log' column; rerun the analysis "
-            "with this version of flowfreq"
-        )
+    cl = require_variance_log(results)
     regs = _by_aep(regression)
     z = float(ndtri(0.5 + level / 2.0))
 

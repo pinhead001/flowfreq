@@ -321,6 +321,10 @@ class TestAssemble:
         ):
             assemble(lib, regions, CHARS, **KW)
 
+    def test_empty_aeps_are_refused(self):
+        with pytest.raises(ValueError, match="aeps must be non-empty"):
+            assemble(LIB, [_region("GC1", 100.0)], CHARS, **{**KW, "aeps": []})
+
     def test_requested_aeps_keep_the_caller_order(self):
         a = assemble(LIB, [_region("GC1", 100.0)], CHARS, **{**KW, "aeps": [0.01, 0.5]})
         assert list(a.quantiles["aep"]) == [0.01, 0.5]
@@ -495,6 +499,31 @@ class TestOverlappingRegions:
             [26 / 102, 26 / 102, 26 / 102, 24 / 102]
         )
         assert a.quantiles.loc[0, "interval_method"] == "none: area-weighted across 4 regions"
+
+    def test_region_choice_is_case_insensitive(self):
+        regions = [_region("GC1", 100.0), _region("GC2", 100.0)]
+        for choice in ("gc2", "r2"):
+            a = assemble(LIB, regions, CHARS, region=choice, **KW)
+            assert [r.code for r in a.used] == ["GC2"]
+
+    def test_lower_case_choice_still_gets_the_specific_reason(self):
+        regions = [_region("GC1", 100.0), _region("GC4", 100.0)]
+        with pytest.raises(EquationsUnavailable, match="GC4") as info:
+            assemble(LIB, regions, CHARS, region="gc4", **KW)
+        assert "PRECIP" in str(info.value) and "skipped" in str(info.value)
+
+    def test_library_code_shared_by_two_nss_codes_is_ambiguous(self):
+        # GC3 and GC5 both reach library region R3 through its name: "R3" cannot pick one.
+        lib = StateLibrary(
+            state="XX",
+            status="verified",
+            equations=[_eq("R3", 0.01, 2.0, region_name="Region 3 (NSS GC3; NSS GC5)")],
+        )
+        regions = [_region("GC3", 100.0), _region("GC5", 100.0)]
+        with pytest.raises(OverlappingRegionsError, match="ambiguous"):
+            assemble(lib, regions, CHARS, region="R3", **KW)
+        a = assemble(lib, regions, CHARS, region="GC5", **KW)
+        assert [r.code for r in a.used] == ["GC5"]
 
     def test_unknown_region_choice_raises_naming_candidates(self):
         regions = [_region("GC1", 100.0), _region("GC2", 100.0)]
@@ -755,6 +784,10 @@ class TestEstimateAtSite:
         text = est.to_markdown()
         assert "| GC1753 | Regression Region 4 | 0.991 |" in text
 
+    def test_lower_case_state_is_accepted(self, fakes):
+        est = estimate_at_site(WA_LAT, WA_LON, state="wa")
+        assert est.provenance["library"]["status"] == "verified"
+
     def test_requested_aeps_and_options_reach_the_assembly(self, fakes):
         est = estimate_at_site(
             WA_LAT,
@@ -909,6 +942,11 @@ class TestEstimateAtSite:
         monkeypatch.setattr("flowfreq.ungaged._load_library", no_library)
         with pytest.raises(ValueError, match="weighting_space"):
             estimate_at_site(WA_LAT, WA_LON, state="WA", weighting_space="geometric")
+        assert fakes.delineate_calls == [] and fakes.locate_calls == []
+
+    def test_empty_aeps_are_refused_before_any_call(self, fakes):
+        with pytest.raises(ValueError, match="aeps must be non-empty"):
+            estimate_at_site(WA_LAT, WA_LON, state="WA", aeps=[])
         assert fakes.delineate_calls == [] and fakes.locate_calls == []
 
     def test_at_site_without_variance_log_is_refused_before_streamstats(

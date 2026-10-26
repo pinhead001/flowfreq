@@ -393,8 +393,9 @@ def regional_skew_at_huc(
 
     Skew studies define their regions by drainage, so membership is decided
     by hydrologic unit: the most specific (longest) prefix of ``huc`` listed
-    in ``regional_skew_hucs.csv`` decides. A unit with membership that no
-    verified study covers raises; nothing is defaulted there.
+    in ``regional_skew_hucs.csv`` decides. A unit whose membership row
+    excludes it or leaves it unresolved raises: the state-level fallback below
+    applies only where no membership row exists.
 
     A unit with no membership row at all (the HUC table encodes only some
     studies) falls back to the site's state: if the state has exactly one row
@@ -457,12 +458,7 @@ def regional_skew_at_huc(
     if not _is_huc(huc):
         raise ValueError(f"huc must be 2-12 digits of even length, got {huc!r}")
     st = state.upper() if state else None
-    hucs = load_huc_table(huc_path)
-
-    matches = hucs[[huc.startswith(h) for h in hucs["huc"]]]
-    # A listed unit *inside* the query with a different outcome makes a coarse
-    # query ambiguous (e.g. a HUC8 part of which is Snake River Plain).
-    finer = hucs[hucs["huc"].str.startswith(huc) & (hucs["huc"].str.len() > len(huc))]
+    matches, finer = _membership_rows(huc, load_huc_table(huc_path))
     if matches.empty and finer.empty:
         no_study = _no_study(huc)
         if not allow_state_fallback:
@@ -498,7 +494,7 @@ def regional_skew_at_huc(
         else:
             outer = matches[matches["rule"] != "boundary"]
             if outer.empty:
-                raise RegionalSkewUnavailable(f"No verified regional skew study covers HUC {huc}")
+                raise RegionalSkewUnavailable(_no_study(huc))
             best = outer.iloc[int(outer["huc"].str.len().to_numpy().argmax())]
             region, rule = str(best["skew_region"]), str(best["rule"])
     if rule == "excluded":
@@ -586,14 +582,21 @@ def _no_study(huc: str) -> str:
     )
 
 
+def _membership_rows(huc: str, hucs: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Membership rows at or above ``huc`` (prefixes of it) and those inside it.
+
+    A listed unit *inside* the query with a different outcome makes a coarse
+    query ambiguous (e.g. a HUC8 part of which is Snake River Plain).
+    """
+    matches = hucs[[huc.startswith(h) for h in hucs["huc"]]]
+    finer = hucs[hucs["huc"].str.startswith(huc) & (hucs["huc"].str.len() > len(huc))]
+    return matches, finer
+
+
 def _has_membership(huc: str, huc_path: Union[str, Path, None] = None) -> bool:
     """True if a membership row covers ``huc``, or lies inside it."""
-    hucs = load_huc_table(huc_path)
-    listed = hucs["huc"]
-    return bool(
-        any(huc.startswith(h) for h in listed)
-        or (listed.str.startswith(huc) & (listed.str.len() > len(huc))).any()
-    )
+    matches, finer = _membership_rows(huc, load_huc_table(huc_path))
+    return not (matches.empty and finer.empty)
 
 
 def _state_fallback(
@@ -790,8 +793,7 @@ def regional_skew_at(
     Raises
     ------
     RegionalSkewUnavailable
-        No verified study covers the point and the state-level fallback does
-        not apply (see :func:`regional_skew_at_huc`); the HU12 is on a state
+        As :func:`regional_skew_at_huc` raises; and the HU12 is on a state
         border, no membership row covers it and ``state`` was not given (the
         message names the states WBD reports); or the HU12 crosses into a
         state the study does not cover.

@@ -21,16 +21,17 @@ on this library.
   - Multiple Grubbs-Beck test (MGBT) for low outlier detection
   - 90% confidence intervals (5%/95% limits)
   - Station / weighted / regional skew comparison
-  - Regional skew lookup by site or location where a verified study applies
-    (`flowfreq.regional_skew`; Pacific Northwest so far)
+  - Regional skew lookup by site or location (`flowfreq.regional_skew`): a row for all 56
+    jurisdictions, 34 verified against the cited USGS report, with a state-level fallback
+    where a state has one usable row (see Coverage below)
   - Native engine, or the vendored USGS peakfq 8.1.0 Fortran as a selectable engine
-- **Regional regression** — Offline USGS peak-flow regression equations for WA, OR, ID,
-  MT, CO, UT, WY, NM, AZ and NV with prediction intervals (`flowfreq.regression`).
-  Coverage has three tiers: 10 verified jurisdictions, 41 with an `nss_snapshot` set
-  harvested from the NSS web service and parsed by machine (unreviewed, so returned only on
-  `load_state(code, allow_nss_snapshot=True)`), and 5 (DC, VI, GU, MP, AS) with none.
-  Also StreamStats delineation, basin characteristics and NSS estimates
+- **Regional regression** — Offline USGS peak-flow regression equations with prediction
+  intervals (`flowfreq.regression`) for 51 of the 56 jurisdictions in three tiers (see
+  Coverage below). Also StreamStats delineation, basin characteristics and NSS estimates
   (`flowfreq.streamstats`)
+- **Ungaged-site estimates** — `estimate_at_site` / `flowfreq ungaged`: delineate the basin,
+  locate the NSS regression regions, evaluate the offline equations and report the
+  estimate with its provenance (see Ungaged sites below)
 - **Transposition** — Drainage-area-ratio transfer to ungaged sites, QPPQ daily-series
   transfer, and donor screening by basin similarity
 - **Low-Flow Frequency Analysis** — Annual minimum *n*-day mean flow (7Q10-style
@@ -168,6 +169,76 @@ fig = b17c.plot_frequency_curve(site_name=gage.site_name, site_no=gage.site_no)
 fig.savefig("frequency_curve.png", dpi=300, bbox_inches="tight")
 ```
 
+## Coverage
+
+Coverage is stated per jurisdiction in [`docs/REGRESSION_COVERAGE.md`](docs/REGRESSION_COVERAGE.md)
+(generated; do not edit by hand).
+
+**Regression equations** (the offline library, `flowfreq.regression`), three tiers:
+
+| Tier | Jurisdictions | What it is | How to use it |
+|------|---------------|------------|---------------|
+| Published (`verified`) | 10: WA, OR, ID, MT, CO, UT, WY, NM, AZ, NV | Transcribed from the cited USGS report, each checked against a worked example; Oregon also has a provisional set and Colorado a newer USGS set not yet in NSS | The default: `load_state("WA")` |
+| `nss_snapshot` | 41 (1817 equations) | Harvested from the USGS NSS web service and parsed by machine, 2026-10-25. Unreviewed, so never "verified". 26 equations NSS serves are not parsed and are listed in `StateLibrary.unparsed` | Opt in: `load_state(code, allow_nss_snapshot=True)`, `estimate_at_site(..., allow_nss_snapshot=True)`, `flowfreq ungaged --allow-nss-snapshot` |
+| None | 5: DC, VI, GU, MP, AS | NSS serves no peak-flow regions | Not available; the error says so |
+
+A published set always wins over a snapshot. A snapshot is a starting point, not a
+supported jurisdiction: check the equations against the cited report before relying on
+them.
+
+**Regional skew** (`flowfreq.regional_skew`): `data/regional_skew.csv` has 77 rows covering
+all 56 jurisdictions. 34 are `verified` (the value and MSE transcribed from the cited
+report and confirmed by a second check), 41 are `pending` (the report prints only the
+Bulletin 17B map, or readings disagree, or no study exists) and 2 are `provisional`
+(flowfreq-developed, opt-in with `allow_provisional=True`). Where no HUC membership is
+encoded for a unit and the state has exactly one usable row, that row is returned with a
+`STATE-LEVEL FALLBACK` advisory (`allow_state_fallback=False` turns it off). Where nothing
+applies, `RegionalSkewUnavailable` is raised: Bulletin 17C has no national default, so
+supply a published skew and its MSE yourself. The nationwide smoke run over every
+jurisdiction is in [`docs/NATIONWIDE_SMOKE.md`](docs/NATIONWIDE_SMOKE.md).
+
+## Ungaged sites
+
+```python
+from flowfreq import estimate_at_site
+
+est = estimate_at_site(48.3465, -120.1180, state="WA", aeps=[0.1, 0.01])
+print(est.to_markdown())      # regions, citations, quantiles, intervals, provenance
+est.quantiles                 # DataFrame: aep, flow_cfs, lower, upper, regions, ...
+est.provenance                # snap, delineation, library, regions, options, timestamp
+```
+
+```bash
+flowfreq ungaged --lat 48.3465 --lon -120.1180 --state WA --aep 0.01
+# Sycamore Creek, TN: three overlapping NSS sets, so a choice is required
+flowfreq ungaged --lat 36.320022 --lon -87.051194 --state TN --allow-nss-snapshot --region GC2016
+```
+
+`estimate_at_site` delineates the basin with StreamStats, asks NSS which regression regions
+the basin falls in, matches them to the offline library and evaluates the equations on the
+basin characteristics. A basin in several regions that partition it is area-weighted by
+NSS's `percent_weight`; one region gives its own prediction interval. Pass an at-site
+`FrequencyResults` as `at_site=` to weight it with the regression by Bulletin 17C
+Appendix 9 (single region only).
+
+- **Overlapping regions.** NSS serves superseded and current equation sets for the same
+  area side by side, each at its full weight. They are alternatives, never blended, so
+  flowfreq raises `OverlappingRegionsError` (exported from `flowfreq`) listing the candidates
+  with their citation year until `region=` (`--region` on the CLI) chooses one, by NSS code
+  or library region code, case-insensitively. The others are reported as alternatives. A
+  choice that covers only part of a boundary basin, a code that more than one located region
+  reaches, or a region not in use is refused with the reason.
+- **What is refused, and why.** `EquationsUnavailable` when the library has no equations for
+  the located regions (the snapshot tier needs its opt-in; DC and the territories have no
+  library); a region whose equations need a basin characteristic StreamStats could not
+  supply is skipped for the requested AEPs and recorded, not guessed; an input outside an
+  equation's calibrated range raises `OutOfRangeError` unless `allow_extrapolation=True`
+  (then it is flagged); an empty `aeps` is a `ValueError`. Every failure on the CLI is a
+  one-line message and exit 1.
+- **Not done yet.** A basin with overlapping sets on a region boundary (each side with its
+  own alternatives) cannot take a single `region=`; transposition from a nearby gage is a
+  separate step (`flowfreq.transpose`), not yet part of `estimate_at_site`.
+
 ## Module Overview
 
 | Module | Purpose |
@@ -180,6 +251,7 @@ fig.savefig("frequency_curve.png", dpi=300, bbox_inches="tight")
 | `flowfreq.regional_skew` / `flowfreq.skew_study` | Regional skew lookup; B-WLS/B-GLS regional skew development |
 | `flowfreq.regulation` / `flowfreq.catalog` | Regulation/urbanization screen; national gage catalog |
 | `flowfreq.regression` | Offline regional regression equations and evaluator |
+| `flowfreq.ungaged` | `estimate_at_site` — basin delineation, NSS region matching, regression estimate with provenance |
 | `flowfreq.streamstats` | StreamStats delineation, basin characteristics, NSS estimates |
 | `flowfreq.transpose` / `flowfreq.qppq` / `flowfreq.donor_similarity` | Transposition to ungaged sites, QPPQ, donor screening |
 | `flowfreq.future_flow` | Future-condition change-factor framework |
@@ -316,6 +388,9 @@ flowfreq benchmark --format json
 
 # Native vs Fortran engine on a peak CSV (needs the built Fortran extension)
 flowfreq compare --peaks peaks.csv --regional-skew -0.07 --regional-skew-se 0.4243
+
+# Regional-regression estimate at an ungaged site (see Ungaged sites)
+flowfreq ungaged --lat 48.3465 --lon -120.1180 --state WA
 ```
 
 ## Web Application
@@ -335,6 +410,8 @@ this library as a pinned dependency; see that repo's README to run or deploy it.
   - Per-skew frequency tables (RI 1.5–500 yr, 90% CI)
 - ZIP export: plots (PNG), daily flow CSV, frequency table, LP3 parameters
 - Multi-gage comparison table
+- Ungaged-site estimates with the overlapping-region choice (`estimate_at_site`; flowfreq-app
+  PR #7, pinned to flowfreq v0.16.0, adds the page once it is merged)
 
 ## Vignettes
 

@@ -7,7 +7,7 @@ sites, a weighted combination of the two where both exist, and documented method
 transposition, nonstationarity, and future-condition quantiles.
 
 **Status legend:** `[ ]` open · `[~]` partial (scaffolded; the linked issue carries the live status) · `[x]` done in this repo today.
-**Phase A epic:** [#27](https://github.com/pinhead001/flowfreq/issues/27) · **Wave 1 epic:** [#28](https://github.com/pinhead001/flowfreq/issues/28) (closed) · **Wave 2 states:** #93-#104 (§3.2; no epic issue) · status as of 2026-10-03 · generated per-state status: `docs/REGRESSION_COVERAGE.md`.
+**Phase A epic:** [#27](https://github.com/pinhead001/flowfreq/issues/27) · **Wave 1 epic:** [#28](https://github.com/pinhead001/flowfreq/issues/28) (closed) · **Wave 2 states:** #93-#104 (§3.2; no epic issue) · status as of 2026-10-25 · generated per-state status: `docs/REGRESSION_COVERAGE.md`.
 **Relationship to `TODO.md`:** `TODO.md` is the day-to-day log of open items and history.
 This file is the long-range plan. When an item here starts, give it an entry in `TODO.md`.
 
@@ -34,9 +34,10 @@ Standing rules carried over from this repo's history, which apply to every phase
 | USGS peak/daily/IV retrieval | [x] Water Data OGC API by default (peaks, IV, daily), API key and 429 backoff; legacy NWIS via `backend="nwis-legacy"` | `usgs.py`, `peak_sources.py`, `waterdata.py` |
 | StreamStats delineation + basin characteristics | [x] Phase 1, with validated watershed polygon | `streamstats.py` |
 | NSS regression evaluation via web service | [x] PFS and LFS verified live in WA; regions selected by watershed polygon | `streamstats.py` |
-| Regional skew | [~] verified PNW rows (WA/OR/ID) and Arizona; location lookup by hydrologic unit (`regional_skew_at`, `regional_skew_for_site`); B-WLS/B-GLS tooling; MT and the rest of Wave 2 pending (§1.3) | `regional_skew.py`, `skew_study.py`, `data/regional_skew*.csv` |
+| Regional skew | [~] a row for all 56 jurisdictions (77 rows: 34 verified, 41 pending, 2 provisional); lookup by hydrologic unit membership (`regional_skew_at`, `regional_skew_for_site`) with a state-level fallback to the state's one usable row where no membership is encoded; B-WLS/B-GLS tooling; the pending rows await a published study or a reading of the report (§1.3) | `regional_skew.py`, `skew_study.py`, `data/regional_skew*.csv` |
 | Offline regression-equation library | [~] schema, evaluator and NSS snapshot tool; 10 states transcribed (Wave 1 and Wave 2), all 10 `verified`; a further 41 jurisdictions carry an opt-in `nss_snapshot` set (2026-10-25, 1817 equations) | `regression/`, `data/regression/`, `tools/snapshot_nss.py` |
-| Gage/regression weighting (B17C App. 9 style) | [ ] | — |
+| Gage/regression weighting (B17C App. 9 style) | [x] inverse-variance weighting from `confidence_limits["variance_log"]`; used by `estimate_at_site(at_site=...)` for a single region | `gage_weighting.py` |
+| Ungaged-site estimate (`estimate_at_site`) | [x] regression branch (§4): StreamStats basin, NSS regions, offline equations, provenance; overlapping sets need `region=`; CLI `flowfreq ungaged`. The transposition branch is open | `ungaged.py`, `cli.py` |
 | Drainage-area-ratio transposition | [x] | `transpose.py` |
 | QPPQ daily-series transfer | [x] | `qppq.py` |
 | Record extension (MOVE) | [~] MOVE.1 for daily records; MOVE.3 / App. 8 peaks open | `record_extension.py` |
@@ -159,6 +160,13 @@ Standing rules carried over from this repo's history, which apply to every phase
 
       The Snake River Plain was tested and is not feasible: 2 usable gages
       (`docs/SNAKE_RIVER_PLAIN_SKEW.md`).
+- [x] **Rows for all 56 jurisdictions, and a state-level fallback** (0.16.0, #195/#196).
+      `regional_skew.csv` has 77 rows (34 `verified`, 41 `pending`, 2 `provisional`). Lookup
+      is no longer membership-only: where no HUC membership row covers a unit and the state
+      has exactly one usable row, that row is returned with a `STATE-LEVEL FALLBACK`
+      advisory (`allow_state_fallback=False` restores the raise). A unit with a membership
+      row that excludes it or leaves it unresolved still raises. Open: HUC membership rows
+      for the 15 new studies, and a nationwide HUC8-states table (§4 follow-ups).
 - [x] Tooling to **develop a new regional skew** (B-WLS/B-GLS, Veilleux/Reis-Stedinger) for
       jurisdictions without one. This is lower priority and research-grade.
       `flowfreq.skew_study`: B-WLS/B-GLS with a correlation-distance cross-correlation model
@@ -367,16 +375,37 @@ Per wave, the definition of done:
 
 ## 4. Ungaged-site estimation workflow
 
-A single entry point, `estimate_at_site(lat, lon, …)`, that decides and documents:
+A single entry point, `estimate_at_site(lat, lon, …)`, that decides and documents. Shipped in
+0.16.0 (#197) as `flowfreq.ungaged.estimate_at_site` and `flowfreq ungaged`; the regression
+branch and the at-site weighting for a single region are done, the transposition branch is
+open.
 
-- [ ] **On a gage** → B17C at-site, weighted with RRE (§2).
+- [~] **On a gage** → B17C at-site, weighted with RRE (§2). `at_site=` takes a
+      `FrequencyResults` and weights it with the regression by Appendix 9 for a basin in a
+      single region; choosing the gage from the point is not done.
 - [ ] **Near a gage on the same stream** (area ratio within the state's band, typically
-      0.5–1.5) → regression-weighted transposition (§5.1).
-- [ ] **Otherwise** → RRE (offline or NSS), with prediction intervals.
-- [ ] Every result carries full provenance: method chosen and why, donor(s), equations,
-      citations, out-of-range flags, and the per-quantile arithmetic (as
-      `TransposedResults.to_markdown` does today).
+      0.5–1.5) → regression-weighted transposition (§5.1). Open: `estimate_at_site` does
+      not look for a donor; `flowfreq.transpose` does the transfer once a caller picks one.
+- [x] **Otherwise** → RRE (offline or NSS), with prediction intervals. Overlapping NSS
+      equation sets are alternatives, so the caller chooses with `region=`.
+- [x] Every result carries full provenance: regions located, used and set aside, library
+      status and file, basin characteristics, out-of-range inputs and options (`SiteEstimate.provenance`);
+      the per-quantile arithmetic for a transposition is still `TransposedResults.to_markdown`.
 - [ ] Report output suitable for a FEMA/DOT submittal (`report.py` extension).
+
+Follow-ups found by the 0.16.0 rollout reviews (recorded in `TODO.md`):
+
+- [ ] **Multi-code `region=`** for boundary basins where each side has its own overlapping
+      sets: today one `region=` cannot cover the whole basin and the call is refused.
+- [ ] **NSS region mismatches** the nationwide smoke run found (MN, NV, WY, and any from its
+      rerun), where the located NSS region has no library region; see
+      `docs/NATIONWIDE_SMOKE.md`.
+- [ ] **States that need a region choice** by default (overlapping sets at every point),
+      listed in the smoke report: decide whether to prefer the newest set.
+- [ ] **HUC membership rows** for the 15 new skew studies, so they resolve by unit and not
+      only through the state-level fallback.
+- [ ] **A nationwide HUC8-states table** (`regional_skew_huc8_states.csv` lists only some
+      HUC8s), so a border HU12 resolves its state without `state=`.
 
 ---
 
