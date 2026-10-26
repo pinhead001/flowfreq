@@ -198,6 +198,14 @@ class TestAssemble:
         with pytest.raises(EquationsUnavailable, match="GC8"):
             assemble(LIB, regions, CHARS, **KW)
 
+    def test_no_located_region_says_nss_located_none(self):
+        with pytest.raises(
+            EquationsUnavailable,
+            match=r"XX: NSS located no regression region for this basin.*check the state "
+            r"and that the point is on a stream NSS covers",
+        ):
+            assemble(LIB, [], CHARS, **KW)
+
     def test_zero_weight_region_is_dropped_before_evaluation(self):
         # NSS rounds percent_weight to a whole percent, so a sliver arrives as 0. GC4
         # would need PRECIP (missing) and, with DRNAREA out of range, would raise
@@ -246,6 +254,28 @@ class TestAssemble:
         assert a.missing == {"GC4": ["PRECIP"]}
         assert list(a.quantiles["aep"]) == [0.002]
         assert a.quantiles.loc[0, "flow_cfs"] == pytest.approx(_flow("GC1", 0.002))
+
+    def test_missing_characteristic_checks_only_the_requested_aeps(self):
+        # R4 needs PRECIP at 0.01 alone: requesting the others leaves it evaluable, and
+        # it is skipped only when the request reaches the AEP whose equation needs it.
+        eqs = [e for e in LIB.equations if e.region_code != "R4"]
+        for i, aep in enumerate(AEPS):
+            kw: Dict[str, Any] = dict(region_name="Region 4 (NSS GC4)")
+            if aep == 0.01:
+                kw.update(variables=(AREA, PRECIP), coefficients=(0.7, 0.01))
+            eqs.append(_eq("R4", aep, 1.0 + 0.3 * i, **kw))
+        lib = StateLibrary(state="XX", status="verified", equations=eqs, advisory="")
+        regions = [_region("GC1", 50.0), _region("GC4", 50.0)]
+        a = assemble(lib, regions, CHARS, **{**KW, "aeps": [0.5, 0.1]})
+        assert a.missing == {}
+        assert a.used == regions
+        assert [e.equation.region_code for _, e in a.estimates[0.1]] == ["GC1", "R4"]
+        a = assemble(lib, regions, CHARS, **{**KW, "aeps": [0.5, 0.01]})
+        assert a.missing == {"GC4": ["PRECIP"]}
+        assert a.used == [regions[0]]
+        # No request: every published AEP is checked, as before.
+        a = assemble(lib, regions, CHARS, **KW)
+        assert a.missing == {"GC4": ["PRECIP"]}
 
     def test_every_region_missing_a_characteristic_raises(self):
         with pytest.raises(EquationsUnavailable, match="GC4 needs PRECIP"):
@@ -348,7 +378,8 @@ class TestSiteEstimate:
         assert "GC3" in text  # the unmatched region is reported, not silently dropped
         assert "Synthetic advisory text." in text
         assert "DRNAREA" in text and "100" in text
-        assert "| 0.01 |" in text
+        assert "| AEP (%) | Flow (cfs) |" in text
+        assert "| 1 |" in text
         assert "none: area-weighted across 2 regions" in text
 
     def test_to_markdown_two_nss_codes_on_one_library_region(self):
@@ -448,6 +479,22 @@ class TestOverlappingRegions:
         assert len(a.used) == 2 and a.alternatives == []
         with pytest.raises(OverlappingRegionsError):
             assemble(LIB, [_region("GC1", 100.0), _region("GC2", 2.0)], CHARS, **KW)
+
+    def test_four_region_partition_within_rounding_is_averaged(self):
+        # 25.5/25.5/25.5/23.5 rounds to 26/26/26/24 = 102: a partition, not an overlap.
+        regions = [
+            _region("GC1", 26.0),
+            _region("GC2", 26.0),
+            _region("GC4", 26.0),
+            _region("R2", 24.0),
+        ]
+        chars = {"DRNAREA": 100.0, "PRECIP": 30.0}
+        a = assemble(LIB, regions, chars, **{**KW, "aeps": [0.1]})
+        assert a.alternatives == [] and a.used == regions
+        assert [f for f, _ in a.estimates[0.1]] == pytest.approx(
+            [26 / 102, 26 / 102, 26 / 102, 24 / 102]
+        )
+        assert a.quantiles.loc[0, "interval_method"] == "none: area-weighted across 4 regions"
 
     def test_unknown_region_choice_raises_naming_candidates(self):
         regions = [_region("GC1", 100.0), _region("GC2", 100.0)]
@@ -854,6 +901,26 @@ class TestEstimateAtSite:
         with pytest.raises(ValueError, match="WA: StreamStats returned no watershed polygon"):
             estimate_at_site(WA_LAT, WA_LON, state="WA")
         assert fakes.locate_calls == []
+
+    def test_unknown_weighting_space_is_refused_before_any_call(self, fakes, monkeypatch):
+        def no_library(*args: Any, **kw: Any) -> None:
+            raise AssertionError("the library must not be loaded")
+
+        monkeypatch.setattr("flowfreq.ungaged._load_library", no_library)
+        with pytest.raises(ValueError, match="weighting_space"):
+            estimate_at_site(WA_LAT, WA_LON, state="WA", weighting_space="geometric")
+        assert fakes.delineate_calls == [] and fakes.locate_calls == []
+
+    def test_at_site_without_variance_log_is_refused_before_streamstats(
+        self, fakes, big_sandy_results
+    ):
+        import copy
+
+        stale = copy.copy(big_sandy_results)
+        stale.confidence_limits = big_sandy_results.confidence_limits.drop(columns=["variance_log"])
+        with pytest.raises(ValueError, match="no 'variance_log' column"):
+            estimate_at_site(WA_LAT, WA_LON, state="WA", at_site=stale)
+        assert fakes.delineate_calls == [] and fakes.locate_calls == []
 
     def test_overlapping_regions_need_a_choice(self, fakes):
         for r in fakes.regions:

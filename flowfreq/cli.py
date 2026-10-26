@@ -275,7 +275,10 @@ def compare(
     "aeps",
     type=click.FloatRange(0.0, 1.0, min_open=True, max_open=True),
     multiple=True,
-    help="Annual exceedance probability (fraction); repeat for several. Default: the standard set.",
+    help=(
+        "Annual exceedance probability (fraction); repeat for several. Default: every AEP "
+        "that all the regression regions used publish."
+    ),
 )
 @click.option(
     "--allow-nss-snapshot",

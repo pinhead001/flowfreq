@@ -17,8 +17,10 @@ Assembly rules
 - A matched region with ``percent_weight`` 0 (NSS rounds to a whole percent, so a sliver
   under 0.5% arrives as 0) contributes nothing and is dropped before anything is
   evaluated, so a basin effectively in one region keeps that region's interval.
-- A matched region whose equations (at any AEP it publishes) need a characteristic the
-  basin does not carry is skipped and the missing codes are reported by its NSS code.
+- A matched region whose equations need a characteristic the basin does not carry is
+  skipped and the missing codes are reported by its NSS code. The equations checked are
+  those at the requested AEPs when the region publishes every one of them, else (no
+  request, or a requested AEP it does not publish) every AEP it publishes.
 - The default AEPs are those every region that remains publishes, largest first; none in
   common raises :class:`~flowfreq.regression.library.EquationsUnavailable`.
 - NSS serves superseded and current equation sets for one area side by side, each at
@@ -301,7 +303,12 @@ def assemble(
         Basin characteristics keyed by StreamStats code.
     aeps : sequence of float, optional
         AEPs to estimate, kept in the caller's order. ``None`` means every AEP all the
-        regions used publish, largest first.
+        regions used publish, largest first. A region is skipped for a characteristic
+        the basin lacks only if an equation it would be evaluated with needs it: the
+        equations at these AEPs when the region publishes every one of them, else
+        (``None``, or a requested AEP the region does not publish) every equation it
+        publishes, so a region that lacks a characteristic is skipped before an
+        unpublished requested AEP could be raised for it.
     allow_extrapolation : bool
         Evaluate outside an equation's calibrated range and flag the row, instead of
         raising :class:`~flowfreq.regression.equations.OutOfRangeError`.
@@ -312,8 +319,9 @@ def assemble(
         The region to use when the regions overlap, by NSS code or library
         ``region_code``. Overlap means the ``percent_weight`` of the regions remaining
         after the zero-weight and missing-characteristic steps sums to more than 100 %
-        plus NSS's rounding tolerance (the 1.5 points ``streamstats`` allows); the
-        chosen region is then used alone (fraction 1.0) and the others are returned in
+        plus NSS's rounding tolerance (the 1.5 points ``streamstats`` allows, or half a
+        point per region when that is more, since each weight is rounded to a whole
+        percent); the chosen region is then used alone (fraction 1.0) and the others are returned in
         ``alternatives``; it must cover the whole basin (``percent_weight`` within the
         tolerance of 100). A partition is unaffected; ``region`` naming one of its
         regions is accepted as a no-op. A ``region`` naming no region in use is always
@@ -331,10 +339,12 @@ def assemble(
     EquationsUnavailable
         If ``region`` names no region in use on a basin without overlap (the message
         says why when NSS located it: no library region, zero weight, or a missing
-        characteristic). If no located region matches the library; if every matched region has zero
-        weight or lacks a basin characteristic; if the regions used publish no AEP in
-        common and none was requested; or if a requested AEP is not published for a
-        region used.
+        characteristic).
+
+        If NSS located no region, or no located region matches the library; if every
+        matched region has zero weight or lacks a basin characteristic; if the regions
+        used publish no AEP in common and none was requested; or if a requested AEP is
+        not published for a region used.
     OutOfRangeError
         If an input is outside its range and ``allow_extrapolation`` is False.
     ValueError
@@ -350,6 +360,11 @@ def assemble(
             unmatched.append(loc)
         else:
             matched.append((loc, lib_code))
+    if not regions:
+        raise EquationsUnavailable(
+            f"{lib.state}: NSS located no regression region for this basin in "
+            f"{lib.state}; check the state and that the point is on a stream NSS covers"
+        )
     if not matched:
         raise EquationsUnavailable(
             f"{lib.state}: none of the located NSS regions ({_codes(regions)}) matches a "
@@ -376,10 +391,18 @@ def assemble(
     missing: Dict[str, List[str]] = {}
     used: List[Tuple[RegressionRegionLocation, str]] = []
     for loc, lib_code in weighted:
-        # Every equation the region publishes, whatever AEPs were requested: a region
-        # that lacks a characteristic is skipped before an unpublished requested AEP
-        # could be raised for it.
-        check = lib.aeps(lib_code)
+        # The equations at the requested AEPs when the region publishes every one of
+        # them, so an equation the request never reaches cannot skip the region. Else
+        # (no request, or a requested AEP it does not publish) every equation it
+        # publishes: a region that lacks a characteristic is then skipped before an
+        # unpublished requested AEP could be raised for it.
+        published = list(lib.aeps(lib_code))
+        check = published
+        # The same 1e-12 match lib.equation uses.
+        if aeps is not None and all(
+            any(abs(p - float(a)) < 1e-12 for p in published) for a in aeps
+        ):
+            check = [float(a) for a in aeps]
         absent = [c for c in _needed_codes(lib, lib_code, check) if c not in characteristics]
         if absent:
             missing[loc.code] = absent
@@ -410,7 +433,10 @@ def assemble(
         if chosen is None:
             why = _why_not_in_use(choice, regions, region_codes, unmatched, zero_weight, missing)
 
-    overlap = sum(r.percent_weight for r, _ in used) > 100.0 + _PERCENT_WEIGHT_TOL
+    # NSS rounds each percent_weight to a whole percent, so an N-region partition sums
+    # to 100 +/- 0.5 N; a real overlap sums to about 200, so scaling cannot mask one.
+    overlap_tol = max(_PERCENT_WEIGHT_TOL, 0.5 * len(used))
+    overlap = sum(r.percent_weight for r, _ in used) > 100.0 + overlap_tol
     if choice is not None and chosen is None and not overlap:
         raise EquationsUnavailable(
             f"{lib.state}: region {choice!r} is not in use: "
@@ -665,13 +691,14 @@ class SiteEstimate:
         if len(self.quantiles):
             lines.extend(
                 [
-                    "| AEP | Flow (cfs) | Lower | Upper | Level | Interval | Extrapolated | Regions |",
+                    "| AEP (%) | Flow (cfs) | Lower | Upper | Level | Interval | Extrapolated "
+                    "| Regions |",
                     "|---:|---:|---:|---:|---:|---|---|---|",
                 ]
             )
             for _, row in self.quantiles.iterrows():
                 lines.append(
-                    f"| {row['aep']:g} | {row['flow_cfs']:,.0f} | {_cfs(row['lower'])} | "
+                    f"| {row['aep'] * 100:g} | {row['flow_cfs']:,.0f} | {_cfs(row['lower'])} | "
                     f"{_cfs(row['upper'])} | {_level(row['interval_level'])} | "
                     f"{row['interval_method']} | {'yes' if row['extrapolated'] else 'no'} | "
                     f"{row['regions']} |"
@@ -836,9 +863,9 @@ def estimate_at_site(
         ``library`` (status, file, retrieval date), ``regions_located`` (every region
         NSS returned, before matching), ``missing_characteristics``,
         ``zero_weight_regions``, ``alternative_regions`` (the overlapping regions
-        set aside by ``region``, with citation and year), ``out_of_range`` (AEP to NSS
-        code to the inputs
-        outside their range), ``weighting``, ``options`` and ``estimated_at_utc``.
+        set aside by ``region``, with citation and year), ``out_of_range`` (AEP to
+        NSS code to the inputs outside their range), ``weighting``, ``options`` and
+        ``estimated_at_utc``.
 
     Raises
     ------
@@ -859,6 +886,15 @@ def estimate_at_site(
     StreamStatsTransportError
         From StreamStats, unchanged.
     """
+    if weighting_space not in ("log", "linear"):
+        raise ValueError(f"weighting_space must be 'log' or 'linear', got {weighting_space!r}")
+    cl = at_site.confidence_limits if at_site is not None else None
+    if at_site is not None and (cl is None or "variance_log" not in cl.columns):
+        # weight_with_regression's own refusal, raised before the StreamStats calls.
+        raise ValueError(
+            "results.confidence_limits has no 'variance_log' column; rerun the analysis "
+            "with this version of flowfreq"
+        )
     code = jurisdiction(state).code
     lib = _load_library(
         code,
