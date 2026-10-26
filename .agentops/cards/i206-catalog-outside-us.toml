@@ -1,0 +1,23 @@
+id = "i206-catalog-outside-us"
+repo = "flowfreq"
+title = "Catalog build: skip located sites with no US state instead of filing them under the queried state (#206)"
+base = "spec/i206-catalog-outside-us"
+model = "gemini-3.8-flash-high"
+prompt = """
+Outcome: in `flowfreq.catalog.build_rows`, `default_state` applies only to a site that has
+no location record at all. A site whose location record exists but names no state (its
+`location_fields(...)["state"]` is None, i.e. it lies outside every US state, like gage
+15388960 in the Yukon) is skipped, and a warning naming the site number is logged on a
+module logger `logging.getLogger(__name__)` in flowfreq/catalog.py.
+
+Files to read: flowfreq/catalog.py (`location_fields`, `build_rows`).
+Files to edit: flowfreq/catalog.py only.
+
+Tests (already written, do not edit): tests/test_catalog_outside_us.py.
+
+Constraints: update the `build_rows` docstring (`locations` and `default_state` entries) to
+say this; do not regenerate or edit flowfreq/data/gage_catalog.csv.gz (the lead rebuilds it
+with the live tool after merge). Add a one-line entry under "## [Unreleased]" ->
+"### Fixed" in CHANGELOG.md.
+"""
+acceptance = "python -m pytest tests/test_catalog_outside_us.py tests/test_catalog.py -q -p no:cacheprovider"

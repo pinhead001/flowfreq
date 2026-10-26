@@ -1,0 +1,24 @@
+id = "i214-snapshot-warning"
+repo = "flowfreq"
+title = "load_state(warn=False): opt-in sets load without the logged advisory (#214)"
+base = "spec/i214-snapshot-warning"
+model = "gemini-3.8-flash-high"
+prompt = """
+Outcome: `flowfreq.regression.library.load_state` gains a keyword-only `warn: bool = True`.
+When an opt-in set (provisional, awaiting_nss or nss_snapshot) is returned, its advisory is
+still set on `StateLibrary.advisory`; it is logged with `logger.warning` when `warn` is True
+(today's behavior) and with `logger.debug` when `warn` is False. The coverage report tool
+passes `warn=False` so a sweep over the 41 snapshot jurisdictions logs no warnings.
+
+Files to read: flowfreq/regression/library.py (functions `_load_opt_in` and `load_state`),
+tools/gen_regression_coverage.py.
+Files to edit: flowfreq/regression/library.py, tools/gen_regression_coverage.py.
+
+Tests (already written, do not edit): tests/test_load_state_warn.py.
+
+Constraints: pass `warn` through to `_load_opt_in`; document `warn` in the `load_state`
+NumPy docstring Parameters section; keep the advisory text unchanged; no other callers
+change. Add a one-line entry under "## [Unreleased]" -> "### Changed" in CHANGELOG.md
+(create the "### Changed" heading if absent).
+"""
+acceptance = "python -m pytest tests/test_load_state_warn.py tests/test_regression_nss_snapshot.py tests/test_catalog.py -q -p no:cacheprovider"

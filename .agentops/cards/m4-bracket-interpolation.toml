@@ -1,0 +1,41 @@
+id = "m4-bracket-interpolation"
+repo = "flowfreq"
+title = "interpolate_between_gages: log-area blend of two bracketing gages' transfers (methow item 4)"
+base = "spec/m4-bracket-interpolation"
+model = "gemini-3.8-flash-high"
+prompt = """
+Outcome: two new public functions in flowfreq/transpose.py, after `transpose_frequency`,
+upstreamed from a consumer project's bracketing code (the behavior is fully specified here
+and by the tests; you do not need the consumer's code).
+
+1. `bracket_weight(up_area_sqmi: float, down_area_sqmi: float, target_area_sqmi: float)
+   -> float`: the weight on the upstream gage, `ln(Ad / At) / ln(Ad / Au)`: 1 at the
+   upstream gage, 0 at the downstream one, linear in log drainage area between. Raise
+   ValueError (message contains "between") unless `0 < Au <= At <= Ad` and `Au != Ad`.
+
+2. `interpolate_between_gages(up_results: FrequencyResults, up_area_sqmi: float,
+   down_results: FrequencyResults, down_area_sqmi: float, target_area_sqmi: float,
+   exponents: RegressionExponents, **transpose_options: Any) -> pd.DataFrame`:
+   compute the weight first (so a bad target raises before any transfer); transpose each
+   gage to the target with `transpose_frequency(..., **transpose_options)` (so options
+   such as `area_ratio_range`, `max_aep`, regulation arguments reach both transfers); keep
+   the AEPs both transfers carry (match on AEP rounded to 6 decimals, in the upstream
+   transfer's order); return columns exactly `aep`, `flow_cfs` (=
+   `exp(w ln Qu + (1 - w) ln Qd)`), `upstream_flow_cfs`, `downstream_flow_cfs`,
+   `weight_upstream` (w on every row).
+
+NumPy docstrings on both, including a Notes section saying: the blend trusts both gages
+equally at their own sites, so the caller must not bracket two records from different eras
+or across a regulation change; and how it differs from
+`flowfreq.transfer_variance.combine` (that weights transfers by inverse variance and does
+not reproduce either gage at its own site; this one does, by construction). Export both
+from flowfreq/__init__.py only if `transpose_frequency` is exported there (check; match it).
+
+Files to read: flowfreq/transpose.py (`transpose_frequency`, `TransposedResults`),
+flowfreq/__init__.py. Files to edit: flowfreq/transpose.py, flowfreq/__init__.py (if
+applicable), CHANGELOG.md (one line under "## [Unreleased]" -> "### Added").
+
+Tests (already written, do not edit): tests/test_bracket_interpolation.py; the existing
+tests/test_transpose.py must still pass.
+"""
+acceptance = "python -m pytest tests/test_bracket_interpolation.py tests/test_transpose.py -q -p no:cacheprovider"

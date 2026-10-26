@@ -1,0 +1,30 @@
+id = "i210-smoke-points"
+repo = "flowfreq"
+title = "nationwide_smoke --points: per-state pour-point overrides for the ungaged estimate (#210)"
+base = "spec/i210-smoke-points"
+model = "gemini-3.8-flash-high"
+prompt = """
+Outcome: tools/nationwide_smoke.py accepts `--points FILE`, a CSV with header
+`state,lat,lon,note` giving a hand-picked pour point per state for the ungaged estimate
+(StreamStats exposes no snap distance, so unsnappable gage coordinates need a manual point).
+
+1. `load_points(path: Path) -> Dict[str, Dict[str, Any]]`: state code (uppercased) to
+   `{"lat": float, "lon": float, "note": str}`. Raise ValueError when a required column
+   (state, lat, lon) is missing (message names the column), or for a row with a
+   non-numeric or out-of-range coordinate (lat outside [-90, 90], lon outside
+   [-180, 180]) or a duplicate state (message names the state). `note` is optional
+   (empty string when absent or blank). Use the csv module.
+2. `smoke_one(row, *, allow_nss_snapshot=True, point=None)`: with `point`, the
+   `estimate_at_site` call uses `point["lat"]`, `point["lon"]`; the gaged fit is unchanged.
+   The result dict gains `"ungaged_point"`: `"gage"` without a point, else
+   `"override: <note>"`.
+3. `write_report`: the Results table gains a `Point` column after `Library`, showing
+   `row.get("ungaged_point") or "gage"` (older cached rows lack the key).
+4. `main`: `--points` (type Path, optional); when given, call `load_points` and pass
+   `point=points.get(j.code)` to `smoke_one`. Update the module docstring's Usage.
+
+Files to read and edit: tools/nationwide_smoke.py only.
+Tests (already written, do not edit): tests/test_nationwide_smoke_points.py, and the existing
+tests/test_nationwide_smoke.py must still pass.
+"""
+acceptance = "python -m pytest tests/test_nationwide_smoke_points.py tests/test_nationwide_smoke.py -q -p no:cacheprovider"

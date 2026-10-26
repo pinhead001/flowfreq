@@ -172,8 +172,15 @@ notes trimmed, and `regional_skew_at_huc`'s docstring and membership predicate.
 - [x] **`tools/agentops/`**, ported from flowfield2d: runner, governor profiles, usage meter,
       hooks (`docs/AGENTOPS.md`). The hooks and status line still need merging into
       `.claude/settings.json` from `tools/agentops/settings.example.json` (owner action).
-- [ ] **First card batch**: #203, #206, #210, #214 and methow-flow items 4, 7 and 12, each with
-      failing tests on `spec/<id>` and a card in `.agentops/cards/`.
+- [~] **First card batch** (2026-10-26): six cards in `.agentops/cards/`, each with its failing
+      tests on `spec/<id>`: `i214-snapshot-warning`, `i206-catalog-outside-us`,
+      `i210-smoke-points`, `i203-multi-region` (Sonnet: subtle `assemble` control flow),
+      `m12-bootstrap-power`, `m4-bracket-interpolation`. Next: `cards add` them and `cards run`
+      on a machine with agy, then review each `card/<id>` and open its PR. After #206 merges,
+      rebuild the catalog for DC live (`tools/build_gage_catalog.py --states DC`).
+- [ ] **Methow item 7 (monthly/duration transfer variance) is not carded**: its open
+      questions (exponent `b` per month, sampling covariance of monthly means across nested
+      gages, zero-flow months) are the owner's decisions; card it once they are made.
 
 ### Priorities for methow-flow (set 2026-10-21)
 
