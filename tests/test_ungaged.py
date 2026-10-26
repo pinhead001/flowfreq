@@ -506,6 +506,12 @@ class TestOverlappingRegions:
             a = assemble(LIB, regions, CHARS, region=choice, **KW)
             assert [r.code for r in a.used] == ["GC2"]
 
+    def test_lower_case_choice_still_gets_the_specific_reason(self):
+        regions = [_region("GC1", 100.0), _region("GC4", 100.0)]
+        with pytest.raises(EquationsUnavailable, match="GC4") as info:
+            assemble(LIB, regions, CHARS, region="gc4", **KW)
+        assert "PRECIP" in str(info.value) and "skipped" in str(info.value)
+
     def test_library_code_shared_by_two_nss_codes_is_ambiguous(self):
         # GC3 and GC5 both reach library region R3 through its name: "R3" cannot pick one.
         lib = StateLibrary(
@@ -936,6 +942,11 @@ class TestEstimateAtSite:
         monkeypatch.setattr("flowfreq.ungaged._load_library", no_library)
         with pytest.raises(ValueError, match="weighting_space"):
             estimate_at_site(WA_LAT, WA_LON, state="WA", weighting_space="geometric")
+        assert fakes.delineate_calls == [] and fakes.locate_calls == []
+
+    def test_empty_aeps_are_refused_before_any_call(self, fakes):
+        with pytest.raises(ValueError, match="aeps must be non-empty"):
+            estimate_at_site(WA_LAT, WA_LON, state="WA", aeps=[])
         assert fakes.delineate_calls == [] and fakes.locate_calls == []
 
     def test_at_site_without_variance_log_is_refused_before_streamstats(

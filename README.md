@@ -210,7 +210,8 @@ est.provenance                # snap, delineation, library, regions, options, ti
 
 ```bash
 flowfreq ungaged --lat 48.3465 --lon -120.1180 --state WA --aep 0.01
-flowfreq ungaged --lat 48.3465 --lon -120.1180 --state WA --region GC1753   # where regions overlap
+# Sycamore Creek, TN: three overlapping NSS sets, so a choice is required
+flowfreq ungaged --lat 36.320022 --lon -87.051194 --state TN --allow-nss-snapshot --region GC2016
 ```
 
 `estimate_at_site` delineates the basin with StreamStats, asks NSS which regression regions

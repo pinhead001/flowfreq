@@ -227,8 +227,9 @@ def _why_not_in_use(
 
     ``None`` when ``choice`` names no located region at all.
     """
+    wanted = choice.upper()
     for loc in regions:
-        if loc.code != choice and region_codes.get(loc.code) != choice:
+        if loc.code.upper() != wanted and region_codes.get(loc.code, "").upper() != wanted:
             continue
         if any(u is loc for u in unmatched):
             return f"NSS located {loc.code}, but there is no library region for it"
@@ -896,7 +897,7 @@ def estimate_at_site(
     OutOfRangeError
         An input outside its calibrated range without ``allow_extrapolation``.
     ValueError
-        An unknown ``weighting_space``; a weighted ``Q=0`` in log space; or an
+        An unknown ``weighting_space``; an empty ``aeps``; a weighted ``Q=0`` in log space; or an
         ``at_site`` whose ``confidence_limits`` lack ``variance_log``.
     UnsnappablePointError, DegenerateDelineationError, StreamStatsResponseError, \
     StreamStatsTransportError
@@ -904,6 +905,8 @@ def estimate_at_site(
     """
     if weighting_space not in ("log", "linear"):
         raise ValueError(f"weighting_space must be 'log' or 'linear', got {weighting_space!r}")
+    if aeps is not None and len(aeps) == 0:
+        raise ValueError("aeps must be non-empty (use None for the regions' common AEPs)")
     if at_site is not None:
         # weight_with_regression's own refusal, raised before the StreamStats calls.
         require_variance_log(at_site)
