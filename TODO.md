@@ -178,9 +178,13 @@ notes trimmed, and `regional_skew_at_huc`'s docstring and membership predicate.
       `m12-bootstrap-power`, `m4-bracket-interpolation`. Next: `cards add` them and `cards run`
       on a machine with agy, then review each `card/<id>` and open its PR. After #206 merges,
       rebuild the catalog for DC live (`tools/build_gage_catalog.py --states DC`).
-- [ ] **Methow item 7 (monthly/duration transfer variance) is not carded**: its open
-      questions (exponent `b` per month, sampling covariance of monthly means across nested
-      gages, zero-flow months) are the owner's decisions; card it once they are made.
+- [~] **Methow item 7, part 1 carded** (`m7-monthly-transfer`, Sonnet). Owner decisions,
+      2026-10-26: transfer by the runoff-volume ratio `(At Rt)/(Ag Rg)` with exponent 1
+      (as production, METHOW_METHODS §12); sampling variance and covariance from concurrent
+      water years (delta method for the mean, bivariate-normal asymptotics for the median);
+      zero-flow gage-months excluded and reported. Statistics: the mean and the median of
+      the yearly monthly means (the hydraulic handoff uses May and September medians).
+      Part 2: monthly leave-one-out and blend; part 3: duration quantiles (q10, q50, q90).
 
 ### Priorities for methow-flow (set 2026-10-21)
 
@@ -214,7 +218,8 @@ Tier 2 -- fixes known Methow biases or moves general code upstream:
 
 Tier 3 -- ordered for the per-reach monthly mean flows (WY1992-2025) that every EDT flow
 attribute in methow-flow waits on (`docs/EDT_ATTRIBUTE_CROSSWALK.md` §6 there):
-7. [ ] **Transfer variance for monthly and duration flows** (§5.1). Extend
+7. [~] **Transfer variance for monthly and duration flows** (§5.1); decisions made
+       2026-10-26, part 1 carded (Agent ops, below). Extend
        `transfer_variance` from flood quantiles to a monthly mean per calendar month and
        to duration quantiles: pairs and `s2_d` fitted per month, the GLS blend and
        leave-one-out unchanged. Open questions: the exponent `b` per month (no
