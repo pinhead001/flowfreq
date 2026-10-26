@@ -393,15 +393,18 @@ open.
       the per-quantile arithmetic for a transposition is still `TransposedResults.to_markdown`.
 - [ ] Report output suitable for a FEMA/DOT submittal (`report.py` extension).
 
+Status, 2026-10-25 smoke run: 56 of 56 gaged (55 valid; DC is a catalog defect), 30 of 56
+ungaged. See [`docs/NATIONWIDE_SMOKE.md`](NATIONWIDE_SMOKE.md).
+
 Follow-ups found by the 0.16.0 rollout reviews (recorded in `TODO.md`):
 
 - [ ] **Multi-code `region=`** for boundary basins where each side has its own overlapping
       sets: today one `region=` cannot cover the whole basin and the call is refused.
-- [ ] **NSS region mismatches** the nationwide smoke run found (MN, NV, WY, and any from its
-      rerun), where the located NSS region has no library region; see
-      `docs/NATIONWIDE_SMOKE.md`.
+- [ ] **NSS region mismatches** the nationwide smoke run found (WY, NC; NV located no
+      region), where the located NSS region has no library region; detail in `TODO.md`.
 - [ ] **States that need a region choice** by default (overlapping sets at every point),
-      listed in the smoke report: decide whether to prefer the newest set.
+      listed in the smoke report: decide whether to prefer the newest set. MT and NM are
+      unresolved same-year ties that need a hydrologist's pick.
 - [ ] **HUC membership rows** for the 15 new skew studies, so they resolve by unit and not
       only through the state-level fallback.
 - [ ] **A nationwide HUC8-states table** (`regional_skew_huc8_states.csv` lists only some

@@ -104,8 +104,8 @@ Plan: `docs/superpowers/plans/2026-10-25-nationwide-rollout.md`; design:
       34 verified, with the state-level fallback.
 - [~] **E. Nationwide smoke run and docs.** Docs done (README Coverage and Ungaged sites,
       MASTER_ROADMAP §0/§4, this file). The smoke run (`tools/nationwide_smoke.py`, report
-      `docs/NATIONWIDE_SMOKE.md`) was still being completed on its own branch at the time of
-      writing; its findings feed the two follow-ups below that cite it.
+      `docs/NATIONWIDE_SMOKE.md`) ran on 2026-10-25: 55 of 56 gaged, 30 of 56 ungaged; its
+      findings are the follow-ups below.
 
 Follow-ups from the rollout reviews, none implemented (record, then give each an issue):
 
@@ -116,16 +116,37 @@ Follow-ups from the rollout reviews, none implemented (record, then give each an
       the state-level fallback, which applies to a state with a single usable row.
 - [ ] **A nationwide HUC8-states table** (`data/regional_skew_huc8_states.csv` lists only
       some HUC8s), so a border HU12 resolves its state without `state=`.
-- [ ] **NSS region mismatches from the smoke run** (MN, NV, WY, and any from its rerun):
-      a located NSS region with no library region. Fix the library region names or add a
-      mapping; the list is in `docs/NATIONWIDE_SMOKE.md`.
+- [ ] **Catalog defect: gage 15388960 is filed under DC.** PORCUPINE R NR INTERNATIONAL
+      BOUNDARY YT (lat 67.42, lon -140.89, in the Yukon) carries `state = DC` in
+      `flowfreq/data/gage_catalog.csv.gz`. Fix it in the catalog build, not by hand; once it
+      is fixed DC has no USGS gage in the catalog, so the smoke run's DC row must say so
+      (the run is 55 of 56 gaged because of this row).
+- [ ] **NSS region mismatches from the smoke run** (WY, NC; NV is its own case). WY: NSS
+      locates GC2098 to GC2115 (18 codes) but the library's regions are the bare numbers 1
+      to 6, so the library needs the NSS codes in `region_name`. NC: NSS locates GC1251 and
+      GC1936, the library has GC1580, GC1581 and GC1582, and none match. NV: NSS locates no
+      regression region at the smoke point (gage 10316500); check NSS coverage and the point.
+      Fix the library region names or add a mapping.
+- [ ] **Library range finding: SC GC1587.** The SC estimate at gage 02147500 is refused
+      with DRNAREA 196.0 > max 1.0 (AEP 0.5). A units or range transcription error in the SC
+      snapshot is the likely cause; check it against the report.
 - [ ] **The states that need a region choice.** Where NSS returns overlapping sets at an
-      ordinary point the caller must pass `region=`; the smoke report lists them. Decide
-      whether to document a per-state default (the newest set) or keep the explicit choice.
-- [ ] **Open region polygons.** Where StreamStats returns no regression-region polygon (or
-      one that does not close), `locate_regression_regions` cannot place a basin; the
-      smoke report names the jurisdictions. Decide per jurisdiction between a hand-built
-      polygon and requiring `region=`.
+      ordinary point the caller must pass `region=`. The smoke run chose, by newest year
+      and then lowest GC code (marked "verify" in its Notes): OR GC729, AZ GC1618, IL GC2004,
+      TN GC2016, OK GC1791, ME GC1798, VT GC2067, AL GC1502. Chosen without a tie: IA
+      GC1628 (2015 over 2013), MO GC1484 (2014 over 2010). MT (GC1838, over GC1768, GC1839
+      and GC1840) and NM (GC1092, among GC1092 to GC1100) are "region choice unresolved
+      (same-year tie)": the pick was arbitrary and the estimate then failed out of range
+      (MT WACTCH=0.0 < min 9.5; NM BSLDEM30ff=0.5249 > max 0.2023 and PRECIP=26.65 > max
+      20.15), so each needs a hydrologist's pick. Decide whether to document a per-state
+      default (the newest set) or keep the explicit choice.
+- [ ] **StreamStats service gaps on 2026-10-25** (the report is `docs/NATIONWIDE_SMOKE.md`).
+      FL, MI and NE: HTTP 404 from the snap service, persisting after one retry; retry
+      later. Unsnappable points AR, GA, ND, PA, PR, TX: the smoke script cannot move a point
+      downstream, so the follow-up is a `--snap-distance` option or manual coordinates (ND's
+      second gage was also unsnappable). CT and KY: degenerate delineations (CT outside the
+      study's hydrologic region, KY possible karst). AK: delineation not supported at that
+      point. Also refused as out of range, not extrapolated: CA, MN, NH (and SC above).
 - [ ] **The methow-flow items stay parked** (Priorities for methow-flow below: 4 and 5 of
       Tier 2; 7 to 12 of Tier 3), as do the 24 GA/NC/SC region-indicator forms and New York's
       2 urban regions above.
