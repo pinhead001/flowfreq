@@ -1,8 +1,7 @@
 id = "i214-snapshot-warning"
 repo = "flowfreq"
 title = "load_state(warn=False): opt-in sets load without the logged advisory (#214)"
-base = "spec/i214-snapshot-warning"
-model = "gemini-3.8-flash-high"
+base = "origin/spec/i214-snapshot-warning"
 prompt = """
 Outcome: `flowfreq.regression.library.load_state` gains a keyword-only `warn: bool = True`.
 When an opt-in set (provisional, awaiting_nss or nss_snapshot) is returned, its advisory is

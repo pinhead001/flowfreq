@@ -1,8 +1,7 @@
 id = "i206-catalog-outside-us"
 repo = "flowfreq"
 title = "Catalog build: skip located sites with no US state instead of filing them under the queried state (#206)"
-base = "spec/i206-catalog-outside-us"
-model = "gemini-3.8-flash-high"
+base = "origin/spec/i206-catalog-outside-us"
 prompt = """
 Outcome: in `flowfreq.catalog.build_rows`, `default_state` applies only to a site that has
 no location record at all. A site whose location record exists but names no state (its

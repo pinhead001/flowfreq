@@ -60,7 +60,8 @@ $A cards reset <id>         # discard the worktree and branch, back to pending
 **Lead (Claude) per card:**
 1. On a branch `spec/<id>` from `main`, write the failing tests and push them. Do not open a
    PR for this branch: it exists only to hold the tests.
-2. Write `.agentops/cards/<id>.toml` with `base = "spec/<id>"`, an outcome-level `prompt`
+2. Write `.agentops/cards/<id>.toml` with `base = "origin/spec/<id>"` (run `git fetch
+   origin` before `cards run`, so the remote branch is current), an outcome-level `prompt`
    that names the files to read and edit, and an exact `acceptance` command. Use
    `python -m pytest <the card's test files> -q -p no:cacheprovider`. Do not use
    `PYTHONSAFEPATH=1 pytest`: the runner runs commands through `cmd.exe` on Windows,
@@ -81,8 +82,8 @@ delegate and the acceptance run, and also sets `PYTHONUTF8=1`.
 id = "i214-snapshot-warning"           # [A-Za-z0-9._-]
 repo = "flowfreq"
 title = "Silence the nss_snapshot advisory for sweeps (#214)"
-base = "spec/i214-snapshot-warning"    # the branch holding the failing tests
-model = "gemini-3.8-flash-high"        # optional; default is the first free pool in [agy] models
+base = "origin/spec/i214-snapshot-warning"   # holds the failing tests; git fetch first
+model = "claude-sonnet-4-6"   # optional; omit to take the first free pool in [agy] models
 depends_on = []                        # card ids that must be done first
 max_retries = 2                        # optional override
 prompt = """

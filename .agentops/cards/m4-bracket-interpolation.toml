@@ -1,8 +1,7 @@
 id = "m4-bracket-interpolation"
 repo = "flowfreq"
 title = "interpolate_between_gages: log-area blend of two bracketing gages' transfers (methow item 4)"
-base = "spec/m4-bracket-interpolation"
-model = "gemini-3.8-flash-high"
+base = "origin/spec/m4-bracket-interpolation"
 prompt = """
 Outcome: two new public functions in flowfreq/transpose.py, after `transpose_frequency`,
 upstreamed from a consumer project's bracketing code (the behavior is fully specified here
