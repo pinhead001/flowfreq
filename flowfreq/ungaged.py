@@ -156,6 +156,11 @@ class OverlappingRegionsError(EquationsUnavailable):
         be used, in the located order.
     region : str, optional
         A choice that matched none of the candidates, named in the message.
+    reason : str, optional
+        Replaces the message's opening when the problem is more specific than "no
+        choice" or "an unknown choice": a choice that NSS located but that was skipped,
+        or a choice that covers only part of the basin (the regions overlap on a region
+        boundary). The candidates are still listed after it.
 
     Attributes
     ----------
@@ -163,18 +168,26 @@ class OverlappingRegionsError(EquationsUnavailable):
     """
 
     def __init__(
-        self, state: str, candidates: Sequence[Candidate], region: Optional[str] = None
+        self,
+        state: str,
+        candidates: Sequence[Candidate],
+        region: Optional[str] = None,
+        *,
+        reason: Optional[str] = None,
     ) -> None:
         self.candidates: List[Candidate] = list(candidates)
+        listing = "\n".join(
+            f"  {code}: {name} ({year if year is not None else 'year unknown'})"
+            for code, name, year in self.candidates
+        )
+        if reason is not None:
+            super().__init__(f"{state}: {reason}:\n{listing}")
+            return
         head = (
             f"{state}: region {region!r} is not one of the overlapping NSS regions"
             if region is not None
             else f"{state}: the located NSS regions overlap (alternative equation sets for "
             "the same area, not a partition)"
-        )
-        listing = "\n".join(
-            f"  {code}: {name} ({year if year is not None else 'year unknown'})"
-            for code, name, year in self.candidates
         )
         super().__init__(
             f"{head}; choose one with region= (API) or --region (CLI), by NSS code or "
@@ -198,6 +211,33 @@ def _region_citation(lib: StateLibrary, lib_code: str) -> Tuple[str, Optional[in
             text = c.publication + (f" ({c.year})" if c.year else "") + f", table {c.table}"
             return text, c.year
     return "", None
+
+
+def _why_not_in_use(
+    choice: str,
+    regions: Sequence[RegressionRegionLocation],
+    region_codes: Mapping[str, str],
+    unmatched: Sequence[RegressionRegionLocation],
+    zero_weight: Sequence[RegressionRegionLocation],
+    missing: Mapping[str, List[str]],
+) -> Optional[str]:
+    """Why a located region that ``choice`` names (NSS or library code) is not in use.
+
+    ``None`` when ``choice`` names no located region at all.
+    """
+    for loc in regions:
+        if loc.code != choice and region_codes.get(loc.code) != choice:
+            continue
+        if any(u is loc for u in unmatched):
+            return f"NSS located {loc.code}, but there is no library region for it"
+        if any(z is loc for z in zero_weight):
+            return f"NSS located {loc.code} at 0 % of the basin, so it was dropped"
+        if loc.code in missing:
+            return (
+                f"NSS located {loc.code}, but it was skipped because the basin lacks "
+                + ", ".join(missing[loc.code])
+            )
+    return None
 
 
 @dataclass
@@ -274,8 +314,10 @@ def assemble(
         after the zero-weight and missing-characteristic steps sums to more than 100 %
         plus NSS's rounding tolerance (the 1.5 points ``streamstats`` allows); the
         chosen region is then used alone (fraction 1.0) and the others are returned in
-        ``alternatives``. A partition is unaffected, and ``region`` is ignored there
-        with a logged warning.
+        ``alternatives``; it must cover the whole basin (``percent_weight`` within the
+        tolerance of 100). A partition is unaffected; ``region`` naming one of its
+        regions is accepted as a no-op. A ``region`` naming no region in use is always
+        refused.
 
     Returns
     -------
@@ -284,9 +326,12 @@ def assemble(
     Raises
     ------
     OverlappingRegionsError
-        If the regions overlap and ``region`` is not given or matches none of them.
+        If the regions overlap and ``region`` is not given, matches none of them, or
+        names one covering only part of the basin (overlap on a region boundary).
     EquationsUnavailable
-        If no located region matches the library; if every matched region has zero
+        If ``region`` names no region in use on a basin without overlap (the message
+        says why when NSS located it: no library region, zero weight, or a missing
+        characteristic). If no located region matches the library; if every matched region has zero
         weight or lacks a basin characteristic; if the regions used publish no AEP in
         common and none was requested; or if a requested AEP is not published for a
         region used.
@@ -353,20 +398,56 @@ def assemble(
             + "; ".join(f"{code} needs {', '.join(codes)}" for code, codes in missing.items())
         )
 
+    # A choice must name a region in use (an NSS code is unambiguous; a library code
+    # is the fallback), overlap or not: otherwise the estimate would rest on regions
+    # the caller did not choose, with the choice recorded as if it had been applied.
+    chosen: Optional[Tuple[RegressionRegionLocation, str]] = None
+    why: Optional[str] = None
+    if choice is not None:
+        chosen = next((pair for pair in used if pair[0].code == choice), None)
+        if chosen is None:
+            chosen = next((pair for pair in used if pair[1] == choice), None)
+        if chosen is None:
+            why = _why_not_in_use(choice, regions, region_codes, unmatched, zero_weight, missing)
+
+    overlap = sum(r.percent_weight for r, _ in used) > 100.0 + _PERCENT_WEIGHT_TOL
+    if choice is not None and chosen is None and not overlap:
+        raise EquationsUnavailable(
+            f"{lib.state}: region {choice!r} is not in use: "
+            + (why if why is not None else f"NSS located only {_codes(regions)}")
+            + f"; the estimate would rest on {', '.join(r.code for r, _ in used)}"
+        )
+
     alternatives: List[RegressionRegionLocation] = []
-    if sum(r.percent_weight for r, _ in used) > 100.0 + _PERCENT_WEIGHT_TOL:
+    if overlap:
         candidates = [
             (r.code, _region_name(lib, lib_code), _region_citation(lib, lib_code)[1])
             for r, lib_code in used
         ]
         if choice is None:
             raise OverlappingRegionsError(lib.state, candidates)
-        # An NSS code is unambiguous; a library code is the fallback.
-        chosen = next((pair for pair in used if pair[0].code == choice), None)
         if chosen is None:
-            chosen = next((pair for pair in used if pair[1] == choice), None)
-        if chosen is None:
-            raise OverlappingRegionsError(lib.state, candidates, choice)
+            if why is None:
+                raise OverlappingRegionsError(lib.state, candidates, choice)
+            raise OverlappingRegionsError(
+                lib.state,
+                candidates,
+                choice,
+                reason=f"region {choice!r} is not in use ({why}); the located NSS regions "
+                "overlap, so choose one of these with region= (API) or --region (CLI)",
+            )
+        if chosen[0].percent_weight < 100.0 - _PERCENT_WEIGHT_TOL:
+            # Overlapping sets on a region boundary: each side has its own
+            # alternatives, and one set covers only its side of the basin.
+            raise OverlappingRegionsError(
+                lib.state,
+                candidates,
+                choice,
+                reason=f"region {choice!r} ({chosen[0].code}) covers only "
+                f"{chosen[0].percent_weight:g} % of the basin: the located NSS regions "
+                "overlap on a region boundary, so no single equation set covers the "
+                "whole basin and choosing one would drop the rest of it",
+            )
         alternatives = [r for r, _ in used if r is not chosen[0]]
         logger.info(
             "%s: overlapping NSS regions; using %s, alternatives %s",
@@ -375,13 +456,7 @@ def assemble(
             _codes(alternatives),
         )
         used = [chosen]
-    elif choice is not None:
-        logger.warning(
-            "%s: region=%r ignored: the located regions (%s) partition the basin",
-            lib.state,
-            choice,
-            ", ".join(r.code for r, _ in used),
-        )
+    # A choice in use on a partition is a no-op: there is nothing to choose between.
 
     if aeps is None:
         common = set.intersection(*(set(lib.aeps(lib_code)) for _, lib_code in used))

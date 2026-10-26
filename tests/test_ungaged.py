@@ -462,6 +462,66 @@ class TestOverlappingRegions:
         a = assemble(LIB, regions, CHARS, **KW)
         assert [r.code for r in a.used] == ["GC1"] and a.alternatives == []
 
+    # Fix round 1, finding 1: a chosen set that covers only part of the basin.
+    def test_chosen_region_covering_part_of_the_basin_is_refused(self):
+        # A boundary basin: GC1 60 / GC2 40 on one side of the line, GC4 100 a set
+        # overlapping both. GC1 alone would drop 40 % of the basin.
+        chars = {"DRNAREA": 100.0, "PRECIP": 30.0}
+        regions = [_region("GC1", 60.0), _region("GC2", 40.0), _region("GC4", 100.0)]
+        with pytest.raises(OverlappingRegionsError, match="only 60 % of the basin") as info:
+            assemble(LIB, regions, chars, region="GC1", **KW)
+        assert isinstance(info.value, LookupError)
+        assert "boundary" in str(info.value)
+        assert [c[0] for c in info.value.candidates] == ["GC1", "GC2", "GC4"]
+
+    def test_chosen_region_within_rounding_of_full_coverage_is_accepted(self):
+        regions = [_region("GC1", 99.0), _region("GC2", 100.0)]
+        a = assemble(LIB, regions, CHARS, region="GC1", **KW)
+        assert [r.code for r in a.used] == ["GC1"]
+
+    # Fix round 1, finding 2: a choice that names no region in use always raises.
+    def test_choice_skipped_for_a_characteristic_raises_without_overlap(self):
+        # GC4 lacks PRECIP; GC1 alone remains, so there is no overlap, but the
+        # estimate would rest on a set the caller did not choose.
+        regions = [_region("GC1", 100.0), _region("GC4", 100.0)]
+        with pytest.raises(EquationsUnavailable, match="GC4") as info:
+            assemble(LIB, regions, CHARS, region="GC4", **KW)
+        assert "PRECIP" in str(info.value) and "skipped" in str(info.value)
+
+    def test_choice_skipped_for_a_characteristic_raises_with_overlap(self):
+        regions = [_region("GC1", 100.0), _region("GC2", 100.0), _region("GC4", 100.0)]
+        with pytest.raises(OverlappingRegionsError) as info:
+            assemble(LIB, regions, CHARS, region="GC4", **KW)
+        text = str(info.value)
+        assert "PRECIP" in text and "skipped" in text
+        assert "is not one of the overlapping" not in text
+        assert [c[0] for c in info.value.candidates] == ["GC1", "GC2"]
+
+    def test_choice_of_a_zero_weight_region_raises(self):
+        regions = [_region("GC1", 100.0), _region("GC2", 0.0)]
+        with pytest.raises(EquationsUnavailable, match="GC2.*0 %"):
+            assemble(LIB, regions, CHARS, region="GC2", **KW)
+
+    def test_choice_of_an_unmatched_region_raises(self):
+        regions = [_region("GC1", 100.0), _region("GC9", 100.0)]
+        with pytest.raises(EquationsUnavailable, match="GC9.*no library region"):
+            assemble(LIB, regions, CHARS, region="GC9", **KW)
+
+    def test_unknown_choice_on_a_partition_raises_listing_located(self):
+        regions = [_region("GC1", 60.0), _region("GC2", 40.0)]
+        with pytest.raises(EquationsUnavailable, match="GC7") as info:
+            assemble(LIB, regions, CHARS, region="GC7", **KW)
+        assert "GC1" in str(info.value) and "GC2" in str(info.value)
+        assert not isinstance(info.value, OverlappingRegionsError)
+
+    def test_choice_in_use_on_a_partition_is_a_silent_no_op(self, caplog):
+        regions = [_region("GC1", 60.0), _region("GC2", 40.0)]
+        with caplog.at_level("WARNING", logger="flowfreq.ungaged"):
+            a = assemble(LIB, regions, CHARS, region="R2", **KW)
+        assert [r.code for r in a.used] == ["GC1", "GC2"] and a.alternatives == []
+        assert [f for f, _ in a.estimates[0.1]] == pytest.approx([0.6, 0.4])
+        assert not [r for r in caplog.records if "region=" in r.getMessage()]
+
     def test_to_markdown_lists_alternatives(self):
         regions = [_region("GC1", 100.0), _region("GC2", 100.0)]
         a = assemble(LIB, regions, CHARS, region="GC1", **KW)
@@ -814,6 +874,15 @@ class TestEstimateAtSite:
         assert alt["citation"] and alt["year"]
         assert est.provenance["options"]["region"] == "GC1753"
         assert "Not used (alternative NSS equation sets)" in est.to_markdown()
+
+    def test_region_in_use_on_a_partition_is_recorded_as_given(self, fakes):
+        est = estimate_at_site(WA_LAT, WA_LON, state="WA", region="GC1753")
+        assert est.provenance["options"]["region"] == "GC1753"
+        assert est.provenance["alternative_regions"] == []
+
+    def test_region_not_in_use_never_reaches_provenance(self, fakes):
+        with pytest.raises(EquationsUnavailable, match="GC9999"):
+            estimate_at_site(WA_LAT, WA_LON, state="WA", region="GC9999")
 
     def test_no_overlap_leaves_alternatives_empty(self, fakes):
         est = estimate_at_site(WA_LAT, WA_LON, state="WA")
