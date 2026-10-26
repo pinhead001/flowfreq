@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.16.0] - 2026-10-25
+
+The nationwide rollout: every jurisdiction gets a regression equation tier, a regional skew
+row and an ungaged-site entry point. Workstream A adds the `nss_snapshot` equation tier,
+workstream B adds `estimate_at_site` and `flowfreq ungaged`, and workstream C fills the
+regional skew table for all 56 jurisdictions. Patch releases for 0.15 continue from
+`release/0.15.x`.
+
 ### Added
 - **`nss_snapshot` equation status** (nationwide rollout, workstream A). A set harvested
   from the USGS NSS web service and parsed by machine, not transcribed from the reports and
@@ -42,6 +50,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Arkansas and Mississippi) its units are unconfirmed, so `sep_log` is left unset and the
   library notes name the regions. `docs/REGRESSION_COVERAGE.md` shows each as
   `nss snapshot (N eqs, M unparsed)`.
+- **`estimate_at_site` and `flowfreq ungaged`** (nationwide rollout, workstream B, #197).
+  `flowfreq.estimate_at_site(lat, lon, state=..., aeps=None, at_site=None, region=None)`
+  delineates the basin with StreamStats, locates the NSS regression regions at the point,
+  matches them to the offline equation library (the `nss_snapshot` tier on opt-in with
+  `allow_nss_snapshot=True`), evaluates the equations on the basin characteristics and
+  area-weights a partition of regions by NSS's `percent_weight`. It returns a `SiteEstimate`:
+  the quantile table, prediction intervals from the published standard error (`interval_method`
+  says so when there is none), full provenance (regions located and used, fractions, library
+  file and status, characteristics, out-of-range inputs, options, timestamp) and
+  `to_markdown()`. Passing an at-site `FrequencyResults` weights it in by Bulletin 17C Appendix
+  9, for a single region only. `flowfreq ungaged --lat --lon --state [--aep ...]
+  [--allow-nss-snapshot] [--allow-extrapolation] [--region CODE]` prints the Markdown report,
+  and every failure is a `ClickException` (exit 1, no traceback). Live checks
+  (`tests/test_ungaged_live.py`, `requires_network`): Washington (Q1% 6,439 cfs against the
+  Bulletin 17C at-site 7,183) and Tennessee (Sycamore Creek: three overlapping 100% regions
+  refused; GC2016 chosen gives Q1% 19,572 cfs, 90% PI 10,540-36,344). The vignette is
+  `docs/vignettes/ungaged_nationwide.py`.
+- **What `estimate_at_site` refuses.** `EquationsUnavailable` names the NSS codes when nothing
+  in the library matches them; a jurisdiction with no library file (DC, VI, GU, MP, AS) says
+  NSS serves no peak-flow regions there. A characteristic StreamStats reports as unavailable
+  (`-999`) skips that region for the requested AEPs only, and is recorded in
+  `provenance["missing_characteristics"]` rather than crashing. NSS serves superseded and
+  current equation sets side by side, each at its full weight, so overlapping sets are
+  alternatives and never blended: `OverlappingRegionsError` (exported from `flowfreq`) lists
+  the candidates with citation year, and `region=` (`--region` on the CLI) chooses one. A
+  choice that covers only part of a boundary basin, or names a region not in use, is refused
+  with the reason.
+- **Regional skew rows for all 56 jurisdictions** (nationwide rollout, workstream C, #195).
+  `flowfreq/data/regional_skew.csv` grows from 13 to 77 rows. 34 are `verified`, each
+  transcribed from the cited USGS report and confirmed by a second check that re-opened the
+  source; 41 are `pending` (the report prints only the Bulletin 17B Plate I map or a
+  station-skew instruction, readings disagree, or no study exists: VI, MP, GU, AS); 2 are
+  `provisional`. Multi-state studies carry one region name in every state, and Maine is
+  verified without an effective record length (its report prints none).
+- **State-level fallback for regional skew (a behaviour change for existing callers).**
+  `regional_skew_at_huc`, `regional_skew_at` and `regional_skew_for_site` now take
+  `allow_state_fallback`, which defaults to `True`: when no HUC membership covers a unit and
+  the state has exactly one usable row, that row is returned with a `STATE-LEVEL FALLBACK`
+  advisory (logged at WARNING), where these functions previously raised. Pass
+  `allow_state_fallback=False` to restore the previous behaviour, a raise when no HUC
+  membership covers the unit. Several usable rows raise naming them, pending-only states raise
+  as before, and a border HU12 without `state=` is refused naming the WBD states. Units with
+  HUC membership are unchanged. 18 states now resolve a published skew by location that
+  previously raised.
 
 ### Fixed
 - **Indiana's NSS regions now resolve** in `tools/snapshot_nss.py`. Its bounded regional
