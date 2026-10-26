@@ -266,5 +266,79 @@ def compare(
         raise SystemExit(1)
 
 
+@cli.command()
+@click.option("--lat", type=float, required=True, help="Site latitude, decimal degrees.")
+@click.option("--lon", type=float, required=True, help="Site longitude, decimal degrees.")
+@click.option("--state", required=True, help="Two-letter jurisdiction code (e.g. MT).")
+@click.option(
+    "--aep",
+    "aeps",
+    type=click.FloatRange(0.0, 1.0, min_open=True, max_open=True),
+    multiple=True,
+    help=(
+        "Annual exceedance probability (fraction); repeat for several. Default: every AEP "
+        "that all the regression regions used publish."
+    ),
+)
+@click.option(
+    "--allow-nss-snapshot",
+    is_flag=True,
+    help="Accept equations from the unreviewed NSS snapshot tier.",
+)
+@click.option(
+    "--allow-extrapolation",
+    is_flag=True,
+    help="Allow basin characteristics outside the equations' calibrated range.",
+)
+@click.option(
+    "--region",
+    default=None,
+    help=(
+        "Where NSS returns overlapping regions (alternative equation sets for the same "
+        "area), the one to use: an NSS code (e.g. GC2016) or library region code."
+    ),
+)
+def ungaged(
+    lat: float,
+    lon: float,
+    state: str,
+    aeps: Tuple[float, ...],
+    allow_nss_snapshot: bool,
+    allow_extrapolation: bool,
+    region: Optional[str],
+) -> None:
+    """Estimate flood-frequency quantiles at an ungaged site (regional regression).
+
+    Delineates the basin with StreamStats, evaluates the state's offline
+    regression equations and prints the estimate with its provenance as
+    Markdown. Exits 1 with the message when no equations are available, the
+    point cannot be snapped to a stream, or the region is unsupported. When NSS
+    returns overlapping regions (alternative equation sets for one area), lists
+    them one per line and exits 1 until --region chooses one.
+    """
+    import requests
+
+    from flowfreq.regression.equations import OutOfRangeError
+    from flowfreq.ungaged import estimate_at_site
+
+    try:
+        estimate = estimate_at_site(
+            lat,
+            lon,
+            state=state,
+            aeps=list(aeps) if aeps else None,
+            allow_nss_snapshot=allow_nss_snapshot,
+            allow_extrapolation=allow_extrapolation,
+            region=region,
+        )
+    except OutOfRangeError as exc:
+        raise click.ClickException(f"{exc} (pass --allow-extrapolation to proceed)") from exc
+    except KeyError as exc:  # unknown --state: KeyError quotes str(); use the message
+        raise click.ClickException(str(exc.args[0]) if exc.args else "unknown key") from exc
+    except (ValueError, LookupError, requests.RequestException) as exc:
+        raise click.ClickException(str(exc)) from exc
+    click.echo(estimate.to_markdown())
+
+
 if __name__ == "__main__":
     cli()

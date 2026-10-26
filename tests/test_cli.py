@@ -382,3 +382,146 @@ class TestComparePeakCodes:
         assert result.exit_code != 0
         assert "historical_peaks" in result.output
         assert "Traceback" not in result.output
+
+
+class _FakeEstimate:
+    def to_markdown(self) -> str:
+        return "# Ungaged estimate\nSYNTHETIC-MARKDOWN"
+
+
+class TestUngaged:
+    def test_prints_markdown_and_passes_options(self, monkeypatch):
+        calls = {}
+
+        def fake(lat, lon, **kw):
+            calls.update(lat=lat, lon=lon, **kw)
+            return _FakeEstimate()
+
+        monkeypatch.setattr("flowfreq.ungaged.estimate_at_site", fake)
+        result = CliRunner().invoke(
+            cli,
+            [
+                "ungaged", "--lat", "46.5", "--lon", "-110.2", "--state", "MT",
+                "--aep", "0.01", "--aep", "0.1",
+                "--allow-nss-snapshot", "--allow-extrapolation",
+            ],
+        )  # fmt: skip
+        assert result.exit_code == 0, result.output
+        assert "SYNTHETIC-MARKDOWN" in result.output
+        assert calls["lat"] == 46.5 and calls["lon"] == -110.2 and calls["state"] == "MT"
+        assert calls["aeps"] == [0.01, 0.1]
+        assert calls["allow_nss_snapshot"] is True
+        assert calls["allow_extrapolation"] is True
+
+    def test_defaults_leave_aeps_unset(self, monkeypatch):
+        calls = {}
+
+        def fake(lat, lon, **kw):
+            calls.update(kw)
+            return _FakeEstimate()
+
+        monkeypatch.setattr("flowfreq.ungaged.estimate_at_site", fake)
+        result = CliRunner().invoke(
+            cli, ["ungaged", "--lat", "46.5", "--lon", "-110.2", "--state", "MT"]
+        )
+        assert result.exit_code == 0, result.output
+        assert calls["aeps"] is None
+        assert calls["allow_nss_snapshot"] is False
+        assert calls["allow_extrapolation"] is False
+        assert calls["region"] is None
+
+    @pytest.mark.parametrize(
+        "exc_name", ["EquationsUnavailable", "UnsnappablePointError", "UnsupportedRegionError"]
+    )
+    def test_known_errors_exit_one_with_message(self, monkeypatch, exc_name):
+        from flowfreq.regression.library import EquationsUnavailable
+        from flowfreq.streamstats import UnsnappablePointError, UnsupportedRegionError
+
+        exc = {
+            "EquationsUnavailable": EquationsUnavailable,
+            "UnsnappablePointError": UnsnappablePointError,
+            "UnsupportedRegionError": UnsupportedRegionError,
+        }[exc_name]
+
+        def fake(lat, lon, **kw):
+            raise exc("no equations for the test")
+
+        monkeypatch.setattr("flowfreq.ungaged.estimate_at_site", fake)
+        result = CliRunner().invoke(cli, ["ungaged", "--lat", "1", "--lon", "2", "--state", "ZZ"])
+        assert result.exit_code == 1
+        assert "no equations for the test" in result.output
+        assert "Traceback" not in result.output
+
+    def test_cli_region_option_and_overlap_message(self, monkeypatch):
+        from flowfreq.ungaged import OverlappingRegionsError
+
+        calls = {}
+
+        def fake(lat, lon, **kw):
+            calls.update(kw)
+            if kw["region"] is None:
+                raise OverlappingRegionsError(
+                    "TN",
+                    [
+                        ("GC344", "MultiVariable_Area_2", 2003),
+                        ("GC2016", "TN_Peakflow_Region_2_SIR_2024-5130", 2025),
+                    ],
+                )
+            return _FakeEstimate()
+
+        monkeypatch.setattr("flowfreq.ungaged.estimate_at_site", fake)
+        base = ["ungaged", "--lat", "36.3", "--lon", "-87.0", "--state", "TN"]
+        result = CliRunner().invoke(cli, base)
+        assert result.exit_code == 1
+        assert "Traceback" not in result.output
+        lines = result.output.splitlines()
+        assert any("GC344" in ln and "2003" in ln and "GC2016" not in ln for ln in lines)
+        assert any("GC2016" in ln and "2025" in ln and "GC344" not in ln for ln in lines)
+        assert "--region" in result.output
+
+        result = CliRunner().invoke(cli, base + ["--region", "GC2016"])
+        assert result.exit_code == 0, result.output
+        assert calls["region"] == "GC2016"
+        assert "SYNTHETIC-MARKDOWN" in result.output
+
+    def test_requires_state(self):
+        result = CliRunner().invoke(cli, ["ungaged", "--lat", "1", "--lon", "2"])
+        assert result.exit_code != 0
+
+    def test_out_of_range_hints_at_extrapolation_flag(self, monkeypatch):
+        from flowfreq.regression.equations import OutOfRangeError
+
+        def fake(lat, lon, **kw):
+            raise OutOfRangeError("DRNAREA 5 below calibrated minimum 10")
+
+        monkeypatch.setattr("flowfreq.ungaged.estimate_at_site", fake)
+        result = CliRunner().invoke(cli, ["ungaged", "--lat", "1", "--lon", "2", "--state", "MT"])
+        assert result.exit_code == 1
+        assert "Error: DRNAREA 5 below calibrated minimum 10" in result.output
+        assert "--allow-extrapolation" in result.output
+        assert "Traceback" not in result.output
+
+    def test_transport_error_is_one_line_exit_one(self, monkeypatch):
+        import requests
+
+        def fake(lat, lon, **kw):
+            raise requests.ConnectionError("StreamStats unreachable")
+
+        monkeypatch.setattr("flowfreq.ungaged.estimate_at_site", fake)
+        result = CliRunner().invoke(cli, ["ungaged", "--lat", "1", "--lon", "2", "--state", "MT"])
+        assert result.exit_code == 1
+        assert "Error: StreamStats unreachable" in result.output
+        assert "Traceback" not in result.output
+
+    def test_unknown_state_is_clean_error(self):
+        # No monkeypatch: the unknown code is rejected before any network call.
+        result = CliRunner().invoke(cli, ["ungaged", "--lat", "1", "--lon", "2", "--state", "ZZ"])
+        assert result.exit_code == 1
+        assert "Unknown jurisdiction code 'ZZ'" in result.output
+        assert "Traceback" not in result.output
+
+    def test_aep_out_of_range_rejected(self):
+        result = CliRunner().invoke(
+            cli, ["ungaged", "--lat", "1", "--lon", "2", "--state", "MT", "--aep", "1.5"]
+        )
+        assert result.exit_code == 2
