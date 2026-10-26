@@ -5,21 +5,27 @@
 > in progress are tracked under "Roadmap Phase A, Wave 1 and Wave 2" in Open Items below.
 
 ## Status
-Last updated: 2026-10-25. Version **0.16.0** is released (tag `v0.16.0`, the nationwide
+Last updated: 2026-10-26. Version **0.16.0** is released (tag `v0.16.0`, the nationwide
 rollout: `nss_snapshot` equations, `estimate_at_site`, regional skew for all 56
 jurisdictions). `main` carries **0.17.0.dev0**; 0.16.x patches come from `release/0.16.x`
-(CLAUDE.md, Branches and Releases). The test counts below are from 2026-10-03; on 2026-10-22
-`make check` ran 3418 passed, 112 deselected, 6 xfailed with the extension built locally.
+(CLAUDE.md, Branches and Releases). Since the release, `main` has the parked rollout minors
+(CHANGELOG, Unreleased), the nationwide smoke run (#201) and its findings recorded as
+follow-ups (#202). No PRs are open.
 Python 3.11–3.14 (`requires-python >= 3.11`; CI matrix in `.github/workflows/ci.yml`).
 
-Tests, measured 2026-10-03 on Windows / CPython 3.12 with
-`PYTHONSAFEPATH=1 PYTHONUTF8=1 pytest tests/` (the CI selection; `addopts` deselects
-`requires_network`):
+Tests, measured 2026-10-26 on Linux / CPython 3.13 with
+`PYTHONSAFEPATH=1 PYTHONUTF8=1 python -P -m pytest tests/` (the CI selection; `addopts`
+deselects `requires_network`):
 
-- Extension absent: **2529 passed, 18 skipped, 100 deselected, 4 xfailed** (341 s).
-- Extension built: not re-measured for this update. `ci / Fortran parity` is the
-  authoritative parity check; on a local MSYS2 gfortran build, expect the documented
-  toolchain drift against the Linux-built goldens (CLAUDE.md, Validation Status).
+- Extension absent: **3489 passed, 19 skipped, 115 deselected, 4 xfailed** (87 s).
+- Extension built: not re-measured for this update (on 2026-10-22 `make check` ran 3418
+  passed, 112 deselected, 6 xfailed). `ci / Fortran parity` is the authoritative parity
+  check; on a local MSYS2 gfortran build, expect the documented toolchain drift against the
+  Linux-built goldens (CLAUDE.md, Validation Status).
+
+Open GitHub issues (2026-10-26): #27 (Phase A epic), #36 (future flow, kept open by
+decision), #140 and #173. #140 is marked done below (Live-service tests) and #173's library
+pieces shipped as `flowfreq.transfer_variance` (v0.13.0 onward), so both look ready to close.
 
 The strict xfails are listed in CLAUDE.md (Validation Status). There are four 2012 PeakfqSA
 manual comparisons in `tests/validation/test_big_sandy.py`, which run everywhere and are the
@@ -102,10 +108,11 @@ Plan: `docs/superpowers/plans/2026-10-25-nationwide-rollout.md`; design:
       (pinned to v0.16.0); the app is not merged from here.
 - [x] **C. Regional skew rows for all 56 jurisdictions** (0.16.0, #195/#196): 77 rows,
       34 verified, with the state-level fallback.
-- [~] **E. Nationwide smoke run and docs.** Docs done (README Coverage and Ungaged sites,
-      MASTER_ROADMAP §0/§4, this file). The smoke run (`tools/nationwide_smoke.py`, report
-      `docs/NATIONWIDE_SMOKE.md`) ran on 2026-10-25: 55 of 56 gaged, 30 of 56 ungaged; its
-      findings are the follow-ups below.
+- [x] **E. Nationwide smoke run and docs** (#200, #201, #202). Docs done (README Coverage
+      and Ungaged sites, MASTER_ROADMAP §0/§4, this file). The smoke run
+      (`tools/nationwide_smoke.py`, report `docs/NATIONWIDE_SMOKE.md`) ran on 2026-10-25:
+      55 of 56 gaged, 30 of 56 ungaged; its findings are the follow-ups below. The rollout
+      plan's workstreams A, B, C and E are all done; what remains is those follow-ups.
 
 Follow-ups from the rollout reviews, none implemented (record, then give each an issue):
 
@@ -153,7 +160,7 @@ Follow-ups from the rollout reviews, none implemented (record, then give each an
 - [ ] **Regional skew `pending` rows** (41): each waits for a published B-WLS/B-GLS study or
       a reading of the report's printed value; the row's notes say which.
 
-No issues are open for the parked items yet.
+No issues are open for the parked items or the follow-ups yet (checked 2026-10-26).
 
 The parked minors found by the rollout reviews and fixed after 0.16.0 (see CHANGELOG,
 Unreleased): the `aeps=[]` guard, `region=` case-insensitivity and its ambiguity refusal, a
