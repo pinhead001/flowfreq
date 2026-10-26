@@ -24,8 +24,8 @@ deselects `requires_network`):
   Linux-built goldens (CLAUDE.md, Validation Status).
 
 Open GitHub issues (2026-10-26): #27 (Phase A epic), #36 (future flow, kept open by
-decision), #140 and #173. #140 is marked done below (Live-service tests) and #173's library
-pieces shipped as `flowfreq.transfer_variance` (v0.13.0 onward), so both look ready to close.
+decision), and #203-#214 (the rollout follow-ups and parked items below). #140 (live-service
+tests) and #173 (`flowfreq.transfer_variance`, shipped from v0.13.0) were closed as done.
 
 The strict xfails are listed in CLAUDE.md (Validation Status). There are four 2012 PeakfqSA
 manual comparisons in `tests/validation/test_big_sandy.py`, which run everywhere and are the
@@ -91,15 +91,15 @@ Plan: `docs/superpowers/plans/2026-10-25-nationwide-rollout.md`; design:
       `load_state(..., allow_nss_snapshot=True)`, and 41 jurisdictions with 1817 equations
       (1441 with `sep_log`). A snapshot is not "supported": every jurisdiction still owes the
       roadmap 3.2 definition of done.
-- [ ] **Parked: 24 region-indicator equations** in GA, NC and SC (8 each), where an NSS
+- [ ] **Parked: 24 region-indicator equations** (#211) in GA, NC and SC (8 each), where an NSS
       equation selects its coefficients with a region indicator. They sit in
       `StateLibrary.unparsed`; they need a parser form, or hand transcription.
-- [ ] **Parked: New York's 2 urban regions** (GC1077, GC1078, WRI84_4350 Method 1 and 2 Urban
+- [ ] **Parked: New York's 2 urban regions** (#212) (GC1077, GC1078, WRI84_4350 Method 1 and 2 Urban
       Peak). NSS's Estimate returns no results for them, so the harvest cannot resolve them.
-- [ ] **Parked: ASEp below 1** on 32 LA, AR and MS equations. `sep_log` is unset because the
+- [ ] **Parked: ASEp below 1** (#213) on 32 LA, AR and MS equations. `sep_log` is unset because the
       units of NSS's ASEp there are unconfirmed (percent, or already a log10 error). Read
       the reports and set it from the source.
-- [ ] **Parked: the advisory warning.** Every snapshot load logs one, so a coverage run over
+- [ ] **Parked: the advisory warning** (#214). Every snapshot load logs one, so a coverage run over
       the 41 jurisdictions logs 41. By design while the sets are unreviewed; quiet it as sets
       are verified, or add a way to silence it for a sweep.
 
@@ -114,30 +114,30 @@ Plan: `docs/superpowers/plans/2026-10-25-nationwide-rollout.md`; design:
       55 of 56 gaged, 30 of 56 ungaged; its findings are the follow-ups below. The rollout
       plan's workstreams A, B, C and E are all done; what remains is those follow-ups.
 
-Follow-ups from the rollout reviews, none implemented (record, then give each an issue):
+Follow-ups from the rollout reviews, none implemented; each has an issue (opened 2026-10-26):
 
-- [ ] **Multi-code `region=`.** Where a boundary basin's sides each have their own
+- [ ] **Multi-code `region=`** (#203). Where a boundary basin's sides each have their own
       overlapping sets, one `region=` covers only its side and is refused. Accept a list of
       codes (one per side) and area-weight across the sides.
-- [ ] **HUC membership rows for the 15 new skew studies.** They resolve today only through
+- [ ] **HUC membership rows for the 15 new skew studies** (#204). They resolve today only through
       the state-level fallback, which applies to a state with a single usable row.
-- [ ] **A nationwide HUC8-states table** (`data/regional_skew_huc8_states.csv` lists only
+- [ ] **A nationwide HUC8-states table** (#205) (`data/regional_skew_huc8_states.csv` lists only
       some HUC8s), so a border HU12 resolves its state without `state=`.
-- [ ] **Catalog defect: gage 15388960 is filed under DC.** PORCUPINE R NR INTERNATIONAL
+- [ ] **Catalog defect: gage 15388960 is filed under DC** (#206). PORCUPINE R NR INTERNATIONAL
       BOUNDARY YT (lat 67.42, lon -140.89, in the Yukon) carries `state = DC` in
       `flowfreq/data/gage_catalog.csv.gz`. Fix it in the catalog build, not by hand; once it
       is fixed DC has no USGS gage in the catalog, so the smoke run's DC row must say so
       (the run is 55 of 56 gaged because of this row).
-- [ ] **NSS region mismatches from the smoke run** (WY, NC; NV is its own case). WY: NSS
+- [ ] **NSS region mismatches from the smoke run** (#207) (WY, NC; NV is its own case). WY: NSS
       locates GC2098 to GC2115 (18 codes) but the library's regions are the bare numbers 1
       to 6, so the library needs the NSS codes in `region_name`. NC: NSS locates GC1251 and
       GC1936, the library has GC1580, GC1581 and GC1582, and none match. NV: NSS locates no
       regression region at the smoke point (gage 10316500); check NSS coverage and the point.
       Fix the library region names or add a mapping.
-- [ ] **Library range finding: SC GC1587.** The SC estimate at gage 02147500 is refused
+- [ ] **Library range finding: SC GC1587** (#208). The SC estimate at gage 02147500 is refused
       with DRNAREA 196.0 > max 1.0 (AEP 0.5). A units or range transcription error in the SC
       snapshot is the likely cause; check it against the report.
-- [ ] **The states that need a region choice.** Where NSS returns overlapping sets at an
+- [ ] **The states that need a region choice** (#209, a hydrologist's decision). Where NSS returns overlapping sets at an
       ordinary point the caller must pass `region=`. The smoke run chose, by newest year
       and then lowest GC code (marked "verify" in its Notes): OR GC729, AZ GC1618, IL GC2004,
       TN GC2016, OK GC1791, ME GC1798, VT GC2067, AL GC1502. Chosen without a tie: IA
@@ -147,7 +147,7 @@ Follow-ups from the rollout reviews, none implemented (record, then give each an
       (MT WACTCH=0.0 < min 9.5; NM BSLDEM30ff=0.5249 > max 0.2023 and PRECIP=26.65 > max
       20.15), so each needs a hydrologist's pick. Decide whether to document a per-state
       default (the newest set) or keep the explicit choice.
-- [ ] **StreamStats service gaps on 2026-10-25** (the report is `docs/NATIONWIDE_SMOKE.md`).
+- [ ] **StreamStats service gaps on 2026-10-25** (#210) (the report is `docs/NATIONWIDE_SMOKE.md`).
       FL, MI and NE: HTTP 404 from the snap service, persisting after one retry; retry
       later. Unsnappable points AR, GA, ND, PA, PR, TX: the smoke script cannot move a point
       downstream, so the follow-up is a `--snap-distance` option or manual coordinates (ND's
@@ -160,7 +160,7 @@ Follow-ups from the rollout reviews, none implemented (record, then give each an
 - [ ] **Regional skew `pending` rows** (41): each waits for a published B-WLS/B-GLS study or
       a reading of the report's printed value; the row's notes say which.
 
-No issues are open for the parked items or the follow-ups yet (checked 2026-10-26).
+The methow-flow items and the `pending` skew rows have no issues; the rest are #203-#214.
 
 The parked minors found by the rollout reviews and fixed after 0.16.0 (see CHANGELOG,
 Unreleased): the `aeps=[]` guard, `region=` case-insensitivity and its ambiguity refusal, a
