@@ -5,10 +5,11 @@
 > in progress are tracked under "Roadmap Phase A, Wave 1 and Wave 2" in Open Items below.
 
 ## Status
-Last updated: 2026-10-22. Version **0.14.0** is released (tag `v0.14.0`, PR #182). `main` is
-**0.15.0.dev0** (#183); 0.14.x patches come from `release/0.14.x` (CLAUDE.md, Branches and
-Releases). The test counts below are from 2026-10-03; on 2026-10-22 `make check` ran
-3418 passed, 112 deselected, 6 xfailed with the extension built locally.
+Last updated: 2026-10-25. Version **0.16.0** is released (tag `v0.16.0`, the nationwide
+rollout: `nss_snapshot` equations, `estimate_at_site`, regional skew for all 56
+jurisdictions). `main` carries **0.17.0.dev0**; 0.16.x patches come from `release/0.16.x`
+(CLAUDE.md, Branches and Releases). The test counts below are from 2026-10-03; on 2026-10-22
+`make check` ran 3418 passed, 112 deselected, 6 xfailed with the extension built locally.
 Python 3.11–3.14 (`requires-python >= 3.11`; CI matrix in `.github/workflows/ci.yml`).
 
 Tests, measured 2026-10-03 on Windows / CPython 3.12 with
@@ -96,7 +97,47 @@ Plan: `docs/superpowers/plans/2026-10-25-nationwide-rollout.md`; design:
       the 41 jurisdictions logs 41. By design while the sets are unreviewed; quiet it as sets
       are verified, or add a way to silence it for a sweep.
 
+- [x] **B. `estimate_at_site` and `flowfreq ungaged`** (0.16.0, #197), with
+      `OverlappingRegionsError` and `region=`. The flowfreq-app ungaged page is app PR #7
+      (pinned to v0.16.0); the app is not merged from here.
+- [x] **C. Regional skew rows for all 56 jurisdictions** (0.16.0, #195/#196): 77 rows,
+      34 verified, with the state-level fallback.
+- [~] **E. Nationwide smoke run and docs.** Docs done (README Coverage and Ungaged sites,
+      MASTER_ROADMAP §0/§4, this file). The smoke run (`tools/nationwide_smoke.py`, report
+      `docs/NATIONWIDE_SMOKE.md`) was still being completed on its own branch at the time of
+      writing; its findings feed the two follow-ups below that cite it.
+
+Follow-ups from the rollout reviews, none implemented (record, then give each an issue):
+
+- [ ] **Multi-code `region=`.** Where a boundary basin's sides each have their own
+      overlapping sets, one `region=` covers only its side and is refused. Accept a list of
+      codes (one per side) and area-weight across the sides.
+- [ ] **HUC membership rows for the 15 new skew studies.** They resolve today only through
+      the state-level fallback, which applies to a state with a single usable row.
+- [ ] **A nationwide HUC8-states table** (`data/regional_skew_huc8_states.csv` lists only
+      some HUC8s), so a border HU12 resolves its state without `state=`.
+- [ ] **NSS region mismatches from the smoke run** (MN, NV, WY, and any from its rerun):
+      a located NSS region with no library region. Fix the library region names or add a
+      mapping; the list is in `docs/NATIONWIDE_SMOKE.md`.
+- [ ] **The states that need a region choice.** Where NSS returns overlapping sets at an
+      ordinary point the caller must pass `region=`; the smoke report lists them. Decide
+      whether to document a per-state default (the newest set) or keep the explicit choice.
+- [ ] **Open region polygons.** Where StreamStats returns no regression-region polygon (or
+      one that does not close), `locate_regression_regions` cannot place a basin; the
+      smoke report names the jurisdictions. Decide per jurisdiction between a hand-built
+      polygon and requiring `region=`.
+- [ ] **The methow-flow items stay parked** (Priorities for methow-flow below: 4 and 5 of
+      Tier 2; 7 to 12 of Tier 3), as do the 24 GA/NC/SC region-indicator forms and New York's
+      2 urban regions above.
+- [ ] **Regional skew `pending` rows** (41): each waits for a published B-WLS/B-GLS study or
+      a reading of the report's printed value; the row's notes say which.
+
 No issues are open for the parked items yet.
+
+The parked minors found by the rollout reviews and fixed after 0.16.0 (see CHANGELOG,
+Unreleased): the `aeps=[]` guard, `region=` case-insensitivity and its ambiguity refusal, a
+shared `variance_log` refusal, a public `PERCENT_WEIGHT_TOL`, the Tennessee Skew Region 2
+notes trimmed, and `regional_skew_at_huc`'s docstring and membership predicate.
 
 ### Priorities for methow-flow (set 2026-10-21)
 

@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **Parked `estimate_at_site` and regional skew minors from the rollout reviews.**
+  `assemble(aeps=[])` raised nothing and made the missing-characteristic check vacuous; an
+  empty `aeps` is now a `ValueError` (`None` still means the regions' common AEPs).
+  `region=` is compared case-insensitively, and a library region code that more than one
+  located NSS region reaches is refused as ambiguous when the regions overlap, where it used
+  to take the first. The at-site `variance_log` refusal is shared with
+  `weight_with_regression` (`gage_weighting.require_variance_log`), and
+  `streamstats.PERCENT_WEIGHT_TOL` is public (the underscored name remains an alias). The
+  Tennessee Skew Region 2 notes are shortened, `regional_skew_at_huc`'s docstring no longer
+  contradicts its fallback, its membership test is shared with `regional_skew_at`, and one
+  refusal that bypassed the shared no-study message now uses it.
+
 ## [0.16.0] - 2026-10-25
 
 The nationwide rollout: every jurisdiction gets a regression equation tier, a regional skew
