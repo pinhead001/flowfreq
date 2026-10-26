@@ -160,6 +160,14 @@ Unreleased): the `aeps=[]` guard, `region=` case-insensitivity and its ambiguity
 shared `variance_log` refusal, a public `PERCENT_WEIGHT_TOL`, the Tennessee Skew Region 2
 notes trimmed, and `regional_skew_at_huc`'s docstring and membership predicate.
 
+### Agent ops (2026-10-26)
+
+- [x] **`tools/agentops/`**, ported from flowfield2d: runner, governor profiles, usage meter,
+      hooks (`docs/AGENTOPS.md`). The hooks and status line still need merging into
+      `.claude/settings.json` from `tools/agentops/settings.example.json` (owner action).
+- [ ] **First card batch**: #203, #206, #210, #214 and methow-flow items 4, 7 and 12, each with
+      failing tests on `spec/<id>` and a card in `.agentops/cards/`.
+
 ### Priorities for methow-flow (set 2026-10-21)
 
 Roadmap items ordered by what they do for the methow-flow analysis (gage transfer in Peak
