@@ -13,7 +13,8 @@ equations and prints the report. It needs the network and takes a minute or two.
   equations' range, so a smaller stream nearby stands in. NSS returns three
   overlapping equation sets there (WRIR 03-4176's GC344 and SIR 2024-5130's GC2016 and
   GC2020), alternatives rather than a partition, so ``region="GC2016"`` chooses the
-  current report's multivariable set; the other two are listed as not used.
+  current report's multivariable set; the other two are listed as not used. Run
+  2026-10-25, that gives a 1 % AEP of 19,572 cfs (90 % PI 10,540 - 36,344).
 
 Run::
 

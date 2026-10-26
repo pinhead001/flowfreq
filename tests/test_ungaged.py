@@ -825,3 +825,9 @@ class TestEstimateAtSite:
         assert flowfreq.estimate_at_site is estimate_at_site
         assert flowfreq.SiteEstimate is SiteEstimate
         assert "estimate_at_site" in flowfreq.__all__ and "SiteEstimate" in flowfreq.__all__
+
+
+def test_overlapping_regions_error_is_exported_from_package() -> None:
+    from flowfreq import OverlappingRegionsError as exported
+
+    assert exported is OverlappingRegionsError

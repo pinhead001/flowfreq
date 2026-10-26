@@ -34,7 +34,8 @@ Values observed 2026-10-25:
   ``TN_DAO_Peakflow_Region_2_SIR_2024_5130`` (drainage area only). Both 2024 sets are
   rural; they differ as multivariable versus drainage-area-only, not rural versus
   urban, so the lower-numbered one, GC2016 (also the report's full multivariable set),
-  is chosen with ``region="GC2016"``. Without ``region`` the estimate is refused with
+  is chosen with ``region="GC2016"``: 1 % AEP 19,572 cfs (90 % PI 10,540 - 36,344).
+  Without ``region`` the estimate is refused with
   :class:`~flowfreq.ungaged.OverlappingRegionsError` listing the three.
 """
 
