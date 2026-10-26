@@ -1336,7 +1336,8 @@ class RegressionRegionLocation:
 #: 1.0 for the gap between NSS's projected area and this module's spherical one
 #: (0.3% at most live). Observed live: 89/11 against 89.46/10.54 (Goat Creek, national
 #: regions), 44/32/24 against 44.12/31.86/24.01 (Ogeechee, GA).
-_PERCENT_WEIGHT_TOL: float = 1.5
+PERCENT_WEIGHT_TOL: float = 1.5
+_PERCENT_WEIGHT_TOL: float = PERCENT_WEIGHT_TOL  # historical private alias
 
 #: How close the ``percentWeight`` of the located regions of one statistic group must
 #: sum to 100 for NSS to area-average them. Confirmed live: 60+40 returns an

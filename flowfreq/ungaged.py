@@ -47,7 +47,7 @@ import numpy as np
 import pandas as pd
 
 from flowfreq.core import FrequencyResults
-from flowfreq.gage_weighting import weight_with_regression
+from flowfreq.gage_weighting import require_variance_log, weight_with_regression
 from flowfreq.regression.equations import RegressionEstimate, evaluate, evaluate_weighted
 from flowfreq.regression.jurisdictions import jurisdiction
 from flowfreq.regression.library import (
@@ -59,7 +59,7 @@ from flowfreq.regression.library import (
     nss_snapshot_states,
 )
 from flowfreq.streamstats import (
-    _PERCENT_WEIGHT_TOL,
+    PERCENT_WEIGHT_TOL,
     RegressionRegionLocation,
     StreamStatsCache,
     delineate_and_get_characteristics,
@@ -321,8 +321,8 @@ def assemble(
         after the zero-weight and missing-characteristic steps sums to more than 100 %
         plus NSS's rounding tolerance (the 1.5 points ``streamstats`` allows, or half a
         point per region when that is more, since each weight is rounded to a whole
-        percent); the chosen region is then used alone (fraction 1.0) and the others are returned in
-        ``alternatives``; it must cover the whole basin (``percent_weight`` within the
+        percent); the chosen region is then used alone (fraction 1.0) and the others are
+        returned in ``alternatives``; it must cover the whole basin (``percent_weight`` within the
         tolerance of 100). A partition is unaffected; ``region`` naming one of its
         regions is accepted as a no-op. A ``region`` naming no region in use is always
         refused.
@@ -335,7 +335,8 @@ def assemble(
     ------
     OverlappingRegionsError
         If the regions overlap and ``region`` is not given, matches none of them, or
-        names one covering only part of the basin (overlap on a region boundary).
+        names one covering only part of the basin (overlap on a region boundary), or
+        names a library region that more than one located NSS region reaches.
     EquationsUnavailable
         If ``region`` names no region in use on a basin without overlap (the message
         says why when NSS located it: no library region, zero weight, or a missing
@@ -348,9 +349,11 @@ def assemble(
     OutOfRangeError
         If an input is outside its range and ``allow_extrapolation`` is False.
     ValueError
-        From :func:`evaluate_weighted`: an unknown ``weighting_space``, or a printed
-        ``Q=0`` weighted in log space.
+        An empty ``aeps``; or, from :func:`evaluate_weighted`, an unknown
+        ``weighting_space`` or a printed ``Q=0`` weighted in log space.
     """
+    if aeps is not None and len(aeps) == 0:
+        raise ValueError("aeps must be non-empty (use None for the regions' common AEPs)")
     choice = region
     matched: List[Tuple[RegressionRegionLocation, str]] = []
     unmatched: List[RegressionRegionLocation] = []
@@ -425,17 +428,21 @@ def assemble(
     # is the fallback), overlap or not: otherwise the estimate would rest on regions
     # the caller did not choose, with the choice recorded as if it had been applied.
     chosen: Optional[Tuple[RegressionRegionLocation, str]] = None
+    ambiguous = False
     why: Optional[str] = None
     if choice is not None:
-        chosen = next((pair for pair in used if pair[0].code == choice), None)
+        wanted = choice.upper()
+        chosen = next((pair for pair in used if pair[0].code.upper() == wanted), None)
         if chosen is None:
-            chosen = next((pair for pair in used if pair[1] == choice), None)
+            by_library = [pair for pair in used if pair[1].upper() == wanted]
+            ambiguous = len(by_library) > 1
+            chosen = by_library[0] if by_library else None
         if chosen is None:
             why = _why_not_in_use(choice, regions, region_codes, unmatched, zero_weight, missing)
 
     # NSS rounds each percent_weight to a whole percent, so an N-region partition sums
     # to 100 +/- 0.5 N; a real overlap sums to about 200, so scaling cannot mask one.
-    overlap_tol = max(_PERCENT_WEIGHT_TOL, 0.5 * len(used))
+    overlap_tol = max(PERCENT_WEIGHT_TOL, 0.5 * len(used))
     overlap = sum(r.percent_weight for r, _ in used) > 100.0 + overlap_tol
     if choice is not None and chosen is None and not overlap:
         raise EquationsUnavailable(
@@ -462,7 +469,16 @@ def assemble(
                 reason=f"region {choice!r} is not in use ({why}); the located NSS regions "
                 "overlap, so choose one of these with region= (API) or --region (CLI)",
             )
-        if chosen[0].percent_weight < 100.0 - _PERCENT_WEIGHT_TOL:
+        if ambiguous:
+            raise OverlappingRegionsError(
+                lib.state,
+                candidates,
+                choice,
+                reason=f"region {choice!r} is ambiguous: library region {chosen[1]} is "
+                f"reached by more than one located NSS region; choose by NSS code with "
+                "region= (API) or --region (CLI)",
+            )
+        if chosen[0].percent_weight < 100.0 - PERCENT_WEIGHT_TOL:
             # Overlapping sets on a region boundary: each side has its own
             # alternatives, and one set covers only its side of the basin.
             raise OverlappingRegionsError(
@@ -888,13 +904,9 @@ def estimate_at_site(
     """
     if weighting_space not in ("log", "linear"):
         raise ValueError(f"weighting_space must be 'log' or 'linear', got {weighting_space!r}")
-    cl = at_site.confidence_limits if at_site is not None else None
-    if at_site is not None and (cl is None or "variance_log" not in cl.columns):
+    if at_site is not None:
         # weight_with_regression's own refusal, raised before the StreamStats calls.
-        raise ValueError(
-            "results.confidence_limits has no 'variance_log' column; rerun the analysis "
-            "with this version of flowfreq"
-        )
+        require_variance_log(at_site)
     code = jurisdiction(state).code
     lib = _load_library(
         code,
