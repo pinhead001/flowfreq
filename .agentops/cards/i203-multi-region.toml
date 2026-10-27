@@ -1,0 +1,44 @@
+id = "i203-multi-region"
+repo = "flowfreq"
+title = "region= accepts a list of codes, one per side of a boundary basin (#203)"
+base = "origin/spec/i203-multi-region"
+model = "claude-sonnet-4-6"   # subtle control flow in assemble(); third-party pool
+prompt = """
+Outcome: `flowfreq.ungaged.assemble` (and so `estimate_at_site`) accepts `region` as a
+string (unchanged behavior) or a sequence of strings. A sequence chooses several located
+regions that together cover the basin: one per side of a region boundary where each side
+has its own overlapping equation sets.
+
+Rules for a sequence:
+- Empty, or a code repeated (case-insensitively) -> ValueError, raised before any work.
+- A one-element sequence behaves exactly like that string.
+- Each code is resolved like the string choice today (NSS code first, then a library
+  code that exactly one used region reaches; case-insensitive). A code naming no region
+  in use is refused exactly as the string is (OverlappingRegionsError naming the code when
+  the regions overlap; EquationsUnavailable on a partition).
+- With overlap: the chosen regions' `percent_weight` must sum to within the existing
+  tolerance of 100 (use the same `PERCENT_WEIGHT_TOL` / per-region rounding rule the code
+  already applies). Below it -> OverlappingRegionsError whose reason says the choice covers
+  only `<sum:g> %` of the basin (keep the existing "only 60 % of the basin" wording for the
+  single-code case). Above it -> OverlappingRegionsError whose reason says the chosen
+  regions cover `<sum:g> %` of the basin, i.e. they overlap each other. Otherwise `used`
+  becomes the chosen regions in their located order, fractions are renormalised
+  percent_weights, and every other used region goes to `alternatives`.
+- Without overlap (a partition): every code must be in use; then it is a no-op.
+
+CLI (flowfreq/cli.py `ungaged`): `--region` given with commas ("GC1, GC2") passes a list
+of stripped codes; without a comma it passes the string unchanged. Update its help text.
+
+Files to read: flowfreq/ungaged.py (`OverlappingRegionsError`, `_why_not_in_use`,
+`assemble`, the `region` parameter of `estimate_at_site`), flowfreq/cli.py (`ungaged`).
+Files to edit: flowfreq/ungaged.py, flowfreq/cli.py, CHANGELOG.md (one line under
+"## [Unreleased]" -> "### Added").
+
+Tests (already written, do not edit): tests/test_ungaged_multi_region.py; tests/test_ungaged.py
+and tests/test_cli.py must still pass unchanged.
+
+Constraints: update the `region` docstrings in `assemble` and `estimate_at_site` and the
+module docstring's "Assembly rules"; type it `Union[str, Sequence[str], None]`; keep
+Python 3.11 compatibility.
+"""
+acceptance = "python -m pytest tests/test_ungaged_multi_region.py tests/test_ungaged.py tests/test_cli.py -q -p no:cacheprovider"

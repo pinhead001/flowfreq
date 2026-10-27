@@ -172,8 +172,19 @@ notes trimmed, and `regional_skew_at_huc`'s docstring and membership predicate.
 - [x] **`tools/agentops/`**, ported from flowfield2d: runner, governor profiles, usage meter,
       hooks (`docs/AGENTOPS.md`). The hooks and status line still need merging into
       `.claude/settings.json` from `tools/agentops/settings.example.json` (owner action).
-- [ ] **First card batch**: #203, #206, #210, #214 and methow-flow items 4, 7 and 12, each with
-      failing tests on `spec/<id>` and a card in `.agentops/cards/`.
+- [~] **First card batch** (2026-10-26): six cards in `.agentops/cards/`, each with its failing
+      tests on `spec/<id>`: `i214-snapshot-warning`, `i206-catalog-outside-us`,
+      `i210-smoke-points`, `i203-multi-region` (Sonnet: subtle `assemble` control flow),
+      `m12-bootstrap-power`, `m4-bracket-interpolation`. Next: `cards add` them and `cards run`
+      on a machine with agy, then review each `card/<id>` and open its PR. After #206 merges,
+      rebuild the catalog for DC live (`tools/build_gage_catalog.py --states DC`).
+- [~] **Methow item 7, part 1 carded** (`m7-monthly-transfer`, Sonnet). Owner decisions,
+      2026-10-26: transfer by the runoff-volume ratio `(At Rt)/(Ag Rg)` with exponent 1
+      (as production, METHOW_METHODS §12); sampling variance and covariance from concurrent
+      water years (delta method for the mean, bivariate-normal asymptotics for the median);
+      zero-flow gage-months excluded and reported. Statistics: the mean and the median of
+      the yearly monthly means (the hydraulic handoff uses May and September medians).
+      Part 2: monthly leave-one-out and blend; part 3: duration quantiles (q10, q50, q90).
 
 ### Priorities for methow-flow (set 2026-10-21)
 
@@ -207,7 +218,8 @@ Tier 2 -- fixes known Methow biases or moves general code upstream:
 
 Tier 3 -- ordered for the per-reach monthly mean flows (WY1992-2025) that every EDT flow
 attribute in methow-flow waits on (`docs/EDT_ATTRIBUTE_CROSSWALK.md` §6 there):
-7. [ ] **Transfer variance for monthly and duration flows** (§5.1). Extend
+7. [~] **Transfer variance for monthly and duration flows** (§5.1); decisions made
+       2026-10-26, part 1 carded (Agent ops, below). Extend
        `transfer_variance` from flood quantiles to a monthly mean per calendar month and
        to duration quantiles: pairs and `s2_d` fitted per month, the GLS blend and
        leave-one-out unchanged. Open questions: the exponent `b` per month (no
