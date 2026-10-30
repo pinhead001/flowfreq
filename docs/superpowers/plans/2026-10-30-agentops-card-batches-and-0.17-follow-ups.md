@@ -84,13 +84,16 @@ checkout seven commits behind `main` and re-planned tooling that already existed
 - [ ] `cards run --card i214-snapshot-warning` first, alone. Expected: `done`, ledger `ok: true`,
   acceptance tail `passed`. If the ledger shows `ok: false` with an empty response, stop: the
   permission rules are not in effect.
-- [ ] `cards run` for the rest (concurrency from the governor). i207 waits for i203 (`depends_on`).
+- [ ] `cards run` for the rest (concurrency from the governor). i207 is not queued: `depends_on`
+  only orders dispatch, and its worktree is cut from `spec/i207-region-unlocated`, which lacks
+  i203's code. After `card/i203` merges, recut that spec branch from `main` (rebase its two test
+  commits), then `cards add` i207.
 - [ ] For each `done` card: `git diff main...card/<id>`, the `reviewer` subagent, push, PR with
   `Closes #<n>`, CI, merge in order: i214, i210, i206, i203, i207, i205, then m12, m4, m7.
 
 ### Task 2: Lead follow-through after merges
 
-- [ ] After i206: `USGS_API_KEY=... python tools/build_gage_catalog.py --states DC AK --refresh`;
+- [ ] After i206: `USGS_API_KEY=... python tools/build_gage_catalog.py --states DC --refresh`;
   confirm 15388960 is gone and the DC row of the smoke report says "no USGS gage in the
   catalog"; commit the catalog and `gage_catalog.meta.json`.
 - [ ] After i205: `python tools/build_huc8_states.py`; expect about 2,300 rows, every current

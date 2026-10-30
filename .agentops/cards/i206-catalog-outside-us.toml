@@ -31,6 +31,8 @@ Tests (already written, do not edit): tests/test_catalog_outside_us.py.
 Constraints: update the `build_rows` docstring (`locations` and `default_state` entries) to
 say this; do not regenerate or edit flowfreq/data/gage_catalog.csv.gz (the lead rebuilds it
 with the live tool after merge). Add a one-line entry under "## [Unreleased]" ->
-"### Fixed" in CHANGELOG.md.
+"### Fixed" in CHANGELOG.md: Catalog: a gage outside the United States gets no state; the Water
+Data API codes 15388960 (Yukon) with province code 11 under country CA, which filed it under DC
+(#206).
 """
 acceptance = "python -m pytest tests/test_catalog_outside_us.py tests/test_catalog.py -q -p no:cacheprovider"

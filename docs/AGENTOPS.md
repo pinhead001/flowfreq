@@ -91,7 +91,7 @@ repo = "flowfreq"
 title = "Silence the nss_snapshot advisory for sweeps (#214)"
 base = "origin/spec/i214-snapshot-warning"   # holds the failing tests; git fetch first
 model = "claude-sonnet-5-5-medium"   # optional; omit to take the first free pool in [agy] models
-depends_on = []                        # card ids that must be done first
+depends_on = []   # orders dispatch only; recut this card's spec branch from main after they merge
 max_retries = 2                        # optional override
 prompt = """
 Outcome, not steps. Files to read: ... Files to edit: ...

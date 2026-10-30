@@ -4,6 +4,10 @@ title = "region= names a library region when NSS locates no peak-flow region (WY
 base = "origin/spec/i207-region-unlocated"
 model = "claude-sonnet-5-5-medium"   # early-exit control flow in assemble(); third-party pool
 depends_on = ["i203-multi-region"]
+# NOT QUEUED until card/i203 has merged to main and spec/i207-region-unlocated has been recut
+# from that main: depends_on only orders dispatch, and the worktree is cut from `base`, which
+# today lacks i203's code and tests/test_ungaged_multi_region.py (the acceptance would fail on
+# "file not found" and burn Sonnet retries).
 prompt = """
 Outcome: `flowfreq.ungaged.assemble` (and so `estimate_at_site`) can use a library region the
 caller names with `region=` when NSS located no region that maps to the library. Wyoming's and
@@ -20,13 +24,19 @@ Rules:
    `region_name` (the same token rule `region_for_nss_code` applies to NSS codes). If it
    resolves, build `RegressionRegionLocation(region_id=0, code=<the code as the caller gave it,
    upper-cased>, name=<that library region's name from its first named equation>,
-   percent_weight=100.0, area_sq_mi=0.0)`, treat it as the single matched region, and continue
-   down the normal single-region path (fraction 1.0, the region's own prediction interval,
-   `alternatives == []`, `unmatched` still listing the located regions that did not map). Set
+   percent_weight=100.0, area_sq_mi=0.0)`, treat it as the single matched region, record it in
+   `Assembly.region_codes` as `{<that code>: <library region_code>}` (so `to_markdown` cites the
+   library region through it), and continue down the normal single-region path (fraction 1.0,
+   the region's own prediction interval, `alternatives == []`, `unmatched` still listing the
+   located regions that did not map). Set
    `region_choice_source = "caller; NSS located no peak-flow region for this basin"`.
    On every other path leave it None.
 3. When `region` is given but resolves to nothing, keep today's two refusals and append
-   `; region {region!r} is not a library region either` to the message that is raised.
+   `; region {code!r} is not a library region either` to the message that is raised, where
+   `code` is the single code string exactly as the caller gave it (not the normalised list:
+   the test expects `'NOPE'`). When `region` is a list of two or more codes and `regions` is
+   empty or `matched` is empty, raise the same refusal with `region {codes!r}` formatting the
+   list as given; a list never resolves to a library region here.
 4. When `region` is None both refusals are unchanged.
 5. `estimate_at_site`: copy `assembly.region_choice_source` into
    `SiteEstimate.provenance["region_choice_source"]` when it is not None; add one sentence to
@@ -36,8 +46,8 @@ Rules:
 Files to read: flowfreq/ungaged.py (`Assembly`, `region_for_nss_code`, `_region_name`,
 `assemble` up to the overlap check, `estimate_at_site`).
 Files to edit: flowfreq/ungaged.py, CHANGELOG.md (one line under "## [Unreleased]" ->
-"### Changed": `region=` works where NSS locates no peak-flow region (Wyoming, Nevada), and the
-provenance says the caller chose it (#207)).
+"### Changed", creating that heading before "### Fixed" if absent: `region=` works where NSS
+locates no peak-flow region (Wyoming, Nevada), and the provenance says the caller chose it (#207)).
 
 Tests (already written, do not edit): tests/test_ungaged_region_unlocated.py;
 tests/test_ungaged.py and tests/test_ungaged_multi_region.py must still pass unchanged.
