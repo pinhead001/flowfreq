@@ -102,7 +102,7 @@ dev = [
     "pandas-stubs",
     "types-requests",
     # tools/agentops (the delegate runner, docs/AGENTOPS.md): queue and ledger locks.
-    "filelock>=3.13,<4",
+    "filelock>=3.13,<5",
 ]
 
 # Raster reading for the regression-study tools under tools/ (basin
