@@ -232,7 +232,7 @@ def _nss_snapshot_advisory(code: str, lib: StateLibrary) -> str:
     )
 
 
-def _load_opt_in(root: Path, code: str, status: str) -> Optional[StateLibrary]:
+def _load_opt_in(root: Path, code: str, status: str, warn: bool = True) -> Optional[StateLibrary]:
     """Load ``<subdir>/<CODE>.json`` for an opt-in status, or None if there is none."""
     path = root / OPT_IN_SUBDIRS[status] / f"{code}.json"
     if not path.exists():
@@ -249,7 +249,8 @@ def _load_opt_in(root: Path, code: str, status: str) -> Optional[StateLibrary]:
         lib.advisory = _awaiting_nss_advisory(code, lib)
     else:
         lib.advisory = _nss_snapshot_advisory(code, lib)
-    logger.warning("%s", lib.advisory)
+    log = logger.warning if warn else logger.debug
+    log("%s", lib.advisory)
     return lib
 
 
@@ -260,6 +261,7 @@ def load_state(
     allow_provisional: bool = False,
     allow_awaiting_nss: bool = False,
     allow_nss_snapshot: bool = False,
+    warn: bool = True,
 ) -> StateLibrary:
     """Load one jurisdiction's equation library.
 
@@ -285,6 +287,10 @@ def load_state(
         a logged warning. Without one, the published set is returned as usual.
         It ranks last among the opt-in sets: ``awaiting_nss``, then
         ``provisional``, then ``nss_snapshot``.
+    warn : bool
+        Log the advisory of a returned opt-in set with ``logger.warning`` (the
+        default). When False it is logged with ``logger.debug`` instead; ``advisory``
+        is set either way.
 
     Returns
     -------
@@ -307,7 +313,7 @@ def load_state(
         ("nss_snapshot", allow_nss_snapshot),
     ):
         if wanted:
-            opt_in = _load_opt_in(root, code, status)
+            opt_in = _load_opt_in(root, code, status, warn)
             if opt_in is not None:
                 return opt_in
     path = root / f"{code}.json"
