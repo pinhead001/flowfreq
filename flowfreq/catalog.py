@@ -350,7 +350,6 @@ def build_rows(
         else:
             loc = {}
             state = default_state
-        state = loc.get("state") or default_state
         if not state:
             continue
         row = catalog_row(
