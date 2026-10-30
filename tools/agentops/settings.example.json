@@ -1,0 +1,41 @@
+{
+  "statusLine": {
+    "type": "command",
+    "command": "bash \"${CLAUDE_PROJECT_DIR}/tools/agentops.sh\" statusline"
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "timeout": 30,
+            "command": "bash \"${CLAUDE_PROJECT_DIR}/tools/agentops.sh\" hook session-start"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash|TeamCreate|Workflow",
+        "hooks": [
+          {
+            "type": "command",
+            "timeout": 30,
+            "command": "bash \"${CLAUDE_PROJECT_DIR}/tools/agentops.sh\" hook pre-tool-use"
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Bash(python tools/agentops_cli.py *)",
+      "Bash(bash tools/agentops.sh *)"
+    ],
+    "deny": [
+      "Edit(vendor/**)",
+      "Write(vendor/**)"
+    ]
+  }
+}
