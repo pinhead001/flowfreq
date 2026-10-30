@@ -109,7 +109,14 @@ jobs:
   # machine happened to have gfortran. This job gives it one.
   fortran:
     name: Fortran parity
-    runs-on: ubuntu-latest
+    # Pinned, not ubuntu-latest: the golden files were generated with gfortran
+    # 13.3.0 (docs/FORTRAN_UPLOAD.md section 6.0), the toolchain ubuntu-24.04
+    # ships. When ubuntu-latest moved to 26.04 on 2026-10-30 its newer gfortran
+    # reproduced the documented toolchain drift (CLAUDE.md, Validation Status):
+    # rel=1e-12 oracle checks off in the 6th digit and two strict xfails in
+    # test_fixed_threshold_live.py passing. Move this pin only together with
+    # regenerating the golden files (tools/gen_fortran_golden.py).
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
