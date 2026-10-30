@@ -2,9 +2,12 @@
   "colorScheme": "dark",
   "permissions": {
     "allow": [
-      "command(regex:python -m (pytest|black|isort|mypy)( .*)?)",
-      "command(regex:git (status|diff|log|show)( .*)?)",
-      "command(regex:(Get-ChildItem|Get-Content|Select-String|Test-Path|Get-Item|ls|dir|cat|type)( [^|;&>]*)?)",
+      "command(regex:(python|python3|py)( .*)?)",
+      "command(regex:(pytest|black|isort|mypy|ruff)( .*)?)",
+      "command(regex:uv run (pytest|ruff|mypy|black|isort|gu1|gu2|gu3|gu-results)( .*)?)",
+      "command(regex:git (status|diff|log|show|grep|ls-files|blame|rev-parse|describe)( .*)?)",
+      "command(regex:(rg|grep|findstr|find|where|which|wc|head|tail|sort|uniq|echo|pwd)( .*)?)",
+      "command(regex:(Get-ChildItem|Get-Content|Select-String|Test-Path|Get-Item|Get-Location|ls|dir|cat|type)( [^|;&>]*)?)",
       "command(regex:((Get-ChildItem|Get-Content|Test-Path|Get-Item|ls|dir|cat|type)( [^|;&>]*)?( 2>(\\$null|&1))?;? ?)+)",
       "read_file(D:/a/sbx/state/agentops-flowfreq/worktrees)",
       "read_file(D:/a/sbx/state/agentops-gu/worktrees)"
