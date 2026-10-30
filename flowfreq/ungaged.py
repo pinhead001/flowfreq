@@ -51,7 +51,12 @@ import pandas as pd
 
 from flowfreq.core import FrequencyResults
 from flowfreq.gage_weighting import require_variance_log, weight_with_regression
-from flowfreq.regression.equations import RegressionEstimate, evaluate, evaluate_weighted
+from flowfreq.regression.equations import (
+    RegressionEstimate,
+    evaluate,
+    evaluate_weighted,
+    input_codes,
+)
 from flowfreq.regression.jurisdictions import jurisdiction
 from flowfreq.regression.library import (
     OPT_IN_SUBDIRS,
@@ -131,9 +136,9 @@ def _needed_codes(lib: StateLibrary, region_code: str, aeps: Sequence[float]) ->
     codes: List[str] = []
     for aep in aeps:
         eq = lib.equation(region_code, aep)
-        for v in (*eq.variables, *eq.applicability):
-            if v.code not in codes:
-                codes.append(v.code)
+        for code in input_codes(eq):
+            if code not in codes:
+                codes.append(code)
     return codes
 
 
