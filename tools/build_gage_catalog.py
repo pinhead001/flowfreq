@@ -299,7 +299,7 @@ def state_locations(api: Paced, fips: str, cache: Path, refresh: bool) -> List[d
         "f": "json",
         "state_code": fips,
         "site_type_code": "ST",
-        "properties": "monitoring_location_name,state_code,hydrologic_unit_code,drainage_area",
+        "properties": "monitoring_location_name,state_code,hydrologic_unit_code,drainage_area,country_code",
         "limit": 50000,
     }
     return list(
