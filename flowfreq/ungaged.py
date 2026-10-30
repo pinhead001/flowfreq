@@ -296,6 +296,9 @@ class Assembly:
     alternatives : list of RegressionRegionLocation
         Overlapping regions set aside when ``region`` chose another (empty when the
         regions partition the basin).
+    region_choice_source : str, optional
+        Set when ``region`` named a library region that NSS did not locate (NSS located no
+        peak-flow region mapping to the library); ``None`` on every other path.
     """
 
     quantiles: pd.DataFrame
@@ -306,6 +309,24 @@ class Assembly:
     zero_weight: List[RegressionRegionLocation]
     missing: Dict[str, List[str]]
     alternatives: List[RegressionRegionLocation] = field(default_factory=list)
+    region_choice_source: Optional[str] = None
+
+
+def _library_region(lib: StateLibrary, code: str) -> Optional[str]:
+    """Resolve a caller's code to a library ``region_code`` (case-insensitively), else None.
+
+    Equal to a ``region_code`` in ``lib.regions``, or a whole-token match inside some
+    equation's ``region_name`` (the token rule of :func:`region_for_nss_code`).
+    """
+    wanted = code.upper()
+    for lib_code in lib.regions:
+        if lib_code.upper() == wanted:
+            return lib_code
+    token = re.compile(rf"(?<![A-Za-z0-9]){re.escape(code)}(?![A-Za-z0-9])", re.IGNORECASE)
+    for e in lib.equations:
+        if e.region_name and token.search(e.region_name):
+            return e.region_code
+    return None
 
 
 def assemble(
@@ -358,7 +379,13 @@ def assemble(
         are area-weighted (fractions renormalised) in their located order and every
         other region goes to ``alternatives``. An empty sequence, a repeated code
         (case-insensitively) or one region named twice under its NSS and library codes
-        is a ``ValueError``; a one-element sequence is the same as that string.
+        is a ``ValueError``; a one-element sequence is the same as that string. When NSS
+        located no region (``regions`` empty) or none maps to the library, a single code
+        that resolves against the library (a ``region_code``, or a whole token in an
+        equation's ``region_name``, case-insensitively) is used alone as a region of
+        ``percent_weight`` 100, recorded in ``region_codes``, with
+        ``region_choice_source`` set; otherwise the refusal also says the code is not a
+        library region (a sequence of two or more codes never resolves this way).
 
     Returns
     -------
@@ -397,15 +424,35 @@ def assemble(
             unmatched.append(loc)
         else:
             matched.append((loc, lib_code))
-    if not regions:
+    region_choice_source: Optional[str] = None
+    extra_refusal = ""
+    pre_matched: Dict[str, str] = {}
+    if region is not None and (not regions or not matched):
+        resolved = _library_region(lib, choice) if len(choices) == 1 and choice else None
+        if resolved is not None and choice is not None:
+            located = RegressionRegionLocation(
+                region_id=0,
+                code=choice.upper(),
+                name=_region_name(lib, resolved),
+                percent_weight=100.0,
+                area_sq_mi=0.0,
+            )
+            matched = [(located, resolved)]
+            pre_matched = {located.code: resolved}
+            region_choice_source = "caller; NSS located no peak-flow region for this basin"
+        else:
+            shown = choice if len(choices) == 1 else region
+            extra_refusal = f"; region {shown!r} is not a library region either"
+    if not regions and not matched:
         raise EquationsUnavailable(
             f"{lib.state}: NSS located no regression region for this basin in "
             f"{lib.state}; check the state and that the point is on a stream NSS covers"
+            + extra_refusal
         )
     if not matched:
         raise EquationsUnavailable(
             f"{lib.state}: none of the located NSS regions ({_codes(regions)}) matches a "
-            f"library region ({', '.join(lib.regions) or 'none'})"
+            f"library region ({', '.join(lib.regions) or 'none'})" + extra_refusal
         )
     if unmatched:
         logger.warning(
@@ -415,6 +462,7 @@ def assemble(
             ", ".join(r.code for r, _ in matched),
         )
     region_codes = {loc.code: lib_code for loc, lib_code in matched}
+    region_codes.update(pre_matched)
 
     zero_weight = [loc for loc, _ in matched if not loc.percent_weight > 0]
     weighted = [(loc, lib_code) for loc, lib_code in matched if loc.percent_weight > 0]
@@ -655,6 +703,7 @@ def assemble(
         zero_weight=zero_weight,
         missing=missing,
         alternatives=alternatives,
+        region_choice_source=region_choice_source,
     )
 
 
@@ -954,7 +1003,9 @@ def estimate_at_site(
         area, such as a superseded report and its replacement), the one to use, by NSS
         code or library ``region_code`` (:func:`assemble`). The others are listed in
         ``provenance["alternative_regions"]``. May also be a sequence of codes that
-        together cover the basin (see :func:`assemble`).
+        together cover the basin (see :func:`assemble`). Where NSS locates no peak-flow
+        region for the state (Wyoming, Nevada), a library region code chosen from the
+        report's map is used alone.
 
     Returns
     -------
@@ -1077,6 +1128,8 @@ def estimate_at_site(
         },
         "estimated_at_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     }
+    if assembly.region_choice_source is not None:
+        provenance["region_choice_source"] = assembly.region_choice_source
     return SiteEstimate(
         lat=lat,
         lon=lon,
