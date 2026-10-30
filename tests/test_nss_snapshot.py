@@ -144,7 +144,9 @@ class TestParseForms:
             "2*A^0.5*(A+1)^0.2",  # one variable, two rescalings
             "max(0,1.53*(10^(-4.9)*A^1.09*C^2.6-1))",  # subtracted constant
             "10^(0.1*A)*A^0.5",  # one variable, two transforms
-            "A^C",  # non-constant exponent
+            "A^(C^2)",  # exponent not affine in the variables
+            "A^(log(C))",  # exponent not affine in the variables
+            "(A^C)^(0.5+0.1*D)",  # an interaction raised to an affine exponent
             "e#^(8.92+(-0.0141*(A)))/(1+e#^(8.92+(-0.0141*(A))))",  # logistic, malformed
             "exp(A)",  # unsupported function
             "-2*A^0.5",  # negative
@@ -155,6 +157,40 @@ class TestParseForms:
     def test_refuses_what_it_cannot_represent(self, equation):
         with pytest.raises(NSSEquationError):
             parse_equation(equation)
+
+    def test_affine_exponent_becomes_interaction_terms(self):
+        # The SIR 2023-5006 Southeast US form (NSS GC1934/GC1935/GC1936, #211).
+        s = (
+            "(LC19IMP^0)*10^(1.82+0.00354*PCTREG1-0.00202*PCTREG3+0.00187*PCTREG5)"
+            "*DRNAREA^(0.646+0.00224*PCTREG2)*PCTREG4^(0)"
+        )
+        parsed = parse_equation(s)
+        terms = dict(zip(zip(parsed.codes, parsed.times), parsed.coefficients))
+        assert terms == pytest.approx(
+            {
+                ("LC19IMP", None): 0.0,
+                ("PCTREG1", None): 0.00354,
+                ("PCTREG3", None): -0.00202,
+                ("PCTREG5", None): 0.00187,
+                ("DRNAREA", None): 0.646,
+                ("DRNAREA", "PCTREG2"): 0.00224,
+                ("PCTREG4", None): 0.0,
+            }
+        )
+        assert parsed.intercept == pytest.approx(1.82)
+        values = {"DRNAREA": 26.686326086593485, "LC19IMP": 5.0}
+        values.update({f"PCTREG{i}": 50.0 for i in range(1, 6)})
+        assert _roundtrip(s, values) < 1e-12
+        # NSS's own value at those inputs, from the 2026-10-25 GA snapshot (3 s.f.).
+        assert 10.0 ** parsed.log10_value(values) == pytest.approx(1180.0, rel=5e-3)
+
+    def test_affine_exponent_on_a_scaled_base(self):
+        # A constant inside the base: (3*A)^(0.5 + 0.1*C) adds 0.1*log10(3)*C.
+        s = "2*(3*A)^(0.5+0.1*C)"
+        parsed = parse_equation(s)
+        assert parsed.times == (None, None, "C")
+        assert _roundtrip(s, self.VALUES) < 1e-12
+        assert parse_equation("A^C").times == (None, "C")
 
     @pytest.mark.parametrize(
         "equation, code, scale, offset",

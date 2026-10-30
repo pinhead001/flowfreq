@@ -131,7 +131,7 @@ def prediction_sep(eq: RegressionEquation, characteristics: Mapping[str, float])
     """
     if eq.covariance is None or eq.model_error_variance is None:
         raise ValueError(f"{eq.region_code} AEP {eq.aep}: no covariance to compute a site SEP")
-    x = np.array([1.0] + [v.apply(float(characteristics[v.code])) for v in eq.variables])
+    x = np.array([1.0] + [v.value(characteristics) for v in eq.variables])
     return math.sqrt(eq.model_error_variance + float(x @ np.asarray(eq.covariance) @ x))
 
 

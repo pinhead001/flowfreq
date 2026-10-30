@@ -968,6 +968,7 @@ def area_exponent(lib: StateLibrary, region: str, aep: float) -> Optional[float]
             and v.transform == "log10"
             and v.scale == 1.0
             and v.offset == 0.0
+            and v.times is None
         ):
             return float(c)
     return None

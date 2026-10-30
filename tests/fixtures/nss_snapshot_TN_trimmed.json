@@ -190,7 +190,7 @@
      "statistic_name": "0.2-percent AEP flood",
      "aep": 0.002,
      "unit": "ft^3/s",
-     "equation": "DRNAREA^(0.735+0.001*LC11IMPALT)",
+     "equation": "DRNAREA^(0.735+0.001*LC11IMPALT^2)",
      "nss_value": null,
      "nss_sep": 0.20825069917462283,
      "asep_pct": 51.4,
@@ -204,7 +204,7 @@
      "equivalent_years": null,
      "interval_bounds": null,
      "parsed": null,
-     "parse_error": "non-constant exponent on a base other than 10 in 'DRNAREA^(0.735+0.001*LC11IMPALT)'",
+     "parse_error": "non-constant exponent on a base other than 10 in 'DRNAREA^(0.735+0.001*LC11IMPALT^2)'; the exponent is not affine in the variables",
      "round_trip": null
     }
    ]

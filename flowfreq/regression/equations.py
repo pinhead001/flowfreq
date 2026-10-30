@@ -129,6 +129,15 @@ class Variable:
     intercept ``a``, coefficient ``-b``, exponent ``-c``. An ordinary power-form
     term ``A**b`` is still ``log10`` with coefficient ``b``.
 
+    ``times`` names a second characteristic ``Y`` that multiplies the term, so the
+    value entering the regression is ``T(scale * x + offset) * Y``. It is for an
+    exponent that is affine in other characteristics, as in the Southeast US
+    region-indicator equations (SIR 2023-5006),
+    ``Q = 10**(a + ...) * A**(b0 + b2 * PCTREG2)``: in log space that is
+    ``b0 * log10(A) + b2 * PCTREG2 * log10(A)``, the second term a ``log10``
+    variable on ``A`` with ``times="PCTREG2"``. ``Y`` enters raw, unscaled and
+    untransformed, and carries no limits of its own here.
+
     ``transform="log10_plus1"`` is kept as a backward-compatible alias for
     ``log10`` with ``offset`` increased by 1: it evaluates
     ``log10(scale * x + offset + 1)``.
@@ -152,6 +161,9 @@ class Variable:
     exponent : float, optional
         Required with ``transform="power"`` (finite and non-zero) and not
         allowed with any other transform.
+    times : str, optional
+        A characteristic code whose raw value multiplies the transformed term (an
+        interaction). ``None`` for an ordinary term.
 
     Notes
     -----
@@ -173,8 +185,11 @@ class Variable:
     scale: float = 1.0
     offset: float = 0.0
     exponent: Optional[float] = None
+    times: Optional[str] = None
 
     def __post_init__(self) -> None:
+        if self.times is not None and not self.times.strip():
+            raise ValueError(f"{self.code}: times must name a characteristic code")
         if self.transform not in TRANSFORMS and self.transform not in PARAMETRIC_TRANSFORMS:
             raise ValueError(
                 f"Unknown transform {self.transform!r}; choose from "
@@ -230,6 +245,33 @@ class Variable:
             return float(arg**self.exponent)
         return TRANSFORMS[self.transform](arg)
 
+    @property
+    def key(self) -> Tuple[str, Optional[str]]:
+        """``(code, times)``: what makes a variable distinct within an equation."""
+        return (self.code, self.times)
+
+    @property
+    def input_codes(self) -> Tuple[str, ...]:
+        """The characteristic codes the term reads: ``code``, then ``times`` if set."""
+        return (self.code,) if self.times is None else (self.code, self.times)
+
+    def value(self, characteristics: Mapping[str, float]) -> float:
+        """The value entering the regression, read from a characteristics mapping.
+
+        ``apply(x)`` for an ordinary term, ``apply(x) * Y`` with ``times="Y"``.
+
+        Raises
+        ------
+        KeyError
+            If a code the term reads is missing.
+        ValueError
+            As :meth:`apply`.
+        """
+        out = self.apply(float(characteristics[self.code]))
+        if self.times is not None:
+            out *= float(characteristics[self.times])
+        return out
+
     def _argument_text(self) -> str:
         text = self.code if self.scale == 1.0 else f"{self.scale:g}*{self.code}"
         if self.offset:
@@ -255,6 +297,8 @@ class Variable:
             d["offset"] = self.offset
         if self.exponent is not None:
             d["exponent"] = self.exponent
+        if self.times is not None:
+            d["times"] = self.times
         return d
 
 
@@ -393,9 +437,10 @@ class RegressionEquation:
             raise ValueError(f"aep must be in (0, 1), got {self.aep}")
         if len(self.variables) != len(self.coefficients):
             raise ValueError("variables and coefficients differ in length")
+        keys = [v.key for v in self.variables]
+        if len(set(keys)) != len(keys):
+            raise ValueError(f"duplicate variables (code, times): {keys}")
         codes = [v.code for v in self.variables]
-        if len(set(codes)) != len(codes):
-            raise ValueError(f"duplicate variable codes: {codes}")
         limit_codes = [v.code for v in self.applicability]
         if len(set(limit_codes)) != len(limit_codes) or set(limit_codes) & set(codes):
             raise ValueError(
@@ -550,14 +595,27 @@ class RegressionEstimate:
 
 
 def _check_range(eq: RegressionEquation, values: Mapping[str, float]) -> List[str]:
-    problems = []
+    problems: List[str] = []
     for v in (*eq.variables, *eq.applicability):
         x = values[v.code]
         if v.minimum is not None and x < v.minimum:
             problems.append(f"{v.code}={x} < min {v.minimum}")
         if v.maximum is not None and x > v.maximum:
             problems.append(f"{v.code}={x} > max {v.maximum}")
-    return problems
+    # An interaction term repeats its code's range: report each problem once.
+    return list(dict.fromkeys(problems))
+
+
+def input_codes(eq: RegressionEquation) -> List[str]:
+    """Every characteristic code ``eq`` reads, in first-use order.
+
+    The variables' codes and ``times`` codes, then the applicability limits'.
+    """
+    codes: Dict[str, None] = {}
+    for v in eq.variables:
+        codes.update(dict.fromkeys(v.input_codes))
+    codes.update(dict.fromkeys(v.code for v in eq.applicability))
+    return list(codes)
 
 
 def _prediction_sd(
@@ -616,19 +674,19 @@ def evaluate(
         If a transform's argument, ``scale * x + offset``, is outside its domain
         (``<= 0`` for ``log10`` and ``power``), whatever ``allow_extrapolation`` says.
     """
-    needed = (*eq.variables, *eq.applicability)
-    missing = [v.code for v in needed if v.code not in characteristics]
+    needed = input_codes(eq)
+    missing = [code for code in needed if code not in characteristics]
     if missing:
         raise KeyError(f"Missing basin characteristic(s) for {eq.region_code}: {missing}")
-    values = {v.code: float(characteristics[v.code]) for v in eq.variables}
-    problems = _check_range(eq, {v.code: float(characteristics[v.code]) for v in needed})
+    values = {code: float(characteristics[code]) for v in eq.variables for code in v.input_codes}
+    problems = _check_range(eq, {code: float(characteristics[code]) for code in needed})
     if problems and not allow_extrapolation:
         raise OutOfRangeError(f"{eq.region_code} AEP {eq.aep}: " + "; ".join(problems))
     if problems:
         logger.warning("Extrapolating %s AEP %s: %s", eq.region_code, eq.aep, "; ".join(problems))
 
     try:
-        transformed = np.array([v.apply(values[v.code]) for v in eq.variables])
+        transformed = np.array([v.value(values) for v in eq.variables])
     except ValueError as exc:
         raise ValueError(f"{eq.region_code} AEP {eq.aep}: {exc}") from None
     if eq.form == "constant":

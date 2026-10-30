@@ -8,9 +8,9 @@ source report.
 ``tests/fixtures/nss_snapshot_TN_trimmed.json`` is the 2026-10-25 Tennessee snapshot
 trimmed to two regions: GC2015 with three equations, and GC341. Two things in it are
 invented, as its ``note`` says: GC341 was flipped to ``unresolved`` with a made-up
-reason, and GC2015's 0.2% AEP equation string is synthetic -- a region-indicator
-interaction, the GA/NC/SC form the parser refuses -- so that the fixture carries one
-refusal; its ``parse_error`` is the parser's message for that string. (The real string
+reason, and GC2015's 0.2% AEP equation string is synthetic -- a power whose exponent
+is not affine in the variables (a squared characteristic), a form the parser refuses --
+so that the fixture carries one refusal; its ``parse_error`` is the parser's message for that string. (The real string
 is ``65.8*(DRNAREA^0.701)*(CLIMFAC2YR^2.928)``.) The printed-constant case is built
 inline by ``test_constant_q0_is_stored_as_a_constant``.
 """
@@ -48,6 +48,7 @@ from flowfreq.regression.library import (
 )
 
 FIXTURE = Path(__file__).parent / "fixtures" / "nss_snapshot_TN_trimmed.json"
+REPO_ROOT = Path(__file__).resolve().parent.parent
 
 EQ = {
     "region_code": "GC2015",
@@ -558,7 +559,7 @@ def test_every_snapshot_library_loads_and_evaluates(code):
     lib = load_state(code, allow_nss_snapshot=True)
     assert lib.nss_snapshot and lib.equations
     for eq in lib.equations:
-        mid = {v.code: _midpoint(v) for v in eq.variables}
+        mid = {v.code: _midpoint(v) for v in (*eq.applicability, *eq.variables)}
         flow = evaluate(eq, mid).flow_cfs
         if eq.form == "constant":
             # CA GC30 at AEP 0.5 is a genuine printed Q = 0.
@@ -571,16 +572,35 @@ def test_snapshot_states_are_the_41():
     assert len(nss_snapshot_states()) == 41
 
 
-def test_unparsed_entries_are_the_known_26():
-    # Observed in the 2026-10-25 sweep: 26 entries in all.
-    #   24 = GA, NC and SC, 8 each: the region-indicator interaction equations the
-    #        parser refuses (tools/snapshot_nss.py reported "8 refused" for each).
-    #    2 = New York's two urban regions (WRI84_4350 Method 1 and Method 2 Urban
-    #        Peak, GC1077/GC1078), for which NSS Estimate returned no results; the
-    #        library lists each region, not equations, under unparsed.
-    # Every other state, including Indiana's 8 regions, resolves fully.
+def test_unparsed_entries_are_the_known_2():
+    # Observed in the 2026-10-25 sweep: 26 entries, of which 24 (GA, NC and SC, 8 each:
+    # the SIR 2023-5006 region-indicator equations) parse since #211. The 2 left are
+    # New York's two urban regions (WRI84_4350 Method 1 and Method 2 Urban Peak,
+    # GC1077/GC1078), for which NSS Estimate returned no results; the library lists
+    # each region, not equations, under unparsed. They are out of scope (#212): Sauer
+    # and others' (1983) urban adjustments, each a power of a rural estimate.
     by_state = {
         c: len(load_state(c, allow_nss_snapshot=True).unparsed) for c in nss_snapshot_states()
     }
-    assert {c: n for c, n in by_state.items() if n} == {"GA": 8, "NC": 8, "SC": 8, "NY": 2}
-    assert sum(by_state.values()) == 26
+    assert {c: n for c, n in by_state.items() if n} == {"NY": 2}
+
+
+@pytest.mark.parametrize("code, region", [("GA", "GC1934"), ("SC", "GC1935"), ("NC", "GC1936")])
+def test_region_indicator_equations_match_nss(code, region):
+    # #211: every SIR 2023-5006 equation reproduces NSS's own Estimate value at the
+    # characteristics the harvest submitted, to NSS's 3-significant-figure rounding.
+    from flowfreq.regression.equations import evaluate
+
+    snapshot = json.loads(
+        (REPO_ROOT / "data" / "nss_snapshots" / f"{code}_2026-10-25.json").read_text("utf-8")
+    )
+    (raw,) = [r for r in snapshot["regions"] if r["region_code"] == region]
+    submitted = {p["code"]: p["submitted"] for p in raw["parameters"]}
+    lib = load_state(code, allow_nss_snapshot=True)
+    assert len(raw["equations"]) == 8
+    for rec in raw["equations"]:
+        eq = lib.equation(region, rec["aep"])
+        assert any(v.times == "PCTREG2" for v in eq.variables)
+        assert [v.code for v in eq.applicability] == ["PCTREG2"]
+        flow = evaluate(eq, submitted).flow_cfs
+        assert flow == pytest.approx(rec["nss_value"], rel=5e-3), (code, rec["aep"])

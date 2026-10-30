@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   cooldowns and Claude Code hooks. Config `agentops.toml`, delegate rules `AGENTS.md`, procedure
   `docs/AGENTOPS.md`. `filelock` joins the dev extra.
 - `tools/build_huc8_states.py` builds the nationwide HUC8-to-states table from the WBD HU8 layer; `data/regional_skew_huc8_states.csv` now lists every HUC8 (2,456 rows, the 417 old rows kept verbatim), so a border HU12 anywhere resolves its state without `state=` (#205).
+- `Variable.times` (`flowfreq.regression.equations`): an interaction term, `T(scale*x + offset) * Y`. The NSS parser reads a power whose exponent is affine in characteristics, `A^(b0 + b2*PCTREG2)`, as `b0*log10(A) + b2*PCTREG2*log10(A)`, and the `times` characteristic keeps its NSS range as an applicability limit. The 24 SIR 2023-5006 region-indicator equations in the GA, NC and SC `nss_snapshot` sets (GC1934-GC1936) now load and evaluate; each matches NSS's Estimate value to NSS's rounding (#211, #208).
 
 ### Changed
 - `flowfreq.regression.library.load_state` takes a keyword-only `warn: bool = True`; with `warn=False` an opt-in set's advisory is logged at DEBUG instead of WARNING, and the coverage report tool uses it.
@@ -26,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - The 32 LA, AR and MS `nss_snapshot` equations whose NSS ASEp is below 1 carry `sep_log` (and so prediction intervals). NSS stores those regions' SEP as the report's percentage divided by 100, as checked against SIR 2021-5046 Table 2 and SIR 2024-5031 Table 3. `nss_library.ASEP_AS_FRACTION` lists the regions (#213).
-- Catalog build: a site outside the United States gets no state and is skipped instead of being filed under the queried state. The Water Data API returns Yukon's 15388960 with `country_code` CA and `state_code` 11, which the DC build had catalogued as DC (#206).
+- Catalog build: a site outside the United States gets no state and is skipped instead of being filed under the queried state. The Water Data API returns Yukon's 15388960 with `country_code` CA and `state_code` 11, which the DC build had catalogued as DC (#206). The packaged catalog's DC rows are rebuilt (`--states DC --refresh`, 2026-10-30): 15388960 is gone, 20,745 rows.
 - **Parked `estimate_at_site` and regional skew minors from the rollout reviews.**
   `assemble(aeps=[])` raised nothing and made the missing-characteristic check vacuous; an
   empty `aeps` is now a `ValueError` (`None` still means the regions' common AEPs).
