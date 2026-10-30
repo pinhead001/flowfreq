@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `region=` works where NSS locates no peak-flow region (Wyoming, Nevada), and the provenance says the caller chose it (#207).
 
 ### Fixed
+- The 32 LA, AR and MS `nss_snapshot` equations whose NSS ASEp is below 1 carry `sep_log` (and so prediction intervals). NSS stores those regions' SEP as the report's percentage divided by 100, as checked against SIR 2021-5046 Table 2 and SIR 2024-5031 Table 3. `nss_library.ASEP_AS_FRACTION` lists the regions (#213).
 - Catalog build: a site outside the United States gets no state and is skipped instead of being filed under the queried state. The Water Data API returns Yukon's 15388960 with `country_code` CA and `state_code` 11, which the DC build had catalogued as DC (#206).
 - **Parked `estimate_at_site` and regional skew minors from the rollout reviews.**
   `assemble(aeps=[])` raised nothing and made the missing-characteristic check vacuous; an
