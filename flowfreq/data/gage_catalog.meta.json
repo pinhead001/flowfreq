@@ -1,6 +1,6 @@
 {
-  "built": "2026-10-18",
-  "rows": 20746,
+  "built": "2026-10-30",
+  "rows": 20745,
   "states": 56,
   "min_years": 10,
   "peaks_source": "USGS Water Data OGC API, collections/peaks (parameter_code 00060)",
@@ -8,7 +8,7 @@
   "regulation_source": "flowfreq.regulation (GAGES-II screen + peak code 6), issue #32",
   "regression_region_source": "gage point-in-polygon: StreamStats nss/regions MapServer peak-flow polygons (WA, OR, ID, MT); NSS regressionregions geometry (CO, UT, AZ)",
   "regulation_class_counts": {
-    "unknown": 13668,
+    "unknown": 13667,
     "regulated": 4211,
     "reference": 1982,
     "urban": 885
