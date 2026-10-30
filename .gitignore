@@ -220,3 +220,6 @@ build_fortran/_emafort*.pyd
 flowfreq/peakfqr/*.dll
 build_fortran/mbuild/
 build_fortran/native.ini
+
+# agentops state (tools/agentops/): queue, ledger, meter, cooldowns
+.agentops/state/
