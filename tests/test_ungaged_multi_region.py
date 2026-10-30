@@ -77,6 +77,16 @@ def test_empty_or_duplicate_list_is_a_value_error(bad: list) -> None:
         assemble(LIB, _boundary(), CHARS, region=bad, **KW)
 
 
+def test_same_region_under_two_codes_is_a_value_error() -> None:
+    # GC2's library code is R2. Two 50 % sides: counting GC2 twice would "cover" the
+    # basin and the renormalised estimate would rest on half of it.
+    regions = [_region("GC1", 50.0), _region("GC2", 50.0)]
+    with pytest.raises(ValueError, match="same region"):
+        assemble(LIB, regions, CHARS, region=["GC2", "R2"], **KW)
+    with pytest.raises(ValueError, match="same region"):
+        assemble(LIB, regions, CHARS, region=["R2", "gc2"], **KW)
+
+
 def test_list_on_a_partition_is_a_no_op_when_every_code_is_in_use() -> None:
     regions = [_region("GC1", 60.0), _region("GC2", 40.0)]
     a = assemble(LIB, regions, CHARS, region=["GC2", "GC1"], **KW)

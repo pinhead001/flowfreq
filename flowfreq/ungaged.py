@@ -356,9 +356,9 @@ def assemble(
         basin (one per side of a region boundary whose sides each have overlapping
         sets). Their ``percent_weight`` must sum to within the tolerance of 100; they
         are area-weighted (fractions renormalised) in their located order and every
-        other region goes to ``alternatives``. An empty sequence or a repeated code
-        (case-insensitively) is a ``ValueError``; a one-element sequence is the same as
-        that string.
+        other region goes to ``alternatives``. An empty sequence, a repeated code
+        (case-insensitively) or one region named twice under its NSS and library codes
+        is a ``ValueError``; a one-element sequence is the same as that string.
 
     Returns
     -------
@@ -492,6 +492,13 @@ def assemble(
             if len(by_library) > 1:
                 choice, chosen, extra, ambiguous = code, found, [], True
                 break
+            if any(found[0] is r for r, _ in [chosen, *extra]):
+                # An NSS code and the same region's library code pass the string check
+                # in _region_choices; counted twice, a 50 % side would "cover" the basin.
+                raise ValueError(
+                    f"region {code!r} names the same region as an earlier code "
+                    f"({found[0].code}): list each side of the basin once"
+                )
             extra.append(found)
 
     # NSS rounds each percent_weight to a whole percent, so an N-region partition sums
