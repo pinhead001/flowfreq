@@ -44,6 +44,17 @@ _YEAR = re.compile(r"\b(1[89]\d\d|20\d\d)\b")
 #: converts to a near-zero ``sep_log`` and a falsely tight interval.
 ASEP_PCT_FLOOR = 1.0
 
+#: Regions whose NSS ASEp is the report's percentage divided by 100, each read from the
+#: report's table (#213). Every one of the 32 sub-1 ASEps in the 2026-10-25 sweep is here.
+ASEP_AS_FRACTION: Dict[str, str] = {
+    # Anderson (2021), SIR 2021-5046, Table 2: SEP 45-61 percent; NSS 0.45-0.61.
+    "GC1888": "SIR 2021-5046 Table 2 (LA alluvial plain)",
+    "GC1912": "SIR 2021-5046 Table 2 (MS alluvial plain)",
+    "GC1917": "SIR 2021-5046 Table 2 (AR alluvial plain)",
+    # Ensminger and others (2024), SIR 2024-5031, Table 3: SEP 38.66-52.69 percent.
+    "GC1889": "SIR 2024-5031 Table 3 (LA Coastal Plain)",
+}
+
 
 def asep_to_sep_log(asep_pct: float) -> float:
     """Convert an average standard error of prediction in percent to log10 units.
@@ -148,7 +159,8 @@ def snapshot_to_library(snapshot: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     Each equation cites its NSS citation record and region, takes its limits and
     units from the region's parameters, and gets ``sep_log`` from NSS's ASEp
     (:func:`asep_to_sep_log`) where that is present and positive; otherwise
-    ``sep_log`` stays unset. NSS's raw ``nss_sep`` is not stored: it is not a log10
+    ``sep_log`` stays unset. In the regions of :data:`ASEP_AS_FRACTION` NSS's ASEp is
+    a fraction and is multiplied by 100 first. NSS's raw ``nss_sep`` is not stored: it is not a log10
     SEP. A statistic with no AEP (not a peak-flow AEP or recurrence-interval code)
     is skipped and counted in ``notes``.
 
@@ -168,6 +180,7 @@ def snapshot_to_library(snapshot: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     unparsed: List[Dict[str, Any]] = []
     cited: Dict[str, None] = {}
     low_asep: Dict[str, None] = {}
+    fraction: Dict[str, None] = {}
     harvested = skipped = 0
     for region in regions:
         if region.get("citation_id") is not None:
@@ -205,6 +218,9 @@ def snapshot_to_library(snapshot: Dict[str, Any]) -> Optional[Dict[str, Any]]:
                 units=units,
             )
             asep = rec.get("asep_pct")
+            if asep is not None and str(region["region_code"]) in ASEP_AS_FRACTION:
+                asep = float(asep) * 100.0
+                fraction.setdefault(str(region["region_code"]), None)
             if eq.form == "loglinear" and asep is not None and float(asep) > 0:
                 if float(asep) >= ASEP_PCT_FLOOR:
                     eq = dataclasses.replace(eq, sep_log=asep_to_sep_log(float(asep)))
@@ -241,6 +257,13 @@ def snapshot_to_library(snapshot: Dict[str, Any]) -> Optional[Dict[str, Any]]:
             "those values are not plausible percentages, NSS's units there are "
             "unconfirmed (possibly log10 units) and were not converted, so sep_log is "
             "unset for the affected equations."
+        )
+    if fraction:
+        notes += (
+            f" NSS's ASEp in region(s) {', '.join(fraction)} is the report's percentage "
+            "divided by 100 ("
+            + "; ".join(ASEP_AS_FRACTION[r] for r in fraction)
+            + "), so it was multiplied by 100 before conversion."
         )
     logger.debug("%s: %s", state, notes)
     return {
