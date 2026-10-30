@@ -7,7 +7,7 @@ sites, a weighted combination of the two where both exist, and documented method
 transposition, nonstationarity, and future-condition quantiles.
 
 **Status legend:** `[ ]` open · `[~]` partial (scaffolded; the linked issue carries the live status) · `[x]` done in this repo today.
-**Phase A epic:** [#27](https://github.com/pinhead001/flowfreq/issues/27) · **Wave 1 epic:** [#28](https://github.com/pinhead001/flowfreq/issues/28) (closed) · **Wave 2 states:** #93-#104 (§3.2; no epic issue) · status as of 2026-10-25 · generated per-state status: `docs/REGRESSION_COVERAGE.md`.
+**Phase A epic:** [#27](https://github.com/pinhead001/flowfreq/issues/27) · **Wave 1 epic:** [#28](https://github.com/pinhead001/flowfreq/issues/28) (closed) · **Wave 2 states:** #93-#104 (§3.2; no epic issue) · status as of 2026-10-26 · generated per-state status: `docs/REGRESSION_COVERAGE.md`.
 **Relationship to `TODO.md`:** `TODO.md` is the day-to-day log of open items and history.
 This file is the long-range plan. When an item here starts, give it an entry in `TODO.md`.
 

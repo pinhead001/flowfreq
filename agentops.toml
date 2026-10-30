@@ -1,0 +1,71 @@
+# agentops config for flowfreq (tools/agentops/, docs/AGENTOPS.md).
+# Relative paths resolve against this file's directory. Run:
+#   python tools/agentops_cli.py --config agentops.toml gov status
+
+[paths]
+state_dir = ".agentops/state"        # queue, ledger, meter, cooldowns (gitignored)
+worktree_root = "D:/a/sbx/state/agentops-flowfreq/worktrees"  # under the agy-trusted D:/a/sbx
+worktree_prefix = ""                 # -> .../worktrees/flowfreq-<card id>
+
+[repos]
+flowfreq = "."
+
+[governor]
+profile = "pro"                      # active set; switch with `gov profile <name>`
+
+# Claude Pro: the lead's 5-hour window is the scarce resource. Unknown meter data (a
+# cloud session has no status line) is treated as conserve, so no teammates or workflows.
+[governor.profiles.pro]
+normal_min_remaining = 60
+conserve_min_remaining = 25
+weekly_pace_slack = 10
+unknown_mode = "conserve"
+
+# Claude Max: more headroom, so stay in normal longer and allow more weekly drift.
+[governor.profiles.max]
+normal_min_remaining = 30
+conserve_min_remaining = 10
+weekly_pace_slack = 20
+unknown_mode = "normal"
+
+# Overnight: the lead is away and agy carries the work; the lead only reviews.
+[governor.profiles.overnight]
+normal_min_remaining = 101
+conserve_min_remaining = 101
+weekly_pace_slack = 0
+unknown_mode = "review-only"
+
+[agy]
+exe = "agy"
+# Preference order. Pools from flowfield2d ADR-0002 addendum 1: all Gemini models share one
+# weekly pool; Claude and GPT-OSS inside agy share a separate "third-party" pool.
+models = ["gemini-3.8-flash-high", "claude-sonnet-5-5-medium"]   # names from `agy models`, 2026-10-30
+pools = { gemini = ["gemini-3.8-flash-high", "gemini-3.8-flash-medium", "gemini-3.8-flash-low", "gemini-4-argon-medium", "gemini-4-argon-high", "gemini-4-argon-low"], third_party = ["claude-sonnet-5-5-low", "claude-sonnet-5-5-medium", "claude-sonnet-5-5-high", "claude-opus-5-5-low", "claude-opus-5-5-medium", "claude-opus-5-5-high", "gpt-oss-120b-medium"] }
+default_cooldown_min = 60
+print_timeout = "20m"
+extra_args = ["--mode", "accept-edits"]   # never --dangerously-skip-permissions (ADR-0002 G4)
+# Mechanical fixes after the delegate finishes, before acceptance; failures are ignored.
+pre_acceptance = ["python -m black -q flowfreq tests", "python -m isort -q flowfreq tests"]
+max_retries = 2
+concurrency_start = 2
+error_window_min = 60
+stop_below_pct = 10
+# ~1.2M Gemini ledger tokens per weekly pool on this account (ADR-0002 addendum 1).
+tokens_per_pct = 12000
+# The editable install points at the main checkout; put the card's worktree first so the
+# acceptance tests import the card's code. UTF-8 mode for the non-ASCII files (CLAUDE.md).
+child_env = { PYTHONPATH = "{worktree}", PYTHONUTF8 = "1" }
+
+[hooks]
+# Lead-session guards (PreToolUse). Branch pushes are allowed: cloud sessions push branches.
+deny_bash = [
+  '\bgit\s+push\b.*(\s--force\b|\s-f\b|\s--force-with-lease\b)',
+  '\bgit\s+push\b.*\s(origin\s+)?(HEAD:)?(main|release/[\w.]+)\s*$',
+  '\bgit\s+push\b.*(--delete\b|\s:refs/|refs/tags/)',
+  '\bgit\s+push\b.*\s--tags\b',
+  '\bgit\s+tag\s+(-d|--delete|-f|--force)\b',
+]
+deny_substrings = []
+# Expensive multi-agent spawns are allowed only in governor mode `normal`.
+teammate_tools = ["TeamCreate", "Workflow"]
+task_acceptance = ""

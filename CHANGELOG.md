@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Agent ops dev tooling** (`tools/agentops/`, not part of the published package). A port of
+  flowfield2d's agentops: the agy delegate runner (one worktree and `card/<id>` branch per task
+  card, never merges), the governor with `pro`/`max`/`overnight` threshold profiles, the
+  Claude status-line usage meter, a per-pool agy usage report (`agentops usage`), quota-pool
+  cooldowns and Claude Code hooks. Config `agentops.toml`, delegate rules `AGENTS.md`, procedure
+  `docs/AGENTOPS.md`. `filelock` joins the dev extra.
+
 ### Fixed
 - **Parked `estimate_at_site` and regional skew minors from the rollout reviews.**
   `assemble(aeps=[])` raised nothing and made the missing-characteristic check vacuous; an
