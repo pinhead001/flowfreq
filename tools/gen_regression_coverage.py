@@ -69,7 +69,7 @@ def render() -> str:
                 if j.code in awaiting:
                     eq_status += " (+ newer USGS set, not yet in NSS)"
             elif j.code in snapshot:
-                lib = load_state(j.code, allow_nss_snapshot=True)
+                lib = load_state(j.code, allow_nss_snapshot=True, warn=False)
                 n_reg, n_eq = len(lib.regions), len(lib.equations)
                 eq_status = f"nss snapshot ({n_eq} eqs, {len(lib.unparsed)} unparsed)"
                 issue = ""

@@ -2,6 +2,7 @@ id = "m12-bootstrap-power"
 repo = "flowfreq"
 title = "bootstrap_band(profile=): re-choose the dissimilarity power in each replicate (methow item 12)"
 base = "origin/spec/m12-bootstrap-power"
+model = "claude-sonnet-5-5-medium"   # Sonnet this week: the Gemini pool is near its weekly cap (2026-10-30)
 prompt = """
 Outcome: `flowfreq.transfer_variance.bootstrap_band` gains two keyword-only parameters,
 declared explicitly before `**features` (otherwise they are swallowed into `features`):
