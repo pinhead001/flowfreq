@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- `bracket_weight` and `interpolate_between_gages` (`flowfreq.transpose`): log-area interpolation of flood quantiles transposed from an upstream and a downstream gage to a target between them; reproduces each gage at its own site.
 - `bootstrap_band(profile=<term>, grid=...)` re-chooses that term's dissimilarity power in every replicate and reports `BandBootstrap.power_counts` and `estimate_power`.
 - **Agent ops dev tooling** (`tools/agentops/`, not part of the published package). A port of
   flowfield2d's agentops: the agy delegate runner (one worktree and `card/<id>` branch per task

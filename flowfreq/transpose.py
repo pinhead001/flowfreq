@@ -1004,6 +1004,125 @@ def transpose_frequency(
     )
 
 
+def bracket_weight(up_area_sqmi: float, down_area_sqmi: float, target_area_sqmi: float) -> float:
+    """Weight on the upstream gage for a target between two gages.
+
+    ``w = ln(Ad / At) / ln(Ad / Au)``: 1 at the upstream gage, 0 at the
+    downstream one, linear in log drainage area between.
+
+    Parameters
+    ----------
+    up_area_sqmi : float
+        Drainage area of the upstream gage, square miles.
+    down_area_sqmi : float
+        Drainage area of the downstream gage, square miles.
+    target_area_sqmi : float
+        Drainage area of the target, square miles.
+
+    Returns
+    -------
+    float
+        The weight on the upstream gage, in [0, 1].
+
+    Raises
+    ------
+    ValueError
+        Unless ``0 < Au <= At <= Ad`` and ``Au != Ad``.
+    """
+    au, ad, at = float(up_area_sqmi), float(down_area_sqmi), float(target_area_sqmi)
+    if not (np.isfinite(au) and np.isfinite(ad) and np.isfinite(at)) or not (
+        0.0 < au <= at <= ad and au != ad
+    ):
+        raise ValueError(
+            "target area must lie between the upstream and downstream gage areas "
+            f"(need 0 < up <= target <= down and up != down); got up={up_area_sqmi!r}, "
+            f"target={target_area_sqmi!r}, down={down_area_sqmi!r}"
+        )
+    return float(np.log(ad / at) / np.log(ad / au))
+
+
+def interpolate_between_gages(
+    up_results: FrequencyResults,
+    up_area_sqmi: float,
+    down_results: FrequencyResults,
+    down_area_sqmi: float,
+    target_area_sqmi: float,
+    exponents: RegressionExponents,
+    **transpose_options: Any,
+) -> pd.DataFrame:
+    """Blend flood quantiles transposed from an upstream and a downstream gage.
+
+    Each gage is transposed to the target with :func:`transpose_frequency`
+    and the two are combined as ``exp(w ln Qu + (1 - w) ln Qd)``, with ``w``
+    from :func:`bracket_weight`.
+
+    Parameters
+    ----------
+    up_results, down_results : FrequencyResults
+        Fitted flood frequency results at the upstream and downstream gages.
+    up_area_sqmi, down_area_sqmi : float
+        Their drainage areas, square miles.
+    target_area_sqmi : float
+        Drainage area at the target, between the two.
+    exponents : RegressionExponents
+        Drainage-area exponents used for both transfers.
+    **transpose_options
+        Passed to :func:`transpose_frequency` for both transfers (for example
+        ``area_ratio_range``, ``max_aep``, regulation arguments).
+
+    Returns
+    -------
+    pd.DataFrame
+        Columns ``aep``, ``flow_cfs``, ``upstream_flow_cfs``,
+        ``downstream_flow_cfs`` and ``weight_upstream``, for the AEPs both
+        transfers carry, in the upstream transfer's order.
+
+    Raises
+    ------
+    ValueError
+        If the target area is not between the gage areas (raised before any
+        transfer), or a transfer rejects its inputs.
+
+    Notes
+    -----
+    The blend trusts both gages equally at their own sites, so the caller must
+    not bracket two records from different eras or across a regulation change.
+
+    This differs from :func:`flowfreq.transfer_variance.combine`, which
+    weights transfers by inverse variance and so does not reproduce either
+    gage at its own site. This blend does, by construction: ``w`` is 1 at the
+    upstream gage and 0 at the downstream one.
+    """
+    weight = bracket_weight(up_area_sqmi, down_area_sqmi, target_area_sqmi)
+
+    up = transpose_frequency(
+        up_results, up_area_sqmi, target_area_sqmi, exponents, **transpose_options
+    ).quantiles
+    down = transpose_frequency(
+        down_results, down_area_sqmi, target_area_sqmi, exponents, **transpose_options
+    ).quantiles
+
+    up_key = np.round(up["aep"].to_numpy(dtype=float), 6)
+    down_key = np.round(down["aep"].to_numpy(dtype=float), 6)
+    down_flow_by_key = dict(zip(down_key, down["flow_cfs"].to_numpy(dtype=float)))
+
+    keep = np.array([k in down_flow_by_key for k in up_key], dtype=bool)
+    aep = up["aep"].to_numpy(dtype=float)[keep]
+    q_up = up["flow_cfs"].to_numpy(dtype=float)[keep]
+    q_down = np.array([down_flow_by_key[k] for k in up_key[keep]], dtype=float)
+
+    blended = np.exp(weight * np.log(q_up) + (1.0 - weight) * np.log(q_down))
+    return pd.DataFrame(
+        {
+            "aep": aep,
+            "flow_cfs": blended,
+            "upstream_flow_cfs": q_up,
+            "downstream_flow_cfs": q_down,
+            "weight_upstream": np.full(aep.shape, weight),
+        }
+    )
+
+
 def transpose_duration(
     curve: pd.DataFrame,
     donor_area_sqmi: float,
