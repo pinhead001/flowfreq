@@ -1707,6 +1707,11 @@ class TestLiveNSS:
             characteristic_codes=["DRNAREA", "PRECIP", "ELEV1000"],
             include_polygon=False,
         )
+        # ss-hydro has lost the WA 'wshprecip' raster before (2026-10-13, and again from
+        # 2026-10-26, #218). That is a service outage, not a change of shape: skip on that
+        # one error rather than accept a PRECIP-less answer.
+        if "raster" in watershed.unavailable.get("PRECIP", ""):
+            pytest.skip(f"ss-hydro outage: {watershed.unavailable['PRECIP'][-120:]}")
         # BCs filters now: exactly what was asked for, and WA cannot compute ELEV1000.
         assert set(watershed.characteristics) == {"DRNAREA", "PRECIP"}
         assert "ELEV1000" in watershed.unavailable
