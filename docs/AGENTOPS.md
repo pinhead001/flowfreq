@@ -34,8 +34,11 @@ published `flowfreq` package, and nothing under `flowfreq/` imports it.
    (Windows), then `.venv/bin/python`, then `python3`/`python`, so the Windows Store
    `python` shim is never used. A missing dependency fails open: the session keeps working
    and the status line reports the tool as unavailable.
-3. **agy permissions** (`~/.gemini/antigravity-cli/settings.json`; Deny beats Ask beats Allow),
-   as in ADR-0002 decision 3. Allow file read/write inside the worktrees. Deny `git push`,
+3. **agy permissions**, a different file from step 2: `~/.gemini/antigravity-cli/settings.json`
+   is agy's own settings (Deny beats Ask beats Allow), as in ADR-0002 decision 3. Start from
+   `tools/agentops/agy-settings.example.json`, which carries a working `permissions` block; the
+   Claude Code hooks of step 2 do not belong in it (agy ignores them and starts with
+   `permissions=<nil>`, which its `cli.log` reports). Allow file read/write inside the worktrees. Deny `git push`,
    `merge`, `rebase`, `checkout`, `switch`, `reset`, `branch`, `worktree`, `remote` and
    `config`; any command using `../`; and `write_file` on the main checkout, `.git/` and
    `vendor/`. `AGENTS.md` tells the delegate not to use the shell at all, but models try

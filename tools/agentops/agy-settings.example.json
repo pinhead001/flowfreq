@@ -1,0 +1,44 @@
+{
+  "colorScheme": "dark",
+  "permissions": {
+    "allow": [
+      "command(regex:python -m (pytest|black|isort|mypy)( .*)?)",
+      "command(regex:git (status|diff|log|show)( .*)?)",
+      "command(regex:(Get-ChildItem|Get-Content|Select-String|Test-Path|Get-Item|ls|dir|cat|type)( [^|;&>]*)?)",
+      "command(regex:((Get-ChildItem|Get-Content|Test-Path|Get-Item|ls|dir|cat|type)( [^|;&>]*)?( 2>(\\$null|&1))?;? ?)+)",
+      "read_file(D:/a/sbx/state/agentops-flowfreq/worktrees)",
+      "read_file(D:/a/sbx/state/agentops-gu/worktrees)"
+    ],
+    "deny": [
+      "command(regex:git (push|merge|rebase|checkout|switch|reset|branch|worktree|remote|config|tag)( .*)?)",
+      "command(regex:.*(netsh|NetFirewall|reg add|reg delete|HKLM|Set-MpPreference).*)",
+      "command(regex:.*(?i:[a-z]:[\\/]+a[\\/]+(data|inputs|methow-flow|flowfreq|flowfield2d|methow-hydraulics)[\\/]).*)",
+      "command(regex:.*\\.\\.[\\/].*)",
+      "read_file(D:/a/data)",
+      "read_file(D:/a/inputs)",
+      "read_file(D:/a/methow-flow)",
+      "read_file(D:/a/sbx/bootstrap)",
+      "read_file(D:/a/sbx/tools)",
+      "read_file(D:/a/sbx/state/claude)",
+      "read_file(D:/a/sbx/state/gemini)",
+      "read_file(D:/a/sbx/state/agentops-flowfreq/queue)",
+      "read_file(D:/a/sbx/state/agentops-flowfreq/results)",
+      "read_file(D:/a/sbx/state/agentops-flowfreq/ledger.jsonl)",
+      "read_file(D:/a/flowfreq/.agentops)",
+      "read_file(C:/Users/cnelson/.usgs_api_key)",
+      "write_file(D:/a/flowfreq)",
+      "write_file(D:/a/flowfield2d)",
+      "write_file(D:/a/methow-hydraulics)",
+      "write_file(D:/a/methow-gu-1)",
+      "write_file(D:/a/methow-gu-2)",
+      "write_file(D:/a/methow-gu-3)",
+      "write_file(D:/a/methow-gu-results)",
+      "write_file(.git/)"
+    ]
+  },
+  "trustedWorkspaces": [
+    "D:\\a\\sbx\\tools\\agy",
+    "D:\\a\\sbx",
+    "C:\\Users\\cnelson"
+  ]
+}
