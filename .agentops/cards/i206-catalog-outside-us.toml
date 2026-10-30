@@ -1,0 +1,38 @@
+id = "i206-catalog-outside-us"
+repo = "flowfreq"
+title = "Catalog build: a site outside the US gets no state and is skipped, not filed under the queried state (#206)"
+base = "origin/spec/i206-catalog-outside-us"
+prompt = """
+Outcome, two parts.
+
+1. `flowfreq.catalog.location_fields` reads the feature's `country_code` property: when it is
+present and is not `US` (case-insensitive), `"state"` is None whatever `state_code` says.
+Checked against the Water Data API on 2026-10-30, gage 15388960 (Yukon) carries
+`state_code = "11"` -- Yukon's province code under `country_code = "CA"`, and also DC's FIPS
+code -- which is how it was filed under DC. A feature without `country_code` (older cached
+payloads) is treated as US, so every existing caller is unchanged. Say so in the docstring's
+`state` entry.
+
+2. In `flowfreq.catalog.build_rows`, `default_state` applies only to a site that has no
+location record at all. A site whose location record exists but names no state (its
+`location_fields(...)["state"]` is None, i.e. it lies outside every US state) is skipped, and a
+warning naming the site number is logged on a module logger `logging.getLogger(__name__)` in
+flowfreq/catalog.py.
+
+Also add `country_code` to the comma-separated `"properties"` request string in
+`tools/build_gage_catalog.py::state_locations` (append it; change nothing else there).
+
+Files to read: flowfreq/catalog.py (`location_fields`, `build_rows`),
+tools/build_gage_catalog.py (`state_locations` only).
+Files to edit: flowfreq/catalog.py, tools/build_gage_catalog.py (that one string), CHANGELOG.md.
+
+Tests (already written, do not edit): tests/test_catalog_outside_us.py.
+
+Constraints: update the `build_rows` docstring (`locations` and `default_state` entries) to
+say this; do not regenerate or edit flowfreq/data/gage_catalog.csv.gz (the lead rebuilds it
+with the live tool after merge). Add a one-line entry under "## [Unreleased]" ->
+"### Fixed" in CHANGELOG.md: Catalog: a gage outside the United States gets no state; the Water
+Data API codes 15388960 (Yukon) with province code 11 under country CA, which filed it under DC
+(#206).
+"""
+acceptance = "python -m pytest tests/test_catalog_outside_us.py tests/test_catalog.py -q -p no:cacheprovider"

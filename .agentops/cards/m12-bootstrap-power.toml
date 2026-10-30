@@ -1,0 +1,33 @@
+id = "m12-bootstrap-power"
+repo = "flowfreq"
+title = "bootstrap_band(profile=): re-choose the dissimilarity power in each replicate (methow item 12)"
+base = "origin/spec/m12-bootstrap-power"
+prompt = """
+Outcome: `flowfreq.transfer_variance.bootstrap_band` gains two keyword-only parameters,
+declared explicitly before `**features` (otherwise they are swallowed into `features`):
+`profile: Optional[str] = None` and `grid: Sequence[float] = (0.5, 1.0, 1.5, 2.0, 2.5, 3.0)`
+(the same default grid as `profile_power`).
+
+- `profile=None`: behavior unchanged; the result's new fields are None.
+- `profile=<term>`: the full-data estimate uses `profile_power(pairs, terms, term=profile,
+  grid=grid, powers=powers)` and solves the band on its `best` model; each replicate runs
+  `profile_power` on its resampled pairs the same way and solves the band at its own best
+  power. A replicate whose profile fails with ValueError counts in `n_failed` as today.
+- Checks, raised as ValueError before any fitting: `profile` not in `terms` (message names
+  the term); `powers` also fixing the profiled term (message names it); an empty `grid`
+  (message contains "grid").
+- `BandBootstrap` gains `power_counts: Optional[Dict[float, int]] = None` (every grid power
+  as a key, how many successful replicates it won, zero included) and
+  `estimate_power: Optional[float] = None` (the full-data best power). Give both fields
+  defaults so existing constructions keep working, and document them in the Attributes.
+
+Files to read: flowfreq/transfer_variance.py (`PowerProfile`, `profile_power`,
+`BandBootstrap`, `bootstrap_band`, `_fit`, `_check_powers`).
+Files to edit: flowfreq/transfer_variance.py, CHANGELOG.md (one line under
+"## [Unreleased]" -> "### Added").
+
+Tests (already written, do not edit): tests/test_bootstrap_power_choice.py; the existing
+tests/test_transfer_variance.py must still pass. Update the `bootstrap_band` docstring
+(the `powers` entry says powers are held fixed; say `profile` re-chooses one).
+"""
+acceptance = "python -m pytest tests/test_bootstrap_power_choice.py tests/test_transfer_variance.py -q -p no:cacheprovider"

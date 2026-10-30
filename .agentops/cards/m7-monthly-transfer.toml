@@ -1,0 +1,76 @@
+id = "m7-monthly-transfer"
+repo = "flowfreq"
+title = "Monthly transfer-variance inputs: per-month mean/median statistics and runoff-volume pairs (methow item 7, part 1)"
+base = "origin/spec/m7-monthly-transfer"
+model = "claude-sonnet-4-6"   # new module with statistical definitions; third-party pool
+prompt = """
+Outcome: a new module flowfreq/monthly_transfer.py whose output feeds the existing
+`flowfreq.transfer_variance.fit_dissimilarity` unchanged, extending transfer variance from
+flood quantiles to monthly flows. Owner decisions (fixed, do not revisit): exponent 1 on
+the runoff-volume ratio; sampling covariance from concurrent water years; zero flows
+excluded and reported.
+
+1. `@dataclass(frozen=True) class MonthlyStatistics` with fields `statistic: str`,
+   `start_water_year: int`, `end_water_year: int`, `yearly: pd.DataFrame`,
+   `table: pd.DataFrame`, `covariance: Dict[int, pd.DataFrame]`, `excluded: pd.DataFrame`.
+
+2. `monthly_statistics(daily: Mapping[str, pd.Series], *, start_water_year: int,
+   end_water_year: int, statistic: str = "mean", min_years: int = 10) -> MonthlyStatistics`
+   - Checks first: `statistic` in {"mean", "median"} else ValueError naming "statistic";
+     start > end -> ValueError containing "water year"; `min_years < 2` -> ValueError
+     naming "min_years"; a series whose index is not a DatetimeIndex -> TypeError naming
+     "DatetimeIndex".
+   - Water year: October-September, labelled by the September year.
+   - `yearly`: columns exactly `site_no, water_year, month, flow_cfs`: the mean of daily
+     flow for each site, water year in the window and calendar month, kept only when every
+     day of that month is present and non-NaN (an incomplete month drops that year only).
+   - Per site and month, with `x` the n yearly means (n = `n_years`):
+     * statistic "mean": value = mean(x); log_q = log10(value);
+       variance = var(x, ddof=1) / (n * value**2 * ln(10)**2)   (delta method).
+     * statistic "median": value = median(x); log_q = median(log10 x);
+       variance = (pi/2) * var(log10 x, ddof=1) / n.
+   - Exclusion (log_q, value_cfs and variance NaN; a row in `excluded` with columns exactly
+     `site_no, month, reason`): n < min_years (reason contains "years"); for "mean" a
+     period mean <= 0, for "median" any yearly mean <= 0 (the median works in log space)
+     (reason contains "zero"). `table` still has a row for every site and month 1-12.
+   - `table` columns exactly `site_no, month, value_cfs, log_q, n_years, variance`.
+   - `covariance[month]`: DataFrame indexed and columned by site_no (input order); the
+     diagonal is that month's `variance`; for two non-excluded sites a, b with concurrent
+     years C (nc = |C|; na, nb their own n; values over C only for the cross terms):
+     * "mean": nc * cov(x_a[C], x_b[C], ddof=1) / (na * nb * mean(x_a) * mean(x_b) * ln(10)**2)
+       (means over each site's own years).
+     * "median": nc * sd(log10 x_a[C]) * sd(log10 x_b[C]) * asin(rho) / (na * nb), with rho
+       the correlation of the logs over C, clipped to [-1, 1].
+     * nc < 2 -> 0.0. Entries involving an excluded site are NaN.
+     (Medians use the bivariate-normal asymptotics: n Var = (pi/2) s^2, n Cov =
+     s_a s_b asin(rho).)
+
+3. `build_monthly_pairs(stats: MonthlyStatistics, month: int, gages: pd.DataFrame,
+   connections: Sequence[Tuple[str, str]], *, attributes: Sequence[str] = ()) -> pd.DataFrame`
+   - `month` outside 1-12 -> ValueError naming "month"; no `runoff_depth` column in
+     `gages` -> ValueError naming it; a connection naming a site not in `gages` or not in
+     `stats` -> KeyError naming the site. `gages` has `site_no`, `drainage_area_sqmi`,
+     `runoff_depth` (any consistent units; 1.0 everywhere gives the plain area ratio) and
+     the `attributes` columns.
+   - A connection whose donor or receiver is excluded for that month is dropped (log it at
+     INFO); the rest give one row each, columns in this order: `donor, receiver, month,
+     statistic, area_ratio, log_ar, log_rr, exponent, transfer, observed, error,
+     known_variance`, then `d_<attribute>` (receiver minus donor) per attribute.
+     log_ar = log10(At/Ag), log_rr = log10(Rt/Rg), exponent = 1.0,
+     transfer = log_q[donor] + log_ar + log_rr, observed = log_q[receiver],
+     error = transfer - observed, known_variance = V_d + V_r - 2 C_dr from `covariance`.
+
+Module docstring: what it is, the formulas above, and a "What this module cannot do"
+section (one window per call; no leave-one-out or blend yet, which follow in part 2; the
+runoff depth is the caller's, flowfreq does not estimate it; zero-flow months are excluded,
+not modelled). NumPy docstrings on every public name; full type hints (mypy runs strict on
+new modules). Add one line under "## [Unreleased]" -> "### Added" in CHANGELOG.md and one
+line for the module in CLAUDE.md's Architecture list after `transfer_variance.py`.
+
+Files to read: flowfreq/transfer_variance.py (module docstring, `_Network`, `build_pairs`,
+`_pairs`, `fit_dissimilarity` signature) for conventions. Files to edit/create:
+flowfreq/monthly_transfer.py (new), CHANGELOG.md, CLAUDE.md.
+
+Tests (already written, do not edit): tests/test_monthly_transfer.py.
+"""
+acceptance = "python -m pytest tests/test_monthly_transfer.py tests/test_transfer_variance.py -q -p no:cacheprovider && python -m mypy flowfreq/monthly_transfer.py"

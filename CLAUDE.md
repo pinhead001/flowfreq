@@ -33,6 +33,7 @@ flowfreq/            the library (flat package, NOT src/flowfreq/)
 vendor/peakfqr/      USGS peakfq 8.1.0 reference — Fortran, R, test data (do not edit)
 build_fortran/       f2py build script and .pyf signature file
 tools/               gen_fortran_golden.py — regenerates parity golden files
+tools/agentops/      dev-only agent ops: agy runner, governor, usage meter (docs/AGENTOPS.md)
 tests/fixtures/      shared fixture data (Big Sandy, HU02, Wyoming/Montana, peakfqr respec)
 tests/fortran_parity/  native-vs-Fortran parity suite and committed golden files
 ```
@@ -141,6 +142,16 @@ well. `release/0.15.x`, `release/0.14.x`, `release/0.13.x`, `release/0.12.x`, `r
 Downstream projects (methow-flow, flowfreq-app) pin release tags such as
 `flowfreq @ git+https://github.com/pinhead001/flowfreq@v0.16.0`, so work on `main` never
 reaches them. Never move or delete a pushed release tag.
+
+## Agent ops (Claude lead + agy delegates)
+
+Multi-agent development as in flowfield2d: the lead writes failing tests on `spec/<id>` and a
+card in `.agentops/cards/`; `agy` implements it headless in a worktree (`card/<id>`); the lead
+reviews (`.claude/agents/reviewer.md`) and opens the PR. Tool: `tools/agentops/` (not shipped),
+config `agentops.toml`, delegate rules `AGENTS.md`, procedure `docs/AGENTOPS.md`.
+`python tools/agentops_cli.py --config agentops.toml gov next` says what to do; `... usage`
+reports the Claude meter and agy tokens per quota pool. The governor profile (`pro`, `max`,
+`overnight`) sets when teammates/workflows are allowed.
 
 ## Python Compatibility
 
