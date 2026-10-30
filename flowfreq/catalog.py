@@ -38,12 +38,15 @@ Roadmap: ``docs/MASTER_ROADMAP.md`` §1.1, issue #33.
 from __future__ import annotations
 
 import json
+import logging
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Union
 
 import pandas as pd
 
 from flowfreq.regression.jurisdictions import BY_CODE
+
+logger = logging.getLogger(__name__)
 
 SEED_PATH = Path(__file__).parent / "data" / "gage_attributes.csv"
 CATALOG_PATH = Path(__file__).parent / "data" / "gage_catalog.csv.gz"
@@ -277,7 +280,10 @@ def location_fields(feature: Mapping[str, Any]) -> Dict[str, Any]:
     Returns
     -------
     dict
-        ``site_no``, ``site_name``, ``state`` (postal code, or None),
+        ``site_no``, ``site_name``, ``state`` (postal code, or None; None whenever the
+        feature's ``country_code`` is present and not ``US``, whatever ``state_code``
+        says, since province codes collide with FIPS codes; a feature without
+        ``country_code`` is treated as US),
         ``latitude``, ``longitude``, ``drainage_area_sqmi`` (None unless
         positive) and ``huc8`` (first 8 digits of ``hydrologic_unit_code``).
     """
@@ -288,10 +294,15 @@ def location_fields(feature: Mapping[str, Any]) -> Dict[str, Any]:
     coords = geom.get("coordinates") if geom.get("type") == "Point" else None
     huc = str(p.get("hydrologic_unit_code") or "")
     da = _num(p.get("drainage_area"))
+    country = p.get("country_code")
+    if country is not None and str(country).strip().upper() != "US":
+        state = None
+    else:
+        state = STATE_FIPS.get(str(p.get("state_code") or "").zfill(2))
     return {
         "site_no": _strip_prefix(str(feature.get("id") or p.get("monitoring_location_number"))),
         "site_name": str(p.get("monitoring_location_name") or "").strip(),
-        "state": STATE_FIPS.get(str(p.get("state_code") or "").zfill(2)),
+        "state": state,
         "latitude": float(coords[1]) if coords else None,
         "longitude": float(coords[0]) if coords else None,
         "drainage_area_sqmi": float(da) if pd.notna(da) and da > 0 else None,
@@ -320,7 +331,8 @@ def build_rows(
     regions : mapping, optional
         Site number to regression region code(s).
     default_state : str, optional
-        Postal code for sites whose location lacks one.
+        Postal code for sites that have no location record at all (not for
+        sites whose record names no state).
 
     Returns
     -------
@@ -329,7 +341,15 @@ def build_rows(
     """
     out: List[dict] = []
     for site, frame in peaks.items():
-        loc = dict(locations.get(site) or {})
+        if site in locations:
+            loc = dict(locations[site] or {})
+            state = loc.get("state")
+            if not state:
+                logger.warning("skipping site %s: location lies outside every US state", site)
+                continue
+        else:
+            loc = {}
+            state = default_state
         state = loc.get("state") or default_state
         if not state:
             continue

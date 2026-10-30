@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `flowfreq.regression.library.load_state` takes a keyword-only `warn: bool = True`; with `warn=False` an opt-in set's advisory is logged at DEBUG instead of WARNING, and the coverage report tool uses it.
 
 ### Fixed
+@@REMOVE@@
 - **Parked `estimate_at_site` and regional skew minors from the rollout reviews.**
   `assemble(aeps=[])` raised nothing and made the missing-characteristic check vacuous; an
   empty `aeps` is now a `ValueError` (`None` still means the regions' common AEPs).
@@ -120,6 +121,7 @@ regional skew table for all 56 jurisdictions. Patch releases for 0.15 continue f
   previously raised.
 
 ### Fixed
+@@REMOVE@@
 - **Indiana's NSS regions now resolve** in `tools/snapshot_nss.py`. Its bounded regional
   parameters are the region number itself, so the harvest tries the region's GC number for a
   bounded parameter after the unbounded gating values (so a region that already resolved keeps its gate), and a region with no unbounded
@@ -159,6 +161,7 @@ power by likelihood. Patch releases for 0.14 continue from `release/0.14.x`.
 ## [0.14.1] - 2026-10-22
 
 ### Fixed
+@@REMOVE@@
 - **`transfer_variance.leave_one_out` no longer aborts on a negative donor correlation**
   (#177). A fold's re-estimated `rho` could be negative, and with `k` donors any
   `rho <= -1/(k - 1)` leaves the donors' errors without a valid covariance, so `combine`
@@ -320,6 +323,7 @@ and the provisional Oregon regression update. Patch releases for 0.11 continue f
   base-flow index (not adopted) and refits W-170800 as DRNAREA, BSLOPD (leverage 0.59 -> 0.48).
 
 ### Fixed
+@@REMOVE@@
 - **Map-service gateway errors are retried (#140).** The Watershed Boundary Dataset HU12 query
   behind `regional_skew_at`, and StreamStats' Idaho region query, now retry HTTP 502/503/504 and
   timeouts twice, after 2 s and 4 s, before failing. One 504 from `hydro.nationalmap.gov` failed
@@ -349,6 +353,7 @@ Northwest studies plan). Patch releases for 0.10 continue from `release/0.10.x`.
   goes on to create the release. v0.10.4's re-run stopped at PyPI's "File already exists".
 
 ### Fixed
+@@REMOVE@@
 - **Peak codes keep their case** (#135). `flowfreq.peak_codes` upper-cased single-character
   codes, so a lowercase `c` in a WATSTORE file became code C (urbanized) and the peak was
   dropped. peakfq's `siteQT` matches `"C"` case-sensitively and keeps it. On SIR 2025-5019's
@@ -447,6 +452,7 @@ Northwest studies plan). Patch releases for 0.10 continue from `release/0.10.x`.
 ## [0.10.3] - 2026-10-10
 
 ### Fixed
+@@REMOVE@@
 - **`StreamStatsCache` was not thread-safe.** `batch_get_characteristics(concurrency>1)`
   writes through from several worker threads; serializing the cache while another thread
   inserted into it raised `RuntimeError: dictionary changed size during iteration`, and
@@ -580,6 +586,7 @@ Northwest studies plan). Patch releases for 0.10 continue from `release/0.10.x`.
   notes record the search, and UT stays `partial`.
 
 ### Fixed
+@@REMOVE@@
 - Two live tests were brittle: the 06214500 ice-day test pinned provisional dates that USGS
   has since revised (it now asserts the invariant), and the NID test failed rather than
   skipped on a local DNS failure.
@@ -641,6 +648,7 @@ legacy site service.
   and `site_zone`.
 
 ### Fixed
+@@REMOVE@@
 - **Period of record from another parameter.** The legacy `fetch_site_info` took the first
   `dv`/`uv` row of the NWIS series catalog, which lists every parameter (the service
   ignores `parameterCd` there). At 12449500 the first daily row is 2002 water temperature,
@@ -994,6 +1002,7 @@ legacy site service.
   dependabot #18.
 
 ### Fixed
+@@REMOVE@@
 - **`diel_variation` marks the two daylight-saving days of each year correctly.**
   `expected_obs` was a fixed 1440 minutes divided by the median step. It is now each local
   day's actual length (23 or 25 hours on a transition day) divided by that step, the
@@ -1464,6 +1473,7 @@ legacy site service.
   are checked at all.
 
 ### Fixed
+@@REMOVE@@
 - **EMA confidence bounds at near-zero skew now match peakfq.** When |weighted skew| <=
   skewmin (0.06324555), `emafit.f` section 4.2 computes the bounds with `var_emab` at -skewmin
   and +skewmin and interpolates them linearly in skew; the native engine evaluated `var_emab`
@@ -1623,6 +1633,7 @@ legacy site service.
   which is geographically correct; picking it is the caller's responsibility.
 
 ### Fixed
+@@REMOVE@@
 - **`USGSgage.download_daily_flow`**: the timeout was hardcoded at 30s even after an
   earlier fix made a full period-of-record request (tens of thousands of rows for a
   long-running site) the default -- now configurable, default 60s. The default end date
@@ -1681,6 +1692,7 @@ legacy site service.
   returned is one computation rather than two that can drift.
 
 ### Fixed
+@@REMOVE@@
 - `fortran_engine.build_emafit_arrays` reused the scalar loop-local names `ql`/`qu`/`tl`
   for the arrays of the same name later in the function -- harmless at runtime, a real
   mypy error.
@@ -1709,6 +1721,7 @@ legacy site service.
   dedupe: `flowfreq-app` can now switch to this function and delete its own copy entirely.
 
 ### Fixed
+@@REMOVE@@
 - `fortran_engine.build_emafit_arrays` reused the scalar loop-local names `ql`/`qu`/`tl` for
   the final `ql`/`qu`/`tl` arrays later in the same function -- harmless at runtime (Python
   doesn't care), but a real mypy violation (`error: Incompatible types in assignment`).
@@ -1807,6 +1820,7 @@ legacy site service.
   once the app moved to its own repository.
 
 ### Fixed
+@@REMOVE@@
 - Four public signatures annotated names their modules never imported, so
   `typing.get_type_hints()` raised `NameError` on `engine.B17CEngine
   .frequency_table`, `batch.batch_summary_table`,
@@ -1868,6 +1882,7 @@ legacy site service.
   determinant ratio (`detrat`), matching peakfq's default `at_site_option`.
 
 ### Fixed
+@@REMOVE@@
 - `hydrolib/peakfqsa/` (a subprocess wrapper around a PeakfqSA binary that does not exist)
   removed; it was mock-tested only. `hydrolib/validation/reference.py` covers what it
   contributed, pointed at references that actually exist.
@@ -1905,6 +1920,7 @@ legacy site service.
 - Documentation vignettes reorganized (Low-Flow & Flow Regime guide)
 
 ### Fixed
+@@REMOVE@@
 - MGBT outlier detection edge case with small sample sizes
 - Flow duration curve calculation precision
 
@@ -1940,6 +1956,7 @@ legacy site service.
 - **Validation Framework** — Parity testing against USGS Fortran reference implementation
 
 ### Fixed
+@@REMOVE@@
 - Initial release
 
 ---
