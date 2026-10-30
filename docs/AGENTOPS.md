@@ -79,7 +79,13 @@ $A cards reset <id>         # discard the worktree and branch, back to pending
 
 **Lead (Claude) per card:**
 1. On a branch `spec/<id>` from `main`, write the failing tests and push them. Do not open a
-   PR for this branch: it exists only to hold the tests.
+   PR for this branch: it exists only to hold the tests. Cut it from current `main` and, if
+   `main` moves before the card runs, merge `main` into it: the worktree is cut from this
+   branch, so it must carry `AGENTS.md`. On 2026-10-30 seven spec branches predated that
+   file; Sonnet, given no rules, wrote files through a PowerShell script in the shell, the
+   host's agy permissions denied it, and three attempts escalated with a clean tree. The
+   runner now copies the repo's `AGENTS.md` into a worktree whose branch lacks it (and
+   drops the copy before the card commit), but that is a fallback, not the procedure.
 2. Write `.agentops/cards/<id>.toml` with `base = "origin/spec/<id>"` (run `git fetch
    origin` before `cards run`, so the remote branch is current), an outcome-level `prompt`
    that names the files to read and edit, and an exact `acceptance` command. Use
