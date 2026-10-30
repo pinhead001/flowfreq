@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `flowfreq.regression.library.load_state` takes a keyword-only `warn: bool = True`; with `warn=False` an opt-in set's advisory is logged at DEBUG instead of WARNING, and the coverage report tool uses it.
 
 ### Fixed
+- Catalog build: a site outside the United States gets no state and is skipped instead of being filed under the queried state. The Water Data API returns Yukon's 15388960 with `country_code` CA and `state_code` 11, which the DC build had catalogued as DC (#206).
 - **Parked `estimate_at_site` and regional skew minors from the rollout reviews.**
   `assemble(aeps=[])` raised nothing and made the missing-characteristic check vacuous; an
   empty `aeps` is now a `ValueError` (`None` still means the regions' common AEPs).
