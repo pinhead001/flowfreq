@@ -804,8 +804,8 @@ def regional_skew_at(
     if state is None and len(states) == 1:
         state = states[0]
     if state is None and len(states) > 1 and allow_state_fallback and not _has_membership(huc):
-        # The fallback would otherwise consult the HUC8-states table, which
-        # lists only some HUC8s and could contradict what WBD just reported.
+        # WBD just reported more than one state; the HUC8-states table (nationwide
+        # since #205) says the same and cannot choose between them, so the caller must.
         raise RegionalSkewUnavailable(
             f"{_no_study(huc)} HUC {huc} touches {', '.join(sorted(states))}; "
             "pass state= to choose the state-level fallback."

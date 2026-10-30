@@ -58,6 +58,12 @@ def test_packaged_tables_load():
     assert srp["source"].str.contains("SIR 2016-5083 p. 52").all()
     states = pd.read_csv(HUC8_STATES_TABLE, dtype=str)
     assert states["huc8"].str.len().eq(8).all()
+    # #205: the table is nationwide (2,456 HUC8s from WBD on 2026-10-30), so a border HU12
+    # in a HUC8 the old 417-row table lacked resolves its states without state=.
+    assert len(states) >= 2400 and states["huc8"].is_unique
+    assert rs_mod._states_of("010100040101", None) == {"CN", "ME"}  # Aroostook River
+    assert rs_mod._states_of("01010002", None) == {"ME"}
+    assert rs_mod._states_of("20090009", None) == set()  # Midway Islands: WBD lists no state
 
 
 @pytest.mark.parametrize(
