@@ -121,8 +121,9 @@ Follow-ups from the rollout reviews, none implemented; each has an issue (opened
       codes (one per side) and area-weight across the sides.
 - [ ] **HUC membership rows for the 15 new skew studies** (#204). They resolve today only through
       the state-level fallback, which applies to a state with a single usable row.
-- [ ] **A nationwide HUC8-states table** (#205) (`data/regional_skew_huc8_states.csv` lists only
-      some HUC8s), so a border HU12 resolves its state without `state=`.
+- [x] **A nationwide HUC8-states table** (#205): `tools/build_huc8_states.py` pages the WBD HU8
+      layer; `data/regional_skew_huc8_states.csv` lists every HUC8 (2,456 rows on 2026-10-30, the
+      417 old rows kept verbatim), so a border HU12 resolves its state without `state=`.
 - [ ] **Catalog defect: gage 15388960 is filed under DC** (#206). PORCUPINE R NR INTERNATIONAL
       BOUNDARY YT (lat 67.42, lon -140.89, in the Yukon) carries `state = DC` in
       `flowfreq/data/gage_catalog.csv.gz`. Fix it in the catalog build, not by hand; once it

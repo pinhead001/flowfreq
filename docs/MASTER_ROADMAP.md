@@ -407,8 +407,9 @@ Follow-ups found by the 0.16.0 rollout reviews (recorded in `TODO.md`):
       unresolved same-year ties that need a hydrologist's pick.
 - [ ] **HUC membership rows** for the 15 new skew studies, so they resolve by unit and not
       only through the state-level fallback.
-- [ ] **A nationwide HUC8-states table** (`regional_skew_huc8_states.csv` lists only some
-      HUC8s), so a border HU12 resolves its state without `state=`.
+- [x] **A nationwide HUC8-states table** (#205, 2026-10-30): `tools/build_huc8_states.py` from the
+      WBD HU8 layer; `regional_skew_huc8_states.csv` lists every HUC8 (2,456 rows), so a border
+      HU12 resolves its state without `state=`.
 
 ---
 

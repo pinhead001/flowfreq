@@ -1,6 +1,950 @@
 huc8,name,states
+01010002,Allagash River,ME
+01010003,Fish River,ME
+01010004,Aroostook River,"CN,ME"
+01010005,Meduxnekeag River,"CN,ME"
+01010006,Headwaters Saint John River,"CN,ME"
+01010007,Big Black River-Saint John River,"CN,ME"
+01010008,Saint Francis River-Saint John River,"CN,ME"
+01010009,Little River-Saint John River,"CN,ME"
+01010010,Becaguimec Stream-Saint John River,"CN,ME"
+01010011,Keswick River-Saint John River,"CN,ME"
+01020001,West Branch Penobscot River,"CN,ME"
+01020002,East Branch Penobscot River,ME
+01020003,Mattawamkeag River,ME
+01020004,Piscataquis River,ME
+01020005,Penobscot River,ME
+01030001,Upper Kennebec River,"CN,ME"
+01030002,Dead River,"CN,ME"
+01030003,Lower Kennebec River,ME
+01040001,Upper Androscoggin River,"CN,ME,NH"
+01040002,Lower Androscoggin River,"ME,NH"
+01050001,Saint Croix River,"CN,ME"
+01050002,Maine Coastal,ME
+01050003,St. George-Sheepscot,ME
+01050004,Passamaquoddy Bay-Bay of Fundy,"CN,ME"
+01060001,Presumpscot,ME
+01060002,Saco River,"ME,NH"
+01060003,Piscataqua-Salmon Falls,"MA,ME,NH"
+01070001,Pemigewasset River,NH
+01070002,Winnipesaukee River,NH
+01070003,Contoocook River,NH
+01070004,Nashua River,"MA,NH"
+01070005,Concord River,MA
+01070006,Merrimack River,"MA,NH"
+01080101,Headwaters Connecticut River,"CN,ME,NH,VT"
+01080102,Passumpsic River,"NH,VT"
+01080103,Ammonoosuc River-Connecticut River,"NH,VT"
+01080104,Waits River-Connecticut River,"NH,VT"
+01080105,White River,VT
+01080106,Black River-Connecticut River,"NH,VT"
+01080107,West River-Connecticut River,"NH,VT"
+01080201,Ashuelot River-Connecticut River,"MA,NH,VT"
+01080202,Millers River,"MA,NH"
+01080203,Deerfield River,"MA,VT"
+01080204,Chicopee River,MA
+01080205,Outlet Connecticut River,"CT,MA"
+01080206,Westfield River,"CT,MA"
+01080207,Farmington River,"CT,MA"
+01090001,Charles,MA
+01090002,Cape Cod,"MA,RI"
+01090003,Blackstone River,"MA,RI"
+01090004,Narragansett,"MA,RI"
+01090006,Point Judith-Block Island,RI
+01100001,Quinebaug River,"CT,MA,RI"
+01100002,Shetucket River,"CT,MA"
+01100003,Thames,CT
+01100004,Quinnipiac,CT
+01100005,Housatonic,"CT,MA,NY"
+01100006,Saugatuck,"CT,NY"
+01100007,Pawcatuck River,"CT,RI"
+02020001,Upper Hudson,NY
+02020002,Sacandaga,NY
+02020003,Hudson-Hoosic,"MA,NY,VT"
+02020004,Mohawk,NY
+02020005,Schoharie,NY
+02020006,Middle Hudson,"MA,NY"
+02020007,Rondout,"NJ,NY"
+02020008,Hudson-Wappinger,NY
+02030101,Lower Hudson,"CT,NJ,NY"
+02030102,Bronx,"CT,NY"
+02030103,Hackensack-Passaic,"NJ,NY"
+02030104,Sandy Hook-Staten Island,"NJ,NY"
+02030105,Raritan,NJ
+02030201,Northern Long Island,NY
+02030202,Southern Long Island,"NJ,NY,RI"
+02030203,Long Island Sound,"CT,NY,RI"
+02040101,Upper Delaware,"NY,PA"
+02040102,East Branch Delaware,NY
+02040103,Lackawaxen,PA
+02040104,Middle Delaware-Mongaup-Brodhead,"NJ,NY,PA"
+02040105,Middle Delaware-Musconetcong,"NJ,PA"
+02040106,Lehigh,PA
+02040201,Crosswicks-Neshaminy,"NJ,PA"
+02040202,Lower Delaware,"DE,NJ,PA"
+02040203,Schuylkill,PA
+02040204,Delaware Bay,"DE,NJ"
+02040205,Brandywine-Christina,"DE,MD,PA"
+02040206,Cohansey-Maurice,"DE,NJ"
+02040207,Broadkill-Smyrna,DE
+02040301,Mullica-Toms,"NJ,NY"
+02040302,Great Egg Harbor,NJ
+02040303,Chincoteague,"DE,MD,NJ,VA"
+02040304,Eastern Lower Delmarva,VA
+02050101,Upper Susquehanna,"NY,PA"
+02050102,Chenango,NY
+02050103,Owego-Wappasening,"NY,PA"
+02050104,Tioga,"NY,PA"
+02050105,Chemung,"NY,PA"
+02050106,Upper Susquehanna-Tunkhannock,PA
+02050107,Upper Susquehanna-Lackawanna,PA
+02050201,Upper West Branch Susquehanna,PA
+02050202,Sinnemahoning,PA
+02050203,Middle West Branch Susquehanna,PA
+02050204,Bald Eagle,PA
+02050205,Pine,PA
+02050206,Lower West Branch Susquehanna,PA
+02050301,Lower Susquehanna-Penns,PA
+02050302,Upper Juniata,PA
+02050303,Raystown,PA
+02050304,Lower Juniata,PA
+02050305,Lower Susquehanna-Swatara,PA
+02050306,Lower Susquehanna,"MD,PA"
+02060001,Upper Chesapeake Bay,MD
+02060002,Chester-Sassafras,"DE,MD,PA"
+02060003,Gunpowder-Patapsco,"MD,PA"
+02060004,Severn,MD
+02060005,Choptank,"DE,MD"
+02060006,Patuxent,MD
+02070001,South Branch Potomac,"MD,VA,WV"
+02070002,North Branch Potomac,"MD,PA,WV"
+02070003,Cacapon-Town,"MD,PA,VA,WV"
+02070004,Conococheague-Opequon,"MD,PA,VA,WV"
+02070005,South Fork Shenandoah,"VA,WV"
+02070006,North Fork Shenandoah,"VA,WV"
+02070007,Shenandoah,"MD,VA,WV"
+02070008,Middle Potomac-Catoctin,"DC,MD,VA,WV"
+02070009,Monocacy,"MD,PA"
+02070010,Middle Potomac-Anacostia-Occoquan,"DC,MD,VA"
+02070011,Lower Potomac,"MD,VA"
+02080101,Lower Chesapeake Bay,"MD,VA"
+02080102,Great Wicomico-Piankatank,"MD,VA"
+02080103,Rapidan-Upper Rappahannock,VA
+02080104,Lower Rappahannock,VA
+02080105,Mattaponi,VA
+02080106,Pamunkey,VA
+02080107,York,VA
+02080108,Lynnhaven-Poquoson,VA
+02080109,Nanticoke,"DE,MD"
+02080110,Tangier,"DE,MD,VA"
+02080111,Pokomoke-Western Lower Delmarva,"DE,MD,VA"
+02080201,Upper James,"VA,WV"
+02080202,Maury,VA
+02080203,Middle James-Buffalo,VA
+02080204,Rivanna,VA
+02080205,Middle James-Willis,VA
+02080206,Lower James,VA
+02080207,Appomattox,VA
+02080208,Hampton Roads,VA
+03010101,Upper Roanoke,VA
+03010102,Middle Roanoke,"NC,VA"
+03010103,Upper Dan,"NC,VA"
+03010104,Lower Dan,"NC,VA"
+03010105,Banister,VA
+03010106,Roanoke Rapids,"NC,VA"
+03010107,Lower Roanoke,NC
+03010201,Nottoway,"NC,VA"
+03010202,Blackwater,"NC,VA"
+03010203,Chowan,"NC,VA"
+03010204,Meherrin,"NC,VA"
+03010205,Albemarle,"NC,VA"
+03020101,Upper Tar,NC
+03020102,Fishing,NC
+03020103,Lower Tar,NC
+03020104,Pamlico,NC
+03020105,Pamlico Sound,NC
+03020201,Upper Neuse,NC
+03020202,Middle Neuse,NC
+03020203,Contentnea,NC
+03020204,Lower Neuse,NC
+03020301,White Oak River,NC
+03020302,New River,NC
+03030002,Haw,NC
+03030003,Deep,NC
+03030004,Upper Cape Fear,NC
+03030005,Lower Cape Fear,NC
+03030006,Black,NC
+03030007,Northeast Cape Fear,NC
+03040101,Upper Yadkin,"NC,VA"
+03040102,South Yadkin,NC
+03040103,Lower Yadkin,NC
+03040104,Upper Pee Dee,"NC,SC"
+03040105,Rocky,"NC,SC"
+03040201,Lower Pee Dee,"NC,SC"
+03040202,Lynches,"NC,SC"
+03040203,Lumber,"NC,SC"
+03040204,Little Pee Dee,"NC,SC"
+03040205,Black,SC
+03040206,Waccamaw,"NC,SC"
+03040207,Carolina Coastal-Sampit,SC
+03040208,Coastal Carolina,"NC,SC"
+03050101,Upper Catawba,"NC,SC"
+03050102,South Fork Catawba,"NC,SC"
+03050103,Lower Catawba,"NC,SC"
+03050104,Wateree,SC
+03050105,Upper Broad,"NC,SC"
+03050106,Lower Broad,SC
+03050107,Tyger,SC
+03050108,Enoree,SC
+03050109,Saluda,"NC,SC"
+03050110,Congaree,SC
+03050111,Lake Marion,SC
+03050112,Santee,SC
+03050201,Cooper,SC
+03050202,South Carolina Coastal,SC
+03050203,North Fork Edisto,SC
+03050204,South Fork Edisto,SC
+03050205,Four Hole Swamp,SC
+03050206,Edisto River,SC
+03050207,Salkehatchie,SC
+03050208,Broad-St. Helena,SC
+03050209,Bulls Bay,SC
+03050210,St. Helena Island,SC
+03060101,Seneca,"NC,SC"
+03060102,Tugaloo,"GA,NC,SC"
+03060103,Upper Savannah,"GA,SC"
+03060104,Broad,GA
+03060105,Little,GA
+03060106,Middle Savannah,"GA,SC"
+03060107,Stevens,SC
+03060108,Brier,GA
+03060109,Lower Savannah,"GA,SC"
+03060110,Calibogue Sound-Wright River,SC
+03060201,Upper Ogeechee,GA
+03060202,Lower Ogeechee,GA
+03060203,Canoochee,GA
+03060204,Ogeechee Coastal,GA
+03070101,Upper Oconee,GA
+03070102,Lower Oconee,GA
+03070103,Upper Ocmulgee,GA
+03070104,Lower Ocmulgee,GA
+03070105,Little Ocmulgee,GA
+03070106,Altamaha,GA
+03070107,Ohoopee,GA
+03070201,Satilla,GA
+03070202,Little Satilla,GA
+03070203,Cumberland-St. Simons,"FL,GA"
+03070204,St. Marys,"FL,GA"
+03070205,Nassau,"FL,GA"
+03080101,Upper St. Johns,FL
+03080102,Oklawaha,FL
+03080103,Lower St. Johns,FL
+03080201,Daytona-St. Augustine,FL
+03080202,Cape Canaveral,FL
+03080203,Vero Beach,FL
+03090101,Kissimmee,FL
+03090102,Northern Okeechobee Inflow,FL
+03090103,Western Okeechobee Inflow,FL
+03090201,Lake Okeechobee,FL
+03090202,Everglades,FL
+03090203,Florida Bay-Florida Keys,FL
+03090204,Big Cypress Swamp,FL
+03090205,Caloosahatchee,FL
+03090206,Florida Southeast Coast,FL
+03100101,Peace,FL
+03100102,Myakka,FL
+03100103,Charlotte Harbor,FL
+03100201,Sarasota Bay,FL
+03100202,Manatee,FL
+03100203,Little Manatee,FL
+03100204,Alafia,FL
+03100205,Hillsborough,FL
+03100206,Tampa Bay,FL
+03100207,Crystal-Pithlachascotee,FL
+03100208,Withlacoochee,FL
+03110101,Waccasassa,FL
+03110102,Econfina-Steinhatchee,FL
+03110103,Aucilla,"FL,GA"
+03110201,Upper Suwannee,"FL,GA"
+03110202,Alapaha,"FL,GA"
+03110203,Withlacoochee,"FL,GA"
+03110204,Little,GA
+03110205,Lower Suwannee,FL
+03110206,Santa Fe,FL
+03120001,Apalachee Bay-St. Marks,"FL,GA"
+03120002,Upper Ochlockonee,GA
+03120003,Lower Ochlockonee,"FL,GA"
+03130001,Upper Chattahoochee,GA
+03130002,Middle Chattahoochee-Lake Harding,"AL,GA"
+03130003,Middle Chattahoochee-Walter F,"AL,GA"
+03130004,Lower Chattahoochee,"AL,FL,GA"
+03130005,Upper Flint,GA
+03130006,Middle Flint,GA
+03130007,Kinchafoonee-Muckalee,GA
+03130008,Lower Flint,"FL,GA"
+03130009,Ichawaynochaway,GA
+03130010,Spring,GA
+03130011,Apalachicola,"FL,GA"
+03130012,Chipola,"AL,FL"
+03130013,New,FL
+03130014,Apalachicola Bay,FL
+03140101,St. Andrew-St. Joseph Bays,FL
+03140102,Choctawhatchee Bay,FL
+03140103,Yellow,"AL,FL"
+03140104,Blackwater,"AL,FL"
+03140105,Pensacola Bay,FL
+03140106,Perdido,"AL,FL"
+03140107,Perdido Bay,"AL,FL"
+03140201,Upper Choctawhatchee,AL
+03140202,Pea,"AL,FL"
+03140203,Lower Choctawhatchee,"AL,FL"
+03140301,Upper Conecuh,AL
+03140302,Patsaliga,AL
+03140303,Sepulga,AL
+03140304,Lower Conecuh,"AL,FL"
+03140305,Escambia,"AL,FL"
+03150101,Conasauga,"GA,TN"
+03150102,Coosawattee,GA
+03150103,Oostanaula,GA
+03150104,Etowah,GA
+03150105,Upper Coosa,"AL,GA"
+03150106,Middle Coosa,AL
+03150107,Lower Coosa,AL
+03150108,Upper Tallapoosa,"AL,GA"
+03150109,Middle Tallapoosa,AL
+03150110,Lower Tallapoosa,AL
+03150201,Upper Alabama,AL
+03150202,Cahaba,AL
+03150203,Middle Alabama,AL
+03150204,Lower Alabama,AL
+03160101,Upper Tombigbee,"AL,MS"
+03160102,Town,MS
+03160103,Buttahatchee,"AL,MS"
+03160104,Tibbee,MS
+03160105,Luxapallila,"AL,MS"
+03160106,Middle Tombigbee-Lubbub,"AL,MS"
+03160107,Sipsey,AL
+03160108,Noxubee,"AL,MS"
+03160109,Mulberry,AL
+03160110,Sipsey Fork,AL
+03160111,Locust,AL
+03160112,Upper Black Warrior,AL
+03160113,Lower Black Warrior,AL
+03160201,Middle Tombigbee-Chickasaw,"AL,MS"
+03160202,Sucarnoochee,"AL,MS"
+03160203,Lower Tombigbee,AL
+03160204,Mobile-Tensaw,AL
+03160205,Mobile Bay,AL
+03170001,Chunky-Okatibbee,MS
+03170002,Upper Chickasawhay,"AL,MS"
+03170003,Lower Chickasawhay,"AL,MS"
+03170004,Upper Leaf,MS
+03170005,Lower Leaf,MS
+03170006,Pascagoula,MS
+03170007,Black,MS
+03170008,Escatawpa,"AL,MS"
+03170009,Mississippi Coastal,"AL,LA,MS"
+03180001,Upper Pearl,MS
+03180002,Middle Pearl-Strong,MS
+03180003,Middle Pearl-Silver,MS
+03180004,Lower Pearl,"LA,MS"
+03180005,Bogue Chitto,"LA,MS"
+04010101,Baptism-Brule,"CN,MN"
+04010102,Beaver-Lester,MN
+04010201,St. Louis,"MN,WI"
+04010202,Cloquet,MN
+04010301,Beartrap-Nemadji,"MN,WI"
+04010302,Bad-Montreal,"MI,WI"
+04020101,Black-Presque Isle,"MI,WI"
+04020102,Ontonagon,"MI,WI"
+04020103,Keweenaw Peninsula,MI
+04020104,Sturgeon,MI
+04020105,Dead-Kelsey,MI
+04020201,Betsy-Chocolay,MI
+04020202,Tahquamenon,MI
+04020203,Waiska,MI
+04030101,Manitowoc-Sheboygan,WI
+04030102,Door-Kewaunee,WI
+04030103,Duck-Pensaukee,WI
+04030104,Oconto,WI
+04030105,Peshtigo,WI
+04030106,Brule,"MI,WI"
+04030107,Michigamme,MI
+04030108,Menominee,"MI,WI"
+04030109,Cedar-Ford,MI
+04030110,Escanaba,MI
+04030111,Tacoosh-Whitefish,MI
+04030112,Fishdam-Sturgeon,MI
+04030113,Manistique River,MI
+04030114,Millecoquins Lake-Brevoort River,MI
+04030201,Upper Fox,WI
+04030202,Wolf,WI
+04030203,Lake Winnebago,WI
+04030204,Lower Fox,WI
+04040001,Little Calumet-Galien,"IL,IN,MI"
+04040002,Pike-Root,"IL,WI"
+04040003,Milwaukee,WI
+04050001,St. Joseph,"IN,MI"
+04050002,Black-Macatawa,MI
+04050003,Kalamazoo,MI
+04050004,Upper Grand,MI
+04050005,Maple,MI
+04050006,Lower Grand,MI
+04050007,Thornapple,MI
+04060101,Pere Marquette-White,MI
+04060102,Muskegon,MI
+04060103,Manistee,MI
+04060104,Betsie-Platte,MI
+04060105,Boardman-Charlevoix,MI
+04070003,Lone Lake-Ocqueoc,MI
+04070004,Cheboygan,MI
+04070005,Black,MI
+04070006,Thunder Bay,MI
+04070007,Au Sable,MI
+04080101,Au Gres-Rifle,MI
+04080102,Kawkawlin-Pine,MI
+04080103,Pigeon-Wiscoggin,MI
+04080104,Birch-Willow,MI
+04080201,Tittabawassee,MI
+04080202,Pine,MI
+04080203,Shiawassee,MI
+04080204,Flint,MI
+04080205,Cass,MI
+04080206,Saginaw,MI
+04090001,St. Clair,"CN,MI"
+04090002,Lake St. Clair,"CN,MI"
+04090003,Clinton,MI
+04090004,Detroit,"CN,MI"
+04090006,Upper Thames River,CN
+04090007,Lower Thames River,CN
+04100001,Ottawa-Stony,"MI,OH"
+04100002,Raisin,"MI,OH"
+04100003,St. Joseph,"IN,MI,OH"
+04100004,St. Marys,"IN,OH"
+04100005,Upper Maumee,"IN,OH"
+04100006,Tiffin,"MI,OH"
+04100007,Auglaize,"IN,OH"
+04100008,Blanchard,OH
+04100009,Lower Maumee,OH
+04100010,Cedar-Portage,OH
+04100011,Sandusky,OH
+04100012,Huron-Vermilion,OH
+04100013,Huron,MI
+04110001,Black-Rocky,OH
+04110002,Cuyahoga,OH
+04110003,Ashtabula-Chagrin,"OH,PA"
+04110004,Grand,OH
+04120101,Chautauqua-Conneaut,"NY,OH,PA"
+04120102,Cattaraugus,NY
+04120103,Buffalo-Eighteenmile,NY
+04130001,Oak Orchard-Twelvemile,"CN,NY"
+04130002,Upper Genesee,"NY,PA"
+04130003,Lower Genesee,NY
+04140101,Irondequoit-Ninemile,NY
+04140102,Salmon-Sandy,NY
+04140201,Seneca,NY
+04140202,Oneida,NY
+04140203,Oswego,NY
+04140301,Black,NY
+04140302,Chaumont-Perch,NY
+04160001,Dog River-Frontal Lake Superior,CN
+04160002,Black Sturgeon River-Frontal Lake Superior,CN
+04160003,Nipigon River,CN
+04160004,Jackpine River-Frontal Lake Superior,CN
+04170001,Little Pic River-Frontal Lake Superior,CN
+04170002,Pic River-Frontal Lake Superior,CN
+04170003,White River-Frontal Lake Superior,CN
+04170004,Magpie River-Frontal Lake Superior,CN
+04170005,Agawa River-Frontal Lake Superior,CN
+04170006,Goulais River-Frontal Lake Superior,CN
+04180000,Lake Superior,"CN,MI,MN,WI"
+04190000,Lake Michigan,"IL,IN,MI,WI"
+04200001,Carp-Pine,MI
+04200002,St. Marys,"CN,MI"
+04200003,Gordon Lake,CN
+04200004,Upper Mississagi River,CN
+04200005,Lower Mississagi River,CN
+04200006,Serpent River-Frontal Lake Huron,CN
+04200007,Vermillion River,CN
+04200008,Spanish River-Frontal Lake Huron,CN
+04200009,Killarney Lake-Frontal Lake Huron,CN
+04210001,Upper Wanapitei River,CN
+04210002,Lower Wanapitei River,CN
+04210003,Sturgeon River,CN
+04210004,French River-Frontal Lake Huron,CN
+04220001,Magnetawan River-Frontal Lake Huron,CN
+04220002,Lake Muskoka-Frontal Lake Huron,CN
+04220003,Severn River-Lake Simcoe,CN
+04220004,Nottawasaga River-Frontal Lake Huron,CN
+04230001,Eugenia Lake-Frontal Lake Huron,CN
+04230002,Bruce Peninsula-Frontal Lake Huron,CN
+04230003,Saugeen River,CN
+04230004,Penetangore River-Frontal Lake Huron,CN
+04230005,Maitland River-Frontal Lake Huron,CN
+04230006,Ausable River-Frontal Lake Huron,CN
+04240001,Manitoulin Island,CN
+04240002,Lake Huron,"CN,MI"
+04250001,Cedar Creek-Frontal Lake Erie,CN
+04250002,Talbot Creek-Frontal Lake Erie,CN
+04250003,Big Creek-Frontal Lake Erie,CN
+04250004,Upper Grand River,CN
+04250005,Lower Grand River,CN
+04260000,Lake Erie,"CN,MI,NY,OH,PA"
+04270101,Niagara River,"CN,NY"
+04270102,Jordan Harbour-Frontal Lake America,CN
+04270103,Sixteen Mile Creek-Frontal Lake America,CN
+04270104,Humber River-Frontal Lake America,CN
+04270105,Ganaraska River-Frontal Lake America,CN
+04270106,Moira River-Frontal Lake America,CN
+04270107,Napanee River-Frontal Lake America,CN
+04270201,Scugog River,CN
+04270202,Gull River,CN
+04270203,Kawartha Lakes,CN
+04270204,Otonabee River,CN
+04270205,Trent River,CN
+04280001,Prince Edward County-Frontal Lake America,CN
+04280002,Lake America,"CN,NY"
+04290001,Headwaters St. Lawrence River,"CN,NY"
+04290002,Indian,NY
+04290003,Oswegatchie,NY
+04290004,Grass,NY
+04290005,Raquette,NY
+04290006,St. Regis,NY
+04290007,Salmon,"CN,NY"
+04290008,Raisin River-St. Lawrence River,"CN,NY"
+04300101,Mettawee River,"NY,VT"
+04300102,Otter Creek,VT
+04300103,Winooski River,VT
+04300104,Ausable River,NY
+04300105,Lamoille River,VT
+04300106,Saranac River,NY
+04300107,Missiquoi River,"CN,VT"
+04300108,Lake Champlain,"CN,NY,VT"
+04300109,Richelieu River,"CN,NY,VT"
+04300201,Chateaugay-English,"CN,NY"
+04300202,St. Francois River,"CN,ME,NH,VT"
+04310001,Chaudiere River,"CN,ME"
+04320000,Mojikit Lake-Ogoki River,CN
+04330000,Long Lake-Kenogami River,CN
+05010001,Upper Allegheny,"NY,PA"
+05010002,Conewango,"NY,PA"
+05010003,Middle Allegheny-Tionesta,PA
+05010004,French,"NY,PA"
+05010005,Clarion,PA
+05010006,Middle Allegheny-Redbank,PA
+05010007,Conemaugh,PA
+05010008,Kiskiminetas,PA
+05010009,Lower Allegheny,PA
+05020001,Tygart Valley,WV
+05020002,West Fork,WV
+05020003,Upper Monongahela,"PA,WV"
+05020004,Cheat,"MD,PA,WV"
+05020005,Lower Monongahela,"PA,WV"
+05020006,Youghiogheny,"MD,PA,WV"
+05030101,Upper Ohio,"OH,PA,WV"
+05030102,Shenango,"OH,PA"
+05030103,Mahoning,"OH,PA"
+05030104,Beaver,PA
+05030105,Connoquenessing,PA
+05030106,Upper Ohio-Wheeling,"OH,PA,WV"
+05030201,Little Muskingum-Middle Island,"OH,WV"
+05030202,Upper Ohio-Shade,"OH,WV"
+05030203,Little Kanawha,WV
+05030204,Hocking,OH
+05040001,Tuscarawas,OH
+05040002,Mohican,OH
+05040003,Walhonding,OH
+05040004,Muskingum,OH
+05040005,Wills,OH
+05040006,Licking,OH
+05050001,Upper New,"NC,TN,VA"
+05050002,Middle New,"VA,WV"
+05050003,Greenbrier,"VA,WV"
+05050004,Lower New,WV
+05050005,Gauley,WV
+05050006,Upper Kanawha,WV
+05050007,Elk,WV
+05050008,Lower Kanawha,WV
+05050009,Coal,WV
+05060001,Upper Scioto,OH
+05060002,Lower Scioto,OH
+05060003,Paint,OH
+05070101,Upper Guyandotte,WV
+05070102,Lower Guyandotte,WV
+05070201,Tug,"KY,VA,WV"
+05070202,Upper Levisa,"KY,VA,WV"
+05070203,Lower Levisa,KY
+05070204,Big Sandy,"KY,WV"
+05080001,"Upper Great Miami, Indiana, Ohio","IN,OH"
+05080002,"Lower Great Miami, Indiana, Ohio","IN,OH"
+05080003,Whitewater,"IN,OH"
+05090101,Raccoon-Symmes,"KY,OH,WV"
+05090102,Twelvepole,WV
+05090103,Little Scioto-Tygarts,"KY,OH,WV"
+05090104,Little Sandy,KY
+05090201,Ohio Brush-Whiteoak,"KY,OH"
+05090202,Little Miami,OH
+05090203,Middle Ohio-Laughery,"IN,KY,OH"
+05100101,Licking,KY
+05100102,South Fork Licking,KY
+05100201,North Fork Kentucky,"KY,VA"
+05100202,Middle Fork Kentucky,KY
+05100203,South Fork Kentucky,KY
+05100204,Upper Kentucky,KY
+05100205,Lower Kentucky,KY
+05110001,Upper Green,KY
+05110002,Barren,"KY,TN"
+05110003,Middle Green,KY
+05110004,Rough,KY
+05110005,Lower Green,KY
+05110006,Pond,KY
+05120101,Upper Wabash,"IN,OH"
+05120102,Salamonie,IN
+05120103,Mississinewa,"IN,OH"
+05120104,Eel,IN
+05120105,Middle Wabash-Deer,IN
+05120106,Tippecanoe,IN
+05120107,Wildcat,IN
+05120108,Middle Wabash-Little Vermilion,"IL,IN"
+05120109,Vermilion,"IL,IN"
+05120110,Sugar,IN
+05120111,Middle Wabash-Busseron,"IL,IN"
+05120112,Embarras,IL
+05120113,Lower Wabash,"IL,IN"
+05120114,Little Wabash,IL
+05120115,Skillet,IL
+05120201,Upper White,IN
+05120202,Lower White,IN
+05120203,Eel,IN
+05120204,Driftwood,IN
+05120205,Flatrock-Haw,IN
+05120206,Upper East Fork White,IN
+05120207,Muscatatuck,IN
+05120208,Lower East Fork White,IN
+05120209,Patoka,IN
+05130101,Upper Cumberland,"KY,TN,VA"
+05130102,Rockcastle,KY
+05130103,Upper Cumberland-Lake Cumberland,"KY,TN"
+05130104,South Fork Cumberland,"KY,TN"
+05130105,Obey,"KY,TN"
+05130106,Upper Cumberland-Cordell Hull Reservoir,TN
+05130107,Collins,TN
+05130108,Caney,TN
+05130201,Lower Cumberland-Old Hickory Lake,TN
+05130202,Lower Cumberland-Sycamore,TN
+05130203,Stones,TN
+05130204,Harpeth,TN
+05130205,Lower Cumberland,"KY,TN"
+05130206,Red,"KY,TN"
+05140101,Silver-Little Kentucky,"IN,KY"
+05140102,Salt,KY
+05140103,Rolling Fork,KY
+05140104,Blue-Sinking,"IN,KY"
+05140201,Lower Ohio-Little Pigeon,"IN,KY"
+05140202,Highland-Pigeon,"IL,IN,KY"
+05140203,Lower Ohio-Bay,"IL,KY"
+05140204,Saline,"IL,KY"
+05140205,Tradewater,KY
+05140206,Lower Ohio,"IL,KY"
+06010101,North Fork Holston,"TN,VA"
+06010102,South Fork Holston,"NC,TN,VA"
+06010103,"Watauga, North Carolina, Tennessee","NC,TN"
+06010104,Holston,"TN,VA"
+06010105,Upper French Broad,"NC,SC,TN"
+06010106,Pigeon,"NC,TN"
+06010107,Lower French Broad,"NC,TN"
+06010108,Nolichucky,"NC,TN"
+06010201,Watts Bar Lake,"NC,TN"
+06010202,Upper Little Tennessee,"GA,NC,TN"
+06010203,Tuckasegee,"NC,TN"
+06010204,Lower Little Tennessee,"NC,TN"
+06010205,"Upper Clinch, Tennessee, Virginia","TN,VA,WV"
+06010206,Powell,"KY,TN,VA"
+06010207,Lower Clinch,TN
+06010208,Emory,TN
+06020001,Middle Tennessee-Chickamauga,"AL,GA,TN"
+06020002,Hiwassee,"GA,NC,TN"
+06020003,Ocoee,"GA,NC,TN"
+06020004,Sequatchie,TN
+06030001,Guntersville Lake,"AL,GA,TN"
+06030002,Wheeler Lake,"AL,TN"
+06030003,Upper Elk,"AL,TN"
+06030004,Lower Elk,"AL,TN"
+06030005,Pickwick Lake,"AL,MS,TN"
+06030006,Bear,"AL,MS"
+06040001,Lower Tennessee-Beech,"MS,TN"
+06040002,Upper Duck,TN
+06040003,Lower Duck,TN
+06040004,Buffalo,TN
+06040005,Kentucky Lake,"KY,TN"
+06040006,Lower Tennessee,"KY,TN"
+07010101,Mississippi Headwaters,MN
+07010102,Leech Lake,MN
+07010103,Prairie-Willow,MN
+07010104,Elk-Nokasippi,MN
+07010105,Pine,MN
+07010106,Crow Wing,MN
+07010107,Redeye,MN
+07010108,Long Prairie,MN
+07010201,Platte-Spunk,MN
+07010202,Sauk,MN
+07010203,Clearwater-Elk,MN
+07010204,Crow,MN
+07010205,South Fork Crow,MN
+07010206,Twin Cities,MN
+07010207,Rum,MN
+07020001,Upper Minnesota,"MN,ND,SD"
+07020002,Pomme De Terre,MN
+07020003,Lac Qui Parle,"MN,SD"
+07020004,Hawk-Yellow Medicine,"MN,SD"
+07020005,Chippewa,MN
+07020006,Redwood,MN
+07020007,Middle Minnesota,MN
+07020008,Cottonwood,MN
+07020009,Blue Earth,"IA,MN"
+07020010,Watonwan,MN
+07020011,Le Sueur,MN
+07020012,Lower Minnesota,MN
+07030001,Upper St. Croix,"MN,WI"
+07030002,Namekagon,WI
+07030003,Kettle,MN
+07030004,Snake,MN
+07030005,Lower St. Croix,"MN,WI"
+07040001,Rush-Vermillion,"MN,WI"
+07040002,Cannon,MN
+07040003,Buffalo-Whitewater,"MN,WI"
+07040004,Zumbro,MN
+07040005,Trempealeau,WI
+07040006,La Crosse-Pine,"MN,WI"
+07040007,Black,WI
+07040008,Root,"IA,MN"
+07050001,Upper Chippewa,WI
+07050002,Flambeau,"MI,WI"
+07050003,South Fork Flambeau,WI
+07050004,Jump,WI
+07050005,Lower Chippewa,WI
+07050006,Eau Claire,WI
+07050007,Red Cedar,WI
+07060001,Coon-Yellow,"IA,MN,WI"
+07060002,Upper Iowa,"IA,MN"
+07060003,Grant-Little Maquoketa,"IA,WI"
+07060004,Turkey,IA
+07060005,Apple-Plum,"IA,IL,WI"
+07060006,Maquoketa,IA
+07070001,Upper Wisconsin,"MI,WI"
+07070002,Lake Dubay,WI
+07070003,Castle Rock,WI
+07070004,Baraboo,WI
+07070005,Lower Wisconsin,WI
+07070006,Kickapoo,WI
+07080101,Copperas-Duck,"IA,IL"
+07080102,Upper Wapsipinicon,"IA,MN"
+07080103,Lower Wapsipinicon,IA
+07080104,Flint-Henderson,"IA,IL,MO"
+07080105,South Skunk,IA
+07080106,North Skunk,IA
+07080107,Skunk,IA
+07080201,Upper Cedar,"IA,MN"
+07080202,Shell Rock,"IA,MN"
+07080203,Winnebago,"IA,MN"
+07080204,West Fork Cedar,IA
+07080205,Middle Cedar,IA
+07080206,Lower Cedar,IA
+07080207,Upper Iowa,IA
+07080208,Middle Iowa,IA
+07080209,Lower Iowa,IA
+07090001,Upper Rock,WI
+07090002,Middle Rock,"IL,WI"
+07090003,Pecatonica,"IL,WI"
+07090004,Sugar,"IL,WI"
+07090005,Lower Rock,"IL,WI"
+07090006,Kishwaukee,"IL,WI"
+07090007,Green,IL
+07100001,Des Moines Headwaters,MN
+07100002,Upper Des Moines,"IA,MN"
+07100003,East Fork Des Moines,"IA,MN"
+07100004,Middle Des Moines,IA
+07100005,Boone,IA
+07100006,North Raccoon,IA
+07100007,South Raccoon,IA
+07100008,Lake Red Rock,IA
+07100009,Lower Des Moines,"IA,MO"
+07110001,Bear-Wyaconda,"IA,IL,MO"
+07110002,North Fabius,"IA,MO"
+07110003,South Fabius,MO
+07110004,The Sny,"IL,MO"
+07110005,North Fork Salt,MO
+07110006,South Fork Salt,MO
+07110007,Salt,MO
+07110008,Cuivre,MO
+07110009,Peruque-Piasa,"IL,MO"
+07120001,Kankakee,"IL,IN,MI"
+07120002,Iroquois,"IL,IN"
+07120003,Chicago,"IL,IN"
+07120004,Des Plaines,"IL,WI"
+07120005,Upper Illinois,IL
+07120006,Upper Fox,"IL,WI"
+07120007,Lower Fox,IL
+07130001,Lower Illinois-Senachwine Lake,IL
+07130002,Vermilion,IL
+07130003,Lower Illinois-Lake Chautauqua,IL
+07130004,Mackinaw,IL
+07130005,Spoon,IL
+07130006,Upper Sangamon,IL
+07130007,South Fork Sangamon,IL
+07130008,Lower Sangamon,IL
+07130009,Salt,IL
+07130010,La Moine,IL
+07130011,Lower Illinois,IL
+07130012,Macoupin,IL
+07140101,Cahokia-Joachim,"IL,MO"
+07140102,Meramec,MO
+07140103,Bourbeuse,MO
+07140104,Big,MO
+07140105,Upper Mississippi-Cape Girardeau,"IL,KY,MO"
+07140106,Big Muddy,IL
+07140107,Whitewater,MO
+07140108,Cache,IL
+07140201,Upper Kaskaskia,IL
+07140202,Middle Kaskaskia,IL
+07140203,Shoal,IL
+07140204,Lower Kaskaskia,IL
+08010100,Lower Mississippi-Memphis,"AR,IL,KY,MO,MS,TN"
+08010201,Bayou De Chien-Mayfield,"KY,TN"
+08010202,Obion,"KY,TN"
+08010203,South Fork Obion,TN
+08010204,North Fork Forked Deer,TN
+08010205,South Fork Forked Deer,TN
+08010206,Forked Deer,TN
+08010207,Upper Hatchie,"MS,TN"
+08010208,Lower Hatchie,"MS,TN"
+08010209,Loosahatchie,TN
+08010210,Wolf,"MS,TN"
+08010211,Horn Lake-Nonconnah,"MS,TN"
+08010300,Town of Madrid-Saint Johns Bayou,MO
+08020100,Lower Mississippi-Helena,"AR,MS"
+08020202,Upper St. Francis,MO
+08020203,Lower St. Francis,"AR,MO"
+08020204,Little River Ditches,"AR,MO"
+08020205,L'Anguille,AR
+08020301,Lower White-Bayou Des Arc,AR
+08020302,Cache,"AR,MO"
+08020303,Lower White,AR
+08020304,Big,AR
+08020401,Lower Arkansas,AR
+08020402,Bayou Meto,AR
+08030100,Lower Mississippi-Greenville,"AR,LA,MS"
+08030201,Little Tallahatchie,MS
+08030202,Tallahatchie,MS
+08030203,Yocona,MS
+08030204,Coldwater,"MS,TN"
+08030205,Yalobusha,MS
+08030206,Upper Yazoo,MS
+08030207,Big Sunflower,MS
+08030208,Lower Yazoo,"LA,MS"
+08030209,Deer-Steele,"LA,MS"
+08040101,Ouachita Headwaters,AR
+08040102,Upper Ouachita,AR
+08040103,Little Missouri,AR
+08040201,Lower Ouachita-Smackover,AR
+08040202,Lower Ouachita-Bayou De Loutre,"AR,LA"
+08040203,Upper Saline,AR
+08040204,Lower Saline,AR
+08040205,Bayou Bartholomew,"AR,LA"
+08040206,Bayou D'Arbonne,"AR,LA"
+08040207,Lower Ouachita,LA
+08040301,Lower Red,LA
+08040302,Castor,LA
+08040303,Dugdemona,LA
+08040304,Little,LA
+08040305,Black,LA
+08040306,Bayou Cocodrie,LA
+08050001,Boeuf,"AR,LA"
+08050002,Bayou Macon,"AR,LA"
+08050003,Tensas,LA
+08060100,Lower Mississippi-Natchez,"LA,MS"
+08060201,Upper Big Black,MS
+08060202,Lower Big Black,MS
+08060203,Bayou Pierre,"LA,MS"
+08060204,Coles Creek,"LA,MS"
+08060205,Homochitto,MS
+08060206,Buffalo,MS
+08070100,Lower Mississippi-Baton Rouge,"LA,MS"
+08070201,Bayou Sara-Thompson,"LA,MS"
+08070202,Amite,"LA,MS"
+08070203,Tickfaw,"LA,MS"
+08070204,Lake Maurepas,LA
+08070205,Tangipahoa,"LA,MS"
+08070300,Lower Grand,LA
+08080101,Atchafalaya,LA
+08080102,Bayou Teche,LA
+08080103,Vermilion,LA
+08080201,Mermentau Headwaters,LA
+08080202,Mermentau,LA
+08080203,Upper Calcasieu,LA
+08080204,Whisky Chitto,LA
+08080205,West Fork Calcasieu,LA
+08080206,Lower Calcasieu,LA
+08090100,Lower Mississippi-New Orleans,LA
+08090201,Liberty Bayou-Tchefuncta,LA
+08090202,Lake Pontchartrain,LA
+08090203,Eastern Louisiana Coastal,"LA,MS"
+08090301,East Central Louisiana Coastal,LA
+08090302,West Central Louisiana Coastal,LA
+09010002,Des Lacs,"CN,ND"
+09010003,Lower Souris,"CN,ND"
+09010004,Willow,"CN,ND"
+09010005,Deep,"CN,ND"
+09010006,Long Creek,"CN,ND"
+09010007,Headwaters Souris River,"CN,ND"
+09010008,Moose Mountain Creek-Souris River,"CN,ND"
+09010009,Upper Moose Mountain Creek,CN
+09020101,Bois De Sioux,"MN,ND,SD"
+09020102,Mustinka,MN
+09020103,Otter Tail,MN
+09020104,Upper Red,"MN,ND"
+09020105,Western Wild Rice,"ND,SD"
+09020106,Buffalo,"MN,ND"
+09020107,Elm-Marsh,"MN,ND"
+09020108,Eastern Wild Rice,MN
+09020109,Goose,ND
+09020201,Devils Lake,ND
+09020202,Upper Sheyenne,ND
+09020203,Middle Sheyenne,ND
+09020204,Lower Sheyenne,ND
+09020205,Maple,ND
+09020301,Sandhill-Wilson,"MN,ND"
+09020302,Red Lakes,MN
+09020303,Red Lake,MN
+09020304,Thief,MN
+09020305,Clearwater,MN
+09020306,Grand Marais-Red,"MN,ND"
+09020307,Turtle,ND
+09020308,Forest,ND
+09020309,Snake,MN
+09020310,Park,ND
+09020311,Middle Red,"CN,MN,ND"
+09020312,Two Rivers,"CN,MN"
+09020314,Roseau,"CN,MN"
+09020315,Upper Pembina River,"CN,ND"
+09020316,Lower Pembina River,"CN,ND"
+09020317,Morris River,CN
+09020318,Rat River-Tourond Creek,CN
+09020319,La Salle River,CN
+09030001,Rainy Headwaters,"CN,MN"
+09030002,Vermilion,MN
+09030003,Rainy Lake,"CN,MN"
+09030005,Little Fork,MN
+09030006,Big Fork,"CN,MN"
+09030007,Rapid,MN
+09030008,Lower Rainy,"CN,MN"
+09030009,Lake of the Woods,"CN,MN"
+09030010,Big Turtle River-Rainy Lake,CN
+09030011,Shoal Lake,CN
 09040001,St. Marys,"CN,MT"
 09040002,Belly,"CN,MT"
+09040003,Upper Oldman River,CN
+09040004,Oldman River-Willow Creek,CN
 10020001,Red Rock,"ID,MT"
 10020002,Beaverhead,MT
 10020003,Ruby,MT
@@ -61,12 +1005,30 @@ huc8,name,states
 10070006,Clarks Fork Yellowstone,"MT,WY"
 10070007,Upper Yellowstone-Pompeys Pillar,MT
 10070008,Pryor,MT
+10080001,Upper Wind,WY
+10080002,Little Wind,WY
+10080003,Popo Agie,WY
+10080004,Muskrat,WY
+10080005,Lower Wind,WY
+10080006,Badwater,WY
+10080007,Upper Bighorn,WY
+10080008,Nowood,WY
+10080009,Greybull,WY
 10080010,Big Horn Lake,"MT,WY"
+10080011,Dry,WY
+10080012,North Fork Shoshone,WY
+10080013,South Fork Shoshone,WY
 10080014,Shoshone,"MT,WY"
 10080015,Lower Bighorn,MT
 10080016,Little Bighorn,"MT,WY"
 10090101,Upper Tongue,"MT,WY"
 10090102,Lower Tongue,MT
+10090201,Middle Fork Powder,WY
+10090202,Upper Powder,WY
+10090203,South Fork Powder,WY
+10090204,Salt,WY
+10090205,Crazy Woman,WY
+10090206,Clear,WY
 10090207,Middle Powder,"MT,WY"
 10090208,Little Powder,"MT,WY"
 10090209,Lower Powder,MT
@@ -76,16 +1038,647 @@ huc8,name,states
 10100003,Rosebud,MT
 10100004,Lower Yellowstone,"MT,ND"
 10100005,O'Fallon,MT
+10110101,Lake Sakakawea,ND
+10110102,Little Muddy,ND
 10110201,Upper Little Missouri,"MT,ND,SD,WY"
 10110202,Boxelder,"MT,ND,SD"
 10110203,Middle Little Missouri,"MT,ND"
 10110204,Beaver,"MT,ND"
+10110205,Lower Little Missouri,ND
+10120101,Antelope,WY
+10120102,Dry Fork Cheyenne,WY
+10120103,Upper Cheyenne,WY
+10120104,Lance,WY
+10120105,Lightning,WY
+10120106,Angostura Reservoir,"NE,SD,WY"
+10120107,Beaver,"SD,WY"
+10120108,Hat,"NE,SD,WY"
+10120109,Middle Cheyenne-Spring,SD
+10120110,Rapid,SD
+10120111,Middle Cheyenne-Elk,SD
+10120112,Lower Cheyenne,SD
+10120113,Cherry,SD
+10120201,Upper Belle Fourche,"SD,WY"
 10120202,Lower Belle Fourche,"MT,SD,WY"
+10120203,Redwater,"SD,WY"
+10130101,Painted Woods-Square Butte,ND
+10130102,Upper Lake Oahe,"ND,SD"
+10130103,Apple Creek,ND
+10130104,Beaver,ND
+10130105,Lower Lake Oahe,SD
+10130106,West Missouri Coteau,"ND,SD"
+10130201,Knife,ND
+10130202,Upper Heart,ND
+10130203,Lower Heart,ND
+10130204,Upper Cannonball,ND
+10130205,Cedar,"ND,SD"
+10130206,Lower Cannonball,ND
+10130301,North Fork Grand,"ND,SD"
+10130302,South Fork Grand,SD
+10130303,Grand,"ND,SD"
+10130304,South Fork Moreau,SD
+10130305,Upper Moreau,SD
+10130306,Lower Moreau,SD
+10140101,Fort Randall Reservoir,"NE,SD"
+10140102,Bad,SD
+10140103,Medicine Knoll,SD
+10140104,Medicine,SD
+10140105,Crow,SD
+10140201,Upper White,"NE,SD"
+10140202,Middle White,SD
+10140203,Little White,"NE,SD"
+10140204,Lower White,SD
+10150002,Niobrara Headwaters,"NE,WY"
+10150003,Upper Niobrara,"NE,SD"
+10150004,Middle Niobrara,"NE,SD"
+10150005,Snake,NE
+10150006,Keya Paha,"NE,SD"
+10150007,Lower Niobrara,NE
+10160001,James Headwaters,ND
+10160002,Pipestem,ND
+10160003,Upper James,"ND,SD"
+10160004,Elm,"ND,SD"
+10160005,Mud,SD
+10160006,Middle James,SD
+10160007,North Fork Snake,SD
+10160008,Snake,SD
+10160009,Turtle,SD
+10160011,Lower James,SD
+10170101,Lewis and Clark Lake,"NE,SD"
+10170102,Vermillion,SD
+10170103,Lake Thompson,SD
+10170104,Ponca,"NE,SD"
+10170201,Upper Big Sioux,SD
+10170202,Middle Big Sioux,"MN,SD"
+10170203,Lower Big Sioux,"IA,MN,NE,SD"
+10170204,Rock,"IA,MN"
+10180001,North Platte Headwaters,CO
+10180002,Upper North Platte,"CO,WY"
+10180003,Pathfinder-Seminoe Reservoirs,WY
+10180004,Medicine Bow,WY
+10180005,Little Medicine Bow,WY
+10180006,Sweetwater,WY
+10180007,Middle North Platte-Casper,WY
+10180008,Glendo Reservoir,WY
+10180009,Middle North Platte-Scotts Bluff,"NE,WY"
+10180010,Upper Laramie,"CO,WY"
+10180011,Lower Laramie,WY
+10180012,Horse,"NE,WY"
+10180013,Pumpkin,"NE,WY"
+10180014,Lower North Platte,NE
+10190001,South Platte Headwaters,CO
+10190002,Upper South Platte,CO
+10190003,Middle South Platte-Cherry Creek,CO
+10190004,Clear,CO
+10190005,St. Vrain,CO
+10190006,Big Thompson,CO
+10190007,Cache La Poudre,"CO,WY"
+10190008,Lone Tree-Owl,"CO,WY"
+10190009,Crow,"CO,WY"
+10190010,Kiowa,CO
+10190011,Bijou,CO
+10190012,Middle South Platte-Sterling,"CO,NE"
+10190013,Beaver,CO
+10190014,Pawnee,CO
+10190015,Upper Lodgepole,"CO,NE,WY"
+10190016,Lower Lodgepole,"CO,NE,WY"
+10190017,Sidney Draw,"CO,NE,WY"
+10190018,Lower South Platte,"CO,NE"
+10200101,Middle Platte-Buffalo,NE
+10200102,Wood,NE
+10200103,Middle Platte-Prairie,NE
+10200201,Lower Platte-Shell,NE
+10200202,Lower Platte,NE
+10200203,Salt,NE
+10210001,Upper Middle Loup,NE
+10210002,Dismal,NE
+10210003,Lower Middle Loup,NE
+10210004,South Loup,NE
+10210005,Mud,NE
+10210006,Upper North Loup,NE
+10210007,Lower North Loup,NE
+10210008,Calamus,NE
+10210009,Loup,NE
+10210010,Cedar,NE
+10220001,Upper Elkhorn,NE
+10220002,North Fork Elkhorn,NE
+10220003,Lower Elkhorn,NE
+10220004,Logan,NE
+10230001,Blackbird-Soldier,"IA,NE,SD"
+10230002,Floyd,IA
+10230003,Little Sioux,"IA,MN"
+10230004,Monona-Harrison Ditch,IA
+10230005,Maple,IA
+10230006,Big Papillion-Mosquito,"IA,NE"
+10230007,Boyer,IA
+10240001,Keg-Weeping Water,"IA,MO,NE"
+10240002,West Nishnabotna,IA
+10240003,East Nishnabotna,IA
+10240004,Nishnabotna,"IA,MO,NE"
+10240005,Tarkio-Wolf,"IA,KS,MO,NE"
+10240006,Little Nemaha,NE
+10240007,South Fork Big Nemaha,"KS,NE"
+10240008,Big Nemaha,"KS,NE"
+10240009,West Nodaway,IA
+10240010,Nodaway,"IA,MO"
+10240011,Independence-Sugar,"KS,MO"
+10240012,Platte,"IA,MO"
+10240013,One Hundred and Two,"IA,MO"
+10250001,Arikaree,"CO,KS,NE"
+10250002,North Fork Republican,"CO,KS,NE"
+10250003,South Fork Republican,"CO,KS,NE"
+10250004,Upper Republican,"KS,NE"
+10250005,Frenchman,"CO,NE"
+10250006,Stinking Water,"CO,NE"
+10250007,Red Willow,NE
+10250008,Medicine,NE
+10250009,Harlan County Reservoir,"KS,NE"
+10250010,Upper Sappa,KS
+10250011,Lower Sappa,"KS,NE"
+10250012,South Fork Beaver,"CO,KS"
+10250013,Little Beaver,"CO,KS"
+10250014,Beaver,"KS,NE"
+10250015,Prairie Dog,"KS,NE"
+10250016,Middle Republican,"KS,NE"
+10250017,Lower Republican,KS
+10260001,Smoky Hill Headwaters,"CO,KS"
+10260002,North Fork Smoky Hill,"CO,KS"
+10260003,Upper Smoky Hill,KS
+10260004,Ladder,"CO,KS"
+10260005,Hackberry,KS
+10260006,Middle Smoky Hill,KS
+10260007,Big,KS
+10260008,Lower Smoky Hill,KS
+10260009,Upper Saline,KS
+10260010,Lower Saline,KS
+10260011,Upper North Fork Solomon,KS
+10260012,Lower North Fork Solomon,"KS,NE"
+10260013,Upper South Fork Solomon,KS
+10260014,Lower South Fork Solomon,KS
+10260015,Solomon,KS
+10270101,Upper Kansas,KS
+10270102,Middle Kansas,KS
+10270103,Delaware,KS
+10270104,"Lower Kansas, Kansas","KS,MO"
+10270201,Upper Big Blue,NE
+10270202,Middle Big Blue,NE
+10270203,West Fork Big Blue,NE
+10270204,Turkey,NE
+10270205,Lower Big Blue,"KS,NE"
+10270206,Upper Little Blue,"KS,NE"
+10270207,Lower Little Blue,"KS,NE"
+10280101,Upper Grand,"IA,MO"
+10280102,Thompson,"IA,MO"
+10280103,Lower Grand,"IA,MO"
+10280201,Upper Chariton,"IA,MO"
+10280202,Lower Chariton,MO
+10280203,Little Chariton,MO
+10290101,Upper Marais Des Cygnes,KS
+10290102,Lower Marais Des Cygnes,"KS,MO"
+10290103,Little Osage,"KS,MO"
+10290104,Marmaton,"KS,MO"
+10290105,Harry S. Truman Reservoir,MO
+10290106,Sac,MO
+10290107,Pomme De Terre,MO
+10290108,South Grand,"KS,MO"
+10290109,Lake of the Ozarks,MO
+10290110,Niangua,MO
+10290111,Lower Osage,MO
+10290201,Upper Gasconade,MO
+10290202,Big Piney,MO
+10290203,Lower Gasconade,MO
+10300101,Lower Missouri-Crooked,"KS,MO"
+10300102,Lower Missouri-Moreau,MO
+10300103,Lamine,MO
+10300104,Blackwater,MO
+10300200,Lower Missouri,MO
+11010001,Beaver Reservoir,"AR,MO"
+11010002,James,MO
+11010003,Bull Shoals Lake,"AR,MO"
+11010004,Middle White,AR
+11010005,Buffalo,AR
+11010006,North Fork White,"AR,MO"
+11010007,Upper Black,"AR,MO"
+11010008,Current,"AR,MO"
+11010009,Lower Black,"AR,MO"
+11010010,Spring,"AR,MO"
+11010011,Eleven Point,"AR,MO"
+11010012,Strawberry,AR
+11010013,Upper White-Village,AR
+11010014,Little Red,AR
+11020001,Arkansas Headwaters,CO
+11020002,Upper Arkansas,CO
+11020003,Fountain,CO
+11020004,Chico,CO
+11020005,Upper Arkansas-Lake Meredith,CO
+11020006,Huerfano,CO
+11020007,Apishapa,CO
+11020008,Horse,CO
+11020009,Upper Arkansas-John Martin Reservoir,"CO,KS"
+11020010,Purgatoire,"CO,NM"
+11020011,Big Sandy,CO
+11020012,Rush,CO
+11020013,Two Butte,CO
+11030001,Middle Arkansas-Lake McKinney,"CO,KS"
+11030002,Whitewoman,"CO,KS"
+11030003,Arkansas-Dodge City,KS
+11030004,Coon-Pickerel,KS
+11030005,Pawnee,KS
+11030006,Buckner,KS
+11030007,Upper Walnut Creek,KS
+11030008,Lower Walnut Creek,KS
+11030009,Rattlesnake,KS
+11030010,Gar-Peace,KS
+11030011,Cow,KS
+11030012,Little Arkansas,KS
+11030013,Middle Arkansas-Slate,KS
+11030014,North Fork Ninnescah,KS
+11030015,South Fork Ninnescah,KS
+11030016,Ninnescah,KS
+11030017,Upper Walnut River,KS
+11030018,Lower Walnut River,KS
+11040001,Cimarron Headwaters,"CO,NM,OK"
+11040002,Upper Cimarron,"CO,KS,NM,OK"
+11040003,North Fork Cimarron,"CO,KS"
+11040004,Sand Arroyo,"CO,KS"
+11040005,Bear,"CO,KS"
+11040006,Upper Cimarron-Liberal,"KS,OK"
+11040007,Crooked,"KS,OK"
+11040008,Upper Cimarron-Bluff,"KS,OK"
+11050001,Lower Cimarron-Eagle Chief,"KS,OK"
+11050002,Lower Cimarron-Skeleton,OK
+11050003,Lower Cimarron,OK
+11060001,Kaw Lake,"KS,OK"
+11060002,Upper Salt Fork Arkansas,"KS,OK"
+11060003,Medicine Lodge,"KS,OK"
+11060004,Lower Salt Fork Arkansas,"KS,OK"
+11060005,Chikaskia,"KS,OK"
+11060006,Black Bear-Red Rock,OK
+11070101,Upper Verdigris,KS
+11070102,Fall,KS
+11070103,Middle Verdigris,"KS,OK"
+11070104,Elk,KS
+11070105,Lower Verdigris,OK
+11070106,Caney,"KS,OK"
+11070107,Bird,OK
+11070201,Neosho Headwaters,KS
+11070202,Upper Cottonwood,KS
+11070203,Lower Cottonwood,KS
+11070204,Upper Neosho,KS
+11070205,Middle Neosho,"KS,OK"
+11070206,Lake O' The Cherokees,"AR,KS,MO,OK"
+11070207,Spring,"KS,MO,OK"
+11070208,Elk,"AR,MO,OK"
+11070209,Lower Neosho,"AR,OK"
+11080001,Canadian Headwaters,"CO,NM"
+11080002,Cimarron,NM
+11080003,Upper Canadian,NM
+11080004,Mora,NM
+11080005,Conchas,NM
+11080006,Upper Canadian-Ute Reservoir,"NM,TX"
+11080007,Ute,NM
+11080008,Revuelto,NM
+11090101,Middle Canadian-Trujillo,"NM,TX"
+11090102,Punta de Agua,"NM,TX"
+11090103,Rita Blanca,"NM,OK,TX"
+11090104,Carrizo,"NM,TX"
+11090105,Lake Meredith,TX
+11090106,Middle Canadian-Spring,"OK,TX"
+11090201,Lower Canadian-Deer,"OK,TX"
+11090202,Lower Canadian-Walnut,OK
+11090203,Little,OK
+11090204,Lower Canadian,OK
+11100101,Upper Beaver,"NM,OK,TX"
+11100102,Middle Beaver,"KS,OK,TX"
+11100103,Coldwater,"NM,OK,TX"
+11100104,Palo Duro,"OK,TX"
+11100201,Lower Beaver,"OK,TX"
+11100202,Upper Wolf,TX
+11100203,Lower Wolf,"OK,TX"
+11100301,Middle North Canadian,OK
+11100302,Lower North Canadian,OK
+11100303,Deep Fork,OK
+11110101,Polecat-Snake,OK
+11110102,Dirty-Greenleaf,OK
+11110103,Illinois,"AR,OK"
+11110104,Robert S. Kerr Reservoir,"AR,OK"
+11110105,Poteau,"AR,OK"
+11110201,Frog-Mulberry,AR
+11110202,Dardanelle Reservoir,AR
+11110203,Lake Conway-Point Remove,AR
+11110204,Petit Jean,AR
+11110205,Cadron,AR
+11110206,Fourche La Fave,AR
+11110207,Lower Arkansas-Maumelle,AR
+11120101,Tierra Blanca,"NM,TX"
+11120102,Palo Duro,"NM,TX"
+11120103,Upper Prairie Dog Town Fork Red,TX
+11120104,Tule,TX
+11120105,Lower Prairie Dog Town Fork Red,"OK,TX"
+11120201,Upper Salt Fork Red,TX
+11120202,Lower Salt Fork Red,"OK,TX"
+11120301,Upper North Fork Red,TX
+11120302,Middle North Fork Red,"OK,TX"
+11120303,Lower North Fork Red,OK
+11120304,Elm Fork Red,"OK,TX"
+11130101,Groesbeck-Sandy,"OK,TX"
+11130102,Blue-China,"OK,TX"
+11130103,North Pease,TX
+11130104,Middle Pease,TX
+11130105,Pease,"OK,TX"
+11130201,Farmers-Mud,"OK,TX"
+11130202,Cache,OK
+11130203,West Cache,OK
+11130204,North Wichita,TX
+11130205,South Wichita,TX
+11130206,Wichita,"OK,TX"
+11130207,Southern Beaver,TX
+11130208,Northern Beaver,OK
+11130209,Little Wichita,TX
+11130210,Lake Texoma,"OK,TX"
+11130301,Washita Headwaters,"OK,TX"
+11130302,Upper Washita,OK
+11130303,Middle Washita,OK
+11130304,Lower Washita,OK
+11140101,Bois D'arc-Island,"OK,TX"
+11140102,Blue,OK
+11140103,Muddy Boggy,OK
+11140104,Clear Boggy,OK
+11140105,Kiamichi,"AR,OK"
+11140106,Pecan-Waterhole,"AR,OK,TX"
+11140107,Upper Little,OK
+11140108,Mountain Fork,"AR,OK"
+11140109,"Lower Little Arkansas, Oklahoma","AR,OK"
+11140201,McKinney-Posten Bayous,"AR,LA,TX"
+11140202,Middle Red-Coushatta,LA
+11140203,Loggy Bayou,"AR,LA"
+11140204,Red Chute,LA
+11140205,Bodcau Bayou,"AR,LA"
+11140206,Bayou Pierre,"LA,TX"
+11140207,Lower Red-Lake Iatt,LA
+11140208,Saline Bayou,LA
+11140209,Black Lake Bayou,LA
+11140301,Sulphur Headwaters,TX
+11140302,Lower Sulpher,"AR,TX"
+11140303,White Oak Bayou,TX
+11140304,Cross Bayou,"AR,LA,TX"
+11140305,Lake O'the Pines,TX
+11140306,Caddo Lake,"LA,TX"
+11140307,Little Cypress,TX
+12010001,Upper Sabine,TX
+12010002,Middle Sabine,"LA,TX"
+12010003,Lake Fork,TX
+12010004,Toledo Bend Reservoir,"LA,TX"
+12010005,Lower Sabine,"LA,TX"
+12020001,Upper Neches,TX
+12020002,Middle Neches,TX
+12020003,Lower Neches,TX
+12020004,Upper Angelina,TX
+12020005,Lower Angelina,TX
+12020006,Village,TX
+12020007,Pine Island Bayou,TX
+12030101,Upper West Fork Trinity,TX
+12030102,Lower West Fork Trinity,TX
+12030103,Elm Fork Trinity,TX
+12030104,Denton,TX
+12030105,Upper Trinity,TX
+12030106,East Fork Trinity,TX
+12030107,Cedar,TX
+12030108,Richland,TX
+12030109,Chambers,TX
+12030201,Lower Trinity-Tehuacana,TX
+12030202,Lower Trinity-Kickapoo,TX
+12030203,Lower Trinity,TX
+12040101,West Fork San Jacinto,TX
+12040102,Spring,TX
+12040103,East Fork San Jacinto,TX
+12040104,Buffalo-San Jacinto,TX
+12040201,Sabine Lake,"LA,TX"
+12040202,East Galveston Bay,"LA,TX"
+12040203,North Galveston Bay,TX
+12040204,West Galveston Bay,TX
+12040205,Austin-Oyster,TX
+12050001,Yellow House Draw,"NM,TX"
+12050002,Blackwater Draw,"NM,TX"
+12050003,North Fork Double Mountain Fork Brazos,TX
+12050004,Double Mountain Fork Brazos,TX
+12050005,Running Water Draw,"NM,TX"
+12050006,White,TX
+12050007,Salt Fork Brazos,TX
+12060101,Middle Brazos-Millers,TX
+12060102,Upper Clear Fork Brazos,TX
+12060103,Paint,TX
+12060104,Lower Clear Fork Brazos,TX
+12060105,Hubbard,TX
+12060201,Middle Brazos-Palo Pinto,TX
+12060202,Middle Brazos-Lake Whitney,TX
+12060203,Bosque,TX
+12060204,North Bosque,TX
+12070101,Lower Brazos-Little Brazos,TX
+12070102,Yegua,TX
+12070103,Navasota,TX
+12070104,Lower Brazos,TX
+12070201,Leon,TX
+12070202,Cowhouse,TX
+12070203,Lampasas,TX
+12070204,Little,TX
+12070205,San Gabriel,TX
+12080001,Lost Draw,"NM,TX"
+12080002,Colorado Headwaters,TX
+12080003,Monument-Seminole Draws,"NM,TX"
+12080004,Mustang Draw,"NM,TX"
+12080005,Johnson Draw,TX
+12080006,Sulphur Springs Draw,"NM,TX"
+12080007,Beals,TX
+12080008,Upper Colorado,TX
+12090101,Middle Colorado-Elm,TX
+12090102,South Concho,TX
+12090103,Middle Concho,TX
+12090104,North Concho,TX
+12090105,Concho,TX
+12090106,Middle Colorado,TX
+12090107,Pecan Bayou,TX
+12090108,Jim Ned,TX
+12090109,San Saba,TX
+12090110,Brady,TX
+12090201,Buchanan-Lyndon B. Johnson Lakes,TX
+12090202,North Llano,TX
+12090203,South Llano,TX
+12090204,Llano,TX
+12090205,Austin-Travis Lakes,TX
+12090206,Pedernales,TX
+12090301,Lower Colorado-Cummins,TX
+12090302,Lower Colorado,TX
+12090401,San Bernard,TX
+12090402,East Matagorda Bay,TX
+12100101,Lavaca,TX
+12100102,Navidad,TX
+12100201,Upper Guadalupe,TX
+12100202,Middle Guadalupe,TX
+12100203,San Marcos,TX
+12100204,Lower Guadalupe,TX
+12100301,Upper San Antonio,TX
+12100302,Medina,TX
+12100303,Lower San Antonio,TX
+12100304,Cibolo,TX
+12100401,Central Matagorda Bay,TX
+12100402,West Matagorda Bay,TX
+12100403,East San Antonio Bay,TX
+12100404,West San Antonio Bay,TX
+12100405,Aransas Bay,TX
+12100406,Mission,TX
+12100407,Aransas,TX
+12110101,Nueces Headwaters,TX
+12110102,West Nueces,TX
+12110103,Upper Nueces,TX
+12110104,Turkey,TX
+12110105,Middle Nueces,TX
+12110106,Upper Frio,TX
+12110107,Hondo,TX
+12110108,Lower Frio,TX
+12110109,San Miguel,TX
+12110110,Atascosa,TX
+12110111,Lower Nueces,TX
+12110201,North Corpus Christi Bay,TX
+12110202,South Corpus Christi Bay,TX
+12110203,North Laguna Madre,TX
+12110204,San Fernando,TX
+12110205,Baffin Bay,TX
+12110206,Palo Blanco,TX
+12110207,Central Laguna Madre,TX
+12110208,South Laguna Madre,TX
+13010001,Rio Grande Headwaters,CO
+13010002,Alamosa-Trinchera,"CO,NM"
+13010003,San Luis,CO
+13010004,Saguache,CO
+13010005,Conejos,"CO,NM"
+13020101,Upper Rio Grande,"CO,NM"
+13020102,Rio Chama,"CO,NM"
+13020201,Rio Grande-Santa Fe,NM
+13020202,Jemez,NM
+13020203,Rio Grande-Albuquerque,NM
+13020204,Rio Puerco,NM
+13020205,Arroyo Chico,NM
+13020206,North Plains,NM
+13020207,Rio San Jose,NM
+13020208,Plains of San Agustin,NM
+13020209,Rio Salado,NM
+13020210,Jornada Del Muerto,NM
+13020211,Elephant Butte Reservoir,NM
+13030101,Caballo,NM
+13030102,El Paso-Las Cruces,"MX,NM,TX"
+13030103,Jornada Draw,NM
+13030201,Playas Lake,"MX,NM"
+13030202,Mimbres,"MX,NM"
+13040100,Rio Grande-Fort Quitman,"MX,NM,TX"
+13040201,Cibolo-Red Light,"MX,TX"
+13040202,Alamito,"MX,TX"
+13040203,Black Hills-Fresno,"MX,TX"
+13040204,Terlingua,TX
+13040205,Big Bend,"MX,TX"
+13040206,Maravillas,TX
+13040207,Santiago Draw,TX
+13040208,Reagan-Sanderson,"MX,TX"
+13040209,San Francisco,TX
+13040210,Lozier Canyon,"MX,TX"
+13040211,Big Canyon,TX
+13040212,Amistad Reservoir,"MX,TX"
+13040301,Upper Devils,TX
+13040302,Lower Devils,TX
+13040303,Dry Devils,TX
+13050001,Western Estancia,NM
+13050002,Eastern Estancia,NM
+13050003,Tularosa Valley,"NM,TX"
+13050004,Salt Basin,"NM,TX"
+13060001,Pecos Headwaters,NM
+13060002,Pintada Arroyo,NM
+13060003,Upper Pecos,NM
+13060004,Taiban,NM
+13060005,Arroyo Del Macho,NM
+13060006,Gallo Arroyo,NM
+13060007,Upper Pecos-Long Arroyo,NM
+13060008,Rio Hondo,NM
+13060009,Rio Felix,NM
+13060010,Rio Penasco,NM
+13060011,Upper Pecos-Black,"NM,TX"
+13070001,Lower Pecos-Red Bluff Reservoir,"NM,TX"
+13070002,Delaware,"NM,TX"
+13070003,Toyah,TX
+13070004,Salt Draw,TX
+13070005,Barrilla Draw,TX
+13070006,Coyanosa-Hackberry Draws,TX
+13070007,Landreth-Monument Draws,"NM,TX"
+13070008,Pecos,TX
+13070009,Tunas,TX
+13070010,Independence,TX
+13070011,Howard Draw,TX
+13070012,Lower Pecos,TX
+13080001,Elm-Sycamore,"MX,TX"
+13080002,San Ambrosia-Santa Isabel,"MX,TX"
+13080003,International Falcon Reservoir,"MX,TX"
+13090001,Los Olmos,"MX,TX"
+13090002,Lower Rio Grande,"MX,TX"
+13100000,Rio Conchos,MX
+13110000,Rio Salado,MX
+13120000,Rio San Juan,MX
+14010001,Colorado Headwaters,CO
+14010002,Blue,CO
+14010003,Eagle,CO
+14010004,Roaring Fork,CO
+14010005,Colorado Headwaters-Plateau,"CO,UT"
+14020001,East-Taylor,CO
+14020002,Upper Gunnison,CO
+14020003,Tomichi,CO
+14020004,North Fork Gunnison,CO
+14020005,Lower Gunnison,CO
+14020006,Uncompahgre,CO
+14030001,Westwater Canyon,"CO,UT"
+14030002,Upper Dolores,"CO,UT"
+14030003,San Miguel,CO
+14030004,Lower Dolores,"CO,UT"
+14030005,Upper Colorado-Kane Springs,"CO,UT"
+14040101,Upper Green,WY
+14040102,New Fork,WY
+14040103,Upper Green-Slate,WY
+14040104,Big Sandy,WY
+14040105,Bitter,WY
+14040106,Upper Green-Flaming Gorge Reservoir,"CO,UT,WY"
+14040107,Blacks Fork,"UT,WY"
+14040108,Muddy,"UT,WY"
+14040109,Vermilion,"CO,WY"
+14040200,Great Divide Closed Basin,WY
+14050001,Upper Yampa,CO
+14050002,Lower Yampa,CO
+14050003,Little Snake,"CO,WY"
+14050004,Muddy,WY
+14050005,Upper White,CO
+14050006,Piceance-Yellow,CO
+14050007,Lower White,"CO,UT"
+14060003,Duchesne,UT
+14060004,Strawberry,UT
+14060005,Lower Green-Desolation Canyon,UT
+14060006,Willow,UT
+14060007,Price,UT
+14060008,Lower Green,UT
+14060009,San Rafael,UT
+14060010,Lower Green-Diamond,"CO,UT"
+14070001,Upper Lake Powell,UT
+14070002,Muddy,UT
+14070003,Fremont,UT
+14070004,Dirty Devil,UT
+14070005,Escalante,UT
 14070006,Lower Lake Powell,"AZ,UT"
 14070007,Paria,"AZ,UT"
+14080101,Upper San Juan,"CO,NM"
+14080102,Piedra,CO
+14080103,Blanco Canyon,NM
+14080104,Animas,"CO,NM"
 14080105,Middle San Juan,"AZ,CO,NM"
 14080106,Chaco,"AZ,NM"
+14080107,Mancos,"CO,NM"
 14080201,Lower San Juan-Four Corners,"AZ,CO,NM,UT"
+14080202,McElmo,"CO,UT"
+14080203,Montezuma,"CO,UT"
 14080204,Chinle,"AZ,NM,UT"
 14080205,Lower San Juan,"AZ,UT"
 15010001,Lower Colorado-Marble Canyon,AZ
@@ -95,9 +1688,14 @@ huc8,name,states
 15010005,Lake Mead,"AZ,NV"
 15010006,Grand Wash,"AZ,NV"
 15010007,Red Lake,AZ
+15010008,Upper Virgin,UT
 15010009,Fort Pearce Wash,"AZ,UT"
 15010010,Lower Virgin,"AZ,NV,UT"
+15010011,White,NV
+15010012,Muddy,NV
+15010013,Meadow Valley Wash,"NV,UT"
 15010014,Detrital Wash,AZ
+15010015,Las Vegas Wash,NV
 15020001,Little Colorado Headwaters,"AZ,NM"
 15020002,Upper Little Colorado,"AZ,NM"
 15020003,Carrizo Wash,"AZ,NM"
@@ -117,6 +1715,7 @@ huc8,name,states
 15020017,Dinnebito Wash,AZ
 15020018,Moenkopi Wash,AZ
 15030101,Havasu-Mohave Lakes,"AZ,CA,NV"
+15030102,Piute Wash,"CA,NV"
 15030103,Sacramento Wash,AZ
 15030104,Imperial Reservoir,"AZ,CA"
 15030105,Bouse Wash,AZ
@@ -127,6 +1726,7 @@ huc8,name,states
 15030202,Burro,AZ
 15030203,Santa Maria,AZ
 15030204,Bill Williams,AZ
+15040001,Upper Gila,NM
 15040002,Upper Gila-Mangas,"AZ,NM"
 15040003,Animas Valley,"AZ,NM"
 15040004,San Francisco,"AZ,NM"
@@ -165,6 +1765,78 @@ huc8,name,states
 15080200,Rio De La Concepcion,"AZ,MX"
 15080301,Whitewater Draw,"AZ,MX"
 15080302,San Bernardino Valley,"AZ,MX,NM"
+15080303,Cloverdale,"MX,NM"
+16010101,Upper Bear,"UT,WY"
+16010102,Central Bear,"ID,UT,WY"
+16010201,Bear Lake,"ID,UT"
+16010202,Middle Bear,"ID,UT"
+16010203,Little Bear-Logan,"ID,UT"
+16010204,Lower Bear-Malad,"ID,UT"
+16020101,Upper Weber,"UT,WY"
+16020102,Lower Weber,UT
+16020201,Utah Lake,UT
+16020202,Spanish Fork,UT
+16020203,Provo,UT
+16020204,Jordan,UT
+16020301,Hamlin-Snake Valleys,"NV,UT"
+16020302,Pine Valley,UT
+16020303,Tule Valley,UT
+16020304,Rush-Tooele Valleys,UT
+16020305,Skull Valley,UT
+16020306,Southern Great Salt Lake Desert,"NV,UT"
+16020307,"Pilot-Thousand Springs, Nevada, Utah","NV,UT"
+16020308,Northern Great Salt Lake Desert,"NV,UT"
+16020309,Curlew Valley,"ID,UT"
+16020310,Great Salt Lake,UT
+16030001,Upper Sevier,UT
+16030002,East Fork Sevier,UT
+16030003,Middle Sevier,UT
+16030004,San Pitch,UT
+16030005,Lower Sevier,UT
+16030006,Escalante Desert,"NV,UT"
+16030007,Beaver Bottoms-Upper Beaver,UT
+16030008,Lower Beaver,UT
+16030009,Sevier Lake,UT
+16040101,Upper Humboldt,NV
+16040102,North Fork Humboldt,NV
+16040103,South Fork Humboldt,NV
+16040104,Pine,NV
+16040105,Middle Humboldt,NV
+16040106,Rock,NV
+16040107,Reese,NV
+16040108,Lower Humboldt,NV
+16040109,Little Humboldt,NV
+16040201,Upper Quinn,"NV,OR"
+16040202,Lower Quinn,NV
+16040203,Smoke Creek Desert,"CA,NV"
+16040204,Massacre Lake,"CA,NV"
+16040205,Thousand-Virgin,"NV,OR"
+16050101,Lake Tahoe,"CA,NV"
+16050102,Truckee,"CA,NV"
+16050103,Pyramid-Winnemucca Lakes,NV
+16050104,Granite Springs Valley,NV
+16050201,Upper Carson,"CA,NV"
+16050202,Middle Carson,NV
+16050203,Carson Desert,NV
+16050301,East Walker,"CA,NV"
+16050302,West Walker,"CA,NV"
+16050303,Walker,NV
+16050304,Walker Lake,NV
+16060001,Dixie Valley,NV
+16060002,Gabbs Valley,NV
+16060003,Southern Big Smoky Valley,NV
+16060004,Northern Big Smoky Valley,NV
+16060005,Diamond-Monitor Valleys,NV
+16060006,Little Smoky-Newark Valleys,NV
+16060007,Long-Ruby Valleys,NV
+16060008,Spring-Steptoe Valleys,NV
+16060009,Dry Lake Valley,NV
+16060010,Fish Lake-Soda Spring Valleys,"CA,NV"
+16060011,Ralston-Stone Cabin Valleys,NV
+16060012,Hot Creek-Railroad Valleys,NV
+16060013,Cactus-Sarcobatus Flats,NV
+16060014,Sand Spring-Tikaboo Valleys,NV
+16060015,Ivanpah-Pahrump Valleys,"CA,NV"
 17010101,Middle Kootenai,"CN,ID,MT"
 17010102,Fisher,MT
 17010103,Yaak,"CN,ID,MT"
@@ -416,3 +2088,370 @@ huc8,name,states
 18010210,Salmon,CA
 18010211,Trinity,CA
 18010212,South Fork Trinity,CA
+18020001,Goose Lake,"CA,OR"
+18020002,Upper Pit,CA
+18020003,Lower Pit,CA
+18020004,McCloud,CA
+18020005,Sacramento Headwaters,CA
+18020104,Sacramento-Stone Corral,CA
+18020111,Lower American,CA
+18020115,Upper Stony,CA
+18020116,Upper Cache,CA
+18020121,North Fork Feather,CA
+18020122,East Branch North Fork Feather,CA
+18020123,Middle Fork Feather,CA
+18020125,Upper Yuba,CA
+18020126,Upper Bear,CA
+18020128,North Fork American,CA
+18020129,South Fork American,CA
+18020151,Cow Creek,CA
+18020152,Cottonwood Creek,CA
+18020153,Battle Creek,CA
+18020154,Clear Creek-Sacramento River,CA
+18020155,Paynes Creek-Sacramento River,CA
+18020156,Thomes Creek-Sacramento River,CA
+18020157,Big Chico Creek-Sacramento River,CA
+18020158,Butte Creek,CA
+18020159,Honcut Headwaters-Lower Feather,CA
+18020161,Upper Coon-Upper Auburn,CA
+18020162,Upper Putah,CA
+18020163,Lower Sacramento,CA
+18030001,Upper Kern,CA
+18030002,South Fork Kern,CA
+18030003,Middle Kern-Upper Tehachapi-Grapevine,CA
+18030004,Upper Poso,CA
+18030005,Upper Deer-Upper White,CA
+18030006,Upper Tule,CA
+18030007,Upper Kaweah,CA
+18030009,Upper Dry,CA
+18030010,Upper King,CA
+18030012,Tulare Lake Bed,CA
+18040001,Middle San Joaquin-Lower Chowchilla,CA
+18040002,Lower San Joaquin River,CA
+18040003,San Joaquin Delta,CA
+18040006,Upper San Joaquin,CA
+18040007,Fresno River,CA
+18040008,Upper Merced,CA
+18040009,Upper Tuolumne,CA
+18040010,Upper Stanislaus,CA
+18040011,Upper Calaveras California,CA
+18040012,Upper Mokelumne,CA
+18040013,Upper Cosumnes,CA
+18040014,Panoche-San Luis Reservoir,CA
+18040051,Rock Creek-French Camp Slough,CA
+18050001,Suisun Bay,CA
+18050002,San Pablo Bay,CA
+18050003,Coyote,CA
+18050004,San Francisco Bay,CA
+18050005,Tomales-Drake Bays,CA
+18050006,San Francisco Coastal South,CA
+18060002,Pajaro,CA
+18060003,Carrizo Plain,CA
+18060004,Estrella,CA
+18060005,Salinas,CA
+18060006,Central Coastal,CA
+18060007,Cuyama,CA
+18060008,Santa Maria,CA
+18060009,San Antonio,CA
+18060010,Santa Ynez,CA
+18060013,Santa Barbara Coastal,CA
+18060014,Santa Barbara Channel Islands,CA
+18060015,Monterey Bay,CA
+18070101,Ventura,CA
+18070102,Santa Clara,CA
+18070103,Calleguas,CA
+18070104,Santa Monica Bay,CA
+18070105,Los Angeles,CA
+18070106,San Gabriel,CA
+18070107,San Pedro Channel Islands,CA
+18070201,Seal Beach,CA
+18070202,San Jacinto,CA
+18070203,Santa Ana,CA
+18070204,Newport Bay,CA
+18070301,Aliso-San Onofre,CA
+18070302,Santa Margarita,CA
+18070303,San Luis Rey-Escondido,CA
+18070304,San Diego,"CA,MX"
+18070305,Cottonwood-Tijuana,"CA,MX"
+18080001,Surprise Valley,"CA,NV"
+18080002,Madeline Plains,"CA,NV"
+18080003,Honey-Eagle Lakes,"CA,NV"
+18090101,Mono Lake,"CA,NV"
+18090102,Crowley Lake,"CA,NV"
+18090103,Owens Lake,CA
+18090201,Eureka-Saline Valleys,"CA,NV"
+18090202,Upper Amargosa,"CA,NV"
+18090203,Death Valley-Lower Amargosa,"CA,NV"
+18090204,Panamint Valley,CA
+18090205,Indian Wells-Searles Valleys,CA
+18090206,Antelope-Fremont Valleys,CA
+18090207,Coyote-Cuddeback Lakes,CA
+18090208,Mojave,CA
+18100100,Southern Mojave,CA
+18100201,Whitewater River,CA
+18100202,Carrizo Creek,"CA,MX"
+18100203,San Felipe Creek,CA
+18100204,Salton Sea,"CA,MX"
+19010102,Ketchikan,AK
+19010103,Prince of Wales,AK
+19010104,Bradfield Canal,AK
+19010105,Burroughs Bay,"AK,CN"
+19010106,Headwaters Portland Canal,"AK,CN"
+19010107,Outlet Portland Canal,"AK,CN"
+19010108,Taylor River,CN
+19010109,Upper Nass River,CN
+19010110,Upper Bell-Irving River,CN
+19010111,Lower Bell-Irving River,CN
+19010112,Middle Nass River,CN
+19010113,Kinskuch River,CN
+19010114,Lower Nass River,CN
+19010115,Observatory Inlet,CN
+19010204,Admiralty Island,AK
+19010205,Lower Iskut,"AK,CN"
+19010206,Holkham Bay,"AK,CN"
+19010207,Outlet Stikine River,"AK,CN"
+19010208,Thomas Bay,"AK,CN"
+19010209,Etolin-Zarembo-Wrangell Islands,AK
+19010210,Kuiu-Kupreanof-Mitkof Islands,AK
+19010211,Chichagof Island,AK
+19010212,Baranof Island,AK
+19010213,Chukachida River,CN
+19010214,Spatsizi River,CN
+19010215,Upper Stikine River,CN
+19010216,Pitman River,CN
+19010217,Klappan River,CN
+19010218,Klastline River,CN
+19010219,Middle Stikine River,CN
+19010220,Tuya River,CN
+19010221,Tahltan River,CN
+19010222,Mess Creek,CN
+19010223,Chutine River,CN
+19010224,Lower Stikine River,CN
+19010225,Upper Iskut River,CN
+19010226,Middle Iskut River,CN
+19010301,Lynn Canal,"AK,CN"
+19010302,Glacier Bay,"AK,CN"
+19010303,Chilkat-Skagway Rivers,"AK,CN"
+19010304,Taku River,"AK,CN"
+19010305,Nahlin River,CN
+19010306,Sheslay River,CN
+19010307,Inklin River,CN
+19010308,Nakina River,CN
+19010401,Dezadeash River,CN
+19010402,Bering Glacier,"AK,CN"
+19010403,Tatshenshini River,"AK,CN"
+19010404,Alsek River,"AK,CN"
+19010405,Yakutat Bay-Gulf of Alaska,"AK,CN"
+19010406,Palma Bay,"AK,CN"
+19010500,Icy Strait-Chatham Strait,AK
+19020101,Upper Copper River,AK
+19020102,Middle Copper River,AK
+19020103,Chitina River,"AK,CN"
+19020104,Lower Copper River,AK
+19020201,Eastern Prince William Sound,AK
+19020202,Resurrection River-Frontal Resurrection Bay,AK
+19020203,Prince William Sound,AK
+19020301,Lower Kenai Peninsula,AK
+19020302,Upper Kenai Peninsula,AK
+19020401,Anchorage,AK
+19020402,Matanuska,AK
+19020501,Upper Susitna River,AK
+19020502,Chulitna River,AK
+19020503,Talkeetna River,AK
+19020504,Yentna River,AK
+19020505,Lower Susitna River,AK
+19020601,Redoubt-Trading Bays,AK
+19020602,Tuxedni-Kamishak Bays,AK
+19020701,Kodiak-Afognak Islands,AK
+19020702,Shelikof Strait,AK
+19020800,Cook Inlet,AK
+19030101,Cold Bay,AK
+19030102,Fox Islands,AK
+19030103,Western Aleutian Islands,AK
+19030104,Pribilof Islands,AK
+19030201,Port Heiden,AK
+19030202,Ugashik Bay,AK
+19030203,Egegik Bay,AK
+19030204,Naknek,AK
+19030205,Lake Clark,AK
+19030206,Lake Iliamna,AK
+19030301,Upper Nushagak River,AK
+19030302,Mulchatna River,AK
+19030303,Lower Nushagak River,AK
+19030304,Wood River,AK
+19030305,Togiak,AK
+19030306,Nushagak Bay,AK
+19030401,North Fork Kuskokwim River,AK
+19030403,Takotna River,AK
+19030404,Holitna River,AK
+19030405,Stony River,AK
+19030406,Middle Fork Kuskokwim River,AK
+19030407,South Fork Kuskokwim River,AK
+19030501,Aniak,AK
+19030502,Kuskokwim Delta,AK
+19030503,Nunivak-St.Matthew Islands,AK
+19050101,St. Lawrence Island,AK
+19050102,Unalakleet,AK
+19050103,Norton Bay,AK
+19050104,Nome,AK
+19050105,Imuruk Basin,AK
+19050201,Shishmaref,AK
+19050202,Goodhope-Spafarief Bay,AK
+19050203,Buckland River,AK
+19050301,Selawik Lake,AK
+19050302,Upper Kobuk River,AK
+19050303,Middle Kobuk River,AK
+19050304,Lower Kobuk River,AK
+19050401,Upper Noatak River,AK
+19050402,Middle Noatak River,AK
+19050403,Lower Noatak River,AK
+19050404,Wulik-Kivalina Rivers,AK
+19050405,Lisburne Peninsula,AK
+19050500,Kotzebue Sound,AK
+19060101,Kukpowruk River,AK
+19060102,Kokolik River,AK
+19060103,Utukok River,AK
+19060201,Kuk River,AK
+19060202,Northwest Coast,AK
+19060203,Meade River,AK
+19060204,Ikpikpuk River,AK
+19060205,Harrison Bay,AK
+19060206,Admiralty Bay-Dease Inlet,AK
+19060301,Upper Colville River,AK
+19060302,Killik River,AK
+19060303,Chandler-Anaktuvuk Rivers,AK
+19060304,Lower Colville River,AK
+19060401,Kuparuk River,AK
+19060402,Sagavanirktok River,AK
+19060403,Mikkelson Bay,AK
+19060501,Canning River,AK
+19060502,Camden Bay,AK
+19060504,Kongakut River-Beaufort Lagoon,"AK,CN"
+19060505,Firth River,"AK,CN"
+19060506,Babbage River,CN
+19070101,Atlin Lake,"AK,CN"
+19070102,Bennett Lake,"AK,CN"
+19070103,Tagish Lake,"AK,CN"
+19070104,Takhini River,"AK,CN"
+19070105,Nisutlin River,CN
+19070106,Upper Teslin River,CN
+19070107,Lower Teslin River,CN
+19070108,Lake Laberge-Yukon River,CN
+19070109,Big Salmon River,CN
+19070110,Nordenskiold River-Yukon River,CN
+19070201,Upper Pelly River,CN
+19070202,Macmillan River,CN
+19070203,Lower Pelly River,CN
+19070301,Hess River,CN
+19070302,Beaver River-Stewart River,CN
+19070303,Mayo River-Stewart River,CN
+19070304,McQuesten River-Stewart River,CN
+19070401,Donjek River,CN
+19070402,Headwaters White River,"AK,CN"
+19070403,Ladue River-White River,"AK,CN"
+19070404,White River-Yukon River,CN
+19070501,Klondike River,CN
+19070502,Fortymile River,"AK,CN"
+19070503,Sixtymile River-Yukon River,"AK,CN"
+19070505,Tatonduk River-Yukon River,"AK,CN"
+19070506,Charley River-Yukon River,"AK,CN"
+19080101,Headwaters Porcupine River,CN
+19080102,Bell River-Porcupine River,CN
+19080103,Old Crow River,"AK,CN"
+19080104,Coleen River,AK
+19080105,Sheenjek River,AK
+19080106,Black River,"AK,CN"
+19080107,Grass River,AK
+19080108,Porcupine Flats-Porcupine River,"AK,CN"
+19080201,Middle Fork-North Fork Chandalar Rivers,AK
+19080202,East Fork Chandalar River,AK
+19080203,Christian River,AK
+19080204,Lower Chandalar River,AK
+19080301,Nebesna-Chisana Rivers,"AK,CN"
+19080302,Tok-Tanana River,AK
+19080303,Healy Lake-Tanana River,AK
+19080304,Delta River,AK
+19080305,Salcha River,AK
+19080306,Chena River,AK
+19080307,Tanana Flats-Tanana River,AK
+19080308,Nenana River,AK
+19080309,Tolovana River,AK
+19080310,Kantishna River,AK
+19080311,Lower Tanana River,AK
+19080401,Birch Creek,AK
+19080402,Beaver Creek,AK
+19080403,Yukon Flats-Yukon River,AK
+19080404,Ramparts-Yukon River,AK
+19090101,Upper Koyukuk River,AK
+19090102,South Fork Koyukuk River,AK
+19090103,Alatna River,AK
+19090104,Kanuti River,AK
+19090105,Allakaket-Koyukuk River,AK
+19090106,Huslia River,AK
+19090107,Dulbi River,AK
+19090108,Koyukuk Flats-Koyukuk River,AK
+19090109,Kateel River-Koyukuk River,AK
+19090201,Tozitna River,AK
+19090202,Nowitna River,AK
+19090203,Melozitna River,AK
+19090204,Klatsuta River-Yukon River,AK
+19090205,Galena-Yukon River,AK
+19090301,Anvik River-Yukon River,AK
+19090302,Upper Innoko River,AK
+19090303,Lower Innoko River,AK
+19090304,Chuilnuk River-Yukon River,AK
+19090305,Yukon Delta,AK
+20010000,Hawaii,HI
+20020000,Maui,HI
+20030000,Kahoolawe,HI
+20040000,Lanai,HI
+20050000,Molokai,HI
+20060000,Oahu,HI
+20070000,Kauai,HI
+20080001,Niihau,HI
+20080002,Kaula,HI
+20090001,Nihoa Island,HI
+20090002,Necker Island,HI
+20090003,French Frigate Shoals,HI
+20090004,Gardner Pinnacles,HI
+20090005,Maro Reef,HI
+20090006,Laysan Island,HI
+20090007,Lisianski Island,HI
+20090008,Pearl and Hermes Atoll,HI
+20090009,Midway Islands,
+20090010,Kure Atoll,HI
+21010002,Cibuco-Guajataca,PR
+21010003,Culebrinas-Guanajibo,PR
+21010004,Southern Puerto Rico,PR
+21010005,Eastern Puerto Rico,PR
+21010007,Puerto Rican Western Islands,PR
+21010008,Puerto Rican Eastern Islands,PR
+21020001,St. John-St. Thomas,VI
+21020002,St. Croix,VI
+22010000,Guam,GU
+22020101,Saipan Island,MP
+22020102,Tinian Island,MP
+22020103,Aguijan Island,MP
+22020104,Rota Island,MP
+22020201,Farallon de Pajaros,MP
+22020202,Maug Islands,MP
+22020203,Asuncion Island,MP
+22020204,Agrihan Island,MP
+22020205,Pagan Island,MP
+22020206,Alamagan Island,MP
+22020207,Guguan Island,MP
+22020208,Sarigan Island,MP
+22020209,Anatahan Island,MP
+22020210,Farallon de Medinilla,MP
+22030001,Tutuila Island,AS
+22030002,Ofu Island-Olosega Island,AS
+22030003,Ta'u Island,AS
+22030004,Rose Atoll,AS
+22030005,Swains Island,AS
+22040001,Wake Island,UM
+22040002,Johnston Atoll,UM
+22040003,Kingman Reef,UM
+22040004,Palmyra Atoll,UM
+22040005,Jarvis Island,UM
+22040006,Howland Island,UM
+22040007,Baker Island,UM
