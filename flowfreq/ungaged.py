@@ -27,7 +27,10 @@ Assembly rules
   its full ``percent_weight``. When the remaining regions' weights sum to more than
   100 % (beyond NSS's whole-percent rounding) they are alternatives, not a partition:
   ``region=`` chooses one and the others are reported as ``alternatives``; without a
-  choice :class:`OverlappingRegionsError` lists the candidates.
+  choice :class:`OverlappingRegionsError` lists the candidates. ``region=`` may instead be
+  a sequence of codes, one per side of a region boundary, whose ``percent_weight`` sums
+  to 100 % (within the same tolerance): they are used together as a partition and the
+  rest are ``alternatives``.
 - Area fractions come from NSS's ``percent_weight`` (what NSS itself weights by),
   renormalised over the regions actually used.
 - One region gives its own prediction interval; several give an area-weighted flow with
@@ -215,6 +218,29 @@ def _region_citation(lib: StateLibrary, lib_code: str) -> Tuple[str, Optional[in
     return "", None
 
 
+def _region_choices(region: Union[str, Sequence[str], None]) -> List[str]:
+    """The ``region`` argument as a list of codes (empty when no choice was made).
+
+    Raises
+    ------
+    ValueError
+        If a sequence is empty or repeats a code (case-insensitively).
+    """
+    if region is None:
+        return []
+    if isinstance(region, str):
+        return [region]
+    codes = list(region)
+    if not codes:
+        raise ValueError("region must not be an empty sequence (use None for no choice)")
+    seen: Set[str] = set()
+    for code in codes:
+        if code.upper() in seen:
+            raise ValueError(f"region repeats the code {code!r}")
+        seen.add(code.upper())
+    return codes
+
+
 def _why_not_in_use(
     choice: str,
     regions: Sequence[RegressionRegionLocation],
@@ -290,7 +316,7 @@ def assemble(
     aeps: Optional[Sequence[float]],
     allow_extrapolation: bool,
     weighting_space: str,
-    region: Optional[str] = None,
+    region: Union[str, Sequence[str], None] = None,
 ) -> Assembly:
     """Assemble the regression estimate for a basin from pre-fetched inputs.
 
@@ -326,7 +352,13 @@ def assemble(
         returned in ``alternatives``; it must cover the whole basin (``percent_weight`` within the
         tolerance of 100). A partition is unaffected; ``region`` naming one of its
         regions is accepted as a no-op. A ``region`` naming no region in use is always
-        refused.
+        refused. May also be a sequence of str: several codes that together cover the
+        basin (one per side of a region boundary whose sides each have overlapping
+        sets). Their ``percent_weight`` must sum to within the tolerance of 100; they
+        are area-weighted (fractions renormalised) in their located order and every
+        other region goes to ``alternatives``. An empty sequence, a repeated code
+        (case-insensitively) or one region named twice under its NSS and library codes
+        is a ``ValueError``; a one-element sequence is the same as that string.
 
     Returns
     -------
@@ -355,7 +387,8 @@ def assemble(
     """
     if aeps is not None and len(aeps) == 0:
         raise ValueError("aeps must be non-empty (use None for the regions' common AEPs)")
-    choice = region
+    choices = _region_choices(region)
+    choice = choices[0] if choices else None
     matched: List[Tuple[RegressionRegionLocation, str]] = []
     unmatched: List[RegressionRegionLocation] = []
     for loc in regions:
@@ -441,6 +474,33 @@ def assemble(
         if chosen is None:
             why = _why_not_in_use(choice, regions, region_codes, unmatched, zero_weight, missing)
 
+    # Further codes of a sequence resolve the same way; the first one that does not (or
+    # that is ambiguous) becomes the choice reported.
+    extra: List[Tuple[RegressionRegionLocation, str]] = []
+    if chosen is not None and not ambiguous:
+        for code in choices[1:]:
+            wanted = code.upper()
+            found = next((pair for pair in used if pair[0].code.upper() == wanted), None)
+            by_library = []
+            if found is None:
+                by_library = [pair for pair in used if pair[1].upper() == wanted]
+                found = by_library[0] if by_library else None
+            if found is None:
+                choice, chosen, extra = code, None, []
+                why = _why_not_in_use(code, regions, region_codes, unmatched, zero_weight, missing)
+                break
+            if len(by_library) > 1:
+                choice, chosen, extra, ambiguous = code, found, [], True
+                break
+            if any(found[0] is r for r, _ in [chosen, *extra]):
+                # An NSS code and the same region's library code pass the string check
+                # in _region_choices; counted twice, a 50 % side would "cover" the basin.
+                raise ValueError(
+                    f"region {code!r} names the same region as an earlier code "
+                    f"({found[0].code}): list each side of the basin once"
+                )
+            extra.append(found)
+
     # NSS rounds each percent_weight to a whole percent, so an N-region partition sums
     # to 100 +/- 0.5 N; a real overlap sums to about 200, so scaling cannot mask one.
     overlap_tol = max(PERCENT_WEIGHT_TOL, 0.5 * len(used))
@@ -479,7 +539,30 @@ def assemble(
                 f"reached by more than one located NSS region; choose by NSS code with "
                 "region= (API) or --region (CLI)",
             )
-        if chosen[0].percent_weight < 100.0 - PERCENT_WEIGHT_TOL:
+        picked = [chosen] + extra
+        if extra:
+            picked_sum = sum(r.percent_weight for r, _ in picked)
+            picked_tol = max(PERCENT_WEIGHT_TOL, 0.5 * len(picked))
+            picked_codes = ", ".join(r.code for r, _ in picked)
+            if picked_sum < 100.0 - picked_tol:
+                raise OverlappingRegionsError(
+                    lib.state,
+                    candidates,
+                    choice,
+                    reason=f"region choice {picked_codes} covers only {picked_sum:g} % of the "
+                    "basin: the located NSS regions overlap on a region boundary, so the "
+                    "chosen equation sets do not cover the whole basin and choosing them "
+                    "would drop the rest of it",
+                )
+            if picked_sum > 100.0 + picked_tol:
+                raise OverlappingRegionsError(
+                    lib.state,
+                    candidates,
+                    choice,
+                    reason=f"the chosen regions ({picked_codes}) cover {picked_sum:g} % of "
+                    "the basin, i.e. they overlap each other",
+                )
+        elif chosen[0].percent_weight < 100.0 - PERCENT_WEIGHT_TOL:
             # Overlapping sets on a region boundary: each side has its own
             # alternatives, and one set covers only its side of the basin.
             raise OverlappingRegionsError(
@@ -491,14 +574,15 @@ def assemble(
                 "overlap on a region boundary, so no single equation set covers the "
                 "whole basin and choosing one would drop the rest of it",
             )
-        alternatives = [r for r, _ in used if r is not chosen[0]]
+        picked_ids = {id(r) for r, _ in picked}
+        alternatives = [r for r, _ in used if id(r) not in picked_ids]
         logger.info(
             "%s: overlapping NSS regions; using %s, alternatives %s",
             lib.state,
-            chosen[0].code,
+            ", ".join(r.code for r, _ in picked),
             _codes(alternatives),
         )
-        used = [chosen]
+        used = [pair for pair in used if id(pair[0]) in picked_ids]
     # A choice in use on a partition is a no-op: there is nothing to choose between.
 
     if aeps is None:
@@ -817,7 +901,7 @@ def estimate_at_site(
     cache: Optional[StreamStatsCache] = None,
     timeout: float = 60.0,
     data_dir: Union[str, Path, None] = None,
-    region: Optional[str] = None,
+    region: Union[str, Sequence[str], None] = None,
 ) -> SiteEstimate:
     """Estimate flood quantiles at an ungaged site from the state's regression equations.
 
@@ -869,7 +953,8 @@ def estimate_at_site(
         Where NSS returns overlapping regions (alternative equation sets for the same
         area, such as a superseded report and its replacement), the one to use, by NSS
         code or library ``region_code`` (:func:`assemble`). The others are listed in
-        ``provenance["alternative_regions"]``.
+        ``provenance["alternative_regions"]``. May also be a sequence of codes that
+        together cover the basin (see :func:`assemble`).
 
     Returns
     -------

@@ -295,7 +295,9 @@ def compare(
     default=None,
     help=(
         "Where NSS returns overlapping regions (alternative equation sets for the same "
-        "area), the one to use: an NSS code (e.g. GC2016) or library region code."
+        "area), the one to use: an NSS code (e.g. GC2016) or library region code. Give "
+        'several, comma-separated ("GC1, GC2"), to use one set per side of a region '
+        "boundary; together they must cover the whole basin."
     ),
 )
 def ungaged(
@@ -329,7 +331,11 @@ def ungaged(
             aeps=list(aeps) if aeps else None,
             allow_nss_snapshot=allow_nss_snapshot,
             allow_extrapolation=allow_extrapolation,
-            region=region,
+            region=(
+                [c.strip() for c in region.split(",")]
+                if region is not None and "," in region
+                else region
+            ),
         )
     except OutOfRangeError as exc:
         raise click.ClickException(f"{exc} (pass --allow-extrapolation to proceed)") from exc
