@@ -149,8 +149,9 @@ def test_child_env_puts_the_running_interpreter_first_on_path(
     Under Git Bash the first `python` on PATH is MSYS's, which has no pytest: the 2026-10-30
     trial run failed its acceptance with "No module named pytest" for that reason.
     """
-    monkeypatch.setenv("PATH", os.pathsep.join([str(tmp_path / "elsewhere"), "C:/nowhere"]))
+    rest = [str(tmp_path / "elsewhere"), str(tmp_path / "nowhere")]  # no ':' on Linux
+    monkeypatch.setenv("PATH", os.pathsep.join(rest))
     env = runner._child_env(cfg, tmp_path)
     parts = env["PATH"].split(os.pathsep)
     assert parts[0] == str(Path(sys.executable).parent)
-    assert parts[1:] == [str(tmp_path / "elsewhere"), "C:/nowhere"]  # the rest is kept
+    assert parts[1:] == rest  # the rest is kept
