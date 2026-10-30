@@ -175,9 +175,31 @@ notes trimmed, and `regional_skew_at_huc`'s docstring and membership predicate.
 - [~] **First card batch** (2026-10-26): six cards in `.agentops/cards/`, each with its failing
       tests on `spec/<id>`: `i214-snapshot-warning`, `i206-catalog-outside-us`,
       `i210-smoke-points`, `i203-multi-region` (Sonnet: subtle `assemble` control flow),
-      `m12-bootstrap-power`, `m4-bracket-interpolation`. Next: `cards add` them and `cards run`
-      on a machine with agy, then review each `card/<id>` and open its PR. After #206 merges,
-      rebuild the catalog for DC live (`tools/build_gage_catalog.py --states DC`).
+      `m12-bootstrap-power`, `m4-bracket-interpolation`. First run 2026-10-30: every call
+      failed. `claude-sonnet-4-6` is gone from `agy models` (the config and the i203 card now
+      name `claude-sonnet-5-5-medium`), and the host agy settings carried no
+      `permissions.allow` rules, so a delegate's first shell command was auto-denied and ended
+      its turn with an empty response: eight Gemini calls, 459k tokens, nothing written.
+      **Owner action before the next `cards run`:** put allow/deny rules in
+      `~/.gemini/antigravity-cli/settings.json` (model: the sandbox's
+      `D:/a/sbx/state/gemini/antigravity-cli/settings.json`; `docs/AGENTOPS.md` step 3). All
+      cards are reset to pending; worktrees now sit under
+      `D:/a/sbx/state/agentops-flowfreq/worktrees`. After #206 merges, rebuild the catalog for
+      DC live (`tools/build_gage_catalog.py --states DC --refresh`); the API codes 15388960
+      as Canada with province code 11, which is also DC's FIPS code (the spec and card now say
+      so).
+- [ ] **Second card batch** (2026-10-30): `i205-huc8-states` (the WBD HUC8-to-states build
+      tool; the lead runs it live after merge) and `i207-region-unlocated` (`region=` names a
+      library region when NSS locates no peak-flow region: NSS's by-location service serves
+      no polygons for Wyoming's six peak-flow regions, only the SIR 2026-5120 flow-duration
+      regions GC2098-GC2115, and none for Nevada; depends on i203). Not carded, decisions
+      first: #211's 24 GA/NC/SC region-indicator forms are affine exponents with interaction
+      terms (`PCTREGi * log10(DRNAREA)`) the equation schema cannot hold (SC #208 is the
+      same study, GC1935, not a range error); #209's per-state default (decision packet on
+      the issue: prefer the rural multi-variable set; IA's smoke pick was the DA-only set, MT's
+      a channel-width set). Report reading still owed: #213 `sep_log` (SIR 2021-5046,
+      2024-5031, TR 60, WRIR 85-4150) and #204 HUC rows. Live tests #218: the WA PRECIP
+      raster is still missing on ss-hydro (rerun 2026-10-30).
 - [~] **Methow item 7, part 1 carded** (`m7-monthly-transfer`, Sonnet). Owner decisions,
       2026-10-26: transfer by the runoff-volume ratio `(At Rt)/(Ag Rg)` with exponent 1
       (as production, METHOW_METHODS §12); sampling variance and covariance from concurrent

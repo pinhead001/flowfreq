@@ -38,7 +38,14 @@ published `flowfreq` package, and nothing under `flowfreq/` imports it.
    as in ADR-0002 decision 3. Allow file read/write inside the worktrees. Deny `git push`,
    `merge`, `rebase`, `checkout`, `switch`, `reset`, `branch`, `worktree`, `remote` and
    `config`; any command using `../`; and `write_file` on the main checkout, `.git/` and
-   `vendor/`. `AGENTS.md` tells the delegate not to use the shell at all.
+   `vendor/`. `AGENTS.md` tells the delegate not to use the shell at all, but models try
+   anyway, and **without an allow rule a headless `command` is auto-denied and ends the turn**:
+   the envelope says `SUCCESS` with an empty response and the call still costs its tokens
+   (2026-10-30: eight calls, 459k Gemini tokens, nothing written). So allow the read-only
+   commands too (`python -m pytest|black|isort|mypy`, `git status|diff|log|show`, directory
+   listings), as the sandbox's `D:/a/sbx/state/gemini/antigravity-cli/settings.json` does.
+   Model names change: check `agy models` before writing `model =` on a card
+   (`claude-sonnet-4-6` disappeared between 2026-10-26 and 2026-10-30).
 4. Select the governor profile for your Claude plan:
    `python tools/agentops_cli.py --config agentops.toml gov profile pro` (or `max`; use
    `overnight` when you are away and only review).
@@ -83,7 +90,7 @@ id = "i214-snapshot-warning"           # [A-Za-z0-9._-]
 repo = "flowfreq"
 title = "Silence the nss_snapshot advisory for sweeps (#214)"
 base = "origin/spec/i214-snapshot-warning"   # holds the failing tests; git fetch first
-model = "claude-sonnet-4-6"   # optional; omit to take the first free pool in [agy] models
+model = "claude-sonnet-5-5-medium"   # optional; omit to take the first free pool in [agy] models
 depends_on = []                        # card ids that must be done first
 max_retries = 2                        # optional override
 prompt = """
