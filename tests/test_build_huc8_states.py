@@ -60,16 +60,38 @@ def test_pages_follow_exceeded_transfer_limit() -> None:
 
     def fake_get(url: str, params: Dict[str, Any]) -> Dict[str, Any]:
         calls.append(dict(params))
-        page = _page()
+        page = _page()  # three features: fewer than the page size asked for
         page["exceededTransferLimit"] = params["resultOffset"] == 0
         return page
 
     pages = list(bhs.fetch_huc8_pages(fake_get, page_size=1000))
     assert len(pages) == 2
-    assert [c["resultOffset"] for c in calls] == [0, 1000]
+    # The offset advances by the features actually returned, not by page_size: an ArcGIS
+    # service caps a page at its maxRecordCount, and stepping by page_size would skip rows.
+    assert [c["resultOffset"] for c in calls] == [0, 3]
     assert calls[0]["outFields"] == "huc8,name,states"
     assert calls[0]["returnGeometry"] in ("false", False)
     assert calls[0]["resultRecordCount"] == 1000
+    assert calls[0]["orderByFields"] == "huc8"  # resultOffset paging is stable only with an order
+
+
+def test_error_payload_raises() -> None:
+    def fake_get(url: str, params: Dict[str, Any]) -> Dict[str, Any]:
+        return {"error": {"code": 400, "message": "Unable to complete operation."}}
+
+    with pytest.raises(RuntimeError, match="Unable to complete"):
+        list(bhs.fetch_huc8_pages(fake_get, page_size=10))
+
+
+def test_refuses_to_shrink_the_packaged_table(tmp_path: Path) -> None:
+    existing = tmp_path / "huc8.csv"
+    bhs.write_table(bhs.rows_from_features(_page()["features"]), existing)
+    with pytest.raises(RuntimeError, match="3"):
+        bhs.ensure_not_shrunk([("09040001", "St. Marys", "CN,MT")], existing)
+    with pytest.raises(RuntimeError):
+        bhs.ensure_not_shrunk([], existing)
+    bhs.ensure_not_shrunk(bhs.rows_from_features(_page()["features"]), existing)  # same size: ok
+    bhs.ensure_not_shrunk([("1", "a", "WA")], tmp_path / "absent.csv")  # no file yet: ok
 
 
 def test_pages_stop_on_an_empty_page() -> None:
@@ -83,7 +105,7 @@ def test_written_table_is_read_by_states_of(tmp_path: Path) -> None:
     out = tmp_path / "huc8.csv"
     bhs.write_table(bhs.rows_from_features(_page()["features"]), out)
     assert _states_of("09040001", out) == {"CN", "MT"}
-    assert _states_of("170400", out) == set()  # a HUC6 is not a HUC8 row
+    assert _states_of("171100", out) == {"WA"}  # the reader prefix-matches a shorter HUC
 
 
 def test_main_default_out_is_the_packaged_table() -> None:
