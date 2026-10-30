@@ -78,8 +78,9 @@ checkout seven commits behind `main` and re-planned tooling that already existed
 
 ### Task 1: Run the queue once the agy rules are in place
 
-- [ ] `python tools/agentops_cli.py --config agentops.toml gov plan` shows `dispatch` for
-  i203 (Sonnet) and the first Gemini card.
+- [ ] `python tools/agentops_cli.py --config agentops.toml gov profile max` (the committed default
+  is `pro`, which `tests/agentops/test_flowfreq_setup.py` pins; the switch is a local, uncommitted
+  edit), then `gov plan` shows `dispatch` for i203 (Sonnet) and the first Gemini card.
 - [ ] `cards run --card i214-snapshot-warning` first, alone. Expected: `done`, ledger `ok: true`,
   acceptance tail `passed`. If the ledger shows `ok: false` with an empty response, stop: the
   permission rules are not in effect.

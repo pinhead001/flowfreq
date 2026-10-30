@@ -11,7 +11,7 @@ worktree_prefix = ""                 # -> .../worktrees/flowfreq-<card id>
 flowfreq = "."
 
 [governor]
-profile = "max"                      # active set; switch with `gov profile <name>`
+profile = "pro"                      # active set; switch with `gov profile <name>`
 
 # Claude Pro: the lead's 5-hour window is the scarce resource. Unknown meter data (a
 # cloud session has no status line) is treated as conserve, so no teammates or workflows.
