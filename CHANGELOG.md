@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   cooldowns and Claude Code hooks. Config `agentops.toml`, delegate rules `AGENTS.md`, procedure
   `docs/AGENTOPS.md`. `filelock` joins the dev extra.
 
+### Changed
+- `flowfreq.regression.library.load_state` takes a keyword-only `warn: bool = True`; with `warn=False` an opt-in set's advisory is logged at DEBUG instead of WARNING, and the coverage report tool uses it.
+
 ### Fixed
 - **Parked `estimate_at_site` and regional skew minors from the rollout reviews.**
   `assemble(aeps=[])` raised nothing and made the missing-characteristic check vacuous; an

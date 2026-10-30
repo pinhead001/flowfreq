@@ -91,6 +91,22 @@ def test_run_card_success_commits_on_branch_never_merges(repo_cfg: AgentOpsConfi
     assert json.loads((repo_cfg.results_dir / "c1.json").read_text())["state"] == "done"
 
 
+def test_worktree_gets_the_repo_agents_md_but_never_commits_it(
+    repo_cfg: AgentOpsConfig,
+) -> None:
+    repo = repo_cfg.repos["lib"]
+    _git(repo, "branch", "spec", "main")  # a spec branch cut before the rules existed
+    (repo / "AGENTS.md").write_text("use the edit tool")
+    _git(repo, "add", "-A")
+    _git(repo, "commit", "-q", "-m", "rules")
+    card = _card(repo_cfg, base="spec")
+    wt, _ = runner.ensure_worktree(repo_cfg, card)
+    assert (wt / "AGENTS.md").read_text() == "use the edit tool"
+    res = runner.run_card(repo_cfg, card)
+    assert res.state == "done", res
+    assert _git(repo, "ls-tree", "--name-only", "card/c1").split() == ["README", "hello.txt"]
+
+
 def test_run_card_argv(repo_cfg: AgentOpsConfig, tmp_path: Path) -> None:
     card = _card(repo_cfg)
     runner.run_card(repo_cfg, card)
