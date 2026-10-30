@@ -1,0 +1,50 @@
+id = "i205-huc8-states"
+repo = "flowfreq"
+title = "tools/build_huc8_states.py: the nationwide HUC8-to-states table from the WBD service (#205)"
+base = "origin/spec/i205-huc8-states"
+prompt = """
+Outcome: a new tool `tools/build_huc8_states.py` that pages the Watershed Boundary Dataset
+HU8 layer and writes the whole HUC8-to-states table in the shape
+`flowfreq/data/regional_skew_huc8_states.csv` already has (`huc8,name,states`; `states` is a
+comma-joined list of two-letter codes kept verbatim, so `"CN,MT"` stays `"CN,MT"`).
+
+Module contents (module docstring: what it builds, the service, usage
+`python tools/build_huc8_states.py [--out PATH] [--page-size N]`):
+- `WBD_HU8_QUERY = "https://hydro.nationalmap.gov/arcgis/rest/services/wbd/MapServer/4/query"`
+- `DEFAULT_OUT = ROOT / "flowfreq" / "data" / "regional_skew_huc8_states.csv"` with
+  `ROOT = Path(__file__).resolve().parents[1]`.
+- `fetch_huc8_pages(get, *, page_size=1000)`: `get(url, params)` returns the parsed JSON of one
+  page (main injects a requests-based function; tests pass a fake). Params per page:
+  `where="1=1"`, `outFields="huc8,name,states"`, `orderByFields="huc8"`,
+  `returnGeometry="false"`, `f="json"`, `resultRecordCount=page_size`, `resultOffset=offset`.
+  Yields every page payload. The offset advances by the number of features the page returned
+  (an ArcGIS service caps a page at its maxRecordCount, so stepping by page_size would skip
+  rows). After a page with no features, or whose `exceededTransferLimit` is not true, stop. A
+  payload carrying an `error` key (ArcGIS returns HTTP 200 for those) raises `RuntimeError`
+  whose message includes the service's `error.message`.
+- `ensure_not_shrunk(rows, path)`: when `path` exists, raise `RuntimeError` naming both counts
+  if `rows` has fewer than the rows already in the file (header excluded); a missing file or an
+  equal or larger count passes. `main` calls it before `write_table`, so a throttled or empty
+  harvest can never truncate the packaged table.
+- `rows_from_features(features) -> List[Tuple[str, str, str]]`: `(huc8, name, states)` from each
+  feature's `attributes`, skipping a feature whose `huc8` is empty.
+- `write_table(rows, path)`: sorted by `huc8`, duplicate huc8s collapsed keeping the first,
+  header `huc8,name,states`, UTF-8, LF line endings, `csv.writer` default quoting.
+- `main(argv=None) -> int`: `--out` (default `DEFAULT_OUT`), `--page-size` (default 1000);
+  fetches with `requests.get(url, params=params, timeout=300)` (`raise_for_status`, `.json()`),
+  checks `ensure_not_shrunk`, writes the table, logs the row count on
+  `logging.getLogger(__name__)`, returns 0. No CHANGELOG entry: the tool is not shipped.
+  `if __name__ == "__main__": sys.exit(main())`.
+
+Files to read: tools/build_regional_skew_hucs.py (only `_get` and the paging loop after it,
+for the request style), flowfreq/regional_skew.py (`_states_of`, the reader of the table).
+Files to create: tools/build_huc8_states.py only. Do not run the tool and do not touch
+flowfreq/data/ (the lead runs the tool live after merge).
+
+Tests (already written, do not edit): tests/test_build_huc8_states.py, with the fixture
+tests/fixtures/wbd_huc8_page.json.
+
+Constraints: type hints on every signature, NumPy docstrings on the public functions,
+no network in the module import path, Python 3.11 compatible.
+"""
+acceptance = "python -m pytest tests/test_build_huc8_states.py tests/test_regional_skew.py -q -p no:cacheprovider"
