@@ -14,6 +14,7 @@ import json
 import os
 import re
 import subprocess
+import sys
 import time
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
@@ -45,9 +46,15 @@ def _child_env(cfg: AgentOpsConfig, wt: Path) -> dict[str, str]:
     ``{worktree}`` replaced by the card's worktree. flowfreq uses it to put the worktree on
     ``PYTHONPATH``: the editable install points at the main checkout, so without it the
     acceptance tests would import the main checkout's code instead of the card's.
+
+    The directory of the interpreter running agentops goes first on ``PATH``, so the bare
+    ``python`` in ``pre_acceptance`` and ``acceptance`` commands is that interpreter (the
+    venv's) and not whatever the launching shell found first: under Git Bash that is MSYS's
+    python, which has no pytest.
     """
     env = dict(os.environ)
     env.pop("VIRTUAL_ENV", None)
+    env["PATH"] = os.pathsep.join([str(Path(sys.executable).parent), env.get("PATH", "")])
     env.update({k: v.replace("{worktree}", str(wt)) for k, v in cfg.agy.child_env.items()})
     return env
 
@@ -58,11 +65,36 @@ def _git(cwd: Path, *args: str) -> subprocess.CompletedProcess[str]:
     )
 
 
+AGENTS_MD = "AGENTS.md"
+
+
+def _seed_agents_md(repo: Path, wt: Path) -> None:
+    """Copy the repo's delegate rules into a worktree whose branch predates them.
+
+    ``AGENTS.md`` is what the delegate reads. A spec branch cut before it was
+    committed gives the delegate no rules at all; it then writes files through
+    the shell, which the host's agy permissions deny, and escalates with a clean
+    tree (flowfreq i214, 2026-10-30). The copy is untracked and removed again
+    before the card commit (``_unseed_agents_md``), so the card branch carries
+    only what the branch and the delegate put there.
+    """
+    src, dst = repo / AGENTS_MD, wt / AGENTS_MD
+    if src.is_file() and not dst.exists():
+        dst.write_bytes(src.read_bytes())
+
+
+def _unseed_agents_md(wt: Path) -> None:
+    dst = wt / AGENTS_MD
+    if dst.exists() and _git(wt, "ls-files", "--error-unmatch", AGENTS_MD).returncode != 0:
+        dst.unlink()
+
+
 def ensure_worktree(cfg: AgentOpsConfig, card: Card) -> tuple[Path, str]:
     repo = cfg.repos[card.repo]
     wt = cfg.worktree_root / f"{cfg.worktree_prefix}{card.repo}-{card.id}"
     branch = f"card/{card.id}"
     if (wt / ".git").exists():
+        _seed_agents_md(repo, wt)
         return wt, branch
     _git(repo, "worktree", "prune")
     exists = _git(repo, "rev-parse", "--verify", "--quiet", branch).returncode == 0
@@ -74,6 +106,7 @@ def ensure_worktree(cfg: AgentOpsConfig, card: Card) -> tuple[Path, str]:
     r = _git(repo, *args)
     if r.returncode != 0:
         raise RuntimeError(f"git worktree add failed: {r.stderr.strip()}")
+    _seed_agents_md(repo, wt)
     return wt, branch
 
 
@@ -83,6 +116,8 @@ def agy_argv(cfg: AgentOpsConfig, card: Card, prompt: str, model: str | None = N
     if model:
         argv += ["--model", model]
     argv += ["--print-timeout", card.print_timeout or cfg.agy.print_timeout, *cfg.agy.extra_args]
+    if cfg.agy.settings is not None:
+        argv += ["--settings", str(cfg.agy.settings)]
     return argv
 
 
@@ -209,6 +244,7 @@ def run_card(cfg: AgentOpsConfig, card: Card) -> RunResult:
                 _shell(cfg, cmd, wt)
         acc = _shell(cfg, card.acceptance, wt)
         if ok_call and acc.returncode == 0:
+            _unseed_agents_md(wt)
             _git(wt, "add", "-A")
             model = rec["model"] or "default"
             msg = f"card {card.id}: {card.title}\n\nImplemented by agy ({model})."
