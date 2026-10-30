@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- `bracket_weight` and `interpolate_between_gages` (`flowfreq.transpose`): log-area interpolation of flood quantiles transposed from an upstream and a downstream gage to a target between them; reproduces each gage at its own site.
+- `bootstrap_band(profile=<term>, grid=...)` re-chooses that term's dissimilarity power in every replicate and reports `BandBootstrap.power_counts` and `estimate_power`.
 - **Agent ops dev tooling** (`tools/agentops/`, not part of the published package). A port of
   flowfield2d's agentops: the agy delegate runner (one worktree and `card/<id>` branch per task
   card, never merges), the governor with `pro`/`max`/`overnight` threshold profiles, the
@@ -15,7 +17,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   cooldowns and Claude Code hooks. Config `agentops.toml`, delegate rules `AGENTS.md`, procedure
   `docs/AGENTOPS.md`. `filelock` joins the dev extra.
 
+### Changed
+- `flowfreq.regression.library.load_state` takes a keyword-only `warn: bool = True`; with `warn=False` an opt-in set's advisory is logged at DEBUG instead of WARNING, and the coverage report tool uses it.
+
 ### Fixed
+- Catalog build: a site outside the United States gets no state and is skipped instead of being filed under the queried state. The Water Data API returns Yukon's 15388960 with `country_code` CA and `state_code` 11, which the DC build had catalogued as DC (#206).
 - **Parked `estimate_at_site` and regional skew minors from the rollout reviews.**
   `assemble(aeps=[])` raised nothing and made the missing-characteristic check vacuous; an
   empty `aeps` is now a `ValueError` (`None` still means the regions' common AEPs).

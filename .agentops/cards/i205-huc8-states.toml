@@ -2,6 +2,7 @@ id = "i205-huc8-states"
 repo = "flowfreq"
 title = "tools/build_huc8_states.py: the nationwide HUC8-to-states table from the WBD service (#205)"
 base = "origin/spec/i205-huc8-states"
+model = "claude-sonnet-5-5-medium"   # Sonnet this week: the Gemini pool is near its weekly cap (2026-10-30)
 prompt = """
 Outcome: a new tool `tools/build_huc8_states.py` that pages the Watershed Boundary Dataset
 HU8 layer and writes the whole HUC8-to-states table in the shape

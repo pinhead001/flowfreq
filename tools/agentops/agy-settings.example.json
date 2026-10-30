@@ -2,7 +2,7 @@
   "colorScheme": "dark",
   "permissions": {
     "allow": [
-      "command(regex:^(?:\\s*(?:git (?:status|diff|log|show|grep|ls-files|blame|rev-parse|describe)|Select-String|Get-ChildItem|Get-Content|Get-Item|Test-Path|Get-Location|Select-Object|select|Measure-Object|Where-Object|ForEach-Object|Sort-Object|Format-Table|Format-List|Out-String|ls|dir|cat|type|rg|grep|findstr|find|where|which|wc|head|tail|sort|uniq|echo|pwd|python|python3|py|pytest|black|isort|mypy|ruff|uv run \\S+)(?:\\s+(?:\"[^\"]*\"|'[^']*'|[^;|&<>\"'\\s][^;|&<>\"']*))*\\s*(?:;|&&|\\|\\||\\|)?)+\\s*$)",
+      "command(regex:(?i)^(?:\\s*(?:git (?:status|diff|log|show|grep|ls-files|blame|rev-parse|describe)|Select-String|Get-ChildItem|Get-Content|Get-Item|Test-Path|Get-Location|Select-Object|select|Measure-Object|Where-Object|ForEach-Object|Sort-Object|Format-Table|Format-List|Out-String|ls|dir|cat|type|rg|grep|findstr|find|where|which|wc|head|tail|sort|uniq|echo|pwd|python|python3|py|pytest|black|isort|mypy|ruff|uv run \\S+)(?:\\s+(?:\"[^\"]*\"|'[^']*'|[^;|&<>\"'\\s][^;|&<>\"']*))*\\s*(?:;|&&|\\|\\||\\|)?)+\\s*$)",
       "command(regex:(python|python3|py)( .*)?)",
       "command(regex:(pytest|black|isort|mypy|ruff)( .*)?)",
       "command(regex:uv run (pytest|ruff|mypy|black|isort|gu1|gu2|gu3|gu-results)( .*)?)",

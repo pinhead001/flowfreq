@@ -44,6 +44,9 @@ pools = { gemini = ["gemini-3.8-flash-high", "gemini-3.8-flash-medium", "gemini-
 default_cooldown_min = 60
 print_timeout = "20m"
 extra_args = ["--mode", "accept-edits"]   # never --dangerously-skip-permissions (ADR-0002 G4)
+# Delegate permissions, passed as `--settings`: agy uses this file's `permissions` for the call
+# instead of ~/.gemini/antigravity-cli/settings.json, so the repo governs what a delegate may run.
+settings = "tools/agentops/agy-settings.example.json"
 # Mechanical fixes after the delegate finishes, before acceptance; failures are ignored.
 pre_acceptance = ["python -m black -q flowfreq tests", "python -m isort -q flowfreq tests"]
 max_retries = 2
