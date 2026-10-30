@@ -47,6 +47,11 @@ published `flowfreq` package, and nothing under `flowfreq/` imports it.
    (2026-10-30: eight calls, 459k Gemini tokens, nothing written). So allow the read-only
    commands too (`python -m pytest|black|isort|mypy`, `git status|diff|log|show`, directory
    listings), as the sandbox's `D:/a/sbx/state/gemini/antigravity-cli/settings.json` does.
+   Any denial ends the delegate's turn, so the allow list must cover what a model actually types:
+   on 2026-10-30 the three attempts on one card were denied for bare `pytest tests/...` and for
+   `git grep "..."`, neither of which `python -m pytest` and `git log|show` rules match. The example
+   allows bare `pytest`, `python ...`, `git grep|ls-files|blame`, and the usual search and listing
+   commands; the deny list (push, merge, data roots, `..`) still wins.
    Model names change: check `agy models` before writing `model =` on a card
    (`claude-sonnet-4-6` disappeared between 2026-10-26 and 2026-10-30).
 4. Select the governor profile for your Claude plan:
