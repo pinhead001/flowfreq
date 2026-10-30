@@ -1,0 +1,70 @@
+# Agent-ops settings for flowfreq, read by the agentops package at D:/a/agentops
+# (docs/REQUIREMENTS.md there; adoption plan in
+# docs/superpowers/plans/2026-10-29-agentops-adoption-and-0.17-follow-ups.md here).
+# Relative paths resolve against this file's directory. Nothing here has a default in the package.
+#
+# flowfreq has its own state dir (meter, ledger, queue, cooldowns, worktrees), separate from the
+# methow GU sprint's, so flowfreq cards never mix with that family's. Runs on the host; no sandbox.
+
+[paths]
+state_dir = "D:/a/sbx/state/agentops-flowfreq"          # claude_usage.json, ledger, queue, results
+worktree_root = "D:/a/sbx/state/agentops-flowfreq/worktrees"
+worktree_prefix = ""
+
+[repos]
+# name used in a card's `repo` field -> checkout path
+flowfreq = "D:/a/flowfreq"
+
+[governor]
+# Claude 5-hour remaining %: >= normal_min and weekly pace OK -> normal; >= conserve_min -> conserve;
+# > 0 -> review-only; exhausted -> wait. Weekly pace OK: used% <= elapsed_fraction*100 + weekly_pace_slack.
+# Switch sets with `run.bat gov profile <name>` (`run.bat gov profile` lists them; * marks the active one).
+profile = "max5x"
+
+[governor.profiles.pro]          # Pro plan
+normal_min_remaining = 60
+conserve_min_remaining = 25
+weekly_pace_slack = 10
+unknown_mode = "conserve"        # mode when the meter has no data
+
+[governor.profiles.max5x]        # Max 5x plan: normal work until the 5-hour window is nearly spent
+normal_min_remaining = 20
+conserve_min_remaining = 8
+weekly_pace_slack = 25
+unknown_mode = "normal"
+
+[agy]
+exe = "agy"
+# Preference order; the runner skips models whose quota pool is cooling (agentops ADR-0001 §7).
+# Mechanical cards use flash-medium; algorithmic cards set model = "gemini-3.8-flash-high" on the card.
+models = ["gemini-3.8-flash-medium", "gemini-4-argon-medium", "claude-sonnet-5-5-medium",
+          "claude-opus-5-5-medium", "gpt-oss-120b-medium"]
+# Pools as observed 2026-10-24: all Gemini models share one quota; Claude and GPT-OSS share another.
+# Argon assumed in the Gemini pool (unverified).
+pools = { gemini = ["gemini-3.8-flash-high", "gemini-3.8-flash-medium", "gemini-3.8-flash-low", "gemini-4-argon-medium"], thirdparty = ["claude-sonnet-5-5-medium", "claude-opus-5-5-medium", "gpt-oss-120b-medium"] }
+default_cooldown_min = 60
+print_timeout = "25m"            # flowfreq's suite is slower than the GU repos'
+# No lint autofix here: flowfreq is pip-managed, and `run.bat accept` (the acceptance command every
+# card uses) runs black --check and isort --check-only itself.
+pre_acceptance = []
+extra_args = ["--mode", "accept-edits"]
+max_retries = 1                  # escalations are finished by the lead
+concurrency_start = 2            # halves per error in error_window_min
+error_window_min = 60
+stop_below_pct = 10              # stop dispatching below this calibrated remaining %
+tokens_per_pct = 0               # 0 = unknown until two calibrations exist
+
+[hooks]
+# Bash commands matching any regex are denied (PreToolUse). `git push` is deliberately NOT here:
+# the lead pushes branches and merges green PRs itself (CLAUDE.md, Branches and Releases). The
+# runner never pushes or merges regardless.
+deny_bash = [
+  '\bnetsh\b',
+  '(New|Set|Remove|Disable|Enable)-NetFirewall',
+  '\breg(\.exe)?\s+(add|delete|import|load)\b',
+  'HKLM:|HKEY_LOCAL_MACHINE',
+  'Set-MpPreference',
+]
+deny_substrings = ["_restricted"]   # denied in any tool input
+teammate_tools = ["TeamCreate"]     # spawns allowed only in `normal`
+task_acceptance = "run.bat check"   # TaskCompleted: lint + mypy + the full suite, as CI runs them

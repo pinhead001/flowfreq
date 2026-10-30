@@ -131,6 +131,18 @@ first is on you at every invocation:
   extra pins `black>=24.0,<25`; black 26 formats differently, so an unpinned install has you
   "fix" correctly formatted files and turn CI red.
 
+## Delegation (agentops)
+
+flowfreq is a consumer of the `agentops` lead-plus-delegate machinery at `D:/a/agentops`
+(`config/agents.toml`, `AGENTS.md`, `config/cards/`, `run.bat`). Mechanical code changes with a
+named test go to a headless `agy` delegate as a task card; investigation, data transcription from
+USGS reports, review, merge and release stay with the lead session. `run.bat accept <pytest paths>`
+is the acceptance command every card uses and the right way to check a worktree, because it puts
+the worktree itself on `PYTHONPATH` and refuses to run against the main checkout's editable
+install. `run.bat gov status` shows the governor; `config/cards/README.md` has the card workflow;
+the adoption plan is `docs/superpowers/plans/2026-10-29-agentops-adoption-and-0.17-follow-ups.md`.
+agentops runs from its own venv, so flowfreq's `pyproject.toml` and CI are untouched by it.
+
 ## Branches and Releases
 
 `main` carries the next minor release as a `.dev0` version (currently `0.17.0.dev0`), so

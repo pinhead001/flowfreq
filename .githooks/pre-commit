@@ -1,0 +1,8 @@
+#!/bin/sh
+# Activated per clone by `git config core.hooksPath .githooks`. flowfreq has no pre-commit config;
+# this runs the two formatting checks CI's `ci / lint` job runs, with the main venv's interpreter.
+# PYTHONUTF8 keeps isort from silently skipping the non-ASCII files (CLAUDE.md).
+cd "$(git rev-parse --show-toplevel)" || exit 1
+PY="D:/a/flowfreq/.venv/Scripts/python.exe"
+export PYTHONUTF8=1
+"$PY" -m black --check flowfreq tests && "$PY" -m isort --check-only flowfreq tests
