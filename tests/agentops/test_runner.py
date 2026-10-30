@@ -91,6 +91,14 @@ def test_run_card_success_commits_on_branch_never_merges(repo_cfg: AgentOpsConfi
     assert json.loads((repo_cfg.results_dir / "c1.json").read_text())["state"] == "done"
 
 
+def test_agy_settings_file_is_passed_per_call(repo_cfg: AgentOpsConfig, tmp_path: Path) -> None:
+    card = _card(repo_cfg)
+    assert "--settings" not in runner.agy_argv(repo_cfg, card, "p")
+    repo_cfg.agy.settings = tmp_path / "agy.json"
+    argv = runner.agy_argv(repo_cfg, card, "p")
+    assert argv[argv.index("--settings") + 1] == str(tmp_path / "agy.json")
+
+
 def test_worktree_gets_the_repo_agents_md_but_never_commits_it(
     repo_cfg: AgentOpsConfig,
 ) -> None:
