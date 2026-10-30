@@ -2,6 +2,7 @@ id = "i206-catalog-outside-us"
 repo = "flowfreq"
 title = "Catalog build: a site outside the US gets no state and is skipped, not filed under the queried state (#206)"
 base = "origin/spec/i206-catalog-outside-us"
+model = "claude-sonnet-5-5-medium"   # Sonnet this week: the Gemini pool is near its weekly cap (2026-10-30)
 prompt = """
 Outcome, two parts.
 

@@ -2,7 +2,7 @@ id = "i203-multi-region"
 repo = "flowfreq"
 title = "region= accepts a list of codes, one per side of a boundary basin (#203)"
 base = "origin/spec/i203-multi-region"
-model = "claude-sonnet-5-5-medium"   # subtle control flow in assemble(); third-party pool
+model = "claude-sonnet-5-5-medium"   # Sonnet this week: the Gemini pool is near its weekly cap (2026-10-30)
 prompt = """
 Outcome: `flowfreq.ungaged.assemble` (and so `estimate_at_site`) accepts `region` as a
 string (unchanged behavior) or a sequence of strings. A sequence chooses several located
