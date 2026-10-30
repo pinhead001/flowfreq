@@ -52,6 +52,11 @@ published `flowfreq` package, and nothing under `flowfreq/` imports it.
    `git grep "..."`, neither of which `python -m pytest` and `git log|show` rules match. The example
    allows bare `pytest`, `python ...`, `git grep|ls-files|blame`, and the usual search and listing
    commands; the deny list (push, merge, data roots, `..`) still wins.
+   Sonnet goes further and issues compound PowerShell lines (`git status --short; git diff;
+   Select-String -Path ... -Pattern "a|b" | select -First 6`), which no single-command rule can
+   match, so the example's first rule admits chains of whitelisted read-only commands joined by
+   `;`, `&&` or `|`, with quoted arguments, and no redirection. Test a new rule against the
+   command lines in `~/.gemini/antigravity-cli/conversations/*.db` before spending a card on it.
    Model names change: check `agy models` before writing `model =` on a card
    (`claude-sonnet-4-6` disappeared between 2026-10-26 and 2026-10-30).
 4. Select the governor profile for your Claude plan:
