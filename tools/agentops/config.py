@@ -41,6 +41,9 @@ class AgyConfig:
     stop_below_pct: float
     tokens_per_pct: float
     child_env: dict[str, str] = field(default_factory=dict)  # "{worktree}" is substituted
+    # Passed as `--settings`: agy then uses this file's `permissions` for the call instead
+    # of the host's ~/.gemini/antigravity-cli/settings.json (its cli.log shows the swap).
+    settings: Path | None = None
 
     @property
     def model(self) -> str:
@@ -172,6 +175,7 @@ def load_config(path: Path | str | None = None) -> AgentOpsConfig:
             stop_below_pct=float(a["stop_below_pct"]),
             tokens_per_pct=float(a.get("tokens_per_pct", 0)),
             child_env={str(k): str(v) for k, v in a.get("child_env", {}).items()},
+            settings=_path(base, a["settings"]) if a.get("settings") else None,
         ),
         hooks=HooksConfig(
             deny_bash=[str(x) for x in h.get("deny_bash", [])],

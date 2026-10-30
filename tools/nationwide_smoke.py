@@ -12,11 +12,17 @@ Per-state results are cached as JSON under ``--cache`` (default
 Usage::
 
     python tools/nationwide_smoke.py --out docs/NATIONWIDE_SMOKE.md --resume
+    python tools/nationwide_smoke.py --points points.csv --states VT
+
+``--points`` takes a CSV with header ``state,lat,lon,note``: a hand-picked pour point
+per state for the ungaged estimate (StreamStats exposes no snap distance, so gage
+coordinates that do not snap need a manual point).
 """
 
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 import logging
 import re
@@ -71,8 +77,53 @@ def _err(exc: BaseException) -> str:
     return f"{type(exc).__name__}: {' '.join(str(exc).split())[:300]}"
 
 
-def smoke_one(row: pd.Series, *, allow_nss_snapshot: bool = True) -> Dict[str, Any]:
+def load_points(path: Path) -> Dict[str, Dict[str, Any]]:
+    """Read hand-picked ungaged pour points from a CSV with header ``state,lat,lon,note``.
+
+    Returns
+    -------
+    dict
+        Uppercased state code to ``{"lat": float, "lon": float, "note": str}``.
+
+    Raises
+    ------
+    ValueError
+        If a required column is missing, a coordinate is non-numeric or out of range,
+        or a state appears twice.
+    """
+    points: Dict[str, Dict[str, Any]] = {}
+    with open(path, newline="", encoding="utf-8-sig") as fh:
+        reader = csv.DictReader(fh)
+        fields = [f.strip() for f in (reader.fieldnames or [])]
+        for col in ("state", "lat", "lon"):
+            if col not in fields:
+                raise ValueError(f"points file {path} is missing required column: {col}")
+        for raw in reader:
+            r = {(k or "").strip(): (v or "").strip() for k, v in raw.items() if k is not None}
+            state = r["state"].upper()
+            try:
+                lat = float(r["lat"])
+                lon = float(r["lon"])
+            except ValueError as exc:
+                raise ValueError(f"{state}: non-numeric coordinate ({exc})") from exc
+            if not (-90.0 <= lat <= 90.0) or not (-180.0 <= lon <= 180.0):
+                raise ValueError(f"{state}: coordinate out of range (lat={lat}, lon={lon})")
+            if state in points:
+                raise ValueError(f"duplicate state in points file: {state}")
+            points[state] = {"lat": lat, "lon": lon, "note": r.get("note", "")}
+    return points
+
+
+def smoke_one(
+    row: pd.Series,
+    *,
+    allow_nss_snapshot: bool = True,
+    point: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
     """Run the gaged fit and the ungaged estimate for one catalog gage.
+
+    With ``point`` (``{"lat", "lon", "note"}``) the ungaged estimate uses that pour
+    point instead of the gage coordinates; the gaged fit is unchanged.
 
     Never raises: each failure is recorded as ``"gaged: Type: message"`` or
     ``"ungaged: Type: message"`` under ``error``.
@@ -83,6 +134,7 @@ def smoke_one(row: pd.Series, *, allow_nss_snapshot: bool = True) -> Dict[str, A
 
     out: Dict[str, Any] = {
         "state": row["state"],
+        "ungaged_point": f"override: {point.get('note', '')}" if point else "gage",
         "site_no": row["site_no"],
         "n_peaks": None if pd.isna(row.get("n_peaks")) else int(row["n_peaks"]),
         "ffa_ok": False,
@@ -114,8 +166,8 @@ def smoke_one(row: pd.Series, *, allow_nss_snapshot: bool = True) -> Dict[str, A
         errors.append("gaged: " + _err(exc))
     try:
         est = estimate_at_site(
-            float(row["latitude"]),
-            float(row["longitude"]),
+            float(point["lat"]) if point else float(row["latitude"]),
+            float(point["lon"]) if point else float(row["longitude"]),
             state=row["state"],
             allow_nss_snapshot=allow_nss_snapshot,
         )
@@ -185,8 +237,8 @@ def write_report(
         "",
         "## Results",
         "",
-        "| State | Gage | Years | Gaged | Q1% gaged | Ungaged | Q1% ungaged | Library | Error |",
-        "|---|---|---|---|---|---|---|---|---|",
+        "| State | Gage | Years | Gaged | Q1% gaged | Ungaged | Q1% ungaged | Library | Point | Error |",
+        "|---|---|---|---|---|---|---|---|---|---|",
     ]
     for r in rows:
         err = (r.get("error") or "").replace("|", "\\|")
@@ -194,7 +246,7 @@ def write_report(
             f"| {r['state']} | {r.get('site_no') or ''} | {r.get('n_peaks') or ''} | "
             f"{'ok' if r['ffa_ok'] else 'FAIL'} | {_fmt(r['ffa_q1pct'])} | "
             f"{'ok' if r['ungaged_ok'] else 'FAIL'} | {_fmt(r['ungaged_q1pct'])} | "
-            f"{r.get('library_status') or ''} | {err} |"
+            f"{r.get('library_status') or ''} | {r.get('ungaged_point') or 'gage'} | {err} |"
         )
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
@@ -206,7 +258,14 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     ap.add_argument("--cache", type=Path, default=REPO_ROOT / ".cache" / "nationwide_smoke")
     ap.add_argument("--resume", action="store_true", help="reuse cached per-state results")
     ap.add_argument("--states", nargs="*", help="limit to these state codes")
+    ap.add_argument(
+        "--points",
+        type=Path,
+        default=None,
+        help="CSV (state,lat,lon,note) of hand-picked ungaged pour points per state",
+    )
     args = ap.parse_args(argv)
+    points = load_points(args.points) if args.points else {}
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
 
     from flowfreq.catalog import load_catalog
@@ -238,7 +297,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                 "ungaged: NoSite: no gage coordinates",
             }
         else:
-            row = smoke_one(site)
+            row = smoke_one(site, point=points.get(j.code))
         logger.info("%s done in %.0f s: %s", j.code, time.time() - t0, row["error"] or "ok")
         cache.write_text(json.dumps(row), encoding="utf-8")
         rows.append(row)
