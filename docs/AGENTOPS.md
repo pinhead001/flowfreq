@@ -16,7 +16,7 @@ published `flowfreq` package, and nothing under `flowfreq/` imports it.
 | Piece | Where | What it does |
 |---|---|---|
 | Config | `agentops.toml` | Paths, governor profiles, agy models and pools, `child_env`, hook guards |
-| Claude meter | `statusline.py` | The status line writes `rate_limits.five_hour` / `seven_day` to `.agentops/state/claude_usage.json` |
+| Claude meter | `statusline.py` | The status line writes `rate_limits.five_hour` / `seven_day` to `.agentops/state/claude_usage.json` and prints `5h <used>% (reset <in>) \| 7d <used>% \| gov <mode>`, plus `agy <n> run, <m> pend \| 7d tok <pool> <k>` while cards are queued or delegates ran in the last 24 h |
 | Governor | `governor.py` | Sets the mode (`normal` / `conserve` / `review-only` / `wait`) from the meter and the active profile, and sets agy concurrency from recent errors, calibration and cooldowns |
 | Ledger | `ledger.py` | `.agentops/state/ledger.jsonl`, one record per agy call (tokens, duration, ok) plus quota events |
 | Usage report | `usage.py` | Claude 5h/7d use, plus agy calls and tokens per quota pool over 24 h and 7 days, failed calls, quota events, top cards |
