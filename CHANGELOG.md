@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- `region=` of `flowfreq.ungaged.assemble` / `estimate_at_site` (and `--region "GC1, GC2"`) accepts a sequence of codes, one per side of a region boundary, that together cover the basin.
 - `flowfreq.monthly_transfer` (`monthly_statistics`, `build_monthly_pairs`): monthly mean/median flow statistics with concurrent-year sampling covariance and runoff-volume gage pairs that feed `fit_dissimilarity`.
 - `bracket_weight` and `interpolate_between_gages` (`flowfreq.transpose`): log-area interpolation of flood quantiles transposed from an upstream and a downstream gage to a target between them; reproduces each gage at its own site.
 - `bootstrap_band(profile=<term>, grid=...)` re-chooses that term's dissimilarity power in every replicate and reports `BandBootstrap.power_counts` and `estimate_power`.
