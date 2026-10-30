@@ -23,6 +23,7 @@ CALLER = "caller; NSS located no peak-flow region for this basin"
 
 def _check_single(a, code: str, lib_code: str) -> None:
     assert [r.code for r in a.used] == [code]
+    assert a.region_codes == {code: lib_code}  # to_markdown cites the region through this map
     assert a.alternatives == []
     ((fraction, est),) = a.estimates[0.01]
     assert fraction == 1.0
