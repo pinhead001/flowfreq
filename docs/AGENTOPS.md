@@ -16,7 +16,7 @@ published `flowfreq` package, and nothing under `flowfreq/` imports it.
 | Piece | Where | What it does |
 |---|---|---|
 | Config | `agentops.toml` | Paths, governor profiles, agy models and pools, `child_env`, hook guards |
-| Claude meter | `statusline.py` | The status line writes `rate_limits.five_hour` / `seven_day` to `.agentops/state/claude_usage.json` |
+| Claude meter | `statusline.py` | The status line writes `rate_limits.five_hour` / `seven_day` to `.agentops/state/claude_usage.json` and prints `5h <used>% (reset <in>) \| 7d <used>% \| gov <mode>`, plus `agy <n> run, <m> pend \| 7d tok <pool> <k>` while cards are queued or delegates ran in the last 24 h |
 | Governor | `governor.py` | Sets the mode (`normal` / `conserve` / `review-only` / `wait`) from the meter and the active profile, and sets agy concurrency from recent errors, calibration and cooldowns |
 | Ledger | `ledger.py` | `.agentops/state/ledger.jsonl`, one record per agy call (tokens, duration, ok) plus quota events |
 | Usage report | `usage.py` | Claude 5h/7d use, plus agy calls and tokens per quota pool over 24 h and 7 days, failed calls, quota events, top cards |
@@ -34,11 +34,31 @@ published `flowfreq` package, and nothing under `flowfreq/` imports it.
    (Windows), then `.venv/bin/python`, then `python3`/`python`, so the Windows Store
    `python` shim is never used. A missing dependency fails open: the session keeps working
    and the status line reports the tool as unavailable.
-3. **agy permissions** (`~/.gemini/antigravity-cli/settings.json`; Deny beats Ask beats Allow),
-   as in ADR-0002 decision 3. Allow file read/write inside the worktrees. Deny `git push`,
+3. **agy permissions**, a different file from step 2: `~/.gemini/antigravity-cli/settings.json`
+   is agy's own settings (Deny beats Ask beats Allow), as in ADR-0002 decision 3. Start from
+   `tools/agentops/agy-settings.example.json`, which carries a working `permissions` block; the
+   Claude Code hooks of step 2 do not belong in it (agy ignores them and starts with
+   `permissions=<nil>`, which its `cli.log` reports). Allow file read/write inside the worktrees. Deny `git push`,
    `merge`, `rebase`, `checkout`, `switch`, `reset`, `branch`, `worktree`, `remote` and
    `config`; any command using `../`; and `write_file` on the main checkout, `.git/` and
-   `vendor/`. `AGENTS.md` tells the delegate not to use the shell at all.
+   `vendor/`. `AGENTS.md` tells the delegate not to use the shell at all, but models try
+   anyway, and **without an allow rule a headless `command` is auto-denied and ends the turn**:
+   the envelope says `SUCCESS` with an empty response and the call still costs its tokens
+   (2026-10-30: eight calls, 459k Gemini tokens, nothing written). So allow the read-only
+   commands too (`python -m pytest|black|isort|mypy`, `git status|diff|log|show`, directory
+   listings), as the sandbox's `D:/a/sbx/state/gemini/antigravity-cli/settings.json` does.
+   Any denial ends the delegate's turn, so the allow list must cover what a model actually types:
+   on 2026-10-30 the three attempts on one card were denied for bare `pytest tests/...` and for
+   `git grep "..."`, neither of which `python -m pytest` and `git log|show` rules match. The example
+   allows bare `pytest`, `python ...`, `git grep|ls-files|blame`, and the usual search and listing
+   commands; the deny list (push, merge, data roots, `..`) still wins.
+   Sonnet goes further and issues compound PowerShell lines (`git status --short; git diff;
+   Select-String -Path ... -Pattern "a|b" | select -First 6`), which no single-command rule can
+   match, so the example's first rule admits chains of whitelisted read-only commands joined by
+   `;`, `&&` or `|`, with quoted arguments, and no redirection. Test a new rule against the
+   command lines in `~/.gemini/antigravity-cli/conversations/*.db` before spending a card on it.
+   Model names change: check `agy models` before writing `model =` on a card
+   (`claude-sonnet-4-6` disappeared between 2026-10-26 and 2026-10-30).
 4. Select the governor profile for your Claude plan:
    `python tools/agentops_cli.py --config agentops.toml gov profile pro` (or `max`; use
    `overnight` when you are away and only review).
@@ -83,8 +103,8 @@ id = "i214-snapshot-warning"           # [A-Za-z0-9._-]
 repo = "flowfreq"
 title = "Silence the nss_snapshot advisory for sweeps (#214)"
 base = "origin/spec/i214-snapshot-warning"   # holds the failing tests; git fetch first
-model = "claude-sonnet-4-6"   # optional; omit to take the first free pool in [agy] models
-depends_on = []                        # card ids that must be done first
+model = "claude-sonnet-5-5-medium"   # optional; omit to take the first free pool in [agy] models
+depends_on = []   # orders dispatch only; recut this card's spec branch from main after they merge
 max_retries = 2                        # optional override
 prompt = """
 Outcome, not steps. Files to read: ... Files to edit: ...

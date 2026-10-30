@@ -14,6 +14,7 @@ import json
 import os
 import re
 import subprocess
+import sys
 import time
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
@@ -45,9 +46,15 @@ def _child_env(cfg: AgentOpsConfig, wt: Path) -> dict[str, str]:
     ``{worktree}`` replaced by the card's worktree. flowfreq uses it to put the worktree on
     ``PYTHONPATH``: the editable install points at the main checkout, so without it the
     acceptance tests would import the main checkout's code instead of the card's.
+
+    The directory of the interpreter running agentops goes first on ``PATH``, so the bare
+    ``python`` in ``pre_acceptance`` and ``acceptance`` commands is that interpreter (the
+    venv's) and not whatever the launching shell found first: under Git Bash that is MSYS's
+    python, which has no pytest.
     """
     env = dict(os.environ)
     env.pop("VIRTUAL_ENV", None)
+    env["PATH"] = os.pathsep.join([str(Path(sys.executable).parent), env.get("PATH", "")])
     env.update({k: v.replace("{worktree}", str(wt)) for k, v in cfg.agy.child_env.items()})
     return env
 

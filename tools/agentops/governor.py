@@ -42,6 +42,7 @@ class Status:
     agy_concurrency: int
     usage_updated_at: str | None
     agy_cooldowns: dict[str, str]
+    five_hour_resets_in_s: int | None = None  # seconds until the 5-hour window resets
 
     def as_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -148,6 +149,9 @@ def status(cfg: AgentOpsConfig, now: datetime | None = None) -> Status:
         conc,
         usage.get("updated_at"),
         {k: v.isoformat() for k, v in cooling.items()},
+        five_hour_resets_in_s=(
+            max(0, five_reset - int(now.timestamp())) if five_reset is not None else None
+        ),
     )
 
 
@@ -155,6 +159,16 @@ def _fmt_reset(epoch: int | None) -> str:
     if epoch is None:
         return "?"
     return datetime.fromtimestamp(epoch, UTC).astimezone().strftime("%a %H:%M")
+
+
+def fmt_duration(seconds: int | None) -> str:
+    """``1h10m``, ``35m`` or ``<1m``; ``?`` when unknown."""
+    if seconds is None:
+        return "?"
+    if seconds < 60:
+        return "<1m"
+    h, m = divmod(int(seconds) // 60, 60)
+    return f"{h}h{m:02d}m" if h else f"{m}m"
 
 
 def render(s: Status) -> str:
@@ -168,7 +182,13 @@ def render(s: Status) -> str:
     return "\n".join(
         [
             f"governor: {s.mode} ({s.reason})",
-            f"claude 5h used {pct(s.five_hour_used)} resets {_fmt_reset(s.five_hour_resets_at)}; "
+            f"claude 5h used {pct(s.five_hour_used)} resets {_fmt_reset(s.five_hour_resets_at)}"
+            + (
+                f" (in {fmt_duration(s.five_hour_resets_in_s)})"
+                if s.five_hour_resets_in_s is not None
+                else ""
+            )
+            + "; "
             f"7d used {pct(s.seven_day_used)} resets {_fmt_reset(s.seven_day_resets_at)}; "
             f"weekly pace {pace}",
             f"agy remaining {agy}; recent errors {s.agy_errors_recent}; "
