@@ -4,8 +4,8 @@
 
 [paths]
 state_dir = ".agentops/state"        # queue, ledger, meter, cooldowns (gitignored)
-worktree_root = ".."                 # card worktrees sit beside the checkout
-worktree_prefix = "wt-"              # -> ../wt-flowfreq-<card id>
+worktree_root = "D:/a/sbx/state/agentops-flowfreq/worktrees"  # under the agy-trusted D:/a/sbx
+worktree_prefix = ""                 # -> .../worktrees/flowfreq-<card id>
 
 [repos]
 flowfreq = "."
@@ -39,8 +39,8 @@ unknown_mode = "review-only"
 exe = "agy"
 # Preference order. Pools from flowfield2d ADR-0002 addendum 1: all Gemini models share one
 # weekly pool; Claude and GPT-OSS inside agy share a separate "third-party" pool.
-models = ["gemini-3.8-flash-high", "claude-sonnet-4-6"]
-pools = { gemini = ["gemini-3.8-flash-high", "gemini-3.8-flash-medium", "gemini-3.8-flash-low"], third_party = ["claude-sonnet-4-6", "claude-opus-4-6-thinking", "gpt-oss-120b-medium"] }
+models = ["gemini-3.8-flash-high", "claude-sonnet-5-5-medium"]   # names from `agy models`, 2026-10-30
+pools = { gemini = ["gemini-3.8-flash-high", "gemini-3.8-flash-medium", "gemini-3.8-flash-low", "gemini-4-argon-medium", "gemini-4-argon-high", "gemini-4-argon-low"], third_party = ["claude-sonnet-5-5-low", "claude-sonnet-5-5-medium", "claude-sonnet-5-5-high", "claude-opus-5-5-low", "claude-opus-5-5-medium", "claude-opus-5-5-high", "gpt-oss-120b-medium"] }
 default_cooldown_min = 60
 print_timeout = "20m"
 extra_args = ["--mode", "accept-edits"]   # never --dangerously-skip-permissions (ADR-0002 G4)
