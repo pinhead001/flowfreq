@@ -34,11 +34,15 @@ published `flowfreq` package, and nothing under `flowfreq/` imports it.
    (Windows), then `.venv/bin/python`, then `python3`/`python`, so the Windows Store
    `python` shim is never used. A missing dependency fails open: the session keeps working
    and the status line reports the tool as unavailable.
-3. **agy permissions**, a different file from step 2: `~/.gemini/antigravity-cli/settings.json`
-   is agy's own settings (Deny beats Ask beats Allow), as in ADR-0002 decision 3. Start from
-   `tools/agentops/agy-settings.example.json`, which carries a working `permissions` block; the
-   Claude Code hooks of step 2 do not belong in it (agy ignores them and starts with
-   `permissions=<nil>`, which its `cli.log` reports). Allow file read/write inside the worktrees. Deny `git push`,
+3. **agy permissions**, a different file from step 2. The runner passes
+   `tools/agentops/agy-settings.example.json` (`[agy] settings` in `agentops.toml`) to every
+   delegate call as `--settings`; agy then uses that file's `permissions` block for the call
+   instead of its own `~/.gemini/antigravity-cli/settings.json` (its `cli.log` line
+   `CLI settings initialized: permissions=...` shows which rules are live). So the repo governs
+   what a delegate may run, and the host file needs no hand edits for runner calls; keep the
+   host file in step with the example anyway for interactive `agy` use. Deny beats Ask beats
+   Allow, as in ADR-0002 decision 3. The Claude Code hooks of step 2 do not belong in either
+   file (agy ignores them and starts with `permissions=<nil>`). Allow file read/write inside the worktrees. Deny `git push`,
    `merge`, `rebase`, `checkout`, `switch`, `reset`, `branch`, `worktree`, `remote` and
    `config`; any command using `../`; and `write_file` on the main checkout, `.git/` and
    `vendor/`. `AGENTS.md` tells the delegate not to use the shell at all, but models try
@@ -55,7 +59,9 @@ published `flowfreq` package, and nothing under `flowfreq/` imports it.
    Sonnet goes further and issues compound PowerShell lines (`git status --short; git diff;
    Select-String -Path ... -Pattern "a|b" | select -First 6`), which no single-command rule can
    match, so the example's first rule admits chains of whitelisted read-only commands joined by
-   `;`, `&&` or `|`, with quoted arguments, and no redirection. Test a new rule against the
+   `;`, `&&` or `|`, with quoted arguments, and no redirection. The rule is case-insensitive
+   (`(?i)`): PowerShell cmdlets are, and Sonnet's `| Select -First 6` cost one attempt on
+   2026-10-30 against a rule that only knew `select`. Test a new rule against the
    command lines in `~/.gemini/antigravity-cli/conversations/*.db` before spending a card on it.
    Model names change: check `agy models` before writing `model =` on a card
    (`claude-sonnet-4-6` disappeared between 2026-10-26 and 2026-10-30).
@@ -79,7 +85,13 @@ $A cards reset <id>         # discard the worktree and branch, back to pending
 
 **Lead (Claude) per card:**
 1. On a branch `spec/<id>` from `main`, write the failing tests and push them. Do not open a
-   PR for this branch: it exists only to hold the tests.
+   PR for this branch: it exists only to hold the tests. Cut it from current `main` and, if
+   `main` moves before the card runs, merge `main` into it: the worktree is cut from this
+   branch, so it must carry `AGENTS.md`. On 2026-10-30 seven spec branches predated that
+   file; Sonnet, given no rules, wrote files through a PowerShell script in the shell, the
+   host's agy permissions denied it, and three attempts escalated with a clean tree. The
+   runner now copies the repo's `AGENTS.md` into a worktree whose branch lacks it (and
+   drops the copy before the card commit), but that is a fallback, not the procedure.
 2. Write `.agentops/cards/<id>.toml` with `base = "origin/spec/<id>"` (run `git fetch
    origin` before `cards run`, so the remote branch is current), an outcome-level `prompt`
    that names the files to read and edit, and an exact `acceptance` command. Use

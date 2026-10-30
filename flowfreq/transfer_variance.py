@@ -1107,6 +1107,11 @@ class BandBootstrap:
         Replicates drawn, and how many had too few pairs to fit.
     fraction_empty, fraction_unbounded : float
         Shares of successful replicates with an empty or unbounded band.
+    power_counts : dict of float to int, optional
+        With ``profile``, how many successful replicates each grid power won
+        (zero included); ``None`` otherwise.
+    estimate_power : float, optional
+        With ``profile``, the full-data best power; ``None`` otherwise.
     """
 
     estimate: Band
@@ -1117,6 +1122,8 @@ class BandBootstrap:
     n_failed: int
     fraction_empty: float
     fraction_unbounded: float
+    power_counts: Optional[Dict[float, int]] = None
+    estimate_power: Optional[float] = None
 
 
 def bootstrap_band(
@@ -1130,6 +1137,8 @@ def bootstrap_band(
     level: float = 0.90,
     seed: Optional[int] = None,
     powers: Optional[Mapping[str, float]] = None,
+    profile: Optional[str] = None,
+    grid: Sequence[float] = (0.5, 1.0, 1.5, 2.0, 2.5, 3.0),
     **features: float,
 ) -> BandBootstrap:
     """:func:`solve_band` with an interval from resampling gages.
@@ -1151,15 +1160,38 @@ def bootstrap_band(
     seed : int, optional
     powers : mapping of str to float, optional
         Passed to :func:`fit_dissimilarity`, for the full fit and every
-        replicate. The powers are held fixed, not re-chosen per replicate.
+        replicate. The powers are held fixed, not re-chosen per replicate,
+        unless ``profile`` names a term: that term's power is re-chosen.
+    profile : str, optional
+        A term in ``terms`` whose power is re-chosen by :func:`profile_power`
+        on the full data and on every replicate. It must not also be in
+        ``powers``.
+    grid : sequence of float
+        Powers :func:`profile_power` tries when ``profile`` is given.
 
     Returns
     -------
     BandBootstrap
     """
+    if profile is not None:
+        if profile not in terms:
+            raise ValueError(f"profile term {profile!r} is not in terms {list(terms)}")
+        if profile in (powers or {}):
+            raise ValueError(f"powers fixes {profile!r}, which profile also re-chooses")
+        if len(grid) == 0:
+            raise ValueError("grid of powers is empty")
     fixed_powers = _check_powers(terms, powers)
+    estimate_power: Optional[float] = None
+    counts: Optional[Dict[float, int]] = None
+    if profile is None:
+        full_model = fit_dissimilarity(pairs, terms, powers=fixed_powers)
+    else:
+        full = profile_power(pairs, terms, term=profile, grid=grid, powers=powers)
+        full_model = full.best
+        estimate_power = full.best_power
+        counts = {float(p): 0 for p in grid}
     estimate = solve_band(
-        fit_dissimilarity(pairs, terms, powers=fixed_powers),
+        full_model,
         gage_variance=gage_variance,
         regression_variance=regression_variance,
         exponent_variance=exponent_variance,
@@ -1174,7 +1206,13 @@ def bootstrap_band(
         sample = _resample_pairs_by_gage(pairs, drawn)
         try:
             # A replicate's bound coefficient is not news; its band records it.
-            model = _fit(sample, tuple(terms), fixed_powers, warn=False)
+            if profile is None:
+                model = _fit(sample, tuple(terms), fixed_powers, warn=False)
+            else:
+                rep_profile = profile_power(sample, terms, term=profile, grid=grid, powers=powers)
+                model = rep_profile.best
+                if counts is not None:
+                    counts[rep_profile.best_power] += 1
         except ValueError:
             failed += 1
             continue
@@ -1200,6 +1238,8 @@ def bootstrap_band(
         n_failed=failed,
         fraction_empty=float(np.mean(arr == 0.0)),
         fraction_unbounded=float(np.mean(np.isinf(arr))),
+        power_counts=counts,
+        estimate_power=estimate_power,
     )
 
 

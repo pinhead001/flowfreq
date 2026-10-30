@@ -2,6 +2,7 @@ id = "i210-smoke-points"
 repo = "flowfreq"
 title = "nationwide_smoke --points: per-state pour-point overrides for the ungaged estimate (#210)"
 base = "origin/spec/i210-smoke-points"
+model = "claude-sonnet-5-5-medium"   # Sonnet this week: the Gemini pool is near its weekly cap (2026-10-30)
 prompt = """
 Outcome: tools/nationwide_smoke.py accepts `--points FILE`, a CSV with header
 `state,lat,lon,note` giving a hand-picked pour point per state for the ungaged estimate

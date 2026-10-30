@@ -2,7 +2,7 @@ id = "m7-monthly-transfer"
 repo = "flowfreq"
 title = "Monthly transfer-variance inputs: per-month mean/median statistics and runoff-volume pairs (methow item 7, part 1)"
 base = "origin/spec/m7-monthly-transfer"
-model = "claude-sonnet-4-6"   # new module with statistical definitions; third-party pool
+model = "claude-sonnet-5-5-medium"   # Sonnet this week: the Gemini pool is near its weekly cap (2026-10-30)
 prompt = """
 Outcome: a new module flowfreq/monthly_transfer.py whose output feeds the existing
 `flowfreq.transfer_variance.fit_dissimilarity` unchanged, extending transfer variance from
