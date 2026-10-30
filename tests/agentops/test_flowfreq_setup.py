@@ -28,6 +28,9 @@ def test_committed_config_loads(repo_toml: AgentOpsConfig) -> None:
     assert repo_toml.governor.profiles == ["pro", "max", "overnight"]
     assert repo_toml.agy.child_env["PYTHONPATH"] == "{worktree}"
     assert "--dangerously-skip-permissions" not in repo_toml.agy.extra_args
+    assert repo_toml.agy.settings == REPO / "tools" / "agentops" / "agy-settings.example.json"
+    perms = json.loads(repo_toml.agy.settings.read_text(encoding="utf-8"))["permissions"]
+    assert perms["allow"] and any(r.startswith("command(regex:git (push|") for r in perms["deny"])
     assert cooldown.pool_of(repo_toml, "gemini-3.8-flash-low") == "gemini"
     assert cooldown.pool_of(repo_toml, "gpt-oss-120b-medium") == "third_party"
 

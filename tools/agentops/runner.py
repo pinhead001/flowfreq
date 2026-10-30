@@ -116,6 +116,8 @@ def agy_argv(cfg: AgentOpsConfig, card: Card, prompt: str, model: str | None = N
     if model:
         argv += ["--model", model]
     argv += ["--print-timeout", card.print_timeout or cfg.agy.print_timeout, *cfg.agy.extra_args]
+    if cfg.agy.settings is not None:
+        argv += ["--settings", str(cfg.agy.settings)]
     return argv
 
 
