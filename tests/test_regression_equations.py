@@ -736,3 +736,48 @@ class TestApplicabilityLimits:
         lim = {"code": "LAKEAREA", "transform": "identity", "units": "percent", "maximum": 5.0}
         eq = RegressionEquation.from_dict({**d, "applicability": [lim]})
         assert eq.applicability == (self.LAKE,)
+
+
+class TestInteractionTerms:
+    """``Variable.times``: ``T(x) * Y``, for an exponent affine in a characteristic (#211).
+
+    The Southeast US region-indicator form ``A**(b0 + b2*PCTREG2)`` is
+    ``b0*log10(A) + b2*PCTREG2*log10(A)`` in log space. Synthetic coefficients.
+    """
+
+    AREA = Variable("DRNAREA", "log10", "mi2", 1.0, 1000.0)
+    AREA_X_REG2 = Variable("DRNAREA", "log10", "mi2", 1.0, 1000.0, times="PCTREG2")
+
+    def _indicator_eq(self):
+        return _eq(variables=(self.AREA, self.AREA_X_REG2), coefficients=(0.6, 0.002))
+
+    def test_value_multiplies_the_transformed_term(self):
+        assert self.AREA_X_REG2.value({"DRNAREA": 100.0, "PCTREG2": 40.0}) == pytest.approx(80.0)
+        assert self.AREA_X_REG2.input_codes == ("DRNAREA", "PCTREG2")
+        assert self.AREA.input_codes == ("DRNAREA",)
+
+    def test_evaluates_as_the_power_form(self):
+        est = evaluate(self._indicator_eq(), {"DRNAREA": 100.0, "PCTREG2": 40.0})
+        assert est.flow_cfs == pytest.approx(100.0 * 100.0 ** (0.6 + 0.002 * 40.0))
+        assert est.inputs == {"DRNAREA": 100.0, "PCTREG2": 40.0}
+
+    def test_the_times_characteristic_is_required(self):
+        with pytest.raises(KeyError, match="PCTREG2"):
+            evaluate(self._indicator_eq(), {"DRNAREA": 100.0})
+
+    def test_a_range_problem_is_reported_once(self):
+        with pytest.raises(OutOfRangeError) as info:
+            evaluate(self._indicator_eq(), {"DRNAREA": 5000.0, "PCTREG2": 40.0})
+        assert str(info.value).count("DRNAREA=5000.0 > max 1000.0") == 1
+
+    def test_same_code_is_distinct_by_times_but_not_repeated(self):
+        with pytest.raises(ValueError, match="duplicate"):
+            _eq(variables=(self.AREA_X_REG2, self.AREA_X_REG2), coefficients=(0.6, 0.002))
+        with pytest.raises(ValueError, match="times must name"):
+            Variable("DRNAREA", "log10", times=" ")
+
+    def test_round_trips_through_json(self):
+        eq = self._indicator_eq()
+        d = eq.to_dict()
+        assert d["variables"][1]["times"] == "PCTREG2" and "times" not in d["variables"][0]
+        assert RegressionEquation.from_dict(json.loads(json.dumps(d))) == eq

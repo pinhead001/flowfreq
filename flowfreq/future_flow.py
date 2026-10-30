@@ -731,7 +731,7 @@ def regression_change_factors(
     }
     rows = []
     for eq in sorted(equations, key=lambda e: -e.aep):
-        if not {v.code for v in eq.variables} & set(changed):
+        if not {c for v in eq.variables for c in v.input_codes} & set(changed):
             raise ValueError(
                 f"{eq.region_code} AEP {eq.aep} uses none of the projected inputs "
                 f"{sorted(changed)}, so cannot estimate future conditions (NCHRP 15-61 §7.3)"

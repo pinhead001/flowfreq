@@ -91,11 +91,16 @@ Plan: `docs/superpowers/plans/2026-10-25-nationwide-rollout.md`; design:
       `load_state(..., allow_nss_snapshot=True)`, and 41 jurisdictions with 1817 equations
       (1441 with `sep_log`). A snapshot is not "supported": every jurisdiction still owes the
       roadmap 3.2 definition of done.
-- [ ] **Parked: 24 region-indicator equations** (#211) in GA, NC and SC (8 each), where an NSS
-      equation selects its coefficients with a region indicator. They sit in
-      `StateLibrary.unparsed`; they need a parser form, or hand transcription.
-- [ ] **Parked: New York's 2 urban regions** (#212) (GC1077, GC1078, WRI84_4350 Method 1 and 2 Urban
-      Peak). NSS's Estimate returns no results for them, so the harvest cannot resolve them.
+- [x] **24 region-indicator equations** (#211) in GA, NC and SC (8 each, SIR 2023-5006) parse
+      since `Variable.times` (an interaction term `T(x) * Y`) and match NSS's Estimate values to
+      its 3-figure rounding. SC #208 is the same study (GC1935).
+- [x] **New York's 2 urban regions** (#212) (GC1077, GC1078, WRI84_4350 Method 1 and 2 Urban
+      Peak): out of scope. They are Sauer and others' (1983) nationwide urban adjustments
+      (WRI 84-4350 eqs. 2A-2F and 3A-3F), each a power of the *rural* peak `(Q_T)r` from
+      another equation set, so NSS's Estimate cannot evaluate them on their own. The report
+      evaluates them for New York without recommending them (bias +28 to +53 percent), and
+      they cover only the 2- to 100-year floods. They stay in `StateLibrary.unparsed`;
+      supporting them would need an equation form that consumes another region's estimate.
 - [ ] **Parked: ASEp below 1** (#213) on 32 LA, AR and MS equations. `sep_log` is unset because the
       units of NSS's ASEp there are unconfirmed (percent, or already a log10 error). Read
       the reports and set it from the source.
@@ -156,8 +161,7 @@ Follow-ups from the rollout reviews, none implemented; each has an issue (opened
       study's hydrologic region, KY possible karst). AK: delineation not supported at that
       point. Also refused as out of range, not extrapolated: CA, MN, NH (and SC above).
 - [ ] **The methow-flow items stay parked** (Priorities for methow-flow below: 4 and 5 of
-      Tier 2; 7 to 12 of Tier 3), as do the 24 GA/NC/SC region-indicator forms and New York's
-      2 urban regions above.
+      Tier 2; 7 to 12 of Tier 3).
 - [ ] **Regional skew `pending` rows** (41): each waits for a published B-WLS/B-GLS study or
       a reading of the report's printed value; the row's notes say which.
 

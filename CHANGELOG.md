@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   cooldowns and Claude Code hooks. Config `agentops.toml`, delegate rules `AGENTS.md`, procedure
   `docs/AGENTOPS.md`. `filelock` joins the dev extra.
 - `tools/build_huc8_states.py` builds the nationwide HUC8-to-states table from the WBD HU8 layer; `data/regional_skew_huc8_states.csv` now lists every HUC8 (2,456 rows, the 417 old rows kept verbatim), so a border HU12 anywhere resolves its state without `state=` (#205).
+- `Variable.times` (`flowfreq.regression.equations`): an interaction term, `T(scale*x + offset) * Y`. The NSS parser reads a power whose exponent is affine in characteristics, `A^(b0 + b2*PCTREG2)`, as `b0*log10(A) + b2*PCTREG2*log10(A)`, and the `times` characteristic keeps its NSS range as an applicability limit. The 24 SIR 2023-5006 region-indicator equations in the GA, NC and SC `nss_snapshot` sets (GC1934-GC1936) now load and evaluate; each matches NSS's Estimate value to NSS's rounding (#211, #208).
 
 ### Changed
 - `flowfreq.regression.library.load_state` takes a keyword-only `warn: bool = True`; with `warn=False` an opt-in set's advisory is logged at DEBUG instead of WARNING, and the coverage report tool uses it.

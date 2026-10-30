@@ -298,6 +298,9 @@ class ParsedEquation:
     exponents : tuple of float or None
         Per-variable :attr:`Variable.exponent`, set only for ``power``. Empty
         means none.
+    times : tuple of str or None
+        Per-variable :attr:`Variable.times`, set only for an interaction term (a
+        power whose exponent is affine in other characteristics). Empty means none.
     notes : tuple of str
         Rewrites a reviewer should know about, such as a scale folded into ``b0``.
     """
@@ -311,6 +314,7 @@ class ParsedEquation:
     scales: Tuple[float, ...] = ()
     offsets: Tuple[float, ...] = ()
     exponents: Tuple[Optional[float], ...] = ()
+    times: Tuple[Optional[str], ...] = ()
 
     def variables(self) -> Tuple[Variable, ...]:
         """The variables as :class:`Variable` objects, without limits or units."""
@@ -318,15 +322,18 @@ class ParsedEquation:
         scales = self.scales or (1.0,) * n
         offsets = self.offsets or (0.0,) * n
         exponents: Tuple[Optional[float], ...] = self.exponents or (None,) * n
+        times: Tuple[Optional[str], ...] = self.times or (None,) * n
         return tuple(
-            Variable(code=k, transform=t, scale=sc, offset=off, exponent=ex)
-            for k, t, sc, off, ex in zip(self.codes, self.transforms, scales, offsets, exponents)
+            Variable(code=k, transform=t, scale=sc, offset=off, exponent=ex, times=y)
+            for k, t, sc, off, ex, y in zip(
+                self.codes, self.transforms, scales, offsets, exponents, times
+            )
         )
 
     def log10_value(self, values: Mapping[str, float]) -> float:
         """Evaluate ``log10(Q)`` at the given characteristics."""
         return self.intercept + sum(
-            c * v.apply(float(values[v.code])) for v, c in zip(self.variables(), self.coefficients)
+            c * v.value(values) for v, c in zip(self.variables(), self.coefficients)
         )
 
     def to_dict(self) -> Dict[str, object]:
@@ -340,15 +347,21 @@ class ParsedEquation:
 
 # A term's form: (transform, scale, offset, exponent).
 _Form = Tuple[str, float, float, Optional[float]]
+# A term's key: (code, times), times set only on an interaction term.
+_Key = Tuple[str, Optional[str]]
+
+
+def _key_text(key: _Key) -> str:
+    return key[0] if key[1] is None else f"{key[0]} (times {key[1]})"
 
 
 class _LogLin:
-    """log10 of an expression: ``const + sum coef * T(scale*X + offset)``."""
+    """log10 of an expression: ``const + sum coef * T(scale*X + offset) [* Y]``."""
 
     def __init__(self) -> None:
         self.const = 0.0
-        self.terms: Dict[str, Tuple[_Form, float]] = {}
-        self.order: List[str] = []
+        self.terms: Dict[_Key, Tuple[_Form, float]] = {}
+        self.order: List[_Key] = []
         self.notes: List[str] = []
 
     @classmethod
@@ -366,10 +379,11 @@ class _LogLin:
         scale: float = 1.0,
         offset: float = 0.0,
         exponent: Optional[float] = None,
+        times: Optional[str] = None,
     ) -> "_LogLin":
         out = cls()
-        out.terms[code] = ((transform, scale, offset, exponent), coef)
-        out.order.append(code)
+        out.terms[(code, times)] = ((transform, scale, offset, exponent), coef)
+        out.order.append((code, times))
         return out
 
     def scaled(self, p: float) -> "_LogLin":
@@ -389,7 +403,7 @@ class _LogLin:
                 t0, c0 = out.terms[k]
                 if t0 != t:
                     raise NSSEquationError(
-                        f"{k} appears under two transforms ({_form_text(t0)}, "
+                        f"{_key_text(k)} appears under two transforms ({_form_text(t0)}, "
                         f"{_form_text(t)}) in {text!r}; RegressionEquation allows one "
                         "term per variable"
                     )
@@ -500,12 +514,15 @@ def _log_term(node: Node, text: str) -> _Linear:
             f"than 1, in {text!r}"
         )
     inner = _base(args[0], text)
+    if any(k[1] is not None for k in inner.order):
+        raise NSSEquationError(f"interaction term inside {node[1]} in {text!r}")
     s = 1.0 / math.log10(b)
     out = _Linear(const=inner.const * s, notes=list(inner.notes))
     if b != 10.0:
         out.notes.append("logN(E, b) rewritten as log10(E)/log10(b)")
-    for k in inner.order:
-        (transform, scale, offset, exponent), coef = inner.terms[k]
+    for key in inner.order:
+        (transform, scale, offset, exponent), coef = inner.terms[key]
+        k = key[0]
         out.coefs[k] = coef * s
         out.order.append(k)
         if transform == "power" and exponent is not None:
@@ -605,10 +622,41 @@ def _loglin(node: Node, text: str) -> _LogLin:
             return out
         p = _const_value(right)
         if p is None:
-            raise NSSEquationError(f"non-constant exponent on a base other than 10 in {text!r}")
+            return _affine_power(left, right, text)
         return _base(left, text).scaled(p)
     # A bare sum: representable only as an affine base in one variable.
     return _base(node, text)
+
+
+def _affine_power(base_node: Node, exponent_node: Node, text: str) -> _LogLin:
+    """log10 of ``E^(c0 + sum c_i*Y_i)``: ``c0*log10(E) + sum c_i*Y_i*log10(E)``.
+
+    The exponent must be affine in plain characteristics (no powers or logs of
+    them). Each ``Y_i`` term becomes one interaction term per term of ``log10(E)``,
+    with :attr:`Variable.times` set to ``Y_i``; a constant factor ``k`` inside ``E``
+    becomes an identity term ``c_i*log10(k)*Y_i``.
+    """
+    refusal = f"non-constant exponent on a base other than 10 in {text!r}"
+    try:
+        lin = _linear(exponent_node, text)
+    except NSSEquationError:
+        raise NSSEquationError(refusal) from None
+    if lin.powers or lin.logs:
+        raise NSSEquationError(refusal + "; the exponent is not affine in the variables")
+    base = _base(base_node, text)
+    if any(k[1] is not None for k in base.order):
+        raise NSSEquationError(refusal + "; the base already carries an interaction")
+    out = base.scaled(lin.const)
+    for y in lin.order:
+        c = lin.coefs[y]
+        if base.const != 0.0:
+            out = out.plus(_LogLin.term(y, "identity", c * base.const), text)
+        for key in base.order:
+            (transform, scale, offset, exponent), coef = base.terms[key]
+            term = _LogLin.term(key[0], transform, coef * c, scale, offset, exponent, times=y)
+            out = out.plus(term, text)
+    out.notes.append("exponent affine in characteristics stored as interaction terms (times)")
+    return out
 
 
 def _negated(node: Node) -> bool:
@@ -682,16 +730,18 @@ def parse_equation(equation: str) -> ParsedEquation:
     ll = _loglin(parse_expression(equation), equation)
     if not ll.terms:
         raise NSSEquationError(f"equation has no variables: {equation!r}")
+    times = tuple(k[1] for k in ll.order)
     return ParsedEquation(
         equation=equation,
         intercept=ll.const,
-        codes=tuple(ll.order),
+        codes=tuple(k[0] for k in ll.order),
         transforms=tuple(ll.terms[k][0][0] for k in ll.order),
         coefficients=tuple(ll.terms[k][1] for k in ll.order),
         notes=tuple(dict.fromkeys(ll.notes)),
         scales=tuple(ll.terms[k][0][1] for k in ll.order),
         offsets=tuple(ll.terms[k][0][2] for k in ll.order),
         exponents=tuple(ll.terms[k][0][3] for k in ll.order),
+        times=times if any(y is not None for y in times) else (),
     )
 
 
@@ -771,7 +821,9 @@ def to_regression_equation(
 
     A :class:`ParsedConstant` gives ``form="constant"`` with zero coefficients.
     NSS supplies no report table, covariance, model-error variance or site
-    count, so the result carries only what NSS does. ``sep_log`` is left unset
+    count, so the result carries only what NSS does. The ``times`` characteristic of
+    an interaction term that is not also a variable gets its limits as an
+    ``applicability`` limit. ``sep_log`` is left unset
     because NSS's ``sep`` field is not confirmed to be the report's log10 SEP.
 
     Parameters
@@ -791,6 +843,7 @@ def to_regression_equation(
             scale=v.scale,
             offset=v.offset,
             exponent=v.exponent,
+            times=v.times,
         )
         for v in parsed.variables()
     )
@@ -806,6 +859,21 @@ def to_regression_equation(
             form="constant",
             constant_cfs=parsed.value,
         )
+    # An interaction's ``times`` characteristic that is not a variable in its own right
+    # keeps its published range as an applicability limit, so it is still checked.
+    codes = {v.code for v in variables}
+    times_codes = dict.fromkeys(v.times for v in variables if v.times is not None)
+    applicability = tuple(
+        Variable(
+            code=y,
+            transform="identity",
+            units=units.get(y, ""),
+            minimum=limits[y][0],
+            maximum=limits[y][1],
+        )
+        for y in times_codes
+        if y not in codes and y in limits and limits[y] != (None, None)
+    )
     return RegressionEquation(
         region_code=region_code,
         region_name=region_name,
@@ -814,6 +882,7 @@ def to_regression_equation(
         variables=variables,
         coefficients=parsed.coefficients,
         citation=citation,
+        applicability=applicability,
     )
 
 
