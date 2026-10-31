@@ -467,9 +467,10 @@ method. Everything here is **advisory tooling with explicit labeling**. None of 
 the B17C estimate in a regulatory product unless the reviewing agency accepts it.
 
 ### 6.1 Detection (implement first; widely accepted)
-- [ ] **Monotonic trend tests** on annual peaks and on log peaks: Mann-Kendall (with
+- [x] **Monotonic trend tests** on annual peaks and on log peaks: Mann-Kendall (with
       Hamed-Rao / pre-whitening options for autocorrelation), Sen's slope, and Spearman's rho.
-- [ ] **Change-point tests**: Pettitt, CUSUM, and Lombard (smooth and abrupt), matching the
+      *Done:* `flowfreq.stationarity` (Hamed-Rao; pre-whitening not implemented).
+- [~] **Change-point tests**: Pettitt (*done*, `stationarity.pettitt`), CUSUM, and Lombard (smooth and abrupt), matching the
       set in USACE's Nonstationarity Detection Tool, so results are comparable with
       USACE ECB 2018-14 practice.
 - [ ] Trends in **variance and in peaks-over-threshold counts**, not only in the mean.
