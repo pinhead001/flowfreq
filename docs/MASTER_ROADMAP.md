@@ -470,12 +470,13 @@ the B17C estimate in a regulatory product unless the reviewing agency accepts it
 - [x] **Monotonic trend tests** on annual peaks and on log peaks: Mann-Kendall (with
       Hamed-Rao / pre-whitening options for autocorrelation), Sen's slope, and Spearman's rho.
       *Done:* `flowfreq.stationarity` (Hamed-Rao; pre-whitening not implemented).
-- [~] **Change-point tests**: Pettitt (*done*, `stationarity.pettitt`), CUSUM, and Lombard (smooth and abrupt), matching the
+- [~] **Change-point tests**: Pettitt and CUSUM (*done*, `stationarity.pettitt` / `cusum`), and Lombard (smooth and abrupt), matching the
       set in USACE's Nonstationarity Detection Tool, so results are comparable with
       USACE ECB 2018-14 practice.
 - [ ] Trends in **variance and in peaks-over-threshold counts**, not only in the mean.
-- [ ] **Field significance** across a region (Walker / FDR, block-bootstrap for spatial
-      correlation). Single-site significance is expected by chance in a statewide run.
+- [~] **Field significance** across a region (Walker / FDR, block-bootstrap for spatial
+      correlation). *Walker and FDR done* (`stationarity.field_significance`); the block
+      bootstrap is open. Single-site significance is expected by chance in a statewide run.
 - [ ] **Attribution screen**: overlay detected change points on regulation dates (NID dam
       completion year), urbanization history (NLCD time series), gage relocation, and
       datum/rating changes. A change point that lines up with a dam is not a climate signal.
