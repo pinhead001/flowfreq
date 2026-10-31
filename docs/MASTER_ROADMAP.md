@@ -470,14 +470,15 @@ the B17C estimate in a regulatory product unless the reviewing agency accepts it
 - [x] **Monotonic trend tests** on annual peaks and on log peaks: Mann-Kendall (with
       Hamed-Rao / pre-whitening options for autocorrelation), Sen's slope, and Spearman's rho.
       *Done:* `flowfreq.stationarity` (Hamed-Rao; pre-whitening not implemented).
-- [~] **Change-point tests**: Pettitt and CUSUM (*done*, `stationarity.pettitt` / `cusum`), and Lombard (smooth and abrupt), matching the
+- [x] **Change-point tests**: Pettitt, CUSUM and Lombard smooth and abrupt, Wilcoxon and Mood (*done*, `stationarity.pettitt` / `cusum` / `lombard`), matching the
       set in USACE's Nonstationarity Detection Tool, so results are comparable with
       USACE ECB 2018-14 practice.
-- [ ] Trends in **variance and in peaks-over-threshold counts**, not only in the mean.
-- [~] **Field significance** across a region (Walker / FDR, block-bootstrap for spatial
+- [~] Trends in **variance and in peaks-over-threshold counts**, not only in the mean.
+      *Variance:* the Lombard Mood test (`stationarity.lombard(score="mood")`). Peaks-over-threshold counts are open.
+- [x] **Field significance** across a region (Walker / FDR, block-bootstrap for spatial
       correlation). *Walker and FDR done* (`stationarity.field_significance`); the block
-      bootstrap is open. Single-site significance is expected by chance in a statewide run.
-- [~] **Attribution screen** (*peak-code evidence and caller events done*: `stationarity.attribute_change_point`; NID/NLCD look-ups open): overlay detected change points on regulation dates (NID dam
+      bootstrap is `stationarity.field_significance_bootstrap`. Single-site significance is expected by chance in a statewide run.
+- [x] **Attribution screen** (*done*: `stationarity.attribute_change_point` with peak-code evidence and caller events, and `stationarity.basin_change_events` for NID dam completion years and NLCD impervious epochs): overlay detected change points on regulation dates (NID dam
       completion year), urbanization history (NLCD time series), gage relocation, and
       datum/rating changes. A change point that lines up with a dam is not a climate signal.
 - [ ] `stationarity_report(peaks)` giving a one-page summary with plots. **Recommendation:**

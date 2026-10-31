@@ -246,8 +246,9 @@ attribute in methow-flow waits on (`docs/EDT_ATTRIBUTE_CROSSWALK.md` §6 there):
        diversions move the low-flow months most.
 8. [~] **Stationarity screening** (§6.1; `flowfreq.stationarity`, 2026-10-31: Mann-Kendall
        with Hamed-Rao, Sen's slope, Spearman, Pettitt, CUSUM, `field_significance` (FDR, Walker),
-       `attribute_change_point` and `stationarity_screen`; Lombard, the spatial block
-       bootstrap and NID/NLCD look-ups for the attribution remain). The EDT attributes compare two periods (§15
+       `attribute_change_point` and `stationarity_screen`; then `lombard`,
+       `field_significance_bootstrap` and `basin_change_events` (NID/NLCD); peaks-over-threshold
+       count trends remain). The EDT attributes compare two periods (§15
        Q2, §16 low flow, §18 TQmean), and a monthly transfer over WY1992-2025 assumes the
        donor relation holds across it.
 9. [x] **Mixed snowmelt/rain-on-snow populations** (§2, warn only):
