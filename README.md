@@ -254,6 +254,11 @@ Appendix 9 (single region only).
 | `flowfreq.ungaged` | `estimate_at_site` — basin delineation, NSS region matching, regression estimate with provenance |
 | `flowfreq.streamstats` | StreamStats delineation, basin characteristics, NSS estimates |
 | `flowfreq.transpose` / `flowfreq.qppq` / `flowfreq.donor_similarity` | Transposition to ungaged sites, QPPQ, donor screening |
+| `flowfreq.transfer_variance` | Variance-based weighting of gage transfers: dissimilarity variance, GLS blend with the regression, area-ratio band, leave-one-out |
+| `flowfreq.monthly_transfer` / `flowfreq.duration_transfer` | The same transfer variance for monthly mean/median flows and median annual duration quantiles (q10, q50, q90) |
+| `flowfreq.gage_weighting` / `flowfreq.nesting` | Bulletin 17C Appendix 9 weighting of at-site and regression estimates; flow-connected gage pairs |
+| `flowfreq.naturalize` | Naturalization add-back of upstream diversions (caller-supplied rates and return fractions) |
+| `flowfreq.stationarity` | Trend and change-point screening (Mann-Kendall with Hamed-Rao, Sen, Spearman, Pettitt, CUSUM), field significance, mixed-population screen |
 | `flowfreq.future_flow` | Future-condition change-factor framework |
 | `flowfreq.subdaily` | Sub-daily metrics: extreme timing, ramping rates |
 | `flowfreq.bulletin17c` | `Bulletin17C` — EMA/MOM analysis, quantiles, CI, plots |
