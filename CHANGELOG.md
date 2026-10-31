@@ -8,10 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+- Second review (2026-10-31):
+  - `monthly_transfer` and `duration_transfer` refuse a gage connected to itself and a pair listed twice, which used to break leave-one-out or bias `s2_d`.
+  - Both modules refuse a series with more than one value per date (sub-daily or duplicated), and water-year completeness counts distinct dates.
+  - `naturalize` reads a rate series by calendar date, so time of day and timezone no longer matter; it refuses duplicate rate dates and warns when a rate misses more than a quarter of the days in effect.
+  - `stationarity.pettitt`'s `shift` comes from the sign of its statistic instead of segment medians, which tied.
+  - The monthly exclusion reason and the KeyError wording are as before the refactor.
 - `regional_skew_at_huc` with no `state` on a multi-state unit considers only the rows that apply in a touched state, so a refusal names a study that is actually in play. It used to name Skew Region 2 for an Arkansas/Missouri HUC8 of HU 08 (review 2026-10-31).
 - A non-finite `drainage_area_sqmi` is treated as unknown (the range becomes an advisory), and `regional_skew_for_site` ignores a non-numeric `drainage_area` on record.
 - `locate_regression_regions`: a failure of an extra NSS region (MN's `RRB`) is logged and skipped, so it no longer fails every Minnesota lookup.
-- `flowfreq.regression.gls.fit_gls` replaces an indefinite sampling covariance with the nearest positive semi-definite matrix (negative eigenvalues set to zero) before estimating the model error variance. The WREG construction does not guarantee a positive semi-definite Σ. With an indefinite Σ the estimate could collapse to 0 and give nonsense coefficients (an intercept of 4.4 instead of 1.0 in one Washington Region 2 leave-one-out fold); an interim fix floored it at |λ_min| instead, inflating MEV (review 2026-10-31). `sampling_covariance` caps concurrent years at the shorter record. The committed Washington refit moves by at most 0.3%.
+- `flowfreq.regression.gls.fit_gls` projects an indefinite sampling covariance's correlation matrix to the nearest positive semi-definite one, keeping the at-site variances (the known diagonal), before estimating the model error variance, and logs a warning. The WREG construction does not guarantee a positive semi-definite Σ. With an indefinite Σ the estimate could collapse to 0 and give nonsense coefficients (an intercept of 4.4 instead of 1.0 in one Washington Region 2 leave-one-out fold); an interim fix floored it at |λ_min| instead, inflating MEV (review 2026-10-31). `sampling_covariance` caps concurrent years at the shorter record. The committed Washington refit moves by at most 0.3%.
 
 ### Added
 - `stationarity.cusum` (CUSUM change point with a permutation p-value) and `stationarity.field_significance` (Benjamini-Hochberg FDR rejections and Walker's test across sites, for statewide screening runs where some single-site significance is expected by chance).

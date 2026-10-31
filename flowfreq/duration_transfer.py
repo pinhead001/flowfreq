@@ -40,6 +40,7 @@ import pandas as pd
 
 from flowfreq.monthly_transfer import (
     _STATISTICS,
+    _check_daily,
     _loo_core,
     _pairs_core,
     _slice,
@@ -93,14 +94,15 @@ def _yearly_quantiles(
 ) -> List[Tuple[str, int, int, float]]:
     """``(site, water_year, p, q_p)`` for each complete water year in the window."""
     values = daily.dropna()
-    index = pd.DatetimeIndex(values.index)
-    water_year = np.asarray(index.year + (index.month >= 10), dtype=int)
+    dates = pd.DatetimeIndex(values.index).normalize()
+    water_year = np.asarray(dates.year + (dates.month >= 10), dtype=int)
     flows = np.asarray(values, dtype=float)
     rows: List[Tuple[str, int, int, float]] = []
     for wy in range(start, end + 1):
-        x = flows[water_year == wy]
+        sel = water_year == wy
+        x = flows[sel]
         days = (pd.Timestamp(f"{wy}-09-30") - pd.Timestamp(f"{wy - 1}-10-01")).days + 1
-        if len(x) != days:
+        if len(dates[sel].unique()) != days or len(x) != days:
             continue
         for p in exceedances:
             rows.append(
@@ -159,6 +161,7 @@ def duration_statistics(
     for site, series in daily.items():
         if not isinstance(series.index, pd.DatetimeIndex):
             raise TypeError(f"daily[{site!r}] must be indexed by a DatetimeIndex")
+        _check_daily(str(site), series)
 
     sites = [str(s) for s in daily]
     rows: List[Tuple[str, int, int, float]] = []
