@@ -39,6 +39,7 @@ from flowfreq.streamstats import (
     batch_estimate_flow_statistics,
     batch_get_characteristics,
     delineate_and_get_characteristics,
+    delineate_watershed,
     estimate_flow_statistics,
     geojson_area_sq_mi,
     list_regions,
@@ -436,6 +437,55 @@ def _outer_ring(sshydro):
         if entry["name"] == "globalwatershed":
             return entry["feature"]["features"][0]["geometry"]["coordinates"][0]
     raise AssertionError("no globalwatershed in capture")
+
+
+class TestDelineateWatershed:
+    """The polygon-only path: snap and ss-delineate, never ss-hydro."""
+
+    def test_returns_the_validated_polygon_without_calling_ss_hydro(self) -> None:
+        with (
+            patch("flowfreq.streamstats.requests.get", side_effect=_good_get_responses()),
+            patch("flowfreq.streamstats.requests.post") as mock_post,
+        ):
+            result = delineate_watershed("WA", 48.57430, -120.37890)
+
+        mock_post.assert_not_called()
+        assert result.polygon_geojson is not None
+        assert result.polygon_geojson["geometry"]["type"] == "Polygon"
+        assert result.polygon_area_sq_mi == pytest.approx(411.72, abs=0.01)
+        assert result.characteristics == {}
+        assert result.provenance is not None
+        assert set(result.provenance.service_versions) == {"ss-delineate"}
+        assert result.provenance.server_used == "prodwebb"
+
+    def test_a_delineation_warning_is_refused(self) -> None:
+        responses = [_mock_response(SNAP_GOOD), _mock_response(DELINEATE_SSHYDRO_WITH_WARNING)]
+        with patch("flowfreq.streamstats.requests.get", side_effect=responses):
+            with pytest.raises(DegenerateDelineationError, match="not snappable"):
+                delineate_watershed("WA", 48.584, -120.370)
+
+    def test_an_unsnappable_point_is_refused(self) -> None:
+        with patch(
+            "flowfreq.streamstats.requests.get", return_value=_mock_response(SNAP_UNSNAPPABLE)
+        ):
+            with pytest.raises(UnsnappablePointError):
+                delineate_watershed("WA", 48.584, -120.370)
+
+    def test_cached_result_skips_the_network(self, tmp_path) -> None:
+        cache = StreamStatsCache(tmp_path / "cache.json")
+        with patch("flowfreq.streamstats.requests.get", side_effect=_good_get_responses()):
+            first = delineate_watershed("WA", 48.57430, -120.37890, cache=cache)
+        with patch("flowfreq.streamstats.requests.get") as mock_get:
+            second = delineate_watershed("WA", 48.57430, -120.37890, cache=cache)
+        mock_get.assert_not_called()
+        assert second.polygon_geojson == first.polygon_geojson
+
+    def test_the_full_pipeline_is_unchanged_by_the_shared_steps(self) -> None:
+        result, post = _run_delineation(
+            SNAP_GOOD, DELINEATE_SSHYDRO_GOOD, HYDRO_CHARACTERISTICS_GOOD
+        )
+        post.assert_called_once()
+        assert result["DRNAREA"].value == pytest.approx(412.0)
 
 
 class TestWatershedPolygon:

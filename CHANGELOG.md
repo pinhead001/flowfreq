@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `flowfreq.streamstats.delineate_watershed`: snap and delineate a pour point and return the validated watershed polygon without the ss-hydro basin-characteristics request -- one round trip fewer, and unaffected when ss-hydro alone fails (it returned 502 for every point on 2026-10-31 while ss-delineate answered). The polygon gets every check the full pipeline makes except the area check against ss-hydro's `DRNAREA`. It shares its first half with `delineate_and_get_characteristics` through `_sshydro_delineation`, whose behaviour is unchanged. For the flowfreq-app map's Delineate action.
+
 ### Fixed
 - `flowfreq.regression.gls.fit_gls` searches the model error variance only where the sampling covariance plus γ²I is positive definite. The WREG construction does not guarantee a positive semi-definite Σ. With an indefinite Σ the estimate could collapse to 0 and give nonsense coefficients (an intercept of 4.4 instead of 1.0 in one Washington Region 2 leave-one-out fold). `sampling_covariance` caps concurrent years at the shorter record. The committed Washington refit moves by at most 0.3%.
 

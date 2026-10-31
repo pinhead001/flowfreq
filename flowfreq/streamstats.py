@@ -858,6 +858,133 @@ def _parse_characteristics(hydro_data: Any) -> Tuple[Dict[str, Characteristic], 
     return characteristics, unavailable
 
 
+def _sshydro_delineation(
+    region: str, lat: float, lon: float, *, default_server: str, timeout: float
+) -> Tuple[SnapResult, Dict[str, Any], str, List[str]]:
+    """Snap the point and run ss-delineate's ``delineate/sshydro``; the shared first half.
+
+    Returns the snap, the parsed sshydro response (already checked for a ``WarningMsg``),
+    the server that answered, and the request URLs, for :func:`delineate_and_get_characteristics`
+    and :func:`delineate_watershed`.
+    """
+    snap = snap_point(region, lat, lon, timeout=timeout)
+
+    request_urls: List[str] = []
+
+    sshydro_url = (
+        f"https://{default_server}.{GENERIC_HOST}/ss-delineate/v1/delineate/sshydro/{region}"
+    )
+    sshydro_params = {"lat": snap.snapped_lat, "lon": snap.snapped_lon}
+    sshydro_response = _request_with_backoff(
+        requests.get, sshydro_url, params=sshydro_params, timeout=timeout
+    )
+    request_urls.append(getattr(sshydro_response, "url", sshydro_url))
+    if sshydro_response.status_code == 422:
+        raise StreamStatsResponseError(
+            f"ss-delineate sshydro request for region {region!r} at "
+            f"({snap.snapped_lat}, {snap.snapped_lon}) was rejected: {sshydro_response.text}"
+        )
+    sshydro_response.raise_for_status()
+    server_used = _resolve_server(sshydro_response, default_server)
+
+    try:
+        sshydro_data = sshydro_response.json()
+    except ValueError as exc:
+        raise StreamStatsResponseError(
+            f"ss-delineate sshydro response for region {region!r} was not valid JSON"
+        ) from exc
+
+    warning_msg = _find_warning_msg(sshydro_data)
+    if warning_msg:
+        raise DegenerateDelineationError(
+            f"StreamStats delineation warning at ({snap.snapped_lat}, "
+            f"{snap.snapped_lon}) in region {region!r}: {warning_msg}"
+        )
+    return snap, sshydro_data, server_used, request_urls
+
+
+def delineate_watershed(
+    region: str,
+    lat: float,
+    lon: float,
+    *,
+    cache: Optional[StreamStatsCache] = None,
+    default_server: str = DEFAULT_SERVER,
+    timeout: float = 60.0,
+) -> WatershedCharacteristics:
+    """Snap and delineate one pour point, returning the watershed polygon only.
+
+    The first half of :func:`delineate_and_get_characteristics` -- the ``pourpoint``
+    snap and ss-delineate's ``delineate/sshydro`` call -- without the ss-hydro
+    basin-characteristics request. For callers that need the basin outline and not its
+    characteristics (drawing a basin on a map): one round trip fewer, and unaffected
+    when ss-hydro alone is failing.
+
+    The polygon is validated as in the full pipeline (rings closed, snapped point inside)
+    except for the area check against ss-hydro's ``DRNAREA``, which needs ss-hydro.
+
+    Parameters
+    ----------
+    region : str
+        StreamStats region code (two-letter state or territory code, or a river-basin
+        region).
+    lat, lon : float
+        The requested pour point, decimal degrees WGS84.
+    cache : StreamStatsCache, optional
+        Read and written under its own key, distinct from any characteristics request.
+    default_server : str
+        The ss-delineate host prefix to try first.
+    timeout : float
+        Per-request timeout, seconds.
+
+    Returns
+    -------
+    WatershedCharacteristics
+        ``polygon_geojson`` and ``polygon_area_sq_mi`` set, ``characteristics`` empty,
+        provenance naming ss-delineate only.
+
+    Raises
+    ------
+    UnsnappablePointError, UnsupportedRegionError, DegenerateDelineationError,
+    StreamStatsResponseError, StreamStatsTransportError
+        As :func:`delineate_and_get_characteristics`, less the ss-hydro failures.
+    """
+    cache_key = _cache_key(region, lat, lon, "<polygon only>", True)
+    if cache is not None:
+        cached = cache.get(cache_key)
+        if cached is not None:
+            logger.debug("StreamStats cache hit for %s", cache_key)
+            return WatershedCharacteristics.from_dict(cached)
+
+    snap, sshydro_data, server_used, request_urls = _sshydro_delineation(
+        region, lat, lon, default_server=default_server, timeout=timeout
+    )
+    watershed_feature = _extract_global_watershed(sshydro_data)
+    polygon_area_sq_mi = _validate_watershed_polygon(
+        watershed_feature, snap.snapped_lat, snap.snapped_lon
+    )
+    result = WatershedCharacteristics(
+        region=region,
+        snap=snap,
+        polygon_geojson={
+            "type": "Feature",
+            "geometry": watershed_feature["geometry"],
+            "properties": dict(watershed_feature.get("properties") or {}),
+        },
+        characteristics={},
+        provenance=Provenance(
+            service_versions={"ss-delineate": SS_DELINEATE_VERSION},
+            request_urls=request_urls,
+            requested_at_utc=datetime.now(timezone.utc).isoformat(),
+            server_used=server_used,
+        ),
+        polygon_area_sq_mi=polygon_area_sq_mi,
+    )
+    if cache is not None:
+        cache.set(cache_key, result.to_dict())
+    return result
+
+
 def delineate_and_get_characteristics(
     region: str,
     lat: float,
@@ -930,39 +1057,9 @@ def delineate_and_get_characteristics(
             logger.debug("StreamStats cache hit for %s", cache_key)
             return WatershedCharacteristics.from_dict(cached)
 
-    snap = snap_point(region, lat, lon, timeout=timeout)
-
-    request_urls: List[str] = []
-
-    sshydro_url = (
-        f"https://{default_server}.{GENERIC_HOST}/ss-delineate/v1/delineate/sshydro/{region}"
+    snap, sshydro_data, server_used, request_urls = _sshydro_delineation(
+        region, lat, lon, default_server=default_server, timeout=timeout
     )
-    sshydro_params = {"lat": snap.snapped_lat, "lon": snap.snapped_lon}
-    sshydro_response = _request_with_backoff(
-        requests.get, sshydro_url, params=sshydro_params, timeout=timeout
-    )
-    request_urls.append(getattr(sshydro_response, "url", sshydro_url))
-    if sshydro_response.status_code == 422:
-        raise StreamStatsResponseError(
-            f"ss-delineate sshydro request for region {region!r} at "
-            f"({snap.snapped_lat}, {snap.snapped_lon}) was rejected: {sshydro_response.text}"
-        )
-    sshydro_response.raise_for_status()
-    server_used = _resolve_server(sshydro_response, default_server)
-
-    try:
-        sshydro_data = sshydro_response.json()
-    except ValueError as exc:
-        raise StreamStatsResponseError(
-            f"ss-delineate sshydro response for region {region!r} was not valid JSON"
-        ) from exc
-
-    warning_msg = _find_warning_msg(sshydro_data)
-    if warning_msg:
-        raise DegenerateDelineationError(
-            f"StreamStats delineation warning at ({snap.snapped_lat}, "
-            f"{snap.snapped_lon}) in region {region!r}: {warning_msg}"
-        )
 
     bcrequest = sshydro_data.get("bcrequest")
     if not bcrequest:
