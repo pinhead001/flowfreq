@@ -40,6 +40,7 @@ from flowfreq.ungaged import (
     SiteEstimate,
     assemble,
     estimate_at_site,
+    outlet_coordinates,
     region_for_nss_code,
 )
 
@@ -1005,3 +1006,82 @@ def test_overlapping_regions_error_is_exported_from_package() -> None:
     from flowfreq import OverlappingRegionsError as exported
 
     assert exported is OverlappingRegionsError
+
+
+# ------------------------------------------------------------ outlet coordinates
+#
+# StreamStats does not return the outlet coordinates some equations use (WY region 1's
+# LONG_OUT, regions 4 and 6's LAT_OUT; MN's LAT_OUT/LONG_OUT), so estimate_at_site takes
+# them from the snapped pour point. Reports differ on the sign of a west longitude: WY's
+# range is 105.21-111.34 (degrees west, positive), MN's -96.12 to -91.66 (signed).
+
+
+class TestOutletCoordinates:
+    def test_wyoming_takes_degrees_west_as_positive(self):
+        from flowfreq.regression.library import load_state
+
+        lib = load_state("WY", warn=False)
+        out = outlet_coordinates(lib, 43.1, -108.4, {})
+        assert out == {"LAT_OUT": pytest.approx(43.1), "LONG_OUT": pytest.approx(108.4)}
+
+    def test_minnesota_keeps_the_sign(self):
+        from flowfreq.regression.library import load_state
+
+        lib = load_state("MN", allow_nss_snapshot=True, warn=False)
+        out = outlet_coordinates(lib, 45.0, -93.5, {})
+        assert out == {"LAT_OUT": pytest.approx(45.0), "LONG_OUT": pytest.approx(-93.5)}
+
+    def test_a_value_streamstats_returned_is_kept(self):
+        from flowfreq.regression.library import load_state
+
+        lib = load_state("WY", warn=False)
+        assert outlet_coordinates(lib, 43.1, -108.4, {"LONG_OUT": 108.0}) == {
+            "LAT_OUT": pytest.approx(43.1)
+        }
+
+    def test_a_library_without_outlet_codes_gets_nothing(self):
+        from flowfreq.regression.library import load_state
+
+        assert outlet_coordinates(load_state("WA", warn=False), 46.0, -120.0, {}) == {}
+
+
+def _outlet_library(tmp_path: Path) -> Path:
+    """A WA ``nss_snapshot`` set whose equations use LONG_OUT as degrees west."""
+    path = tmp_path / NSS_SNAPSHOT_SUBDIR / "WA.json"
+    path.parent.mkdir(parents=True)
+    eq = {
+        "aep": 0.01,
+        "intercept": 1.0,
+        "variables": [
+            {"code": "DRNAREA", "transform": "log10"},
+            {"code": "LONG_OUT", "transform": "log10", "minimum": 100.0, "maximum": 130.0,
+             "offset": -100.0},
+        ],
+        "coefficients": [0.7, 0.5],
+        "citation": {"publication": "Synthetic", "table": "T1"},
+    }  # fmt: skip
+    data = {
+        "schema_version": 1,
+        "state": "WA",
+        "status": "nss_snapshot",
+        "source_reports": [{"citation": "Synthetic report"}],
+        "retrieved_utc": "2026-10-30T00:00:00+00:00",
+        "equations": [{**eq, "region_code": code} for code in ("GC1750", "GC1753")],
+    }
+    path.write_text(json.dumps(data), encoding="utf-8")
+    return tmp_path
+
+
+def test_estimate_at_site_derives_long_out_from_the_pour_point(fakes, tmp_path):
+    data_dir = _outlet_library(tmp_path)
+    est = estimate_at_site(
+        WA_LAT, WA_LON, state="WA", data_dir=data_dir, allow_nss_snapshot=True, cache=None
+    )
+    snapped_lon = WA_LON - 1e-4  # the fake's snap
+    assert est.provenance["derived_characteristics"] == {
+        "LONG_OUT": {"value": pytest.approx(-snapped_lon), "source": "snapped pour point"}
+    }
+    area = fakes.site["characteristics"]["DRNAREA"]
+    expected = 10 ** (1.0 + 0.7 * math.log10(area) + 0.5 * math.log10(-snapped_lon - 100.0))
+    q = est.quantiles
+    assert float(q.loc[q["aep"] == 0.01, "flow_cfs"].iloc[0]) == pytest.approx(expected)

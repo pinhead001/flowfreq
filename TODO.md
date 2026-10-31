@@ -152,8 +152,9 @@ Still failing in the 2026-10-30 rerun (14 of 56):
 - [ ] **MN** (#246): the gage lies outside every SIR 2023-5079 peak-flow polygon.
 - [ ] **OR**: GC729 to GC731 need characteristics StreamStats did not return at the gage
       (I24H2Y, JANMAXT2K, WATCAPORC, SOILPERM, BSLOPD, JANMINT2K).
-- [ ] **WY**: region 1 needs `LONG_OUT` (outlet longitude), which StreamStats does not return.
-      It could be taken from the pour point.
+- [x] **WY**: region 1 needs `LONG_OUT` (outlet longitude), which StreamStats does not return;
+      `estimate_at_site` now takes it from the snapped pour point (`outlet_coordinates`). The
+      live smoke rerun waits on StreamStats (ss-hydro returned 502 on 2026-10-30).
 - [ ] **MT**: refused as out of range, not extrapolated (SW CONTDA 2616 > max 2472.17).
 - [ ] **FL, MI, NE**: HTTP 404 from StreamStats' snap service (also on 2026-10-25).
 - [ ] **ND**: StreamStats flags the delineation REGULATED (Cannonball River).

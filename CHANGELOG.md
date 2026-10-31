@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- `flowfreq.ungaged.outlet_coordinates`: `estimate_at_site` fills `LAT_OUT`/`LONG_OUT` from the snapped pour point when an equation uses them and StreamStats does not return them (WY region 1's `LONG_OUT`, regions 4 and 6's `LAT_OUT`; MN). The sign follows the equations' published ranges: positive degrees west for WY, signed for MN. `provenance["derived_characteristics"]` records each derived value.
 - HUC membership rows (`regional_skew_hucs.csv`) for the skew studies the reports define by hydrologic unit: Great Lakes and Ohio (SIR 2019-5105), Eastern New York and Pennsylvania (SIR 2021-5015, HU 0203 excluded), SIR 2025-5110's Skew Regions 1 and 2, New England (SIR 2017-5037, Cape Cod excluded) and Arkansas-Louisiana (SIR 2016-5081, 13 HUC8s excluded). Sites in NY, PA, VA, WV, MA, LA, KY and TN now resolve without the state-level fallback (#204).
 - Alaska's Regional Skew Areas 1 and 2 by hydrologic unit (SIR 2016-5024 Table 5: HUC8s, or HUC10s of split HUC8s); the rest of HU 19 is the exclusion area, which refuses with "use station skew". `DRAINAGE_AREA_RANGES` holds Table 6's ranges (1.2-25,560 and 1.7-123 mi2). `regional_skew_at_huc`, `regional_skew_at` and `regional_skew_for_site` take `drainage_area_sqmi=` and refuse outside the range; `regional_skew_for_site` uses the monitoring location's `drainage_area`, and without an area the result carries the range as an advisory (#204).
 
