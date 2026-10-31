@@ -601,6 +601,9 @@ def test_region_indicator_equations_match_nss(code, region):
     for rec in raw["equations"]:
         eq = lib.equation(region, rec["aep"])
         assert any(v.times == "PCTREG2" for v in eq.variables)
-        assert [v.code for v in eq.applicability] == ["PCTREG2"]
+        assert "PCTREG2" in [v.code for v in eq.applicability]
+        assert "PCTREG4" not in [v.code for v in eq.variables]
         flow = evaluate(eq, submitted).flow_cfs
         assert flow == pytest.approx(rec["nss_value"], rel=5e-3), (code, rec["aep"])
+        # 0 percent in region 4 (PCTREG4^0 in the 50% AEP form) is in range and evaluates.
+        assert evaluate(eq, {**submitted, "PCTREG4": 0.0}).flow_cfs > 0

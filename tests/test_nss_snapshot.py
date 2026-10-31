@@ -168,29 +168,34 @@ class TestParseForms:
         terms = dict(zip(zip(parsed.codes, parsed.times), parsed.coefficients))
         assert terms == pytest.approx(
             {
-                ("LC19IMP", None): 0.0,
                 ("PCTREG1", None): 0.00354,
                 ("PCTREG3", None): -0.00202,
                 ("PCTREG5", None): 0.00187,
                 ("DRNAREA", None): 0.646,
                 ("DRNAREA", "PCTREG2"): 0.00224,
-                ("PCTREG4", None): 0.0,
             }
         )
+        # NSS's no-op factors X^0 carry no term (0^0 is 1 in NSS), but are still named.
+        assert parsed.zero_codes == ("LC19IMP", "PCTREG4")
         assert parsed.intercept == pytest.approx(1.82)
         values = {"DRNAREA": 26.686326086593485, "LC19IMP": 5.0}
         values.update({f"PCTREG{i}": 50.0 for i in range(1, 6)})
         assert _roundtrip(s, values) < 1e-12
         # NSS's own value at those inputs, from the 2026-10-25 GA snapshot (3 s.f.).
         assert 10.0 ** parsed.log10_value(values) == pytest.approx(1180.0, rel=5e-3)
+        # A basin with none of its area in region 4 (the usual case) still evaluates.
+        values.update(PCTREG4=0.0, LC19IMP=0.0)
+        assert _roundtrip(s, values) < 1e-12
 
     def test_affine_exponent_on_a_scaled_base(self):
         # A constant inside the base: (3*A)^(0.5 + 0.1*C) adds 0.1*log10(3)*C.
         s = "2*(3*A)^(0.5+0.1*C)"
         parsed = parse_equation(s)
         assert parsed.times == (None, None, "C")
+        assert parsed.zero_codes == ()
         assert _roundtrip(s, self.VALUES) < 1e-12
-        assert parse_equation("A^C").times == (None, "C")
+        # A^C: log10(A) has coefficient 0, so only the interaction term remains.
+        assert parse_equation("A^C").times == ("C",)
 
     @pytest.mark.parametrize(
         "equation, code, scale, offset",

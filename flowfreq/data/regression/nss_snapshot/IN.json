@@ -35,26 +35,27 @@
      "units": "ft/mi",
      "minimum": 1.4,
      "maximum": 79.0
-    },
-    {
-     "code": "HIGHREG",
-     "transform": "log10",
-     "units": "dim",
-     "minimum": 1005.0,
-     "maximum": 1012.0
     }
    ],
    "coefficients": [
     0.802,
-    0.535,
-    0.0
+    0.535
    ],
    "citation": {
     "publication": "Rao, A.R., 2005, Flood-Frequency Relationships for Indiana: Joint Transportation Research Program, Purdue University, FHWA/IN/JTRP-2005/18, 14 p.",
     "table": "NSS region 169 (GC1005), citation 44",
     "year": 2005,
     "url": "https://docs.lib.purdue.edu/cgi/viewcontent.cgi?article=1746&context=jtrp"
-   }
+   },
+   "applicability": [
+    {
+     "code": "HIGHREG",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 1005.0,
+     "maximum": 1012.0
+    }
+   ]
   },
   {
    "region_code": "GC1005",
@@ -235,26 +236,27 @@
      "units": "ft/mi",
      "minimum": 1.2,
      "maximum": 267.0
-    },
-    {
-     "code": "HIGHREG",
-     "transform": "log10",
-     "units": "dim",
-     "minimum": 1005.0,
-     "maximum": 1012.0
     }
    ],
    "coefficients": [
     0.798,
-    0.473,
-    0.0
+    0.473
    ],
    "citation": {
     "publication": "Rao, A.R., 2005, Flood-Frequency Relationships for Indiana: Joint Transportation Research Program, Purdue University, FHWA/IN/JTRP-2005/18, 14 p.",
     "table": "NSS region 170 (GC1006), citation 44",
     "year": 2005,
     "url": "https://docs.lib.purdue.edu/cgi/viewcontent.cgi?article=1746&context=jtrp"
-   }
+   },
+   "applicability": [
+    {
+     "code": "HIGHREG",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 1005.0,
+     "maximum": 1012.0
+    }
+   ]
   },
   {
    "region_code": "GC1006",
@@ -435,26 +437,27 @@
      "units": "ft/mi",
      "minimum": 3.8,
      "maximum": 253.0
-    },
-    {
-     "code": "HIGHREG",
-     "transform": "log10",
-     "units": "dim",
-     "minimum": 1005.0,
-     "maximum": 1012.0
     }
    ],
    "coefficients": [
     0.889,
-    0.416,
-    0.0
+    0.416
    ],
    "citation": {
     "publication": "Rao, A.R., 2005, Flood-Frequency Relationships for Indiana: Joint Transportation Research Program, Purdue University, FHWA/IN/JTRP-2005/18, 14 p.",
     "table": "NSS region 171 (GC1007), citation 44",
     "year": 2005,
     "url": "https://docs.lib.purdue.edu/cgi/viewcontent.cgi?article=1746&context=jtrp"
-   }
+   },
+   "applicability": [
+    {
+     "code": "HIGHREG",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 1005.0,
+     "maximum": 1012.0
+    }
+   ]
   },
   {
    "region_code": "GC1007",
@@ -642,27 +645,28 @@
      "units": "%",
      "minimum": 0.0,
      "maximum": 83.9
-    },
-    {
-     "code": "HIGHREG",
-     "transform": "log10",
-     "units": "dim",
-     "minimum": 1005.0,
-     "maximum": 1012.0
     }
    ],
    "coefficients": [
     0.82,
     0.681,
-    0.08,
-    0.0
+    0.08
    ],
    "citation": {
     "publication": "Rao, A.R., 2005, Flood-Frequency Relationships for Indiana: Joint Transportation Research Program, Purdue University, FHWA/IN/JTRP-2005/18, 14 p.",
     "table": "NSS region 172 (GC1008), citation 44",
     "year": 2005,
     "url": "https://docs.lib.purdue.edu/cgi/viewcontent.cgi?article=1746&context=jtrp"
-   }
+   },
+   "applicability": [
+    {
+     "code": "HIGHREG",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 1005.0,
+     "maximum": 1012.0
+    }
+   ]
   },
   {
    "region_code": "GC1008",
@@ -883,26 +887,27 @@
      "units": "ft/mi",
      "minimum": 1.6,
      "maximum": 8.6
-    },
-    {
-     "code": "HIGHREG",
-     "transform": "log10",
-     "units": "dim",
-     "minimum": 1005.0,
-     "maximum": 1012.0
     }
    ],
    "coefficients": [
     0.776,
-    0.368,
-    0.0
+    0.368
    ],
    "citation": {
     "publication": "Rao, A.R., 2005, Flood-Frequency Relationships for Indiana: Joint Transportation Research Program, Purdue University, FHWA/IN/JTRP-2005/18, 14 p.",
     "table": "NSS region 173 (GC1009), citation 44",
     "year": 2005,
     "url": "https://docs.lib.purdue.edu/cgi/viewcontent.cgi?article=1746&context=jtrp"
-   }
+   },
+   "applicability": [
+    {
+     "code": "HIGHREG",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 1005.0,
+     "maximum": 1012.0
+    }
+   ]
   },
   {
    "region_code": "GC1009",
@@ -1083,26 +1088,27 @@
      "units": "ft/mi",
      "minimum": 0.9,
      "maximum": 15.8
-    },
-    {
-     "code": "HIGHREG",
-     "transform": "log10",
-     "units": "dim",
-     "minimum": 1005.0,
-     "maximum": 1012.0
     }
    ],
    "coefficients": [
     0.732,
-    0.776,
-    0.0
+    0.776
    ],
    "citation": {
     "publication": "Rao, A.R., 2005, Flood-Frequency Relationships for Indiana: Joint Transportation Research Program, Purdue University, FHWA/IN/JTRP-2005/18, 14 p.",
     "table": "NSS region 174 (GC1010), citation 44",
     "year": 2005,
     "url": "https://docs.lib.purdue.edu/cgi/viewcontent.cgi?article=1746&context=jtrp"
-   }
+   },
+   "applicability": [
+    {
+     "code": "HIGHREG",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 1005.0,
+     "maximum": 1012.0
+    }
+   ]
   },
   {
    "region_code": "GC1010",
@@ -1290,27 +1296,28 @@
      "units": "%",
      "minimum": 0.0,
      "maximum": 7.2
-    },
-    {
-     "code": "HIGHREG",
-     "transform": "log10",
-     "units": "dim",
-     "minimum": 1005.0,
-     "maximum": 1012.0
     }
    ],
    "coefficients": [
     0.873,
     0.372,
-    -0.795,
-    0.0
+    -0.795
    ],
    "citation": {
     "publication": "Rao, A.R., 2005, Flood-Frequency Relationships for Indiana: Joint Transportation Research Program, Purdue University, FHWA/IN/JTRP-2005/18, 14 p.",
     "table": "NSS region 175 (GC1011), citation 44",
     "year": 2005,
     "url": "https://docs.lib.purdue.edu/cgi/viewcontent.cgi?article=1746&context=jtrp"
-   }
+   },
+   "applicability": [
+    {
+     "code": "HIGHREG",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 1005.0,
+     "maximum": 1012.0
+    }
+   ]
   },
   {
    "region_code": "GC1011",
@@ -1531,26 +1538,27 @@
      "units": "%",
      "minimum": 0.0,
      "maximum": 12.1
-    },
-    {
-     "code": "HIGHREG",
-     "transform": "log10",
-     "units": "dim",
-     "minimum": 1005.0,
-     "maximum": 1012.0
     }
    ],
    "coefficients": [
     0.835,
-    -0.733,
-    0.0
+    -0.733
    ],
    "citation": {
     "publication": "Rao, A.R., 2005, Flood-Frequency Relationships for Indiana: Joint Transportation Research Program, Purdue University, FHWA/IN/JTRP-2005/18, 14 p.",
     "table": "NSS region 176 (GC1012), citation 44",
     "year": 2005,
     "url": "https://docs.lib.purdue.edu/cgi/viewcontent.cgi?article=1746&context=jtrp"
-   }
+   },
+   "applicability": [
+    {
+     "code": "HIGHREG",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 1005.0,
+     "maximum": 1012.0
+    }
+   ]
   },
   {
    "region_code": "GC1012",
