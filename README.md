@@ -71,7 +71,7 @@ pip install -e ".[dev]"
 Or install a released version straight from GitHub:
 
 ```bash
-pip install git+https://github.com/pinhead001/flowfreq@v0.16.0
+pip install git+https://github.com/pinhead001/flowfreq@v0.17.0
 ```
 
 **Dependencies:** `numpy`, `pandas`, `matplotlib`, `scipy`, `requests`, `click`, `pyarrow`
@@ -455,6 +455,7 @@ England, J.F., Jr., et al., 2019, Guidelines for determining flood flow frequenc
 
 | Version | Changes |
 |---------|---------|
+| **v0.17.0** | GA/NC/SC region-indicator equations parse (`Variable.times`, interaction terms; #211); `sep_log` for 32 LA/AR/MS equations (#213); multi-code `region=` for boundary basins (#203) and `region=` where NSS locates no peak-flow region (#207); NY urban regions out of scope (#212); nationwide smoke rerun 56/56 gaged, 42/56 ungaged. See CHANGELOG.md. |
 | **v0.16.0** | Nationwide rollout: `nss_snapshot` equation tier (41 jurisdictions, 1817 equations); `estimate_at_site` and `flowfreq ungaged` with `OverlappingRegionsError`/`region=`; 77 regional skew rows (34 verified) with a state-level fallback (#194, #195, #196, #197). See CHANGELOG.md. |
 | **v0.15.0** | Regulation guardrail on every transfer (`donor_regulation`/`target_regulation`, `RegulationMismatchError`, `classify_site(known_diversions=)`); non-squared dissimilarity terms (`powers=`) and `profile_power` in `flowfreq.transfer_variance` (#181). See CHANGELOG.md. |
 | **v0.14.1** | `transfer_variance.leave_one_out` no longer aborts on a negative fold donor correlation: fold estimates floored at 0, unscorable gages recorded with a `note` (#177). See CHANGELOG.md. |
