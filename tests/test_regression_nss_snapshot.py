@@ -397,6 +397,33 @@ def test_asep_below_one_leaves_sep_log_unset_and_notes_the_region(trimmed):
     assert "GC2015" in data["notes"] and "not converted" in data["notes"]
 
 
+def test_asep_as_fraction_region_is_converted_from_percent(trimmed):
+    # #213: in the ASEP_AS_FRACTION regions NSS stores the report's SEP percent / 100.
+    trimmed["regions"][0]["region_code"] = "GC1889"
+    trimmed["regions"][0]["equations"][0]["asep_pct"] = 0.446
+    data = snapshot_to_library(trimmed)
+    lib = parse_state(data)
+    assert lib.equation("GC1889", 0.5).sep_log == pytest.approx(asep_to_sep_log(44.6))
+    assert "GC1889" in data["notes"] and "SIR 2024-5031" in data["notes"]
+    assert "not converted" not in data["notes"]
+
+
+@pytest.mark.parametrize(
+    "code, region, aep, sep_pct",
+    [
+        # SIR 2021-5046 Table 2 (SEP, percent) and SIR 2024-5031 Table 3.
+        ("LA", "GC1888", 0.5, 45.0),
+        ("MS", "GC1912", 0.01, 55.0),
+        ("AR", "GC1917", 0.002, 61.0),
+        ("LA", "GC1889", 0.5, 44.60),
+        ("LA", "GC1889", 0.002, 52.69),
+    ],
+)
+def test_shipped_sep_log_matches_the_report(code, region, aep, sep_pct):
+    eq = load_state(code, allow_nss_snapshot=True).equation(region, aep)
+    assert eq.sep_log == pytest.approx(asep_to_sep_log(sep_pct), rel=1e-9)
+
+
 @pytest.mark.parametrize("code", nss_snapshot_states())
 def test_every_stored_sep_log_is_plausible(code):
     # Bounds are wider than the 0.05-0.6 first proposed: genuine percentage ASEps in the
@@ -574,6 +601,9 @@ def test_region_indicator_equations_match_nss(code, region):
     for rec in raw["equations"]:
         eq = lib.equation(region, rec["aep"])
         assert any(v.times == "PCTREG2" for v in eq.variables)
-        assert [v.code for v in eq.applicability] == ["PCTREG2"]
+        assert "PCTREG2" in [v.code for v in eq.applicability]
+        assert "PCTREG4" not in [v.code for v in eq.variables]
         flow = evaluate(eq, submitted).flow_cfs
         assert flow == pytest.approx(rec["nss_value"], rel=5e-3), (code, rec["aep"])
+        # 0 percent in region 4 (PCTREG4^0 in the 50% AEP form) is in range and evaluates.
+        assert evaluate(eq, {**submitted, "PCTREG4": 0.0}).flow_cfs > 0

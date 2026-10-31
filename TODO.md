@@ -89,7 +89,7 @@ Plan: `docs/superpowers/plans/2026-10-25-nationwide-rollout.md`; design:
       (mixed-case codes, `logN` in the exponent of 10, negated affine bases), Indiana gating,
       `snapshot_to_library`, `tools/build_nss_snapshot_library.py`, opt-in
       `load_state(..., allow_nss_snapshot=True)`, and 41 jurisdictions with 1817 equations
-      (1441 with `sep_log`). A snapshot is not "supported": every jurisdiction still owes the
+      (1441 with `sep_log` at harvest, 1473 since #213). A snapshot is not "supported": every jurisdiction still owes the
       roadmap 3.2 definition of done.
 - [x] **24 region-indicator equations** (#211) in GA, NC and SC (8 each, SIR 2023-5006) parse
       since `Variable.times` (an interaction term `T(x) * Y`) and match NSS's Estimate values to
@@ -101,9 +101,10 @@ Plan: `docs/superpowers/plans/2026-10-25-nationwide-rollout.md`; design:
       evaluates them for New York without recommending them (bias +28 to +53 percent), and
       they cover only the 2- to 100-year floods. They stay in `StateLibrary.unparsed`;
       supporting them would need an equation form that consumes another region's estimate.
-- [ ] **Parked: ASEp below 1** (#213) on 32 LA, AR and MS equations. `sep_log` is unset because the
-      units of NSS's ASEp there are unconfirmed (percent, or already a log10 error). Read
-      the reports and set it from the source.
+- [x] **ASEp below 1** (#213) on 32 LA, AR and MS equations: NSS stores the report's SEP percent
+      divided by 100 (SIR 2021-5046 Table 2; SIR 2024-5031 Table 3). `ASEP_AS_FRACTION` in
+      `nss_library` names the four regions, and the rebuilt libraries carry `sep_log`
+      (1473 of the snapshot equations now have one).
 - [ ] **Parked: the advisory warning** (#214). Every snapshot load logs one, so a coverage run over
       the 41 jurisdictions logs 41. By design while the sets are unreviewed; quiet it as sets
       are verified, or add a way to silence it for a sweep.

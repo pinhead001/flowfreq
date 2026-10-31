@@ -224,19 +224,11 @@
      "units": "dim",
      "minimum": 2.05,
      "maximum": 2.42
-    },
-    {
-     "code": "LC11IMPALT",
-     "transform": "log10",
-     "units": "%",
-     "minimum": 0.0,
-     "maximum": 10.0
     }
    ],
    "coefficients": [
     0.708,
-    3.219,
-    0.0
+    3.219
    ],
    "citation": {
     "publication": "Ladd, D.E., and Ensminger, P.A. 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024\u20135130, 19 p.",
@@ -244,7 +236,16 @@
     "year": 2025,
     "url": "https://doi.org/10.3133/sir20245130"
    },
-   "sep_log": 0.20109394219857002
+   "sep_log": 0.20109394219857002,
+   "applicability": [
+    {
+     "code": "LC11IMPALT",
+     "transform": "identity",
+     "units": "%",
+     "minimum": 0.0,
+     "maximum": 10.0
+    }
+   ]
   },
   {
    "region_code": "GC2015",
@@ -496,19 +497,11 @@
      "units": "ft/mi",
      "minimum": 1.74,
      "maximum": 356.0
-    },
-    {
-     "code": "LC11IMPALT",
-     "transform": "log10",
-     "units": "%",
-     "minimum": 0.0,
-     "maximum": 10.0
     }
    ],
    "coefficients": [
     0.736,
-    0.139,
-    0.0
+    0.139
    ],
    "citation": {
     "publication": "Ladd, D.E., and Ensminger, P.A. 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024\u20135130, 19 p.",
@@ -516,7 +509,16 @@
     "year": 2025,
     "url": "https://doi.org/10.3133/sir20245130"
    },
-   "sep_log": 0.16341616933282221
+   "sep_log": 0.16341616933282221,
+   "applicability": [
+    {
+     "code": "LC11IMPALT",
+     "transform": "identity",
+     "units": "%",
+     "minimum": 0.0,
+     "maximum": 10.0
+    }
+   ]
   },
   {
    "region_code": "GC2016",
@@ -721,18 +723,10 @@
      "units": "mi^2",
      "minimum": 0.17,
      "maximum": 2050.0
-    },
-    {
-     "code": "LC11IMPALT",
-     "transform": "log10",
-     "units": "%",
-     "minimum": 0.0,
-     "maximum": 10.0
     }
    ],
    "coefficients": [
-    0.642,
-    0.0
+    0.642
    ],
    "citation": {
     "publication": "Ladd, D.E., and Ensminger, P.A. 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024\u20135130, 19 p.",
@@ -740,7 +734,16 @@
     "year": 2025,
     "url": "https://doi.org/10.3133/sir20245130"
    },
-   "sep_log": 0.16692450340515874
+   "sep_log": 0.16692450340515874,
+   "applicability": [
+    {
+     "code": "LC11IMPALT",
+     "transform": "identity",
+     "units": "%",
+     "minimum": 0.0,
+     "maximum": 10.0
+    }
+   ]
   },
   {
    "region_code": "GC2017",
@@ -976,19 +979,11 @@
      "units": "%",
      "minimum": 0.26,
      "maximum": 13.7
-    },
-    {
-     "code": "LC11IMPALT",
-     "transform": "log10",
-     "units": "%",
-     "minimum": 0.0,
-     "maximum": 10.0
     }
    ],
    "coefficients": [
     0.572,
-    0.299,
-    0.0
+    0.299
    ],
    "citation": {
     "publication": "Ladd, D.E., and Ensminger, P.A. 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024\u20135130, 19 p.",
@@ -996,7 +991,16 @@
     "year": 2025,
     "url": "https://doi.org/10.3133/sir20245130"
    },
-   "sep_log": 0.17466278812076028
+   "sep_log": 0.17466278812076028,
+   "applicability": [
+    {
+     "code": "LC11IMPALT",
+     "transform": "identity",
+     "units": "%",
+     "minimum": 0.0,
+     "maximum": 10.0
+    }
+   ]
   },
   {
    "region_code": "GC2018",
