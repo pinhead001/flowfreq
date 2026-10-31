@@ -3,16 +3,16 @@ WY,,,report region of the gage (WRI 03-4107 table; catalog GC1239),1
 NV,,,report region of the gage (WSP 2433 table; catalog GC161),2
 OR,,,#209 packet: Region 1 coastal,GC729
 AZ,,,#209 packet: outside the Navajo Nation,GC1618
-TN,,,#209 packet: Region 2 multi-variable,GC2016
-OK,,,#209 packet: unregulated set,GC1791
-ME,,,#209 packet: statewide multiparameter,GC1798
-VT,,,#209 packet: statewide,GC2067
-AL,,,#209 packet: Region 4 rural,GC1502
-IA,,,#209 packet: Region 3 multi-variable (not the DA-only GC1628),GC1563
+OK,,,"Region 1 unregulated (not the NRCS-regulated GC1488)",GC1487
+ME,45.501676,-68.306133,"main-stem point at gage 01030500 (1419 mi2); #209 packet: statewide multiparameter",GC1798
+VT,43.714607,-72.418783,"main-stem point at gage 01144000 (687 mi2); #209 packet: statewide",GC2067
+AL,31.343648,-85.610215,"main-stem point at gage 02361000 (687 mi2); #209 packet: Region 4 rural",GC1502
+IA,,,"boundary basin: Regions 2 and 3 multi-variable (SIR 2013-5086), not the DA-only sets","GC1562, GC1563"
 MO,,,#209 packet: rural Region 2,GC1484
-MT,,,#209 packet: NW basin characteristics (no measured channel width),GC1768
+MT,,,"boundary basin: SW and Upper Yellowstone-Central Mountain basin-characteristic sets (no measured channel width)","GC1681, GC1682"
 IL,40.025394,-90.631848,"snapped ~50 m from gage 05585000; #209 packet: GC2010 adds the urbanization term (URBTHE2010) to GC2004 (_U, unadjusted)",GC2010
 NM,,,report region of the gage (SIR 2008-5119 table; catalog GC1096),5
 CT,,,#209 rule: statewide multiparameter (not the DA-only GC1800),GC1801
 NH,43.566777,-71.747352,snapped ~60 m from gage 01078000,
 PR,18.035433,-66.032469,snapped ~60 m from gage 50092000,
+HI,20.885988,-156.252389,main-stem point at gage 16587000 (0.68 mi2 vs catalog 0.59),
