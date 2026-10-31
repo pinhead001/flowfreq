@@ -166,3 +166,45 @@ def test_cusum_step_and_permutation_p() -> None:
     assert r.p_value < 0.01
     flat = cusum(np.random.default_rng(3).normal(size=40), n_permutations=999, seed=0)
     assert flat.p_value > 0.05
+
+
+# ----------------------------------------------------------------------------
+# Attribution overlay (roadmap section 6.1)
+# ----------------------------------------------------------------------------
+
+
+def test_attribution_finds_regulation_codes_and_caller_events() -> None:
+    from flowfreq.stationarity import attribute_change_point
+
+    years = list(range(1960, 2000))
+    codes = ["" if y < 1975 else "6" for y in years]
+    codes[30] = "6C"  # 1990: urbanization noted
+    out = attribute_change_point(1976, years, codes, events=[("Dam X completed", 1974)])
+    labels = [c["label"] for c in out["candidates"]]
+    assert labels[0].startswith("regulation or diversion (peak code 5/6)")
+    assert out["candidates"][0]["year"] == 1975 and out["candidates"][0]["offset"] == -1
+    assert "Dam X completed" in labels
+    assert all(abs(c["offset"]) <= 5 for c in out["candidates"])
+    assert "urbanization" not in " ".join(labels)  # 1990 is outside the window
+    assert out["explained"]
+
+
+def test_attribution_with_nothing_nearby() -> None:
+    from flowfreq.stationarity import attribute_change_point
+
+    years = list(range(1960, 2000))
+    out = attribute_change_point(1980, years, [""] * len(years))
+    assert out["candidates"] == [] and not out["explained"]
+    with pytest.raises(ValueError):
+        attribute_change_point(1980, years, [""] * 3)
+
+
+def test_screen_names_candidate_causes_in_its_flag() -> None:
+    years = np.arange(1960, 2020)
+    rng = np.random.default_rng(5)
+    s = pd.Series(np.exp(rng.normal(8, 0.4, 60)), index=years)
+    s.loc[1990:] *= 3.0
+    codes = ["" if y < 1989 else "6" for y in years]
+    out = stationarity_screen(s, peak_codes=codes)
+    flag = next(f for f in out["flags"] if "change point" in f)
+    assert "peak code 5/6" in flag and out["attribution"]["explained"]

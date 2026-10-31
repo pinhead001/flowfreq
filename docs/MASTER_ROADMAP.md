@@ -477,7 +477,7 @@ the B17C estimate in a regulatory product unless the reviewing agency accepts it
 - [~] **Field significance** across a region (Walker / FDR, block-bootstrap for spatial
       correlation). *Walker and FDR done* (`stationarity.field_significance`); the block
       bootstrap is open. Single-site significance is expected by chance in a statewide run.
-- [ ] **Attribution screen**: overlay detected change points on regulation dates (NID dam
+- [~] **Attribution screen** (*peak-code evidence and caller events done*: `stationarity.attribute_change_point`; NID/NLCD look-ups open): overlay detected change points on regulation dates (NID dam
       completion year), urbanization history (NLCD time series), gage relocation, and
       datum/rating changes. A change point that lines up with a dam is not a climate signal.
 - [ ] `stationarity_report(peaks)` giving a one-page summary with plots. **Recommendation:**
