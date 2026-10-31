@@ -259,7 +259,8 @@ def regional_skew_for(
 #: Regenerate with ``tools/build_regional_skew_hucs.py``; never edit by hand.
 HUC_TABLE = Path(__file__).parent / "data" / "regional_skew_hucs.csv"
 
-#: States each HUC8 of the tabulated studies touches (Watershed Boundary Dataset).
+#: States each HUC8 touches, nationwide (Watershed Boundary Dataset). Regenerate with
+#: ``tools/build_huc8_states.py``.
 HUC8_STATES_TABLE = Path(__file__).parent / "data" / "regional_skew_huc8_states.csv"
 
 HUC_COLUMNS = ("huc", "skew_region", "rule", "valid_states", "source", "notes")
@@ -345,8 +346,9 @@ def load_huc_table(path: Union[str, Path, None] = None) -> pd.DataFrame:
     Raises
     ------
     ValueError
-        On missing columns, an unknown rule, a malformed or duplicated HUC, a
-        member row without valid states, or a row without a source.
+        On missing columns, an unknown rule, a malformed HUC, a HUC repeated with
+        overlapping or empty valid states, a member row without valid states, or a
+        row without a source.
     """
     df = pd.read_csv(path or HUC_TABLE, dtype=str, keep_default_na=False)
     missing = [c for c in HUC_COLUMNS if c not in df.columns]
@@ -358,13 +360,51 @@ def load_huc_table(path: Union[str, Path, None] = None) -> pd.DataFrame:
     malformed = [h for h in df["huc"] if not _is_huc(h)]
     if malformed:
         raise ValueError(f"malformed HUC(s): {malformed[:5]}")
-    if df["huc"].duplicated().any():
-        raise ValueError(f"duplicate HUC(s): {sorted(df.loc[df['huc'].duplicated(), 'huc'])}")
+    # One HUC may carry a row per study (overlapping studies, #204), so long as each
+    # state sees at most one: the rows' valid_states must be non-empty and disjoint.
+    clashes = []
+    for h, group in df[df["huc"].duplicated(keep=False)].groupby("huc"):
+        sets = [_state_set(v) for v in group["valid_states"]]
+        if any(not x for x in sets) or sum(map(len, sets)) != len(set().union(*sets)):
+            clashes.append(str(h))
+    if clashes:
+        raise ValueError(
+            f"duplicate HUC(s) whose rows share a state or name none: {sorted(clashes)}"
+        )
     if (df.loc[df["rule"] == "member", "valid_states"].str.strip() == "").any():
         raise ValueError("member rows need valid_states")
     if (df["source"].str.strip() == "").any():
         raise ValueError("every HUC row needs a source")
     return df
+
+
+def _state_set(valid_states: object) -> Set[str]:
+    return {x.strip() for x in str(valid_states).split(";") if x.strip()}
+
+
+def _for_state(rows: pd.DataFrame, state: str) -> pd.DataFrame:
+    """Rows that apply in ``state``: those naming it, and those naming no state."""
+    keep = [not _state_set(v) or state in _state_set(v) for v in rows["valid_states"]]
+    return rows[keep]
+
+
+def _state_bounded(
+    state: str, hucs: pd.DataFrame, path: Union[str, Path, None], allow_provisional: bool
+) -> bool:
+    """Whether ``state`` has one usable row whose study has no membership rows.
+
+    Such a study (Maine's statewide one) is bounded by the state line, so the
+    state-level fallback applies even inside a unit another study's rows cover.
+    """
+    table = load_table(path)
+    rows = table[table["state"] == state]
+    if not allow_provisional:
+        rows = rows[rows["status"] != "provisional"]
+    return (
+        len(rows) == 1
+        and rows["status"].iloc[0] in _usable(allow_provisional)
+        and str(rows["skew_region"].iloc[0]) not in set(hucs["skew_region"])
+    )
 
 
 def _states_of(huc: str, path: Union[str, Path, None]) -> Set[str]:
@@ -396,6 +436,14 @@ def regional_skew_at_huc(
     in ``regional_skew_hucs.csv`` decides. A unit whose membership row
     excludes it or leaves it unresolved raises: the state-level fallback below
     applies only where no membership row exists.
+
+    Studies overlap (HU 05 is the Great Lakes and Ohio study in Ohio and
+    SIR 2025-5110's Skew Region 2 in West Virginia), so a unit may carry one
+    row per study, and only the rows whose ``valid_states`` name the site's
+    state (``state``, or the one state the HUC8 lies in) are considered. Where
+    none does and the state's own single usable row belongs to a study with no
+    membership rows (Maine's statewide study inside New England's HU 01), the
+    unit is treated as one without membership.
 
     A unit with no membership row at all (the HUC table encodes only some
     studies) falls back to the site's state: if the state has exactly one row
@@ -458,7 +506,31 @@ def regional_skew_at_huc(
     if not _is_huc(huc):
         raise ValueError(f"huc must be 2-12 digits of even length, got {huc!r}")
     st = state.upper() if state else None
-    matches, finer = _membership_rows(huc, load_huc_table(huc_path))
+    hucs = load_huc_table(huc_path)
+    matches, finer = _membership_rows(huc, hucs)
+    if not (matches.empty and finer.empty):
+        # Overlapping studies: keep the rows for the site's state (given, or the one
+        # state the HUC8 lies in). None applying there keeps the refusal below, unless
+        # the state's own study is bounded by the state line.
+        site = st
+        if site is None:
+            touched_first = _states_of(huc, states_path)
+            if len(touched_first) == 1:
+                site = next(iter(touched_first))
+            elif touched_first and all(
+                _for_state(pd.concat([matches, finer]), t).empty for t in touched_first
+            ):
+                # A multi-state unit none of whose states a matched row covers is, for
+                # each of them, a unit without membership: the fallback asks for state=.
+                matches, finer = matches.iloc[0:0], finer.iloc[0:0]
+        if site is not None:
+            own_matches, own_finer = _for_state(matches, site), _for_state(finer, site)
+            if not (own_matches.empty and own_finer.empty):
+                matches, finer = own_matches, own_finer
+            elif _state_bounded(site, hucs, path, allow_provisional):
+                # As for a unit with no membership: the fallback, or the no-study refusal.
+                matches, finer = matches.iloc[0:0], finer.iloc[0:0]
+                st = site
     if matches.empty and finer.empty:
         no_study = _no_study(huc)
         if not allow_state_fallback:
@@ -498,10 +570,19 @@ def regional_skew_at_huc(
             best = outer.iloc[int(outer["huc"].str.len().to_numpy().argmax())]
             region, rule = str(best["skew_region"]), str(best["rule"])
     if rule == "excluded":
+        # A dedicated exclusion region (the Snake River Plain) explains itself in its own
+        # non-usable row; an exclusion from a usable study (Cape Cod from New England)
+        # is explained by the membership row and its source.
         rows = table[table["skew_region"] == region]
-        why = str(rows["notes"].iloc[0]) if not rows.empty else str(best["notes"])
+        rows = rows[~rows["status"].isin(_usable(True))]
+        if not rows.empty:
+            why = str(rows["notes"].iloc[0])
+            where = f"in the {region}"
+        else:
+            why = f"{best['notes']} ({best['source']})"
+            where = f"excluded from the {region} study"
         raise RegionalSkewUnavailable(
-            f"HUC {huc} is in the {region}, where no regional skew applies: {why}"
+            f"HUC {huc} is {where}, where no regional skew applies: {why}"
         )
     if rule == "unresolved":
         raise RegionalSkewUnavailable(
