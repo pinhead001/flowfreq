@@ -75,9 +75,14 @@ All inputs are the report's own (`tools/build_wa_gls_dataset.py`):
 | 2 (89, 2) | 0.5 | 0.177, 0.874, 0.025, -0.0021 | 0.160, 0.877, 0.0253, -0.002 | 0.087 / 0.082 | 1.27, 1.15, 1.07, 1.05 |
 | 2 | 0.01 | 1.674, 0.842, 0.0153, -0.0117 | 1.836, 0.814, 0.0151, -0.0132 | 0.118 / 0.116 | 2.41, 1.30, 1.13, 1.28 |
 | 3 (142, 0) | 0.5 | -1.525, 0.901, 1.744 | -1.532, 0.899, 1.75 | 0.032 / 0.031 | 0.98, 1.03, 0.97 |
-| 3 | 0.01 | -0.896, 0.883, 1.670 | -0.740, 0.898, 1.587 | 0.049 / 0.043 | 0.99, 1.20, 0.95 |
+| 3 | 0.01 | -0.896, 0.884, 1.669 | -0.740, 0.898, 1.587 | 0.049 / 0.043 | 0.99, 1.20, 0.95 |
 | 4 (139, 27), P/10 | 0.5 | 1.179, 0.910, 0.0733 | 1.186, 0.911, 0.073 | 0.046 / 0.045 | 1.14, 1.07, 1.03 |
 | 4, P/10 | 0.01 | 1.929, 0.916, 0.0408 | 1.961, 0.921, 0.040 | 0.049 / 0.047 | 1.72, 1.22, 1.23 |
+
+Regenerated 2026-10-31 after two `flowfreq.regression.gls` fixes: concurrent years are capped
+at the shorter record, and the model error variance is searched only where Σ + γ²I is positive
+definite (`docs/WA_REGION2_METHOW.md`). Every value above moved by at most 0.3% (MEV 0.14%), and
+the Region 4 P/10 evidence is unchanged (P-entry ratio 1.227 → 1.228).
 
 Intercepts and slopes trade off against each other, so the useful comparison is the
 predicted flow at the calibration gages. The median |Δ log10 Q| between refit and published

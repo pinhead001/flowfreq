@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- `flowfreq.regression.gls.fit_gls` searches the model error variance only where the sampling covariance plus γ²I is positive definite. The WREG construction does not guarantee a positive semi-definite Σ. With an indefinite Σ the estimate could collapse to 0 and give nonsense coefficients (an intercept of 4.4 instead of 1.0 in one Washington Region 2 leave-one-out fold). `sampling_covariance` caps concurrent years at the shorter record. The committed Washington refit moves by at most 0.3%.
+
+### Added
+- `tools/wa_region2_elevation.py` and `docs/WA_REGION2_METHOW.md`: why the SIR 2016-5118 Peak Region 2 equation is 1.4-2.5x low at the Methow. Mean basin elevation, which is not in the published design, explains about half of the gap at the 50% AEP (t = 4.1, regional) and fades by the 1% AEP. Inputs and results are in `data/regression_study/wa_2016_5118_r2_*` (methow-flow item 5).
+
 ## [0.18.0] - 2026-10-31
 
 Regional skew by hydrologic unit for every study a report defines that way, now that

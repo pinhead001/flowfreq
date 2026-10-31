@@ -137,3 +137,41 @@ def test_sampling_covariance_zero_without_concurrent_record():
     assert S[0, 1] == 0.0 and S[1, 0] == 0.0
     assert S[0, 2] > 0.0 and np.allclose(S, S.T)
     np.testing.assert_allclose(np.diag(S), lp3_quantile_sampling_variance(sd, skew, n, 0.01, 0.18))
+
+
+def test_concurrent_years_are_capped_at_the_shorter_record():
+    # A caller passing record spans for gappy records can give c_ij > sqrt(n_i n_j), a
+    # correlation above one. Concurrent years cannot exceed either record, so c_ij is
+    # capped at min(n_i, n_j) and the effective correlation stays at or below rho_ij.
+    sd = np.array([0.3, 0.3])
+    skew = np.zeros(2)
+    n = np.array([20.0, 80.0])
+    span = np.array([[100.0, 100.0], [100.0, 100.0]])  # first-last spans, not peak counts
+    lat, lon = np.array([48.0, 48.0]), np.array([-120.0, -120.0])
+    corr = WregCorrelation(0.002, 0.98)
+    S = sampling_covariance(sd, skew, n, 0.01, 0.18, lat, lon, span, corr)
+    capped = sampling_covariance(sd, skew, n, 0.01, 0.18, lat, lon, np.minimum(span, 20.0), corr)
+    np.testing.assert_allclose(S, capped)
+    assert S[0, 1] / np.sqrt(S[0, 0] * S[1, 1]) <= corr.rho(np.array([0.0]))[0] + 1e-12
+
+
+def test_indefinite_sampling_covariance_still_fits():
+    # The WREG construction does not guarantee a positive semi-definite Sigma. At
+    # gamma2 = 0 the moment equation then used the inverse of an indefinite matrix:
+    # in the Methow Region 2 spike the model error variance collapsed to 0 and the
+    # intercept went from 1.0 to 4.4. The search now stays where Sigma + gamma2 I is
+    # positive definite, and recovers the model error variance.
+    rng = np.random.default_rng(3)
+    m, mev = 120, 0.04
+    X = _design(m, rng)
+    beta = np.array([1.0, 0.8, 0.1])
+    y = X @ beta + rng.normal(0, np.sqrt(mev + 0.005), m)
+    S = np.full((m, m), 0.0)
+    S[np.arange(0, m, 2), np.arange(1, m, 2)] = 0.0075  # pairs correlated above one
+    S = S + S.T
+    np.fill_diagonal(S, 0.005)
+    assert np.linalg.eigvalsh(S)[0] < 0
+    res = fit_gls(y, X, S)
+    assert np.all(np.linalg.eigvalsh(S + res.model_error_variance * np.eye(m)) > 0)
+    assert res.model_error_variance == pytest.approx(mev, abs=0.02)
+    np.testing.assert_allclose(res.beta, beta, atol=0.15)
