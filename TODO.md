@@ -5,27 +5,26 @@
 > in progress are tracked under "Roadmap Phase A, Wave 1 and Wave 2" in Open Items below.
 
 ## Status
-Last updated: 2026-10-26. Version **0.16.0** is released (tag `v0.16.0`, the nationwide
-rollout: `nss_snapshot` equations, `estimate_at_site`, regional skew for all 56
-jurisdictions). `main` carries **0.17.0.dev0**; 0.16.x patches come from `release/0.16.x`
-(CLAUDE.md, Branches and Releases). Since the release, `main` has the parked rollout minors
-(CHANGELOG, Unreleased), the nationwide smoke run (#201) and its findings recorded as
-follow-ups (#202). No PRs are open.
+Last updated: 2026-10-31. Version **0.17.0** is released (tag `v0.17.0`, 2026-10-30:
+GA/NC/SC region-indicator equations, `sep_log` for 32 LA/AR/MS equations, multi-code
+`region=`, the nationwide smoke rerun). `main` carries **0.18.0.dev0**; 0.17.x patches come
+from `release/0.17.x` (CLAUDE.md, Branches and Releases). flowfreq-app pins v0.17.0 (app PR
+#8). Since the release, `main` has the skew HUC rows for every report-defined study,
+Alaska included (#251, #252), `LAT_OUT`/`LONG_OUT` from the pour point (#253) and
+Minnesota's Rainy River Basin equations (#254); see CHANGELOG, Unreleased. No PRs are open.
 Python 3.11–3.14 (`requires-python >= 3.11`; CI matrix in `.github/workflows/ci.yml`).
 
-Tests, measured 2026-10-26 on Linux / CPython 3.13 with
-`PYTHONSAFEPATH=1 PYTHONUTF8=1 python -P -m pytest tests/` (the CI selection; `addopts`
-deselects `requires_network`):
+Tests, measured 2026-10-31 on Windows / CPython 3.12 with the Fortran extension built and
+`PYTHONSAFEPATH=1 PYTHONUTF8=1 pytest tests/` (the CI selection; `addopts` deselects
+`requires_network`): **3980 passed, 115 deselected, 6 xfailed, 4 failed** (218 s). The four
+failures are local-only: two Fortran oracle checks from the documented gfortran toolchain
+drift (CLAUDE.md, Validation Status) and two agentops tests that fail while a local
+`agentops.toml` carries `profile = "max"`. `ci / Fortran parity` is the authoritative
+parity check.
 
-- Extension absent: **3489 passed, 19 skipped, 115 deselected, 4 xfailed** (87 s).
-- Extension built: not re-measured for this update (on 2026-10-22 `make check` ran 3418
-  passed, 112 deselected, 6 xfailed). `ci / Fortran parity` is the authoritative parity
-  check; on a local MSYS2 gfortran build, expect the documented toolchain drift against the
-  Linux-built goldens (CLAUDE.md, Validation Status).
-
-Open GitHub issues (2026-10-26): #27 (Phase A epic), #36 (future flow, kept open by
-decision), and #203-#214 (the rollout follow-ups and parked items below). #140 (live-service
-tests) and #173 (`flowfreq.transfer_variance`, shipped from v0.13.0) were closed as done.
+Open GitHub issues (2026-10-31): #27 (Phase A epic), #36 (future flow, kept open by
+decision) and #209 (decided 2026-10-30: keep the explicit `region=`; awaiting close).
+#203-#218 and #246 are closed.
 
 The strict xfails are listed in CLAUDE.md (Validation Status). There are four 2012 PeakfqSA
 manual comparisons in `tests/validation/test_big_sandy.py`, which run everywhere and are the
@@ -105,9 +104,8 @@ Plan: `docs/superpowers/plans/2026-10-25-nationwide-rollout.md`; design:
       divided by 100 (SIR 2021-5046 Table 2; SIR 2024-5031 Table 3). `ASEP_AS_FRACTION` in
       `nss_library` names the four regions, and the rebuilt libraries carry `sep_log`
       (1473 of the snapshot equations now have one).
-- [ ] **Parked: the advisory warning** (#214). Every snapshot load logs one, so a coverage run over
-      the 41 jurisdictions logs 41. By design while the sets are unreviewed; quiet it as sets
-      are verified, or add a way to silence it for a sweep.
+- [x] **The advisory warning** (#214, PR #230): `load_state(..., warn=False)` logs an opt-in
+      set's advisory at DEBUG, and the coverage tool uses it.
 
 - [x] **B. `estimate_at_site` and `flowfreq ungaged`** (0.16.0, #197), with
       `OverlappingRegionsError` and `region=`. The flowfreq-app ungaged page is app PR #7
@@ -146,7 +144,7 @@ Follow-ups from the rollout reviews (issues opened 2026-10-26):
       coordinates snapped to a tributary (0.03 to 1.9 mi2), so their points were checked
       against the catalog drainage area.
 
-Still failing in the 2026-10-30 rerun (14 of 56):
+Still failing in the 2026-10-30 rerun (14 of 56; WY and MN fixed since, live recheck pending):
 
 - [ ] **No library**: DC, VI, GU, MP and AS. NSS serves no peak-flow equations for these; expected.
 - [x] **MN** (#246): the gage is in the Rainy River Basin, which SIR 2023-5079 leaves to SIR
@@ -164,12 +162,12 @@ Still failing in the 2026-10-30 rerun (14 of 56):
 - Large gaged-versus-ungaged differences with a correct delineation (the drainage area matches
   the catalog): AZ 09484000 (ratio 0.10, a 35 mi2 basin), TX 08190000 (0.20, Nueces River)
   and NV 10329500 (0.36). The regressions are run as published; these are not defects.
-- [ ] **The methow-flow items stay parked** (Priorities for methow-flow below: 4 and 5 of
-      Tier 2; 7 to 12 of Tier 3).
+- [ ] **The methow-flow items stay parked** (Priorities for methow-flow below: 5 of Tier 2;
+      7 parts 2-3, 8, 9 and 11 of Tier 3).
 - [ ] **Regional skew `pending` rows** (41): each waits for a published B-WLS/B-GLS study or
       a reading of the report's printed value; the row's notes say which.
 
-The methow-flow items and the `pending` skew rows have no issues; the rest are #203-#214.
+The methow-flow items and the `pending` skew rows have no issues; #203-#218 are closed.
 
 The parked minors found by the rollout reviews and fixed after 0.16.0 (see CHANGELOG,
 Unreleased): the `aeps=[]` guard, `region=` case-insensitivity and its ambiguity refusal, a
@@ -181,35 +179,13 @@ notes trimmed, and `regional_skew_at_huc`'s docstring and membership predicate.
 - [x] **`tools/agentops/`**, ported from flowfield2d: runner, governor profiles, usage meter,
       hooks (`docs/AGENTOPS.md`). The hooks and status line still need merging into
       `.claude/settings.json` from `tools/agentops/settings.example.json` (owner action).
-- [~] **First card batch** (2026-10-26): six cards in `.agentops/cards/`, each with its failing
-      tests on `spec/<id>`: `i214-snapshot-warning`, `i206-catalog-outside-us`,
-      `i210-smoke-points`, `i203-multi-region` (Sonnet: subtle `assemble` control flow),
-      `m12-bootstrap-power`, `m4-bracket-interpolation`. First run 2026-10-30: every call
-      failed. `claude-sonnet-4-6` is gone from `agy models` (the config and the i203 card now
-      name `claude-sonnet-5-5-medium`), and the host agy settings carried no
-      `permissions.allow` rules, so a delegate's first shell command was auto-denied and ended
-      its turn with an empty response: eight Gemini calls, 459k tokens, nothing written.
-      **Owner action before the next `cards run`:** put allow/deny rules in
-      `~/.gemini/antigravity-cli/settings.json` (model: the sandbox's
-      `D:/a/sbx/state/gemini/antigravity-cli/settings.json`; `docs/AGENTOPS.md` step 3). All
-      cards are reset to pending; worktrees now sit under
-      `D:/a/sbx/state/agentops-flowfreq/worktrees`. After #206 merges, rebuild the catalog for
-      DC live (`tools/build_gage_catalog.py --states DC --refresh`); the API codes 15388960
-      as Canada with province code 11, which is also DC's FIPS code (the spec and card now say
-      so).
-- [ ] **Second card batch** (2026-10-30): `i205-huc8-states` (the WBD HUC8-to-states build
-      tool; the lead runs it live after merge) and `i207-region-unlocated` (`region=` names a
-      library region when NSS locates no peak-flow region: NSS's by-location service serves
-      no polygons for Wyoming's six peak-flow regions, only the SIR 2026-5120 flow-duration
-      regions GC2098-GC2115, and none for Nevada; depends on i203). Not carded, decisions
-      first: #211's 24 GA/NC/SC region-indicator forms are affine exponents with interaction
-      terms (`PCTREGi * log10(DRNAREA)`) the equation schema cannot hold (SC #208 is the
-      same study, GC1935, not a range error); #209's per-state default (decision packet on
-      the issue: prefer the rural multi-variable set; IA's smoke pick was the DA-only set, MT's
-      a channel-width set). Report reading still owed: #213 `sep_log` (SIR 2021-5046,
-      2024-5031, TR 60, WRIR 85-4150) and #204 HUC rows. Live tests #218: the WA PRECIP
-      raster is still missing on ss-hydro (rerun 2026-10-30).
-- [~] **Methow item 7, part 1 carded** (`m7-monthly-transfer`, Sonnet). Owner decisions,
+- [x] **First and second card batches** (2026-10-26 and 2026-10-30), all merged on Sonnet after
+      the agy fixes (host allow rules, per-call `--settings` #233, `AGENTS.md` seeded into
+      worktrees #229): i214 #230, i210 #232, i206 #234, i205 #235, m12 #236, m4 #237, m7 #238,
+      i203 #239, i207 #240. The decisions they waited on are made and done: #211 (#244),
+      #209 (explicit `region=`), #213 (#245), #204 (#251, #252), #218 (#242); the DC catalog
+      was rebuilt live (#243). The card queue is empty.
+- [x] **Methow item 7, part 1 merged** (`m7-monthly-transfer`, PR #238). Owner decisions,
       2026-10-26: transfer by the runoff-volume ratio `(At Rt)/(Ag Rg)` with exponent 1
       (as production, METHOW_METHODS §12); sampling variance and covariance from concurrent
       water years (delta method for the mean, bivariate-normal asymptotics for the median);
@@ -236,7 +212,7 @@ Tier 1 -- unblocks the transfer-variance work:
        Method 2 in the transfer-variance validation.
 
 Tier 2 -- fixes known Methow biases or moves general code upstream:
-4. [ ] **Interpolation between two gages** (§5.1): upstream methow-flow's bracketing
+4. [x] **Interpolation between two gages** (§5.1; `transpose.interpolate_between_gages`, #237): upstream methow-flow's bracketing
        (`choose_bracketing_gages`, `bracketed_peak_flows`) and reconcile it with
        `transfer_variance.combine`.
 5. [ ] **GLS validation against SIR 2016-5118** (§3.3, Northwest task 4), so Peak Region 2
@@ -250,7 +226,7 @@ Tier 2 -- fixes known Methow biases or moves general code upstream:
 Tier 3 -- ordered for the per-reach monthly mean flows (WY1992-2025) that every EDT flow
 attribute in methow-flow waits on (`docs/EDT_ATTRIBUTE_CROSSWALK.md` §6 there):
 7. [~] **Transfer variance for monthly and duration flows** (§5.1); decisions made
-       2026-10-26, part 1 carded (Agent ops, below). Extend
+       2026-10-26, part 1 merged (`flowfreq.monthly_transfer`, #238); parts 2-3 open. Extend
        `transfer_variance` from flood quantiles to a monthly mean per calendar month and
        to duration quantiles: pairs and `s2_d` fitted per month, the GLS blend and
        leave-one-out unchanged. Open questions: the exponent `b` per month (no
@@ -262,14 +238,16 @@ attribute in methow-flow waits on (`docs/EDT_ATTRIBUTE_CROSSWALK.md` §6 there):
        Q2, §16 low flow, §18 TQmean), and a monthly transfer over WY1992-2025 assumes the
        donor relation holds across it.
 9. [ ] **Mixed snowmelt/rain-on-snow populations** (§2, warn only).
-10. [ ] **Scheduled live-network CI** (§7).
+10. [x] **Scheduled live-network CI** (§7): the weekly `Live services` workflow
+       (`.github/workflows/`), which opens an issue on failure (#218 was one).
 11. [ ] **Naturalization add-back** (§5.2). Gaged flow plus the diversions upstream of a
        site, net of return flow (canal seepage), as a daily or monthly series a transfer can
        start from. `qppq` says it does not naturalize, so a regulated donor carries its
        regulation into every transfer. Inputs are caller-supplied (diversion rates,
        return fractions, periods in effect); estimating them is out of scope. In
        methow-flow it is the §16 low-flow template (the 2002 canal inventory).
-12. [ ] **Uncertainty in choosing the dissimilarity power** (#181 follow-up).
+12. [x] **Uncertainty in choosing the dissimilarity power** (#181 follow-up; #236:
+       `bootstrap_band(profile=...)` re-chooses the power in every replicate).
        `bootstrap_band` holds a `powers=` choice fixed, so the band interval leaves out
        the uncertainty in choosing it. Re-run `profile_power` inside each replicate and
        report how often each grid power wins alongside the interval.
@@ -372,6 +350,7 @@ Phase A / Wave entries below.
       NM skew row is `pending` with both values in its notes (Waltemeyer 2008 p. 5: zero, MSE
       0.31, B17B-era). Re-check the Publications Warehouse and the data release; transcribe
       the skew, its region and the nine regions' equations from the published report.
+      Re-checked 2026-10-31: still not in the Publications Warehouse.
 - [ ] **Future flow (#36), kept open** (decided 2026-10-11). No state tabulates per-AEP
       factors. The issue stays open for WDFW-style per-site tools rather than closing on
       the survey.
@@ -414,7 +393,7 @@ Audited 2026-10-03 against `git log v0.9.0..origin/main`, `CHANGELOG.md` and
         polygons and point-in-polygon, which flowfreq does not depend on.
       - The NLCD impervious **time series** (step 3). GAGES-II carries NLCD 2006 only.
       - Gages outside GAGES-II, which have peak-code evidence only.
-- [ ] **#33 National gage catalog** (open). Built in #105:
+- [x] **#33 National gage catalog** (closed 2026-10-24). Built in #105:
       `flowfreq/data/gage_catalog.csv.gz` covers 20,745 USGS peak sites with at least 10
       water years, nationally, rebuilt by `tools/build_gage_catalog.py` with two Water
       Data API bulk queries per state. `regression_region` is filled for all of Waves 1
@@ -1091,32 +1070,10 @@ the CLOMR/LOMR case this is for.
 
 ### Downstream
 
-- [ ] **Bump the app's pin.** `pinhead001/flowfreq-app`'s `requirements.txt` is still
-      `flowfreq @ git+https://github.com/pinhead001/flowfreq@v0.7.0` (its last commit,
-      `a9c856b`, 2026-09-08), checked 2026-10-03. It has skipped v0.8.0 and v0.9.0, and
-      0.10.0 is pending. Identical FFA output is **not** the bar for this bump. v0.9.0
-      changed results on purpose:
-      - no silent `-0.302` regional skew default (#44). The app's `run_ffa` call passes
-        `regional_skew`/`regional_skew_se` explicitly, so this one should not break it;
-      - the Water Data OGC API by default for peaks, with UTC `peak_date`, and IV and
-        daily follow in 0.10.0;
-      - peak codes applied by default (#68);
-      - the partial-date fix (#41), which keeps peaks the app's `download_peak_flow` call
-        used to drop (Big Sandy's three historic peaks, for one);
-      - the native-EMA fixes (#61-#66, #72, #74).
-
-      0.10.0 adds:
-      - the `p3est_ema` fixed point (#81, quantiles move by at most 0.0035 %);
-      - `n_low_outliers` as `gbnlow` (#88);
-      - `analyze_gage`'s regulated-gage refusal (#95). `run_ffa` screens only when it is
-        given `site_no=`, so the app's current call is not affected.
-
-      So the bump needs a deliberate review of the changed numbers, not just a one-line edit.
-
-      History: bumped through v0.5.0, v0.6.0, v0.6.1 and v0.7.0, each verified rather than
-      assumed -- `pip show flowfreq` confirms the tag installed, and the app's own suite (29
-      tests) passes identically before and after. Future bumps follow the same pattern; see
-      `flowfreq-app/CLAUDE.md`'s "one edit, deliberate" note.
+- [x] **The app's pin.** flowfreq-app pins v0.17.0 (app PR #8, merged 2026-10-31; before it
+      #7 pinned v0.16.0). Each bump is "one edit, deliberate" (`flowfreq-app/CLAUDE.md`):
+      review what the release changes in the numbers the app shows, confirm the tag installs,
+      and run the app's suite before and after. The app is merged only on the owner's say-so.
 
 ### P3 — The `var_mom` port, now complete
 
