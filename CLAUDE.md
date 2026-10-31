@@ -48,8 +48,10 @@ repo bumps its pin.
 ```bash
 pip install -e ".[dev]"
 
-# Full suite. ~70 s, measured 2026-10-03 on a Windows developer machine (CPython 3.12,
-# Fortran extension absent; 2541 tests), and ~355 s with the extension present.
+# Full suite. ~225 s with the Fortran extension present, measured 2026-10-31 on a Windows
+# developer machine (CPython 3.12; 4018 passed, plus the 4 local-only failures described
+# under Validation Status and Agent ops). On 2026-10-03 it was ~70 s with the extension
+# absent (2541 tests) and ~355 s with it present.
 # That extra ~285 s is almost all live emafitpr calls in the vendored Fortran;
 # test_fixed_threshold_live.py alone takes ~190 s (twelve ~13 s calls in
 # test_regional_weighting_inputs_match). The native code accounts for very little of it.
@@ -151,7 +153,9 @@ reviews (`.claude/agents/reviewer.md`) and opens the PR. Tool: `tools/agentops/`
 config `agentops.toml`, delegate rules `AGENTS.md`, procedure `docs/AGENTOPS.md`.
 `python tools/agentops_cli.py --config agentops.toml gov next` says what to do; `... usage`
 reports the Claude meter and agy tokens per quota pool. The governor profile (`pro`, `max`,
-`overnight`) sets when teammates/workflows are allowed.
+`overnight`) sets when teammates/workflows are allowed. `agentops.toml` is committed with
+`profile = "pro"`; a local edit to another profile makes two `tests/agentops` tests fail
+(they pin `pro`), so never commit it.
 
 ## Python Compatibility
 
