@@ -798,6 +798,12 @@ class SiteEstimate:
         the dropped-region caveat, and ``"alternative_regions"`` (dicts with ``code``,
         ``name``, ``region_code``, ``citation``, ``year``) for the alternative
         equation sets not used.
+    basin_geojson : dict, optional
+        The delineated watershed as a GeoJSON ``Feature`` (WGS84, ``[lon, lat]``,
+        ``Polygon`` or ``MultiPolygon``): the validated
+        :attr:`~flowfreq.streamstats.WatershedCharacteristics.polygon_geojson`, carried
+        for callers that draw the basin. :meth:`to_markdown` does not include it.
+        ``None`` for an estimate built without one.
     """
 
     lat: float
@@ -814,6 +820,7 @@ class SiteEstimate:
     region_codes: Dict[str, str] = field(default_factory=dict)
     weighted: Optional[pd.DataFrame] = None
     provenance: Dict[str, Any] = field(default_factory=dict)
+    basin_geojson: Optional[Dict[str, Any]] = None
 
     def _citations(self) -> Dict[str, str]:
         """Library region code to the publication its equations cite."""
@@ -1060,7 +1067,8 @@ def estimate_at_site(
     -------
     SiteEstimate
         ``method`` is ``"at-site weighted with regression"`` when the fit was weighted
-        in, else ``"regression"``. ``provenance`` carries ``snap``, ``delineation``
+        in, else ``"regression"``. ``basin_geojson`` is the delineated watershed
+        polygon. ``provenance`` carries ``snap``, ``delineation``
         (polygon area, unavailable characteristics, the StreamStats provenance),
         ``library`` (status, file, retrieval date), ``regions_located`` (every region
         NSS returned, before matching), ``missing_characteristics``,
@@ -1199,6 +1207,7 @@ def estimate_at_site(
         region_codes=assembly.region_codes,
         weighted=weighted,
         provenance=provenance,
+        basin_geojson=ws.polygon_geojson,
     )
 
 

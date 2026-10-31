@@ -433,6 +433,7 @@ class TestSiteEstimate:
             estimates={},
         )
         assert est.weighted is None and est.provenance == {} and est.region_codes == {}
+        assert est.basin_geojson is None
         assert "XX" in est.to_markdown()
 
 
@@ -788,6 +789,14 @@ class TestEstimateAtSite:
     def test_lower_case_state_is_accepted(self, fakes):
         est = estimate_at_site(WA_LAT, WA_LON, state="wa")
         assert est.provenance["library"]["status"] == "verified"
+
+    def test_estimate_carries_the_watershed_polygon(self, fakes):
+        est = estimate_at_site(WA_LAT, WA_LON, state="WA")
+        # The same validated Feature StreamStats returned, for callers that draw it.
+        assert est.basin_geojson is fakes.watershed.polygon_geojson
+        assert est.basin_geojson["type"] == "Feature"
+        # The report stays free of the polygon's vertices.
+        assert "coordinates" not in est.to_markdown()
 
     def test_requested_aeps_and_options_reach_the_assembly(self, fakes):
         est = estimate_at_site(
