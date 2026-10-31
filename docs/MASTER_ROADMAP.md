@@ -473,16 +473,20 @@ the B17C estimate in a regulatory product unless the reviewing agency accepts it
 - [x] **Change-point tests**: Pettitt, CUSUM and Lombard smooth and abrupt, Wilcoxon and Mood (*done*, `stationarity.pettitt` / `cusum` / `lombard`), matching the
       set in USACE's Nonstationarity Detection Tool, so results are comparable with
       USACE ECB 2018-14 practice.
-- [~] Trends in **variance and in peaks-over-threshold counts**, not only in the mean.
-      *Variance:* the Lombard Mood test (`stationarity.lombard(score="mood")`). Peaks-over-threshold counts are open.
+- [x] Trends in **variance and in peaks-over-threshold counts**, not only in the mean.
+      *Variance:* the Lombard Mood test (`stationarity.lombard(score="mood")`). *Counts:*
+      `stationarity.pot_counts` (declustered events per water year from the daily record)
+      and `pot_count_trend` (Poisson regression, quasi-Poisson when overdispersed).
 - [x] **Field significance** across a region (Walker / FDR, block-bootstrap for spatial
       correlation). *Walker and FDR done* (`stationarity.field_significance`); the block
       bootstrap is `stationarity.field_significance_bootstrap`. Single-site significance is expected by chance in a statewide run.
 - [x] **Attribution screen** (*done*: `stationarity.attribute_change_point` with peak-code evidence and caller events, and `stationarity.basin_change_events` for NID dam completion years and NLCD impervious epochs): overlay detected change points on regulation dates (NID dam
       completion year), urbanization history (NLCD time series), gage relocation, and
       datum/rating changes. A change point that lines up with a dam is not a climate signal.
-- [ ] `stationarity_report(peaks)` giving a one-page summary with plots. **Recommendation:**
-      run this on every B17C analysis by default and attach it to the output.
+- [~] `stationarity_report(peaks)` giving a one-page summary with plots (*done*:
+      `stationarity.stationarity_report`, a figure and a Markdown page). **Recommendation:**
+      run this on every B17C analysis by default and attach it to the output (open: an
+      owner decision, since it changes what `run_ffa` returns).
 
 ### 6.2 Handling detected nonstationarity (recommended hierarchy)
 1. [ ] **Remove the cause if it is known and physical.** Analyze only the homogeneous period

@@ -30,8 +30,9 @@ change point is a reason to look at the record, not a correction.
   dates (Burn, 1997). A split record is a warning that one LP3 distribution may be
   fitted to two flood populations (Bulletin 17C section 9.3); it is not a test.
 
-Not here yet (roadmap section 6.1): trends in peaks-over-threshold counts. (A change in
-variance is what the Lombard Mood test screens for.)
+- :func:`pot_counts` and :func:`pot_count_trend`: annual counts of independent
+  peaks over a threshold in a daily series, and a Poisson-regression trend in them.
+- :func:`stationarity_report`: the screen as a one-page figure and a Markdown summary.
 """
 
 from __future__ import annotations
@@ -228,6 +229,13 @@ class PettittResult:
     shift: str
 
 
+def _pettitt_u(a: np.ndarray) -> np.ndarray:
+    """Pettitt's ``U_t`` for every split, ``t = 1 .. n-1`` (split after position t-1)."""
+    sign = np.sign(a[None, :] - a[:, None])  # sign[i, j] = sign(x_j - x_i)
+    # U_t = sum_{i < t} sum_{j >= t} sign(x_i - x_j)
+    return np.array([-float(np.sum(sign[:t, t:])) for t in range(1, a.size)])
+
+
 def pettitt(x: ArrayLike, years: Optional[Iterable[int]] = None) -> PettittResult:
     """Pettitt (1979) test for a single change point in a series in time order.
 
@@ -244,9 +252,7 @@ def pettitt(x: ArrayLike, years: Optional[Iterable[int]] = None) -> PettittResul
     """
     a = _series(x)
     n = a.size
-    sign = np.sign(a[None, :] - a[:, None])  # sign[i, j] = sign(x_j - x_i)
-    # U_t = sum_{i < t} sum_{j >= t} sign(x_i - x_j), for split after position t-1.
-    u = np.array([-float(np.sum(sign[:t, t:])) for t in range(1, n)])
+    u = _pettitt_u(a)
     t_star = int(np.argmax(np.abs(u)))
     k = float(abs(u[t_star]))
     index = t_star + 1
@@ -1059,3 +1065,438 @@ def basin_change_events(
                         )
                         break
     return {"events": events, "notes": notes, "n_dams": n_dams}
+
+
+# ------------------------------------------------ peaks over a threshold --
+
+
+@dataclass(frozen=True)
+class PotCounts:
+    """Independent peaks over a threshold in a daily series, counted by water year.
+
+    Attributes
+    ----------
+    threshold : float
+    counts : pandas.Series
+        Events per complete water year (zeros included), indexed by water year.
+    events : pandas.DataFrame
+        One row per event: ``peak_date``, ``peak``, ``water_year``.
+    min_separation_days : int
+    quantile : float
+        Fraction of the record's days at or below the threshold. Below
+        :data:`POT_LOW_QUANTILE` the "events" are ordinary flows rather than floods.
+    """
+
+    threshold: float
+    counts: pd.Series
+    events: pd.DataFrame
+    min_separation_days: int
+    quantile: float = float("nan")
+
+
+#: A threshold exceeded on more than a quarter of the days is not a flood threshold.
+POT_LOW_QUANTILE = 0.75
+
+
+def _water_year(index: pd.DatetimeIndex) -> np.ndarray:
+    return np.asarray(index.year + (index.month >= 10).astype(int), dtype=int)
+
+
+def _pot_events(s: pd.Series, threshold: float, min_sep: int) -> pd.DataFrame:
+    above = s[s > threshold]
+    if above.empty:
+        return pd.DataFrame({"peak_date": [], "peak": [], "water_year": []})
+    days = (above.index - above.index[0]).days.to_numpy()
+    # A new event starts when the gap since the previous exceedance day is at least
+    # min_sep days, so exceedances closer than that are one event.
+    new = np.concatenate(([True], np.diff(days) >= min_sep))
+    cluster = np.cumsum(new)
+    frame = pd.DataFrame({"value": above.to_numpy(), "cluster": cluster}, index=above.index)
+    idx = frame.groupby("cluster")["value"].idxmax()
+    peaks = above.loc[idx.to_numpy()]
+    return pd.DataFrame(
+        {
+            "peak_date": peaks.index,
+            "peak": peaks.to_numpy(dtype=float),
+            "water_year": _water_year(pd.DatetimeIndex(peaks.index)),
+        }
+    )
+
+
+def pot_counts(
+    daily: pd.Series,
+    *,
+    threshold: Optional[float] = None,
+    events_per_year: float = 2.0,
+    min_separation_days: int = 7,
+    min_days: int = 330,
+) -> PotCounts:
+    """Count independent peaks over a threshold in each complete water year.
+
+    Exceedance days closer together than ``min_separation_days`` form one event, whose
+    peak is the largest daily value in it. Without a ``threshold``, it is the highest
+    threshold at which the record averages ``events_per_year`` events per complete year
+    (two is common in trend studies of rain-driven floods; Mallakpour and Villarini
+    2015). A snowmelt river may reach two only near its median flow, since its freshet is
+    one event; that is logged as a warning (see ``quantile``), and one event a year or an
+    explicit threshold suits it better.
+
+    Parameters
+    ----------
+    daily : pandas.Series
+        Daily values indexed by date; missing values are dropped.
+    threshold : float, optional
+    events_per_year : float, default 2.0
+        Used only when ``threshold`` is None.
+    min_separation_days : int, default 7
+    min_days : int, default 330
+        Days a water year needs to count as complete.
+
+    Returns
+    -------
+    PotCounts
+
+    Raises
+    ------
+    ValueError
+        Not a date index, duplicate dates, fewer than five complete water years, or a
+        bad ``events_per_year`` / ``min_separation_days``.
+    """
+    if not isinstance(daily.index, pd.DatetimeIndex):
+        raise ValueError("daily must be indexed by date")
+    if min_separation_days < 1:
+        raise ValueError(f"min_separation_days must be >= 1, got {min_separation_days}")
+    s = daily.dropna().sort_index()
+    s.index = pd.DatetimeIndex(s.index).tz_localize(None).normalize()
+    if s.index.duplicated().any():
+        raise ValueError("daily has more than one value for some dates")
+    wy = pd.Series(_water_year(pd.DatetimeIndex(s.index)), index=s.index)
+    years_, n_days = np.unique(wy.to_numpy(), return_counts=True)
+    complete = [int(y) for y, n in zip(years_, n_days) if n >= min_days]
+    if len(complete) < 5:
+        raise ValueError(f"need at least 5 complete water years, got {len(complete)}")
+    s = s[wy.isin(complete).to_numpy()]
+    if threshold is None:
+        if not events_per_year > 0:
+            raise ValueError(f"events_per_year must be > 0, got {events_per_year}")
+        target = events_per_year * len(complete)
+        # The count is not monotone in the threshold (a snowmelt freshet is one event
+        # over any moderate threshold), so scan down from the top and keep the highest
+        # threshold that reaches the target.
+        candidates = np.unique(np.quantile(s.to_numpy(), np.linspace(0.5, 0.9995, 300)))[::-1]
+        threshold = float(candidates[-1])
+        miss: Optional[float] = None
+        for cand in candidates:
+            if len(_pot_events(s, float(cand), min_separation_days)) >= target:
+                threshold = float(cand)
+                break
+            miss = float(cand)
+        if miss is not None and threshold < miss:
+            # Refine between the last miss and the first hit.
+            lo, hi = threshold, miss
+            for _ in range(40):
+                mid = 0.5 * (lo + hi)
+                if len(_pot_events(s, mid, min_separation_days)) >= target:
+                    lo = mid
+                else:
+                    hi = mid
+            threshold = lo
+    quantile = float(np.mean(s.to_numpy() <= threshold))
+    if quantile < POT_LOW_QUANTILE:
+        logger.warning(
+            "POT threshold %.4g is exceeded on %.0f%% of days: the record does not average "
+            "%g independent events a year over a high threshold (a snowmelt regime?); "
+            "consider events_per_year=1 or an explicit threshold",
+            threshold,
+            100 * (1 - quantile),
+            events_per_year,
+        )
+    events = _pot_events(s, float(threshold), min_separation_days)
+    counts = (
+        events.groupby("water_year").size().reindex(complete, fill_value=0).astype(int)
+        if len(events)
+        else pd.Series(0, index=complete, dtype=int)
+    )
+    counts.index.name = "water_year"
+    return PotCounts(float(threshold), counts, events, int(min_separation_days), quantile)
+
+
+def pot_count_trend(counts: pd.Series, *, alpha: float = 0.05) -> Dict[str, Any]:
+    """Trend in annual event counts: Poisson regression on year, and Mann-Kendall.
+
+    Fits ``log E[N_t] = a + b (t - mean t)`` by maximum likelihood and tests ``b = 0``
+    with the likelihood-ratio statistic. When the counts are overdispersed (Pearson
+    dispersion above 1), the statistic is divided by the dispersion (quasi-Poisson), so
+    clustering of wet years does not pass for a trend.
+
+    Parameters
+    ----------
+    counts : pandas.Series
+        Events per year, indexed by year (e.g. :class:`PotCounts`'s ``counts``).
+    alpha : float, default 0.05
+
+    Returns
+    -------
+    dict
+        ``n_years``, ``total_events``, ``mean_per_year``, ``slope_log_per_year`` (``b``),
+        ``change_per_decade_pct`` (``100 (exp(10 b) - 1)``), ``rate_at_center`` (``exp(a)``)
+        and ``center_year`` (mean t), ``dispersion``, ``p_value``,
+        ``mann_kendall_p`` and ``trend`` (``"increasing"``, ``"decreasing"`` or
+        ``"no trend"`` at ``alpha``, from the Poisson test).
+
+    Raises
+    ------
+    ValueError
+        Fewer than five years, negative or non-integer counts, or no events at all.
+    """
+    y = np.asarray(counts, dtype=float)
+    t = np.asarray(counts.index, dtype=float)
+    if y.size < 5:
+        raise ValueError(f"need at least 5 years, got {y.size}")
+    if np.any(y < 0) or np.any(y != np.round(y)):
+        raise ValueError("counts must be non-negative integers")
+    if y.sum() == 0:
+        raise ValueError("no events in the record")
+    center = float(t.mean())
+    t = t - center
+    x = np.column_stack([np.ones_like(t), t])
+    beta = np.array([math.log(y.mean()), 0.0])
+    for _ in range(100):
+        mu = np.exp(x @ beta)
+        step = np.linalg.solve(x.T @ (mu[:, None] * x), x.T @ (y - mu))
+        beta = beta + step
+        if np.max(np.abs(step)) < 1e-12:
+            break
+    mu = np.exp(x @ beta)
+    pos = y > 0
+    ll1 = float(np.sum(y[pos] * np.log(mu[pos])) - np.sum(mu))
+    ll0 = float(np.sum(y[pos]) * math.log(y.mean()) - y.sum())
+    deviance = max(0.0, 2.0 * (ll1 - ll0))
+    dispersion = float(np.sum((y - mu) ** 2 / mu) / (y.size - 2))
+    stat = deviance / max(dispersion, 1.0)
+    p = float(stats.chi2.sf(stat, 1))
+    b = float(beta[1])
+    trend = "no trend" if p >= alpha else ("increasing" if b > 0 else "decreasing")
+    return {
+        "n_years": int(y.size),
+        "total_events": int(y.sum()),
+        "mean_per_year": float(y.mean()),
+        "slope_log_per_year": b,
+        "change_per_decade_pct": 100.0 * (math.exp(10.0 * b) - 1.0),
+        "rate_at_center": float(math.exp(beta[0])),
+        "center_year": center,
+        "dispersion": dispersion,
+        "p_value": p,
+        "mann_kendall_p": mann_kendall(y).p_value,
+        "trend": trend,
+    }
+
+
+# ------------------------------------------------------------- report --
+
+
+@dataclass
+class StationarityReport:
+    """:func:`stationarity_report`'s output.
+
+    Attributes
+    ----------
+    screen : dict
+        :func:`stationarity_screen`'s result.
+    pot : dict or None
+        :func:`pot_count_trend`'s result, when counts were given.
+    markdown : str
+        A one-page summary: the record, a table of the tests, the flags, the candidate
+        causes of a change point and the event-count trend.
+    figure : matplotlib.figure.Figure
+        The series with Sen's trend, the change point and the segment medians; Pettitt's
+        statistic against its critical value; and the event counts when given.
+    """
+
+    screen: Dict[str, Any]
+    pot: Optional[Dict[str, Any]]
+    markdown: str
+    figure: Any
+
+    def save(self, path: Any) -> None:
+        """Write the figure; the format follows the extension (``.png``, ``.pdf``, ...)."""
+        self.figure.savefig(path, dpi=150, bbox_inches="tight")
+
+
+def _yes(p: float, alpha: float) -> str:
+    return "significant" if p < alpha else "not significant"
+
+
+def stationarity_report(
+    values: pd.Series,
+    *,
+    log: bool = True,
+    alpha: float = 0.05,
+    peak_codes: Optional[Sequence[Any]] = None,
+    events: Iterable[Tuple[str, int]] = (),
+    pot: Optional[PotCounts] = None,
+    title: Optional[str] = None,
+    seed: Optional[int] = 0,
+) -> StationarityReport:
+    """A one-page stationarity summary of an annual series (roadmap section 6.1).
+
+    Runs :func:`stationarity_screen` (and :func:`pot_count_trend` on ``pot``) and lays
+    the result out as a figure and a Markdown page, for attaching to a Bulletin 17C
+    analysis. Screening only: nothing here changes an estimate.
+
+    Parameters
+    ----------
+    values : pandas.Series
+        Annual values indexed by water year (e.g. annual peaks).
+    log, alpha, peak_codes, events, seed
+        As :func:`stationarity_screen` takes them.
+    pot : PotCounts, optional
+        Event counts from :func:`pot_counts` on the gage's daily record.
+    title : str, optional
+        Heading, e.g. the gage number and name.
+
+    Returns
+    -------
+    StationarityReport
+
+    Raises
+    ------
+    ValueError
+        As :func:`stationarity_screen` raises.
+    """
+    from matplotlib.figure import Figure
+    from matplotlib.ticker import MaxNLocator
+
+    events = list(events)
+    screen = stationarity_screen(
+        values, log=log, alpha=alpha, peak_codes=peak_codes, events=events, seed=seed
+    )
+    pot_result = pot_count_trend(pot.counts, alpha=alpha) if pot is not None else None
+    s = values.dropna().sort_index()
+    years = np.asarray(s.index, dtype=int)
+    x = np.asarray(s, dtype=float)
+    xt = np.log10(x) if log else x
+    slope, intercept = sens_slope(xt, years)
+    pt = screen["pettitt"]
+
+    n_panels = 3 if pot is not None else 2
+    fig = Figure(figsize=(8.5, 3.0 * n_panels))
+    axes = fig.subplots(n_panels, 1)
+    ax = axes[0]
+    ax.plot(years, x, "o-", ms=3, lw=0.8, color="0.25", label="annual value")
+    line = intercept + slope * years
+    ax.plot(years, 10**line if log else line, color="C0", label="Sen's slope")
+    if pt["year"] is not None:
+        before, after = x[years < pt["year"]], x[years >= pt["year"]]
+        if before.size and after.size:
+            ax.hlines(np.median(before), years[0], pt["year"], colors="C3", linestyles=":")
+            ax.hlines(np.median(after), pt["year"], years[-1], colors="C3", linestyles=":")
+        ax.axvline(
+            pt["year"],
+            color="C3",
+            ls="--",
+            lw=1,
+            label=f"Pettitt change {pt['year']} (p = {pt['p_value']:.3f})",
+        )
+    for label, year in events:
+        if years[0] <= year <= years[-1]:
+            ax.axvline(year, color="C2", lw=0.8, alpha=0.6)
+    if log:
+        ax.set_yscale("log")
+    ax.set_ylabel("annual value")
+    ax.set_title(title or "Stationarity screen")
+    ax.legend(fontsize=7, loc="best")
+
+    ax = axes[1]
+    u = np.abs(_pettitt_u(xt))
+    n = xt.size
+    k_crit = math.sqrt(-math.log(alpha / 2.0) * (n**3 + n**2) / 6.0)
+    ax.plot(years[1:], u, color="0.25")
+    ax.axhline(k_crit, color="C3", ls="--", lw=1, label=f"critical K at {alpha:g}")
+    ax.set_ylabel("|Pettitt U_t|")
+    ax.legend(fontsize=7, loc="best")
+
+    if pot is not None and pot_result is not None:
+        ax = axes[2]
+        cy = np.asarray(pot.counts.index, dtype=int)
+        ax.bar(cy, pot.counts.to_numpy(), color="0.6", width=0.8)
+        rate = pot_result["rate_at_center"] * np.exp(
+            pot_result["slope_log_per_year"] * (cy - pot_result["center_year"])
+        )
+        ax.plot(cy, rate, color="C0", label="Poisson trend")
+        ax.set_ylabel(f"events > {pot.threshold:,.0f}")
+        ax.yaxis.set_major_locator(MaxNLocator(integer=True))
+        ax.legend(fontsize=7, loc="best")
+    axes[-1].set_xlabel("water year")
+    fig.tight_layout()
+
+    mk = screen["mann_kendall_hamed_rao"]
+    lomb = screen["lombard"]
+    slope_key = "sens_slope_log10_per_year" if log else "sens_slope_per_year"
+    rows = [
+        ("Mann-Kendall (Hamed-Rao)", f"tau = {mk['tau']:.3f}", mk["p_value"]),
+        (
+            "Mann-Kendall (original)",
+            f"tau = {screen['mann_kendall']['tau']:.3f}",
+            screen["mann_kendall"]["p_value"],
+        ),
+        ("Spearman", f"rho = {screen['spearman']['rho']:.3f}", screen["spearman"]["p_value"]),
+        ("Pettitt", f"{pt['year']}, shift {pt['shift']}", pt["p_value"]),
+    ]
+    for key, label in (
+        ("wilcoxon_abrupt", "Lombard Wilcoxon, abrupt"),
+        ("wilcoxon_smooth", "Lombard Wilcoxon, smooth"),
+        ("mood_abrupt", "Lombard Mood, abrupt"),
+        ("mood_smooth", "Lombard Mood, smooth"),
+    ):
+        r = lomb[key]
+        where = (
+            f"{r['start_year']}"
+            if r["start_year"] == r["end_year"]
+            else f"{r['start_year']}-{r['end_year']}"
+        )
+        rows.append((label, where, r["p_value"]))
+    lines = [
+        f"# {title or 'Stationarity screen'}",
+        "",
+        f"Water years {screen['years'][0]}-{screen['years'][1]} ({screen['n']} values"
+        f"{', log10' if log else ''}). Sen's slope "
+        f"{screen[slope_key]:+.4f} per year"
+        + (f" ({100 * (10 ** (10 * screen[slope_key]) - 1):+.1f}% per decade)." if log else "."),
+        "",
+        "| Test | Result | p | At " + f"{alpha:g}" + " |",
+        "|---|---|---|---|",
+        *(f"| {name} | {res} | {p:.3f} | {_yes(p, alpha)} |" for name, res, p in rows),
+        "",
+        "## Flags",
+        "",
+        *([f"- {f}" for f in screen["flags"]] or ["- none at this level"]),
+    ]
+    att = screen.get("attribution")
+    if att is not None:
+        lines += ["", "## Change-point attribution", "", f"- {att['message']}"]
+    if pot is not None and pot_result is not None:
+        lines += [
+            "",
+            "## Peaks over a threshold",
+            "",
+            f"- threshold {pot.threshold:,.0f} (exceeded on {100 * (1 - pot.quantile):.1f}% "
+            f"of days), events at least {pot.min_separation_days} days "
+            f"apart: {pot_result['total_events']} in {pot_result['n_years']} years "
+            f"({pot_result['mean_per_year']:.2f} per year)"
+            + (
+                "; a low threshold for floods (snowmelt regime?)"
+                if pot.quantile < POT_LOW_QUANTILE
+                else ""
+            ),
+            f"- Poisson trend {pot_result['change_per_decade_pct']:+.1f}% per decade, "
+            f"p = {pot_result['p_value']:.3f} (dispersion {pot_result['dispersion']:.2f}); "
+            f"Mann-Kendall p = {pot_result['mann_kendall_p']:.3f}",
+        ]
+    lines += [
+        "",
+        "Screening only (Bulletin 17C asks the analyst to evaluate stationarity; it does not "
+        "prescribe a test). A flag is a reason to look at the record, not a correction.",
+        "",
+    ]
+    return StationarityReport(screen, pot_result, "\n".join(lines), fig)
