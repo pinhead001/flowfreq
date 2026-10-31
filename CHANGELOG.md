@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `flowfreq.streamstats.delineate_watershed`: snap and delineate a pour point and return the validated watershed polygon without the ss-hydro basin-characteristics request -- one round trip fewer, and unaffected when ss-hydro alone fails (it returned 502 for every point on 2026-10-31 while ss-delineate answered). The polygon gets every check the full pipeline makes except the area check against ss-hydro's `DRNAREA`. It shares its first half with `delineate_and_get_characteristics` through `_sshydro_delineation`, whose behaviour is unchanged. For the flowfreq-app map's Delineate action.
+
 ### Fixed
 - Second review (2026-10-31):
   - `monthly_transfer` and `duration_transfer` refuse a gage connected to itself and a pair listed twice, which used to break leave-one-out or bias `s2_d`.
