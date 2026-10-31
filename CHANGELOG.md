@@ -15,12 +15,14 @@ Methow-flow follow-through and screening tools.
 - Transfer variance is complete for monthly flows and median annual duration quantiles.
 - New `flowfreq.stationarity` (trend, change point, field significance and change-point
   attribution) and `flowfreq.naturalize` (diversion add-back).
+- `streamstats.delineate_watershed`: the watershed polygon without ss-hydro.
 - `fit_gls` now handles an indefinite sampling covariance.
 - Two rounds of independent-review fixes.
 
 Patch releases for 0.18 continue from `release/0.18.x`.
 
 ### Added
+- `flowfreq.streamstats.delineate_watershed`: snap and delineate a pour point and return the validated watershed polygon without the ss-hydro basin-characteristics request -- one round trip fewer, and unaffected when ss-hydro alone fails (it returned 502 for every point on 2026-10-31 while ss-delineate answered). The polygon gets every check the full pipeline makes except the area check against ss-hydro's `DRNAREA`. It shares its first half with `delineate_and_get_characteristics` through `_sshydro_delineation`, whose behaviour is unchanged. For the flowfreq-app map's Delineate action.
 - `stationarity.attribute_change_point`: candidate non-climate causes within a window of a change point. It looks at the first year the peak codes show regulation (5/6) or alteration (C), and at caller-supplied events such as a dam's completion year, a gage move or a rating change. `stationarity_screen(..., peak_codes=, events=)` names the candidates in its change-point flag.
 - `stationarity.cusum` (CUSUM change point with a permutation p-value) and `stationarity.field_significance` (Benjamini-Hochberg FDR rejections and Walker's test across sites, for statewide screening runs where some single-site significance is expected by chance).
 - `flowfreq.naturalize` (methow item 11): `naturalize(gaged, [Diversion(...)])` adds each upstream diversion's consumptive part, rate × (1 − return fraction), back to a gaged daily or monthly series on the days it is in effect (season, start and end dates). It returns the naturalized flow, each diversion's add-back and a summary. Rates and return fractions are the caller's; there is no routing lag or storage.
