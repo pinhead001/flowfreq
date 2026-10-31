@@ -255,6 +255,13 @@ def regional_skew_for(
 # Location lookup: hydrologic-unit membership
 # ----------------------------------------------------------------------------
 
+#: Drainage-area ranges (mi2) outside which a skew region does not apply and station
+#: skew is used instead: SIR 2016-5024 Table 6 (Alaska).
+DRAINAGE_AREA_RANGES: Dict[str, Tuple[float, float]] = {
+    "Regional Skew Area 1": (1.2, 25560.0),
+    "Regional Skew Area 2": (1.7, 123.0),
+}
+
 #: Which hydrologic units each skew study covers, excludes, or leaves open.
 #: Regenerate with ``tools/build_regional_skew_hucs.py``; never edit by hand.
 HUC_TABLE = Path(__file__).parent / "data" / "regional_skew_hucs.csv"
@@ -428,6 +435,7 @@ def regional_skew_at_huc(
     timeout: int = 60,
     allow_provisional: bool = False,
     allow_state_fallback: bool = True,
+    drainage_area_sqmi: Optional[float] = None,
 ) -> RegionalSkew:
     """Return the verified regional skew for a hydrologic unit.
 
@@ -482,6 +490,10 @@ def regional_skew_at_huc(
     allow_state_fallback : bool
         Fall back to the state's single row when no membership is encoded for
         the unit (see above). ``False`` raises there instead.
+    drainage_area_sqmi : float, optional
+        The site's drainage area. A region with an applicable range
+        (:data:`DRAINAGE_AREA_RANGES`, Alaska's skew areas) raises outside it;
+        without it the result carries the range as an advisory.
 
     Returns
     -------
@@ -641,6 +653,20 @@ def regional_skew_at_huc(
         note = _provisional_advisory(region)
         logger.warning("HUC %s: %s", huc, note)
         advisory = f"{note} {advisory}".strip()
+    if region in DRAINAGE_AREA_RANGES:
+        lo, hi = DRAINAGE_AREA_RANGES[region]
+        if drainage_area_sqmi is not None and not lo <= drainage_area_sqmi <= hi:
+            raise RegionalSkewUnavailable(
+                f"Drainage area {drainage_area_sqmi:g} mi2 is outside the {region}'s "
+                f"applicable range, {lo:g}-{hi:g} mi2: use station skew ({r['table']})."
+            )
+        if drainage_area_sqmi is None:
+            note = (
+                f"The {region} applies only for drainage areas of {lo:g}-{hi:g} mi2; "
+                "outside that range use station skew."
+            )
+            logger.warning("HUC %s: %s", huc, note)
+            advisory = f"{advisory} {note}".strip()
     erl = r["effective_record_years"]
     return RegionalSkew(
         state=st or ",".join(sorted(touched)),
@@ -740,12 +766,13 @@ def regional_skew_for_site(
     timeout: int = 60,
     allow_provisional: bool = False,
     allow_state_fallback: bool = True,
+    drainage_area_sqmi: Optional[float] = None,
 ) -> RegionalSkew:
     """Regional skew for a USGS monitoring location, from its own HUC.
 
     Uses the Water Data API monitoring-locations record
     (:func:`flowfreq.waterdata.fetch_monitoring_location`): its 12-digit
-    ``hydrologic_unit_code`` and its ``state_code``.
+    ``hydrologic_unit_code``, its ``state_code`` and its ``drainage_area``.
 
     Parameters
     ----------
@@ -755,6 +782,9 @@ def regional_skew_for_site(
         Request timeout, seconds.
     allow_provisional, allow_state_fallback : bool
         Passed to :func:`regional_skew_at_huc`.
+    drainage_area_sqmi : float, optional
+        Overrides the record's ``drainage_area`` for a region with an applicable
+        drainage-area range (:data:`DRAINAGE_AREA_RANGES`).
 
     Returns
     -------
@@ -774,11 +804,14 @@ def regional_skew_for_site(
     if not huc:
         raise RegionalSkewUnavailable(f"Site {site_no} has no hydrologic_unit_code on record")
     state = STATE_FIPS.get(str(props.get("state_code") or "").zfill(2))
+    if drainage_area_sqmi is None and props.get("drainage_area") not in (None, ""):
+        drainage_area_sqmi = float(props["drainage_area"])
     return regional_skew_at_huc(
         huc,
         state,
         allow_provisional=allow_provisional,
         allow_state_fallback=allow_state_fallback,
+        drainage_area_sqmi=drainage_area_sqmi,
     )
 
 
@@ -844,6 +877,7 @@ def regional_skew_at(
     timeout: int = 60,
     allow_provisional: bool = False,
     allow_state_fallback: bool = True,
+    drainage_area_sqmi: Optional[float] = None,
 ) -> RegionalSkew:
     """Regional skew for a point, via the Watershed Boundary Dataset HU12 there.
 
@@ -866,6 +900,9 @@ def regional_skew_at(
         Passed to :func:`regional_skew_at_huc`. With the fallback on, an HU12
         no membership row covers takes its state's single usable row, with a
         ``STATE-LEVEL FALLBACK`` advisory.
+    drainage_area_sqmi : float, optional
+        Passed to :func:`regional_skew_at_huc` (Alaska's skew areas apply only
+        within a drainage-area range).
 
     Returns
     -------
@@ -898,6 +935,7 @@ def regional_skew_at(
         timeout=timeout,
         allow_provisional=allow_provisional,
         allow_state_fallback=allow_state_fallback,
+        drainage_area_sqmi=drainage_area_sqmi,
     )
 
 
