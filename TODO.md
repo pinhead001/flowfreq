@@ -5,26 +5,29 @@
 > in progress are tracked under "Roadmap Phase A, Wave 1 and Wave 2" in Open Items below.
 
 ## Status
-Last updated: 2026-10-31. Version **0.17.0** is released (tag `v0.17.0`, 2026-10-30:
-GA/NC/SC region-indicator equations, `sep_log` for 32 LA/AR/MS equations, multi-code
-`region=`, the nationwide smoke rerun). `main` carries **0.18.0.dev0**; 0.17.x patches come
-from `release/0.17.x` (CLAUDE.md, Branches and Releases). flowfreq-app pins v0.17.0 (app PR
-#8). Since the release, `main` has the skew HUC rows for every report-defined study,
-Alaska included (#251, #252), `LAT_OUT`/`LONG_OUT` from the pour point (#253) and
-Minnesota's Rainy River Basin equations (#254); see CHANGELOG, Unreleased. No PRs are open.
+Last updated: 2026-10-31 (overnight). Version **0.18.0** is released (tag `v0.18.0`,
+2026-10-31: regional skew HUC rows for every report-defined study, outlet coordinates from
+the pour point, Minnesota's Rainy River Basin equations, `SiteEstimate.basin_geojson`).
+`main` carries **0.19.0.dev0**; 0.18.x patches come from `release/0.18.x` (CLAUDE.md,
+Branches and Releases). flowfreq-app PR #10 (pin v0.18.0) awaits the owner. Since the
+release, `main` has (CHANGELOG, Unreleased): why WA Peak Region 2 is low at the Methow
+(mean basin elevation; #259), monthly leave-one-out and blend (#260) and duration
+quantiles (#263) for transfer variance, `flowfreq.stationarity` (#264, #267),
+`flowfreq.naturalize` (#266), and two rounds of independent-review fixes (#262, #268),
+including `fit_gls` handling an indefinite sampling covariance. #261 (another session's
+`delineate_watershed`) is open.
 Python 3.11–3.14 (`requires-python >= 3.11`; CI matrix in `.github/workflows/ci.yml`).
 
 Tests, measured 2026-10-31 on Windows / CPython 3.12 with the Fortran extension built and
 `PYTHONSAFEPATH=1 PYTHONUTF8=1 pytest tests/` (the CI selection; `addopts` deselects
-`requires_network`): **3980 passed, 115 deselected, 6 xfailed, 4 failed** (218 s). The four
+`requires_network`): **4040 passed, 115 deselected, 6 xfailed, 4 failed** (227 s). The four
 failures are local-only: two Fortran oracle checks from the documented gfortran toolchain
 drift (CLAUDE.md, Validation Status) and two agentops tests that fail while a local
 `agentops.toml` carries `profile = "max"`. `ci / Fortran parity` is the authoritative
 parity check.
 
-Open GitHub issues (2026-10-31): #27 (Phase A epic), #36 (future flow, kept open by
-decision) and #209 (decided 2026-10-30: keep the explicit `region=`; awaiting close).
-#203-#218 and #246 are closed.
+Open GitHub issues (2026-10-31): #27 (Phase A epic) and #36 (future flow, kept open by
+decision). #203-#218 and #246 are closed.
 
 The strict xfails are listed in CLAUDE.md (Validation Status). There are four 2012 PeakfqSA
 manual comparisons in `tests/validation/test_big_sandy.py`, which run everywhere and are the
