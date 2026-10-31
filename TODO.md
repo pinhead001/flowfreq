@@ -124,14 +124,12 @@ Plan: `docs/superpowers/plans/2026-10-25-nationwide-rollout.md`; design:
 Follow-ups from the rollout reviews (issues opened 2026-10-26):
 
 - [x] **Multi-code `region=`** (#203, PR #239). IA and MT use it in the rerun.
-- [ ] **HUC membership rows for the new skew studies** (#204). Done for the studies the reports
-      define by hydrologic unit, where a state has more than one row: Great Lakes and Ohio,
-      Eastern NY and PA (HU 0203 excluded), SIR 2025-5110 Skew Regions 1 and 2, New England
-      (Cape Cod 01090002 excluded) and Arkansas-Louisiana (13 HUC8s excluded, 12040201
-      unresolved). A HUC may now carry one row per study, chosen by the site's state. Left:
-      Alaska's Skew Areas 1 and 2 (SIR 2016-5024 Table 5, HUC8/HUC10 set plus a drainage-area
-      range). Statewide studies (HI, IA, ME, MO, PR, the Southeastern US) need no rows: they
-      are bounded by the state line, and the state-level fallback resolves them.
+- [x] **HUC membership rows for the new skew studies** (#204, PRs #251 and this one). Rows for
+      every study the reports define by hydrologic unit: Great Lakes and Ohio, Eastern NY and
+      PA, SIR 2025-5110 Skew Regions 1 and 2, New England, Arkansas-Louisiana, and Alaska's
+      Skew Areas 1 and 2 (SIR 2016-5024 Table 5; the rest of HU 19 is the exclusion area, and
+      Table 6's drainage-area ranges apply through `drainage_area_sqmi=`). A HUC may carry one
+      row per overlapping study, chosen by the site's state. Statewide studies need no rows.
 - [x] **A nationwide HUC8-states table** (#205): `tools/build_huc8_states.py` pages the WBD HU8
       layer; `data/regional_skew_huc8_states.csv` lists every HUC8 (2,456 rows on 2026-10-30, the
       417 old rows kept verbatim), so a border HU12 resolves its state without `state=`.

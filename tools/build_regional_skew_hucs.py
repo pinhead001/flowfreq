@@ -314,6 +314,74 @@ ARLA_EXCLUDED = (
 )  # fmt: skip
 
 
+AK_RSA1 = "Regional Skew Area 1"
+AK_RSA2 = "Regional Skew Area 2"
+AK_EXCLUSION = "Regional skew exclusion area"
+AK_SOURCE = (
+    "SIR 2016-5024 Table 5 p. 17 (https://doi.org/10.3133/sir20165024): HUC8s, or HUC10s "
+    "where a HUC8 is split; outside both areas only station skew applies"
+)
+#: SIR 2016-5024 Table 5, transcribed from the page image: HUC8 -> listed HUC10s, or
+#: ``()`` for "All". Area 2's '19020104218' (11 digits) is read as 1902010418, the only
+#: WBD unit that fits (Hinchinbrook Island). 1902010413 is printed but is not in the
+#: 2026 WBD; its row is kept as printed and matches nothing.
+AK_TABLE_5: Dict[str, Dict[str, Tuple[str, ...]]] = {
+    AK_RSA1: {
+        **{h: () for h in ("19020101", "19020102", "19020103")},
+        "19020104": tuple(f"19020104{n:02d}" for n in range(1, 5)),
+        "19020301": tuple(f"19020301{n:02d}" for n in range(1, 11)),
+        **{h: () for h in ("19020302", "19020401", "19020402", "19020501", "19020502",
+                           "19020503", "19020505")},
+        **{f"190803{n:02d}": () for n in range(1, 10)},
+        **{f"190804{n:02d}": () for n in range(1, 5)},
+        "19090101": (),
+        "19090102": (),
+    },
+    AK_RSA2: {
+        **{f"190101{n:02d}": () for n in range(2, 6)},
+        "19010106": ("1901010601", "1901010602", "1901010603"),
+        "19010107": ("1901010701",),
+        "19010204": (),
+        "19010206": (),
+        "19010207": ("1901020701", "1901020702", "1901020703"),
+        **{f"190102{n:02d}": () for n in range(8, 13)},
+        **{f"190103{n:02d}": () for n in range(1, 4)},
+        "19010304": ("1901030404",),
+        "19010402": (),
+        "19010404": tuple(f"19010404{n:02d}" for n in range(2, 6)),
+        "19010405": (),
+        "19010406": (),
+        "19020104": tuple(f"19020104{n:02d}" for n in range(5, 19)),
+        **{f"190202{n:02d}": () for n in range(1, 4)},
+        "19020301": ("1902030111", "1902030112"),
+        "19020602": tuple(f"19020602{n:02d}" for n in range(8, 14)),
+        "19020701": (),
+        "19020702": (),
+        "19030101": (),
+        "19030102": ("1903010201", "1903010202", "1903010203", "1903010204", "1903010206"),
+    },
+}  # fmt: skip
+
+
+def alaska_rows() -> List[Tuple[str, str, str, str, str, str]]:
+    """Alaska's two skew areas (SIR 2016-5024 Table 5); the rest of HU 19 is excluded."""
+    rows: List[Tuple[str, str, str, str, str, str]] = [
+        ("19", AK_EXCLUSION, "excluded", "AK", AK_SOURCE, "outside Regional Skew Areas 1 and 2"),
+    ]
+    for region, units in AK_TABLE_5.items():
+        for huc8, huc10s in units.items():
+            if not huc10s:
+                rows.append((huc8, region, "member", "AK", AK_SOURCE, "whole HUC8"))
+            for huc10 in huc10s:
+                note = "HUC10 of a split HUC8"
+                if huc10 == "1902010418":
+                    note += "; printed '19020104218' in Table 5"
+                elif huc10 == "1902010413":
+                    note += "; not in the 2026 WBD"
+                rows.append((huc10, region, "member", "AK", AK_SOURCE, note))
+    return rows
+
+
 def report_defined_rows() -> List[Tuple[str, str, str, str, str, str]]:
     """``(huc, skew_region, rule, valid_states, source, notes)`` rows from report text."""
     rows: List[Tuple[str, str, str, str, str, str]] = [
@@ -381,6 +449,8 @@ def build() -> str:
     for huc8, name, touches in arizona_huc8():
         w.writerow([huc8, AZ, "member", "AZ", AZ_SOURCE, f"{name}; WBD states {touches}"])
     for row in report_defined_rows():
+        w.writerow(row)
+    for row in alaska_rows():
         w.writerow(row)
     return hucs.getvalue()
 
