@@ -1094,3 +1094,51 @@ def test_estimate_at_site_derives_long_out_from_the_pour_point(fakes, tmp_path):
     expected = 10 ** (1.0 + 0.7 * math.log10(area) + 0.5 * math.log10(-snapped_lon - 100.0))
     q = est.quantiles
     assert float(q.loc[q["aep"] == 0.01, "flow_cfs"].iloc[0]) == pytest.approx(expected)
+
+
+def _area_class_library(small_max: float = 1000.0, large_min: float = 1000.0) -> StateLibrary:
+    small = Variable("DRNAREA", "log10", "mi2", 0.4, small_max)
+    large = Variable("DRNAREA", "log10", "mi2", large_min, 31100.0)
+    eqs = []
+    for aep in AEPS:
+        eqs.append(_eq("GC56", aep, 2.0, variables=(small,), region_name="Areas under 1000"))
+        eqs.append(_eq("GC57", aep, 2.5, variables=(large,), region_name="Areas over 1000"))
+    return StateLibrary(state="AK", status="verified", equations=eqs, advisory="")
+
+
+class TestDrainageAreaClasses:
+    """Overlapping regions that split the state by drainage area (AK SIR 2016-5024's
+    GC1656 under 1,000 mi2 and GC1657 over it, both located statewide) are chosen by
+    the basin's DRNAREA rather than refused."""
+
+    REGIONS = [_region("GC56", 100.0), _region("GC57", 100.0)]
+
+    @pytest.mark.parametrize("area,code", [(62.0, "GC56"), (5000.0, "GC57")])
+    def test_the_basin_area_picks_the_class(self, area: float, code: str) -> None:
+        a = assemble(_area_class_library(), self.REGIONS, {"DRNAREA": area}, **KW)
+        assert [r.code for r in a.used] == [code]
+        assert [r.code for r in a.alternatives] == [{"GC56": "GC57", "GC57": "GC56"}[code]]
+        assert a.region_choice_source is not None
+        assert "drainage-area classes" in a.region_choice_source and code in a.region_choice_source
+        assert not a.quantiles["interval_method"].str.startswith("none").any()
+
+    def test_a_shared_endpoint_is_left_to_the_caller(self) -> None:
+        with pytest.raises(OverlappingRegionsError):
+            assemble(_area_class_library(), self.REGIONS, {"DRNAREA": 1000.0}, **KW)
+        a = assemble(_area_class_library(), self.REGIONS, {"DRNAREA": 1000.0}, region="GC57", **KW)
+        assert [r.code for r in a.used] == ["GC57"]
+
+    def test_overlapping_ranges_are_alternatives_not_classes(self) -> None:
+        lib = _area_class_library(small_max=2000.0, large_min=500.0)
+        with pytest.raises(OverlappingRegionsError):
+            assemble(lib, self.REGIONS, {"DRNAREA": 62.0}, **KW)
+
+    def test_a_partial_cover_is_not_decided_by_area(self) -> None:
+        regions = [_region("GC56", 60.0), _region("GC57", 100.0)]
+        with pytest.raises(OverlappingRegionsError):
+            assemble(_area_class_library(), regions, {"DRNAREA": 62.0}, **KW)
+
+    def test_an_explicit_choice_still_wins(self) -> None:
+        a = assemble(_area_class_library(), self.REGIONS, {"DRNAREA": 62.0}, region="GC56", **KW)
+        assert [r.code for r in a.used] == ["GC56"]
+        assert a.region_choice_source is None
