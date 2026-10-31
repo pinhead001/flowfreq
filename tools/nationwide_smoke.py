@@ -16,7 +16,10 @@ Usage::
 
 ``--points`` takes a CSV with header ``state,lat,lon,note``: a hand-picked pour point
 per state for the ungaged estimate (StreamStats exposes no snap distance, so gage
-coordinates that do not snap need a manual point).
+coordinates that do not snap need a manual point). An optional ``region`` column
+passes ``region=`` to :func:`flowfreq.estimate_at_site` (one code, or several separated
+by commas for a boundary basin); a row with a region may leave ``lat`` and ``lon``
+blank to keep the gage coordinates.
 """
 
 from __future__ import annotations
@@ -83,7 +86,9 @@ def load_points(path: Path) -> Dict[str, Dict[str, Any]]:
     Returns
     -------
     dict
-        Uppercased state code to ``{"lat": float, "lon": float, "note": str}``.
+        Uppercased state code to ``{"lat": float, "lon": float, "note": str}``, plus
+        ``"region"`` (a code, or a list of codes) when the optional ``region`` column is
+        set. With a region, blank ``lat`` and ``lon`` give ``None`` (keep the gage).
 
     Raises
     ------
@@ -101,16 +106,24 @@ def load_points(path: Path) -> Dict[str, Dict[str, Any]]:
         for raw in reader:
             r = {(k or "").strip(): (v or "").strip() for k, v in raw.items() if k is not None}
             state = r["state"].upper()
-            try:
-                lat = float(r["lat"])
-                lon = float(r["lon"])
-            except ValueError as exc:
-                raise ValueError(f"{state}: non-numeric coordinate ({exc})") from exc
-            if not (-90.0 <= lat <= 90.0) or not (-180.0 <= lon <= 180.0):
-                raise ValueError(f"{state}: coordinate out of range (lat={lat}, lon={lon})")
+            codes = [c.strip() for c in r.get("region", "").split(",") if c.strip()]
+            entry: Dict[str, Any] = {"note": r.get("note", "")}
+            if codes and not r["lat"] and not r["lon"]:
+                entry.update(lat=None, lon=None)
+            else:
+                try:
+                    lat = float(r["lat"])
+                    lon = float(r["lon"])
+                except ValueError as exc:
+                    raise ValueError(f"{state}: non-numeric coordinate ({exc})") from exc
+                if not (-90.0 <= lat <= 90.0) or not (-180.0 <= lon <= 180.0):
+                    raise ValueError(f"{state}: coordinate out of range (lat={lat}, lon={lon})")
+                entry.update(lat=lat, lon=lon)
+            if codes:
+                entry["region"] = codes[0] if len(codes) == 1 else codes
             if state in points:
                 raise ValueError(f"duplicate state in points file: {state}")
-            points[state] = {"lat": lat, "lon": lon, "note": r.get("note", "")}
+            points[state] = {"lat": entry.pop("lat"), "lon": entry.pop("lon"), **entry}
     return points
 
 
@@ -123,7 +136,8 @@ def smoke_one(
     """Run the gaged fit and the ungaged estimate for one catalog gage.
 
     With ``point`` (``{"lat", "lon", "note"}``) the ungaged estimate uses that pour
-    point instead of the gage coordinates; the gaged fit is unchanged.
+    point instead of the gage coordinates; the gaged fit is unchanged. A ``"region"``
+    entry is passed as ``region=``, and ``None`` coordinates keep the gage's.
 
     Never raises: each failure is recorded as ``"gaged: Type: message"`` or
     ``"ungaged: Type: message"`` under ``error``.
@@ -132,9 +146,14 @@ def smoke_one(
     from flowfreq.usgs import USGSgage
     from flowfreq.workflow import run_ffa
 
+    moved = bool(point) and point.get("lat") is not None
+    region = point.get("region") if point else None
+    where = f"override: {point.get('note', '')}" if moved and point else "gage"
+    if region is not None:
+        where += f", region={region if isinstance(region, str) else ', '.join(region)}"
     out: Dict[str, Any] = {
         "state": row["state"],
-        "ungaged_point": f"override: {point.get('note', '')}" if point else "gage",
+        "ungaged_point": where,
         "site_no": row["site_no"],
         "n_peaks": None if pd.isna(row.get("n_peaks")) else int(row["n_peaks"]),
         "ffa_ok": False,
@@ -166,10 +185,11 @@ def smoke_one(
         errors.append("gaged: " + _err(exc))
     try:
         est = estimate_at_site(
-            float(point["lat"]) if point else float(row["latitude"]),
-            float(point["lon"]) if point else float(row["longitude"]),
+            float(point["lat"]) if moved and point else float(row["latitude"]),
+            float(point["lon"]) if moved and point else float(row["longitude"]),
             state=row["state"],
             allow_nss_snapshot=allow_nss_snapshot,
+            region=region,
         )
         qd = est.quantiles
         out["ungaged_q1pct"] = float(qd.loc[(qd["aep"] - 0.01).abs().idxmin(), "flow_cfs"])

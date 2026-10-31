@@ -38,6 +38,27 @@ def test_load_points(tmp_path: Path) -> None:
     assert pts["PA"]["note"] == ""
 
 
+def test_load_points_region_column(tmp_path: Path) -> None:
+    # An optional region column names the regression region (#207: WY, NV) and may
+    # stand without coordinates, in which case the gage coordinates are kept.
+    p = _csv(
+        tmp_path,
+        'state,lat,lon,note,region\nWY,,,,3\nMT,46.1,-110.2,boundary,"GC1768, GC1769"\n'
+        "TX,30.25,-97.75,x,\n",
+    )
+    pts = ns.load_points(p)
+    assert pts["WY"] == {"lat": None, "lon": None, "note": "", "region": "3"}
+    assert pts["MT"]["region"] == ["GC1768", "GC1769"]
+    assert pts["TX"] == {"lat": 30.25, "lon": -97.75, "note": "x"}
+
+
+def test_load_points_needs_coordinates_or_a_region(tmp_path: Path) -> None:
+    with pytest.raises(ValueError, match="WY"):
+        ns.load_points(_csv(tmp_path, "state,lat,lon,note,region\nWY,,,x,\n"))
+    with pytest.raises(ValueError, match="WY"):
+        ns.load_points(_csv(tmp_path, "state,lat,lon,note,region\nWY,41.0,,x,3\n"))
+
+
 @pytest.mark.parametrize(
     "text,match",
     [
@@ -75,6 +96,7 @@ def fakes(monkeypatch: pytest.MonkeyPatch) -> dict:
 
     def fake_estimate(lat: float, lon: float, **k: object) -> SimpleNamespace:
         calls["point"] = (lat, lon)
+        calls["region"] = k.get("region")
         q = pd.DataFrame({"aep": [0.01], "flow_cfs": [4000.0]})
         return SimpleNamespace(quantiles=q, library_status="verified")
 
@@ -138,3 +160,15 @@ def test_points_option_is_parsed(tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ns.main(["--points", str(p), "--states", "ZZ", "--out", str(tmp_path / "o.md"),
              "--cache", str(tmp_path / "c")])  # fmt: skip
     assert seen["path"] == p
+
+
+def test_smoke_one_with_region_only(fakes: dict) -> None:
+    point = {"lat": None, "lon": None, "note": "", "region": "3"}
+    out = ns.smoke_one(ROW, point=point)
+    assert fakes["point"] == (30.24, -97.69) and fakes["region"] == "3"
+    assert out["ungaged_point"] == "gage, region=3" and out["ungaged_ok"]
+
+
+def test_smoke_one_without_region_passes_none(fakes: dict) -> None:
+    ns.smoke_one(ROW, point={"lat": 30.25, "lon": -97.75, "note": "moved"})
+    assert fakes["region"] is None
