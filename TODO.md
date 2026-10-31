@@ -149,7 +149,9 @@ Follow-ups from the rollout reviews (issues opened 2026-10-26):
 Still failing in the 2026-10-30 rerun (14 of 56):
 
 - [ ] **No library**: DC, VI, GU, MP and AS. NSS serves no peak-flow equations for these; expected.
-- [ ] **MN** (#246): the gage lies outside every SIR 2023-5079 peak-flow polygon.
+- [x] **MN** (#246): the gage is in the Rainy River Basin, which SIR 2023-5079 leaves to SIR
+      2019-5012 (GC1775, NSS region `RRB`). GC1775 is now in MN's library and located through
+      `NSS_EXTRA_REGIONS`; the live smoke rerun waits on StreamStats (ss-hydro 502).
 - [ ] **OR**: GC729 to GC731 need characteristics StreamStats did not return at the gage
       (I24H2Y, JANMAXT2K, WATCAPORC, SOILPERM, BSLOPD, JANMINT2K).
 - [x] **WY**: region 1 needs `LONG_OUT` (outlet longitude), which StreamStats does not return;

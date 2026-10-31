@@ -1355,6 +1355,34 @@ def _geometry_of(watershed_polygon: Dict[str, Any]) -> Dict[str, Any]:
     return watershed_polygon
 
 
+#: NSS regions searched alongside a state's own, because a study inside the state is
+#: filed under a region of its own: Minnesota's Rainy River Basin equations (GC1775,
+#: SIR 2019-5012) are NSS region ``RRB`` (#246).
+NSS_EXTRA_REGIONS: Dict[str, Tuple[str, ...]] = {"MN": ("RRB",)}
+
+
+def _bylocation(nss_region: str, geometry: Dict[str, Any], timeout: float) -> List[Any]:
+    """One NSS ``bylocation`` answer (a list of region entries), unchecked."""
+    url = f"https://{GENERIC_HOST}/nssservices/regions/{nss_region}/regressionregions/bylocation"
+    response = _request_with_backoff(requests.post, url, json_body=geometry, timeout=timeout)
+    if response.status_code >= 400:
+        raise StreamStatsResponseError(
+            f"NSS bylocation for region {nss_region!r} was rejected "
+            f"({response.status_code}): {response.text}"
+        )
+    try:
+        data = response.json()
+    except ValueError as exc:
+        raise StreamStatsResponseError(
+            f"NSS bylocation response for region {nss_region!r} was not valid JSON"
+        ) from exc
+    if not isinstance(data, list):
+        raise StreamStatsResponseError(
+            f"Expected a list of regression regions from {url}, got {type(data).__name__}"
+        )
+    return data
+
+
 def locate_regression_regions(
     region: str,
     watershed_polygon: Dict[str, Any],
@@ -1367,7 +1395,9 @@ def locate_regression_regions(
     GeoJSON geometry as the body, verified live 2026-09-27 (addendum S5). Scoped to
     *region*: the unscoped ``/regressionregions/bylocation`` also returns national
     studies and neighbouring states' regions (Oregon's low-flow regions for a WA basin
-    on the Columbia), none of which a WA scenario can use.
+    on the Columbia), none of which a WA scenario can use. The regions of
+    :data:`NSS_EXTRA_REGIONS` (MN's ``RRB``) are searched as well, and their entries
+    appended.
 
     Every answer is checked against the polygon it was asked about: each region's
     overlap area may not exceed the basin's by more than :data:`POLYGON_AREA_RTOL`, and
@@ -1399,23 +1429,9 @@ def locate_regression_regions(
     """
     geometry = _geometry_of(watershed_polygon)
     basin_sq_mi = geojson_area_sq_mi(geometry)
-    url = f"https://{GENERIC_HOST}/nssservices/regions/{region}/regressionregions/bylocation"
-    response = _request_with_backoff(requests.post, url, json_body=geometry, timeout=timeout)
-    if response.status_code >= 400:
-        raise StreamStatsResponseError(
-            f"NSS bylocation for region {region!r} was rejected "
-            f"({response.status_code}): {response.text}"
-        )
-    try:
-        data = response.json()
-    except ValueError as exc:
-        raise StreamStatsResponseError(
-            f"NSS bylocation response for region {region!r} was not valid JSON"
-        ) from exc
-    if not isinstance(data, list):
-        raise StreamStatsResponseError(
-            f"Expected a list of regression regions from {url}, got {type(data).__name__}"
-        )
+    data: List[Any] = []
+    for nss_region in (region, *NSS_EXTRA_REGIONS.get(region.upper(), ())):
+        data.extend(_bylocation(nss_region, geometry, timeout))
 
     located: List[RegressionRegionLocation] = []
     for item in data:

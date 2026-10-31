@@ -24,12 +24,13 @@ import argparse
 import json
 import sys
 from pathlib import Path
-from typing import Dict, Optional, Sequence
+from typing import Any, Dict, Optional, Sequence
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
-from flowfreq.regression.nss_library import snapshot_to_library  # noqa: E402
+from flowfreq.regression.nss_library import merge_snapshots, snapshot_to_library  # noqa: E402
+from flowfreq.streamstats import NSS_EXTRA_REGIONS  # noqa: E402
 
 PUBLISHED_DIR = REPO_ROOT / "flowfreq" / "data" / "regression"
 DEFAULT_OUT = PUBLISHED_DIR / "nss_snapshot"
@@ -53,6 +54,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     status = 0
     seen: Dict[str, Path] = {}
+    snapshots: Dict[str, Dict[str, Any]] = {}
     for path in args.snapshot:
         try:
             snapshot = json.loads(path.read_text(encoding="utf-8"))
@@ -66,6 +68,24 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             status = 1
             continue
         seen[code] = path
+        snapshots[code] = snapshot
+
+    # An NSS region that holds a study inside a jurisdiction (RRB in MN) is merged into
+    # that jurisdiction's snapshot, never written on its own.
+    owner = {extra: state for state, extras in NSS_EXTRA_REGIONS.items() for extra in extras}
+    for extra in [c for c in snapshots if c in owner]:
+        state = owner[extra]
+        snap = snapshots.pop(extra)
+        if state not in snapshots:
+            print(
+                f"error {extra}: an extra NSS region of {state}, given without {state}'s snapshot"
+            )
+            status = 1
+            continue
+        snapshots[state] = merge_snapshots(snapshots[state], [snap])
+        print(f"{extra} merged into {state}")
+
+    for code, snapshot in snapshots.items():
         if (args.published_dir / f"{code}.json").exists():
             print(f"skipped {code}: published set exists")
             continue

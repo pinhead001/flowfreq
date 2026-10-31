@@ -1733,3 +1733,40 @@ class TestLiveNSS:
             assert "Curran" in by_code[code].citation.author
         # 16.2 and 12.0 cfs live on 2026-09-28.
         assert by_code["GC1557"]["M7D10Y"].value == pytest.approx(12.0, rel=0.05)
+
+
+class TestExtraNssRegions:
+    """#246: Minnesota's Rainy River Basin equations (GC1775, SIR 2019-5012) sit under
+    NSS's own ``RRB`` region, so a MN basin is also located against it."""
+
+    @staticmethod
+    def _entry(rid, code, name, cid, pct, area):
+        return {"id": rid, "name": name, "code": code, "citationID": cid, "statusID": 4,
+                "percentWeight": pct, "area": area}  # fmt: skip
+
+    def test_minnesota_also_queries_the_rainy_river_basin(self) -> None:
+        from flowfreq.streamstats import NSS_EXTRA_REGIONS
+
+        assert NSS_EXTRA_REGIONS["MN"] == ("RRB",)
+        area = NSS_BYLOCATION_WA_GOAT_CREEK[0]["area"]  # consistent with GOAT_POLYGON
+        mn = [self._entry(295, "GC1652", "Low_flow_Region_BC_2015_5170", 81, 100.0, area)]
+        rrb = [self._entry(57, "GC1775", "Rainy_River_Basin_Peakflow_SIR_2019_5012", 19,
+                           100.0, area)]  # fmt: skip
+
+        def route(url, **kw):
+            return _mock_response(rrb if "/regions/RRB/" in url else mn)
+
+        with patch("flowfreq.streamstats.requests.post", side_effect=route) as post:
+            located = locate_regression_regions("MN", GOAT_POLYGON)
+        assert [r.code for r in located] == ["GC1652", "GC1775"]
+        urls = [c.args[0] for c in post.call_args_list]
+        assert any(u.endswith("/regions/MN/regressionregions/bylocation") for u in urls)
+        assert any(u.endswith("/regions/RRB/regressionregions/bylocation") for u in urls)
+
+    def test_other_states_query_only_themselves(self) -> None:
+        with patch(
+            "flowfreq.streamstats.requests.post",
+            return_value=_mock_response(NSS_BYLOCATION_WA_GOAT_CREEK),
+        ) as post:
+            locate_regression_regions("WA", GOAT_POLYGON)
+        assert post.call_count == 1

@@ -536,8 +536,10 @@ def test_build_tool_reports_bad_snapshots_and_continues(tmp_path, capsys, trimme
     lines = capsys.readouterr().out.splitlines()
     assert lines[0].startswith(f"error {bad_json}: cannot read snapshot (JSONDecodeError")
     assert lines[1].startswith(f"error {no_state}: cannot read snapshot (KeyError")
-    assert lines[2] == "TN: 2 equations, 2 unparsed"
-    assert lines[3] == f"error TN: two snapshots given, {first} and {second}; skipped {second}"
+    # Every snapshot is read before any is written (an extra NSS region is merged into
+    # its state's first, #246), so the duplicate is reported before the write.
+    assert lines[2] == f"error TN: two snapshots given, {first} and {second}; skipped {second}"
+    assert lines[3] == "TN: 2 equations, 2 unparsed"
     written = json.loads((tmp_path / "out" / "TN.json").read_text(encoding="utf-8"))
     assert written == snapshot_to_library(trimmed)
 
@@ -607,3 +609,81 @@ def test_region_indicator_equations_match_nss(code, region):
         assert flow == pytest.approx(rec["nss_value"], rel=5e-3), (code, rec["aep"])
         # 0 percent in region 4 (PCTREG4^0 in the 50% AEP form) is in range and evaluates.
         assert evaluate(eq, {**submitted, "PCTREG4": 0.0}).flow_cfs > 0
+
+
+def _rrb_snapshot(trimmed):
+    """A one-region snapshot shaped like NSS's ``RRB`` harvest (GC1775, citation 19)."""
+    rrb = copy.deepcopy(trimmed)
+    region = copy.deepcopy(rrb["regions"][0])
+    region.update(region_code="GC1775", region_name="Rainy_River_Basin_Peakflow_SIR_2019_5012",
+                  region_id=57, citation_id=19)  # fmt: skip
+    rrb.update(state="RRB", regions=[region])
+    rrb["citations"] = {"19": {"author": "Sanocki, C.A., and others,", "title": "2019, Rainy "
+                               "River Basin peak flows: SIR 2019-5012", "citation_url": ""}}  # fmt: skip
+    return rrb
+
+
+def test_merge_snapshots_adds_the_extra_regions_and_citations(trimmed):
+    from flowfreq.regression.nss_library import merge_snapshots
+
+    merged = merge_snapshots(trimmed, [_rrb_snapshot(trimmed)])
+    assert merged["state"] == "TN"
+    codes = [r["region_code"] for r in merged["regions"]]
+    assert codes[-1] == "GC1775" and codes[:-1] == [r["region_code"] for r in trimmed["regions"]]
+    assert "19" in merged["citations"]
+    lib = parse_state(snapshot_to_library(merged))
+    eq = lib.equation("GC1775", 0.5)
+    assert eq.citation.table == "NSS region 57 (GC1775), citation 19"
+    assert "NSS region RRB's regions are merged in" in snapshot_to_library(merged)["notes"]
+    # The inputs are not modified.
+    assert all(r["region_code"] != "GC1775" for r in trimmed["regions"])
+
+
+def test_merge_snapshots_refuses_a_clashing_region(trimmed):
+    from flowfreq.regression.nss_library import merge_snapshots
+
+    with pytest.raises(ValueError, match="GC2015"):
+        merge_snapshots(trimmed, [copy.deepcopy(trimmed)])
+
+
+def test_build_tool_merges_an_extra_region_into_its_state(tmp_path, capsys, trimmed):
+    mn = copy.deepcopy(trimmed)
+    mn["state"] = "MN"
+    rrb = _rrb_snapshot(trimmed)
+    paths = []
+    for snap in (mn, rrb):
+        p = tmp_path / f"{snap['state']}.snapshot.json"
+        p.write_text(json.dumps(snap), encoding="utf-8")
+        paths.append(p)
+    out = tmp_path / "out"
+    assert _run_build_tool(tmp_path, paths) == 0
+    assert sorted(f.name for f in out.iterdir()) == ["MN.json"]
+    lib = parse_state(json.loads((out / "MN.json").read_text(encoding="utf-8")))
+    assert "GC1775" in lib.regions
+    assert "RRB merged into MN" in capsys.readouterr().out
+
+
+def test_build_tool_refuses_an_extra_region_without_its_state(tmp_path, capsys, trimmed):
+    p = tmp_path / "RRB.snapshot.json"
+    p.write_text(json.dumps(_rrb_snapshot(trimmed)), encoding="utf-8")
+    assert _run_build_tool(tmp_path, [p]) == 1
+    assert "RRB" in capsys.readouterr().out and not (tmp_path / "out" / "RRB.json").exists()
+
+
+def test_minnesota_carries_the_rainy_river_basin_equations():
+    # #246: GC1775 (SIR 2019-5012) is NSS region RRB's, merged into MN's library, and
+    # reproduces NSS's own Estimate values at the harvest's submitted inputs.
+    from flowfreq.regression.equations import evaluate
+
+    snapshot = json.loads(
+        (REPO_ROOT / "data" / "nss_snapshots" / "RRB_2026-10-31.json").read_text("utf-8")
+    )
+    (raw,) = snapshot["regions"]
+    submitted = {p["code"]: p["submitted"] for p in raw["parameters"]}
+    lib = load_state("MN", allow_nss_snapshot=True)
+    assert len(raw["equations"]) == 8
+    for rec in raw["equations"]:
+        eq = lib.equation("GC1775", rec["aep"])
+        assert "2019" in eq.citation.publication and "Rainy" in eq.citation.publication
+        flow = evaluate(eq, submitted).flow_cfs
+        assert flow == pytest.approx(rec["nss_value"], rel=5e-3), rec["aep"]

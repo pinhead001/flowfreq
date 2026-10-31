@@ -137,6 +137,47 @@ def _plural(n: int, word: str, plural: Optional[str] = None) -> str:
     return f"{n} {word if n == 1 else (plural or word + 's')}"
 
 
+def merge_snapshots(base: Dict[str, Any], extras: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """``base`` with the regions and citations of ``extras`` appended.
+
+    For an NSS region that holds a study inside a jurisdiction but is not the
+    jurisdiction's own (Minnesota's Rainy River Basin equations are NSS region
+    ``RRB``; :data:`flowfreq.streamstats.NSS_EXTRA_REGIONS`). The result keeps
+    ``base``'s state and retrieval time; neither input is modified.
+
+    Raises
+    ------
+    ValueError
+        If an extra region's code is already in ``base``, or a citation id is
+        already there with a different record.
+    """
+    merged = dict(base)
+    regions = [dict(r) for r in base.get("regions") or []]
+    citations = dict(base.get("citations") or {})
+    codes = {str(r.get("region_code")) for r in regions}
+    for extra in extras:
+        for region in extra.get("regions") or []:
+            code = str(region.get("region_code"))
+            if code in codes:
+                raise ValueError(
+                    f"region {code} of {extra.get('state')} is already in {base.get('state')}"
+                )
+            codes.add(code)
+            regions.append(dict(region))
+        for cid, record in (extra.get("citations") or {}).items():
+            if cid in citations and citations[cid] != record:
+                raise ValueError(f"citation {cid} differs between {base.get('state')} and "
+                                 f"{extra.get('state')}")  # fmt: skip
+            citations[cid] = record
+    merged["regions"] = regions
+    merged["citations"] = citations
+    merged["merged"] = [*base.get("merged", []), *(
+        {"region": str(e.get("state")), "retrieved_utc": str(e.get("retrieved_utc") or "")}
+        for e in extras
+    )]  # fmt: skip
+    return merged
+
+
 def snapshot_to_library(snapshot: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     """Build the JSON form of an ``nss_snapshot`` library from an NSS snapshot.
 
@@ -251,6 +292,11 @@ def snapshot_to_library(snapshot: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         f"{_plural(len(equations), 'equation')} stored, {_plural(len(unparsed), 'unparsed equation or region', 'unparsed equations or regions')}, "
         f"{_plural(skipped, 'non-AEP statistic')} skipped."
     )
+    for m in snapshot.get("merged") or []:
+        notes += (
+            f" NSS region {m['region']}'s regions are merged in from "
+            f"data/nss_snapshots/{m['region']}_{m['retrieved_utc'][:10]}.json."
+        )
     if low_asep:
         notes += (
             f" NSS's ASEp is below {ASEP_PCT_FLOOR:g} in region(s) {', '.join(low_asep)}; "
