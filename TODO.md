@@ -162,8 +162,8 @@ Still failing in the 2026-10-30 rerun (14 of 56; WY and MN fixed since, live rec
 - Large gaged-versus-ungaged differences with a correct delineation (the drainage area matches
   the catalog): AZ 09484000 (ratio 0.10, a 35 mi2 basin), TX 08190000 (0.20, Nueces River)
   and NV 10329500 (0.36). The regressions are run as published; these are not defects.
-- [ ] **The methow-flow items stay parked** (Priorities for methow-flow below: 8, 9 and 11
-      of Tier 3).
+- [ ] **The methow-flow items stay parked** (Priorities for methow-flow below: 8 in part,
+      and 11 of Tier 3).
 - [ ] **Regional skew `pending` rows** (41): each waits for a published B-WLS/B-GLS study or
       a reading of the report's printed value; the row's notes say which.
 
@@ -241,10 +241,14 @@ attribute in methow-flow waits on (`docs/EDT_ATTRIBUTE_CROSSWALK.md` §6 there):
        monthly means across nested gages, and months with zero flow (the Mazama gage's
        October-March dry days), where log space fails. Needs item 6 first, since
        diversions move the low-flow months most.
-8. [ ] **Stationarity screening** (§6.1). The EDT attributes compare two periods (§15
+8. [~] **Stationarity screening** (§6.1; `flowfreq.stationarity`, 2026-10-31: Mann-Kendall
+       with Hamed-Rao, Sen's slope, Spearman, Pettitt and `stationarity_screen`; CUSUM/Lombard,
+       field significance and the attribution overlay remain). The EDT attributes compare two periods (§15
        Q2, §16 low flow, §18 TQmean), and a monthly transfer over WY1992-2025 assumes the
        donor relation holds across it.
-9. [ ] **Mixed snowmelt/rain-on-snow populations** (§2, warn only).
+9. [x] **Mixed snowmelt/rain-on-snow populations** (§2, warn only):
+       `stationarity.mixed_population_screen` (cool-season share of annual peaks and the
+       concentration of their dates; warns inside a 20-80 percent split).
 10. [x] **Scheduled live-network CI** (§7): the weekly `Live services` workflow
        (`.github/workflows/`), which opens an issue on failure (#218 was one).
 11. [ ] **Naturalization add-back** (§5.2). Gaged flow plus the diversions upstream of a
