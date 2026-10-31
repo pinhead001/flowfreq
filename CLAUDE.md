@@ -208,6 +208,7 @@ CI should test the supported Python matrix.
   leave-one-out coverage
 - **`monthly_transfer.py`** / **`duration_transfer.py`** — monthly mean/median flow statistics, and median annual duration quantiles (q10, q50, q90), with sampling covariance, runoff-volume gage pairs for `fit_dissimilarity`, the GLS blend and leave-one-out
 - **`future_flow.py`** — future-condition change-factor framework
+- **`naturalize.py`** — naturalization add-back of upstream diversions (caller-supplied rates, return fractions, seasons)
 - **`stationarity.py`** — Mann-Kendall (Hamed-Rao), Sen's slope, Spearman and Pettitt screening of annual series; mixed-population seasonality screen
 - **`lowflow.py`** / **`regime.py`** / **`subdaily.py`** — low-flow frequency, flow-regime and
   sub-daily metrics

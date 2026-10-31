@@ -162,8 +162,8 @@ Still failing in the 2026-10-30 rerun (14 of 56; WY and MN fixed since, live rec
 - Large gaged-versus-ungaged differences with a correct delineation (the drainage area matches
   the catalog): AZ 09484000 (ratio 0.10, a 35 mi2 basin), TX 08190000 (0.20, Nueces River)
   and NV 10329500 (0.36). The regressions are run as published; these are not defects.
-- [ ] **The methow-flow items stay parked** (Priorities for methow-flow below: 8 in part,
-      and 11 of Tier 3).
+- [ ] **The methow-flow items stay parked** (Priorities for methow-flow below: 8 in part:
+      CUSUM/Lombard, field significance, attribution).
 - [ ] **Regional skew `pending` rows** (41): each waits for a published B-WLS/B-GLS study or
       a reading of the report's printed value; the row's notes say which.
 
@@ -251,7 +251,8 @@ attribute in methow-flow waits on (`docs/EDT_ATTRIBUTE_CROSSWALK.md` §6 there):
        concentration of their dates; warns inside a 20-80 percent split).
 10. [x] **Scheduled live-network CI** (§7): the weekly `Live services` workflow
        (`.github/workflows/`), which opens an issue on failure (#218 was one).
-11. [ ] **Naturalization add-back** (§5.2). Gaged flow plus the diversions upstream of a
+11. [x] **Naturalization add-back** (§5.2; `flowfreq.naturalize`, 2026-10-31: `Diversion`,
+       `naturalize`; no routing lag or storage). Gaged flow plus the diversions upstream of a
        site, net of return flow (canal seepage), as a daily or monthly series a transfer can
        start from. `qppq` says it does not naturalize, so a regulated donor carries its
        regulation into every transfer. Inputs are caller-supplied (diversion rates,
