@@ -8,7 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
-- `flowfreq.regression.gls.fit_gls` searches the model error variance only where the sampling covariance plus γ²I is positive definite. The WREG construction does not guarantee a positive semi-definite Σ. With an indefinite Σ the estimate could collapse to 0 and give nonsense coefficients (an intercept of 4.4 instead of 1.0 in one Washington Region 2 leave-one-out fold). `sampling_covariance` caps concurrent years at the shorter record. The committed Washington refit moves by at most 0.3%.
+- `regional_skew_at_huc` with no `state` on a multi-state unit considers only the rows that apply in a touched state, so a refusal names a study that is actually in play. It used to name Skew Region 2 for an Arkansas/Missouri HUC8 of HU 08 (review 2026-10-31).
+- A non-finite `drainage_area_sqmi` is treated as unknown (the range becomes an advisory), and `regional_skew_for_site` ignores a non-numeric `drainage_area` on record.
+- `locate_regression_regions`: a failure of an extra NSS region (MN's `RRB`) is logged and skipped, so it no longer fails every Minnesota lookup.
+- `flowfreq.regression.gls.fit_gls` replaces an indefinite sampling covariance with the nearest positive semi-definite matrix (negative eigenvalues set to zero) before estimating the model error variance. The WREG construction does not guarantee a positive semi-definite Σ. With an indefinite Σ the estimate could collapse to 0 and give nonsense coefficients (an intercept of 4.4 instead of 1.0 in one Washington Region 2 leave-one-out fold); an interim fix floored it at |λ_min| instead, inflating MEV (review 2026-10-31). `sampling_covariance` caps concurrent years at the shorter record. The committed Washington refit moves by at most 0.3%.
 
 ### Added
 - `flowfreq.monthly_transfer` part 2 (methow item 7): `monthly_transfers` builds one target's transfers and the donors' sampling covariance for `combine`. `blend_month` is the GLS blend of a month's transfers, optionally with a regression. `monthly_leave_one_out` holds out each connected gage, refits `s2_d` without it, and scores the blend's coverage against `V_blend + V_j - 2 sum w C_kj`, as the flood `leave_one_out` does. The donor correlation is a fixed input.

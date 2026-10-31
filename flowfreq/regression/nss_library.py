@@ -171,7 +171,7 @@ def merge_snapshots(base: Dict[str, Any], extras: List[Dict[str, Any]]) -> Dict[
             citations[cid] = record
     merged["regions"] = regions
     merged["citations"] = citations
-    merged["merged"] = [*base.get("merged", []), *(
+    merged["merged"] = [*(base.get("merged") or []), *(
         {"region": str(e.get("state")), "retrieved_utc": str(e.get("retrieved_utc") or "")}
         for e in extras
     )]  # fmt: skip

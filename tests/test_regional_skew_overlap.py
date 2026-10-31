@@ -223,3 +223,17 @@ def test_packaged_new_rows_need_no_state_inside_one_state() -> None:
     # Rappahannock) wholly in Virginia.
     assert regional_skew_at_huc("041300020503").skew_region == GLO
     assert regional_skew_at_huc("020801030602").skew_region == SR1
+
+
+# ----------------------------------------------------------------------------
+# Review fixes (2026-10-31)
+# ----------------------------------------------------------------------------
+
+
+def test_multistate_unit_names_the_study_covering_a_touched_state() -> None:
+    # 08020203 touches AR and MO. HU 08 carries Skew Region 2 (KY, TN) and
+    # Arkansas-Louisiana (AR, LA) rows; the refusal must not name Skew Region 2.
+    with pytest.raises(RegionalSkewUnavailable) as info:
+        regional_skew_at_huc("080202030101")
+    assert "Skew Region 2" not in str(info.value)
+    assert regional_skew_at_huc("080202030101", "AR").skew_region == ARLA
