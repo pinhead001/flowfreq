@@ -169,8 +169,9 @@ Still failing in the 2026-10-30 rerun (14 of 56; WY and MN fixed since, live rec
       `RegulatedDelineationError`. The smoke point moved to gage 06352000 (Cedar Creek near
       Haynes, 557 mi2, reference).
 - [x] **AK**: gage 15072000 does not snap (nor 10 of the next 11 AK candidates). The
-      smoke point moved to gage 15290000 (Little Susitna River near Palmer, 62 mi2) with
-      `region=GC1656`, since AK's two statewide areas (under and over 1,000 mi2) overlap.
+      smoke point moved to gage 15290000 (Little Susitna River near Palmer, 62 mi2) in
+      GC1656, which `assemble` now picks by drainage area from AK's two overlapping statewide
+      classes (under and over 1,000 mi2).
 - [ ] **Live recheck** of the moved MT, ND and AK points, with WY and MN: snap,
       delineation and NSS region location pass (2026-10-31); the estimates wait on ss-hydro.
 - Large gaged-versus-ungaged differences with a correct delineation (the drainage area matches

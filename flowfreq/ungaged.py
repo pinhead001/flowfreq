@@ -200,6 +200,8 @@ class OverlappingRegionsError(EquationsUnavailable):
     NSS serves superseded and current equation sets for the same area side by side,
     each at its full ``percent_weight``; averaging them would blend two estimates of the
     same thing. A caller chooses one with ``region=`` (API) or ``--region`` (CLI).
+    Overlapping drainage-area classes (Alaska's GC1656 and GC1657) are not refused: the
+    basin's DRNAREA picks one (``_drainage_area_class``).
 
     Parameters
     ----------
@@ -359,6 +361,62 @@ class Assembly:
     missing: Dict[str, List[str]]
     alternatives: List[RegressionRegionLocation] = field(default_factory=list)
     region_choice_source: Optional[str] = None
+
+
+def _drainage_area_class(
+    lib: StateLibrary,
+    used: Sequence[Tuple[RegressionRegionLocation, str]],
+    characteristics: Mapping[str, float],
+) -> Optional[Tuple[Tuple[RegressionRegionLocation, str], str]]:
+    """The one overlapping region whose drainage-area range holds the basin, if the
+    overlap is a set of drainage-area classes.
+
+    Some studies split a state by drainage area rather than by geography, and NSS
+    serves each class over the whole state: Alaska's SIR 2016-5024 has GC1656 for
+    basins under 1,000 mi2 and GC1657 for larger ones, both located everywhere. Those
+    regions overlap, but the choice between them is not the caller's to make. The
+    overlap is read as drainage-area classes only when every candidate covers the whole
+    basin, every equation of each bounds DRNAREA, and the candidates' ranges do not
+    overlap (they may share an endpoint). The basin's DRNAREA must then fall in exactly
+    one range; a basin on a shared endpoint, or outside every range, is left to the
+    caller.
+
+    Returns
+    -------
+    ((RegressionRegionLocation, str), str) or None
+        The chosen pair and the reason recorded as ``region_choice_source``; None when
+        the overlap is not drainage-area classes or the area does not decide it.
+    """
+    area = characteristics.get("DRNAREA")
+    if area is None or not np.isfinite(area):
+        return None
+    ranges: List[Tuple[float, float, Tuple[RegressionRegionLocation, str]]] = []
+    for pair in used:
+        loc, lib_code = pair
+        if loc.percent_weight < 100.0 - PERCENT_WEIGHT_TOL:
+            return None
+        lows: List[float] = []
+        highs: List[float] = []
+        for aep in lib.aeps(lib_code):
+            var = next(
+                (v for v in lib.equation(lib_code, aep).variables if v.code == "DRNAREA"), None
+            )
+            if var is None or var.minimum is None or var.maximum is None:
+                return None
+            lows.append(float(var.minimum))
+            highs.append(float(var.maximum))
+        ranges.append((min(lows), max(highs), pair))
+    ranges.sort(key=lambda r: r[0])
+    if any(b[0] < a[1] for a, b in zip(ranges, ranges[1:])):
+        return None
+    inside = [r for r in ranges if r[0] <= area <= r[1]]
+    if len(inside) != 1:
+        return None
+    lo, hi, pair = inside[0]
+    return pair, (
+        f"drainage area: the overlapping regions are drainage-area classes, and "
+        f"DRNAREA {area:g} mi2 is within {pair[0].code}'s range ({lo:g} to {hi:g} mi2)"
+    )
 
 
 def _library_region(lib: StateLibrary, code: str) -> Optional[str]:
@@ -616,7 +674,11 @@ def assemble(
             for r, lib_code in used
         ]
         if choice is None:
-            raise OverlappingRegionsError(lib.state, candidates)
+            by_area = _drainage_area_class(lib, used, characteristics)
+            if by_area is None:
+                raise OverlappingRegionsError(lib.state, candidates)
+            chosen, region_choice_source = by_area
+            logger.info("%s: %s", lib.state, region_choice_source)
         if chosen is None:
             if why is None:
                 raise OverlappingRegionsError(lib.state, candidates, choice)
