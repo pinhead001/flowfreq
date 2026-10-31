@@ -162,8 +162,8 @@ Still failing in the 2026-10-30 rerun (14 of 56; WY and MN fixed since, live rec
 - Large gaged-versus-ungaged differences with a correct delineation (the drainage area matches
   the catalog): AZ 09484000 (ratio 0.10, a 35 mi2 basin), TX 08190000 (0.20, Nueces River)
   and NV 10329500 (0.36). The regressions are run as published; these are not defects.
-- [ ] **The methow-flow items stay parked** (Priorities for methow-flow below: 7 parts 2-3,
-      8, 9 and 11 of Tier 3).
+- [ ] **The methow-flow items stay parked** (Priorities for methow-flow below: 8, 9 and 11
+      of Tier 3).
 - [ ] **Regional skew `pending` rows** (41): each waits for a published B-WLS/B-GLS study or
       a reading of the report's printed value; the row's notes say which.
 
@@ -229,9 +229,11 @@ Tier 2 -- fixes known Methow biases or moves general code upstream:
 
 Tier 3 -- ordered for the per-reach monthly mean flows (WY1992-2025) that every EDT flow
 attribute in methow-flow waits on (`docs/EDT_ATTRIBUTE_CROSSWALK.md` §6 there):
-7. [~] **Transfer variance for monthly and duration flows** (§5.1); decisions made
-       2026-10-26, part 1 merged (`flowfreq.monthly_transfer`, #238), part 2
-       (`monthly_leave_one_out`, `blend_month`, 2026-10-31); part 3 (duration quantiles) open. Extend
+7. [x] **Transfer variance for monthly and duration flows** (§5.1); decisions made
+       2026-10-26. Part 1 `flowfreq.monthly_transfer` (#238); part 2 monthly leave-one-out
+       and blend (#260); part 3 `flowfreq.duration_transfer`, median annual q10/q50/q90
+       (2026-10-31). Open from the original list: the exponent per month stays 1 (no
+       duration-indexed exponent set is published for the Methow). Extend
        `transfer_variance` from flood quantiles to a monthly mean per calendar month and
        to duration quantiles: pairs and `s2_d` fitted per month, the GLS blend and
        leave-one-out unchanged. Open questions: the exponent `b` per month (no

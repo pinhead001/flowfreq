@@ -59,8 +59,6 @@ logger = logging.getLogger(__name__)
 _LN10 = math.log(10.0)
 _STATISTICS = ("mean", "median")
 _YEARLY_COLUMNS = ["site_no", "water_year", "month", "flow_cfs"]
-_TABLE_COLUMNS = ["site_no", "month", "value_cfs", "log_q", "n_years", "variance"]
-_EXCLUDED_COLUMNS = ["site_no", "month", "reason"]
 
 
 @dataclass(frozen=True)
@@ -218,60 +216,9 @@ def monthly_statistics(
             sub["flow_cfs"].to_numpy(dtype=float), index=sub["water_year"].to_numpy(dtype=int)
         )
 
-    table_rows: List[Dict[str, object]] = []
-    excluded_rows: List[Dict[str, object]] = []
-    valid: Dict[Tuple[str, int], pd.Series] = {}
-    for site in sites:
-        for month in range(1, 13):
-            x = groups.get((site, month), pd.Series(dtype=float))
-            n = len(x)
-            value = log_q = variance = float("nan")
-            reason = ""
-            if n < min_years:
-                reason = f"fewer than {min_years} complete years ({n})"
-            elif statistic == "mean" and float(x.mean()) <= 0.0:
-                reason = "zero period mean flow"
-            elif statistic == "median" and bool((x <= 0.0).any()):
-                reason = "zero flow in a yearly mean (median works in log space)"
-            else:
-                value, log_q, variance = _own_statistic(np.asarray(x, dtype=float), statistic)
-                valid[(site, month)] = x
-            if reason:
-                excluded_rows.append({"site_no": site, "month": month, "reason": reason})
-            table_rows.append(
-                {
-                    "site_no": site,
-                    "month": month,
-                    "value_cfs": value,
-                    "log_q": log_q,
-                    "n_years": n,
-                    "variance": variance,
-                }
-            )
-    table = pd.DataFrame(table_rows, columns=_TABLE_COLUMNS)
-    excluded = pd.DataFrame(excluded_rows, columns=_EXCLUDED_COLUMNS)
-
-    covariance: Dict[int, pd.DataFrame] = {}
-    for month in range(1, 13):
-        k = len(sites)
-        matrix = np.full((k, k), np.nan)
-        var_by_site = dict(
-            zip(
-                table.loc[table["month"] == month, "site_no"].tolist(),
-                table.loc[table["month"] == month, "variance"].tolist(),
-            )
-        )
-        for i, a in enumerate(sites):
-            if (a, month) not in valid:
-                continue
-            matrix[i, i] = float(var_by_site[a])
-            for j in range(i + 1, k):
-                b = sites[j]
-                if (b, month) not in valid:
-                    continue
-                c = _cross_covariance(valid[(a, month)], valid[(b, month)], statistic)
-                matrix[i, j] = matrix[j, i] = c
-        covariance[month] = pd.DataFrame(matrix, index=sites, columns=sites)
+    table, covariance, excluded = _tabulate(
+        groups, sites, range(1, 13), statistic, min_years, "month"
+    )
 
     return MonthlyStatistics(
         statistic=statistic,
@@ -333,71 +280,10 @@ def build_monthly_pairs(
         raise ValueError(f"month must be in 1-12, got {month}")
     if "runoff_depth" not in gages.columns:
         raise ValueError("gages needs a 'runoff_depth' column")
-    site_list = gages["site_no"].astype(str).tolist()
-    area = dict(zip(site_list, gages["drainage_area_sqmi"].to_numpy(dtype=float).tolist()))
-    depth = dict(zip(site_list, gages["runoff_depth"].to_numpy(dtype=float).tolist()))
-    attr = {a: dict(zip(site_list, gages[a].to_numpy(dtype=float).tolist())) for a in attributes}
-    month_table = stats.table[stats.table["month"] == month]
-    log_q = dict(zip(month_table["site_no"].astype(str).tolist(), month_table["log_q"].tolist()))
-    cov = stats.covariance[int(month)]
-
-    rows: List[Dict[str, object]] = []
-    for donor_raw, receiver_raw in connections:
-        donor, receiver = str(donor_raw), str(receiver_raw)
-        for s in (donor, receiver):
-            if s not in area:
-                raise KeyError(f"connection names {s}, which is not in the gage table")
-            if s not in log_q:
-                raise KeyError(f"connection names {s}, which is not in the monthly statistics")
-        if math.isnan(log_q[donor]) or math.isnan(log_q[receiver]):
-            logger.info(
-                "month %d: dropping connection %s -> %s (a gage is excluded)",
-                month,
-                donor,
-                receiver,
-            )
-            continue
-        log_ar = math.log10(area[receiver] / area[donor])
-        log_rr = math.log10(depth[receiver] / depth[donor])
-        transfer = log_q[donor] + log_ar + log_rr
-        observed = log_q[receiver]
-        known = (
-            _cell(cov, donor, donor)
-            + _cell(cov, receiver, receiver)
-            - 2.0 * _cell(cov, donor, receiver)
-        )
-        row: Dict[str, object] = {
-            "donor": donor,
-            "receiver": receiver,
-            "month": int(month),
-            "statistic": stats.statistic,
-            "area_ratio": 10.0**log_ar,
-            "log_ar": log_ar,
-            "log_rr": log_rr,
-            "exponent": 1.0,
-            "transfer": transfer,
-            "observed": observed,
-            "error": transfer - observed,
-            "known_variance": known,
-        }
-        for a in attributes:
-            row[f"d_{a}"] = attr[a][receiver] - attr[a][donor]
-        rows.append(row)
-    columns = [
-        "donor",
-        "receiver",
-        "month",
-        "statistic",
-        "area_ratio",
-        "log_ar",
-        "log_rr",
-        "exponent",
-        "transfer",
-        "observed",
-        "error",
-        "known_variance",
-    ] + [f"d_{a}" for a in attributes]
-    return pd.DataFrame(rows, columns=columns)
+    log_q, cov = _slice(stats, "month", int(month))
+    return _pairs_core(
+        log_q, cov, stats.statistic, "month", int(month), gages, connections, attributes
+    )
 
 
 # ------------------------------------------------------------------- part 2: blend and LOO
@@ -447,42 +333,8 @@ def monthly_transfers(
         raise ValueError(f"month must be in 1-12, got {month}")
     if "runoff_depth" not in gages.columns:
         raise ValueError("gages needs a 'runoff_depth' column")
-    site_list = gages["site_no"].astype(str).tolist()
-    area = dict(zip(site_list, gages["drainage_area_sqmi"].to_numpy(dtype=float).tolist()))
-    depth = dict(zip(site_list, gages["runoff_depth"].to_numpy(dtype=float).tolist()))
-    attr = {a: dict(zip(site_list, gages[a].to_numpy(dtype=float).tolist())) for a in attributes}
-    month_table = stats.table[stats.table["month"] == month]
-    log_q = dict(zip(month_table["site_no"].astype(str), month_table["log_q"]))
-    cov = stats.covariance[int(month)]
-    target = str(target)
-    donor_list = [str(d) for d in donors]
-    for site in (target, *donor_list):
-        if site not in area:
-            raise KeyError(f"{site} is not in the gage table")
-        if site not in log_q:
-            raise KeyError(f"{site} is not in the monthly statistics")
-    rows: List[Dict[str, object]] = []
-    for d in donor_list:
-        if math.isnan(log_q[d]):
-            raise ValueError(f"month {month}: donor {d} is excluded (see stats.excluded)")
-        log_ar = math.log10(area[target] / area[d])
-        log_rr = math.log10(depth[target] / depth[d])
-        row: Dict[str, object] = {
-            "donor": d,
-            "transfer": log_q[d] + log_ar + log_rr,
-            "donor_variance": _cell(cov, d, d),
-            "log_ar": log_ar,
-            "log_rr": log_rr,
-        }
-        for a in attributes:
-            row[f"d_{a}"] = attr[a][target] - attr[a][d]
-        rows.append(row)
-    dcov = pd.DataFrame(
-        [[_cell(cov, a, b) for b in donor_list] for a in donor_list],
-        index=donor_list,
-        columns=donor_list,
-    )
-    return pd.DataFrame(rows), dcov
+    log_q, cov = _slice(stats, "month", int(month))
+    return _transfers_core(log_q, cov, gages, target, donors, attributes, f"month {month}")
 
 
 def blend_month(
@@ -576,10 +428,242 @@ def monthly_leave_one_out(
         A gage whose fold cannot be refitted or blended keeps NaN estimates, and its
         ``note`` says why.
     """
-    pairs = build_monthly_pairs(stats, month, gages, connections, attributes=attributes)
-    month_table = stats.table[stats.table["month"] == month]
-    log_q = dict(zip(month_table["site_no"].astype(str), month_table["log_q"]))
-    cov = stats.covariance[int(month)]
+    if not 1 <= int(month) <= 12:
+        raise ValueError(f"month must be in 1-12, got {month}")
+    log_q, cov = _slice(stats, "month", int(month))
+    return _loo_core(
+        log_q, cov, stats.statistic, "month", int(month), gages, connections, terms,
+        attributes, donor_correlation, level, powers,
+    )  # fmt: skip
+
+
+# ------------------------------------------------------------------ key-generic cores
+#
+# The monthly functions above, and flowfreq.duration_transfer, key their statistics by
+# month or by exceedance percentage; these cores take the per-key log10 statistics and
+# sampling covariance directly.
+
+
+def _tabulate(
+    groups: Mapping[Tuple[str, int], pd.Series],
+    sites: Sequence[str],
+    keys: Sequence[int],
+    statistic: str,
+    min_years: int,
+    key_col: str,
+) -> Tuple[pd.DataFrame, Dict[int, pd.DataFrame], pd.DataFrame]:
+    """Per site and key: the statistic of its yearly series, with variance and covariance.
+
+    ``groups[(site, key)]`` is the yearly series indexed by water year. Returns the table
+    (``site_no``, ``key_col``, ``value_cfs``, ``log_q``, ``n_years``, ``variance``), the
+    per-key covariance frames and the exclusions (``site_no``, ``key_col``, ``reason``).
+    """
+    table_rows: List[Dict[str, object]] = []
+    excluded_rows: List[Dict[str, object]] = []
+    valid: Dict[Tuple[str, int], pd.Series] = {}
+    for site in sites:
+        for key in keys:
+            x = groups.get((site, key), pd.Series(dtype=float))
+            n = len(x)
+            value = log_q = variance = float("nan")
+            reason = ""
+            if n < min_years:
+                reason = f"fewer than {min_years} complete years ({n})"
+            elif statistic == "mean" and float(x.mean()) <= 0.0:
+                reason = "zero period mean flow"
+            elif statistic == "median" and bool((x <= 0.0).any()):
+                reason = "zero flow in a yearly value (median works in log space)"
+            else:
+                value, log_q, variance = _own_statistic(np.asarray(x, dtype=float), statistic)
+                valid[(site, key)] = x
+            if reason:
+                excluded_rows.append({"site_no": site, key_col: key, "reason": reason})
+            table_rows.append(
+                {
+                    "site_no": site,
+                    key_col: key,
+                    "value_cfs": value,
+                    "log_q": log_q,
+                    "n_years": n,
+                    "variance": variance,
+                }
+            )
+    table = pd.DataFrame(
+        table_rows, columns=["site_no", key_col, "value_cfs", "log_q", "n_years", "variance"]
+    )
+    excluded = pd.DataFrame(excluded_rows, columns=["site_no", key_col, "reason"])
+    covariance: Dict[int, pd.DataFrame] = {}
+    for key in keys:
+        k = len(sites)
+        matrix = np.full((k, k), np.nan)
+        sel = table[key_col] == key
+        var_by_site = dict(
+            zip(table.loc[sel, "site_no"].tolist(), table.loc[sel, "variance"].tolist())
+        )
+        for i, a in enumerate(sites):
+            if (a, key) not in valid:
+                continue
+            matrix[i, i] = float(var_by_site[a])
+            for j in range(i + 1, k):
+                b = sites[j]
+                if (b, key) not in valid:
+                    continue
+                c = _cross_covariance(valid[(a, key)], valid[(b, key)], statistic)
+                matrix[i, j] = matrix[j, i] = c
+        covariance[int(key)] = pd.DataFrame(matrix, index=list(sites), columns=list(sites))
+    return table, covariance, excluded
+
+
+def _slice(stats: object, key_col: str, key: int) -> Tuple[Dict[str, float], pd.DataFrame]:
+    """``(log_q by site, covariance frame)`` of one key of a statistics object."""
+    table = getattr(stats, "table")
+    sel = table[table[key_col] == key]
+    log_q = dict(zip(sel["site_no"].astype(str).tolist(), sel["log_q"].astype(float).tolist()))
+    return log_q, getattr(stats, "covariance")[int(key)]
+
+
+def _gage_columns(
+    gages: pd.DataFrame, attributes: Sequence[str]
+) -> Tuple[Dict[str, float], Dict[str, float], Dict[str, Dict[str, float]]]:
+    if "runoff_depth" not in gages.columns:
+        raise ValueError("gages needs a 'runoff_depth' column")
+    site_list = gages["site_no"].astype(str).tolist()
+    area = dict(zip(site_list, gages["drainage_area_sqmi"].to_numpy(dtype=float).tolist()))
+    depth = dict(zip(site_list, gages["runoff_depth"].to_numpy(dtype=float).tolist()))
+    attr = {a: dict(zip(site_list, gages[a].to_numpy(dtype=float).tolist())) for a in attributes}
+    return area, depth, attr
+
+
+def _pairs_core(
+    log_q: Mapping[str, float],
+    cov: pd.DataFrame,
+    statistic: str,
+    key_col: str,
+    key: int,
+    gages: pd.DataFrame,
+    connections: Sequence[Tuple[str, str]],
+    attributes: Sequence[str],
+) -> pd.DataFrame:
+    """The pair table of :func:`build_monthly_pairs` for one key."""
+    area, depth, attr = _gage_columns(gages, attributes)
+    rows: List[Dict[str, object]] = []
+    for donor_raw, receiver_raw in connections:
+        donor, receiver = str(donor_raw), str(receiver_raw)
+        for site in (donor, receiver):
+            if site not in area:
+                raise KeyError(f"connection names {site}, which is not in the gage table")
+            if site not in log_q:
+                raise KeyError(f"connection names {site}, which is not in the statistics")
+        if math.isnan(log_q[donor]) or math.isnan(log_q[receiver]):
+            logger.info(
+                "%s %d: dropping connection %s -> %s (a gage is excluded)",
+                key_col,
+                key,
+                donor,
+                receiver,
+            )
+            continue
+        log_ar = math.log10(area[receiver] / area[donor])
+        log_rr = math.log10(depth[receiver] / depth[donor])
+        transfer = log_q[donor] + log_ar + log_rr
+        observed = log_q[receiver]
+        known = (
+            _cell(cov, donor, donor)
+            + _cell(cov, receiver, receiver)
+            - 2.0 * _cell(cov, donor, receiver)
+        )
+        row: Dict[str, object] = {
+            "donor": donor,
+            "receiver": receiver,
+            key_col: int(key),
+            "statistic": statistic,
+            "area_ratio": 10.0**log_ar,
+            "log_ar": log_ar,
+            "log_rr": log_rr,
+            "exponent": 1.0,
+            "transfer": transfer,
+            "observed": observed,
+            "error": transfer - observed,
+            "known_variance": known,
+        }
+        for a in attributes:
+            row[f"d_{a}"] = attr[a][receiver] - attr[a][donor]
+        rows.append(row)
+    columns = [
+        "donor",
+        "receiver",
+        key_col,
+        "statistic",
+        "area_ratio",
+        "log_ar",
+        "log_rr",
+        "exponent",
+        "transfer",
+        "observed",
+        "error",
+        "known_variance",
+    ] + [f"d_{a}" for a in attributes]
+    return pd.DataFrame(rows, columns=columns)
+
+
+def _transfers_core(
+    log_q: Mapping[str, float],
+    cov: pd.DataFrame,
+    gages: pd.DataFrame,
+    target: str,
+    donors: Sequence[str],
+    attributes: Sequence[str],
+    where: str,
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """The transfers and donor covariance of :func:`monthly_transfers` for one key."""
+    area, depth, attr = _gage_columns(gages, attributes)
+    target = str(target)
+    donor_list = [str(d) for d in donors]
+    for site in (target, *donor_list):
+        if site not in area:
+            raise KeyError(f"{site} is not in the gage table")
+        if site not in log_q:
+            raise KeyError(f"{site} is not in the statistics")
+    rows: List[Dict[str, object]] = []
+    for d in donor_list:
+        if math.isnan(log_q[d]):
+            raise ValueError(f"{where}: donor {d} is excluded (see stats.excluded)")
+        log_ar = math.log10(area[target] / area[d])
+        log_rr = math.log10(depth[target] / depth[d])
+        row: Dict[str, object] = {
+            "donor": d,
+            "transfer": log_q[d] + log_ar + log_rr,
+            "donor_variance": _cell(cov, d, d),
+            "log_ar": log_ar,
+            "log_rr": log_rr,
+        }
+        for a in attributes:
+            row[f"d_{a}"] = attr[a][target] - attr[a][d]
+        rows.append(row)
+    dcov = pd.DataFrame(
+        [[_cell(cov, a, b) for b in donor_list] for a in donor_list],
+        index=donor_list,
+        columns=donor_list,
+    )
+    return pd.DataFrame(rows), dcov
+
+
+def _loo_core(
+    log_q: Mapping[str, float],
+    cov: pd.DataFrame,
+    statistic: str,
+    key_col: str,
+    key: int,
+    gages: pd.DataFrame,
+    connections: Sequence[Tuple[str, str]],
+    terms: Sequence[str],
+    attributes: Sequence[str],
+    donor_correlation: float,
+    level: float,
+    powers: Optional[Mapping[str, float]],
+) -> pd.DataFrame:
+    """The leave-one-out table of :func:`monthly_leave_one_out` for one key."""
+    pairs = _pairs_core(log_q, cov, statistic, key_col, key, gages, connections, attributes)
     neighbours: Dict[str, List[str]] = {}
     for a_raw, b_raw in connections:
         a, b = str(a_raw), str(b_raw)
@@ -589,14 +673,14 @@ def monthly_leave_one_out(
         neighbours.setdefault(b, []).append(a)
     zcrit = float(norm.ppf(0.5 + level / 2.0))
     rows: List[Dict[str, object]] = []
-    for j in [str(s) for s in gages["site_no"]]:
+    for j in [str(site) for site in gages["site_no"]]:
         nbrs = neighbours.get(j, [])
         if not nbrs:
             continue
         row: Dict[str, object] = {
             "site_no": j,
-            "month": int(month),
-            "statistic": stats.statistic,
+            key_col: int(key),
+            "statistic": statistic,
             "n_donors": len(nbrs),
             "observed": log_q[j],
             "blend": math.nan,
@@ -616,15 +700,15 @@ def monthly_leave_one_out(
             rows.append(row)
             continue
         try:
-            res = blend_month(
+            transfers, dcov = _transfers_core(
+                log_q, cov, gages, j, nbrs, attributes, f"{key_col} {key}"
+            )
+            res = combine(
                 model,
-                stats,
-                month,
-                gages,
-                j,
-                nbrs,
+                transfers,
+                None,
+                donor_cov=dcov,
                 donor_correlation=donor_correlation,
-                attributes=attributes,
                 level=level,
             )
         except ValueError as exc:

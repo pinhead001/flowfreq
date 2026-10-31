@@ -202,7 +202,7 @@ CI should test the supported Python matrix.
 - **`transfer_variance.py`** — variance-based weighting of gage transfers against the
   regression: pair-fitted dissimilarity variance, GLS blend, derived area-ratio band,
   leave-one-out coverage
-- **`monthly_transfer.py`** — monthly mean/median flow statistics with sampling covariance and runoff-volume gage pairs that feed `fit_dissimilarity`
+- **`monthly_transfer.py`** / **`duration_transfer.py`** — monthly mean/median flow statistics, and median annual duration quantiles (q10, q50, q90), with sampling covariance, runoff-volume gage pairs for `fit_dissimilarity`, the GLS blend and leave-one-out
 - **`future_flow.py`** — future-condition change-factor framework
 - **`lowflow.py`** / **`regime.py`** / **`subdaily.py`** — low-flow frequency, flow-regime and
   sub-daily metrics
