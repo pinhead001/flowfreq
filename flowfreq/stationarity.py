@@ -14,6 +14,8 @@ change point is a reason to look at the record, not a correction.
 - :func:`pettitt`: the Pettitt (1979) change-point test, with its approximate p-value.
 - :func:`cusum`: the CUSUM change-point statistic, with a permutation p-value.
 - :func:`field_significance`: Benjamini-Hochberg FDR and Walker's test across sites.
+- :func:`attribute_change_point`: candidate non-climate causes near a change point, from
+  the peak qualification codes (regulation, urbanization) and caller-supplied events.
 - :func:`stationarity_screen`: all of them on one series (in log10 for flows), with
   plain-language flags.
 - :func:`mixed_population_screen`: how annual peaks split between the cool season
@@ -23,7 +25,8 @@ change point is a reason to look at the record, not a correction.
 
 Not here yet (roadmap section 6.1): the Lombard change point, trends in variance and in
 peaks-over-threshold counts, a block bootstrap for spatially correlated field
-significance, and the attribution overlay on regulation and land-use dates.
+significance, and NID/NLCD look-ups for the attribution overlay (dam dates and land-use
+history are the caller's ``events``).
 """
 
 from __future__ import annotations
@@ -258,8 +261,93 @@ def pettitt(x: ArrayLike, years: Optional[Iterable[int]] = None) -> PettittResul
     )
 
 
+#: Peak-code evidence the attribution overlay looks for, with its label.
+_CODE_EVIDENCE = (
+    (frozenset({"5", "6"}), "regulation or diversion (peak code 5/6)"),
+    (frozenset({"C"}), "urbanization, mining, agricultural or channel change (peak code C)"),
+)
+
+
+def attribute_change_point(
+    change_year: int,
+    water_years: Sequence[int],
+    peak_codes: Sequence[Any],
+    *,
+    events: Iterable[Tuple[str, int]] = (),
+    window: int = 5,
+) -> Dict[str, Any]:
+    """Candidate non-climate causes of a change point (roadmap section 6.1).
+
+    A change point that lines up with the start of regulation, urbanization, a dam, a gage
+    move or a rating change is not a climate signal. This lists, within ``window`` years
+    of ``change_year``: the first year the record carries regulation evidence (peak codes
+    5 or 6) and alteration evidence (code C), and every caller-supplied event (a dam's
+    completion year from NID, a gage relocation, a datum or rating change).
+
+    Parameters
+    ----------
+    change_year : int
+        First year of the second segment (e.g. :func:`pettitt`'s ``year``).
+    water_years, peak_codes : sequence
+        One entry per annual peak; codes as NWIS reports them (``"6"``, ``"6C"``, ...).
+    events : iterable of (str, int), optional
+        ``(label, year)`` of other known changes.
+    window : int, default 5
+
+    Returns
+    -------
+    dict
+        ``change_year``, ``candidates`` (``label``, ``year``, ``offset`` = year minus
+        ``change_year``, ``source``; nearest first), ``explained`` (any candidate) and
+        ``message``.
+
+    Raises
+    ------
+    ValueError
+        ``water_years`` and ``peak_codes`` differ in length.
+    """
+    from flowfreq.peak_codes import parse_codes
+
+    years = [int(y) for y in water_years]
+    if len(years) != len(peak_codes):
+        raise ValueError("water_years and peak_codes differ in length")
+    parsed = [parse_codes(c) for c in peak_codes]
+    found: List[Tuple[str, int, str]] = []
+    for codes, label in _CODE_EVIDENCE:
+        first = [y for y, pc in sorted(zip(years, parsed)) if pc & codes]
+        if first:
+            found.append((label, first[0], "peak codes"))
+    found += [(str(label), int(year), "event") for label, year in events]
+    near = sorted(
+        (
+            (abs(year - int(change_year)), year, label, src)
+            for label, year, src in found
+            if abs(year - int(change_year)) <= window
+        )
+    )
+    candidates: List[Dict[str, Any]] = [
+        {"label": label, "year": year, "offset": year - int(change_year), "source": src}
+        for _, year, label, src in near
+    ]
+    if candidates:
+        message = "; ".join(f"{c['label']} in {c['year']}" for c in candidates)
+    else:
+        message = f"no recorded regulation, alteration or event within {window} years"
+    return {
+        "change_year": int(change_year),
+        "candidates": candidates,
+        "explained": bool(candidates),
+        "message": message,
+    }
+
+
 def stationarity_screen(
-    values: pd.Series, *, log: bool = True, alpha: float = 0.05
+    values: pd.Series,
+    *,
+    log: bool = True,
+    alpha: float = 0.05,
+    peak_codes: Optional[Sequence[Any]] = None,
+    events: Iterable[Tuple[str, int]] = (),
 ) -> Dict[str, Any]:
     """Trend and change-point tests on one annual series, with plain-language flags.
 
@@ -270,6 +358,12 @@ def stationarity_screen(
     log : bool, default True
         Test ``log10(values)`` (flows); values must then be positive.
     alpha : float, default 0.05
+    peak_codes : sequence, optional
+        Peak qualification codes aligned with ``values`` (before missing values are
+        dropped). With them, or with ``events``, a significant change point is passed to
+        :func:`attribute_change_point` and its flag names the candidate causes.
+    events : iterable of (str, int), optional
+        Other known changes, as :func:`attribute_change_point` takes them.
 
     Returns
     -------
@@ -285,6 +379,14 @@ def stationarity_screen(
     ValueError
         Fewer than ten values, or a non-positive value with ``log=True``.
     """
+    if peak_codes is not None and len(peak_codes) != len(values):
+        raise ValueError("peak_codes must align with values")
+    code_by_year = (
+        dict(zip(np.asarray(values.index, dtype=int).tolist(), list(peak_codes)))
+        if peak_codes is not None
+        else {}
+    )
+    events = list(events)
     s = values.dropna().sort_index()
     if len(s) < 10:
         raise ValueError(f"need at least 10 years to screen, got {len(s)}")
@@ -309,10 +411,22 @@ def stationarity_screen(
             f"{mk.trend} trend in the plain Mann-Kendall test (p = {mk.p_value:.3f}), not "
             "significant once serial correlation is allowed for"
         )
+    attribution: Optional[Dict[str, Any]] = None
     if pt.p_value < alpha:
+        if (code_by_year or events) and pt.year is not None:
+            yrs = sorted(code_by_year)
+            attribution = attribute_change_point(
+                int(pt.year), yrs, [code_by_year[y] for y in yrs], events=events
+            )
+            why = (
+                f"candidate causes: {attribution['message']}"
+                if attribution["explained"]
+                else f"{attribution['message']}; check for a gage move or a rating change"
+            )
+        else:
+            why = "check for regulation, urbanization, a gage move or a rating change about then"
         flags.append(
-            f"change point in {pt.year} (Pettitt, p = {pt.p_value:.3f}, shift {pt.shift}); check "
-            "for regulation, urbanization, a gage move or a rating change about then"
+            f"change point in {pt.year} (Pettitt, p = {pt.p_value:.3f}, shift {pt.shift}); {why}"
         )
     for f in flags:
         logger.info("stationarity screen: %s", f)
@@ -327,6 +441,7 @@ def stationarity_screen(
         slope_key: slope,
         "spearman": {"rho": rho, "p_value": p_rho},
         "pettitt": {"year": pt.year, "k": pt.k, "p_value": pt.p_value, "shift": pt.shift},
+        "attribution": attribution,
         "flags": flags,
     }
 
