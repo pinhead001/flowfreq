@@ -60,7 +60,8 @@ What this module does not do
   water balance applied *afterwards*. A QPPQ series through one will
   overstate summer flow, confidently.
 - **It does not naturalize.** A regulated donor transfers its regulation.
-  Choose unregulated donors or naturalize first, and be consistent.
+  Choose unregulated donors or naturalize first (:func:`flowfreq.naturalize.naturalize`
+  adds diversions back), and be consistent.
   :func:`qppq` refuses a regulated donor for an unregulated target, and the
   reverse, when given both sites' ``donor_regulation``/``target_regulation``
   (:func:`flowfreq.regulation.check_transfer_regulation`).
