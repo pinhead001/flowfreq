@@ -13,9 +13,16 @@ change point is a reason to look at the record, not a correction.
 - :func:`spearman_trend`: Spearman's rho against time.
 - :func:`pettitt`: the Pettitt (1979) change-point test, with its approximate p-value.
 - :func:`cusum`: the CUSUM change-point statistic, with a permutation p-value.
+- :func:`lombard`: Lombard's rank tests for an abrupt or a smooth change, in level
+  (Wilcoxon score) or in variability (Mood score), as USACE's Nonstationarity Detection
+  Tool runs them.
 - :func:`field_significance`: Benjamini-Hochberg FDR and Walker's test across sites.
+- :func:`field_significance_bootstrap`: the same question answered by resampling years,
+  which keeps the correlation between nearby sites (and, in blocks, within a site).
 - :func:`attribute_change_point`: candidate non-climate causes near a change point, from
   the peak qualification codes (regulation, urbanization) and caller-supplied events.
+- :func:`basin_change_events`: dated events for that overlay from the National Inventory
+  of Dams and the NLCD impervious epochs StreamStats reports.
 - :func:`stationarity_screen`: all of them on one series (in log10 for flows), with
   plain-language flags.
 - :func:`mixed_population_screen`: how annual peaks split between the cool season
@@ -23,10 +30,8 @@ change point is a reason to look at the record, not a correction.
   dates (Burn, 1997). A split record is a warning that one LP3 distribution may be
   fitted to two flood populations (Bulletin 17C section 9.3); it is not a test.
 
-Not here yet (roadmap section 6.1): the Lombard change point, trends in variance and in
-peaks-over-threshold counts, a block bootstrap for spatially correlated field
-significance, and NID/NLCD look-ups for the attribution overlay (dam dates and land-use
-history are the caller's ``events``).
+Not here yet (roadmap section 6.1): trends in peaks-over-threshold counts. (A change in
+variance is what the Lombard Mood test screens for.)
 """
 
 from __future__ import annotations
@@ -348,6 +353,8 @@ def stationarity_screen(
     alpha: float = 0.05,
     peak_codes: Optional[Sequence[Any]] = None,
     events: Iterable[Tuple[str, int]] = (),
+    n_permutations: int = 999,
+    seed: Optional[int] = 0,
 ) -> Dict[str, Any]:
     """Trend and change-point tests on one annual series, with plain-language flags.
 
@@ -363,7 +370,12 @@ def stationarity_screen(
         dropped). With them, or with ``events``, a significant change point is passed to
         :func:`attribute_change_point` and its flag names the candidate causes.
     events : iterable of (str, int), optional
-        Other known changes, as :func:`attribute_change_point` takes them.
+        Other known changes, as :func:`attribute_change_point` takes them (for example
+        :func:`basin_change_events`'s ``events``).
+    n_permutations : int, default 999
+        Permutations for the Lombard p-values.
+    seed : int, optional
+        Seed of those permutations; the default 0 makes the screen reproducible.
 
     Returns
     -------
@@ -371,8 +383,11 @@ def stationarity_screen(
         ``n``, ``years`` (first, last), ``mann_kendall`` and ``mann_kendall_hamed_rao``
         (``s``, ``z``, ``p_value``, ``tau``, ``trend``), ``sens_slope_log10_per_year``
         (or ``sens_slope_per_year`` when ``log=False``), ``spearman`` (``rho``,
-        ``p_value``), ``pettitt`` (``year``, ``k``, ``p_value``, ``shift``) and ``flags``:
-        a list of messages, empty when nothing is significant at ``alpha``.
+        ``p_value``), ``pettitt`` (``year``, ``k``, ``p_value``, ``shift``),
+        ``lombard`` (``wilcoxon_abrupt``, ``wilcoxon_smooth``, ``mood_abrupt``,
+        ``mood_smooth``, each ``statistic``, ``p_value``, ``start_year``, ``end_year``),
+        ``attribution`` and ``flags``: a list of messages, empty when nothing is
+        significant at ``alpha``.
 
     Raises
     ------
@@ -401,6 +416,13 @@ def stationarity_screen(
     slope, _ = sens_slope(x, years)
     rho, p_rho = spearman_trend(x, years)
     pt = pettitt(x, years=years)
+    lomb = {
+        f"{score}_{kind}": lombard(
+            x, years, kind=kind, score=score, n_permutations=n_permutations, seed=seed
+        )
+        for score in ("wilcoxon", "mood")
+        for kind in ("abrupt", "smooth")
+    }
     flags: List[str] = []
     if mk_hr.trend != "no trend":
         flags.append(
@@ -428,6 +450,23 @@ def stationarity_screen(
         flags.append(
             f"change point in {pt.year} (Pettitt, p = {pt.p_value:.3f}, shift {pt.shift}); {why}"
         )
+    gradual = lomb["wilcoxon_smooth"]
+    if gradual.p_value < alpha and pt.p_value >= alpha:
+        flags.append(
+            f"gradual change in level between {gradual.start_year} and {gradual.end_year} "
+            f"(Lombard smooth, p = {gradual.p_value:.3f})"
+        )
+    spread = min((lomb["mood_abrupt"], lomb["mood_smooth"]), key=lambda r: r.p_value)
+    if spread.p_value < alpha:
+        when = (
+            f"about {spread.start_year}"
+            if spread.kind == "abrupt"
+            else f"between {spread.start_year} and {spread.end_year}"
+        )
+        flags.append(
+            f"change in variability {when} (Lombard Mood {spread.kind}, "
+            f"p = {spread.p_value:.3f}); one LP3 fit may not describe the whole record"
+        )
     for f in flags:
         logger.info("stationarity screen: %s", f)
     slope_key = "sens_slope_log10_per_year" if log else "sens_slope_per_year"
@@ -441,6 +480,15 @@ def stationarity_screen(
         slope_key: slope,
         "spearman": {"rho": rho, "p_value": p_rho},
         "pettitt": {"year": pt.year, "k": pt.k, "p_value": pt.p_value, "shift": pt.shift},
+        "lombard": {
+            key: {
+                "statistic": r.statistic,
+                "p_value": r.p_value,
+                "start_year": r.start_year,
+                "end_year": r.end_year,
+            }
+            for key, r in lomb.items()
+        },
         "attribution": attribution,
         "flags": flags,
     }
@@ -620,3 +668,394 @@ def field_significance(p_values: ArrayLike, *, alpha: float = 0.05) -> Dict[str,
         "walker_p": walker,
         "walker_significant": bool(walker < alpha),
     }
+
+
+# ------------------------------------------------------------------ Lombard --
+
+#: Score functions of Lombard's rank tests: Wilcoxon for a change in location, Mood for a
+#: change in scale (variability).
+_LOMBARD_SCORES = {
+    "wilcoxon": lambda u: 2.0 * u - 1.0,
+    "mood": lambda u: (u - 0.5) ** 2,
+}
+
+#: Asymptotic critical values of the abrupt statistic, the Cramer-von Mises integral of a
+#: squared Brownian bridge (Anderson and Darling 1952), by level.
+LOMBARD_ABRUPT_CRITICAL = {0.10: 0.347, 0.05: 0.461, 0.01: 0.743}
+
+
+@dataclass(frozen=True)
+class LombardResult:
+    """Lombard's rank test for an abrupt or a smooth (gradual) change.
+
+    Attributes
+    ----------
+    kind : str
+        ``"abrupt"`` or ``"smooth"``.
+    score : str
+        ``"wilcoxon"`` (location) or ``"mood"`` (scale).
+    statistic : float
+        ``S_n`` as Rouge and others (2013) normalize it.
+    p_value : float
+        Permutation p-value, ``(1 + #{perm >= observed}) / (1 + n_permutations)``.
+    start_index, end_index : int
+        Abrupt: both are the first value after the change. Smooth: the first value off
+        the old level and the first at the new one. Either is the best-fitting candidate
+        (:func:`_lombard_locate`), a pointer rather than an estimate with a stated
+        uncertainty.
+    start_year, end_year : int or None
+        The years at those positions, when years were given.
+    """
+
+    kind: str
+    score: str
+    statistic: float
+    p_value: float
+    start_index: int
+    end_index: int
+    start_year: Optional[int]
+    end_year: Optional[int]
+
+
+def _lombard_scores(a: np.ndarray, score: str) -> np.ndarray:
+    phi = _LOMBARD_SCORES[score](stats.rankdata(a) / (a.size + 1.0))
+    sd = float(np.std(phi))
+    if sd == 0.0:
+        raise ValueError("the series is constant; Lombard's scores are undefined")
+    return np.asarray((phi - phi.mean()) / sd)
+
+
+def _lombard_stat(z: np.ndarray, kind: str) -> np.ndarray:
+    """Statistic for each row of ``z`` (standardized scores, one series per row)."""
+    n = z.shape[-1]
+    partial = np.cumsum(z, axis=-1)  # L_k, k = 1..n
+    if kind == "abrupt":
+        return np.asarray(np.sum(partial**2, axis=-1) / n**2)
+    s = np.cumsum(partial, axis=-1)  # S_tau = sum_{j <= tau} L_j
+    # sum_{1 <= a < b <= n} (S_b - S_a)^2 = n sum S^2 - (sum S)^2
+    pairs = n * np.sum(s**2, axis=-1) - np.sum(s, axis=-1) ** 2
+    return np.asarray(pairs / float(n) ** 5)
+
+
+def _lombard_locate(z: np.ndarray, kind: str) -> Tuple[int, int]:
+    """Where the change is: the candidate whose contrast is largest relative to its null
+    standard deviation (the score statistic of that one candidate).
+
+    A candidate's contrast is ``sum_i w_i Z_i``: for a step after position ``k``,
+    ``w_i = 1`` for ``i <= k``; for a ramp over ``(tau1, tau2]``,
+    ``w_i = #{j in (tau1, tau2] : j >= i}``, the partial-sum weights of
+    ``C_{tau1 tau2}``. Under shuffling its variance is proportional to
+    ``sum (w - mean w)^2``. The raw contrast, unnormalized, favors the middle of the
+    record for a step and the whole record for a ramp.
+    """
+    n = z.size
+    if kind == "abrupt":
+        k = np.arange(1, n)
+        contrast = np.cumsum(z)[:-1]
+        score = contrast**2 / (k * (n - k) / n)
+        k_best = int(np.argmax(score))
+        return k_best + 1, k_best + 1
+    i = np.arange(1, n + 1)
+    best_val, best = -1.0, (0, n - 1)
+    for tau1 in range(0, n - 1):
+        tau2 = np.arange(tau1 + 1, n + 1)[:, None]
+        w = np.clip(tau2 - np.maximum(i[None, :] - 1, tau1), 0, None).astype(float)
+        var = np.sum((w - w.mean(axis=1, keepdims=True)) ** 2, axis=1)
+        ok = var > 1e-12
+        if not ok.any():
+            continue
+        score = np.where(ok, (w @ z) ** 2 / np.where(ok, var, 1.0), -1.0)
+        j = int(np.argmax(score))
+        if score[j] > best_val:
+            best_val, best = float(score[j]), (tau1, int(tau2[j, 0]) - 1)
+    return best
+
+
+def lombard(
+    x: ArrayLike,
+    years: Optional[Iterable[int]] = None,
+    *,
+    kind: str = "abrupt",
+    score: str = "wilcoxon",
+    n_permutations: int = 999,
+    seed: Optional[int] = None,
+) -> LombardResult:
+    """Lombard's (1987) rank test for a change in location or scale.
+
+    The set USACE's Nonstationarity Detection Tool runs (ECB 2018-14): ``kind="abrupt"``
+    tests for a step and ``kind="smooth"`` for a gradual change between two unknown times;
+    the Wilcoxon score detects a change in level, the Mood score a change in variability.
+    With standardized rank scores ``Z_i`` and partial sums ``L_k = sum_{i<=k} Z_i``,
+
+    - abrupt: ``S_n = n^-2 sum_k L_k^2``;
+    - smooth: ``S_n = n^-5 sum_{tau1 < tau2} (sum_{tau1 < j <= tau2} L_j)^2``
+
+    (Rouge, Ge and Cai 2013). The abrupt statistic converges to the Cramer-von Mises
+    distribution (:data:`LOMBARD_ABRUPT_CRITICAL`), and the smooth one has a 5 percent
+    point near 0.040 (simulated; both are checked in the tests). The p-value here comes
+    from shuffling the series, which needs no asymptotics and is the same for both kinds.
+
+    Parameters
+    ----------
+    x : array_like
+        At least five finite values, in time order.
+    years : iterable of int, optional
+    kind : {"abrupt", "smooth"}, default "abrupt"
+    score : {"wilcoxon", "mood"}, default "wilcoxon"
+    n_permutations : int, default 999
+    seed : int, optional
+
+    Returns
+    -------
+    LombardResult
+
+    Raises
+    ------
+    ValueError
+        Fewer than five values, a non-finite or constant series, an unknown ``kind`` or
+        ``score``, or ``years`` of another length.
+    """
+    if kind not in ("abrupt", "smooth"):
+        raise ValueError(f"kind must be 'abrupt' or 'smooth', got {kind!r}")
+    if score not in _LOMBARD_SCORES:
+        raise ValueError(f"score must be one of {sorted(_LOMBARD_SCORES)}, got {score!r}")
+    if n_permutations < 1:
+        raise ValueError(f"n_permutations must be >= 1, got {n_permutations}")
+    a = _series(x, min_n=5)
+    year_list = list(years) if years is not None else None
+    if year_list is not None and len(year_list) != a.size:
+        raise ValueError("x and years differ in length")
+    z = _lombard_scores(a, score)
+    observed = float(_lombard_stat(z, kind))
+    rng = np.random.default_rng(seed)
+    exceed = 0
+    for start in range(0, n_permutations, 500):
+        batch = rng.permuted(np.tile(z, (min(500, n_permutations - start), 1)), axis=1)
+        exceed += int(np.sum(_lombard_stat(batch, kind) >= observed * (1.0 - 1e-12)))
+    start_index, end_index = _lombard_locate(z, kind)
+    return LombardResult(
+        kind=kind,
+        score=score,
+        statistic=observed,
+        p_value=(1.0 + exceed) / (1.0 + n_permutations),
+        start_index=start_index,
+        end_index=end_index,
+        start_year=int(year_list[start_index]) if year_list is not None else None,
+        end_year=int(year_list[end_index]) if year_list is not None else None,
+    )
+
+
+# ------------------------------------------- bootstrap field significance --
+
+
+def _mk_p(a: np.ndarray) -> float:
+    """Two-sided plain Mann-Kendall p-value, as :func:`mann_kendall` computes it."""
+    n = a.size
+    i, j = np.triu_indices(n, k=1)
+    s = float(np.sum(np.sign(a[j] - a[i])))
+    _, counts = np.unique(a, return_counts=True)
+    ties = float(np.sum(counts * (counts - 1) * (2 * counts + 5)))
+    var_s = (n * (n - 1) * (2 * n + 5) - ties) / 18.0
+    if var_s <= 0.0 or s == 0.0:
+        return 1.0
+    z = (abs(s) - 1.0) / math.sqrt(var_s)
+    return float(math.erfc(z / math.sqrt(2.0)))
+
+
+def _site_p_values(x: np.ndarray, min_years: int) -> np.ndarray:
+    out = np.full(x.shape[1], np.nan)
+    for c in range(x.shape[1]):
+        col = x[:, c]
+        col = col[np.isfinite(col)]
+        if col.size >= min_years:
+            out[c] = _mk_p(col)
+    return out
+
+
+def field_significance_bootstrap(
+    values: pd.DataFrame,
+    *,
+    alpha: float = 0.05,
+    n_bootstrap: int = 1000,
+    block_length: int = 1,
+    min_years: int = 10,
+    seed: Optional[int] = None,
+) -> Dict[str, Any]:
+    """Field significance of Mann-Kendall trends across correlated sites, by bootstrap.
+
+    :func:`field_significance` treats sites as independent, which makes it liberal when
+    nearby gages see the same storms. This resamples whole years (Douglas, Vogel and
+    Kroll 2000): every site takes the same years, so the cross-site correlation is kept
+    while the time order, and with it any trend, is broken. The count of locally
+    significant sites in the record is compared with its distribution over the
+    resamples. ``block_length > 1`` resamples moving blocks of consecutive years, which
+    also keeps serial correlation (Khaliq and others 2009).
+
+    Parameters
+    ----------
+    values : pandas.DataFrame
+        One row per year (in time order), one column per site; missing values allowed.
+        Mann-Kendall is rank-based, so flows need no log transform.
+    alpha : float, default 0.05
+        Level of the local tests and of the field test.
+    n_bootstrap : int, default 1000
+    block_length : int, default 1
+    min_years : int, default 10
+        Sites with fewer values are left out of the record's count; in a resample, a
+        site with fewer values than that is not counted.
+    seed : int, optional
+
+    Returns
+    -------
+    dict
+        ``n_sites``, ``n_years``, ``site_p_values`` (site to p), ``n_significant``,
+        ``critical_count`` (the ``1 - alpha`` quantile of the resampled counts),
+        ``p_value``, ``field_significant`` and ``block_length``.
+
+    Raises
+    ------
+    ValueError
+        No site with ``min_years`` values, or a bad ``n_bootstrap``/``block_length``.
+    """
+    if n_bootstrap < 1:
+        raise ValueError(f"n_bootstrap must be >= 1, got {n_bootstrap}")
+    x = values.to_numpy(dtype=float)
+    n_years = x.shape[0]
+    if not 1 <= block_length <= n_years:
+        raise ValueError(f"block_length must be in [1, {n_years}], got {block_length}")
+    min_years = max(min_years, 3)
+    keep = np.sum(np.isfinite(x), axis=0) >= min_years
+    if not keep.any():
+        raise ValueError(f"no site has {min_years} or more values")
+    x = x[:, keep]
+    sites = [str(c) for c, k in zip(values.columns, keep) if k]
+    p_obs = _site_p_values(x, min_years)
+    observed = int(np.sum(p_obs < alpha))
+    rng = np.random.default_rng(seed)
+    n_blocks = -(-n_years // block_length)
+    counts = np.empty(n_bootstrap, dtype=int)
+    for b in range(n_bootstrap):
+        starts = rng.integers(0, n_years - block_length + 1, size=n_blocks)
+        rows = (starts[:, None] + np.arange(block_length)[None, :]).ravel()[:n_years]
+        counts[b] = int(np.sum(_site_p_values(x[rows], min_years) < alpha))
+    p_value = float((1 + np.sum(counts >= observed)) / (1 + n_bootstrap))
+    return {
+        "n_sites": len(sites),
+        "n_years": int(n_years),
+        "site_p_values": dict(zip(sites, (float(p) for p in p_obs))),
+        "n_significant": observed,
+        "critical_count": float(np.quantile(counts, 1.0 - alpha)),
+        "p_value": p_value,
+        "field_significant": bool(p_value < alpha),
+        "block_length": int(block_length),
+    }
+
+
+# ------------------------------------------------- basin change events --
+
+
+def basin_change_events(
+    *,
+    geometry: Optional[Dict[str, Any]] = None,
+    nid: Any = None,
+    impervious: Optional[Dict[int, float]] = None,
+    region: Optional[str] = None,
+    min_storage_share: float = 0.1,
+    urban_impervious_pct: Optional[float] = None,
+) -> Dict[str, Any]:
+    """Dated basin changes for :func:`attribute_change_point`, from NID and NLCD.
+
+    - Each NID dam inside the watershed whose storage is at least ``min_storage_share``
+      of the basin's total NID storage, at its ``year_completed``.
+    - The year half of today's basin NID storage was in place.
+    - The NLCD epoch in which basin impervious cover first reached
+      ``urban_impervious_pct`` (the regulation screen's urban threshold, 5 percent).
+      NLCD starts in 2001, so a basin already above it then gets a note, not a date.
+
+    Parameters
+    ----------
+    geometry : dict, optional
+        GeoJSON ``Polygon``/``MultiPolygon`` of the watershed (e.g. the ``geometry`` of
+        ``WatershedCharacteristics.polygon_geojson``). Needed, with ``nid``, for dams.
+    nid : flowfreq.regulation.NIDInventory, optional
+        From :func:`flowfreq.regulation.load_nid`.
+    impervious : dict of int to float, optional
+        Year to percent impervious, from :func:`flowfreq.regulation.impervious_series`.
+    region : str, optional
+        StreamStats region; a region in
+        :data:`flowfreq.regulation.IMPERVIOUS_UNVERIFIED_REGIONS` has its impervious
+        series skipped, as the regulation screen skips it.
+    min_storage_share : float, default 0.1
+    urban_impervious_pct : float, optional
+        Defaults to :data:`flowfreq.regulation.URBAN_IMPERVIOUS_PCT`.
+
+    Returns
+    -------
+    dict
+        ``events`` (list of ``(label, year)``, ready for ``events=``), ``notes`` (what
+        could not be dated) and ``n_dams`` (dams in the basin, or None without NID).
+
+    Raises
+    ------
+    ValueError
+        Only one of ``geometry`` and ``nid`` given.
+    """
+    from flowfreq import regulation
+
+    threshold = (
+        regulation.URBAN_IMPERVIOUS_PCT if urban_impervious_pct is None else urban_impervious_pct
+    )
+    events: List[Tuple[str, int]] = []
+    notes: List[str] = []
+    n_dams: Optional[int] = None
+    if (geometry is None) != (nid is None):
+        raise ValueError("dam events need both geometry and nid")
+    if geometry is not None and nid is not None:
+        dams = regulation.nid_dams_in_basin(geometry, nid)
+        n_dams = len(dams)
+        total = float(dams["nid_storage_acft"].sum())
+        dated = dams[dams["year_completed"].notna() & (dams["year_completed"] > 0)]
+        if len(dated) < len(dams):
+            notes.append(
+                f"{len(dams) - len(dated)} of {len(dams)} NID dams have no completion year"
+            )
+        if total > 0:
+            for _, d in dated.iterrows():
+                share = float(d["nid_storage_acft"]) / total
+                if share >= min_storage_share:
+                    events.append(
+                        (
+                            f"dam {d['nid_id']} completed ({d['nid_storage_acft']:,.0f} acre-ft, "
+                            f"{share:.0%} of basin NID storage)",
+                            int(d["year_completed"]),
+                        )
+                    )
+            by_year = dated.groupby(dated["year_completed"].astype(int))["nid_storage_acft"].sum()
+            cumulative = by_year.cumsum()
+            reached = cumulative[cumulative >= 0.5 * total]
+            if len(reached):
+                events.append(("half of today's basin NID storage in place", int(reached.index[0])))
+            else:
+                notes.append("undated dams hold more than half of the basin NID storage")
+    if impervious:
+        if region is not None and region.upper() in regulation.IMPERVIOUS_UNVERIFIED_REGIONS:
+            notes.append(f"impervious cover not used in {region.upper()} (unverified there)")
+        else:
+            yrs = sorted(impervious)
+            if impervious[yrs[0]] >= threshold:
+                notes.append(
+                    f"impervious cover was already {impervious[yrs[0]]:.1f}% in NLCD {yrs[0]}, "
+                    "the first land-cover epoch"
+                )
+            else:
+                for prev, cur in zip(yrs, yrs[1:]):
+                    if impervious[cur] >= threshold:
+                        events.append(
+                            (
+                                f"basin impervious cover reached {threshold:g}% "
+                                f"(NLCD {prev} to {cur})",
+                                int(cur),
+                            )
+                        )
+                        break
+    return {"events": events, "notes": notes, "n_dams": n_dams}

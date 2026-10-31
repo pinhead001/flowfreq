@@ -582,6 +582,35 @@ class BasinDamStorage:
     data_last_updated: str
 
 
+def nid_dams_in_basin(geometry: Dict[str, Any], nid: NIDInventory) -> pd.DataFrame:
+    """The NID dams whose points fall inside a watershed polygon.
+
+    Parameters
+    ----------
+    geometry : dict
+        GeoJSON ``Polygon``/``MultiPolygon`` of the watershed.
+    nid : NIDInventory
+
+    Returns
+    -------
+    pandas.DataFrame
+        The matching rows of ``nid.dams`` (:data:`NID_COLUMNS`), largest storage first.
+    """
+    from .streamstats import _polygons_of
+
+    ext = np.asarray(
+        [p[:2] for poly in _polygons_of(geometry) if poly for p in poly[0]], dtype=float
+    )
+    dams = nid.dams
+    box = (
+        dams["longitude"].between(ext[:, 0].min(), ext[:, 0].max())
+        & dams["latitude"].between(ext[:, 1].min(), ext[:, 1].max())
+    ).to_numpy()
+    cand = dams[box]
+    inside = points_in_geometry(cand["longitude"].to_numpy(), cand["latitude"].to_numpy(), geometry)
+    return cand[inside].sort_values("nid_storage_acft", ascending=False, kind="stable")
+
+
 def nid_storage_in_basin(geometry: Dict[str, Any], nid: NIDInventory) -> BasinDamStorage:
     """Sum NID storage over the dams whose coordinates fall inside a basin.
 
@@ -601,19 +630,9 @@ def nid_storage_in_basin(geometry: Dict[str, Any], nid: NIDInventory) -> BasinDa
     -------
     BasinDamStorage
     """
-    from .streamstats import _polygons_of, geojson_area_sq_mi
+    from .streamstats import geojson_area_sq_mi
 
-    ext = np.asarray(
-        [p[:2] for poly in _polygons_of(geometry) if poly for p in poly[0]], dtype=float
-    )
-    dams = nid.dams
-    box = (
-        dams["longitude"].between(ext[:, 0].min(), ext[:, 0].max())
-        & dams["latitude"].between(ext[:, 1].min(), ext[:, 1].max())
-    ).to_numpy()
-    cand = dams[box]
-    inside = points_in_geometry(cand["longitude"].to_numpy(), cand["latitude"].to_numpy(), geometry)
-    hit = cand[inside].sort_values("nid_storage_acft", ascending=False)
+    hit = nid_dams_in_basin(geometry, nid)
     area_km2 = geojson_area_sq_mi(geometry) * SQ_MI_TO_KM2
     storage = float(hit["nid_storage_acft"].sum())
     return BasinDamStorage(
