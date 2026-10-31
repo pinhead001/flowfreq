@@ -1,17 +1,15 @@
 """Regenerate the hydrologic-unit definitions of the regional skew studies.
 
-Writes two packaged tables that :mod:`flowfreq.regional_skew` reads offline:
+Writes the packaged table :mod:`flowfreq.regional_skew` reads offline,
+``flowfreq/data/regional_skew_hucs.csv``: which hydrologic units each skew study
+covers (``member``), which it explicitly excludes (``excluded``), and which its
+report leaves ambiguous (``unresolved``). For the site's state, the most specific
+(longest) matching prefix decides; a HUC may carry one row per study when the rows'
+``valid_states`` are disjoint (overlapping studies, #204).
 
-``flowfreq/data/regional_skew_hucs.csv``
-    Which hydrologic units each skew study covers (``member``), which it
-    explicitly excludes (``excluded``), and which its report leaves
-    ambiguous (``unresolved``). The most specific (longest) matching prefix
-    decides.
-
-``flowfreq/data/regional_skew_huc8_states.csv``
-    The states each HUC8 touches, from the Watershed Boundary Dataset, so a
-    lookup by HUC alone can tell a Wyoming or Canadian unit of HUC2 17 from an
-    Idaho one.
+The states each HUC8 touches (``regional_skew_huc8_states.csv``) are built by
+``tools/build_huc8_states.py`` (#205); this script reads WBD only to select the
+Montana and Arizona HUC8s, and no longer writes that table.
 
 Sources, all live-verified when this script was written (2026-09-27):
 
@@ -73,7 +71,6 @@ from matplotlib.path import Path as MplPath
 
 ROOT = Path(__file__).resolve().parents[1]
 HUCS_CSV = ROOT / "flowfreq" / "data" / "regional_skew_hucs.csv"
-STATES_CSV = ROOT / "flowfreq" / "data" / "regional_skew_huc8_states.csv"
 
 WBD = "https://hydro.nationalmap.gov/arcgis/rest/services/wbd/MapServer"
 SS_REGIONS = "https://gis.streamstats.usgs.gov/arcgis/rest/services/nss/regions/MapServer/11"
@@ -275,7 +272,99 @@ def snake_river_plain() -> List[Tuple[str, str, str, float]]:
     return sorted(out)
 
 
-def build() -> Tuple[str, str]:
+#: Studies whose regions the reports define by hydrologic unit, transcribed without a
+#: network query (#204). ``valid_states`` is the states whose verified row in
+#: ``regional_skew.csv`` adopts the study, so overlapping studies (HU 05 is Great Lakes
+#: and Ohio in Ohio, Skew Region 2 in West Virginia) never give a state two rows.
+GLO = "Great Lakes and Ohio River Basins"
+GLO_STATES = "IN;MI;NY;OH;PA"
+GLO_SOURCE = (
+    "SIR 2019-5105 p. 2 (https://doi.org/10.3133/sir20195105): most of the Great Lakes "
+    "Basin (HU 04) and part of the Ohio River Basin (HU 05); HUs 0511 and 0513 and Canada "
+    "were not considered"
+)
+ENYPA = "Eastern New York and Pennsylvania"
+ENYPA_STATES = "NY;PA"
+ENYPA_SOURCE = (
+    "SIR 2021-5015 pp. 1-2 (https://doi.org/10.3133/sir20215015): hydrologic units 0202, "
+    "0204, 0205, 0206, 0207 and 0110; the skew does not apply in HU 0203"
+)
+SR1 = "Skew Region 1 (Atlantic drainage)"
+SR2 = "Skew Region 2 (Gulf of America drainage)"
+SR_SOURCE = (
+    "SIR 2025-5110 p. 25 and fig. 2.1 (https://doi.org/10.3133/sir20255110): Skew Region 1 "
+    "is the study area draining to the Atlantic, Skew Region 2 the study area draining to "
+    "the Gulf of America (VA, WV, KY, TN and part of western MD)"
+)
+NE = "New England"
+NE_SOURCE = (
+    "SIR 2017-5037 p. 2 (https://doi.org/10.3133/sir20175037): CT, ME, NH, RI, VT, MA "
+    "excluding Cape Cod and the islands, and easternmost NY"
+)
+ARLA = "Arkansas-Louisiana"
+ARLA_SOURCE = (
+    "SIR 2016-5081 app. 1 pp. 120-121 (https://doi.org/10.3133/sir20165081): Arkansas, "
+    "Louisiana, southern Missouri and eastern Oklahoma; not valid in 13 southern Louisiana "
+    "HUC8s and part of 12040201"
+)
+#: SIR 2016-5081 app. 1 pp. 120-121, verbatim.
+ARLA_EXCLUDED = (
+    "08070100", "08070204", "08070300", "08080101", "08080102", "08080103", "08080202",
+    "08080206", "08090100", "08090202", "08090203", "08090302", "08090301",
+)  # fmt: skip
+
+
+def report_defined_rows() -> List[Tuple[str, str, str, str, str, str]]:
+    """``(huc, skew_region, rule, valid_states, source, notes)`` rows from report text."""
+    rows: List[Tuple[str, str, str, str, str, str]] = [
+        ("04", GLO, "member", GLO_STATES, GLO_SOURCE, "Great Lakes Basin"),
+    ]
+    rows += [
+        (f"05{n:02d}", GLO, "member", GLO_STATES, GLO_SOURCE, "Ohio River Basin")
+        for n in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14)
+    ]
+    rows += [
+        (h, ENYPA, "member", ENYPA_STATES, ENYPA_SOURCE, what)
+        for h, what in (
+            ("0110", "Connecticut Coastal"),
+            ("0202", "Upper Hudson"),
+            ("0204", "Delaware"),
+            ("0205", "Susquehanna"),
+            ("0206", "Upper Chesapeake"),
+            ("0207", "Potomac"),
+        )
+    ]
+    rows.append(
+        ("0203", ENYPA, "excluded", "NJ;NY", ENYPA_SOURCE, "Lower Hudson-Long Island: "
+         "unregulated, non-urban data were insufficient")
+    )  # fmt: skip
+    rows += [
+        ("02", SR1, "member", "VA;WV", SR_SOURCE, "Atlantic drainage (Mid-Atlantic)"),
+        ("03", SR1, "member", "VA;WV", SR_SOURCE, "Atlantic drainage (Chowan-Roanoke)"),
+        ("05", SR2, "member", "KY;MD;TN;VA;WV", SR_SOURCE, "Gulf drainage (Ohio)"),
+        ("06", SR2, "member", "KY;TN;VA", SR_SOURCE, "Gulf drainage (Tennessee)"),
+        ("08", SR2, "member", "KY;TN", SR_SOURCE, "Gulf drainage (Lower Mississippi)"),
+    ]
+    rows += [
+        ("01", NE, "member", "CT;MA;NH;RI", NE_SOURCE, "New England region"),
+        ("01090002", NE, "excluded", "MA", NE_SOURCE, "Cape Cod, the islands and "
+         "southeasternmost Massachusetts (Atlantic Coastal Pine Barrens)"),
+    ]  # fmt: skip
+    rows += [
+        ("08", ARLA, "member", "AR;LA", ARLA_SOURCE, "Lower Mississippi"),
+        ("11", ARLA, "member", "AR;LA", ARLA_SOURCE, "Arkansas-White-Red"),
+        ("1201", ARLA, "member", "LA", ARLA_SOURCE, "Sabine"),
+        ("12040201", ARLA, "unresolved", "LA", ARLA_SOURCE, "Sabine Lake: the report "
+         "excludes part of this HUC8"),
+    ]  # fmt: skip
+    rows += [
+        (h, ARLA, "excluded", "LA", ARLA_SOURCE, "tidal, regulated, diverted or backwater")
+        for h in ARLA_EXCLUDED
+    ]
+    return rows
+
+
+def build() -> str:
     hucs = io.StringIO()
     w = csv.writer(hucs, lineterminator="\n")
     w.writerow(["huc", "skew_region", "rule", "valid_states", "source", "notes"])
@@ -291,34 +380,24 @@ def build() -> Tuple[str, str]:
         w.writerow([huc12, SRP, rule, "", SRP_SOURCE, f"{name}; {frac:.0%} of area in region 0"])
     for huc8, name, touches in arizona_huc8():
         w.writerow([huc8, AZ, "member", "AZ", AZ_SOURCE, f"{name}; WBD states {touches}"])
-
-    states = io.StringIO()
-    w = csv.writer(states, lineterminator="\n")
-    w.writerow(["huc8", "name", "states"])
-    for row in huc8_states():
+    for row in report_defined_rows():
         w.writerow(row)
-    return hucs.getvalue(), states.getvalue()
+    return hucs.getvalue()
 
 
 def main(argv: Sequence[str] = ()) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--check", action="store_true", help="fail if the tables would change")
     args = parser.parse_args(list(argv))
-    hucs, states = build()
+    hucs = build()
     if args.check:
-        stale = [
-            p.name
-            for p, text in ((HUCS_CSV, hucs), (STATES_CSV, states))
-            if not p.exists() or p.read_text(encoding="utf-8") != text
-        ]
-        if stale:
-            print(f"out of date: {', '.join(stale)}")
+        if not HUCS_CSV.exists() or HUCS_CSV.read_text(encoding="utf-8") != hucs:
+            print(f"out of date: {HUCS_CSV.name}")
             return 1
         print("up to date")
         return 0
     HUCS_CSV.write_text(hucs, encoding="utf-8")
-    STATES_CSV.write_text(states, encoding="utf-8")
-    print(f"wrote {HUCS_CSV.relative_to(ROOT)} and {STATES_CSV.relative_to(ROOT)}")
+    print(f"wrote {HUCS_CSV.relative_to(ROOT)}")
     return 0
 
 

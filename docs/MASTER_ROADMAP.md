@@ -153,7 +153,9 @@ Standing rules carried over from this repo's history, which apply to every phase
       the Pacific Northwest and Arizona studies are verified so far, the former with its
       Snake River Plain exclusion. The Klamath is left `unresolved`: the report's region wording omits it,
       although one of its gages is there. Every further verified study needs its own HUC
-      rows. *Provisional (opt-in, `allow_provisional=True`, #130):*
+      rows; since #204 the Great Lakes and Ohio, Eastern NY and PA, SIR 2025-5110 Skew
+      Regions 1 and 2, New England and Arkansas-Louisiana studies have them, and a HUC
+      may carry one row per overlapping study, chosen by the site's state. *Provisional (opt-in, `allow_provisional=True`, #130):*
       - the Oregon closed basins (1712), where a B-GLS test is consistent with the PNW
         value (#133, `docs/OREGON_UNRESOLVED_SKEW.md`);
       - Montana east of the Divide (#134).

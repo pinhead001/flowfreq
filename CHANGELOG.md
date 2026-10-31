@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- HUC membership rows (`regional_skew_hucs.csv`) for the skew studies the reports define by hydrologic unit: Great Lakes and Ohio (SIR 2019-5105), Eastern New York and Pennsylvania (SIR 2021-5015, HU 0203 excluded), SIR 2025-5110's Skew Regions 1 and 2, New England (SIR 2017-5037, Cape Cod excluded) and Arkansas-Louisiana (SIR 2016-5081, 13 HUC8s excluded). Sites in NY, PA, VA, WV, MA, LA, KY and TN now resolve without the state-level fallback (#204).
+
+### Changed
+- `regional_skew_at_huc`: a HUC may carry one membership row per study, provided their `valid_states` are disjoint, and the site's state picks the row. A state that no matched row covers, but whose single usable row belongs to a study bounded by the state line (Maine's statewide study inside New England's HU 01), is treated as having no membership. A multi-state unit that none of its states' rows cover asks for `state=`. An exclusion from a usable study now explains itself from its membership row (#204).
+- `tools/build_regional_skew_hucs.py` no longer writes `regional_skew_huc8_states.csv`. That table is `tools/build_huc8_states.py`'s (#205), and the old narrow query would have overwritten it.
+
 ## [0.17.0] - 2026-10-30
 
 Follow-through on the nationwide rollout. Every GA, NC and SC `nss_snapshot` equation now

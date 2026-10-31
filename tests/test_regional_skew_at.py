@@ -52,7 +52,8 @@ def test_packaged_tables_load():
     # 1712 became a provisional Oregon-only member (docs/OREGON_UNRESOLVED_SKEW.md).
     closed = hucs[hucs["skew_region"] == "Pacific Northwest (Oregon closed basins, provisional)"]
     assert closed[["huc", "rule", "valid_states"]].values.tolist() == [["1712", "member", "OR"]]
-    assert sorted(hucs.loc[hucs["rule"] == "unresolved", "huc"]) == ["1801"]
+    # 12040201 (Sabine Lake, LA): SIR 2016-5081 excludes part of it (#204).
+    assert sorted(hucs.loc[hucs["rule"] == "unresolved", "huc"]) == ["12040201", "1801"]
     srp = hucs[hucs["skew_region"] == "Snake River Plain"]
     assert srp["huc"].str.len().eq(12).all() and srp["huc"].str[:4].isin(["1704", "1705"]).all()
     assert srp["source"].str.contains("SIR 2016-5083 p. 52").all()
@@ -190,12 +191,17 @@ def test_eastern_montana_raises(huc, what):
 
 
 def test_state_with_no_huc_membership_raises_or_falls_back():
-    # Big Sandy River at Bruceton, TN (03606500). No study has HUC membership
-    # here; TN's single verified row applies only as a labelled state fallback.
+    # Henry Fork near Henry River, NC (02143000). The Southeastern US study has no
+    # HUC membership; NC's single verified row applies only as a labelled state
+    # fallback. (Big Sandy River at Bruceton, TN, was this test's site until #204
+    # gave Skew Region 2 its HU 05/06/08 rows.)
     with pytest.raises(RegionalSkewUnavailable, match="No verified regional skew study"):
-        regional_skew_at_huc("060400050505", "TN", allow_state_fallback=False)
-    rs = regional_skew_at_huc("060400050505", "TN")
-    assert rs.state == "TN" and rs.advisory.startswith("STATE-LEVEL FALLBACK")
+        regional_skew_at_huc("030501020000", "NC", allow_state_fallback=False)
+    rs = regional_skew_at_huc("030501020000", "NC")
+    assert rs.state == "NC" and rs.advisory.startswith("STATE-LEVEL FALLBACK")
+    big_sandy = regional_skew_at_huc("060400050505", "TN")
+    assert big_sandy.skew_region == "Skew Region 2 (Gulf of America drainage)"
+    assert not big_sandy.advisory
 
 
 @pytest.mark.parametrize(
