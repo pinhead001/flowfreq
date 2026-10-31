@@ -93,6 +93,16 @@ class MonthlyStatistics:
     excluded: pd.DataFrame
 
 
+def _check_daily(site: str, series: pd.Series) -> None:
+    """Refuse a series with more than one value on a date (sub-daily or duplicated)."""
+    dates = pd.DatetimeIndex(series.dropna().index).normalize()
+    if dates.has_duplicates:
+        raise ValueError(
+            f"daily[{site!r}] must have one value per day; it repeats "
+            f"{dates[dates.duplicated()][0].date()} (sub-daily or duplicated data)"
+        )
+
+
 def _yearly_means(
     site: str, daily: pd.Series, start: int, end: int
 ) -> List[Tuple[str, int, int, float]]:
@@ -200,6 +210,7 @@ def monthly_statistics(
     for site, series in daily.items():
         if not isinstance(series.index, pd.DatetimeIndex):
             raise TypeError(f"daily[{site!r}] must be indexed by a DatetimeIndex")
+        _check_daily(str(site), series)
 
     sites = [str(s) for s in daily]
     yearly_rows: List[Tuple[str, int, int, float]] = []
@@ -217,7 +228,7 @@ def monthly_statistics(
         )
 
     table, covariance, excluded = _tabulate(
-        groups, sites, range(1, 13), statistic, min_years, "month"
+        groups, sites, range(1, 13), statistic, min_years, "month", yearly_name="yearly mean"
     )
 
     return MonthlyStatistics(
@@ -282,7 +293,15 @@ def build_monthly_pairs(
         raise ValueError("gages needs a 'runoff_depth' column")
     log_q, cov = _slice(stats, "month", int(month))
     return _pairs_core(
-        log_q, cov, stats.statistic, "month", int(month), gages, connections, attributes
+        log_q,
+        cov,
+        stats.statistic,
+        "month",
+        int(month),
+        gages,
+        connections,
+        attributes,
+        "monthly statistics",
     )
 
 
@@ -334,7 +353,9 @@ def monthly_transfers(
     if "runoff_depth" not in gages.columns:
         raise ValueError("gages needs a 'runoff_depth' column")
     log_q, cov = _slice(stats, "month", int(month))
-    return _transfers_core(log_q, cov, gages, target, donors, attributes, f"month {month}")
+    return _transfers_core(
+        log_q, cov, gages, target, donors, attributes, f"month {month}", "monthly statistics"
+    )
 
 
 def blend_month(
@@ -433,7 +454,7 @@ def monthly_leave_one_out(
     log_q, cov = _slice(stats, "month", int(month))
     return _loo_core(
         log_q, cov, stats.statistic, "month", int(month), gages, connections, terms,
-        attributes, donor_correlation, level, powers,
+        attributes, donor_correlation, level, powers, "monthly statistics",
     )  # fmt: skip
 
 
@@ -451,6 +472,7 @@ def _tabulate(
     statistic: str,
     min_years: int,
     key_col: str,
+    yearly_name: str = "yearly value",
 ) -> Tuple[pd.DataFrame, Dict[int, pd.DataFrame], pd.DataFrame]:
     """Per site and key: the statistic of its yearly series, with variance and covariance.
 
@@ -472,7 +494,7 @@ def _tabulate(
             elif statistic == "mean" and float(x.mean()) <= 0.0:
                 reason = "zero period mean flow"
             elif statistic == "median" and bool((x <= 0.0).any()):
-                reason = "zero flow in a yearly value (median works in log space)"
+                reason = f"zero flow in a {yearly_name} (median works in log space)"
             else:
                 value, log_q, variance = _own_statistic(np.asarray(x, dtype=float), statistic)
                 valid[(site, key)] = x
@@ -534,6 +556,19 @@ def _gage_columns(
     return area, depth, attr
 
 
+def _check_pairs(connections: Sequence[Tuple[str, str]]) -> None:
+    """Refuse a gage connected to itself and a pair listed twice (either direction)."""
+    seen = set()
+    for a_raw, b_raw in connections:
+        a, b = str(a_raw), str(b_raw)
+        if a == b:
+            raise ValueError(f"gage {a} is connected to itself")
+        pair = frozenset((a, b))
+        if pair in seen:
+            raise ValueError(f"the pair {a}-{b} is listed twice")
+        seen.add(pair)
+
+
 def _pairs_core(
     log_q: Mapping[str, float],
     cov: pd.DataFrame,
@@ -543,8 +578,10 @@ def _pairs_core(
     gages: pd.DataFrame,
     connections: Sequence[Tuple[str, str]],
     attributes: Sequence[str],
+    source: str = "statistics",
 ) -> pd.DataFrame:
     """The pair table of :func:`build_monthly_pairs` for one key."""
+    _check_pairs(connections)
     area, depth, attr = _gage_columns(gages, attributes)
     rows: List[Dict[str, object]] = []
     for donor_raw, receiver_raw in connections:
@@ -553,7 +590,7 @@ def _pairs_core(
             if site not in area:
                 raise KeyError(f"connection names {site}, which is not in the gage table")
             if site not in log_q:
-                raise KeyError(f"connection names {site}, which is not in the statistics")
+                raise KeyError(f"connection names {site}, which is not in the {source}")
         if math.isnan(log_q[donor]) or math.isnan(log_q[receiver]):
             logger.info(
                 "%s %d: dropping connection %s -> %s (a gage is excluded)",
@@ -614,6 +651,7 @@ def _transfers_core(
     donors: Sequence[str],
     attributes: Sequence[str],
     where: str,
+    source: str = "statistics",
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """The transfers and donor covariance of :func:`monthly_transfers` for one key."""
     area, depth, attr = _gage_columns(gages, attributes)
@@ -623,7 +661,7 @@ def _transfers_core(
         if site not in area:
             raise KeyError(f"{site} is not in the gage table")
         if site not in log_q:
-            raise KeyError(f"{site} is not in the statistics")
+            raise KeyError(f"{site} is not in the {source}")
     rows: List[Dict[str, object]] = []
     for d in donor_list:
         if math.isnan(log_q[d]):
@@ -661,9 +699,10 @@ def _loo_core(
     donor_correlation: float,
     level: float,
     powers: Optional[Mapping[str, float]],
+    source: str = "statistics",
 ) -> pd.DataFrame:
     """The leave-one-out table of :func:`monthly_leave_one_out` for one key."""
-    pairs = _pairs_core(log_q, cov, statistic, key_col, key, gages, connections, attributes)
+    pairs = _pairs_core(log_q, cov, statistic, key_col, key, gages, connections, attributes, source)
     neighbours: Dict[str, List[str]] = {}
     for a_raw, b_raw in connections:
         a, b = str(a_raw), str(b_raw)
@@ -701,7 +740,7 @@ def _loo_core(
             continue
         try:
             transfers, dcov = _transfers_core(
-                log_q, cov, gages, j, nbrs, attributes, f"{key_col} {key}"
+                log_q, cov, gages, j, nbrs, attributes, f"{key_col} {key}", source
             )
             res = combine(
                 model,

@@ -100,13 +100,24 @@ class NaturalizedFlow:
     summary: pd.DataFrame = field(repr=False)
 
 
-def _in_effect(index: pd.DatetimeIndex, d: Diversion) -> np.ndarray:
-    on = np.asarray(index.month.isin([int(m) for m in d.months]))
+def _dates(index: pd.DatetimeIndex) -> pd.DatetimeIndex:
+    """Calendar dates of an index: local dates for a tz-aware one, time of day dropped."""
+    if index.tz is not None:
+        index = index.tz_localize(None)
+    return index.normalize()
+
+
+def _in_effect(dates: pd.DatetimeIndex, d: Diversion) -> np.ndarray:
+    on = np.asarray(dates.month.isin([int(m) for m in d.months]))
     if d.start is not None:
-        on &= np.asarray(index >= pd.Timestamp(d.start))
+        on &= np.asarray(dates >= _dates(pd.DatetimeIndex([d.start]))[0])
     if d.end is not None:
-        on &= np.asarray(index <= pd.Timestamp(d.end))
+        on &= np.asarray(dates <= _dates(pd.DatetimeIndex([d.end]))[0])
     return on
+
+
+#: Share of the days in effect a rate series may miss before :func:`naturalize` warns.
+MISSING_RATE_WARN = 0.25
 
 
 def naturalize(gaged: pd.Series, diversions: Sequence[Diversion]) -> NaturalizedFlow:
@@ -135,12 +146,18 @@ def naturalize(gaged: pd.Series, diversions: Sequence[Diversion]) -> Naturalized
     if len(set(names)) != len(names):
         raise ValueError(f"duplicate diversion names: {names}")
     index = pd.DatetimeIndex(gaged.index)
+    dates = _dates(index)
     added = pd.DataFrame(index=index)
     rows: List[dict] = []
     for d in diversions:
-        on = _in_effect(index, d)
+        on = _in_effect(dates, d)
         if isinstance(d.rate_cfs, pd.Series):
-            rate = d.rate_cfs.reindex(index).to_numpy(dtype=float)
+            r = d.rate_cfs.dropna()
+            r_dates = _dates(pd.DatetimeIndex(r.index))
+            if r_dates.has_duplicates:
+                raise ValueError(f"{d.name}: the rate series has duplicate dates")
+            by_date = pd.Series(r.to_numpy(dtype=float), index=r_dates)
+            rate = by_date.reindex(dates).to_numpy(dtype=float)
         else:
             rate = np.full(len(index), float(d.rate_cfs))
         missing = on & np.isnan(rate)
@@ -155,8 +172,14 @@ def naturalize(gaged: pd.Series, diversions: Sequence[Diversion]) -> Naturalized
             }
         )
         if missing.any():
-            logger.info(
-                "%s: no rate on %d day(s) in effect; nothing added there", d.name, missing.sum()
+            share = float(missing.sum()) / max(int(on.sum()), 1)
+            log = logger.warning if share > MISSING_RATE_WARN else logger.info
+            log(
+                "%s: no rate on %d of %d day(s) in effect; nothing added there (a rate series "
+                "is read by calendar date)",
+                d.name,
+                int(missing.sum()),
+                int(on.sum()),
             )
     flow = gaged.astype(float) + (added.sum(axis=1) if len(diversions) else 0.0)
     summary = pd.DataFrame(

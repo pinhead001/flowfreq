@@ -88,8 +88,9 @@ fold.
 
 Two fixes follow:
 - `sampling_covariance` caps concurrent years at `min(n_i, n_j)`.
-- `fit_gls` replaces an indefinite Σ with the nearest positive semi-definite matrix (negative
-  eigenvalues set to zero) before estimating γ². The WREG construction does not guarantee a
+- `fit_gls` projects an indefinite Σ's correlation matrix to the nearest positive
+  semi-definite one and keeps the at-site variances (the diagonal, which is known) before
+  estimating γ². The WREG construction does not guarantee a
   positive semi-definite Σ even with correct inputs: the committed Washington refit's Σ has a
   smallest eigenvalue of about -7e-4.
 

@@ -80,8 +80,8 @@ All inputs are the report's own (`tools/build_wa_gls_dataset.py`):
 | 4, P/10 | 0.01 | 1.929, 0.916, 0.0408 | 1.961, 0.921, 0.040 | 0.049 / 0.047 | 1.72, 1.22, 1.23 |
 
 Regenerated 2026-10-31 after two `flowfreq.regression.gls` fixes: concurrent years are capped
-at the shorter record, and an indefinite Σ is replaced by the nearest positive semi-definite
-matrix before the model error variance is estimated (`docs/WA_REGION2_METHOW.md`). Every value above moved by at most 0.3% (MEV 0.14%), and
+at the shorter record, and an indefinite Σ's correlations are projected to the nearest positive
+semi-definite matrix, keeping the variances, before the model error variance is estimated (`docs/WA_REGION2_METHOW.md`). Every value above moved by at most 0.3% (MEV 0.14%), and
 the Region 4 P/10 evidence is unchanged (P-entry ratio 1.227 → 1.228).
 
 Intercepts and slopes trade off against each other, so the useful comparison is the

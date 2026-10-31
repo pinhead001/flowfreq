@@ -285,13 +285,33 @@ def _mev(y: FloatArray, X: FloatArray, sigma: FloatArray) -> float:
 
 
 def _nearest_psd(sigma: FloatArray) -> FloatArray:
-    """``sigma`` with its negative eigenvalues set to zero (the nearest PSD matrix)."""
+    """A positive semi-definite ``sigma`` that keeps its diagonal.
+
+    The diagonal holds the at-site sampling variances, which are known; only the WREG
+    off-diagonals are approximate. So the correlation matrix is projected (negative
+    eigenvalues set to zero, then rescaled to a unit diagonal) and the variances put back.
+    """
     sym = (sigma + sigma.T) / 2.0
     lam, vec = np.linalg.eigh(sym)
     if lam[0] >= 0.0:
         return np.asarray(sym, dtype=float)
-    logger.debug("sampling covariance indefinite (smallest eigenvalue %.3g); projected", lam[0])
-    return np.asarray((vec * np.clip(lam, 0.0, None)) @ vec.T, dtype=float)
+    d = np.diag(sym).copy()
+    if np.any(d <= 0.0):
+        projected = (vec * np.clip(lam, 0.0, None)) @ vec.T
+    else:
+        s = np.sqrt(d)
+        corr = sym / np.outer(s, s)
+        lc, vc = np.linalg.eigh(corr)
+        c = (vc * np.clip(lc, 0.0, None)) @ vc.T
+        u = np.sqrt(np.clip(np.diag(c), 1e-300, None))
+        c = c / np.outer(u, u)
+        projected = c * np.outer(s, s)
+    logger.warning(
+        "sampling covariance is not positive semi-definite (smallest eigenvalue %.3g); "
+        "its correlations were projected to the nearest PSD matrix, variances kept",
+        lam[0],
+    )
+    return np.asarray((projected + projected.T) / 2.0, dtype=float)
 
 
 def fit_gls(
@@ -327,9 +347,10 @@ def fit_gls(
     Notes
     -----
     The WREG off-diagonal construction is not guaranteed positive semi-definite, so
-    ``sigma`` may have small negative eigenvalues. It is then replaced by the nearest
-    positive semi-definite matrix (negative eigenvalues set to zero) before the model
-    error variance is estimated: with an indefinite ``sigma`` the moment equation uses
+    ``sigma`` may have small negative eigenvalues. Its correlation matrix is then projected
+    to the nearest positive semi-definite one (negative eigenvalues set to zero, unit
+    diagonal restored) and the at-site variances, which are known, are kept, before the
+    model error variance is estimated: with an indefinite ``sigma`` the moment equation uses
     the inverse of an indefinite matrix, and gave a meaningless 0 (and nonsense
     coefficients) in the Washington Region 2 study.
     """

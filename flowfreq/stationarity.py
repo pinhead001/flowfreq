@@ -246,7 +246,9 @@ def pettitt(x: ArrayLike, years: Optional[Iterable[int]] = None) -> PettittResul
     year_list = list(years) if years is not None else None
     if year_list is not None and len(year_list) != n:
         raise ValueError("x and years differ in length")
-    shift = "up" if np.median(a[index:]) > np.median(a[:index]) else "down"
+    # U_t sums sign(x_i - x_j) with i before the change: negative when later values are
+    # larger.
+    shift = "up" if u[t_star] < 0 else "down"
     return PettittResult(
         index=index,
         year=int(year_list[index]) if year_list is not None else None,
