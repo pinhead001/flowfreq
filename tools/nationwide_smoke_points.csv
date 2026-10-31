@@ -9,10 +9,12 @@ VT,43.714607,-72.418783,"main-stem point at gage 01144000 (687 mi2); #209 packet
 AL,31.343648,-85.610215,"main-stem point at gage 02361000 (687 mi2); #209 packet: Region 4 rural",GC1502
 IA,,,"boundary basin: Regions 2 and 3 multi-variable (SIR 2013-5086), not the DA-only sets","GC1562, GC1563"
 MO,,,#209 packet: rural Region 2,GC1484
-MT,,,"boundary basin: SW and Upper Yellowstone-Central Mountain basin-characteristic sets (no measured channel width)","GC1681, GC1682"
+MT,45.723075,-111.740980,"snapped ~4 m from gage 06035000 Willow Creek nr Harrison (85.9 mi2, SW region only); the 06191500 gage basin (CONTDA 2616 mi2) exceeds the SW limit of 2472",
 IL,40.025394,-90.631848,"snapped ~50 m from gage 05585000; #209 packet: GC2010 adds the urbanization term (URBTHE2010) to GC2004 (_U, unadjusted)",GC2010
 NM,,,report region of the gage (SIR 2008-5119 table; catalog GC1096),5
 CT,,,#209 rule: statewide multiparameter (not the DA-only GC1800),GC1801
 NH,43.566777,-71.747352,snapped ~60 m from gage 01078000,
 PR,18.035433,-66.032469,snapped ~60 m from gage 50092000,
 HI,20.885988,-156.252389,main-stem point at gage 16587000 (0.68 mi2 vs catalog 0.59),
+ND,46.155064,-102.475458,"snapped ~30 m from gage 06352000 Cedar Creek nr Haynes (557 mi2, reference); StreamStats flags the 06354000 Cannonball basin REGULATED",
+AK,61.709952,-149.230916,"snapped ~60 m from gage 15290000 L Susitna R nr Palmer (62 mi2, reference); gage 15072000 does not snap; statewide GC1656 (under 1000 mi2) and GC1657 overlap",GC1656

@@ -158,10 +158,21 @@ Still failing in the 2026-10-30 rerun (14 of 56; WY and MN fixed since, live rec
 - [x] **WY**: region 1 needs `LONG_OUT` (outlet longitude), which StreamStats does not return;
       `estimate_at_site` now takes it from the snapped pour point (`outlet_coordinates`). The
       live smoke rerun waits on StreamStats (ss-hydro returned 502 on 2026-10-30).
-- [ ] **MT**: refused as out of range, not extrapolated (SW CONTDA 2616 > max 2472.17).
-- [ ] **FL, MI, NE**: HTTP 404 from StreamStats' snap service (also on 2026-10-25).
-- [ ] **ND**: StreamStats flags the delineation REGULATED (Cannonball River).
-- [ ] **AK**: no point within 0.004 degrees of the gage snaps.
+- [x] **MT**: refused as out of range, not extrapolated (SW CONTDA 2616 > max 2472.17).
+      Pinned in `tests/test_smoke_failures.py`; the smoke point moved to gage 06035000
+      (Willow Creek near Harrison, 85.9 mi2, SW only).
+- [x] **FL, MI, NE**: StreamStats' snap service has no stream grid for these regions
+      (404 "Stream grid raster not found" / "No such region", 2026-10-31; ss-delineate
+      fails the same way). Now `RegionNotDelineatedError`; a known gap in the smoke report,
+      since no point there can be delineated through the API.
+- [x] **ND**: StreamStats flags the Cannonball basin REGULATED; now
+      `RegulatedDelineationError`. The smoke point moved to gage 06352000 (Cedar Creek near
+      Haynes, 557 mi2, reference).
+- [x] **AK**: gage 15072000 does not snap (nor 10 of the next 11 AK candidates). The
+      smoke point moved to gage 15290000 (Little Susitna River near Palmer, 62 mi2) with
+      `region=GC1656`, since AK's two statewide areas (under and over 1,000 mi2) overlap.
+- [ ] **Live recheck** of the moved MT, ND and AK points, with WY and MN: snap,
+      delineation and NSS region location pass (2026-10-31); the estimates wait on ss-hydro.
 - Large gaged-versus-ungaged differences with a correct delineation (the drainage area matches
   the catalog): AZ 09484000 (ratio 0.10, a 35 mi2 basin), TX 08190000 (0.20, Nueces River)
   and NV 10329500 (0.36). The regressions are run as published; these are not defects.

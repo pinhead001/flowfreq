@@ -47,6 +47,7 @@ import json
 import logging
 import math
 import os
+import re
 import tempfile
 import threading
 import time
@@ -128,9 +129,30 @@ class UnsupportedRegionError(ValueError):
     """
 
 
+class RegionNotDelineatedError(UnsupportedRegionError):
+    """StreamStats' snap service has no stream grid for the region.
+
+    The pourpoint service answers HTTP 404 ("Stream grid raster not found for
+    region", "No such region") for a region StreamStats does not delineate through
+    this API: FL, MI and NE on 2026-10-25 and 2026-10-31. No point in the region
+    can be delineated, so moving it will not help; supply the basin characteristics
+    another way.
+    """
+
+
 class DegenerateDelineationError(ValueError):
     """A delineation response failed validation: a warning, or a structurally invalid
     or degenerate polygon (FR-3). The accompanying geometry must not be used.
+    """
+
+
+class RegulatedDelineationError(DegenerateDelineationError):
+    """StreamStats flagged the delineated basin as regulated (a ``REGULATED: ...``
+    warning, e.g. ``REGULATED: CANNONBALL RIVER`` in North Dakota).
+
+    The rural regression equations exclude regulated basins, so this is the screen
+    working, not a service failure: pick a point upstream of the regulation, or
+    estimate the regulated flow another way.
     """
 
 
@@ -509,6 +531,12 @@ def _resolve_server(response: requests.Response, default: str) -> str:
     return hostname.lower() if hostname else default
 
 
+#: The pourpoint service's 404 bodies for a region it has no stream grid for.
+_NO_STREAM_GRID = re.compile(
+    r"stream ?grid raster not found|no such region|no streamgrid data", re.IGNORECASE
+)
+
+
 def snap_point(region: str, lat: float, lon: float, *, timeout: float = 45.0) -> SnapResult:
     """Snap a coordinate to the StreamStats stream network (FR-1).
 
@@ -531,6 +559,9 @@ def snap_point(region: str, lat: float, lon: float, *, timeout: float = 45.0) ->
         The point will not snap. Move it; retrying will not help.
     UnsupportedRegionError
         StreamStats rejected the region code for this coordinate.
+    RegionNotDelineatedError
+        The snap service has no stream grid for the region (an
+        :class:`UnsupportedRegionError`).
     StreamStatsResponseError
         The response was not valid JSON, or reported success with no usable output
         coordinates.
@@ -545,6 +576,12 @@ def snap_point(region: str, lat: float, lon: float, *, timeout: float = 45.0) ->
         raise UnsupportedRegionError(
             f"StreamStats rejected region {region!r} while snapping ({lat}, {lon}): "
             f"{response.text}"
+        )
+    if response.status_code == 404 and _NO_STREAM_GRID.search(response.text or ""):
+        raise RegionNotDelineatedError(
+            f"StreamStats' snap service has no stream grid for region {region!r} "
+            f"({response.text.strip()[:200]}); no point there can be delineated through "
+            "this API, so supply the basin characteristics another way"
         )
     response.raise_for_status()
 
@@ -896,7 +933,12 @@ def _sshydro_delineation(
 
     warning_msg = _find_warning_msg(sshydro_data)
     if warning_msg:
-        raise DegenerateDelineationError(
+        error = (
+            RegulatedDelineationError
+            if warning_msg.upper().startswith("REGULATED")
+            else DegenerateDelineationError
+        )
+        raise error(
             f"StreamStats delineation warning at ({snap.snapped_lat}, "
             f"{snap.snapped_lon}) in region {region!r}: {warning_msg}"
         )
