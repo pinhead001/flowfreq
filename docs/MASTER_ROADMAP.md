@@ -367,7 +367,7 @@ Per wave, the definition of done:
       correlation-distance model and `fit_gls`. It is tested on OLS and simulated data.
       Validated against a published regression, Washington SIR 2016-5118, in all four
       regions (`docs/WA_REGION4_REFIT.md`: MEV within 0.89-1.13 of Table 7). Since 0.19.0,
-      `fit_gls` keeps its search where Σ + γ²I is positive definite and `sampling_covariance`
+      `fit_gls` projects an indefinite Σ to the nearest PSD matrix and `sampling_covariance`
       caps concurrent years (`docs/WA_REGION2_METHOW.md`). The closest existing code is `skew_study` (§1.3), whose B-WLS/B-GLS,
       cross-correlation model and diagnostics (leverage, influence, pseudo-R², AVP) are
       specific to regional skew.

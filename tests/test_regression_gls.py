@@ -175,3 +175,19 @@ def test_indefinite_sampling_covariance_still_fits():
     assert np.all(np.linalg.eigvalsh(S + res.model_error_variance * np.eye(m)) > 0)
     assert res.model_error_variance == pytest.approx(mev, abs=0.02)
     np.testing.assert_allclose(res.beta, beta, atol=0.15)
+
+
+def test_indefinite_sigma_is_projected_not_floored():
+    # Review 2026-10-31: with an indefinite Sigma the model error variance used to be
+    # floored at |lambda_min| when the moment equation had no root above it, inflating
+    # MEV and AVP about 100x on a nearly noise-free fit. Sigma is now projected onto the
+    # positive semi-definite cone first, so a tiny residual gives a tiny MEV.
+    rng = np.random.default_rng(7)
+    m = 12
+    X = np.column_stack([np.ones(m), rng.normal(0, 1, m)])
+    y = X @ np.array([1.0, 0.5]) + rng.normal(0, 0.01, m)
+    S = 0.05 * np.eye(m)
+    S[0, 1] = S[1, 0] = 0.06  # lambda_min = -0.01
+    res = fit_gls(y, X, S)
+    assert res.model_error_variance < 1e-3
+    assert np.all(np.isfinite(res.beta)) and np.allclose(res.beta, [1.0, 0.5], atol=0.05)

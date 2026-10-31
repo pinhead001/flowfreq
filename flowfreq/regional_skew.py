@@ -529,12 +529,24 @@ def regional_skew_at_huc(
             touched_first = _states_of(huc, states_path)
             if len(touched_first) == 1:
                 site = next(iter(touched_first))
-            elif touched_first and all(
-                _for_state(pd.concat([matches, finer]), t).empty for t in touched_first
-            ):
-                # A multi-state unit none of whose states a matched row covers is, for
-                # each of them, a unit without membership: the fallback asks for state=.
-                matches, finer = matches.iloc[0:0], finer.iloc[0:0]
+            elif touched_first:
+                rows = pd.concat([matches, finer])
+                if all(_for_state(rows, t).empty for t in touched_first):
+                    # A multi-state unit none of whose states a matched row covers is,
+                    # for each of them, a unit without membership: the fallback asks
+                    # for state=.
+                    matches, finer = matches.iloc[0:0], finer.iloc[0:0]
+                else:
+                    # Keep the rows that apply in at least one touched state, so the
+                    # refusal below names a study that is actually in play.
+                    def _in_play(df: pd.DataFrame) -> pd.DataFrame:
+                        keep = [
+                            not _state_set(v) or bool(_state_set(v) & touched_first)
+                            for v in df["valid_states"]
+                        ]
+                        return df[keep]
+
+                    matches, finer = _in_play(matches), _in_play(finer)
         if site is not None:
             own_matches, own_finer = _for_state(matches, site), _for_state(finer, site)
             if not (own_matches.empty and own_finer.empty):
@@ -653,6 +665,8 @@ def regional_skew_at_huc(
         note = _provisional_advisory(region)
         logger.warning("HUC %s: %s", huc, note)
         advisory = f"{note} {advisory}".strip()
+    if drainage_area_sqmi is not None and not math.isfinite(drainage_area_sqmi):
+        drainage_area_sqmi = None  # unknown: the range becomes an advisory
     if region in DRAINAGE_AREA_RANGES:
         lo, hi = DRAINAGE_AREA_RANGES[region]
         if drainage_area_sqmi is not None and not lo <= drainage_area_sqmi <= hi:
@@ -805,7 +819,10 @@ def regional_skew_for_site(
         raise RegionalSkewUnavailable(f"Site {site_no} has no hydrologic_unit_code on record")
     state = STATE_FIPS.get(str(props.get("state_code") or "").zfill(2))
     if drainage_area_sqmi is None and props.get("drainage_area") not in (None, ""):
-        drainage_area_sqmi = float(props["drainage_area"])
+        try:
+            drainage_area_sqmi = float(props["drainage_area"])
+        except (TypeError, ValueError):
+            logger.debug("site %s: unusable drainage_area %r", site_no, props["drainage_area"])
     return regional_skew_at_huc(
         huc,
         state,

@@ -142,7 +142,10 @@ def raw_beta(eq: Dict[str, Any]) -> List[float]:
     out: List[float] = []
     for v, c in zip(eq["variables"], eq["coefficients"]):
         scale, offset = float(v.get("scale", 1.0)), float(v.get("offset", 0.0))
-        if v.get("transform", "log10") == "identity":
+        transform = v.get("transform", "log10")
+        if transform not in ("identity", "log10") or (transform == "log10" and scale <= 0):
+            raise ValueError(f"{v['code']}: no raw-variable form for {transform} scale {scale}")
+        if transform == "identity":
             b0 += c * offset
             out.append(c * scale)
         else:

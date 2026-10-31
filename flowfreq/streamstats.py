@@ -1429,9 +1429,14 @@ def locate_regression_regions(
     """
     geometry = _geometry_of(watershed_polygon)
     basin_sq_mi = geojson_area_sq_mi(geometry)
-    data: List[Any] = []
-    for nss_region in (region, *NSS_EXTRA_REGIONS.get(region.upper(), ())):
-        data.extend(_bylocation(nss_region, geometry, timeout))
+    data: List[Any] = list(_bylocation(region, geometry, timeout))
+    for extra in NSS_EXTRA_REGIONS.get(region.upper(), ()):
+        # An extra region is a study inside the state, not the state's own answer: a
+        # failure there is logged and the state's own regions are still returned.
+        try:
+            data.extend(_bylocation(extra, geometry, timeout))
+        except StreamStatsResponseError as exc:
+            logger.warning("NSS region %s bylocation failed, skipped: %s", extra, exc)
 
     located: List[RegressionRegionLocation] = []
     for item in data:

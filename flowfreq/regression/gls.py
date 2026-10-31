@@ -272,16 +272,26 @@ def _mev(y: FloatArray, X: FloatArray, sigma: FloatArray) -> float:
     if not np.any(sigma):
         beta, *_ = np.linalg.lstsq(X, y, rcond=None)
         return float(np.sum((y - X @ beta) ** 2) / (n - p))
-    # Search only where Lambda = sigma + g2 I is positive definite: an indefinite sigma
-    # (the WREG construction does not guarantee otherwise) makes f(0) meaningless.
-    lam_min = float(np.linalg.eigvalsh((sigma + sigma.T) / 2.0)[0])
-    lo = 0.0 if lam_min > 0.0 else -lam_min * (1.0 + 1e-6) + 1e-12
+    # A singular sigma (a projected indefinite one, or a site with no sampling error)
+    # cannot be inverted at g2 = 0, so the search starts just above it.
+    lam = np.linalg.eigvalsh((sigma + sigma.T) / 2.0)
+    lo = 0.0 if lam[0] > 1e-12 * max(float(lam[-1]), 1e-300) else 1e-12 * max(float(lam[-1]), 1e-12)
     if f(lo) <= 0.0:
         return lo
-    hi = max(float(np.var(y)), 1e-6, lo) * 10.0
+    hi = max(float(np.var(y)), 1e-6) * 10.0
     while f(hi) > 0.0:
         hi *= 10.0
     return float(brentq(f, lo, hi, xtol=1e-12))
+
+
+def _nearest_psd(sigma: FloatArray) -> FloatArray:
+    """``sigma`` with its negative eigenvalues set to zero (the nearest PSD matrix)."""
+    sym = (sigma + sigma.T) / 2.0
+    lam, vec = np.linalg.eigh(sym)
+    if lam[0] >= 0.0:
+        return np.asarray(sym, dtype=float)
+    logger.debug("sampling covariance indefinite (smallest eigenvalue %.3g); projected", lam[0])
+    return np.asarray((vec * np.clip(lam, 0.0, None)) @ vec.T, dtype=float)
 
 
 def fit_gls(
@@ -317,10 +327,11 @@ def fit_gls(
     Notes
     -----
     The WREG off-diagonal construction is not guaranteed positive semi-definite, so
-    ``sigma`` may have small negative eigenvalues. The model error variance is then
-    searched only where ``sigma + gamma2 * I`` is positive definite (``gamma2`` above
-    minus the smallest eigenvalue); at ``gamma2 = 0`` its moment equation would use
-    the inverse of an indefinite matrix and could return a meaningless 0.
+    ``sigma`` may have small negative eigenvalues. It is then replaced by the nearest
+    positive semi-definite matrix (negative eigenvalues set to zero) before the model
+    error variance is estimated: with an indefinite ``sigma`` the moment equation uses
+    the inverse of an indefinite matrix, and gave a meaningless 0 (and nonsense
+    coefficients) in the Washington Region 2 study.
     """
     y_a = np.asarray(y, dtype=float)
     X_a = np.asarray(X, dtype=float)
@@ -333,6 +344,8 @@ def fit_gls(
     if np.linalg.matrix_rank(X_a) < p:
         raise ValueError("design matrix is not of full column rank")
 
+    if np.any(S):
+        S = _nearest_psd(S)
     gamma2 = _mev(y_a, X_a, S)
     beta, cov, lam_inv = _gls_at(y_a, X_a, S, gamma2)
     resid = y_a - X_a @ beta

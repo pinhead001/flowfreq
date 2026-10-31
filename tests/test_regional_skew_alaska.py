@@ -104,3 +104,22 @@ def test_at_passes_the_drainage_area(monkeypatch) -> None:
     with pytest.raises(RegionalSkewUnavailable, match="outside"):
         rs_mod.regional_skew_at(55.4, -131.2, drainage_area_sqmi=900.0)
     assert rs_mod.regional_skew_at(55.4, -131.2, drainage_area_sqmi=40.0).skew == 0.18
+
+
+def test_a_nan_drainage_area_is_treated_as_unknown() -> None:
+    rs = regional_skew_at_huc("190101020101", "AK", drainage_area_sqmi=float("nan"))
+    assert rs.skew_region == RSA2 and "123" in rs.advisory
+
+
+def test_for_site_ignores_a_non_numeric_drainage_area(monkeypatch) -> None:
+    import flowfreq.waterdata as wd
+    from flowfreq.regional_skew import regional_skew_for_site
+
+    monkeypatch.setattr(
+        wd,
+        "fetch_monitoring_location",
+        lambda site, timeout=60: {
+            "hydrologic_unit_code": "190101020101", "state_code": "02", "drainage_area": "n/a"
+        },
+    )  # fmt: skip
+    assert "123" in regional_skew_for_site("15000003").advisory

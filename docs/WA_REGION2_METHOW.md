@@ -88,9 +88,10 @@ fold.
 
 Two fixes follow:
 - `sampling_covariance` caps concurrent years at `min(n_i, n_j)`.
-- `fit_gls` searches γ² only where Σ + γ²I is positive definite. The WREG construction does
-  not guarantee a positive semi-definite Σ even with correct inputs: the committed Washington
-  refit's Σ has a smallest eigenvalue of about -7e-4.
+- `fit_gls` replaces an indefinite Σ with the nearest positive semi-definite matrix (negative
+  eigenvalues set to zero) before estimating γ². The WREG construction does not guarantee a
+  positive semi-definite Σ even with correct inputs: the committed Washington refit's Σ has a
+  smallest eigenvalue of about -7e-4.
 
 The Washington refit (`docs/WA_REGION4_REFIT.md`) moves by at most 0.3% in any coefficient
 and 0.14% in MEV under both fixes, and its Region 4 conclusion is unchanged.
