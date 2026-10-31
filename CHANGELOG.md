@@ -15,9 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `streamstats.RegionNotDelineatedError` (an `UnsupportedRegionError`): the snap service's HTTP 404 for a region it has no stream grid for ("Stream grid raster not found", "No such region"), as FL, MI and NE return. It used to surface as a bare `HTTPError`, which read as a transient failure. Any other 404 is still an `HTTPError`.
 - `streamstats.RegulatedDelineationError` (a `DegenerateDelineationError`): a `REGULATED: ...` delineation warning, as North Dakota's Cannonball River returns, so a caller can tell the regulation screen from a broken delineation.
 - `tests/test_smoke_failures.py`: each ungaged failure of the 2026-10-30 nationwide smoke run pinned as an offline test (FL/MI/NE, ND, AK, MT, OR; WY and MN were defects with their own tests).
+- `assemble` / `estimate_at_site` choose between overlapping NSS regions that are drainage-area classes by the basin's DRNAREA, instead of refusing with `OverlappingRegionsError`: Alaska's statewide GC1656 (under 1,000 mi2) and GC1657 (over it) are both located everywhere. The overlap counts as classes only when every candidate covers the whole basin, every equation bounds DRNAREA, and the ranges do not overlap; a basin on a shared endpoint, or with ranges that overlap, is still the caller's choice. The reason is recorded as `region_choice_source`.
 
 ### Changed
-- `tools/nationwide_smoke_points.csv`: MT, ND and AK points moved to gages that snap, delineate without a warning and fall in one library region (MT 06035000, ND 06352000, AK 15290000 with `region=GC1656`). FL, MI and NE are listed as a known gap.
+- `tools/nationwide_smoke_points.csv`: MT, ND and AK points moved to gages that snap, delineate without a warning and fall in one library region (MT 06035000, ND 06352000, AK 15290000). FL, MI and NE are listed as a known gap.
 
 ## [0.19.0] - 2026-10-31
 

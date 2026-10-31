@@ -17,4 +17,4 @@ NH,43.566777,-71.747352,snapped ~60 m from gage 01078000,
 PR,18.035433,-66.032469,snapped ~60 m from gage 50092000,
 HI,20.885988,-156.252389,main-stem point at gage 16587000 (0.68 mi2 vs catalog 0.59),
 ND,46.155064,-102.475458,"snapped ~30 m from gage 06352000 Cedar Creek nr Haynes (557 mi2, reference); StreamStats flags the 06354000 Cannonball basin REGULATED",
-AK,61.709952,-149.230916,"snapped ~60 m from gage 15290000 L Susitna R nr Palmer (62 mi2, reference); gage 15072000 does not snap; statewide GC1656 (under 1000 mi2) and GC1657 overlap",GC1656
+AK,61.709952,-149.230916,"snapped ~60 m from gage 15290000 L Susitna R nr Palmer (62 mi2, reference); gage 15072000 does not snap; GC1656 (under 1000 mi2) chosen by drainage area over GC1657",
