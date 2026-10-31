@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `stationarity.lombard`: Lombard's (1987) rank tests for an abrupt or a smooth (gradual) change, with the Wilcoxon score (level) or the Mood score (variability), as USACE's Nonstationarity Detection Tool runs them. The statistic is normalized as Rouge, Ge and Cai (2013) give it; its simulated null quantiles match the Cramer-von Mises critical values for the abrupt test (0.347, 0.461, 0.743), and the p-value comes from permutations. The change is located by the candidate with the largest variance-normalized contrast. `stationarity_screen` now reports all four Lombard tests (seeded, reproducible) and flags a gradual change in level that Pettitt misses and a change in variability.
+- `stationarity.field_significance_bootstrap`: field significance of Mann-Kendall trends by resampling whole years (Douglas, Vogel and Kroll 2000), which keeps the correlation between nearby sites; `block_length` resamples moving blocks to keep serial correlation as well.
+- `stationarity.basin_change_events`: dated events for `attribute_change_point` from the National Inventory of Dams (each dam holding at least 10% of the basin's NID storage at its completion year, and the year half of today's storage was in place) and from the NLCD impervious epochs StreamStats reports (the epoch impervious cover first reached 5%). On the Yakima at Kiona it names Cle Elum (1933), Kachess (1912), Tieton (1925) and Keechelus (1917).
+- `regulation.nid_dams_in_basin`: the NID rows inside a watershed polygon, which `nid_storage_in_basin` now uses.
+
 ## [0.19.0] - 2026-10-31
 
 Methow-flow follow-through and screening tools.
