@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.0] - 2026-10-31
+
+Regional skew by hydrologic unit for every study a report defines that way, now that
+overlapping studies are chosen by the site's state: Great Lakes and Ohio, Eastern New York
+and Pennsylvania, SIR 2025-5110's Skew Regions 1 and 2, New England, Arkansas-Louisiana and
+Alaska's two skew areas with their drainage-area ranges. Ungaged estimates take outlet
+coordinates from the pour point (Wyoming region 1), Minnesota gains its Rainy River Basin
+equations, and `SiteEstimate` carries the delineated basin polygon. Patch releases for 0.17
+continue from `release/0.17.x`.
+
 ### Added
 - `SiteEstimate.basin_geojson`: `estimate_at_site` now carries the delineated watershed polygon (the validated `WatershedCharacteristics.polygon_geojson` Feature, WGS84 `[lon, lat]`) on the estimate, for callers that draw the basin. It was already fetched to locate the regression regions and then discarded; no new network call. `to_markdown()` is unchanged.
 - Minnesota's Rainy River Basin equations (GC1775, Sanocki and others, SIR 2019-5012) in the MN `nss_snapshot` set. SIR 2023-5079 covers Minnesota except that basin, and NSS files GC1775 under its own region `RRB`, so the per-state harvest missed it. `streamstats.NSS_EXTRA_REGIONS` (`MN -> RRB`) makes `locate_regression_regions` search RRB too. `nss_library.merge_snapshots` and `tools/build_nss_snapshot_library.py` merge the RRB snapshot (`data/nss_snapshots/RRB_2026-10-31.json`) into MN's library. Each of the 8 equations matches NSS's Estimate value (#246).
