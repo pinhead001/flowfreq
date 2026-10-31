@@ -162,8 +162,8 @@ Still failing in the 2026-10-30 rerun (14 of 56; WY and MN fixed since, live rec
 - Large gaged-versus-ungaged differences with a correct delineation (the drainage area matches
   the catalog): AZ 09484000 (ratio 0.10, a 35 mi2 basin), TX 08190000 (0.20, Nueces River)
   and NV 10329500 (0.36). The regressions are run as published; these are not defects.
-- [ ] **The methow-flow items stay parked** (Priorities for methow-flow below: 5 of Tier 2;
-      7 parts 2-3, 8, 9 and 11 of Tier 3).
+- [ ] **The methow-flow items stay parked** (Priorities for methow-flow below: 7 parts 2-3,
+      8, 9 and 11 of Tier 3).
 - [ ] **Regional skew `pending` rows** (41): each waits for a published B-WLS/B-GLS study or
       a reading of the report's printed value; the row's notes say which.
 
@@ -215,9 +215,13 @@ Tier 2 -- fixes known Methow biases or moves general code upstream:
 4. [x] **Interpolation between two gages** (§5.1; `transpose.interpolate_between_gages`, #237): upstream methow-flow's bracketing
        (`choose_bracketing_gages`, `bracketed_peak_flows`) and reconcile it with
        `transfer_variance.combine`.
-5. [ ] **GLS validation against SIR 2016-5118** (§3.3, Northwest task 4), so Peak Region 2
-       can be refitted rather than corrected by a residual line (it is 1.41-2.04x low at
-       four of five Methow gages).
+5. [x] **GLS validation against SIR 2016-5118** (§3.3, Northwest task 4; done in
+       `docs/WA_REGION4_REFIT.md`), and why Peak Region 2 is low at the Methow
+       (`docs/WA_REGION2_METHOW.md`, `tools/wa_region2_elevation.py`): mean basin elevation,
+       absent from Table 6's design, explains about half the bias at the 50% AEP (t = 4.1,
+       Methow ratio 2.08 to 1.46; regional, it holds without the Methow HUC8's gages) and
+       fades by the 1% AEP. No Methow-specific effect remains after it. For methow-flow: an
+       ELEV refit for the 50%/20% AEPs, the published equation for rarer floods.
 6. [x] **Regulation guardrail in `transpose` and `qppq`** (§5.2), with a caller-supplied
        flag for diversions GAGES-II does not see (Beaver Creek):
        `donor_regulation`/`target_regulation` on every transfer, and

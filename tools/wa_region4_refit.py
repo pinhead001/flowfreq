@@ -119,12 +119,38 @@ def sigma(df: pd.DataFrame, X: np.ndarray, aep: float) -> np.ndarray:
     y0 = df["first_year"].to_numpy(dtype=float)
     y1 = df["last_year"].to_numpy(dtype=float)
     conc = np.clip(np.minimum.outer(y1, y1) - np.maximum.outer(y0, y0) + 1.0, 0.0, None)
+    # A record span can exceed the record length where a record has gaps; concurrent
+    # years cannot exceed either record, and more would make Sigma indefinite.
+    conc = np.minimum(conc, np.minimum.outer(n, n))
     rho = PNW_CORRELATION.rho(
         distance_miles(df["lat_cent"].to_numpy(dtype=float), df["lon_cent"].to_numpy(dtype=float))
     )
     s = rho * np.sqrt(np.outer(var, var)) * conc / np.sqrt(np.outer(n, n))
     np.fill_diagonal(s, var)
     return np.asarray(s, dtype=float)
+
+
+def raw_beta(eq: Dict[str, Any]) -> List[float]:
+    """``[b0, b1, ...]`` of a stored equation in its raw variables' basis.
+
+    ``WA.json`` stores some variables rescaled (Region 4's PRECPRIS10 as ``scale = 0.1``
+    with its coefficient x10, the P/10 basis); the refit's design uses the raw values, so
+    an identity term's scale and offset fold into its coefficient and the intercept, and a
+    log10 term's into the intercept.
+    """
+    b0 = float(eq["intercept"])
+    out: List[float] = []
+    for v, c in zip(eq["variables"], eq["coefficients"]):
+        scale, offset = float(v.get("scale", 1.0)), float(v.get("offset", 0.0))
+        if v.get("transform", "log10") == "identity":
+            b0 += c * offset
+            out.append(c * scale)
+        else:
+            if offset:
+                raise ValueError(f"{v['code']}: a log10 offset has no raw-variable form")
+            b0 += c * float(np.log10(scale))
+            out.append(float(c))
+    return [b0, *out]
 
 
 def published(region: int, aep: float) -> Dict[str, Any]:
@@ -157,7 +183,7 @@ def refit() -> Dict[str, Any]:
                     "cov_beta": res.cov_beta.tolist(),
                     "mev": res.model_error_variance,
                     "avp": res.avp,
-                    "pub_beta": [pub["intercept"]] + list(pub["coefficients"]),
+                    "pub_beta": raw_beta(pub),
                     "pub_mev": pub["model_error_variance"],
                 }
                 if "covariance" in pub:

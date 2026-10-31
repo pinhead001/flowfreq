@@ -180,7 +180,10 @@ def sampling_covariance(
         Sigma_ij = rho_ij sqrt(Var_i Var_j) c_ij / sqrt(n_i n_j)
 
     with ``c_ij`` the concurrent years and ``rho_ij`` from ``corr`` at the
-    sites' distance; zero where the records do not overlap.
+    sites' distance; zero where the records do not overlap. ``c_ij`` is capped at
+    ``min(n_i, n_j)``: concurrent years cannot exceed either record, and a larger
+    value (a first-to-last span passed for a record with gaps) would make the
+    effective correlation exceed ``rho_ij`` and Sigma indefinite.
 
     Parameters
     ----------
@@ -211,6 +214,7 @@ def sampling_covariance(
     n_a = np.asarray(n, dtype=float)
     if c.shape != (m, m) or n_a.size != m:
         raise ValueError(f"concurrent must be ({m}, {m}) and n length {m}")
+    c = np.minimum(c, np.minimum.outer(n_a, n_a))
     d = distance_miles(np.asarray(lat, dtype=float), np.asarray(lon, dtype=float))
     rho = corr.rho(d)
     s = rho * np.sqrt(np.outer(var, var)) * c / np.sqrt(np.outer(n_a, n_a))
@@ -268,12 +272,16 @@ def _mev(y: FloatArray, X: FloatArray, sigma: FloatArray) -> float:
     if not np.any(sigma):
         beta, *_ = np.linalg.lstsq(X, y, rcond=None)
         return float(np.sum((y - X @ beta) ** 2) / (n - p))
-    if f(0.0) <= 0.0:
-        return 0.0
-    hi = max(float(np.var(y)), 1e-6) * 10.0
+    # Search only where Lambda = sigma + g2 I is positive definite: an indefinite sigma
+    # (the WREG construction does not guarantee otherwise) makes f(0) meaningless.
+    lam_min = float(np.linalg.eigvalsh((sigma + sigma.T) / 2.0)[0])
+    lo = 0.0 if lam_min > 0.0 else -lam_min * (1.0 + 1e-6) + 1e-12
+    if f(lo) <= 0.0:
+        return lo
+    hi = max(float(np.var(y)), 1e-6, lo) * 10.0
     while f(hi) > 0.0:
         hi *= 10.0
-    return float(brentq(f, 0.0, hi, xtol=1e-12))
+    return float(brentq(f, lo, hi, xtol=1e-12))
 
 
 def fit_gls(
@@ -303,8 +311,16 @@ def fit_gls(
     Raises
     ------
     ValueError
-        Mismatched shapes, fewer sites than parameters plus one, or a design
+        Mismatched shapes, fewer sites than parameters plus one, a design
         matrix that is not of full column rank.
+
+    Notes
+    -----
+    The WREG off-diagonal construction is not guaranteed positive semi-definite, so
+    ``sigma`` may have small negative eigenvalues. The model error variance is then
+    searched only where ``sigma + gamma2 * I`` is positive definite (``gamma2`` above
+    minus the smallest eigenvalue); at ``gamma2 = 0`` its moment equation would use
+    the inverse of an indefinite matrix and could return a meaningless 0.
     """
     y_a = np.asarray(y, dtype=float)
     X_a = np.asarray(X, dtype=float)
