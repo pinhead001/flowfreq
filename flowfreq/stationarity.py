@@ -12,6 +12,8 @@ change point is a reason to look at the record, not a correction.
 - :func:`sens_slope`: Sen's (1968) slope and intercept.
 - :func:`spearman_trend`: Spearman's rho against time.
 - :func:`pettitt`: the Pettitt (1979) change-point test, with its approximate p-value.
+- :func:`cusum`: the CUSUM change-point statistic, with a permutation p-value.
+- :func:`field_significance`: Benjamini-Hochberg FDR and Walker's test across sites.
 - :func:`stationarity_screen`: all of them on one series (in log10 for flows), with
   plain-language flags.
 - :func:`mixed_population_screen`: how annual peaks split between the cool season
@@ -19,9 +21,9 @@ change point is a reason to look at the record, not a correction.
   dates (Burn, 1997). A split record is a warning that one LP3 distribution may be
   fitted to two flood populations (Bulletin 17C section 9.3); it is not a test.
 
-Not here yet (roadmap section 6.1): CUSUM and Lombard change points, trends in variance
-and in peaks-over-threshold counts, field significance across a region, and the
-attribution overlay on regulation and land-use dates.
+Not here yet (roadmap section 6.1): the Lombard change point, trends in variance and in
+peaks-over-threshold counts, a block bootstrap for spatially correlated field
+significance, and the attribution overlay on regulation and land-use dates.
 """
 
 from __future__ import annotations
@@ -383,4 +385,121 @@ def mixed_population_screen(
         "concentration": concentration,
         "mixed": bool(mixed),
         "message": message,
+    }
+
+
+@dataclass(frozen=True)
+class CusumResult:
+    """CUSUM change-point statistic.
+
+    Attributes
+    ----------
+    index : int
+        Position of the first value after the change.
+    year : int or None
+        ``years[index]`` when years were given.
+    max_abs : float
+        ``max_k |sum_{i<=k} (x_i - mean(x))|``.
+    p_value : float
+        Permutation p-value, ``(1 + #{perm >= observed}) / (1 + n_permutations)``.
+    """
+
+    index: int
+    year: Optional[int]
+    max_abs: float
+    p_value: float
+
+
+def cusum(
+    x: ArrayLike,
+    years: Optional[Iterable[int]] = None,
+    *,
+    n_permutations: int = 999,
+    seed: Optional[int] = None,
+) -> CusumResult:
+    """CUSUM test for a shift in the mean, with a permutation p-value.
+
+    The cumulative sum of deviations from the mean peaks (in magnitude) at the last value
+    before a shift. Its significance comes from shuffling the series, which keeps the
+    values and breaks their order.
+
+    Parameters
+    ----------
+    x : array_like
+        At least three finite values, in time order.
+    years : iterable of int, optional
+    n_permutations : int, default 999
+    seed : int, optional
+
+    Returns
+    -------
+    CusumResult
+    """
+    a = _series(x)
+    if n_permutations < 1:
+        raise ValueError(f"n_permutations must be >= 1, got {n_permutations}")
+    dev = np.cumsum(a - a.mean())
+    k = int(np.argmax(np.abs(dev[:-1])))
+    observed = float(abs(dev[k]))
+    rng = np.random.default_rng(seed)
+    exceed = 0
+    for _ in range(n_permutations):
+        perm = rng.permutation(a)
+        if float(np.max(np.abs(np.cumsum(perm - perm.mean())[:-1]))) >= observed:
+            exceed += 1
+    year_list = list(years) if years is not None else None
+    if year_list is not None and len(year_list) != a.size:
+        raise ValueError("x and years differ in length")
+    index = k + 1
+    return CusumResult(
+        index=index,
+        year=int(year_list[index]) if year_list is not None else None,
+        max_abs=observed,
+        p_value=(1.0 + exceed) / (1.0 + n_permutations),
+    )
+
+
+def field_significance(p_values: ArrayLike, *, alpha: float = 0.05) -> Dict[str, Any]:
+    """Field significance of single-site tests across a region.
+
+    In a statewide run, about ``alpha`` of the sites test significant by chance alone.
+    This reports the Benjamini and Hochberg (1995) false-discovery-rate rejections, and
+    Walker's test that the smallest p-value is significant for ``m`` sites,
+    ``p_walker = 1 - (1 - p_min)^m``. Neither accounts for spatial correlation between
+    sites, which makes both somewhat liberal.
+
+    Parameters
+    ----------
+    p_values : array_like
+        One p-value per site, each in [0, 1].
+    alpha : float, default 0.05
+
+    Returns
+    -------
+    dict
+        ``n_sites``, ``n_locally_significant`` (``p < alpha``), ``fdr_reject`` (list of
+        bool in input order), ``fdr_threshold`` (the largest rejected p-value, NaN when
+        none), ``walker_p`` and ``walker_significant``.
+    """
+    p = np.asarray(p_values, dtype=float).ravel()
+    if p.size == 0 or np.any(~np.isfinite(p)) or np.any((p < 0) | (p > 1)):
+        raise ValueError("p_values must be a non-empty set of values in [0, 1]")
+    m = p.size
+    order = np.argsort(p)
+    ranked = p[order]
+    below = ranked <= alpha * np.arange(1, m + 1) / m
+    reject = np.zeros(m, dtype=bool)
+    threshold = float("nan")
+    if below.any():
+        k = int(np.max(np.flatnonzero(below)))
+        reject[order[: k + 1]] = True
+        threshold = float(ranked[k])
+    walker = float(1.0 - (1.0 - float(ranked[0])) ** m)
+    return {
+        "n_sites": int(m),
+        "n_locally_significant": int(np.sum(p < alpha)),
+        "fdr_reject": [bool(r) for r in reject],
+        "fdr_threshold": threshold,
+        "walker_p": walker,
+        "walker_significant": bool(walker < alpha),
     }

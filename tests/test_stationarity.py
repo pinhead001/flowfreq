@@ -125,3 +125,44 @@ def test_mixed_population_screen() -> None:
     assert out["mixed"] and "mixed" in out["message"]
     # The circular mean date's concentration drops when peaks split between seasons.
     assert mixed_population_screen(snow)["concentration"] > out["concentration"]
+
+
+# ----------------------------------------------------------------------------
+# Field significance and CUSUM (roadmap section 6.1)
+# ----------------------------------------------------------------------------
+
+
+def test_benjamini_hochberg_by_hand() -> None:
+    from flowfreq.stationarity import field_significance
+
+    p = [0.001, 0.008, 0.039, 0.041, 0.042, 0.06, 0.074, 0.205, 0.212, 0.216]
+    out = field_significance(p, alpha=0.05)
+    # BH: largest k with p_(k) <= k alpha / m is k = 2 (0.008 <= 0.01; 0.039 > 0.015).
+    assert out["fdr_reject"] == [True, True] + [False] * 8
+    assert out["fdr_threshold"] == pytest.approx(0.008)
+    m = len(p)
+    assert out["walker_p"] == pytest.approx(1 - (1 - 0.001) ** m)
+    assert out["walker_significant"] is (out["walker_p"] < 0.05)
+    assert out["n_sites"] == 10 and out["n_locally_significant"] == 5
+
+
+def test_field_significance_none_rejected_and_checks() -> None:
+    from flowfreq.stationarity import field_significance
+
+    out = field_significance([0.3, 0.5, 0.9])
+    assert not any(out["fdr_reject"]) and math.isnan(out["fdr_threshold"])
+    with pytest.raises(ValueError):
+        field_significance([0.5, 1.2])
+
+
+def test_cusum_step_and_permutation_p() -> None:
+    from flowfreq.stationarity import cusum
+
+    x = [1.0] * 15 + [4.0] * 15
+    r = cusum(x, years=range(1990, 2020), n_permutations=999, seed=0)
+    assert r.year == 2005 and r.index == 15
+    dev = np.cumsum(np.asarray(x) - np.mean(x))
+    assert r.max_abs == pytest.approx(np.max(np.abs(dev)))
+    assert r.p_value < 0.01
+    flat = cusum(np.random.default_rng(3).normal(size=40), n_permutations=999, seed=0)
+    assert flat.p_value > 0.05

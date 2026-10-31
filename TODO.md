@@ -242,8 +242,9 @@ attribute in methow-flow waits on (`docs/EDT_ATTRIBUTE_CROSSWALK.md` §6 there):
        October-March dry days), where log space fails. Needs item 6 first, since
        diversions move the low-flow months most.
 8. [~] **Stationarity screening** (§6.1; `flowfreq.stationarity`, 2026-10-31: Mann-Kendall
-       with Hamed-Rao, Sen's slope, Spearman, Pettitt and `stationarity_screen`; CUSUM/Lombard,
-       field significance and the attribution overlay remain). The EDT attributes compare two periods (§15
+       with Hamed-Rao, Sen's slope, Spearman, Pettitt, CUSUM, `field_significance` (FDR, Walker)
+       and `stationarity_screen`; Lombard, the spatial block bootstrap and the attribution
+       overlay remain). The EDT attributes compare two periods (§15
        Q2, §16 low flow, §18 TQmean), and a monthly transfer over WY1992-2025 assumes the
        donor relation holds across it.
 9. [x] **Mixed snowmelt/rain-on-snow populations** (§2, warn only):
