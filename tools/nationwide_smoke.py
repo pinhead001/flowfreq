@@ -48,6 +48,8 @@ KNOWN_GAPS = (
     "estimates are expected to fail with `EquationsUnavailable`.",
     "StreamStats does not delineate in the territories and only partly in AK and HI, "
     "so those ungaged estimates may fail at delineation.",
+    "StreamStats' snap service has no stream grid for FL, MI and NE (HTTP 404, "
+    "`RegionNotDelineatedError`), so no point there can be delineated through its API.",
     "A state with no unregulated catalog gage has no row to fit; it is reported as such.",
 )
 
