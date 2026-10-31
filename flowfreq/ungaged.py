@@ -131,6 +131,50 @@ def region_for_nss_code(lib: StateLibrary, code: str) -> Optional[str]:
     return None
 
 
+#: Outlet coordinates some equations use but StreamStats does not return (WY region 1's
+#: LONG_OUT; MN's LAT_OUT and LONG_OUT). They are taken from the snapped pour point.
+OUTLET_CODES = ("LAT_OUT", "LONG_OUT")
+
+
+def outlet_coordinates(
+    lib: StateLibrary, lat: float, lon: float, characteristics: Mapping[str, float]
+) -> Dict[str, float]:
+    """``LAT_OUT``/``LONG_OUT`` for ``lib``'s equations, from the outlet's coordinates.
+
+    Only codes some equation in ``lib`` uses and ``characteristics`` lacks are
+    returned. Reports differ on the sign of a west longitude: where every published
+    range of the code is positive (WY's ``LONG_OUT``, 105.21-111.34, degrees west),
+    the magnitude is used; otherwise the signed coordinate (MN's -96.12 to -91.66).
+
+    Parameters
+    ----------
+    lib : StateLibrary
+    lat, lon : float
+        The outlet (the snapped pour point), WGS84 decimal degrees.
+    characteristics : mapping of str to float
+        What StreamStats returned; a code already present is not replaced.
+
+    Returns
+    -------
+    dict of str to float
+    """
+    bounds: Dict[str, List[float]] = {}
+    for eq in lib.equations:
+        for v in (*eq.variables, *eq.applicability):
+            if v.code in OUTLET_CODES:
+                limits = [x for x in (v.minimum, v.maximum) if x is not None]
+                bounds.setdefault(v.code, []).extend(limits)
+    out: Dict[str, float] = {}
+    for code, limits in bounds.items():
+        if code in characteristics:
+            continue
+        value = lat if code == "LAT_OUT" else lon
+        if limits and all(x > 0 for x in limits):
+            value = abs(value)
+        out[code] = float(value)
+    return out
+
+
 def _needed_codes(lib: StateLibrary, region_code: str, aeps: Sequence[float]) -> List[str]:
     """Every characteristic code the region's equations at ``aeps`` require."""
     codes: List[str] = []
@@ -1068,6 +1112,8 @@ def estimate_at_site(
         )
     located = locate_regression_regions(code, ws.polygon_geojson, timeout=timeout)
     characteristics = {k: c.value for k, c in ws.characteristics.items()}
+    derived = outlet_coordinates(lib, ws.snap.snapped_lat, ws.snap.snapped_lon, characteristics)
+    characteristics.update(derived)
 
     assembly = assemble(
         lib,
@@ -1118,6 +1164,9 @@ def estimate_at_site(
         },
         "regions_located": [r.to_dict() for r in located],
         "missing_characteristics": assembly.missing,
+        "derived_characteristics": {
+            k: {"value": v, "source": "snapped pour point"} for k, v in derived.items()
+        },
         "zero_weight_regions": [r.code for r in assembly.zero_weight],
         "alternative_regions": [
             _alternative(lib, r, assembly.region_codes[r.code]) for r in assembly.alternatives
