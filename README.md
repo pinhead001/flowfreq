@@ -71,7 +71,7 @@ pip install -e ".[dev]"
 Or install a released version straight from GitHub:
 
 ```bash
-pip install git+https://github.com/pinhead001/flowfreq@v0.18.0
+pip install git+https://github.com/pinhead001/flowfreq@v0.19.0
 ```
 
 **Dependencies:** `numpy`, `pandas`, `matplotlib`, `scipy`, `requests`, `click`, `pyarrow`
@@ -460,6 +460,7 @@ England, J.F., Jr., et al., 2019, Guidelines for determining flood flow frequenc
 
 | Version | Changes |
 |---------|---------|
+| **v0.19.0** | WA Peak Region 2 at the Methow: mean basin elevation explains about half the bias (`docs/WA_REGION2_METHOW.md`); monthly leave-one-out/blend and duration-quantile transfer variance (`flowfreq.duration_transfer`); `flowfreq.stationarity` (Mann-Kendall/Hamed-Rao, Sen, Pettitt, CUSUM, field significance, mixed populations); `flowfreq.naturalize`; `fit_gls` robust to an indefinite Σ. See CHANGELOG.md. |
 | **v0.18.0** | Regional skew HUC rows for every report-defined study, overlapping studies chosen by state, Alaska's skew areas with drainage-area ranges (#204); `LAT_OUT`/`LONG_OUT` from the pour point (#253); Minnesota's Rainy River Basin equations (#246); `SiteEstimate.basin_geojson` (#256). See CHANGELOG.md. |
 | **v0.17.0** | GA/NC/SC region-indicator equations parse (`Variable.times`, interaction terms; #211); `sep_log` for 32 LA/AR/MS equations (#213); multi-code `region=` for boundary basins (#203) and `region=` where NSS locates no peak-flow region (#207); NY urban regions out of scope (#212); nationwide smoke rerun 56/56 gaged, 42/56 ungaged. See CHANGELOG.md. |
 | **v0.16.0** | Nationwide rollout: `nss_snapshot` equation tier (41 jurisdictions, 1817 equations); `estimate_at_site` and `flowfreq ungaged` with `OverlappingRegionsError`/`region=`; 77 regional skew rows (34 verified) with a state-level fallback (#194, #195, #196, #197). See CHANGELOG.md. |
