@@ -301,6 +301,11 @@ class ParsedEquation:
     times : tuple of str or None
         Per-variable :attr:`Variable.times`, set only for an interaction term (a
         power whose exponent is affine in other characteristics). Empty means none.
+    zero_codes : tuple of str
+        Characteristics the string names only in terms whose coefficient is zero, such
+        as NSS's no-op factor ``PCTREG4^(0)``. They carry no term, because NSS
+        evaluates ``0^0`` as 1 where ``log10(0)`` would refuse a basin with none of
+        its area in that region, and become applicability limits instead.
     notes : tuple of str
         Rewrites a reviewer should know about, such as a scale folded into ``b0``.
     """
@@ -315,6 +320,7 @@ class ParsedEquation:
     offsets: Tuple[float, ...] = ()
     exponents: Tuple[Optional[float], ...] = ()
     times: Tuple[Optional[str], ...] = ()
+    zero_codes: Tuple[str, ...] = ()
 
     def variables(self) -> Tuple[Variable, ...]:
         """The variables as :class:`Variable` objects, without limits or units."""
@@ -728,8 +734,14 @@ def parse_equation(equation: str) -> ParsedEquation:
         represent exactly.
     """
     ll = _loglin(parse_expression(equation), equation)
-    if not ll.terms:
+    zero = [k for k in ll.order if ll.terms[k][1] == 0.0]
+    if zero:
+        ll.order = [k for k in ll.order if k not in zero]
+        ll.notes.append("zero-exponent factors (X^0) dropped from the terms")
+    if not ll.order:
         raise NSSEquationError(f"equation has no variables: {equation!r}")
+    kept = {c for k in ll.order for c in k if c is not None}
+    zero_codes = tuple(dict.fromkeys(k[0] for k in zero if k[0] not in kept))
     times = tuple(k[1] for k in ll.order)
     return ParsedEquation(
         equation=equation,
@@ -742,6 +754,7 @@ def parse_equation(equation: str) -> ParsedEquation:
         offsets=tuple(ll.terms[k][0][2] for k in ll.order),
         exponents=tuple(ll.terms[k][0][3] for k in ll.order),
         times=times if any(y is not None for y in times) else (),
+        zero_codes=zero_codes,
     )
 
 
@@ -822,8 +835,8 @@ def to_regression_equation(
     A :class:`ParsedConstant` gives ``form="constant"`` with zero coefficients.
     NSS supplies no report table, covariance, model-error variance or site
     count, so the result carries only what NSS does. The ``times`` characteristic of
-    an interaction term that is not also a variable gets its limits as an
-    ``applicability`` limit. ``sep_log`` is left unset
+    an interaction term that is not also a variable, and a :attr:`ParsedEquation.zero_codes`
+    characteristic, get its limits as an ``applicability`` limit. ``sep_log`` is left unset
     because NSS's ``sep`` field is not confirmed to be the report's log10 SEP.
 
     Parameters
@@ -863,6 +876,7 @@ def to_regression_equation(
     # keeps its published range as an applicability limit, so it is still checked.
     codes = {v.code for v in variables}
     times_codes = dict.fromkeys(v.times for v in variables if v.times is not None)
+    times_codes.update(dict.fromkeys(parsed.zero_codes))
     applicability = tuple(
         Variable(
             code=y,

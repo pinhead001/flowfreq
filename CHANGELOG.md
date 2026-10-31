@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `region=` works where NSS locates no peak-flow region (Wyoming, Nevada), and the provenance says the caller chose it (#207).
 
 ### Fixed
+- NSS's no-op factors `X^(0)` (GA/NC/SC `PCTREG4^(0)` and `LC19IMP^0`, IN `HIGHREG`, MS `LC11DEV`, TN `LC11IMPALT`) no longer become `log10(X)` terms with a zero coefficient, which refused any basin where `X` is 0 (the 2026-10-30 smoke run lost GA, NC and SC to it). They carry no term and keep their published range as an applicability limit (`ParsedEquation.zero_codes`).
 - The 32 LA, AR and MS `nss_snapshot` equations whose NSS ASEp is below 1 carry `sep_log` (and so prediction intervals). NSS stores those regions' SEP as the report's percentage divided by 100, as checked against SIR 2021-5046 Table 2 and SIR 2024-5031 Table 3. `nss_library.ASEP_AS_FRACTION` lists the regions (#213).
 - Catalog build: a site outside the United States gets no state and is skipped instead of being filed under the queried state. The Water Data API returns Yukon's 15388960 with `country_code` CA and `state_code` 11, which the DC build had catalogued as DC (#206). The packaged catalog's DC rows are rebuilt (`--states DC --refresh`, 2026-10-30): 15388960 is gone, 20,745 rows.
 - **Parked `estimate_at_site` and regional skew minors from the rollout reviews.**

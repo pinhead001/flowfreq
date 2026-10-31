@@ -36,18 +36,10 @@
      "units": "mi^2",
      "minimum": 1.41,
      "maximum": 612.0
-    },
-    {
-     "code": "LC11DEV",
-     "transform": "log10",
-     "units": "%",
-     "minimum": 0.0,
-     "maximum": 19.9999
     }
    ],
    "coefficients": [
-    0.552,
-    0.0
+    0.552
    ],
    "citation": {
     "publication": "Anderson, B.T., 2018, Flood frequency of rural streams in Mississippi, 2013: U.S. Geological Survey Scientific Investigations Report 2018\u20135148, 12 p.",
@@ -55,7 +47,16 @@
     "year": 2018,
     "url": "https://doi.org/10.3133/sir20185148"
    },
-   "sep_log": 0.12749165279568805
+   "sep_log": 0.12749165279568805,
+   "applicability": [
+    {
+     "code": "LC11DEV",
+     "transform": "identity",
+     "units": "%",
+     "minimum": 0.0,
+     "maximum": 19.9999
+    }
+   ]
   },
   {
    "region_code": "GC1772",
@@ -244,18 +245,10 @@
      "units": "mi^2",
      "minimum": 0.15,
      "maximum": 1750.0
-    },
-    {
-     "code": "LC11DEV",
-     "transform": "log10",
-     "units": "%",
-     "minimum": 0.0,
-     "maximum": 19.9999
     }
    ],
    "coefficients": [
-    0.601,
-    0.0
+    0.601
    ],
    "citation": {
     "publication": "Anderson, B.T., 2018, Flood frequency of rural streams in Mississippi, 2013: U.S. Geological Survey Scientific Investigations Report 2018\u20135148, 12 p.",
@@ -263,7 +256,16 @@
     "year": 2018,
     "url": "https://doi.org/10.3133/sir20185148"
    },
-   "sep_log": 0.16341616933282221
+   "sep_log": 0.16341616933282221,
+   "applicability": [
+    {
+     "code": "LC11DEV",
+     "transform": "identity",
+     "units": "%",
+     "minimum": 0.0,
+     "maximum": 19.9999
+    }
+   ]
   },
   {
    "region_code": "GC1773",
@@ -452,18 +454,10 @@
      "units": "mi^2",
      "minimum": 0.05,
      "maximum": 1010.0
-    },
-    {
-     "code": "LC11DEV",
-     "transform": "log10",
-     "units": "%",
-     "minimum": 0.0,
-     "maximum": 19.9999
     }
    ],
    "coefficients": [
-    0.607,
-    0.0
+    0.607
    ],
    "citation": {
     "publication": "Anderson, B.T., 2018, Flood frequency of rural streams in Mississippi, 2013: U.S. Geological Survey Scientific Investigations Report 2018\u20135148, 12 p.",
@@ -471,7 +465,16 @@
     "year": 2018,
     "url": "https://doi.org/10.3133/sir20185148"
    },
-   "sep_log": 0.17888419577984965
+   "sep_log": 0.17888419577984965,
+   "applicability": [
+    {
+     "code": "LC11DEV",
+     "transform": "identity",
+     "units": "%",
+     "minimum": 0.0,
+     "maximum": 19.9999
+    }
+   ]
   },
   {
    "region_code": "GC1774",
