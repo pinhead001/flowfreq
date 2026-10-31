@@ -32,7 +32,9 @@ runoff depth, and its known variance is ``V_d + V_r - 2 C_dr``.
 What this module cannot do
 --------------------------
 - **One window per call.** Each call covers one water-year window.
-- **No leave-one-out or blend yet.** Those follow in part 2.
+- **The donor correlation is the caller's.** :func:`monthly_leave_one_out` and
+  :func:`blend_month` take it as a fixed value (default 0); the flood estimator
+  (:func:`flowfreq.transfer_variance.estimate_donor_correlation`) is not carried over.
 - **The runoff depth is the caller's.** flowfreq does not estimate it.
 - **Zero-flow months are excluded, not modelled.** They are reported in
   :attr:`MonthlyStatistics.excluded`.
@@ -44,10 +46,13 @@ import calendar
 import logging
 import math
 from dataclasses import dataclass
-from typing import Dict, List, Mapping, Sequence, Tuple
+from typing import Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
 import pandas as pd
+from scipy.stats import norm
+
+from flowfreq.transfer_variance import BlendResult, DissimilarityModel, combine, fit_dissimilarity
 
 logger = logging.getLogger(__name__)
 
@@ -393,3 +398,249 @@ def build_monthly_pairs(
         "known_variance",
     ] + [f"d_{a}" for a in attributes]
     return pd.DataFrame(rows, columns=columns)
+
+
+# ------------------------------------------------------------------- part 2: blend and LOO
+
+
+def monthly_transfers(
+    stats: MonthlyStatistics,
+    month: int,
+    gages: pd.DataFrame,
+    target: str,
+    donors: Sequence[str],
+    *,
+    attributes: Sequence[str] = (),
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """One target's transfers from its donors for one month, as ``combine`` takes them.
+
+    Parameters
+    ----------
+    stats : MonthlyStatistics
+    month : int
+        Calendar month, 1-12.
+    gages : pd.DataFrame
+        As :func:`build_monthly_pairs`.
+    target : str
+        The receiving site.
+    donors : sequence of str
+        The donor sites.
+    attributes : sequence of str
+        Gage columns carried as ``d_<attribute>`` (target minus donor).
+
+    Returns
+    -------
+    (pd.DataFrame, pd.DataFrame)
+        The transfers (``donor``, ``transfer``, ``donor_variance``, ``log_ar``,
+        ``log_rr`` and the ``d_`` columns) and the donors' sampling covariance,
+        labelled by donor.
+
+    Raises
+    ------
+    ValueError
+        ``month`` is outside 1-12, ``gages`` has no ``runoff_depth`` column, or a donor
+        is excluded that month.
+    KeyError
+        A site is not in ``gages`` or not in ``stats``.
+    """
+    if not 1 <= int(month) <= 12:
+        raise ValueError(f"month must be in 1-12, got {month}")
+    if "runoff_depth" not in gages.columns:
+        raise ValueError("gages needs a 'runoff_depth' column")
+    site_list = gages["site_no"].astype(str).tolist()
+    area = dict(zip(site_list, gages["drainage_area_sqmi"].to_numpy(dtype=float).tolist()))
+    depth = dict(zip(site_list, gages["runoff_depth"].to_numpy(dtype=float).tolist()))
+    attr = {a: dict(zip(site_list, gages[a].to_numpy(dtype=float).tolist())) for a in attributes}
+    month_table = stats.table[stats.table["month"] == month]
+    log_q = dict(zip(month_table["site_no"].astype(str), month_table["log_q"]))
+    cov = stats.covariance[int(month)]
+    target = str(target)
+    donor_list = [str(d) for d in donors]
+    for site in (target, *donor_list):
+        if site not in area:
+            raise KeyError(f"{site} is not in the gage table")
+        if site not in log_q:
+            raise KeyError(f"{site} is not in the monthly statistics")
+    rows: List[Dict[str, object]] = []
+    for d in donor_list:
+        if math.isnan(log_q[d]):
+            raise ValueError(f"month {month}: donor {d} is excluded (see stats.excluded)")
+        log_ar = math.log10(area[target] / area[d])
+        log_rr = math.log10(depth[target] / depth[d])
+        row: Dict[str, object] = {
+            "donor": d,
+            "transfer": log_q[d] + log_ar + log_rr,
+            "donor_variance": _cell(cov, d, d),
+            "log_ar": log_ar,
+            "log_rr": log_rr,
+        }
+        for a in attributes:
+            row[f"d_{a}"] = attr[a][target] - attr[a][d]
+        rows.append(row)
+    dcov = pd.DataFrame(
+        [[_cell(cov, a, b) for b in donor_list] for a in donor_list],
+        index=donor_list,
+        columns=donor_list,
+    )
+    return pd.DataFrame(rows), dcov
+
+
+def blend_month(
+    model: DissimilarityModel,
+    stats: MonthlyStatistics,
+    month: int,
+    gages: pd.DataFrame,
+    target: str,
+    donors: Sequence[str],
+    *,
+    regression: Optional[Tuple[float, float]] = None,
+    donor_correlation: float = 0.0,
+    regression_correlation: float = 0.0,
+    attributes: Sequence[str] = (),
+    level: float = 0.90,
+) -> BlendResult:
+    """GLS blend of one target's monthly transfers, and optionally a regression.
+
+    :func:`monthly_transfers`, then :func:`flowfreq.transfer_variance.combine` with the
+    donors' sampling covariance from ``stats`` and no exponent variance (the exponent on
+    the runoff-volume ratio is fixed at 1).
+
+    Parameters
+    ----------
+    model : DissimilarityModel
+        Fitted to the month's pairs (:func:`build_monthly_pairs`).
+    stats, month, gages, target, donors, attributes
+        As :func:`monthly_transfers`.
+    regression : (float, float), optional
+        A log10 estimate at the target and its prediction variance.
+    donor_correlation, regression_correlation, level
+        As :func:`flowfreq.transfer_variance.combine`.
+
+    Returns
+    -------
+    BlendResult
+    """
+    transfers, dcov = monthly_transfers(stats, month, gages, target, donors, attributes=attributes)
+    return combine(
+        model,
+        transfers,
+        regression,
+        donor_cov=dcov,
+        donor_correlation=donor_correlation,
+        regression_correlation=regression_correlation,
+        level=level,
+    )
+
+
+def monthly_leave_one_out(
+    stats: MonthlyStatistics,
+    month: int,
+    gages: pd.DataFrame,
+    connections: Sequence[Tuple[str, str]],
+    terms: Sequence[str] = ("log_ar",),
+    *,
+    attributes: Sequence[str] = (),
+    donor_correlation: float = 0.0,
+    level: float = 0.90,
+    powers: Optional[Mapping[str, float]] = None,
+) -> pd.DataFrame:
+    """Score the monthly blend by holding out each connected gage in turn.
+
+    For each gage ``j`` with a connection whose other end is not excluded that month,
+    ``s2_d`` is refitted from the month's pairs that do not involve ``j``, its
+    neighbours' transfers are blended (:func:`blend_month`), and the result is compared
+    with ``j``'s own statistic. Coverage is checked against the variance of
+    ``blend - y_j``, ``V_blend + V_j - 2 sum_k w_k C_kj``, since the observed value is
+    itself an estimate; ``blend_covered_naive`` uses ``V_blend`` alone. This mirrors
+    :func:`flowfreq.transfer_variance.leave_one_out`, without a regression and with a
+    fixed donor correlation.
+
+    Parameters
+    ----------
+    stats, month, gages, connections, attributes
+        As :func:`build_monthly_pairs`.
+    terms : sequence of str
+        Passed to :func:`flowfreq.transfer_variance.fit_dissimilarity`.
+    donor_correlation : float, default 0.0
+        Correlation of two donors' dissimilarity errors.
+    level : float, default 0.90
+    powers : mapping of str to float, optional
+        Passed to :func:`flowfreq.transfer_variance.fit_dissimilarity`.
+
+    Returns
+    -------
+    pd.DataFrame
+        One row per scored gage: ``site_no``, ``month``, ``statistic``, ``n_donors``,
+        ``observed``, ``blend``, ``blend_variance``, ``blend_error``, ``blend_covered``,
+        ``blend_covered_naive`` and ``note``. Errors are estimate minus observed, log10.
+        A gage whose fold cannot be refitted or blended keeps NaN estimates, and its
+        ``note`` says why.
+    """
+    pairs = build_monthly_pairs(stats, month, gages, connections, attributes=attributes)
+    month_table = stats.table[stats.table["month"] == month]
+    log_q = dict(zip(month_table["site_no"].astype(str), month_table["log_q"]))
+    cov = stats.covariance[int(month)]
+    neighbours: Dict[str, List[str]] = {}
+    for a_raw, b_raw in connections:
+        a, b = str(a_raw), str(b_raw)
+        if math.isnan(log_q.get(a, math.nan)) or math.isnan(log_q.get(b, math.nan)):
+            continue
+        neighbours.setdefault(a, []).append(b)
+        neighbours.setdefault(b, []).append(a)
+    zcrit = float(norm.ppf(0.5 + level / 2.0))
+    rows: List[Dict[str, object]] = []
+    for j in [str(s) for s in gages["site_no"]]:
+        nbrs = neighbours.get(j, [])
+        if not nbrs:
+            continue
+        row: Dict[str, object] = {
+            "site_no": j,
+            "month": int(month),
+            "statistic": stats.statistic,
+            "n_donors": len(nbrs),
+            "observed": log_q[j],
+            "blend": math.nan,
+            "blend_variance": math.nan,
+            "blend_error": math.nan,
+            "blend_covered": math.nan,
+            "blend_covered_naive": math.nan,
+            "note": "",
+        }
+        fold = pairs[(pairs["donor"] != j) & (pairs["receiver"] != j)]
+        try:
+            if fold.empty:
+                raise ValueError("no pairs left without this gage")
+            model = fit_dissimilarity(fold, terms, powers=powers)
+        except ValueError as exc:
+            row["note"] = f"s2_d refit failed: {exc}"
+            rows.append(row)
+            continue
+        try:
+            res = blend_month(
+                model,
+                stats,
+                month,
+                gages,
+                j,
+                nbrs,
+                donor_correlation=donor_correlation,
+                attributes=attributes,
+                level=level,
+            )
+        except ValueError as exc:
+            row["note"] = f"blend failed: {exc}"
+            rows.append(row)
+            continue
+        w = res.weights.reindex(nbrs).to_numpy(dtype=float)
+        c_kj = np.array([_cell(cov, i, j) for i in nbrs])
+        v_err = res.variance + _cell(cov, j, j) - 2.0 * float(w @ c_kj)
+        err = res.log_q - log_q[j]
+        row.update(
+            blend=res.log_q,
+            blend_variance=res.variance,
+            blend_error=err,
+            blend_covered=bool(abs(err) <= zcrit * math.sqrt(max(v_err, 0.0))),
+            blend_covered_naive=bool(abs(err) <= zcrit * math.sqrt(res.variance)),
+        )
+        rows.append(row)
+    return pd.DataFrame(rows)

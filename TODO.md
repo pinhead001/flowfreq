@@ -230,7 +230,8 @@ Tier 2 -- fixes known Methow biases or moves general code upstream:
 Tier 3 -- ordered for the per-reach monthly mean flows (WY1992-2025) that every EDT flow
 attribute in methow-flow waits on (`docs/EDT_ATTRIBUTE_CROSSWALK.md` §6 there):
 7. [~] **Transfer variance for monthly and duration flows** (§5.1); decisions made
-       2026-10-26, part 1 merged (`flowfreq.monthly_transfer`, #238); parts 2-3 open. Extend
+       2026-10-26, part 1 merged (`flowfreq.monthly_transfer`, #238), part 2
+       (`monthly_leave_one_out`, `blend_month`, 2026-10-31); part 3 (duration quantiles) open. Extend
        `transfer_variance` from flood quantiles to a monthly mean per calendar month and
        to duration quantiles: pairs and `s2_d` fitted per month, the GLS blend and
        leave-one-out unchanged. Open questions: the exponent `b` per month (no

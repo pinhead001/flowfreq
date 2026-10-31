@@ -268,3 +268,108 @@ def test_unknown_site_in_connections_is_refused() -> None:
     st = _stats({"a": _daily(1.0), "b": _daily(3.0)})
     with pytest.raises(KeyError, match="zz"):
         build_monthly_pairs(st, 4, GAGES, [("a", "zz")])
+
+
+# ------------------------------------------------------------ part 2: transfers, blend, LOO
+#
+# Methow item 7, part 2: monthly leave-one-out and the GLS blend, mirroring
+# flowfreq.transfer_variance.leave_one_out / combine for flood quantiles.
+
+
+def _network(n: int = 16, seed: int = 0):
+    rng = np.random.default_rng(seed)
+    sites = [f"g{k}" for k in range(n)]
+    daily = {
+        s: _daily(float(rng.uniform(0.5, 3.0)), f=F * rng.uniform(0.8, 1.2, 12)) for s in sites
+    }
+    gages = pd.DataFrame(
+        {"site_no": sites, "drainage_area_sqmi": rng.uniform(20, 2000, n),
+         "runoff_depth": rng.uniform(10, 30, n)}
+    )  # fmt: skip
+    conns = [(sites[k], sites[k + 1]) for k in range(n - 1)]
+    return _stats(daily), gages, conns
+
+
+def test_monthly_transfers_frame_and_donor_covariance() -> None:
+    from flowfreq.monthly_transfer import monthly_transfers
+
+    st = _stats({"a": _daily(1.0), "b": _daily(2.0), "c": _daily(0.6)})
+    transfers, dcov = monthly_transfers(st, 9, GAGES, "b", ["a", "c"], attributes=["precip_in"])
+    la = _row(st, "a", 9)["log_q"]
+    a = transfers.set_index("donor").loc["a"]
+    assert a["log_ar"] == pytest.approx(math.log10(3.0))
+    assert a["log_rr"] == pytest.approx(math.log10(15.0 / 20.0))
+    assert a["transfer"] == pytest.approx(la + math.log10(3.0) + math.log10(15.0 / 20.0))
+    assert a["donor_variance"] == pytest.approx(st.covariance[9].loc["a", "a"])
+    assert a["d_precip_in"] == pytest.approx(-8.0)
+    assert list(dcov.index) == ["a", "c"] and dcov.loc["a", "c"] == pytest.approx(
+        st.covariance[9].loc["a", "c"]
+    )
+
+
+def test_monthly_transfers_refuse_an_excluded_donor() -> None:
+    from flowfreq.monthly_transfer import monthly_transfers
+
+    def dry(s: pd.Series) -> pd.Series:
+        s = s.copy()
+        s.loc[s.index.month == 9] = 0.0
+        return s
+
+    st = _stats({"a": _daily(1.0), "b": _daily(2.0), "c": _daily(1.0, edit=dry)})
+    with pytest.raises(ValueError, match="c.*excluded"):
+        monthly_transfers(st, 9, GAGES, "b", ["a", "c"])
+
+
+def test_blend_month_matches_combine() -> None:
+    from flowfreq.monthly_transfer import blend_month, monthly_transfers
+    from flowfreq.transfer_variance import combine
+
+    st, gages, conns = _network()
+    model = fit_dissimilarity(build_monthly_pairs(st, 6, gages, conns))
+    res = blend_month(model, st, 6, gages, "g5", ["g4", "g6"], donor_correlation=0.2)
+    transfers, dcov = monthly_transfers(st, 6, gages, "g5", ["g4", "g6"])
+    ref = combine(model, transfers, None, donor_cov=dcov, donor_correlation=0.2)
+    assert res.log_q == pytest.approx(ref.log_q) and res.variance == pytest.approx(ref.variance)
+    with_reg = blend_month(model, st, 6, gages, "g5", ["g4", "g6"], regression=(2.5, 0.02))
+    assert with_reg.variance < res.variance or with_reg.variance == pytest.approx(res.variance)
+
+
+def test_monthly_leave_one_out_scores_every_connected_gage() -> None:
+    from flowfreq.monthly_transfer import monthly_leave_one_out
+
+    st, gages, conns = _network()
+    out = monthly_leave_one_out(st, 6, gages, conns)
+    assert list(out["site_no"]) == list(gages["site_no"])
+    assert set(out["n_donors"]) == {1, 2}
+    assert out["month"].eq(6).all() and out["statistic"].eq("mean").all()
+    ok = out["note"] == ""
+    assert ok.all()
+    assert np.allclose(out["blend_error"], out["blend"] - out["observed"])
+    # Holding out g5 refits s2_d without its pairs, then blends g4's and g6's transfers.
+    from flowfreq.monthly_transfer import blend_month
+
+    pairs = build_monthly_pairs(st, 6, gages, conns)
+    keep = (pairs["donor"] != "g5") & (pairs["receiver"] != "g5")
+    model = fit_dissimilarity(pairs[keep])
+    ref = blend_month(model, st, 6, gages, "g5", ["g4", "g6"])
+    g5 = out.set_index("site_no").loc["g5"]
+    assert g5["blend"] == pytest.approx(ref.log_q)
+    assert g5["blend_variance"] == pytest.approx(ref.variance)
+    assert g5["blend_covered"] in (True, False)
+
+
+def test_monthly_leave_one_out_skips_excluded_gages_and_reports_refit_failures() -> None:
+    from flowfreq.monthly_transfer import monthly_leave_one_out
+
+    def dry(s: pd.Series) -> pd.Series:
+        s = s.copy()
+        s.loc[s.index.month == 9] = 0.0
+        return s
+
+    st = _stats({"a": _daily(1.0), "b": _daily(3.0), "c": _daily(1.0, edit=dry)})
+    out = monthly_leave_one_out(st, 9, GAGES, [("a", "b"), ("c", "a")])
+    # c is excluded in September; a and b each keep one pair, which leaves no pairs to
+    # refit s2_d from when either is held out.
+    assert "c" not in set(out["site_no"])
+    assert out["note"].str.contains("s2_d refit failed").all()
+    assert out["blend"].isna().all()
