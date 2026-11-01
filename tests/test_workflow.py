@@ -32,7 +32,16 @@ class TestRunFFA:
     def test_run_ffa_returns_expected_keys(self):
         flows, years = _big_sandy_arrays()
         result = run_ffa(flows, years, use_default_skew=True)
-        expected_keys = {"b17c", "converged", "method", "parameters", "quantile_df", "error"}
+        expected_keys = {
+            "b17c",
+            "converged",
+            "method",
+            "parameters",
+            "quantile_df",
+            "error",
+            "stationarity",
+            "stationarity_report",
+        }
         assert set(result.keys()) == expected_keys
 
     def test_run_ffa_with_big_sandy_data(self):
@@ -539,3 +548,53 @@ class TestCompareEnginesPeakCodes:
                 peak_codes=_codes({0: "7"}),
                 historical_peaks=[(1990, 500.0)],
             )
+
+
+class TestRunFfaStationarity:
+    """run_ffa attaches the stationarity screen by default; the figure is opt-in."""
+
+    def test_screen_attached_by_default(self):
+        peaks, years = _big_sandy_arrays()
+        result = run_ffa(
+            peaks, years, regional_skew=REGIONAL_SKEW, regional_skew_se=REGIONAL_SKEW_SD
+        )
+        screen = result["stationarity"]
+        assert result["error"] is None
+        assert screen["n"] == len(peaks)
+        assert {"mann_kendall_hamed_rao", "pettitt", "lombard", "flags"} <= set(screen)
+        assert result["stationarity_report"] is None
+
+    def test_screen_never_changes_the_fit(self):
+        peaks, years = _big_sandy_arrays()
+        kw = dict(regional_skew=REGIONAL_SKEW, regional_skew_se=REGIONAL_SKEW_SD)
+        on = run_ffa(peaks, years, **kw)
+        off = run_ffa(peaks, years, stationarity=False, **kw)
+        assert off["stationarity"] is None
+        np.testing.assert_allclose(
+            on["quantile_df"]["Flow (cfs)"], off["quantile_df"]["Flow (cfs)"]
+        )
+
+    def test_figure_is_opt_in(self):
+        peaks, years = _big_sandy_arrays()
+        result = run_ffa(
+            peaks,
+            years,
+            regional_skew=REGIONAL_SKEW,
+            regional_skew_se=REGIONAL_SKEW_SD,
+            stationarity_figure=True,
+        )
+        rep = result["stationarity_report"]
+        assert rep is not None and rep.markdown.startswith("#")
+        assert result["stationarity"] == rep.screen
+
+    def test_short_record_records_why_and_still_fits(self):
+        peaks, years = _big_sandy_arrays()
+        result = run_ffa(peaks[:8], years[:8], station_skew_only=True)
+        assert result["stationarity"] == {"error": "need at least 10 years to screen, got 8"}
+
+    def test_zero_flows_screen_without_logs(self):
+        peaks, years = _big_sandy_arrays()
+        peaks = np.array(peaks, dtype=float)
+        peaks[3] = 0.0
+        result = run_ffa(peaks, years, station_skew_only=True)
+        assert "sens_slope_per_year" in result["stationarity"]
