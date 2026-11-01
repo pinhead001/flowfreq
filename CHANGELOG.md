@@ -9,7 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.20.0] - 2026-10-31
 
-Stationarity screening completed and the nationwide smoke failures resolved.
+Stationarity screening completed and on by default, a provisional Washington Region 2 set, and
+the nationwide smoke failures resolved.
+- `run_ffa` attaches the stationarity screen to every analysis (`result["stationarity"]`);
+  the one-page figure is opt-in.
 - `flowfreq.stationarity` gains the Lombard tests (abrupt and smooth, in level and in
   variability), bootstrap field significance, dam and land-use dates for change-point
   attribution, peaks-over-threshold count trends and a one-page `stationarity_report`.
@@ -18,6 +21,9 @@ Stationarity screening completed and the nationwide smoke failures resolved.
   `RegulatedDelineationError`.
 - Overlapping drainage-area classes (Alaska's GC1656 and GC1657) are chosen by the basin's
   drainage area instead of refused.
+- A provisional Washington set (`load_state("WA", allow_provisional=True)`) refits Peak
+  Region 2 with mean basin elevation, for methow-flow.
+- The smoke run's AZ outlier was a wrong region choice; NV and TX are the published equations.
 - mypy checks eight more modules.
 
 Patch releases for 0.19 continue from `release/0.19.x`.
