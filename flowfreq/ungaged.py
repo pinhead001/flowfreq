@@ -462,6 +462,41 @@ def _gated_region(
     )
 
 
+def _gate_gap(
+    lib: StateLibrary,
+    used: Sequence[Tuple[RegressionRegionLocation, str]],
+    characteristics: Mapping[str, float],
+) -> Optional[str]:
+    """Why no region gate admits the basin, when every candidate has one and none does.
+
+    Oregon's Region 2A and 2B gates (SIR 2005-5116, eq. 8) leave the 2,875-3,125 ft
+    transition zone to the blend in :func:`flowfreq.regression.oregon.estimate_region2`,
+    which choosing either region alone would skip. None when some candidate has no gate,
+    a gate's characteristic is unknown, or some gate admits the basin.
+    """
+    rules = []
+    value = None
+    for loc, lib_code in used:
+        gate = lib.region_gates.get(lib_code)
+        if gate is None:
+            return None
+        got = characteristics.get(gate.variable)
+        if got is None or not np.isfinite(got) or gate.admits(float(got)):
+            return None
+        value = (gate.variable, float(got), gate.units)
+        rules.append(f"{loc.code}: {gate.describe()}")
+    if value is None:
+        return None
+    sources = {lib.region_gates[c].source for _, c in used if lib.region_gates[c].source}
+    variable, got, units = value
+    return (
+        f"no region gate admits the basin ({variable} {got:g}{' ' + units if units else ''}; "
+        + "; ".join(rules)
+        + ")"
+        + (f". {' '.join(sorted(sources))}" if sources else "")
+    )
+
+
 def _library_region(lib: StateLibrary, code: str) -> Optional[str]:
     """Resolve a caller's code to a library ``region_code`` (case-insensitively), else None.
 
@@ -721,7 +756,8 @@ def assemble(
                 lib, used, characteristics
             )
             if by_rule is None:
-                raise OverlappingRegionsError(lib.state, candidates)
+                gap = _gate_gap(lib, used, characteristics)
+                raise OverlappingRegionsError(lib.state, candidates, reason=gap)
             chosen, region_choice_source = by_rule
             logger.info("%s: %s", lib.state, region_choice_source)
         if chosen is None:
