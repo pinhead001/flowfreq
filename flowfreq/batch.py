@@ -65,7 +65,7 @@ def run_multi_site(
         - quantiles: dict of return period to flow
         - ci: dict of return period to confidence interval dict
     """
-    results = {}
+    results: Dict[str, Dict[str, Any]] = {}
 
     for site, records in data.items():
         try:

@@ -76,7 +76,7 @@ def save_flow_frame(
 
     if suffix in (".parquet", ".pq"):
         try:
-            df.to_parquet(path, compression=compression)
+            df.to_parquet(path, compression=compression)  # type: ignore[call-overload]
         except ImportError as exc:  # pragma: no cover - requires a broken install
             raise ImportError(
                 f"Writing {path.name} needs the pyarrow Parquet engine. pyarrow is a "

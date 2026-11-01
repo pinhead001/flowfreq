@@ -200,7 +200,10 @@ class FloodFrequencyAnalysis(ABC):
     )
 
     def __init__(
-        self, peak_flows: np.ndarray, regional_skew: float = None, regional_skew_mse: float = None
+        self,
+        peak_flows: np.ndarray,
+        regional_skew: Optional[float] = None,
+        regional_skew_mse: Optional[float] = None,
     ):
         self._peak_flows = np.array(peak_flows)
         self._peak_flows = self._peak_flows[~np.isnan(self._peak_flows)]
@@ -564,8 +567,8 @@ class MethodOfMoments(FloodFrequencyAnalysis):
     def __init__(
         self,
         peak_flows: np.ndarray,
-        regional_skew: float = None,
-        regional_skew_mse: float = None,
+        regional_skew: Optional[float] = None,
+        regional_skew_mse: Optional[float] = None,
         user_low_outlier_threshold: Optional[float] = None,
     ):
         super().__init__(peak_flows, regional_skew, regional_skew_mse)
@@ -768,11 +771,11 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         self,
         peak_flows: np.ndarray,
         water_years: np.ndarray = None,
-        regional_skew: float = None,
-        regional_skew_mse: float = None,
+        regional_skew: Optional[float] = None,
+        regional_skew_mse: Optional[float] = None,
         ema_params: EMAParameters = None,
-        historical_peaks: List[Tuple[int, float]] = None,
-        perception_thresholds: Dict[Tuple[int, int], PerceptionBound] = None,
+        historical_peaks: Optional[List[Tuple[int, float]]] = None,
+        perception_thresholds: Optional[Dict[Tuple[int, int], PerceptionBound]] = None,
         user_low_outlier_threshold: Optional[float] = None,
         interval_peaks: Optional[List[Tuple[int, float, float]]] = None,
         historical_interval_peaks: Optional[List[Tuple[int, float, float]]] = None,
@@ -2252,10 +2255,10 @@ class Bulletin17C:
         self,
         peak_flows: np.ndarray,
         water_years: np.ndarray = None,
-        regional_skew: float = None,
-        regional_skew_mse: float = None,
-        historical_peaks: List[Tuple[int, float]] = None,
-        perception_thresholds: Dict[Tuple[int, int], PerceptionBound] = None,
+        regional_skew: Optional[float] = None,
+        regional_skew_mse: Optional[float] = None,
+        historical_peaks: Optional[List[Tuple[int, float]]] = None,
+        perception_thresholds: Optional[Dict[Tuple[int, int], PerceptionBound]] = None,
         ema_params: EMAParameters = None,
         user_low_outlier_threshold: Optional[float] = None,
         interval_peaks: Optional[List[Tuple[int, float, float]]] = None,

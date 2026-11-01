@@ -729,12 +729,12 @@ class USGSgage:
                 break
 
         date_col = [c for c in df.columns if "datetime" in c.lower()][0]
-        flow_col = [c for c in df.columns if "00060" in c and "cd" not in c.lower()]
+        flow_cols = [c for c in df.columns if "00060" in c and "cd" not in c.lower()]
 
-        if not flow_col:
+        if not flow_cols:
             raise ValueError("Flow data column not found")
 
-        flow_col = flow_col[0]
+        flow_col = flow_cols[0]
 
         df["date"] = pd.to_datetime(df[date_col])
         df["flow_cfs"] = pd.to_numeric(df[flow_col], errors="coerce")
@@ -1140,7 +1140,7 @@ class USGSgage:
                 timeout=timeout,
             )
             if tz is not None:
-                combined.index = combined.index.tz_convert(tz)
+                combined.index = pd.DatetimeIndex(combined.index).tz_convert(tz)
             return combined
         raise ValueError(
             f"Unknown instantaneous-value backend {backend!r}; expected "
@@ -1198,7 +1198,7 @@ class USGSgage:
         combined = combined[~combined.index.duplicated(keep="first")].sort_index()
 
         if tz is not None:
-            combined.index = combined.index.tz_convert(tz)
+            combined.index = pd.DatetimeIndex(combined.index).tz_convert(tz)
 
         return combined
 
@@ -1599,7 +1599,7 @@ def join_flow_and_stage(flow: pd.DataFrame, stage: pd.DataFrame) -> pd.DataFrame
     for col in ("datetime_local", "tz_cd"):
         joined[col] = f[col].combine_first(s[col]).reindex(joined.index)
 
-    joined.index = joined.index.tz_convert(pd.DatetimeIndex(flow.index).tz)
+    joined.index = pd.DatetimeIndex(joined.index).tz_convert(pd.DatetimeIndex(flow.index).tz)
     joined.index.name = "datetime"
     return joined[list(PAIRED_IV_COLUMNS)]
 
@@ -1985,9 +1985,9 @@ def fetch_nwis_peaks(site_no: str, backend: str = DEFAULT_BACKEND) -> List[Dict]
         Peak flow records for the site
     """
     gage = USGSgage(site_no)
-    gage.download_peak_flow(backend=backend)
+    peaks = gage.download_peak_flow(backend=backend)
     records = []
-    for _, row in gage.peak_data.iterrows():
+    for _, row in peaks.iterrows():
         records.append(
             {
                 "year": int(row["water_year"]),

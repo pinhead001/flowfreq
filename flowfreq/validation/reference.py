@@ -240,7 +240,7 @@ class ReferenceResult:
                 "(needs gfortran and meson), or use ReferenceResult.from_golden()"
             ) from exc
 
-        aeps = np.asarray(aeps, dtype=float)
+        aep_arr = np.asarray(aeps, dtype=float)
         out = emafitpr(
             np.asarray(ql, dtype=float),
             np.asarray(qu, dtype=float),
@@ -254,7 +254,7 @@ class ReferenceResult:
             regional_skew,
             regional_skew_mse,
             gbthrsh0,
-            1.0 - aeps,  # emafitpr takes non-exceedance probabilities
+            1.0 - aep_arr,  # emafitpr takes non-exceedance probabilities
             eps,
             weight_opt,
         )
@@ -281,7 +281,7 @@ class ReferenceResult:
         return cls._assemble(
             source="live emafitpr via flowfreq.peakfqr",
             station_name=station_name,
-            aeps=aeps,
+            aeps=aep_arr,
             outputs={
                 "mgbt": {"gbval": float(gbval), "gbnlow": int(gbnlow)},
                 "skew": {
@@ -312,7 +312,7 @@ class ReferenceResult:
         *,
         source: str,
         station_name: str,
-        aeps: Sequence[float],
+        aeps: Union[Sequence[float], np.ndarray],
         outputs: Mapping[str, Any],
         n_peaks: int,
         n_historical: int = 0,
