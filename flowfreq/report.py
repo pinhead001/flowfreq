@@ -105,7 +105,10 @@ class HydroReport:
 
         mean_peak = df["peak_flow_cfs"].mean()
         max_peak = df["peak_flow_cfs"].max()
-        max_year = df["water_year"].loc[df["peak_flow_cfs"].idxmax()]
+        # Positional: pandas-stubs type a label from idxmax() as Hashable, which .loc refuses.
+        max_year = int(
+            df["water_year"].to_numpy()[np.nanargmax(df["peak_flow_cfs"].to_numpy(dtype=float))]
+        )
 
         ax.annotate(
             f"Mean: {mean_peak:,.0f} cfs\nMax: {max_peak:,.0f} cfs (WY {max_year})",
