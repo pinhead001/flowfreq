@@ -10,7 +10,18 @@ import logging
 from abc import ABC, abstractmethod
 from datetime import datetime
 from functools import cached_property, lru_cache
-from typing import TYPE_CHECKING, ClassVar, Dict, List, Mapping, NamedTuple, Optional, Tuple, Union
+from typing import (
+    TYPE_CHECKING,
+    ClassVar,
+    Dict,
+    List,
+    Mapping,
+    NamedTuple,
+    Optional,
+    Tuple,
+    Union,
+    cast,
+)
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -81,9 +92,11 @@ class _ExpectedSums(NamedTuple):
     @property
     def total(self) -> Tuple[float, float, float]:
         """Non-central sums over every interval."""
-        return tuple(e + c for e, c in zip(self.exact, self.censored))
+        e1, e2, e3 = self.exact
+        c1, c2, c3 = self.censored
+        return (e1 + c1, e2 + c2, e3 + c3)
 
-    def central(self, mean: float) -> Tuple[Tuple[float, float, float], ...]:
+    def central(self, mean: float) -> Tuple[Tuple[float, float], Tuple[float, float]]:
         """Second and third central sums, as ``(exact, censored)`` pairs.
 
         The censored half expands E[(X - m)**j] from the non-central moments,
@@ -294,10 +307,11 @@ class FloodFrequencyAnalysis(ABC):
         )
         return skew_weighted, mse_weighted
 
-    def compute_quantiles(self, aep: np.ndarray = None) -> pd.DataFrame:
+    def compute_quantiles(self, aep: Optional[np.ndarray] = None) -> pd.DataFrame:
         """Compute flood frequency quantiles."""
         if self._results is None:
             self.run_analysis()
+        assert self._results is not None  # run_analysis sets it
 
         if aep is None:
             aep = self.STANDARD_AEP
@@ -311,7 +325,7 @@ class FloodFrequencyAnalysis(ABC):
         )
 
     def compute_confidence_limits(
-        self, aep: np.ndarray = None, confidence: float = 0.90
+        self, aep: Optional[np.ndarray] = None, confidence: float = 0.90
     ) -> pd.DataFrame:
         """Compute confidence limits for quantile estimates.
 
@@ -323,6 +337,7 @@ class FloodFrequencyAnalysis(ABC):
         """
         if self._results is None:
             self.run_analysis()
+        assert self._results is not None  # run_analysis sets it
 
         if aep is None:
             aep = self.STANDARD_AEP
@@ -381,6 +396,7 @@ class FloodFrequencyAnalysis(ABC):
         """Plot professional flood frequency curve."""
         if self._results is None:
             self.run_analysis()
+        assert self._results is not None  # run_analysis sets it
 
         fig, ax = plt.subplots(figsize=figsize)
 
@@ -659,6 +675,7 @@ class MethodOfMoments(FloodFrequencyAnalysis):
         low-outlier threshold itself -- the conditional distribution has no
         answer there, so it comes back as NaN.
         """
+        assert self._results is not None  # called from fitted-result methods only
         n = self._results.n_peaks
         n_conditional = self._results.n_systematic
         aep = np.asarray(aep, dtype=float)
@@ -679,7 +696,7 @@ class MethodOfMoments(FloodFrequencyAnalysis):
             )
         return np.where(pc < 1.0, pc, np.nan)
 
-    def compute_quantiles(self, aep: np.ndarray = None) -> pd.DataFrame:
+    def compute_quantiles(self, aep: Optional[np.ndarray] = None) -> pd.DataFrame:
         """Compute flood frequency quantiles at the conditional probability.
 
         See `_conditional_aep`: when low outliers are censored, the K-factor
@@ -687,6 +704,7 @@ class MethodOfMoments(FloodFrequencyAnalysis):
         """
         if self._results is None:
             self.run_analysis()
+        assert self._results is not None  # run_analysis sets it
 
         if aep is None:
             aep = self.STANDARD_AEP
@@ -702,11 +720,12 @@ class MethodOfMoments(FloodFrequencyAnalysis):
         )
 
     def compute_confidence_limits(
-        self, aep: np.ndarray = None, confidence: float = 0.90
+        self, aep: Optional[np.ndarray] = None, confidence: float = 0.90
     ) -> pd.DataFrame:
         """Compute confidence limits at the same conditional probability as `compute_quantiles`."""
         if self._results is None:
             self.run_analysis()
+        assert self._results is not None  # run_analysis sets it
 
         if aep is None:
             aep = self.STANDARD_AEP
@@ -770,10 +789,10 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
     def __init__(
         self,
         peak_flows: np.ndarray,
-        water_years: np.ndarray = None,
+        water_years: Optional[np.ndarray] = None,
         regional_skew: Optional[float] = None,
         regional_skew_mse: Optional[float] = None,
-        ema_params: EMAParameters = None,
+        ema_params: Optional[EMAParameters] = None,
         historical_peaks: Optional[List[Tuple[int, float]]] = None,
         perception_thresholds: Optional[Mapping[Tuple[int, int], PerceptionBound]] = None,
         user_low_outlier_threshold: Optional[float] = None,
@@ -1243,8 +1262,8 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         return _ExpectedSums(
             n=len(self._intervals),
             n_exact=n_exact,
-            exact=tuple(exact),
-            censored=tuple(censored),
+            exact=(float(exact[0]), float(exact[1]), float(exact[2])),
+            censored=(float(censored[0]), float(censored[1]), float(censored[2])),
         )
 
     def _ema_fixed_point(
@@ -1296,7 +1315,8 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
             if iteration + 1 > _P3EST_CYCLE_ITER and len(history) >= 5:
                 # emafit.f:1278: eliminate cycles of length 2 or 3
                 window = [current] + history[-5:]
-                current = tuple(float(sum(m[j] for m in window) / 6.0) for j in range(3))
+                avg = [float(sum(m[j] for m in window) / 6.0) for j in range(3)]
+                current = (avg[0], avg[1], avg[2])
             # dist_p3 (emafit.f:1453)
             d = (
                 (mean_p - current[0]) ** 2 / current[1]
@@ -1355,11 +1375,11 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         low_outlier = self._ema_params.low_outlier_threshold or 0.0
         groups: Dict[Tuple[float, float], int] = {}
         for interval in self._intervals:
-            tl = max(interval.perception_threshold, low_outlier)
+            low = max(interval.perception_threshold, low_outlier)
             # gbtest leaves tu alone (`tu(i) = tu_in(i)`); siteQT floors it at Qmin.
             log_tu = float(np.log10(max(interval.perception_upper, _PERCEPTION_QMIN)))
-            if tl > 0:
-                pair = (np.log10(tl), log_tu)
+            if low > 0:
+                pair = (np.log10(low), log_tu)
             else:
                 pair = (np.log10(_PERCEPTION_QMIN), log_tu)
             groups[pair] = groups.get(pair, 0) + 1
@@ -2026,7 +2046,7 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         return cil, cih, np.asarray(cv_yp_syp[:, 0, 0], dtype=float)
 
     def compute_confidence_limits(
-        self, aep: np.ndarray = None, confidence: float = 0.90
+        self, aep: Optional[np.ndarray] = None, confidence: float = 0.90
     ) -> pd.DataFrame:
         """Confidence limits, preferring Cohn's asymmetric CI shape over the base class's.
 
@@ -2044,6 +2064,7 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         analysis.
         """
         base = super().compute_confidence_limits(aep, confidence)
+        assert self._results is not None  # the base class ran the analysis
         if aep is None:
             aep = self.STANDARD_AEP
 
@@ -2055,14 +2076,16 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         )
         pq = 1.0 - np.asarray(aep, dtype=float)
         skew = float(self._results.skew_used)
+        # Bound for the closure, where mypy does not carry the assert's narrowing.
+        mean_log, var_log = float(self._results.mean_log), float(self._results.std_log) ** 2
 
         def bounds(g: float) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
             return self._cohn_confidence_bounds(
                 tuple(nobs),
                 tuple(tl),
                 tuple(tu),
-                float(self._results.mean_log),
-                float(self._results.std_log) ** 2,
+                mean_log,
+                var_log,
                 g,
                 tuple(pq),
                 float(confidence),
@@ -2196,7 +2219,7 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
                 )
 
         # Sort periods by start year
-        periods.sort(key=lambda x: x["Start Year"])
+        periods.sort(key=lambda x: cast(float, x["Start Year"]))
 
         # Create DataFrame
         df = pd.DataFrame(periods)
@@ -2426,24 +2449,26 @@ class Bulletin17C:
         self._results = self._analyzer.run_analysis()
         return self._results
 
-    def compute_quantiles(self, aep: np.ndarray = None) -> pd.DataFrame:
+    def compute_quantiles(self, aep: Optional[np.ndarray] = None) -> pd.DataFrame:
         if self._engine == "fortran":
             return self._fortran_quantiles(aep)[0]
         if self._analyzer is None:
             self.run_analysis()
+        assert self._analyzer is not None  # run_analysis sets it
         return self._analyzer.compute_quantiles(aep)
 
     def compute_confidence_limits(
-        self, aep: np.ndarray = None, confidence: float = 0.90
+        self, aep: Optional[np.ndarray] = None, confidence: float = 0.90
     ) -> pd.DataFrame:
         if self._engine == "fortran":
             return self._fortran_quantiles(aep, confidence)[1]
         if self._analyzer is None:
             self.run_analysis()
+        assert self._analyzer is not None  # run_analysis sets it
         return self._analyzer.compute_confidence_limits(aep, confidence)
 
     def _fortran_quantiles(
-        self, aep: np.ndarray = None, confidence: float = 0.90
+        self, aep: Optional[np.ndarray] = None, confidence: float = 0.90
     ) -> Tuple[pd.DataFrame, pd.DataFrame]:
         """Re-invoke ``emafitpr`` at *aep*/*confidence*, returning fresh DataFrames.
 
@@ -2494,6 +2519,7 @@ class Bulletin17C:
     ) -> plt.Figure:
         if self._analyzer is None:
             self.run_analysis()
+        assert self._analyzer is not None  # run_analysis sets it
         return self._analyzer.plot_frequency_curve(
             site_name, site_no, save_path, figsize, show_confidence
         )
@@ -2535,6 +2561,7 @@ class Bulletin17C:
         """
         if self._analyzer is None:
             self.run_analysis()
+        assert self._analyzer is not None  # run_analysis sets it
 
         if not isinstance(self._analyzer, ExpectedMomentsAlgorithm):
             raise ValueError(
@@ -2621,6 +2648,7 @@ class Bulletin17C:
 
         if self._results is None:
             self.run_analysis()
+        assert self._results is not None  # run_analysis sets it
 
         native_dict = self.to_comparison_dict()
         comparator = FrequencyComparator(

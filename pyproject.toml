@@ -153,20 +153,13 @@ ignore_missing_imports = true
 # trust these annotations -- that promise is worth something only if something
 # checks it.
 #
-# The modules listed below still carry errors inherited from before mypy ran
-# here at all (1 file, from 14 on 2026-10-31). They are exempted individually rather than by
-# loosening the global settings, so the debt is countable and shrinks by
-# deleting a stanza: pick a module, fix it, remove its override. Nothing new
-# gets added to this list -- a new module is checked by default.
-#
-# Deliberately not fixed wholesale: over 200 errors concentrated in the
-# numerical core, which is validated against the vendored Fortran to 1e-8. A
-# large mechanical retype there risks a behaviour change no type checker would
-# catch, for a benefit no user sees.
+# Every module is checked. The last exemptions (inherited from before mypy ran
+# here, 14 files on 2026-10-31) were retired by 2026-11-01; bulletin17c, the
+# numerical core validated against the vendored Fortran, went last, with
+# annotation-only changes (Optional defaults, asserts after the lazy fit) and
+# exact float() conversions, checked by the parity suite. Do not add overrides:
+# fix the error instead.
 
-[[tool.mypy.overrides]]
-module = "flowfreq.bulletin17c"
-ignore_errors = true
 
 [tool.black]
 line-length = 100
