@@ -98,6 +98,64 @@ class EquationsUnavailable(LookupError):
 
 
 @dataclass
+class RegionGate:
+    """A rule that selects a region by a basin characteristic that is not a regression
+    variable, such as Arizona's High Elevation region (mean basin elevation 7,500 ft or
+    more, SIR 2014-5211).
+
+    NSS applies these through "gating" parameters it does not publish thresholds for; the
+    threshold comes from the report. ``minimum`` is inclusive and ``maximum`` exclusive,
+    so complementary gates (``minimum=7500`` and ``maximum=7500``) partition the values.
+
+    Attributes
+    ----------
+    variable : str
+        StreamStats characteristic code (e.g. ``"ELEV"``).
+    minimum, maximum : float, optional
+        At least one is given.
+    units : str
+    source : str
+        Where the threshold is printed.
+    """
+
+    variable: str
+    minimum: Optional[float] = None
+    maximum: Optional[float] = None
+    units: str = ""
+    source: str = ""
+
+    def admits(self, value: float) -> bool:
+        """Whether a basin with this characteristic value belongs to the region."""
+        if self.minimum is not None and value < self.minimum:
+            return False
+        if self.maximum is not None and value >= self.maximum:
+            return False
+        return True
+
+    def describe(self) -> str:
+        """The rule in words, e.g. ``"ELEV >= 7500 ft"``."""
+        parts = []
+        if self.minimum is not None:
+            parts.append(f"{self.variable} >= {self.minimum:g}")
+        if self.maximum is not None:
+            parts.append(f"{self.variable} < {self.maximum:g}")
+        return " and ".join(parts) + (f" {self.units}" if self.units else "")
+
+    @classmethod
+    def from_dict(cls, d: Dict[str, Any]) -> "RegionGate":
+        gate = cls(
+            variable=str(d["variable"]),
+            minimum=None if d.get("minimum") is None else float(d["minimum"]),
+            maximum=None if d.get("maximum") is None else float(d["maximum"]),
+            units=str(d.get("units") or ""),
+            source=str(d.get("source") or ""),
+        )
+        if gate.minimum is None and gate.maximum is None:
+            raise ValueError(f"region gate on {gate.variable} has no minimum or maximum")
+        return gate
+
+
+@dataclass
 class StateLibrary:
     """The regression equations published for one jurisdiction."""
 
@@ -114,6 +172,10 @@ class StateLibrary:
     unparsed: List[Dict[str, Any]] = field(default_factory=list)
     #: When the NSS snapshot behind an ``nss_snapshot`` set was retrieved (ISO 8601 UTC).
     retrieved_utc: str = ""
+    #: Region-selection rules on characteristics that are not regression variables
+    #: (:class:`RegionGate`), by region code. ``assemble`` uses them to choose between
+    #: overlapping regions.
+    region_gates: Dict[str, RegionGate] = field(default_factory=dict)
 
     @property
     def provisional(self) -> bool:
@@ -188,6 +250,12 @@ def parse_state(data: Dict[str, Any]) -> StateLibrary:
     keys = [(e.region_code, e.aep) for e in eqs]
     if len(set(keys)) != len(keys):
         raise ValueError(f"{state}: duplicate (region, AEP) equations")
+    gates = {
+        str(code): RegionGate.from_dict(g) for code, g in (data.get("region_gates") or {}).items()
+    }
+    unknown = sorted(set(gates) - {e.region_code for e in eqs})
+    if unknown:
+        raise ValueError(f"{state}: region_gates for regions with no equations: {unknown}")
     return StateLibrary(
         state=state,
         status=status,
@@ -197,6 +265,7 @@ def parse_state(data: Dict[str, Any]) -> StateLibrary:
         notes=str(data.get("notes") or ""),
         unparsed=[dict(u) for u in data.get("unparsed") or []],
         retrieved_utc=str(data.get("retrieved_utc") or ""),
+        region_gates=gates,
     )
 
 
