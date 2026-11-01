@@ -1,0 +1,2507 @@
+{
+  "schema_version": 1,
+  "state": "CA",
+  "status": "verified",
+  "issue": null,
+  "source_reports": [
+    {
+      "citation": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+      "doi": "10.3133/sir20125113",
+      "url": "https://pubs.usgs.gov/publication/sir20125113",
+      "pdf": "https://pubs.usgs.gov/sir/2012/5113/pdf/sir2012-5113.pdf",
+      "tables": [
+        "Table 2",
+        "Table 5",
+        "Table 6",
+        "Table 8",
+        "Table 9",
+        "Table 10"
+      ],
+      "nss": {
+        "regression_regions": [
+          "GC1529",
+          "GC1530",
+          "GC1531",
+          "GC1532",
+          "GC1533",
+          "GC1534"
+        ]
+      }
+    }
+  ],
+  "equations": [
+    {
+      "region_code": "1",
+      "region_name": "North Coast (Region 1) (NSS GC1529)",
+      "aep": 0.5,
+      "intercept": 0.2600713879850748,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.04,
+          "maximum": 3200.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 20.0,
+          "maximum": 125.0
+        }
+      ],
+      "coefficients": [
+        0.904,
+        0.983
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.235963,
+      "avp": 0.056,
+      "n_sites": 184,
+      "model_error_variance": 0.053,
+      "covariance": [
+        [
+          0.0482,
+          -0.000542,
+          -0.0261
+        ],
+        [
+          -0.000542,
+          0.000481,
+          -0.00018
+        ],
+        [
+          -0.0261,
+          -0.00018,
+          0.015
+        ]
+      ]
+    },
+    {
+      "region_code": "1",
+      "region_name": "North Coast (Region 1) (NSS GC1529)",
+      "aep": 0.2,
+      "intercept": 0.909020854211156,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.04,
+          "maximum": 3200.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 20.0,
+          "maximum": 125.0
+        }
+      ],
+      "coefficients": [
+        0.887,
+        0.772
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.195518,
+      "avp": 0.038,
+      "n_sites": 184,
+      "model_error_variance": 0.036,
+      "covariance": [
+        [
+          0.0386,
+          -0.000449,
+          -0.0207
+        ],
+        [
+          -0.000449,
+          0.000362,
+          -0.000124
+        ],
+        [
+          -0.0207,
+          -0.000124,
+          0.0118
+        ]
+      ]
+    },
+    {
+      "region_code": "1",
+      "region_name": "North Coast (Region 1) (NSS GC1529)",
+      "aep": 0.1,
+      "intercept": 1.1702617153949575,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.04,
+          "maximum": 3200.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 20.0,
+          "maximum": 125.0
+        }
+      ],
+      "coefficients": [
+        0.88,
+        0.696
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.183461,
+      "avp": 0.034,
+      "n_sites": 184,
+      "model_error_variance": 0.032,
+      "covariance": [
+        [
+          0.0393,
+          -0.000476,
+          -0.0209
+        ],
+        [
+          -0.000476,
+          0.000346,
+          -0.000101
+        ],
+        [
+          -0.0209,
+          -0.000101,
+          0.0119
+        ]
+      ]
+    },
+    {
+      "region_code": "1",
+      "region_name": "North Coast (Region 1) (NSS GC1529)",
+      "aep": 0.04,
+      "intercept": 1.414973347970818,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.04,
+          "maximum": 3200.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 20.0,
+          "maximum": 125.0
+        }
+      ],
+      "coefficients": [
+        0.874,
+        0.628
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.177735,
+      "avp": 0.032,
+      "n_sites": 184,
+      "model_error_variance": 0.029,
+      "covariance": [
+        [
+          0.0428,
+          -0.000535,
+          -0.0226
+        ],
+        [
+          -0.000535,
+          0.000354,
+          -8.46e-05
+        ],
+        [
+          -0.0226,
+          -8.46e-05,
+          0.0127
+        ]
+      ]
+    },
+    {
+      "region_code": "1",
+      "region_name": "North Coast (Region 1) (NSS GC1529)",
+      "aep": 0.02,
+      "intercept": 1.5599066250361124,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.04,
+          "maximum": 3200.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 20.0,
+          "maximum": 125.0
+        }
+      ],
+      "coefficients": [
+        0.87,
+        0.589
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.177735,
+      "avp": 0.032,
+      "n_sites": 184,
+      "model_error_variance": 0.029,
+      "covariance": [
+        [
+          0.0463,
+          -0.000586,
+          -0.0244
+        ],
+        [
+          -0.000586,
+          0.000372,
+          -8.01e-05
+        ],
+        [
+          -0.0244,
+          -8.01e-05,
+          0.0137
+        ]
+      ]
+    },
+    {
+      "region_code": "1",
+      "region_name": "North Coast (Region 1) (NSS GC1529)",
+      "aep": 0.01,
+      "intercept": 1.6857417386022637,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.04,
+          "maximum": 3200.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 20.0,
+          "maximum": 125.0
+        }
+      ],
+      "coefficients": [
+        0.866,
+        0.556
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.183841,
+      "avp": 0.034,
+      "n_sites": 184,
+      "model_error_variance": 0.031,
+      "covariance": [
+        [
+          0.0511,
+          -0.000646,
+          -0.0269
+        ],
+        [
+          -0.000646,
+          0.000406,
+          -8.52e-05
+        ],
+        [
+          -0.0269,
+          -8.52e-05,
+          0.0151
+        ]
+      ]
+    },
+    {
+      "region_code": "1",
+      "region_name": "North Coast (Region 1) (NSS GC1529)",
+      "aep": 0.005,
+      "intercept": 1.7853298350107671,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.04,
+          "maximum": 3200.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 20.0,
+          "maximum": 125.0
+        }
+      ],
+      "coefficients": [
+        0.863,
+        0.531
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.184221,
+      "avp": 0.034,
+      "n_sites": 184,
+      "model_error_variance": 0.031,
+      "covariance": [
+        [
+          0.0542,
+          -0.00069,
+          -0.0284
+        ],
+        [
+          -0.00069,
+          0.000423,
+          -8.23e-05
+        ],
+        [
+          -0.0284,
+          -8.23e-05,
+          0.0159
+        ]
+      ]
+    },
+    {
+      "region_code": "1",
+      "region_name": "North Coast (Region 1) (NSS GC1529)",
+      "aep": 0.002,
+      "intercept": 1.8992731873176039,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.04,
+          "maximum": 3200.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 20.0,
+          "maximum": 125.0
+        }
+      ],
+      "coefficients": [
+        0.86,
+        0.503
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.190269,
+      "avp": 0.036,
+      "n_sites": 184,
+      "model_error_variance": 0.033,
+      "covariance": [
+        [
+          0.0595,
+          -0.000756,
+          -0.0312
+        ],
+        [
+          -0.000756,
+          0.000461,
+          -8.87e-05
+        ],
+        [
+          -0.0312,
+          -8.87e-05,
+          0.0175
+        ]
+      ]
+    },
+    {
+      "region_code": "2",
+      "region_name": "Lahontan (Region 2) (NSS GC1530)",
+      "aep": 0.5,
+      "intercept": -1.0629838925351858,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.45,
+          "maximum": 1500.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 13.0,
+          "maximum": 85.0
+        }
+      ],
+      "coefficients": [
+        0.736,
+        1.59
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.354994,
+      "avp": 0.126,
+      "n_sites": 54,
+      "model_error_variance": 0.116,
+      "covariance": [
+        [
+          0.193,
+          -0.00372,
+          -0.115
+        ],
+        [
+          -0.00372,
+          0.00336,
+          -0.000586
+        ],
+        [
+          -0.115,
+          -0.000586,
+          0.0729
+        ]
+      ]
+    },
+    {
+      "region_code": "2",
+      "region_name": "Lahontan (Region 2) (NSS GC1530)",
+      "aep": 0.2,
+      "intercept": -0.7399286120149252,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.45,
+          "maximum": 1500.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 13.0,
+          "maximum": 85.0
+        }
+      ],
+      "coefficients": [
+        0.733,
+        1.58
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.313514,
+      "avp": 0.098,
+      "n_sites": 54,
+      "model_error_variance": 0.089,
+      "covariance": [
+        [
+          0.167,
+          -0.00422,
+          -0.0977
+        ],
+        [
+          -0.00422,
+          0.00284,
+          3.42e-05
+        ],
+        [
+          -0.0977,
+          3.42e-05,
+          0.061
+        ]
+      ]
+    },
+    {
+      "region_code": "2",
+      "region_name": "Lahontan (Region 2) (NSS GC1530)",
+      "aep": 0.1,
+      "intercept": -0.585026652029182,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.45,
+          "maximum": 1500.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 13.0,
+          "maximum": 85.0
+        }
+      ],
+      "coefficients": [
+        0.734,
+        1.59
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.298475,
+      "avp": 0.089,
+      "n_sites": 54,
+      "model_error_variance": 0.08,
+      "covariance": [
+        [
+          0.166,
+          -0.00486,
+          -0.0957
+        ],
+        [
+          -0.00486,
+          0.00276,
+          0.000396
+        ],
+        [
+          -0.0957,
+          0.000396,
+          0.0593
+        ]
+      ]
+    },
+    {
+      "region_code": "2",
+      "region_name": "Lahontan (Region 2) (NSS GC1530)",
+      "aep": 0.04,
+      "intercept": -0.40450377817442584,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.45,
+          "maximum": 1500.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 13.0,
+          "maximum": 85.0
+        }
+      ],
+      "coefficients": [
+        0.733,
+        1.58
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.293548,
+      "avp": 0.086,
+      "n_sites": 54,
+      "model_error_variance": 0.075,
+      "covariance": [
+        [
+          0.177,
+          -0.00578,
+          -0.101
+        ],
+        [
+          -0.00578,
+          0.00288,
+          0.000736
+        ],
+        [
+          -0.101,
+          0.000736,
+          0.062
+        ]
+      ]
+    },
+    {
+      "region_code": "2",
+      "region_name": "Lahontan (Region 2) (NSS GC1530)",
+      "aep": 0.02,
+      "intercept": -0.2740883677049518,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.45,
+          "maximum": 1500.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 13.0,
+          "maximum": 85.0
+        }
+      ],
+      "coefficients": [
+        0.733,
+        1.58
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.292308,
+      "avp": 0.085,
+      "n_sites": 54,
+      "model_error_variance": 0.074,
+      "covariance": [
+        [
+          0.186,
+          -0.00646,
+          -0.106
+        ],
+        [
+          -0.00646,
+          0.003,
+          0.000951
+        ],
+        [
+          -0.106,
+          0.000951,
+          0.0647
+        ]
+      ]
+    },
+    {
+      "region_code": "2",
+      "region_name": "Lahontan (Region 2) (NSS GC1530)",
+      "aep": 0.01,
+      "intercept": -0.14691047014813446,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.45,
+          "maximum": 1500.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 13.0,
+          "maximum": 85.0
+        }
+      ],
+      "coefficients": [
+        0.731,
+        1.56
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.296941,
+      "avp": 0.088,
+      "n_sites": 54,
+      "model_error_variance": 0.075,
+      "covariance": [
+        [
+          0.201,
+          -0.00719,
+          -0.113
+        ],
+        [
+          -0.00719,
+          0.00321,
+          0.00113
+        ],
+        [
+          -0.113,
+          0.00113,
+          0.0694
+        ]
+      ]
+    },
+    {
+      "region_code": "2",
+      "region_name": "Lahontan (Region 2) (NSS GC1530)",
+      "aep": 0.005,
+      "intercept": -0.02502800570193105,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.45,
+          "maximum": 1500.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 13.0,
+          "maximum": 85.0
+        }
+      ],
+      "coefficients": [
+        0.729,
+        1.55
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.302133,
+      "avp": 0.091,
+      "n_sites": 54,
+      "model_error_variance": 0.077,
+      "covariance": [
+        [
+          0.216,
+          -0.00791,
+          -0.121
+        ],
+        [
+          -0.00791,
+          0.00343,
+          0.00129
+        ],
+        [
+          -0.121,
+          0.00129,
+          0.0743
+        ]
+      ]
+    },
+    {
+      "region_code": "2",
+      "region_name": "Lahontan (Region 2) (NSS GC1530)",
+      "aep": 0.002,
+      "intercept": 0.13033376849500614,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.45,
+          "maximum": 1500.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 13.0,
+          "maximum": 85.0
+        }
+      ],
+      "coefficients": [
+        0.727,
+        1.52
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.314105,
+      "avp": 0.099,
+      "n_sites": 54,
+      "model_error_variance": 0.082,
+      "covariance": [
+        [
+          0.241,
+          -0.00895,
+          -0.135
+        ],
+        [
+          -0.00895,
+          0.00381,
+          0.00148
+        ],
+        [
+          -0.135,
+          0.00148,
+          0.0825
+        ]
+      ]
+    },
+    {
+      "region_code": "3",
+      "region_name": "Sierra Nevada (Region 3) (NSS GC1531)",
+      "aep": 0.5,
+      "intercept": 0.38560627359831223,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.07,
+          "maximum": 2000.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 90.0,
+          "maximum": 11000.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 15.0,
+          "maximum": 100.0
+        }
+      ],
+      "coefficients": [
+        0.924,
+        -0.646,
+        2.06
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.288253,
+      "avp": 0.083,
+      "n_sites": 199,
+      "model_error_variance": 0.079,
+      "covariance": [
+        [
+          0.0791,
+          -0.00181,
+          -0.00728,
+          -0.0281
+        ],
+        [
+          -0.00181,
+          0.000895,
+          -0.000481,
+          0.00114
+        ],
+        [
+          -0.00728,
+          -0.000481,
+          0.00644,
+          -0.00912
+        ],
+        [
+          -0.0281,
+          0.00114,
+          -0.00912,
+          0.0351
+        ]
+      ]
+    },
+    {
+      "region_code": "3",
+      "region_name": "Sierra Nevada (Region 3) (NSS GC1531)",
+      "aep": 0.2,
+      "intercept": 1.0644579892269184,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.07,
+          "maximum": 2000.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 90.0,
+          "maximum": 11000.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 15.0,
+          "maximum": 100.0
+        }
+      ],
+      "coefficients": [
+        0.907,
+        -0.566,
+        1.7
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.221121,
+      "avp": 0.049,
+      "n_sites": 199,
+      "model_error_variance": 0.046,
+      "covariance": [
+        [
+          0.0555,
+          -0.0011,
+          -0.00532,
+          -0.0192
+        ],
+        [
+          -0.0011,
+          0.000626,
+          -0.000476,
+          0.00096
+        ],
+        [
+          -0.00532,
+          -0.000476,
+          0.00546,
+          -0.00788
+        ],
+        [
+          -0.0192,
+          0.00096,
+          -0.00788,
+          0.0269
+        ]
+      ]
+    },
+    {
+      "region_code": "3",
+      "region_name": "Sierra Nevada (Region 3) (NSS GC1531)",
+      "aep": 0.1,
+      "intercept": 1.235528446907549,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.07,
+          "maximum": 2000.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 90.0,
+          "maximum": 11000.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 15.0,
+          "maximum": 100.0
+        }
+      ],
+      "coefficients": [
+        0.896,
+        -0.486,
+        1.54
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.210644,
+      "avp": 0.044,
+      "n_sites": 199,
+      "model_error_variance": 0.041,
+      "covariance": [
+        [
+          0.0586,
+          -0.00104,
+          -0.0062,
+          -0.0192
+        ],
+        [
+          -0.00104,
+          0.000617,
+          -0.000527,
+          0.00102
+        ],
+        [
+          -0.0062,
+          -0.000527,
+          0.00619,
+          -0.00875
+        ],
+        [
+          -0.0192,
+          0.00102,
+          -0.00875,
+          0.0285
+        ]
+      ]
+    },
+    {
+      "region_code": "3",
+      "region_name": "Sierra Nevada (Region 3) (NSS GC1531)",
+      "aep": 0.04,
+      "intercept": 1.3159703454569178,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.07,
+          "maximum": 2000.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 90.0,
+          "maximum": 11000.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 15.0,
+          "maximum": 100.0
+        }
+      ],
+      "coefficients": [
+        0.885,
+        -0.386,
+        1.39
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.213553,
+      "avp": 0.046,
+      "n_sites": 199,
+      "model_error_variance": 0.041,
+      "covariance": [
+        [
+          0.069,
+          -0.00111,
+          -0.00785,
+          -0.0216
+        ],
+        [
+          -0.00111,
+          0.00068,
+          -0.000623,
+          0.00118
+        ],
+        [
+          -0.00785,
+          -0.000623,
+          0.0076,
+          -0.0106
+        ],
+        [
+          -0.0216,
+          0.00118,
+          -0.0106,
+          0.0334
+        ]
+      ]
+    },
+    {
+      "region_code": "3",
+      "region_name": "Sierra Nevada (Region 3) (NSS GC1531)",
+      "aep": 0.02,
+      "intercept": 1.3242824552976926,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.07,
+          "maximum": 2000.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 90.0,
+          "maximum": 11000.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 15.0,
+          "maximum": 100.0
+        }
+      ],
+      "coefficients": [
+        0.879,
+        -0.316,
+        1.31
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.221836,
+      "avp": 0.049,
+      "n_sites": 199,
+      "model_error_variance": 0.044,
+      "covariance": [
+        [
+          0.0785,
+          -0.00121,
+          -0.00922,
+          -0.0241
+        ],
+        [
+          -0.00121,
+          0.000755,
+          -0.000709,
+          0.00133
+        ],
+        [
+          -0.00922,
+          -0.000709,
+          0.00884,
+          -0.0122
+        ],
+        [
+          -0.0241,
+          0.00133,
+          -0.0122,
+          0.0381
+        ]
+      ]
+    },
+    {
+      "region_code": "3",
+      "region_name": "Sierra Nevada (Region 3) (NSS GC1531)",
+      "aep": 0.01,
+      "intercept": 1.3138672203691535,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.07,
+          "maximum": 2000.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 90.0,
+          "maximum": 11000.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 15.0,
+          "maximum": 100.0
+        }
+      ],
+      "coefficients": [
+        0.874,
+        -0.25,
+        1.24
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.233866,
+      "avp": 0.055,
+      "n_sites": 199,
+      "model_error_variance": 0.049,
+      "covariance": [
+        [
+          0.0892,
+          -0.00133,
+          -0.0107,
+          -0.0271
+        ],
+        [
+          -0.00133,
+          0.000851,
+          -0.000811,
+          0.0015
+        ],
+        [
+          -0.0107,
+          -0.000811,
+          0.0102,
+          -0.0141
+        ],
+        [
+          -0.0271,
+          0.0015,
+          -0.0141,
+          0.0436
+        ]
+      ]
+    },
+    {
+      "region_code": "3",
+      "region_name": "Sierra Nevada (Region 3) (NSS GC1531)",
+      "aep": 0.005,
+      "intercept": 1.287801729930226,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.07,
+          "maximum": 2000.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 90.0,
+          "maximum": 11000.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 15.0,
+          "maximum": 100.0
+        }
+      ],
+      "coefficients": [
+        0.87,
+        -0.188,
+        1.18
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.24598,
+      "avp": 0.06,
+      "n_sites": 199,
+      "model_error_variance": 0.054,
+      "covariance": [
+        [
+          0.0999,
+          -0.00146,
+          -0.0121,
+          -0.0302
+        ],
+        [
+          -0.00146,
+          0.000952,
+          -0.000915,
+          0.00167
+        ],
+        [
+          -0.0121,
+          -0.000915,
+          0.0116,
+          -0.016
+        ],
+        [
+          -0.0302,
+          0.00167,
+          -0.016,
+          0.0492
+        ]
+      ]
+    },
+    {
+      "region_code": "3",
+      "region_name": "Sierra Nevada (Region 3) (NSS GC1531)",
+      "aep": 0.002,
+      "intercept": 1.2405492482825997,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.07,
+          "maximum": 2000.0
+        },
+        {
+          "code": "ELEV",
+          "transform": "log10",
+          "units": "ft",
+          "minimum": 90.0,
+          "maximum": 11000.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 15.0,
+          "maximum": 100.0
+        }
+      ],
+      "coefficients": [
+        0.865,
+        -0.11,
+        1.11
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.265446,
+      "avp": 0.07,
+      "n_sites": 199,
+      "model_error_variance": 0.063,
+      "covariance": [
+        [
+          0.115,
+          -0.00164,
+          -0.0141,
+          -0.0347
+        ],
+        [
+          -0.00164,
+          0.00111,
+          -0.00107,
+          0.00193
+        ],
+        [
+          -0.0141,
+          -0.00107,
+          0.0137,
+          -0.0189
+        ],
+        [
+          -0.0347,
+          0.00193,
+          -0.0189,
+          0.0576
+        ]
+      ]
+    },
+    {
+      "region_code": "4",
+      "region_name": "Central Coast (Region 4) (NSS GC1532)",
+      "aep": 0.5,
+      "intercept": -2.3381873144627385,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.11,
+          "maximum": 4600.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 7.0,
+          "maximum": 46.0
+        }
+      ],
+      "coefficients": [
+        0.856,
+        2.58
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.492651,
+      "avp": 0.243,
+      "n_sites": 95,
+      "model_error_variance": 0.228,
+      "covariance": [
+        [
+          0.336,
+          -0.0101,
+          -0.229
+        ],
+        [
+          -0.0101,
+          0.0039,
+          0.00252
+        ],
+        [
+          -0.229,
+          0.00252,
+          0.165
+        ]
+      ]
+    },
+    {
+      "region_code": "4",
+      "region_name": "Central Coast (Region 4) (NSS GC1532)",
+      "aep": 0.2,
+      "intercept": -1.0070049015686584,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.11,
+          "maximum": 4600.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 7.0,
+          "maximum": 46.0
+        }
+      ],
+      "coefficients": [
+        0.852,
+        1.97
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.353664,
+      "avp": 0.125,
+      "n_sites": 95,
+      "model_error_variance": 0.115,
+      "covariance": [
+        [
+          0.213,
+          -0.00716,
+          -0.141
+        ],
+        [
+          -0.00716,
+          0.00237,
+          0.00216
+        ],
+        [
+          -0.141,
+          0.00216,
+          0.0996
+        ]
+      ]
+    },
+    {
+      "region_code": "4",
+      "region_name": "Central Coast (Region 4) (NSS GC1532)",
+      "aep": 0.1,
+      "intercept": -0.3372421683184259,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.11,
+          "maximum": 4600.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 7.0,
+          "maximum": 46.0
+        }
+      ],
+      "coefficients": [
+        0.846,
+        1.66
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.303648,
+      "avp": 0.092,
+      "n_sites": 95,
+      "model_error_variance": 0.083,
+      "covariance": [
+        [
+          0.189,
+          -0.00667,
+          -0.123
+        ],
+        [
+          -0.00667,
+          0.00202,
+          0.00216
+        ],
+        [
+          -0.123,
+          0.00216,
+          0.085
+        ]
+      ]
+    },
+    {
+      "region_code": "4",
+      "region_name": "Central Coast (Region 4) (NSS GC1532)",
+      "aep": 0.04,
+      "intercept": 0.3283796034387377,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.11,
+          "maximum": 4600.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 7.0,
+          "maximum": 46.0
+        }
+      ],
+      "coefficients": [
+        0.842,
+        1.34
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.273928,
+      "avp": 0.075,
+      "n_sites": 95,
+      "model_error_variance": 0.065,
+      "covariance": [
+        [
+          0.185,
+          -0.00667,
+          -0.118
+        ],
+        [
+          -0.00667,
+          0.00191,
+          0.00225
+        ],
+        [
+          -0.118,
+          0.00225,
+          0.0808
+        ]
+      ]
+    },
+    {
+      "region_code": "4",
+      "region_name": "Central Coast (Region 4) (NSS GC1532)",
+      "aep": 0.02,
+      "intercept": 0.7259116322950482,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.11,
+          "maximum": 4600.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 7.0,
+          "maximum": 46.0
+        }
+      ],
+      "coefficients": [
+        0.84,
+        1.15
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.261813,
+      "avp": 0.069,
+      "n_sites": 95,
+      "model_error_variance": 0.058,
+      "covariance": [
+        [
+          0.189,
+          -0.00683,
+          -0.12
+        ],
+        [
+          -0.00683,
+          0.0019,
+          0.00234
+        ],
+        [
+          -0.12,
+          0.00234,
+          0.081
+        ]
+      ]
+    },
+    {
+      "region_code": "4",
+      "region_name": "Central Coast (Region 4) (NSS GC1532)",
+      "aep": 0.01,
+      "intercept": 1.0413926851582251,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.11,
+          "maximum": 4600.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 7.0,
+          "maximum": 46.0
+        }
+      ],
+      "coefficients": [
+        0.84,
+        0.994
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.264128,
+      "avp": 0.07,
+      "n_sites": 95,
+      "model_error_variance": 0.058,
+      "covariance": [
+        [
+          0.202,
+          -0.00731,
+          -0.128
+        ],
+        [
+          -0.00731,
+          0.00202,
+          0.00252
+        ],
+        [
+          -0.128,
+          0.00252,
+          0.0862
+        ]
+      ]
+    },
+    {
+      "region_code": "4",
+      "region_name": "Central Coast (Region 4) (NSS GC1532)",
+      "aep": 0.005,
+      "intercept": 1.307496037913213,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.11,
+          "maximum": 4600.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 7.0,
+          "maximum": 46.0
+        }
+      ],
+      "coefficients": [
+        0.84,
+        0.865
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.266433,
+      "avp": 0.071,
+      "n_sites": 95,
+      "model_error_variance": 0.058,
+      "covariance": [
+        [
+          0.215,
+          -0.00777,
+          -0.136
+        ],
+        [
+          -0.00777,
+          0.00213,
+          0.0027
+        ],
+        [
+          -0.136,
+          0.0027,
+          0.0913
+        ]
+      ]
+    },
+    {
+      "region_code": "4",
+      "region_name": "Central Coast (Region 4) (NSS GC1532)",
+      "aep": 0.002,
+      "intercept": 1.591064607026499,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.11,
+          "maximum": 4600.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 7.0,
+          "maximum": 46.0
+        }
+      ],
+      "coefficients": [
+        0.842,
+        0.729
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.279073,
+      "avp": 0.078,
+      "n_sites": 95,
+      "model_error_variance": 0.064,
+      "covariance": [
+        [
+          0.24,
+          -0.00863,
+          -0.151
+        ],
+        [
+          -0.00863,
+          0.00236,
+          0.003
+        ],
+        [
+          -0.151,
+          0.003,
+          0.102
+        ]
+      ]
+    },
+    {
+      "region_code": "5",
+      "region_name": "South Coast (Region 5) (NSS GC1533)",
+      "aep": 0.5,
+      "intercept": 0.5563025007672873,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.04,
+          "maximum": 850.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 10.0,
+          "maximum": 45.0
+        }
+      ],
+      "coefficients": [
+        0.672,
+        0.753
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.440753,
+      "avp": 0.194,
+      "n_sites": 98,
+      "model_error_variance": 0.184,
+      "covariance": [
+        [
+          0.328,
+          -0.0106,
+          -0.222
+        ],
+        [
+          -0.0106,
+          0.00372,
+          0.00424
+        ],
+        [
+          -0.222,
+          0.00424,
+          0.156
+        ]
+      ]
+    },
+    {
+      "region_code": "5",
+      "region_name": "South Coast (Region 5) (NSS GC1533)",
+      "aep": 0.2,
+      "intercept": 0.8709888137605752,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.04,
+          "maximum": 850.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 10.0,
+          "maximum": 45.0
+        }
+      ],
+      "coefficients": [
+        0.739,
+        0.872
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.314694,
+      "avp": 0.099,
+      "n_sites": 98,
+      "model_error_variance": 0.091,
+      "covariance": [
+        [
+          0.195,
+          -0.0063,
+          -0.132
+        ],
+        [
+          -0.0063,
+          0.00217,
+          0.00266
+        ],
+        [
+          -0.132,
+          0.00266,
+          0.0932
+        ]
+      ]
+    },
+    {
+      "region_code": "5",
+      "region_name": "South Coast (Region 5) (NSS GC1533)",
+      "aep": 0.1,
+      "intercept": 0.8169038393756602,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.04,
+          "maximum": 850.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 10.0,
+          "maximum": 45.0
+        }
+      ],
+      "coefficients": [
+        0.783,
+        1.07
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.254463,
+      "avp": 0.065,
+      "n_sites": 98,
+      "model_error_variance": 0.058,
+      "covariance": [
+        [
+          0.157,
+          -0.005,
+          -0.106
+        ],
+        [
+          -0.005,
+          0.00166,
+          0.00226
+        ],
+        [
+          -0.106,
+          0.00226,
+          0.0747
+        ]
+      ]
+    },
+    {
+      "region_code": "5",
+      "region_name": "South Coast (Region 5) (NSS GC1533)",
+      "aep": 0.04,
+      "intercept": 0.6730209071288962,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.04,
+          "maximum": 850.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 10.0,
+          "maximum": 45.0
+        }
+      ],
+      "coefficients": [
+        0.832,
+        1.32
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.210644,
+      "avp": 0.044,
+      "n_sites": 98,
+      "model_error_variance": 0.037,
+      "covariance": [
+        [
+          0.141,
+          -0.00436,
+          -0.0948
+        ],
+        [
+          -0.00436,
+          0.0014,
+          0.00211
+        ],
+        [
+          -0.0948,
+          0.00211,
+          0.0671
+        ]
+      ]
+    },
+    {
+      "region_code": "5",
+      "region_name": "South Coast (Region 5) (NSS GC1533)",
+      "aep": 0.02,
+      "intercept": 0.5843312243675308,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.04,
+          "maximum": 850.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 10.0,
+          "maximum": 45.0
+        }
+      ],
+      "coefficients": [
+        0.864,
+        1.47
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.196264,
+      "avp": 0.038,
+      "n_sites": 98,
+      "model_error_variance": 0.03,
+      "covariance": [
+        [
+          0.143,
+          -0.00433,
+          -0.0962
+        ],
+        [
+          -0.00433,
+          0.00138,
+          0.00217
+        ],
+        [
+          -0.0962,
+          0.00217,
+          0.0682
+        ]
+      ]
+    },
+    {
+      "region_code": "5",
+      "region_name": "South Coast (Region 5) (NSS GC1533)",
+      "aep": 0.01,
+      "intercept": 0.5158738437116791,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.04,
+          "maximum": 850.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 10.0,
+          "maximum": 45.0
+        }
+      ],
+      "coefficients": [
+        0.891,
+        1.59
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.19477,
+      "avp": 0.038,
+      "n_sites": 98,
+      "model_error_variance": 0.029,
+      "covariance": [
+        [
+          0.155,
+          -0.00461,
+          -0.104
+        ],
+        [
+          -0.00461,
+          0.00146,
+          0.00236
+        ],
+        [
+          -0.104,
+          0.00236,
+          0.0737
+        ]
+      ]
+    },
+    {
+      "region_code": "5",
+      "region_name": "South Coast (Region 5) (NSS GC1533)",
+      "aep": 0.005,
+      "intercept": 0.45331834004703764,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.04,
+          "maximum": 850.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 10.0,
+          "maximum": 45.0
+        }
+      ],
+      "coefficients": [
+        0.915,
+        1.7
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.196637,
+      "avp": 0.039,
+      "n_sites": 98,
+      "model_error_variance": 0.029,
+      "covariance": [
+        [
+          0.168,
+          -0.00498,
+          -0.113
+        ],
+        [
+          -0.00498,
+          0.00156,
+          0.00258
+        ],
+        [
+          -0.113,
+          0.00258,
+          0.0805
+        ]
+      ]
+    },
+    {
+      "region_code": "5",
+      "region_name": "South Coast (Region 5) (NSS GC1533)",
+      "aep": 0.002,
+      "intercept": 0.36361197989214433,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.04,
+          "maximum": 850.0
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 10.0,
+          "maximum": 45.0
+        }
+      ],
+      "coefficients": [
+        0.943,
+        1.83
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.212464,
+      "avp": 0.045,
+      "n_sites": 98,
+      "model_error_variance": 0.033,
+      "covariance": [
+        [
+          0.197,
+          -0.00583,
+          -0.133
+        ],
+        [
+          -0.00583,
+          0.00182,
+          0.00302
+        ],
+        [
+          -0.133,
+          0.00302,
+          0.0948
+        ]
+      ]
+    },
+    {
+      "region_code": "6",
+      "region_name": "Desert (Region 6) (NSS GC1534)",
+      "aep": 0.5,
+      "intercept": 1.0128372247051722,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.04,
+          "maximum": 173.0
+        }
+      ],
+      "coefficients": [
+        0.506
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.56968,
+      "avp": 0.325,
+      "n_sites": 33
+    },
+    {
+      "region_code": "6",
+      "region_name": "Desert (Region 6) (NSS GC1534)",
+      "aep": 0.2,
+      "intercept": 1.7781512503836436,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.04,
+          "maximum": 173.0
+        }
+      ],
+      "coefficients": [
+        0.506
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.584447,
+      "avp": 0.342,
+      "n_sites": 33
+    },
+    {
+      "region_code": "6",
+      "region_name": "Desert (Region 6) (NSS GC1534)",
+      "aep": 0.1,
+      "intercept": 2.1789769472931693,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.04,
+          "maximum": 173.0
+        }
+      ],
+      "coefficients": [
+        0.506
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.60923,
+      "avp": 0.371,
+      "n_sites": 33
+    },
+    {
+      "region_code": "6",
+      "region_name": "Desert (Region 6) (NSS GC1534)",
+      "aep": 0.04,
+      "intercept": 2.6053050461411096,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.04,
+          "maximum": 173.0
+        }
+      ],
+      "coefficients": [
+        0.506
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.65694,
+      "avp": 0.432,
+      "n_sites": 33
+    },
+    {
+      "region_code": "6",
+      "region_name": "Desert (Region 6) (NSS GC1534)",
+      "aep": 0.02,
+      "intercept": 2.8808135922807914,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.04,
+          "maximum": 173.0
+        }
+      ],
+      "coefficients": [
+        0.506
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.702987,
+      "avp": 0.494,
+      "n_sites": 33
+    },
+    {
+      "region_code": "6",
+      "region_name": "Desert (Region 6) (NSS GC1534)",
+      "aep": 0.01,
+      "intercept": 3.130333768495006,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.04,
+          "maximum": 173.0
+        }
+      ],
+      "coefficients": [
+        0.506
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.756231,
+      "avp": 0.572,
+      "n_sites": 33
+    },
+    {
+      "region_code": "6",
+      "region_name": "Desert (Region 6) (NSS GC1534)",
+      "aep": 0.005,
+      "intercept": 3.3560258571931225,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.04,
+          "maximum": 173.0
+        }
+      ],
+      "coefficients": [
+        0.506
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.815562,
+      "avp": 0.665,
+      "n_sites": 33
+    },
+    {
+      "region_code": "6",
+      "region_name": "Desert (Region 6) (NSS GC1534)",
+      "aep": 0.002,
+      "intercept": 3.6314437690131722,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.04,
+          "maximum": 173.0
+        }
+      ],
+      "coefficients": [
+        0.506
+      ],
+      "citation": {
+        "publication": "Gotvald, A.J., Barth, N.A., Veilleux, A.G., and Parrett, Charles, 2012, Methods for determining magnitude and frequency of floods in California, based on data through water year 2006: U.S. Geological Survey Scientific Investigations Report 2012-5113, 38 p., 1 pl.",
+        "table": "Table 5; Table 6; Table 8; Table 9",
+        "year": 2012,
+        "url": "https://doi.org/10.3133/sir20125113"
+      },
+      "sep_log": 0.901432,
+      "avp": 0.813,
+      "n_sites": 33
+    }
+  ],
+  "notes": "Gotvald, Barth, Veilleux and Parrett, SIR 2012-5113 (no revisions listed): six hydrologic regions (plate 1) at 8 AEPs (50-0.2 percent). Equations from Table 5 (p. 14); AVP and SEP from Table 6 (p. 16); model error variance and covariance matrix U from Table 8 (pp. 18-19), order intercept then the variables as printed (Sierra Nevada: DRNAREA, ELEV, PRECIP); ranges from Table 9 (p. 20). Storage: intercept = log10 of the printed coefficient; every variable log10 (the report's power form), including Sierra Nevada's ELEV with its negative exponent. Variable codes are NSS's: DRNAREA (GIS drainage area, mi2), PRECIP (mean annual precipitation, in.), ELEV (mean basin elevation, ft). sep_log is Table 6's SEP percent converted as sqrt(ln(1 + (SEP/100)^2)) / ln(10), which equals sqrt(AVP) under the report's eq. 6; avp is Table 6's AVP; model_error_variance is Table 8's sigma_delta^2. n_sites per region is the number of Table 2 streamgages in the region less those footnoted r (not used: redundant) and n or p (frequency undetermined): 184, 54, 199, 95 and 98 for regions 1-5, 630 in all as the report states (p. 14), and 33 for the desert region. With p = 3 or 4 parameters these reproduce the report's printed t(0.05, n-p) of 1.653, 1.675, 1.653, 1.662 and 1.661 (eq. 9). The desert region (6) has no regression: its equations come from regional LP3 parameters (a constant standard deviation of 0.91 log units, a mean linear in log drainage area, zero skew; appendix), so Table 8 gives no model error variance or covariance and intervals use sep_log; its SEP runs from 214 to 856 percent. Checks: Table 5 was entered from the rendered page and every equation equals the NSS snapshot (2026-10-25) coefficient for coefficient, with the same ranges; Table 6 agrees between the rendered page and pdftotext; every Table 8 matrix is symmetric, and model_error_variance + x'Ux reproduces Table 10's regression variance of prediction (column R) at 732 of the 734 regression-region gages within 0.0006 at every AEP (median 0.0001-0.0005, Table 8's 3-decimal rounding of sigma_delta^2). The two exceptions are Table 10 itself at one or two AEPs: 11099500 (Sawpit Creek) at 0.2 percent, and 11247200 (Big Sandy Creek tributary) at 0.5 and 0.2 percent, whose other AEPs agree. Worked examples (p. 25): North Coast Q1% at DRNAREA 27.8, PRECIP 32.7 = 6,000 ft3/s (6,003 computed) and at DRNAREA 25.0, PRECIP 32.5 = 5,460 ft3/s (5,457). Out of scope: NSS's four Thomas and others (1997, WSP 2433) regions it also lists for California (GC29, GC30, GC31, GC307), superseded here; the urban adjustment (Tables 11-12) and the weighting procedures are not equations of this kind."
+}

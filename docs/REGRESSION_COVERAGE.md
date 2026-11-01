@@ -27,7 +27,7 @@ Plan and definitions of done: `docs/MASTER_ROADMAP.md` §3.2.
 
 | Code | Jurisdiction | Equations | Regions | Equation count | Regional skew | Issue |
 |---|---|---|---:|---:|---|---|
-| CA | California | nss snapshot (72 eqs, 0 unparsed) | 10 | 72 | pending |  |
+| CA | California | verified | 6 | 48 | pending |  |
 | AK | Alaska | verified | 2 | 16 | pending, verified |  |
 | HI | Hawaii | nss snapshot (80 eqs, 0 unparsed) | 10 | 80 | verified |  |
 
