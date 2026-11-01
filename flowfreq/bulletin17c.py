@@ -10,7 +10,7 @@ import logging
 from abc import ABC, abstractmethod
 from datetime import datetime
 from functools import cached_property, lru_cache
-from typing import TYPE_CHECKING, ClassVar, Dict, List, NamedTuple, Optional, Tuple, Union
+from typing import TYPE_CHECKING, ClassVar, Dict, List, Mapping, NamedTuple, Optional, Tuple, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -371,9 +371,9 @@ class FloodFrequencyAnalysis(ABC):
 
     def plot_frequency_curve(
         self,
-        site_name: str = None,
-        site_no: str = None,
-        save_path: str = None,
+        site_name: Optional[str] = None,
+        site_no: Optional[str] = None,
+        save_path: Optional[str] = None,
         figsize: Tuple[int, int] = (10, 7),
         show_confidence: bool = True,
         yscale: str = "log",
@@ -775,7 +775,7 @@ class ExpectedMomentsAlgorithm(FloodFrequencyAnalysis):
         regional_skew_mse: Optional[float] = None,
         ema_params: EMAParameters = None,
         historical_peaks: Optional[List[Tuple[int, float]]] = None,
-        perception_thresholds: Optional[Dict[Tuple[int, int], PerceptionBound]] = None,
+        perception_thresholds: Optional[Mapping[Tuple[int, int], PerceptionBound]] = None,
         user_low_outlier_threshold: Optional[float] = None,
         interval_peaks: Optional[List[Tuple[int, float, float]]] = None,
         historical_interval_peaks: Optional[List[Tuple[int, float, float]]] = None,
@@ -2254,12 +2254,12 @@ class Bulletin17C:
     def __init__(
         self,
         peak_flows: np.ndarray,
-        water_years: np.ndarray = None,
+        water_years: Optional[np.ndarray] = None,
         regional_skew: Optional[float] = None,
         regional_skew_mse: Optional[float] = None,
         historical_peaks: Optional[List[Tuple[int, float]]] = None,
-        perception_thresholds: Optional[Dict[Tuple[int, int], PerceptionBound]] = None,
-        ema_params: EMAParameters = None,
+        perception_thresholds: Optional[Mapping[Tuple[int, int], PerceptionBound]] = None,
+        ema_params: Optional[EMAParameters] = None,
         user_low_outlier_threshold: Optional[float] = None,
         interval_peaks: Optional[List[Tuple[int, float, float]]] = None,
         historical_interval_peaks: Optional[List[Tuple[int, float, float]]] = None,
@@ -2486,9 +2486,9 @@ class Bulletin17C:
 
     def plot_frequency_curve(
         self,
-        site_name: str = None,
-        site_no: str = None,
-        save_path: str = None,
+        site_name: Optional[str] = None,
+        site_no: Optional[str] = None,
+        save_path: Optional[str] = None,
         figsize: Tuple[int, int] = (10, 7),
         show_confidence: bool = True,
     ) -> plt.Figure:

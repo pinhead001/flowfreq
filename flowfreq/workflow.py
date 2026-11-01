@@ -15,13 +15,13 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Dict, List, Mapping, Optional, Sequence, Tuple
+from typing import TYPE_CHECKING, Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
 import numpy as np
 import pandas as pd
 
 from .bulletin17c import Bulletin17C
-from .core import EMAParameters, FrequencyResults, kfactor_array
+from .core import EMAParameters, FrequencyResults, PerceptionBound, kfactor_array
 
 if TYPE_CHECKING:  # pragma: no cover - annotations only
     # Same layering reason as flowfreq.bulletin17c.Bulletin17C.validate: a
@@ -120,8 +120,8 @@ def resolve_regional_skew(
 
 
 def peak_code_kwargs(
-    peak_flows: Sequence[float],
-    water_years: Optional[Sequence[int]],
+    peak_flows: Union[Sequence[float], np.ndarray],
+    water_years: Union[Sequence[int], np.ndarray, None],
     peak_codes: Optional[Sequence[object]],
     *,
     apply_peak_codes: bool = True,
@@ -129,7 +129,7 @@ def peak_code_kwargs(
     regional_skew_mse: Optional[float] = None,
     user_low_outlier_threshold: Optional[float] = None,
     historical_peaks: Optional[Sequence[Tuple[int, float]]] = None,
-    perception_thresholds: Optional[Mapping[Tuple[int, int], float]] = None,
+    perception_thresholds: Optional[Mapping[Tuple[int, int], PerceptionBound]] = None,
     engines: Sequence[str] = ("native",),
     site_name: str = "site",
 ) -> Optional[Dict[str, Any]]:
@@ -452,7 +452,7 @@ def run_ffa(
         site_classification = require_unregulated(
             classify_site(site_no, peak_codes), allow_regulated=allow_regulated
         )
-    result = {
+    result: Dict[str, Any] = {
         "b17c": None,
         "converged": False,
         "method": None,
@@ -507,6 +507,7 @@ def run_ffa(
 
         b17c.run_analysis(method="ema")
         method = "ema"
+        assert b17c.results is not None  # set by run_analysis()
         converged = bool(b17c.results.ema_converged)
 
         # Only fall back to MOM when the record is plain systematic peaks -- MOM has no
@@ -539,6 +540,7 @@ def run_ffa(
         )
 
         r = b17c.results
+        assert r is not None  # set by run_analysis()
         result.update(
             {
                 "b17c": b17c,
@@ -703,7 +705,7 @@ def build_skew_curves_dict(
         Empty dict (fall back to default) when no valid labels are found.
     """
     skew_map = _skew_values_from_result(ffa_result)
-    return {lbl: skew_map[lbl] for lbl in selected_labels if skew_map.get(lbl) is not None}
+    return {lbl: v for lbl in selected_labels if (v := skew_map.get(lbl)) is not None}
 
 
 @dataclass
@@ -985,13 +987,15 @@ def compare_engines(
         historical_interval_peaks=historical_interval_peaks,
     )
     native.run_analysis(method="ema", engine="native")
+    native_results = native.results
+    assert native_results is not None  # set by run_analysis()
     # Recompute at *aeps* explicitly: run_analysis() always fits at
     # STANDARD_AEP internally, so a caller-supplied aeps list would otherwise
     # leave native.results.quantiles at a different AEP set than the
     # reference below, and FrequencyComparator would silently compare nothing
     # (no aep keys in common) rather than raise.
-    native.results.quantiles = native.compute_quantiles(aep=aeps)
-    native.results.confidence_limits = native.compute_confidence_limits(aep=aeps)
+    native_results.quantiles = native.compute_quantiles(aep=aeps)
+    native_results.confidence_limits = native.compute_confidence_limits(aep=aeps)
 
     reference, _arrays = run_fortran_reference(
         peak_flows,
@@ -1015,5 +1019,5 @@ def compare_engines(
         ci_tolerance_pct=ci_tolerance_pct,
     )
     return EngineComparisonReport(
-        native=native.results, reference=reference, comparison=comparison, site_name=site_name
+        native=native_results, reference=reference, comparison=comparison, site_name=site_name
     )

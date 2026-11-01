@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - mypy now checks `lowflow` and `hydrograph` (51 errors: `Optional` defaults, `None` narrowing after `run_analysis`, `DatetimeIndex` casts, a typed aggregation list), leaving four exemptions: `bulletin17c`, `freq_plot`, `report` and `workflow`. `core.lp3_frequency_factor_peakfq` gains typing overloads for the array input it already accepted. No behaviour changes.
+- mypy now checks `workflow`, `report` and `freq_plot` (97 errors: 28, 32 and 37), leaving `bulletin17c` as the one exemption. Annotations widened to what the code already accepted: `perception_thresholds` is a `Mapping` (read-only) in `Bulletin17C`, `ExpectedMomentsAlgorithm` and the `fortran_engine` entry points; `peak_flows`/`water_years`/`aeps` take NumPy arrays as well as sequences in `peak_code_kwargs` and `fortran_engine`; `Bulletin17C`'s `water_years`, `ema_params` and `plot_frequency_curve` string arguments are `Optional`. No behaviour changes.
 
 ## [0.20.0] - 2026-10-31
 

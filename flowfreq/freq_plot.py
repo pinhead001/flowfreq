@@ -114,6 +114,7 @@ def plot_frequency_curve(
         b17c.run_analysis()
 
     r = b17c.results
+    assert r is not None  # run_analysis() populates results
     mean_log = r.mean_log
     std_log = r.std_log
     n_sys = r.n_systematic or r.n_peaks
@@ -419,10 +420,12 @@ def plot_peak_flows_with_thresholds(
     """
     fig, ax = plt.subplots(figsize=figsize)
 
-    years = peak_df["water_year"].values.astype(int)
-    flows = peak_df["peak_flow_cfs"].values.astype(float)
+    years = peak_df["water_year"].to_numpy().astype(int)
+    flows = peak_df["peak_flow_cfs"].to_numpy().astype(float)
 
     # Determine which years are inside the FFA analysis range
+    ffa_start: Optional[int]
+    ffa_end: Optional[int]
     if ffa_year_range is not None:
         ffa_start, ffa_end = ffa_year_range
         in_range = (years >= ffa_start) & (years <= ffa_end)
