@@ -5,17 +5,45 @@
 > in progress are tracked under "Roadmap Phase A, Wave 1 and Wave 2" in Open Items below.
 
 ## Status
-Last updated: 2026-10-31 (overnight). Version **0.18.0** is released (tag `v0.18.0`,
-2026-10-31: regional skew HUC rows for every report-defined study, outlet coordinates from
-the pour point, Minnesota's Rainy River Basin equations, `SiteEstimate.basin_geojson`).
-`main` carries **0.19.0.dev0**; 0.18.x patches come from `release/0.18.x` (CLAUDE.md,
-Branches and Releases). flowfreq-app PR #10 (pin v0.18.0) awaits the owner. Since the
-release, `main` has (CHANGELOG, Unreleased): why WA Peak Region 2 is low at the Methow
-(mean basin elevation; #259), monthly leave-one-out and blend (#260) and duration
-quantiles (#263) for transfer variance, `flowfreq.stationarity` (#264, #267),
-`flowfreq.naturalize` (#266), and two rounds of independent-review fixes (#262, #268),
-including `fit_gls` handling an indefinite sampling covariance. #261 (another session's
-`delineate_watershed`) is open.
+Last updated: 2026-11-01. Version **0.20.0** is released (tag `v0.20.0`, 2026-10-31). `main`
+carries **0.21.0.dev0**; 0.20.x patches come from `release/0.20.x` (CLAUDE.md, Branches and
+Releases). flowfreq-app pins v0.20.0. Since the release, `main` has (CHANGELOG, Unreleased):
+region gates (`RegionGate`, #283) for Arizona's High Elevation region and Oregon's Regions
+2A/2B outside the eq. 8 transition zone (#285); mypy over every module, the last override
+(`bulletin17c`) retired (#277, #284, #286, #287); `download_peak_flow(site_metadata=False)`
+(#288).
+
+### Next steps (2026-11-01)
+
+Owner decisions:
+
+1. **Release 0.21.0?** Everything above is on `main`. The app would then pin v0.21.0 and
+   could pass `site_metadata=False` on the gage page (one USGS request fewer per view).
+2. **Iowa's overlapping equation sets.** Each Iowa region has a full equation set
+   (SIR 2013-5086, GC1561-GC1563) and a drainage-area-only one (SIR 2015-5055, GC1564,
+   GC1627, GC1628), co-located, so `estimate_at_site` stops with `OverlappingRegionsError`.
+   Preferring the full set when its characteristics are present is a method choice, not a
+   published threshold, so it is not a `RegionGate`.
+3. Close issues #27 and #36.
+
+Blocked on StreamStats ss-hydro (HTTP 502 since 2026-10-30):
+
+4. Live smoke recheck of WY, MN, MT, ND, AK and AZ (AZ now by its ELEV gate), then
+   `docs/NATIONWIDE_SMOKE.md`. A watcher script reruns them when ss-hydro answers
+   (`--states WY MN MT ND AK AZ --points tools/nationwide_smoke_points.csv`).
+5. Oregon's missing basin characteristics, then a live check of the Oregon gates.
+6. A live check of the provisional Washington set (needs ELEV from ss-hydro).
+
+Downstream (flowfreq-app; another session also works there, so check its open PRs first):
+
+7. Check the gage page's resizable period grips in a browser (app #24): they were never run
+   in one, since running the vega bundles in headless Chrome was blocked here.
+8. App #26 (summary hydrograph, flow-duration curve, stationarity report downloads) awaits
+   the owner.
+9. Gage page: dams (NID) and land-cover (NLCD) events beside a change point
+   (`stationarity.basin_change_events`; needs the delineated basin), raster hydrograph,
+   the Bulletin 17C curve in place.
+
 Python 3.11–3.14 (`requires-python >= 3.11`; CI matrix in `.github/workflows/ci.yml`).
 
 Tests, measured 2026-10-31 on Windows / CPython 3.12 with the Fortran extension built and
