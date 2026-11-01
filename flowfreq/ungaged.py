@@ -419,6 +419,49 @@ def _drainage_area_class(
     )
 
 
+def _gated_region(
+    lib: StateLibrary,
+    used: Sequence[Tuple[RegressionRegionLocation, str]],
+    characteristics: Mapping[str, float],
+) -> Optional[Tuple[Tuple[RegressionRegionLocation, str], str]]:
+    """The one overlapping region whose region gate admits the basin, if every candidate
+    has a gate (:class:`~flowfreq.regression.library.RegionGate`).
+
+    Arizona's High Elevation region (GC1618) and the region below it (GC1622 around
+    Tucson, for example) are both located wherever the High Elevation polygon is drawn;
+    SIR 2014-5211 assigns a basin by its mean elevation, 7,500 ft or more for High
+    Elevation. NSS gates on ``ELEV`` without publishing the threshold, so the library
+    carries it. Resolved only when every candidate covers the whole basin and has a gate,
+    each gate's characteristic is known, and exactly one admits the basin; otherwise the
+    overlap is the caller's.
+
+    Returns
+    -------
+    ((RegressionRegionLocation, str), str) or None
+        The chosen pair and the reason recorded as ``region_choice_source``.
+    """
+    admitted = []
+    for pair in used:
+        loc, lib_code = pair
+        gate = lib.region_gates.get(lib_code)
+        if gate is None or loc.percent_weight < 100.0 - PERCENT_WEIGHT_TOL:
+            return None
+        value = characteristics.get(gate.variable)
+        if value is None or not np.isfinite(value):
+            return None
+        if gate.admits(float(value)):
+            admitted.append((pair, gate, float(value)))
+    if len(admitted) != 1:
+        return None
+    pair, gate, value = admitted[0]
+    return pair, (
+        f"region gate: {gate.variable} {value:g}{' ' + gate.units if gate.units else ''} "
+        f"admits only {pair[0].code} ({gate.describe()}"
+        + (f"; {gate.source}" if gate.source else "")
+        + ")"
+    )
+
+
 def _library_region(lib: StateLibrary, code: str) -> Optional[str]:
     """Resolve a caller's code to a library ``region_code`` (case-insensitively), else None.
 
@@ -674,10 +717,12 @@ def assemble(
             for r, lib_code in used
         ]
         if choice is None:
-            by_area = _drainage_area_class(lib, used, characteristics)
-            if by_area is None:
+            by_rule = _drainage_area_class(lib, used, characteristics) or _gated_region(
+                lib, used, characteristics
+            )
+            if by_rule is None:
                 raise OverlappingRegionsError(lib.state, candidates)
-            chosen, region_choice_source = by_area
+            chosen, region_choice_source = by_rule
             logger.info("%s: %s", lib.state, region_choice_source)
         if chosen is None:
             if why is None:

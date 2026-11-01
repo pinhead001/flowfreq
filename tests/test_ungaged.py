@@ -25,7 +25,12 @@ from flowfreq.regression.equations import (
     RegressionEstimate,
     Variable,
 )
-from flowfreq.regression.library import NSS_SNAPSHOT_SUBDIR, EquationsUnavailable, StateLibrary
+from flowfreq.regression.library import (
+    NSS_SNAPSHOT_SUBDIR,
+    EquationsUnavailable,
+    RegionGate,
+    StateLibrary,
+)
 from flowfreq.streamstats import (
     Characteristic,
     Provenance,
@@ -1142,3 +1147,86 @@ class TestDrainageAreaClasses:
         a = assemble(_area_class_library(), self.REGIONS, {"DRNAREA": 62.0}, region="GC56", **KW)
         assert [r.code for r in a.used] == ["GC56"]
         assert a.region_choice_source is None
+
+
+class TestRegionGates:
+    """Overlapping regions chosen by a region-selection rule on a characteristic that is
+    not a regression variable (Arizona: High Elevation at a mean elevation of 7,500 ft or
+    more, SIR 2014-5211)."""
+
+    REGIONS = [_region("GC18", 100.0), _region("GC22", 100.0)]
+
+    @staticmethod
+    def _lib(gates=None) -> StateLibrary:
+        eqs = []
+        for aep in AEPS:
+            eqs.append(_eq("1", aep, 2.0, region_name="Flood region 1 (High Elevation; NSS GC18)"))
+            eqs.append(_eq("5", aep, 3.0, region_name="Flood region 5 (NSS GC22)"))
+        lib = StateLibrary(state="AZ", status="verified", equations=eqs, advisory="")
+        lib.region_gates = (
+            {
+                "1": RegionGate("ELEV", minimum=7500.0, units="ft", source="report"),
+                "5": RegionGate("ELEV", maximum=7500.0, units="ft", source="report"),
+            }
+            if gates is None
+            else gates
+        )
+        return lib
+
+    @pytest.mark.parametrize("elev,code", [(5976.0, "GC22"), (7500.0, "GC18"), (9000.0, "GC18")])
+    def test_the_gate_picks_the_region(self, elev, code):
+        a = assemble(self._lib(), self.REGIONS, {"DRNAREA": 35.5, "ELEV": elev}, **KW)
+        assert [r.code for r in a.used] == [code]
+        assert a.region_choice_source.startswith("region gate: ELEV")
+        assert len(a.alternatives) == 1
+
+    def test_without_the_characteristic_the_caller_chooses(self):
+        with pytest.raises(OverlappingRegionsError):
+            assemble(self._lib(), self.REGIONS, {"DRNAREA": 35.5}, **KW)
+
+    def test_an_ungated_candidate_leaves_it_to_the_caller(self):
+        lib = self._lib({"1": RegionGate("ELEV", minimum=7500.0)})
+        with pytest.raises(OverlappingRegionsError):
+            assemble(lib, self.REGIONS, {"DRNAREA": 35.5, "ELEV": 5000.0}, **KW)
+
+    def test_an_explicit_choice_still_wins(self):
+        a = assemble(
+            self._lib(), self.REGIONS, {"DRNAREA": 35.5, "ELEV": 5000.0}, region="GC18", **KW
+        )
+        assert [r.code for r in a.used] == ["GC18"] and a.region_choice_source is None
+
+    def test_arizona_sabino_creek(self):
+        from flowfreq.regression.library import load_state
+
+        lib = load_state("AZ")
+        regions = [
+            RegressionRegionLocation(0, "GC1618", "high", 100.0, 35.5),
+            RegressionRegionLocation(0, "GC1622", "se", 100.0, 35.5),
+        ]
+        a = assemble(lib, regions, {"CONTDA": 35.5, "ELEV": 5976.0}, **{**KW, "aeps": [0.01]})
+        assert [r.code for r in a.used] == ["GC1622"]
+        assert a.quantiles["flow_cfs"].iloc[0] == pytest.approx(8604, rel=0.01)
+
+
+def test_region_gate_rules():
+    gate = RegionGate("ELEV", minimum=7500.0, units="ft")
+    assert gate.admits(7500.0) and not gate.admits(7499.9)
+    assert gate.describe() == "ELEV >= 7500 ft"
+    below = RegionGate("ELEV", maximum=7500.0)
+    assert below.admits(7499.9) and not below.admits(7500.0)
+    with pytest.raises(ValueError, match="no minimum or maximum"):
+        RegionGate.from_dict({"variable": "ELEV"})
+
+
+def test_parse_state_refuses_gates_for_unknown_regions():
+    from flowfreq.regression.library import parse_state
+
+    data = json.loads(
+        (Path(__file__).resolve().parent.parent / "flowfreq/data/regression/AZ.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert set(parse_state(data).region_gates) == {"1", "2", "3", "4", "5"}
+    data["region_gates"]["9"] = {"variable": "ELEV", "minimum": 1.0}
+    with pytest.raises(ValueError, match="no equations"):
+        parse_state(data)
