@@ -180,7 +180,7 @@ Still failing in the 2026-10-30 rerun (14 of 56; WY and MN fixed since, live rec
     Creek's is about 5,980 ft (3DEP, 59 points), so region 5 (GC1622, Southeastern Basin and
     Range, like neighbouring Rincon Creek) applies: 8,604 cfs at 1% against 14,403 gaged
     (0.60, inside the 90% interval). `assemble` now chooses it from `ELEV` through AZ's
-    region gates (`StateLibrary.region_gates`), so the point carries no region.
+    region gates (`StateLibrary.region_gates`), so AZ has no row in the points file.
   - **NV 10329500** (0.36): Northwest Region 2 is the report's own region for the gage, the
     equation is double-entered from WSP 2433 Table 6, and 0.36 is about 1.65 standard errors
     of prediction. No defect found.

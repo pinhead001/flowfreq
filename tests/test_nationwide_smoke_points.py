@@ -172,3 +172,10 @@ def test_smoke_one_with_region_only(fakes: dict) -> None:
 def test_smoke_one_without_region_passes_none(fakes: dict) -> None:
     ns.smoke_one(ROW, point={"lat": 30.25, "lon": -97.75, "note": "moved"})
     assert fakes["region"] is None
+
+
+def test_committed_points_file_loads() -> None:
+    pts = ns.load_points(REPO_ROOT / "tools" / "nationwide_smoke_points.csv")
+    assert {"MT", "ND", "AK"} <= set(pts)
+    # AZ needs no override: its region gate picks region 5 from ELEV.
+    assert "AZ" not in pts
