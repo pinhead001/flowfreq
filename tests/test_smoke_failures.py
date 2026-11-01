@@ -159,3 +159,16 @@ def test_oregon_names_the_missing_characteristics() -> None:
         assemble(lib, [_region("GC729")], {"DRNAREA": 263.0}, **KW)
     for code in ("JANMAXT2K", "WATCAPORC", "SOILPERM"):
         assert code in str(info.value)
+
+
+# AZ 09484000 Sabino Creek near Tucson (35.5 mi2), gaged 1% flood 14,403 cfs: the 2026-10-30
+# smoke forced GC1618 (High Elevation), which NSS uses only at a mean basin elevation of
+# 7,500 ft or more; Sabino's is about 5,980 ft, so region 5 (GC1622) applies.
+def test_arizona_sabino_creek_belongs_to_region_5() -> None:
+    lib = load_state("AZ")
+    high = evaluate(lib.equation("1", 0.01), {"CONTDA": 35.5})
+    se_basin = evaluate(lib.equation("5", 0.01), {"CONTDA": 35.5})
+    assert high.flow_cfs == pytest.approx(1468, rel=0.01)  # the smoke run's 0.10 ratio
+    assert se_basin.flow_cfs == pytest.approx(8604, rel=0.01)
+    assert se_basin.interval is not None
+    assert se_basin.interval[0] < 14403 < se_basin.interval[1]
