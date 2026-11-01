@@ -105,7 +105,7 @@ class HydroReport:
 
         mean_peak = df["peak_flow_cfs"].mean()
         max_peak = df["peak_flow_cfs"].max()
-        max_year = df.loc[df["peak_flow_cfs"].idxmax(), "water_year"]
+        max_year = df["water_year"].loc[df["peak_flow_cfs"].idxmax()]
 
         ax.annotate(
             f"Mean: {mean_peak:,.0f} cfs\nMax: {max_peak:,.0f} cfs (WY {max_year})",
