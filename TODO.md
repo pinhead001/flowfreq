@@ -174,11 +174,22 @@ Still failing in the 2026-10-30 rerun (14 of 56; WY and MN fixed since, live rec
       classes (under and over 1,000 mi2).
 - [ ] **Live recheck** of the moved MT, ND and AK points, with WY and MN: snap,
       delineation and NSS region location pass (2026-10-31); the estimates wait on ss-hydro.
-- Large gaged-versus-ungaged differences with a correct delineation (the drainage area matches
-  the catalog): AZ 09484000 (ratio 0.10, a 35 mi2 basin), TX 08190000 (0.20, Nueces River)
-  and NV 10329500 (0.36). The regressions are run as published; these are not defects.
-- [ ] **Stationarity by default**: whether `run_ffa` attaches `stationarity_report` to every
-      analysis (roadmap section 6.1 recommends it) is an owner decision.
+- Large gaged-versus-ungaged differences with a correct delineation, checked 2026-10-31:
+  - **AZ 09484000** (ratio 0.10) was the wrong region. The smoke point forced GC1618 (High
+    Elevation), which NSS uses only at a mean basin elevation of 7,500 ft or more; Sabino
+    Creek's is about 5,980 ft (3DEP, 59 points), so region 5 (GC1622, Southeastern Basin and
+    Range, like neighbouring Rincon Creek) applies: 8,604 cfs at 1% against 14,403 gaged
+    (0.60, inside the 90% interval). The point now names GC1622. `assemble` cannot yet choose
+    between AZ's overlapping regions by ELEV (a gating value, not a regression variable).
+  - **NV 10329500** (0.36): Northwest Region 2 is the report's own region for the gage, the
+    equation is double-entered from WSP 2433 Table 6, and 0.36 is about 1.65 standard errors
+    of prediction. No defect found.
+  - **TX 08190000** (0.20): the NSS snapshot's GC2146 (SIR 2008-5084, drainage area and
+    precipitation only) is stored exactly as NSS serves it and reproduces the smoke value. The
+    Nueces at Laguna is on the Balcones Escarpment (616,000 cfs in 1935), where a statewide
+    equation with no regional term underestimates; a limitation of the published set.
+- [x] **Stationarity by default**: `run_ffa` attaches the screen dictionary; the figure is
+      opt-in (`stationarity_figure=True`).
 - [ ] **Regional skew `pending` rows** (41): each waits for a published B-WLS/B-GLS study or
       a reading of the report's printed value; the row's notes say which.
 

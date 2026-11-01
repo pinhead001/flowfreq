@@ -74,8 +74,30 @@ cluster that `ELEV` absorbs.
 
 The refit coefficients for each model and AEP are in the results JSON (`beta`, in the order
 `[1, log10 A, P, CANOPY, added...]`, with `ELEV` in feet). They are a flowfreq analysis, not a
-USGS product. Storing them as a provisional equation set would follow the Oregon pattern
-(`provisional/`); that is not done here.
+USGS product.
+
+## The provisional equation set (2026-10-31)
+
+The owner chose to ship the refit as a provisional set: `load_state("WA",
+allow_provisional=True)` (or `estimate_at_site(..., allow_provisional=True)`) returns
+`flowfreq/data/regression/provisional/WA.json`, built by `tools/wa_region2_provisional.py`.
+It is the published SIR 2016-5118 set with Peak Region 2 replaced by the `+ELEV` model; the
+default `load_state("WA")` is unchanged.
+
+**It refits every Region 2 AEP, not only the 50% and 20%** that the recommendation above
+names. Refit equations at the common floods next to published ones at the rarer gave a
+frequency curve that *decreased* between the 20% and 10% AEPs at 7 of the 90 Region 2 gages,
+all above about 5,300 ft, among them Methow above Goat Creek and the Chewuch: the refit raises
+high basins and the published equation does not. Refit at every AEP, the `ELEV` coefficient
+tapers smoothly (1.6e-4 per ft at 50%, 7e-5 at 10%, 2e-5 at 1%, 0 at 0.2%), the curve increases
+at all 90 gages, and at the 10% AEP and rarer the refit is a median 0.95-0.99 of the published
+estimate (0.5-1.5 at the extremes). The recommendation's substance holds: `ELEV` matters at the
+common floods and fades at the rare ones, and the set now carries that consistently.
+
+Each refit equation has its GLS covariance, model error variance and average variance of
+prediction, so prediction intervals are computed as for the published ones. Its variable
+limits are the 87 calibration gages' ranges. A site needs StreamStats' `ELEV` (mean basin
+elevation, feet) in addition to the published Region 2 characteristics.
 
 ## A defect this found in `flowfreq.regression.gls`
 

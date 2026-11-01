@@ -2,7 +2,7 @@ state,lat,lon,note,region
 WY,,,report region of the gage (WRI 03-4107 table; catalog GC1239),1
 NV,,,report region of the gage (WSP 2433 table; catalog GC161),2
 OR,,,#209 packet: Region 1 coastal,GC729
-AZ,,,#209 packet: outside the Navajo Nation,GC1618
+AZ,,,"region 5, Southeastern Basin and Range: NSS takes region 1 (High Elevation, GC1618) only at a mean basin elevation of 7500 ft or more, and Sabino Creek's is about 5980 ft (3DEP, 59 points)",GC1622
 OK,,,"Region 1 unregulated (not the NRCS-regulated GC1488)",GC1487
 ME,45.501676,-68.306133,"main-stem point at gage 01030500 (1419 mi2); #209 packet: statewide multiparameter",GC1798
 VT,43.714607,-72.418783,"main-stem point at gage 01144000 (687 mi2); #209 packet: statewide",GC2067
