@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.20.0] - 2026-10-31
+
+Stationarity screening completed and on by default, a provisional Washington Region 2 set, and
+the nationwide smoke failures resolved.
+- `run_ffa` attaches the stationarity screen to every analysis (`result["stationarity"]`);
+  the one-page figure is opt-in.
+- `flowfreq.stationarity` gains the Lombard tests (abrupt and smooth, in level and in
+  variability), bootstrap field significance, dam and land-use dates for change-point
+  attribution, peaks-over-threshold count trends and a one-page `stationarity_report`.
+- StreamStats failures that no pour point can fix get their own errors:
+  `RegionNotDelineatedError` (FL, MI and NE have no stream grid) and
+  `RegulatedDelineationError`.
+- Overlapping drainage-area classes (Alaska's GC1656 and GC1657) are chosen by the basin's
+  drainage area instead of refused.
+- A provisional Washington set (`load_state("WA", allow_provisional=True)`) refits Peak
+  Region 2 with mean basin elevation, for methow-flow.
+- The smoke run's AZ outlier was a wrong region choice; NV and TX are the published equations.
+- mypy checks eight more modules.
+
+Patch releases for 0.19 continue from `release/0.19.x`.
+
 ### Added
 - A provisional Washington set, `flowfreq/data/regression/provisional/WA.json` (`load_state("WA", allow_provisional=True)`; the default is unchanged): the published SIR 2016-5118 set with Peak Region 2 refit with mean basin elevation (`ELEV`, feet) at every AEP, built by `tools/wa_region2_provisional.py` from the methow-flow item 5 analysis. Every AEP is refit, not only the 50% and 20% where `ELEV` is significant, because refit equations next to published ones gave a frequency curve that decreased between the 20% and 10% AEPs at 7 of 90 high-elevation gages; refit throughout, the elevation coefficient tapers to zero and the curve increases everywhere. Each equation carries its GLS covariance for prediction intervals.
 - `stationarity.pot_counts` and `pot_count_trend` (methow item 8, the last part): independent peaks over a threshold in a daily record, counted by complete water year (exceedances closer than `min_separation_days` are one event), and a Poisson-regression trend in the counts with a likelihood-ratio test, divided by the Pearson dispersion when the counts are overdispersed. Without a threshold, the highest one averaging `events_per_year` events (default 2) is used. A snowmelt river's freshet is one event over any moderate threshold, so two a year may be reached only near the median flow; that is logged as a warning and recorded as `PotCounts.quantile` (the Methow at Pateros needs `events_per_year=1`, giving 8,920 cfs).
