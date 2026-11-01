@@ -1270,7 +1270,9 @@ class USGSgage:
 
         return _parse_iv_rdb(response.text, ts_id=ts_id, param_cd=param_cd)
 
-    def download_peak_flow(self, backend: str = DEFAULT_BACKEND) -> pd.DataFrame:
+    def download_peak_flow(
+        self, backend: str = DEFAULT_BACKEND, site_metadata: bool = True
+    ) -> pd.DataFrame:
         """Download annual peak streamflow data from USGS.
 
         Parameters
@@ -1280,6 +1282,12 @@ class USGSgage:
             The default, ``"waterdata-ogc"``, is the Water Data OGC API
             ``peaks`` collection. ``"nwis-legacy"`` is the NWIS peak RDB
             service this method always used before, which USGS is retiring.
+        site_metadata : bool, default True
+            On ``"waterdata-ogc"``, also request the ``monitoring-locations``
+            record to fill in the site attributes (see Notes). Pass False when
+            they are already known, from :meth:`fetch_site_info` say, to save
+            that request. The legacy backend reads them from the same response,
+            so the flag does not apply there.
 
         Returns
         -------
@@ -1325,7 +1333,7 @@ class USGSgage:
             except KeyError as exc:
                 raise ValueError(str(exc.args[0])) from None
             df = source.fetch_peaks(self._site_no)
-            if backend == "waterdata-ogc":
+            if backend == "waterdata-ogc" and site_metadata:
                 self._site_metadata_from_waterdata()
 
         self._peak_data = df.reset_index(drop=True)

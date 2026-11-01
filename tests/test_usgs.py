@@ -862,6 +862,16 @@ class TestDownloadPeakFlowBackends:
         assert gage.site_name == "BIG SANDY RIVER AT BRUCETON, TN"
         assert gage.drainage_area == 205.0
 
+    def test_site_metadata_false_skips_the_location_request(self) -> None:
+        """A caller that already has the site attributes saves the second request."""
+        get = _RoutedGet({_PEAKS_OGC: _ogc_pages()})  # a locations request would fail
+        gage = USGSgage("03606500")
+        with patch("flowfreq.usgs.requests.get", get):
+            df = gage.download_peak_flow(site_metadata=False)
+        assert len(df) > 0
+        assert gage.site_name is None
+        assert not any(url.startswith(_LOCATIONS_OGC) for url in get.urls)
+
     def test_peak_path_sets_every_site_attribute(self) -> None:
         """Not just name and area: the attributes fetch_site_info sets from the
         same record (HUC, FIPS state, location). loc_12449500.json is the one
