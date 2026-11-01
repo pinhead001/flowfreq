@@ -258,7 +258,7 @@ Appendix 9 (single region only).
 | `flowfreq.monthly_transfer` / `flowfreq.duration_transfer` | The same transfer variance for monthly mean/median flows and median annual duration quantiles (q10, q50, q90) |
 | `flowfreq.gage_weighting` / `flowfreq.nesting` | Bulletin 17C Appendix 9 weighting of at-site and regression estimates; flow-connected gage pairs |
 | `flowfreq.naturalize` | Naturalization add-back of upstream diversions (caller-supplied rates and return fractions) |
-| `flowfreq.stationarity` | Trend and change-point screening (Mann-Kendall with Hamed-Rao, Sen, Spearman, Pettitt, CUSUM, Lombard), field significance (FDR, Walker, block bootstrap), change-point attribution (peak codes, NID, NLCD), mixed-population screen |
+| `flowfreq.stationarity` | Trend and change-point screening (Mann-Kendall with Hamed-Rao, Sen, Spearman, Pettitt, CUSUM, Lombard), field significance (FDR, Walker, block bootstrap), change-point attribution (peak codes, NID, NLCD), peaks-over-threshold count trends, one-page `stationarity_report`, mixed-population screen |
 | `flowfreq.future_flow` | Future-condition change-factor framework |
 | `flowfreq.subdaily` | Sub-daily metrics: extreme timing, ramping rates |
 | `flowfreq.bulletin17c` | `Bulletin17C` — EMA/MOM analysis, quantiles, CI, plots |
