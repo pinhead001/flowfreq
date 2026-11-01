@@ -412,7 +412,7 @@ class LowFlowFrequency:
         std_log = float(np.std(log_flows, ddof=1))
 
         if std_log > 0:
-            skew_station = (
+            skew_station = float(
                 n_pos
                 * np.sum((log_flows - mean_log) ** 3)
                 / ((n_pos - 1) * (n_pos - 2) * std_log**3)
@@ -456,7 +456,7 @@ class LowFlowFrequency:
             raise ValueError("non_exceedance probabilities must be strictly between 0 and 1")
         return p
 
-    def compute_quantiles(self, non_exceedance: np.ndarray = None) -> pd.DataFrame:
+    def compute_quantiles(self, non_exceedance: Optional[np.ndarray] = None) -> pd.DataFrame:
         """Compute low-flow quantiles at the given non-exceedance probabilities.
 
         Parameters
@@ -475,6 +475,7 @@ class LowFlowFrequency:
         """
         if self._results is None:
             self.run_analysis()
+        assert self._results is not None  # run_analysis sets it
 
         p = self._validate_probabilities(non_exceedance)
         p0 = self._results.p_zero
@@ -502,7 +503,7 @@ class LowFlowFrequency:
         )
 
     def compute_confidence_limits(
-        self, non_exceedance: np.ndarray = None, confidence: float = 0.90
+        self, non_exceedance: Optional[np.ndarray] = None, confidence: float = 0.90
     ) -> pd.DataFrame:
         """Compute confidence limits for the quantile estimates.
 
@@ -534,6 +535,7 @@ class LowFlowFrequency:
         """
         if self._results is None:
             self.run_analysis()
+        assert self._results is not None  # run_analysis sets it
 
         p = self._validate_probabilities(non_exceedance)
         p0 = self._results.p_zero
@@ -569,7 +571,7 @@ class LowFlowFrequency:
 
     def compute_bootstrap_confidence_limits(
         self,
-        non_exceedance: np.ndarray = None,
+        non_exceedance: Optional[np.ndarray] = None,
         confidence: float = 0.90,
         n_resamples: int = 2000,
         random_state: Optional[int] = None,
@@ -643,6 +645,7 @@ class LowFlowFrequency:
         """
         if self._results is None:
             self.run_analysis()
+        assert self._results is not None  # run_analysis sets it
 
         p = self._validate_probabilities(non_exceedance)
         n_years = self._results.n_years
@@ -666,7 +669,7 @@ class LowFlowFrequency:
             sim_mean = float(np.mean(sim_log_flows))
             sim_std = float(np.std(sim_log_flows, ddof=1))
             if sim_std > 0 and self._distribution == "lp3":
-                sim_skew = (
+                sim_skew = float(
                     n_pos_sim
                     * np.sum((sim_log_flows - sim_mean) ** 3)
                     / ((n_pos_sim - 1) * (n_pos_sim - 2) * sim_std**3)

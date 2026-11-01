@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import math
 from functools import lru_cache
-from typing import ClassVar, List, Tuple
+from typing import Any, ClassVar, List, Optional, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -59,13 +59,13 @@ class Hydrograph:
     def plot_daily_timeseries(
         cls,
         daily_data: pd.DataFrame,
-        site_name: str = None,
-        site_no: str = None,
-        save_path: str = None,
+        site_name: Optional[str] = None,
+        site_no: Optional[str] = None,
+        save_path: Optional[str] = None,
         figsize: Tuple[int, int] = (12, 5),
         color: str = plt_color,
-        por_start: str = None,
-        por_end: str = None,
+        por_start: Optional[str] = None,
+        por_end: Optional[str] = None,
         yscale: str = "linear",
     ) -> plt.Figure:
         """Plot daily flow time series."""
@@ -131,13 +131,13 @@ class Hydrograph:
     def plot_summary_hydrograph(
         cls,
         daily_data: pd.DataFrame,
-        site_name: str = None,
-        site_no: str = None,
-        save_path: str = None,
+        site_name: Optional[str] = None,
+        site_no: Optional[str] = None,
+        save_path: Optional[str] = None,
         figsize: Tuple[int, int] = (10, 6),
-        percentiles: List[int] = None,
-        por_start: str = None,
-        por_end: str = None,
+        percentiles: Optional[List[int]] = None,
+        por_start: Optional[str] = None,
+        por_end: Optional[str] = None,
         yscale: str = "linear",
     ) -> plt.Figure:
         """Plot summary hydrograph with day of water year on x-axis."""
@@ -145,11 +145,11 @@ class Hydrograph:
             percentiles = [10, 25, 50, 75, 90]
 
         df = daily_data.copy()
-        df["dowy"] = cls._compute_dowy_series(df.index)
+        df["dowy"] = cls._compute_dowy_series(pd.DatetimeIndex(df.index))
 
-        stats_df = df.groupby("dowy")["flow_cfs"].agg(
-            ["mean", "min", "max"] + [lambda x, p=p: np.nanpercentile(x, p) for p in percentiles]
-        )
+        aggs: List[Any] = ["mean", "min", "max"]
+        aggs += [lambda x, p=p: np.nanpercentile(x, p) for p in percentiles]
+        stats_df = df.groupby("dowy")["flow_cfs"].agg(aggs)
         stats_df.columns = ["mean", "min", "max"] + [f"p{p}" for p in percentiles]
 
         fig, ax = plt.subplots(figsize=figsize)
@@ -228,7 +228,7 @@ class Hydrograph:
         d_max = daily_data.index.max()
         plot_start = f"{d_min.month}/{d_min.day}/{d_min.year}"
         plot_end = f"{d_max.month}/{d_max.day}/{d_max.year}"
-        n_years = len(df.index.year.unique())
+        n_years = len(pd.DatetimeIndex(df.index).year.unique())
 
         # Build annotation text
         if por_start and por_end:
@@ -259,7 +259,7 @@ class Hydrograph:
     def get_summary_stats(
         cls,
         daily_data: pd.DataFrame,
-        percentiles: List[int] = None,
+        percentiles: Optional[List[int]] = None,
     ) -> pd.DataFrame:
         """Compute summary hydrograph statistics by day of water year.
 
@@ -270,11 +270,11 @@ class Hydrograph:
             percentiles = [10, 25, 50, 75, 90]
 
         df = daily_data.copy()
-        df["dowy"] = cls._compute_dowy_series(df.index)
+        df["dowy"] = cls._compute_dowy_series(pd.DatetimeIndex(df.index))
 
-        stats_df = df.groupby("dowy")["flow_cfs"].agg(
-            ["mean", "min", "max"] + [lambda x, p=p: np.nanpercentile(x, p) for p in percentiles]
-        )
+        aggs: List[Any] = ["mean", "min", "max"]
+        aggs += [lambda x, p=p: np.nanpercentile(x, p) for p in percentiles]
+        stats_df = df.groupby("dowy")["flow_cfs"].agg(aggs)
         stats_df.columns = ["mean", "min", "max"] + [f"p{p}" for p in percentiles]
         stats_df.index.name = "day_of_water_year"
 
@@ -284,17 +284,17 @@ class Hydrograph:
     def plot_flow_duration_curve(
         cls,
         daily_data: pd.DataFrame,
-        site_name: str = None,
-        site_no: str = None,
-        save_path: str = None,
-        table_path: str = None,
+        site_name: Optional[str] = None,
+        site_no: Optional[str] = None,
+        save_path: Optional[str] = None,
+        table_path: Optional[str] = None,
         figsize: Tuple[int, int] = (10, 6),
-        por_start: str = None,
-        por_end: str = None,
+        por_start: Optional[str] = None,
+        por_end: Optional[str] = None,
         yscale: str = "linear",
     ) -> Tuple[plt.Figure, pd.DataFrame]:
         """Plot flow duration curve and return flow duration statistics table."""
-        flows = daily_data["flow_cfs"].dropna().values
+        flows = daily_data["flow_cfs"].dropna().to_numpy(dtype=float)
         flows_sorted = np.sort(flows)[::-1]  # descending
         n = len(flows_sorted)
         exceedance_pct = np.arange(1, n + 1) / n * 100
@@ -335,7 +335,7 @@ class Hydrograph:
         d_max = daily_data.index.max()
         plot_start = f"{d_min.month}/{d_min.day}/{d_min.year}"
         plot_end = f"{d_max.month}/{d_max.day}/{d_max.year}"
-        n_years = len(daily_data.index.year.unique())
+        n_years = len(pd.DatetimeIndex(daily_data.index).year.unique())
 
         # Build annotation text
         if por_start and por_end:
