@@ -179,8 +179,8 @@ Still failing in the 2026-10-30 rerun (14 of 56; WY and MN fixed since, live rec
     Elevation), which NSS uses only at a mean basin elevation of 7,500 ft or more; Sabino
     Creek's is about 5,980 ft (3DEP, 59 points), so region 5 (GC1622, Southeastern Basin and
     Range, like neighbouring Rincon Creek) applies: 8,604 cfs at 1% against 14,403 gaged
-    (0.60, inside the 90% interval). The point now names GC1622. `assemble` cannot yet choose
-    between AZ's overlapping regions by ELEV (a gating value, not a regression variable).
+    (0.60, inside the 90% interval). `assemble` now chooses it from `ELEV` through AZ's
+    region gates (`StateLibrary.region_gates`), so the point carries no region.
   - **NV 10329500** (0.36): Northwest Region 2 is the report's own region for the gage, the
     equation is double-entered from WSP 2433 Table 6, and 0.36 is about 1.65 standard errors
     of prediction. No defect found.
