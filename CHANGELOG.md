@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Region gates: `regression.library.RegionGate` and `StateLibrary.region_gates` (`region_gates` in the library JSON), a region-selection rule on a characteristic that is not a regression variable, with its threshold and source. NSS gates some regions on such values without publishing the thresholds. `assemble` uses them to choose between overlapping regions when every candidate covers the basin and has a gate, the characteristic is known, and exactly one gate admits the basin; the reason is recorded as `region_choice_source`. Arizona's SIR 2014-5211 regions carry them: region 1 (High Elevation, GC1618) at a mean basin elevation of 7,500 ft or more, regions 2-5 below. Sabino Creek near Tucson (about 5,980 ft) now resolves to region 5 without `region=`, and the AZ row leaves the smoke points file.
 
+### Changed
+- mypy now checks `lowflow` and `hydrograph` (51 errors: `Optional` defaults, `None` narrowing after `run_analysis`, `DatetimeIndex` casts, a typed aggregation list), leaving four exemptions: `bulletin17c`, `freq_plot`, `report` and `workflow`. `core.lp3_frequency_factor_peakfq` gains typing overloads for the array input it already accepted. No behaviour changes.
+
 ## [0.20.0] - 2026-10-31
 
 Stationarity screening completed and on by default, a provisional Washington Region 2 set, and

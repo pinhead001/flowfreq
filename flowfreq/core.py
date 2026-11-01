@@ -7,7 +7,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from functools import cached_property, lru_cache
-from typing import ClassVar, Dict, List, Optional, Tuple, Union
+from typing import ClassVar, Dict, List, Optional, Tuple, Union, overload
 
 import numpy as np
 import pandas as pd
@@ -524,7 +524,17 @@ def log_pearson3_pdf(log_q: float, mean: float, std: float, skew: float) -> floa
 # =============================================================================
 
 
-def lp3_frequency_factor_peakfq(p: float, skew: float) -> float:
+@overload
+def lp3_frequency_factor_peakfq(p: float, skew: float) -> float: ...
+
+
+@overload
+def lp3_frequency_factor_peakfq(p: np.ndarray, skew: float) -> np.ndarray: ...
+
+
+def lp3_frequency_factor_peakfq(
+    p: Union[float, np.ndarray], skew: float
+) -> Union[float, np.ndarray]:
     """
     Calculate LP3 frequency factor using PeakFQ methodology.
 
@@ -536,15 +546,15 @@ def lp3_frequency_factor_peakfq(p: float, skew: float) -> float:
 
     Parameters
     ----------
-    p : float
-        Non-exceedance probability (0 < p < 1)
+    p : float or ndarray
+        Non-exceedance probability (0 < p < 1); an array is evaluated elementwise.
     skew : float
         Skew coefficient
 
     Returns
     -------
-    float
-        Frequency factor K
+    float or ndarray
+        Frequency factor K, shaped like ``p``
 
     Notes
     -----
