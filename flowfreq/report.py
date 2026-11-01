@@ -71,17 +71,20 @@ class HydroReport:
             self._figures["annual_peaks"] = path
 
         path = os.path.join(output_dir, "fig4_frequency_curve.png")
+        # A Bulletin17C facade has no analyzer until run_analysis() is called.
+        assert self._analysis is not None, "run the analysis before generating figures"
         self._analysis.plot_frequency_curve(site_name, site_no, save_path=path)
         plt.close()
         self._figures["frequency_curve"] = path
 
         return self._figures
 
-    def _plot_annual_peaks(self, save_path: str = None) -> plt.Figure:
+    def _plot_annual_peaks(self, save_path: Optional[str] = None) -> plt.Figure:
         """Plot annual peak flow bar chart."""
         fig, ax = plt.subplots(figsize=(12, 5))
 
         df = self._gage.peak_data
+        assert df is not None  # caller checks peak_data before plotting
         ax.bar(
             df["water_year"],
             df["peak_flow_cfs"],
@@ -102,7 +105,10 @@ class HydroReport:
 
         mean_peak = df["peak_flow_cfs"].mean()
         max_peak = df["peak_flow_cfs"].max()
-        max_year = df.loc[df["peak_flow_cfs"].idxmax(), "water_year"]
+        # Positional: pandas-stubs type a label from idxmax() as Hashable, which .loc refuses.
+        max_year = int(
+            df["water_year"].to_numpy()[np.nanargmax(df["peak_flow_cfs"].to_numpy(dtype=float))]
+        )
 
         ax.annotate(
             f"Mean: {mean_peak:,.0f} cfs\nMax: {max_peak:,.0f} cfs (WY {max_year})",
@@ -124,6 +130,7 @@ class HydroReport:
     def generate_report_text(self) -> str:
         """Generate technical report in markdown format."""
         r = self._results
+        assert r is not None, "run the analysis before generating the report"
         site_no = self._gage.site_no
         site_name = self._gage.site_name or "Unknown"
         da = self._gage.drainage_area
@@ -248,7 +255,7 @@ England, J.F., Jr., et al., 2019, Guidelines for determining flood flow frequenc
 
         return report
 
-    def save_report(self, output_path: str):
+    def save_report(self, output_path: str) -> None:
         """Save report to markdown file."""
         with open(output_path, "w", encoding="utf-8") as f:
             f.write(self.generate_report_text())

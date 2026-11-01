@@ -32,7 +32,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Dict, List, Optional, Sequence, Tuple
+from typing import Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -138,10 +138,10 @@ def _gbthrsh0(user_low_outlier_threshold: Optional[float]) -> float:
 
 
 def build_emafit_arrays(
-    peak_flows: Sequence[float],
-    water_years: Optional[Sequence[int]] = None,
+    peak_flows: Union[Sequence[float], np.ndarray],
+    water_years: Union[Sequence[int], np.ndarray, None] = None,
     historical_peaks: Optional[List[Tuple[int, float]]] = None,
-    perception_thresholds: Optional[Dict[Tuple[int, int], PerceptionBound]] = None,
+    perception_thresholds: Optional[Mapping[Tuple[int, int], PerceptionBound]] = None,
     user_low_outlier_threshold: Optional[float] = None,
     ema_params: Optional[EMAParameters] = None,
     interval_peaks: Optional[List[Tuple[int, float, float]]] = None,
@@ -381,15 +381,15 @@ def build_emafit_arrays(
 
 
 def run_fortran_reference(
-    peak_flows: Sequence[float],
-    water_years: Optional[Sequence[int]] = None,
+    peak_flows: Union[Sequence[float], np.ndarray],
+    water_years: Union[Sequence[int], np.ndarray, None] = None,
     historical_peaks: Optional[List[Tuple[int, float]]] = None,
-    perception_thresholds: Optional[Dict[Tuple[int, int], PerceptionBound]] = None,
+    perception_thresholds: Optional[Mapping[Tuple[int, int], PerceptionBound]] = None,
     user_low_outlier_threshold: Optional[float] = None,
     ema_params: Optional[EMAParameters] = None,
     regional_skew: Optional[float] = None,
     regional_skew_mse: Optional[float] = None,
-    aeps: Optional[Sequence[float]] = None,
+    aeps: Union[Sequence[float], np.ndarray, None] = None,
     eps: float = 0.90,
     weight_opt: int = 1,
     station_name: str = "",
@@ -649,15 +649,15 @@ def _frequency_results_from_reference(
 
 
 def run_fortran_ema(
-    peak_flows: Sequence[float],
-    water_years: Optional[Sequence[int]] = None,
+    peak_flows: Union[Sequence[float], np.ndarray],
+    water_years: Union[Sequence[int], np.ndarray, None] = None,
     historical_peaks: Optional[List[Tuple[int, float]]] = None,
-    perception_thresholds: Optional[Dict[Tuple[int, int], PerceptionBound]] = None,
+    perception_thresholds: Optional[Mapping[Tuple[int, int], PerceptionBound]] = None,
     user_low_outlier_threshold: Optional[float] = None,
     ema_params: Optional[EMAParameters] = None,
     regional_skew: Optional[float] = None,
     regional_skew_mse: Optional[float] = None,
-    aeps: Optional[Sequence[float]] = None,
+    aeps: Union[Sequence[float], np.ndarray, None] = None,
     eps: float = 0.90,
     weight_opt: int = 1,
     station_name: str = "",
