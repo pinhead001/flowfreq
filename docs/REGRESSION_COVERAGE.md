@@ -29,7 +29,7 @@ Plan and definitions of done: `docs/MASTER_ROADMAP.md` §3.2.
 |---|---|---|---:|---:|---|---|
 | CA | California | nss snapshot (72 eqs, 0 unparsed) | 10 | 72 | pending |  |
 | AK | Alaska | nss snapshot (16 eqs, 0 unparsed) | 2 | 16 | pending, verified |  |
-| HI | Hawaii | nss snapshot (80 eqs, 0 unparsed) | 10 | 80 | verified |  |
+| HI | Hawaii | verified | 10 | 80 | verified |  |
 
 ## Wave 4a: Upper Mississippi and Great Lakes
 

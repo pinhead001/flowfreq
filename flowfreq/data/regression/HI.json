@@ -1,0 +1,2659 @@
+{
+  "schema_version": 1,
+  "state": "HI",
+  "status": "verified",
+  "issue": null,
+  "source_reports": [
+    {
+      "citation": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+      "doi": "10.3133/sir20235014",
+      "url": "https://pubs.usgs.gov/publication/sir20235014",
+      "pdf": "https://pubs.usgs.gov/sir/2023/5014/sir20235014.pdf",
+      "tables": [
+        "Table 5",
+        "Table 6"
+      ],
+      "nss": {
+        "regression_regions": [
+          "GC1918",
+          "GC1919",
+          "GC1920",
+          "GC1921",
+          "GC1922",
+          "GC1923",
+          "GC1924",
+          "GC1925",
+          "GC1926",
+          "GC1927"
+        ]
+      }
+    }
+  ],
+  "equations": [
+    {
+      "region_code": "1",
+      "region_name": "Region 1, leeward Kauai (NSS GC1918)",
+      "aep": 0.002,
+      "intercept": 2.176,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.49,
+          "maximum": 58.21
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 36.54,
+          "maximum": 207.17
+        }
+      ],
+      "coefficients": [
+        0.821,
+        0.626
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.157927,
+      "avp": 0.0249,
+      "model_error_variance": 0.018,
+      "n_sites": 17
+    },
+    {
+      "region_code": "1",
+      "region_name": "Region 1, leeward Kauai (NSS GC1918)",
+      "aep": 0.005,
+      "intercept": 2.002,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.49,
+          "maximum": 58.21
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 36.54,
+          "maximum": 207.17
+        }
+      ],
+      "coefficients": [
+        0.813,
+        0.678
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.161068,
+      "avp": 0.0259,
+      "model_error_variance": 0.019,
+      "n_sites": 17
+    },
+    {
+      "region_code": "1",
+      "region_name": "Region 1, leeward Kauai (NSS GC1918)",
+      "aep": 0.01,
+      "intercept": 1.834,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.49,
+          "maximum": 58.21
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 36.54,
+          "maximum": 207.17
+        }
+      ],
+      "coefficients": [
+        0.809,
+        0.732
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.163416,
+      "avp": 0.0267,
+      "model_error_variance": 0.02,
+      "n_sites": 17
+    },
+    {
+      "region_code": "1",
+      "region_name": "Region 1, leeward Kauai (NSS GC1918)",
+      "aep": 0.02,
+      "intercept": 1.629,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.49,
+          "maximum": 58.21
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 36.54,
+          "maximum": 207.17
+        }
+      ],
+      "coefficients": [
+        0.805,
+        0.8
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.166535,
+      "avp": 0.0278,
+      "model_error_variance": 0.022,
+      "n_sites": 17
+    },
+    {
+      "region_code": "1",
+      "region_name": "Region 1, leeward Kauai (NSS GC1918)",
+      "aep": 0.04,
+      "intercept": 1.382,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.49,
+          "maximum": 58.21
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 36.54,
+          "maximum": 207.17
+        }
+      ],
+      "coefficients": [
+        0.803,
+        0.885
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.170417,
+      "avp": 0.0291,
+      "model_error_variance": 0.023,
+      "n_sites": 17
+    },
+    {
+      "region_code": "1",
+      "region_name": "Region 1, leeward Kauai (NSS GC1918)",
+      "aep": 0.1,
+      "intercept": 0.966,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.49,
+          "maximum": 58.21
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 36.54,
+          "maximum": 207.17
+        }
+      ],
+      "coefficients": [
+        0.801,
+        1.031
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.175817,
+      "avp": 0.0309,
+      "model_error_variance": 0.025,
+      "n_sites": 17
+    },
+    {
+      "region_code": "1",
+      "region_name": "Region 1, leeward Kauai (NSS GC1918)",
+      "aep": 0.2,
+      "intercept": 0.552,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.49,
+          "maximum": 58.21
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 36.54,
+          "maximum": 207.17
+        }
+      ],
+      "coefficients": [
+        0.8,
+        1.178
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.18498,
+      "avp": 0.0342,
+      "model_error_variance": 0.028,
+      "n_sites": 17
+    },
+    {
+      "region_code": "1",
+      "region_name": "Region 1, leeward Kauai (NSS GC1918)",
+      "aep": 0.5,
+      "intercept": -0.297,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.49,
+          "maximum": 58.21
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 36.54,
+          "maximum": 207.17
+        }
+      ],
+      "coefficients": [
+        0.801,
+        1.485
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.211372,
+      "avp": 0.0447,
+      "model_error_variance": 0.037,
+      "n_sites": 17
+    },
+    {
+      "region_code": "2",
+      "region_name": "Region 2, windward Kauai (NSS GC1919)",
+      "aep": 0.002,
+      "intercept": 3.601,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.41,
+          "maximum": 23.74
+        }
+      ],
+      "coefficients": [
+        0.86
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.117672,
+      "avp": 0.0138,
+      "model_error_variance": 0.009,
+      "n_sites": 16
+    },
+    {
+      "region_code": "2",
+      "region_name": "Region 2, windward Kauai (NSS GC1919)",
+      "aep": 0.005,
+      "intercept": 3.508,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.41,
+          "maximum": 23.74
+        }
+      ],
+      "coefficients": [
+        0.878
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.129932,
+      "avp": 0.0169,
+      "model_error_variance": 0.013,
+      "n_sites": 16
+    },
+    {
+      "region_code": "2",
+      "region_name": "Region 2, windward Kauai (NSS GC1919)",
+      "aep": 0.01,
+      "intercept": 3.428,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.41,
+          "maximum": 23.74
+        }
+      ],
+      "coefficients": [
+        0.895
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.138423,
+      "avp": 0.0191,
+      "model_error_variance": 0.015,
+      "n_sites": 16
+    },
+    {
+      "region_code": "2",
+      "region_name": "Region 2, windward Kauai (NSS GC1919)",
+      "aep": 0.02,
+      "intercept": 3.338,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.41,
+          "maximum": 23.74
+        }
+      ],
+      "coefficients": [
+        0.915
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.150417,
+      "avp": 0.0226,
+      "model_error_variance": 0.018,
+      "n_sites": 16
+    },
+    {
+      "region_code": "2",
+      "region_name": "Region 2, windward Kauai (NSS GC1919)",
+      "aep": 0.04,
+      "intercept": 3.235,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.41,
+          "maximum": 23.74
+        }
+      ],
+      "coefficients": [
+        0.941
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.163807,
+      "avp": 0.0269,
+      "model_error_variance": 0.022,
+      "n_sites": 16
+    },
+    {
+      "region_code": "2",
+      "region_name": "Region 2, windward Kauai (NSS GC1919)",
+      "aep": 0.1,
+      "intercept": 3.069,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.41,
+          "maximum": 23.74
+        }
+      ],
+      "coefficients": [
+        0.986
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.194022,
+      "avp": 0.0377,
+      "model_error_variance": 0.032,
+      "n_sites": 16
+    },
+    {
+      "region_code": "2",
+      "region_name": "Region 2, windward Kauai (NSS GC1919)",
+      "aep": 0.2,
+      "intercept": 2.906,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.41,
+          "maximum": 23.74
+        }
+      ],
+      "coefficients": [
+        1.034
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.233516,
+      "avp": 0.0545,
+      "model_error_variance": 0.048,
+      "n_sites": 16
+    },
+    {
+      "region_code": "2",
+      "region_name": "Region 2, windward Kauai (NSS GC1919)",
+      "aep": 0.5,
+      "intercept": 2.579,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.41,
+          "maximum": 23.74
+        }
+      ],
+      "coefficients": [
+        1.135
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.336763,
+      "avp": 0.1134,
+      "model_error_variance": 0.1,
+      "n_sites": 16
+    },
+    {
+      "region_code": "3",
+      "region_name": "Region 3, leeward Oahu (NSS GC1920)",
+      "aep": 0.002,
+      "intercept": 2.927,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.57,
+          "maximum": 45.13
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 33.6,
+          "maximum": 233.29
+        },
+        {
+          "code": "PERM24IN",
+          "transform": "log10",
+          "units": "in/hr",
+          "minimum": 0.49,
+          "maximum": 8.87
+        }
+      ],
+      "coefficients": [
+        0.663,
+        0.373,
+        -0.298
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.130338,
+      "avp": 0.017,
+      "model_error_variance": 0.012,
+      "n_sites": 43
+    },
+    {
+      "region_code": "3",
+      "region_name": "Region 3, leeward Oahu (NSS GC1920)",
+      "aep": 0.005,
+      "intercept": 2.607,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.57,
+          "maximum": 45.13
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 33.6,
+          "maximum": 233.29
+        },
+        {
+          "code": "PERM24IN",
+          "transform": "log10",
+          "units": "in/hr",
+          "minimum": 0.49,
+          "maximum": 8.87
+        }
+      ],
+      "coefficients": [
+        0.68,
+        0.493,
+        -0.346
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.133176,
+      "avp": 0.0177,
+      "model_error_variance": 0.014,
+      "n_sites": 43
+    },
+    {
+      "region_code": "3",
+      "region_name": "Region 3, leeward Oahu (NSS GC1920)",
+      "aep": 0.01,
+      "intercept": 2.325,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.57,
+          "maximum": 45.13
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 33.6,
+          "maximum": 233.29
+        },
+        {
+          "code": "PERM24IN",
+          "transform": "log10",
+          "units": "in/hr",
+          "minimum": 0.49,
+          "maximum": 8.87
+        }
+      ],
+      "coefficients": [
+        0.696,
+        0.599,
+        -0.384
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.13358,
+      "avp": 0.0178,
+      "model_error_variance": 0.014,
+      "n_sites": 43
+    },
+    {
+      "region_code": "3",
+      "region_name": "Region 3, leeward Oahu (NSS GC1920)",
+      "aep": 0.02,
+      "intercept": 2.001,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.57,
+          "maximum": 45.13
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 33.6,
+          "maximum": 233.29
+        },
+        {
+          "code": "PERM24IN",
+          "transform": "log10",
+          "units": "in/hr",
+          "minimum": 0.49,
+          "maximum": 8.87
+        }
+      ],
+      "coefficients": [
+        0.713,
+        0.722,
+        -0.423
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.133176,
+      "avp": 0.0178,
+      "model_error_variance": 0.015,
+      "n_sites": 43
+    },
+    {
+      "region_code": "3",
+      "region_name": "Region 3, leeward Oahu (NSS GC1920)",
+      "aep": 0.04,
+      "intercept": 1.624,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.57,
+          "maximum": 45.13
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 33.6,
+          "maximum": 233.29
+        },
+        {
+          "code": "PERM24IN",
+          "transform": "log10",
+          "units": "in/hr",
+          "minimum": 0.49,
+          "maximum": 8.87
+        }
+      ],
+      "coefficients": [
+        0.732,
+        0.865,
+        -0.462
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.133985,
+      "avp": 0.0179,
+      "model_error_variance": 0.015,
+      "n_sites": 43
+    },
+    {
+      "region_code": "3",
+      "region_name": "Region 3, leeward Oahu (NSS GC1920)",
+      "aep": 0.1,
+      "intercept": 1.013,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.57,
+          "maximum": 45.13
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 33.6,
+          "maximum": 233.29
+        },
+        {
+          "code": "PERM24IN",
+          "transform": "log10",
+          "units": "in/hr",
+          "minimum": 0.49,
+          "maximum": 8.87
+        }
+      ],
+      "coefficients": [
+        0.764,
+        1.097,
+        -0.51
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.138021,
+      "avp": 0.0191,
+      "model_error_variance": 0.016,
+      "n_sites": 43
+    },
+    {
+      "region_code": "3",
+      "region_name": "Region 3, leeward Oahu (NSS GC1920)",
+      "aep": 0.2,
+      "intercept": 0.415,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.57,
+          "maximum": 45.13
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 33.6,
+          "maximum": 233.29
+        },
+        {
+          "code": "PERM24IN",
+          "transform": "log10",
+          "units": "in/hr",
+          "minimum": 0.49,
+          "maximum": 8.87
+        }
+      ],
+      "coefficients": [
+        0.793,
+        1.324,
+        -0.545
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.150814,
+      "avp": 0.0228,
+      "model_error_variance": 0.02,
+      "n_sites": 43
+    },
+    {
+      "region_code": "3",
+      "region_name": "Region 3, leeward Oahu (NSS GC1920)",
+      "aep": 0.5,
+      "intercept": -0.812,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.57,
+          "maximum": 45.13
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 33.6,
+          "maximum": 233.29
+        },
+        {
+          "code": "PERM24IN",
+          "transform": "log10",
+          "units": "in/hr",
+          "minimum": 0.49,
+          "maximum": 8.87
+        }
+      ],
+      "coefficients": [
+        0.852,
+        1.793,
+        -0.597
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.204048,
+      "avp": 0.0417,
+      "model_error_variance": 0.037,
+      "n_sites": 43
+    },
+    {
+      "region_code": "4",
+      "region_name": "Region 4, windward Oahu (NSS GC1921)",
+      "aep": 0.002,
+      "intercept": 3.363,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.05,
+          "maximum": 5.44
+        },
+        {
+          "code": "I60M25Y",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 3.36,
+          "maximum": 5.37
+        }
+      ],
+      "coefficients": [
+        0.812,
+        0.429
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.146438,
+      "avp": 0.0214,
+      "model_error_variance": 0.015,
+      "n_sites": 26
+    },
+    {
+      "region_code": "4",
+      "region_name": "Region 4, windward Oahu (NSS GC1921)",
+      "aep": 0.005,
+      "intercept": 3.064,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.05,
+          "maximum": 5.44
+        },
+        {
+          "code": "I60M25Y",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 3.36,
+          "maximum": 5.37
+        }
+      ],
+      "coefficients": [
+        0.819,
+        0.753
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.153983,
+      "avp": 0.0237,
+      "model_error_variance": 0.018,
+      "n_sites": 26
+    },
+    {
+      "region_code": "4",
+      "region_name": "Region 4, windward Oahu (NSS GC1921)",
+      "aep": 0.01,
+      "intercept": 2.826,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.05,
+          "maximum": 5.44
+        },
+        {
+          "code": "I60M25Y",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 3.36,
+          "maximum": 5.37
+        }
+      ],
+      "coefficients": [
+        0.825,
+        1.006
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.15714,
+      "avp": 0.0247,
+      "model_error_variance": 0.019,
+      "n_sites": 26
+    },
+    {
+      "region_code": "4",
+      "region_name": "Region 4, windward Oahu (NSS GC1921)",
+      "aep": 0.02,
+      "intercept": 2.571,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.05,
+          "maximum": 5.44
+        },
+        {
+          "code": "I60M25Y",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 3.36,
+          "maximum": 5.37
+        }
+      ],
+      "coefficients": [
+        0.832,
+        1.27
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.159107,
+      "avp": 0.0253,
+      "model_error_variance": 0.02,
+      "n_sites": 26
+    },
+    {
+      "region_code": "4",
+      "region_name": "Region 4, windward Oahu (NSS GC1921)",
+      "aep": 0.04,
+      "intercept": 2.296,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.05,
+          "maximum": 5.44
+        },
+        {
+          "code": "I60M25Y",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 3.36,
+          "maximum": 5.37
+        }
+      ],
+      "coefficients": [
+        0.839,
+        1.548
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.159892,
+      "avp": 0.0256,
+      "model_error_variance": 0.021,
+      "n_sites": 26
+    },
+    {
+      "region_code": "4",
+      "region_name": "Region 4, windward Oahu (NSS GC1921)",
+      "aep": 0.1,
+      "intercept": 1.886,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.05,
+          "maximum": 5.44
+        },
+        {
+          "code": "I60M25Y",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 3.36,
+          "maximum": 5.37
+        }
+      ],
+      "coefficients": [
+        0.85,
+        1.952
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.161852,
+      "avp": 0.0262,
+      "model_error_variance": 0.022,
+      "n_sites": 26
+    },
+    {
+      "region_code": "4",
+      "region_name": "Region 4, windward Oahu (NSS GC1921)",
+      "aep": 0.2,
+      "intercept": 1.518,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.05,
+          "maximum": 5.44
+        },
+        {
+          "code": "I60M25Y",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 3.36,
+          "maximum": 5.37
+        }
+      ],
+      "coefficients": [
+        0.859,
+        2.301
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.166925,
+      "avp": 0.0279,
+      "model_error_variance": 0.024,
+      "n_sites": 26
+    },
+    {
+      "region_code": "4",
+      "region_name": "Region 4, windward Oahu (NSS GC1921)",
+      "aep": 0.5,
+      "intercept": 0.861,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.05,
+          "maximum": 5.44
+        },
+        {
+          "code": "I60M25Y",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 3.36,
+          "maximum": 5.37
+        }
+      ],
+      "coefficients": [
+        0.874,
+        2.896
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.18763,
+      "avp": 0.0351,
+      "model_error_variance": 0.031,
+      "n_sites": 26
+    },
+    {
+      "region_code": "5",
+      "region_name": "Region 5, leeward Molokai (NSS GC1922)",
+      "aep": 0.002,
+      "intercept": 3.129,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.25,
+          "maximum": 10.47
+        }
+      ],
+      "coefficients": [
+        0.67
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.41755,
+      "avp": 0.1743,
+      "model_error_variance": 0.143,
+      "n_sites": 12
+    },
+    {
+      "region_code": "5",
+      "region_name": "Region 5, leeward Molokai (NSS GC1922)",
+      "aep": 0.005,
+      "intercept": 3.034,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.25,
+          "maximum": 10.47
+        }
+      ],
+      "coefficients": [
+        0.666
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.423677,
+      "avp": 0.1796,
+      "model_error_variance": 0.149,
+      "n_sites": 12
+    },
+    {
+      "region_code": "5",
+      "region_name": "Region 5, leeward Molokai (NSS GC1922)",
+      "aep": 0.01,
+      "intercept": 2.953,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.25,
+          "maximum": 10.47
+        }
+      ],
+      "coefficients": [
+        0.664
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.430537,
+      "avp": 0.1854,
+      "model_error_variance": 0.155,
+      "n_sites": 12
+    },
+    {
+      "region_code": "5",
+      "region_name": "Region 5, leeward Molokai (NSS GC1922)",
+      "aep": 0.02,
+      "intercept": 2.863,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.25,
+          "maximum": 10.47
+        }
+      ],
+      "coefficients": [
+        0.662
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.439108,
+      "avp": 0.1929,
+      "model_error_variance": 0.162,
+      "n_sites": 12
+    },
+    {
+      "region_code": "5",
+      "region_name": "Region 5, leeward Molokai (NSS GC1922)",
+      "aep": 0.04,
+      "intercept": 2.761,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.25,
+          "maximum": 10.47
+        }
+      ],
+      "coefficients": [
+        0.661
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.450238,
+      "avp": 0.2027,
+      "model_error_variance": 0.172,
+      "n_sites": 12
+    },
+    {
+      "region_code": "5",
+      "region_name": "Region 5, leeward Molokai (NSS GC1922)",
+      "aep": 0.1,
+      "intercept": 2.599,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.25,
+          "maximum": 10.47
+        }
+      ],
+      "coefficients": [
+        0.66
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.474252,
+      "avp": 0.2249,
+      "model_error_variance": 0.191,
+      "n_sites": 12
+    },
+    {
+      "region_code": "5",
+      "region_name": "Region 5, leeward Molokai (NSS GC1922)",
+      "aep": 0.2,
+      "intercept": 2.443,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.25,
+          "maximum": 10.47
+        }
+      ],
+      "coefficients": [
+        0.66
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.504048,
+      "avp": 0.2541,
+      "model_error_variance": 0.216,
+      "n_sites": 12
+    },
+    {
+      "region_code": "5",
+      "region_name": "Region 5, leeward Molokai (NSS GC1922)",
+      "aep": 0.5,
+      "intercept": 2.133,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.25,
+          "maximum": 10.47
+        }
+      ],
+      "coefficients": [
+        0.662
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.583131,
+      "avp": 0.34,
+      "model_error_variance": 0.29,
+      "n_sites": 12
+    },
+    {
+      "region_code": "6",
+      "region_name": "Region 6, windward Molokai (NSS GC1923)",
+      "aep": 0.002,
+      "intercept": 3.698,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.47,
+          "maximum": 4.68
+        }
+      ],
+      "coefficients": [
+        1.058
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.104855,
+      "avp": 0.011,
+      "model_error_variance": 0.0,
+      "n_sites": 9
+    },
+    {
+      "region_code": "6",
+      "region_name": "Region 6, windward Molokai (NSS GC1923)",
+      "aep": 0.005,
+      "intercept": 3.583,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.47,
+          "maximum": 4.68
+        }
+      ],
+      "coefficients": [
+        1.029
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.089799,
+      "avp": 0.008,
+      "model_error_variance": 0.0,
+      "n_sites": 9
+    },
+    {
+      "region_code": "6",
+      "region_name": "Region 6, windward Molokai (NSS GC1923)",
+      "aep": 0.01,
+      "intercept": 3.487,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.47,
+          "maximum": 4.68
+        }
+      ],
+      "coefficients": [
+        1.008
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.078822,
+      "avp": 0.0062,
+      "model_error_variance": 0.0,
+      "n_sites": 9
+    },
+    {
+      "region_code": "6",
+      "region_name": "Region 6, windward Molokai (NSS GC1923)",
+      "aep": 0.02,
+      "intercept": 3.38,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.47,
+          "maximum": 4.68
+        }
+      ],
+      "coefficients": [
+        0.989
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.068196,
+      "avp": 0.0046,
+      "model_error_variance": 0.0,
+      "n_sites": 9
+    },
+    {
+      "region_code": "6",
+      "region_name": "Region 6, windward Molokai (NSS GC1923)",
+      "aep": 0.04,
+      "intercept": 3.264,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.47,
+          "maximum": 4.68
+        }
+      ],
+      "coefficients": [
+        0.978
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.07373,
+      "avp": 0.0055,
+      "model_error_variance": 0.002,
+      "n_sites": 9
+    },
+    {
+      "region_code": "6",
+      "region_name": "Region 6, windward Molokai (NSS GC1923)",
+      "aep": 0.1,
+      "intercept": 3.084,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.47,
+          "maximum": 4.68
+        }
+      ],
+      "coefficients": [
+        0.986
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.089378,
+      "avp": 0.008,
+      "model_error_variance": 0.005,
+      "n_sites": 9
+    },
+    {
+      "region_code": "6",
+      "region_name": "Region 6, windward Molokai (NSS GC1923)",
+      "aep": 0.2,
+      "intercept": 2.916,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.47,
+          "maximum": 4.68
+        }
+      ],
+      "coefficients": [
+        1.02
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.106102,
+      "avp": 0.0113,
+      "model_error_variance": 0.008,
+      "n_sites": 9
+    },
+    {
+      "region_code": "6",
+      "region_name": "Region 6, windward Molokai (NSS GC1923)",
+      "aep": 0.5,
+      "intercept": 2.59,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.47,
+          "maximum": 4.68
+        }
+      ],
+      "coefficients": [
+        1.158
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.163025,
+      "avp": 0.0266,
+      "model_error_variance": 0.021,
+      "n_sites": 9
+    },
+    {
+      "region_code": "7",
+      "region_name": "Region 7, central-southwestern Maui (NSS GC1924)",
+      "aep": 0.002,
+      "intercept": 3.245,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.26,
+          "maximum": 18.63
+        }
+      ],
+      "coefficients": [
+        0.742
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.286683,
+      "avp": 0.0822,
+      "model_error_variance": 0.064,
+      "n_sites": 15
+    },
+    {
+      "region_code": "7",
+      "region_name": "Region 7, central-southwestern Maui (NSS GC1924)",
+      "aep": 0.005,
+      "intercept": 3.114,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.26,
+          "maximum": 18.63
+        }
+      ],
+      "coefficients": [
+        0.712
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.240822,
+      "avp": 0.0579,
+      "model_error_variance": 0.045,
+      "n_sites": 15
+    },
+    {
+      "region_code": "7",
+      "region_name": "Region 7, central-southwestern Maui (NSS GC1924)",
+      "aep": 0.01,
+      "intercept": 3.005,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.26,
+          "maximum": 18.63
+        }
+      ],
+      "coefficients": [
+        0.687
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.20368,
+      "avp": 0.0415,
+      "model_error_variance": 0.031,
+      "n_sites": 15
+    },
+    {
+      "region_code": "7",
+      "region_name": "Region 7, central-southwestern Maui (NSS GC1924)",
+      "aep": 0.02,
+      "intercept": 2.883,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.26,
+          "maximum": 18.63
+        }
+      ],
+      "coefficients": [
+        0.658
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.164977,
+      "avp": 0.0273,
+      "model_error_variance": 0.02,
+      "n_sites": 15
+    },
+    {
+      "region_code": "7",
+      "region_name": "Region 7, central-southwestern Maui (NSS GC1924)",
+      "aep": 0.04,
+      "intercept": 2.744,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.26,
+          "maximum": 18.63
+        }
+      ],
+      "coefficients": [
+        0.63
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.136812,
+      "avp": 0.0188,
+      "model_error_variance": 0.013,
+      "n_sites": 15
+    },
+    {
+      "region_code": "7",
+      "region_name": "Region 7, central-southwestern Maui (NSS GC1924)",
+      "aep": 0.1,
+      "intercept": 2.522,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.26,
+          "maximum": 18.63
+        }
+      ],
+      "coefficients": [
+        0.595
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.160284,
+      "avp": 0.0257,
+      "model_error_variance": 0.02,
+      "n_sites": 15
+    },
+    {
+      "region_code": "7",
+      "region_name": "Region 7, central-southwestern Maui (NSS GC1924)",
+      "aep": 0.2,
+      "intercept": 2.325,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.26,
+          "maximum": 18.63
+        }
+      ],
+      "coefficients": [
+        0.554
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.263137,
+      "avp": 0.0692,
+      "model_error_variance": 0.059,
+      "n_sites": 15
+    },
+    {
+      "region_code": "7",
+      "region_name": "Region 7, central-southwestern Maui (NSS GC1924)",
+      "aep": 0.5,
+      "intercept": 1.944,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.26,
+          "maximum": 18.63
+        }
+      ],
+      "coefficients": [
+        0.437
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.533383,
+      "avp": 0.2845,
+      "model_error_variance": 0.249,
+      "n_sites": 15
+    },
+    {
+      "region_code": "8",
+      "region_name": "Region 8, eastern-northwestern Maui (NSS GC1925)",
+      "aep": 0.002,
+      "intercept": 2.988,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.08,
+          "maximum": 13.44
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 45.16,
+          "maximum": 271.64
+        }
+      ],
+      "coefficients": [
+        0.845,
+        0.246
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.30183,
+      "avp": 0.0911,
+      "model_error_variance": 0.083,
+      "n_sites": 40
+    },
+    {
+      "region_code": "8",
+      "region_name": "Region 8, eastern-northwestern Maui (NSS GC1925)",
+      "aep": 0.005,
+      "intercept": 2.753,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.08,
+          "maximum": 13.44
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 45.16,
+          "maximum": 271.64
+        }
+      ],
+      "coefficients": [
+        0.846,
+        0.32
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.282894,
+      "avp": 0.08,
+      "model_error_variance": 0.073,
+      "n_sites": 40
+    },
+    {
+      "region_code": "8",
+      "region_name": "Region 8, eastern-northwestern Maui (NSS GC1925)",
+      "aep": 0.01,
+      "intercept": 2.554,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.08,
+          "maximum": 13.44
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 45.16,
+          "maximum": 271.64
+        }
+      ],
+      "coefficients": [
+        0.848,
+        0.384
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.266761,
+      "avp": 0.0712,
+      "model_error_variance": 0.065,
+      "n_sites": 40
+    },
+    {
+      "region_code": "8",
+      "region_name": "Region 8, eastern-northwestern Maui (NSS GC1925)",
+      "aep": 0.02,
+      "intercept": 2.328,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.08,
+          "maximum": 13.44
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 45.16,
+          "maximum": 271.64
+        }
+      ],
+      "coefficients": [
+        0.849,
+        0.457
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.251087,
+      "avp": 0.0631,
+      "model_error_variance": 0.058,
+      "n_sites": 40
+    },
+    {
+      "region_code": "8",
+      "region_name": "Region 8, eastern-northwestern Maui (NSS GC1925)",
+      "aep": 0.04,
+      "intercept": 2.067,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.08,
+          "maximum": 13.44
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 45.16,
+          "maximum": 271.64
+        }
+      ],
+      "coefficients": [
+        0.849,
+        0.542
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.234566,
+      "avp": 0.0549,
+      "model_error_variance": 0.05,
+      "n_sites": 40
+    },
+    {
+      "region_code": "8",
+      "region_name": "Region 8, eastern-northwestern Maui (NSS GC1925)",
+      "aep": 0.1,
+      "intercept": 1.64,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.08,
+          "maximum": 13.44
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 45.16,
+          "maximum": 271.64
+        }
+      ],
+      "coefficients": [
+        0.849,
+        0.685
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.211736,
+      "avp": 0.0448,
+      "model_error_variance": 0.041,
+      "n_sites": 40
+    },
+    {
+      "region_code": "8",
+      "region_name": "Region 8, eastern-northwestern Maui (NSS GC1925)",
+      "aep": 0.2,
+      "intercept": 1.211,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.08,
+          "maximum": 13.44
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 45.16,
+          "maximum": 271.64
+        }
+      ],
+      "coefficients": [
+        0.848,
+        0.831
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.195144,
+      "avp": 0.0381,
+      "model_error_variance": 0.035,
+      "n_sites": 40
+    },
+    {
+      "region_code": "8",
+      "region_name": "Region 8, eastern-northwestern Maui (NSS GC1925)",
+      "aep": 0.5,
+      "intercept": 0.31,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.08,
+          "maximum": 13.44
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 45.16,
+          "maximum": 271.64
+        }
+      ],
+      "coefficients": [
+        0.838,
+        1.147
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.175817,
+      "avp": 0.0309,
+      "model_error_variance": 0.028,
+      "n_sites": 40
+    },
+    {
+      "region_code": "9",
+      "region_name": "Region 9, northern Island of Hawaii (NSS GC1926)",
+      "aep": 0.002,
+      "intercept": 1.75,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.13,
+          "maximum": 244.98
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 21.26,
+          "maximum": 223.69
+        }
+      ],
+      "coefficients": [
+        0.814,
+        0.786
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.183081,
+      "avp": 0.0336,
+      "model_error_variance": 0.024,
+      "n_sites": 30
+    },
+    {
+      "region_code": "9",
+      "region_name": "Region 9, northern Island of Hawaii (NSS GC1926)",
+      "aep": 0.005,
+      "intercept": 1.507,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.13,
+          "maximum": 244.98
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 21.26,
+          "maximum": 223.69
+        }
+      ],
+      "coefficients": [
+        0.81,
+        0.859
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.191022,
+      "avp": 0.0365,
+      "model_error_variance": 0.028,
+      "n_sites": 30
+    },
+    {
+      "region_code": "9",
+      "region_name": "Region 9, northern Island of Hawaii (NSS GC1926)",
+      "aep": 0.01,
+      "intercept": 1.298,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.13,
+          "maximum": 244.98
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 21.26,
+          "maximum": 223.69
+        }
+      ],
+      "coefficients": [
+        0.806,
+        0.924
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.195891,
+      "avp": 0.0383,
+      "model_error_variance": 0.031,
+      "n_sites": 30
+    },
+    {
+      "region_code": "9",
+      "region_name": "Region 9, northern Island of Hawaii (NSS GC1926)",
+      "aep": 0.02,
+      "intercept": 1.06,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.13,
+          "maximum": 244.98
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 21.26,
+          "maximum": 223.69
+        }
+      ],
+      "coefficients": [
+        0.802,
+        0.998
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.200724,
+      "avp": 0.0403,
+      "model_error_variance": 0.033,
+      "n_sites": 30
+    },
+    {
+      "region_code": "9",
+      "region_name": "Region 9, northern Island of Hawaii (NSS GC1926)",
+      "aep": 0.04,
+      "intercept": 0.786,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.13,
+          "maximum": 244.98
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 21.26,
+          "maximum": 223.69
+        }
+      ],
+      "coefficients": [
+        0.796,
+        1.084
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.208087,
+      "avp": 0.0433,
+      "model_error_variance": 0.037,
+      "n_sites": 30
+    },
+    {
+      "region_code": "9",
+      "region_name": "Region 9, northern Island of Hawaii (NSS GC1926)",
+      "aep": 0.1,
+      "intercept": 0.342,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.13,
+          "maximum": 244.98
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 21.26,
+          "maximum": 223.69
+        }
+      ],
+      "coefficients": [
+        0.783,
+        1.228
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.22753,
+      "avp": 0.0518,
+      "model_error_variance": 0.045,
+      "n_sites": 30
+    },
+    {
+      "region_code": "9",
+      "region_name": "Region 9, northern Island of Hawaii (NSS GC1926)",
+      "aep": 0.2,
+      "intercept": -0.111,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.13,
+          "maximum": 244.98
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 21.26,
+          "maximum": 223.69
+        }
+      ],
+      "coefficients": [
+        0.768,
+        1.381
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.252778,
+      "avp": 0.0639,
+      "model_error_variance": 0.056,
+      "n_sites": 30
+    },
+    {
+      "region_code": "9",
+      "region_name": "Region 9, northern Island of Hawaii (NSS GC1926)",
+      "aep": 0.5,
+      "intercept": -1.108,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.13,
+          "maximum": 244.98
+        },
+        {
+          "code": "PRECIP",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 21.26,
+          "maximum": 223.69
+        }
+      ],
+      "coefficients": [
+        0.735,
+        1.736
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.326311,
+      "avp": 0.1064,
+      "model_error_variance": 0.095,
+      "n_sites": 30
+    },
+    {
+      "region_code": "10",
+      "region_name": "Region 10, southern Island of Hawaii (NSS GC1927)",
+      "aep": 0.002,
+      "intercept": -0.938,
+      "variables": [
+        {
+          "code": "I48H500Y",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 12.41,
+          "maximum": 48.8
+        }
+      ],
+      "coefficients": [
+        2.884
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.524269,
+      "avp": 0.2749,
+      "model_error_variance": 0.22,
+      "n_sites": 9
+    },
+    {
+      "region_code": "10",
+      "region_name": "Region 10, southern Island of Hawaii (NSS GC1927)",
+      "aep": 0.005,
+      "intercept": -0.923,
+      "variables": [
+        {
+          "code": "I48H500Y",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 12.41,
+          "maximum": 48.8
+        }
+      ],
+      "coefficients": [
+        2.823
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.508282,
+      "avp": 0.2583,
+      "model_error_variance": 0.208,
+      "n_sites": 9
+    },
+    {
+      "region_code": "10",
+      "region_name": "Region 10, southern Island of Hawaii (NSS GC1927)",
+      "aep": 0.01,
+      "intercept": -0.908,
+      "variables": [
+        {
+          "code": "I48H500Y",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 12.41,
+          "maximum": 48.8
+        }
+      ],
+      "coefficients": [
+        2.77
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.495376,
+      "avp": 0.2455,
+      "model_error_variance": 0.198,
+      "n_sites": 9
+    },
+    {
+      "region_code": "10",
+      "region_name": "Region 10, southern Island of Hawaii (NSS GC1927)",
+      "aep": 0.02,
+      "intercept": -0.885,
+      "variables": [
+        {
+          "code": "I48H500Y",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 12.41,
+          "maximum": 48.8
+        }
+      ],
+      "coefficients": [
+        2.707
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.482007,
+      "avp": 0.2323,
+      "model_error_variance": 0.188,
+      "n_sites": 9
+    },
+    {
+      "region_code": "10",
+      "region_name": "Region 10, southern Island of Hawaii (NSS GC1927)",
+      "aep": 0.04,
+      "intercept": -0.855,
+      "variables": [
+        {
+          "code": "I48H500Y",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 12.41,
+          "maximum": 48.8
+        }
+      ],
+      "coefficients": [
+        2.634
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.468713,
+      "avp": 0.2197,
+      "model_error_variance": 0.178,
+      "n_sites": 9
+    },
+    {
+      "region_code": "10",
+      "region_name": "Region 10, southern Island of Hawaii (NSS GC1927)",
+      "aep": 0.1,
+      "intercept": -0.798,
+      "variables": [
+        {
+          "code": "I48H500Y",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 12.41,
+          "maximum": 48.8
+        }
+      ],
+      "coefficients": [
+        2.511
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.452612,
+      "avp": 0.2049,
+      "model_error_variance": 0.166,
+      "n_sites": 9
+    },
+    {
+      "region_code": "10",
+      "region_name": "Region 10, southern Island of Hawaii (NSS GC1927)",
+      "aep": 0.2,
+      "intercept": -0.733,
+      "variables": [
+        {
+          "code": "I48H500Y",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 12.41,
+          "maximum": 48.8
+        }
+      ],
+      "coefficients": [
+        2.386
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.444016,
+      "avp": 0.1972,
+      "model_error_variance": 0.16,
+      "n_sites": 9
+    },
+    {
+      "region_code": "10",
+      "region_name": "Region 10, southern Island of Hawaii (NSS GC1927)",
+      "aep": 0.5,
+      "intercept": -0.569,
+      "variables": [
+        {
+          "code": "I48H500Y",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 12.41,
+          "maximum": 48.8
+        }
+      ],
+      "coefficients": [
+        2.116
+      ],
+      "citation": {
+        "publication": "Mitchell, J.N., Wagner, D.M., and Veilleux, A.G., 2023, Magnitude and frequency of floods on Kauai, Oahu, Molokai, Maui, and Hawaii, State of Hawaii, based on data through water year 2020: U.S. Geological Survey Scientific Investigations Report 2023-5014, 66 p. plus 4 appendixes",
+        "table": "Table 5; Table 6",
+        "year": 2023,
+        "url": "https://doi.org/10.3133/sir20235014"
+      },
+      "sep_log": 0.447644,
+      "avp": 0.2003,
+      "model_error_variance": 0.163,
+      "n_sites": 9
+    }
+  ],
+  "notes": "Mitchell, Wagner and Veilleux, SIR 2023-5014 (no revisions listed): ten flood regions (figs. 2-6) at 8 AEPs (0.2-50 percent), fitted with WREG. Equations, AVP, SEPavg, model error variance and the number of streamgages from Table 5 (pp. 30-32); ranges from Table 6 (p. 33). Every equation is Q = 10^b0 times a product of powers, so intercept = b0 as printed and every variable is log10. Region 10 (southern Island of Hawaii) uses I48H500Y alone, with no drainage area; region 3's PRECIP and PERM24IN at 0.2 percent, region 4's I60M25Y at 0.2-2 percent, region 7's DRNAREA at 50 percent and region 8's PRECIP at 0.2-1 percent are printed in bold italics (not statistically significant) and are stored as printed. Variable codes are NSS's: DRNAREA (mi2), PRECIP (mean annual precipitation, in.), PERM24IN (area-weighted soil permeability of the top 24 in., in./hr), I60M25Y (60-minute, 25-year precipitation, in.), I48H500Y (48-hour, 500-year precipitation, in.). sep_log is Table 5's SEPavg percent converted as sqrt(ln(1 + (SEP/100)^2)) / ln(10); avp is Table 5's AVP; model_error_variance is Table 5's MEV (region 6 prints 0.000 at 0.2-2 percent, stored as 0). The report prints no covariance matrix (X^T Lambda^-1 X)^-1 (appendix 4 gives site variances of prediction for gaged sites only), so covariance is not stored and intervals use sep_log. n_sites is Table 5's streamgage count per region (17, 16, 43, 26, 12, 9, 15, 40, 30, 9). The report's Student's t uses n - k degrees of freedom with k the number of explanatory variables (region 1: 17 gages, 2 variables, t = 2.1314 at 15), one more than the n - k - 1 flowfreq uses, so a stored interval's t is slightly larger than the printed one (2.1448 against 2.1314 for region 1; the difference shrinks with n). Checks: Tables 5 and 6 were entered from the rendered pages. NSS (2026-10-25 snapshot) carries the same equations with 4-decimal coefficients; every one of the 208 printed coefficients and intercepts is NSS's rounded to 3 decimals (largest difference 0.0005), and every printed range is NSS's within 0.01, or 0.3 percent for a maximum (NSS rounds outward: 10.47 to 10.5, 48.80 to 48.9). The printed 3-decimal values are stored, as the report's users apply them. Worked example 1 (p. 34, USGS 16010000 Kawaikoi Stream near Waimea, Kauai, region 1, DRNAREA 3.82, PRECIP 133): Q1% = 7,240 ft3/s (7,237 computed)."
+}
