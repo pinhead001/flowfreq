@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- `run_ffa` attaches the stationarity screen of the annual peaks by default (`result["stationarity"]`, from `stationarity_screen`, in log10 unless a peak is zero; candidate causes of a change point come from `peak_codes`). It never changes the fit, costs 5-30 ms, and a screen that cannot run (fewer than ten peaks) is recorded as `{"error": ...}` rather than failing the analysis. `stationarity=False` turns it off; `stationarity_figure=True` also attaches `stationarity_report` (figure and Markdown) as `result["stationarity_report"]`.
+
 ### Added
 - `stationarity.pot_counts` and `pot_count_trend` (methow item 8, the last part): independent peaks over a threshold in a daily record, counted by complete water year (exceedances closer than `min_separation_days` are one event), and a Poisson-regression trend in the counts with a likelihood-ratio test, divided by the Pearson dispersion when the counts are overdispersed. Without a threshold, the highest one averaging `events_per_year` events (default 2) is used. A snowmelt river's freshet is one event over any moderate threshold, so two a year may be reached only near the median flow; that is logged as a warning and recorded as `PotCounts.quantile` (the Methow at Pateros needs `events_per_year=1`, giving 8,920 cfs).
 - `stationarity.stationarity_report`: the screen as a one-page figure (the series with Sen's trend, the Pettitt change point and segment medians; Pettitt's statistic against its critical value; event counts with the Poisson trend) and a Markdown page with a table of every test, the flags, the change-point attribution and the count trend. `StationarityReport.save` writes the figure.

@@ -317,6 +317,8 @@ def run_ffa(
     apply_peak_codes: bool = True,
     site_no: Optional[str] = None,
     allow_regulated: bool = False,
+    stationarity: bool = True,
+    stationarity_figure: bool = False,
 ) -> dict:
     """Run Bulletin 17C flood frequency analysis.
 
@@ -382,11 +384,23 @@ def run_ffa(
     allow_regulated : bool, default False
         Fit a gage the screen classes regulated. Recorded as
         ``parameters["site_classification"]["regulation_override"]``.
+    stationarity : bool, default True
+        Attach :func:`flowfreq.stationarity.stationarity_screen` of the annual peaks
+        (in log10 when every peak is positive) under ``stationarity``: trend and
+        change-point tests with plain-language flags, and the candidate causes of a
+        change point from ``peak_codes``. Bulletin 17C asks the analyst to evaluate
+        stationarity; the screen never changes the fit. A screen that cannot run (fewer
+        than ten peaks) is recorded as ``{"error": message}``.
+    stationarity_figure : bool, default False
+        Also attach :func:`flowfreq.stationarity.stationarity_report` (a one-page figure
+        and Markdown page) under ``stationarity_report``. Off by default: drawing the
+        figure costs about half a second.
 
     Returns
     -------
     dict
-        Keys: b17c, converged, method, parameters, quantile_df, error.
+        Keys: b17c, converged, method, parameters, quantile_df, error, stationarity,
+        stationarity_report (None unless ``stationarity_figure``).
         ``parameters["peak_codes_applied"]`` counts, per code, the peaks
         whose treatment the codes changed (empty when none were applied).
         ``parameters["site_classification"]`` is the screen's provenance when
@@ -445,6 +459,8 @@ def run_ffa(
         "parameters": {},
         "quantile_df": pd.DataFrame(),
         "error": None,
+        "stationarity": None,
+        "stationarity_report": None,
     }
 
     try:
@@ -557,7 +573,36 @@ def run_ffa(
         logger.exception("FFA analysis failed")
         result["error"] = str(e)
 
+    if stationarity or stationarity_figure:
+        result.update(_stationarity(peak_flows, water_years, peak_codes, stationarity_figure))
     return result
+
+
+def _stationarity(
+    peak_flows: np.ndarray,
+    water_years: np.ndarray,
+    peak_codes: Optional[Sequence[object]],
+    figure: bool,
+) -> Dict[str, Any]:
+    """``run_ffa``'s stationarity keys; a screen that cannot run never fails the fit."""
+    from .stationarity import stationarity_report, stationarity_screen
+
+    flows = np.asarray(peak_flows, dtype=float)
+    values = pd.Series(flows, index=np.asarray(water_years, dtype=int))
+    finite = values.dropna()
+    log = bool(len(finite)) and bool(np.all(finite.to_numpy() > 0))
+    codes = list(peak_codes) if peak_codes is not None else None
+    try:
+        if figure:
+            rep = stationarity_report(values, log=log, peak_codes=codes)
+            return {"stationarity": rep.screen, "stationarity_report": rep}
+        return {
+            "stationarity": stationarity_screen(values, log=log, peak_codes=codes),
+            "stationarity_report": None,
+        }
+    except ValueError as exc:
+        logger.info("stationarity screen not run: %s", exc)
+        return {"stationarity": {"error": str(exc)}, "stationarity_report": None}
 
 
 def _skew_values_from_result(ffa_result: dict) -> Dict[str, Optional[float]]:

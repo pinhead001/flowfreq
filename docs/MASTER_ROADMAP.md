@@ -485,8 +485,9 @@ the B17C estimate in a regulatory product unless the reviewing agency accepts it
       datum/rating changes. A change point that lines up with a dam is not a climate signal.
 - [~] `stationarity_report(peaks)` giving a one-page summary with plots (*done*:
       `stationarity.stationarity_report`, a figure and a Markdown page). **Recommendation:**
-      run this on every B17C analysis by default and attach it to the output (open: an
-      owner decision, since it changes what `run_ffa` returns).
+      run this on every B17C analysis by default and attach it to the output. *Done:*
+      `run_ffa` attaches the screen dictionary by default; the figure is opt-in
+      (`stationarity_figure=True`), the owner's decision of 2026-10-31.
 
 ### 6.2 Handling detected nonstationarity (recommended hierarchy)
 1. [ ] **Remove the cause if it is known and physical.** Analyze only the homogeneous period

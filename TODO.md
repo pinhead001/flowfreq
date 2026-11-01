@@ -177,8 +177,8 @@ Still failing in the 2026-10-30 rerun (14 of 56; WY and MN fixed since, live rec
 - Large gaged-versus-ungaged differences with a correct delineation (the drainage area matches
   the catalog): AZ 09484000 (ratio 0.10, a 35 mi2 basin), TX 08190000 (0.20, Nueces River)
   and NV 10329500 (0.36). The regressions are run as published; these are not defects.
-- [ ] **Stationarity by default**: whether `run_ffa` attaches `stationarity_report` to every
-      analysis (roadmap section 6.1 recommends it) is an owner decision.
+- [x] **Stationarity by default**: `run_ffa` attaches the screen dictionary; the figure is
+      opt-in (`stationarity_figure=True`).
 - [ ] **Regional skew `pending` rows** (41): each waits for a published B-WLS/B-GLS study or
       a reading of the report's printed value; the row's notes say which.
 
