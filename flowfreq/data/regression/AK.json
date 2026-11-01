@@ -1,0 +1,873 @@
+{
+  "schema_version": 1,
+  "state": "AK",
+  "status": "verified",
+  "issue": null,
+  "source_reports": [
+    {
+      "citation": "Curran, J.H., Barth, N.A., Veilleux, A.G., and Ourso, R.T., 2016, Estimating flood magnitude and frequency at gaged and ungaged sites on streams in Alaska and conterminous basins in Canada, based on data through water year 2012: U.S. Geological Survey Scientific Investigations Report 2016-5024, 47 p.",
+      "doi": "10.3133/sir20165024",
+      "url": "https://pubs.usgs.gov/publication/sir20165024",
+      "pdf": "https://pubs.usgs.gov/sir/2016/5024/sir20165024.pdf",
+      "tables": [
+        "Table 7",
+        "Table 8"
+      ],
+      "nss": {
+        "citation_id": 9,
+        "last_year_of_data": 2012
+      }
+    }
+  ],
+  "equations": [
+    {
+      "region_code": "1",
+      "region_name": "Drainage area 1,000 mi2 or less (NSS GC1656)",
+      "aep": 0.5,
+      "intercept": -0.02502800570193105,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.4,
+          "maximum": 1000.0
+        },
+        {
+          "code": "PRECPRIS00",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 8.0,
+          "maximum": 280.0
+        }
+      ],
+      "coefficients": [
+        0.836,
+        1.023
+      ],
+      "citation": {
+        "publication": "Curran, J.H., Barth, N.A., Veilleux, A.G., and Ourso, R.T., 2016, Estimating flood magnitude and frequency at gaged and ungaged sites on streams in Alaska and conterminous basins in Canada, based on data through water year 2012: U.S. Geological Survey Scientific Investigations Report 2016-5024, 47 p.",
+        "table": "Table 7; Table 8",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165024"
+      },
+      "sep_log": 0.276829,
+      "avp": 0.077,
+      "model_error_variance": 0.076,
+      "covariance": [
+        [
+          0.00726,
+          -0.000756,
+          -0.00342
+        ],
+        [
+          -0.000756,
+          0.000222,
+          0.000212
+        ],
+        [
+          -0.00342,
+          0.000212,
+          0.00186
+        ]
+      ],
+      "n_sites": 341
+    },
+    {
+      "region_code": "1",
+      "region_name": "Drainage area 1,000 mi2 or less (NSS GC1656)",
+      "aep": 0.2,
+      "intercept": 0.39269695325966575,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.4,
+          "maximum": 1000.0
+        },
+        {
+          "code": "PRECPRIS00",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 8.0,
+          "maximum": 280.0
+        }
+      ],
+      "coefficients": [
+        0.795,
+        0.916
+      ],
+      "citation": {
+        "publication": "Curran, J.H., Barth, N.A., Veilleux, A.G., and Ourso, R.T., 2016, Estimating flood magnitude and frequency at gaged and ungaged sites on streams in Alaska and conterminous basins in Canada, based on data through water year 2012: U.S. Geological Survey Scientific Investigations Report 2016-5024, 47 p.",
+        "table": "Table 7; Table 8",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165024"
+      },
+      "sep_log": 0.271335,
+      "avp": 0.074,
+      "model_error_variance": 0.073,
+      "covariance": [
+        [
+          0.00742,
+          -0.00077,
+          -0.00347
+        ],
+        [
+          -0.00077,
+          0.00022,
+          0.000218
+        ],
+        [
+          -0.00347,
+          0.000218,
+          0.00188
+        ]
+      ],
+      "n_sites": 341
+    },
+    {
+      "region_code": "1",
+      "region_name": "Drainage area 1,000 mi2 or less (NSS GC1656)",
+      "aep": 0.1,
+      "intercept": 0.6031443726201823,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.4,
+          "maximum": 1000.0
+        },
+        {
+          "code": "PRECPRIS00",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 8.0,
+          "maximum": 280.0
+        }
+      ],
+      "coefficients": [
+        0.775,
+        0.865
+      ],
+      "citation": {
+        "publication": "Curran, J.H., Barth, N.A., Veilleux, A.G., and Ourso, R.T., 2016, Estimating flood magnitude and frequency at gaged and ungaged sites on streams in Alaska and conterminous basins in Canada, based on data through water year 2012: U.S. Geological Survey Scientific Investigations Report 2016-5024, 47 p.",
+        "table": "Table 7; Table 8",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165024"
+      },
+      "sep_log": 0.27166,
+      "avp": 0.074,
+      "model_error_variance": 0.073,
+      "covariance": [
+        [
+          0.00782,
+          -0.000809,
+          -0.00364
+        ],
+        [
+          -0.000809,
+          0.000227,
+          0.00023
+        ],
+        [
+          -0.00364,
+          0.00023,
+          0.00196
+        ]
+      ],
+      "n_sites": 341
+    },
+    {
+      "region_code": "1",
+      "region_name": "Drainage area 1,000 mi2 or less (NSS GC1656)",
+      "aep": 0.04,
+      "intercept": 0.814913181275074,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.4,
+          "maximum": 1000.0
+        },
+        {
+          "code": "PRECPRIS00",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 8.0,
+          "maximum": 280.0
+        }
+      ],
+      "coefficients": [
+        0.755,
+        0.816
+      ],
+      "citation": {
+        "publication": "Curran, J.H., Barth, N.A., Veilleux, A.G., and Ourso, R.T., 2016, Estimating flood magnitude and frequency at gaged and ungaged sites on streams in Alaska and conterminous basins in Canada, based on data through water year 2012: U.S. Geological Survey Scientific Investigations Report 2016-5024, 47 p.",
+        "table": "Table 7; Table 8",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165024"
+      },
+      "sep_log": 0.278113,
+      "avp": 0.077,
+      "model_error_variance": 0.076,
+      "covariance": [
+        [
+          0.00864,
+          -0.000891,
+          -0.00401
+        ],
+        [
+          -0.000891,
+          0.000245,
+          0.000255
+        ],
+        [
+          -0.00401,
+          0.000255,
+          0.00215
+        ]
+      ],
+      "n_sites": 341
+    },
+    {
+      "region_code": "1",
+      "region_name": "Drainage area 1,000 mi2 or less (NSS GC1656)",
+      "aep": 0.02,
+      "intercept": 0.9439888750737718,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.4,
+          "maximum": 1000.0
+        },
+        {
+          "code": "PRECPRIS00",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 8.0,
+          "maximum": 280.0
+        }
+      ],
+      "coefficients": [
+        0.743,
+        0.787
+      ],
+      "citation": {
+        "publication": "Curran, J.H., Barth, N.A., Veilleux, A.G., and Ourso, R.T., 2016, Estimating flood magnitude and frequency at gaged and ungaged sites on streams in Alaska and conterminous basins in Canada, based on data through water year 2012: U.S. Geological Survey Scientific Investigations Report 2016-5024, 47 p.",
+        "table": "Table 7; Table 8",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165024"
+      },
+      "sep_log": 0.283211,
+      "avp": 0.08,
+      "model_error_variance": 0.079,
+      "covariance": [
+        [
+          0.00929,
+          -0.000956,
+          -0.0043
+        ],
+        [
+          -0.000956,
+          0.00026,
+          0.000274
+        ],
+        [
+          -0.0043,
+          0.000274,
+          0.0023
+        ]
+      ],
+      "n_sites": 341
+    },
+    {
+      "region_code": "1",
+      "region_name": "Drainage area 1,000 mi2 or less (NSS GC1656)",
+      "aep": 0.01,
+      "intercept": 1.0569048513364727,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.4,
+          "maximum": 1000.0
+        },
+        {
+          "code": "PRECPRIS00",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 8.0,
+          "maximum": 280.0
+        }
+      ],
+      "coefficients": [
+        0.732,
+        0.764
+      ],
+      "citation": {
+        "publication": "Curran, J.H., Barth, N.A., Veilleux, A.G., and Ourso, R.T., 2016, Estimating flood magnitude and frequency at gaged and ungaged sites on streams in Alaska and conterminous basins in Canada, based on data through water year 2012: U.S. Geological Survey Scientific Investigations Report 2016-5024, 47 p.",
+        "table": "Table 7; Table 8",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165024"
+      },
+      "sep_log": 0.288879,
+      "avp": 0.083,
+      "model_error_variance": 0.082,
+      "covariance": [
+        [
+          0.00995,
+          -0.00102,
+          -0.0046
+        ],
+        [
+          -0.00102,
+          0.000276,
+          0.000294
+        ],
+        [
+          -0.0046,
+          0.000294,
+          0.00246
+        ]
+      ],
+      "n_sites": 341
+    },
+    {
+      "region_code": "1",
+      "region_name": "Drainage area 1,000 mi2 or less (NSS GC1656)",
+      "aep": 0.005,
+      "intercept": 1.1553360374650619,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.4,
+          "maximum": 1000.0
+        },
+        {
+          "code": "PRECPRIS00",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 8.0,
+          "maximum": 280.0
+        }
+      ],
+      "coefficients": [
+        0.723,
+        0.744
+      ],
+      "citation": {
+        "publication": "Curran, J.H., Barth, N.A., Veilleux, A.G., and Ourso, R.T., 2016, Estimating flood magnitude and frequency at gaged and ungaged sites on streams in Alaska and conterminous basins in Canada, based on data through water year 2012: U.S. Geological Survey Scientific Investigations Report 2016-5024, 47 p.",
+        "table": "Table 7; Table 8",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165024"
+      },
+      "sep_log": 0.297555,
+      "avp": 0.089,
+      "model_error_variance": 0.087,
+      "covariance": [
+        [
+          0.0108,
+          -0.00111,
+          -0.00498
+        ],
+        [
+          -0.00111,
+          0.000297,
+          0.000319
+        ],
+        [
+          -0.00498,
+          0.000319,
+          0.00266
+        ]
+      ],
+      "n_sites": 341
+    },
+    {
+      "region_code": "1",
+      "region_name": "Drainage area 1,000 mi2 or less (NSS GC1656)",
+      "aep": 0.002,
+      "intercept": 1.271841606536499,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 0.4,
+          "maximum": 1000.0
+        },
+        {
+          "code": "PRECPRIS00",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 8.0,
+          "maximum": 280.0
+        }
+      ],
+      "coefficients": [
+        0.712,
+        0.721
+      ],
+      "citation": {
+        "publication": "Curran, J.H., Barth, N.A., Veilleux, A.G., and Ourso, R.T., 2016, Estimating flood magnitude and frequency at gaged and ungaged sites on streams in Alaska and conterminous basins in Canada, based on data through water year 2012: U.S. Geological Survey Scientific Investigations Report 2016-5024, 47 p.",
+        "table": "Table 7; Table 8",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165024"
+      },
+      "sep_log": 0.311144,
+      "avp": 0.097,
+      "model_error_variance": 0.095,
+      "covariance": [
+        [
+          0.012,
+          -0.00123,
+          -0.00554
+        ],
+        [
+          -0.00123,
+          0.000329,
+          0.000355
+        ],
+        [
+          -0.00554,
+          0.000355,
+          0.00296
+        ]
+      ],
+      "n_sites": 341
+    },
+    {
+      "region_code": "2",
+      "region_name": "Drainage area over 1,000 mi2 (NSS GC1657)",
+      "aep": 0.5,
+      "intercept": -0.02502800570193105,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1000.0,
+          "maximum": 31100.0
+        },
+        {
+          "code": "PRECPRIS00",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 10.0,
+          "maximum": 111.0
+        }
+      ],
+      "coefficients": [
+        0.836,
+        1.023
+      ],
+      "citation": {
+        "publication": "Curran, J.H., Barth, N.A., Veilleux, A.G., and Ourso, R.T., 2016, Estimating flood magnitude and frequency at gaged and ungaged sites on streams in Alaska and conterminous basins in Canada, based on data through water year 2012: U.S. Geological Survey Scientific Investigations Report 2016-5024, 47 p.",
+        "table": "Table 7; Table 8",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165024"
+      },
+      "sep_log": 0.276829,
+      "avp": 0.077,
+      "model_error_variance": 0.076,
+      "covariance": [
+        [
+          0.00726,
+          -0.000756,
+          -0.00342
+        ],
+        [
+          -0.000756,
+          0.000222,
+          0.000212
+        ],
+        [
+          -0.00342,
+          0.000212,
+          0.00186
+        ]
+      ],
+      "n_sites": 341
+    },
+    {
+      "region_code": "2",
+      "region_name": "Drainage area over 1,000 mi2 (NSS GC1657)",
+      "aep": 0.2,
+      "intercept": 0.39269695325966575,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1000.0,
+          "maximum": 31100.0
+        },
+        {
+          "code": "PRECPRIS00",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 10.0,
+          "maximum": 111.0
+        }
+      ],
+      "coefficients": [
+        0.795,
+        0.916
+      ],
+      "citation": {
+        "publication": "Curran, J.H., Barth, N.A., Veilleux, A.G., and Ourso, R.T., 2016, Estimating flood magnitude and frequency at gaged and ungaged sites on streams in Alaska and conterminous basins in Canada, based on data through water year 2012: U.S. Geological Survey Scientific Investigations Report 2016-5024, 47 p.",
+        "table": "Table 7; Table 8",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165024"
+      },
+      "sep_log": 0.271335,
+      "avp": 0.074,
+      "model_error_variance": 0.073,
+      "covariance": [
+        [
+          0.00742,
+          -0.00077,
+          -0.00347
+        ],
+        [
+          -0.00077,
+          0.00022,
+          0.000218
+        ],
+        [
+          -0.00347,
+          0.000218,
+          0.00188
+        ]
+      ],
+      "n_sites": 341
+    },
+    {
+      "region_code": "2",
+      "region_name": "Drainage area over 1,000 mi2 (NSS GC1657)",
+      "aep": 0.1,
+      "intercept": 0.6031443726201823,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1000.0,
+          "maximum": 31100.0
+        },
+        {
+          "code": "PRECPRIS00",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 10.0,
+          "maximum": 111.0
+        }
+      ],
+      "coefficients": [
+        0.775,
+        0.865
+      ],
+      "citation": {
+        "publication": "Curran, J.H., Barth, N.A., Veilleux, A.G., and Ourso, R.T., 2016, Estimating flood magnitude and frequency at gaged and ungaged sites on streams in Alaska and conterminous basins in Canada, based on data through water year 2012: U.S. Geological Survey Scientific Investigations Report 2016-5024, 47 p.",
+        "table": "Table 7; Table 8",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165024"
+      },
+      "sep_log": 0.27166,
+      "avp": 0.074,
+      "model_error_variance": 0.073,
+      "covariance": [
+        [
+          0.00782,
+          -0.000809,
+          -0.00364
+        ],
+        [
+          -0.000809,
+          0.000227,
+          0.00023
+        ],
+        [
+          -0.00364,
+          0.00023,
+          0.00196
+        ]
+      ],
+      "n_sites": 341
+    },
+    {
+      "region_code": "2",
+      "region_name": "Drainage area over 1,000 mi2 (NSS GC1657)",
+      "aep": 0.04,
+      "intercept": 0.814913181275074,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1000.0,
+          "maximum": 31100.0
+        },
+        {
+          "code": "PRECPRIS00",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 10.0,
+          "maximum": 111.0
+        }
+      ],
+      "coefficients": [
+        0.755,
+        0.816
+      ],
+      "citation": {
+        "publication": "Curran, J.H., Barth, N.A., Veilleux, A.G., and Ourso, R.T., 2016, Estimating flood magnitude and frequency at gaged and ungaged sites on streams in Alaska and conterminous basins in Canada, based on data through water year 2012: U.S. Geological Survey Scientific Investigations Report 2016-5024, 47 p.",
+        "table": "Table 7; Table 8",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165024"
+      },
+      "sep_log": 0.278113,
+      "avp": 0.077,
+      "model_error_variance": 0.076,
+      "covariance": [
+        [
+          0.00864,
+          -0.000891,
+          -0.00401
+        ],
+        [
+          -0.000891,
+          0.000245,
+          0.000255
+        ],
+        [
+          -0.00401,
+          0.000255,
+          0.00215
+        ]
+      ],
+      "n_sites": 341
+    },
+    {
+      "region_code": "2",
+      "region_name": "Drainage area over 1,000 mi2 (NSS GC1657)",
+      "aep": 0.02,
+      "intercept": 0.9439888750737718,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1000.0,
+          "maximum": 31100.0
+        },
+        {
+          "code": "PRECPRIS00",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 10.0,
+          "maximum": 111.0
+        }
+      ],
+      "coefficients": [
+        0.743,
+        0.787
+      ],
+      "citation": {
+        "publication": "Curran, J.H., Barth, N.A., Veilleux, A.G., and Ourso, R.T., 2016, Estimating flood magnitude and frequency at gaged and ungaged sites on streams in Alaska and conterminous basins in Canada, based on data through water year 2012: U.S. Geological Survey Scientific Investigations Report 2016-5024, 47 p.",
+        "table": "Table 7; Table 8",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165024"
+      },
+      "sep_log": 0.283211,
+      "avp": 0.08,
+      "model_error_variance": 0.079,
+      "covariance": [
+        [
+          0.00929,
+          -0.000956,
+          -0.0043
+        ],
+        [
+          -0.000956,
+          0.00026,
+          0.000274
+        ],
+        [
+          -0.0043,
+          0.000274,
+          0.0023
+        ]
+      ],
+      "n_sites": 341
+    },
+    {
+      "region_code": "2",
+      "region_name": "Drainage area over 1,000 mi2 (NSS GC1657)",
+      "aep": 0.01,
+      "intercept": 1.0569048513364727,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1000.0,
+          "maximum": 31100.0
+        },
+        {
+          "code": "PRECPRIS00",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 10.0,
+          "maximum": 111.0
+        }
+      ],
+      "coefficients": [
+        0.732,
+        0.764
+      ],
+      "citation": {
+        "publication": "Curran, J.H., Barth, N.A., Veilleux, A.G., and Ourso, R.T., 2016, Estimating flood magnitude and frequency at gaged and ungaged sites on streams in Alaska and conterminous basins in Canada, based on data through water year 2012: U.S. Geological Survey Scientific Investigations Report 2016-5024, 47 p.",
+        "table": "Table 7; Table 8",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165024"
+      },
+      "sep_log": 0.288879,
+      "avp": 0.083,
+      "model_error_variance": 0.082,
+      "covariance": [
+        [
+          0.00995,
+          -0.00102,
+          -0.0046
+        ],
+        [
+          -0.00102,
+          0.000276,
+          0.000294
+        ],
+        [
+          -0.0046,
+          0.000294,
+          0.00246
+        ]
+      ],
+      "n_sites": 341
+    },
+    {
+      "region_code": "2",
+      "region_name": "Drainage area over 1,000 mi2 (NSS GC1657)",
+      "aep": 0.005,
+      "intercept": 1.1553360374650619,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1000.0,
+          "maximum": 31100.0
+        },
+        {
+          "code": "PRECPRIS00",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 10.0,
+          "maximum": 111.0
+        }
+      ],
+      "coefficients": [
+        0.723,
+        0.744
+      ],
+      "citation": {
+        "publication": "Curran, J.H., Barth, N.A., Veilleux, A.G., and Ourso, R.T., 2016, Estimating flood magnitude and frequency at gaged and ungaged sites on streams in Alaska and conterminous basins in Canada, based on data through water year 2012: U.S. Geological Survey Scientific Investigations Report 2016-5024, 47 p.",
+        "table": "Table 7; Table 8",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165024"
+      },
+      "sep_log": 0.297555,
+      "avp": 0.089,
+      "model_error_variance": 0.087,
+      "covariance": [
+        [
+          0.0108,
+          -0.00111,
+          -0.00498
+        ],
+        [
+          -0.00111,
+          0.000297,
+          0.000319
+        ],
+        [
+          -0.00498,
+          0.000319,
+          0.00266
+        ]
+      ],
+      "n_sites": 341
+    },
+    {
+      "region_code": "2",
+      "region_name": "Drainage area over 1,000 mi2 (NSS GC1657)",
+      "aep": 0.002,
+      "intercept": 1.271841606536499,
+      "variables": [
+        {
+          "code": "DRNAREA",
+          "transform": "log10",
+          "units": "mi2",
+          "minimum": 1000.0,
+          "maximum": 31100.0
+        },
+        {
+          "code": "PRECPRIS00",
+          "transform": "log10",
+          "units": "in",
+          "minimum": 10.0,
+          "maximum": 111.0
+        }
+      ],
+      "coefficients": [
+        0.712,
+        0.721
+      ],
+      "citation": {
+        "publication": "Curran, J.H., Barth, N.A., Veilleux, A.G., and Ourso, R.T., 2016, Estimating flood magnitude and frequency at gaged and ungaged sites on streams in Alaska and conterminous basins in Canada, based on data through water year 2012: U.S. Geological Survey Scientific Investigations Report 2016-5024, 47 p.",
+        "table": "Table 7; Table 8",
+        "year": 2016,
+        "url": "https://doi.org/10.3133/sir20165024"
+      },
+      "sep_log": 0.311144,
+      "avp": 0.097,
+      "model_error_variance": 0.095,
+      "covariance": [
+        [
+          0.012,
+          -0.00123,
+          -0.00554
+        ],
+        [
+          -0.00123,
+          0.000329,
+          0.000355
+        ],
+        [
+          -0.00554,
+          0.000355,
+          0.00296
+        ]
+      ],
+      "n_sites": 341
+    }
+  ],
+  "notes": "Curran, Barth, Veilleux and Ourso, SIR 2016-5024 (no revisions listed): one set of equations for Alaska and the conterminous basins in Canada, except the Aleutian and other western islands (no estimates) and the Yukon River at and below Carmacks (interpolate Table 4 instead). Equations, AVP, SEP and pseudo-R2 from Table 7 (p. 22); model error variance and the covariance matrix (X^T Lambda^-1 X)^-1 from Table 8 (p. 26), order intercept, log10 DRNAREA, log10 PRECPRIS00. Table 7's footnote 1 gives two ranges of validity, DRNAREA 0.4-1,000 mi2 with PRECPRIS00 8-280 in., and DRNAREA over 1,000 and under 31,100 mi2 with PRECPRIS00 10-111 in.; NSS serves them as two regions with the same equations (GC1656, GC1657), and so does this file (regions 1 and 2), so assemble chooses by drainage area. Storage: intercept = log10 of the printed coefficient; both variables log10 (the report's power form). PRECPRIS00 is the 1971-2000 PRISM mean annual basin precipitation (Gibson, 2009a); the report cautions that substituting another precipitation source gives unpredictable results. sep_log is Table 7's SEP percent converted as sqrt(ln(1 + (SEP/100)^2)) / ln(10); avp is Table 7's AVP; model_error_variance is Table 8's sigma_delta^2; n_sites is the 341 streamgages of the regression (284 in Alaska, 57 in Canada). Table 7 was double-entered (hand transcription vs. a regex parse of pdftotext -layout output): 40 cells, 0 disagreements. Table 8 (72 cells; pdftotext scrambles its layout) was entered from the rendered page; every matrix is symmetric, and the 1-percent matrix reproduces the worked example's x'Ux. Every equation equals the NSS snapshot (2026-10-25) coefficient for coefficient. Worked example (p. 27, USGS 15129500, DRNAREA 35.5, PRECPRIS00 170): Q1% = 7,870 ft3/s, x'Ux = 0.001202, SEP = (0.082 + 0.001202)^0.5 = 0.2884 and a 90-percent prediction interval of 2,630-23,500 ft3/s, all reproduced."
+}
