@@ -154,7 +154,7 @@ ignore_missing_imports = true
 # checks it.
 #
 # The modules listed below still carry errors inherited from before mypy ran
-# here at all (14 files). They are exempted individually rather than by
+# here at all (6 files, from 14 on 2026-10-31). They are exempted individually rather than by
 # loosening the global settings, so the debt is countable and shrinks by
 # deleting a stanza: pick a module, fix it, remove its override. Nothing new
 # gets added to this list -- a new module is checked by default.
@@ -165,23 +165,7 @@ ignore_missing_imports = true
 # catch, for a benefit no user sees.
 
 [[tool.mypy.overrides]]
-module = "flowfreq"
-ignore_errors = true
-
-[[tool.mypy.overrides]]
-module = "flowfreq._var_mom"
-ignore_errors = true
-
-[[tool.mypy.overrides]]
-module = "flowfreq.batch"
-ignore_errors = true
-
-[[tool.mypy.overrides]]
 module = "flowfreq.bulletin17c"
-ignore_errors = true
-
-[[tool.mypy.overrides]]
-module = "flowfreq.flowio"
 ignore_errors = true
 
 [[tool.mypy.overrides]]
@@ -197,23 +181,7 @@ module = "flowfreq.lowflow"
 ignore_errors = true
 
 [[tool.mypy.overrides]]
-module = "flowfreq.regime"
-ignore_errors = true
-
-[[tool.mypy.overrides]]
 module = "flowfreq.report"
-ignore_errors = true
-
-[[tool.mypy.overrides]]
-module = "flowfreq.usgs"
-ignore_errors = true
-
-[[tool.mypy.overrides]]
-module = "flowfreq.validation.benchmarks"
-ignore_errors = true
-
-[[tool.mypy.overrides]]
-module = "flowfreq.validation.reference"
 ignore_errors = true
 
 [[tool.mypy.overrides]]

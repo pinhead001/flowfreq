@@ -15,6 +15,7 @@ Includes:
 import logging
 from importlib.metadata import PackageNotFoundError
 from importlib.metadata import version as _installed_version
+from typing import Optional
 
 from .bulletin17c import (
     Bulletin17C,
@@ -152,9 +153,9 @@ def _gage_analysis(
     site_no: str,
     *,
     method: str,
-    regional_skew: float = None,
-    regional_skew_mse: float = None,
-    historical_peaks: list = None,
+    regional_skew: Optional[float] = None,
+    regional_skew_mse: Optional[float] = None,
+    historical_peaks: Optional[list] = None,
     apply_peak_codes: bool = True,
 ) -> Bulletin17C:
     """Build ``analyze_gage``'s ``Bulletin17C`` from a downloaded peak frame.
@@ -203,9 +204,9 @@ def _gage_analysis(
 def analyze_gage(
     site_no: str,
     method: str = "ema",
-    regional_skew: float = None,
-    regional_skew_mse: float = None,
-    historical_peaks: list = None,
+    regional_skew: Optional[float] = None,
+    regional_skew_mse: Optional[float] = None,
+    historical_peaks: Optional[list] = None,
     output_dir: str = "./output",
     apply_peak_codes: bool = True,
     allow_regulated: bool = False,
@@ -267,21 +268,21 @@ def analyze_gage(
 
     try:
         gage.download_daily_flow()
-        logger.info("Downloaded %d days of daily flow data", len(gage.daily_data))
+        daily = gage.daily_data
+        logger.info("Downloaded %d days of daily flow data", len(daily) if daily is not None else 0)
     except Exception as e:
         logger.warning("Could not download daily flow data: %s", e)
 
     gage.download_peak_flow()
-    logger.info("Downloaded %d annual peak flow records", len(gage.peak_data))
+    peaks = gage.peak_data
+    if peaks is None:
+        raise ValueError(f"no annual peak data for USGS {site_no}")
+    logger.info("Downloaded %d annual peak flow records", len(peaks))
     logger.info("Site name: %s", gage.site_name)
 
     from .regulation import classify_site, require_unregulated
 
-    codes = (
-        gage.peak_data["qualification_code"].tolist()
-        if "qualification_code" in gage.peak_data.columns
-        else None
-    )
+    codes = peaks["qualification_code"].tolist() if "qualification_code" in peaks.columns else None
     site_classification = require_unregulated(
         classify_site(site_no, codes), allow_regulated=allow_regulated
     )
@@ -289,7 +290,7 @@ def analyze_gage(
     logger.info("Running Bulletin 17C analysis (method=%s)...", method.upper())
 
     analysis = _gage_analysis(
-        gage.peak_data,
+        peaks,
         site_no,
         method=method,
         regional_skew=regional_skew,

@@ -162,8 +162,10 @@ def _dexpect(tau: float, alpha: float, beta: float, tl: float, tu: float):
             args_minus = [tau_mp, alpha_mp, beta_mp]
             args_plus[col] += h
             args_minus[col] -= h
-            plus = _gamma_trunc_moments(*args_plus, tl_mp, tu_mp, 3)
-            minus = _gamma_trunc_moments(*args_minus, tl_mp, tu_mp, 3)
+            plus = _gamma_trunc_moments(args_plus[0], args_plus[1], args_plus[2], tl_mp, tu_mp, 3)
+            minus = _gamma_trunc_moments(
+                args_minus[0], args_minus[1], args_minus[2], tl_mp, tu_mp, 3
+            )
             for row in range(3):
                 dm3[row, col] = float((plus[row] - minus[row]) / (2 * h))
     return m3, dm3

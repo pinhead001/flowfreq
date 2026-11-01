@@ -267,7 +267,7 @@ def richards_baker_flashiness(
         return float(np.nansum(diffs) / total)
 
     n_days, complete = _year_completeness(df["year"], df["flow_cfs"].notna(), min_days)
-    rbi = df.groupby("year").apply(_rbi, include_groups=False)
+    rbi = df.groupby("year").apply(_rbi, include_groups=False)  # type: ignore[call-overload]
     rbi = rbi.where(complete, np.nan)
 
     result = pd.DataFrame(
@@ -309,7 +309,7 @@ def tqmean(daily_data: pd.DataFrame, year_type: str = "water", min_days: int = 3
         return float(np.mean(valid > valid.mean()))
 
     n_days, complete = _year_completeness(df["year"], df["flow_cfs"].notna(), min_days)
-    tq = df.groupby("year").apply(_tqmean, include_groups=False)
+    tq = df.groupby("year").apply(_tqmean, include_groups=False)  # type: ignore[call-overload]
     tq = tq.where(complete, np.nan)
 
     result = pd.DataFrame({"tqmean": tq, "n_days": n_days, "complete": complete}).reset_index(
@@ -551,6 +551,7 @@ def separate_baseflow(
     elif method == "lyne_hollick":
         baseflow = _lyne_hollick(flows, alpha=alpha, passes=passes)
     else:
+        assert drainage_area_sqmi is not None  # checked above for the HYSEP methods
         n_star = _hysep_interval_days(drainage_area_sqmi)
         if method == "hysep_fixed":
             baseflow = _hysep_fixed(flows, n_star)
@@ -630,7 +631,7 @@ def baseflow_index(
         return float(rows["baseflow_cfs"].sum() / total)
 
     n_days, complete = _year_completeness(df["year"], matched, min_days)
-    bfi = df.assign(_matched=matched).groupby("year").apply(_bfi, include_groups=False)
+    bfi = df.assign(_matched=matched).groupby("year").apply(_bfi, include_groups=False)  # type: ignore[call-overload]
     bfi = bfi.where(complete, np.nan)
 
     result = pd.DataFrame(
