@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.20.0] - 2026-10-31
+
+Stationarity screening completed and the nationwide smoke failures resolved.
+- `flowfreq.stationarity` gains the Lombard tests (abrupt and smooth, in level and in
+  variability), bootstrap field significance, dam and land-use dates for change-point
+  attribution, peaks-over-threshold count trends and a one-page `stationarity_report`.
+- StreamStats failures that no pour point can fix get their own errors:
+  `RegionNotDelineatedError` (FL, MI and NE have no stream grid) and
+  `RegulatedDelineationError`.
+- Overlapping drainage-area classes (Alaska's GC1656 and GC1657) are chosen by the basin's
+  drainage area instead of refused.
+- mypy checks eight more modules.
+
+Patch releases for 0.19 continue from `release/0.19.x`.
+
 ### Added
 - `stationarity.pot_counts` and `pot_count_trend` (methow item 8, the last part): independent peaks over a threshold in a daily record, counted by complete water year (exceedances closer than `min_separation_days` are one event), and a Poisson-regression trend in the counts with a likelihood-ratio test, divided by the Pearson dispersion when the counts are overdispersed. Without a threshold, the highest one averaging `events_per_year` events (default 2) is used. A snowmelt river's freshet is one event over any moderate threshold, so two a year may be reached only near the median flow; that is logged as a warning and recorded as `PotCounts.quantile` (the Methow at Pateros needs `events_per_year=1`, giving 8,920 cfs).
 - `stationarity.stationarity_report`: the screen as a one-page figure (the series with Sen's trend, the Pettitt change point and segment medians; Pettitt's statistic against its critical value; event counts with the Poisson trend) and a Markdown page with a table of every test, the flags, the change-point attribution and the count trend. `StationarityReport.save` writes the figure.
