@@ -1207,6 +1207,42 @@ class TestRegionGates:
         assert [r.code for r in a.used] == ["GC1622"]
         assert a.quantiles["flow_cfs"].iloc[0] == pytest.approx(8604, rel=0.01)
 
+    OREGON = {
+        "DRNAREA": 50.0,
+        "BSLOPD": 15.0,
+        "I24H2Y": 3.0,
+        "JANMINT2K": 27.0,
+        "JANMAXT2K": 40.0,
+    }
+    OREGON_REGIONS = [
+        RegressionRegionLocation(0, "GC730", "2A", 100.0, 50.0),
+        RegressionRegionLocation(0, "GC731", "2B", 100.0, 50.0),
+    ]
+
+    @pytest.mark.parametrize(
+        "elev,code,lib_code", [(2500.0, "GC731", "2B"), (3500.0, "GC730", "2A")]
+    )
+    def test_oregon_region2_outside_the_transition_zone(self, elev, code, lib_code):
+        """Outside 2,875-3,125 ft one region applies alone, as eq. 8's blend gives."""
+        from flowfreq.regression.library import load_state
+        from flowfreq.regression.oregon import estimate_region2
+
+        chars = {**self.OREGON, "ELEV": elev}
+        a = assemble(load_state("OR"), self.OREGON_REGIONS, chars, **{**KW, "aeps": [0.01]})
+        assert [r.code for r in a.used] == [code]
+        blend = estimate_region2(0.01, chars)
+        assert blend.weights[lib_code] == 1.0
+        assert a.quantiles["flow_cfs"].iloc[0] == pytest.approx(blend.flow_cfs, rel=1e-9)
+
+    def test_oregon_region2_transition_zone_names_the_blend(self):
+        from flowfreq.regression.library import load_state
+
+        chars = {**self.OREGON, "ELEV": 3000.0}
+        with pytest.raises(
+            OverlappingRegionsError, match="no region gate admits.*estimate_region2"
+        ):
+            assemble(load_state("OR"), self.OREGON_REGIONS, chars, **KW)
+
 
 def test_region_gate_rules():
     gate = RegionGate("ELEV", minimum=7500.0, units="ft")
