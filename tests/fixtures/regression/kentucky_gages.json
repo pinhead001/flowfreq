@@ -1,0 +1,2931 @@
+{
+"rural": {
+"03207965": {
+"name": "Grapevine Creek near Phyllis, Kentucky",
+"region": "Region 2",
+"DRNAREA": 6.2,
+"CSL10_85": 129.0,
+"flows": [
+574.0,
+891.0,
+1120.0,
+1430.0,
+1680.0,
+1930.0,
+2190.0,
+2540.0
+]
+},
+"03209575": {
+"name": "Bill D Branch near Kite, Kentucky",
+"region": "Region 2",
+"DRNAREA": 3.17,
+"CSL10_85": 181.0,
+"flows": [
+352.0,
+549.0,
+694.0,
+891.0,
+1050.0,
+1210.0,
+1370.0,
+1600.0
+]
+},
+"03210000": {
+"name": "Johns Creek near Meta, Kentucky",
+"region": "Region 2",
+"DRNAREA": 56.3,
+"CSL10_85": 24.3,
+"flows": [
+2860.0,
+4370.0,
+5430.0,
+6850.0,
+7920.0,
+9000.0,
+10100.0,
+11600.0
+]
+},
+"03212000": {
+"name": "Paint Creek at Staffordsville, Kentucky",
+"region": "Region 2",
+"DRNAREA": 103.0,
+"CSL10_85": 8.25,
+"flows": [
+4440.0,
+6760.0,
+8360.0,
+10500.0,
+12100.0,
+13700.0,
+15400.0,
+17700.0
+]
+},
+"03215500": {
+"name": "Blaine Creek at Yatesville, Kentucky",
+"region": "Region 2",
+"DRNAREA": 217.0,
+"CSL10_85": 3.5,
+"flows": [
+7630.0,
+11600.0,
+14200.0,
+17800.0,
+20500.0,
+23100.0,
+25900.0,
+29500.0
+]
+},
+"03216540": {
+"name": "East Fork Little Sandy River near Fallsburg, Kentucky",
+"region": "Region 2",
+"DRNAREA": 12.2,
+"CSL10_85": 18.3,
+"flows": [
+939.0,
+1450.0,
+1820.0,
+2320.0,
+2700.0,
+3090.0,
+3500.0,
+4050.0
+]
+},
+"03216563": {
+"name": "Mile Branch near Rush, Kentucky",
+"region": "Region 2",
+"DRNAREA": 0.94,
+"CSL10_85": 85.0,
+"flows": [
+145.0,
+229.0,
+291.0,
+376.0,
+444.0,
+515.0,
+589.0,
+691.0
+]
+},
+"03216564": {
+"name": "Mile Branch at Coalton, Kentucky",
+"region": "Region 2",
+"DRNAREA": 1.61,
+"CSL10_85": 74.0,
+"flows": [
+215.0,
+337.0,
+427.0,
+551.0,
+649.0,
+751.0,
+856.0,
+1000.0
+]
+},
+"03216800": {
+"name": "Tygarts Creek at Olive Hill, Kentucky",
+"region": "Region 2",
+"DRNAREA": 59.6,
+"CSL10_85": 17.8,
+"flows": [
+2980.0,
+4550.0,
+5650.0,
+7130.0,
+8250.0,
+9370.0,
+10500.0,
+12100.0
+]
+},
+"03216901": {
+"name": "Trough Camp Creek Tributary near Olive Hill, Kentucky",
+"region": "Region 2",
+"DRNAREA": 1.11,
+"CSL10_85": 104.0,
+"flows": [
+164.0,
+258.0,
+328.0,
+423.0,
+499.0,
+579.0,
+661.0,
+775.0
+]
+},
+"03217000": {
+"name": "Tygarts Creek near Greenup, Kentucky",
+"region": "Region 2",
+"DRNAREA": 242.0,
+"CSL10_85": 4.6,
+"flows": [
+8270.0,
+12500.0,
+15400.0,
+19300.0,
+22100.0,
+24900.0,
+27900.0,
+31800.0
+]
+},
+"03237900": {
+"name": "Cabin Creek near Tollesboro, Kentucky",
+"region": "Region 1",
+"DRNAREA": 22.4,
+"CSL10_85": 32.4,
+"flows": [
+2530.0,
+3730.0,
+6030.0,
+7850.0,
+9280.0,
+10800.0,
+12400.0,
+14600.0
+]
+},
+"03238030": {
+"name": "Lawrence Creek near Maysville, Kentucky",
+"region": "Region 1",
+"DRNAREA": 1.9,
+"CSL10_85": 53.1,
+"flows": [
+481.0,
+749.0,
+943.0,
+1190.0,
+1380.0,
+1570.0,
+1780.0,
+2050.0
+]
+},
+"03248500": {
+"name": "Licking River near Salyersville, Kentucky",
+"region": "Region 2",
+"DRNAREA": 140.0,
+"CSL10_85": 4.7,
+"flows": [
+5550.0,
+8430.0,
+10400.0,
+13100.0,
+15000.0,
+17000.0,
+19100.0,
+21800.0
+]
+},
+"03250000": {
+"name": "Triplett Creek at Morehead, Kentucky",
+"region": "Region 2",
+"DRNAREA": 47.5,
+"CSL10_85": 29.4,
+"flows": [
+2530.0,
+3870.0,
+4810.0,
+6070.0,
+7030.0,
+7990.0,
+9000.0,
+10300.0
+]
+},
+"03250080": {
+"name": "Jacks Branch near Morehead, Kentucky",
+"region": "Region 2",
+"DRNAREA": 0.19,
+"CSL10_85": 164.0,
+"flows": [
+45.4,
+72.2,
+92.7,
+121.0,
+144.0,
+169.0,
+194.0,
+229.0
+]
+},
+"03250100": {
+"name": "North Fork Triplett Creek near Morehead, Kentucky",
+"region": "Region 2",
+"DRNAREA": 84.7,
+"CSL10_85": 15.8,
+"flows": [
+3850.0,
+5870.0,
+7270.0,
+9150.0,
+10600.0,
+12000.0,
+13500.0,
+15400.0
+]
+},
+"03250150": {
+"name": "Indian Creek near Owingsville, Kentucky",
+"region": "Region 2",
+"DRNAREA": 2.43,
+"CSL10_85": 45.5,
+"flows": [
+290.0,
+453.0,
+574.0,
+738.0,
+867.0,
+1000.0,
+1140.0,
+1330.0
+]
+},
+"03250620": {
+"name": "Johnson Creek Tributary near Fairview, Kentucky",
+"region": "Region 2",
+"DRNAREA": 0.33,
+"CSL10_85": 130.0,
+"flows": [
+67.8,
+107.0,
+138.0,
+179.0,
+213.0,
+248.0,
+285.0,
+336.0
+]
+},
+"03251000": {
+"name": "North Fork Licking River near Lewisburg, Kentucky",
+"region": "Region 2",
+"DRNAREA": 119.0,
+"CSL10_85": 2.6,
+"flows": [
+4930.0,
+7500.0,
+9270.0,
+11600.0,
+13400.0,
+15200.0,
+17000.0,
+19500.0
+]
+},
+"03251008": {
+"name": "Wells Creek Tributary near Washington, Kentucky",
+"region": "Region 2",
+"DRNAREA": 0.96,
+"CSL10_85": 123.0,
+"flows": [
+148.0,
+232.0,
+295.0,
+382.0,
+451.0,
+523.0,
+598.0,
+701.0
+]
+},
+"03251015": {
+"name": "Lee Creek Tributary at Mays Lick, Kentucky",
+"region": "Region 2",
+"DRNAREA": 0.45,
+"CSL10_85": 81.2,
+"flows": [
+85.0,
+134.0,
+172.0,
+223.0,
+264.0,
+308.0,
+353.0,
+416.0
+]
+},
+"03252000": {
+"name": "Stoner Creek at Paris, Kentucky",
+"region": "Region 2",
+"DRNAREA": 239.0,
+"CSL10_85": 2.4,
+"flows": [
+8190.0,
+12400.0,
+15300.0,
+19100.0,
+21900.0,
+24700.0,
+27700.0,
+31600.0
+]
+},
+"03252500": {
+"name": "South Fork Licking River at Cynthiana, Kentucky",
+"region": "Region 2",
+"DRNAREA": 621.0,
+"CSL10_85": 2.41,
+"flows": [
+16400.0,
+24700.0,
+30200.0,
+37600.0,
+42900.0,
+48200.0,
+53700.0,
+61000.0
+]
+},
+"03254400": {
+"name": "North Fork Grassy Creek near Piner, Kentucky",
+"region": "Region 1",
+"DRNAREA": 13.6,
+"CSL10_85": 28.2,
+"flows": [
+1810.0,
+2700.0,
+3730.0,
+4720.0,
+5500.0,
+6290.0,
+7130.0,
+8270.0
+]
+},
+"03277185": {
+"name": "Craigs Creek Tributary near Warsaw, Kentucky",
+"region": "Region 1",
+"DRNAREA": 0.68,
+"CSL10_85": 206.0,
+"flows": [
+241.0,
+384.0,
+731.0,
+1000.0,
+1230.0,
+1460.0,
+1710.0,
+2070.0
+]
+},
+"03277300": {
+"name": "North Fork Kentucky River at Whitesburg, Kentucky",
+"region": "Region 2",
+"DRNAREA": 66.4,
+"CSL10_85": 19.5,
+"flows": [
+3220.0,
+4920.0,
+6110.0,
+7700.0,
+8900.0,
+10100.0,
+11400.0,
+13000.0
+]
+},
+"03277400": {
+"name": "Leatherwood Creek at Daisy, Kentucky",
+"region": "Region 3",
+"DRNAREA": 40.9,
+"CSL10_85": 51.2,
+"flows": [
+3000.0,
+4990.0,
+6490.0,
+8580.0,
+10200.0,
+12000.0,
+13800.0,
+16400.0
+]
+},
+"03277500": {
+"name": "North Fork Kentucky River at Hazard, Kentucky",
+"region": "Region 3",
+"DRNAREA": 466.0,
+"CSL10_85": 7.4,
+"flows": [
+14800.0,
+22400.0,
+27600.0,
+34500.0,
+39600.0,
+44600.0,
+49800.0,
+57000.0
+]
+},
+"03277630": {
+"name": "Brier Fork near Hazard, Kentucky",
+"region": "Region 3",
+"DRNAREA": 1.32,
+"CSL10_85": 188.0,
+"flows": [
+230.0,
+433.0,
+603.0,
+860.0,
+1080.0,
+1310.0,
+1570.0,
+1950.0
+]
+},
+"03278000": {
+"name": "Bear Branch near Noble, Kentucky",
+"region": "Region 2",
+"DRNAREA": 2.21,
+"CSL10_85": 125.0,
+"flows": [
+271.0,
+423.0,
+536.0,
+690.0,
+811.0,
+937.0,
+1070.0,
+1250.0
+]
+},
+"03278500": {
+"name": "Troublesome Creek at Noble, Kentucky",
+"region": "Region 2",
+"DRNAREA": 177.0,
+"CSL10_85": 8.8,
+"flows": [
+6580.0,
+9980.0,
+12300.0,
+15400.0,
+17700.0,
+20100.0,
+22500.0,
+25600.0
+]
+},
+"03280000": {
+"name": "North Fork Kentucky River at Jackson, Kentucky",
+"region": "Region 2",
+"DRNAREA": 1101.0,
+"CSL10_85": 4.6,
+"flows": [
+28200.0,
+42000.0,
+51200.0,
+63300.0,
+72100.0,
+80700.0,
+89700.0,
+102000.0
+]
+},
+"03280600": {
+"name": "Middle Fork Kentucky River near Hyden, Kentucky",
+"region": "Region 3",
+"DRNAREA": 202.0,
+"CSL10_85": 24.5,
+"flows": [
+9910.0,
+15500.0,
+19600.0,
+25000.0,
+29200.0,
+33400.0,
+37800.0,
+44100.0
+]
+},
+"03280700": {
+"name": "Cutshin Creek at Wooton, Kentucky",
+"region": "Region 3",
+"DRNAREA": 61.3,
+"CSL10_85": 44.6,
+"flows": [
+4060.0,
+6650.0,
+8590.0,
+11300.0,
+13300.0,
+15500.0,
+17800.0,
+21000.0
+]
+},
+"03280728": {
+"name": "Bull Creek near Hyden, Kentucky",
+"region": "Region 3",
+"DRNAREA": 1.84,
+"CSL10_85": 203.0,
+"flows": [
+295.0,
+548.0,
+759.0,
+1070.0,
+1340.0,
+1630.0,
+1940.0,
+2390.0
+]
+},
+"03280935": {
+"name": "Stamper Fork at Canoe, Kentucky",
+"region": "Region 3",
+"DRNAREA": 1.57,
+"CSL10_85": 129.0,
+"flows": [
+262.0,
+489.0,
+680.0,
+966.0,
+1210.0,
+1470.0,
+1760.0,
+2170.0
+]
+},
+"03281040": {
+"name": "Red Bird River near Big Creek, Kentucky",
+"region": "Region 3",
+"DRNAREA": 155.0,
+"CSL10_85": 16.4,
+"flows": [
+8130.0,
+12900.0,
+16300.0,
+21000.0,
+24500.0,
+28200.0,
+32000.0,
+37400.0
+]
+},
+"03281100": {
+"name": "Goose Creek at Manchester, Kentucky",
+"region": "Region 3",
+"DRNAREA": 163.0,
+"CSL10_85": 13.7,
+"flows": [
+8440.0,
+13300.0,
+16900.0,
+21700.0,
+25400.0,
+29100.0,
+33000.0,
+38600.0
+]
+},
+"03281200": {
+"name": "South Fork Kentucky River at Oneida, Kentucky",
+"region": "Region 3",
+"DRNAREA": 486.0,
+"CSL10_85": 7.6,
+"flows": [
+19100.0,
+29000.0,
+36000.0,
+45100.0,
+51900.0,
+58700.0,
+65800.0,
+76000.0
+]
+},
+"03281500": {
+"name": "South Fork Kentucky River at Booneville, Kentucky",
+"region": "Region 3",
+"DRNAREA": 722.0,
+"CSL10_85": 5.1,
+"flows": [
+25700.0,
+38500.0,
+47400.0,
+58700.0,
+67300.0,
+75800.0,
+84600.0,
+97100.0
+]
+},
+"03282198": {
+"name": "Clear Creek Tributary near West Irvine, Kentucky",
+"region": "Region 3",
+"DRNAREA": 0.59,
+"CSL10_85": 149.0,
+"flows": [
+126.0,
+244.0,
+346.0,
+501.0,
+635.0,
+784.0,
+946.0,
+1180.0
+]
+},
+"03282500": {
+"name": "Red River near Hazel Green, Kentucky",
+"region": "Region 2",
+"DRNAREA": 65.8,
+"CSL10_85": 9.9,
+"flows": [
+3200.0,
+4890.0,
+6070.0,
+7650.0,
+8840.0,
+10000.0,
+11300.0,
+13000.0
+]
+},
+"03283000": {
+"name": "Stillwater Creek at Stillwater, Kentucky",
+"region": "Region 2",
+"DRNAREA": 24.0,
+"CSL10_85": 23.6,
+"flows": [
+1540.0,
+2360.0,
+2950.0,
+3740.0,
+4350.0,
+4960.0,
+5600.0,
+6460.0
+]
+},
+"03283305": {
+"name": "Middle Fork Red River at Zachariah, Kentucky",
+"region": "Region 2",
+"DRNAREA": 0.58,
+"CSL10_85": 160.0,
+"flows": [
+102.0,
+161.0,
+206.0,
+267.0,
+316.0,
+368.0,
+421.0,
+495.0
+]
+},
+"03283500": {
+"name": "Red River at Clay City, Kentucky",
+"region": "Region 2",
+"DRNAREA": 362.0,
+"CSL10_85": 6.0,
+"flows": [
+11100.0,
+16700.0,
+20500.0,
+25600.0,
+29400.0,
+33100.0,
+36900.0,
+42000.0
+]
+},
+"03283610": {
+"name": "Lulbegrud Creek Tributary near Westbend, Kentucky",
+"region": "Region 2",
+"DRNAREA": 0.33,
+"CSL10_85": 105.0,
+"flows": [
+67.8,
+107.0,
+138.0,
+179.0,
+213.0,
+248.0,
+285.0,
+336.0
+]
+},
+"03284300": {
+"name": "Silver Creek near Kingston, Kentucky",
+"region": "Region 3",
+"DRNAREA": 28.6,
+"CSL10_85": 22.2,
+"flows": [
+2300.0,
+3870.0,
+5070.0,
+6750.0,
+8090.0,
+9500.0,
+11000.0,
+13100.0
+]
+},
+"03284310": {
+"name": "Silver Creek near Berea, Kentucky",
+"region": "Region 3",
+"DRNAREA": 53.4,
+"CSL10_85": 11.0,
+"flows": [
+3660.0,
+6030.0,
+7810.0,
+10300.0,
+12200.0,
+14200.0,
+16300.0,
+19300.0
+]
+},
+"03284340": {
+"name": "Old Town Branch Tributary near Richmond, Kentucky",
+"region": "Region 3",
+"DRNAREA": 1.83,
+"CSL10_85": 61.9,
+"flows": [
+294.0,
+546.0,
+757.0,
+1070.0,
+1330.0,
+1620.0,
+1930.0,
+2390.0
+]
+},
+"03285000": {
+"name": "Dix River near Danville, Kentucky",
+"region": "Region 3",
+"DRNAREA": 318.0,
+"CSL10_85": 4.1,
+"flows": [
+13900.0,
+21500.0,
+26800.0,
+33900.0,
+39300.0,
+44700.0,
+50400.0,
+58400.0
+]
+},
+"03285500": {
+"name": "Dix River near Burgin, Kentucky",
+"region": "Region 3",
+"DRNAREA": 395.0,
+"CSL10_85": 5.34,
+"flows": [
+16400.0,
+25100.0,
+31200.0,
+39200.0,
+45300.0,
+51400.0,
+57800.0,
+66800.0
+]
+},
+"03287128": {
+"name": "Tanners Creek at Mortonsville, Kentucky",
+"region": "Region 2",
+"DRNAREA": 1.26,
+"CSL10_85": 58.0,
+"flows": [
+180.0,
+282.0,
+359.0,
+463.0,
+546.0,
+632.0,
+722.0,
+846.0
+]
+},
+"03287534": {
+"name": "South Benson Creek near Frankfort, Kentucky",
+"region": "Region 2",
+"DRNAREA": 4.47,
+"CSL10_85": 12.1,
+"flows": [
+452.0,
+704.0,
+887.0,
+1140.0,
+1330.0,
+1530.0,
+1740.0,
+2030.0
+]
+},
+"03288000": {
+"name": "North Elkhorn Creek near Georgetown, Kentucky",
+"region": "Region 2",
+"DRNAREA": 119.0,
+"CSL10_85": 3.8,
+"flows": [
+4930.0,
+7500.0,
+9270.0,
+11600.0,
+13400.0,
+15200.0,
+17000.0,
+19500.0
+]
+},
+"03288500": {
+"name": "Cave Creek near Fort Spring, Kentucky",
+"region": "Region 2",
+"DRNAREA": 2.53,
+"CSL10_85": 38.5,
+"flows": [
+299.0,
+467.0,
+590.0,
+759.0,
+892.0,
+1030.0,
+1170.0,
+1370.0
+]
+},
+"03289000": {
+"name": "South Elkhorn Creek at Fort Spring, Kentucky",
+"region": "Region 2",
+"DRNAREA": 24.0,
+"CSL10_85": 16.5,
+"flows": [
+1540.0,
+2360.0,
+2950.0,
+3740.0,
+4350.0,
+4960.0,
+5600.0,
+6460.0
+]
+},
+"03289300": {
+"name": "South Elkhorn Creek near Midway, Kentucky",
+"region": "Region 2",
+"DRNAREA": 95.0,
+"CSL10_85": 5.17,
+"flows": [
+4180.0,
+6370.0,
+7890.0,
+9920.0,
+11500.0,
+13000.0,
+14600.0,
+16700.0
+]
+},
+"03289500": {
+"name": "Elkhorn Creek near Frankfort, Kentucky",
+"region": "Region 2",
+"DRNAREA": 473.0,
+"CSL10_85": 3.6,
+"flows": [
+13500.0,
+20300.0,
+24900.0,
+31000.0,
+35500.0,
+39900.0,
+44500.0,
+50500.0
+]
+},
+"03290000": {
+"name": "Flat Creek near Frankfort, Kentucky",
+"region": "Region 1",
+"DRNAREA": 5.63,
+"CSL10_85": 39.8,
+"flows": [
+998.0,
+1520.0,
+2070.0,
+2630.0,
+3070.0,
+3510.0,
+3980.0,
+4620.0
+]
+},
+"03290580": {
+"name": "Town Creek at New Castle, Kentucky",
+"region": "Region 1",
+"DRNAREA": 5.62,
+"CSL10_85": 37.2,
+"flows": [
+997.0,
+1520.0,
+2000.0,
+2530.0,
+2940.0,
+3360.0,
+3800.0,
+4390.0
+]
+},
+"03291000": {
+"name": "Eagle Creek at Sadieville, Kentucky",
+"region": "Region 1",
+"DRNAREA": 42.9,
+"CSL10_85": 9.0,
+"flows": [
+3920.0,
+5700.0,
+5860.0,
+6980.0,
+7810.0,
+8660.0,
+9520.0,
+10700.0
+]
+},
+"03291050": {
+"name": "South Rays Fork near Corinth, Kentucky",
+"region": "Region 1",
+"DRNAREA": 0.58,
+"CSL10_85": 73.9,
+"flows": [
+216.0,
+346.0,
+402.0,
+505.0,
+583.0,
+661.0,
+743.0,
+851.0
+]
+},
+"03291500": {
+"name": "Eagle Creek at Glencoe, Kentucky",
+"region": "Region 1",
+"DRNAREA": 437.0,
+"CSL10_85": 3.49,
+"flows": [
+18700.0,
+25800.0,
+27000.0,
+31800.0,
+35300.0,
+39100.0,
+42800.0,
+47900.0
+]
+},
+"03292200": {
+"name": "Jeff Branch near Sligo, Kentucky",
+"region": "Region 1",
+"DRNAREA": 0.87,
+"CSL10_85": 139.0,
+"flows": [
+284.0,
+450.0,
+753.0,
+1010.0,
+1210.0,
+1420.0,
+1650.0,
+1970.0
+]
+},
+"03292460": {
+"name": "Harrods Creek near Lagrange, Kentucky",
+"region": "Region 1",
+"DRNAREA": 24.1,
+"CSL10_85": 11.7,
+"flows": [
+2660.0,
+3910.0,
+4060.0,
+4860.0,
+5460.0,
+6070.0,
+6680.0,
+7520.0
+]
+},
+"03292472": {
+"name": "South Fork Harrods Creek near Crestwood, Kentucky",
+"region": "Region 1",
+"DRNAREA": 0.97,
+"CSL10_85": 109.0,
+"flows": [
+306.0,
+483.0,
+740.0,
+973.0,
+1160.0,
+1350.0,
+1550.0,
+1830.0
+]
+},
+"03295000": {
+"name": "Salt River near Harrodsburg, Kentucky",
+"region": "Region 2",
+"DRNAREA": 41.4,
+"CSL10_85": 8.5,
+"flows": [
+2290.0,
+3500.0,
+4360.0,
+5510.0,
+6380.0,
+7260.0,
+8180.0,
+9410.0
+]
+},
+"03295500": {
+"name": "Salt River near Van Buren, Kentucky",
+"region": "Region 2",
+"DRNAREA": 196.0,
+"CSL10_85": 3.7,
+"flows": [
+7090.0,
+10700.0,
+13200.0,
+16600.0,
+19100.0,
+21500.0,
+24100.0,
+27500.0
+]
+},
+"03295845": {
+"name": "Bradshaw Creek near Shelbyville, Kentucky",
+"region": "Region 1",
+"DRNAREA": 1.36,
+"CSL10_85": 75.1,
+"flows": [
+384.0,
+602.0,
+832.0,
+1070.0,
+1260.0,
+1450.0,
+1650.0,
+1920.0
+]
+},
+"03295890": {
+"name": "Brashears Creek at Taylorsville, Kentucky",
+"region": "Region 1",
+"DRNAREA": 259.0,
+"CSL10_85": 6.01,
+"flows": [
+13100.0,
+18400.0,
+22200.0,
+27000.0,
+30500.0,
+34300.0,
+38100.0,
+43300.0
+]
+},
+"03296500": {
+"name": "Plum Creek near Wilsonville, Kentucky",
+"region": "Region 1",
+"DRNAREA": 19.1,
+"CSL10_85": 14.8,
+"flows": [
+2270.0,
+3360.0,
+3700.0,
+4490.0,
+5080.0,
+5680.0,
+6300.0,
+7130.0
+]
+},
+"03297000": {
+"name": "Little Plum Creek near Waterford, Kentucky",
+"region": "Region 1",
+"DRNAREA": 5.15,
+"CSL10_85": 52.1,
+"flows": [
+940.0,
+1430.0,
+2170.0,
+2810.0,
+3320.0,
+3840.0,
+4390.0,
+5160.0
+]
+},
+"03297500": {
+"name": "Plum Creek at Waterford, Kentucky",
+"region": "Region 1",
+"DRNAREA": 31.8,
+"CSL10_85": 15.0,
+"flows": [
+3200.0,
+4690.0,
+5730.0,
+7060.0,
+8070.0,
+9110.0,
+10200.0,
+11600.0
+]
+},
+"03297845": {
+"name": "Floyds Fork at Crestwood, Kentucky",
+"region": "Region 1",
+"DRNAREA": 46.7,
+"CSL10_85": 8.85,
+"flows": [
+4150.0,
+6020.0,
+6250.0,
+7440.0,
+8340.0,
+9250.0,
+10200.0,
+11400.0
+]
+},
+"03298000": {
+"name": "Floyds Fork at Fisherville, Kentucky",
+"region": "Region 1",
+"DRNAREA": 138.0,
+"CSL10_85": 5.5,
+"flows": [
+8600.0,
+12200.0,
+12600.0,
+14800.0,
+16500.0,
+18300.0,
+20100.0,
+22500.0
+]
+},
+"03298535": {
+"name": "Elm Lick near Clermont, Kentucky",
+"region": "Region 1",
+"DRNAREA": 0.68,
+"CSL10_85": 130.0,
+"flows": [
+241.0,
+384.0,
+595.0,
+786.0,
+939.0,
+1090.0,
+1260.0,
+1490.0
+]
+},
+"03299000": {
+"name": "Rolling Fork near Lebanon, Kentucky",
+"region": "Region 5",
+"DRNAREA": 239.0,
+"CSL10_85": 9.05,
+"flows": [
+12300.0,
+19300.0,
+24400.0,
+31600.0,
+37100.0,
+43200.0,
+49400.0,
+58100.0
+]
+},
+"03300000": {
+"name": "Beech Fork near Springfield, Kentucky",
+"region": "Region 2",
+"DRNAREA": 85.9,
+"CSL10_85": 5.8,
+"flows": [
+3890.0,
+5930.0,
+7340.0,
+9240.0,
+10700.0,
+12100.0,
+13600.0,
+15600.0
+]
+},
+"03300065": {
+"name": "North Prong near Willisburg, Kentucky",
+"region": "Region 2",
+"DRNAREA": 1.71,
+"CSL10_85": 75.6,
+"flows": [
+225.0,
+352.0,
+446.0,
+575.0,
+677.0,
+783.0,
+893.0,
+1040.0
+]
+},
+"03300400": {
+"name": "Beech Fork at Maud, Kentucky",
+"region": "Region 2",
+"DRNAREA": 436.0,
+"CSL10_85": 3.76,
+"flows": [
+12700.0,
+19100.0,
+23400.0,
+29200.0,
+33500.0,
+37700.0,
+42000.0,
+47800.0
+]
+},
+"03300990": {
+"name": "Town Creek Tributary at Bardstown, Kentucky",
+"region": "Region 2",
+"DRNAREA": 0.32,
+"CSL10_85": 106.0,
+"flows": [
+66.3,
+105.0,
+135.0,
+175.0,
+208.0,
+243.0,
+279.0,
+328.0
+]
+},
+"03301000": {
+"name": "Beech Fork at Bardstown, Kentucky",
+"region": "Region 2",
+"DRNAREA": 669.0,
+"CSL10_85": 3.7,
+"flows": [
+17300.0,
+26000.0,
+31800.0,
+39600.0,
+45200.0,
+50800.0,
+56600.0,
+64200.0
+]
+},
+"03301500": {
+"name": "Rolling Fork near Boston, Kentucky",
+"region": "Region 5",
+"DRNAREA": 1299.0,
+"CSL10_85": 3.5,
+"flows": [
+40500.0,
+62400.0,
+78100.0,
+100000.0,
+117000.0,
+136000.0,
+155000.0,
+182000.0
+]
+},
+"03302085": {
+"name": "Otter Creek Tributary near Vine Grove, Kentucky",
+"region": "Region 5",
+"DRNAREA": 0.9,
+"CSL10_85": 60.5,
+"flows": [
+241.0,
+406.0,
+531.0,
+702.0,
+839.0,
+987.0,
+1140.0,
+1350.0
+]
+},
+"03304500": {
+"name": "Mcgills Creek near Mckinney, Kentucky",
+"region": "Region 5",
+"DRNAREA": 2.14,
+"CSL10_85": 150.0,
+"flows": [
+444.0,
+740.0,
+962.0,
+1270.0,
+1510.0,
+1770.0,
+2040.0,
+2420.0
+]
+},
+"03305000": {
+"name": "Green River near Mckinney, Kentucky",
+"region": "Region 5",
+"DRNAREA": 22.4,
+"CSL10_85": 32.1,
+"flows": [
+2320.0,
+3760.0,
+4820.0,
+6280.0,
+7440.0,
+8700.0,
+9980.0,
+11800.0
+]
+},
+"03305500": {
+"name": "Green River near Mount Salem, Kentucky",
+"region": "Region 5",
+"DRNAREA": 36.3,
+"CSL10_85": 28.4,
+"flows": [
+3260.0,
+5250.0,
+6710.0,
+8730.0,
+10300.0,
+12100.0,
+13800.0,
+16300.0
+]
+},
+"03305559": {
+"name": "Carpenter Creek Tributary near Hustonville, Kentucky",
+"region": "Region 5",
+"DRNAREA": 0.88,
+"CSL10_85": 105.0,
+"flows": [
+238.0,
+400.0,
+523.0,
+691.0,
+826.0,
+972.0,
+1120.0,
+1330.0
+]
+},
+"03305835": {
+"name": "Gumlick Creek Tributary near Clementsville, Kentucky",
+"region": "Region 5",
+"DRNAREA": 0.71,
+"CSL10_85": 154.0,
+"flows": [
+204.0,
+345.0,
+451.0,
+597.0,
+714.0,
+841.0,
+968.0,
+1150.0
+]
+},
+"03306640": {
+"name": "White Oak Creek Tributary near Montpelier, Kentucky",
+"region": "Region 5",
+"DRNAREA": 0.5,
+"CSL10_85": 125.0,
+"flows": [
+160.0,
+270.0,
+355.0,
+470.0,
+563.0,
+663.0,
+764.0,
+909.0
+]
+},
+"03307000": {
+"name": "Russell Creek near Columbia, Kentucky",
+"region": "Region 5",
+"DRNAREA": 188.0,
+"CSL10_85": 9.38,
+"flows": [
+10400.0,
+16400.0,
+20700.0,
+26800.0,
+31500.0,
+36700.0,
+42000.0,
+49400.0
+]
+},
+"03307100": {
+"name": "Russell Creek near Gresham, Kentucky",
+"region": "Region 5",
+"DRNAREA": 265.0,
+"CSL10_85": 5.1,
+"flows": [
+13200.0,
+20800.0,
+26200.0,
+33900.0,
+39800.0,
+46300.0,
+53000.0,
+62300.0
+]
+},
+"03307500": {
+"name": "South Fork Little Barren River at Edmonton, Kentucky",
+"region": "Region 5",
+"DRNAREA": 18.3,
+"CSL10_85": 16.4,
+"flows": [
+2010.0,
+3270.0,
+4190.0,
+5470.0,
+6490.0,
+7590.0,
+8710.0,
+10300.0
+]
+},
+"03309500": {
+"name": "Mcdougal Creek near Hodgenville, Kentucky",
+"region": "Region 5",
+"DRNAREA": 5.34,
+"CSL10_85": 24.0,
+"flows": [
+846.0,
+1390.0,
+1800.0,
+2360.0,
+2810.0,
+3290.0,
+3790.0,
+4480.0
+]
+},
+"03310000": {
+"name": "North Fork Nolin River at Hodgenville, Kentucky",
+"region": "Region 5",
+"DRNAREA": 36.4,
+"CSL10_85": 20.0,
+"flows": [
+3270.0,
+5260.0,
+6720.0,
+8750.0,
+10300.0,
+12100.0,
+13900.0,
+16400.0
+]
+},
+"03310300": {
+"name": "Nolin River at White Mills, Kentucky",
+"region": "Region 6",
+"DRNAREA": 357.0,
+"CSL10_85": 4.2,
+"flows": [
+14900.0,
+23200.0,
+29100.0,
+37300.0,
+43600.0,
+50600.0,
+57700.0,
+67500.0
+]
+},
+"03310385": {
+"name": "Bacon Creek Tributary near Upton, Kentucky",
+"region": "Region 6",
+"DRNAREA": 0.56,
+"CSL10_85": 117.0,
+"flows": [
+181.0,
+283.0,
+357.0,
+457.0,
+534.0,
+612.0,
+691.0,
+799.0
+]
+},
+"03310400": {
+"name": "Bacon Creek near Priceville, Kentucky",
+"region": "Region 6",
+"DRNAREA": 85.4,
+"CSL10_85": 7.99,
+"flows": [
+3690.0,
+5380.0,
+6520.0,
+7990.0,
+9090.0,
+10200.0,
+11200.0,
+12800.0
+]
+},
+"03310500": {
+"name": "Nolin River at Wax, Kentucky",
+"region": "Region 6",
+"DRNAREA": 600.0,
+"CSL10_85": 2.6,
+"flows": [
+17600.0,
+26500.0,
+32800.0,
+41300.0,
+47900.0,
+54900.0,
+62100.0,
+72000.0
+]
+},
+"03310880": {
+"name": "Brier Creek Tributary near Ollie, Kentucky",
+"region": "Region 6",
+"DRNAREA": 0.31,
+"CSL10_85": 310.0,
+"flows": [
+127.0,
+200.0,
+254.0,
+327.0,
+382.0,
+440.0,
+498.0,
+577.0
+]
+},
+"03311600": {
+"name": "Beaverdam Creek at Rhoda, Kentucky",
+"region": "Region 6",
+"DRNAREA": 10.9,
+"CSL10_85": 23.8,
+"flows": [
+1070.0,
+1610.0,
+1980.0,
+2480.0,
+2850.0,
+3220.0,
+3590.0,
+4100.0
+]
+},
+"03312000": {
+"name": "Bear Branch near Leitchfield, Kentucky",
+"region": "Region 6",
+"DRNAREA": 30.8,
+"CSL10_85": 26.8,
+"flows": [
+2000.0,
+2960.0,
+3620.0,
+4470.0,
+5110.0,
+5750.0,
+6390.0,
+7270.0
+]
+},
+"03312500": {
+"name": "Barren River near Pageville, Kentucky",
+"region": "Region 5",
+"DRNAREA": 531.0,
+"CSL10_85": 4.3,
+"flows": [
+21500.0,
+33600.0,
+42300.0,
+54400.0,
+63800.0,
+74200.0,
+84800.0,
+99600.0
+]
+},
+"03312795": {
+"name": "Little Beaver Creek near Glasgow, Kentucky",
+"region": "Region 5",
+"DRNAREA": 0.89,
+"CSL10_85": 186.0,
+"flows": [
+240.0,
+403.0,
+527.0,
+696.0,
+832.0,
+980.0,
+1130.0,
+1340.0
+]
+},
+"03313020": {
+"name": "Solomon Creek Tributary near Scottsville, Kentucky",
+"region": "Region 5",
+"DRNAREA": 0.24,
+"CSL10_85": 122.0,
+"flows": [
+95.2,
+163.0,
+215.0,
+285.0,
+342.0,
+403.0,
+465.0,
+554.0
+]
+},
+"03313500": {
+"name": "West Bays Fork at Scottsville, Kentucky",
+"region": "Region 5",
+"DRNAREA": 7.47,
+"CSL10_85": 47.2,
+"flows": [
+1070.0,
+1760.0,
+2270.0,
+2970.0,
+3530.0,
+4140.0,
+4750.0,
+5620.0
+]
+},
+"03313700": {
+"name": "West Fork Drakes Creek near Franklin, Kentucky",
+"region": "Region 5",
+"DRNAREA": 110.0,
+"CSL10_85": 9.06,
+"flows": [
+7110.0,
+11300.0,
+14400.0,
+18600.0,
+21900.0,
+25500.0,
+29300.0,
+34500.0
+]
+},
+"03313800": {
+"name": "Lick Creek near Franklin, Kentucky",
+"region": "Region 5",
+"DRNAREA": 21.6,
+"CSL10_85": 19.5,
+"flows": [
+2260.0,
+3660.0,
+4700.0,
+6130.0,
+7260.0,
+8490.0,
+9740.0,
+11500.0
+]
+},
+"03314000": {
+"name": "Drakes Creek near Alvaton, Kentucky",
+"region": "Region 5",
+"DRNAREA": 478.0,
+"CSL10_85": 6.6,
+"flows": [
+20000.0,
+31200.0,
+39300.0,
+50700.0,
+59400.0,
+69100.0,
+79000.0,
+92700.0
+]
+},
+"03314750": {
+"name": "Barren River Tributary near Bowling Green, Kentucky",
+"region": "Region 5",
+"DRNAREA": 0.5,
+"CSL10_85": 227.0,
+"flows": [
+160.0,
+270.0,
+355.0,
+470.0,
+563.0,
+663.0,
+764.0,
+909.0
+]
+},
+"03316000": {
+"name": "Mud River near Lewisburg, Kentucky",
+"region": "Region 6",
+"DRNAREA": 90.5,
+"CSL10_85": 7.1,
+"flows": [
+3820.0,
+5560.0,
+6750.0,
+8260.0,
+9390.0,
+10500.0,
+11600.0,
+13200.0
+]
+},
+"03317000": {
+"name": "Rough River near Madrid, Kentucky",
+"region": "Region 6",
+"DRNAREA": 225.0,
+"CSL10_85": 4.9,
+"flows": [
+6600.0,
+9490.0,
+11400.0,
+13900.0,
+15700.0,
+17500.0,
+19300.0,
+21700.0
+]
+},
+"03317500": {
+"name": "North Fork Rough River near Westview, Kentucky",
+"region": "Region 6",
+"DRNAREA": 42.0,
+"CSL10_85": 15.3,
+"flows": [
+2410.0,
+3550.0,
+4330.0,
+5330.0,
+6090.0,
+6840.0,
+7590.0,
+8630.0
+]
+},
+"03318000": {
+"name": "Rough River near Falls of Rough, Kentucky",
+"region": "Region 6",
+"DRNAREA": 454.0,
+"CSL10_85": 3.4,
+"flows": [
+10100.0,
+14300.0,
+17100.0,
+20700.0,
+23300.0,
+25900.0,
+28400.0,
+32000.0
+]
+},
+"03318200": {
+"name": "Rock Lick Creek near Glen Dean, Kentucky",
+"region": "Region 6",
+"DRNAREA": 20.1,
+"CSL10_85": 31.3,
+"flows": [
+1550.0,
+2300.0,
+2830.0,
+3510.0,
+4020.0,
+4530.0,
+5040.0,
+5750.0
+]
+},
+"03318505": {
+"name": "Pleasant Run Tributary near Falls of Rough River, Kentucky",
+"region": "Region 6",
+"DRNAREA": 0.22,
+"CSL10_85": 246.0,
+"flows": [
+103.0,
+163.0,
+208.0,
+269.0,
+315.0,
+363.0,
+411.0,
+478.0
+]
+},
+"03318800": {
+"name": "Caney Creek near Horse Branch, Kentucky",
+"region": "Region 6",
+"DRNAREA": 124.0,
+"CSL10_85": 3.0,
+"flows": [
+4620.0,
+6690.0,
+8090.0,
+9880.0,
+11200.0,
+12500.0,
+13800.0,
+15700.0
+]
+},
+"03319520": {
+"name": "West Fork Adams Tributary near Fordsville, Kentucky",
+"region": "Region 6",
+"DRNAREA": 0.26,
+"CSL10_85": 122.0,
+"flows": [
+114.0,
+180.0,
+229.0,
+296.0,
+346.0,
+398.0,
+451.0,
+524.0
+]
+},
+"03320500": {
+"name": "Pond River near Apex, Kentucky",
+"region": "Region 7",
+"DRNAREA": 194.0,
+"CSL10_85": 4.63,
+"flows": [
+7800.0,
+12200.0,
+15500.0,
+20000.0,
+23800.0,
+27500.0,
+31800.0,
+37500.0
+]
+},
+"03321465": {
+"name": "Rhodes Creek Tributary near Owensboro, Kentucky",
+"region": "Region 6",
+"DRNAREA": 0.29,
+"CSL10_85": 62.1,
+"flows": [
+122.0,
+192.0,
+244.0,
+314.0,
+368.0,
+423.0,
+479.0,
+556.0
+]
+},
+"03322360": {
+"name": "Beaverdam Creek near Corydon, Kentucky",
+"region": "Region 6",
+"DRNAREA": 14.3,
+"CSL10_85": 13.5,
+"flows": [
+1260.0,
+1890.0,
+2320.0,
+2890.0,
+3320.0,
+3740.0,
+4170.0,
+4760.0
+]
+},
+"03382975": {
+"name": "Ward Creek at Lewiston, Kentucky",
+"region": "Region 7",
+"DRNAREA": 0.91,
+"CSL10_85": 10.7,
+"flows": [
+276.0,
+449.0,
+580.0,
+759.0,
+903.0,
+1050.0,
+1210.0,
+1430.0
+]
+},
+"03383000": {
+"name": "Tradewater River at Olney, Kentucky",
+"region": "Region 7",
+"DRNAREA": 255.0,
+"CSL10_85": 2.0,
+"flows": [
+9250.0,
+14500.0,
+18300.0,
+23600.0,
+28100.0,
+32400.0,
+37600.0,
+44400.0
+]
+},
+"03384000": {
+"name": "Rose Creek at Nebo, Kentucky",
+"region": "Region 7",
+"DRNAREA": 2.1,
+"CSL10_85": 28.8,
+"flows": [
+465.0,
+752.0,
+968.0,
+1260.0,
+1500.0,
+1740.0,
+2010.0,
+2370.0
+]
+},
+"03400500": {
+"name": "Poor Fork at Cumberland, Kentucky",
+"region": "Region 2",
+"DRNAREA": 82.3,
+"CSL10_85": 28.1,
+"flows": [
+3770.0,
+5750.0,
+7120.0,
+8960.0,
+10400.0,
+11700.0,
+13200.0,
+15100.0
+]
+},
+"03400700": {
+"name": "Clover Fork at Evarts, Kentucky",
+"region": "Region 3",
+"DRNAREA": 82.4,
+"CSL10_85": 38.8,
+"flows": [
+5070.0,
+8210.0,
+10500.0,
+13700.0,
+16200.0,
+18800.0,
+21500.0,
+25300.0
+]
+},
+"03401500": {
+"name": "Yellow Creek Bypass at Middlesboro, Kentucky",
+"region": "Region 4",
+"DRNAREA": 35.3,
+"CSL10_85": 127.0,
+"flows": [
+2810.0,
+4160.0,
+5090.0,
+6280.0,
+7190.0,
+6320.0,
+7060.0,
+8100.0
+]
+},
+"03402000": {
+"name": "Yellow Creek near Middlesboro, Kentucky",
+"region": "Region 4",
+"DRNAREA": 60.6,
+"CSL10_85": 74.4,
+"flows": [
+4150.0,
+6100.0,
+7450.0,
+9180.0,
+10500.0,
+9630.0,
+10700.0,
+12300.0
+]
+},
+"03402020": {
+"name": "Shillalah Creek near Page, Kentucky",
+"region": "Region 4",
+"DRNAREA": 2.96,
+"CSL10_85": 343.0,
+"flows": [
+349.0,
+545.0,
+682.0,
+857.0,
+988.0,
+914.0,
+1030.0,
+1180.0
+]
+},
+"03403910": {
+"name": "Clear Fork at Saxton, Kentucky",
+"region": "Region 4",
+"DRNAREA": 331.0,
+"CSL10_85": 15.4,
+"flows": [
+14400.0,
+20800.0,
+25200.0,
+30800.0,
+35000.0,
+36200.0,
+40300.0,
+46000.0
+]
+},
+"03404820": {
+"name": "Laurel River at Municipal Dam near. Corbin, Kentucky",
+"region": "Region 4",
+"DRNAREA": 140.0,
+"CSL10_85": 3.7,
+"flows": [
+4870.0,
+7380.0,
+9140.0,
+11300.0,
+12900.0,
+18500.0,
+20600.0,
+23600.0
+]
+},
+"03404867": {
+"name": "Gozey Hollow near Corbin, Kentucky",
+"region": "Region 4",
+"DRNAREA": 0.31,
+"CSL10_85": 98.3,
+"flows": [
+33.7,
+57.5,
+74.7,
+96.3,
+112.0,
+157.0,
+177.0,
+206.0
+]
+},
+"03404900": {
+"name": "Lynn Camp Creek at Corbin Kentucky",
+"region": "Region 4",
+"DRNAREA": 53.8,
+"CSL10_85": 10.3,
+"flows": [
+2480.0,
+3800.0,
+4720.0,
+5870.0,
+6720.0,
+8780.0,
+9790.0,
+11200.0
+]
+},
+"03405000": {
+"name": "Laurel River at Corbin, Kentucky",
+"region": "Region 4",
+"DRNAREA": 201.0,
+"CSL10_85": 5.8,
+"flows": [
+7460.0,
+11100.0,
+13600.0,
+16800.0,
+19100.0,
+24500.0,
+27300.0,
+31300.0
+]
+},
+"03405854": {
+"name": "Big Hurricane Branch at Conway, Kentucky",
+"region": "Region 3",
+"DRNAREA": 1.91,
+"CSL10_85": 103.0,
+"flows": [
+303.0,
+563.0,
+779.0,
+1100.0,
+1370.0,
+1670.0,
+1990.0,
+2450.0
+]
+},
+"03406000": {
+"name": "Wood Creek near London, Kentucky",
+"region": "Region 4",
+"DRNAREA": 3.89,
+"CSL10_85": 49.2,
+"flows": [
+303.0,
+485.0,
+615.0,
+777.0,
+896.0,
+1130.0,
+1270.0,
+1460.0
+]
+},
+"03406500": {
+"name": "Rockcastle River at Billows, Kentucky",
+"region": "Region 4",
+"DRNAREA": 604.0,
+"CSL10_85": 3.6,
+"flows": [
+19200.0,
+28100.0,
+34300.0,
+42100.0,
+47900.0,
+59200.0,
+65900.0,
+75300.0
+]
+},
+"03407100": {
+"name": "Cane Branch near Parkers Lake, Kentucky",
+"region": "Region 4",
+"DRNAREA": 0.67,
+"CSL10_85": 206.0,
+"flows": [
+79.9,
+131.0,
+168.0,
+214.0,
+248.0,
+287.0,
+323.0,
+374.0
+]
+},
+"03407200": {
+"name": "West Fork Cane Branch near Parkers Lake, Kentucky",
+"region": "Region 4",
+"DRNAREA": 0.26,
+"CSL10_85": 187.0,
+"flows": [
+32.7,
+55.4,
+71.7,
+92.2,
+107.0,
+137.0,
+155.0,
+179.0
+]
+},
+"03407300": {
+"name": "Helton Branch at Greenwood, Kentucky",
+"region": "Region 4",
+"DRNAREA": 0.85,
+"CSL10_85": 224.0,
+"flows": [
+101.0,
+165.0,
+210.0,
+268.0,
+310.0,
+345.0,
+389.0,
+450.0
+]
+},
+"03407500": {
+"name": "Buck Creek near Shopville, Kentucky",
+"region": "Region 4",
+"DRNAREA": 165.0,
+"CSL10_85": 10.1,
+"flows": [
+6960.0,
+10300.0,
+12600.0,
+15600.0,
+17700.0,
+21000.0,
+23400.0,
+26800.0
+]
+},
+"03410500": {
+"name": "South Fork Cumberland River near Stearns, Kentucky",
+"region": "Region 5",
+"DRNAREA": 954.0,
+"CSL10_85": 9.0,
+"flows": [
+32600.0,
+50400.0,
+63200.0,
+81200.0,
+95000.0,
+110000.0,
+126000.0,
+148000.0
+]
+},
+"03411000": {
+"name": "South Fork Cumberland River at Nevelsville, Kentucky",
+"region": "Region 5",
+"DRNAREA": 1271.0,
+"CSL10_85": 8.0,
+"flows": [
+39800.0,
+61500.0,
+76900.0,
+98700.0,
+115000.0,
+134000.0,
+153000.0,
+179000.0
+]
+},
+"03412500": {
+"name": "Pitman Creek at Somerset, Kentucky",
+"region": "Region 4",
+"DRNAREA": 31.3,
+"CSL10_85": 21.3,
+"flows": [
+1750.0,
+2680.0,
+3330.0,
+4150.0,
+4750.0,
+5750.0,
+6430.0,
+7380.0
+]
+},
+"03413200": {
+"name": "Beaver Creek near Monticello, Kentucky",
+"region": "Region 5",
+"DRNAREA": 43.4,
+"CSL10_85": 20.2,
+"flows": [
+3700.0,
+5940.0,
+7580.0,
+9870.0,
+11700.0,
+13600.0,
+15600.0,
+18400.0
+]
+},
+"03413202": {
+"name": "Elk Spring Creek near Spann, Kentucky",
+"region": "Region 5",
+"DRNAREA": 0.57,
+"CSL10_85": 333.0,
+"flows": [
+175.0,
+296.0,
+388.0,
+514.0,
+615.0,
+724.0,
+834.0,
+993.0
+]
+},
+"03413425": {
+"name": "Williams Creek Tributary near Cartwright, Kentucky",
+"region": "Region 5",
+"DRNAREA": 0.76,
+"CSL10_85": 190.0,
+"flows": [
+214.0,
+361.0,
+473.0,
+625.0,
+748.0,
+880.0,
+1010.0,
+1210.0
+]
+},
+"03414102": {
+"name": "Bear Creek near Burksville, Kentucky",
+"region": "Region 5",
+"DRNAREA": 3.52,
+"CSL10_85": 49.4,
+"flows": [
+631.0,
+1040.0,
+1350.0,
+1780.0,
+2120.0,
+2480.0,
+2860.0,
+3390.0
+]
+},
+"03435140": {
+"name": "Whippoorwill Creek near Claymour, Kentucky",
+"region": "Region 7",
+"DRNAREA": 20.8,
+"CSL10_85": 13.8,
+"flows": [
+1940.0,
+3090.0,
+3950.0,
+5120.0,
+6090.0,
+7050.0,
+8150.0,
+9620.0
+]
+},
+"03437490": {
+"name": "South Fork Little River Tributary near Hopkinsville, Kentucky",
+"region": "Region 7",
+"DRNAREA": 2.62,
+"CSL10_85": 27.1,
+"flows": [
+534.0,
+862.0,
+1110.0,
+1450.0,
+1720.0,
+2000.0,
+2300.0,
+2720.0
+]
+},
+"03437500": {
+"name": "South Fork Little River at Hopkinsville, Kentucky",
+"region": "Region 7",
+"DRNAREA": 46.5,
+"CSL10_85": 7.1,
+"flows": [
+3200.0,
+5070.0,
+6460.0,
+8360.0,
+9940.0,
+11500.0,
+13300.0,
+15700.0
+]
+},
+"03438000": {
+"name": "Little River near Cadiz, Kentucky",
+"region": "Region 7",
+"DRNAREA": 244.0,
+"CSL10_85": 3.6,
+"flows": [
+9000.0,
+14100.0,
+17900.0,
+23000.0,
+27300.0,
+31600.0,
+36600.0,
+43200.0
+]
+},
+"03438070": {
+"name": "Muddy Fork Little River near Cerulean, Kentucky",
+"region": "Region 7",
+"DRNAREA": 30.5,
+"CSL10_85": 20.0,
+"flows": [
+2460.0,
+3910.0,
+4990.0,
+6470.0,
+7690.0,
+8900.0,
+10300.0,
+12100.0
+]
+},
+"03438120": {
+"name": "North Fork Draydon Creek Tributary near Confederate, Kentucky",
+"region": "Region 7",
+"DRNAREA": 0.1,
+"CSL10_85": 157.0,
+"flows": [
+69.8,
+115.0,
+150.0,
+197.0,
+235.0,
+273.0,
+314.0,
+371.0
+]
+},
+"03610000": {
+"name": "Clarks River at Murray, Kentucky",
+"region": "Region 7",
+"DRNAREA": 89.7,
+"CSL10_85": 8.59,
+"flows": [
+4820.0,
+7590.0,
+9670.0,
+12500.0,
+14800.0,
+17200.0,
+19900.0,
+23500.0
+]
+},
+"03610200": {
+"name": "Clarks River at Almo, Kentucky",
+"region": "Region 7",
+"DRNAREA": 134.0,
+"CSL10_85": 7.45,
+"flows": [
+6200.0,
+9730.0,
+12400.0,
+16000.0,
+19000.0,
+21900.0,
+25400.0,
+30000.0
+]
+},
+"03610470": {
+"name": "York Creek near Benton, Kentucky",
+"region": "Region 7",
+"DRNAREA": 0.96,
+"CSL10_85": 57.7,
+"flows": [
+286.0,
+464.0,
+599.0,
+784.0,
+932.0,
+1080.0,
+1250.0,
+1470.0
+]
+},
+"03610500": {
+"name": "Clarks River near Benton, Kentucky",
+"region": "Region 7",
+"DRNAREA": 227.0,
+"CSL10_85": 6.2,
+"flows": [
+8600.0,
+13500.0,
+17100.0,
+22000.0,
+26200.0,
+30200.0,
+35000.0,
+41300.0
+]
+},
+"03610503": {
+"name": "Chestnut Creek near Benton, Kentucky",
+"region": "Region 7",
+"DRNAREA": 0.82,
+"CSL10_85": 52.9,
+"flows": [
+259.0,
+421.0,
+544.0,
+712.0,
+847.0,
+984.0,
+1130.0,
+1340.0
+]
+},
+"03610545": {
+"name": "West Fork Clarks River near Brewers, Kentucky",
+"region": "Region 7",
+"DRNAREA": 68.7,
+"CSL10_85": 11.6,
+"flows": [
+4090.0,
+6440.0,
+8210.0,
+10600.0,
+12600.0,
+14600.0,
+16900.0,
+19900.0
+]
+},
+"03610820": {
+"name": "Clarks River Tributary near Reidland, Kentucky",
+"region": "Region 7",
+"DRNAREA": 0.13,
+"CSL10_85": 75.2,
+"flows": [
+82.2,
+135.0,
+176.0,
+232.0,
+275.0,
+320.0,
+369.0,
+435.0
+]
+},
+"03611260": {
+"name": "Massac Creek near Paducah, Kentucky",
+"region": "Region 7",
+"DRNAREA": 14.6,
+"CSL10_85": 17.8,
+"flows": [
+1560.0,
+2480.0,
+3180.0,
+4130.0,
+4910.0,
+5680.0,
+6570.0,
+7750.0
+]
+},
+"07022500": {
+"name": "Perry Creek near Mayfield, Kentucky",
+"region": "Region 7",
+"DRNAREA": 1.72,
+"CSL10_85": 28.1,
+"flows": [
+411.0,
+665.0,
+856.0,
+1120.0,
+1330.0,
+1540.0,
+1780.0,
+2100.0
+]
+},
+"07023000": {
+"name": "Mayfield Creek at Lovelaceville, Kentucky",
+"region": "Region 7",
+"DRNAREA": 212.0,
+"CSL10_85": 5.3,
+"flows": [
+8240.0,
+12900.0,
+16400.0,
+21100.0,
+25100.0,
+29000.0,
+33600.0,
+39600.0
+]
+},
+"07023040": {
+"name": "Lick Creek Tributary near Kirbyton, Kentucky",
+"region": "Region 7",
+"DRNAREA": 0.53,
+"CSL10_85": 58.6,
+"flows": [
+197.0,
+322.0,
+416.0,
+546.0,
+649.0,
+754.0,
+869.0,
+1030.0
+]
+},
+"07023500": {
+"name": "Obion Creek at Pryorsburg, Kentucky",
+"region": "Region 7",
+"DRNAREA": 36.8,
+"CSL10_85": 10.9,
+"flows": [
+2770.0,
+4390.0,
+5600.0,
+7250.0,
+8620.0,
+9980.0,
+11500.0,
+13600.0
+]
+},
+"07023935": {
+"name": "South Fork Bayou de Chien Tributary at Water Valley, Kentucky",
+"region": "Region 7",
+"DRNAREA": 0.23,
+"CSL10_85": 59.3,
+"flows": [
+117.0,
+193.0,
+249.0,
+328.0,
+390.0,
+454.0,
+522.0,
+616.0
+]
+},
+"07024000": {
+"name": "Bayou de Chien near Clinton, Kentucky",
+"region": "Region 7",
+"DRNAREA": 68.7,
+"CSL10_85": 8.0,
+"flows": [
+4090.0,
+6440.0,
+8210.0,
+10600.0,
+12600.0,
+14600.0,
+16900.0,
+19900.0
+]
+}
+},
+"jefferson": {
+"3": {
+"CONTDA": 64.0,
+"CSL10_85": 11.7,
+"BDF": 4,
+"flows": [
+4050,
+5540,
+6620,
+8140,
+9330,
+10500
+]
+},
+"6": {
+"CONTDA": 17.2,
+"CSL10_85": 19.4,
+"BDF": 7,
+"flows": [
+2150,
+3170,
+3880,
+4910,
+5700,
+6530
+]
+},
+"7": {
+"CONTDA": 18.4,
+"CSL10_85": 20.0,
+"BDF": 7,
+"flows": [
+2250,
+3320,
+4060,
+5140,
+5960,
+6840
+]
+},
+"FH1": {
+"CONTDA": 1.66,
+"CSL10_85": 48.0,
+"BDF": 7,
+"flows": [
+547,
+964,
+1260,
+1720,
+2070,
+2460
+]
+},
+"FH2": {
+"CONTDA": 7.34,
+"CSL10_85": 38.6,
+"BDF": 7,
+"flows": [
+1370,
+2210,
+2810,
+3690,
+4380,
+5120
+]
+},
+"FH3": {
+"CONTDA": 3.36,
+"CSL10_85": 25.0,
+"BDF": 3,
+"flows": [
+663,
+1110,
+1430,
+1910,
+2280,
+2680
+]
+},
+"FH4": {
+"CONTDA": 3.78,
+"CSL10_85": 46.3,
+"BDF": 5,
+"flows": [
+834,
+1440,
+1880,
+2530,
+3040,
+3600
+]
+},
+"FH5": {
+"CONTDA": 2.75,
+"CSL10_85": 67.8,
+"BDF": 3,
+"flows": [
+663,
+1220,
+1630,
+2250,
+2740,
+3270
+]
+},
+"FH6": {
+"CONTDA": 18.1,
+"CSL10_85": 19.5,
+"BDF": 3,
+"flows": [
+1870,
+2850,
+3540,
+4540,
+5330,
+6130
+]
+},
+"FH7": {
+"CONTDA": 6.51,
+"CSL10_85": 24.0,
+"BDF": 6,
+"flows": [
+1130,
+1790,
+2250,
+2940,
+3460,
+4020
+]
+},
+"FH8A": {
+"CONTDA": 5.39,
+"CSL10_85": 33.3,
+"BDF": 5,
+"flows": [
+1000,
+1660,
+2120,
+2810,
+3350,
+3930
+]
+},
+"FH9": {
+"CONTDA": 3.41,
+"CSL10_85": 69.3,
+"BDF": 3,
+"flows": [
+763,
+1390,
+1850,
+2550,
+3110,
+3700
+]
+},
+"FH11A": {
+"CONTDA": 7.73,
+"CSL10_85": 22.2,
+"BDF": 4,
+"flows": [
+1150,
+1830,
+2300,
+3000,
+3550,
+4120
+]
+},
+"RB1": {
+"CONTDA": 24.1,
+"CSL10_85": 11.7,
+"BDF": 0,
+"flows": [
+1920,
+2830,
+3470,
+4380,
+5100,
+5820
+]
+},
+"RB2": {
+"CONTDA": 1.36,
+"CSL10_85": 75.1,
+"BDF": 0,
+"flows": [
+393,
+765,
+1150,
+1480,
+1830,
+2210
+]
+},
+"RB3": {
+"CONTDA": 19.1,
+"CSL10_85": 14.8,
+"BDF": 0,
+"flows": [
+1710,
+2590,
+3210,
+4110,
+4810,
+5530
+]
+},
+"RB4": {
+"CONTDA": 5.15,
+"CSL10_85": 52.1,
+"BDF": 0,
+"flows": [
+875,
+1550,
+2060,
+2800,
+3410,
+4030
+]
+}
+}
+}

@@ -40,25 +40,25 @@ Plan and definitions of done: `docs/MASTER_ROADMAP.md` §3.2.
 | IA | Iowa | verified | 6 | 48 | verified |  |
 | IL | Illinois | verified | 13 | 104 | pending |  |
 | MO | Missouri | verified | 4 | 31 | verified |  |
-| MI | Michigan | nss snapshot (25 eqs, 0 unparsed) | 5 | 25 | verified |  |
+| MI | Michigan | verified | 5 | 25 | verified |  |
 
 ## Wave 4b: Missouri basin
 
 | Code | Jurisdiction | Equations | Regions | Equation count | Regional skew | Issue |
 |---|---|---|---:|---:|---|---|
 | ND | North Dakota | verified | 3 | 21 | pending |  |
-| SD | South Dakota | nss snapshot (49 eqs, 0 unparsed) | 7 | 49 | pending |  |
-| NE | Nebraska | nss snapshot (64 eqs, 0 unparsed) | 8 | 64 | pending |  |
+| SD | South Dakota | verified | 7 | 49 | pending |  |
+| NE | Nebraska | verified | 8 | 64 | pending |  |
 | KS | Kansas | verified | 2 | 16 | pending |  |
 
 ## Wave 4c: Ohio basin
 
 | Code | Jurisdiction | Equations | Regions | Equation count | Regional skew | Issue |
 |---|---|---|---:|---:|---|---|
-| OH | Ohio | nss snapshot (62 eqs, 0 unparsed) | 9 | 62 | verified |  |
-| IN | Indiana | nss snapshot (48 eqs, 0 unparsed) | 8 | 48 | verified |  |
-| KY | Kentucky | nss snapshot (62 eqs, 0 unparsed) | 8 | 62 | verified |  |
-| TN | Tennessee | nss snapshot (139 eqs, 0 unparsed) | 19 | 139 | verified |  |
+| OH | Ohio | verified | 7 | 48 | verified |  |
+| IN | Indiana | verified | 8 | 48 | verified |  |
+| KY | Kentucky | verified | 8 | 62 | verified |  |
+| TN | Tennessee | verified | 10 | 76 | verified |  |
 | WV | West Virginia | verified | 6 | 48 | verified |  |
 
 ## Wave 4d: Lower Mississippi, Arkansas-Red, and Gulf
@@ -69,7 +69,7 @@ Plan and definitions of done: `docs/MASTER_ROADMAP.md` §3.2.
 | LA | Louisiana | nss snapshot (38 eqs, 0 unparsed) | 5 | 38 | pending, verified |  |
 | MS | Mississippi | verified | 4 | 32 | pending |  |
 | OK | Oklahoma | verified | 6 | 42 | pending |  |
-| TX | Texas | nss snapshot (65 eqs, 0 unparsed) | 10 | 65 | pending |  |
+| TX | Texas | verified | 10 | 65 | pending |  |
 
 ## Wave 5: East coast
 
@@ -91,7 +91,7 @@ Plan and definitions of done: `docs/MASTER_ROADMAP.md` §3.2.
 | NC | North Carolina | verified | 4 | 32 | verified |  |
 | SC | South Carolina | verified | 4 | 32 | verified |  |
 | GA | Georgia | verified | 5 | 40 | verified |  |
-| FL | Florida | nss snapshot (52 eqs, 0 unparsed) | 7 | 52 | pending |  |
+| FL | Florida | verified | 7 | 52 | pending |  |
 | AL | Alabama | verified | 6 | 48 | pending |  |
 
 ## Wave 6: Territories

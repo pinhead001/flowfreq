@@ -72,21 +72,40 @@ def test_washington_little_klickitat_matches_gage():
 TN_LAT, TN_LON = 36.320022, -87.051194
 
 
+@pytest.fixture
+def tn_snapshot_dir(tmp_path):
+    """A data directory with only the NSS snapshot: the verified TN.json would win otherwise."""
+    snapshot = tmp_path / "nss_snapshot"
+    snapshot.mkdir()
+    source = Path(__file__).parents[1] / "flowfreq/data/regression/nss_snapshot/TN.json"
+    (snapshot / "TN.json").write_bytes(source.read_bytes())
+    return tmp_path
+
+
 @pytest.mark.requires_network
-def test_tennessee_overlapping_regions_are_refused_without_a_choice():
+def test_tennessee_overlapping_regions_are_refused_without_a_choice(tn_snapshot_dir):
     # Sycamore Creek near Ashland City, TN (03431800); see the module docstring for why
     # not downtown Nashville, and for the three overlapping equation sets.
     with pytest.raises(OverlappingRegionsError) as info:
-        estimate_at_site(TN_LAT, TN_LON, state="TN", allow_nss_snapshot=True)
+        estimate_at_site(
+            TN_LAT, TN_LON, state="TN", allow_nss_snapshot=True, data_dir=tn_snapshot_dir
+        )
     years = {code: year for code, _, year in info.value.candidates}
     assert years == {"GC344": 2003, "GC2016": 2025, "GC2020": 2025}
     assert "--region" in str(info.value)
 
 
 @pytest.mark.requires_network
-def test_tennessee_snapshot_estimate_with_chosen_region():
+def test_tennessee_snapshot_estimate_with_chosen_region(tn_snapshot_dir):
     # GC2016, SIR 2024-5130's multivariable set: see the module docstring.
-    est = estimate_at_site(TN_LAT, TN_LON, state="TN", allow_nss_snapshot=True, region="GC2016")
+    est = estimate_at_site(
+        TN_LAT,
+        TN_LON,
+        state="TN",
+        allow_nss_snapshot=True,
+        region="GC2016",
+        data_dir=tn_snapshot_dir,
+    )
 
     assert [r.code for r in est.regions] == ["GC2016"]
     assert {a["code"] for a in est.provenance["alternative_regions"]} == {"GC344", "GC2020"}
