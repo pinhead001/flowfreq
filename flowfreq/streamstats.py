@@ -36,7 +36,7 @@ workflow notebook reads it from. (An earlier version of this module called
 point, got back only a zero-area Point, so it was removed and ``polygon_geojson`` was
 ``None`` until this.) :func:`delineate_and_get_characteristics` now validates that
 polygon before returning it -- rings closed, snapped point inside, geodesic area within
-2% of ``DRNAREA`` -- and FR-3's ``WarningMsg`` check (:func:`_find_warning_msg`, a
+2% of ``DRNAREA`` -- and FR-3's ``WarningMsg`` check (:func:`_find_warning_msgs`, a
 recursive scan) is confirmed live to find the warning in the ``globalwatershedpoint``
 and ``globalwatershed`` feature properties.
 """
@@ -138,6 +138,14 @@ class RegionNotDelineatedError(UnsupportedRegionError):
     can be delineated, so moving it will not help; supply the basin characteristics
     another way.
     """
+
+
+#: ``WarningMsg`` texts that caution about the basin rather than say the delineation failed.
+#: Matched against the whole message, so a message that says more than this is still refused.
+#: Live 2026-11-04: StreamStats sends the karst text across much of Kentucky.
+ADVISORY_WARNINGS = (
+    re.compile(r"(warning!?\s*)?delineated basin may contain karst\.?", re.IGNORECASE),
+)
 
 
 class DegenerateDelineationError(ValueError):
@@ -282,6 +290,9 @@ class WatershedCharacteristics:
         Requested characteristics ss-hydro answered with its -999 "not found"
         sentinel, code to the service's message (design doc S11). Never in
         ``characteristics``.
+    advisories : list of str
+        ``WarningMsg`` texts that caution about the basin without invalidating the
+        delineation (:data:`ADVISORY_WARNINGS`). Every other warning is refused.
     """
 
     region: str
@@ -291,6 +302,7 @@ class WatershedCharacteristics:
     provenance: Optional[Provenance] = None
     polygon_area_sq_mi: Optional[float] = None
     unavailable: Dict[str, str] = field(default_factory=dict)
+    advisories: List[str] = field(default_factory=list)
 
     def __getitem__(self, code: str) -> Characteristic:
         return self.characteristics[code]
@@ -307,6 +319,7 @@ class WatershedCharacteristics:
             "provenance": self.provenance.to_dict() if self.provenance else None,
             "polygon_area_sq_mi": self.polygon_area_sq_mi,
             "unavailable": dict(self.unavailable),
+            "advisories": list(self.advisories),
         }
 
     @classmethod
@@ -322,6 +335,7 @@ class WatershedCharacteristics:
             provenance=Provenance.from_dict(provenance) if provenance else None,
             polygon_area_sq_mi=data.get("polygon_area_sq_mi"),
             unavailable=dict(data.get("unavailable") or {}),
+            advisories=list(data.get("advisories") or []),
         )
 
 
@@ -617,8 +631,8 @@ def snap_point(region: str, lat: float, lon: float, *, timeout: float = 45.0) ->
     )
 
 
-def _find_warning_msg(obj: Any) -> str:
-    """Recursively search a JSON-like structure for a non-empty ``WarningMsg`` string.
+def _find_warning_msgs(obj: Any) -> List[str]:
+    """Recursively collect the distinct non-empty ``WarningMsg`` strings of a JSON-like structure.
 
     Confirmed live 2026-09-27 on the design doc's off-network point: the ``sshydro``
     response carries it in the ``properties`` of both the ``globalwatershedpoint`` and
@@ -626,20 +640,22 @@ def _find_warning_msg(obj: Any) -> str:
     The whole structure is still scanned rather than those two paths, so a warning
     that moves elsewhere is caught rather than silently missed.
     """
+    found: List[str] = []
     if isinstance(obj, dict):
         for key, value in obj.items():
             if key.lower() == "warningmsg" and isinstance(value, str) and value.strip():
-                return value.strip()
-        for value in obj.values():
-            found = _find_warning_msg(value)
-            if found:
-                return found
+                found.append(value.strip())
+            else:
+                found.extend(_find_warning_msgs(value))
     elif isinstance(obj, list):
         for item in obj:
-            found = _find_warning_msg(item)
-            if found:
-                return found
-    return ""
+            found.extend(_find_warning_msgs(item))
+    return list(dict.fromkeys(found))
+
+
+def _is_advisory(warning: str) -> bool:
+    """Whether the whole of a ``WarningMsg`` is one of :data:`ADVISORY_WARNINGS`."""
+    return any(pattern.fullmatch(warning) for pattern in ADVISORY_WARNINGS)
 
 
 def _polygons_of(geometry: Dict[str, Any]) -> List[List[List[List[float]]]]:
@@ -897,12 +913,12 @@ def _parse_characteristics(hydro_data: Any) -> Tuple[Dict[str, Characteristic], 
 
 def _sshydro_delineation(
     region: str, lat: float, lon: float, *, default_server: str, timeout: float
-) -> Tuple[SnapResult, Dict[str, Any], str, List[str]]:
+) -> Tuple[SnapResult, Dict[str, Any], str, List[str], List[str]]:
     """Snap the point and run ss-delineate's ``delineate/sshydro``; the shared first half.
 
     Returns the snap, the parsed sshydro response (already checked for a ``WarningMsg``),
-    the server that answered, and the request URLs, for :func:`delineate_and_get_characteristics`
-    and :func:`delineate_watershed`.
+    the server that answered, the request URLs and any advisory warnings, for
+    :func:`delineate_and_get_characteristics` and :func:`delineate_watershed`.
     """
     snap = snap_point(region, lat, lon, timeout=timeout)
 
@@ -931,8 +947,11 @@ def _sshydro_delineation(
             f"ss-delineate sshydro response for region {region!r} was not valid JSON"
         ) from exc
 
-    warning_msg = _find_warning_msg(sshydro_data)
-    if warning_msg:
+    warnings = _find_warning_msgs(sshydro_data)
+    advisories = [w for w in warnings if _is_advisory(w)]
+    refused = [w for w in warnings if not _is_advisory(w)]
+    if refused:
+        warning_msg = refused[0]
         error = (
             RegulatedDelineationError
             if warning_msg.upper().startswith("REGULATED")
@@ -942,7 +961,9 @@ def _sshydro_delineation(
             f"StreamStats delineation warning at ({snap.snapped_lat}, "
             f"{snap.snapped_lon}) in region {region!r}: {warning_msg}"
         )
-    return snap, sshydro_data, server_used, request_urls
+    for advisory in advisories:
+        logger.warning("StreamStats at (%s, %s): %s", snap.snapped_lat, snap.snapped_lon, advisory)
+    return snap, sshydro_data, server_used, request_urls, advisories
 
 
 def delineate_watershed(
@@ -998,7 +1019,7 @@ def delineate_watershed(
             logger.debug("StreamStats cache hit for %s", cache_key)
             return WatershedCharacteristics.from_dict(cached)
 
-    snap, sshydro_data, server_used, request_urls = _sshydro_delineation(
+    snap, sshydro_data, server_used, request_urls, advisories = _sshydro_delineation(
         region, lat, lon, default_server=default_server, timeout=timeout
     )
     watershed_feature = _extract_global_watershed(sshydro_data)
@@ -1021,6 +1042,7 @@ def delineate_watershed(
             server_used=server_used,
         ),
         polygon_area_sq_mi=polygon_area_sq_mi,
+        advisories=advisories,
     )
     if cache is not None:
         cache.set(cache_key, result.to_dict())
@@ -1099,7 +1121,7 @@ def delineate_and_get_characteristics(
             logger.debug("StreamStats cache hit for %s", cache_key)
             return WatershedCharacteristics.from_dict(cached)
 
-    snap, sshydro_data, server_used, request_urls = _sshydro_delineation(
+    snap, sshydro_data, server_used, request_urls, advisories = _sshydro_delineation(
         region, lat, lon, default_server=default_server, timeout=timeout
     )
 
@@ -1175,6 +1197,7 @@ def delineate_and_get_characteristics(
         provenance=provenance,
         unavailable=unavailable,
         polygon_area_sq_mi=polygon_area_sq_mi,
+        advisories=advisories,
     )
 
     if cache is not None:

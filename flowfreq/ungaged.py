@@ -502,6 +502,45 @@ def _preferred_regions(
     return None
 
 
+def _within_limits(
+    lib: StateLibrary,
+    used: Sequence[Tuple[RegressionRegionLocation, str]],
+    characteristics: Mapping[str, float],
+) -> Tuple[
+    List[Tuple[RegressionRegionLocation, str]], List[RegressionRegionLocation], Optional[str]
+]:
+    """Drop the regions a :class:`~flowfreq.regression.library.RegionLimit` excludes.
+
+    Georgia's small rural sets stop at 1 mi2 and are still located at a 131 mi2 basin, so
+    they are no alternative there. Nothing is dropped unless what is left covers the basin,
+    so a limit can never turn an overlap into a partial estimate.
+
+    Returns
+    -------
+    (list of (RegressionRegionLocation, str), list of RegressionRegionLocation, str or None)
+        The regions left, those dropped, and the reason for ``region_choice_source``.
+    """
+    kept: List[Tuple[RegressionRegionLocation, str]] = []
+    dropped: List[Tuple[RegressionRegionLocation, str]] = []
+    for pair in used:
+        limits = lib.region_limits.get(pair[1], [])
+        (dropped if any(x.excludes(characteristics) for x in limits) else kept).append(pair)
+    if not dropped or not kept:
+        return list(used), [], None
+    covered = sum(r.percent_weight for r, _ in kept)
+    if covered < 100.0 - max(PERCENT_WEIGHT_TOL, 0.5 * len(kept)):
+        return list(used), [], None
+    rules = []
+    for loc, lib_code in dropped:
+        broken = [x for x in lib.region_limits[lib_code] if x.excludes(characteristics)]
+        rules.append(f"{loc.code} needs {'; '.join(x.describe() for x in broken)}")
+    return (
+        kept,
+        [r for r, _ in dropped],
+        "region limit: " + ", ".join(rules),
+    )
+
+
 def _gate_gap(
     lib: StateLibrary,
     used: Sequence[Tuple[RegressionRegionLocation, str]],
@@ -611,6 +650,9 @@ def assemble(
         ``percent_weight`` 100, recorded in ``region_codes``, with
         ``region_choice_source`` set; otherwise the refusal also says the code is not a
         library region (a sequence of two or more codes never resolves this way).
+        Without ``region``, a set a :class:`~flowfreq.regression.library.RegionLimit`
+        excludes is dropped first and returned in ``alternatives``, then the overlap rules
+        apply to what is left. ``region`` reaches a set a limit would drop.
 
     Returns
     -------
@@ -779,6 +821,11 @@ def assemble(
                 )
             extra.append(found)
 
+    limited: List[RegressionRegionLocation] = []
+    limit_source: Optional[str] = None
+    if not choices:
+        used, limited, limit_source = _within_limits(lib, used, characteristics)
+
     # NSS rounds each percent_weight to a whole percent, so an N-region partition sums
     # to 100 +/- 0.5 N; a real overlap sums to about 200, so scaling cannot mask one.
     overlap_tol = max(PERCENT_WEIGHT_TOL, 0.5 * len(used))
@@ -790,7 +837,7 @@ def assemble(
             + f"; the estimate would rest on {', '.join(r.code for r, _ in used)}"
         )
 
-    alternatives: List[RegressionRegionLocation] = []
+    alternatives: List[RegressionRegionLocation] = list(limited)
     if overlap:
         candidates = [
             (r.code, _region_name(lib, lib_code), _region_citation(lib, lib_code)[1])
@@ -864,7 +911,7 @@ def assemble(
                 "whole basin and choosing one would drop the rest of it",
             )
         picked_ids = {id(r) for r, _ in picked}
-        alternatives = [r for r, _ in used if id(r) not in picked_ids]
+        alternatives = list(limited) + [r for r, _ in used if id(r) not in picked_ids]
         logger.info(
             "%s: overlapping NSS regions; using %s, alternatives %s",
             lib.state,
@@ -878,6 +925,10 @@ def assemble(
         fallback = _preferred_regions(lib, used)
         if fallback is not None:
             region_choice_source = fallback[1]
+    if limit_source is not None:
+        region_choice_source = (
+            f"{limit_source}; {region_choice_source}" if region_choice_source else limit_source
+        )
 
     if aeps is None:
         common = set.intersection(*(set(lib.aeps(lib_code)) for _, lib_code in used))
@@ -1146,6 +1197,13 @@ class SiteEstimate:
                 "- Regions NSS located at 0% of the basin (an overlap under half a percent), "
                 "dropped: " + ", ".join(zero_weight) + "."
             )
+        advisories = (self.provenance.get("delineation") or {}).get("advisories")
+        if advisories:
+            lines.append(
+                "- StreamStats warned about this basin: "
+                + "; ".join(advisories)
+                + ". The regression equations may not represent it; check against local data."
+            )
         return "\n".join(lines)
 
 
@@ -1360,6 +1418,7 @@ def estimate_at_site(
         "delineation": {
             "polygon_area_sq_mi": ws.polygon_area_sq_mi,
             "unavailable": dict(ws.unavailable),
+            "advisories": list(ws.advisories),
             "streamstats": ws.provenance.to_dict() if ws.provenance else None,
         },
         "library": {

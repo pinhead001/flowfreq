@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **`estimate_at_site` resolves more overlapping sets without `region=`.** `region=` still overrides all of this, and a set not used is listed in `alternative_regions`.
+  - A new `RegionLimit` drops a set where its stated limits exclude the basin: the GA, NC and SC small rural sets above 1 mi2; AL's small-stream set above the report's 5 mi2, and its urban set under 20 percent developed or outside 1-43 mi2; MO's urban set under 5 percent impervious or outside 0.28-189 mi2; TN's urban sets outside their limits; OK's NRCS-regulated sets where `DAUNREG` equals `CONTDA`, where both sets give the same flow. A basin the limits do not exclude still needs `region=`, so an urban or regulated basin is not silently given the rural set. MO's 5 percent is read from the report's "about 5 percent or less".
+  - CT, ME, VT and TN prefer the full set, else the drainage-area-only set where a characteristic is missing, as Iowa does. This is a flowfreq method choice, not a published rule.
+  - IL prefers the urbanization-adjusted set, the report's procedure, else the unadjusted set where `URBTHE2010` is missing.
+- **StreamStats' "Delineated basin may contain karst" warning no longer refuses the estimate.** It is kept as `WatershedCharacteristics.advisories`, in `provenance["delineation"]["advisories"]` and under Caveats in `to_markdown`. The match is on the whole message, and every other warning is still refused. This also applies to the other callers of `delineate_and_get_characteristics` and `delineate_watershed`.
+
 ### Added
 - **Louisiana's equations are verified** (`LA.json`, SIR 2024-5031 with its data release, and SIR 2021-5046), replacing the NSS snapshot: the Coastal Plain, with covariance, and the Mississippi Alluvial Plain, at 8 AEPs. Regression flows reproduce at 261 gages and the release's variance at 211, and the kept equations equal NSS. TR No. 60's two regions and WRIR 85-4150's Delta region are left out as superseded, 22 snapshot equations. Southern Louisiana outside the 2024 study area has no current set.
 - **Texas's equations are verified** (`TX.json`, seven USGS reports), replacing the NSS snapshot: 10 regions and 65 equations, with covariance for the Colorado, Brazos and statewide sets, all equal to NSS in value. The worked examples reproduce, as do Houston's 22 per-gage estimates. Two NSS citations are corrected (GC1489 is WRI 86-4069, GC1493 is WRI 98-4015). WRI 98-4178's printed region 3 matrix belongs to a different fit, so those intervals are about 10 percent too wide; it is stored as printed. SIR 2009-5087, which NSS does not serve and whose authors prefer it, follows the statewide set and is not stored.

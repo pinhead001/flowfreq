@@ -63,7 +63,7 @@
    }
   }
  ],
- "notes": "Three reports, ten regions, 76 equations. CURRENCY: NSS serves 19 regions. Ladd and Ensminger, SIR 2024-5130 (no revisions listed), supersedes the rural sets of Law and Tasker, WRI 03-4176: it calls itself the update of those methods, uses the same four hydrologic areas (boundaries modified slightly) and the same kind of basin (unregulated, non-urban), and 443 of its 454 gages were in the earlier study. So the nine regions of WRI 03-4176 (NSS GC341-GC349) are left out. WRI 03-4176's area 4 drainage-area-only set reached down to 0.76 mi2, where the 2024 set starts at 0.95. The two 1984 urban sets are kept: SIR 2024-5130 and WRI 03-4176 exclude urban basins, so these remain the only sets for that basin type. RURAL (HA1-HA4, HA1 DA only-HA4 DA only): 8 AEPs, equations, AVP and SEP in percent from Table 4 (p. 12) and Table 5 (p. 16), ranges and gage counts from Table 6 (p. 17). The constant is printed, so intercept = log10 of it. (LC11IMP+1) is stored as log10 with offset 1. No model error variance, covariance or worked example is published. Table 5 was fitted to get the area-ratio exponent b of equation 5, which equals its coefficient. Regional skew is 0.10 with MSE 0.132. AVP is printed to two decimals only, and flowfreq's evaluator prefers it to the SEP, so intervals rest on that rounding; the SEP-implied variance is the sharper figure. CHECKS: Tables A and B of the data release (Heal and others, 2025, doi 10.5066/P9IEJQB7), with the DRNAREA, CSL10_85, LC11_IMP and CLIMFAC2YR of its basin shapefile, give GLS flows at all 454 gages and 8 AEPs (tests/fixtures/regression/tennessee_gages.json): all reproduce within rounding except the following. 03316000 at 50 percent prints 4,110 where its equation gives 4,510 and its seven other AEPs reproduce, which looks like a misprint. 07022500, 07023000, 07269000 and 07279600 (Kentucky and Mississippi) reproduce at all AEPs with drainage areas of 1.72, 212, 19.3 and 98.3 mi2 in place of the shapefile's 1.66, 204.1, 19.06 and 100.8, or equally with LC11IMP of 0.87, 1.57, 0.41 and 0.55 in place of its 0.76, 1.40, 0.38 and 0.62; which one differs is unknown. Two other cells miss the rounding bound by under 0.0005 (03431240 at 0.2 percent, 07029252 at 10). The mean per-gage GLS variance matches each Table 4 SEP (the 32 rows differ by at most 0.00015). REPORT INCONSISTENCIES, settled: Table 5 HA3 prints 528 at 20 percent and exponent 0.64 at 2 percent, where its own exponent column says 0.643; HA3's Table 4 equations are the same model, with the same pseudo-R2, AVP and SEP in every row, and print 540 and 0.643. The 63 per-gage flows reproduce with 540. So HA3 DA only stores 540 and 0.643, as HA3 does, where NSS serves 528 and 0.64 (the data release's Table 5 prints them too). Table 5 HA2 prints AVP 0.04 in all 8 rows, but its SEPs of 32.1-43.2 percent imply 0.018-0.032. Everywhere else in Tables 4 and 5 the AVP is the SEP-implied variance to two decimals, and HA2's pseudo-R2 and residuals agree with the SEPs, not 0.04. So HA2 DA only stores the SEP and no AVP. Table 6's lowest CLIMFAC2YR of 2.05 is 2.056 in the shapefile. MEMPHIS (Neely, WRIR 84-4110): equations 1-6 (p. 18) at 6 AEPs from 25 stations (27 less 2 deleted), ranges from p. 17. Standard errors of regression are 37, 33, 31, 29, 28 and 28 percent, and the report says errors at ungaged sites are unknown and assumed equal to them. Not stored as a SEP, so this region has no interval, as in NSS. An ordinary least-squares refit of Table 3's Lichty-Liscum flows on Table 5's A and P reproduces every coefficient (constants to 0.3 percent, exponents to 0.005) and the standard errors to within 1 percent unit. The report prints no per-gage regression estimates. Its storm-runoff equations 7-12 are not peak flows and are not stored. Channel condition CHANCOND is a field judgment (1 unpaved to 2 paved) that StreamStats does not compute. URBAN STATEWIDE (Robbins, WRIR 84-4182): equations on p. 14 at 6 AEPs from 22 synthetic-record stations, ranges from p. 22, standard error of prediction and equivalent years from p. 23; standard errors of regression are 32, 29, 27, 26, 26 and 25 percent. The report's code A is the contributing drainage area, stored as CONTDA as NSS does. The equations are not for Memphis or Nashville, which have their own methods (Nashville's, Wibben 1976, is not in NSS), nor for detention storage or impervious area under 4.5 percent. Table 3 prints regression flows at the 22 stations but not their 2-year 24-hour rainfall, so one rainfall per station is fitted. 21 stations reproduce that way; 07031777 does not fit its own Table 2 values at any rainfall (1,280 where its Memphis-area rainfall of 4.0 in gives 1,600 at 2 years) and would need an impervious area near 29 percent, not 46. LIVE: on 2026-11-04 StreamStats returned no CLIMFAC2YR at gage 03465500, so NSS's HA1 is skipped there and the estimate rests on HA1 DA only unless a caller supplies the factor. NSS AGREEMENT: every stored equation equals NSS but for HA3 DA only above and NSS's omission of a SEP for the urban statewide set. Multi-variable and drainage-area-only sets are co-located and stored as separate regions, with no preference between them; a caller chooses with region=.",
+ "notes": "Three reports, ten regions, 76 equations. CURRENCY: NSS serves 19 regions. Ladd and Ensminger, SIR 2024-5130 (no revisions listed), supersedes the rural sets of Law and Tasker, WRI 03-4176: it calls itself the update of those methods, uses the same four hydrologic areas (boundaries modified slightly) and the same kind of basin (unregulated, non-urban), and 443 of its 454 gages were in the earlier study. So the nine regions of WRI 03-4176 (NSS GC341-GC349) are left out. WRI 03-4176's area 4 drainage-area-only set reached down to 0.76 mi2, where the 2024 set starts at 0.95. The two 1984 urban sets are kept: SIR 2024-5130 and WRI 03-4176 exclude urban basins, so these remain the only sets for that basin type. RURAL (HA1-HA4, HA1 DA only-HA4 DA only): 8 AEPs, equations, AVP and SEP in percent from Table 4 (p. 12) and Table 5 (p. 16), ranges and gage counts from Table 6 (p. 17). The constant is printed, so intercept = log10 of it. (LC11IMP+1) is stored as log10 with offset 1. No model error variance, covariance or worked example is published. Table 5 was fitted to get the area-ratio exponent b of equation 5, which equals its coefficient. Regional skew is 0.10 with MSE 0.132. AVP is printed to two decimals only, and flowfreq's evaluator prefers it to the SEP, so intervals rest on that rounding; the SEP-implied variance is the sharper figure. CHECKS: Tables A and B of the data release (Heal and others, 2025, doi 10.5066/P9IEJQB7), with the DRNAREA, CSL10_85, LC11_IMP and CLIMFAC2YR of its basin shapefile, give GLS flows at all 454 gages and 8 AEPs (tests/fixtures/regression/tennessee_gages.json): all reproduce within rounding except the following. 03316000 at 50 percent prints 4,110 where its equation gives 4,510 and its seven other AEPs reproduce, which looks like a misprint. 07022500, 07023000, 07269000 and 07279600 (Kentucky and Mississippi) reproduce at all AEPs with drainage areas of 1.72, 212, 19.3 and 98.3 mi2 in place of the shapefile's 1.66, 204.1, 19.06 and 100.8, or equally with LC11IMP of 0.87, 1.57, 0.41 and 0.55 in place of its 0.76, 1.40, 0.38 and 0.62; which one differs is unknown. Two other cells miss the rounding bound by under 0.0005 (03431240 at 0.2 percent, 07029252 at 10). The mean per-gage GLS variance matches each Table 4 SEP (the 32 rows differ by at most 0.00015). REPORT INCONSISTENCIES, settled: Table 5 HA3 prints 528 at 20 percent and exponent 0.64 at 2 percent, where its own exponent column says 0.643; HA3's Table 4 equations are the same model, with the same pseudo-R2, AVP and SEP in every row, and print 540 and 0.643. The 63 per-gage flows reproduce with 540. So HA3 DA only stores 540 and 0.643, as HA3 does, where NSS serves 528 and 0.64 (the data release's Table 5 prints them too). Table 5 HA2 prints AVP 0.04 in all 8 rows, but its SEPs of 32.1-43.2 percent imply 0.018-0.032. Everywhere else in Tables 4 and 5 the AVP is the SEP-implied variance to two decimals, and HA2's pseudo-R2 and residuals agree with the SEPs, not 0.04. So HA2 DA only stores the SEP and no AVP. Table 6's lowest CLIMFAC2YR of 2.05 is 2.056 in the shapefile. MEMPHIS (Neely, WRIR 84-4110): equations 1-6 (p. 18) at 6 AEPs from 25 stations (27 less 2 deleted), ranges from p. 17. Standard errors of regression are 37, 33, 31, 29, 28 and 28 percent, and the report says errors at ungaged sites are unknown and assumed equal to them. Not stored as a SEP, so this region has no interval, as in NSS. An ordinary least-squares refit of Table 3's Lichty-Liscum flows on Table 5's A and P reproduces every coefficient (constants to 0.3 percent, exponents to 0.005) and the standard errors to within 1 percent unit. The report prints no per-gage regression estimates. Its storm-runoff equations 7-12 are not peak flows and are not stored. Channel condition CHANCOND is a field judgment (1 unpaved to 2 paved) that StreamStats does not compute. URBAN STATEWIDE (Robbins, WRIR 84-4182): equations on p. 14 at 6 AEPs from 22 synthetic-record stations, ranges from p. 22, standard error of prediction and equivalent years from p. 23; standard errors of regression are 32, 29, 27, 26, 26 and 25 percent. The report's code A is the contributing drainage area, stored as CONTDA as NSS does. The equations are not for Memphis or Nashville, which have their own methods (Nashville's, Wibben 1976, is not in NSS), nor for detention storage or impervious area under 4.5 percent. Table 3 prints regression flows at the 22 stations but not their 2-year 24-hour rainfall, so one rainfall per station is fitted. 21 stations reproduce that way; 07031777 does not fit its own Table 2 values at any rainfall (1,280 where its Memphis-area rainfall of 4.0 in gives 1,600 at 2 years) and would need an impervious area near 29 percent, not 46. LIVE: on 2026-11-04 StreamStats returned no CLIMFAC2YR at gage 03465500, so NSS's HA1 is skipped there and the estimate rests on HA1 DA only unless a caller supplies the factor. NSS AGREEMENT: every stored equation equals NSS but for HA3 DA only above and NSS's omission of a SEP for the urban statewide set. Multi-variable and drainage-area-only sets are co-located and stored as separate regions: the multi-variable set is preferred, else the drainage-area-only set where a characteristic is missing (region_preference, a flowfreq method choice); region= overrides. An urban set outside its stored limits drops out (region_limits); where it could apply, the caller chooses, because SIR 2024-5130 excludes urban basins.",
  "equations": [
   {
    "region_code": "HA1",
@@ -2441,5 +2441,48 @@
    "equivalent_years": 8,
    "n_sites": 22
   }
- ]
+ ],
+ "region_preference": {
+  "tiers": [
+   [
+    "HA1",
+    "HA2",
+    "HA3",
+    "HA4"
+   ],
+   [
+    "HA1 DA only",
+    "HA2 DA only",
+    "HA3 DA only",
+    "HA4 DA only"
+   ]
+  ],
+  "basis": "full set where the basin has its characteristics, else drainage-area-only; a flowfreq method choice, not a published rule"
+ },
+ "region_limits": {
+  "Urban statewide": [
+   {
+    "variable": "CONTDA",
+    "minimum": 0.21,
+    "maximum": 24.3,
+    "units": "mi2",
+    "source": "WRIR 84-4182: the stored range"
+   },
+   {
+    "variable": "IMPERV",
+    "minimum": 4.5,
+    "units": "percent",
+    "source": "WRIR 84-4182: not for impervious area under 4.5 percent"
+   }
+  ],
+  "Memphis urban": [
+   {
+    "variable": "DRNAREA",
+    "minimum": 0.043,
+    "maximum": 19.4,
+    "units": "mi2",
+    "source": "WRIR 84-4110: the stored range"
+   }
+  ]
+ }
 }
