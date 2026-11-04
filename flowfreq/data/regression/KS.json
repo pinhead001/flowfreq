@@ -1,0 +1,527 @@
+{
+ "schema_version": 1,
+ "state": "KS",
+ "status": "verified",
+ "issue": null,
+ "source_reports": [
+  {
+   "citation": "Painter, C.C., Heimann, D.C., and Lanning-Rush, J.L., 2017, Methods for estimating annual exceedance-probability streamflows for streams in Kansas based on data through water year 2015 (ver. 1.1, September 2017): U.S. Geological Survey Scientific Investigations Report 2017-5063, 20 p.",
+   "doi": "10.3133/sir20175063",
+   "url": "https://pubs.usgs.gov/publication/sir20175063",
+   "pdf": "https://pubs.usgs.gov/sir/2017/5063/sir20175063.pdf",
+   "tables": [
+    "Table 3",
+    "Table 4",
+    "Table 5",
+    "Table 7",
+    "Table 8"
+   ],
+   "nss": {
+    "regression_regions": [
+     "GC1743",
+     "GC1744"
+    ],
+    "last_year_of_data": 2015
+   }
+  }
+ ],
+ "notes": "Painter, Heimann and Lanning-Rush, SIR 2017-5063 version 1.1, whose tables 7 and 8 replaced version 1.0's: region 1 on CONTDA and 1981-2010 precipitation (143 gages), region 2, the irrigation-affected west, on CONTDA alone (24 gages), both at 8 AEPs. The constant is printed, so intercept = log10 of it. SP (percent) and AVP from Tables 7 and 8; the report prints no covariance or model error variance. The report's precipitation code PRECIPRIS10 is NSS's PRECPRIS10. CONTDA ranges are the report's, 0.26-14,901 mi2 and 1.31-3,555 mi2, narrower than NSS's 0.17-15,000 and 1.02-14,600; the report's summary also prints 1.02 for region 2, against 1.31 in its abstract and Table 8, and the gages in Table 5 decide it. The report prints no precipitation range, so PRECPRIS10's, 15.39-47.0 in., is that of the region 1 gages in Table 5 (NSS serves 15.3-47). There is no worked example; tables 3 and 4's regression estimates reproduce from Table 5's characteristics.",
+ "equations": [
+  {
+   "region_code": "1",
+   "region_name": "Region 1, statewide outside the irrigation-affected area (NSS GC1743)",
+   "aep": 0.5,
+   "intercept": -2.744727494896694,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.26,
+     "maximum": 14901.0
+    },
+    {
+     "code": "PRECPRIS10",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 15.39,
+     "maximum": 47.0
+    }
+   ],
+   "coefficients": [
+    0.514,
+    3.37
+   ],
+   "citation": {
+    "publication": "Painter, C.C., Heimann, D.C., and Lanning-Rush, J.L., 2017, Methods for estimating annual exceedance-probability streamflows for streams in Kansas based on data through water year 2015 (ver. 1.1, September 2017): U.S. Geological Survey Scientific Investigations Report 2017-5063, 20 p.",
+    "table": "Table 7",
+    "year": 2017,
+    "url": "https://doi.org/10.3133/sir20175063"
+   },
+   "sep_log": 0.204784,
+   "avp": 0.042,
+   "n_sites": 143
+  },
+  {
+   "region_code": "1",
+   "region_name": "Region 1, statewide outside the irrigation-affected area (NSS GC1743)",
+   "aep": 0.2,
+   "intercept": -1.570247719997592,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.26,
+     "maximum": 14901.0
+    },
+    {
+     "code": "PRECPRIS10",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 15.39,
+     "maximum": 47.0
+    }
+   ],
+   "coefficients": [
+    0.5,
+    2.83
+   ],
+   "citation": {
+    "publication": "Painter, C.C., Heimann, D.C., and Lanning-Rush, J.L., 2017, Methods for estimating annual exceedance-probability streamflows for streams in Kansas based on data through water year 2015 (ver. 1.1, September 2017): U.S. Geological Survey Scientific Investigations Report 2017-5063, 20 p.",
+    "table": "Table 7",
+    "year": 2017,
+    "url": "https://doi.org/10.3133/sir20175063"
+   },
+   "sep_log": 0.180031,
+   "avp": 0.032,
+   "n_sites": 143
+  },
+  {
+   "region_code": "1",
+   "region_name": "Region 1, statewide outside the irrigation-affected area (NSS GC1743)",
+   "aep": 0.1,
+   "intercept": -1.0199966284162536,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.26,
+     "maximum": 14901.0
+    },
+    {
+     "code": "PRECPRIS10",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 15.39,
+     "maximum": 47.0
+    }
+   ],
+   "coefficients": [
+    0.497,
+    2.58
+   ],
+   "citation": {
+    "publication": "Painter, C.C., Heimann, D.C., and Lanning-Rush, J.L., 2017, Methods for estimating annual exceedance-probability streamflows for streams in Kansas based on data through water year 2015 (ver. 1.1, September 2017): U.S. Geological Survey Scientific Investigations Report 2017-5063, 20 p.",
+    "table": "Table 7",
+    "year": 2017,
+    "url": "https://doi.org/10.3133/sir20175063"
+   },
+   "sep_log": 0.181176,
+   "avp": 0.033,
+   "n_sites": 143
+  },
+  {
+   "region_code": "1",
+   "region_name": "Region 1, statewide outside the irrigation-affected area (NSS GC1743)",
+   "aep": 0.04,
+   "intercept": -0.48004081924793157,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.26,
+     "maximum": 14901.0
+    },
+    {
+     "code": "PRECPRIS10",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 15.39,
+     "maximum": 47.0
+    }
+   ],
+   "coefficients": [
+    0.494,
+    2.34
+   ],
+   "citation": {
+    "publication": "Painter, C.C., Heimann, D.C., and Lanning-Rush, J.L., 2017, Methods for estimating annual exceedance-probability streamflows for streams in Kansas based on data through water year 2015 (ver. 1.1, September 2017): U.S. Geological Survey Scientific Investigations Report 2017-5063, 20 p.",
+    "table": "Table 7",
+    "year": 2017,
+    "url": "https://doi.org/10.3133/sir20175063"
+   },
+   "sep_log": 0.188385,
+   "avp": 0.036,
+   "n_sites": 143
+  },
+  {
+   "region_code": "1",
+   "region_name": "Region 1, statewide outside the irrigation-affected area (NSS GC1743)",
+   "aep": 0.02,
+   "intercept": -0.14002155835797916,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.26,
+     "maximum": 14901.0
+    },
+    {
+     "code": "PRECPRIS10",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 15.39,
+     "maximum": 47.0
+    }
+   ],
+   "coefficients": [
+    0.492,
+    2.19
+   ],
+   "citation": {
+    "publication": "Painter, C.C., Heimann, D.C., and Lanning-Rush, J.L., 2017, Methods for estimating annual exceedance-probability streamflows for streams in Kansas based on data through water year 2015 (ver. 1.1, September 2017): U.S. Geological Survey Scientific Investigations Report 2017-5063, 20 p.",
+    "table": "Table 7",
+    "year": 2017,
+    "url": "https://doi.org/10.3133/sir20175063"
+   },
+   "sep_log": 0.199241,
+   "avp": 0.04,
+   "n_sites": 143
+  },
+  {
+   "region_code": "1",
+   "region_name": "Region 1, statewide outside the irrigation-affected area (NSS GC1743)",
+   "aep": 0.01,
+   "intercept": 0.14921911265537988,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.26,
+     "maximum": 14901.0
+    },
+    {
+     "code": "PRECPRIS10",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 15.39,
+     "maximum": 47.0
+    }
+   ],
+   "coefficients": [
+    0.49,
+    2.06
+   ],
+   "citation": {
+    "publication": "Painter, C.C., Heimann, D.C., and Lanning-Rush, J.L., 2017, Methods for estimating annual exceedance-probability streamflows for streams in Kansas based on data through water year 2015 (ver. 1.1, September 2017): U.S. Geological Survey Scientific Investigations Report 2017-5063, 20 p.",
+    "table": "Table 7",
+    "year": 2017,
+    "url": "https://doi.org/10.3133/sir20175063"
+   },
+   "sep_log": 0.2121,
+   "avp": 0.045,
+   "n_sites": 143
+  },
+  {
+   "region_code": "1",
+   "region_name": "Region 1, statewide outside the irrigation-affected area (NSS GC1743)",
+   "aep": 0.005,
+   "intercept": 0.4099331233312945,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.26,
+     "maximum": 14901.0
+    },
+    {
+     "code": "PRECPRIS10",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 15.39,
+     "maximum": 47.0
+    }
+   ],
+   "coefficients": [
+    0.489,
+    1.95
+   ],
+   "citation": {
+    "publication": "Painter, C.C., Heimann, D.C., and Lanning-Rush, J.L., 2017, Methods for estimating annual exceedance-probability streamflows for streams in Kansas based on data through water year 2015 (ver. 1.1, September 2017): U.S. Geological Survey Scientific Investigations Report 2017-5063, 20 p.",
+    "table": "Table 7",
+    "year": 2017,
+    "url": "https://doi.org/10.3133/sir20175063"
+   },
+   "sep_log": 0.223265,
+   "avp": 0.05,
+   "n_sites": 143
+  },
+  {
+   "region_code": "1",
+   "region_name": "Region 1, statewide outside the irrigation-affected area (NSS GC1743)",
+   "aep": 0.002,
+   "intercept": 0.7101173651118162,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.26,
+     "maximum": 14901.0
+    },
+    {
+     "code": "PRECPRIS10",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 15.39,
+     "maximum": 47.0
+    }
+   ],
+   "coefficients": [
+    0.488,
+    1.82
+   ],
+   "citation": {
+    "publication": "Painter, C.C., Heimann, D.C., and Lanning-Rush, J.L., 2017, Methods for estimating annual exceedance-probability streamflows for streams in Kansas based on data through water year 2015 (ver. 1.1, September 2017): U.S. Geological Survey Scientific Investigations Report 2017-5063, 20 p.",
+    "table": "Table 7",
+    "year": 2017,
+    "url": "https://doi.org/10.3133/sir20175063"
+   },
+   "sep_log": 0.240476,
+   "avp": 0.058,
+   "n_sites": 143
+  },
+  {
+   "region_code": "2",
+   "region_name": "Region 2, irrigation-affected western Kansas (NSS GC1744)",
+   "aep": 0.5,
+   "intercept": 1.7101173651118162,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.31,
+     "maximum": 3555.0
+    }
+   ],
+   "coefficients": [
+    0.335
+   ],
+   "citation": {
+    "publication": "Painter, C.C., Heimann, D.C., and Lanning-Rush, J.L., 2017, Methods for estimating annual exceedance-probability streamflows for streams in Kansas based on data through water year 2015 (ver. 1.1, September 2017): U.S. Geological Survey Scientific Investigations Report 2017-5063, 20 p.",
+    "table": "Table 8",
+    "year": 2017,
+    "url": "https://doi.org/10.3133/sir20175063"
+   },
+   "sep_log": 0.337042,
+   "avp": 0.114,
+   "n_sites": 24
+  },
+  {
+   "region_code": "2",
+   "region_name": "Region 2, irrigation-affected western Kansas (NSS GC1744)",
+   "aep": 0.2,
+   "intercept": 2.130333768495006,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.31,
+     "maximum": 3555.0
+    }
+   ],
+   "coefficients": [
+    0.367
+   ],
+   "citation": {
+    "publication": "Painter, C.C., Heimann, D.C., and Lanning-Rush, J.L., 2017, Methods for estimating annual exceedance-probability streamflows for streams in Kansas based on data through water year 2015 (ver. 1.1, September 2017): U.S. Geological Survey Scientific Investigations Report 2017-5063, 20 p.",
+    "table": "Table 8",
+    "year": 2017,
+    "url": "https://doi.org/10.3133/sir20175063"
+   },
+   "sep_log": 0.228944,
+   "avp": 0.052,
+   "n_sites": 24
+  },
+  {
+   "region_code": "2",
+   "region_name": "Region 2, irrigation-affected western Kansas (NSS GC1744)",
+   "aep": 0.1,
+   "intercept": 2.359835482339888,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.31,
+     "maximum": 3555.0
+    }
+   ],
+   "coefficients": [
+    0.374
+   ],
+   "citation": {
+    "publication": "Painter, C.C., Heimann, D.C., and Lanning-Rush, J.L., 2017, Methods for estimating annual exceedance-probability streamflows for streams in Kansas based on data through water year 2015 (ver. 1.1, September 2017): U.S. Geological Survey Scientific Investigations Report 2017-5063, 20 p.",
+    "table": "Table 8",
+    "year": 2017,
+    "url": "https://doi.org/10.3133/sir20175063"
+   },
+   "sep_log": 0.213553,
+   "avp": 0.046,
+   "n_sites": 24
+  },
+  {
+   "region_code": "2",
+   "region_name": "Region 2, irrigation-affected western Kansas (NSS GC1744)",
+   "aep": 0.04,
+   "intercept": 2.5998830720736876,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.31,
+     "maximum": 3555.0
+    }
+   ],
+   "coefficients": [
+    0.375
+   ],
+   "citation": {
+    "publication": "Painter, C.C., Heimann, D.C., and Lanning-Rush, J.L., 2017, Methods for estimating annual exceedance-probability streamflows for streams in Kansas based on data through water year 2015 (ver. 1.1, September 2017): U.S. Geological Survey Scientific Investigations Report 2017-5063, 20 p.",
+    "table": "Table 8",
+    "year": 2017,
+    "url": "https://doi.org/10.3133/sir20175063"
+   },
+   "sep_log": 0.225402,
+   "avp": 0.051,
+   "n_sites": 24
+  },
+  {
+   "region_code": "2",
+   "region_name": "Region 2, irrigation-affected western Kansas (NSS GC1744)",
+   "aep": 0.02,
+   "intercept": 2.749736315569061,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.31,
+     "maximum": 3555.0
+    }
+   ],
+   "coefficients": [
+    0.374
+   ],
+   "citation": {
+    "publication": "Painter, C.C., Heimann, D.C., and Lanning-Rush, J.L., 2017, Methods for estimating annual exceedance-probability streamflows for streams in Kansas based on data through water year 2015 (ver. 1.1, September 2017): U.S. Geological Survey Scientific Investigations Report 2017-5063, 20 p.",
+    "table": "Table 8",
+    "year": 2017,
+    "url": "https://doi.org/10.3133/sir20175063"
+   },
+   "sep_log": 0.240476,
+   "avp": 0.058,
+   "n_sites": 24
+  },
+  {
+   "region_code": "2",
+   "region_name": "Region 2, irrigation-affected western Kansas (NSS GC1744)",
+   "aep": 0.01,
+   "intercept": 2.88024177589548,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.31,
+     "maximum": 3555.0
+    }
+   ],
+   "coefficients": [
+    0.372
+   ],
+   "citation": {
+    "publication": "Painter, C.C., Heimann, D.C., and Lanning-Rush, J.L., 2017, Methods for estimating annual exceedance-probability streamflows for streams in Kansas based on data through water year 2015 (ver. 1.1, September 2017): U.S. Geological Survey Scientific Investigations Report 2017-5063, 20 p.",
+    "table": "Table 8",
+    "year": 2017,
+    "url": "https://doi.org/10.3133/sir20175063"
+   },
+   "sep_log": 0.258485,
+   "avp": 0.067,
+   "n_sites": 24
+  },
+  {
+   "region_code": "2",
+   "region_name": "Region 2, irrigation-affected western Kansas (NSS GC1744)",
+   "aep": 0.005,
+   "intercept": 2.989894563718773,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.31,
+     "maximum": 3555.0
+    }
+   ],
+   "coefficients": [
+    0.37
+   ],
+   "citation": {
+    "publication": "Painter, C.C., Heimann, D.C., and Lanning-Rush, J.L., 2017, Methods for estimating annual exceedance-probability streamflows for streams in Kansas based on data through water year 2015 (ver. 1.1, September 2017): U.S. Geological Survey Scientific Investigations Report 2017-5063, 20 p.",
+    "table": "Table 8",
+    "year": 2017,
+    "url": "https://doi.org/10.3133/sir20175063"
+   },
+   "sep_log": 0.275864,
+   "avp": 0.076,
+   "n_sites": 24
+  },
+  {
+   "region_code": "2",
+   "region_name": "Region 2, irrigation-affected western Kansas (NSS GC1744)",
+   "aep": 0.002,
+   "intercept": 3.119915410257991,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.31,
+     "maximum": 3555.0
+    }
+   ],
+   "coefficients": [
+    0.368
+   ],
+   "citation": {
+    "publication": "Painter, C.C., Heimann, D.C., and Lanning-Rush, J.L., 2017, Methods for estimating annual exceedance-probability streamflows for streams in Kansas based on data through water year 2015 (ver. 1.1, September 2017): U.S. Geological Survey Scientific Investigations Report 2017-5063, 20 p.",
+    "table": "Table 8",
+    "year": 2017,
+    "url": "https://doi.org/10.3133/sir20175063"
+   },
+   "sep_log": 0.296941,
+   "avp": 0.088,
+   "n_sites": 24
+  }
+ ]
+}
