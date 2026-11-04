@@ -56,7 +56,7 @@ Plan and definitions of done: `docs/MASTER_ROADMAP.md` §3.2.
 | Code | Jurisdiction | Equations | Regions | Equation count | Regional skew | Issue |
 |---|---|---|---:|---:|---|---|
 | OH | Ohio | nss snapshot (62 eqs, 0 unparsed) | 9 | 62 | verified |  |
-| IN | Indiana | nss snapshot (48 eqs, 0 unparsed) | 8 | 48 | verified |  |
+| IN | Indiana | verified | 8 | 48 | verified |  |
 | KY | Kentucky | nss snapshot (62 eqs, 0 unparsed) | 8 | 62 | verified |  |
 | TN | Tennessee | nss snapshot (139 eqs, 0 unparsed) | 19 | 139 | verified |  |
 | WV | West Virginia | verified | 6 | 48 | verified |  |
@@ -85,7 +85,7 @@ Plan and definitions of done: `docs/MASTER_ROADMAP.md` §3.2.
 | NJ | New Jersey | verified | 5 | 35 | pending |  |
 | PA | Pennsylvania | verified | 5 | 40 | pending, verified |  |
 | DE | Delaware | partial | 3 | 24 | pending |  |
-| MD | Maryland | nss snapshot (40 eqs, 0 unparsed) | 4 | 40 | pending, verified |  |
+| MD | Maryland | verified | 5 | 50 | pending, verified |  |
 | DC | District of Columbia | not started | 0 | 0 | pending |  |
 | VA | Virginia | verified | 11 | 88 | verified |  |
 | NC | North Carolina | verified | 4 | 32 | verified |  |
