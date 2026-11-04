@@ -1,0 +1,1404 @@
+{
+"01483200": {
+"region": "Eastern Coastal Plain",
+"name": "Blackbird Creek at Blackbird, DE",
+"flows": [
+84.0,
+109.0,
+145.0,
+264.0,
+368.0,
+531.0,
+678.0,
+849.0,
+1050.0,
+1360.0
+],
+"DRNAREA": 4.1,
+"SSURGOA": 0.0,
+"BSLDEM10ff": 0.016
+},
+"01483500": {
+"region": "Eastern Coastal Plain",
+"name": "Leipsic River near Cheswold, DE",
+"flows": [
+125.0,
+161.0,
+216.0,
+414.0,
+608.0,
+947.0,
+1290.0,
+1710.0,
+2260.0,
+3190.0
+],
+"DRNAREA": 9.6,
+"SSURGOA": 0.0,
+"BSLDEM10ff": 0.012964
+},
+"01483720": {
+"region": "Eastern Coastal Plain",
+"name": "Puncheon Branch at Dover, DE",
+"flows": [
+91.0,
+115.0,
+148.0,
+258.0,
+354.0,
+507.0,
+646.0,
+810.0,
+1000.0,
+1310.0
+],
+"DRNAREA": 2.55,
+"SSURGOA": 0.0,
+"BSLDEM10ff": 0.009333
+},
+"01484000": {
+"region": "Eastern Coastal Plain",
+"name": "Murderkill River near Felton, DE",
+"flows": [
+191.0,
+241.0,
+312.0,
+540.0,
+737.0,
+1050.0,
+1330.0,
+1650.0,
+2040.0,
+2640.0
+],
+"DRNAREA": 13.24,
+"SSURGOA": 14.3,
+"BSLDEM10ff": 0.006163
+},
+"01484002": {
+"region": "Eastern Coastal Plain",
+"name": "Murderkill River Tributary near Felton, DE",
+"flows": [
+12.0,
+15.0,
+19.0,
+32.0,
+45.0,
+66.0,
+87.0,
+113.0,
+146.0,
+200.0
+],
+"DRNAREA": 0.91,
+"SSURGOA": 78.8,
+"BSLDEM10ff": 0.009338
+},
+"01484050": {
+"region": "Eastern Coastal Plain",
+"name": "Pratt Branch near Felton, DE",
+"flows": [
+38.0,
+48.0,
+62.0,
+112.0,
+158.0,
+236.0,
+312.0,
+404.0,
+518.0,
+709.0
+],
+"DRNAREA": 3.08,
+"SSURGOA": 1.2,
+"BSLDEM10ff": 0.010631
+},
+"01484100": {
+"region": "Eastern Coastal Plain",
+"name": "Beaverdam Branch at Houston, DE",
+"flows": [
+33.0,
+41.0,
+51.0,
+80.0,
+103.0,
+134.0,
+159.0,
+187.0,
+216.0,
+259.0
+],
+"DRNAREA": 3.55,
+"SSURGOA": 17.7,
+"BSLDEM10ff": 0.003982
+},
+"01484500": {
+"region": "Eastern Coastal Plain",
+"name": "Stockley Branch at Stockly, DE",
+"flows": [
+45.0,
+56.0,
+70.0,
+114.0,
+152.0,
+209.0,
+261.0,
+320.0,
+387.0,
+493.0
+],
+"DRNAREA": 5.27,
+"SSURGOA": 5.1,
+"BSLDEM10ff": 0.005009
+},
+"01485000": {
+"region": "Eastern Coastal Plain",
+"name": "Pocomoke River near Willards, MD",
+"flows": [
+530.0,
+609.0,
+715.0,
+1030.0,
+1290.0,
+1670.0,
+2000.0,
+2380.0,
+2800.0,
+3460.0
+],
+"DRNAREA": 56.09,
+"SSURGOA": 3.1,
+"BSLDEM10ff": 0.004265
+},
+"01485500": {
+"region": "Eastern Coastal Plain",
+"name": "Nassawango Creek near Snow Hill, MD",
+"flows": [
+348.0,
+447.0,
+586.0,
+1030.0,
+1410.0,
+1990.0,
+2510.0,
+3110.0,
+3790.0,
+4860.0
+],
+"DRNAREA": 45.02,
+"SSURGOA": 8.6,
+"BSLDEM10ff": 0.0042
+},
+"01486000": {
+"region": "Eastern Coastal Plain",
+"name": "Manokin Branch near Princess Anne, MD",
+"flows": [
+82.0,
+107.0,
+142.0,
+248.0,
+333.0,
+458.0,
+565.0,
+682.0,
+812.0,
+1000.0
+],
+"DRNAREA": 5.02,
+"SSURGOA": 1.1,
+"BSLDEM10ff": 0.003493
+},
+"01486100": {
+"region": "Eastern Coastal Plain",
+"name": "Andrews Branch near Delmar, MD",
+"flows": [
+55.0,
+75.0,
+90.0,
+143.0,
+191.0,
+272.0,
+347.0,
+439.0,
+560.0,
+741.0
+],
+"DRNAREA": 3.27,
+"SSURGOA": 8.7,
+"BSLDEM10ff": 0.00642
+},
+"01487000": {
+"region": "Eastern Coastal Plain",
+"name": "Nanticoke River near Bridgeville, DE",
+"flows": [
+380.0,
+487.0,
+643.0,
+1160.0,
+1630.0,
+2390.0,
+3090.0,
+3930.0,
+4940.0,
+6560.0
+],
+"DRNAREA": 72.94,
+"SSURGOA": 10.1,
+"BSLDEM10ff": 0.004762
+},
+"01487900": {
+"region": "Eastern Coastal Plain",
+"name": "Meadow Branch near Delmar, DE",
+"flows": [
+64.0,
+68.0,
+77.0,
+106.0,
+140.0,
+207.0,
+278.0,
+370.0,
+490.0,
+710.0
+],
+"DRNAREA": 4.11,
+"SSURGOA": 0.2,
+"BSLDEM10ff": 0.002498
+},
+"01488500": {
+"region": "Eastern Coastal Plain",
+"name": "Marshyhope Creek near Adamsville, DE",
+"flows": [
+583.0,
+778.0,
+1050.0,
+1900.0,
+2580.0,
+3580.0,
+4430.0,
+5360.0,
+6390.0,
+7890.0
+],
+"DRNAREA": 47.4,
+"SSURGOA": 1.4,
+"BSLDEM10ff": 0.00446
+},
+"01489000": {
+"region": "Eastern Coastal Plain",
+"name": "Faulkner Branch near Federalsburg, MD",
+"flows": [
+106.0,
+172.0,
+241.0,
+558.0,
+873.0,
+1420.0,
+1940.0,
+2590.0,
+3380.0,
+4670.0
+],
+"DRNAREA": 7.69,
+"SSURGOA": 0.8,
+"BSLDEM10ff": 0.010423
+},
+"01490000": {
+"region": "Eastern Coastal Plain",
+"name": "Chicamacomico River near Salem, MD",
+"flows": [
+138.0,
+175.0,
+227.0,
+401.0,
+558.0,
+814.0,
+1050.0,
+1340.0,
+1690.0,
+2250.0
+],
+"DRNAREA": 16.35,
+"SSURGOA": 10.9,
+"BSLDEM10ff": 0.00627
+},
+"01490600": {
+"region": "Eastern Coastal Plain",
+"name": "Meredith Branch Near Sandtown, DE",
+"flows": [
+134.0,
+164.0,
+208.0,
+356.0,
+491.0,
+715.0,
+931.0,
+1190.0,
+1510.0,
+2040.0
+],
+"DRNAREA": 9.17,
+"SSURGOA": 0.1,
+"BSLDEM10ff": 0.004407
+},
+"01490800": {
+"region": "Eastern Coastal Plain",
+"name": "Oldtown Branch at Goldsboro, MD",
+"flows": [
+111.0,
+139.0,
+176.0,
+289.0,
+379.0,
+512.0,
+626.0,
+752.0,
+893.0,
+1100.0
+],
+"DRNAREA": 4.06,
+"SSURGOA": 0.0,
+"BSLDEM10ff": 0.005156
+},
+"01491000": {
+"region": "Eastern Coastal Plain",
+"name": "Choptank River near Greensboro, MD",
+"flows": [
+1040.0,
+1380.0,
+1860.0,
+3340.0,
+4550.0,
+6320.0,
+7830.0,
+9500.0,
+11300.0,
+14100.0
+],
+"DRNAREA": 113.71,
+"SSURGOA": 3.4,
+"BSLDEM10ff": 0.006099
+},
+"01491010": {
+"region": "Eastern Coastal Plain",
+"name": "Sangston Prong near Whiteleysburg, DE",
+"flows": [
+35.0,
+47.0,
+66.0,
+145.0,
+232.0,
+404.0,
+595.0,
+860.0,
+1220.0,
+1920.0
+],
+"DRNAREA": 2.04,
+"SSURGOA": 0.0,
+"BSLDEM10ff": 0.004419
+},
+"01491050": {
+"region": "Eastern Coastal Plain",
+"name": "Spring Branch near Greensboro, MD",
+"flows": [
+41.0,
+51.0,
+66.0,
+120.0,
+172.0,
+265.0,
+357.0,
+475.0,
+625.0,
+880.0
+],
+"DRNAREA": 3.34,
+"SSURGOA": 0.0,
+"BSLDEM10ff": 0.003465
+},
+"01492050": {
+"region": "Eastern Coastal Plain",
+"name": "Gravel Run at Beulah, MD",
+"flows": [
+64.0,
+87.0,
+111.0,
+215.0,
+317.0,
+497.0,
+679.0,
+910.0,
+1200.0,
+1720.0
+],
+"DRNAREA": 8.9,
+"SSURGOA": 18.7,
+"BSLDEM10ff": 0.011444
+},
+"01492500": {
+"region": "Eastern Coastal Plain",
+"name": "Sallie Harris Creek near Carmicheal, MD",
+"flows": [
+114.0,
+155.0,
+219.0,
+452.0,
+680.0,
+1070.0,
+1460.0,
+1930.0,
+2520.0,
+3510.0
+],
+"DRNAREA": 7.6,
+"SSURGOA": 0.0,
+"BSLDEM10ff": 0.008995
+},
+"01492550": {
+"region": "Eastern Coastal Plain",
+"name": "Mill Creek near Skipton, MD",
+"flows": [
+76.0,
+92.0,
+113.0,
+186.0,
+252.0,
+362.0,
+466.0,
+593.0,
+748.0,
+1000.0
+],
+"DRNAREA": 4.61,
+"SSURGOA": 29.5,
+"BSLDEM10ff": 0.006818
+},
+"01493000": {
+"region": "Eastern Coastal Plain",
+"name": "Unicorn Branch near Millington, MD",
+"flows": [
+183.0,
+244.0,
+332.0,
+626.0,
+883.0,
+1290.0,
+1650.0,
+2080.0,
+2570.0,
+3340.0
+],
+"DRNAREA": 20.19,
+"SSURGOA": 0.2,
+"BSLDEM10ff": 0.008739
+},
+"01493500": {
+"region": "Eastern Coastal Plain",
+"name": "Morgan Creek near Kennedyville, MD",
+"flows": [
+187.0,
+258.0,
+372.0,
+845.0,
+1370.0,
+2410.0,
+3550.0,
+5120.0,
+7270.0,
+11300.0
+],
+"DRNAREA": 11.97,
+"SSURGOA": 1.4,
+"BSLDEM10ff": 0.009899
+},
+"01494000": {
+"region": "Eastern Coastal Plain",
+"name": "Southeast Creek at Church Hill, DE",
+"flows": [
+287.0,
+362.0,
+471.0,
+835.0,
+1160.0,
+1690.0,
+2190.0,
+2780.0,
+3500.0,
+4660.0
+],
+"DRNAREA": 12.46,
+"SSURGOA": 2.4,
+"BSLDEM10ff": 0.008415
+},
+"01594445": {
+"region": "Western Coastal Plain",
+"name": "Mill Branch near Mitchellville, MD",
+"flows": [
+93.0,
+123.0,
+154.0,
+278.0,
+391.0,
+580.0,
+759.0,
+977.0,
+1240.0,
+1680.0
+],
+"DRNAREA": 1.28,
+"IMPERV": 4.5,
+"SOILCorD": 26.4
+},
+"01594670": {
+"region": "Western Coastal Plain",
+"name": "Hunting Creek near Huntingtown, MD",
+"flows": [
+156.0,
+208.0,
+262.0,
+452.0,
+609.0,
+846.0,
+1050.0,
+1290.0,
+1550.0,
+1950.0
+],
+"DRNAREA": 9.27,
+"IMPERV": 1.5,
+"SOILCorD": 19.9
+},
+"01660930": {
+"region": "Western Coastal Plain",
+"name": "Clark Run near Bel Alton, MD",
+"flows": [
+240.0,
+312.0,
+430.0,
+954.0,
+1560.0,
+2810.0,
+4280.0,
+6470.0,
+9650.0,
+16100.0
+],
+"DRNAREA": 11.21,
+"IMPERV": 6.4,
+"SOILCorD": 66.9
+},
+"01661430": {
+"region": "Western Coastal Plain",
+"name": "Glebe Branch at Valley Lee, MD",
+"flows": [
+16.0,
+20.0,
+26.0,
+46.0,
+64.0,
+94.0,
+122.0,
+156.0,
+198.0,
+266.0
+],
+"DRNAREA": 0.41,
+"IMPERV": 2.1,
+"SOILCorD": 43.1
+},
+"01594710": {
+"region": "Western Coastal Plain",
+"name": "Killpeck Creek at Huntersville, MD",
+"flows": [
+123.0,
+140.0,
+158.0,
+209.0,
+244.0,
+290.0,
+326.0,
+363.0,
+402.0,
+457.0
+],
+"DRNAREA": 3.27,
+"IMPERV": 4.1,
+"SOILCorD": 28.1
+},
+"01660900": {
+"region": "Western Coastal Plain",
+"name": "Wolf Den Branch near Cedarville, MD",
+"flows": [
+72.0,
+102.0,
+132.0,
+271.0,
+414.0,
+677.0,
+951.0,
+1310.0,
+1780.0,
+2620.0
+],
+"DRNAREA": 1.98,
+"IMPERV": 0.0,
+"SOILCorD": 64.7
+},
+"01594600": {
+"region": "Western Coastal Plain",
+"name": "Cocktown Creek near Huntington, MD",
+"flows": [
+71.0,
+105.0,
+142.0,
+327.0,
+537.0,
+958.0,
+1430.0,
+2085.0,
+2990.0,
+4730.0
+],
+"DRNAREA": 3.79,
+"IMPERV": 8.7,
+"SOILCorD": 25.0
+},
+"01594500": {
+"region": "Western Coastal Plain",
+"name": "Western Branch near Largo, MD",
+"flows": [
+638.0,
+762.0,
+892.0,
+1270.0,
+1545.0,
+1910.0,
+2200.0,
+2510.0,
+2830.0,
+3280.0
+],
+"DRNAREA": 29.53,
+"IMPERV": 11.4,
+"SOILCorD": 40.1
+},
+"01661000": {
+"region": "Western Coastal Plain",
+"name": "Chaptico Creek at Chaptico, MD",
+"flows": [
+195.0,
+272.0,
+352.0,
+750.0,
+1200.0,
+2080.0,
+3070.0,
+4460.0,
+6380.0,
+10100.0
+],
+"DRNAREA": 10.5,
+"IMPERV": 1.9,
+"SOILCorD": 43.2
+},
+"01585400": {
+"region": "Western Coastal Plain",
+"name": "Brien Run at Stemmers Run, MD",
+"flows": [
+188.0,
+255.0,
+327.0,
+648.0,
+979.0,
+1590.0,
+2230.0,
+3070.0,
+4170.0,
+6160.0
+],
+"DRNAREA": 1.94,
+"IMPERV": 36.8,
+"SOILCorD": 70.3
+},
+"01653500": {
+"region": "Western Coastal Plain",
+"name": "Henson Creek at Oxon Hill, MD",
+"flows": [
+753.0,
+970.0,
+1200.0,
+1990.0,
+2650.0,
+3650.0,
+4530.0,
+5520.0,
+6660.0,
+8390.0
+],
+"DRNAREA": 17.37,
+"IMPERV": 26.5,
+"SOILCorD": 53.1
+},
+"01590500": {
+"region": "Western Coastal Plain",
+"name": "Bacon Ridge Branch at Chesterfield, MD",
+"flows": [
+112.0,
+156.0,
+202.0,
+397.0,
+586.0,
+912.0,
+1230.0,
+1635.0,
+2140.0,
+2990.0
+],
+"DRNAREA": 6.97,
+"IMPERV": 1.5,
+"SOILCorD": 16.8
+},
+"01590000": {
+"region": "Western Coastal Plain",
+"name": "North River near Annapolis, MD",
+"flows": [
+82.0,
+110.0,
+139.0,
+278.0,
+429.0,
+720.0,
+1040.0,
+1480.0,
+2080.0,
+3210.0
+],
+"DRNAREA": 8.93,
+"IMPERV": 2.7,
+"SOILCorD": 14.9
+},
+"01594800": {
+"region": "Western Coastal Plain",
+"name": "St. Leonard Creek near St. Leonard, MD",
+"flows": [
+62.0,
+77.0,
+98.0,
+159.0,
+208.0,
+282.0,
+345.0,
+416.0,
+496.0,
+616.0
+],
+"DRNAREA": 6.82,
+"IMPERV": 0.3,
+"SOILCorD": 13.0
+},
+"01594526": {
+"region": "Western Coastal Plain",
+"name": "Western Branch at Upper Marlboro, MD",
+"flows": [
+1070.0,
+1450.0,
+2040.0,
+4390.0,
+6880.0,
+11600.0,
+16600.0,
+23300.0,
+32100.0,
+48300.0
+],
+"DRNAREA": 89.08,
+"IMPERV": 9.5,
+"SOILCorD": 43.5
+},
+"01660920": {
+"region": "Western Coastal Plain",
+"name": "Zekiah Swamp Run near Newtown, MD",
+"flows": [
+902.0,
+1090.0,
+1350.0,
+2210.0,
+2970.0,
+4190.0,
+5340.0,
+6710.0,
+8350.0,
+11000.0
+],
+"DRNAREA": 81.02,
+"IMPERV": 4.0,
+"SOILCorD": 61.8
+},
+"01594440": {
+"region": "Western Coastal Plain",
+"name": "Patuxent River near Bowie, MD",
+"flows": [
+3260.0,
+4050.0,
+5150.0,
+8710.0,
+11800.0,
+16700.0,
+21200.0,
+26500.0,
+32600.0,
+42500.0
+],
+"DRNAREA": 349.6,
+"IMPERV": 8.6,
+"SOILCorD": 28.4
+},
+"01661050": {
+"region": "Western Coastal Plain",
+"name": "St. Clements Creek near Clements, MD",
+"flows": [
+320.0,
+410.0,
+560.0,
+2300.0,
+3650.0,
+4700.0,
+5400.0,
+6000.0,
+6600.0,
+7300.0
+],
+"DRNAREA": 18.21,
+"IMPERV": 1.8,
+"SOILCorD": 46.4
+},
+"01653600": {
+"region": "Western Coastal Plain",
+"name": "Piscataway Creek at Piscataway, MD",
+"flows": [
+586.0,
+770.0,
+1060.0,
+2240.0,
+3540.0,
+6060.0,
+8830.0,
+12600.0,
+17900.0,
+27800.0
+],
+"DRNAREA": 39.75,
+"IMPERV": 7.7,
+"SOILCorD": 46.2
+},
+"01589795": {
+"region": "Western Coastal Plain",
+"name": "South Fork Jabez Branch at Millersville, MD",
+"flows": [
+36.0,
+53.0,
+83.0,
+213.0,
+362.0,
+659.0,
+987.0,
+1440.0,
+2050.0,
+3180.0
+],
+"DRNAREA": 1.01,
+"IMPERV": 8.2,
+"SOILCorD": 28.5
+},
+"01658000": {
+"region": "Western Coastal Plain",
+"name": "Mattawoman Creek near Pomonkey, MD",
+"flows": [
+638.0,
+910.0,
+1330.0,
+2920.0,
+4480.0,
+7160.0,
+9770.0,
+13000.0,
+17000.0,
+23500.0
+],
+"DRNAREA": 55.61,
+"IMPERV": 5.0,
+"SOILCorD": 74.7
+},
+"01661500": {
+"region": "Western Coastal Plain",
+"name": "St. Marys River at Great Mills, MD",
+"flows": [
+479.0,
+648.0,
+912.0,
+1930.0,
+2990.0,
+4920.0,
+6930.0,
+9540.0,
+12900.0,
+19000.0
+],
+"DRNAREA": 25.28,
+"IMPERV": 4.0,
+"SOILCorD": 70.0
+},
+"01649500": {
+"region": "Western Coastal Plain",
+"name": "North East Branch Anacostia River at Riverdale, MD",
+"flows": [
+3260.0,
+3900.0,
+4720.0,
+6980.0,
+8640.0,
+10900.0,
+12800.0,
+14700.0,
+16800.0,
+19800.0
+],
+"DRNAREA": 73.35,
+"IMPERV": 18.9,
+"SOILCorD": 64.0
+},
+"01651000": {
+"region": "Western Coastal Plain",
+"name": "Northwest Branch Anacostia River near Hyattsville, MD",
+"flows": [
+2580.0,
+3200.0,
+4070.0,
+6940.0,
+9470.0,
+13500.0,
+17200.0,
+21700.0,
+27000.0,
+35400.0
+],
+"DRNAREA": 49.42,
+"IMPERV": 22.3,
+"SOILCorD": 56.7
+},
+"01594930": {
+"region": "Appalachian Plateau",
+"name": "Laurel Run at Dobbin Road near Wilson, MD",
+"flows": [
+245.0,
+299.0,
+356.0,
+545.0,
+696.0,
+918.0,
+1109.0,
+1323.0,
+1563.0,
+1926.0
+],
+"DRNAREA": 8.26,
+"BSLDEM10ff": 0.15199
+},
+"01594936": {
+"region": "Appalachian Plateau",
+"name": "North Fork Sand Run near Wilson, MD",
+"flows": [
+63.0,
+89.0,
+116.0,
+247.0,
+387.0,
+652.0,
+936.0,
+1318.0,
+1830.0,
+2772.0
+],
+"DRNAREA": 1.92,
+"BSLDEM10ff": 0.14094
+},
+"01594950": {
+"region": "Appalachian Plateau",
+"name": "McMillan Fork near Fort Pendleton, MD",
+"flows": [
+61.0,
+78.0,
+96.0,
+168.0,
+235.0,
+348.0,
+456.0,
+590.0,
+754.0,
+1030.0
+],
+"DRNAREA": 2.33,
+"BSLDEM10ff": 0.12347
+},
+"01596005": {
+"region": "Appalachian Plateau",
+"name": "Savage River near Frostburg, MD",
+"flows": [
+32.0,
+40.0,
+51.0,
+85.0,
+112.0,
+154.0,
+189.0,
+229.0,
+274.0,
+343.0
+],
+"DRNAREA": 1.43,
+"BSLDEM10ff": 0.09877
+},
+"01596500": {
+"region": "Appalachian Plateau",
+"name": "Savage River near Barton, MD",
+"flows": [
+970.0,
+1196.0,
+1433.0,
+2310.0,
+3075.0,
+4293.0,
+5414.0,
+6743.0,
+8322.0,
+10870.0
+],
+"DRNAREA": 48.91,
+"BSLDEM10ff": 0.2082
+},
+"01597000": {
+"region": "Appalachian Plateau",
+"name": "Crabtree Creek near Swanton, MD",
+"flows": [
+305.0,
+391.0,
+481.0,
+840.0,
+1176.0,
+1740.0,
+2286.0,
+2960.0,
+3793.0,
+5196.0
+],
+"DRNAREA": 16.75,
+"BSLDEM10ff": 0.19438
+},
+"01598000": {
+"region": "Appalachian Plateau",
+"name": "Savage River at Bloomington, MD",
+"flows": [
+2185.0,
+2790.0,
+3425.0,
+5859.0,
+8046.0,
+11610.0,
+14960.0,
+18990.0,
+23840.0,
+31790.0
+],
+"DRNAREA": 115.87,
+"BSLDEM10ff": 0.22653
+},
+"01599000": {
+"region": "Appalachian Plateau",
+"name": "Georges Creek at Franklin, MD",
+"flows": [
+1210.0,
+1507.0,
+1819.0,
+2926.0,
+3859.0,
+5301.0,
+6589.0,
+8080.0,
+9809.0,
+12520.0
+],
+"DRNAREA": 72.99,
+"BSLDEM10ff": 0.17102
+},
+"01601500": {
+"region": "Appalachian Plateau",
+"name": "Wills Creek near Cumberland, MD",
+"flows": [
+3939.0,
+4969.0,
+6050.0,
+10370.0,
+14410.0,
+21230.0,
+27850.0,
+36060.0,
+46230.0,
+63460.0
+],
+"DRNAREA": 247.57,
+"BSLDEM10ff": 0.19835
+},
+"01609000": {
+"region": "Appalachian Plateau",
+"name": "Town Creek near Oldtown, MD",
+"flows": [
+2410.0,
+3095.0,
+3813.0,
+6536.0,
+8956.0,
+12860.0,
+16500.0,
+20840.0,
+26020.0,
+34430.0
+],
+"DRNAREA": 149.23,
+"BSLDEM10ff": 0.17223
+},
+"01609500": {
+"region": "Appalachian Plateau",
+"name": "Sawpit Run near Oldtown, MD",
+"flows": [
+187.0,
+223.0,
+262.0,
+393.0,
+502.0,
+666.0,
+810.0,
+974.0,
+1163.0,
+1456.0
+],
+"DRNAREA": 5.0,
+"BSLDEM10ff": 0.16636
+},
+"01610105": {
+"region": "Appalachian Plateau",
+"name": "Pratt Hollow Tributary at Pratt, MD",
+"flows": [
+50.0,
+57.0,
+66.0,
+92.0,
+110.0,
+137.0,
+159.0,
+183.0,
+209.0,
+248.0
+],
+"DRNAREA": 0.65,
+"BSLDEM10ff": 0.16
+},
+"01610150": {
+"region": "Appalachian Plateau",
+"name": "Bear Creek at Forest Park, MD",
+"flows": [
+218.0,
+294.0,
+372.0,
+664.0,
+915.0,
+1306.0,
+1656.0,
+2062.0,
+2531.0,
+3264.0
+],
+"DRNAREA": 10.27,
+"BSLDEM10ff": 0.11542
+},
+"01610155": {
+"region": "Appalachian Plateau",
+"name": "Sideling Hill Creek near Bellegrove, MD",
+"flows": [
+2192.0,
+3018.0,
+3885.0,
+7289.0,
+10360.0,
+15360.0,
+20000.0,
+25540.0,
+32120.0,
+42720.0
+],
+"DRNAREA": 102.54,
+"BSLDEM10ff": 0.14148
+},
+"01612500": {
+"region": "Appalachian Plateau",
+"name": "Little Tonoloway Creek near Hancock, MD",
+"flows": [
+315.0,
+412.0,
+514.0,
+893.0,
+1222.0,
+1741.0,
+2212.0,
+2763.0,
+3409.0,
+4432.0
+],
+"DRNAREA": 17.28,
+"BSLDEM10ff": 0.14322
+},
+"01613150": {
+"region": "Appalachian Plateau",
+"name": "Ditch Run near Hancock, MD",
+"flows": [
+154.0,
+194.0,
+236.0,
+382.0,
+501.0,
+681.0,
+838.0,
+1016.0,
+1219.0,
+1530.0
+],
+"DRNAREA": 4.6,
+"BSLDEM10ff": 0.11342
+},
+"03075450": {
+"region": "Appalachian Plateau",
+"name": "Little Youghiogheny River tributary at Deer Park, MD",
+"flows": [
+15.0,
+19.0,
+25.0,
+42.0,
+57.0,
+79.0,
+99.0,
+122.0,
+147.0,
+187.0
+],
+"DRNAREA": 0.55,
+"BSLDEM10ff": 0.06632
+},
+"03075500": {
+"region": "Appalachian Plateau",
+"name": "Youghiogheny River near Oakland, MD",
+"flows": [
+2769.0,
+3405.0,
+4071.0,
+6285.0,
+8047.0,
+10640.0,
+12860.0,
+15330.0,
+18110.0,
+22290.0
+],
+"DRNAREA": 133.58,
+"BSLDEM10ff": 0.11647
+},
+"03075600": {
+"region": "Appalachian Plateau",
+"name": "Toliver Run tributary near Hoyes Run, MD",
+"flows": [
+18.0,
+23.0,
+29.0,
+51.0,
+72.0,
+107.0,
+140.0,
+182.0,
+233.0,
+319.0
+],
+"DRNAREA": 0.52,
+"BSLDEM10ff": 0.07148
+},
+"03076500": {
+"region": "Appalachian Plateau",
+"name": "Youghiogheny River at Friendsville, MD",
+"flows": [
+4547.0,
+5405.0,
+6304.0,
+8813.0,
+10540.0,
+12780.0,
+14490.0,
+16250.0,
+18050.0,
+20530.0
+],
+"DRNAREA": 293.72,
+"BSLDEM10ff": 0.11548
+},
+"03076600": {
+"region": "Appalachian Plateau",
+"name": "Bear Creek at Friendsville, MD",
+"flows": [
+961.0,
+1191.0,
+1432.0,
+2184.0,
+2749.0,
+3539.0,
+4184.0,
+4876.0,
+5623.0,
+6703.0
+],
+"DRNAREA": 48.84,
+"BSLDEM10ff": 0.16886
+},
+"03077700": {
+"region": "Appalachian Plateau",
+"name": "North Branch Casselman River tributary at Foxtown, MD",
+"flows": [
+31.0,
+37.0,
+46.0,
+72.0,
+92.0,
+121.0,
+146.0,
+175.0,
+207.0,
+255.0
+],
+"DRNAREA": 1.07,
+"BSLDEM10ff": 0.08474
+},
+"03078000": {
+"region": "Appalachian Plateau",
+"name": "Casselman River at Grantsville, MD",
+"flows": [
+1382.0,
+1653.0,
+1937.0,
+2916.0,
+3722.0,
+4944.0,
+6019.0,
+7251.0,
+8664.0,
+10860.0
+],
+"DRNAREA": 63.37,
+"BSLDEM10ff": 0.11771
+}
+}
