@@ -5,10 +5,10 @@
 > in progress are tracked under "Roadmap Phase A, Wave 1 and Wave 2" in Open Items below.
 
 ## Status
-Last updated: 2026-11-03. Version **0.21.0** is released (tag `v0.21.0`). `main` carries
+Last updated: 2026-11-04. Version **0.21.0** is released (tag `v0.21.0`). `main` carries
 **0.22.0.dev0**; 0.21.x patches come from `release/0.21.x` (CLAUDE.md, Branches and Releases).
-flowfreq-app still pins v0.20.0. 13 jurisdictions are `verified`, 38 run on NSS snapshots and 5
-have no equations.
+flowfreq-app still pins v0.20.0; app PR #33 moves it to v0.21.0. 22 jurisdictions are `verified`
+on `main` (13 in v0.21.0), 29 run on NSS snapshots and 5 have no equations.
 
 The ss-hydro checks that waited on the 2026-10-30 outage are done (2026-11-03):
 `docs/NATIONWIDE_SMOKE.md` is a full 56-jurisdiction rerun, gaged 56/56 and ungaged 48/56. The
@@ -16,29 +16,31 @@ eight left are the known gaps: AS, DC, GU, MP and VI have no equations, and FL, 
 no stream grid. The Live services run now reports an outage as a skip rather than a failure
 (#294), so read its job summary.
 
-### Next steps (2026-11-03)
+### Next steps (2026-11-04)
 
 **The goal to mid-November is verified equations in as many states as possible
 (`docs/VERIFICATION_PLAN.md`).**
 
-1. **Batch 1, one recent USGS report each:** MA, CT, ME, KS, PR, VT, PA, then VA and WV together.
-2. **Batch 2, one older USGS report each:** RI, NH, ND, NJ. Release after batches 1 and 2, or
-   sooner if a week passes.
+Batch 1 is done (MA, CT, ME, KS, PR, VT, PA, VA, WV).
+
+1. **Batch 2, one older USGS report each:** RI, NH, ND, NJ.
+2. Release v0.22.0 after batch 2, or by 2026-11-10 either way, then bump the app's pin.
 3. **Batch 3, two or shared reports:** IA, MN, MO, DE, AL, OK, WI, AR, MS, GA, NC, SC. A stretch
    by mid-November.
 4. Batches 4 and 5 (NY, IL, MD, IN, SD, NE, MI; KY, OH, LA, TN, TX, FL) come after that.
 
 Library follow-through from v0.21.0:
 
-5. Bump flowfreq-app's pin to v0.21.0, which gives its ungaged page the verified CA, AK and HI
-   sets and Iowa's preference. It can also pass `site_metadata=False` on the gage page (one USGS
-   request fewer per view).
-6. Push `release/0.21.x` (a hook blocks it here; the branch exists locally).
+5. Push `release/0.21.x` (a hook blocks it here; the branch exists locally).
 
 Owner's:
 
+6. **Connecticut, Maine and Vermont overlap decision.** Each has a multi-variable set and a
+   drainage-area-only set located together, so without `region=` an estimate stops with
+   `OverlappingRegionsError` (the #209 decision). Iowa now prefers its full set. The same rule could
+   apply to these three.
 7. Close issues #27, #36 and #293.
-8. Merge or close app PRs #27-#32.
+8. Merge or close app PRs #27-#33.
 9. Check the gage page's resizable period grips in a browser (app #24): they were never run in
    one, since running the vega bundles in headless Chrome was blocked here.
 
