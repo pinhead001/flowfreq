@@ -85,7 +85,7 @@ Plan and definitions of done: `docs/MASTER_ROADMAP.md` §3.2.
 | NJ | New Jersey | verified | 5 | 35 | pending |  |
 | PA | Pennsylvania | verified | 5 | 40 | pending, verified |  |
 | DE | Delaware | partial | 3 | 24 | pending |  |
-| MD | Maryland | nss snapshot (40 eqs, 0 unparsed) | 4 | 40 | pending, verified |  |
+| MD | Maryland | verified | 5 | 50 | pending, verified |  |
 | DC | District of Columbia | not started | 0 | 0 | pending |  |
 | VA | Virginia | verified | 11 | 88 | verified |  |
 | NC | North Carolina | verified | 4 | 32 | verified |  |
