@@ -24,9 +24,11 @@ Owner's:
 
 1. Release v0.22.0 (a draft PR is prepared), then merge app PR #33 and bump the app's pin again.
 2. Push `release/0.21.x` (a hook blocks it here; the branch exists locally).
-3. **Overlapping sets.** CT, ME, VT and TN stop with `OverlappingRegionsError` at every tested point
-   unless the caller passes `region=` (the #209 decision). Iowa prefers its full set; the same rule
-   could apply to these four. Also SE 2014 against 2023 small basins, and AR's region D against MAP.
+3. **Overlapping sets and warnings stop about a third of real gages** (`docs/VERIFICATION_PLAN.md`,
+   Wider live check). 33 of 102 stopped on overlap without `region=` (the #209 decision), and KY's karst
+   warning stopped 3 of 3. Iowa's full-set preference could extend to CT, ME, VT and TN; the rural set
+   could be preferred over urban (AL, MO, IL) and over NRCS-regulated (OK); the small-basin sets in GA,
+   NC and SC could be limited to their 1 mi2 range. Also SE 2014 against 2023, and AR's D against MAP.
 4. **DE:** settle Table 6 against Table 8 so it can become `verified`.
 5. **MD:** kept at the Third Edition because StreamStats can't feed the Sixth (2023). GC1481's urban
    gates are added, and a boundary basin now needs `region=`.
