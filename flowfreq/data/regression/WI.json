@@ -1,0 +1,3230 @@
+{
+ "schema_version": 1,
+ "state": "WI",
+ "status": "verified",
+ "issue": null,
+ "source_reports": [
+  {
+   "citation": "Levin, S.B., and Sanocki, C.A., 2023, Estimating flood magnitude and frequency for unregulated streams in Wisconsin: U.S. Geological Survey Scientific Investigations Report 2022-5118, 25 p.",
+   "doi": "10.3133/sir20225118",
+   "url": "https://pubs.usgs.gov/publication/sir20225118",
+   "pdf": "https://pubs.usgs.gov/sir/2022/5118/sir20225118.pdf",
+   "tables": [
+    "Table 2",
+    "Table 3",
+    "Examples 1-3"
+   ],
+   "data_release": "Levin, S.B., 2023, Model archive--Regional regression models for estimating flood frequency characteristics of unregulated streams in Wisconsin: U.S. Geological Survey data release, https://doi.org/10.5066/P9JVO8QV",
+   "nss": {
+    "regression_regions": [
+     "GC1913",
+     "GC1914",
+     "GC1915",
+     "GC1916"
+    ],
+    "citation_id": 188,
+    "last_year_of_data": 2020
+   }
+  },
+  {
+   "citation": "Conger, D.H., 1986, Estimating magnitude and frequency of floods for Wisconsin urban streams: U.S. Geological Survey Water-Resources Investigations Report 86-4005, 18 p.",
+   "url": "https://pubs.usgs.gov/publication/wri864005",
+   "pdf": "https://pubs.usgs.gov/wri/1986/4005/report.pdf",
+   "tables": [
+    "Table 3",
+    "Table 4",
+    "Table 5",
+    "Table 6"
+   ],
+   "nss": {
+    "regression_regions": [
+     "GC1466",
+     "GC1467"
+    ],
+    "citation_id": 155,
+    "last_year_of_data": 1984
+   }
+  }
+ ],
+ "notes": "Two reports. Levin and Sanocki (SIR 2022-5118, published 2023, supersedes SIR 2016-5140 and the earlier rural statewide reports): four rural regions at 8 AEPs from 257 streamgages, not for the main stems of the Wisconsin, St. Croix or Mississippi Rivers. Conger (WRI 86-4005): urban equations at 6 AEPs on drainage area and impervious area, one set for all Wisconsin urban areas and one for Milwaukee County. SIR 2022-5118 applies only where streamflow is not substantially altered by urbanization and does not cite WRI 86-4005, so it does not replace the urban sets, and they remain the only ones for urban basins: all six NSS regions are kept. The report recommends Table 6 within Milwaukee County; no preference is coded, so a caller chooses with region=. Rural regions: SIR 2022-5118 Table 2 prints coefficients to 3 decimals, and that rounding moves a flow by several percent where a percent characteristic is large (FOREST -0.007 against -0.00749 at 90 percent forest is 11 percent), and its own examples 2 and 3 use -0.0174 for its -0.017. The equations are therefore stored at the precision of the report's model archive (https://doi.org/10.5066/P9JVO8QV), table 3, which is what the covariance belongs to; each rounds to Table 2's 3 decimals. MEV, covariance (archive table 4, which the report cites as Levin 2023, table 4) and AVP are from the archive, SEP from the archive's Sp, which rounds to Table 2's, ranges and site counts from Table 3. Variables are stored in the archive's covariance order, which differs from Table 2's. NSS differences, report values winning: region 4's 4-percent DRNAREA coefficient is 0.54569 in NSS for 0.5459 (archive 0.54593, Table 2 0.546); region 4's DRNAREA maximum is 1,304.01 in NSS for 1,034.01 (Table 3, and the archive's gages). Inside the report: region 4's minimum drainage area is 0.30 in Table 3 and 0.29 in archive table 2 (05371300, 0.2947 mi2); 0.30 is stored. Example 3 prints log Q = 3.23 and 1,698 ft3/s, but its own terms give 3.2386 (1,732 ft3/s) and the archive coefficients 3.2394 (1,735 ft3/s), so its 703-4,100 interval is about 2 percent low. The printed critical values use n-p-3 degrees of freedom (make_tables.R; 1.6736 for region 3), where the report's equation says n-p; flowfreq uses n-p (1.6720). No per-gage regression flows are published. The covariance reproduces the archive's per-gage variance of prediction (table 5) at all 257 gages and 8 AEPs to 5e-5, the rounding of the printed MEV, and the mean of those variances is the printed AVP. Urban regions: WRI 86-4005 prints no ranges, site count for Table 6, covariance or SEP, and no per-gage regression flows. The sep_log is its standard error of estimate, in percent, the only error printed: an OLS residual that omits the coefficient sampling error. Urban ranges are the 32 stations of Table 4, whose smallest basin is 05429040, 0.22 mi2 (Tables 1 and 4); NSS has 0.47, the next smallest, for both sets. Milwaukee ranges are the 22 Table 4 stations in that county, identified here by station name because the report does not list them; that set reproduces Table 6's standard errors at 25 years and rarer, to within 0.3 points, and is 2 to 3.3 points above print at 2 and 5 years; the 32 stations give 39.0 against Table 5's 37 at 2 years and within 0.4 at the rest. An OLS refit of Tables 3 and 4 does not recover the printed constants exactly (32.8 printed, 28.9 refit at 100 years, with compensating exponents), so the printed equations' residuals are the check rather than a refit. n_sites is left unset there, so its interval uses a normal critical value. Equations are stored from the printed constant, log10(a). The worked example's first line prints the exponent 0.700 and cites table 2, for Table 5's 0.770; its step 3 is right, and gives 494 ft3/s with its impervious area of 19.0, not Table 4's 18.7 for the same station.",
+ "equations": [
+  {
+   "region_code": "1",
+   "region_name": "Flood frequency region 1 (SIR 2022-5118; NSS GC1913)",
+   "aep": 0.5,
+   "intercept": 0.935725807404515,
+   "variables": [
+    {
+     "code": "I24H10Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 3.61,
+     "maximum": 4.17
+    },
+    {
+     "code": "LC01HERB",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 25.16,
+     "offset": 1.0
+    },
+    {
+     "code": "LC01WATER",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 9.2,
+     "offset": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.58,
+     "maximum": 2085.76
+    },
+    {
+     "code": "SSURGOKSAT",
+     "transform": "log10",
+     "units": "um/s",
+     "minimum": 8.95,
+     "maximum": 74.16
+    }
+   ],
+   "coefficients": [
+    0.422742169267271,
+    -0.373956981571469,
+    -0.514291409555105,
+    0.839802540379272,
+    -0.668471596771717
+   ],
+   "citation": {
+    "publication": "Levin, S.B., and Sanocki, C.A., 2023, Estimating flood magnitude and frequency for unregulated streams in Wisconsin: U.S. Geological Survey Scientific Investigations Report 2022-5118, 25 p.",
+    "table": "Tables 2 and 3; model archive tables 3 and 4",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20225118"
+   },
+   "sep_log": 0.218188,
+   "avp": 0.0476061342450245,
+   "model_error_variance": 0.0433,
+   "covariance": [
+    [
+     0.925992655177586,
+     -0.237425543083923,
+     0.0310789741652437,
+     -0.0187514857986067,
+     0.00320444612548134,
+     -0.00502392655802442
+    ],
+    [
+     -0.237425543083923,
+     0.0623595179456917,
+     -0.00663656793403236,
+     0.00612024927960132,
+     -0.00100749596231404,
+     -0.00330359381912327
+    ],
+    [
+     0.0310789741652443,
+     -0.00663656793403251,
+     0.0127317564318943,
+     0.00198123034591696,
+     -0.000334036394304158,
+     -0.0068790279748886
+    ],
+    [
+     -0.0187514857986057,
+     0.00612024927960106,
+     0.00198123034591698,
+     0.0210760898160145,
+     -0.00224377558480495,
+     -0.00512398253680904
+    ],
+    [
+     0.0032044461254806,
+     -0.00100749596231384,
+     -0.00033403639430418,
+     -0.00224377558480493,
+     0.00118252020365215,
+     -0.000378189889727563
+    ],
+    [
+     -0.00502392655802362,
+     -0.00330359381912348,
+     -0.00687902797488854,
+     -0.00512398253680907,
+     -0.000378189889727543,
+     0.0166226164192446
+    ]
+   ],
+   "n_sites": 66
+  },
+  {
+   "region_code": "1",
+   "region_name": "Flood frequency region 1 (SIR 2022-5118; NSS GC1913)",
+   "aep": 0.2,
+   "intercept": 0.437432264161952,
+   "variables": [
+    {
+     "code": "I24H10Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 3.61,
+     "maximum": 4.17
+    },
+    {
+     "code": "LC01HERB",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 25.16,
+     "offset": 1.0
+    },
+    {
+     "code": "LC01WATER",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 9.2,
+     "offset": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.58,
+     "maximum": 2085.76
+    },
+    {
+     "code": "SSURGOKSAT",
+     "transform": "log10",
+     "units": "um/s",
+     "minimum": 8.95,
+     "maximum": 74.16
+    }
+   ],
+   "coefficients": [
+    0.609953916463826,
+    -0.439699097679686,
+    -0.583066723736791,
+    0.83353826193336,
+    -0.65386020741678
+   ],
+   "citation": {
+    "publication": "Levin, S.B., and Sanocki, C.A., 2023, Estimating flood magnitude and frequency for unregulated streams in Wisconsin: U.S. Geological Survey Scientific Investigations Report 2022-5118, 25 p.",
+    "table": "Tables 2 and 3; model archive tables 3 and 4",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20225118"
+   },
+   "sep_log": 0.226749,
+   "avp": 0.0514148853316898,
+   "model_error_variance": 0.0468,
+   "covariance": [
+    [
+     1.01110197797751,
+     -0.259153809144956,
+     0.034019271672926,
+     -0.0201414369392201,
+     0.0034880806476374,
+     -0.00579562864678752
+    ],
+    [
+     -0.259153809144956,
+     0.0680389139049024,
+     -0.00726371442634038,
+     0.00661132639711033,
+     -0.00109687032015796,
+     -0.00352424026223321
+    ],
+    [
+     0.0340192716729252,
+     -0.00726371442634021,
+     0.0139156604157259,
+     0.00219775837537267,
+     -0.000370836350351932,
+     -0.00751733600720729
+    ],
+    [
+     -0.0201414369392231,
+     0.00661132639711109,
+     0.00219775837537255,
+     0.0230332702689817,
+     -0.00245537338732221,
+     -0.00564326991410559
+    ],
+    [
+     0.00348808064763736,
+     -0.00109687032015795,
+     -0.000370836350351922,
+     -0.00245537338732219,
+     0.00128789955409361,
+     -0.00041109927128233
+    ],
+    [
+     -0.00579562864678832,
+     -0.003524240262233,
+     -0.00751733600720736,
+     -0.00564326991410562,
+     -0.000411099271282322,
+     0.0181600712201785
+    ]
+   ],
+   "n_sites": 66
+  },
+  {
+   "region_code": "1",
+   "region_name": "Flood frequency region 1 (SIR 2022-5118; NSS GC1913)",
+   "aep": 0.1,
+   "intercept": 0.205448609728024,
+   "variables": [
+    {
+     "code": "I24H10Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 3.61,
+     "maximum": 4.17
+    },
+    {
+     "code": "LC01HERB",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 25.16,
+     "offset": 1.0
+    },
+    {
+     "code": "LC01WATER",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 9.2,
+     "offset": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.58,
+     "maximum": 2085.76
+    },
+    {
+     "code": "SSURGOKSAT",
+     "transform": "log10",
+     "units": "um/s",
+     "minimum": 8.95,
+     "maximum": 74.16
+    }
+   ],
+   "coefficients": [
+    0.698060719359571,
+    -0.472730581138423,
+    -0.620987080213658,
+    0.829647324571843,
+    -0.638409399009692
+   ],
+   "citation": {
+    "publication": "Levin, S.B., and Sanocki, C.A., 2023, Estimating flood magnitude and frequency for unregulated streams in Wisconsin: U.S. Geological Survey Scientific Investigations Report 2022-5118, 25 p.",
+    "table": "Tables 2 and 3; model archive tables 3 and 4",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20225118"
+   },
+   "sep_log": 0.235525,
+   "avp": 0.0554721300485289,
+   "model_error_variance": 0.0504,
+   "covariance": [
+    [
+     1.10549680501006,
+     -0.283287455327788,
+     0.0372643654049489,
+     -0.0216518325747988,
+     0.00380306845334545,
+     -0.00659756941393954
+    ],
+    [
+     -0.283287455327787,
+     0.0743577284641817,
+     -0.00795828130183069,
+     0.0071509398276053,
+     -0.0011967400922455,
+     -0.0037852956805498
+    ],
+    [
+     0.0372643654049539,
+     -0.00795828130183205,
+     0.0152334899642898,
+     0.00243548830592469,
+     -0.000407857992053453,
+     -0.00822528959485326
+    ],
+    [
+     -0.0216518325747975,
+     0.00715093982760498,
+     0.00243548830592483,
+     0.0251941676392669,
+     -0.00268889132157392,
+     -0.0062272343806368
+    ],
+    [
+     0.00380306845334563,
+     -0.00119674009224556,
+     -0.000407857992053469,
+     -0.00268889132157393,
+     0.00140414294888498,
+     -0.00044619176840998
+    ],
+    [
+     -0.00659756941394683,
+     -0.0037852956805479,
+     -0.00822528959485354,
+     -0.00622723438063668,
+     -0.000446191768410022,
+     0.0198674740238003
+    ]
+   ],
+   "n_sites": 66
+  },
+  {
+   "region_code": "1",
+   "region_name": "Flood frequency region 1 (SIR 2022-5118; NSS GC1913)",
+   "aep": 0.04,
+   "intercept": -0.0178056739706265,
+   "variables": [
+    {
+     "code": "I24H10Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 3.61,
+     "maximum": 4.17
+    },
+    {
+     "code": "LC01HERB",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 25.16,
+     "offset": 1.0
+    },
+    {
+     "code": "LC01WATER",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 9.2,
+     "offset": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.58,
+     "maximum": 2085.76
+    },
+    {
+     "code": "SSURGOKSAT",
+     "transform": "log10",
+     "units": "um/s",
+     "minimum": 8.95,
+     "maximum": 74.16
+    }
+   ],
+   "coefficients": [
+    0.784060437427991,
+    -0.507138458325634,
+    -0.663206696514019,
+    0.824965158150187,
+    -0.616128658041172
+   ],
+   "citation": {
+    "publication": "Levin, S.B., and Sanocki, C.A., 2023, Estimating flood magnitude and frequency for unregulated streams in Wisconsin: U.S. Geological Survey Scientific Investigations Report 2022-5118, 25 p.",
+    "table": "Tables 2 and 3; model archive tables 3 and 4",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20225118"
+   },
+   "sep_log": 0.244266,
+   "avp": 0.0596660711794693,
+   "model_error_variance": 0.0541,
+   "covariance": [
+    [
+     1.21215562838248,
+     -0.310539327880485,
+     0.0409732460888991,
+     -0.0231627337530289,
+     0.0041578412993837,
+     -0.00762657769563778
+    ],
+    [
+     -0.31053932788049,
+     0.0814884158827714,
+     -0.00875547622128192,
+     0.00771893145198708,
+     -0.0013100666293005,
+     -0.00404747264606057
+    ],
+    [
+     0.0409732460888947,
+     -0.00875547622128061,
+     0.0167319394847887,
+     0.00271889765163934,
+     -0.000449365193304254,
+     -0.00902587333179291
+    ],
+    [
+     -0.0231627337530348,
+     0.00771893145198851,
+     0.00271889765163906,
+     0.0276373797112872,
+     -0.00295495576520009,
+     -0.00691472520503322
+    ],
+    [
+     0.0041578412993846,
+     -0.00131006662930073,
+     -0.000449365193304221,
+     -0.00295495576520011,
+     0.00153383249827954,
+     -0.000483374520578697
+    ],
+    [
+     -0.00762657769562237,
+     -0.00404747264606454,
+     -0.00902587333179242,
+     -0.00691472520503349,
+     -0.000483374520578683,
+     0.0217968489304863
+    ]
+   ],
+   "n_sites": 66
+  },
+  {
+   "region_code": "1",
+   "region_name": "Flood frequency region 1 (SIR 2022-5118; NSS GC1913)",
+   "aep": 0.02,
+   "intercept": -0.147959874569476,
+   "variables": [
+    {
+     "code": "I24H10Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 3.61,
+     "maximum": 4.17
+    },
+    {
+     "code": "LC01HERB",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 25.16,
+     "offset": 1.0
+    },
+    {
+     "code": "LC01WATER",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 9.2,
+     "offset": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.58,
+     "maximum": 2085.76
+    },
+    {
+     "code": "SSURGOKSAT",
+     "transform": "log10",
+     "units": "um/s",
+     "minimum": 8.95,
+     "maximum": 74.16
+    }
+   ],
+   "coefficients": [
+    0.835155709286035,
+    -0.528530662503799,
+    -0.691436904088768,
+    0.821715176637018,
+    -0.599141903386982
+   ],
+   "citation": {
+    "publication": "Levin, S.B., and Sanocki, C.A., 2023, Estimating flood magnitude and frequency for unregulated streams in Wisconsin: U.S. Geological Survey Scientific Investigations Report 2022-5118, 25 p.",
+    "table": "Tables 2 and 3; model archive tables 3 and 4",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20225118"
+   },
+   "sep_log": 0.250129,
+   "avp": 0.0625645829703189,
+   "model_error_variance": 0.0567,
+   "covariance": [
+    [
+     1.28916180599264,
+     -0.330206709345695,
+     0.0436698142175366,
+     -0.0241797571698873,
+     0.00441272852964721,
+     -0.00841795232360777
+    ],
+    [
+     -0.330206709345698,
+     0.0866324725645441,
+     -0.00933636788515846,
+     0.00811305791743019,
+     -0.00139189010915834,
+     -0.00422393512343689
+    ],
+    [
+     0.0436698142175325,
+     -0.0093363678851573,
+     0.0178167808120127,
+     0.00293007417875949,
+     -0.000479620611100507,
+     -0.00960393056807089
+    ],
+    [
+     -0.0241797571698958,
+     0.00811305791743228,
+     0.00293007417875912,
+     0.029403163382519,
+     -0.00314809033420875,
+     -0.00742097569019682
+    ],
+    [
+     0.00441272852964897,
+     -0.00139189010915878,
+     -0.000479620611100442,
+     -0.00314809033420876,
+     0.00162689055847544,
+     -0.000509021260650528
+    ],
+    [
+     -0.00841795232359827,
+     -0.00422393512343933,
+     -0.00960393056807063,
+     -0.0074209756901971,
+     -0.000509021260650499,
+     0.0231895972610466
+    ]
+   ],
+   "n_sites": 66
+  },
+  {
+   "region_code": "1",
+   "region_name": "Flood frequency region 1 (SIR 2022-5118; NSS GC1913)",
+   "aep": 0.01,
+   "intercept": -0.252355598086039,
+   "variables": [
+    {
+     "code": "I24H10Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 3.61,
+     "maximum": 4.17
+    },
+    {
+     "code": "LC01HERB",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 25.16,
+     "offset": 1.0
+    },
+    {
+     "code": "LC01WATER",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 9.2,
+     "offset": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.58,
+     "maximum": 2085.76
+    },
+    {
+     "code": "SSURGOKSAT",
+     "transform": "log10",
+     "units": "um/s",
+     "minimum": 8.95,
+     "maximum": 74.16
+    }
+   ],
+   "coefficients": [
+    0.877306189576415,
+    -0.547288443515122,
+    -0.717208041078406,
+    0.818734321883834,
+    -0.582351457409966
+   ],
+   "citation": {
+    "publication": "Levin, S.B., and Sanocki, C.A., 2023, Estimating flood magnitude and frequency for unregulated streams in Wisconsin: U.S. Geological Survey Scientific Investigations Report 2022-5118, 25 p.",
+    "table": "Tables 2 and 3; model archive tables 3 and 4",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20225118"
+   },
+   "sep_log": 0.258615,
+   "avp": 0.0668815716974315,
+   "model_error_variance": 0.0605,
+   "covariance": [
+    [
+     1.39345916307625,
+     -0.356863017304894,
+     0.0472858733435723,
+     -0.0257382351263413,
+     0.00475723879455457,
+     -0.00936979889480416
+    ],
+    [
+     -0.356863017304901,
+     0.0936098253436511,
+     -0.0101128666466356,
+     0.008685043692993,
+     -0.00150195488588313,
+     -0.00449540836944898
+    ],
+    [
+     0.0472858733435642,
+     -0.0101128666466333,
+     0.0192772178395472,
+     0.00320339039854196,
+     -0.000521128757682666,
+     -0.0103853600459736
+    ],
+    [
+     -0.0257382351263516,
+     0.0086850436929955,
+     0.00320339039854147,
+     0.0317928052181485,
+     -0.0034075475753962,
+     -0.00807984029506201
+    ],
+    [
+     0.00475723879455513,
+     -0.00150195488588324,
+     -0.000521128757682611,
+     -0.00340754757539617,
+     0.00175450145772844,
+     -0.000545336804135607
+    ],
+    [
+     -0.00936979889477823,
+     -0.00449540836945568,
+     -0.0103853600459729,
+     -0.00807984029506258,
+     -0.000545336804135489,
+     0.0250747293274242
+    ]
+   ],
+   "n_sites": 66
+  },
+  {
+   "region_code": "1",
+   "region_name": "Flood frequency region 1 (SIR 2022-5118; NSS GC1913)",
+   "aep": 0.005,
+   "intercept": -0.338957313551598,
+   "variables": [
+    {
+     "code": "I24H10Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 3.61,
+     "maximum": 4.17
+    },
+    {
+     "code": "LC01HERB",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 25.16,
+     "offset": 1.0
+    },
+    {
+     "code": "LC01WATER",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 9.2,
+     "offset": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.58,
+     "maximum": 2085.76
+    },
+    {
+     "code": "SSURGOKSAT",
+     "transform": "log10",
+     "units": "um/s",
+     "minimum": 8.95,
+     "maximum": 74.16
+    }
+   ],
+   "coefficients": [
+    0.913138626006415,
+    -0.563972004315351,
+    -0.740997883348792,
+    0.815878442685613,
+    -0.565717365127264
+   ],
+   "citation": {
+    "publication": "Levin, S.B., and Sanocki, C.A., 2023, Estimating flood magnitude and frequency for unregulated streams in Wisconsin: U.S. Geological Survey Scientific Investigations Report 2022-5118, 25 p.",
+    "table": "Tables 2 and 3; model archive tables 3 and 4",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20225118"
+   },
+   "sep_log": 0.26698,
+   "avp": 0.0712781582353889,
+   "model_error_variance": 0.0644,
+   "covariance": [
+    [
+     1.49977111981217,
+     -0.38403071826184,
+     0.0509783969277785,
+     -0.0273146085720965,
+     0.00510742167768777,
+     -0.0103517932398072
+    ],
+    [
+     -0.384030718261838,
+     0.100720191767677,
+     -0.0109059758579704,
+     0.00926522159923601,
+     -0.00161399875146981,
+     -0.00476914579925695
+    ],
+    [
+     0.0509783969277842,
+     -0.0109059758579719,
+     0.0207662217934355,
+     0.0034840757065332,
+     -0.000563939322883536,
+     -0.0111819197095018
+    ],
+    [
+     -0.0273146085720996,
+     0.00926522159923685,
+     0.00348407570653325,
+     0.0342296532726535,
+     -0.00367236905451718,
+     -0.00875248515547864
+    ],
+    [
+     0.00510742167769058,
+     -0.00161399875147055,
+     -0.000563939322883481,
+     -0.00367236905451723,
+     0.00188455269925222,
+     -0.000581863926807352
+    ],
+    [
+     -0.0103517932398157,
+     -0.00476914579925475,
+     -0.0111819197095021,
+     -0.00875248515547847,
+     -0.000581863926807403,
+     0.0269960190600243
+    ]
+   ],
+   "n_sites": 66
+  },
+  {
+   "region_code": "1",
+   "region_name": "Flood frequency region 1 (SIR 2022-5118; NSS GC1913)",
+   "aep": 0.002,
+   "intercept": -0.432880350241902,
+   "variables": [
+    {
+     "code": "I24H10Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 3.61,
+     "maximum": 4.17
+    },
+    {
+     "code": "LC01HERB",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 25.16,
+     "offset": 1.0
+    },
+    {
+     "code": "LC01WATER",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 9.2,
+     "offset": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.58,
+     "maximum": 2085.76
+    },
+    {
+     "code": "SSURGOKSAT",
+     "transform": "log10",
+     "units": "um/s",
+     "minimum": 8.95,
+     "maximum": 74.16
+    }
+   ],
+   "coefficients": [
+    0.953209177863853,
+    -0.583497036127065,
+    -0.770272667320904,
+    0.812331417016626,
+    -0.544175345710623
+   ],
+   "citation": {
+    "publication": "Levin, S.B., and Sanocki, C.A., 2023, Estimating flood magnitude and frequency for unregulated streams in Wisconsin: U.S. Geological Survey Scientific Investigations Report 2022-5118, 25 p.",
+    "table": "Tables 2 and 3; model archive tables 3 and 4",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20225118"
+   },
+   "sep_log": 0.277996,
+   "avp": 0.077281856049691,
+   "model_error_variance": 0.0698,
+   "covariance": [
+    [
+     1.64452387637421,
+     -0.421016896611983,
+     0.0560140330296872,
+     -0.0294506666250917,
+     0.00558279122549887,
+     -0.0117028468303542
+    ],
+    [
+     -0.421016896611983,
+     0.110398995058756,
+     -0.0119877359070356,
+     0.0100523776549341,
+     -0.00176624092785283,
+     -0.00513822362833477
+    ],
+    [
+     0.0560140330296861,
+     -0.0119877359070353,
+     0.0227936375091469,
+     0.00386827708537025,
+     -0.000622979920839063,
+     -0.0122662837724544
+    ],
+    [
+     -0.0294506666250899,
+     0.0100523776549336,
+     0.00386827708537027,
+     0.0375490168058321,
+     -0.00403328935080062,
+     -0.0096680334636853
+    ],
+    [
+     0.00558279122549628,
+     -0.00176624092785216,
+     -0.000622979920839142,
+     -0.00403328935080057,
+     0.00206163898624278,
+     -0.000631135670491255
+    ],
+    [
+     -0.0117028468303502,
+     -0.00513822362833582,
+     -0.0122662837724542,
+     -0.00966803346368546,
+     -0.000631135670491223,
+     0.0296111591006248
+    ]
+   ],
+   "n_sites": 66
+  },
+  {
+   "region_code": "2",
+   "region_name": "Flood frequency region 2 (SIR 2022-5118; NSS GC1914)",
+   "aep": 0.5,
+   "intercept": -1.97968928876707,
+   "variables": [
+    {
+     "code": "WETLAND",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.58,
+     "maximum": 59.58
+    },
+    {
+     "code": "FOREST",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 8.6,
+     "maximum": 91.2
+    },
+    {
+     "code": "I24H10Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 3.4,
+     "maximum": 4.0
+    },
+    {
+     "code": "LC01WATER",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 25.62,
+     "offset": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.83,
+     "maximum": 2243.41
+    }
+   ],
+   "coefficients": [
+    -0.00706537544332813,
+    -0.0068667517088171,
+    1.00208154841536,
+    -0.71991043852891,
+    0.945264044511392
+   ],
+   "citation": {
+    "publication": "Levin, S.B., and Sanocki, C.A., 2023, Estimating flood magnitude and frequency for unregulated streams in Wisconsin: U.S. Geological Survey Scientific Investigations Report 2022-5118, 25 p.",
+    "table": "Tables 2 and 3; model archive tables 3 and 4",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20225118"
+   },
+   "sep_log": 0.167454,
+   "avp": 0.028040698669732,
+   "model_error_variance": 0.0255,
+   "covariance": [
+    [
+     0.222084515647234,
+     6.01400881757071e-05,
+     0.000327180764376273,
+     -0.0631672797406997,
+     0.0133844604322021,
+     -0.00515952059117117
+    ],
+    [
+     6.01400881756966e-05,
+     2.83656550850174e-06,
+     1.04323861304171e-06,
+     -4.90409010289724e-05,
+     -1.21277948957518e-05,
+     7.93764004726157e-07
+    ],
+    [
+     0.000327180764376266,
+     1.04323861304174e-06,
+     2.37968733630514e-06,
+     -0.000126611498962889,
+     1.0950891264407e-05,
+     -3.64558598748264e-06
+    ],
+    [
+     -0.0631672797406996,
+     -4.90409010289756e-05,
+     -0.000126611498962891,
+     0.0188375807007582,
+     -0.00387274638963124,
+     0.00115350545794977
+    ],
+    [
+     0.0133844604322019,
+     -1.21277948957513e-05,
+     1.0950891264407e-05,
+     -0.00387274638963119,
+     0.00434242500602102,
+     -0.000676376819127649
+    ],
+    [
+     -0.00515952059117109,
+     7.93764004726153e-07,
+     -3.64558598748261e-06,
+     0.00115350545794975,
+     -0.000676376819127648,
+     0.000773281508529891
+    ]
+   ],
+   "n_sites": 68
+  },
+  {
+   "region_code": "2",
+   "region_name": "Flood frequency region 2 (SIR 2022-5118; NSS GC1914)",
+   "aep": 0.2,
+   "intercept": -2.17204726890512,
+   "variables": [
+    {
+     "code": "WETLAND",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.58,
+     "maximum": 59.58
+    },
+    {
+     "code": "FOREST",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 8.6,
+     "maximum": 91.2
+    },
+    {
+     "code": "I24H10Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 3.4,
+     "maximum": 4.0
+    },
+    {
+     "code": "LC01WATER",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 25.62,
+     "offset": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.83,
+     "maximum": 2243.41
+    }
+   ],
+   "coefficients": [
+    -0.00810082062062462,
+    -0.00737474424356471,
+    1.12065690311282,
+    -0.769873810398676,
+    0.939081186334659
+   ],
+   "citation": {
+    "publication": "Levin, S.B., and Sanocki, C.A., 2023, Estimating flood magnitude and frequency for unregulated streams in Wisconsin: U.S. Geological Survey Scientific Investigations Report 2022-5118, 25 p.",
+    "table": "Tables 2 and 3; model archive tables 3 and 4",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20225118"
+   },
+   "sep_log": 0.178439,
+   "avp": 0.0318405971565453,
+   "model_error_variance": 0.029,
+   "covariance": [
+    [
+     0.255763251247194,
+     7.18933055737116e-05,
+     0.000375401527146424,
+     -0.0727636466285909,
+     0.0154768885608158,
+     -0.00595061127703552
+    ],
+    [
+     7.18933055737039e-05,
+     3.26826141475498e-06,
+     1.19079703567162e-06,
+     -5.70778968798791e-05,
+     -1.38958930788277e-05,
+     9.27055591426737e-07
+    ],
+    [
+     0.000375401527146407,
+     1.19079703567162e-06,
+     2.72582020481102e-06,
+     -0.000145058557489042,
+     1.25578220169877e-05,
+     -4.21815443627965e-06
+    ],
+    [
+     -0.0727636466285907,
+     -5.70778968798811e-05,
+     -0.000145058557489047,
+     0.0216952988646069,
+     -0.00447529145407559,
+     0.00133259999565925
+    ],
+    [
+     0.0154768885608163,
+     -1.3895893078827e-05,
+     1.25578220169895e-05,
+     -0.00447529145407573,
+     0.00500118199713278,
+     -0.000780206113588988
+    ],
+    [
+     -0.00595061127703545,
+     9.27055591426494e-07,
+     -4.21815443627975e-06,
+     0.00133259999565923,
+     -0.000780206113588978,
+     0.000886816067339337
+    ]
+   ],
+   "n_sites": 68
+  },
+  {
+   "region_code": "2",
+   "region_name": "Flood frequency region 2 (SIR 2022-5118; NSS GC1914)",
+   "aep": 0.1,
+   "intercept": -2.28306061432581,
+   "variables": [
+    {
+     "code": "WETLAND",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.58,
+     "maximum": 59.58
+    },
+    {
+     "code": "FOREST",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 8.6,
+     "maximum": 91.2
+    },
+    {
+     "code": "I24H10Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 3.4,
+     "maximum": 4.0
+    },
+    {
+     "code": "LC01WATER",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 25.62,
+     "offset": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.83,
+     "maximum": 2243.41
+    }
+   ],
+   "coefficients": [
+    -0.0086321874307337,
+    -0.00748557303160909,
+    1.18318570195888,
+    -0.79413259150927,
+    0.936213313765246
+   ],
+   "citation": {
+    "publication": "Levin, S.B., and Sanocki, C.A., 2023, Estimating flood magnitude and frequency for unregulated streams in Wisconsin: U.S. Geological Survey Scientific Investigations Report 2022-5118, 25 p.",
+    "table": "Tables 2 and 3; model archive tables 3 and 4",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20225118"
+   },
+   "sep_log": 0.185854,
+   "avp": 0.034541879808546,
+   "model_error_variance": 0.0314,
+   "covariance": [
+    [
+     0.282249382326604,
+     8.13716133038207e-05,
+     0.000412250366172868,
+     -0.0803170539145892,
+     0.0171575426783221,
+     -0.00655382138034673
+    ],
+    [
+     8.13716133037913e-05,
+     3.61014030127467e-06,
+     1.30505227493352e-06,
+     -6.34946947611702e-05,
+     -1.51833309775247e-05,
+     1.05576657979661e-06
+    ],
+    [
+     0.000412250366172832,
+     1.30505227493356e-06,
+     2.99661509182462e-06,
+     -0.000159316251214845,
+     1.38779796765853e-05,
+     -4.58993914322896e-06
+    ],
+    [
+     -0.0803170539145884,
+     -6.34946947611784e-05,
+     -0.000159316251214854,
+     0.0239489303485797,
+     -0.00496283901885141,
+     0.0014672564888764
+    ],
+    [
+     0.0171575426783225,
+     -1.51833309775228e-05,
+     1.38779796765883e-05,
+     -0.00496283901885157,
+     0.00551910482857501,
+     -0.000858298882751402
+    ],
+    [
+     -0.00655382138034688,
+     1.05576657979593e-06,
+     -4.58993914322998e-06,
+     0.00146725648887646,
+     -0.000858298882751401,
+     0.000973937027836974
+    ]
+   ],
+   "n_sites": 68
+  },
+  {
+   "region_code": "2",
+   "region_name": "Flood frequency region 2 (SIR 2022-5118; NSS GC1914)",
+   "aep": 0.04,
+   "intercept": -2.4053643217839,
+   "variables": [
+    {
+     "code": "WETLAND",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.58,
+     "maximum": 59.58
+    },
+    {
+     "code": "FOREST",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 8.6,
+     "maximum": 91.2
+    },
+    {
+     "code": "I24H10Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 3.4,
+     "maximum": 4.0
+    },
+    {
+     "code": "LC01WATER",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 25.62,
+     "offset": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.83,
+     "maximum": 2243.41
+    }
+   ],
+   "coefficients": [
+    -0.00919599041896944,
+    -0.00748633952320956,
+    1.24943677725062,
+    -0.818702125371785,
+    0.932990256353072
+   ],
+   "citation": {
+    "publication": "Levin, S.B., and Sanocki, C.A., 2023, Estimating flood magnitude and frequency for unregulated streams in Wisconsin: U.S. Geological Survey Scientific Investigations Report 2022-5118, 25 p.",
+    "table": "Tables 2 and 3; model archive tables 3 and 4",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20225118"
+   },
+   "sep_log": 0.196733,
+   "avp": 0.0387038991257076,
+   "model_error_variance": 0.0351,
+   "covariance": [
+    [
+     0.322848342368004,
+     9.57922986762541e-05,
+     0.00046873616645116,
+     -0.0918936873868114,
+     0.0197362197785279,
+     -0.0074780965391109
+    ],
+    [
+     9.57922986762454e-05,
+     4.1339596811482e-06,
+     1.48019096398124e-06,
+     -7.33011978323669e-05,
+     -1.71433755556618e-05,
+     1.25379096219464e-06
+    ],
+    [
+     0.000468736166451175,
+     1.48019096398126e-06,
+     3.41296410799182e-06,
+     -0.000181206129649992,
+     1.59058563654482e-05,
+     -5.14853550633237e-06
+    ],
+    [
+     -0.0918936873868116,
+     -7.33011978323696e-05,
+     -0.000181206129649989,
+     0.0274031978163583,
+     -0.00571120034584714,
+     0.00167344352373473
+    ],
+    [
+     0.0197362197785276,
+     -1.71433755556612e-05,
+     1.5905856365447e-05,
+     -0.00571120034584706,
+     0.00631474237955896,
+     -0.000978231449379728
+    ],
+    [
+     -0.00747809653911069,
+     1.25379096219462e-06,
+     -5.14853550633159e-06,
+     0.00167344352373466,
+     -0.000978231449379722,
+     0.00110759651871925
+    ]
+   ],
+   "n_sites": 68
+  },
+  {
+   "region_code": "2",
+   "region_name": "Flood frequency region 2 (SIR 2022-5118; NSS GC1914)",
+   "aep": 0.02,
+   "intercept": -2.4895741720308,
+   "variables": [
+    {
+     "code": "WETLAND",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.58,
+     "maximum": 59.58
+    },
+    {
+     "code": "FOREST",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 8.6,
+     "maximum": 91.2
+    },
+    {
+     "code": "I24H10Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 3.4,
+     "maximum": 4.0
+    },
+    {
+     "code": "LC01WATER",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 25.62,
+     "offset": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.83,
+     "maximum": 2243.41
+    }
+   ],
+   "coefficients": [
+    -0.00956170755134201,
+    -0.00743760404586543,
+    1.29299360971291,
+    -0.834196610241081,
+    0.930896515429921
+   ],
+   "citation": {
+    "publication": "Levin, S.B., and Sanocki, C.A., 2023, Estimating flood magnitude and frequency for unregulated streams in Wisconsin: U.S. Geological Survey Scientific Investigations Report 2022-5118, 25 p.",
+    "table": "Tables 2 and 3; model archive tables 3 and 4",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20225118"
+   },
+   "sep_log": 0.207187,
+   "avp": 0.0429262861155291,
+   "model_error_variance": 0.0389,
+   "covariance": [
+    [
+     0.362173546877706,
+     0.00010924584224726,
+     0.000524102396059113,
+     -0.103099870082744,
+     0.0222138067886579,
+     -0.00838274389762236
+    ],
+    [
+     0.000109245842247224,
+     4.63957453371227e-06,
+     1.6518294637693e-06,
+     -8.2656128677687e-05,
+     -1.90811506610195e-05,
+     1.43429282368969e-06
+    ],
+    [
+     0.000524102396059072,
+     1.65182946376934e-06,
+     3.81963715089805e-06,
+     -0.000202634357528692,
+     1.78587715105213e-05,
+     -5.71906568100557e-06
+    ],
+    [
+     -0.103099870082743,
+     -8.2656128677697e-05,
+     -0.000202634357528702,
+     0.030745027545954,
+     -0.0064290018820322,
+     0.00187613165439614
+    ],
+    [
+     0.0222138067886583,
+     -1.90811506610171e-05,
+     1.78587715105245e-05,
+     -0.00642900188203238,
+     0.00708643743584425,
+     -0.00109634204504193
+    ],
+    [
+     -0.0083827438976227,
+     1.43429282368881e-06,
+     -5.71906568100687e-06,
+     0.00187613165439625,
+     -0.00109634204504195,
+     0.00123838130919738
+    ]
+   ],
+   "n_sites": 68
+  },
+  {
+   "region_code": "2",
+   "region_name": "Flood frequency region 2 (SIR 2022-5118; NSS GC1914)",
+   "aep": 0.01,
+   "intercept": -2.56749864766162,
+   "variables": [
+    {
+     "code": "WETLAND",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.58,
+     "maximum": 59.58
+    },
+    {
+     "code": "FOREST",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 8.6,
+     "maximum": 91.2
+    },
+    {
+     "code": "I24H10Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 3.4,
+     "maximum": 4.0
+    },
+    {
+     "code": "LC01WATER",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 25.62,
+     "offset": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.83,
+     "maximum": 2243.41
+    }
+   ],
+   "coefficients": [
+    -0.00988814300431373,
+    -0.0073564461778255,
+    1.33225723494833,
+    -0.847714881239299,
+    0.928972284637767
+   ],
+   "citation": {
+    "publication": "Levin, S.B., and Sanocki, C.A., 2023, Estimating flood magnitude and frequency for unregulated streams in Wisconsin: U.S. Geological Survey Scientific Investigations Report 2022-5118, 25 p.",
+    "table": "Tables 2 and 3; model archive tables 3 and 4",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20225118"
+   },
+   "sep_log": 0.217367,
+   "avp": 0.0472483703011702,
+   "model_error_variance": 0.0427,
+   "covariance": [
+    [
+     0.402554505560992,
+     0.000123236242971149,
+     0.000580898816113847,
+     -0.114608139524322,
+     0.0247626008082567,
+     -0.00931196727695175
+    ],
+    [
+     0.000123236242971151,
+     5.15877620046317e-06,
+     1.8272653537421e-06,
+     -9.22999369378747e-05,
+     -2.10623749149307e-05,
+     1.61930610059419e-06
+    ],
+    [
+     0.00058089881611384,
+     1.8272653537421e-06,
+     4.2366080227236e-06,
+     -0.000224609343164618,
+     1.98593201761989e-05,
+     -6.30099269876892e-06
+    ],
+    [
+     -0.114608139524322,
+     -9.22999369378744e-05,
+     -0.00022460934316462,
+     0.0341770059903296,
+     -0.00716737114402021,
+     0.00208431979618801
+    ],
+    [
+     0.0247626008082566,
+     -2.10623749149306e-05,
+     1.98593201761994e-05,
+     -0.00716737114402018,
+     0.00787968226155471,
+     -0.00121777245367052
+    ],
+    [
+     -0.00931196727695132,
+     1.61930610059444e-06,
+     -6.30099269876831e-06,
+     0.00208431979618788,
+     -0.0012177724536705,
+     0.00137261823215923
+    ]
+   ],
+   "n_sites": 68
+  },
+  {
+   "region_code": "2",
+   "region_name": "Flood frequency region 2 (SIR 2022-5118; NSS GC1914)",
+   "aep": 0.005,
+   "intercept": -2.64060975173392,
+   "variables": [
+    {
+     "code": "WETLAND",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.58,
+     "maximum": 59.58
+    },
+    {
+     "code": "FOREST",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 8.6,
+     "maximum": 91.2
+    },
+    {
+     "code": "I24H10Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 3.4,
+     "maximum": 4.0
+    },
+    {
+     "code": "LC01WATER",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 25.62,
+     "offset": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.83,
+     "maximum": 2243.41
+    }
+   ],
+   "coefficients": [
+    -0.0101862135109476,
+    -0.00725537469074988,
+    1.36829938467606,
+    -0.859784064402265,
+    0.927206149218318
+   ],
+   "citation": {
+    "publication": "Levin, S.B., and Sanocki, C.A., 2023, Estimating flood magnitude and frequency for unregulated streams in Wisconsin: U.S. Geological Survey Scientific Investigations Report 2022-5118, 25 p.",
+    "table": "Tables 2 and 3; model archive tables 3 and 4",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20225118"
+   },
+   "sep_log": 0.227343,
+   "avp": 0.0516848374554683,
+   "model_error_variance": 0.0467,
+   "covariance": [
+    [
+     0.444046825521349,
+     0.000137725450982459,
+     0.000639247953007559,
+     -0.126433666659052,
+     0.0273850292778439,
+     -0.0102681851454941
+    ],
+    [
+     0.000137725450982543,
+     5.69198132355422e-06,
+     2.00670985292709e-06,
+     -0.000102225593532979,
+     -2.31002859689317e-05,
+     1.80794843610053e-06
+    ],
+    [
+     0.000639247953007666,
+     2.006709852927e-06,
+     4.66444202666353e-06,
+     -0.000247169920090371,
+     2.19089980937805e-05,
+     -6.89938110941909e-06
+    ],
+    [
+     -0.126433666659055,
+     -0.000102225593532956,
+     -0.000247169920090343,
+     0.0377033228497435,
+     -0.00792682956287587,
+     0.00229867114791562
+    ],
+    [
+     0.0273850292778436,
+     -2.31002859689373e-05,
+     2.19089980937731e-05,
+     -0.00792682956287564,
+     0.00869556818951763,
+     -0.00134283244434332
+    ],
+    [
+     -0.0102681851454935,
+     1.80794843610257e-06,
+     -6.89938110941597e-06,
+     0.0022986711479154,
+     -0.00134283244434328,
+     0.00151055567277007
+    ]
+   ],
+   "n_sites": 68
+  },
+  {
+   "region_code": "2",
+   "region_name": "Flood frequency region 2 (SIR 2022-5118; NSS GC1914)",
+   "aep": 0.002,
+   "intercept": -2.73176886910095,
+   "variables": [
+    {
+     "code": "WETLAND",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.58,
+     "maximum": 59.58
+    },
+    {
+     "code": "FOREST",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 8.6,
+     "maximum": 91.2
+    },
+    {
+     "code": "I24H10Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 3.4,
+     "maximum": 4.0
+    },
+    {
+     "code": "LC01WATER",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 25.62,
+     "offset": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.83,
+     "maximum": 2243.41
+    }
+   ],
+   "coefficients": [
+    -0.0105478171013563,
+    -0.00709725477082918,
+    1.41217815342312,
+    -0.873982150137441,
+    0.925068683492001
+   ],
+   "citation": {
+    "publication": "Levin, S.B., and Sanocki, C.A., 2023, Estimating flood magnitude and frequency for unregulated streams in Wisconsin: U.S. Geological Survey Scientific Investigations Report 2022-5118, 25 p.",
+    "table": "Tables 2 and 3; model archive tables 3 and 4",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20225118"
+   },
+   "sep_log": 0.240408,
+   "avp": 0.0577959274735535,
+   "model_error_variance": 0.0522,
+   "covariance": [
+    [
+     0.501074640143614,
+     0.000157808769360476,
+     0.000719498416117549,
+     -0.142687351552308,
+     0.030991772545469,
+     -0.0115852643363229
+    ],
+    [
+     0.00015780876936043,
+     6.42439850136435e-06,
+     2.25260371457305e-06,
+     -0.000115898094799604,
+     -2.58974473660496e-05,
+     2.06411184205668e-06
+    ],
+    [
+     0.000719498416117503,
+     2.2526037145731e-06,
+     5.25196857286233e-06,
+     -0.000278175470576141,
+     2.47189241779877e-05,
+     -7.72534673387794e-06
+    ],
+    [
+     -0.142687351552307,
+     -0.000115898094799617,
+     -0.000278175470576153,
+     0.0425496802420151,
+     -0.00897095695357605,
+     0.00259416526415496
+    ],
+    [
+     0.0309917725454678,
+     -2.58974473660477e-05,
+     2.47189241779884e-05,
+     -0.00897095695357577,
+     0.00981776823780596,
+     -0.00151529354731055
+    ],
+    [
+     -0.0115852643363227,
+     2.06411184205596e-06,
+     -7.72534673387852e-06,
+     0.00259416526415492,
+     -0.00151529354731056,
+     0.00170026641100785
+    ]
+   ],
+   "n_sites": 68
+  },
+  {
+   "region_code": "3",
+   "region_name": "Flood frequency region 3 (SIR 2022-5118; NSS GC1915)",
+   "aep": 0.5,
+   "intercept": 1.62525543297272,
+   "variables": [
+    {
+     "code": "WETLAND",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 29.57
+    },
+    {
+     "code": "LC01WATER",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 9.75,
+     "offset": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.01,
+     "maximum": 5994.64
+    }
+   ],
+   "coefficients": [
+    -0.0132408581005209,
+    -0.47633915259558,
+    0.784505783461782
+   ],
+   "citation": {
+    "publication": "Levin, S.B., and Sanocki, C.A., 2023, Estimating flood magnitude and frequency for unregulated streams in Wisconsin: U.S. Geological Survey Scientific Investigations Report 2022-5118, 25 p.",
+    "table": "Tables 2 and 3; model archive tables 3 and 4",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20225118"
+   },
+   "sep_log": 0.184997,
+   "avp": 0.0342240747465078,
+   "model_error_variance": 0.0317,
+   "covariance": [
+    [
+     0.00323569753641626,
+     -4.33045543457334e-05,
+     -0.000417005735382016,
+     -0.0010213488043886
+    ],
+    [
+     -4.33045543457333e-05,
+     1.42597621845311e-05,
+     2.51414967919476e-05,
+     -6.08455102025423e-05
+    ],
+    [
+     -0.000417005735382023,
+     2.51414967919476e-05,
+     0.010129452992055,
+     -0.00170613188208175
+    ],
+    [
+     -0.0010213488043886,
+     -6.08455102025423e-05,
+     -0.00170613188208175,
+     0.00123007537880522
+    ]
+   ],
+   "n_sites": 61
+  },
+  {
+   "region_code": "3",
+   "region_name": "Flood frequency region 3 (SIR 2022-5118; NSS GC1915)",
+   "aep": 0.2,
+   "intercept": 1.88164929088868,
+   "variables": [
+    {
+     "code": "WETLAND",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 29.57
+    },
+    {
+     "code": "LC01WATER",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 9.75,
+     "offset": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.01,
+     "maximum": 5994.64
+    }
+   ],
+   "coefficients": [
+    -0.014238895230125,
+    -0.535678950396174,
+    0.771651326145174
+   ],
+   "citation": {
+    "publication": "Levin, S.B., and Sanocki, C.A., 2023, Estimating flood magnitude and frequency for unregulated streams in Wisconsin: U.S. Geological Survey Scientific Investigations Report 2022-5118, 25 p.",
+    "table": "Tables 2 and 3; model archive tables 3 and 4",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20225118"
+   },
+   "sep_log": 0.190445,
+   "avp": 0.0362692556793244,
+   "model_error_variance": 0.0335,
+   "covariance": [
+    [
+     0.00345293921421521,
+     -4.82665442217164e-05,
+     -0.000430504112272631,
+     -0.00108033569751619
+    ],
+    [
+     -4.8266544221716e-05,
+     1.53594950685686e-05,
+     2.68142713233192e-05,
+     -6.52366154257458e-05
+    ],
+    [
+     -0.00043050411227263,
+     2.68142713233188e-05,
+     0.0109044113519719,
+     -0.00184041535034853
+    ],
+    [
+     -0.0010803356975162,
+     -6.52366154257456e-05,
+     -0.00184041535034853,
+     0.00131533436762592
+    ]
+   ],
+   "n_sites": 61
+  },
+  {
+   "region_code": "3",
+   "region_name": "Flood frequency region 3 (SIR 2022-5118; NSS GC1915)",
+   "aep": 0.1,
+   "intercept": 2.01201773336478,
+   "variables": [
+    {
+     "code": "WETLAND",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 29.57
+    },
+    {
+     "code": "LC01WATER",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 9.75,
+     "offset": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.01,
+     "maximum": 5994.64
+    }
+   ],
+   "coefficients": [
+    -0.0150122408590416,
+    -0.565076545627245,
+    0.766461898561727
+   ],
+   "citation": {
+    "publication": "Levin, S.B., and Sanocki, C.A., 2023, Estimating flood magnitude and frequency for unregulated streams in Wisconsin: U.S. Geological Survey Scientific Investigations Report 2022-5118, 25 p.",
+    "table": "Tables 2 and 3; model archive tables 3 and 4",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20225118"
+   },
+   "sep_log": 0.198463,
+   "avp": 0.0393874130571248,
+   "model_error_variance": 0.0363,
+   "covariance": [
+    [
+     0.00382661607601115,
+     -5.417542301558e-05,
+     -0.000468159066675006,
+     -0.00118706653208273
+    ],
+    [
+     -5.41754230155802e-05,
+     1.70067557013027e-05,
+     2.90290114517291e-05,
+     -7.19411568874109e-05
+    ],
+    [
+     -0.000468159066675023,
+     2.90290114517288e-05,
+     0.0120454187028202,
+     -0.0020340010764248
+    ],
+    [
+     -0.00118706653208273,
+     -7.1941156887411e-05,
+     -0.00203400107642481,
+     0.00144745213020636
+    ]
+   ],
+   "n_sites": 61
+  },
+  {
+   "region_code": "3",
+   "region_name": "Flood frequency region 3 (SIR 2022-5118; NSS GC1915)",
+   "aep": 0.04,
+   "intercept": 2.1479520963722,
+   "variables": [
+    {
+     "code": "WETLAND",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 29.57
+    },
+    {
+     "code": "LC01WATER",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 9.75,
+     "offset": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.01,
+     "maximum": 5994.64
+    }
+   ],
+   "coefficients": [
+    -0.0159909676975395,
+    -0.595220716461587,
+    0.761893867802791
+   ],
+   "citation": {
+    "publication": "Levin, S.B., and Sanocki, C.A., 2023, Estimating flood magnitude and frequency for unregulated streams in Wisconsin: U.S. Geological Survey Scientific Investigations Report 2022-5118, 25 p.",
+    "table": "Tables 2 and 3; model archive tables 3 and 4",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20225118"
+   },
+   "sep_log": 0.211017,
+   "avp": 0.0445280025317139,
+   "model_error_variance": 0.041,
+   "covariance": [
+    [
+     0.0044339680186385,
+     -6.33810773334547e-05,
+     -0.000532242390502263,
+     -0.00136297817871807
+    ],
+    [
+     -6.33810773334549e-05,
+     1.96518000699453e-05,
+     3.26999149139551e-05,
+     -8.27556933804453e-05
+    ],
+    [
+     -0.000532242390502268,
+     3.26999149139551e-05,
+     0.0138914789323199,
+     -0.00234662131359006
+    ],
+    [
+     -0.00136297817871807,
+     -8.27556933804454e-05,
+     -0.00234662131359006,
+     0.00166217304522744
+    ]
+   ],
+   "n_sites": 61
+  },
+  {
+   "region_code": "3",
+   "region_name": "Flood frequency region 3 (SIR 2022-5118; NSS GC1915)",
+   "aep": 0.02,
+   "intercept": 2.23398614369267,
+   "variables": [
+    {
+     "code": "WETLAND",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 29.57
+    },
+    {
+     "code": "LC01WATER",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 9.75,
+     "offset": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.01,
+     "maximum": 5994.64
+    }
+   ],
+   "coefficients": [
+    -0.0166918003400307,
+    -0.613823937577653,
+    0.759336046268639
+   ],
+   "citation": {
+    "publication": "Levin, S.B., and Sanocki, C.A., 2023, Estimating flood magnitude and frequency for unregulated streams in Wisconsin: U.S. Geological Survey Scientific Investigations Report 2022-5118, 25 p.",
+    "table": "Tables 2 and 3; model archive tables 3 and 4",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20225118"
+   },
+   "sep_log": 0.221441,
+   "avp": 0.0490362463545994,
+   "model_error_variance": 0.0451,
+   "covariance": [
+    [
+     0.00495226774433514,
+     -7.11770497231804e-05,
+     -0.000587926857441248,
+     -0.00151491017882773
+    ],
+    [
+     -7.11770497231801e-05,
+     2.19152072938157e-05,
+     3.59485571916627e-05,
+     -9.20386121520789e-05
+    ],
+    [
+     -0.000587926857441258,
+     3.59485571916623e-05,
+     0.0154826936404937,
+     -0.00261595960354251
+    ],
+    [
+     -0.00151491017882773,
+     -9.20386121520787e-05,
+     -0.00261595960354252,
+     0.00184741790426983
+    ]
+   ],
+   "n_sites": 61
+  },
+  {
+   "region_code": "3",
+   "region_name": "Flood frequency region 3 (SIR 2022-5118; NSS GC1915)",
+   "aep": 0.01,
+   "intercept": 2.31014209473012,
+   "variables": [
+    {
+     "code": "WETLAND",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 29.57
+    },
+    {
+     "code": "LC01WATER",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 9.75,
+     "offset": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.01,
+     "maximum": 5994.64
+    }
+   ],
+   "coefficients": [
+    -0.0173694997895726,
+    -0.630004739034469,
+    0.757332537119893
+   ],
+   "citation": {
+    "publication": "Levin, S.B., and Sanocki, C.A., 2023, Estimating flood magnitude and frequency for unregulated streams in Wisconsin: U.S. Geological Survey Scientific Investigations Report 2022-5118, 25 p.",
+    "table": "Tables 2 and 3; model archive tables 3 and 4",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20225118"
+   },
+   "sep_log": 0.231738,
+   "avp": 0.0537026107560246,
+   "model_error_variance": 0.0494,
+   "covariance": [
+    [
+     0.00548782233311502,
+     -7.9237624247591e-05,
+     -0.000645648385161622,
+     -0.00167184378975511
+    ],
+    [
+     -7.92376242475911e-05,
+     2.4246487950672e-05,
+     3.93388868919833e-05,
+     -0.000101598465575396
+    ],
+    [
+     -0.000645648385161627,
+     3.9338886891983e-05,
+     0.0171283833640662,
+     -0.00289451579383913
+    ],
+    [
+     -0.00167184378975511,
+     -0.000101598465575396,
+     -0.00289451579383914,
+     0.00203869103555352
+    ]
+   ],
+   "n_sites": 61
+  },
+  {
+   "region_code": "3",
+   "region_name": "Flood frequency region 3 (SIR 2022-5118; NSS GC1915)",
+   "aep": 0.005,
+   "intercept": 2.37881825804743,
+   "variables": [
+    {
+     "code": "WETLAND",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 29.57
+    },
+    {
+     "code": "LC01WATER",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 9.75,
+     "offset": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.01,
+     "maximum": 5994.64
+    }
+   ],
+   "coefficients": [
+    -0.0180250060911329,
+    -0.644377754191839,
+    0.755738761710301
+   ],
+   "citation": {
+    "publication": "Levin, S.B., and Sanocki, C.A., 2023, Estimating flood magnitude and frequency for unregulated streams in Wisconsin: U.S. Geological Survey Scientific Investigations Report 2022-5118, 25 p.",
+    "table": "Tables 2 and 3; model archive tables 3 and 4",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20225118"
+   },
+   "sep_log": 0.241947,
+   "avp": 0.0585384258539552,
+   "model_error_variance": 0.0538,
+   "covariance": [
+    [
+     0.0060389450822761,
+     -8.75598931334886e-05,
+     -0.000705380133321597,
+     -0.00183355434564763
+    ],
+    [
+     -8.75598931334894e-05,
+     2.66457684564976e-05,
+     4.28934060230191e-05,
+     -0.000111440509117348
+    ],
+    [
+     -0.000705380133321595,
+     4.28934060230198e-05,
+     0.0188289505864582,
+     -0.00318241421201671
+    ],
+    [
+     -0.00183355434564763,
+     -0.000111440509117348,
+     -0.0031824142120167,
+     0.00223604101178036
+    ]
+   ],
+   "n_sites": 61
+  },
+  {
+   "region_code": "3",
+   "region_name": "Flood frequency region 3 (SIR 2022-5118; NSS GC1915)",
+   "aep": 0.002,
+   "intercept": 2.46065584049538,
+   "variables": [
+    {
+     "code": "WETLAND",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 29.57
+    },
+    {
+     "code": "LC01WATER",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 9.75,
+     "offset": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.01,
+     "maximum": 5994.64
+    }
+   ],
+   "coefficients": [
+    -0.0188450618348499,
+    -0.660737963893003,
+    0.753892325294799
+   ],
+   "citation": {
+    "publication": "Levin, S.B., and Sanocki, C.A., 2023, Estimating flood magnitude and frequency for unregulated streams in Wisconsin: U.S. Geological Survey Scientific Investigations Report 2022-5118, 25 p.",
+    "table": "Tables 2 and 3; model archive tables 3 and 4",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20225118"
+   },
+   "sep_log": 0.257805,
+   "avp": 0.0664632382663297,
+   "model_error_variance": 0.061,
+   "covariance": [
+    [
+     0.00688264784524568,
+     -0.00010044901746712,
+     -0.000797004971085116,
+     -0.00208815487241121
+    ],
+    [
+     -0.000100449017467121,
+     3.04214271167829e-05,
+     4.873840625623e-05,
+     -0.000127029850822393
+    ],
+    [
+     -0.000797004971085121,
+     4.87384062562312e-05,
+     0.0215217831144457,
+     -0.00363869376707464
+    ],
+    [
+     -0.00208815487241121,
+     -0.000127029850822393,
+     -0.00363869376707463,
+     0.00254958250199134
+    ]
+   ],
+   "n_sites": 61
+  },
+  {
+   "region_code": "4",
+   "region_name": "Flood frequency region 4 (SIR 2022-5118; NSS GC1916)",
+   "aep": 0.5,
+   "intercept": 2.36462070594656,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.3,
+     "maximum": 1034.01
+    },
+    {
+     "code": "SSURGOKSAT",
+     "transform": "log10",
+     "units": "um/s",
+     "minimum": 6.9,
+     "maximum": 62.34
+    }
+   ],
+   "coefficients": [
+    0.623051866635633,
+    -0.419584161401312
+   ],
+   "citation": {
+    "publication": "Levin, S.B., and Sanocki, C.A., 2023, Estimating flood magnitude and frequency for unregulated streams in Wisconsin: U.S. Geological Survey Scientific Investigations Report 2022-5118, 25 p.",
+    "table": "Tables 2 and 3; model archive tables 3 and 4",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20225118"
+   },
+   "sep_log": 0.222538,
+   "avp": 0.0495229842360177,
+   "model_error_variance": 0.0465,
+   "covariance": [
+    [
+     0.0275195632332516,
+     -0.00238791274184472,
+     -0.0203876934441262
+    ],
+    [
+     -0.0023879127418447,
+     0.00128166685468011,
+     0.000473392268044247
+    ],
+    [
+     -0.0203876934441263,
+     0.000473392268044268,
+     0.0176301392614534
+    ]
+   ],
+   "n_sites": 62
+  },
+  {
+   "region_code": "4",
+   "region_name": "Flood frequency region 4 (SIR 2022-5118; NSS GC1916)",
+   "aep": 0.2,
+   "intercept": 2.89171351817584,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.3,
+     "maximum": 1034.01
+    },
+    {
+     "code": "SSURGOKSAT",
+     "transform": "log10",
+     "units": "um/s",
+     "minimum": 6.9,
+     "maximum": 62.34
+    }
+   ],
+   "coefficients": [
+    0.584847051878795,
+    -0.560455177239399
+   ],
+   "citation": {
+    "publication": "Levin, S.B., and Sanocki, C.A., 2023, Estimating flood magnitude and frequency for unregulated streams in Wisconsin: U.S. Geological Survey Scientific Investigations Report 2022-5118, 25 p.",
+    "table": "Tables 2 and 3; model archive tables 3 and 4",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20225118"
+   },
+   "sep_log": 0.204844,
+   "avp": 0.0419609581584617,
+   "model_error_variance": 0.0392,
+   "covariance": [
+    [
+     0.0249550763711921,
+     -0.00216015636106846,
+     -0.0183167243856087
+    ],
+    [
+     -0.00216015636106845,
+     0.00113943751913292,
+     0.00042832190428293
+    ],
+    [
+     -0.0183167243856087,
+     0.000428321904282936,
+     0.0157524302077153
+    ]
+   ],
+   "n_sites": 62
+  },
+  {
+   "region_code": "4",
+   "region_name": "Flood frequency region 4 (SIR 2022-5118; NSS GC1916)",
+   "aep": 0.1,
+   "intercept": 3.16784272035253,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.3,
+     "maximum": 1034.01
+    },
+    {
+     "code": "SSURGOKSAT",
+     "transform": "log10",
+     "units": "um/s",
+     "minimum": 6.9,
+     "maximum": 62.34
+    }
+   ],
+   "coefficients": [
+    0.565231972115994,
+    -0.63682968187157
+   ],
+   "citation": {
+    "publication": "Levin, S.B., and Sanocki, C.A., 2023, Estimating flood magnitude and frequency for unregulated streams in Wisconsin: U.S. Geological Survey Scientific Investigations Report 2022-5118, 25 p.",
+    "table": "Tables 2 and 3; model archive tables 3 and 4",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20225118"
+   },
+   "sep_log": 0.20323,
+   "avp": 0.0413025955704641,
+   "model_error_variance": 0.0384,
+   "covariance": [
+    [
+     0.0259391289418814,
+     -0.00224074248837675,
+     -0.0189491188190342
+    ],
+    [
+     -0.00224074248837674,
+     0.00116888655963412,
+     0.000444178640368556
+    ],
+    [
+     -0.0189491188190342,
+     0.000444178640368556,
+     0.0162455766078468
+    ]
+   ],
+   "n_sites": 62
+  },
+  {
+   "region_code": "4",
+   "region_name": "Flood frequency region 4 (SIR 2022-5118; NSS GC1916)",
+   "aep": 0.04,
+   "intercept": 3.45898039664155,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.3,
+     "maximum": 1034.01
+    },
+    {
+     "code": "SSURGOKSAT",
+     "transform": "log10",
+     "units": "um/s",
+     "minimum": 6.9,
+     "maximum": 62.34
+    }
+   ],
+   "coefficients": [
+    0.545929784625105,
+    -0.719531234204024
+   ],
+   "citation": {
+    "publication": "Levin, S.B., and Sanocki, C.A., 2023, Estimating flood magnitude and frequency for unregulated streams in Wisconsin: U.S. Geological Survey Scientific Investigations Report 2022-5118, 25 p.",
+    "table": "Tables 2 and 3; model archive tables 3 and 4",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20225118"
+   },
+   "sep_log": 0.21087,
+   "avp": 0.0444663101693671,
+   "model_error_variance": 0.0412,
+   "covariance": [
+    [
+     0.0293842622120656,
+     -0.00253065806217519,
+     -0.0214157767797179
+    ],
+    [
+     -0.00253065806217519,
+     0.00131057130117342,
+     0.000500758855871868
+    ],
+    [
+     -0.0214157767797179,
+     0.000500758855871867,
+     0.0183232526674789
+    ]
+   ],
+   "n_sites": 62
+  },
+  {
+   "region_code": "4",
+   "region_name": "Flood frequency region 4 (SIR 2022-5118; NSS GC1916)",
+   "aep": 0.02,
+   "intercept": 3.64494589938126,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.3,
+     "maximum": 1034.01
+    },
+    {
+     "code": "SSURGOKSAT",
+     "transform": "log10",
+     "units": "um/s",
+     "minimum": 6.9,
+     "maximum": 62.34
+    }
+   ],
+   "coefficients": [
+    0.534276556778179,
+    -0.773394285139351
+   ],
+   "citation": {
+    "publication": "Levin, S.B., and Sanocki, C.A., 2023, Estimating flood magnitude and frequency for unregulated streams in Wisconsin: U.S. Geological Survey Scientific Investigations Report 2022-5118, 25 p.",
+    "table": "Tables 2 and 3; model archive tables 3 and 4",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20225118"
+   },
+   "sep_log": 0.217578,
+   "avp": 0.0473402261485775,
+   "model_error_variance": 0.0438,
+   "covariance": [
+    [
+     0.0322985006290452,
+     -0.00277670215414161,
+     -0.0235095535758938
+    ],
+    [
+     -0.0027767021541416,
+     0.00143193589367273,
+     0.000548683631553903
+    ],
+    [
+     -0.0235095535758938,
+     0.000548683631553915,
+     0.0200916503657158
+    ]
+   ],
+   "n_sites": 62
+  },
+  {
+   "region_code": "4",
+   "region_name": "Flood frequency region 4 (SIR 2022-5118; NSS GC1916)",
+   "aep": 0.01,
+   "intercept": 3.80978723614278,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.3,
+     "maximum": 1034.01
+    },
+    {
+     "code": "SSURGOKSAT",
+     "transform": "log10",
+     "units": "um/s",
+     "minimum": 6.9,
+     "maximum": 62.34
+    }
+   ],
+   "coefficients": [
+    0.52478777228307,
+    -0.821791850796666
+   ],
+   "citation": {
+    "publication": "Levin, S.B., and Sanocki, C.A., 2023, Estimating flood magnitude and frequency for unregulated streams in Wisconsin: U.S. Geological Survey Scientific Investigations Report 2022-5118, 25 p.",
+    "table": "Tables 2 and 3; model archive tables 3 and 4",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20225118"
+   },
+   "sep_log": 0.228362,
+   "avp": 0.0521494006650252,
+   "model_error_variance": 0.0482,
+   "covariance": [
+    [
+     0.0361995817851681,
+     -0.00310626257834648,
+     -0.0263601275080683
+    ],
+    [
+     -0.00310626257834647,
+     0.00160129198148257,
+     0.000612603402492735
+    ],
+    [
+     -0.0263601275080683,
+     0.000612603402492739,
+     0.0225237738054071
+    ]
+   ],
+   "n_sites": 62
+  },
+  {
+   "region_code": "4",
+   "region_name": "Flood frequency region 4 (SIR 2022-5118; NSS GC1916)",
+   "aep": 0.005,
+   "intercept": 3.95931994174026,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.3,
+     "maximum": 1034.01
+    },
+    {
+     "code": "SSURGOKSAT",
+     "transform": "log10",
+     "units": "um/s",
+     "minimum": 6.9,
+     "maximum": 62.34
+    }
+   ],
+   "coefficients": [
+    0.516521237655518,
+    -0.866168938988751
+   ],
+   "citation": {
+    "publication": "Levin, S.B., and Sanocki, C.A., 2023, Estimating flood magnitude and frequency for unregulated streams in Wisconsin: U.S. Geological Survey Scientific Investigations Report 2022-5118, 25 p.",
+    "table": "Tables 2 and 3; model archive tables 3 and 4",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20225118"
+   },
+   "sep_log": 0.237865,
+   "avp": 0.056579639179799,
+   "model_error_variance": 0.0522,
+   "covariance": [
+    [
+     0.0399430403195715,
+     -0.00342259029459715,
+     -0.0290861313662799
+    ],
+    [
+     -0.00342259029459714,
+     0.00176268204313541,
+     0.000673852405894793
+    ],
+    [
+     -0.0290861313662799,
+     0.000673852405894801,
+     0.0248452729965927
+    ]
+   ],
+   "n_sites": 62
+  },
+  {
+   "region_code": "4",
+   "region_name": "Flood frequency region 4 (SIR 2022-5118; NSS GC1916)",
+   "aep": 0.002,
+   "intercept": 4.13796103141546,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.3,
+     "maximum": 1034.01
+    },
+    {
+     "code": "SSURGOKSAT",
+     "transform": "log10",
+     "units": "um/s",
+     "minimum": 6.9,
+     "maximum": 62.34
+    }
+   ],
+   "coefficients": [
+    0.507515947369723,
+    -0.919751414567033
+   ],
+   "citation": {
+    "publication": "Levin, S.B., and Sanocki, C.A., 2023, Estimating flood magnitude and frequency for unregulated streams in Wisconsin: U.S. Geological Survey Scientific Investigations Report 2022-5118, 25 p.",
+    "table": "Tables 2 and 3; model archive tables 3 and 4",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20225118"
+   },
+   "sep_log": 0.253903,
+   "avp": 0.0644665466817082,
+   "model_error_variance": 0.0595,
+   "covariance": [
+    [
+     0.045924637201408,
+     -0.00392797615812438,
+     -0.0334827658495384
+    ],
+    [
+     -0.00392797615812441,
+     0.00202647038001379,
+     0.000771408466474369
+    ],
+    [
+     -0.0334827658495384,
+     0.000771408466474343,
+     0.0286095781058147
+    ]
+   ],
+   "n_sites": 62
+  },
+  {
+   "region_code": "Urban",
+   "region_name": "Wisconsin urban areas (WRI 86-4005; NSS GC1467)",
+   "aep": 0.5,
+   "intercept": 0.6211762817750351,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.22,
+     "maximum": 124.0
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 4.8,
+     "maximum": 90.8
+    }
+   ],
+   "coefficients": [
+    0.786,
+    1.02
+   ],
+   "citation": {
+    "publication": "Conger, D.H., 1986, Estimating magnitude and frequency of floods for Wisconsin urban streams: U.S. Geological Survey Water-Resources Investigations Report 86-4005, 18 p.",
+    "table": "Table 5; ranges from Table 4",
+    "year": 1986,
+    "url": "https://pubs.usgs.gov/wri/1986/4005/report.pdf"
+   },
+   "sep_log": 0.155563,
+   "n_sites": 32
+  },
+  {
+   "region_code": "Urban",
+   "region_name": "Wisconsin urban areas (WRI 86-4005; NSS GC1467)",
+   "aep": 0.2,
+   "intercept": 0.9986951583116558,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.22,
+     "maximum": 124.0
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 4.8,
+     "maximum": 90.8
+    }
+   ],
+   "coefficients": [
+    0.739,
+    0.91
+   ],
+   "citation": {
+    "publication": "Conger, D.H., 1986, Estimating magnitude and frequency of floods for Wisconsin urban streams: U.S. Geological Survey Water-Resources Investigations Report 86-4005, 18 p.",
+    "table": "Table 5; ranges from Table 4",
+    "year": 1986,
+    "url": "https://pubs.usgs.gov/wri/1986/4005/report.pdf"
+   },
+   "sep_log": 0.135601,
+   "n_sites": 32
+  },
+  {
+   "region_code": "Urban",
+   "region_name": "Wisconsin urban areas (WRI 86-4005; NSS GC1467)",
+   "aep": 0.1,
+   "intercept": 1.167317334748176,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.22,
+     "maximum": 124.0
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 4.8,
+     "maximum": 90.8
+    }
+   ],
+   "coefficients": [
+    0.723,
+    0.863
+   ],
+   "citation": {
+    "publication": "Conger, D.H., 1986, Estimating magnitude and frequency of floods for Wisconsin urban streams: U.S. Geological Survey Water-Resources Investigations Report 86-4005, 18 p.",
+    "table": "Table 5; ranges from Table 4",
+    "year": 1986,
+    "url": "https://pubs.usgs.gov/wri/1986/4005/report.pdf"
+   },
+   "sep_log": 0.135601,
+   "n_sites": 32
+  },
+  {
+   "region_code": "Urban",
+   "region_name": "Wisconsin urban areas (WRI 86-4005; NSS GC1467)",
+   "aep": 0.04,
+   "intercept": 1.3324384599156054,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.22,
+     "maximum": 124.0
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 4.8,
+     "maximum": 90.8
+    }
+   ],
+   "coefficients": [
+    0.712,
+    0.818
+   ],
+   "citation": {
+    "publication": "Conger, D.H., 1986, Estimating magnitude and frequency of floods for Wisconsin urban streams: U.S. Geological Survey Water-Resources Investigations Report 86-4005, 18 p.",
+    "table": "Table 5; ranges from Table 4",
+    "year": 1986,
+    "url": "https://pubs.usgs.gov/wri/1986/4005/report.pdf"
+   },
+   "sep_log": 0.13963,
+   "n_sites": 32
+  },
+  {
+   "region_code": "Urban",
+   "region_name": "Wisconsin urban areas (WRI 86-4005; NSS GC1467)",
+   "aep": 0.02,
+   "intercept": 1.4313637641589874,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.22,
+     "maximum": 124.0
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 4.8,
+     "maximum": 90.8
+    }
+   ],
+   "coefficients": [
+    0.707,
+    0.792
+   ],
+   "citation": {
+    "publication": "Conger, D.H., 1986, Estimating magnitude and frequency of floods for Wisconsin urban streams: U.S. Geological Survey Water-Resources Investigations Report 86-4005, 18 p.",
+    "table": "Table 5; ranges from Table 4",
+    "year": 1986,
+    "url": "https://pubs.usgs.gov/wri/1986/4005/report.pdf"
+   },
+   "sep_log": 0.147634,
+   "n_sites": 32
+  },
+  {
+   "region_code": "Urban",
+   "region_name": "Wisconsin urban areas (WRI 86-4005; NSS GC1467)",
+   "aep": 0.01,
+   "intercept": 1.515873843711679,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.22,
+     "maximum": 124.0
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 4.8,
+     "maximum": 90.8
+    }
+   ],
+   "coefficients": [
+    0.704,
+    0.77
+   ],
+   "citation": {
+    "publication": "Conger, D.H., 1986, Estimating magnitude and frequency of floods for Wisconsin urban streams: U.S. Geological Survey Water-Resources Investigations Report 86-4005, 18 p.",
+    "table": "Table 5; ranges from Table 4",
+    "year": 1986,
+    "url": "https://pubs.usgs.gov/wri/1986/4005/report.pdf"
+   },
+   "sep_log": 0.155563,
+   "n_sites": 32
+  },
+  {
+   "region_code": "Milwaukee County",
+   "region_name": "Milwaukee County (WRI 86-4005; NSS GC1466)",
+   "aep": 0.5,
+   "intercept": 0.5705429398818975,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.67,
+     "maximum": 124.0
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 7.3,
+     "maximum": 50.0
+    }
+   ],
+   "coefficients": [
+    0.743,
+    1.11
+   ],
+   "citation": {
+    "publication": "Conger, D.H., 1986, Estimating magnitude and frequency of floods for Wisconsin urban streams: U.S. Geological Survey Water-Resources Investigations Report 86-4005, 18 p.",
+    "table": "Table 6; ranges from Table 4",
+    "year": 1986,
+    "url": "https://pubs.usgs.gov/wri/1986/4005/report.pdf"
+   },
+   "sep_log": 0.163416
+  },
+  {
+   "region_code": "Milwaukee County",
+   "region_name": "Milwaukee County (WRI 86-4005; NSS GC1466)",
+   "aep": 0.2,
+   "intercept": 0.75815462196739,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.67,
+     "maximum": 124.0
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 7.3,
+     "maximum": 50.0
+    }
+   ],
+   "coefficients": [
+    0.727,
+    1.09
+   ],
+   "citation": {
+    "publication": "Conger, D.H., 1986, Estimating magnitude and frequency of floods for Wisconsin urban streams: U.S. Geological Survey Water-Resources Investigations Report 86-4005, 18 p.",
+    "table": "Table 6; ranges from Table 4",
+    "year": 1986,
+    "url": "https://pubs.usgs.gov/wri/1986/4005/report.pdf"
+   },
+   "sep_log": 0.135601
+  },
+  {
+   "region_code": "Milwaukee County",
+   "region_name": "Milwaukee County (WRI 86-4005; NSS GC1466)",
+   "aep": 0.1,
+   "intercept": 0.8481891169913987,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.67,
+     "maximum": 124.0
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 7.3,
+     "maximum": 50.0
+    }
+   ],
+   "coefficients": [
+    0.724,
+    1.09
+   ],
+   "citation": {
+    "publication": "Conger, D.H., 1986, Estimating magnitude and frequency of floods for Wisconsin urban streams: U.S. Geological Survey Water-Resources Investigations Report 86-4005, 18 p.",
+    "table": "Table 6; ranges from Table 4",
+    "year": 1986,
+    "url": "https://pubs.usgs.gov/wri/1986/4005/report.pdf"
+   },
+   "sep_log": 0.135601
+  },
+  {
+   "region_code": "Milwaukee County",
+   "region_name": "Milwaukee County (WRI 86-4005; NSS GC1466)",
+   "aep": 0.04,
+   "intercept": 0.9405164849325672,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.67,
+     "maximum": 124.0
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 7.3,
+     "maximum": 50.0
+    }
+   ],
+   "coefficients": [
+    0.725,
+    1.08
+   ],
+   "citation": {
+    "publication": "Conger, D.H., 1986, Estimating magnitude and frequency of floods for Wisconsin urban streams: U.S. Geological Survey Water-Resources Investigations Report 86-4005, 18 p.",
+    "table": "Table 6; ranges from Table 4",
+    "year": 1986,
+    "url": "https://pubs.usgs.gov/wri/1986/4005/report.pdf"
+   },
+   "sep_log": 0.135601
+  },
+  {
+   "region_code": "Milwaukee County",
+   "region_name": "Milwaukee County (WRI 86-4005; NSS GC1466)",
+   "aep": 0.02,
+   "intercept": 1.0,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.67,
+     "maximum": 124.0
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 7.3,
+     "maximum": 50.0
+    }
+   ],
+   "coefficients": [
+    0.727,
+    1.08
+   ],
+   "citation": {
+    "publication": "Conger, D.H., 1986, Estimating magnitude and frequency of floods for Wisconsin urban streams: U.S. Geological Survey Water-Resources Investigations Report 86-4005, 18 p.",
+    "table": "Table 6; ranges from Table 4",
+    "year": 1986,
+    "url": "https://pubs.usgs.gov/wri/1986/4005/report.pdf"
+   },
+   "sep_log": 0.13963
+  },
+  {
+   "region_code": "Milwaukee County",
+   "region_name": "Milwaukee County (WRI 86-4005; NSS GC1466)",
+   "aep": 0.01,
+   "intercept": 1.0530784434834197,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.67,
+     "maximum": 124.0
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 7.3,
+     "maximum": 50.0
+    }
+   ],
+   "coefficients": [
+    0.729,
+    1.07
+   ],
+   "citation": {
+    "publication": "Conger, D.H., 1986, Estimating magnitude and frequency of floods for Wisconsin urban streams: U.S. Geological Survey Water-Resources Investigations Report 86-4005, 18 p.",
+    "table": "Table 6; ranges from Table 4",
+    "year": 1986,
+    "url": "https://pubs.usgs.gov/wri/1986/4005/report.pdf"
+   },
+   "sep_log": 0.143641
+  }
+ ]
+}
