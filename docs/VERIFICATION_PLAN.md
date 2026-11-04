@@ -26,9 +26,9 @@ Read this before relying on a batch 2-5 state.
   check per state (range, monotonicity and NSS comparisons) before merging. No person has reviewed them.
 - **What "entered twice" meant:** text parsed from the PDF compared with the page images or with NSS,
   not two independent typings.
-- **Live checks:** `docs/NATIONWIDE_SMOKE.md` reaches 47 of the 50 at one point each. FL, MI and NE have
-  no StreamStats stream grid, so their sets have never run through a live delineation. That one point
-  shows the set loads and returns a value, not that every region is right.
+- **Live checks:** `docs/NATIONWIDE_SMOKE.md` reaches 47 of the 50 at one point each, and the check below
+  adds three gages in each of 34 states. FL, MI and NE have no StreamStats stream grid, so their sets
+  have never run through a live delineation. None of this shows that every region is right.
 - **Calls that were judgment, not proof:** RI's page 25 example does not reproduce (it prints 3,590;
   its equation gives 3,418, and Table 13 prints 3,410 for the same basin); two Table 4 cells at IA's
   05448500 are off by more than rounding; NJ's and MO's weighted columns are not reproduced and not
@@ -40,12 +40,46 @@ Read this before relying on a batch 2-5 state.
 
 1. **DE:** Table 6's Coastal Plain model error variances are 12-16 % below Table 8 and the data
    release. While DE is `partial`, its snapshot wins under `allow_nss_snapshot`, the app's path.
-2. **Overlapping sets:** tested live on 2026-11-04 at three catalog gages per state. Every point that
-   delineated in CT (1), ME (3), VT (2) and TN (3) located overlapping sets and stops with
-   `OverlappingRegionsError` unless the caller passes `region=`. NH (2), NY (3) and OH (3) located one set
-   at each. Iowa's full-set preference could extend to the first four.
+2. **Refusals on real sites,** from the check below: overlapping sets and StreamStats warnings stop
+   about a third of the gages tried. The owner decides how far to resolve them.
 3. **Cross-border checks,** then the rest of the roadmap's definition of done (see Out of scope).
 4. **Library follow-ups** the batches found: `TODO.md`, Next steps.
+
+## Wider live check, 2026-11-04
+
+Three catalog gages in each of 34 newly verified states (102 gages: unregulated or unclassified, 20-500
+mi2, at least 30 peaks, spread across the state's range of area), at main fc24b45. Not FL, MI or NE. The
+gage's Bulletin 17C fit with station skew was compared with the regression at the gage's coordinates.
+Where sets overlapped, the script took the first candidate not named drainage-area-only, not a
+considered choice: the GA, NC and SC rural sets were not reached, and IN's two points used an arbitrary
+region. Those states' values are therefore thin or absent below, and PR and KY returned none at all.
+
+**Values.** Where the delineation matched the catalog's area within 25 percent (70 gages), the median
+ratio of regression to at-site Q1% was 0.92, with the 10th and 90th percentiles at 0.60 and 1.42. The
+at-site Q1% fell inside the regression's prediction interval at 60 of 65 gages with an interval. Those
+gages probably include many used to fit the equations, so this is a check for gross errors and not an
+independent validation. Large differences, none traced to a transcription fault: 05457778 MN (site
+16,190, regression 4,086), 06483430 IA (8,763, 2,863), 07377782 LA (5,290, 13,669) and 07301420 OK
+(2,479, 24,492; Sweetwater Creek, whose area check could not run because OK uses CONTDA). Both OK sets
+give that same flow by design: the regulated sets repeat the constants with DAUNREG.
+
+**Refusals.** 53 gages returned an estimate with no `region=`. The other 49:
+
+| Stopped by | Gages | States | Note |
+|---|---:|---|---|
+| Overlap: full or drainage-area-only | 12 | CT, ME, VT, TN (all three in each) | Known alternatives |
+| Overlap: rural or urban | 8 | AL, MO, IL | The urban set locates at rural sites; AL also has small streams |
+| Overlap: rural or small basin under 1 mi2 | 7 | GA, NC, SC | At 40-260 mi2, where the small-basin set can't apply |
+| Overlap: unregulated or NRCS-regulated | 3 | OK | Equal where no structures reduce the area |
+| Overlap: other | 3 | IN (2; all eight regions), AR (1; D against MAP) | |
+| `UnsnappablePointError` | 10 | PR (3), TX (2), GA, IL, ND, NH, NJ | Gage coordinates; moving the point may work |
+| StreamStats "may contain karst" warning | 3 | KY (all three) | Read as a degenerate delineation |
+| StreamStats refused the point | 1 | SD | |
+| `OutOfRangeError` | 2 | MN (LAKEAREA 14.02 against 13.46), WV (snapped to a 0.11 mi2 tributary) | |
+
+The same gages behave the same way at v0.21.0 with snapshots (nine checked: MO, AL, GA, NC, SC, IL, OK,
+IN, KY), so verifying the equations did not cause these. Separately, an estimate from two regions
+returns no interval (NJ, VA here).
 
 ## Order
 
