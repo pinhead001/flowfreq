@@ -51,7 +51,7 @@ Failures by kind:
 | OH | 03237500 | 93 | ok | 63,143 | ok | 42,040 | verified | gage |  |
 | IN | 03364500 | 78 | ok | 13,496 | ok | 10,614 | verified | gage |  |
 | KY | 03281500 | 92 | ok | 69,973 | ok | 75,759 | verified | gage |  |
-| TN | 03465500 | 104 | ok | 95,900 | ok | 57,091 | verified | gage |  |
+| TN | 03465500 | 104 | ok | 95,900 | ok | 51,414 | verified | gage |  |
 | WV | 03069500 | 114 | ok | 105,254 | ok | 77,476 | verified | gage |  |
 | AR | 07072000 | 94 | ok | 127,207 | ok | 129,900 | verified | gage |  |
 | LA | 07351500 | 86 | ok | 28,982 | ok | 19,956 | verified | gage |  |
