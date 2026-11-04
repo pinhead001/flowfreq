@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.21.0] - 2026-11-03
+
+Alaska, California and Hawaii verified, region rules that resolve overlapping equation sets, and
+the fixes from the first full live check since the StreamStats outage.
+- **Verified equations:** Alaska (SIR 2016-5024), California (SIR 2012-5113) and Hawaii
+  (SIR 2023-5014), bringing the verified count to 13 jurisdictions. Their prediction intervals
+  use the published covariance where the report prints one.
+- **Overlapping regions:** region gates for Arizona's High Elevation region and Oregon's Regions
+  1, 2A and 2B, and a stated preference for Iowa's full sets over its drainage-area-only sets.
+- **Behaviour change:** `load_state(code, allow_nss_snapshot=True)` now returns a verified set
+  where one exists. It returned the snapshot before, so the opt-in hid the verified Alaska,
+  California and Hawaii equations.
+- **Montana:** a channel width of 0 from StreamStats counts as not measured, which had stopped
+  estimates with an overlap error.
+- **Live checks:** full smoke run at 56/56 gaged and 48/56 ungaged. The weekly live run reports a
+  service outage as a skip, so read its job summary.
+- mypy now checks every module.
+
+Patch releases for 0.20 continue from `release/0.20.x`.
+
 ### Fixed
 - A Montana estimate stopped with `OverlappingRegionsError` on StreamStats' channel widths: it returns `WACTCH`, `WBANKFULL` and `CHANWD_RS` as 0 because it cannot compute them, and 0 was taken as a value, making the three SIR 2020-5142 width methods candidates beside the basin-characteristics set. A width of 0 now counts as not measured; a width the caller supplies is still a candidate.
 - `load_state(code, allow_nss_snapshot=True)` returned the NSS snapshot even where a verified set exists, so with the opt-in Alaska, California and Hawaii did not get the verified equations added below or their covariance-based prediction intervals. A verified published set now wins; the flag only permits a snapshot where nothing better exists. The three snapshot files stay, as the evidence the equations match NSS.
