@@ -1,0 +1,1457 @@
+{
+ "schema_version": 1,
+ "state": "PA",
+ "status": "verified",
+ "issue": null,
+ "source_reports": [
+  {
+   "citation": "Roland, M.A., and Stuckey, M.H., 2019, Development of regression equations for the estimation of flood flows at ungaged streams in Pennsylvania (ver. 1.1, December 2020): U.S. Geological Survey Scientific Investigations Report 2019-5094, 36 p.",
+   "doi": "10.3133/sir20195094",
+   "url": "https://pubs.usgs.gov/publication/sir20195094",
+   "pdf": "https://pubs.usgs.gov/sir/2019/5094/sir20195094.pdf",
+   "tables": [
+    "Table 3",
+    "Table 5",
+    "Appendix 1",
+    "Appendix 2"
+   ],
+   "nss": {
+    "regression_regions": [
+     "GC907",
+     "GC908",
+     "GC909",
+     "GC910",
+     "GC1793"
+    ],
+    "last_year_of_data": 2015
+   }
+  }
+ ],
+ "notes": "Roland and Stuckey, SIR 2019-5094 version 1.1 (which changed a source citation in Table 2, not the equations): five flood-flow regions at 8 AEPs from Table 3, with AVP and SEP; ranges from Table 5. Equation 4 adds 0.1 to the percentages, so CARBON and STORAGE have offset 0.1. The report prints no covariance or model error variance, so intervals use the AVP. NSS's maximum DRNAREA for region 2 is 1,160 mi2 where Table 5 prints 1,610; appendix 1 has a region 2 gage above 1,160, so this file has 1,610. NSS also has region 2's 4-percent STORAGE coefficient as -0.0831 where Table 3 prints -0.0813, and SEPs of 28.9 percent (region 2, 10 percent) and 32.2 percent (region 5, 1 percent) where Table 3 prints 28.19 and 33.2. Appendix 2's regression flows reproduce from appendix 1's characteristics at all 285 gages used in the regressions, which confirms -0.0813.",
+ "equations": [
+  {
+   "region_code": "1",
+   "region_name": "Flood-flow region 1 (NSS GC907)",
+   "aep": 0.5,
+   "intercept": -4.0395,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 3.04,
+     "maximum": 1490.0
+    },
+    {
+     "code": "ELEVMAX",
+     "transform": "log10",
+     "units": "ft",
+     "minimum": 1470.0,
+     "maximum": 2690.0
+    }
+   ],
+   "coefficients": [
+    0.7199,
+    1.8288
+   ],
+   "citation": {
+    "publication": "Roland, M.A., and Stuckey, M.H., 2019, Development of regression equations for the estimation of flood flows at ungaged streams in Pennsylvania (ver. 1.1, December 2020): U.S. Geological Survey Scientific Investigations Report 2019-5094, 36 p.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195094"
+   },
+   "sep_log": 0.107762,
+   "avp": 0.0116,
+   "n_sites": 40
+  },
+  {
+   "region_code": "1",
+   "region_name": "Flood-flow region 1 (NSS GC907)",
+   "aep": 0.2,
+   "intercept": -4.6287,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 3.04,
+     "maximum": 1490.0
+    },
+    {
+     "code": "ELEVMAX",
+     "transform": "log10",
+     "units": "ft",
+     "minimum": 1470.0,
+     "maximum": 2690.0
+    }
+   ],
+   "coefficients": [
+    0.6931,
+    2.0831
+   ],
+   "citation": {
+    "publication": "Roland, M.A., and Stuckey, M.H., 2019, Development of regression equations for the estimation of flood flows at ungaged streams in Pennsylvania (ver. 1.1, December 2020): U.S. Geological Survey Scientific Investigations Report 2019-5094, 36 p.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195094"
+   },
+   "sep_log": 0.120423,
+   "avp": 0.0145,
+   "n_sites": 40
+  },
+  {
+   "region_code": "1",
+   "region_name": "Flood-flow region 1 (NSS GC907)",
+   "aep": 0.1,
+   "intercept": -4.9505,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 3.04,
+     "maximum": 1490.0
+    },
+    {
+     "code": "ELEVMAX",
+     "transform": "log10",
+     "units": "ft",
+     "minimum": 1470.0,
+     "maximum": 2690.0
+    }
+   ],
+   "coefficients": [
+    0.6803,
+    2.2216
+   ],
+   "citation": {
+    "publication": "Roland, M.A., and Stuckey, M.H., 2019, Development of regression equations for the estimation of flood flows at ungaged streams in Pennsylvania (ver. 1.1, December 2020): U.S. Geological Survey Scientific Investigations Report 2019-5094, 36 p.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195094"
+   },
+   "sep_log": 0.128753,
+   "avp": 0.0166,
+   "n_sites": 40
+  },
+  {
+   "region_code": "1",
+   "region_name": "Flood-flow region 1 (NSS GC907)",
+   "aep": 0.04,
+   "intercept": -5.2953,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 3.04,
+     "maximum": 1490.0
+    },
+    {
+     "code": "ELEVMAX",
+     "transform": "log10",
+     "units": "ft",
+     "minimum": 1470.0,
+     "maximum": 2690.0
+    }
+   ],
+   "coefficients": [
+    0.6679,
+    2.3706
+   ],
+   "citation": {
+    "publication": "Roland, M.A., and Stuckey, M.H., 2019, Development of regression equations for the estimation of flood flows at ungaged streams in Pennsylvania (ver. 1.1, December 2020): U.S. Geological Survey Scientific Investigations Report 2019-5094, 36 p.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195094"
+   },
+   "sep_log": 0.137255,
+   "avp": 0.0188,
+   "n_sites": 40
+  },
+  {
+   "region_code": "1",
+   "region_name": "Flood-flow region 1 (NSS GC907)",
+   "aep": 0.02,
+   "intercept": -5.5083,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 3.04,
+     "maximum": 1490.0
+    },
+    {
+     "code": "ELEVMAX",
+     "transform": "log10",
+     "units": "ft",
+     "minimum": 1470.0,
+     "maximum": 2690.0
+    }
+   ],
+   "coefficients": [
+    0.6606,
+    2.4642
+   ],
+   "citation": {
+    "publication": "Roland, M.A., and Stuckey, M.H., 2019, Development of regression equations for the estimation of flood flows at ungaged streams in Pennsylvania (ver. 1.1, December 2020): U.S. Geological Survey Scientific Investigations Report 2019-5094, 36 p.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195094"
+   },
+   "sep_log": 0.141878,
+   "avp": 0.0201,
+   "n_sites": 40
+  },
+  {
+   "region_code": "1",
+   "region_name": "Flood-flow region 1 (NSS GC907)",
+   "aep": 0.01,
+   "intercept": -5.721,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 3.04,
+     "maximum": 1490.0
+    },
+    {
+     "code": "ELEVMAX",
+     "transform": "log10",
+     "units": "ft",
+     "minimum": 1470.0,
+     "maximum": 2690.0
+    }
+   ],
+   "coefficients": [
+    0.6543,
+    2.5552
+   ],
+   "citation": {
+    "publication": "Roland, M.A., and Stuckey, M.H., 2019, Development of regression equations for the estimation of flood flows at ungaged streams in Pennsylvania (ver. 1.1, December 2020): U.S. Geological Survey Scientific Investigations Report 2019-5094, 36 p.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195094"
+   },
+   "sep_log": 0.149822,
+   "avp": 0.0224,
+   "n_sites": 40
+  },
+  {
+   "region_code": "1",
+   "region_name": "Flood-flow region 1 (NSS GC907)",
+   "aep": 0.005,
+   "intercept": -5.9128,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 3.04,
+     "maximum": 1490.0
+    },
+    {
+     "code": "ELEVMAX",
+     "transform": "log10",
+     "units": "ft",
+     "minimum": 1470.0,
+     "maximum": 2690.0
+    }
+   ],
+   "coefficients": [
+    0.6489,
+    2.6377
+   ],
+   "citation": {
+    "publication": "Roland, M.A., and Stuckey, M.H., 2019, Development of regression equations for the estimation of flood flows at ungaged streams in Pennsylvania (ver. 1.1, December 2020): U.S. Geological Survey Scientific Investigations Report 2019-5094, 36 p.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195094"
+   },
+   "sep_log": 0.157573,
+   "avp": 0.0248,
+   "n_sites": 40
+  },
+  {
+   "region_code": "1",
+   "region_name": "Flood-flow region 1 (NSS GC907)",
+   "aep": 0.002,
+   "intercept": -6.1649,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 3.04,
+     "maximum": 1490.0
+    },
+    {
+     "code": "ELEVMAX",
+     "transform": "log10",
+     "units": "ft",
+     "minimum": 1470.0,
+     "maximum": 2690.0
+    }
+   ],
+   "coefficients": [
+    0.643,
+    2.7438
+   ],
+   "citation": {
+    "publication": "Roland, M.A., and Stuckey, M.H., 2019, Development of regression equations for the estimation of flood flows at ungaged streams in Pennsylvania (ver. 1.1, December 2020): U.S. Geological Survey Scientific Investigations Report 2019-5094, 36 p.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195094"
+   },
+   "sep_log": 0.168789,
+   "avp": 0.0285,
+   "n_sites": 40
+  },
+  {
+   "region_code": "2",
+   "region_name": "Flood-flow region 2 (NSS GC908)",
+   "aep": 0.5,
+   "intercept": 1.784,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.92,
+     "maximum": 1610.0
+    },
+    {
+     "code": "STORAGE",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 8.9,
+     "offset": 0.1
+    }
+   ],
+   "coefficients": [
+    0.8389,
+    -0.0316
+   ],
+   "citation": {
+    "publication": "Roland, M.A., and Stuckey, M.H., 2019, Development of regression equations for the estimation of flood flows at ungaged streams in Pennsylvania (ver. 1.1, December 2020): U.S. Geological Survey Scientific Investigations Report 2019-5094, 36 p.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195094"
+   },
+   "sep_log": 0.111365,
+   "avp": 0.0124,
+   "n_sites": 78
+  },
+  {
+   "region_code": "2",
+   "region_name": "Flood-flow region 2 (NSS GC908)",
+   "aep": 0.2,
+   "intercept": 1.9921,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.92,
+     "maximum": 1610.0
+    },
+    {
+     "code": "STORAGE",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 8.9,
+     "offset": 0.1
+    }
+   ],
+   "coefficients": [
+    0.8253,
+    -0.053
+   ],
+   "citation": {
+    "publication": "Roland, M.A., and Stuckey, M.H., 2019, Development of regression equations for the estimation of flood flows at ungaged streams in Pennsylvania (ver. 1.1, December 2020): U.S. Geological Survey Scientific Investigations Report 2019-5094, 36 p.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195094"
+   },
+   "sep_log": 0.115285,
+   "avp": 0.0133,
+   "n_sites": 78
+  },
+  {
+   "region_code": "2",
+   "region_name": "Flood-flow region 2 (NSS GC908)",
+   "aep": 0.1,
+   "intercept": 2.1038,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.92,
+     "maximum": 1610.0
+    },
+    {
+     "code": "STORAGE",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 8.9,
+     "offset": 0.1
+    }
+   ],
+   "coefficients": [
+    0.8192,
+    -0.0663
+   ],
+   "citation": {
+    "publication": "Roland, M.A., and Stuckey, M.H., 2019, Development of regression equations for the estimation of flood flows at ungaged streams in Pennsylvania (ver. 1.1, December 2020): U.S. Geological Survey Scientific Investigations Report 2019-5094, 36 p.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195094"
+   },
+   "sep_log": 0.120095,
+   "avp": 0.0144,
+   "n_sites": 78
+  },
+  {
+   "region_code": "2",
+   "region_name": "Flood-flow region 2 (NSS GC908)",
+   "aep": 0.04,
+   "intercept": 2.2249,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.92,
+     "maximum": 1610.0
+    },
+    {
+     "code": "STORAGE",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 8.9,
+     "offset": 0.1
+    }
+   ],
+   "coefficients": [
+    0.8137,
+    -0.0813
+   ],
+   "citation": {
+    "publication": "Roland, M.A., and Stuckey, M.H., 2019, Development of regression equations for the estimation of flood flows at ungaged streams in Pennsylvania (ver. 1.1, December 2020): U.S. Geological Survey Scientific Investigations Report 2019-5094, 36 p.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195094"
+   },
+   "sep_log": 0.133944,
+   "avp": 0.0179,
+   "n_sites": 78
+  },
+  {
+   "region_code": "2",
+   "region_name": "Flood-flow region 2 (NSS GC908)",
+   "aep": 0.02,
+   "intercept": 2.3042,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.92,
+     "maximum": 1610.0
+    },
+    {
+     "code": "STORAGE",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 8.9,
+     "offset": 0.1
+    }
+   ],
+   "coefficients": [
+    0.8108,
+    -0.0916
+   ],
+   "citation": {
+    "publication": "Roland, M.A., and Stuckey, M.H., 2019, Development of regression equations for the estimation of flood flows at ungaged streams in Pennsylvania (ver. 1.1, December 2020): U.S. Geological Survey Scientific Investigations Report 2019-5094, 36 p.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195094"
+   },
+   "sep_log": 0.146677,
+   "avp": 0.0215,
+   "n_sites": 78
+  },
+  {
+   "region_code": "2",
+   "region_name": "Flood-flow region 2 (NSS GC908)",
+   "aep": 0.01,
+   "intercept": 2.3756,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.92,
+     "maximum": 1610.0
+    },
+    {
+     "code": "STORAGE",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 8.9,
+     "offset": 0.1
+    }
+   ],
+   "coefficients": [
+    0.8088,
+    -0.1011
+   ],
+   "citation": {
+    "publication": "Roland, M.A., and Stuckey, M.H., 2019, Development of regression equations for the estimation of flood flows at ungaged streams in Pennsylvania (ver. 1.1, December 2020): U.S. Geological Survey Scientific Investigations Report 2019-5094, 36 p.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195094"
+   },
+   "sep_log": 0.158596,
+   "avp": 0.0252,
+   "n_sites": 78
+  },
+  {
+   "region_code": "2",
+   "region_name": "Flood-flow region 2 (NSS GC908)",
+   "aep": 0.005,
+   "intercept": 2.4422,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.92,
+     "maximum": 1610.0
+    },
+    {
+     "code": "STORAGE",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 8.9,
+     "offset": 0.1
+    }
+   ],
+   "coefficients": [
+    0.8072,
+    -0.1103
+   ],
+   "citation": {
+    "publication": "Roland, M.A., and Stuckey, M.H., 2019, Development of regression equations for the estimation of flood flows at ungaged streams in Pennsylvania (ver. 1.1, December 2020): U.S. Geological Survey Scientific Investigations Report 2019-5094, 36 p.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195094"
+   },
+   "sep_log": 0.173314,
+   "avp": 0.03,
+   "n_sites": 78
+  },
+  {
+   "region_code": "2",
+   "region_name": "Flood-flow region 2 (NSS GC908)",
+   "aep": 0.002,
+   "intercept": 2.5234,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.92,
+     "maximum": 1610.0
+    },
+    {
+     "code": "STORAGE",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 8.9,
+     "offset": 0.1
+    }
+   ],
+   "coefficients": [
+    0.8058,
+    -0.1219
+   ],
+   "citation": {
+    "publication": "Roland, M.A., and Stuckey, M.H., 2019, Development of regression equations for the estimation of flood flows at ungaged streams in Pennsylvania (ver. 1.1, December 2020): U.S. Geological Survey Scientific Investigations Report 2019-5094, 36 p.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195094"
+   },
+   "sep_log": 0.190646,
+   "avp": 0.0363,
+   "n_sites": 78
+  },
+  {
+   "region_code": "3",
+   "region_name": "Flood-flow region 3 (NSS GC909)",
+   "aep": 0.5,
+   "intercept": 1.7719,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.42,
+     "maximum": 1280.0
+    },
+    {
+     "code": "CARBON",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0,
+     "offset": 0.1
+    }
+   ],
+   "coefficients": [
+    0.8366,
+    -0.0469
+   ],
+   "citation": {
+    "publication": "Roland, M.A., and Stuckey, M.H., 2019, Development of regression equations for the estimation of flood flows at ungaged streams in Pennsylvania (ver. 1.1, December 2020): U.S. Geological Survey Scientific Investigations Report 2019-5094, 36 p.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195094"
+   },
+   "sep_log": 0.174047,
+   "avp": 0.0303,
+   "n_sites": 92
+  },
+  {
+   "region_code": "3",
+   "region_name": "Flood-flow region 3 (NSS GC909)",
+   "aep": 0.2,
+   "intercept": 2.0604,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.42,
+     "maximum": 1280.0
+    },
+    {
+     "code": "CARBON",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0,
+     "offset": 0.1
+    }
+   ],
+   "coefficients": [
+    0.8058,
+    -0.0435
+   ],
+   "citation": {
+    "publication": "Roland, M.A., and Stuckey, M.H., 2019, Development of regression equations for the estimation of flood flows at ungaged streams in Pennsylvania (ver. 1.1, December 2020): U.S. Geological Survey Scientific Investigations Report 2019-5094, 36 p.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195094"
+   },
+   "sep_log": 0.165679,
+   "avp": 0.0274,
+   "n_sites": 92
+  },
+  {
+   "region_code": "3",
+   "region_name": "Flood-flow region 3 (NSS GC909)",
+   "aep": 0.1,
+   "intercept": 2.2165,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.42,
+     "maximum": 1280.0
+    },
+    {
+     "code": "CARBON",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0,
+     "offset": 0.1
+    }
+   ],
+   "coefficients": [
+    0.7916,
+    -0.0415
+   ],
+   "citation": {
+    "publication": "Roland, M.A., and Stuckey, M.H., 2019, Development of regression equations for the estimation of flood flows at ungaged streams in Pennsylvania (ver. 1.1, December 2020): U.S. Geological Survey Scientific Investigations Report 2019-5094, 36 p.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195094"
+   },
+   "sep_log": 0.160598,
+   "avp": 0.0258,
+   "n_sites": 92
+  },
+  {
+   "region_code": "3",
+   "region_name": "Flood-flow region 3 (NSS GC909)",
+   "aep": 0.04,
+   "intercept": 2.3839,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.42,
+     "maximum": 1280.0
+    },
+    {
+     "code": "CARBON",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0,
+     "offset": 0.1
+    }
+   ],
+   "coefficients": [
+    0.7782,
+    -0.0398
+   ],
+   "citation": {
+    "publication": "Roland, M.A., and Stuckey, M.H., 2019, Development of regression equations for the estimation of flood flows at ungaged streams in Pennsylvania (ver. 1.1, December 2020): U.S. Geological Survey Scientific Investigations Report 2019-5094, 36 p.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195094"
+   },
+   "sep_log": 0.161382,
+   "avp": 0.026,
+   "n_sites": 92
+  },
+  {
+   "region_code": "3",
+   "region_name": "Flood-flow region 3 (NSS GC909)",
+   "aep": 0.02,
+   "intercept": 2.4916,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.42,
+     "maximum": 1280.0
+    },
+    {
+     "code": "CARBON",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0,
+     "offset": 0.1
+    }
+   ],
+   "coefficients": [
+    0.7707,
+    -0.0389
+   ],
+   "citation": {
+    "publication": "Roland, M.A., and Stuckey, M.H., 2019, Development of regression equations for the estimation of flood flows at ungaged streams in Pennsylvania (ver. 1.1, December 2020): U.S. Geological Survey Scientific Investigations Report 2019-5094, 36 p.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195094"
+   },
+   "sep_log": 0.163104,
+   "avp": 0.0266,
+   "n_sites": 92
+  },
+  {
+   "region_code": "3",
+   "region_name": "Flood-flow region 3 (NSS GC909)",
+   "aep": 0.01,
+   "intercept": 2.5888,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.42,
+     "maximum": 1280.0
+    },
+    {
+     "code": "CARBON",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0,
+     "offset": 0.1
+    }
+   ],
+   "coefficients": [
+    0.7644,
+    -0.038
+   ],
+   "citation": {
+    "publication": "Roland, M.A., and Stuckey, M.H., 2019, Development of regression equations for the estimation of flood flows at ungaged streams in Pennsylvania (ver. 1.1, December 2020): U.S. Geological Survey Scientific Investigations Report 2019-5094, 36 p.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195094"
+   },
+   "sep_log": 0.167702,
+   "avp": 0.0281,
+   "n_sites": 92
+  },
+  {
+   "region_code": "3",
+   "region_name": "Flood-flow region 3 (NSS GC909)",
+   "aep": 0.005,
+   "intercept": 2.6772,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.42,
+     "maximum": 1280.0
+    },
+    {
+     "code": "CARBON",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0,
+     "offset": 0.1
+    }
+   ],
+   "coefficients": [
+    0.7592,
+    -0.0375
+   ],
+   "citation": {
+    "publication": "Roland, M.A., and Stuckey, M.H., 2019, Development of regression equations for the estimation of flood flows at ungaged streams in Pennsylvania (ver. 1.1, December 2020): U.S. Geological Survey Scientific Investigations Report 2019-5094, 36 p.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195094"
+   },
+   "sep_log": 0.172311,
+   "avp": 0.0297,
+   "n_sites": 92
+  },
+  {
+   "region_code": "3",
+   "region_name": "Flood-flow region 3 (NSS GC909)",
+   "aep": 0.002,
+   "intercept": 2.7854,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.42,
+     "maximum": 1280.0
+    },
+    {
+     "code": "CARBON",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0,
+     "offset": 0.1
+    }
+   ],
+   "coefficients": [
+    0.7531,
+    -0.0369
+   ],
+   "citation": {
+    "publication": "Roland, M.A., and Stuckey, M.H., 2019, Development of regression equations for the estimation of flood flows at ungaged streams in Pennsylvania (ver. 1.1, December 2020): U.S. Geological Survey Scientific Investigations Report 2019-5094, 36 p.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195094"
+   },
+   "sep_log": 0.181672,
+   "avp": 0.033,
+   "n_sites": 92
+  },
+  {
+   "region_code": "4",
+   "region_name": "Flood-flow region 4 (NSS GC910)",
+   "aep": 0.5,
+   "intercept": 2.3029,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.2,
+     "maximum": 512.0
+    },
+    {
+     "code": "CARBON",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 68.5,
+     "offset": 0.1
+    }
+   ],
+   "coefficients": [
+    0.6998,
+    -0.0571
+   ],
+   "citation": {
+    "publication": "Roland, M.A., and Stuckey, M.H., 2019, Development of regression equations for the estimation of flood flows at ungaged streams in Pennsylvania (ver. 1.1, December 2020): U.S. Geological Survey Scientific Investigations Report 2019-5094, 36 p.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195094"
+   },
+   "sep_log": 0.168789,
+   "avp": 0.0285,
+   "n_sites": 54
+  },
+  {
+   "region_code": "4",
+   "region_name": "Flood-flow region 4 (NSS GC910)",
+   "aep": 0.2,
+   "intercept": 2.5537,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.2,
+     "maximum": 512.0
+    },
+    {
+     "code": "CARBON",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 68.5,
+     "offset": 0.1
+    }
+   ],
+   "coefficients": [
+    0.6727,
+    -0.0558
+   ],
+   "citation": {
+    "publication": "Roland, M.A., and Stuckey, M.H., 2019, Development of regression equations for the estimation of flood flows at ungaged streams in Pennsylvania (ver. 1.1, December 2020): U.S. Geological Survey Scientific Investigations Report 2019-5094, 36 p.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195094"
+   },
+   "sep_log": 0.140032,
+   "avp": 0.0196,
+   "n_sites": 54
+  },
+  {
+   "region_code": "4",
+   "region_name": "Flood-flow region 4 (NSS GC910)",
+   "aep": 0.1,
+   "intercept": 2.6911,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.2,
+     "maximum": 512.0
+    },
+    {
+     "code": "CARBON",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 68.5,
+     "offset": 0.1
+    }
+   ],
+   "coefficients": [
+    0.6584,
+    -0.0546
+   ],
+   "citation": {
+    "publication": "Roland, M.A., and Stuckey, M.H., 2019, Development of regression equations for the estimation of flood flows at ungaged streams in Pennsylvania (ver. 1.1, December 2020): U.S. Geological Survey Scientific Investigations Report 2019-5094, 36 p.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195094"
+   },
+   "sep_log": 0.130987,
+   "avp": 0.0172,
+   "n_sites": 54
+  },
+  {
+   "region_code": "4",
+   "region_name": "Flood-flow region 4 (NSS GC910)",
+   "aep": 0.04,
+   "intercept": 2.8377,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.2,
+     "maximum": 512.0
+    },
+    {
+     "code": "CARBON",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 68.5,
+     "offset": 0.1
+    }
+   ],
+   "coefficients": [
+    0.645,
+    -0.0538
+   ],
+   "citation": {
+    "publication": "Roland, M.A., and Stuckey, M.H., 2019, Development of regression equations for the estimation of flood flows at ungaged streams in Pennsylvania (ver. 1.1, December 2020): U.S. Geological Survey Scientific Investigations Report 2019-5094, 36 p.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195094"
+   },
+   "sep_log": 0.126758,
+   "avp": 0.0161,
+   "n_sites": 54
+  },
+  {
+   "region_code": "4",
+   "region_name": "Flood-flow region 4 (NSS GC910)",
+   "aep": 0.02,
+   "intercept": 2.932,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.2,
+     "maximum": 512.0
+    },
+    {
+     "code": "CARBON",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 68.5,
+     "offset": 0.1
+    }
+   ],
+   "coefficients": [
+    0.6373,
+    -0.053
+   ],
+   "citation": {
+    "publication": "Roland, M.A., and Stuckey, M.H., 2019, Development of regression equations for the estimation of flood flows at ungaged streams in Pennsylvania (ver. 1.1, December 2020): U.S. Geological Survey Scientific Investigations Report 2019-5094, 36 p.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195094"
+   },
+   "sep_log": 0.128956,
+   "avp": 0.0166,
+   "n_sites": 54
+  },
+  {
+   "region_code": "4",
+   "region_name": "Flood-flow region 4 (NSS GC910)",
+   "aep": 0.01,
+   "intercept": 3.0167,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.2,
+     "maximum": 512.0
+    },
+    {
+     "code": "CARBON",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 68.5,
+     "offset": 0.1
+    }
+   ],
+   "coefficients": [
+    0.6309,
+    -0.0521
+   ],
+   "citation": {
+    "publication": "Roland, M.A., and Stuckey, M.H., 2019, Development of regression equations for the estimation of flood flows at ungaged streams in Pennsylvania (ver. 1.1, December 2020): U.S. Geological Survey Scientific Investigations Report 2019-5094, 36 p.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195094"
+   },
+   "sep_log": 0.133418,
+   "avp": 0.0178,
+   "n_sites": 54
+  },
+  {
+   "region_code": "4",
+   "region_name": "Flood-flow region 4 (NSS GC910)",
+   "aep": 0.005,
+   "intercept": 3.0934,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.2,
+     "maximum": 512.0
+    },
+    {
+     "code": "CARBON",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 68.5,
+     "offset": 0.1
+    }
+   ],
+   "coefficients": [
+    0.6258,
+    -0.0513
+   ],
+   "citation": {
+    "publication": "Roland, M.A., and Stuckey, M.H., 2019, Development of regression equations for the estimation of flood flows at ungaged streams in Pennsylvania (ver. 1.1, December 2020): U.S. Geological Survey Scientific Investigations Report 2019-5094, 36 p.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195094"
+   },
+   "sep_log": 0.138343,
+   "avp": 0.0191,
+   "n_sites": 54
+  },
+  {
+   "region_code": "4",
+   "region_name": "Flood-flow region 4 (NSS GC910)",
+   "aep": 0.002,
+   "intercept": 3.1877,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.2,
+     "maximum": 512.0
+    },
+    {
+     "code": "CARBON",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 68.5,
+     "offset": 0.1
+    }
+   ],
+   "coefficients": [
+    0.6199,
+    -0.0502
+   ],
+   "citation": {
+    "publication": "Roland, M.A., and Stuckey, M.H., 2019, Development of regression equations for the estimation of flood flows at ungaged streams in Pennsylvania (ver. 1.1, December 2020): U.S. Geological Survey Scientific Investigations Report 2019-5094, 36 p.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195094"
+   },
+   "sep_log": 0.149305,
+   "avp": 0.0223,
+   "n_sites": 54
+  },
+  {
+   "region_code": "5",
+   "region_name": "Flood-flow region 5 (NSS GC1793)",
+   "aep": 0.5,
+   "intercept": 1.8137,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 2.27,
+     "maximum": 1030.0
+    },
+    {
+     "code": "BSLPDRPA20",
+     "transform": "log10",
+     "units": "degrees",
+     "minimum": 1.55,
+     "maximum": 6.82
+    }
+   ],
+   "coefficients": [
+    0.7271,
+    0.3445
+   ],
+   "citation": {
+    "publication": "Roland, M.A., and Stuckey, M.H., 2019, Development of regression equations for the estimation of flood flows at ungaged streams in Pennsylvania (ver. 1.1, December 2020): U.S. Geological Survey Scientific Investigations Report 2019-5094, 36 p.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195094"
+   },
+   "sep_log": 0.1432,
+   "avp": 0.0205,
+   "n_sites": 21
+  },
+  {
+   "region_code": "5",
+   "region_name": "Flood-flow region 5 (NSS GC1793)",
+   "aep": 0.2,
+   "intercept": 2.0159,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 2.27,
+     "maximum": 1030.0
+    },
+    {
+     "code": "BSLPDRPA20",
+     "transform": "log10",
+     "units": "degrees",
+     "minimum": 1.55,
+     "maximum": 6.82
+    }
+   ],
+   "coefficients": [
+    0.6937,
+    0.4053
+   ],
+   "citation": {
+    "publication": "Roland, M.A., and Stuckey, M.H., 2019, Development of regression equations for the estimation of flood flows at ungaged streams in Pennsylvania (ver. 1.1, December 2020): U.S. Geological Survey Scientific Investigations Report 2019-5094, 36 p.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195094"
+   },
+   "sep_log": 0.137658,
+   "avp": 0.0189,
+   "n_sites": 21
+  },
+  {
+   "region_code": "5",
+   "region_name": "Flood-flow region 5 (NSS GC1793)",
+   "aep": 0.1,
+   "intercept": 2.1283,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 2.27,
+     "maximum": 1030.0
+    },
+    {
+     "code": "BSLPDRPA20",
+     "transform": "log10",
+     "units": "degrees",
+     "minimum": 1.55,
+     "maximum": 6.82
+    }
+   ],
+   "coefficients": [
+    0.6743,
+    0.4412
+   ],
+   "citation": {
+    "publication": "Roland, M.A., and Stuckey, M.H., 2019, Development of regression equations for the estimation of flood flows at ungaged streams in Pennsylvania (ver. 1.1, December 2020): U.S. Geological Survey Scientific Investigations Report 2019-5094, 36 p.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195094"
+   },
+   "sep_log": 0.134793,
+   "avp": 0.0182,
+   "n_sites": 21
+  },
+  {
+   "region_code": "5",
+   "region_name": "Flood-flow region 5 (NSS GC1793)",
+   "aep": 0.04,
+   "intercept": 2.2533,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 2.27,
+     "maximum": 1030.0
+    },
+    {
+     "code": "BSLPDRPA20",
+     "transform": "log10",
+     "units": "degrees",
+     "minimum": 1.55,
+     "maximum": 6.82
+    }
+   ],
+   "coefficients": [
+    0.6521,
+    0.4803
+   ],
+   "citation": {
+    "publication": "Roland, M.A., and Stuckey, M.H., 2019, Development of regression equations for the estimation of flood flows at ungaged streams in Pennsylvania (ver. 1.1, December 2020): U.S. Geological Survey Scientific Investigations Report 2019-5094, 36 p.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195094"
+   },
+   "sep_log": 0.135117,
+   "avp": 0.0183,
+   "n_sites": 21
+  },
+  {
+   "region_code": "5",
+   "region_name": "Flood-flow region 5 (NSS GC1793)",
+   "aep": 0.02,
+   "intercept": 2.3384,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 2.27,
+     "maximum": 1030.0
+    },
+    {
+     "code": "BSLPDRPA20",
+     "transform": "log10",
+     "units": "degrees",
+     "minimum": 1.55,
+     "maximum": 6.82
+    }
+   ],
+   "coefficients": [
+    0.6368,
+    0.503
+   ],
+   "citation": {
+    "publication": "Roland, M.A., and Stuckey, M.H., 2019, Development of regression equations for the estimation of flood flows at ungaged streams in Pennsylvania (ver. 1.1, December 2020): U.S. Geological Survey Scientific Investigations Report 2019-5094, 36 p.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195094"
+   },
+   "sep_log": 0.136328,
+   "avp": 0.0186,
+   "n_sites": 21
+  },
+  {
+   "region_code": "5",
+   "region_name": "Flood-flow region 5 (NSS GC1793)",
+   "aep": 0.01,
+   "intercept": 2.4185,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 2.27,
+     "maximum": 1030.0
+    },
+    {
+     "code": "BSLPDRPA20",
+     "transform": "log10",
+     "units": "degrees",
+     "minimum": 1.55,
+     "maximum": 6.82
+    }
+   ],
+   "coefficients": [
+    0.6219,
+    0.5229
+   ],
+   "citation": {
+    "publication": "Roland, M.A., and Stuckey, M.H., 2019, Development of regression equations for the estimation of flood flows at ungaged streams in Pennsylvania (ver. 1.1, December 2020): U.S. Geological Survey Scientific Investigations Report 2019-5094, 36 p.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195094"
+   },
+   "sep_log": 0.140434,
+   "avp": 0.0197,
+   "n_sites": 21
+  },
+  {
+   "region_code": "5",
+   "region_name": "Flood-flow region 5 (NSS GC1793)",
+   "aep": 0.005,
+   "intercept": 2.4949,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 2.27,
+     "maximum": 1030.0
+    },
+    {
+     "code": "BSLPDRPA20",
+     "transform": "log10",
+     "units": "degrees",
+     "minimum": 1.55,
+     "maximum": 6.82
+    }
+   ],
+   "coefficients": [
+    0.6068,
+    0.5413
+   ],
+   "citation": {
+    "publication": "Roland, M.A., and Stuckey, M.H., 2019, Development of regression equations for the estimation of flood flows at ungaged streams in Pennsylvania (ver. 1.1, December 2020): U.S. Geological Survey Scientific Investigations Report 2019-5094, 36 p.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195094"
+   },
+   "sep_log": 0.146677,
+   "avp": 0.0215,
+   "n_sites": 21
+  },
+  {
+   "region_code": "5",
+   "region_name": "Flood-flow region 5 (NSS GC1793)",
+   "aep": 0.002,
+   "intercept": 2.5866,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 2.27,
+     "maximum": 1030.0
+    },
+    {
+     "code": "BSLPDRPA20",
+     "transform": "log10",
+     "units": "degrees",
+     "minimum": 1.55,
+     "maximum": 6.82
+    }
+   ],
+   "coefficients": [
+    0.5881,
+    0.5674
+   ],
+   "citation": {
+    "publication": "Roland, M.A., and Stuckey, M.H., 2019, Development of regression equations for the estimation of flood flows at ungaged streams in Pennsylvania (ver. 1.1, December 2020): U.S. Geological Survey Scientific Investigations Report 2019-5094, 36 p.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195094"
+   },
+   "sep_log": 0.154299,
+   "avp": 0.0238,
+   "n_sites": 21
+  }
+ ]
+}
