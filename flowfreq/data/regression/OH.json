@@ -1,0 +1,3582 @@
+{
+ "schema_version": 1,
+ "state": "OH",
+ "status": "verified",
+ "issue": null,
+ "source_reports": [
+  {
+   "citation": "Koltun, G.F., 2019, Flood-frequency estimates for Ohio streamgages based on data through water year 2015 and techniques for estimating flood-frequency characteristics of rural, unregulated Ohio streams: U.S. Geological Survey Scientific Investigations Report 2019-5018, 25 p.",
+   "doi": "10.3133/sir20195018",
+   "url": "https://pubs.usgs.gov/publication/sir20195018",
+   "pdf": "https://pubs.usgs.gov/sir/2019/5018/sir20195018.pdf",
+   "tables": [
+    "Table 1",
+    "Table 3",
+    "Table 4",
+    "Table 5",
+    "Appendix table 1.1",
+    "Appendix table 1.8"
+   ],
+   "nss": {
+    "regression_regions": [
+     "GC1785",
+     "GC1786",
+     "GC1787",
+     "GC1788",
+     "GC1789",
+     "GC1790"
+    ],
+    "last_year_of_data": 2015
+   }
+  },
+  {
+   "citation": "Koltun, G.F., 2019, Model archive--Regional regression models for estimating flood-frequency characteristics of rural, unregulated Ohio streams: U.S. Geological Survey data release, https://doi.org/10.5066/P9PJ0O5W.",
+   "doi": "10.5066/P9PJ0O5W",
+   "url": "https://doi.org/10.5066/P9PJ0O5W"
+  },
+  {
+   "citation": "Sherwood, J.M., 1994, Estimation of peak-frequency relations, flood hydrographs, and volume-duration-frequency relations of ungaged small urban streams in Ohio: U.S. Geological Survey Water-Supply Paper 2432, 42 p.",
+   "doi": "10.3133/wsp2432",
+   "url": "https://pubs.usgs.gov/publication/wsp2432",
+   "pdf": "https://pubs.usgs.gov/wsp/2432/report.pdf",
+   "tables": [
+    "Table 6",
+    "Table 8"
+   ],
+   "nss": {
+    "regression_regions": [
+     "GC1235"
+    ],
+    "last_year_of_data": 1984
+   }
+  }
+ ],
+ "notes": "Koltun, SIR 2019-5018: a full model on region, DRNAREA, CSL1085LFP and LC92STOR and a simple model on region and DRNAREA, each fitted once to 275 streamgages (175 in A, 68 in B, 32 in C) with the indicators OHREGA and OHREGC, so the three regions of a model share one set of coefficients and differ only in their limits from Table 3. NSS serves them as six regions, as here. Sherwood, WSP 2432: the only urban set (Urban), six equations from 30 sites, SEP from Table 8, with no model error variance or covariance published. Left out: Koltun and others, SIR 2006-5312 (NSS GC1233, GC1234), superseded by SIR 2019-5018 for the same model forms and still served by NSS. Coefficient precision: Tables 4 and 5 print three decimals and equation 14 prints four, but the report's own numbers come from the unrounded fit in its model archive (doi:10.5066/P9PJ0O5W, WREG_output coefs files), which is stored. Those values round to every entry of Tables 4 and 5, reproduce every manual-computation coefficient under them, the 13,357 ft3/s of equation 14, and all 1,925 regression flows of Table 1 at the 275 gages to the three figures printed; three-decimal coefficients miss 1,005 of those and four-decimal ones 157. Model error variance and average variance of prediction are the archive's four-decimal WREG summary values, which round to the tables. The matrix is appendix table 1.8, order intercept, OHREGA, OHREGC, log10 DRNAREA, log10 CSL1085LFP, log10(LC92STOR+1); the report publishes none for the simple model, so its intervals use the average variance. Inconsistencies in the report: Table 5 prints an average SEP of 37.79 percent at AEP 0.02, and NSS serves that, but 37.79 is WREG's standard model error for that fit. The average SEP is 38.81 percent in the archive and agrees with the table's own VPavg of 0.027, so 38.81 is stored. The text before equation 14 says 13,562 ft3/s where the equation and the rest of the example use 13,357. Appendix table 1.1 differs from the WREG inputs behind Table 1 by more than rounding at 18 gages, most at 03274880 (drainage area 0.709 mi2 against 1.418); the fixture carries the inputs Table 1 was computed from, so the 275 gages reproduce, and the 58 gages outside the regression, computed from table 1.1, reproduce within the rounding of their inputs. Table 1 also prints 95-percent limits, which the matrix, the model error variance and t of about 1.969 reproduce at all 275 gages. The report says it supersedes SIR 2006-5312 while calling it a Water-Resources Investigations Report. The report warns the equations may underestimate floods with AEP below 0.5 on drainages above 2,500 mi2, and that the full model may overestimate for basins with more than 0.3 percent quarries, strip mines or gravel pits. Pseudo R2 is not stored. No preference is set between the full and simple models.",
+ "equations": [
+  {
+   "region_code": "A full",
+   "region_name": "Region A, full model (SIR 2019-5018; NSS GC1788)",
+   "aep": 0.5,
+   "intercept": 1.66795155504125,
+   "variables": [
+    {
+     "code": "OHREGA",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "OHREGC",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.04,
+     "maximum": 5989.0
+    },
+    {
+     "code": "CSL1085LFP",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.53,
+     "maximum": 516.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 25.35,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.126303659693467,
+    0.325670448287225,
+    0.781078384430623,
+    0.162465082126826,
+    -0.129594169043712
+   ],
+   "citation": {
+    "publication": "Koltun, G.F., 2019, Flood-frequency estimates for Ohio streamgages based on data through water year 2015 and techniques for estimating flood-frequency characteristics of rural, unregulated Ohio streams: U.S. Geological Survey Scientific Investigations Report 2019-5018, 25 p.",
+    "table": "Table 5, Table 3, appendix table 1.8; coefficients in full from the report's model archive (doi:10.5066/P9PJ0O5W)",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195018"
+   },
+   "sep_log": 0.167896,
+   "avp": 0.0282,
+   "model_error_variance": 0.0272,
+   "covariance": [
+    [
+     0.005515632,
+     0.0001296811,
+     0.0002140621,
+     -0.001312318,
+     -0.002863608,
+     -0.0004656814
+    ],
+    [
+     0.0001296811,
+     0.0008188518,
+     0.0006451149,
+     -0.0001570757,
+     -0.0003921254,
+     -6.668252e-05
+    ],
+    [
+     0.0002140621,
+     0.0006451149,
+     0.001901499,
+     -0.0002228822,
+     -0.0005362599,
+     0.000245659
+    ],
+    [
+     -0.001312318,
+     -0.0001570757,
+     -0.0002228822,
+     0.0004145704,
+     0.0007301318,
+     -9.873306e-05
+    ],
+    [
+     -0.002863608,
+     -0.0003921254,
+     -0.0005362599,
+     0.0007301318,
+     0.001847019,
+     4.750357e-05
+    ],
+    [
+     -0.0004656814,
+     -6.668252e-05,
+     0.000245659,
+     -9.873306e-05,
+     4.750357e-05,
+     0.001592246
+    ]
+   ],
+   "n_sites": 275
+  },
+  {
+   "region_code": "A full",
+   "region_name": "Region A, full model (SIR 2019-5018; NSS GC1788)",
+   "aep": 0.2,
+   "intercept": 1.84475864036587,
+   "variables": [
+    {
+     "code": "OHREGA",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "OHREGC",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.04,
+     "maximum": 5989.0
+    },
+    {
+     "code": "CSL1085LFP",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.53,
+     "maximum": 516.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 25.35,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.144474237818732,
+    0.320167178607048,
+    0.767005923455504,
+    0.202456173763143,
+    -0.173509549767838
+   ],
+   "citation": {
+    "publication": "Koltun, G.F., 2019, Flood-frequency estimates for Ohio streamgages based on data through water year 2015 and techniques for estimating flood-frequency characteristics of rural, unregulated Ohio streams: U.S. Geological Survey Scientific Investigations Report 2019-5018, 25 p.",
+    "table": "Table 5, Table 3, appendix table 1.8; coefficients in full from the report's model archive (doi:10.5066/P9PJ0O5W)",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195018"
+   },
+   "sep_log": 0.156194,
+   "avp": 0.0244,
+   "model_error_variance": 0.0235,
+   "covariance": [
+    [
+     0.005160762,
+     9.778368e-05,
+     0.0001918833,
+     -0.001217393,
+     -0.002658038,
+     -0.0004350239
+    ],
+    [
+     9.778368e-05,
+     0.0007637727,
+     0.0006008225,
+     -0.000137564,
+     -0.000346699,
+     -6.579313e-05
+    ],
+    [
+     0.0001918833,
+     0.0006008225,
+     0.001805414,
+     -0.0002045444,
+     -0.0005010324,
+     0.0002223884
+    ],
+    [
+     -0.001217393,
+     -0.000137564,
+     -0.0002045444,
+     0.0003810235,
+     0.0006721826,
+     -9.187725e-05
+    ],
+    [
+     -0.002658038,
+     -0.000346699,
+     -0.0005010324,
+     0.0006721826,
+     0.001723195,
+     3.929727e-05
+    ],
+    [
+     -0.0004350239,
+     -6.579313e-05,
+     0.0002223884,
+     -9.187725e-05,
+     3.929727e-05,
+     0.001483066
+    ]
+   ],
+   "n_sites": 275
+  },
+  {
+   "region_code": "A full",
+   "region_name": "Region A, full model (SIR 2019-5018; NSS GC1788)",
+   "aep": 0.1,
+   "intercept": 1.93862741426883,
+   "variables": [
+    {
+     "code": "OHREGA",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "OHREGC",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.04,
+     "maximum": 5989.0
+    },
+    {
+     "code": "CSL1085LFP",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.53,
+     "maximum": 516.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 25.35,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.15674462112663,
+    0.319326812621896,
+    0.759939592191186,
+    0.221853758023312,
+    -0.197315207064427
+   ],
+   "citation": {
+    "publication": "Koltun, G.F., 2019, Flood-frequency estimates for Ohio streamgages based on data through water year 2015 and techniques for estimating flood-frequency characteristics of rural, unregulated Ohio streams: U.S. Geological Survey Scientific Investigations Report 2019-5018, 25 p.",
+    "table": "Table 5, Table 3, appendix table 1.8; coefficients in full from the report's model archive (doi:10.5066/P9PJ0O5W)",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195018"
+   },
+   "sep_log": 0.158006,
+   "avp": 0.025,
+   "model_error_variance": 0.0239,
+   "covariance": [
+    [
+     0.005590671,
+     9.20239e-05,
+     0.0002057902,
+     -0.001312985,
+     -0.002873231,
+     -0.0004693711
+    ],
+    [
+     9.20239e-05,
+     0.0008271351,
+     0.0006490112,
+     -0.0001436561,
+     -0.0003641579,
+     -7.159539e-05
+    ],
+    [
+     0.0002057902,
+     0.0006490112,
+     0.001979513,
+     -0.0002204001,
+     -0.00054388,
+     0.0002410828
+    ],
+    [
+     -0.001312985,
+     -0.0001436561,
+     -0.0002204001,
+     0.0004087594,
+     0.0007229462,
+     -0.0001000442
+    ],
+    [
+     -0.002873231,
+     -0.0003641579,
+     -0.00054388,
+     0.0007229462,
+     0.001866941,
+     3.987383e-05
+    ],
+    [
+     -0.0004693711,
+     -7.159539e-05,
+     0.0002410828,
+     -0.0001000442,
+     3.987383e-05,
+     0.001603945
+    ]
+   ],
+   "n_sites": 275
+  },
+  {
+   "region_code": "A full",
+   "region_name": "Region A, full model (SIR 2019-5018; NSS GC1788)",
+   "aep": 0.04,
+   "intercept": 2.03971652902995,
+   "variables": [
+    {
+     "code": "OHREGA",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "OHREGC",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.04,
+     "maximum": 5989.0
+    },
+    {
+     "code": "CSL1085LFP",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.53,
+     "maximum": 516.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 25.35,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.172258117008527,
+    0.321157189486057,
+    0.752449578979412,
+    0.240276225646446,
+    -0.222225831618319
+   ],
+   "citation": {
+    "publication": "Koltun, G.F., 2019, Flood-frequency estimates for Ohio streamgages based on data through water year 2015 and techniques for estimating flood-frequency characteristics of rural, unregulated Ohio streams: U.S. Geological Survey Scientific Investigations Report 2019-5018, 25 p.",
+    "table": "Table 5, Table 3, appendix table 1.8; coefficients in full from the report's model archive (doi:10.5066/P9PJ0O5W)",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195018"
+   },
+   "sep_log": 0.159813,
+   "avp": 0.0255,
+   "model_error_variance": 0.0244,
+   "covariance": [
+    [
+     0.006243845,
+     8.415745e-05,
+     0.0002293087,
+     -0.00145868,
+     -0.003199905,
+     -0.0005254526
+    ],
+    [
+     8.415745e-05,
+     0.0009195224,
+     0.0007180609,
+     -0.0001524583,
+     -0.0003892619,
+     -8.031448e-05
+    ],
+    [
+     0.0002293087,
+     0.0007180609,
+     0.00223792,
+     -0.0002442453,
+     -0.0006075418,
+     0.0002695552
+    ],
+    [
+     -0.00145868,
+     -0.0001524583,
+     -0.0002442453,
+     0.0004509124,
+     0.0007996558,
+     -0.0001112603
+    ],
+    [
+     -0.003199905,
+     -0.0003892619,
+     -0.0006075418,
+     0.0007996558,
+     0.002083305,
+     4.343849e-05
+    ],
+    [
+     -0.0005254526,
+     -8.031448e-05,
+     0.0002695552,
+     -0.0001112603,
+     4.343849e-05,
+     0.001784929
+    ]
+   ],
+   "n_sites": 275
+  },
+  {
+   "region_code": "A full",
+   "region_name": "Region A, full model (SIR 2019-5018; NSS GC1788)",
+   "aep": 0.02,
+   "intercept": 2.1055794355151,
+   "variables": [
+    {
+     "code": "OHREGA",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "OHREGC",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.04,
+     "maximum": 5989.0
+    },
+    {
+     "code": "CSL1085LFP",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.53,
+     "maximum": 516.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 25.35,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.183456537712839,
+    0.324246974884144,
+    0.747542349852441,
+    0.250566683168575,
+    -0.237567297994353
+   ],
+   "citation": {
+    "publication": "Koltun, G.F., 2019, Flood-frequency estimates for Ohio streamgages based on data through water year 2015 and techniques for estimating flood-frequency characteristics of rural, unregulated Ohio streams: U.S. Geological Survey Scientific Investigations Report 2019-5018, 25 p.",
+    "table": "Table 5, Table 3, appendix table 1.8; coefficients in full from the report's model archive (doi:10.5066/P9PJ0O5W)",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195018"
+   },
+   "sep_log": 0.162673,
+   "avp": 0.0265,
+   "model_error_variance": 0.0252,
+   "covariance": [
+    [
+     0.006902676,
+     8.281661e-05,
+     0.0002567397,
+     -0.001608357,
+     -0.003534585,
+     -0.0005839158
+    ],
+    [
+     8.281661e-05,
+     0.001011238,
+     0.0007860226,
+     -0.0001630954,
+     -0.000418672,
+     -8.969831e-05
+    ],
+    [
+     0.0002567397,
+     0.0007860226,
+     0.002487092,
+     -0.0002687881,
+     -0.0006715338,
+     0.0002983823
+    ],
+    [
+     -0.001608357,
+     -0.0001630954,
+     -0.0002687881,
+     0.000495019,
+     0.0008793915,
+     -0.0001220959
+    ],
+    [
+     -0.003534585,
+     -0.000418672,
+     -0.0006715338,
+     0.0008793915,
+     0.002302457,
+     4.961988e-05
+    ],
+    [
+     -0.0005839158,
+     -8.969831e-05,
+     0.0002983823,
+     -0.0001220959,
+     4.961988e-05,
+     0.001968157
+    ]
+   ],
+   "n_sites": 275
+  },
+  {
+   "region_code": "A full",
+   "region_name": "Region A, full model (SIR 2019-5018; NSS GC1788)",
+   "aep": 0.01,
+   "intercept": 2.16484374422442,
+   "variables": [
+    {
+     "code": "OHREGA",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "OHREGC",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.04,
+     "maximum": 5989.0
+    },
+    {
+     "code": "CSL1085LFP",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.53,
+     "maximum": 516.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 25.35,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.194317859898864,
+    0.328330293228455,
+    0.743107977144815,
+    0.258849582640625,
+    -0.250824484998967
+   ],
+   "citation": {
+    "publication": "Koltun, G.F., 2019, Flood-frequency estimates for Ohio streamgages based on data through water year 2015 and techniques for estimating flood-frequency characteristics of rural, unregulated Ohio streams: U.S. Geological Survey Scientific Investigations Report 2019-5018, 25 p.",
+    "table": "Table 5, Table 3, appendix table 1.8; coefficients in full from the report's model archive (doi:10.5066/P9PJ0O5W)",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195018"
+   },
+   "sep_log": 0.165757,
+   "avp": 0.0275,
+   "model_error_variance": 0.026,
+   "covariance": [
+    [
+     0.007647836,
+     8.345919e-05,
+     0.0002898984,
+     -0.001778615,
+     -0.003914957,
+     -0.0006514623
+    ],
+    [
+     8.345919e-05,
+     0.001112919,
+     0.0008605275,
+     -0.0001752085,
+     -0.0004524401,
+     -0.0001010848
+    ],
+    [
+     0.0002898984,
+     0.0008605275,
+     0.002762398,
+     -0.0002963815,
+     -0.0007434197,
+     0.0003305021
+    ],
+    [
+     -0.001778615,
+     -0.0001752085,
+     -0.0002963815,
+     0.0005453063,
+     0.0009700859,
+     -0.0001338519
+    ],
+    [
+     -0.003914957,
+     -0.0004524401,
+     -0.0007434197,
+     0.0009700859,
+     0.002550379,
+     5.825949e-05
+    ],
+    [
+     -0.0006514623,
+     -0.0001010848,
+     0.0003305021,
+     -0.0001338519,
+     5.825949e-05,
+     0.002174315
+    ]
+   ],
+   "n_sites": 275
+  },
+  {
+   "region_code": "A full",
+   "region_name": "Region A, full model (SIR 2019-5018; NSS GC1788)",
+   "aep": 0.002,
+   "intercept": 2.2849413375954,
+   "variables": [
+    {
+     "code": "OHREGA",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "OHREGC",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.04,
+     "maximum": 5989.0
+    },
+    {
+     "code": "CSL1085LFP",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.53,
+     "maximum": 516.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 25.35,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.218569495845884,
+    0.340425840507704,
+    0.73401488953286,
+    0.272349533295024,
+    -0.276544909263563
+   ],
+   "citation": {
+    "publication": "Koltun, G.F., 2019, Flood-frequency estimates for Ohio streamgages based on data through water year 2015 and techniques for estimating flood-frequency characteristics of rural, unregulated Ohio streams: U.S. Geological Survey Scientific Investigations Report 2019-5018, 25 p.",
+    "table": "Table 5, Table 3, appendix table 1.8; coefficients in full from the report's model archive (doi:10.5066/P9PJ0O5W)",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195018"
+   },
+   "sep_log": 0.168362,
+   "avp": 0.0283,
+   "model_error_variance": 0.0266,
+   "covariance": [
+    [
+     0.009386879,
+     8.120299e-05,
+     0.0003721207,
+     -0.002175078,
+     -0.004798805,
+     -0.0008180213
+    ],
+    [
+     8.120299e-05,
+     0.001336044,
+     0.001017805,
+     -0.0001980293,
+     -0.0005207544,
+     -0.0001314698
+    ],
+    [
+     0.0003721207,
+     0.001017805,
+     0.003385385,
+     -0.0003572102,
+     -0.0009054402,
+     0.0004015263
+    ],
+    [
+     -0.002175078,
+     -0.0001980293,
+     -0.0003572102,
+     0.0006606989,
+     0.001177504,
+     -0.0001579216
+    ],
+    [
+     -0.004798805,
+     -0.0005207544,
+     -0.0009054402,
+     0.001177504,
+     0.003123445,
+     8.550268e-05
+    ],
+    [
+     -0.0008180213,
+     -0.0001314698,
+     0.0004015263,
+     -0.0001579216,
+     8.550268e-05,
+     0.002642863
+    ]
+   ],
+   "n_sites": 275
+  },
+  {
+   "region_code": "B full",
+   "region_name": "Region B, full model (SIR 2019-5018; NSS GC1789)",
+   "aep": 0.5,
+   "intercept": 1.66795155504125,
+   "variables": [
+    {
+     "code": "OHREGA",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "OHREGC",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.04,
+     "maximum": 6309.0
+    },
+    {
+     "code": "CSL1085LFP",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.21,
+     "maximum": 457.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 7.1,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.126303659693467,
+    0.325670448287225,
+    0.781078384430623,
+    0.162465082126826,
+    -0.129594169043712
+   ],
+   "citation": {
+    "publication": "Koltun, G.F., 2019, Flood-frequency estimates for Ohio streamgages based on data through water year 2015 and techniques for estimating flood-frequency characteristics of rural, unregulated Ohio streams: U.S. Geological Survey Scientific Investigations Report 2019-5018, 25 p.",
+    "table": "Table 5, Table 3, appendix table 1.8; coefficients in full from the report's model archive (doi:10.5066/P9PJ0O5W)",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195018"
+   },
+   "sep_log": 0.167896,
+   "avp": 0.0282,
+   "model_error_variance": 0.0272,
+   "covariance": [
+    [
+     0.005515632,
+     0.0001296811,
+     0.0002140621,
+     -0.001312318,
+     -0.002863608,
+     -0.0004656814
+    ],
+    [
+     0.0001296811,
+     0.0008188518,
+     0.0006451149,
+     -0.0001570757,
+     -0.0003921254,
+     -6.668252e-05
+    ],
+    [
+     0.0002140621,
+     0.0006451149,
+     0.001901499,
+     -0.0002228822,
+     -0.0005362599,
+     0.000245659
+    ],
+    [
+     -0.001312318,
+     -0.0001570757,
+     -0.0002228822,
+     0.0004145704,
+     0.0007301318,
+     -9.873306e-05
+    ],
+    [
+     -0.002863608,
+     -0.0003921254,
+     -0.0005362599,
+     0.0007301318,
+     0.001847019,
+     4.750357e-05
+    ],
+    [
+     -0.0004656814,
+     -6.668252e-05,
+     0.000245659,
+     -9.873306e-05,
+     4.750357e-05,
+     0.001592246
+    ]
+   ],
+   "n_sites": 275
+  },
+  {
+   "region_code": "B full",
+   "region_name": "Region B, full model (SIR 2019-5018; NSS GC1789)",
+   "aep": 0.2,
+   "intercept": 1.84475864036587,
+   "variables": [
+    {
+     "code": "OHREGA",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "OHREGC",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.04,
+     "maximum": 6309.0
+    },
+    {
+     "code": "CSL1085LFP",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.21,
+     "maximum": 457.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 7.1,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.144474237818732,
+    0.320167178607048,
+    0.767005923455504,
+    0.202456173763143,
+    -0.173509549767838
+   ],
+   "citation": {
+    "publication": "Koltun, G.F., 2019, Flood-frequency estimates for Ohio streamgages based on data through water year 2015 and techniques for estimating flood-frequency characteristics of rural, unregulated Ohio streams: U.S. Geological Survey Scientific Investigations Report 2019-5018, 25 p.",
+    "table": "Table 5, Table 3, appendix table 1.8; coefficients in full from the report's model archive (doi:10.5066/P9PJ0O5W)",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195018"
+   },
+   "sep_log": 0.156194,
+   "avp": 0.0244,
+   "model_error_variance": 0.0235,
+   "covariance": [
+    [
+     0.005160762,
+     9.778368e-05,
+     0.0001918833,
+     -0.001217393,
+     -0.002658038,
+     -0.0004350239
+    ],
+    [
+     9.778368e-05,
+     0.0007637727,
+     0.0006008225,
+     -0.000137564,
+     -0.000346699,
+     -6.579313e-05
+    ],
+    [
+     0.0001918833,
+     0.0006008225,
+     0.001805414,
+     -0.0002045444,
+     -0.0005010324,
+     0.0002223884
+    ],
+    [
+     -0.001217393,
+     -0.000137564,
+     -0.0002045444,
+     0.0003810235,
+     0.0006721826,
+     -9.187725e-05
+    ],
+    [
+     -0.002658038,
+     -0.000346699,
+     -0.0005010324,
+     0.0006721826,
+     0.001723195,
+     3.929727e-05
+    ],
+    [
+     -0.0004350239,
+     -6.579313e-05,
+     0.0002223884,
+     -9.187725e-05,
+     3.929727e-05,
+     0.001483066
+    ]
+   ],
+   "n_sites": 275
+  },
+  {
+   "region_code": "B full",
+   "region_name": "Region B, full model (SIR 2019-5018; NSS GC1789)",
+   "aep": 0.1,
+   "intercept": 1.93862741426883,
+   "variables": [
+    {
+     "code": "OHREGA",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "OHREGC",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.04,
+     "maximum": 6309.0
+    },
+    {
+     "code": "CSL1085LFP",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.21,
+     "maximum": 457.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 7.1,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.15674462112663,
+    0.319326812621896,
+    0.759939592191186,
+    0.221853758023312,
+    -0.197315207064427
+   ],
+   "citation": {
+    "publication": "Koltun, G.F., 2019, Flood-frequency estimates for Ohio streamgages based on data through water year 2015 and techniques for estimating flood-frequency characteristics of rural, unregulated Ohio streams: U.S. Geological Survey Scientific Investigations Report 2019-5018, 25 p.",
+    "table": "Table 5, Table 3, appendix table 1.8; coefficients in full from the report's model archive (doi:10.5066/P9PJ0O5W)",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195018"
+   },
+   "sep_log": 0.158006,
+   "avp": 0.025,
+   "model_error_variance": 0.0239,
+   "covariance": [
+    [
+     0.005590671,
+     9.20239e-05,
+     0.0002057902,
+     -0.001312985,
+     -0.002873231,
+     -0.0004693711
+    ],
+    [
+     9.20239e-05,
+     0.0008271351,
+     0.0006490112,
+     -0.0001436561,
+     -0.0003641579,
+     -7.159539e-05
+    ],
+    [
+     0.0002057902,
+     0.0006490112,
+     0.001979513,
+     -0.0002204001,
+     -0.00054388,
+     0.0002410828
+    ],
+    [
+     -0.001312985,
+     -0.0001436561,
+     -0.0002204001,
+     0.0004087594,
+     0.0007229462,
+     -0.0001000442
+    ],
+    [
+     -0.002873231,
+     -0.0003641579,
+     -0.00054388,
+     0.0007229462,
+     0.001866941,
+     3.987383e-05
+    ],
+    [
+     -0.0004693711,
+     -7.159539e-05,
+     0.0002410828,
+     -0.0001000442,
+     3.987383e-05,
+     0.001603945
+    ]
+   ],
+   "n_sites": 275
+  },
+  {
+   "region_code": "B full",
+   "region_name": "Region B, full model (SIR 2019-5018; NSS GC1789)",
+   "aep": 0.04,
+   "intercept": 2.03971652902995,
+   "variables": [
+    {
+     "code": "OHREGA",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "OHREGC",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.04,
+     "maximum": 6309.0
+    },
+    {
+     "code": "CSL1085LFP",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.21,
+     "maximum": 457.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 7.1,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.172258117008527,
+    0.321157189486057,
+    0.752449578979412,
+    0.240276225646446,
+    -0.222225831618319
+   ],
+   "citation": {
+    "publication": "Koltun, G.F., 2019, Flood-frequency estimates for Ohio streamgages based on data through water year 2015 and techniques for estimating flood-frequency characteristics of rural, unregulated Ohio streams: U.S. Geological Survey Scientific Investigations Report 2019-5018, 25 p.",
+    "table": "Table 5, Table 3, appendix table 1.8; coefficients in full from the report's model archive (doi:10.5066/P9PJ0O5W)",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195018"
+   },
+   "sep_log": 0.159813,
+   "avp": 0.0255,
+   "model_error_variance": 0.0244,
+   "covariance": [
+    [
+     0.006243845,
+     8.415745e-05,
+     0.0002293087,
+     -0.00145868,
+     -0.003199905,
+     -0.0005254526
+    ],
+    [
+     8.415745e-05,
+     0.0009195224,
+     0.0007180609,
+     -0.0001524583,
+     -0.0003892619,
+     -8.031448e-05
+    ],
+    [
+     0.0002293087,
+     0.0007180609,
+     0.00223792,
+     -0.0002442453,
+     -0.0006075418,
+     0.0002695552
+    ],
+    [
+     -0.00145868,
+     -0.0001524583,
+     -0.0002442453,
+     0.0004509124,
+     0.0007996558,
+     -0.0001112603
+    ],
+    [
+     -0.003199905,
+     -0.0003892619,
+     -0.0006075418,
+     0.0007996558,
+     0.002083305,
+     4.343849e-05
+    ],
+    [
+     -0.0005254526,
+     -8.031448e-05,
+     0.0002695552,
+     -0.0001112603,
+     4.343849e-05,
+     0.001784929
+    ]
+   ],
+   "n_sites": 275
+  },
+  {
+   "region_code": "B full",
+   "region_name": "Region B, full model (SIR 2019-5018; NSS GC1789)",
+   "aep": 0.02,
+   "intercept": 2.1055794355151,
+   "variables": [
+    {
+     "code": "OHREGA",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "OHREGC",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.04,
+     "maximum": 6309.0
+    },
+    {
+     "code": "CSL1085LFP",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.21,
+     "maximum": 457.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 7.1,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.183456537712839,
+    0.324246974884144,
+    0.747542349852441,
+    0.250566683168575,
+    -0.237567297994353
+   ],
+   "citation": {
+    "publication": "Koltun, G.F., 2019, Flood-frequency estimates for Ohio streamgages based on data through water year 2015 and techniques for estimating flood-frequency characteristics of rural, unregulated Ohio streams: U.S. Geological Survey Scientific Investigations Report 2019-5018, 25 p.",
+    "table": "Table 5, Table 3, appendix table 1.8; coefficients in full from the report's model archive (doi:10.5066/P9PJ0O5W)",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195018"
+   },
+   "sep_log": 0.162673,
+   "avp": 0.0265,
+   "model_error_variance": 0.0252,
+   "covariance": [
+    [
+     0.006902676,
+     8.281661e-05,
+     0.0002567397,
+     -0.001608357,
+     -0.003534585,
+     -0.0005839158
+    ],
+    [
+     8.281661e-05,
+     0.001011238,
+     0.0007860226,
+     -0.0001630954,
+     -0.000418672,
+     -8.969831e-05
+    ],
+    [
+     0.0002567397,
+     0.0007860226,
+     0.002487092,
+     -0.0002687881,
+     -0.0006715338,
+     0.0002983823
+    ],
+    [
+     -0.001608357,
+     -0.0001630954,
+     -0.0002687881,
+     0.000495019,
+     0.0008793915,
+     -0.0001220959
+    ],
+    [
+     -0.003534585,
+     -0.000418672,
+     -0.0006715338,
+     0.0008793915,
+     0.002302457,
+     4.961988e-05
+    ],
+    [
+     -0.0005839158,
+     -8.969831e-05,
+     0.0002983823,
+     -0.0001220959,
+     4.961988e-05,
+     0.001968157
+    ]
+   ],
+   "n_sites": 275
+  },
+  {
+   "region_code": "B full",
+   "region_name": "Region B, full model (SIR 2019-5018; NSS GC1789)",
+   "aep": 0.01,
+   "intercept": 2.16484374422442,
+   "variables": [
+    {
+     "code": "OHREGA",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "OHREGC",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.04,
+     "maximum": 6309.0
+    },
+    {
+     "code": "CSL1085LFP",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.21,
+     "maximum": 457.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 7.1,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.194317859898864,
+    0.328330293228455,
+    0.743107977144815,
+    0.258849582640625,
+    -0.250824484998967
+   ],
+   "citation": {
+    "publication": "Koltun, G.F., 2019, Flood-frequency estimates for Ohio streamgages based on data through water year 2015 and techniques for estimating flood-frequency characteristics of rural, unregulated Ohio streams: U.S. Geological Survey Scientific Investigations Report 2019-5018, 25 p.",
+    "table": "Table 5, Table 3, appendix table 1.8; coefficients in full from the report's model archive (doi:10.5066/P9PJ0O5W)",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195018"
+   },
+   "sep_log": 0.165757,
+   "avp": 0.0275,
+   "model_error_variance": 0.026,
+   "covariance": [
+    [
+     0.007647836,
+     8.345919e-05,
+     0.0002898984,
+     -0.001778615,
+     -0.003914957,
+     -0.0006514623
+    ],
+    [
+     8.345919e-05,
+     0.001112919,
+     0.0008605275,
+     -0.0001752085,
+     -0.0004524401,
+     -0.0001010848
+    ],
+    [
+     0.0002898984,
+     0.0008605275,
+     0.002762398,
+     -0.0002963815,
+     -0.0007434197,
+     0.0003305021
+    ],
+    [
+     -0.001778615,
+     -0.0001752085,
+     -0.0002963815,
+     0.0005453063,
+     0.0009700859,
+     -0.0001338519
+    ],
+    [
+     -0.003914957,
+     -0.0004524401,
+     -0.0007434197,
+     0.0009700859,
+     0.002550379,
+     5.825949e-05
+    ],
+    [
+     -0.0006514623,
+     -0.0001010848,
+     0.0003305021,
+     -0.0001338519,
+     5.825949e-05,
+     0.002174315
+    ]
+   ],
+   "n_sites": 275
+  },
+  {
+   "region_code": "B full",
+   "region_name": "Region B, full model (SIR 2019-5018; NSS GC1789)",
+   "aep": 0.002,
+   "intercept": 2.2849413375954,
+   "variables": [
+    {
+     "code": "OHREGA",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "OHREGC",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.04,
+     "maximum": 6309.0
+    },
+    {
+     "code": "CSL1085LFP",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.21,
+     "maximum": 457.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 7.1,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.218569495845884,
+    0.340425840507704,
+    0.73401488953286,
+    0.272349533295024,
+    -0.276544909263563
+   ],
+   "citation": {
+    "publication": "Koltun, G.F., 2019, Flood-frequency estimates for Ohio streamgages based on data through water year 2015 and techniques for estimating flood-frequency characteristics of rural, unregulated Ohio streams: U.S. Geological Survey Scientific Investigations Report 2019-5018, 25 p.",
+    "table": "Table 5, Table 3, appendix table 1.8; coefficients in full from the report's model archive (doi:10.5066/P9PJ0O5W)",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195018"
+   },
+   "sep_log": 0.168362,
+   "avp": 0.0283,
+   "model_error_variance": 0.0266,
+   "covariance": [
+    [
+     0.009386879,
+     8.120299e-05,
+     0.0003721207,
+     -0.002175078,
+     -0.004798805,
+     -0.0008180213
+    ],
+    [
+     8.120299e-05,
+     0.001336044,
+     0.001017805,
+     -0.0001980293,
+     -0.0005207544,
+     -0.0001314698
+    ],
+    [
+     0.0003721207,
+     0.001017805,
+     0.003385385,
+     -0.0003572102,
+     -0.0009054402,
+     0.0004015263
+    ],
+    [
+     -0.002175078,
+     -0.0001980293,
+     -0.0003572102,
+     0.0006606989,
+     0.001177504,
+     -0.0001579216
+    ],
+    [
+     -0.004798805,
+     -0.0005207544,
+     -0.0009054402,
+     0.001177504,
+     0.003123445,
+     8.550268e-05
+    ],
+    [
+     -0.0008180213,
+     -0.0001314698,
+     0.0004015263,
+     -0.0001579216,
+     8.550268e-05,
+     0.002642863
+    ]
+   ],
+   "n_sites": 275
+  },
+  {
+   "region_code": "C full",
+   "region_name": "Region C, full model (SIR 2019-5018; NSS GC1790)",
+   "aep": 0.5,
+   "intercept": 1.66795155504125,
+   "variables": [
+    {
+     "code": "OHREGA",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "OHREGC",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.26,
+     "maximum": 2514.0
+    },
+    {
+     "code": "CSL1085LFP",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 3.24,
+     "maximum": 131.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 1.23,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.126303659693467,
+    0.325670448287225,
+    0.781078384430623,
+    0.162465082126826,
+    -0.129594169043712
+   ],
+   "citation": {
+    "publication": "Koltun, G.F., 2019, Flood-frequency estimates for Ohio streamgages based on data through water year 2015 and techniques for estimating flood-frequency characteristics of rural, unregulated Ohio streams: U.S. Geological Survey Scientific Investigations Report 2019-5018, 25 p.",
+    "table": "Table 5, Table 3, appendix table 1.8; coefficients in full from the report's model archive (doi:10.5066/P9PJ0O5W)",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195018"
+   },
+   "sep_log": 0.167896,
+   "avp": 0.0282,
+   "model_error_variance": 0.0272,
+   "covariance": [
+    [
+     0.005515632,
+     0.0001296811,
+     0.0002140621,
+     -0.001312318,
+     -0.002863608,
+     -0.0004656814
+    ],
+    [
+     0.0001296811,
+     0.0008188518,
+     0.0006451149,
+     -0.0001570757,
+     -0.0003921254,
+     -6.668252e-05
+    ],
+    [
+     0.0002140621,
+     0.0006451149,
+     0.001901499,
+     -0.0002228822,
+     -0.0005362599,
+     0.000245659
+    ],
+    [
+     -0.001312318,
+     -0.0001570757,
+     -0.0002228822,
+     0.0004145704,
+     0.0007301318,
+     -9.873306e-05
+    ],
+    [
+     -0.002863608,
+     -0.0003921254,
+     -0.0005362599,
+     0.0007301318,
+     0.001847019,
+     4.750357e-05
+    ],
+    [
+     -0.0004656814,
+     -6.668252e-05,
+     0.000245659,
+     -9.873306e-05,
+     4.750357e-05,
+     0.001592246
+    ]
+   ],
+   "n_sites": 275
+  },
+  {
+   "region_code": "C full",
+   "region_name": "Region C, full model (SIR 2019-5018; NSS GC1790)",
+   "aep": 0.2,
+   "intercept": 1.84475864036587,
+   "variables": [
+    {
+     "code": "OHREGA",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "OHREGC",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.26,
+     "maximum": 2514.0
+    },
+    {
+     "code": "CSL1085LFP",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 3.24,
+     "maximum": 131.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 1.23,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.144474237818732,
+    0.320167178607048,
+    0.767005923455504,
+    0.202456173763143,
+    -0.173509549767838
+   ],
+   "citation": {
+    "publication": "Koltun, G.F., 2019, Flood-frequency estimates for Ohio streamgages based on data through water year 2015 and techniques for estimating flood-frequency characteristics of rural, unregulated Ohio streams: U.S. Geological Survey Scientific Investigations Report 2019-5018, 25 p.",
+    "table": "Table 5, Table 3, appendix table 1.8; coefficients in full from the report's model archive (doi:10.5066/P9PJ0O5W)",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195018"
+   },
+   "sep_log": 0.156194,
+   "avp": 0.0244,
+   "model_error_variance": 0.0235,
+   "covariance": [
+    [
+     0.005160762,
+     9.778368e-05,
+     0.0001918833,
+     -0.001217393,
+     -0.002658038,
+     -0.0004350239
+    ],
+    [
+     9.778368e-05,
+     0.0007637727,
+     0.0006008225,
+     -0.000137564,
+     -0.000346699,
+     -6.579313e-05
+    ],
+    [
+     0.0001918833,
+     0.0006008225,
+     0.001805414,
+     -0.0002045444,
+     -0.0005010324,
+     0.0002223884
+    ],
+    [
+     -0.001217393,
+     -0.000137564,
+     -0.0002045444,
+     0.0003810235,
+     0.0006721826,
+     -9.187725e-05
+    ],
+    [
+     -0.002658038,
+     -0.000346699,
+     -0.0005010324,
+     0.0006721826,
+     0.001723195,
+     3.929727e-05
+    ],
+    [
+     -0.0004350239,
+     -6.579313e-05,
+     0.0002223884,
+     -9.187725e-05,
+     3.929727e-05,
+     0.001483066
+    ]
+   ],
+   "n_sites": 275
+  },
+  {
+   "region_code": "C full",
+   "region_name": "Region C, full model (SIR 2019-5018; NSS GC1790)",
+   "aep": 0.1,
+   "intercept": 1.93862741426883,
+   "variables": [
+    {
+     "code": "OHREGA",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "OHREGC",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.26,
+     "maximum": 2514.0
+    },
+    {
+     "code": "CSL1085LFP",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 3.24,
+     "maximum": 131.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 1.23,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.15674462112663,
+    0.319326812621896,
+    0.759939592191186,
+    0.221853758023312,
+    -0.197315207064427
+   ],
+   "citation": {
+    "publication": "Koltun, G.F., 2019, Flood-frequency estimates for Ohio streamgages based on data through water year 2015 and techniques for estimating flood-frequency characteristics of rural, unregulated Ohio streams: U.S. Geological Survey Scientific Investigations Report 2019-5018, 25 p.",
+    "table": "Table 5, Table 3, appendix table 1.8; coefficients in full from the report's model archive (doi:10.5066/P9PJ0O5W)",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195018"
+   },
+   "sep_log": 0.158006,
+   "avp": 0.025,
+   "model_error_variance": 0.0239,
+   "covariance": [
+    [
+     0.005590671,
+     9.20239e-05,
+     0.0002057902,
+     -0.001312985,
+     -0.002873231,
+     -0.0004693711
+    ],
+    [
+     9.20239e-05,
+     0.0008271351,
+     0.0006490112,
+     -0.0001436561,
+     -0.0003641579,
+     -7.159539e-05
+    ],
+    [
+     0.0002057902,
+     0.0006490112,
+     0.001979513,
+     -0.0002204001,
+     -0.00054388,
+     0.0002410828
+    ],
+    [
+     -0.001312985,
+     -0.0001436561,
+     -0.0002204001,
+     0.0004087594,
+     0.0007229462,
+     -0.0001000442
+    ],
+    [
+     -0.002873231,
+     -0.0003641579,
+     -0.00054388,
+     0.0007229462,
+     0.001866941,
+     3.987383e-05
+    ],
+    [
+     -0.0004693711,
+     -7.159539e-05,
+     0.0002410828,
+     -0.0001000442,
+     3.987383e-05,
+     0.001603945
+    ]
+   ],
+   "n_sites": 275
+  },
+  {
+   "region_code": "C full",
+   "region_name": "Region C, full model (SIR 2019-5018; NSS GC1790)",
+   "aep": 0.04,
+   "intercept": 2.03971652902995,
+   "variables": [
+    {
+     "code": "OHREGA",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "OHREGC",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.26,
+     "maximum": 2514.0
+    },
+    {
+     "code": "CSL1085LFP",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 3.24,
+     "maximum": 131.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 1.23,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.172258117008527,
+    0.321157189486057,
+    0.752449578979412,
+    0.240276225646446,
+    -0.222225831618319
+   ],
+   "citation": {
+    "publication": "Koltun, G.F., 2019, Flood-frequency estimates for Ohio streamgages based on data through water year 2015 and techniques for estimating flood-frequency characteristics of rural, unregulated Ohio streams: U.S. Geological Survey Scientific Investigations Report 2019-5018, 25 p.",
+    "table": "Table 5, Table 3, appendix table 1.8; coefficients in full from the report's model archive (doi:10.5066/P9PJ0O5W)",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195018"
+   },
+   "sep_log": 0.159813,
+   "avp": 0.0255,
+   "model_error_variance": 0.0244,
+   "covariance": [
+    [
+     0.006243845,
+     8.415745e-05,
+     0.0002293087,
+     -0.00145868,
+     -0.003199905,
+     -0.0005254526
+    ],
+    [
+     8.415745e-05,
+     0.0009195224,
+     0.0007180609,
+     -0.0001524583,
+     -0.0003892619,
+     -8.031448e-05
+    ],
+    [
+     0.0002293087,
+     0.0007180609,
+     0.00223792,
+     -0.0002442453,
+     -0.0006075418,
+     0.0002695552
+    ],
+    [
+     -0.00145868,
+     -0.0001524583,
+     -0.0002442453,
+     0.0004509124,
+     0.0007996558,
+     -0.0001112603
+    ],
+    [
+     -0.003199905,
+     -0.0003892619,
+     -0.0006075418,
+     0.0007996558,
+     0.002083305,
+     4.343849e-05
+    ],
+    [
+     -0.0005254526,
+     -8.031448e-05,
+     0.0002695552,
+     -0.0001112603,
+     4.343849e-05,
+     0.001784929
+    ]
+   ],
+   "n_sites": 275
+  },
+  {
+   "region_code": "C full",
+   "region_name": "Region C, full model (SIR 2019-5018; NSS GC1790)",
+   "aep": 0.02,
+   "intercept": 2.1055794355151,
+   "variables": [
+    {
+     "code": "OHREGA",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "OHREGC",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.26,
+     "maximum": 2514.0
+    },
+    {
+     "code": "CSL1085LFP",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 3.24,
+     "maximum": 131.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 1.23,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.183456537712839,
+    0.324246974884144,
+    0.747542349852441,
+    0.250566683168575,
+    -0.237567297994353
+   ],
+   "citation": {
+    "publication": "Koltun, G.F., 2019, Flood-frequency estimates for Ohio streamgages based on data through water year 2015 and techniques for estimating flood-frequency characteristics of rural, unregulated Ohio streams: U.S. Geological Survey Scientific Investigations Report 2019-5018, 25 p.",
+    "table": "Table 5, Table 3, appendix table 1.8; coefficients in full from the report's model archive (doi:10.5066/P9PJ0O5W)",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195018"
+   },
+   "sep_log": 0.162673,
+   "avp": 0.0265,
+   "model_error_variance": 0.0252,
+   "covariance": [
+    [
+     0.006902676,
+     8.281661e-05,
+     0.0002567397,
+     -0.001608357,
+     -0.003534585,
+     -0.0005839158
+    ],
+    [
+     8.281661e-05,
+     0.001011238,
+     0.0007860226,
+     -0.0001630954,
+     -0.000418672,
+     -8.969831e-05
+    ],
+    [
+     0.0002567397,
+     0.0007860226,
+     0.002487092,
+     -0.0002687881,
+     -0.0006715338,
+     0.0002983823
+    ],
+    [
+     -0.001608357,
+     -0.0001630954,
+     -0.0002687881,
+     0.000495019,
+     0.0008793915,
+     -0.0001220959
+    ],
+    [
+     -0.003534585,
+     -0.000418672,
+     -0.0006715338,
+     0.0008793915,
+     0.002302457,
+     4.961988e-05
+    ],
+    [
+     -0.0005839158,
+     -8.969831e-05,
+     0.0002983823,
+     -0.0001220959,
+     4.961988e-05,
+     0.001968157
+    ]
+   ],
+   "n_sites": 275
+  },
+  {
+   "region_code": "C full",
+   "region_name": "Region C, full model (SIR 2019-5018; NSS GC1790)",
+   "aep": 0.01,
+   "intercept": 2.16484374422442,
+   "variables": [
+    {
+     "code": "OHREGA",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "OHREGC",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.26,
+     "maximum": 2514.0
+    },
+    {
+     "code": "CSL1085LFP",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 3.24,
+     "maximum": 131.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 1.23,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.194317859898864,
+    0.328330293228455,
+    0.743107977144815,
+    0.258849582640625,
+    -0.250824484998967
+   ],
+   "citation": {
+    "publication": "Koltun, G.F., 2019, Flood-frequency estimates for Ohio streamgages based on data through water year 2015 and techniques for estimating flood-frequency characteristics of rural, unregulated Ohio streams: U.S. Geological Survey Scientific Investigations Report 2019-5018, 25 p.",
+    "table": "Table 5, Table 3, appendix table 1.8; coefficients in full from the report's model archive (doi:10.5066/P9PJ0O5W)",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195018"
+   },
+   "sep_log": 0.165757,
+   "avp": 0.0275,
+   "model_error_variance": 0.026,
+   "covariance": [
+    [
+     0.007647836,
+     8.345919e-05,
+     0.0002898984,
+     -0.001778615,
+     -0.003914957,
+     -0.0006514623
+    ],
+    [
+     8.345919e-05,
+     0.001112919,
+     0.0008605275,
+     -0.0001752085,
+     -0.0004524401,
+     -0.0001010848
+    ],
+    [
+     0.0002898984,
+     0.0008605275,
+     0.002762398,
+     -0.0002963815,
+     -0.0007434197,
+     0.0003305021
+    ],
+    [
+     -0.001778615,
+     -0.0001752085,
+     -0.0002963815,
+     0.0005453063,
+     0.0009700859,
+     -0.0001338519
+    ],
+    [
+     -0.003914957,
+     -0.0004524401,
+     -0.0007434197,
+     0.0009700859,
+     0.002550379,
+     5.825949e-05
+    ],
+    [
+     -0.0006514623,
+     -0.0001010848,
+     0.0003305021,
+     -0.0001338519,
+     5.825949e-05,
+     0.002174315
+    ]
+   ],
+   "n_sites": 275
+  },
+  {
+   "region_code": "C full",
+   "region_name": "Region C, full model (SIR 2019-5018; NSS GC1790)",
+   "aep": 0.002,
+   "intercept": 2.2849413375954,
+   "variables": [
+    {
+     "code": "OHREGA",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "OHREGC",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.26,
+     "maximum": 2514.0
+    },
+    {
+     "code": "CSL1085LFP",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 3.24,
+     "maximum": 131.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 1.23,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.218569495845884,
+    0.340425840507704,
+    0.73401488953286,
+    0.272349533295024,
+    -0.276544909263563
+   ],
+   "citation": {
+    "publication": "Koltun, G.F., 2019, Flood-frequency estimates for Ohio streamgages based on data through water year 2015 and techniques for estimating flood-frequency characteristics of rural, unregulated Ohio streams: U.S. Geological Survey Scientific Investigations Report 2019-5018, 25 p.",
+    "table": "Table 5, Table 3, appendix table 1.8; coefficients in full from the report's model archive (doi:10.5066/P9PJ0O5W)",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195018"
+   },
+   "sep_log": 0.168362,
+   "avp": 0.0283,
+   "model_error_variance": 0.0266,
+   "covariance": [
+    [
+     0.009386879,
+     8.120299e-05,
+     0.0003721207,
+     -0.002175078,
+     -0.004798805,
+     -0.0008180213
+    ],
+    [
+     8.120299e-05,
+     0.001336044,
+     0.001017805,
+     -0.0001980293,
+     -0.0005207544,
+     -0.0001314698
+    ],
+    [
+     0.0003721207,
+     0.001017805,
+     0.003385385,
+     -0.0003572102,
+     -0.0009054402,
+     0.0004015263
+    ],
+    [
+     -0.002175078,
+     -0.0001980293,
+     -0.0003572102,
+     0.0006606989,
+     0.001177504,
+     -0.0001579216
+    ],
+    [
+     -0.004798805,
+     -0.0005207544,
+     -0.0009054402,
+     0.001177504,
+     0.003123445,
+     8.550268e-05
+    ],
+    [
+     -0.0008180213,
+     -0.0001314698,
+     0.0004015263,
+     -0.0001579216,
+     8.550268e-05,
+     0.002642863
+    ]
+   ],
+   "n_sites": 275
+  },
+  {
+   "region_code": "A simple",
+   "region_name": "Region A, simple model (SIR 2019-5018; NSS GC1785)",
+   "aep": 0.5,
+   "intercept": 1.89373377203132,
+   "variables": [
+    {
+     "code": "OHREGA",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "OHREGC",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.04,
+     "maximum": 5989.0
+    }
+   ],
+   "coefficients": [
+    0.158844914105774,
+    0.397250592324132,
+    0.704974844747493
+   ],
+   "citation": {
+    "publication": "Koltun, G.F., 2019, Flood-frequency estimates for Ohio streamgages based on data through water year 2015 and techniques for estimating flood-frequency characteristics of rural, unregulated Ohio streams: U.S. Geological Survey Scientific Investigations Report 2019-5018, 25 p.",
+    "table": "Table 4, Table 3; coefficients in full from the report's model archive (doi:10.5066/P9PJ0O5W)",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195018"
+   },
+   "sep_log": 0.176585,
+   "avp": 0.0312,
+   "model_error_variance": 0.0305,
+   "n_sites": 275
+  },
+  {
+   "region_code": "A simple",
+   "region_name": "Region A, simple model (SIR 2019-5018; NSS GC1785)",
+   "aep": 0.2,
+   "intercept": 2.12377504375109,
+   "variables": [
+    {
+     "code": "OHREGA",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "OHREGC",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.04,
+     "maximum": 5989.0
+    }
+   ],
+   "coefficients": [
+    0.182469026499469,
+    0.409844578559312,
+    0.671843258484242
+   ],
+   "citation": {
+    "publication": "Koltun, G.F., 2019, Flood-frequency estimates for Ohio streamgages based on data through water year 2015 and techniques for estimating flood-frequency characteristics of rural, unregulated Ohio streams: U.S. Geological Survey Scientific Investigations Report 2019-5018, 25 p.",
+    "table": "Table 4, Table 3; coefficients in full from the report's model archive (doi:10.5066/P9PJ0O5W)",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195018"
+   },
+   "sep_log": 0.169216,
+   "avp": 0.0286,
+   "model_error_variance": 0.0279,
+   "n_sites": 275
+  },
+  {
+   "region_code": "A simple",
+   "region_name": "Region A, simple model (SIR 2019-5018; NSS GC1785)",
+   "aep": 0.1,
+   "intercept": 2.24313195400241,
+   "variables": [
+    {
+     "code": "OHREGA",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "OHREGC",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.04,
+     "maximum": 5989.0
+    }
+   ],
+   "coefficients": [
+    0.197065746372375,
+    0.418452233555058,
+    0.655405486221976
+   ],
+   "citation": {
+    "publication": "Koltun, G.F., 2019, Flood-frequency estimates for Ohio streamgages based on data through water year 2015 and techniques for estimating flood-frequency characteristics of rural, unregulated Ohio streams: U.S. Geological Survey Scientific Investigations Report 2019-5018, 25 p.",
+    "table": "Table 4, Table 3; coefficients in full from the report's model archive (doi:10.5066/P9PJ0O5W)",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195018"
+   },
+   "sep_log": 0.174432,
+   "avp": 0.0304,
+   "model_error_variance": 0.0296,
+   "n_sites": 275
+  },
+  {
+   "region_code": "A simple",
+   "region_name": "Region A, simple model (SIR 2019-5018; NSS GC1785)",
+   "aep": 0.04,
+   "intercept": 2.36849161841928,
+   "variables": [
+    {
+     "code": "OHREGA",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "OHREGC",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.04,
+     "maximum": 5989.0
+    }
+   ],
+   "coefficients": [
+    0.214104758649145,
+    0.429399441154393,
+    0.638938323206135
+   ],
+   "citation": {
+    "publication": "Koltun, G.F., 2019, Flood-frequency estimates for Ohio streamgages based on data through water year 2015 and techniques for estimating flood-frequency characteristics of rural, unregulated Ohio streams: U.S. Geological Survey Scientific Investigations Report 2019-5018, 25 p.",
+    "table": "Table 4, Table 3; coefficients in full from the report's model archive (doi:10.5066/P9PJ0O5W)",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195018"
+   },
+   "sep_log": 0.179267,
+   "avp": 0.0321,
+   "model_error_variance": 0.0312,
+   "n_sites": 275
+  },
+  {
+   "region_code": "A simple",
+   "region_name": "Region A, simple model (SIR 2019-5018; NSS GC1785)",
+   "aep": 0.02,
+   "intercept": 2.44806389685398,
+   "variables": [
+    {
+     "code": "OHREGA",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "OHREGC",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.04,
+     "maximum": 5989.0
+    }
+   ],
+   "coefficients": [
+    0.226051562008137,
+    0.437835139962278,
+    0.628832621791972
+   ],
+   "citation": {
+    "publication": "Koltun, G.F., 2019, Flood-frequency estimates for Ohio streamgages based on data through water year 2015 and techniques for estimating flood-frequency characteristics of rural, unregulated Ohio streams: U.S. Geological Survey Scientific Investigations Report 2019-5018, 25 p.",
+    "table": "Table 4, Table 3; coefficients in full from the report's model archive (doi:10.5066/P9PJ0O5W)",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195018"
+   },
+   "sep_log": 0.185018,
+   "avp": 0.0342,
+   "model_error_variance": 0.0331,
+   "n_sites": 275
+  },
+  {
+   "region_code": "A simple",
+   "region_name": "Region A, simple model (SIR 2019-5018; NSS GC1785)",
+   "aep": 0.01,
+   "intercept": 2.5183268615001,
+   "variables": [
+    {
+     "code": "OHREGA",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "OHREGC",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.04,
+     "maximum": 5989.0
+    }
+   ],
+   "coefficients": [
+    0.237162355002332,
+    0.446190405696115,
+    0.620287467856046
+   ],
+   "citation": {
+    "publication": "Koltun, G.F., 2019, Flood-frequency estimates for Ohio streamgages based on data through water year 2015 and techniques for estimating flood-frequency characteristics of rural, unregulated Ohio streams: U.S. Geological Survey Scientific Investigations Report 2019-5018, 25 p.",
+    "table": "Table 4, Table 3; coefficients in full from the report's model archive (doi:10.5066/P9PJ0O5W)",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195018"
+   },
+   "sep_log": 0.187252,
+   "avp": 0.0351,
+   "model_error_variance": 0.0339,
+   "n_sites": 275
+  },
+  {
+   "region_code": "A simple",
+   "region_name": "Region A, simple model (SIR 2019-5018; NSS GC1785)",
+   "aep": 0.002,
+   "intercept": 2.65675649432377,
+   "variables": [
+    {
+     "code": "OHREGA",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "OHREGC",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.04,
+     "maximum": 5989.0
+    }
+   ],
+   "coefficients": [
+    0.261035977488953,
+    0.465712463178319,
+    0.604155626250582
+   ],
+   "citation": {
+    "publication": "Koltun, G.F., 2019, Flood-frequency estimates for Ohio streamgages based on data through water year 2015 and techniques for estimating flood-frequency characteristics of rural, unregulated Ohio streams: U.S. Geological Survey Scientific Investigations Report 2019-5018, 25 p.",
+    "table": "Table 4, Table 3; coefficients in full from the report's model archive (doi:10.5066/P9PJ0O5W)",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195018"
+   },
+   "sep_log": 0.192186,
+   "avp": 0.0369,
+   "model_error_variance": 0.0354,
+   "n_sites": 275
+  },
+  {
+   "region_code": "B simple",
+   "region_name": "Region B, simple model (SIR 2019-5018; NSS GC1786)",
+   "aep": 0.5,
+   "intercept": 1.89373377203132,
+   "variables": [
+    {
+     "code": "OHREGA",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "OHREGC",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.04,
+     "maximum": 6309.0
+    }
+   ],
+   "coefficients": [
+    0.158844914105774,
+    0.397250592324132,
+    0.704974844747493
+   ],
+   "citation": {
+    "publication": "Koltun, G.F., 2019, Flood-frequency estimates for Ohio streamgages based on data through water year 2015 and techniques for estimating flood-frequency characteristics of rural, unregulated Ohio streams: U.S. Geological Survey Scientific Investigations Report 2019-5018, 25 p.",
+    "table": "Table 4, Table 3; coefficients in full from the report's model archive (doi:10.5066/P9PJ0O5W)",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195018"
+   },
+   "sep_log": 0.176585,
+   "avp": 0.0312,
+   "model_error_variance": 0.0305,
+   "n_sites": 275
+  },
+  {
+   "region_code": "B simple",
+   "region_name": "Region B, simple model (SIR 2019-5018; NSS GC1786)",
+   "aep": 0.2,
+   "intercept": 2.12377504375109,
+   "variables": [
+    {
+     "code": "OHREGA",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "OHREGC",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.04,
+     "maximum": 6309.0
+    }
+   ],
+   "coefficients": [
+    0.182469026499469,
+    0.409844578559312,
+    0.671843258484242
+   ],
+   "citation": {
+    "publication": "Koltun, G.F., 2019, Flood-frequency estimates for Ohio streamgages based on data through water year 2015 and techniques for estimating flood-frequency characteristics of rural, unregulated Ohio streams: U.S. Geological Survey Scientific Investigations Report 2019-5018, 25 p.",
+    "table": "Table 4, Table 3; coefficients in full from the report's model archive (doi:10.5066/P9PJ0O5W)",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195018"
+   },
+   "sep_log": 0.169216,
+   "avp": 0.0286,
+   "model_error_variance": 0.0279,
+   "n_sites": 275
+  },
+  {
+   "region_code": "B simple",
+   "region_name": "Region B, simple model (SIR 2019-5018; NSS GC1786)",
+   "aep": 0.1,
+   "intercept": 2.24313195400241,
+   "variables": [
+    {
+     "code": "OHREGA",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "OHREGC",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.04,
+     "maximum": 6309.0
+    }
+   ],
+   "coefficients": [
+    0.197065746372375,
+    0.418452233555058,
+    0.655405486221976
+   ],
+   "citation": {
+    "publication": "Koltun, G.F., 2019, Flood-frequency estimates for Ohio streamgages based on data through water year 2015 and techniques for estimating flood-frequency characteristics of rural, unregulated Ohio streams: U.S. Geological Survey Scientific Investigations Report 2019-5018, 25 p.",
+    "table": "Table 4, Table 3; coefficients in full from the report's model archive (doi:10.5066/P9PJ0O5W)",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195018"
+   },
+   "sep_log": 0.174432,
+   "avp": 0.0304,
+   "model_error_variance": 0.0296,
+   "n_sites": 275
+  },
+  {
+   "region_code": "B simple",
+   "region_name": "Region B, simple model (SIR 2019-5018; NSS GC1786)",
+   "aep": 0.04,
+   "intercept": 2.36849161841928,
+   "variables": [
+    {
+     "code": "OHREGA",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "OHREGC",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.04,
+     "maximum": 6309.0
+    }
+   ],
+   "coefficients": [
+    0.214104758649145,
+    0.429399441154393,
+    0.638938323206135
+   ],
+   "citation": {
+    "publication": "Koltun, G.F., 2019, Flood-frequency estimates for Ohio streamgages based on data through water year 2015 and techniques for estimating flood-frequency characteristics of rural, unregulated Ohio streams: U.S. Geological Survey Scientific Investigations Report 2019-5018, 25 p.",
+    "table": "Table 4, Table 3; coefficients in full from the report's model archive (doi:10.5066/P9PJ0O5W)",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195018"
+   },
+   "sep_log": 0.179267,
+   "avp": 0.0321,
+   "model_error_variance": 0.0312,
+   "n_sites": 275
+  },
+  {
+   "region_code": "B simple",
+   "region_name": "Region B, simple model (SIR 2019-5018; NSS GC1786)",
+   "aep": 0.02,
+   "intercept": 2.44806389685398,
+   "variables": [
+    {
+     "code": "OHREGA",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "OHREGC",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.04,
+     "maximum": 6309.0
+    }
+   ],
+   "coefficients": [
+    0.226051562008137,
+    0.437835139962278,
+    0.628832621791972
+   ],
+   "citation": {
+    "publication": "Koltun, G.F., 2019, Flood-frequency estimates for Ohio streamgages based on data through water year 2015 and techniques for estimating flood-frequency characteristics of rural, unregulated Ohio streams: U.S. Geological Survey Scientific Investigations Report 2019-5018, 25 p.",
+    "table": "Table 4, Table 3; coefficients in full from the report's model archive (doi:10.5066/P9PJ0O5W)",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195018"
+   },
+   "sep_log": 0.185018,
+   "avp": 0.0342,
+   "model_error_variance": 0.0331,
+   "n_sites": 275
+  },
+  {
+   "region_code": "B simple",
+   "region_name": "Region B, simple model (SIR 2019-5018; NSS GC1786)",
+   "aep": 0.01,
+   "intercept": 2.5183268615001,
+   "variables": [
+    {
+     "code": "OHREGA",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "OHREGC",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.04,
+     "maximum": 6309.0
+    }
+   ],
+   "coefficients": [
+    0.237162355002332,
+    0.446190405696115,
+    0.620287467856046
+   ],
+   "citation": {
+    "publication": "Koltun, G.F., 2019, Flood-frequency estimates for Ohio streamgages based on data through water year 2015 and techniques for estimating flood-frequency characteristics of rural, unregulated Ohio streams: U.S. Geological Survey Scientific Investigations Report 2019-5018, 25 p.",
+    "table": "Table 4, Table 3; coefficients in full from the report's model archive (doi:10.5066/P9PJ0O5W)",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195018"
+   },
+   "sep_log": 0.187252,
+   "avp": 0.0351,
+   "model_error_variance": 0.0339,
+   "n_sites": 275
+  },
+  {
+   "region_code": "B simple",
+   "region_name": "Region B, simple model (SIR 2019-5018; NSS GC1786)",
+   "aep": 0.002,
+   "intercept": 2.65675649432377,
+   "variables": [
+    {
+     "code": "OHREGA",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "OHREGC",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.04,
+     "maximum": 6309.0
+    }
+   ],
+   "coefficients": [
+    0.261035977488953,
+    0.465712463178319,
+    0.604155626250582
+   ],
+   "citation": {
+    "publication": "Koltun, G.F., 2019, Flood-frequency estimates for Ohio streamgages based on data through water year 2015 and techniques for estimating flood-frequency characteristics of rural, unregulated Ohio streams: U.S. Geological Survey Scientific Investigations Report 2019-5018, 25 p.",
+    "table": "Table 4, Table 3; coefficients in full from the report's model archive (doi:10.5066/P9PJ0O5W)",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195018"
+   },
+   "sep_log": 0.192186,
+   "avp": 0.0369,
+   "model_error_variance": 0.0354,
+   "n_sites": 275
+  },
+  {
+   "region_code": "C simple",
+   "region_name": "Region C, simple model (SIR 2019-5018; NSS GC1787)",
+   "aep": 0.5,
+   "intercept": 1.89373377203132,
+   "variables": [
+    {
+     "code": "OHREGA",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "OHREGC",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.26,
+     "maximum": 2514.0
+    }
+   ],
+   "coefficients": [
+    0.158844914105774,
+    0.397250592324132,
+    0.704974844747493
+   ],
+   "citation": {
+    "publication": "Koltun, G.F., 2019, Flood-frequency estimates for Ohio streamgages based on data through water year 2015 and techniques for estimating flood-frequency characteristics of rural, unregulated Ohio streams: U.S. Geological Survey Scientific Investigations Report 2019-5018, 25 p.",
+    "table": "Table 4, Table 3; coefficients in full from the report's model archive (doi:10.5066/P9PJ0O5W)",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195018"
+   },
+   "sep_log": 0.176585,
+   "avp": 0.0312,
+   "model_error_variance": 0.0305,
+   "n_sites": 275
+  },
+  {
+   "region_code": "C simple",
+   "region_name": "Region C, simple model (SIR 2019-5018; NSS GC1787)",
+   "aep": 0.2,
+   "intercept": 2.12377504375109,
+   "variables": [
+    {
+     "code": "OHREGA",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "OHREGC",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.26,
+     "maximum": 2514.0
+    }
+   ],
+   "coefficients": [
+    0.182469026499469,
+    0.409844578559312,
+    0.671843258484242
+   ],
+   "citation": {
+    "publication": "Koltun, G.F., 2019, Flood-frequency estimates for Ohio streamgages based on data through water year 2015 and techniques for estimating flood-frequency characteristics of rural, unregulated Ohio streams: U.S. Geological Survey Scientific Investigations Report 2019-5018, 25 p.",
+    "table": "Table 4, Table 3; coefficients in full from the report's model archive (doi:10.5066/P9PJ0O5W)",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195018"
+   },
+   "sep_log": 0.169216,
+   "avp": 0.0286,
+   "model_error_variance": 0.0279,
+   "n_sites": 275
+  },
+  {
+   "region_code": "C simple",
+   "region_name": "Region C, simple model (SIR 2019-5018; NSS GC1787)",
+   "aep": 0.1,
+   "intercept": 2.24313195400241,
+   "variables": [
+    {
+     "code": "OHREGA",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "OHREGC",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.26,
+     "maximum": 2514.0
+    }
+   ],
+   "coefficients": [
+    0.197065746372375,
+    0.418452233555058,
+    0.655405486221976
+   ],
+   "citation": {
+    "publication": "Koltun, G.F., 2019, Flood-frequency estimates for Ohio streamgages based on data through water year 2015 and techniques for estimating flood-frequency characteristics of rural, unregulated Ohio streams: U.S. Geological Survey Scientific Investigations Report 2019-5018, 25 p.",
+    "table": "Table 4, Table 3; coefficients in full from the report's model archive (doi:10.5066/P9PJ0O5W)",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195018"
+   },
+   "sep_log": 0.174432,
+   "avp": 0.0304,
+   "model_error_variance": 0.0296,
+   "n_sites": 275
+  },
+  {
+   "region_code": "C simple",
+   "region_name": "Region C, simple model (SIR 2019-5018; NSS GC1787)",
+   "aep": 0.04,
+   "intercept": 2.36849161841928,
+   "variables": [
+    {
+     "code": "OHREGA",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "OHREGC",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.26,
+     "maximum": 2514.0
+    }
+   ],
+   "coefficients": [
+    0.214104758649145,
+    0.429399441154393,
+    0.638938323206135
+   ],
+   "citation": {
+    "publication": "Koltun, G.F., 2019, Flood-frequency estimates for Ohio streamgages based on data through water year 2015 and techniques for estimating flood-frequency characteristics of rural, unregulated Ohio streams: U.S. Geological Survey Scientific Investigations Report 2019-5018, 25 p.",
+    "table": "Table 4, Table 3; coefficients in full from the report's model archive (doi:10.5066/P9PJ0O5W)",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195018"
+   },
+   "sep_log": 0.179267,
+   "avp": 0.0321,
+   "model_error_variance": 0.0312,
+   "n_sites": 275
+  },
+  {
+   "region_code": "C simple",
+   "region_name": "Region C, simple model (SIR 2019-5018; NSS GC1787)",
+   "aep": 0.02,
+   "intercept": 2.44806389685398,
+   "variables": [
+    {
+     "code": "OHREGA",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "OHREGC",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.26,
+     "maximum": 2514.0
+    }
+   ],
+   "coefficients": [
+    0.226051562008137,
+    0.437835139962278,
+    0.628832621791972
+   ],
+   "citation": {
+    "publication": "Koltun, G.F., 2019, Flood-frequency estimates for Ohio streamgages based on data through water year 2015 and techniques for estimating flood-frequency characteristics of rural, unregulated Ohio streams: U.S. Geological Survey Scientific Investigations Report 2019-5018, 25 p.",
+    "table": "Table 4, Table 3; coefficients in full from the report's model archive (doi:10.5066/P9PJ0O5W)",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195018"
+   },
+   "sep_log": 0.185018,
+   "avp": 0.0342,
+   "model_error_variance": 0.0331,
+   "n_sites": 275
+  },
+  {
+   "region_code": "C simple",
+   "region_name": "Region C, simple model (SIR 2019-5018; NSS GC1787)",
+   "aep": 0.01,
+   "intercept": 2.5183268615001,
+   "variables": [
+    {
+     "code": "OHREGA",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "OHREGC",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.26,
+     "maximum": 2514.0
+    }
+   ],
+   "coefficients": [
+    0.237162355002332,
+    0.446190405696115,
+    0.620287467856046
+   ],
+   "citation": {
+    "publication": "Koltun, G.F., 2019, Flood-frequency estimates for Ohio streamgages based on data through water year 2015 and techniques for estimating flood-frequency characteristics of rural, unregulated Ohio streams: U.S. Geological Survey Scientific Investigations Report 2019-5018, 25 p.",
+    "table": "Table 4, Table 3; coefficients in full from the report's model archive (doi:10.5066/P9PJ0O5W)",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195018"
+   },
+   "sep_log": 0.187252,
+   "avp": 0.0351,
+   "model_error_variance": 0.0339,
+   "n_sites": 275
+  },
+  {
+   "region_code": "C simple",
+   "region_name": "Region C, simple model (SIR 2019-5018; NSS GC1787)",
+   "aep": 0.002,
+   "intercept": 2.65675649432377,
+   "variables": [
+    {
+     "code": "OHREGA",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "OHREGC",
+     "transform": "identity",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 1.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.26,
+     "maximum": 2514.0
+    }
+   ],
+   "coefficients": [
+    0.261035977488953,
+    0.465712463178319,
+    0.604155626250582
+   ],
+   "citation": {
+    "publication": "Koltun, G.F., 2019, Flood-frequency estimates for Ohio streamgages based on data through water year 2015 and techniques for estimating flood-frequency characteristics of rural, unregulated Ohio streams: U.S. Geological Survey Scientific Investigations Report 2019-5018, 25 p.",
+    "table": "Table 4, Table 3; coefficients in full from the report's model archive (doi:10.5066/P9PJ0O5W)",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195018"
+   },
+   "sep_log": 0.192186,
+   "avp": 0.0369,
+   "model_error_variance": 0.0354,
+   "n_sites": 275
+  },
+  {
+   "region_code": "Urban",
+   "region_name": "Statewide small urban streams (WSP 2432; NSS GC1235)",
+   "aep": 0.5,
+   "intercept": 2.1903316981702914,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.026,
+     "maximum": 4.09
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 31.5,
+     "maximum": 41.2,
+     "offset": -30.0
+    },
+    {
+     "code": "BDF",
+     "transform": "log10",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 12.0,
+     "scale": -1.0,
+     "offset": 13.0
+    }
+   ],
+   "coefficients": [
+    0.68,
+    0.5,
+    -0.5
+   ],
+   "citation": {
+    "publication": "Sherwood, J.M., 1994, Estimation of peak-frequency relations, flood hydrographs, and volume-duration-frequency relations of ungaged small urban streams in Ohio: U.S. Geological Survey Water-Supply Paper 2432, 42 p.",
+    "table": "Table 8 and the limits table under \"Limitations of the Method\"",
+    "year": 1994,
+    "url": "https://doi.org/10.3133/wsp2432"
+   },
+   "sep_log": 0.144841,
+   "n_sites": 30
+  },
+  {
+   "region_code": "Urban",
+   "region_name": "Statewide small urban streams (WSP 2432; NSS GC1235)",
+   "aep": 0.2,
+   "intercept": 2.3010299956639813,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.026,
+     "maximum": 4.09
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 31.5,
+     "maximum": 41.2,
+     "offset": -30.0
+    },
+    {
+     "code": "BDF",
+     "transform": "log10",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 12.0,
+     "scale": -1.0,
+     "offset": 13.0
+    }
+   ],
+   "coefficients": [
+    0.71,
+    0.63,
+    -0.44
+   ],
+   "citation": {
+    "publication": "Sherwood, J.M., 1994, Estimation of peak-frequency relations, flood hydrographs, and volume-duration-frequency relations of ungaged small urban streams in Ohio: U.S. Geological Survey Water-Supply Paper 2432, 42 p.",
+    "table": "Table 8 and the limits table under \"Limitations of the Method\"",
+    "year": 1994,
+    "url": "https://doi.org/10.3133/wsp2432"
+   },
+   "sep_log": 0.146836,
+   "n_sites": 30
+  },
+  {
+   "region_code": "Urban",
+   "region_name": "Statewide small urban streams (WSP 2432; NSS GC1235)",
+   "aep": 0.1,
+   "intercept": 2.357934847000454,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.026,
+     "maximum": 4.09
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 31.5,
+     "maximum": 41.2,
+     "offset": -30.0
+    },
+    {
+     "code": "BDF",
+     "transform": "log10",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 12.0,
+     "scale": -1.0,
+     "offset": 13.0
+    }
+   ],
+   "coefficients": [
+    0.74,
+    0.68,
+    -0.41
+   ],
+   "citation": {
+    "publication": "Sherwood, J.M., 1994, Estimation of peak-frequency relations, flood hydrographs, and volume-duration-frequency relations of ungaged small urban streams in Ohio: U.S. Geological Survey Water-Supply Paper 2432, 42 p.",
+    "table": "Table 8 and the limits table under \"Limitations of the Method\"",
+    "year": 1994,
+    "url": "https://doi.org/10.3133/wsp2432"
+   },
+   "sep_log": 0.151608,
+   "n_sites": 30
+  },
+  {
+   "region_code": "Urban",
+   "region_name": "Statewide small urban streams (WSP 2432; NSS GC1235)",
+   "aep": 0.04,
+   "intercept": 2.423245873936808,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.026,
+     "maximum": 4.09
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 31.5,
+     "maximum": 41.2,
+     "offset": -30.0
+    },
+    {
+     "code": "BDF",
+     "transform": "log10",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 12.0,
+     "scale": -1.0,
+     "offset": 13.0
+    }
+   ],
+   "coefficients": [
+    0.76,
+    0.72,
+    -0.37
+   ],
+   "citation": {
+    "publication": "Sherwood, J.M., 1994, Estimation of peak-frequency relations, flood hydrographs, and volume-duration-frequency relations of ungaged small urban streams in Ohio: U.S. Geological Survey Water-Supply Paper 2432, 42 p.",
+    "table": "Table 8 and the limits table under \"Limitations of the Method\"",
+    "year": 1994,
+    "url": "https://doi.org/10.3133/wsp2432"
+   },
+   "sep_log": 0.157927,
+   "n_sites": 30
+  },
+  {
+   "region_code": "Urban",
+   "region_name": "Statewide small urban streams (WSP 2432; NSS GC1235)",
+   "aep": 0.02,
+   "intercept": 2.4668676203541096,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.026,
+     "maximum": 4.09
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 31.5,
+     "maximum": 41.2,
+     "offset": -30.0
+    },
+    {
+     "code": "BDF",
+     "transform": "log10",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 12.0,
+     "scale": -1.0,
+     "offset": 13.0
+    }
+   ],
+   "coefficients": [
+    0.78,
+    0.74,
+    -0.35
+   ],
+   "citation": {
+    "publication": "Sherwood, J.M., 1994, Estimation of peak-frequency relations, flood hydrographs, and volume-duration-frequency relations of ungaged small urban streams in Ohio: U.S. Geological Survey Water-Supply Paper 2432, 42 p.",
+    "table": "Table 8 and the limits table under \"Limitations of the Method\"",
+    "year": 1994,
+    "url": "https://doi.org/10.3133/wsp2432"
+   },
+   "sep_log": 0.162634,
+   "n_sites": 30
+  },
+  {
+   "region_code": "Urban",
+   "region_name": "Statewide small urban streams (WSP 2432; NSS GC1235)",
+   "aep": 0.01,
+   "intercept": 2.506505032404872,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.026,
+     "maximum": 4.09
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 31.5,
+     "maximum": 41.2,
+     "offset": -30.0
+    },
+    {
+     "code": "BDF",
+     "transform": "log10",
+     "units": "dim",
+     "minimum": 0.0,
+     "maximum": 12.0,
+     "scale": -1.0,
+     "offset": 13.0
+    }
+   ],
+   "coefficients": [
+    0.79,
+    0.76,
+    -0.33
+   ],
+   "citation": {
+    "publication": "Sherwood, J.M., 1994, Estimation of peak-frequency relations, flood hydrographs, and volume-duration-frequency relations of ungaged small urban streams in Ohio: U.S. Geological Survey Water-Supply Paper 2432, 42 p.",
+    "table": "Table 8 and the limits table under \"Limitations of the Method\"",
+    "year": 1994,
+    "url": "https://doi.org/10.3133/wsp2432"
+   },
+   "sep_log": 0.167702,
+   "n_sites": 30
+  }
+ ]
+}
