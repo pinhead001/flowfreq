@@ -1,0 +1,3019 @@
+{
+ "schema_version": 1,
+ "state": "TX",
+ "status": "verified",
+ "issue": null,
+ "source_reports": [
+  {
+   "citation": "Asquith, W.H., 1998, Peak-flow frequency for tributaries of the Colorado River downstream of Austin, Texas: U.S. Geological Survey Water-Resources Investigations Report 98-4015, 19 p., appendix.",
+   "doi": "10.3133/wri984015",
+   "url": "https://pubs.usgs.gov/publication/wri984015",
+   "pdf": "https://pubs.usgs.gov/wri/wri98-4015/pdf/wri98-4015.pdf",
+   "tables": [
+    "Table 1",
+    "Table 3",
+    "Table 4",
+    "Appendix"
+   ],
+   "nss": {
+    "regression_regions": [
+     "GC1493",
+     "GC1494"
+    ],
+    "last_year_of_data": 1995
+   }
+  },
+  {
+   "citation": "Raines, T.H., 1998, Peak-discharge frequency and potential extreme peak discharge for natural streams in the Brazos River basin, Texas: U.S. Geological Survey Water-Resources Investigations Report 98-4178, 42 p., 1 plate.",
+   "doi": "10.3133/wri984178",
+   "url": "https://pubs.usgs.gov/publication/wri984178",
+   "pdf": "https://pubs.usgs.gov/wri/wri98-4178/pdf/wri98-4178.pdf",
+   "tables": [
+    "Table 1",
+    "Table 2",
+    "Table 3"
+   ],
+   "nss": {
+    "regression_regions": [
+     "GC1490",
+     "GC1491",
+     "GC1492"
+    ],
+    "last_year_of_data": 1996
+   }
+  },
+  {
+   "citation": "Veenhuis, J.E., and Gannett, D.G., 1986, The effects of urbanization on floods in the Austin metropolitan area, Texas: U.S. Geological Survey Water-Resources Investigations Report 86-4069, 66 p.",
+   "doi": "10.3133/wri864069",
+   "url": "https://pubs.usgs.gov/publication/wri864069",
+   "pdf": "https://pubs.usgs.gov/wri/1986/4069/report.pdf",
+   "tables": [
+    "Table 3",
+    "Table 8",
+    "Table 9"
+   ],
+   "nss": {
+    "regression_regions": [
+     "GC1489"
+    ]
+   }
+  },
+  {
+   "citation": "Land, L.F., Schroeder, E.E., and Hampton, B.B., 1982, Techniques for estimating the magnitude and frequency of floods in the Dallas-Fort Worth metropolitan area, Texas: U.S. Geological Survey Water-Resources Investigations Report 82-18, 55 p.",
+   "doi": "10.3133/wri8218",
+   "url": "https://pubs.usgs.gov/publication/wri8218",
+   "pdf": "https://pubs.usgs.gov/wri/1982/0018/report.pdf",
+   "tables": [
+    "Table 3",
+    "Table 10"
+   ],
+   "nss": {
+    "regression_regions": [
+     "GC1495"
+    ],
+    "last_year_of_data": 1979
+   }
+  },
+  {
+   "citation": "Asquith, W.H., Slade, R.M., Jr., and Lanning-Rush, J.L., 1996, Peak-flow frequency and extreme flood potential for streams in the vicinity of the Highland Lakes, central Texas: U.S. Geological Survey Water-Resources Investigations Report 96-4072, 1 sheet.",
+   "doi": "10.3133/wri964072",
+   "url": "https://pubs.usgs.gov/publication/wri964072",
+   "pdf": "https://pubs.usgs.gov/wri/1996/4072/plate-1.pdf",
+   "tables": [
+    "Regression equation table on the sheet"
+   ],
+   "nss": {
+    "regression_regions": [
+     "GC1496"
+    ],
+    "last_year_of_data": 1995
+   }
+  },
+  {
+   "citation": "Liscum, F., and Massey, B.C., 1980, Technique for estimating the magnitude and frequency of floods in the Houston, Texas, metropolitan area: U.S. Geological Survey Water-Resources Investigations Report 80-17, 29 p.",
+   "doi": "10.3133/wri8017",
+   "url": "https://pubs.usgs.gov/publication/wri8017",
+   "pdf": "https://pubs.usgs.gov/wri/1980/0017/report.pdf",
+   "tables": [
+    "Table 5",
+    "Table 9",
+    "Table 10",
+    "Table 11"
+   ],
+   "nss": {
+    "regression_regions": [
+     "GC1497"
+    ],
+    "last_year_of_data": 1976
+   }
+  },
+  {
+   "citation": "Asquith, W.H., and Thompson, D.B., 2008, Alternative regression equations for estimation of annual peak-streamflow frequency for undeveloped watersheds in Texas using PRESS minimization: U.S. Geological Survey Scientific Investigations Report 2008-5084, 40 p.",
+   "doi": "10.3133/sir20085084",
+   "url": "https://pubs.usgs.gov/publication/sir20085084",
+   "pdf": "https://pubs.usgs.gov/sir/2008/5084/pdf/sir2008-5084.pdf",
+   "tables": [
+    "Table 2",
+    "Table 8",
+    "Appendix 2"
+   ],
+   "nss": {
+    "regression_regions": [
+     "GC2146"
+    ],
+    "last_year_of_data": 1993
+   }
+  }
+ ],
+ "notes": "SUPERSEDED IN PRACTICE: SIR 2008-5084 (Table 8, region Statewide) is followed by Asquith and Roussel, 2009, SIR 2009-5087, whose authors prefer its OmegaEM equations; NSS's peak-flow snapshot does not serve that report, nor the 96 equations of Asquith and Slade, 1997, WRI 96-4307, so neither is stored. What NSS serves is kept. CITATIONS NSS GETS WRONG: NSS cites WRI 98-4015 for GC1489, but that report excludes urban basins and has no impervious-cover equation; the set is Veenhuis and Gannett, WRI 86-4069, Table 8. NSS cites WRI 98-4178 for GC1493, but the set is WRI 98-4015's large-basin equations. Seven reports, then: 98-4015 (2 regions), 98-4178 (3), 86-4069, 82-18, 96-4072, 80-17 and 2008-5084 (1 each). All are kept because each is the only set for its area or land use; the regional sets and the Statewide set overlap, so a caller chooses with region=, and no preference is added. INTERVALS: 98-4015 and 98-4178 give the prediction variance as s^2(1 + h0), with h0 = x'[X'WX]^-1 x from an unscaled matrix. flowfreq computes model_error_variance + x'Ux, so model_error_variance = s^2 and covariance = s^2 times the printed matrix, reordered to intercept first (98-4015 prints Area, Slope, Constant). SIR 2008-5084 is the same; its matrices are printed only in Appendix 2's R output, as tmp in finalQt, in the order constant, A^lambda, log10 P, and s times the root of their diagonal gives the printed Std. Error columns. No covariance is printed for 86-4069, 82-18, 96-4072 or 80-17, so intervals use sep_log. 86-4069 prints an average standard error of prediction; 82-18, 96-4072 and 80-17 print only a standard error of estimate, stored as sep_log because it is the only error they give. It omits coefficient sampling error, so those intervals are narrower than a true SEP. 96-4072's 0.036 log10^2 mean square error for its 100-year equation agrees with its 46 percent (0.1887^2). REPORT ERRORS: (1) 98-4178 Table 3's region 3 matrix is not the matrix of region 3's printed equation. It equals, to all five printed decimals, the constant and CDA block of a three-term fit that also has stream slope, with 08065800 Bedias Creek (region 2 in Table 1) in region 3. The two-term fit gives 0.16508, -0.06928, 0.03398 and reproduces Table 2's region 3 equations. The report's example uses the printed matrix (h0 = 0.29634, where the two-term matrix gives 0.0605), so it is stored as printed and region 3 intervals are wider than the fit supports. (2) 98-4178 Table 1 counts 80 stations in region 2 and 41 in region 3 after the exclusions the text lists; Table 2 says 79 and 42, and refits agree with Table 2 once Bedias Creek moves. (3) 98-4178 p. 19 gives the upper limit as 9,670 in the computation and 9,760 in the sentence after it; 9,670 is right. (4) 98-4015 p. I-1 prints a large-basin weight of 0.070 where the computation uses 0.70. (5) 2008-5084 Table 8 prints s = 0.3548 and adjusted R2 0.7458 for Q100; Appendix 2 prints 0.3545 and 0.7461, and 0.12386 / sqrt(0.12205) = 0.3545, so 0.3545 is stored. (6) 82-18's effects table (p. 53) uses urbanization indexes 36 and 9, the index's limits. Fifteen of its 16 flows reproduce to 0.34 percent; Turtle Creek's 5-year minimum prints 1,960 where the equation gives 1,942 (0.9 percent), and that cell is pinned. NOT STORED, BECAUSE NO FIELD OR NO SEPARATE REGION FITS: 98-4015's equation 3 weights the two Colorado sets by log10 A from 10 to 100 mi2 (the example reproduces in the test, outside the small set's calibrated range), and its equations 4 and 5 weight their limits. 80-17 caps K at KMAX from its figure 2. Shape-factor limits apply to 98-4015 (0.30-3.93, 3.79-18.43) and 96-4072 (1.0-15), and 98-4178 lists others on p. 12; these are in no NSS parameter set, so they are left here rather than as applicability limits that would refuse every StreamStats basin. 96-4072 limits its equations to about 45 mi of Marble Falls. Also not stored: SIR 2008-5084's other five equation sets (Tables 4-7, 9), which NSS does not serve, and each report's R2. Limits are the ones each report recommends where it gives both: 86-4069 uses 2.0-20 mi2 (data 2.31-51.3), 82-18 uses 3-40 mi2 and 12-33 (data 1.25-66.4, 10-36). CHECKS: 80-17's Table 10 per-gage estimates (22 gages, 132 values) reproduce to its rounding from Table 5. 98-4015 and 98-4178 refit from their Table 1 gage data. No report prints per-gage regression estimates except 80-17. 96-4072 has no worked example, no matrix and no per-gage estimates, so its check is NSS and the MSE alone. NSS DIFFERENCES: none in any AEP, flow, coefficient or limit, only the two citations above and NSS's form for URBAN and IMPERV, (100 + x), which folds the 100 into the constant and gives the same flow.",
+ "equations": [
+  {
+   "region_code": "Austin urban",
+   "region_name": "Austin metropolitan area, urban (WRI 86-4069; NSS GC1489)",
+   "aep": 0.5,
+   "intercept": 2.5211380837040362,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 2.0,
+     "maximum": 20.0
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 5.0,
+     "maximum": 42.0,
+     "scale": 0.01,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.607,
+    1.854
+   ],
+   "citation": {
+    "publication": "Veenhuis, J.E., and Gannett, D.G., 1986, The effects of urbanization on floods in the Austin metropolitan area, Texas: U.S. Geological Survey Water-Resources Investigations Report 86-4069, 66 p.",
+    "table": "Table 8, p. 43; limits p. 42",
+    "year": 1986,
+    "url": "https://doi.org/10.3133/wri864069"
+   },
+   "sep_log": 0.127899,
+   "n_sites": 13
+  },
+  {
+   "region_code": "Austin urban",
+   "region_name": "Austin metropolitan area, urban (WRI 86-4069; NSS GC1489)",
+   "aep": 0.2,
+   "intercept": 2.7641761323903307,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 2.0,
+     "maximum": 20.0
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 5.0,
+     "maximum": 42.0,
+     "scale": 0.01,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.649,
+    1.607
+   ],
+   "citation": {
+    "publication": "Veenhuis, J.E., and Gannett, D.G., 1986, The effects of urbanization on floods in the Austin metropolitan area, Texas: U.S. Geological Survey Water-Resources Investigations Report 86-4069, 66 p.",
+    "table": "Table 8, p. 43; limits p. 42",
+    "year": 1986,
+    "url": "https://doi.org/10.3133/wri864069"
+   },
+   "sep_log": 0.115203,
+   "n_sites": 13
+  },
+  {
+   "region_code": "Austin urban",
+   "region_name": "Austin metropolitan area, urban (WRI 86-4069; NSS GC1489)",
+   "aep": 0.1,
+   "intercept": 2.8920946026904804,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 2.0,
+     "maximum": 20.0
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 5.0,
+     "maximum": 42.0,
+     "scale": 0.01,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.663,
+    1.526
+   ],
+   "citation": {
+    "publication": "Veenhuis, J.E., and Gannett, D.G., 1986, The effects of urbanization on floods in the Austin metropolitan area, Texas: U.S. Geological Survey Water-Resources Investigations Report 86-4069, 66 p.",
+    "table": "Table 8, p. 43; limits p. 42",
+    "year": 1986,
+    "url": "https://doi.org/10.3133/wri864069"
+   },
+   "sep_log": 0.111075,
+   "n_sites": 13
+  },
+  {
+   "region_code": "Austin urban",
+   "region_name": "Austin metropolitan area, urban (WRI 86-4069; NSS GC1489)",
+   "aep": 0.04,
+   "intercept": 3.0269416279590295,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 2.0,
+     "maximum": 20.0
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 5.0,
+     "maximum": 42.0,
+     "scale": 0.01,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.674,
+    1.476
+   ],
+   "citation": {
+    "publication": "Veenhuis, J.E., and Gannett, D.G., 1986, The effects of urbanization on floods in the Austin metropolitan area, Texas: U.S. Geological Survey Water-Resources Investigations Report 86-4069, 66 p.",
+    "table": "Table 8, p. 43; limits p. 42",
+    "year": 1986,
+    "url": "https://doi.org/10.3133/wri864069"
+   },
+   "sep_log": 0.10942,
+   "n_sites": 13
+  },
+  {
+   "region_code": "Austin urban",
+   "region_name": "Austin metropolitan area, urban (WRI 86-4069; NSS GC1489)",
+   "aep": 0.02,
+   "intercept": 3.1136091510730277,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 2.0,
+     "maximum": 20.0
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 5.0,
+     "maximum": 42.0,
+     "scale": 0.01,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.677,
+    1.475
+   ],
+   "citation": {
+    "publication": "Veenhuis, J.E., and Gannett, D.G., 1986, The effects of urbanization on floods in the Austin metropolitan area, Texas: U.S. Geological Survey Water-Resources Investigations Report 86-4069, 66 p.",
+    "table": "Table 8, p. 43; limits p. 42",
+    "year": 1986,
+    "url": "https://doi.org/10.3133/wri864069"
+   },
+   "sep_log": 0.109834,
+   "n_sites": 13
+  },
+  {
+   "region_code": "Austin urban",
+   "region_name": "Austin metropolitan area, urban (WRI 86-4069; NSS GC1489)",
+   "aep": 0.01,
+   "intercept": 3.1914510144648953,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 2.0,
+     "maximum": 20.0
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 5.0,
+     "maximum": 42.0,
+     "scale": 0.01,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.678,
+    1.474
+   ],
+   "citation": {
+    "publication": "Veenhuis, J.E., and Gannett, D.G., 1986, The effects of urbanization on floods in the Austin metropolitan area, Texas: U.S. Geological Survey Water-Resources Investigations Report 86-4069, 66 p.",
+    "table": "Table 8, p. 43; limits p. 42",
+    "year": 1986,
+    "url": "https://doi.org/10.3133/wri864069"
+   },
+   "sep_log": 0.110662,
+   "n_sites": 13
+  },
+  {
+   "region_code": "Brazos 1",
+   "region_name": "Brazos River basin, hydrologic region 1 (WRI 98-4178; NSS GC1490)",
+   "aep": 0.5,
+   "intercept": 0.8169038393756602,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 7000.0
+    },
+    {
+     "code": "CSLBlue",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.38,
+     "maximum": 148.0
+    }
+   ],
+   "coefficients": [
+    0.72,
+    0.75
+   ],
+   "citation": {
+    "publication": "Raines, T.H., 1998, Peak-discharge frequency and potential extreme peak discharge for natural streams in the Brazos River basin, Texas: U.S. Geological Survey Water-Resources Investigations Report 98-4178, 42 p., 1 plate.",
+    "table": "Tables 2 and 3; limits p. 12",
+    "year": 1998,
+    "url": "https://doi.org/10.3133/wri984178"
+   },
+   "model_error_variance": 0.152881,
+   "covariance": [
+    [
+     0.26221537596,
+     -0.04110511447,
+     -0.15000989482
+    ],
+    [
+     -0.04110511447,
+     0.00807823204,
+     0.02024603083
+    ],
+    [
+     -0.15000989482,
+     0.02024603083,
+     0.09461957971
+    ]
+   ],
+   "n_sites": 56
+  },
+  {
+   "region_code": "Brazos 1",
+   "region_name": "Brazos River basin, hydrologic region 1 (WRI 98-4178; NSS GC1490)",
+   "aep": 0.2,
+   "intercept": 1.3117538610557542,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 7000.0
+    },
+    {
+     "code": "CSLBlue",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.38,
+     "maximum": 148.0
+    }
+   ],
+   "coefficients": [
+    0.673,
+    0.723
+   ],
+   "citation": {
+    "publication": "Raines, T.H., 1998, Peak-discharge frequency and potential extreme peak discharge for natural streams in the Brazos River basin, Texas: U.S. Geological Survey Water-Resources Investigations Report 98-4178, 42 p., 1 plate.",
+    "table": "Tables 2 and 3; limits p. 12",
+    "year": 1998,
+    "url": "https://doi.org/10.3133/wri984178"
+   },
+   "model_error_variance": 0.101124,
+   "covariance": [
+    [
+     0.17344383984,
+     -0.02718920988,
+     -0.09922489128
+    ],
+    [
+     -0.02718920988,
+     0.00534339216,
+     0.01339185132
+    ],
+    [
+     -0.09922489128,
+     0.01339185132,
+     0.06258665484
+    ]
+   ],
+   "n_sites": 56
+  },
+  {
+   "region_code": "Brazos 1",
+   "region_name": "Brazos River basin, hydrologic region 1 (WRI 98-4178; NSS GC1490)",
+   "aep": 0.1,
+   "intercept": 1.5854607295085006,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 7000.0
+    },
+    {
+     "code": "CSLBlue",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.38,
+     "maximum": 148.0
+    }
+   ],
+   "coefficients": [
+    0.647,
+    0.701
+   ],
+   "citation": {
+    "publication": "Raines, T.H., 1998, Peak-discharge frequency and potential extreme peak discharge for natural streams in the Brazos River basin, Texas: U.S. Geological Survey Water-Resources Investigations Report 98-4178, 42 p., 1 plate.",
+    "table": "Tables 2 and 3; limits p. 12",
+    "year": 1998,
+    "url": "https://doi.org/10.3133/wri984178"
+   },
+   "model_error_variance": 0.090601,
+   "covariance": [
+    [
+     0.15539521116,
+     -0.02435989087,
+     -0.08889951322
+    ],
+    [
+     -0.02435989087,
+     0.00478735684,
+     0.01199829043
+    ],
+    [
+     -0.08889951322,
+     0.01199829043,
+     0.05607386491
+    ]
+   ],
+   "n_sites": 56
+  },
+  {
+   "region_code": "Brazos 1",
+   "region_name": "Brazos River basin, hydrologic region 1 (WRI 98-4178; NSS GC1490)",
+   "aep": 0.04,
+   "intercept": 1.8926510338773004,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 7000.0
+    },
+    {
+     "code": "CSLBlue",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.38,
+     "maximum": 148.0
+    }
+   ],
+   "coefficients": [
+    0.618,
+    0.672
+   ],
+   "citation": {
+    "publication": "Raines, T.H., 1998, Peak-discharge frequency and potential extreme peak discharge for natural streams in the Brazos River basin, Texas: U.S. Geological Survey Water-Resources Investigations Report 98-4178, 42 p., 1 plate.",
+    "table": "Tables 2 and 3; limits p. 12",
+    "year": 1998,
+    "url": "https://doi.org/10.3133/wri984178"
+   },
+   "model_error_variance": 0.092416,
+   "covariance": [
+    [
+     0.15850822656,
+     -0.02484788992,
+     -0.09068042752
+    ],
+    [
+     -0.02484788992,
+     0.00488326144,
+     0.01223865088
+    ],
+    [
+     -0.09068042752,
+     0.01223865088,
+     0.05719718656
+    ]
+   ],
+   "n_sites": 56
+  },
+  {
+   "region_code": "Brazos 1",
+   "region_name": "Brazos River basin, hydrologic region 1 (WRI 98-4178; NSS GC1490)",
+   "aep": 0.02,
+   "intercept": 2.0969100130080562,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 7000.0
+    },
+    {
+     "code": "CSLBlue",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.38,
+     "maximum": 148.0
+    }
+   ],
+   "coefficients": [
+    0.598,
+    0.65
+   ],
+   "citation": {
+    "publication": "Raines, T.H., 1998, Peak-discharge frequency and potential extreme peak discharge for natural streams in the Brazos River basin, Texas: U.S. Geological Survey Water-Resources Investigations Report 98-4178, 42 p., 1 plate.",
+    "table": "Tables 2 and 3; limits p. 12",
+    "year": 1998,
+    "url": "https://doi.org/10.3133/wri984178"
+   },
+   "model_error_variance": 0.100489,
+   "covariance": [
+    [
+     0.17235471324,
+     -0.02701847743,
+     -0.09860181658
+    ],
+    [
+     -0.02701847743,
+     0.00530983876,
+     0.01330775827
+    ],
+    [
+     -0.09860181658,
+     0.01330775827,
+     0.06219364699
+    ]
+   ],
+   "n_sites": 56
+  },
+  {
+   "region_code": "Brazos 1",
+   "region_name": "Brazos River basin, hydrologic region 1 (WRI 98-4178; NSS GC1490)",
+   "aep": 0.01,
+   "intercept": 2.2833012287035497,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 7000.0
+    },
+    {
+     "code": "CSLBlue",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.38,
+     "maximum": 148.0
+    }
+   ],
+   "coefficients": [
+    0.58,
+    0.629
+   ],
+   "citation": {
+    "publication": "Raines, T.H., 1998, Peak-discharge frequency and potential extreme peak discharge for natural streams in the Brazos River basin, Texas: U.S. Geological Survey Water-Resources Investigations Report 98-4178, 42 p., 1 plate.",
+    "table": "Tables 2 and 3; limits p. 12",
+    "year": 1998,
+    "url": "https://doi.org/10.3133/wri984178"
+   },
+   "model_error_variance": 0.112896,
+   "covariance": [
+    [
+     0.19363470336,
+     -0.03035434752,
+     -0.11077581312
+    ],
+    [
+     -0.03035434752,
+     0.00596542464,
+     0.01495081728
+    ],
+    [
+     -0.11077581312,
+     0.01495081728,
+     0.06987246336
+    ]
+   ],
+   "n_sites": 56
+  },
+  {
+   "region_code": "Brazos 2",
+   "region_name": "Brazos River basin, hydrologic region 2 (WRI 98-4178; NSS GC1491)",
+   "aep": 0.5,
+   "intercept": 2.0681858617461617,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 7000.0
+    },
+    {
+     "code": "CSLBlue",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.38,
+     "maximum": 148.0
+    }
+   ],
+   "coefficients": [
+    0.627,
+    0.198
+   ],
+   "citation": {
+    "publication": "Raines, T.H., 1998, Peak-discharge frequency and potential extreme peak discharge for natural streams in the Brazos River basin, Texas: U.S. Geological Survey Water-Resources Investigations Report 98-4178, 42 p., 1 plate.",
+    "table": "Tables 2 and 3; limits p. 12",
+    "year": 1998,
+    "url": "https://doi.org/10.3133/wri984178"
+   },
+   "model_error_variance": 0.056169,
+   "covariance": [
+    [
+     0.06215212188,
+     -0.01000482228,
+     -0.0358639065
+    ],
+    [
+     -0.01000482228,
+     0.00185863221,
+     0.00548321778
+    ],
+    [
+     -0.0358639065,
+     0.00548321778,
+     0.02148969771
+    ]
+   ],
+   "n_sites": 79
+  },
+  {
+   "region_code": "Brazos 2",
+   "region_name": "Brazos River basin, hydrologic region 2 (WRI 98-4178; NSS GC1491)",
+   "aep": 0.2,
+   "intercept": 2.292256071356476,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 7000.0
+    },
+    {
+     "code": "CSLBlue",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.38,
+     "maximum": 148.0
+    }
+   ],
+   "coefficients": [
+    0.64,
+    0.27
+   ],
+   "citation": {
+    "publication": "Raines, T.H., 1998, Peak-discharge frequency and potential extreme peak discharge for natural streams in the Brazos River basin, Texas: U.S. Geological Survey Water-Resources Investigations Report 98-4178, 42 p., 1 plate.",
+    "table": "Tables 2 and 3; limits p. 12",
+    "year": 1998,
+    "url": "https://doi.org/10.3133/wri984178"
+   },
+   "model_error_variance": 0.039601,
+   "covariance": [
+    [
+     0.04381929852,
+     -0.00705373012,
+     -0.0252852385
+    ],
+    [
+     -0.00705373012,
+     0.00131039709,
+     0.00386584962
+    ],
+    [
+     -0.0252852385,
+     0.00386584962,
+     0.01515094659
+    ]
+   ],
+   "n_sites": 79
+  },
+  {
+   "region_code": "Brazos 2",
+   "region_name": "Brazos River basin, hydrologic region 2 (WRI 98-4178; NSS GC1491)",
+   "aep": 0.1,
+   "intercept": 2.3979400086720375,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 7000.0
+    },
+    {
+     "code": "CSLBlue",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.38,
+     "maximum": 148.0
+    }
+   ],
+   "coefficients": [
+    0.648,
+    0.309
+   ],
+   "citation": {
+    "publication": "Raines, T.H., 1998, Peak-discharge frequency and potential extreme peak discharge for natural streams in the Brazos River basin, Texas: U.S. Geological Survey Water-Resources Investigations Report 98-4178, 42 p., 1 plate.",
+    "table": "Tables 2 and 3; limits p. 12",
+    "year": 1998,
+    "url": "https://doi.org/10.3133/wri984178"
+   },
+   "model_error_variance": 0.038025,
+   "covariance": [
+    [
+     0.042075423,
+     -0.006773013,
+     -0.0242789625
+    ],
+    [
+     -0.006773013,
+     0.00125824725,
+     0.0037120005
+    ],
+    [
+     -0.0242789625,
+     0.0037120005,
+     0.01454798475
+    ]
+   ],
+   "n_sites": 79
+  },
+  {
+   "region_code": "Brazos 2",
+   "region_name": "Brazos River basin, hydrologic region 2 (WRI 98-4178; NSS GC1491)",
+   "aep": 0.04,
+   "intercept": 2.5024271199844326,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 7000.0
+    },
+    {
+     "code": "CSLBlue",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.38,
+     "maximum": 148.0
+    }
+   ],
+   "coefficients": [
+    0.656,
+    0.352
+   ],
+   "citation": {
+    "publication": "Raines, T.H., 1998, Peak-discharge frequency and potential extreme peak discharge for natural streams in the Brazos River basin, Texas: U.S. Geological Survey Water-Resources Investigations Report 98-4178, 42 p., 1 plate.",
+    "table": "Tables 2 and 3; limits p. 12",
+    "year": 1998,
+    "url": "https://doi.org/10.3133/wri984178"
+   },
+   "model_error_variance": 0.042436,
+   "covariance": [
+    [
+     0.04695628272,
+     -0.00755870032,
+     -0.027095386
+    ],
+    [
+     -0.00755870032,
+     0.00140420724,
+     0.00414260232
+    ],
+    [
+     -0.027095386,
+     0.00414260232,
+     0.01623558924
+    ]
+   ],
+   "n_sites": 79
+  },
+  {
+   "region_code": "Brazos 2",
+   "region_name": "Brazos River basin, hydrologic region 2 (WRI 98-4178; NSS GC1491)",
+   "aep": 0.02,
+   "intercept": 2.56702636615906,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 7000.0
+    },
+    {
+     "code": "CSLBlue",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.38,
+     "maximum": 148.0
+    }
+   ],
+   "coefficients": [
+    0.662,
+    0.381
+   ],
+   "citation": {
+    "publication": "Raines, T.H., 1998, Peak-discharge frequency and potential extreme peak discharge for natural streams in the Brazos River basin, Texas: U.S. Geological Survey Water-Resources Investigations Report 98-4178, 42 p., 1 plate.",
+    "table": "Tables 2 and 3; limits p. 12",
+    "year": 1998,
+    "url": "https://doi.org/10.3133/wri984178"
+   },
+   "model_error_variance": 0.048841,
+   "covariance": [
+    [
+     0.05404354332,
+     -0.00869955892,
+     -0.0311849785
+    ],
+    [
+     -0.00869955892,
+     0.00161614869,
+     0.00476785842
+    ],
+    [
+     -0.0311849785,
+     0.00476785842,
+     0.01868607819
+    ]
+   ],
+   "n_sites": 79
+  },
+  {
+   "region_code": "Brazos 2",
+   "region_name": "Brazos River basin, hydrologic region 2 (WRI 98-4178; NSS GC1491)",
+   "aep": 0.01,
+   "intercept": 2.6232492903979003,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 7000.0
+    },
+    {
+     "code": "CSLBlue",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.38,
+     "maximum": 148.0
+    }
+   ],
+   "coefficients": [
+    0.668,
+    0.407
+   ],
+   "citation": {
+    "publication": "Raines, T.H., 1998, Peak-discharge frequency and potential extreme peak discharge for natural streams in the Brazos River basin, Texas: U.S. Geological Survey Water-Resources Investigations Report 98-4178, 42 p., 1 plate.",
+    "table": "Tables 2 and 3; limits p. 12",
+    "year": 1998,
+    "url": "https://doi.org/10.3133/wri984178"
+   },
+   "model_error_variance": 0.057121,
+   "covariance": [
+    [
+     0.06320552892,
+     -0.01017439252,
+     -0.0364717585
+    ],
+    [
+     -0.01017439252,
+     0.00189013389,
+     0.00557615202
+    ],
+    [
+     -0.0364717585,
+     0.00557615202,
+     0.02185392339
+    ]
+   ],
+   "n_sites": 79
+  },
+  {
+   "region_code": "Brazos 3",
+   "region_name": "Brazos River basin, hydrologic region 3 (WRI 98-4178; NSS GC1492)",
+   "aep": 0.5,
+   "intercept": 2.2380461031287955,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 7000.0
+    }
+   ],
+   "coefficients": [
+    0.595
+   ],
+   "citation": {
+    "publication": "Raines, T.H., 1998, Peak-discharge frequency and potential extreme peak discharge for natural streams in the Brazos River basin, Texas: U.S. Geological Survey Water-Resources Investigations Report 98-4178, 42 p., 1 plate.",
+    "table": "Tables 2 and 3; limits p. 12",
+    "year": 1998,
+    "url": "https://doi.org/10.3133/wri984178"
+   },
+   "model_error_variance": 0.033856,
+   "covariance": [
+    [
+     0.01545560256,
+     -0.00333617024
+    ],
+    [
+     -0.00333617024,
+     0.00124962496
+    ]
+   ],
+   "n_sites": 42
+  },
+  {
+   "region_code": "Brazos 3",
+   "region_name": "Brazos River basin, hydrologic region 3 (WRI 98-4178; NSS GC1492)",
+   "aep": 0.2,
+   "intercept": 2.4183012913197452,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 7000.0
+    }
+   ],
+   "coefficients": [
+    0.643
+   ],
+   "citation": {
+    "publication": "Raines, T.H., 1998, Peak-discharge frequency and potential extreme peak discharge for natural streams in the Brazos River basin, Texas: U.S. Geological Survey Water-Resources Investigations Report 98-4178, 42 p., 1 plate.",
+    "table": "Tables 2 and 3; limits p. 12",
+    "year": 1998,
+    "url": "https://doi.org/10.3133/wri984178"
+   },
+   "model_error_variance": 0.034596,
+   "covariance": [
+    [
+     0.01579341996,
+     -0.00340908984
+    ],
+    [
+     -0.00340908984,
+     0.00127693836
+    ]
+   ],
+   "n_sites": 42
+  },
+  {
+   "region_code": "Brazos 3",
+   "region_name": "Brazos River basin, hydrologic region 3 (WRI 98-4178; NSS GC1492)",
+   "aep": 0.1,
+   "intercept": 2.510545010206612,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 7000.0
+    }
+   ],
+   "coefficients": [
+    0.671
+   ],
+   "citation": {
+    "publication": "Raines, T.H., 1998, Peak-discharge frequency and potential extreme peak discharge for natural streams in the Brazos River basin, Texas: U.S. Geological Survey Water-Resources Investigations Report 98-4178, 42 p., 1 plate.",
+    "table": "Tables 2 and 3; limits p. 12",
+    "year": 1998,
+    "url": "https://doi.org/10.3133/wri984178"
+   },
+   "model_error_variance": 0.041209,
+   "covariance": [
+    [
+     0.01881232059,
+     -0.00406073486
+    ],
+    [
+     -0.00406073486,
+     0.00152102419
+    ]
+   ],
+   "n_sites": 42
+  },
+  {
+   "region_code": "Brazos 3",
+   "region_name": "Brazos River basin, hydrologic region 3 (WRI 98-4178; NSS GC1492)",
+   "aep": 0.04,
+   "intercept": 2.606381365110605,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 7000.0
+    }
+   ],
+   "coefficients": [
+    0.703
+   ],
+   "citation": {
+    "publication": "Raines, T.H., 1998, Peak-discharge frequency and potential extreme peak discharge for natural streams in the Brazos River basin, Texas: U.S. Geological Survey Water-Resources Investigations Report 98-4178, 42 p., 1 plate.",
+    "table": "Tables 2 and 3; limits p. 12",
+    "year": 1998,
+    "url": "https://doi.org/10.3133/wri984178"
+   },
+   "model_error_variance": 0.0529,
+   "covariance": [
+    [
+     0.024149379,
+     -0.005212766
+    ],
+    [
+     -0.005212766,
+     0.001952539
+    ]
+   ],
+   "n_sites": 42
+  },
+  {
+   "region_code": "Brazos 3",
+   "region_name": "Brazos River basin, hydrologic region 3 (WRI 98-4178; NSS GC1492)",
+   "aep": 0.02,
+   "intercept": 2.6665179805548807,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 7000.0
+    }
+   ],
+   "coefficients": [
+    0.725
+   ],
+   "citation": {
+    "publication": "Raines, T.H., 1998, Peak-discharge frequency and potential extreme peak discharge for natural streams in the Brazos River basin, Texas: U.S. Geological Survey Water-Resources Investigations Report 98-4178, 42 p., 1 plate.",
+    "table": "Tables 2 and 3; limits p. 12",
+    "year": 1998,
+    "url": "https://doi.org/10.3133/wri984178"
+   },
+   "model_error_variance": 0.0625,
+   "covariance": [
+    [
+     0.028531875,
+     -0.00615875
+    ],
+    [
+     -0.00615875,
+     0.002306875
+    ]
+   ],
+   "n_sites": 42
+  },
+  {
+   "region_code": "Brazos 3",
+   "region_name": "Brazos River basin, hydrologic region 3 (WRI 98-4178; NSS GC1492)",
+   "aep": 0.01,
+   "intercept": 2.718501688867274,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 7000.0
+    }
+   ],
+   "coefficients": [
+    0.746
+   ],
+   "citation": {
+    "publication": "Raines, T.H., 1998, Peak-discharge frequency and potential extreme peak discharge for natural streams in the Brazos River basin, Texas: U.S. Geological Survey Water-Resources Investigations Report 98-4178, 42 p., 1 plate.",
+    "table": "Tables 2 and 3; limits p. 12",
+    "year": 1998,
+    "url": "https://doi.org/10.3133/wri984178"
+   },
+   "model_error_variance": 0.073984,
+   "covariance": [
+    [
+     0.03377443584,
+     -0.00729038336
+    ],
+    [
+     -0.00729038336,
+     0.00273074944
+    ]
+   ],
+   "n_sites": 42
+  },
+  {
+   "region_code": "Colorado small",
+   "region_name": "Colorado River tributaries downstream of Austin, contributing drainage area less than 32 mi2 (WRI 98-4015; NSS GC1494)",
+   "aep": 0.5,
+   "intercept": 2.246498580795801,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.24,
+     "maximum": 26.2
+    },
+    {
+     "code": "CSLBlue",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 3.24,
+     "maximum": 78.72
+    }
+   ],
+   "coefficients": [
+    0.611,
+    0.046
+   ],
+   "citation": {
+    "publication": "Asquith, W.H., 1998, Peak-flow frequency for tributaries of the Colorado River downstream of Austin, Texas: U.S. Geological Survey Water-Resources Investigations Report 98-4015, 19 p., appendix.",
+    "table": "Tables 3 and 4, pp. 18-19",
+    "year": 1998,
+    "url": "https://doi.org/10.3133/wri984015"
+   },
+   "model_error_variance": 0.0256,
+   "covariance": [
+    [
+     0.02911232,
+     -0.008827392,
+     -0.015192832
+    ],
+    [
+     -0.008827392,
+     0.007273216,
+     0.002643968
+    ],
+    [
+     -0.015192832,
+     0.002643968,
+     0.009564416
+    ]
+   ],
+   "n_sites": 15
+  },
+  {
+   "region_code": "Colorado small",
+   "region_name": "Colorado River tributaries downstream of Austin, contributing drainage area less than 32 mi2 (WRI 98-4015; NSS GC1494)",
+   "aep": 0.2,
+   "intercept": 2.1439511164239633,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.24,
+     "maximum": 26.2
+    },
+    {
+     "code": "CSLBlue",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 3.24,
+     "maximum": 78.72
+    }
+   ],
+   "coefficients": [
+    0.701,
+    0.326
+   ],
+   "citation": {
+    "publication": "Asquith, W.H., 1998, Peak-flow frequency for tributaries of the Colorado River downstream of Austin, Texas: U.S. Geological Survey Water-Resources Investigations Report 98-4015, 19 p., appendix.",
+    "table": "Tables 3 and 4, pp. 18-19",
+    "year": 1998,
+    "url": "https://doi.org/10.3133/wri984015"
+   },
+   "model_error_variance": 0.0169,
+   "covariance": [
+    [
+     0.01921868,
+     -0.005827458,
+     -0.010029643
+    ],
+    [
+     -0.005827458,
+     0.004801459,
+     0.001745432
+    ],
+    [
+     -0.010029643,
+     0.001745432,
+     0.006314009
+    ]
+   ],
+   "n_sites": 15
+  },
+  {
+   "region_code": "Colorado small",
+   "region_name": "Colorado River tributaries downstream of Austin, contributing drainage area less than 32 mi2 (WRI 98-4015; NSS GC1494)",
+   "aep": 0.1,
+   "intercept": 2.1031192535457137,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.24,
+     "maximum": 26.2
+    },
+    {
+     "code": "CSLBlue",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 3.24,
+     "maximum": 78.72
+    }
+   ],
+   "coefficients": [
+    0.744,
+    0.46
+   ],
+   "citation": {
+    "publication": "Asquith, W.H., 1998, Peak-flow frequency for tributaries of the Colorado River downstream of Austin, Texas: U.S. Geological Survey Water-Resources Investigations Report 98-4015, 19 p., appendix.",
+    "table": "Tables 3 and 4, pp. 18-19",
+    "year": 1998,
+    "url": "https://doi.org/10.3133/wri984015"
+   },
+   "model_error_variance": 0.0256,
+   "covariance": [
+    [
+     0.02911232,
+     -0.008827392,
+     -0.015192832
+    ],
+    [
+     -0.008827392,
+     0.007273216,
+     0.002643968
+    ],
+    [
+     -0.015192832,
+     0.002643968,
+     0.009564416
+    ]
+   ],
+   "n_sites": 15
+  },
+  {
+   "region_code": "Colorado small",
+   "region_name": "Colorado River tributaries downstream of Austin, contributing drainage area less than 32 mi2 (WRI 98-4015; NSS GC1494)",
+   "aep": 0.04,
+   "intercept": 2.070037866607755,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.24,
+     "maximum": 26.2
+    },
+    {
+     "code": "CSLBlue",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 3.24,
+     "maximum": 78.72
+    }
+   ],
+   "coefficients": [
+    0.788,
+    0.594
+   ],
+   "citation": {
+    "publication": "Asquith, W.H., 1998, Peak-flow frequency for tributaries of the Colorado River downstream of Austin, Texas: U.S. Geological Survey Water-Resources Investigations Report 98-4015, 19 p., appendix.",
+    "table": "Tables 3 and 4, pp. 18-19",
+    "year": 1998,
+    "url": "https://doi.org/10.3133/wri984015"
+   },
+   "model_error_variance": 0.0441,
+   "covariance": [
+    [
+     0.05015052,
+     -0.015206562,
+     -0.026172027
+    ],
+    [
+     -0.015206562,
+     0.012529251,
+     0.004554648
+    ],
+    [
+     -0.026172027,
+     0.004554648,
+     0.016476201
+    ]
+   ],
+   "n_sites": 15
+  },
+  {
+   "region_code": "Colorado small",
+   "region_name": "Colorado River tributaries downstream of Austin, contributing drainage area less than 32 mi2 (WRI 98-4015; NSS GC1494)",
+   "aep": 0.02,
+   "intercept": 2.0542299098633974,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.24,
+     "maximum": 26.2
+    },
+    {
+     "code": "CSLBlue",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 3.24,
+     "maximum": 78.72
+    }
+   ],
+   "coefficients": [
+    0.814,
+    0.676
+   ],
+   "citation": {
+    "publication": "Asquith, W.H., 1998, Peak-flow frequency for tributaries of the Colorado River downstream of Austin, Texas: U.S. Geological Survey Water-Resources Investigations Report 98-4015, 19 p., appendix.",
+    "table": "Tables 3 and 4, pp. 18-19",
+    "year": 1998,
+    "url": "https://doi.org/10.3133/wri984015"
+   },
+   "model_error_variance": 0.0625,
+   "covariance": [
+    [
+     0.071075,
+     -0.02155125,
+     -0.037091875
+    ],
+    [
+     -0.02155125,
+     0.017756875,
+     0.006455
+    ],
+    [
+     -0.037091875,
+     0.006455,
+     0.023350625
+    ]
+   ],
+   "n_sites": 15
+  },
+  {
+   "region_code": "Colorado small",
+   "region_name": "Colorado River tributaries downstream of Austin, contributing drainage area less than 32 mi2 (WRI 98-4015; NSS GC1494)",
+   "aep": 0.01,
+   "intercept": 2.0437551269686796,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.24,
+     "maximum": 26.2
+    },
+    {
+     "code": "CSLBlue",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 3.24,
+     "maximum": 78.72
+    }
+   ],
+   "coefficients": [
+    0.836,
+    0.746
+   ],
+   "citation": {
+    "publication": "Asquith, W.H., 1998, Peak-flow frequency for tributaries of the Colorado River downstream of Austin, Texas: U.S. Geological Survey Water-Resources Investigations Report 98-4015, 19 p., appendix.",
+    "table": "Tables 3 and 4, pp. 18-19",
+    "year": 1998,
+    "url": "https://doi.org/10.3133/wri984015"
+   },
+   "model_error_variance": 0.0841,
+   "covariance": [
+    [
+     0.09563852,
+     -0.028999362,
+     -0.049910827
+    ],
+    [
+     -0.028999362,
+     0.023893651,
+     0.008685848
+    ],
+    [
+     -0.049910827,
+     0.008685848,
+     0.031420601
+    ]
+   ],
+   "n_sites": 15
+  },
+  {
+   "region_code": "Colorado small",
+   "region_name": "Colorado River tributaries downstream of Austin, contributing drainage area less than 32 mi2 (WRI 98-4015; NSS GC1494)",
+   "aep": 0.004,
+   "intercept": 2.037027879755775,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.24,
+     "maximum": 26.2
+    },
+    {
+     "code": "CSLBlue",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 3.24,
+     "maximum": 78.72
+    }
+   ],
+   "coefficients": [
+    0.856,
+    0.807
+   ],
+   "citation": {
+    "publication": "Asquith, W.H., 1998, Peak-flow frequency for tributaries of the Colorado River downstream of Austin, Texas: U.S. Geological Survey Water-Resources Investigations Report 98-4015, 19 p., appendix.",
+    "table": "Tables 3 and 4, pp. 18-19",
+    "year": 1998,
+    "url": "https://doi.org/10.3133/wri984015"
+   },
+   "model_error_variance": 0.1089,
+   "covariance": [
+    [
+     0.12384108,
+     -0.037550898,
+     -0.064628883
+    ],
+    [
+     -0.037550898,
+     0.030939579,
+     0.011247192
+    ],
+    [
+     -0.064628883,
+     0.011247192,
+     0.040686129
+    ]
+   ],
+   "n_sites": 15
+  },
+  {
+   "region_code": "Colorado small",
+   "region_name": "Colorado River tributaries downstream of Austin, contributing drainage area less than 32 mi2 (WRI 98-4015; NSS GC1494)",
+   "aep": 0.002,
+   "intercept": 2.0330214446829107,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.24,
+     "maximum": 26.2
+    },
+    {
+     "code": "CSLBlue",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 3.24,
+     "maximum": 78.72
+    }
+   ],
+   "coefficients": [
+    0.879,
+    0.878
+   ],
+   "citation": {
+    "publication": "Asquith, W.H., 1998, Peak-flow frequency for tributaries of the Colorado River downstream of Austin, Texas: U.S. Geological Survey Water-Resources Investigations Report 98-4015, 19 p., appendix.",
+    "table": "Tables 3 and 4, pp. 18-19",
+    "year": 1998,
+    "url": "https://doi.org/10.3133/wri984015"
+   },
+   "model_error_variance": 0.1369,
+   "covariance": [
+    [
+     0.15568268,
+     -0.047205858,
+     -0.081246043
+    ],
+    [
+     -0.047205858,
+     0.038894659,
+     0.014139032
+    ],
+    [
+     -0.081246043,
+     0.014139032,
+     0.051147209
+    ]
+   ],
+   "n_sites": 15
+  },
+  {
+   "region_code": "Colorado large",
+   "region_name": "Colorado River tributaries downstream of Austin, contributing drainage area greater than 32 mi2 (WRI 98-4015; NSS GC1493)",
+   "aep": 0.5,
+   "intercept": 2.663323933628212,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 42.8,
+     "maximum": 1249.0
+    },
+    {
+     "code": "CSLBlue",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 2.77,
+     "maximum": 13.07
+    }
+   ],
+   "coefficients": [
+    0.379,
+    0.239
+   ],
+   "citation": {
+    "publication": "Asquith, W.H., 1998, Peak-flow frequency for tributaries of the Colorado River downstream of Austin, Texas: U.S. Geological Survey Water-Resources Investigations Report 98-4015, 19 p., appendix.",
+    "table": "Tables 3 and 4, pp. 18-19",
+    "year": 1998,
+    "url": "https://doi.org/10.3133/wri984015"
+   },
+   "model_error_variance": 0.0529,
+   "covariance": [
+    [
+     0.12480697,
+     -0.034237409,
+     -0.045022132
+    ],
+    [
+     -0.034237409,
+     0.014746933,
+     -0.0027581002
+    ],
+    [
+     -0.045022132,
+     -0.0027581002,
+     0.06230562
+    ]
+   ],
+   "n_sites": 21
+  },
+  {
+   "region_code": "Colorado large",
+   "region_name": "Colorado River tributaries downstream of Austin, contributing drainage area greater than 32 mi2 (WRI 98-4015; NSS GC1493)",
+   "aep": 0.2,
+   "intercept": 2.75724415102197,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 42.8,
+     "maximum": 1249.0
+    },
+    {
+     "code": "CSLBlue",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 2.77,
+     "maximum": 13.07
+    }
+   ],
+   "coefficients": [
+    0.414,
+    0.407
+   ],
+   "citation": {
+    "publication": "Asquith, W.H., 1998, Peak-flow frequency for tributaries of the Colorado River downstream of Austin, Texas: U.S. Geological Survey Water-Resources Investigations Report 98-4015, 19 p., appendix.",
+    "table": "Tables 3 and 4, pp. 18-19",
+    "year": 1998,
+    "url": "https://doi.org/10.3133/wri984015"
+   },
+   "model_error_variance": 0.0324,
+   "covariance": [
+    [
+     0.07644132,
+     -0.020969604,
+     -0.027574992
+    ],
+    [
+     -0.020969604,
+     0.009032148,
+     -0.0016892712
+    ],
+    [
+     -0.027574992,
+     -0.0016892712,
+     0.03816072
+    ]
+   ],
+   "n_sites": 21
+  },
+  {
+   "region_code": "Colorado large",
+   "region_name": "Colorado River tributaries downstream of Austin, contributing drainage area greater than 32 mi2 (WRI 98-4015; NSS GC1493)",
+   "aep": 0.1,
+   "intercept": 2.7904962769671093,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 42.8,
+     "maximum": 1249.0
+    },
+    {
+     "code": "CSLBlue",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 2.77,
+     "maximum": 13.07
+    }
+   ],
+   "coefficients": [
+    0.437,
+    0.499
+   ],
+   "citation": {
+    "publication": "Asquith, W.H., 1998, Peak-flow frequency for tributaries of the Colorado River downstream of Austin, Texas: U.S. Geological Survey Water-Resources Investigations Report 98-4015, 19 p., appendix.",
+    "table": "Tables 3 and 4, pp. 18-19",
+    "year": 1998,
+    "url": "https://doi.org/10.3133/wri984015"
+   },
+   "model_error_variance": 0.0256,
+   "covariance": [
+    [
+     0.06039808,
+     -0.016568576,
+     -0.021787648
+    ],
+    [
+     -0.016568576,
+     0.007136512,
+     -0.0013347328
+    ],
+    [
+     -0.021787648,
+     -0.0013347328,
+     0.03015168
+    ]
+   ],
+   "n_sites": 21
+  },
+  {
+   "region_code": "Colorado large",
+   "region_name": "Colorado River tributaries downstream of Austin, contributing drainage area greater than 32 mi2 (WRI 98-4015; NSS GC1493)",
+   "aep": 0.04,
+   "intercept": 2.8131805325860118,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 42.8,
+     "maximum": 1249.0
+    },
+    {
+     "code": "CSLBlue",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 2.77,
+     "maximum": 13.07
+    }
+   ],
+   "coefficients": [
+    0.466,
+    0.598
+   ],
+   "citation": {
+    "publication": "Asquith, W.H., 1998, Peak-flow frequency for tributaries of the Colorado River downstream of Austin, Texas: U.S. Geological Survey Water-Resources Investigations Report 98-4015, 19 p., appendix.",
+    "table": "Tables 3 and 4, pp. 18-19",
+    "year": 1998,
+    "url": "https://doi.org/10.3133/wri984015"
+   },
+   "model_error_variance": 0.0256,
+   "covariance": [
+    [
+     0.06039808,
+     -0.016568576,
+     -0.021787648
+    ],
+    [
+     -0.016568576,
+     0.007136512,
+     -0.0013347328
+    ],
+    [
+     -0.021787648,
+     -0.0013347328,
+     0.03015168
+    ]
+   ],
+   "n_sites": 21
+  },
+  {
+   "region_code": "Colorado large",
+   "region_name": "Colorado River tributaries downstream of Austin, contributing drainage area greater than 32 mi2 (WRI 98-4015; NSS GC1493)",
+   "aep": 0.02,
+   "intercept": 2.8212514315459414,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 42.8,
+     "maximum": 1249.0
+    },
+    {
+     "code": "CSLBlue",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 2.77,
+     "maximum": 13.07
+    }
+   ],
+   "coefficients": [
+    0.486,
+    0.664
+   ],
+   "citation": {
+    "publication": "Asquith, W.H., 1998, Peak-flow frequency for tributaries of the Colorado River downstream of Austin, Texas: U.S. Geological Survey Water-Resources Investigations Report 98-4015, 19 p., appendix.",
+    "table": "Tables 3 and 4, pp. 18-19",
+    "year": 1998,
+    "url": "https://doi.org/10.3133/wri984015"
+   },
+   "model_error_variance": 0.0256,
+   "covariance": [
+    [
+     0.06039808,
+     -0.016568576,
+     -0.021787648
+    ],
+    [
+     -0.016568576,
+     0.007136512,
+     -0.0013347328
+    ],
+    [
+     -0.021787648,
+     -0.0013347328,
+     0.03015168
+    ]
+   ],
+   "n_sites": 21
+  },
+  {
+   "region_code": "Colorado large",
+   "region_name": "Colorado River tributaries downstream of Austin, contributing drainage area greater than 32 mi2 (WRI 98-4015; NSS GC1493)",
+   "aep": 0.01,
+   "intercept": 2.824125833916549,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 42.8,
+     "maximum": 1249.0
+    },
+    {
+     "code": "CSLBlue",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 2.77,
+     "maximum": 13.07
+    }
+   ],
+   "coefficients": [
+    0.506,
+    0.725
+   ],
+   "citation": {
+    "publication": "Asquith, W.H., 1998, Peak-flow frequency for tributaries of the Colorado River downstream of Austin, Texas: U.S. Geological Survey Water-Resources Investigations Report 98-4015, 19 p., appendix.",
+    "table": "Tables 3 and 4, pp. 18-19",
+    "year": 1998,
+    "url": "https://doi.org/10.3133/wri984015"
+   },
+   "model_error_variance": 0.0289,
+   "covariance": [
+    [
+     0.06818377,
+     -0.018704369,
+     -0.024596212
+    ],
+    [
+     -0.018704369,
+     0.008056453,
+     -0.0015067882
+    ],
+    [
+     -0.024596212,
+     -0.0015067882,
+     0.03403842
+    ]
+   ],
+   "n_sites": 21
+  },
+  {
+   "region_code": "Colorado large",
+   "region_name": "Colorado River tributaries downstream of Austin, contributing drainage area greater than 32 mi2 (WRI 98-4015; NSS GC1493)",
+   "aep": 0.004,
+   "intercept": 2.8230827965328036,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 42.8,
+     "maximum": 1249.0
+    },
+    {
+     "code": "CSLBlue",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 2.77,
+     "maximum": 13.07
+    }
+   ],
+   "coefficients": [
+    0.525,
+    0.781
+   ],
+   "citation": {
+    "publication": "Asquith, W.H., 1998, Peak-flow frequency for tributaries of the Colorado River downstream of Austin, Texas: U.S. Geological Survey Water-Resources Investigations Report 98-4015, 19 p., appendix.",
+    "table": "Tables 3 and 4, pp. 18-19",
+    "year": 1998,
+    "url": "https://doi.org/10.3133/wri984015"
+   },
+   "model_error_variance": 0.0289,
+   "covariance": [
+    [
+     0.06818377,
+     -0.018704369,
+     -0.024596212
+    ],
+    [
+     -0.018704369,
+     0.008056453,
+     -0.0015067882
+    ],
+    [
+     -0.024596212,
+     -0.0015067882,
+     0.03403842
+    ]
+   ],
+   "n_sites": 21
+  },
+  {
+   "region_code": "Colorado large",
+   "region_name": "Colorado River tributaries downstream of Austin, contributing drainage area greater than 32 mi2 (WRI 98-4015; NSS GC1493)",
+   "aep": 0.002,
+   "intercept": 2.817300878393321,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 42.8,
+     "maximum": 1249.0
+    },
+    {
+     "code": "CSLBlue",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 2.77,
+     "maximum": 13.07
+    }
+   ],
+   "coefficients": [
+    0.549,
+    0.849
+   ],
+   "citation": {
+    "publication": "Asquith, W.H., 1998, Peak-flow frequency for tributaries of the Colorado River downstream of Austin, Texas: U.S. Geological Survey Water-Resources Investigations Report 98-4015, 19 p., appendix.",
+    "table": "Tables 3 and 4, pp. 18-19",
+    "year": 1998,
+    "url": "https://doi.org/10.3133/wri984015"
+   },
+   "model_error_variance": 0.0324,
+   "covariance": [
+    [
+     0.07644132,
+     -0.020969604,
+     -0.027574992
+    ],
+    [
+     -0.020969604,
+     0.009032148,
+     -0.0016892712
+    ],
+    [
+     -0.027574992,
+     -0.0016892712,
+     0.03816072
+    ]
+   ],
+   "n_sites": 21
+  },
+  {
+   "region_code": "Dallas-Fort Worth urban",
+   "region_name": "Dallas-Fort Worth metropolitan area, urban (WRI 82-18; NSS GC1495)",
+   "aep": 0.5,
+   "intercept": 1.6317480743965693,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 3.0,
+     "maximum": 40.0
+    },
+    {
+     "code": "TXURBINDEX",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 12.0,
+     "maximum": 33.0
+    }
+   ],
+   "coefficients": [
+    0.704,
+    0.836
+   ],
+   "citation": {
+    "publication": "Land, L.F., Schroeder, E.E., and Hampton, B.B., 1982, Techniques for estimating the magnitude and frequency of floods in the Dallas-Fort Worth metropolitan area, Texas: U.S. Geological Survey Water-Resources Investigations Report 82-18, 55 p.",
+    "table": "Table 10, p. 52; limits p. 53",
+    "year": 1982,
+    "url": "https://doi.org/10.3133/wri8218"
+   },
+   "sep_log": 0.127899,
+   "n_sites": 21
+  },
+  {
+   "region_code": "Dallas-Fort Worth urban",
+   "region_name": "Dallas-Fort Worth metropolitan area, urban (WRI 82-18; NSS GC1495)",
+   "aep": 0.2,
+   "intercept": 1.9186592934218232,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 3.0,
+     "maximum": 40.0
+    },
+    {
+     "code": "TXURBINDEX",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 12.0,
+     "maximum": 33.0
+    }
+   ],
+   "coefficients": [
+    0.724,
+    0.751
+   ],
+   "citation": {
+    "publication": "Land, L.F., Schroeder, E.E., and Hampton, B.B., 1982, Techniques for estimating the magnitude and frequency of floods in the Dallas-Fort Worth metropolitan area, Texas: U.S. Geological Survey Water-Resources Investigations Report 82-18, 55 p.",
+    "table": "Table 10, p. 52; limits p. 53",
+    "year": 1982,
+    "url": "https://doi.org/10.3133/wri8218"
+   },
+   "sep_log": 0.125046,
+   "n_sites": 21
+  },
+  {
+   "region_code": "Dallas-Fort Worth urban",
+   "region_name": "Dallas-Fort Worth metropolitan area, urban (WRI 82-18; NSS GC1495)",
+   "aep": 0.1,
+   "intercept": 2.081707270097349,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 3.0,
+     "maximum": 40.0
+    },
+    {
+     "code": "TXURBINDEX",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 12.0,
+     "maximum": 33.0
+    }
+   ],
+   "coefficients": [
+    0.735,
+    0.697
+   ],
+   "citation": {
+    "publication": "Land, L.F., Schroeder, E.E., and Hampton, B.B., 1982, Techniques for estimating the magnitude and frequency of floods in the Dallas-Fort Worth metropolitan area, Texas: U.S. Geological Survey Water-Resources Investigations Report 82-18, 55 p.",
+    "table": "Table 10, p. 52; limits p. 53",
+    "year": 1982,
+    "url": "https://doi.org/10.3133/wri8218"
+   },
+   "sep_log": 0.125862,
+   "n_sites": 21
+  },
+  {
+   "region_code": "Dallas-Fort Worth urban",
+   "region_name": "Dallas-Fort Worth metropolitan area, urban (WRI 82-18; NSS GC1495)",
+   "aep": 0.04,
+   "intercept": 2.2667019668840878,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 3.0,
+     "maximum": 40.0
+    },
+    {
+     "code": "TXURBINDEX",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 12.0,
+     "maximum": 33.0
+    }
+   ],
+   "coefficients": [
+    0.745,
+    0.632
+   ],
+   "citation": {
+    "publication": "Land, L.F., Schroeder, E.E., and Hampton, B.B., 1982, Techniques for estimating the magnitude and frequency of floods in the Dallas-Fort Worth metropolitan area, Texas: U.S. Geological Survey Water-Resources Investigations Report 82-18, 55 p.",
+    "table": "Table 10, p. 52; limits p. 53",
+    "year": 1982,
+    "url": "https://doi.org/10.3133/wri8218"
+   },
+   "sep_log": 0.128306,
+   "n_sites": 21
+  },
+  {
+   "region_code": "Dallas-Fort Worth urban",
+   "region_name": "Dallas-Fort Worth metropolitan area, urban (WRI 82-18; NSS GC1495)",
+   "aep": 0.02,
+   "intercept": 2.3916407034923877,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 3.0,
+     "maximum": 40.0
+    },
+    {
+     "code": "TXURBINDEX",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 12.0,
+     "maximum": 33.0
+    }
+   ],
+   "coefficients": [
+    0.752,
+    0.587
+   ],
+   "citation": {
+    "publication": "Land, L.F., Schroeder, E.E., and Hampton, B.B., 1982, Techniques for estimating the magnitude and frequency of floods in the Dallas-Fort Worth metropolitan area, Texas: U.S. Geological Survey Water-Resources Investigations Report 82-18, 55 p.",
+    "table": "Table 10, p. 52; limits p. 53",
+    "year": 1982,
+    "url": "https://doi.org/10.3133/wri8218"
+   },
+   "sep_log": 0.131149,
+   "n_sites": 21
+  },
+  {
+   "region_code": "Dallas-Fort Worth urban",
+   "region_name": "Dallas-Fort Worth metropolitan area, urban (WRI 82-18; NSS GC1495)",
+   "aep": 0.01,
+   "intercept": 2.5588285248170117,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 3.0,
+     "maximum": 40.0
+    },
+    {
+     "code": "TXURBINDEX",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 12.0,
+     "maximum": 33.0
+    }
+   ],
+   "coefficients": [
+    0.752,
+    0.51
+   ],
+   "citation": {
+    "publication": "Land, L.F., Schroeder, E.E., and Hampton, B.B., 1982, Techniques for estimating the magnitude and frequency of floods in the Dallas-Fort Worth metropolitan area, Texas: U.S. Geological Survey Water-Resources Investigations Report 82-18, 55 p.",
+    "table": "Table 10, p. 52; limits p. 53",
+    "year": 1982,
+    "url": "https://doi.org/10.3133/wri8218"
+   },
+   "sep_log": 0.134793,
+   "n_sites": 21
+  },
+  {
+   "region_code": "Highland Lakes",
+   "region_name": "Vicinity of the Highland Lakes, central Texas (WRI 96-4072; NSS GC1496)",
+   "aep": 0.5,
+   "intercept": 1.824125833916549,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.5,
+     "maximum": 3000.0
+    },
+    {
+     "code": "CSLBlue",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 9.0,
+     "maximum": 100.0
+    }
+   ],
+   "coefficients": [
+    0.693,
+    0.255
+   ],
+   "citation": {
+    "publication": "Asquith, W.H., Slade, R.M., Jr., and Lanning-Rush, J.L., 1996, Peak-flow frequency and extreme flood potential for streams in the vicinity of the Highland Lakes, central Texas: U.S. Geological Survey Water-Resources Investigations Report 96-4072, 1 sheet.",
+    "table": "Regression equation table on the sheet",
+    "year": 1996,
+    "url": "https://doi.org/10.3133/wri964072"
+   },
+   "sep_log": 0.13963,
+   "n_sites": 31
+  },
+  {
+   "region_code": "Highland Lakes",
+   "region_name": "Vicinity of the Highland Lakes, central Texas (WRI 96-4072; NSS GC1496)",
+   "aep": 0.2,
+   "intercept": 1.4313637641589874,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.5,
+     "maximum": 3000.0
+    },
+    {
+     "code": "CSLBlue",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 9.0,
+     "maximum": 100.0
+    }
+   ],
+   "coefficients": [
+    0.804,
+    0.652
+   ],
+   "citation": {
+    "publication": "Asquith, W.H., Slade, R.M., Jr., and Lanning-Rush, J.L., 1996, Peak-flow frequency and extreme flood potential for streams in the vicinity of the Highland Lakes, central Texas: U.S. Geological Survey Water-Resources Investigations Report 96-4072, 1 sheet.",
+    "table": "Regression equation table on the sheet",
+    "year": 1996,
+    "url": "https://doi.org/10.3133/wri964072"
+   },
+   "sep_log": 0.131555,
+   "n_sites": 31
+  },
+  {
+   "region_code": "Highland Lakes",
+   "region_name": "Vicinity of the Highland Lakes, central Texas (WRI 96-4072; NSS GC1496)",
+   "aep": 0.1,
+   "intercept": 1.1903316981702914,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.5,
+     "maximum": 3000.0
+    },
+    {
+     "code": "CSLBlue",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 9.0,
+     "maximum": 100.0
+    }
+   ],
+   "coefficients": [
+    0.868,
+    0.874
+   ],
+   "citation": {
+    "publication": "Asquith, W.H., Slade, R.M., Jr., and Lanning-Rush, J.L., 1996, Peak-flow frequency and extreme flood potential for streams in the vicinity of the Highland Lakes, central Texas: U.S. Geological Survey Water-Resources Investigations Report 96-4072, 1 sheet.",
+    "table": "Regression equation table on the sheet",
+    "year": 1996,
+    "url": "https://doi.org/10.3133/wri964072"
+   },
+   "sep_log": 0.13963,
+   "n_sites": 31
+  },
+  {
+   "region_code": "Highland Lakes",
+   "region_name": "Vicinity of the Highland Lakes, central Texas (WRI 96-4072; NSS GC1496)",
+   "aep": 0.04,
+   "intercept": 0.9074113607745862,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.5,
+     "maximum": 3000.0
+    },
+    {
+     "code": "CSLBlue",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 9.0,
+     "maximum": 100.0
+    }
+   ],
+   "coefficients": [
+    0.94,
+    1.12
+   ],
+   "citation": {
+    "publication": "Asquith, W.H., Slade, R.M., Jr., and Lanning-Rush, J.L., 1996, Peak-flow frequency and extreme flood potential for streams in the vicinity of the Highland Lakes, central Texas: U.S. Geological Survey Water-Resources Investigations Report 96-4072, 1 sheet.",
+    "table": "Regression equation table on the sheet",
+    "year": 1996,
+    "url": "https://doi.org/10.3133/wri964072"
+   },
+   "sep_log": 0.159499,
+   "n_sites": 31
+  },
+  {
+   "region_code": "Highland Lakes",
+   "region_name": "Vicinity of the Highland Lakes, central Texas (WRI 96-4072; NSS GC1496)",
+   "aep": 0.02,
+   "intercept": 0.7101173651118162,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.5,
+     "maximum": 3000.0
+    },
+    {
+     "code": "CSLBlue",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 9.0,
+     "maximum": 100.0
+    }
+   ],
+   "coefficients": [
+    0.989,
+    1.29
+   ],
+   "citation": {
+    "publication": "Asquith, W.H., Slade, R.M., Jr., and Lanning-Rush, J.L., 1996, Peak-flow frequency and extreme flood potential for streams in the vicinity of the Highland Lakes, central Texas: U.S. Geological Survey Water-Resources Investigations Report 96-4072, 1 sheet.",
+    "table": "Regression equation table on the sheet",
+    "year": 1996,
+    "url": "https://doi.org/10.3133/wri964072"
+   },
+   "sep_log": 0.178884,
+   "n_sites": 31
+  },
+  {
+   "region_code": "Highland Lakes",
+   "region_name": "Vicinity of the Highland Lakes, central Texas (WRI 96-4072; NSS GC1496)",
+   "aep": 0.01,
+   "intercept": 0.5237464668115644,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.5,
+     "maximum": 3000.0
+    },
+    {
+     "code": "CSLBlue",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 9.0,
+     "maximum": 100.0
+    }
+   ],
+   "coefficients": [
+    1.04,
+    1.44
+   ],
+   "citation": {
+    "publication": "Asquith, W.H., Slade, R.M., Jr., and Lanning-Rush, J.L., 1996, Peak-flow frequency and extreme flood potential for streams in the vicinity of the Highland Lakes, central Texas: U.S. Geological Survey Water-Resources Investigations Report 96-4072, 1 sheet.",
+    "table": "Regression equation table on the sheet",
+    "year": 1996,
+    "url": "https://doi.org/10.3133/wri964072"
+   },
+   "sep_log": 0.190269,
+   "n_sites": 31
+  },
+  {
+   "region_code": "Houston urban",
+   "region_name": "Houston metropolitan area, urban (WRI 80-17; NSS GC1497)",
+   "aep": 0.5,
+   "intercept": 0.3070679506612984,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.33,
+     "maximum": 182.0
+    },
+    {
+     "code": "CONVEY",
+     "transform": "log10",
+     "units": "ft3/s",
+     "minimum": 12000.0,
+     "maximum": 2800000.0
+    },
+    {
+     "code": "URBAN",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 37.0,
+     "maximum": 98.9,
+     "scale": 0.01,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.383,
+    0.447,
+    0.447
+   ],
+   "citation": {
+    "publication": "Liscum, F., and Massey, B.C., 1980, Technique for estimating the magnitude and frequency of floods in the Houston, Texas, metropolitan area: U.S. Geological Survey Water-Resources Investigations Report 80-17, 29 p.",
+    "table": "Table 9, p. 21; limits p. 25",
+    "year": 1980,
+    "url": "https://doi.org/10.3133/wri8017"
+   },
+   "sep_log": 0.107347,
+   "n_sites": 21
+  },
+  {
+   "region_code": "Houston urban",
+   "region_name": "Houston metropolitan area, urban (WRI 80-17; NSS GC1497)",
+   "aep": 0.2,
+   "intercept": 0.3439990690571613,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.33,
+     "maximum": 182.0
+    },
+    {
+     "code": "CONVEY",
+     "transform": "log10",
+     "units": "ft3/s",
+     "minimum": 12000.0,
+     "maximum": 2800000.0
+    },
+    {
+     "code": "URBAN",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 37.0,
+     "maximum": 98.9,
+     "scale": 0.01,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.392,
+    0.468,
+    0.468
+   ],
+   "citation": {
+    "publication": "Liscum, F., and Massey, B.C., 1980, Technique for estimating the magnitude and frequency of floods in the Houston, Texas, metropolitan area: U.S. Geological Survey Water-Resources Investigations Report 80-17, 29 p.",
+    "table": "Table 9, p. 21; limits p. 25",
+    "year": 1980,
+    "url": "https://doi.org/10.3133/wri8017"
+   },
+   "sep_log": 0.084743,
+   "n_sites": 21
+  },
+  {
+   "region_code": "Houston urban",
+   "region_name": "Houston metropolitan area, urban (WRI 80-17; NSS GC1497)",
+   "aep": 0.1,
+   "intercept": 0.36191661866864344,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.33,
+     "maximum": 182.0
+    },
+    {
+     "code": "CONVEY",
+     "transform": "log10",
+     "units": "ft3/s",
+     "minimum": 12000.0,
+     "maximum": 2800000.0
+    },
+    {
+     "code": "URBAN",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 37.0,
+     "maximum": 98.9,
+     "scale": 0.01,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.399,
+    0.478,
+    0.478
+   ],
+   "citation": {
+    "publication": "Liscum, F., and Massey, B.C., 1980, Technique for estimating the magnitude and frequency of floods in the Houston, Texas, metropolitan area: U.S. Geological Survey Water-Resources Investigations Report 80-17, 29 p.",
+    "table": "Table 9, p. 21; limits p. 25",
+    "year": 1980,
+    "url": "https://doi.org/10.3133/wri8017"
+   },
+   "sep_log": 0.077975,
+   "n_sites": 21
+  },
+  {
+   "region_code": "Houston urban",
+   "region_name": "Houston metropolitan area, urban (WRI 80-17; NSS GC1497)",
+   "aep": 0.04,
+   "intercept": 0.39093510710337914,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.33,
+     "maximum": 182.0
+    },
+    {
+     "code": "CONVEY",
+     "transform": "log10",
+     "units": "ft3/s",
+     "minimum": 12000.0,
+     "maximum": 2800000.0
+    },
+    {
+     "code": "URBAN",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 37.0,
+     "maximum": 98.9,
+     "scale": 0.01,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.41,
+    0.487,
+    0.487
+   ],
+   "citation": {
+    "publication": "Liscum, F., and Massey, B.C., 1980, Technique for estimating the magnitude and frequency of floods in the Houston, Texas, metropolitan area: U.S. Geological Survey Water-Resources Investigations Report 80-17, 29 p.",
+    "table": "Table 9, p. 21; limits p. 25",
+    "year": 1980,
+    "url": "https://doi.org/10.3133/wri8017"
+   },
+   "sep_log": 0.07373,
+   "n_sites": 21
+  },
+  {
+   "region_code": "Houston urban",
+   "region_name": "Houston metropolitan area, urban (WRI 80-17; NSS GC1497)",
+   "aep": 0.02,
+   "intercept": 0.4109458586877745,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.33,
+     "maximum": 182.0
+    },
+    {
+     "code": "CONVEY",
+     "transform": "log10",
+     "units": "ft3/s",
+     "minimum": 12000.0,
+     "maximum": 2800000.0
+    },
+    {
+     "code": "URBAN",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 37.0,
+     "maximum": 98.9,
+     "scale": 0.01,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.419,
+    0.492,
+    0.492
+   ],
+   "citation": {
+    "publication": "Liscum, F., and Massey, B.C., 1980, Technique for estimating the magnitude and frequency of floods in the Houston, Texas, metropolitan area: U.S. Geological Survey Water-Resources Investigations Report 80-17, 29 p.",
+    "table": "Table 9, p. 21; limits p. 25",
+    "year": 1980,
+    "url": "https://doi.org/10.3133/wri8017"
+   },
+   "sep_log": 0.07288,
+   "n_sites": 21
+  },
+  {
+   "region_code": "Houston urban",
+   "region_name": "Houston metropolitan area, urban (WRI 80-17; NSS GC1497)",
+   "aep": 0.01,
+   "intercept": 0.4329692908744057,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.33,
+     "maximum": 182.0
+    },
+    {
+     "code": "CONVEY",
+     "transform": "log10",
+     "units": "ft3/s",
+     "minimum": 12000.0,
+     "maximum": 2800000.0
+    },
+    {
+     "code": "URBAN",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 37.0,
+     "maximum": 98.9,
+     "scale": 0.01,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.428,
+    0.495,
+    0.495
+   ],
+   "citation": {
+    "publication": "Liscum, F., and Massey, B.C., 1980, Technique for estimating the magnitude and frequency of floods in the Houston, Texas, metropolitan area: U.S. Geological Survey Water-Resources Investigations Report 80-17, 29 p.",
+    "table": "Table 9, p. 21; limits p. 25",
+    "year": 1980,
+    "url": "https://doi.org/10.3133/wri8017"
+   },
+   "sep_log": 0.07373,
+   "n_sites": 21
+  },
+  {
+   "region_code": "Houston urban",
+   "region_name": "Houston metropolitan area, urban (WRI 80-17; NSS GC1497)",
+   "aep": 0.002,
+   "intercept": 0.49094120535678676,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.33,
+     "maximum": 182.0
+    },
+    {
+     "code": "CONVEY",
+     "transform": "log10",
+     "units": "ft3/s",
+     "minimum": 12000.0,
+     "maximum": 2800000.0
+    },
+    {
+     "code": "URBAN",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 37.0,
+     "maximum": 98.9,
+     "scale": 0.01,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.451,
+    0.498,
+    0.498
+   ],
+   "citation": {
+    "publication": "Liscum, F., and Massey, B.C., 1980, Technique for estimating the magnitude and frequency of floods in the Houston, Texas, metropolitan area: U.S. Geological Survey Water-Resources Investigations Report 80-17, 29 p.",
+    "table": "Table 9, p. 21; limits p. 25",
+    "year": 1980,
+    "url": "https://doi.org/10.3133/wri8017"
+   },
+   "sep_log": 0.077975,
+   "n_sites": 21
+  },
+  {
+   "region_code": "Statewide",
+   "region_name": "Texas statewide, undeveloped watersheds, PRESS-minimized (SIR 2008-5084 Table 8; NSS GC2146)",
+   "aep": 0.5,
+   "intercept": 17.36,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "power",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 174000.0,
+     "exponent": -0.0157
+    },
+    {
+     "code": "PRECIPCENT",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 8.0,
+     "maximum": 57.0
+    }
+   ],
+   "coefficients": [
+    -16.51,
+    0.9429
+   ],
+   "citation": {
+    "publication": "Asquith, W.H., and Thompson, D.B., 2008, Alternative regression equations for estimation of annual peak-streamflow frequency for undeveloped watersheds in Texas using PRESS minimization: U.S. Geological Survey Scientific Investigations Report 2008-5084, 40 p.",
+    "table": "Table 8, p. 13; matrices, Appendix 2, pp. 30-32; limits, Table 2, p. 4",
+    "year": 2008,
+    "url": "https://doi.org/10.3133/sir20085084"
+   },
+   "model_error_variance": 0.08791225,
+   "covariance": [
+    [
+     0.074158868159,
+     -0.077399700508,
+     -0.002184859413
+    ],
+    [
+     -0.077399700508,
+     0.093754944728,
+     -0.00580109641
+    ],
+    [
+     -0.002184859413,
+     -0.00580109641,
+     0.005161447758
+    ]
+   ],
+   "n_sites": 656
+  },
+  {
+   "region_code": "Statewide",
+   "region_name": "Texas statewide, undeveloped watersheds, PRESS-minimized (SIR 2008-5084 Table 8; NSS GC2146)",
+   "aep": 0.2,
+   "intercept": 8.08,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "power",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 174000.0,
+     "exponent": -0.0451
+    },
+    {
+     "code": "PRECIPCENT",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 8.0,
+     "maximum": 57.0
+    }
+   ],
+   "coefficients": [
+    -6.403,
+    0.6065
+   ],
+   "citation": {
+    "publication": "Asquith, W.H., and Thompson, D.B., 2008, Alternative regression equations for estimation of annual peak-streamflow frequency for undeveloped watersheds in Texas using PRESS minimization: U.S. Geological Survey Scientific Investigations Report 2008-5084, 40 p.",
+    "table": "Table 8, p. 13; matrices, Appendix 2, pp. 30-32; limits, Table 2, p. 4",
+    "year": 2008,
+    "url": "https://doi.org/10.3133/sir20085084"
+   },
+   "model_error_variance": 0.08071281,
+   "covariance": [
+    [
+     0.013789410695,
+     -0.007709882129,
+     -0.005271886326
+    ],
+    [
+     -0.007709882129,
+     0.013607177313,
+     -0.001996039898
+    ],
+    [
+     -0.005271886326,
+     -0.001996039898,
+     0.004702010302
+    ]
+   ],
+   "n_sites": 656
+  },
+  {
+   "region_code": "Statewide",
+   "region_name": "Texas statewide, undeveloped watersheds, PRESS-minimized (SIR 2008-5084 Table 8; NSS GC2146)",
+   "aep": 0.1,
+   "intercept": 7.2,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "power",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 174000.0,
+     "exponent": -0.0596
+    },
+    {
+     "code": "PRECIPCENT",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 8.0,
+     "maximum": 57.0
+    }
+   ],
+   "coefficients": [
+    -5.107,
+    0.4397
+   ],
+   "citation": {
+    "publication": "Asquith, W.H., and Thompson, D.B., 2008, Alternative regression equations for estimation of annual peak-streamflow frequency for undeveloped watersheds in Texas using PRESS minimization: U.S. Geological Survey Scientific Investigations Report 2008-5084, 40 p.",
+    "table": "Table 8, p. 13; matrices, Appendix 2, pp. 30-32; limits, Table 2, p. 4",
+    "year": 2008,
+    "url": "https://doi.org/10.3133/sir20085084"
+   },
+   "model_error_variance": 0.08661249,
+   "covariance": [
+    [
+     0.012159006064,
+     -0.004403653553,
+     -0.006092611832
+    ],
+    [
+     -0.004403653553,
+     0.009462252567,
+     -0.00167225506
+    ],
+    [
+     -0.006092611832,
+     -0.00167225506,
+     0.005027036556
+    ]
+   ],
+   "n_sites": 656
+  },
+  {
+   "region_code": "Statewide",
+   "region_name": "Texas statewide, undeveloped watersheds, PRESS-minimized (SIR 2008-5084 Table 8; NSS GC2146)",
+   "aep": 0.04,
+   "intercept": 6.849,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "power",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 174000.0,
+     "exponent": -0.074
+    },
+    {
+     "code": "PRECIPCENT",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 8.0,
+     "maximum": 57.0
+    }
+   ],
+   "coefficients": [
+    -4.329,
+    0.2729
+   ],
+   "citation": {
+    "publication": "Asquith, W.H., and Thompson, D.B., 2008, Alternative regression equations for estimation of annual peak-streamflow frequency for undeveloped watersheds in Texas using PRESS minimization: U.S. Geological Survey Scientific Investigations Report 2008-5084, 40 p.",
+    "table": "Table 8, p. 13; matrices, Appendix 2, pp. 30-32; limits, Table 2, p. 4",
+    "year": 2008,
+    "url": "https://doi.org/10.3133/sir20085084"
+   },
+   "model_error_variance": 0.09966649,
+   "covariance": [
+    [
+     0.012775231752,
+     -0.003012839256,
+     -0.007302437146
+    ],
+    [
+     -0.003012839256,
+     0.007948786293,
+     -0.001593499735
+    ],
+    [
+     -0.007302437146,
+     -0.001593499735,
+     0.005764069923
+    ]
+   ],
+   "n_sites": 656
+  },
+  {
+   "region_code": "Statewide",
+   "region_name": "Texas statewide, undeveloped watersheds, PRESS-minimized (SIR 2008-5084 Table 8; NSS GC2146)",
+   "aep": 0.02,
+   "intercept": 6.777,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "power",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 174000.0,
+     "exponent": -0.0828
+    },
+    {
+     "code": "PRECIPCENT",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 8.0,
+     "maximum": 57.0
+    }
+   ],
+   "coefficients": [
+    -3.991,
+    0.1706
+   ],
+   "citation": {
+    "publication": "Asquith, W.H., and Thompson, D.B., 2008, Alternative regression equations for estimation of annual peak-streamflow frequency for undeveloped watersheds in Texas using PRESS minimization: U.S. Geological Survey Scientific Investigations Report 2008-5084, 40 p.",
+    "table": "Table 8, p. 13; matrices, Appendix 2, pp. 30-32; limits, Table 2, p. 4",
+    "year": 2008,
+    "url": "https://doi.org/10.3133/sir20085084"
+   },
+   "model_error_variance": 0.11189025,
+   "covariance": [
+    [
+     0.013904395489,
+     -0.002540480434,
+     -0.008336479302
+    ],
+    [
+     -0.002540480434,
+     0.007643865228,
+     -0.001623684174
+    ],
+    [
+     -0.008336479302,
+     -0.001623684174,
+     0.006457281434
+    ]
+   ],
+   "n_sites": 656
+  },
+  {
+   "region_code": "Statewide",
+   "region_name": "Texas statewide, undeveloped watersheds, PRESS-minimized (SIR 2008-5084 Table 8; NSS GC2146)",
+   "aep": 0.01,
+   "intercept": 6.776,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "power",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 174000.0,
+     "exponent": -0.0903
+    },
+    {
+     "code": "PRECIPCENT",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 8.0,
+     "maximum": 57.0
+    }
+   ],
+   "coefficients": [
+    -3.758,
+    0.08212
+   ],
+   "citation": {
+    "publication": "Asquith, W.H., and Thompson, D.B., 2008, Alternative regression equations for estimation of annual peak-streamflow frequency for undeveloped watersheds in Texas using PRESS minimization: U.S. Geological Survey Scientific Investigations Report 2008-5084, 40 p.",
+    "table": "Table 8, p. 13; matrices, Appendix 2, pp. 30-32; limits, Table 2, p. 4",
+    "year": 2008,
+    "url": "https://doi.org/10.3133/sir20085084"
+   },
+   "model_error_variance": 0.12567025,
+   "covariance": [
+    [
+     0.015338229951,
+     -0.002263723347,
+     -0.009468432711
+    ],
+    [
+     -0.002263723347,
+     0.007651297447,
+     -0.001692812198
+    ],
+    [
+     -0.009468432711,
+     -0.001692812198,
+     0.007239689678
+    ]
+   ],
+   "n_sites": 656
+  }
+ ]
+}
