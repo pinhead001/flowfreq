@@ -36,9 +36,9 @@ Plan and definitions of done: `docs/MASTER_ROADMAP.md` §3.2.
 | Code | Jurisdiction | Equations | Regions | Equation count | Regional skew | Issue |
 |---|---|---|---:|---:|---|---|
 | MN | Minnesota | verified | 7 | 56 | pending |  |
-| WI | Wisconsin | nss snapshot (44 eqs, 0 unparsed) | 6 | 44 | pending |  |
+| WI | Wisconsin | verified | 6 | 44 | pending |  |
 | IA | Iowa | verified | 6 | 48 | verified |  |
-| IL | Illinois | nss snapshot (104 eqs, 0 unparsed) | 13 | 104 | pending |  |
+| IL | Illinois | verified | 13 | 104 | pending |  |
 | MO | Missouri | verified | 4 | 31 | verified |  |
 | MI | Michigan | nss snapshot (25 eqs, 0 unparsed) | 5 | 25 | verified |  |
 
@@ -65,10 +65,10 @@ Plan and definitions of done: `docs/MASTER_ROADMAP.md` §3.2.
 
 | Code | Jurisdiction | Equations | Regions | Equation count | Regional skew | Issue |
 |---|---|---|---:|---:|---|---|
-| AR | Arkansas | nss snapshot (43 eqs, 0 unparsed) | 6 | 43 | verified |  |
+| AR | Arkansas | verified | 6 | 43 | verified |  |
 | LA | Louisiana | nss snapshot (38 eqs, 0 unparsed) | 5 | 38 | pending, verified |  |
-| MS | Mississippi | nss snapshot (32 eqs, 0 unparsed) | 4 | 32 | pending |  |
-| OK | Oklahoma | nss snapshot (42 eqs, 0 unparsed) | 6 | 42 | pending |  |
+| MS | Mississippi | verified | 4 | 32 | pending |  |
+| OK | Oklahoma | verified | 6 | 42 | pending |  |
 | TX | Texas | nss snapshot (65 eqs, 0 unparsed) | 10 | 65 | pending |  |
 
 ## Wave 5: East coast
@@ -81,16 +81,16 @@ Plan and definitions of done: `docs/MASTER_ROADMAP.md` §3.2.
 | MA | Massachusetts | verified | 1 | 8 | pending, verified |  |
 | RI | Rhode Island | verified | 2 | 14 | verified |  |
 | CT | Connecticut | verified | 2 | 16 | verified |  |
-| NY | New York | nss snapshot (120 eqs, 2 unparsed) | 12 | 120 | pending, verified |  |
+| NY | New York | verified | 12 | 120 | pending, verified |  |
 | NJ | New Jersey | verified | 5 | 35 | pending |  |
 | PA | Pennsylvania | verified | 5 | 40 | pending, verified |  |
-| DE | Delaware | nss snapshot (24 eqs, 0 unparsed) | 3 | 24 | pending |  |
+| DE | Delaware | partial | 3 | 24 | pending |  |
 | MD | Maryland | nss snapshot (40 eqs, 0 unparsed) | 4 | 40 | pending, verified |  |
 | DC | District of Columbia | not started | 0 | 0 | pending |  |
 | VA | Virginia | verified | 11 | 88 | verified |  |
-| NC | North Carolina | nss snapshot (32 eqs, 0 unparsed) | 4 | 32 | verified |  |
-| SC | South Carolina | nss snapshot (32 eqs, 0 unparsed) | 4 | 32 | verified |  |
-| GA | Georgia | nss snapshot (40 eqs, 0 unparsed) | 5 | 40 | verified |  |
+| NC | North Carolina | verified | 4 | 32 | verified |  |
+| SC | South Carolina | verified | 4 | 32 | verified |  |
+| GA | Georgia | verified | 5 | 40 | verified |  |
 | FL | Florida | nss snapshot (52 eqs, 0 unparsed) | 7 | 52 | pending |  |
 | AL | Alabama | verified | 6 | 48 | pending |  |
 

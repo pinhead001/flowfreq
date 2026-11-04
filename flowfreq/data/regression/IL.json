@@ -1,0 +1,6595 @@
+{
+ "schema_version": 1,
+ "state": "IL",
+ "status": "verified",
+ "issue": null,
+ "source_reports": [
+  {
+   "citation": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+   "doi": "10.36501/0197-9191/23-019",
+   "url": "https://doi.org/10.36501/0197-9191/23-019",
+   "pdf": "https://apps.ict.illinois.edu/projects/getfile.asp?id=10683",
+   "tables": [
+    "Table 4",
+    "Table 6",
+    "Table 8",
+    "Table 10",
+    "Table 11",
+    "Table 12",
+    "Figures 14-20",
+    "Figures 21-33"
+   ],
+   "nss": {
+    "regression_regions": [
+     "GC2001",
+     "GC2002",
+     "GC2003",
+     "GC2004",
+     "GC2005",
+     "GC2006",
+     "GC2007",
+     "GC2008",
+     "GC2009",
+     "GC2010",
+     "GC2011",
+     "GC2012",
+     "GC2013"
+    ],
+    "citation_id": 208,
+    "last_year_of_data": 2017
+   }
+  },
+  {
+   "citation": "Marti, M.K., Over, T.M., and O'Shea, P.S., 2023, Data for estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: U.S. Geological Survey data release.",
+   "doi": "10.5066/P9XPWUMI",
+   "url": "https://doi.org/10.5066/P9XPWUMI",
+   "tables": [
+    "Table DR-5",
+    "Table DR-7",
+    "Table DR-8",
+    "Table DR-9",
+    "Table DR-10",
+    "Table DR-11"
+   ]
+  }
+ ],
+ "notes": "Over and others (2023), Illinois Center for Transportation report 23-019, with the USGS data release it points to for everything beyond the 1-percent AEP (Marti and others, 2023, doi 10.5066/P9XPWUMI). Seven hydrologic regions at 8 AEPs. Forms from Table 4; coefficients, n from DR-7 (the report's Table 6 prints only the 1-percent AEP); AVP, MEV and Sp from DR-8; covariance from DR-9, by its row and column labels (DR-9 lists TPI before DEM_Slope, while the equations and this file have DEM_Slope first); ranges from Table 10. Stored as printed, so the covariance keeps its basis: region 1 has log10(TPI) - 3.2259 (scale 10**-3.2259), region 3 has (TPI - 1823.4)/4758.3, regions 3 and 5 have DEM_Slope - 55.329, and region 2 has square roots of the two fractions. Regions 1, 3, 4, 5, 6 and 7 are stored twice, as NSS serves them: unadjusted (region_code '1'), and urbanization-adjusted ('1-urban'), which adds (bu)p*(URBTHE2010 - U0) with (bu)p and its standard error from Table 11 (reprinted from Over and others, 2021) and U0 from Table 12. The report's procedure outside region 2 is the adjusted one; no preference between the two is set here. Region 2's urban term is inside its equation, so it has one set. URBTHE2010's limits of 0 and 1 are those of a fraction: the report prints none. An adjusted equation's covariance is DR-9's matrix with a row and column added, zero but for Var(bu) on the diagonal, which is Figure 23's Vu = Vu0 + Vbu*(U - U0)**2 under its independence assumption; its AVP and SEP are the unadjusted equation's, as in NSS, and do not set its interval. FSSURGDC78 has offset 1e-12 because its printed minimum is 0, six region 2 gages have 0, and the power transform refuses a base of exactly 0; the term moves by at most 1.1e-6 log10 units. NSS's GC2002 has no offset and raises an error at 0. FLC16DVLMH has no offset: its minimum is 0.002045. Every one of the 104 equations agrees with NSS, which folds the centering constants and U0 into its intercept, to 2e-12 log units at the points tested; ranges agree exactly. Worked examples: region 2 gives 1,858 cfs and xUx 0.001831, and region 4 gives 12,989 and 14,885 cfs, xUx 0.001549 and Vu 0.0169 (Figures 14-33). Their intervals differ a little: the report rounds S to two or three figures, and the adjusted equation's t has one degree of freedom fewer than the report's, n-p-1 rather than n-p, because evaluate counts the urban term as a fitted variable. That widens the interval, most in region 7 (t 1.943 rather than 1.895). DR-10 and DR-11 print regression flows and variances at the 422 gages valid for the regressions (unadjusted), and all reproduce from DR-5's characteristics apart from these rounding effects: DR-5 prints drainage area to 2 decimals (0.01 for 0.01327), which explains the largest differences, up to 16 percent. Two small offsets remain, stored as printed because Table 4, DR-7 and NSS agree. Region 1's DR-10 flows lie about 0.36 percent below the printed form, and region 3's about 0.2 percent; a TPI centre of about 3.2246 rather than 3.2259 in region 1, and about 1816 rather than 1823.4 in region 3, removes the offset, and in region 1 also brings the DR-11 variances within rounding. So the tables appear to use slightly different centres than Table 4 prints; the report does not say. Figure 39's near-gage example uses 2,150 cfs where the text says 1,860 and DR-10 prints 2,140 for gage 05527950. The near-gage adjustment and the river-reach interpolation (Figures 36-46) are procedures rather than equations, and are not stored here. Standard errors and t-ratios of coefficients (Table 7, DR-7), RMSE and pseudo R2 (DR-8) have no field and are not stored.",
+ "equations": [
+  {
+   "region_code": "1",
+   "region_name": "Hydrologic region 1, unadjusted (NSS GC2001)",
+   "aep": 0.5,
+   "intercept": 1.979,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1773,
+     "maximum": 1325.0
+    },
+    {
+     "code": "TPISTATSGO",
+     "transform": "log10",
+     "units": "weighted percent",
+     "minimum": 988.0,
+     "maximum": 4793.0,
+     "scale": 0.0005944290151976952
+    }
+   ],
+   "coefficients": [
+    0.6133,
+    -1.103
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.181405,
+   "avp": 0.0329,
+   "model_error_variance": 0.02907,
+   "covariance": [
+    [
+     0.003883,
+     -0.00159,
+     -0.0003026
+    ],
+    [
+     -0.00159,
+     0.00113,
+     -0.0001583
+    ],
+    [
+     -0.0003026,
+     -0.0001583,
+     0.02709
+    ]
+   ],
+   "n_sites": 35
+  },
+  {
+   "region_code": "1",
+   "region_name": "Hydrologic region 1, unadjusted (NSS GC2001)",
+   "aep": 0.2,
+   "intercept": 2.274,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1773,
+     "maximum": 1325.0
+    },
+    {
+     "code": "TPISTATSGO",
+     "transform": "log10",
+     "units": "weighted percent",
+     "minimum": 988.0,
+     "maximum": 4793.0,
+     "scale": 0.0005944290151976952
+    }
+   ],
+   "coefficients": [
+    0.5939,
+    -1.179
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.180184,
+   "avp": 0.03247,
+   "model_error_variance": 0.02854,
+   "covariance": [
+    [
+     0.003962,
+     -0.001594,
+     -0.0004541
+    ],
+    [
+     -0.001594,
+     0.00113,
+     -0.0001411
+    ],
+    [
+     -0.0004541,
+     -0.0001411,
+     0.02787
+    ]
+   ],
+   "n_sites": 35
+  },
+  {
+   "region_code": "1",
+   "region_name": "Hydrologic region 1, unadjusted (NSS GC2001)",
+   "aep": 0.1,
+   "intercept": 2.423,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1773,
+     "maximum": 1325.0
+    },
+    {
+     "code": "TPISTATSGO",
+     "transform": "log10",
+     "units": "weighted percent",
+     "minimum": 988.0,
+     "maximum": 4793.0,
+     "scale": 0.0005944290151976952
+    }
+   ],
+   "coefficients": [
+    0.5852,
+    -1.222
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.190608,
+   "avp": 0.03633,
+   "model_error_variance": 0.03183,
+   "covariance": [
+    [
+     0.004515,
+     -0.001808,
+     -0.0006184
+    ],
+    [
+     -0.001808,
+     0.001283,
+     -0.0001474
+    ],
+    [
+     -0.0006184,
+     -0.0001474,
+     0.03232
+    ]
+   ],
+   "n_sites": 35
+  },
+  {
+   "region_code": "1",
+   "region_name": "Hydrologic region 1, unadjusted (NSS GC2001)",
+   "aep": 0.04,
+   "intercept": 2.577,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1773,
+     "maximum": 1325.0
+    },
+    {
+     "code": "TPISTATSGO",
+     "transform": "log10",
+     "units": "weighted percent",
+     "minimum": 988.0,
+     "maximum": 4793.0,
+     "scale": 0.0005944290151976952
+    }
+   ],
+   "coefficients": [
+    0.5768,
+    -1.267
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.202462,
+   "avp": 0.04099,
+   "model_error_variance": 0.03565,
+   "covariance": [
+    [
+     0.005329,
+     -0.002119,
+     -0.0008689
+    ],
+    [
+     -0.002119,
+     0.001499,
+     -0.0001532
+    ],
+    [
+     -0.0008689,
+     -0.0001532,
+     0.03865
+    ]
+   ],
+   "n_sites": 35
+  },
+  {
+   "region_code": "1",
+   "region_name": "Hydrologic region 1, unadjusted (NSS GC2001)",
+   "aep": 0.02,
+   "intercept": 2.672,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1773,
+     "maximum": 1325.0
+    },
+    {
+     "code": "TPISTATSGO",
+     "transform": "log10",
+     "units": "weighted percent",
+     "minimum": 988.0,
+     "maximum": 4793.0,
+     "scale": 0.0005944290151976952
+    }
+   ],
+   "coefficients": [
+    0.5724,
+    -1.295
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.213915,
+   "avp": 0.04577,
+   "model_error_variance": 0.03964,
+   "covariance": [
+    [
+     0.00609,
+     -0.002424,
+     -0.001076
+    ],
+    [
+     -0.002424,
+     0.001717,
+     -0.0001647
+    ],
+    [
+     -0.001076,
+     -0.0001647,
+     0.04484
+    ]
+   ],
+   "n_sites": 35
+  },
+  {
+   "region_code": "1",
+   "region_name": "Hydrologic region 1, unadjusted (NSS GC2001)",
+   "aep": 0.01,
+   "intercept": 2.755,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1773,
+     "maximum": 1325.0
+    },
+    {
+     "code": "TPISTATSGO",
+     "transform": "log10",
+     "units": "weighted percent",
+     "minimum": 988.0,
+     "maximum": 4793.0,
+     "scale": 0.0005944290151976952
+    }
+   ],
+   "coefficients": [
+    0.5691,
+    -1.32
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.225686,
+   "avp": 0.05093,
+   "model_error_variance": 0.04393,
+   "covariance": [
+    [
+     0.006919,
+     -0.002762,
+     -0.001299
+    ],
+    [
+     -0.002762,
+     0.001962,
+     -0.0001784
+    ],
+    [
+     -0.001299,
+     -0.0001784,
+     0.05172
+    ]
+   ],
+   "n_sites": 35
+  },
+  {
+   "region_code": "1",
+   "region_name": "Hydrologic region 1, unadjusted (NSS GC2001)",
+   "aep": 0.005,
+   "intercept": 2.829,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1773,
+     "maximum": 1325.0
+    },
+    {
+     "code": "TPISTATSGO",
+     "transform": "log10",
+     "units": "weighted percent",
+     "minimum": 988.0,
+     "maximum": 4793.0,
+     "scale": 0.0005944290151976952
+    }
+   ],
+   "coefficients": [
+    0.5664,
+    -1.34
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.23502,
+   "avp": 0.05524,
+   "model_error_variance": 0.0474,
+   "covariance": [
+    [
+     0.007732,
+     -0.003092,
+     -0.00153
+    ],
+    [
+     -0.003092,
+     0.002199,
+     -0.0001884
+    ],
+    [
+     -0.00153,
+     -0.0001884,
+     0.05841
+    ]
+   ],
+   "n_sites": 35
+  },
+  {
+   "region_code": "1",
+   "region_name": "Hydrologic region 1, unadjusted (NSS GC2001)",
+   "aep": 0.002,
+   "intercept": 2.915,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1773,
+     "maximum": 1325.0
+    },
+    {
+     "code": "TPISTATSGO",
+     "transform": "log10",
+     "units": "weighted percent",
+     "minimum": 988.0,
+     "maximum": 4793.0,
+     "scale": 0.0005944290151976952
+    }
+   ],
+   "coefficients": [
+    0.5642,
+    -1.363
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.248744,
+   "avp": 0.06188,
+   "model_error_variance": 0.05278,
+   "covariance": [
+    [
+     0.00893,
+     -0.00359,
+     -0.001855
+    ],
+    [
+     -0.00359,
+     0.002563,
+     -0.0002072
+    ],
+    [
+     -0.001855,
+     -0.0002072,
+     0.06856
+    ]
+   ],
+   "n_sites": 35
+  },
+  {
+   "region_code": "2",
+   "region_name": "Hydrologic region 2 (NSS GC2002)",
+   "aep": 0.5,
+   "intercept": 1.542,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.07031,
+     "maximum": 1352.0
+    },
+    {
+     "code": "FLC16DVLMH",
+     "transform": "power",
+     "units": "decimal fraction",
+     "minimum": 0.002045,
+     "maximum": 0.9692,
+     "exponent": 0.5
+    },
+    {
+     "code": "FSSURGDC78",
+     "transform": "power",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 0.2506,
+     "offset": 1e-12,
+     "exponent": 0.5
+    },
+    {
+     "code": "RELRELF",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.8122,
+     "maximum": 35.97
+    }
+   ],
+   "coefficients": [
+    0.7757,
+    0.2756,
+    -0.8277,
+    0.2696
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.19376,
+   "avp": 0.03754,
+   "model_error_variance": 0.03555,
+   "covariance": [
+    [
+     0.02097,
+     -0.005617,
+     -0.004328,
+     -0.003887,
+     -0.01458
+    ],
+    [
+     -0.005617,
+     0.001996,
+     0.0008217,
+     -0.0008355,
+     0.004065
+    ],
+    [
+     -0.004328,
+     0.0008217,
+     0.00491,
+     -0.001071,
+     0.001178
+    ],
+    [
+     -0.003887,
+     -0.0008355,
+     -0.001071,
+     0.02196,
+     0.0005859
+    ],
+    [
+     -0.01458,
+     0.004065,
+     0.001178,
+     0.0005859,
+     0.0128
+    ]
+   ],
+   "n_sites": 119
+  },
+  {
+   "region_code": "2",
+   "region_name": "Hydrologic region 2 (NSS GC2002)",
+   "aep": 0.2,
+   "intercept": 1.741,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.07031,
+     "maximum": 1352.0
+    },
+    {
+     "code": "FLC16DVLMH",
+     "transform": "power",
+     "units": "decimal fraction",
+     "minimum": 0.002045,
+     "maximum": 0.9692,
+     "exponent": 0.5
+    },
+    {
+     "code": "FSSURGDC78",
+     "transform": "power",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 0.2506,
+     "offset": 1e-12,
+     "exponent": 0.5
+    },
+    {
+     "code": "RELRELF",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.8122,
+     "maximum": 35.97
+    }
+   ],
+   "coefficients": [
+    0.7661,
+    0.2153,
+    -0.9111,
+    0.3413
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.197493,
+   "avp": 0.03901,
+   "model_error_variance": 0.03685,
+   "covariance": [
+    [
+     0.02199,
+     -0.005882,
+     -0.00453,
+     -0.004125,
+     -0.01539
+    ],
+    [
+     -0.005882,
+     0.002098,
+     0.000831,
+     -0.0009047,
+     0.00427
+    ],
+    [
+     -0.00453,
+     0.000831,
+     0.005298,
+     -0.001064,
+     0.001326
+    ],
+    [
+     -0.004125,
+     -0.0009047,
+     -0.001064,
+     0.0233,
+     0.0006624
+    ],
+    [
+     -0.01539,
+     0.00427,
+     0.001326,
+     0.0006624,
+     0.01352
+    ]
+   ],
+   "n_sites": 119
+  },
+  {
+   "region_code": "2",
+   "region_name": "Hydrologic region 2 (NSS GC2002)",
+   "aep": 0.1,
+   "intercept": 1.832,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.07031,
+     "maximum": 1352.0
+    },
+    {
+     "code": "FLC16DVLMH",
+     "transform": "power",
+     "units": "decimal fraction",
+     "minimum": 0.002045,
+     "maximum": 0.9692,
+     "exponent": 0.5
+    },
+    {
+     "code": "FSSURGDC78",
+     "transform": "power",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 0.2506,
+     "offset": 1e-12,
+     "exponent": 0.5
+    },
+    {
+     "code": "RELRELF",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.8122,
+     "maximum": 35.97
+    }
+   ],
+   "coefficients": [
+    0.7624,
+    0.2016,
+    -0.9498,
+    0.3806
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.204858,
+   "avp": 0.04197,
+   "model_error_variance": 0.03955,
+   "covariance": [
+    [
+     0.0241,
+     -0.006431,
+     -0.005015,
+     -0.004569,
+     -0.0169
+    ],
+    [
+     -0.006431,
+     0.002297,
+     0.0008944,
+     -0.001011,
+     0.004678
+    ],
+    [
+     -0.005015,
+     0.0008944,
+     0.005992,
+     -0.001086,
+     0.001517
+    ],
+    [
+     -0.004569,
+     -0.001011,
+     -0.001086,
+     0.02571,
+     0.0007441
+    ],
+    [
+     -0.0169,
+     0.004678,
+     0.001517,
+     0.0007441,
+     0.01488
+    ]
+   ],
+   "n_sites": 119
+  },
+  {
+   "region_code": "2",
+   "region_name": "Hydrologic region 2 (NSS GC2002)",
+   "aep": 0.04,
+   "intercept": 1.919,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.07031,
+     "maximum": 1352.0
+    },
+    {
+     "code": "FLC16DVLMH",
+     "transform": "power",
+     "units": "decimal fraction",
+     "minimum": 0.002045,
+     "maximum": 0.9692,
+     "exponent": 0.5
+    },
+    {
+     "code": "FSSURGDC78",
+     "transform": "power",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 0.2506,
+     "offset": 1e-12,
+     "exponent": 0.5
+    },
+    {
+     "code": "RELRELF",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.8122,
+     "maximum": 35.97
+    }
+   ],
+   "coefficients": [
+    0.7601,
+    0.2006,
+    -0.9873,
+    0.4236
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.215508,
+   "avp": 0.04644,
+   "model_error_variance": 0.0436,
+   "covariance": [
+    [
+     0.0276,
+     -0.007344,
+     -0.00584,
+     -0.005287,
+     -0.0194
+    ],
+    [
+     -0.007344,
+     0.002624,
+     0.001012,
+     -0.001178,
+     0.005352
+    ],
+    [
+     -0.00584,
+     0.001012,
+     0.007127,
+     -0.001125,
+     0.00182
+    ],
+    [
+     -0.005287,
+     -0.001178,
+     -0.001125,
+     0.02964,
+     0.0008524
+    ],
+    [
+     -0.0194,
+     0.005352,
+     0.00182,
+     0.0008524,
+     0.0171
+    ]
+   ],
+   "n_sites": 119
+  },
+  {
+   "region_code": "2",
+   "region_name": "Hydrologic region 2 (NSS GC2002)",
+   "aep": 0.02,
+   "intercept": 1.969,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.07031,
+     "maximum": 1352.0
+    },
+    {
+     "code": "FLC16DVLMH",
+     "transform": "power",
+     "units": "decimal fraction",
+     "minimum": 0.002045,
+     "maximum": 0.9692,
+     "exponent": 0.5
+    },
+    {
+     "code": "FSSURGDC78",
+     "transform": "power",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 0.2506,
+     "offset": 1e-12,
+     "exponent": 0.5
+    },
+    {
+     "code": "RELRELF",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.8122,
+     "maximum": 35.97
+    }
+   ],
+   "coefficients": [
+    0.7593,
+    0.2069,
+    -1.009,
+    0.4518
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.225259,
+   "avp": 0.05075,
+   "model_error_variance": 0.04752,
+   "covariance": [
+    [
+     0.03106,
+     -0.008251,
+     -0.006648,
+     -0.005975,
+     -0.02187
+    ],
+    [
+     -0.008251,
+     0.002947,
+     0.001136,
+     -0.001335,
+     0.006022
+    ],
+    [
+     -0.006648,
+     0.001136,
+     0.008197,
+     -0.001188,
+     0.002109
+    ],
+    [
+     -0.005975,
+     -0.001335,
+     -0.001188,
+     0.03343,
+     0.0009434
+    ],
+    [
+     -0.02187,
+     0.006022,
+     0.002109,
+     0.0009434,
+     0.01929
+    ]
+   ],
+   "n_sites": 119
+  },
+  {
+   "region_code": "2",
+   "region_name": "Hydrologic region 2 (NSS GC2002)",
+   "aep": 0.01,
+   "intercept": 2.01,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.07031,
+     "maximum": 1352.0
+    },
+    {
+     "code": "FLC16DVLMH",
+     "transform": "power",
+     "units": "decimal fraction",
+     "minimum": 0.002045,
+     "maximum": 0.9692,
+     "exponent": 0.5
+    },
+    {
+     "code": "FSSURGDC78",
+     "transform": "power",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 0.2506,
+     "offset": 1e-12,
+     "exponent": 0.5
+    },
+    {
+     "code": "RELRELF",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.8122,
+     "maximum": 35.97
+    }
+   ],
+   "coefficients": [
+    0.7595,
+    0.2167,
+    -1.028,
+    0.4778
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.233831,
+   "avp": 0.05468,
+   "model_error_variance": 0.05106,
+   "covariance": [
+    [
+     0.0346,
+     -0.00918,
+     -0.007487,
+     -0.006675,
+     -0.02439
+    ],
+    [
+     -0.00918,
+     0.003275,
+     0.001267,
+     -0.001495,
+     0.006707
+    ],
+    [
+     -0.007487,
+     0.001267,
+     0.009301,
+     -0.001245,
+     0.002409
+    ],
+    [
+     -0.006675,
+     -0.001495,
+     -0.001245,
+     0.0373,
+     0.001023
+    ],
+    [
+     -0.02439,
+     0.006707,
+     0.002409,
+     0.001023,
+     0.02154
+    ]
+   ],
+   "n_sites": 119
+  },
+  {
+   "region_code": "2",
+   "region_name": "Hydrologic region 2 (NSS GC2002)",
+   "aep": 0.005,
+   "intercept": 2.043,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.07031,
+     "maximum": 1352.0
+    },
+    {
+     "code": "FLC16DVLMH",
+     "transform": "power",
+     "units": "decimal fraction",
+     "minimum": 0.002045,
+     "maximum": 0.9692,
+     "exponent": 0.5
+    },
+    {
+     "code": "FSSURGDC78",
+     "transform": "power",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 0.2506,
+     "offset": 1e-12,
+     "exponent": 0.5
+    },
+    {
+     "code": "RELRELF",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.8122,
+     "maximum": 35.97
+    }
+   ],
+   "coefficients": [
+    0.7602,
+    0.2292,
+    -1.044,
+    0.502
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.242685,
+   "avp": 0.0589,
+   "model_error_variance": 0.05485,
+   "covariance": [
+    [
+     0.03858,
+     -0.01023,
+     -0.008426,
+     -0.007449,
+     -0.02722
+    ],
+    [
+     -0.01023,
+     0.003642,
+     0.001419,
+     -0.001671,
+     0.007477
+    ],
+    [
+     -0.008426,
+     0.001419,
+     0.01052,
+     -0.001317,
+     0.002744
+    ],
+    [
+     -0.007449,
+     -0.001671,
+     -0.001317,
+     0.04161,
+     0.001103
+    ],
+    [
+     -0.02722,
+     0.007477,
+     0.002744,
+     0.001103,
+     0.02406
+    ]
+   ],
+   "n_sites": 119
+  },
+  {
+   "region_code": "2",
+   "region_name": "Hydrologic region 2 (NSS GC2002)",
+   "aep": 0.002,
+   "intercept": 2.079,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.07031,
+     "maximum": 1352.0
+    },
+    {
+     "code": "FLC16DVLMH",
+     "transform": "power",
+     "units": "decimal fraction",
+     "minimum": 0.002045,
+     "maximum": 0.9692,
+     "exponent": 0.5
+    },
+    {
+     "code": "FSSURGDC78",
+     "transform": "power",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 0.2506,
+     "offset": 1e-12,
+     "exponent": 0.5
+    },
+    {
+     "code": "RELRELF",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.8122,
+     "maximum": 35.97
+    }
+   ],
+   "coefficients": [
+    0.7623,
+    0.2481,
+    -1.062,
+    0.5326
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.252372,
+   "avp": 0.0637,
+   "model_error_variance": 0.05908,
+   "covariance": [
+    [
+     0.04386,
+     -0.01161,
+     -0.009686,
+     -0.008466,
+     -0.03098
+    ],
+    [
+     -0.01161,
+     0.004127,
+     0.001625,
+     -0.001903,
+     0.008499
+    ],
+    [
+     -0.009686,
+     0.001625,
+     0.01215,
+     -0.001403,
+     0.003194
+    ],
+    [
+     -0.008466,
+     -0.001903,
+     -0.001403,
+     0.04728,
+     0.001188
+    ],
+    [
+     -0.03098,
+     0.008499,
+     0.003194,
+     0.001188,
+     0.02741
+    ]
+   ],
+   "n_sites": 119
+  },
+  {
+   "region_code": "3",
+   "region_name": "Hydrologic region 3, unadjusted (NSS GC2003)",
+   "aep": 0.5,
+   "intercept": 2.154,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.0378,
+     "maximum": 2618.0
+    },
+    {
+     "code": "DEMSLX100",
+     "transform": "identity",
+     "units": "degrees",
+     "minimum": 22.12,
+     "maximum": 77.92,
+     "offset": -55.329
+    },
+    {
+     "code": "TPISTATSGO",
+     "transform": "identity",
+     "units": "weighted percent",
+     "minimum": 988.0,
+     "maximum": 6582.0,
+     "scale": 0.0002101590904314566,
+     "offset": -0.383204085492718
+    }
+   ],
+   "coefficients": [
+    0.6272,
+    0.006488,
+    -0.374
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.172581,
+   "avp": 0.02978,
+   "model_error_variance": 0.02704,
+   "covariance": [
+    [
+     0.003118,
+     -0.0007707,
+     5.324e-05,
+     -0.001336
+    ],
+    [
+     -0.0007707,
+     0.0004721,
+     7.619e-06,
+     4.117e-05
+    ],
+    [
+     5.324e-05,
+     7.619e-06,
+     5.017e-06,
+     -3.222e-05
+    ],
+    [
+     -0.001336,
+     4.117e-05,
+     -3.222e-05,
+     0.01002
+    ]
+   ],
+   "n_sites": 60
+  },
+  {
+   "region_code": "3",
+   "region_name": "Hydrologic region 3, unadjusted (NSS GC2003)",
+   "aep": 0.2,
+   "intercept": 2.453,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.0378,
+     "maximum": 2618.0
+    },
+    {
+     "code": "DEMSLX100",
+     "transform": "identity",
+     "units": "degrees",
+     "minimum": 22.12,
+     "maximum": 77.92,
+     "offset": -55.329
+    },
+    {
+     "code": "TPISTATSGO",
+     "transform": "identity",
+     "units": "weighted percent",
+     "minimum": 988.0,
+     "maximum": 6582.0,
+     "scale": 0.0002101590904314566,
+     "offset": -0.383204085492718
+    }
+   ],
+   "coefficients": [
+    0.6066,
+    0.008547,
+    -0.4903
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.166963,
+   "avp": 0.02787,
+   "model_error_variance": 0.02521,
+   "covariance": [
+    [
+     0.003091,
+     -0.0007454,
+     5.519e-05,
+     -0.001307
+    ],
+    [
+     -0.0007454,
+     0.0004497,
+     6.543e-06,
+     3.488e-05
+    ],
+    [
+     5.519e-05,
+     6.543e-06,
+     4.929e-06,
+     -3.063e-05
+    ],
+    [
+     -0.001307,
+     3.488e-05,
+     -3.063e-05,
+     0.009566
+    ]
+   ],
+   "n_sites": 60
+  },
+  {
+   "region_code": "3",
+   "region_name": "Hydrologic region 3, unadjusted (NSS GC2003)",
+   "aep": 0.1,
+   "intercept": 2.601,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.0378,
+     "maximum": 2618.0
+    },
+    {
+     "code": "DEMSLX100",
+     "transform": "identity",
+     "units": "degrees",
+     "minimum": 22.12,
+     "maximum": 77.92,
+     "offset": -55.329
+    },
+    {
+     "code": "TPISTATSGO",
+     "transform": "identity",
+     "units": "weighted percent",
+     "minimum": 988.0,
+     "maximum": 6582.0,
+     "scale": 0.0002101590904314566,
+     "offset": -0.383204085492718
+    }
+   ],
+   "coefficients": [
+    0.5976,
+    0.009675,
+    -0.5536
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.169332,
+   "avp": 0.02867,
+   "model_error_variance": 0.02582,
+   "covariance": [
+    [
+     0.003372,
+     -0.0008046,
+     6.191e-05,
+     -0.001394
+    ],
+    [
+     -0.0008046,
+     0.0004775,
+     6.304e-06,
+     3.407e-05
+    ],
+    [
+     6.191e-05,
+     6.304e-06,
+     5.341e-06,
+     -3.16e-05
+    ],
+    [
+     -0.001394,
+     3.407e-05,
+     -3.16e-05,
+     0.01006
+    ]
+   ],
+   "n_sites": 60
+  },
+  {
+   "region_code": "3",
+   "region_name": "Hydrologic region 3, unadjusted (NSS GC2003)",
+   "aep": 0.04,
+   "intercept": 2.75,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.0378,
+     "maximum": 2618.0
+    },
+    {
+     "code": "DEMSLX100",
+     "transform": "identity",
+     "units": "degrees",
+     "minimum": 22.12,
+     "maximum": 77.92,
+     "offset": -55.329
+    },
+    {
+     "code": "TPISTATSGO",
+     "transform": "identity",
+     "units": "weighted percent",
+     "minimum": 988.0,
+     "maximum": 6582.0,
+     "scale": 0.0002101590904314566,
+     "offset": -0.383204085492718
+    }
+   ],
+   "coefficients": [
+    0.5893,
+    0.01085,
+    -0.6222
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.172311,
+   "avp": 0.02969,
+   "model_error_variance": 0.02654,
+   "covariance": [
+    [
+     0.003834,
+     -0.0009083,
+     7.228e-05,
+     -0.001531
+    ],
+    [
+     -0.0009083,
+     0.0005265,
+     6.036e-06,
+     3.507e-05
+    ],
+    [
+     7.228e-05,
+     6.036e-06,
+     5.996e-06,
+     -3.283e-05
+    ],
+    [
+     -0.001531,
+     3.507e-05,
+     -3.283e-05,
+     0.01081
+    ]
+   ],
+   "n_sites": 60
+  },
+  {
+   "region_code": "3",
+   "region_name": "Hydrologic region 3, unadjusted (NSS GC2003)",
+   "aep": 0.02,
+   "intercept": 2.841,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.0378,
+     "maximum": 2618.0
+    },
+    {
+     "code": "DEMSLX100",
+     "transform": "identity",
+     "units": "degrees",
+     "minimum": 22.12,
+     "maximum": 77.92,
+     "offset": -55.329
+    },
+    {
+     "code": "TPISTATSGO",
+     "transform": "identity",
+     "units": "weighted percent",
+     "minimum": 988.0,
+     "maximum": 6582.0,
+     "scale": 0.0002101590904314566,
+     "offset": -0.383204085492718
+    }
+   ],
+   "coefficients": [
+    0.5848,
+    0.01156,
+    -0.6663
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.176124,
+   "avp": 0.03101,
+   "model_error_variance": 0.02757,
+   "covariance": [
+    [
+     0.004262,
+     -0.00101,
+     8.172e-05,
+     -0.001663
+    ],
+    [
+     -0.00101,
+     0.0005788,
+     6.099e-06,
+     3.522e-05
+    ],
+    [
+     8.172e-05,
+     6.099e-06,
+     6.649e-06,
+     -3.435e-05
+    ],
+    [
+     -0.001663,
+     3.522e-05,
+     -3.435e-05,
+     0.01161
+    ]
+   ],
+   "n_sites": 60
+  },
+  {
+   "region_code": "3",
+   "region_name": "Hydrologic region 3, unadjusted (NSS GC2003)",
+   "aep": 0.01,
+   "intercept": 2.919,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.0378,
+     "maximum": 2618.0
+    },
+    {
+     "code": "DEMSLX100",
+     "transform": "identity",
+     "units": "degrees",
+     "minimum": 22.12,
+     "maximum": 77.92,
+     "offset": -55.329
+    },
+    {
+     "code": "TPISTATSGO",
+     "transform": "identity",
+     "units": "weighted percent",
+     "minimum": 988.0,
+     "maximum": 6582.0,
+     "scale": 0.0002101590904314566,
+     "offset": -0.383204085492718
+    }
+   ],
+   "coefficients": [
+    0.5813,
+    0.01216,
+    -0.7065
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.17647,
+   "avp": 0.03114,
+   "model_error_variance": 0.02745,
+   "covariance": [
+    [
+     0.004654,
+     -0.001103,
+     9.027e-05,
+     -0.001769
+    ],
+    [
+     -0.001103,
+     0.0006225,
+     5.886e-06,
+     3.699e-05
+    ],
+    [
+     9.027e-05,
+     5.886e-06,
+     7.185e-06,
+     -3.48e-05
+    ],
+    [
+     -0.001769,
+     3.699e-05,
+     -3.48e-05,
+     0.01207
+    ]
+   ],
+   "n_sites": 60
+  },
+  {
+   "region_code": "3",
+   "region_name": "Hydrologic region 3, unadjusted (NSS GC2003)",
+   "aep": 0.005,
+   "intercept": 2.987,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.0378,
+     "maximum": 2618.0
+    },
+    {
+     "code": "DEMSLX100",
+     "transform": "identity",
+     "units": "degrees",
+     "minimum": 22.12,
+     "maximum": 77.92,
+     "offset": -55.329
+    },
+    {
+     "code": "TPISTATSGO",
+     "transform": "identity",
+     "units": "weighted percent",
+     "minimum": 988.0,
+     "maximum": 6582.0,
+     "scale": 0.0002101590904314566,
+     "offset": -0.383204085492718
+    }
+   ],
+   "coefficients": [
+    0.5786,
+    0.01269,
+    -0.7416
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.180909,
+   "avp": 0.03273,
+   "model_error_variance": 0.02868,
+   "covariance": [
+    [
+     0.005166,
+     -0.00123,
+     0.0001015,
+     -0.001928
+    ],
+    [
+     -0.00123,
+     0.0006911,
+     6.232e-06,
+     3.596e-05
+    ],
+    [
+     0.0001015,
+     6.232e-06,
+     8.005e-06,
+     -3.68e-05
+    ],
+    [
+     -0.001928,
+     3.596e-05,
+     -3.68e-05,
+     0.01304
+    ]
+   ],
+   "n_sites": 60
+  },
+  {
+   "region_code": "3",
+   "region_name": "Hydrologic region 3, unadjusted (NSS GC2003)",
+   "aep": 0.002,
+   "intercept": 3.066,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.0378,
+     "maximum": 2618.0
+    },
+    {
+     "code": "DEMSLX100",
+     "transform": "identity",
+     "units": "degrees",
+     "minimum": 22.12,
+     "maximum": 77.92,
+     "offset": -55.329
+    },
+    {
+     "code": "TPISTATSGO",
+     "transform": "identity",
+     "units": "weighted percent",
+     "minimum": 988.0,
+     "maximum": 6582.0,
+     "scale": 0.0002101590904314566,
+     "offset": -0.383204085492718
+    }
+   ],
+   "coefficients": [
+    0.5758,
+    0.01332,
+    -0.7838
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.186003,
+   "avp": 0.03459,
+   "model_error_variance": 0.03004,
+   "covariance": [
+    [
+     0.005876,
+     -0.001409,
+     0.000117,
+     -0.002144
+    ],
+    [
+     -0.001409,
+     0.0007881,
+     6.766e-06,
+     3.412e-05
+    ],
+    [
+     0.000117,
+     6.766e-06,
+     9.147e-06,
+     -3.941e-05
+    ],
+    [
+     -0.002144,
+     3.412e-05,
+     -3.941e-05,
+     0.0143
+    ]
+   ],
+   "n_sites": 60
+  },
+  {
+   "region_code": "4",
+   "region_name": "Hydrologic region 4, unadjusted (NSS GC2004)",
+   "aep": 0.5,
+   "intercept": 1.8,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.0461,
+     "maximum": 1636.0
+    },
+    {
+     "code": "STATSSLPWT",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 2.04,
+     "maximum": 13.37
+    }
+   ],
+   "coefficients": [
+    0.6034,
+    0.6043
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.183347,
+   "avp": 0.03362,
+   "model_error_variance": 0.03007,
+   "covariance": [
+    [
+     0.02038,
+     -0.001779,
+     -0.02237
+    ],
+    [
+     -0.001779,
+     0.0007298,
+     0.001143
+    ],
+    [
+     -0.02237,
+     0.001143,
+     0.02812
+    ]
+   ],
+   "n_sites": 36
+  },
+  {
+   "region_code": "4",
+   "region_name": "Hydrologic region 4, unadjusted (NSS GC2004)",
+   "aep": 0.2,
+   "intercept": 2.078,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.0461,
+     "maximum": 1636.0
+    },
+    {
+     "code": "STATSSLPWT",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 2.04,
+     "maximum": 13.37
+    }
+   ],
+   "coefficients": [
+    0.5892,
+    0.5947
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.157652,
+   "avp": 0.02485,
+   "model_error_variance": 0.02195,
+   "covariance": [
+    [
+     0.01643,
+     -0.001446,
+     -0.01767
+    ],
+    [
+     -0.001446,
+     0.0005743,
+     0.0009033
+    ],
+    [
+     -0.01767,
+     0.0009033,
+     0.02196
+    ]
+   ],
+   "n_sites": 36
+  },
+  {
+   "region_code": "4",
+   "region_name": "Hydrologic region 4, unadjusted (NSS GC2004)",
+   "aep": 0.1,
+   "intercept": 2.228,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.0461,
+     "maximum": 1636.0
+    },
+    {
+     "code": "STATSSLPWT",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 2.04,
+     "maximum": 13.37
+    }
+   ],
+   "coefficients": [
+    0.5828,
+    0.5762
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.147394,
+   "avp": 0.02173,
+   "model_error_variance": 0.01892,
+   "covariance": [
+    [
+     0.01577,
+     -0.001385,
+     -0.01672
+    ],
+    [
+     -0.001385,
+     0.0005367,
+     0.0008438
+    ],
+    [
+     -0.01672,
+     0.0008438,
+     0.02061
+    ]
+   ],
+   "n_sites": 36
+  },
+  {
+   "region_code": "4",
+   "region_name": "Hydrologic region 4, unadjusted (NSS GC2004)",
+   "aep": 0.04,
+   "intercept": 2.389,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.0461,
+     "maximum": 1636.0
+    },
+    {
+     "code": "STATSSLPWT",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 2.04,
+     "maximum": 13.37
+    }
+   ],
+   "coefficients": [
+    0.5761,
+    0.5499
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.137618,
+   "avp": 0.01894,
+   "model_error_variance": 0.0161,
+   "covariance": [
+    [
+     0.01601,
+     -0.00139,
+     -0.01677
+    ],
+    [
+     -0.00139,
+     0.0005244,
+     0.0008194
+    ],
+    [
+     -0.01677,
+     0.0008194,
+     0.0205
+    ]
+   ],
+   "n_sites": 36
+  },
+  {
+   "region_code": "4",
+   "region_name": "Hydrologic region 4, unadjusted (NSS GC2004)",
+   "aep": 0.02,
+   "intercept": 2.488,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.0461,
+     "maximum": 1636.0
+    },
+    {
+     "code": "STATSSLPWT",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 2.04,
+     "maximum": 13.37
+    }
+   ],
+   "coefficients": [
+    0.5717,
+    0.5327
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.133135,
+   "avp": 0.01772,
+   "model_error_variance": 0.01474,
+   "covariance": [
+    [
+     0.01701,
+     -0.001454,
+     -0.01775
+    ],
+    [
+     -0.001454,
+     0.0005409,
+     0.0008405
+    ],
+    [
+     -0.01775,
+     0.0008405,
+     0.02163
+    ]
+   ],
+   "n_sites": 36
+  },
+  {
+   "region_code": "4",
+   "region_name": "Hydrologic region 4, unadjusted (NSS GC2004)",
+   "aep": 0.01,
+   "intercept": 2.573,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.0461,
+     "maximum": 1636.0
+    },
+    {
+     "code": "STATSSLPWT",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 2.04,
+     "maximum": 13.37
+    }
+   ],
+   "coefficients": [
+    0.568,
+    0.5199
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.133985,
+   "avp": 0.01795,
+   "model_error_variance": 0.01466,
+   "covariance": [
+    [
+     0.01913,
+     -0.001604,
+     -0.02003
+    ],
+    [
+     -0.001604,
+     0.0005936,
+     0.0009224
+    ],
+    [
+     -0.02003,
+     0.0009224,
+     0.02438
+    ]
+   ],
+   "n_sites": 36
+  },
+  {
+   "region_code": "4",
+   "region_name": "Hydrologic region 4, unadjusted (NSS GC2004)",
+   "aep": 0.005,
+   "intercept": 2.65,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.0461,
+     "maximum": 1636.0
+    },
+    {
+     "code": "STATSSLPWT",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 2.04,
+     "maximum": 13.37
+    }
+   ],
+   "coefficients": [
+    0.5643,
+    0.5053
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.130135,
+   "avp": 0.01694,
+   "model_error_variance": 0.01341,
+   "covariance": [
+    [
+     0.02085,
+     -0.001717,
+     -0.02186
+    ],
+    [
+     -0.001717,
+     0.0006298,
+     0.0009736
+    ],
+    [
+     -0.02186,
+     0.0009736,
+     0.02658
+    ]
+   ],
+   "n_sites": 36
+  },
+  {
+   "region_code": "4",
+   "region_name": "Hydrologic region 4, unadjusted (NSS GC2004)",
+   "aep": 0.002,
+   "intercept": 2.74,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.0461,
+     "maximum": 1636.0
+    },
+    {
+     "code": "STATSSLPWT",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 2.04,
+     "maximum": 13.37
+    }
+   ],
+   "coefficients": [
+    0.5601,
+    0.4878
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.127044,
+   "avp": 0.01614,
+   "model_error_variance": 0.0122,
+   "covariance": [
+    [
+     0.02392,
+     -0.001922,
+     -0.02519
+    ],
+    [
+     -0.001922,
+     0.0007,
+     0.00108
+    ],
+    [
+     -0.02519,
+     0.00108,
+     0.03062
+    ]
+   ],
+   "n_sites": 36
+  },
+  {
+   "region_code": "5",
+   "region_name": "Hydrologic region 5, unadjusted (NSS GC2005)",
+   "aep": 0.5,
+   "intercept": 2.351,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.01327,
+     "maximum": 1943.0
+    },
+    {
+     "code": "DEMSLX100",
+     "transform": "identity",
+     "units": "degrees",
+     "minimum": 24.52,
+     "maximum": 79.35,
+     "offset": -55.329
+    }
+   ],
+   "coefficients": [
+    0.599,
+    0.004344
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.129891,
+   "avp": 0.01688,
+   "model_error_variance": 0.01488,
+   "covariance": [
+    [
+     0.001662,
+     -0.0003868,
+     2.914e-05
+    ],
+    [
+     -0.0003868,
+     0.0002826,
+     1.968e-06
+    ],
+    [
+     2.914e-05,
+     1.968e-06,
+     3.977e-06
+    ]
+   ],
+   "n_sites": 36
+  },
+  {
+   "region_code": "5",
+   "region_name": "Hydrologic region 5, unadjusted (NSS GC2005)",
+   "aep": 0.2,
+   "intercept": 2.581,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.01327,
+     "maximum": 1943.0
+    },
+    {
+     "code": "DEMSLX100",
+     "transform": "identity",
+     "units": "degrees",
+     "minimum": 24.52,
+     "maximum": 79.35,
+     "offset": -55.329
+    }
+   ],
+   "coefficients": [
+    0.5993,
+    0.004309
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.130135,
+   "avp": 0.01693,
+   "model_error_variance": 0.01487,
+   "covariance": [
+    [
+     0.001744,
+     -0.0004082,
+     3.132e-05
+    ],
+    [
+     -0.0004082,
+     0.000292,
+     1.985e-06
+    ],
+    [
+     3.132e-05,
+     1.985e-06,
+     4.18e-06
+    ]
+   ],
+   "n_sites": 36
+  },
+  {
+   "region_code": "5",
+   "region_name": "Hydrologic region 5, unadjusted (NSS GC2005)",
+   "aep": 0.1,
+   "intercept": 2.699,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.01327,
+     "maximum": 1943.0
+    },
+    {
+     "code": "DEMSLX100",
+     "transform": "identity",
+     "units": "degrees",
+     "minimum": 24.52,
+     "maximum": 79.35,
+     "offset": -55.329
+    }
+   ],
+   "coefficients": [
+    0.598,
+    0.004366
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.130581,
+   "avp": 0.01706,
+   "model_error_variance": 0.01485,
+   "covariance": [
+    [
+     0.001896,
+     -0.0004437,
+     3.425e-05
+    ],
+    [
+     -0.0004437,
+     0.0003099,
+     2.153e-06
+    ],
+    [
+     3.425e-05,
+     2.153e-06,
+     4.511e-06
+    ]
+   ],
+   "n_sites": 36
+  },
+  {
+   "region_code": "5",
+   "region_name": "Hydrologic region 5, unadjusted (NSS GC2005)",
+   "aep": 0.04,
+   "intercept": 2.822,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.01327,
+     "maximum": 1943.0
+    },
+    {
+     "code": "DEMSLX100",
+     "transform": "identity",
+     "units": "degrees",
+     "minimum": 24.52,
+     "maximum": 79.35,
+     "offset": -55.329
+    }
+   ],
+   "coefficients": [
+    0.5958,
+    0.004427
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.146039,
+   "avp": 0.02133,
+   "model_error_variance": 0.01852,
+   "covariance": [
+    [
+     0.00239,
+     -0.0005658,
+     4.584e-05
+    ],
+    [
+     -0.0005658,
+     0.0003971,
+     2.765e-06
+    ],
+    [
+     4.584e-05,
+     2.765e-06,
+     5.964e-06
+    ]
+   ],
+   "n_sites": 36
+  },
+  {
+   "region_code": "5",
+   "region_name": "Hydrologic region 5, unadjusted (NSS GC2005)",
+   "aep": 0.02,
+   "intercept": 2.9,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.01327,
+     "maximum": 1943.0
+    },
+    {
+     "code": "DEMSLX100",
+     "transform": "identity",
+     "units": "degrees",
+     "minimum": 24.52,
+     "maximum": 79.35,
+     "offset": -55.329
+    }
+   ],
+   "coefficients": [
+    0.5937,
+    0.004478
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.153509,
+   "avp": 0.02356,
+   "model_error_variance": 0.02034,
+   "covariance": [
+    [
+     0.002748,
+     -0.0006545,
+     5.431e-05
+    ],
+    [
+     -0.0006545,
+     0.0004568,
+     3.173e-06
+    ],
+    [
+     5.431e-05,
+     3.173e-06,
+     6.995e-06
+    ]
+   ],
+   "n_sites": 36
+  },
+  {
+   "region_code": "5",
+   "region_name": "Hydrologic region 5, unadjusted (NSS GC2005)",
+   "aep": 0.01,
+   "intercept": 2.969,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.01327,
+     "maximum": 1943.0
+    },
+    {
+     "code": "DEMSLX100",
+     "transform": "identity",
+     "units": "degrees",
+     "minimum": 24.52,
+     "maximum": 79.35,
+     "offset": -55.329
+    }
+   ],
+   "coefficients": [
+    0.5913,
+    0.004526
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.154339,
+   "avp": 0.02382,
+   "model_error_variance": 0.02032,
+   "covariance": [
+    [
+     0.003029,
+     -0.0007236,
+     6.084e-05
+    ],
+    [
+     -0.0007236,
+     0.0004961,
+     3.437e-06
+    ],
+    [
+     6.084e-05,
+     3.437e-06,
+     7.736e-06
+    ]
+   ],
+   "n_sites": 36
+  },
+  {
+   "region_code": "5",
+   "region_name": "Hydrologic region 5, unadjusted (NSS GC2005)",
+   "aep": 0.005,
+   "intercept": 3.032,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.01327,
+     "maximum": 1943.0
+    },
+    {
+     "code": "DEMSLX100",
+     "transform": "identity",
+     "units": "degrees",
+     "minimum": 24.52,
+     "maximum": 79.35,
+     "offset": -55.329
+    }
+   ],
+   "coefficients": [
+    0.5888,
+    0.004569
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.161656,
+   "avp": 0.02613,
+   "model_error_variance": 0.02213,
+   "covariance": [
+    [
+     0.003456,
+     -0.0008309,
+     7.156e-05
+    ],
+    [
+     -0.0008309,
+     0.0005683,
+     3.88e-06
+    ],
+    [
+     7.156e-05,
+     3.88e-06,
+     9.017e-06
+    ]
+   ],
+   "n_sites": 36
+  },
+  {
+   "region_code": "5",
+   "region_name": "Hydrologic region 5, unadjusted (NSS GC2005)",
+   "aep": 0.002,
+   "intercept": 3.106,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.01327,
+     "maximum": 1943.0
+    },
+    {
+     "code": "DEMSLX100",
+     "transform": "identity",
+     "units": "degrees",
+     "minimum": 24.52,
+     "maximum": 79.35,
+     "offset": -55.329
+    }
+   ],
+   "coefficients": [
+    0.5854,
+    0.004628
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.169061,
+   "avp": 0.02859,
+   "model_error_variance": 0.02393,
+   "covariance": [
+    [
+     0.004036,
+     -0.0009773,
+     8.647e-05
+    ],
+    [
+     -0.0009773,
+     0.0006643,
+     4.441e-06
+    ],
+    [
+     8.647e-05,
+     4.441e-06,
+     1.077e-05
+    ]
+   ],
+   "n_sites": 36
+  },
+  {
+   "region_code": "6",
+   "region_name": "Hydrologic region 6, unadjusted (NSS GC2006)",
+   "aep": 0.5,
+   "intercept": 2.344,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.07158,
+     "maximum": 791.8
+    }
+   ],
+   "coefficients": [
+    0.5927
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.197158,
+   "avp": 0.03887,
+   "model_error_variance": 0.03357,
+   "covariance": [
+    [
+     0.00429,
+     -0.001371
+    ],
+    [
+     -0.001371,
+     0.001474
+    ]
+   ],
+   "n_sites": 16
+  },
+  {
+   "region_code": "6",
+   "region_name": "Hydrologic region 6, unadjusted (NSS GC2006)",
+   "aep": 0.2,
+   "intercept": 2.55,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.07158,
+     "maximum": 791.8
+    }
+   ],
+   "coefficients": [
+    0.6029
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.213625,
+   "avp": 0.04563,
+   "model_error_variance": 0.03942,
+   "covariance": [
+    [
+     0.005,
+     -0.001601
+    ],
+    [
+     -0.001601,
+     0.001731
+    ]
+   ],
+   "n_sites": 16
+  },
+  {
+   "region_code": "6",
+   "region_name": "Hydrologic region 6, unadjusted (NSS GC2006)",
+   "aep": 0.1,
+   "intercept": 2.656,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.07158,
+     "maximum": 791.8
+    }
+   ],
+   "coefficients": [
+    0.6086
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.224655,
+   "avp": 0.05047,
+   "model_error_variance": 0.04347,
+   "covariance": [
+    [
+     0.005666,
+     -0.0018
+    ],
+    [
+     -0.0018,
+     0.001935
+    ]
+   ],
+   "n_sites": 16
+  },
+  {
+   "region_code": "6",
+   "region_name": "Hydrologic region 6, unadjusted (NSS GC2006)",
+   "aep": 0.04,
+   "intercept": 2.766,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.07158,
+     "maximum": 791.8
+    }
+   ],
+   "coefficients": [
+    0.6151
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.2402,
+   "avp": 0.05769,
+   "model_error_variance": 0.04945,
+   "covariance": [
+    [
+     0.006705,
+     -0.002113
+    ],
+    [
+     -0.002113,
+     0.002256
+    ]
+   ],
+   "n_sites": 16
+  },
+  {
+   "region_code": "6",
+   "region_name": "Hydrologic region 6, unadjusted (NSS GC2006)",
+   "aep": 0.02,
+   "intercept": 2.836,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.07158,
+     "maximum": 791.8
+    }
+   ],
+   "coefficients": [
+    0.6197
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.247005,
+   "avp": 0.06102,
+   "model_error_variance": 0.05202,
+   "covariance": [
+    [
+     0.00737,
+     -0.002303
+    ],
+    [
+     -0.002303,
+     0.00244
+    ]
+   ],
+   "n_sites": 16
+  },
+  {
+   "region_code": "6",
+   "region_name": "Hydrologic region 6, unadjusted (NSS GC2006)",
+   "aep": 0.01,
+   "intercept": 2.898,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.07158,
+     "maximum": 791.8
+    }
+   ],
+   "coefficients": [
+    0.6239
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.257449,
+   "avp": 0.06628,
+   "model_error_variance": 0.05626,
+   "covariance": [
+    [
+     0.008232,
+     -0.002564
+    ],
+    [
+     -0.002564,
+     0.002709
+    ]
+   ],
+   "n_sites": 16
+  },
+  {
+   "region_code": "6",
+   "region_name": "Hydrologic region 6, unadjusted (NSS GC2006)",
+   "aep": 0.005,
+   "intercept": 2.954,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.07158,
+     "maximum": 791.8
+    }
+   ],
+   "coefficients": [
+    0.6283
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.260584,
+   "avp": 0.0679,
+   "model_error_variance": 0.05721,
+   "covariance": [
+    [
+     0.008831,
+     -0.00273
+    ],
+    [
+     -0.00273,
+     0.002861
+    ]
+   ],
+   "n_sites": 16
+  },
+  {
+   "region_code": "6",
+   "region_name": "Hydrologic region 6, unadjusted (NSS GC2006)",
+   "aep": 0.002,
+   "intercept": 3.02,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.07158,
+     "maximum": 791.8
+    }
+   ],
+   "coefficients": [
+    0.6337
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.268367,
+   "avp": 0.07202,
+   "model_error_variance": 0.06015,
+   "covariance": [
+    [
+     0.009839,
+     -0.003028
+    ],
+    [
+     -0.003028,
+     0.003158
+    ]
+   ],
+   "n_sites": 16
+  },
+  {
+   "region_code": "7",
+   "region_name": "Hydrologic region 7, unadjusted (NSS GC2007)",
+   "aep": 0.5,
+   "intercept": 2.547,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.08691,
+     "maximum": 243.7
+    }
+   ],
+   "coefficients": [
+    0.5515
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.210024,
+   "avp": 0.04411,
+   "model_error_variance": 0.03511,
+   "covariance": [
+    [
+     0.0062,
+     -0.002277
+    ],
+    [
+     -0.002277,
+     0.003461
+    ]
+   ],
+   "n_sites": 9
+  },
+  {
+   "region_code": "7",
+   "region_name": "Hydrologic region 7, unadjusted (NSS GC2007)",
+   "aep": 0.2,
+   "intercept": 2.751,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.08691,
+     "maximum": 243.7
+    }
+   ],
+   "coefficients": [
+    0.5406
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.207904,
+   "avp": 0.04322,
+   "model_error_variance": 0.03411,
+   "covariance": [
+    [
+     0.006417,
+     -0.002364
+    ],
+    [
+     -0.002364,
+     0.003456
+    ]
+   ],
+   "n_sites": 9
+  },
+  {
+   "region_code": "7",
+   "region_name": "Hydrologic region 7, unadjusted (NSS GC2007)",
+   "aep": 0.1,
+   "intercept": 2.861,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.08691,
+     "maximum": 243.7
+    }
+   ],
+   "coefficients": [
+    0.533
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.204306,
+   "avp": 0.04174,
+   "model_error_variance": 0.03253,
+   "covariance": [
+    [
+     0.006664,
+     -0.002464
+    ],
+    [
+     -0.002464,
+     0.003431
+    ]
+   ],
+   "n_sites": 9
+  },
+  {
+   "region_code": "7",
+   "region_name": "Hydrologic region 7, unadjusted (NSS GC2007)",
+   "aep": 0.04,
+   "intercept": 2.982,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.08691,
+     "maximum": 243.7
+    }
+   ],
+   "coefficients": [
+    0.5234
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.1982,
+   "avp": 0.03928,
+   "model_error_variance": 0.02992,
+   "covariance": [
+    [
+     0.007057,
+     -0.002622
+    ],
+    [
+     -0.002622,
+     0.003401
+    ]
+   ],
+   "n_sites": 9
+  },
+  {
+   "region_code": "7",
+   "region_name": "Hydrologic region 7, unadjusted (NSS GC2007)",
+   "aep": 0.02,
+   "intercept": 3.063,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.08691,
+     "maximum": 243.7
+    }
+   ],
+   "coefficients": [
+    0.5163
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.192411,
+   "avp": 0.03703,
+   "model_error_variance": 0.02753,
+   "covariance": [
+    [
+     0.007375,
+     -0.002753
+    ],
+    [
+     -0.002753,
+     0.003376
+    ]
+   ],
+   "n_sites": 9
+  },
+  {
+   "region_code": "7",
+   "region_name": "Hydrologic region 7, unadjusted (NSS GC2007)",
+   "aep": 0.01,
+   "intercept": 3.138,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.08691,
+     "maximum": 243.7
+    }
+   ],
+   "coefficients": [
+    0.509
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.183537,
+   "avp": 0.03369,
+   "model_error_variance": 0.0242,
+   "covariance": [
+    [
+     0.007611,
+     -0.002854
+    ],
+    [
+     -0.002854,
+     0.00329
+    ]
+   ],
+   "n_sites": 9
+  },
+  {
+   "region_code": "7",
+   "region_name": "Hydrologic region 7, unadjusted (NSS GC2007)",
+   "aep": 0.005,
+   "intercept": 3.208,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.08691,
+     "maximum": 243.7
+    }
+   ],
+   "coefficients": [
+    0.5024
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.174701,
+   "avp": 0.03053,
+   "model_error_variance": 0.02097,
+   "covariance": [
+    [
+     0.007903,
+     -0.002978
+    ],
+    [
+     -0.002978,
+     0.003235
+    ]
+   ],
+   "n_sites": 9
+  },
+  {
+   "region_code": "7",
+   "region_name": "Hydrologic region 7, unadjusted (NSS GC2007)",
+   "aep": 0.002,
+   "intercept": 3.295,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.08691,
+     "maximum": 243.7
+    }
+   ],
+   "coefficients": [
+    0.4936
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.158989,
+   "avp": 0.02528,
+   "model_error_variance": 0.01578,
+   "covariance": [
+    [
+     0.008197,
+     -0.003111
+    ],
+    [
+     -0.003111,
+     0.003104
+    ]
+   ],
+   "n_sites": 9
+  },
+  {
+   "region_code": "1-urban",
+   "region_name": "Hydrologic region 1, urbanization-adjusted (NSS GC2008)",
+   "aep": 0.5,
+   "intercept": 1.979,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1773,
+     "maximum": 1325.0
+    },
+    {
+     "code": "TPISTATSGO",
+     "transform": "log10",
+     "units": "weighted percent",
+     "minimum": 988.0,
+     "maximum": 4793.0,
+     "scale": 0.0005944290151976952
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0,
+     "offset": -0.005952
+    }
+   ],
+   "coefficients": [
+    0.6133,
+    -1.103,
+    0.487
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.181405,
+   "avp": 0.0329,
+   "model_error_variance": 0.02907,
+   "covariance": [
+    [
+     0.003883,
+     -0.00159,
+     -0.0003026,
+     0.0
+    ],
+    [
+     -0.00159,
+     0.00113,
+     -0.0001583,
+     0.0
+    ],
+    [
+     -0.0003026,
+     -0.0001583,
+     0.02709,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.005625
+    ]
+   ],
+   "n_sites": 35
+  },
+  {
+   "region_code": "1-urban",
+   "region_name": "Hydrologic region 1, urbanization-adjusted (NSS GC2008)",
+   "aep": 0.2,
+   "intercept": 2.274,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1773,
+     "maximum": 1325.0
+    },
+    {
+     "code": "TPISTATSGO",
+     "transform": "log10",
+     "units": "weighted percent",
+     "minimum": 988.0,
+     "maximum": 4793.0,
+     "scale": 0.0005944290151976952
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0,
+     "offset": -0.005952
+    }
+   ],
+   "coefficients": [
+    0.5939,
+    -1.179,
+    0.405
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.180184,
+   "avp": 0.03247,
+   "model_error_variance": 0.02854,
+   "covariance": [
+    [
+     0.003962,
+     -0.001594,
+     -0.0004541,
+     0.0
+    ],
+    [
+     -0.001594,
+     0.00113,
+     -0.0001411,
+     0.0
+    ],
+    [
+     -0.0004541,
+     -0.0001411,
+     0.02787,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.0064
+    ]
+   ],
+   "n_sites": 35
+  },
+  {
+   "region_code": "1-urban",
+   "region_name": "Hydrologic region 1, urbanization-adjusted (NSS GC2008)",
+   "aep": 0.1,
+   "intercept": 2.423,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1773,
+     "maximum": 1325.0
+    },
+    {
+     "code": "TPISTATSGO",
+     "transform": "log10",
+     "units": "weighted percent",
+     "minimum": 988.0,
+     "maximum": 4793.0,
+     "scale": 0.0005944290151976952
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0,
+     "offset": -0.005952
+    }
+   ],
+   "coefficients": [
+    0.5852,
+    -1.222,
+    0.391
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.190608,
+   "avp": 0.03633,
+   "model_error_variance": 0.03183,
+   "covariance": [
+    [
+     0.004515,
+     -0.001808,
+     -0.0006184,
+     0.0
+    ],
+    [
+     -0.001808,
+     0.001283,
+     -0.0001474,
+     0.0
+    ],
+    [
+     -0.0006184,
+     -0.0001474,
+     0.03232,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.006084
+    ]
+   ],
+   "n_sites": 35
+  },
+  {
+   "region_code": "1-urban",
+   "region_name": "Hydrologic region 1, urbanization-adjusted (NSS GC2008)",
+   "aep": 0.04,
+   "intercept": 2.577,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1773,
+     "maximum": 1325.0
+    },
+    {
+     "code": "TPISTATSGO",
+     "transform": "log10",
+     "units": "weighted percent",
+     "minimum": 988.0,
+     "maximum": 4793.0,
+     "scale": 0.0005944290151976952
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0,
+     "offset": -0.005952
+    }
+   ],
+   "coefficients": [
+    0.5768,
+    -1.267,
+    0.359
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.202462,
+   "avp": 0.04099,
+   "model_error_variance": 0.03565,
+   "covariance": [
+    [
+     0.005329,
+     -0.002119,
+     -0.0008689,
+     0.0
+    ],
+    [
+     -0.002119,
+     0.001499,
+     -0.0001532,
+     0.0
+    ],
+    [
+     -0.0008689,
+     -0.0001532,
+     0.03865,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.007225
+    ]
+   ],
+   "n_sites": 35
+  },
+  {
+   "region_code": "1-urban",
+   "region_name": "Hydrologic region 1, urbanization-adjusted (NSS GC2008)",
+   "aep": 0.02,
+   "intercept": 2.672,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1773,
+     "maximum": 1325.0
+    },
+    {
+     "code": "TPISTATSGO",
+     "transform": "log10",
+     "units": "weighted percent",
+     "minimum": 988.0,
+     "maximum": 4793.0,
+     "scale": 0.0005944290151976952
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0,
+     "offset": -0.005952
+    }
+   ],
+   "coefficients": [
+    0.5724,
+    -1.295,
+    0.331
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.213915,
+   "avp": 0.04577,
+   "model_error_variance": 0.03964,
+   "covariance": [
+    [
+     0.00609,
+     -0.002424,
+     -0.001076,
+     0.0
+    ],
+    [
+     -0.002424,
+     0.001717,
+     -0.0001647,
+     0.0
+    ],
+    [
+     -0.001076,
+     -0.0001647,
+     0.04484,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.007396
+    ]
+   ],
+   "n_sites": 35
+  },
+  {
+   "region_code": "1-urban",
+   "region_name": "Hydrologic region 1, urbanization-adjusted (NSS GC2008)",
+   "aep": 0.01,
+   "intercept": 2.755,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1773,
+     "maximum": 1325.0
+    },
+    {
+     "code": "TPISTATSGO",
+     "transform": "log10",
+     "units": "weighted percent",
+     "minimum": 988.0,
+     "maximum": 4793.0,
+     "scale": 0.0005944290151976952
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0,
+     "offset": -0.005952
+    }
+   ],
+   "coefficients": [
+    0.5691,
+    -1.32,
+    0.312
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.225686,
+   "avp": 0.05093,
+   "model_error_variance": 0.04393,
+   "covariance": [
+    [
+     0.006919,
+     -0.002762,
+     -0.001299,
+     0.0
+    ],
+    [
+     -0.002762,
+     0.001962,
+     -0.0001784,
+     0.0
+    ],
+    [
+     -0.001299,
+     -0.0001784,
+     0.05172,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.017956
+    ]
+   ],
+   "n_sites": 35
+  },
+  {
+   "region_code": "1-urban",
+   "region_name": "Hydrologic region 1, urbanization-adjusted (NSS GC2008)",
+   "aep": 0.005,
+   "intercept": 2.829,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1773,
+     "maximum": 1325.0
+    },
+    {
+     "code": "TPISTATSGO",
+     "transform": "log10",
+     "units": "weighted percent",
+     "minimum": 988.0,
+     "maximum": 4793.0,
+     "scale": 0.0005944290151976952
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0,
+     "offset": -0.005952
+    }
+   ],
+   "coefficients": [
+    0.5664,
+    -1.34,
+    0.301
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.23502,
+   "avp": 0.05524,
+   "model_error_variance": 0.0474,
+   "covariance": [
+    [
+     0.007732,
+     -0.003092,
+     -0.00153,
+     0.0
+    ],
+    [
+     -0.003092,
+     0.002199,
+     -0.0001884,
+     0.0
+    ],
+    [
+     -0.00153,
+     -0.0001884,
+     0.05841,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.012544
+    ]
+   ],
+   "n_sites": 35
+  },
+  {
+   "region_code": "1-urban",
+   "region_name": "Hydrologic region 1, urbanization-adjusted (NSS GC2008)",
+   "aep": 0.002,
+   "intercept": 2.915,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1773,
+     "maximum": 1325.0
+    },
+    {
+     "code": "TPISTATSGO",
+     "transform": "log10",
+     "units": "weighted percent",
+     "minimum": 988.0,
+     "maximum": 4793.0,
+     "scale": 0.0005944290151976952
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0,
+     "offset": -0.005952
+    }
+   ],
+   "coefficients": [
+    0.5642,
+    -1.363,
+    0.294
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.248744,
+   "avp": 0.06188,
+   "model_error_variance": 0.05278,
+   "covariance": [
+    [
+     0.00893,
+     -0.00359,
+     -0.001855,
+     0.0
+    ],
+    [
+     -0.00359,
+     0.002563,
+     -0.0002072,
+     0.0
+    ],
+    [
+     -0.001855,
+     -0.0002072,
+     0.06856,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.013225
+    ]
+   ],
+   "n_sites": 35
+  },
+  {
+   "region_code": "3-urban",
+   "region_name": "Hydrologic region 3, urbanization-adjusted (NSS GC2009)",
+   "aep": 0.5,
+   "intercept": 2.154,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.0378,
+     "maximum": 2618.0
+    },
+    {
+     "code": "DEMSLX100",
+     "transform": "identity",
+     "units": "degrees",
+     "minimum": 22.12,
+     "maximum": 77.92,
+     "offset": -55.329
+    },
+    {
+     "code": "TPISTATSGO",
+     "transform": "identity",
+     "units": "weighted percent",
+     "minimum": 988.0,
+     "maximum": 6582.0,
+     "scale": 0.0002101590904314566,
+     "offset": -0.383204085492718
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0,
+     "offset": -0.01037
+    }
+   ],
+   "coefficients": [
+    0.6272,
+    0.006488,
+    -0.374,
+    0.487
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.172581,
+   "avp": 0.02978,
+   "model_error_variance": 0.02704,
+   "covariance": [
+    [
+     0.003118,
+     -0.0007707,
+     5.324e-05,
+     -0.001336,
+     0.0
+    ],
+    [
+     -0.0007707,
+     0.0004721,
+     7.619e-06,
+     4.117e-05,
+     0.0
+    ],
+    [
+     5.324e-05,
+     7.619e-06,
+     5.017e-06,
+     -3.222e-05,
+     0.0
+    ],
+    [
+     -0.001336,
+     4.117e-05,
+     -3.222e-05,
+     0.01002,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.005625
+    ]
+   ],
+   "n_sites": 60
+  },
+  {
+   "region_code": "3-urban",
+   "region_name": "Hydrologic region 3, urbanization-adjusted (NSS GC2009)",
+   "aep": 0.2,
+   "intercept": 2.453,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.0378,
+     "maximum": 2618.0
+    },
+    {
+     "code": "DEMSLX100",
+     "transform": "identity",
+     "units": "degrees",
+     "minimum": 22.12,
+     "maximum": 77.92,
+     "offset": -55.329
+    },
+    {
+     "code": "TPISTATSGO",
+     "transform": "identity",
+     "units": "weighted percent",
+     "minimum": 988.0,
+     "maximum": 6582.0,
+     "scale": 0.0002101590904314566,
+     "offset": -0.383204085492718
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0,
+     "offset": -0.01037
+    }
+   ],
+   "coefficients": [
+    0.6066,
+    0.008547,
+    -0.4903,
+    0.405
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.166963,
+   "avp": 0.02787,
+   "model_error_variance": 0.02521,
+   "covariance": [
+    [
+     0.003091,
+     -0.0007454,
+     5.519e-05,
+     -0.001307,
+     0.0
+    ],
+    [
+     -0.0007454,
+     0.0004497,
+     6.543e-06,
+     3.488e-05,
+     0.0
+    ],
+    [
+     5.519e-05,
+     6.543e-06,
+     4.929e-06,
+     -3.063e-05,
+     0.0
+    ],
+    [
+     -0.001307,
+     3.488e-05,
+     -3.063e-05,
+     0.009566,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0064
+    ]
+   ],
+   "n_sites": 60
+  },
+  {
+   "region_code": "3-urban",
+   "region_name": "Hydrologic region 3, urbanization-adjusted (NSS GC2009)",
+   "aep": 0.1,
+   "intercept": 2.601,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.0378,
+     "maximum": 2618.0
+    },
+    {
+     "code": "DEMSLX100",
+     "transform": "identity",
+     "units": "degrees",
+     "minimum": 22.12,
+     "maximum": 77.92,
+     "offset": -55.329
+    },
+    {
+     "code": "TPISTATSGO",
+     "transform": "identity",
+     "units": "weighted percent",
+     "minimum": 988.0,
+     "maximum": 6582.0,
+     "scale": 0.0002101590904314566,
+     "offset": -0.383204085492718
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0,
+     "offset": -0.01037
+    }
+   ],
+   "coefficients": [
+    0.5976,
+    0.009675,
+    -0.5536,
+    0.391
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.169332,
+   "avp": 0.02867,
+   "model_error_variance": 0.02582,
+   "covariance": [
+    [
+     0.003372,
+     -0.0008046,
+     6.191e-05,
+     -0.001394,
+     0.0
+    ],
+    [
+     -0.0008046,
+     0.0004775,
+     6.304e-06,
+     3.407e-05,
+     0.0
+    ],
+    [
+     6.191e-05,
+     6.304e-06,
+     5.341e-06,
+     -3.16e-05,
+     0.0
+    ],
+    [
+     -0.001394,
+     3.407e-05,
+     -3.16e-05,
+     0.01006,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.006084
+    ]
+   ],
+   "n_sites": 60
+  },
+  {
+   "region_code": "3-urban",
+   "region_name": "Hydrologic region 3, urbanization-adjusted (NSS GC2009)",
+   "aep": 0.04,
+   "intercept": 2.75,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.0378,
+     "maximum": 2618.0
+    },
+    {
+     "code": "DEMSLX100",
+     "transform": "identity",
+     "units": "degrees",
+     "minimum": 22.12,
+     "maximum": 77.92,
+     "offset": -55.329
+    },
+    {
+     "code": "TPISTATSGO",
+     "transform": "identity",
+     "units": "weighted percent",
+     "minimum": 988.0,
+     "maximum": 6582.0,
+     "scale": 0.0002101590904314566,
+     "offset": -0.383204085492718
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0,
+     "offset": -0.01037
+    }
+   ],
+   "coefficients": [
+    0.5893,
+    0.01085,
+    -0.6222,
+    0.359
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.172311,
+   "avp": 0.02969,
+   "model_error_variance": 0.02654,
+   "covariance": [
+    [
+     0.003834,
+     -0.0009083,
+     7.228e-05,
+     -0.001531,
+     0.0
+    ],
+    [
+     -0.0009083,
+     0.0005265,
+     6.036e-06,
+     3.507e-05,
+     0.0
+    ],
+    [
+     7.228e-05,
+     6.036e-06,
+     5.996e-06,
+     -3.283e-05,
+     0.0
+    ],
+    [
+     -0.001531,
+     3.507e-05,
+     -3.283e-05,
+     0.01081,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.007225
+    ]
+   ],
+   "n_sites": 60
+  },
+  {
+   "region_code": "3-urban",
+   "region_name": "Hydrologic region 3, urbanization-adjusted (NSS GC2009)",
+   "aep": 0.02,
+   "intercept": 2.841,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.0378,
+     "maximum": 2618.0
+    },
+    {
+     "code": "DEMSLX100",
+     "transform": "identity",
+     "units": "degrees",
+     "minimum": 22.12,
+     "maximum": 77.92,
+     "offset": -55.329
+    },
+    {
+     "code": "TPISTATSGO",
+     "transform": "identity",
+     "units": "weighted percent",
+     "minimum": 988.0,
+     "maximum": 6582.0,
+     "scale": 0.0002101590904314566,
+     "offset": -0.383204085492718
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0,
+     "offset": -0.01037
+    }
+   ],
+   "coefficients": [
+    0.5848,
+    0.01156,
+    -0.6663,
+    0.331
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.176124,
+   "avp": 0.03101,
+   "model_error_variance": 0.02757,
+   "covariance": [
+    [
+     0.004262,
+     -0.00101,
+     8.172e-05,
+     -0.001663,
+     0.0
+    ],
+    [
+     -0.00101,
+     0.0005788,
+     6.099e-06,
+     3.522e-05,
+     0.0
+    ],
+    [
+     8.172e-05,
+     6.099e-06,
+     6.649e-06,
+     -3.435e-05,
+     0.0
+    ],
+    [
+     -0.001663,
+     3.522e-05,
+     -3.435e-05,
+     0.01161,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.007396
+    ]
+   ],
+   "n_sites": 60
+  },
+  {
+   "region_code": "3-urban",
+   "region_name": "Hydrologic region 3, urbanization-adjusted (NSS GC2009)",
+   "aep": 0.01,
+   "intercept": 2.919,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.0378,
+     "maximum": 2618.0
+    },
+    {
+     "code": "DEMSLX100",
+     "transform": "identity",
+     "units": "degrees",
+     "minimum": 22.12,
+     "maximum": 77.92,
+     "offset": -55.329
+    },
+    {
+     "code": "TPISTATSGO",
+     "transform": "identity",
+     "units": "weighted percent",
+     "minimum": 988.0,
+     "maximum": 6582.0,
+     "scale": 0.0002101590904314566,
+     "offset": -0.383204085492718
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0,
+     "offset": -0.01037
+    }
+   ],
+   "coefficients": [
+    0.5813,
+    0.01216,
+    -0.7065,
+    0.312
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.17647,
+   "avp": 0.03114,
+   "model_error_variance": 0.02745,
+   "covariance": [
+    [
+     0.004654,
+     -0.001103,
+     9.027e-05,
+     -0.001769,
+     0.0
+    ],
+    [
+     -0.001103,
+     0.0006225,
+     5.886e-06,
+     3.699e-05,
+     0.0
+    ],
+    [
+     9.027e-05,
+     5.886e-06,
+     7.185e-06,
+     -3.48e-05,
+     0.0
+    ],
+    [
+     -0.001769,
+     3.699e-05,
+     -3.48e-05,
+     0.01207,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.017956
+    ]
+   ],
+   "n_sites": 60
+  },
+  {
+   "region_code": "3-urban",
+   "region_name": "Hydrologic region 3, urbanization-adjusted (NSS GC2009)",
+   "aep": 0.005,
+   "intercept": 2.987,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.0378,
+     "maximum": 2618.0
+    },
+    {
+     "code": "DEMSLX100",
+     "transform": "identity",
+     "units": "degrees",
+     "minimum": 22.12,
+     "maximum": 77.92,
+     "offset": -55.329
+    },
+    {
+     "code": "TPISTATSGO",
+     "transform": "identity",
+     "units": "weighted percent",
+     "minimum": 988.0,
+     "maximum": 6582.0,
+     "scale": 0.0002101590904314566,
+     "offset": -0.383204085492718
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0,
+     "offset": -0.01037
+    }
+   ],
+   "coefficients": [
+    0.5786,
+    0.01269,
+    -0.7416,
+    0.301
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.180909,
+   "avp": 0.03273,
+   "model_error_variance": 0.02868,
+   "covariance": [
+    [
+     0.005166,
+     -0.00123,
+     0.0001015,
+     -0.001928,
+     0.0
+    ],
+    [
+     -0.00123,
+     0.0006911,
+     6.232e-06,
+     3.596e-05,
+     0.0
+    ],
+    [
+     0.0001015,
+     6.232e-06,
+     8.005e-06,
+     -3.68e-05,
+     0.0
+    ],
+    [
+     -0.001928,
+     3.596e-05,
+     -3.68e-05,
+     0.01304,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.012544
+    ]
+   ],
+   "n_sites": 60
+  },
+  {
+   "region_code": "3-urban",
+   "region_name": "Hydrologic region 3, urbanization-adjusted (NSS GC2009)",
+   "aep": 0.002,
+   "intercept": 3.066,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.0378,
+     "maximum": 2618.0
+    },
+    {
+     "code": "DEMSLX100",
+     "transform": "identity",
+     "units": "degrees",
+     "minimum": 22.12,
+     "maximum": 77.92,
+     "offset": -55.329
+    },
+    {
+     "code": "TPISTATSGO",
+     "transform": "identity",
+     "units": "weighted percent",
+     "minimum": 988.0,
+     "maximum": 6582.0,
+     "scale": 0.0002101590904314566,
+     "offset": -0.383204085492718
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0,
+     "offset": -0.01037
+    }
+   ],
+   "coefficients": [
+    0.5758,
+    0.01332,
+    -0.7838,
+    0.294
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.186003,
+   "avp": 0.03459,
+   "model_error_variance": 0.03004,
+   "covariance": [
+    [
+     0.005876,
+     -0.001409,
+     0.000117,
+     -0.002144,
+     0.0
+    ],
+    [
+     -0.001409,
+     0.0007881,
+     6.766e-06,
+     3.412e-05,
+     0.0
+    ],
+    [
+     0.000117,
+     6.766e-06,
+     9.147e-06,
+     -3.941e-05,
+     0.0
+    ],
+    [
+     -0.002144,
+     3.412e-05,
+     -3.941e-05,
+     0.0143,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.013225
+    ]
+   ],
+   "n_sites": 60
+  },
+  {
+   "region_code": "4-urban",
+   "region_name": "Hydrologic region 4, urbanization-adjusted (NSS GC2010)",
+   "aep": 0.5,
+   "intercept": 1.8,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.0461,
+     "maximum": 1636.0
+    },
+    {
+     "code": "STATSSLPWT",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 2.04,
+     "maximum": 13.37
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0,
+     "offset": -0.01033
+    }
+   ],
+   "coefficients": [
+    0.6034,
+    0.6043,
+    0.487
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.183347,
+   "avp": 0.03362,
+   "model_error_variance": 0.03007,
+   "covariance": [
+    [
+     0.02038,
+     -0.001779,
+     -0.02237,
+     0.0
+    ],
+    [
+     -0.001779,
+     0.0007298,
+     0.001143,
+     0.0
+    ],
+    [
+     -0.02237,
+     0.001143,
+     0.02812,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.005625
+    ]
+   ],
+   "n_sites": 36
+  },
+  {
+   "region_code": "4-urban",
+   "region_name": "Hydrologic region 4, urbanization-adjusted (NSS GC2010)",
+   "aep": 0.2,
+   "intercept": 2.078,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.0461,
+     "maximum": 1636.0
+    },
+    {
+     "code": "STATSSLPWT",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 2.04,
+     "maximum": 13.37
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0,
+     "offset": -0.01033
+    }
+   ],
+   "coefficients": [
+    0.5892,
+    0.5947,
+    0.405
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.157652,
+   "avp": 0.02485,
+   "model_error_variance": 0.02195,
+   "covariance": [
+    [
+     0.01643,
+     -0.001446,
+     -0.01767,
+     0.0
+    ],
+    [
+     -0.001446,
+     0.0005743,
+     0.0009033,
+     0.0
+    ],
+    [
+     -0.01767,
+     0.0009033,
+     0.02196,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.0064
+    ]
+   ],
+   "n_sites": 36
+  },
+  {
+   "region_code": "4-urban",
+   "region_name": "Hydrologic region 4, urbanization-adjusted (NSS GC2010)",
+   "aep": 0.1,
+   "intercept": 2.228,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.0461,
+     "maximum": 1636.0
+    },
+    {
+     "code": "STATSSLPWT",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 2.04,
+     "maximum": 13.37
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0,
+     "offset": -0.01033
+    }
+   ],
+   "coefficients": [
+    0.5828,
+    0.5762,
+    0.391
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.147394,
+   "avp": 0.02173,
+   "model_error_variance": 0.01892,
+   "covariance": [
+    [
+     0.01577,
+     -0.001385,
+     -0.01672,
+     0.0
+    ],
+    [
+     -0.001385,
+     0.0005367,
+     0.0008438,
+     0.0
+    ],
+    [
+     -0.01672,
+     0.0008438,
+     0.02061,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.006084
+    ]
+   ],
+   "n_sites": 36
+  },
+  {
+   "region_code": "4-urban",
+   "region_name": "Hydrologic region 4, urbanization-adjusted (NSS GC2010)",
+   "aep": 0.04,
+   "intercept": 2.389,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.0461,
+     "maximum": 1636.0
+    },
+    {
+     "code": "STATSSLPWT",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 2.04,
+     "maximum": 13.37
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0,
+     "offset": -0.01033
+    }
+   ],
+   "coefficients": [
+    0.5761,
+    0.5499,
+    0.359
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.137618,
+   "avp": 0.01894,
+   "model_error_variance": 0.0161,
+   "covariance": [
+    [
+     0.01601,
+     -0.00139,
+     -0.01677,
+     0.0
+    ],
+    [
+     -0.00139,
+     0.0005244,
+     0.0008194,
+     0.0
+    ],
+    [
+     -0.01677,
+     0.0008194,
+     0.0205,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.007225
+    ]
+   ],
+   "n_sites": 36
+  },
+  {
+   "region_code": "4-urban",
+   "region_name": "Hydrologic region 4, urbanization-adjusted (NSS GC2010)",
+   "aep": 0.02,
+   "intercept": 2.488,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.0461,
+     "maximum": 1636.0
+    },
+    {
+     "code": "STATSSLPWT",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 2.04,
+     "maximum": 13.37
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0,
+     "offset": -0.01033
+    }
+   ],
+   "coefficients": [
+    0.5717,
+    0.5327,
+    0.331
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.133135,
+   "avp": 0.01772,
+   "model_error_variance": 0.01474,
+   "covariance": [
+    [
+     0.01701,
+     -0.001454,
+     -0.01775,
+     0.0
+    ],
+    [
+     -0.001454,
+     0.0005409,
+     0.0008405,
+     0.0
+    ],
+    [
+     -0.01775,
+     0.0008405,
+     0.02163,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.007396
+    ]
+   ],
+   "n_sites": 36
+  },
+  {
+   "region_code": "4-urban",
+   "region_name": "Hydrologic region 4, urbanization-adjusted (NSS GC2010)",
+   "aep": 0.01,
+   "intercept": 2.573,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.0461,
+     "maximum": 1636.0
+    },
+    {
+     "code": "STATSSLPWT",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 2.04,
+     "maximum": 13.37
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0,
+     "offset": -0.01033
+    }
+   ],
+   "coefficients": [
+    0.568,
+    0.5199,
+    0.312
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.133985,
+   "avp": 0.01795,
+   "model_error_variance": 0.01466,
+   "covariance": [
+    [
+     0.01913,
+     -0.001604,
+     -0.02003,
+     0.0
+    ],
+    [
+     -0.001604,
+     0.0005936,
+     0.0009224,
+     0.0
+    ],
+    [
+     -0.02003,
+     0.0009224,
+     0.02438,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.017956
+    ]
+   ],
+   "n_sites": 36
+  },
+  {
+   "region_code": "4-urban",
+   "region_name": "Hydrologic region 4, urbanization-adjusted (NSS GC2010)",
+   "aep": 0.005,
+   "intercept": 2.65,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.0461,
+     "maximum": 1636.0
+    },
+    {
+     "code": "STATSSLPWT",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 2.04,
+     "maximum": 13.37
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0,
+     "offset": -0.01033
+    }
+   ],
+   "coefficients": [
+    0.5643,
+    0.5053,
+    0.301
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.130135,
+   "avp": 0.01694,
+   "model_error_variance": 0.01341,
+   "covariance": [
+    [
+     0.02085,
+     -0.001717,
+     -0.02186,
+     0.0
+    ],
+    [
+     -0.001717,
+     0.0006298,
+     0.0009736,
+     0.0
+    ],
+    [
+     -0.02186,
+     0.0009736,
+     0.02658,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.012544
+    ]
+   ],
+   "n_sites": 36
+  },
+  {
+   "region_code": "4-urban",
+   "region_name": "Hydrologic region 4, urbanization-adjusted (NSS GC2010)",
+   "aep": 0.002,
+   "intercept": 2.74,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.0461,
+     "maximum": 1636.0
+    },
+    {
+     "code": "STATSSLPWT",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 2.04,
+     "maximum": 13.37
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0,
+     "offset": -0.01033
+    }
+   ],
+   "coefficients": [
+    0.5601,
+    0.4878,
+    0.294
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.127044,
+   "avp": 0.01614,
+   "model_error_variance": 0.0122,
+   "covariance": [
+    [
+     0.02392,
+     -0.001922,
+     -0.02519,
+     0.0
+    ],
+    [
+     -0.001922,
+     0.0007,
+     0.00108,
+     0.0
+    ],
+    [
+     -0.02519,
+     0.00108,
+     0.03062,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.013225
+    ]
+   ],
+   "n_sites": 36
+  },
+  {
+   "region_code": "5-urban",
+   "region_name": "Hydrologic region 5, urbanization-adjusted (NSS GC2011)",
+   "aep": 0.5,
+   "intercept": 2.351,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.01327,
+     "maximum": 1943.0
+    },
+    {
+     "code": "DEMSLX100",
+     "transform": "identity",
+     "units": "degrees",
+     "minimum": 24.52,
+     "maximum": 79.35,
+     "offset": -55.329
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0,
+     "offset": -0.008841
+    }
+   ],
+   "coefficients": [
+    0.599,
+    0.004344,
+    0.487
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.129891,
+   "avp": 0.01688,
+   "model_error_variance": 0.01488,
+   "covariance": [
+    [
+     0.001662,
+     -0.0003868,
+     2.914e-05,
+     0.0
+    ],
+    [
+     -0.0003868,
+     0.0002826,
+     1.968e-06,
+     0.0
+    ],
+    [
+     2.914e-05,
+     1.968e-06,
+     3.977e-06,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.005625
+    ]
+   ],
+   "n_sites": 36
+  },
+  {
+   "region_code": "5-urban",
+   "region_name": "Hydrologic region 5, urbanization-adjusted (NSS GC2011)",
+   "aep": 0.2,
+   "intercept": 2.581,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.01327,
+     "maximum": 1943.0
+    },
+    {
+     "code": "DEMSLX100",
+     "transform": "identity",
+     "units": "degrees",
+     "minimum": 24.52,
+     "maximum": 79.35,
+     "offset": -55.329
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0,
+     "offset": -0.008841
+    }
+   ],
+   "coefficients": [
+    0.5993,
+    0.004309,
+    0.405
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.130135,
+   "avp": 0.01693,
+   "model_error_variance": 0.01487,
+   "covariance": [
+    [
+     0.001744,
+     -0.0004082,
+     3.132e-05,
+     0.0
+    ],
+    [
+     -0.0004082,
+     0.000292,
+     1.985e-06,
+     0.0
+    ],
+    [
+     3.132e-05,
+     1.985e-06,
+     4.18e-06,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.0064
+    ]
+   ],
+   "n_sites": 36
+  },
+  {
+   "region_code": "5-urban",
+   "region_name": "Hydrologic region 5, urbanization-adjusted (NSS GC2011)",
+   "aep": 0.1,
+   "intercept": 2.699,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.01327,
+     "maximum": 1943.0
+    },
+    {
+     "code": "DEMSLX100",
+     "transform": "identity",
+     "units": "degrees",
+     "minimum": 24.52,
+     "maximum": 79.35,
+     "offset": -55.329
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0,
+     "offset": -0.008841
+    }
+   ],
+   "coefficients": [
+    0.598,
+    0.004366,
+    0.391
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.130581,
+   "avp": 0.01706,
+   "model_error_variance": 0.01485,
+   "covariance": [
+    [
+     0.001896,
+     -0.0004437,
+     3.425e-05,
+     0.0
+    ],
+    [
+     -0.0004437,
+     0.0003099,
+     2.153e-06,
+     0.0
+    ],
+    [
+     3.425e-05,
+     2.153e-06,
+     4.511e-06,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.006084
+    ]
+   ],
+   "n_sites": 36
+  },
+  {
+   "region_code": "5-urban",
+   "region_name": "Hydrologic region 5, urbanization-adjusted (NSS GC2011)",
+   "aep": 0.04,
+   "intercept": 2.822,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.01327,
+     "maximum": 1943.0
+    },
+    {
+     "code": "DEMSLX100",
+     "transform": "identity",
+     "units": "degrees",
+     "minimum": 24.52,
+     "maximum": 79.35,
+     "offset": -55.329
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0,
+     "offset": -0.008841
+    }
+   ],
+   "coefficients": [
+    0.5958,
+    0.004427,
+    0.359
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.146039,
+   "avp": 0.02133,
+   "model_error_variance": 0.01852,
+   "covariance": [
+    [
+     0.00239,
+     -0.0005658,
+     4.584e-05,
+     0.0
+    ],
+    [
+     -0.0005658,
+     0.0003971,
+     2.765e-06,
+     0.0
+    ],
+    [
+     4.584e-05,
+     2.765e-06,
+     5.964e-06,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.007225
+    ]
+   ],
+   "n_sites": 36
+  },
+  {
+   "region_code": "5-urban",
+   "region_name": "Hydrologic region 5, urbanization-adjusted (NSS GC2011)",
+   "aep": 0.02,
+   "intercept": 2.9,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.01327,
+     "maximum": 1943.0
+    },
+    {
+     "code": "DEMSLX100",
+     "transform": "identity",
+     "units": "degrees",
+     "minimum": 24.52,
+     "maximum": 79.35,
+     "offset": -55.329
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0,
+     "offset": -0.008841
+    }
+   ],
+   "coefficients": [
+    0.5937,
+    0.004478,
+    0.331
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.153509,
+   "avp": 0.02356,
+   "model_error_variance": 0.02034,
+   "covariance": [
+    [
+     0.002748,
+     -0.0006545,
+     5.431e-05,
+     0.0
+    ],
+    [
+     -0.0006545,
+     0.0004568,
+     3.173e-06,
+     0.0
+    ],
+    [
+     5.431e-05,
+     3.173e-06,
+     6.995e-06,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.007396
+    ]
+   ],
+   "n_sites": 36
+  },
+  {
+   "region_code": "5-urban",
+   "region_name": "Hydrologic region 5, urbanization-adjusted (NSS GC2011)",
+   "aep": 0.01,
+   "intercept": 2.969,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.01327,
+     "maximum": 1943.0
+    },
+    {
+     "code": "DEMSLX100",
+     "transform": "identity",
+     "units": "degrees",
+     "minimum": 24.52,
+     "maximum": 79.35,
+     "offset": -55.329
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0,
+     "offset": -0.008841
+    }
+   ],
+   "coefficients": [
+    0.5913,
+    0.004526,
+    0.312
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.154339,
+   "avp": 0.02382,
+   "model_error_variance": 0.02032,
+   "covariance": [
+    [
+     0.003029,
+     -0.0007236,
+     6.084e-05,
+     0.0
+    ],
+    [
+     -0.0007236,
+     0.0004961,
+     3.437e-06,
+     0.0
+    ],
+    [
+     6.084e-05,
+     3.437e-06,
+     7.736e-06,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.017956
+    ]
+   ],
+   "n_sites": 36
+  },
+  {
+   "region_code": "5-urban",
+   "region_name": "Hydrologic region 5, urbanization-adjusted (NSS GC2011)",
+   "aep": 0.005,
+   "intercept": 3.032,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.01327,
+     "maximum": 1943.0
+    },
+    {
+     "code": "DEMSLX100",
+     "transform": "identity",
+     "units": "degrees",
+     "minimum": 24.52,
+     "maximum": 79.35,
+     "offset": -55.329
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0,
+     "offset": -0.008841
+    }
+   ],
+   "coefficients": [
+    0.5888,
+    0.004569,
+    0.301
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.161656,
+   "avp": 0.02613,
+   "model_error_variance": 0.02213,
+   "covariance": [
+    [
+     0.003456,
+     -0.0008309,
+     7.156e-05,
+     0.0
+    ],
+    [
+     -0.0008309,
+     0.0005683,
+     3.88e-06,
+     0.0
+    ],
+    [
+     7.156e-05,
+     3.88e-06,
+     9.017e-06,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.012544
+    ]
+   ],
+   "n_sites": 36
+  },
+  {
+   "region_code": "5-urban",
+   "region_name": "Hydrologic region 5, urbanization-adjusted (NSS GC2011)",
+   "aep": 0.002,
+   "intercept": 3.106,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.01327,
+     "maximum": 1943.0
+    },
+    {
+     "code": "DEMSLX100",
+     "transform": "identity",
+     "units": "degrees",
+     "minimum": 24.52,
+     "maximum": 79.35,
+     "offset": -55.329
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0,
+     "offset": -0.008841
+    }
+   ],
+   "coefficients": [
+    0.5854,
+    0.004628,
+    0.294
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.169061,
+   "avp": 0.02859,
+   "model_error_variance": 0.02393,
+   "covariance": [
+    [
+     0.004036,
+     -0.0009773,
+     8.647e-05,
+     0.0
+    ],
+    [
+     -0.0009773,
+     0.0006643,
+     4.441e-06,
+     0.0
+    ],
+    [
+     8.647e-05,
+     4.441e-06,
+     1.077e-05,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.013225
+    ]
+   ],
+   "n_sites": 36
+  },
+  {
+   "region_code": "6-urban",
+   "region_name": "Hydrologic region 6, urbanization-adjusted (NSS GC2012)",
+   "aep": 0.5,
+   "intercept": 2.344,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.07158,
+     "maximum": 791.8
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0,
+     "offset": -0.002571
+    }
+   ],
+   "coefficients": [
+    0.5927,
+    0.487
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.197158,
+   "avp": 0.03887,
+   "model_error_variance": 0.03357,
+   "covariance": [
+    [
+     0.00429,
+     -0.001371,
+     0.0
+    ],
+    [
+     -0.001371,
+     0.001474,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.005625
+    ]
+   ],
+   "n_sites": 16
+  },
+  {
+   "region_code": "6-urban",
+   "region_name": "Hydrologic region 6, urbanization-adjusted (NSS GC2012)",
+   "aep": 0.2,
+   "intercept": 2.55,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.07158,
+     "maximum": 791.8
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0,
+     "offset": -0.002571
+    }
+   ],
+   "coefficients": [
+    0.6029,
+    0.405
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.213625,
+   "avp": 0.04563,
+   "model_error_variance": 0.03942,
+   "covariance": [
+    [
+     0.005,
+     -0.001601,
+     0.0
+    ],
+    [
+     -0.001601,
+     0.001731,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0064
+    ]
+   ],
+   "n_sites": 16
+  },
+  {
+   "region_code": "6-urban",
+   "region_name": "Hydrologic region 6, urbanization-adjusted (NSS GC2012)",
+   "aep": 0.1,
+   "intercept": 2.656,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.07158,
+     "maximum": 791.8
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0,
+     "offset": -0.002571
+    }
+   ],
+   "coefficients": [
+    0.6086,
+    0.391
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.224655,
+   "avp": 0.05047,
+   "model_error_variance": 0.04347,
+   "covariance": [
+    [
+     0.005666,
+     -0.0018,
+     0.0
+    ],
+    [
+     -0.0018,
+     0.001935,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.006084
+    ]
+   ],
+   "n_sites": 16
+  },
+  {
+   "region_code": "6-urban",
+   "region_name": "Hydrologic region 6, urbanization-adjusted (NSS GC2012)",
+   "aep": 0.04,
+   "intercept": 2.766,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.07158,
+     "maximum": 791.8
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0,
+     "offset": -0.002571
+    }
+   ],
+   "coefficients": [
+    0.6151,
+    0.359
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.2402,
+   "avp": 0.05769,
+   "model_error_variance": 0.04945,
+   "covariance": [
+    [
+     0.006705,
+     -0.002113,
+     0.0
+    ],
+    [
+     -0.002113,
+     0.002256,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.007225
+    ]
+   ],
+   "n_sites": 16
+  },
+  {
+   "region_code": "6-urban",
+   "region_name": "Hydrologic region 6, urbanization-adjusted (NSS GC2012)",
+   "aep": 0.02,
+   "intercept": 2.836,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.07158,
+     "maximum": 791.8
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0,
+     "offset": -0.002571
+    }
+   ],
+   "coefficients": [
+    0.6197,
+    0.331
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.247005,
+   "avp": 0.06102,
+   "model_error_variance": 0.05202,
+   "covariance": [
+    [
+     0.00737,
+     -0.002303,
+     0.0
+    ],
+    [
+     -0.002303,
+     0.00244,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.007396
+    ]
+   ],
+   "n_sites": 16
+  },
+  {
+   "region_code": "6-urban",
+   "region_name": "Hydrologic region 6, urbanization-adjusted (NSS GC2012)",
+   "aep": 0.01,
+   "intercept": 2.898,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.07158,
+     "maximum": 791.8
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0,
+     "offset": -0.002571
+    }
+   ],
+   "coefficients": [
+    0.6239,
+    0.312
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.257449,
+   "avp": 0.06628,
+   "model_error_variance": 0.05626,
+   "covariance": [
+    [
+     0.008232,
+     -0.002564,
+     0.0
+    ],
+    [
+     -0.002564,
+     0.002709,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.017956
+    ]
+   ],
+   "n_sites": 16
+  },
+  {
+   "region_code": "6-urban",
+   "region_name": "Hydrologic region 6, urbanization-adjusted (NSS GC2012)",
+   "aep": 0.005,
+   "intercept": 2.954,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.07158,
+     "maximum": 791.8
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0,
+     "offset": -0.002571
+    }
+   ],
+   "coefficients": [
+    0.6283,
+    0.301
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.260584,
+   "avp": 0.0679,
+   "model_error_variance": 0.05721,
+   "covariance": [
+    [
+     0.008831,
+     -0.00273,
+     0.0
+    ],
+    [
+     -0.00273,
+     0.002861,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.012544
+    ]
+   ],
+   "n_sites": 16
+  },
+  {
+   "region_code": "6-urban",
+   "region_name": "Hydrologic region 6, urbanization-adjusted (NSS GC2012)",
+   "aep": 0.002,
+   "intercept": 3.02,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.07158,
+     "maximum": 791.8
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0,
+     "offset": -0.002571
+    }
+   ],
+   "coefficients": [
+    0.6337,
+    0.294
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.268367,
+   "avp": 0.07202,
+   "model_error_variance": 0.06015,
+   "covariance": [
+    [
+     0.009839,
+     -0.003028,
+     0.0
+    ],
+    [
+     -0.003028,
+     0.003158,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.013225
+    ]
+   ],
+   "n_sites": 16
+  },
+  {
+   "region_code": "7-urban",
+   "region_name": "Hydrologic region 7, urbanization-adjusted (NSS GC2013)",
+   "aep": 0.5,
+   "intercept": 2.547,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.08691,
+     "maximum": 243.7
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0
+    }
+   ],
+   "coefficients": [
+    0.5515,
+    0.487
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.210024,
+   "avp": 0.04411,
+   "model_error_variance": 0.03511,
+   "covariance": [
+    [
+     0.0062,
+     -0.002277,
+     0.0
+    ],
+    [
+     -0.002277,
+     0.003461,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.005625
+    ]
+   ],
+   "n_sites": 9
+  },
+  {
+   "region_code": "7-urban",
+   "region_name": "Hydrologic region 7, urbanization-adjusted (NSS GC2013)",
+   "aep": 0.2,
+   "intercept": 2.751,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.08691,
+     "maximum": 243.7
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0
+    }
+   ],
+   "coefficients": [
+    0.5406,
+    0.405
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.207904,
+   "avp": 0.04322,
+   "model_error_variance": 0.03411,
+   "covariance": [
+    [
+     0.006417,
+     -0.002364,
+     0.0
+    ],
+    [
+     -0.002364,
+     0.003456,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0064
+    ]
+   ],
+   "n_sites": 9
+  },
+  {
+   "region_code": "7-urban",
+   "region_name": "Hydrologic region 7, urbanization-adjusted (NSS GC2013)",
+   "aep": 0.1,
+   "intercept": 2.861,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.08691,
+     "maximum": 243.7
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0
+    }
+   ],
+   "coefficients": [
+    0.533,
+    0.391
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.204306,
+   "avp": 0.04174,
+   "model_error_variance": 0.03253,
+   "covariance": [
+    [
+     0.006664,
+     -0.002464,
+     0.0
+    ],
+    [
+     -0.002464,
+     0.003431,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.006084
+    ]
+   ],
+   "n_sites": 9
+  },
+  {
+   "region_code": "7-urban",
+   "region_name": "Hydrologic region 7, urbanization-adjusted (NSS GC2013)",
+   "aep": 0.04,
+   "intercept": 2.982,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.08691,
+     "maximum": 243.7
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0
+    }
+   ],
+   "coefficients": [
+    0.5234,
+    0.359
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.1982,
+   "avp": 0.03928,
+   "model_error_variance": 0.02992,
+   "covariance": [
+    [
+     0.007057,
+     -0.002622,
+     0.0
+    ],
+    [
+     -0.002622,
+     0.003401,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.007225
+    ]
+   ],
+   "n_sites": 9
+  },
+  {
+   "region_code": "7-urban",
+   "region_name": "Hydrologic region 7, urbanization-adjusted (NSS GC2013)",
+   "aep": 0.02,
+   "intercept": 3.063,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.08691,
+     "maximum": 243.7
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0
+    }
+   ],
+   "coefficients": [
+    0.5163,
+    0.331
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.192411,
+   "avp": 0.03703,
+   "model_error_variance": 0.02753,
+   "covariance": [
+    [
+     0.007375,
+     -0.002753,
+     0.0
+    ],
+    [
+     -0.002753,
+     0.003376,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.007396
+    ]
+   ],
+   "n_sites": 9
+  },
+  {
+   "region_code": "7-urban",
+   "region_name": "Hydrologic region 7, urbanization-adjusted (NSS GC2013)",
+   "aep": 0.01,
+   "intercept": 3.138,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.08691,
+     "maximum": 243.7
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0
+    }
+   ],
+   "coefficients": [
+    0.509,
+    0.312
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.183537,
+   "avp": 0.03369,
+   "model_error_variance": 0.0242,
+   "covariance": [
+    [
+     0.007611,
+     -0.002854,
+     0.0
+    ],
+    [
+     -0.002854,
+     0.00329,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.017956
+    ]
+   ],
+   "n_sites": 9
+  },
+  {
+   "region_code": "7-urban",
+   "region_name": "Hydrologic region 7, urbanization-adjusted (NSS GC2013)",
+   "aep": 0.005,
+   "intercept": 3.208,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.08691,
+     "maximum": 243.7
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0
+    }
+   ],
+   "coefficients": [
+    0.5024,
+    0.301
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.174701,
+   "avp": 0.03053,
+   "model_error_variance": 0.02097,
+   "covariance": [
+    [
+     0.007903,
+     -0.002978,
+     0.0
+    ],
+    [
+     -0.002978,
+     0.003235,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.012544
+    ]
+   ],
+   "n_sites": 9
+  },
+  {
+   "region_code": "7-urban",
+   "region_name": "Hydrologic region 7, urbanization-adjusted (NSS GC2013)",
+   "aep": 0.002,
+   "intercept": 3.295,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.08691,
+     "maximum": 243.7
+    },
+    {
+     "code": "URBTHE2010",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.0,
+     "maximum": 1.0
+    }
+   ],
+   "coefficients": [
+    0.4936,
+    0.294
+   ],
+   "citation": {
+    "publication": "Over, T.M., Marti, M.K., O'Shea, P.S., and Sharpe, J.B., 2023, Estimating peak-flow quantiles for selected annual exceedance probabilities in Illinois: Illinois Center for Transportation Series No. 23-019, Research Report No. FHWA-ICT-23-014, 72 p.",
+    "table": "Table 4; Table 10; Marti et al. (2023) Tables DR-7, DR-8 and DR-9; Tables 11 and 12; Figures 21-23",
+    "year": 2023,
+    "url": "https://doi.org/10.36501/0197-9191/23-019"
+   },
+   "sep_log": 0.158989,
+   "avp": 0.02528,
+   "model_error_variance": 0.01578,
+   "covariance": [
+    [
+     0.008197,
+     -0.003111,
+     0.0
+    ],
+    [
+     -0.003111,
+     0.003104,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.013225
+    ]
+   ],
+   "n_sites": 9
+  }
+ ]
+}

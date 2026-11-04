@@ -1,0 +1,3039 @@
+{
+ "schema_version": 1,
+ "state": "AR",
+ "status": "verified",
+ "issue": null,
+ "source_reports": [
+  {
+   "citation": "Wagner, D.M., Krieger, J.D., and Veilleux, A.G., 2016, Methods for estimating annual exceedance probability discharges for streams in Arkansas, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2016-5081, 136 p.",
+   "doi": "10.3133/sir20165081",
+   "url": "https://pubs.usgs.gov/publication/sir20165081",
+   "pdf": "https://pubs.usgs.gov/sir/2016/5081/sir20165081.pdf",
+   "tables": [
+    "Table 7",
+    "Table 8",
+    "Table 9",
+    "Table 10",
+    "Table 11"
+   ],
+   "nss": {
+    "regression_regions": [
+     "GC1715",
+     "GC1716",
+     "GC1717",
+     "GC1718",
+     "GC1719"
+    ],
+    "citation_id": 16,
+    "last_year_of_data": 2013
+   }
+  },
+  {
+   "citation": "Anderson, B.T., 2021, Magnitude and frequency of floods in the alluvial plain of the lower Mississippi River, 2017: U.S. Geological Survey Scientific Investigations Report 2021-5046, 15 p.",
+   "doi": "10.3133/sir20215046",
+   "url": "https://pubs.usgs.gov/publication/sir20215046",
+   "pdf": "https://pubs.usgs.gov/sir/2021/5046/sir20215046.pdf",
+   "tables": [
+    "Table 1",
+    "Table 2",
+    "Table 3"
+   ],
+   "nss": {
+    "regression_regions": [
+     "GC1917"
+    ],
+    "citation_id": 184,
+    "last_year_of_data": 2017
+   }
+  }
+ ],
+ "notes": "Wagner and others, SIR 2016-5081 (no later version on the publication page): flood regions A, B1, B2, C and D at 7 AEPs (no 0.5 percent), and Anderson, SIR 2021-5046: the Mississippi Alluvial Plain (MAP) at 8 AEPs. Equations as printed: Table 7's 10**(... -0.297(0.01*LC11PAST+1) ...) terms are identity variables with scale 0.01 and offset 1, so Table 11's U stays in its printed basis; NSS folds them into its intercept and coefficients, which is the same equation. Ranges from Table 10, MEV and U (order as headed) from Table 11, AVP and Sp from Table 7. Region B1 and B2 carry the report's 500 ft ELEV gate. Both current: region D and MAP are co-located in eastern Arkansas (NSS locates both at 07077500 and 07077950), and they are kept as separate regions with no preference. SIR 2021-5046 says it updates the MAP and calls 2016-5081 a recent publication for a subsection, but nowhere says it supersedes region D, and NSS has D at status 4 (enabled for StreamStats) and GC1917 at status 3 (enabled for NSS, disabled for StreamStats). Table 11 misprints, settled because only the corrected values make the matrix positive definite and reproduce Table 7's AVP from MEV + mean xUx at the region's 56 gages: B2 Q50% intercept-SOILINDEX prints -0.010697946 in both cells (mean 0.618 against AVP 0.025), stored as -0.10697946 (0.0249), a decimal-shift correction printed nowhere; B2 Q1% ALVM-intercept prints -0.01477342 against -0.011477342 in the intercept row, stored as the latter; B2 Q0.2% SOILINDEX-intercept prints -0.017874274 against -0.1787427 in the intercept row, stored as the latter. Table 7 B1 Q0.2% prints Sp 46.86 percent, which does not match its own AVP 0.042 (49.9 percent) and MEV + mean xUx gives 0.0420: kept as printed in sep_log, and intervals use the covariance there anyway. Every other AVP closes. NSS differs: its SEP at all 35 region A-D equations is Table 7's 'Values from Hodge and Tasker (1995)' column, not this report's Sp; its ranges round BSHAPE, ELEV, PRECIP, LC11PAST, SLPFM (A ELEV max 1,840 for 1,832.27). Table 10 differs slightly from the Table 8 gages: B1 minimum area 0.10 (a 0.06 gage), B2 minimum ELEV 168.88 (168.52), B2 maximum area 2,090 (2,092), D maximum area 1,620 (1,622); and the 500 ft gate has a gage on the wrong side in each subregion (493.94 ft in B1, 500.55 ft in B2). Table 10 is stored. No worked example in either report. Per-gage: all 281 Table 9 RRE flows at Table 8's characteristics, and the 50 gages Table 3 of SIR 2021-5046 prints (its title says 58, 8 of Table 1's gages have no row). Not stored, no schema field: Table 7 MSE (of unweighted residuals, distinct from MEV), pseudo-R2, SEM; Table 11's t (reproduced from n_sites); Table 12's area-ratio exponents; SIR 2021-5046's MSE column (0.034 to 0.061), which is not stored as a model error variance because it exceeds AVP at 5 AEPs and the report prints no matrix, so MAP intervals use AVP. SIR 2021-5046 limits: not applicable where more than 10 percent of the basin is impervious, nor under substantial regulation (text, not stored). Variable codes are NSS's: SLPFM is CSLBlue, BSHAPE is BSHAPELFP, and NSS gives MAP's slope in Arkansas as CSL1085LFP, though the slope in Table 1 equals region D's SLPFM at shared gages and is close to live CSLBlue, not CSL1085LFP (07077950: 0.81 printed, CSLBlue 0.82, CSL1085LFP 0.71, which lowers its Q1% from the printed 8,430 to 7,939).",
+ "equations": [
+  {
+   "region_code": "A",
+   "region_name": "Flood region A, Arkansas River Basin (NSS GC1715)",
+   "aep": 0.5,
+   "intercept": 2.322,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.04,
+     "maximum": 1250.0
+    }
+   ],
+   "coefficients": [
+    0.732
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., Krieger, J.D., and Veilleux, A.G., 2016, Methods for estimating annual exceedance probability discharges for streams in Arkansas, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2016-5081, 136 p.",
+    "table": "Tables 7, 10 and 11",
+    "year": 2016,
+    "url": "https://doi.org/10.3133/sir20165081"
+   },
+   "sep_log": 0.178195,
+   "avp": 0.032,
+   "model_error_variance": 0.03,
+   "covariance": [
+    [
+     0.002646696,
+     -0.0008394193
+    ],
+    [
+     -0.0008394193,
+     0.0005251942
+    ]
+   ],
+   "n_sites": 68
+  },
+  {
+   "region_code": "A",
+   "region_name": "Flood region A, Arkansas River Basin (NSS GC1715)",
+   "aep": 0.2,
+   "intercept": 1.822,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.04,
+     "maximum": 1250.0
+    },
+    {
+     "code": "ELEV",
+     "transform": "log10",
+     "units": "ft",
+     "minimum": 380.51,
+     "maximum": 1832.27
+    }
+   ],
+   "coefficients": [
+    0.714,
+    0.273
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., Krieger, J.D., and Veilleux, A.G., 2016, Methods for estimating annual exceedance probability discharges for streams in Arkansas, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2016-5081, 136 p.",
+    "table": "Tables 7, 10 and 11",
+    "year": 2016,
+    "url": "https://doi.org/10.3133/sir20165081"
+   },
+   "sep_log": 0.143561,
+   "avp": 0.021,
+   "model_error_variance": 0.018,
+   "covariance": [
+    [
+     0.16891569,
+     0.0023770937,
+     -0.058661075
+    ],
+    [
+     0.0023770937,
+     0.0004297459,
+     -0.0010574191
+    ],
+    [
+     -0.058661075,
+     -0.0010574191,
+     0.020639769
+    ]
+   ],
+   "n_sites": 68
+  },
+  {
+   "region_code": "A",
+   "region_name": "Flood region A, Arkansas River Basin (NSS GC1715)",
+   "aep": 0.1,
+   "intercept": 1.603,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.04,
+     "maximum": 1250.0
+    },
+    {
+     "code": "ELEV",
+     "transform": "log10",
+     "units": "ft",
+     "minimum": 380.51,
+     "maximum": 1832.27
+    }
+   ],
+   "coefficients": [
+    0.706,
+    0.4
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., Krieger, J.D., and Veilleux, A.G., 2016, Methods for estimating annual exceedance probability discharges for streams in Arkansas, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2016-5081, 136 p.",
+    "table": "Tables 7, 10 and 11",
+    "year": 2016,
+    "url": "https://doi.org/10.3133/sir20165081"
+   },
+   "sep_log": 0.138665,
+   "avp": 0.019,
+   "model_error_variance": 0.017,
+   "covariance": [
+    [
+     0.17341773,
+     0.0025715481,
+     -0.060411569
+    ],
+    [
+     0.0025715481,
+     0.0004361433,
+     -0.0011354995
+    ],
+    [
+     -0.060411569,
+     -0.0011354995,
+     0.021334926
+    ]
+   ],
+   "n_sites": 68
+  },
+  {
+   "region_code": "A",
+   "region_name": "Flood region A, Arkansas River Basin (NSS GC1715)",
+   "aep": 0.04,
+   "intercept": 1.379,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.04,
+     "maximum": 1250.0
+    },
+    {
+     "code": "ELEV",
+     "transform": "log10",
+     "units": "ft",
+     "minimum": 380.51,
+     "maximum": 1832.27
+    }
+   ],
+   "coefficients": [
+    0.696,
+    0.532
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., Krieger, J.D., and Veilleux, A.G., 2016, Methods for estimating annual exceedance probability discharges for streams in Arkansas, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2016-5081, 136 p.",
+    "table": "Tables 7, 10 and 11",
+    "year": 2016,
+    "url": "https://doi.org/10.3133/sir20165081"
+   },
+   "sep_log": 0.140353,
+   "avp": 0.02,
+   "model_error_variance": 0.017,
+   "covariance": [
+    [
+     0.1951526,
+     0.003022656,
+     -0.068155157
+    ],
+    [
+     0.003022656,
+     0.0004837719,
+     -0.0013252189
+    ],
+    [
+     -0.068155157,
+     -0.0013252189,
+     0.024140914
+    ]
+   ],
+   "n_sites": 68
+  },
+  {
+   "region_code": "A",
+   "region_name": "Flood region A, Arkansas River Basin (NSS GC1715)",
+   "aep": 0.02,
+   "intercept": 1.245,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.04,
+     "maximum": 1250.0
+    },
+    {
+     "code": "ELEV",
+     "transform": "log10",
+     "units": "ft",
+     "minimum": 380.51,
+     "maximum": 1832.27
+    }
+   ],
+   "coefficients": [
+    0.689,
+    0.613
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., Krieger, J.D., and Veilleux, A.G., 2016, Methods for estimating annual exceedance probability discharges for streams in Arkansas, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2016-5081, 136 p.",
+    "table": "Tables 7, 10 and 11",
+    "year": 2016,
+    "url": "https://doi.org/10.3133/sir20165081"
+   },
+   "sep_log": 0.147554,
+   "avp": 0.022,
+   "model_error_variance": 0.019,
+   "covariance": [
+    [
+     0.22344839,
+     0.0035072788,
+     -0.078084316
+    ],
+    [
+     0.0035072788,
+     0.0005491763,
+     -0.0015323804
+    ],
+    [
+     -0.078084316,
+     -0.0015323804,
+     0.027674461
+    ]
+   ],
+   "n_sites": 68
+  },
+  {
+   "region_code": "A",
+   "region_name": "Flood region A, Arkansas River Basin (NSS GC1715)",
+   "aep": 0.01,
+   "intercept": 1.126,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.04,
+     "maximum": 1250.0
+    },
+    {
+     "code": "ELEV",
+     "transform": "log10",
+     "units": "ft",
+     "minimum": 380.51,
+     "maximum": 1832.27
+    }
+   ],
+   "coefficients": [
+    0.683,
+    0.684
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., Krieger, J.D., and Veilleux, A.G., 2016, Methods for estimating annual exceedance probability discharges for streams in Arkansas, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2016-5081, 136 p.",
+    "table": "Tables 7, 10 and 11",
+    "year": 2016,
+    "url": "https://doi.org/10.3133/sir20165081"
+   },
+   "sep_log": 0.154655,
+   "avp": 0.024,
+   "model_error_variance": 0.02,
+   "covariance": [
+    [
+     0.25226359,
+     0.0040019445,
+     -0.088197911
+    ],
+    [
+     0.0040019445,
+     0.000616122,
+     -0.0017439682
+    ],
+    [
+     -0.088197911,
+     -0.0017439682,
+     0.031274713
+    ]
+   ],
+   "n_sites": 68
+  },
+  {
+   "region_code": "A",
+   "region_name": "Flood region A, Arkansas River Basin (NSS GC1715)",
+   "aep": 0.002,
+   "intercept": 0.903,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.04,
+     "maximum": 1250.0
+    },
+    {
+     "code": "ELEV",
+     "transform": "log10",
+     "units": "ft",
+     "minimum": 380.51,
+     "maximum": 1832.27
+    }
+   ],
+   "coefficients": [
+    0.672,
+    0.821
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., Krieger, J.D., and Veilleux, A.G., 2016, Methods for estimating annual exceedance probability discharges for streams in Arkansas, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2016-5081, 136 p.",
+    "table": "Tables 7, 10 and 11",
+    "year": 2016,
+    "url": "https://doi.org/10.3133/sir20165081"
+   },
+   "sep_log": 0.183499,
+   "avp": 0.034,
+   "model_error_variance": 0.029,
+   "covariance": [
+    [
+     0.35293646,
+     0.0055613025,
+     -0.12326711
+    ],
+    [
+     0.0055613025,
+     0.0008540016,
+     -0.0024155878
+    ],
+    [
+     -0.12326711,
+     -0.0024155878,
+     0.043641343
+    ]
+   ],
+   "n_sites": 68
+  },
+  {
+   "region_code": "B1",
+   "region_name": "Flood region B subregion 1, Ouachita Mountains (NSS GC1716)",
+   "aep": 0.5,
+   "intercept": 2.85,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 2680.0
+    },
+    {
+     "code": "BSHAPELFP",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 2.94,
+     "maximum": 15.06
+    }
+   ],
+   "coefficients": [
+    0.761,
+    -0.462
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., Krieger, J.D., and Veilleux, A.G., 2016, Methods for estimating annual exceedance probability discharges for streams in Arkansas, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2016-5081, 136 p.",
+    "table": "Tables 7, 10 and 11",
+    "year": 2016,
+    "url": "https://doi.org/10.3133/sir20165081"
+   },
+   "sep_log": 0.158714,
+   "avp": 0.025,
+   "model_error_variance": 0.022,
+   "covariance": [
+    [
+     0.020495181,
+     0.0003222785,
+     -0.021311804
+    ],
+    [
+     0.0003222785,
+     0.0008850256,
+     -0.0022405285
+    ],
+    [
+     -0.021311804,
+     -0.0022405285,
+     0.027716345
+    ]
+   ],
+   "n_sites": 36
+  },
+  {
+   "region_code": "B1",
+   "region_name": "Flood region B subregion 1, Ouachita Mountains (NSS GC1716)",
+   "aep": 0.2,
+   "intercept": 3.171,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 2680.0
+    },
+    {
+     "code": "BSHAPELFP",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 2.94,
+     "maximum": 15.06
+    }
+   ],
+   "coefficients": [
+    0.737,
+    -0.51
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., Krieger, J.D., and Veilleux, A.G., 2016, Methods for estimating annual exceedance probability discharges for streams in Arkansas, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2016-5081, 136 p.",
+    "table": "Tables 7, 10 and 11",
+    "year": 2016,
+    "url": "https://doi.org/10.3133/sir20165081"
+   },
+   "sep_log": 0.15997,
+   "avp": 0.026,
+   "model_error_variance": 0.022,
+   "covariance": [
+    [
+     0.021361357,
+     0.0002759124,
+     -0.022040439
+    ],
+    [
+     0.0002759124,
+     0.0009570473,
+     -0.0023827172
+    ],
+    [
+     -0.022040439,
+     -0.0023827172,
+     0.028879712
+    ]
+   ],
+   "n_sites": 36
+  },
+  {
+   "region_code": "B1",
+   "region_name": "Flood region B subregion 1, Ouachita Mountains (NSS GC1716)",
+   "aep": 0.1,
+   "intercept": 3.329,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 2680.0
+    },
+    {
+     "code": "BSHAPELFP",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 2.94,
+     "maximum": 15.06
+    }
+   ],
+   "coefficients": [
+    0.723,
+    -0.526
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., Krieger, J.D., and Veilleux, A.G., 2016, Methods for estimating annual exceedance probability discharges for streams in Arkansas, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2016-5081, 136 p.",
+    "table": "Tables 7, 10 and 11",
+    "year": 2016,
+    "url": "https://doi.org/10.3133/sir20165081"
+   },
+   "sep_log": 0.163807,
+   "avp": 0.027,
+   "model_error_variance": 0.023,
+   "covariance": [
+    [
+     0.023356932,
+     0.000205587,
+     -0.02378562
+    ],
+    [
+     0.000205587,
+     0.0010646096,
+     -0.0025779438
+    ],
+    [
+     -0.02378562,
+     -0.0025779438,
+     0.031196476
+    ]
+   ],
+   "n_sites": 36
+  },
+  {
+   "region_code": "B1",
+   "region_name": "Flood region B subregion 1, Ouachita Mountains (NSS GC1716)",
+   "aep": 0.04,
+   "intercept": 3.49,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 2680.0
+    },
+    {
+     "code": "BSHAPELFP",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 2.94,
+     "maximum": 15.06
+    }
+   ],
+   "coefficients": [
+    0.707,
+    -0.535
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., Krieger, J.D., and Veilleux, A.G., 2016, Methods for estimating annual exceedance probability discharges for streams in Arkansas, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2016-5081, 136 p.",
+    "table": "Tables 7, 10 and 11",
+    "year": 2016,
+    "url": "https://doi.org/10.3133/sir20165081"
+   },
+   "sep_log": 0.172697,
+   "avp": 0.03,
+   "model_error_variance": 0.025,
+   "covariance": [
+    [
+     0.027140861,
+     0.0001309024,
+     -0.027285908
+    ],
+    [
+     0.0001309024,
+     0.001255371,
+     -0.0029593108
+    ],
+    [
+     -0.027285908,
+     -0.0029593108,
+     0.035804076
+    ]
+   ],
+   "n_sites": 36
+  },
+  {
+   "region_code": "B1",
+   "region_name": "Flood region B subregion 1, Ouachita Mountains (NSS GC1716)",
+   "aep": 0.02,
+   "intercept": 3.589,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 2680.0
+    },
+    {
+     "code": "BSHAPELFP",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 2.94,
+     "maximum": 15.06
+    }
+   ],
+   "coefficients": [
+    0.696,
+    -0.537
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., Krieger, J.D., and Veilleux, A.G., 2016, Methods for estimating annual exceedance probability discharges for streams in Arkansas, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2016-5081, 136 p.",
+    "table": "Tables 7, 10 and 11",
+    "year": 2016,
+    "url": "https://doi.org/10.3133/sir20165081"
+   },
+   "sep_log": 0.1767,
+   "avp": 0.031,
+   "model_error_variance": 0.026,
+   "covariance": [
+    [
+     0.029490785,
+     3.43444e-05,
+     -0.02929148
+    ],
+    [
+     3.43444e-05,
+     0.001378086,
+     -0.0031666526
+    ],
+    [
+     -0.02929148,
+     -0.0031666526,
+     0.0384188851
+    ]
+   ],
+   "n_sites": 36
+  },
+  {
+   "region_code": "B1",
+   "region_name": "Flood region B subregion 1, Ouachita Mountains (NSS GC1716)",
+   "aep": 0.01,
+   "intercept": 3.674,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 2680.0
+    },
+    {
+     "code": "BSHAPELFP",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 2.94,
+     "maximum": 15.06
+    }
+   ],
+   "coefficients": [
+    0.686,
+    -0.536
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., Krieger, J.D., and Veilleux, A.G., 2016, Methods for estimating annual exceedance probability discharges for streams in Arkansas, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2016-5081, 136 p.",
+    "table": "Tables 7, 10 and 11",
+    "year": 2016,
+    "url": "https://doi.org/10.3133/sir20165081"
+   },
+   "sep_log": 0.185245,
+   "avp": 0.034,
+   "model_error_variance": 0.029,
+   "covariance": [
+    [
+     0.03299448,
+     -7.4037e-06,
+     -0.032624846
+    ],
+    [
+     -7.4037e-06,
+     0.0015519871,
+     -0.0035344234
+    ],
+    [
+     -0.032624846,
+     -0.0035344234,
+     0.04281899
+    ]
+   ],
+   "n_sites": 36
+  },
+  {
+   "region_code": "B1",
+   "region_name": "Flood region B subregion 1, Ouachita Mountains (NSS GC1716)",
+   "aep": 0.002,
+   "intercept": 3.839,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 2680.0
+    },
+    {
+     "code": "BSHAPELFP",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 2.94,
+     "maximum": 15.06
+    }
+   ],
+   "coefficients": [
+    0.665,
+    -0.525
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., Krieger, J.D., and Veilleux, A.G., 2016, Methods for estimating annual exceedance probability discharges for streams in Arkansas, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2016-5081, 136 p.",
+    "table": "Tables 7, 10 and 11",
+    "year": 2016,
+    "url": "https://doi.org/10.3133/sir20165081"
+   },
+   "sep_log": 0.193498,
+   "avp": 0.042,
+   "model_error_variance": 0.035,
+   "covariance": [
+    [
+     0.04139488,
+     -9.84186e-05,
+     -0.040652132
+    ],
+    [
+     -9.84186e-05,
+     0.0019726758,
+     -0.0044333423
+    ],
+    [
+     -0.040652132,
+     -0.0044333423,
+     0.05345691
+    ]
+   ],
+   "n_sites": 36
+  },
+  {
+   "region_code": "B2",
+   "region_name": "Flood region B subregion 2, West Gulf Coastal Plain (NSS GC1717)",
+   "aep": 0.5,
+   "intercept": -11.495,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.04,
+     "maximum": 2090.0
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 49.36,
+     "maximum": 56.55
+    },
+    {
+     "code": "SOILINDEX",
+     "transform": "identity",
+     "units": "dimensionless",
+     "minimum": 2.2,
+     "maximum": 3.8
+    },
+    {
+     "code": "LC11DVOPN",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 10.89,
+     "scale": 0.01,
+     "offset": 1.0
+    },
+    {
+     "code": "ALVM",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0,
+     "scale": 0.01,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.605,
+    4.208,
+    0.479,
+    5.175,
+    -0.314
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., Krieger, J.D., and Veilleux, A.G., 2016, Methods for estimating annual exceedance probability discharges for streams in Arkansas, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2016-5081, 136 p.",
+    "table": "Tables 7, 10 and 11",
+    "year": 2016,
+    "url": "https://doi.org/10.3133/sir20165081"
+   },
+   "sep_log": 0.157691,
+   "avp": 0.025,
+   "model_error_variance": 0.021,
+   "covariance": [
+    [
+     15.416576,
+     0.0022875563,
+     -7.3246402,
+     -0.10697946,
+     -2.2927335,
+     -0.02352994
+    ],
+    [
+     0.0022875563,
+     0.0004617545,
+     -0.0030746748,
+     -0.0002262749,
+     0.0024091212,
+     0.0004386855
+    ],
+    [
+     -7.3246402,
+     -0.0030746748,
+     3.9133557,
+     0.043299603,
+     0.40756339,
+     -0.0017089317
+    ],
+    [
+     -0.10697946,
+     -0.0002262749,
+     0.043299603,
+     0.0052091874,
+     0.016831433,
+     -0.0012588263
+    ],
+    [
+     -2.2927335,
+     0.0024091212,
+     0.40756339,
+     0.016831433,
+     1.4514484,
+     0.020823191
+    ],
+    [
+     -0.02352994,
+     0.0004386855,
+     -0.0017089317,
+     -0.0012588263,
+     0.020823191,
+     0.0073444606
+    ]
+   ],
+   "n_sites": 56
+  },
+  {
+   "region_code": "B2",
+   "region_name": "Flood region B subregion 2, West Gulf Coastal Plain (NSS GC1717)",
+   "aep": 0.2,
+   "intercept": -12.141,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.04,
+     "maximum": 2090.0
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 49.36,
+     "maximum": 56.55
+    },
+    {
+     "code": "SOILINDEX",
+     "transform": "identity",
+     "units": "dimensionless",
+     "minimum": 2.2,
+     "maximum": 3.8
+    },
+    {
+     "code": "LC11DVOPN",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 10.89,
+     "scale": 0.01,
+     "offset": 1.0
+    },
+    {
+     "code": "ALVM",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0,
+     "scale": 0.01,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.608,
+    5.309,
+    0.412,
+    4.38,
+    -0.284
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., Krieger, J.D., and Veilleux, A.G., 2016, Methods for estimating annual exceedance probability discharges for streams in Arkansas, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2016-5081, 136 p.",
+    "table": "Tables 7, 10 and 11",
+    "year": 2016,
+    "url": "https://doi.org/10.3133/sir20165081"
+   },
+   "sep_log": 0.137859,
+   "avp": 0.019,
+   "model_error_variance": 0.015,
+   "covariance": [
+    [
+     13.132696,
+     0.0029207513,
+     -6.3625334,
+     -0.087147972,
+     -1.7679156,
+     -0.015793196
+    ],
+    [
+     0.0029207513,
+     0.000387849,
+     -0.0032030541,
+     -0.0002026209,
+     0.0021049064,
+     0.0003723216
+    ],
+    [
+     -6.3625334,
+     -0.0032030541,
+     3.4517718,
+     0.035279445,
+     0.27765306,
+     -0.002880899
+    ],
+    [
+     -0.087147972,
+     -0.0002026209,
+     0.035279445,
+     0.0042776791,
+     0.013546323,
+     -0.0010071926
+    ],
+    [
+     -1.7679156,
+     0.0021049064,
+     0.27765306,
+     0.013546323,
+     1.1774179,
+     0.016054424
+    ],
+    [
+     -0.015793196,
+     0.0003723216,
+     -0.002880899,
+     -0.0010071926,
+     0.016054424,
+     0.0060171382
+    ]
+   ],
+   "n_sites": 56
+  },
+  {
+   "region_code": "B2",
+   "region_name": "Flood region B subregion 2, West Gulf Coastal Plain (NSS GC1717)",
+   "aep": 0.1,
+   "intercept": -12.376,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.04,
+     "maximum": 2090.0
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 49.36,
+     "maximum": 56.55
+    },
+    {
+     "code": "SOILINDEX",
+     "transform": "identity",
+     "units": "dimensionless",
+     "minimum": 2.2,
+     "maximum": 3.8
+    },
+    {
+     "code": "LC11DVOPN",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 10.89,
+     "scale": 0.01,
+     "offset": 1.0
+    },
+    {
+     "code": "ALVM",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0,
+     "scale": 0.01,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.61,
+    5.745,
+    0.38,
+    4.085,
+    -0.269
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., Krieger, J.D., and Veilleux, A.G., 2016, Methods for estimating annual exceedance probability discharges for streams in Arkansas, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2016-5081, 136 p.",
+    "table": "Tables 7, 10 and 11",
+    "year": 2016,
+    "url": "https://doi.org/10.3133/sir20165081"
+   },
+   "sep_log": 0.138866,
+   "avp": 0.019,
+   "model_error_variance": 0.015,
+   "covariance": [
+    [
+     14.39758,
+     0.0038403898,
+     -7.0450728,
+     -0.093818922,
+     -1.8326658,
+     -0.013935315
+    ],
+    [
+     0.0038403898,
+     0.0004169905,
+     -0.0038922071,
+     -0.0002234062,
+     0.002343174,
+     0.0003985861
+    ],
+    [
+     -7.0450728,
+     -0.0038922071,
+     3.8488811,
+     0.038164647,
+     0.26801097,
+     -0.0043453467
+    ],
+    [
+     -0.093818922,
+     -0.0002234062,
+     0.038164647,
+     0.0045852581,
+     0.014282104,
+     -0.0010592567
+    ],
+    [
+     -1.8326658,
+     0.002343174,
+     0.26801097,
+     0.014282104,
+     1.2524882,
+     0.01637108
+    ],
+    [
+     -0.013935315,
+     0.0003985861,
+     -0.0043453467,
+     -0.0010592567,
+     0.01637108,
+     0.0064337446
+    ]
+   ],
+   "n_sites": 56
+  },
+  {
+   "region_code": "B2",
+   "region_name": "Flood region B subregion 2, West Gulf Coastal Plain (NSS GC1717)",
+   "aep": 0.04,
+   "intercept": -12.546,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.04,
+     "maximum": 2090.0
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 49.36,
+     "maximum": 56.55
+    },
+    {
+     "code": "SOILINDEX",
+     "transform": "identity",
+     "units": "dimensionless",
+     "minimum": 2.2,
+     "maximum": 3.8
+    },
+    {
+     "code": "LC11DVOPN",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 10.89,
+     "scale": 0.01,
+     "offset": 1.0
+    },
+    {
+     "code": "ALVM",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0,
+     "scale": 0.01,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.611,
+    6.102,
+    0.348,
+    3.862,
+    -0.254
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., Krieger, J.D., and Veilleux, A.G., 2016, Methods for estimating annual exceedance probability discharges for streams in Arkansas, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2016-5081, 136 p.",
+    "table": "Tables 7, 10 and 11",
+    "year": 2016,
+    "url": "https://doi.org/10.3133/sir20165081"
+   },
+   "sep_log": 0.140915,
+   "avp": 0.02,
+   "model_error_variance": 0.015,
+   "covariance": [
+    [
+     16.329035,
+     0.0051690606,
+     -8.0784164,
+     -0.10446525,
+     -1.9442024,
+     -0.011520298
+    ],
+    [
+     0.0051690606,
+     0.000462091,
+     -0.0049171053,
+     -0.0002540411,
+     0.0027299803,
+     0.0004375924
+    ],
+    [
+     -8.0784164,
+     -0.0049171053,
+     4.445779,
+     0.042813032,
+     0.25942114,
+     -0.0063278122
+    ],
+    [
+     -0.10446525,
+     -0.0002540411,
+     0.042813032,
+     0.0050661071,
+     0.015420761,
+     -0.0011503897
+    ],
+    [
+     -1.9442024,
+     0.0027299803,
+     0.25942114,
+     0.015420743,
+     1.3689177,
+     0.016888829
+    ],
+    [
+     -0.011520298,
+     0.0004375924,
+     -0.0063278122,
+     -0.0011503897,
+     0.016888829,
+     0.0070600125
+    ]
+   ],
+   "n_sites": 56
+  },
+  {
+   "region_code": "B2",
+   "region_name": "Flood region B subregion 2, West Gulf Coastal Plain (NSS GC1717)",
+   "aep": 0.02,
+   "intercept": -12.626,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.04,
+     "maximum": 2090.0
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 49.36,
+     "maximum": 56.55
+    },
+    {
+     "code": "SOILINDEX",
+     "transform": "identity",
+     "units": "dimensionless",
+     "minimum": 2.2,
+     "maximum": 3.8
+    },
+    {
+     "code": "LC11DVOPN",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 10.89,
+     "scale": 0.01,
+     "offset": 1.0
+    },
+    {
+     "code": "ALVM",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0,
+     "scale": 0.01,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.612,
+    6.261,
+    0.329,
+    3.805,
+    -0.247
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., Krieger, J.D., and Veilleux, A.G., 2016, Methods for estimating annual exceedance probability discharges for streams in Arkansas, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2016-5081, 136 p.",
+    "table": "Tables 7, 10 and 11",
+    "year": 2016,
+    "url": "https://doi.org/10.3133/sir20165081"
+   },
+   "sep_log": 0.147434,
+   "avp": 0.022,
+   "model_error_variance": 0.017,
+   "covariance": [
+    [
+     18.638623,
+     0.0063241418,
+     -9.2562905,
+     -0.1187756,
+     -2.1653653,
+     -0.010919045
+    ],
+    [
+     0.0063241418,
+     0.0005203089,
+     -0.0058488614,
+     -0.0002888047,
+     0.0031149996,
+     0.0004894731
+    ],
+    [
+     -9.2562905,
+     -0.0058488614,
+     5.1049723,
+     0.048931545,
+     0.28077991,
+     -0.0079798694
+    ],
+    [
+     -0.1187756,
+     -0.0002888047,
+     0.048931545,
+     0.0057231083,
+     0.017186001,
+     -0.0012903941
+    ],
+    [
+     -2.1653653,
+     0.0031149996,
+     0.28077991,
+     0.017186001,
+     1.5383222,
+     0.018464784
+    ],
+    [
+     -0.010919045,
+     0.0004894731,
+     -0.0079798694,
+     -0.0012903941,
+     0.018464784,
+     0.0079385458
+    ]
+   ],
+   "n_sites": 56
+  },
+  {
+   "region_code": "B2",
+   "region_name": "Flood region B subregion 2, West Gulf Coastal Plain (NSS GC1717)",
+   "aep": 0.01,
+   "intercept": -12.719,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.04,
+     "maximum": 2090.0
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 49.36,
+     "maximum": 56.55
+    },
+    {
+     "code": "SOILINDEX",
+     "transform": "identity",
+     "units": "dimensionless",
+     "minimum": 2.2,
+     "maximum": 3.8
+    },
+    {
+     "code": "LC11DVOPN",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 10.89,
+     "scale": 0.01,
+     "offset": 1.0
+    },
+    {
+     "code": "ALVM",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0,
+     "scale": 0.01,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.612,
+    6.383,
+    0.312,
+    3.809,
+    -0.242
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., Krieger, J.D., and Veilleux, A.G., 2016, Methods for estimating annual exceedance probability discharges for streams in Arkansas, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2016-5081, 136 p.",
+    "table": "Tables 7, 10 and 11",
+    "year": 2016,
+    "url": "https://doi.org/10.3133/sir20165081"
+   },
+   "sep_log": 0.158163,
+   "avp": 0.025,
+   "model_error_variance": 0.019,
+   "covariance": [
+    [
+     21.788179,
+     0.0076434952,
+     -10.826713,
+     -0.13917191,
+     -2.5217369,
+     -0.011477342
+    ],
+    [
+     0.0076434952,
+     0.0006025355,
+     -0.006935423,
+     -0.0003357077,
+     0.0035779857,
+     0.0005643553
+    ],
+    [
+     -10.826713,
+     -0.006935423,
+     5.9705865,
+     0.057556608,
+     0.32887407,
+     -0.0098417906
+    ],
+    [
+     -0.13917191,
+     -0.0003357077,
+     0.057556608,
+     0.0066702272,
+     0.019858102,
+     -0.001498314
+    ],
+    [
+     -2.5217369,
+     0.0035779857,
+     0.32887407,
+     0.019858102,
+     1.7894204,
+     0.021239428
+    ],
+    [
+     -0.011477342,
+     0.0005643553,
+     -0.0098417906,
+     -0.001498314,
+     0.021239428,
+     0.0092281114
+    ]
+   ],
+   "n_sites": 56
+  },
+  {
+   "region_code": "B2",
+   "region_name": "Flood region B subregion 2, West Gulf Coastal Plain (NSS GC1717)",
+   "aep": 0.002,
+   "intercept": -12.917,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.04,
+     "maximum": 2090.0
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 49.36,
+     "maximum": 56.55
+    },
+    {
+     "code": "SOILINDEX",
+     "transform": "identity",
+     "units": "dimensionless",
+     "minimum": 2.2,
+     "maximum": 3.8
+    },
+    {
+     "code": "LC11DVOPN",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 10.89,
+     "scale": 0.01,
+     "offset": 1.0
+    },
+    {
+     "code": "ALVM",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0,
+     "scale": 0.01,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.612,
+    6.593,
+    0.28,
+    3.879,
+    -0.233
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., Krieger, J.D., and Veilleux, A.G., 2016, Methods for estimating annual exceedance probability discharges for streams in Arkansas, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2016-5081, 136 p.",
+    "table": "Tables 7, 10 and 11",
+    "year": 2016,
+    "url": "https://doi.org/10.3133/sir20165081"
+   },
+   "sep_log": 0.175125,
+   "avp": 0.031,
+   "model_error_variance": 0.023,
+   "covariance": [
+    [
+     28.014171,
+     0.010662662,
+     -13.970574,
+     -0.1787427,
+     -3.1659104,
+     -0.010724885
+    ],
+    [
+     0.010662662,
+     0.000760708,
+     -0.009320756,
+     -0.000429501,
+     0.0044999613,
+     0.0007059275
+    ],
+    [
+     -13.970574,
+     -0.009320756,
+     7.7162266,
+     0.074502254,
+     0.40624459,
+     -0.014028277
+    ],
+    [
+     -0.1787427,
+     -0.000429501,
+     0.074502254,
+     0.008483484,
+     0.024730123,
+     -0.0018927986
+    ],
+    [
+     -3.1659104,
+     0.0044999613,
+     0.40624459,
+     0.024730123,
+     2.2591334,
+     0.025890183
+    ],
+    [
+     -0.010724885,
+     0.0007059275,
+     -0.014028277,
+     -0.0018927986,
+     0.025890183,
+     0.011631832
+    ]
+   ],
+   "n_sites": 56
+  },
+  {
+   "region_code": "C",
+   "region_name": "Flood region C, White River Basin (NSS GC1718)",
+   "aep": 0.5,
+   "intercept": 2.636,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.09,
+     "maximum": 2050.0
+    },
+    {
+     "code": "LC11PAST",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 87.51,
+     "scale": 0.01,
+     "offset": 1.0
+    },
+    {
+     "code": "UPZ",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0,
+     "scale": 0.01,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.666,
+    -0.297,
+    0.111
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., Krieger, J.D., and Veilleux, A.G., 2016, Methods for estimating annual exceedance probability discharges for streams in Arkansas, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2016-5081, 136 p.",
+    "table": "Tables 7, 10 and 11",
+    "year": 2016,
+    "url": "https://doi.org/10.3133/sir20165081"
+   },
+   "sep_log": 0.2125,
+   "avp": 0.045,
+   "model_error_variance": 0.041,
+   "covariance": [
+    [
+     0.028836402,
+     -0.0007706785,
+     -0.017514234,
+     -0.0029426173
+    ],
+    [
+     -0.0007706785,
+     0.000483428,
+     0.0002487483,
+     -9.56358e-05
+    ],
+    [
+     -0.017514234,
+     0.0002487483,
+     0.014433572,
+     -0.0007458975
+    ],
+    [
+     -0.0029426173,
+     -9.56358e-05,
+     -0.0007458975,
+     0.0030055074
+    ]
+   ],
+   "n_sites": 83
+  },
+  {
+   "region_code": "C",
+   "region_name": "Flood region C, White River Basin (NSS GC1718)",
+   "aep": 0.2,
+   "intercept": 2.893,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.09,
+     "maximum": 2050.0
+    },
+    {
+     "code": "LC11PAST",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 87.51,
+     "scale": 0.01,
+     "offset": 1.0
+    },
+    {
+     "code": "UPZ",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0,
+     "scale": 0.01,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.675,
+    -0.307,
+    0.127
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., Krieger, J.D., and Veilleux, A.G., 2016, Methods for estimating annual exceedance probability discharges for streams in Arkansas, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2016-5081, 136 p.",
+    "table": "Tables 7, 10 and 11",
+    "year": 2016,
+    "url": "https://doi.org/10.3133/sir20165081"
+   },
+   "sep_log": 0.179573,
+   "avp": 0.032,
+   "model_error_variance": 0.029,
+   "covariance": [
+    [
+     0.02183436,
+     -0.000597384,
+     -0.0126323,
+     -0.0025013656
+    ],
+    [
+     -0.000597384,
+     0.0003679295,
+     0.0001945519,
+     -7.12936e-05
+    ],
+    [
+     -0.0126323,
+     0.0001945519,
+     0.010421058,
+     -0.0005358469
+    ],
+    [
+     -0.0025013656,
+     -7.12936e-05,
+     -0.0005358469,
+     0.0024679207
+    ]
+   ],
+   "n_sites": 83
+  },
+  {
+   "region_code": "C",
+   "region_name": "Flood region C, White River Basin (NSS GC1718)",
+   "aep": 0.1,
+   "intercept": 3.159,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.09,
+     "maximum": 2050.0
+    },
+    {
+     "code": "BSHAPELFP",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 1.97,
+     "maximum": 15.09
+    },
+    {
+     "code": "LC11PAST",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 87.51,
+     "scale": 0.01,
+     "offset": 1.0
+    },
+    {
+     "code": "UPZ",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0,
+     "scale": 0.01,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.725,
+    -0.321,
+    -0.272,
+    0.136
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., Krieger, J.D., and Veilleux, A.G., 2016, Methods for estimating annual exceedance probability discharges for streams in Arkansas, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2016-5081, 136 p.",
+    "table": "Tables 7, 10 and 11",
+    "year": 2016,
+    "url": "https://doi.org/10.3133/sir20165081"
+   },
+   "sep_log": 0.167935,
+   "avp": 0.028,
+   "model_error_variance": 0.024,
+   "covariance": [
+    [
+     0.024174612,
+     0.0007023561,
+     -0.0086247021,
+     -0.010166176,
+     -0.0024292115
+    ],
+    [
+     0.0007023561,
+     0.0006870592,
+     -0.0025137145,
+     0.0004433994,
+     -3.54192e-05
+    ],
+    [
+     -0.0086247021,
+     -0.0025137145,
+     0.017632494,
+     -0.0019079682,
+     -0.0002119536
+    ],
+    [
+     -0.010166176,
+     0.0004433994,
+     -0.0019079682,
+     0.0093634134,
+     -0.000436503
+    ],
+    [
+     -0.0024292115,
+     -3.54192e-05,
+     -0.0002119536,
+     -0.000436503,
+     0.002431138
+    ]
+   ],
+   "n_sites": 83
+  },
+  {
+   "region_code": "C",
+   "region_name": "Flood region C, White River Basin (NSS GC1718)",
+   "aep": 0.04,
+   "intercept": 3.329,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.09,
+     "maximum": 2050.0
+    },
+    {
+     "code": "BSHAPELFP",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 1.97,
+     "maximum": 15.09
+    },
+    {
+     "code": "LC11PAST",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 87.51,
+     "scale": 0.01,
+     "offset": 1.0
+    },
+    {
+     "code": "UPZ",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0,
+     "scale": 0.01,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.745,
+    -0.416,
+    -0.258,
+    0.142
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., Krieger, J.D., and Veilleux, A.G., 2016, Methods for estimating annual exceedance probability discharges for streams in Arkansas, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2016-5081, 136 p.",
+    "table": "Tables 7, 10 and 11",
+    "year": 2016,
+    "url": "https://doi.org/10.3133/sir20165081"
+   },
+   "sep_log": 0.166185,
+   "avp": 0.028,
+   "model_error_variance": 0.023,
+   "covariance": [
+    [
+     0.025364785,
+     0.0007762236,
+     -0.00925432,
+     -0.010039544,
+     -0.0027300151
+    ],
+    [
+     0.0007762236,
+     0.0007089625,
+     -0.0026031261,
+     0.0004614011,
+     -3.83902e-05
+    ],
+    [
+     -0.00925432,
+     -0.0026031261,
+     0.018230876,
+     -0.0019611578,
+     -0.0002090249
+    ],
+    [
+     -0.010039544,
+     0.0004614011,
+     -0.0019611578,
+     0.0093408016,
+     -0.0004539275
+    ],
+    [
+     -0.0027300151,
+     -3.83902e-05,
+     -0.0002090249,
+     -0.0004539275,
+     0.0026851253
+    ]
+   ],
+   "n_sites": 83
+  },
+  {
+   "region_code": "C",
+   "region_name": "Flood region C, White River Basin (NSS GC1718)",
+   "aep": 0.02,
+   "intercept": 3.434,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.09,
+     "maximum": 2050.0
+    },
+    {
+     "code": "BSHAPELFP",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 1.97,
+     "maximum": 15.09
+    },
+    {
+     "code": "LC11PAST",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 87.51,
+     "scale": 0.01,
+     "offset": 1.0
+    },
+    {
+     "code": "UPZ",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0,
+     "scale": 0.01,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.757,
+    -0.474,
+    -0.249,
+    0.147
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., Krieger, J.D., and Veilleux, A.G., 2016, Methods for estimating annual exceedance probability discharges for streams in Arkansas, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2016-5081, 136 p.",
+    "table": "Tables 7, 10 and 11",
+    "year": 2016,
+    "url": "https://doi.org/10.3133/sir20165081"
+   },
+   "sep_log": 0.169061,
+   "avp": 0.029,
+   "model_error_variance": 0.024,
+   "covariance": [
+    [
+     0.027242689,
+     0.000853655,
+     -0.010041673,
+     -0.010449988,
+     -0.00302991
+    ],
+    [
+     0.000853655,
+     0.0007548692,
+     -0.0027769196,
+     0.0004941199,
+     -4.13857e-05
+    ],
+    [
+     -0.010041673,
+     -0.0027769196,
+     0.019437644,
+     -0.0020850316,
+     -0.0002217935
+    ],
+    [
+     -0.010449988,
+     0.0004941199,
+     -0.0020850316,
+     0.009779279,
+     -0.0004876486
+    ],
+    [
+     -0.00302991,
+     -4.13857e-05,
+     -0.0002217935,
+     -0.0004876486,
+     0.002959142
+    ]
+   ],
+   "n_sites": 83
+  },
+  {
+   "region_code": "C",
+   "region_name": "Flood region C, White River Basin (NSS GC1718)",
+   "aep": 0.01,
+   "intercept": 3.522,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.09,
+     "maximum": 2050.0
+    },
+    {
+     "code": "BSHAPELFP",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 1.97,
+     "maximum": 15.09
+    },
+    {
+     "code": "LC11PAST",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 87.51,
+     "scale": 0.01,
+     "offset": 1.0
+    },
+    {
+     "code": "UPZ",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0,
+     "scale": 0.01,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.768,
+    -0.522,
+    -0.242,
+    0.152
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., Krieger, J.D., and Veilleux, A.G., 2016, Methods for estimating annual exceedance probability discharges for streams in Arkansas, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2016-5081, 136 p.",
+    "table": "Tables 7, 10 and 11",
+    "year": 2016,
+    "url": "https://doi.org/10.3133/sir20165081"
+   },
+   "sep_log": 0.177582,
+   "avp": 0.032,
+   "model_error_variance": 0.026,
+   "covariance": [
+    [
+     0.030560984,
+     0.0009634298,
+     -0.011289236,
+     -0.011586197,
+     -0.003463236
+    ],
+    [
+     0.0009634298,
+     0.0008445151,
+     -0.003109763,
+     0.0005560496,
+     -4.61843e-05
+    ],
+    [
+     -0.011289236,
+     -0.003109763,
+     0.021754983,
+     -0.0023352285,
+     -0.0002505809
+    ],
+    [
+     -0.011586197,
+     0.0005560496,
+     -0.0023352285,
+     0.010871475,
+     -0.000546072
+    ],
+    [
+     -0.003463236,
+     -4.61843e-05,
+     -0.0002505809,
+     -0.000546072,
+     0.0033659537
+    ]
+   ],
+   "n_sites": 83
+  },
+  {
+   "region_code": "C",
+   "region_name": "Flood region C, White River Basin (NSS GC1718)",
+   "aep": 0.002,
+   "intercept": 3.692,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.09,
+     "maximum": 2050.0
+    },
+    {
+     "code": "BSHAPELFP",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 1.97,
+     "maximum": 15.09
+    },
+    {
+     "code": "LC11PAST",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 87.51,
+     "scale": 0.01,
+     "offset": 1.0
+    },
+    {
+     "code": "UPZ",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0,
+     "scale": 0.01,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.789,
+    -0.616,
+    -0.224,
+    0.16
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., Krieger, J.D., and Veilleux, A.G., 2016, Methods for estimating annual exceedance probability discharges for streams in Arkansas, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2016-5081, 136 p.",
+    "table": "Tables 7, 10 and 11",
+    "year": 2016,
+    "url": "https://doi.org/10.3133/sir20165081"
+   },
+   "sep_log": 0.189366,
+   "avp": 0.036,
+   "model_error_variance": 0.029,
+   "covariance": [
+    [
+     0.036339329,
+     0.0011678696,
+     -0.013538612,
+     -0.013298123,
+     -0.0042742144
+    ],
+    [
+     0.0011678696,
+     0.0009947716,
+     -0.003667992,
+     0.0006624756,
+     -5.35276e-05
+    ],
+    [
+     -0.013538612,
+     -0.003667992,
+     0.025653918,
+     -0.0027523304,
+     -0.0003064042
+    ],
+    [
+     -0.013298123,
+     0.0006624756,
+     -0.0027523304,
+     0.012570632,
+     -0.0006463527
+    ],
+    [
+     -0.0042742144,
+     -5.35276e-05,
+     -0.0003064042,
+     -0.0006463527,
+     0.0041219198
+    ]
+   ],
+   "n_sites": 83
+  },
+  {
+   "region_code": "D",
+   "region_name": "Flood region D, Mississippi Alluvial Plain (NSS GC1719)",
+   "aep": 0.5,
+   "intercept": 2.183,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.15,
+     "maximum": 1620.0
+    },
+    {
+     "code": "CSLBlue",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.36,
+     "maximum": 31.74
+    },
+    {
+     "code": "BSHAPELFP",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 3.12,
+     "maximum": 75.97
+    }
+   ],
+   "coefficients": [
+    0.678,
+    0.239,
+    -0.324
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., Krieger, J.D., and Veilleux, A.G., 2016, Methods for estimating annual exceedance probability discharges for streams in Arkansas, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2016-5081, 136 p.",
+    "table": "Tables 7, 10 and 11",
+    "year": 2016,
+    "url": "https://doi.org/10.3133/sir20165081"
+   },
+   "sep_log": 0.139871,
+   "avp": 0.02,
+   "model_error_variance": 0.017,
+   "covariance": [
+    [
+     0.0084990146,
+     0.0004251826,
+     -0.0031685734,
+     -0.0074819929
+    ],
+    [
+     0.0004251826,
+     0.0007692788,
+     0.0002296465,
+     -0.0016844497
+    ],
+    [
+     -0.0031685734,
+     0.0002296465,
+     0.0036380977,
+     0.0017747042
+    ],
+    [
+     -0.0074819929,
+     -0.0016844497,
+     0.0017747042,
+     0.00972457
+    ]
+   ],
+   "n_sites": 38
+  },
+  {
+   "region_code": "D",
+   "region_name": "Flood region D, Mississippi Alluvial Plain (NSS GC1719)",
+   "aep": 0.2,
+   "intercept": 2.31,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.15,
+     "maximum": 1620.0
+    },
+    {
+     "code": "CSLBlue",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.36,
+     "maximum": 31.74
+    },
+    {
+     "code": "BSHAPELFP",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 3.12,
+     "maximum": 75.97
+    }
+   ],
+   "coefficients": [
+    0.694,
+    0.344,
+    -0.348
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., Krieger, J.D., and Veilleux, A.G., 2016, Methods for estimating annual exceedance probability discharges for streams in Arkansas, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2016-5081, 136 p.",
+    "table": "Tables 7, 10 and 11",
+    "year": 2016,
+    "url": "https://doi.org/10.3133/sir20165081"
+   },
+   "sep_log": 0.140875,
+   "avp": 0.02,
+   "model_error_variance": 0.017,
+   "covariance": [
+    [
+     0.0087122423,
+     0.0004207547,
+     -0.0032145005,
+     -0.007622486
+    ],
+    [
+     0.0004207547,
+     0.000793973,
+     0.0002457137,
+     -0.0017261023
+    ],
+    [
+     -0.0032145005,
+     0.0002457137,
+     0.0037967281,
+     0.0017802343
+    ],
+    [
+     -0.007622486,
+     -0.0017261023,
+     0.0017802343,
+     0.0099192357
+    ]
+   ],
+   "n_sites": 38
+  },
+  {
+   "region_code": "D",
+   "region_name": "Flood region D, Mississippi Alluvial Plain (NSS GC1719)",
+   "aep": 0.1,
+   "intercept": 2.374,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.15,
+     "maximum": 1620.0
+    },
+    {
+     "code": "CSLBlue",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.36,
+     "maximum": 31.74
+    },
+    {
+     "code": "BSHAPELFP",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 3.12,
+     "maximum": 75.97
+    }
+   ],
+   "coefficients": [
+    0.702,
+    0.399,
+    -0.359
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., Krieger, J.D., and Veilleux, A.G., 2016, Methods for estimating annual exceedance probability discharges for streams in Arkansas, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2016-5081, 136 p.",
+    "table": "Tables 7, 10 and 11",
+    "year": 2016,
+    "url": "https://doi.org/10.3133/sir20165081"
+   },
+   "sep_log": 0.155208,
+   "avp": 0.024,
+   "model_error_variance": 0.021,
+   "covariance": [
+    [
+     0.010620207,
+     0.0005083952,
+     -0.0039404741,
+     -0.0092842811
+    ],
+    [
+     0.0005083952,
+     0.0009740114,
+     0.0003079049,
+     -0.0021121903
+    ],
+    [
+     -0.0039404741,
+     0.0003079049,
+     0.0046717292,
+     0.0021645695
+    ],
+    [
+     -0.0092842811,
+     -0.0021121903,
+     0.0021645695,
+     0.012097857
+    ]
+   ],
+   "n_sites": 38
+  },
+  {
+   "region_code": "D",
+   "region_name": "Flood region D, Mississippi Alluvial Plain (NSS GC1719)",
+   "aep": 0.04,
+   "intercept": 2.441,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.15,
+     "maximum": 1620.0
+    },
+    {
+     "code": "CSLBlue",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.36,
+     "maximum": 31.74
+    },
+    {
+     "code": "BSHAPELFP",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 3.12,
+     "maximum": 75.97
+    }
+   ],
+   "coefficients": [
+    0.709,
+    0.457,
+    -0.37
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., Krieger, J.D., and Veilleux, A.G., 2016, Methods for estimating annual exceedance probability discharges for streams in Arkansas, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2016-5081, 136 p.",
+    "table": "Tables 7, 10 and 11",
+    "year": 2016,
+    "url": "https://doi.org/10.3133/sir20165081"
+   },
+   "sep_log": 0.176777,
+   "avp": 0.031,
+   "model_error_variance": 0.027,
+   "covariance": [
+    [
+     0.013817365,
+     0.0006587369,
+     -0.0051646332,
+     -0.012080262
+    ],
+    [
+     0.0006587369,
+     0.0012744276,
+     0.000409055,
+     -0.0027593857
+    ],
+    [
+     -0.0051646332,
+     0.000409055,
+     0.0061203421,
+     0.0028182805
+    ],
+    [
+     -0.012080262,
+     -0.0027593857,
+     0.0028182805,
+     0.015760697
+    ]
+   ],
+   "n_sites": 38
+  },
+  {
+   "region_code": "D",
+   "region_name": "Flood region D, Mississippi Alluvial Plain (NSS GC1719)",
+   "aep": 0.02,
+   "intercept": 2.483,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.15,
+     "maximum": 1620.0
+    },
+    {
+     "code": "CSLBlue",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.36,
+     "maximum": 31.74
+    },
+    {
+     "code": "BSHAPELFP",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 3.12,
+     "maximum": 75.97
+    }
+   ],
+   "coefficients": [
+    0.713,
+    0.494,
+    -0.376
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., Krieger, J.D., and Veilleux, A.G., 2016, Methods for estimating annual exceedance probability discharges for streams in Arkansas, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2016-5081, 136 p.",
+    "table": "Tables 7, 10 and 11",
+    "year": 2016,
+    "url": "https://doi.org/10.3133/sir20165081"
+   },
+   "sep_log": 0.192674,
+   "avp": 0.037,
+   "model_error_variance": 0.032,
+   "covariance": [
+    [
+     0.016430437,
+     0.0007818341,
+     -0.0061655085,
+     -0.014366426
+    ],
+    [
+     0.0007818341,
+     0.001519732,
+     0.0004909482,
+     -0.0032881495
+    ],
+    [
+     -0.0061655085,
+     0.0004909482,
+     0.0073010382,
+     0.0033540989
+    ],
+    [
+     -0.014366426,
+     -0.0032881495,
+     0.0033540989,
+     0.018755365
+    ]
+   ],
+   "n_sites": 38
+  },
+  {
+   "region_code": "D",
+   "region_name": "Flood region D, Mississippi Alluvial Plain (NSS GC1719)",
+   "aep": 0.01,
+   "intercept": 2.52,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.15,
+     "maximum": 1620.0
+    },
+    {
+     "code": "CSLBlue",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.36,
+     "maximum": 31.74
+    },
+    {
+     "code": "BSHAPELFP",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 3.12,
+     "maximum": 75.97
+    }
+   ],
+   "coefficients": [
+    0.716,
+    0.527,
+    -0.381
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., Krieger, J.D., and Veilleux, A.G., 2016, Methods for estimating annual exceedance probability discharges for streams in Arkansas, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2016-5081, 136 p.",
+    "table": "Tables 7, 10 and 11",
+    "year": 2016,
+    "url": "https://doi.org/10.3133/sir20165081"
+   },
+   "sep_log": 0.207685,
+   "avp": 0.043,
+   "model_error_variance": 0.037,
+   "covariance": [
+    [
+     0.019103223,
+     0.0009075496,
+     -0.0071878952,
+     -0.016704249
+    ],
+    [
+     0.0009075496,
+     0.0017706638,
+     0.0005744736,
+     -0.003828937
+    ],
+    [
+     -0.0071878952,
+     0.0005744736,
+     0.0085089135,
+     0.0039016383
+    ],
+    [
+     -0.016704249,
+     -0.003828937,
+     0.0039016383,
+     0.021817852
+    ]
+   ],
+   "n_sites": 38
+  },
+  {
+   "region_code": "D",
+   "region_name": "Flood region D, Mississippi Alluvial Plain (NSS GC1719)",
+   "aep": 0.002,
+   "intercept": 2.594,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.15,
+     "maximum": 1620.0
+    },
+    {
+     "code": "CSLBlue",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.36,
+     "maximum": 31.74
+    },
+    {
+     "code": "BSHAPELFP",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 3.12,
+     "maximum": 75.97
+    }
+   ],
+   "coefficients": [
+    0.722,
+    0.592,
+    -0.391
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., Krieger, J.D., and Veilleux, A.G., 2016, Methods for estimating annual exceedance probability discharges for streams in Arkansas, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2016-5081, 136 p.",
+    "table": "Tables 7, 10 and 11",
+    "year": 2016,
+    "url": "https://doi.org/10.3133/sir20165081"
+   },
+   "sep_log": 0.239195,
+   "avp": 0.057,
+   "model_error_variance": 0.05,
+   "covariance": [
+    [
+     0.025363448,
+     0.0012001873,
+     -0.0095781773,
+     -0.02217555
+    ],
+    [
+     0.0012001873,
+     0.0023586356,
+     0.0007690832,
+     -0.0050950535
+    ],
+    [
+     -0.0095781773,
+     0.0007690832,
+     0.011338118,
+     0.0051826894
+    ],
+    [
+     -0.02217555,
+     -0.0050950535,
+     0.0051826894,
+     0.028986487
+    ]
+   ],
+   "n_sites": 38
+  },
+  {
+   "region_code": "MAP",
+   "region_name": "Mississippi Alluvial Plain (NSS GC1917)",
+   "aep": 0.5,
+   "intercept": 2.315970345456918,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.03,
+     "maximum": 2370.0
+    },
+    {
+     "code": "CSL1085LFP",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.36,
+     "maximum": 31.74
+    },
+    {
+     "code": "BSHAPELFP",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 1.24,
+     "maximum": 75.97
+    }
+   ],
+   "coefficients": [
+    0.676,
+    0.159,
+    -0.39
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2021, Magnitude and frequency of floods in the alluvial plain of the lower Mississippi River, 2017: U.S. Geological Survey Scientific Investigations Report 2021-5046, 15 p.",
+    "table": "Table 2; ranges p. 14",
+    "year": 2021,
+    "url": "https://doi.org/10.3133/sir20215046"
+   },
+   "sep_log": 0.186495,
+   "avp": 0.035,
+   "n_sites": 58
+  },
+  {
+   "region_code": "MAP",
+   "region_name": "Mississippi Alluvial Plain (NSS GC1917)",
+   "aep": 0.2,
+   "intercept": 2.413299764081252,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.03,
+     "maximum": 2370.0
+    },
+    {
+     "code": "CSL1085LFP",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.36,
+     "maximum": 31.74
+    },
+    {
+     "code": "BSHAPELFP",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 1.24,
+     "maximum": 75.97
+    }
+   ],
+   "coefficients": [
+    0.683,
+    0.272,
+    -0.374
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2021, Magnitude and frequency of floods in the alluvial plain of the lower Mississippi River, 2017: U.S. Geological Survey Scientific Investigations Report 2021-5046, 15 p.",
+    "table": "Table 2; ranges p. 14",
+    "year": 2021,
+    "url": "https://doi.org/10.3133/sir20215046"
+   },
+   "sep_log": 0.186495,
+   "avp": 0.035,
+   "n_sites": 58
+  },
+  {
+   "region_code": "MAP",
+   "region_name": "Mississippi Alluvial Plain (NSS GC1917)",
+   "aep": 0.1,
+   "intercept": 2.462397997898956,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.03,
+     "maximum": 2370.0
+    },
+    {
+     "code": "CSL1085LFP",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.36,
+     "maximum": 31.74
+    },
+    {
+     "code": "BSHAPELFP",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 1.24,
+     "maximum": 75.97
+    }
+   ],
+   "coefficients": [
+    0.684,
+    0.328,
+    -0.362
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2021, Magnitude and frequency of floods in the alluvial plain of the lower Mississippi River, 2017: U.S. Geological Survey Scientific Investigations Report 2021-5046, 15 p.",
+    "table": "Table 2; ranges p. 14",
+    "year": 2021,
+    "url": "https://doi.org/10.3133/sir20215046"
+   },
+   "sep_log": 0.190269,
+   "avp": 0.037,
+   "n_sites": 58
+  },
+  {
+   "region_code": "MAP",
+   "region_name": "Mississippi Alluvial Plain (NSS GC1917)",
+   "aep": 0.04,
+   "intercept": 2.515873843711679,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.03,
+     "maximum": 2370.0
+    },
+    {
+     "code": "CSL1085LFP",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.36,
+     "maximum": 31.74
+    },
+    {
+     "code": "BSHAPELFP",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 1.24,
+     "maximum": 75.97
+    }
+   ],
+   "coefficients": [
+    0.684,
+    0.387,
+    -0.348
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2021, Magnitude and frequency of floods in the alluvial plain of the lower Mississippi River, 2017: U.S. Geological Survey Scientific Investigations Report 2021-5046, 15 p.",
+    "table": "Table 2; ranges p. 14",
+    "year": 2021,
+    "url": "https://doi.org/10.3133/sir20215046"
+   },
+   "sep_log": 0.205152,
+   "avp": 0.041,
+   "n_sites": 58
+  },
+  {
+   "region_code": "MAP",
+   "region_name": "Mississippi Alluvial Plain (NSS GC1917)",
+   "aep": 0.02,
+   "intercept": 2.5490032620257876,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.03,
+     "maximum": 2370.0
+    },
+    {
+     "code": "CSL1085LFP",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.36,
+     "maximum": 31.74
+    },
+    {
+     "code": "BSHAPELFP",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 1.24,
+     "maximum": 75.97
+    }
+   ],
+   "coefficients": [
+    0.684,
+    0.423,
+    -0.336
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2021, Magnitude and frequency of floods in the alluvial plain of the lower Mississippi River, 2017: U.S. Geological Survey Scientific Investigations Report 2021-5046, 15 p.",
+    "table": "Table 2; ranges p. 14",
+    "year": 2021,
+    "url": "https://doi.org/10.3133/sir20215046"
+   },
+   "sep_log": 0.212464,
+   "avp": 0.045,
+   "n_sites": 58
+  },
+  {
+   "region_code": "MAP",
+   "region_name": "Mississippi Alluvial Plain (NSS GC1917)",
+   "aep": 0.01,
+   "intercept": 2.5774917998372255,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.03,
+     "maximum": 2370.0
+    },
+    {
+     "code": "CSL1085LFP",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.36,
+     "maximum": 31.74
+    },
+    {
+     "code": "BSHAPELFP",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 1.24,
+     "maximum": 75.97
+    }
+   ],
+   "coefficients": [
+    0.683,
+    0.455,
+    -0.326
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2021, Magnitude and frequency of floods in the alluvial plain of the lower Mississippi River, 2017: U.S. Geological Survey Scientific Investigations Report 2021-5046, 15 p.",
+    "table": "Table 2; ranges p. 14",
+    "year": 2021,
+    "url": "https://doi.org/10.3133/sir20215046"
+   },
+   "sep_log": 0.223265,
+   "avp": 0.049,
+   "n_sites": 58
+  },
+  {
+   "region_code": "MAP",
+   "region_name": "Mississippi Alluvial Plain (NSS GC1917)",
+   "aep": 0.005,
+   "intercept": 2.6053050461411096,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.03,
+     "maximum": 2370.0
+    },
+    {
+     "code": "CSL1085LFP",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.36,
+     "maximum": 31.74
+    },
+    {
+     "code": "BSHAPELFP",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 1.24,
+     "maximum": 75.97
+    }
+   ],
+   "coefficients": [
+    0.682,
+    0.485,
+    -0.319
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2021, Magnitude and frequency of floods in the alluvial plain of the lower Mississippi River, 2017: U.S. Geological Survey Scientific Investigations Report 2021-5046, 15 p.",
+    "table": "Table 2; ranges p. 14",
+    "year": 2021,
+    "url": "https://doi.org/10.3133/sir20215046"
+   },
+   "sep_log": 0.230355,
+   "avp": 0.053,
+   "n_sites": 58
+  },
+  {
+   "region_code": "MAP",
+   "region_name": "Mississippi Alluvial Plain (NSS GC1917)",
+   "aep": 0.002,
+   "intercept": 2.639486489268586,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.03,
+     "maximum": 2370.0
+    },
+    {
+     "code": "CSL1085LFP",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.36,
+     "maximum": 31.74
+    },
+    {
+     "code": "BSHAPELFP",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 1.24,
+     "maximum": 75.97
+    }
+   ],
+   "coefficients": [
+    0.682,
+    0.52,
+    -0.312
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2021, Magnitude and frequency of floods in the alluvial plain of the lower Mississippi River, 2017: U.S. Geological Survey Scientific Investigations Report 2021-5046, 15 p.",
+    "table": "Table 2; ranges p. 14",
+    "year": 2021,
+    "url": "https://doi.org/10.3133/sir20215046"
+   },
+   "sep_log": 0.244266,
+   "avp": 0.059,
+   "n_sites": 58
+  }
+ ],
+ "region_gates": {
+  "B1": {
+   "variable": "ELEV",
+   "minimum": 500.0,
+   "units": "ft",
+   "source": "SIR 2016-5081, p. 19 and Table 7: mean basin elevation is 500 ft or more in subregion 1 and less than 500 ft in subregion 2; for locations in region B, ELEV is determined first."
+  },
+  "B2": {
+   "variable": "ELEV",
+   "maximum": 500.0,
+   "units": "ft",
+   "source": "SIR 2016-5081, p. 19 and Table 7: mean basin elevation is 500 ft or more in subregion 1 and less than 500 ft in subregion 2; for locations in region B, ELEV is determined first."
+  }
+ }
+}
