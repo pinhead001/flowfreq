@@ -20,7 +20,7 @@ NOW = datetime(2026, 10, 26, 12, 0, tzinfo=UTC)
 
 @pytest.fixture
 def repo_toml() -> AgentOpsConfig:
-    return load_config(REPO / "agentops.toml")
+    return load_config(REPO / "agentops.toml", committed=True)
 
 
 def test_committed_config_loads(repo_toml: AgentOpsConfig) -> None:

@@ -57,16 +57,17 @@ def test_unknown_profile_names_the_choices(tmp_path: Path) -> None:
         load_config(p)
 
 
-def test_set_profile_rewrites_only_the_selector(tmp_path: Path) -> None:
+def test_set_profile_stays_out_of_the_committed_config(tmp_path: Path) -> None:
     p = _write(tmp_path, PROFILES)
     before = p.read_text(encoding="utf-8")
     set_governor_profile(p, "small")
-    after = p.read_text(encoding="utf-8")
-    assert after == before.replace('profile = "big"', 'profile = "small"')  # comment kept
-    assert load_config(p).governor.normal_min_remaining == 60.0
+    assert p.read_text(encoding="utf-8") == before
+    cfg = load_config(p)
+    assert cfg.governor.profile == "small" and cfg.governor.normal_min_remaining == 60.0
+    assert load_config(p, committed=True).governor.profile == "big"
     with pytest.raises(KeyError):
         set_governor_profile(p, "huge")
-    assert p.read_text(encoding="utf-8") == after
+    assert load_config(p).governor.profile == "small"
     with pytest.raises(ValueError):
         set_governor_profile(_write(tmp_path, FLAT), "small")  # no profiles defined
 

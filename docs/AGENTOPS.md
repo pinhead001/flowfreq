@@ -67,7 +67,9 @@ published `flowfreq` package, and nothing under `flowfreq/` imports it.
    (`claude-sonnet-4-6` disappeared between 2026-10-26 and 2026-10-30).
 4. Select the governor profile for your Claude plan:
    `python tools/agentops_cli.py --config agentops.toml gov profile pro` (or `max`; use
-   `overnight` when you are away and only review).
+   `overnight` when you are away and only review). The choice is this machine's: it is saved
+   as `governor_profile` in the gitignored state directory and overrides `profile` in
+   `agentops.toml`, which stays `pro` as the default for a cloud session.
 
 ## The loop
 
