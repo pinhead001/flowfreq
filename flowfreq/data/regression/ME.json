@@ -1,0 +1,790 @@
+{
+ "schema_version": 1,
+ "state": "ME",
+ "status": "verified",
+ "issue": null,
+ "source_reports": [
+  {
+   "citation": "Lombard, P.J., and Hodgkins, G.A., 2020, Estimating flood magnitude and frequency on gaged and ungaged streams in Maine: U.S. Geological Survey Scientific Investigations Report 2020-5092, 56 p.",
+   "doi": "10.3133/sir20205092",
+   "url": "https://pubs.usgs.gov/publication/sir20205092",
+   "pdf": "https://pubs.usgs.gov/sir/2020/5092/sir20205092.pdf",
+   "tables": [
+    "Table 1",
+    "Table 3",
+    "Table 4",
+    "Table 1.8"
+   ],
+   "nss": {
+    "regression_regions": [
+     "GC1798",
+     "GC1799"
+    ],
+    "last_year_of_data": 2019
+   }
+  }
+ ],
+ "notes": "Lombard and Hodgkins, SIR 2020-5092: a statewide set on DRNAREA, percentage of wetlands (W, NSS code STORAGE) and a 24-hour rainfall that changes with the AEP (region 1), and a statewide drainage-area-only set (region 2), both at 8 AEPs from 124 streamgages in and near Maine. Equations and average standard errors of prediction, in log units, from Tables 3 and 4; the constant is printed, so intercept = log10 of it. Ranges from Table 1. Model error variance and the covariance from appendix table 1.8, order intercept, log10 DRNAREA, W, I24HxY. That table's row labels swap the rainfall at 2 and 1 percent, and which is right cannot be settled from the report. The block headings are kept because each matrix's diagonal runs monotonically across the AEPs under them. The average errors computed from the matrices then come to 0.170 and 0.169 log units at 2 and 1 percent against the printed 0.166 and 0.170, the largest differences at any AEP; swapping changes them by at most 0.002. The report prints no worked example; the appendix table 1.4 regression flows reproduce from the table 1.6 characteristics to within rounding at the 96 gages in both tables. Region 2 has no covariance, so intervals use the standard error of prediction. NSS locates both sets everywhere, so a caller chooses with region=.",
+ "equations": [
+  {
+   "region_code": "1",
+   "region_name": "Statewide, three variables (NSS GC1798)",
+   "aep": 0.5,
+   "intercept": 1.3970009180076959,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.26,
+     "maximum": 5680.0
+    },
+    {
+     "code": "STORAGE",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 29.4
+    },
+    {
+     "code": "I24H2Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 1.92,
+     "maximum": 4.17
+    }
+   ],
+   "coefficients": [
+    0.86,
+    -0.0223,
+    0.174
+   ],
+   "citation": {
+    "publication": "Lombard, P.J., and Hodgkins, G.A., 2020, Estimating flood magnitude and frequency on gaged and ungaged streams in Maine: U.S. Geological Survey Scientific Investigations Report 2020-5092, 56 p.",
+    "table": "Tables 1 and 3; appendix table 1.8",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205092"
+   },
+   "sep_log": 0.164,
+   "model_error_variance": 0.0256,
+   "covariance": [
+    [
+     0.016717,
+     -0.00080997,
+     -3.0913e-05,
+     -0.0050493
+    ],
+    [
+     -0.00080997,
+     0.00027523,
+     -6.382e-06,
+     0.00012586
+    ],
+    [
+     -3.0913e-05,
+     -6.382e-06,
+     5.825e-06,
+     -8.3046e-06
+    ],
+    [
+     -0.0050493,
+     0.00012586,
+     -8.3046e-06,
+     0.0017239
+    ]
+   ],
+   "n_sites": 124
+  },
+  {
+   "region_code": "1",
+   "region_name": "Statewide, three variables (NSS GC1798)",
+   "aep": 0.2,
+   "intercept": 1.6290016192869918,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.26,
+     "maximum": 5680.0
+    },
+    {
+     "code": "STORAGE",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 29.4
+    },
+    {
+     "code": "I24H5Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 2.48,
+     "maximum": 5.38
+    }
+   ],
+   "coefficients": [
+    0.835,
+    -0.0236,
+    0.137
+   ],
+   "citation": {
+    "publication": "Lombard, P.J., and Hodgkins, G.A., 2020, Estimating flood magnitude and frequency on gaged and ungaged streams in Maine: U.S. Geological Survey Scientific Investigations Report 2020-5092, 56 p.",
+    "table": "Tables 1 and 3; appendix table 1.8",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205092"
+   },
+   "sep_log": 0.16,
+   "model_error_variance": 0.0242,
+   "covariance": [
+    [
+     0.015418,
+     -0.00080583,
+     -3.4479e-05,
+     -0.0036546
+    ],
+    [
+     -0.00080583,
+     0.00027683,
+     -6.0262e-06,
+     9.2708e-05
+    ],
+    [
+     -3.4479e-05,
+     -6.0262e-06,
+     5.7319e-06,
+     -5.5161e-06
+    ],
+    [
+     -0.0036546,
+     9.2708e-05,
+     -5.5161e-06,
+     0.00099722
+    ]
+   ],
+   "n_sites": 124
+  },
+  {
+   "region_code": "1",
+   "region_name": "Statewide, three variables (NSS GC1798)",
+   "aep": 0.1,
+   "intercept": 1.7520023256024382,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.26,
+     "maximum": 5680.0
+    },
+    {
+     "code": "STORAGE",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 29.4
+    },
+    {
+     "code": "I24H10Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 2.84,
+     "maximum": 6.38
+    }
+   ],
+   "coefficients": [
+    0.823,
+    -0.0242,
+    0.116
+   ],
+   "citation": {
+    "publication": "Lombard, P.J., and Hodgkins, G.A., 2020, Estimating flood magnitude and frequency on gaged and ungaged streams in Maine: U.S. Geological Survey Scientific Investigations Report 2020-5092, 56 p.",
+    "table": "Tables 1 and 3; appendix table 1.8",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205092"
+   },
+   "sep_log": 0.163,
+   "model_error_variance": 0.0252,
+   "covariance": [
+    [
+     0.01564,
+     -0.00088191,
+     -3.7409e-05,
+     -0.0031331
+    ],
+    [
+     -0.00088191,
+     0.00030272,
+     -6.3872e-06,
+     8.389e-05
+    ],
+    [
+     -3.7409e-05,
+     -6.3872e-06,
+     6.2046e-06,
+     -5.1625e-06
+    ],
+    [
+     -0.0031331,
+     8.389e-05,
+     -5.1625e-06,
+     0.0007342
+    ]
+   ],
+   "n_sites": 124
+  },
+  {
+   "region_code": "1",
+   "region_name": "Statewide, three variables (NSS GC1798)",
+   "aep": 0.04,
+   "intercept": 1.8770025574116485,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.26,
+     "maximum": 5680.0
+    },
+    {
+     "code": "STORAGE",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 29.4
+    },
+    {
+     "code": "I24H25Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 3.3,
+     "maximum": 7.75
+    }
+   ],
+   "coefficients": [
+    0.809,
+    -0.0248,
+    0.0968
+   ],
+   "citation": {
+    "publication": "Lombard, P.J., and Hodgkins, G.A., 2020, Estimating flood magnitude and frequency on gaged and ungaged streams in Maine: U.S. Geological Survey Scientific Investigations Report 2020-5092, 56 p.",
+    "table": "Tables 1 and 3; appendix table 1.8",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205092"
+   },
+   "sep_log": 0.167,
+   "model_error_variance": 0.0261,
+   "covariance": [
+    [
+     0.016103,
+     -0.00098702,
+     -4.0224e-05,
+     -0.0026519
+    ],
+    [
+     -0.00098702,
+     0.00033608,
+     -6.7735e-06,
+     7.5318e-05
+    ],
+    [
+     -4.0224e-05,
+     -6.7735e-06,
+     6.7791e-06,
+     -4.9447e-06
+    ],
+    [
+     -0.0026519,
+     7.5318e-05,
+     -4.9447e-06,
+     0.00052106
+    ]
+   ],
+   "n_sites": 124
+  },
+  {
+   "region_code": "1",
+   "region_name": "Statewide, three variables (NSS GC1798)",
+   "aep": 0.02,
+   "intercept": 1.949999542859922,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.26,
+     "maximum": 5680.0
+    },
+    {
+     "code": "STORAGE",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 29.4
+    },
+    {
+     "code": "I24H50Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 3.65,
+     "maximum": 8.79
+    }
+   ],
+   "coefficients": [
+    0.801,
+    -0.0252,
+    0.0873
+   ],
+   "citation": {
+    "publication": "Lombard, P.J., and Hodgkins, G.A., 2020, Estimating flood magnitude and frequency on gaged and ungaged streams in Maine: U.S. Geological Survey Scientific Investigations Report 2020-5092, 56 p.",
+    "table": "Tables 1 and 3; appendix table 1.8",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205092"
+   },
+   "sep_log": 0.166,
+   "model_error_variance": 0.0273,
+   "covariance": [
+    [
+     0.016955,
+     -0.001084,
+     -4.3406e-05,
+     -0.0024619
+    ],
+    [
+     -0.001084,
+     0.00036619,
+     -7.1718e-06,
+     7.2218e-05
+    ],
+    [
+     -4.3406e-05,
+     -7.1718e-06,
+     7.3162e-06,
+     -4.8057e-06
+    ],
+    [
+     -0.0024619,
+     7.2218e-05,
+     -4.8057e-06,
+     0.00043106
+    ]
+   ],
+   "n_sites": 124
+  },
+  {
+   "region_code": "1",
+   "region_name": "Statewide, three variables (NSS GC1798)",
+   "aep": 0.01,
+   "intercept": 2.0219992264056037,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.26,
+     "maximum": 5680.0
+    },
+    {
+     "code": "STORAGE",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 29.4
+    },
+    {
+     "code": "I24H100Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 3.99,
+     "maximum": 9.88
+    }
+   ],
+   "coefficients": [
+    0.793,
+    -0.0255,
+    0.0782
+   ],
+   "citation": {
+    "publication": "Lombard, P.J., and Hodgkins, G.A., 2020, Estimating flood magnitude and frequency on gaged and ungaged streams in Maine: U.S. Geological Survey Scientific Investigations Report 2020-5092, 56 p.",
+    "table": "Tables 1 and 3; appendix table 1.8",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205092"
+   },
+   "sep_log": 0.17,
+   "model_error_variance": 0.0268,
+   "covariance": [
+    [
+     0.017025,
+     -0.0011472,
+     -4.4331e-05,
+     -0.002189
+    ],
+    [
+     -0.0011472,
+     0.00038292,
+     -7.1737e-06,
+     6.6723e-05
+    ],
+    [
+     -4.4331e-05,
+     -7.1737e-06,
+     7.5205e-06,
+     -4.5633e-06
+    ],
+    [
+     -0.002189,
+     6.6723e-05,
+     -4.5633e-06,
+     0.00034438
+    ]
+   ],
+   "n_sites": 124
+  },
+  {
+   "region_code": "1",
+   "region_name": "Statewide, three variables (NSS GC1798)",
+   "aep": 0.005,
+   "intercept": 2.102999360761117,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.26,
+     "maximum": 5680.0
+    },
+    {
+     "code": "STORAGE",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 29.4
+    },
+    {
+     "code": "I24H200Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 5.26,
+     "maximum": 11.1
+    }
+   ],
+   "coefficients": [
+    0.782,
+    -0.0252,
+    0.0673
+   ],
+   "citation": {
+    "publication": "Lombard, P.J., and Hodgkins, G.A., 2020, Estimating flood magnitude and frequency on gaged and ungaged streams in Maine: U.S. Geological Survey Scientific Investigations Report 2020-5092, 56 p.",
+    "table": "Tables 1 and 3; appendix table 1.8",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205092"
+   },
+   "sep_log": 0.178,
+   "model_error_variance": 0.0296,
+   "covariance": [
+    [
+     0.019785,
+     -0.0012356,
+     -6.8631e-05,
+     -0.0022667
+    ],
+    [
+     -0.0012356,
+     0.00042461,
+     -7.4276e-06,
+     5.9116e-05
+    ],
+    [
+     -6.8631e-05,
+     -7.4276e-06,
+     8.3615e-06,
+     -1.8434e-06
+    ],
+    [
+     -0.0022667,
+     5.9116e-05,
+     -1.8434e-06,
+     0.00031522
+    ]
+   ],
+   "n_sites": 124
+  },
+  {
+   "region_code": "1",
+   "region_name": "Statewide, three variables (NSS GC1798)",
+   "aep": 0.002,
+   "intercept": 2.2249989605394522,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.26,
+     "maximum": 5680.0
+    },
+    {
+     "code": "STORAGE",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 29.4
+    },
+    {
+     "code": "I24H500Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 5.95,
+     "maximum": 13.1
+    }
+   ],
+   "coefficients": [
+    0.772,
+    -0.0255,
+    0.053
+   ],
+   "citation": {
+    "publication": "Lombard, P.J., and Hodgkins, G.A., 2020, Estimating flood magnitude and frequency on gaged and ungaged streams in Maine: U.S. Geological Survey Scientific Investigations Report 2020-5092, 56 p.",
+    "table": "Tables 1 and 3; appendix table 1.8",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205092"
+   },
+   "sep_log": 0.182,
+   "model_error_variance": 0.0306,
+   "covariance": [
+    [
+     0.018946,
+     -0.0013252,
+     -7.4913e-05,
+     -0.001812
+    ],
+    [
+     -0.0013252,
+     0.00046126,
+     -7.7923e-06,
+     5.1231e-05
+    ],
+    [
+     -7.4913e-05,
+     -7.7923e-06,
+     8.9722e-06,
+     -1.5996e-06
+    ],
+    [
+     -0.001812,
+     5.1231e-05,
+     -1.5996e-06,
+     0.00021757
+    ]
+   ],
+   "n_sites": 124
+  },
+  {
+   "region_code": "2",
+   "region_name": "Statewide, drainage area only (NSS GC1799)",
+   "aep": 0.5,
+   "intercept": 1.732996528111129,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.26,
+     "maximum": 5680.0
+    }
+   ],
+   "coefficients": [
+    0.818
+   ],
+   "citation": {
+    "publication": "Lombard, P.J., and Hodgkins, G.A., 2020, Estimating flood magnitude and frequency on gaged and ungaged streams in Maine: U.S. Geological Survey Scientific Investigations Report 2020-5092, 56 p.",
+    "table": "Tables 1 and 4",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205092"
+   },
+   "sep_log": 0.221,
+   "n_sites": 124
+  },
+  {
+   "region_code": "2",
+   "region_name": "Statewide, drainage area only (NSS GC1799)",
+   "aep": 0.2,
+   "intercept": 1.9480019522451422,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.26,
+     "maximum": 5680.0
+    }
+   ],
+   "coefficients": [
+    0.791
+   ],
+   "citation": {
+    "publication": "Lombard, P.J., and Hodgkins, G.A., 2020, Estimating flood magnitude and frequency on gaged and ungaged streams in Maine: U.S. Geological Survey Scientific Investigations Report 2020-5092, 56 p.",
+    "table": "Tables 1 and 4",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205092"
+   },
+   "sep_log": 0.227,
+   "n_sites": 124
+  },
+  {
+   "region_code": "2",
+   "region_name": "Statewide, drainage area only (NSS GC1799)",
+   "aep": 0.1,
+   "intercept": 2.0599986301496913,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.26,
+     "maximum": 5680.0
+    }
+   ],
+   "coefficients": [
+    0.777
+   ],
+   "citation": {
+    "publication": "Lombard, P.J., and Hodgkins, G.A., 2020, Estimating flood magnitude and frequency on gaged and ungaged streams in Maine: U.S. Geological Survey Scientific Investigations Report 2020-5092, 56 p.",
+    "table": "Tables 1 and 4",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205092"
+   },
+   "sep_log": 0.231,
+   "n_sites": 124
+  },
+  {
+   "region_code": "2",
+   "region_name": "Statewide, drainage area only (NSS GC1799)",
+   "aep": 0.04,
+   "intercept": 2.178999955662855,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.26,
+     "maximum": 5680.0
+    }
+   ],
+   "coefficients": [
+    0.763
+   ],
+   "citation": {
+    "publication": "Lombard, P.J., and Hodgkins, G.A., 2020, Estimating flood magnitude and frequency on gaged and ungaged streams in Maine: U.S. Geological Survey Scientific Investigations Report 2020-5092, 56 p.",
+    "table": "Tables 1 and 4",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205092"
+   },
+   "sep_log": 0.235,
+   "n_sites": 124
+  },
+  {
+   "region_code": "2",
+   "region_name": "Statewide, drainage area only (NSS GC1799)",
+   "aep": 0.02,
+   "intercept": 2.256999008448717,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.26,
+     "maximum": 5680.0
+    }
+   ],
+   "coefficients": [
+    0.753
+   ],
+   "citation": {
+    "publication": "Lombard, P.J., and Hodgkins, G.A., 2020, Estimating flood magnitude and frequency on gaged and ungaged streams in Maine: U.S. Geological Survey Scientific Investigations Report 2020-5092, 56 p.",
+    "table": "Tables 1 and 4",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205092"
+   },
+   "sep_log": 0.237,
+   "n_sites": 124
+  },
+  {
+   "region_code": "2",
+   "region_name": "Statewide, drainage area only (NSS GC1799)",
+   "aep": 0.01,
+   "intercept": 2.326999087328782,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.26,
+     "maximum": 5680.0
+    }
+   ],
+   "coefficients": [
+    0.745
+   ],
+   "citation": {
+    "publication": "Lombard, P.J., and Hodgkins, G.A., 2020, Estimating flood magnitude and frequency on gaged and ungaged streams in Maine: U.S. Geological Survey Scientific Investigations Report 2020-5092, 56 p.",
+    "table": "Tables 1 and 4",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205092"
+   },
+   "sep_log": 0.242,
+   "n_sites": 124
+  },
+  {
+   "region_code": "2",
+   "region_name": "Statewide, drainage area only (NSS GC1799)",
+   "aep": 0.005,
+   "intercept": 2.3910004229062993,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.26,
+     "maximum": 5680.0
+    }
+   ],
+   "coefficients": [
+    0.737
+   ],
+   "citation": {
+    "publication": "Lombard, P.J., and Hodgkins, G.A., 2020, Estimating flood magnitude and frequency on gaged and ungaged streams in Maine: U.S. Geological Survey Scientific Investigations Report 2020-5092, 56 p.",
+    "table": "Tables 1 and 4",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205092"
+   },
+   "sep_log": 0.244,
+   "n_sites": 124
+  },
+  {
+   "region_code": "2",
+   "region_name": "Statewide, drainage area only (NSS GC1799)",
+   "aep": 0.002,
+   "intercept": 2.470000113802327,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.26,
+     "maximum": 5680.0
+    }
+   ],
+   "coefficients": [
+    0.727
+   ],
+   "citation": {
+    "publication": "Lombard, P.J., and Hodgkins, G.A., 2020, Estimating flood magnitude and frequency on gaged and ungaged streams in Maine: U.S. Geological Survey Scientific Investigations Report 2020-5092, 56 p.",
+    "table": "Tables 1 and 4",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205092"
+   },
+   "sep_log": 0.248,
+   "n_sites": 124
+  }
+ ]
+}
