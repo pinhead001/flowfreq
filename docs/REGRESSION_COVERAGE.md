@@ -78,7 +78,7 @@ Plan and definitions of done: `docs/MASTER_ROADMAP.md` §3.2.
 | ME | Maine | nss snapshot (16 eqs, 0 unparsed) | 2 | 16 | verified |  |
 | NH | New Hampshire | nss snapshot (14 eqs, 0 unparsed) | 2 | 14 | verified |  |
 | VT | Vermont | nss snapshot (16 eqs, 0 unparsed) | 2 | 16 | pending |  |
-| MA | Massachusetts | nss snapshot (8 eqs, 0 unparsed) | 1 | 8 | pending, verified |  |
+| MA | Massachusetts | verified | 1 | 8 | pending, verified |  |
 | RI | Rhode Island | nss snapshot (7 eqs, 0 unparsed) | 1 | 7 | verified |  |
 | CT | Connecticut | nss snapshot (16 eqs, 0 unparsed) | 2 | 16 | verified |  |
 | NY | New York | nss snapshot (120 eqs, 2 unparsed) | 12 | 120 | pending, verified |  |

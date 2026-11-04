@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Massachusetts's equations are verified** (`MA.json`, SIR 2016-5156 equations 2-9 and Tables 5, 6 and 8), replacing the NSS snapshot: one statewide set at 8 AEPs on DRNAREA, ELEV and LC06STOR, with model error variance and covariance, so prediction intervals are site-specific. The worked example reproduces (18 mi2: Q1% 1,967 ft3/s, standard error 0.2121), and every equation equals the NSS snapshot.
+
 ## [0.21.0] - 2026-11-03
 
 Alaska, California and Hawaii verified, region rules that resolve overlapping equation sets, and

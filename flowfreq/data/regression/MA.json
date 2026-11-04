@@ -1,0 +1,606 @@
+{
+ "schema_version": 1,
+ "state": "MA",
+ "status": "verified",
+ "issue": null,
+ "source_reports": [
+  {
+   "citation": "Zarriello, P.J., 2017, Magnitude of flood flows at selected annual exceedance probabilities for streams in Massachusetts: U.S. Geological Survey Scientific Investigations Report 2016-5156, 54 p.",
+   "doi": "10.3133/sir20165156",
+   "url": "https://pubs.usgs.gov/publication/sir20165156",
+   "pdf": "https://pubs.usgs.gov/sir/2016/5156/sir20165156.pdf",
+   "tables": [
+    "Equations 2-9",
+    "Table 5",
+    "Table 6",
+    "Table 8"
+   ],
+   "nss": {
+    "regression_regions": [
+     "GC1741"
+    ],
+    "citation_id": 78,
+    "last_year_of_data": 2013
+   }
+  }
+ ],
+ "notes": "Zarriello, SIR 2016-5156: one statewide set at 8 AEPs (0.2-50 percent), fitted with WREG GLS on 199 streamgages. Equations 2-9 (p. 19) as printed: log10 DRNAREA; 0.001 times ELEV, with ELEV in feet divided by 3.28084 first, so the scale is 0.001/3.28084; and 0.01 times LC06STOR. AVP, SEP and model error variance from Table 6; the covariance matrix from Table 8, order constant, log10 DRNAREA, scaled ELEV, scaled LC06STOR, which is the basis of the stored scales and reproduces the report's worked example (xUx 0.00298). Ranges from Table 5 and the report's text: ELEV is printed 81 to 1,949 ft where NSS serves 80.6 to 1,948. NSS folds the scales into its coefficients and is otherwise equal.",
+ "equations": [
+  {
+   "region_code": "1",
+   "region_name": "Statewide (NSS GC1741)",
+   "aep": 0.5,
+   "intercept": 1.631,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.16,
+     "maximum": 512.0
+    },
+    {
+     "code": "ELEV",
+     "transform": "identity",
+     "units": "ft",
+     "minimum": 81.0,
+     "maximum": 1949.0,
+     "scale": 0.0003047999902464003
+    },
+    {
+     "code": "LC06STOR",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 32.3,
+     "scale": 0.01
+    }
+   ],
+   "coefficients": [
+    0.801,
+    0.589,
+    -1.137
+   ],
+   "citation": {
+    "publication": "Zarriello, P.J., 2017, Magnitude of flood flows at selected annual exceedance probabilities for streams in Massachusetts: U.S. Geological Survey Scientific Investigations Report 2016-5156, 54 p.",
+    "table": "Equations 2-9; Tables 5, 6 and 8",
+    "year": 2017,
+    "url": "https://doi.org/10.3133/sir20165156"
+   },
+   "sep_log": 0.176201,
+   "avp": 0.031,
+   "model_error_variance": 0.03,
+   "covariance": [
+    [
+     0.002787,
+     -0.0005295,
+     -0.006791,
+     -0.00336
+    ],
+    [
+     -0.0005295,
+     0.0004171,
+     -0.0005352,
+     -0.0002314
+    ],
+    [
+     -0.006791,
+     -0.0005352,
+     0.05598,
+     0.01033
+    ],
+    [
+     -0.00336,
+     -0.0002314,
+     0.01033,
+     0.01175
+    ]
+   ],
+   "n_sites": 199
+  },
+  {
+   "region_code": "1",
+   "region_name": "Statewide (NSS GC1741)",
+   "aep": 0.2,
+   "intercept": 1.851,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.16,
+     "maximum": 512.0
+    },
+    {
+     "code": "ELEV",
+     "transform": "identity",
+     "units": "ft",
+     "minimum": 81.0,
+     "maximum": 1949.0,
+     "scale": 0.0003047999902464003
+    },
+    {
+     "code": "LC06STOR",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 32.3,
+     "scale": 0.01
+    }
+   ],
+   "coefficients": [
+    0.789,
+    0.641,
+    -1.132
+   ],
+   "citation": {
+    "publication": "Zarriello, P.J., 2017, Magnitude of flood flows at selected annual exceedance probabilities for streams in Massachusetts: U.S. Geological Survey Scientific Investigations Report 2016-5156, 54 p.",
+    "table": "Equations 2-9; Tables 5, 6 and 8",
+    "year": 2017,
+    "url": "https://doi.org/10.3133/sir20165156"
+   },
+   "sep_log": 0.180413,
+   "avp": 0.033,
+   "model_error_variance": 0.031,
+   "covariance": [
+    [
+     0.003248,
+     -0.0006231,
+     -0.007249,
+     -0.003716
+    ],
+    [
+     -0.0006231,
+     0.0004708,
+     -0.0005444,
+     -0.000231
+    ],
+    [
+     -0.007249,
+     -0.0005444,
+     0.05994,
+     0.01068
+    ],
+    [
+     -0.003716,
+     -0.000231,
+     0.01068,
+     0.01336
+    ]
+   ],
+   "n_sites": 199
+  },
+  {
+   "region_code": "1",
+   "region_name": "Statewide (NSS GC1741)",
+   "aep": 0.1,
+   "intercept": 1.969,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.16,
+     "maximum": 512.0
+    },
+    {
+     "code": "ELEV",
+     "transform": "identity",
+     "units": "ft",
+     "minimum": 81.0,
+     "maximum": 1949.0,
+     "scale": 0.0003047999902464003
+    },
+    {
+     "code": "LC06STOR",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 32.3,
+     "scale": 0.01
+    }
+   ],
+   "coefficients": [
+    0.782,
+    0.682,
+    -1.126
+   ],
+   "citation": {
+    "publication": "Zarriello, P.J., 2017, Magnitude of flood flows at selected annual exceedance probabilities for streams in Massachusetts: U.S. Geological Survey Scientific Investigations Report 2016-5156, 54 p.",
+    "table": "Equations 2-9; Tables 5, 6 and 8",
+    "year": 2017,
+    "url": "https://doi.org/10.3133/sir20165156"
+   },
+   "sep_log": 0.185359,
+   "avp": 0.034,
+   "model_error_variance": 0.033,
+   "covariance": [
+    [
+     0.003733,
+     -0.0007099,
+     -0.00777,
+     -0.004148
+    ],
+    [
+     -0.0007099,
+     0.0005236,
+     -0.0005729,
+     -0.0002328
+    ],
+    [
+     -0.00777,
+     -0.0005729,
+     0.06479,
+     0.0111
+    ],
+    [
+     -0.004148,
+     -0.0002328,
+     0.0111,
+     0.01525
+    ]
+   ],
+   "n_sites": 199
+  },
+  {
+   "region_code": "1",
+   "region_name": "Statewide (NSS GC1741)",
+   "aep": 0.04,
+   "intercept": 2.098,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.16,
+     "maximum": 512.0
+    },
+    {
+     "code": "ELEV",
+     "transform": "identity",
+     "units": "ft",
+     "minimum": 81.0,
+     "maximum": 1949.0,
+     "scale": 0.0003047999902464003
+    },
+    {
+     "code": "LC06STOR",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 32.3,
+     "scale": 0.01
+    }
+   ],
+   "coefficients": [
+    0.775,
+    0.729,
+    -1.129
+   ],
+   "citation": {
+    "publication": "Zarriello, P.J., 2017, Magnitude of flood flows at selected annual exceedance probabilities for streams in Massachusetts: U.S. Geological Survey Scientific Investigations Report 2016-5156, 54 p.",
+    "table": "Equations 2-9; Tables 5, 6 and 8",
+    "year": 2017,
+    "url": "https://doi.org/10.3133/sir20165156"
+   },
+   "sep_log": 0.194397,
+   "avp": 0.038,
+   "model_error_variance": 0.036,
+   "covariance": [
+    [
+     0.004473,
+     -0.0008384,
+     -0.008717,
+     -0.004858
+    ],
+    [
+     -0.0008384,
+     0.0006057,
+     -0.0006338,
+     -0.0002375
+    ],
+    [
+     -0.008717,
+     -0.0006338,
+     0.07325,
+     0.01206
+    ],
+    [
+     -0.004858,
+     -0.0002375,
+     0.01206,
+     0.01829
+    ]
+   ],
+   "n_sites": 199
+  },
+  {
+   "region_code": "1",
+   "region_name": "Statewide (NSS GC1741)",
+   "aep": 0.02,
+   "intercept": 2.182,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.16,
+     "maximum": 512.0
+    },
+    {
+     "code": "ELEV",
+     "transform": "identity",
+     "units": "ft",
+     "minimum": 81.0,
+     "maximum": 1949.0,
+     "scale": 0.0003047999902464003
+    },
+    {
+     "code": "LC06STOR",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 32.3,
+     "scale": 0.01
+    }
+   ],
+   "coefficients": [
+    0.771,
+    0.76,
+    -1.134
+   ],
+   "citation": {
+    "publication": "Zarriello, P.J., 2017, Magnitude of flood flows at selected annual exceedance probabilities for streams in Massachusetts: U.S. Geological Survey Scientific Investigations Report 2016-5156, 54 p.",
+    "table": "Equations 2-9; Tables 5, 6 and 8",
+    "year": 2017,
+    "url": "https://doi.org/10.3133/sir20165156"
+   },
+   "sep_log": 0.202942,
+   "avp": 0.041,
+   "model_error_variance": 0.039,
+   "covariance": [
+    [
+     0.005106,
+     -0.0009467,
+     -0.009622,
+     -0.005494
+    ],
+    [
+     -0.0009467,
+     0.0006779,
+     -0.0006962,
+     -0.0002448
+    ],
+    [
+     -0.009622,
+     -0.0006962,
+     0.08118,
+     0.01306
+    ],
+    [
+     -0.005494,
+     -0.0002448,
+     0.01306,
+     0.02097
+    ]
+   ],
+   "n_sites": 199
+  },
+  {
+   "region_code": "1",
+   "region_name": "Statewide (NSS GC1741)",
+   "aep": 0.01,
+   "intercept": 2.256,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.16,
+     "maximum": 512.0
+    },
+    {
+     "code": "ELEV",
+     "transform": "identity",
+     "units": "ft",
+     "minimum": 81.0,
+     "maximum": 1949.0,
+     "scale": 0.0003047999902464003
+    },
+    {
+     "code": "LC06STOR",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 32.3,
+     "scale": 0.01
+    }
+   ],
+   "coefficients": [
+    0.767,
+    0.79,
+    -1.137
+   ],
+   "citation": {
+    "publication": "Zarriello, P.J., 2017, Magnitude of flood flows at selected annual exceedance probabilities for streams in Massachusetts: U.S. Geological Survey Scientific Investigations Report 2016-5156, 54 p.",
+    "table": "Equations 2-9; Tables 5, 6 and 8",
+    "year": 2017,
+    "url": "https://doi.org/10.3133/sir20165156"
+   },
+   "sep_log": 0.211736,
+   "avp": 0.045,
+   "model_error_variance": 0.042,
+   "covariance": [
+    [
+     0.005759,
+     -0.001057,
+     -0.01057,
+     -0.00616
+    ],
+    [
+     -0.001057,
+     0.0007523,
+     -0.0007634,
+     -0.0002516
+    ],
+    [
+     -0.01057,
+     -0.0007634,
+     0.08947,
+     0.01412
+    ],
+    [
+     -0.00616,
+     -0.0002516,
+     0.01412,
+     0.02377
+    ]
+   ],
+   "n_sites": 199
+  },
+  {
+   "region_code": "1",
+   "region_name": "Statewide (NSS GC1741)",
+   "aep": 0.005,
+   "intercept": 2.325,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.16,
+     "maximum": 512.0
+    },
+    {
+     "code": "ELEV",
+     "transform": "identity",
+     "units": "ft",
+     "minimum": 81.0,
+     "maximum": 1949.0,
+     "scale": 0.0003047999902464003
+    },
+    {
+     "code": "LC06STOR",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 32.3,
+     "scale": 0.01
+    }
+   ],
+   "coefficients": [
+    0.764,
+    0.816,
+    -1.148
+   ],
+   "citation": {
+    "publication": "Zarriello, P.J., 2017, Magnitude of flood flows at selected annual exceedance probabilities for streams in Massachusetts: U.S. Geological Survey Scientific Investigations Report 2016-5156, 54 p.",
+    "table": "Equations 2-9; Tables 5, 6 and 8",
+    "year": 2017,
+    "url": "https://doi.org/10.3133/sir20165156"
+   },
+   "sep_log": 0.220046,
+   "avp": 0.048,
+   "model_error_variance": 0.045,
+   "covariance": [
+    [
+     0.006433,
+     -0.001171,
+     -0.01156,
+     -0.006855
+    ],
+    [
+     -0.001171,
+     0.0008293,
+     -0.000835,
+     -0.0002582
+    ],
+    [
+     -0.01156,
+     -0.000835,
+     0.09813,
+     0.01524
+    ],
+    [
+     -0.006855,
+     -0.0002582,
+     0.01524,
+     0.02669
+    ]
+   ],
+   "n_sites": 199
+  },
+  {
+   "region_code": "1",
+   "region_name": "Statewide (NSS GC1741)",
+   "aep": 0.002,
+   "intercept": 2.408,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.16,
+     "maximum": 512.0
+    },
+    {
+     "code": "ELEV",
+     "transform": "identity",
+     "units": "ft",
+     "minimum": 81.0,
+     "maximum": 1949.0,
+     "scale": 0.0003047999902464003
+    },
+    {
+     "code": "LC06STOR",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 32.3,
+     "scale": 0.01
+    }
+   ],
+   "coefficients": [
+    0.76,
+    0.849,
+    -1.158
+   ],
+   "citation": {
+    "publication": "Zarriello, P.J., 2017, Magnitude of flood flows at selected annual exceedance probabilities for streams in Massachusetts: U.S. Geological Survey Scientific Investigations Report 2016-5156, 54 p.",
+    "table": "Equations 2-9; Tables 5, 6 and 8",
+    "year": 2017,
+    "url": "https://doi.org/10.3133/sir20165156"
+   },
+   "sep_log": 0.232465,
+   "avp": 0.054,
+   "model_error_variance": 0.05,
+   "covariance": [
+    [
+     0.007394,
+     -0.001334,
+     -0.01305,
+     -0.007869
+    ],
+    [
+     -0.001334,
+     0.0009419,
+     -0.0009434,
+     -0.0002703
+    ],
+    [
+     -0.01305,
+     -0.0009434,
+     0.111,
+     0.01698
+    ],
+    [
+     -0.007869,
+     -0.0002703,
+     0.01698,
+     0.03091
+    ]
+   ],
+   "n_sites": 199
+  }
+ ]
+}
