@@ -108,6 +108,11 @@ def trimmed() -> Dict[str, Any]:
     return data
 
 
+#: The snapshots ``allow_nss_snapshot=True`` can return: a state with a verified set keeps its
+#: snapshot file as evidence, but gets the verified set.
+SERVED_SNAPSHOTS = [c for c in nss_snapshot_states() if available_states().get(c) != "verified"]
+
+
 # --------------------------------------------------------------------------- loader
 
 
@@ -141,12 +146,36 @@ def test_opt_in_returns_it_with_advisory(data_dir, caplog):
     assert "NSS SNAPSHOT (not report-verified)" in caplog.text
 
 
-def test_published_set_wins_without_the_flag(data_dir):
+@pytest.mark.parametrize("code", ["AK", "CA", "HI"])
+def test_verified_set_beats_the_snapshot_it_replaced(code):
+    """The opt-in is for a jurisdiction with no verified library. AK, CA and HI keep their
+    snapshot files as the evidence their equations match NSS (test_regression_alaska and
+    friends), and opting in must not hand those back instead of the verified set."""
+    lib = load_state(code, allow_nss_snapshot=True, warn=False)
+    assert lib.status == "verified" and not lib.advisory
+
+
+def test_every_verified_state_stays_verified_under_the_opt_in():
+    for code, status in available_states().items():
+        if status == "verified":
+            assert load_state(code, allow_nss_snapshot=True, warn=False).status == "verified", code
+
+
+def test_snapshot_still_beats_a_published_set_that_is_not_verified(data_dir):
+    (data_dir / "TN.json").write_text(
+        json.dumps({"schema_version": 1, "state": "TN", "status": "pending", "equations": []}),
+        encoding="utf-8",
+    )
+    assert load_state("TN", data_dir, allow_nss_snapshot=True, warn=False).nss_snapshot
+    assert load_state("TN", data_dir).status == "pending"
+
+
+def test_verified_published_set_wins_with_or_without_the_flag(data_dir):
     _write(data_dir / "TN.json", "verified", 2.0)
     lib = load_state("TN", data_dir=data_dir)
     assert lib.status == "verified" and not lib.nss_snapshot and lib.advisory == ""
     assert lib.equation("GC2015", 0.01).intercept == 2.0
-    assert load_state("TN", data_dir=data_dir, allow_nss_snapshot=True).nss_snapshot
+    assert not load_state("TN", data_dir=data_dir, allow_nss_snapshot=True).nss_snapshot
 
 
 def test_opt_in_without_a_file_returns_the_published_set(tmp_path):
@@ -424,7 +453,7 @@ def test_shipped_sep_log_matches_the_report(code, region, aep, sep_pct):
     assert eq.sep_log == pytest.approx(asep_to_sep_log(sep_pct), rel=1e-9)
 
 
-@pytest.mark.parametrize("code", nss_snapshot_states())
+@pytest.mark.parametrize("code", SERVED_SNAPSHOTS)
 def test_every_stored_sep_log_is_plausible(code):
     # Bounds are wider than the 0.05-0.6 first proposed: genuine percentage ASEps in the
     # sweep give AL 0.039-0.048 (ASEp ~9-11%) and CA GC1534 0.61-0.90 (ASEp ~150-856%).
@@ -554,7 +583,7 @@ def _midpoint(v) -> float:
     return math.sqrt(lo * hi) if lo > 0 else (lo + hi) / 2
 
 
-@pytest.mark.parametrize("code", nss_snapshot_states())
+@pytest.mark.parametrize("code", SERVED_SNAPSHOTS)
 def test_every_snapshot_library_loads_and_evaluates(code):
     from flowfreq.regression.equations import evaluate
 

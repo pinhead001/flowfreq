@@ -352,9 +352,11 @@ def load_state(
         wins, because a USGS report supersedes a flowfreq-developed one.
     allow_nss_snapshot : bool
         Return the jurisdiction's set harvested from the NSS web service, from
-        ``nss_snapshot/<CODE>.json``, when there is one, with ``advisory`` set and
-        a logged warning. Without one, the published set is returned as usual.
-        It ranks last among the opt-in sets: ``awaiting_nss``, then
+        ``nss_snapshot/<CODE>.json``, when there is one and the published set is not
+        ``verified``, with ``advisory`` set and a logged warning. Otherwise the published
+        set is returned as usual: the flag permits a snapshot where nothing better exists,
+        and a state that gains a verified set keeps its snapshot file as the evidence that
+        the two agree. It ranks last among the opt-in sets: ``awaiting_nss``, then
         ``provisional``, then ``nss_snapshot``.
     warn : bool
         Log the advisory of a returned opt-in set with ``logger.warning`` (the
@@ -379,21 +381,24 @@ def load_state(
     for status, wanted in (
         ("awaiting_nss", allow_awaiting_nss),
         ("provisional", allow_provisional),
-        ("nss_snapshot", allow_nss_snapshot),
     ):
         if wanted:
             opt_in = _load_opt_in(root, code, status, warn)
             if opt_in is not None:
                 return opt_in
     path = root / f"{code}.json"
-    if not path.exists():
-        raise EquationsUnavailable(f"{code}: no regression library file; its wave has not started")
-    lib = parse_state(json.loads(path.read_text(encoding="utf-8")))
-    if lib.status in OPT_IN_SUBDIRS:
+    lib = parse_state(json.loads(path.read_text(encoding="utf-8"))) if path.exists() else None
+    if lib is not None and lib.status in OPT_IN_SUBDIRS:
         raise ValueError(
             f"{path}: status {lib.status!r} belongs under {OPT_IN_SUBDIRS[lib.status]}/, not in "
             "place of the published set"
         )
+    if allow_nss_snapshot and (lib is None or lib.status != "verified"):
+        opt_in = _load_opt_in(root, code, "nss_snapshot", warn)
+        if opt_in is not None:
+            return opt_in
+    if lib is None:
+        raise EquationsUnavailable(f"{code}: no regression library file; its wave has not started")
     return lib
 
 
