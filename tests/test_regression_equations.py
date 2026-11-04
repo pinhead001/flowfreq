@@ -193,7 +193,7 @@ class TestLibrary:
 
     def test_unstarted_state(self):
         with pytest.raises(EquationsUnavailable, match="wave has not started"):
-            load_state("FL")
+            load_state("GU")
 
     def test_populated_library(self, tmp_path):
         eq = {
