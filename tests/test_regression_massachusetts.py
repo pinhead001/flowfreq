@@ -33,7 +33,7 @@ def test_worked_example(lib):
     assert est.flow_cfs == pytest.approx(1967, abs=0.5)
     x = np.array([1.0, np.log10(18.0), 689.0 / 3.28084 * 0.001, 8.0 * 0.01])
     xux = float(x @ np.array(eq.covariance) @ x)
-    assert xux == pytest.approx(0.00298, abs=5e-6)
+    assert xux == pytest.approx(0.00298, abs=1e-5)  # prints 0.00298; computes 0.002985
     assert (eq.model_error_variance + xux) ** 0.5 == pytest.approx(0.21210, abs=5e-5)
     # The report rounds t to 1.65 and prints 879 and 4,400; flowfreq uses t at 195 degrees of
     # freedom (1.653).
