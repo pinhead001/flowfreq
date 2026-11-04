@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.22.0] - UNRELEASED DRAFT
+
+Regression equations verified in 37 more jurisdictions, making 50 of 56, with Delaware `partial` and
+five that have no equations. Data, tests and docs; no library code changed.
+
+- **What verified means here:** each state's set was transcribed by an agent and checked against its
+  report's worked examples, per-gage estimates and NSS. No person has reviewed them, and some calls
+  were judgment. `docs/VERIFICATION_PLAN.md` lists them.
+- **Behaviour change:** these states now load without `allow_nss_snapshot`, and with it they return the
+  verified set rather than the snapshot. Coefficients, limits and errors differ from NSS where the
+  report does, so an estimate or an applicability refusal can change.
+- **Overlapping sets:** CT, ME, VT and TN stop with `OverlappingRegionsError` unless the caller passes
+  `region=`, at every point tested.
+- **NSS errors found:** MN region F's limits refused every real site, and PA, PR, KS, WI, DE, NY, AR, OH,
+  TN and TX had wrong coefficients, limits, errors or citations. The report's values are stored.
+- **Live checks:** full smoke run at 56/56 gaged and 48/56 ungaged, the same eight known gaps. FL, MI and
+  NE verified sets could not run live, having no stream grid.
+
 ### Added
 - **Louisiana's equations are verified** (`LA.json`, SIR 2024-5031 with its data release, and SIR 2021-5046), replacing the NSS snapshot: the Coastal Plain, with covariance, and the Mississippi Alluvial Plain, at 8 AEPs. Regression flows reproduce at 261 gages and the release's variance at 211, and the kept equations equal NSS. TR No. 60's two regions and WRIR 85-4150's Delta region are left out as superseded, 22 snapshot equations. Southern Louisiana outside the 2024 study area has no current set.
 - **Texas's equations are verified** (`TX.json`, seven USGS reports), replacing the NSS snapshot: 10 regions and 65 equations, with covariance for the Colorado, Brazos and statewide sets, all equal to NSS in value. The worked examples reproduce, as do Houston's 22 per-gage estimates. Two NSS citations are corrected (GC1489 is WRI 86-4069, GC1493 is WRI 98-4015). WRI 98-4178's printed region 3 matrix belongs to a different fit, so those intervals are about 10 percent too wide; it is stored as printed. SIR 2009-5087, which NSS does not serve and whose authors prefer it, follows the statewide set and is not stored.
