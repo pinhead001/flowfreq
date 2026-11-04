@@ -35,7 +35,7 @@ Standing rules carried over from this repo's history, which apply to every phase
 | StreamStats delineation + basin characteristics | [x] Phase 1, with validated watershed polygon | `streamstats.py` |
 | NSS regression evaluation via web service | [x] PFS and LFS verified live in WA; regions selected by watershed polygon | `streamstats.py` |
 | Regional skew | [~] a row for all 56 jurisdictions (77 rows: 34 verified, 41 pending, 2 provisional); lookup by hydrologic unit membership (`regional_skew_at`, `regional_skew_for_site`) with a state-level fallback to the state's one usable row where no membership is encoded; B-WLS/B-GLS tooling; the pending rows await a published study or a reading of the report (§1.3) | `regional_skew.py`, `skew_study.py`, `data/regional_skew*.csv` |
-| Offline regression-equation library | [~] schema, evaluator and NSS snapshot tool; 10 states transcribed (Wave 1 and Wave 2), all 10 `verified`; a further 41 jurisdictions carry an opt-in `nss_snapshot` set (2026-10-25, 1817 equations) | `regression/`, `data/regression/`, `tools/snapshot_nss.py` |
+| Offline regression-equation library | [~] schema, evaluator and NSS snapshot tool; 13 jurisdictions `verified` (Waves 1 and 2, then AK, CA and HI); a further 38 carry an opt-in `nss_snapshot` set (2026-10-25). `docs/VERIFICATION_PLAN.md` sets the order for verifying them | `regression/`, `data/regression/`, `tools/snapshot_nss.py` |
 | Gage/regression weighting (B17C App. 9 style) | [x] inverse-variance weighting from `confidence_limits["variance_log"]`; used by `estimate_at_site(at_site=...)` for a single region | `gage_weighting.py` |
 | Ungaged-site estimate (`estimate_at_site`) | [x] regression branch (§4): StreamStats basin, NSS regions, offline equations, provenance; overlapping sets need `region=`; CLI `flowfreq ungaged`. The transposition branch is open | `ungaged.py`, `cli.py` |
 | Drainage-area-ratio transposition | [x] | `transpose.py` |
@@ -325,6 +325,9 @@ on `load_state(..., allow_nss_snapshot=True)`; it is a stage before `verified`, 
 `verified` itself, and the equations the parser refuses are listed in the library's
 `unparsed`, not dropped. This is narrower than the per-jurisdiction definition of done
 below, which also needs skew, polygons, the B17C appendix re-run and future-flow guidance.
+
+**For the mid-November 2026 goal, `docs/VERIFICATION_PLAN.md` replaces the wave order below:** it
+verifies the cheapest states first.
 
 All 56 jurisdictions are covered: 50 states, DC, and 5 territories. Wave boundaries are
 milestones. Do not start wave *n+1* until wave *n*'s cross-border consistency check (below)

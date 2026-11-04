@@ -5,55 +5,55 @@
 > in progress are tracked under "Roadmap Phase A, Wave 1 and Wave 2" in Open Items below.
 
 ## Status
-Last updated: 2026-11-03. Version **0.20.0** is released (tag `v0.20.0`, 2026-10-31). `main`
-carries **0.21.0.dev0**; 0.20.x patches come from `release/0.20.x` (CLAUDE.md, Branches and
-Releases). flowfreq-app pins v0.20.0. Since the release, `main` has (CHANGELOG, Unreleased):
-region gates (`RegionGate`, #283) for Arizona's High Elevation region and Oregon's Regions
-2A/2B outside the eq. 8 transition zone (#285); mypy over every module, the last override
-(`bulletin17c`) retired (#277, #284, #286, #287); `download_peak_flow(site_metadata=False)`
-(#288); a verified set beating its NSS snapshot under `allow_nss_snapshot` (#296); Oregon's
-Region 1 gate on `ORREG2`, without which the 2A/2B gates never fired on a real basin (#295); a
-channel width of 0 read as not measured, which had stopped Montana estimates (#297).
+Last updated: 2026-11-03. Version **0.21.0** is released (tag `v0.21.0`). `main` carries
+**0.22.0.dev0**; 0.21.x patches come from `release/0.21.x` (CLAUDE.md, Branches and Releases).
+flowfreq-app still pins v0.20.0. 13 jurisdictions are `verified`, 38 run on NSS snapshots and 5
+have no equations.
 
 The ss-hydro checks that waited on the 2026-10-30 outage are done (2026-11-03):
 `docs/NATIONWIDE_SMOKE.md` is a full 56-jurisdiction rerun, gaged 56/56 and ungaged 48/56. The
 eight left are the known gaps: AS, DC, GU, MP and VI have no equations, and FL, MI and NE have
-no stream grid. The Oregon and provisional Washington live checks passed once #295 was in
-(`docs/OREGON_REGRESSION_UPDATE.md`, `docs/WA_REGION2_METHOW.md`). The Live services run now
-reports an outage as a skip rather than a failure (#294), so read its job summary. Texas failed
-at ss-hydro for a few hours on 2026-11-03, at three basins of 95-737 mi2, then recovered with no
-change here; that is what such an outage looks like to a caller.
+no stream grid. The Live services run now reports an outage as a skip rather than a failure
+(#294), so read its job summary.
 
 ### Next steps (2026-11-03)
 
-Owner decisions:
+**The goal to mid-November is verified equations in as many states as possible
+(`docs/VERIFICATION_PLAN.md`).**
 
-1. **Release 0.21.0?** Everything above is on `main`. The app would then pin v0.21.0, which
-   gives its ungaged page the verified CA, AK and HI sets, and could pass `site_metadata=False`
-   on the gage page (one USGS request fewer per view).
-2. **Iowa's overlapping equation sets.** Each Iowa region has a full equation set
-   (SIR 2013-5086, GC1561-GC1563) and a drainage-area-only one (SIR 2015-5055, GC1564,
-   GC1627, GC1628), co-located, so `estimate_at_site` stops with `OverlappingRegionsError`.
-   Preferring the full set when its characteristics are present is a method choice, not a
-   published threshold, so it is not a `RegionGate`.
-3. Close issues #27, #36 and #293.
+1. **Batch 1, one recent USGS report each:** MA, CT, ME, KS, PR, VT, PA, then VA and WV together.
+2. **Batch 2, one older USGS report each:** RI, NH, ND, NJ. Release after batches 1 and 2, or
+   sooner if a week passes.
+3. **Batch 3, two or shared reports:** IA, MN, MO, DE, AL, OK, WI, AR, MS, GA, NC, SC. A stretch
+   by mid-November.
+4. Batches 4 and 5 (NY, IL, MD, IN, SD, NE, MI; KY, OH, LA, TN, TX, FL) come after that.
 
-Downstream (flowfreq-app; another session also works there, so check its open PRs first):
+Library follow-through from v0.21.0:
 
-4. Check the gage page's resizable period grips in a browser (app #24): they were never run
-   in one, since running the vega bundles in headless Chrome was blocked here.
-5. Gage page: dams (NID) and land-cover (NLCD) events beside a change point
-   (`stationarity.basin_change_events`; needs the delineated basin), raster hydrograph,
-   the Bulletin 17C curve in place.
+5. Bump flowfreq-app's pin to v0.21.0, which gives its ungaged page the verified CA, AK and HI
+   sets and Iowa's preference. It can also pass `site_metadata=False` on the gage page (one USGS
+   request fewer per view).
+6. Push `release/0.21.x` (a hook blocks it here; the branch exists locally).
+
+Owner's:
+
+7. Close issues #27, #36 and #293.
+8. Merge or close app PRs #27-#32.
+9. Check the gage page's resizable period grips in a browser (app #24): they were never run in
+   one, since running the vega bundles in headless Chrome was blocked here.
+
+Parked until the goal above is met: gage page NID and NLCD events beside a change point
+(`stationarity.basin_change_events`; needs the delineated basin), raster hydrograph, the Bulletin
+17C curve in place.
 
 Python 3.11–3.14 (`requires-python >= 3.11`; CI matrix in `.github/workflows/ci.yml`).
 
 Tests, measured 2026-10-31 on Windows / CPython 3.12 with the Fortran extension built and
 `PYTHONSAFEPATH=1 PYTHONUTF8=1 pytest tests/` (the CI selection; `addopts` deselects
 `requires_network`): **4040 passed, 115 deselected, 6 xfailed, 4 failed** (227 s). The four
-failures are local-only: two Fortran oracle checks from the documented gfortran toolchain
-drift (CLAUDE.md, Validation Status) and two agentops tests that fail while a local
-`agentops.toml` carries `profile = "max"`. `ci / Fortran parity` is the authoritative
+failures were local-only: two Fortran oracle checks from the documented gfortran toolchain
+drift (CLAUDE.md, Validation Status) and two agentops tests from a local profile edit, which #299
+removed. `ci / Fortran parity` is the authoritative
 parity check.
 
 Open GitHub issues (2026-10-31): #27 (Phase A epic) and #36 (future flow, kept open by
