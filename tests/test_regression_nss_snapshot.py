@@ -702,19 +702,21 @@ def test_build_tool_refuses_an_extra_region_without_its_state(tmp_path, capsys, 
 
 
 def test_minnesota_carries_the_rainy_river_basin_equations():
-    # #246: GC1775 (SIR 2019-5012) is NSS region RRB's, merged into MN's library, and
-    # reproduces NSS's own Estimate values at the harvest's submitted inputs.
+    # #246: GC1775 (SIR 2019-5012) is NSS region RRB's. Minnesota's verified file stores it as
+    # the report's region B1, and it reproduces NSS's own Estimate values at the harvest's
+    # submitted inputs.
     from flowfreq.regression.equations import evaluate
+    from flowfreq.ungaged import region_for_nss_code
 
     snapshot = json.loads(
         (REPO_ROOT / "data" / "nss_snapshots" / "RRB_2026-10-31.json").read_text("utf-8")
     )
     (raw,) = snapshot["regions"]
     submitted = {p["code"]: p["submitted"] for p in raw["parameters"]}
-    lib = load_state("MN", allow_nss_snapshot=True)
+    lib = load_state("MN")
     assert len(raw["equations"]) == 8
     for rec in raw["equations"]:
-        eq = lib.equation("GC1775", rec["aep"])
+        eq = lib.equation(region_for_nss_code(lib, "GC1775"), rec["aep"])
         assert "2019" in eq.citation.publication and "Rainy" in eq.citation.publication
         flow = evaluate(eq, submitted).flow_cfs
         assert flow == pytest.approx(rec["nss_value"], rel=5e-3), rec["aep"]
