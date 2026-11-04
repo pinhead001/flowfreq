@@ -99,6 +99,23 @@ prediction, so prediction intervals are computed as for the published ones. Its 
 limits are the 87 calibration gages' ranges. A site needs StreamStats' `ELEV` (mean basin
 elevation, feet) in addition to the published Region 2 characteristics.
 
+**Live check, 2026-11-03,** through `estimate_at_site(..., allow_provisional=True)` from gage
+coordinates. StreamStats' `ELEV` matches the calibration value to about 1 ft (these are rounded
+to 10 ft), and each curve increases with falling AEP:
+
+| Gage | Drainage area, mi2 | `ELEV`, ft (calibration) | Refit / published, 50% AEP | 10% AEP | 1% AEP |
+|---|---|---|---|---|---|
+| 12447390 Andrews Creek | 22.4 | 6,359 (6,360) | 2.06 | 1.38 | 1.10 |
+| 12448000 Chewuch River | 524 | 5,290 (5,290) | 1.49 | 1.20 | 1.13 |
+| 12449500 Methow River at Twisp | 1,322 | 5,069 (5,070) | 1.33 | 1.14 | 1.10 |
+| 12451000 Stehekin River | 320 | 5,037 (5,040) | 1.02 | 1.00 | 0.96 |
+
+All four are inside the 0.5-1.5 range above at the 10% AEP and rarer, though the three Methow
+gages sit above that range's median of 0.95-0.99. Two points outside this table are limits of
+the point rather than of the set: gage 12447383's coordinates snap to a 0.48 mi2 tributary
+(catalog 373 mi2), and gage 12449950 (1,793 mi2) is refused, as the published set refuses it,
+for exceeding Region 2's drainage-area limit.
+
 ## A defect this found in `flowfreq.regression.gls`
 
 The first pass computed concurrent years from each record's first-to-last span, while `n` was

@@ -5,42 +5,44 @@
 > in progress are tracked under "Roadmap Phase A, Wave 1 and Wave 2" in Open Items below.
 
 ## Status
-Last updated: 2026-11-01. Version **0.20.0** is released (tag `v0.20.0`, 2026-10-31). `main`
+Last updated: 2026-11-03. Version **0.20.0** is released (tag `v0.20.0`, 2026-10-31). `main`
 carries **0.21.0.dev0**; 0.20.x patches come from `release/0.20.x` (CLAUDE.md, Branches and
 Releases). flowfreq-app pins v0.20.0. Since the release, `main` has (CHANGELOG, Unreleased):
 region gates (`RegionGate`, #283) for Arizona's High Elevation region and Oregon's Regions
 2A/2B outside the eq. 8 transition zone (#285); mypy over every module, the last override
 (`bulletin17c`) retired (#277, #284, #286, #287); `download_peak_flow(site_metadata=False)`
-(#288).
+(#288); a verified set beating its NSS snapshot under `allow_nss_snapshot` (#296); Oregon's
+Region 1 gate on `ORREG2`, without which the 2A/2B gates never fired on a real basin (#295); a
+channel width of 0 read as not measured, which had stopped Montana estimates (#297).
 
-### Next steps (2026-11-01)
+The ss-hydro checks that waited on the 2026-10-30 outage are done (2026-11-03):
+`docs/NATIONWIDE_SMOKE.md` is a full 56-jurisdiction rerun, gaged 56/56 and ungaged 48/56. The
+eight left are the known gaps: AS, DC, GU, MP and VI have no equations, and FL, MI and NE have
+no stream grid. The Oregon and provisional Washington live checks passed once #295 was in
+(`docs/OREGON_REGRESSION_UPDATE.md`, `docs/WA_REGION2_METHOW.md`). The Live services run now
+reports an outage as a skip rather than a failure (#294), so read its job summary. Texas failed
+at ss-hydro for a few hours on 2026-11-03, at three basins of 95-737 mi2, then recovered with no
+change here; that is what such an outage looks like to a caller.
+
+### Next steps (2026-11-03)
 
 Owner decisions:
 
-1. **Release 0.21.0?** Everything above is on `main`. The app would then pin v0.21.0 and
-   could pass `site_metadata=False` on the gage page (one USGS request fewer per view).
+1. **Release 0.21.0?** Everything above is on `main`. The app would then pin v0.21.0, which
+   gives its ungaged page the verified CA, AK and HI sets, and could pass `site_metadata=False`
+   on the gage page (one USGS request fewer per view).
 2. **Iowa's overlapping equation sets.** Each Iowa region has a full equation set
    (SIR 2013-5086, GC1561-GC1563) and a drainage-area-only one (SIR 2015-5055, GC1564,
    GC1627, GC1628), co-located, so `estimate_at_site` stops with `OverlappingRegionsError`.
    Preferring the full set when its characteristics are present is a method choice, not a
    published threshold, so it is not a `RegionGate`.
-3. Close issues #27 and #36.
-
-Blocked on StreamStats ss-hydro (HTTP 502 since 2026-10-30):
-
-4. Live smoke recheck of WY, MN, MT, ND, AK and AZ (AZ now by its ELEV gate), then
-   `docs/NATIONWIDE_SMOKE.md`. A watcher script reruns them when ss-hydro answers
-   (`--states WY MN MT ND AK AZ --points tools/nationwide_smoke_points.csv`).
-5. Oregon's missing basin characteristics, then a live check of the Oregon gates.
-6. A live check of the provisional Washington set (needs ELEV from ss-hydro).
+3. Close issues #27, #36 and #293.
 
 Downstream (flowfreq-app; another session also works there, so check its open PRs first):
 
-7. Check the gage page's resizable period grips in a browser (app #24): they were never run
+4. Check the gage page's resizable period grips in a browser (app #24): they were never run
    in one, since running the vega bundles in headless Chrome was blocked here.
-8. App #26 (summary hydrograph, flow-duration curve, stationarity report downloads) awaits
-   the owner.
-9. Gage page: dams (NID) and land-cover (NLCD) events beside a change point
+5. Gage page: dams (NID) and land-cover (NLCD) events beside a change point
    (`stationarity.basin_change_events`; needs the delineated basin), raster hydrograph,
    the Bulletin 17C curve in place.
 
@@ -200,8 +202,8 @@ Still failing in the 2026-10-30 rerun (14 of 56; WY and MN fixed since, live rec
       smoke point moved to gage 15290000 (Little Susitna River near Palmer, 62 mi2) in
       GC1656, which `assemble` now picks by drainage area from AK's two overlapping statewide
       classes (under and over 1,000 mi2).
-- [ ] **Live recheck** of the moved MT, ND and AK points, with WY and MN: snap,
-      delineation and NSS region location pass (2026-10-31); the estimates wait on ss-hydro.
+- [x] **Live recheck** of the moved MT, ND and AK points, with WY and MN: all estimate
+      (2026-11-03, `docs/NATIONWIDE_SMOKE.md`).
 - Large gaged-versus-ungaged differences with a correct delineation, checked 2026-10-31:
   - **AZ 09484000** (ratio 0.10) was the wrong region. The smoke point forced GC1618 (High
     Elevation), which NSS uses only at a mean basin elevation of 7,500 ft or more; Sabino
