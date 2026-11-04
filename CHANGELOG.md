@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+- A Montana estimate stopped with `OverlappingRegionsError` on StreamStats' channel widths: it returns `WACTCH`, `WBANKFULL` and `CHANWD_RS` as 0 because it cannot compute them, and 0 was taken as a value, making the three SIR 2020-5142 width methods candidates beside the basin-characteristics set. A width of 0 now counts as not measured; a width the caller supplies is still a candidate.
 - `load_state(code, allow_nss_snapshot=True)` returned the NSS snapshot even where a verified set exists, so with the opt-in Alaska, California and Hawaii did not get the verified equations added below or their covariance-based prediction intervals. A verified published set now wins; the flag only permits a snapshot where nothing better exists. The three snapshot files stay, as the evidence the equations match NSS.
 
 ### Added

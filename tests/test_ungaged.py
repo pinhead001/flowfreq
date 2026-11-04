@@ -1309,6 +1309,53 @@ class TestRegionGates:
         assert not gate.admits(10001.0) and not gate.admits(10003.0) and not gate.admits(730.0)
 
 
+class TestUnmeasuredChannelWidth:
+    """StreamStats returns WACTCH, WBANKFULL and CHANWD_RS as 0 for Montana: they are field or
+    aerial-photo measurements it cannot compute (live 2026-11-03, 06035000). As values, they
+    made the three SIR 2020-5142 width methods candidates beside the basin-characteristics
+    set, so a Montana estimate stopped with OverlappingRegionsError."""
+
+    REGIONS = [
+        RegressionRegionLocation(0, code, name, 100.0, 86.0)
+        for code, name in [
+            ("GC1682", "SW"),
+            ("GC1844", "SW-AC"),
+            ("GC1845", "SW-BF"),
+            ("GC1846", "SW-RS"),
+        ]
+    ]
+
+    @staticmethod
+    def _basin(lib, **widths):
+        basin = {}
+        for eq in lib.equations:
+            if eq.region_code == "SW":
+                for v in eq.variables:
+                    basin[v.code] = (v.minimum + v.maximum) / 2
+        return {**basin, "WACTCH": 0.0, "WBANKFULL": 0.0, "CHANWD_RS": 0.0, **widths}
+
+    def test_zero_width_is_not_a_measurement(self):
+        from flowfreq.regression.library import load_state
+
+        lib = load_state("MT")
+        a = assemble(lib, self.REGIONS, self._basin(lib), **{**KW, "aeps": [0.01]})
+        assert [r.code for r in a.used] == ["GC1682"]
+
+    def test_a_measured_width_is_still_a_candidate(self):
+        from flowfreq.regression.library import load_state
+
+        lib = load_state("MT")
+        with pytest.raises(OverlappingRegionsError, match="GC1844"):
+            assemble(lib, self.REGIONS, self._basin(lib, WACTCH=20.0), **KW)
+
+    def test_a_width_region_chosen_without_a_measurement_says_so(self):
+        from flowfreq.regression.library import load_state
+
+        lib = load_state("MT")
+        with pytest.raises(EquationsUnavailable, match="WACTCH"):
+            assemble(lib, self.REGIONS[1:2], self._basin(lib), **KW)
+
+
 def test_region_gate_rules():
     gate = RegionGate("ELEV", minimum=7500.0, units="ft")
     assert gate.admits(7500.0) and not gate.admits(7499.9)
