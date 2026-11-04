@@ -7,7 +7,6 @@ project default: every path and threshold comes from the file.
 from __future__ import annotations
 
 import os
-import re
 import tomllib
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -122,25 +121,28 @@ def _governor(g: dict[str, Any]) -> GovernorConfig:
     )
 
 
-_PROFILE_LINE = re.compile(r'^(profile\s*=\s*")[^"]*(")', re.MULTILINE)
+#: The machine's governor profile, under the gitignored state directory. It overrides
+#: `profile` in the committed config, which stays the default for a machine that made no
+#: choice and for a cloud session.
+PROFILE_FILE = "governor_profile"
 
 
 def set_governor_profile(path: Path | str, name: str) -> None:
-    """Select a governor profile by rewriting the `profile = "..."` line (comments kept)."""
-    src = Path(path)
-    text = src.read_text(encoding="utf-8")
-    profiles = tomllib.loads(text).get("governor", {}).get("profiles", {})
+    """Select a governor profile on this machine, leaving the committed config untouched."""
+    src = Path(path).resolve()
+    raw = tomllib.loads(src.read_text(encoding="utf-8"))
+    profiles = raw.get("governor", {}).get("profiles", {})
     if not profiles:
         raise ValueError(f"{src}: no [governor.profiles] defined")
     if name not in profiles:
         raise KeyError(f"unknown governor profile {name!r} ({', '.join(profiles)})")
-    new, n = _PROFILE_LINE.subn(lambda m: f"{m.group(1)}{name}{m.group(2)}", text, count=1)
-    if n != 1:
-        raise ValueError(f'{src}: no profile = "..." line under [governor]')
-    src.write_text(new, encoding="utf-8")
+    state_dir = _path(src.parent, raw["paths"]["state_dir"])
+    state_dir.mkdir(parents=True, exist_ok=True)
+    (state_dir / PROFILE_FILE).write_text(name + "\n", encoding="utf-8")
 
 
-def load_config(path: Path | str | None = None) -> AgentOpsConfig:
+def load_config(path: Path | str | None = None, *, committed: bool = False) -> AgentOpsConfig:
+    """Load the config. `committed` ignores this machine's profile (`set_governor_profile`)."""
     if path is None:
         env = os.environ.get(ENV_VAR)
         if not env:
@@ -151,9 +153,13 @@ def load_config(path: Path | str | None = None) -> AgentOpsConfig:
     base = src.parent
     p, g, a, h = raw["paths"], raw["governor"], raw["agy"], raw["hooks"]
     exe = a["exe"]
+    state_dir = _path(base, p["state_dir"])
+    local_profile = state_dir / PROFILE_FILE
+    if not committed and local_profile.is_file():
+        g = {**g, "profile": local_profile.read_text(encoding="utf-8").strip()}
     return AgentOpsConfig(
         source=src,
-        state_dir=_path(base, p["state_dir"]),
+        state_dir=state_dir,
         worktree_root=_path(base, p["worktree_root"]),
         worktree_prefix=p.get("worktree_prefix", ""),
         repos={k: _path(base, v) for k, v in raw.get("repos", {}).items()},

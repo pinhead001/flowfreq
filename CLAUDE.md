@@ -154,8 +154,8 @@ config `agentops.toml`, delegate rules `AGENTS.md`, procedure `docs/AGENTOPS.md`
 `python tools/agentops_cli.py --config agentops.toml gov next` says what to do; `... usage`
 reports the Claude meter and agy tokens per quota pool. The governor profile (`pro`, `max`,
 `overnight`) sets when teammates/workflows are allowed. `agentops.toml` is committed with
-`profile = "pro"`; a local edit to another profile makes two `tests/agentops` tests fail
-(they pin `pro`), so never commit it.
+`profile = "pro"`; `gov profile <name>` overrides it for one machine in the gitignored state
+directory, so the choice no longer touches the committed file.
 
 ## Python Compatibility
 
