@@ -1,0 +1,2099 @@
+{
+ "schema_version": 1,
+ "state": "MD",
+ "status": "verified",
+ "issue": null,
+ "source_reports": [
+  {
+   "citation": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+   "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf",
+   "tables": [
+    "Appendix 1",
+    "Appendix 2",
+    "Appendix 3",
+    "Appendix 5 (Flat Run)",
+    "Table 2.1",
+    "Table 2.2"
+   ],
+   "nss": {
+    "citation_id": 73,
+    "regression_regions": [
+     "GC1478",
+     "GC1479",
+     "GC1480",
+     "GC1481",
+     "GC1482"
+    ],
+    "last_year_of_data": 2008
+   },
+   "superseded_by": "Maryland Hydrology Panel, 2023, Application of Hydrologic Methods in Maryland, Sixth Edition, July 2023, http://gishydro.eng.umd.edu/HydroPanel/Hydrology_Panel_Report_6thEd_2023.pdf"
+  }
+ ],
+ "notes": "SUPERSEDED BY ITS PUBLISHER, kept because it is the set NSS and StreamStats serve: these are the Third Edition (September 2010) equations. The Maryland Hydrology Panel has since issued a Fourth (July 2016), Fifth (July 2020) and Sixth (July 2023) Edition, whose Appendix 3 replaces all of them for Maryland practice, on other characteristics (percent A soils from October 2021 SSURGO, a rural and urban Piedmont-Blue Ridge fit on LIME and IA, land slope in percent on the coastal plain). The Sixth Edition is not stored here. Thomas and Moglen, Appendix 3 of the Third Edition, not a USGS report: five Fixed Region sets at 10 AEPs. Coefficients are parsed from the summary pages (A3-2 to A3-6) and from the report body (A3-17, A3-27, A3-35 to A3-37), which agree for all 50 equations. The constant is printed, so intercept = log10 of it. 1.50-year is stored as AEP 0.667, as NSS does. Codes: SA is SSURGOA, IA is IMPERV, SCD is SOILCorD, FOR is FOREST_MD, LSLOPE is BSLDEM10ff, all with NSS's codes; (X+1) is log10 with offset 1. The report fitted IA and FOR at 1985 land use and says to apply the current value. GISHydro computed the report's SSURGO soils; StreamStats computes its own SSURGOA. Both p. A3-4 and p. A3-35 misprint the Q500 LIME exponent as -0165; it is stored as -0.165, as NSS has it and as the series -0.154, -0.159 runs. Errors: the report prints only the standard error of estimate, which it says is below the standard error of prediction (p. 2-10). It is stored in sep_log, converted from percent, and n_sites sets t. Intervals are therefore slightly narrow: at Flat Run (p. A5-17) the printed prediction errors are 0.1329-0.1939 log units against 0.1311-0.1914 stored, so the 90 percent upper Q100 is about 1 percent under the printed 10,300 cfs. The report prints no (X^T X)^-1, so the leverage cannot be stored. equivalent_years is the printed value. Skew and record statistics not stored (pp. A3-10 to A3-11): average skew G is 0.484 Eastern, 0.513 Western, 0.527 Piedmont-Blue Ridge rural, 0.585 Piedmont urban, 0.489 Appalachian; average S is 0.295, 0.309, 0.296, 0.324, 0.241 log units. Region gates: NSS locates GC1480 and GC1481 at 100 percent each, so IMPERV chooses between them on the report's 10 percent rule. NSS has no urban set in its PFS group, only in UPFS (statistic group 31), so GC1481 is not in the PFS snapshot; its equations were harvested separately on 2026-11-04 and equal these. A basin crossing a region boundary in the Piedmont must name its regions with region=, because the gates need a region to cover the whole basin. Checks: Flat Run (Appendix 5) reproduces the rural set at all 10 return periods; Table 2.1 and the ungaged site at 15.1 mi2 (pp. 2-6, 2-9) reproduce the urban set; printed equivalent years follow from Hardison's formula with the printed SE, G and S. No report table prints per-gage regression estimates, so the Eastern, Western and Appalachian sets are checked by the residual standard error about the Appendix 1-2 data for the listed gages: within 0.4 percentage points of the printed SE for the Eastern and Appalachian sets, within 2.4 for the Western. The Western gap is unexplained and grows above Q25; refitting Appendix 2 does not return the printed Western exponents above about Q25. The report does not list the gages in its rural or urban Piedmont fits, so those two cannot be checked this way.",
+ "region_gates": {
+  "Piedmont and Blue Ridge (Rural)": {
+   "variable": "IMPERV",
+   "maximum": 10.0,
+   "units": "percent",
+   "source": "Third Edition, Appendix 3: an urban watershed has 10 percent or greater impervious area (p. A3-31), a rural gaging station less than 10 percent (p. A3-35). NSS locates GC1480 and GC1481 at 100 percent each across the Piedmont and publishes no selector."
+  },
+  "Piedmont (Urban)": {
+   "variable": "IMPERV",
+   "minimum": 10.0,
+   "units": "percent",
+   "source": "Third Edition, Appendix 3: an urban watershed has 10 percent or greater impervious area (p. A3-31), a rural gaging station less than 10 percent (p. A3-35). NSS locates GC1480 and GC1481 at 100 percent each across the Piedmont and publishes no selector."
+  }
+ },
+ "equations": [
+  {
+   "region_code": "Eastern Coastal Plain",
+   "region_name": "Eastern Coastal Plain (Third Edition; NSS GC1478)",
+   "aep": 0.8,
+   "intercept": 1.6183619311098782,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.91,
+     "maximum": 113.7
+    },
+    {
+     "code": "SSURGOA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 78.8,
+     "offset": 1.0
+    },
+    {
+     "code": "BSLDEM10ff",
+     "transform": "log10",
+     "units": "ft/ft",
+     "minimum": 0.0025,
+     "maximum": 0.016
+    }
+   ],
+   "coefficients": [
+    0.815,
+    -0.139,
+    0.115
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-2 and A3-17, equations 1-10",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.137215,
+   "n_sites": 28,
+   "equivalent_years": 4.6
+  },
+  {
+   "region_code": "Eastern Coastal Plain",
+   "region_name": "Eastern Coastal Plain (Third Edition; NSS GC1478)",
+   "aep": 0.667,
+   "intercept": 1.8962505624616381,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.91,
+     "maximum": 113.7
+    },
+    {
+     "code": "SSURGOA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 78.8,
+     "offset": 1.0
+    },
+    {
+     "code": "BSLDEM10ff",
+     "transform": "log10",
+     "units": "ft/ft",
+     "minimum": 0.0025,
+     "maximum": 0.016
+    }
+   ],
+   "coefficients": [
+    0.824,
+    -0.144,
+    0.194
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-2 and A3-17, equations 1-10",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.136812,
+   "n_sites": 28,
+   "equivalent_years": 4.1
+  },
+  {
+   "region_code": "Eastern Coastal Plain",
+   "region_name": "Eastern Coastal Plain (Third Edition; NSS GC1478)",
+   "aep": 0.5,
+   "intercept": 2.1271047983648077,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.91,
+     "maximum": 113.7
+    },
+    {
+     "code": "SSURGOA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 78.8,
+     "offset": 1.0
+    },
+    {
+     "code": "BSLDEM10ff",
+     "transform": "log10",
+     "units": "ft/ft",
+     "minimum": 0.0025,
+     "maximum": 0.016
+    }
+   ],
+   "coefficients": [
+    0.836,
+    -0.158,
+    0.249
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-2 and A3-17, equations 1-10",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.138826,
+   "n_sites": 28,
+   "equivalent_years": 4.4
+  },
+  {
+   "region_code": "Eastern Coastal Plain",
+   "region_name": "Eastern Coastal Plain (Third Edition; NSS GC1478)",
+   "aep": 0.2,
+   "intercept": 2.678973375919765,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.91,
+     "maximum": 113.7
+    },
+    {
+     "code": "SSURGOA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 78.8,
+     "offset": 1.0
+    },
+    {
+     "code": "BSLDEM10ff",
+     "transform": "log10",
+     "units": "ft/ft",
+     "minimum": 0.0025,
+     "maximum": 0.016
+    }
+   ],
+   "coefficients": [
+    0.847,
+    -0.184,
+    0.385
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-2 and A3-17, equations 1-10",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.148032,
+   "n_sites": 28,
+   "equivalent_years": 7.0
+  },
+  {
+   "region_code": "Eastern Coastal Plain",
+   "region_name": "Eastern Coastal Plain (Third Edition; NSS GC1478)",
+   "aep": 0.1,
+   "intercept": 2.965812953036603,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.91,
+     "maximum": 113.7
+    },
+    {
+     "code": "SSURGOA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 78.8,
+     "offset": 1.0
+    },
+    {
+     "code": "BSLDEM10ff",
+     "transform": "log10",
+     "units": "ft/ft",
+     "minimum": 0.0025,
+     "maximum": 0.016
+    }
+   ],
+   "coefficients": [
+    0.844,
+    -0.196,
+    0.445
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-2 and A3-17, equations 1-10",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.154378,
+   "n_sites": 28,
+   "equivalent_years": 9.7
+  },
+  {
+   "region_code": "Eastern Coastal Plain",
+   "region_name": "Eastern Coastal Plain (Third Edition; NSS GC1478)",
+   "aep": 0.04,
+   "intercept": 3.269606330839479,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.91,
+     "maximum": 113.7
+    },
+    {
+     "code": "SSURGOA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 78.8,
+     "offset": 1.0
+    },
+    {
+     "code": "BSLDEM10ff",
+     "transform": "log10",
+     "units": "ft/ft",
+     "minimum": 0.0025,
+     "maximum": 0.016
+    }
+   ],
+   "coefficients": [
+    0.834,
+    -0.212,
+    0.499
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-2 and A3-17, equations 1-10",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.164587,
+   "n_sites": 28,
+   "equivalent_years": 13.0
+  },
+  {
+   "region_code": "Eastern Coastal Plain",
+   "region_name": "Eastern Coastal Plain (Third Edition; NSS GC1478)",
+   "aep": 0.02,
+   "intercept": 3.4685688527234655,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.91,
+     "maximum": 113.7
+    },
+    {
+     "code": "SSURGOA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 78.8,
+     "offset": 1.0
+    },
+    {
+     "code": "BSLDEM10ff",
+     "transform": "log10",
+     "units": "ft/ft",
+     "minimum": 0.0025,
+     "maximum": 0.016
+    }
+   ],
+   "coefficients": [
+    0.824,
+    -0.222,
+    0.531
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-2 and A3-17, equations 1-10",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.173507,
+   "n_sites": 28,
+   "equivalent_years": 15.0
+  },
+  {
+   "region_code": "Eastern Coastal Plain",
+   "region_name": "Eastern Coastal Plain (Third Edition; NSS GC1478)",
+   "aep": 0.01,
+   "intercept": 3.646687934336095,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.91,
+     "maximum": 113.7
+    },
+    {
+     "code": "SSURGOA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 78.8,
+     "offset": 1.0
+    },
+    {
+     "code": "BSLDEM10ff",
+     "transform": "log10",
+     "units": "ft/ft",
+     "minimum": 0.0025,
+     "maximum": 0.016
+    }
+   ],
+   "coefficients": [
+    0.812,
+    -0.23,
+    0.557
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-2 and A3-17, equations 1-10",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.183461,
+   "n_sites": 28,
+   "equivalent_years": 17.0
+  },
+  {
+   "region_code": "Eastern Coastal Plain",
+   "region_name": "Eastern Coastal Plain (Third Edition; NSS GC1478)",
+   "aep": 0.005,
+   "intercept": 3.8186415085467464,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.91,
+     "maximum": 113.7
+    },
+    {
+     "code": "SSURGOA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 78.8,
+     "offset": 1.0
+    },
+    {
+     "code": "BSLDEM10ff",
+     "transform": "log10",
+     "units": "ft/ft",
+     "minimum": 0.0025,
+     "maximum": 0.016
+    }
+   ],
+   "coefficients": [
+    0.8,
+    -0.237,
+    0.582
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-2 and A3-17, equations 1-10",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.19477,
+   "n_sites": 28,
+   "equivalent_years": 18.0
+  },
+  {
+   "region_code": "Eastern Coastal Plain",
+   "region_name": "Eastern Coastal Plain (Third Edition; NSS GC1478)",
+   "aep": 0.002,
+   "intercept": 4.024772913079632,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.91,
+     "maximum": 113.7
+    },
+    {
+     "code": "SSURGOA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 78.8,
+     "offset": 1.0
+    },
+    {
+     "code": "BSLDEM10ff",
+     "transform": "log10",
+     "units": "ft/ft",
+     "minimum": 0.0025,
+     "maximum": 0.016
+    }
+   ],
+   "coefficients": [
+    0.783,
+    -0.247,
+    0.61
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-2 and A3-17, equations 1-10",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.211008,
+   "n_sites": 28,
+   "equivalent_years": 19.0
+  },
+  {
+   "region_code": "Western Coastal Plain",
+   "region_name": "Western Coastal Plain (Third Edition; NSS GC1479)",
+   "aep": 0.8,
+   "intercept": 0.714329759745233,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.41,
+     "maximum": 349.6
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 36.8,
+     "offset": 1.0
+    },
+    {
+     "code": "SOILCorD",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 13.0,
+     "maximum": 74.7,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.694,
+    0.382,
+    0.414
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-3 and A3-27, equations 11-20",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.163416,
+   "n_sites": 24,
+   "equivalent_years": 3.6
+  },
+  {
+   "region_code": "Western Coastal Plain",
+   "region_name": "Western Coastal Plain (Third Edition; NSS GC1479)",
+   "aep": 0.667,
+   "intercept": 0.8280150642239769,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.41,
+     "maximum": 349.6
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 36.8,
+     "offset": 1.0
+    },
+    {
+     "code": "SOILCorD",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 13.0,
+     "maximum": 74.7,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.682,
+    0.374,
+    0.429
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-3 and A3-27, equations 11-20",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.153192,
+   "n_sites": 24,
+   "equivalent_years": 3.6
+  },
+  {
+   "region_code": "Western Coastal Plain",
+   "region_name": "Western Coastal Plain (Third Edition; NSS GC1479)",
+   "aep": 0.5,
+   "intercept": 0.8813846567705729,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.41,
+     "maximum": 349.6
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 36.8,
+     "offset": 1.0
+    },
+    {
+     "code": "SOILCorD",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 13.0,
+     "maximum": 74.7,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.678,
+    0.362,
+    0.475
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-3 and A3-27, equations 11-20",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.140434,
+   "n_sites": 24,
+   "equivalent_years": 4.6
+  },
+  {
+   "region_code": "Western Coastal Plain",
+   "region_name": "Western Coastal Plain (Third Edition; NSS GC1479)",
+   "aep": 0.2,
+   "intercept": 1.021189299069938,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.41,
+     "maximum": 349.6
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 36.8,
+     "offset": 1.0
+    },
+    {
+     "code": "SOILCorD",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 13.0,
+     "maximum": 74.7,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.665,
+    0.29,
+    0.612
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-3 and A3-27, equations 11-20",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.160284,
+   "n_sites": 24,
+   "equivalent_years": 6.7
+  },
+  {
+   "region_code": "Western Coastal Plain",
+   "region_name": "Western Coastal Plain (Third Edition; NSS GC1479)",
+   "aep": 0.1,
+   "intercept": 1.1172712956557642,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.41,
+     "maximum": 349.6
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 36.8,
+     "offset": 1.0
+    },
+    {
+     "code": "SOILCorD",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 13.0,
+     "maximum": 74.7,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.653,
+    0.27,
+    0.669
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-3 and A3-27, equations 11-20",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.177735,
+   "n_sites": 24,
+   "equivalent_years": 8.2
+  },
+  {
+   "region_code": "Western Coastal Plain",
+   "region_name": "Western Coastal Plain (Third Edition; NSS GC1479)",
+   "aep": 0.04,
+   "intercept": 1.2430380486862944,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.41,
+     "maximum": 349.6
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 36.8,
+     "offset": 1.0
+    },
+    {
+     "code": "SOILCorD",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 13.0,
+     "maximum": 74.7,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.634,
+    0.264,
+    0.719
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-3 and A3-27, equations 11-20",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.198126,
+   "n_sites": 24,
+   "equivalent_years": 10.0
+  },
+  {
+   "region_code": "Western Coastal Plain",
+   "region_name": "Western Coastal Plain (Third Edition; NSS GC1479)",
+   "aep": 0.02,
+   "intercept": 1.3263358609287514,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.41,
+     "maximum": 349.6
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 36.8,
+     "offset": 1.0
+    },
+    {
+     "code": "SOILCorD",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 13.0,
+     "maximum": 74.7,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.621,
+    0.263,
+    0.751
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-3 and A3-27, equations 11-20",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.219687,
+   "n_sites": 24,
+   "equivalent_years": 11.0
+  },
+  {
+   "region_code": "Western Coastal Plain",
+   "region_name": "Western Coastal Plain (Third Edition; NSS GC1479)",
+   "aep": 0.01,
+   "intercept": 1.4082399653118496,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.41,
+     "maximum": 349.6
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 36.8,
+     "offset": 1.0
+    },
+    {
+     "code": "SOILCorD",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 13.0,
+     "maximum": 74.7,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.608,
+    0.262,
+    0.781
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-3 and A3-27, equations 11-20",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.244952,
+   "n_sites": 24,
+   "equivalent_years": 11.0
+  },
+  {
+   "region_code": "Western Coastal Plain",
+   "region_name": "Western Coastal Plain (Third Edition; NSS GC1479)",
+   "aep": 0.005,
+   "intercept": 1.4842998393467859,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.41,
+     "maximum": 349.6
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 36.8,
+     "offset": 1.0
+    },
+    {
+     "code": "SOILCorD",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 13.0,
+     "maximum": 74.7,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.596,
+    0.261,
+    0.812
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-3 and A3-27, equations 11-20",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.272957,
+   "n_sites": 24,
+   "equivalent_years": 10.0
+  },
+  {
+   "region_code": "Western Coastal Plain",
+   "region_name": "Western Coastal Plain (Third Edition; NSS GC1479)",
+   "aep": 0.002,
+   "intercept": 1.5786392099680724,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.41,
+     "maximum": 349.6
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 36.8,
+     "offset": 1.0
+    },
+    {
+     "code": "SOILCorD",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 13.0,
+     "maximum": 74.7,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.579,
+    0.261,
+    0.849
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-3 and A3-27, equations 11-20",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.312923,
+   "n_sites": 24,
+   "equivalent_years": 10.0
+  },
+  {
+   "region_code": "Piedmont and Blue Ridge (Rural)",
+   "region_name": "Piedmont and Blue Ridge (Rural) (Third Edition; NSS GC1480)",
+   "aep": 0.8,
+   "intercept": 2.458033192496506,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.11,
+     "maximum": 820.0
+    },
+    {
+     "code": "LIME",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 81.7,
+     "offset": 1.0
+    },
+    {
+     "code": "FOREST_MD",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 2.7,
+     "maximum": 100.0,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.774,
+    -0.118,
+    -0.418
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-4 and A3-35, equations 21-30",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.175432,
+   "n_sites": 53,
+   "equivalent_years": 2.8
+  },
+  {
+   "region_code": "Piedmont and Blue Ridge (Rural)",
+   "region_name": "Piedmont and Blue Ridge (Rural) (Third Edition; NSS GC1480)",
+   "aep": 0.667,
+   "intercept": 2.5149460053080044,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.11,
+     "maximum": 820.0
+    },
+    {
+     "code": "LIME",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 81.7,
+     "offset": 1.0
+    },
+    {
+     "code": "FOREST_MD",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 2.7,
+     "maximum": 100.0,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.758,
+    -0.121,
+    -0.358
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-4 and A3-35, equations 21-30",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.157927,
+   "n_sites": 53,
+   "equivalent_years": 3.1
+  },
+  {
+   "region_code": "Piedmont and Blue Ridge (Rural)",
+   "region_name": "Piedmont and Blue Ridge (Rural) (Third Edition; NSS GC1480)",
+   "aep": 0.5,
+   "intercept": 2.5986810989071634,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.11,
+     "maximum": 820.0
+    },
+    {
+     "code": "LIME",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 81.7,
+     "offset": 1.0
+    },
+    {
+     "code": "FOREST_MD",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 2.7,
+     "maximum": 100.0,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.743,
+    -0.124,
+    -0.332
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-4 and A3-35, equations 21-30",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.15002,
+   "n_sites": 53,
+   "equivalent_years": 3.7
+  },
+  {
+   "region_code": "Piedmont and Blue Ridge (Rural)",
+   "region_name": "Piedmont and Blue Ridge (Rural) (Third Edition; NSS GC1480)",
+   "aep": 0.2,
+   "intercept": 2.7726883546821415,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.11,
+     "maximum": 820.0
+    },
+    {
+     "code": "LIME",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 81.7,
+     "offset": 1.0
+    },
+    {
+     "code": "FOREST_MD",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 2.7,
+     "maximum": 100.0,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.705,
+    -0.133,
+    -0.237
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-4 and A3-35, equations 21-30",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.133176,
+   "n_sites": 53,
+   "equivalent_years": 9.0
+  },
+  {
+   "region_code": "Piedmont and Blue Ridge (Rural)",
+   "region_name": "Piedmont and Blue Ridge (Rural) (Third Edition; NSS GC1480)",
+   "aep": 0.1,
+   "intercept": 2.875697761980208,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.11,
+     "maximum": 820.0
+    },
+    {
+     "code": "LIME",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 81.7,
+     "offset": 1.0
+    },
+    {
+     "code": "FOREST_MD",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 2.7,
+     "maximum": 100.0,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.682,
+    -0.138,
+    -0.183
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-4 and A3-35, equations 21-30",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.131149,
+   "n_sites": 53,
+   "equivalent_years": 14.0
+  },
+  {
+   "region_code": "Piedmont and Blue Ridge (Rural)",
+   "region_name": "Piedmont and Blue Ridge (Rural) (Third Edition; NSS GC1480)",
+   "aep": 0.04,
+   "intercept": 2.998259338423699,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.11,
+     "maximum": 820.0
+    },
+    {
+     "code": "LIME",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 81.7,
+     "offset": 1.0
+    },
+    {
+     "code": "FOREST_MD",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 2.7,
+     "maximum": 100.0,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.655,
+    -0.145,
+    -0.122
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-4 and A3-35, equations 21-30",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.136408,
+   "n_sites": 53,
+   "equivalent_years": 20.0
+  },
+  {
+   "region_code": "Piedmont and Blue Ridge (Rural)",
+   "region_name": "Piedmont and Blue Ridge (Rural) (Third Edition; NSS GC1480)",
+   "aep": 0.02,
+   "intercept": 3.085932445550636,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.11,
+     "maximum": 820.0
+    },
+    {
+     "code": "LIME",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 81.7,
+     "offset": 1.0
+    },
+    {
+     "code": "FOREST_MD",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 2.7,
+     "maximum": 100.0,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.635,
+    -0.15,
+    -0.082
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-4 and A3-35, equations 21-30",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.145639,
+   "n_sites": 53,
+   "equivalent_years": 23.0
+  },
+  {
+   "region_code": "Piedmont and Blue Ridge (Rural)",
+   "region_name": "Piedmont and Blue Ridge (Rural) (Third Edition; NSS GC1480)",
+   "aep": 0.01,
+   "intercept": 3.167642195482166,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.11,
+     "maximum": 820.0
+    },
+    {
+     "code": "LIME",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 81.7,
+     "offset": 1.0
+    },
+    {
+     "code": "FOREST_MD",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 2.7,
+     "maximum": 100.0,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.617,
+    -0.154,
+    -0.045
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-4 and A3-35, equations 21-30",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.157534,
+   "n_sites": 53,
+   "equivalent_years": 24.0
+  },
+  {
+   "region_code": "Piedmont and Blue Ridge (Rural)",
+   "region_name": "Piedmont and Blue Ridge (Rural) (Third Edition; NSS GC1480)",
+   "aep": 0.005,
+   "intercept": 3.245685364233236,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.11,
+     "maximum": 820.0
+    },
+    {
+     "code": "LIME",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 81.7,
+     "offset": 1.0
+    },
+    {
+     "code": "FOREST_MD",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 2.7,
+     "maximum": 100.0,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.6,
+    -0.159,
+    -0.009
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-4 and A3-35, equations 21-30",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.171191,
+   "n_sites": 53,
+   "equivalent_years": 25.0
+  },
+  {
+   "region_code": "Piedmont and Blue Ridge (Rural)",
+   "region_name": "Piedmont and Blue Ridge (Rural) (Third Edition; NSS GC1480)",
+   "aep": 0.002,
+   "intercept": 3.345452151375824,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.11,
+     "maximum": 820.0
+    },
+    {
+     "code": "LIME",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 81.7,
+     "offset": 1.0
+    },
+    {
+     "code": "FOREST_MD",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 2.7,
+     "maximum": 100.0,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.577,
+    -0.165,
+    0.035
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-4 and A3-35, equations 21-30",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.191398,
+   "n_sites": 53,
+   "equivalent_years": 25.0
+  },
+  {
+   "region_code": "Piedmont (Urban)",
+   "region_name": "Piedmont (Urban) (Third Edition; NSS GC1481)",
+   "aep": 0.8,
+   "intercept": 1.251638220448212,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.49,
+     "maximum": 102.05
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 10.0,
+     "maximum": 37.5,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.652,
+    0.635
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-5 and A3-36, equations 31-40",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.173893,
+   "n_sites": 16,
+   "equivalent_years": 3.3
+  },
+  {
+   "region_code": "Piedmont (Urban)",
+   "region_name": "Piedmont (Urban) (Third Edition; NSS GC1481)",
+   "aep": 0.667,
+   "intercept": 1.391993072259713,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.49,
+     "maximum": 102.05
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 10.0,
+     "maximum": 37.5,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.648,
+    0.631
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-5 and A3-36, equations 31-40",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.155168,
+   "n_sites": 16,
+   "equivalent_years": 3.8
+  },
+  {
+   "region_code": "Piedmont (Urban)",
+   "region_name": "Piedmont (Urban) (Third Edition; NSS GC1481)",
+   "aep": 0.5,
+   "intercept": 1.5683190850951119,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.49,
+     "maximum": 102.05
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 10.0,
+     "maximum": 37.5,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.635,
+    0.588
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-5 and A3-36, equations 31-40",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.148032,
+   "n_sites": 16,
+   "equivalent_years": 4.5
+  },
+  {
+   "region_code": "Piedmont (Urban)",
+   "region_name": "Piedmont (Urban) (Third Edition; NSS GC1481)",
+   "aep": 0.2,
+   "intercept": 1.9766250520507276,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.49,
+     "maximum": 102.05
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 10.0,
+     "maximum": 37.5,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.624,
+    0.499
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-5 and A3-36, equations 31-40",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.121365,
+   "n_sites": 16,
+   "equivalent_years": 13.0
+  },
+  {
+   "region_code": "Piedmont (Urban)",
+   "region_name": "Piedmont (Urban) (Third Edition; NSS GC1481)",
+   "aep": 0.1,
+   "intercept": 2.228400358703005,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.49,
+     "maximum": 102.05
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 10.0,
+     "maximum": 37.5,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.622,
+    0.435
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-5 and A3-36, equations 31-40",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.111902,
+   "n_sites": 16,
+   "equivalent_years": 24.0
+  },
+  {
+   "region_code": "Piedmont (Urban)",
+   "region_name": "Piedmont (Urban) (Third Edition; NSS GC1481)",
+   "aep": 0.04,
+   "intercept": 2.5327543789924976,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.49,
+     "maximum": 102.05
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 10.0,
+     "maximum": 37.5,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.619,
+    0.349
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-5 and A3-36, equations 31-40",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.111075,
+   "n_sites": 16,
+   "equivalent_years": 38.0
+  },
+  {
+   "region_code": "Piedmont (Urban)",
+   "region_name": "Piedmont (Urban) (Third Edition; NSS GC1481)",
+   "aep": 0.02,
+   "intercept": 2.7500453120117676,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.49,
+     "maximum": 102.05
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 10.0,
+     "maximum": 37.5,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.619,
+    0.284
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-5 and A3-36, equations 31-40",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.118083,
+   "n_sites": 16,
+   "equivalent_years": 44.0
+  },
+  {
+   "region_code": "Piedmont (Urban)",
+   "region_name": "Piedmont (Urban) (Third Edition; NSS GC1481)",
+   "aep": 0.01,
+   "intercept": 2.953421399681035,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.49,
+     "maximum": 102.05
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 10.0,
+     "maximum": 37.5,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.619,
+    0.222
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-5 and A3-36, equations 31-40",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.130338,
+   "n_sites": 16,
+   "equivalent_years": 45.0
+  },
+  {
+   "region_code": "Piedmont (Urban)",
+   "region_name": "Piedmont (Urban) (Third Edition; NSS GC1481)",
+   "aep": 0.005,
+   "intercept": 3.1501421618485588,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.49,
+     "maximum": 102.05
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 10.0,
+     "maximum": 37.5,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.621,
+    0.16
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-5 and A3-36, equations 31-40",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.146836,
+   "n_sites": 16,
+   "equivalent_years": 44.0
+  },
+  {
+   "region_code": "Piedmont (Urban)",
+   "region_name": "Piedmont (Urban) (Third Edition; NSS GC1481)",
+   "aep": 0.002,
+   "intercept": 3.4029488293444046,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.49,
+     "maximum": 102.05
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 10.0,
+     "maximum": 37.5,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.623,
+    0.079
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-5 and A3-36, equations 31-40",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.171964,
+   "n_sites": 16,
+   "equivalent_years": 40.0
+  },
+  {
+   "region_code": "Appalachian Plateau",
+   "region_name": "Appalachian Plateau (Third Edition; NSS GC1482)",
+   "aep": 0.8,
+   "intercept": 1.8466463285771175,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.52,
+     "maximum": 293.7
+    },
+    {
+     "code": "BSLDEM10ff",
+     "transform": "log10",
+     "units": "ft/ft",
+     "minimum": 0.06632,
+     "maximum": 0.22653
+    }
+   ],
+   "coefficients": [
+    0.837,
+    0.327
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-6 and A3-37, equations 41-50",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.101108,
+   "n_sites": 23,
+   "equivalent_years": 5.7
+  },
+  {
+   "region_code": "Appalachian Plateau",
+   "region_name": "Appalachian Plateau (Third Edition; NSS GC1482)",
+   "aep": 0.667,
+   "intercept": 1.9416108021536338,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.52,
+     "maximum": 293.7
+    },
+    {
+     "code": "BSLDEM10ff",
+     "transform": "log10",
+     "units": "ft/ft",
+     "minimum": 0.06632,
+     "maximum": 0.22653
+    }
+   ],
+   "coefficients": [
+    0.837,
+    0.321
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-6 and A3-37, equations 41-50",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.093999,
+   "n_sites": 23,
+   "equivalent_years": 5.9
+  },
+  {
+   "region_code": "Appalachian Plateau",
+   "region_name": "Appalachian Plateau (Third Edition; NSS GC1482)",
+   "aep": 0.5,
+   "intercept": 2.006080782716094,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.52,
+     "maximum": 293.7
+    },
+    {
+     "code": "BSLDEM10ff",
+     "transform": "log10",
+     "units": "ft/ft",
+     "minimum": 0.06632,
+     "maximum": 0.22653
+    }
+   ],
+   "coefficients": [
+    0.834,
+    0.3
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-6 and A3-37, equations 41-50",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.088958,
+   "n_sites": 23,
+   "equivalent_years": 7.1
+  },
+  {
+   "region_code": "Appalachian Plateau",
+   "region_name": "Appalachian Plateau (Third Edition; NSS GC1482)",
+   "aep": 0.2,
+   "intercept": 2.2531683259014423,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.52,
+     "maximum": 293.7
+    },
+    {
+     "code": "BSLDEM10ff",
+     "transform": "log10",
+     "units": "ft/ft",
+     "minimum": 0.06632,
+     "maximum": 0.22653
+    }
+   ],
+   "coefficients": [
+    0.826,
+    0.314
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-6 and A3-37, equations 41-50",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.09274,
+   "n_sites": 23,
+   "equivalent_years": 12.0
+  },
+  {
+   "region_code": "Appalachian Plateau",
+   "region_name": "Appalachian Plateau (Third Edition; NSS GC1482)",
+   "aep": 0.1,
+   "intercept": 2.4078156423841977,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.52,
+     "maximum": 293.7
+    },
+    {
+     "code": "BSLDEM10ff",
+     "transform": "log10",
+     "units": "ft/ft",
+     "minimum": 0.06632,
+     "maximum": 0.22653
+    }
+   ],
+   "coefficients": [
+    0.821,
+    0.34
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-6 and A3-37, equations 41-50",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.103607,
+   "n_sites": 23,
+   "equivalent_years": 14.0
+  },
+  {
+   "region_code": "Appalachian Plateau",
+   "region_name": "Appalachian Plateau (Third Edition; NSS GC1482)",
+   "aep": 0.04,
+   "intercept": 2.606617797736322,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.52,
+     "maximum": 293.7
+    },
+    {
+     "code": "BSLDEM10ff",
+     "transform": "log10",
+     "units": "ft/ft",
+     "minimum": 0.06632,
+     "maximum": 0.22653
+    }
+   ],
+   "coefficients": [
+    0.812,
+    0.393
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-6 and A3-37, equations 41-50",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.12382,
+   "n_sites": 23,
+   "equivalent_years": 15.0
+  },
+  {
+   "region_code": "Appalachian Plateau",
+   "region_name": "Appalachian Plateau (Third Edition; NSS GC1482)",
+   "aep": 0.02,
+   "intercept": 2.7480328941301435,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.52,
+     "maximum": 293.7
+    },
+    {
+     "code": "BSLDEM10ff",
+     "transform": "log10",
+     "units": "ft/ft",
+     "minimum": 0.06632,
+     "maximum": 0.22653
+    }
+   ],
+   "coefficients": [
+    0.806,
+    0.435
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-6 and A3-37, equations 41-50",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.140032,
+   "n_sites": 23,
+   "equivalent_years": 16.0
+  },
+  {
+   "region_code": "Appalachian Plateau",
+   "region_name": "Appalachian Plateau (Third Edition; NSS GC1482)",
+   "aep": 0.01,
+   "intercept": 2.8843874905664886,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.52,
+     "maximum": 293.7
+    },
+    {
+     "code": "BSLDEM10ff",
+     "transform": "log10",
+     "units": "ft/ft",
+     "minimum": 0.06632,
+     "maximum": 0.22653
+    }
+   ],
+   "coefficients": [
+    0.799,
+    0.478
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-6 and A3-37, equations 41-50",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.15714,
+   "n_sites": 23,
+   "equivalent_years": 15.0
+  },
+  {
+   "region_code": "Appalachian Plateau",
+   "region_name": "Appalachian Plateau (Third Edition; NSS GC1482)",
+   "aep": 0.005,
+   "intercept": 3.0199051998046142,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.52,
+     "maximum": 293.7
+    },
+    {
+     "code": "BSLDEM10ff",
+     "transform": "log10",
+     "units": "ft/ft",
+     "minimum": 0.06632,
+     "maximum": 0.22653
+    }
+   ],
+   "coefficients": [
+    0.793,
+    0.525
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-6 and A3-37, equations 41-50",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.174278,
+   "n_sites": 23,
+   "equivalent_years": 15.0
+  },
+  {
+   "region_code": "Appalachian Plateau",
+   "region_name": "Appalachian Plateau (Third Edition; NSS GC1482)",
+   "aep": 0.002,
+   "intercept": 3.194514341882467,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.52,
+     "maximum": 293.7
+    },
+    {
+     "code": "BSLDEM10ff",
+     "transform": "log10",
+     "units": "ft/ft",
+     "minimum": 0.06632,
+     "maximum": 0.22653
+    }
+   ],
+   "coefficients": [
+    0.784,
+    0.589
+   ],
+   "citation": {
+    "publication": "Thomas, W.O., Jr., and Moglen, G.E., 2010, An Update of Regional Regression Equations for Maryland (July 30, 2010, revised September 3, 2010), Appendix 3 in Maryland Hydrology Panel, Application of Hydrologic Methods in Maryland, Third Edition, September 2010: Maryland State Highway Administration and Maryland Department of the Environment, 38 p.",
+    "table": "pp. A3-6 and A3-37, equations 41-50",
+    "year": 2010,
+    "url": "http://gishydro.eng.umd.edu/HydroPanel/hydrology_panel_report_3rd_edition_final.pdf"
+   },
+   "sep_log": 0.197754,
+   "n_sites": 23,
+   "equivalent_years": 15.0
+  }
+ ]
+}

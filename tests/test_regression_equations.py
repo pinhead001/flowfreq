@@ -382,12 +382,12 @@ class TestScaleOffset:
                 if eq.form == "constant":  # NV region 6 Q2 = 0; TestConstantForm
                     continue
                 if any(
-                    v.scale != 1.0 or v.offset != 0.0 or v.exponent is not None
+                    v.scale != 1.0 or v.offset != 0.0 or v.exponent is not None or v.times
                     for v in eq.variables
                 ):
                     continue
                 vals = {}
-                for v in eq.variables:
+                for v in (*eq.variables, *eq.applicability):
                     lo = v.minimum if v.minimum is not None else 1.0
                     hi = v.maximum if v.maximum is not None else lo
                     vals[v.code] = (lo + hi) / 2 if lo <= 0 else math.sqrt(lo * hi)
