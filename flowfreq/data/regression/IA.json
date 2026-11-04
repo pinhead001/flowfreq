@@ -1,0 +1,2401 @@
+{
+ "schema_version": 1,
+ "state": "IA",
+ "status": "partial",
+ "issue": null,
+ "source_reports": [
+  {
+   "citation": "Eash, D.A., Barnes, K.K., and Veilleux, A.G., 2013, Methods for estimating annual exceedance-probability discharges for streams in Iowa, based on data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2013-5086, 63 p. with appendix.",
+   "doi": "10.3133/sir20135086",
+   "url": "https://pubs.usgs.gov/publication/sir20135086",
+   "pdf": "https://pubs.usgs.gov/sir/2013/5086/sir13_5086web.pdf",
+   "tables": [
+    "Table 3",
+    "Table 4",
+    "Tables 9-13",
+    "Table 14",
+    "Table 15"
+   ],
+   "nss": {
+    "regression_regions": [
+     "GC1561",
+     "GC1562",
+     "GC1563"
+    ],
+    "last_year_of_data": 2010
+   }
+  },
+  {
+   "citation": "Eash, D.A., 2015, Comparisons of estimates of annual exceedance-probability discharges for small drainage basins in Iowa, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2015-5055, 37 p.",
+   "doi": "10.3133/sir20155055",
+   "url": "https://pubs.usgs.gov/publication/sir20155055",
+   "pdf": "https://pubs.usgs.gov/sir/2015/5055/pdf/sir2015-5055.pdf",
+   "tables": [
+    "Table 1",
+    "Tables 5-7",
+    "Table 8"
+   ],
+   "nss": {
+    "regression_regions": [
+     "GC1564",
+     "GC1627",
+     "GC1628"
+    ],
+    "last_year_of_data": 2013
+   }
+  }
+ ],
+ "notes": "Partial for one reason: two regression flows in Table 4 of SIR 2013-5086, at gage 05448500, disagree with the equations beyond rounding and the cause is not known (below). Everything both reports publish for these regions is stored, and every other check passes. Two reports, six regions, all current; nothing NSS serves is left out. The GC codes are kept as region_code so the region_preference tiers stay as they were in the snapshot. Full sets: Eash, Barnes and Veilleux, SIR 2013-5086, flood regions 1-3 at 8 AEPs (Tables 9-11), with ranges from Table 12 and MEV, covariance and t from the Table 13 workbook. The covariance is in the basis of the printed form: log10(DRNAREA) or DRNAREA**b, as each equation has it, CCM**0.55, and log10(DESMOIN + 1) for region 2's 50-percent equation. Region 2's 50-percent equation has two variables, which the report explains. Drainage-area-only sets: Eash, SIR 2015-5055, Tables 5-7, constants as printed, with intercept the log10 of the constant. That report applies Table 12's drainage-area ranges to them. It prints no covariance or model error variance for them, only SEP, SEM in percent and AVP, so their intervals use the AVP. Every intercept, coefficient, exponent and SEP equals NSS. Only ranges differ: NSS rounds the drainage-area limits (5,464, 7,783, 2,809 for Table 12's 5,463.88, 7,782.62, 2,809.05) and region 2's BSHAPE maximum (13.94 for 13.941), and serves a region 1 CCM maximum of 3.87 where Table 12 prints 2.220 and the largest region 1 gage in Table 3 is 2.2155. SIR 2015-5055 (p. 11) names 3.87 as the limit StreamStats applies, not a calibrated range; this file has 2.22. Examples 1 and 2 reproduce: 34,100 and 27,700 ft3/s, T 2.0103 and 1.4212. Their XUX' reproduce: 0.00327303, which takes CCM**0.55 rounded to 1.036 as the report's arithmetic does (0.00327263 unrounded), and 0.000902081. Table 4's regression flows reproduce from Table 3's characteristics at 389 of the 394 gages, 3,110 of 3,112 values, the two others below. At 05448600, 0545129280, 0548065350, 05481528 (CCM) and 05460500 (BSHAPE), Table 3's printed value is not the one behind Table 4 or Table 14: both reproduce, at all 8 AEPs, at one other value (CCM 0.695, 0.492, 0.377, 0.282; BSHAPE 3.08). Table 3 holds these five values to at most three decimals where other gages carry full precision, and the 40 flows reproduce at the other values. At 05448500, two cells of Table 4 are off by more than rounding (6,110 and 7,260 against 6,161 and 7,207); Table 4's WIE row agrees with the printed cells, the other six AEPs reproduce, and the cause is not known. Table 14's RRE variances reproduce within 1e-4, its print unit, using the MEV that SEM in percent implies rather than Table 13's, which differs by up to 7e-5. The mean of MEV + XUX' over each region's gages equals the printed AVP, which fixes the covariance's variable order. Table 8 of SIR 2015-5055 reproduces from its Table 1 drainage areas at all 80 gages, 640 values. Table 15 of SIR 2013-5086 prints the same exponents and constants in log units to two decimals. SIR 2015-5055 says the constants in its Tables 5-7 have four significant figures; none shows a fourth nonzero figure. Standard errors of the model in percent have no schema field and are not stored.",
+ "equations": [
+  {
+   "region_code": "GC1561",
+   "region_name": "Flood region 1, full set, SIR 2013-5086 (NSS GC1561)",
+   "aep": 0.5,
+   "intercept": -0.355,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.06,
+     "maximum": 5463.88
+    },
+    {
+     "code": "I24H10Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 3.58,
+     "maximum": 4.5
+    },
+    {
+     "code": "CCM",
+     "transform": "power",
+     "units": "mi2/mi",
+     "minimum": 0.11,
+     "maximum": 2.22,
+     "exponent": 0.55
+    }
+   ],
+   "coefficients": [
+    0.675,
+    0.601,
+    -0.595
+   ],
+   "citation": {
+    "publication": "Eash, D.A., Barnes, K.K., and Veilleux, A.G., 2013, Methods for estimating annual exceedance-probability discharges for streams in Iowa, based on data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2013-5086, 63 p. with appendix.",
+    "table": "Table 9, Table 12, Table 13",
+    "year": 2013,
+    "url": "https://pubs.usgs.gov/publication/sir20135086"
+   },
+   "sep_log": 0.173507,
+   "avp": 0.03,
+   "model_error_variance": 0.02721754532033757,
+   "covariance": [
+    [
+     0.29685551,
+     0.0003183067,
+     -0.0727079,
+     0.0080110292
+    ],
+    [
+     0.0003183067,
+     0.00047961809,
+     -0.00011190207,
+     -0.00096533396
+    ],
+    [
+     -0.0727079,
+     -0.00011190207,
+     0.018445439,
+     -0.0043378138
+    ],
+    [
+     0.0080110292,
+     -0.00096533396,
+     -0.0043378138,
+     0.012837308
+    ]
+   ],
+   "n_sites": 91
+  },
+  {
+   "region_code": "GC1561",
+   "region_name": "Flood region 1, full set, SIR 2013-5086 (NSS GC1561)",
+   "aep": 0.2,
+   "intercept": 0.094,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.06,
+     "maximum": 5463.88
+    },
+    {
+     "code": "I24H10Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 3.58,
+     "maximum": 4.5
+    },
+    {
+     "code": "CCM",
+     "transform": "power",
+     "units": "mi2/mi",
+     "minimum": 0.11,
+     "maximum": 2.22,
+     "exponent": 0.55
+    }
+   ],
+   "coefficients": [
+    0.626,
+    0.594,
+    -0.609
+   ],
+   "citation": {
+    "publication": "Eash, D.A., Barnes, K.K., and Veilleux, A.G., 2013, Methods for estimating annual exceedance-probability discharges for streams in Iowa, based on data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2013-5086, 63 p. with appendix.",
+    "table": "Table 9, Table 12, Table 13",
+    "year": 2013,
+    "url": "https://pubs.usgs.gov/publication/sir20135086"
+   },
+   "sep_log": 0.138021,
+   "avp": 0.019,
+   "model_error_variance": 0.01662975244370491,
+   "covariance": [
+    [
+     0.24100589,
+     -7.0296223e-05,
+     -0.058756657,
+     0.0059828136
+    ],
+    [
+     -7.0296223e-05,
+     0.00034902252,
+     -3.6124599e-05,
+     -0.00063695172
+    ],
+    [
+     -0.058756657,
+     -3.6124599e-05,
+     0.014824467,
+     -0.0032119783
+    ],
+    [
+     0.0059828136,
+     -0.00063695172,
+     -0.0032119783,
+     0.009278965
+    ]
+   ],
+   "n_sites": 91
+  },
+  {
+   "region_code": "GC1561",
+   "region_name": "Flood region 1, full set, SIR 2013-5086 (NSS GC1561)",
+   "aep": 0.1,
+   "intercept": 0.34,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.06,
+     "maximum": 5463.88
+    },
+    {
+     "code": "I24H10Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 3.58,
+     "maximum": 4.5
+    },
+    {
+     "code": "CCM",
+     "transform": "power",
+     "units": "mi2/mi",
+     "minimum": 0.11,
+     "maximum": 2.22,
+     "exponent": 0.55
+    }
+   ],
+   "coefficients": [
+    0.604,
+    0.588,
+    -0.636
+   ],
+   "citation": {
+    "publication": "Eash, D.A., Barnes, K.K., and Veilleux, A.G., 2013, Methods for estimating annual exceedance-probability discharges for streams in Iowa, based on data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2013-5086, 63 p. with appendix.",
+    "table": "Table 9, Table 12, Table 13",
+    "year": 2013,
+    "url": "https://pubs.usgs.gov/publication/sir20135086"
+   },
+   "sep_log": 0.134793,
+   "avp": 0.018,
+   "model_error_variance": 0.015585399130482644,
+   "covariance": [
+    [
+     0.26529704,
+     -0.00020843767,
+     -0.064573883,
+     0.0062522893
+    ],
+    [
+     -0.00020843767,
+     0.00036332097,
+     -1.6349765e-05,
+     -0.00063470092
+    ],
+    [
+     -0.064573883,
+     -1.6349765e-05,
+     0.016251748,
+     -0.0033661976
+    ],
+    [
+     0.0062522893,
+     -0.00063470092,
+     -0.0033661976,
+     0.0096838084
+    ]
+   ],
+   "n_sites": 91
+  },
+  {
+   "region_code": "GC1561",
+   "region_name": "Flood region 1, full set, SIR 2013-5086 (NSS GC1561)",
+   "aep": 0.04,
+   "intercept": 0.604,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.06,
+     "maximum": 5463.88
+    },
+    {
+     "code": "I24H10Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 3.58,
+     "maximum": 4.5
+    },
+    {
+     "code": "CCM",
+     "transform": "power",
+     "units": "mi2/mi",
+     "minimum": 0.11,
+     "maximum": 2.22,
+     "exponent": 0.55
+    }
+   ],
+   "coefficients": [
+    0.585,
+    0.579,
+    -0.679
+   ],
+   "citation": {
+    "publication": "Eash, D.A., Barnes, K.K., and Veilleux, A.G., 2013, Methods for estimating annual exceedance-probability discharges for streams in Iowa, based on data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2013-5086, 63 p. with appendix.",
+    "table": "Table 9, Table 12, Table 13",
+    "year": 2013,
+    "url": "https://pubs.usgs.gov/publication/sir20135086"
+   },
+   "sep_log": 0.140434,
+   "avp": 0.02,
+   "model_error_variance": 0.016703224601576857,
+   "covariance": [
+    [
+     0.32069675,
+     -0.00036549648,
+     -0.078000336,
+     0.0073864405
+    ],
+    [
+     -0.00036549648,
+     0.00042110453,
+     3.469355e-06,
+     -0.00071455502
+    ],
+    [
+     -0.078000336,
+     3.469355e-06,
+     0.019600989,
+     -0.0039585618
+    ],
+    [
+     0.0073864405,
+     -0.00071455502,
+     -0.0039585618,
+     0.011290435
+    ]
+   ],
+   "n_sites": 91
+  },
+  {
+   "region_code": "GC1561",
+   "region_name": "Flood region 1, full set, SIR 2013-5086 (NSS GC1561)",
+   "aep": 0.02,
+   "intercept": 0.769,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.06,
+     "maximum": 5463.88
+    },
+    {
+     "code": "I24H10Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 3.58,
+     "maximum": 4.5
+    },
+    {
+     "code": "CCM",
+     "transform": "power",
+     "units": "mi2/mi",
+     "minimum": 0.11,
+     "maximum": 2.22,
+     "exponent": 0.55
+    }
+   ],
+   "coefficients": [
+    0.574,
+    0.573,
+    -0.712
+   ],
+   "citation": {
+    "publication": "Eash, D.A., Barnes, K.K., and Veilleux, A.G., 2013, Methods for estimating annual exceedance-probability discharges for streams in Iowa, based on data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2013-5086, 63 p. with appendix.",
+    "table": "Table 9, Table 12, Table 13",
+    "year": 2013,
+    "url": "https://pubs.usgs.gov/publication/sir20135086"
+   },
+   "sep_log": 0.15002,
+   "avp": 0.023,
+   "model_error_variance": 0.019083032697895623,
+   "covariance": [
+    [
+     0.3756729,
+     -0.00045807079,
+     -0.091385363,
+     0.0087065398
+    ],
+    [
+     -0.00045807079,
+     0.00048718027,
+     1.3209303e-05,
+     -0.0008234372
+    ],
+    [
+     -0.091385363,
+     1.3209303e-05,
+     0.022961152,
+     -0.0046420061
+    ],
+    [
+     0.0087065398,
+     -0.0008234372,
+     -0.0046420061,
+     0.013151492
+    ]
+   ],
+   "n_sites": 91
+  },
+  {
+   "region_code": "GC1561",
+   "region_name": "Flood region 1, full set, SIR 2013-5086 (NSS GC1561)",
+   "aep": 0.01,
+   "intercept": 0.917,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.06,
+     "maximum": 5463.88
+    },
+    {
+     "code": "I24H10Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 3.58,
+     "maximum": 4.5
+    },
+    {
+     "code": "CCM",
+     "transform": "power",
+     "units": "mi2/mi",
+     "minimum": 0.11,
+     "maximum": 2.22,
+     "exponent": 0.55
+    }
+   ],
+   "coefficients": [
+    0.566,
+    0.567,
+    -0.742
+   ],
+   "citation": {
+    "publication": "Eash, D.A., Barnes, K.K., and Veilleux, A.G., 2013, Methods for estimating annual exceedance-probability discharges for streams in Iowa, based on data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2013-5086, 63 p. with appendix.",
+    "table": "Table 9, Table 12, Table 13",
+    "year": 2013,
+    "url": "https://pubs.usgs.gov/publication/sir20135086"
+   },
+   "sep_log": 0.159499,
+   "avp": 0.025,
+   "model_error_variance": 0.021479040692858744,
+   "covariance": [
+    [
+     0.43039866,
+     -0.00056027104,
+     -0.10471234,
+     0.01007604
+    ],
+    [
+     -0.00056027104,
+     0.00055301811,
+     2.519789e-05,
+     -0.00093155067
+    ],
+    [
+     -0.10471234,
+     2.519789e-05,
+     0.026308007,
+     -0.0053367225
+    ],
+    [
+     0.01007604,
+     -0.00093155067,
+     -0.0053367225,
+     0.015007033
+    ]
+   ],
+   "n_sites": 91
+  },
+  {
+   "region_code": "GC1561",
+   "region_name": "Flood region 1, full set, SIR 2013-5086 (NSS GC1561)",
+   "aep": 0.005,
+   "intercept": 1.06,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.06,
+     "maximum": 5463.88
+    },
+    {
+     "code": "I24H10Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 3.58,
+     "maximum": 4.5
+    },
+    {
+     "code": "CCM",
+     "transform": "power",
+     "units": "mi2/mi",
+     "minimum": 0.11,
+     "maximum": 2.22,
+     "exponent": 0.55
+    }
+   ],
+   "coefficients": [
+    0.559,
+    0.56,
+    -0.771
+   ],
+   "citation": {
+    "publication": "Eash, D.A., Barnes, K.K., and Veilleux, A.G., 2013, Methods for estimating annual exceedance-probability discharges for streams in Iowa, based on data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2013-5086, 63 p. with appendix.",
+    "table": "Table 9, Table 12, Table 13",
+    "year": 2013,
+    "url": "https://pubs.usgs.gov/publication/sir20135086"
+   },
+   "sep_log": 0.171191,
+   "avp": 0.029,
+   "model_error_variance": 0.024854056934356477,
+   "covariance": [
+    [
+     0.49293689,
+     -0.00063986146,
+     -0.11997553,
+     0.011741208
+    ],
+    [
+     -0.00063986146,
+     0.00063202226,
+     3.3237932e-05,
+     -0.0010692817
+    ],
+    [
+     -0.11997553,
+     3.3237932e-05,
+     0.030152128,
+     -0.0061808496
+    ],
+    [
+     0.011741208,
+     -0.0010692817,
+     -0.0061808496,
+     0.01726349
+    ]
+   ],
+   "n_sites": 91
+  },
+  {
+   "region_code": "GC1561",
+   "region_name": "Flood region 1, full set, SIR 2013-5086 (NSS GC1561)",
+   "aep": 0.002,
+   "intercept": 1.22,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.06,
+     "maximum": 5463.88
+    },
+    {
+     "code": "I24H10Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 3.58,
+     "maximum": 4.5
+    },
+    {
+     "code": "CCM",
+     "transform": "power",
+     "units": "mi2/mi",
+     "minimum": 0.11,
+     "maximum": 2.22,
+     "exponent": 0.55
+    }
+   ],
+   "coefficients": [
+    0.553,
+    0.55,
+    -0.808
+   ],
+   "citation": {
+    "publication": "Eash, D.A., Barnes, K.K., and Veilleux, A.G., 2013, Methods for estimating annual exceedance-probability discharges for streams in Iowa, based on data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2013-5086, 63 p. with appendix.",
+    "table": "Table 9, Table 12, Table 13",
+    "year": 2013,
+    "url": "https://pubs.usgs.gov/publication/sir20135086"
+   },
+   "sep_log": 0.187252,
+   "avp": 0.035,
+   "model_error_variance": 0.02999780155492152,
+   "covariance": [
+    [
+     0.57926762,
+     -0.0007335239,
+     -0.14106963,
+     0.014150952
+    ],
+    [
+     -0.0007335239,
+     0.00074476178,
+     4.240299e-05,
+     -0.001270299
+    ],
+    [
+     -0.14106963,
+     4.240299e-05,
+     0.035474003,
+     -0.0073956136
+    ],
+    [
+     0.014150952,
+     -0.001270299,
+     -0.0073956136,
+     0.020494642
+    ]
+   ],
+   "n_sites": 91
+  },
+  {
+   "region_code": "GC1562",
+   "region_name": "Flood region 2, full set, SIR 2013-5086 (NSS GC1562)",
+   "aep": 0.5,
+   "intercept": -49.0,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "power",
+     "units": "mi2",
+     "minimum": 0.08,
+     "maximum": 7782.62,
+     "exponent": 0.005
+    },
+    {
+     "code": "DESMOIN",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    51.2,
+    -0.069
+   ],
+   "citation": {
+    "publication": "Eash, D.A., Barnes, K.K., and Veilleux, A.G., 2013, Methods for estimating annual exceedance-probability discharges for streams in Iowa, based on data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2013-5086, 63 p. with appendix.",
+    "table": "Table 10, Table 12, Table 13",
+    "year": 2013,
+    "url": "https://pubs.usgs.gov/publication/sir20135086"
+   },
+   "sep_log": 0.193274,
+   "avp": 0.037,
+   "model_error_variance": 0.03571670248693373,
+   "covariance": [
+    [
+     2.6526197,
+     -2.5909879,
+     0.023209657
+    ],
+    [
+     -2.5909879,
+     2.5318911,
+     -0.023053561
+    ],
+    [
+     0.023209657,
+     -0.023053561,
+     0.00087078993
+    ]
+   ],
+   "n_sites": 176
+  },
+  {
+   "region_code": "GC1562",
+   "region_name": "Flood region 2, full set, SIR 2013-5086 (NSS GC1562)",
+   "aep": 0.2,
+   "intercept": 30.4,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "power",
+     "units": "mi2",
+     "minimum": 0.08,
+     "maximum": 7782.62,
+     "exponent": -0.009
+    },
+    {
+     "code": "DESMOIN",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "identity",
+     "units": "dimensionless",
+     "minimum": 0.806,
+     "maximum": 13.941
+    }
+   ],
+   "coefficients": [
+    -27.8,
+    -0.001,
+    -0.016
+   ],
+   "citation": {
+    "publication": "Eash, D.A., Barnes, K.K., and Veilleux, A.G., 2013, Methods for estimating annual exceedance-probability discharges for streams in Iowa, based on data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2013-5086, 63 p. with appendix.",
+    "table": "Table 10, Table 12, Table 13",
+    "year": 2013,
+    "url": "https://pubs.usgs.gov/publication/sir20135086"
+   },
+   "sep_log": 0.109834,
+   "avp": 0.012,
+   "model_error_variance": 0.010872894521135056,
+   "covariance": [
+    [
+     0.4041394,
+     -0.41714637,
+     -0.00010474924,
+     -0.0014515596
+    ],
+    [
+     -0.41714637,
+     0.4320618,
+     0.00010460515,
+     0.0013777477
+    ],
+    [
+     -0.00010474924,
+     0.00010460515,
+     2.627694e-07,
+     9.1991031e-08
+    ],
+    [
+     -0.0014515596,
+     0.0013777477,
+     9.1991031e-08,
+     2.5726024e-05
+    ]
+   ],
+   "n_sites": 176
+  },
+  {
+   "region_code": "GC1562",
+   "region_name": "Flood region 2, full set, SIR 2013-5086 (NSS GC1562)",
+   "aep": 0.1,
+   "intercept": 17.4,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "power",
+     "units": "mi2",
+     "minimum": 0.08,
+     "maximum": 7782.62,
+     "exponent": -0.017
+    },
+    {
+     "code": "DESMOIN",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "identity",
+     "units": "dimensionless",
+     "minimum": 0.806,
+     "maximum": 13.941
+    }
+   ],
+   "coefficients": [
+    -14.6,
+    -0.002,
+    -0.019
+   ],
+   "citation": {
+    "publication": "Eash, D.A., Barnes, K.K., and Veilleux, A.G., 2013, Methods for estimating annual exceedance-probability discharges for streams in Iowa, based on data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2013-5086, 63 p. with appendix.",
+    "table": "Table 10, Table 12, Table 13",
+    "year": 2013,
+    "url": "https://pubs.usgs.gov/publication/sir20135086"
+   },
+   "sep_log": 0.089378,
+   "avp": 0.008,
+   "model_error_variance": 0.006918982102652025,
+   "covariance": [
+    [
+     0.097090185,
+     -0.10323125,
+     -4.7775578e-05,
+     -0.00062740755
+    ],
+    [
+     -0.10323125,
+     0.11125844,
+     4.7455677e-05,
+     0.00056457048
+    ],
+    [
+     -4.7775578e-05,
+     4.7455677e-05,
+     2.1035555e-07,
+     1.0263579e-07
+    ],
+    [
+     -0.00062740755,
+     0.00056457048,
+     1.0263579e-07,
+     1.9492799e-05
+    ]
+   ],
+   "n_sites": 176
+  },
+  {
+   "region_code": "GC1562",
+   "region_name": "Flood region 2, full set, SIR 2013-5086 (NSS GC1562)",
+   "aep": 0.04,
+   "intercept": 13.7,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "power",
+     "units": "mi2",
+     "minimum": 0.08,
+     "maximum": 7782.62,
+     "exponent": -0.023
+    },
+    {
+     "code": "DESMOIN",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "identity",
+     "units": "dimensionless",
+     "minimum": 0.806,
+     "maximum": 13.941
+    }
+   ],
+   "coefficients": [
+    -10.7,
+    -0.002,
+    -0.022
+   ],
+   "citation": {
+    "publication": "Eash, D.A., Barnes, K.K., and Veilleux, A.G., 2013, Methods for estimating annual exceedance-probability discharges for streams in Iowa, based on data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2013-5086, 63 p. with appendix.",
+    "table": "Table 10, Table 12, Table 13",
+    "year": 2013,
+    "url": "https://pubs.usgs.gov/publication/sir20135086"
+   },
+   "sep_log": 0.083476,
+   "avp": 0.007,
+   "model_error_variance": 0.005773108990747872,
+   "covariance": [
+    [
+     0.055974689,
+     -0.060715452,
+     -3.8043557e-05,
+     -0.00048125881
+    ],
+    [
+     -0.060715452,
+     0.067558135,
+     3.7670593e-05,
+     0.00041667968
+    ],
+    [
+     -3.8043557e-05,
+     3.7670593e-05,
+     2.1282136e-07,
+     1.2542607e-07
+    ],
+    [
+     -0.00048125881,
+     0.00041667968,
+     1.2542607e-07,
+     1.8906803e-05
+    ]
+   ],
+   "n_sites": 176
+  },
+  {
+   "region_code": "GC1562",
+   "region_name": "Flood region 2, full set, SIR 2013-5086 (NSS GC1562)",
+   "aep": 0.02,
+   "intercept": 12.2,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "power",
+     "units": "mi2",
+     "minimum": 0.08,
+     "maximum": 7782.62,
+     "exponent": -0.027
+    },
+    {
+     "code": "DESMOIN",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "identity",
+     "units": "dimensionless",
+     "minimum": 0.806,
+     "maximum": 13.941
+    }
+   ],
+   "coefficients": [
+    -9.1,
+    -0.002,
+    -0.024
+   ],
+   "citation": {
+    "publication": "Eash, D.A., Barnes, K.K., and Veilleux, A.G., 2013, Methods for estimating annual exceedance-probability discharges for streams in Iowa, based on data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2013-5086, 63 p. with appendix.",
+    "table": "Table 10, Table 12, Table 13",
+    "year": 2013,
+    "url": "https://pubs.usgs.gov/publication/sir20135086"
+   },
+   "sep_log": 0.087695,
+   "avp": 0.008,
+   "model_error_variance": 0.006326999838867706,
+   "covariance": [
+    [
+     0.046538198,
+     -0.050898712,
+     -3.7633005e-05,
+     -0.00048323567
+    ],
+    [
+     -0.050898712,
+     0.057618411,
+     3.7254188e-05,
+     0.00041122625
+    ],
+    [
+     -3.7633005e-05,
+     3.7254188e-05,
+     2.4226578e-07,
+     1.4367276e-07
+    ],
+    [
+     -0.00048323567,
+     0.00041122625,
+     1.4367276e-07,
+     2.1352891e-05
+    ]
+   ],
+   "n_sites": 176
+  },
+  {
+   "region_code": "GC1562",
+   "region_name": "Flood region 2, full set, SIR 2013-5086 (NSS GC1562)",
+   "aep": 0.01,
+   "intercept": 11.1,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "power",
+     "units": "mi2",
+     "minimum": 0.08,
+     "maximum": 7782.62,
+     "exponent": -0.031
+    },
+    {
+     "code": "DESMOIN",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "identity",
+     "units": "dimensionless",
+     "minimum": 0.806,
+     "maximum": 13.941
+    }
+   ],
+   "coefficients": [
+    -7.92,
+    -0.002,
+    -0.025
+   ],
+   "citation": {
+    "publication": "Eash, D.A., Barnes, K.K., and Veilleux, A.G., 2013, Methods for estimating annual exceedance-probability discharges for streams in Iowa, based on data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2013-5086, 63 p. with appendix.",
+    "table": "Table 10, Table 12, Table 13",
+    "year": 2013,
+    "url": "https://pubs.usgs.gov/publication/sir20135086"
+   },
+   "sep_log": 0.095675,
+   "avp": 0.009,
+   "model_error_variance": 0.007616619016793277,
+   "covariance": [
+    [
+     0.041672405,
+     -0.04578482,
+     -3.9051454e-05,
+     -0.00051885118
+    ],
+    [
+     -0.04578482,
+     0.052558399,
+     3.8685507e-05,
+     0.00043610091
+    ],
+    [
+     -3.9051454e-05,
+     3.8685507e-05,
+     2.8698534e-07,
+     1.6130086e-07
+    ],
+    [
+     -0.00051885118,
+     0.00043610091,
+     1.6130086e-07,
+     2.5377644e-05
+    ]
+   ],
+   "n_sites": 176
+  },
+  {
+   "region_code": "GC1562",
+   "region_name": "Flood region 2, full set, SIR 2013-5086 (NSS GC1562)",
+   "aep": 0.005,
+   "intercept": 10.5,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "power",
+     "units": "mi2",
+     "minimum": 0.08,
+     "maximum": 7782.62,
+     "exponent": -0.034
+    },
+    {
+     "code": "DESMOIN",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "identity",
+     "units": "dimensionless",
+     "minimum": 0.806,
+     "maximum": 13.941
+    }
+   ],
+   "coefficients": [
+    -7.2,
+    -0.002,
+    -0.026
+   ],
+   "citation": {
+    "publication": "Eash, D.A., Barnes, K.K., and Veilleux, A.G., 2013, Methods for estimating annual exceedance-probability discharges for streams in Iowa, based on data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2013-5086, 63 p. with appendix.",
+    "table": "Table 10, Table 12, Table 13",
+    "year": 2013,
+    "url": "https://pubs.usgs.gov/publication/sir20135086"
+   },
+   "sep_log": 0.106517,
+   "avp": 0.011,
+   "model_error_variance": 0.009640364060373996,
+   "covariance": [
+    [
+     0.041409959,
+     -0.045514115,
+     -4.2752589e-05,
+     -0.00059004794
+    ],
+    [
+     -0.045514115,
+     0.052614639,
+     4.2422141e-05,
+     0.00049360017
+    ],
+    [
+     -4.2752589e-05,
+     4.2422141e-05,
+     3.4605816e-07,
+     1.7869671e-07
+    ],
+    [
+     -0.00059004794,
+     0.00049360017,
+     1.7869671e-07,
+     3.0910574e-05
+    ]
+   ],
+   "n_sites": 176
+  },
+  {
+   "region_code": "GC1562",
+   "region_name": "Flood region 2, full set, SIR 2013-5086 (NSS GC1562)",
+   "aep": 0.002,
+   "intercept": 9.95,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "power",
+     "units": "mi2",
+     "minimum": 0.08,
+     "maximum": 7782.62,
+     "exponent": -0.037
+    },
+    {
+     "code": "DESMOIN",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "identity",
+     "units": "dimensionless",
+     "minimum": 0.806,
+     "maximum": 13.941
+    }
+   ],
+   "coefficients": [
+    -6.6,
+    -0.002,
+    -0.028
+   ],
+   "citation": {
+    "publication": "Eash, D.A., Barnes, K.K., and Veilleux, A.G., 2013, Methods for estimating annual exceedance-probability discharges for streams in Iowa, based on data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2013-5086, 63 p. with appendix.",
+    "table": "Table 10, Table 12, Table 13",
+    "year": 2013,
+    "url": "https://pubs.usgs.gov/publication/sir20135086"
+   },
+   "sep_log": 0.120136,
+   "avp": 0.014,
+   "model_error_variance": 0.012392859288629536,
+   "covariance": [
+    [
+     0.042619181,
+     -0.046805598,
+     -4.8008293e-05,
+     -0.00068730964
+    ],
+    [
+     -0.046805598,
+     0.054418737,
+     4.7743386e-05,
+     0.00057279897
+    ],
+    [
+     -4.8008293e-05,
+     4.7743386e-05,
+     4.2472766e-07,
+     1.9979656e-07
+    ],
+    [
+     -0.00068730964,
+     0.00057279897,
+     1.9979656e-07,
+     3.8324477e-05
+    ]
+   ],
+   "n_sites": 176
+  },
+  {
+   "region_code": "GC1563",
+   "region_name": "Flood region 3, full set, SIR 2013-5086 (NSS GC1563)",
+   "aep": 0.5,
+   "intercept": 2.43,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.05,
+     "maximum": 2809.05
+    },
+    {
+     "code": "SSURGOKSAT",
+     "transform": "identity",
+     "units": "um/s",
+     "minimum": 1.883,
+     "maximum": 33.572
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "identity",
+     "units": "dimensionless",
+     "minimum": 0.339,
+     "maximum": 13.523
+    }
+   ],
+   "coefficients": [
+    0.6,
+    -0.009,
+    -0.017
+   ],
+   "citation": {
+    "publication": "Eash, D.A., Barnes, K.K., and Veilleux, A.G., 2013, Methods for estimating annual exceedance-probability discharges for streams in Iowa, based on data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2013-5086, 63 p. with appendix.",
+    "table": "Table 11, Table 12, Table 13",
+    "year": 2013,
+    "url": "https://pubs.usgs.gov/publication/sir20135086"
+   },
+   "sep_log": 0.179267,
+   "avp": 0.032,
+   "model_error_variance": 0.03017166408837386,
+   "covariance": [
+    [
+     0.0038113701,
+     -0.00047899364,
+     -0.0001065714,
+     -0.00020212219
+    ],
+    [
+     -0.00047899364,
+     0.00039289812,
+     -7.1238459e-06,
+     -6.7770346e-05
+    ],
+    [
+     -0.0001065714,
+     -7.1238459e-06,
+     1.2868644e-05,
+     4.2672649e-06
+    ],
+    [
+     -0.00020212219,
+     -6.7770346e-05,
+     4.2672649e-06,
+     5.9747021e-05
+    ]
+   ],
+   "n_sites": 127
+  },
+  {
+   "region_code": "GC1563",
+   "region_name": "Flood region 3, full set, SIR 2013-5086 (NSS GC1563)",
+   "aep": 0.2,
+   "intercept": 10.6,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "power",
+     "units": "mi2",
+     "minimum": 0.05,
+     "maximum": 2809.05,
+     "exponent": -0.035
+    },
+    {
+     "code": "SSURGOKSAT",
+     "transform": "identity",
+     "units": "um/s",
+     "minimum": 1.883,
+     "maximum": 33.572
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "identity",
+     "units": "dimensionless",
+     "minimum": 0.339,
+     "maximum": 13.523
+    }
+   ],
+   "coefficients": [
+    -7.78,
+    -0.009,
+    -0.024
+   ],
+   "citation": {
+    "publication": "Eash, D.A., Barnes, K.K., and Veilleux, A.G., 2013, Methods for estimating annual exceedance-probability discharges for streams in Iowa, based on data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2013-5086, 63 p. with appendix.",
+    "table": "Table 11, Table 12, Table 13",
+    "year": 2013,
+    "url": "https://pubs.usgs.gov/publication/sir20135086"
+   },
+   "sep_log": 0.129119,
+   "avp": 0.017,
+   "model_error_variance": 0.015270809634086299,
+   "covariance": [
+    [
+     0.039872849,
+     -0.042049918,
+     -0.0001316804,
+     -0.00064705121
+    ],
+    [
+     -0.042049918,
+     0.046992212,
+     5.8414971e-05,
+     0.0005223655
+    ],
+    [
+     -0.0001316804,
+     5.8414971e-05,
+     9.0368907e-06,
+     2.4867917e-06
+    ],
+    [
+     -0.00064705121,
+     0.0005223655,
+     2.4867917e-06,
+     3.4250708e-05
+    ]
+   ],
+   "n_sites": 127
+  },
+  {
+   "region_code": "GC1563",
+   "region_name": "Flood region 3, full set, SIR 2013-5086 (NSS GC1563)",
+   "aep": 0.1,
+   "intercept": 8.14,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "power",
+     "units": "mi2",
+     "minimum": 0.05,
+     "maximum": 2809.05,
+     "exponent": -0.054
+    },
+    {
+     "code": "SSURGOKSAT",
+     "transform": "identity",
+     "units": "um/s",
+     "minimum": 1.883,
+     "maximum": 33.572
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "identity",
+     "units": "dimensionless",
+     "minimum": 0.339,
+     "maximum": 13.523
+    }
+   ],
+   "coefficients": [
+    -5.17,
+    -0.008,
+    -0.028
+   ],
+   "citation": {
+    "publication": "Eash, D.A., Barnes, K.K., and Veilleux, A.G., 2013, Methods for estimating annual exceedance-probability discharges for streams in Iowa, based on data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2013-5086, 63 p. with appendix.",
+    "table": "Table 11, Table 12, Table 13",
+    "year": 2013,
+    "url": "https://pubs.usgs.gov/publication/sir20135086"
+   },
+   "sep_log": 0.115203,
+   "avp": 0.013,
+   "model_error_variance": 0.011936458528641627,
+   "covariance": [
+    [
+     0.016442201,
+     -0.017137392,
+     -0.00010809252,
+     -0.00042124061
+    ],
+    [
+     -0.017137392,
+     0.020587998,
+     3.5842627e-05,
+     0.00030751593
+    ],
+    [
+     -0.00010809252,
+     3.5842627e-05,
+     9.0053539e-06,
+     2.2330881e-06
+    ],
+    [
+     -0.00042124061,
+     0.00030751593,
+     2.2330881e-06,
+     2.9834347e-05
+    ]
+   ],
+   "n_sites": 127
+  },
+  {
+   "region_code": "GC1563",
+   "region_name": "Flood region 3, full set, SIR 2013-5086 (NSS GC1563)",
+   "aep": 0.04,
+   "intercept": 7.07,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "power",
+     "units": "mi2",
+     "minimum": 0.05,
+     "maximum": 2809.05,
+     "exponent": -0.073
+    },
+    {
+     "code": "SSURGOKSAT",
+     "transform": "identity",
+     "units": "um/s",
+     "minimum": 1.883,
+     "maximum": 33.572
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "identity",
+     "units": "dimensionless",
+     "minimum": 0.339,
+     "maximum": 13.523
+    }
+   ],
+   "coefficients": [
+    -3.92,
+    -0.008,
+    -0.031
+   ],
+   "citation": {
+    "publication": "Eash, D.A., Barnes, K.K., and Veilleux, A.G., 2013, Methods for estimating annual exceedance-probability discharges for streams in Iowa, based on data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2013-5086, 63 p. with appendix.",
+    "table": "Table 11, Table 12, Table 13",
+    "year": 2013,
+    "url": "https://pubs.usgs.gov/publication/sir20135086"
+   },
+   "sep_log": 0.113141,
+   "avp": 0.013,
+   "model_error_variance": 0.011248811527219696,
+   "covariance": [
+    [
+     0.010644035,
+     -0.010629537,
+     -0.00011092316,
+     -0.00036932284
+    ],
+    [
+     -0.010629537,
+     0.013702131,
+     2.9203098e-05,
+     0.00024861646
+    ],
+    [
+     -0.00011092316,
+     2.9203098e-05,
+     1.0233829e-05,
+     2.3736516e-06
+    ],
+    [
+     -0.00036932284,
+     0.00024861646,
+     2.3736516e-06,
+     3.0892582e-05
+    ]
+   ],
+   "n_sites": 127
+  },
+  {
+   "region_code": "GC1563",
+   "region_name": "Flood region 3, full set, SIR 2013-5086 (NSS GC1563)",
+   "aep": 0.02,
+   "intercept": 6.65,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "power",
+     "units": "mi2",
+     "minimum": 0.05,
+     "maximum": 2809.05,
+     "exponent": -0.086
+    },
+    {
+     "code": "SSURGOKSAT",
+     "transform": "identity",
+     "units": "um/s",
+     "minimum": 1.883,
+     "maximum": 33.572
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "identity",
+     "units": "dimensionless",
+     "minimum": 0.339,
+     "maximum": 13.523
+    }
+   ],
+   "coefficients": [
+    -3.39,
+    -0.009,
+    -0.033
+   ],
+   "citation": {
+    "publication": "Eash, D.A., Barnes, K.K., and Veilleux, A.G., 2013, Methods for estimating annual exceedance-probability discharges for streams in Iowa, based on data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2013-5086, 63 p. with appendix.",
+    "table": "Table 11, Table 12, Table 13",
+    "year": 2013,
+    "url": "https://pubs.usgs.gov/publication/sir20135086"
+   },
+   "sep_log": 0.118494,
+   "avp": 0.014,
+   "model_error_variance": 0.012310136611789875,
+   "covariance": [
+    [
+     0.009415714,
+     -0.0089988818,
+     -0.00012213714,
+     -0.00038343076
+    ],
+    [
+     -0.0089988818,
+     0.012063489,
+     2.8313247e-05,
+     0.00024822319
+    ],
+    [
+     -0.00012213714,
+     2.8313247e-05,
+     1.1739983e-05,
+     2.6786268e-06
+    ],
+    [
+     -0.00038343076,
+     0.00024822319,
+     2.6786268e-06,
+     3.4713803e-05
+    ]
+   ],
+   "n_sites": 127
+  },
+  {
+   "region_code": "GC1563",
+   "region_name": "Flood region 3, full set, SIR 2013-5086 (NSS GC1563)",
+   "aep": 0.01,
+   "intercept": 6.41,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "power",
+     "units": "mi2",
+     "minimum": 0.05,
+     "maximum": 2809.05,
+     "exponent": -0.097
+    },
+    {
+     "code": "SSURGOKSAT",
+     "transform": "identity",
+     "units": "um/s",
+     "minimum": 1.883,
+     "maximum": 33.572
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "identity",
+     "units": "dimensionless",
+     "minimum": 0.339,
+     "maximum": 13.523
+    }
+   ],
+   "coefficients": [
+    -3.06,
+    -0.009,
+    -0.035
+   ],
+   "citation": {
+    "publication": "Eash, D.A., Barnes, K.K., and Veilleux, A.G., 2013, Methods for estimating annual exceedance-probability discharges for streams in Iowa, based on data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2013-5086, 63 p. with appendix.",
+    "table": "Table 11, Table 12, Table 13",
+    "year": 2013,
+    "url": "https://pubs.usgs.gov/publication/sir20135086"
+   },
+   "sep_log": 0.12382,
+   "avp": 0.015,
+   "model_error_variance": 0.01343353108783384,
+   "covariance": [
+    [
+     0.0089119614,
+     -0.0081588617,
+     -0.00013410263,
+     -0.00040434532
+    ],
+    [
+     -0.0081588617,
+     0.011285981,
+     2.81543e-05,
+     0.00025415612
+    ],
+    [
+     -0.00013410263,
+     2.81543e-05,
+     1.3241991e-05,
+     2.9853159e-06
+    ],
+    [
+     -0.00040434532,
+     0.00025415612,
+     2.9853159e-06,
+     3.8628632e-05
+    ]
+   ],
+   "n_sites": 127
+  },
+  {
+   "region_code": "GC1563",
+   "region_name": "Flood region 3, full set, SIR 2013-5086 (NSS GC1563)",
+   "aep": 0.005,
+   "intercept": 6.23,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "power",
+     "units": "mi2",
+     "minimum": 0.05,
+     "maximum": 2809.05,
+     "exponent": -0.108
+    },
+    {
+     "code": "SSURGOKSAT",
+     "transform": "identity",
+     "units": "um/s",
+     "minimum": 1.883,
+     "maximum": 33.572
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "identity",
+     "units": "dimensionless",
+     "minimum": 0.339,
+     "maximum": 13.523
+    }
+   ],
+   "coefficients": [
+    -2.8,
+    -0.009,
+    -0.037
+   ],
+   "citation": {
+    "publication": "Eash, D.A., Barnes, K.K., and Veilleux, A.G., 2013, Methods for estimating annual exceedance-probability discharges for streams in Iowa, based on data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2013-5086, 63 p. with appendix.",
+    "table": "Table 11, Table 12, Table 13",
+    "year": 2013,
+    "url": "https://pubs.usgs.gov/publication/sir20135086"
+   },
+   "sep_log": 0.129525,
+   "avp": 0.017,
+   "model_error_variance": 0.014640196976184678,
+   "covariance": [
+    [
+     0.0085973757,
+     -0.0075097395,
+     -0.00014595687,
+     -0.00042647715
+    ],
+    [
+     -0.0075097395,
+     0.010697513,
+     2.793369e-05,
+     0.00026115514
+    ],
+    [
+     -0.00014595687,
+     2.793369e-05,
+     1.473323e-05,
+     3.2825967e-06
+    ],
+    [
+     -0.00042647715,
+     0.00026115514,
+     3.2825967e-06,
+     4.2634931e-05
+    ]
+   ],
+   "n_sites": 127
+  },
+  {
+   "region_code": "GC1563",
+   "region_name": "Flood region 3, full set, SIR 2013-5086 (NSS GC1563)",
+   "aep": 0.002,
+   "intercept": 6.1,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "power",
+     "units": "mi2",
+     "minimum": 0.05,
+     "maximum": 2809.05,
+     "exponent": -0.119
+    },
+    {
+     "code": "SSURGOKSAT",
+     "transform": "identity",
+     "units": "um/s",
+     "minimum": 1.883,
+     "maximum": 33.572
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "identity",
+     "units": "dimensionless",
+     "minimum": 0.339,
+     "maximum": 13.523
+    }
+   ],
+   "coefficients": [
+    -2.59,
+    -0.009,
+    -0.039
+   ],
+   "citation": {
+    "publication": "Eash, D.A., Barnes, K.K., and Veilleux, A.G., 2013, Methods for estimating annual exceedance-probability discharges for streams in Iowa, based on data through water year 2010: U.S. Geological Survey Scientific Investigations Report 2013-5086, 63 p. with appendix.",
+    "table": "Table 11, Table 12, Table 13",
+    "year": 2013,
+    "url": "https://pubs.usgs.gov/publication/sir20135086"
+   },
+   "sep_log": 0.142439,
+   "avp": 0.02,
+   "model_error_variance": 0.017886944588923114,
+   "covariance": [
+    [
+     0.0091216934,
+     -0.0076035082,
+     -0.00016932258,
+     -0.00049113652
+    ],
+    [
+     -0.0076035082,
+     0.011007022,
+     3.0319452e-05,
+     0.00029618883
+    ],
+    [
+     -0.00016932258,
+     3.0319452e-05,
+     1.7297121e-05,
+     3.8964811e-06
+    ],
+    [
+     -0.00049113652,
+     0.00029618883,
+     3.8964811e-06,
+     5.1159258e-05
+    ]
+   ],
+   "n_sites": 127
+  },
+  {
+   "region_code": "GC1564",
+   "region_name": "Flood region 1, drainage area only, SIR 2015-5055 (NSS GC1564)",
+   "aep": 0.5,
+   "intercept": 1.6580113966571124,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.06,
+     "maximum": 5463.88
+    }
+   ],
+   "coefficients": [
+    0.641
+   ],
+   "citation": {
+    "publication": "Eash, D.A., 2015, Comparisons of estimates of annual exceedance-probability discharges for small drainage basins in Iowa, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2015-5055, 37 p.",
+    "table": "Table 5; range from Table 12 of SIR 2013-5086",
+    "year": 2015,
+    "url": "https://pubs.usgs.gov/publication/sir20155055"
+   },
+   "sep_log": 0.2121,
+   "avp": 0.045,
+   "n_sites": 91
+  },
+  {
+   "region_code": "GC1564",
+   "region_name": "Flood region 1, drainage area only, SIR 2015-5055 (NSS GC1564)",
+   "aep": 0.2,
+   "intercept": 2.0644579892269186,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.06,
+     "maximum": 5463.88
+    }
+   ],
+   "coefficients": [
+    0.592
+   ],
+   "citation": {
+    "publication": "Eash, D.A., 2015, Comparisons of estimates of annual exceedance-probability discharges for small drainage basins in Iowa, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2015-5055, 37 p.",
+    "table": "Table 5; range from Table 12 of SIR 2013-5086",
+    "year": 2015,
+    "url": "https://pubs.usgs.gov/publication/sir20155055"
+   },
+   "sep_log": 0.178501,
+   "avp": 0.032,
+   "n_sites": 91
+  },
+  {
+   "region_code": "GC1564",
+   "region_name": "Flood region 1, drainage area only, SIR 2015-5055 (NSS GC1564)",
+   "aep": 0.1,
+   "intercept": 2.2576785748691846,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.06,
+     "maximum": 5463.88
+    }
+   ],
+   "coefficients": [
+    0.569
+   ],
+   "citation": {
+    "publication": "Eash, D.A., 2015, Comparisons of estimates of annual exceedance-probability discharges for small drainage basins in Iowa, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2015-5055, 37 p.",
+    "table": "Table 5; range from Table 12 of SIR 2013-5086",
+    "year": 2015,
+    "url": "https://pubs.usgs.gov/publication/sir20155055"
+   },
+   "sep_log": 0.176585,
+   "avp": 0.031,
+   "n_sites": 91
+  },
+  {
+   "region_code": "GC1564",
+   "region_name": "Flood region 1, drainage area only, SIR 2015-5055 (NSS GC1564)",
+   "aep": 0.04,
+   "intercept": 2.450249108319361,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.06,
+     "maximum": 5463.88
+    }
+   ],
+   "coefficients": [
+    0.548
+   ],
+   "citation": {
+    "publication": "Eash, D.A., 2015, Comparisons of estimates of annual exceedance-probability discharges for small drainage basins in Iowa, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2015-5055, 37 p.",
+    "table": "Table 5; range from Table 12 of SIR 2013-5086",
+    "year": 2015,
+    "url": "https://pubs.usgs.gov/publication/sir20155055"
+   },
+   "sep_log": 0.184221,
+   "avp": 0.034,
+   "n_sites": 91
+  },
+  {
+   "region_code": "GC1564",
+   "region_name": "Flood region 1, drainage area only, SIR 2015-5055 (NSS GC1564)",
+   "aep": 0.02,
+   "intercept": 2.56702636615906,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.06,
+     "maximum": 5463.88
+    }
+   ],
+   "coefficients": [
+    0.535
+   ],
+   "citation": {
+    "publication": "Eash, D.A., 2015, Comparisons of estimates of annual exceedance-probability discharges for small drainage basins in Iowa, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2015-5055, 37 p.",
+    "table": "Table 5; range from Table 12 of SIR 2013-5086",
+    "year": 2015,
+    "url": "https://pubs.usgs.gov/publication/sir20155055"
+   },
+   "sep_log": 0.192524,
+   "avp": 0.037,
+   "n_sites": 91
+  },
+  {
+   "region_code": "GC1564",
+   "region_name": "Flood region 1, drainage area only, SIR 2015-5055 (NSS GC1564)",
+   "aep": 0.01,
+   "intercept": 2.6646419755561257,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.06,
+     "maximum": 5463.88
+    }
+   ],
+   "coefficients": [
+    0.524
+   ],
+   "citation": {
+    "publication": "Eash, D.A., 2015, Comparisons of estimates of annual exceedance-probability discharges for small drainage basins in Iowa, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2015-5055, 37 p.",
+    "table": "Table 5; range from Table 12 of SIR 2013-5086",
+    "year": 2015,
+    "url": "https://pubs.usgs.gov/publication/sir20155055"
+   },
+   "sep_log": 0.201094,
+   "avp": 0.04,
+   "n_sites": 91
+  },
+  {
+   "region_code": "GC1564",
+   "region_name": "Flood region 1, drainage area only, SIR 2015-5055 (NSS GC1564)",
+   "aep": 0.005,
+   "intercept": 2.751279103983342,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.06,
+     "maximum": 5463.88
+    }
+   ],
+   "coefficients": [
+    0.516
+   ],
+   "citation": {
+    "publication": "Eash, D.A., 2015, Comparisons of estimates of annual exceedance-probability discharges for small drainage basins in Iowa, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2015-5055, 37 p.",
+    "table": "Table 5; range from Table 12 of SIR 2013-5086",
+    "year": 2015,
+    "url": "https://pubs.usgs.gov/publication/sir20155055"
+   },
+   "sep_log": 0.211736,
+   "avp": 0.045,
+   "n_sites": 91
+  },
+  {
+   "region_code": "GC1564",
+   "region_name": "Flood region 1, drainage area only, SIR 2015-5055 (NSS GC1564)",
+   "aep": 0.002,
+   "intercept": 2.850033257689769,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.06,
+     "maximum": 5463.88
+    }
+   ],
+   "coefficients": [
+    0.506
+   ],
+   "citation": {
+    "publication": "Eash, D.A., 2015, Comparisons of estimates of annual exceedance-probability discharges for small drainage basins in Iowa, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2015-5055, 37 p.",
+    "table": "Table 5; range from Table 12 of SIR 2013-5086",
+    "year": 2015,
+    "url": "https://pubs.usgs.gov/publication/sir20155055"
+   },
+   "sep_log": 0.226112,
+   "avp": 0.051,
+   "n_sites": 91
+  },
+  {
+   "region_code": "GC1627",
+   "region_name": "Flood region 2, drainage area only, SIR 2015-5055 (NSS GC1627)",
+   "aep": 0.5,
+   "intercept": 2.155336037465062,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.08,
+     "maximum": 7782.62
+    }
+   ],
+   "coefficients": [
+    0.579
+   ],
+   "citation": {
+    "publication": "Eash, D.A., 2015, Comparisons of estimates of annual exceedance-probability discharges for small drainage basins in Iowa, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2015-5055, 37 p.",
+    "table": "Table 6; range from Table 12 of SIR 2013-5086",
+    "year": 2015,
+    "url": "https://pubs.usgs.gov/publication/sir20155055"
+   },
+   "sep_log": 0.195518,
+   "avp": 0.038,
+   "n_sites": 176
+  },
+  {
+   "region_code": "GC1627",
+   "region_name": "Flood region 2, drainage area only, SIR 2015-5055 (NSS GC1627)",
+   "aep": 0.2,
+   "intercept": 2.575187844927661,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.08,
+     "maximum": 7782.62
+    }
+   ],
+   "coefficients": [
+    0.525
+   ],
+   "citation": {
+    "publication": "Eash, D.A., 2015, Comparisons of estimates of annual exceedance-probability discharges for small drainage basins in Iowa, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2015-5055, 37 p.",
+    "table": "Table 6; range from Table 12 of SIR 2013-5086",
+    "year": 2015,
+    "url": "https://pubs.usgs.gov/publication/sir20155055"
+   },
+   "sep_log": 0.120136,
+   "avp": 0.014,
+   "n_sites": 176
+  },
+  {
+   "region_code": "GC1627",
+   "region_name": "Flood region 2, drainage area only, SIR 2015-5055 (NSS GC1627)",
+   "aep": 0.1,
+   "intercept": 2.776701183988411,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.08,
+     "maximum": 7782.62
+    }
+   ],
+   "coefficients": [
+    0.499
+   ],
+   "citation": {
+    "publication": "Eash, D.A., 2015, Comparisons of estimates of annual exceedance-probability discharges for small drainage basins in Iowa, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2015-5055, 37 p.",
+    "table": "Table 6; range from Table 12 of SIR 2013-5086",
+    "year": 2015,
+    "url": "https://pubs.usgs.gov/publication/sir20155055"
+   },
+   "sep_log": 0.101108,
+   "avp": 0.01,
+   "n_sites": 176
+  },
+  {
+   "region_code": "GC1627",
+   "region_name": "Flood region 2, drainage area only, SIR 2015-5055 (NSS GC1627)",
+   "aep": 0.04,
+   "intercept": 2.9689496809813427,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.08,
+     "maximum": 7782.62
+    }
+   ],
+   "coefficients": [
+    0.476
+   ],
+   "citation": {
+    "publication": "Eash, D.A., 2015, Comparisons of estimates of annual exceedance-probability discharges for small drainage basins in Iowa, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2015-5055, 37 p.",
+    "table": "Table 6; range from Table 12 of SIR 2013-5086",
+    "year": 2015,
+    "url": "https://pubs.usgs.gov/publication/sir20155055"
+   },
+   "sep_log": 0.102775,
+   "avp": 0.011,
+   "n_sites": 176
+  },
+  {
+   "region_code": "GC1627",
+   "region_name": "Flood region 2, drainage area only, SIR 2015-5055 (NSS GC1627)",
+   "aep": 0.02,
+   "intercept": 3.0827853703164503,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.08,
+     "maximum": 7782.62
+    }
+   ],
+   "coefficients": [
+    0.463
+   ],
+   "citation": {
+    "publication": "Eash, D.A., 2015, Comparisons of estimates of annual exceedance-probability discharges for small drainage basins in Iowa, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2015-5055, 37 p.",
+    "table": "Table 6; range from Table 12 of SIR 2013-5086",
+    "year": 2015,
+    "url": "https://pubs.usgs.gov/publication/sir20155055"
+   },
+   "sep_log": 0.108591,
+   "avp": 0.012,
+   "n_sites": 176
+  },
+  {
+   "region_code": "GC1627",
+   "region_name": "Flood region 2, drainage area only, SIR 2015-5055 (NSS GC1627)",
+   "aep": 0.01,
+   "intercept": 3.1789769472931693,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.08,
+     "maximum": 7782.62
+    }
+   ],
+   "coefficients": [
+    0.453
+   ],
+   "citation": {
+    "publication": "Eash, D.A., 2015, Comparisons of estimates of annual exceedance-probability discharges for small drainage basins in Iowa, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2015-5055, 37 p.",
+    "table": "Table 6; range from Table 12 of SIR 2013-5086",
+    "year": 2015,
+    "url": "https://pubs.usgs.gov/publication/sir20155055"
+   },
+   "sep_log": 0.114791,
+   "avp": 0.013,
+   "n_sites": 176
+  },
+  {
+   "region_code": "GC1627",
+   "region_name": "Flood region 2, drainage area only, SIR 2015-5055 (NSS GC1627)",
+   "aep": 0.005,
+   "intercept": 3.2600713879850747,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.08,
+     "maximum": 7782.62
+    }
+   ],
+   "coefficients": [
+    0.445
+   ],
+   "citation": {
+    "publication": "Eash, D.A., 2015, Comparisons of estimates of annual exceedance-probability discharges for small drainage basins in Iowa, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2015-5055, 37 p.",
+    "table": "Table 6; range from Table 12 of SIR 2013-5086",
+    "year": 2015,
+    "url": "https://pubs.usgs.gov/publication/sir20155055"
+   },
+   "sep_log": 0.12382,
+   "avp": 0.015,
+   "n_sites": 176
+  },
+  {
+   "region_code": "GC1627",
+   "region_name": "Flood region 2, drainage area only, SIR 2015-5055 (NSS GC1627)",
+   "aep": 0.002,
+   "intercept": 3.3521825181113627,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.08,
+     "maximum": 7782.62
+    }
+   ],
+   "coefficients": [
+    0.436
+   ],
+   "citation": {
+    "publication": "Eash, D.A., 2015, Comparisons of estimates of annual exceedance-probability discharges for small drainage basins in Iowa, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2015-5055, 37 p.",
+    "table": "Table 6; range from Table 12 of SIR 2013-5086",
+    "year": 2015,
+    "url": "https://pubs.usgs.gov/publication/sir20155055"
+   },
+   "sep_log": 0.138021,
+   "avp": 0.019,
+   "n_sites": 176
+  },
+  {
+   "region_code": "GC1628",
+   "region_name": "Flood region 3, drainage area only, SIR 2015-5055 (NSS GC1628)",
+   "aep": 0.5,
+   "intercept": 2.311753861055754,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.05,
+     "maximum": 2809.05
+    }
+   ],
+   "coefficients": [
+    0.579
+   ],
+   "citation": {
+    "publication": "Eash, D.A., 2015, Comparisons of estimates of annual exceedance-probability discharges for small drainage basins in Iowa, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2015-5055, 37 p.",
+    "table": "Table 7; range from Table 12 of SIR 2013-5086",
+    "year": 2015,
+    "url": "https://pubs.usgs.gov/publication/sir20155055"
+   },
+   "sep_log": 0.1827,
+   "avp": 0.033,
+   "n_sites": 127
+  },
+  {
+   "region_code": "GC1628",
+   "region_name": "Flood region 3, drainage area only, SIR 2015-5055 (NSS GC1628)",
+   "aep": 0.2,
+   "intercept": 2.6884198220027105,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.05,
+     "maximum": 2809.05
+    }
+   ],
+   "coefficients": [
+    0.528
+   ],
+   "citation": {
+    "publication": "Eash, D.A., 2015, Comparisons of estimates of annual exceedance-probability discharges for small drainage basins in Iowa, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2015-5055, 37 p.",
+    "table": "Table 7; range from Table 12 of SIR 2013-5086",
+    "year": 2015,
+    "url": "https://pubs.usgs.gov/publication/sir20155055"
+   },
+   "sep_log": 0.14524,
+   "avp": 0.021,
+   "n_sites": 127
+  },
+  {
+   "region_code": "GC1628",
+   "region_name": "Flood region 3, drainage area only, SIR 2015-5055 (NSS GC1628)",
+   "aep": 0.1,
+   "intercept": 2.869818207979328,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.05,
+     "maximum": 2809.05
+    }
+   ],
+   "coefficients": [
+    0.503
+   ],
+   "citation": {
+    "publication": "Eash, D.A., 2015, Comparisons of estimates of annual exceedance-probability discharges for small drainage basins in Iowa, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2015-5055, 37 p.",
+    "table": "Table 7; range from Table 12 of SIR 2013-5086",
+    "year": 2015,
+    "url": "https://pubs.usgs.gov/publication/sir20155055"
+   },
+   "sep_log": 0.140434,
+   "avp": 0.02,
+   "n_sites": 127
+  },
+  {
+   "region_code": "GC1628",
+   "region_name": "Flood region 3, drainage area only, SIR 2015-5055 (NSS GC1628)",
+   "aep": 0.04,
+   "intercept": 3.0492180226701815,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.05,
+     "maximum": 2809.05
+    }
+   ],
+   "coefficients": [
+    0.479
+   ],
+   "citation": {
+    "publication": "Eash, D.A., 2015, Comparisons of estimates of annual exceedance-probability discharges for small drainage basins in Iowa, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2015-5055, 37 p.",
+    "table": "Table 7; range from Table 12 of SIR 2013-5086",
+    "year": 2015,
+    "url": "https://pubs.usgs.gov/publication/sir20155055"
+   },
+   "sep_log": 0.142039,
+   "avp": 0.02,
+   "n_sites": 127
+  },
+  {
+   "region_code": "GC1628",
+   "region_name": "Flood region 3, drainage area only, SIR 2015-5055 (NSS GC1628)",
+   "aep": 0.02,
+   "intercept": 3.1583624920952498,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.05,
+     "maximum": 2809.05
+    }
+   ],
+   "coefficients": [
+    0.466
+   ],
+   "citation": {
+    "publication": "Eash, D.A., 2015, Comparisons of estimates of annual exceedance-probability discharges for small drainage basins in Iowa, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2015-5055, 37 p.",
+    "table": "Table 7; range from Table 12 of SIR 2013-5086",
+    "year": 2015,
+    "url": "https://pubs.usgs.gov/publication/sir20155055"
+   },
+   "sep_log": 0.15002,
+   "avp": 0.023,
+   "n_sites": 127
+  },
+  {
+   "region_code": "GC1628",
+   "region_name": "Flood region 3, drainage area only, SIR 2015-5055 (NSS GC1628)",
+   "aep": 0.01,
+   "intercept": 3.247973266361807,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.05,
+     "maximum": 2809.05
+    }
+   ],
+   "coefficients": [
+    0.455
+   ],
+   "citation": {
+    "publication": "Eash, D.A., 2015, Comparisons of estimates of annual exceedance-probability discharges for small drainage basins in Iowa, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2015-5055, 37 p.",
+    "table": "Table 7; range from Table 12 of SIR 2013-5086",
+    "year": 2015,
+    "url": "https://pubs.usgs.gov/publication/sir20155055"
+   },
+   "sep_log": 0.157927,
+   "avp": 0.025,
+   "n_sites": 127
+  },
+  {
+   "region_code": "GC1628",
+   "region_name": "Flood region 3, drainage area only, SIR 2015-5055 (NSS GC1628)",
+   "aep": 0.005,
+   "intercept": 3.326335860928751,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.05,
+     "maximum": 2809.05
+    }
+   ],
+   "coefficients": [
+    0.447
+   ],
+   "citation": {
+    "publication": "Eash, D.A., 2015, Comparisons of estimates of annual exceedance-probability discharges for small drainage basins in Iowa, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2015-5055, 37 p.",
+    "table": "Table 7; range from Table 12 of SIR 2013-5086",
+    "year": 2015,
+    "url": "https://pubs.usgs.gov/publication/sir20155055"
+   },
+   "sep_log": 0.166146,
+   "avp": 0.028,
+   "n_sites": 127
+  },
+  {
+   "region_code": "GC1628",
+   "region_name": "Flood region 3, drainage area only, SIR 2015-5055 (NSS GC1628)",
+   "aep": 0.002,
+   "intercept": 3.413299764081252,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.05,
+     "maximum": 2809.05
+    }
+   ],
+   "coefficients": [
+    0.438
+   ],
+   "citation": {
+    "publication": "Eash, D.A., 2015, Comparisons of estimates of annual exceedance-probability discharges for small drainage basins in Iowa, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2015-5055, 37 p.",
+    "table": "Table 7; range from Table 12 of SIR 2013-5086",
+    "year": 2015,
+    "url": "https://pubs.usgs.gov/publication/sir20155055"
+   },
+   "sep_log": 0.179649,
+   "avp": 0.032,
+   "n_sites": 127
+  }
+ ],
+ "region_preference": {
+  "tiers": [
+   [
+    "GC1561",
+    "GC1562",
+    "GC1563"
+   ],
+   [
+    "GC1564",
+    "GC1627",
+    "GC1628"
+   ]
+  ],
+  "basis": "full sets (SIR 2013-5086) where the basin has their characteristics, else drainage-area-only (SIR 2015-5055); a flowfreq method choice, not a published rule"
+ }
+}
