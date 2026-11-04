@@ -27,6 +27,7 @@ five that have no equations, and more real sites that get an estimate without `r
   TN and TX had wrong coefficients, limits, errors or citations. The report's values are stored.
 - **Live checks:** full smoke run at 56/56 gaged and 48/56 ungaged, the same eight known gaps. FL, MI and
   NE verified sets could not run live, having no stream grid.
+
 ### Changed
 - **`estimate_at_site` resolves more overlapping sets without `region=`.** `region=` still overrides all of this, and a set not used is listed in `alternative_regions`.
   - A new `RegionLimit` drops a set where its stated limits exclude the basin: the GA, NC and SC small rural sets above 1 mi2; AL's small-stream set above the report's 5 mi2, and its urban set under 20 percent developed or outside 1-43 mi2; MO's urban set under 5 percent impervious or outside 0.28-189 mi2; TN's urban sets outside their limits; OK's NRCS-regulated sets where `DAUNREG` equals `CONTDA`, where both sets give the same flow. A basin the limits do not exclude still needs `region=`, so an urban or regulated basin is not silently given the rural set. MO's 5 percent is read from the report's "about 5 percent or less".
