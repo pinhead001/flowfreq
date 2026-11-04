@@ -1243,6 +1243,71 @@ class TestRegionGates:
         ):
             assemble(load_state("OR"), self.OREGON_REGIONS, chars, **KW)
 
+    #: What NSS answers for a western interior basin: Region 1's polygon covers the interior
+    #: too, so all three are located at 100 % (live 2026-11-03, among them 14178000, 14189000,
+    #: 14193000, 14316700, 14321000, 14377100).
+    OREGON_INTERIOR = [
+        RegressionRegionLocation(0, "GC729", "1", 100.0, 50.0),
+        *OREGON_REGIONS,
+    ]
+    OREGON_REGION1 = {"DRNAREA": 50.0, "I24H2Y": 3.0, "JANMAXT2K": 42.0}
+    OREGON_REGION1.update(WATCAPORC=0.2, SOILPERM=2.0)
+
+    @pytest.mark.parametrize(
+        "elev,code,lib_code", [(1000.0, "GC731", "2B"), (4134.0, "GC730", "2A")]
+    )
+    def test_oregon_interior_basin_is_not_region_1(self, elev, code, lib_code):
+        """ORREG2 is NSS's Region 1 selector: anything but 729 leaves the ELEV gates to decide."""
+        from flowfreq.regression.library import load_state
+        from flowfreq.regression.oregon import estimate_region2
+
+        chars = {**self.OREGON, **self.OREGON_REGION1, "ELEV": elev, "ORREG2": 10001.0}
+        a = assemble(load_state("OR"), self.OREGON_INTERIOR, chars, **{**KW, "aeps": [0.01]})
+        assert [r.code for r in a.used] == [code]
+        assert a.region_choice_source.startswith("region gate: ELEV")
+        blend = estimate_region2(0.01, chars, mean_elevation=elev)
+        assert blend.weights[lib_code] == 1.0
+        assert a.quantiles["flow_cfs"].iloc[0] == pytest.approx(blend.flow_cfs, rel=1e-9)
+
+    def test_oregon_interior_transition_zone_names_the_blend(self):
+        """Live: Illinois River near Kerby, 14377100, mean elevation 2,891 ft."""
+        from flowfreq.regression.library import load_state
+
+        chars = {**self.OREGON, **self.OREGON_REGION1, "ELEV": 2891.0, "ORREG2": 10001.0}
+        with pytest.raises(
+            OverlappingRegionsError, match="no region gate admits.*estimate_region2"
+        ):
+            assemble(load_state("OR"), self.OREGON_INTERIOR, chars, **KW)
+
+    def test_oregon_unknown_orreg2_stays_the_callers(self):
+        from flowfreq.regression.library import load_state
+
+        chars = {**self.OREGON, **self.OREGON_REGION1, "ELEV": 4134.0}
+        with pytest.raises(OverlappingRegionsError, match="GC729"):
+            assemble(load_state("OR"), self.OREGON_INTERIOR, chars, **KW)
+
+    def test_oregon_boundary_basin_stays_the_callers(self):
+        """Live: Nehalem River near Foss, 14301000, ORREG2 10003, 61 % in the interior
+        polygons. A gate must not pick a side for a basin that crosses the boundary."""
+        from flowfreq.regression.library import load_state
+
+        chars = {**self.OREGON, **self.OREGON_REGION1, "ELEV": 1178.0, "ORREG2": 10003.0}
+        regions = [
+            RegressionRegionLocation(0, "GC729", "1", 100.0, 50.0),
+            RegressionRegionLocation(0, "GC730", "2A", 61.0, 30.5),
+            RegressionRegionLocation(0, "GC731", "2B", 61.0, 30.5),
+        ]
+        with pytest.raises(OverlappingRegionsError, match="GC729"):
+            assemble(load_state("OR"), regions, chars, **KW)
+
+    def test_oregon_orreg2_729_admits_region_1(self):
+        from flowfreq.regression.library import load_state
+
+        gate = load_state("OR").region_gates["1"]
+        assert gate.variable == "ORREG2"
+        assert gate.admits(729.0)
+        assert not gate.admits(10001.0) and not gate.admits(10003.0) and not gate.admits(730.0)
+
 
 def test_region_gate_rules():
     gate = RegionGate("ELEV", minimum=7500.0, units="ft")

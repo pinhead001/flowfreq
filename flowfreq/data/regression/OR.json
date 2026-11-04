@@ -45,6 +45,12 @@
     }
   ],
   "region_gates": {
+    "1": {
+      "variable": "ORREG2",
+      "minimum": 729.0,
+      "maximum": 730.0,
+      "source": "NSS's selector for Region 1 (GC729): it returns an estimate for GC729 only with ORREG2 = 729, and StreamStats computes ORREG2. NSS's Region 1 polygon also covers the western interior, so an interior basin is located in GC729, GC730 and GC731 at 100 % each; there StreamStats gives ORREG2 = 10001 (live 2026-11-03, nine gages). A basin crossing the coast/interior boundary gives 10003 (Nehalem River near Foss, 14301000) and stays the caller's choice, since a gate needs its region to cover the whole basin."
+    },
     "2A": {
       "variable": "ELEV",
       "minimum": 3125.0,

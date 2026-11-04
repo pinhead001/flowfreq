@@ -16,10 +16,12 @@ Oregon regression update plan, tasks 2-5
   - East: 67-85 %, against OWRD's 41-75 %.
 - **What the set offers.** Bulletin 17C station statistics (EMA/MGBT, PNW regional
   skew, peaks through WY2025), and inputs that can all be computed today.
-- **Why that matters.** Oregon StreamStats was re-checked on 2026-10-12 and
-  2026-10-13 and still does not compute the current western equations' I24H2Y,
-  JANMAXT2K, WATCAPORC or SOILPERM. So `OR.json` regions 1, 2A and 2B cannot
-  currently be evaluated through StreamStats.
+- **Why that mattered.** On 2026-10-12 and 2026-10-13 Oregon StreamStats did not
+  compute the current western equations' I24H2Y, JANMAXT2K, WATCAPORC or SOILPERM, so
+  `OR.json` regions 1, 2A and 2B could not be evaluated through it. **That is over:** on
+  2026-11-03 it returned all 46 characteristics at each of five gages checked, with
+  every variable `OR.json` uses, and `estimate_at_site` resolves the regions from
+  coordinates alone (`OR.json` `region_gates`).
 - **A soil-permeability variable helps a little, not enough.** The largest negative
   residuals are spring-fed High Cascades basins:
   - Waldo Lake outlet;
