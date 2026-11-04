@@ -1,0 +1,1438 @@
+{
+ "schema_version": 1,
+ "state": "OK",
+ "status": "verified",
+ "issue": null,
+ "source_reports": [
+  {
+   "citation": "Lewis, J.M., Hunter, S.L., and Labriola, L.G., 2019, Methods for estimating the magnitude and frequency of peak streamflows for unregulated streams in Oklahoma developed by using streamflow data through 2017 (ver. 1.1, March 2020): U.S. Geological Survey Scientific Investigations Report 2019-5143, 39 p.",
+   "doi": "10.3133/sir20195143",
+   "url": "https://pubs.usgs.gov/publication/sir20195143",
+   "pdf": "https://pubs.usgs.gov/sir/2019/5143/sir20195143_v1.1.pdf",
+   "tables": [
+    "Equations 4-17, 28-41",
+    "Table 1",
+    "Table 4",
+    "Table 5"
+   ],
+   "nss": {
+    "regression_regions": [
+     "GC1487",
+     "GC1488",
+     "GC1791",
+     "GC1792"
+    ],
+    "citation_id": 116,
+    "last_year_of_data": 2017
+   }
+  },
+  {
+   "citation": "Smith, S.J., Lewis, J.M., and Graves, G.M., 2015, Methods for estimating the magnitude and frequency of peak streamflows at ungaged sites in and near the Oklahoma Panhandle: U.S. Geological Survey Scientific Investigations Report 2015-5134, 35 p.",
+   "doi": "10.3133/sir20155134",
+   "url": "https://pubs.usgs.gov/publication/sir20155134",
+   "pdf": "https://pubs.usgs.gov/sir/2015/5134/sir20155134.pdf",
+   "tables": [
+    "Equations 3-9",
+    "Table 1",
+    "Table 4"
+   ],
+   "nss": {
+    "regression_regions": [
+     "GC1629",
+     "GC1749"
+    ],
+    "citation_id": 115,
+    "last_year_of_data": 2014
+   }
+  }
+ ],
+ "notes": "Two reports, six regions, 42 equations, all six current. Lewis, Hunter and Labriola, SIR 2019-5143 ver. 1.1 (March 2020, which added the Region 2 regulated equations 35-41 and changed nothing else in the equations): Regions 1 (western) and 2 (eastern) at 7 AEPs, equations 4-17, and their versions regulated by NRCS floodwater-retarding structures, equations 28-41, which repeat the same constants and exponents with DAUNREG for CONTDA. It supersedes Lewis (2010, SIR 2010-5137), which NSS does not serve, and leaves the Panhandle to Smith, Lewis and Graves, SIR 2015-5134: equations 3-9, CONTDA only, for the irrigated period 1978-2014. The Panhandle regulated region (NSS GC1749) is not printed as equations. SIR 2015-5134 refers floodwater-retarding sites to the procedure of Lewis (2010), which substitutes DAUNREG for CONTDA in the unregulated equations; this file does what NSS does and applies that to equations 3-9. All the regulated sets apply only where NRCS structures regulate no more than 86 percent of the basin, a limit the schema has no characteristic to check. Error statistics: sep_log is the printed Sp (percent) converted as sqrt(ln(1 + (Sp/100)^2)) / ln(10); model_error_variance is the printed standard model error (percent) converted the same way and squared. Neither report prints a covariance, so intervals use sep_log. equivalent_years is from SIR 2019-5143 Table 4; SIR 2015-5134 prints none. n_sites is 32 for the Panhandle, as printed. SIR 2019-5143 prints no count by region, so 56 and 153 are Table 1's 57 and 155 gages less the three the report removed (07325860 in Region 1; 07332600 and 07311200 in Region 2). Ranges are as printed, and the 2019 report prints one list for both regions, which SIR 2019-5143 carries over from Lewis (2010): CONTDA 0.100-2,510, PRECIP 16.6-62.1, CSL10_85fm 1.98-342, the regulated sets taking the same limits for DAUNREG. Table 1's own gages run CONTDA 0.08-2,515.63, PRECIP 22.0-62.1 and slope 1.98-182.11 (Region 1 PRECIP 22.0-36.0, Region 2 PRECIP 32.6-62.1), so a basin can be in range here and outside the data. SIR 2015-5134 prints a maximum of about 2,060 mi2 and no minimum, so the minimum is Table 1's lowest gage, 1.21 mi2, where NSS has 1.0. That minimum, and NSS rounding the Panhandle's Sp to one decimal (147.8 for 147.82), are the only differences from NSS. Inconsistencies inside SIR 2019-5143, none changing a stored value. Figure 4, the WREG output for Region 2 at 10 percent, shows Sp 33.89, pseudo R2 94.67, standard model error 32.97 and slope exponent 0.465, where Table 4 has 35.03, 94.18 and 33.79 and equation 13 has 0.46; Table 4 is stored, because the text's ranges quote it, NSS serves it and the figure matches no row of the table. Table 4's standard model error and equivalent years are identical in both regions at 2, 1 and 0.2 percent (35.93, 38.65, 49.32), although Sp differs; the report gives no way to test this, and model_error_variance sets no interval here. The first ungaged-site example states a slope of 42.0 ft/mi but its 19,300 ft3/s comes from the gage's 54.87; the stated slope gives 16,900. Table 5's weighted flow at 10 percent is printed as 20,000 where equation 18 gives 19,900 from its own row. Table 1's PRECIP at sites 22, 29, 30, 34 and 48 differs from the data release's Table1.txt; that release's version history (ver. 1.1, September 2020) records correcting those five gages' PRECIP in its shapefile. The fixture has the report's values. Checks. SIR 2019-5143 prints no per-gage regression estimates. Table 5's seven flows reproduce to within one unit of the printed third figure (9,676 for 9,670 and 27,653 for 27,600 are the two that do not round exactly), as do the urban and regulated examples (10,350 and 1,829 for 10,300 and 1,830; 16,000 for the Uncle Johns Creek example). Against Table 1's at-site flows the mean log residual is within 0.012 in Region 2 and between 0.003 and 0.033 in Region 1. SIR 2015-5134 prints no worked example, but Table 1 prints all 224 regression estimates at its 32 gages, 211 of which round to the printed three figures; the other 13 sit on a rounding boundary, at most 0.58 of a unit of the third figure away (0.45 percent at most), and the average row reproduces. Its RMSE row (3,170 to 92,000 ft3/s) is not reproduced: the root mean square of its columns' differences is 1,160 to 21,100 ft3/s, and the printed row is within 1 percent of the root of the summed squared estimates. It is not stored. Not stored, as not equations of this kind: the urban adjustment (equations 21-27, with a factor read from figure 5), the gaged-site weighting and transfer (equations 18-20), and the methods cited for basins of 2,510 mi2 or more.",
+ "equations": [
+  {
+   "region_code": "Region 1",
+   "region_name": "Region 1, western Oklahoma, unregulated (NSS GC1487)",
+   "aep": 0.5,
+   "intercept": 0.07918124604762482,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 2510.0
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 16.6,
+     "maximum": 62.1
+    }
+   ],
+   "coefficients": [
+    0.54,
+    1.44
+   ],
+   "citation": {
+    "publication": "Lewis, J.M., Hunter, S.L., and Labriola, L.G., 2019, Methods for estimating the magnitude and frequency of peak streamflows for unregulated streams in Oklahoma developed by using streamflow data through 2017 (ver. 1.1, March 2020): U.S. Geological Survey Scientific Investigations Report 2019-5143, 39 p.",
+    "table": "Equations 4-10 and Table 4",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195143"
+   },
+   "sep_log": 0.178846,
+   "model_error_variance": 0.030507,
+   "n_sites": 56,
+   "equivalent_years": 2.0
+  },
+  {
+   "region_code": "Region 1",
+   "region_name": "Region 1, western Oklahoma, unregulated (NSS GC1487)",
+   "aep": 0.2,
+   "intercept": 0.2600713879850748,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 2510.0
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 16.6,
+     "maximum": 62.1
+    }
+   ],
+   "coefficients": [
+    0.56,
+    1.55
+   ],
+   "citation": {
+    "publication": "Lewis, J.M., Hunter, S.L., and Labriola, L.G., 2019, Methods for estimating the magnitude and frequency of peak streamflows for unregulated streams in Oklahoma developed by using streamflow data through 2017 (ver. 1.1, March 2020): U.S. Geological Survey Scientific Investigations Report 2019-5143, 39 p.",
+    "table": "Equations 4-10 and Table 4",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195143"
+   },
+   "sep_log": 0.144001,
+   "model_error_variance": 0.019463,
+   "n_sites": 56,
+   "equivalent_years": 5.0
+  },
+  {
+   "region_code": "Region 1",
+   "region_name": "Region 1, western Oklahoma, unregulated (NSS GC1487)",
+   "aep": 0.1,
+   "intercept": 0.2600713879850748,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 2510.0
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 16.6,
+     "maximum": 62.1
+    }
+   ],
+   "coefficients": [
+    0.55,
+    1.68
+   ],
+   "citation": {
+    "publication": "Lewis, J.M., Hunter, S.L., and Labriola, L.G., 2019, Methods for estimating the magnitude and frequency of peak streamflows for unregulated streams in Oklahoma developed by using streamflow data through 2017 (ver. 1.1, March 2020): U.S. Geological Survey Scientific Investigations Report 2019-5143, 39 p.",
+    "table": "Equations 4-10 and Table 4",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195143"
+   },
+   "sep_log": 0.137698,
+   "model_error_variance": 0.017607,
+   "n_sites": 56,
+   "equivalent_years": 8.0
+  },
+  {
+   "region_code": "Region 1",
+   "region_name": "Region 1, western Oklahoma, unregulated (NSS GC1487)",
+   "aep": 0.04,
+   "intercept": 0.2787536009528289,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 2510.0
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 16.6,
+     "maximum": 62.1
+    }
+   ],
+   "coefficients": [
+    0.54,
+    1.81
+   ],
+   "citation": {
+    "publication": "Lewis, J.M., Hunter, S.L., and Labriola, L.G., 2019, Methods for estimating the magnitude and frequency of peak streamflows for unregulated streams in Oklahoma developed by using streamflow data through 2017 (ver. 1.1, March 2020): U.S. Geological Survey Scientific Investigations Report 2019-5143, 39 p.",
+    "table": "Equations 4-10 and Table 4",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195143"
+   },
+   "sep_log": 0.172504,
+   "model_error_variance": 0.027424,
+   "n_sites": 56,
+   "equivalent_years": 9.0
+  },
+  {
+   "region_code": "Region 1",
+   "region_name": "Region 1, western Oklahoma, unregulated (NSS GC1487)",
+   "aep": 0.02,
+   "intercept": 0.28330122870354957,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 2510.0
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 16.6,
+     "maximum": 62.1
+    }
+   ],
+   "coefficients": [
+    0.54,
+    1.91
+   ],
+   "citation": {
+    "publication": "Lewis, J.M., Hunter, S.L., and Labriola, L.G., 2019, Methods for estimating the magnitude and frequency of peak streamflows for unregulated streams in Oklahoma developed by using streamflow data through 2017 (ver. 1.1, March 2020): U.S. Geological Survey Scientific Investigations Report 2019-5143, 39 p.",
+    "table": "Equations 4-10 and Table 4",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195143"
+   },
+   "sep_log": 0.157455,
+   "model_error_variance": 0.022901,
+   "n_sites": 56,
+   "equivalent_years": 11.0
+  },
+  {
+   "region_code": "Region 1",
+   "region_name": "Region 1, western Oklahoma, unregulated (NSS GC1487)",
+   "aep": 0.01,
+   "intercept": 0.290034611362518,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 2510.0
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 16.6,
+     "maximum": 62.1
+    }
+   ],
+   "coefficients": [
+    0.53,
+    1.98
+   ],
+   "citation": {
+    "publication": "Lewis, J.M., Hunter, S.L., and Labriola, L.G., 2019, Methods for estimating the magnitude and frequency of peak streamflows for unregulated streams in Oklahoma developed by using streamflow data through 2017 (ver. 1.1, March 2020): U.S. Geological Survey Scientific Investigations Report 2019-5143, 39 p.",
+    "table": "Equations 4-10 and Table 4",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195143"
+   },
+   "sep_log": 0.168634,
+   "model_error_variance": 0.02626,
+   "n_sites": 56,
+   "equivalent_years": 12.0
+  },
+  {
+   "region_code": "Region 1",
+   "region_name": "Region 1, western Oklahoma, unregulated (NSS GC1487)",
+   "aep": 0.002,
+   "intercept": 0.32014628611105395,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 2510.0
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 16.6,
+     "maximum": 62.1
+    }
+   ],
+   "coefficients": [
+    0.51,
+    2.13
+   ],
+   "citation": {
+    "publication": "Lewis, J.M., Hunter, S.L., and Labriola, L.G., 2019, Methods for estimating the magnitude and frequency of peak streamflows for unregulated streams in Oklahoma developed by using streamflow data through 2017 (ver. 1.1, March 2020): U.S. Geological Survey Scientific Investigations Report 2019-5143, 39 p.",
+    "table": "Equations 4-10 and Table 4",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195143"
+   },
+   "sep_log": 0.20955,
+   "model_error_variance": 0.041066,
+   "n_sites": 56,
+   "equivalent_years": 12.0
+  },
+  {
+   "region_code": "Region 1 NRCS",
+   "region_name": "Region 1, regulated by NRCS floodwater-retarding structures (NSS GC1488)",
+   "aep": 0.5,
+   "intercept": 0.07918124604762482,
+   "variables": [
+    {
+     "code": "DAUNREG",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 2510.0
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 16.6,
+     "maximum": 62.1
+    }
+   ],
+   "coefficients": [
+    0.54,
+    1.44
+   ],
+   "citation": {
+    "publication": "Lewis, J.M., Hunter, S.L., and Labriola, L.G., 2019, Methods for estimating the magnitude and frequency of peak streamflows for unregulated streams in Oklahoma developed by using streamflow data through 2017 (ver. 1.1, March 2020): U.S. Geological Survey Scientific Investigations Report 2019-5143, 39 p.",
+    "table": "Equations 28-34 and Table 4",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195143"
+   },
+   "sep_log": 0.178846,
+   "model_error_variance": 0.030507,
+   "n_sites": 56,
+   "equivalent_years": 2.0
+  },
+  {
+   "region_code": "Region 1 NRCS",
+   "region_name": "Region 1, regulated by NRCS floodwater-retarding structures (NSS GC1488)",
+   "aep": 0.2,
+   "intercept": 0.2600713879850748,
+   "variables": [
+    {
+     "code": "DAUNREG",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 2510.0
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 16.6,
+     "maximum": 62.1
+    }
+   ],
+   "coefficients": [
+    0.56,
+    1.55
+   ],
+   "citation": {
+    "publication": "Lewis, J.M., Hunter, S.L., and Labriola, L.G., 2019, Methods for estimating the magnitude and frequency of peak streamflows for unregulated streams in Oklahoma developed by using streamflow data through 2017 (ver. 1.1, March 2020): U.S. Geological Survey Scientific Investigations Report 2019-5143, 39 p.",
+    "table": "Equations 28-34 and Table 4",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195143"
+   },
+   "sep_log": 0.144001,
+   "model_error_variance": 0.019463,
+   "n_sites": 56,
+   "equivalent_years": 5.0
+  },
+  {
+   "region_code": "Region 1 NRCS",
+   "region_name": "Region 1, regulated by NRCS floodwater-retarding structures (NSS GC1488)",
+   "aep": 0.1,
+   "intercept": 0.2600713879850748,
+   "variables": [
+    {
+     "code": "DAUNREG",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 2510.0
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 16.6,
+     "maximum": 62.1
+    }
+   ],
+   "coefficients": [
+    0.55,
+    1.68
+   ],
+   "citation": {
+    "publication": "Lewis, J.M., Hunter, S.L., and Labriola, L.G., 2019, Methods for estimating the magnitude and frequency of peak streamflows for unregulated streams in Oklahoma developed by using streamflow data through 2017 (ver. 1.1, March 2020): U.S. Geological Survey Scientific Investigations Report 2019-5143, 39 p.",
+    "table": "Equations 28-34 and Table 4",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195143"
+   },
+   "sep_log": 0.137698,
+   "model_error_variance": 0.017607,
+   "n_sites": 56,
+   "equivalent_years": 8.0
+  },
+  {
+   "region_code": "Region 1 NRCS",
+   "region_name": "Region 1, regulated by NRCS floodwater-retarding structures (NSS GC1488)",
+   "aep": 0.04,
+   "intercept": 0.2787536009528289,
+   "variables": [
+    {
+     "code": "DAUNREG",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 2510.0
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 16.6,
+     "maximum": 62.1
+    }
+   ],
+   "coefficients": [
+    0.54,
+    1.81
+   ],
+   "citation": {
+    "publication": "Lewis, J.M., Hunter, S.L., and Labriola, L.G., 2019, Methods for estimating the magnitude and frequency of peak streamflows for unregulated streams in Oklahoma developed by using streamflow data through 2017 (ver. 1.1, March 2020): U.S. Geological Survey Scientific Investigations Report 2019-5143, 39 p.",
+    "table": "Equations 28-34 and Table 4",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195143"
+   },
+   "sep_log": 0.172504,
+   "model_error_variance": 0.027424,
+   "n_sites": 56,
+   "equivalent_years": 9.0
+  },
+  {
+   "region_code": "Region 1 NRCS",
+   "region_name": "Region 1, regulated by NRCS floodwater-retarding structures (NSS GC1488)",
+   "aep": 0.02,
+   "intercept": 0.28330122870354957,
+   "variables": [
+    {
+     "code": "DAUNREG",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 2510.0
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 16.6,
+     "maximum": 62.1
+    }
+   ],
+   "coefficients": [
+    0.54,
+    1.91
+   ],
+   "citation": {
+    "publication": "Lewis, J.M., Hunter, S.L., and Labriola, L.G., 2019, Methods for estimating the magnitude and frequency of peak streamflows for unregulated streams in Oklahoma developed by using streamflow data through 2017 (ver. 1.1, March 2020): U.S. Geological Survey Scientific Investigations Report 2019-5143, 39 p.",
+    "table": "Equations 28-34 and Table 4",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195143"
+   },
+   "sep_log": 0.157455,
+   "model_error_variance": 0.022901,
+   "n_sites": 56,
+   "equivalent_years": 11.0
+  },
+  {
+   "region_code": "Region 1 NRCS",
+   "region_name": "Region 1, regulated by NRCS floodwater-retarding structures (NSS GC1488)",
+   "aep": 0.01,
+   "intercept": 0.290034611362518,
+   "variables": [
+    {
+     "code": "DAUNREG",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 2510.0
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 16.6,
+     "maximum": 62.1
+    }
+   ],
+   "coefficients": [
+    0.53,
+    1.98
+   ],
+   "citation": {
+    "publication": "Lewis, J.M., Hunter, S.L., and Labriola, L.G., 2019, Methods for estimating the magnitude and frequency of peak streamflows for unregulated streams in Oklahoma developed by using streamflow data through 2017 (ver. 1.1, March 2020): U.S. Geological Survey Scientific Investigations Report 2019-5143, 39 p.",
+    "table": "Equations 28-34 and Table 4",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195143"
+   },
+   "sep_log": 0.168634,
+   "model_error_variance": 0.02626,
+   "n_sites": 56,
+   "equivalent_years": 12.0
+  },
+  {
+   "region_code": "Region 1 NRCS",
+   "region_name": "Region 1, regulated by NRCS floodwater-retarding structures (NSS GC1488)",
+   "aep": 0.002,
+   "intercept": 0.32014628611105395,
+   "variables": [
+    {
+     "code": "DAUNREG",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 2510.0
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 16.6,
+     "maximum": 62.1
+    }
+   ],
+   "coefficients": [
+    0.51,
+    2.13
+   ],
+   "citation": {
+    "publication": "Lewis, J.M., Hunter, S.L., and Labriola, L.G., 2019, Methods for estimating the magnitude and frequency of peak streamflows for unregulated streams in Oklahoma developed by using streamflow data through 2017 (ver. 1.1, March 2020): U.S. Geological Survey Scientific Investigations Report 2019-5143, 39 p.",
+    "table": "Equations 28-34 and Table 4",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195143"
+   },
+   "sep_log": 0.20955,
+   "model_error_variance": 0.041066,
+   "n_sites": 56,
+   "equivalent_years": 12.0
+  },
+  {
+   "region_code": "Region 2",
+   "region_name": "Region 2, eastern Oklahoma, unregulated (NSS GC1791)",
+   "aep": 0.5,
+   "intercept": 1.7895807121644254,
+   "variables": [
+    {
+     "code": "CSL10_85fm",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.98,
+     "maximum": 342.0
+    },
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 2510.0
+    }
+   ],
+   "coefficients": [
+    0.4,
+    0.75
+   ],
+   "citation": {
+    "publication": "Lewis, J.M., Hunter, S.L., and Labriola, L.G., 2019, Methods for estimating the magnitude and frequency of peak streamflows for unregulated streams in Oklahoma developed by using streamflow data through 2017 (ver. 1.1, March 2020): U.S. Geological Survey Scientific Investigations Report 2019-5143, 39 p.",
+    "table": "Equations 11-17 and Table 4",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195143"
+   },
+   "sep_log": 0.193573,
+   "model_error_variance": 0.036231,
+   "n_sites": 153,
+   "equivalent_years": 2.0
+  },
+  {
+   "region_code": "Region 2",
+   "region_name": "Region 2, eastern Oklahoma, unregulated (NSS GC1791)",
+   "aep": 0.2,
+   "intercept": 1.989894563718773,
+   "variables": [
+    {
+     "code": "CSL10_85fm",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.98,
+     "maximum": 342.0
+    },
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 2510.0
+    }
+   ],
+   "coefficients": [
+    0.44,
+    0.77
+   ],
+   "citation": {
+    "publication": "Lewis, J.M., Hunter, S.L., and Labriola, L.G., 2019, Methods for estimating the magnitude and frequency of peak streamflows for unregulated streams in Oklahoma developed by using streamflow data through 2017 (ver. 1.1, March 2020): U.S. Geological Survey Scientific Investigations Report 2019-5143, 39 p.",
+    "table": "Equations 11-17 and Table 4",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195143"
+   },
+   "sep_log": 0.152519,
+   "model_error_variance": 0.022245,
+   "n_sites": 153,
+   "equivalent_years": 5.0
+  },
+  {
+   "region_code": "Region 2",
+   "region_name": "Region 2, eastern Oklahoma, unregulated (NSS GC1791)",
+   "aep": 0.1,
+   "intercept": 2.100370545117563,
+   "variables": [
+    {
+     "code": "CSL10_85fm",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.98,
+     "maximum": 342.0
+    },
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 2510.0
+    }
+   ],
+   "coefficients": [
+    0.46,
+    0.78
+   ],
+   "citation": {
+    "publication": "Lewis, J.M., Hunter, S.L., and Labriola, L.G., 2019, Methods for estimating the magnitude and frequency of peak streamflows for unregulated streams in Oklahoma developed by using streamflow data through 2017 (ver. 1.1, March 2020): U.S. Geological Survey Scientific Investigations Report 2019-5143, 39 p.",
+    "table": "Equations 11-17 and Table 4",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195143"
+   },
+   "sep_log": 0.147753,
+   "model_error_variance": 0.020392,
+   "n_sites": 153,
+   "equivalent_years": 8.0
+  },
+  {
+   "region_code": "Region 2",
+   "region_name": "Region 2, eastern Oklahoma, unregulated (NSS GC1791)",
+   "aep": 0.04,
+   "intercept": 2.2405492482826,
+   "variables": [
+    {
+     "code": "CSL10_85fm",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.98,
+     "maximum": 342.0
+    },
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 2510.0
+    }
+   ],
+   "coefficients": [
+    0.47,
+    0.78
+   ],
+   "citation": {
+    "publication": "Lewis, J.M., Hunter, S.L., and Labriola, L.G., 2019, Methods for estimating the magnitude and frequency of peak streamflows for unregulated streams in Oklahoma developed by using streamflow data through 2017 (ver. 1.1, March 2020): U.S. Geological Survey Scientific Investigations Report 2019-5143, 39 p.",
+    "table": "Equations 11-17 and Table 4",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195143"
+   },
+   "sep_log": 0.166847,
+   "model_error_variance": 0.026476,
+   "n_sites": 153,
+   "equivalent_years": 9.0
+  },
+  {
+   "region_code": "Region 2",
+   "region_name": "Region 2, eastern Oklahoma, unregulated (NSS GC1791)",
+   "aep": 0.02,
+   "intercept": 2.3096301674258988,
+   "variables": [
+    {
+     "code": "CSL10_85fm",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.98,
+     "maximum": 342.0
+    },
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 2510.0
+    }
+   ],
+   "coefficients": [
+    0.5,
+    0.79
+   ],
+   "citation": {
+    "publication": "Lewis, J.M., Hunter, S.L., and Labriola, L.G., 2019, Methods for estimating the magnitude and frequency of peak streamflows for unregulated streams in Oklahoma developed by using streamflow data through 2017 (ver. 1.1, March 2020): U.S. Geological Survey Scientific Investigations Report 2019-5143, 39 p.",
+    "table": "Equations 11-17 and Table 4",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195143"
+   },
+   "sep_log": 0.155839,
+   "model_error_variance": 0.022901,
+   "n_sites": 153,
+   "equivalent_years": 11.0
+  },
+  {
+   "region_code": "Region 2",
+   "region_name": "Region 2, eastern Oklahoma, unregulated (NSS GC1791)",
+   "aep": 0.01,
+   "intercept": 2.380211241711606,
+   "variables": [
+    {
+     "code": "CSL10_85fm",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.98,
+     "maximum": 342.0
+    },
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 2510.0
+    }
+   ],
+   "coefficients": [
+    0.5,
+    0.79
+   ],
+   "citation": {
+    "publication": "Lewis, J.M., Hunter, S.L., and Labriola, L.G., 2019, Methods for estimating the magnitude and frequency of peak streamflows for unregulated streams in Oklahoma developed by using streamflow data through 2017 (ver. 1.1, March 2020): U.S. Geological Survey Scientific Investigations Report 2019-5143, 39 p.",
+    "table": "Equations 11-17 and Table 4",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195143"
+   },
+   "sep_log": 0.166925,
+   "model_error_variance": 0.02626,
+   "n_sites": 153,
+   "equivalent_years": 12.0
+  },
+  {
+   "region_code": "Region 2",
+   "region_name": "Region 2, eastern Oklahoma, unregulated (NSS GC1791)",
+   "aep": 0.002,
+   "intercept": 2.5599066250361124,
+   "variables": [
+    {
+     "code": "CSL10_85fm",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.98,
+     "maximum": 342.0
+    },
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 2510.0
+    }
+   ],
+   "coefficients": [
+    0.51,
+    0.8
+   ],
+   "citation": {
+    "publication": "Lewis, J.M., Hunter, S.L., and Labriola, L.G., 2019, Methods for estimating the magnitude and frequency of peak streamflows for unregulated streams in Oklahoma developed by using streamflow data through 2017 (ver. 1.1, March 2020): U.S. Geological Survey Scientific Investigations Report 2019-5143, 39 p.",
+    "table": "Equations 11-17 and Table 4",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195143"
+   },
+   "sep_log": 0.207721,
+   "model_error_variance": 0.041066,
+   "n_sites": 153,
+   "equivalent_years": 12.0
+  },
+  {
+   "region_code": "Region 2 NRCS",
+   "region_name": "Region 2, regulated by NRCS floodwater-retarding structures (NSS GC1792)",
+   "aep": 0.5,
+   "intercept": 1.7895807121644254,
+   "variables": [
+    {
+     "code": "CSL10_85fm",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.98,
+     "maximum": 342.0
+    },
+    {
+     "code": "DAUNREG",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 2510.0
+    }
+   ],
+   "coefficients": [
+    0.4,
+    0.75
+   ],
+   "citation": {
+    "publication": "Lewis, J.M., Hunter, S.L., and Labriola, L.G., 2019, Methods for estimating the magnitude and frequency of peak streamflows for unregulated streams in Oklahoma developed by using streamflow data through 2017 (ver. 1.1, March 2020): U.S. Geological Survey Scientific Investigations Report 2019-5143, 39 p.",
+    "table": "Equations 35-41 and Table 4",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195143"
+   },
+   "sep_log": 0.193573,
+   "model_error_variance": 0.036231,
+   "n_sites": 153,
+   "equivalent_years": 2.0
+  },
+  {
+   "region_code": "Region 2 NRCS",
+   "region_name": "Region 2, regulated by NRCS floodwater-retarding structures (NSS GC1792)",
+   "aep": 0.2,
+   "intercept": 1.989894563718773,
+   "variables": [
+    {
+     "code": "CSL10_85fm",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.98,
+     "maximum": 342.0
+    },
+    {
+     "code": "DAUNREG",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 2510.0
+    }
+   ],
+   "coefficients": [
+    0.44,
+    0.77
+   ],
+   "citation": {
+    "publication": "Lewis, J.M., Hunter, S.L., and Labriola, L.G., 2019, Methods for estimating the magnitude and frequency of peak streamflows for unregulated streams in Oklahoma developed by using streamflow data through 2017 (ver. 1.1, March 2020): U.S. Geological Survey Scientific Investigations Report 2019-5143, 39 p.",
+    "table": "Equations 35-41 and Table 4",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195143"
+   },
+   "sep_log": 0.152519,
+   "model_error_variance": 0.022245,
+   "n_sites": 153,
+   "equivalent_years": 5.0
+  },
+  {
+   "region_code": "Region 2 NRCS",
+   "region_name": "Region 2, regulated by NRCS floodwater-retarding structures (NSS GC1792)",
+   "aep": 0.1,
+   "intercept": 2.100370545117563,
+   "variables": [
+    {
+     "code": "CSL10_85fm",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.98,
+     "maximum": 342.0
+    },
+    {
+     "code": "DAUNREG",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 2510.0
+    }
+   ],
+   "coefficients": [
+    0.46,
+    0.78
+   ],
+   "citation": {
+    "publication": "Lewis, J.M., Hunter, S.L., and Labriola, L.G., 2019, Methods for estimating the magnitude and frequency of peak streamflows for unregulated streams in Oklahoma developed by using streamflow data through 2017 (ver. 1.1, March 2020): U.S. Geological Survey Scientific Investigations Report 2019-5143, 39 p.",
+    "table": "Equations 35-41 and Table 4",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195143"
+   },
+   "sep_log": 0.147753,
+   "model_error_variance": 0.020392,
+   "n_sites": 153,
+   "equivalent_years": 8.0
+  },
+  {
+   "region_code": "Region 2 NRCS",
+   "region_name": "Region 2, regulated by NRCS floodwater-retarding structures (NSS GC1792)",
+   "aep": 0.04,
+   "intercept": 2.2405492482826,
+   "variables": [
+    {
+     "code": "CSL10_85fm",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.98,
+     "maximum": 342.0
+    },
+    {
+     "code": "DAUNREG",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 2510.0
+    }
+   ],
+   "coefficients": [
+    0.47,
+    0.78
+   ],
+   "citation": {
+    "publication": "Lewis, J.M., Hunter, S.L., and Labriola, L.G., 2019, Methods for estimating the magnitude and frequency of peak streamflows for unregulated streams in Oklahoma developed by using streamflow data through 2017 (ver. 1.1, March 2020): U.S. Geological Survey Scientific Investigations Report 2019-5143, 39 p.",
+    "table": "Equations 35-41 and Table 4",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195143"
+   },
+   "sep_log": 0.166847,
+   "model_error_variance": 0.026476,
+   "n_sites": 153,
+   "equivalent_years": 9.0
+  },
+  {
+   "region_code": "Region 2 NRCS",
+   "region_name": "Region 2, regulated by NRCS floodwater-retarding structures (NSS GC1792)",
+   "aep": 0.02,
+   "intercept": 2.3096301674258988,
+   "variables": [
+    {
+     "code": "CSL10_85fm",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.98,
+     "maximum": 342.0
+    },
+    {
+     "code": "DAUNREG",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 2510.0
+    }
+   ],
+   "coefficients": [
+    0.5,
+    0.79
+   ],
+   "citation": {
+    "publication": "Lewis, J.M., Hunter, S.L., and Labriola, L.G., 2019, Methods for estimating the magnitude and frequency of peak streamflows for unregulated streams in Oklahoma developed by using streamflow data through 2017 (ver. 1.1, March 2020): U.S. Geological Survey Scientific Investigations Report 2019-5143, 39 p.",
+    "table": "Equations 35-41 and Table 4",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195143"
+   },
+   "sep_log": 0.155839,
+   "model_error_variance": 0.022901,
+   "n_sites": 153,
+   "equivalent_years": 11.0
+  },
+  {
+   "region_code": "Region 2 NRCS",
+   "region_name": "Region 2, regulated by NRCS floodwater-retarding structures (NSS GC1792)",
+   "aep": 0.01,
+   "intercept": 2.380211241711606,
+   "variables": [
+    {
+     "code": "CSL10_85fm",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.98,
+     "maximum": 342.0
+    },
+    {
+     "code": "DAUNREG",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 2510.0
+    }
+   ],
+   "coefficients": [
+    0.5,
+    0.79
+   ],
+   "citation": {
+    "publication": "Lewis, J.M., Hunter, S.L., and Labriola, L.G., 2019, Methods for estimating the magnitude and frequency of peak streamflows for unregulated streams in Oklahoma developed by using streamflow data through 2017 (ver. 1.1, March 2020): U.S. Geological Survey Scientific Investigations Report 2019-5143, 39 p.",
+    "table": "Equations 35-41 and Table 4",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195143"
+   },
+   "sep_log": 0.166925,
+   "model_error_variance": 0.02626,
+   "n_sites": 153,
+   "equivalent_years": 12.0
+  },
+  {
+   "region_code": "Region 2 NRCS",
+   "region_name": "Region 2, regulated by NRCS floodwater-retarding structures (NSS GC1792)",
+   "aep": 0.002,
+   "intercept": 2.5599066250361124,
+   "variables": [
+    {
+     "code": "CSL10_85fm",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.98,
+     "maximum": 342.0
+    },
+    {
+     "code": "DAUNREG",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 2510.0
+    }
+   ],
+   "coefficients": [
+    0.51,
+    0.8
+   ],
+   "citation": {
+    "publication": "Lewis, J.M., Hunter, S.L., and Labriola, L.G., 2019, Methods for estimating the magnitude and frequency of peak streamflows for unregulated streams in Oklahoma developed by using streamflow data through 2017 (ver. 1.1, March 2020): U.S. Geological Survey Scientific Investigations Report 2019-5143, 39 p.",
+    "table": "Equations 35-41 and Table 4",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20195143"
+   },
+   "sep_log": 0.207721,
+   "model_error_variance": 0.041066,
+   "n_sites": 153,
+   "equivalent_years": 12.0
+  },
+  {
+   "region_code": "Panhandle",
+   "region_name": "Oklahoma Panhandle, unregulated (NSS GC1629)",
+   "aep": 0.5,
+   "intercept": 1.8898617212581883,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.21,
+     "maximum": 2060.0
+    }
+   ],
+   "coefficients": [
+    0.34
+   ],
+   "citation": {
+    "publication": "Smith, S.J., Lewis, J.M., and Graves, G.M., 2015, Methods for estimating the magnitude and frequency of peak streamflows at ungaged sites in and near the Oklahoma Panhandle: U.S. Geological Survey Scientific Investigations Report 2015-5134, 35 p.",
+    "table": "Equations 3-9 and Table 4",
+    "year": 2015,
+    "url": "https://doi.org/10.3133/sir20155134"
+   },
+   "sep_log": 0.467442,
+   "model_error_variance": 0.201963,
+   "n_sites": 32
+  },
+  {
+   "region_code": "Panhandle",
+   "region_name": "Oklahoma Panhandle, unregulated (NSS GC1629)",
+   "aep": 0.2,
+   "intercept": 2.3201462861110542,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.21,
+     "maximum": 2060.0
+    }
+   ],
+   "coefficients": [
+    0.35
+   ],
+   "citation": {
+    "publication": "Smith, S.J., Lewis, J.M., and Graves, G.M., 2015, Methods for estimating the magnitude and frequency of peak streamflows at ungaged sites in and near the Oklahoma Panhandle: U.S. Geological Survey Scientific Investigations Report 2015-5134, 35 p.",
+    "table": "Equations 3-9 and Table 4",
+    "year": 2015,
+    "url": "https://doi.org/10.3133/sir20155134"
+   },
+   "sep_log": 0.371832,
+   "model_error_variance": 0.126058,
+   "n_sites": 32
+  },
+  {
+   "region_code": "Panhandle",
+   "region_name": "Oklahoma Panhandle, unregulated (NSS GC1629)",
+   "aep": 0.1,
+   "intercept": 2.530199698203082,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.21,
+     "maximum": 2060.0
+    }
+   ],
+   "coefficients": [
+    0.36
+   ],
+   "citation": {
+    "publication": "Smith, S.J., Lewis, J.M., and Graves, G.M., 2015, Methods for estimating the magnitude and frequency of peak streamflows at ungaged sites in and near the Oklahoma Panhandle: U.S. Geological Survey Scientific Investigations Report 2015-5134, 35 p.",
+    "table": "Equations 3-9 and Table 4",
+    "year": 2015,
+    "url": "https://doi.org/10.3133/sir20155134"
+   },
+   "sep_log": 0.341858,
+   "model_error_variance": 0.105172,
+   "n_sites": 32
+  },
+  {
+   "region_code": "Panhandle",
+   "region_name": "Oklahoma Panhandle, unregulated (NSS GC1629)",
+   "aep": 0.04,
+   "intercept": 2.749736315569061,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.21,
+     "maximum": 2060.0
+    }
+   ],
+   "coefficients": [
+    0.36
+   ],
+   "citation": {
+    "publication": "Smith, S.J., Lewis, J.M., and Graves, G.M., 2015, Methods for estimating the magnitude and frequency of peak streamflows at ungaged sites in and near the Oklahoma Panhandle: U.S. Geological Survey Scientific Investigations Report 2015-5134, 35 p.",
+    "table": "Equations 3-9 and Table 4",
+    "year": 2015,
+    "url": "https://doi.org/10.3133/sir20155134"
+   },
+   "sep_log": 0.322457,
+   "model_error_variance": 0.091908,
+   "n_sites": 32
+  },
+  {
+   "region_code": "Panhandle",
+   "region_name": "Oklahoma Panhandle, unregulated (NSS GC1629)",
+   "aep": 0.02,
+   "intercept": 2.88024177589548,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.21,
+     "maximum": 2060.0
+    }
+   ],
+   "coefficients": [
+    0.37
+   ],
+   "citation": {
+    "publication": "Smith, S.J., Lewis, J.M., and Graves, G.M., 2015, Methods for estimating the magnitude and frequency of peak streamflows at ungaged sites in and near the Oklahoma Panhandle: U.S. Geological Survey Scientific Investigations Report 2015-5134, 35 p.",
+    "table": "Equations 3-9 and Table 4",
+    "year": 2015,
+    "url": "https://doi.org/10.3133/sir20155134"
+   },
+   "sep_log": 0.317367,
+   "model_error_variance": 0.087973,
+   "n_sites": 32
+  },
+  {
+   "region_code": "Panhandle",
+   "region_name": "Oklahoma Panhandle, unregulated (NSS GC1629)",
+   "aep": 0.01,
+   "intercept": 3.0,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.21,
+     "maximum": 2060.0
+    }
+   ],
+   "coefficients": [
+    0.38
+   ],
+   "citation": {
+    "publication": "Smith, S.J., Lewis, J.M., and Graves, G.M., 2015, Methods for estimating the magnitude and frequency of peak streamflows at ungaged sites in and near the Oklahoma Panhandle: U.S. Geological Survey Scientific Investigations Report 2015-5134, 35 p.",
+    "table": "Equations 3-9 and Table 4",
+    "year": 2015,
+    "url": "https://doi.org/10.3133/sir20155134"
+   },
+   "sep_log": 0.316517,
+   "model_error_variance": 0.086589,
+   "n_sites": 32
+  },
+  {
+   "region_code": "Panhandle",
+   "region_name": "Oklahoma Panhandle, unregulated (NSS GC1629)",
+   "aep": 0.002,
+   "intercept": 3.2095150145426308,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.21,
+     "maximum": 2060.0
+    }
+   ],
+   "coefficients": [
+    0.39
+   ],
+   "citation": {
+    "publication": "Smith, S.J., Lewis, J.M., and Graves, G.M., 2015, Methods for estimating the magnitude and frequency of peak streamflows at ungaged sites in and near the Oklahoma Panhandle: U.S. Geological Survey Scientific Investigations Report 2015-5134, 35 p.",
+    "table": "Equations 3-9 and Table 4",
+    "year": 2015,
+    "url": "https://doi.org/10.3133/sir20155134"
+   },
+   "sep_log": 0.339734,
+   "model_error_variance": 0.099997,
+   "n_sites": 32
+  },
+  {
+   "region_code": "Panhandle NRCS",
+   "region_name": "Oklahoma Panhandle, regulated by NRCS floodwater-retarding structures (NSS GC1749)",
+   "aep": 0.5,
+   "intercept": 1.8898617212581883,
+   "variables": [
+    {
+     "code": "DAUNREG",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.21,
+     "maximum": 2060.0
+    }
+   ],
+   "coefficients": [
+    0.34
+   ],
+   "citation": {
+    "publication": "Smith, S.J., Lewis, J.M., and Graves, G.M., 2015, Methods for estimating the magnitude and frequency of peak streamflows at ungaged sites in and near the Oklahoma Panhandle: U.S. Geological Survey Scientific Investigations Report 2015-5134, 35 p.",
+    "table": "Equations 3-9 and Table 4, with DAUNREG for CONTDA by the procedure of SIR 2010-5137",
+    "year": 2015,
+    "url": "https://doi.org/10.3133/sir20155134"
+   },
+   "sep_log": 0.467442,
+   "model_error_variance": 0.201963,
+   "n_sites": 32
+  },
+  {
+   "region_code": "Panhandle NRCS",
+   "region_name": "Oklahoma Panhandle, regulated by NRCS floodwater-retarding structures (NSS GC1749)",
+   "aep": 0.2,
+   "intercept": 2.3201462861110542,
+   "variables": [
+    {
+     "code": "DAUNREG",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.21,
+     "maximum": 2060.0
+    }
+   ],
+   "coefficients": [
+    0.35
+   ],
+   "citation": {
+    "publication": "Smith, S.J., Lewis, J.M., and Graves, G.M., 2015, Methods for estimating the magnitude and frequency of peak streamflows at ungaged sites in and near the Oklahoma Panhandle: U.S. Geological Survey Scientific Investigations Report 2015-5134, 35 p.",
+    "table": "Equations 3-9 and Table 4, with DAUNREG for CONTDA by the procedure of SIR 2010-5137",
+    "year": 2015,
+    "url": "https://doi.org/10.3133/sir20155134"
+   },
+   "sep_log": 0.371832,
+   "model_error_variance": 0.126058,
+   "n_sites": 32
+  },
+  {
+   "region_code": "Panhandle NRCS",
+   "region_name": "Oklahoma Panhandle, regulated by NRCS floodwater-retarding structures (NSS GC1749)",
+   "aep": 0.1,
+   "intercept": 2.530199698203082,
+   "variables": [
+    {
+     "code": "DAUNREG",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.21,
+     "maximum": 2060.0
+    }
+   ],
+   "coefficients": [
+    0.36
+   ],
+   "citation": {
+    "publication": "Smith, S.J., Lewis, J.M., and Graves, G.M., 2015, Methods for estimating the magnitude and frequency of peak streamflows at ungaged sites in and near the Oklahoma Panhandle: U.S. Geological Survey Scientific Investigations Report 2015-5134, 35 p.",
+    "table": "Equations 3-9 and Table 4, with DAUNREG for CONTDA by the procedure of SIR 2010-5137",
+    "year": 2015,
+    "url": "https://doi.org/10.3133/sir20155134"
+   },
+   "sep_log": 0.341858,
+   "model_error_variance": 0.105172,
+   "n_sites": 32
+  },
+  {
+   "region_code": "Panhandle NRCS",
+   "region_name": "Oklahoma Panhandle, regulated by NRCS floodwater-retarding structures (NSS GC1749)",
+   "aep": 0.04,
+   "intercept": 2.749736315569061,
+   "variables": [
+    {
+     "code": "DAUNREG",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.21,
+     "maximum": 2060.0
+    }
+   ],
+   "coefficients": [
+    0.36
+   ],
+   "citation": {
+    "publication": "Smith, S.J., Lewis, J.M., and Graves, G.M., 2015, Methods for estimating the magnitude and frequency of peak streamflows at ungaged sites in and near the Oklahoma Panhandle: U.S. Geological Survey Scientific Investigations Report 2015-5134, 35 p.",
+    "table": "Equations 3-9 and Table 4, with DAUNREG for CONTDA by the procedure of SIR 2010-5137",
+    "year": 2015,
+    "url": "https://doi.org/10.3133/sir20155134"
+   },
+   "sep_log": 0.322457,
+   "model_error_variance": 0.091908,
+   "n_sites": 32
+  },
+  {
+   "region_code": "Panhandle NRCS",
+   "region_name": "Oklahoma Panhandle, regulated by NRCS floodwater-retarding structures (NSS GC1749)",
+   "aep": 0.02,
+   "intercept": 2.88024177589548,
+   "variables": [
+    {
+     "code": "DAUNREG",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.21,
+     "maximum": 2060.0
+    }
+   ],
+   "coefficients": [
+    0.37
+   ],
+   "citation": {
+    "publication": "Smith, S.J., Lewis, J.M., and Graves, G.M., 2015, Methods for estimating the magnitude and frequency of peak streamflows at ungaged sites in and near the Oklahoma Panhandle: U.S. Geological Survey Scientific Investigations Report 2015-5134, 35 p.",
+    "table": "Equations 3-9 and Table 4, with DAUNREG for CONTDA by the procedure of SIR 2010-5137",
+    "year": 2015,
+    "url": "https://doi.org/10.3133/sir20155134"
+   },
+   "sep_log": 0.317367,
+   "model_error_variance": 0.087973,
+   "n_sites": 32
+  },
+  {
+   "region_code": "Panhandle NRCS",
+   "region_name": "Oklahoma Panhandle, regulated by NRCS floodwater-retarding structures (NSS GC1749)",
+   "aep": 0.01,
+   "intercept": 3.0,
+   "variables": [
+    {
+     "code": "DAUNREG",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.21,
+     "maximum": 2060.0
+    }
+   ],
+   "coefficients": [
+    0.38
+   ],
+   "citation": {
+    "publication": "Smith, S.J., Lewis, J.M., and Graves, G.M., 2015, Methods for estimating the magnitude and frequency of peak streamflows at ungaged sites in and near the Oklahoma Panhandle: U.S. Geological Survey Scientific Investigations Report 2015-5134, 35 p.",
+    "table": "Equations 3-9 and Table 4, with DAUNREG for CONTDA by the procedure of SIR 2010-5137",
+    "year": 2015,
+    "url": "https://doi.org/10.3133/sir20155134"
+   },
+   "sep_log": 0.316517,
+   "model_error_variance": 0.086589,
+   "n_sites": 32
+  },
+  {
+   "region_code": "Panhandle NRCS",
+   "region_name": "Oklahoma Panhandle, regulated by NRCS floodwater-retarding structures (NSS GC1749)",
+   "aep": 0.002,
+   "intercept": 3.2095150145426308,
+   "variables": [
+    {
+     "code": "DAUNREG",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.21,
+     "maximum": 2060.0
+    }
+   ],
+   "coefficients": [
+    0.39
+   ],
+   "citation": {
+    "publication": "Smith, S.J., Lewis, J.M., and Graves, G.M., 2015, Methods for estimating the magnitude and frequency of peak streamflows at ungaged sites in and near the Oklahoma Panhandle: U.S. Geological Survey Scientific Investigations Report 2015-5134, 35 p.",
+    "table": "Equations 3-9 and Table 4, with DAUNREG for CONTDA by the procedure of SIR 2010-5137",
+    "year": 2015,
+    "url": "https://doi.org/10.3133/sir20155134"
+   },
+   "sep_log": 0.339734,
+   "model_error_variance": 0.099997,
+   "n_sites": 32
+  }
+ ]
+}
