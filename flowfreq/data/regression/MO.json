@@ -1,0 +1,1578 @@
+{
+ "schema_version": 1,
+ "state": "MO",
+ "status": "verified",
+ "issue": null,
+ "source_reports": [
+  {
+   "citation": "Southard, R.E., and Veilleux, A.G., 2014, Methods for estimating annual exceedance-probability discharges and largest recorded floods for unregulated streams in rural Missouri: U.S. Geological Survey Scientific Investigations Report 2014-5165, 39 p.",
+   "doi": "10.3133/sir20145165",
+   "url": "https://pubs.usgs.gov/publication/sir20145165",
+   "pdf": "https://pubs.usgs.gov/sir/2014/5165/pdf/sir2014-5165.pdf",
+   "tables": [
+    "Table 4",
+    "Table 5",
+    "Table 7",
+    "Table 8",
+    "Table 9",
+    "Table 10",
+    "Table 12",
+    "Table 14"
+   ],
+   "nss": {
+    "regression_regions": [
+     "GC1483",
+     "GC1484",
+     "GC1485"
+    ],
+    "last_year_of_data": 2012
+   }
+  },
+  {
+   "citation": "Southard, R.E., 2010, Estimating the magnitude and frequency of floods in urban basins in Missouri: U.S. Geological Survey Scientific Investigations Report 2010-5073, 27 p.",
+   "url": "https://pubs.usgs.gov/sir/2010/5073/",
+   "pdf": "https://pubs.usgs.gov/sir/2010/5073/pdf/SIR2010-5073.pdf",
+   "tables": [
+    "Table 2",
+    "Table 4",
+    "Table 5",
+    "Table 7",
+    "Table 8",
+    "Table 9",
+    "Table 11"
+   ],
+   "nss": {
+    "regression_regions": [
+     "GC1486"
+    ],
+    "last_year_of_data": 2008
+   }
+  }
+ ],
+ "notes": "All four regions NSS serves are current; none is left out. Southard and Veilleux, SIR 2014-5165 (version 1.0): rural regions 1 (Central Lowlands, 131 gages), 2 (Ozark Plateaus, 135) and 3 (Mississippi Alluvial Plain, 12), at 8 AEPs, replacing Alexander and Wilson (1995). Equations, SEP in percent and AVP from Tables 7-9; ranges from Table 14; t, model error variance and the matrix (order intercept, log10 DRNAREA, log10 BSHAPE) from the Table 10 workbook. Southard, SIR 2010-5073: statewide urban set on DRNAREA and IMPNLCD01 from 35 gages at 7 AEPs (the report publishes no 0.5-percent AEP), which the 2014 rural report does not replace, since it covers basins with about 5 percent or less impervious area. Equations from Table 5; the constant is printed, so intercept = log10 of it; ranges from Table 9; model error variance and the matrix (order intercept, log10 DRNAREA, IMPNLCD01) from Table 8. The urban set overlaps the rural regions, and a caller chooses with region=. The citation for 2010-5073 is the report's own suggested citation, whose title (Estimating) differs from its cover (Estimation). Neither report has a worked example. Every coefficient and range equals NSS, and so do the SEPs, the rural ones to 5e-7 and the urban ones within 0.00015, inside Table 7's rounding. The rural equations reproduce all 278 gages of Table 4 at all 8 AEPs from Table 5's rounded inputs, within 0.7 percent, and the urban equations all 35 gages of Table 4 at all 7 AEPs, within 0.6 percent, and all 7 of Table 11. Covariance checks: MEV + xUx reproduces all 2,224 regression variances of the rural Table 12 within 0.001, and of the five other orders the next best misses region 1 by 0.0027; its mean over the gages reproduces Tables 7-9's AVP within 0.001, and the urban mean reproduces Table 7 within 0.001. Printed t: region 3's 1.782 is t(0.95, 12), where n-p is 10 and t is 1.812; flowfreq takes t from n_sites - p, so region 3 intervals use 1.812. Regions 1, 2 and Urban agree with the printed 1.66 and 1.694. SIR 2010-5073 inconsistencies, none in a stored value: Table 7's average errors labelled logarithm units are variances (0.013 is -23.1 to +30.0 percent), stored as avp, and sep_log is their root, as NSS has it; Table 9's mean impervious area of 6.5 is a misprint of 26.5 (Table 2 averages 26.47, and Table 10's sensitivities need 26.5); Table 10's -10 percent drainage-area row (-1.9) should be about -6. Not stored: Table 13's drainage-area-only exponents and constants for the area-ratio method (region 3's equal Table 9), and pseudo-R2 and SEM. Weighted columns do not fully reproduce and are not stored: SIR 2014-5165's WIE differs from equation 5 by more than 0.6 percent at 569 of 2,224 values (up to 9 percent) and prints a gage number as the 10-percent WIE at 05506350; SIR 2010-5073's W values imply a regression variance near 0.0001 where Table 8 gives about 0.01, and two are misprinted (340 at 06893600, 86 at 06910200).",
+ "equations": [
+  {
+   "region_code": "1",
+   "region_name": "Region 1, Central Lowlands (SIR 2014-5165; NSS GC1483)",
+   "aep": 0.5,
+   "intercept": 2.594,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.11,
+     "maximum": 8212.38
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "log10",
+     "units": "dim",
+     "minimum": 2.25,
+     "maximum": 26.59
+    }
+   ],
+   "coefficients": [
+    0.618,
+    -0.282
+   ],
+   "citation": {
+    "publication": "Southard, R.E., and Veilleux, A.G., 2014, Methods for estimating annual exceedance-probability discharges and largest recorded floods for unregulated streams in rural Missouri: U.S. Geological Survey Scientific Investigations Report 2014-5165, 39 p.",
+    "table": "Tables 7, 10 and 14",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145165"
+   },
+   "sep_log": 0.161068,
+   "avp": 0.026,
+   "model_error_variance": 0.025,
+   "covariance": [
+    [
+     0.0042629081,
+     -6.2156164e-06,
+     -0.0037344846
+    ],
+    [
+     -6.2156164e-06,
+     0.00032690536,
+     -0.00084915372
+    ],
+    [
+     -0.0037344846,
+     -0.00084915372,
+     0.0062024115
+    ]
+   ],
+   "n_sites": 131
+  },
+  {
+   "region_code": "1",
+   "region_name": "Region 1, Central Lowlands (SIR 2014-5165; NSS GC1483)",
+   "aep": 0.2,
+   "intercept": 2.861,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.11,
+     "maximum": 8212.38
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "log10",
+     "units": "dim",
+     "minimum": 2.25,
+     "maximum": 26.59
+    }
+   ],
+   "coefficients": [
+    0.593,
+    -0.266
+   ],
+   "citation": {
+    "publication": "Southard, R.E., and Veilleux, A.G., 2014, Methods for estimating annual exceedance-probability discharges and largest recorded floods for unregulated streams in rural Missouri: U.S. Geological Survey Scientific Investigations Report 2014-5165, 39 p.",
+    "table": "Tables 7, 10 and 14",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145165"
+   },
+   "sep_log": 0.130744,
+   "avp": 0.017,
+   "model_error_variance": 0.016,
+   "covariance": [
+    [
+     0.0032936873,
+     -7.0323455e-05,
+     -0.0026050117
+    ],
+    [
+     -7.0323455e-05,
+     0.00024126915,
+     -0.00058398634
+    ],
+    [
+     -0.0026050117,
+     -0.00058398634,
+     0.0043470027
+    ]
+   ],
+   "n_sites": 131
+  },
+  {
+   "region_code": "1",
+   "region_name": "Region 1, Central Lowlands (SIR 2014-5165; NSS GC1483)",
+   "aep": 0.1,
+   "intercept": 2.99,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.11,
+     "maximum": 8212.38
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "log10",
+     "units": "dim",
+     "minimum": 2.25,
+     "maximum": 26.59
+    }
+   ],
+   "coefficients": [
+    0.58,
+    -0.258
+   ],
+   "citation": {
+    "publication": "Southard, R.E., and Veilleux, A.G., 2014, Methods for estimating annual exceedance-probability discharges and largest recorded floods for unregulated streams in rural Missouri: U.S. Geological Survey Scientific Investigations Report 2014-5165, 39 p.",
+    "table": "Tables 7, 10 and 14",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145165"
+   },
+   "sep_log": 0.12382,
+   "avp": 0.015,
+   "model_error_variance": 0.014,
+   "covariance": [
+    [
+     0.0032969627,
+     -0.00010847974,
+     -0.0024439217
+    ],
+    [
+     -0.00010847974,
+     0.00023500665,
+     -0.00054282585
+    ],
+    [
+     -0.0024439217,
+     -0.00054282585,
+     0.0040921691
+    ]
+   ],
+   "n_sites": 131
+  },
+  {
+   "region_code": "1",
+   "region_name": "Region 1, Central Lowlands (SIR 2014-5165; NSS GC1483)",
+   "aep": 0.04,
+   "intercept": 3.12,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.11,
+     "maximum": 8212.38
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "log10",
+     "units": "dim",
+     "minimum": 2.25,
+     "maximum": 26.59
+    }
+   ],
+   "coefficients": [
+    0.568,
+    -0.248
+   ],
+   "citation": {
+    "publication": "Southard, R.E., and Veilleux, A.G., 2014, Methods for estimating annual exceedance-probability discharges and largest recorded floods for unregulated streams in rural Missouri: U.S. Geological Survey Scientific Investigations Report 2014-5165, 39 p.",
+    "table": "Tables 7, 10 and 14",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145165"
+   },
+   "sep_log": 0.122594,
+   "avp": 0.015,
+   "model_error_variance": 0.014,
+   "covariance": [
+    [
+     0.003591726,
+     -0.00015272228,
+     -0.0025117124
+    ],
+    [
+     -0.00015272228,
+     0.00025024149,
+     -0.00055374589
+    ],
+    [
+     -0.0025117124,
+     -0.00055374589,
+     0.0042199618
+    ]
+   ],
+   "n_sites": 131
+  },
+  {
+   "region_code": "1",
+   "region_name": "Region 1, Central Lowlands (SIR 2014-5165; NSS GC1483)",
+   "aep": 0.02,
+   "intercept": 3.199,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.11,
+     "maximum": 8212.38
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "log10",
+     "units": "dim",
+     "minimum": 2.25,
+     "maximum": 26.59
+    }
+   ],
+   "coefficients": [
+    0.56,
+    -0.242
+   ],
+   "citation": {
+    "publication": "Southard, R.E., and Veilleux, A.G., 2014, Methods for estimating annual exceedance-probability discharges and largest recorded floods for unregulated streams in rural Missouri: U.S. Geological Survey Scientific Investigations Report 2014-5165, 39 p.",
+    "table": "Tables 7, 10 and 14",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145165"
+   },
+   "sep_log": 0.122184,
+   "avp": 0.015,
+   "model_error_variance": 0.013,
+   "covariance": [
+    [
+     0.0038278107,
+     -0.00018647681,
+     -0.0025692739
+    ],
+    [
+     -0.00018647681,
+     0.0002626265,
+     -0.0005641437
+    ],
+    [
+     -0.0025692739,
+     -0.0005641437,
+     0.0043271621
+    ]
+   ],
+   "n_sites": 131
+  },
+  {
+   "region_code": "1",
+   "region_name": "Region 1, Central Lowlands (SIR 2014-5165; NSS GC1483)",
+   "aep": 0.01,
+   "intercept": 3.266,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.11,
+     "maximum": 8212.38
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "log10",
+     "units": "dim",
+     "minimum": 2.25,
+     "maximum": 26.59
+    }
+   ],
+   "coefficients": [
+    0.554,
+    -0.236
+   ],
+   "citation": {
+    "publication": "Southard, R.E., and Veilleux, A.G., 2014, Methods for estimating annual exceedance-probability discharges and largest recorded floods for unregulated streams in rural Missouri: U.S. Geological Survey Scientific Investigations Report 2014-5165, 39 p.",
+    "table": "Tables 7, 10 and 14",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145165"
+   },
+   "sep_log": 0.126677,
+   "avp": 0.016,
+   "model_error_variance": 0.014,
+   "covariance": [
+    [
+     0.0042380269,
+     -0.00021365567,
+     -0.0028149823
+    ],
+    [
+     -0.00021365567,
+     0.00028974727,
+     -0.00061694235
+    ],
+    [
+     -0.0028149823,
+     -0.00061694235,
+     0.0047442979
+    ]
+   ],
+   "n_sites": 131
+  },
+  {
+   "region_code": "1",
+   "region_name": "Region 1, Central Lowlands (SIR 2014-5165; NSS GC1483)",
+   "aep": 0.005,
+   "intercept": 3.324,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.11,
+     "maximum": 8212.38
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "log10",
+     "units": "dim",
+     "minimum": 2.25,
+     "maximum": 26.59
+    }
+   ],
+   "coefficients": [
+    0.55,
+    -0.231
+   ],
+   "citation": {
+    "publication": "Southard, R.E., and Veilleux, A.G., 2014, Methods for estimating annual exceedance-probability discharges and largest recorded floods for unregulated streams in rural Missouri: U.S. Geological Survey Scientific Investigations Report 2014-5165, 39 p.",
+    "table": "Tables 7, 10 and 14",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145165"
+   },
+   "sep_log": 0.131555,
+   "avp": 0.017,
+   "model_error_variance": 0.015,
+   "covariance": [
+    [
+     0.0046456334,
+     -0.00024024108,
+     -0.0030602759
+    ],
+    [
+     -0.00024024108,
+     0.00031676587,
+     -0.00066982959
+    ],
+    [
+     -0.0030602759,
+     -0.00066982959,
+     0.0051607592
+    ]
+   ],
+   "n_sites": 131
+  },
+  {
+   "region_code": "1",
+   "region_name": "Region 1, Central Lowlands (SIR 2014-5165; NSS GC1483)",
+   "aep": 0.002,
+   "intercept": 3.391,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.11,
+     "maximum": 8212.38
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "log10",
+     "units": "dim",
+     "minimum": 2.25,
+     "maximum": 26.59
+    }
+   ],
+   "coefficients": [
+    0.544,
+    -0.226
+   ],
+   "citation": {
+    "publication": "Southard, R.E., and Veilleux, A.G., 2014, Methods for estimating annual exceedance-probability discharges and largest recorded floods for unregulated streams in rural Missouri: U.S. Geological Survey Scientific Investigations Report 2014-5165, 39 p.",
+    "table": "Tables 7, 10 and 14",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145165"
+   },
+   "sep_log": 0.140434,
+   "avp": 0.02,
+   "model_error_variance": 0.018,
+   "covariance": [
+    [
+     0.0052940033,
+     -0.0002702493,
+     -0.0035084247
+    ],
+    [
+     -0.0002702493,
+     0.00036200004,
+     -0.00076764799
+    ],
+    [
+     -0.0035084247,
+     -0.00076764799,
+     0.0059158288
+    ]
+   ],
+   "n_sites": 131
+  },
+  {
+   "region_code": "2",
+   "region_name": "Region 2, Ozark Plateaus (SIR 2014-5165; NSS GC1484)",
+   "aep": 0.5,
+   "intercept": 2.493,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.17,
+     "maximum": 4008.92
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "log10",
+     "units": "dim",
+     "minimum": 2.04,
+     "maximum": 26.89
+    }
+   ],
+   "coefficients": [
+    0.686,
+    -0.222
+   ],
+   "citation": {
+    "publication": "Southard, R.E., and Veilleux, A.G., 2014, Methods for estimating annual exceedance-probability discharges and largest recorded floods for unregulated streams in rural Missouri: U.S. Geological Survey Scientific Investigations Report 2014-5165, 39 p.",
+    "table": "Tables 8, 10 and 14",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145165"
+   },
+   "sep_log": 0.180795,
+   "avp": 0.033,
+   "model_error_variance": 0.031,
+   "covariance": [
+    [
+     0.0050054225,
+     9.4910461e-05,
+     -0.004770821
+    ],
+    [
+     9.4910461e-05,
+     0.00043441574,
+     -0.0012351849
+    ],
+    [
+     -0.004770821,
+     -0.0012351849,
+     0.0086050661
+    ]
+   ],
+   "n_sites": 135
+  },
+  {
+   "region_code": "2",
+   "region_name": "Region 2, Ozark Plateaus (SIR 2014-5165; NSS GC1484)",
+   "aep": 0.2,
+   "intercept": 2.801,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.17,
+     "maximum": 4008.92
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "log10",
+     "units": "dim",
+     "minimum": 2.04,
+     "maximum": 26.89
+    }
+   ],
+   "coefficients": [
+    0.679,
+    -0.251
+   ],
+   "citation": {
+    "publication": "Southard, R.E., and Veilleux, A.G., 2014, Methods for estimating annual exceedance-probability discharges and largest recorded floods for unregulated streams in rural Missouri: U.S. Geological Survey Scientific Investigations Report 2014-5165, 39 p.",
+    "table": "Tables 8, 10 and 14",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145165"
+   },
+   "sep_log": 0.134793,
+   "avp": 0.018,
+   "model_error_variance": 0.017,
+   "covariance": [
+    [
+     0.0034817819,
+     -2.6004364e-05,
+     -0.0027806153
+    ],
+    [
+     -2.6004364e-05,
+     0.00027867287,
+     -0.00070828511
+    ],
+    [
+     -0.0027806153,
+     -0.00070828511,
+     0.004932663
+    ]
+   ],
+   "n_sites": 135
+  },
+  {
+   "region_code": "2",
+   "region_name": "Region 2, Ozark Plateaus (SIR 2014-5165; NSS GC1484)",
+   "aep": 0.1,
+   "intercept": 2.955,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.17,
+     "maximum": 4008.92
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "log10",
+     "units": "dim",
+     "minimum": 2.04,
+     "maximum": 26.89
+    }
+   ],
+   "coefficients": [
+    0.676,
+    -0.268
+   ],
+   "citation": {
+    "publication": "Southard, R.E., and Veilleux, A.G., 2014, Methods for estimating annual exceedance-probability discharges and largest recorded floods for unregulated streams in rural Missouri: U.S. Geological Survey Scientific Investigations Report 2014-5165, 39 p.",
+    "table": "Tables 8, 10 and 14",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145165"
+   },
+   "sep_log": 0.119315,
+   "avp": 0.014,
+   "model_error_variance": 0.013,
+   "covariance": [
+    [
+     0.0032771074,
+     -6.7519694e-05,
+     -0.0023126134
+    ],
+    [
+     -6.7519694e-05,
+     0.00024537345,
+     -0.00057842482
+    ],
+    [
+     -0.0023126134,
+     -0.00057842482,
+     0.0040307238
+    ]
+   ],
+   "n_sites": 135
+  },
+  {
+   "region_code": "2",
+   "region_name": "Region 2, Ozark Plateaus (SIR 2014-5165; NSS GC1484)",
+   "aep": 0.04,
+   "intercept": 3.113,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.17,
+     "maximum": 4008.92
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "log10",
+     "units": "dim",
+     "minimum": 2.04,
+     "maximum": 26.89
+    }
+   ],
+   "coefficients": [
+    0.673,
+    -0.287
+   ],
+   "citation": {
+    "publication": "Southard, R.E., and Veilleux, A.G., 2014, Methods for estimating annual exceedance-probability discharges and largest recorded floods for unregulated streams in rural Missouri: U.S. Geological Survey Scientific Investigations Report 2014-5165, 39 p.",
+    "table": "Tables 8, 10 and 14",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145165"
+   },
+   "sep_log": 0.103191,
+   "avp": 0.011,
+   "model_error_variance": 0.009,
+   "covariance": [
+    [
+     0.0031559302,
+     -0.00010354972,
+     -0.0018826854
+    ],
+    [
+     -0.00010354972,
+     0.0002131861,
+     -0.00045667721
+    ],
+    [
+     -0.0018826854,
+     -0.00045667721,
+     0.0031873736
+    ]
+   ],
+   "n_sites": 135
+  },
+  {
+   "region_code": "2",
+   "region_name": "Region 2, Ozark Plateaus (SIR 2014-5165; NSS GC1484)",
+   "aep": 0.02,
+   "intercept": 3.205,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.17,
+     "maximum": 4008.92
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "log10",
+     "units": "dim",
+     "minimum": 2.04,
+     "maximum": 26.89
+    }
+   ],
+   "coefficients": [
+    0.671,
+    -0.296
+   ],
+   "citation": {
+    "publication": "Southard, R.E., and Veilleux, A.G., 2014, Methods for estimating annual exceedance-probability discharges and largest recorded floods for unregulated streams in rural Missouri: U.S. Geological Survey Scientific Investigations Report 2014-5165, 39 p.",
+    "table": "Tables 8, 10 and 14",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145165"
+   },
+   "sep_log": 0.103607,
+   "avp": 0.011,
+   "model_error_variance": 0.009,
+   "covariance": [
+    [
+     0.0034438463,
+     -0.00011980664,
+     -0.0019732763
+    ],
+    [
+     -0.00011980664,
+     0.00022639976,
+     -0.000473742
+    ],
+    [
+     -0.0019732763,
+     -0.000473742,
+     0.0033103059
+    ]
+   ],
+   "n_sites": 135
+  },
+  {
+   "region_code": "2",
+   "region_name": "Region 2, Ozark Plateaus (SIR 2014-5165; NSS GC1484)",
+   "aep": 0.01,
+   "intercept": 3.282,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.17,
+     "maximum": 4008.92
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "log10",
+     "units": "dim",
+     "minimum": 2.04,
+     "maximum": 26.89
+    }
+   ],
+   "coefficients": [
+    0.669,
+    -0.302
+   ],
+   "citation": {
+    "publication": "Southard, R.E., and Veilleux, A.G., 2014, Methods for estimating annual exceedance-probability discharges and largest recorded floods for unregulated streams in rural Missouri: U.S. Geological Survey Scientific Investigations Report 2014-5165, 39 p.",
+    "table": "Tables 8, 10 and 14",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145165"
+   },
+   "sep_log": 0.10444,
+   "avp": 0.011,
+   "model_error_variance": 0.009,
+   "covariance": [
+    [
+     0.0037267333,
+     -0.00013529396,
+     -0.0020619395
+    ],
+    [
+     -0.00013529396,
+     0.00023920068,
+     -0.0004906528
+    ],
+    [
+     -0.0020619395,
+     -0.0004906528,
+     0.0034321961
+    ]
+   ],
+   "n_sites": 135
+  },
+  {
+   "region_code": "2",
+   "region_name": "Region 2, Ozark Plateaus (SIR 2014-5165; NSS GC1484)",
+   "aep": 0.005,
+   "intercept": 3.349,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.17,
+     "maximum": 4008.92
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "log10",
+     "units": "dim",
+     "minimum": 2.04,
+     "maximum": 26.89
+    }
+   ],
+   "coefficients": [
+    0.668,
+    -0.307
+   ],
+   "citation": {
+    "publication": "Southard, R.E., and Veilleux, A.G., 2014, Methods for estimating annual exceedance-probability discharges and largest recorded floods for unregulated streams in rural Missouri: U.S. Geological Survey Scientific Investigations Report 2014-5165, 39 p.",
+    "table": "Tables 8, 10 and 14",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145165"
+   },
+   "sep_log": 0.105271,
+   "avp": 0.011,
+   "model_error_variance": 0.009,
+   "covariance": [
+    [
+     0.0040009894,
+     -0.00014984838,
+     -0.0021481013
+    ],
+    [
+     -0.00014984838,
+     0.0002515144,
+     -0.00050728114
+    ],
+    [
+     -0.0021481013,
+     -0.00050728114,
+     0.0035521526
+    ]
+   ],
+   "n_sites": 135
+  },
+  {
+   "region_code": "2",
+   "region_name": "Region 2, Ozark Plateaus (SIR 2014-5165; NSS GC1484)",
+   "aep": 0.002,
+   "intercept": 3.422,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.17,
+     "maximum": 4008.92
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "log10",
+     "units": "dim",
+     "minimum": 2.04,
+     "maximum": 26.89
+    }
+   ],
+   "coefficients": [
+    0.667,
+    -0.311
+   ],
+   "citation": {
+    "publication": "Southard, R.E., and Veilleux, A.G., 2014, Methods for estimating annual exceedance-probability discharges and largest recorded floods for unregulated streams in rural Missouri: U.S. Geological Survey Scientific Investigations Report 2014-5165, 39 p.",
+    "table": "Tables 8, 10 and 14",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145165"
+   },
+   "sep_log": 0.115203,
+   "avp": 0.013,
+   "model_error_variance": 0.011,
+   "covariance": [
+    [
+     0.0046441117,
+     -0.00016818632,
+     -0.0025483584
+    ],
+    [
+     -0.00016818632,
+     0.00029652729,
+     -0.00060420476
+    ],
+    [
+     -0.0025483584,
+     -0.00060420476,
+     0.0042306344
+    ]
+   ],
+   "n_sites": 135
+  },
+  {
+   "region_code": "3",
+   "region_name": "Region 3, Mississippi Alluvial Plain (SIR 2014-5165; NSS GC1485)",
+   "aep": 0.5,
+   "intercept": 1.933,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 2.12,
+     "maximum": 2177.58
+    }
+   ],
+   "coefficients": [
+    0.665
+   ],
+   "citation": {
+    "publication": "Southard, R.E., and Veilleux, A.G., 2014, Methods for estimating annual exceedance-probability discharges and largest recorded floods for unregulated streams in rural Missouri: U.S. Geological Survey Scientific Investigations Report 2014-5165, 39 p.",
+    "table": "Tables 9, 10 and 14",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145165"
+   },
+   "sep_log": 0.129525,
+   "avp": 0.017,
+   "model_error_variance": 0.014,
+   "covariance": [
+    [
+     0.010843489,
+     -0.0042183923
+    ],
+    [
+     -0.0042183923,
+     0.0018952564
+    ]
+   ],
+   "n_sites": 12
+  },
+  {
+   "region_code": "3",
+   "region_name": "Region 3, Mississippi Alluvial Plain (SIR 2014-5165; NSS GC1485)",
+   "aep": 0.2,
+   "intercept": 2.026,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 2.12,
+     "maximum": 2177.58
+    }
+   ],
+   "coefficients": [
+    0.681
+   ],
+   "citation": {
+    "publication": "Southard, R.E., and Veilleux, A.G., 2014, Methods for estimating annual exceedance-probability discharges and largest recorded floods for unregulated streams in rural Missouri: U.S. Geological Survey Scientific Investigations Report 2014-5165, 39 p.",
+    "table": "Tables 9, 10 and 14",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145165"
+   },
+   "sep_log": 0.112728,
+   "avp": 0.013,
+   "model_error_variance": 0.011,
+   "covariance": [
+    [
+     0.0083901576,
+     -0.0032520781
+    ],
+    [
+     -0.0032520781,
+     0.0014685566
+    ]
+   ],
+   "n_sites": 12
+  },
+  {
+   "region_code": "3",
+   "region_name": "Region 3, Mississippi Alluvial Plain (SIR 2014-5165; NSS GC1485)",
+   "aep": 0.1,
+   "intercept": 2.07,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 2.12,
+     "maximum": 2177.58
+    }
+   ],
+   "coefficients": [
+    0.689
+   ],
+   "citation": {
+    "publication": "Southard, R.E., and Veilleux, A.G., 2014, Methods for estimating annual exceedance-probability discharges and largest recorded floods for unregulated streams in rural Missouri: U.S. Geological Survey Scientific Investigations Report 2014-5165, 39 p.",
+    "table": "Tables 9, 10 and 14",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145165"
+   },
+   "sep_log": 0.110248,
+   "avp": 0.012,
+   "model_error_variance": 0.01,
+   "covariance": [
+    [
+     0.0081504968,
+     -0.0031496527
+    ],
+    [
+     -0.0031496527,
+     0.0014281428
+    ]
+   ],
+   "n_sites": 12
+  },
+  {
+   "region_code": "3",
+   "region_name": "Region 3, Mississippi Alluvial Plain (SIR 2014-5165; NSS GC1485)",
+   "aep": 0.04,
+   "intercept": 2.113,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 2.12,
+     "maximum": 2177.58
+    }
+   ],
+   "coefficients": [
+    0.698
+   ],
+   "citation": {
+    "publication": "Southard, R.E., and Veilleux, A.G., 2014, Methods for estimating annual exceedance-probability discharges and largest recorded floods for unregulated streams in rural Missouri: U.S. Geological Survey Scientific Investigations Report 2014-5165, 39 p.",
+    "table": "Tables 9, 10 and 14",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145165"
+   },
+   "sep_log": 0.111902,
+   "avp": 0.013,
+   "model_error_variance": 0.01,
+   "covariance": [
+    [
+     0.0086174236,
+     -0.0033201161
+    ],
+    [
+     -0.0033201161,
+     0.0015117541
+    ]
+   ],
+   "n_sites": 12
+  },
+  {
+   "region_code": "3",
+   "region_name": "Region 3, Mississippi Alluvial Plain (SIR 2014-5165; NSS GC1485)",
+   "aep": 0.02,
+   "intercept": 2.139,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 2.12,
+     "maximum": 2177.58
+    }
+   ],
+   "coefficients": [
+    0.703
+   ],
+   "citation": {
+    "publication": "Southard, R.E., and Veilleux, A.G., 2014, Methods for estimating annual exceedance-probability discharges and largest recorded floods for unregulated streams in rural Missouri: U.S. Geological Survey Scientific Investigations Report 2014-5165, 39 p.",
+    "table": "Tables 9, 10 and 14",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145165"
+   },
+   "sep_log": 0.113554,
+   "avp": 0.013,
+   "model_error_variance": 0.01,
+   "covariance": [
+    [
+     0.0089599409,
+     -0.0034436054
+    ],
+    [
+     -0.0034436054,
+     0.0015725726
+    ]
+   ],
+   "n_sites": 12
+  },
+  {
+   "region_code": "3",
+   "region_name": "Region 3, Mississippi Alluvial Plain (SIR 2014-5165; NSS GC1485)",
+   "aep": 0.01,
+   "intercept": 2.162,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 2.12,
+     "maximum": 2177.58
+    }
+   ],
+   "coefficients": [
+    0.708
+   ],
+   "citation": {
+    "publication": "Southard, R.E., and Veilleux, A.G., 2014, Methods for estimating annual exceedance-probability discharges and largest recorded floods for unregulated streams in rural Missouri: U.S. Geological Survey Scientific Investigations Report 2014-5165, 39 p.",
+    "table": "Tables 9, 10 and 14",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145165"
+   },
+   "sep_log": 0.114791,
+   "avp": 0.013,
+   "model_error_variance": 0.011,
+   "covariance": [
+    [
+     0.0092927539,
+     -0.0035628287
+    ],
+    [
+     -0.0035628287,
+     0.0016314087
+    ]
+   ],
+   "n_sites": 12
+  },
+  {
+   "region_code": "3",
+   "region_name": "Region 3, Mississippi Alluvial Plain (SIR 2014-5165; NSS GC1485)",
+   "aep": 0.005,
+   "intercept": 2.182,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 2.12,
+     "maximum": 2177.58
+    }
+   ],
+   "coefficients": [
+    0.713
+   ],
+   "citation": {
+    "publication": "Southard, R.E., and Veilleux, A.G., 2014, Methods for estimating annual exceedance-probability discharges and largest recorded floods for unregulated streams in rural Missouri: U.S. Geological Survey Scientific Investigations Report 2014-5165, 39 p.",
+    "table": "Tables 9, 10 and 14",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145165"
+   },
+   "sep_log": 0.120546,
+   "avp": 0.015,
+   "model_error_variance": 0.012,
+   "covariance": [
+    [
+     0.010265935,
+     -0.0039353697
+    ],
+    [
+     -0.0039353697,
+     0.0018035811
+    ]
+   ],
+   "n_sites": 12
+  },
+  {
+   "region_code": "3",
+   "region_name": "Region 3, Mississippi Alluvial Plain (SIR 2014-5165; NSS GC1485)",
+   "aep": 0.002,
+   "intercept": 2.204,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 2.12,
+     "maximum": 2177.58
+    }
+   ],
+   "coefficients": [
+    0.718
+   ],
+   "citation": {
+    "publication": "Southard, R.E., and Veilleux, A.G., 2014, Methods for estimating annual exceedance-probability discharges and largest recorded floods for unregulated streams in rural Missouri: U.S. Geological Survey Scientific Investigations Report 2014-5165, 39 p.",
+    "table": "Tables 9, 10 and 14",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145165"
+   },
+   "sep_log": 0.122184,
+   "avp": 0.015,
+   "model_error_variance": 0.012,
+   "covariance": [
+    [
+     0.010685059,
+     -0.0040847148
+    ],
+    [
+     -0.0040847148,
+     0.0018774439
+    ]
+   ],
+   "n_sites": 12
+  },
+  {
+   "region_code": "Urban",
+   "region_name": "Urban basins, statewide (SIR 2010-5073; NSS GC1486)",
+   "aep": 0.5,
+   "intercept": 2.27415784926368,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.28,
+     "maximum": 189.0
+    },
+    {
+     "code": "IMPNLCD01",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 2.3,
+     "maximum": 46.0
+    }
+   ],
+   "coefficients": [
+    0.599,
+    0.014
+   ],
+   "citation": {
+    "publication": "Southard, R.E., 2010, Estimating the magnitude and frequency of floods in urban basins in Missouri: U.S. Geological Survey Scientific Investigations Report 2010-5073, 27 p.",
+    "table": "Tables 5, 7, 8 and 9",
+    "year": 2010,
+    "url": "https://pubs.usgs.gov/sir/2010/5073/"
+   },
+   "sep_log": 0.114018,
+   "avp": 0.013,
+   "model_error_variance": 0.0122,
+   "covariance": [
+    [
+     0.002985,
+     -0.000672,
+     -7.3e-05
+    ],
+    [
+     -0.000672,
+     0.000741,
+     -1e-06
+    ],
+    [
+     -7.3e-05,
+     -1e-06,
+     3e-06
+    ]
+   ],
+   "n_sites": 35
+  },
+  {
+   "region_code": "Urban",
+   "region_name": "Urban basins, statewide (SIR 2010-5073; NSS GC1486)",
+   "aep": 0.2,
+   "intercept": 2.546542663478131,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.28,
+     "maximum": 189.0
+    },
+    {
+     "code": "IMPNLCD01",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 2.3,
+     "maximum": 46.0
+    }
+   ],
+   "coefficients": [
+    0.592,
+    0.011
+   ],
+   "citation": {
+    "publication": "Southard, R.E., 2010, Estimating the magnitude and frequency of floods in urban basins in Missouri: U.S. Geological Survey Scientific Investigations Report 2010-5073, 27 p.",
+    "table": "Tables 5, 7, 8 and 9",
+    "year": 2010,
+    "url": "https://pubs.usgs.gov/sir/2010/5073/"
+   },
+   "sep_log": 0.1,
+   "avp": 0.01,
+   "model_error_variance": 0.0094,
+   "covariance": [
+    [
+     0.002701,
+     -0.000617,
+     -6.6e-05
+    ],
+    [
+     -0.000617,
+     0.000654,
+     0.0
+    ],
+    [
+     -6.6e-05,
+     0.0,
+     2e-06
+    ]
+   ],
+   "n_sites": 35
+  },
+  {
+   "region_code": "Urban",
+   "region_name": "Urban basins, statewide (SIR 2010-5073; NSS GC1486)",
+   "aep": 0.1,
+   "intercept": 2.6848453616444123,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.28,
+     "maximum": 189.0
+    },
+    {
+     "code": "IMPNLCD01",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 2.3,
+     "maximum": 46.0
+    }
+   ],
+   "coefficients": [
+    0.594,
+    0.01
+   ],
+   "citation": {
+    "publication": "Southard, R.E., 2010, Estimating the magnitude and frequency of floods in urban basins in Missouri: U.S. Geological Survey Scientific Investigations Report 2010-5073, 27 p.",
+    "table": "Tables 5, 7, 8 and 9",
+    "year": 2010,
+    "url": "https://pubs.usgs.gov/sir/2010/5073/"
+   },
+   "sep_log": 0.094868,
+   "avp": 0.009,
+   "model_error_variance": 0.008,
+   "covariance": [
+    [
+     0.002754,
+     -0.000639,
+     -6.7e-05
+    ],
+    [
+     -0.000639,
+     0.00065,
+     0.0
+    ],
+    [
+     -6.7e-05,
+     0.0,
+     3e-06
+    ]
+   ],
+   "n_sites": 35
+  },
+  {
+   "region_code": "Urban",
+   "region_name": "Urban basins, statewide (SIR 2010-5073; NSS GC1486)",
+   "aep": 0.04,
+   "intercept": 2.826722520168992,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.28,
+     "maximum": 189.0
+    },
+    {
+     "code": "IMPNLCD01",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 2.3,
+     "maximum": 46.0
+    }
+   ],
+   "coefficients": [
+    0.599,
+    0.008
+   ],
+   "citation": {
+    "publication": "Southard, R.E., 2010, Estimating the magnitude and frequency of floods in urban basins in Missouri: U.S. Geological Survey Scientific Investigations Report 2010-5073, 27 p.",
+    "table": "Tables 5, 7, 8 and 9",
+    "year": 2010,
+    "url": "https://pubs.usgs.gov/sir/2010/5073/"
+   },
+   "sep_log": 0.094868,
+   "avp": 0.009,
+   "model_error_variance": 0.0076,
+   "covariance": [
+    [
+     0.003139,
+     -0.000738,
+     -7.6e-05
+    ],
+    [
+     -0.000738,
+     0.000722,
+     1e-06
+    ],
+    [
+     -7.6e-05,
+     1e-06,
+     3e-06
+    ]
+   ],
+   "n_sites": 35
+  },
+  {
+   "region_code": "Urban",
+   "region_name": "Urban basins, statewide (SIR 2010-5073; NSS GC1486)",
+   "aep": 0.02,
+   "intercept": 2.9169800473203824,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.28,
+     "maximum": 189.0
+    },
+    {
+     "code": "IMPNLCD01",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 2.3,
+     "maximum": 46.0
+    }
+   ],
+   "coefficients": [
+    0.604,
+    0.008
+   ],
+   "citation": {
+    "publication": "Southard, R.E., 2010, Estimating the magnitude and frequency of floods in urban basins in Missouri: U.S. Geological Survey Scientific Investigations Report 2010-5073, 27 p.",
+    "table": "Tables 5, 7, 8 and 9",
+    "year": 2010,
+    "url": "https://pubs.usgs.gov/sir/2010/5073/"
+   },
+   "sep_log": 0.1,
+   "avp": 0.01,
+   "model_error_variance": 0.0084,
+   "covariance": [
+    [
+     0.003679,
+     -0.000869,
+     -8.9e-05
+    ],
+    [
+     -0.000869,
+     0.00084,
+     1e-06
+    ],
+    [
+     -8.9e-05,
+     1e-06,
+     4e-06
+    ]
+   ],
+   "n_sites": 35
+  },
+  {
+   "region_code": "Urban",
+   "region_name": "Urban basins, statewide (SIR 2010-5073; NSS GC1486)",
+   "aep": 0.01,
+   "intercept": 2.9960736544852753,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.28,
+     "maximum": 189.0
+    },
+    {
+     "code": "IMPNLCD01",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 2.3,
+     "maximum": 46.0
+    }
+   ],
+   "coefficients": [
+    0.608,
+    0.007
+   ],
+   "citation": {
+    "publication": "Southard, R.E., 2010, Estimating the magnitude and frequency of floods in urban basins in Missouri: U.S. Geological Survey Scientific Investigations Report 2010-5073, 27 p.",
+    "table": "Tables 5, 7, 8 and 9",
+    "year": 2010,
+    "url": "https://pubs.usgs.gov/sir/2010/5073/"
+   },
+   "sep_log": 0.109545,
+   "avp": 0.012,
+   "model_error_variance": 0.0103,
+   "covariance": [
+    [
+     0.004443,
+     -0.001049,
+     -0.000108
+    ],
+    [
+     -0.001049,
+     0.001015,
+     1e-06
+    ],
+    [
+     -0.000108,
+     1e-06,
+     4e-06
+    ]
+   ],
+   "n_sites": 35
+  },
+  {
+   "region_code": "Urban",
+   "region_name": "Urban basins, statewide (SIR 2010-5073; NSS GC1486)",
+   "aep": 0.002,
+   "intercept": 3.1522883443830563,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.28,
+     "maximum": 189.0
+    },
+    {
+     "code": "IMPNLCD01",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 2.3,
+     "maximum": 46.0
+    }
+   ],
+   "coefficients": [
+    0.619,
+    0.006
+   ],
+   "citation": {
+    "publication": "Southard, R.E., 2010, Estimating the magnitude and frequency of floods in urban basins in Missouri: U.S. Geological Survey Scientific Investigations Report 2010-5073, 27 p.",
+    "table": "Tables 5, 7, 8 and 9",
+    "year": 2010,
+    "url": "https://pubs.usgs.gov/sir/2010/5073/"
+   },
+   "sep_log": 0.148324,
+   "avp": 0.022,
+   "model_error_variance": 0.0186,
+   "covariance": [
+    [
+     0.007091,
+     -0.001659,
+     -0.000172
+    ],
+    [
+     -0.001659,
+     0.001648,
+     1e-06
+    ],
+    [
+     -0.000172,
+     1e-06,
+     7e-06
+    ]
+   ],
+   "n_sites": 35
+  }
+ ]
+}

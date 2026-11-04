@@ -35,18 +35,18 @@ Plan and definitions of done: `docs/MASTER_ROADMAP.md` §3.2.
 
 | Code | Jurisdiction | Equations | Regions | Equation count | Regional skew | Issue |
 |---|---|---|---:|---:|---|---|
-| MN | Minnesota | nss snapshot (56 eqs, 0 unparsed) | 7 | 56 | pending |  |
+| MN | Minnesota | verified | 7 | 56 | pending |  |
 | WI | Wisconsin | nss snapshot (44 eqs, 0 unparsed) | 6 | 44 | pending |  |
 | IA | Iowa | nss snapshot (48 eqs, 0 unparsed) | 6 | 48 | verified |  |
 | IL | Illinois | nss snapshot (104 eqs, 0 unparsed) | 13 | 104 | pending |  |
-| MO | Missouri | nss snapshot (31 eqs, 0 unparsed) | 4 | 31 | verified |  |
+| MO | Missouri | verified | 4 | 31 | verified |  |
 | MI | Michigan | nss snapshot (25 eqs, 0 unparsed) | 5 | 25 | verified |  |
 
 ## Wave 4b: Missouri basin
 
 | Code | Jurisdiction | Equations | Regions | Equation count | Regional skew | Issue |
 |---|---|---|---:|---:|---|---|
-| ND | North Dakota | nss snapshot (21 eqs, 0 unparsed) | 3 | 21 | pending |  |
+| ND | North Dakota | verified | 3 | 21 | pending |  |
 | SD | South Dakota | nss snapshot (49 eqs, 0 unparsed) | 7 | 49 | pending |  |
 | NE | Nebraska | nss snapshot (64 eqs, 0 unparsed) | 8 | 64 | pending |  |
 | KS | Kansas | verified | 2 | 16 | pending |  |
@@ -76,13 +76,13 @@ Plan and definitions of done: `docs/MASTER_ROADMAP.md` §3.2.
 | Code | Jurisdiction | Equations | Regions | Equation count | Regional skew | Issue |
 |---|---|---|---:|---:|---|---|
 | ME | Maine | verified | 2 | 16 | verified |  |
-| NH | New Hampshire | nss snapshot (14 eqs, 0 unparsed) | 2 | 14 | verified |  |
+| NH | New Hampshire | verified | 2 | 14 | verified |  |
 | VT | Vermont | verified | 2 | 16 | pending |  |
 | MA | Massachusetts | verified | 1 | 8 | pending, verified |  |
-| RI | Rhode Island | nss snapshot (7 eqs, 0 unparsed) | 1 | 7 | verified |  |
+| RI | Rhode Island | verified | 2 | 14 | verified |  |
 | CT | Connecticut | verified | 2 | 16 | verified |  |
 | NY | New York | nss snapshot (120 eqs, 2 unparsed) | 12 | 120 | pending, verified |  |
-| NJ | New Jersey | nss snapshot (35 eqs, 0 unparsed) | 5 | 35 | pending |  |
+| NJ | New Jersey | verified | 5 | 35 | pending |  |
 | PA | Pennsylvania | verified | 5 | 40 | pending, verified |  |
 | DE | Delaware | nss snapshot (24 eqs, 0 unparsed) | 3 | 24 | pending |  |
 | MD | Maryland | nss snapshot (40 eqs, 0 unparsed) | 4 | 40 | pending, verified |  |

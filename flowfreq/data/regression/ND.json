@@ -1,0 +1,827 @@
+{
+ "schema_version": 1,
+ "state": "ND",
+ "status": "verified",
+ "issue": null,
+ "source_reports": [
+  {
+   "citation": "Williams-Sether, Tara, 2015, Regional regression equations to estimate peak-flow frequency at sites in North Dakota using data through 2009: U.S. Geological Survey Scientific Investigations Report 2015-5096, 12 p.",
+   "url": "https://doi.org/10.3133/sir20155096"
+  }
+ ],
+ "notes": "Williams-Sether, SIR 2015-5096 (first posted 2015-08-06; the publication page lists one version): hydrologic zones A, B and C at 7 AEPs (0.5 to 0.002; the report has no 0.5-percent equation). The equations and their statistics are in Table 4 and the per-gage flows in Table 1, both published only as xlsx in the report's downloads directory. The constant is printed as a log, so it is the intercept. Ranges, SP, SME and AVP are Table 4's: sep_log is SP (percent) converted, model_error_variance is SME (percent) converted the same way and squared, and avp is as printed. SP and AVP agree through the report's equation 1 at all 21. The report prints no covariance and no worked example. It prints n only as 231 in all, so n_sites is counted from Table 1: 38 in zone A, 123 in B, 70 in C. Table 1 has two exceptions, both in zone C: 05059600 is footnoted as not used in the final regression yet has regression flows, and 06469600 has no footnote and no regression flows. The zones reach 231 only with both counted. Table 1's regression flows reproduce at all 230 gages that print them, to 2.8e-5, and fitting those flows on Table 1's characteristics recovers every Table 4 coefficient to 4e-7. Zone B's largest differences come from Table 1's RUGGED, which differs in places from the value regressed: at 06337000 Table 1 prints 7819.70 and the regression flow implies 7819.737, Table 4's limit. Table 4's zone A 1-percent equation misprints '0.595 log x (CSL1085LFP)' and zone B's range says COMPRRAT. Every coefficient and intercept equals NSS's. NSS serves SP rounded to 0.1 percent, so its sep_log differs by up to 1.8e-4, and limits rounded outward (zone A CSL1085LFP 1.01-17.6 for 1.016-17.522; zone B RUGGED 68.0-7820 for 68.018-7819.737); the report's are stored. Not expressible as equations and so kept here: Table 5's drainage-area exponents b for an ungaged site on a gaged stream (equation 4), for 0.5, 0.2, 0.1, 0.04, 0.02, 0.01, 0.002: zone A 0.499, 0.525, 0.544, 0.566, 0.582, 0.597, 0.628 (average 0.563); zone B 0.609, 0.597, 0.591, 0.587, 0.584, 0.581, 0.577 (average 0.589); zone C 0.438, 0.475, 0.493, 0.511, 0.521, 0.529, 0.543 (average 0.501), which apply for an ungaged area of 50 to 150 percent of the gage's. Table 2's generalized skews (Bulletin 17B basis) are zone A -0.509, B -0.730, C -0.585, with standard errors 0.368, 0.259, 0.289. The set is Bulletin 17B, data through 2009.",
+ "equations": [
+  {
+   "region_code": "A",
+   "region_name": "Hydrologic zone A (NSS GC138)",
+   "aep": 0.5,
+   "intercept": 0.914,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 4.328,
+     "maximum": 3393.031
+    },
+    {
+     "code": "CSL1085LFP",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.016,
+     "maximum": 17.522
+    }
+   ],
+   "coefficients": [
+    0.581,
+    0.528
+   ],
+   "citation": {
+    "publication": "Williams-Sether, Tara, 2015, Regional regression equations to estimate peak-flow frequency at sites in North Dakota using data through 2009: U.S. Geological Survey Scientific Investigations Report 2015-5096, 12 p.",
+    "table": "Table 4",
+    "year": 2015,
+    "url": "https://doi.org/10.3133/sir20155096"
+   },
+   "sep_log": 0.232289,
+   "avp": 0.053958218910294495,
+   "model_error_variance": 0.046849,
+   "n_sites": 38
+  },
+  {
+   "region_code": "A",
+   "region_name": "Hydrologic zone A (NSS GC138)",
+   "aep": 0.2,
+   "intercept": 1.261,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 4.328,
+     "maximum": 3393.031
+    },
+    {
+     "code": "CSL1085LFP",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.016,
+     "maximum": 17.522
+    }
+   ],
+   "coefficients": [
+    0.61,
+    0.546
+   ],
+   "citation": {
+    "publication": "Williams-Sether, Tara, 2015, Regional regression equations to estimate peak-flow frequency at sites in North Dakota using data through 2009: U.S. Geological Survey Scientific Investigations Report 2015-5096, 12 p.",
+    "table": "Table 4",
+    "year": 2015,
+    "url": "https://doi.org/10.3133/sir20155096"
+   },
+   "sep_log": 0.208929,
+   "avp": 0.04365115244884544,
+   "model_error_variance": 0.037268,
+   "n_sites": 38
+  },
+  {
+   "region_code": "A",
+   "region_name": "Hydrologic zone A (NSS GC138)",
+   "aep": 0.1,
+   "intercept": 1.409,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 4.328,
+     "maximum": 3393.031
+    },
+    {
+     "code": "CSL1085LFP",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.016,
+     "maximum": 17.522
+    }
+   ],
+   "coefficients": [
+    0.629,
+    0.56
+   ],
+   "citation": {
+    "publication": "Williams-Sether, Tara, 2015, Regional regression equations to estimate peak-flow frequency at sites in North Dakota using data through 2009: U.S. Geological Survey Scientific Investigations Report 2015-5096, 12 p.",
+    "table": "Table 4",
+    "year": 2015,
+    "url": "https://doi.org/10.3133/sir20155096"
+   },
+   "sep_log": 0.209148,
+   "avp": 0.04374281979239211,
+   "model_error_variance": 0.036791,
+   "n_sites": 38
+  },
+  {
+   "region_code": "A",
+   "region_name": "Hydrologic zone A (NSS GC138)",
+   "aep": 0.04,
+   "intercept": 1.545,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 4.328,
+     "maximum": 3393.031
+    },
+    {
+     "code": "CSL1085LFP",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.016,
+     "maximum": 17.522
+    }
+   ],
+   "coefficients": [
+    0.651,
+    0.576
+   ],
+   "citation": {
+    "publication": "Williams-Sether, Tara, 2015, Regional regression equations to estimate peak-flow frequency at sites in North Dakota using data through 2009: U.S. Geological Survey Scientific Investigations Report 2015-5096, 12 p.",
+    "table": "Table 4",
+    "year": 2015,
+    "url": "https://doi.org/10.3133/sir20155096"
+   },
+   "sep_log": 0.212863,
+   "avp": 0.04531072771891874,
+   "model_error_variance": 0.037369,
+   "n_sites": 38
+  },
+  {
+   "region_code": "A",
+   "region_name": "Hydrologic zone A (NSS GC138)",
+   "aep": 0.02,
+   "intercept": 1.62,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 4.328,
+     "maximum": 3393.031
+    },
+    {
+     "code": "CSL1085LFP",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.016,
+     "maximum": 17.522
+    }
+   ],
+   "coefficients": [
+    0.667,
+    0.586
+   ],
+   "citation": {
+    "publication": "Williams-Sether, Tara, 2015, Regional regression equations to estimate peak-flow frequency at sites in North Dakota using data through 2009: U.S. Geological Survey Scientific Investigations Report 2015-5096, 12 p.",
+    "table": "Table 4",
+    "year": 2015,
+    "url": "https://doi.org/10.3133/sir20155096"
+   },
+   "sep_log": 0.219148,
+   "avp": 0.048025905681921395,
+   "model_error_variance": 0.03921,
+   "n_sites": 38
+  },
+  {
+   "region_code": "A",
+   "region_name": "Hydrologic zone A (NSS GC138)",
+   "aep": 0.01,
+   "intercept": 1.679,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 4.328,
+     "maximum": 3393.031
+    },
+    {
+     "code": "CSL1085LFP",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.016,
+     "maximum": 17.522
+    }
+   ],
+   "coefficients": [
+    0.683,
+    0.595
+   ],
+   "citation": {
+    "publication": "Williams-Sether, Tara, 2015, Regional regression equations to estimate peak-flow frequency at sites in North Dakota using data through 2009: U.S. Geological Survey Scientific Investigations Report 2015-5096, 12 p.",
+    "table": "Table 4",
+    "year": 2015,
+    "url": "https://doi.org/10.3133/sir20155096"
+   },
+   "sep_log": 0.223337,
+   "avp": 0.049879196379652956,
+   "model_error_variance": 0.040275,
+   "n_sites": 38
+  },
+  {
+   "region_code": "A",
+   "region_name": "Hydrologic zone A (NSS GC138)",
+   "aep": 0.002,
+   "intercept": 1.778,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 4.328,
+     "maximum": 3393.031
+    },
+    {
+     "code": "CSL1085LFP",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.016,
+     "maximum": 17.522
+    }
+   ],
+   "coefficients": [
+    0.715,
+    0.616
+   ],
+   "citation": {
+    "publication": "Williams-Sether, Tara, 2015, Regional regression equations to estimate peak-flow frequency at sites in North Dakota using data through 2009: U.S. Geological Survey Scientific Investigations Report 2015-5096, 12 p.",
+    "table": "Table 4",
+    "year": 2015,
+    "url": "https://doi.org/10.3133/sir20155096"
+   },
+   "sep_log": 0.236799,
+   "avp": 0.05607362079961585,
+   "model_error_variance": 0.044601,
+   "n_sites": 38
+  },
+  {
+   "region_code": "B",
+   "region_name": "Hydrologic zone B (NSS GC139)",
+   "aep": 0.5,
+   "intercept": -0.137,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.11,
+     "maximum": 8342.387
+    },
+    {
+     "code": "RUGGED",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 68.018,
+     "maximum": 7819.737
+    },
+    {
+     "code": "COMPRAT",
+     "transform": "identity",
+     "units": "dimensionless",
+     "minimum": 1.414,
+     "maximum": 3.48
+    }
+   ],
+   "coefficients": [
+    0.51,
+    0.63,
+    -0.139
+   ],
+   "citation": {
+    "publication": "Williams-Sether, Tara, 2015, Regional regression equations to estimate peak-flow frequency at sites in North Dakota using data through 2009: U.S. Geological Survey Scientific Investigations Report 2015-5096, 12 p.",
+    "table": "Table 4",
+    "year": 2015,
+    "url": "https://doi.org/10.3133/sir20155096"
+   },
+   "sep_log": 0.291127,
+   "avp": 0.08475472704717711,
+   "model_error_variance": 0.079348,
+   "n_sites": 123
+  },
+  {
+   "region_code": "B",
+   "region_name": "Hydrologic zone B (NSS GC139)",
+   "aep": 0.2,
+   "intercept": 0.432,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.11,
+     "maximum": 8342.387
+    },
+    {
+     "code": "RUGGED",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 68.018,
+     "maximum": 7819.737
+    },
+    {
+     "code": "COMPRAT",
+     "transform": "identity",
+     "units": "dimensionless",
+     "minimum": 1.414,
+     "maximum": 3.48
+    }
+   ],
+   "coefficients": [
+    0.513,
+    0.632,
+    -0.202
+   ],
+   "citation": {
+    "publication": "Williams-Sether, Tara, 2015, Regional regression equations to estimate peak-flow frequency at sites in North Dakota using data through 2009: U.S. Geological Survey Scientific Investigations Report 2015-5096, 12 p.",
+    "table": "Table 4",
+    "year": 2015,
+    "url": "https://doi.org/10.3133/sir20155096"
+   },
+   "sep_log": 0.241858,
+   "avp": 0.05849506251787447,
+   "model_error_variance": 0.054285,
+   "n_sites": 123
+  },
+  {
+   "region_code": "B",
+   "region_name": "Hydrologic zone B (NSS GC139)",
+   "aep": 0.1,
+   "intercept": 0.66,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.11,
+     "maximum": 8342.387
+    },
+    {
+     "code": "RUGGED",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 68.018,
+     "maximum": 7819.737
+    },
+    {
+     "code": "COMPRAT",
+     "transform": "identity",
+     "units": "dimensionless",
+     "minimum": 1.414,
+     "maximum": 3.48
+    }
+   ],
+   "coefficients": [
+    0.511,
+    0.636,
+    -0.222
+   ],
+   "citation": {
+    "publication": "Williams-Sether, Tara, 2015, Regional regression equations to estimate peak-flow frequency at sites in North Dakota using data through 2009: U.S. Geological Survey Scientific Investigations Report 2015-5096, 12 p.",
+    "table": "Table 4",
+    "year": 2015,
+    "url": "https://doi.org/10.3133/sir20155096"
+   },
+   "sep_log": 0.233691,
+   "avp": 0.05461167238903753,
+   "model_error_variance": 0.050262,
+   "n_sites": 123
+  },
+  {
+   "region_code": "B",
+   "region_name": "Hydrologic zone B (NSS GC139)",
+   "aep": 0.04,
+   "intercept": 0.872,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.11,
+     "maximum": 8342.387
+    },
+    {
+     "code": "RUGGED",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 68.018,
+     "maximum": 7819.737
+    },
+    {
+     "code": "COMPRAT",
+     "transform": "identity",
+     "units": "dimensionless",
+     "minimum": 1.414,
+     "maximum": 3.48
+    }
+   ],
+   "coefficients": [
+    0.51,
+    0.64,
+    -0.238
+   ],
+   "citation": {
+    "publication": "Williams-Sether, Tara, 2015, Regional regression equations to estimate peak-flow frequency at sites in North Dakota using data through 2009: U.S. Geological Survey Scientific Investigations Report 2015-5096, 12 p.",
+    "table": "Table 4",
+    "year": 2015,
+    "url": "https://doi.org/10.3133/sir20155096"
+   },
+   "sep_log": 0.23659,
+   "avp": 0.055974719813084384,
+   "model_error_variance": 0.051078,
+   "n_sites": 123
+  },
+  {
+   "region_code": "B",
+   "region_name": "Hydrologic zone B (NSS GC139)",
+   "aep": 0.02,
+   "intercept": 0.994,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.11,
+     "maximum": 8342.387
+    },
+    {
+     "code": "RUGGED",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 68.018,
+     "maximum": 7819.737
+    },
+    {
+     "code": "COMPRAT",
+     "transform": "identity",
+     "units": "dimensionless",
+     "minimum": 1.414,
+     "maximum": 3.48
+    }
+   ],
+   "coefficients": [
+    0.509,
+    0.641,
+    -0.246
+   ],
+   "citation": {
+    "publication": "Williams-Sether, Tara, 2015, Regional regression equations to estimate peak-flow frequency at sites in North Dakota using data through 2009: U.S. Geological Survey Scientific Investigations Report 2015-5096, 12 p.",
+    "table": "Table 4",
+    "year": 2015,
+    "url": "https://doi.org/10.3133/sir20155096"
+   },
+   "sep_log": 0.243201,
+   "avp": 0.059146604666685886,
+   "model_error_variance": 0.053763,
+   "n_sites": 123
+  },
+  {
+   "region_code": "B",
+   "region_name": "Hydrologic zone B (NSS GC139)",
+   "aep": 0.01,
+   "intercept": 1.098,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.11,
+     "maximum": 8342.387
+    },
+    {
+     "code": "RUGGED",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 68.018,
+     "maximum": 7819.737
+    },
+    {
+     "code": "COMPRAT",
+     "transform": "identity",
+     "units": "dimensionless",
+     "minimum": 1.414,
+     "maximum": 3.48
+    }
+   ],
+   "coefficients": [
+    0.509,
+    0.641,
+    -0.253
+   ],
+   "citation": {
+    "publication": "Williams-Sether, Tara, 2015, Regional regression equations to estimate peak-flow frequency at sites in North Dakota using data through 2009: U.S. Geological Survey Scientific Investigations Report 2015-5096, 12 p.",
+    "table": "Table 4",
+    "year": 2015,
+    "url": "https://doi.org/10.3133/sir20155096"
+   },
+   "sep_log": 0.252879,
+   "avp": 0.06394779690134274,
+   "model_error_variance": 0.058012,
+   "n_sites": 123
+  },
+  {
+   "region_code": "B",
+   "region_name": "Hydrologic zone B (NSS GC139)",
+   "aep": 0.002,
+   "intercept": 1.284,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.11,
+     "maximum": 8342.387
+    },
+    {
+     "code": "RUGGED",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 68.018,
+     "maximum": 7819.737
+    },
+    {
+     "code": "COMPRAT",
+     "transform": "identity",
+     "units": "dimensionless",
+     "minimum": 1.414,
+     "maximum": 3.48
+    }
+   ],
+   "coefficients": [
+    0.508,
+    0.641,
+    -0.266
+   ],
+   "citation": {
+    "publication": "Williams-Sether, Tara, 2015, Regional regression equations to estimate peak-flow frequency at sites in North Dakota using data through 2009: U.S. Geological Survey Scientific Investigations Report 2015-5096, 12 p.",
+    "table": "Table 4",
+    "year": 2015,
+    "url": "https://doi.org/10.3133/sir20155096"
+   },
+   "sep_log": 0.274704,
+   "avp": 0.07546203211398339,
+   "model_error_variance": 0.068286,
+   "n_sites": 123
+  },
+  {
+   "region_code": "C",
+   "region_name": "Hydrologic zone C (NSS GC140)",
+   "aep": 0.5,
+   "intercept": 0.555,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.132,
+     "maximum": 2811.637
+    },
+    {
+     "code": "RUGGED",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 21.309,
+     "maximum": 2264.002
+    }
+   ],
+   "coefficients": [
+    0.425,
+    0.301
+   ],
+   "citation": {
+    "publication": "Williams-Sether, Tara, 2015, Regional regression equations to estimate peak-flow frequency at sites in North Dakota using data through 2009: U.S. Geological Survey Scientific Investigations Report 2015-5096, 12 p.",
+    "table": "Table 4",
+    "year": 2015,
+    "url": "https://doi.org/10.3133/sir20155096"
+   },
+   "sep_log": 0.314105,
+   "avp": 0.09866176972917702,
+   "model_error_variance": 0.09035,
+   "n_sites": 70
+  },
+  {
+   "region_code": "C",
+   "region_name": "Hydrologic zone C (NSS GC140)",
+   "aep": 0.2,
+   "intercept": 0.988,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.132,
+     "maximum": 2811.637
+    },
+    {
+     "code": "RUGGED",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 21.309,
+     "maximum": 2264.002
+    }
+   ],
+   "coefficients": [
+    0.46,
+    0.296
+   ],
+   "citation": {
+    "publication": "Williams-Sether, Tara, 2015, Regional regression equations to estimate peak-flow frequency at sites in North Dakota using data through 2009: U.S. Geological Survey Scientific Investigations Report 2015-5096, 12 p.",
+    "table": "Table 4",
+    "year": 2015,
+    "url": "https://doi.org/10.3133/sir20155096"
+   },
+   "sep_log": 0.238918,
+   "avp": 0.05708187697605648,
+   "model_error_variance": 0.050918,
+   "n_sites": 70
+  },
+  {
+   "region_code": "C",
+   "region_name": "Hydrologic zone C (NSS GC140)",
+   "aep": 0.1,
+   "intercept": 1.187,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.132,
+     "maximum": 2811.637
+    },
+    {
+     "code": "RUGGED",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 21.309,
+     "maximum": 2264.002
+    }
+   ],
+   "coefficients": [
+    0.476,
+    0.294
+   ],
+   "citation": {
+    "publication": "Williams-Sether, Tara, 2015, Regional regression equations to estimate peak-flow frequency at sites in North Dakota using data through 2009: U.S. Geological Survey Scientific Investigations Report 2015-5096, 12 p.",
+    "table": "Table 4",
+    "year": 2015,
+    "url": "https://doi.org/10.3133/sir20155096"
+   },
+   "sep_log": 0.220548,
+   "avp": 0.04864126157590599,
+   "model_error_variance": 0.042329,
+   "n_sites": 70
+  },
+  {
+   "region_code": "C",
+   "region_name": "Hydrologic zone C (NSS GC140)",
+   "aep": 0.04,
+   "intercept": 1.379,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.132,
+     "maximum": 2811.637
+    },
+    {
+     "code": "RUGGED",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 21.309,
+     "maximum": 2264.002
+    }
+   ],
+   "coefficients": [
+    0.491,
+    0.292
+   ],
+   "citation": {
+    "publication": "Williams-Sether, Tara, 2015, Regional regression equations to estimate peak-flow frequency at sites in North Dakota using data through 2009: U.S. Geological Survey Scientific Investigations Report 2015-5096, 12 p.",
+    "table": "Table 4",
+    "year": 2015,
+    "url": "https://doi.org/10.3133/sir20155096"
+   },
+   "sep_log": 0.215544,
+   "avp": 0.04645932903865429,
+   "model_error_variance": 0.039357,
+   "n_sites": 70
+  },
+  {
+   "region_code": "C",
+   "region_name": "Hydrologic zone C (NSS GC140)",
+   "aep": 0.02,
+   "intercept": 1.493,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.132,
+     "maximum": 2811.637
+    },
+    {
+     "code": "RUGGED",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 21.309,
+     "maximum": 2264.002
+    }
+   ],
+   "coefficients": [
+    0.5,
+    0.291
+   ],
+   "citation": {
+    "publication": "Williams-Sether, Tara, 2015, Regional regression equations to estimate peak-flow frequency at sites in North Dakota using data through 2009: U.S. Geological Survey Scientific Investigations Report 2015-5096, 12 p.",
+    "table": "Table 4",
+    "year": 2015,
+    "url": "https://doi.org/10.3133/sir20155096"
+   },
+   "sep_log": 0.219866,
+   "avp": 0.04834116890968547,
+   "model_error_variance": 0.040454,
+   "n_sites": 70
+  },
+  {
+   "region_code": "C",
+   "region_name": "Hydrologic zone C (NSS GC140)",
+   "aep": 0.01,
+   "intercept": 1.591,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.132,
+     "maximum": 2811.637
+    },
+    {
+     "code": "RUGGED",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 21.309,
+     "maximum": 2264.002
+    }
+   ],
+   "coefficients": [
+    0.507,
+    0.29
+   ],
+   "citation": {
+    "publication": "Williams-Sether, Tara, 2015, Regional regression equations to estimate peak-flow frequency at sites in North Dakota using data through 2009: U.S. Geological Survey Scientific Investigations Report 2015-5096, 12 p.",
+    "table": "Table 4",
+    "year": 2015,
+    "url": "https://doi.org/10.3133/sir20155096"
+   },
+   "sep_log": 0.224085,
+   "avp": 0.05021410766616862,
+   "model_error_variance": 0.041545,
+   "n_sites": 70
+  },
+  {
+   "region_code": "C",
+   "region_name": "Hydrologic zone C (NSS GC140)",
+   "aep": 0.002,
+   "intercept": 1.769,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.132,
+     "maximum": 2811.637
+    },
+    {
+     "code": "RUGGED",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 21.309,
+     "maximum": 2264.002
+    }
+   ],
+   "coefficients": [
+    0.52,
+    0.287
+   ],
+   "citation": {
+    "publication": "Williams-Sether, Tara, 2015, Regional regression equations to estimate peak-flow frequency at sites in North Dakota using data through 2009: U.S. Geological Survey Scientific Investigations Report 2015-5096, 12 p.",
+    "table": "Table 4",
+    "year": 2015,
+    "url": "https://doi.org/10.3133/sir20155096"
+   },
+   "sep_log": 0.240303,
+   "avp": 0.0577457250065648,
+   "model_error_variance": 0.047241,
+   "n_sites": 70
+  }
+ ]
+}
