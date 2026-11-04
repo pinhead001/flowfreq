@@ -48,7 +48,7 @@ Plan and definitions of done: `docs/MASTER_ROADMAP.md` §3.2.
 |---|---|---|---:|---:|---|---|
 | ND | North Dakota | verified | 3 | 21 | pending |  |
 | SD | South Dakota | verified | 7 | 49 | pending |  |
-| NE | Nebraska | nss snapshot (64 eqs, 0 unparsed) | 8 | 64 | pending |  |
+| NE | Nebraska | verified | 8 | 64 | pending |  |
 | KS | Kansas | verified | 2 | 16 | pending |  |
 
 ## Wave 4c: Ohio basin
