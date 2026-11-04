@@ -12,8 +12,9 @@ on `main` (13 in v0.21.0), DE is `partial` and 5 have no equations.
 
 `docs/NATIONWIDE_SMOKE.md` is a full 56-jurisdiction rerun on 2026-11-04, after all of that merged:
 gaged 56/56 and ungaged 48/56, the same eight known gaps (AS, DC, GU, MP and VI have no equations; FL,
-MI and NE have no stream grid). 47 of the 50 verified sets ran live; only OH and WI moved, by under
-0.1 %, from unrounded coefficients. The Live services run reports an outage as a skip rather than a
+MI and NE have no stream grid). 47 of the 50 verified sets ran live. Among the verified sets only OH and
+WI moved, by under 0.1 %, from unrounded coefficients, until #340's rules moved TN's point from its
+drainage-area-only value to the full set. The Live services run reports an outage as a skip rather than a
 failure (#294), so read its job summary.
 
 ### Next steps (2026-11-04)
@@ -24,11 +25,10 @@ Owner's:
 
 1. Release v0.22.0 (a draft PR is prepared), then merge app PR #33 and bump the app's pin again.
 2. Push `release/0.21.x` (a hook blocks it here; the branch exists locally).
-3. **Overlapping sets and warnings stop about a third of real gages** (`docs/VERIFICATION_PLAN.md`,
-   Wider live check). 33 of 102 stopped on overlap without `region=` (the #209 decision), and KY's karst
-   warning stopped 3 of 3. Iowa's full-set preference could extend to CT, ME, VT and TN; the rural set
-   could be preferred over urban (AL, MO, IL) and over NRCS-regulated (OK); the small-basin sets in GA,
-   NC and SC could be limited to their 1 mi2 range. Also SE 2014 against 2023, and AR's D against MAP.
+3. **Overlap rules left open** (#340 settled the rest; `docs/VERIFICATION_PLAN.md`, Wider live check, now 84
+   of 102 gages with no `region=`, up from 53). AL at 5 mi2 or less, where the report recommends the
+   small-stream set; GA, NC and SC at 1 mi2 or less (SIR 2014-5030 against 2023-5006); AR's D against MAP; IN.
+   Urban and NRCS-regulated basins still need `region=` on purpose.
 4. **DE:** settle Table 6 against Table 8 so it can become `verified`.
 5. **MD:** kept at the Third Edition because StreamStats can't feed the Sixth (2023). GC1481's urban
    gates are added, and a boundary basin now needs `region=`.
