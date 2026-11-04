@@ -255,6 +255,19 @@ class TestRegion2TransitionZone:
         assert not est.blended and set(est.estimates) == {"2A"}
         assert est.flow_cfs == pytest.approx(99900, rel=0.01)
 
+    @pytest.mark.requires_network
+    def test_mckenzie_live_resolves_to_region_2a(self):
+        """Through the gates, from coordinates alone: Region 1's polygon also covers this
+        basin, so ORREG2 and ELEV must both decide. 103,483 cfs live on 2026-11-03, on
+        StreamStats' characteristics rather than the report's 99,900 cfs inputs."""
+        from flowfreq import estimate_at_site
+
+        est = estimate_at_site(44.124849, -122.47062, state="OR")
+        assert [r.code for r in est.regions] == ["GC730"]
+        q = est.quantiles
+        q1 = float(q.loc[(q["aep"] - 0.01).abs().idxmin(), "flow_cfs"])
+        assert q1 == pytest.approx(99900, rel=0.1)
+
     def test_marks_creek_below_zone_is_region_2b(self, lib):
         """14312300, Appendix G mean elevation 752 ft: Appendix D R100 = 176 cfs.
 
