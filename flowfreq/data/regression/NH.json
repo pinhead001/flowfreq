@@ -1,0 +1,847 @@
+{
+ "schema_version": 1,
+ "state": "NH",
+ "status": "verified",
+ "issue": null,
+ "source_reports": [
+  {
+   "citation": "Olson, S.A., 2009, Estimation of flood discharges at selected recurrence intervals for streams in New Hampshire: U.S. Geological Survey Scientific Investigations Report 2008-5206, 57 p.",
+   "doi": "10.3133/sir20085206",
+   "url": "https://pubs.usgs.gov/publication/sir20085206",
+   "pdf": "https://pubs.usgs.gov/sir/2008/5206/pdf/sir2008-5206.pdf",
+   "tables": [
+    "Table 5",
+    "Table 7",
+    "Table 8",
+    "Table 9",
+    "Table 10",
+    "Table 11",
+    "Table 12",
+    "Appendix 3"
+   ],
+   "nss": {
+    "regression_regions": [
+     "GC1460",
+     "GC1459"
+    ],
+    "citation_id": 92,
+    "last_year_of_data": 2007
+   }
+  }
+ ],
+ "notes": "Olson, SIR 2008-5206: a statewide set on DRNAREA, APRAVPRE, WETLAND and CSL10_85 (equations 3-9, region 1) and a statewide drainage-area-only set for sites outside region 1's ranges (equations 20-26, region 2), both at the 2-, 5-, 10-, 25-, 50-, 100- and 500-year recurrence intervals (no 0.5-percent AEP) from 117 streamgages in and adjacent to New Hampshire. Both sets NSS serves are current; none is left out. The constant is printed, so intercept = log10 of it. Ranges from Table 8. SEP in log10 units as printed in Tables 10 and 12. Model error variance and the matrix (order intercept, log10 DRNAREA, log10 APRAVPRE, WETLAND, log10 CSL10_85) from Table 11; NSS lists slope before wetland, so the stored order is the report's. Region 2 has no matrix, so intervals use the SEP. Every coefficient, intercept and range equals NSS; NSS's SEPs agree within 2e-4. equivalent_years is the table average, which Tables 10 and 12 give only with a skew of about 0.25 (inferred: all 14 values to 0.1 year), though the report says skew is zero at an ungaged site as in its worked example, so eq. 13 with zero skew reproduces only the 2-year values. Table 9's +10-percent slope entry at the 2-year interval prints 1.8 where the coefficient 0.205 gives 2.0; the -10-percent entry (-2.1), NSS and the residual check support 0.205. The report's standard error of regression has no schema field, in log10 units at the seven intervals: region 1 0.132, 0.139, 0.147, 0.159, 0.170, 0.181, 0.210; region 2 0.231, 0.238, 0.243, 0.251, 0.258, 0.265, 0.283. Region 1 adjusted R2: 0.97, 0.97, 0.96, 0.95, 0.94, 0.94, 0.91. No per-gage regression estimates are printed, so the residuals of Table 5's at-site flows on Table 7's characteristics are compared with those standard errors of regression instead. At the one point tested (gage 01078000, 2026-11-04) NSS located GC1460 and not GC1459, so estimate_at_site uses region 1 and refuses region='2' there; evaluate region 2 directly.",
+ "equations": [
+  {
+   "region_code": "1",
+   "region_name": "Statewide, four variables (NSS GC1460)",
+   "aep": 0.5,
+   "intercept": 0.414973347970818,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.7,
+     "maximum": 1290.0
+    },
+    {
+     "code": "APRAVPRE",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 2.79,
+     "maximum": 6.23
+    },
+    {
+     "code": "WETLAND",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 21.8
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 5.43,
+     "maximum": 543.0
+    }
+   ],
+   "coefficients": [
+    0.958,
+    1.5,
+    -0.0245,
+    0.205
+   ],
+   "citation": {
+    "publication": "Olson, S.A., 2009, Estimation of flood discharges at selected recurrence intervals for streams in New Hampshire: U.S. Geological Survey Scientific Investigations Report 2008-5206, 57 p.",
+    "table": "Equations 3-9; Tables 8, 10 and 11",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2008/5206/"
+   },
+   "sep_log": 0.128,
+   "model_error_variance": 0.0153,
+   "covariance": [
+    [
+     0.029131,
+     -0.0024237,
+     -0.02353,
+     -0.0002939,
+     -0.0055764
+    ],
+    [
+     -0.0024237,
+     0.00061481,
+     -0.00061196,
+     5.1072e-05,
+     0.00091224
+    ],
+    [
+     -0.02353,
+     -0.00061196,
+     0.047946,
+     -0.00019204,
+     -0.0017764
+    ],
+    [
+     -0.0002939,
+     5.1072e-05,
+     -0.00019204,
+     1.5059e-05,
+     0.00014686
+    ],
+    [
+     -0.0055764,
+     0.00091224,
+     -0.0017764,
+     0.00014686,
+     0.0026378
+    ]
+   ],
+   "n_sites": 117,
+   "equivalent_years": 3.2
+  },
+  {
+   "region_code": "1",
+   "region_name": "Statewide, four variables (NSS GC1460)",
+   "aep": 0.2,
+   "intercept": 0.5092025223311029,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.7,
+     "maximum": 1290.0
+    },
+    {
+     "code": "APRAVPRE",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 2.79,
+     "maximum": 6.23
+    },
+    {
+     "code": "WETLAND",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 21.8
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 5.43,
+     "maximum": 543.0
+    }
+   ],
+   "coefficients": [
+    0.929,
+    1.73,
+    -0.0245,
+    0.211
+   ],
+   "citation": {
+    "publication": "Olson, S.A., 2009, Estimation of flood discharges at selected recurrence intervals for streams in New Hampshire: U.S. Geological Survey Scientific Investigations Report 2008-5206, 57 p.",
+    "table": "Equations 3-9; Tables 8, 10 and 11",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2008/5206/"
+   },
+   "sep_log": 0.132,
+   "model_error_variance": 0.016,
+   "covariance": [
+    [
+     0.033144,
+     -0.0027925,
+     -0.027017,
+     -0.0003309,
+     -0.006119
+    ],
+    [
+     -0.0027925,
+     0.00071282,
+     -0.00071391,
+     5.8038e-05,
+     0.0010377
+    ],
+    [
+     -0.027017,
+     -0.00071391,
+     0.055423,
+     -0.00021153,
+     -0.0022804
+    ],
+    [
+     -0.0003309,
+     5.8038e-05,
+     -0.00021153,
+     1.678e-05,
+     0.00016337
+    ],
+    [
+     -0.006119,
+     0.0010377,
+     -0.0022804,
+     0.00016337,
+     0.0029618
+    ]
+   ],
+   "n_sites": 117,
+   "equivalent_years": 4.7
+  },
+  {
+   "region_code": "1",
+   "region_name": "Statewide, four variables (NSS GC1460)",
+   "aep": 0.1,
+   "intercept": 0.5888317255942073,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.7,
+     "maximum": 1290.0
+    },
+    {
+     "code": "APRAVPRE",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 2.79,
+     "maximum": 6.23
+    },
+    {
+     "code": "WETLAND",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 21.8
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 5.43,
+     "maximum": 543.0
+    }
+   ],
+   "coefficients": [
+    0.912,
+    1.83,
+    -0.0247,
+    0.211
+   ],
+   "citation": {
+    "publication": "Olson, S.A., 2009, Estimation of flood discharges at selected recurrence intervals for streams in New Hampshire: U.S. Geological Survey Scientific Investigations Report 2008-5206, 57 p.",
+    "table": "Equations 3-9; Tables 8, 10 and 11",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2008/5206/"
+   },
+   "sep_log": 0.137,
+   "model_error_variance": 0.0171,
+   "covariance": [
+    [
+     0.038041,
+     -0.003222,
+     -0.031238,
+     -0.00037706,
+     -0.006871
+    ],
+    [
+     -0.003222,
+     0.00082466,
+     -0.00083869,
+     6.6422e-05,
+     0.0011942
+    ],
+    [
+     -0.031238,
+     -0.00083869,
+     0.064408,
+     -0.00023771,
+     -0.0028151
+    ],
+    [
+     -0.00037706,
+     6.6422e-05,
+     -0.00023771,
+     1.8999e-05,
+     0.00018498
+    ],
+    [
+     -0.006871,
+     0.0011942,
+     -0.0028151,
+     0.00018498,
+     0.0033809
+    ]
+   ],
+   "n_sites": 117,
+   "equivalent_years": 6.2
+  },
+  {
+   "region_code": "1",
+   "region_name": "Statewide, four variables (NSS GC1460)",
+   "aep": 0.04,
+   "intercept": 0.69810054562339,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.7,
+     "maximum": 1290.0
+    },
+    {
+     "code": "APRAVPRE",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 2.79,
+     "maximum": 6.23
+    },
+    {
+     "code": "WETLAND",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 21.8
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 5.43,
+     "maximum": 543.0
+    }
+   ],
+   "coefficients": [
+    0.892,
+    1.9,
+    -0.025,
+    0.207
+   ],
+   "citation": {
+    "publication": "Olson, S.A., 2009, Estimation of flood discharges at selected recurrence intervals for streams in New Hampshire: U.S. Geological Survey Scientific Investigations Report 2008-5206, 57 p.",
+    "table": "Equations 3-9; Tables 8, 10 and 11",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2008/5206/"
+   },
+   "sep_log": 0.145,
+   "model_error_variance": 0.0192,
+   "covariance": [
+    [
+     0.045989,
+     -0.0039111,
+     -0.037992,
+     -0.000454,
+     -0.0081537
+    ],
+    [
+     -0.0039111,
+     0.0010022,
+     -0.0010366,
+     8.0152e-05,
+     0.0014491
+    ],
+    [
+     -0.037992,
+     -0.0010366,
+     0.078706,
+     -0.00028148,
+     -0.003621
+    ],
+    [
+     -0.000454,
+     8.0152e-05,
+     -0.00028148,
+     2.2721e-05,
+     0.00022133
+    ],
+    [
+     -0.0081537,
+     0.0014491,
+     -0.003621,
+     0.00022133,
+     0.0040725
+    ]
+   ],
+   "n_sites": 117,
+   "equivalent_years": 8.0
+  },
+  {
+   "region_code": "1",
+   "region_name": "Statewide, four variables (NSS GC1460)",
+   "aep": 0.02,
+   "intercept": 0.7752462597402364,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.7,
+     "maximum": 1290.0
+    },
+    {
+     "code": "APRAVPRE",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 2.79,
+     "maximum": 6.23
+    },
+    {
+     "code": "WETLAND",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 21.8
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 5.43,
+     "maximum": 543.0
+    }
+   ],
+   "coefficients": [
+    0.879,
+    1.94,
+    -0.0252,
+    0.203
+   ],
+   "citation": {
+    "publication": "Olson, S.A., 2009, Estimation of flood discharges at selected recurrence intervals for streams in New Hampshire: U.S. Geological Survey Scientific Investigations Report 2008-5206, 57 p.",
+    "table": "Equations 3-9; Tables 8, 10 and 11",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2008/5206/"
+   },
+   "sep_log": 0.153,
+   "model_error_variance": 0.0212,
+   "covariance": [
+    [
+     0.052917,
+     -0.0045085,
+     -0.043828,
+     -0.00052217,
+     -0.0093013
+    ],
+    [
+     -0.0045085,
+     0.0011551,
+     -0.0012062,
+     9.221e-05,
+     0.0016714
+    ],
+    [
+     -0.043828,
+     -0.0012062,
+     0.091015,
+     -0.00032027,
+     -0.0042923
+    ],
+    [
+     -0.00052217,
+     9.221e-05,
+     -0.00032027,
+     2.6028e-05,
+     0.00025364
+    ],
+    [
+     -0.0093013,
+     0.0016714,
+     -0.0042923,
+     0.00025364,
+     0.0046798
+    ]
+   ],
+   "n_sites": 117,
+   "equivalent_years": 9.0
+  },
+  {
+   "region_code": "1",
+   "region_name": "Statewide, four variables (NSS GC1460)",
+   "aep": 0.01,
+   "intercept": 0.8530895298518656,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.7,
+     "maximum": 1290.0
+    },
+    {
+     "code": "APRAVPRE",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 2.79,
+     "maximum": 6.23
+    },
+    {
+     "code": "WETLAND",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 21.8
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 5.43,
+     "maximum": 543.0
+    }
+   ],
+   "coefficients": [
+    0.867,
+    1.98,
+    -0.0254,
+    0.198
+   ],
+   "citation": {
+    "publication": "Olson, S.A., 2009, Estimation of flood discharges at selected recurrence intervals for streams in New Hampshire: U.S. Geological Survey Scientific Investigations Report 2008-5206, 57 p.",
+    "table": "Equations 3-9; Tables 8, 10 and 11",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2008/5206/"
+   },
+   "sep_log": 0.162,
+   "model_error_variance": 0.0235,
+   "covariance": [
+    [
+     0.060575,
+     -0.0051667,
+     -0.050248,
+     -0.00059817,
+     -0.010587
+    ],
+    [
+     -0.0051667,
+     0.0013231,
+     -0.0013914,
+     0.0001056,
+     0.0019168
+    ],
+    [
+     -0.050248,
+     -0.0013914,
+     0.10452,
+     -0.00036357,
+     -0.0050145
+    ],
+    [
+     -0.00059817,
+     0.0001056,
+     -0.00036357,
+     2.9723e-05,
+     0.00028972
+    ],
+    [
+     -0.010587,
+     0.0019168,
+     -0.0050145,
+     0.00028972,
+     0.005353
+    ]
+   ],
+   "n_sites": 117,
+   "equivalent_years": 9.8
+  },
+  {
+   "region_code": "1",
+   "region_name": "Statewide, four variables (NSS GC1460)",
+   "aep": 0.002,
+   "intercept": 1.0253058652647702,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.7,
+     "maximum": 1290.0
+    },
+    {
+     "code": "APRAVPRE",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 2.79,
+     "maximum": 6.23
+    },
+    {
+     "code": "WETLAND",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 21.8
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 5.43,
+     "maximum": 543.0
+    }
+   ],
+   "coefficients": [
+    0.841,
+    2.03,
+    -0.0259,
+    0.183
+   ],
+   "citation": {
+    "publication": "Olson, S.A., 2009, Estimation of flood discharges at selected recurrence intervals for streams in New Hampshire: U.S. Geological Survey Scientific Investigations Report 2008-5206, 57 p.",
+    "table": "Equations 3-9; Tables 8, 10 and 11",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2008/5206/"
+   },
+   "sep_log": 0.183,
+   "model_error_variance": 0.0301,
+   "covariance": [
+    [
+     0.080866,
+     -0.0069046,
+     -0.067187,
+     -0.00080128,
+     -0.014036
+    ],
+    [
+     -0.0069046,
+     0.0017649,
+     -0.0018749,
+     0.00014126,
+     0.002566
+    ],
+    [
+     -0.067187,
+     -0.0018749,
+     0.14008,
+     -0.00047958,
+     -0.0068759
+    ],
+    [
+     -0.00080128,
+     0.00014126,
+     -0.00047958,
+     3.9623e-05,
+     0.0003863
+    ],
+    [
+     -0.014036,
+     0.002566,
+     -0.0068759,
+     0.0003863,
+     0.00714
+    ]
+   ],
+   "n_sites": 117,
+   "equivalent_years": 11.0
+  },
+  {
+   "region_code": "2",
+   "region_name": "Statewide, drainage area only (NSS GC1459)",
+   "aep": 0.5,
+   "intercept": 1.6384892569546374,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.7,
+     "maximum": 1290.0
+    }
+   ],
+   "coefficients": [
+    0.885
+   ],
+   "citation": {
+    "publication": "Olson, S.A., 2009, Estimation of flood discharges at selected recurrence intervals for streams in New Hampshire: U.S. Geological Survey Scientific Investigations Report 2008-5206, 57 p.",
+    "table": "Equations 20-26; Table 12",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2008/5206/"
+   },
+   "sep_log": 0.228,
+   "n_sites": 117,
+   "equivalent_years": 1.0
+  },
+  {
+   "region_code": "2",
+   "region_name": "Statewide, drainage area only (NSS GC1459)",
+   "aep": 0.2,
+   "intercept": 1.8779469516291882,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.7,
+     "maximum": 1290.0
+    }
+   ],
+   "coefficients": [
+    0.858
+   ],
+   "citation": {
+    "publication": "Olson, S.A., 2009, Estimation of flood discharges at selected recurrence intervals for streams in New Hampshire: U.S. Geological Survey Scientific Investigations Report 2008-5206, 57 p.",
+    "table": "Equations 20-26; Table 12",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2008/5206/"
+   },
+   "sep_log": 0.233,
+   "n_sites": 117,
+   "equivalent_years": 1.5
+  },
+  {
+   "region_code": "2",
+   "region_name": "Statewide, drainage area only (NSS GC1459)",
+   "aep": 0.1,
+   "intercept": 2.0086001717619175,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.7,
+     "maximum": 1290.0
+    }
+   ],
+   "coefficients": [
+    0.842
+   ],
+   "citation": {
+    "publication": "Olson, S.A., 2009, Estimation of flood discharges at selected recurrence intervals for streams in New Hampshire: U.S. Geological Survey Scientific Investigations Report 2008-5206, 57 p.",
+    "table": "Equations 20-26; Table 12",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2008/5206/"
+   },
+   "sep_log": 0.237,
+   "n_sites": 117,
+   "equivalent_years": 2.1
+  },
+  {
+   "region_code": "2",
+   "region_name": "Statewide, drainage area only (NSS GC1459)",
+   "aep": 0.04,
+   "intercept": 2.155336037465062,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.7,
+     "maximum": 1290.0
+    }
+   ],
+   "coefficients": [
+    0.824
+   ],
+   "citation": {
+    "publication": "Olson, S.A., 2009, Estimation of flood discharges at selected recurrence intervals for streams in New Hampshire: U.S. Geological Survey Scientific Investigations Report 2008-5206, 57 p.",
+    "table": "Equations 20-26; Table 12",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2008/5206/"
+   },
+   "sep_log": 0.241,
+   "n_sites": 117,
+   "equivalent_years": 2.9
+  },
+  {
+   "region_code": "2",
+   "region_name": "Statewide, drainage area only (NSS GC1459)",
+   "aep": 0.02,
+   "intercept": 2.2528530309798933,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.7,
+     "maximum": 1290.0
+    }
+   ],
+   "coefficients": [
+    0.811
+   ],
+   "citation": {
+    "publication": "Olson, S.A., 2009, Estimation of flood discharges at selected recurrence intervals for streams in New Hampshire: U.S. Geological Survey Scientific Investigations Report 2008-5206, 57 p.",
+    "table": "Equations 20-26; Table 12",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2008/5206/"
+   },
+   "sep_log": 0.245,
+   "n_sites": 117,
+   "equivalent_years": 3.5
+  },
+  {
+   "region_code": "2",
+   "region_name": "Statewide, drainage area only (NSS GC1459)",
+   "aep": 0.01,
+   "intercept": 2.3404441148401185,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.7,
+     "maximum": 1290.0
+    }
+   ],
+   "coefficients": [
+    0.8
+   ],
+   "citation": {
+    "publication": "Olson, S.A., 2009, Estimation of flood discharges at selected recurrence intervals for streams in New Hampshire: U.S. Geological Survey Scientific Investigations Report 2008-5206, 57 p.",
+    "table": "Equations 20-26; Table 12",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2008/5206/"
+   },
+   "sep_log": 0.25,
+   "n_sites": 117,
+   "equivalent_years": 4.1
+  },
+  {
+   "region_code": "2",
+   "region_name": "Statewide, drainage area only (NSS GC1459)",
+   "aep": 0.002,
+   "intercept": 2.519827993775719,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.7,
+     "maximum": 1290.0
+    }
+   ],
+   "coefficients": [
+    0.777
+   ],
+   "citation": {
+    "publication": "Olson, S.A., 2009, Estimation of flood discharges at selected recurrence intervals for streams in New Hampshire: U.S. Geological Survey Scientific Investigations Report 2008-5206, 57 p.",
+    "table": "Equations 20-26; Table 12",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2008/5206/"
+   },
+   "sep_log": 0.262,
+   "n_sites": 117,
+   "equivalent_years": 5.4
+  }
+ ]
+}
