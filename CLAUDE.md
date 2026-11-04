@@ -49,8 +49,8 @@ repo bumps its pin.
 pip install -e ".[dev]"
 
 # Full suite. ~225 s with the Fortran extension present, measured 2026-10-31 on a Windows
-# developer machine (CPython 3.12; 4018 passed, plus the 4 local-only failures described
-# under Validation Status and Agent ops). On 2026-10-03 it was ~70 s with the extension
+# developer machine (CPython 3.12; 4018 passed, plus 4 local-only failures: the 2 described under
+# Validation Status and 2 from a local agentops profile, since fixed by #299). On 2026-10-03 it was ~70 s with the extension
 # absent (2541 tests) and ~355 s with it present.
 # That extra ~285 s is almost all live emafitpr calls in the vendored Fortran;
 # test_fixed_threshold_live.py alone takes ~190 s (twelve ~13 s calls in
@@ -136,13 +136,13 @@ first is on you at every invocation:
 
 ## Branches and Releases
 
-`main` carries the next minor release as a `.dev0` version (currently `0.21.0.dev0`), so
+`main` carries the next minor release as a `.dev0` version (currently `0.22.0.dev0`), so
 `flowfreq.__version__` shows whether a session is running development code or a release.
-Patch releases for the current minor line come from `release/0.20.x` (cut at `v0.20.0`): branch
-a fix from it, PR it there, and tag `v0.20.N` on that merge commit. Port the fix to `main` as
-well. `release/0.19.x`, `release/0.18.x`, `release/0.17.x`, `release/0.16.x`, `release/0.15.x`, `release/0.14.x`, `release/0.13.x`, `release/0.12.x`, `release/0.11.x` and `release/0.10.x` are kept for reference.
+Patch releases for the current minor line come from `release/0.21.x` (cut at `v0.21.0`): branch
+a fix from it, PR it there, and tag `v0.21.N` on that merge commit. Port the fix to `main` as
+well. `release/0.20.x`, `release/0.19.x`, `release/0.18.x`, `release/0.17.x`, `release/0.16.x`, `release/0.15.x`, `release/0.14.x`, `release/0.13.x`, `release/0.12.x`, `release/0.11.x` and `release/0.10.x` are kept for reference.
 Downstream projects (methow-flow, flowfreq-app) pin release tags such as
-`flowfreq @ git+https://github.com/pinhead001/flowfreq@v0.20.0`, so work on `main` never
+`flowfreq @ git+https://github.com/pinhead001/flowfreq@v0.21.0`, so work on `main` never
 reaches them. Never move or delete a pushed release tag.
 
 ## Agent ops (Claude lead + agy delegates)
