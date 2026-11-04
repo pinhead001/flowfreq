@@ -92,7 +92,7 @@ Plan and definitions of done: `docs/MASTER_ROADMAP.md` §3.2.
 | SC | South Carolina | nss snapshot (32 eqs, 0 unparsed) | 4 | 32 | verified |  |
 | GA | Georgia | nss snapshot (40 eqs, 0 unparsed) | 5 | 40 | verified |  |
 | FL | Florida | nss snapshot (52 eqs, 0 unparsed) | 7 | 52 | pending |  |
-| AL | Alabama | nss snapshot (48 eqs, 0 unparsed) | 6 | 48 | pending |  |
+| AL | Alabama | verified | 6 | 48 | pending |  |
 
 ## Wave 6: Territories
 
