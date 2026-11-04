@@ -36,7 +36,7 @@ Plan and definitions of done: `docs/MASTER_ROADMAP.md` §3.2.
 | Code | Jurisdiction | Equations | Regions | Equation count | Regional skew | Issue |
 |---|---|---|---:|---:|---|---|
 | MN | Minnesota | verified | 7 | 56 | pending |  |
-| WI | Wisconsin | nss snapshot (44 eqs, 0 unparsed) | 6 | 44 | pending |  |
+| WI | Wisconsin | verified | 6 | 44 | pending |  |
 | IA | Iowa | verified | 6 | 48 | verified |  |
 | IL | Illinois | nss snapshot (104 eqs, 0 unparsed) | 13 | 104 | pending |  |
 | MO | Missouri | verified | 4 | 31 | verified |  |
