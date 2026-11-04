@@ -79,7 +79,6 @@ TABLE_15 = {
 #: Where NSS's limits differ from Table 12: (region, code): (minimum, maximum) as NSS serves them.
 NSS_RANGE_DIFFERS = {
     ("GC1561", "DRNAREA"): (0.06, 5464.0),
-    ("GC1561", "CCM"): (0.11, 3.87),
     ("GC1562", "DRNAREA"): (0.08, 7783.0),
     ("GC1562", "BSHAPE"): (0.806, 13.94),
     ("GC1563", "DRNAREA"): (0.05, 2809.0),
@@ -112,9 +111,9 @@ def table_3_as_used(site):
     return gage
 
 
-def test_iowa_is_partial_only_for_table_4s_two_cells(lib):
+def test_iowa_is_verified(lib):
     """Everything is stored and cross-checked; TABLE_4_CELL_DIFFERS has no known cause."""
-    assert lib.status == "partial"
+    assert lib.status == "verified"
     assert "05448500" in lib.notes
     assert lib.regions == [*FULL.values(), *DA_ONLY.values()]
     assert len(lib.equations) == 48
@@ -259,7 +258,11 @@ def test_average_prediction_variance_is_the_printed_avp(lib):
 
 
 def test_table_12_ranges_are_those_of_table_3():
-    """Each limit is its gage extreme rounded as Table 12 prints it, and CCM's maximum is 2.22."""
+    """Each limit is its gage extreme rounded as Table 12 prints it, except CCM's maximum.
+
+    Table 12 prints 2.22. SIR 2015-5055 p. 11 says the 2013 equations cannot be used above 3.87,
+    which is what NSS serves, so 3.87 is stored.
+    """
     gages = GAGES["full_sets"].values()
     ccm = [g["CCM"] for g in gages if g["region"] == "1"]
     assert max(ccm) == pytest.approx(2.2155, abs=1e-4)

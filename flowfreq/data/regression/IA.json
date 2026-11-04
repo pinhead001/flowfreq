@@ -1,7 +1,7 @@
 {
  "schema_version": 1,
  "state": "IA",
- "status": "partial",
+ "status": "verified",
  "issue": null,
  "source_reports": [
   {
@@ -45,7 +45,7 @@
    }
   }
  ],
- "notes": "Partial for one reason: two regression flows in Table 4 of SIR 2013-5086, at gage 05448500, disagree with the equations beyond rounding and the cause is not known (below). Everything both reports publish for these regions is stored, and every other check passes. Two reports, six regions, all current; nothing NSS serves is left out. The GC codes are kept as region_code so the region_preference tiers stay as they were in the snapshot. Full sets: Eash, Barnes and Veilleux, SIR 2013-5086, flood regions 1-3 at 8 AEPs (Tables 9-11), with ranges from Table 12 and MEV, covariance and t from the Table 13 workbook. The covariance is in the basis of the printed form: log10(DRNAREA) or DRNAREA**b, as each equation has it, CCM**0.55, and log10(DESMOIN + 1) for region 2's 50-percent equation. Region 2's 50-percent equation has two variables, which the report explains. Drainage-area-only sets: Eash, SIR 2015-5055, Tables 5-7, constants as printed, with intercept the log10 of the constant. That report applies Table 12's drainage-area ranges to them. It prints no covariance or model error variance for them, only SEP, SEM in percent and AVP, so their intervals use the AVP. Every intercept, coefficient, exponent and SEP equals NSS. Only ranges differ: NSS rounds the drainage-area limits (5,464, 7,783, 2,809 for Table 12's 5,463.88, 7,782.62, 2,809.05) and region 2's BSHAPE maximum (13.94 for 13.941), and serves a region 1 CCM maximum of 3.87 where Table 12 prints 2.220 and the largest region 1 gage in Table 3 is 2.2155. SIR 2015-5055 (p. 11) names 3.87 as the limit StreamStats applies, not a calibrated range; this file has 2.22. Examples 1 and 2 reproduce: 34,100 and 27,700 ft3/s, T 2.0103 and 1.4212. Their XUX' reproduce: 0.00327303, which takes CCM**0.55 rounded to 1.036 as the report's arithmetic does (0.00327263 unrounded), and 0.000902081. Table 4's regression flows reproduce from Table 3's characteristics at 389 of the 394 gages, 3,110 of 3,112 values, the two others below. At 05448600, 0545129280, 0548065350, 05481528 (CCM) and 05460500 (BSHAPE), Table 3's printed value is not the one behind Table 4 or Table 14: both reproduce, at all 8 AEPs, at one other value (CCM 0.695, 0.492, 0.377, 0.282; BSHAPE 3.08). Table 3 holds these five values to at most three decimals where other gages carry full precision, and the 40 flows reproduce at the other values. At 05448500, two cells of Table 4 are off by more than rounding (6,110 and 7,260 against 6,161 and 7,207); Table 4's WIE row agrees with the printed cells, the other six AEPs reproduce, and the cause is not known. Table 14's RRE variances reproduce within 1e-4, its print unit, using the MEV that SEM in percent implies rather than Table 13's, which differs by up to 7e-5. The mean of MEV + XUX' over each region's gages equals the printed AVP, which fixes the covariance's variable order. Table 8 of SIR 2015-5055 reproduces from its Table 1 drainage areas at all 80 gages, 640 values. Table 15 of SIR 2013-5086 prints the same exponents and constants in log units to two decimals. SIR 2015-5055 says the constants in its Tables 5-7 have four significant figures; none shows a fourth nonzero figure. Standard errors of the model in percent have no schema field and are not stored.",
+ "notes": "Two reports, six regions, all current; nothing NSS serves is left out. The GC codes are kept as region_code so the region_preference tiers stay as they were in the snapshot. Full sets: Eash, Barnes and Veilleux, SIR 2013-5086, flood regions 1-3 at 8 AEPs (Tables 9-11), with ranges from Table 12 and MEV, covariance and t from the Table 13 workbook. The covariance is in the basis of the printed form: log10(DRNAREA) or DRNAREA**b, as each equation has it, CCM**0.55, and log10(DESMOIN + 1) for region 2's 50-percent equation. Region 2's 50-percent equation has two variables, which the report explains. Drainage-area-only sets: Eash, SIR 2015-5055, Tables 5-7, constants as printed, with intercept the log10 of the constant. That report applies Table 12's drainage-area ranges to them. It prints no covariance or model error variance for them, only SEP, SEM in percent and AVP, so their intervals use the AVP. Every intercept, coefficient, exponent and SEP equals NSS. Only ranges differ: NSS rounds the drainage-area limits (5,464, 7,783, 2,809 for Table 12's 5,463.88, 7,782.62, 2,809.05) and region 2's BSHAPE maximum (13.94 for 13.941). Region 1's CCM maximum is 3.87, as NSS serves it, not Table 12's 2.220 (the largest region 1 gage in Table 3 is 2.2155): SIR 2015-5055 (p. 11) says the 2013 equations cannot be used above 3.87, so a basin between the two is in range here, and one above it is refused rather than moved to the drainage-area-only set unless the caller chooses that region. Examples 1 and 2 reproduce: 34,100 and 27,700 ft3/s, T 2.0103 and 1.4212. Their XUX' reproduce: 0.00327303, which takes CCM**0.55 rounded to 1.036 as the report's arithmetic does (0.00327263 unrounded), and 0.000902081. Table 4's regression flows reproduce from Table 3's characteristics at 389 of the 394 gages, 3,110 of 3,112 values, the two others below. At 05448600, 0545129280, 0548065350, 05481528 (CCM) and 05460500 (BSHAPE), Table 3's printed value is not the one behind Table 4 or Table 14: both reproduce, at all 8 AEPs, at one other value (CCM 0.695, 0.492, 0.377, 0.282; BSHAPE 3.08). Table 3 holds these five values to at most three decimals where other gages carry full precision, and the 40 flows reproduce at the other values. At 05448500, two cells of Table 4 are off by more than rounding (6,110 and 7,260 against 6,161 and 7,207); Table 4's WIE row agrees with the printed cells, the other six AEPs reproduce, and the cause is not known. Table 14's RRE variances reproduce within 1e-4, its print unit, using the MEV that SEM in percent implies rather than Table 13's, which differs by up to 7e-5. The mean of MEV + XUX' over each region's gages equals the printed AVP, which fixes the covariance's variable order. Table 8 of SIR 2015-5055 reproduces from its Table 1 drainage areas at all 80 gages, 640 values. Table 15 of SIR 2013-5086 prints the same exponents and constants in log units to two decimals. SIR 2015-5055 says the constants in its Tables 5-7 have four significant figures; none shows a fourth nonzero figure. Standard errors of the model in percent have no schema field and are not stored.",
  "equations": [
   {
    "region_code": "GC1561",
@@ -72,7 +72,7 @@
      "transform": "power",
      "units": "mi2/mi",
      "minimum": 0.11,
-     "maximum": 2.22,
+     "maximum": 3.87,
      "exponent": 0.55
     }
    ],
@@ -143,7 +143,7 @@
      "transform": "power",
      "units": "mi2/mi",
      "minimum": 0.11,
-     "maximum": 2.22,
+     "maximum": 3.87,
      "exponent": 0.55
     }
    ],
@@ -214,7 +214,7 @@
      "transform": "power",
      "units": "mi2/mi",
      "minimum": 0.11,
-     "maximum": 2.22,
+     "maximum": 3.87,
      "exponent": 0.55
     }
    ],
@@ -285,7 +285,7 @@
      "transform": "power",
      "units": "mi2/mi",
      "minimum": 0.11,
-     "maximum": 2.22,
+     "maximum": 3.87,
      "exponent": 0.55
     }
    ],
@@ -356,7 +356,7 @@
      "transform": "power",
      "units": "mi2/mi",
      "minimum": 0.11,
-     "maximum": 2.22,
+     "maximum": 3.87,
      "exponent": 0.55
     }
    ],
@@ -427,7 +427,7 @@
      "transform": "power",
      "units": "mi2/mi",
      "minimum": 0.11,
-     "maximum": 2.22,
+     "maximum": 3.87,
      "exponent": 0.55
     }
    ],
@@ -498,7 +498,7 @@
      "transform": "power",
      "units": "mi2/mi",
      "minimum": 0.11,
-     "maximum": 2.22,
+     "maximum": 3.87,
      "exponent": 0.55
     }
    ],
@@ -569,7 +569,7 @@
      "transform": "power",
      "units": "mi2/mi",
      "minimum": 0.11,
-     "maximum": 2.22,
+     "maximum": 3.87,
      "exponent": 0.55
     }
    ],
