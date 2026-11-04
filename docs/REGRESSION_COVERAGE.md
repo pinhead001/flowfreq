@@ -76,10 +76,10 @@ Plan and definitions of done: `docs/MASTER_ROADMAP.md` §3.2.
 | Code | Jurisdiction | Equations | Regions | Equation count | Regional skew | Issue |
 |---|---|---|---:|---:|---|---|
 | ME | Maine | verified | 2 | 16 | verified |  |
-| NH | New Hampshire | nss snapshot (14 eqs, 0 unparsed) | 2 | 14 | verified |  |
+| NH | New Hampshire | verified | 2 | 14 | verified |  |
 | VT | Vermont | verified | 2 | 16 | pending |  |
 | MA | Massachusetts | verified | 1 | 8 | pending, verified |  |
-| RI | Rhode Island | nss snapshot (7 eqs, 0 unparsed) | 1 | 7 | verified |  |
+| RI | Rhode Island | verified | 2 | 14 | verified |  |
 | CT | Connecticut | verified | 2 | 16 | verified |  |
 | NY | New York | nss snapshot (120 eqs, 2 unparsed) | 12 | 120 | pending, verified |  |
 | NJ | New Jersey | nss snapshot (35 eqs, 0 unparsed) | 5 | 35 | pending |  |
