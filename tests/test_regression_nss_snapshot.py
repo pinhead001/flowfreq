@@ -630,7 +630,9 @@ def test_region_indicator_equations_match_nss(code, region):
     )
     (raw,) = [r for r in snapshot["regions"] if r["region_code"] == region]
     submitted = {p["code"]: p["submitted"] for p in raw["parameters"]}
-    lib = load_state(code, allow_nss_snapshot=True)
+    # The snapshot file itself: load_state now prefers the verified set for these states.
+    path = REPO_ROOT / "flowfreq" / "data" / "regression" / NSS_SNAPSHOT_SUBDIR / f"{code}.json"
+    lib = parse_state(json.loads(path.read_text("utf-8")))
     assert len(raw["equations"]) == 8
     for rec in raw["equations"]:
         eq = lib.equation(region, rec["aep"])
