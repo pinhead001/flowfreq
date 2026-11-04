@@ -108,6 +108,11 @@ def trimmed() -> Dict[str, Any]:
     return data
 
 
+#: The snapshots ``allow_nss_snapshot=True`` can return: a state with a verified set keeps its
+#: snapshot file as evidence, but gets the verified set.
+SERVED_SNAPSHOTS = [c for c in nss_snapshot_states() if available_states().get(c) != "verified"]
+
+
 # --------------------------------------------------------------------------- loader
 
 
@@ -448,7 +453,7 @@ def test_shipped_sep_log_matches_the_report(code, region, aep, sep_pct):
     assert eq.sep_log == pytest.approx(asep_to_sep_log(sep_pct), rel=1e-9)
 
 
-@pytest.mark.parametrize("code", nss_snapshot_states())
+@pytest.mark.parametrize("code", SERVED_SNAPSHOTS)
 def test_every_stored_sep_log_is_plausible(code):
     # Bounds are wider than the 0.05-0.6 first proposed: genuine percentage ASEps in the
     # sweep give AL 0.039-0.048 (ASEp ~9-11%) and CA GC1534 0.61-0.90 (ASEp ~150-856%).
@@ -578,7 +583,7 @@ def _midpoint(v) -> float:
     return math.sqrt(lo * hi) if lo > 0 else (lo + hi) / 2
 
 
-@pytest.mark.parametrize("code", nss_snapshot_states())
+@pytest.mark.parametrize("code", SERVED_SNAPSHOTS)
 def test_every_snapshot_library_loads_and_evaluates(code):
     from flowfreq.regression.equations import evaluate
 
