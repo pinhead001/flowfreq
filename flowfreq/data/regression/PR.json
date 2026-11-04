@@ -1,0 +1,475 @@
+{
+ "schema_version": 1,
+ "state": "PR",
+ "status": "verified",
+ "issue": null,
+ "source_reports": [
+  {
+   "citation": "Ryan, P.J., Gotvald, A.J., and Hazelbaker, C.L., 2021, Development of regression equations for the estimation of the magnitude and frequency of floods at rural, unregulated gaged and ungaged streams in Puerto Rico through water year 2017: U.S. Geological Survey Scientific Investigations Report 2021-5062, 37 p.",
+   "doi": "10.3133/sir20215062",
+   "url": "https://pubs.usgs.gov/publication/sir20215062",
+   "pdf": "https://pubs.usgs.gov/sir/2021/5062/sir20215062.pdf",
+   "tables": [
+    "Table 3"
+   ],
+   "nss": {
+    "regression_regions": [
+     "GC1862",
+     "GC1863"
+    ],
+    "last_year_of_data": 2017
+   }
+  }
+ ],
+ "notes": "Ryan, Gotvald and Hazelbaker, SIR 2021-5062: two regions on DRNAREA at 8 AEPs from Table 3 (n = 32 and 45), with AVP, SEP and model error variance. The report prints no covariance, so intervals use the AVP. NSS swaps in region 1's SEP for region 2 at the 0.2 percent AEP (18.7 percent, against Table 3's 39.3, which Table 4 confirms); this file has the report's.",
+ "equations": [
+  {
+   "region_code": "1",
+   "region_name": "Region 1 (NSS GC1863)",
+   "aep": 0.5,
+   "intercept": 2.87,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 3.42,
+     "maximum": 165.0
+    }
+   ],
+   "coefficients": [
+    0.59
+   ],
+   "citation": {
+    "publication": "Ryan, P.J., Gotvald, A.J., and Hazelbaker, C.L., 2021, Development of regression equations for the estimation of the magnitude and frequency of floods at rural, unregulated gaged and ungaged streams in Puerto Rico through water year 2017: U.S. Geological Survey Scientific Investigations Report 2021-5062, 37 p.",
+    "table": "Table 3",
+    "year": 2021,
+    "url": "https://doi.org/10.3133/sir20215062"
+   },
+   "sep_log": 0.192899,
+   "avp": 0.0373,
+   "model_error_variance": 0.034,
+   "n_sites": 32
+  },
+  {
+   "region_code": "1",
+   "region_name": "Region 1 (NSS GC1863)",
+   "aep": 0.2,
+   "intercept": 3.09,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 3.42,
+     "maximum": 165.0
+    }
+   ],
+   "coefficients": [
+    0.66
+   ],
+   "citation": {
+    "publication": "Ryan, P.J., Gotvald, A.J., and Hazelbaker, C.L., 2021, Development of regression equations for the estimation of the magnitude and frequency of floods at rural, unregulated gaged and ungaged streams in Puerto Rico through water year 2017: U.S. Geological Survey Scientific Investigations Report 2021-5062, 37 p.",
+    "table": "Table 3",
+    "year": 2021,
+    "url": "https://doi.org/10.3133/sir20215062"
+   },
+   "sep_log": 0.147235,
+   "avp": 0.0217,
+   "model_error_variance": 0.0189,
+   "n_sites": 32
+  },
+  {
+   "region_code": "1",
+   "region_name": "Region 1 (NSS GC1863)",
+   "aep": 0.1,
+   "intercept": 3.21,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 3.42,
+     "maximum": 165.0
+    }
+   ],
+   "coefficients": [
+    0.71
+   ],
+   "citation": {
+    "publication": "Ryan, P.J., Gotvald, A.J., and Hazelbaker, C.L., 2021, Development of regression equations for the estimation of the magnitude and frequency of floods at rural, unregulated gaged and ungaged streams in Puerto Rico through water year 2017: U.S. Geological Survey Scientific Investigations Report 2021-5062, 37 p.",
+    "table": "Table 3",
+    "year": 2021,
+    "url": "https://doi.org/10.3133/sir20215062"
+   },
+   "sep_log": 0.126677,
+   "avp": 0.016,
+   "model_error_variance": 0.0131,
+   "n_sites": 32
+  },
+  {
+   "region_code": "1",
+   "region_name": "Region 1 (NSS GC1863)",
+   "aep": 0.04,
+   "intercept": 3.33,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 3.42,
+     "maximum": 165.0
+    }
+   ],
+   "coefficients": [
+    0.77
+   ],
+   "citation": {
+    "publication": "Ryan, P.J., Gotvald, A.J., and Hazelbaker, C.L., 2021, Development of regression equations for the estimation of the magnitude and frequency of floods at rural, unregulated gaged and ungaged streams in Puerto Rico through water year 2017: U.S. Geological Survey Scientific Investigations Report 2021-5062, 37 p.",
+    "table": "Table 3",
+    "year": 2021,
+    "url": "https://doi.org/10.3133/sir20215062"
+   },
+   "sep_log": 0.109834,
+   "avp": 0.012,
+   "model_error_variance": 0.0087,
+   "n_sites": 32
+  },
+  {
+   "region_code": "1",
+   "region_name": "Region 1 (NSS GC1863)",
+   "aep": 0.02,
+   "intercept": 3.4,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 3.42,
+     "maximum": 165.0
+    }
+   ],
+   "coefficients": [
+    0.8
+   ],
+   "citation": {
+    "publication": "Ryan, P.J., Gotvald, A.J., and Hazelbaker, C.L., 2021, Development of regression equations for the estimation of the magnitude and frequency of floods at rural, unregulated gaged and ungaged streams in Puerto Rico through water year 2017: U.S. Geological Survey Scientific Investigations Report 2021-5062, 37 p.",
+    "table": "Table 3",
+    "year": 2021,
+    "url": "https://doi.org/10.3133/sir20215062"
+   },
+   "sep_log": 0.102775,
+   "avp": 0.0105,
+   "model_error_variance": 0.0066,
+   "n_sites": 32
+  },
+  {
+   "region_code": "1",
+   "region_name": "Region 1 (NSS GC1863)",
+   "aep": 0.01,
+   "intercept": 3.46,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 3.42,
+     "maximum": 165.0
+    }
+   ],
+   "coefficients": [
+    0.83
+   ],
+   "citation": {
+    "publication": "Ryan, P.J., Gotvald, A.J., and Hazelbaker, C.L., 2021, Development of regression equations for the estimation of the magnitude and frequency of floods at rural, unregulated gaged and ungaged streams in Puerto Rico through water year 2017: U.S. Geological Survey Scientific Investigations Report 2021-5062, 37 p.",
+    "table": "Table 3",
+    "year": 2021,
+    "url": "https://doi.org/10.3133/sir20215062"
+   },
+   "sep_log": 0.095256,
+   "avp": 0.009,
+   "model_error_variance": 0.0045,
+   "n_sites": 32
+  },
+  {
+   "region_code": "1",
+   "region_name": "Region 1 (NSS GC1863)",
+   "aep": 0.005,
+   "intercept": 3.52,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 3.42,
+     "maximum": 165.0
+    }
+   ],
+   "coefficients": [
+    0.85
+   ],
+   "citation": {
+    "publication": "Ryan, P.J., Gotvald, A.J., and Hazelbaker, C.L., 2021, Development of regression equations for the estimation of the magnitude and frequency of floods at rural, unregulated gaged and ungaged streams in Puerto Rico through water year 2017: U.S. Geological Survey Scientific Investigations Report 2021-5062, 37 p.",
+    "table": "Table 3",
+    "year": 2021,
+    "url": "https://doi.org/10.3133/sir20215062"
+   },
+   "sep_log": 0.086852,
+   "avp": 0.0076,
+   "model_error_variance": 0.0023,
+   "n_sites": 32
+  },
+  {
+   "region_code": "1",
+   "region_name": "Region 1 (NSS GC1863)",
+   "aep": 0.002,
+   "intercept": 3.6,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 3.42,
+     "maximum": 165.0
+    }
+   ],
+   "coefficients": [
+    0.88
+   ],
+   "citation": {
+    "publication": "Ryan, P.J., Gotvald, A.J., and Hazelbaker, C.L., 2021, Development of regression equations for the estimation of the magnitude and frequency of floods at rural, unregulated gaged and ungaged streams in Puerto Rico through water year 2017: U.S. Geological Survey Scientific Investigations Report 2021-5062, 37 p.",
+    "table": "Table 3",
+    "year": 2021,
+    "url": "https://doi.org/10.3133/sir20215062"
+   },
+   "sep_log": 0.080516,
+   "avp": 0.0065,
+   "model_error_variance": 0.0001,
+   "n_sites": 32
+  },
+  {
+   "region_code": "2",
+   "region_name": "Region 2 (NSS GC1862)",
+   "aep": 0.5,
+   "intercept": 3.02,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.42,
+     "maximum": 208.0
+    }
+   ],
+   "coefficients": [
+    0.55
+   ],
+   "citation": {
+    "publication": "Ryan, P.J., Gotvald, A.J., and Hazelbaker, C.L., 2021, Development of regression equations for the estimation of the magnitude and frequency of floods at rural, unregulated gaged and ungaged streams in Puerto Rico through water year 2017: U.S. Geological Survey Scientific Investigations Report 2021-5062, 37 p.",
+    "table": "Table 3",
+    "year": 2021,
+    "url": "https://doi.org/10.3133/sir20215062"
+   },
+   "sep_log": 0.232114,
+   "avp": 0.0539,
+   "model_error_variance": 0.0506,
+   "n_sites": 45
+  },
+  {
+   "region_code": "2",
+   "region_name": "Region 2 (NSS GC1862)",
+   "aep": 0.2,
+   "intercept": 3.23,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.42,
+     "maximum": 208.0
+    }
+   ],
+   "coefficients": [
+    0.64
+   ],
+   "citation": {
+    "publication": "Ryan, P.J., Gotvald, A.J., and Hazelbaker, C.L., 2021, Development of regression equations for the estimation of the magnitude and frequency of floods at rural, unregulated gaged and ungaged streams in Puerto Rico through water year 2017: U.S. Geological Survey Scientific Investigations Report 2021-5062, 37 p.",
+    "table": "Table 3",
+    "year": 2021,
+    "url": "https://doi.org/10.3133/sir20215062"
+   },
+   "sep_log": 0.159892,
+   "avp": 0.0255,
+   "model_error_variance": 0.0232,
+   "n_sites": 45
+  },
+  {
+   "region_code": "2",
+   "region_name": "Region 2 (NSS GC1862)",
+   "aep": 0.1,
+   "intercept": 3.34,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.42,
+     "maximum": 208.0
+    }
+   ],
+   "coefficients": [
+    0.69
+   ],
+   "citation": {
+    "publication": "Ryan, P.J., Gotvald, A.J., and Hazelbaker, C.L., 2021, Development of regression equations for the estimation of the magnitude and frequency of floods at rural, unregulated gaged and ungaged streams in Puerto Rico through water year 2017: U.S. Geological Survey Scientific Investigations Report 2021-5062, 37 p.",
+    "table": "Table 3",
+    "year": 2021,
+    "url": "https://doi.org/10.3133/sir20215062"
+   },
+   "sep_log": 0.142039,
+   "avp": 0.0202,
+   "model_error_variance": 0.0177,
+   "n_sites": 45
+  },
+  {
+   "region_code": "2",
+   "region_name": "Region 2 (NSS GC1862)",
+   "aep": 0.04,
+   "intercept": 3.47,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.42,
+     "maximum": 208.0
+    }
+   ],
+   "coefficients": [
+    0.74
+   ],
+   "citation": {
+    "publication": "Ryan, P.J., Gotvald, A.J., and Hazelbaker, C.L., 2021, Development of regression equations for the estimation of the magnitude and frequency of floods at rural, unregulated gaged and ungaged streams in Puerto Rico through water year 2017: U.S. Geological Survey Scientific Investigations Report 2021-5062, 37 p.",
+    "table": "Table 3",
+    "year": 2021,
+    "url": "https://doi.org/10.3133/sir20215062"
+   },
+   "sep_log": 0.141236,
+   "avp": 0.0199,
+   "model_error_variance": 0.0168,
+   "n_sites": 45
+  },
+  {
+   "region_code": "2",
+   "region_name": "Region 2 (NSS GC1862)",
+   "aep": 0.02,
+   "intercept": 3.57,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.42,
+     "maximum": 208.0
+    }
+   ],
+   "coefficients": [
+    0.76
+   ],
+   "citation": {
+    "publication": "Ryan, P.J., Gotvald, A.J., and Hazelbaker, C.L., 2021, Development of regression equations for the estimation of the magnitude and frequency of floods at rural, unregulated gaged and ungaged streams in Puerto Rico through water year 2017: U.S. Geological Survey Scientific Investigations Report 2021-5062, 37 p.",
+    "table": "Table 3",
+    "year": 2021,
+    "url": "https://doi.org/10.3133/sir20215062"
+   },
+   "sep_log": 0.145639,
+   "avp": 0.0212,
+   "model_error_variance": 0.0175,
+   "n_sites": 45
+  },
+  {
+   "region_code": "2",
+   "region_name": "Region 2 (NSS GC1862)",
+   "aep": 0.01,
+   "intercept": 3.65,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.42,
+     "maximum": 208.0
+    }
+   ],
+   "coefficients": [
+    0.78
+   ],
+   "citation": {
+    "publication": "Ryan, P.J., Gotvald, A.J., and Hazelbaker, C.L., 2021, Development of regression equations for the estimation of the magnitude and frequency of floods at rural, unregulated gaged and ungaged streams in Puerto Rico through water year 2017: U.S. Geological Survey Scientific Investigations Report 2021-5062, 37 p.",
+    "table": "Table 3",
+    "year": 2021,
+    "url": "https://doi.org/10.3133/sir20215062"
+   },
+   "sep_log": 0.151608,
+   "avp": 0.023,
+   "model_error_variance": 0.0186,
+   "n_sites": 45
+  },
+  {
+   "region_code": "2",
+   "region_name": "Region 2 (NSS GC1862)",
+   "aep": 0.005,
+   "intercept": 3.73,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.42,
+     "maximum": 208.0
+    }
+   ],
+   "coefficients": [
+    0.8
+   ],
+   "citation": {
+    "publication": "Ryan, P.J., Gotvald, A.J., and Hazelbaker, C.L., 2021, Development of regression equations for the estimation of the magnitude and frequency of floods at rural, unregulated gaged and ungaged streams in Puerto Rico through water year 2017: U.S. Geological Survey Scientific Investigations Report 2021-5062, 37 p.",
+    "table": "Table 3",
+    "year": 2021,
+    "url": "https://doi.org/10.3133/sir20215062"
+   },
+   "sep_log": 0.157534,
+   "avp": 0.0249,
+   "model_error_variance": 0.0196,
+   "n_sites": 45
+  },
+  {
+   "region_code": "2",
+   "region_name": "Region 2 (NSS GC1862)",
+   "aep": 0.002,
+   "intercept": 3.83,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.42,
+     "maximum": 208.0
+    }
+   ],
+   "coefficients": [
+    0.82
+   ],
+   "citation": {
+    "publication": "Ryan, P.J., Gotvald, A.J., and Hazelbaker, C.L., 2021, Development of regression equations for the estimation of the magnitude and frequency of floods at rural, unregulated gaged and ungaged streams in Puerto Rico through water year 2017: U.S. Geological Survey Scientific Investigations Report 2021-5062, 37 p.",
+    "table": "Table 3",
+    "year": 2021,
+    "url": "https://doi.org/10.3133/sir20215062"
+   },
+   "sep_log": 0.164587,
+   "avp": 0.027,
+   "model_error_variance": 0.0207,
+   "n_sites": 45
+  }
+ ]
+}

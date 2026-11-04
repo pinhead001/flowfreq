@@ -98,7 +98,7 @@ Plan and definitions of done: `docs/MASTER_ROADMAP.md` §3.2.
 
 | Code | Jurisdiction | Equations | Regions | Equation count | Regional skew | Issue |
 |---|---|---|---:|---:|---|---|
-| PR | Puerto Rico | nss snapshot (16 eqs, 0 unparsed) | 2 | 16 | verified |  |
+| PR | Puerto Rico | verified | 2 | 16 | verified |  |
 | VI | U.S. Virgin Islands | not started | 0 | 0 | pending |  |
 | GU | Guam | not started | 0 | 0 | pending |  |
 | MP | Northern Mariana Islands | not started | 0 | 0 | pending |  |
