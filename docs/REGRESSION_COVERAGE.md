@@ -84,7 +84,7 @@ Plan and definitions of done: `docs/MASTER_ROADMAP.md` §3.2.
 | NY | New York | nss snapshot (120 eqs, 2 unparsed) | 12 | 120 | pending, verified |  |
 | NJ | New Jersey | verified | 5 | 35 | pending |  |
 | PA | Pennsylvania | verified | 5 | 40 | pending, verified |  |
-| DE | Delaware | nss snapshot (24 eqs, 0 unparsed) | 3 | 24 | pending |  |
+| DE | Delaware | partial | 3 | 24 | pending |  |
 | MD | Maryland | nss snapshot (40 eqs, 0 unparsed) | 4 | 40 | pending, verified |  |
 | DC | District of Columbia | not started | 0 | 0 | pending |  |
 | VA | Virginia | verified | 11 | 88 | verified |  |
