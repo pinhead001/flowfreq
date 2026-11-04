@@ -10,8 +10,13 @@ name: Live services
 # USGS_API_KEY is optional: without it the Water Data API allows about 1000
 # requests per hour per IP, and a shared runner's IP may already have spent
 # some. flowfreq.waterdata reads it from the environment (keys:
-# https://api.waterdata.usgs.gov/signup/). Legacy-NWIS parity tests skip, not
-# fail, when that service returns 5xx.
+# https://api.waterdata.usgs.gov/signup/).
+#
+# A transport failure or 5xx from a service skips the test rather than failing
+# it (tests/live_outage.py), so a red run means a wrong answer or a changed
+# service. Outages stay visible: they are skips starting "service outage:",
+# listed by -rs and in the run's job summary. A service that is down for good
+# looks like a green run with that list growing, so read the summary.
 
 on:
   schedule:
