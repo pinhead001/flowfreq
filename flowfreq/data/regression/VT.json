@@ -1,0 +1,790 @@
+{
+ "schema_version": 1,
+ "state": "VT",
+ "status": "verified",
+ "issue": null,
+ "source_reports": [
+  {
+   "citation": "Olson, S.A., 2025, Estimating flood discharges at selected annual exceedance probabilities for unregulated, rural streams in Vermont, 2023: U.S. Geological Survey Scientific Investigations Report 2025-5088, 22 p.",
+   "doi": "10.3133/sir20255088",
+   "url": "https://pubs.usgs.gov/publication/sir20255088",
+   "pdf": "https://pubs.usgs.gov/sir/2025/5088/sir20255088.pdf",
+   "tables": [
+    "Table 2",
+    "Table 4",
+    "Table 5",
+    "Table 6"
+   ],
+   "nss": {
+    "regression_regions": [
+     "GC2067",
+     "GC2068"
+    ],
+    "last_year_of_data": 2023
+   }
+  }
+ ],
+ "notes": "Olson, SIR 2025-5088: a statewide set on DRNAREA, WETLAND and PRECPRIS20 (equations 3-10, region 1) and a statewide drainage-area-only set (equations 21-28, region 2), both at 8 AEPs from 156 streamgages in Vermont and its vicinity. The constant is printed, so intercept = log10 of it. SEP in percent from Tables 4 and 6, and ranges from Table 2. Model error variance and the matrix (order intercept, log10 DRNAREA, WETLAND, log10 PRECPRIS20) from Table 5. Region 2 has no matrix, so intervals use the SEP. NSS's region 1 maximum DRNAREA is 851.4 where the report prints 851. NSS locates both sets everywhere, so a caller chooses with region=.",
+ "equations": [
+  {
+   "region_code": "1",
+   "region_name": "Statewide, three variables (NSS GC2067)",
+   "aep": 0.5,
+   "intercept": -1.8961962790440432,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.47,
+     "maximum": 851.0
+    },
+    {
+     "code": "WETLAND",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 21.0
+    },
+    {
+     "code": "PRECPRIS20",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 33.8,
+     "maximum": 75.2
+    }
+   ],
+   "coefficients": [
+    0.849,
+    -0.0114,
+    2.181
+   ],
+   "citation": {
+    "publication": "Olson, S.A., 2025, Estimating flood discharges at selected annual exceedance probabilities for unregulated, rural streams in Vermont, 2023: U.S. Geological Survey Scientific Investigations Report 2025-5088, 22 p.",
+    "table": "Equations 3-10; Tables 2, 4 and 5",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20255088"
+   },
+   "sep_log": 0.147235,
+   "model_error_variance": 0.0208,
+   "covariance": [
+    [
+     0.194983,
+     0.000730781,
+     -0.00044128,
+     -0.114432
+    ],
+    [
+     0.000730781,
+     0.000251035,
+     -8.85562e-06,
+     -0.00063588
+    ],
+    [
+     -0.00044128,
+     -8.85562e-06,
+     8.9112e-06,
+     0.000240918
+    ],
+    [
+     -0.114432,
+     -0.00063588,
+     0.000240918,
+     0.0675237
+    ]
+   ],
+   "n_sites": 156
+  },
+  {
+   "region_code": "1",
+   "region_name": "Statewide, three variables (NSS GC2067)",
+   "aep": 0.2,
+   "intercept": -1.8041003475907662,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.47,
+     "maximum": 851.0
+    },
+    {
+     "code": "WETLAND",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 21.0
+    },
+    {
+     "code": "PRECPRIS20",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 33.8,
+     "maximum": 75.2
+    }
+   ],
+   "coefficients": [
+    0.83,
+    -0.011,
+    2.252
+   ],
+   "citation": {
+    "publication": "Olson, S.A., 2025, Estimating flood discharges at selected annual exceedance probabilities for unregulated, rural streams in Vermont, 2023: U.S. Geological Survey Scientific Investigations Report 2025-5088, 22 p.",
+    "table": "Equations 3-10; Tables 2, 4 and 5",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20255088"
+   },
+   "sep_log": 0.155958,
+   "model_error_variance": 0.0232,
+   "covariance": [
+    [
+     0.230064,
+     0.000806082,
+     -0.000520878,
+     -0.134917
+    ],
+    [
+     0.000806082,
+     0.000302311,
+     -9.49728e-06,
+     -0.000734861
+    ],
+    [
+     -0.000520878,
+     -9.49728e-06,
+     1.0411e-05,
+     0.000283456
+    ],
+    [
+     -0.134917,
+     -0.000734861,
+     0.000283456,
+     0.0795976
+    ]
+   ],
+   "n_sites": 156
+  },
+  {
+   "region_code": "1",
+   "region_name": "Statewide, three variables (NSS GC2067)",
+   "aep": 0.1,
+   "intercept": -1.75448733218585,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.47,
+     "maximum": 851.0
+    },
+    {
+     "code": "WETLAND",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 21.0
+    },
+    {
+     "code": "PRECPRIS20",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 33.8,
+     "maximum": 75.2
+    }
+   ],
+   "coefficients": [
+    0.82,
+    -0.0109,
+    2.293
+   ],
+   "citation": {
+    "publication": "Olson, S.A., 2025, Estimating flood discharges at selected annual exceedance probabilities for unregulated, rural streams in Vermont, 2023: U.S. Geological Survey Scientific Investigations Report 2025-5088, 22 p.",
+    "table": "Equations 3-10; Tables 2, 4 and 5",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20255088"
+   },
+   "sep_log": 0.160284,
+   "model_error_variance": 0.0244,
+   "covariance": [
+    [
+     0.256046,
+     0.000860343,
+     -0.000577774,
+     -0.15008
+    ],
+    [
+     0.000860343,
+     0.000339409,
+     -9.79067e-06,
+     -0.000809035
+    ],
+    [
+     -0.000577774,
+     -9.79067e-06,
+     1.14738e-05,
+     0.000313703
+    ],
+    [
+     -0.15008,
+     -0.000809035,
+     0.000313703,
+     0.0885363
+    ]
+   ],
+   "n_sites": 156
+  },
+  {
+   "region_code": "1",
+   "region_name": "Statewide, three variables (NSS GC2067)",
+   "aep": 0.04,
+   "intercept": -1.6882461389442456,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.47,
+     "maximum": 851.0
+    },
+    {
+     "code": "WETLAND",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 21.0
+    },
+    {
+     "code": "PRECPRIS20",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 33.8,
+     "maximum": 75.2
+    }
+   ],
+   "coefficients": [
+    0.809,
+    -0.0107,
+    2.331
+   ],
+   "citation": {
+    "publication": "Olson, S.A., 2025, Estimating flood discharges at selected annual exceedance probabilities for unregulated, rural streams in Vermont, 2023: U.S. Geological Survey Scientific Investigations Report 2025-5088, 22 p.",
+    "table": "Equations 3-10; Tables 2, 4 and 5",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20255088"
+   },
+   "sep_log": 0.173507,
+   "model_error_variance": 0.0285,
+   "covariance": [
+    [
+     0.314624,
+     0.0010405,
+     -0.000708351,
+     -0.184372
+    ],
+    [
+     0.0010405,
+     0.000416219,
+     -1.13144e-05,
+     -0.000991203
+    ],
+    [
+     -0.000708351,
+     -1.13144e-05,
+     1.39974e-05,
+     0.000383963
+    ],
+    [
+     -0.184372,
+     -0.000991203,
+     0.000383963,
+     0.108765
+    ]
+   ],
+   "n_sites": 156
+  },
+  {
+   "region_code": "1",
+   "region_name": "Statewide, three variables (NSS GC2067)",
+   "aep": 0.02,
+   "intercept": -1.640164517660112,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.47,
+     "maximum": 851.0
+    },
+    {
+     "code": "WETLAND",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 21.0
+    },
+    {
+     "code": "PRECPRIS20",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 33.8,
+     "maximum": 75.2
+    }
+   ],
+   "coefficients": [
+    0.802,
+    -0.0107,
+    2.354
+   ],
+   "citation": {
+    "publication": "Olson, S.A., 2025, Estimating flood discharges at selected annual exceedance probabilities for unregulated, rural streams in Vermont, 2023: U.S. Geological Survey Scientific Investigations Report 2025-5088, 22 p.",
+    "table": "Equations 3-10; Tables 2, 4 and 5",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20255088"
+   },
+   "sep_log": 0.181939,
+   "model_error_variance": 0.0313,
+   "covariance": [
+    [
+     0.357565,
+     0.00117197,
+     -0.000803846,
+     -0.209505
+    ],
+    [
+     0.00117197,
+     0.000472399,
+     -1.234e-05,
+     -0.0011254
+    ],
+    [
+     -0.000803846,
+     -1.234e-05,
+     1.58338e-05,
+     0.000435272
+    ],
+    [
+     -0.209505,
+     -0.0011254,
+     0.000435272,
+     0.123592
+    ]
+   ],
+   "n_sites": 156
+  },
+  {
+   "region_code": "1",
+   "region_name": "Statewide, three variables (NSS GC2067)",
+   "aep": 0.01,
+   "intercept": -1.595166283380062,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.47,
+     "maximum": 851.0
+    },
+    {
+     "code": "WETLAND",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 21.0
+    },
+    {
+     "code": "PRECPRIS20",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 33.8,
+     "maximum": 75.2
+    }
+   ],
+   "coefficients": [
+    0.796,
+    -0.0106,
+    2.375
+   ],
+   "citation": {
+    "publication": "Olson, S.A., 2025, Estimating flood discharges at selected annual exceedance probabilities for unregulated, rural streams in Vermont, 2023: U.S. Geological Survey Scientific Investigations Report 2025-5088, 22 p.",
+    "table": "Equations 3-10; Tables 2, 4 and 5",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20255088"
+   },
+   "sep_log": 0.190269,
+   "model_error_variance": 0.0341,
+   "covariance": [
+    [
+     0.401967,
+     0.0013102,
+     -0.000902765,
+     -0.235494
+    ],
+    [
+     0.0013102,
+     0.000530134,
+     -1.33984e-05,
+     -0.00126507
+    ],
+    [
+     -0.000902765,
+     -1.33984e-05,
+     1.77339e-05,
+     0.000488428
+    ],
+    [
+     -0.235494,
+     -0.00126507,
+     0.000488428,
+     0.138923
+    ]
+   ],
+   "n_sites": 156
+  },
+  {
+   "region_code": "1",
+   "region_name": "Statewide, three variables (NSS GC2067)",
+   "aep": 0.005,
+   "intercept": -1.5512936800949202,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.47,
+     "maximum": 851.0
+    },
+    {
+     "code": "WETLAND",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 21.0
+    },
+    {
+     "code": "PRECPRIS20",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 33.8,
+     "maximum": 75.2
+    }
+   ],
+   "coefficients": [
+    0.79,
+    -0.0106,
+    2.393
+   ],
+   "citation": {
+    "publication": "Olson, S.A., 2025, Estimating flood discharges at selected annual exceedance probabilities for unregulated, rural streams in Vermont, 2023: U.S. Geological Survey Scientific Investigations Report 2025-5088, 22 p.",
+    "table": "Equations 3-10; Tables 2, 4 and 5",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20255088"
+   },
+   "sep_log": 0.201834,
+   "model_error_variance": 0.0384,
+   "covariance": [
+    [
+     0.460446,
+     0.00150556,
+     -0.00103438,
+     -0.269754
+    ],
+    [
+     0.00150556,
+     0.00060473,
+     -1.50844e-05,
+     -0.00145116
+    ],
+    [
+     -0.00103438,
+     -1.50844e-05,
+     2.02861e-05,
+     0.000559438
+    ],
+    [
+     -0.269754,
+     -0.00145116,
+     0.000559438,
+     0.159136
+    ]
+   ],
+   "n_sites": 156
+  },
+  {
+   "region_code": "1",
+   "region_name": "Statewide, three variables (NSS GC2067)",
+   "aep": 0.002,
+   "intercept": -1.494850021680094,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.47,
+     "maximum": 851.0
+    },
+    {
+     "code": "WETLAND",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 21.0
+    },
+    {
+     "code": "PRECPRIS20",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 33.8,
+     "maximum": 75.2
+    }
+   ],
+   "coefficients": [
+    0.784,
+    -0.0106,
+    2.414
+   ],
+   "citation": {
+    "publication": "Olson, S.A., 2025, Estimating flood discharges at selected annual exceedance probabilities for unregulated, rural streams in Vermont, 2023: U.S. Geological Survey Scientific Investigations Report 2025-5088, 22 p.",
+    "table": "Equations 3-10; Tables 2, 4 and 5",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20255088"
+   },
+   "sep_log": 0.216808,
+   "model_error_variance": 0.0443,
+   "covariance": [
+    [
+     0.540529,
+     0.00177457,
+     -0.001215,
+     -0.316671
+    ],
+    [
+     0.00177457,
+     0.000706616,
+     -1.73758e-05,
+     -0.00170659
+    ],
+    [
+     -0.001215,
+     -1.73758e-05,
+     2.37838e-05,
+     0.000656876
+    ],
+    [
+     -0.316671,
+     -0.00170659,
+     0.000656876,
+     0.186815
+    ]
+   ],
+   "n_sites": 156
+  },
+  {
+   "region_code": "2",
+   "region_name": "Statewide, drainage area only (NSS GC2068)",
+   "aep": 0.5,
+   "intercept": 1.720985744153739,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.47,
+     "maximum": 851.0
+    }
+   ],
+   "coefficients": [
+    0.854
+   ],
+   "citation": {
+    "publication": "Olson, S.A., 2025, Estimating flood discharges at selected annual exceedance probabilities for unregulated, rural streams in Vermont, 2023: U.S. Geological Survey Scientific Investigations Report 2025-5088, 22 p.",
+    "table": "Equations 21-28; Tables 2 and 6",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20255088"
+   },
+   "sep_log": 0.198498,
+   "n_sites": 156
+  },
+  {
+   "region_code": "2",
+   "region_name": "Statewide, drainage area only (NSS GC2068)",
+   "aep": 0.2,
+   "intercept": 1.932980821923198,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.47,
+     "maximum": 851.0
+    }
+   ],
+   "coefficients": [
+    0.838
+   ],
+   "citation": {
+    "publication": "Olson, S.A., 2025, Estimating flood discharges at selected annual exceedance probabilities for unregulated, rural streams in Vermont, 2023: U.S. Geological Survey Scientific Investigations Report 2025-5088, 22 p.",
+    "table": "Equations 21-28; Tables 2 and 6",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20255088"
+   },
+   "sep_log": 0.200353,
+   "n_sites": 156
+  },
+  {
+   "region_code": "2",
+   "region_name": "Statewide, drainage area only (NSS GC2068)",
+   "aep": 0.1,
+   "intercept": 2.0530784434834195,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.47,
+     "maximum": 851.0
+    }
+   ],
+   "coefficients": [
+    0.829
+   ],
+   "citation": {
+    "publication": "Olson, S.A., 2025, Estimating flood discharges at selected annual exceedance probabilities for unregulated, rural streams in Vermont, 2023: U.S. Geological Survey Scientific Investigations Report 2025-5088, 22 p.",
+    "table": "Equations 21-28; Tables 2 and 6",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20255088"
+   },
+   "sep_log": 0.206988,
+   "n_sites": 156
+  },
+  {
+   "region_code": "2",
+   "region_name": "Statewide, drainage area only (NSS GC2068)",
+   "aep": 0.04,
+   "intercept": 2.1818435879447726,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.47,
+     "maximum": 851.0
+    }
+   ],
+   "coefficients": [
+    0.819
+   ],
+   "citation": {
+    "publication": "Olson, S.A., 2025, Estimating flood discharges at selected annual exceedance probabilities for unregulated, rural streams in Vermont, 2023: U.S. Geological Survey Scientific Investigations Report 2025-5088, 22 p.",
+    "table": "Equations 21-28; Tables 2 and 6",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20255088"
+   },
+   "sep_log": 0.216808,
+   "n_sites": 156
+  },
+  {
+   "region_code": "2",
+   "region_name": "Statewide, drainage area only (NSS GC2068)",
+   "aep": 0.02,
+   "intercept": 2.271841606536499,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.47,
+     "maximum": 851.0
+    }
+   ],
+   "coefficients": [
+    0.813
+   ],
+   "citation": {
+    "publication": "Olson, S.A., 2025, Estimating flood discharges at selected annual exceedance probabilities for unregulated, rural streams in Vermont, 2023: U.S. Geological Survey Scientific Investigations Report 2025-5088, 22 p.",
+    "table": "Equations 21-28; Tables 2 and 6",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20255088"
+   },
+   "sep_log": 0.223265,
+   "n_sites": 156
+  },
+  {
+   "region_code": "2",
+   "region_name": "Statewide, drainage area only (NSS GC2068)",
+   "aep": 0.01,
+   "intercept": 2.3502480183341627,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.47,
+     "maximum": 851.0
+    }
+   ],
+   "coefficients": [
+    0.807
+   ],
+   "citation": {
+    "publication": "Olson, S.A., 2025, Estimating flood discharges at selected annual exceedance probabilities for unregulated, rural streams in Vermont, 2023: U.S. Geological Survey Scientific Investigations Report 2025-5088, 22 p.",
+    "table": "Equations 21-28; Tables 2 and 6",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20255088"
+   },
+   "sep_log": 0.233166,
+   "n_sites": 156
+  },
+  {
+   "region_code": "2",
+   "region_name": "Statewide, drainage area only (NSS GC2068)",
+   "aep": 0.005,
+   "intercept": 2.4265112613645754,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.47,
+     "maximum": 851.0
+    }
+   ],
+   "coefficients": [
+    0.802
+   ],
+   "citation": {
+    "publication": "Olson, S.A., 2025, Estimating flood discharges at selected annual exceedance probabilities for unregulated, rural streams in Vermont, 2023: U.S. Geological Survey Scientific Investigations Report 2025-5088, 22 p.",
+    "table": "Equations 21-28; Tables 2 and 6",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20255088"
+   },
+   "sep_log": 0.239784,
+   "n_sites": 156
+  },
+  {
+   "region_code": "2",
+   "region_name": "Statewide, drainage area only (NSS GC2068)",
+   "aep": 0.002,
+   "intercept": 2.5185139398778875,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.47,
+     "maximum": 851.0
+    }
+   ],
+   "coefficients": [
+    0.795
+   ],
+   "citation": {
+    "publication": "Olson, S.A., 2025, Estimating flood discharges at selected annual exceedance probabilities for unregulated, rural streams in Vermont, 2023: U.S. Geological Survey Scientific Investigations Report 2025-5088, 22 p.",
+    "table": "Equations 21-28; Tables 2 and 6",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20255088"
+   },
+   "sep_log": 0.252102,
+   "n_sites": 156
+  }
+ ]
+}
