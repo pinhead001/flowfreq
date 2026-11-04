@@ -1,0 +1,2056 @@
+{
+ "schema_version": 1,
+ "state": "FL",
+ "status": "verified",
+ "issue": null,
+ "source_reports": [
+  {
+   "citation": "Verdi, R.J., and Dixon, J.F., 2011, Magnitude and Frequency of Floods for Rural Streams in Florida, 2006: U.S. Geological Survey Scientific Investigations Report 2011-5034, 69 p., 1 pl.",
+   "url": "https://pubs.usgs.gov/publication/sir20115034",
+   "pdf": "https://pubs.usgs.gov/sir/2011/5034/pdf/sir2011-5034.pdf",
+   "tables": [
+    "Table 3",
+    "Table 4",
+    "Appendix 1"
+   ],
+   "nss": {
+    "regression_regions": [
+     "GC1535",
+     "GC1536",
+     "GC1537",
+     "GC1538"
+    ],
+    "last_year_of_data": 2006
+   }
+  },
+  {
+   "citation": "Franklin, M.A., and Losey, G.T., 1984, Magnitude and Frequency of Floods from Urban Streams in Leon County, Florida: U.S. Geological Survey Water-Resources Investigations Report 84-4004, 37 p.",
+   "url": "https://pubs.usgs.gov/publication/wri844004",
+   "pdf": "https://pubs.usgs.gov/wri/1984/4004/report.pdf",
+   "tables": [
+    "Table 2",
+    "Table 5",
+    "p. 24",
+    "Supplementary Data"
+   ],
+   "nss": {
+    "regression_regions": [
+     "GC1024",
+     "GC1025"
+    ],
+    "last_year_of_data": 1982
+   }
+  },
+  {
+   "citation": "Lopez, M.A., and Woodham, W.M., 1983, Magnitude and frequency of flooding on small urban watersheds in the Tampa Bay area, west-central Florida: U.S. Geological Survey Water-Resources Investigations Report 82-42, 52 p.",
+   "url": "https://pubs.usgs.gov/publication/wri8242",
+   "pdf": "https://pubs.usgs.gov/wri/1982/0042/report.pdf",
+   "tables": [
+    "Table 6",
+    "Table 8",
+    "Table 10",
+    "Table 16"
+   ],
+   "nss": {
+    "regression_regions": [
+     "GC1030"
+    ],
+    "last_year_of_data": 1976
+   }
+  }
+ ],
+ "notes": "Florida. Three reports, all treated as current: NSS serves all three and one web search found no later Florida report replacing any of them. SIR 2011-5034 (Verdi and Dixon): rural regions 1-4 at 8 AEPs from Table 3, with SEP, AVP, model error variance, equivalent years and n, and ranges from Table 4. Equations 7-38 print (ST+1), stored as offset 1 on NSS's code LC92STOR. Table 1 defines storage from the 2001 National Land Cover Dataset, while the code names the 1992 dataset, so a value read from StreamStats may differ from the report's. Table 3 prints equation 16 as 'Q-184' for Q=184. No covariance is printed, so intervals use the AVP. Appendix 1's regression line reproduces from its printed area and storage at all 275 Florida gages (2,200 cells, within rounding of 3-figure inputs and outputs) except eight cells at seven gages, which are pinned in the test as misprints or unexplained: 02329558 0.2 percent (682, equation 884), 02330400 2 percent (5,960, 5,844), 02368329 50 and 2 percent (31 and 185, 35 and 181), 02245255 0.2 percent (3,800, 2,705), 02246497 10 percent (824, 552), 02294068 2 percent (1,290, 399), 02294650 50 percent (948, 989). The other 30 gages in n, 21 in Georgia (footnote a) and 9 in Alabama (footnote b), are not checked: Georgia's regression line does not come from these equations and Alabama's is blank. The worked example (02330400, New River near Sumatra) reproduces its 6,240 and 6,420 ft3/s. Its 6,640 for the gage is appendix 1's cell, where equation 12 gives 6,622, and its weighted 7,010 is 7,090 in appendix 1. Appendix 1 has storage of 91.0 in region 3, which the report explains, and 99.3 in region 2, which it does not; both are above Table 4's limits and this file keeps Table 4. WRI 84-4004 (Franklin and Losey): urban Leon County at 7 AEPs (no 0.5 percent) from Table 5, one fit with two constants, stored as two regions. NSS has no SEP for these; p. 24 prints it and the abstract confirms the range (32 to 47 percent), so it is stored. Regression standard errors of 18 to 30 percent (Table 5) are not stored. The ranges are the report's observed ranges over 15 basins, though 2 were left out of the fit, which gives the 13 in n_sites, and so 5.8 percent impervious comes from a basin not fitted. n counts both regions together, and the report counts 3 independent variables, so the t interval has one degree of freedom more than the fit. The worked example (map 13) and the Supplementary Data regression column reproduce at all 13 basins and 7 AEPs, the largest difference 0.7 percent (map 6 at 10 percent, 2,220 for 2,205). The report advises against weighting with station values in Leon County. WRI 82-42 (Lopez and Woodham): Tampa Bay small urban watersheds at 6 AEPs (no 0.5 or 0.2 percent) from Table 10: equation 3 with BDF and (DTENA+0.01) for 50, 20 and 10 percent, equation 4 with (13-BDF) and no DTENA for 4, 2 and 1 percent, stored as scale -1, offset 13 on BDF. The report prints only a standard error of estimate (average 33, 32, 35, 37, 39, 42 percent; p. 29 uses it for the equivalent years), not a standard error of prediction, so no sep_log is stored and these equations give no interval. Examples 1-4 reproduce, and so does Table 16's regionalized estimate at all 9 sites and 6 AEPs from Tables 6 and 8, except site 8 at 10 percent (374, equation 574), a misprint: 374 falls below the 20 percent value of 448, and the weighted row's 359 fits 574, where 374 would give about 353. The report also limits use to a soil-infiltration index of 2.05 to 3.89 inches and 3.5 percent detention and lake area, and its example 1 applies equation 4 with no detention value given. So neither limit is on the 4, 2 and 1 percent equations; check them by hand. Rural and urban sets overlap in Leon County and Tampa Bay, and no preference is set. Florida has no StreamStats stream grid, so estimate_at_site raises RegionNotDelineatedError: these are reached by supplying the region and characteristics. Every coefficient, intercept and range equals NSS's snapshot, and SIR 2011-5034's SEPs do.",
+ "equations": [
+  {
+   "region_code": "1",
+   "region_name": "Rural region 1 (SIR 2011-5034; NSS GC1535)",
+   "aep": 0.5,
+   "intercept": 2.103803720955957,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.14,
+     "maximum": 4385.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 44.29,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.656,
+    -0.098
+   ],
+   "citation": {
+    "publication": "Verdi, R.J., and Dixon, J.F., 2011, Magnitude and Frequency of Floods for Rural Streams in Florida, 2006: U.S. Geological Survey Scientific Investigations Report 2011-5034, 69 p., 1 pl.",
+    "table": "Table 3 (equation 7), Table 4",
+    "year": 2011,
+    "url": "https://pubs.usgs.gov/publication/sir20115034"
+   },
+   "sep_log": 0.178884,
+   "avp": 0.0325,
+   "model_error_variance": 0.0307,
+   "n_sites": 77,
+   "equivalent_years": 2.68
+  },
+  {
+   "region_code": "1",
+   "region_name": "Rural region 1 (SIR 2011-5034; NSS GC1535)",
+   "aep": 0.2,
+   "intercept": 2.3944516808262164,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.14,
+     "maximum": 4385.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 44.29,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.662,
+    -0.189
+   ],
+   "citation": {
+    "publication": "Verdi, R.J., and Dixon, J.F., 2011, Magnitude and Frequency of Floods for Rural Streams in Florida, 2006: U.S. Geological Survey Scientific Investigations Report 2011-5034, 69 p., 1 pl.",
+    "table": "Table 3 (equation 8), Table 4",
+    "year": 2011,
+    "url": "https://pubs.usgs.gov/publication/sir20115034"
+   },
+   "sep_log": 0.167313,
+   "avp": 0.0281,
+   "model_error_variance": 0.0262,
+   "n_sites": 77,
+   "equivalent_years": 4.84
+  },
+  {
+   "region_code": "1",
+   "region_name": "Rural region 1 (SIR 2011-5034; NSS GC1535)",
+   "aep": 0.1,
+   "intercept": 2.552668216112193,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.14,
+     "maximum": 4385.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 44.29,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.666,
+    -0.239
+   ],
+   "citation": {
+    "publication": "Verdi, R.J., and Dixon, J.F., 2011, Magnitude and Frequency of Floods for Rural Streams in Florida, 2006: U.S. Geological Survey Scientific Investigations Report 2011-5034, 69 p., 1 pl.",
+    "table": "Table 3 (equation 9), Table 4",
+    "year": 2011,
+    "url": "https://pubs.usgs.gov/publication/sir20115034"
+   },
+   "sep_log": 0.175048,
+   "avp": 0.0309,
+   "model_error_variance": 0.0287,
+   "n_sites": 77,
+   "equivalent_years": 6.19
+  },
+  {
+   "region_code": "1",
+   "region_name": "Rural region 1 (SIR 2011-5034; NSS GC1535)",
+   "aep": 0.04,
+   "intercept": 2.722633922533812,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.14,
+     "maximum": 4385.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 44.29,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.671,
+    -0.293
+   ],
+   "citation": {
+    "publication": "Verdi, R.J., and Dixon, J.F., 2011, Magnitude and Frequency of Floods for Rural Streams in Florida, 2006: U.S. Geological Survey Scientific Investigations Report 2011-5034, 69 p., 1 pl.",
+    "table": "Table 3 (equation 10), Table 4",
+    "year": 2011,
+    "url": "https://pubs.usgs.gov/publication/sir20115034"
+   },
+   "sep_log": 0.194022,
+   "avp": 0.0381,
+   "model_error_variance": 0.0353,
+   "n_sites": 77,
+   "equivalent_years": 7.26
+  },
+  {
+   "region_code": "1",
+   "region_name": "Rural region 1 (SIR 2011-5034; NSS GC1535)",
+   "aep": 0.02,
+   "intercept": 2.835056101720116,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.14,
+     "maximum": 4385.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 44.29,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.675,
+    -0.328
+   ],
+   "citation": {
+    "publication": "Verdi, R.J., and Dixon, J.F., 2011, Magnitude and Frequency of Floods for Rural Streams in Florida, 2006: U.S. Geological Survey Scientific Investigations Report 2011-5034, 69 p., 1 pl.",
+    "table": "Table 3 (equation 11), Table 4",
+    "year": 2011,
+    "url": "https://pubs.usgs.gov/publication/sir20115034"
+   },
+   "sep_log": 0.212464,
+   "avp": 0.0452,
+   "model_error_variance": 0.0418,
+   "n_sites": 77,
+   "equivalent_years": 7.69
+  },
+  {
+   "region_code": "1",
+   "region_name": "Rural region 1 (SIR 2011-5034; NSS GC1535)",
+   "aep": 0.01,
+   "intercept": 2.936513742478893,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.14,
+     "maximum": 4385.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 44.29,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.679,
+    -0.362
+   ],
+   "citation": {
+    "publication": "Verdi, R.J., and Dixon, J.F., 2011, Magnitude and Frequency of Floods for Rural Streams in Florida, 2006: U.S. Geological Survey Scientific Investigations Report 2011-5034, 69 p., 1 pl.",
+    "table": "Table 3 (equation 12), Table 4",
+    "year": 2011,
+    "url": "https://pubs.usgs.gov/publication/sir20115034"
+   },
+   "sep_log": 0.230355,
+   "avp": 0.0533,
+   "model_error_variance": 0.0493,
+   "n_sites": 77,
+   "equivalent_years": 7.92
+  },
+  {
+   "region_code": "1",
+   "region_name": "Rural region 1 (SIR 2011-5034; NSS GC1535)",
+   "aep": 0.005,
+   "intercept": 3.030194785356751,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.14,
+     "maximum": 4385.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 44.29,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.683,
+    -0.392
+   ],
+   "citation": {
+    "publication": "Verdi, R.J., and Dixon, J.F., 2011, Magnitude and Frequency of Floods for Rural Streams in Florida, 2006: U.S. Geological Survey Scientific Investigations Report 2011-5034, 69 p., 1 pl.",
+    "table": "Table 3 (equation 13), Table 4",
+    "year": 2011,
+    "url": "https://pubs.usgs.gov/publication/sir20115034"
+   },
+   "sep_log": 0.247688,
+   "avp": 0.0622,
+   "model_error_variance": 0.0576,
+   "n_sites": 77,
+   "equivalent_years": 8.02
+  },
+  {
+   "region_code": "1",
+   "region_name": "Rural region 1 (SIR 2011-5034; NSS GC1535)",
+   "aep": 0.002,
+   "intercept": 3.144574207609616,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.14,
+     "maximum": 4385.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 44.29,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.688,
+    -0.43
+   ],
+   "citation": {
+    "publication": "Verdi, R.J., and Dixon, J.F., 2011, Magnitude and Frequency of Floods for Rural Streams in Florida, 2006: U.S. Geological Survey Scientific Investigations Report 2011-5034, 69 p., 1 pl.",
+    "table": "Table 3 (equation 14), Table 4",
+    "year": 2011,
+    "url": "https://pubs.usgs.gov/publication/sir20115034"
+   },
+   "sep_log": 0.274251,
+   "avp": 0.0755,
+   "model_error_variance": 0.07,
+   "n_sites": 77,
+   "equivalent_years": 8.03
+  },
+  {
+   "region_code": "2",
+   "region_name": "Rural region 2 (SIR 2011-5034; NSS GC1536)",
+   "aep": 0.5,
+   "intercept": 2.0043213737826426,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.06,
+     "maximum": 2647.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 74.33,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.617,
+    -0.211
+   ],
+   "citation": {
+    "publication": "Verdi, R.J., and Dixon, J.F., 2011, Magnitude and Frequency of Floods for Rural Streams in Florida, 2006: U.S. Geological Survey Scientific Investigations Report 2011-5034, 69 p., 1 pl.",
+    "table": "Table 3 (equation 15), Table 4",
+    "year": 2011,
+    "url": "https://pubs.usgs.gov/publication/sir20115034"
+   },
+   "sep_log": 0.233866,
+   "avp": 0.0555,
+   "model_error_variance": 0.0529,
+   "n_sites": 83,
+   "equivalent_years": 1.79
+  },
+  {
+   "region_code": "2",
+   "region_name": "Rural region 2 (SIR 2011-5034; NSS GC1536)",
+   "aep": 0.2,
+   "intercept": 2.2648178230095364,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.06,
+     "maximum": 2647.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 74.33,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.62,
+    -0.212
+   ],
+   "citation": {
+    "publication": "Verdi, R.J., and Dixon, J.F., 2011, Magnitude and Frequency of Floods for Rural Streams in Florida, 2006: U.S. Geological Survey Scientific Investigations Report 2011-5034, 69 p., 1 pl.",
+    "table": "Table 3 (equation 16), Table 4",
+    "year": 2011,
+    "url": "https://pubs.usgs.gov/publication/sir20115034"
+   },
+   "sep_log": 0.216086,
+   "avp": 0.0467,
+   "model_error_variance": 0.0443,
+   "n_sites": 83,
+   "equivalent_years": 2.7
+  },
+  {
+   "region_code": "2",
+   "region_name": "Rural region 2 (SIR 2011-5034; NSS GC1536)",
+   "aep": 0.1,
+   "intercept": 2.403120521175818,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.06,
+     "maximum": 2647.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 74.33,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.621,
+    -0.215
+   ],
+   "citation": {
+    "publication": "Verdi, R.J., and Dixon, J.F., 2011, Magnitude and Frequency of Floods for Rural Streams in Florida, 2006: U.S. Geological Survey Scientific Investigations Report 2011-5034, 69 p., 1 pl.",
+    "table": "Table 3 (equation 17), Table 4",
+    "year": 2011,
+    "url": "https://pubs.usgs.gov/publication/sir20115034"
+   },
+   "sep_log": 0.212464,
+   "avp": 0.0452,
+   "model_error_variance": 0.0427,
+   "n_sites": 83,
+   "equivalent_years": 3.69
+  },
+  {
+   "region_code": "2",
+   "region_name": "Rural region 2 (SIR 2011-5034; NSS GC1536)",
+   "aep": 0.04,
+   "intercept": 2.5477747053878224,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.06,
+     "maximum": 2647.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 74.33,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.621,
+    -0.221
+   ],
+   "citation": {
+    "publication": "Verdi, R.J., and Dixon, J.F., 2011, Magnitude and Frequency of Floods for Rural Streams in Florida, 2006: U.S. Geological Survey Scientific Investigations Report 2011-5034, 69 p., 1 pl.",
+    "table": "Table 3 (equation 18), Table 4",
+    "year": 2011,
+    "url": "https://pubs.usgs.gov/publication/sir20115034"
+   },
+   "sep_log": 0.216086,
+   "avp": 0.0462,
+   "model_error_variance": 0.0435,
+   "n_sites": 83,
+   "equivalent_years": 4.94
+  },
+  {
+   "region_code": "2",
+   "region_name": "Rural region 2 (SIR 2011-5034; NSS GC1536)",
+   "aep": 0.02,
+   "intercept": 2.6384892569546374,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.06,
+     "maximum": 2647.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 74.33,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.621,
+    -0.226
+   ],
+   "citation": {
+    "publication": "Verdi, R.J., and Dixon, J.F., 2011, Magnitude and Frequency of Floods for Rural Streams in Florida, 2006: U.S. Geological Survey Scientific Investigations Report 2011-5034, 69 p., 1 pl.",
+    "table": "Table 3 (equation 19), Table 4",
+    "year": 2011,
+    "url": "https://pubs.usgs.gov/publication/sir20115034"
+   },
+   "sep_log": 0.219687,
+   "avp": 0.0485,
+   "model_error_variance": 0.0455,
+   "n_sites": 83,
+   "equivalent_years": 5.73
+  },
+  {
+   "region_code": "2",
+   "region_name": "Rural region 2 (SIR 2011-5034; NSS GC1536)",
+   "aep": 0.01,
+   "intercept": 2.720159303405957,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.06,
+     "maximum": 2647.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 74.33,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.621,
+    -0.231
+   ],
+   "citation": {
+    "publication": "Verdi, R.J., and Dixon, J.F., 2011, Magnitude and Frequency of Floods for Rural Streams in Florida, 2006: U.S. Geological Survey Scientific Investigations Report 2011-5034, 69 p., 1 pl.",
+    "table": "Table 3 (equation 20), Table 4",
+    "year": 2011,
+    "url": "https://pubs.usgs.gov/publication/sir20115034"
+   },
+   "sep_log": 0.226821,
+   "avp": 0.0518,
+   "model_error_variance": 0.0485,
+   "n_sites": 83,
+   "equivalent_years": 6.34
+  },
+  {
+   "region_code": "2",
+   "region_name": "Rural region 2 (SIR 2011-5034; NSS GC1536)",
+   "aep": 0.005,
+   "intercept": 2.7937903846908188,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.06,
+     "maximum": 2647.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 74.33,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.621,
+    -0.236
+   ],
+   "citation": {
+    "publication": "Verdi, R.J., and Dixon, J.F., 2011, Magnitude and Frequency of Floods for Rural Streams in Florida, 2006: U.S. Geological Survey Scientific Investigations Report 2011-5034, 69 p., 1 pl.",
+    "table": "Table 3 (equation 21), Table 4",
+    "year": 2011,
+    "url": "https://pubs.usgs.gov/publication/sir20115034"
+   },
+   "sep_log": 0.237355,
+   "avp": 0.0559,
+   "model_error_variance": 0.0523,
+   "n_sites": 83,
+   "equivalent_years": 6.8
+  },
+  {
+   "region_code": "2",
+   "region_name": "Rural region 2 (SIR 2011-5034; NSS GC1536)",
+   "aep": 0.002,
+   "intercept": 2.8830933585756897,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.06,
+     "maximum": 2647.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 74.33,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.62,
+    -0.244
+   ],
+   "citation": {
+    "publication": "Verdi, R.J., and Dixon, J.F., 2011, Magnitude and Frequency of Floods for Rural Streams in Florida, 2006: U.S. Geological Survey Scientific Investigations Report 2011-5034, 69 p., 1 pl.",
+    "table": "Table 3 (equation 22), Table 4",
+    "year": 2011,
+    "url": "https://pubs.usgs.gov/publication/sir20115034"
+   },
+   "sep_log": 0.251087,
+   "avp": 0.0625,
+   "model_error_variance": 0.0584,
+   "n_sites": 83,
+   "equivalent_years": 7.19
+  },
+  {
+   "region_code": "3",
+   "region_name": "Rural region 3 (SIR 2011-5034; NSS GC1537)",
+   "aep": 0.5,
+   "intercept": 1.861534410859038,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.41,
+     "maximum": 3244.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.18,
+     "maximum": 48.04,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.741,
+    -0.589
+   ],
+   "citation": {
+    "publication": "Verdi, R.J., and Dixon, J.F., 2011, Magnitude and Frequency of Floods for Rural Streams in Florida, 2006: U.S. Geological Survey Scientific Investigations Report 2011-5034, 69 p., 1 pl.",
+    "table": "Table 3 (equation 23), Table 4",
+    "year": 2011,
+    "url": "https://pubs.usgs.gov/publication/sir20115034"
+   },
+   "sep_log": 0.326025,
+   "avp": 0.1071,
+   "model_error_variance": 0.1023,
+   "n_sites": 76,
+   "equivalent_years": 0.99
+  },
+  {
+   "region_code": "3",
+   "region_name": "Rural region 3 (SIR 2011-5034; NSS GC1537)",
+   "aep": 0.2,
+   "intercept": 2.214843848047698,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.41,
+     "maximum": 3244.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.18,
+     "maximum": 48.04,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.704,
+    -0.587
+   ],
+   "citation": {
+    "publication": "Verdi, R.J., and Dixon, J.F., 2011, Magnitude and Frequency of Floods for Rural Streams in Florida, 2006: U.S. Geological Survey Scientific Investigations Report 2011-5034, 69 p., 1 pl.",
+    "table": "Table 3 (equation 24), Table 4",
+    "year": 2011,
+    "url": "https://pubs.usgs.gov/publication/sir20115034"
+   },
+   "sep_log": 0.247688,
+   "avp": 0.0619,
+   "model_error_variance": 0.0588,
+   "n_sites": 76,
+   "equivalent_years": 2.07
+  },
+  {
+   "region_code": "3",
+   "region_name": "Rural region 3 (SIR 2011-5034; NSS GC1537)",
+   "aep": 0.1,
+   "intercept": 2.3979400086720375,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.41,
+     "maximum": 3244.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.18,
+     "maximum": 48.04,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.686,
+    -0.592
+   ],
+   "citation": {
+    "publication": "Verdi, R.J., and Dixon, J.F., 2011, Magnitude and Frequency of Floods for Rural Streams in Florida, 2006: U.S. Geological Survey Scientific Investigations Report 2011-5034, 69 p., 1 pl.",
+    "table": "Table 3 (equation 25), Table 4",
+    "year": 2011,
+    "url": "https://pubs.usgs.gov/publication/sir20115034"
+   },
+   "sep_log": 0.226821,
+   "avp": 0.0514,
+   "model_error_variance": 0.0486,
+   "n_sites": 76,
+   "equivalent_years": 3.23
+  },
+  {
+   "region_code": "3",
+   "region_name": "Rural region 3 (SIR 2011-5034; NSS GC1537)",
+   "aep": 0.04,
+   "intercept": 2.591064607026499,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.41,
+     "maximum": 3244.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.18,
+     "maximum": 48.04,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.668,
+    -0.601
+   ],
+   "citation": {
+    "publication": "Verdi, R.J., and Dixon, J.F., 2011, Magnitude and Frequency of Floods for Rural Streams in Florida, 2006: U.S. Geological Survey Scientific Investigations Report 2011-5034, 69 p., 1 pl.",
+    "table": "Table 3 (equation 26), Table 4",
+    "year": 2011,
+    "url": "https://pubs.usgs.gov/publication/sir20115034"
+   },
+   "sep_log": 0.216086,
+   "avp": 0.0472,
+   "model_error_variance": 0.0444,
+   "n_sites": 76,
+   "equivalent_years": 4.77
+  },
+  {
+   "region_code": "3",
+   "region_name": "Rural region 3 (SIR 2011-5034; NSS GC1537)",
+   "aep": 0.02,
+   "intercept": 2.7134905430939424,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.41,
+     "maximum": 3244.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.18,
+     "maximum": 48.04,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.656,
+    -0.608
+   ],
+   "citation": {
+    "publication": "Verdi, R.J., and Dixon, J.F., 2011, Magnitude and Frequency of Floods for Rural Streams in Florida, 2006: U.S. Geological Survey Scientific Investigations Report 2011-5034, 69 p., 1 pl.",
+    "table": "Table 3 (equation 27), Table 4",
+    "year": 2011,
+    "url": "https://pubs.usgs.gov/publication/sir20115034"
+   },
+   "sep_log": 0.216086,
+   "avp": 0.0474,
+   "model_error_variance": 0.0444,
+   "n_sites": 76,
+   "equivalent_years": 5.74
+  },
+  {
+   "region_code": "3",
+   "region_name": "Rural region 3 (SIR 2011-5034; NSS GC1537)",
+   "aep": 0.01,
+   "intercept": 2.8221680793680175,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.41,
+     "maximum": 3244.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.18,
+     "maximum": 48.04,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.646,
+    -0.616
+   ],
+   "citation": {
+    "publication": "Verdi, R.J., and Dixon, J.F., 2011, Magnitude and Frequency of Floods for Rural Streams in Florida, 2006: U.S. Geological Survey Scientific Investigations Report 2011-5034, 69 p., 1 pl.",
+    "table": "Table 3 (equation 28), Table 4",
+    "year": 2011,
+    "url": "https://pubs.usgs.gov/publication/sir20115034"
+   },
+   "sep_log": 0.219687,
+   "avp": 0.0491,
+   "model_error_variance": 0.0459,
+   "n_sites": 76,
+   "equivalent_years": 6.52
+  },
+  {
+   "region_code": "3",
+   "region_name": "Rural region 3 (SIR 2011-5034; NSS GC1537)",
+   "aep": 0.005,
+   "intercept": 2.9206450014067875,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.41,
+     "maximum": 3244.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.18,
+     "maximum": 48.04,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.638,
+    -0.625
+   ],
+   "citation": {
+    "publication": "Verdi, R.J., and Dixon, J.F., 2011, Magnitude and Frequency of Floods for Rural Streams in Florida, 2006: U.S. Geological Survey Scientific Investigations Report 2011-5034, 69 p., 1 pl.",
+    "table": "Table 3 (equation 29), Table 4",
+    "year": 2011,
+    "url": "https://pubs.usgs.gov/publication/sir20115034"
+   },
+   "sep_log": 0.226821,
+   "avp": 0.0516,
+   "model_error_variance": 0.0482,
+   "n_sites": 76,
+   "equivalent_years": 7.11
+  },
+  {
+   "region_code": "3",
+   "region_name": "Rural region 3 (SIR 2011-5034; NSS GC1537)",
+   "aep": 0.002,
+   "intercept": 3.039017321997412,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.41,
+     "maximum": 3244.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.18,
+     "maximum": 48.04,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.629,
+    -0.638
+   ],
+   "citation": {
+    "publication": "Verdi, R.J., and Dixon, J.F., 2011, Magnitude and Frequency of Floods for Rural Streams in Florida, 2006: U.S. Geological Survey Scientific Investigations Report 2011-5034, 69 p., 1 pl.",
+    "table": "Table 3 (equation 30), Table 4",
+    "year": 2011,
+    "url": "https://pubs.usgs.gov/publication/sir20115034"
+   },
+   "sep_log": 0.237355,
+   "avp": 0.056,
+   "model_error_variance": 0.0522,
+   "n_sites": 76,
+   "equivalent_years": 7.68
+  },
+  {
+   "region_code": "4",
+   "region_name": "Rural region 4 (SIR 2011-5034; NSS GC1538)",
+   "aep": 0.5,
+   "intercept": 2.2329961103921536,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.2,
+     "maximum": 2833.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 34.12,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.628,
+    -0.401
+   ],
+   "citation": {
+    "publication": "Verdi, R.J., and Dixon, J.F., 2011, Magnitude and Frequency of Floods for Rural Streams in Florida, 2006: U.S. Geological Survey Scientific Investigations Report 2011-5034, 69 p., 1 pl.",
+    "table": "Table 3 (equation 31), Table 4",
+    "year": 2011,
+    "url": "https://pubs.usgs.gov/publication/sir20115034"
+   },
+   "sep_log": 0.151608,
+   "avp": 0.0235,
+   "model_error_variance": 0.0218,
+   "n_sites": 69,
+   "equivalent_years": 4.15
+  },
+  {
+   "region_code": "4",
+   "region_name": "Rural region 4 (SIR 2011-5034; NSS GC1538)",
+   "aep": 0.2,
+   "intercept": 2.506505032404872,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.2,
+     "maximum": 2833.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 34.12,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.618,
+    -0.395
+   ],
+   "citation": {
+    "publication": "Verdi, R.J., and Dixon, J.F., 2011, Magnitude and Frequency of Floods for Rural Streams in Florida, 2006: U.S. Geological Survey Scientific Investigations Report 2011-5034, 69 p., 1 pl.",
+    "table": "Table 3 (equation 32), Table 4",
+    "year": 2011,
+    "url": "https://pubs.usgs.gov/publication/sir20115034"
+   },
+   "sep_log": 0.163416,
+   "avp": 0.027,
+   "model_error_variance": 0.025,
+   "n_sites": 69,
+   "equivalent_years": 4.86
+  },
+  {
+   "region_code": "4",
+   "region_name": "Rural region 4 (SIR 2011-5034; NSS GC1538)",
+   "aep": 0.1,
+   "intercept": 2.6503075231319366,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.2,
+     "maximum": 2833.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 34.12,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.614,
+    -0.396
+   ],
+   "citation": {
+    "publication": "Verdi, R.J., and Dixon, J.F., 2011, Magnitude and Frequency of Floods for Rural Streams in Florida, 2006: U.S. Geological Survey Scientific Investigations Report 2011-5034, 69 p., 1 pl.",
+    "table": "Table 3 (equation 33), Table 4",
+    "year": 2011,
+    "url": "https://pubs.usgs.gov/publication/sir20115034"
+   },
+   "sep_log": 0.178884,
+   "avp": 0.0317,
+   "model_error_variance": 0.0293,
+   "n_sites": 69,
+   "equivalent_years": 5.54
+  },
+  {
+   "region_code": "4",
+   "region_name": "Rural region 4 (SIR 2011-5034; NSS GC1538)",
+   "aep": 0.04,
+   "intercept": 2.803457115648414,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.2,
+     "maximum": 2833.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 34.12,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.61,
+    -0.401
+   ],
+   "citation": {
+    "publication": "Verdi, R.J., and Dixon, J.F., 2011, Magnitude and Frequency of Floods for Rural Streams in Florida, 2006: U.S. Geological Survey Scientific Investigations Report 2011-5034, 69 p., 1 pl.",
+    "table": "Table 3 (equation 34), Table 4",
+    "year": 2011,
+    "url": "https://pubs.usgs.gov/publication/sir20115034"
+   },
+   "sep_log": 0.197754,
+   "avp": 0.0395,
+   "model_error_variance": 0.0365,
+   "n_sites": 69,
+   "equivalent_years": 6.19
+  },
+  {
+   "region_code": "4",
+   "region_name": "Rural region 4 (SIR 2011-5034; NSS GC1538)",
+   "aep": 0.02,
+   "intercept": 2.9014583213961123,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.2,
+     "maximum": 2833.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 34.12,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.609,
+    -0.406
+   ],
+   "citation": {
+    "publication": "Verdi, R.J., and Dixon, J.F., 2011, Magnitude and Frequency of Floods for Rural Streams in Florida, 2006: U.S. Geological Survey Scientific Investigations Report 2011-5034, 69 p., 1 pl.",
+    "table": "Table 3 (equation 35), Table 4",
+    "year": 2011,
+    "url": "https://pubs.usgs.gov/publication/sir20115034"
+   },
+   "sep_log": 0.216086,
+   "avp": 0.0462,
+   "model_error_variance": 0.0427,
+   "n_sites": 69,
+   "equivalent_years": 6.48
+  },
+  {
+   "region_code": "4",
+   "region_name": "Rural region 4 (SIR 2011-5034; NSS GC1538)",
+   "aep": 0.01,
+   "intercept": 2.989004615698537,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.2,
+     "maximum": 2833.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 34.12,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.608,
+    -0.411
+   ],
+   "citation": {
+    "publication": "Verdi, R.J., and Dixon, J.F., 2011, Magnitude and Frequency of Floods for Rural Streams in Florida, 2006: U.S. Geological Survey Scientific Investigations Report 2011-5034, 69 p., 1 pl.",
+    "table": "Table 3 (equation 36), Table 4",
+    "year": 2011,
+    "url": "https://pubs.usgs.gov/publication/sir20115034"
+   },
+   "sep_log": 0.230355,
+   "avp": 0.0536,
+   "model_error_variance": 0.0496,
+   "n_sites": 69,
+   "equivalent_years": 6.64
+  },
+  {
+   "region_code": "4",
+   "region_name": "Rural region 4 (SIR 2011-5034; NSS GC1538)",
+   "aep": 0.005,
+   "intercept": 3.068556895072363,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.2,
+     "maximum": 2833.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 34.12,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.608,
+    -0.416
+   ],
+   "citation": {
+    "publication": "Verdi, R.J., and Dixon, J.F., 2011, Magnitude and Frequency of Floods for Rural Streams in Florida, 2006: U.S. Geological Survey Scientific Investigations Report 2011-5034, 69 p., 1 pl.",
+    "table": "Table 3 (equation 37), Table 4",
+    "year": 2011,
+    "url": "https://pubs.usgs.gov/publication/sir20115034"
+   },
+   "sep_log": 0.247688,
+   "avp": 0.0617,
+   "model_error_variance": 0.0571,
+   "n_sites": 69,
+   "equivalent_years": 6.71
+  },
+  {
+   "region_code": "4",
+   "region_name": "Rural region 4 (SIR 2011-5034; NSS GC1538)",
+   "aep": 0.002,
+   "intercept": 3.1646502159342966,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.2,
+     "maximum": 2833.0
+    },
+    {
+     "code": "LC92STOR",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 34.12,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.609,
+    -0.424
+   ],
+   "citation": {
+    "publication": "Verdi, R.J., and Dixon, J.F., 2011, Magnitude and Frequency of Floods for Rural Streams in Florida, 2006: U.S. Geological Survey Scientific Investigations Report 2011-5034, 69 p., 1 pl.",
+    "table": "Table 3 (equation 38), Table 4",
+    "year": 2011,
+    "url": "https://pubs.usgs.gov/publication/sir20115034"
+   },
+   "sep_log": 0.271009,
+   "avp": 0.0735,
+   "model_error_variance": 0.0681,
+   "n_sites": 69,
+   "equivalent_years": 6.7
+  },
+  {
+   "region_code": "Leon County",
+   "region_name": "Urban Leon County, outside the Lake Lafayette basin (WRI 84-4004; NSS GC1024)",
+   "aep": 0.5,
+   "intercept": 1.0293837776852097,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.21,
+     "maximum": 15.9
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 5.8,
+     "maximum": 54.0
+    }
+   ],
+   "coefficients": [
+    0.766,
+    1.07
+   ],
+   "citation": {
+    "publication": "Franklin, M.A., and Losey, G.T., 1984, Magnitude and Frequency of Floods from Urban Streams in Leon County, Florida: U.S. Geological Survey Water-Resources Investigations Report 84-4004, 37 p.",
+    "table": "Table 5, p. 21; ranges p. 9; standard error of prediction p. 24",
+    "year": 1984,
+    "url": "https://pubs.usgs.gov/publication/wri844004"
+   },
+   "sep_log": 0.151608,
+   "n_sites": 13,
+   "equivalent_years": 2.0
+  },
+  {
+   "region_code": "Leon County",
+   "region_name": "Urban Leon County, outside the Lake Lafayette basin (WRI 84-4004; NSS GC1024)",
+   "aep": 0.2,
+   "intercept": 1.3891660843645324,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.21,
+     "maximum": 15.9
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 5.8,
+     "maximum": 54.0
+    }
+   ],
+   "coefficients": [
+    0.77,
+    0.943
+   ],
+   "citation": {
+    "publication": "Franklin, M.A., and Losey, G.T., 1984, Magnitude and Frequency of Floods from Urban Streams in Leon County, Florida: U.S. Geological Survey Water-Resources Investigations Report 84-4004, 37 p.",
+    "table": "Table 5, p. 21; ranges p. 9; standard error of prediction p. 24",
+    "year": 1984,
+    "url": "https://pubs.usgs.gov/publication/wri844004"
+   },
+   "sep_log": 0.135601,
+   "n_sites": 13,
+   "equivalent_years": 4.0
+  },
+  {
+   "region_code": "Leon County",
+   "region_name": "Urban Leon County, outside the Lake Lafayette basin (WRI 84-4004; NSS GC1024)",
+   "aep": 0.1,
+   "intercept": 1.5921767573958667,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.21,
+     "maximum": 15.9
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 5.8,
+     "maximum": 54.0
+    }
+   ],
+   "coefficients": [
+    0.776,
+    0.867
+   ],
+   "citation": {
+    "publication": "Franklin, M.A., and Losey, G.T., 1984, Magnitude and Frequency of Floods from Urban Streams in Leon County, Florida: U.S. Geological Survey Water-Resources Investigations Report 84-4004, 37 p.",
+    "table": "Table 5, p. 21; ranges p. 9; standard error of prediction p. 24",
+    "year": 1984,
+    "url": "https://pubs.usgs.gov/publication/wri844004"
+   },
+   "sep_log": 0.13963,
+   "n_sites": 13,
+   "equivalent_years": 6.0
+  },
+  {
+   "region_code": "Leon County",
+   "region_name": "Urban Leon County, outside the Lake Lafayette basin (WRI 84-4004; NSS GC1024)",
+   "aep": 0.04,
+   "intercept": 1.8007170782823851,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.21,
+     "maximum": 15.9
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 5.8,
+     "maximum": 54.0
+    }
+   ],
+   "coefficients": [
+    0.787,
+    0.791
+   ],
+   "citation": {
+    "publication": "Franklin, M.A., and Losey, G.T., 1984, Magnitude and Frequency of Floods from Urban Streams in Leon County, Florida: U.S. Geological Survey Water-Resources Investigations Report 84-4004, 37 p.",
+    "table": "Table 5, p. 21; ranges p. 9; standard error of prediction p. 24",
+    "year": 1984,
+    "url": "https://pubs.usgs.gov/publication/wri844004"
+   },
+   "sep_log": 0.147634,
+   "n_sites": 13,
+   "equivalent_years": 7.0
+  },
+  {
+   "region_code": "Leon County",
+   "region_name": "Urban Leon County, outside the Lake Lafayette basin (WRI 84-4004; NSS GC1024)",
+   "aep": 0.02,
+   "intercept": 1.9444826721501687,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.21,
+     "maximum": 15.9
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 5.8,
+     "maximum": 54.0
+    }
+   ],
+   "coefficients": [
+    0.797,
+    0.736
+   ],
+   "citation": {
+    "publication": "Franklin, M.A., and Losey, G.T., 1984, Magnitude and Frequency of Floods from Urban Streams in Leon County, Florida: U.S. Geological Survey Water-Resources Investigations Report 84-4004, 37 p.",
+    "table": "Table 5, p. 21; ranges p. 9; standard error of prediction p. 24",
+    "year": 1984,
+    "url": "https://pubs.usgs.gov/publication/wri844004"
+   },
+   "sep_log": 0.155563,
+   "n_sites": 13,
+   "equivalent_years": 8.0
+  },
+  {
+   "region_code": "Leon County",
+   "region_name": "Urban Leon County, outside the Lake Lafayette basin (WRI 84-4004; NSS GC1024)",
+   "aep": 0.01,
+   "intercept": 2.0718820073061255,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.21,
+     "maximum": 15.9
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 5.8,
+     "maximum": 54.0
+    }
+   ],
+   "coefficients": [
+    0.808,
+    0.687
+   ],
+   "citation": {
+    "publication": "Franklin, M.A., and Losey, G.T., 1984, Magnitude and Frequency of Floods from Urban Streams in Leon County, Florida: U.S. Geological Survey Water-Resources Investigations Report 84-4004, 37 p.",
+    "table": "Table 5, p. 21; ranges p. 9; standard error of prediction p. 24",
+    "year": 1984,
+    "url": "https://pubs.usgs.gov/publication/wri844004"
+   },
+   "sep_log": 0.167313,
+   "n_sites": 13,
+   "equivalent_years": 8.0
+  },
+  {
+   "region_code": "Leon County",
+   "region_name": "Urban Leon County, outside the Lake Lafayette basin (WRI 84-4004; NSS GC1024)",
+   "aep": 0.002,
+   "intercept": 2.3384564936046046,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.21,
+     "maximum": 15.9
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 5.8,
+     "maximum": 54.0
+    }
+   ],
+   "coefficients": [
+    0.834,
+    0.589
+   ],
+   "citation": {
+    "publication": "Franklin, M.A., and Losey, G.T., 1984, Magnitude and Frequency of Floods from Urban Streams in Leon County, Florida: U.S. Geological Survey Water-Resources Investigations Report 84-4004, 37 p.",
+    "table": "Table 5, p. 21; ranges p. 9; standard error of prediction p. 24",
+    "year": 1984,
+    "url": "https://pubs.usgs.gov/publication/wri844004"
+   },
+   "sep_log": 0.194022,
+   "n_sites": 13,
+   "equivalent_years": 8.0
+  },
+  {
+   "region_code": "Lake Lafayette",
+   "region_name": "Urban Leon County, Lake Lafayette basin (WRI 84-4004; NSS GC1025)",
+   "aep": 0.5,
+   "intercept": 0.23299611039215382,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.21,
+     "maximum": 15.9
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 5.8,
+     "maximum": 54.0
+    }
+   ],
+   "coefficients": [
+    0.766,
+    1.07
+   ],
+   "citation": {
+    "publication": "Franklin, M.A., and Losey, G.T., 1984, Magnitude and Frequency of Floods from Urban Streams in Leon County, Florida: U.S. Geological Survey Water-Resources Investigations Report 84-4004, 37 p.",
+    "table": "Table 5, p. 21; ranges p. 9; standard error of prediction p. 24",
+    "year": 1984,
+    "url": "https://pubs.usgs.gov/publication/wri844004"
+   },
+   "sep_log": 0.151608,
+   "n_sites": 13,
+   "equivalent_years": 2.0
+  },
+  {
+   "region_code": "Lake Lafayette",
+   "region_name": "Urban Leon County, Lake Lafayette basin (WRI 84-4004; NSS GC1025)",
+   "aep": 0.2,
+   "intercept": 0.6541765418779605,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.21,
+     "maximum": 15.9
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 5.8,
+     "maximum": 54.0
+    }
+   ],
+   "coefficients": [
+    0.77,
+    0.943
+   ],
+   "citation": {
+    "publication": "Franklin, M.A., and Losey, G.T., 1984, Magnitude and Frequency of Floods from Urban Streams in Leon County, Florida: U.S. Geological Survey Water-Resources Investigations Report 84-4004, 37 p.",
+    "table": "Table 5, p. 21; ranges p. 9; standard error of prediction p. 24",
+    "year": 1984,
+    "url": "https://pubs.usgs.gov/publication/wri844004"
+   },
+   "sep_log": 0.135601,
+   "n_sites": 13,
+   "equivalent_years": 4.0
+  },
+  {
+   "region_code": "Lake Lafayette",
+   "region_name": "Urban Leon County, Lake Lafayette basin (WRI 84-4004; NSS GC1025)",
+   "aep": 0.1,
+   "intercept": 0.9020028913507294,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.21,
+     "maximum": 15.9
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 5.8,
+     "maximum": 54.0
+    }
+   ],
+   "coefficients": [
+    0.776,
+    0.867
+   ],
+   "citation": {
+    "publication": "Franklin, M.A., and Losey, G.T., 1984, Magnitude and Frequency of Floods from Urban Streams in Leon County, Florida: U.S. Geological Survey Water-Resources Investigations Report 84-4004, 37 p.",
+    "table": "Table 5, p. 21; ranges p. 9; standard error of prediction p. 24",
+    "year": 1984,
+    "url": "https://pubs.usgs.gov/publication/wri844004"
+   },
+   "sep_log": 0.13963,
+   "n_sites": 13,
+   "equivalent_years": 6.0
+  },
+  {
+   "region_code": "Lake Lafayette",
+   "region_name": "Urban Leon County, Lake Lafayette basin (WRI 84-4004; NSS GC1025)",
+   "aep": 0.04,
+   "intercept": 1.1643528557844371,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.21,
+     "maximum": 15.9
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 5.8,
+     "maximum": 54.0
+    }
+   ],
+   "coefficients": [
+    0.787,
+    0.791
+   ],
+   "citation": {
+    "publication": "Franklin, M.A., and Losey, G.T., 1984, Magnitude and Frequency of Floods from Urban Streams in Leon County, Florida: U.S. Geological Survey Water-Resources Investigations Report 84-4004, 37 p.",
+    "table": "Table 5, p. 21; ranges p. 9; standard error of prediction p. 24",
+    "year": 1984,
+    "url": "https://pubs.usgs.gov/publication/wri844004"
+   },
+   "sep_log": 0.147634,
+   "n_sites": 13,
+   "equivalent_years": 7.0
+  },
+  {
+   "region_code": "Lake Lafayette",
+   "region_name": "Urban Leon County, Lake Lafayette basin (WRI 84-4004; NSS GC1025)",
+   "aep": 0.02,
+   "intercept": 1.3443922736851108,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.21,
+     "maximum": 15.9
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 5.8,
+     "maximum": 54.0
+    }
+   ],
+   "coefficients": [
+    0.797,
+    0.736
+   ],
+   "citation": {
+    "publication": "Franklin, M.A., and Losey, G.T., 1984, Magnitude and Frequency of Floods from Urban Streams in Leon County, Florida: U.S. Geological Survey Water-Resources Investigations Report 84-4004, 37 p.",
+    "table": "Table 5, p. 21; ranges p. 9; standard error of prediction p. 24",
+    "year": 1984,
+    "url": "https://pubs.usgs.gov/publication/wri844004"
+   },
+   "sep_log": 0.155563,
+   "n_sites": 13,
+   "equivalent_years": 8.0
+  },
+  {
+   "region_code": "Lake Lafayette",
+   "region_name": "Urban Leon County, Lake Lafayette basin (WRI 84-4004; NSS GC1025)",
+   "aep": 0.01,
+   "intercept": 1.510545010206612,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.21,
+     "maximum": 15.9
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 5.8,
+     "maximum": 54.0
+    }
+   ],
+   "coefficients": [
+    0.808,
+    0.687
+   ],
+   "citation": {
+    "publication": "Franklin, M.A., and Losey, G.T., 1984, Magnitude and Frequency of Floods from Urban Streams in Leon County, Florida: U.S. Geological Survey Water-Resources Investigations Report 84-4004, 37 p.",
+    "table": "Table 5, p. 21; ranges p. 9; standard error of prediction p. 24",
+    "year": 1984,
+    "url": "https://pubs.usgs.gov/publication/wri844004"
+   },
+   "sep_log": 0.167313,
+   "n_sites": 13,
+   "equivalent_years": 8.0
+  },
+  {
+   "region_code": "Lake Lafayette",
+   "region_name": "Urban Leon County, Lake Lafayette basin (WRI 84-4004; NSS GC1025)",
+   "aep": 0.002,
+   "intercept": 1.8555191556678001,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.21,
+     "maximum": 15.9
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 5.8,
+     "maximum": 54.0
+    }
+   ],
+   "coefficients": [
+    0.834,
+    0.589
+   ],
+   "citation": {
+    "publication": "Franklin, M.A., and Losey, G.T., 1984, Magnitude and Frequency of Floods from Urban Streams in Leon County, Florida: U.S. Geological Survey Water-Resources Investigations Report 84-4004, 37 p.",
+    "table": "Table 5, p. 21; ranges p. 9; standard error of prediction p. 24",
+    "year": 1984,
+    "url": "https://pubs.usgs.gov/publication/wri844004"
+   },
+   "sep_log": 0.194022,
+   "n_sites": 13,
+   "equivalent_years": 8.0
+  },
+  {
+   "region_code": "Tampa Bay",
+   "region_name": "Small urban watersheds, Tampa Bay area (WRI 82-42; NSS GC1030)",
+   "aep": 0.5,
+   "intercept": 0.5705429398818975,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.34,
+     "maximum": 3.45
+    },
+    {
+     "code": "BDF",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 3.0,
+     "maximum": 12.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 4.6,
+     "maximum": 23.6
+    },
+    {
+     "code": "DETEN",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 3.5,
+     "offset": 0.01
+    }
+   ],
+   "coefficients": [
+    1.07,
+    1.05,
+    0.77,
+    -0.11
+   ],
+   "citation": {
+    "publication": "Lopez, M.A., and Woodham, W.M., 1983, Magnitude and frequency of flooding on small urban watersheds in the Tampa Bay area, west-central Florida: U.S. Geological Survey Water-Resources Investigations Report 82-42, 52 p.",
+    "table": "Table 10, p. 28; ranges p. 31",
+    "year": 1983,
+    "url": "https://pubs.usgs.gov/publication/wri8242"
+   },
+   "n_sites": 9,
+   "equivalent_years": 2.0
+  },
+  {
+   "region_code": "Tampa Bay",
+   "region_name": "Small urban watersheds, Tampa Bay area (WRI 82-42; NSS GC1030)",
+   "aep": 0.2,
+   "intercept": 0.8998205024270963,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.34,
+     "maximum": 3.45
+    },
+    {
+     "code": "BDF",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 3.0,
+     "maximum": 12.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 4.6,
+     "maximum": 23.6
+    },
+    {
+     "code": "DETEN",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 3.5,
+     "offset": 0.01
+    }
+   ],
+   "coefficients": [
+    1.03,
+    0.87,
+    0.81,
+    -0.1
+   ],
+   "citation": {
+    "publication": "Lopez, M.A., and Woodham, W.M., 1983, Magnitude and frequency of flooding on small urban watersheds in the Tampa Bay area, west-central Florida: U.S. Geological Survey Water-Resources Investigations Report 82-42, 52 p.",
+    "table": "Table 10, p. 28; ranges p. 31",
+    "year": 1983,
+    "url": "https://pubs.usgs.gov/publication/wri8242"
+   },
+   "n_sites": 9,
+   "equivalent_years": 3.0
+  },
+  {
+   "region_code": "Tampa Bay",
+   "region_name": "Small urban watersheds, Tampa Bay area (WRI 82-42; NSS GC1030)",
+   "aep": 0.1,
+   "intercept": 1.110589710299249,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.34,
+     "maximum": 3.45
+    },
+    {
+     "code": "BDF",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 3.0,
+     "maximum": 12.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 4.6,
+     "maximum": 23.6
+    },
+    {
+     "code": "DETEN",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 3.5,
+     "offset": 0.01
+    }
+   ],
+   "coefficients": [
+    1.04,
+    0.75,
+    0.83,
+    -0.1
+   ],
+   "citation": {
+    "publication": "Lopez, M.A., and Woodham, W.M., 1983, Magnitude and frequency of flooding on small urban watersheds in the Tampa Bay area, west-central Florida: U.S. Geological Survey Water-Resources Investigations Report 82-42, 52 p.",
+    "table": "Table 10, p. 28; ranges p. 31",
+    "year": 1983,
+    "url": "https://pubs.usgs.gov/publication/wri8242"
+   },
+   "n_sites": 9,
+   "equivalent_years": 4.0
+  },
+  {
+   "region_code": "Tampa Bay",
+   "region_name": "Small urban watersheds, Tampa Bay area (WRI 82-42; NSS GC1030)",
+   "aep": 0.04,
+   "intercept": 2.330413773349191,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.34,
+     "maximum": 3.45
+    },
+    {
+     "code": "BDF",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 3.0,
+     "maximum": 12.0,
+     "scale": -1.0,
+     "offset": 13.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 4.6,
+     "maximum": 23.6
+    }
+   ],
+   "coefficients": [
+    1.13,
+    -0.59,
+    0.73
+   ],
+   "citation": {
+    "publication": "Lopez, M.A., and Woodham, W.M., 1983, Magnitude and frequency of flooding on small urban watersheds in the Tampa Bay area, west-central Florida: U.S. Geological Survey Water-Resources Investigations Report 82-42, 52 p.",
+    "table": "Table 10, p. 28; ranges p. 31",
+    "year": 1983,
+    "url": "https://pubs.usgs.gov/publication/wri8242"
+   },
+   "n_sites": 9,
+   "equivalent_years": 5.0
+  },
+  {
+   "region_code": "Tampa Bay",
+   "region_name": "Small urban watersheds, Tampa Bay area (WRI 82-42; NSS GC1030)",
+   "aep": 0.02,
+   "intercept": 2.3891660843645326,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.34,
+     "maximum": 3.45
+    },
+    {
+     "code": "BDF",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 3.0,
+     "maximum": 12.0,
+     "scale": -1.0,
+     "offset": 13.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 4.6,
+     "maximum": 23.6
+    }
+   ],
+   "coefficients": [
+    1.14,
+    -0.55,
+    0.74
+   ],
+   "citation": {
+    "publication": "Lopez, M.A., and Woodham, W.M., 1983, Magnitude and frequency of flooding on small urban watersheds in the Tampa Bay area, west-central Florida: U.S. Geological Survey Water-Resources Investigations Report 82-42, 52 p.",
+    "table": "Table 10, p. 28; ranges p. 31",
+    "year": 1983,
+    "url": "https://pubs.usgs.gov/publication/wri8242"
+   },
+   "n_sites": 9,
+   "equivalent_years": 5.0
+  },
+  {
+   "region_code": "Tampa Bay",
+   "region_name": "Small urban watersheds, Tampa Bay area (WRI 82-42; NSS GC1030)",
+   "aep": 0.01,
+   "intercept": 2.450249108319361,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.34,
+     "maximum": 3.45
+    },
+    {
+     "code": "BDF",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 3.0,
+     "maximum": 12.0,
+     "scale": -1.0,
+     "offset": 13.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 4.6,
+     "maximum": 23.6
+    }
+   ],
+   "coefficients": [
+    1.16,
+    -0.51,
+    0.76
+   ],
+   "citation": {
+    "publication": "Lopez, M.A., and Woodham, W.M., 1983, Magnitude and frequency of flooding on small urban watersheds in the Tampa Bay area, west-central Florida: U.S. Geological Survey Water-Resources Investigations Report 82-42, 52 p.",
+    "table": "Table 10, p. 28; ranges p. 31",
+    "year": 1983,
+    "url": "https://pubs.usgs.gov/publication/wri8242"
+   },
+   "n_sites": 9,
+   "equivalent_years": 5.0
+  }
+ ]
+}
