@@ -40,7 +40,7 @@ Plan and definitions of done: `docs/MASTER_ROADMAP.md` §3.2.
 | IA | Iowa | verified | 6 | 48 | verified |  |
 | IL | Illinois | verified | 13 | 104 | pending |  |
 | MO | Missouri | verified | 4 | 31 | verified |  |
-| MI | Michigan | nss snapshot (25 eqs, 0 unparsed) | 5 | 25 | verified |  |
+| MI | Michigan | verified | 5 | 25 | verified |  |
 
 ## Wave 4b: Missouri basin
 
