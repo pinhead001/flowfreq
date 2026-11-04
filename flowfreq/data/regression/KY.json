@@ -1,0 +1,2032 @@
+{
+ "schema_version": 1,
+ "state": "KY",
+ "status": "verified",
+ "issue": null,
+ "source_reports": [
+  {
+   "citation": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+   "doi": "10.3133/wri034180",
+   "url": "https://pubs.usgs.gov/publication/wri034180",
+   "pdf": "https://pubs.usgs.gov/wri/wri034180/pdf/wri034180.pdf",
+   "tables": [
+    "Table 1",
+    "Table 2",
+    "Table 3",
+    "Table 4",
+    "Table 5"
+   ],
+   "nss": {
+    "citation_id": 55,
+    "last_year_of_data": 2000,
+    "regression_regions": [
+     "GC524",
+     "GC525",
+     "GC526",
+     "GC527",
+     "GC528",
+     "GC529",
+     "GC530"
+    ]
+   }
+  },
+  {
+   "citation": "Martin, G.R., Ruhl, K.J., Moore, B.L., and Rose, M.F., 1997, Estimation of peak-discharge frequency of urban streams in Jefferson County, Kentucky: U.S. Geological Survey Water-Resources Investigations Report 97-4219, 40 p.",
+   "doi": "10.3133/wri974219",
+   "url": "https://pubs.usgs.gov/publication/wri974219",
+   "pdf": "https://pubs.usgs.gov/wri/1997/4219/report.pdf",
+   "tables": [
+    "Table 8",
+    "Table 10",
+    "Table 13",
+    "Table 14"
+   ],
+   "nss": {
+    "citation_id": 56,
+    "last_year_of_data": 1995,
+    "regression_regions": [
+     "GC531"
+    ]
+   }
+  }
+ ],
+ "notes": "Hodgkins and Martin, WRI 03-4180 (seven rural regions at 8 AEPs, Tables 3 and 4) and Martin and others, WRI 97-4219 (Jefferson County urban, 6 AEPs, 2- to 100-year, Tables 10 and 13). Both are current. WRI 03-4180 supersedes Choquette (1988) and refers urban basins in Jefferson County to WRI 97-4219. SIR 2026-5036 (VonIns and others) updates the at-site statistics and the StreamStats layers but develops no new equations: it assesses these and reports they still fit (geometric mean ratio 0.99-1.01 to its new LPIII estimates, with overestimation above about 1,000 mi2), and StreamStats continues to serve them. Kentucky StreamStats does not compute slope: its page says regions 1 and 4 are not implemented, and a live delineation there warns 'Peak FLow stats NOT available, Slope not processed', so those two regions need a caller-supplied slope, as Jefferson County's equations would, though NSS serves all eight. Table 3 prints an average standard error of prediction as a plus and minus percent, for example 49.7 to -33.2, and a model error and an average sampling error variance. The report says the average variance of prediction is their sum, so avp is that sum, and sep_log is log10(1 + plus/100). Those two agree at all 56 rural equations. Table 3's site counts come to Table 2's 238 (187 in Kentucky, 51 nearby, as the abstract says). No covariance is published in either report, so intervals use the AVP, and WRI 97-4219 prints no AVP or model error variance, so its intervals use sep_log. Its percent is the symmetric form, as its Table 11 shows (RMSE 0.1688 log units is plus or minus 40.4 percent). The Jefferson County equations print (13 - BDF), stored with scale -1 and offset 13. Table 4's one-dimensional ranges are stored; figure 6 also draws a two-dimensional sampling space for regions 1 and 4, printed only as a picture, which the schema cannot hold. Regions 1 and 4 use main-channel slope only at some AEPs, as Table 3 prints: region 1 at 10 percent and rarer, and region 4 at 2 percent and more frequent. Table 5 prints drainage-area-only exponents, for transferring a gage's flow to an ungaged site; those for regions 1 and 4 at the slope AEPs are not regression equations and are not stored: region 1, 10 to 0.2 percent, 0.642, 0.634, 0.629, 0.625, 0.622, 0.618; region 4, 50 to 2 percent, 0.824, 0.803, 0.794, 0.786, 0.783. Every other exponent in Table 5 equals Table 3's. Per-gage check: Table 1's regression row reproduces from Table 2's characteristics at the 169 gages that have one. 164 are single-region, all 8 values within 0.5 percent, and 5 (03277500, 03280000, 03310300, 03310500, 03406500) are basins in two regions, where Table 1 prints an area-weighted value and Table 2 lists one region (the fractions are inferred from the 8 values, and all fit within 0.35 percent). WRI 97-4219's Table 14 reproduces from Table 8 at all 17 sites and 6 AEPs within 0.35 percent, but for site RB2's 10-year value, printed 1,150 where the equation gives 1,046; Table 12's 10-year sensitivities confirm the equation. Table 14's RB1-RB4 are Table 8's R1-R4. Inside WRI 03-4180, the abstract gives standard errors of prediction of -13.1 to +15.0 percent in region 3 and -37.6 to +60.3 percent in region 5, which appear nowhere in Table 3; the text and Table 3 agree with each other and with NSS, so Table 3 stands. NSS agrees with Table 3 and Table 10 on every coefficient and range, and with Table 3 on SEP after rounding; it has no SEP for Jefferson County. NSS has no AVP, model error variance or equivalent years. Co-located sets: Jefferson County urban lies inside Region 1; both are kept, with no preference. WRI 97-4219 says to use its equations for rural basins in the county below 64 mi2, and not on Mill Creek or Mill Creek Cutoff.",
+ "equations": [
+  {
+   "region_code": "Region 1",
+   "region_name": "North, Region 1 (NSS GC524)",
+   "aep": 0.5,
+   "intercept": 2.494154594018443,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.16,
+     "maximum": 1197.0
+    }
+   ],
+   "coefficients": [
+    0.673
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.175222,
+   "avp": 0.0307,
+   "model_error_variance": 0.0277,
+   "n_sites": 28,
+   "equivalent_years": 1.3
+  },
+  {
+   "region_code": "Region 1",
+   "region_name": "North, Region 1 (NSS GC524)",
+   "aep": 0.2,
+   "intercept": 2.69284691927723,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.16,
+     "maximum": 1197.0
+    }
+   ],
+   "coefficients": [
+    0.651
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.170262,
+   "avp": 0.029,
+   "model_error_variance": 0.0259,
+   "n_sites": 28,
+   "equivalent_years": 1.9
+  },
+  {
+   "region_code": "Region 1",
+   "region_name": "North, Region 1 (NSS GC524)",
+   "aep": 0.1,
+   "intercept": 1.9614210940664483,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.16,
+     "maximum": 1197.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 3.49,
+     "maximum": 206.0
+    }
+   ],
+   "coefficients": [
+    0.843,
+    0.451
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.164947,
+   "avp": 0.0272,
+   "model_error_variance": 0.023,
+   "n_sites": 28,
+   "equivalent_years": 2.8
+  },
+  {
+   "region_code": "Region 1",
+   "region_name": "North, Region 1 (NSS GC524)",
+   "aep": 0.04,
+   "intercept": 1.9095560292411753,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.16,
+     "maximum": 1197.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 3.49,
+     "maximum": 206.0
+    }
+   ],
+   "coefficients": [
+    0.872,
+    0.535
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.17406,
+   "avp": 0.0303,
+   "model_error_variance": 0.0253,
+   "n_sites": 28,
+   "equivalent_years": 3.6
+  },
+  {
+   "region_code": "Region 1",
+   "region_name": "North, Region 1 (NSS GC524)",
+   "aep": 0.02,
+   "intercept": 1.8796692056320534,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.16,
+     "maximum": 1197.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 3.49,
+     "maximum": 206.0
+    }
+   ],
+   "coefficients": [
+    0.89,
+    0.587
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.184407,
+   "avp": 0.034,
+   "model_error_variance": 0.0283,
+   "n_sites": 28,
+   "equivalent_years": 3.9
+  },
+  {
+   "region_code": "Region 1",
+   "region_name": "North, Region 1 (NSS GC524)",
+   "aep": 0.01,
+   "intercept": 1.8536982117761744,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.16,
+     "maximum": 1197.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 3.49,
+     "maximum": 206.0
+    }
+   ],
+   "coefficients": [
+    0.907,
+    0.632
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.196729,
+   "avp": 0.0387,
+   "model_error_variance": 0.0321,
+   "n_sites": 28,
+   "equivalent_years": 4.1
+  },
+  {
+   "region_code": "Region 1",
+   "region_name": "North, Region 1 (NSS GC524)",
+   "aep": 0.005,
+   "intercept": 1.8312296938670634,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.16,
+     "maximum": 1197.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 3.49,
+     "maximum": 206.0
+    }
+   ],
+   "coefficients": [
+    0.922,
+    0.673
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.210586,
+   "avp": 0.0443,
+   "model_error_variance": 0.0367,
+   "n_sites": 28,
+   "equivalent_years": 4.2
+  },
+  {
+   "region_code": "Region 1",
+   "region_name": "North, Region 1 (NSS GC524)",
+   "aep": 0.002,
+   "intercept": 1.8034571156484138,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.16,
+     "maximum": 1197.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 3.49,
+     "maximum": 206.0
+    }
+   ],
+   "coefficients": [
+    0.941,
+    0.722
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.229682,
+   "avp": 0.0528,
+   "model_error_variance": 0.0438,
+   "n_sites": 28,
+   "equivalent_years": 4.3
+  },
+  {
+   "region_code": "Region 2",
+   "region_name": "Upper East, Region 2 (NSS GC525)",
+   "aep": 0.5,
+   "intercept": 2.1818435879447726,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.09,
+     "maximum": 1232.0
+    }
+   ],
+   "coefficients": [
+    0.728
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.158362,
+   "avp": 0.0251,
+   "model_error_variance": 0.0238,
+   "n_sites": 68,
+   "equivalent_years": 1.9
+  },
+  {
+   "region_code": "Region 2",
+   "region_name": "Upper East, Region 2 (NSS GC525)",
+   "aep": 0.2,
+   "intercept": 2.3783979009481375,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.09,
+     "maximum": 1232.0
+    }
+   ],
+   "coefficients": [
+    0.721
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.144574,
+   "avp": 0.0209,
+   "model_error_variance": 0.0197,
+   "n_sites": 68,
+   "equivalent_years": 3.0
+  },
+  {
+   "region_code": "Region 2",
+   "region_name": "Upper East, Region 2 (NSS GC525)",
+   "aep": 0.1,
+   "intercept": 2.482873583608754,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.09,
+     "maximum": 1232.0
+    }
+   ],
+   "coefficients": [
+    0.715
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.141763,
+   "avp": 0.0201,
+   "model_error_variance": 0.0188,
+   "n_sites": 68,
+   "equivalent_years": 4.2
+  },
+  {
+   "region_code": "Region 2",
+   "region_name": "Upper East, Region 2 (NSS GC525)",
+   "aep": 0.04,
+   "intercept": 2.5943925503754266,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.09,
+     "maximum": 1232.0
+    }
+   ],
+   "coefficients": [
+    0.709
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.142076,
+   "avp": 0.0202,
+   "model_error_variance": 0.0187,
+   "n_sites": 68,
+   "equivalent_years": 5.8
+  },
+  {
+   "region_code": "Region 2",
+   "region_name": "Upper East, Region 2 (NSS GC525)",
+   "aep": 0.02,
+   "intercept": 2.6665179805548807,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.09,
+     "maximum": 1232.0
+    }
+   ],
+   "coefficients": [
+    0.704
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.143951,
+   "avp": 0.0207,
+   "model_error_variance": 0.0191,
+   "n_sites": 68,
+   "equivalent_years": 6.9
+  },
+  {
+   "region_code": "Region 2",
+   "region_name": "Upper East, Region 2 (NSS GC525)",
+   "aep": 0.01,
+   "intercept": 2.7307822756663893,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.09,
+     "maximum": 1232.0
+    }
+   ],
+   "coefficients": [
+    0.699
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.147367,
+   "avp": 0.0217,
+   "model_error_variance": 0.0199,
+   "n_sites": 68,
+   "equivalent_years": 7.9
+  },
+  {
+   "region_code": "Region 2",
+   "region_name": "Upper East, Region 2 (NSS GC525)",
+   "aep": 0.005,
+   "intercept": 2.788875115775417,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.09,
+     "maximum": 1232.0
+    }
+   ],
+   "coefficients": [
+    0.695
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.15137,
+   "avp": 0.0229,
+   "model_error_variance": 0.0209,
+   "n_sites": 68,
+   "equivalent_years": 8.7
+  },
+  {
+   "region_code": "Region 2",
+   "region_name": "Upper East, Region 2 (NSS GC525)",
+   "aep": 0.002,
+   "intercept": 2.857935264719429,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.09,
+     "maximum": 1232.0
+    }
+   ],
+   "coefficients": [
+    0.69
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.157154,
+   "avp": 0.0247,
+   "model_error_variance": 0.0225,
+   "n_sites": 68,
+   "equivalent_years": 9.6
+  },
+  {
+   "region_code": "Region 3",
+   "region_name": "Lower East, Region 3 (NSS GC526)",
+   "aep": 0.5,
+   "intercept": 2.271841606536499,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.59,
+     "maximum": 722.0
+    }
+   ],
+   "coefficients": [
+    0.748
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.100026,
+   "avp": 0.01,
+   "model_error_variance": 0.0081,
+   "n_sites": 24,
+   "equivalent_years": 5.9
+  },
+  {
+   "region_code": "Region 3",
+   "region_name": "Lower East, Region 3 (NSS GC526)",
+   "aep": 0.2,
+   "intercept": 2.550228353055094,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.59,
+     "maximum": 722.0
+    }
+   ],
+   "coefficients": [
+    0.712
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.09237,
+   "avp": 0.0085,
+   "model_error_variance": 0.0064,
+   "n_sites": 24,
+   "equivalent_years": 9.8
+  },
+  {
+   "region_code": "Region 3",
+   "region_name": "Lower East, Region 3 (NSS GC526)",
+   "aep": 0.1,
+   "intercept": 2.6972293427597176,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.59,
+     "maximum": 722.0
+    }
+   ],
+   "coefficients": [
+    0.692
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.087071,
+   "avp": 0.0076,
+   "model_error_variance": 0.0052,
+   "n_sites": 24,
+   "equivalent_years": 15.1
+  },
+  {
+   "region_code": "Region 3",
+   "region_name": "Lower East, Region 3 (NSS GC526)",
+   "aep": 0.04,
+   "intercept": 2.8536982117761744,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.59,
+     "maximum": 722.0
+    }
+   ],
+   "coefficients": [
+    0.67
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.081707,
+   "avp": 0.0067,
+   "model_error_variance": 0.004,
+   "n_sites": 24,
+   "equivalent_years": 24.6
+  },
+  {
+   "region_code": "Region 3",
+   "region_name": "Lower East, Region 3 (NSS GC526)",
+   "aep": 0.02,
+   "intercept": 2.952792443044092,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.59,
+     "maximum": 722.0
+    }
+   ],
+   "coefficients": [
+    0.656
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.080626,
+   "avp": 0.0065,
+   "model_error_variance": 0.0034,
+   "n_sites": 24,
+   "equivalent_years": 32.4
+  },
+  {
+   "region_code": "Region 3",
+   "region_name": "Lower East, Region 3 (NSS GC526)",
+   "aep": 0.01,
+   "intercept": 3.041392685158225,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.59,
+     "maximum": 722.0
+    }
+   ],
+   "coefficients": [
+    0.643
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.080626,
+   "avp": 0.0065,
+   "model_error_variance": 0.0031,
+   "n_sites": 24,
+   "equivalent_years": 39.4
+  },
+  {
+   "region_code": "Region 3",
+   "region_name": "Lower East, Region 3 (NSS GC526)",
+   "aep": 0.005,
+   "intercept": 3.12057393120585,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.59,
+     "maximum": 722.0
+    }
+   ],
+   "coefficients": [
+    0.632
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.083144,
+   "avp": 0.0069,
+   "model_error_variance": 0.003,
+   "n_sites": 24,
+   "equivalent_years": 44.5
+  },
+  {
+   "region_code": "Region 3",
+   "region_name": "Lower East, Region 3 (NSS GC526)",
+   "aep": 0.002,
+   "intercept": 3.214843848047698,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.59,
+     "maximum": 722.0
+    }
+   ],
+   "coefficients": [
+    0.62
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.08849,
+   "avp": 0.0078,
+   "model_error_variance": 0.0033,
+   "n_sites": 24,
+   "equivalent_years": 47.9
+  },
+  {
+   "region_code": "Region 4",
+   "region_name": "Southeast, Region 4 (NSS GC527)",
+   "aep": 0.5,
+   "intercept": 1.591064607026499,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.26,
+     "maximum": 960.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 3.6,
+     "maximum": 343.0
+    }
+   ],
+   "coefficients": [
+    0.923,
+    0.204
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.118595,
+   "avp": 0.0141,
+   "model_error_variance": 0.0112,
+   "n_sites": 17,
+   "equivalent_years": 3.5
+  },
+  {
+   "region_code": "Region 4",
+   "region_name": "Southeast, Region 4 (NSS GC527)",
+   "aep": 0.2,
+   "intercept": 1.8438554226231612,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.26,
+     "maximum": 960.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 3.6,
+     "maximum": 343.0
+    }
+   ],
+   "coefficients": [
+    0.894,
+    0.186
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.097604,
+   "avp": 0.0095,
+   "model_error_variance": 0.0072,
+   "n_sites": 17,
+   "equivalent_years": 6.5
+  },
+  {
+   "region_code": "Region 4",
+   "region_name": "Southeast, Region 4 (NSS GC527)",
+   "aep": 0.1,
+   "intercept": 1.967079734144497,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.26,
+     "maximum": 960.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 3.6,
+     "maximum": 343.0
+    }
+   ],
+   "coefficients": [
+    0.882,
+    0.178
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.094471,
+   "avp": 0.0089,
+   "model_error_variance": 0.0065,
+   "n_sites": 17,
+   "equivalent_years": 9.2
+  },
+  {
+   "region_code": "Region 4",
+   "region_name": "Southeast, Region 4 (NSS GC527)",
+   "aep": 0.04,
+   "intercept": 2.0827853703164503,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.26,
+     "maximum": 960.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 3.6,
+     "maximum": 343.0
+    }
+   ],
+   "coefficients": [
+    0.873,
+    0.173
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.098644,
+   "avp": 0.0097,
+   "model_error_variance": 0.0068,
+   "n_sites": 17,
+   "equivalent_years": 11.6
+  },
+  {
+   "region_code": "Region 4",
+   "region_name": "Southeast, Region 4 (NSS GC527)",
+   "aep": 0.02,
+   "intercept": 2.146128035678238,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.26,
+     "maximum": 960.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 3.6,
+     "maximum": 343.0
+    }
+   ],
+   "coefficients": [
+    0.87,
+    0.173
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.104828,
+   "avp": 0.011,
+   "model_error_variance": 0.0077,
+   "n_sites": 17,
+   "equivalent_years": 12.5
+  },
+  {
+   "region_code": "Region 4",
+   "region_name": "Southeast, Region 4 (NSS GC527)",
+   "aep": 0.01,
+   "intercept": 2.593286067020457,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.26,
+     "maximum": 960.0
+    }
+   ],
+   "coefficients": [
+    0.78
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.119256,
+   "avp": 0.0142,
+   "model_error_variance": 0.0111,
+   "n_sites": 17,
+   "equivalent_years": 11.4
+  },
+  {
+   "region_code": "Region 4",
+   "region_name": "Southeast, Region 4 (NSS GC527)",
+   "aep": 0.005,
+   "intercept": 2.6444385894678386,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.26,
+     "maximum": 960.0
+    }
+   ],
+   "coefficients": [
+    0.778
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.126456,
+   "avp": 0.016,
+   "model_error_variance": 0.0125,
+   "n_sites": 17,
+   "equivalent_years": 11.7
+  },
+  {
+   "region_code": "Region 4",
+   "region_name": "Southeast, Region 4 (NSS GC527)",
+   "aep": 0.002,
+   "intercept": 2.7075701760979363,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.26,
+     "maximum": 960.0
+    }
+   ],
+   "coefficients": [
+    0.776
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.137037,
+   "avp": 0.0188,
+   "model_error_variance": 0.0147,
+   "n_sites": 17,
+   "equivalent_years": 11.9
+  },
+  {
+   "region_code": "Region 5",
+   "region_name": "East-Central, Region 5 (NSS GC528)",
+   "aep": 0.5,
+   "intercept": 2.4149733479708178,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.24,
+     "maximum": 1299.0
+    }
+   ],
+   "coefficients": [
+    0.704
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.128722,
+   "avp": 0.0166,
+   "model_error_variance": 0.0151,
+   "n_sites": 40,
+   "equivalent_years": 3.3
+  },
+  {
+   "region_code": "Region 5",
+   "region_name": "East-Central, Region 5 (NSS GC528)",
+   "aep": 0.2,
+   "intercept": 2.640481436970422,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.24,
+     "maximum": 1299.0
+    }
+   ],
+   "coefficients": [
+    0.692
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.142702,
+   "avp": 0.0204,
+   "model_error_variance": 0.0186,
+   "n_sites": 40,
+   "equivalent_years": 3.8
+  },
+  {
+   "region_code": "Region 5",
+   "region_name": "East-Central, Region 5 (NSS GC528)",
+   "aep": 0.1,
+   "intercept": 2.756636108245848,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.24,
+     "maximum": 1299.0
+    }
+   ],
+   "coefficients": [
+    0.686
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.158061,
+   "avp": 0.025,
+   "model_error_variance": 0.0228,
+   "n_sites": 40,
+   "equivalent_years": 4.2
+  },
+  {
+   "region_code": "Region 5",
+   "region_name": "East-Central, Region 5 (NSS GC528)",
+   "aep": 0.04,
+   "intercept": 2.877371345869774,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.24,
+     "maximum": 1299.0
+    }
+   ],
+   "coefficients": [
+    0.682
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.179264,
+   "avp": 0.0321,
+   "model_error_variance": 0.0293,
+   "n_sites": 40,
+   "equivalent_years": 4.6
+  },
+  {
+   "region_code": "Region 5",
+   "region_name": "East-Central, Region 5 (NSS GC528)",
+   "aep": 0.02,
+   "intercept": 2.954724790979063,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.24,
+     "maximum": 1299.0
+    }
+   ],
+   "coefficients": [
+    0.679
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.195069,
+   "avp": 0.038,
+   "model_error_variance": 0.0347,
+   "n_sites": 40,
+   "equivalent_years": 4.7
+  },
+  {
+   "region_code": "Region 5",
+   "region_name": "East-Central, Region 5 (NSS GC528)",
+   "aep": 0.01,
+   "intercept": 3.0253058652647704,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.24,
+     "maximum": 1299.0
+    }
+   ],
+   "coefficients": [
+    0.677
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.210586,
+   "avp": 0.0444,
+   "model_error_variance": 0.0405,
+   "n_sites": 40,
+   "equivalent_years": 4.8
+  },
+  {
+   "region_code": "Region 5",
+   "region_name": "East-Central, Region 5 (NSS GC528)",
+   "aep": 0.005,
+   "intercept": 3.0863598306747484,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.24,
+     "maximum": 1299.0
+    }
+   ],
+   "coefficients": [
+    0.676
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.226342,
+   "avp": 0.0512,
+   "model_error_variance": 0.0467,
+   "n_sites": 40,
+   "equivalent_years": 4.9
+  },
+  {
+   "region_code": "Region 5",
+   "region_name": "East-Central, Region 5 (NSS GC528)",
+   "aep": 0.002,
+   "intercept": 3.161368002234975,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.24,
+     "maximum": 1299.0
+    }
+   ],
+   "coefficients": [
+    0.674
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.246499,
+   "avp": 0.0608,
+   "model_error_variance": 0.0555,
+   "n_sites": 40,
+   "equivalent_years": 4.9
+  },
+  {
+   "region_code": "Region 6",
+   "region_name": "West-Central, Region 6 (NSS GC529)",
+   "aep": 0.5,
+   "intercept": 2.4082399653118496,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.22,
+     "maximum": 757.0
+    }
+   ],
+   "coefficients": [
+    0.6
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.175802,
+   "avp": 0.0309,
+   "model_error_variance": 0.028,
+   "n_sites": 27,
+   "equivalent_years": 1.3
+  },
+  {
+   "region_code": "Region 6",
+   "region_name": "West-Central, Region 6 (NSS GC529)",
+   "aep": 0.2,
+   "intercept": 2.598790506763115,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.22,
+     "maximum": 757.0
+    }
+   ],
+   "coefficients": [
+    0.586
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.161667,
+   "avp": 0.0261,
+   "model_error_variance": 0.0234,
+   "n_sites": 27,
+   "equivalent_years": 2.0
+  },
+  {
+   "region_code": "Region 6",
+   "region_name": "West-Central, Region 6 (NSS GC529)",
+   "aep": 0.1,
+   "intercept": 2.6981005456233897,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.22,
+     "maximum": 757.0
+    }
+   ],
+   "coefficients": [
+    0.578
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.158061,
+   "avp": 0.025,
+   "model_error_variance": 0.0222,
+   "n_sites": 27,
+   "equivalent_years": 2.8
+  },
+  {
+   "region_code": "Region 6",
+   "region_name": "West-Central, Region 6 (NSS GC529)",
+   "aep": 0.04,
+   "intercept": 2.803457115648414,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.22,
+     "maximum": 757.0
+    }
+   ],
+   "coefficients": [
+    0.569
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.158664,
+   "avp": 0.0252,
+   "model_error_variance": 0.0221,
+   "n_sites": 27,
+   "equivalent_years": 3.8
+  },
+  {
+   "region_code": "Region 6",
+   "region_name": "West-Central, Region 6 (NSS GC529)",
+   "aep": 0.02,
+   "intercept": 2.8692317197309762,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.22,
+     "maximum": 757.0
+    }
+   ],
+   "coefficients": [
+    0.564
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.162564,
+   "avp": 0.0264,
+   "model_error_variance": 0.0229,
+   "n_sites": 27,
+   "equivalent_years": 4.4
+  },
+  {
+   "region_code": "Region 6",
+   "region_name": "West-Central, Region 6 (NSS GC529)",
+   "aep": 0.01,
+   "intercept": 2.9273703630390235,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.22,
+     "maximum": 757.0
+    }
+   ],
+   "coefficients": [
+    0.559
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.167613,
+   "avp": 0.0281,
+   "model_error_variance": 0.0243,
+   "n_sites": 27,
+   "equivalent_years": 4.9
+  },
+  {
+   "region_code": "Region 6",
+   "region_name": "West-Central, Region 6 (NSS GC529)",
+   "aep": 0.005,
+   "intercept": 2.979092900638326,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.22,
+     "maximum": 757.0
+    }
+   ],
+   "coefficients": [
+    0.555
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.174932,
+   "avp": 0.0306,
+   "model_error_variance": 0.0263,
+   "n_sites": 27,
+   "equivalent_years": 5.2
+  },
+  {
+   "region_code": "Region 6",
+   "region_name": "West-Central, Region 6 (NSS GC529)",
+   "aep": 0.002,
+   "intercept": 3.041392685158225,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.22,
+     "maximum": 757.0
+    }
+   ],
+   "coefficients": [
+    0.551
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.186674,
+   "avp": 0.0348,
+   "model_error_variance": 0.0299,
+   "n_sites": 27,
+   "equivalent_years": 5.5
+  },
+  {
+   "region_code": "Region 7",
+   "region_name": "West, Region 7 (NSS GC530)",
+   "aep": 0.5,
+   "intercept": 2.4668676203541096,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 706.0
+    }
+   ],
+   "coefficients": [
+    0.623
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.194792,
+   "avp": 0.0379,
+   "model_error_variance": 0.035,
+   "n_sites": 34,
+   "equivalent_years": 1.4
+  },
+  {
+   "region_code": "Region 7",
+   "region_name": "West, Region 7 (NSS GC530)",
+   "aep": 0.2,
+   "intercept": 2.677606952720493,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 706.0
+    }
+   ],
+   "coefficients": [
+    0.616
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.190332,
+   "avp": 0.0362,
+   "model_error_variance": 0.0332,
+   "n_sites": 34,
+   "equivalent_years": 2.1
+  },
+  {
+   "region_code": "Region 7",
+   "region_name": "West, Region 7 (NSS GC530)",
+   "aep": 0.1,
+   "intercept": 2.788168371141168,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 706.0
+    }
+   ],
+   "coefficients": [
+    0.613
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.188928,
+   "avp": 0.0357,
+   "model_error_variance": 0.0325,
+   "n_sites": 34,
+   "equivalent_years": 3.0
+  },
+  {
+   "region_code": "Region 7",
+   "region_name": "West, Region 7 (NSS GC530)",
+   "aep": 0.04,
+   "intercept": 2.905256048748451,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 706.0
+    }
+   ],
+   "coefficients": [
+    0.61
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.18949,
+   "avp": 0.0359,
+   "model_error_variance": 0.0323,
+   "n_sites": 34,
+   "equivalent_years": 4.1
+  },
+  {
+   "region_code": "Region 7",
+   "region_name": "West, Region 7 (NSS GC530)",
+   "aep": 0.02,
+   "intercept": 2.9804578922761,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 706.0
+    }
+   ],
+   "coefficients": [
+    0.61
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.191171,
+   "avp": 0.0365,
+   "model_error_variance": 0.0326,
+   "n_sites": 34,
+   "equivalent_years": 5.0
+  },
+  {
+   "region_code": "Region 7",
+   "region_name": "West, Region 7 (NSS GC530)",
+   "aep": 0.01,
+   "intercept": 3.0453229787866576,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 706.0
+    }
+   ],
+   "coefficients": [
+    0.609
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.193403,
+   "avp": 0.0374,
+   "model_error_variance": 0.0332,
+   "n_sites": 34,
+   "equivalent_years": 5.8
+  },
+  {
+   "region_code": "Region 7",
+   "region_name": "West, Region 7 (NSS GC530)",
+   "aep": 0.005,
+   "intercept": 3.1072099696478683,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 706.0
+    }
+   ],
+   "coefficients": [
+    0.61
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.196729,
+   "avp": 0.0387,
+   "model_error_variance": 0.0342,
+   "n_sites": 34,
+   "equivalent_years": 6.6
+  },
+  {
+   "region_code": "Region 7",
+   "region_name": "West, Region 7 (NSS GC530)",
+   "aep": 0.002,
+   "intercept": 3.1789769472931693,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 706.0
+    }
+   ],
+   "coefficients": [
+    0.61
+   ],
+   "citation": {
+    "publication": "Hodgkins, G.A., and Martin, G.R., 2003, Estimating the magnitude of peak flows for streams in Kentucky for selected recurrence intervals: U.S. Geological Survey Water-Resources Investigations Report 03-4180, 73 p., 1 pl.",
+    "table": "Tables 3 and 4",
+    "year": 2003,
+    "url": "https://doi.org/10.3133/wri034180"
+   },
+   "sep_log": 0.201943,
+   "avp": 0.0408,
+   "model_error_variance": 0.0358,
+   "n_sites": 34,
+   "equivalent_years": 7.5
+  },
+  {
+   "region_code": "Jefferson County urban",
+   "region_name": "Jefferson County urban (NSS GC531)",
+   "aep": 0.5,
+   "intercept": 2.645422269349092,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.36,
+     "maximum": 64.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 11.7,
+     "maximum": 75.1
+    },
+    {
+     "code": "BDF",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 0.0,
+     "maximum": 7.0,
+     "scale": -1.0,
+     "offset": 13.0
+    }
+   ],
+   "coefficients": [
+    0.635,
+    0.128,
+    -0.337
+   ],
+   "citation": {
+    "publication": "Martin, G.R., Ruhl, K.J., Moore, B.L., and Rose, M.F., 1997, Estimation of peak-discharge frequency of urban streams in Jefferson County, Kentucky: U.S. Geological Survey Water-Resources Investigations Report 97-4219, 40 p.",
+    "table": "Tables 10 and 13",
+    "year": 1997,
+    "url": "https://doi.org/10.3133/wri974219"
+   },
+   "sep_log": 0.188008,
+   "n_sites": 17
+  },
+  {
+   "region_code": "Jefferson County urban",
+   "region_name": "Jefferson County urban (NSS GC531)",
+   "aep": 0.2,
+   "intercept": 2.7134905430939424,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.36,
+     "maximum": 64.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 11.7,
+     "maximum": 75.1
+    },
+    {
+     "code": "BDF",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 0.0,
+     "maximum": 7.0,
+     "scale": -1.0,
+     "offset": 13.0
+    }
+   ],
+   "coefficients": [
+    0.589,
+    0.208,
+    -0.268
+   ],
+   "citation": {
+    "publication": "Martin, G.R., Ruhl, K.J., Moore, B.L., and Rose, M.F., 1997, Estimation of peak-discharge frequency of urban streams in Jefferson County, Kentucky: U.S. Geological Survey Water-Resources Investigations Report 97-4219, 40 p.",
+    "table": "Tables 10 and 13",
+    "year": 1997,
+    "url": "https://doi.org/10.3133/wri974219"
+   },
+   "sep_log": 0.16809,
+   "n_sites": 17
+  },
+  {
+   "region_code": "Jefferson County urban",
+   "region_name": "Jefferson County urban (NSS GC531)",
+   "aep": 0.1,
+   "intercept": 2.7489628612561616,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.36,
+     "maximum": 64.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 11.7,
+     "maximum": 75.1
+    },
+    {
+     "code": "BDF",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 0.0,
+     "maximum": 7.0,
+     "scale": -1.0,
+     "offset": 13.0
+    }
+   ],
+   "coefficients": [
+    0.574,
+    0.243,
+    -0.235
+   ],
+   "citation": {
+    "publication": "Martin, G.R., Ruhl, K.J., Moore, B.L., and Rose, M.F., 1997, Estimation of peak-discharge frequency of urban streams in Jefferson County, Kentucky: U.S. Geological Survey Water-Resources Investigations Report 97-4219, 40 p.",
+    "table": "Tables 10 and 13",
+    "year": 1997,
+    "url": "https://doi.org/10.3133/wri974219"
+   },
+   "sep_log": 0.157927,
+   "n_sites": 17
+  },
+  {
+   "region_code": "Jefferson County urban",
+   "region_name": "Jefferson County urban (NSS GC531)",
+   "aep": 0.04,
+   "intercept": 2.8109042806687006,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.36,
+     "maximum": 64.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 11.7,
+     "maximum": 75.1
+    },
+    {
+     "code": "BDF",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 0.0,
+     "maximum": 7.0,
+     "scale": -1.0,
+     "offset": 13.0
+    }
+   ],
+   "coefficients": [
+    0.556,
+    0.276,
+    -0.209
+   ],
+   "citation": {
+    "publication": "Martin, G.R., Ruhl, K.J., Moore, B.L., and Rose, M.F., 1997, Estimation of peak-discharge frequency of urban streams in Jefferson County, Kentucky: U.S. Geological Survey Water-Resources Investigations Report 97-4219, 40 p.",
+    "table": "Tables 10 and 13",
+    "year": 1997,
+    "url": "https://doi.org/10.3133/wri974219"
+   },
+   "sep_log": 0.149225,
+   "n_sites": 17
+  },
+  {
+   "region_code": "Jefferson County urban",
+   "region_name": "Jefferson County urban (NSS GC531)",
+   "aep": 0.02,
+   "intercept": 2.846955325019824,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.36,
+     "maximum": 64.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 11.7,
+     "maximum": 75.1
+    },
+    {
+     "code": "BDF",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 0.0,
+     "maximum": 7.0,
+     "scale": -1.0,
+     "offset": 13.0
+    }
+   ],
+   "coefficients": [
+    0.547,
+    0.295,
+    -0.189
+   ],
+   "citation": {
+    "publication": "Martin, G.R., Ruhl, K.J., Moore, B.L., and Rose, M.F., 1997, Estimation of peak-discharge frequency of urban streams in Jefferson County, Kentucky: U.S. Geological Survey Water-Resources Investigations Report 97-4219, 40 p.",
+    "table": "Tables 10 and 13",
+    "year": 1997,
+    "url": "https://doi.org/10.3133/wri974219"
+   },
+   "sep_log": 0.14524,
+   "n_sites": 17
+  },
+  {
+   "region_code": "Jefferson County urban",
+   "region_name": "Jefferson County urban (NSS GC531)",
+   "aep": 0.01,
+   "intercept": 2.8920946026904804,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.36,
+     "maximum": 64.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 11.7,
+     "maximum": 75.1
+    },
+    {
+     "code": "BDF",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 0.0,
+     "maximum": 7.0,
+     "scale": -1.0,
+     "offset": 13.0
+    }
+   ],
+   "coefficients": [
+    0.538,
+    0.31,
+    -0.181
+   ],
+   "citation": {
+    "publication": "Martin, G.R., Ruhl, K.J., Moore, B.L., and Rose, M.F., 1997, Estimation of peak-discharge frequency of urban streams in Jefferson County, Kentucky: U.S. Geological Survey Water-Resources Investigations Report 97-4219, 40 p.",
+    "table": "Tables 10 and 13",
+    "year": 1997,
+    "url": "https://doi.org/10.3133/wri974219"
+   },
+   "sep_log": 0.14284,
+   "n_sites": 17
+  }
+ ]
+}
