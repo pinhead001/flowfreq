@@ -18,8 +18,10 @@ five that have no equations. Data, tests and docs; no library code changed.
 - **Behaviour change:** these states now load without `allow_nss_snapshot`, and with it they return the
   verified set rather than the snapshot. Coefficients, limits and errors differ from NSS where the
   report does, so an estimate or an applicability refusal can change.
-- **Overlapping sets:** CT, ME, VT and TN stop with `OverlappingRegionsError` unless the caller passes
-  `region=`, at every point tested.
+- **Refusals on real sites:** in a wider live check (102 gages, 34 states), 33 gages stopped with
+  `OverlappingRegionsError` unless the caller passed `region=`, and KY's karst warning stopped all three
+  of its gages. These are not new in this release. Where a value came back, the at-site Q1% was inside
+  the prediction interval at 60 of 65 gages. See `docs/VERIFICATION_PLAN.md`.
 - **NSS errors found:** MN region F's limits refused every real site, and PA, PR, KS, WI, DE, NY, AR, OH,
   TN and TX had wrong coefficients, limits, errors or citations. The report's values are stored.
 - **Live checks:** full smoke run at 56/56 gaged and 48/56 ungaged, the same eight known gaps. FL, MI and
