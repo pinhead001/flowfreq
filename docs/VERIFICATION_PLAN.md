@@ -50,7 +50,7 @@ Read this before relying on a batch 2-5 state.
 Three catalog gages in each of 34 newly verified states (102 gages: unregulated or unclassified, 20-500
 mi2, at least 30 peaks, spread across the state's range of area), at main fc24b45. Not FL, MI or NE. The
 gage's Bulletin 17C fit with station skew was compared with the regression at the gage's coordinates.
-Where sets overlapped, the script took the first candidate not named drainage-area-only and rarely a
+Where sets overlapped, the script took the first candidate not named drainage-area-only, not a
 considered choice: the GA, NC and SC rural sets were not reached, and IN's two points used an arbitrary
 region. Those states' values are therefore thin or absent below, and PR and KY returned none at all.
 
