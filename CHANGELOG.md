@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- `load_state(code, allow_nss_snapshot=True)` returned the NSS snapshot even where a verified set exists, so with the opt-in Alaska, California and Hawaii did not get the verified equations added below or their covariance-based prediction intervals. A verified published set now wins; the flag only permits a snapshot where nothing better exists. The three snapshot files stay, as the evidence the equations match NSS.
+
 ### Added
 - Oregon Region 1 gate on NSS's `ORREG2` selector (729). NSS's Region 1 polygon also covers the western interior, so a real interior basin is located in GC729, GC730 and GC731 at 100 % each. With Region 1 ungated, the 2A/2B gates never applied to one and `estimate_at_site` stopped with `OverlappingRegionsError`. A live McKenzie River estimate now resolves to Region 2A: 103,483 cfs at the 1 % AEP against the report's 99,900. A basin crossing the coast/interior boundary (Nehalem River, `ORREG2` 10003) stays the caller's choice.
 - **Hawaii's equations are verified** (`HI.json`, SIR 2023-5014 Tables 5 and 6), replacing the NSS snapshot: ten regions at 8 AEPs with AVP, SEP, model error variance and site counts (the report prints no covariance, so intervals use the average SEP). The printed 3-decimal coefficients are stored; each is NSS's 4-decimal value rounded, and the p. 34 worked example reproduces (Kawaikoi Stream, Q1% 7,240 ft3/s).

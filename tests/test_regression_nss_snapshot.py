@@ -141,12 +141,36 @@ def test_opt_in_returns_it_with_advisory(data_dir, caplog):
     assert "NSS SNAPSHOT (not report-verified)" in caplog.text
 
 
-def test_published_set_wins_without_the_flag(data_dir):
+@pytest.mark.parametrize("code", ["AK", "CA", "HI"])
+def test_verified_set_beats_the_snapshot_it_replaced(code):
+    """The opt-in is for a jurisdiction with no verified library. AK, CA and HI keep their
+    snapshot files as the evidence their equations match NSS (test_regression_alaska and
+    friends), and opting in must not hand those back instead of the verified set."""
+    lib = load_state(code, allow_nss_snapshot=True, warn=False)
+    assert lib.status == "verified" and not lib.advisory
+
+
+def test_every_verified_state_stays_verified_under_the_opt_in():
+    for code, status in available_states().items():
+        if status == "verified":
+            assert load_state(code, allow_nss_snapshot=True, warn=False).status == "verified", code
+
+
+def test_snapshot_still_beats_a_published_set_that_is_not_verified(data_dir):
+    (data_dir / "TN.json").write_text(
+        json.dumps({"schema_version": 1, "state": "TN", "status": "pending", "equations": []}),
+        encoding="utf-8",
+    )
+    assert load_state("TN", data_dir, allow_nss_snapshot=True, warn=False).nss_snapshot
+    assert load_state("TN", data_dir).status == "pending"
+
+
+def test_verified_published_set_wins_with_or_without_the_flag(data_dir):
     _write(data_dir / "TN.json", "verified", 2.0)
     lib = load_state("TN", data_dir=data_dir)
     assert lib.status == "verified" and not lib.nss_snapshot and lib.advisory == ""
     assert lib.equation("GC2015", 0.01).intercept == 2.0
-    assert load_state("TN", data_dir=data_dir, allow_nss_snapshot=True).nss_snapshot
+    assert not load_state("TN", data_dir=data_dir, allow_nss_snapshot=True).nss_snapshot
 
 
 def test_opt_in_without_a_file_returns_the_published_set(tmp_path):
