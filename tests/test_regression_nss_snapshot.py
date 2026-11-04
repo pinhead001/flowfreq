@@ -40,6 +40,7 @@ from flowfreq.regression import (
 from flowfreq.regression.equations import RegressionEquation
 from flowfreq.regression.library import (
     AWAITING_NSS_SUBDIR,
+    DATA_DIR,
     NSS_SNAPSHOT_SUBDIR,
     OPT_IN_SUBDIRS,
     PROVISIONAL_SUBDIR,
@@ -449,7 +450,9 @@ def test_asep_as_fraction_region_is_converted_from_percent(trimmed):
     ],
 )
 def test_shipped_sep_log_matches_the_report(code, region, aep, sep_pct):
-    eq = load_state(code, allow_nss_snapshot=True).equation(region, aep)
+    # Read from the snapshot file: AR and MS now have verified sets, which load_state prefers.
+    data = json.loads((DATA_DIR / NSS_SNAPSHOT_SUBDIR / f"{code}.json").read_text(encoding="utf-8"))
+    eq = parse_state(data).equation(region, aep)
     assert eq.sep_log == pytest.approx(asep_to_sep_log(sep_pct), rel=1e-9)
 
 
@@ -627,7 +630,9 @@ def test_region_indicator_equations_match_nss(code, region):
     )
     (raw,) = [r for r in snapshot["regions"] if r["region_code"] == region]
     submitted = {p["code"]: p["submitted"] for p in raw["parameters"]}
-    lib = load_state(code, allow_nss_snapshot=True)
+    # The snapshot file itself: load_state now prefers the verified set for these states.
+    path = REPO_ROOT / "flowfreq" / "data" / "regression" / NSS_SNAPSHOT_SUBDIR / f"{code}.json"
+    lib = parse_state(json.loads(path.read_text("utf-8")))
     assert len(raw["equations"]) == 8
     for rec in raw["equations"]:
         eq = lib.equation(region, rec["aep"])
