@@ -1,0 +1,2445 @@
+{
+ "schema_version": 1,
+ "state": "TN",
+ "status": "verified",
+ "issue": null,
+ "source_reports": [
+  {
+   "citation": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+   "doi": "10.3133/sir20245130",
+   "url": "https://pubs.usgs.gov/publication/sir20245130",
+   "pdf": "https://pubs.usgs.gov/sir/2024/5130/sir20245130.pdf",
+   "data_release": "https://doi.org/10.5066/P9IEJQB7",
+   "tables": [
+    "Table 4",
+    "Table 5",
+    "Table 6"
+   ],
+   "nss": {
+    "regression_regions": [
+     "GC2015",
+     "GC2016",
+     "GC2017",
+     "GC2018",
+     "GC2019",
+     "GC2020",
+     "GC2021",
+     "GC2022"
+    ],
+    "last_year_of_data": 2013
+   }
+  },
+  {
+   "citation": "Neely, B.L., Jr., 1984, Flood frequency and storm runoff of urban areas of Memphis and Shelby County, Tennessee: U.S. Geological Survey Water-Resources Investigations Report 84-4110, 51 p.",
+   "url": "https://pubs.usgs.gov/publication/wri844110",
+   "pdf": "https://pubs.usgs.gov/wri/wrir_84-4110/pdf/wrir_84-4110.pdf",
+   "tables": [
+    "Equations 1-6",
+    "Table 3",
+    "Table 5",
+    "Table 6"
+   ],
+   "nss": {
+    "regression_regions": [
+     "GC350"
+    ],
+    "last_year_of_data": 1976
+   }
+  },
+  {
+   "citation": "Robbins, C.H., 1984, Synthesized flood frequency of small urban streams in Tennessee: U.S. Geological Survey Water-Resources Investigations Report 84-4182, 24 p.",
+   "url": "https://pubs.usgs.gov/publication/wri844182",
+   "pdf": "https://pubs.usgs.gov/wri/1984/4182/report.pdf",
+   "tables": [
+    "Table 2",
+    "Table 3",
+    "Regression equations"
+   ],
+   "nss": {
+    "regression_regions": [
+     "GC351"
+    ],
+    "last_year_of_data": 1983
+   }
+  }
+ ],
+ "notes": "Three reports, ten regions, 76 equations. CURRENCY: NSS serves 19 regions. Ladd and Ensminger, SIR 2024-5130 (no revisions listed), supersedes the rural sets of Law and Tasker, WRI 03-4176: it calls itself the update of those methods, uses the same four hydrologic areas (boundaries modified slightly) and the same kind of basin (unregulated, non-urban), and 443 of its 454 gages were in the earlier study. So the nine regions of WRI 03-4176 (NSS GC341-GC349) are left out. WRI 03-4176's area 4 drainage-area-only set reached down to 0.76 mi2, where the 2024 set starts at 0.95. The two 1984 urban sets are kept: SIR 2024-5130 and WRI 03-4176 exclude urban basins, so these remain the only sets for that basin type. RURAL (HA1-HA4, HA1 DA only-HA4 DA only): 8 AEPs, equations, AVP and SEP in percent from Table 4 (p. 12) and Table 5 (p. 16), ranges and gage counts from Table 6 (p. 17). The constant is printed, so intercept = log10 of it. (LC11IMP+1) is stored as log10 with offset 1. No model error variance, covariance or worked example is published. Table 5 was fitted to get the area-ratio exponent b of equation 5, which equals its coefficient. Regional skew is 0.10 with MSE 0.132. AVP is printed to two decimals only, and flowfreq's evaluator prefers it to the SEP, so intervals rest on that rounding; the SEP-implied variance is the sharper figure. CHECKS: Tables A and B of the data release (Heal and others, 2025, doi 10.5066/P9IEJQB7), with the DRNAREA, CSL10_85, LC11_IMP and CLIMFAC2YR of its basin shapefile, give GLS flows at all 454 gages and 8 AEPs (tests/fixtures/regression/tennessee_gages.json): all reproduce within rounding except the following. 03316000 at 50 percent prints 4,110 where its equation gives 4,510 and its seven other AEPs reproduce, which looks like a misprint. 07022500, 07023000, 07269000 and 07279600 (Kentucky and Mississippi) reproduce at all AEPs with drainage areas of 1.72, 212, 19.3 and 98.3 mi2 in place of the shapefile's 1.66, 204.1, 19.06 and 100.8, or equally with LC11IMP of 0.87, 1.57, 0.41 and 0.55 in place of its 0.76, 1.40, 0.38 and 0.62; which one differs is unknown. Two other cells miss the rounding bound by under 0.0005 (03431240 at 0.2 percent, 07029252 at 10). The mean per-gage GLS variance matches each Table 4 SEP (the 32 rows differ by at most 0.00015). REPORT INCONSISTENCIES, settled: Table 5 HA3 prints 528 at 20 percent and exponent 0.64 at 2 percent, where its own exponent column says 0.643; HA3's Table 4 equations are the same model, with the same pseudo-R2, AVP and SEP in every row, and print 540 and 0.643. The 63 per-gage flows reproduce with 540. So HA3 DA only stores 540 and 0.643, as HA3 does, where NSS serves 528 and 0.64 (the data release's Table 5 prints them too). Table 5 HA2 prints AVP 0.04 in all 8 rows, but its SEPs of 32.1-43.2 percent imply 0.018-0.032. Everywhere else in Tables 4 and 5 the AVP is the SEP-implied variance to two decimals, and HA2's pseudo-R2 and residuals agree with the SEPs, not 0.04. So HA2 DA only stores the SEP and no AVP. Table 6's lowest CLIMFAC2YR of 2.05 is 2.056 in the shapefile. MEMPHIS (Neely, WRIR 84-4110): equations 1-6 (p. 18) at 6 AEPs from 25 stations (27 less 2 deleted), ranges from p. 17. Standard errors of regression are 37, 33, 31, 29, 28 and 28 percent, and the report says errors at ungaged sites are unknown and assumed equal to them. Not stored as a SEP, so this region has no interval, as in NSS. An ordinary least-squares refit of Table 3's Lichty-Liscum flows on Table 5's A and P reproduces every coefficient (constants to 0.3 percent, exponents to 0.005) and the standard errors to within 1 percent unit. The report prints no per-gage regression estimates. Its storm-runoff equations 7-12 are not peak flows and are not stored. Channel condition CHANCOND is a field judgment (1 unpaved to 2 paved) that StreamStats does not compute. URBAN STATEWIDE (Robbins, WRIR 84-4182): equations on p. 14 at 6 AEPs from 22 synthetic-record stations, ranges from p. 22, standard error of prediction and equivalent years from p. 23; standard errors of regression are 32, 29, 27, 26, 26 and 25 percent. The report's code A is the contributing drainage area, stored as CONTDA as NSS does. The equations are not for Memphis or Nashville, which have their own methods (Nashville's, Wibben 1976, is not in NSS), nor for detention storage or impervious area under 4.5 percent. Table 3 prints regression flows at the 22 stations but not their 2-year 24-hour rainfall, so one rainfall per station is fitted. 21 stations reproduce that way; 07031777 does not fit its own Table 2 values at any rainfall (1,280 where its Memphis-area rainfall of 4.0 in gives 1,600 at 2 years) and would need an impervious area near 29 percent, not 46. LIVE: on 2026-11-04 StreamStats returned no CLIMFAC2YR at gage 03465500, so NSS's HA1 is skipped there and the estimate rests on HA1 DA only unless a caller supplies the factor. NSS AGREEMENT: every stored equation equals NSS but for HA3 DA only above and NSS's omission of a SEP for the urban statewide set. Multi-variable and drainage-area-only sets are co-located and stored as separate regions, with no preference between them; a caller chooses with region=.",
+ "equations": [
+  {
+   "region_code": "HA1",
+   "region_name": "Hydrologic area 1, drainage area and 2-year climate factor (SIR 2024-5130; NSS GC2015)",
+   "aep": 0.5,
+   "intercept": 0.6866362692622934,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.2,
+     "maximum": 21400.0
+    },
+    {
+     "code": "CLIMFAC2YR",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 2.05,
+     "maximum": 2.42
+    }
+   ],
+   "coefficients": [
+    0.735,
+    4.068
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 4 (p. 12), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.192899,
+   "n_sites": 216,
+   "avp": 0.04
+  },
+  {
+   "region_code": "HA1",
+   "region_name": "Hydrologic area 1, drainage area and 2-year climate factor (SIR 2024-5130; NSS GC2015)",
+   "aep": 0.2,
+   "intercept": 0.9800033715837464,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.2,
+     "maximum": 21400.0
+    },
+    {
+     "code": "CLIMFAC2YR",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 2.05,
+     "maximum": 2.42
+    }
+   ],
+   "coefficients": [
+    0.726,
+    3.844
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 4 (p. 12), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.184221,
+   "n_sites": 216,
+   "avp": 0.03
+  },
+  {
+   "region_code": "HA1",
+   "region_name": "Hydrologic area 1, drainage area and 2-year climate factor (SIR 2024-5130; NSS GC2015)",
+   "aep": 0.1,
+   "intercept": 1.14921911265538,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.2,
+     "maximum": 21400.0
+    },
+    {
+     "code": "CLIMFAC2YR",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 2.05,
+     "maximum": 2.42
+    }
+   ],
+   "coefficients": [
+    0.721,
+    3.687
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 4 (p. 12), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.186495,
+   "n_sites": 216,
+   "avp": 0.03
+  },
+  {
+   "region_code": "HA1",
+   "region_name": "Hydrologic area 1, drainage area and 2-year climate factor (SIR 2024-5130; NSS GC2015)",
+   "aep": 0.04,
+   "intercept": 1.3384564936046048,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.2,
+     "maximum": 21400.0
+    },
+    {
+     "code": "CLIMFAC2YR",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 2.05,
+     "maximum": 2.42
+    }
+   ],
+   "coefficients": [
+    0.716,
+    3.486
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 4 (p. 12), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.189139,
+   "n_sites": 216,
+   "avp": 0.04
+  },
+  {
+   "region_code": "HA1",
+   "region_name": "Hydrologic area 1, drainage area and 2-year climate factor (SIR 2024-5130; NSS GC2015)",
+   "aep": 0.02,
+   "intercept": 1.462397997898956,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.2,
+     "maximum": 21400.0
+    },
+    {
+     "code": "CLIMFAC2YR",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 2.05,
+     "maximum": 2.42
+    }
+   ],
+   "coefficients": [
+    0.712,
+    3.35
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 4 (p. 12), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.195144,
+   "n_sites": 216,
+   "avp": 0.04
+  },
+  {
+   "region_code": "HA1",
+   "region_name": "Hydrologic area 1, drainage area and 2-year climate factor (SIR 2024-5130; NSS GC2015)",
+   "aep": 0.01,
+   "intercept": 1.5774917998372253,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.2,
+     "maximum": 21400.0
+    },
+    {
+     "code": "CLIMFAC2YR",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 2.05,
+     "maximum": 2.42
+    }
+   ],
+   "coefficients": [
+    0.708,
+    3.219
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 4 (p. 12), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.201094,
+   "n_sites": 216,
+   "avp": 0.04
+  },
+  {
+   "region_code": "HA1",
+   "region_name": "Hydrologic area 1, drainage area and 2-year climate factor (SIR 2024-5130; NSS GC2015)",
+   "aep": 0.005,
+   "intercept": 1.6857417386022637,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.2,
+     "maximum": 21400.0
+    },
+    {
+     "code": "CLIMFAC2YR",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 2.05,
+     "maximum": 2.42
+    }
+   ],
+   "coefficients": [
+    0.705,
+    3.09
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 4 (p. 12), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.204048,
+   "n_sites": 216,
+   "avp": 0.04
+  },
+  {
+   "region_code": "HA1",
+   "region_name": "Hydrologic area 1, drainage area and 2-year climate factor (SIR 2024-5130; NSS GC2015)",
+   "aep": 0.002,
+   "intercept": 1.8182258936139555,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.2,
+     "maximum": 21400.0
+    },
+    {
+     "code": "CLIMFAC2YR",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 2.05,
+     "maximum": 2.42
+    }
+   ],
+   "coefficients": [
+    0.701,
+    2.928
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 4 (p. 12), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.210279,
+   "n_sites": 216,
+   "avp": 0.04
+  },
+  {
+   "region_code": "HA2",
+   "region_name": "Hydrologic area 2, drainage area and 10-85 channel slope (SIR 2024-5130; NSS GC2016)",
+   "aep": 0.5,
+   "intercept": 1.9289076902439528,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.42,
+     "maximum": 2560.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.74,
+     "maximum": 356.0
+    }
+   ],
+   "coefficients": [
+    0.796,
+    0.196
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 4 (p. 12), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.140434,
+   "n_sites": 114,
+   "avp": 0.02
+  },
+  {
+   "region_code": "HA2",
+   "region_name": "Hydrologic area 2, drainage area and 10-85 channel slope (SIR 2024-5130; NSS GC2016)",
+   "aep": 0.2,
+   "intercept": 2.1903316981702914,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.42,
+     "maximum": 2560.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.74,
+     "maximum": 356.0
+    }
+   ],
+   "coefficients": [
+    0.776,
+    0.182
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 4 (p. 12), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.129119,
+   "n_sites": 114,
+   "avp": 0.02
+  },
+  {
+   "region_code": "HA2",
+   "region_name": "Hydrologic area 2, drainage area and 10-85 channel slope (SIR 2024-5130; NSS GC2016)",
+   "aep": 0.1,
+   "intercept": 2.330413773349191,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.42,
+     "maximum": 2560.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.74,
+     "maximum": 356.0
+    }
+   ],
+   "coefficients": [
+    0.766,
+    0.172
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 4 (p. 12), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.13196,
+   "n_sites": 114,
+   "avp": 0.02
+  },
+  {
+   "region_code": "HA2",
+   "region_name": "Hydrologic area 2, drainage area and 10-85 channel slope (SIR 2024-5130; NSS GC2016)",
+   "aep": 0.04,
+   "intercept": 2.48572142648158,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.42,
+     "maximum": 2560.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.74,
+     "maximum": 356.0
+    }
+   ],
+   "coefficients": [
+    0.753,
+    0.158
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 4 (p. 12), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.148032,
+   "n_sites": 114,
+   "avp": 0.02
+  },
+  {
+   "region_code": "HA2",
+   "region_name": "Hydrologic area 2, drainage area and 10-85 channel slope (SIR 2024-5130; NSS GC2016)",
+   "aep": 0.02,
+   "intercept": 2.5888317255942073,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.42,
+     "maximum": 2560.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.74,
+     "maximum": 356.0
+    }
+   ],
+   "coefficients": [
+    0.745,
+    0.148
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 4 (p. 12), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.154378,
+   "n_sites": 114,
+   "avp": 0.02
+  },
+  {
+   "region_code": "HA2",
+   "region_name": "Hydrologic area 2, drainage area and 10-85 channel slope (SIR 2024-5130; NSS GC2016)",
+   "aep": 0.01,
+   "intercept": 2.683947130751512,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.42,
+     "maximum": 2560.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.74,
+     "maximum": 356.0
+    }
+   ],
+   "coefficients": [
+    0.736,
+    0.139
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 4 (p. 12), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.163416,
+   "n_sites": 114,
+   "avp": 0.03
+  },
+  {
+   "region_code": "HA2",
+   "region_name": "Hydrologic area 2, drainage area and 10-85 channel slope (SIR 2024-5130; NSS GC2016)",
+   "aep": 0.005,
+   "intercept": 2.7701152947871015,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.42,
+     "maximum": 2560.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.74,
+     "maximum": 356.0
+    }
+   ],
+   "coefficients": [
+    0.729,
+    0.13
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 4 (p. 12), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.169254,
+   "n_sites": 114,
+   "avp": 0.03
+  },
+  {
+   "region_code": "HA2",
+   "region_name": "Hydrologic area 2, drainage area and 10-85 channel slope (SIR 2024-5130; NSS GC2016)",
+   "aep": 0.002,
+   "intercept": 2.8767949762007006,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.42,
+     "maximum": 2560.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.74,
+     "maximum": 356.0
+    }
+   ],
+   "coefficients": [
+    0.719,
+    0.118
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 4 (p. 12), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.178501,
+   "n_sites": 114,
+   "avp": 0.03
+  },
+  {
+   "region_code": "HA3",
+   "region_name": "Hydrologic area 3, drainage area (SIR 2024-5130; NSS GC2017)",
+   "aep": 0.5,
+   "intercept": 2.5415792439465807,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.17,
+     "maximum": 2050.0
+    }
+   ],
+   "coefficients": [
+    0.659
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 4 (p. 12), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.15832,
+   "n_sites": 63,
+   "avp": 0.03
+  },
+  {
+   "region_code": "HA3",
+   "region_name": "Hydrologic area 3, drainage area (SIR 2024-5130; NSS GC2017)",
+   "aep": 0.2,
+   "intercept": 2.7323937598229686,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.17,
+     "maximum": 2050.0
+    }
+   ],
+   "coefficients": [
+    0.651
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 4 (p. 12), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.150417,
+   "n_sites": 63,
+   "avp": 0.02
+  },
+  {
+   "region_code": "HA3",
+   "region_name": "Hydrologic area 3, drainage area (SIR 2024-5130; NSS GC2017)",
+   "aep": 0.1,
+   "intercept": 2.829946695941636,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.17,
+     "maximum": 2050.0
+    }
+   ],
+   "coefficients": [
+    0.648
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 4 (p. 12), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.153588,
+   "n_sites": 63,
+   "avp": 0.02
+  },
+  {
+   "region_code": "HA3",
+   "region_name": "Hydrologic area 3, drainage area (SIR 2024-5130; NSS GC2017)",
+   "aep": 0.04,
+   "intercept": 2.930949031167523,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.17,
+     "maximum": 2050.0
+    }
+   ],
+   "coefficients": [
+    0.645
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 4 (p. 12), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.156746,
+   "n_sites": 63,
+   "avp": 0.02
+  },
+  {
+   "region_code": "HA3",
+   "region_name": "Hydrologic area 3, drainage area (SIR 2024-5130; NSS GC2017)",
+   "aep": 0.02,
+   "intercept": 2.9951962915971793,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.17,
+     "maximum": 2050.0
+    }
+   ],
+   "coefficients": [
+    0.643
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 4 (p. 12), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.163416,
+   "n_sites": 63,
+   "avp": 0.03
+  },
+  {
+   "region_code": "HA3",
+   "region_name": "Hydrologic area 3, drainage area (SIR 2024-5130; NSS GC2017)",
+   "aep": 0.01,
+   "intercept": 3.0519239160461065,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.17,
+     "maximum": 2050.0
+    }
+   ],
+   "coefficients": [
+    0.642
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 4 (p. 12), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.166925,
+   "n_sites": 63,
+   "avp": 0.03
+  },
+  {
+   "region_code": "HA3",
+   "region_name": "Hydrologic area 3, drainage area (SIR 2024-5130; NSS GC2017)",
+   "aep": 0.005,
+   "intercept": 3.1031192535457137,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.17,
+     "maximum": 2050.0
+    }
+   ],
+   "coefficients": [
+    0.641
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 4 (p. 12), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.170804,
+   "n_sites": 63,
+   "avp": 0.03
+  },
+  {
+   "region_code": "HA3",
+   "region_name": "Hydrologic area 3, drainage area (SIR 2024-5130; NSS GC2017)",
+   "aep": 0.002,
+   "intercept": 3.1640552918934515,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.17,
+     "maximum": 2050.0
+    }
+   ],
+   "coefficients": [
+    0.64
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 4 (p. 12), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.177352,
+   "n_sites": 63,
+   "avp": 0.03
+  },
+  {
+   "region_code": "HA4",
+   "region_name": "Hydrologic area 4, drainage area and imperviousness (SIR 2024-5130; NSS GC2018)",
+   "aep": 0.5,
+   "intercept": 2.5415792439465807,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.95,
+     "maximum": 2310.0
+    },
+    {
+     "code": "LC11IMP",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.26,
+     "maximum": 13.7,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.527,
+    0.271
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 4 (p. 12), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.144441,
+   "n_sites": 61,
+   "avp": 0.02
+  },
+  {
+   "region_code": "HA4",
+   "region_name": "Hydrologic area 4, drainage area and imperviousness (SIR 2024-5130; NSS GC2018)",
+   "aep": 0.2,
+   "intercept": 2.6972293427597176,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.95,
+     "maximum": 2310.0
+    },
+    {
+     "code": "LC11IMP",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.26,
+     "maximum": 13.7,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.542,
+    0.285
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 4 (p. 12), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.137618,
+   "n_sites": 61,
+   "avp": 0.02
+  },
+  {
+   "region_code": "HA4",
+   "region_name": "Hydrologic area 4, drainage area and imperviousness (SIR 2024-5130; NSS GC2018)",
+   "aep": 0.1,
+   "intercept": 2.7781512503836434,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.95,
+     "maximum": 2310.0
+    },
+    {
+     "code": "LC11IMP",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.26,
+     "maximum": 13.7,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.55,
+    0.29
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 4 (p. 12), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.142439,
+   "n_sites": 61,
+   "avp": 0.02
+  },
+  {
+   "region_code": "HA4",
+   "region_name": "Hydrologic area 4, drainage area and imperviousness (SIR 2024-5130; NSS GC2018)",
+   "aep": 0.04,
+   "intercept": 2.859738566197147,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.95,
+     "maximum": 2310.0
+    },
+    {
+     "code": "LC11IMP",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.26,
+     "maximum": 13.7,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.56,
+    0.294
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 4 (p. 12), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.154774,
+   "n_sites": 61,
+   "avp": 0.02
+  },
+  {
+   "region_code": "HA4",
+   "region_name": "Hydrologic area 4, drainage area and imperviousness (SIR 2024-5130; NSS GC2018)",
+   "aep": 0.02,
+   "intercept": 2.9122220565324155,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.95,
+     "maximum": 2310.0
+    },
+    {
+     "code": "LC11IMP",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.26,
+     "maximum": 13.7,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.566,
+    0.297
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 4 (p. 12), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.165757,
+   "n_sites": 61,
+   "avp": 0.03
+  },
+  {
+   "region_code": "HA4",
+   "region_name": "Hydrologic area 4, drainage area and imperviousness (SIR 2024-5130; NSS GC2018)",
+   "aep": 0.01,
+   "intercept": 2.958085848521085,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.95,
+     "maximum": 2310.0
+    },
+    {
+     "code": "LC11IMP",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.26,
+     "maximum": 13.7,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.572,
+    0.299
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 4 (p. 12), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.174663,
+   "n_sites": 61,
+   "avp": 0.03
+  },
+  {
+   "region_code": "HA4",
+   "region_name": "Hydrologic area 4, drainage area and imperviousness (SIR 2024-5130; NSS GC2018)",
+   "aep": 0.005,
+   "intercept": 3.0008677215312267,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.95,
+     "maximum": 2310.0
+    },
+    {
+     "code": "LC11IMP",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.26,
+     "maximum": 13.7,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.578,
+    0.3
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 4 (p. 12), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.183841,
+   "n_sites": 61,
+   "avp": 0.03
+  },
+  {
+   "region_code": "HA4",
+   "region_name": "Hydrologic area 4, drainage area and imperviousness (SIR 2024-5130; NSS GC2018)",
+   "aep": 0.002,
+   "intercept": 3.0519239160461065,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.95,
+     "maximum": 2310.0
+    },
+    {
+     "code": "LC11IMP",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.26,
+     "maximum": 13.7,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.584,
+    0.3
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 4 (p. 12), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.195518,
+   "n_sites": 61,
+   "avp": 0.04
+  },
+  {
+   "region_code": "HA1 DA only",
+   "region_name": "Hydrologic area 1, drainage area only (SIR 2024-5130; NSS GC2019)",
+   "aep": 0.5,
+   "intercept": 2.103803720955957,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.2,
+     "maximum": 21400.0
+    }
+   ],
+   "coefficients": [
+    0.732
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 5 (p. 16), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.201094,
+   "n_sites": 216,
+   "avp": 0.04
+  },
+  {
+   "region_code": "HA1 DA only",
+   "region_name": "Hydrologic area 1, drainage area only (SIR 2024-5130; NSS GC2019)",
+   "aep": 0.2,
+   "intercept": 2.315970345456918,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.2,
+     "maximum": 21400.0
+    }
+   ],
+   "coefficients": [
+    0.725
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 5 (p. 16), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.189516,
+   "n_sites": 216,
+   "avp": 0.04
+  },
+  {
+   "region_code": "HA1 DA only",
+   "region_name": "Hydrologic area 1, drainage area only (SIR 2024-5130; NSS GC2019)",
+   "aep": 0.1,
+   "intercept": 2.429752280002408,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.2,
+     "maximum": 21400.0
+    }
+   ],
+   "coefficients": [
+    0.721
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 5 (p. 16), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.191773,
+   "n_sites": 216,
+   "avp": 0.04
+  },
+  {
+   "region_code": "HA1 DA only",
+   "region_name": "Hydrologic area 1, drainage area only (SIR 2024-5130; NSS GC2019)",
+   "aep": 0.04,
+   "intercept": 2.550228353055094,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.2,
+     "maximum": 21400.0
+    }
+   ],
+   "coefficients": [
+    0.716
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 5 (p. 16), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.194022,
+   "n_sites": 216,
+   "avp": 0.04
+  },
+  {
+   "region_code": "HA1 DA only",
+   "region_name": "Hydrologic area 1, drainage area only (SIR 2024-5130; NSS GC2019)",
+   "aep": 0.02,
+   "intercept": 2.6273658565927325,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.2,
+     "maximum": 21400.0
+    }
+   ],
+   "coefficients": [
+    0.712
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 5 (p. 16), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.197009,
+   "n_sites": 216,
+   "avp": 0.04
+  },
+  {
+   "region_code": "HA1 DA only",
+   "region_name": "Hydrologic area 1, drainage area only (SIR 2024-5130; NSS GC2019)",
+   "aep": 0.01,
+   "intercept": 2.696356388733332,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.2,
+     "maximum": 21400.0
+    }
+   ],
+   "coefficients": [
+    0.709
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 5 (p. 16), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.202573,
+   "n_sites": 216,
+   "avp": 0.04
+  },
+  {
+   "region_code": "HA1 DA only",
+   "region_name": "Hydrologic area 1, drainage area only (SIR 2024-5130; NSS GC2019)",
+   "aep": 0.005,
+   "intercept": 2.7589118923979736,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.2,
+     "maximum": 21400.0
+    }
+   ],
+   "coefficients": [
+    0.706
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 5 (p. 16), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.20552,
+   "n_sites": 216,
+   "avp": 0.04
+  },
+  {
+   "region_code": "HA1 DA only",
+   "region_name": "Hydrologic area 1, drainage area only (SIR 2024-5130; NSS GC2019)",
+   "aep": 0.002,
+   "intercept": 2.835056101720116,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.2,
+     "maximum": 21400.0
+    }
+   ],
+   "coefficients": [
+    0.703
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 5 (p. 16), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.211736,
+   "n_sites": 216,
+   "avp": 0.04
+  },
+  {
+   "region_code": "HA2 DA only",
+   "region_name": "Hydrologic area 2, drainage area only (SIR 2024-5130; NSS GC2020)",
+   "aep": 0.5,
+   "intercept": 2.303196057420489,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.42,
+     "maximum": 2560.0
+    }
+   ],
+   "coefficients": [
+    0.716
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 5 (p. 16), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.150417,
+   "n_sites": 114
+  },
+  {
+   "region_code": "HA2 DA only",
+   "region_name": "Hydrologic area 2, drainage area only (SIR 2024-5130; NSS GC2020)",
+   "aep": 0.2,
+   "intercept": 2.53655844257153,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.42,
+     "maximum": 2560.0
+    }
+   ],
+   "coefficients": [
+    0.702
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 5 (p. 16), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.136005,
+   "n_sites": 114
+  },
+  {
+   "region_code": "HA2 DA only",
+   "region_name": "Hydrologic area 2, drainage area only (SIR 2024-5130; NSS GC2020)",
+   "aep": 0.1,
+   "intercept": 2.658964842664435,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.42,
+     "maximum": 2560.0
+    }
+   ],
+   "coefficients": [
+    0.695
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 5 (p. 16), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.141236,
+   "n_sites": 114
+  },
+  {
+   "region_code": "HA2 DA only",
+   "region_name": "Hydrologic area 2, drainage area only (SIR 2024-5130; NSS GC2020)",
+   "aep": 0.04,
+   "intercept": 2.797959643737196,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.42,
+     "maximum": 2560.0
+    }
+   ],
+   "coefficients": [
+    0.689
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 5 (p. 16), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.150417,
+   "n_sites": 114
+  },
+  {
+   "region_code": "HA2 DA only",
+   "region_name": "Hydrologic area 2, drainage area only (SIR 2024-5130; NSS GC2020)",
+   "aep": 0.02,
+   "intercept": 2.8739015978644615,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.42,
+     "maximum": 2560.0
+    }
+   ],
+   "coefficients": [
+    0.684
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 5 (p. 16), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.159107,
+   "n_sites": 114
+  },
+  {
+   "region_code": "HA2 DA only",
+   "region_name": "Hydrologic area 2, drainage area only (SIR 2024-5130; NSS GC2020)",
+   "aep": 0.01,
+   "intercept": 2.9489017609702137,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.42,
+     "maximum": 2560.0
+    }
+   ],
+   "coefficients": [
+    0.68
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 5 (p. 16), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.164977,
+   "n_sites": 114
+  },
+  {
+   "region_code": "HA2 DA only",
+   "region_name": "Hydrologic area 2, drainage area only (SIR 2024-5130; NSS GC2020)",
+   "aep": 0.005,
+   "intercept": 3.019116290447073,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.42,
+     "maximum": 2560.0
+    }
+   ],
+   "coefficients": [
+    0.676
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 5 (p. 16), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.170804,
+   "n_sites": 114
+  },
+  {
+   "region_code": "HA2 DA only",
+   "region_name": "Hydrologic area 2, drainage area only (SIR 2024-5130; NSS GC2020)",
+   "aep": 0.002,
+   "intercept": 3.104145550554008,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.42,
+     "maximum": 2560.0
+    }
+   ],
+   "coefficients": [
+    0.671
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 5 (p. 16), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.179649,
+   "n_sites": 114
+  },
+  {
+   "region_code": "HA3 DA only",
+   "region_name": "Hydrologic area 3, drainage area only (SIR 2024-5130; NSS GC2021)",
+   "aep": 0.5,
+   "intercept": 2.5415792439465807,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.17,
+     "maximum": 2050.0
+    }
+   ],
+   "coefficients": [
+    0.659
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 5 (p. 16), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.15832,
+   "n_sites": 63,
+   "avp": 0.03
+  },
+  {
+   "region_code": "HA3 DA only",
+   "region_name": "Hydrologic area 3, drainage area only (SIR 2024-5130; NSS GC2021)",
+   "aep": 0.2,
+   "intercept": 2.7323937598229686,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.17,
+     "maximum": 2050.0
+    }
+   ],
+   "coefficients": [
+    0.651
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 5 (p. 16), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.150417,
+   "n_sites": 63,
+   "avp": 0.02
+  },
+  {
+   "region_code": "HA3 DA only",
+   "region_name": "Hydrologic area 3, drainage area only (SIR 2024-5130; NSS GC2021)",
+   "aep": 0.1,
+   "intercept": 2.829946695941636,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.17,
+     "maximum": 2050.0
+    }
+   ],
+   "coefficients": [
+    0.648
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 5 (p. 16), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.153588,
+   "n_sites": 63,
+   "avp": 0.02
+  },
+  {
+   "region_code": "HA3 DA only",
+   "region_name": "Hydrologic area 3, drainage area only (SIR 2024-5130; NSS GC2021)",
+   "aep": 0.04,
+   "intercept": 2.930949031167523,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.17,
+     "maximum": 2050.0
+    }
+   ],
+   "coefficients": [
+    0.645
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 5 (p. 16), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.156746,
+   "n_sites": 63,
+   "avp": 0.02
+  },
+  {
+   "region_code": "HA3 DA only",
+   "region_name": "Hydrologic area 3, drainage area only (SIR 2024-5130; NSS GC2021)",
+   "aep": 0.02,
+   "intercept": 2.9951962915971793,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.17,
+     "maximum": 2050.0
+    }
+   ],
+   "coefficients": [
+    0.643
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 5 (p. 16), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.163416,
+   "n_sites": 63,
+   "avp": 0.03
+  },
+  {
+   "region_code": "HA3 DA only",
+   "region_name": "Hydrologic area 3, drainage area only (SIR 2024-5130; NSS GC2021)",
+   "aep": 0.01,
+   "intercept": 3.0519239160461065,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.17,
+     "maximum": 2050.0
+    }
+   ],
+   "coefficients": [
+    0.642
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 5 (p. 16), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.166925,
+   "n_sites": 63,
+   "avp": 0.03
+  },
+  {
+   "region_code": "HA3 DA only",
+   "region_name": "Hydrologic area 3, drainage area only (SIR 2024-5130; NSS GC2021)",
+   "aep": 0.005,
+   "intercept": 3.1031192535457137,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.17,
+     "maximum": 2050.0
+    }
+   ],
+   "coefficients": [
+    0.641
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 5 (p. 16), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.170804,
+   "n_sites": 63,
+   "avp": 0.03
+  },
+  {
+   "region_code": "HA3 DA only",
+   "region_name": "Hydrologic area 3, drainage area only (SIR 2024-5130; NSS GC2021)",
+   "aep": 0.002,
+   "intercept": 3.1640552918934515,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.17,
+     "maximum": 2050.0
+    }
+   ],
+   "coefficients": [
+    0.64
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 5 (p. 16), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.177352,
+   "n_sites": 63,
+   "avp": 0.03
+  },
+  {
+   "region_code": "HA4 DA only",
+   "region_name": "Hydrologic area 4, drainage area only (SIR 2024-5130; NSS GC2022)",
+   "aep": 0.5,
+   "intercept": 2.6424645202421213,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.95,
+     "maximum": 2310.0
+    }
+   ],
+   "coefficients": [
+    0.525
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 5 (p. 16), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.152796,
+   "n_sites": 61,
+   "avp": 0.02
+  },
+  {
+   "region_code": "HA4 DA only",
+   "region_name": "Hydrologic area 4, drainage area only (SIR 2024-5130; NSS GC2022)",
+   "aep": 0.2,
+   "intercept": 2.806179973983887,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.95,
+     "maximum": 2310.0
+    }
+   ],
+   "coefficients": [
+    0.539
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 5 (p. 16), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.146836,
+   "n_sites": 61,
+   "avp": 0.02
+  },
+  {
+   "region_code": "HA4 DA only",
+   "region_name": "Hydrologic area 4, drainage area only (SIR 2024-5130; NSS GC2022)",
+   "aep": 0.1,
+   "intercept": 2.88930170250631,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.95,
+     "maximum": 2310.0
+    }
+   ],
+   "coefficients": [
+    0.547
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 5 (p. 16), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.153588,
+   "n_sites": 61,
+   "avp": 0.02
+  },
+  {
+   "region_code": "HA4 DA only",
+   "region_name": "Hydrologic area 4, drainage area only (SIR 2024-5130; NSS GC2022)",
+   "aep": 0.04,
+   "intercept": 2.974971994298069,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.95,
+     "maximum": 2310.0
+    }
+   ],
+   "coefficients": [
+    0.556
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 5 (p. 16), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.163416,
+   "n_sites": 61,
+   "avp": 0.03
+  },
+  {
+   "region_code": "HA4 DA only",
+   "region_name": "Hydrologic area 4, drainage area only (SIR 2024-5130; NSS GC2022)",
+   "aep": 0.02,
+   "intercept": 3.030194785356751,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.95,
+     "maximum": 2310.0
+    }
+   ],
+   "coefficients": [
+    0.562
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 5 (p. 16), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.171964,
+   "n_sites": 61,
+   "avp": 0.03
+  },
+  {
+   "region_code": "HA4 DA only",
+   "region_name": "Hydrologic area 4, drainage area only (SIR 2024-5130; NSS GC2022)",
+   "aep": 0.01,
+   "intercept": 3.0770043267933502,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.95,
+     "maximum": 2310.0
+    }
+   ],
+   "coefficients": [
+    0.568
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 5 (p. 16), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.1827,
+   "n_sites": 61,
+   "avp": 0.03
+  },
+  {
+   "region_code": "HA4 DA only",
+   "region_name": "Hydrologic area 4, drainage area only (SIR 2024-5130; NSS GC2022)",
+   "aep": 0.005,
+   "intercept": 3.1209028176145273,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.95,
+     "maximum": 2310.0
+    }
+   ],
+   "coefficients": [
+    0.573
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 5 (p. 16), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.191398,
+   "n_sites": 61,
+   "avp": 0.04
+  },
+  {
+   "region_code": "HA4 DA only",
+   "region_name": "Hydrologic area 4, drainage area only (SIR 2024-5130; NSS GC2022)",
+   "aep": 0.002,
+   "intercept": 3.1728946977521764,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.95,
+     "maximum": 2310.0
+    }
+   ],
+   "coefficients": [
+    0.579
+   ],
+   "citation": {
+    "publication": "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p.",
+    "table": "Table 5 (p. 16), Table 6 (p. 17)",
+    "year": 2025,
+    "url": "https://doi.org/10.3133/sir20245130"
+   },
+   "sep_log": 0.201094,
+   "n_sites": 61,
+   "avp": 0.04
+  },
+  {
+   "region_code": "Memphis urban",
+   "region_name": "Urban streams of Memphis and Shelby County (WRIR 84-4110; NSS GC350)",
+   "aep": 0.5,
+   "intercept": 2.6884198220027105,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.043,
+     "maximum": 19.4
+    },
+    {
+     "code": "CHANCOND",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 1.0,
+     "maximum": 2.0
+    }
+   ],
+   "coefficients": [
+    0.81,
+    1.11
+   ],
+   "citation": {
+    "publication": "Neely, B.L., Jr., 1984, Flood frequency and storm runoff of urban areas of Memphis and Shelby County, Tennessee: U.S. Geological Survey Water-Resources Investigations Report 84-4110, 51 p.",
+    "table": "Equations 1-6 (p. 18)",
+    "year": 1984,
+    "url": "https://pubs.usgs.gov/publication/wri844110"
+   },
+   "n_sites": 25
+  },
+  {
+   "region_code": "Memphis urban",
+   "region_name": "Urban streams of Memphis and Shelby County (WRIR 84-4110; NSS GC350)",
+   "aep": 0.2,
+   "intercept": 2.8680563618230415,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.043,
+     "maximum": 19.4
+    },
+    {
+     "code": "CHANCOND",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 1.0,
+     "maximum": 2.0
+    }
+   ],
+   "coefficients": [
+    0.8,
+    1.09
+   ],
+   "citation": {
+    "publication": "Neely, B.L., Jr., 1984, Flood frequency and storm runoff of urban areas of Memphis and Shelby County, Tennessee: U.S. Geological Survey Water-Resources Investigations Report 84-4110, 51 p.",
+    "table": "Equations 1-6 (p. 18)",
+    "year": 1984,
+    "url": "https://pubs.usgs.gov/publication/wri844110"
+   },
+   "n_sites": 25
+  },
+  {
+   "region_code": "Memphis urban",
+   "region_name": "Urban streams of Memphis and Shelby County (WRIR 84-4110; NSS GC350)",
+   "aep": 0.1,
+   "intercept": 2.9628426812012423,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.043,
+     "maximum": 19.4
+    },
+    {
+     "code": "CHANCOND",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 1.0,
+     "maximum": 2.0
+    }
+   ],
+   "coefficients": [
+    0.79,
+    1.08
+   ],
+   "citation": {
+    "publication": "Neely, B.L., Jr., 1984, Flood frequency and storm runoff of urban areas of Memphis and Shelby County, Tennessee: U.S. Geological Survey Water-Resources Investigations Report 84-4110, 51 p.",
+    "table": "Equations 1-6 (p. 18)",
+    "year": 1984,
+    "url": "https://pubs.usgs.gov/publication/wri844110"
+   },
+   "n_sites": 25
+  },
+  {
+   "region_code": "Memphis urban",
+   "region_name": "Urban streams of Memphis and Shelby County (WRIR 84-4110; NSS GC350)",
+   "aep": 0.04,
+   "intercept": 3.0644579892269186,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.043,
+     "maximum": 19.4
+    },
+    {
+     "code": "CHANCOND",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 1.0,
+     "maximum": 2.0
+    }
+   ],
+   "coefficients": [
+    0.78,
+    1.06
+   ],
+   "citation": {
+    "publication": "Neely, B.L., Jr., 1984, Flood frequency and storm runoff of urban areas of Memphis and Shelby County, Tennessee: U.S. Geological Survey Water-Resources Investigations Report 84-4110, 51 p.",
+    "table": "Equations 1-6 (p. 18)",
+    "year": 1984,
+    "url": "https://pubs.usgs.gov/publication/wri844110"
+   },
+   "n_sites": 25
+  },
+  {
+   "region_code": "Memphis urban",
+   "region_name": "Urban streams of Memphis and Shelby County (WRIR 84-4110; NSS GC350)",
+   "aep": 0.02,
+   "intercept": 3.130333768495006,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.043,
+     "maximum": 19.4
+    },
+    {
+     "code": "CHANCOND",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 1.0,
+     "maximum": 2.0
+    }
+   ],
+   "coefficients": [
+    0.77,
+    1.05
+   ],
+   "citation": {
+    "publication": "Neely, B.L., Jr., 1984, Flood frequency and storm runoff of urban areas of Memphis and Shelby County, Tennessee: U.S. Geological Survey Water-Resources Investigations Report 84-4110, 51 p.",
+    "table": "Equations 1-6 (p. 18)",
+    "year": 1984,
+    "url": "https://pubs.usgs.gov/publication/wri844110"
+   },
+   "n_sites": 25
+  },
+  {
+   "region_code": "Memphis urban",
+   "region_name": "Urban streams of Memphis and Shelby County (WRIR 84-4110; NSS GC350)",
+   "aep": 0.01,
+   "intercept": 3.1903316981702914,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.043,
+     "maximum": 19.4
+    },
+    {
+     "code": "CHANCOND",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 1.0,
+     "maximum": 2.0
+    }
+   ],
+   "coefficients": [
+    0.76,
+    1.04
+   ],
+   "citation": {
+    "publication": "Neely, B.L., Jr., 1984, Flood frequency and storm runoff of urban areas of Memphis and Shelby County, Tennessee: U.S. Geological Survey Water-Resources Investigations Report 84-4110, 51 p.",
+    "table": "Equations 1-6 (p. 18)",
+    "year": 1984,
+    "url": "https://pubs.usgs.gov/publication/wri844110"
+   },
+   "n_sites": 25
+  },
+  {
+   "region_code": "Urban statewide",
+   "region_name": "Urban streams statewide, except Memphis and Nashville (WRIR 84-4182; NSS GC351)",
+   "aep": 0.5,
+   "intercept": 0.24551266781414982,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.21,
+     "maximum": 24.3
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 4.7,
+     "maximum": 74.0
+    },
+    {
+     "code": "I24H2Y",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 3.05,
+     "maximum": 4.0
+    }
+   ],
+   "coefficients": [
+    0.74,
+    0.48,
+    3.01
+   ],
+   "citation": {
+    "publication": "Robbins, C.H., 1984, Synthesized flood frequency of small urban streams in Tennessee: U.S. Geological Survey Water-Resources Investigations Report 84-4182, 24 p.",
+    "table": "Regression equations (p. 14); standard error of prediction table (p. 23)",
+    "year": 1984,
+    "url": "https://pubs.usgs.gov/publication/wri844182"
+   },
+   "sep_log": 0.1827,
+   "equivalent_years": 2,
+   "n_sites": 22
+  },
+  {
+   "region_code": "Urban statewide",
+   "region_name": "Urban streams statewide, except Memphis and Nashville (WRIR 84-4182; NSS GC351)",
+   "aep": 0.2,
+   "intercept": 0.7442929831226762,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.21,
+     "maximum": 24.3
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 4.7,
+     "maximum": 74.0
+    },
+    {
+     "code": "I24H2Y",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 3.05,
+     "maximum": 4.0
+    }
+   ],
+   "coefficients": [
+    0.75,
+    0.44,
+    2.53
+   ],
+   "citation": {
+    "publication": "Robbins, C.H., 1984, Synthesized flood frequency of small urban streams in Tennessee: U.S. Geological Survey Water-Resources Investigations Report 84-4182, 24 p.",
+    "table": "Regression equations (p. 14); standard error of prediction table (p. 23)",
+    "year": 1984,
+    "url": "https://pubs.usgs.gov/publication/wri844182"
+   },
+   "sep_log": 0.163416,
+   "equivalent_years": 3,
+   "n_sites": 22
+  },
+  {
+   "region_code": "Urban statewide",
+   "region_name": "Urban streams statewide, except Memphis and Nashville (WRIR 84-4182; NSS GC351)",
+   "aep": 0.1,
+   "intercept": 1.0718820073061255,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.21,
+     "maximum": 24.3
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 4.7,
+     "maximum": 74.0
+    },
+    {
+     "code": "I24H2Y",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 3.05,
+     "maximum": 4.0
+    }
+   ],
+   "coefficients": [
+    0.75,
+    0.43,
+    2.12
+   ],
+   "citation": {
+    "publication": "Robbins, C.H., 1984, Synthesized flood frequency of small urban streams in Tennessee: U.S. Geological Survey Water-Resources Investigations Report 84-4182, 24 p.",
+    "table": "Regression equations (p. 14); standard error of prediction table (p. 23)",
+    "year": 1984,
+    "url": "https://pubs.usgs.gov/publication/wri844182"
+   },
+   "sep_log": 0.155563,
+   "equivalent_years": 4,
+   "n_sites": 22
+  },
+  {
+   "region_code": "Urban statewide",
+   "region_name": "Urban streams statewide, except Memphis and Nashville (WRIR 84-4182; NSS GC351)",
+   "aep": 0.04,
+   "intercept": 1.3404441148401183,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.21,
+     "maximum": 24.3
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 4.7,
+     "maximum": 74.0
+    },
+    {
+     "code": "I24H2Y",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 3.05,
+     "maximum": 4.0
+    }
+   ],
+   "coefficients": [
+    0.75,
+    0.39,
+    1.89
+   ],
+   "citation": {
+    "publication": "Robbins, C.H., 1984, Synthesized flood frequency of small urban streams in Tennessee: U.S. Geological Survey Water-Resources Investigations Report 84-4182, 24 p.",
+    "table": "Regression equations (p. 14); standard error of prediction table (p. 23)",
+    "year": 1984,
+    "url": "https://pubs.usgs.gov/publication/wri844182"
+   },
+   "sep_log": 0.151608,
+   "equivalent_years": 6,
+   "n_sites": 22
+  },
+  {
+   "region_code": "Urban statewide",
+   "region_name": "Urban streams statewide, except Memphis and Nashville (WRIR 84-4182; NSS GC351)",
+   "aep": 0.02,
+   "intercept": 1.6522463410033232,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.21,
+     "maximum": 24.3
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 4.7,
+     "maximum": 74.0
+    },
+    {
+     "code": "I24H2Y",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 3.05,
+     "maximum": 4.0
+    }
+   ],
+   "coefficients": [
+    0.75,
+    0.4,
+    1.42
+   ],
+   "citation": {
+    "publication": "Robbins, C.H., 1984, Synthesized flood frequency of small urban streams in Tennessee: U.S. Geological Survey Water-Resources Investigations Report 84-4182, 24 p.",
+    "table": "Regression equations (p. 14); standard error of prediction table (p. 23)",
+    "year": 1984,
+    "url": "https://pubs.usgs.gov/publication/wri844182"
+   },
+   "sep_log": 0.155563,
+   "equivalent_years": 7,
+   "n_sites": 22
+  },
+  {
+   "region_code": "Urban statewide",
+   "region_name": "Urban streams statewide, except Memphis and Nashville (WRIR 84-4182; NSS GC351)",
+   "aep": 0.01,
+   "intercept": 1.8864907251724818,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.21,
+     "maximum": 24.3
+    },
+    {
+     "code": "IMPERV",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 4.7,
+     "maximum": 74.0
+    },
+    {
+     "code": "I24H2Y",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 3.05,
+     "maximum": 4.0
+    }
+   ],
+   "coefficients": [
+    0.75,
+    0.4,
+    1.1
+   ],
+   "citation": {
+    "publication": "Robbins, C.H., 1984, Synthesized flood frequency of small urban streams in Tennessee: U.S. Geological Survey Water-Resources Investigations Report 84-4182, 24 p.",
+    "table": "Regression equations (p. 14); standard error of prediction table (p. 23)",
+    "year": 1984,
+    "url": "https://pubs.usgs.gov/publication/wri844182"
+   },
+   "sep_log": 0.163416,
+   "equivalent_years": 8,
+   "n_sites": 22
+  }
+ ]
+}
