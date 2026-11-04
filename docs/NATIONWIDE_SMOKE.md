@@ -40,7 +40,7 @@ Failures by kind:
 | HI | 16587000 | 113 | ok | 6,000 | ok | 1,745 | verified | override: main-stem point at gage 16587000 (0.68 mi2 vs catalog 0.59) |  |
 | MN | 05131500 | 105 | ok | 26,324 | ok | 21,944 | nss_snapshot | gage |  |
 | WI | 05362000 | 110 | ok | 23,622 | ok | 15,273 | nss_snapshot | gage |  |
-| IA | 05412500 | 107 | ok | 51,231 | ok | 41,828 | nss_snapshot | gage, region=GC1562, GC1563 |  |
+| IA | 05412500 | 107 | ok | 51,231 | ok | 41,828 | nss_snapshot | gage |  |
 | IL | 05585000 | 105 | ok | 35,788 | ok | 52,007 | nss_snapshot | override: snapped ~50 m from gage 05585000; #209 packet: GC2010 adds the urbanization term (URBTHE2010) to GC2004 (_U, unadjusted), region=GC2010 |  |
 | MO | 07067000 | 113 | ok | 151,283 | ok | 150,345 | nss_snapshot | gage, region=GC1484 |  |
 | MI | 04124000 | 105 | ok | 3,597 | FAIL |  |  | gage | ungaged: RegionNotDelineatedError: StreamStats' snap service has no stream grid for region 'MI' ({"detail":"No data found for region='MI' ; Stream grid raster not found for region='MI'"}); no point there can be delineated through this API, so supply the basin characteristics another way |

@@ -27,7 +27,9 @@ Assembly rules
   its full ``percent_weight``. When the remaining regions' weights sum to more than
   100 % (beyond NSS's whole-percent rounding) they are alternatives, not a partition:
   ``region=`` chooses one and the others are reported as ``alternatives``; without a
-  choice :class:`OverlappingRegionsError` lists the candidates. ``region=`` may instead be
+  choice a published rule decides if there is one (drainage-area classes, region gates), then
+  the library's order of preference (Iowa's full sets before its drainage-area-only sets),
+  and otherwise :class:`OverlappingRegionsError` lists the candidates. ``region=`` may instead be
   a sequence of codes, one per side of a region boundary, whose ``percent_weight`` sums
   to 100 % (within the same tolerance): they are used together as a partition and the
   rest are ``alternatives``.
@@ -468,6 +470,38 @@ def _gated_region(
     )
 
 
+def _preferred_regions(
+    lib: StateLibrary,
+    used: Sequence[Tuple[RegressionRegionLocation, str]],
+) -> Optional[Tuple[List[Tuple[RegressionRegionLocation, str]], str]]:
+    """The first tier of the library's order of preference that covers the basin.
+
+    ``used`` holds only the regions the basin has the characteristics for, so a full set
+    with a characteristic missing is already gone. A tier covering one side of a region
+    boundary is passed over rather than mixed with another tier: the basin gets one kind of
+    equation throughout.
+
+    Returns
+    -------
+    (list of (RegressionRegionLocation, str), str) or None
+        The pairs and the reason recorded as ``region_choice_source``; None when the library
+        has no preference, a candidate is not in it, or no tier covers the basin.
+    """
+    preference = lib.region_preference
+    if preference is None:
+        return None
+    if any(all(c not in tier for tier in preference.tiers) for _, c in used):
+        return None
+    for tier in preference.tiers:
+        picked = [pair for pair in used if pair[1] in tier]
+        tol = max(PERCENT_WEIGHT_TOL, 0.5 * len(picked))
+        if picked and abs(sum(r.percent_weight for r, _ in picked) - 100.0) <= tol:
+            return picked, (
+                f"region preference: {', '.join(r.code for r, _ in picked)}; {preference.basis}"
+            )
+    return None
+
+
 def _gate_gap(
     lib: StateLibrary,
     used: Sequence[Tuple[RegressionRegionLocation, str]],
@@ -767,9 +801,13 @@ def assemble(
                 lib, used, characteristics
             )
             if by_rule is None:
-                gap = _gate_gap(lib, used, characteristics)
-                raise OverlappingRegionsError(lib.state, candidates, reason=gap)
-            chosen, region_choice_source = by_rule
+                preferred = _preferred_regions(lib, used)
+                if preferred is None:
+                    gap = _gate_gap(lib, used, characteristics)
+                    raise OverlappingRegionsError(lib.state, candidates, reason=gap)
+                (chosen, *extra), region_choice_source = preferred
+            else:
+                chosen, region_choice_source = by_rule
             logger.info("%s: %s", lib.state, region_choice_source)
         if chosen is None:
             if why is None:
@@ -835,6 +873,11 @@ def assemble(
         )
         used = [pair for pair in used if id(pair[0]) in picked_ids]
     # A choice in use on a partition is a no-op: there is nothing to choose between.
+    elif choice is None and missing and lib.region_preference is not None:
+        # The preferred set lacks a characteristic and what is left is no longer an overlap.
+        fallback = _preferred_regions(lib, used)
+        if fallback is not None:
+            region_choice_source = fallback[1]
 
     if aeps is None:
         common = set.intersection(*(set(lib.aeps(lib_code)) for _, lib_code in used))

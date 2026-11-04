@@ -156,6 +156,31 @@ class RegionGate:
 
 
 @dataclass
+class RegionPreference:
+    """An order of preference among overlapping equation sets.
+
+    A method choice, not a published rule, which is why it is not a :class:`RegionGate`.
+    Iowa publishes a full set (SIR 2013-5086) and a drainage-area-only set (SIR 2015-5055)
+    for each region, and nothing printed says which to use where both apply.
+
+    Attributes
+    ----------
+    tiers : list of list of str
+        Region codes, most preferred tier first. ``assemble`` uses the first tier whose
+        regions, among those the basin has the characteristics for, cover the basin.
+    basis : str
+        Why this order, recorded with the estimate.
+    """
+
+    tiers: List[List[str]]
+    basis: str = ""
+
+    @classmethod
+    def from_dict(cls, d: Dict[str, Any]) -> "RegionPreference":
+        return cls(tiers=[[str(c) for c in t] for t in d["tiers"]], basis=str(d.get("basis") or ""))
+
+
+@dataclass
 class StateLibrary:
     """The regression equations published for one jurisdiction."""
 
@@ -176,6 +201,8 @@ class StateLibrary:
     #: (:class:`RegionGate`), by region code. ``assemble`` uses them to choose between
     #: overlapping regions.
     region_gates: Dict[str, RegionGate] = field(default_factory=dict)
+    #: The order to try overlapping sets in when no published rule decides it.
+    region_preference: Optional[RegionPreference] = None
 
     @property
     def provisional(self) -> bool:
@@ -256,6 +283,12 @@ def parse_state(data: Dict[str, Any]) -> StateLibrary:
     unknown = sorted(set(gates) - {e.region_code for e in eqs})
     if unknown:
         raise ValueError(f"{state}: region_gates for regions with no equations: {unknown}")
+    pref = data.get("region_preference")
+    preference = RegionPreference.from_dict(pref) if pref else None
+    if preference is not None:
+        unknown = sorted({c for t in preference.tiers for c in t} - {e.region_code for e in eqs})
+        if unknown:
+            raise ValueError(f"{state}: region_preference for regions with no equations: {unknown}")
     return StateLibrary(
         state=state,
         status=status,
@@ -266,6 +299,7 @@ def parse_state(data: Dict[str, Any]) -> StateLibrary:
         unparsed=[dict(u) for u in data.get("unparsed") or []],
         retrieved_utc=str(data.get("retrieved_utc") or ""),
         region_gates=gates,
+        region_preference=preference,
     )
 
 
