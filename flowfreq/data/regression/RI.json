@@ -1,0 +1,692 @@
+{
+ "schema_version": 1,
+ "state": "RI",
+ "status": "verified",
+ "issue": null,
+ "source_reports": [
+  {
+   "citation": "Zarriello, P.J., Ahearn, E.A., and Levin, S.B., 2012, Magnitude of flood flows for selected annual exceedance probabilities in Rhode Island through 2010 (ver. 1.2, revised March 2013): U.S. Geological Survey Scientific Investigations Report 2012-5109, 81 p.",
+   "doi": "10.3133/sir20125109",
+   "url": "https://pubs.usgs.gov/publication/sir20125109",
+   "pdf": "https://pubs.usgs.gov/sir/2012/5109/pdf/sir2012-5109_report_508_ver1-2.pdf",
+   "tables": [
+    "Equations 2-8",
+    "Table 8",
+    "Table 9",
+    "Table 10",
+    "Table 13",
+    "Table 15",
+    "Table 16",
+    "Appendix 3 workbook RI_Flood-Flow-Equations.xls"
+   ],
+   "nss": {
+    "regression_regions": [
+     "GC191"
+    ],
+    "citation_id": 125,
+    "last_year_of_data": 2010
+   }
+  }
+ ],
+ "notes": "Zarriello, Ahearn and Levin, SIR 2012-5109 ver. 1.2 (March 2013), the version the publication page serves: a statewide set on DRNAREA, STRDEN and STORNHD at 7 AEPs (equations 2-8, 41 GLS sites in RI, CT and MA; the report's StorNHD is the workbook's Stor24k and StreamStats' STORNHD), and a drainage-area-only set (Table 16). The two are separate regions with no preference between them; NSS serves only the first. Equations and ranges from the report (Table 8; its StorNHD minimum of 3.37 is as printed, where the lowest gage is 3.3768). sep_log from Table 9's third column; Table 9 mislabels its columns: the column headed average variance of prediction in percent is the average SEP in percent (27.2 percent at 20 percent AEP, the workbook's Average Sp,i and NSS's value), and the column headed average standard error of prediction is the model error in percent (the workbook's Std Model Error). Model error variance, covariance (order constant, log10 DRNAREA, log10 STRDEN, log10 STORNHD) and avp at full precision from the Appendix 3 workbook, sheet CoVariance; all round to Table 10's printed values. Average MEV + xUx over the 41 gages reproduces Table 9 at all 7 AEPs, except that Table 9 prints 24.5 percent at 2 percent AEP for the workbook's and this check's 24.57; sep_log keeps the printed 24.5, as NSS does. All 294 Table 13 regression flows (42 gages) reproduce under the table's rounding; its variances reproduce at the 41 regression gages. The worked example on p. 25 does NOT reproduce and is not a check on this set: for 30 mi2, 3.53 mi/mi2, 6.77 percent it prints Q1% 3,590, gamma2 0.00908 and xUx 0.00361, where equation 6 and Table 10 give 3,418, 0.0078 and 0.00319. The same basin is gage 01123000 in Table 13, printed 3,410 and 0.011, and the report's workbook carries the printed equations in its formulas. The example's degrees of freedom, 42 - 4, point to a fit that still held the redundant Arcadia gage, which the report then dropped, and Figure 11, which plots the same basin, also reads above the printed equations (the inference is flowfreq's; the report does not say so). The second example (p. 39), 1,590 at Arcadia and 3,200 at Hope Valley, reproduces. Intervals use t with 41 - 4 = 37 degrees of freedom (2.026), not the example's 2.024; the workbook itself uses 1.96. Other report slips, none affecting the equations: Table 13 prints gage 01175670 as 01175760; Arcadia's Table 13 variances (0.058 to 0.101) are not equation 11's (0.011 to 0.017) and are close to it with DA and STRDEN swapped in x (within 0.0012); Table 14's drainage areas differ from Table 15's headings, and Table 15's flows follow the headings. Table 16 prints no error, so the drainage-area-only set has no interval; its range is Table 8's, and its constant is taken as the log10 constant, which is what the magnitudes require (the report does not say). NSS equals the report at every coefficient and range. The NSS citation's 93 p. is the suggested citation's 81 p.",
+ "equations": [
+  {
+   "region_code": "Statewide",
+   "region_name": "Statewide, three variables (NSS GC191)",
+   "aep": 0.2,
+   "intercept": 2.124,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 4.0,
+     "maximum": 404.0
+    },
+    {
+     "code": "STRDEN",
+     "transform": "log10",
+     "units": "mi/mi2",
+     "minimum": 1.25,
+     "maximum": 3.53
+    },
+    {
+     "code": "STORNHD",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 3.37,
+     "maximum": 19.0
+    }
+   ],
+   "coefficients": [
+    0.87,
+    0.77,
+    -0.856
+   ],
+   "citation": {
+    "publication": "Zarriello, P.J., Ahearn, E.A., and Levin, S.B., 2012, Magnitude of flood flows for selected annual exceedance probabilities in Rhode Island through 2010 (ver. 1.2, revised March 2013): U.S. Geological Survey Scientific Investigations Report 2012-5109, 81 p.",
+    "table": "Equations 2-8; Tables 8, 9 and 10; Appendix 3 workbook",
+    "year": 2012,
+    "url": "https://doi.org/10.3133/sir20125109"
+   },
+   "sep_log": 0.116027,
+   "avp": 0.013472,
+   "model_error_variance": 0.01152343,
+   "covariance": [
+    [
+     0.014940697,
+     -0.0011272907,
+     -0.0099825199,
+     -0.0096163648
+    ],
+    [
+     -0.0011272907,
+     0.0015258271,
+     -0.00046181747,
+     -0.0014326577
+    ],
+    [
+     -0.0099825199,
+     -0.00046181747,
+     0.030646182,
+     -0.00023105675
+    ],
+    [
+     -0.0096163648,
+     -0.0014326577,
+     -0.00023105675,
+     0.013496325
+    ]
+   ],
+   "n_sites": 41
+  },
+  {
+   "region_code": "Statewide",
+   "region_name": "Statewide, three variables (NSS GC191)",
+   "aep": 0.1,
+   "intercept": 2.264,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 4.0,
+     "maximum": 404.0
+    },
+    {
+     "code": "STRDEN",
+     "transform": "log10",
+     "units": "mi/mi2",
+     "minimum": 1.25,
+     "maximum": 3.53
+    },
+    {
+     "code": "STORNHD",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 3.37,
+     "maximum": 19.0
+    }
+   ],
+   "coefficients": [
+    0.87,
+    0.79,
+    -0.893
+   ],
+   "citation": {
+    "publication": "Zarriello, P.J., Ahearn, E.A., and Levin, S.B., 2012, Magnitude of flood flows for selected annual exceedance probabilities in Rhode Island through 2010 (ver. 1.2, revised March 2013): U.S. Geological Survey Scientific Investigations Report 2012-5109, 81 p.",
+    "table": "Equations 2-8; Tables 8, 9 and 10; Appendix 3 workbook",
+    "year": 2012,
+    "url": "https://doi.org/10.3133/sir20125109"
+   },
+   "sep_log": 0.110662,
+   "avp": 0.012283,
+   "model_error_variance": 0.01008829,
+   "covariance": [
+    [
+     0.015077101,
+     -0.0011715772,
+     -0.010261712,
+     -0.0091113946
+    ],
+    [
+     -0.0011715772,
+     0.0014588333,
+     -0.00020812401,
+     -0.0013873628
+    ],
+    [
+     -0.010261712,
+     -0.00020812401,
+     0.030248698,
+     -0.00024002626
+    ],
+    [
+     -0.0091113946,
+     -0.0013873628,
+     -0.00024002626,
+     0.012729052
+    ]
+   ],
+   "n_sites": 41
+  },
+  {
+   "region_code": "Statewide",
+   "region_name": "Statewide, three variables (NSS GC191)",
+   "aep": 0.04,
+   "intercept": 2.428,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 4.0,
+     "maximum": 404.0
+    },
+    {
+     "code": "STRDEN",
+     "transform": "log10",
+     "units": "mi/mi2",
+     "minimum": 1.25,
+     "maximum": 3.53
+    },
+    {
+     "code": "STORNHD",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 3.37,
+     "maximum": 19.0
+    }
+   ],
+   "coefficients": [
+    0.862,
+    0.802,
+    -0.919
+   ],
+   "citation": {
+    "publication": "Zarriello, P.J., Ahearn, E.A., and Levin, S.B., 2012, Magnitude of flood flows for selected annual exceedance probabilities in Rhode Island through 2010 (ver. 1.2, revised March 2013): U.S. Geological Survey Scientific Investigations Report 2012-5109, 81 p.",
+    "table": "Equations 2-8; Tables 8, 9 and 10; Appendix 3 workbook",
+    "year": 2012,
+    "url": "https://doi.org/10.3133/sir20125109"
+   },
+   "sep_log": 0.102775,
+   "avp": 0.010546,
+   "model_error_variance": 0.00809413,
+   "covariance": [
+    [
+     0.01522364,
+     -0.0011313172,
+     -0.010825619,
+     -0.0085748371
+    ],
+    [
+     -0.0011313172,
+     0.0013569824,
+     8.9543019e-05,
+     -0.0013893826
+    ],
+    [
+     -0.010825619,
+     8.9543019e-05,
+     0.031503452,
+     -0.00075300118
+    ],
+    [
+     -0.0085748371,
+     -0.0013893826,
+     -0.00075300118,
+     0.012145425
+    ]
+   ],
+   "n_sites": 41
+  },
+  {
+   "region_code": "Statewide",
+   "region_name": "Statewide, three variables (NSS GC191)",
+   "aep": 0.02,
+   "intercept": 2.537,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 4.0,
+     "maximum": 404.0
+    },
+    {
+     "code": "STRDEN",
+     "transform": "log10",
+     "units": "mi/mi2",
+     "minimum": 1.25,
+     "maximum": 3.53
+    },
+    {
+     "code": "STORNHD",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 3.37,
+     "maximum": 19.0
+    }
+   ],
+   "coefficients": [
+    0.857,
+    0.801,
+    -0.94
+   ],
+   "citation": {
+    "publication": "Zarriello, P.J., Ahearn, E.A., and Levin, S.B., 2012, Magnitude of flood flows for selected annual exceedance probabilities in Rhode Island through 2010 (ver. 1.2, revised March 2013): U.S. Geological Survey Scientific Investigations Report 2012-5109, 81 p.",
+    "table": "Equations 2-8; Tables 8, 9 and 10; Appendix 3 workbook",
+    "year": 2012,
+    "url": "https://doi.org/10.3133/sir20125109"
+   },
+   "sep_log": 0.104855,
+   "avp": 0.011056,
+   "model_error_variance": 0.00822325,
+   "covariance": [
+    [
+     0.017103438,
+     -0.0012334815,
+     -0.012443495,
+     -0.0093757955
+    ],
+    [
+     -0.0012334815,
+     0.0014728559,
+     0.00022143677,
+     -0.0015590584
+    ],
+    [
+     -0.012443495,
+     0.00022143677,
+     0.03610781,
+     -0.0011267944
+    ],
+    [
+     -0.0093757955,
+     -0.0015590584,
+     -0.0011267944,
+     0.01337918
+    ]
+   ],
+   "n_sites": 41
+  },
+  {
+   "region_code": "Statewide",
+   "region_name": "Statewide, three variables (NSS GC191)",
+   "aep": 0.01,
+   "intercept": 2.623,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 4.0,
+     "maximum": 404.0
+    },
+    {
+     "code": "STRDEN",
+     "transform": "log10",
+     "units": "mi/mi2",
+     "minimum": 1.25,
+     "maximum": 3.53
+    },
+    {
+     "code": "STORNHD",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 3.37,
+     "maximum": 19.0
+    }
+   ],
+   "coefficients": [
+    0.852,
+    0.792,
+    -0.941
+   ],
+   "citation": {
+    "publication": "Zarriello, P.J., Ahearn, E.A., and Levin, S.B., 2012, Magnitude of flood flows for selected annual exceedance probabilities in Rhode Island through 2010 (ver. 1.2, revised March 2013): U.S. Geological Survey Scientific Investigations Report 2012-5109, 81 p.",
+    "table": "Equations 2-8; Tables 8, 9 and 10; Appendix 3 workbook",
+    "year": 2012,
+    "url": "https://doi.org/10.3133/sir20125109"
+   },
+   "sep_log": 0.103607,
+   "avp": 0.010778,
+   "model_error_variance": 0.00783876,
+   "covariance": [
+    [
+     0.018474728,
+     -0.0012212527,
+     -0.014460192,
+     -0.009982963
+    ],
+    [
+     -0.0012212527,
+     0.001543328,
+     0.0004210017,
+     -0.0017743629
+    ],
+    [
+     -0.014460192,
+     0.0004210017,
+     0.043045301,
+     -0.0022709888
+    ],
+    [
+     -0.009982963,
+     -0.0017743629,
+     -0.0022709888,
+     0.014790331
+    ]
+   ],
+   "n_sites": 41
+  },
+  {
+   "region_code": "Statewide",
+   "region_name": "Statewide, three variables (NSS GC191)",
+   "aep": 0.005,
+   "intercept": 2.713,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 4.0,
+     "maximum": 404.0
+    },
+    {
+     "code": "STRDEN",
+     "transform": "log10",
+     "units": "mi/mi2",
+     "minimum": 1.25,
+     "maximum": 3.53
+    },
+    {
+     "code": "STORNHD",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 3.37,
+     "maximum": 19.0
+    }
+   ],
+   "coefficients": [
+    0.851,
+    0.816,
+    -0.975
+   ],
+   "citation": {
+    "publication": "Zarriello, P.J., Ahearn, E.A., and Levin, S.B., 2012, Magnitude of flood flows for selected annual exceedance probabilities in Rhode Island through 2010 (ver. 1.2, revised March 2013): U.S. Geological Survey Scientific Investigations Report 2012-5109, 81 p.",
+    "table": "Equations 2-8; Tables 8, 9 and 10; Appendix 3 workbook",
+    "year": 2012,
+    "url": "https://doi.org/10.3133/sir20125109"
+   },
+   "sep_log": 0.113554,
+   "avp": 0.012885,
+   "model_error_variance": 0.00915371,
+   "covariance": [
+    [
+     0.021825795,
+     -0.0015013615,
+     -0.01640133,
+     -0.011584187
+    ],
+    [
+     -0.0015013615,
+     0.001801311,
+     0.00045853368,
+     -0.0019914986
+    ],
+    [
+     -0.01640133,
+     0.00045853368,
+     0.047547002,
+     -0.0019462169
+    ],
+    [
+     -0.011584187,
+     -0.0019914986,
+     -0.0019462169,
+     0.016716511
+    ]
+   ],
+   "n_sites": 41
+  },
+  {
+   "region_code": "Statewide",
+   "region_name": "Statewide, three variables (NSS GC191)",
+   "aep": 0.002,
+   "intercept": 2.815,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 4.0,
+     "maximum": 404.0
+    },
+    {
+     "code": "STRDEN",
+     "transform": "log10",
+     "units": "mi/mi2",
+     "minimum": 1.25,
+     "maximum": 3.53
+    },
+    {
+     "code": "STORNHD",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 3.37,
+     "maximum": 19.0
+    }
+   ],
+   "coefficients": [
+    0.85,
+    0.829,
+    -1.002
+   ],
+   "citation": {
+    "publication": "Zarriello, P.J., Ahearn, E.A., and Levin, S.B., 2012, Magnitude of flood flows for selected annual exceedance probabilities in Rhode Island through 2010 (ver. 1.2, revised March 2013): U.S. Geological Survey Scientific Investigations Report 2012-5109, 81 p.",
+    "table": "Equations 2-8; Tables 8, 9 and 10; Appendix 3 workbook",
+    "year": 2012,
+    "url": "https://doi.org/10.3133/sir20125109"
+   },
+   "sep_log": 0.125862,
+   "avp": 0.015821,
+   "model_error_variance": 0.01126644,
+   "covariance": [
+    [
+     0.026960952,
+     -0.0018418043,
+     -0.020551458,
+     -0.014265134
+    ],
+    [
+     -0.0018418043,
+     0.0022271601,
+     0.00058749492,
+     -0.0024743931
+    ],
+    [
+     -0.020551458,
+     0.00058749492,
+     0.059460691,
+     -0.0025157121
+    ],
+    [
+     -0.014265134,
+     -0.0024743931,
+     -0.0025157121,
+     0.02067312
+    ]
+   ],
+   "n_sites": 41
+  },
+  {
+   "region_code": "DA-only",
+   "region_name": "Statewide, drainage area only (SIR 2012-5109 Table 16)",
+   "aep": 0.2,
+   "intercept": 1.76,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 4.0,
+     "maximum": 404.0
+    }
+   ],
+   "coefficients": [
+    0.81
+   ],
+   "citation": {
+    "publication": "Zarriello, P.J., Ahearn, E.A., and Levin, S.B., 2012, Magnitude of flood flows for selected annual exceedance probabilities in Rhode Island through 2010 (ver. 1.2, revised March 2013): U.S. Geological Survey Scientific Investigations Report 2012-5109, 81 p.",
+    "table": "Table 16; drainage-area range from Table 8",
+    "year": 2012,
+    "url": "https://doi.org/10.3133/sir20125109"
+   }
+  },
+  {
+   "region_code": "DA-only",
+   "region_name": "Statewide, drainage area only (SIR 2012-5109 Table 16)",
+   "aep": 0.1,
+   "intercept": 1.88,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 4.0,
+     "maximum": 404.0
+    }
+   ],
+   "coefficients": [
+    0.8
+   ],
+   "citation": {
+    "publication": "Zarriello, P.J., Ahearn, E.A., and Levin, S.B., 2012, Magnitude of flood flows for selected annual exceedance probabilities in Rhode Island through 2010 (ver. 1.2, revised March 2013): U.S. Geological Survey Scientific Investigations Report 2012-5109, 81 p.",
+    "table": "Table 16; drainage-area range from Table 8",
+    "year": 2012,
+    "url": "https://doi.org/10.3133/sir20125109"
+   }
+  },
+  {
+   "region_code": "DA-only",
+   "region_name": "Statewide, drainage area only (SIR 2012-5109 Table 16)",
+   "aep": 0.04,
+   "intercept": 2.04,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 4.0,
+     "maximum": 404.0
+    }
+   ],
+   "coefficients": [
+    0.79
+   ],
+   "citation": {
+    "publication": "Zarriello, P.J., Ahearn, E.A., and Levin, S.B., 2012, Magnitude of flood flows for selected annual exceedance probabilities in Rhode Island through 2010 (ver. 1.2, revised March 2013): U.S. Geological Survey Scientific Investigations Report 2012-5109, 81 p.",
+    "table": "Table 16; drainage-area range from Table 8",
+    "year": 2012,
+    "url": "https://doi.org/10.3133/sir20125109"
+   }
+  },
+  {
+   "region_code": "DA-only",
+   "region_name": "Statewide, drainage area only (SIR 2012-5109 Table 16)",
+   "aep": 0.02,
+   "intercept": 2.14,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 4.0,
+     "maximum": 404.0
+    }
+   ],
+   "coefficients": [
+    0.78
+   ],
+   "citation": {
+    "publication": "Zarriello, P.J., Ahearn, E.A., and Levin, S.B., 2012, Magnitude of flood flows for selected annual exceedance probabilities in Rhode Island through 2010 (ver. 1.2, revised March 2013): U.S. Geological Survey Scientific Investigations Report 2012-5109, 81 p.",
+    "table": "Table 16; drainage-area range from Table 8",
+    "year": 2012,
+    "url": "https://doi.org/10.3133/sir20125109"
+   }
+  },
+  {
+   "region_code": "DA-only",
+   "region_name": "Statewide, drainage area only (SIR 2012-5109 Table 16)",
+   "aep": 0.01,
+   "intercept": 2.23,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 4.0,
+     "maximum": 404.0
+    }
+   ],
+   "coefficients": [
+    0.77
+   ],
+   "citation": {
+    "publication": "Zarriello, P.J., Ahearn, E.A., and Levin, S.B., 2012, Magnitude of flood flows for selected annual exceedance probabilities in Rhode Island through 2010 (ver. 1.2, revised March 2013): U.S. Geological Survey Scientific Investigations Report 2012-5109, 81 p.",
+    "table": "Table 16; drainage-area range from Table 8",
+    "year": 2012,
+    "url": "https://doi.org/10.3133/sir20125109"
+   }
+  },
+  {
+   "region_code": "DA-only",
+   "region_name": "Statewide, drainage area only (SIR 2012-5109 Table 16)",
+   "aep": 0.005,
+   "intercept": 2.32,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 4.0,
+     "maximum": 404.0
+    }
+   ],
+   "coefficients": [
+    0.77
+   ],
+   "citation": {
+    "publication": "Zarriello, P.J., Ahearn, E.A., and Levin, S.B., 2012, Magnitude of flood flows for selected annual exceedance probabilities in Rhode Island through 2010 (ver. 1.2, revised March 2013): U.S. Geological Survey Scientific Investigations Report 2012-5109, 81 p.",
+    "table": "Table 16; drainage-area range from Table 8",
+    "year": 2012,
+    "url": "https://doi.org/10.3133/sir20125109"
+   }
+  },
+  {
+   "region_code": "DA-only",
+   "region_name": "Statewide, drainage area only (SIR 2012-5109 Table 16)",
+   "aep": 0.002,
+   "intercept": 2.42,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 4.0,
+     "maximum": 404.0
+    }
+   ],
+   "coefficients": [
+    0.76
+   ],
+   "citation": {
+    "publication": "Zarriello, P.J., Ahearn, E.A., and Levin, S.B., 2012, Magnitude of flood flows for selected annual exceedance probabilities in Rhode Island through 2010 (ver. 1.2, revised March 2013): U.S. Geological Survey Scientific Investigations Report 2012-5109, 81 p.",
+    "table": "Table 16; drainage-area range from Table 8",
+    "year": 2012,
+    "url": "https://doi.org/10.3133/sir20125109"
+   }
+  }
+ ]
+}
