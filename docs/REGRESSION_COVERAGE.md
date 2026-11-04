@@ -88,9 +88,9 @@ Plan and definitions of done: `docs/MASTER_ROADMAP.md` §3.2.
 | MD | Maryland | nss snapshot (40 eqs, 0 unparsed) | 4 | 40 | pending, verified |  |
 | DC | District of Columbia | not started | 0 | 0 | pending |  |
 | VA | Virginia | verified | 11 | 88 | verified |  |
-| NC | North Carolina | nss snapshot (32 eqs, 0 unparsed) | 4 | 32 | verified |  |
-| SC | South Carolina | nss snapshot (32 eqs, 0 unparsed) | 4 | 32 | verified |  |
-| GA | Georgia | nss snapshot (40 eqs, 0 unparsed) | 5 | 40 | verified |  |
+| NC | North Carolina | verified | 4 | 32 | verified |  |
+| SC | South Carolina | verified | 4 | 32 | verified |  |
+| GA | Georgia | verified | 5 | 40 | verified |  |
 | FL | Florida | nss snapshot (52 eqs, 0 unparsed) | 7 | 52 | pending |  |
 | AL | Alabama | verified | 6 | 48 | pending |  |
 
