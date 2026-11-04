@@ -7,44 +7,48 @@
 ## Status
 Last updated: 2026-11-04. Version **0.21.0** is released (tag `v0.21.0`). `main` carries
 **0.22.0.dev0**; 0.21.x patches come from `release/0.21.x` (CLAUDE.md, Branches and Releases).
-flowfreq-app still pins v0.20.0; app PR #33 moves it to v0.21.0. 22 jurisdictions are `verified`
-on `main` (13 in v0.21.0), 29 run on NSS snapshots and 5 have no equations.
+flowfreq-app still pins v0.20.0; app PR #33 moves it to v0.21.0. 50 jurisdictions are `verified`
+on `main` (13 in v0.21.0), DE is `partial` and 5 have no equations.
 
-The ss-hydro checks that waited on the 2026-10-30 outage are done (2026-11-03):
-`docs/NATIONWIDE_SMOKE.md` is a full 56-jurisdiction rerun, gaged 56/56 and ungaged 48/56. The
-eight left are the known gaps: AS, DC, GU, MP and VI have no equations, and FL, MI and NE have
-no stream grid. The Live services run now reports an outage as a skip rather than a failure
-(#294), so read its job summary.
+`docs/NATIONWIDE_SMOKE.md` is a full 56-jurisdiction rerun on 2026-11-04, after all of that merged:
+gaged 56/56 and ungaged 48/56, the same eight known gaps (AS, DC, GU, MP and VI have no equations; FL,
+MI and NE have no stream grid). 47 of the 50 verified sets ran live; only OH and WI moved, by under
+0.1 %, from unrounded coefficients. The Live services run reports an outage as a skip rather than a
+failure (#294), so read its job summary.
 
 ### Next steps (2026-11-04)
 
-**The goal to mid-November is verified equations in as many states as possible
-(`docs/VERIFICATION_PLAN.md`).**
-
-Batch 1 is done (MA, CT, ME, KS, PR, VT, PA, VA, WV).
-
-1. **Batch 2, one older USGS report each:** RI, NH, ND, NJ.
-2. Release v0.22.0 after batch 2, or by 2026-11-10 either way, then bump the app's pin.
-3. **Batch 3, two or shared reports:** IA, MN, MO, DE, AL, OK, WI, AR, MS, GA, NC, SC. A stretch
-   by mid-November.
-4. Batches 4 and 5 (NY, IL, MD, IN, SD, NE, MI; KY, OH, LA, TN, TX, FL) come after that.
-
-Library follow-through from v0.21.0:
-
-5. Push `release/0.21.x` (a hook blocks it here; the branch exists locally).
+**The batches in `docs/VERIFICATION_PLAN.md` are done. Read its "What `verified` rests on here".**
 
 Owner's:
 
-6. **Connecticut, Maine and Vermont overlap decision.** Each has a multi-variable set and a
-   drainage-area-only set located together, so without `region=` an estimate stops with
-   `OverlappingRegionsError` (the #209 decision). Iowa now prefers its full set. The same rule could
-   apply to these three.
-7. Close issues #27, #36 and #293.
-8. Merge or close app PRs #27-#33.
+1. Release v0.22.0 (a draft PR is prepared), then merge app PR #33 and bump the app's pin again.
+2. Push `release/0.21.x` (a hook blocks it here; the branch exists locally).
+3. **Overlapping sets.** CT, ME, VT and TN stop with `OverlappingRegionsError` at every tested point
+   unless the caller passes `region=` (the #209 decision). Iowa prefers its full set; the same rule
+   could apply to these four. Also SE 2014 against 2023 small basins, and AR's region D against MAP.
+4. **DE:** settle Table 6 against Table 8 so it can become `verified`.
+5. **MD:** kept at the Third Edition because StreamStats can't feed the Sixth (2023). GC1481's urban
+   gates are added, and a boundary basin now needs `region=`.
+6. **TX:** SIR 2009-5087 is preferred by its authors but not in NSS, so it isn't stored.
+7. Superseded sets dropped: OH 2006-5312, TN 03-4176, LA TR 60 and Delta. LA's southern gap: keep GC879?
+8. Close issues #27, #36 and #293. Merge or close app PRs #27-#33.
 9. Check the gage page's resizable period grips in a browser (app #24): they were never run in
    one, since running the vega bundles in headless Chrome was blocked here.
 
-Parked until the goal above is met: gage page NID and NLCD events beside a change point
+Library follow-ups the batches found, none changed:
+
+10. `power` at base 0 (IL stores an offset of 1e-12). `evaluate` prefers a rounded AVP over SEP (AL,
+    TN). Degrees of freedom on adjusted sets (IL).
+11. Multi-region weighting: SD's report averages in flow; IN selects a region by point, `region=` can't
+    override it, and 03333050 is refused.
+12. IA: a CCM above 3.87 or STRMTOT of 0 should go to the drainage-area-only set.
+13. AR and LA MAP slope code looks wrong (CSL1085LFP against CSLBlue). KY regions 1 and 4 and Jefferson
+    have no live slope. TN Memphis has no live CHANCOND. IN prints no intervals.
+14. NH and NY never located their drainage-area-only sets at a tested point, so those are reachable
+    only through `evaluate`.
+
+Parked: gage page NID and NLCD events beside a change point
 (`stationarity.basin_change_events`; needs the delineated basin), raster hydrograph, the Bulletin
 17C curve in place.
 
