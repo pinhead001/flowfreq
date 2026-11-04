@@ -1,0 +1,3644 @@
+{
+ "schema_version": 1,
+ "state": "MN",
+ "status": "verified",
+ "issue": null,
+ "source_reports": [
+  {
+   "citation": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+   "doi": "10.3133/sir20235079",
+   "url": "https://pubs.usgs.gov/publication/sir20235079",
+   "pdf": "https://pubs.usgs.gov/sir/2023/5079/sir20235079.pdf",
+   "tables": [
+    "Example 1"
+   ],
+   "nss": {
+    "regression_regions": [
+     "GC1928",
+     "GC1929",
+     "GC1930",
+     "GC1931",
+     "GC1932",
+     "GC1933"
+    ],
+    "last_year_of_data": 2019
+   }
+  },
+  {
+   "citation": "Levin, S.B., 2023, Model archive of regional flood frequency equations for Minnesota streams: U.S. Geological Survey data release, https://doi.org/10.5066/P9T1HO7Q.",
+   "doi": "10.5066/P9T1HO7Q",
+   "url": "https://www.sciencebase.gov/catalog/item/63ef8b22d34efa0476b03784",
+   "tables": [
+    "Tables 1a-1f",
+    "Tables 2a-2f",
+    "Table 3",
+    "Tables 4a-4f",
+    "Tables 5a-5f"
+   ]
+  },
+  {
+   "citation": "Sanocki, C.A., Williams-Sether, T., Steeves, P.A., and Christensen, V.G., 2019, Techniques for estimating the magnitude and frequency of peak flows on small streams in the binational U.S. and Canadian Lake of the Woods-Rainy River Basin upstream from Kenora, Ontario, Canada, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2019-5012, 17 p.",
+   "doi": "10.3133/sir20195012",
+   "url": "https://pubs.usgs.gov/publication/sir20195012",
+   "pdf": "https://pubs.usgs.gov/sir/2019/5012/sir20195012.pdf",
+   "tables": [
+    "Table 1",
+    "Table 3",
+    "Table 4"
+   ],
+   "nss": {
+    "regression_regions": [
+     "GC1775"
+    ],
+    "last_year_of_data": 2013
+   }
+  }
+ ],
+ "notes": "Two current studies, neither superseding the other: SIR 2023-5079 covers Minnesota except the Rainy River Basin (regions A-F, 298 gages), and SIR 2019-5012 covers the Lake of the Woods-Rainy River Basin (region B1, 49 gages). All at 8 AEPs; 66.7 percent is stored as 0.667 where the release's tables label it 0.6667. SIR 2023-5079 prints only region F's 1-percent equation, in its Example 1; everything else it publishes is in the data release it cites as Levin (2023). So regions A-F come from that release's tables: equations, Sp and AVP from 2a-2f, model error variance and covariance from 4a-4f (the order is intercept then the equation's own terms, and the basis is the printed one), and ranges from the minimum and maximum of the gages in 1a-1f, which is how the report defines them. LAKEAREA and SOILA have offset 1. LONG_OUT has scale -1, since StreamStats serves a negative longitude and the regression's log.Long is of its magnitude; its range is stored negative. PMPE is in millimeters. The release prints coefficients to 3 decimals, so PMPE's coefficient (0.001 to 0.004 per mm) has few significant figures: this file keeps what is printed. Region B1 comes from SIR 2019-5012 Table 3, whose LAKES term is not logged and has no added 1, although the report's text says a constant is added; the per-gage estimates confirm the form as printed. It prints no covariance or model error variance, so region B1's intervals use the AVP. Table 4's exponents for the area-weighted transfer at an ungaged site on a gaged stream (0.806, 0.804, 0.786, 0.771, 0.754, 0.741, 0.729, 0.702 in AEP order, average 0.762) have no schema field and are recorded here only. Differences from NSS, where this file has the published value. PMPE limits in region F: NSS serves 4.587 to 8.799 labelled mm, which are the report's 116.505 to 223.496 mm divided by 25.4; StreamStats serves millimeters (133.265 at gage 05355100, the report's value), so NSS's limits would put every real site out of range. Region A at 50 percent: intercept 29.61 (NSS 29.611). At 4 percent: 50.33 and DRNAREA 0.769 (NSS 50.329, 0.768). At 2 percent: 54.035 and LAT_OUT -31.051 (NSS 54.034, -31.05). At 1 percent: 57.39 (NSS 57.389). At 0.2 percent: 64.245 and LAT_OUT -36.994 (NSS 64.243, -36.993). Region B at 50 percent: intercept 65.098 (NSS 65.096). Region C at 66.7 percent: Sp 43.9 (NSS 43.96), and the release's own variances of prediction give 43.90. Region B1 at 10 percent: Sp 42.2 (NSS 44.22), and the AVP printed beside it, 0.031, agrees with 42.2. No second place in the report prints regions A and B's equations, so those six are settled only by the report naming the release as its source. Region B1's limits are as Table 3 prints them, DRNAREA 1,840 and LAKEAREA 22.3 (NSS 1,841.547 and 22.268, the largest gages in its Table 1). Checks: Example 1's flow reproduces, but its interval does not, for reasons in the report. Its xU has -0.0000655 where Table 4f gives -0.0000595 and its other two elements reproduce; it prints xUx as 0.0064798 where Table 4f gives 0.00729, and its SE of 0.1726 follows from neither. Table 5f prints 0.0306 at that gage, which is the model error variance plus 0.00729, so Table 4f stands and this library gives 540.0 to 2,079 ft3/s where Example 1 prints 543.1 to 2,066.1. The release's Table 5 variance of prediction minus xUx is constant across each equation's gages and rounds to the printed model error variance, which fixes the matrices' order and basis, at 298 gages and 8 AEPs; its mean gives the printed Sp. Table 3 of the release reproduces regions E and D at 12 gages and 7 AEPs. Table 1 of SIR 2019-5012 reproduces at 49 gages and 8 AEPs but for two printed values 1,000 cfs low: gage 05137000 at 1 percent (2,700 printed, 3,702 computed, between 3,190 and 4,950) and gage 05132000 at 50 percent (4,060 printed, 5,062 computed, between 3,970 and 7,850). The release's Table 4 and Example 1 use a critical t with n-p+1 degrees of freedom (1.6811 for region F), although equation 2 says n-p: its make_tables.R counts one column too few. This library uses n-p from n_sites and equation 2, which widens a 90-percent limit by about 0.04 percent in region F and 0.3 percent in region C, the smallest set. Region E performs worst, and the report says region D's equations or Iowa's region 2 equations (Eash and others, 2013) can do better near its eastern boundary and in the southwestern corner. That choice stays with the caller; Iowa's are not stored here.",
+ "equations": [
+  {
+   "region_code": "A",
+   "region_name": "Region A (NSS GC1928)",
+   "aep": 0.667,
+   "intercept": 24.074,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 4.154,
+     "maximum": 1426.524
+    },
+    {
+     "code": "LAKEAREA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 12.971,
+     "offset": 1.0
+    },
+    {
+     "code": "LAT_OUT",
+     "transform": "log10",
+     "units": "decimal degrees",
+     "minimum": 46.6597,
+     "maximum": 48.9816
+    }
+   ],
+   "coefficients": [
+    0.744,
+    -0.297,
+    -13.72
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1a, 2a and 4a",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.177145,
+   "avp": 0.031,
+   "model_error_variance": 0.027,
+   "covariance": [
+    [
+     114.888664720351,
+     0.225202097831182,
+     -0.827694178382442,
+     -68.5306691699091
+    ],
+    [
+     0.225202097830997,
+     0.00193097544527582,
+     -0.00261078329429661,
+     -0.136066688904564
+    ],
+    [
+     -0.82769417838231,
+     -0.00261078329429769,
+     0.0155157476857444,
+     0.493360692105883
+    ],
+    [
+     -68.5306691699089,
+     -0.136066688904675,
+     0.493360692105961,
+     40.8811353172624
+    ]
+   ],
+   "n_sites": 40
+  },
+  {
+   "region_code": "A",
+   "region_name": "Region A (NSS GC1928)",
+   "aep": 0.5,
+   "intercept": 29.61,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 4.154,
+     "maximum": 1426.524
+    },
+    {
+     "code": "LAKEAREA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 12.971,
+     "offset": 1.0
+    },
+    {
+     "code": "LAT_OUT",
+     "transform": "log10",
+     "units": "decimal degrees",
+     "minimum": 46.6597,
+     "maximum": 48.9816
+    }
+   ],
+   "coefficients": [
+    0.751,
+    -0.378,
+    -16.918
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1a, 2a and 4a",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.165246,
+   "avp": 0.027,
+   "model_error_variance": 0.024,
+   "covariance": [
+    [
+     98.9957565509091,
+     0.193644190176039,
+     -0.714860663665979,
+     -59.0484362802396
+    ],
+    [
+     0.193644190176149,
+     0.00166589882248482,
+     -0.00224569074585066,
+     -0.117007200723722
+    ],
+    [
+     -0.714860663665888,
+     -0.00224569074584969,
+     0.0134222424836817,
+     0.426094281612379
+    ],
+    [
+     -59.0484362802398,
+     -0.117007200723657,
+     0.426094281612434,
+     35.2233335989654
+    ]
+   ],
+   "n_sites": 40
+  },
+  {
+   "region_code": "A",
+   "region_name": "Region A (NSS GC1928)",
+   "aep": 0.2,
+   "intercept": 39.648,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 4.154,
+     "maximum": 1426.524
+    },
+    {
+     "code": "LAKEAREA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 12.971,
+     "offset": 1.0
+    },
+    {
+     "code": "LAT_OUT",
+     "transform": "log10",
+     "units": "decimal degrees",
+     "minimum": 46.6597,
+     "maximum": 48.9816
+    }
+   ],
+   "coefficients": [
+    0.762,
+    -0.522,
+    -22.714
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1a, 2a and 4a",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.159448,
+   "avp": 0.025,
+   "model_error_variance": 0.022,
+   "covariance": [
+    [
+     96.2295009347445,
+     0.185062403403604,
+     -0.69253873806519,
+     -57.392991094281
+    ],
+    [
+     0.185062403403574,
+     0.00159584058197132,
+     -0.0021370314392749,
+     -0.111838725528197
+    ],
+    [
+     -0.6925387380651,
+     -0.00213703143927494,
+     0.0128086202118888,
+     0.412761210485851
+    ],
+    [
+     -57.392991094281,
+     -0.111838725528214,
+     0.412761210485904,
+     34.23259242345
+    ]
+   ],
+   "n_sites": 40
+  },
+  {
+   "region_code": "A",
+   "region_name": "Region A (NSS GC1928)",
+   "aep": 0.1,
+   "intercept": 44.733,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 4.154,
+     "maximum": 1426.524
+    },
+    {
+     "code": "LAKEAREA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 12.971,
+     "offset": 1.0
+    },
+    {
+     "code": "LAT_OUT",
+     "transform": "log10",
+     "units": "decimal degrees",
+     "minimum": 46.6597,
+     "maximum": 48.9816
+    }
+   ],
+   "coefficients": [
+    0.766,
+    -0.59,
+    -25.655
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1a, 2a and 4a",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.16308,
+   "avp": 0.027,
+   "model_error_variance": 0.023,
+   "covariance": [
+    [
+     105.522091295706,
+     0.199910376338737,
+     -0.755330771061983,
+     -62.9312370350005
+    ],
+    [
+     0.199910376338866,
+     0.00172551952786082,
+     -0.00230112926819299,
+     -0.120824752276565
+    ],
+    [
+     -0.755330771062205,
+     -0.00230112926819249,
+     0.0137655366014287,
+     0.450163027123642
+    ],
+    [
+     -62.9312370350007,
+     -0.120824752276488,
+     0.450163027123511,
+     37.5335435660619
+    ]
+   ],
+   "n_sites": 40
+  },
+  {
+   "region_code": "A",
+   "region_name": "Region A (NSS GC1928)",
+   "aep": 0.04,
+   "intercept": 50.33,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 4.154,
+     "maximum": 1426.524
+    },
+    {
+     "code": "LAKEAREA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 12.971,
+     "offset": 1.0
+    },
+    {
+     "code": "LAT_OUT",
+     "transform": "log10",
+     "units": "decimal degrees",
+     "minimum": 46.6597,
+     "maximum": 48.9816
+    }
+   ],
+   "coefficients": [
+    0.769,
+    -0.658,
+    -28.899
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1a, 2a and 4a",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.172554,
+   "avp": 0.03,
+   "model_error_variance": 0.025,
+   "covariance": [
+    [
+     123.750199778112,
+     0.231237818817199,
+     -0.881448623552065,
+     -73.798017706572
+    ],
+    [
+     0.231237818817365,
+     0.00199633267537266,
+     -0.00265306729734998,
+     -0.139771253766156
+    ],
+    [
+     -0.881448623552267,
+     -0.00265306729734917,
+     0.0158411825685427,
+     0.525302664094744
+    ],
+    [
+     -73.7980177065722,
+     -0.139771253766057,
+     0.525302664094625,
+     44.0122916088833
+    ]
+   ],
+   "n_sites": 40
+  },
+  {
+   "region_code": "A",
+   "region_name": "Region A (NSS GC1928)",
+   "aep": 0.02,
+   "intercept": 54.035,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 4.154,
+     "maximum": 1426.524
+    },
+    {
+     "code": "LAKEAREA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 12.971,
+     "offset": 1.0
+    },
+    {
+     "code": "LAT_OUT",
+     "transform": "log10",
+     "units": "decimal degrees",
+     "minimum": 46.6597,
+     "maximum": 48.9816
+    }
+   ],
+   "coefficients": [
+    0.77,
+    -0.7,
+    -31.051
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1a, 2a and 4a",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.18142,
+   "avp": 0.033,
+   "model_error_variance": 0.028,
+   "covariance": [
+    [
+     139.977933291684,
+     0.259841214554438,
+     -0.994870315992685,
+     -83.4732062488918
+    ],
+    [
+     0.259841214554279,
+     0.00224278549057983,
+     -0.00297613145751478,
+     -0.157066439319606
+    ],
+    [
+     -0.994870315992566,
+     -0.00297613145751569,
+     0.0177595532403013,
+     0.592883931664762
+    ],
+    [
+     -83.4732062488916,
+     -0.157066439319701,
+     0.592883931664832,
+     49.7811725629875
+    ]
+   ],
+   "n_sites": 40
+  },
+  {
+   "region_code": "A",
+   "region_name": "Region A (NSS GC1928)",
+   "aep": 0.01,
+   "intercept": 57.39,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 4.154,
+     "maximum": 1426.524
+    },
+    {
+     "code": "LAKEAREA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 12.971,
+     "offset": 1.0
+    },
+    {
+     "code": "LAT_OUT",
+     "transform": "log10",
+     "units": "decimal degrees",
+     "minimum": 46.6597,
+     "maximum": 48.9816
+    }
+   ],
+   "coefficients": [
+    0.771,
+    -0.737,
+    -33.001
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1a, 2a and 4a",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.190059,
+   "avp": 0.036,
+   "model_error_variance": 0.031,
+   "covariance": [
+    [
+     156.398295009189,
+     0.288747458351875,
+     -1.10975998555896,
+     -93.2630606647767
+    ],
+    [
+     0.288747458351874,
+     0.00249251545460394,
+     -0.00330328418468623,
+     -0.174545310847982
+    ],
+    [
+     -1.10975998555899,
+     -0.00330328418468629,
+     0.0197073415850642,
+     0.661338893430378
+    ],
+    [
+     -93.2630606647767,
+     -0.174545310847982,
+     0.661338893430362,
+     55.6183164480663
+    ]
+   ],
+   "n_sites": 40
+  },
+  {
+   "region_code": "A",
+   "region_name": "Region A (NSS GC1928)",
+   "aep": 0.002,
+   "intercept": 64.245,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 4.154,
+     "maximum": 1426.524
+    },
+    {
+     "code": "LAKEAREA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 12.971,
+     "offset": 1.0
+    },
+    {
+     "code": "LAT_OUT",
+     "transform": "log10",
+     "units": "decimal degrees",
+     "minimum": 46.6597,
+     "maximum": 48.9816
+    }
+   ],
+   "coefficients": [
+    0.774,
+    -0.808,
+    -36.994
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1a, 2a and 4a",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.213778,
+   "avp": 0.046,
+   "model_error_variance": 0.039,
+   "covariance": [
+    [
+     200.819399059693,
+     0.369334353461393,
+     -1.42465846396594,
+     -119.750325514197
+    ],
+    [
+     0.369334353461624,
+     0.00318339541922632,
+     -0.00421843943238541,
+     -0.223259365628953
+    ],
+    [
+     -1.42465846396613,
+     -0.00421843943238413,
+     0.0251949297574492,
+     0.848988072994731
+    ],
+    [
+     -119.750325514198,
+     -0.223259365628816,
+     0.848988072994619,
+     71.4131417655075
+    ]
+   ],
+   "n_sites": 40
+  },
+  {
+   "region_code": "B",
+   "region_name": "Region B (NSS GC1929)",
+   "aep": 0.667,
+   "intercept": 68.196,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.231,
+     "maximum": 1393.716
+    },
+    {
+     "code": "LAKEAREA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 18.181,
+     "offset": 1.0
+    },
+    {
+     "code": "SOILA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 54.498,
+     "offset": 1.0
+    },
+    {
+     "code": "LONG_OUT",
+     "transform": "log10",
+     "units": "decimal degrees",
+     "minimum": -96.1198,
+     "maximum": -91.6585,
+     "scale": -1.0
+    }
+   ],
+   "coefficients": [
+    0.829,
+    -0.402,
+    -0.138,
+    -33.969
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1b, 2b and 4b",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.149973,
+   "avp": 0.022,
+   "model_error_variance": 0.02,
+   "covariance": [
+    [
+     83.9036778937003,
+     0.0133628416702815,
+     0.102524355021925,
+     0.000390671668604892,
+     -42.6049218857134
+    ],
+    [
+     0.0133628416703132,
+     0.000924170940296807,
+     -0.00122134149474007,
+     -0.000302669773829454,
+     -0.00719451682937005
+    ],
+    [
+     0.102524355021906,
+     -0.00122134149474011,
+     0.00508000926150718,
+     -0.000459825230894847,
+     -0.0519661976931904
+    ],
+    [
+     0.00039067166854235,
+     -0.000302669773829468,
+     -0.000459825230894923,
+     0.00229026897752701,
+     -0.000962341682195295
+    ],
+    [
+     -42.6049218857134,
+     -0.00719451682935394,
+     -0.0519661976932,
+     -0.000962341682227056,
+     21.6350184727824
+    ]
+   ],
+   "n_sites": 66
+  },
+  {
+   "region_code": "B",
+   "region_name": "Region B (NSS GC1929)",
+   "aep": 0.5,
+   "intercept": 65.098,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.231,
+     "maximum": 1393.716
+    },
+    {
+     "code": "LAKEAREA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 18.181,
+     "offset": 1.0
+    },
+    {
+     "code": "SOILA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 54.498,
+     "offset": 1.0
+    },
+    {
+     "code": "LONG_OUT",
+     "transform": "log10",
+     "units": "decimal degrees",
+     "minimum": -96.1198,
+     "maximum": -91.6585,
+     "scale": -1.0
+    }
+   ],
+   "coefficients": [
+    0.823,
+    -0.44,
+    -0.151,
+    -32.317
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1b, 2b and 4b",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.149957,
+   "avp": 0.022,
+   "model_error_variance": 0.02,
+   "covariance": [
+    [
+     82.450205553512,
+     0.013989334697293,
+     0.0980805893408817,
+     0.00102406628862394,
+     -41.8667378067406
+    ],
+    [
+     0.0139893346973315,
+     0.000902518882784387,
+     -0.00120753645440918,
+     -0.000293133416110566,
+     -0.00749713373422543
+    ],
+    [
+     0.0980805893407766,
+     -0.00120753645440924,
+     0.00502147581837711,
+     -0.000465477834141031,
+     -0.0497003350213098
+    ],
+    [
+     0.00102406628863461,
+     -0.000293133416110568,
+     -0.000465477834141011,
+     0.00224513354749083,
+     -0.00126670619540576
+    ],
+    [
+     -41.8667378067406,
+     -0.00749713373420589,
+     -0.0497003350213631,
+     -0.00126670619540034,
+     21.2600754598515
+    ]
+   ],
+   "n_sites": 66
+  },
+  {
+   "region_code": "B",
+   "region_name": "Region B (NSS GC1929)",
+   "aep": 0.2,
+   "intercept": 59.481,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.231,
+     "maximum": 1393.716
+    },
+    {
+     "code": "LAKEAREA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 18.181,
+     "offset": 1.0
+    },
+    {
+     "code": "SOILA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 54.498,
+     "offset": 1.0
+    },
+    {
+     "code": "LONG_OUT",
+     "transform": "log10",
+     "units": "decimal degrees",
+     "minimum": -96.1198,
+     "maximum": -91.6585,
+     "scale": -1.0
+    }
+   ],
+   "coefficients": [
+    0.812,
+    -0.515,
+    -0.178,
+    -29.315
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1b, 2b and 4b",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.157907,
+   "avp": 0.025,
+   "model_error_variance": 0.022,
+   "covariance": [
+    [
+     94.7977266528226,
+     0.0166952239475559,
+     0.110101324492475,
+     0.00122780008705162,
+     -48.1346407918051
+    ],
+    [
+     0.0166952239476067,
+     0.00100343203755184,
+     -0.00134898347369053,
+     -0.000332988175208231,
+     -0.00890863040907541
+    ],
+    [
+     0.110101324492271,
+     -0.00134898347369063,
+     0.00562238967477217,
+     -0.000527090322335357,
+     -0.0557857935464598
+    ],
+    [
+     0.00122780008713395,
+     -0.00033298817520822,
+     -0.000527090322335251,
+     0.00255501426163369,
+     -0.00147146033152739
+    ],
+    [
+     -48.1346407918052,
+     -0.00890863040904965,
+     -0.0557857935465634,
+     -0.00147146033148559,
+     24.4419136377573
+    ]
+   ],
+   "n_sites": 66
+  },
+  {
+   "region_code": "B",
+   "region_name": "Region B (NSS GC1929)",
+   "aep": 0.1,
+   "intercept": 56.926,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.231,
+     "maximum": 1393.716
+    },
+    {
+     "code": "LAKEAREA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 18.181,
+     "offset": 1.0
+    },
+    {
+     "code": "SOILA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 54.498,
+     "offset": 1.0
+    },
+    {
+     "code": "LONG_OUT",
+     "transform": "log10",
+     "units": "decimal degrees",
+     "minimum": -96.1198,
+     "maximum": -91.6585,
+     "scale": -1.0
+    }
+   ],
+   "coefficients": [
+    0.807,
+    -0.552,
+    -0.193,
+    -27.942
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1b, 2b and 4b",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.164931,
+   "avp": 0.027,
+   "model_error_variance": 0.024,
+   "covariance": [
+    [
+     108.263615996882,
+     0.0187821388431916,
+     0.125672877994918,
+     0.00101237974021515,
+     -54.9704871211028
+    ],
+    [
+     0.0187821388430869,
+     0.00111788727456172,
+     -0.00149230282232975,
+     -0.000379592324069745,
+     -0.0100185108833641
+    ],
+    [
+     0.125672877995349,
+     -0.00149230282232955,
+     0.00623750416405897,
+     -0.000578665192766328,
+     -0.0636864455773105
+    ],
+    [
+     0.00101237974017758,
+     -0.000379592324069746,
+     -0.000578665192766388,
+     0.00289097342767263,
+     -0.00147465480312444
+    ],
+    [
+     -54.9704871211028,
+     -0.0100185108834172,
+     -0.0636864455770918,
+     -0.00147465480314352,
+     27.9122033830663
+    ]
+   ],
+   "n_sites": 66
+  },
+  {
+   "region_code": "B",
+   "region_name": "Region B (NSS GC1929)",
+   "aep": 0.04,
+   "intercept": 54.564,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.231,
+     "maximum": 1393.716
+    },
+    {
+     "code": "LAKEAREA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 18.181,
+     "offset": 1.0
+    },
+    {
+     "code": "SOILA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 54.498,
+     "offset": 1.0
+    },
+    {
+     "code": "LONG_OUT",
+     "transform": "log10",
+     "units": "decimal degrees",
+     "minimum": -96.1198,
+     "maximum": -91.6585,
+     "scale": -1.0
+    }
+   ],
+   "coefficients": [
+    0.801,
+    -0.589,
+    -0.208,
+    -26.663
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1b, 2b and 4b",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.174463,
+   "avp": 0.03,
+   "model_error_variance": 0.027,
+   "covariance": [
+    [
+     127.960041558723,
+     0.0216970720656455,
+     0.148690352566233,
+     0.000580566640872209,
+     -64.9692632741633
+    ],
+    [
+     0.0216970720658008,
+     0.00128570505599362,
+     -0.00169824658716933,
+     -0.000448043919571189,
+     -0.0115742195101806
+    ],
+    [
+     0.148690352565861,
+     -0.00169824658716958,
+     0.00712563961200964,
+     -0.00065060533841464,
+     -0.0753693269078252
+    ],
+    [
+     0.000580566640696439,
+     -0.000448043919571217,
+     -0.000650605338414848,
+     0.00337789510758759,
+     -0.00141904615975733
+    ],
+    [
+     -64.9692632741633,
+     -0.0115742195101017,
+     -0.0753693269080138,
+     -0.00141904615984658,
+     32.9882186900398
+    ]
+   ],
+   "n_sites": 66
+  },
+  {
+   "region_code": "B",
+   "region_name": "Region B (NSS GC1929)",
+   "aep": 0.02,
+   "intercept": 53.217,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.231,
+     "maximum": 1393.716
+    },
+    {
+     "code": "LAKEAREA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 18.181,
+     "offset": 1.0
+    },
+    {
+     "code": "SOILA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 54.498,
+     "offset": 1.0
+    },
+    {
+     "code": "LONG_OUT",
+     "transform": "log10",
+     "units": "decimal degrees",
+     "minimum": -96.1198,
+     "maximum": -91.6585,
+     "scale": -1.0
+    }
+   ],
+   "coefficients": [
+    0.798,
+    -0.611,
+    -0.218,
+    -25.929
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1b, 2b and 4b",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.181519,
+   "avp": 0.033,
+   "model_error_variance": 0.029,
+   "covariance": [
+    [
+     143.482121772869,
+     0.0239835870423893,
+     0.166750688100082,
+     0.000229703115156204,
+     -72.8489581759237
+    ],
+    [
+     0.0239835870420074,
+     0.00141711865949449,
+     -0.00185811344307783,
+     -0.000501639060445474,
+     -0.0127951254308793
+    ],
+    [
+     0.16675068810081,
+     -0.00185811344307726,
+     0.00781796007838634,
+     -0.000706141843325464,
+     -0.0845378314224745
+    ],
+    [
+     0.000229703115350778,
+     -0.000501639060445443,
+     -0.000706141843325238,
+     0.00375772090009428,
+     -0.00136868418159695
+    ],
+    [
+     -72.8489581759237,
+     -0.0127951254310732,
+     -0.0845378314221047,
+     -0.00136868418149817,
+     36.9884549615078
+    ]
+   ],
+   "n_sites": 66
+  },
+  {
+   "region_code": "B",
+   "region_name": "Region B (NSS GC1929)",
+   "aep": 0.01,
+   "intercept": 52.112,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.231,
+     "maximum": 1393.716
+    },
+    {
+     "code": "LAKEAREA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 18.181,
+     "offset": 1.0
+    },
+    {
+     "code": "SOILA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 54.498,
+     "offset": 1.0
+    },
+    {
+     "code": "LONG_OUT",
+     "transform": "log10",
+     "units": "decimal degrees",
+     "minimum": -96.1198,
+     "maximum": -91.6585,
+     "scale": -1.0
+    }
+   ],
+   "coefficients": [
+    0.795,
+    -0.63,
+    -0.227,
+    -25.324
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1b, 2b and 4b",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.188483,
+   "avp": 0.036,
+   "model_error_variance": 0.031,
+   "covariance": [
+    [
+     159.384860837679,
+     0.0263582249568424,
+     0.185093992108797,
+     -9.8010473659483e-05,
+     -80.9219144708361
+    ],
+    [
+     0.0263582249568118,
+     0.00155132966556878,
+     -0.00202102583012967,
+     -0.000556358461979486,
+     -0.0140622021792279
+    ],
+    [
+     0.185093992108762,
+     -0.00202102583012964,
+     0.00852507273248462,
+     -0.000762964464590186,
+     -0.0938505316628474
+    ],
+    [
+     -9.80104738587908e-05,
+     -0.000556358461979526,
+     -0.00076296446459041,
+     0.00414501130825065,
+     -0.0013325159658297
+    ],
+    [
+     -80.9219144708359,
+     -0.0140622021792434,
+     -0.093850531662865,
+     -0.0013325159659309,
+     41.0868142514839
+    ]
+   ],
+   "n_sites": 66
+  },
+  {
+   "region_code": "B",
+   "region_name": "Region B (NSS GC1929)",
+   "aep": 0.002,
+   "intercept": 50.177,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.231,
+     "maximum": 1393.716
+    },
+    {
+     "code": "LAKEAREA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 18.181,
+     "offset": 1.0
+    },
+    {
+     "code": "SOILA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 54.498,
+     "offset": 1.0
+    },
+    {
+     "code": "LONG_OUT",
+     "transform": "log10",
+     "units": "decimal degrees",
+     "minimum": -96.1198,
+     "maximum": -91.6585,
+     "scale": -1.0
+    }
+   ],
+   "coefficients": [
+    0.789,
+    -0.667,
+    -0.244,
+    -24.253
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1b, 2b and 4b",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.202104,
+   "avp": 0.041,
+   "model_error_variance": 0.036,
+   "covariance": [
+    [
+     194.733806306117,
+     0.0315995604623262,
+     0.225367943583816,
+     -0.000802820024185588,
+     -98.8663956506933
+    ],
+    [
+     0.031599560462522,
+     0.00183967365233851,
+     -0.00236336799375055,
+     -0.00067582807429274,
+     -0.0168581688536829
+    ],
+    [
+     0.225367943583556,
+     -0.00236336799375082,
+     0.010026823208008,
+     -0.000879815637687501,
+     -0.114305611391667
+    ],
+    [
+     -0.000802820024179801,
+     -0.000675828074292726,
+     -0.000879815637687523,
+     0.00498399482207301,
+     -0.00125792971417433
+    ],
+    [
+     -98.8663956506934,
+     -0.0168581688535835,
+     -0.114305611391799,
+     -0.00125792971417139,
+     50.1964736297288
+    ]
+   ],
+   "n_sites": 66
+  },
+  {
+   "region_code": "C",
+   "region_name": "Region C (NSS GC1930)",
+   "aep": 0.667,
+   "intercept": 1.63,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.488,
+     "maximum": 607.168
+    },
+    {
+     "code": "LAKEAREA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 11.798,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.834,
+    -0.437
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1c, 2c and 4c",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.18232,
+   "avp": 0.033,
+   "model_error_variance": 0.028,
+   "covariance": [
+    [
+     0.00525994840273168,
+     -0.00302696242722984,
+     0.00112653694949558
+    ],
+    [
+     -0.00302696242722984,
+     0.00397462918024315,
+     -0.00605257310274699
+    ],
+    [
+     0.00112653694949559,
+     -0.006052573102747,
+     0.0213182715156558
+    ]
+   ],
+   "n_sites": 20
+  },
+  {
+   "region_code": "C",
+   "region_name": "Region C (NSS GC1930)",
+   "aep": 0.5,
+   "intercept": 1.769,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.488,
+     "maximum": 607.168
+    },
+    {
+     "code": "LAKEAREA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 11.798,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.817,
+    -0.45
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1c, 2c and 4c",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.191292,
+   "avp": 0.037,
+   "model_error_variance": 0.031,
+   "covariance": [
+    [
+     0.0058179325196344,
+     -0.00332854041780543,
+     0.00119134437693474
+    ],
+    [
+     -0.00332854041780543,
+     0.00436506302261604,
+     -0.00662902770159834
+    ],
+    [
+     0.00119134437693475,
+     -0.00662902770159835,
+     0.0233797508435612
+    ]
+   ],
+   "n_sites": 20
+  },
+  {
+   "region_code": "C",
+   "region_name": "Region C (NSS GC1930)",
+   "aep": 0.2,
+   "intercept": 2.081,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.488,
+     "maximum": 607.168
+    },
+    {
+     "code": "LAKEAREA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 11.798,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.775,
+    -0.482
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1c, 2c and 4c",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.201338,
+   "avp": 0.041,
+   "model_error_variance": 0.034,
+   "covariance": [
+    [
+     0.00749515128631765,
+     -0.00406185224435044,
+     0.00112549738927072
+    ],
+    [
+     -0.00406185224435043,
+     0.00510423953104371,
+     -0.00760841951129937
+    ],
+    [
+     0.00112549738927072,
+     -0.00760841951129937,
+     0.0268218408545931
+    ]
+   ],
+   "n_sites": 20
+  },
+  {
+   "region_code": "C",
+   "region_name": "Region C (NSS GC1930)",
+   "aep": 0.1,
+   "intercept": 2.264,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.488,
+     "maximum": 607.168
+    },
+    {
+     "code": "LAKEAREA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 11.798,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.749,
+    -0.506
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1c, 2c and 4c",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.208354,
+   "avp": 0.043,
+   "model_error_variance": 0.035,
+   "covariance": [
+    [
+     0.00902856568152593,
+     -0.00471320911270881,
+     0.00104567592702628
+    ],
+    [
+     -0.00471320911270881,
+     0.00573959953557304,
+     -0.00844663849206773
+    ],
+    [
+     0.00104567592702628,
+     -0.00844663849206773,
+     0.0297240007542887
+    ]
+   ],
+   "n_sites": 20
+  },
+  {
+   "region_code": "C",
+   "region_name": "Region C (NSS GC1930)",
+   "aep": 0.04,
+   "intercept": 2.472,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.488,
+     "maximum": 607.168
+    },
+    {
+     "code": "LAKEAREA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 11.798,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.72,
+    -0.54
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1c, 2c and 4c",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.217266,
+   "avp": 0.047,
+   "model_error_variance": 0.038,
+   "covariance": [
+    [
+     0.011242706998126,
+     -0.00563391420124713,
+     0.000903749786779834
+    ],
+    [
+     -0.00563391420124713,
+     0.00662937174585135,
+     -0.00962222870183352
+    ],
+    [
+     0.000903749786779842,
+     -0.00962222870183353,
+     0.0337790701904133
+    ]
+   ],
+   "n_sites": 20
+  },
+  {
+   "region_code": "C",
+   "region_name": "Region C (NSS GC1930)",
+   "aep": 0.02,
+   "intercept": 2.612,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.488,
+     "maximum": 607.168
+    },
+    {
+     "code": "LAKEAREA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 11.798,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.702,
+    -0.567
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1c, 2c and 4c",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.226669,
+   "avp": 0.051,
+   "model_error_variance": 0.041,
+   "covariance": [
+    [
+     0.0131842750738589,
+     -0.00646789973970621,
+     0.000824202892876013
+    ],
+    [
+     -0.00646789973970621,
+     0.00747919054437286,
+     -0.0107808589594615
+    ],
+    [
+     0.000824202892876012,
+     -0.0107808589594615,
+     0.0377736366356267
+    ]
+   ],
+   "n_sites": 20
+  },
+  {
+   "region_code": "C",
+   "region_name": "Region C (NSS GC1930)",
+   "aep": 0.01,
+   "intercept": 2.742,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.488,
+     "maximum": 607.168
+    },
+    {
+     "code": "LAKEAREA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 11.798,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.686,
+    -0.596
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1c, 2c and 4c",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.235945,
+   "avp": 0.056,
+   "model_error_variance": 0.043,
+   "covariance": [
+    [
+     0.0152197328517002,
+     -0.00733581061728884,
+     0.000731216177975144
+    ],
+    [
+     -0.00733581061728885,
+     0.00836354111976234,
+     -0.0119888951214862
+    ],
+    [
+     0.000731216177975185,
+     -0.0119888951214862,
+     0.0419307434628779
+    ]
+   ],
+   "n_sites": 20
+  },
+  {
+   "region_code": "C",
+   "region_name": "Region C (NSS GC1930)",
+   "aep": 0.002,
+   "intercept": 3.016,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.488,
+     "maximum": 607.168
+    },
+    {
+     "code": "LAKEAREA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 11.798,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.655,
+    -0.666
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1c, 2c and 4c",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.259682,
+   "avp": 0.067,
+   "model_error_variance": 0.051,
+   "covariance": [
+    [
+     0.0204437671976693,
+     -0.00958590037337041,
+     0.000527860174165943
+    ],
+    [
+     -0.00958590037337041,
+     0.0107034083790403,
+     -0.0152221815345053
+    ],
+    [
+     0.000527860174165942,
+     -0.0152221815345053,
+     0.0530262491787615
+    ]
+   ],
+   "n_sites": 20
+  },
+  {
+   "region_code": "D",
+   "region_name": "Region D (NSS GC1931)",
+   "aep": 0.667,
+   "intercept": 22.279,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.147,
+     "maximum": 1870.067
+    },
+    {
+     "code": "LAKEAREA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 13.46,
+     "offset": 1.0
+    },
+    {
+     "code": "LAT_OUT",
+     "transform": "log10",
+     "units": "decimal degrees",
+     "minimum": 43.5144,
+     "maximum": 46.0944
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.493,
+     "maximum": 75.17
+    }
+   ],
+   "coefficients": [
+    0.741,
+    -0.278,
+    -12.931,
+    0.278
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1d, 2d and 4d",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.219091,
+   "avp": 0.048,
+   "model_error_variance": 0.045,
+   "covariance": [
+    [
+     47.8647596365819,
+     -0.0129812167883534,
+     0.155820156252571,
+     -29.0092537433784,
+     -0.0545375796249281
+    ],
+    [
+     -0.0129812167883523,
+     0.00122034125737692,
+     -0.000762381768643314,
+     0.00581023597065282,
+     0.00182083817202809
+    ],
+    [
+     0.155820156252611,
+     -0.000762381768643324,
+     0.00848490434946718,
+     -0.0958126540491561,
+     0.00144746262480475
+    ],
+    [
+     -29.0092537433784,
+     0.00581023597065344,
+     -0.0958126540491321,
+     17.587146574078,
+     0.0273495408117425
+    ],
+    [
+     -0.0545375796249612,
+     0.0018208381720281,
+     0.00144746262480468,
+     0.0273495408117626,
+     0.00717648223220698
+    ]
+   ],
+   "n_sites": 104
+  },
+  {
+   "region_code": "D",
+   "region_name": "Region D (NSS GC1931)",
+   "aep": 0.5,
+   "intercept": 23.251,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.147,
+     "maximum": 1870.067
+    },
+    {
+     "code": "LAKEAREA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 13.46,
+     "offset": 1.0
+    },
+    {
+     "code": "LAT_OUT",
+     "transform": "log10",
+     "units": "decimal degrees",
+     "minimum": 43.5144,
+     "maximum": 46.0944
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.493,
+     "maximum": 75.17
+    }
+   ],
+   "coefficients": [
+    0.744,
+    -0.299,
+    -13.428,
+    0.287
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1d, 2d and 4d",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.196283,
+   "avp": 0.039,
+   "model_error_variance": 0.036,
+   "covariance": [
+    [
+     39.6175773715095,
+     -0.0100527176740518,
+     0.124195481049128,
+     -24.010151493518,
+     -0.0446475275329346
+    ],
+    [
+     -0.0100527176740381,
+     0.000991620737002652,
+     -0.000616441588658529,
+     0.00442229687111093,
+     0.00146533108893823
+    ],
+    [
+     0.124195481049048,
+     -0.000616441588658563,
+     0.00682797349837176,
+     -0.0763793053736389,
+     0.00116322886239986
+    ],
+    [
+     -24.010151493518,
+     0.00442229687111922,
+     -0.0763793053736871,
+     14.5558543668028,
+     0.022453595788163
+    ],
+    [
+     -0.0446475275329758,
+     0.00146533108893825,
+     0.00116322886239966,
+     0.022453595788188,
+     0.00580394766131233
+    ]
+   ],
+   "n_sites": 104
+  },
+  {
+   "region_code": "D",
+   "region_name": "Region D (NSS GC1931)",
+   "aep": 0.2,
+   "intercept": 25.316,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.147,
+     "maximum": 1870.067
+    },
+    {
+     "code": "LAKEAREA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 13.46,
+     "offset": 1.0
+    },
+    {
+     "code": "LAT_OUT",
+     "transform": "log10",
+     "units": "decimal degrees",
+     "minimum": 43.5144,
+     "maximum": 46.0944
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.493,
+     "maximum": 75.17
+    }
+   ],
+   "coefficients": [
+    0.747,
+    -0.34,
+    -14.496,
+    0.298
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1d, 2d and 4d",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.175744,
+   "avp": 0.031,
+   "model_error_variance": 0.028,
+   "covariance": [
+    [
+     36.2434347352134,
+     -0.00756292568910264,
+     0.10282284678465,
+     -21.9656316526341,
+     -0.0370842167961902
+    ],
+    [
+     -0.00756292568907255,
+     0.000842291274852028,
+     -0.0005136994223647,
+     0.00315657533828393,
+     0.0012387918341039
+    ],
+    [
+     0.102822846784614,
+     -0.000513699422364777,
+     0.00569725709711857,
+     -0.06327380121875,
+     0.000995003991410968
+    ],
+    [
+     -21.9656316526342,
+     0.00315657533830218,
+     -0.063273801218772,
+     13.3163868877602,
+     0.0185316386345744
+    ],
+    [
+     -0.0370842167961482,
+     0.00123879183410392,
+     0.000995003991411048,
+     0.0185316386345489,
+     0.00499236871673775
+    ]
+   ],
+   "n_sites": 104
+  },
+  {
+   "region_code": "D",
+   "region_name": "Region D (NSS GC1931)",
+   "aep": 0.1,
+   "intercept": 26.282,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.147,
+     "maximum": 1870.067
+    },
+    {
+     "code": "LAKEAREA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 13.46,
+     "offset": 1.0
+    },
+    {
+     "code": "LAT_OUT",
+     "transform": "log10",
+     "units": "decimal degrees",
+     "minimum": 43.5144,
+     "maximum": 46.0944
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.493,
+     "maximum": 75.17
+    }
+   ],
+   "coefficients": [
+    0.749,
+    -0.36,
+    -14.989,
+    0.303
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1d, 2d and 4d",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.179557,
+   "avp": 0.032,
+   "model_error_variance": 0.03,
+   "covariance": [
+    [
+     40.6132638182914,
+     -0.00777369556203897,
+     0.110910694255615,
+     -24.6150211352398,
+     -0.0389347231445651
+    ],
+    [
+     -0.00777369556198765,
+     0.00090956110608401,
+     -0.000549437474728954,
+     0.00316161535370832,
+     0.00134682230008581
+    ],
+    [
+     0.110910694255586,
+     -0.00054943747472909,
+     0.00613581945322619,
+     -0.0682751977690242,
+     0.00109581452080496
+    ],
+    [
+     -24.6150211352399,
+     0.00316161535373945,
+     -0.0682751977690418,
+     14.9230573778959,
+     0.0192803055451248
+    ],
+    [
+     -0.0389347231444226,
+     0.00134682230008583,
+     0.00109581452080533,
+     0.0192803055450383,
+     0.00547413361328118
+    ]
+   ],
+   "n_sites": 104
+  },
+  {
+   "region_code": "D",
+   "region_name": "Region D (NSS GC1931)",
+   "aep": 0.04,
+   "intercept": 27.224,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.147,
+     "maximum": 1870.067
+    },
+    {
+     "code": "LAKEAREA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 13.46,
+     "offset": 1.0
+    },
+    {
+     "code": "LAT_OUT",
+     "transform": "log10",
+     "units": "decimal degrees",
+     "minimum": 43.5144,
+     "maximum": 46.0944
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.493,
+     "maximum": 75.17
+    }
+   ],
+   "coefficients": [
+    0.75,
+    -0.379,
+    -15.465,
+    0.308
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1d, 2d and 4d",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.190574,
+   "avp": 0.036,
+   "model_error_variance": 0.033,
+   "covariance": [
+    [
+     48.7246648096782,
+     -0.00870340407333758,
+     0.129299647508377,
+     -29.5324967529038,
+     -0.0438607898765989
+    ],
+    [
+     -0.00870340407328412,
+     0.00105764719492254,
+     -0.000633810811662554,
+     0.00346241440188408,
+     0.00157961079560553
+    ],
+    [
+     0.129299647508416,
+     -0.000633810811662695,
+     0.00713389183021977,
+     -0.0796208526853194,
+     0.00130246058176094
+    ],
+    [
+     -29.532496752904,
+     0.00346241440191651,
+     -0.0796208526852967,
+     17.905000996254,
+     0.0214903939308643
+    ],
+    [
+     -0.0438607898764207,
+     0.00157961079560555,
+     0.00130246058176144,
+     0.0214903939307561,
+     0.00646574262661887
+    ]
+   ],
+   "n_sites": 104
+  },
+  {
+   "region_code": "D",
+   "region_name": "Region D (NSS GC1931)",
+   "aep": 0.02,
+   "intercept": 27.839,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.147,
+     "maximum": 1870.067
+    },
+    {
+     "code": "LAKEAREA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 13.46,
+     "offset": 1.0
+    },
+    {
+     "code": "LAT_OUT",
+     "transform": "log10",
+     "units": "decimal degrees",
+     "minimum": 43.5144,
+     "maximum": 46.0944
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.493,
+     "maximum": 75.17
+    }
+   ],
+   "coefficients": [
+    0.752,
+    -0.391,
+    -15.778,
+    0.311
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1d, 2d and 4d",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.201138,
+   "avp": 0.04,
+   "model_error_variance": 0.037,
+   "covariance": [
+    [
+     55.8467400241732,
+     -0.00965708060010913,
+     0.146486285853906,
+     -33.850046382118,
+     -0.0487384603133835
+    ],
+    [
+     -0.00965708059989735,
+     0.00119613562793606,
+     -0.000714511312056035,
+     0.0037968370575947,
+     0.00179607477043764
+    ],
+    [
+     0.146486285854062,
+     -0.000714511312056619,
+     0.00807788351994933,
+     -0.0902195734057587,
+     0.00149158819447031
+    ],
+    [
+     -33.8500463821186,
+     0.00379683705772318,
+     -0.090219573405666,
+     20.5230866679409,
+     0.0237335780522549
+    ],
+    [
+     -0.048738460312747,
+     0.00179607477043771,
+     0.00149158819447212,
+     0.0237335780518685,
+     0.00737414682760179
+    ]
+   ],
+   "n_sites": 104
+  },
+  {
+   "region_code": "D",
+   "region_name": "Region D (NSS GC1931)",
+   "aep": 0.01,
+   "intercept": 28.459,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.147,
+     "maximum": 1870.067
+    },
+    {
+     "code": "LAKEAREA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 13.46,
+     "offset": 1.0
+    },
+    {
+     "code": "LAT_OUT",
+     "transform": "log10",
+     "units": "decimal degrees",
+     "minimum": 43.5144,
+     "maximum": 46.0944
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.493,
+     "maximum": 75.17
+    }
+   ],
+   "coefficients": [
+    0.753,
+    -0.401,
+    -16.102,
+    0.314
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1d, 2d and 4d",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.214372,
+   "avp": 0.046,
+   "model_error_variance": 0.042,
+   "covariance": [
+    [
+     64.0541499316277,
+     -0.010916313868417,
+     0.167650626418653,
+     -38.8253826305219,
+     -0.0550976009280551
+    ],
+    [
+     -0.0109163138684159,
+     0.001367016792093,
+     -0.000816209942980187,
+     0.00426140858584276,
+     0.00206315133551751
+    ],
+    [
+     0.167650626418651,
+     -0.000816209942980202,
+     0.00925786885916205,
+     -0.103266775009013,
+     0.00172143651034538
+    ],
+    [
+     -38.8253826305219,
+     0.00426140858584344,
+     -0.103266775009014,
+     23.539984168174,
+     0.0267173192148717
+    ],
+    [
+     -0.0550976009280689,
+     0.0020631513355175,
+     0.00172143651034537,
+     0.0267173192148802,
+     0.00847842158059676
+    ]
+   ],
+   "n_sites": 104
+  },
+  {
+   "region_code": "D",
+   "region_name": "Region D (NSS GC1931)",
+   "aep": 0.002,
+   "intercept": 29.853,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.147,
+     "maximum": 1870.067
+    },
+    {
+     "code": "LAKEAREA",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 13.46,
+     "offset": 1.0
+    },
+    {
+     "code": "LAT_OUT",
+     "transform": "log10",
+     "units": "decimal degrees",
+     "minimum": 43.5144,
+     "maximum": 46.0944
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.493,
+     "maximum": 75.17
+    }
+   ],
+   "coefficients": [
+    0.756,
+    -0.42,
+    -16.845,
+    0.32
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1d, 2d and 4d",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.245709,
+   "avp": 0.06,
+   "model_error_variance": 0.055,
+   "covariance": [
+    [
+     84.4257606045737,
+     -0.0141243134225241,
+     0.221186755780489,
+     -51.1744140104765,
+     -0.0717005868775691
+    ],
+    [
+     -0.0141243134225001,
+     0.0018032619226244,
+     -0.00107832757951697,
+     0.00544513388535716,
+     0.00274506915627753
+    ],
+    [
+     0.221186755780419,
+     -0.00107832757951703,
+     0.0122865565454406,
+     -0.136270454302132,
+     0.00230500829212189
+    ],
+    [
+     -51.1744140104765,
+     0.00544513388537167,
+     -0.136270454302174,
+     31.0279686569663,
+     0.0345663444459932
+    ],
+    [
+     -0.0717005868776391,
+     0.00274506915627756,
+     0.00230500829212165,
+     0.0345663444460356,
+     0.0112821240709735
+    ]
+   ],
+   "n_sites": 104
+  },
+  {
+   "region_code": "E",
+   "region_name": "Region E (NSS GC1932)",
+   "aep": 0.667,
+   "intercept": 60.717,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.094,
+     "maximum": 1584.662
+    },
+    {
+     "code": "LAT_OUT",
+     "transform": "log10",
+     "units": "decimal degrees",
+     "minimum": 43.2144,
+     "maximum": 44.1217
+    }
+   ],
+   "coefficients": [
+    0.514,
+    -35.986
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1e, 2e and 4e",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.169832,
+   "avp": 0.029,
+   "model_error_variance": 0.022,
+   "covariance": [
+    [
+     734.269164501171,
+     -0.318212399234845,
+     -447.396893322828
+    ],
+    [
+     -0.318212399234856,
+     0.0016130882462639,
+     0.192622309538289
+    ],
+    [
+     -447.396893322828,
+     0.192622309538283,
+     272.605282982867
+    ]
+   ],
+   "n_sites": 23
+  },
+  {
+   "region_code": "E",
+   "region_name": "Region E (NSS GC1932)",
+   "aep": 0.5,
+   "intercept": 67.197,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.094,
+     "maximum": 1584.662
+    },
+    {
+     "code": "LAT_OUT",
+     "transform": "log10",
+     "units": "decimal degrees",
+     "minimum": 43.2144,
+     "maximum": 44.1217
+    }
+   ],
+   "coefficients": [
+    0.515,
+    -39.819
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1e, 2e and 4e",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.177789,
+   "avp": 0.032,
+   "model_error_variance": 0.025,
+   "covariance": [
+    [
+     753.596825064038,
+     -0.318901301416546,
+     -459.179301694713
+    ],
+    [
+     -0.318901301416506,
+     0.00168082497446675,
+     0.193018647201352
+    ],
+    [
+     -459.179301694713,
+     0.193018647201376,
+     279.787957418221
+    ]
+   ],
+   "n_sites": 23
+  },
+  {
+   "region_code": "E",
+   "region_name": "Region E (NSS GC1932)",
+   "aep": 0.2,
+   "intercept": 82.608,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.094,
+     "maximum": 1584.662
+    },
+    {
+     "code": "LAT_OUT",
+     "transform": "log10",
+     "units": "decimal degrees",
+     "minimum": 43.2144,
+     "maximum": 44.1217
+    }
+   ],
+   "coefficients": [
+    0.517,
+    -48.992
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1e, 2e and 4e",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.226378,
+   "avp": 0.051,
+   "model_error_variance": 0.042,
+   "covariance": [
+    [
+     1155.86843183744,
+     -0.443600976404474,
+     -704.32983259199
+    ],
+    [
+     -0.443600976404379,
+     0.00257126115702032,
+     0.268353437556503
+    ],
+    [
+     -704.329832591991,
+     0.268353437556561,
+     429.187381022913
+    ]
+   ],
+   "n_sites": 23
+  },
+  {
+   "region_code": "E",
+   "region_name": "Region E (NSS GC1932)",
+   "aep": 0.1,
+   "intercept": 91.607,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.094,
+     "maximum": 1584.662
+    },
+    {
+     "code": "LAT_OUT",
+     "transform": "log10",
+     "units": "decimal degrees",
+     "minimum": 43.2144,
+     "maximum": 44.1217
+    }
+   ],
+   "coefficients": [
+    0.519,
+    -54.365
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1e, 2e and 4e",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.260175,
+   "avp": 0.068,
+   "model_error_variance": 0.055,
+   "covariance": [
+    [
+     1531.89781520637,
+     -0.567465325619408,
+     -933.478955956365
+    ],
+    [
+     -0.567465325619442,
+     0.00337894105865659,
+     0.343215944253212
+    ],
+    [
+     -933.478955956365,
+     0.343215944253191,
+     568.82984248584
+    ]
+   ],
+   "n_sites": 23
+  },
+  {
+   "region_code": "E",
+   "region_name": "Region E (NSS GC1932)",
+   "aep": 0.04,
+   "intercept": 101.465,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.094,
+     "maximum": 1584.662
+    },
+    {
+     "code": "LAT_OUT",
+     "transform": "log10",
+     "units": "decimal degrees",
+     "minimum": 43.2144,
+     "maximum": 44.1217
+    }
+   ],
+   "coefficients": [
+    0.522,
+    -60.258
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1e, 2e and 4e",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.299884,
+   "avp": 0.09,
+   "model_error_variance": 0.074,
+   "covariance": [
+    [
+     2055.88991987556,
+     -0.744405254729105,
+     -1252.78883582652
+    ],
+    [
+     -0.744405254728883,
+     0.00449707412103062,
+     0.450176985325451
+    ],
+    [
+     -1252.78883582652,
+     0.450176985325587,
+     763.411950194917
+    ]
+   ],
+   "n_sites": 23
+  },
+  {
+   "region_code": "E",
+   "region_name": "Region E (NSS GC1932)",
+   "aep": 0.02,
+   "intercept": 107.89,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.094,
+     "maximum": 1584.662
+    },
+    {
+     "code": "LAT_OUT",
+     "transform": "log10",
+     "units": "decimal degrees",
+     "minimum": 43.2144,
+     "maximum": 44.1217
+    }
+   ],
+   "coefficients": [
+    0.524,
+    -64.102
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1e, 2e and 4e",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.328228,
+   "avp": 0.108,
+   "model_error_variance": 0.088,
+   "covariance": [
+    [
+     2475.52166746568,
+     -0.886914976215652,
+     -1508.50235130858
+    ],
+    [
+     -0.886914976215521,
+     0.00539219036268556,
+     0.536329407694812
+    ],
+    [
+     -1508.50235130858,
+     0.536329407694892,
+     919.238682825172
+    ]
+   ],
+   "n_sites": 23
+  },
+  {
+   "region_code": "E",
+   "region_name": "Region E (NSS GC1932)",
+   "aep": 0.01,
+   "intercept": 113.756,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.094,
+     "maximum": 1584.662
+    },
+    {
+     "code": "LAT_OUT",
+     "transform": "log10",
+     "units": "decimal degrees",
+     "minimum": 43.2144,
+     "maximum": 44.1217
+    }
+   ],
+   "coefficients": [
+    0.527,
+    -67.614
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1e, 2e and 4e",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.352684,
+   "avp": 0.124,
+   "model_error_variance": 0.102,
+   "covariance": [
+    [
+     2877.91536779725,
+     -1.02608458730455,
+     -1753.70631183878
+    ],
+    [
+     -1.02608458730537,
+     0.00624524114209651,
+     0.620475303497058
+    ],
+    [
+     -1753.70631183877,
+     0.620475303496562,
+     1068.65800198923
+    ]
+   ],
+   "n_sites": 23
+  },
+  {
+   "region_code": "E",
+   "region_name": "Region E (NSS GC1932)",
+   "aep": 0.002,
+   "intercept": 125.755,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.094,
+     "maximum": 1584.662
+    },
+    {
+     "code": "LAT_OUT",
+     "transform": "log10",
+     "units": "decimal degrees",
+     "minimum": 43.2144,
+     "maximum": 44.1217
+    }
+   ],
+   "coefficients": [
+    0.533,
+    -74.802
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1e, 2e and 4e",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.408233,
+   "avp": 0.167,
+   "model_error_variance": 0.136,
+   "covariance": [
+    [
+     3878.2408483369,
+     -1.36901204273673,
+     -2363.27070735147
+    ],
+    [
+     -1.3690120427387,
+     0.00837605033170528,
+     0.827806383036192
+    ],
+    [
+     -2363.27070735147,
+     0.827806383034991,
+     1440.10836687501
+    ]
+   ],
+   "n_sites": 23
+  },
+  {
+   "region_code": "F",
+   "region_name": "Region F (NSS GC1933)",
+   "aep": 0.667,
+   "intercept": 1.732,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.091,
+     "maximum": 1542.774
+    },
+    {
+     "code": "PMPE",
+     "transform": "identity",
+     "units": "mm",
+     "minimum": 116.505,
+     "maximum": 223.496
+    }
+   ],
+   "coefficients": [
+    0.638,
+    0.001
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1f, 2f and 4f",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.212478,
+   "avp": 0.045,
+   "model_error_variance": 0.041,
+   "covariance": [
+    [
+     0.0528711742052602,
+     -0.00159812911463612,
+     -0.0002682944806682
+    ],
+    [
+     -0.00159812911463607,
+     0.00090185058366411,
+     -6.75099338426119e-07
+    ],
+    [
+     -0.000268294480668201,
+     -6.75099338425831e-07,
+     1.50506217301682e-06
+    ]
+   ],
+   "n_sites": 45
+  },
+  {
+   "region_code": "F",
+   "region_name": "Region F (NSS GC1933)",
+   "aep": 0.5,
+   "intercept": 1.842,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.091,
+     "maximum": 1542.774
+    },
+    {
+     "code": "PMPE",
+     "transform": "identity",
+     "units": "mm",
+     "minimum": 116.505,
+     "maximum": 223.496
+    }
+   ],
+   "coefficients": [
+    0.621,
+    0.001
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1f, 2f and 4f",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.18275,
+   "avp": 0.033,
+   "model_error_variance": 0.03,
+   "covariance": [
+    [
+     0.0404447984382982,
+     -0.00129989214739741,
+     -0.000203781257514107
+    ],
+    [
+     -0.0012998921473974,
+     0.000700918979554876,
+     -4.09662714675593e-07
+    ],
+    [
+     -0.000203781257514107,
+     -4.09662714675553e-07,
+     1.1431547276245e-06
+    ]
+   ],
+   "n_sites": 45
+  },
+  {
+   "region_code": "F",
+   "region_name": "Region F (NSS GC1933)",
+   "aep": 0.2,
+   "intercept": 2.053,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.091,
+     "maximum": 1542.774
+    },
+    {
+     "code": "PMPE",
+     "transform": "identity",
+     "units": "mm",
+     "minimum": 116.505,
+     "maximum": 223.496
+    }
+   ],
+   "coefficients": [
+    0.587,
+    0.002
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1f, 2f and 4f",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.14839,
+   "avp": 0.022,
+   "model_error_variance": 0.019,
+   "covariance": [
+    [
+     0.0308412875678988,
+     -0.00112064317866069,
+     -0.000153376178276041
+    ],
+    [
+     -0.0011206431786607,
+     0.000552547312679192,
+     -1.64546591359691e-07
+    ],
+    [
+     -0.000153376178276041,
+     -1.6454659135972e-07,
+     8.62544782941387e-07
+    ]
+   ],
+   "n_sites": 45
+  },
+  {
+   "region_code": "F",
+   "region_name": "Region F (NSS GC1933)",
+   "aep": 0.1,
+   "intercept": 2.163,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.091,
+     "maximum": 1542.774
+    },
+    {
+     "code": "PMPE",
+     "transform": "identity",
+     "units": "mm",
+     "minimum": 116.505,
+     "maximum": 223.496
+    }
+   ],
+   "coefficients": [
+    0.569,
+    0.002
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1f, 2f and 4f",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.140891,
+   "avp": 0.02,
+   "model_error_variance": 0.017,
+   "covariance": [
+    [
+     0.0309752296822648,
+     -0.00119642462552501,
+     -0.000153243167995574
+    ],
+    [
+     -0.00119642462552501,
+     0.000564364370444,
+     -6.05076547501346e-08
+    ],
+    [
+     -0.000153243167995574,
+     -6.05076547501093e-08,
+     8.63472911754694e-07
+    ]
+   ],
+   "n_sites": 45
+  },
+  {
+   "region_code": "F",
+   "region_name": "Region F (NSS GC1933)",
+   "aep": 0.04,
+   "intercept": 2.288,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.091,
+     "maximum": 1542.774
+    },
+    {
+     "code": "PMPE",
+     "transform": "identity",
+     "units": "mm",
+     "minimum": 116.505,
+     "maximum": 223.496
+    }
+   ],
+   "coefficients": [
+    0.547,
+    0.003
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1f, 2f and 4f",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.146741,
+   "avp": 0.022,
+   "model_error_variance": 0.018,
+   "covariance": [
+    [
+     0.0362299018800918,
+     -0.00144088740596251,
+     -0.000179010810939619
+    ],
+    [
+     -0.00144088740596251,
+     0.000664819105480643,
+     2.32364102867449e-08
+    ],
+    [
+     -0.000179010810939619,
+     2.32364102867159e-08,
+     1.00920773790824e-06
+    ]
+   ],
+   "n_sites": 45
+  },
+  {
+   "region_code": "F",
+   "region_name": "Region F (NSS GC1933)",
+   "aep": 0.02,
+   "intercept": 2.371,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.091,
+     "maximum": 1542.774
+    },
+    {
+     "code": "PMPE",
+     "transform": "identity",
+     "units": "mm",
+     "minimum": 116.505,
+     "maximum": 223.496
+    }
+   ],
+   "coefficients": [
+    0.533,
+    0.003
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1f, 2f and 4f",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.156766,
+   "avp": 0.025,
+   "model_error_variance": 0.021,
+   "covariance": [
+    [
+     0.0422336115790442,
+     -0.00168172433184515,
+     -0.000208870531678057
+    ],
+    [
+     -0.00168172433184515,
+     0.000774541867691314,
+     5.59565069058613e-08
+    ],
+    [
+     -0.000208870531678057,
+     5.59565069058595e-08,
+     1.17718777407249e-06
+    ]
+   ],
+   "n_sites": 45
+  },
+  {
+   "region_code": "F",
+   "region_name": "Region F (NSS GC1933)",
+   "aep": 0.01,
+   "intercept": 2.446,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.091,
+     "maximum": 1542.774
+    },
+    {
+     "code": "PMPE",
+     "transform": "identity",
+     "units": "mm",
+     "minimum": 116.505,
+     "maximum": 223.496
+    }
+   ],
+   "coefficients": [
+    0.519,
+    0.003
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1f, 2f and 4f",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.166127,
+   "avp": 0.028,
+   "model_error_variance": 0.023,
+   "covariance": [
+    [
+     0.0482664051265966,
+     -0.00192775208995804,
+     -0.000238817244498361
+    ],
+    [
+     -0.00192775208995802,
+     0.000885248790180306,
+     1.00087093697617e-07
+    ],
+    [
+     -0.000238817244498361,
+     1.00087093697733e-07,
+     1.34560598496447e-06
+    ]
+   ],
+   "n_sites": 45
+  },
+  {
+   "region_code": "F",
+   "region_name": "Region F (NSS GC1933)",
+   "aep": 0.002,
+   "intercept": 2.604,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.091,
+     "maximum": 1542.774
+    },
+    {
+     "code": "PMPE",
+     "transform": "identity",
+     "units": "mm",
+     "minimum": 116.505,
+     "maximum": 223.496
+    }
+   ],
+   "coefficients": [
+    0.492,
+    0.004
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., and Levin, S.B., 2023, Techniques for estimating the magnitude and frequency of peak flows on small streams in Minnesota, excluding the Rainy River Basin, based on data through water year 2019: U.S. Geological Survey Scientific Investigations Report 2023-5079, 15 p.",
+    "table": "Levin (2023) tables 1f, 2f and 4f",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235079"
+   },
+   "sep_log": 0.199894,
+   "avp": 0.04,
+   "model_error_variance": 0.034,
+   "covariance": [
+    [
+     0.0682012936473434,
+     -0.00264038131949963,
+     -0.000338890554624383
+    ],
+    [
+     -0.00264038131949961,
+     0.00123824679656544,
+     5.38671869199729e-08
+    ],
+    [
+     -0.000338890554624383,
+     5.38671869200593e-08,
+     1.9065801635662e-06
+    ]
+   ],
+   "n_sites": 45
+  },
+  {
+   "region_code": "B1",
+   "region_name": "Region B1, Lake of the Woods-Rainy River Basin (NSS GC1775)",
+   "aep": 0.667,
+   "intercept": 1.126,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.037,
+     "maximum": 1840.0
+    },
+    {
+     "code": "LAKEAREA",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 22.3
+    }
+   ],
+   "coefficients": [
+    0.815,
+    -0.02
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., Williams-Sether, T., Steeves, P.A., and Christensen, V.G., 2019, Techniques for estimating the magnitude and frequency of peak flows on small streams in the binational U.S. and Canadian Lake of the Woods-Rainy River Basin upstream from Kenora, Ontario, Canada, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2019-5012, 17 p.",
+    "table": "Table 3",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195012"
+   },
+   "sep_log": 0.144041,
+   "avp": 0.021,
+   "n_sites": 49
+  },
+  {
+   "region_code": "B1",
+   "region_name": "Region B1, Lake of the Woods-Rainy River Basin (NSS GC1775)",
+   "aep": 0.5,
+   "intercept": 1.253,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.037,
+     "maximum": 1840.0
+    },
+    {
+     "code": "LAKEAREA",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 22.3
+    }
+   ],
+   "coefficients": [
+    0.812,
+    -0.022
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., Williams-Sether, T., Steeves, P.A., and Christensen, V.G., 2019, Techniques for estimating the magnitude and frequency of peak flows on small streams in the binational U.S. and Canadian Lake of the Woods-Rainy River Basin upstream from Kenora, Ontario, Canada, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2019-5012, 17 p.",
+    "table": "Table 3",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195012"
+   },
+   "sep_log": 0.143241,
+   "avp": 0.02,
+   "n_sites": 49
+  },
+  {
+   "region_code": "B1",
+   "region_name": "Region B1, Lake of the Woods-Rainy River Basin (NSS GC1775)",
+   "aep": 0.2,
+   "intercept": 1.51,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.037,
+     "maximum": 1840.0
+    },
+    {
+     "code": "LAKEAREA",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 22.3
+    }
+   ],
+   "coefficients": [
+    0.798,
+    -0.026
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., Williams-Sether, T., Steeves, P.A., and Christensen, V.G., 2019, Techniques for estimating the magnitude and frequency of peak flows on small streams in the binational U.S. and Canadian Lake of the Woods-Rainy River Basin upstream from Kenora, Ontario, Canada, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2019-5012, 17 p.",
+    "table": "Table 3",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195012"
+   },
+   "sep_log": 0.160676,
+   "avp": 0.026,
+   "n_sites": 49
+  },
+  {
+   "region_code": "B1",
+   "region_name": "Region B1, Lake of the Woods-Rainy River Basin (NSS GC1775)",
+   "aep": 0.1,
+   "intercept": 1.649,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.037,
+     "maximum": 1840.0
+    },
+    {
+     "code": "LAKEAREA",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 22.3
+    }
+   ],
+   "coefficients": [
+    0.786,
+    -0.028
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., Williams-Sether, T., Steeves, P.A., and Christensen, V.G., 2019, Techniques for estimating the magnitude and frequency of peak flows on small streams in the binational U.S. and Canadian Lake of the Woods-Rainy River Basin upstream from Kenora, Ontario, Canada, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2019-5012, 17 p.",
+    "table": "Table 3",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195012"
+   },
+   "sep_log": 0.175817,
+   "avp": 0.031,
+   "n_sites": 49
+  },
+  {
+   "region_code": "B1",
+   "region_name": "Region B1, Lake of the Woods-Rainy River Basin (NSS GC1775)",
+   "aep": 0.04,
+   "intercept": 1.795,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.037,
+     "maximum": 1840.0
+    },
+    {
+     "code": "LAKEAREA",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 22.3
+    }
+   ],
+   "coefficients": [
+    0.773,
+    -0.03
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., Williams-Sether, T., Steeves, P.A., and Christensen, V.G., 2019, Techniques for estimating the magnitude and frequency of peak flows on small streams in the binational U.S. and Canadian Lake of the Woods-Rainy River Basin upstream from Kenora, Ontario, Canada, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2019-5012, 17 p.",
+    "table": "Table 3",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195012"
+   },
+   "sep_log": 0.196264,
+   "avp": 0.039,
+   "n_sites": 49
+  },
+  {
+   "region_code": "B1",
+   "region_name": "Region B1, Lake of the Woods-Rainy River Basin (NSS GC1775)",
+   "aep": 0.02,
+   "intercept": 1.891,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.037,
+     "maximum": 1840.0
+    },
+    {
+     "code": "LAKEAREA",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 22.3
+    }
+   ],
+   "coefficients": [
+    0.763,
+    -0.032
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., Williams-Sether, T., Steeves, P.A., and Christensen, V.G., 2019, Techniques for estimating the magnitude and frequency of peak flows on small streams in the binational U.S. and Canadian Lake of the Woods-Rainy River Basin upstream from Kenora, Ontario, Canada, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2019-5012, 17 p.",
+    "table": "Table 3",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195012"
+   },
+   "sep_log": 0.208087,
+   "avp": 0.043,
+   "n_sites": 49
+  },
+  {
+   "region_code": "B1",
+   "region_name": "Region B1, Lake of the Woods-Rainy River Basin (NSS GC1775)",
+   "aep": 0.01,
+   "intercept": 1.975,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.037,
+     "maximum": 1840.0
+    },
+    {
+     "code": "LAKEAREA",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 22.3
+    }
+   ],
+   "coefficients": [
+    0.754,
+    -0.033
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., Williams-Sether, T., Steeves, P.A., and Christensen, V.G., 2019, Techniques for estimating the magnitude and frequency of peak flows on small streams in the binational U.S. and Canadian Lake of the Woods-Rainy River Basin upstream from Kenora, Ontario, Canada, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2019-5012, 17 p.",
+    "table": "Table 3",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195012"
+   },
+   "sep_log": 0.225046,
+   "avp": 0.051,
+   "n_sites": 49
+  },
+  {
+   "region_code": "B1",
+   "region_name": "Region B1, Lake of the Woods-Rainy River Basin (NSS GC1775)",
+   "aep": 0.002,
+   "intercept": 2.146,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.037,
+     "maximum": 1840.0
+    },
+    {
+     "code": "LAKEAREA",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 22.3
+    }
+   ],
+   "coefficients": [
+    0.734,
+    -0.035
+   ],
+   "citation": {
+    "publication": "Sanocki, C.A., Williams-Sether, T., Steeves, P.A., and Christensen, V.G., 2019, Techniques for estimating the magnitude and frequency of peak flows on small streams in the binational U.S. and Canadian Lake of the Woods-Rainy River Basin upstream from Kenora, Ontario, Canada, based on data through water year 2013: U.S. Geological Survey Scientific Investigations Report 2019-5012, 17 p.",
+    "table": "Table 3",
+    "year": 2019,
+    "url": "https://doi.org/10.3133/sir20195012"
+   },
+   "sep_log": 0.253115,
+   "avp": 0.064,
+   "n_sites": 49
+  }
+ ]
+}

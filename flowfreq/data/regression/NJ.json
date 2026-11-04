@@ -1,0 +1,1891 @@
+{
+ "schema_version": 1,
+ "state": "NJ",
+ "status": "verified",
+ "issue": null,
+ "source_reports": [
+  {
+   "citation": "Watson, K.M., and Schopp, R.D., 2009, Methodology for estimation of flood magnitude and frequency for New Jersey streams: U.S. Geological Survey Scientific Investigations Report 2009-5167, 51 p. (v2.0, revised May 2010)",
+   "url": "https://pubs.usgs.gov/sir/2009/5167/",
+   "pdf": "https://pubs.usgs.gov/sir/2009/5167/pdf/sir2009-5167.pdf",
+   "tables": [
+    "Equations 7-13",
+    "Table 3",
+    "Table 4",
+    "Table 5",
+    "Table 6",
+    "Table 7",
+    "Appendix 2"
+   ],
+   "nss": {
+    "regression_regions": [
+     "GC1255",
+     "GC1256",
+     "GC1257",
+     "GC1258",
+     "GC1259"
+    ],
+    "citation_id": 94,
+    "last_year_of_data": 2007
+   }
+  }
+ ],
+ "notes": "Watson and Schopp, SIR 2009-5167 v2.0 (May 2010), which revised the equations, Table 5, Table 6, the 1990 population densities and Appendix 2's R and W columns of the September 2009 v1.0; v1.0 is not used. One set of slopes (equations 7-13) on drainage area, storage + 1, 10-85 slope and 1990 population density + 1, with a regional constant KTR from Table 5 for each of 5 regions, so each region repeats the slopes and differs in its intercept (log10 KTR) and ranges, at 7 AEPs from 254 streamgages. Table 5 prints its columns OC, UP, GP, VR, IN, unlike Table 4. The 1 is stored as printed, as offset 1; NSS writes the same term as log10_plus1. Ranges from Table 4, and SEP in percent and equivalent years of record from Table 6. Table 6 also prints the standard error of estimate, 49, 49.4, 50.5, 52.6, 54.7, 57.1 and 63.9 percent from the 50 to the 0.2 percent AEP, which the schema has no field for. The report prints no covariance, model error variance or AVP, so intervals use the SEP. Table 7's drainage-area exponents for transfers from a gage on the same stream are GP 0.68, IN 0.66, OC 0.73, UP 0.58, VR 0.59, and are not used by the evaluator. Every coefficient, constant, range and SEP equals NSS. Appendix 2's regression flows reproduce at 249 of 254 gages from Table 3 within the rounding of what is printed. At 01401200, 01396660, 01405030, 01409280 and 01386500 they imply a drainage area other than Table 3's (3.82, 11.7, 44.7, 15.8 and 1.01 mi2), so those five are a fault in the printed inputs and not in the equations. Appendix 2's weighted flows are not equation 14 with Table 1's Ne and Table 6's E at many gages, and the Rahway example gets 6,330 ft3/s where Appendix 2 prints 6,350; weighted flows are not stored here. The report develops the equations on 1990 population density, and says StreamStats offers 2000 density in its place.",
+ "equations": [
+  {
+   "region_code": "GP",
+   "region_name": "Glaciated Piedmont (NSS GC1255)",
+   "aep": 0.5,
+   "intercept": 1.3138672203691535,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.27,
+     "maximum": 56.4
+    },
+    {
+     "code": "STORAGE",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.62,
+     "maximum": 11.6,
+     "offset": 1.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 9.37,
+     "maximum": 176.0
+    },
+    {
+     "code": "POPDENS",
+     "transform": "log10",
+     "units": "persons/mi2",
+     "minimum": 645.0,
+     "maximum": 13492.0,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.753,
+    -0.054,
+    0.251,
+    0.127
+   ],
+   "citation": {
+    "publication": "Watson, K.M., and Schopp, R.D., 2009, Methodology for estimation of flood magnitude and frequency for New Jersey streams: U.S. Geological Survey Scientific Investigations Report 2009-5167, 51 p. (v2.0, revised May 2010)",
+    "table": "Equation 7; Tables 4, 5 and 6",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2009/5167/"
+   },
+   "sep_log": 0.206255,
+   "n_sites": 254,
+   "equivalent_years": 1.0
+  },
+  {
+   "region_code": "GP",
+   "region_name": "Glaciated Piedmont (NSS GC1255)",
+   "aep": 0.2,
+   "intercept": 1.6020599913279623,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.27,
+     "maximum": 56.4
+    },
+    {
+     "code": "STORAGE",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.62,
+     "maximum": 11.6,
+     "offset": 1.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 9.37,
+     "maximum": 176.0
+    },
+    {
+     "code": "POPDENS",
+     "transform": "log10",
+     "units": "persons/mi2",
+     "minimum": 645.0,
+     "maximum": 13492.0,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.741,
+    -0.084,
+    0.254,
+    0.104
+   ],
+   "citation": {
+    "publication": "Watson, K.M., and Schopp, R.D., 2009, Methodology for estimation of flood magnitude and frequency for New Jersey streams: U.S. Geological Survey Scientific Investigations Report 2009-5167, 51 p. (v2.0, revised May 2010)",
+    "table": "Equation 8; Tables 4, 5 and 6",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2009/5167/"
+   },
+   "sep_log": 0.208453,
+   "n_sites": 254,
+   "equivalent_years": 2.0
+  },
+  {
+   "region_code": "GP",
+   "region_name": "Glaciated Piedmont (NSS GC1255)",
+   "aep": 0.1,
+   "intercept": 1.7535830588929067,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.27,
+     "maximum": 56.4
+    },
+    {
+     "code": "STORAGE",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.62,
+     "maximum": 11.6,
+     "offset": 1.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 9.37,
+     "maximum": 176.0
+    },
+    {
+     "code": "POPDENS",
+     "transform": "log10",
+     "units": "persons/mi2",
+     "minimum": 645.0,
+     "maximum": 13492.0,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.736,
+    -0.104,
+    0.258,
+    0.092
+   ],
+   "citation": {
+    "publication": "Watson, K.M., and Schopp, R.D., 2009, Methodology for estimation of flood magnitude and frequency for New Jersey streams: U.S. Geological Survey Scientific Investigations Report 2009-5167, 51 p. (v2.0, revised May 2010)",
+    "table": "Equation 9; Tables 4, 5 and 6",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2009/5167/"
+   },
+   "sep_log": 0.21319,
+   "n_sites": 254,
+   "equivalent_years": 3.0
+  },
+  {
+   "region_code": "GP",
+   "region_name": "Glaciated Piedmont (NSS GC1255)",
+   "aep": 0.04,
+   "intercept": 1.9148718175400503,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.27,
+     "maximum": 56.4
+    },
+    {
+     "code": "STORAGE",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.62,
+     "maximum": 11.6,
+     "offset": 1.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 9.37,
+     "maximum": 176.0
+    },
+    {
+     "code": "POPDENS",
+     "transform": "log10",
+     "units": "persons/mi2",
+     "minimum": 645.0,
+     "maximum": 13492.0,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.732,
+    -0.127,
+    0.263,
+    0.079
+   ],
+   "citation": {
+    "publication": "Watson, K.M., and Schopp, R.D., 2009, Methodology for estimation of flood magnitude and frequency for New Jersey streams: U.S. Geological Survey Scientific Investigations Report 2009-5167, 51 p. (v2.0, revised May 2010)",
+    "table": "Equation 10; Tables 4, 5 and 6",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2009/5167/"
+   },
+   "sep_log": 0.221479,
+   "n_sites": 254,
+   "equivalent_years": 4.0
+  },
+  {
+   "region_code": "GP",
+   "region_name": "Glaciated Piedmont (NSS GC1255)",
+   "aep": 0.02,
+   "intercept": 2.0211892990699383,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.27,
+     "maximum": 56.4
+    },
+    {
+     "code": "STORAGE",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.62,
+     "maximum": 11.6,
+     "offset": 1.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 9.37,
+     "maximum": 176.0
+    },
+    {
+     "code": "POPDENS",
+     "transform": "log10",
+     "units": "persons/mi2",
+     "minimum": 645.0,
+     "maximum": 13492.0,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.729,
+    -0.144,
+    0.267,
+    0.07
+   ],
+   "citation": {
+    "publication": "Watson, K.M., and Schopp, R.D., 2009, Methodology for estimation of flood magnitude and frequency for New Jersey streams: U.S. Geological Survey Scientific Investigations Report 2009-5167, 51 p. (v2.0, revised May 2010)",
+    "table": "Equation 11; Tables 4, 5 and 6",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2009/5167/"
+   },
+   "sep_log": 0.22965,
+   "n_sites": 254,
+   "equivalent_years": 5.0
+  },
+  {
+   "region_code": "GP",
+   "region_name": "Glaciated Piedmont (NSS GC1255)",
+   "aep": 0.01,
+   "intercept": 2.113943352306837,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.27,
+     "maximum": 56.4
+    },
+    {
+     "code": "STORAGE",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.62,
+     "maximum": 11.6,
+     "offset": 1.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 9.37,
+     "maximum": 176.0
+    },
+    {
+     "code": "POPDENS",
+     "transform": "log10",
+     "units": "persons/mi2",
+     "minimum": 645.0,
+     "maximum": 13492.0,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.728,
+    -0.158,
+    0.271,
+    0.062
+   ],
+   "citation": {
+    "publication": "Watson, K.M., and Schopp, R.D., 2009, Methodology for estimation of flood magnitude and frequency for New Jersey streams: U.S. Geological Survey Scientific Investigations Report 2009-5167, 51 p. (v2.0, revised May 2010)",
+    "table": "Equation 12; Tables 4, 5 and 6",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2009/5167/"
+   },
+   "sep_log": 0.239091,
+   "n_sites": 254,
+   "equivalent_years": 5.0
+  },
+  {
+   "region_code": "GP",
+   "region_name": "Glaciated Piedmont (NSS GC1255)",
+   "aep": 0.002,
+   "intercept": 2.311753861055754,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.27,
+     "maximum": 56.4
+    },
+    {
+     "code": "STORAGE",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.62,
+     "maximum": 11.6,
+     "offset": 1.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 9.37,
+     "maximum": 176.0
+    },
+    {
+     "code": "POPDENS",
+     "transform": "log10",
+     "units": "persons/mi2",
+     "minimum": 645.0,
+     "maximum": 13492.0,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.725,
+    -0.189,
+    0.278,
+    0.043
+   ],
+   "citation": {
+    "publication": "Watson, K.M., and Schopp, R.D., 2009, Methodology for estimation of flood magnitude and frequency for New Jersey streams: U.S. Geological Survey Scientific Investigations Report 2009-5167, 51 p. (v2.0, revised May 2010)",
+    "table": "Equation 13; Tables 4, 5 and 6",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2009/5167/"
+   },
+   "sep_log": 0.262144,
+   "n_sites": 254,
+   "equivalent_years": 6.0
+  },
+  {
+   "region_code": "IN",
+   "region_name": "Inner Coastal Plain (NSS GC1256)",
+   "aep": 0.5,
+   "intercept": 1.2430380486862944,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.41,
+     "maximum": 118.0
+    },
+    {
+     "code": "STORAGE",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 1.0,
+     "maximum": 41.1,
+     "offset": 1.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 2.49,
+     "maximum": 55.5
+    },
+    {
+     "code": "POPDENS",
+     "transform": "log10",
+     "units": "persons/mi2",
+     "minimum": 34.0,
+     "maximum": 5382.0,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.753,
+    -0.054,
+    0.251,
+    0.127
+   ],
+   "citation": {
+    "publication": "Watson, K.M., and Schopp, R.D., 2009, Methodology for estimation of flood magnitude and frequency for New Jersey streams: U.S. Geological Survey Scientific Investigations Report 2009-5167, 51 p. (v2.0, revised May 2010)",
+    "table": "Equation 7; Tables 4, 5 and 6",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2009/5167/"
+   },
+   "sep_log": 0.206255,
+   "n_sites": 254,
+   "equivalent_years": 1.0
+  },
+  {
+   "region_code": "IN",
+   "region_name": "Inner Coastal Plain (NSS GC1256)",
+   "aep": 0.2,
+   "intercept": 1.575187844927661,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.41,
+     "maximum": 118.0
+    },
+    {
+     "code": "STORAGE",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 1.0,
+     "maximum": 41.1,
+     "offset": 1.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 2.49,
+     "maximum": 55.5
+    },
+    {
+     "code": "POPDENS",
+     "transform": "log10",
+     "units": "persons/mi2",
+     "minimum": 34.0,
+     "maximum": 5382.0,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.741,
+    -0.084,
+    0.254,
+    0.104
+   ],
+   "citation": {
+    "publication": "Watson, K.M., and Schopp, R.D., 2009, Methodology for estimation of flood magnitude and frequency for New Jersey streams: U.S. Geological Survey Scientific Investigations Report 2009-5167, 51 p. (v2.0, revised May 2010)",
+    "table": "Equation 8; Tables 4, 5 and 6",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2009/5167/"
+   },
+   "sep_log": 0.208453,
+   "n_sites": 254,
+   "equivalent_years": 2.0
+  },
+  {
+   "region_code": "IN",
+   "region_name": "Inner Coastal Plain (NSS GC1256)",
+   "aep": 0.1,
+   "intercept": 1.749736315569061,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.41,
+     "maximum": 118.0
+    },
+    {
+     "code": "STORAGE",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 1.0,
+     "maximum": 41.1,
+     "offset": 1.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 2.49,
+     "maximum": 55.5
+    },
+    {
+     "code": "POPDENS",
+     "transform": "log10",
+     "units": "persons/mi2",
+     "minimum": 34.0,
+     "maximum": 5382.0,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.736,
+    -0.104,
+    0.258,
+    0.092
+   ],
+   "citation": {
+    "publication": "Watson, K.M., and Schopp, R.D., 2009, Methodology for estimation of flood magnitude and frequency for New Jersey streams: U.S. Geological Survey Scientific Investigations Report 2009-5167, 51 p. (v2.0, revised May 2010)",
+    "table": "Equation 9; Tables 4, 5 and 6",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2009/5167/"
+   },
+   "sep_log": 0.21319,
+   "n_sites": 254,
+   "equivalent_years": 3.0
+  },
+  {
+   "region_code": "IN",
+   "region_name": "Inner Coastal Plain (NSS GC1256)",
+   "aep": 0.04,
+   "intercept": 1.9355072658247128,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.41,
+     "maximum": 118.0
+    },
+    {
+     "code": "STORAGE",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 1.0,
+     "maximum": 41.1,
+     "offset": 1.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 2.49,
+     "maximum": 55.5
+    },
+    {
+     "code": "POPDENS",
+     "transform": "log10",
+     "units": "persons/mi2",
+     "minimum": 34.0,
+     "maximum": 5382.0,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.732,
+    -0.127,
+    0.263,
+    0.079
+   ],
+   "citation": {
+    "publication": "Watson, K.M., and Schopp, R.D., 2009, Methodology for estimation of flood magnitude and frequency for New Jersey streams: U.S. Geological Survey Scientific Investigations Report 2009-5167, 51 p. (v2.0, revised May 2010)",
+    "table": "Equation 10; Tables 4, 5 and 6",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2009/5167/"
+   },
+   "sep_log": 0.221479,
+   "n_sites": 254,
+   "equivalent_years": 4.0
+  },
+  {
+   "region_code": "IN",
+   "region_name": "Inner Coastal Plain (NSS GC1256)",
+   "aep": 0.02,
+   "intercept": 2.0569048513364727,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.41,
+     "maximum": 118.0
+    },
+    {
+     "code": "STORAGE",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 1.0,
+     "maximum": 41.1,
+     "offset": 1.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 2.49,
+     "maximum": 55.5
+    },
+    {
+     "code": "POPDENS",
+     "transform": "log10",
+     "units": "persons/mi2",
+     "minimum": 34.0,
+     "maximum": 5382.0,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.729,
+    -0.144,
+    0.267,
+    0.07
+   ],
+   "citation": {
+    "publication": "Watson, K.M., and Schopp, R.D., 2009, Methodology for estimation of flood magnitude and frequency for New Jersey streams: U.S. Geological Survey Scientific Investigations Report 2009-5167, 51 p. (v2.0, revised May 2010)",
+    "table": "Equation 11; Tables 4, 5 and 6",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2009/5167/"
+   },
+   "sep_log": 0.22965,
+   "n_sites": 254,
+   "equivalent_years": 5.0
+  },
+  {
+   "region_code": "IN",
+   "region_name": "Inner Coastal Plain (NSS GC1256)",
+   "aep": 0.01,
+   "intercept": 2.164352855784437,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.41,
+     "maximum": 118.0
+    },
+    {
+     "code": "STORAGE",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 1.0,
+     "maximum": 41.1,
+     "offset": 1.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 2.49,
+     "maximum": 55.5
+    },
+    {
+     "code": "POPDENS",
+     "transform": "log10",
+     "units": "persons/mi2",
+     "minimum": 34.0,
+     "maximum": 5382.0,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.728,
+    -0.158,
+    0.271,
+    0.062
+   ],
+   "citation": {
+    "publication": "Watson, K.M., and Schopp, R.D., 2009, Methodology for estimation of flood magnitude and frequency for New Jersey streams: U.S. Geological Survey Scientific Investigations Report 2009-5167, 51 p. (v2.0, revised May 2010)",
+    "table": "Equation 12; Tables 4, 5 and 6",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2009/5167/"
+   },
+   "sep_log": 0.239091,
+   "n_sites": 254,
+   "equivalent_years": 5.0
+  },
+  {
+   "region_code": "IN",
+   "region_name": "Inner Coastal Plain (NSS GC1256)",
+   "aep": 0.002,
+   "intercept": 2.3820170425748683,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.41,
+     "maximum": 118.0
+    },
+    {
+     "code": "STORAGE",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 1.0,
+     "maximum": 41.1,
+     "offset": 1.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 2.49,
+     "maximum": 55.5
+    },
+    {
+     "code": "POPDENS",
+     "transform": "log10",
+     "units": "persons/mi2",
+     "minimum": 34.0,
+     "maximum": 5382.0,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.725,
+    -0.189,
+    0.278,
+    0.043
+   ],
+   "citation": {
+    "publication": "Watson, K.M., and Schopp, R.D., 2009, Methodology for estimation of flood magnitude and frequency for New Jersey streams: U.S. Geological Survey Scientific Investigations Report 2009-5167, 51 p. (v2.0, revised May 2010)",
+    "table": "Equation 13; Tables 4, 5 and 6",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2009/5167/"
+   },
+   "sep_log": 0.262144,
+   "n_sites": 254,
+   "equivalent_years": 6.0
+  },
+  {
+   "region_code": "OC",
+   "region_name": "Outer Coastal Plain (NSS GC1257)",
+   "aep": 0.5,
+   "intercept": 0.9493900066449128,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.18,
+     "maximum": 124.0
+    },
+    {
+     "code": "STORAGE",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 3.04,
+     "maximum": 46.3,
+     "offset": 1.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.79,
+     "maximum": 39.6
+    },
+    {
+     "code": "POPDENS",
+     "transform": "log10",
+     "units": "persons/mi2",
+     "minimum": 6.0,
+     "maximum": 1387.0,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.753,
+    -0.054,
+    0.251,
+    0.127
+   ],
+   "citation": {
+    "publication": "Watson, K.M., and Schopp, R.D., 2009, Methodology for estimation of flood magnitude and frequency for New Jersey streams: U.S. Geological Survey Scientific Investigations Report 2009-5167, 51 p. (v2.0, revised May 2010)",
+    "table": "Equation 7; Tables 4, 5 and 6",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2009/5167/"
+   },
+   "sep_log": 0.206255,
+   "n_sites": 254,
+   "equivalent_years": 1.0
+  },
+  {
+   "region_code": "OC",
+   "region_name": "Outer Coastal Plain (NSS GC1257)",
+   "aep": 0.2,
+   "intercept": 1.2576785748691846,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.18,
+     "maximum": 124.0
+    },
+    {
+     "code": "STORAGE",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 3.04,
+     "maximum": 46.3,
+     "offset": 1.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.79,
+     "maximum": 39.6
+    },
+    {
+     "code": "POPDENS",
+     "transform": "log10",
+     "units": "persons/mi2",
+     "minimum": 6.0,
+     "maximum": 1387.0,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.741,
+    -0.084,
+    0.254,
+    0.104
+   ],
+   "citation": {
+    "publication": "Watson, K.M., and Schopp, R.D., 2009, Methodology for estimation of flood magnitude and frequency for New Jersey streams: U.S. Geological Survey Scientific Investigations Report 2009-5167, 51 p. (v2.0, revised May 2010)",
+    "table": "Equation 8; Tables 4, 5 and 6",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2009/5167/"
+   },
+   "sep_log": 0.208453,
+   "n_sites": 254,
+   "equivalent_years": 2.0
+  },
+  {
+   "region_code": "OC",
+   "region_name": "Outer Coastal Plain (NSS GC1257)",
+   "aep": 0.1,
+   "intercept": 1.423245873936808,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.18,
+     "maximum": 124.0
+    },
+    {
+     "code": "STORAGE",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 3.04,
+     "maximum": 46.3,
+     "offset": 1.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.79,
+     "maximum": 39.6
+    },
+    {
+     "code": "POPDENS",
+     "transform": "log10",
+     "units": "persons/mi2",
+     "minimum": 6.0,
+     "maximum": 1387.0,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.736,
+    -0.104,
+    0.258,
+    0.092
+   ],
+   "citation": {
+    "publication": "Watson, K.M., and Schopp, R.D., 2009, Methodology for estimation of flood magnitude and frequency for New Jersey streams: U.S. Geological Survey Scientific Investigations Report 2009-5167, 51 p. (v2.0, revised May 2010)",
+    "table": "Equation 9; Tables 4, 5 and 6",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2009/5167/"
+   },
+   "sep_log": 0.21319,
+   "n_sites": 254,
+   "equivalent_years": 3.0
+  },
+  {
+   "region_code": "OC",
+   "region_name": "Outer Coastal Plain (NSS GC1257)",
+   "aep": 0.04,
+   "intercept": 1.5987905067631152,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.18,
+     "maximum": 124.0
+    },
+    {
+     "code": "STORAGE",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 3.04,
+     "maximum": 46.3,
+     "offset": 1.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.79,
+     "maximum": 39.6
+    },
+    {
+     "code": "POPDENS",
+     "transform": "log10",
+     "units": "persons/mi2",
+     "minimum": 6.0,
+     "maximum": 1387.0,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.732,
+    -0.127,
+    0.263,
+    0.079
+   ],
+   "citation": {
+    "publication": "Watson, K.M., and Schopp, R.D., 2009, Methodology for estimation of flood magnitude and frequency for New Jersey streams: U.S. Geological Survey Scientific Investigations Report 2009-5167, 51 p. (v2.0, revised May 2010)",
+    "table": "Equation 10; Tables 4, 5 and 6",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2009/5167/"
+   },
+   "sep_log": 0.221479,
+   "n_sites": 254,
+   "equivalent_years": 4.0
+  },
+  {
+   "region_code": "OC",
+   "region_name": "Outer Coastal Plain (NSS GC1257)",
+   "aep": 0.02,
+   "intercept": 1.711807229041191,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.18,
+     "maximum": 124.0
+    },
+    {
+     "code": "STORAGE",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 3.04,
+     "maximum": 46.3,
+     "offset": 1.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.79,
+     "maximum": 39.6
+    },
+    {
+     "code": "POPDENS",
+     "transform": "log10",
+     "units": "persons/mi2",
+     "minimum": 6.0,
+     "maximum": 1387.0,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.729,
+    -0.144,
+    0.267,
+    0.07
+   ],
+   "citation": {
+    "publication": "Watson, K.M., and Schopp, R.D., 2009, Methodology for estimation of flood magnitude and frequency for New Jersey streams: U.S. Geological Survey Scientific Investigations Report 2009-5167, 51 p. (v2.0, revised May 2010)",
+    "table": "Equation 11; Tables 4, 5 and 6",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2009/5167/"
+   },
+   "sep_log": 0.22965,
+   "n_sites": 254,
+   "equivalent_years": 5.0
+  },
+  {
+   "region_code": "OC",
+   "region_name": "Outer Coastal Plain (NSS GC1257)",
+   "aep": 0.01,
+   "intercept": 1.813580988568192,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.18,
+     "maximum": 124.0
+    },
+    {
+     "code": "STORAGE",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 3.04,
+     "maximum": 46.3,
+     "offset": 1.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.79,
+     "maximum": 39.6
+    },
+    {
+     "code": "POPDENS",
+     "transform": "log10",
+     "units": "persons/mi2",
+     "minimum": 6.0,
+     "maximum": 1387.0,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.728,
+    -0.158,
+    0.271,
+    0.062
+   ],
+   "citation": {
+    "publication": "Watson, K.M., and Schopp, R.D., 2009, Methodology for estimation of flood magnitude and frequency for New Jersey streams: U.S. Geological Survey Scientific Investigations Report 2009-5167, 51 p. (v2.0, revised May 2010)",
+    "table": "Equation 12; Tables 4, 5 and 6",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2009/5167/"
+   },
+   "sep_log": 0.239091,
+   "n_sites": 254,
+   "equivalent_years": 5.0
+  },
+  {
+   "region_code": "OC",
+   "region_name": "Outer Coastal Plain (NSS GC1257)",
+   "aep": 0.002,
+   "intercept": 2.0211892990699383,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.18,
+     "maximum": 124.0
+    },
+    {
+     "code": "STORAGE",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 3.04,
+     "maximum": 46.3,
+     "offset": 1.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.79,
+     "maximum": 39.6
+    },
+    {
+     "code": "POPDENS",
+     "transform": "log10",
+     "units": "persons/mi2",
+     "minimum": 6.0,
+     "maximum": 1387.0,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.725,
+    -0.189,
+    0.278,
+    0.043
+   ],
+   "citation": {
+    "publication": "Watson, K.M., and Schopp, R.D., 2009, Methodology for estimation of flood magnitude and frequency for New Jersey streams: U.S. Geological Survey Scientific Investigations Report 2009-5167, 51 p. (v2.0, revised May 2010)",
+    "table": "Equation 13; Tables 4, 5 and 6",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2009/5167/"
+   },
+   "sep_log": 0.262144,
+   "n_sites": 254,
+   "equivalent_years": 6.0
+  },
+  {
+   "region_code": "UP",
+   "region_name": "Unglaciated Piedmont (NSS GC1258)",
+   "aep": 0.5,
+   "intercept": 1.5774917998372253,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.25,
+     "maximum": 779.0
+    },
+    {
+     "code": "STORAGE",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.23,
+     "maximum": 32.0,
+     "offset": 1.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 4.31,
+     "maximum": 191.0
+    },
+    {
+     "code": "POPDENS",
+     "transform": "log10",
+     "units": "persons/mi2",
+     "minimum": 83.0,
+     "maximum": 11084.0,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.753,
+    -0.054,
+    0.251,
+    0.127
+   ],
+   "citation": {
+    "publication": "Watson, K.M., and Schopp, R.D., 2009, Methodology for estimation of flood magnitude and frequency for New Jersey streams: U.S. Geological Survey Scientific Investigations Report 2009-5167, 51 p. (v2.0, revised May 2010)",
+    "table": "Equation 7; Tables 4, 5 and 6",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2009/5167/"
+   },
+   "sep_log": 0.206255,
+   "n_sites": 254,
+   "equivalent_years": 1.0
+  },
+  {
+   "region_code": "UP",
+   "region_name": "Unglaciated Piedmont (NSS GC1258)",
+   "aep": 0.2,
+   "intercept": 1.8767949762007006,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.25,
+     "maximum": 779.0
+    },
+    {
+     "code": "STORAGE",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.23,
+     "maximum": 32.0,
+     "offset": 1.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 4.31,
+     "maximum": 191.0
+    },
+    {
+     "code": "POPDENS",
+     "transform": "log10",
+     "units": "persons/mi2",
+     "minimum": 83.0,
+     "maximum": 11084.0,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.741,
+    -0.084,
+    0.254,
+    0.104
+   ],
+   "citation": {
+    "publication": "Watson, K.M., and Schopp, R.D., 2009, Methodology for estimation of flood magnitude and frequency for New Jersey streams: U.S. Geological Survey Scientific Investigations Report 2009-5167, 51 p. (v2.0, revised May 2010)",
+    "table": "Equation 8; Tables 4, 5 and 6",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2009/5167/"
+   },
+   "sep_log": 0.208453,
+   "n_sites": 254,
+   "equivalent_years": 2.0
+  },
+  {
+   "region_code": "UP",
+   "region_name": "Unglaciated Piedmont (NSS GC1258)",
+   "aep": 0.1,
+   "intercept": 2.03342375548695,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.25,
+     "maximum": 779.0
+    },
+    {
+     "code": "STORAGE",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.23,
+     "maximum": 32.0,
+     "offset": 1.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 4.31,
+     "maximum": 191.0
+    },
+    {
+     "code": "POPDENS",
+     "transform": "log10",
+     "units": "persons/mi2",
+     "minimum": 83.0,
+     "maximum": 11084.0,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.736,
+    -0.104,
+    0.258,
+    0.092
+   ],
+   "citation": {
+    "publication": "Watson, K.M., and Schopp, R.D., 2009, Methodology for estimation of flood magnitude and frequency for New Jersey streams: U.S. Geological Survey Scientific Investigations Report 2009-5167, 51 p. (v2.0, revised May 2010)",
+    "table": "Equation 9; Tables 4, 5 and 6",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2009/5167/"
+   },
+   "sep_log": 0.21319,
+   "n_sites": 254,
+   "equivalent_years": 3.0
+  },
+  {
+   "region_code": "UP",
+   "region_name": "Unglaciated Piedmont (NSS GC1258)",
+   "aep": 0.04,
+   "intercept": 2.2013971243204513,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.25,
+     "maximum": 779.0
+    },
+    {
+     "code": "STORAGE",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.23,
+     "maximum": 32.0,
+     "offset": 1.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 4.31,
+     "maximum": 191.0
+    },
+    {
+     "code": "POPDENS",
+     "transform": "log10",
+     "units": "persons/mi2",
+     "minimum": 83.0,
+     "maximum": 11084.0,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.732,
+    -0.127,
+    0.263,
+    0.079
+   ],
+   "citation": {
+    "publication": "Watson, K.M., and Schopp, R.D., 2009, Methodology for estimation of flood magnitude and frequency for New Jersey streams: U.S. Geological Survey Scientific Investigations Report 2009-5167, 51 p. (v2.0, revised May 2010)",
+    "table": "Equation 10; Tables 4, 5 and 6",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2009/5167/"
+   },
+   "sep_log": 0.221479,
+   "n_sites": 254,
+   "equivalent_years": 4.0
+  },
+  {
+   "region_code": "UP",
+   "region_name": "Unglaciated Piedmont (NSS GC1258)",
+   "aep": 0.02,
+   "intercept": 2.3096301674258988,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.25,
+     "maximum": 779.0
+    },
+    {
+     "code": "STORAGE",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.23,
+     "maximum": 32.0,
+     "offset": 1.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 4.31,
+     "maximum": 191.0
+    },
+    {
+     "code": "POPDENS",
+     "transform": "log10",
+     "units": "persons/mi2",
+     "minimum": 83.0,
+     "maximum": 11084.0,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.729,
+    -0.144,
+    0.267,
+    0.07
+   ],
+   "citation": {
+    "publication": "Watson, K.M., and Schopp, R.D., 2009, Methodology for estimation of flood magnitude and frequency for New Jersey streams: U.S. Geological Survey Scientific Investigations Report 2009-5167, 51 p. (v2.0, revised May 2010)",
+    "table": "Equation 11; Tables 4, 5 and 6",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2009/5167/"
+   },
+   "sep_log": 0.22965,
+   "n_sites": 254,
+   "equivalent_years": 5.0
+  },
+  {
+   "region_code": "UP",
+   "region_name": "Unglaciated Piedmont (NSS GC1258)",
+   "aep": 0.01,
+   "intercept": 2.4082399653118496,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.25,
+     "maximum": 779.0
+    },
+    {
+     "code": "STORAGE",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.23,
+     "maximum": 32.0,
+     "offset": 1.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 4.31,
+     "maximum": 191.0
+    },
+    {
+     "code": "POPDENS",
+     "transform": "log10",
+     "units": "persons/mi2",
+     "minimum": 83.0,
+     "maximum": 11084.0,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.728,
+    -0.158,
+    0.271,
+    0.062
+   ],
+   "citation": {
+    "publication": "Watson, K.M., and Schopp, R.D., 2009, Methodology for estimation of flood magnitude and frequency for New Jersey streams: U.S. Geological Survey Scientific Investigations Report 2009-5167, 51 p. (v2.0, revised May 2010)",
+    "table": "Equation 12; Tables 4, 5 and 6",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2009/5167/"
+   },
+   "sep_log": 0.239091,
+   "n_sites": 254,
+   "equivalent_years": 5.0
+  },
+  {
+   "region_code": "UP",
+   "region_name": "Unglaciated Piedmont (NSS GC1258)",
+   "aep": 0.002,
+   "intercept": 2.61066016308988,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.25,
+     "maximum": 779.0
+    },
+    {
+     "code": "STORAGE",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 0.23,
+     "maximum": 32.0,
+     "offset": 1.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 4.31,
+     "maximum": 191.0
+    },
+    {
+     "code": "POPDENS",
+     "transform": "log10",
+     "units": "persons/mi2",
+     "minimum": 83.0,
+     "maximum": 11084.0,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.725,
+    -0.189,
+    0.278,
+    0.043
+   ],
+   "citation": {
+    "publication": "Watson, K.M., and Schopp, R.D., 2009, Methodology for estimation of flood magnitude and frequency for New Jersey streams: U.S. Geological Survey Scientific Investigations Report 2009-5167, 51 p. (v2.0, revised May 2010)",
+    "table": "Equation 13; Tables 4, 5 and 6",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2009/5167/"
+   },
+   "sep_log": 0.262144,
+   "n_sites": 254,
+   "equivalent_years": 6.0
+  },
+  {
+   "region_code": "VR",
+   "region_name": "Valley and Ridge and New England (NSS GC1259)",
+   "aep": 0.5,
+   "intercept": 1.1398790864012365,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.87,
+     "maximum": 763.0
+    },
+    {
+     "code": "STORAGE",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 2.36,
+     "maximum": 30.1,
+     "offset": 1.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 2.56,
+     "maximum": 268.0
+    },
+    {
+     "code": "POPDENS",
+     "transform": "log10",
+     "units": "persons/mi2",
+     "minimum": 35.0,
+     "maximum": 1493.0,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.753,
+    -0.054,
+    0.251,
+    0.127
+   ],
+   "citation": {
+    "publication": "Watson, K.M., and Schopp, R.D., 2009, Methodology for estimation of flood magnitude and frequency for New Jersey streams: U.S. Geological Survey Scientific Investigations Report 2009-5167, 51 p. (v2.0, revised May 2010)",
+    "table": "Equation 7; Tables 4, 5 and 6",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2009/5167/"
+   },
+   "sep_log": 0.206255,
+   "n_sites": 254,
+   "equivalent_years": 1.0
+  },
+  {
+   "region_code": "VR",
+   "region_name": "Valley and Ridge and New England (NSS GC1259)",
+   "aep": 0.2,
+   "intercept": 1.4548448600085102,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.87,
+     "maximum": 763.0
+    },
+    {
+     "code": "STORAGE",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 2.36,
+     "maximum": 30.1,
+     "offset": 1.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 2.56,
+     "maximum": 268.0
+    },
+    {
+     "code": "POPDENS",
+     "transform": "log10",
+     "units": "persons/mi2",
+     "minimum": 35.0,
+     "maximum": 1493.0,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.741,
+    -0.084,
+    0.254,
+    0.104
+   ],
+   "citation": {
+    "publication": "Watson, K.M., and Schopp, R.D., 2009, Methodology for estimation of flood magnitude and frequency for New Jersey streams: U.S. Geological Survey Scientific Investigations Report 2009-5167, 51 p. (v2.0, revised May 2010)",
+    "table": "Equation 8; Tables 4, 5 and 6",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2009/5167/"
+   },
+   "sep_log": 0.208453,
+   "n_sites": 254,
+   "equivalent_years": 2.0
+  },
+  {
+   "region_code": "VR",
+   "region_name": "Valley and Ridge and New England (NSS GC1259)",
+   "aep": 0.1,
+   "intercept": 1.6232492903979006,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.87,
+     "maximum": 763.0
+    },
+    {
+     "code": "STORAGE",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 2.36,
+     "maximum": 30.1,
+     "offset": 1.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 2.56,
+     "maximum": 268.0
+    },
+    {
+     "code": "POPDENS",
+     "transform": "log10",
+     "units": "persons/mi2",
+     "minimum": 35.0,
+     "maximum": 1493.0,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.736,
+    -0.104,
+    0.258,
+    0.092
+   ],
+   "citation": {
+    "publication": "Watson, K.M., and Schopp, R.D., 2009, Methodology for estimation of flood magnitude and frequency for New Jersey streams: U.S. Geological Survey Scientific Investigations Report 2009-5167, 51 p. (v2.0, revised May 2010)",
+    "table": "Equation 9; Tables 4, 5 and 6",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2009/5167/"
+   },
+   "sep_log": 0.21319,
+   "n_sites": 254,
+   "equivalent_years": 3.0
+  },
+  {
+   "region_code": "VR",
+   "region_name": "Valley and Ridge and New England (NSS GC1259)",
+   "aep": 0.04,
+   "intercept": 1.8034571156484138,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.87,
+     "maximum": 763.0
+    },
+    {
+     "code": "STORAGE",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 2.36,
+     "maximum": 30.1,
+     "offset": 1.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 2.56,
+     "maximum": 268.0
+    },
+    {
+     "code": "POPDENS",
+     "transform": "log10",
+     "units": "persons/mi2",
+     "minimum": 35.0,
+     "maximum": 1493.0,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.732,
+    -0.127,
+    0.263,
+    0.079
+   ],
+   "citation": {
+    "publication": "Watson, K.M., and Schopp, R.D., 2009, Methodology for estimation of flood magnitude and frequency for New Jersey streams: U.S. Geological Survey Scientific Investigations Report 2009-5167, 51 p. (v2.0, revised May 2010)",
+    "table": "Equation 10; Tables 4, 5 and 6",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2009/5167/"
+   },
+   "sep_log": 0.221479,
+   "n_sites": 254,
+   "equivalent_years": 4.0
+  },
+  {
+   "region_code": "VR",
+   "region_name": "Valley and Ridge and New England (NSS GC1259)",
+   "aep": 0.02,
+   "intercept": 1.920123326290724,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.87,
+     "maximum": 763.0
+    },
+    {
+     "code": "STORAGE",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 2.36,
+     "maximum": 30.1,
+     "offset": 1.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 2.56,
+     "maximum": 268.0
+    },
+    {
+     "code": "POPDENS",
+     "transform": "log10",
+     "units": "persons/mi2",
+     "minimum": 35.0,
+     "maximum": 1493.0,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.729,
+    -0.144,
+    0.267,
+    0.07
+   ],
+   "citation": {
+    "publication": "Watson, K.M., and Schopp, R.D., 2009, Methodology for estimation of flood magnitude and frequency for New Jersey streams: U.S. Geological Survey Scientific Investigations Report 2009-5167, 51 p. (v2.0, revised May 2010)",
+    "table": "Equation 11; Tables 4, 5 and 6",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2009/5167/"
+   },
+   "sep_log": 0.22965,
+   "n_sites": 254,
+   "equivalent_years": 5.0
+  },
+  {
+   "region_code": "VR",
+   "region_name": "Valley and Ridge and New England (NSS GC1259)",
+   "aep": 0.01,
+   "intercept": 2.0253058652647704,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.87,
+     "maximum": 763.0
+    },
+    {
+     "code": "STORAGE",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 2.36,
+     "maximum": 30.1,
+     "offset": 1.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 2.56,
+     "maximum": 268.0
+    },
+    {
+     "code": "POPDENS",
+     "transform": "log10",
+     "units": "persons/mi2",
+     "minimum": 35.0,
+     "maximum": 1493.0,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.728,
+    -0.158,
+    0.271,
+    0.062
+   ],
+   "citation": {
+    "publication": "Watson, K.M., and Schopp, R.D., 2009, Methodology for estimation of flood magnitude and frequency for New Jersey streams: U.S. Geological Survey Scientific Investigations Report 2009-5167, 51 p. (v2.0, revised May 2010)",
+    "table": "Equation 12; Tables 4, 5 and 6",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2009/5167/"
+   },
+   "sep_log": 0.239091,
+   "n_sites": 254,
+   "equivalent_years": 5.0
+  },
+  {
+   "region_code": "VR",
+   "region_name": "Valley and Ridge and New England (NSS GC1259)",
+   "aep": 0.002,
+   "intercept": 2.24551266781415,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.87,
+     "maximum": 763.0
+    },
+    {
+     "code": "STORAGE",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 2.36,
+     "maximum": 30.1,
+     "offset": 1.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 2.56,
+     "maximum": 268.0
+    },
+    {
+     "code": "POPDENS",
+     "transform": "log10",
+     "units": "persons/mi2",
+     "minimum": 35.0,
+     "maximum": 1493.0,
+     "offset": 1.0
+    }
+   ],
+   "coefficients": [
+    0.725,
+    -0.189,
+    0.278,
+    0.043
+   ],
+   "citation": {
+    "publication": "Watson, K.M., and Schopp, R.D., 2009, Methodology for estimation of flood magnitude and frequency for New Jersey streams: U.S. Geological Survey Scientific Investigations Report 2009-5167, 51 p. (v2.0, revised May 2010)",
+    "table": "Equation 13; Tables 4, 5 and 6",
+    "year": 2009,
+    "url": "https://pubs.usgs.gov/sir/2009/5167/"
+   },
+   "sep_log": 0.262144,
+   "n_sites": 254,
+   "equivalent_years": 6.0
+  }
+ ]
+}
