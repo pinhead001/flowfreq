@@ -81,7 +81,7 @@ Plan and definitions of done: `docs/MASTER_ROADMAP.md` §3.2.
 | MA | Massachusetts | verified | 1 | 8 | pending, verified |  |
 | RI | Rhode Island | verified | 2 | 14 | verified |  |
 | CT | Connecticut | verified | 2 | 16 | verified |  |
-| NY | New York | nss snapshot (120 eqs, 2 unparsed) | 12 | 120 | pending, verified |  |
+| NY | New York | verified | 12 | 120 | pending, verified |  |
 | NJ | New Jersey | verified | 5 | 35 | pending |  |
 | PA | Pennsylvania | verified | 5 | 40 | pending, verified |  |
 | DE | Delaware | partial | 3 | 24 | pending |  |
