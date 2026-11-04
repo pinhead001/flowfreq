@@ -46,7 +46,7 @@ Plan and definitions of done: `docs/MASTER_ROADMAP.md` §3.2.
 
 | Code | Jurisdiction | Equations | Regions | Equation count | Regional skew | Issue |
 |---|---|---|---:|---:|---|---|
-| ND | North Dakota | nss snapshot (21 eqs, 0 unparsed) | 3 | 21 | pending |  |
+| ND | North Dakota | verified | 3 | 21 | pending |  |
 | SD | South Dakota | nss snapshot (49 eqs, 0 unparsed) | 7 | 49 | pending |  |
 | NE | Nebraska | nss snapshot (64 eqs, 0 unparsed) | 8 | 64 | pending |  |
 | KS | Kansas | verified | 2 | 16 | pending |  |
