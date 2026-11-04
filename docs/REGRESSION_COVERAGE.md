@@ -68,7 +68,7 @@ Plan and definitions of done: `docs/MASTER_ROADMAP.md` §3.2.
 | AR | Arkansas | nss snapshot (43 eqs, 0 unparsed) | 6 | 43 | verified |  |
 | LA | Louisiana | nss snapshot (38 eqs, 0 unparsed) | 5 | 38 | pending, verified |  |
 | MS | Mississippi | nss snapshot (32 eqs, 0 unparsed) | 4 | 32 | pending |  |
-| OK | Oklahoma | nss snapshot (42 eqs, 0 unparsed) | 6 | 42 | pending |  |
+| OK | Oklahoma | verified | 6 | 42 | pending |  |
 | TX | Texas | nss snapshot (65 eqs, 0 unparsed) | 10 | 65 | pending |  |
 
 ## Wave 5: East coast
