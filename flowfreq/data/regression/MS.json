@@ -1,0 +1,1265 @@
+{
+ "schema_version": 1,
+ "state": "MS",
+ "status": "verified",
+ "issue": null,
+ "source_reports": [
+  {
+   "citation": "Anderson, B.T., 2018, Flood frequency of rural streams in Mississippi, 2013: U.S. Geological Survey Scientific Investigations Report 2018-5148, 12 p.",
+   "doi": "10.3133/sir20185148",
+   "url": "https://pubs.usgs.gov/publication/sir20185148",
+   "pdf": "https://pubs.usgs.gov/sir/2018/5148/sir20185148.pdf",
+   "tables": [
+    "Table 4",
+    "Table 5"
+   ],
+   "nss": {
+    "regression_regions": [
+     "GC1772",
+     "GC1773",
+     "GC1774"
+    ],
+    "citation_id": 82,
+    "last_year_of_data": 2013
+   }
+  },
+  {
+   "citation": "Anderson, B.T., 2018, Regions and Tables for Mississippi Flood Frequency, Data through 2013 (ver. 3.0, April 2019): U.S. Geological Survey data release.",
+   "doi": "10.5066/F7ZP45B8",
+   "url": "https://doi.org/10.5066/F7ZP45B8",
+   "tables": [
+    "Table 1",
+    "Table 2"
+   ]
+  },
+  {
+   "citation": "Anderson, B.T., 2021, Magnitude and frequency of floods in the alluvial plain of the lower Mississippi River, 2017: U.S. Geological Survey Scientific Investigations Report 2021-5046, 15 p.",
+   "doi": "10.3133/sir20215046",
+   "url": "https://pubs.usgs.gov/publication/sir20215046",
+   "pdf": "https://pubs.usgs.gov/sir/2021/5046/sir20215046.pdf",
+   "tables": [
+    "Table 1",
+    "Table 2",
+    "Table 3"
+   ],
+   "nss": {
+    "regression_regions": [
+     "GC1912"
+    ],
+    "citation_id": 184,
+    "last_year_of_data": 2017
+   }
+  }
+ ],
+ "notes": "Anderson, SIR 2018-5148: flood regions A, B and C on drainage area alone at 8 AEPs (Tables 4 and 5), and Anderson, SIR 2021-5046, for the Mississippi Alluvial Plain (MAP), which SIR 2018-5148 left out for lack of data. Together they cover the state with no overlap and no superseded set among them; SIR 2018-5148 supersedes WRIR 91-4037. The constant is printed, so intercept = log10 of it. SEP and AVP as printed. LC11DEV 0-20 percent: the report removed sites with more than 20 percent development (p. 5). NSS carries the limit at 19.9999 and only on each region's Q50%, so here it is on all 24 equations at the printed 20. Equations and SEP equal NSS otherwise. The report also says not to use the methods where impervious area exceeds 10 percent unless urban effects are insignificant (p. 9, text, not stored). Not stored, no schema field: MSE (0.015 to 0.053; WREG's, not a model error variance, since no MEV column is printed), pseudo-R2, and SIR 2021-5046's MSE column (0.034 to 0.061), which exceeds AVP at 5 AEPs. No covariance, so intervals use AVP. No worked example in either report. Per-gage: the data release (ver. 3.0) prints RRE flows at 251 gages in regions A, B and C, reproduced at its Table 1 drainage areas but for two pinned gages: 02484500 and 02484600 carry their neighbour's RRE and weighted rows (02484500 implies 76 mi2, the 76.4 of 02484600; 02484600 repeats 02484750's row, 0.11 mi2). The release's two tables disagree on region at six gages (07287050, 07287150, 07287160, 07287165, 07287170, 07287505); RRE flows follow its Table 2. Its Table 2 also has 30 region A gages where Table 4 says 27. MAP: Table 3 of SIR 2021-5046 prints RRE flows for 50 gages, reproduced at its Table 1; its title says 58, and 8 have no row. The slope code is NSS's, CSL10_85fm; it matches the report's value at 07288500.",
+ "equations": [
+  {
+   "region_code": "A",
+   "region_name": "Flood region A (NSS GC1772)",
+   "aep": 0.5,
+   "intercept": 2.82020145948564,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.41,
+     "maximum": 612.0
+    }
+   ],
+   "coefficients": [
+    0.552
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2018, Flood frequency of rural streams in Mississippi, 2013: U.S. Geological Survey Scientific Investigations Report 2018-5148, 12 p.",
+    "table": "Tables 4 and 5",
+    "year": 2018,
+    "url": "https://doi.org/10.3133/sir20185148"
+   },
+   "sep_log": 0.127492,
+   "avp": 0.016,
+   "n_sites": 27,
+   "applicability": [
+    {
+     "code": "LC11DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 20.0
+    }
+   ]
+  },
+  {
+   "region_code": "A",
+   "region_name": "Flood region A (NSS GC1772)",
+   "aep": 0.2,
+   "intercept": 2.9800033715837464,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.41,
+     "maximum": 612.0
+    }
+   ],
+   "coefficients": [
+    0.564
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2018, Flood frequency of rural streams in Mississippi, 2013: U.S. Geological Survey Scientific Investigations Report 2018-5148, 12 p.",
+    "table": "Tables 4 and 5",
+    "year": 2018,
+    "url": "https://doi.org/10.3133/sir20185148"
+   },
+   "sep_log": 0.119315,
+   "avp": 0.015,
+   "n_sites": 27,
+   "applicability": [
+    {
+     "code": "LC11DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 20.0
+    }
+   ]
+  },
+  {
+   "region_code": "A",
+   "region_name": "Flood region A (NSS GC1772)",
+   "aep": 0.1,
+   "intercept": 3.059941888061955,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.41,
+     "maximum": 612.0
+    }
+   ],
+   "coefficients": [
+    0.571
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2018, Flood frequency of rural streams in Mississippi, 2013: U.S. Geological Survey Scientific Investigations Report 2018-5148, 12 p.",
+    "table": "Tables 4 and 5",
+    "year": 2018,
+    "url": "https://doi.org/10.3133/sir20185148"
+   },
+   "sep_log": 0.119315,
+   "avp": 0.015,
+   "n_sites": 27,
+   "applicability": [
+    {
+     "code": "LC11DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 20.0
+    }
+   ]
+  },
+  {
+   "region_code": "A",
+   "region_name": "Flood region A (NSS GC1772)",
+   "aep": 0.04,
+   "intercept": 3.1398790864012365,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.41,
+     "maximum": 612.0
+    }
+   ],
+   "coefficients": [
+    0.58
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2018, Flood frequency of rural streams in Mississippi, 2013: U.S. Geological Survey Scientific Investigations Report 2018-5148, 12 p.",
+    "table": "Tables 4 and 5",
+    "year": 2018,
+    "url": "https://doi.org/10.3133/sir20185148"
+   },
+   "sep_log": 0.123412,
+   "avp": 0.016,
+   "n_sites": 27,
+   "applicability": [
+    {
+     "code": "LC11DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 20.0
+    }
+   ]
+  },
+  {
+   "region_code": "A",
+   "region_name": "Flood region A (NSS GC1772)",
+   "aep": 0.02,
+   "intercept": 3.180125875164054,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.41,
+     "maximum": 612.0
+    }
+   ],
+   "coefficients": [
+    0.587
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2018, Flood frequency of rural streams in Mississippi, 2013: U.S. Geological Survey Scientific Investigations Report 2018-5148, 12 p.",
+    "table": "Tables 4 and 5",
+    "year": 2018,
+    "url": "https://doi.org/10.3133/sir20185148"
+   },
+   "sep_log": 0.127492,
+   "avp": 0.016,
+   "n_sites": 27,
+   "applicability": [
+    {
+     "code": "LC11DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 20.0
+    }
+   ]
+  },
+  {
+   "region_code": "A",
+   "region_name": "Flood region A (NSS GC1772)",
+   "aep": 0.01,
+   "intercept": 3.220108088040055,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.41,
+     "maximum": 612.0
+    }
+   ],
+   "coefficients": [
+    0.593
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2018, Flood frequency of rural streams in Mississippi, 2013: U.S. Geological Survey Scientific Investigations Report 2018-5148, 12 p.",
+    "table": "Tables 4 and 5",
+    "year": 2018,
+    "url": "https://doi.org/10.3133/sir20185148"
+   },
+   "sep_log": 0.131555,
+   "avp": 0.017,
+   "n_sites": 27,
+   "applicability": [
+    {
+     "code": "LC11DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 20.0
+    }
+   ]
+  },
+  {
+   "region_code": "A",
+   "region_name": "Flood region A (NSS GC1772)",
+   "aep": 0.005,
+   "intercept": 3.2600713879850747,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.41,
+     "maximum": 612.0
+    }
+   ],
+   "coefficients": [
+    0.599
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2018, Flood frequency of rural streams in Mississippi, 2013: U.S. Geological Survey Scientific Investigations Report 2018-5148, 12 p.",
+    "table": "Tables 4 and 5",
+    "year": 2018,
+    "url": "https://doi.org/10.3133/sir20185148"
+   },
+   "sep_log": 0.135601,
+   "avp": 0.018,
+   "n_sites": 27,
+   "applicability": [
+    {
+     "code": "LC11DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 20.0
+    }
+   ]
+  },
+  {
+   "region_code": "A",
+   "region_name": "Flood region A (NSS GC1772)",
+   "aep": 0.002,
+   "intercept": 3.299942900022767,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.41,
+     "maximum": 612.0
+    }
+   ],
+   "coefficients": [
+    0.606
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2018, Flood frequency of rural streams in Mississippi, 2013: U.S. Geological Survey Scientific Investigations Report 2018-5148, 12 p.",
+    "table": "Tables 4 and 5",
+    "year": 2018,
+    "url": "https://doi.org/10.3133/sir20185148"
+   },
+   "sep_log": 0.13963,
+   "avp": 0.019,
+   "n_sites": 27,
+   "applicability": [
+    {
+     "code": "LC11DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 20.0
+    }
+   ]
+  },
+  {
+   "region_code": "B",
+   "region_name": "Flood region B (NSS GC1773)",
+   "aep": 0.5,
+   "intercept": 2.429752280002408,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.15,
+     "maximum": 1750.0
+    }
+   ],
+   "coefficients": [
+    0.601
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2018, Flood frequency of rural streams in Mississippi, 2013: U.S. Geological Survey Scientific Investigations Report 2018-5148, 12 p.",
+    "table": "Tables 4 and 5",
+    "year": 2018,
+    "url": "https://doi.org/10.3133/sir20185148"
+   },
+   "sep_log": 0.163416,
+   "avp": 0.027,
+   "n_sites": 134,
+   "applicability": [
+    {
+     "code": "LC11DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 20.0
+    }
+   ]
+  },
+  {
+   "region_code": "B",
+   "region_name": "Flood region B (NSS GC1773)",
+   "aep": 0.2,
+   "intercept": 2.6580113966571126,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.15,
+     "maximum": 1750.0
+    }
+   ],
+   "coefficients": [
+    0.608
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2018, Flood frequency of rural streams in Mississippi, 2013: U.S. Geological Survey Scientific Investigations Report 2018-5148, 12 p.",
+    "table": "Tables 4 and 5",
+    "year": 2018,
+    "url": "https://doi.org/10.3133/sir20185148"
+   },
+   "sep_log": 0.13963,
+   "avp": 0.019,
+   "n_sites": 134,
+   "applicability": [
+    {
+     "code": "LC11DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 20.0
+    }
+   ]
+  },
+  {
+   "region_code": "B",
+   "region_name": "Flood region B (NSS GC1773)",
+   "aep": 0.1,
+   "intercept": 2.7730546933642626,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.15,
+     "maximum": 1750.0
+    }
+   ],
+   "coefficients": [
+    0.612
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2018, Flood frequency of rural streams in Mississippi, 2013: U.S. Geological Survey Scientific Investigations Report 2018-5148, 12 p.",
+    "table": "Tables 4 and 5",
+    "year": 2018,
+    "url": "https://doi.org/10.3133/sir20185148"
+   },
+   "sep_log": 0.131555,
+   "avp": 0.017,
+   "n_sites": 134,
+   "applicability": [
+    {
+     "code": "LC11DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 20.0
+    }
+   ]
+  },
+  {
+   "region_code": "B",
+   "region_name": "Flood region B (NSS GC1773)",
+   "aep": 0.04,
+   "intercept": 2.8898617212581885,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.15,
+     "maximum": 1750.0
+    }
+   ],
+   "coefficients": [
+    0.614
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2018, Flood frequency of rural streams in Mississippi, 2013: U.S. Geological Survey Scientific Investigations Report 2018-5148, 12 p.",
+    "table": "Tables 4 and 5",
+    "year": 2018,
+    "url": "https://doi.org/10.3133/sir20185148"
+   },
+   "sep_log": 0.131555,
+   "avp": 0.018,
+   "n_sites": 134,
+   "applicability": [
+    {
+     "code": "LC11DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 20.0
+    }
+   ]
+  },
+  {
+   "region_code": "B",
+   "region_name": "Flood region B (NSS GC1773)",
+   "aep": 0.02,
+   "intercept": 2.959994838328416,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.15,
+     "maximum": 1750.0
+    }
+   ],
+   "coefficients": [
+    0.617
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2018, Flood frequency of rural streams in Mississippi, 2013: U.S. Geological Survey Scientific Investigations Report 2018-5148, 12 p.",
+    "table": "Tables 4 and 5",
+    "year": 2018,
+    "url": "https://doi.org/10.3133/sir20185148"
+   },
+   "sep_log": 0.143641,
+   "avp": 0.021,
+   "n_sites": 134,
+   "applicability": [
+    {
+     "code": "LC11DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 20.0
+    }
+   ]
+  },
+  {
+   "region_code": "B",
+   "region_name": "Flood region B (NSS GC1773)",
+   "aep": 0.01,
+   "intercept": 3.02201573981772,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.15,
+     "maximum": 1750.0
+    }
+   ],
+   "coefficients": [
+    0.619
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2018, Flood frequency of rural streams in Mississippi, 2013: U.S. Geological Survey Scientific Investigations Report 2018-5148, 12 p.",
+    "table": "Tables 4 and 5",
+    "year": 2018,
+    "url": "https://doi.org/10.3133/sir20185148"
+   },
+   "sep_log": 0.147634,
+   "avp": 0.022,
+   "n_sites": 134,
+   "applicability": [
+    {
+     "code": "LC11DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 20.0
+    }
+   ]
+  },
+  {
+   "region_code": "B",
+   "region_name": "Flood region B (NSS GC1773)",
+   "aep": 0.005,
+   "intercept": 3.0780941504064105,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.15,
+     "maximum": 1750.0
+    }
+   ],
+   "coefficients": [
+    0.621
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2018, Flood frequency of rural streams in Mississippi, 2013: U.S. Geological Survey Scientific Investigations Report 2018-5148, 12 p.",
+    "table": "Tables 4 and 5",
+    "year": 2018,
+    "url": "https://doi.org/10.3133/sir20185148"
+   },
+   "sep_log": 0.159499,
+   "avp": 0.026,
+   "n_sites": 134,
+   "applicability": [
+    {
+     "code": "LC11DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 20.0
+    }
+   ]
+  },
+  {
+   "region_code": "B",
+   "region_name": "Flood region B (NSS GC1773)",
+   "aep": 0.002,
+   "intercept": 3.143014800254095,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.15,
+     "maximum": 1750.0
+    }
+   ],
+   "coefficients": [
+    0.624
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2018, Flood frequency of rural streams in Mississippi, 2013: U.S. Geological Survey Scientific Investigations Report 2018-5148, 12 p.",
+    "table": "Tables 4 and 5",
+    "year": 2018,
+    "url": "https://doi.org/10.3133/sir20185148"
+   },
+   "sep_log": 0.178884,
+   "avp": 0.032,
+   "n_sites": 134,
+   "applicability": [
+    {
+     "code": "LC11DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 20.0
+    }
+   ]
+  },
+  {
+   "region_code": "C",
+   "region_name": "Flood region C (NSS GC1774)",
+   "aep": 0.5,
+   "intercept": 2.5276299008713385,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.05,
+     "maximum": 1010.0
+    }
+   ],
+   "coefficients": [
+    0.607
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2018, Flood frequency of rural streams in Mississippi, 2013: U.S. Geological Survey Scientific Investigations Report 2018-5148, 12 p.",
+    "table": "Tables 4 and 5",
+    "year": 2018,
+    "url": "https://doi.org/10.3133/sir20185148"
+   },
+   "sep_log": 0.178884,
+   "avp": 0.032,
+   "n_sites": 120,
+   "applicability": [
+    {
+     "code": "LC11DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 20.0
+    }
+   ]
+  },
+  {
+   "region_code": "C",
+   "region_name": "Flood region C (NSS GC1774)",
+   "aep": 0.2,
+   "intercept": 2.709269960975831,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.05,
+     "maximum": 1010.0
+    }
+   ],
+   "coefficients": [
+    0.628
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2018, Flood frequency of rural streams in Mississippi, 2013: U.S. Geological Survey Scientific Investigations Report 2018-5148, 12 p.",
+    "table": "Tables 4 and 5",
+    "year": 2018,
+    "url": "https://doi.org/10.3133/sir20185148"
+   },
+   "sep_log": 0.151608,
+   "avp": 0.023,
+   "n_sites": 120,
+   "applicability": [
+    {
+     "code": "LC11DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 20.0
+    }
+   ]
+  },
+  {
+   "region_code": "C",
+   "region_name": "Flood region C (NSS GC1774)",
+   "aep": 0.1,
+   "intercept": 2.800717078282385,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.05,
+     "maximum": 1010.0
+    }
+   ],
+   "coefficients": [
+    0.638
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2018, Flood frequency of rural streams in Mississippi, 2013: U.S. Geological Survey Scientific Investigations Report 2018-5148, 12 p.",
+    "table": "Tables 4 and 5",
+    "year": 2018,
+    "url": "https://doi.org/10.3133/sir20185148"
+   },
+   "sep_log": 0.147634,
+   "avp": 0.022,
+   "n_sites": 120,
+   "applicability": [
+    {
+     "code": "LC11DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 20.0
+    }
+   ]
+  },
+  {
+   "region_code": "C",
+   "region_name": "Flood region C (NSS GC1774)",
+   "aep": 0.04,
+   "intercept": 2.8959747323590648,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.05,
+     "maximum": 1010.0
+    }
+   ],
+   "coefficients": [
+    0.648
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2018, Flood frequency of rural streams in Mississippi, 2013: U.S. Geological Survey Scientific Investigations Report 2018-5148, 12 p.",
+    "table": "Tables 4 and 5",
+    "year": 2018,
+    "url": "https://doi.org/10.3133/sir20185148"
+   },
+   "sep_log": 0.151608,
+   "avp": 0.023,
+   "n_sites": 120,
+   "applicability": [
+    {
+     "code": "LC11DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 20.0
+    }
+   ]
+  },
+  {
+   "region_code": "C",
+   "region_name": "Flood region C (NSS GC1774)",
+   "aep": 0.02,
+   "intercept": 2.958085848521085,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.05,
+     "maximum": 1010.0
+    }
+   ],
+   "coefficients": [
+    0.654
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2018, Flood frequency of rural streams in Mississippi, 2013: U.S. Geological Survey Scientific Investigations Report 2018-5148, 12 p.",
+    "table": "Tables 4 and 5",
+    "year": 2018,
+    "url": "https://doi.org/10.3133/sir20185148"
+   },
+   "sep_log": 0.163416,
+   "avp": 0.027,
+   "n_sites": 120,
+   "applicability": [
+    {
+     "code": "LC11DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 20.0
+    }
+   ]
+  },
+  {
+   "region_code": "C",
+   "region_name": "Flood region C (NSS GC1774)",
+   "aep": 0.01,
+   "intercept": 3.0111473607757975,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.05,
+     "maximum": 1010.0
+    }
+   ],
+   "coefficients": [
+    0.66
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2018, Flood frequency of rural streams in Mississippi, 2013: U.S. Geological Survey Scientific Investigations Report 2018-5148, 12 p.",
+    "table": "Tables 4 and 5",
+    "year": 2018,
+    "url": "https://doi.org/10.3133/sir20185148"
+   },
+   "sep_log": 0.171191,
+   "avp": 0.029,
+   "n_sites": 120,
+   "applicability": [
+    {
+     "code": "LC11DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 20.0
+    }
+   ]
+  },
+  {
+   "region_code": "C",
+   "region_name": "Flood region C (NSS GC1774)",
+   "aep": 0.005,
+   "intercept": 3.059941888061955,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.05,
+     "maximum": 1010.0
+    }
+   ],
+   "coefficients": [
+    0.664
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2018, Flood frequency of rural streams in Mississippi, 2013: U.S. Geological Survey Scientific Investigations Report 2018-5148, 12 p.",
+    "table": "Tables 4 and 5",
+    "year": 2018,
+    "url": "https://doi.org/10.3133/sir20185148"
+   },
+   "sep_log": 0.178884,
+   "avp": 0.033,
+   "n_sites": 120,
+   "applicability": [
+    {
+     "code": "LC11DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 20.0
+    }
+   ]
+  },
+  {
+   "region_code": "C",
+   "region_name": "Flood region C (NSS GC1774)",
+   "aep": 0.002,
+   "intercept": 3.116939646550756,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.05,
+     "maximum": 1010.0
+    }
+   ],
+   "coefficients": [
+    0.67
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2018, Flood frequency of rural streams in Mississippi, 2013: U.S. Geological Survey Scientific Investigations Report 2018-5148, 12 p.",
+    "table": "Tables 4 and 5",
+    "year": 2018,
+    "url": "https://doi.org/10.3133/sir20185148"
+   },
+   "sep_log": 0.190269,
+   "avp": 0.037,
+   "n_sites": 120,
+   "applicability": [
+    {
+     "code": "LC11DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 20.0
+    }
+   ]
+  },
+  {
+   "region_code": "MAP",
+   "region_name": "Mississippi Alluvial Plain (NSS GC1912)",
+   "aep": 0.5,
+   "intercept": 2.315970345456918,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.03,
+     "maximum": 2370.0
+    },
+    {
+     "code": "CSL10_85fm",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.36,
+     "maximum": 31.74
+    },
+    {
+     "code": "BSHAPELFP",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 1.24,
+     "maximum": 75.97
+    }
+   ],
+   "coefficients": [
+    0.676,
+    0.159,
+    -0.39
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2021, Magnitude and frequency of floods in the alluvial plain of the lower Mississippi River, 2017: U.S. Geological Survey Scientific Investigations Report 2021-5046, 15 p.",
+    "table": "Table 2; ranges p. 14",
+    "year": 2021,
+    "url": "https://doi.org/10.3133/sir20215046"
+   },
+   "sep_log": 0.186495,
+   "avp": 0.035,
+   "n_sites": 58
+  },
+  {
+   "region_code": "MAP",
+   "region_name": "Mississippi Alluvial Plain (NSS GC1912)",
+   "aep": 0.2,
+   "intercept": 2.413299764081252,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.03,
+     "maximum": 2370.0
+    },
+    {
+     "code": "CSL10_85fm",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.36,
+     "maximum": 31.74
+    },
+    {
+     "code": "BSHAPELFP",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 1.24,
+     "maximum": 75.97
+    }
+   ],
+   "coefficients": [
+    0.683,
+    0.272,
+    -0.374
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2021, Magnitude and frequency of floods in the alluvial plain of the lower Mississippi River, 2017: U.S. Geological Survey Scientific Investigations Report 2021-5046, 15 p.",
+    "table": "Table 2; ranges p. 14",
+    "year": 2021,
+    "url": "https://doi.org/10.3133/sir20215046"
+   },
+   "sep_log": 0.186495,
+   "avp": 0.035,
+   "n_sites": 58
+  },
+  {
+   "region_code": "MAP",
+   "region_name": "Mississippi Alluvial Plain (NSS GC1912)",
+   "aep": 0.1,
+   "intercept": 2.462397997898956,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.03,
+     "maximum": 2370.0
+    },
+    {
+     "code": "CSL10_85fm",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.36,
+     "maximum": 31.74
+    },
+    {
+     "code": "BSHAPELFP",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 1.24,
+     "maximum": 75.97
+    }
+   ],
+   "coefficients": [
+    0.684,
+    0.328,
+    -0.362
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2021, Magnitude and frequency of floods in the alluvial plain of the lower Mississippi River, 2017: U.S. Geological Survey Scientific Investigations Report 2021-5046, 15 p.",
+    "table": "Table 2; ranges p. 14",
+    "year": 2021,
+    "url": "https://doi.org/10.3133/sir20215046"
+   },
+   "sep_log": 0.190269,
+   "avp": 0.037,
+   "n_sites": 58
+  },
+  {
+   "region_code": "MAP",
+   "region_name": "Mississippi Alluvial Plain (NSS GC1912)",
+   "aep": 0.04,
+   "intercept": 2.515873843711679,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.03,
+     "maximum": 2370.0
+    },
+    {
+     "code": "CSL10_85fm",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.36,
+     "maximum": 31.74
+    },
+    {
+     "code": "BSHAPELFP",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 1.24,
+     "maximum": 75.97
+    }
+   ],
+   "coefficients": [
+    0.684,
+    0.387,
+    -0.348
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2021, Magnitude and frequency of floods in the alluvial plain of the lower Mississippi River, 2017: U.S. Geological Survey Scientific Investigations Report 2021-5046, 15 p.",
+    "table": "Table 2; ranges p. 14",
+    "year": 2021,
+    "url": "https://doi.org/10.3133/sir20215046"
+   },
+   "sep_log": 0.205152,
+   "avp": 0.041,
+   "n_sites": 58
+  },
+  {
+   "region_code": "MAP",
+   "region_name": "Mississippi Alluvial Plain (NSS GC1912)",
+   "aep": 0.02,
+   "intercept": 2.5490032620257876,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.03,
+     "maximum": 2370.0
+    },
+    {
+     "code": "CSL10_85fm",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.36,
+     "maximum": 31.74
+    },
+    {
+     "code": "BSHAPELFP",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 1.24,
+     "maximum": 75.97
+    }
+   ],
+   "coefficients": [
+    0.684,
+    0.423,
+    -0.336
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2021, Magnitude and frequency of floods in the alluvial plain of the lower Mississippi River, 2017: U.S. Geological Survey Scientific Investigations Report 2021-5046, 15 p.",
+    "table": "Table 2; ranges p. 14",
+    "year": 2021,
+    "url": "https://doi.org/10.3133/sir20215046"
+   },
+   "sep_log": 0.212464,
+   "avp": 0.045,
+   "n_sites": 58
+  },
+  {
+   "region_code": "MAP",
+   "region_name": "Mississippi Alluvial Plain (NSS GC1912)",
+   "aep": 0.01,
+   "intercept": 2.5774917998372255,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.03,
+     "maximum": 2370.0
+    },
+    {
+     "code": "CSL10_85fm",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.36,
+     "maximum": 31.74
+    },
+    {
+     "code": "BSHAPELFP",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 1.24,
+     "maximum": 75.97
+    }
+   ],
+   "coefficients": [
+    0.683,
+    0.455,
+    -0.326
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2021, Magnitude and frequency of floods in the alluvial plain of the lower Mississippi River, 2017: U.S. Geological Survey Scientific Investigations Report 2021-5046, 15 p.",
+    "table": "Table 2; ranges p. 14",
+    "year": 2021,
+    "url": "https://doi.org/10.3133/sir20215046"
+   },
+   "sep_log": 0.223265,
+   "avp": 0.049,
+   "n_sites": 58
+  },
+  {
+   "region_code": "MAP",
+   "region_name": "Mississippi Alluvial Plain (NSS GC1912)",
+   "aep": 0.005,
+   "intercept": 2.6053050461411096,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.03,
+     "maximum": 2370.0
+    },
+    {
+     "code": "CSL10_85fm",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.36,
+     "maximum": 31.74
+    },
+    {
+     "code": "BSHAPELFP",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 1.24,
+     "maximum": 75.97
+    }
+   ],
+   "coefficients": [
+    0.682,
+    0.485,
+    -0.319
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2021, Magnitude and frequency of floods in the alluvial plain of the lower Mississippi River, 2017: U.S. Geological Survey Scientific Investigations Report 2021-5046, 15 p.",
+    "table": "Table 2; ranges p. 14",
+    "year": 2021,
+    "url": "https://doi.org/10.3133/sir20215046"
+   },
+   "sep_log": 0.230355,
+   "avp": 0.053,
+   "n_sites": 58
+  },
+  {
+   "region_code": "MAP",
+   "region_name": "Mississippi Alluvial Plain (NSS GC1912)",
+   "aep": 0.002,
+   "intercept": 2.639486489268586,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.03,
+     "maximum": 2370.0
+    },
+    {
+     "code": "CSL10_85fm",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.36,
+     "maximum": 31.74
+    },
+    {
+     "code": "BSHAPELFP",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 1.24,
+     "maximum": 75.97
+    }
+   ],
+   "coefficients": [
+    0.682,
+    0.52,
+    -0.312
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2021, Magnitude and frequency of floods in the alluvial plain of the lower Mississippi River, 2017: U.S. Geological Survey Scientific Investigations Report 2021-5046, 15 p.",
+    "table": "Table 2; ranges p. 14",
+    "year": 2021,
+    "url": "https://doi.org/10.3133/sir20215046"
+   },
+   "sep_log": 0.244266,
+   "avp": 0.059,
+   "n_sites": 58
+  }
+ ]
+}
