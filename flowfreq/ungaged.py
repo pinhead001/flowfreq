@@ -194,6 +194,12 @@ def _codes(regions: Sequence[RegressionRegionLocation]) -> str:
 Candidate = Tuple[str, str, Optional[int]]
 
 
+#: Channel widths measured in the field or from aerial photographs (Montana, SIR 2020-5142).
+#: StreamStats cannot compute them and returns 0, which means not measured, so a region that
+#: needs one is skipped as if the characteristic were missing.
+MEASURED_WIDTH_CODES = frozenset({"WACTCH", "WBANKFULL", "CHANWD_RS"})
+
+
 class OverlappingRegionsError(EquationsUnavailable):
     """The located NSS regions overlap: they are alternative equation sets, not a partition.
 
@@ -673,7 +679,12 @@ def assemble(
             any(abs(p - float(a)) < 1e-12 for p in published) for a in aeps
         ):
             check = [float(a) for a in aeps]
-        absent = [c for c in _needed_codes(lib, lib_code, check) if c not in characteristics]
+        absent = [
+            c
+            for c in _needed_codes(lib, lib_code, check)
+            if c not in characteristics
+            or (c in MEASURED_WIDTH_CODES and not characteristics[c] > 0)
+        ]
         if absent:
             missing[loc.code] = absent
             logger.warning(
