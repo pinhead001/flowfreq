@@ -1,0 +1,1377 @@
+{
+ "schema_version": 1,
+ "state": "WV",
+ "status": "verified",
+ "issue": null,
+ "source_reports": [
+  {
+   "citation": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+   "doi": "10.3133/sir20255110",
+   "url": "https://pubs.usgs.gov/publication/sir20255110",
+   "pdf": "https://pubs.usgs.gov/sir/2025/5110/sir20255110.pdf",
+   "tables": [
+    "Table 6",
+    "Table 7",
+    "Table 8"
+   ],
+   "nss": {
+    "regression_regions": [
+     "GC2081",
+     "GC2082",
+     "GC2083",
+     "GC2084",
+     "GC2085",
+     "GC2086"
+    ],
+    "last_year_of_data": 2021
+   }
+  }
+ ],
+ "notes": "Messinger and others, SIR 2025-5110: drainage-area equations for 12 regions across Virginia and West Virginia at 8 AEPs; this file holds the 6 NSS serves for this state, and Virginia's file holds its own with the same equations. Constants and coefficients from Table 7; AVP, model error variance and SEP from Table 8; site counts and drainage-area ranges from Table 6, which rounds them where NSS keeps more digits. The report prints no covariance, so intervals use the AVP. The report limits the equations to rural, unregulated basins: under 30 percent developed (compare other methods at 10-30 percent) and with a regulation index RI under 0.0040. Those limits are not stored as ranges, because the equations do not use them and flowfreq does not fetch RI.",
+ "equations": [
+  {
+   "region_code": "WPLT",
+   "region_name": "Western Allegheny Plateaus (NSS GC2081)",
+   "aep": 0.5,
+   "intercept": 2.11,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.3,
+     "maximum": 1516.0
+    }
+   ],
+   "coefficients": [
+    0.721
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.152796,
+   "avp": 0.023,
+   "model_error_variance": 0.023,
+   "n_sites": 94
+  },
+  {
+   "region_code": "WPLT",
+   "region_name": "Western Allegheny Plateaus (NSS GC2081)",
+   "aep": 0.2,
+   "intercept": 2.37,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.3,
+     "maximum": 1516.0
+    }
+   ],
+   "coefficients": [
+    0.677
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.152796,
+   "avp": 0.023,
+   "model_error_variance": 0.022,
+   "n_sites": 94
+  },
+  {
+   "region_code": "WPLT",
+   "region_name": "Western Allegheny Plateaus (NSS GC2081)",
+   "aep": 0.1,
+   "intercept": 2.5,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.3,
+     "maximum": 1516.0
+    }
+   ],
+   "coefficients": [
+    0.654
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.1524,
+   "avp": 0.023,
+   "model_error_variance": 0.022,
+   "n_sites": 94
+  },
+  {
+   "region_code": "WPLT",
+   "region_name": "Western Allegheny Plateaus (NSS GC2081)",
+   "aep": 0.04,
+   "intercept": 2.65,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.3,
+     "maximum": 1516.0
+    }
+   ],
+   "coefficients": [
+    0.631
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.158714,
+   "avp": 0.025,
+   "model_error_variance": 0.024,
+   "n_sites": 94
+  },
+  {
+   "region_code": "WPLT",
+   "region_name": "Western Allegheny Plateaus (NSS GC2081)",
+   "aep": 0.02,
+   "intercept": 2.74,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.3,
+     "maximum": 1516.0
+    }
+   ],
+   "coefficients": [
+    0.616
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.162243,
+   "avp": 0.026,
+   "model_error_variance": 0.025,
+   "n_sites": 94
+  },
+  {
+   "region_code": "WPLT",
+   "region_name": "Western Allegheny Plateaus (NSS GC2081)",
+   "aep": 0.01,
+   "intercept": 2.82,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.3,
+     "maximum": 1516.0
+    }
+   ],
+   "coefficients": [
+    0.603
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.169254,
+   "avp": 0.029,
+   "model_error_variance": 0.027,
+   "n_sites": 94
+  },
+  {
+   "region_code": "WPLT",
+   "region_name": "Western Allegheny Plateaus (NSS GC2081)",
+   "aep": 0.005,
+   "intercept": 2.9,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.3,
+     "maximum": 1516.0
+    }
+   ],
+   "coefficients": [
+    0.591
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.178501,
+   "avp": 0.032,
+   "model_error_variance": 0.03,
+   "n_sites": 94
+  },
+  {
+   "region_code": "WPLT",
+   "region_name": "Western Allegheny Plateaus (NSS GC2081)",
+   "aep": 0.002,
+   "intercept": 2.99,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.3,
+     "maximum": 1516.0
+    }
+   ],
+   "coefficients": [
+    0.577
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.189139,
+   "avp": 0.036,
+   "model_error_variance": 0.034,
+   "n_sites": 94
+  },
+  {
+   "region_code": "NHIGH",
+   "region_name": "Northern Highlands (NSS GC2082)",
+   "aep": 0.5,
+   "intercept": 1.94,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.48,
+     "maximum": 1328.0
+    }
+   ],
+   "coefficients": [
+    0.852
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.133985,
+   "avp": 0.018,
+   "model_error_variance": 0.017,
+   "n_sites": 42
+  },
+  {
+   "region_code": "NHIGH",
+   "region_name": "Northern Highlands (NSS GC2082)",
+   "aep": 0.2,
+   "intercept": 2.16,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.48,
+     "maximum": 1328.0
+    }
+   ],
+   "coefficients": [
+    0.832
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.145639,
+   "avp": 0.021,
+   "model_error_variance": 0.02,
+   "n_sites": 42
+  },
+  {
+   "region_code": "NHIGH",
+   "region_name": "Northern Highlands (NSS GC2082)",
+   "aep": 0.1,
+   "intercept": 2.28,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.48,
+     "maximum": 1328.0
+    }
+   ],
+   "coefficients": [
+    0.824
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.152004,
+   "avp": 0.023,
+   "model_error_variance": 0.021,
+   "n_sites": 42
+  },
+  {
+   "region_code": "NHIGH",
+   "region_name": "Northern Highlands (NSS GC2082)",
+   "aep": 0.04,
+   "intercept": 2.4,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.48,
+     "maximum": 1328.0
+    }
+   ],
+   "coefficients": [
+    0.82
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.164587,
+   "avp": 0.027,
+   "model_error_variance": 0.025,
+   "n_sites": 42
+  },
+  {
+   "region_code": "NHIGH",
+   "region_name": "Northern Highlands (NSS GC2082)",
+   "aep": 0.02,
+   "intercept": 2.48,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.48,
+     "maximum": 1328.0
+    }
+   ],
+   "coefficients": [
+    0.818
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.176585,
+   "avp": 0.031,
+   "model_error_variance": 0.028,
+   "n_sites": 42
+  },
+  {
+   "region_code": "NHIGH",
+   "region_name": "Northern Highlands (NSS GC2082)",
+   "aep": 0.01,
+   "intercept": 2.55,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.48,
+     "maximum": 1328.0
+    }
+   ],
+   "coefficients": [
+    0.819
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.188385,
+   "avp": 0.035,
+   "model_error_variance": 0.032,
+   "n_sites": 42
+  },
+  {
+   "region_code": "NHIGH",
+   "region_name": "Northern Highlands (NSS GC2082)",
+   "aep": 0.005,
+   "intercept": 2.62,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.48,
+     "maximum": 1328.0
+    }
+   ],
+   "coefficients": [
+    0.819
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.199983,
+   "avp": 0.04,
+   "model_error_variance": 0.036,
+   "n_sites": 42
+  },
+  {
+   "region_code": "NHIGH",
+   "region_name": "Northern Highlands (NSS GC2082)",
+   "aep": 0.002,
+   "intercept": 2.7,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.48,
+     "maximum": 1328.0
+    }
+   ],
+   "coefficients": [
+    0.822
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.216808,
+   "avp": 0.047,
+   "model_error_variance": 0.043,
+   "n_sites": 42
+  },
+  {
+   "region_code": "SHIGH",
+   "region_name": "Southern Highlands (NSS GC2083)",
+   "aep": 0.5,
+   "intercept": 1.98,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.32,
+     "maximum": 1607.0
+    }
+   ],
+   "coefficients": [
+    0.807
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.13196,
+   "avp": 0.017,
+   "model_error_variance": 0.016,
+   "n_sites": 63
+  },
+  {
+   "region_code": "SHIGH",
+   "region_name": "Southern Highlands (NSS GC2083)",
+   "aep": 0.2,
+   "intercept": 2.26,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.32,
+     "maximum": 1607.0
+    }
+   ],
+   "coefficients": [
+    0.77
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.137618,
+   "avp": 0.019,
+   "model_error_variance": 0.018,
+   "n_sites": 63
+  },
+  {
+   "region_code": "SHIGH",
+   "region_name": "Southern Highlands (NSS GC2083)",
+   "aep": 0.1,
+   "intercept": 2.41,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.32,
+     "maximum": 1607.0
+    }
+   ],
+   "coefficients": [
+    0.749
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.144441,
+   "avp": 0.021,
+   "model_error_variance": 0.019,
+   "n_sites": 63
+  },
+  {
+   "region_code": "SHIGH",
+   "region_name": "Southern Highlands (NSS GC2083)",
+   "aep": 0.04,
+   "intercept": 2.57,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.32,
+     "maximum": 1607.0
+    }
+   ],
+   "coefficients": [
+    0.725
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.154378,
+   "avp": 0.024,
+   "model_error_variance": 0.022,
+   "n_sites": 63
+  },
+  {
+   "region_code": "SHIGH",
+   "region_name": "Southern Highlands (NSS GC2083)",
+   "aep": 0.02,
+   "intercept": 2.66,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.32,
+     "maximum": 1607.0
+    }
+   ],
+   "coefficients": [
+    0.711
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.163807,
+   "avp": 0.027,
+   "model_error_variance": 0.025,
+   "n_sites": 63
+  },
+  {
+   "region_code": "SHIGH",
+   "region_name": "Southern Highlands (NSS GC2083)",
+   "aep": 0.01,
+   "intercept": 2.75,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.32,
+     "maximum": 1607.0
+    }
+   ],
+   "coefficients": [
+    0.697
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.172736,
+   "avp": 0.03,
+   "model_error_variance": 0.028,
+   "n_sites": 63
+  },
+  {
+   "region_code": "SHIGH",
+   "region_name": "Southern Highlands (NSS GC2083)",
+   "aep": 0.005,
+   "intercept": 2.82,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.32,
+     "maximum": 1607.0
+    }
+   ],
+   "coefficients": [
+    0.686
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.184221,
+   "avp": 0.034,
+   "model_error_variance": 0.031,
+   "n_sites": 63
+  },
+  {
+   "region_code": "SHIGH",
+   "region_name": "Southern Highlands (NSS GC2083)",
+   "aep": 0.002,
+   "intercept": 2.92,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.32,
+     "maximum": 1607.0
+    }
+   ],
+   "coefficients": [
+    0.673
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.200353,
+   "avp": 0.04,
+   "model_error_variance": 0.037,
+   "n_sites": 63
+  },
+  {
+   "region_code": "SVYRD",
+   "region_name": "Southern Valley and Ridge (NSS GC2084)",
+   "aep": 0.5,
+   "intercept": 1.8,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.31,
+     "maximum": 1475.0
+    }
+   ],
+   "coefficients": [
+    0.819
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.186495,
+   "avp": 0.035,
+   "model_error_variance": 0.033,
+   "n_sites": 45
+  },
+  {
+   "region_code": "SVYRD",
+   "region_name": "Southern Valley and Ridge (NSS GC2084)",
+   "aep": 0.2,
+   "intercept": 2.1,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.31,
+     "maximum": 1475.0
+    }
+   ],
+   "coefficients": [
+    0.764
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.160676,
+   "avp": 0.026,
+   "model_error_variance": 0.024,
+   "n_sites": 45
+  },
+  {
+   "region_code": "SVYRD",
+   "region_name": "Southern Valley and Ridge (NSS GC2084)",
+   "aep": 0.1,
+   "intercept": 2.26,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.31,
+     "maximum": 1475.0
+    }
+   ],
+   "coefficients": [
+    0.736
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.161852,
+   "avp": 0.026,
+   "model_error_variance": 0.024,
+   "n_sites": 45
+  },
+  {
+   "region_code": "SVYRD",
+   "region_name": "Southern Valley and Ridge (NSS GC2084)",
+   "aep": 0.04,
+   "intercept": 2.42,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.31,
+     "maximum": 1475.0
+    }
+   ],
+   "coefficients": [
+    0.705
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.179267,
+   "avp": 0.032,
+   "model_error_variance": 0.03,
+   "n_sites": 45
+  },
+  {
+   "region_code": "SVYRD",
+   "region_name": "Southern Valley and Ridge (NSS GC2084)",
+   "aep": 0.02,
+   "intercept": 2.53,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.31,
+     "maximum": 1475.0
+    }
+   ],
+   "coefficients": [
+    0.686
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.196264,
+   "avp": 0.038,
+   "model_error_variance": 0.036,
+   "n_sites": 45
+  },
+  {
+   "region_code": "SVYRD",
+   "region_name": "Southern Valley and Ridge (NSS GC2084)",
+   "aep": 0.01,
+   "intercept": 2.62,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.31,
+     "maximum": 1475.0
+    }
+   ],
+   "coefficients": [
+    0.667
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.217889,
+   "avp": 0.047,
+   "model_error_variance": 0.044,
+   "n_sites": 45
+  },
+  {
+   "region_code": "SVYRD",
+   "region_name": "Southern Valley and Ridge (NSS GC2084)",
+   "aep": 0.005,
+   "intercept": 2.71,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.31,
+     "maximum": 1475.0
+    }
+   ],
+   "coefficients": [
+    0.65
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.241513,
+   "avp": 0.058,
+   "model_error_variance": 0.054,
+   "n_sites": 45
+  },
+  {
+   "region_code": "SVYRD",
+   "region_name": "Southern Valley and Ridge (NSS GC2084)",
+   "aep": 0.002,
+   "intercept": 2.82,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.31,
+     "maximum": 1475.0
+    }
+   ],
+   "coefficients": [
+    0.629
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.273928,
+   "avp": 0.075,
+   "model_error_variance": 0.07,
+   "n_sites": 45
+  },
+  {
+   "region_code": "SBLU",
+   "region_name": "Southern Blue Ridge (NSS GC2085)",
+   "aep": 0.5,
+   "intercept": 1.98,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.46,
+     "maximum": 2767.0
+    }
+   ],
+   "coefficients": [
+    0.754
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.071178,
+   "avp": 0.005,
+   "model_error_variance": 0.004,
+   "n_sites": 15
+  },
+  {
+   "region_code": "SBLU",
+   "region_name": "Southern Blue Ridge (NSS GC2085)",
+   "aep": 0.2,
+   "intercept": 2.24,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.46,
+     "maximum": 2767.0
+    }
+   ],
+   "coefficients": [
+    0.748
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.098185,
+   "avp": 0.01,
+   "model_error_variance": 0.007,
+   "n_sites": 15
+  },
+  {
+   "region_code": "SBLU",
+   "region_name": "Southern Blue Ridge (NSS GC2085)",
+   "aep": 0.1,
+   "intercept": 2.37,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.46,
+     "maximum": 2767.0
+    }
+   ],
+   "coefficients": [
+    0.749
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.110662,
+   "avp": 0.012,
+   "model_error_variance": 0.009,
+   "n_sites": 15
+  },
+  {
+   "region_code": "SBLU",
+   "region_name": "Southern Blue Ridge (NSS GC2085)",
+   "aep": 0.04,
+   "intercept": 2.51,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.46,
+     "maximum": 2767.0
+    }
+   ],
+   "coefficients": [
+    0.755
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.140434,
+   "avp": 0.02,
+   "model_error_variance": 0.015,
+   "n_sites": 15
+  },
+  {
+   "region_code": "SBLU",
+   "region_name": "Southern Blue Ridge (NSS GC2085)",
+   "aep": 0.02,
+   "intercept": 2.59,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.46,
+     "maximum": 2767.0
+    }
+   ],
+   "coefficients": [
+    0.76
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.158714,
+   "avp": 0.025,
+   "model_error_variance": 0.02,
+   "n_sites": 15
+  },
+  {
+   "region_code": "SBLU",
+   "region_name": "Southern Blue Ridge (NSS GC2085)",
+   "aep": 0.01,
+   "intercept": 2.67,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.46,
+     "maximum": 2767.0
+    }
+   ],
+   "coefficients": [
+    0.766
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.18232,
+   "avp": 0.033,
+   "model_error_variance": 0.027,
+   "n_sites": 15
+  },
+  {
+   "region_code": "SBLU",
+   "region_name": "Southern Blue Ridge (NSS GC2085)",
+   "aep": 0.005,
+   "intercept": 2.74,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.46,
+     "maximum": 2767.0
+    }
+   ],
+   "coefficients": [
+    0.773
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.204784,
+   "avp": 0.042,
+   "model_error_variance": 0.034,
+   "n_sites": 15
+  },
+  {
+   "region_code": "SBLU",
+   "region_name": "Southern Blue Ridge (NSS GC2085)",
+   "aep": 0.002,
+   "intercept": 2.82,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.46,
+     "maximum": 2767.0
+    }
+   ],
+   "coefficients": [
+    0.782
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.233516,
+   "avp": 0.055,
+   "model_error_variance": 0.044,
+   "n_sites": 15
+  },
+  {
+   "region_code": "NVYRD",
+   "region_name": "Northern Valley and Ridge (NSS GC2086)",
+   "aep": 0.5,
+   "intercept": 1.74,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.21,
+     "maximum": 1461.0
+    }
+   ],
+   "coefficients": [
+    0.827
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.189139,
+   "avp": 0.036,
+   "model_error_variance": 0.034,
+   "n_sites": 80
+  },
+  {
+   "region_code": "NVYRD",
+   "region_name": "Northern Valley and Ridge (NSS GC2086)",
+   "aep": 0.2,
+   "intercept": 2.0,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.21,
+     "maximum": 1461.0
+    }
+   ],
+   "coefficients": [
+    0.824
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.171964,
+   "avp": 0.03,
+   "model_error_variance": 0.028,
+   "n_sites": 80
+  },
+  {
+   "region_code": "NVYRD",
+   "region_name": "Northern Valley and Ridge (NSS GC2086)",
+   "aep": 0.1,
+   "intercept": 2.15,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.21,
+     "maximum": 1461.0
+    }
+   ],
+   "coefficients": [
+    0.821
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.16809,
+   "avp": 0.028,
+   "model_error_variance": 0.026,
+   "n_sites": 80
+  },
+  {
+   "region_code": "NVYRD",
+   "region_name": "Northern Valley and Ridge (NSS GC2086)",
+   "aep": 0.04,
+   "intercept": 2.31,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.21,
+     "maximum": 1461.0
+    }
+   ],
+   "coefficients": [
+    0.819
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.174663,
+   "avp": 0.031,
+   "model_error_variance": 0.028,
+   "n_sites": 80
+  },
+  {
+   "region_code": "NVYRD",
+   "region_name": "Northern Valley and Ridge (NSS GC2086)",
+   "aep": 0.02,
+   "intercept": 2.41,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.21,
+     "maximum": 1461.0
+    }
+   ],
+   "coefficients": [
+    0.818
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.180795,
+   "avp": 0.033,
+   "model_error_variance": 0.03,
+   "n_sites": 80
+  },
+  {
+   "region_code": "NVYRD",
+   "region_name": "Northern Valley and Ridge (NSS GC2086)",
+   "aep": 0.01,
+   "intercept": 2.5,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.21,
+     "maximum": 1461.0
+    }
+   ],
+   "coefficients": [
+    0.817
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.191773,
+   "avp": 0.037,
+   "model_error_variance": 0.034,
+   "n_sites": 80
+  },
+  {
+   "region_code": "NVYRD",
+   "region_name": "Northern Valley and Ridge (NSS GC2086)",
+   "aep": 0.005,
+   "intercept": 2.58,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.21,
+     "maximum": 1461.0
+    }
+   ],
+   "coefficients": [
+    0.816
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.202573,
+   "avp": 0.041,
+   "model_error_variance": 0.038,
+   "n_sites": 80
+  },
+  {
+   "region_code": "NVYRD",
+   "region_name": "Northern Valley and Ridge (NSS GC2086)",
+   "aep": 0.002,
+   "intercept": 2.68,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.21,
+     "maximum": 1461.0
+    }
+   ],
+   "coefficients": [
+    0.814
+   ],
+   "citation": {
+    "publication": "Messinger, T., Duda, J.M., Wagner, D.M., O'Shea, P.S., Scott, J.D., and Kandel, C., 2026, Estimation of magnitude and frequency of floods for rural, unregulated streams in and near Virginia and West Virginia: U.S. Geological Survey Scientific Investigations Report 2025-5110.",
+    "table": "Tables 6, 7 and 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255110"
+   },
+   "sep_log": 0.218249,
+   "avp": 0.048,
+   "model_error_variance": 0.044,
+   "n_sites": 80
+  }
+ ]
+}
