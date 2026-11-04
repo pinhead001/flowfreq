@@ -450,7 +450,7 @@ def test_asep_as_fraction_region_is_converted_from_percent(trimmed):
     ],
 )
 def test_shipped_sep_log_matches_the_report(code, region, aep, sep_pct):
-    # Read from the snapshot file: LA now has a verified set, which load_state prefers.
+    # Read from the snapshot file: AR, MS and LA now have verified sets, which load_state prefers.
     data = json.loads((DATA_DIR / NSS_SNAPSHOT_SUBDIR / f"{code}.json").read_text(encoding="utf-8"))
     eq = parse_state(data).equation(region, aep)
     assert eq.sep_log == pytest.approx(asep_to_sep_log(sep_pct), rel=1e-9)
