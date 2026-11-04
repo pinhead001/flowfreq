@@ -1,0 +1,1411 @@
+{
+ "schema_version": 1,
+ "state": "AL",
+ "status": "verified",
+ "issue": null,
+ "source_reports": [
+  {
+   "citation": "Anderson, B.T., 2020, Magnitude and frequency of floods in Alabama, 2015: U.S. Geological Survey Scientific Investigations Report 2020\u20135032, 148 p., https://doi.org/10.3133/sir20205032.",
+   "doi": "10.3133/sir20205032",
+   "url": "https://pubs.usgs.gov/publication/sir20205032",
+   "pdf": "https://pubs.usgs.gov/sir/2020/5032/sir20205032.pdf",
+   "tables": [
+    "Table 3",
+    "Table 4",
+    "Table 5",
+    "Appendix 1"
+   ],
+   "nss": {
+    "regression_regions": [
+     "GC1499",
+     "GC1500",
+     "GC1501",
+     "GC1502",
+     "GC1503"
+    ],
+    "last_year_of_data": 2015
+   }
+  },
+  {
+   "citation": "Hedgecock, T.S., and Lee, K.G., 2010, Magnitude and frequency of floods for urban streams in Alabama, 2007: U.S. Geological Survey Scientific Investigations Report 2010\u20135012, 17 p.",
+   "doi": "10.3133/sir20105012",
+   "url": "https://pubs.usgs.gov/publication/sir20105012",
+   "pdf": "https://pubs.usgs.gov/sir/2010/5012/pdf/sir2010-5012.pdf",
+   "tables": [
+    "Table 2",
+    "Table 3",
+    "Table 4",
+    "Table 5"
+   ],
+   "nss": {
+    "regression_regions": [
+     "GC1504"
+    ],
+    "last_year_of_data": 2007
+   }
+  }
+ ],
+ "notes": "Anderson, SIR 2020-5032: rural flood regions 1-4 (Table 3, 217 streamgages) and a statewide small-stream set (Table 4, 40 streamgages), on drainage area alone at 8 AEPs. Hedgecock and Lee, SIR 2010-5012: an urban set on drainage area and percent developed (Tables 3 and 4, 23 streamgages). All six sets NSS serves are current: SIR 2020-5032 says it did not update the urban equations and reprints them unchanged in its Table 1. The constant is printed, so intercept = log10 of it. The codes are the NSS ones: CONTDA for A, and URBAN for the reports' PD, the percentage of the basin developed. SEP in percent and AVP from Tables 3 and 4 (2020) and Table 4 (2010), ranges from Table 5 (2020) and the text on p. 13 (2010). Neither report has a worked example or a covariance matrix, so intervals use the AVP. AVP prints to three decimals in the 2020 report, so one significant figure at its smallest: 0.002 for region 4 at 10 percent, whose SEP of 9 percent is a variance of 0.0015. Table 3's MSE column is not stored. It is not a model error variance, since it exceeds the AVP in 39 of 40 rows: it is the mean square of the residuals, which include each gage's sampling error (at 10 percent, MSE is about AVP plus the mean at-site sampling variance, and about the mean squared gage residual, in all four regions). That also explains the small SEPs of 9 to 12 percent in regions 3 and 4, which are as printed, and the report's text says SEP ranged from 9 to 58 percent: the GLS fit assigns most of the residual there to sampling. Standard error of estimate (2010 Table 4) and pseudo-R2 (2020) are not stored. Small streams and regions 1-4 cover the same sites from 0.13 to 14 mi2. The report recommends the small-stream equations from 0.13 to 5 mi2; no preference is stored. The report also says the rural equations should not be used where more than 10 percent of a basin is impervious. The urban set should not be used below 20 percent developed or in flood region 3, where the 2010 report sends users to the rural equations (of 2007, since replaced). Two of its 23 gages are below that limit (13.6 and 16.1 percent). Per-gage check: Appendix 1 (2020) prints RRE flows at 152 regional and 15 small-stream rows, with drainage areas from data release https://doi.org/10.5066/P9TYSZLL Table 1. Regions 1-3 reproduce at every row. Region 4 reproduces at 10 gages; at the others its 50, 20 and 2 percent flows are about 0.8 and 1.1 percent lower and 0.4 percent higher than Table 3, an appendix computed from slightly different constants; Table 3 and NSS agree. All 15 small-stream rows of Appendix 1 (and data release Table 3) were computed from flood region 3's equations, not Table 4's, and are 1.3 to 2.5 times what Table 4 gives, which carries into their weighted flows. Table 4 and NSS agree, and Table 4 fits the mean and standard deviation of the 40 small-stream gages with almost no bias where region 3's is biased by 0.25 log units. Data release Table 1 puts 02448500 in region 2 where Appendix 1 puts it in region 3; Table 5's counts and 1,097 mi2 limit follow the appendix. Table 5's region 3 minimum of 0.34 mi2 matches no region 3 gage in the data release (smallest 0.97), and is kept, as NSS serves it. SIR 2010-5012 prints no regression flows. Equation 2 with Table 5's gage variance reproduces the weighted flows of Table 2 at 11 of 23 gages, all 8 AEPs to 0.7 percent, only with a regression variance of 0.4343 times Table 4's, which is also what Table 5's weighted variances imply, though Table 4's values match its own SEP. The other 12 gages' Table 2 values are 'weighted-average or best-estimate' and do not follow equation 2. Table 5's gage variance for 02473047 at 4 percent (0.0046) is out of sequence and disagrees with its weighted variance. NSS agrees with the reports on every coefficient, constant, range and SEP. It cites SIR 2010-5012 to Hedgecock alone.",
+ "equations": [
+  {
+   "region_code": "1",
+   "region_name": "Flood region 1, rural (SIR 2020-5032; NSS GC1499)",
+   "aep": 0.5,
+   "intercept": 2.3710678622717363,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.94,
+     "maximum": 1027.0
+    }
+   ],
+   "coefficients": [
+    0.668
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2020, Magnitude and frequency of floods in Alabama, 2015: U.S. Geological Survey Scientific Investigations Report 2020\u20135032, 148 p., https://doi.org/10.3133/sir20205032.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205032"
+   },
+   "sep_log": 0.123412,
+   "avp": 0.016,
+   "n_sites": 90
+  },
+  {
+   "region_code": "1",
+   "region_name": "Flood region 1, rural (SIR 2020-5032; NSS GC1499)",
+   "aep": 0.2,
+   "intercept": 2.6273658565927325,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.94,
+     "maximum": 1027.0
+    }
+   ],
+   "coefficients": [
+    0.646
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2020, Magnitude and frequency of floods in Alabama, 2015: U.S. Geological Survey Scientific Investigations Report 2020\u20135032, 148 p., https://doi.org/10.3133/sir20205032.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205032"
+   },
+   "sep_log": 0.115203,
+   "avp": 0.014,
+   "n_sites": 90
+  },
+  {
+   "region_code": "1",
+   "region_name": "Flood region 1, rural (SIR 2020-5032; NSS GC1499)",
+   "aep": 0.1,
+   "intercept": 2.754348335711019,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.94,
+     "maximum": 1027.0
+    }
+   ],
+   "coefficients": [
+    0.638
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2020, Magnitude and frequency of floods in Alabama, 2015: U.S. Geological Survey Scientific Investigations Report 2020\u20135032, 148 p., https://doi.org/10.3133/sir20205032.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205032"
+   },
+   "sep_log": 0.115203,
+   "avp": 0.013,
+   "n_sites": 90
+  },
+  {
+   "region_code": "1",
+   "region_name": "Flood region 1, rural (SIR 2020-5032; NSS GC1499)",
+   "aep": 0.04,
+   "intercept": 2.8819549713396007,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.94,
+     "maximum": 1027.0
+    }
+   ],
+   "coefficients": [
+    0.632
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2020, Magnitude and frequency of floods in Alabama, 2015: U.S. Geological Survey Scientific Investigations Report 2020\u20135032, 148 p., https://doi.org/10.3133/sir20205032.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205032"
+   },
+   "sep_log": 0.119315,
+   "avp": 0.014,
+   "n_sites": 90
+  },
+  {
+   "region_code": "1",
+   "region_name": "Flood region 1, rural (SIR 2020-5032; NSS GC1499)",
+   "aep": 0.02,
+   "intercept": 2.9618954736678504,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.94,
+     "maximum": 1027.0
+    }
+   ],
+   "coefficients": [
+    0.63
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2020, Magnitude and frequency of floods in Alabama, 2015: U.S. Geological Survey Scientific Investigations Report 2020\u20135032, 148 p., https://doi.org/10.3133/sir20205032.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205032"
+   },
+   "sep_log": 0.119315,
+   "avp": 0.015,
+   "n_sites": 90
+  },
+  {
+   "region_code": "1",
+   "region_name": "Flood region 1, rural (SIR 2020-5032; NSS GC1499)",
+   "aep": 0.01,
+   "intercept": 3.0318122713303706,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.94,
+     "maximum": 1027.0
+    }
+   ],
+   "coefficients": [
+    0.628
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2020, Magnitude and frequency of floods in Alabama, 2015: U.S. Geological Survey Scientific Investigations Report 2020\u20135032, 148 p., https://doi.org/10.3133/sir20205032.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205032"
+   },
+   "sep_log": 0.123412,
+   "avp": 0.015,
+   "n_sites": 90
+  },
+  {
+   "region_code": "1",
+   "region_name": "Flood region 1, rural (SIR 2020-5032; NSS GC1499)",
+   "aep": 0.005,
+   "intercept": 3.0930713063760633,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.94,
+     "maximum": 1027.0
+    }
+   ],
+   "coefficients": [
+    0.627
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2020, Magnitude and frequency of floods in Alabama, 2015: U.S. Geological Survey Scientific Investigations Report 2020\u20135032, 148 p., https://doi.org/10.3133/sir20205032.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205032"
+   },
+   "sep_log": 0.127492,
+   "avp": 0.017,
+   "n_sites": 90
+  },
+  {
+   "region_code": "1",
+   "region_name": "Flood region 1, rural (SIR 2020-5032; NSS GC1499)",
+   "aep": 0.002,
+   "intercept": 3.1649473726218416,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.94,
+     "maximum": 1027.0
+    }
+   ],
+   "coefficients": [
+    0.627
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2020, Magnitude and frequency of floods in Alabama, 2015: U.S. Geological Survey Scientific Investigations Report 2020\u20135032, 148 p., https://doi.org/10.3133/sir20205032.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205032"
+   },
+   "sep_log": 0.135601,
+   "avp": 0.018,
+   "n_sites": 90
+  },
+  {
+   "region_code": "2",
+   "region_name": "Flood region 2, rural (SIR 2020-5032; NSS GC1500)",
+   "aep": 0.5,
+   "intercept": 2.3324384599156054,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.13,
+     "maximum": 1766.0
+    }
+   ],
+   "coefficients": [
+    0.637
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2020, Magnitude and frequency of floods in Alabama, 2015: U.S. Geological Survey Scientific Investigations Report 2020\u20135032, 148 p., https://doi.org/10.3133/sir20205032.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205032"
+   },
+   "sep_log": 0.208819,
+   "avp": 0.044,
+   "n_sites": 33
+  },
+  {
+   "region_code": "2",
+   "region_name": "Flood region 2, rural (SIR 2020-5032; NSS GC1500)",
+   "aep": 0.2,
+   "intercept": 2.531478917042255,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.13,
+     "maximum": 1766.0
+    }
+   ],
+   "coefficients": [
+    0.646
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2020, Magnitude and frequency of floods in Alabama, 2015: U.S. Geological Survey Scientific Investigations Report 2020\u20135032, 148 p., https://doi.org/10.3133/sir20205032.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205032"
+   },
+   "sep_log": 0.159499,
+   "avp": 0.026,
+   "n_sites": 33
+  },
+  {
+   "region_code": "2",
+   "region_name": "Flood region 2, rural (SIR 2020-5032; NSS GC1500)",
+   "aep": 0.1,
+   "intercept": 2.640481436970422,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.13,
+     "maximum": 1766.0
+    }
+   ],
+   "coefficients": [
+    0.65
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2020, Magnitude and frequency of floods in Alabama, 2015: U.S. Geological Survey Scientific Investigations Report 2020\u20135032, 148 p., https://doi.org/10.3133/sir20205032.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205032"
+   },
+   "sep_log": 0.135601,
+   "avp": 0.019,
+   "n_sites": 33
+  },
+  {
+   "region_code": "2",
+   "region_name": "Flood region 2, rural (SIR 2020-5032; NSS GC1500)",
+   "aep": 0.04,
+   "intercept": 2.7558748556724915,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.13,
+     "maximum": 1766.0
+    }
+   ],
+   "coefficients": [
+    0.653
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2020, Magnitude and frequency of floods in Alabama, 2015: U.S. Geological Survey Scientific Investigations Report 2020\u20135032, 148 p., https://doi.org/10.3133/sir20205032.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205032"
+   },
+   "sep_log": 0.119315,
+   "avp": 0.014,
+   "n_sites": 33
+  },
+  {
+   "region_code": "2",
+   "region_name": "Flood region 2, rural (SIR 2020-5032; NSS GC1500)",
+   "aep": 0.02,
+   "intercept": 2.824776462475546,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.13,
+     "maximum": 1766.0
+    }
+   ],
+   "coefficients": [
+    0.657
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2020, Magnitude and frequency of floods in Alabama, 2015: U.S. Geological Survey Scientific Investigations Report 2020\u20135032, 148 p., https://doi.org/10.3133/sir20205032.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205032"
+   },
+   "sep_log": 0.115203,
+   "avp": 0.013,
+   "n_sites": 33
+  },
+  {
+   "region_code": "2",
+   "region_name": "Flood region 2, rural (SIR 2020-5032; NSS GC1500)",
+   "aep": 0.01,
+   "intercept": 2.8998205024270964,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.13,
+     "maximum": 1766.0
+    }
+   ],
+   "coefficients": [
+    0.655
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2020, Magnitude and frequency of floods in Alabama, 2015: U.S. Geological Survey Scientific Investigations Report 2020\u20135032, 148 p., https://doi.org/10.3133/sir20205032.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205032"
+   },
+   "sep_log": 0.106932,
+   "avp": 0.012,
+   "n_sites": 33
+  },
+  {
+   "region_code": "2",
+   "region_name": "Flood region 2, rural (SIR 2020-5032; NSS GC1500)",
+   "aep": 0.005,
+   "intercept": 2.963787827345555,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.13,
+     "maximum": 1766.0
+    }
+   ],
+   "coefficients": [
+    0.655
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2020, Magnitude and frequency of floods in Alabama, 2015: U.S. Geological Survey Scientific Investigations Report 2020\u20135032, 148 p., https://doi.org/10.3133/sir20205032.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205032"
+   },
+   "sep_log": 0.115203,
+   "avp": 0.013,
+   "n_sites": 33
+  },
+  {
+   "region_code": "2",
+   "region_name": "Flood region 2, rural (SIR 2020-5032; NSS GC1500)",
+   "aep": 0.002,
+   "intercept": 3.04493154614916,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.13,
+     "maximum": 1766.0
+    }
+   ],
+   "coefficients": [
+    0.654
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2020, Magnitude and frequency of floods in Alabama, 2015: U.S. Geological Survey Scientific Investigations Report 2020\u20135032, 148 p., https://doi.org/10.3133/sir20205032.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205032"
+   },
+   "sep_log": 0.131555,
+   "avp": 0.017,
+   "n_sites": 33
+  },
+  {
+   "region_code": "3",
+   "region_name": "Flood region 3, rural (SIR 2020-5032; NSS GC1501)",
+   "aep": 0.5,
+   "intercept": 2.663700925389648,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.34,
+     "maximum": 1097.0
+    }
+   ],
+   "coefficients": [
+    0.492
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2020, Magnitude and frequency of floods in Alabama, 2015: U.S. Geological Survey Scientific Investigations Report 2020\u20135032, 148 p., https://doi.org/10.3133/sir20205032.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205032"
+   },
+   "sep_log": 0.147634,
+   "avp": 0.022,
+   "n_sites": 22
+  },
+  {
+   "region_code": "3",
+   "region_name": "Flood region 3, rural (SIR 2020-5032; NSS GC1501)",
+   "aep": 0.2,
+   "intercept": 2.9057958803678687,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.34,
+     "maximum": 1097.0
+    }
+   ],
+   "coefficients": [
+    0.503
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2020, Magnitude and frequency of floods in Alabama, 2015: U.S. Geological Survey Scientific Investigations Report 2020\u20135032, 148 p., https://doi.org/10.3133/sir20205032.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205032"
+   },
+   "sep_log": 0.09022,
+   "avp": 0.008,
+   "n_sites": 22
+  },
+  {
+   "region_code": "3",
+   "region_name": "Flood region 3, rural (SIR 2020-5032; NSS GC1501)",
+   "aep": 0.1,
+   "intercept": 3.039017321997412,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.34,
+     "maximum": 1097.0
+    }
+   ],
+   "coefficients": [
+    0.51
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2020, Magnitude and frequency of floods in Alabama, 2015: U.S. Geological Survey Scientific Investigations Report 2020\u20135032, 148 p., https://doi.org/10.3133/sir20205032.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205032"
+   },
+   "sep_log": 0.064782,
+   "avp": 0.004,
+   "n_sites": 22
+  },
+  {
+   "region_code": "3",
+   "region_name": "Flood region 3, rural (SIR 2020-5032; NSS GC1501)",
+   "aep": 0.04,
+   "intercept": 3.158060793936605,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.34,
+     "maximum": 1097.0
+    }
+   ],
+   "coefficients": [
+    0.525
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2020, Magnitude and frequency of floods in Alabama, 2015: U.S. Geological Survey Scientific Investigations Report 2020\u20135032, 148 p., https://doi.org/10.3133/sir20205032.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205032"
+   },
+   "sep_log": 0.051929,
+   "avp": 0.003,
+   "n_sites": 22
+  },
+  {
+   "region_code": "3",
+   "region_name": "Flood region 3, rural (SIR 2020-5032; NSS GC1501)",
+   "aep": 0.02,
+   "intercept": 3.2271150825891253,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.34,
+     "maximum": 1097.0
+    }
+   ],
+   "coefficients": [
+    0.538
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2020, Magnitude and frequency of floods in Alabama, 2015: U.S. Geological Survey Scientific Investigations Report 2020\u20135032, 148 p., https://doi.org/10.3133/sir20205032.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205032"
+   },
+   "sep_log": 0.047629,
+   "avp": 0.002,
+   "n_sites": 22
+  },
+  {
+   "region_code": "3",
+   "region_name": "Flood region 3, rural (SIR 2020-5032; NSS GC1501)",
+   "aep": 0.01,
+   "intercept": 3.278982116865443,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.34,
+     "maximum": 1097.0
+    }
+   ],
+   "coefficients": [
+    0.553
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2020, Magnitude and frequency of floods in Alabama, 2015: U.S. Geological Survey Scientific Investigations Report 2020\u20135032, 148 p., https://doi.org/10.3133/sir20205032.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205032"
+   },
+   "sep_log": 0.051929,
+   "avp": 0.003,
+   "n_sites": 22
+  },
+  {
+   "region_code": "3",
+   "region_name": "Flood region 3, rural (SIR 2020-5032; NSS GC1501)",
+   "aep": 0.005,
+   "intercept": 3.3240765797394864,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.34,
+     "maximum": 1097.0
+    }
+   ],
+   "coefficients": [
+    0.568
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2020, Magnitude and frequency of floods in Alabama, 2015: U.S. Geological Survey Scientific Investigations Report 2020\u20135032, 148 p., https://doi.org/10.3133/sir20205032.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205032"
+   },
+   "sep_log": 0.056222,
+   "avp": 0.003,
+   "n_sites": 22
+  },
+  {
+   "region_code": "3",
+   "region_name": "Flood region 3, rural (SIR 2020-5032; NSS GC1501)",
+   "aep": 0.002,
+   "intercept": 3.3780343224573315,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.34,
+     "maximum": 1097.0
+    }
+   ],
+   "coefficients": [
+    0.586
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2020, Magnitude and frequency of floods in Alabama, 2015: U.S. Geological Survey Scientific Investigations Report 2020\u20135032, 148 p., https://doi.org/10.3133/sir20205032.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205032"
+   },
+   "sep_log": 0.064782,
+   "avp": 0.004,
+   "n_sites": 22
+  },
+  {
+   "region_code": "4",
+   "region_name": "Flood region 4, rural (SIR 2020-5032; NSS GC1502)",
+   "aep": 0.5,
+   "intercept": 2.383815365980431,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.69,
+     "maximum": 1650.0
+    }
+   ],
+   "coefficients": [
+    0.568
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2020, Magnitude and frequency of floods in Alabama, 2015: U.S. Geological Survey Scientific Investigations Report 2020\u20135032, 148 p., https://doi.org/10.3133/sir20205032.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205032"
+   },
+   "sep_log": 0.081785,
+   "avp": 0.006,
+   "n_sites": 72
+  },
+  {
+   "region_code": "4",
+   "region_name": "Flood region 4, rural (SIR 2020-5032; NSS GC1502)",
+   "aep": 0.2,
+   "intercept": 2.6580113966571126,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.69,
+     "maximum": 1650.0
+    }
+   ],
+   "coefficients": [
+    0.565
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2020, Magnitude and frequency of floods in Alabama, 2015: U.S. Geological Survey Scientific Investigations Report 2020\u20135032, 148 p., https://doi.org/10.3133/sir20205032.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205032"
+   },
+   "sep_log": 0.051929,
+   "avp": 0.003,
+   "n_sites": 72
+  },
+  {
+   "region_code": "4",
+   "region_name": "Flood region 4, rural (SIR 2020-5032; NSS GC1502)",
+   "aep": 0.1,
+   "intercept": 2.8068580295188172,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.69,
+     "maximum": 1650.0
+    }
+   ],
+   "coefficients": [
+    0.562
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2020, Magnitude and frequency of floods in Alabama, 2015: U.S. Geological Survey Scientific Investigations Report 2020\u20135032, 148 p., https://doi.org/10.3133/sir20205032.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205032"
+   },
+   "sep_log": 0.039008,
+   "avp": 0.002,
+   "n_sites": 72
+  },
+  {
+   "region_code": "4",
+   "region_name": "Flood region 4, rural (SIR 2020-5032; NSS GC1502)",
+   "aep": 0.04,
+   "intercept": 2.958085848521085,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.69,
+     "maximum": 1650.0
+    }
+   ],
+   "coefficients": [
+    0.56
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2020, Magnitude and frequency of floods in Alabama, 2015: U.S. Geological Survey Scientific Investigations Report 2020\u20135032, 148 p., https://doi.org/10.3133/sir20205032.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205032"
+   },
+   "sep_log": 0.047629,
+   "avp": 0.002,
+   "n_sites": 72
+  },
+  {
+   "region_code": "4",
+   "region_name": "Flood region 4, rural (SIR 2020-5032; NSS GC1502)",
+   "aep": 0.02,
+   "intercept": 3.0549958615291417,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.69,
+     "maximum": 1650.0
+    }
+   ],
+   "coefficients": [
+    0.56
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2020, Magnitude and frequency of floods in Alabama, 2015: U.S. Geological Survey Scientific Investigations Report 2020\u20135032, 148 p., https://doi.org/10.3133/sir20205032.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205032"
+   },
+   "sep_log": 0.051929,
+   "avp": 0.003,
+   "n_sites": 72
+  },
+  {
+   "region_code": "4",
+   "region_name": "Flood region 4, rural (SIR 2020-5032; NSS GC1502)",
+   "aep": 0.01,
+   "intercept": 3.1398790864012365,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.69,
+     "maximum": 1650.0
+    }
+   ],
+   "coefficients": [
+    0.561
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2020, Magnitude and frequency of floods in Alabama, 2015: U.S. Geological Survey Scientific Investigations Report 2020\u20135032, 148 p., https://doi.org/10.3133/sir20205032.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205032"
+   },
+   "sep_log": 0.060506,
+   "avp": 0.004,
+   "n_sites": 72
+  },
+  {
+   "region_code": "4",
+   "region_name": "Flood region 4, rural (SIR 2020-5032; NSS GC1502)",
+   "aep": 0.005,
+   "intercept": 3.216957207361097,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.69,
+     "maximum": 1650.0
+    }
+   ],
+   "coefficients": [
+    0.563
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2020, Magnitude and frequency of floods in Alabama, 2015: U.S. Geological Survey Scientific Investigations Report 2020\u20135032, 148 p., https://doi.org/10.3133/sir20205032.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205032"
+   },
+   "sep_log": 0.073305,
+   "avp": 0.005,
+   "n_sites": 72
+  },
+  {
+   "region_code": "4",
+   "region_name": "Flood region 4, rural (SIR 2020-5032; NSS GC1502)",
+   "aep": 0.002,
+   "intercept": 3.307923703611882,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.69,
+     "maximum": 1650.0
+    }
+   ],
+   "coefficients": [
+    0.567
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2020, Magnitude and frequency of floods in Alabama, 2015: U.S. Geological Survey Scientific Investigations Report 2020\u20135032, 148 p., https://doi.org/10.3133/sir20205032.",
+    "table": "Tables 3 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205032"
+   },
+   "sep_log": 0.09022,
+   "avp": 0.008,
+   "n_sites": 72
+  },
+  {
+   "region_code": "Small streams",
+   "region_name": "Rural small streams, statewide (SIR 2020-5032; NSS GC1503)",
+   "aep": 0.5,
+   "intercept": 2.3180633349627615,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.13,
+     "maximum": 14.0
+    }
+   ],
+   "coefficients": [
+    0.695
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2020, Magnitude and frequency of floods in Alabama, 2015: U.S. Geological Survey Scientific Investigations Report 2020\u20135032, 148 p., https://doi.org/10.3133/sir20205032.",
+    "table": "Tables 4 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205032"
+   },
+   "sep_log": 0.233866,
+   "avp": 0.056,
+   "n_sites": 40
+  },
+  {
+   "region_code": "Small streams",
+   "region_name": "Rural small streams, statewide (SIR 2020-5032; NSS GC1503)",
+   "aep": 0.2,
+   "intercept": 2.5563025007672873,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.13,
+     "maximum": 14.0
+    }
+   ],
+   "coefficients": [
+    0.688
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2020, Magnitude and frequency of floods in Alabama, 2015: U.S. Geological Survey Scientific Investigations Report 2020\u20135032, 148 p., https://doi.org/10.3133/sir20205032.",
+    "table": "Tables 4 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205032"
+   },
+   "sep_log": 0.151608,
+   "avp": 0.023,
+   "n_sites": 40
+  },
+  {
+   "region_code": "Small streams",
+   "region_name": "Rural small streams, statewide (SIR 2020-5032; NSS GC1503)",
+   "aep": 0.1,
+   "intercept": 2.6830470382388496,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.13,
+     "maximum": 14.0
+    }
+   ],
+   "coefficients": [
+    0.69
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2020, Magnitude and frequency of floods in Alabama, 2015: U.S. Geological Survey Scientific Investigations Report 2020\u20135032, 148 p., https://doi.org/10.3133/sir20205032.",
+    "table": "Tables 4 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205032"
+   },
+   "sep_log": 0.111075,
+   "avp": 0.012,
+   "n_sites": 40
+  },
+  {
+   "region_code": "Small streams",
+   "region_name": "Rural small streams, statewide (SIR 2020-5032; NSS GC1503)",
+   "aep": 0.04,
+   "intercept": 2.8188854145940097,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.13,
+     "maximum": 14.0
+    }
+   ],
+   "coefficients": [
+    0.692
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2020, Magnitude and frequency of floods in Alabama, 2015: U.S. Geological Survey Scientific Investigations Report 2020\u20135032, 148 p., https://doi.org/10.3133/sir20205032.",
+    "table": "Tables 4 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205032"
+   },
+   "sep_log": 0.086009,
+   "avp": 0.007,
+   "n_sites": 40
+  },
+  {
+   "region_code": "Small streams",
+   "region_name": "Rural small streams, statewide (SIR 2020-5032; NSS GC1503)",
+   "aep": 0.02,
+   "intercept": 2.90687353472207,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.13,
+     "maximum": 14.0
+    }
+   ],
+   "coefficients": [
+    0.693
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2020, Magnitude and frequency of floods in Alabama, 2015: U.S. Geological Survey Scientific Investigations Report 2020\u20135032, 148 p., https://doi.org/10.3133/sir20205032.",
+    "table": "Tables 4 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205032"
+   },
+   "sep_log": 0.073305,
+   "avp": 0.006,
+   "n_sites": 40
+  },
+  {
+   "region_code": "Small streams",
+   "region_name": "Rural small streams, statewide (SIR 2020-5032; NSS GC1503)",
+   "aep": 0.01,
+   "intercept": 2.983175072037813,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.13,
+     "maximum": 14.0
+    }
+   ],
+   "coefficients": [
+    0.696
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2020, Magnitude and frequency of floods in Alabama, 2015: U.S. Geological Survey Scientific Investigations Report 2020\u20135032, 148 p., https://doi.org/10.3133/sir20205032.",
+    "table": "Tables 4 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205032"
+   },
+   "sep_log": 0.081785,
+   "avp": 0.007,
+   "n_sites": 40
+  },
+  {
+   "region_code": "Small streams",
+   "region_name": "Rural small streams, statewide (SIR 2020-5032; NSS GC1503)",
+   "aep": 0.005,
+   "intercept": 3.0511525224473814,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.13,
+     "maximum": 14.0
+    }
+   ],
+   "coefficients": [
+    0.7
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2020, Magnitude and frequency of floods in Alabama, 2015: U.S. Geological Survey Scientific Investigations Report 2020\u20135032, 148 p., https://doi.org/10.3133/sir20205032.",
+    "table": "Tables 4 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205032"
+   },
+   "sep_log": 0.098603,
+   "avp": 0.009,
+   "n_sites": 40
+  },
+  {
+   "region_code": "Small streams",
+   "region_name": "Rural small streams, statewide (SIR 2020-5032; NSS GC1503)",
+   "aep": 0.002,
+   "intercept": 3.133858125203335,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.13,
+     "maximum": 14.0
+    }
+   ],
+   "coefficients": [
+    0.705
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2020, Magnitude and frequency of floods in Alabama, 2015: U.S. Geological Survey Scientific Investigations Report 2020\u20135032, 148 p., https://doi.org/10.3133/sir20205032.",
+    "table": "Tables 4 and 5",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205032"
+   },
+   "sep_log": 0.127492,
+   "avp": 0.016,
+   "n_sites": 40
+  },
+  {
+   "region_code": "Urban",
+   "region_name": "Urban, statewide except flood region 3 (SIR 2010-5012; NSS GC1504)",
+   "aep": 0.5,
+   "intercept": 1.9777236052888478,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.0,
+     "maximum": 43.0
+    },
+    {
+     "code": "URBAN",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 20.0,
+     "maximum": 100.0
+    }
+   ],
+   "coefficients": [
+    0.648,
+    0.407
+   ],
+   "citation": {
+    "publication": "Hedgecock, T.S., and Lee, K.G., 2010, Magnitude and frequency of floods for urban streams in Alabama, 2007: U.S. Geological Survey Scientific Investigations Report 2010\u20135012, 17 p.",
+    "table": "Tables 3 and 4",
+    "year": 2010,
+    "url": "https://doi.org/10.3133/sir20105012"
+   },
+   "sep_log": 0.111075,
+   "avp": 0.012,
+   "n_sites": 23
+  },
+  {
+   "region_code": "Urban",
+   "region_name": "Urban, statewide except flood region 3 (SIR 2010-5012; NSS GC1504)",
+   "aep": 0.2,
+   "intercept": 2.3541084391474008,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.0,
+     "maximum": 43.0
+    },
+    {
+     "code": "URBAN",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 20.0,
+     "maximum": 100.0
+    }
+   ],
+   "coefficients": [
+    0.67,
+    0.298
+   ],
+   "citation": {
+    "publication": "Hedgecock, T.S., and Lee, K.G., 2010, Magnitude and frequency of floods for urban streams in Alabama, 2007: U.S. Geological Survey Scientific Investigations Report 2010\u20135012, 17 p.",
+    "table": "Tables 3 and 4",
+    "year": 2010,
+    "url": "https://doi.org/10.3133/sir20105012"
+   },
+   "sep_log": 0.09022,
+   "avp": 0.0085,
+   "n_sites": 23
+  },
+  {
+   "region_code": "Urban",
+   "region_name": "Urban, statewide except flood region 3 (SIR 2010-5012; NSS GC1504)",
+   "aep": 0.1,
+   "intercept": 2.48572142648158,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.0,
+     "maximum": 43.0
+    },
+    {
+     "code": "URBAN",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 20.0,
+     "maximum": 100.0
+    }
+   ],
+   "coefficients": [
+    0.675,
+    0.276
+   ],
+   "citation": {
+    "publication": "Hedgecock, T.S., and Lee, K.G., 2010, Magnitude and frequency of floods for urban streams in Alabama, 2007: U.S. Geological Survey Scientific Investigations Report 2010\u20135012, 17 p.",
+    "table": "Tables 3 and 4",
+    "year": 2010,
+    "url": "https://doi.org/10.3133/sir20105012"
+   },
+   "sep_log": 0.09022,
+   "avp": 0.0082,
+   "n_sites": 23
+  },
+  {
+   "region_code": "Urban",
+   "region_name": "Urban, statewide except flood region 3 (SIR 2010-5012; NSS GC1504)",
+   "aep": 0.04,
+   "intercept": 2.6201360549737576,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.0,
+     "maximum": 43.0
+    },
+    {
+     "code": "URBAN",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 20.0,
+     "maximum": 100.0
+    }
+   ],
+   "coefficients": [
+    0.67,
+    0.253
+   ],
+   "citation": {
+    "publication": "Hedgecock, T.S., and Lee, K.G., 2010, Magnitude and frequency of floods for urban streams in Alabama, 2007: U.S. Geological Survey Scientific Investigations Report 2010\u20135012, 17 p.",
+    "table": "Tables 3 and 4",
+    "year": 2010,
+    "url": "https://doi.org/10.3133/sir20105012"
+   },
+   "sep_log": 0.102775,
+   "avp": 0.0102,
+   "n_sites": 23
+  },
+  {
+   "region_code": "Urban",
+   "region_name": "Urban, statewide except flood region 3 (SIR 2010-5012; NSS GC1504)",
+   "aep": 0.02,
+   "intercept": 2.7101173651118162,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.0,
+     "maximum": 43.0
+    },
+    {
+     "code": "URBAN",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 20.0,
+     "maximum": 100.0
+    }
+   ],
+   "coefficients": [
+    0.663,
+    0.237
+   ],
+   "citation": {
+    "publication": "Hedgecock, T.S., and Lee, K.G., 2010, Magnitude and frequency of floods for urban streams in Alabama, 2007: U.S. Geological Survey Scientific Investigations Report 2010\u20135012, 17 p.",
+    "table": "Tables 3 and 4",
+    "year": 2010,
+    "url": "https://doi.org/10.3133/sir20105012"
+   },
+   "sep_log": 0.111075,
+   "avp": 0.0128,
+   "n_sites": 23
+  },
+  {
+   "region_code": "Urban",
+   "region_name": "Urban, statewide except flood region 3 (SIR 2010-5012; NSS GC1504)",
+   "aep": 0.01,
+   "intercept": 2.790988475088816,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.0,
+     "maximum": 43.0
+    },
+    {
+     "code": "URBAN",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 20.0,
+     "maximum": 100.0
+    }
+   ],
+   "coefficients": [
+    0.656,
+    0.223
+   ],
+   "citation": {
+    "publication": "Hedgecock, T.S., and Lee, K.G., 2010, Magnitude and frequency of floods for urban streams in Alabama, 2007: U.S. Geological Survey Scientific Investigations Report 2010\u20135012, 17 p.",
+    "table": "Tables 3 and 4",
+    "year": 2010,
+    "url": "https://doi.org/10.3133/sir20105012"
+   },
+   "sep_log": 0.127492,
+   "avp": 0.016,
+   "n_sites": 23
+  },
+  {
+   "region_code": "Urban",
+   "region_name": "Urban, statewide except flood region 3 (SIR 2010-5012; NSS GC1504)",
+   "aep": 0.005,
+   "intercept": 2.8651039746411278,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.0,
+     "maximum": 43.0
+    },
+    {
+     "code": "URBAN",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 20.0,
+     "maximum": 100.0
+    }
+   ],
+   "coefficients": [
+    0.65,
+    0.21
+   ],
+   "citation": {
+    "publication": "Hedgecock, T.S., and Lee, K.G., 2010, Magnitude and frequency of floods for urban streams in Alabama, 2007: U.S. Geological Survey Scientific Investigations Report 2010\u20135012, 17 p.",
+    "table": "Tables 3 and 4",
+    "year": 2010,
+    "url": "https://doi.org/10.3133/sir20105012"
+   },
+   "sep_log": 0.13963,
+   "avp": 0.0197,
+   "n_sites": 23
+  },
+  {
+   "region_code": "Urban",
+   "region_name": "Urban, statewide except flood region 3 (SIR 2010-5012; NSS GC1504)",
+   "aep": 0.002,
+   "intercept": 2.952792443044092,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.0,
+     "maximum": 43.0
+    },
+    {
+     "code": "URBAN",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 20.0,
+     "maximum": 100.0
+    }
+   ],
+   "coefficients": [
+    0.642,
+    0.196
+   ],
+   "citation": {
+    "publication": "Hedgecock, T.S., and Lee, K.G., 2010, Magnitude and frequency of floods for urban streams in Alabama, 2007: U.S. Geological Survey Scientific Investigations Report 2010\u20135012, 17 p.",
+    "table": "Tables 3 and 4",
+    "year": 2010,
+    "url": "https://doi.org/10.3133/sir20105012"
+   },
+   "sep_log": 0.159499,
+   "avp": 0.0254,
+   "n_sites": 23
+  }
+ ]
+}
