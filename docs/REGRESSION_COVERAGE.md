@@ -65,9 +65,9 @@ Plan and definitions of done: `docs/MASTER_ROADMAP.md` §3.2.
 
 | Code | Jurisdiction | Equations | Regions | Equation count | Regional skew | Issue |
 |---|---|---|---:|---:|---|---|
-| AR | Arkansas | nss snapshot (43 eqs, 0 unparsed) | 6 | 43 | verified |  |
+| AR | Arkansas | verified | 6 | 43 | verified |  |
 | LA | Louisiana | nss snapshot (38 eqs, 0 unparsed) | 5 | 38 | pending, verified |  |
-| MS | Mississippi | nss snapshot (32 eqs, 0 unparsed) | 4 | 32 | pending |  |
+| MS | Mississippi | verified | 4 | 32 | pending |  |
 | OK | Oklahoma | verified | 6 | 42 | pending |  |
 | TX | Texas | nss snapshot (65 eqs, 0 unparsed) | 10 | 65 | pending |  |
 
