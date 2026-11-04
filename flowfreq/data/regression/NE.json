@@ -1,0 +1,3293 @@
+{
+ "schema_version": 1,
+ "state": "NE",
+ "status": "verified",
+ "issue": null,
+ "source_reports": [
+  {
+   "citation": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+   "doi": "10.3133/wri994032",
+   "url": "https://pubs.usgs.gov/publication/wri994032",
+   "pdf": "https://pubs.usgs.gov/wri/1999/4032/report.pdf",
+   "tables": [
+    "Table 2",
+    "Table 3",
+    "Table 4",
+    "Table 5",
+    "Table 6",
+    "Table 7",
+    "Table 8",
+    "Table B1",
+    "Table B2"
+   ],
+   "nss": {
+    "regression_regions": [
+     "GC141",
+     "GC142",
+     "GC143",
+     "GC144",
+     "GC145",
+     "GC146",
+     "GC147",
+     "GC148"
+    ],
+    "citation_id": 90,
+    "last_year_of_data": 1993
+   }
+  }
+ ],
+ "notes": "Soenksen and others, WRI 99-4032 (1999): eight sets for the seven regions of figure 8 at 8 AEPs, from Tables 2-8, as NSS serves them. The High-Permeability Region has two sets, standard (HPS) and composite (HPC) analysis, and the report says judgment decides between them; several regions also overlap. All are kept, with no preference. Region codes are table B2's. Variables are the NSS codes: the report's MCS, main-channel slope, is CSL10_85. Its characteristics come from 1:250,000-scale GIS data (Basinsoft), and it warns that BS, MCS, RR, DF, SD and CR depend on data scale. Equations are as printed, so (MAP - 15), (MAP - 12) and (TTP - 2) are offsets. sep_log is SEP, model_error_variance is AME, equivalent_years is AEYR, n_sites is the table's count. The report prints no covariance and no AVP, so intervals use SEP. ASE, SEE and SEE in percent have no field: SEP is sqrt(ASE + AME) and SEE is sqrt(AME), as the report defines them, except C&SC 1 percent, where SEP .263 is below sqrt(.019 + .052) = .266 even allowing for rounding. The printed .263 is stored. There is no worked example. Tables B1 and B2 give per-gage characteristics and regression flows: 323 gage rows and 2,584 flows, of which 2,550 fall within the band that the printed rounding of the characteristics, coefficients and flows allows. AWC prints to two decimals and (TTP - 2) has a small base, so that band has a median of 2.3 percent and reaches 24 percent. Of the 34 flows outside it: 06464500 prints AWC 1.64 and PLP 41.61, and its five PLP equations imply PLP of about 2.13 (its other three reproduce); 17 cells at 06768050, 06769000, 06769500, 06784700 and 06849600 (C&SC, Q2-Q50) are consistent with B2 having used different TTP and RR than B1 prints; and 12 isolated cells are unexplained, some of them likely misprints (06396490, 06447500, 06449500, 06453500, 06456400, 06810060, 06880710, 06880720, 06883000). All are pinned in the test. A stray 7 in 06768100's row is dropped. Table counts reproduce from B2 for all eight sets, leaving out new network stations. Table 2 heads HPS '25 or more years of record' where the text says 15 and B2 has gages of 16 and 17 years: the text is right. All 64 equations and all ranges equal NSS. Regulated-stream relations (Table 9, figures 10-16) are graphical and not stored. Nebraska has no StreamStats stream grid, so a caller must supply the region and characteristics.",
+ "equations": [
+  {
+   "region_code": "HPS",
+   "region_name": "High-Permeability Region, standard analysis (NSS GC141)",
+   "aep": 0.5,
+   "intercept": -1.1791420105603,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 8.6,
+     "maximum": 6230.0
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 15.12,
+     "maximum": 26.09,
+     "offset": -15.0
+    },
+    {
+     "code": "BSLOPCM",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 41.0,
+     "maximum": 286.0
+    }
+   ],
+   "coefficients": [
+    0.75,
+    0.548,
+    0.933
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 2",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.183,
+   "model_error_variance": 0.03,
+   "n_sites": 49,
+   "equivalent_years": 3.6
+  },
+  {
+   "region_code": "HPS",
+   "region_name": "High-Permeability Region, standard analysis (NSS GC141)",
+   "aep": 0.2,
+   "intercept": -0.3893398369101201,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 8.6,
+     "maximum": 6230.0
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 15.12,
+     "maximum": 26.09,
+     "offset": -15.0
+    },
+    {
+     "code": "BSLOPCM",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 41.0,
+     "maximum": 286.0
+    }
+   ],
+   "coefficients": [
+    0.777,
+    0.525,
+    0.653
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 2",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.182,
+   "model_error_variance": 0.03,
+   "n_sites": 49,
+   "equivalent_years": 7.0
+  },
+  {
+   "region_code": "HPS",
+   "region_name": "High-Permeability Region, standard analysis (NSS GC141)",
+   "aep": 0.1,
+   "intercept": 0.9425041061680807,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 8.6,
+     "maximum": 6230.0
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 15.12,
+     "maximum": 26.09,
+     "offset": -15.0
+    },
+    {
+     "code": "BSLOPCM",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 41.0,
+     "maximum": 286.0
+    },
+    {
+     "code": "WATCAP",
+     "transform": "log10",
+     "units": "in/in",
+     "minimum": 0.07,
+     "maximum": 0.17
+    }
+   ],
+   "coefficients": [
+    0.736,
+    0.527,
+    0.539,
+    0.835
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 2",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.189,
+   "model_error_variance": 0.031,
+   "n_sites": 49,
+   "equivalent_years": 9.7
+  },
+  {
+   "region_code": "HPS",
+   "region_name": "High-Permeability Region, standard analysis (NSS GC141)",
+   "aep": 0.04,
+   "intercept": 1.1702617153949575,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 8.6,
+     "maximum": 6230.0
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 15.12,
+     "maximum": 26.09,
+     "offset": -15.0
+    },
+    {
+     "code": "WATCAP",
+     "transform": "log10",
+     "units": "in/in",
+     "minimum": 0.07,
+     "maximum": 0.17
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 4.41,
+     "maximum": 28.22
+    },
+    {
+     "code": "BSLOPCM",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 41.0,
+     "maximum": 286.0
+    }
+   ],
+   "coefficients": [
+    0.773,
+    0.695,
+    1.17,
+    0.546,
+    0.318
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 2",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.2,
+   "model_error_variance": 0.033,
+   "n_sites": 49,
+   "equivalent_years": 13.2
+  },
+  {
+   "region_code": "HPS",
+   "region_name": "High-Permeability Region, standard analysis (NSS GC141)",
+   "aep": 0.02,
+   "intercept": 1.8645110810583918,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 8.6,
+     "maximum": 6230.0
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 15.12,
+     "maximum": 26.09,
+     "offset": -15.0
+    },
+    {
+     "code": "WATCAP",
+     "transform": "log10",
+     "units": "in/in",
+     "minimum": 0.07,
+     "maximum": 0.17
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 4.41,
+     "maximum": 28.22
+    }
+   ],
+   "coefficients": [
+    0.779,
+    0.756,
+    1.35,
+    0.766
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 2",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.208,
+   "model_error_variance": 0.036,
+   "n_sites": 49,
+   "equivalent_years": 15.9
+  },
+  {
+   "region_code": "HPS",
+   "region_name": "High-Permeability Region, standard analysis (NSS GC141)",
+   "aep": 0.01,
+   "intercept": 2.0755469613925306,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 8.6,
+     "maximum": 6230.0
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 15.12,
+     "maximum": 26.09,
+     "offset": -15.0
+    },
+    {
+     "code": "WATCAP",
+     "transform": "log10",
+     "units": "in/in",
+     "minimum": 0.07,
+     "maximum": 0.17
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 4.41,
+     "maximum": 28.22
+    }
+   ],
+   "coefficients": [
+    0.777,
+    0.787,
+    1.56,
+    0.86
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 2",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.214,
+   "model_error_variance": 0.038,
+   "n_sites": 49,
+   "equivalent_years": 18.7
+  },
+  {
+   "region_code": "HPS",
+   "region_name": "High-Permeability Region, standard analysis (NSS GC141)",
+   "aep": 0.005,
+   "intercept": 2.2648178230095364,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 8.6,
+     "maximum": 6230.0
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 15.12,
+     "maximum": 26.09,
+     "offset": -15.0
+    },
+    {
+     "code": "WATCAP",
+     "transform": "log10",
+     "units": "in/in",
+     "minimum": 0.07,
+     "maximum": 0.17
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 4.41,
+     "maximum": 28.22
+    }
+   ],
+   "coefficients": [
+    0.774,
+    0.816,
+    1.74,
+    0.942
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 2",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.224,
+   "model_error_variance": 0.041,
+   "n_sites": 49,
+   "equivalent_years": 20.8
+  },
+  {
+   "region_code": "HPS",
+   "region_name": "High-Permeability Region, standard analysis (NSS GC141)",
+   "aep": 0.002,
+   "intercept": 2.4955443375464483,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 8.6,
+     "maximum": 6230.0
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 15.12,
+     "maximum": 26.09,
+     "offset": -15.0
+    },
+    {
+     "code": "WATCAP",
+     "transform": "log10",
+     "units": "in/in",
+     "minimum": 0.07,
+     "maximum": 0.17
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 4.41,
+     "maximum": 28.22
+    }
+   ],
+   "coefficients": [
+    0.769,
+    0.85,
+    1.94,
+    1.04
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 2",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.24,
+   "model_error_variance": 0.047,
+   "n_sites": 49,
+   "equivalent_years": 22.7
+  },
+  {
+   "region_code": "HPC",
+   "region_name": "High-Permeability Region, composite analysis (NSS GC142)",
+   "aep": 0.5,
+   "intercept": -0.8961962790440431,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 8.6,
+     "maximum": 1310.0
+    },
+    {
+     "code": "BSLOPCM",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 55.7,
+     "maximum": 249.0
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 16.39,
+     "maximum": 26.09,
+     "offset": -15.0
+    },
+    {
+     "code": "DRNFREQ",
+     "transform": "log10",
+     "units": "first-order streams/mi2",
+     "minimum": 0.05,
+     "maximum": 0.6
+    }
+   ],
+   "coefficients": [
+    0.684,
+    0.968,
+    0.715,
+    0.456
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 2",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.167,
+   "model_error_variance": 0.022,
+   "n_sites": 23,
+   "equivalent_years": 3.3
+  },
+  {
+   "region_code": "HPC",
+   "region_name": "High-Permeability Region, composite analysis (NSS GC142)",
+   "aep": 0.2,
+   "intercept": 0.037426497940623665,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 8.6,
+     "maximum": 1310.0
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 16.39,
+     "maximum": 26.09,
+     "offset": -15.0
+    },
+    {
+     "code": "BSLOPCM",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 55.7,
+     "maximum": 249.0
+    },
+    {
+     "code": "DRNFREQ",
+     "transform": "log10",
+     "units": "first-order streams/mi2",
+     "minimum": 0.05,
+     "maximum": 0.6
+    }
+   ],
+   "coefficients": [
+    0.774,
+    0.59,
+    0.576,
+    0.454
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 2",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.196,
+   "model_error_variance": 0.031,
+   "n_sites": 23,
+   "equivalent_years": 5.2
+  },
+  {
+   "region_code": "HPC",
+   "region_name": "High-Permeability Region, composite analysis (NSS GC142)",
+   "aep": 0.1,
+   "intercept": 1.3384564936046048,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 8.6,
+     "maximum": 1310.0
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 16.39,
+     "maximum": 26.09,
+     "offset": -15.0
+    },
+    {
+     "code": "BSLOPCM",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 55.7,
+     "maximum": 249.0
+    },
+    {
+     "code": "DRNFREQ",
+     "transform": "log10",
+     "units": "first-order streams/mi2",
+     "minimum": 0.05,
+     "maximum": 0.6
+    },
+    {
+     "code": "WATCAP",
+     "transform": "log10",
+     "units": "in/in",
+     "minimum": 0.08,
+     "maximum": 0.15
+    }
+   ],
+   "coefficients": [
+    0.744,
+    0.626,
+    0.602,
+    0.399,
+    1.17
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 2",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.211,
+   "model_error_variance": 0.033,
+   "n_sites": 23,
+   "equivalent_years": 7.1
+  },
+  {
+   "region_code": "HPC",
+   "region_name": "High-Permeability Region, composite analysis (NSS GC142)",
+   "aep": 0.04,
+   "intercept": 2.2013971243204513,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 8.6,
+     "maximum": 1310.0
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 16.39,
+     "maximum": 26.09,
+     "offset": -15.0
+    },
+    {
+     "code": "DRNFREQ",
+     "transform": "log10",
+     "units": "first-order streams/mi2",
+     "minimum": 0.05,
+     "maximum": 0.6
+    },
+    {
+     "code": "WATCAP",
+     "transform": "log10",
+     "units": "in/in",
+     "minimum": 0.08,
+     "maximum": 0.15
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 5.6,
+     "maximum": 19.4
+    }
+   ],
+   "coefficients": [
+    0.805,
+    0.718,
+    0.637,
+    1.4,
+    0.773
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 2",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.229,
+   "model_error_variance": 0.038,
+   "n_sites": 23,
+   "equivalent_years": 9.2
+  },
+  {
+   "region_code": "HPC",
+   "region_name": "High-Permeability Region, composite analysis (NSS GC142)",
+   "aep": 0.02,
+   "intercept": 2.5658478186735176,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 8.6,
+     "maximum": 1310.0
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 16.39,
+     "maximum": 26.09,
+     "offset": -15.0
+    },
+    {
+     "code": "DRNFREQ",
+     "transform": "log10",
+     "units": "first-order streams/mi2",
+     "minimum": 0.05,
+     "maximum": 0.6
+    },
+    {
+     "code": "WATCAP",
+     "transform": "log10",
+     "units": "in/in",
+     "minimum": 0.08,
+     "maximum": 0.15
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 5.6,
+     "maximum": 19.4
+    }
+   ],
+   "coefficients": [
+    0.817,
+    0.73,
+    0.637,
+    1.76,
+    0.864
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 2",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.238,
+   "model_error_variance": 0.04,
+   "n_sites": 23,
+   "equivalent_years": 11.3
+  },
+  {
+   "region_code": "HPC",
+   "region_name": "High-Permeability Region, composite analysis (NSS GC142)",
+   "aep": 0.01,
+   "intercept": 2.8898617212581885,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 8.6,
+     "maximum": 1310.0
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 16.39,
+     "maximum": 26.09,
+     "offset": -15.0
+    },
+    {
+     "code": "WATCAP",
+     "transform": "log10",
+     "units": "in/in",
+     "minimum": 0.08,
+     "maximum": 0.15
+    },
+    {
+     "code": "DRNFREQ",
+     "transform": "log10",
+     "units": "first-order streams/mi2",
+     "minimum": 0.05,
+     "maximum": 0.6
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 5.6,
+     "maximum": 19.4
+    }
+   ],
+   "coefficients": [
+    0.828,
+    0.741,
+    2.07,
+    0.641,
+    0.941
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 2",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.251,
+   "model_error_variance": 0.044,
+   "n_sites": 23,
+   "equivalent_years": 13.0
+  },
+  {
+   "region_code": "HPC",
+   "region_name": "High-Permeability Region, composite analysis (NSS GC142)",
+   "aep": 0.005,
+   "intercept": 3.1818435879447726,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 8.6,
+     "maximum": 1310.0
+    },
+    {
+     "code": "WATCAP",
+     "transform": "log10",
+     "units": "in/in",
+     "minimum": 0.08,
+     "maximum": 0.15
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 16.39,
+     "maximum": 26.09,
+     "offset": -15.0
+    },
+    {
+     "code": "DRNFREQ",
+     "transform": "log10",
+     "units": "first-order streams/mi2",
+     "minimum": 0.05,
+     "maximum": 0.6
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 5.6,
+     "maximum": 19.4
+    }
+   ],
+   "coefficients": [
+    0.838,
+    2.35,
+    0.752,
+    0.645,
+    1.01
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 2",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.267,
+   "model_error_variance": 0.05,
+   "n_sites": 23,
+   "equivalent_years": 14.1
+  },
+  {
+   "region_code": "HPC",
+   "region_name": "High-Permeability Region, composite analysis (NSS GC142)",
+   "aep": 0.002,
+   "intercept": 3.530199698203082,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 8.6,
+     "maximum": 1310.0
+    },
+    {
+     "code": "WATCAP",
+     "transform": "log10",
+     "units": "in/in",
+     "minimum": 0.08,
+     "maximum": 0.15
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 16.39,
+     "maximum": 26.09,
+     "offset": -15.0
+    },
+    {
+     "code": "DRNFREQ",
+     "transform": "log10",
+     "units": "first-order streams/mi2",
+     "minimum": 0.05,
+     "maximum": 0.6
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 5.6,
+     "maximum": 19.4
+    }
+   ],
+   "coefficients": [
+    0.851,
+    2.67,
+    0.767,
+    0.654,
+    1.09
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 2",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.293,
+   "model_error_variance": 0.06,
+   "n_sites": 23,
+   "equivalent_years": 15.0
+  },
+  {
+   "region_code": "N&W",
+   "region_name": "Northern and Western Region (NSS GC143)",
+   "aep": 0.5,
+   "intercept": -0.7544873321858502,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.61,
+     "maximum": 2160.0
+    },
+    {
+     "code": "RELRELF",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 4.2,
+     "maximum": 48.3
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 14.19,
+     "maximum": 24.69,
+     "offset": -12.0
+    },
+    {
+     "code": "LSTPERM",
+     "transform": "log10",
+     "units": "in/hr",
+     "minimum": 0.1,
+     "maximum": 5.0
+    }
+   ],
+   "coefficients": [
+    0.762,
+    0.878,
+    0.929,
+    -0.357
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 3",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.46,
+   "model_error_variance": 0.18,
+   "n_sites": 34,
+   "equivalent_years": 1.7
+  },
+  {
+   "region_code": "N&W",
+   "region_name": "Northern and Western Region (NSS GC143)",
+   "aep": 0.2,
+   "intercept": -0.16367588429324828,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.61,
+     "maximum": 2160.0
+    },
+    {
+     "code": "RELRELF",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 4.2,
+     "maximum": 48.3
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 14.19,
+     "maximum": 24.69,
+     "offset": -12.0
+    },
+    {
+     "code": "LSTPERM",
+     "transform": "log10",
+     "units": "in/hr",
+     "minimum": 0.1,
+     "maximum": 5.0
+    }
+   ],
+   "coefficients": [
+    0.642,
+    0.932,
+    1.05,
+    -0.36
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 3",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.275,
+   "model_error_variance": 0.061,
+   "n_sites": 34,
+   "equivalent_years": 6.0
+  },
+  {
+   "region_code": "N&W",
+   "region_name": "Northern and Western Region (NSS GC143)",
+   "aep": 0.1,
+   "intercept": 0.22788670461367352,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.61,
+     "maximum": 2160.0
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 14.19,
+     "maximum": 24.69,
+     "offset": -12.0
+    },
+    {
+     "code": "RELRELF",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 4.2,
+     "maximum": 48.3
+    },
+    {
+     "code": "LSTPERM",
+     "transform": "log10",
+     "units": "in/hr",
+     "minimum": 0.1,
+     "maximum": 5.0
+    }
+   ],
+   "coefficients": [
+    0.577,
+    1.08,
+    0.892,
+    -0.337
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 3",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.251,
+   "model_error_variance": 0.049,
+   "n_sites": 34,
+   "equivalent_years": 9.5
+  },
+  {
+   "region_code": "N&W",
+   "region_name": "Northern and Western Region (NSS GC143)",
+   "aep": 0.04,
+   "intercept": 0.7041505168397991,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.61,
+     "maximum": 2160.0
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 14.19,
+     "maximum": 24.69,
+     "offset": -12.0
+    },
+    {
+     "code": "RELRELF",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 4.2,
+     "maximum": 48.3
+    },
+    {
+     "code": "LSTPERM",
+     "transform": "log10",
+     "units": "in/hr",
+     "minimum": 0.1,
+     "maximum": 5.0
+    }
+   ],
+   "coefficients": [
+    0.508,
+    1.07,
+    0.802,
+    -0.302
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 3",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.257,
+   "model_error_variance": 0.05,
+   "n_sites": 34,
+   "equivalent_years": 12.4
+  },
+  {
+   "region_code": "N&W",
+   "region_name": "Northern and Western Region (NSS GC143)",
+   "aep": 0.02,
+   "intercept": 1.0293837776852097,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.61,
+     "maximum": 2160.0
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 14.19,
+     "maximum": 24.69,
+     "offset": -12.0
+    },
+    {
+     "code": "RELRELF",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 4.2,
+     "maximum": 48.3
+    },
+    {
+     "code": "LSTPERM",
+     "transform": "log10",
+     "units": "in/hr",
+     "minimum": 0.1,
+     "maximum": 5.0
+    }
+   ],
+   "coefficients": [
+    0.464,
+    1.06,
+    0.731,
+    -0.272
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 3",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.271,
+   "model_error_variance": 0.056,
+   "n_sites": 34,
+   "equivalent_years": 13.5
+  },
+  {
+   "region_code": "N&W",
+   "region_name": "Northern and Western Region (NSS GC143)",
+   "aep": 0.01,
+   "intercept": 1.546542663478131,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.61,
+     "maximum": 2160.0
+    },
+    {
+     "code": "BSLOPCM",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 52.5,
+     "maximum": 462.0
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 14.19,
+     "maximum": 24.69,
+     "offset": -12.0
+    }
+   ],
+   "coefficients": [
+    0.213,
+    0.589,
+    0.643
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 3",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.288,
+   "model_error_variance": 0.064,
+   "n_sites": 34,
+   "equivalent_years": 14.0
+  },
+  {
+   "region_code": "N&W",
+   "region_name": "Northern and Western Region (NSS GC143)",
+   "aep": 0.005,
+   "intercept": 1.57287160220048,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.61,
+     "maximum": 2160.0
+    },
+    {
+     "code": "BSLOPCM",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 52.5,
+     "maximum": 462.0
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 14.19,
+     "maximum": 24.69,
+     "offset": -12.0
+    }
+   ],
+   "coefficients": [
+    0.192,
+    0.629,
+    0.711
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 3",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.295,
+   "model_error_variance": 0.067,
+   "n_sites": 34,
+   "equivalent_years": 15.3
+  },
+  {
+   "region_code": "N&W",
+   "region_name": "Northern and Western Region (NSS GC143)",
+   "aep": 0.002,
+   "intercept": 1.6190933306267428,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.61,
+     "maximum": 2160.0
+    },
+    {
+     "code": "BSLOPCM",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 52.5,
+     "maximum": 462.0
+    },
+    {
+     "code": "PRECIP",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 14.19,
+     "maximum": 24.69,
+     "offset": -12.0
+    }
+   ],
+   "coefficients": [
+    0.168,
+    0.669,
+    0.786
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 3",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.313,
+   "model_error_variance": 0.075,
+   "n_sites": 34,
+   "equivalent_years": 16.1
+  },
+  {
+   "region_code": "NE",
+   "region_name": "Northeastern Region (NSS GC144)",
+   "aep": 0.5,
+   "intercept": 2.12057393120585,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.5,
+     "maximum": 6950.0
+    },
+    {
+     "code": "LSTPERM",
+     "transform": "log10",
+     "units": "in/hr",
+     "minimum": 0.38,
+     "maximum": 5.56
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 0.49,
+     "maximum": 56.4
+    },
+    {
+     "code": "DRNFREQ",
+     "transform": "log10",
+     "units": "first-order streams/mi2",
+     "minimum": 0.01,
+     "maximum": 1.33
+    }
+   ],
+   "coefficients": [
+    0.676,
+    -0.592,
+    -0.335,
+    0.295
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 4",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.209,
+   "model_error_variance": 0.037,
+   "n_sites": 40,
+   "equivalent_years": 4.4
+  },
+  {
+   "region_code": "NE",
+   "region_name": "Northeastern Region (NSS GC144)",
+   "aep": 0.2,
+   "intercept": 2.59659709562646,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.5,
+     "maximum": 6950.0
+    },
+    {
+     "code": "LSTPERM",
+     "transform": "log10",
+     "units": "in/hr",
+     "minimum": 0.38,
+     "maximum": 5.56
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 0.49,
+     "maximum": 56.4
+    },
+    {
+     "code": "DRNFREQ",
+     "transform": "log10",
+     "units": "first-order streams/mi2",
+     "minimum": 0.01,
+     "maximum": 1.33
+    }
+   ],
+   "coefficients": [
+    0.652,
+    -0.514,
+    -0.421,
+    0.323
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 4",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.17,
+   "model_error_variance": 0.023,
+   "n_sites": 40,
+   "equivalent_years": 8.6
+  },
+  {
+   "region_code": "NE",
+   "region_name": "Northeastern Region (NSS GC144)",
+   "aep": 0.1,
+   "intercept": 2.8543060418010806,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.5,
+     "maximum": 6950.0
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 0.49,
+     "maximum": 56.4
+    },
+    {
+     "code": "LSTPERM",
+     "transform": "log10",
+     "units": "in/hr",
+     "minimum": 0.38,
+     "maximum": 5.56
+    },
+    {
+     "code": "DRNFREQ",
+     "transform": "log10",
+     "units": "first-order streams/mi2",
+     "minimum": 0.01,
+     "maximum": 1.33
+    }
+   ],
+   "coefficients": [
+    0.633,
+    -0.469,
+    -0.443,
+    0.338
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 4",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.167,
+   "model_error_variance": 0.022,
+   "n_sites": 40,
+   "equivalent_years": 11.9
+  },
+  {
+   "region_code": "NE",
+   "region_name": "Northeastern Region (NSS GC144)",
+   "aep": 0.04,
+   "intercept": 3.1335389083702174,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.5,
+     "maximum": 6950.0
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 0.49,
+     "maximum": 56.4
+    },
+    {
+     "code": "DRNFREQ",
+     "transform": "log10",
+     "units": "first-order streams/mi2",
+     "minimum": 0.01,
+     "maximum": 1.33
+    },
+    {
+     "code": "LSTPERM",
+     "transform": "log10",
+     "units": "in/hr",
+     "minimum": 0.38,
+     "maximum": 5.56
+    }
+   ],
+   "coefficients": [
+    0.612,
+    -0.518,
+    0.356,
+    -0.352
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 4",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.173,
+   "model_error_variance": 0.023,
+   "n_sites": 40,
+   "equivalent_years": 15.2
+  },
+  {
+   "region_code": "NE",
+   "region_name": "Northeastern Region (NSS GC144)",
+   "aep": 0.02,
+   "intercept": 3.315970345456918,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.5,
+     "maximum": 6950.0
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 0.49,
+     "maximum": 56.4
+    },
+    {
+     "code": "DRNFREQ",
+     "transform": "log10",
+     "units": "first-order streams/mi2",
+     "minimum": 0.01,
+     "maximum": 1.33
+    },
+    {
+     "code": "LSTPERM",
+     "transform": "log10",
+     "units": "in/hr",
+     "minimum": 0.38,
+     "maximum": 5.56
+    }
+   ],
+   "coefficients": [
+    0.597,
+    -0.548,
+    0.37,
+    -0.286
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 4",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.182,
+   "model_error_variance": 0.025,
+   "n_sites": 40,
+   "equivalent_years": 16.9
+  },
+  {
+   "region_code": "NE",
+   "region_name": "Northeastern Region (NSS GC144)",
+   "aep": 0.01,
+   "intercept": 3.4771212547196626,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.5,
+     "maximum": 6950.0
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 0.49,
+     "maximum": 56.4
+    },
+    {
+     "code": "DRNFREQ",
+     "transform": "log10",
+     "units": "first-order streams/mi2",
+     "minimum": 0.01,
+     "maximum": 1.33
+    },
+    {
+     "code": "LSTPERM",
+     "transform": "log10",
+     "units": "in/hr",
+     "minimum": 0.38,
+     "maximum": 5.56
+    }
+   ],
+   "coefficients": [
+    0.583,
+    -0.573,
+    0.384,
+    -0.223
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 4",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.192,
+   "model_error_variance": 0.028,
+   "n_sites": 40,
+   "equivalent_years": 17.9
+  },
+  {
+   "region_code": "NE",
+   "region_name": "Northeastern Region (NSS GC144)",
+   "aep": 0.005,
+   "intercept": 3.7193312869837265,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.5,
+     "maximum": 6950.0
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 0.49,
+     "maximum": 56.4
+    },
+    {
+     "code": "DRNFREQ",
+     "transform": "log10",
+     "units": "first-order streams/mi2",
+     "minimum": 0.01,
+     "maximum": 1.33
+    }
+   ],
+   "coefficients": [
+    0.562,
+    -0.667,
+    0.452
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 4",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.201,
+   "model_error_variance": 0.031,
+   "n_sites": 40,
+   "equivalent_years": 19.0
+  },
+  {
+   "region_code": "NE",
+   "region_name": "Northeastern Region (NSS GC144)",
+   "aep": 0.002,
+   "intercept": 3.846955325019824,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.5,
+     "maximum": 6950.0
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 0.49,
+     "maximum": 56.4
+    },
+    {
+     "code": "DRNFREQ",
+     "transform": "log10",
+     "units": "first-order streams/mi2",
+     "minimum": 0.01,
+     "maximum": 1.33
+    }
+   ],
+   "coefficients": [
+    0.551,
+    -0.655,
+    0.44
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 4",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.213,
+   "model_error_variance": 0.034,
+   "n_sites": 40,
+   "equivalent_years": 20.1
+  },
+  {
+   "region_code": "C&SC",
+   "region_name": "Central and South-Central Region (NSS GC145)",
+   "aep": 0.5,
+   "intercept": 1.7387805584843692,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.5,
+     "maximum": 711.0
+    },
+    {
+     "code": "I24H2Y",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 2.35,
+     "maximum": 2.55,
+     "offset": -2.0
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 0.89,
+     "maximum": 13.0
+    },
+    {
+     "code": "RELRELF",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 2.72,
+     "maximum": 21.4
+    }
+   ],
+   "coefficients": [
+    0.994,
+    4.24,
+    -0.738,
+    1.0
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 5",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.297,
+   "model_error_variance": 0.072,
+   "n_sites": 37,
+   "equivalent_years": 4.1
+  },
+  {
+   "region_code": "C&SC",
+   "region_name": "Central and South-Central Region (NSS GC145)",
+   "aep": 0.2,
+   "intercept": 1.8656960599160706,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.5,
+     "maximum": 711.0
+    },
+    {
+     "code": "I24H2Y",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 2.35,
+     "maximum": 2.55,
+     "offset": -2.0
+    },
+    {
+     "code": "RELRELF",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 2.72,
+     "maximum": 21.4
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 0.89,
+     "maximum": 13.0
+    }
+   ],
+   "coefficients": [
+    0.942,
+    3.98,
+    1.32,
+    -0.647
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 5",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.222,
+   "model_error_variance": 0.038,
+   "n_sites": 37,
+   "equivalent_years": 8.2
+  },
+  {
+   "region_code": "C&SC",
+   "region_name": "Central and South-Central Region (NSS GC145)",
+   "aep": 0.1,
+   "intercept": 1.9074113607745862,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.5,
+     "maximum": 711.0
+    },
+    {
+     "code": "RELRELF",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 2.72,
+     "maximum": 21.4
+    },
+    {
+     "code": "I24H2Y",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 2.35,
+     "maximum": 2.55,
+     "offset": -2.0
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 0.89,
+     "maximum": 13.0
+    }
+   ],
+   "coefficients": [
+    0.931,
+    1.51,
+    3.92,
+    -0.614
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 5",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.216,
+   "model_error_variance": 0.035,
+   "n_sites": 37,
+   "equivalent_years": 11.0
+  },
+  {
+   "region_code": "C&SC",
+   "region_name": "Central and South-Central Region (NSS GC145)",
+   "aep": 0.04,
+   "intercept": 1.9513375187959177,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.5,
+     "maximum": 711.0
+    },
+    {
+     "code": "RELRELF",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 2.72,
+     "maximum": 21.4
+    },
+    {
+     "code": "I24H2Y",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 2.35,
+     "maximum": 2.55,
+     "offset": -2.0
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 0.89,
+     "maximum": 13.0
+    }
+   ],
+   "coefficients": [
+    0.923,
+    1.71,
+    3.88,
+    -0.587
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 5",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.23,
+   "model_error_variance": 0.039,
+   "n_sites": 37,
+   "equivalent_years": 13.0
+  },
+  {
+   "region_code": "C&SC",
+   "region_name": "Central and South-Central Region (NSS GC145)",
+   "aep": 0.02,
+   "intercept": 1.9840770339028309,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.5,
+     "maximum": 711.0
+    },
+    {
+     "code": "RELRELF",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 2.72,
+     "maximum": 21.4
+    },
+    {
+     "code": "I24H2Y",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 2.35,
+     "maximum": 2.55,
+     "offset": -2.0
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 0.89,
+     "maximum": 13.0
+    }
+   ],
+   "coefficients": [
+    0.918,
+    1.83,
+    3.84,
+    -0.572
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 5",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.247,
+   "model_error_variance": 0.045,
+   "n_sites": 37,
+   "equivalent_years": 13.5
+  },
+  {
+   "region_code": "C&SC",
+   "region_name": "Central and South-Central Region (NSS GC145)",
+   "aep": 0.01,
+   "intercept": 2.0170333392987803,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.5,
+     "maximum": 711.0
+    },
+    {
+     "code": "RELRELF",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 2.72,
+     "maximum": 21.4
+    },
+    {
+     "code": "I24H2Y",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 2.35,
+     "maximum": 2.55,
+     "offset": -2.0
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 0.89,
+     "maximum": 13.0
+    }
+   ],
+   "coefficients": [
+    0.914,
+    1.93,
+    3.83,
+    -0.56
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 5",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.263,
+   "model_error_variance": 0.052,
+   "n_sites": 37,
+   "equivalent_years": 13.6
+  },
+  {
+   "region_code": "C&SC",
+   "region_name": "Central and South-Central Region (NSS GC145)",
+   "aep": 0.005,
+   "intercept": 2.0453229787866576,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.5,
+     "maximum": 711.0
+    },
+    {
+     "code": "RELRELF",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 2.72,
+     "maximum": 21.4
+    },
+    {
+     "code": "I24H2Y",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 2.35,
+     "maximum": 2.55,
+     "offset": -2.0
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 0.89,
+     "maximum": 13.0
+    }
+   ],
+   "coefficients": [
+    0.91,
+    2.02,
+    3.81,
+    -0.549
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 5",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.285,
+   "model_error_variance": 0.06,
+   "n_sites": 37,
+   "equivalent_years": 13.5
+  },
+  {
+   "region_code": "C&SC",
+   "region_name": "Central and South-Central Region (NSS GC145)",
+   "aep": 0.002,
+   "intercept": 2.0827853703164503,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.5,
+     "maximum": 711.0
+    },
+    {
+     "code": "RELRELF",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 2.72,
+     "maximum": 21.4
+    },
+    {
+     "code": "I24H2Y",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 2.35,
+     "maximum": 2.55,
+     "offset": -2.0
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 0.89,
+     "maximum": 13.0
+    }
+   ],
+   "coefficients": [
+    0.906,
+    2.12,
+    3.8,
+    -0.538
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 5",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.31,
+   "model_error_variance": 0.072,
+   "n_sites": 37,
+   "equivalent_years": 13.2
+  },
+  {
+   "region_code": "East",
+   "region_name": "Eastern Region (NSS GC146)",
+   "aep": 0.5,
+   "intercept": 0.7558748556724915,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.55,
+     "maximum": 1640.0
+    },
+    {
+     "code": "BSLOPCM",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 12.8,
+     "maximum": 315.0
+    },
+    {
+     "code": "LSTPERM",
+     "transform": "log10",
+     "units": "in/hr",
+     "minimum": 0.13,
+     "maximum": 0.6
+    }
+   ],
+   "coefficients": [
+    0.558,
+    0.655,
+    -0.47
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 6",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.206,
+   "model_error_variance": 0.036,
+   "n_sites": 42,
+   "equivalent_years": 4.4
+  },
+  {
+   "region_code": "East",
+   "region_name": "Eastern Region (NSS GC146)",
+   "aep": 0.2,
+   "intercept": 1.3242824552976926,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.55,
+     "maximum": 1640.0
+    },
+    {
+     "code": "BSLOPCM",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 12.8,
+     "maximum": 315.0
+    },
+    {
+     "code": "LSTPERM",
+     "transform": "log10",
+     "units": "in/hr",
+     "minimum": 0.13,
+     "maximum": 0.6
+    }
+   ],
+   "coefficients": [
+    0.533,
+    0.551,
+    -0.528
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 6",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.141,
+   "model_error_variance": 0.016,
+   "n_sites": 42,
+   "equivalent_years": 10.9
+  },
+  {
+   "region_code": "East",
+   "region_name": "Eastern Region (NSS GC146)",
+   "aep": 0.1,
+   "intercept": 1.6242820958356683,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.55,
+     "maximum": 1640.0
+    },
+    {
+     "code": "BSLOPCM",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 12.8,
+     "maximum": 315.0
+    },
+    {
+     "code": "LSTPERM",
+     "transform": "log10",
+     "units": "in/hr",
+     "minimum": 0.13,
+     "maximum": 0.6
+    }
+   ],
+   "coefficients": [
+    0.519,
+    0.495,
+    -0.537
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 6",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.125,
+   "model_error_variance": 0.012,
+   "n_sites": 42,
+   "equivalent_years": 18.0
+  },
+  {
+   "region_code": "East",
+   "region_name": "Eastern Region (NSS GC146)",
+   "aep": 0.04,
+   "intercept": 1.9552065375419418,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.55,
+     "maximum": 1640.0
+    },
+    {
+     "code": "BSLOPCM",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 12.8,
+     "maximum": 315.0
+    },
+    {
+     "code": "LSTPERM",
+     "transform": "log10",
+     "units": "in/hr",
+     "minimum": 0.13,
+     "maximum": 0.6
+    }
+   ],
+   "coefficients": [
+    0.504,
+    0.433,
+    -0.52
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 6",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.124,
+   "model_error_variance": 0.011,
+   "n_sites": 42,
+   "equivalent_years": 24.5
+  },
+  {
+   "region_code": "East",
+   "region_name": "Eastern Region (NSS GC146)",
+   "aep": 0.02,
+   "intercept": 2.1789769472931693,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.55,
+     "maximum": 1640.0
+    },
+    {
+     "code": "BSLOPCM",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 12.8,
+     "maximum": 315.0
+    },
+    {
+     "code": "LSTPERM",
+     "transform": "log10",
+     "units": "in/hr",
+     "minimum": 0.13,
+     "maximum": 0.6
+    }
+   ],
+   "coefficients": [
+    0.494,
+    0.39,
+    -0.498
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 6",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.131,
+   "model_error_variance": 0.012,
+   "n_sites": 42,
+   "equivalent_years": 26.6
+  },
+  {
+   "region_code": "East",
+   "region_name": "Eastern Region (NSS GC146)",
+   "aep": 0.01,
+   "intercept": 2.383815365980431,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.55,
+     "maximum": 1640.0
+    },
+    {
+     "code": "BSLOPCM",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 12.8,
+     "maximum": 315.0
+    },
+    {
+     "code": "LSTPERM",
+     "transform": "log10",
+     "units": "in/hr",
+     "minimum": 0.13,
+     "maximum": 0.6
+    }
+   ],
+   "coefficients": [
+    0.485,
+    0.349,
+    -0.474
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 6",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.14,
+   "model_error_variance": 0.013,
+   "n_sites": 42,
+   "equivalent_years": 27.3
+  },
+  {
+   "region_code": "East",
+   "region_name": "Eastern Region (NSS GC146)",
+   "aep": 0.005,
+   "intercept": 2.576341350205793,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.55,
+     "maximum": 1640.0
+    },
+    {
+     "code": "BSLOPCM",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 12.8,
+     "maximum": 315.0
+    },
+    {
+     "code": "LSTPERM",
+     "transform": "log10",
+     "units": "in/hr",
+     "minimum": 0.13,
+     "maximum": 0.6
+    }
+   ],
+   "coefficients": [
+    0.476,
+    0.31,
+    -0.45
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 6",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.15,
+   "model_error_variance": 0.015,
+   "n_sites": 42,
+   "equivalent_years": 27.2
+  },
+  {
+   "region_code": "East",
+   "region_name": "Eastern Region (NSS GC146)",
+   "aep": 0.002,
+   "intercept": 2.8129133566428557,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.55,
+     "maximum": 1640.0
+    },
+    {
+     "code": "BSLOPCM",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 12.8,
+     "maximum": 315.0
+    },
+    {
+     "code": "LSTPERM",
+     "transform": "log10",
+     "units": "in/hr",
+     "minimum": 0.13,
+     "maximum": 0.6
+    }
+   ],
+   "coefficients": [
+    0.465,
+    0.26,
+    -0.417
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 6",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.163,
+   "model_error_variance": 0.019,
+   "n_sites": 42,
+   "equivalent_years": 26.6
+  },
+  {
+   "region_code": "UR",
+   "region_name": "Upper Republican River Region (NSS GC147)",
+   "aep": 0.5,
+   "intercept": 0.2944662261615929,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 6.78,
+     "maximum": 4450.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 7.1,
+     "maximum": 46.3
+    },
+    {
+     "code": "COMPRAT",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 1.22,
+     "maximum": 11.2
+    }
+   ],
+   "coefficients": [
+    0.545,
+    1.19,
+    -0.735
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 7",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.229,
+   "model_error_variance": 0.045,
+   "n_sites": 33,
+   "equivalent_years": 5.0
+  },
+  {
+   "region_code": "UR",
+   "region_name": "Upper Republican River Region (NSS GC147)",
+   "aep": 0.2,
+   "intercept": 0.5646660642520893,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 6.78,
+     "maximum": 4450.0
+    },
+    {
+     "code": "COMPRAT",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 1.22,
+     "maximum": 11.2
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 7.1,
+     "maximum": 46.3
+    }
+   ],
+   "coefficients": [
+    0.57,
+    -0.895,
+    1.32
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 7",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.21,
+   "model_error_variance": 0.037,
+   "n_sites": 33,
+   "equivalent_years": 8.1
+  },
+  {
+   "region_code": "UR",
+   "region_name": "Upper Republican River Region (NSS GC147)",
+   "aep": 0.1,
+   "intercept": 0.69284691927723,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 6.78,
+     "maximum": 4450.0
+    },
+    {
+     "code": "COMPRAT",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 1.22,
+     "maximum": 11.2
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 7.1,
+     "maximum": 46.3
+    }
+   ],
+   "coefficients": [
+    0.583,
+    -0.937,
+    1.39
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 7",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.216,
+   "model_error_variance": 0.038,
+   "n_sites": 33,
+   "equivalent_years": 10.3
+  },
+  {
+   "region_code": "UR",
+   "region_name": "Upper Republican River Region (NSS GC147)",
+   "aep": 0.04,
+   "intercept": 0.8182258936139555,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 6.78,
+     "maximum": 4450.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 7.1,
+     "maximum": 46.3
+    },
+    {
+     "code": "COMPRAT",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 1.22,
+     "maximum": 11.2
+    }
+   ],
+   "coefficients": [
+    0.597,
+    1.46,
+    -0.946
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 7",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.233,
+   "model_error_variance": 0.044,
+   "n_sites": 33,
+   "equivalent_years": 12.3
+  },
+  {
+   "region_code": "UR",
+   "region_name": "Upper Republican River Region (NSS GC147)",
+   "aep": 0.02,
+   "intercept": 0.8943160626844384,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 6.78,
+     "maximum": 4450.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 7.1,
+     "maximum": 46.3
+    },
+    {
+     "code": "COMPRAT",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 1.22,
+     "maximum": 11.2
+    }
+   ],
+   "coefficients": [
+    0.606,
+    1.5,
+    -0.931
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 7",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.25,
+   "model_error_variance": 0.05,
+   "n_sites": 33,
+   "equivalent_years": 13.3
+  },
+  {
+   "region_code": "UR",
+   "region_name": "Upper Republican River Region (NSS GC147)",
+   "aep": 0.01,
+   "intercept": 0.9599948383284161,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 6.78,
+     "maximum": 4450.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 7.1,
+     "maximum": 46.3
+    },
+    {
+     "code": "COMPRAT",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 1.22,
+     "maximum": 11.2
+    }
+   ],
+   "coefficients": [
+    0.613,
+    1.54,
+    -0.905
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 7",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.266,
+   "model_error_variance": 0.057,
+   "n_sites": 33,
+   "equivalent_years": 13.9
+  },
+  {
+   "region_code": "UR",
+   "region_name": "Upper Republican River Region (NSS GC147)",
+   "aep": 0.005,
+   "intercept": 1.0170333392987803,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 6.78,
+     "maximum": 4450.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 7.1,
+     "maximum": 46.3
+    },
+    {
+     "code": "COMPRAT",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 1.22,
+     "maximum": 11.2
+    }
+   ],
+   "coefficients": [
+    0.619,
+    1.57,
+    -0.868
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 7",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.284,
+   "model_error_variance": 0.065,
+   "n_sites": 33,
+   "equivalent_years": 14.2
+  },
+  {
+   "region_code": "UR",
+   "region_name": "Upper Republican River Region (NSS GC147)",
+   "aep": 0.002,
+   "intercept": 1.0863598306747482,
+   "variables": [
+    {
+     "code": "CONTDA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 6.78,
+     "maximum": 4450.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 7.1,
+     "maximum": 46.3
+    },
+    {
+     "code": "COMPRAT",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 1.22,
+     "maximum": 11.2
+    }
+   ],
+   "coefficients": [
+    0.626,
+    1.61,
+    -0.809
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 7",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.307,
+   "model_error_variance": 0.076,
+   "n_sites": 33,
+   "equivalent_years": 14.5
+  },
+  {
+   "region_code": "BB",
+   "region_name": "Big Blue River Region (NSS GC148)",
+   "aep": 0.5,
+   "intercept": 1.7323937598229686,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 2.03,
+     "maximum": 4450.0
+    },
+    {
+     "code": "I24H2Y",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 2.62,
+     "maximum": 3.35,
+     "offset": -2.0
+    },
+    {
+     "code": "STRDEN",
+     "transform": "log10",
+     "units": "mi/mi2",
+     "minimum": 0.14,
+     "maximum": 1.39
+    },
+    {
+     "code": "AVMXSS",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 1.9,
+     "maximum": 14.5
+    }
+   ],
+   "coefficients": [
+    0.627,
+    1.69,
+    0.468,
+    0.425
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 8",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.185,
+   "model_error_variance": 0.027,
+   "n_sites": 32,
+   "equivalent_years": 4.9
+  },
+  {
+   "region_code": "BB",
+   "region_name": "Big Blue River Region (NSS GC148)",
+   "aep": 0.2,
+   "intercept": 2.2041199826559246,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 2.03,
+     "maximum": 4450.0
+    },
+    {
+     "code": "AVMXSS",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 1.9,
+     "maximum": 14.5
+    },
+    {
+     "code": "STRDEN",
+     "transform": "log10",
+     "units": "mi/mi2",
+     "minimum": 0.14,
+     "maximum": 1.39
+    },
+    {
+     "code": "I24H2Y",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 2.62,
+     "maximum": 3.35,
+     "offset": -2.0
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 0.13,
+     "maximum": 7.6
+    }
+   ],
+   "coefficients": [
+    0.58,
+    0.492,
+    0.533,
+    1.05,
+    -0.22
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 8",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.103,
+   "model_error_variance": 0.006,
+   "n_sites": 32,
+   "equivalent_years": 19.6
+  },
+  {
+   "region_code": "BB",
+   "region_name": "Big Blue River Region (NSS GC148)",
+   "aep": 0.1,
+   "intercept": 2.4265112613645754,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 2.03,
+     "maximum": 4450.0
+    },
+    {
+     "code": "AVMXSS",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 1.9,
+     "maximum": 14.5
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 0.13,
+     "maximum": 7.6
+    },
+    {
+     "code": "STRDEN",
+     "transform": "log10",
+     "units": "mi/mi2",
+     "minimum": 0.14,
+     "maximum": 1.39
+    },
+    {
+     "code": "I24H2Y",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 2.62,
+     "maximum": 3.35,
+     "offset": -2.0
+    }
+   ],
+   "coefficients": [
+    0.546,
+    0.534,
+    -0.264,
+    0.511,
+    0.79
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 8",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.075,
+   "model_error_variance": 0.002,
+   "n_sites": 32,
+   "equivalent_years": 49.7
+  },
+  {
+   "region_code": "BB",
+   "region_name": "Big Blue River Region (NSS GC148)",
+   "aep": 0.04,
+   "intercept": 2.6655809910179533,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 2.03,
+     "maximum": 4450.0
+    },
+    {
+     "code": "AVMXSS",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 1.9,
+     "maximum": 14.5
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 0.13,
+     "maximum": 7.6
+    },
+    {
+     "code": "STRDEN",
+     "transform": "log10",
+     "units": "mi/mi2",
+     "minimum": 0.14,
+     "maximum": 1.39
+    }
+   ],
+   "coefficients": [
+    0.5,
+    0.618,
+    -0.36,
+    0.631
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 8",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.075,
+   "model_error_variance": 0.002,
+   "n_sites": 32,
+   "equivalent_years": 69.2
+  },
+  {
+   "region_code": "BB",
+   "region_name": "Big Blue River Region (NSS GC148)",
+   "aep": 0.02,
+   "intercept": 2.7831886910752575,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 2.03,
+     "maximum": 4450.0
+    },
+    {
+     "code": "AVMXSS",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 1.9,
+     "maximum": 14.5
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 0.13,
+     "maximum": 7.6
+    },
+    {
+     "code": "STRDEN",
+     "transform": "log10",
+     "units": "mi/mi2",
+     "minimum": 0.14,
+     "maximum": 1.39
+    }
+   ],
+   "coefficients": [
+    0.491,
+    0.638,
+    -0.372,
+    0.617
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 8",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.081,
+   "model_error_variance": 0.002,
+   "n_sites": 32,
+   "equivalent_years": 71.2
+  },
+  {
+   "region_code": "BB",
+   "region_name": "Big Blue River Region (NSS GC148)",
+   "aep": 0.01,
+   "intercept": 2.8830933585756897,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 2.03,
+     "maximum": 4450.0
+    },
+    {
+     "code": "AVMXSS",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 1.9,
+     "maximum": 14.5
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 0.13,
+     "maximum": 7.6
+    },
+    {
+     "code": "STRDEN",
+     "transform": "log10",
+     "units": "mi/mi2",
+     "minimum": 0.14,
+     "maximum": 1.39
+    }
+   ],
+   "coefficients": [
+    0.483,
+    0.656,
+    -0.382,
+    0.601
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 8",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.091,
+   "model_error_variance": 0.003,
+   "n_sites": 32,
+   "equivalent_years": 67.2
+  },
+  {
+   "region_code": "BB",
+   "region_name": "Big Blue River Region (NSS GC148)",
+   "aep": 0.005,
+   "intercept": 2.971275848738105,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 2.03,
+     "maximum": 4450.0
+    },
+    {
+     "code": "AVMXSS",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 1.9,
+     "maximum": 14.5
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 0.13,
+     "maximum": 7.6
+    },
+    {
+     "code": "STRDEN",
+     "transform": "log10",
+     "units": "mi/mi2",
+     "minimum": 0.14,
+     "maximum": 1.39
+    }
+   ],
+   "coefficients": [
+    0.477,
+    0.672,
+    -0.389,
+    0.584
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 8",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.101,
+   "model_error_variance": 0.004,
+   "n_sites": 32,
+   "equivalent_years": 61.8
+  },
+  {
+   "region_code": "BB",
+   "region_name": "Big Blue River Region (NSS GC148)",
+   "aep": 0.002,
+   "intercept": 3.0755469613925306,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 2.03,
+     "maximum": 4450.0
+    },
+    {
+     "code": "AVMXSS",
+     "transform": "log10",
+     "units": "percent",
+     "minimum": 1.9,
+     "maximum": 14.5
+    },
+    {
+     "code": "BSHAPE",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 0.13,
+     "maximum": 7.6
+    },
+    {
+     "code": "STRDEN",
+     "transform": "log10",
+     "units": "mi/mi2",
+     "minimum": 0.14,
+     "maximum": 1.39
+    }
+   ],
+   "coefficients": [
+    0.469,
+    0.692,
+    -0.396,
+    0.557
+   ],
+   "citation": {
+    "publication": "Soenksen, P.J., Miller, L.D., Sharpe, J.B., and Watton, J.R., 1999, Peak-flow frequency relations and evaluation of the peak-flow gaging network in Nebraska: U.S. Geological Survey Water-Resources Investigations Report 99-4032, vi, 48 p.",
+    "table": "Table 8",
+    "year": 1999,
+    "url": "https://doi.org/10.3133/wri994032"
+   },
+   "sep_log": 0.116,
+   "model_error_variance": 0.005,
+   "n_sites": 32,
+   "equivalent_years": 55.0
+  }
+ ]
+}
