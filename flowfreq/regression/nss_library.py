@@ -178,6 +178,19 @@ def merge_snapshots(base: Dict[str, Any], extras: List[Dict[str, Any]]) -> Dict[
     return merged
 
 
+#: Written into the state's library file, so a re-harvest keeps it. A method choice the NSS
+#: snapshot cannot carry (:class:`~flowfreq.regression.library.RegionPreference`).
+REGION_PREFERENCES: Dict[str, Dict[str, Any]] = {
+    "IA": {
+        "tiers": [["GC1561", "GC1562", "GC1563"], ["GC1564", "GC1627", "GC1628"]],
+        "basis": (
+            "full sets (SIR 2013-5086) where the basin has their characteristics, else "
+            "drainage-area-only (SIR 2015-5055); a flowfreq method choice, not a published rule"
+        ),
+    },
+}
+
+
 def snapshot_to_library(snapshot: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     """Build the JSON form of an ``nss_snapshot`` library from an NSS snapshot.
 
@@ -312,6 +325,7 @@ def snapshot_to_library(snapshot: Dict[str, Any]) -> Optional[Dict[str, Any]]:
             + "), so it was multiplied by 100 before conversion."
         )
     logger.debug("%s: %s", state, notes)
+    extra = {"region_preference": REGION_PREFERENCES[state]} if state in REGION_PREFERENCES else {}
     return {
         "schema_version": SCHEMA_VERSION,
         "state": state,
@@ -322,4 +336,5 @@ def snapshot_to_library(snapshot: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         "notes": notes,
         "equations": equations,
         "unparsed": unparsed,
+        **extra,
     }

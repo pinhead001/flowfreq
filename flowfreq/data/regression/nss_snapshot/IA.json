@@ -1624,5 +1624,20 @@
    "sep_log": 0.17964905058361239
   }
  ],
- "unparsed": []
+ "unparsed": [],
+ "region_preference": {
+  "tiers": [
+   [
+    "GC1561",
+    "GC1562",
+    "GC1563"
+   ],
+   [
+    "GC1564",
+    "GC1627",
+    "GC1628"
+   ]
+  ],
+  "basis": "full sets (SIR 2013-5086) where the basin has their characteristics, else drainage-area-only (SIR 2015-5055); a flowfreq method choice, not a published rule"
+ }
 }

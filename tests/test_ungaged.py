@@ -1309,6 +1309,127 @@ class TestRegionGates:
         assert not gate.admits(10001.0) and not gate.admits(10003.0) and not gate.admits(730.0)
 
 
+class TestIowaRegionPreference:
+    """Iowa's full sets (SIR 2013-5086) come first, its drainage-area-only sets (SIR 2015-5055)
+    when the basin lacks a full set's characteristic. A method choice, not a published rule."""
+
+    FULL_2 = {"DESMOIN": 0.0, "BSHAPE": 5.0}
+    FULL_3 = {"SSURGOKSAT": 10.0, "BSHAPE": 5.0}
+
+    @staticmethod
+    def _located(*weights):
+        return [
+            RegressionRegionLocation(
+                region_id=i, code=code, name=code, percent_weight=weight, area_sq_mi=100.0
+            )
+            for i, (code, weight) in enumerate(weights)
+        ]
+
+    @pytest.fixture
+    def lib(self):
+        from flowfreq.regression.library import load_state
+
+        return load_state("IA", allow_nss_snapshot=True)
+
+    def test_full_set_wins_when_its_characteristics_are_present(self, lib):
+        a = assemble(
+            lib,
+            self._located(("GC1562", 100.0), ("GC1627", 100.0)),
+            {"DRNAREA": 100.0, **self.FULL_2},
+            **KW,
+        )
+        assert [r.code for r in a.used] == ["GC1562"]
+        assert [r.code for r in a.alternatives] == ["GC1627"]
+        assert "region preference: GC1562" in a.region_choice_source
+        assert "method choice" in a.region_choice_source
+
+    def test_drainage_area_only_when_a_characteristic_is_missing(self, lib):
+        a = assemble(
+            lib,
+            self._located(("GC1562", 100.0), ("GC1627", 100.0)),
+            {"DRNAREA": 100.0, "BSHAPE": 5.0},
+            **KW,
+        )
+        assert [r.code for r in a.used] == ["GC1627"]
+        assert a.missing == {"GC1562": ["DESMOIN"]}
+        assert "region preference: GC1627" in a.region_choice_source
+
+    def test_boundary_basin_uses_both_full_sets(self, lib):
+        a = assemble(
+            lib,
+            self._located(("GC1562", 60.0), ("GC1563", 40.0), ("GC1627", 60.0), ("GC1628", 40.0)),
+            {"DRNAREA": 100.0, **self.FULL_2, **self.FULL_3},
+            **KW,
+        )
+        assert [r.code for r in a.used] == ["GC1562", "GC1563"]
+        assert sorted(r.code for r in a.alternatives) == ["GC1627", "GC1628"]
+
+    def test_boundary_basin_does_not_mix_full_and_drainage_area_only(self, lib):
+        a = assemble(
+            lib,
+            self._located(("GC1562", 60.0), ("GC1563", 40.0), ("GC1627", 60.0), ("GC1628", 40.0)),
+            {"DRNAREA": 100.0, **self.FULL_2},  # no SSURGOKSAT: GC1563 is out
+            **KW,
+        )
+        assert [r.code for r in a.used] == ["GC1627", "GC1628"]
+        assert a.missing == {"GC1563": ["SSURGOKSAT"]}
+
+    def test_the_callers_choice_still_wins(self, lib):
+        a = assemble(
+            lib,
+            self._located(("GC1562", 100.0), ("GC1627", 100.0)),
+            {"DRNAREA": 100.0, **self.FULL_2},
+            region="GC1627",
+            **KW,
+        )
+        assert [r.code for r in a.used] == ["GC1627"]
+        assert a.region_choice_source is None
+
+    def test_full_set_out_of_range_is_still_refused(self, lib):
+        from flowfreq.regression.equations import OutOfRangeError
+
+        with pytest.raises(OutOfRangeError):
+            assemble(
+                lib,
+                self._located(("GC1562", 100.0), ("GC1627", 100.0)),
+                {"DRNAREA": 100.0, "DESMOIN": 0.0, "BSHAPE": 500.0},
+                **KW,
+            )
+
+    def test_a_region_outside_the_preference_leaves_the_overlap_to_the_caller(self, lib):
+        lib.region_preference.tiers = [["GC1562"]]
+        with pytest.raises(OverlappingRegionsError):
+            assemble(
+                lib,
+                self._located(("GC1562", 100.0), ("GC1627", 100.0)),
+                {"DRNAREA": 100.0, **self.FULL_2},
+                **KW,
+            )
+
+    def test_preference_for_an_unknown_region_is_refused(self):
+        from flowfreq.regression.library import parse_state
+
+        data = self._snapshot_file()
+        data["region_preference"]["tiers"][0].append("GC9999")
+        with pytest.raises(ValueError, match="region_preference"):
+            parse_state(data)
+
+    def test_a_reharvest_keeps_the_preference(self):
+        from flowfreq.regression.nss_library import REGION_PREFERENCES
+
+        assert self._snapshot_file()["region_preference"] == REGION_PREFERENCES["IA"]
+
+    @staticmethod
+    def _snapshot_file():
+        import json
+        from pathlib import Path
+
+        import flowfreq
+
+        path = Path(flowfreq.__file__).parent / "data/regression/nss_snapshot/IA.json"
+        return json.loads(path.read_text(encoding="utf-8"))
+
+
 class TestUnmeasuredChannelWidth:
     """StreamStats returns WACTCH, WBANKFULL and CHANWD_RS as 0 for Montana: they are field or
     aerial-photo measurements it cannot compute (live 2026-11-03, 06035000). As values, they
