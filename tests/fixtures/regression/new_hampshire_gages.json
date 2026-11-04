@@ -1,0 +1,1874 @@
+{
+"01050900": {
+"name": "Four Ponds Brook near Houghton, ME",
+"DRNAREA": 3.26,
+"APRAVPRE": 4.35,
+"WETLAND": 17.0,
+"CSL10_85": 83.1,
+"flows_at_site": [
+95.4,
+159.0,
+205.0,
+268.0,
+317.0,
+369.0,
+495.0
+]
+},
+"01052500": {
+"name": "Diamond River near Wentworth Location, NH",
+"DRNAREA": 153.0,
+"APRAVPRE": 3.34,
+"WETLAND": 2.58,
+"CSL10_85": 29.9,
+"flows_at_site": [
+4950.0,
+6450.0,
+7420.0,
+8630.0,
+9520.0,
+10400.0,
+12500.0
+]
+},
+"01054200": {
+"name": "Wild River at Gilead, ME",
+"DRNAREA": 69.9,
+"APRAVPRE": 4.54,
+"WETLAND": 0.397,
+"CSL10_85": 123.0,
+"flows_at_site": [
+9110.0,
+14600.0,
+18200.0,
+22600.0,
+25700.0,
+28800.0,
+35400.0
+]
+},
+"01054300": {
+"name": "Ellis River at South Andover, ME",
+"DRNAREA": 131.0,
+"APRAVPRE": 4.2,
+"WETLAND": 5.15,
+"CSL10_85": 32.7,
+"flows_at_site": [
+4280.0,
+5970.0,
+7010.0,
+8220.0,
+9070.0,
+9860.0,
+11600.0
+]
+},
+"01055000": {
+"name": "Swift River near Roxbury, ME",
+"DRNAREA": 96.8,
+"APRAVPRE": 4.59,
+"WETLAND": 0.827,
+"CSL10_85": 74.0,
+"flows_at_site": [
+6260.0,
+9890.0,
+12400.0,
+15600.0,
+18000.0,
+20400.0,
+26000.0
+]
+},
+"01055300": {
+"name": "Bog Brook near Buckfield, ME",
+"DRNAREA": 10.5,
+"APRAVPRE": 3.92,
+"WETLAND": 11.2,
+"CSL10_85": 22.2,
+"flows_at_site": [
+189.0,
+262.0,
+308.0,
+364.0,
+404.0,
+443.0,
+530.0
+]
+},
+"01057000": {
+"name": "Little Androscoggin River near South Paris, ME",
+"DRNAREA": 76.5,
+"APRAVPRE": 3.71,
+"WETLAND": 5.47,
+"CSL10_85": 42.1,
+"flows_at_site": [
+2200.0,
+3400.0,
+4260.0,
+5400.0,
+6290.0,
+7210.0,
+9480.0
+]
+},
+"01062700": {
+"name": "Patte Brook near Bethel, ME",
+"DRNAREA": 5.67,
+"APRAVPRE": 3.97,
+"WETLAND": 3.9,
+"CSL10_85": 116.0,
+"flows_at_site": [
+241.0,
+388.0,
+493.0,
+630.0,
+735.0,
+841.0,
+1100.0
+]
+},
+"01063310": {
+"name": "Stony Brook at East Sebago, ME",
+"DRNAREA": 1.51,
+"APRAVPRE": 4.39,
+"WETLAND": 7.52,
+"CSL10_85": 36.2,
+"flows_at_site": [
+44.6,
+85.8,
+121.0,
+176.0,
+223.0,
+277.0,
+432.0
+]
+},
+"01064300": {
+"name": "Ellis River near Jackson, NH",
+"DRNAREA": 10.5,
+"APRAVPRE": 6.23,
+"WETLAND": 0.0,
+"CSL10_85": 533.0,
+"flows_at_site": [
+1260.0,
+2030.0,
+2570.0,
+3250.0,
+3770.0,
+4290.0,
+5490.0
+]
+},
+"01064380": {
+"name": "East Branch Saco River at Town Hall Road, near Lower Bartlett, NH",
+"DRNAREA": 33.9,
+"APRAVPRE": 4.9,
+"WETLAND": 0.782,
+"CSL10_85": 148.0,
+"flows_at_site": [
+1950.0,
+3010.0,
+3750.0,
+4700.0,
+5430.0,
+6160.0,
+7920.0
+]
+},
+"01064400": {
+"name": "Lucy Brook near North Conway, NH",
+"DRNAREA": 4.69,
+"APRAVPRE": 4.45,
+"WETLAND": 0.768,
+"CSL10_85": 428.0,
+"flows_at_site": [
+576.0,
+1050.0,
+1420.0,
+1920.0,
+2320.0,
+2730.0,
+3750.0
+]
+},
+"01064500": {
+"name": "Saco River near Conway, NH",
+"DRNAREA": 385.0,
+"APRAVPRE": 4.7,
+"WETLAND": 1.83,
+"CSL10_85": 47.3,
+"flows_at_site": [
+17200.0,
+26300.0,
+32500.0,
+40600.0,
+46700.0,
+52800.0,
+67400.0
+]
+},
+"01064800": {
+"name": "Cold Brook at South Tamworth, NH",
+"DRNAREA": 5.46,
+"APRAVPRE": 4.28,
+"WETLAND": 0.0,
+"CSL10_85": 421.0,
+"flows_at_site": [
+464.0,
+1020.0,
+1570.0,
+2510.0,
+3430.0,
+4580.0,
+8310.0
+]
+},
+"01064801": {
+"name": "Bearcamp River at South Tamworth, NH",
+"DRNAREA": 67.4,
+"APRAVPRE": 4.16,
+"WETLAND": 4.89,
+"CSL10_85": 131.0,
+"flows_at_site": [
+3600.0,
+5070.0,
+6050.0,
+7300.0,
+8240.0,
+9180.0,
+11400.0
+]
+},
+"01065000": {
+"name": "Ossipee River at Effingham Falls, NH",
+"DRNAREA": 329.0,
+"APRAVPRE": 4.14,
+"WETLAND": 8.99,
+"CSL10_85": 22.5,
+"flows_at_site": [
+3550.0,
+4900.0,
+5870.0,
+7160.0,
+8170.0,
+9240.0,
+11900.0
+]
+},
+"01065500": {
+"name": "Ossipee River at Cornish, ME",
+"DRNAREA": 452.0,
+"APRAVPRE": 4.2,
+"WETLAND": 8.92,
+"CSL10_85": 12.9,
+"flows_at_site": [
+4450.0,
+6350.0,
+7710.0,
+9520.0,
+10900.0,
+12400.0,
+16200.0
+]
+},
+"01066000": {
+"name": "Saco River at Cornish, ME",
+"DRNAREA": 1290.0,
+"APRAVPRE": 4.36,
+"WETLAND": 8.18,
+"CSL10_85": 7.33,
+"flows_at_site": [
+13500.0,
+19000.0,
+22700.0,
+27500.0,
+31100.0,
+34800.0,
+43600.0
+]
+},
+"01066100": {
+"name": "Pease Brook near Cornish, ME",
+"DRNAREA": 4.63,
+"APRAVPRE": 4.5,
+"WETLAND": 2.41,
+"CSL10_85": 133.0,
+"flows_at_site": [
+180.0,
+324.0,
+447.0,
+636.0,
+802.0,
+992.0,
+1540.0
+]
+},
+"01066500": {
+"name": "Little Ossipee River near South Limington, ME",
+"DRNAREA": 163.0,
+"APRAVPRE": 4.48,
+"WETLAND": 11.6,
+"CSL10_85": 10.1,
+"flows_at_site": [
+2040.0,
+3220.0,
+4150.0,
+5510.0,
+6660.0,
+7920.0,
+11400.0
+]
+},
+"01069700": {
+"name": "Branch Brook near Kennebunk, ME",
+"DRNAREA": 10.5,
+"APRAVPRE": 4.34,
+"WETLAND": 9.48,
+"CSL10_85": 24.0,
+"flows_at_site": [
+321.0,
+558.0,
+755.0,
+1050.0,
+1310.0,
+1610.0,
+2450.0
+]
+},
+"01072800": {
+"name": "Cocheco River near Rochester, NH",
+"DRNAREA": 79.9,
+"APRAVPRE": 4.28,
+"WETLAND": 6.12,
+"CSL10_85": 16.7,
+"flows_at_site": [
+1640.0,
+2650.0,
+3460.0,
+4660.0,
+5680.0,
+6820.0,
+10000.0
+]
+},
+"01072850": {
+"name": "Mohawk Brook near Center Strafford, NH",
+"DRNAREA": 7.3,
+"APRAVPRE": 4.29,
+"WETLAND": 4.28,
+"CSL10_85": 86.6,
+"flows_at_site": [
+293.0,
+686.0,
+1100.0,
+1870.0,
+2670.0,
+3700.0,
+7360.0
+]
+},
+"01073000": {
+"name": "Oyster River near Durham, NH",
+"DRNAREA": 12.2,
+"APRAVPRE": 4.18,
+"WETLAND": 9.6,
+"CSL10_85": 17.9,
+"flows_at_site": [
+305.0,
+488.0,
+632.0,
+839.0,
+1010.0,
+1200.0,
+1730.0
+]
+},
+"01073500": {
+"name": "Lamprey River near Newmarket, NH",
+"DRNAREA": 185.0,
+"APRAVPRE": 4.07,
+"WETLAND": 7.79,
+"CSL10_85": 9.36,
+"flows_at_site": [
+2200.0,
+3550.0,
+4650.0,
+6280.0,
+7690.0,
+9270.0,
+13700.0
+]
+},
+"01073587": {
+"name": "Exeter River at Haigh Road, near Brentwood, NH",
+"DRNAREA": 63.5,
+"APRAVPRE": 4.06,
+"WETLAND": 13.7,
+"CSL10_85": 7.09,
+"flows_at_site": [
+882.0,
+1420.0,
+1840.0,
+2450.0,
+2960.0,
+3530.0,
+5060.0
+]
+},
+"01073600": {
+"name": "Dudley Brook near Exeter, NH",
+"DRNAREA": 5.79,
+"APRAVPRE": 4.2,
+"WETLAND": 6.88,
+"CSL10_85": 8.8,
+"flows_at_site": [
+168.0,
+257.0,
+325.0,
+422.0,
+502.0,
+590.0,
+825.0
+]
+},
+"01073750": {
+"name": "Mill Brook near State Route 108, at Stratham, NH",
+"DRNAREA": 2.31,
+"APRAVPRE": 4.3,
+"WETLAND": 9.09,
+"CSL10_85": 43.2,
+"flows_at_site": [
+114.0,
+214.0,
+302.0,
+440.0,
+564.0,
+706.0,
+1130.0
+]
+},
+"01074520": {
+"name": "East Branch Pemigewasset River at Lincoln, NH",
+"DRNAREA": 115.0,
+"APRAVPRE": 4.53,
+"WETLAND": 0.206,
+"CSL10_85": 86.1,
+"flows_at_site": [
+8210.0,
+12400.0,
+15500.0,
+19700.0,
+23000.0,
+26500.0,
+35500.0
+]
+},
+"01075000": {
+"name": "Pemigewasset River at Woodstock, NH",
+"DRNAREA": 195.0,
+"APRAVPRE": 4.31,
+"WETLAND": 0.664,
+"CSL10_85": 78.2,
+"flows_at_site": [
+11800.0,
+19000.0,
+24500.0,
+32200.0,
+38400.0,
+45100.0,
+62400.0
+]
+},
+"01075800": {
+"name": "Stevens Brook near Wentworth, NH",
+"DRNAREA": 3.29,
+"APRAVPRE": 3.75,
+"WETLAND": 0.0,
+"CSL10_85": 472.0,
+"flows_at_site": [
+206.0,
+395.0,
+570.0,
+857.0,
+1130.0,
+1460.0,
+2490.0
+]
+},
+"01076000": {
+"name": "Baker River near Rumney, NH",
+"DRNAREA": 143.0,
+"APRAVPRE": 3.45,
+"WETLAND": 1.58,
+"CSL10_85": 94.5,
+"flows_at_site": [
+5180.0,
+8650.0,
+11600.0,
+16000.0,
+20000.0,
+24500.0,
+37900.0
+]
+},
+"01076500": {
+"name": "Pemigewasset River at Plymouth, NH",
+"DRNAREA": 623.0,
+"APRAVPRE": 3.99,
+"WETLAND": 1.43,
+"CSL10_85": 38.9,
+"flows_at_site": [
+21300.0,
+30200.0,
+36400.0,
+44600.0,
+51000.0,
+57700.0,
+74100.0
+]
+},
+"01078000": {
+"name": "Smith River near Bristol, NH",
+"DRNAREA": 86.1,
+"APRAVPRE": 3.54,
+"WETLAND": 4.3,
+"CSL10_85": 23.6,
+"flows_at_site": [
+1760.0,
+2620.0,
+3260.0,
+4170.0,
+4920.0,
+5740.0,
+7910.0
+]
+},
+"01082000": {
+"name": "Contoocook River at Peterborough, NH",
+"DRNAREA": 67.4,
+"APRAVPRE": 3.97,
+"WETLAND": 10.2,
+"CSL10_85": 21.8,
+"flows_at_site": [
+1300.0,
+1920.0,
+2390.0,
+3050.0,
+3600.0,
+4190.0,
+5770.0
+]
+},
+"01084000": {
+"name": "North Branch River near Antrim, NH",
+"DRNAREA": 54.2,
+"APRAVPRE": 4.34,
+"WETLAND": 9.92,
+"CSL10_85": 22.5,
+"flows_at_site": [
+910.0,
+1460.0,
+1920.0,
+2610.0,
+3230.0,
+3930.0,
+6010.0
+]
+},
+"01084500": {
+"name": "Beards Brook near Hillsborough, NH",
+"DRNAREA": 55.4,
+"APRAVPRE": 4.16,
+"WETLAND": 7.43,
+"CSL10_85": 68.6,
+"flows_at_site": [
+1210.0,
+1750.0,
+2150.0,
+2710.0,
+3160.0,
+3640.0,
+4920.0
+]
+},
+"01085800": {
+"name": "West Branch Warner River near Bradford, NH",
+"DRNAREA": 5.88,
+"APRAVPRE": 4.35,
+"WETLAND": 1.38,
+"CSL10_85": 388.0,
+"flows_at_site": [
+354.0,
+582.0,
+752.0,
+987.0,
+1180.0,
+1380.0,
+1890.0
+]
+},
+"01086000": {
+"name": "Warner River at Davisville, NH",
+"DRNAREA": 145.0,
+"APRAVPRE": 3.96,
+"WETLAND": 6.08,
+"CSL10_85": 29.0,
+"flows_at_site": [
+2210.0,
+3380.0,
+4260.0,
+5490.0,
+6500.0,
+7580.0,
+10400.0
+]
+},
+"01089100": {
+"name": "Soucook River at Pembroke Road, near Concord, NH",
+"DRNAREA": 82.7,
+"APRAVPRE": 3.61,
+"WETLAND": 5.58,
+"CSL10_85": 26.7,
+"flows_at_site": [
+1360.0,
+2130.0,
+2730.0,
+3570.0,
+4280.0,
+5040.0,
+7110.0
+]
+},
+"01089500": {
+"name": "Suncook River at North Chichester, NH",
+"DRNAREA": 154.0,
+"APRAVPRE": 4.03,
+"WETLAND": 7.05,
+"CSL10_85": 16.6,
+"flows_at_site": [
+2270.0,
+3610.0,
+4720.0,
+6390.0,
+7860.0,
+9540.0,
+14400.0
+]
+},
+"01091000": {
+"name": "South Branch Piscataquog River near Goffstown, NH",
+"DRNAREA": 103.0,
+"APRAVPRE": 4.03,
+"WETLAND": 5.48,
+"CSL10_85": 28.0,
+"flows_at_site": [
+2070.0,
+3230.0,
+4110.0,
+5340.0,
+6340.0,
+7410.0,
+10200.0
+]
+},
+"01093800": {
+"name": "Stony Brook Tributary near Temple, NH",
+"DRNAREA": 3.6,
+"APRAVPRE": 4.23,
+"WETLAND": 0.363,
+"CSL10_85": 258.0,
+"flows_at_site": [
+188.0,
+308.0,
+407.0,
+556.0,
+685.0,
+831.0,
+1250.0
+]
+},
+"01094000": {
+"name": "Souhegan River at Merrimack, NH",
+"DRNAREA": 171.0,
+"APRAVPRE": 4.17,
+"WETLAND": 4.73,
+"CSL10_85": 25.5,
+"flows_at_site": [
+3200.0,
+4950.0,
+6350.0,
+8430.0,
+10200.0,
+12200.0,
+17900.0
+]
+},
+"01094500": {
+"name": "North Nashua River near Leominster, MA",
+"DRNAREA": 108.0,
+"APRAVPRE": 4.25,
+"WETLAND": 7.68,
+"CSL10_85": 37.7,
+"flows_at_site": [
+2480.0,
+4200.0,
+5660.0,
+7920.0,
+9920.0,
+12200.0,
+19100.0
+]
+},
+"01095000": {
+"name": "Rocky Brook near Sterling, MA",
+"DRNAREA": 2.23,
+"APRAVPRE": 4.47,
+"WETLAND": 14.6,
+"CSL10_85": 101.0,
+"flows_at_site": [
+59.4,
+120.0,
+181.0,
+287.0,
+393.0,
+527.0,
+987.0
+]
+},
+"01095800": {
+"name": "Easter Brook near North Leominster, MA",
+"DRNAREA": 0.95,
+"APRAVPRE": 4.22,
+"WETLAND": 4.53,
+"CSL10_85": 158.0,
+"flows_at_site": [
+52.3,
+89.4,
+120.0,
+167.0,
+208.0,
+254.0,
+389.0
+]
+},
+"01096000": {
+"name": "Squannacook River near West Groton, MA",
+"DRNAREA": 65.6,
+"APRAVPRE": 4.15,
+"WETLAND": 6.8,
+"CSL10_85": 47.0,
+"flows_at_site": [
+1440.0,
+2370.0,
+3090.0,
+4130.0,
+4990.0,
+5930.0,
+8460.0
+]
+},
+"010965852": {
+"name": "Beaver Brook at North Pelham, NH",
+"DRNAREA": 47.6,
+"APRAVPRE": 3.94,
+"WETLAND": 7.89,
+"CSL10_85": 12.6,
+"flows_at_site": [
+809.0,
+1400.0,
+1910.0,
+2680.0,
+3360.0,
+4140.0,
+6400.0
+]
+},
+"01096910": {
+"name": "Boulder Brook at East Bolton, MA",
+"DRNAREA": 1.6,
+"APRAVPRE": 4.1,
+"WETLAND": 0.128,
+"CSL10_85": 75.2,
+"flows_at_site": [
+44.7,
+78.5,
+108.0,
+155.0,
+197.0,
+246.0,
+397.0
+]
+},
+"01097200": {
+"name": "Heath Hen Meadow Brook at Stow, MA",
+"DRNAREA": 3.76,
+"APRAVPRE": 4.06,
+"WETLAND": 15.1,
+"CSL10_85": 14.2,
+"flows_at_site": [
+59.1,
+98.9,
+131.0,
+179.0,
+219.0,
+265.0,
+392.0
+]
+},
+"01097300": {
+"name": "Nashoba Brook near Acton, MA",
+"DRNAREA": 12.3,
+"APRAVPRE": 3.99,
+"WETLAND": 13.6,
+"CSL10_85": 20.2,
+"flows_at_site": [
+198.0,
+326.0,
+425.0,
+566.0,
+683.0,
+811.0,
+1150.0
+]
+},
+"01100100": {
+"name": "Richardson Brook near Lowell, MA",
+"DRNAREA": 4.04,
+"APRAVPRE": 4.0,
+"WETLAND": 7.81,
+"CSL10_85": 30.2,
+"flows_at_site": [
+111.0,
+166.0,
+208.0,
+268.0,
+318.0,
+373.0,
+525.0
+]
+},
+"01100700": {
+"name": "East Meadow River near Haverhill, MA",
+"DRNAREA": 4.81,
+"APRAVPRE": 4.3,
+"WETLAND": 13.0,
+"CSL10_85": 20.1,
+"flows_at_site": [
+109.0,
+185.0,
+246.0,
+337.0,
+415.0,
+502.0,
+743.0
+]
+},
+"01100800": {
+"name": "Cobbler Brook near Merrimack, MA",
+"DRNAREA": 0.76,
+"APRAVPRE": 4.29,
+"WETLAND": 2.03,
+"CSL10_85": 56.7,
+"flows_at_site": [
+57.9,
+80.9,
+97.2,
+119.0,
+136.0,
+154.0,
+199.0
+]
+},
+"01100900": {
+"name": "Parker River Tributary near Georgetown, MA",
+"DRNAREA": 0.7,
+"APRAVPRE": 4.35,
+"WETLAND": 21.8,
+"CSL10_85": 23.8,
+"flows_at_site": [
+18.2,
+34.6,
+49.1,
+72.4,
+93.6,
+119.0,
+194.0
+]
+},
+"01101000": {
+"name": "Parker River at Byfield, MA",
+"DRNAREA": 21.4,
+"APRAVPRE": 4.32,
+"WETLAND": 20.5,
+"CSL10_85": 5.43,
+"flows_at_site": [
+218.0,
+357.0,
+472.0,
+646.0,
+797.0,
+969.0,
+1460.0
+]
+},
+"01127880": {
+"name": "Big Brook near Pittsburg, NH",
+"DRNAREA": 6.47,
+"APRAVPRE": 3.3,
+"WETLAND": 3.39,
+"CSL10_85": 234.0,
+"flows_at_site": [
+264.0,
+341.0,
+389.0,
+446.0,
+487.0,
+527.0,
+616.0
+]
+},
+"01129300": {
+"name": "Halls Stream near East Hereford, Quebec",
+"DRNAREA": 84.8,
+"APRAVPRE": 3.04,
+"WETLAND": 0.615,
+"CSL10_85": 32.6,
+"flows_at_site": [
+3330.0,
+4560.0,
+5460.0,
+6680.0,
+7650.0,
+8690.0,
+11400.0
+]
+},
+"01129400": {
+"name": "Black Brook at Averill, VT",
+"DRNAREA": 0.88,
+"APRAVPRE": 3.25,
+"WETLAND": 0.066,
+"CSL10_85": 207.0,
+"flows_at_site": [
+30.8,
+40.8,
+47.7,
+56.5,
+63.2,
+70.1,
+86.9
+]
+},
+"01129440": {
+"name": "Mohawk River near Colebrook, NH",
+"DRNAREA": 35.2,
+"APRAVPRE": 3.09,
+"WETLAND": 1.56,
+"CSL10_85": 127.0,
+"flows_at_site": [
+2140.0,
+3160.0,
+3880.0,
+4840.0,
+5580.0,
+6340.0,
+8230.0
+]
+},
+"01129700": {
+"name": "Paul Stream Tributary near Brunswick, VT",
+"DRNAREA": 1.48,
+"APRAVPRE": 2.97,
+"WETLAND": 0.844,
+"CSL10_85": 240.0,
+"flows_at_site": [
+50.8,
+74.3,
+91.4,
+115.0,
+133.0,
+153.0,
+203.0
+]
+},
+"01130000": {
+"name": "Upper Ammonoosuc River near Groveton, NH",
+"DRNAREA": 230.0,
+"APRAVPRE": 3.52,
+"WETLAND": 3.44,
+"CSL10_85": 23.0,
+"flows_at_site": [
+4910.0,
+6660.0,
+7770.0,
+9110.0,
+10100.0,
+11000.0,
+13100.0
+]
+},
+"01133000": {
+"name": "East Branch Passumpsic River near East Haven, VT",
+"DRNAREA": 51.3,
+"APRAVPRE": 3.15,
+"WETLAND": 3.05,
+"CSL10_85": 84.7,
+"flows_at_site": [
+1370.0,
+1970.0,
+2410.0,
+3030.0,
+3540.0,
+4080.0,
+5500.0
+]
+},
+"01133200": {
+"name": "Quimby Brook near Lyndonville, VT",
+"DRNAREA": 2.16,
+"APRAVPRE": 2.83,
+"WETLAND": 0.873,
+"CSL10_85": 229.0,
+"flows_at_site": [
+80.6,
+131.0,
+172.0,
+232.0,
+285.0,
+344.0,
+512.0
+]
+},
+"01133300": {
+"name": "Cold Hill Brook near Lyndon, VT",
+"DRNAREA": 1.64,
+"APRAVPRE": 2.88,
+"WETLAND": 0.177,
+"CSL10_85": 252.0,
+"flows_at_site": [
+55.9,
+93.4,
+124.0,
+171.0,
+211.0,
+257.0,
+387.0
+]
+},
+"01134500": {
+"name": "Moose River at Victory, VT",
+"DRNAREA": 75.2,
+"APRAVPRE": 3.22,
+"WETLAND": 4.5,
+"CSL10_85": 66.7,
+"flows_at_site": [
+2090.0,
+2760.0,
+3220.0,
+3810.0,
+4270.0,
+4740.0,
+5880.0
+]
+},
+"01134800": {
+"name": "Kirby Brook at Concord, VT",
+"DRNAREA": 8.13,
+"APRAVPRE": 2.98,
+"WETLAND": 0.636,
+"CSL10_85": 125.0,
+"flows_at_site": [
+394.0,
+628.0,
+814.0,
+1090.0,
+1320.0,
+1580.0,
+2320.0
+]
+},
+"01135000": {
+"name": "Moose River at St. Johnsbury, VT",
+"DRNAREA": 129.0,
+"APRAVPRE": 3.09,
+"WETLAND": 3.38,
+"CSL10_85": 37.3,
+"flows_at_site": [
+2660.0,
+3790.0,
+4600.0,
+5690.0,
+6550.0,
+7440.0,
+9700.0
+]
+},
+"01135150": {
+"name": "Pope Brook near North Danville, VT",
+"DRNAREA": 3.27,
+"APRAVPRE": 3.05,
+"WETLAND": 0.062,
+"CSL10_85": 369.0,
+"flows_at_site": [
+152.0,
+190.0,
+214.0,
+245.0,
+267.0,
+290.0,
+342.0
+]
+},
+"01135300": {
+"name": "Sleepers River near St. Johnsbury, VT",
+"DRNAREA": 42.5,
+"APRAVPRE": 2.94,
+"WETLAND": 0.776,
+"CSL10_85": 104.0,
+"flows_at_site": [
+1870.0,
+2930.0,
+3780.0,
+5030.0,
+6110.0,
+7310.0,
+10700.0
+]
+},
+"01135500": {
+"name": "Passumpsic River at Passumpsic, VT",
+"DRNAREA": 434.0,
+"APRAVPRE": 3.0,
+"WETLAND": 2.08,
+"CSL10_85": 36.2,
+"flows_at_site": [
+7630.0,
+10100.0,
+11700.0,
+13800.0,
+15400.0,
+17000.0,
+20800.0
+]
+},
+"01135700": {
+"name": "Joes Brook Tributary near East Barnet, VT",
+"DRNAREA": 0.7,
+"APRAVPRE": 2.79,
+"WETLAND": 0.0,
+"CSL10_85": 543.0,
+"flows_at_site": [
+34.0,
+53.8,
+69.6,
+92.8,
+112.0,
+134.0,
+195.0
+]
+},
+"01137500": {
+"name": "Ammonoosuc River at Bethlehem Junction, NH",
+"DRNAREA": 88.2,
+"APRAVPRE": 4.31,
+"WETLAND": 0.574,
+"CSL10_85": 71.5,
+"flows_at_site": [
+4400.0,
+6320.0,
+7660.0,
+9440.0,
+10800.0,
+12200.0,
+15800.0
+]
+},
+"01138000": {
+"name": "Ammonoosuc River near Bath, NH",
+"DRNAREA": 396.0,
+"APRAVPRE": 3.32,
+"WETLAND": 1.45,
+"CSL10_85": 26.4,
+"flows_at_site": [
+10700.0,
+15800.0,
+19600.0,
+24800.0,
+29100.0,
+33600.0,
+45600.0
+]
+},
+"01138800": {
+"name": "Keenan Brook at Groton, VT",
+"DRNAREA": 4.72,
+"APRAVPRE": 3.05,
+"WETLAND": 3.49,
+"CSL10_85": 138.0,
+"flows_at_site": [
+96.9,
+165.0,
+220.0,
+302.0,
+372.0,
+451.0,
+672.0
+]
+},
+"01139000": {
+"name": "Wells River at Wells River, VT",
+"DRNAREA": 98.8,
+"APRAVPRE": 3.0,
+"WETLAND": 3.39,
+"CSL10_85": 32.9,
+"flows_at_site": [
+1720.0,
+2500.0,
+3080.0,
+3870.0,
+4500.0,
+5170.0,
+6900.0
+]
+},
+"01139700": {
+"name": "Waits River Tributary near West Topsham, VT",
+"DRNAREA": 1.21,
+"APRAVPRE": 3.43,
+"WETLAND": 0.578,
+"CSL10_85": 475.0,
+"flows_at_site": [
+44.2,
+69.7,
+88.9,
+116.0,
+138.0,
+162.0,
+224.0
+]
+},
+"01139800": {
+"name": "East Orange Branch at East Orange, VT",
+"DRNAREA": 8.79,
+"APRAVPRE": 3.35,
+"WETLAND": 0.163,
+"CSL10_85": 153.0,
+"flows_at_site": [
+255.0,
+397.0,
+507.0,
+661.0,
+789.0,
+927.0,
+1300.0
+]
+},
+"01140800": {
+"name": "West Branch Ompompanoosuc River Tributary at South Strafford, VT",
+"DRNAREA": 1.35,
+"APRAVPRE": 3.36,
+"WETLAND": 0.0,
+"CSL10_85": 330.0,
+"flows_at_site": [
+78.8,
+105.0,
+123.0,
+148.0,
+168.0,
+189.0,
+242.0
+]
+},
+"01141800": {
+"name": "Mink Brook near Etna, NH",
+"DRNAREA": 4.76,
+"APRAVPRE": 3.31,
+"WETLAND": 0.622,
+"CSL10_85": 172.0,
+"flows_at_site": [
+221.0,
+385.0,
+521.0,
+724.0,
+900.0,
+1100.0,
+1660.0
+]
+},
+"01142000": {
+"name": "White River near Bethel, VT",
+"DRNAREA": 239.0,
+"APRAVPRE": 4.11,
+"WETLAND": 0.701,
+"CSL10_85": 16.2,
+"flows_at_site": [
+10100.0,
+15400.0,
+19600.0,
+25700.0,
+30900.0,
+36800.0,
+53000.0
+]
+},
+"01142400": {
+"name": "Third Branch White River Tributary at Randolph, VT",
+"DRNAREA": 0.8,
+"APRAVPRE": 3.36,
+"WETLAND": 0.0,
+"CSL10_85": 376.0,
+"flows_at_site": [
+47.9,
+86.3,
+122.0,
+183.0,
+241.0,
+313.0,
+550.0
+]
+},
+"01142500": {
+"name": "Ayers Brook at Randolph, VT",
+"DRNAREA": 30.5,
+"APRAVPRE": 3.11,
+"WETLAND": 0.653,
+"CSL10_85": 61.5,
+"flows_at_site": [
+737.0,
+1130.0,
+1450.0,
+1920.0,
+2340.0,
+2820.0,
+4180.0
+]
+},
+"01144000": {
+"name": "White River at West Hartford, VT",
+"DRNAREA": 687.0,
+"APRAVPRE": 3.6,
+"WETLAND": 0.874,
+"CSL10_85": 12.5,
+"flows_at_site": [
+17700.0,
+26100.0,
+32900.0,
+43100.0,
+51900.0,
+61800.0,
+90500.0
+]
+},
+"01145000": {
+"name": "Mascoma River at West Canaan, NH",
+"DRNAREA": 80.4,
+"APRAVPRE": 3.37,
+"WETLAND": 5.35,
+"CSL10_85": 47.8,
+"flows_at_site": [
+1630.0,
+2340.0,
+2810.0,
+3430.0,
+3900.0,
+4370.0,
+5510.0
+]
+},
+"01150800": {
+"name": "Kent Brook near Killington, VT",
+"DRNAREA": 3.25,
+"APRAVPRE": 4.89,
+"WETLAND": 2.03,
+"CSL10_85": 438.0,
+"flows_at_site": [
+212.0,
+368.0,
+500.0,
+701.0,
+878.0,
+1080.0,
+1660.0
+]
+},
+"01150900": {
+"name": "Ottauquechee River near West Bridgewater, VT",
+"DRNAREA": 23.3,
+"APRAVPRE": 4.54,
+"WETLAND": 3.27,
+"CSL10_85": 121.0,
+"flows_at_site": [
+990.0,
+1350.0,
+1610.0,
+1950.0,
+2230.0,
+2510.0,
+3230.0
+]
+},
+"01151200": {
+"name": "Ottauquechee River Tributary near Quechee, VT",
+"DRNAREA": 0.78,
+"APRAVPRE": 3.42,
+"WETLAND": 1.04,
+"CSL10_85": 249.0,
+"flows_at_site": [
+17.1,
+27.8,
+36.7,
+50.4,
+62.5,
+76.3,
+117.0
+]
+},
+"01152500": {
+"name": "Sugar River at West Claremont, NH",
+"DRNAREA": 270.0,
+"APRAVPRE": 3.54,
+"WETLAND": 7.21,
+"CSL10_85": 23.3,
+"flows_at_site": [
+4720.0,
+6650.0,
+8020.0,
+9860.0,
+11300.0,
+12800.0,
+16700.0
+]
+},
+"01153300": {
+"name": "Middle Branch Williams River Tributary at Chester, VT",
+"DRNAREA": 3.19,
+"APRAVPRE": 3.94,
+"WETLAND": 0.319,
+"CSL10_85": 237.0,
+"flows_at_site": [
+140.0,
+198.0,
+239.0,
+294.0,
+338.0,
+384.0,
+499.0
+]
+},
+"01153550": {
+"name": "Williams River near Rockingham, VT",
+"DRNAREA": 112.0,
+"APRAVPRE": 3.98,
+"WETLAND": 1.13,
+"CSL10_85": 49.6,
+"flows_at_site": [
+4930.0,
+7180.0,
+8760.0,
+10800.0,
+12400.0,
+14100.0,
+18200.0
+]
+},
+"01154000": {
+"name": "Saxtons River at Saxtons River, VT",
+"DRNAREA": 72.1,
+"APRAVPRE": 4.05,
+"WETLAND": 1.6,
+"CSL10_85": 79.1,
+"flows_at_site": [
+2690.0,
+4070.0,
+5100.0,
+6540.0,
+7720.0,
+8970.0,
+12300.0
+]
+},
+"01155000": {
+"name": "Cold River at Drewsville, NH",
+"DRNAREA": 83.3,
+"APRAVPRE": 3.54,
+"WETLAND": 2.83,
+"CSL10_85": 41.1,
+"flows_at_site": [
+1990.0,
+3150.0,
+4080.0,
+5470.0,
+6680.0,
+8040.0,
+11900.0
+]
+},
+"01155200": {
+"name": "Sacketts Brook near Putney, VT",
+"DRNAREA": 10.2,
+"APRAVPRE": 3.89,
+"WETLAND": 1.03,
+"CSL10_85": 163.0,
+"flows_at_site": [
+321.0,
+527.0,
+691.0,
+933.0,
+1140.0,
+1370.0,
+2000.0
+]
+},
+"01155300": {
+"name": "Flood Brook near Londonderry, VT",
+"DRNAREA": 9.28,
+"APRAVPRE": 4.51,
+"WETLAND": 1.77,
+"CSL10_85": 164.0,
+"flows_at_site": [
+561.0,
+918.0,
+1210.0,
+1630.0,
+2000.0,
+2400.0,
+3540.0
+]
+},
+"01155350": {
+"name": "Tributary to West River Tributary near Jamaica, VT",
+"DRNAREA": 0.93,
+"APRAVPRE": 4.43,
+"WETLAND": 0.282,
+"CSL10_85": 390.0,
+"flows_at_site": [
+57.4,
+99.4,
+135.0,
+191.0,
+242.0,
+300.0,
+473.0
+]
+},
+"01156300": {
+"name": "Whetstone Brook Tributary near Marlboro, VT",
+"DRNAREA": 1.08,
+"APRAVPRE": 4.4,
+"WETLAND": 1.43,
+"CSL10_85": 156.0,
+"flows_at_site": [
+112.0,
+191.0,
+255.0,
+350.0,
+431.0,
+521.0,
+770.0
+]
+},
+"01156450": {
+"name": "Connecticut River Tributary near Vernon, VT",
+"DRNAREA": 1.1,
+"APRAVPRE": 4.01,
+"WETLAND": 1.29,
+"CSL10_85": 153.0,
+"flows_at_site": [
+52.2,
+86.3,
+115.0,
+161.0,
+201.0,
+249.0,
+391.0
+]
+},
+"01157000": {
+"name": "Ashuelot River near Gilsum, NH",
+"DRNAREA": 71.9,
+"APRAVPRE": 3.85,
+"WETLAND": 7.12,
+"CSL10_85": 31.0,
+"flows_at_site": [
+1600.0,
+2470.0,
+3180.0,
+4220.0,
+5130.0,
+6150.0,
+9070.0
+]
+},
+"01158500": {
+"name": "Otter Brook near Keene, NH",
+"DRNAREA": 42.2,
+"APRAVPRE": 3.81,
+"WETLAND": 4.92,
+"CSL10_85": 60.8,
+"flows_at_site": [
+1150.0,
+2010.0,
+2770.0,
+3980.0,
+5090.0,
+6410.0,
+10500.0
+]
+},
+"01160000": {
+"name": "South Branch Ashuelot River at Webb, near Marlborough, NH",
+"DRNAREA": 35.9,
+"APRAVPRE": 3.85,
+"WETLAND": 5.9,
+"CSL10_85": 62.6,
+"flows_at_site": [
+958.0,
+1690.0,
+2350.0,
+3430.0,
+4460.0,
+5710.0,
+9700.0
+]
+},
+"01161300": {
+"name": "Millers Brook at Northfield, MA",
+"DRNAREA": 2.32,
+"APRAVPRE": 3.89,
+"WETLAND": 0.376,
+"CSL10_85": 324.0,
+"flows_at_site": [
+111.0,
+196.0,
+274.0,
+403.0,
+525.0,
+673.0,
+1150.0
+]
+},
+"01161500": {
+"name": "Tarbell Brook near Winchendon, MA",
+"DRNAREA": 18.8,
+"APRAVPRE": 3.92,
+"WETLAND": 14.6,
+"CSL10_85": 28.6,
+"flows_at_site": [
+248.0,
+408.0,
+552.0,
+787.0,
+1010.0,
+1280.0,
+2130.0
+]
+},
+"01162000": {
+"name": "Millers River near Winchendon, MA",
+"DRNAREA": 82.3,
+"APRAVPRE": 3.97,
+"WETLAND": 15.2,
+"CSL10_85": 17.7,
+"flows_at_site": [
+1030.0,
+1640.0,
+2160.0,
+3000.0,
+3770.0,
+4680.0,
+7510.0
+]
+},
+"01162500": {
+"name": "Priest Brook near Winchendon, MA",
+"DRNAREA": 18.9,
+"APRAVPRE": 3.89,
+"WETLAND": 13.4,
+"CSL10_85": 22.0,
+"flows_at_site": [
+347.0,
+570.0,
+763.0,
+1070.0,
+1340.0,
+1670.0,
+2650.0
+]
+},
+"01163100": {
+"name": "Wilder Brook near Gardner, MA",
+"DRNAREA": 2.65,
+"APRAVPRE": 4.05,
+"WETLAND": 17.9,
+"CSL10_85": 49.3,
+"flows_at_site": [
+46.2,
+61.7,
+72.5,
+86.8,
+97.8,
+109.0,
+138.0
+]
+},
+"01163200": {
+"name": "Otter River at Otter River, MA",
+"DRNAREA": 34.0,
+"APRAVPRE": 4.06,
+"WETLAND": 18.4,
+"CSL10_85": 19.2,
+"flows_at_site": [
+456.0,
+636.0,
+764.0,
+937.0,
+1070.0,
+1220.0,
+1580.0
+]
+},
+"01165500": {
+"name": "Moss Brook at Wendell Depot, MA",
+"DRNAREA": 12.2,
+"APRAVPRE": 3.89,
+"WETLAND": 6.73,
+"CSL10_85": 43.8,
+"flows_at_site": [
+258.0,
+431.0,
+575.0,
+796.0,
+991.0,
+1220.0,
+1870.0
+]
+},
+"01167800": {
+"name": "Beaver Brook at Wilmington, VT",
+"DRNAREA": 6.36,
+"APRAVPRE": 4.54,
+"WETLAND": 3.12,
+"CSL10_85": 117.0,
+"flows_at_site": [
+436.0,
+745.0,
+1010.0,
+1410.0,
+1770.0,
+2180.0,
+3400.0
+]
+},
+"01169000": {
+"name": "North River at Shattuckville, MA",
+"DRNAREA": 89.0,
+"APRAVPRE": 4.34,
+"WETLAND": 2.13,
+"CSL10_85": 58.8,
+"flows_at_site": [
+4850.0,
+7840.0,
+10200.0,
+13700.0,
+16700.0,
+20000.0,
+29200.0
+]
+},
+"01169900": {
+"name": "South River near Conway, MA",
+"DRNAREA": 24.2,
+"APRAVPRE": 4.71,
+"WETLAND": 2.02,
+"CSL10_85": 67.6,
+"flows_at_site": [
+1940.0,
+3210.0,
+4300.0,
+5990.0,
+7510.0,
+9280.0,
+14600.0
+]
+},
+"01170100": {
+"name": "Green River near Colrain, MA",
+"DRNAREA": 41.2,
+"APRAVPRE": 4.36,
+"WETLAND": 1.69,
+"CSL10_85": 67.6,
+"flows_at_site": [
+2510.0,
+3470.0,
+4150.0,
+5060.0,
+5770.0,
+6520.0,
+8400.0
+]
+},
+"01170200": {
+"name": "Allen Brook near Shelburne Falls, MA",
+"DRNAREA": 0.72,
+"APRAVPRE": 4.18,
+"WETLAND": 6.92,
+"CSL10_85": 224.0,
+"flows_at_site": [
+33.3,
+72.8,
+112.0,
+181.0,
+248.0,
+333.0,
+616.0
+]
+},
+"01170900": {
+"name": "Mill River near South Deerfield, MA",
+"DRNAREA": 6.41,
+"APRAVPRE": 4.08,
+"WETLAND": 2.21,
+"CSL10_85": 98.1,
+"flows_at_site": [
+156.0,
+247.0,
+318.0,
+419.0,
+504.0,
+597.0,
+849.0
+]
+},
+"01173900": {
+"name": "Middle Branch Swift River at North New Salem, MA",
+"DRNAREA": 4.72,
+"APRAVPRE": 4.18,
+"WETLAND": 4.12,
+"CSL10_85": 123.0,
+"flows_at_site": [
+114.0,
+189.0,
+253.0,
+352.0,
+442.0,
+546.0,
+861.0
+]
+},
+"01174565": {
+"name": "West Branch Swift River near Shutesbury, MA",
+"DRNAREA": 12.8,
+"APRAVPRE": 4.3,
+"WETLAND": 1.7,
+"CSL10_85": 68.2,
+"flows_at_site": [
+557.0,
+1020.0,
+1430.0,
+2080.0,
+2680.0,
+3380.0,
+5530.0
+]
+}
+}
