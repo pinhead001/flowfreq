@@ -1,0 +1,2097 @@
+{
+"03263700": {
+"CONTDA": 4.83,
+"CSL10_85": 8.7,
+"URBAN": 0.5,
+"WETLAND": 0.2,
+"name": "Bridge Creek near Greenville, Ohio",
+"q100": 1030,
+"region": "4"
+},
+"03272900": {
+"CONTDA": 0.94,
+"CSL10_85": 120.0,
+"URBAN": 0.1,
+"WETLAND": 0.1,
+"name": "Collins Creek at Collinsville, Ohio",
+"q100": 626,
+"region": "3"
+},
+"03274650": {
+"CONTDA": 10.4,
+"CSL10_85": 11.8,
+"URBAN": 0.5,
+"WETLAND": 0.6,
+"name": "Whitewater River near Economy, Indiana",
+"q100": 1470,
+"region": "4"
+},
+"03274880": {
+"CONTDA": 0.78,
+"CSL10_85": 48.7,
+"URBAN": 0.0,
+"WETLAND": 0.2,
+"name": "Greens Fork Tributary near Lynn, Indiana",
+"percent_error_table_371": 13.4,
+"q100": 555,
+"q100_table_371": 555,
+"region": "4"
+},
+"03274950": {
+"CONTDA": 9.16,
+"CSL10_85": 28.8,
+"URBAN": 1.4,
+"WETLAND": 0.2,
+"name": "Little Williams Creek at Connersville, Indiana",
+"q100": 3210,
+"region": "3"
+},
+"03275000": {
+"CONTDA": 522.0,
+"CSL10_85": 8.7,
+"URBAN": 1.7,
+"WETLAND": 1.0,
+"name": "Whitewater River near Alpine, Indiana",
+"q100": 41200,
+"region": "4"
+},
+"03275500": {
+"CONTDA": 121.0,
+"CSL10_85": 12.8,
+"URBAN": 5.9,
+"WETLAND": 1.0,
+"name": "East Fork Whitewater River at Richmond, Indiana",
+"percent_error_table_371": 21.0,
+"q100": 21800,
+"q100_table_371": 21766,
+"region": "4"
+},
+"03275600": {
+"CONTDA": 200.0,
+"CSL10_85": 12.1,
+"URBAN": 6.4,
+"WETLAND": 1.1,
+"name": "East Fork Whitewater River at Abington, Indiana",
+"q100": 18600,
+"region": "4"
+},
+"03275900": {
+"CONTDA": 5.39,
+"CSL10_85": 23.6,
+"URBAN": 0.0,
+"WETLAND": 0.2,
+"name": "Templeton Creek near Fairfield, Indiana",
+"q100": 2890,
+"region": "3"
+},
+"03276000": {
+"CONTDA": 380.0,
+"CSL10_85": 9.2,
+"URBAN": 3.2,
+"WETLAND": 3.0,
+"name": "East Fork Whitewater River at Brookville, Indiana",
+"q100": 47500,
+"region": "4"
+},
+"03276500": {
+"CONTDA": 1224.0,
+"CSL10_85": 7.3,
+"URBAN": 1.9,
+"WETLAND": 1.5,
+"name": "Whitewater River at Brookville, Indiana",
+"q100": 86300,
+"region": "4"
+},
+"03276640": {
+"CONTDA": 0.25,
+"CSL10_85": 253.0,
+"URBAN": 0.0,
+"WETLAND": 0.7,
+"name": "Tanners Creek Tributary near Lawrenceburg, Indiana",
+"percent_error_table_371": 19.4,
+"q100": 462,
+"q100_table_371": 462,
+"region": "3"
+},
+"03276700": {
+"CONTDA": 38.1,
+"CSL10_85": 22.2,
+"URBAN": 3.0,
+"WETLAND": 0.6,
+"name": "South Hogan Creek near Dillsboro, Indiana",
+"q100": 16900,
+"region": "3"
+},
+"03276770": {
+"CONTDA": 0.11,
+"CSL10_85": 45.3,
+"URBAN": 0.0,
+"WETLAND": 0.0,
+"name": "Laughery Creek Tributary near Napoleon, Indiana",
+"q100": 74,
+"region": "3"
+},
+"03276950": {
+"CONTDA": 0.16,
+"CSL10_85": 94.6,
+"URBAN": 0.0,
+"WETLAND": 1.3,
+"name": "Uhlman Creek Tributary near Avonburg, Indiana",
+"q100": 163,
+"region": "3"
+},
+"03277000": {
+"CONTDA": 248.0,
+"CSL10_85": 6.6,
+"URBAN": 1.6,
+"WETLAND": 0.8,
+"name": "Laughery Creek near Farmers Retreat, Indiana",
+"q100": 34800,
+"region": "3"
+},
+"03291780": {
+"CONTDA": 27.5,
+"CSL10_85": 30.3,
+"URBAN": 0.1,
+"WETLAND": 0.2,
+"name": "Indian-Kentuck Creek near Canaan, Indiana",
+"percent_error_table_371": 14.0,
+"q100": 8830,
+"q100_table_371": 8825,
+"region": "3"
+},
+"03294000": {
+"CONTDA": 189.0,
+"CSL10_85": 5.5,
+"URBAN": 3.4,
+"WETLAND": 1.0,
+"name": "Silver Creek near Sellersburg, Indiana",
+"q100": 19900,
+"region": "3"
+},
+"03302300": {
+"CONTDA": 16.1,
+"CSL10_85": 19.0,
+"URBAN": 8.0,
+"WETLAND": 0.5,
+"name": "Little Indian Creek near Galena, Indiana",
+"percent_error_table_371": 42.2,
+"q100": 7490,
+"q100_table_371": 7489,
+"region": "2"
+},
+"03302500": {
+"CONTDA": 129.0,
+"CSL10_85": 6.3,
+"URBAN": 3.9,
+"WETLAND": 0.2,
+"name": "Indian Creek at SR 335 near Corydon, Indiana",
+"q100": 25500,
+"region": "3"
+},
+"03302690": {
+"CONTDA": 0.07,
+"CSL10_85": 222.0,
+"URBAN": 4.4,
+"WETLAND": 0.0,
+"name": "Middle Fork Blue River Tributary near Farabee, Indiana",
+"percent_error_table_371": 49.6,
+"q100": 75,
+"q100_table_371": 75,
+"region": "3"
+},
+"03302730": {
+"CONTDA": 64.3,
+"CSL10_85": 8.6,
+"URBAN": 0.8,
+"WETLAND": 0.4,
+"name": "South Fork Blue River near Palmyra, Indiana",
+"percent_error_table_371": 4.9,
+"q100": 11900,
+"q100_table_371": 11916,
+"region": "3"
+},
+"03303000": {
+"CONTDA": 476.0,
+"CSL10_85": 3.8,
+"URBAN": 0.8,
+"WETLAND": 0.3,
+"name": "Blue River near White Cloud, Indiana",
+"q100": 32900,
+"region": "3"
+},
+"03303250": {
+"CONTDA": 0.15,
+"CSL10_85": 267.0,
+"URBAN": 0.0,
+"WETLAND": 0.0,
+"name": "Sigler Creek Tributary at Uniontown, Indiana",
+"q100": 234,
+"region": "2"
+},
+"03303400": {
+"CONTDA": 7.86,
+"CSL10_85": 23.7,
+"URBAN": 0.1,
+"WETLAND": 0.6,
+"name": "Crooked Creek near Santa Claus, Indiana",
+"q100": 5590,
+"region": "2"
+},
+"03322011": {
+"CONTDA": 35.4,
+"CSL10_85": 9.2,
+"URBAN": 1.9,
+"WETLAND": 0.6,
+"name": "Pigeon Creek near Fort Branch, Indiana",
+"q100": 4730,
+"region": "2"
+},
+"03322100": {
+"CONTDA": 323.0,
+"CSL10_85": 2.4,
+"URBAN": 4.0,
+"WETLAND": 3.1,
+"name": "Pigeon Creek at Evansville, Indiana",
+"percent_error_table_371": 62.6,
+"q100": 11100,
+"q100_table_371": 11092,
+"region": "2"
+},
+"03322900": {
+"CONTDA": 453.0,
+"CSL10_85": 2.4,
+"URBAN": 1.4,
+"WETLAND": 4.8,
+"name": "Wabash River at Linn Grove, Indiana",
+"q100": 12300,
+"region": "8"
+},
+"03323000": {
+"CONTDA": 532.0,
+"CSL10_85": 2.0,
+"URBAN": 1.4,
+"WETLAND": 4.3,
+"name": "Wabash River at Bluffton, Indiana",
+"q100": 15500,
+"region": "8"
+},
+"03323500": {
+"CONTDA": 721.0,
+"CSL10_85": 2.0,
+"URBAN": 1.3,
+"WETLAND": 3.6,
+"name": "Wabash River at Huntington, Indiana",
+"q100": 18000,
+"region": "8"
+},
+"03324000": {
+"CONTDA": 263.0,
+"CSL10_85": 4.4,
+"URBAN": 3.5,
+"WETLAND": 1.7,
+"name": "Little River near Huntington, Indiana",
+"q100": 6290,
+"region": "8"
+},
+"03324050": {
+"CONTDA": 49.0,
+"CSL10_85": 7.2,
+"URBAN": 0.0,
+"WETLAND": 0.9,
+"name": "Clear Creek near Huntington, Indiana",
+"q100": 3520,
+"region": "8"
+},
+"03324200": {
+"CONTDA": 85.6,
+"CSL10_85": 5.8,
+"URBAN": 1.6,
+"WETLAND": 1.4,
+"name": "Salamonie River at Portland, Indiana",
+"q100": 5010,
+"region": "8"
+},
+"03324210": {
+"CONTDA": 0.45,
+"CSL10_85": 21.7,
+"URBAN": 0.1,
+"WETLAND": 0.0,
+"name": "Blaine Run at Blaine, Indiana",
+"q100": 52,
+"region": "8"
+},
+"03324300": {
+"CONTDA": 425.0,
+"CSL10_85": 2.4,
+"URBAN": 1.1,
+"WETLAND": 1.3,
+"name": "Salamonie River near Warren, Indiana",
+"percent_error_table_371": 12.3,
+"q100": 14100,
+"q100_table_371": 14066,
+"region": "8"
+},
+"03324500": {
+"CONTDA": 557.0,
+"CSL10_85": 2.7,
+"URBAN": 0.8,
+"WETLAND": 1.8,
+"name": "Salamonie River at Dora, Indiana",
+"percent_error_table_371": 10.4,
+"q100": 18000,
+"q100_table_371": 17952,
+"region": "7"
+},
+"03325000": {
+"CONTDA": 1768.0,
+"CSL10_85": 4.6,
+"URBAN": 1.6,
+"WETLAND": 2.5,
+"name": "Wabash River at Wabash, Indiana",
+"q100": 55900,
+"region": "7"
+},
+"03325311": {
+"CONTDA": 9.67,
+"CSL10_85": 11.4,
+"URBAN": 0.2,
+"WETLAND": 0.5,
+"name": "Little Mississinewa River at Union City, Indiana",
+"q100": 898,
+"region": "4"
+},
+"03325500": {
+"CONTDA": 133.0,
+"CSL10_85": 7.6,
+"URBAN": 1.0,
+"WETLAND": 1.0,
+"name": "Mississinewa River near Ridgeville, Indiana",
+"percent_error_table_371": 2.0,
+"q100": 11500,
+"q100_table_371": 11548,
+"region": "4"
+},
+"03326000": {
+"CONTDA": 310.0,
+"CSL10_85": 3.0,
+"URBAN": 1.0,
+"WETLAND": 1.4,
+"name": "Mississinewa River near Eaton, Indiana",
+"percent_error_table_371": 41.6,
+"q100": 20600,
+"q100_table_371": 20639,
+"region": "4"
+},
+"03326070": {
+"CONTDA": 29.2,
+"CSL10_85": 4.2,
+"URBAN": 2.0,
+"WETLAND": 0.9,
+"name": "Big Lick Creek near Hartford City, Indiana",
+"q100": 2300,
+"region": "4"
+},
+"03326500": {
+"CONTDA": 682.0,
+"CSL10_85": 2.9,
+"URBAN": 3.1,
+"WETLAND": 1.4,
+"name": "Mississinewa River at Marion, Indiana",
+"q100": 27700,
+"region": "4"
+},
+"03327000": {
+"CONTDA": 808.0,
+"CSL10_85": 3.3,
+"URBAN": 2.8,
+"WETLAND": 1.9,
+"name": "Mississinewa River at Peoria, Indiana",
+"q100": 31800,
+"region": "4"
+},
+"03327500": {
+"CONTDA": 2686.0,
+"CSL10_85": 2.8,
+"URBAN": 2.2,
+"WETLAND": 2.2,
+"name": "Wabash River at Peru, Indiana",
+"q100": 73600,
+"region": "7"
+},
+"03327520": {
+"CONTDA": 159.0,
+"CSL10_85": 3.3,
+"URBAN": 0.9,
+"WETLAND": 0.5,
+"name": "Pipe Creek near Bunker Hill, Indiana",
+"q100": 6220,
+"region": "4"
+},
+"03327530": {
+"CONTDA": 0.5,
+"CSL10_85": 27.0,
+"URBAN": 1.3,
+"WETLAND": 1.5,
+"name": "Minnow Creek Tributary near Logansport, Indiana",
+"q100": 295,
+"region": "7"
+},
+"03327790": {
+"CONTDA": 0.17,
+"CSL10_85": 43.7,
+"URBAN": 0.0,
+"WETLAND": 2.1,
+"name": "Eel River Tributary near Columbia City, Indiana",
+"q100": 98,
+"region": "7"
+},
+"03327930": {
+"CONTDA": 2.5,
+"CSL10_85": 32.5,
+"URBAN": 0.0,
+"WETLAND": 2.9,
+"name": "Koontz Ditch near Sidney, Indiana",
+"percent_error_table_371": 52.9,
+"q100": 666,
+"q100_table_371": 666,
+"region": "7"
+},
+"03328000": {
+"CONTDA": 417.0,
+"CSL10_85": 2.1,
+"URBAN": 1.2,
+"WETLAND": 2.5,
+"name": "Eel River at North Manchester, Indiana",
+"q100": 9670,
+"region": "8"
+},
+"03328020": {
+"CONTDA": 0.92,
+"CSL10_85": 32.6,
+"URBAN": 0.0,
+"WETLAND": 0.7,
+"name": "Otter Creek Tributary near North Manchester, Indiana",
+"q100": 244,
+"region": "7"
+},
+"03328430": {
+"CONTDA": 8.87,
+"CSL10_85": 9.3,
+"URBAN": 0.1,
+"WETLAND": 0.7,
+"name": "Weesau Creek near Deedsville, Indiana",
+"percent_error_table_371": 80.9,
+"q100": 633,
+"q100_table_371": 633,
+"region": "7"
+},
+"03328500": {
+"CONTDA": 789.0,
+"CSL10_85": 2.4,
+"URBAN": 1.0,
+"WETLAND": 2.3,
+"name": "Eel River near Logansport, Indiana",
+"q100": 18900,
+"region": "7"
+},
+"03329000": {
+"CONTDA": 3779.0,
+"CSL10_85": 2.7,
+"URBAN": 2.0,
+"WETLAND": 2.1,
+"name": "Wabash River at Logansport, Indiana",
+"q100": 102000,
+"region": "7"
+},
+"03329400": {
+"CONTDA": 6.83,
+"CSL10_85": 8.8,
+"URBAN": 0.0,
+"WETLAND": 0.2,
+"name": "Rattlesnake Creek near Patton, Indiana",
+"percent_error_table_371": 50.2,
+"q100": 794,
+"q100_table_371": 794,
+"region": "7"
+},
+"03329500": {
+"CONTDA": 4072.0,
+"CSL10_85": 2.6,
+"URBAN": 1.9,
+"WETLAND": 2.1,
+"name": "Wabash River at Delphi, Indiana",
+"q100": 95100,
+"region": "7"
+},
+"03329700": {
+"CONTDA": 274.0,
+"CSL10_85": 5.6,
+"URBAN": 0.7,
+"WETLAND": 0.9,
+"name": "Deer Creek near Delphi, Indiana",
+"q100": 17500,
+"region": "4"
+},
+"03330500": {
+"CONTDA": 113.0,
+"CSL10_85": 3.6,
+"URBAN": 1.6,
+"WETLAND": 11.3,
+"name": "Tippecanoe River at Oswego, Indiana",
+"q100": 953,
+"region": "8"
+},
+"03331110": {
+"CONTDA": 19.6,
+"CSL10_85": 5.5,
+"URBAN": 0.7,
+"WETLAND": 5.3,
+"name": "Walnut Creek near Warsaw, Indiana",
+"q100": 583,
+"region": "7"
+},
+"03331500": {
+"CONTDA": 856.0,
+"CSL10_85": 1.6,
+"URBAN": 1.6,
+"WETLAND": 6.0,
+"name": "Tippecanoe River near Ora, Indiana",
+"q100": 10400,
+"region": "5"
+},
+"03332400": {
+"CONTDA": 152.0,
+"CSL10_85": 2.4,
+"URBAN": 0.4,
+"WETLAND": 1.6,
+"name": "Big Monon Creek near Francesville, Indiana",
+"percent_error_table_371": 13.2,
+"q100": 2960,
+"q100_table_371": 2963,
+"region": "6"
+},
+"03332500": {
+"CONTDA": 1732.0,
+"CSL10_85": 1.6,
+"URBAN": 1.0,
+"WETLAND": 4.0,
+"name": "Tippecanoe River near Monticello, Indiana",
+"percent_error_table_371": 3.1,
+"q100": 19500,
+"q100_table_371": 19452,
+"region": "5"
+},
+"03332780": {
+"CONTDA": 1.35,
+"CSL10_85": 21.9,
+"URBAN": 0.0,
+"WETLAND": 0.1,
+"name": "Big Creek near Wolcott, Indiana",
+"q100": 491,
+"region": "1"
+},
+"03333000": {
+"CONTDA": 1865.0,
+"CSL10_85": 1.7,
+"URBAN": 1.1,
+"WETLAND": 4.0,
+"name": "Tippecanoe River near Delphi, Indiana",
+"percent_error_table_371": 19.7,
+"q100": 25600,
+"q100_table_371": 25553,
+"region": "5"
+},
+"03333050": {
+"CONTDA": 1869.0,
+"CSL10_85": 1.7,
+"URBAN": 1.1,
+"WETLAND": 3.9,
+"name": "Tippecanoe River near Delphi, Indiana",
+"q100": 29800,
+"region": "5"
+},
+"03333450": {
+"CONTDA": 146.0,
+"CSL10_85": 3.3,
+"URBAN": 0.6,
+"WETLAND": 1.0,
+"name": "Wildcat Creek near Jerome, Indiana",
+"q100": 9630,
+"region": "4"
+},
+"03333500": {
+"CONTDA": 168.0,
+"CSL10_85": 3.3,
+"URBAN": 0.6,
+"WETLAND": 1.0,
+"name": "Wildcat Creek at Greentown, Indiana",
+"q100": 8110,
+"region": "4"
+},
+"03333600": {
+"CONTDA": 24.7,
+"CSL10_85": 4.5,
+"URBAN": 0.7,
+"WETLAND": 1.8,
+"name": "Kokomo Creek near Kokomo, Indiana",
+"percent_error_table_371": 25.9,
+"q100": 1600,
+"q100_table_371": 1596,
+"region": "4"
+},
+"03333700": {
+"CONTDA": 242.0,
+"CSL10_85": 2.7,
+"URBAN": 5.5,
+"WETLAND": 1.5,
+"name": "Wildcat Creek at Kokomo, Indiana",
+"q100": 11100,
+"region": "4"
+},
+"03334000": {
+"CONTDA": 396.0,
+"CSL10_85": 3.3,
+"URBAN": 4.7,
+"WETLAND": 1.9,
+"name": "Wildcat Creek at Owasco, Indiana",
+"q100": 15700,
+"region": "4"
+},
+"03334200": {
+"CONTDA": 2.61,
+"CSL10_85": 7.8,
+"URBAN": 0.4,
+"WETLAND": 0.0,
+"name": "Prairie Creek Tributary near Frankfort, Indiana",
+"q100": 312,
+"region": "4"
+},
+"03334500": {
+"CONTDA": 243.0,
+"CSL10_85": 7.1,
+"URBAN": 2.4,
+"WETLAND": 1.3,
+"name": "South Fork Wildcat Creek near Lafayette, Indiana",
+"percent_error_table_371": 14.2,
+"q100": 16600,
+"q100_table_371": 16635,
+"region": "4"
+},
+"03335000": {
+"CONTDA": 794.0,
+"CSL10_85": 3.5,
+"URBAN": 3.3,
+"WETLAND": 1.5,
+"name": "Wildcat Creek near Lafayette, Indiana",
+"q100": 27500,
+"region": "4"
+},
+"03335500": {
+"CONTDA": 7267.0,
+"CSL10_85": 2.5,
+"URBAN": 1.5,
+"WETLAND": 2.8,
+"name": "Wabash River at Lafayette, Indiana",
+"percent_error_table_371": 24.5,
+"q100": 119000,
+"q100_table_371": 119359,
+"region": "1"
+},
+"03335790": {
+"CONTDA": 1.0,
+"CSL10_85": 21.0,
+"URBAN": 0.0,
+"WETLAND": 0.0,
+"name": "Big Shawnee Creek Tributary near Attica, Indiana",
+"q100": 290,
+"region": "1"
+},
+"03336000": {
+"CONTDA": 8218.0,
+"CSL10_85": 2.1,
+"URBAN": 1.6,
+"WETLAND": 2.8,
+"name": "Wabash River at Covington, Indiana",
+"percent_error_table_371": 6.9,
+"q100": 156000,
+"q100_table_371": 155856,
+"region": "1"
+},
+"03336645": {
+"CONTDA": 432.0,
+"CSL10_85": 2.7,
+"URBAN": 0.8,
+"WETLAND": 1.5,
+"name": "Middle Fork Vermilion River Above Oakwood, Illinois",
+"q100": 16700,
+"region": "1"
+},
+"03338780": {
+"CONTDA": 262.0,
+"CSL10_85": 3.9,
+"URBAN": 1.1,
+"WETLAND": 0.5,
+"name": "North Fork Vermilion River near Bismarck, Illinois",
+"q100": 31400,
+"region": "1"
+},
+"03339108": {
+"CONTDA": 33.4,
+"CSL10_85": 11.6,
+"URBAN": 0.9,
+"WETLAND": 1.9,
+"name": "East Fork Coal Creek near Hillsboro, Indiana",
+"q100": 3010,
+"region": "1"
+},
+"03339280": {
+"CONTDA": 33.2,
+"CSL10_85": 4.7,
+"URBAN": 10.6,
+"WETLAND": 0.9,
+"name": "Prairie Creek near Lebanon, Indiana",
+"q100": 3870,
+"region": "4"
+},
+"03339500": {
+"CONTDA": 509.0,
+"CSL10_85": 5.3,
+"URBAN": 1.4,
+"WETLAND": 1.1,
+"name": "Sugar Creek at Crawfordsville, Indiana",
+"q100": 31100,
+"region": "4"
+},
+"03340000": {
+"CONTDA": 670.0,
+"CSL10_85": 5.4,
+"URBAN": 1.6,
+"WETLAND": 1.0,
+"name": "Sugar Creek near Byron, Indiana",
+"q100": 32800,
+"region": "4"
+},
+"03340500": {
+"CONTDA": 11118.0,
+"CSL10_85": 1.8,
+"URBAN": 1.6,
+"WETLAND": 2.6,
+"name": "Wabash River at Montezuma, Indiana",
+"q100": 172000,
+"region": "1"
+},
+"03341500": {
+"CONTDA": 12263.0,
+"CSL10_85": 1.7,
+"URBAN": 1.6,
+"WETLAND": 2.7,
+"name": "Wabash River at Terre Haute, Indiana",
+"q100": 196000,
+"region": "1"
+},
+"03341700": {
+"CONTDA": 1.08,
+"CSL10_85": 44.4,
+"URBAN": 0.9,
+"WETLAND": 0.0,
+"name": "Big Creek Tributary near Dudley, Illinois",
+"q100": 722,
+"region": "1"
+},
+"03342100": {
+"CONTDA": 16.7,
+"CSL10_85": 11.0,
+"URBAN": 0.3,
+"WETLAND": 2.8,
+"name": "Busseron Creek near Hymera, Indiana",
+"q100": 2580,
+"region": "1"
+},
+"03342150": {
+"CONTDA": 14.4,
+"CSL10_85": 12.9,
+"URBAN": 1.5,
+"WETLAND": 5.4,
+"name": "West Fork Busseron Creek near Hymera, Indiana",
+"q100": 2420,
+"region": "1"
+},
+"03342300": {
+"CONTDA": 138.0,
+"CSL10_85": 5.2,
+"URBAN": 1.8,
+"WETLAND": 10.6,
+"name": "Busseron Creek near Sullivan, Indiana",
+"q100": 7270,
+"region": "1"
+},
+"03342500": {
+"CONTDA": 228.0,
+"CSL10_85": 2.9,
+"URBAN": 2.2,
+"WETLAND": 8.5,
+"name": "Busseron Creek near Carlisle, Indiana",
+"q100": 8440,
+"region": "1"
+},
+"03343000": {
+"CONTDA": 13706.0,
+"CSL10_85": 1.4,
+"URBAN": 1.7,
+"WETLAND": 2.9,
+"name": "Wabash River at Vincennes, Indiana",
+"q100": 166000,
+"region": "1"
+},
+"03346650": {
+"CONTDA": 0.82,
+"CSL10_85": 36.1,
+"URBAN": 4.3,
+"WETLAND": 0.0,
+"name": "River Deshee Tributary near Frichton, Indiana",
+"q100": 340,
+"region": "1"
+},
+"03347000": {
+"CONTDA": 241.0,
+"CSL10_85": 4.7,
+"URBAN": 3.2,
+"WETLAND": 2.1,
+"name": "White River at Muncie, Indiana",
+"q100": 15500,
+"region": "4"
+},
+"03348000": {
+"CONTDA": 406.0,
+"CSL10_85": 4.4,
+"URBAN": 6.7,
+"WETLAND": 1.7,
+"name": "White River at Anderson, Indiana",
+"q100": 23600,
+"region": "4"
+},
+"03348020": {
+"CONTDA": 25.5,
+"CSL10_85": 3.6,
+"URBAN": 4.7,
+"WETLAND": 0.9,
+"name": "Killbuck Creek near Gaston, Indiana",
+"percent_error_table_371": 18.5,
+"q100": 1630,
+"q100_table_371": 1633,
+"region": "4"
+},
+"03348350": {
+"CONTDA": 113.0,
+"CSL10_85": 4.5,
+"URBAN": 3.1,
+"WETLAND": 2.0,
+"name": "Pipe Creek at Frankton, Indiana",
+"percent_error_table_371": 16.3,
+"q100": 6400,
+"q100_table_371": 6401,
+"region": "4"
+},
+"03348500": {
+"CONTDA": 828.0,
+"CSL10_85": 4.1,
+"URBAN": 6.2,
+"WETLAND": 1.6,
+"name": "White River near Noblesville, Indiana",
+"q100": 32400,
+"region": "4"
+},
+"03348700": {
+"CONTDA": 0.42,
+"CSL10_85": 13.0,
+"URBAN": 0.0,
+"WETLAND": 3.3,
+"name": "White River Tributary near Strawtown, Indiana",
+"percent_error_table_371": 14.0,
+"q100": 130,
+"q100_table_371": 130,
+"region": "4"
+},
+"03349000": {
+"CONTDA": 858.0,
+"CSL10_85": 3.9,
+"URBAN": 6.4,
+"WETLAND": 1.8,
+"name": "White River at Noblesville, Indiana",
+"q100": 31100,
+"region": "4"
+},
+"03349500": {
+"CONTDA": 131.0,
+"CSL10_85": 4.0,
+"URBAN": 1.6,
+"WETLAND": 1.4,
+"name": "Cicero Creek near Arcadia, Indiana",
+"percent_error_table_371": 53.5,
+"q100": 4860,
+"q100_table_371": 4859,
+"region": "4"
+},
+"03349700": {
+"CONTDA": 40.4,
+"CSL10_85": 6.2,
+"URBAN": 0.6,
+"WETLAND": 1.5,
+"name": "Little Cicero Creek near Arcadia, Indiana",
+"q100": 3470,
+"region": "4"
+},
+"03350100": {
+"CONTDA": 18.5,
+"CSL10_85": 18.7,
+"URBAN": 0.3,
+"WETLAND": 1.0,
+"name": "Hinkle Creek near Cicero, Indiana",
+"q100": 5630,
+"region": "4"
+},
+"03350650": {
+"CONTDA": 0.6,
+"CSL10_85": 26.5,
+"URBAN": 0.0,
+"WETLAND": 0.9,
+"name": "Stony Creek Tributary near Lapel, Indiana",
+"q100": 277,
+"region": "4"
+},
+"03351000": {
+"CONTDA": 1219.0,
+"CSL10_85": 3.7,
+"URBAN": 6.4,
+"WETLAND": 1.9,
+"name": "White River near Nora, Indiana",
+"q100": 38400,
+"region": "4"
+},
+"03351310": {
+"CONTDA": 17.9,
+"CSL10_85": 14.8,
+"URBAN": 52.8,
+"WETLAND": 0.7,
+"name": "Crooked Creek at Indianapolis, Indiana",
+"q100": 4700,
+"region": "4"
+},
+"03351400": {
+"CONTDA": 5.8,
+"CSL10_85": 18.7,
+"URBAN": 0.5,
+"WETLAND": 0.6,
+"name": "Sugar Creek near Middletown, Indiana",
+"q100": 1500,
+"region": "4"
+},
+"03351500": {
+"CONTDA": 169.0,
+"CSL10_85": 7.2,
+"URBAN": 4.2,
+"WETLAND": 0.9,
+"name": "Fall Creek near Fortville, Indiana",
+"q100": 9880,
+"region": "4"
+},
+"03352200": {
+"CONTDA": 42.4,
+"CSL10_85": 6.1,
+"URBAN": 3.9,
+"WETLAND": 0.7,
+"name": "Mud Creek at Indianapolis, Indiana",
+"q100": 2160,
+"region": "4"
+},
+"03352500": {
+"CONTDA": 298.0,
+"CSL10_85": 5.3,
+"URBAN": 7.8,
+"WETLAND": 1.9,
+"name": "Fall Creek at Millersville, Indiana",
+"q100": 16700,
+"region": "4"
+},
+"03353000": {
+"CONTDA": 1635.0,
+"CSL10_85": 3.5,
+"URBAN": 10.7,
+"WETLAND": 1.9,
+"name": "White River at Indianapolis, Indiana",
+"q100": 49800,
+"region": "4"
+},
+"03353120": {
+"CONTDA": 7.58,
+"CSL10_85": 17.4,
+"URBAN": 82.6,
+"WETLAND": 0.3,
+"name": "Pleasant Run at Arlington Avenue at Indianapolis, Indiana",
+"q100": 2740,
+"region": "4"
+},
+"03353160": {
+"CONTDA": 10.1,
+"CSL10_85": 16.7,
+"URBAN": 83.9,
+"WETLAND": 0.3,
+"name": "Pleasant Run at Brookville Road at Indianapolis, Indiana",
+"q100": 4430,
+"region": "4"
+},
+"03353180": {
+"CONTDA": 4.4,
+"CSL10_85": 10.8,
+"URBAN": 75.3,
+"WETLAND": 0.0,
+"name": "Bean Creek at Indianapolis, Indiana",
+"q100": 1210,
+"region": "4"
+},
+"03353200": {
+"CONTDA": 106.0,
+"CSL10_85": 15.2,
+"URBAN": 1.4,
+"WETLAND": 0.9,
+"name": "Eagle Creek at Zionsville, Indiana",
+"q100": 11900,
+"region": "4"
+},
+"03353500": {
+"CONTDA": 174.0,
+"CSL10_85": 6.8,
+"URBAN": 7.2,
+"WETLAND": 2.1,
+"name": "Eagle Creek at Indianapolis, Indiana",
+"q100": 22000,
+"region": "4"
+},
+"03353600": {
+"CONTDA": 24.3,
+"CSL10_85": 14.4,
+"URBAN": 50.4,
+"WETLAND": 0.5,
+"name": "Little Eagle Creek at Speedway, Indiana",
+"q100": 3930,
+"region": "4"
+},
+"03353620": {
+"CONTDA": 15.6,
+"CSL10_85": 11.5,
+"URBAN": 47.0,
+"WETLAND": 0.4,
+"name": "Lick Creek at Indianapolis, Indiana",
+"q100": 3320,
+"region": "4"
+},
+"03353635": {
+"CONTDA": 1.76,
+"CSL10_85": 23.7,
+"URBAN": 49.7,
+"WETLAND": 0.0,
+"name": "Derbyshire Creek at Southport, Indiana",
+"q100": 1770,
+"region": "4"
+},
+"03353637": {
+"CONTDA": 17.0,
+"CSL10_85": 11.6,
+"URBAN": 69.7,
+"WETLAND": 0.1,
+"name": "Little Buck Creek near Indianapolis, Indiana",
+"q100": 2650,
+"region": "4"
+},
+"03353668": {
+"CONTDA": 0.31,
+"CSL10_85": 28.0,
+"URBAN": 0.2,
+"WETLAND": 0.7,
+"name": "White Lick Creek Tributary near Brownsburg, Indiana",
+"q100": 173,
+"region": "4"
+},
+"03353700": {
+"CONTDA": 28.8,
+"CSL10_85": 10.6,
+"URBAN": 1.8,
+"WETLAND": 0.5,
+"name": "West Fork White Lick Creek at Danville, Indiana",
+"q100": 7060,
+"region": "4"
+},
+"03353800": {
+"CONTDA": 212.0,
+"CSL10_85": 9.0,
+"URBAN": 5.6,
+"WETLAND": 0.6,
+"name": "White Lick Creek at Mooresville, Indiana",
+"q100": 22600,
+"region": "4"
+},
+"03354000": {
+"CONTDA": 2444.0,
+"CSL10_85": 3.1,
+"URBAN": 12.6,
+"WETLAND": 1.7,
+"name": "White River near Centerton, Indiana",
+"q100": 57800,
+"region": "4"
+},
+"03354500": {
+"CONTDA": 14.6,
+"CSL10_85": 19.8,
+"URBAN": 0.2,
+"WETLAND": 1.0,
+"name": "Beanblossom Creek at Beanblossom, Indiana",
+"q100": 6100,
+"region": "2"
+},
+"03356780": {
+"CONTDA": 0.72,
+"CSL10_85": 113.0,
+"URBAN": 0.1,
+"WETLAND": 0.0,
+"name": "Limestone Creek Tributary near Gosport, Indiana",
+"q100": 372,
+"region": "2"
+},
+"03357000": {
+"CONTDA": 2988.0,
+"CSL10_85": 2.8,
+"URBAN": 10.7,
+"WETLAND": 1.7,
+"name": "White River at Spencer, Indiana",
+"q100": 77800,
+"region": "2"
+},
+"03357350": {
+"CONTDA": 3.0,
+"CSL10_85": 24.2,
+"URBAN": 1.3,
+"WETLAND": 0.1,
+"name": "Plum Creek near Bainbridge, Indiana",
+"q100": 1130,
+"region": "4"
+},
+"03357500": {
+"CONTDA": 326.0,
+"CSL10_85": 6.6,
+"URBAN": 1.3,
+"WETLAND": 0.8,
+"name": "Big Walnut Creek near Reelsville, Indiana",
+"q100": 21600,
+"region": "4"
+},
+"03358000": {
+"CONTDA": 245.0,
+"CSL10_85": 5.8,
+"URBAN": 0.6,
+"WETLAND": 0.4,
+"name": "Mill Creek near Cataract, Indiana",
+"percent_error_table_371": 12.3,
+"q100": 13900,
+"q100_table_371": 13904,
+"region": "4"
+},
+"03359500": {
+"CONTDA": 59.0,
+"CSL10_85": 12.6,
+"URBAN": 1.4,
+"WETLAND": 0.3,
+"name": "Deer Creek near Putnamville, Indiana",
+"q100": 14500,
+"region": "4"
+},
+"03360000": {
+"CONTDA": 830.0,
+"CSL10_85": 5.8,
+"URBAN": 1.1,
+"WETLAND": 0.9,
+"name": "Eel River at Bowling Green, Indiana",
+"percent_error_table_371": 7.0,
+"q100": 48400,
+"q100_table_371": 48371,
+"region": "2"
+},
+"03360100": {
+"CONTDA": 0.27,
+"CSL10_85": 28.0,
+"URBAN": 0.0,
+"WETLAND": 0.0,
+"name": "Clear Branch at Cory, Indiana",
+"percent_error_table_371": 16.3,
+"q100": 142,
+"q100_table_371": 142,
+"region": "1"
+},
+"03360400": {
+"CONTDA": 0.2,
+"CSL10_85": 174.0,
+"URBAN": 0.2,
+"WETLAND": 0.5,
+"name": "Doans Creek Tributary near Doans, Indiana",
+"q100": 265,
+"region": "2"
+},
+"03360500": {
+"CONTDA": 4688.0,
+"CSL10_85": 2.4,
+"URBAN": 7.2,
+"WETLAND": 1.5,
+"name": "White River at Newberry, Indiana",
+"q100": 104000,
+"region": "2"
+},
+"03361000": {
+"CONTDA": 184.0,
+"CSL10_85": 5.8,
+"URBAN": 4.3,
+"WETLAND": 1.4,
+"name": "Big Blue River at Carthage, Indiana",
+"q100": 10400,
+"region": "4"
+},
+"03361500": {
+"CONTDA": 421.0,
+"CSL10_85": 4.8,
+"URBAN": 2.8,
+"WETLAND": 1.3,
+"name": "Big Blue River at Shelbyville, Indiana",
+"percent_error_table_371": 23.8,
+"q100": 18300,
+"q100_table_371": 18305,
+"region": "4"
+},
+"03361660": {
+"CONTDA": 0.7,
+"CSL10_85": 18.3,
+"URBAN": 10.1,
+"WETLAND": 0.0,
+"name": "Little Sugar Creek Tributary at Carrollton, Indiana",
+"q100": 175,
+"region": "4"
+},
+"03362000": {
+"CONTDA": 107.0,
+"CSL10_85": 4.3,
+"URBAN": 6.9,
+"WETLAND": 0.6,
+"name": "Youngs Creek near Edinburgh, Indiana",
+"q100": 12800,
+"region": "4"
+},
+"03362500": {
+"CONTDA": 474.0,
+"CSL10_85": 4.5,
+"URBAN": 4.4,
+"WETLAND": 0.8,
+"name": "Sugar Creek near Edinburgh, Indiana",
+"q100": 25800,
+"region": "4"
+},
+"03363000": {
+"CONTDA": 1060.0,
+"CSL10_85": 5.9,
+"URBAN": 3.7,
+"WETLAND": 1.1,
+"name": "Driftwood River near Edinburgh, Indiana",
+"q100": 47200,
+"region": "4"
+},
+"03363500": {
+"CONTDA": 303.0,
+"CSL10_85": 5.7,
+"URBAN": 1.2,
+"WETLAND": 0.9,
+"name": "Flatrock River at St. Paul, Indiana",
+"q100": 21800,
+"region": "4"
+},
+"03363900": {
+"CONTDA": 534.0,
+"CSL10_85": 5.0,
+"URBAN": 1.6,
+"WETLAND": 1.0,
+"name": "Flatrock River at Columbus, Indiana",
+"q100": 25200,
+"region": "4"
+},
+"03364000": {
+"CONTDA": 1707.0,
+"CSL10_85": 3.8,
+"URBAN": 3.1,
+"WETLAND": 1.2,
+"name": "East Fork White River at Columbus, Indiana",
+"percent_error_table_371": 18.3,
+"q100": 74000,
+"q100_table_371": 73957,
+"region": "4"
+},
+"03364500": {
+"CONTDA": 91.4,
+"CSL10_85": 10.3,
+"URBAN": 0.4,
+"WETLAND": 0.6,
+"name": "Clifty Creek at Hartsville, Indiana",
+"q100": 13100,
+"region": "3"
+},
+"03364570": {
+"CONTDA": 0.83,
+"CSL10_85": 28.5,
+"URBAN": 0.0,
+"WETLAND": 0.0,
+"name": "Fall Fork Clifty Creek Tributary near Horace, Indiana",
+"q100": 640,
+"region": "3"
+},
+"03365000": {
+"CONTDA": 155.0,
+"CSL10_85": 8.9,
+"URBAN": 2.1,
+"WETLAND": 0.5,
+"name": "Sand Creek near Brewersville, Indiana",
+"q100": 20600,
+"region": "2"
+},
+"03365500": {
+"CONTDA": 2341.0,
+"CSL10_85": 2.8,
+"URBAN": 2.8,
+"WETLAND": 1.1,
+"name": "East Fork White River at Seymour, Indiana",
+"percent_error_table_371": 30.1,
+"q100": 89500,
+"q100_table_371": 89484,
+"region": "4"
+},
+"03366000": {
+"CONTDA": 77.2,
+"CSL10_85": 9.4,
+"URBAN": 0.3,
+"WETLAND": 2.3,
+"name": "Graham Creek near Vernon, Indiana",
+"q100": 22000,
+"region": "3"
+},
+"03366200": {
+"CONTDA": 9.31,
+"CSL10_85": 18.3,
+"URBAN": 6.1,
+"WETLAND": 4.6,
+"name": "Harberts Creek near Madison, Indiana",
+"q100": 2290,
+"region": "3"
+},
+"03366400": {
+"CONTDA": 0.2,
+"CSL10_85": 71.0,
+"URBAN": 0.0,
+"WETLAND": 0.0,
+"name": "Lewis Creek Tributary near Kent, Indiana",
+"q100": 152,
+"region": "3"
+},
+"03366500": {
+"CONTDA": 293.0,
+"CSL10_85": 7.6,
+"URBAN": 0.9,
+"WETLAND": 3.1,
+"name": "Muscatatuck River near Deputy, Indiana",
+"percent_error_table_371": 29.3,
+"q100": 37400,
+"q100_table_371": 37426,
+"region": "2"
+},
+"03367000": {
+"CONTDA": 359.0,
+"CSL10_85": 6.2,
+"URBAN": 0.9,
+"WETLAND": 3.2,
+"name": "Muscatatuck River near Austin, Indiana",
+"q100": 41900,
+"region": "2"
+},
+"03367600": {
+"CONTDA": 0.34,
+"CSL10_85": 62.7,
+"URBAN": 0.6,
+"WETLAND": 0.3,
+"name": "Flat Creek Tributary at New Frankfort, Indiana",
+"q100": 306,
+"region": "3"
+},
+"03368000": {
+"CONTDA": 11.4,
+"CSL10_85": 28.1,
+"URBAN": 0.2,
+"WETLAND": 0.3,
+"name": "Brush Creek near Nebraska, Indiana",
+"q100": 6700,
+"region": "3"
+},
+"03369000": {
+"CONTDA": 85.9,
+"CSL10_85": 12.2,
+"URBAN": 0.1,
+"WETLAND": 0.8,
+"name": "Vernon Fork Muscatatuck River near Butlerville, Indiana",
+"percent_error_table_371": 5.8,
+"q100": 20000,
+"q100_table_371": 19954,
+"region": "3"
+},
+"03369500": {
+"CONTDA": 198.0,
+"CSL10_85": 9.2,
+"URBAN": 0.1,
+"WETLAND": 0.8,
+"name": "Vernon Fork Muscatatuck River at Vernon, Indiana",
+"q100": 45300,
+"region": "3"
+},
+"03371500": {
+"CONTDA": 3861.0,
+"CSL10_85": 2.5,
+"URBAN": 2.3,
+"WETLAND": 1.6,
+"name": "East Fork White River near Bedford, Indiana",
+"q100": 96900,
+"region": "2"
+},
+"03371520": {
+"CONTDA": 24.1,
+"CSL10_85": 24.7,
+"URBAN": 0.1,
+"WETLAND": 0.1,
+"name": "Back Creek at Leesville, Indiana",
+"q100": 14600,
+"region": "2"
+},
+"03371600": {
+"CONTDA": 38.2,
+"CSL10_85": 13.0,
+"URBAN": 0.4,
+"WETLAND": 0.7,
+"name": "South Fork Salt Creek at Kurtz, Indiana",
+"q100": 7890,
+"region": "2"
+},
+"03371650": {
+"CONTDA": 76.1,
+"CSL10_85": 13.5,
+"URBAN": 0.6,
+"WETLAND": 1.3,
+"name": "North Fork Salt Creek at Nashville, Indiana",
+"q100": 9120,
+"region": "2"
+},
+"03372700": {
+"CONTDA": 55.2,
+"CSL10_85": 19.1,
+"URBAN": 24.9,
+"WETLAND": 0.3,
+"name": "Clear Creek near Harrodsburg, Indiana",
+"q100": 13200,
+"region": "2"
+},
+"03373000": {
+"CONTDA": 573.0,
+"CSL10_85": 2.0,
+"URBAN": 2.9,
+"WETLAND": 3.6,
+"name": "Salt Creek near Peerless, Indiana",
+"q100": 31900,
+"region": "2"
+},
+"03373200": {
+"CONTDA": 60.7,
+"CSL10_85": 12.5,
+"URBAN": 0.6,
+"WETLAND": 0.0,
+"name": "Indian Creek near Springville, Indiana",
+"q100": 8800,
+"region": "2"
+},
+"03373500": {
+"CONTDA": 4927.0,
+"CSL10_85": 2.0,
+"URBAN": 2.1,
+"WETLAND": 1.2,
+"name": "East Fork White River at Shoals, Indiana",
+"q100": 114000,
+"region": "2"
+},
+"03373700": {
+"CONTDA": 287.0,
+"CSL10_85": 6.1,
+"URBAN": 1.0,
+"WETLAND": 0.3,
+"name": "Lost River near West Baden Springs, Indiana",
+"percent_error_table_371": 34.8,
+"q100": 17700,
+"q100_table_371": 17716,
+"region": "2"
+},
+"03374000": {
+"CONTDA": 11125.0,
+"CSL10_85": 1.9,
+"URBAN": 4.2,
+"WETLAND": 1.7,
+"name": "White River at Petersburg, Indiana",
+"percent_error_table_371": 25.6,
+"q100": 185000,
+"q100_table_371": 185277,
+"region": "2"
+},
+"03374455": {
+"CONTDA": 12.8,
+"CSL10_85": 23.6,
+"URBAN": 0.1,
+"WETLAND": 0.1,
+"name": "Patoka River near Hardinsburg, Indiana",
+"q100": 5440,
+"region": "3"
+},
+"03375500": {
+"CONTDA": 262.0,
+"CSL10_85": 2.4,
+"URBAN": 0.2,
+"WETLAND": 5.4,
+"name": "Patoka River at Jasper, Indiana",
+"q100": 19200,
+"region": "2"
+},
+"03375800": {
+"CONTDA": 21.8,
+"CSL10_85": 18.2,
+"URBAN": 0.2,
+"WETLAND": 0.3,
+"name": "Hall Creek near St. Anthony, Indiana",
+"q100": 6820,
+"region": "2"
+},
+"03376300": {
+"CONTDA": 603.0,
+"CSL10_85": 1.3,
+"URBAN": 1.1,
+"WETLAND": 3.4,
+"name": "Patoka River at Winslow, Indiana",
+"q100": 21800,
+"region": "2"
+},
+"03376340": {
+"CONTDA": 0.84,
+"CSL10_85": 39.1,
+"URBAN": 0.1,
+"WETLAND": 1.4,
+"name": "Patoka River Tributary near Glezen, Indiana",
+"q100": 420,
+"region": "2"
+},
+"03376350": {
+"CONTDA": 42.8,
+"CSL10_85": 9.9,
+"URBAN": 0.6,
+"WETLAND": 3.1,
+"name": "South Fork Patoka River near Spurgeon, Indiana",
+"q100": 4580,
+"region": "2"
+},
+"03376500": {
+"CONTDA": 822.0,
+"CSL10_85": 1.2,
+"URBAN": 1.1,
+"WETLAND": 4.1,
+"name": "Patoka River near Princeton, Indiana",
+"q100": 20500,
+"region": "2"
+},
+"03378000": {
+"CONTDA": 228.0,
+"CSL10_85": 2.9,
+"URBAN": 0.5,
+"WETLAND": 3.0,
+"name": "Bonpas Creek at Browns, Illinois",
+"q100": 7710,
+"region": "1"
+},
+"03378550": {
+"CONTDA": 104.0,
+"CSL10_85": 3.8,
+"URBAN": 1.1,
+"WETLAND": 1.3,
+"name": "Big Creek near Wadesville, Indiana",
+"percent_error_table_371": 42.2,
+"q100": 10700,
+"q100_table_371": 10666,
+"region": "1"
+},
+"03378590": {
+"CONTDA": 0.31,
+"CSL10_85": 79.5,
+"URBAN": 0.0,
+"WETLAND": 0.0,
+"name": "Olive Creek Tributary near Solitude, Indiana",
+"q100": 315,
+"region": "1"
+},
+"03379650": {
+"CONTDA": 1.62,
+"CSL10_85": 36.1,
+"URBAN": 0.0,
+"WETLAND": 0.3,
+"name": "Madden Creek near West Salem, Illinois",
+"q100": 1650,
+"region": "1"
+},
+"04093000": {
+"CONTDA": 124.0,
+"CSL10_85": 3.6,
+"URBAN": 18.8,
+"WETLAND": 5.1,
+"name": "Deep River at Lake George Outlet At Hobart, Indiana",
+"q100": 4910,
+"region": "5"
+},
+"04093200": {
+"CONTDA": 5.82,
+"CSL10_85": 4.0,
+"URBAN": 56.9,
+"WETLAND": 15.3,
+"name": "Little Calumet River at Gary, Indiana",
+"q100": 360,
+"region": "5"
+},
+"04093500": {
+"CONTDA": 160.0,
+"CSL10_85": 3.2,
+"URBAN": 19.8,
+"WETLAND": 5.2,
+"name": "Burns Ditch at Gary, Indiana",
+"percent_error_table_371": 3.2,
+"q100": 4150,
+"q100_table_371": 4147,
+"region": "5"
+},
+"04094000": {
+"CONTDA": 66.2,
+"CSL10_85": 6.2,
+"URBAN": 5.0,
+"WETLAND": 11.9,
+"name": "Little Calumet River at Porter, Indiana",
+"q100": 4100,
+"region": "6"
+},
+"04094500": {
+"CONTDA": 74.6,
+"CSL10_85": 4.7,
+"URBAN": 17.5,
+"WETLAND": 9.4,
+"name": "Salt Creek near McCool, Indiana",
+"q100": 3660,
+"region": "6"
+},
+"04095300": {
+"CONTDA": 54.1,
+"CSL10_85": 6.4,
+"URBAN": 8.7,
+"WETLAND": 9.5,
+"name": "Trail Creek at Michigan City, Indiana",
+"q100": 5400,
+"region": "6"
+},
+"04099060": {
+"CONTDA": 1.22,
+"CSL10_85": 14.0,
+"URBAN": 0.0,
+"WETLAND": 1.8,
+"name": "Pigeon Creek Tributary near Ellis, Indiana",
+"q100": 189,
+"region": "7"
+},
+"04099510": {
+"CONTDA": 106.0,
+"CSL10_85": 6.0,
+"URBAN": 1.9,
+"WETLAND": 7.1,
+"name": "Pigeon Creek near Angola, Indiana",
+"q100": 985,
+"region": "8"
+},
+"04099610": {
+"CONTDA": 1.96,
+"CSL10_85": 5.6,
+"URBAN": 0.0,
+"WETLAND": 6.7,
+"name": "Pretty Lake Inlet near Stroh, Indiana",
+"q100": 44,
+"region": "7"
+},
+"04099750": {
+"CONTDA": 361.0,
+"CSL10_85": 3.5,
+"URBAN": 1.2,
+"WETLAND": 7.8,
+"name": "Pigeon River near Scott, Indiana",
+"percent_error_table_371": 60.0,
+"q100": 2650,
+"q100_table_371": 2648,
+"region": "8"
+},
+"04099808": {
+"CONTDA": 97.6,
+"CSL10_85": 8.1,
+"URBAN": 1.0,
+"WETLAND": 1.2,
+"name": "Little Elkhart River at Middlebury, Indiana",
+"q100": 3210,
+"region": "7"
+},
+"04099850": {
+"CONTDA": 31.0,
+"CSL10_85": 12.0,
+"URBAN": 1.6,
+"WETLAND": 3.4,
+"name": "Pine Creek near Elkhart, Indiana",
+"q100": 973,
+"region": "7"
+},
+"04100165": {
+"CONTDA": 2.47,
+"CSL10_85": 18.2,
+"URBAN": 2.1,
+"WETLAND": 5.5,
+"name": "Wible Lake Inlet near Kendallville, Indiana",
+"q100": 67,
+"region": "7"
+},
+"04100220": {
+"CONTDA": 134.0,
+"CSL10_85": 3.9,
+"URBAN": 2.9,
+"WETLAND": 12.1,
+"name": "North Branch Elkhart River near Cosperville, Indiana",
+"percent_error_table_371": 54.1,
+"q100": 905,
+"q100_table_371": 905,
+"region": "8"
+},
+"04100222": {
+"CONTDA": 142.0,
+"CSL10_85": 3.9,
+"URBAN": 2.8,
+"WETLAND": 11.9,
+"name": "North Branch Elkhart River at Cosperville, Indiana",
+"q100": 1040,
+"region": "8"
+},
+"04100252": {
+"CONTDA": 19.2,
+"CSL10_85": 9.6,
+"URBAN": 0.0,
+"WETLAND": 7.2,
+"name": "Forker Creek near Burr Oak, Indiana",
+"q100": 465,
+"region": "7"
+},
+"04100295": {
+"CONTDA": 10.7,
+"CSL10_85": 10.6,
+"URBAN": 0.0,
+"WETLAND": 4.9,
+"name": "Rimmell Branch near Albion, Indiana",
+"q100": 580,
+"region": "8"
+},
+"04100500": {
+"CONTDA": 594.0,
+"CSL10_85": 2.8,
+"URBAN": 3.0,
+"WETLAND": 6.3,
+"name": "Elkhart River at Goshen, Indiana",
+"q100": 6800,
+"region": "8"
+},
+"04100800": {
+"CONTDA": 32.4,
+"CSL10_85": 9.2,
+"URBAN": 5.9,
+"WETLAND": 1.3,
+"name": "Yellow Creek at Dunlap, Indiana",
+"q100": 956,
+"region": "8"
+},
+"04101000": {
+"CONTDA": 3370.0,
+"CSL10_85": 2.2,
+"URBAN": 2.1,
+"WETLAND": 8.8,
+"name": "St. Joseph River at Elkhart, Indiana",
+"q100": 21700,
+"region": "8"
+},
+"04177720": {
+"CONTDA": 37.5,
+"CSL10_85": 16.0,
+"URBAN": 1.2,
+"WETLAND": 7.0,
+"name": "Fish Creek at Hamilton, Indiana",
+"q100": 900,
+"region": "7"
+},
+"04179000": {
+"CONTDA": 763.0,
+"CSL10_85": 1.6,
+"URBAN": 1.1,
+"WETLAND": 4.5,
+"name": "St. Joseph River at Cedarville, Indiana",
+"q100": 14000,
+"region": "8"
+},
+"04179500": {
+"CONTDA": 87.3,
+"CSL10_85": 8.0,
+"URBAN": 1.5,
+"WETLAND": 2.3,
+"name": "Cedar Creek at Auburn, Indiana",
+"q100": 1890,
+"region": "8"
+},
+"04179510": {
+"CONTDA": 0.78,
+"CSL10_85": 9.4,
+"URBAN": 0.0,
+"WETLAND": 0.0,
+"name": "Cecil Metcaff Ditch near Auburn, Indiana",
+"q100": 214,
+"region": "7"
+},
+"04180000": {
+"CONTDA": 270.0,
+"CSL10_85": 6.0,
+"URBAN": 2.3,
+"WETLAND": 3.5,
+"name": "Cedar Creek near Cedarville, Indiana",
+"percent_error_table_371": 12.2,
+"q100": 6030,
+"q100_table_371": 6025,
+"region": "8"
+},
+"04180500": {
+"CONTDA": 1060.0,
+"CSL10_85": 2.3,
+"URBAN": 1.4,
+"WETLAND": 4.3,
+"name": "St. Joseph River near Fort Wayne, Indiana",
+"q100": 16500,
+"region": "8"
+},
+"04181500": {
+"CONTDA": 621.0,
+"CSL10_85": 2.1,
+"URBAN": 1.5,
+"WETLAND": 0.5,
+"name": "St. Marys River at Decatur, Indiana",
+"percent_error_table_371": 54.9,
+"q100": 14800,
+"q100_table_371": 14822,
+"region": "8"
+},
+"04182000": {
+"CONTDA": 762.0,
+"CSL10_85": 1.7,
+"URBAN": 1.4,
+"WETLAND": 0.5,
+"name": "St. Marys River near Fort Wayne, Indiana",
+"q100": 14900,
+"region": "8"
+},
+"04182590": {
+"CONTDA": 21.9,
+"CSL10_85": 3.9,
+"URBAN": 6.0,
+"WETLAND": 1.1,
+"name": "Harber Ditch at Fort Wayne, Indiana",
+"q100": 1250,
+"region": "8"
+},
+"05515000": {
+"CONTDA": 174.0,
+"CSL10_85": 1.2,
+"URBAN": 2.8,
+"WETLAND": 4.5,
+"name": "Kankakee River near North Liberty, Indiana",
+"q100": 941,
+"region": "6"
+},
+"05515500": {
+"CONTDA": 537.0,
+"CSL10_85": 1.3,
+"URBAN": 2.8,
+"WETLAND": 4.7,
+"name": "Kankakee River at Davis, Indiana",
+"percent_error_table_371": 74.5,
+"q100": 1930,
+"q100_table_371": 1925,
+"region": "6"
+},
+"05516000": {
+"CONTDA": 135.0,
+"CSL10_85": 5.0,
+"URBAN": 1.7,
+"WETLAND": 2.5,
+"name": "Yellow River near Bremen, Indiana",
+"q100": 2520,
+"region": "6"
+},
+"05516150": {
+"CONTDA": 1.5,
+"CSL10_85": 11.0,
+"URBAN": 0.0,
+"WETLAND": 2.3,
+"name": "Walt Kimble Ditch near Lapaz, Indiana",
+"q100": 718,
+"region": "6"
+},
+"05516500": {
+"CONTDA": 294.0,
+"CSL10_85": 2.2,
+"URBAN": 1.6,
+"WETLAND": 2.7,
+"name": "Yellow River at Plymouth, Indiana",
+"q100": 4790,
+"region": "5"
+},
+"05517000": {
+"CONTDA": 435.0,
+"CSL10_85": 2.3,
+"URBAN": 1.7,
+"WETLAND": 3.7,
+"name": "Yellow River at Knox, Indiana",
+"q100": 5060,
+"region": "5"
+},
+"05517400": {
+"CONTDA": 2.58,
+"CSL10_85": 15.8,
+"URBAN": 0.1,
+"WETLAND": 3.7,
+"name": "West Arm Payne Ditch near North Judson, Indiana",
+"q100": 412,
+"region": "6"
+},
+"05517500": {
+"CONTDA": 1352.0,
+"CSL10_85": 0.9,
+"URBAN": 1.9,
+"WETLAND": 4.4,
+"name": "Kankakee River at Dunns Bridge, Indiana",
+"q100": 5890,
+"region": "6"
+},
+"05517530": {
+"CONTDA": 1376.0,
+"CSL10_85": 1.3,
+"URBAN": 1.9,
+"WETLAND": 4.4,
+"name": "Kankakee River near Kouts, Indiana",
+"q100": 5930,
+"region": "6"
+},
+"05517890": {
+"CONTDA": 30.3,
+"CSL10_85": 8.6,
+"URBAN": 2.0,
+"WETLAND": 2.7,
+"name": "Cobb Ditch near Kouts, Indiana",
+"q100": 1450,
+"region": "5"
+},
+"05518000": {
+"CONTDA": 1779.0,
+"CSL10_85": 0.9,
+"URBAN": 2.0,
+"WETLAND": 4.1,
+"name": "Kankakee River at Shelby, Indiana",
+"q100": 6910,
+"region": "6"
+},
+"05519000": {
+"CONTDA": 123.0,
+"CSL10_85": 3.2,
+"URBAN": 4.8,
+"WETLAND": 3.6,
+"name": "Singleton Ditch at Schneider, Indiana",
+"q100": 3150,
+"region": "5"
+},
+"05519500": {
+"CONTDA": 54.7,
+"CSL10_85": 2.3,
+"URBAN": 4.3,
+"WETLAND": 1.9,
+"name": "West Creek near Schneider, Indiana",
+"q100": 2410,
+"region": "5"
+},
+"05522000": {
+"CONTDA": 144.0,
+"CSL10_85": 2.9,
+"URBAN": 0.2,
+"WETLAND": 3.1,
+"name": "Iroquois River near North Marion, Indiana",
+"q100": 2020,
+"region": "5"
+},
+"05522500": {
+"CONTDA": 203.0,
+"CSL10_85": 2.5,
+"URBAN": 0.2,
+"WETLAND": 2.6,
+"name": "Iroquois River at Rensselaer, Indiana",
+"q100": 2660,
+"region": "5"
+},
+"05523000": {
+"CONTDA": 21.8,
+"CSL10_85": 6.4,
+"URBAN": 0.5,
+"WETLAND": 2.0,
+"name": "Bice Ditch near South Marion, Indiana",
+"percent_error_table_371": 4.7,
+"q100": 1200,
+"q100_table_371": 1201,
+"region": "5"
+},
+"05523500": {
+"CONTDA": 83.7,
+"CSL10_85": 2.2,
+"URBAN": 0.1,
+"WETLAND": 1.7,
+"name": "Slough Creek near Collegeville, Indiana",
+"q100": 2980,
+"region": "5"
+},
+"05524500": {
+"CONTDA": 449.0,
+"CSL10_85": 2.0,
+"URBAN": 0.6,
+"WETLAND": 2.2,
+"name": "Iroquois River near Foresman, Indiana",
+"q100": 6360,
+"region": "5"
+},
+"05536190": {
+"CONTDA": 70.7,
+"CSL10_85": 7.4,
+"URBAN": 27.2,
+"WETLAND": 4.0,
+"name": "Hart Ditch at Munster, Indiana",
+"q100": 3610,
+"region": "5"
+}
+}
