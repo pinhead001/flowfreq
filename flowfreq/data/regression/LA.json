@@ -1,0 +1,822 @@
+{
+ "schema_version": 1,
+ "state": "LA",
+ "status": "verified",
+ "issue": null,
+ "source_reports": [
+  {
+   "citation": "Ensminger, P.A., Wagner, D.M., and Whaling, A., 2024, Magnitude and frequency of floods in the Coastal Plain region of Louisiana, 2016: U.S. Geological Survey Scientific Investigations Report 2024-5031, 18 p.",
+   "doi": "10.3133/sir20245031",
+   "url": "https://pubs.usgs.gov/publication/sir20245031",
+   "pdf": "https://pubs.usgs.gov/sir/2024/5031/sir20245031.pdf",
+   "tables": [
+    "Table 3",
+    "Table 4"
+   ],
+   "nss": {
+    "regression_regions": [
+     "GC1889"
+    ],
+    "citation_id": 185,
+    "last_year_of_data": 2016
+   }
+  },
+  {
+   "citation": "Wagner, D.M., Ensminger, P.A., and Whaling, A.R., 2023, Flood-frequency of rural, non-tidal streams in Louisiana and parts of Arkansas, Mississippi, and Texas, 1877-2016: U.S. Geological Survey data release.",
+   "doi": "10.5066/P9B48P2W",
+   "url": "https://doi.org/10.5066/P9B48P2W",
+   "tables": [
+    "LApkflows.csv"
+   ]
+  },
+  {
+   "citation": "Anderson, B.T., 2021, Magnitude and frequency of floods in the alluvial plain of the lower Mississippi River, 2017: U.S. Geological Survey Scientific Investigations Report 2021-5046, 15 p.",
+   "doi": "10.3133/sir20215046",
+   "url": "https://pubs.usgs.gov/publication/sir20215046",
+   "pdf": "https://pubs.usgs.gov/sir/2021/5046/sir20215046.pdf",
+   "tables": [
+    "Table 1",
+    "Table 2",
+    "Table 3"
+   ],
+   "nss": {
+    "regression_regions": [
+     "GC1888"
+    ],
+    "citation_id": 184,
+    "last_year_of_data": 2017
+   }
+  }
+ ],
+ "notes": "Two current sets at 8 AEPs: Ensminger and others, SIR 2024-5031, for the Coastal Plain (Tables 3 and 4), and Anderson, SIR 2021-5046, for the Mississippi Alluvial Plain (MAP; Table 2), which SIR 2024-5031 leaves to it. Left out as superseded, though NSS still serves them: TR No. 60's Pine Hills (GC880) and Non-Pine Hills (GC879) regions (Ensminger, 1998, Louisiana DOTD Water Resources Technical Report 60) and WRIR 85-4150's Delta region (GC881, Landers, 1985). SIR 2024-5031 calls itself the sixth in the series after the 1998 fifth edition, and says the 1998 Pine Hills and Alluvial Plains regions correspond roughly to its Coastal Plain and MAP; SIR 2021-5046 updates Landers (1985). At the 11 Louisiana points delineated, StreamStats located GC1888, GC1889 or nothing, and never a left-out region. A gap this does not open but does not close: the south of the state (08012470, 08012300 and 07386980) lies outside the release's StudyArea.shp, in what the 1998 study called Prairies and Coastal Marshes, part of its Non-Pine Hills region. NSS locates no region at 08012470 and 08012300 and StreamStats returns no PRECIP, so the snapshot gave no estimate there either. TR No. 60 itself was not found online (the Library of Congress holds only its diskettes); those equations were checked only against USGS Fact Sheet 099-01, Table 1, whose constants and exponents equal NSS's GC879 and GC880. NSS's GC881 also has 0.5 and 0.2 percent equations that WRIR 85-4150 does not print. Constant as printed: 10**x in SIR 2024-5031, so intercept = x; the number in SIR 2021-5046, so intercept = log10 of it. Coastal Plain: AVP, SEP and MEV from Table 3, and U from Table 4 (order intercept, log10 DRNAREA, log10 CSL1085LFP, per equation 14). MEV + xUx reproduces the release's VARgls at all 211 gages within Table 4's rounding, and no other order does. No worked example in either report. Regression flows reproduce within printed precision: all 211 release gages (GLS columns of LApkflows.csv) and the 50 gages SIR 2021-5046 Table 3 prints. That table's title says 58; the 8 without a row are Louisiana gages in Table 1. A misaligned release row: at 08031000 the GLS and VARgls columns print the 0.2 percent value second, and then the rest in order; moved back, it reproduces. Ranges: SIR 2024-5031 p. 9 and the release give 0.01 to 1,899 mi2 and 1.20 to 273.6 ft/mi, where its Summary says 0.011 and 1.16. 0.011 is the same value (the flows at 07370900 imply 0.0116), and 1.16 is no gage's value: the lowest is 1.2, at 07372200, whose flows imply 1.20. So 0.01 and 1.2 are stored, which equal NSS. 07372200's 1,899.42 mi2 rounds to the stored 1,899. Equations, SEP and ranges equal NSS. The slope code is NSS's CSL10_85, where SIR 2024-5031 has CSL1085LFP and SIR 2021-5046 has S: at Coastal Plain gage 07375500 live CSL10_85 is 3.99, the release's value; at MAP gage 07382500 Table 1 prints S 1.00 and live is 0.80, on a delineation that also differs in area (715 and 774 mi2) and shape (7.45 and 12.31), so the MAP code is not settled. Not stored, no schema field: MSE, RMSE, pseudo-R2, SME and SIR 2021-5046's MSE column. Both reports exclude basins over 10 percent impervious (LC11IMP); this is in their text, and NSS does not carry it, so it is not stored as an applicability limit. The release's metadata abstract says 218 gages in two groups, where the report and the CSV have 211 in one.",
+ "equations": [
+  {
+   "region_code": "MAP",
+   "region_name": "Mississippi Alluvial Plain (NSS GC1888)",
+   "aep": 0.5,
+   "intercept": 2.315970345456918,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.03,
+     "maximum": 2370.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.36,
+     "maximum": 31.74
+    },
+    {
+     "code": "BSHAPELFP",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 1.24,
+     "maximum": 75.97
+    }
+   ],
+   "coefficients": [
+    0.676,
+    0.159,
+    -0.39
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2021, Magnitude and frequency of floods in the alluvial plain of the lower Mississippi River, 2017: U.S. Geological Survey Scientific Investigations Report 2021-5046, 15 p.",
+    "table": "Table 2; ranges p. 14",
+    "year": 2021,
+    "url": "https://doi.org/10.3133/sir20215046"
+   },
+   "sep_log": 0.186495,
+   "avp": 0.035,
+   "n_sites": 58
+  },
+  {
+   "region_code": "MAP",
+   "region_name": "Mississippi Alluvial Plain (NSS GC1888)",
+   "aep": 0.2,
+   "intercept": 2.413299764081252,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.03,
+     "maximum": 2370.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.36,
+     "maximum": 31.74
+    },
+    {
+     "code": "BSHAPELFP",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 1.24,
+     "maximum": 75.97
+    }
+   ],
+   "coefficients": [
+    0.683,
+    0.272,
+    -0.374
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2021, Magnitude and frequency of floods in the alluvial plain of the lower Mississippi River, 2017: U.S. Geological Survey Scientific Investigations Report 2021-5046, 15 p.",
+    "table": "Table 2; ranges p. 14",
+    "year": 2021,
+    "url": "https://doi.org/10.3133/sir20215046"
+   },
+   "sep_log": 0.186495,
+   "avp": 0.035,
+   "n_sites": 58
+  },
+  {
+   "region_code": "MAP",
+   "region_name": "Mississippi Alluvial Plain (NSS GC1888)",
+   "aep": 0.1,
+   "intercept": 2.462397997898956,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.03,
+     "maximum": 2370.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.36,
+     "maximum": 31.74
+    },
+    {
+     "code": "BSHAPELFP",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 1.24,
+     "maximum": 75.97
+    }
+   ],
+   "coefficients": [
+    0.684,
+    0.328,
+    -0.362
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2021, Magnitude and frequency of floods in the alluvial plain of the lower Mississippi River, 2017: U.S. Geological Survey Scientific Investigations Report 2021-5046, 15 p.",
+    "table": "Table 2; ranges p. 14",
+    "year": 2021,
+    "url": "https://doi.org/10.3133/sir20215046"
+   },
+   "sep_log": 0.190269,
+   "avp": 0.037,
+   "n_sites": 58
+  },
+  {
+   "region_code": "MAP",
+   "region_name": "Mississippi Alluvial Plain (NSS GC1888)",
+   "aep": 0.04,
+   "intercept": 2.515873843711679,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.03,
+     "maximum": 2370.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.36,
+     "maximum": 31.74
+    },
+    {
+     "code": "BSHAPELFP",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 1.24,
+     "maximum": 75.97
+    }
+   ],
+   "coefficients": [
+    0.684,
+    0.387,
+    -0.348
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2021, Magnitude and frequency of floods in the alluvial plain of the lower Mississippi River, 2017: U.S. Geological Survey Scientific Investigations Report 2021-5046, 15 p.",
+    "table": "Table 2; ranges p. 14",
+    "year": 2021,
+    "url": "https://doi.org/10.3133/sir20215046"
+   },
+   "sep_log": 0.205152,
+   "avp": 0.041,
+   "n_sites": 58
+  },
+  {
+   "region_code": "MAP",
+   "region_name": "Mississippi Alluvial Plain (NSS GC1888)",
+   "aep": 0.02,
+   "intercept": 2.5490032620257876,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.03,
+     "maximum": 2370.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.36,
+     "maximum": 31.74
+    },
+    {
+     "code": "BSHAPELFP",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 1.24,
+     "maximum": 75.97
+    }
+   ],
+   "coefficients": [
+    0.684,
+    0.423,
+    -0.336
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2021, Magnitude and frequency of floods in the alluvial plain of the lower Mississippi River, 2017: U.S. Geological Survey Scientific Investigations Report 2021-5046, 15 p.",
+    "table": "Table 2; ranges p. 14",
+    "year": 2021,
+    "url": "https://doi.org/10.3133/sir20215046"
+   },
+   "sep_log": 0.212464,
+   "avp": 0.045,
+   "n_sites": 58
+  },
+  {
+   "region_code": "MAP",
+   "region_name": "Mississippi Alluvial Plain (NSS GC1888)",
+   "aep": 0.01,
+   "intercept": 2.5774917998372255,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.03,
+     "maximum": 2370.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.36,
+     "maximum": 31.74
+    },
+    {
+     "code": "BSHAPELFP",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 1.24,
+     "maximum": 75.97
+    }
+   ],
+   "coefficients": [
+    0.683,
+    0.455,
+    -0.326
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2021, Magnitude and frequency of floods in the alluvial plain of the lower Mississippi River, 2017: U.S. Geological Survey Scientific Investigations Report 2021-5046, 15 p.",
+    "table": "Table 2; ranges p. 14",
+    "year": 2021,
+    "url": "https://doi.org/10.3133/sir20215046"
+   },
+   "sep_log": 0.223265,
+   "avp": 0.049,
+   "n_sites": 58
+  },
+  {
+   "region_code": "MAP",
+   "region_name": "Mississippi Alluvial Plain (NSS GC1888)",
+   "aep": 0.005,
+   "intercept": 2.6053050461411096,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.03,
+     "maximum": 2370.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.36,
+     "maximum": 31.74
+    },
+    {
+     "code": "BSHAPELFP",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 1.24,
+     "maximum": 75.97
+    }
+   ],
+   "coefficients": [
+    0.682,
+    0.485,
+    -0.319
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2021, Magnitude and frequency of floods in the alluvial plain of the lower Mississippi River, 2017: U.S. Geological Survey Scientific Investigations Report 2021-5046, 15 p.",
+    "table": "Table 2; ranges p. 14",
+    "year": 2021,
+    "url": "https://doi.org/10.3133/sir20215046"
+   },
+   "sep_log": 0.230355,
+   "avp": 0.053,
+   "n_sites": 58
+  },
+  {
+   "region_code": "MAP",
+   "region_name": "Mississippi Alluvial Plain (NSS GC1888)",
+   "aep": 0.002,
+   "intercept": 2.639486489268586,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.03,
+     "maximum": 2370.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 0.36,
+     "maximum": 31.74
+    },
+    {
+     "code": "BSHAPELFP",
+     "transform": "log10",
+     "units": "dimensionless",
+     "minimum": 1.24,
+     "maximum": 75.97
+    }
+   ],
+   "coefficients": [
+    0.682,
+    0.52,
+    -0.312
+   ],
+   "citation": {
+    "publication": "Anderson, B.T., 2021, Magnitude and frequency of floods in the alluvial plain of the lower Mississippi River, 2017: U.S. Geological Survey Scientific Investigations Report 2021-5046, 15 p.",
+    "table": "Table 2; ranges p. 14",
+    "year": 2021,
+    "url": "https://doi.org/10.3133/sir20215046"
+   },
+   "sep_log": 0.244266,
+   "avp": 0.059,
+   "n_sites": 58
+  },
+  {
+   "region_code": "Coastal Plain",
+   "region_name": "Coastal Plain region of Louisiana (NSS GC1889)",
+   "aep": 0.5,
+   "intercept": 2.001,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.01,
+     "maximum": 1899.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.2,
+     "maximum": 273.6
+    }
+   ],
+   "coefficients": [
+    0.701,
+    0.252
+   ],
+   "citation": {
+    "publication": "Ensminger, P.A., Wagner, D.M., and Whaling, A., 2024, Magnitude and frequency of floods in the Coastal Plain region of Louisiana, 2016: U.S. Geological Survey Scientific Investigations Report 2024-5031, 18 p.",
+    "table": "Tables 3 and 4; ranges p. 9",
+    "year": 2024,
+    "url": "https://doi.org/10.3133/sir20245031"
+   },
+   "sep_log": 0.18498,
+   "avp": 0.0342,
+   "model_error_variance": 0.0331,
+   "covariance": [
+    [
+     0.0101,
+     -0.0028,
+     -0.0062
+    ],
+    [
+     -0.0028,
+     0.0009,
+     0.0017
+    ],
+    [
+     -0.0062,
+     0.0017,
+     0.0043
+    ]
+   ],
+   "n_sites": 211
+  },
+  {
+   "region_code": "Coastal Plain",
+   "region_name": "Coastal Plain region of Louisiana (NSS GC1889)",
+   "aep": 0.2,
+   "intercept": 2.146,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.01,
+     "maximum": 1899.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.2,
+     "maximum": 273.6
+    }
+   ],
+   "coefficients": [
+    0.749,
+    0.33
+   ],
+   "citation": {
+    "publication": "Ensminger, P.A., Wagner, D.M., and Whaling, A., 2024, Magnitude and frequency of floods in the Coastal Plain region of Louisiana, 2016: U.S. Geological Survey Scientific Investigations Report 2024-5031, 18 p.",
+    "table": "Tables 3 and 4; ranges p. 9",
+    "year": 2024,
+    "url": "https://doi.org/10.3133/sir20245031"
+   },
+   "sep_log": 0.163064,
+   "avp": 0.0266,
+   "model_error_variance": 0.0256,
+   "covariance": [
+    [
+     0.0084,
+     -0.0023,
+     -0.0052
+    ],
+    [
+     -0.0023,
+     0.0007,
+     0.0015
+    ],
+    [
+     -0.0052,
+     0.0015,
+     0.0036
+    ]
+   ],
+   "n_sites": 211
+  },
+  {
+   "region_code": "Coastal Plain",
+   "region_name": "Coastal Plain region of Louisiana (NSS GC1889)",
+   "aep": 0.1,
+   "intercept": 2.216,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.01,
+     "maximum": 1899.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.2,
+     "maximum": 273.6
+    }
+   ],
+   "coefficients": [
+    0.774,
+    0.372
+   ],
+   "citation": {
+    "publication": "Ensminger, P.A., Wagner, D.M., and Whaling, A., 2024, Magnitude and frequency of floods in the Coastal Plain region of Louisiana, 2016: U.S. Geological Survey Scientific Investigations Report 2024-5031, 18 p.",
+    "table": "Tables 3 and 4; ranges p. 9",
+    "year": 2024,
+    "url": "https://doi.org/10.3133/sir20245031"
+   },
+   "sep_log": 0.162087,
+   "avp": 0.0263,
+   "model_error_variance": 0.0252,
+   "covariance": [
+    [
+     0.0088,
+     -0.0024,
+     -0.0054
+    ],
+    [
+     -0.0024,
+     0.0008,
+     0.0015
+    ],
+    [
+     -0.0054,
+     0.0015,
+     0.0038
+    ]
+   ],
+   "n_sites": 211
+  },
+  {
+   "region_code": "Coastal Plain",
+   "region_name": "Coastal Plain region of Louisiana (NSS GC1889)",
+   "aep": 0.04,
+   "intercept": 2.287,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.01,
+     "maximum": 1899.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.2,
+     "maximum": 273.6
+    }
+   ],
+   "coefficients": [
+    0.801,
+    0.416
+   ],
+   "citation": {
+    "publication": "Ensminger, P.A., Wagner, D.M., and Whaling, A., 2024, Magnitude and frequency of floods in the Coastal Plain region of Louisiana, 2016: U.S. Geological Survey Scientific Investigations Report 2024-5031, 18 p.",
+    "table": "Tables 3 and 4; ranges p. 9",
+    "year": 2024,
+    "url": "https://doi.org/10.3133/sir20245031"
+   },
+   "sep_log": 0.172118,
+   "avp": 0.0296,
+   "model_error_variance": 0.0283,
+   "covariance": [
+    [
+     0.0104,
+     -0.0029,
+     -0.0063
+    ],
+    [
+     -0.0029,
+     0.0009,
+     0.0018
+    ],
+    [
+     -0.0063,
+     0.0018,
+     0.0044
+    ]
+   ],
+   "n_sites": 211
+  },
+  {
+   "region_code": "Coastal Plain",
+   "region_name": "Coastal Plain region of Louisiana (NSS GC1889)",
+   "aep": 0.02,
+   "intercept": 2.332,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.01,
+     "maximum": 1899.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.2,
+     "maximum": 273.6
+    }
+   ],
+   "coefficients": [
+    0.817,
+    0.442
+   ],
+   "citation": {
+    "publication": "Ensminger, P.A., Wagner, D.M., and Whaling, A., 2024, Magnitude and frequency of floods in the Coastal Plain region of Louisiana, 2016: U.S. Geological Survey Scientific Investigations Report 2024-5031, 18 p.",
+    "table": "Tables 3 and 4; ranges p. 9",
+    "year": 2024,
+    "url": "https://doi.org/10.3133/sir20245031"
+   },
+   "sep_log": 0.181291,
+   "avp": 0.0329,
+   "model_error_variance": 0.0314,
+   "covariance": [
+    [
+     0.0118,
+     -0.0032,
+     -0.0072
+    ],
+    [
+     -0.0032,
+     0.001,
+     0.002
+    ],
+    [
+     -0.0072,
+     0.002,
+     0.005
+    ]
+   ],
+   "n_sites": 211
+  },
+  {
+   "region_code": "Coastal Plain",
+   "region_name": "Coastal Plain region of Louisiana (NSS GC1889)",
+   "aep": 0.01,
+   "intercept": 2.371,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.01,
+     "maximum": 1899.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.2,
+     "maximum": 273.6
+    }
+   ],
+   "coefficients": [
+    0.832,
+    0.467
+   ],
+   "citation": {
+    "publication": "Ensminger, P.A., Wagner, D.M., and Whaling, A., 2024, Magnitude and frequency of floods in the Coastal Plain region of Louisiana, 2016: U.S. Geological Survey Scientific Investigations Report 2024-5031, 18 p.",
+    "table": "Tables 3 and 4; ranges p. 9",
+    "year": 2024,
+    "url": "https://doi.org/10.3133/sir20245031"
+   },
+   "sep_log": 0.190307,
+   "avp": 0.0362,
+   "model_error_variance": 0.0346,
+   "covariance": [
+    [
+     0.0132,
+     -0.0036,
+     -0.0081
+    ],
+    [
+     -0.0036,
+     0.0012,
+     0.0023
+    ],
+    [
+     -0.0081,
+     0.0023,
+     0.0056
+    ]
+   ],
+   "n_sites": 211
+  },
+  {
+   "region_code": "Coastal Plain",
+   "region_name": "Coastal Plain region of Louisiana (NSS GC1889)",
+   "aep": 0.005,
+   "intercept": 2.405,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.01,
+     "maximum": 1899.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.2,
+     "maximum": 273.6
+    }
+   ],
+   "coefficients": [
+    0.845,
+    0.488
+   ],
+   "citation": {
+    "publication": "Ensminger, P.A., Wagner, D.M., and Whaling, A., 2024, Magnitude and frequency of floods in the Coastal Plain region of Louisiana, 2016: U.S. Geological Survey Scientific Investigations Report 2024-5031, 18 p.",
+    "table": "Tables 3 and 4; ranges p. 9",
+    "year": 2024,
+    "url": "https://doi.org/10.3133/sir20245031"
+   },
+   "sep_log": 0.199241,
+   "avp": 0.0397,
+   "model_error_variance": 0.0379,
+   "covariance": [
+    [
+     0.0147,
+     -0.004,
+     -0.009
+    ],
+    [
+     -0.004,
+     0.0013,
+     0.0025
+    ],
+    [
+     -0.009,
+     0.0025,
+     0.0063
+    ]
+   ],
+   "n_sites": 211
+  },
+  {
+   "region_code": "Coastal Plain",
+   "region_name": "Coastal Plain region of Louisiana (NSS GC1889)",
+   "aep": 0.002,
+   "intercept": 2.446,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.01,
+     "maximum": 1899.0
+    },
+    {
+     "code": "CSL10_85",
+     "transform": "log10",
+     "units": "ft/mi",
+     "minimum": 1.2,
+     "maximum": 273.6
+    }
+   ],
+   "coefficients": [
+    0.861,
+    0.514
+   ],
+   "citation": {
+    "publication": "Ensminger, P.A., Wagner, D.M., and Whaling, A., 2024, Magnitude and frequency of floods in the Coastal Plain region of Louisiana, 2016: U.S. Geological Survey Scientific Investigations Report 2024-5031, 18 p.",
+    "table": "Tables 3 and 4; ranges p. 9",
+    "year": 2024,
+    "url": "https://doi.org/10.3133/sir20245031"
+   },
+   "sep_log": 0.214966,
+   "avp": 0.0462,
+   "model_error_variance": 0.0442,
+   "covariance": [
+    [
+     0.0171,
+     -0.0047,
+     -0.0105
+    ],
+    [
+     -0.0047,
+     0.0015,
+     0.003
+    ],
+    [
+     -0.0105,
+     0.003,
+     0.0073
+    ]
+   ],
+   "n_sites": 211
+  }
+ ]
+}

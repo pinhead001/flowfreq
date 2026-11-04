@@ -40,6 +40,7 @@ from flowfreq.regression import (
 from flowfreq.regression.equations import RegressionEquation
 from flowfreq.regression.library import (
     AWAITING_NSS_SUBDIR,
+    DATA_DIR,
     NSS_SNAPSHOT_SUBDIR,
     OPT_IN_SUBDIRS,
     PROVISIONAL_SUBDIR,
@@ -449,7 +450,9 @@ def test_asep_as_fraction_region_is_converted_from_percent(trimmed):
     ],
 )
 def test_shipped_sep_log_matches_the_report(code, region, aep, sep_pct):
-    eq = load_state(code, allow_nss_snapshot=True).equation(region, aep)
+    # Read from the snapshot file: LA now has a verified set, which load_state prefers.
+    data = json.loads((DATA_DIR / NSS_SNAPSHOT_SUBDIR / f"{code}.json").read_text(encoding="utf-8"))
+    eq = parse_state(data).equation(region, aep)
     assert eq.sep_log == pytest.approx(asep_to_sep_log(sep_pct), rel=1e-9)
 
 
