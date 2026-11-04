@@ -901,6 +901,20 @@ class TestEstimateAtSite:
         est = estimate_at_site(WA_LAT, WA_LON, state="WA")
         assert est.provenance["weighting"] == "no at-site fit supplied"
 
+    def test_a_streamstats_advisory_reaches_provenance_and_the_report(self, fakes, monkeypatch):
+        karst = ["Delineated basin may contain karst"]
+        delineate = fakes.delineate
+
+        def advised(*args, **kwargs):
+            ws = delineate(*args, **kwargs)
+            ws.advisories = karst
+            return ws
+
+        monkeypatch.setattr("flowfreq.ungaged.delineate_and_get_characteristics", advised)
+        est = estimate_at_site(WA_LAT, WA_LON, state="WA")
+        assert est.provenance["delineation"]["advisories"] == karst
+        assert "may contain karst" in est.to_markdown()
+
     def test_provenance_carries_snap_delineation_and_status(self, fakes):
         est = estimate_at_site(WA_LAT, WA_LON, state="WA")
         p = est.provenance
@@ -910,6 +924,7 @@ class TestEstimateAtSite:
         assert p["delineation"] == {
             "polygon_area_sq_mi": 82.2,
             "unavailable": {"ELEV": "not found"},
+            "advisories": [],
             "streamstats": ws.provenance.to_dict(),
         }
         assert p["library"] == {"status": "verified", "file": "WA.json", "retrieved_utc": ""}

@@ -24,7 +24,7 @@
    }
   }
  ],
- "notes": "Olson, SIR 2025-5088: a statewide set on DRNAREA, WETLAND and PRECPRIS20 (equations 3-10, region 1) and a statewide drainage-area-only set (equations 21-28, region 2), both at 8 AEPs from 156 streamgages in Vermont and its vicinity. The constant is printed, so intercept = log10 of it. SEP in percent from Tables 4 and 6, and ranges from Table 2. Model error variance and the matrix (order intercept, log10 DRNAREA, WETLAND, log10 PRECPRIS20) from Table 5. Region 2 has no matrix, so intervals use the SEP. NSS's region 1 maximum DRNAREA is 851.4 where the report prints 851. NSS locates both sets everywhere, so a caller chooses with region=.",
+ "notes": "Olson, SIR 2025-5088: a statewide set on DRNAREA, WETLAND and PRECPRIS20 (equations 3-10, region 1) and a statewide drainage-area-only set (equations 21-28, region 2), both at 8 AEPs from 156 streamgages in Vermont and its vicinity. The constant is printed, so intercept = log10 of it. SEP in percent from Tables 4 and 6, and ranges from Table 2. Model error variance and the matrix (order intercept, log10 DRNAREA, WETLAND, log10 PRECPRIS20) from Table 5. Region 2 has no matrix, so intervals use the SEP. NSS's region 1 maximum DRNAREA is 851.4 where the report prints 851. NSS located both sets at every point tested, so the full set is preferred, else the drainage-area-only set where a characteristic is missing (region_preference, a flowfreq method choice); region= overrides.",
  "equations": [
   {
    "region_code": "1",
@@ -786,5 +786,16 @@
    "sep_log": 0.252102,
    "n_sites": 156
   }
- ]
+ ],
+ "region_preference": {
+  "tiers": [
+   [
+    "1"
+   ],
+   [
+    "2"
+   ]
+  ],
+  "basis": "full set where the basin has its characteristics, else drainage-area-only; a flowfreq method choice, not a published rule"
+ }
 }

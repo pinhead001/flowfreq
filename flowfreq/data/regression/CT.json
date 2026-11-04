@@ -24,7 +24,7 @@
    }
   }
  ],
- "notes": "Ahearn and Hodgkins, SIR 2020-5054: a statewide set on DRNAREA, a 24-hour precipitation that changes with the AEP, and SOILCorD (StreamStats code SSURGOCCDD, as a decimal fraction), and a statewide drainage-area-only set, both at 8 AEPs from 85 streamgages. Equations, model error variance, AVP and SEP from Table 7 (region 1) and Table 10 (region 2); ranges from Table 8; the covariance from Table 9. Table 9 and the worked example give the order constant, DRNAREA, I24HxxY, SOILCorD, but only constant, log10 DRNAREA, SOILCorD+1, I24HxxY reproduces the example's printed xUx (0.002856 against 0.00286; the stated order gives 1.14), so the variables are stored in that order. Region 1 is stored as printed, with the 1 added to SOILCorD; NSS folds that term into its intercept and is otherwise equal. Table 9 prints no covariance for region 2, so its intervals use the average variance of prediction. Table 9 prints the constant-by-SOILCorD covariance to differing last digits at 1 percent and 0.2 percent (for example -0.026085650 and -0.026085653); both are stored as printed. The report calls the drainage-area-only equations an alternative giving quick but less accurate estimates. NSS locates both sets everywhere, so a caller chooses with region=.",
+ "notes": "Ahearn and Hodgkins, SIR 2020-5054: a statewide set on DRNAREA, a 24-hour precipitation that changes with the AEP, and SOILCorD (StreamStats code SSURGOCCDD, as a decimal fraction), and a statewide drainage-area-only set, both at 8 AEPs from 85 streamgages. Equations, model error variance, AVP and SEP from Table 7 (region 1) and Table 10 (region 2); ranges from Table 8; the covariance from Table 9. Table 9 and the worked example give the order constant, DRNAREA, I24HxxY, SOILCorD, but only constant, log10 DRNAREA, SOILCorD+1, I24HxxY reproduces the example's printed xUx (0.002856 against 0.00286; the stated order gives 1.14), so the variables are stored in that order. Region 1 is stored as printed, with the 1 added to SOILCorD; NSS folds that term into its intercept and is otherwise equal. Table 9 prints no covariance for region 2, so its intervals use the average variance of prediction. Table 9 prints the constant-by-SOILCorD covariance to differing last digits at 1 percent and 0.2 percent (for example -0.026085650 and -0.026085653); both are stored as printed. The report calls the drainage-area-only equations an alternative giving quick but less accurate estimates. NSS located both sets at every point tested, so the full set is preferred, else the drainage-area-only set where a characteristic is missing (region_preference, a flowfreq method choice); region= overrides.",
  "equations": [
   {
    "region_code": "1",
@@ -818,5 +818,16 @@
    "model_error_variance": 0.035,
    "n_sites": 85
   }
- ]
+ ],
+ "region_preference": {
+  "tiers": [
+   [
+    "1"
+   ],
+   [
+    "2"
+   ]
+  ],
+  "basis": "full set where the basin has its characteristics, else drainage-area-only; a flowfreq method choice, not a published rule"
+ }
 }

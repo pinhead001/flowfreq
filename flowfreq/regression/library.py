@@ -38,9 +38,10 @@ from __future__ import annotations
 
 import json
 import logging
+import math
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Mapping, Optional, Union
 
 from flowfreq.regression.equations import RegressionEquation
 from flowfreq.regression.jurisdictions import jurisdiction
@@ -156,6 +157,78 @@ class RegionGate:
 
 
 @dataclass
+class RegionLimit:
+    """Where an equation set can apply, for telling it apart from an overlapping set.
+
+    A set excluded by a limit is no alternative for this basin, so it drops out of the overlap
+    without the caller choosing. It stays reachable with ``region=``. Unlike a
+    :class:`RegionGate`, which assigns a basin among sets that all have gates, a limit needs no
+    gate on the other sets, and a basin it does not exclude remains the caller's to decide:
+    an urban set's limit sends a rural basin to the rural set, and leaves an urban one alone.
+
+    Attributes
+    ----------
+    variable : str
+        StreamStats characteristic code. A value that is unknown excludes nothing.
+    minimum, maximum : float, optional
+        Both inclusive, as an equation's range is.
+    below : str, optional
+        Another characteristic that ``variable`` must be less than, as Oklahoma's regulated
+        sets need ``DAUNREG`` under ``CONTDA``.
+    units : str
+    source : str
+        Where the limit is printed, or that it is a flowfreq method choice.
+    """
+
+    variable: str
+    minimum: Optional[float] = None
+    maximum: Optional[float] = None
+    below: Optional[str] = None
+    units: str = ""
+    source: str = ""
+
+    def excludes(self, characteristics: Mapping[str, float]) -> bool:
+        """Whether this basin is known to be outside the limit."""
+        value = characteristics.get(self.variable)
+        if value is None or not math.isfinite(value):
+            return False
+        if self.minimum is not None and value < self.minimum:
+            return True
+        if self.maximum is not None and value > self.maximum:
+            return True
+        if self.below is not None:
+            other = characteristics.get(self.below)
+            if other is not None and math.isfinite(other) and value >= other:
+                return True
+        return False
+
+    def describe(self) -> str:
+        """The rule in words, e.g. ``"DRNAREA <= 1 mi2"``."""
+        parts = []
+        if self.minimum is not None:
+            parts.append(f"{self.variable} >= {self.minimum:g}")
+        if self.maximum is not None:
+            parts.append(f"{self.variable} <= {self.maximum:g}")
+        if self.below is not None:
+            parts.append(f"{self.variable} < {self.below}")
+        return " and ".join(parts) + (f" {self.units}" if self.units else "")
+
+    @classmethod
+    def from_dict(cls, d: Dict[str, Any]) -> "RegionLimit":
+        limit = cls(
+            variable=str(d["variable"]),
+            minimum=None if d.get("minimum") is None else float(d["minimum"]),
+            maximum=None if d.get("maximum") is None else float(d["maximum"]),
+            below=None if d.get("below") is None else str(d["below"]),
+            units=str(d.get("units") or ""),
+            source=str(d.get("source") or ""),
+        )
+        if limit.minimum is None and limit.maximum is None and limit.below is None:
+            raise ValueError(f"region limit on {limit.variable} has no bound")
+        return limit
+
+
+@dataclass
 class RegionPreference:
     """An order of preference among overlapping equation sets.
 
@@ -203,6 +276,9 @@ class StateLibrary:
     region_gates: Dict[str, RegionGate] = field(default_factory=dict)
     #: The order to try overlapping sets in when no published rule decides it.
     region_preference: Optional[RegionPreference] = None
+    #: Where a set can apply (:class:`RegionLimit`), by region code. ``assemble`` drops a set
+    #: a limit excludes from an overlap, before any other rule.
+    region_limits: Dict[str, List[RegionLimit]] = field(default_factory=dict)
 
     @property
     def provisional(self) -> bool:
@@ -289,6 +365,13 @@ def parse_state(data: Dict[str, Any]) -> StateLibrary:
         unknown = sorted({c for t in preference.tiers for c in t} - {e.region_code for e in eqs})
         if unknown:
             raise ValueError(f"{state}: region_preference for regions with no equations: {unknown}")
+    limits = {
+        str(code): [RegionLimit.from_dict(x) for x in entries]
+        for code, entries in (data.get("region_limits") or {}).items()
+    }
+    unknown = sorted(set(limits) - {e.region_code for e in eqs})
+    if unknown:
+        raise ValueError(f"{state}: region_limits for regions with no equations: {unknown}")
     return StateLibrary(
         state=state,
         status=status,
@@ -300,6 +383,7 @@ def parse_state(data: Dict[str, Any]) -> StateLibrary:
         retrieved_utc=str(data.get("retrieved_utc") or ""),
         region_gates=gates,
         region_preference=preference,
+        region_limits=limits,
     )
 
 
