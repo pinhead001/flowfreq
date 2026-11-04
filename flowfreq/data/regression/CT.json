@@ -1,0 +1,822 @@
+{
+ "schema_version": 1,
+ "state": "CT",
+ "status": "verified",
+ "issue": null,
+ "source_reports": [
+  {
+   "citation": "Ahearn, E.A., and Hodgkins, G.A., 2020, Estimating flood magnitude and frequency on streams and rivers in Connecticut, based on data through water year 2015: U.S. Geological Survey Scientific Investigations Report 2020-5054, 42 p.",
+   "doi": "10.3133/sir20205054",
+   "url": "https://pubs.usgs.gov/publication/sir20205054",
+   "pdf": "https://pubs.usgs.gov/sir/2020/5054/sir20205054.pdf",
+   "tables": [
+    "Table 7",
+    "Table 8",
+    "Table 9",
+    "Table 10"
+   ],
+   "nss": {
+    "regression_regions": [
+     "GC1800",
+     "GC1801"
+    ],
+    "last_year_of_data": 2015
+   }
+  }
+ ],
+ "notes": "Ahearn and Hodgkins, SIR 2020-5054: a statewide set on DRNAREA, a 24-hour precipitation that changes with the AEP, and SOILCorD (StreamStats code SSURGOCCDD, as a decimal fraction), and a statewide drainage-area-only set, both at 8 AEPs from 85 streamgages. Equations, model error variance, AVP and SEP from Table 7 (region 1) and Table 10 (region 2); ranges from Table 8; the covariance from Table 9. Table 9 and the worked example give the order constant, DRNAREA, I24HxxY, SOILCorD, but only constant, log10 DRNAREA, SOILCorD+1, I24HxxY reproduces the example's printed xUx (0.002856 against 0.00286; the stated order gives 1.14), so the variables are stored in that order. Region 1 is stored as printed, with the 1 added to SOILCorD; NSS folds that term into its intercept and is otherwise equal. Table 9 prints no covariance for region 2, so its intervals use the average variance of prediction. Table 9 prints the constant-by-SOILCorD covariance to differing last digits at 1 percent and 0.2 percent (for example -0.026085650 and -0.026085653); both are stored as printed. The report calls the drainage-area-only equations an alternative giving quick but less accurate estimates. NSS locates both sets everywhere, so a caller chooses with region=.",
+ "equations": [
+  {
+   "region_code": "1",
+   "region_name": "Statewide, three variables (NSS GC1801)",
+   "aep": 0.5,
+   "intercept": -1.015,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.69,
+     "maximum": 325.0
+    },
+    {
+     "code": "SSURGOCCDD",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.118,
+     "maximum": 0.945,
+     "offset": 1.0
+    },
+    {
+     "code": "I24H2Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 2.77,
+     "maximum": 3.32
+    }
+   ],
+   "coefficients": [
+    0.819,
+    0.586,
+    0.618
+   ],
+   "citation": {
+    "publication": "Ahearn, E.A., and Hodgkins, G.A., 2020, Estimating flood magnitude and frequency on streams and rivers in Connecticut, based on data through water year 2015: U.S. Geological Survey Scientific Investigations Report 2020-5054, 42 p.",
+    "table": "Tables 7, 8 and 9",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205054"
+   },
+   "sep_log": 0.113265,
+   "avp": 0.013,
+   "model_error_variance": 0.012,
+   "covariance": [
+    [
+     0.150121456,
+     -0.002881962,
+     -0.014221043,
+     -0.040368584
+    ],
+    [
+     -0.002881962,
+     0.000594468,
+     0.000298268,
+     0.00051744
+    ],
+    [
+     -0.014221043,
+     0.000298268,
+     0.007274701,
+     0.001057482
+    ],
+    [
+     -0.040368584,
+     0.00051744,
+     0.001057482,
+     0.012321012
+    ]
+   ],
+   "n_sites": 85
+  },
+  {
+   "region_code": "1",
+   "region_name": "Statewide, three variables (NSS GC1801)",
+   "aep": 0.2,
+   "intercept": -1.064,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.69,
+     "maximum": 325.0
+    },
+    {
+     "code": "SSURGOCCDD",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.118,
+     "maximum": 0.945,
+     "offset": 1.0
+    },
+    {
+     "code": "I24H5Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 4.0,
+     "maximum": 4.7
+    }
+   ],
+   "coefficients": [
+    0.803,
+    0.505,
+    0.541
+   ],
+   "citation": {
+    "publication": "Ahearn, E.A., and Hodgkins, G.A., 2020, Estimating flood magnitude and frequency on streams and rivers in Connecticut, based on data through water year 2015: U.S. Geological Survey Scientific Investigations Report 2020-5054, 42 p.",
+    "table": "Tables 7, 8 and 9",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205054"
+   },
+   "sep_log": 0.112398,
+   "avp": 0.013,
+   "model_error_variance": 0.011,
+   "covariance": [
+    [
+     0.163813213,
+     -0.002327223,
+     -0.009032922,
+     -0.034135235
+    ],
+    [
+     -0.002327223,
+     0.000620062,
+     0.000284794,
+     0.000238519
+    ],
+    [
+     -0.009032922,
+     0.000284794,
+     0.007557628,
+     -0.00054341
+    ],
+    [
+     -0.034135235,
+     0.000238519,
+     -0.00054341,
+     0.008053048
+    ]
+   ],
+   "n_sites": 85
+  },
+  {
+   "region_code": "1",
+   "region_name": "Statewide, three variables (NSS GC1801)",
+   "aep": 0.1,
+   "intercept": -0.775,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.69,
+     "maximum": 325.0
+    },
+    {
+     "code": "SSURGOCCDD",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.118,
+     "maximum": 0.945,
+     "offset": 1.0
+    },
+    {
+     "code": "I24H10Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 4.86,
+     "maximum": 5.79
+    }
+   ],
+   "coefficients": [
+    0.795,
+    0.47,
+    0.426
+   ],
+   "citation": {
+    "publication": "Ahearn, E.A., and Hodgkins, G.A., 2020, Estimating flood magnitude and frequency on streams and rivers in Connecticut, based on data through water year 2015: U.S. Geological Survey Scientific Investigations Report 2020-5054, 42 p.",
+    "table": "Tables 7, 8 and 9",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205054"
+   },
+   "sep_log": 0.120997,
+   "avp": 0.015,
+   "model_error_variance": 0.013,
+   "covariance": [
+    [
+     0.177897628,
+     -0.002426533,
+     -0.009020613,
+     -0.030816351
+    ],
+    [
+     -0.002426533,
+     0.00074484,
+     0.000359061,
+     0.000161718
+    ],
+    [
+     -0.009020613,
+     0.000359061,
+     0.009230998,
+     -0.000942228
+    ],
+    [
+     -0.030816351,
+     0.000161718,
+     -0.000942228,
+     0.006142851
+    ]
+   ],
+   "n_sites": 85
+  },
+  {
+   "region_code": "1",
+   "region_name": "Statewide, three variables (NSS GC1801)",
+   "aep": 0.04,
+   "intercept": -0.432,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.69,
+     "maximum": 325.0
+    },
+    {
+     "code": "SSURGOCCDD",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.118,
+     "maximum": 0.945,
+     "offset": 1.0
+    },
+    {
+     "code": "I24H25Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 5.99,
+     "maximum": 7.22
+    }
+   ],
+   "coefficients": [
+    0.79,
+    0.442,
+    0.322
+   ],
+   "citation": {
+    "publication": "Ahearn, E.A., and Hodgkins, G.A., 2020, Estimating flood magnitude and frequency on streams and rivers in Connecticut, based on data through water year 2015: U.S. Geological Survey Scientific Investigations Report 2020-5054, 42 p.",
+    "table": "Tables 7, 8 and 9",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205054"
+   },
+   "sep_log": 0.133459,
+   "avp": 0.018,
+   "model_error_variance": 0.015,
+   "covariance": [
+    [
+     0.198520082,
+     -0.002723581,
+     -0.010275122,
+     -0.027858473
+    ],
+    [
+     -0.002723581,
+     0.000942556,
+     0.000488384,
+     0.000105127
+    ],
+    [
+     -0.010275122,
+     0.000488384,
+     0.011862813,
+     -0.001202555
+    ],
+    [
+     -0.027858473,
+     0.000105127,
+     -0.001202555,
+     0.004602554
+    ]
+   ],
+   "n_sites": 85
+  },
+  {
+   "region_code": "1",
+   "region_name": "Statewide, three variables (NSS GC1801)",
+   "aep": 0.02,
+   "intercept": -0.255,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.69,
+     "maximum": 325.0
+    },
+    {
+     "code": "SSURGOCCDD",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.118,
+     "maximum": 0.945,
+     "offset": 1.0
+    },
+    {
+     "code": "I24H50Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 6.81,
+     "maximum": 8.3
+    }
+   ],
+   "coefficients": [
+    0.789,
+    0.426,
+    0.274
+   ],
+   "citation": {
+    "publication": "Ahearn, E.A., and Hodgkins, G.A., 2020, Estimating flood magnitude and frequency on streams and rivers in Connecticut, based on data through water year 2015: U.S. Geological Survey Scientific Investigations Report 2020-5054, 42 p.",
+    "table": "Tables 7, 8 and 9",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205054"
+   },
+   "sep_log": 0.144801,
+   "avp": 0.021,
+   "model_error_variance": 0.018,
+   "covariance": [
+    [
+     0.219367699,
+     -0.003067342,
+     -0.012146441,
+     -0.02676703
+    ],
+    [
+     -0.003067342,
+     0.001127917,
+     0.000608049,
+     7.9952e-05
+    ],
+    [
+     -0.012146441,
+     0.000608049,
+     0.01432188,
+     -0.001314005
+    ],
+    [
+     -0.02676703,
+     7.9952e-05,
+     -0.001314005,
+     0.00390851
+    ]
+   ],
+   "n_sites": 85
+  },
+  {
+   "region_code": "1",
+   "region_name": "Statewide, three variables (NSS GC1801)",
+   "aep": 0.01,
+   "intercept": -0.104,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.69,
+     "maximum": 325.0
+    },
+    {
+     "code": "SSURGOCCDD",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.118,
+     "maximum": 0.945,
+     "offset": 1.0
+    },
+    {
+     "code": "I24H100Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 7.62,
+     "maximum": 9.38
+    }
+   ],
+   "coefficients": [
+    0.789,
+    0.413,
+    0.238
+   ],
+   "citation": {
+    "publication": "Ahearn, E.A., and Hodgkins, G.A., 2020, Estimating flood magnitude and frequency on streams and rivers in Connecticut, based on data through water year 2015: U.S. Geological Survey Scientific Investigations Report 2020-5054, 42 p.",
+    "table": "Tables 7, 8 and 9",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205054"
+   },
+   "sep_log": 0.155958,
+   "avp": 0.024,
+   "model_error_variance": 0.021,
+   "covariance": [
+    [
+     0.242310954,
+     -0.003489404,
+     -0.014440553,
+     -0.02608565
+    ],
+    [
+     -0.003489404,
+     0.001325347,
+     0.000734776,
+     6.6694e-05
+    ],
+    [
+     -0.014440553,
+     0.000734776,
+     0.016920388,
+     -0.001375739
+    ],
+    [
+     -0.026085653,
+     6.6694e-05,
+     -0.001375739,
+     0.003407436
+    ]
+   ],
+   "n_sites": 85
+  },
+  {
+   "region_code": "1",
+   "region_name": "Statewide, three variables (NSS GC1801)",
+   "aep": 0.005,
+   "intercept": 0.372,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.69,
+     "maximum": 325.0
+    },
+    {
+     "code": "SSURGOCCDD",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.118,
+     "maximum": 0.945,
+     "offset": 1.0
+    },
+    {
+     "code": "I24H200Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 8.7,
+     "maximum": 11.22
+    }
+   ],
+   "coefficients": [
+    0.785,
+    0.39,
+    0.167
+   ],
+   "citation": {
+    "publication": "Ahearn, E.A., and Hodgkins, G.A., 2020, Estimating flood magnitude and frequency on streams and rivers in Connecticut, based on data through water year 2015: U.S. Geological Survey Scientific Investigations Report 2020-5054, 42 p.",
+    "table": "Tables 7, 8 and 9",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205054"
+   },
+   "sep_log": 0.169487,
+   "avp": 0.029,
+   "model_error_variance": 0.024,
+   "covariance": [
+    [
+     0.208771318,
+     -0.003554708,
+     -0.017638995,
+     -0.0183893
+    ],
+    [
+     -0.003554708,
+     0.001569869,
+     0.000924911,
+     -3.73e-07
+    ],
+    [
+     -0.017638995,
+     0.000924911,
+     0.020431633,
+     -0.001417735
+    ],
+    [
+     -0.018389297,
+     -3.73e-07,
+     -0.001417735,
+     0.002141616
+    ]
+   ],
+   "n_sites": 85
+  },
+  {
+   "region_code": "1",
+   "region_name": "Statewide, three variables (NSS GC1801)",
+   "aep": 0.002,
+   "intercept": 0.74,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.69,
+     "maximum": 325.0
+    },
+    {
+     "code": "SSURGOCCDD",
+     "transform": "identity",
+     "units": "decimal fraction",
+     "minimum": 0.118,
+     "maximum": 0.945,
+     "offset": 1.0
+    },
+    {
+     "code": "I24H500Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 10.1,
+     "maximum": 13.64
+    }
+   ],
+   "coefficients": [
+    0.784,
+    0.37,
+    0.12
+   ],
+   "citation": {
+    "publication": "Ahearn, E.A., and Hodgkins, G.A., 2020, Estimating flood magnitude and frequency on streams and rivers in Connecticut, based on data through water year 2015: U.S. Geological Survey Scientific Investigations Report 2020-5054, 42 p.",
+    "table": "Tables 7, 8 and 9",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205054"
+   },
+   "sep_log": 0.186382,
+   "avp": 0.035,
+   "model_error_variance": 0.03,
+   "covariance": [
+    [
+     0.192440519,
+     -0.003987762,
+     -0.023226852,
+     -0.0132593
+    ],
+    [
+     -0.003987762,
+     0.0019074,
+     0.001180929,
+     -3.6203e-05
+    ],
+    [
+     -0.023226852,
+     0.001180929,
+     0.025123295,
+     -0.001343871
+    ],
+    [
+     -0.013259301,
+     -3.6203e-05,
+     -0.001343871,
+     0.001349216
+    ]
+   ],
+   "n_sites": 85
+  },
+  {
+   "region_code": "2",
+   "region_name": "Statewide, drainage area only (NSS GC1800)",
+   "aep": 0.5,
+   "intercept": 1.807,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.69,
+     "maximum": 325.0
+    }
+   ],
+   "coefficients": [
+    0.778
+   ],
+   "citation": {
+    "publication": "Ahearn, E.A., and Hodgkins, G.A., 2020, Estimating flood magnitude and frequency on streams and rivers in Connecticut, based on data through water year 2015: U.S. Geological Survey Scientific Investigations Report 2020-5054, 42 p.",
+    "table": "Tables 8 and 10",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205054"
+   },
+   "sep_log": 0.147634,
+   "avp": 0.022,
+   "model_error_variance": 0.021,
+   "n_sites": 85
+  },
+  {
+   "region_code": "2",
+   "region_name": "Statewide, drainage area only (NSS GC1800)",
+   "aep": 0.2,
+   "intercept": 2.053,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.69,
+     "maximum": 325.0
+    }
+   ],
+   "coefficients": [
+    0.768
+   ],
+   "citation": {
+    "publication": "Ahearn, E.A., and Hodgkins, G.A., 2020, Estimating flood magnitude and frequency on streams and rivers in Connecticut, based on data through water year 2015: U.S. Geological Survey Scientific Investigations Report 2020-5054, 42 p.",
+    "table": "Tables 8 and 10",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205054"
+   },
+   "sep_log": 0.147634,
+   "avp": 0.022,
+   "model_error_variance": 0.02,
+   "n_sites": 85
+  },
+  {
+   "region_code": "2",
+   "region_name": "Statewide, drainage area only (NSS GC1800)",
+   "aep": 0.1,
+   "intercept": 2.187,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.69,
+     "maximum": 325.0
+    }
+   ],
+   "coefficients": [
+    0.764
+   ],
+   "citation": {
+    "publication": "Ahearn, E.A., and Hodgkins, G.A., 2020, Estimating flood magnitude and frequency on streams and rivers in Connecticut, based on data through water year 2015: U.S. Geological Survey Scientific Investigations Report 2020-5054, 42 p.",
+    "table": "Tables 8 and 10",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205054"
+   },
+   "sep_log": 0.152796,
+   "avp": 0.023,
+   "model_error_variance": 0.022,
+   "n_sites": 85
+  },
+  {
+   "region_code": "2",
+   "region_name": "Statewide, drainage area only (NSS GC1800)",
+   "aep": 0.04,
+   "intercept": 2.331,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.69,
+     "maximum": 325.0
+    }
+   ],
+   "coefficients": [
+    0.762
+   ],
+   "citation": {
+    "publication": "Ahearn, E.A., and Hodgkins, G.A., 2020, Estimating flood magnitude and frequency on streams and rivers in Connecticut, based on data through water year 2015: U.S. Geological Survey Scientific Investigations Report 2020-5054, 42 p.",
+    "table": "Tables 8 and 10",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205054"
+   },
+   "sep_log": 0.158714,
+   "avp": 0.025,
+   "model_error_variance": 0.023,
+   "n_sites": 85
+  },
+  {
+   "region_code": "2",
+   "region_name": "Statewide, drainage area only (NSS GC1800)",
+   "aep": 0.02,
+   "intercept": 2.424,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.69,
+     "maximum": 325.0
+    }
+   ],
+   "coefficients": [
+    0.761
+   ],
+   "citation": {
+    "publication": "Ahearn, E.A., and Hodgkins, G.A., 2020, Estimating flood magnitude and frequency on streams and rivers in Connecticut, based on data through water year 2015: U.S. Geological Survey Scientific Investigations Report 2020-5054, 42 p.",
+    "table": "Tables 8 and 10",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205054"
+   },
+   "sep_log": 0.166535,
+   "avp": 0.028,
+   "model_error_variance": 0.025,
+   "n_sites": 85
+  },
+  {
+   "region_code": "2",
+   "region_name": "Statewide, drainage area only (NSS GC1800)",
+   "aep": 0.01,
+   "intercept": 2.508,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.69,
+     "maximum": 325.0
+    }
+   ],
+   "coefficients": [
+    0.762
+   ],
+   "citation": {
+    "publication": "Ahearn, E.A., and Hodgkins, G.A., 2020, Estimating flood magnitude and frequency on streams and rivers in Connecticut, based on data through water year 2015: U.S. Geological Survey Scientific Investigations Report 2020-5054, 42 p.",
+    "table": "Tables 8 and 10",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205054"
+   },
+   "sep_log": 0.176585,
+   "avp": 0.031,
+   "model_error_variance": 0.028,
+   "n_sites": 85
+  },
+  {
+   "region_code": "2",
+   "region_name": "Statewide, drainage area only (NSS GC1800)",
+   "aep": 0.005,
+   "intercept": 2.586,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.69,
+     "maximum": 325.0
+    }
+   ],
+   "coefficients": [
+    0.763
+   ],
+   "citation": {
+    "publication": "Ahearn, E.A., and Hodgkins, G.A., 2020, Estimating flood magnitude and frequency on streams and rivers in Connecticut, based on data through water year 2015: U.S. Geological Survey Scientific Investigations Report 2020-5054, 42 p.",
+    "table": "Tables 8 and 10",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205054"
+   },
+   "sep_log": 0.184221,
+   "avp": 0.034,
+   "model_error_variance": 0.031,
+   "n_sites": 85
+  },
+  {
+   "region_code": "2",
+   "region_name": "Statewide, drainage area only (NSS GC1800)",
+   "aep": 0.002,
+   "intercept": 2.681,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.69,
+     "maximum": 325.0
+    }
+   ],
+   "coefficients": [
+    0.765
+   ],
+   "citation": {
+    "publication": "Ahearn, E.A., and Hodgkins, G.A., 2020, Estimating flood magnitude and frequency on streams and rivers in Connecticut, based on data through water year 2015: U.S. Geological Survey Scientific Investigations Report 2020-5054, 42 p.",
+    "table": "Tables 8 and 10",
+    "year": 2020,
+    "url": "https://doi.org/10.3133/sir20205054"
+   },
+   "sep_log": 0.197754,
+   "avp": 0.039,
+   "model_error_variance": 0.035,
+   "n_sites": 85
+  }
+ ]
+}

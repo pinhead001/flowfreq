@@ -80,7 +80,7 @@ Plan and definitions of done: `docs/MASTER_ROADMAP.md` §3.2.
 | VT | Vermont | nss snapshot (16 eqs, 0 unparsed) | 2 | 16 | pending |  |
 | MA | Massachusetts | verified | 1 | 8 | pending, verified |  |
 | RI | Rhode Island | nss snapshot (7 eqs, 0 unparsed) | 1 | 7 | verified |  |
-| CT | Connecticut | nss snapshot (16 eqs, 0 unparsed) | 2 | 16 | verified |  |
+| CT | Connecticut | verified | 2 | 16 | verified |  |
 | NY | New York | nss snapshot (120 eqs, 2 unparsed) | 12 | 120 | pending, verified |  |
 | NJ | New Jersey | nss snapshot (35 eqs, 0 unparsed) | 5 | 35 | pending |  |
 | PA | Pennsylvania | nss snapshot (40 eqs, 0 unparsed) | 5 | 40 | pending, verified |  |
