@@ -24,7 +24,7 @@
    }
   }
  ],
- "notes": "Lombard and Hodgkins, SIR 2020-5092: a statewide set on DRNAREA, percentage of wetlands (W, NSS code STORAGE) and a 24-hour rainfall that changes with the AEP (region 1), and a statewide drainage-area-only set (region 2), both at 8 AEPs from 124 streamgages in and near Maine. Equations and average standard errors of prediction, in log units, from Tables 3 and 4; the constant is printed, so intercept = log10 of it. Ranges from Table 1. Model error variance and the covariance from appendix table 1.8, order intercept, log10 DRNAREA, W, I24HxY. That table's row labels swap the rainfall at 2 and 1 percent, and which is right cannot be settled from the report. The block headings are kept because each matrix's diagonal runs monotonically across the AEPs under them. The average errors computed from the matrices then come to 0.170 and 0.169 log units at 2 and 1 percent against the printed 0.166 and 0.170, the largest differences at any AEP; swapping changes them by at most 0.002. The report prints no worked example; the appendix table 1.4 regression flows reproduce from the table 1.6 characteristics to within rounding at the 96 gages in both tables. Region 2 has no covariance, so intervals use the standard error of prediction. NSS locates both sets everywhere, so a caller chooses with region=.",
+ "notes": "Lombard and Hodgkins, SIR 2020-5092: a statewide set on DRNAREA, percentage of wetlands (W, NSS code STORAGE) and a 24-hour rainfall that changes with the AEP (region 1), and a statewide drainage-area-only set (region 2), both at 8 AEPs from 124 streamgages in and near Maine. Equations and average standard errors of prediction, in log units, from Tables 3 and 4; the constant is printed, so intercept = log10 of it. Ranges from Table 1. Model error variance and the covariance from appendix table 1.8, order intercept, log10 DRNAREA, W, I24HxY. That table's row labels swap the rainfall at 2 and 1 percent, and which is right cannot be settled from the report. The block headings are kept because each matrix's diagonal runs monotonically across the AEPs under them. The average errors computed from the matrices then come to 0.170 and 0.169 log units at 2 and 1 percent against the printed 0.166 and 0.170, the largest differences at any AEP; swapping changes them by at most 0.002. The report prints no worked example; the appendix table 1.4 regression flows reproduce from the table 1.6 characteristics to within rounding at the 96 gages in both tables. Region 2 has no covariance, so intervals use the standard error of prediction. NSS located both sets at every point tested, so the full set is preferred, else the drainage-area-only set where a characteristic is missing (region_preference, a flowfreq method choice); region= overrides.",
  "equations": [
   {
    "region_code": "1",
@@ -786,5 +786,16 @@
    "sep_log": 0.248,
    "n_sites": 124
   }
- ]
+ ],
+ "region_preference": {
+  "tiers": [
+   [
+    "1"
+   ],
+   [
+    "2"
+   ]
+  ],
+  "basis": "full set where the basin has its characteristics, else drainage-area-only; a flowfreq method choice, not a published rule"
+ }
 }

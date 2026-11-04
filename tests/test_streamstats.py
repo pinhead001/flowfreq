@@ -27,6 +27,7 @@ from flowfreq.streamstats import (
     Provenance,
     RegionFlowEstimates,
     RegressionCitation,
+    RegulatedDelineationError,
     SnapResult,
     StreamStatsCache,
     StreamStatsResponseError,
@@ -289,6 +290,48 @@ class TestDelineateAndGetCharacteristics:
 
         mock_post.assert_not_called()
 
+    def test_a_karst_warning_reaches_the_result_and_survives_the_cache(self, tmp_path) -> None:
+        karst = copy.deepcopy(DELINEATE_SSHYDRO_GOOD)
+        karst["WarningMsg"] = "Warning! Delineated basin may contain karst."
+        cache = StreamStatsCache(tmp_path / "cache.json")
+        result, post = _run_delineation(SNAP_GOOD, karst, HYDRO_CHARACTERISTICS_GOOD, cache=cache)
+        post.assert_called_once()
+        assert result.advisories == ["Warning! Delineated basin may contain karst."]
+        lon, lat = SNAP_GOOD["input"]["coordinates"]
+        with patch("flowfreq.streamstats.requests.get") as mock_get:
+            again = delineate_and_get_characteristics("WA", lat, lon, cache=cache)
+        mock_get.assert_not_called()
+        assert again.advisories == result.advisories
+
+    @pytest.mark.parametrize(
+        "message",
+        [
+            "Delineated basin may contain karst; streamflow altered by upstream reservoirs",
+            "Warning! Streamflow altered by upstream reservoirs.",
+            "Peak flows affected by flood control structures.",
+        ],
+    )
+    def test_any_other_warning_is_still_refused(self, message) -> None:
+        warned = copy.deepcopy(DELINEATE_SSHYDRO_GOOD)
+        warned["WarningMsg"] = message
+        responses = [_mock_response(SNAP_GOOD), _mock_response(warned)]
+        with (
+            patch("flowfreq.streamstats.requests.get", side_effect=responses),
+            patch("flowfreq.streamstats.requests.post") as mock_post,
+        ):
+            with pytest.raises(DegenerateDelineationError, match="warning"):
+                delineate_and_get_characteristics("WA", 48.57430, -120.37890)
+        mock_post.assert_not_called()
+
+    def test_a_karst_warning_beside_another_is_refused_for_the_other(self) -> None:
+        warned = copy.deepcopy(DELINEATE_SSHYDRO_GOOD)
+        warned["WarningMsg"] = "Delineated basin may contain karst"
+        warned["elsewhere"] = {"WarningMsg": "REGULATED: SOME RIVER"}
+        responses = [_mock_response(SNAP_GOOD), _mock_response(warned)]
+        with patch("flowfreq.streamstats.requests.get", side_effect=responses):
+            with pytest.raises(RegulatedDelineationError, match="SOME RIVER"):
+                delineate_and_get_characteristics("WA", 48.57430, -120.37890)
+
     def test_malformed_sshydro_response_raises(self) -> None:
         responses = [
             _mock_response(SNAP_GOOD),
@@ -457,6 +500,14 @@ class TestDelineateWatershed:
         assert result.provenance is not None
         assert set(result.provenance.service_versions) == {"ss-delineate"}
         assert result.provenance.server_used == "prodwebb"
+
+    def test_a_karst_warning_keeps_the_polygon_and_records_it(self) -> None:
+        karst = copy.deepcopy(DELINEATE_SSHYDRO_GOOD)
+        karst["WarningMsg"] = "Delineated basin may contain karst"
+        responses = [_mock_response(SNAP_GOOD), _mock_response(karst)]
+        with patch("flowfreq.streamstats.requests.get", side_effect=responses):
+            result = delineate_watershed("WA", 48.57430, -120.37890)
+        assert result.advisories == ["Delineated basin may contain karst"]
 
     def test_a_delineation_warning_is_refused(self) -> None:
         responses = [_mock_response(SNAP_GOOD), _mock_response(DELINEATE_SSHYDRO_WITH_WARNING)]

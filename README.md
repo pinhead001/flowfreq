@@ -228,7 +228,11 @@ Appendix 9 (single region only).
   with their citation year until `region=` (`--region` on the CLI) chooses one, by NSS code
   or library region code, case-insensitively. The others are reported as alternatives. A
   choice that covers only part of a boundary basin, a code that more than one located region
-  reaches, or a region not in use is refused with the reason.
+  reaches, or a region not in use is refused with the reason. Some overlaps resolve without
+  `region=`: a set drops out where its stated limits exclude the basin (a 1 mi2 small-basin set at a
+  131 mi2 site, or an urban set at a basin under its urban threshold), and CT, ME, VT, TN, IA and IL
+  have a stored order of preference. `region=` overrides these, and a truly urban or NRCS-regulated
+  basin still needs it. The reason is in `provenance["region_choice_source"]`.
 - **What is refused, and why.** `EquationsUnavailable` when the library has no equations for
   the located regions (the snapshot tier needs its opt-in; DC and the territories have no
   library); a region whose equations need a basin characteristic StreamStats could not
@@ -461,7 +465,7 @@ England, J.F., Jr., et al., 2019, Guidelines for determining flood flow frequenc
 
 | Version | Changes |
 |---------|---------|
-| **v0.22.0** | Regression equations verified in 37 more jurisdictions (50 of 56; DE `partial`); no library code changed. See `docs/VERIFICATION_PLAN.md` for what verified rests on |
+| **v0.22.0** | Regression equations verified in 37 more jurisdictions (50 of 56; DE `partial`); more overlapping sets resolve without `region=` (`RegionLimit`, more preferences); StreamStats' karst warning is a caveat. See `docs/VERIFICATION_PLAN.md` for what verified rests on |
 | **v0.21.0** | Alaska, California and Hawaii equations verified (13 jurisdictions); region gates for Arizona and Oregon; Iowa prefers its full equation sets; a verified set beats its NSS snapshot under `allow_nss_snapshot`; Montana channel widths of 0 read as not measured; mypy over every module. See CHANGELOG.md. |
 | **v0.20.0** | `run_ffa` attaches the stationarity screen by default (figure opt-in); provisional WA set with Peak Region 2 refit with mean basin elevation (`load_state("WA", allow_provisional=True)`); `flowfreq.stationarity`: Lombard tests, bootstrap field significance, NID/NLCD change-point attribution, peaks-over-threshold count trends, `stationarity_report` (methow item 8 complete); `RegionNotDelineatedError` (FL/MI/NE) and `RegulatedDelineationError`; smoke failures pinned as tests with new MT/ND/AK points; overlapping drainage-area classes chosen by DRNAREA (AK); mypy exemptions 14 to 6. See CHANGELOG.md. |
 | **v0.19.0** | WA Peak Region 2 at the Methow: mean basin elevation explains about half the bias (`docs/WA_REGION2_METHOW.md`); monthly leave-one-out/blend and duration-quantile transfer variance (`flowfreq.duration_transfer`); `flowfreq.stationarity` (Mann-Kendall/Hamed-Rao, Sen, Pettitt, CUSUM, field significance, mixed populations); `flowfreq.naturalize`; `fit_gls` robust to an indefinite Σ. See CHANGELOG.md. |

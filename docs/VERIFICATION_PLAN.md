@@ -40,46 +40,52 @@ Read this before relying on a batch 2-5 state.
 
 1. **DE:** Table 6's Coastal Plain model error variances are 12-16 % below Table 8 and the data
    release. While DE is `partial`, its snapshot wins under `allow_nss_snapshot`, the app's path.
-2. **Refusals on real sites,** from the check below: overlapping sets and StreamStats warnings stop
-   about a third of the gages tried. The owner decides how far to resolve them.
+2. **Refusals still on real sites,** from the check below: 18 of 102 gages, mostly points that don't
+   snap. IN, AR, AL at 5 mi2 or less and GA, NC and SC at 1 mi2 or less still need `region=`, and an urban
+   or NRCS-regulated basin does on purpose.
 3. **Cross-border checks,** then the rest of the roadmap's definition of done (see Out of scope).
 4. **Library follow-ups** the batches found: `TODO.md`, Next steps.
 
 ## Wider live check, 2026-11-04
 
 Three catalog gages in each of 34 newly verified states (102 gages: unregulated or unclassified, 20-500
-mi2, at least 30 peaks, spread across the state's range of area), at main fc24b45. Not FL, MI or NE. The
-gage's Bulletin 17C fit with station skew was compared with the regression at the gage's coordinates.
-Where sets overlapped, the script took the first candidate not named drainage-area-only, not a
-considered choice: the GA, NC and SC rural sets were not reached, and IN's two points used an arbitrary
-region. Those states' values are therefore thin or absent below, and PR and KY returned none at all.
+mi2, at least 30 peaks, spread across the state's range of area). Not FL, MI or NE. The gage's Bulletin 17C
+fit with station skew was compared with the regression at the gage's coordinates. It ran before the region
+rules, at fc24b45, and after them, on the branch merged as #340. StreamStats' ss-hydro failed during the
+second run, and the 21 gages it stopped were retried until all had answered.
 
-**Values.** Where the delineation matched the catalog's area within 25 percent (70 gages), the median
-ratio of regression to at-site Q1% was 0.92, with the 10th and 90th percentiles at 0.60 and 1.42. The
-at-site Q1% fell inside the regression's prediction interval at 60 of 65 gages with an interval. Those
-gages probably include many used to fit the equations, so this is a check for gross errors and not an
-independent validation. Large differences, none traced to a transcription fault: 05457778 MN (site
-16,190, regression 4,086), 06483430 IA (8,763, 2,863), 07377782 LA (5,290, 13,669) and 07301420 OK
-(2,479, 24,492; Sweetwater Creek, whose area check could not run because OK uses CONTDA). Both OK sets
-give that same flow by design: the regulated sets repeat the constants with DAUNREG.
+**Values, after the rules.** With no `region=`, and where the delineation matched the catalog's area within
+25 percent (79 gages; OK's area check could not run because OK uses CONTDA, so its gages are counted), the
+median ratio of regression to at-site Q1% was 0.92, with the 10th and 90th percentiles at 0.62 and 1.53. The
+at-site Q1% fell inside the regression's prediction interval at 69 of 76 gages with an interval. Those gages
+probably include many used to fit the equations, so this is a check for gross errors and not an independent
+validation. Large differences, none traced to a transcription fault: 05457778 MN (site 16,190, regression
+4,086), 06483430 IA (8,763, 2,863), 07377782 LA (5,290, 13,669) and 07301420 OK (2,479, 24,492; Sweetwater
+Creek). No gage that already returned a value moved by more than 1 percent.
 
-**Refusals.** 53 gages returned an estimate with no `region=`. The other 49:
+**Refusals.** Without `region=`, 84 gages returned an estimate, up from 53.
 
-| Stopped by | Gages | States | Note |
-|---|---:|---|---|
-| Overlap: full or drainage-area-only | 12 | CT, ME, VT, TN (all three in each) | Known alternatives |
-| Overlap: rural or urban | 8 | AL, MO, IL | The urban set locates at rural sites; AL also has small streams |
-| Overlap: rural or small basin under 1 mi2 | 7 | GA, NC, SC | At 40-260 mi2, where the small-basin set can't apply |
-| Overlap: unregulated or NRCS-regulated | 3 | OK | Equal where no structures reduce the area |
-| Overlap: other | 3 | IN (2; all eight regions), AR (1; D against MAP) | |
-| `UnsnappablePointError` | 10 | PR (3), TX (2), GA, IL, ND, NH, NJ | Gage coordinates; moving the point may work |
-| StreamStats "may contain karst" warning | 3 | KY (all three) | Read as a degenerate delineation |
-| StreamStats refused the point | 1 | SD | |
-| `OutOfRangeError` | 2 | MN (LAKEAREA 14.02 against 13.46), WV (snapped to a 0.11 mi2 tributary) | |
+| Stopped by | Before | After | Note |
+|---|---:|---:|---|
+| Overlap: full or drainage-area-only (CT, ME, VT, TN) | 12 | 0 | `region_preference` |
+| Overlap: rural or urban (AL, MO), adjusted or not (IL) | 8 | 1 | The AL gage snapped to a 0.04 mi2 tributary, where the small-stream set does apply |
+| Overlap: rural or small basin (GA, NC, SC) | 7 | 1 | The NC gage snapped to a 0.18 mi2 tributary, where both apply |
+| Overlap: unregulated or NRCS-regulated (OK) | 3 | 0 | `DAUNREG` equals `CONTDA` at all three |
+| Overlap: IN (all eight regions), AR (D against MAP) | 3 | 3 | No rule set; IN 2, AR 1 |
+| StreamStats "may contain karst" warning (KY) | 3 | 0 | Now a recorded caveat |
+| `UnsnappablePointError`: PR (3), TX (2), GA, IL, ND, NH, NJ | 10 | 10 | Gage coordinates; moving the point may work |
+| `OutOfRangeError`: MN (LAKEAREA 14.02 against 13.46), WV (0.11 mi2 tributary) | 2 | 2 | |
+| StreamStats refused the point (SD) | 1 | 1 | |
 
-The same gages behave the same way at v0.21.0 with snapshots (nine checked: MO, AL, GA, NC, SC, IL, OK,
-IN, KY), so verifying the equations did not cause these. Separately, an estimate from two regions
-returns no interval (NJ, VA here).
+Before the rules, the same refusals occurred at v0.21.0 with snapshots (nine gages checked: MO, AL, GA, NC, SC,
+IL, OK, IN, KY), so the verified sets had not caused them. Separately, an estimate from two regions returns no
+interval (NJ, VA here).
+
+**Rules that can change a result silently.** Where a characteristic is missing, CT, ME, VT, TN and IA fall back
+to the drainage-area-only set, as intended. ss-hydro's answers vary between runs, so the same point can get a
+different set on another day: TN's smoke gage went from 57,091 (drainage-area-only) on 2026-11-04 to 51,414
+(full). The earlier value implies CLIMFAC2YR was missing from that run, though that run did not record it.
+`provenance["missing_characteristics"]` records it whenever it happens.
 
 ## Order
 
