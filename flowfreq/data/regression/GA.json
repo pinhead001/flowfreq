@@ -1,0 +1,2732 @@
+{
+ "schema_version": 1,
+ "state": "GA",
+ "status": "verified",
+ "issue": null,
+ "source_reports": [
+  {
+   "citation": "Feaster, T.D., Gotvald, A.J., Musser, J.W., Weaver, J.C., Kolb, K.R., Veilleux, A.G., and Wagner, D.M., 2023, Magnitude and frequency of floods for rural streams in Georgia, South Carolina, and North Carolina, 2017--Results: U.S. Geological Survey Scientific Investigations Report 2023-5006, 75 p.",
+   "url": "https://doi.org/10.3133/sir20235006"
+  },
+  {
+   "citation": "Kolb, K.R., Musser, J.W., Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2023, Magnitude and frequency of floods for rural streams in Georgia, South Carolina, and North Carolina, 2017--Data: U.S. Geological Survey data release, https://doi.org/10.5066/P9TSBPFS.",
+   "url": "https://doi.org/10.5066/P9TSBPFS"
+  },
+  {
+   "citation": "Weaver, J.C., Feaster, T.D., Gotvald, A.J., Musser, J.W., and Kolb, K.R., 2023, Model archive for magnitude and frequency of floods for rural streams in Georgia, South Carolina, and North Carolina, 2017: U.S. Geological Survey data release, https://doi.org/10.5066/P9AQ2AX1.",
+   "url": "https://doi.org/10.5066/P9AQ2AX1"
+  },
+  {
+   "citation": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+   "url": "https://doi.org/10.3133/sir20145030"
+  }
+ ],
+ "notes": "Georgia. Two studies, both served by NSS and neither withdrawing the other. SIR 2023-5006 (Feaster and others, 2023; statistics through 2017): one set of equations for rural basins of 0.08 to 8,902 mi2 on drainage area and the percentage of the basin in hydrologic regions 1-5, stored as region HR1-5, 8 AEPs, 801 streamgages. Table 2 is an exponent affine in PCT2, A**(b0 + b2 PCT2), stored as a log10 DRNAREA term and a second with times=PCTREG2; region 4 is the base and PCT4 has no term (NSS carries PCTREG4 at zero exponent, not stored). Variables follow the row vector of the report's eq. 14. Percentages are stored 0-100: Table 5 prints the smallest non-zero value (0.1, 2.3, 0.1, 0.1, 1.2), and the equations are defined at zero. Table 5 also prints a drainage area range by region; the stored range is the whole, 0.08-8,902. Limitation 3 (not for impervious area over 10 percent) is an applicability limit at every AEP on NSS's LC19IMP; among NSS's equations only South Carolina's 50-percent form carries it. AVP and SEP are Table 4; model error variance and covariance are Kolb and others (2023) table 9, in the order intercept, log10 DRNAREA, PCT1, PCT3, PCT5, log10 DRNAREA x PCT2, confirmed by MEV + xUx at the 670 Georgia, North and South Carolina gages regressed (Kolb table 3). The printed 4-percent statistics are wrong and this file does not use them: Table 4 prints AVP 0.0251 and Kolb table 9 prints MEV 0.0261, where the WREG output in the model archive (Weaver and others, 2023) has AVP 0.026 and MEV 0.0251, and SEP 38.4 percent converts to 0.0260 by eq. 10; the mean of Kolb table 3's variances over those gages is 0.0260, and MEV 0.0261 plus xUx overshoots table 3 by about 0.001 at each of them. This file stores AVP 0.0260 and MEV 0.0251. The covariance printed in table 9 is kept: it differs from the archive's by up to 26 percent in small off-diagonal cells, and reproduces the variances as well. Kolb table 1 disagrees with the WREG input (SiteInfo.txt) at 5 gages, and table 3 follows the input at the first four, where it matters: 02103500 (86.2 and 13.4 percent in regions 3 and 4, against 96.5 and 3.1), 02114450 (100 in region 1, against 90 and 10 with region 2), 02134500 (100 in region 4, against 26.3 in 3 and 73.7 in 4), 02143000 (83.6 mi2, against 93.6), 02385700 (2.5 and 97.5 percent in regions 1 and 2, against 2.2 and 97.8). Table 3 and the worked examples (02116500, 93,525 ft3/s; the ungaged Yadkin site, 81,931 ft3/s) reproduce. The report's prose gives a 1-percent base slope of 0.604; Tables 2 and 3 and WREG (0.6053) have 0.605. SIR 2014-5030 (Feaster and others, 2014; ver. 1.1, the latest; statistics through 2011): regions HR1, HR3, HR4, HR5 from Table 7, for the small, rural basins NSS serves in its peak-flow group, which the report defines as under 1 mi2, so the stored upper drainage area is 1.0 in each. The report publishes these equations more widely, to 3 mi2 in HR1, 459 in HR3, 53.5 in HR4, 10 in HR5, for urban basins; NSS serves those as separate urban regions, which are out of scope with HR1's equations over 3 mi2. Constants are printed, so intercept = log10 of them. SEP and AVP from Table 9, model error variance and covariance from Table 10 in the order intercept, log10 DRNAREA, then the rest as in Table 7; the same matrices are in the report's spreadsheet tool to rounding, and MEV + mean(xUx) over Table 8's gages returns Table 9's AVP. HR1 at 0.2 percent has no impervious term. Ranges from Table 11; NSS has 0.2 for the smallest impervious area in HR4 where Table 11 prints 0.02, and Table 8 has HR4 gages at 0.0 and 0.1, so this file has 0.02. Table 7's heading gives HR3 from 0.22 mi2, the urban gages' minimum in Table 11, which prints 0.14 for all gages; Table 8 has 0.14, so this file has 0.14. Report example (0.50 mi2, 30.0 percent impervious, HR1, 1 percent): 509 ft3/s reproduces, but its xUx of 0.001447 does not: Table 10 gives 0.00196, and so does the spreadsheet's matrix. Table 5's regression flows reproduce within the rounding of Table 7. Set choice: for a rural basin under 1 mi2 both sets apply; SIR 2023-5006 uses later data and Bulletin 17C. It excludes impervious area over 10 percent, where 2014-5030 is the only set here. Both are stored, with no preference: name the set with region=. HR5 is from Gotvald and Knaak (2011), not refitted in this report, so it has no gages in Table 8 and no count, and its intervals were checked only against the spreadsheet tool.",
+ "equations": [
+  {
+   "region_code": "HR1-5",
+   "region_name": "Rural streams, hydrologic regions 1-5 by basin percentage (NSS GC1934)",
+   "aep": 0.5,
+   "intercept": 1.82,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.08,
+     "maximum": 8902.0
+    },
+    {
+     "code": "PCTREG1",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "PCTREG3",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "PCTREG5",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.08,
+     "maximum": 8902.0,
+     "times": "PCTREG2"
+    }
+   ],
+   "coefficients": [
+    0.646,
+    0.00354,
+    -0.00202,
+    0.00187,
+    0.00224
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., Musser, J.W., Weaver, J.C., Kolb, K.R., Veilleux, A.G., and Wagner, D.M., 2023, Magnitude and frequency of floods for rural streams in Georgia, South Carolina, and North Carolina, 2017--Results: U.S. Geological Survey Scientific Investigations Report 2023-5006, 75 p.",
+    "table": "Tables 1, 2, 4 and 5; Kolb and others (2023), table 9",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235006"
+   },
+   "sep_log": 0.154774,
+   "avp": 0.0239,
+   "model_error_variance": 0.0234,
+   "covariance": [
+    [
+     0.00076,
+     -0.000118,
+     -2.52e-06,
+     -2.1e-06,
+     -6.18e-07,
+     -1.29e-06
+    ],
+    [
+     -0.000118,
+     5.94e-05,
+     -1.13e-07,
+     -1.06e-07,
+     -7.61e-08,
+     -1.89e-07
+    ],
+    [
+     -2.52e-06,
+     -1.13e-07,
+     3.66e-08,
+     2.31e-08,
+     6.4e-09,
+     1.42e-08
+    ],
+    [
+     -2.1e-06,
+     -1.06e-07,
+     2.31e-08,
+     1.04e-07,
+     9.1e-09,
+     1.12e-08
+    ],
+    [
+     -6.18e-07,
+     -7.61e-08,
+     6.4e-09,
+     9.1e-09,
+     2.16e-07,
+     3.28e-09
+    ],
+    [
+     -1.29e-06,
+     -1.89e-07,
+     1.42e-08,
+     1.12e-08,
+     3.28e-09,
+     1.73e-08
+    ]
+   ],
+   "n_sites": 801,
+   "applicability": [
+    {
+     "code": "PCTREG2",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "LC19IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 10.0
+    }
+   ]
+  },
+  {
+   "region_code": "HR1-5",
+   "region_name": "Rural streams, hydrologic regions 1-5 by basin percentage (NSS GC1934)",
+   "aep": 0.2,
+   "intercept": 2.12,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.08,
+     "maximum": 8902.0
+    },
+    {
+     "code": "PCTREG1",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "PCTREG3",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "PCTREG5",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.08,
+     "maximum": 8902.0,
+     "times": "PCTREG2"
+    }
+   ],
+   "coefficients": [
+    0.631,
+    0.00306,
+    -0.00244,
+    0.00229,
+    0.00199
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., Musser, J.W., Weaver, J.C., Kolb, K.R., Veilleux, A.G., and Wagner, D.M., 2023, Magnitude and frequency of floods for rural streams in Georgia, South Carolina, and North Carolina, 2017--Results: U.S. Geological Survey Scientific Investigations Report 2023-5006, 75 p.",
+    "table": "Tables 1, 2, 4 and 5; Kolb and others (2023), table 9",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235006"
+   },
+   "sep_log": 0.150814,
+   "avp": 0.0228,
+   "model_error_variance": 0.0222,
+   "covariance": [
+    [
+     0.000823,
+     -0.000115,
+     -2.79e-06,
+     -2.11e-06,
+     -6.23e-07,
+     -1.38e-06
+    ],
+    [
+     -0.000115,
+     5.73e-05,
+     -1.32e-07,
+     -1.14e-07,
+     -6.3e-08,
+     -2.01e-07
+    ],
+    [
+     -2.79e-06,
+     -1.32e-07,
+     3.96e-08,
+     2.46e-08,
+     5.81e-09,
+     1.54e-08
+    ],
+    [
+     -2.11e-06,
+     -1.14e-07,
+     2.46e-08,
+     1.03e-07,
+     7.98e-09,
+     1.12e-08
+    ],
+    [
+     -6.23e-07,
+     -6.3e-08,
+     5.81e-09,
+     7.98e-09,
+     2.24e-07,
+     3e-09
+    ],
+    [
+     -1.38e-06,
+     -2.01e-07,
+     1.54e-08,
+     1.12e-08,
+     3e-09,
+     1.79e-08
+    ]
+   ],
+   "n_sites": 801,
+   "applicability": [
+    {
+     "code": "PCTREG2",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "LC19IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 10.0
+    }
+   ]
+  },
+  {
+   "region_code": "HR1-5",
+   "region_name": "Rural streams, hydrologic regions 1-5 by basin percentage (NSS GC1934)",
+   "aep": 0.1,
+   "intercept": 2.28,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.08,
+     "maximum": 8902.0
+    },
+    {
+     "code": "PCTREG1",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "PCTREG3",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "PCTREG5",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.08,
+     "maximum": 8902.0,
+     "times": "PCTREG2"
+    }
+   ],
+   "coefficients": [
+    0.623,
+    0.00278,
+    -0.00265,
+    0.00251,
+    0.00187
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., Musser, J.W., Weaver, J.C., Kolb, K.R., Veilleux, A.G., and Wagner, D.M., 2023, Magnitude and frequency of floods for rural streams in Georgia, South Carolina, and North Carolina, 2017--Results: U.S. Geological Survey Scientific Investigations Report 2023-5006, 75 p.",
+    "table": "Tables 1, 2, 4 and 5; Kolb and others (2023), table 9",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235006"
+   },
+   "sep_log": 0.152796,
+   "avp": 0.0234,
+   "model_error_variance": 0.0227,
+   "covariance": [
+    [
+     0.000933,
+     -0.000124,
+     -3.26e-06,
+     -2.36e-06,
+     -7.12e-07,
+     -1.57e-06
+    ],
+    [
+     -0.000124,
+     6.15e-05,
+     -1.64e-07,
+     -1.32e-07,
+     -5.92e-08,
+     -2.34e-07
+    ],
+    [
+     -3.26e-06,
+     -1.64e-07,
+     4.63e-08,
+     2.84e-08,
+     6.16e-09,
+     1.79e-08
+    ],
+    [
+     -2.36e-06,
+     -1.32e-07,
+     2.84e-08,
+     1.14e-07,
+     8.01e-09,
+     1.25e-08
+    ],
+    [
+     -7.12e-07,
+     -5.92e-08,
+     6.16e-09,
+     8.01e-09,
+     2.57e-07,
+     3.17e-09
+    ],
+    [
+     -1.57e-06,
+     -2.34e-07,
+     1.79e-08,
+     1.25e-08,
+     3.17e-09,
+     2.01e-08
+    ]
+   ],
+   "n_sites": 801,
+   "applicability": [
+    {
+     "code": "PCTREG2",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "LC19IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 10.0
+    }
+   ]
+  },
+  {
+   "region_code": "HR1-5",
+   "region_name": "Rural streams, hydrologic regions 1-5 by basin percentage (NSS GC1934)",
+   "aep": 0.04,
+   "intercept": 2.44,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.08,
+     "maximum": 8902.0
+    },
+    {
+     "code": "PCTREG1",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "PCTREG3",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "PCTREG5",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.08,
+     "maximum": 8902.0,
+     "times": "PCTREG2"
+    }
+   ],
+   "coefficients": [
+    0.615,
+    0.00251,
+    -0.00286,
+    0.00276,
+    0.00175
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., Musser, J.W., Weaver, J.C., Kolb, K.R., Veilleux, A.G., and Wagner, D.M., 2023, Magnitude and frequency of floods for rural streams in Georgia, South Carolina, and North Carolina, 2017--Results: U.S. Geological Survey Scientific Investigations Report 2023-5006, 75 p.",
+    "table": "Tables 1, 2, 4 and 5; Kolb and others (2023), table 9",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235006"
+   },
+   "sep_log": 0.161068,
+   "avp": 0.026,
+   "model_error_variance": 0.0251,
+   "covariance": [
+    [
+     0.00112,
+     -0.000144,
+     -4.09e-06,
+     -2.85e-06,
+     -9.26e-07,
+     -1.9e-06
+    ],
+    [
+     -0.000144,
+     7.24e-05,
+     -2.18e-07,
+     -1.67e-07,
+     -6.24e-08,
+     -2.96e-07
+    ],
+    [
+     -4.09e-06,
+     -2.18e-07,
+     5.84e-08,
+     3.55e-08,
+     7.51e-09,
+     2.24e-08
+    ],
+    [
+     -2.85e-06,
+     -1.67e-07,
+     3.55e-08,
+     1.39e-07,
+     9.1e-09,
+     1.51e-08
+    ],
+    [
+     -9.26e-07,
+     -6.24e-08,
+     7.51e-09,
+     9.1e-09,
+     3.22e-07,
+     3.85e-09
+    ],
+    [
+     -1.9e-06,
+     -2.96e-07,
+     2.24e-08,
+     1.51e-08,
+     3.85e-09,
+     2.45e-08
+    ]
+   ],
+   "n_sites": 801,
+   "applicability": [
+    {
+     "code": "PCTREG2",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "LC19IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 10.0
+    }
+   ]
+  },
+  {
+   "region_code": "HR1-5",
+   "region_name": "Rural streams, hydrologic regions 1-5 by basin percentage (NSS GC1934)",
+   "aep": 0.02,
+   "intercept": 2.55,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.08,
+     "maximum": 8902.0
+    },
+    {
+     "code": "PCTREG1",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "PCTREG3",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "PCTREG5",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.08,
+     "maximum": 8902.0,
+     "times": "PCTREG2"
+    }
+   ],
+   "coefficients": [
+    0.61,
+    0.00233,
+    -0.00299,
+    0.00293,
+    0.00168
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., Musser, J.W., Weaver, J.C., Kolb, K.R., Veilleux, A.G., and Wagner, D.M., 2023, Magnitude and frequency of floods for rural streams in Georgia, South Carolina, and North Carolina, 2017--Results: U.S. Geological Survey Scientific Investigations Report 2023-5006, 75 p.",
+    "table": "Tables 1, 2, 4 and 5; Kolb and others (2023), table 9",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235006"
+   },
+   "sep_log": 0.166535,
+   "avp": 0.0278,
+   "model_error_variance": 0.0268,
+   "covariance": [
+    [
+     0.00127,
+     -0.000161,
+     -4.76e-06,
+     -3.25e-06,
+     -1.1e-06,
+     -2.17e-06
+    ],
+    [
+     -0.000161,
+     8.13e-05,
+     -2.62e-07,
+     -1.96e-07,
+     -6.67e-08,
+     -3.47e-07
+    ],
+    [
+     -4.76e-06,
+     -2.62e-07,
+     6.83e-08,
+     4.13e-08,
+     8.71e-09,
+     2.6e-08
+    ],
+    [
+     -3.25e-06,
+     -1.96e-07,
+     4.13e-08,
+     1.59e-07,
+     1.01e-08,
+     1.72e-08
+    ],
+    [
+     -1.1e-06,
+     -6.67e-08,
+     8.71e-09,
+     1.01e-08,
+     3.76e-07,
+     4.44e-09
+    ],
+    [
+     -2.17e-06,
+     -3.47e-07,
+     2.6e-08,
+     1.72e-08,
+     4.44e-09,
+     2.79e-08
+    ]
+   ],
+   "n_sites": 801,
+   "applicability": [
+    {
+     "code": "PCTREG2",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "LC19IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 10.0
+    }
+   ]
+  },
+  {
+   "region_code": "HR1-5",
+   "region_name": "Rural streams, hydrologic regions 1-5 by basin percentage (NSS GC1934)",
+   "aep": 0.01,
+   "intercept": 2.64,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.08,
+     "maximum": 8902.0
+    },
+    {
+     "code": "PCTREG1",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "PCTREG3",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "PCTREG5",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.08,
+     "maximum": 8902.0,
+     "times": "PCTREG2"
+    }
+   ],
+   "coefficients": [
+    0.605,
+    0.00218,
+    -0.00311,
+    0.00309,
+    0.00161
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., Musser, J.W., Weaver, J.C., Kolb, K.R., Veilleux, A.G., and Wagner, D.M., 2023, Magnitude and frequency of floods for rural streams in Georgia, South Carolina, and North Carolina, 2017--Results: U.S. Geological Survey Scientific Investigations Report 2023-5006, 75 p.",
+    "table": "Tables 1, 2, 4 and 5; Kolb and others (2023), table 9",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235006"
+   },
+   "sep_log": 0.17235,
+   "avp": 0.0297,
+   "model_error_variance": 0.0286,
+   "covariance": [
+    [
+     0.00143,
+     -0.000179,
+     -5.49e-06,
+     -3.69e-06,
+     -1.3e-06,
+     -2.45e-06
+    ],
+    [
+     -0.000179,
+     9.14e-05,
+     -3.09e-07,
+     -2.27e-07,
+     -7.41e-08,
+     -4.02e-07
+    ],
+    [
+     -5.49e-06,
+     -3.09e-07,
+     7.9e-08,
+     4.76e-08,
+     1.02e-08,
+     2.99e-08
+    ],
+    [
+     -3.69e-06,
+     -2.27e-07,
+     4.76e-08,
+     1.83e-07,
+     1.14e-08,
+     1.96e-08
+    ],
+    [
+     -1.3e-06,
+     -7.41e-08,
+     1.02e-08,
+     1.14e-08,
+     4.36e-07,
+     5.16e-09
+    ],
+    [
+     -2.45e-06,
+     -4.02e-07,
+     2.99e-08,
+     1.96e-08,
+     5.16e-09,
+     3.17e-08
+    ]
+   ],
+   "n_sites": 801,
+   "applicability": [
+    {
+     "code": "PCTREG2",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "LC19IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 10.0
+    }
+   ]
+  },
+  {
+   "region_code": "HR1-5",
+   "region_name": "Rural streams, hydrologic regions 1-5 by basin percentage (NSS GC1934)",
+   "aep": 0.005,
+   "intercept": 2.72,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.08,
+     "maximum": 8902.0
+    },
+    {
+     "code": "PCTREG1",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "PCTREG3",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "PCTREG5",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.08,
+     "maximum": 8902.0,
+     "times": "PCTREG2"
+    }
+   ],
+   "coefficients": [
+    0.601,
+    0.00204,
+    -0.00321,
+    0.00324,
+    0.00156
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., Musser, J.W., Weaver, J.C., Kolb, K.R., Veilleux, A.G., and Wagner, D.M., 2023, Magnitude and frequency of floods for rural streams in Georgia, South Carolina, and North Carolina, 2017--Results: U.S. Geological Survey Scientific Investigations Report 2023-5006, 75 p.",
+    "table": "Tables 1, 2, 4 and 5; Kolb and others (2023), table 9",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235006"
+   },
+   "sep_log": 0.178119,
+   "avp": 0.0317,
+   "model_error_variance": 0.0305,
+   "covariance": [
+    [
+     0.00159,
+     -0.000199,
+     -6.27e-06,
+     -4.17e-06,
+     -1.54e-06,
+     -2.75e-06
+    ],
+    [
+     -0.000199,
+     0.000103,
+     -3.59e-07,
+     -2.61e-07,
+     -8.44e-08,
+     -4.62e-07
+    ],
+    [
+     -6.27e-06,
+     -3.59e-07,
+     9.04e-08,
+     5.44e-08,
+     1.19e-08,
+     3.41e-08
+    ],
+    [
+     -4.17e-06,
+     -2.61e-07,
+     5.44e-08,
+     2.08e-07,
+     1.3e-08,
+     2.22e-08
+    ],
+    [
+     -1.54e-06,
+     -8.44e-08,
+     1.19e-08,
+     1.3e-08,
+     5.02e-07,
+     6.03e-09
+    ],
+    [
+     -2.75e-06,
+     -4.62e-07,
+     3.41e-08,
+     2.22e-08,
+     6.03e-09,
+     3.58e-08
+    ]
+   ],
+   "n_sites": 801,
+   "applicability": [
+    {
+     "code": "PCTREG2",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "LC19IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 10.0
+    }
+   ]
+  },
+  {
+   "region_code": "HR1-5",
+   "region_name": "Rural streams, hydrologic regions 1-5 by basin percentage (NSS GC1934)",
+   "aep": 0.002,
+   "intercept": 2.81,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.08,
+     "maximum": 8902.0
+    },
+    {
+     "code": "PCTREG1",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "PCTREG3",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "PCTREG5",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.08,
+     "maximum": 8902.0,
+     "times": "PCTREG2"
+    }
+   ],
+   "coefficients": [
+    0.597,
+    0.00188,
+    -0.00333,
+    0.00342,
+    0.0015
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., Musser, J.W., Weaver, J.C., Kolb, K.R., Veilleux, A.G., and Wagner, D.M., 2023, Magnitude and frequency of floods for rural streams in Georgia, South Carolina, and North Carolina, 2017--Results: U.S. Geological Survey Scientific Investigations Report 2023-5006, 75 p.",
+    "table": "Tables 1, 2, 4 and 5; Kolb and others (2023), table 9",
+    "year": 2023,
+    "url": "https://doi.org/10.3133/sir20235006"
+   },
+   "sep_log": 0.184221,
+   "avp": 0.0339,
+   "model_error_variance": 0.0325,
+   "covariance": [
+    [
+     0.00182,
+     -0.000226,
+     -7.33e-06,
+     -4.83e-06,
+     -1.86e-06,
+     -3.16e-06
+    ],
+    [
+     -0.000226,
+     0.000118,
+     -4.28e-07,
+     -3.08e-07,
+     -1e-07,
+     -5.43e-07
+    ],
+    [
+     -7.33e-06,
+     -4.28e-07,
+     1.06e-07,
+     6.38e-08,
+     1.45e-08,
+     3.99e-08
+    ],
+    [
+     -4.83e-06,
+     -3.08e-07,
+     6.38e-08,
+     2.44e-07,
+     1.53e-08,
+     2.57e-08
+    ],
+    [
+     -1.86e-06,
+     -1e-07,
+     1.45e-08,
+     1.53e-08,
+     5.94e-07,
+     7.26e-09
+    ],
+    [
+     -3.16e-06,
+     -5.43e-07,
+     3.99e-08,
+     2.57e-08,
+     7.26e-09,
+     4.13e-08
+    ]
+   ],
+   "n_sites": 801,
+   "applicability": [
+    {
+     "code": "PCTREG2",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "LC19IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 10.0
+    }
+   ]
+  },
+  {
+   "region_code": "HR1",
+   "region_name": "Hydrologic region 1, Piedmont and Ridge and Valley, small rural under 1 mi2 (NSS GC1572)",
+   "aep": 0.5,
+   "intercept": 2.2121876044039577,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 1.0
+    },
+    {
+     "code": "LC06IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 47.9
+    }
+   ],
+   "coefficients": [
+    0.7089,
+    0.0133
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.135197,
+   "avp": 0.018,
+   "model_error_variance": 0.017,
+   "covariance": [
+    [
+     0.000923,
+     0.000187,
+     -3.35e-05
+    ],
+    [
+     0.000187,
+     0.00215,
+     3.87e-06
+    ],
+    [
+     -3.35e-05,
+     3.87e-06,
+     2.93e-06
+    ]
+   ],
+   "n_sites": 62
+  },
+  {
+   "region_code": "HR1",
+   "region_name": "Hydrologic region 1, Piedmont and Ridge and Valley, small rural under 1 mi2 (NSS GC1572)",
+   "aep": 0.2,
+   "intercept": 2.4533183400470375,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 1.0
+    },
+    {
+     "code": "LC06IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 47.9
+    }
+   ],
+   "coefficients": [
+    0.7351,
+    0.0096
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.108591,
+   "avp": 0.012,
+   "model_error_variance": 0.011,
+   "covariance": [
+    [
+     0.000787,
+     0.000156,
+     -2.73e-05
+    ],
+    [
+     0.000156,
+     0.00154,
+     2.23e-06
+    ],
+    [
+     -2.73e-05,
+     2.23e-06,
+     2.2e-06
+    ]
+   ],
+   "n_sites": 62
+  },
+  {
+   "region_code": "HR1",
+   "region_name": "Hydrologic region 1, Piedmont and Ridge and Valley, small rural under 1 mi2 (NSS GC1572)",
+   "aep": 0.1,
+   "intercept": 2.5809249756756194,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 1.0
+    },
+    {
+     "code": "LC06IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 47.9
+    }
+   ],
+   "coefficients": [
+    0.7536,
+    0.0076
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.106932,
+   "avp": 0.011,
+   "model_error_variance": 0.01,
+   "covariance": [
+    [
+     0.000854,
+     0.000171,
+     -2.94e-05
+    ],
+    [
+     0.000171,
+     0.00162,
+     2.18e-06
+    ],
+    [
+     -2.94e-05,
+     2.18e-06,
+     2.32e-06
+    ]
+   ],
+   "n_sites": 62
+  },
+  {
+   "region_code": "HR1",
+   "region_name": "Hydrologic region 1, Piedmont and Ridge and Valley, small rural under 1 mi2 (NSS GC1572)",
+   "aep": 0.04,
+   "intercept": 2.714329759745233,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 1.0
+    },
+    {
+     "code": "LC06IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 47.9
+    }
+   ],
+   "coefficients": [
+    0.7752,
+    0.0053
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.115203,
+   "avp": 0.013,
+   "model_error_variance": 0.012,
+   "covariance": [
+    [
+     0.00103,
+     0.000209,
+     -3.57e-05
+    ],
+    [
+     0.000209,
+     0.00198,
+     2.86e-06
+    ],
+    [
+     -3.57e-05,
+     2.86e-06,
+     2.8e-06
+    ]
+   ],
+   "n_sites": 62
+  },
+  {
+   "region_code": "HR1",
+   "region_name": "Hydrologic region 1, Piedmont and Ridge and Valley, small rural under 1 mi2 (NSS GC1572)",
+   "aep": 0.02,
+   "intercept": 2.800717078282385,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 1.0
+    },
+    {
+     "code": "LC06IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 47.9
+    }
+   ],
+   "coefficients": [
+    0.7903,
+    0.0037
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.124637,
+   "avp": 0.016,
+   "model_error_variance": 0.014,
+   "covariance": [
+    [
+     0.0012,
+     0.000247,
+     -4.19e-05
+    ],
+    [
+     0.000247,
+     0.00236,
+     3.78e-06
+    ],
+    [
+     -4.19e-05,
+     3.78e-06,
+     3.31e-06
+    ]
+   ],
+   "n_sites": 62
+  },
+  {
+   "region_code": "HR1",
+   "region_name": "Hydrologic region 1, Piedmont and Ridge and Valley, small rural under 1 mi2 (NSS GC1572)",
+   "aep": 0.01,
+   "intercept": 2.8767949762007006,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 1.0
+    },
+    {
+     "code": "LC06IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 47.9
+    }
+   ],
+   "coefficients": [
+    0.8038,
+    0.0024
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.136005,
+   "avp": 0.019,
+   "model_error_variance": 0.017,
+   "covariance": [
+    [
+     0.0014,
+     0.00029,
+     -4.91e-05
+    ],
+    [
+     0.00029,
+     0.00281,
+     4.96e-06
+    ],
+    [
+     -4.91e-05,
+     4.96e-06,
+     3.91e-06
+    ]
+   ],
+   "n_sites": 62
+  },
+  {
+   "region_code": "HR1",
+   "region_name": "Hydrologic region 1, Piedmont and Ridge and Valley, small rural under 1 mi2 (NSS GC1572)",
+   "aep": 0.005,
+   "intercept": 2.946452265013073,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 1.0
+    },
+    {
+     "code": "LC06IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 47.9
+    }
+   ],
+   "coefficients": [
+    0.8181,
+    0.0011
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.148032,
+   "avp": 0.022,
+   "model_error_variance": 0.02,
+   "covariance": [
+    [
+     0.00161,
+     0.000337,
+     -5.69e-05
+    ],
+    [
+     0.000337,
+     0.00331,
+     6.44e-06
+    ],
+    [
+     -5.69e-05,
+     6.44e-06,
+     4.57e-06
+    ]
+   ],
+   "n_sites": 62
+  },
+  {
+   "region_code": "HR1",
+   "region_name": "Hydrologic region 1, Piedmont and Ridge and Valley, small rural under 1 mi2 (NSS GC1572)",
+   "aep": 0.002,
+   "intercept": 3.019116290447073,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 1.0
+    }
+   ],
+   "coefficients": [
+    0.816
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.157534,
+   "avp": 0.025,
+   "model_error_variance": 0.023,
+   "covariance": [
+    [
+     0.00106,
+     0.000513
+    ],
+    [
+     0.000513,
+     0.00399
+    ]
+   ],
+   "n_sites": 62
+  },
+  {
+   "region_code": "HR3",
+   "region_name": "Hydrologic region 3, Sand Hills, small rural under 1 mi2 (NSS GC1573)",
+   "aep": 0.5,
+   "intercept": 1.4771212547196624,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.14,
+     "maximum": 1.0
+    },
+    {
+     "code": "LC06DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 2.8,
+     "maximum": 98.5
+    }
+   ],
+   "coefficients": [
+    0.6605,
+    0.0122
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.176968,
+   "avp": 0.031,
+   "model_error_variance": 0.028,
+   "covariance": [
+    [
+     0.00529,
+     -0.00231,
+     -6.07e-05
+    ],
+    [
+     -0.00231,
+     0.00146,
+     2.46e-05
+    ],
+    [
+     -6.07e-05,
+     2.46e-05,
+     1.2e-06
+    ]
+   ],
+   "n_sites": 34
+  },
+  {
+   "region_code": "HR3",
+   "region_name": "Hydrologic region 3, Sand Hills, small rural under 1 mi2 (NSS GC1573)",
+   "aep": 0.2,
+   "intercept": 1.7109631189952756,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.14,
+     "maximum": 1.0
+    },
+    {
+     "code": "LC06DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 2.8,
+     "maximum": 98.5
+    }
+   ],
+   "coefficients": [
+    0.6535,
+    0.0109
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.196264,
+   "avp": 0.039,
+   "model_error_variance": 0.035,
+   "covariance": [
+    [
+     0.00662,
+     -0.00289,
+     -7.57e-05
+    ],
+    [
+     -0.00289,
+     0.00182,
+     3.06e-05
+    ],
+    [
+     -7.57e-05,
+     3.06e-05,
+     1.5e-06
+    ]
+   ],
+   "n_sites": 34
+  },
+  {
+   "region_code": "HR3",
+   "region_name": "Hydrologic region 3, Sand Hills, small rural under 1 mi2 (NSS GC1573)",
+   "aep": 0.1,
+   "intercept": 1.8350561017201164,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.14,
+     "maximum": 1.0
+    },
+    {
+     "code": "LC06DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 2.8,
+     "maximum": 98.5
+    }
+   ],
+   "coefficients": [
+    0.6507,
+    0.0102
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.20955,
+   "avp": 0.044,
+   "model_error_variance": 0.04,
+   "covariance": [
+    [
+     0.00774,
+     -0.00337,
+     -8.82e-05
+    ],
+    [
+     -0.00337,
+     0.00211,
+     3.55e-05
+    ],
+    [
+     -8.82e-05,
+     3.55e-05,
+     1.74e-06
+    ]
+   ],
+   "n_sites": 34
+  },
+  {
+   "region_code": "HR3",
+   "region_name": "Hydrologic region 3, Sand Hills, small rural under 1 mi2 (NSS GC1573)",
+   "aep": 0.04,
+   "intercept": 1.9698816437464999,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.14,
+     "maximum": 1.0
+    },
+    {
+     "code": "LC06DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 2.8,
+     "maximum": 98.5
+    }
+   ],
+   "coefficients": [
+    0.6472,
+    0.0095
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.226821,
+   "avp": 0.051,
+   "model_error_variance": 0.046,
+   "covariance": [
+    [
+     0.00936,
+     -0.00406,
+     -0.000106
+    ],
+    [
+     -0.00406,
+     0.00254,
+     4.26e-05
+    ],
+    [
+     -0.000106,
+     4.26e-05,
+     2.09e-06
+    ]
+   ],
+   "n_sites": 34
+  },
+  {
+   "region_code": "HR3",
+   "region_name": "Hydrologic region 3, Sand Hills, small rural under 1 mi2 (NSS GC1573)",
+   "aep": 0.02,
+   "intercept": 2.0569048513364727,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.14,
+     "maximum": 1.0
+    },
+    {
+     "code": "LC06DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 2.8,
+     "maximum": 98.5
+    }
+   ],
+   "coefficients": [
+    0.6451,
+    0.009
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.239784,
+   "avp": 0.058,
+   "model_error_variance": 0.052,
+   "covariance": [
+    [
+     0.0107,
+     -0.00462,
+     -0.000121
+    ],
+    [
+     -0.00462,
+     0.00289,
+     4.83e-05
+    ],
+    [
+     -0.000121,
+     4.83e-05,
+     2.37e-06
+    ]
+   ],
+   "n_sites": 34
+  },
+  {
+   "region_code": "HR3",
+   "region_name": "Hydrologic region 3, Sand Hills, small rural under 1 mi2 (NSS GC1573)",
+   "aep": 0.01,
+   "intercept": 2.1398790864012365,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.14,
+     "maximum": 1.0
+    },
+    {
+     "code": "LC06DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 2.8,
+     "maximum": 98.5
+    }
+   ],
+   "coefficients": [
+    0.643,
+    0.0086
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.252778,
+   "avp": 0.064,
+   "model_error_variance": 0.057,
+   "covariance": [
+    [
+     0.012,
+     -0.00521,
+     -0.000136
+    ],
+    [
+     -0.00521,
+     0.00325,
+     5.42e-05
+    ],
+    [
+     -0.000136,
+     5.42e-05,
+     2.66e-06
+    ]
+   ],
+   "n_sites": 34
+  },
+  {
+   "region_code": "HR3",
+   "region_name": "Hydrologic region 3, Sand Hills, small rural under 1 mi2 (NSS GC1573)",
+   "aep": 0.005,
+   "intercept": 2.2121876044039577,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.14,
+     "maximum": 1.0
+    },
+    {
+     "code": "LC06DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 2.8,
+     "maximum": 98.5
+    }
+   ],
+   "coefficients": [
+    0.6413,
+    0.0082
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.265776,
+   "avp": 0.071,
+   "model_error_variance": 0.064,
+   "covariance": [
+    [
+     0.0135,
+     -0.00583,
+     -0.000151
+    ],
+    [
+     -0.00583,
+     0.00363,
+     6.04e-05
+    ],
+    [
+     -0.000151,
+     6.04e-05,
+     2.98e-06
+    ]
+   ],
+   "n_sites": 34
+  },
+  {
+   "region_code": "HR3",
+   "region_name": "Hydrologic region 3, Sand Hills, small rural under 1 mi2 (NSS GC1573)",
+   "aep": 0.002,
+   "intercept": 2.303196057420489,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.14,
+     "maximum": 1.0
+    },
+    {
+     "code": "LC06DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 2.8,
+     "maximum": 98.5
+    }
+   ],
+   "coefficients": [
+    0.6386,
+    0.0077
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.284793,
+   "avp": 0.081,
+   "model_error_variance": 0.073,
+   "covariance": [
+    [
+     0.0156,
+     -0.00675,
+     -0.000175
+    ],
+    [
+     -0.00675,
+     0.0042,
+     6.97e-05
+    ],
+    [
+     -0.000175,
+     6.97e-05,
+     3.44e-06
+    ]
+   ],
+   "n_sites": 34
+  },
+  {
+   "region_code": "HR4",
+   "region_name": "Hydrologic region 4, Coastal Plain, small rural under 1 mi2 (NSS GC1574)",
+   "aep": 0.5,
+   "intercept": 1.4199557484897578,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 1.0
+    },
+    {
+     "code": "LC06IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.02,
+     "maximum": 34.8
+    },
+    {
+     "code": "I24H50Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 6.51,
+     "maximum": 10.9
+    }
+   ],
+   "coefficients": [
+    0.5908,
+    0.0173,
+    0.0515
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.170417,
+   "avp": 0.029,
+   "model_error_variance": 0.028,
+   "covariance": [
+    [
+     0.0286,
+     -0.000945,
+     -0.000118,
+     -0.00334
+    ],
+    [
+     -0.000945,
+     0.000536,
+     1.42e-05,
+     5.76e-05
+    ],
+    [
+     -0.000118,
+     1.42e-05,
+     4.48e-06,
+     9.08e-06
+    ],
+    [
+     -0.00334,
+     5.76e-05,
+     9.08e-06,
+     0.000407
+    ]
+   ],
+   "n_sites": 157
+  },
+  {
+   "region_code": "HR4",
+   "region_name": "Hydrologic region 4, Coastal Plain, small rural under 1 mi2 (NSS GC1574)",
+   "aep": 0.2,
+   "intercept": 1.608526033577194,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 1.0
+    },
+    {
+     "code": "LC06IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.02,
+     "maximum": 34.8
+    },
+    {
+     "code": "I24H50Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 6.51,
+     "maximum": 10.9
+    }
+   ],
+   "coefficients": [
+    0.5958,
+    0.0125,
+    0.0623
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.155168,
+   "avp": 0.024,
+   "model_error_variance": 0.023,
+   "covariance": [
+    [
+     0.0271,
+     -0.000822,
+     -0.000103,
+     -0.00317
+    ],
+    [
+     -0.000822,
+     0.000473,
+     1.26e-05,
+     5.08e-05
+    ],
+    [
+     -0.000103,
+     1.26e-05,
+     4.05e-06,
+     7.52e-06
+    ],
+    [
+     -0.00317,
+     5.08e-05,
+     7.52e-06,
+     0.000389
+    ]
+   ],
+   "n_sites": 157
+  },
+  {
+   "region_code": "HR4",
+   "region_name": "Hydrologic region 4, Coastal Plain, small rural under 1 mi2 (NSS GC1574)",
+   "aep": 0.1,
+   "intercept": 1.714329759745233,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 1.0
+    },
+    {
+     "code": "LC06IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.02,
+     "maximum": 34.8
+    },
+    {
+     "code": "I24H50Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 6.51,
+     "maximum": 10.9
+    }
+   ],
+   "coefficients": [
+    0.6004,
+    0.0101,
+    0.0666
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.154378,
+   "avp": 0.024,
+   "model_error_variance": 0.022,
+   "covariance": [
+    [
+     0.0298,
+     -0.000849,
+     -0.000107,
+     -0.0035
+    ],
+    [
+     -0.000849,
+     0.000496,
+     1.33e-05,
+     5.25e-05
+    ],
+    [
+     -0.000107,
+     1.33e-05,
+     4.29e-06,
+     7.68e-06
+    ],
+    [
+     -0.0035,
+     5.25e-05,
+     7.68e-06,
+     0.000429
+    ]
+   ],
+   "n_sites": 157
+  },
+  {
+   "region_code": "HR4",
+   "region_name": "Hydrologic region 4, Coastal Plain, small rural under 1 mi2 (NSS GC1574)",
+   "aep": 0.04,
+   "intercept": 1.826722520168992,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 1.0
+    },
+    {
+     "code": "LC06IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.02,
+     "maximum": 34.8
+    },
+    {
+     "code": "I24H50Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 6.51,
+     "maximum": 10.9
+    }
+   ],
+   "coefficients": [
+    0.6067,
+    0.0075,
+    0.0708
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.160284,
+   "avp": 0.026,
+   "model_error_variance": 0.024,
+   "covariance": [
+    [
+     0.0354,
+     -0.00095,
+     -0.000121,
+     -0.00417
+    ],
+    [
+     -0.00095,
+     0.000566,
+     1.53e-05,
+     5.84e-05
+    ],
+    [
+     -0.000121,
+     1.53e-05,
+     4.93e-06,
+     8.59e-06
+    ],
+    [
+     -0.00417,
+     5.84e-05,
+     8.59e-06,
+     0.000512
+    ]
+   ],
+   "n_sites": 157
+  },
+  {
+   "region_code": "HR4",
+   "region_name": "Hydrologic region 4, Coastal Plain, small rural under 1 mi2 (NSS GC1574)",
+   "aep": 0.02,
+   "intercept": 1.8943160626844384,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 1.0
+    },
+    {
+     "code": "LC06IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.02,
+     "maximum": 34.8
+    },
+    {
+     "code": "I24H50Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 6.51,
+     "maximum": 10.9
+    }
+   ],
+   "coefficients": [
+    0.6111,
+    0.0058,
+    0.0738
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.16809,
+   "avp": 0.028,
+   "model_error_variance": 0.026,
+   "covariance": [
+    [
+     0.0408,
+     -0.00106,
+     -0.000137,
+     -0.0048
+    ],
+    [
+     -0.00106,
+     0.000641,
+     1.74e-05,
+     6.49e-05
+    ],
+    [
+     -0.000137,
+     1.74e-05,
+     5.58e-06,
+     9.67e-06
+    ],
+    [
+     -0.0048,
+     6.49e-05,
+     9.67e-06,
+     0.00059
+    ]
+   ],
+   "n_sites": 157
+  },
+  {
+   "region_code": "HR4",
+   "region_name": "Hydrologic region 4, Coastal Plain, small rural under 1 mi2 (NSS GC1574)",
+   "aep": 0.01,
+   "intercept": 1.9566485792052033,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 1.0
+    },
+    {
+     "code": "LC06IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.02,
+     "maximum": 34.8
+    },
+    {
+     "code": "I24H50Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 6.51,
+     "maximum": 10.9
+    }
+   ],
+   "coefficients": [
+    0.6154,
+    0.0043,
+    0.0762
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.177735,
+   "avp": 0.032,
+   "model_error_variance": 0.029,
+   "covariance": [
+    [
+     0.0468,
+     -0.0012,
+     -0.000155,
+     -0.00552
+    ],
+    [
+     -0.0012,
+     0.000731,
+     1.99e-05,
+     7.26e-05
+    ],
+    [
+     -0.000155,
+     1.99e-05,
+     6.36e-06,
+     1.09e-05
+    ],
+    [
+     -0.00552,
+     7.26e-05,
+     1.09e-05,
+     0.000678
+    ]
+   ],
+   "n_sites": 157
+  },
+  {
+   "region_code": "HR4",
+   "region_name": "Hydrologic region 4, Coastal Plain, small rural under 1 mi2 (NSS GC1574)",
+   "aep": 0.005,
+   "intercept": 2.012837224705172,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 1.0
+    },
+    {
+     "code": "LC06IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.02,
+     "maximum": 34.8
+    },
+    {
+     "code": "I24H50Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 6.51,
+     "maximum": 10.9
+    }
+   ],
+   "coefficients": [
+    0.6201,
+    0.0029,
+    0.0785
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.188008,
+   "avp": 0.035,
+   "model_error_variance": 0.033,
+   "covariance": [
+    [
+     0.0532,
+     -0.00134,
+     -0.000174,
+     -0.00628
+    ],
+    [
+     -0.00134,
+     0.000827,
+     2.26e-05,
+     8.08e-05
+    ],
+    [
+     -0.000174,
+     2.26e-05,
+     7.19e-06,
+     1.23e-05
+    ],
+    [
+     -0.00628,
+     8.08e-05,
+     1.23e-05,
+     0.000771
+    ]
+   ],
+   "n_sites": 157
+  },
+  {
+   "region_code": "HR4",
+   "region_name": "Hydrologic region 4, Coastal Plain, small rural under 1 mi2 (NSS GC1574)",
+   "aep": 0.002,
+   "intercept": 2.0755469613925306,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 1.0
+    },
+    {
+     "code": "LC06IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.02,
+     "maximum": 34.8
+    },
+    {
+     "code": "I24H50Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 6.51,
+     "maximum": 10.9
+    }
+   ],
+   "coefficients": [
+    0.6261,
+    0.0012,
+    0.0813
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.204784,
+   "avp": 0.042,
+   "model_error_variance": 0.039,
+   "covariance": [
+    [
+     0.0631,
+     -0.00158,
+     -0.000206,
+     -0.00745
+    ],
+    [
+     -0.00158,
+     0.000985,
+     2.7e-05,
+     9.44e-05
+    ],
+    [
+     -0.000206,
+     2.7e-05,
+     8.53e-06,
+     1.46e-05
+    ],
+    [
+     -0.00745,
+     9.44e-05,
+     1.46e-05,
+     0.000914
+    ]
+   ],
+   "n_sites": 157
+  },
+  {
+   "region_code": "HR5",
+   "region_name": "Hydrologic region 5, Lower Tifton Upland, small rural under 1 mi2 (NSS GC1575)",
+   "aep": 0.5,
+   "intercept": 2.2174839442139063,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.2,
+     "maximum": 1.0
+    }
+   ],
+   "coefficients": [
+    0.537
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.174278,
+   "avp": 0.03,
+   "model_error_variance": 0.0277,
+   "covariance": [
+    [
+     0.00262,
+     -0.000895
+    ],
+    [
+     -0.000895,
+     0.000846
+    ]
+   ]
+  },
+  {
+   "region_code": "HR5",
+   "region_name": "Hydrologic region 5, Lower Tifton Upland, small rural under 1 mi2 (NSS GC1575)",
+   "aep": 0.2,
+   "intercept": 2.423245873936808,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.2,
+     "maximum": 1.0
+    }
+   ],
+   "coefficients": [
+    0.583
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.144441,
+   "avp": 0.021,
+   "model_error_variance": 0.0184,
+   "covariance": [
+    [
+     0.00249,
+     -0.000702
+    ],
+    [
+     -0.000702,
+     0.000646
+    ]
+   ]
+  },
+  {
+   "region_code": "HR5",
+   "region_name": "Hydrologic region 5, Lower Tifton Upland, small rural under 1 mi2 (NSS GC1575)",
+   "aep": 0.1,
+   "intercept": 2.5428254269591797,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.2,
+     "maximum": 1.0
+    }
+   ],
+   "coefficients": [
+    0.6
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.143241,
+   "avp": 0.02,
+   "model_error_variance": 0.0177,
+   "covariance": [
+    [
+     0.00289,
+     -0.000777
+    ],
+    [
+     -0.000777,
+     0.000695
+    ]
+   ]
+  },
+  {
+   "region_code": "HR5",
+   "region_name": "Hydrologic region 5, Lower Tifton Upland, small rural under 1 mi2 (NSS GC1575)",
+   "aep": 0.04,
+   "intercept": 2.6748611407378116,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.2,
+     "maximum": 1.0
+    }
+   ],
+   "coefficients": [
+    0.615
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.15002,
+   "avp": 0.022,
+   "model_error_variance": 0.0191,
+   "covariance": [
+    [
+     0.00357,
+     -0.000949
+    ],
+    [
+     -0.000949,
+     0.000836
+    ]
+   ]
+  },
+  {
+   "region_code": "HR5",
+   "region_name": "Hydrologic region 5, Lower Tifton Upland, small rural under 1 mi2 (NSS GC1575)",
+   "aep": 0.02,
+   "intercept": 2.7589118923979736,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.2,
+     "maximum": 1.0
+    }
+   ],
+   "coefficients": [
+    0.624
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.158714,
+   "avp": 0.025,
+   "model_error_variance": 0.0212,
+   "covariance": [
+    [
+     0.00417,
+     -0.00112
+    ],
+    [
+     -0.00112,
+     0.000977
+    ]
+   ]
+  },
+  {
+   "region_code": "HR5",
+   "region_name": "Hydrologic region 5, Lower Tifton Upland, small rural under 1 mi2 (NSS GC1575)",
+   "aep": 0.01,
+   "intercept": 2.835056101720116,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.2,
+     "maximum": 1.0
+    }
+   ],
+   "coefficients": [
+    0.632
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.171191,
+   "avp": 0.029,
+   "model_error_variance": 0.0246,
+   "covariance": [
+    [
+     0.0049,
+     -0.00133
+    ],
+    [
+     -0.00133,
+     0.00116
+    ]
+   ]
+  },
+  {
+   "region_code": "HR5",
+   "region_name": "Hydrologic region 5, Lower Tifton Upland, small rural under 1 mi2 (NSS GC1575)",
+   "aep": 0.005,
+   "intercept": 2.905256048748451,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.2,
+     "maximum": 1.0
+    }
+   ],
+   "coefficients": [
+    0.639
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.183081,
+   "avp": 0.034,
+   "model_error_variance": 0.0281,
+   "covariance": [
+    [
+     0.00565,
+     -0.00156
+    ],
+    [
+     -0.00156,
+     0.00135
+    ]
+   ]
+  },
+  {
+   "region_code": "HR5",
+   "region_name": "Hydrologic region 5, Lower Tifton Upland, small rural under 1 mi2 (NSS GC1575)",
+   "aep": 0.002,
+   "intercept": 2.9872192299080047,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.2,
+     "maximum": 1.0
+    }
+   ],
+   "coefficients": [
+    0.649
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.203311,
+   "avp": 0.041,
+   "model_error_variance": 0.0349,
+   "covariance": [
+    [
+     0.00686,
+     -0.00194
+    ],
+    [
+     -0.00194,
+     0.00167
+    ]
+   ]
+  }
+ ]
+}
