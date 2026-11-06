@@ -25,10 +25,23 @@ Owner's:
 
 1. Release v0.22.0 (a draft PR is prepared), then merge app PR #33 and bump the app's pin again.
 2. Push `release/0.21.x` (a hook blocks it here; the branch exists locally).
-3. **Overlap rules left open** (#340 settled the rest; `docs/VERIFICATION_PLAN.md`, Wider live check, now 84
-   of 102 gages with no `region=`, up from 53). AL at 5 mi2 or less, where the report recommends the
-   small-stream set; GA, NC and SC at 1 mi2 or less (SIR 2014-5030 against 2023-5006); AR's D against MAP; IN.
-   Urban and NRCS-regulated basins still need `region=` on purpose.
+3. **Overlap calls left open.** #340 settled the rest (84 of 102 live gages with no `region=`, up from 53;
+   `docs/VERIFICATION_PLAN.md`, Wider live check). These sites need `region=` until each is decided:
+   - **AL, 5 mi2 or less:** rural regions 1-4 or Small streams, both SIR 2020-5032. The report recommends
+     Small streams there. Recommend: store that preference.
+   - **GA, NC, SC, 1 mi2 or less:** HR1-5 (SIR 2023-5006, all sizes) or the small rural sets (SIR 2014-5030).
+     Leaning to HR1-5 as the newer report; not yet checked whether it says it replaces the 2014 sets.
+   - **AR, Mississippi Alluvial Plain:** D (SIR 2016-5081) or MAP (SIR 2021-5046). Leaning to MAP as the
+     newer report, after item 15's question about its slope code is answered.
+   - **IN (2 gages):** all eight regions are candidates, so an order of preference can't settle it. It
+     needs a region looked up by point (item 13).
+   - **Left on purpose:** urban and NRCS-regulated basins (AL, MO, TN, OK) need `region=`. Say if you want
+     a default instead.
+
+   Calls made in #340, for you to confirm: MO's 5 % impervious limit is read from "about 5 percent or
+   less"; AL small streams stop at the recommended 5 mi2, not the stored 14; IL prefers the
+   urbanization-adjusted set; CT, ME, VT, TN and IA fall back silently, with the fact in provenance, when
+   a characteristic is missing, so a set can change between runs.
 4. **DE:** settle Table 6 against Table 8 so it can become `verified`.
 5. **MD:** kept at the Third Edition because StreamStats can't feed the Sixth (2023). GC1481's urban
    gates are added, and a boundary basin now needs `region=`.
@@ -37,17 +50,22 @@ Owner's:
 8. Close issues #27, #36 and #293. Merge or close app PRs #27-#33.
 9. Check the gage page's resizable period grips in a browser (app #24): they were never run in
    one, since running the vega bundles in headless Chrome was blocked here.
+10. **Region 1 near the Oklahoma Panhandle:** Sweetwater Creek (07301420) is a real site the regression
+    overstates about tenfold, with no fault in the stored data (`docs/VERIFICATION_PLAN.md`, Sweetwater
+    Creek). Should the results warn near that boundary? Nothing changed for now. The cause isn't
+    established, and the MN, IA and LA outliers in the same section weren't investigated.
+11. **Cross-border checks** are still open (`docs/VERIFICATION_PLAN.md`, Still open).
 
 Library follow-ups the batches found, none changed:
 
-10. `power` at base 0 (IL stores an offset of 1e-12). `evaluate` prefers a rounded AVP over SEP (AL,
+12. `power` at base 0 (IL stores an offset of 1e-12). `evaluate` prefers a rounded AVP over SEP (AL,
     TN). Degrees of freedom on adjusted sets (IL).
-11. Multi-region weighting: SD's report averages in flow; IN selects a region by point, `region=` can't
+13. Multi-region weighting: SD's report averages in flow; IN selects a region by point, `region=` can't
     override it, and 03333050 is refused.
-12. IA: a CCM above 3.87 or STRMTOT of 0 should go to the drainage-area-only set.
-13. AR and LA MAP slope code looks wrong (CSL1085LFP against CSLBlue). KY regions 1 and 4 and Jefferson
+14. IA: a CCM above 3.87 or STRMTOT of 0 should go to the drainage-area-only set.
+15. AR and LA MAP slope code looks wrong (CSL1085LFP against CSLBlue). KY regions 1 and 4 and Jefferson
     have no live slope. TN Memphis has no live CHANCOND. IN prints no intervals.
-14. NH and NY never located their drainage-area-only sets at a tested point, so those are reachable
+16. NH and NY never located their drainage-area-only sets at a tested point, so those are reachable
     only through `evaluate`.
 
 Parked: gage page NID and NLCD events beside a change point

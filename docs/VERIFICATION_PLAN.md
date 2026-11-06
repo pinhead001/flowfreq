@@ -63,6 +63,33 @@ validation. Large differences, none traced to a transcription fault: 05457778 MN
 4,086), 06483430 IA (8,763, 2,863), 07377782 LA (5,290, 13,669) and 07301420 OK (2,479, 24,492; Sweetwater
 Creek). No gage that already returned a value moved by more than 1 percent.
 
+**Sweetwater Creek, 07301420 (investigated 2026-11-05).** The tenfold gap is real, and no fault was found
+in the stored data. Nothing was changed.
+
+- **The regression is what the report's equation gives.** StreamStats locates Region 1 at 100 percent, and
+  CONTDA 410.41 mi2 with PRECIP 23.48 in gives 24,492 ft3/s. USGS lists 410 mi2 contributing. The NRCS-regulated
+  set doesn't apply: `DAUNREG` equals `CONTDA`.
+- **The at-site value holds up.** 40 peaks, 1986-2025, maximum 1,940; Q1% 2,479, 90 percent interval 1,403 to
+  11,490. The upstream gage, 07301410 at Kelton, TX (297 mi2), has 64 peaks, 1962-2025, maximum 2,890 in 1977;
+  Q1% 2,716, interval 1,938 to 8,212. Their 40 shared years correlate at 0.86 in log. The downstream gage's
+  peak code 5 (39 of 40 peaks) doesn't explain it: the Kelton record has no codes.
+- **It is far outside what the report saw.** Neither gage is in SIR 2019-5143 Table 1 or SIR 2015-5134 Table
+  1. The gap is 0.995 log units, 5.9 standard errors of prediction, and the regression's interval (12,785 to
+  46,918) misses the at-site value and its whole interval. Among the 57 Region 1 rows of Table 1, the same
+  equation's largest overestimate is 0.563 log units (07327420). Nearby gages don't share the problem: Elm
+  Fork near Carl (07303400, 438 mi2) prints 48,800 against the equation's 28,249, and North Fork Red near
+  Shamrock (07301300, 817 mi2) prints 25,300 against 35,331.
+- **The cause is not established.** A candidate is the High Plains aquifer: the gage is about 2 miles east of
+  the 100th meridian, and SIR 2015-5134 reports peaks declining with irrigation, with low gages of this size
+  (07157500, 822 mi2, 3,810; 07142300, 475 mi2, 4,880). But Kelton was already low before that report's 1978
+  irrigated period (16 peaks, maximum 2,890), and the share of this basin on the aquifer wasn't checked. The
+  Panhandle equation would give about 9,840, still four times the at-site value, and StreamStats doesn't
+  locate it here.
+
+Near this stream, use the gage record rather than the regression alone. The report's gaged-site weighting and
+transfer (equations 18-20) aren't stored. Whether results should warn near this boundary is an open question
+in `TODO.md`.
+
 **Refusals.** Without `region=`, 84 gages returned an estimate, up from 53.
 
 | Stopped by | Before | After | Note |
