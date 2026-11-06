@@ -47,7 +47,7 @@
    }
   }
  ],
- "notes": "Wagner and others, SIR 2016-5081 (no later version on the publication page): flood regions A, B1, B2, C and D at 7 AEPs (no 0.5 percent), and Anderson, SIR 2021-5046: the Mississippi Alluvial Plain (MAP) at 8 AEPs. Equations as printed: Table 7's 10**(... -0.297(0.01*LC11PAST+1) ...) terms are identity variables with scale 0.01 and offset 1, so Table 11's U stays in its printed basis; NSS folds them into its intercept and coefficients, which is the same equation. Ranges from Table 10, MEV and U (order as headed) from Table 11, AVP and Sp from Table 7. Region B1 and B2 carry the report's 500 ft ELEV gate. Both current: region D and MAP are co-located in eastern Arkansas (NSS locates both at 07077500 and 07077950), and they are kept as separate regions with no preference. SIR 2021-5046 says it updates the MAP and calls 2016-5081 a recent publication for a subsection, but nowhere says it supersedes region D, and NSS has D at status 4 (enabled for StreamStats) and GC1917 at status 3 (enabled for NSS, disabled for StreamStats). Table 11 misprints, settled because only the corrected values make the matrix positive definite and reproduce Table 7's AVP from MEV + mean xUx at the region's 56 gages: B2 Q50% intercept-SOILINDEX prints -0.010697946 in both cells (mean 0.618 against AVP 0.025), stored as -0.10697946 (0.0249), a decimal-shift correction printed nowhere; B2 Q1% ALVM-intercept prints -0.01477342 against -0.011477342 in the intercept row, stored as the latter; B2 Q0.2% SOILINDEX-intercept prints -0.017874274 against -0.1787427 in the intercept row, stored as the latter. Table 7 B1 Q0.2% prints Sp 46.86 percent, which does not match its own AVP 0.042 (49.9 percent) and MEV + mean xUx gives 0.0420: kept as printed in sep_log, and intervals use the covariance there anyway. Every other AVP closes. NSS differs: its SEP at all 35 region A-D equations is Table 7's 'Values from Hodge and Tasker (1995)' column, not this report's Sp; its ranges round BSHAPE, ELEV, PRECIP, LC11PAST, SLPFM (A ELEV max 1,840 for 1,832.27). Table 10 differs slightly from the Table 8 gages: B1 minimum area 0.10 (a 0.06 gage), B2 minimum ELEV 168.88 (168.52), B2 maximum area 2,090 (2,092), D maximum area 1,620 (1,622); and the 500 ft gate has a gage on the wrong side in each subregion (493.94 ft in B1, 500.55 ft in B2). Table 10 is stored. No worked example in either report. Per-gage: all 281 Table 9 RRE flows at Table 8's characteristics, and the 50 gages Table 3 of SIR 2021-5046 prints (its title says 58, 8 of Table 1's gages have no row). Not stored, no schema field: Table 7 MSE (of unweighted residuals, distinct from MEV), pseudo-R2, SEM; Table 11's t (reproduced from n_sites); Table 12's area-ratio exponents; SIR 2021-5046's MSE column (0.034 to 0.061), which is not stored as a model error variance because it exceeds AVP at 5 AEPs and the report prints no matrix, so MAP intervals use AVP. SIR 2021-5046 limits: not applicable where more than 10 percent of the basin is impervious, nor under substantial regulation (text, not stored). Variable codes are NSS's: SLPFM is CSLBlue, BSHAPE is BSHAPELFP, and NSS gives MAP's slope in Arkansas as CSL1085LFP, though the slope in Table 1 equals region D's SLPFM at shared gages and is close to live CSLBlue, not CSL1085LFP (07077950: 0.81 printed, CSLBlue 0.82, CSL1085LFP 0.71, which lowers its Q1% from the printed 8,430 to 7,939).",
+ "notes": "Wagner and others, SIR 2016-5081 (no later version on the publication page): flood regions A, B1, B2, C and D at 7 AEPs (no 0.5 percent), and Anderson, SIR 2021-5046: the Mississippi Alluvial Plain (MAP) at 8 AEPs. Equations as printed: Table 7's 10**(... -0.297(0.01*LC11PAST+1) ...) terms are identity variables with scale 0.01 and offset 1, so Table 11's U stays in its printed basis; NSS folds them into its intercept and coefficients, which is the same equation. Ranges from Table 10, MEV and U (order as headed) from Table 11, AVP and Sp from Table 7. Region B1 and B2 carry the report's 500 ft ELEV gate. Both current: region D and MAP are co-located in eastern Arkansas (NSS locates both at 07077500 and 07077950), and they are kept as separate regions with no preference. SIR 2021-5046 says it updates the MAP and calls 2016-5081 a recent publication for a subsection, but nowhere says it supersedes region D, and NSS has D at status 4 (enabled for StreamStats) and GC1917 at status 3 (enabled for NSS, disabled for StreamStats). Table 11 misprints, settled because only the corrected values make the matrix positive definite and reproduce Table 7's AVP from MEV + mean xUx at the region's 56 gages: B2 Q50% intercept-SOILINDEX prints -0.010697946 in both cells (mean 0.618 against AVP 0.025), stored as -0.10697946 (0.0249), a decimal-shift correction printed nowhere; B2 Q1% ALVM-intercept prints -0.01477342 against -0.011477342 in the intercept row, stored as the latter; B2 Q0.2% SOILINDEX-intercept prints -0.017874274 against -0.1787427 in the intercept row, stored as the latter. Table 7 B1 Q0.2% prints Sp 46.86 percent, which does not match its own AVP 0.042 (49.9 percent) and MEV + mean xUx gives 0.0420: kept as printed in sep_log, and intervals use the covariance there anyway. Every other AVP closes. NSS differs: its SEP at all 35 region A-D equations is Table 7's 'Values from Hodge and Tasker (1995)' column, not this report's Sp; its ranges round BSHAPE, ELEV, PRECIP, LC11PAST, SLPFM (A ELEV max 1,840 for 1,832.27). Table 10 differs slightly from the Table 8 gages: B1 minimum area 0.10 (a 0.06 gage), B2 minimum ELEV 168.88 (168.52), B2 maximum area 2,090 (2,092), D maximum area 1,620 (1,622); and the 500 ft gate has a gage on the wrong side in each subregion (493.94 ft in B1, 500.55 ft in B2). Table 10 is stored. No worked example in either report. Per-gage: all 281 Table 9 RRE flows at Table 8's characteristics, and the 50 gages Table 3 of SIR 2021-5046 prints (its title says 58, 8 of Table 1's gages have no row). Not stored, no schema field: Table 7 MSE (of unweighted residuals, distinct from MEV), pseudo-R2, SEM; Table 11's t (reproduced from n_sites); Table 12's area-ratio exponents; SIR 2021-5046's MSE column (0.034 to 0.061), which is not stored as a model error variance because it exceeds AVP at 5 AEPs and the report prints no matrix, so MAP intervals use AVP. SIR 2021-5046 limits: not applicable where more than 10 percent of the basin is impervious, nor under substantial regulation (text, not stored). Variable codes are NSS's: SLPFM is CSLBlue, BSHAPE is BSHAPELFP, and MAP's slope is stored as CSLBlue although NSS gives CSL1085LFP. Table 1's slope equals region D's SLPFM at shared gages, and live on 2026-11-05 at the 24 Arkansas MAP gages whose area matched within 15 percent it was within 5 percent of CSLBlue at 17 and of CSL1085LFP at 5 of 23, with median differences of 2 and 19 percent (07047942: 3.17 printed, CSLBlue 3.20, CSL1085LFP 0.73).",
  "equations": [
   {
    "region_code": "A",
@@ -2691,7 +2691,7 @@
      "maximum": 2370.0
     },
     {
-     "code": "CSL1085LFP",
+     "code": "CSLBlue",
      "transform": "log10",
      "units": "ft/mi",
      "minimum": 0.36,
@@ -2734,7 +2734,7 @@
      "maximum": 2370.0
     },
     {
-     "code": "CSL1085LFP",
+     "code": "CSLBlue",
      "transform": "log10",
      "units": "ft/mi",
      "minimum": 0.36,
@@ -2777,7 +2777,7 @@
      "maximum": 2370.0
     },
     {
-     "code": "CSL1085LFP",
+     "code": "CSLBlue",
      "transform": "log10",
      "units": "ft/mi",
      "minimum": 0.36,
@@ -2820,7 +2820,7 @@
      "maximum": 2370.0
     },
     {
-     "code": "CSL1085LFP",
+     "code": "CSLBlue",
      "transform": "log10",
      "units": "ft/mi",
      "minimum": 0.36,
@@ -2863,7 +2863,7 @@
      "maximum": 2370.0
     },
     {
-     "code": "CSL1085LFP",
+     "code": "CSLBlue",
      "transform": "log10",
      "units": "ft/mi",
      "minimum": 0.36,
@@ -2906,7 +2906,7 @@
      "maximum": 2370.0
     },
     {
-     "code": "CSL1085LFP",
+     "code": "CSLBlue",
      "transform": "log10",
      "units": "ft/mi",
      "minimum": 0.36,
@@ -2949,7 +2949,7 @@
      "maximum": 2370.0
     },
     {
-     "code": "CSL1085LFP",
+     "code": "CSLBlue",
      "transform": "log10",
      "units": "ft/mi",
      "minimum": 0.36,
@@ -2992,7 +2992,7 @@
      "maximum": 2370.0
     },
     {
-     "code": "CSL1085LFP",
+     "code": "CSLBlue",
      "transform": "log10",
      "units": "ft/mi",
      "minimum": 0.36,

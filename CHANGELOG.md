@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   don't change, and Coastal Plain intervals widen. `allow_nss_snapshot` now returns this set rather than
   Delaware's snapshot, so no jurisdiction uses a snapshot.
 
+### Fixed
+- **Arkansas's Mississippi Alluvial Plain set read the wrong slope.** NSS names `CSL1085LFP`, but the report's
+  slope matches StreamStats' `CSLBlue` at Arkansas gages. It now reads `CSLBlue`, which raises Q1% wherever
+  `CSLBlue` is the larger, by up to about 2 times at the gages checked.
+
 ## [0.22.0] - 2026-11-05
 
 Regression equations verified in 37 more jurisdictions, making 50 of 56, with Delaware `partial` and
