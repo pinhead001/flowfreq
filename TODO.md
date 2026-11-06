@@ -26,27 +26,16 @@ Owner's:
 
 1. **Release v0.23.0?** It would carry DE and the AR slope fix, which change results. The app's
    `test_coverage_badge` expects DE to be partial, so it needs updating with that pin.
-2. **Overlap calls left open.** #340 settled the rest (84 of 102 live gages with no `region=`, up from 53;
-   `docs/VERIFICATION_PLAN.md`, Wider live check). These sites need `region=` until each is decided:
-   - **AL, 5 mi2 or less:** rural regions 1-4 or Small streams, both SIR 2020-5032. The report recommends
-     Small streams there. Recommend: store that preference.
-   - **GA, NC, SC, 1 mi2 or less:** HR1-5 (SIR 2023-5006) or the small rural sets (SIR 2014-5030). The 2023
-     report doesn't say it replaces the 2014 sets. It presents "updated methods" for rural streams, and it
-     isn't applicable above 10 percent impervious. Recommend: HR1-5 at or below 10 percent, the 2014 sets
-     above it.
-   - **AR, Mississippi Alluvial Plain:** D (SIR 2016-5081) or MAP (SIR 2021-5046). MAP's slope code is now
-     fixed (#345), so both read `CSLBlue`. Recommend: MAP, the newer report.
-   - **IN (2 gages):** all eight regions are candidates, so an order of preference can't settle it. It
-     needs a region looked up by point (item 10).
-   - **Left on purpose:** urban and NRCS-regulated basins (AL, MO, TN, OK) need `region=`. Say if you want
-     a default instead.
+2. **Overlap call left open:** IN (2 gages). All eight regions are candidates, so an order of preference
+   can't settle it. It needs a region looked up by point (item 10). Urban and NRCS-regulated basins (AL, MO,
+   TN, OK) need `region=` on purpose; say if you want a default instead.
 
-   Calls made in #340, for you to confirm: MO's 5 % impervious limit is read from "about 5 percent or
-   less"; AL small streams stop at the recommended 5 mi2, not the stored 14; IL prefers the
-   urbanization-adjusted set; CT, ME, VT, TN and IA fall back silently, with the fact in provenance, when
-   a characteristic is missing, so a set can change between runs.
-3. **GA, NC, SC above 1 mi2:** HR1-5 has no limit on impervious area, so an urban basin gets the rural set,
-   which the report says doesn't apply. Should it refuse above 10 percent, as a `region_limits` entry would?
+   Calls to confirm: MO's 5 % impervious limit is read from "about 5 percent or less"; AL small streams stop
+   at the recommended 5 mi2, not the stored 14; IL prefers the urbanization-adjusted set; AR's MAP-first and GA,
+   NC, SC's 2023-first orders are method choices; CT, ME, VT, TN and IA fall back silently, with the fact in
+   provenance, when a characteristic is missing, so a set can change between runs.
+3. **`allow_extrapolation`** still lets a caller evaluate GA, NC or SC's rural set above 10 percent impervious,
+   flagged as extrapolated. Say if that should be refused too.
 4. **Do results warn where the equations are known to miss?** Sweetwater Creek, OK is overstated about
    tenfold and Little Cedar River, MN understated about fourfold, with no fault in the stored data, and the
    cross-border sample shows 12 of 54 gages differing by 2 times or more across a line

@@ -52,7 +52,7 @@ class TestRegionLimit:
 
     def test_a_limit_for_an_unknown_region_is_refused(self):
         lib = load_state("GA")
-        assert set(lib.region_limits) == {"HR1", "HR3", "HR4", "HR5"}
+        assert set(lib.region_limits) == {"HR1-5", "HR1", "HR3", "HR4", "HR5"}
         import json
         from pathlib import Path
 
@@ -107,14 +107,48 @@ class TestSmallBasinSets:
         assert _used(a) == [rural]
 
     @pytest.mark.parametrize("state,small,rural", CASES)
-    def test_at_or_under_1_mi2_both_apply_and_the_caller_chooses(self, state, small, rural):
-        with pytest.raises(OverlappingRegionsError):
-            assemble(
-                load_state(state),
-                _located((small, 100.0), (rural, 100.0)),
-                self._rural(0.5),
-                **KW,
-            )
+    def test_at_or_under_1_mi2_a_rural_basin_gets_the_newer_set(self, state, small, rural):
+        a = assemble(
+            load_state(state),
+            _located((small, 100.0), (rural, 100.0)),
+            self._rural(0.5),
+            **KW,
+        )
+        assert _used(a) == [rural]
+        assert "region preference" in a.region_choice_source
+
+    @pytest.mark.parametrize("state,small,rural", CASES)
+    def test_at_or_under_1_mi2_an_urban_basin_gets_the_small_set(self, state, small, rural):
+        a = assemble(
+            load_state(state),
+            _located((small, 100.0), (rural, 100.0)),
+            {**self._rural(0.5), "LC19IMP": 25.0, "LC06IMP": 25.0, "LC06DEV": 50.0, "I24H50Y": 8.0},
+            **KW,
+        )
+        assert _used(a) == [small]
+        assert [r.code for r in a.alternatives] == [rural]
+
+    @pytest.mark.parametrize("state,small,rural", CASES)
+    def test_above_1_mi2_an_urban_basin_is_refused(self, state, small, rural):
+        """Nothing else applies, and the rural set's own LC19IMP range refuses it."""
+        for located in (_located((small, 100.0), (rural, 100.0)), _located((rural, 100.0))):
+            with pytest.raises(OutOfRangeError, match="LC19IMP=25"):
+                assemble(
+                    load_state(state),
+                    located,
+                    {**self._rural(131.0), "LC19IMP": 25.0},
+                    **KW,
+                )
+
+    @pytest.mark.parametrize("state,small,rural", CASES)
+    def test_exactly_10_percent_is_still_rural(self, state, small, rural):
+        a = assemble(
+            load_state(state),
+            _located((rural, 100.0)),
+            {**self._rural(131.0), "LC19IMP": 10.0},
+            **KW,
+        )
+        assert _used(a) == [rural]
 
     @pytest.mark.parametrize("state,small,rural", CASES)
     def test_naming_the_small_set_still_reaches_it(self, state, small, rural):
@@ -148,14 +182,15 @@ class TestRuralOverUrban:
         )
         assert _used(a) == ["GC1502"]
 
-    def test_al_under_5_mi2_stays_the_callers(self):
-        with pytest.raises(OverlappingRegionsError):
-            assemble(
-                load_state("AL"),
-                _located(("GC1502", 100.0), ("GC1503", 100.0)),
-                {"CONTDA": 2.0, "URBAN": 5.0},
-                **KW,
-            )
+    def test_al_under_5_mi2_gets_small_streams(self):
+        a = assemble(
+            load_state("AL"),
+            _located(("GC1502", 100.0), ("GC1503", 100.0)),
+            {"CONTDA": 2.0, "URBAN": 5.0},
+            **KW,
+        )
+        assert _used(a) == ["GC1503"]
+        assert "region preference" in a.region_choice_source
 
     def test_al_urban_basin_stays_the_callers(self):
         """Not silently rural: the report says not to use those over 10 percent impervious."""
@@ -306,6 +341,20 @@ class TestFullSetsFirst:
                 },
                 **KW,
             )
+
+
+def test_ar_prefers_the_alluvial_plain_where_it_covers_the_basin():
+    values = {"DRNAREA": 374.0, "CSLBlue": 0.82, "BSHAPELFP": 13.0}
+    a = assemble(load_state("AR"), _located(("GC1917", 100.0), ("GC1719", 100.0)), values, **KW)
+    assert _used(a) == ["GC1917"]
+    assert [r.code for r in a.alternatives] == ["GC1719"]
+    a = assemble(
+        load_state("AR"),
+        _located(("GC1917", 85.0), ("GC1719", 100.0)),
+        values,
+        **KW,
+    )
+    assert _used(a) == ["GC1719"]
 
 
 def test_a_limit_never_leaves_part_of_the_basin_uncovered():

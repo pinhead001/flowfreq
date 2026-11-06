@@ -365,5 +365,5 @@ def test_2014_upper_area_is_the_small_rural_definition(ga, region):
         evaluate(eq, values)
 
 
-def test_both_sets_are_kept_with_no_preference(state):
-    assert load_state(state).region_preference is None
+def test_the_2023_set_comes_first_where_both_apply(state):
+    assert load_state(state).region_preference.tiers[0] == ["HR1-5"]
