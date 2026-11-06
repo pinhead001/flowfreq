@@ -469,9 +469,9 @@ def test_alluvial_plain_avp_matches_its_sep(ar):
         assert _pct(math.sqrt(e.avp)) == pytest.approx(_pct(e.sep_log), abs=1.1), e.aep
 
 
-def test_region_d_and_the_alluvial_plain_stay_side_by_side(ar):
-    """Co-located in eastern Arkansas, no preference: SIR 2021-5046 does not say it supersedes
-    region D, and NSS keeps D enabled for StreamStats while GC1917 is enabled for NSS alone."""
-    assert ar.region_preference is None
+def test_the_alluvial_plain_comes_before_region_d(ar):
+    """Co-located in eastern Arkansas: SIR 2021-5046 does not say it supersedes region D, and NSS
+    keeps D enabled for StreamStats while GC1917 is enabled for NSS alone. A method choice."""
+    assert ar.region_preference.tiers == [["MAP"], ["A", "B1", "B2", "C", "D"]]
     assert "MAP" not in ar.region_gates and "D" not in ar.region_gates
     assert "status 3" in ar.notes

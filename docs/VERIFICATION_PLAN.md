@@ -43,7 +43,7 @@ Read this before relying on a batch 2-5 state.
 ## Still open
 
 1. **Refusals still on real sites,** from the check below: 18 of 102 gages, mostly points that don't
-   snap. IN, AR, AL at 5 mi2 or less and GA, NC and SC at 1 mi2 or less still need `region=`, and an urban
+   snap. IN still needs `region=` (or a region looked up by point), and an urban
    or NRCS-regulated basin does on purpose.
 2. **Cross-border checks:** a sample ran (below). The full check by AEP on every border hasn't.
 3. **Library follow-ups** the batches found: `TODO.md`, Next steps.
@@ -129,7 +129,9 @@ Louisiana has only 2 comparable gages and one code, and neither matches, so it s
 **GA, NC and SC small basins.** SIR 2023-5006 presents "updated methods" for rural streams and defines rural as
 under 10 percent impervious, saying it doesn't apply above that. It cites SIR 2014-5030 only for earlier urban
 studies, and doesn't say it replaces it. So at 1 mi2 or less both sets apply at or below 10 percent, and only the
-2014 sets apply above it. Above 1 mi2 no limit stops HR1-5 being used on an urban basin. Decisions are in `TODO.md`.
+2014 sets apply above it. Above 1 mi2, HR1-5's stored `LC19IMP` range already refuses an urban basin. An earlier
+version of this section said nothing did, which was wrong. The owner chose HR1-5 first at or below 10 percent,
+the 2014 sets above it, and refusal above 1 mi2.
 
 **The other outliers.**
 

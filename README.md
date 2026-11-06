@@ -229,9 +229,10 @@ Appendix 9 (single region only).
   choice that covers only part of a boundary basin, a code that more than one located region
   reaches, or a region not in use is refused with the reason. Some overlaps resolve without
   `region=`: a set drops out where its stated limits exclude the basin (a 1 mi2 small-basin set at a
-  131 mi2 site, or an urban set at a basin under its urban threshold), and CT, ME, VT, TN, IA and IL
-  have a stored order of preference. `region=` overrides these, and a truly urban or NRCS-regulated
-  basin still needs it. The reason is in `provenance["region_choice_source"]`.
+  131 mi2 site, or an urban set at a basin under its urban threshold), and CT, ME, VT, TN, IA, IL, AL, AR,
+  GA, NC and SC have a stored order of preference. `region=` overrides these, and a truly urban or
+  NRCS-regulated basin still needs it. The reason is in
+  `provenance["region_choice_source"]`.
 - **What is refused, and why.** `EquationsUnavailable` when the library has no equations for
   the located regions (the snapshot tier needs its opt-in; DC and the territories have no
   library); a region whose equations need a basin characteristic StreamStats could not

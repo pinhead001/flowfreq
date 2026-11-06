@@ -13,6 +13,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   don't change, and Coastal Plain intervals widen. `allow_nss_snapshot` now returns this set rather than
   Delaware's snapshot, so no jurisdiction uses a snapshot.
 
+- **More overlapping sets resolve without `region=`.** AL uses Small streams at 5 mi2 or less, AR uses the
+  Mississippi Alluvial Plain set over region D where it covers the basin, and GA, NC and SC use SIR 2023-5006
+  over the small rural sets at 1 mi2 or less. The AR and GA, NC, SC orders are flowfreq method choices.
+- **GA, NC and SC small urban basins get the 2014 sets.** SIR 2023-5006 doesn't apply above 10 percent impervious,
+  so at 1 mi2 or less those basins now use SIR 2014-5030 without `region=`. Above 1 mi2 they are refused with
+  `OutOfRangeError`, as they already were, by the set's own `LC19IMP` range.
+
 ### Fixed
 - **Arkansas's Mississippi Alluvial Plain set read the wrong slope.** NSS names `CSL1085LFP`, but the report's
   slope matches StreamStats' `CSLBlue` at Arkansas gages. It now reads `CSLBlue`, which raises Q1% wherever
