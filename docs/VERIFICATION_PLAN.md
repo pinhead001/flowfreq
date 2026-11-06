@@ -18,7 +18,7 @@ WV and WY. DE is `partial`, because of a conflict in its report (below), and 5 h
 DC, GU, MP, VI). The whole order below is finished, ahead of mid-November. This plan replaced the wave
 order in `docs/MASTER_ROADMAP.md` §3.2 for this goal; the cross-border checks it deferred are still open.
 
-**Where it stands (2026-11-06):** DE is `verified` on `main`, using Table 8 by the owner's decision, making
+**Where it stands (2026-11-06, released in v0.23.0):** DE is `verified`, using Table 8 by the owner's decision, making
 51. 5 have no equations. AR's Mississippi Alluvial Plain slope was corrected, and the checks below ran.
 
 ## What `verified` rests on here
