@@ -7,12 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.23.0] - 2026-11-06
+
+Delaware is verified, making 51 of 56, and five have no equations. Arkansas's alluvial plain slope is corrected,
+and more overlapping sets resolve without `region=`. Estimates can change in AR, and an estimate can appear where
+`region=` was needed in AL, AR, GA, NC and SC.
+
 ### Changed
 - **Delaware is `verified`, making 51 of 56.** Coastal Plain model error variance now comes from Table 8 of
   SIR 2022-5005 rather than Table 6, which is 12-16 percent lower and disagrees with the data release. Flows
   don't change, and Coastal Plain intervals widen. `allow_nss_snapshot` now returns this set rather than
   Delaware's snapshot, so no jurisdiction uses a snapshot.
-
 - **More overlapping sets resolve without `region=`.** AL uses Small streams at 5 mi2 or less, AR uses the
   Mississippi Alluvial Plain set over region D where it covers the basin, and GA, NC and SC use SIR 2023-5006
   over the small rural sets at 1 mi2 or less. The AR and GA, NC, SC orders are flowfreq method choices.

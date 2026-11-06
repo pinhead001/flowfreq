@@ -71,7 +71,7 @@ pip install -e ".[dev]"
 Or install a released version straight from GitHub:
 
 ```bash
-pip install git+https://github.com/pinhead001/flowfreq@v0.22.0
+pip install git+https://github.com/pinhead001/flowfreq@v0.23.0
 ```
 
 **Dependencies:** `numpy`, `pandas`, `matplotlib`, `scipy`, `requests`, `click`, `pyarrow`
@@ -465,6 +465,7 @@ England, J.F., Jr., et al., 2019, Guidelines for determining flood flow frequenc
 
 | Version | Changes |
 |---------|---------|
+| **v0.23.0** | Delaware verified (51 of 56); Arkansas's Mississippi Alluvial Plain slope corrected to `CSLBlue`; AL, AR, GA, NC and SC overlaps resolve without `region=` |
 | **v0.22.0** | Regression equations verified in 37 more jurisdictions (50 of 56; DE `partial`); more overlapping sets resolve without `region=` (`RegionLimit`, more preferences); StreamStats' karst warning is a caveat. See `docs/VERIFICATION_PLAN.md` for what verified rests on |
 | **v0.21.0** | Alaska, California and Hawaii equations verified (13 jurisdictions); region gates for Arizona and Oregon; Iowa prefers its full equation sets; a verified set beats its NSS snapshot under `allow_nss_snapshot`; Montana channel widths of 0 read as not measured; mypy over every module. See CHANGELOG.md. |
 | **v0.20.0** | `run_ffa` attaches the stationarity screen by default (figure opt-in); provisional WA set with Peak Region 2 refit with mean basin elevation (`load_state("WA", allow_provisional=True)`); `flowfreq.stationarity`: Lombard tests, bootstrap field significance, NID/NLCD change-point attribution, peaks-over-threshold count trends, `stationarity_report` (methow item 8 complete); `RegionNotDelineatedError` (FL/MI/NE) and `RegulatedDelineationError`; smoke failures pinned as tests with new MT/ND/AK points; overlapping drainage-area classes chosen by DRNAREA (AK); mypy exemptions 14 to 6. See CHANGELOG.md. |
