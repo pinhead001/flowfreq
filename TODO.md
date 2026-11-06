@@ -5,10 +5,11 @@
 > in progress are tracked under "Roadmap Phase A, Wave 1 and Wave 2" in Open Items below.
 
 ## Status
-Last updated: 2026-11-05. Version **0.22.0** is released (tag `v0.22.0`). `main` carries
+Last updated: 2026-11-06. Version **0.22.0** is released (tag `v0.22.0`). `main` carries
 **0.23.0.dev0**; 0.22.x patches come from `release/0.22.x` (CLAUDE.md, Branches and Releases).
-flowfreq-app still pins v0.20.0; app PR #33 moves it to v0.21.0. 50 jurisdictions are `verified`
-in v0.22.0; DE has since joined them on `main`, making 51, and 5 have no equations.
+flowfreq-app pins v0.22.0. 50 jurisdictions are `verified` in v0.22.0; DE has since joined them on
+`main`, making 51, and 5 have no equations. AR's Mississippi Alluvial Plain slope fix (#345) is also
+on `main` and unreleased.
 
 `docs/NATIONWIDE_SMOKE.md` is a full 56-jurisdiction rerun on 2026-11-04, after all of that merged:
 gaged 56/56 and ungaged 48/56, the same eight known gaps (AS, DC, GU, MP and VI have no equations; FL,
@@ -17,24 +18,26 @@ WI moved, by under 0.1 %, from unrounded coefficients, until #340's rules moved 
 drainage-area-only value to the full set. The Live services run reports an outage as a skip rather than a
 failure (#294), so read its job summary.
 
-### Next steps (2026-11-05)
+### Next steps (2026-11-06)
 
 **The batches in `docs/VERIFICATION_PLAN.md` are done. Read its "What `verified` rests on here".**
 
 Owner's:
 
-1. Merge app PR #33, then bump the app's pin to v0.22.0. No PR for that is open yet.
-2. Push `release/0.21.x` and `release/0.22.x` (a hook blocks them here; both exist locally).
-3. **Overlap calls left open.** #340 settled the rest (84 of 102 live gages with no `region=`, up from 53;
+1. **Release v0.23.0?** It would carry DE and the AR slope fix, which change results. The app's
+   `test_coverage_badge` expects DE to be partial, so it needs updating with that pin.
+2. **Overlap calls left open.** #340 settled the rest (84 of 102 live gages with no `region=`, up from 53;
    `docs/VERIFICATION_PLAN.md`, Wider live check). These sites need `region=` until each is decided:
    - **AL, 5 mi2 or less:** rural regions 1-4 or Small streams, both SIR 2020-5032. The report recommends
      Small streams there. Recommend: store that preference.
-   - **GA, NC, SC, 1 mi2 or less:** HR1-5 (SIR 2023-5006, all sizes) or the small rural sets (SIR 2014-5030).
-     Leaning to HR1-5 as the newer report; not yet checked whether it says it replaces the 2014 sets.
-   - **AR, Mississippi Alluvial Plain:** D (SIR 2016-5081) or MAP (SIR 2021-5046). Leaning to MAP as the
-     newer report, after item 15's question about its slope code is answered.
+   - **GA, NC, SC, 1 mi2 or less:** HR1-5 (SIR 2023-5006) or the small rural sets (SIR 2014-5030). The 2023
+     report doesn't say it replaces the 2014 sets. It presents "updated methods" for rural streams, and it
+     isn't applicable above 10 percent impervious. Recommend: HR1-5 at or below 10 percent, the 2014 sets
+     above it.
+   - **AR, Mississippi Alluvial Plain:** D (SIR 2016-5081) or MAP (SIR 2021-5046). MAP's slope code is now
+     fixed (#345), so both read `CSLBlue`. Recommend: MAP, the newer report.
    - **IN (2 gages):** all eight regions are candidates, so an order of preference can't settle it. It
-     needs a region looked up by point (item 13).
+     needs a region looked up by point (item 10).
    - **Left on purpose:** urban and NRCS-regulated basins (AL, MO, TN, OK) need `region=`. Say if you want
      a default instead.
 
@@ -42,31 +45,35 @@ Owner's:
    less"; AL small streams stop at the recommended 5 mi2, not the stored 14; IL prefers the
    urbanization-adjusted set; CT, ME, VT, TN and IA fall back silently, with the fact in provenance, when
    a characteristic is missing, so a set can change between runs.
-4. **DE:** done; Table 8 stored by your decision, and DE is `verified`.
+3. **GA, NC, SC above 1 mi2:** HR1-5 has no limit on impervious area, so an urban basin gets the rural set,
+   which the report says doesn't apply. Should it refuse above 10 percent, as a `region_limits` entry would?
+4. **Do results warn where the equations are known to miss?** Sweetwater Creek, OK is overstated about
+   tenfold and Little Cedar River, MN understated about fourfold, with no fault in the stored data, and the
+   cross-border sample shows 12 of 54 gages differing by 2 times or more across a line
+   (`docs/VERIFICATION_PLAN.md`, Checks of 2026-11-05). Nothing warns about this today.
 5. **MD:** kept at the Third Edition because StreamStats can't feed the Sixth (2023). GC1481's urban
    gates are added, and a boundary basin now needs `region=`.
 6. **TX:** SIR 2009-5087 is preferred by its authors but not in NSS, so it isn't stored.
 7. Superseded sets dropped: OH 2006-5312, TN 03-4176, LA TR 60 and Delta. LA's southern gap: keep GC879?
-8. Close issues #27, #36 and #293. Merge or close app PRs #27-#33.
+8. Close issues #27, #36 and #293. Merge or close app PRs #28, #29, #30, #32 and #35. The first four
+   conflict with app `main`, in `CHANGELOG.md`, and also `TODO.md` (#29) and `tests/test_streamlit_app.py` (#28).
 9. Check the gage page's resizable period grips in a browser (app #24): they were never run in
    one, since running the vega bundles in headless Chrome was blocked here.
-10. **Region 1 near the Oklahoma Panhandle:** Sweetwater Creek (07301420) is a real site the regression
-    overstates about tenfold, with no fault in the stored data (`docs/VERIFICATION_PLAN.md`, Sweetwater
-    Creek). Should the results warn near that boundary? Nothing changed for now. The cause isn't
-    established, and the MN, IA and LA outliers in the same section weren't investigated.
-11. **Cross-border checks** are still open (`docs/VERIFICATION_PLAN.md`, Still open).
 
 Library follow-ups the batches found, none changed:
 
-12. `power` at base 0 (IL stores an offset of 1e-12). `evaluate` prefers a rounded AVP over SEP (AL,
-    TN). Degrees of freedom on adjusted sets (IL).
-13. Multi-region weighting: SD's report averages in flow; IN selects a region by point, `region=` can't
+10. Multi-region weighting: SD's report averages in flow; IN selects a region by point, `region=` can't
     override it, and 03333050 is refused.
-14. IA: a CCM above 3.87 or STRMTOT of 0 should go to the drainage-area-only set.
-15. AR and LA MAP slope code looks wrong (CSL1085LFP against CSLBlue). KY regions 1 and 4 and Jefferson
-    have no live slope. TN Memphis has no live CHANCOND. IN prints no intervals.
-16. NH and NY never located their drainage-area-only sets at a tested point, so those are reachable
+11. `power` at base 0 (IL stores an offset of 1e-12). `evaluate` prefers a rounded AVP over SEP (AL,
+    TN). Degrees of freedom on adjusted sets (IL).
+12. IA: a CCM above 3.87 or STRMTOT of 0 should go to the drainage-area-only set.
+13. LA's MAP slope isn't settled: live `CSL10_85` is the only code, and it missed Table 1 at both gages
+    that could be compared (2.48 against 2.20; 1.59 against 2.91). KY regions 1 and 4 and Jefferson have
+    no live slope. TN Memphis has no live CHANCOND. IN prints no intervals.
+14. NH and NY never located their drainage-area-only sets at a tested point, so those are reachable
     only through `evaluate`.
+15. FL, MI and NE still can't run through `estimate_at_site`: no StreamStats grid, and NSS locates no
+    region there. A caller would have to supply region and characteristics.
 
 Parked: gage page NID and NLCD events beside a change point
 (`stationarity.basin_change_events`; needs the delineated basin), raster hydrograph, the Bulletin
