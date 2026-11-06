@@ -11,7 +11,7 @@ soonest, not to finish a region at a time. It replaces the wave order in
 `docs/MASTER_ROADMAP.md` §3.2 for this goal, and the rule there that a wave's cross-border check
 passes before the next wave starts does not apply here. Cross-border checks come after.
 
-**Where it stands (2026-11-04, batches 1-5 done, on `main` and not yet released):** 50 jurisdictions
+**Where it stands (2026-11-05, batches 1-5 done, released in v0.22.0):** 50 jurisdictions
 are `verified`: AK, AL, AR, AZ, CA, CO, CT, FL, GA, HI, IA, ID, IL, IN, KS, KY, LA, MA, MD, ME, MI, MN,
 MO, MS, MT, NC, ND, NE, NH, NJ, NM, NV, NY, OH, OK, OR, PA, PR, RI, SC, SD, TN, TX, UT, VA, VT, WA, WI,
 WV and WY. DE is `partial`, because of a conflict in its report (below), and 5 have no equations (AS,
@@ -177,7 +177,7 @@ publish for the stored regions is stored, double-entered and cross-checked.
 ## Releases
 
 Everything since v0.21.0 is unreleased, and a verified set reaches the app only through a release and
-a pin bump. v0.22.0 carries all five batches; the owner decides when to cut it.
+a pin bump. v0.22.0 carries all five batches.
 
 ## Out of scope for this goal
 

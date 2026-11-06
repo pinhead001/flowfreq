@@ -5,10 +5,10 @@
 > in progress are tracked under "Roadmap Phase A, Wave 1 and Wave 2" in Open Items below.
 
 ## Status
-Last updated: 2026-11-04. Version **0.21.0** is released (tag `v0.21.0`). `main` carries
-**0.22.0.dev0**; 0.21.x patches come from `release/0.21.x` (CLAUDE.md, Branches and Releases).
+Last updated: 2026-11-05. Version **0.22.0** is released (tag `v0.22.0`). `main` carries
+**0.23.0.dev0**; 0.22.x patches come from `release/0.22.x` (CLAUDE.md, Branches and Releases).
 flowfreq-app still pins v0.20.0; app PR #33 moves it to v0.21.0. 50 jurisdictions are `verified`
-on `main` (13 in v0.21.0), DE is `partial` and 5 have no equations.
+in v0.22.0, DE is `partial` and 5 have no equations.
 
 `docs/NATIONWIDE_SMOKE.md` is a full 56-jurisdiction rerun on 2026-11-04, after all of that merged:
 gaged 56/56 and ungaged 48/56, the same eight known gaps (AS, DC, GU, MP and VI have no equations; FL,
@@ -17,14 +17,14 @@ WI moved, by under 0.1 %, from unrounded coefficients, until #340's rules moved 
 drainage-area-only value to the full set. The Live services run reports an outage as a skip rather than a
 failure (#294), so read its job summary.
 
-### Next steps (2026-11-04)
+### Next steps (2026-11-05)
 
 **The batches in `docs/VERIFICATION_PLAN.md` are done. Read its "What `verified` rests on here".**
 
 Owner's:
 
-1. Release v0.22.0 (a draft PR is prepared), then merge app PR #33 and bump the app's pin again.
-2. Push `release/0.21.x` (a hook blocks it here; the branch exists locally).
+1. Merge app PR #33, then bump the app's pin to v0.22.0. No PR for that is open yet.
+2. Push `release/0.21.x` and `release/0.22.x` (a hook blocks them here; both exist locally).
 3. **Overlap calls left open.** #340 settled the rest (84 of 102 live gages with no `region=`, up from 53;
    `docs/VERIFICATION_PLAN.md`, Wider live check). These sites need `region=` until each is decided:
    - **AL, 5 mi2 or less:** rural regions 1-4 or Small streams, both SIR 2020-5032. The report recommends
