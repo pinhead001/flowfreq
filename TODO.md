@@ -5,11 +5,9 @@
 > in progress are tracked under "Roadmap Phase A, Wave 1 and Wave 2" in Open Items below.
 
 ## Status
-Last updated: 2026-11-06. Version **0.22.0** is released (tag `v0.22.0`). `main` carries
-**0.23.0.dev0**; 0.22.x patches come from `release/0.22.x` (CLAUDE.md, Branches and Releases).
-flowfreq-app pins v0.22.0. 50 jurisdictions are `verified` in v0.22.0; DE has since joined them on
-`main`, making 51, and 5 have no equations. AR's Mississippi Alluvial Plain slope fix (#345) is also
-on `main` and unreleased.
+Last updated: 2026-11-06. Version **0.23.0** is released (tag `v0.23.0`). `main` carries
+**0.24.0.dev0**; 0.23.x patches come from `release/0.23.x` (CLAUDE.md, Branches and Releases).
+flowfreq-app pins v0.22.0. 51 jurisdictions are `verified` in v0.23.0, and 5 have no equations.
 
 `docs/NATIONWIDE_SMOKE.md` is a full 56-jurisdiction rerun on 2026-11-04, after all of that merged:
 gaged 56/56 and ungaged 48/56, the same eight known gaps (AS, DC, GU, MP and VI have no equations; FL,
@@ -24,8 +22,8 @@ failure (#294), so read its job summary.
 
 Owner's:
 
-1. **Release v0.23.0?** It would carry DE and the AR slope fix, which change results. The app's
-   `test_coverage_badge` expects DE to be partial, so it needs updating with that pin.
+1. Bump the app's pin to v0.23.0. Its `test_coverage_badge` expects DE to be partial, so that PR must
+   update it. Push `release/0.23.x` (a hook blocks it here; the branch exists locally).
 2. **Overlap call left open:** IN (2 gages). All eight regions are candidates, so an order of preference
    can't settle it. It needs a region looked up by point (item 10). Urban and NRCS-regulated basins (AL, MO,
    TN, OK) need `region=` on purpose; say if you want a default instead.
