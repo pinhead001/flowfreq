@@ -176,7 +176,7 @@ publish for the stored regions is stored, double-entered and cross-checked.
 
 ## Releases
 
-Everything since v0.21.0 is unreleased, and a verified set reaches the app only through a release and
+A verified set reaches the app only through a release and
 a pin bump. v0.22.0 carries all five batches.
 
 ## Out of scope for this goal
