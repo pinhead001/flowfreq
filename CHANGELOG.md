@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.22.0] - UNRELEASED DRAFT
+## [0.22.0] - 2026-11-05
 
 Regression equations verified in 37 more jurisdictions, making 50 of 56, with Delaware `partial` and
 five that have no equations, and more real sites that get an estimate without `region=`.
