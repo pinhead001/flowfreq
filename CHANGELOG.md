@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **Delaware is `verified`, making 51 of 56.** Coastal Plain model error variance now comes from Table 8 of
+  SIR 2022-5005 rather than Table 6, which is 12-16 percent lower and disagrees with the data release. Flows
+  don't change, and Coastal Plain intervals widen. `allow_nss_snapshot` now returns this set rather than
+  Delaware's snapshot, so no jurisdiction uses a snapshot.
+
 ## [0.22.0] - 2026-11-05
 
 Regression equations verified in 37 more jurisdictions, making 50 of 56, with Delaware `partial` and
