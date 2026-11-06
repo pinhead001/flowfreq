@@ -272,6 +272,8 @@ def test_arkansas_equals_nss_once_nss_folds_its_percent_terms(ar):
     for e in ar.equations:
         s = snap[NSS_AR[e.region_code], e.aep]
         by_code = {n["code"]: c for n, c in zip(s["variables"], s["coefficients"])}
+        if e.region_code == "MAP":  # NSS names CSL1085LFP; the report's slope is CSLBlue (AR notes)
+            by_code["CSLBlue"] = by_code.pop("CSL1085LFP")
         assert set(by_code) == {v.code for v in e.variables}
         intercept = e.intercept
         for v, c in zip(e.variables, e.coefficients):
@@ -434,7 +436,7 @@ def test_mississippi_avp_matches_its_sep(ms):
 def test_alluvial_plain_table_3_reproduces_where_printed(ar, ms):
     """Table 3's title says 58 gages; it prints 50, all of them reproducing."""
     assert len(MAP_GAGES) == 50
-    for lib, slope in ((ar, "CSL1085LFP"), (ms, "CSL10_85fm")):
+    for lib, slope in ((ar, "CSLBlue"), (ms, "CSL10_85fm")):
         misfits = set()
         for site, gage in MAP_GAGES.items():
             printed = {**gage, slope: gage["SLOPE"]}
@@ -457,7 +459,7 @@ def test_the_alluvial_plain_equation_is_the_same_in_arkansas_mississippi_and_lou
         assert s["intercept"] == pytest.approx(a.intercept, abs=1e-12)
         assert s["coefficients"] == pytest.approx(a.coefficients, abs=1e-12)
         assert _pct(s["sep_log"]) == pytest.approx(_pct(a.sep_log), abs=0.01)
-    assert [v.code for v in ar.equation("MAP", 0.01).variables][1] == "CSL1085LFP"
+    assert [v.code for v in ar.equation("MAP", 0.01).variables][1] == "CSLBlue"
     assert [v.code for v in ms.equation("MAP", 0.01).variables][1] == "CSL10_85fm"
     assert [n["code"] for n in la["GC1888", 0.01]["variables"]][1] == "CSL10_85"
 
