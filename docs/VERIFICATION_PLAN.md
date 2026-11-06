@@ -18,8 +18,8 @@ WV and WY. DE is `partial`, because of a conflict in its report (below), and 5 h
 DC, GU, MP, VI). The whole order below is finished, ahead of mid-November. This plan replaced the wave
 order in `docs/MASTER_ROADMAP.md` §3.2 for this goal; the cross-border checks it deferred are still open.
 
-**Where it stands (2026-11-05):** DE is `verified` on `main`, using Table 8 by the owner's decision, making
-51. 5 have no equations.
+**Where it stands (2026-11-06):** DE is `verified` on `main`, using Table 8 by the owner's decision, making
+51. 5 have no equations. AR's Mississippi Alluvial Plain slope was corrected, and the checks below ran.
 
 ## What `verified` rests on here
 
@@ -45,7 +45,7 @@ Read this before relying on a batch 2-5 state.
 1. **Refusals still on real sites,** from the check below: 18 of 102 gages, mostly points that don't
    snap. IN, AR, AL at 5 mi2 or less and GA, NC and SC at 1 mi2 or less still need `region=`, and an urban
    or NRCS-regulated basin does on purpose.
-2. **Cross-border checks,** then the rest of the roadmap's definition of done (see Out of scope).
+2. **Cross-border checks:** a sample ran (below). The full check by AEP on every border hasn't.
 3. **Library follow-ups** the batches found: `TODO.md`, Next steps.
 
 ## Wider live check, 2026-11-04
@@ -115,6 +115,65 @@ to the drainage-area-only set, as intended. ss-hydro's answers vary between runs
 different set on another day: TN's smoke gage went from 57,091 (drainage-area-only) on 2026-11-04 to 51,414
 (full). The earlier value implies CLIMFAC2YR was missing from that run, though that run did not record it.
 `provenance["missing_characteristics"]` records it whenever it happens.
+
+## Checks of 2026-11-05
+
+None of these found a transcription fault in the equations. One found a wrong input code, now fixed.
+
+**Arkansas's alluvial plain slope.** NSS names `CSL1085LFP`, but SIR 2021-5046's slope is `CSLBlue` in
+Arkansas: at the 24 gages whose live area matched Table 1 within 15 percent, the median difference was 2
+percent against 19, and 17 of 24 were within 5 percent against 5 of 23. Corrected in #345; at 07047942 the old
+code cut Q1% by about half. Mississippi's `CSL10_85fm` matches Table 1 exactly at all 5 gages compared.
+Louisiana has only 2 comparable gages and one code, and neither matches, so it stays open.
+
+**GA, NC and SC small basins.** SIR 2023-5006 presents "updated methods" for rural streams and defines rural as
+under 10 percent impervious, saying it doesn't apply above that. It cites SIR 2014-5030 only for earlier urban
+studies, and doesn't say it replaces it. So at 1 mi2 or less both sets apply at or below 10 percent, and only the
+2014 sets apply above it. Above 1 mi2 no limit stops HR1-5 being used on an urban basin. Decisions are in `TODO.md`.
+
+**The other outliers.**
+
+- **MN 05457778, Little Cedar River (at-site 16,190, regression 4,086): real, on the Iowa line.** The at-site
+  interval (9,853 to 48,565) and the regression's (1,799 to 9,282) don't overlap. The same gage in Iowa's report
+  prints 10,200 from Iowa's equations, and Iowa and Minnesota gages of 37-160 mi2 nearby fit 9,100 to 15,300.
+  Minnesota's region D looks low here.
+- **IA 06483430, Otter Creek (8,763, 2,863): not a real conflict.** The report prints 2,880 at this gage. The
+  at-site interval is 3,741 to 83,432 and contains the regression. The fit leans on two peaks in 1953 and 1954,
+  in a record that ended in 1987.
+- **LA 07377782, White Bayou (5,290, 13,669): real, cause unknown.** The report prints 12,500, and live slope 6.87
+  against its 5.54 explains the rest. The five largest peaks all lie between 4,140 and 4,730, an unusual ceiling.
+  The record ends in 2012, before the 2016 flood that nearby Comite River near Olive Branch recorded at 78,000
+  against a previous maximum of 25,300.
+
+**FL, MI and NE, without a StreamStats grid.** 38 gages sampled across their regions: stored equations on the
+report's printed characteristics against a live Bulletin 17C fit with station skew. Of 34 compared, the median
+regression/at-site Q1% was FL 1.25, MI 0.98 and NE 0.82. The largest differences were NE 06465680 (6,595 against 541,
+a 13-year record; the report prints 6,590) and FL 02245050 (7,860 against 2,939). NSS located no region for any
+of the 31 NLDI basins it was given in these states, though the same request works in KS and OK, so region lookup
+can't be tested here either. This checks the equations against gage records. It doesn't test live characteristics,
+which still can't be obtained.
+
+**Cross-border sample.** For each adjacent pair of `verified` states, the longest-record gage on each side within
+20 km of the line (25+ peaks, 20-800 mi2, not classed regulated or urban): 191 gages, 99 of 107 pairs. Asking
+StreamStats in the neighboring state rarely works, with an estimate from both states at only 4 gages. So, as
+`docs/WAVE_QA_W1_W2.md` did, the neighbor's equations were evaluated on the home basin's characteristics, in the
+neighbor region nearest the gage, allowing extrapolation. That gave 54 gages in 42 pairs. Of the 127 gages with a home
+estimate on this pass, 57 lacked a characteristic the neighbor needs, 14 located no neighbor region, and 2 delineated
+a basin far from the catalog's area. So this is a sample and not a pass. Rows are in `docs/cross_border_sample_2026-11-05.csv`.
+
+| Neighbor against home, Q1% | Gages |
+|---|---:|
+| Within 1.5 times | 34 |
+| 1.5 to 2 times | 8 |
+| 2 to 3 times | 5 |
+| 3 times or more | 7 |
+
+The median factor was 1.24. The home equation was nearer the at-site value at 32 of 54, with a median factor from
+it of 1.29 against 1.39. Differences are documented, not smoothed. The clearest pattern is Missouri's region 3 against
+Kentucky and Tennessee, 3.6 to 5 times lower at the gages near that line. Missouri's equation fits its own gage
+(7,220 against 7,373), and Kentucky's and Tennessee's are nearer theirs, so this looks like real contrast across the
+Mississippi River rather than an error. Others of 3 times or more: 09414900 AZ/UT, 05052500 ND/MN, 07154400 NM/OK
+and 01064500 NH/ME. 4 of the 54 needed a neighbor input out of range.
 
 ## Order
 
