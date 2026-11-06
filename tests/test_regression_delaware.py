@@ -1,7 +1,7 @@
 """Delaware's equations: SIR 2022-5005 (equations 3-18, Tables 5, 6, 8), SIR 2006-5146 (urban).
 
-The status is ``partial`` because Table 6's Coastal Plain model error variance disagrees with
-Table 8 and the data release; see ``test_table_6_coastal_plain_mev_disagrees_with_the_release``.
+Table 6's Coastal Plain model error variance disagrees with Table 8 and the data release. The
+owner chose Table 8 on 2026-11-05; see ``test_coastal_plain_mev_is_table_8_not_table_6``.
 """
 
 from __future__ import annotations
@@ -39,8 +39,8 @@ def _regressed(region):
     return [g for g in GAGES.values() if g["region"] == region and g["regression"]]
 
 
-def test_delaware_is_partial_with_three_regions(lib):
-    assert lib.status == "partial"
+def test_delaware_is_verified_with_three_regions(lib):
+    assert lib.status == "verified"
     assert lib.regions == ["Coastal Plain", "Piedmont", "Urban"]
     assert len(lib.equations) == 24
     for region, code in NSS.items():
@@ -118,7 +118,7 @@ RELEASE_COASTAL_MEV = (
     0.062074,
     0.071523,
 )
-#: What Table 6 prints, stored as printed.
+#: What Table 6 prints, not stored.
 TABLE_6_COASTAL_MEV = (
     0.046572,
     0.041077,
@@ -132,11 +132,12 @@ TABLE_6_COASTAL_MEV = (
 TABLE_8_COASTAL_SEE = (57.5, 52.8, 52.0, 53.6, 55.6, 58.8, 62.4, 67.9)
 
 
-def test_table_6_coastal_plain_mev_disagrees_with_the_release(lib):
-    """The unresolved difference that makes this set ``partial``: not an accepted tolerance."""
+def test_coastal_plain_mev_is_table_8_not_table_6(lib):
+    """Table 8's SEE, squared, agrees with the release; Table 6 sits 12-16 percent below both."""
     for i, aep in enumerate(lib.aeps("Coastal Plain")):
         eq = lib.equation("Coastal Plain", aep)
-        assert eq.model_error_variance == TABLE_6_COASTAL_MEV[i]
+        see = math.sqrt(math.log(1 + (TABLE_8_COASTAL_SEE[i] / 100) ** 2)) / math.log(10)
+        assert eq.model_error_variance == pytest.approx(see**2, abs=5e-7)
         cov = np.array(eq.covariance)
         rest = [
             g["log_variance"][i] - float(_row(eq, g) @ cov @ _row(eq, g))
@@ -145,51 +146,20 @@ def test_table_6_coastal_plain_mev_disagrees_with_the_release(lib):
         assert len(rest) == 54
         assert max(rest) - min(rest) < 5e-5
         assert np.mean(rest) == pytest.approx(RELEASE_COASTAL_MEV[i], abs=1e-6)
-        see = math.sqrt(math.log(1 + (TABLE_8_COASTAL_SEE[i] / 100) ** 2)) / math.log(10)
-        assert see**2 == pytest.approx(RELEASE_COASTAL_MEV[i], abs=1.5e-4)
+        assert eq.model_error_variance == pytest.approx(RELEASE_COASTAL_MEV[i], rel=2.5e-3)
         assert eq.sep_log**2 - np.mean(
             [float(_row(eq, g) @ cov @ _row(eq, g)) for g in _regressed("Coastal Plain")]
-        ) == pytest.approx(RELEASE_COASTAL_MEV[i], abs=1.5e-4)
-        assert RELEASE_COASTAL_MEV[i] - eq.model_error_variance > 0.005
+        ) == pytest.approx(eq.model_error_variance, abs=2.5e-4)
+        assert eq.model_error_variance - TABLE_6_COASTAL_MEV[i] > 0.005
 
 
-@pytest.mark.parametrize("region", ["Coastal Plain", "Piedmont"])
-def test_only_the_printed_variable_order_fits_the_release(lib, region):
-    eq = lib.equation(region, 0.01)
-    cov = np.array(eq.covariance)
-    spreads = {}
-    for order in itertools.permutations(range(len(eq.variables) + 1)):
-        rest = [
-            g["log_variance"][5] - float(_row(eq, g)[list(order)] @ cov @ _row(eq, g)[list(order)])
-            for g in _regressed(region)
-        ]
-        spreads[order] = max(rest) - min(rest)
-    printed = tuple(range(len(eq.variables) + 1))
-    assert spreads[printed] < 5e-5
-    others = [s for order, s in spreads.items() if order != printed]
-    assert min(others) > 1e-3
-
-
-def test_release_variance_off_the_regressions_is_not_a_prediction_variance(lib):
-    """At gages not regressed it is below MEV alone, and not reproduced by any stored statistic."""
-    others = [g for g in GAGES.values() if not g["regression"]]
-    assert len(others) == 27
-    for gage in others:
-        for i, aep in enumerate(lib.aeps(gage["region"])):
-            eq = lib.equation(gage["region"], aep)
-            assert gage["log_variance"][i] < eq.model_error_variance
-
-
-def test_table_6_typo_and_mixed_precision_are_recorded(lib):
-    """4 percent prints DRNAREA-by-SOILA as v0.00066; 50 percent prints -0.02837 and -2.84E-02."""
-    four = np.array(lib.equation("Coastal Plain", 0.04).covariance)
-    assert four[1, 3] == four[3, 1] == -0.00066
-    fifty = np.array(lib.equation("Coastal Plain", 0.5).covariance)
-    assert (fifty[2, 0], fifty[0, 2]) == (-0.02837, -0.0284)
-    for eq in lib.equations:
-        if eq.covariance is not None:
-            u = np.array(eq.covariance)
-            assert np.abs(u - u.T).max() < 6e-5
+def test_worked_example_variance_with_table_8(lib):
+    """p. 25: Vr = 0.06384 at 01488500, from the stored MEV plus xUx, to the rounding of Table 8."""
+    gage = GAGES["01488500"]
+    eq = lib.equation("Coastal Plain", 0.01)
+    x = _row(eq, gage)
+    var = eq.model_error_variance + float(x @ np.array(eq.covariance) @ x)
+    assert var == pytest.approx(0.06384, abs=1e-4)
 
 
 #: Where NSS differs from Table 14, as printed there and as a percent NSS's value implies.

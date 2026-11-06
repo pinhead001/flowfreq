@@ -8,7 +8,7 @@
 Last updated: 2026-11-05. Version **0.22.0** is released (tag `v0.22.0`). `main` carries
 **0.23.0.dev0**; 0.22.x patches come from `release/0.22.x` (CLAUDE.md, Branches and Releases).
 flowfreq-app still pins v0.20.0; app PR #33 moves it to v0.21.0. 50 jurisdictions are `verified`
-in v0.22.0, DE is `partial` and 5 have no equations.
+in v0.22.0; DE has since joined them on `main`, making 51, and 5 have no equations.
 
 `docs/NATIONWIDE_SMOKE.md` is a full 56-jurisdiction rerun on 2026-11-04, after all of that merged:
 gaged 56/56 and ungaged 48/56, the same eight known gaps (AS, DC, GU, MP and VI have no equations; FL,
@@ -42,7 +42,7 @@ Owner's:
    less"; AL small streams stop at the recommended 5 mi2, not the stored 14; IL prefers the
    urbanization-adjusted set; CT, ME, VT, TN and IA fall back silently, with the fact in provenance, when
    a characteristic is missing, so a set can change between runs.
-4. **DE:** settle Table 6 against Table 8 so it can become `verified`.
+4. **DE:** done; Table 8 stored by your decision, and DE is `verified`.
 5. **MD:** kept at the Third Edition because StreamStats can't feed the Sixth (2023). GC1481's urban
    gates are added, and a boundary basin now needs `region=`.
 6. **TX:** SIR 2009-5087 is preferred by its authors but not in NSS, so it isn't stored.

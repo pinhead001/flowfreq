@@ -18,6 +18,9 @@ WV and WY. DE is `partial`, because of a conflict in its report (below), and 5 h
 DC, GU, MP, VI). The whole order below is finished, ahead of mid-November. This plan replaced the wave
 order in `docs/MASTER_ROADMAP.md` §3.2 for this goal; the cross-border checks it deferred are still open.
 
+**Where it stands (2026-11-05):** DE is `verified` on `main`, using Table 8 by the owner's decision, making
+51. 5 have no equations.
+
 ## What `verified` rests on here
 
 Read this before relying on a batch 2-5 state.
@@ -26,7 +29,7 @@ Read this before relying on a batch 2-5 state.
   check per state (range, monotonicity and NSS comparisons) before merging. No person has reviewed them.
 - **What "entered twice" meant:** text parsed from the PDF compared with the page images or with NSS,
   not two independent typings.
-- **Live checks:** `docs/NATIONWIDE_SMOKE.md` reaches 47 of the 50 at one point each, and the check below
+- **Live checks:** `docs/NATIONWIDE_SMOKE.md` reaches 48 of the 51 at one point each, and the check below
   adds three gages in each of 34 states. FL, MI and NE have no StreamStats stream grid, so their sets
   have never run through a live delineation. None of this shows that every region is right.
 - **Calls that were judgment, not proof:** RI's page 25 example does not reproduce (it prints 3,590;
@@ -34,17 +37,16 @@ Read this before relying on a batch 2-5 state.
   05448500 are off by more than rounding; NJ's and MO's weighted columns are not reproduced and not
   stored; 34 NE and 13 NY per-gage flows fall outside tolerance and are pinned as exceptions; MN has six
   A/B differences with no second source; TX region 3's covariance matrix is from another fit and stored
-  as printed. Each state's `notes` and tests hold the detail.
+  as printed; DE's Coastal Plain model error variance is Table 8's, not Table 6's, by the owner's decision.
+  Each state's `notes` and tests hold the detail.
 
 ## Still open
 
-1. **DE:** Table 6's Coastal Plain model error variances are 12-16 % below Table 8 and the data
-   release. While DE is `partial`, its snapshot wins under `allow_nss_snapshot`, the app's path.
-2. **Refusals still on real sites,** from the check below: 18 of 102 gages, mostly points that don't
+1. **Refusals still on real sites,** from the check below: 18 of 102 gages, mostly points that don't
    snap. IN, AR, AL at 5 mi2 or less and GA, NC and SC at 1 mi2 or less still need `region=`, and an urban
    or NRCS-regulated basin does on purpose.
-3. **Cross-border checks,** then the rest of the roadmap's definition of done (see Out of scope).
-4. **Library follow-ups** the batches found: `TODO.md`, Next steps.
+2. **Cross-border checks,** then the rest of the roadmap's definition of done (see Out of scope).
+3. **Library follow-ups** the batches found: `TODO.md`, Next steps.
 
 ## Wider live check, 2026-11-04
 
@@ -123,7 +125,7 @@ serves, which can include superseded sets; several sets it serves were supersede
 |---|---|---|---|
 | 1, done | One recent USGS report | MA (1; SIR 2016-5156), CT (2; 2020-5054), ME (2; 2020-5092), KS (2; 2017-5063), PR (2; 2021-5062), VT (2; 2025-5088), PA (5; 2019-5094), VA and WV (11 and 6; both 2025-5110) | 9 |
 | 2, done | One older USGS report, few regions | RI (1; SIR 2012-5109), NH (2; 2008-5206), ND (3; 2015-5096), NJ (5; 2009-5167) | 4 |
-| 3, done (DE `partial`) | Two reports, or a shared report | IA (6; SIR 2013-5086, 2015-5055), MN (7; 2023-5079, 2019-5012), MO (4; 2014-5165, 2010-5073), DE (3; 2022-5005, 2006-5146), AL (6; 2020-5032, 2010-5012), OK (6; 2019-5143, 2015-5134), WI (6; 2022-5118, WRI 86-4005), AR and MS (6 and 4; 2016-5081 and 2018-5148, with shared 2021-5046), GA, NC and SC (5, 4 and 4; shared 2014-5030, 2023-5006) | 12 |
+| 3, done | Two reports, or a shared report | IA (6; SIR 2013-5086, 2015-5055), MN (7; 2023-5079, 2019-5012), MO (4; 2014-5165, 2010-5073), DE (3; 2022-5005, 2006-5146), AL (6; 2020-5032, 2010-5012), OK (6; 2019-5143, 2015-5134), WI (6; 2022-5118, WRI 86-4005), AR and MS (6 and 4; 2016-5081 and 2018-5148, with shared 2021-5046), GA, NC and SC (5, 4 and 4; shared 2014-5030, 2023-5006) | 12 |
 | 4, done | Many regions, old, or not a USGS report | NY (12; SIR 2006-5112; 2 equations unparsed), IL (13; Illinois report 23-019), MD (4; University of Maryland panel report), IN (8; Purdue report), SD (7; WRI 98-4055), NE (8; WRI 99-4032), MI (5; WRI 84-4207) | 7 |
 | 5, done | Several old reports per state | KY (8), OH (9), LA (5; 2 regions cite no report), TN (19), TX (10), FL (7) | 6 |
 

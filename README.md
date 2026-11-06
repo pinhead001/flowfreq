@@ -174,13 +174,12 @@ fig.savefig("frequency_curve.png", dpi=300, bbox_inches="tight")
 Coverage is stated per jurisdiction in [`docs/REGRESSION_COVERAGE.md`](docs/REGRESSION_COVERAGE.md)
 (generated; do not edit by hand).
 
-**Regression equations** (the offline library, `flowfreq.regression`), three tiers:
+**Regression equations** (the offline library, `flowfreq.regression`):
 
 | Tier | Jurisdictions | What it is | How to use it |
 |------|---------------|------------|---------------|
-| Published (`verified`) | 50: every state but DE, and PR | Transcribed from the cited reports and checked against worked examples, per-gage estimates and NSS; `docs/VERIFICATION_PLAN.md` says what that rests on. Oregon also has a provisional set and Colorado a newer USGS set not yet in NSS | The default: `load_state("WA")` |
-| `partial` | 1: DE | Transcribed, with a conflict in the report unresolved | `load_state("DE")`. Its `nss_snapshot` file wins under `allow_nss_snapshot` |
-| `nss_snapshot` | DE in use; the other 40 files kept as evidence | Harvested from the USGS NSS web service and parsed by machine, 2026-10-25. Unreviewed, so never "verified" | Opt in: `load_state(code, allow_nss_snapshot=True)`, `estimate_at_site(..., allow_nss_snapshot=True)`, `flowfreq ungaged --allow-nss-snapshot` |
+| Published (`verified`) | 51: every state, and PR | Transcribed from the cited reports and checked against worked examples, per-gage estimates and NSS; `docs/VERIFICATION_PLAN.md` says what that rests on. Oregon also has a provisional set and Colorado a newer USGS set not yet in NSS | The default: `load_state("WA")` |
+| `nss_snapshot` | None in use; 41 files kept as evidence | Harvested from the USGS NSS web service and parsed by machine, 2026-10-25. Unreviewed, so never "verified" | Opt in: `load_state(code, allow_nss_snapshot=True)`, `estimate_at_site(..., allow_nss_snapshot=True)`, `flowfreq ungaged --allow-nss-snapshot` |
 | None | 5: DC, VI, GU, MP, AS | NSS serves no peak-flow regions | Not available; the error says so |
 
 A published set always wins over a snapshot. A snapshot is a starting point, not a

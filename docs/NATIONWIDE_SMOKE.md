@@ -67,7 +67,7 @@ Failures by kind:
 | NY | 01350000 | 117 | ok | 75,274 | ok | 56,281 | verified | gage |  |
 | NJ | 01440000 | 102 | ok | 7,312 | ok | 4,834 | verified | gage |  |
 | PA | 01439500 | 116 | ok | 10,315 | ok | 12,532 | verified | gage |  |
-| DE | 01487000 | 82 | ok | 3,244 | ok | 4,056 | nss_snapshot | gage |  |
+| DE | 01487000 | 82 | ok | 3,244 | ok | 4,056 | verified | gage |  |
 | MD | 01580000 | 99 | ok | 13,048 | ok | 20,813 | verified | gage |  |
 | DC | 01651770 | 13 | ok | 3,211 | FAIL |  |  | gage | ungaged: EquationsUnavailable: DC: no regression library file. NSS serves no peak-flow regions for this jurisdiction |
 | VA | 03488000 | 108 | ok | 19,954 | ok | 15,265 | verified | gage |  |

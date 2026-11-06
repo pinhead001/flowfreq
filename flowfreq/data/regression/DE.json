@@ -1,7 +1,7 @@
 {
  "schema_version": 1,
  "state": "DE",
- "status": "partial",
+ "status": "verified",
  "issue": null,
  "source_reports": [
   {
@@ -41,7 +41,7 @@
    }
   }
  ],
- "notes": "PARTIAL because of one unresolved statistic: Table 6's Coastal Plain model error variance disagrees with the same report's Table 8 and data release. At every AEP the release's regression variance at the 54 Coastal Plain regression gages (for example Vr = 0.06384 in the report's own example at 01488500) equals xUx plus a constant, 0.053983, 0.046343, 0.045164, 0.047609, 0.050724, 0.056055, 0.062074, 0.071523 from 50 to 0.2 percent, and those constants match the square of Table 8's standard error of estimate and of its SEP less the mean xUx. Table 6 prints 0.046572, 0.041077, 0.03893, 0.040292, 0.043251, 0.047262, 0.052952, 0.061914, lower by 12 to 16 percent, and no statement in the report explains it. In the Piedmont all three agree. Table 6 is stored as printed, so Coastal Plain intervals, which use MEV + xUx, are narrower than the release's variance implies: the standard deviation is about 7 percent smaller. Everything else reproduces. Two reports. Hammond and others, SIR 2022-5005, equations 3-18: Coastal Plain (DRNAREA, BSLDEM3M, SOILA, 54 gages) and Piedmont (DRNAREA, BSLDEM3M, IMPERV, STORNHD to 4 percent and DRNAREA, SOILD, IMPERV, STORNHD from 2 percent, 40 gages), the current flood sets. They replace the best equations of Ries and Dillow, SIR 2006-5146 (equations 2-17), which NSS no longer serves and which are not stored. Ranges from Table 5, model error variance and covariance from Table 6 (printed with the intercept last; stored with it first), and SEP in percent from Table 8. Table 6 prints the Coastal Plain 4 percent DRNAREA-by-SOILA entry as v0.00066, a typo for -0.00066 by symmetry, and prints some pairs to differing precision (-0.02837 and -2.84E-02); each is stored as printed but for that typo. The printed variable order is confirmed by the release: of all orders it alone leaves release minus xUx constant over the gages. The release (Hammond, 2021, doi 10.5066/P9B7CUVO) prints regression flows at 121 gages, all reproduced within the rounding of the printed coefficients. At its 27 gages not in the regressions its regression variance is below the model error variance alone, 0.46 to 1.19 times xUx with no fixed relation, so it is not MEV + xUx and could not be reproduced; those values are not stored. Table 5 prints Piedmont limits of 0.4 mi2 and 17.4 percent slope, where the release's Piedmont regression gages reach 0.348 mi2 and 17.35 percent; the table's values are stored. Urban is equations 26-33 of SIR 2006-5146, statewide on DRNAREA and HOMEDENS. It is kept because SIR 2022-5005 says too few urban gages exist for separate urban equations and publishes no replacement, and NSS still serves it. SIR 2006-5146 (p. 35) recommends these only for the percentage change between land-use scenarios, applied to a best estimate, because their SEP is 91 to 105 percent, so they are not an alternative estimate for a site. Their constant is printed, so intercept = log10 of it. The report gives their range as the combined ranges of its Table 11 (0.31-319 mi2, 0.01-6.84 homes/acre); NSS serves 117 mi2, the Coastal Plain maximum alone, and the report's limit is stored. NSS's Urban SEP corresponds to 90.1 percent at 20 percent AEP and 93.3 at 4 percent, where Table 14 prints 91.1 and 93.6; the report's are stored. n_sites 102 for Urban is Table 3's total of stations in the regression analyses; the report does not repeat it for this set. SIR 2006-5146 prints no covariance, worked example or per-gage estimate for the urban equations, so only NSS checks them. SIR 2022-5005's low-flow equations are not flood quantiles and are not stored.",
+ "notes": "Coastal Plain model error variance is from Table 8, by the owner's decision on 2026-11-05, not Table 6. It is Table 8's standard error of estimate (percent) converted as ln(1 + (S/100)^2) / ln(10)^2. At every AEP the release's regression variance at the 54 Coastal Plain regression gages (for example Vr = 0.06384 in the report's own example at 01488500) equals xUx plus a constant, 0.053983, 0.046343, 0.045164, 0.047609, 0.050724, 0.056055, 0.062074, 0.071523 from 50 to 0.2 percent, and those constants match Table 8's SEE and its SEP less the mean xUx; the stored values are within 0.2 percent of them. Table 6 prints 0.046572, 0.041077, 0.03893, 0.040292, 0.043251, 0.047262, 0.052952, 0.061914, lower by 12 to 16 percent, and no statement in the report explains it. Table 6's values would make Coastal Plain intervals about 7 percent narrower in standard deviation. In the Piedmont all three agree, and Table 6's covariance is used in both regions. Everything else reproduces. Two reports. Hammond and others, SIR 2022-5005, equations 3-18: Coastal Plain (DRNAREA, BSLDEM3M, SOILA, 54 gages) and Piedmont (DRNAREA, BSLDEM3M, IMPERV, STORNHD to 4 percent and DRNAREA, SOILD, IMPERV, STORNHD from 2 percent, 40 gages), the current flood sets. They replace the best equations of Ries and Dillow, SIR 2006-5146 (equations 2-17), which NSS no longer serves and which are not stored. Ranges from Table 5, model error variance from Table 6 in the Piedmont and Table 8 in the Coastal Plain, covariance from Table 6 (printed with the intercept last; stored with it first), and SEP in percent from Table 8. Table 6 prints the Coastal Plain 4 percent DRNAREA-by-SOILA entry as v0.00066, a typo for -0.00066 by symmetry, and prints some pairs to differing precision (-0.02837 and -2.84E-02); each is stored as printed but for that typo. The printed variable order is confirmed by the release: of all orders it alone leaves release minus xUx constant over the gages. The release (Hammond, 2021, doi 10.5066/P9B7CUVO) prints regression flows at 121 gages, all reproduced within the rounding of the printed coefficients. At its 27 gages not in the regressions its regression variance is below the model error variance alone, 0.46 to 1.19 times xUx with no fixed relation, so it is not MEV + xUx and could not be reproduced; those values are not stored. Table 5 prints Piedmont limits of 0.4 mi2 and 17.4 percent slope, where the release's Piedmont regression gages reach 0.348 mi2 and 17.35 percent; the table's values are stored. Urban is equations 26-33 of SIR 2006-5146, statewide on DRNAREA and HOMEDENS. It is kept because SIR 2022-5005 says too few urban gages exist for separate urban equations and publishes no replacement, and NSS still serves it. SIR 2006-5146 (p. 35) recommends these only for the percentage change between land-use scenarios, applied to a best estimate, because their SEP is 91 to 105 percent, so they are not an alternative estimate for a site. Their constant is printed, so intercept = log10 of it. The report gives their range as the combined ranges of its Table 11 (0.31-319 mi2, 0.01-6.84 homes/acre); NSS serves 117 mi2, the Coastal Plain maximum alone, and the report's limit is stored. NSS's Urban SEP corresponds to 90.1 percent at 20 percent AEP and 93.3 at 4 percent, where Table 14 prints 91.1 and 93.6; the report's are stored. n_sites 102 for Urban is Table 3's total of stations in the regression analyses; the report does not repeat it for this set. SIR 2006-5146 prints no covariance, worked example or per-gage estimate for the urban equations, so only NSS checks them. SIR 2022-5005's low-flow equations are not flood quantiles and are not stored.",
  "equations": [
   {
    "region_code": "Coastal Plain",
@@ -84,7 +84,7 @@
     "url": "https://doi.org/10.3133/sir20225005"
    },
    "sep_log": 0.242891,
-   "model_error_variance": 0.046572,
+   "model_error_variance": 0.053877,
    "covariance": [
     [
      0.026367,
@@ -154,7 +154,7 @@
     "url": "https://doi.org/10.3133/sir20225005"
    },
    "sep_log": 0.226112,
-   "model_error_variance": 0.041077,
+   "model_error_variance": 0.046381,
    "covariance": [
     [
      0.025352,
@@ -224,7 +224,7 @@
     "url": "https://doi.org/10.3133/sir20225005"
    },
    "sep_log": 0.224334,
-   "model_error_variance": 0.03893,
+   "model_error_variance": 0.045141,
    "covariance": [
     [
      0.02677,
@@ -294,7 +294,7 @@
     "url": "https://doi.org/10.3133/sir20225005"
    },
    "sep_log": 0.231411,
-   "model_error_variance": 0.040292,
+   "model_error_variance": 0.047633,
    "covariance": [
     [
      0.030451,
@@ -364,7 +364,7 @@
     "url": "https://doi.org/10.3133/sir20225005"
    },
    "sep_log": 0.239438,
-   "model_error_variance": 0.043251,
+   "model_error_variance": 0.050806,
    "covariance": [
     [
      0.033835,
@@ -434,7 +434,7 @@
     "url": "https://doi.org/10.3133/sir20225005"
    },
    "sep_log": 0.252102,
-   "model_error_variance": 0.047262,
+   "model_error_variance": 0.056008,
    "covariance": [
     [
      0.038294,
@@ -504,7 +504,7 @@
     "url": "https://doi.org/10.3133/sir20225005"
    },
    "sep_log": 0.265446,
-   "model_error_variance": 0.052952,
+   "model_error_variance": 0.062026,
    "covariance": [
     [
      0.043126,
@@ -574,7 +574,7 @@
     "url": "https://doi.org/10.3133/sir20225005"
    },
    "sep_log": 0.285424,
-   "model_error_variance": 0.061914,
+   "model_error_variance": 0.071512,
    "covariance": [
     [
      0.050321,
