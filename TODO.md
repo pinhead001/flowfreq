@@ -7,7 +7,7 @@
 ## Status
 Last updated: 2026-11-06. Version **0.23.0** is released (tag `v0.23.0`). `main` carries
 **0.24.0.dev0**; 0.23.x patches come from `release/0.23.x` (CLAUDE.md, Branches and Releases).
-flowfreq-app pins v0.22.0. 51 jurisdictions are `verified` in v0.23.0, and 5 have no equations.
+flowfreq-app pins v0.23.0. 51 jurisdictions are `verified` in v0.23.0, and 5 have no equations.
 
 `docs/NATIONWIDE_SMOKE.md` is a full 56-jurisdiction rerun on 2026-11-04, after all of that merged:
 gaged 56/56 and ungaged 48/56, the same eight known gaps (AS, DC, GU, MP and VI have no equations; FL,
@@ -22,8 +22,7 @@ failure (#294), so read its job summary.
 
 Owner's:
 
-1. Bump the app's pin to v0.23.0. Its `test_coverage_badge` expects DE to be partial, so that PR must
-   update it. Push `release/0.23.x` (a hook blocks it here; the branch exists locally).
+1. The app pins v0.23.0. This report caveat naming extrapolated inputs reaches it at the next release and pin.
 2. **Overlap call left open:** IN (2 gages). All eight regions are candidates, so an order of preference
    can't settle it. It needs a region looked up by point (item 10). Urban and NRCS-regulated basins (AL, MO,
    TN, OK) need `region=` on purpose; say if you want a default instead.
@@ -32,8 +31,8 @@ Owner's:
    at the recommended 5 mi2, not the stored 14; IL prefers the urbanization-adjusted set; AR's MAP-first and GA,
    NC, SC's 2023-first orders are method choices; CT, ME, VT, TN and IA fall back silently, with the fact in
    provenance, when a characteristic is missing, so a set can change between runs.
-3. **`allow_extrapolation`** still lets a caller evaluate GA, NC or SC's rural set above 10 percent impervious,
-   flagged as extrapolated. Say if that should be refused too.
+3. **`allow_extrapolation`** stays allowed everywhere by your decision, including GA, NC and SC above 10 percent
+   impervious. The app cautions before proceeding and marks the result (app #37), and the report names the inputs.
 4. **Do results warn where the equations are known to miss?** Sweetwater Creek, OK is overstated about
    tenfold and Little Cedar River, MN understated about fourfold, with no fault in the stored data, and the
    cross-border sample shows 12 of 54 gages differing by 2 times or more across a line
@@ -42,8 +41,8 @@ Owner's:
    gates are added, and a boundary basin now needs `region=`.
 6. **TX:** SIR 2009-5087 is preferred by its authors but not in NSS, so it isn't stored.
 7. Superseded sets dropped: OH 2006-5312, TN 03-4176, LA TR 60 and Delta. LA's southern gap: keep GC879?
-8. Close issues #27, #36 and #293. Merge or close app PRs #28, #29, #30, #32 and #35. The first four
-   conflict with app `main`, in `CHANGELOG.md`, and also `TODO.md` (#29) and `tests/test_streamlit_app.py` (#28).
+8. Close issues #27, #36 and #293. Merge or close app PRs #28, #29, #30, #32 and #37. All five merge cleanly
+   in any order.
 9. Check the gage page's resizable period grips in a browser (app #24): they were never run in
    one, since running the vega bundles in headless Chrome was blocked here.
 
