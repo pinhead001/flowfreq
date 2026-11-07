@@ -136,13 +136,13 @@ first is on you at every invocation:
 
 ## Branches and Releases
 
-`main` carries the next minor release as a `.dev0` version (currently `0.24.0.dev0`), so
+`main` carries the next minor release as a `.dev0` version (currently `0.25.0.dev0`), so
 `flowfreq.__version__` shows whether a session is running development code or a release.
-Patch releases for the current minor line come from `release/0.23.x` (cut at `v0.23.0`): branch
-a fix from it, PR it there, and tag `v0.23.N` on that merge commit. Port the fix to `main` as
-well. `release/0.22.x`, `release/0.21.x`, `release/0.20.x`, `release/0.19.x`, `release/0.18.x`, `release/0.17.x`, `release/0.16.x`, `release/0.15.x`, `release/0.14.x`, `release/0.13.x`, `release/0.12.x`, `release/0.11.x` and `release/0.10.x` are kept for reference.
+Patch releases for the current minor line come from `release/0.24.x` (cut at `v0.24.0`): branch
+a fix from it, PR it there, and tag `v0.24.N` on that merge commit. Port the fix to `main` as
+well. `release/0.23.x`, `release/0.22.x`, `release/0.21.x`, `release/0.20.x`, `release/0.19.x`, `release/0.18.x`, `release/0.17.x`, `release/0.16.x`, `release/0.15.x`, `release/0.14.x`, `release/0.13.x`, `release/0.12.x`, `release/0.11.x` and `release/0.10.x` are kept for reference.
 Downstream projects (methow-flow, flowfreq-app) pin release tags such as
-`flowfreq @ git+https://github.com/pinhead001/flowfreq@v0.23.0`, so work on `main` never
+`flowfreq @ git+https://github.com/pinhead001/flowfreq@v0.24.0`, so work on `main` never
 reaches them. Never move or delete a pushed release tag.
 
 ## Agent ops (Claude lead + agy delegates)

@@ -5,9 +5,9 @@
 > in progress are tracked under "Roadmap Phase A, Wave 1 and Wave 2" in Open Items below.
 
 ## Status
-Last updated: 2026-11-06. Version **0.23.0** is released (tag `v0.23.0`). `main` carries
-**0.24.0.dev0**; 0.23.x patches come from `release/0.23.x` (CLAUDE.md, Branches and Releases).
-flowfreq-app pins v0.23.0. 51 jurisdictions are `verified` in v0.23.0, and 5 have no equations.
+Last updated: 2026-11-07. Version **0.24.0** is released (tag `v0.24.0`). `main` carries
+**0.25.0.dev0**; 0.24.x patches come from `release/0.24.x` (CLAUDE.md, Branches and Releases).
+flowfreq-app pins v0.23.0, with a PR open for v0.24.0. 51 jurisdictions are `verified`, and 5 have no equations.
 
 `docs/NATIONWIDE_SMOKE.md` is a full 56-jurisdiction rerun on 2026-11-04, after all of that merged:
 gaged 56/56 and ungaged 48/56, the same eight known gaps (AS, DC, GU, MP and VI have no equations; FL,
@@ -16,13 +16,13 @@ WI moved, by under 0.1 %, from unrounded coefficients, until #340's rules moved 
 drainage-area-only value to the full set. The Live services run reports an outage as a skip rather than a
 failure (#294), so read its job summary.
 
-### Next steps (2026-11-06)
+### Next steps (2026-11-07)
 
 **The batches in `docs/VERIFICATION_PLAN.md` are done. Read its "What `verified` rests on here".**
 
 Owner's:
 
-1. The app pins v0.23.0. This report caveat naming extrapolated inputs reaches it at the next release and pin.
+1. Merge the app's v0.24.0 pin PR. Push `release/0.24.x` (a hook blocks it here; the branch exists locally).
 2. **Overlap calls:** none open. Urban and NRCS-regulated basins (AL, MO, TN, OK) need `region=` on purpose; say
    if you want a default instead.
 
@@ -39,24 +39,26 @@ Owner's:
    gates are added, and a boundary basin now needs `region=`.
 6. **TX:** SIR 2009-5087 is preferred by its authors but not in NSS, so it isn't stored.
 7. Superseded sets dropped: OH 2006-5312, TN 03-4176, LA TR 60 and Delta. LA's southern gap: keep GC879?
-8. Close issues #27, #36 and #293. Merge or close app PRs #28, #29, #30, #32 and #37. All five merge cleanly
-   in any order.
-9. Check the gage page's resizable period grips in a browser (app #24): they were never run in
-   one, since running the vega bundles in headless Chrome was blocked here.
+8. Close issue #293 if you're done with it. It is the only one open.
+9. Open the app in a browser: the resizable period grips (app #24), the self-hosted map and chart (#29, #30), the
+   dark-mode box (#32) and the extrapolation caution (#37) have never run in one here.
+10. Have a person spot-check the highest-use states against their reports. Every set was checked only by agents.
 
 Library follow-ups the batches found, none changed:
 
-10. Multi-region weighting: SD's report averages in flow.
-11. `power` at base 0 (IL stores an offset of 1e-12). `evaluate` prefers a rounded AVP over SEP (AL,
+11. Multi-region weighting: SD's report averages in flow.
+12. `power` at base 0 (IL stores an offset of 1e-12). `evaluate` prefers a rounded AVP over SEP (AL,
     TN). Degrees of freedom on adjusted sets (IL).
-12. IA: a CCM above 3.87 or STRMTOT of 0 should go to the drainage-area-only set.
-13. LA's MAP slope isn't settled: live `CSL10_85` is the only code, and it missed Table 1 at both gages
+13. IA: a CCM above 3.87 or STRMTOT of 0 should go to the drainage-area-only set.
+14. LA's MAP slope isn't settled: live `CSL10_85` is the only code, and it missed Table 1 at both gages
     that could be compared (2.48 against 2.20; 1.59 against 2.91). KY regions 1 and 4 and Jefferson have
     no live slope. TN Memphis has no live CHANCOND. IN prints no intervals.
-14. NH and NY never located their drainage-area-only sets at a tested point, so those are reachable
+15. NH and NY never located their drainage-area-only sets at a tested point, so those are reachable
     only through `evaluate`.
-15. FL, MI and NE still can't run through `estimate_at_site`: no StreamStats grid, and NSS locates no
+16. FL, MI and NE still can't run through `estimate_at_site`: no StreamStats grid, and NSS locates no
     region there. A caller would have to supply region and characteristics.
+
+17. The full cross-border check by AEP on every border. The 2026-11-05 sample compared only 54 gages.
 
 Parked: gage page NID and NLCD events beside a change point
 (`stationarity.basin_change_events`; needs the delineated basin), raster hydrograph, the Bulletin
