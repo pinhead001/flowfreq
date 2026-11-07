@@ -49,7 +49,7 @@ Failures by kind:
 | NE | 06784000 | 82 | ok | 33,472 | FAIL |  |  | gage | ungaged: RegionNotDelineatedError: StreamStats' snap service has no stream grid for region 'NE' ({"detail":"No data found for region='NE' ; Stream grid raster not found for region='NE'"}); no point there can be delineated through this API, so supply the basin characteristics another way |
 | KS | 06892000 | 97 | ok | 36,404 | ok | 49,156 | verified | gage |  |
 | OH | 03237500 | 93 | ok | 63,143 | ok | 42,040 | verified | gage |  |
-| IN | 03364500 | 78 | ok | 13,496 | ok | 10,614 | verified | gage |  |
+| IN | 03364500 | 78 | ok | 13,496 | ok | 17,827 | verified | gage |  |
 | KY | 03281500 | 92 | ok | 69,973 | ok | 75,759 | verified | gage |  |
 | TN | 03465500 | 104 | ok | 95,900 | ok | 51,414 | verified | gage |  |
 | WV | 03069500 | 114 | ok | 105,254 | ok | 77,476 | verified | gage |  |
