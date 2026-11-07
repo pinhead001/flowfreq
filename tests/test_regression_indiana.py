@@ -16,7 +16,8 @@ from scipy import stats
 
 from flowfreq.regression import evaluate
 from flowfreq.regression.library import load_state
-from flowfreq.ungaged import region_for_nss_code
+from flowfreq.streamstats import RegressionRegionLocation
+from flowfreq.ungaged import OverlappingRegionsError, assemble, region_for_nss_code
 
 ROOT = Path(__file__).resolve().parent
 DATA = ROOT.parent / "flowfreq" / "data" / "regression"
@@ -68,6 +69,79 @@ def test_every_equation_equals_the_nss_snapshot(lib):
             assert (v.code, v.minimum, v.maximum) == (n["code"], n["minimum"], n["maximum"])
             # NSS writes the printed (%U + 1) as log10_plus1; it is stored as printed.
             assert (v.offset == 1.0) == (n["transform"] == "log10_plus1")
+
+
+def _located(*weights):
+    return [
+        RegressionRegionLocation(
+            region_id=i, code=code, name=code, percent_weight=weight, area_sq_mi=100.0
+        )
+        for i, (code, weight) in enumerate(weights)
+    ]
+
+
+KW = dict(aeps=[0.01], allow_extrapolation=False, weighting_space="log")
+#: Inside every region's ranges, and naming region 4 at the point.
+INPUTS = {"CONTDA": 100.0, "CSL10_85": 5.0, "URBAN": 1.0, "WETLAND": 1.0, "HIGHREG": 1008.0}
+
+
+def test_highreg_names_each_region(lib):
+    assert lib.region_selector.values == {str(1004 + i): str(i) for i in range(1, 9)}
+
+
+def test_every_located_region_at_100_percent_no_longer_stops_the_estimate(lib):
+    located = _located(*[(f"GC{c}", 100.0) for c in range(1005, 1013)])
+    a = assemble(lib, located, INPUTS, **KW)
+    assert [r.code for r in a.used] == ["GC1008"]
+    assert sorted(r.code for r in a.alternatives) == [
+        f"GC{c}" for c in range(1005, 1013) if c != 1008
+    ]
+    assert a.region_choice_source.startswith("region selector: HIGHREG 1008 names region 4")
+    assert {r.code for r in a.alternatives} <= set(a.region_codes)  # provenance reads this
+
+
+def test_a_basin_in_one_region_records_no_choice(lib):
+    a = assemble(lib, _located(("GC1008", 100.0)), INPUTS, **KW)
+    assert [r.code for r in a.used] == ["GC1008"]
+    assert a.region_choice_source is None
+
+
+def test_a_boundary_basin_uses_the_points_region_alone(lib):
+    a = assemble(lib, _located(("GC1007", 85.0), ("GC1008", 15.0)), INPUTS, **KW)
+    assert [(r.code, r.percent_weight) for r in a.used] == [("GC1008", 100.0)]
+    assert a.quantiles.loc[0, "regions"] == "GC1008"
+
+
+def test_a_neighbors_range_no_longer_refuses_the_basin(lib):
+    values = {**INPUTS, "CONTDA": 533.0}  # above region 3's 284 mi2
+    a = assemble(lib, _located(("GC1007", 8.0), ("GC1008", 92.0)), values, **KW)
+    assert [r.code for r in a.used] == ["GC1008"]
+
+
+def test_the_points_region_is_used_though_nss_did_not_locate_it(lib):
+    a = assemble(lib, _located(("GC1007", 100.0)), INPUTS, **KW)
+    assert a.quantiles.loc[0, "flow_cfs"] > 0
+    assert [r.code for r in a.alternatives] == ["GC1007"]
+    assert [a.region_codes[r.code] for r in a.used] == ["4"]
+
+
+def test_another_statistics_region_is_left_alone(lib):
+    a = assemble(lib, _located(("GC1007", 15.0), ("GC1008", 85.0), ("GC9999", 100.0)), INPUTS, **KW)
+    assert [r.code for r in a.unmatched] == ["GC9999"]
+
+
+def test_region_argument_overrides_the_point(lib):
+    a = assemble(lib, _located(("GC1007", 100.0)), INPUTS, region="GC1007", **KW)
+    assert [r.code for r in a.used] == ["GC1007"]
+
+
+@pytest.mark.parametrize("value", [None, 999.0, 1008.5])
+def test_no_selection_without_a_listed_value(lib, value):
+    values = {k: v for k, v in INPUTS.items() if k != "HIGHREG"}
+    if value is not None:
+        values["HIGHREG"] = value
+    with pytest.raises(OverlappingRegionsError):
+        assemble(lib, _located(("GC1007", 100.0), ("GC1008", 100.0)), values, **KW)
 
 
 def test_nss_region_id_limit_selects_nothing_and_is_left_out(lib):

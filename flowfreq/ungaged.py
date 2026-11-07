@@ -43,7 +43,7 @@ from __future__ import annotations
 
 import logging
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Set, Tuple, Union
@@ -502,6 +502,48 @@ def _preferred_regions(
     return None
 
 
+def _selected_region(
+    lib: StateLibrary,
+    regions: Sequence[RegressionRegionLocation],
+    characteristics: Mapping[str, float],
+) -> Optional[Tuple[List[RegressionRegionLocation], List[RegressionRegionLocation], str]]:
+    """The located regions once a :class:`~flowfreq.regression.library.RegionSelector` has spoken.
+
+    The named region takes the whole basin; the library's other regions become alternatives, and a
+    region the library does not hold (another statistic's) is left as it is.
+
+    Returns
+    -------
+    (list of RegressionRegionLocation, list of RegressionRegionLocation, str) or None
+        The regions to go on with, those set aside, and the reason for ``region_choice_source``.
+        None when the library has no selector or the basin's value names no region.
+    """
+    selector = lib.region_selector
+    wanted = None if selector is None else selector.region(characteristics)
+    if selector is None or wanted is None:
+        return None
+    named = next((r for r in regions if region_for_nss_code(lib, r.code) == wanted), None)
+    if named is None:
+        named = RegressionRegionLocation(
+            region_id=0,
+            code=wanted,
+            name=_region_name(lib, wanted),
+            percent_weight=100.0,
+            area_sq_mi=0.0,
+        )
+    others = [r for r in regions if r is not named and region_for_nss_code(lib, r.code) is not None]
+    kept = [r for r in regions if r is not named and region_for_nss_code(lib, r.code) is None] + [
+        replace(named, percent_weight=100.0)
+    ]
+    value = characteristics[selector.variable]
+    return (
+        kept,
+        others,
+        f"region selector: {selector.variable} {value:g} names region {wanted}"
+        + (f"; {selector.source}" if selector.source else ""),
+    )
+
+
 def _within_limits(
     lib: StateLibrary,
     used: Sequence[Tuple[RegressionRegionLocation, str]],
@@ -683,6 +725,12 @@ def assemble(
         raise ValueError("aeps must be non-empty (use None for the regions' common AEPs)")
     choices = _region_choices(region)
     choice = choices[0] if choices else None
+    selected_aside: List[RegressionRegionLocation] = []
+    selected_source: Optional[str] = None
+    if not choices:
+        selected = _selected_region(lib, regions, characteristics)
+        if selected is not None:
+            regions, selected_aside, selected_source = selected
     matched: List[Tuple[RegressionRegionLocation, str]] = []
     unmatched: List[RegressionRegionLocation] = []
     for loc in regions:
@@ -730,6 +778,9 @@ def assemble(
         )
     region_codes = {loc.code: lib_code for loc, lib_code in matched}
     region_codes.update(pre_matched)
+    region_codes.update(
+        {r.code: code for r in selected_aside if (code := region_for_nss_code(lib, r.code))}
+    )
 
     zero_weight = [loc for loc, _ in matched if not loc.percent_weight > 0]
     weighted = [(loc, lib_code) for loc, lib_code in matched if loc.percent_weight > 0]
@@ -825,6 +876,9 @@ def assemble(
     limit_source: Optional[str] = None
     if not choices:
         used, limited, limit_source = _within_limits(lib, used, characteristics)
+        limited = selected_aside + limited
+        if selected_source is not None and selected_aside:
+            limit_source = f"{selected_source}; {limit_source}" if limit_source else selected_source
 
     # NSS rounds each percent_weight to a whole percent, so an N-region partition sums
     # to 100 +/- 0.5 N; a real overlap sums to about 200, so scaling cannot mask one.

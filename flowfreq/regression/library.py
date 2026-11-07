@@ -228,6 +228,44 @@ class RegionLimit:
         return limit
 
 
+@dataclass(frozen=True)
+class RegionSelector:
+    """A basin characteristic that names the region at the point of interest.
+
+    Indiana's report selects the equation by where the point lies, not by area weighting, and
+    StreamStats returns that region as ``HIGHREG``. Where the value is known and listed, the region
+    is used alone for the whole basin, whatever NSS's ``percent_weight`` says. ``region=`` overrides.
+
+    Attributes
+    ----------
+    variable : str
+        StreamStats characteristic code.
+    values : dict of str to str
+        The characteristic's value, as a whole number in text, to the library ``region_code``.
+    source : str
+        Where the rule is printed.
+    """
+
+    variable: str
+    values: Dict[str, str]
+    source: str = ""
+
+    def region(self, characteristics: Mapping[str, float]) -> Optional[str]:
+        """The library region this basin's value names, or None if unknown or unlisted."""
+        value = characteristics.get(self.variable)
+        if value is None or not math.isfinite(value) or value != int(value):
+            return None
+        return self.values.get(str(int(value)))
+
+    @classmethod
+    def from_dict(cls, d: Dict[str, Any]) -> "RegionSelector":
+        return cls(
+            variable=str(d["variable"]),
+            values={str(k): str(v) for k, v in d["values"].items()},
+            source=str(d.get("source") or ""),
+        )
+
+
 @dataclass
 class RegionPreference:
     """An order of preference among overlapping equation sets.
@@ -279,6 +317,8 @@ class StateLibrary:
     #: Where a set can apply (:class:`RegionLimit`), by region code. ``assemble`` drops a set
     #: a limit excludes from an overlap, before any other rule.
     region_limits: Dict[str, List[RegionLimit]] = field(default_factory=dict)
+    #: The characteristic that names the region at the point, where a report selects that way.
+    region_selector: Optional[RegionSelector] = None
 
     @property
     def provisional(self) -> bool:
@@ -372,6 +412,12 @@ def parse_state(data: Dict[str, Any]) -> StateLibrary:
     unknown = sorted(set(limits) - {e.region_code for e in eqs})
     if unknown:
         raise ValueError(f"{state}: region_limits for regions with no equations: {unknown}")
+    selector_data = data.get("region_selector")
+    selector = RegionSelector.from_dict(selector_data) if selector_data else None
+    if selector is not None:
+        unknown = sorted(set(selector.values.values()) - {e.region_code for e in eqs})
+        if unknown:
+            raise ValueError(f"{state}: region_selector for regions with no equations: {unknown}")
     return StateLibrary(
         state=state,
         status=status,
@@ -384,6 +430,7 @@ def parse_state(data: Dict[str, Any]) -> StateLibrary:
         region_gates=gates,
         region_preference=preference,
         region_limits=limits,
+        region_selector=selector,
     )
 
 
