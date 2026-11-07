@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- `SiteEstimate.to_markdown` names the inputs outside the calibrated range in its extrapolation caveat.
+
 ## [0.23.0] - 2026-11-06
 
 Delaware is verified, making 51 of 56, and five have no equations. Arkansas's alluvial plain slope is corrected,
