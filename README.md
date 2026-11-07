@@ -71,7 +71,7 @@ pip install -e ".[dev]"
 Or install a released version straight from GitHub:
 
 ```bash
-pip install git+https://github.com/pinhead001/flowfreq@v0.23.0
+pip install git+https://github.com/pinhead001/flowfreq@v0.24.0
 ```
 
 **Dependencies:** `numpy`, `pandas`, `matplotlib`, `scipy`, `requests`, `click`, `pyarrow`
@@ -465,6 +465,7 @@ England, J.F., Jr., et al., 2019, Guidelines for determining flood flow frequenc
 
 | Version | Changes |
 |---------|---------|
+| **v0.24.0** | Indiana selects its region at the point (`RegionSelector`); known-miss cautions near three gages (`KnownMiss`); the report names extrapolated inputs |
 | **v0.23.0** | Delaware verified (51 of 56); Arkansas's Mississippi Alluvial Plain slope corrected to `CSLBlue`; AL, AR, GA, NC and SC overlaps resolve without `region=` |
 | **v0.22.0** | Regression equations verified in 37 more jurisdictions (50 of 56; DE `partial`); more overlapping sets resolve without `region=` (`RegionLimit`, more preferences); StreamStats' karst warning is a caveat. See `docs/VERIFICATION_PLAN.md` for what verified rests on |
 | **v0.21.0** | Alaska, California and Hawaii equations verified (13 jurisdictions); region gates for Arizona and Oregon; Iowa prefers its full equation sets; a verified set beats its NSS snapshot under `allow_nss_snapshot`; Montana channel widths of 0 read as not measured; mypy over every module. See CHANGELOG.md. |
