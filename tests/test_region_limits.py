@@ -357,6 +357,18 @@ def test_ar_prefers_the_alluvial_plain_where_it_covers_the_basin():
     assert _used(a) == ["GC1719"]
 
 
+def test_a_selector_for_an_unknown_region_is_refused():
+    import json
+    from pathlib import Path
+
+    data = json.loads(
+        (Path(__file__).parent.parent / "flowfreq/data/regression/IN.json").read_text("utf-8")
+    )
+    data["region_selector"]["values"]["1005"] = "NOPE"
+    with pytest.raises(ValueError, match="region_selector"):
+        parse_state(data)
+
+
 def test_a_limit_never_leaves_part_of_the_basin_uncovered():
     """Both limits exclude the basin, but dropping them leaves 60 percent: nothing is dropped."""
     with pytest.raises(OverlappingRegionsError):

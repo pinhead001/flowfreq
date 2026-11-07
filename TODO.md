@@ -23,9 +23,8 @@ failure (#294), so read its job summary.
 Owner's:
 
 1. The app pins v0.23.0. This report caveat naming extrapolated inputs reaches it at the next release and pin.
-2. **Overlap call left open:** IN (2 gages). All eight regions are candidates, so an order of preference
-   can't settle it. It needs a region looked up by point (item 10). Urban and NRCS-regulated basins (AL, MO,
-   TN, OK) need `region=` on purpose; say if you want a default instead.
+2. **Overlap calls:** none open. Urban and NRCS-regulated basins (AL, MO, TN, OK) need `region=` on purpose; say
+   if you want a default instead.
 
    Calls to confirm: MO's 5 % impervious limit is read from "about 5 percent or less"; AL small streams stop
    at the recommended 5 mi2, not the stored 14; IL prefers the urbanization-adjusted set; AR's MAP-first and GA,
@@ -48,8 +47,7 @@ Owner's:
 
 Library follow-ups the batches found, none changed:
 
-10. Multi-region weighting: SD's report averages in flow; IN selects a region by point, `region=` can't
-    override it, and 03333050 is refused.
+10. Multi-region weighting: SD's report averages in flow.
 11. `power` at base 0 (IL stores an offset of 1e-12). `evaluate` prefers a rounded AVP over SEP (AL,
     TN). Degrees of freedom on adjusted sets (IL).
 12. IA: a CCM above 3.87 or STRMTOT of 0 should go to the drainage-area-only set.

@@ -43,7 +43,7 @@ Read this before relying on a batch 2-5 state.
 ## Still open
 
 1. **Refusals still on real sites,** from the check below: 18 of 102 gages, mostly points that don't
-   snap. IN still needs `region=` (or a region looked up by point), and an urban
+   snap. An urban
    or NRCS-regulated basin does on purpose.
 2. **Cross-border checks:** a sample ran (below). The full check by AEP on every border hasn't.
 3. **Library follow-ups** the batches found: `TODO.md`, Next steps.
@@ -176,6 +176,26 @@ Kentucky and Tennessee, 3.6 to 5 times lower at the gages near that line. Missou
 (7,220 against 7,373), and Kentucky's and Tennessee's are nearer theirs, so this looks like real contrast across the
 Mississippi River rather than an error. Others of 3 times or more: 09414900 AZ/UT, 05052500 ND/MN, 07154400 NM/OK
 and 01064500 NH/ME. 4 of the 54 needed a neighbor input out of range.
+
+## Indiana's region at the point, 2026-11-07
+
+Knipe and Rao (2005) select the equation by where the point lies, not by area weighting. StreamStats' `HIGHREG` is
+that region: it equals 1004 plus the region number at all 23 Appendix A gages that delineated, including one where NSS
+locates all eight regions at 100 percent. `estimate_at_site` now uses it (`RegionSelector`), and `region=` overrides.
+
+| Gage | NSS located | Before | Now | At-site Q1% (station skew) |
+|---|---|---:|---:|---:|
+| 03342300 | All eight at 100 % | Overlap stop | 9,443 | 7,128 |
+| 03360500 | Eight, summing past 100 % | Overlap stop | 131,697 | 104,435 |
+| 03333050 | Eight, summing past 100 % | Overlap stop | 19,929 | Regulated, no fit |
+| 04095300 | 2 regions | Refused, region 5's slope range | 6,420 | 5,414 |
+| 03331500 | 3 regions | Refused, region 7's slope range | 11,131 | 11,055 |
+| 03363900 | 2 regions | Refused, region 3's area range | 28,216 | 41,842 |
+| 04180500 | 2 regions | 15,505 | 15,051 | 19,332 |
+| 03364500 | 2 regions | 10,614 | 17,827 | 13,496 |
+
+The rule follows the report, though it doesn't always land closer to the gage: 03364500 moved further away. Gages
+wholly in one region don't change.
 
 ## Order
 

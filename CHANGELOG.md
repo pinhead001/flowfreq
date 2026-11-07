@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **Indiana selects the region at the point, as its report does.** StreamStats' `HIGHREG` names the region, so
+  sites that stopped on eight overlapping regions, or on a neighboring region's range, now get an estimate
+  without `region=`. A basin crossing a region boundary now uses the point's region alone rather than an
+  area-weighted flow, which can move its estimate. `region=` overrides. New: `RegionSelector`.
+
 ### Changed
 - `SiteEstimate.to_markdown` names the inputs outside the calibrated range in its extrapolation caveat.
 
