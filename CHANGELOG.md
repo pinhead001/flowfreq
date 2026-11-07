@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Known-miss cautions.** An estimate near a gage where the regression is known to miss the record by far, with no
+  fault found in the equations, now carries a caution in `advisory` and `provenance["known_misses"]`. Values don't
+  change. Three so far: Sweetwater Creek, OK, Little Cedar River, MN and White Bayou, LA. New: `KnownMiss`.
+
 ### Fixed
 - **Indiana selects the region at the point, as its report does.** StreamStats' `HIGHREG` names the region, so
   sites that stopped on eight overlapping regions, or on a neighboring region's range, now get an estimate

@@ -229,6 +229,76 @@ class RegionLimit:
 
 
 @dataclass(frozen=True)
+class KnownMiss:
+    """A gage where the regression is known to miss the record by far, with no fault found.
+
+    Estimates near it carry a caution. It changes no value: the stored equations are what the
+    report prints. Each entry records one investigated case in ``docs/VERIFICATION_PLAN.md``.
+
+    Attributes
+    ----------
+    site_no, name : str
+    lat, lon : float
+        The gage, decimal degrees.
+    radius_km : float
+        How far from the gage an estimate is cautioned.
+    regression_q1pct, at_site_q1pct : float
+        Flood flows at the 1 percent AEP, ft3/s. The at-site value is Bulletin 17C with
+        station skew.
+    note : str
+        What else is known, in a sentence.
+    checked : str
+        The date of the check.
+    """
+
+    site_no: str
+    name: str
+    lat: float
+    lon: float
+    radius_km: float
+    regression_q1pct: float
+    at_site_q1pct: float
+    note: str = ""
+    checked: str = ""
+
+    def distance_km(self, lat: float, lon: float) -> float:
+        """Great-circle distance from the gage to a point."""
+        p1, p2 = math.radians(self.lat), math.radians(lat)
+        dp, dl = p2 - p1, math.radians(lon - self.lon)
+        a = math.sin(dp / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dl / 2) ** 2
+        return 2 * 6371.0 * math.asin(math.sqrt(a))
+
+    def caution(self) -> str:
+        """The caution in words."""
+        ratio = self.regression_q1pct / self.at_site_q1pct
+        size = (
+            f"about {ratio:.1f} times the record's"
+            if ratio >= 1
+            else f"about 1/{1 / ratio:.1f} of the record's"
+        )
+        return (
+            f"Known miss nearby: at USGS {self.site_no} {self.name}, the regression's 1 percent flow "
+            f"of {self.regression_q1pct:,.0f} ft3/s is {size} {self.at_site_q1pct:,.0f}. "
+            + (f"{self.note} " if self.note else "")
+            + "Compare with gage records before relying on this estimate."
+        )
+
+    @classmethod
+    def from_dict(cls, d: Dict[str, Any]) -> "KnownMiss":
+        return cls(
+            site_no=str(d["site_no"]),
+            name=str(d["name"]),
+            lat=float(d["lat"]),
+            lon=float(d["lon"]),
+            radius_km=float(d["radius_km"]),
+            regression_q1pct=float(d["regression_q1pct"]),
+            at_site_q1pct=float(d["at_site_q1pct"]),
+            note=str(d.get("note") or ""),
+            checked=str(d.get("checked") or ""),
+        )
+
+
+@dataclass(frozen=True)
 class RegionSelector:
     """A basin characteristic that names the region at the point of interest.
 
@@ -319,6 +389,8 @@ class StateLibrary:
     region_limits: Dict[str, List[RegionLimit]] = field(default_factory=dict)
     #: The characteristic that names the region at the point, where a report selects that way.
     region_selector: Optional[RegionSelector] = None
+    #: Investigated gages where the regression misses the record by far, with no fault found.
+    known_misses: List[KnownMiss] = field(default_factory=list)
 
     @property
     def provisional(self) -> bool:
@@ -431,6 +503,7 @@ def parse_state(data: Dict[str, Any]) -> StateLibrary:
         region_preference=preference,
         region_limits=limits,
         region_selector=selector,
+        known_misses=[KnownMiss.from_dict(x) for x in data.get("known_misses") or []],
     )
 
 

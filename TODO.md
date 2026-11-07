@@ -32,10 +32,9 @@ Owner's:
    provenance, when a characteristic is missing, so a set can change between runs.
 3. **`allow_extrapolation`** stays allowed everywhere by your decision, including GA, NC and SC above 10 percent
    impervious. The app cautions before proceeding and marks the result (app #37), and the report names the inputs.
-4. **Do results warn where the equations are known to miss?** Sweetwater Creek, OK is overstated about
-   tenfold and Little Cedar River, MN understated about fourfold, with no fault in the stored data, and the
-   cross-border sample shows 12 of 54 gages differing by 2 times or more across a line
-   (`docs/VERIFICATION_PLAN.md`, Checks of 2026-11-05). Nothing warns about this today.
+4. **Known-miss cautions** cover the three traced cases (OK, MN, LA; `known_misses` in each state's file).
+   Add a case by tracing it first, as in `docs/VERIFICATION_PLAN.md`, Checks of 2026-11-05. The 12 of 54
+   cross-border gages differing by 2 times or more aren't cautioned, since none is traced to a miss.
 5. **MD:** kept at the Third Edition because StreamStats can't feed the Sixth (2023). GC1481's urban
    gates are added, and a boundary basin now needs `region=`.
 6. **TX:** SIR 2009-5087 is preferred by its authors but not in NSS, so it isn't stored.

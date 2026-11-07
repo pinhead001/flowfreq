@@ -43,7 +43,7 @@ from __future__ import annotations
 
 import logging
 import re
-from dataclasses import dataclass, field, replace
+from dataclasses import asdict, dataclass, field, replace
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Set, Tuple, Union
@@ -1082,7 +1082,9 @@ class SiteEstimate:
     library_status : str
         The library's status (``verified``, ``provisional``, ...).
     advisory : str
-        The library's advisory text, if any.
+        The library's advisory text, if any, and a caution for each known miss nearby
+        (:class:`~flowfreq.regression.library.KnownMiss`, also in
+        ``provenance["known_misses"]``).
     estimates : dict
         AEP to ``(fraction, RegressionEstimate)`` pairs, one per region used.
     region_codes : dict
@@ -1508,6 +1510,9 @@ def estimate_at_site(
     }
     if assembly.region_choice_source is not None:
         provenance["region_choice_source"] = assembly.region_choice_source
+    nearby = [m for m in lib.known_misses if m.distance_km(lat, lon) <= m.radius_km]
+    if nearby:
+        provenance["known_misses"] = [asdict(m) for m in nearby]
     return SiteEstimate(
         lat=lat,
         lon=lon,
@@ -1518,7 +1523,7 @@ def estimate_at_site(
         unmatched_regions=assembly.unmatched,
         characteristics=characteristics,
         library_status=lib.status,
-        advisory=lib.advisory,
+        advisory=" ".join(filter(None, [lib.advisory, *(m.caution() for m in nearby)])),
         estimates=assembly.estimates,
         region_codes=assembly.region_codes,
         weighted=weighted,
