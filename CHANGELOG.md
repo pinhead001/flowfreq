@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.24.0] - 2026-11-07
+
+Indiana selects its region at the point, so no overlap call is left open, and estimates near three gages where the
+regression is known to miss now carry a caution. Indiana estimates on region boundaries can move, and some that
+were refused now return a value.
+
 ### Added
 - **Known-miss cautions.** An estimate near a gage where the regression is known to miss the record by far, with no
   fault found in the equations, now carries a caution in `advisory` and `provenance["known_misses"]`. Values don't
