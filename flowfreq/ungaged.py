@@ -1177,6 +1177,12 @@ class SiteEstimate:
                 "lies outside the calibrated range of the equation, so the published "
                 "standard error does not apply there."
             )
+            inputs: List[str] = []
+            for per_region in (self.provenance.get("out_of_range") or {}).values():
+                for items in per_region.values():
+                    inputs.extend(i for i in items if i not in inputs)
+            if inputs:
+                lines.append("- Inputs outside the calibrated range: " + "; ".join(inputs) + ".")
         else:
             lines.append("- Every input lies within the calibrated range of the equations used.")
         if len(self.regions) > 1:

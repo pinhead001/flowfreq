@@ -40,6 +40,7 @@ from flowfreq.streamstats import (
     WatershedCharacteristics,
 )
 from flowfreq.ungaged import (
+    QUANTILE_COLUMNS,
     Assembly,
     OverlappingRegionsError,
     SiteEstimate,
@@ -286,6 +287,28 @@ class TestAssemble:
     def test_every_region_missing_a_characteristic_raises(self):
         with pytest.raises(EquationsUnavailable, match="GC4 needs PRECIP"):
             assemble(LIB, [_region("GC4", 100.0)], CHARS, **KW)
+
+    def test_report_names_the_inputs_that_were_extrapolated(self):
+        q = pd.DataFrame(
+            [[0.01, 5249.0, 2742.0, 10046.0, 0.9, "prediction interval", True, "GC1934"]],
+            columns=list(QUANTILE_COLUMNS),
+        )
+        item = "LC19IMP=34.94 > max 10.0"
+        est = SiteEstimate(
+            lat=33.0,
+            lon=-84.0,
+            state="GA",
+            method="regression",
+            quantiles=q,
+            regions=[],
+            unmatched_regions=[],
+            characteristics={},
+            library_status="verified",
+            advisory="",
+            estimates={},
+            provenance={"out_of_range": {0.01: {"GC1934": [item]}, 0.5: {"GC1934": [item]}}},
+        )
+        assert f"Inputs outside the calibrated range: {item}." in est.to_markdown()
 
     def test_extrapolated_flag_follows_out_of_range(self):
         big = {"DRNAREA": 5000.0}
