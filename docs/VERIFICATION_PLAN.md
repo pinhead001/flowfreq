@@ -89,8 +89,7 @@ in the stored data. Nothing was changed.
   locate it here.
 
 Near this stream, use the gage record rather than the regression alone. The report's gaged-site weighting and
-transfer (equations 18-20) aren't stored. Whether results should warn near this boundary is an open question
-in `TODO.md`.
+transfer (equations 18-20) aren't stored. Estimates within 30 km now carry a caution (`known_misses` in `OK.json`).
 
 **Refusals.** Without `region=`, 84 gages returned an estimate, up from 53.
 
@@ -146,6 +145,9 @@ the 2014 sets above it, and refusal above 1 mi2.
   against its 5.54 explains the rest. The five largest peaks all lie between 4,140 and 4,730, an unusual ceiling.
   The record ends in 2012, before the 2016 flood that nearby Comite River near Olive Branch recorded at 78,000
   against a previous maximum of 25,300.
+
+Estimates near the MN and LA gages now carry a caution too, within 15 km (`known_misses`). IA doesn't, since it isn't
+a real conflict.
 
 **FL, MI and NE, without a StreamStats grid.** 38 gages sampled across their regions: stored equations on the
 report's printed characteristics against a live Bulletin 17C fit with station skew. Of 34 compared, the median

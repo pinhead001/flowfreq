@@ -924,6 +924,20 @@ class TestEstimateAtSite:
         est = estimate_at_site(WA_LAT, WA_LON, state="WA")
         assert est.provenance["weighting"] == "no at-site fit supplied"
 
+    @pytest.mark.parametrize("offset,cautioned", [(0.05, True), (1.0, False)], ids=["near", "far"])
+    def test_a_known_miss_cautions_only_nearby(self, fakes, monkeypatch, offset, cautioned):
+        from dataclasses import replace
+
+        from flowfreq.regression.library import KnownMiss, load_state
+
+        miss = KnownMiss("1", "A gage", WA_LAT + offset, WA_LON, 10.0, 2000.0, 1000.0)
+        lib = replace(load_state("WA"), known_misses=[miss])
+        monkeypatch.setattr("flowfreq.ungaged.load_state", lambda *a, **k: lib)
+        est = estimate_at_site(WA_LAT, WA_LON, state="WA")
+        assert ("Known miss nearby: at USGS 1 A gage" in est.advisory) is cautioned
+        assert ("known_misses" in est.provenance) is cautioned
+        assert ("Known miss nearby" in est.to_markdown()) is cautioned
+
     def test_a_streamstats_advisory_reaches_provenance_and_the_report(self, fakes, monkeypatch):
         karst = ["Delineated basin may contain karst"]
         delineate = fakes.delineate

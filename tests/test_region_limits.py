@@ -357,6 +357,28 @@ def test_ar_prefers_the_alluvial_plain_where_it_covers_the_basin():
     assert _used(a) == ["GC1719"]
 
 
+@pytest.mark.parametrize(
+    "state,site,ratio",
+    [
+        ("OK", "07301420", "9.9 times"),
+        ("MN", "05457778", "1/4.0 of"),
+        ("LA", "07377782", "2.6 times"),
+    ],
+)
+def test_known_miss_cautions_say_how_far_and_which_way(state, site, ratio):
+    miss = next(m for m in load_state(state).known_misses if m.site_no == site)
+    text = miss.caution()
+    assert f"USGS {site}" in text and ratio in text
+    assert text.endswith("Compare with gage records before relying on this estimate.")
+    assert miss.distance_km(miss.lat, miss.lon) == 0.0
+
+
+def test_known_miss_reaches_only_as_far_as_its_radius():
+    miss = load_state("OK").known_misses[0]
+    assert miss.distance_km(miss.lat + 0.2, miss.lon) <= miss.radius_km  # about 22 km
+    assert miss.distance_km(miss.lat + 0.3, miss.lon) > miss.radius_km  # about 33 km
+
+
 def test_a_selector_for_an_unknown_region_is_refused():
     import json
     from pathlib import Path
