@@ -379,6 +379,16 @@ def test_known_miss_reaches_only_as_far_as_its_radius():
     assert miss.distance_km(miss.lat + 0.3, miss.lon) > miss.radius_km  # about 33 km
 
 
+def test_iowa_ccm_above_3_87_goes_to_drainage_area_only():
+    lib = load_state("IA")
+    values = {"DRNAREA": 30.0, "I24H10Y": 4.0, "CCM": 4.2}
+    a = assemble(lib, _located(("GC1561", 100.0), ("GC1564", 100.0)), values, **KW)
+    assert _used(a) == ["GC1564"]
+    assert "region limit: GC1561 needs CCM <= 3.87" in a.region_choice_source
+    a = assemble(lib, _located(("GC1561", 100.0), ("GC1564", 100.0)), {**values, "CCM": 3.0}, **KW)
+    assert _used(a) == ["GC1561"]
+
+
 def test_a_selector_for_an_unknown_region_is_refused():
     import json
     from pathlib import Path

@@ -39,7 +39,8 @@ Owner's:
    gates are added, and a boundary basin now needs `region=`.
 6. **TX:** SIR 2009-5087 is preferred by its authors but not in NSS, so it isn't stored.
 7. Superseded sets dropped: OH 2006-5312, TN 03-4176, LA TR 60 and Delta. LA's southern gap: keep GC879?
-8. Close issue #293 if you're done with it. It is the only one open.
+8. Close issue #293 once the next live run passes. Its last failure was the staged CO and WY regions
+   (item 14), which the live tests now ignore.
 9. Open the app in a browser: the resizable period grips (app #24), the self-hosted map and chart (#29, #30), the
    dark-mode box (#32) and the extrapolation caution (#37) have never run in one here.
 10. Have a person spot-check the highest-use states against their reports. Every set was checked only by agents.
@@ -47,12 +48,16 @@ Owner's:
 Library follow-ups the batches found, none changed:
 
 11. Multi-region weighting: SD's report averages in flow.
-12. `power` at base 0 (IL stores an offset of 1e-12). `evaluate` prefers a rounded AVP over SEP (AL,
-    TN). Degrees of freedom on adjusted sets (IL).
-13. IA: a CCM above 3.87 or STRMTOT of 0 should go to the drainage-area-only set.
-14. LA's MAP slope isn't settled: live `CSL10_85` is the only code, and it missed Table 1 at both gages
-    that could be compared (2.48 against 2.20; 1.59 against 2.91). KY regions 1 and 4 and Jefferson have
-    no live slope. TN Memphis has no live CHANCOND. IN prints no intervals.
+12. `power` at base 0 (IL stores an offset of 1e-12, which moves a term by at most 1.1e-6 log10 units, so it
+    was left). Degrees of freedom on adjusted sets (IL). Done: a rounded AVP now gives way to the SEP in AL
+    and TN, IA's CCM above 3.87 goes to the drainage-area-only set, and LA's MAP slope is `CSL10_85` by the
+    report's definition.
+13. KY regions 1 and 4 and Jefferson have no live slope. TN Memphis has no live CHANCOND. IN prints no
+    intervals.
+14. **CO and WY have new peak-flow reports coming.** NSS already serves them with placeholder citations: Kohn
+    (CO, "SIR 2023-XXXX", GC1949-GC1952) and Taylor and others (WY, "SIR 2027-XXXX", GC2151-GC2154). When
+    each is published, verify it and decide whether it replaces the stored set. The live tests ignore those
+    regions until then.
 15. NH and NY never located their drainage-area-only sets at a tested point, so those are reachable
     only through `evaluate`.
 16. FL, MI and NE still can't run through `estimate_at_site`: no StreamStats grid, and NSS locates no

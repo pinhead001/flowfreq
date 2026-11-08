@@ -618,6 +618,29 @@ def input_codes(eq: RegressionEquation) -> List[str]:
     return list(codes)
 
 
+#: A rounded AVP gives way to the SEP only when the two differ by more than this fraction;
+#: below it the rounding does not matter and the printed AVP is kept.
+_AVP_ROUNDING_MATTERS = 0.05
+
+
+def _rounding_hides(avp: float, sep_variance: float) -> bool:
+    """Whether a printed AVP is a coarse rounding of the SEP's variance.
+
+    True when the SEP's variance lies within half a unit of the AVP's last printed digit, so the
+    two are the same statistic, and differs from it by more than :data:`_AVP_ROUNDING_MATTERS`,
+    so the rounding moves the interval. AL prints AVP 0.002 where its SEP of 9 percent is
+    0.0015, and TN prints two decimals.
+    """
+    if avp <= 0 or sep_variance <= 0:
+        return False
+    text = f"{avp:.12g}"
+    decimals = len(text.split(".")[1]) if "." in text and "e" not in text else 0
+    half_unit = 0.5 * 10.0**-decimals
+    if abs(sep_variance - avp) > half_unit + 1e-15:
+        return False
+    return abs(sep_variance / avp - 1.0) > _AVP_ROUNDING_MATTERS
+
+
 def _prediction_sd(
     eq: RegressionEquation, x_row: np.ndarray
 ) -> Tuple[Optional[float], Optional[str]]:
@@ -626,6 +649,8 @@ def _prediction_sd(
         var = eq.model_error_variance + float(x_row @ u @ x_row)
         return math.sqrt(var), "site-specific (model error + sampling covariance)"
     if eq.avp is not None:
+        if eq.sep_log is not None and _rounding_hides(eq.avp, eq.sep_log**2):
+            return eq.sep_log, "average standard error of prediction (sharper than the rounded AVP)"
         return math.sqrt(eq.avp), "average variance of prediction"
     if eq.sep_log is not None:
         return eq.sep_log, "average standard error of prediction"
