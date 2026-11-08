@@ -781,3 +781,15 @@ class TestInteractionTerms:
         d = eq.to_dict()
         assert d["variables"][1]["times"] == "PCTREG2" and "times" not in d["variables"][0]
         assert RegressionEquation.from_dict(json.loads(json.dumps(d))) == eq
+
+
+def test_a_coarse_avp_gives_way_to_the_sep_it_rounds():
+    from flowfreq.regression.equations import _rounding_hides
+
+    assert _rounding_hides(0.002, 0.0015)  # AL region 4 at 10 percent: SEP 9 percent
+    assert not _rounding_hides(0.0297, 0.0297 * 1.02)  # within rounding, but too close to matter
+    assert not _rounding_hides(0.04, 0.018)  # TN HA2: not a rounding of the SEP
+    al = load_state("AL")
+    eq = next(e for e in al.equations if e.avp == 0.002 and e.sep_log is not None)
+    est = evaluate(eq, {v.code: (v.minimum + v.maximum) / 2 for v in eq.variables})
+    assert est.interval_method.startswith("average standard error of prediction")

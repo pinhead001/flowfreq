@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **Iowa:** above a CCM of 3.87, region 1's full set drops out and the drainage-area-only set is used, as SIR 2015-5055
+  directs, instead of the estimate being refused.
+- **Intervals in AL and TN:** where a printed AVP is a coarse rounding of the SEP's variance and the two differ by more
+  than 5 percent, the interval uses the SEP. That affects 11 AL and 38 TN equations; nothing else changes.
+- **Louisiana's alluvial plain slope** is settled as `CSL10_85`, the main channel slope SIR 2021-5046 defines. Notes only.
+
+### Fixed
+- The live NSS tests for CO and WY ignore regions NSS serves for unpublished reports, which failed the scheduled
+  run (#293).
+
 ## [0.24.0] - 2026-11-07
 
 Indiana selects its region at the point, so no overlap call is left open, and estimates near three gages where the

@@ -222,6 +222,12 @@ NSS_STAT_TO_AEP = {
 }
 
 
+#: Regions NSS serves for an unpublished report (Taylor and others, staged as SIR 2027-XXXX, citation URL "placeholder",
+#: seen 2026-11-07). They need characteristics these basins don't carry and aren't in the
+#: library until the report is published, when this state needs verifying again.
+STAGED_IN_NSS = {"PFS:GC2151", "PFS:GC2152", "PFS:GC2153", "PFS:GC2154"}
+
+
 @pytest.mark.requires_network
 @pytest.mark.parametrize(
     "basin",
@@ -254,7 +260,7 @@ def test_matches_live_nss(lib, basin):
 
     chars = {k: Characteristic(k, k, "", v, "") for k, v in basin.items()}
     results, skipped = estimate_flow_statistics("WY", chars, ["PFS"])
-    assert not skipped
+    assert set(skipped) <= STAGED_IN_NSS, skipped
     compared = 0
     for r in results:
         region = NSS_CODE_TO_REGION[r.region_code]
