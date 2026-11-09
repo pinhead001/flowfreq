@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `tools/border_qa.py` (dev tool, not shipped): the cross-border consistency check on every border between verified
+  states, by AEP, with a resumable cache. First, partial results in `docs/BORDER_QA.md`.
+
 ### Changed
 - **Iowa:** above a CCM of 3.87, region 1's full set drops out and the drainage-area-only set is used, as SIR 2015-5055
   directs, instead of the estimate being refused.
