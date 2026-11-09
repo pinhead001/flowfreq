@@ -5,24 +5,17 @@
 > in progress are tracked under "Roadmap Phase A, Wave 1 and Wave 2" in Open Items below.
 
 ## Status
-Last updated: 2026-11-07. Version **0.24.0** is released (tag `v0.24.0`). `main` carries
-**0.25.0.dev0**; 0.24.x patches come from `release/0.24.x` (CLAUDE.md, Branches and Releases).
-flowfreq-app pins v0.23.0, with a PR open for v0.24.0. 51 jurisdictions are `verified`, and 5 have no equations.
+Last updated: 2026-11-08. Version **0.25.0** is released (tag `v0.25.0`). `main` carries
+**0.26.0.dev0**; 0.25.x patches come from `release/0.25.x` (CLAUDE.md, Branches and Releases).
+flowfreq-app pins v0.24.0, with a PR open for v0.25.0. 51 jurisdictions are `verified`, and 5 have no equations.
 
-`docs/NATIONWIDE_SMOKE.md` is a full 56-jurisdiction rerun on 2026-11-04, after all of that merged:
-gaged 56/56 and ungaged 48/56, the same eight known gaps (AS, DC, GU, MP and VI have no equations; FL,
-MI and NE have no stream grid). 47 of the 50 verified sets ran live. Among the verified sets only OH and
-WI moved, by under 0.1 %, from unrounded coefficients, until #340's rules moved TN's point from its
-drainage-area-only value to the full set. The Live services run reports an outage as a skip rather than a
-failure (#294), so read its job summary.
-
-### Next steps (2026-11-07)
+### Next steps (2026-11-08)
 
 **The batches in `docs/VERIFICATION_PLAN.md` are done. Read its "What `verified` rests on here".**
 
 Owner's:
 
-1. Merge the app's v0.24.0 pin PR. Push `release/0.24.x` (a hook blocks it here; the branch exists locally).
+1. Merge the app's v0.25.0 pin PR and app #40. Push `release/0.25.x` (a hook blocks it here; the branch exists locally).
 2. **Overlap calls:** none open. Urban and NRCS-regulated basins (AL, MO, TN, OK) need `region=` on purpose; say
    if you want a default instead.
 
