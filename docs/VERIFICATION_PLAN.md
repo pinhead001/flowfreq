@@ -45,7 +45,8 @@ Read this before relying on a batch 2-5 state.
 1. **Refusals still on real sites,** from the check below: 18 of 102 gages, mostly points that don't
    snap. An urban
    or NRCS-regulated basin does on purpose.
-2. **Cross-border checks:** a sample ran (below). The full check by AEP on every border hasn't.
+2. **Cross-border checks:** the full check (`docs/BORDER_QA.md`) is partial. 657 of 1,691 gages are still to run,
+   because StreamStats' basin-characteristics service was down for over 12 hours on 2026-11-08.
 3. **Library follow-ups** the batches found: `TODO.md`, Next steps.
 
 ## Wider live check, 2026-11-04
@@ -198,6 +199,39 @@ locates all eight regions at 100 percent. `estimate_at_site` now uses it (`Regio
 
 The rule follows the report, though it doesn't always land closer to the gage: 03364500 moved further away. Gages
 wholly in one region don't change.
+
+## Cross-border check on every border, 2026-11-07 to 2026-11-08 (partial)
+
+`tools/border_qa.py` runs every catalog gage within 20 km of a neighboring verified state (20+ peaks, 1-3,000 mi2, not
+classed regulated or urban): 1,691 gages in 107 pairs. Each is delineated once in its own state. Both states' equations are
+then evaluated on that basin at AEP 50, 10 and 1 percent: the home state through `assemble` with every library rule, and the
+neighbor on the same characteristics, filling equivalent ones where the home region lacks them. Results are in
+`docs/BORDER_QA.md`, with rows in `docs/border_qa/rows.csv`.
+
+**Partial.** StreamStats' ss-hydro returned 502 from early on 2026-11-08 for more than 12 hours, so 657 gages haven't run.
+Resume with `python tools/border_qa.py run`, then `report`. The cache is under `.cache/border_qa`. Of the 1,034 that ran,
+736 delineated and 327 could be compared. The main obstacle is the neighbor needing a characteristic the home region
+doesn't compute (266 rows at 1 percent). Equivalents filled the gap at 131 of 340 comparisons; each is recorded on its row.
+
+| At 1 percent | Gages |
+|---|---:|
+| Within 1.5 times | 234 |
+| 1.5 to 2 times | 65 |
+| 2 to 3 times | 28 |
+| 3 times or more | 13 |
+
+The median factor is 1.2 at every AEP. The home equation was nearer the at-site fit at 169 of 334 comparisons, so neither
+side is generally better. 15 pairs show a systematic offset, meaning 3 or more gages beyond 1.26 times. Among them:
+
+- **Arkansas against Missouri:** Missouri's equations give 0.7 of Arkansas's over 12 gages, down to 0.19 at 07077200.
+  Missouri's region 3 against Kentucky and Tennessee (0.2 to 4.4 times) rests on the same 3 comparisons as the
+  2026-11-05 sample, too few to count as systematic here.
+- **Georgia against Alabama:** Alabama's equations run 1.7-2 times above Georgia's HR1-5, from both sides (26 gages).
+- **Idaho against Montana:** 0.55 and 1.47, consistent from both sides, as `docs/WAVE_QA_W1_W2.md` found.
+- **Iowa:** Minnesota runs 2 times above it, and Wisconsin about half.
+
+Differences are documented, not smoothed. None was traced to a transcription fault, and none is cautioned in results,
+since a border offset says the two studies disagree, not which is wrong.
 
 ## Order
 
