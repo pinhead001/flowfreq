@@ -253,7 +253,11 @@ of the 6 gages flowfreq's value matches the report's printed regression estimate
 2,880, 3,960 against 3,840, 596 against 679). The sixth, 06483460, drains Iowa's regions 1 and 2. The report prints
 13,200 from region 2 alone, and flowfreq weights the two regions by area, as the report says to do for an ungaged site
 draining more than one region. The low ratio is the records': 21 to 59 years, five of six ending between 1973 and 1988,
-and all six led by the 1953-54 floods. So station-skew fits run high. **Georgia** isn't traced yet.
+and all six led by the 1953-54 floods. So station-skew fits run high. **Georgia, traced 2026-11-08: the equations
+are right too.** At all 17 gages along the Alabama line, flowfreq reproduces SIR 2023-5006's printed regression estimate
+(for example 17,895 against 17,900 at 02340250, and 845 against 845 at 02343219). The gap is a real disagreement between
+Alabama's 2020 study and Georgia's 2023 study, about 1.7 times at 1 percent, and the gage records don't settle it: the
+two sets are nearer at about half the gages each.
 
 Differences are documented, not smoothed. None was traced to a transcription fault, and none is cautioned in results,
 since a border offset says the two studies disagree, not which is wrong.

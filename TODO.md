@@ -58,8 +58,8 @@ Library follow-ups the batches found, none changed:
     region there. A caller would have to supply region and characteristics.
 
 17. Finish the cross-border check: `python tools/border_qa.py run`, then `report`, once StreamStats' ss-hydro is back
-    (657 of 1,691 gages left; `docs/BORDER_QA.md`). Then trace Georgia's border rows along Alabama (Iowa's are
-    traced: the equations match the report, and the gage records are short and 1953-led).
+    (657 of 1,691 gages left; `docs/BORDER_QA.md`). Iowa's and Georgia's border rows are traced, and both states'
+    equations match their reports; the gaps are the studies' and the records'.
 
 Parked: gage page NID and NLCD events beside a change point
 (`stationarity.basin_change_events`; needs the delineated basin), raster hydrograph, the Bulletin
