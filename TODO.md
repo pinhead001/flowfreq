@@ -57,9 +57,11 @@ Library follow-ups the batches found, none changed:
 16. FL, MI and NE still can't run through `estimate_at_site`: no StreamStats grid, and NSS locates no
     region there. A caller would have to supply region and characteristics.
 
-17. Finish the cross-border check: `python tools/border_qa.py run`, then `report`, once StreamStats' ss-hydro is back
-    (657 of 1,691 gages left; `docs/BORDER_QA.md`). Iowa's and Georgia's border rows are traced, and both states'
-    equations match their reports; the gaps are the studies' and the records'.
+17. Finish the cross-border check once StreamStats stops refusing this machine (403 since 2026-11-09 14:40, after
+    about 1,700 requests): `python tools/border_qa.py run --workers 1`, then `report` (about 280 gages left;
+    `docs/BORDER_QA.md`). Then trace Rhode Island against Connecticut, the largest new offset (2.4 times). Iowa and
+    Georgia are traced: both states' equations match their reports. Also check whether Texas's StreamStats computes
+    `OmegaEM` (SIR 2009-5087), which StreamStats failures kept from being answered.
 
 Parked: gage page NID and NLCD events beside a change point
 (`stationarity.basin_change_events`; needs the delineated basin), raster hydrograph, the Bulletin

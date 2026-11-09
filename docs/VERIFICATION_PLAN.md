@@ -200,7 +200,7 @@ locates all eight regions at 100 percent. `estimate_at_site` now uses it (`Regio
 The rule follows the report, though it doesn't always land closer to the gage: 03364500 moved further away. Gages
 wholly in one region don't change.
 
-## Cross-border check on every border, 2026-11-07 to 2026-11-08 (partial)
+## Cross-border check on every border, 2026-11-07 to 2026-11-09 (partial)
 
 `tools/border_qa.py` runs every catalog gage within 20 km of a neighboring verified state (20+ peaks, 1-3,000 mi2, not
 classed regulated or urban): 1,691 gages in 107 pairs. Each is delineated once in its own state. Both states' equations are
@@ -208,29 +208,28 @@ then evaluated on that basin at AEP 50, 10 and 1 percent: the home state through
 neighbor on the same characteristics, filling equivalent ones where the home region lacks them. Results are in
 `docs/BORDER_QA.md`, with rows in `docs/border_qa/rows.csv`.
 
-**Partial.** StreamStats' ss-hydro returned 502 from early on 2026-11-08 for more than 12 hours, so 657 gages haven't run.
-Resume with `python tools/border_qa.py run`, then `report`. The cache is under `.cache/border_qa`. Of the 1,034 that ran,
-736 delineated and 327 could be compared. The main obstacle is the neighbor needing a characteristic the home region
-doesn't compute (266 rows at 1 percent). Equivalents filled the gap at 131 of 340 comparisons; each is recorded on its row.
+**Still partial.** StreamStats' ss-hydro was down from early 2026-11-08 to the morning of 2026-11-09. The second run then
+stopped when StreamStats began refusing this machine with 403 Forbidden, after about 1,700 requests in a day. About 280
+gages remain: 147 refused, 71 with a service error, and 64 not reached. Resume with `python tools/border_qa.py run
+--workers 1` once StreamStats answers again, then `report`. The cache is under `.cache/border_qa`. Of 1,182 delineated
+gages, 516 could be compared. The main obstacle is still the neighbor needing a characteristic the home region doesn't
+compute (429 rows at 1 percent). Indiana now compares, at 10 rows, after the tool stopped asking it for a 50 percent
+equation it doesn't publish.
 
 | At 1 percent | Gages |
 |---|---:|
-| Within 1.5 times | 234 |
-| 1.5 to 2 times | 65 |
-| 2 to 3 times | 28 |
-| 3 times or more | 13 |
+| Within 1.5 times | 359 |
+| 1.5 to 2 times | 111 |
+| 2 to 3 times | 43 |
+| 3 times or more | 26 |
 
-The median factor is 1.2 at every AEP. The home equation was nearer the at-site fit at 169 of 334 comparisons, so neither
-side is generally better. 15 pairs first showed a systematic offset, meaning 3 or more gages beyond 1.26 times.
-Three of those were the check's own doing, so the report now also counts **clean** comparisons, where neither side
-extrapolated and no urban set was picked by default (307 of 340 at 1 percent):
+The median factor is 1.22-1.24 at every AEP. The home equation was nearer the at-site fit at 284 of 533 comparisons. The
+first run showed 3 apparent offsets that were the check's own doing: Alabama to Georgia, where Georgia's 1 mi2 sets were
+extrapolated, and Kansas to Missouri and Delaware to Maryland, where an urban set was picked by default. So the report
+counts **clean** comparisons, where neither side extrapolated and no urban set was picked by default (474 of 539 at 1
+percent).
 
-- **Alabama to Georgia:** Georgia's 2023 set needs Georgia-only inputs, so only its sets for 1 mi2 or less were left, and
-  they were extrapolated far out of range.
-- **Kansas to Missouri, Delaware to Maryland:** the neighbor's overlap went to its urban set on rural basins. The tool now
-  never picks an urban set by default.
-
-12 pairs stay systematic on clean comparisons. At-site is the gage's Bulletin 17C fit with station skew:
+17 pairs are systematic on clean comparisons. At-site is the gage's Bulletin 17C fit with station skew:
 
 | Home to neighbor | Gages | Neighbor/home | Home/at-site | Neighbor/at-site | Home nearer the record |
 |---|---:|---:|---:|---:|---:|
@@ -245,9 +244,18 @@ extrapolated and no urban set was picked by default (307 of 340 at 1 percent):
 | MD to VA | 5 | 1.47 | 0.92 | 1.35 | 3 of 5 |
 | MO to OK | 3 | 1.42 | 0.89 | 1.23 | 2 of 3 |
 | MT to ID | 15 | 1.47 | 0.97 | 1.15 | 6 of 15 |
+| NY to CT | 6 | 1.64 | 1.02 | 1.41 | 3 of 6 |
+| NY to VT | 14 | 1.42 | 0.84 | 1.28 | 9 of 14 |
+| RI to CT | 14 | 2.39 | 0.87 | 1.90 | 10 of 14 |
+| SD to IA | 4 | 1.37 | 0.96 | 1.32 | 3 of 4 |
+| VA to TN | 9 | 1.41 | 1.10 | 1.64 | 7 of 9 |
+| VA to WV | 6 | 0.53 | 0.88 | 0.64 | 2 of 6 |
 
-Mostly each state's own equations sit nearer its own gages, as expected of equations fitted to them. Two rows don't fit
-that pattern. **Georgia's** 2023 set gives 0.64 of the record along the Alabama line, where Alabama's gives 1.32. **Iowa's**
+**New in the second run:** Connecticut's equations run 2.4 times above Rhode Island's at 14 Rhode Island gages, and 1.9 times
+above the record. Rhode Island's are nearer at 10, so this is the largest new offset worth tracing.
+
+Mostly each state's own equations sit nearer its own gages, as expected of equations fitted to them. Two rows from the
+first run didn't fit that pattern, and both are traced. **Georgia's** 2023 set gives 0.64 of the record along the Alabama line, where Alabama's gives 1.32. **Iowa's**
 equations give 0.41 of the record at 6 gages near Minnesota, and Minnesota's 0.59. **Iowa, traced 2026-11-08: the equations are right.** At 5
 of the 6 gages flowfreq's value matches the report's printed regression estimate (1,188 against 1,200, 2,863 against
 2,880, 3,960 against 3,840, 596 against 679). The sixth, 06483460, drains Iowa's regions 1 and 2. The report prints
