@@ -391,6 +391,11 @@ class StateLibrary:
     region_selector: Optional[RegionSelector] = None
     #: Investigated gages where the regression misses the record by far, with no fault found.
     known_misses: List[KnownMiss] = field(default_factory=list)
+    #: A caution added to every estimate that uses the region, keyed by library region code.
+    region_cautions: Dict[str, str] = field(default_factory=dict)
+    #: The region used when NSS locates none of the library's regions and the caller names none,
+    #: with why: ``{"region": code, "basis": text}``.
+    fallback_region: Optional[Dict[str, str]] = None
 
     @property
     def provisional(self) -> bool:
@@ -484,6 +489,16 @@ def parse_state(data: Dict[str, Any]) -> StateLibrary:
     unknown = sorted(set(limits) - {e.region_code for e in eqs})
     if unknown:
         raise ValueError(f"{state}: region_limits for regions with no equations: {unknown}")
+    regions_known = {e.region_code for e in eqs}
+    cautions = {str(k): str(v) for k, v in (data.get("region_cautions") or {}).items()}
+    unknown = sorted(set(cautions) - regions_known)
+    if unknown:
+        raise ValueError(f"{state}: region_cautions for regions with no equations: {unknown}")
+    fallback = data.get("fallback_region")
+    if fallback is not None:
+        fallback = {"region": str(fallback["region"]), "basis": str(fallback.get("basis") or "")}
+        if fallback["region"] not in regions_known:
+            raise ValueError(f"{state}: fallback_region {fallback['region']!r} has no equations")
     selector_data = data.get("region_selector")
     selector = RegionSelector.from_dict(selector_data) if selector_data else None
     if selector is not None:
@@ -504,6 +519,8 @@ def parse_state(data: Dict[str, Any]) -> StateLibrary:
         region_limits=limits,
         region_selector=selector,
         known_misses=[KnownMiss.from_dict(x) for x in data.get("known_misses") or []],
+        region_cautions=cautions,
+        fallback_region=fallback,
     )
 
 

@@ -544,6 +544,15 @@ def _selected_region(
     )
 
 
+def _skipped_note(missing: Mapping[str, List[str]]) -> str:
+    """Why a preferred set was passed over, for ``region_choice_source``: ``""`` if none was."""
+    if not missing:
+        return ""
+    return "; passed over for a missing characteristic: " + "; ".join(
+        f"{code} needs {', '.join(codes)}" for code, codes in missing.items()
+    )
+
+
 def _within_limits(
     lib: StateLibrary,
     used: Sequence[Tuple[RegressionRegionLocation, str]],
@@ -758,6 +767,22 @@ def assemble(
         else:
             shown = choice if len(choices) == 1 else region
             extra_refusal = f"; region {shown!r} is not a library region either"
+    elif region is None and not matched and lib.fallback_region is not None:
+        fb_code = lib.fallback_region["region"]
+        located = RegressionRegionLocation(
+            region_id=0,
+            code=fb_code,
+            name=_region_name(lib, fb_code),
+            percent_weight=100.0,
+            area_sq_mi=0.0,
+        )
+        matched = [(located, fb_code)]
+        pre_matched = {fb_code: fb_code}
+        region_choice_source = (
+            f"fallback: NSS located no peak-flow region of the library for this basin, so {fb_code} "
+            "is used"
+            + (f"; {lib.fallback_region['basis']}" if lib.fallback_region["basis"] else "")
+        )
     if not regions and not matched:
         raise EquationsUnavailable(
             f"{lib.state}: NSS located no regression region for this basin in "
@@ -907,6 +932,7 @@ def assemble(
                     gap = _gate_gap(lib, used, characteristics)
                     raise OverlappingRegionsError(lib.state, candidates, reason=gap)
                 (chosen, *extra), region_choice_source = preferred
+                region_choice_source += _skipped_note(missing)
             else:
                 chosen, region_choice_source = by_rule
             logger.info("%s: %s", lib.state, region_choice_source)
@@ -978,7 +1004,7 @@ def assemble(
         # The preferred set lacks a characteristic and what is left is no longer an overlap.
         fallback = _preferred_regions(lib, used)
         if fallback is not None:
-            region_choice_source = fallback[1]
+            region_choice_source = fallback[1] + _skipped_note(missing)
     if limit_source is not None:
         region_choice_source = (
             f"{limit_source}; {region_choice_source}" if region_choice_source else limit_source
@@ -1511,6 +1537,8 @@ def estimate_at_site(
     if assembly.region_choice_source is not None:
         provenance["region_choice_source"] = assembly.region_choice_source
     nearby = [m for m in lib.known_misses if m.distance_km(lat, lon) <= m.radius_km]
+    used_codes = {assembly.region_codes.get(r.code, r.code) for r in assembly.used}
+    region_cautions = [text for code, text in lib.region_cautions.items() if code in used_codes]
     if nearby:
         provenance["known_misses"] = [asdict(m) for m in nearby]
     return SiteEstimate(
@@ -1523,7 +1551,9 @@ def estimate_at_site(
         unmatched_regions=assembly.unmatched,
         characteristics=characteristics,
         library_status=lib.status,
-        advisory=" ".join(filter(None, [lib.advisory, *(m.caution() for m in nearby)])),
+        advisory=" ".join(
+            filter(None, [lib.advisory, *region_cautions, *(m.caution() for m in nearby)])
+        ),
         estimates=assembly.estimates,
         region_codes=assembly.region_codes,
         weighted=weighted,

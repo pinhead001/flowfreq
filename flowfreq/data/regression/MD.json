@@ -2095,5 +2095,12 @@
    "n_sites": 23,
    "equivalent_years": 15.0
   }
- ]
+ ],
+ "region_cautions": {
+  "Appalachian Plateau": "Maryland: these are the Third Edition (2010) equations, which NSS and StreamStats serve. The Maryland Hydrology Panel has replaced them for state practice (Sixth Edition, July 2023), on characteristics StreamStats can't provide. Check which edition your project requires.",
+  "Eastern Coastal Plain": "Maryland: these are the Third Edition (2010) equations, which NSS and StreamStats serve. The Maryland Hydrology Panel has replaced them for state practice (Sixth Edition, July 2023), on characteristics StreamStats can't provide. Check which edition your project requires.",
+  "Piedmont (Urban)": "Maryland: these are the Third Edition (2010) equations, which NSS and StreamStats serve. The Maryland Hydrology Panel has replaced them for state practice (Sixth Edition, July 2023), on characteristics StreamStats can't provide. Check which edition your project requires.",
+  "Piedmont and Blue Ridge (Rural)": "Maryland: these are the Third Edition (2010) equations, which NSS and StreamStats serve. The Maryland Hydrology Panel has replaced them for state practice (Sixth Edition, July 2023), on characteristics StreamStats can't provide. Check which edition your project requires.",
+  "Western Coastal Plain": "Maryland: these are the Third Edition (2010) equations, which NSS and StreamStats serve. The Maryland Hydrology Panel has replaced them for state practice (Sixth Edition, July 2023), on characteristics StreamStats can't provide. Check which edition your project requires."
+ }
 }
