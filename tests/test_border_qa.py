@@ -53,6 +53,7 @@ def test_summary_counts_factors_and_flags_systematic_pairs():
             _row("1", "MO", "KY", 0.5, 100.0, 120.0),
         ]
     )
+    rows["clean"] = True
     s = bq.summarize(rows)
     one = next(b for b in s["by_aep"] if b["aep"] == 0.01)
     assert (one["n"], one["within_1.5x"], one["2_to_3x"], one["3x_or_more"]) == (4, 1, 0, 3)
@@ -63,6 +64,25 @@ def test_summary_counts_factors_and_flags_systematic_pairs():
     assert (s["home_nearer"], s["with_fit"]) == (2, 3)
     assert s["why_not"] == {"neighbour: no region located": 1}
     assert math.isclose(10 ** abs(math.log10(3.5)), 3.5)
+
+
+def test_default_pick_avoids_urban_and_drainage_area_only_sets():
+    cands = [
+        ("GC1486", "Urban (SIR 2010-5073)", 2010),
+        ("GC1564", "Region 1, drainage area only", 2015),
+        ("GC1485", "Region 3, rural", 2014),
+    ]
+    assert bq.default_pick(cands) == "GC1485"
+    assert bq.default_pick(cands[:2]) == "GC1564"
+
+
+def test_clean_excludes_extrapolation_and_urban_default_picks():
+    home = {"home_est": {"0.01": [1000.0, False]}}
+    assert bq._clean(home, {"0.01": [1200.0, False], "regions": ["GC1:1"]}, "0.01")
+    assert not bq._clean(home, {"0.01": [1200.0, True], "regions": ["GC1:1"]}, "0.01")
+    urban = {"0.01": [1200.0, False], "regions": ["GC1486:Urban"], "picked": "GC1486"}
+    assert not bq._clean(home, urban, "0.01")
+    assert not bq._clean({"home_est": {"0.01": [1000.0, True]}}, {"0.01": [1, False]}, "0.01")
 
 
 def test_reasons_a_row_is_not_compared():

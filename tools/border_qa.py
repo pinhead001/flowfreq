@@ -231,6 +231,21 @@ def _at_site(site_no: str) -> Dict[str, Any]:
     return out
 
 
+def default_pick(candidates: Sequence[Sequence[Any]]) -> str:
+    """The set to use where the library leaves an overlap to the caller: a rural full set.
+
+    An urban set on a rural basin, or a drainage-area-only set where a full set applies, would
+    make a border difference that is the tool's choice, not the equations'. Candidates are the
+    library's ``(nss_code, region_name, year)``.
+    """
+
+    def rank(c: Sequence[Any]) -> Tuple[int, int]:
+        name = str(c[1]).lower()
+        return ("urban" in name, "drainage area only" in name)
+
+    return str(sorted(candidates, key=rank)[0][0])
+
+
 def _assemble(lib: Any, regions: Sequence[Any], values: Mapping[str, float]) -> Dict[str, Any]:
     pick = None
     try:
@@ -238,8 +253,7 @@ def _assemble(lib: Any, regions: Sequence[Any], values: Mapping[str, float]) -> 
             lib, regions, values, aeps=list(AEPS), allow_extrapolation=True, weighting_space="log"
         )
     except OverlappingRegionsError as exc:
-        cands = exc.candidates
-        pick = ([c for c in cands if "drainage area only" not in c[1].lower()] or cands)[0][0]
+        pick = default_pick(exc.candidates)
         a = assemble(
             lib,
             regions,
@@ -320,6 +334,7 @@ def run_site(cache: Path, site_no: str, rows: pd.DataFrame) -> None:
         return
     raw = {k: c.value for k, c in ws.characteristics.items() if isinstance(c.value, (int, float))}
     values, subs = fill_proxies(raw, ws.snap.snapped_lat, ws.snap.snapped_lon)
+    rec["characteristics"] = raw  # so a later version can re-evaluate without StreamStats
     area = values.get("DRNAREA") or values.get("CONTDA")
     rec["delineated_sqmi"] = area
     rec["mis_snapped"] = not (area and 1 / DA_TOL <= area / rec["drainage_area_sqmi"] <= DA_TOL)
@@ -415,6 +430,7 @@ def rows_from_cache(cache: Path) -> pd.DataFrame:
                         "at_site_lo": site[1] if site else None,
                         "at_site_hi": site[2] if site else None,
                         "why_not": _why_not(rec, entry, key),
+                        "clean": _clean(rec, entry, key),
                     }
                 )
     return pd.DataFrame(out)
@@ -437,6 +453,22 @@ def _why_not(rec: Mapping[str, Any], entry: Mapping[str, Any], key: str) -> str:
     return ""
 
 
+def _clean(rec: Mapping[str, Any], entry: Mapping[str, Any], key: str) -> bool:
+    """A comparison neither side reached by extrapolating or by a default overlap pick.
+
+    Extrapolation here is usually a set used far outside its range because the set that
+    applies needs a characteristic the home region doesn't compute (Georgia's 1 mi2 sets on
+    Alabama basins); an urban default pick puts an urban set on a rural basin. Either makes a
+    difference that is the check's, not the equations'.
+    """
+    home = (rec.get("home_est") or {}).get(key)
+    other = entry.get(key)
+    if not home or not other:
+        return False
+    urban_pick = bool(entry.get("picked")) and "urban" in " ".join(entry.get("regions", [])).lower()
+    return not (home[1] or other[1] or urban_pick)
+
+
 def summarize(rows: pd.DataFrame) -> Dict[str, Any]:
     """Counts and factors by AEP and, at 1 percent, by pair; from :func:`rows_from_cache`."""
     ok = rows[rows["why_not"] == ""].copy()
@@ -456,9 +488,13 @@ def summarize(rows: pd.DataFrame) -> Dict[str, Any]:
             }
         )
     one = ok[ok["aep"] == 0.01].copy()
+    clean_col = one["clean"] if "clean" in one else pd.Series(True, index=one.index)
+    one["clean"] = clean_col.fillna(False).astype(bool)
     pairs = []
     for (h, n), g in one.groupby(["home", "neighbor"]):
         med = float(g["log_ratio"].median())
+        c = g[g["clean"]]
+        cmed = float(c["log_ratio"].median()) if len(c) else float("nan")
         pairs.append(
             {
                 "home": h,
@@ -466,6 +502,9 @@ def summarize(rows: pd.DataFrame) -> Dict[str, Any]:
                 "n": len(g),
                 "median_neighbor_over_home": round(10**med, 2),
                 "systematic": len(g) >= 3 and abs(med) > SYSTEMATIC_LOG,
+                "clean_n": len(c),
+                "clean_median": round(10**cmed, 2) if len(c) else None,
+                "clean_systematic": len(c) >= 3 and abs(cmed) > SYSTEMATIC_LOG,
             }
         )
     fit = one.dropna(subset=["at_site_q"])
@@ -482,6 +521,7 @@ def summarize(rows: pd.DataFrame) -> Dict[str, Any]:
         "gages": int(rows["site_no"].nunique()),
         "not_delineated": {},
         "compared_gages": int(ok["site_no"].nunique()),
+        "clean_at_1pct": int(one["clean"].sum()),
     }
 
 
@@ -525,15 +565,20 @@ def report(cache: Path, out_md: Path, out_csv: Path) -> None:
         "",
         "## Pairs at 1 percent",
         "",
-        "Systematic: 3 or more gages and a median factor beyond 1.26 (0.1 log10).",
+        "Systematic: 3 or more gages and a median factor beyond 1.26 (0.1 log10). Clean: neither side "
+        "extrapolated and no urban set picked by default; "
+        f"{s['clean_at_1pct']} of the comparisons at 1 percent are clean.",
         "",
-        "| Home | Neighbour | Gages | Median neighbour/home | Systematic |",
-        "|---|---|---:|---:|---|",
+        "| Home | Neighbour | Gages | Median neighbour/home | Systematic | Clean gages | Clean median "
+        "| Clean systematic |",
+        "|---|---|---:|---:|---|---:|---:|---|",
     ]
     for p in sorted(s["pairs"], key=lambda p: (p["home"], p["neighbor"])):
         lines.append(
             f"| {p['home']} | {p['neighbor']} | {p['n']} | {p['median_neighbor_over_home']} | "
-            f"{'yes' if p['systematic'] else ''} |"
+            f"{'yes' if p['systematic'] else ''} | {p['clean_n']} | "
+            f"{'' if p['clean_median'] is None else p['clean_median']} | "
+            f"{'yes' if p['clean_systematic'] else ''} |"
         )
     lines += ["", "## Not compared, at 1 percent", "", "| Reason | Rows |", "|---|---:|"]
     for why, n in sorted(s["why_not"].items(), key=lambda x: -x[1]):

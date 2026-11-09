@@ -221,14 +221,36 @@ doesn't compute (266 rows at 1 percent). Equivalents filled the gap at 131 of 34
 | 3 times or more | 13 |
 
 The median factor is 1.2 at every AEP. The home equation was nearer the at-site fit at 169 of 334 comparisons, so neither
-side is generally better. 15 pairs show a systematic offset, meaning 3 or more gages beyond 1.26 times. Among them:
+side is generally better. 15 pairs first showed a systematic offset, meaning 3 or more gages beyond 1.26 times.
+Three of those were the check's own doing, so the report now also counts **clean** comparisons, where neither side
+extrapolated and no urban set was picked by default (307 of 340 at 1 percent):
 
-- **Arkansas against Missouri:** Missouri's equations give 0.7 of Arkansas's over 12 gages, down to 0.19 at 07077200.
-  Missouri's region 3 against Kentucky and Tennessee (0.2 to 4.4 times) rests on the same 3 comparisons as the
-  2026-11-05 sample, too few to count as systematic here.
-- **Georgia against Alabama:** Alabama's equations run 1.7-2 times above Georgia's HR1-5, from both sides (26 gages).
-- **Idaho against Montana:** 0.55 and 1.47, consistent from both sides, as `docs/WAVE_QA_W1_W2.md` found.
-- **Iowa:** Minnesota runs 2 times above it, and Wisconsin about half.
+- **Alabama to Georgia:** Georgia's 2023 set needs Georgia-only inputs, so only its sets for 1 mi2 or less were left, and
+  they were extrapolated far out of range.
+- **Kansas to Missouri, Delaware to Maryland:** the neighbor's overlap went to its urban set on rural basins. The tool now
+  never picks an urban set by default.
+
+12 pairs stay systematic on clean comparisons. At-site is the gage's Bulletin 17C fit with station skew:
+
+| Home to neighbor | Gages | Neighbor/home | Home/at-site | Neighbor/at-site | Home nearer the record |
+|---|---:|---:|---:|---:|---:|
+| AR to MO | 11 | 0.73 | 1.02 | 0.66 | 9 of 11 |
+| CO to NM | 5 | 1.86 | 1.55 | 3.31 | 4 of 5 |
+| GA to AL | 17 | 1.69 | 0.64 | 1.32 | 9 of 17 |
+| IA to MN | 6 | 2.04 | 0.41 | 0.59 | 2 of 6 |
+| IA to WI | 8 | 0.46 | 0.93 | 0.46 | 6 of 8 |
+| ID to MT | 7 | 0.55 | 1.06 | 0.68 | 4 of 7 |
+| KS to MO | 4 | 0.71 | 0.92 | 0.62 | 2 of 2 |
+| MA to VT | 7 | 0.71 | 0.72 | 0.51 | 5 of 7 |
+| MD to VA | 5 | 1.47 | 0.92 | 1.35 | 3 of 5 |
+| MO to OK | 3 | 1.42 | 0.89 | 1.23 | 2 of 3 |
+| MT to ID | 15 | 1.47 | 0.97 | 1.15 | 6 of 15 |
+
+Mostly each state's own equations sit nearer its own gages, as expected of equations fitted to them. Two rows don't fit
+that pattern. **Georgia's** 2023 set gives 0.64 of the record along the Alabama line, where Alabama's gives 1.32. **Iowa's**
+equations give 0.41 of the record at 6 gages near Minnesota, and Minnesota's 0.59. Both are worth tracing as the Sweetwater
+case was, since the at-site fits there may rest on short or skewed records (06483430, in that group, rests on two
+1950s peaks).
 
 Differences are documented, not smoothed. None was traced to a transcription fault, and none is cautioned in results,
 since a border offset says the two studies disagree, not which is wrong.
