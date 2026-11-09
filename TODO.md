@@ -26,19 +26,20 @@ Owner's:
 2. **Overlap calls:** none open. Urban and NRCS-regulated basins (AL, MO, TN, OK) need `region=` on purpose; say
    if you want a default instead.
 
-   Calls to confirm: MO's 5 % impervious limit is read from "about 5 percent or less"; AL small streams stop
-   at the recommended 5 mi2, not the stored 14; IL prefers the urbanization-adjusted set; AR's MAP-first and GA,
-   NC, SC's 2023-first orders are method choices; CT, ME, VT, TN and IA fall back silently, with the fact in
-   provenance, when a characteristic is missing, so a set can change between runs.
+   The #340 choices and the method-choice orders are confirmed (2026-11-08). A drop to a drainage-area-only set
+   for a missing characteristic now says so in `region_choice_source`, which the app's caption shows.
 3. **`allow_extrapolation`** stays allowed everywhere by your decision, including GA, NC and SC above 10 percent
    impervious. The app cautions before proceeding and marks the result (app #37), and the report names the inputs.
 4. **Known-miss cautions** cover the three traced cases (OK, MN, LA; `known_misses` in each state's file).
    Add a case by tracing it first, as in `docs/VERIFICATION_PLAN.md`, Checks of 2026-11-05. The 12 of 54
    cross-border gages differing by 2 times or more aren't cautioned, since none is traced to a miss.
-5. **MD:** kept at the Third Edition because StreamStats can't feed the Sixth (2023). GC1481's urban
-   gates are added, and a boundary basin now needs `region=`.
-6. **TX:** SIR 2009-5087 is preferred by its authors but not in NSS, so it isn't stored.
-7. Superseded sets dropped: OH 2006-5312, TN 03-4176, LA TR 60 and Delta. LA's southern gap: keep GC879?
+5. **MD** stays at the Third Edition, with a caution on every estimate that the Sixth (2023) replaces it for state
+   practice (`region_cautions`). A Piedmont boundary basin still needs `region=`.
+6. **TX:** the regional sets come before Statewide, and the Colorado sets split at 32 mi2. Still to check, once
+   StreamStats' ss-hydro is back: whether it computes `OmegaEM`, which SIR 2009-5087 (the authors' preferred
+   report, not in NSS) needs. If it does, verify and store that report.
+7. **LA's southern gap** uses the 1998 Non-Pine Hills set (TR 60, NSS GC879) when NSS locates no current region,
+   with a caution and no interval (`fallback_region`). OH 2006-5312, TN 03-4176 and LA's Delta stay dropped.
 8. Close issue #293 once the next live run passes. Its last failure was the staged CO and WY regions
    (item 14), which the live tests now ignore.
 9. Open the app in a browser: the resizable period grips (app #24), the self-hosted map and chart (#29, #30), the

@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed (owner's decisions, 2026-11-08)
+- **Texas** uses its regional sets before the statewide set where both apply, and the Colorado River sets split at
+  32 mi2. Urban sets still need `region=`.
+- **Louisiana's southern gap** gets the 1998 Non-Pine Hills equations (TR 60) when NSS locates no current region,
+  with a caution and no interval. New: `StateLibrary.fallback_region`.
+- **Maryland** estimates carry a caution that the Sixth Edition (2023) replaces these equations for state practice.
+  New: `StateLibrary.region_cautions`, added to `advisory`.
+- **A preferred set passed over** for a missing characteristic now says so in `region_choice_source`.
+
 ### Added
 - `tools/border_qa.py` (dev tool, not shipped): the cross-border consistency check on every border between verified
   states, by AEP, with a resumable cache. First, partial results in `docs/BORDER_QA.md`.

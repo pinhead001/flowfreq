@@ -84,8 +84,9 @@ def _map_misfits(lib):
 
 def test_louisiana_is_verified(lib):
     assert lib.status == "verified"
-    assert lib.regions == [CP, "MAP"]
-    assert len(lib.equations) == 16
+    assert lib.regions == [CP, "MAP", "Non-Pine Hills 1998"]
+    assert len(lib.equations) == 23
+    assert lib.fallback_region["region"] == "Non-Pine Hills 1998"
     for region, code in NSS.items():
         assert region_for_nss_code(lib, code) == region
         assert set(lib.aeps(region)) == set(AEPS)
@@ -185,13 +186,20 @@ def test_every_equation_equals_the_nss_snapshot(lib):
     snap = json.loads((DATA / "nss_snapshot" / "LA.json").read_text(encoding="utf-8"))
     by_key = {(s["region_code"], s["aep"]): s for s in snap["equations"]}
     kept = {key for key in by_key if key[0] not in SUPERSEDED}
-    assert {(NSS[e.region_code], e.aep) for e in lib.equations} == kept
+    current = [e for e in lib.equations if e.region_code in NSS]
+    assert {(NSS[e.region_code], e.aep) for e in current} == kept
     assert len(by_key) - len(kept) == 22
-    for e in lib.equations:
-        s = by_key[(NSS[e.region_code], e.aep)]
+    # The 1998 Non-Pine Hills set, restored for the gap only, is NSS's GC879 as served.
+    gap = [e for e in lib.equations if e.region_code == "Non-Pine Hills 1998"]
+    assert {("GC879", e.aep) for e in gap} == {k for k in by_key if k[0] == "GC879"}
+    for e in current + gap:
+        s = by_key[(NSS.get(e.region_code, "GC879"), e.aep)]
         assert e.intercept == pytest.approx(s["intercept"], abs=1e-12)
         assert list(e.coefficients) == s["coefficients"]
-        assert e.sep_log == pytest.approx(s["sep_log"], abs=1e-6)
+        if "sep_log" in s:
+            assert e.sep_log == pytest.approx(s["sep_log"], abs=1e-6)
+        else:  # GC879 serves no error statistic
+            assert e.sep_log is None
         for v, n in zip(e.variables, s["variables"]):
             assert (v.code, v.minimum, v.maximum) == (n["code"], n["minimum"], n["maximum"])
 

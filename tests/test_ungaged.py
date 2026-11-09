@@ -938,6 +938,20 @@ class TestEstimateAtSite:
         assert ("known_misses" in est.provenance) is cautioned
         assert ("Known miss nearby" in est.to_markdown()) is cautioned
 
+    def test_a_region_caution_reaches_the_advisory_only_for_regions_used(self, fakes, monkeypatch):
+        from dataclasses import replace
+
+        from flowfreq.regression.library import load_state
+
+        real = load_state("WA")
+        used = estimate_at_site(WA_LAT, WA_LON, state="WA").regions
+        lib = replace(real, region_cautions={r: f"Caution for {r}." for r in real.regions})
+        monkeypatch.setattr("flowfreq.ungaged.load_state", lambda *a, **k: lib)
+        est = estimate_at_site(WA_LAT, WA_LON, state="WA")
+        names = {est.region_codes.get(r.code, r.code) for r in used}
+        for r in lib.regions:
+            assert (f"Caution for {r}." in est.advisory) is (r in names)
+
     def test_a_streamstats_advisory_reaches_provenance_and_the_report(self, fakes, monkeypatch):
         karst = ["Delineated basin may contain karst"]
         delineate = fakes.delineate

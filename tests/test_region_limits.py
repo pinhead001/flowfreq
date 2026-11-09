@@ -416,3 +416,62 @@ def test_limits_change_nothing_where_sets_do_not_overlap():
     a = assemble(load_state("AL"), _located(("GC1499", 100.0)), {"CONTDA": 194.0}, **KW)
     assert _used(a) == ["GC1499"]
     assert a.region_choice_source is None
+
+
+def test_texas_prefers_its_regional_sets_over_statewide():
+    lib = load_state("TX")
+    small = {"CONTDA": 20.0, "DRNAREA": 20.0, "CSLBlue": 10.0, "PRECIPCENT": 30.0}
+    a = assemble(
+        lib, _located(("GC1494", 100.0), ("GC1493", 100.0), ("GC2146", 100.0)), small, **KW
+    )
+    assert [a.region_codes[r.code] for r in a.used] == ["Colorado small"]
+    large = {**small, "CONTDA": 100.0, "DRNAREA": 100.0, "CSLBlue": 5.0}
+    a = assemble(
+        lib, _located(("GC1494", 100.0), ("GC1493", 100.0), ("GC2146", 100.0)), large, **KW
+    )
+    assert [a.region_codes[r.code] for r in a.used] == ["Colorado large"]
+
+
+def test_texas_urban_set_stays_the_callers():
+    lib = load_state("TX")
+    values = {"CONTDA": 10.0, "DRNAREA": 10.0, "IMPERV": 20.0, "PRECIPCENT": 30.0}
+    with pytest.raises(OverlappingRegionsError):
+        assemble(lib, _located(("GC1489", 100.0), ("GC2146", 100.0)), values, **KW)
+
+
+def test_louisiana_falls_back_to_the_1998_set_where_nss_locates_nothing():
+    lib = load_state("LA")
+    values = {"DRNAREA": 100.0, "CSL10_85": 2.0, "PRECIP": 60.0}
+    a = assemble(lib, [], values, **KW)
+    assert [a.region_codes[r.code] for r in a.used] == ["Non-Pine Hills 1998"]
+    assert a.region_choice_source.startswith("fallback: NSS located no peak-flow region")
+    assert "Non-Pine Hills 1998" in lib.region_cautions
+
+
+def test_maryland_cautions_every_region():
+    lib = load_state("MD")
+    assert set(lib.region_cautions) == set(lib.regions)
+    assert all("Sixth Edition" in t for t in lib.region_cautions.values())
+
+
+def test_a_preferred_set_passed_over_says_why():
+    lib = load_state("IA")
+    values = {"DRNAREA": 30.0}  # no I24H10Y or CCM, so the full set is skipped
+    a = assemble(lib, _located(("GC1561", 100.0), ("GC1564", 100.0)), values, **KW)
+    assert _used(a) == ["GC1564"]
+    assert "passed over for a missing characteristic: GC1561 needs" in a.region_choice_source
+
+
+def test_fallback_and_cautions_reject_unknown_regions():
+    import json
+    from pathlib import Path
+
+    data = json.loads(
+        (Path(__file__).parent.parent / "flowfreq/data/regression/LA.json").read_text("utf-8")
+    )
+    bad = dict(data, fallback_region={"region": "NOPE"})
+    with pytest.raises(ValueError, match="fallback_region"):
+        parse_state(bad)
+    bad = dict(data, region_cautions={"NOPE": "x"})
+    with pytest.raises(ValueError, match="region_cautions"):
+        parse_state(bad)
