@@ -58,7 +58,8 @@ Library follow-ups the batches found, none changed:
     region there. A caller would have to supply region and characteristics.
 
 17. Finish the cross-border check: `python tools/border_qa.py run`, then `report`, once StreamStats' ss-hydro is back
-    (657 of 1,691 gages left; `docs/BORDER_QA.md`). Then look at the systematic pairs it lists.
+    (657 of 1,691 gages left; `docs/BORDER_QA.md`). Then trace Georgia's and Iowa's border rows, the two systematic
+    pairs where the home equations miss their own gages (`docs/VERIFICATION_PLAN.md`).
 
 Parked: gage page NID and NLCD events beside a change point
 (`stationarity.basin_change_events`; needs the delineated basin), raster hydrograph, the Bulletin

@@ -14,61 +14,61 @@ At 1 percent, the home state's equation was nearer the at-site fit at 169 of 334
 
 ## Pairs at 1 percent
 
-Systematic: 3 or more gages and a median factor beyond 1.26 (0.1 log10).
+Systematic: 3 or more gages and a median factor beyond 1.26 (0.1 log10). Clean: neither side extrapolated and no urban set picked by default; 307 of the comparisons at 1 percent are clean.
 
-| Home | Neighbour | Gages | Median neighbour/home | Systematic |
-|---|---|---:|---:|---|
-| AL | GA | 8 | 2.0 | yes |
-| AL | MS | 8 | 0.88 |  |
-| AL | TN | 3 | 0.99 |  |
-| AR | LA | 5 | 1.36 | yes |
-| AR | MO | 12 | 0.7 | yes |
-| AR | MS | 2 | 1.02 |  |
-| AR | OK | 16 | 1.09 |  |
-| AZ | NM | 2 | 1.48 |  |
-| AZ | UT | 2 | 0.42 |  |
-| CO | NM | 6 | 2.02 | yes |
-| DE | MD | 3 | 1.62 | yes |
-| GA | AL | 18 | 1.69 | yes |
-| GA | NC | 4 | 1.0 |  |
-| GA | SC | 12 | 1.0 |  |
-| GA | TN | 5 | 1.04 |  |
-| IA | MN | 6 | 2.04 | yes |
-| IA | MO | 9 | 0.92 |  |
-| IA | WI | 9 | 0.47 | yes |
-| ID | MT | 7 | 0.55 | yes |
-| ID | UT | 3 | 0.78 | yes |
-| IL | IA | 12 | 1.15 |  |
-| IL | KY | 3 | 1.17 |  |
-| KS | MO | 9 | 0.61 | yes |
-| KS | OK | 1 | 1.39 |  |
-| KY | MO | 1 | 0.2 |  |
-| KY | TN | 8 | 0.85 |  |
-| KY | VA | 4 | 1.04 |  |
-| KY | WV | 1 | 1.04 |  |
-| MA | CT | 3 | 1.03 |  |
-| MA | VT | 8 | 0.69 | yes |
-| MD | VA | 5 | 1.47 | yes |
-| MD | WV | 16 | 1.03 |  |
-| MN | IA | 17 | 1.11 |  |
-| MN | ND | 8 | 1.09 |  |
-| MO | IA | 3 | 0.99 |  |
-| MO | KY | 1 | 4.43 |  |
-| MO | OK | 3 | 1.42 | yes |
-| MO | TN | 1 | 3.8 |  |
-| MS | AL | 12 | 0.91 |  |
-| MS | LA | 14 | 1.13 |  |
-| MS | TN | 5 | 0.9 |  |
-| MT | ID | 15 | 1.47 | yes |
-| MT | SD | 1 | 2.26 |  |
-| NC | GA | 6 | 1.0 |  |
-| NC | SC | 12 | 1.0 |  |
-| NC | TN | 10 | 0.88 |  |
-| NC | VA | 7 | 0.99 |  |
-| ND | MN | 2 | 1.79 |  |
-| ND | SD | 1 | 1.31 |  |
-| NH | ME | 6 | 0.8 |  |
-| NH | VT | 5 | 1.16 |  |
+| Home | Neighbour | Gages | Median neighbour/home | Systematic | Clean gages | Clean median | Clean systematic |
+|---|---|---:|---:|---|---:|---:|---|
+| AL | GA | 8 | 2.0 | yes | 0 |  |  |
+| AL | MS | 8 | 0.88 |  | 6 | 0.92 |  |
+| AL | TN | 3 | 0.99 |  | 3 | 0.99 |  |
+| AR | LA | 5 | 1.36 | yes | 4 | 1.23 |  |
+| AR | MO | 12 | 0.7 | yes | 11 | 0.73 | yes |
+| AR | MS | 2 | 1.02 |  | 2 | 1.02 |  |
+| AR | OK | 16 | 1.09 |  | 16 | 1.09 |  |
+| AZ | NM | 2 | 1.48 |  | 2 | 1.48 |  |
+| AZ | UT | 2 | 0.42 |  | 1 | 0.16 |  |
+| CO | NM | 6 | 2.02 | yes | 5 | 1.86 | yes |
+| DE | MD | 3 | 1.62 | yes | 0 |  |  |
+| GA | AL | 18 | 1.69 | yes | 17 | 1.69 | yes |
+| GA | NC | 4 | 1.0 |  | 4 | 1.0 |  |
+| GA | SC | 12 | 1.0 |  | 12 | 1.0 |  |
+| GA | TN | 5 | 1.04 |  | 5 | 1.04 |  |
+| IA | MN | 6 | 2.04 | yes | 6 | 2.04 | yes |
+| IA | MO | 9 | 0.92 |  | 9 | 0.92 |  |
+| IA | WI | 9 | 0.47 | yes | 8 | 0.46 | yes |
+| ID | MT | 7 | 0.55 | yes | 7 | 0.55 | yes |
+| ID | UT | 3 | 0.78 | yes | 2 | 0.92 |  |
+| IL | IA | 12 | 1.15 |  | 12 | 1.15 |  |
+| IL | KY | 3 | 1.17 |  | 2 | 1.13 |  |
+| KS | MO | 9 | 0.61 | yes | 4 | 0.71 | yes |
+| KS | OK | 1 | 1.39 |  | 1 | 1.39 |  |
+| KY | MO | 1 | 0.2 |  | 1 | 0.2 |  |
+| KY | TN | 8 | 0.85 |  | 8 | 0.85 |  |
+| KY | VA | 4 | 1.04 |  | 4 | 1.04 |  |
+| KY | WV | 1 | 1.04 |  | 1 | 1.04 |  |
+| MA | CT | 3 | 1.03 |  | 3 | 1.03 |  |
+| MA | VT | 8 | 0.69 | yes | 7 | 0.71 | yes |
+| MD | VA | 5 | 1.47 | yes | 5 | 1.47 | yes |
+| MD | WV | 16 | 1.03 |  | 15 | 1.05 |  |
+| MN | IA | 17 | 1.11 |  | 16 | 1.13 |  |
+| MN | ND | 8 | 1.09 |  | 8 | 1.09 |  |
+| MO | IA | 3 | 0.99 |  | 3 | 0.99 |  |
+| MO | KY | 1 | 4.43 |  | 1 | 4.43 |  |
+| MO | OK | 3 | 1.42 | yes | 3 | 1.42 | yes |
+| MO | TN | 1 | 3.8 |  | 1 | 3.8 |  |
+| MS | AL | 12 | 0.91 |  | 12 | 0.91 |  |
+| MS | LA | 14 | 1.13 |  | 12 | 1.14 |  |
+| MS | TN | 5 | 0.9 |  | 5 | 0.9 |  |
+| MT | ID | 15 | 1.47 | yes | 15 | 1.47 | yes |
+| MT | SD | 1 | 2.26 |  | 1 | 2.26 |  |
+| NC | GA | 6 | 1.0 |  | 6 | 1.0 |  |
+| NC | SC | 12 | 1.0 |  | 12 | 1.0 |  |
+| NC | TN | 10 | 0.88 |  | 10 | 0.88 |  |
+| NC | VA | 7 | 0.99 |  | 7 | 0.99 |  |
+| ND | MN | 2 | 1.79 |  | 1 | 0.66 |  |
+| ND | SD | 1 | 1.31 |  | 0 |  |  |
+| NH | ME | 6 | 0.8 |  | 6 | 0.8 |  |
+| NH | VT | 5 | 1.16 |  | 5 | 1.16 |  |
 
 ## Not compared, at 1 percent
 
