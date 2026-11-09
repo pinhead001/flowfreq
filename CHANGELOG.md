@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Changed (owner's decisions, 2026-11-08)
+## [0.25.0] - 2026-11-08
+
+Owner's calls for Texas, Louisiana's southern gap and Maryland, Iowa's CCM limit, sharper intervals in AL and TN, and a cross-border check tool. Estimates can change in TX, LA, IA, AL and TN; Maryland estimates carry a caution.
+
+### Changed
 - **Texas** uses its regional sets before the statewide set where both apply, and the Colorado River sets split at
   32 mi2. Urban sets still need `region=`.
 - **Louisiana's southern gap** gets the 1998 Non-Pine Hills equations (TR 60) when NSS locates no current region,
@@ -15,17 +19,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Maryland** estimates carry a caution that the Sixth Edition (2023) replaces these equations for state practice.
   New: `StateLibrary.region_cautions`, added to `advisory`.
 - **A preferred set passed over** for a missing characteristic now says so in `region_choice_source`.
-
-### Added
-- `tools/border_qa.py` (dev tool, not shipped): the cross-border consistency check on every border between verified
-  states, by AEP, with a resumable cache. First, partial results in `docs/BORDER_QA.md`.
-
-### Changed
 - **Iowa:** above a CCM of 3.87, region 1's full set drops out and the drainage-area-only set is used, as SIR 2015-5055
   directs, instead of the estimate being refused.
 - **Intervals in AL and TN:** where a printed AVP is a coarse rounding of the SEP's variance and the two differ by more
   than 5 percent, the interval uses the SEP. That affects 11 AL and 38 TN equations; nothing else changes.
 - **Louisiana's alluvial plain slope** is settled as `CSL10_85`, the main channel slope SIR 2021-5046 defines. Notes only.
+
+### Added
+- `tools/border_qa.py` (dev tool, not shipped): the cross-border consistency check on every border between verified
+  states, by AEP, with a resumable cache. First, partial results in `docs/BORDER_QA.md`.
 
 ### Fixed
 - The live NSS tests for CO and WY ignore regions NSS serves for unpublished reports, which failed the scheduled
