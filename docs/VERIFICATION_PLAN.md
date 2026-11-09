@@ -248,9 +248,12 @@ extrapolated and no urban set was picked by default (307 of 340 at 1 percent):
 
 Mostly each state's own equations sit nearer its own gages, as expected of equations fitted to them. Two rows don't fit
 that pattern. **Georgia's** 2023 set gives 0.64 of the record along the Alabama line, where Alabama's gives 1.32. **Iowa's**
-equations give 0.41 of the record at 6 gages near Minnesota, and Minnesota's 0.59. Both are worth tracing as the Sweetwater
-case was, since the at-site fits there may rest on short or skewed records (06483430, in that group, rests on two
-1950s peaks).
+equations give 0.41 of the record at 6 gages near Minnesota, and Minnesota's 0.59. **Iowa, traced 2026-11-08: the equations are right.** At 5
+of the 6 gages flowfreq's value matches the report's printed regression estimate (1,188 against 1,200, 2,863 against
+2,880, 3,960 against 3,840, 596 against 679). The sixth, 06483460, drains Iowa's regions 1 and 2. The report prints
+13,200 from region 2 alone, and flowfreq weights the two regions by area, as the report says to do for an ungaged site
+draining more than one region. The low ratio is the records': 21 to 59 years, five of six ending between 1973 and 1988,
+and all six led by the 1953-54 floods. So station-skew fits run high. **Georgia** isn't traced yet.
 
 Differences are documented, not smoothed. None was traced to a transcription fault, and none is cautioned in results,
 since a border offset says the two studies disagree, not which is wrong.
