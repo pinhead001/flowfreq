@@ -93,3 +93,17 @@ def test_reasons_a_row_is_not_compared():
         "neighbour: characteristic not computed in the home region"
     )
     assert bq._why_not({"home_est": {"0.01": [1, False]}}, {"0.01": [2, False]}, "0.01") == ""
+
+
+def test_a_state_without_the_50_percent_aep_still_compares_at_10_and_1():
+    from flowfreq.regression.library import load_state
+    from flowfreq.streamstats import RegressionRegionLocation
+
+    loc = [
+        RegressionRegionLocation(
+            region_id=1, code="GC1009", name="5", percent_weight=100.0, area_sq_mi=1.0
+        )
+    ]
+    values = {"CONTDA": 200.0, "CSL10_85": 4.0, "HIGHREG": 1009.0}
+    out = bq._assemble(load_state("IN"), loc, values)
+    assert "0.5" not in out and out["0.1"][0] > 0 and out["0.01"][0] > out["0.1"][0]

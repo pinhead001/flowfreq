@@ -250,7 +250,7 @@ def _assemble(lib: Any, regions: Sequence[Any], values: Mapping[str, float]) -> 
     pick = None
     try:
         a = assemble(
-            lib, regions, values, aeps=list(AEPS), allow_extrapolation=True, weighting_space="log"
+            lib, regions, values, aeps=None, allow_extrapolation=True, weighting_space="log"
         )
     except OverlappingRegionsError as exc:
         pick = default_pick(exc.candidates)
@@ -258,7 +258,7 @@ def _assemble(lib: Any, regions: Sequence[Any], values: Mapping[str, float]) -> 
             lib,
             regions,
             values,
-            aeps=list(AEPS),
+            aeps=None,
             allow_extrapolation=True,
             weighting_space="log",
             region=pick,
@@ -268,9 +268,13 @@ def _assemble(lib: Any, regions: Sequence[Any], values: Mapping[str, float]) -> 
         "picked": pick,
         "choice": a.region_choice_source,
     }
+    # Every AEP the regions publish (Indiana publishes no 50 percent), then those compared.
     q = a.quantiles.set_index("aep")
     for aep in AEPS:
-        out[f"{aep:g}"] = [float(q.loc[aep, "flow_cfs"]), bool(q.loc[aep, "extrapolated"])]
+        hit = [x for x in q.index if abs(x - aep) < 1e-9]
+        if hit:
+            row = q.loc[hit[0]]
+            out[f"{aep:g}"] = [float(row["flow_cfs"]), bool(row["extrapolated"])]
     return out
 
 
