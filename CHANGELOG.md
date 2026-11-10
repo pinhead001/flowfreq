@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **Illinois's urbanization-adjusted intervals** use the report's degrees of freedom. The urban term is added to a
+  fitted equation, not fitted with it, so it no longer costs a degree of freedom. New: `Variable.fitted`.
+
 ### Changed
 - **South Dakota, Wyoming and Kentucky** basins spanning regions are averaged in flow, as their reports do: SD's
   Willow Creek example now gives 9,190 rather than about 6,860, WY's North Fork Crazy Woman Creek 2,800 rather than

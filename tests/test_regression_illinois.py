@@ -212,12 +212,11 @@ def test_worked_example_region_4_urbanization_adjusted(lib):
         ("7", 7, None),
     ],
 )
-def test_adjusted_interval_has_one_degree_of_freedom_fewer_than_the_report(
-    lib, region, report_df, report_t
-):
-    """Pinned: Figure 32 uses n-p, p counting the spatial model only; evaluate counts the urban term."""
+def test_adjusted_interval_has_the_reports_degrees_of_freedom(lib, region, report_df, report_t):
+    """Figure 32 uses n-p, p counting the spatial model only: the urban term isn't fitted."""
     eq = lib.equation(f"{region}-urban", 0.01)
-    assert eq.n_sites - len(eq.variables) - 1 == report_df - 1
+    assert eq.variables[-1].code == "URBTHE2010" and not eq.variables[-1].fitted
+    assert eq.n_sites - sum(v.fitted for v in eq.variables) - 1 == report_df
     if report_t is not None:
         assert stats.t.ppf(0.95, report_df) == pytest.approx(report_t, abs=5e-4)
     if region == "7":
@@ -394,3 +393,23 @@ def test_zero_poorly_drained_fraction_evaluates(lib):
 def test_out_of_range_input_is_refused(lib):
     with pytest.raises(Exception, match="DRNAREA"):
         evaluate(lib.equation("7", 0.01), {"DRNAREA": 1000.0})
+
+
+def test_the_unfitted_urban_term_sets_the_reports_t_in_the_interval(lib):
+    """The interval's t is the report's (n-p); counting the urban term would widen it."""
+    eq = lib.equation("7-urban", 0.01)
+    plain = lib.equation("7", 0.01)
+    inputs = {v.code: math.sqrt(max(v.minimum, 1e-3) * v.maximum) for v in plain.variables}
+    est = evaluate(eq, {**inputs, "URBTHE2010": 0.1})
+    sd = math.sqrt(est.prediction_variance)
+    df = eq.n_sites - sum(v.fitted for v in eq.variables) - 1
+    t = stats.t.ppf(0.95, df)
+    assert est.interval[1] / est.flow_cfs == pytest.approx(10 ** (t * sd), rel=1e-9)
+
+
+def test_fitted_round_trips_and_defaults_to_true():
+    from flowfreq.regression.equations import Variable
+
+    assert Variable("X").fitted is True and "fitted" not in Variable("X").to_dict()
+    v = Variable("U", transform="identity", fitted=False)
+    assert v.to_dict()["fitted"] is False and Variable(**v.to_dict()) == v
