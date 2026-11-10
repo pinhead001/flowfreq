@@ -166,6 +166,20 @@ class TestWorkedExamples:
         assert round(r3, -1) == 4630
         assert round(r1 * 120 / 170 + r3 * 50 / 170, -2) == 2800
 
+    def test_north_fork_crazy_woman_is_weighted_in_flow_by_default(self, lib):
+        from flowfreq import estimate_from_characteristics
+
+        assert lib.weighting_space == "linear"
+        est = estimate_from_characteristics(
+            "WY",
+            {"DRNAREA": 170.0, "ELEV": 7300.0, "LONG_OUT": 106.8, "SOILINDEX": 2.9},
+            region={"1": 120 / 170 * 100, "3": 50 / 170 * 100},
+            lat=44.0,
+            lon=-106.8,
+            aeps=[0.04],
+        )
+        assert round(est.quantiles.loc[0, "flow_cfs"], -2) == 2800
+
     def test_coney_creek_region_1_q50(self, lib):
         q = evaluate(
             lib.equation("1", 0.02), {"DRNAREA": 3.41, "ELEV": 9440.0, "LONG_OUT": 107.32}

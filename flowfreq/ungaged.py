@@ -675,7 +675,7 @@ def assemble(
     allow_extrapolation : bool
         Evaluate outside an equation's calibrated range and flag the row, instead of
         raising :class:`~flowfreq.regression.equations.OutOfRangeError`.
-    weighting_space : {"log", "linear"}
+    weighting_space : {"log", "linear"}, optional
         How a multi-region basin's estimates are area-averaged
         (:func:`~flowfreq.regression.equations.evaluate_weighted`).
     region : str, optional
@@ -1345,7 +1345,7 @@ def estimate_at_site(
     allow_nss_snapshot: bool = False,
     allow_provisional: bool = False,
     allow_extrapolation: bool = False,
-    weighting_space: str = "log",
+    weighting_space: Optional[str] = None,
     cache: Optional[StreamStatsCache] = None,
     timeout: float = 60.0,
     data_dir: Union[str, Path, None] = None,
@@ -1439,7 +1439,7 @@ def estimate_at_site(
     StreamStatsTransportError
         From StreamStats, unchanged.
     """
-    if weighting_space not in ("log", "linear"):
+    if weighting_space not in (None, "log", "linear"):
         raise ValueError(f"weighting_space must be 'log' or 'linear', got {weighting_space!r}")
     if aeps is not None and len(aeps) == 0:
         raise ValueError("aeps must be non-empty (use None for the regions' common AEPs)")
@@ -1453,6 +1453,7 @@ def estimate_at_site(
         allow_nss_snapshot=allow_nss_snapshot,
         allow_provisional=allow_provisional,
     )
+    weighting_space = weighting_space or lib.weighting_space or "log"
     ws = delineate_and_get_characteristics(code, lat, lon, cache=cache, timeout=timeout)
     if ws.polygon_geojson is None:
         # The delineation is asked for its polygon; a cache entry saved before polygons
@@ -1613,7 +1614,7 @@ def estimate_from_characteristics(
     allow_nss_snapshot: bool = False,
     allow_provisional: bool = False,
     allow_extrapolation: bool = False,
-    weighting_space: str = "log",
+    weighting_space: Optional[str] = None,
     data_dir: Union[str, Path, None] = None,
 ) -> SiteEstimate:
     """Estimate flood quantiles from basin characteristics the caller supplies.
@@ -1655,7 +1656,7 @@ def estimate_from_characteristics(
     OutOfRangeError
         An input outside its calibrated range without ``allow_extrapolation``.
     """
-    if weighting_space not in ("log", "linear"):
+    if weighting_space not in (None, "log", "linear"):
         raise ValueError(f"weighting_space must be 'log' or 'linear', got {weighting_space!r}")
     if aeps is not None and len(aeps) == 0:
         raise ValueError("aeps must be non-empty (use None for the regions' common AEPs)")
@@ -1668,6 +1669,7 @@ def estimate_from_characteristics(
         allow_nss_snapshot=allow_nss_snapshot,
         allow_provisional=allow_provisional,
     )
+    weighting_space = weighting_space or lib.weighting_space or "log"
     weights = {region: 100.0} if isinstance(region, str) else dict(region)
     if not weights or any(w <= 0 for w in weights.values()):
         raise ValueError(f"{code}: region weights must be positive percents, got {weights}")

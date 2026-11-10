@@ -250,7 +250,12 @@ def _assemble(lib: Any, regions: Sequence[Any], values: Mapping[str, float]) -> 
     pick = None
     try:
         a = assemble(
-            lib, regions, values, aeps=None, allow_extrapolation=True, weighting_space="log"
+            lib,
+            regions,
+            values,
+            aeps=None,
+            allow_extrapolation=True,
+            weighting_space=lib.weighting_space or "log",
         )
     except OverlappingRegionsError as exc:
         pick = default_pick(exc.candidates)
@@ -260,7 +265,7 @@ def _assemble(lib: Any, regions: Sequence[Any], values: Mapping[str, float]) -> 
             values,
             aeps=None,
             allow_extrapolation=True,
-            weighting_space="log",
+            weighting_space=lib.weighting_space or "log",
             region=pick,
         )
     out: Dict[str, Any] = {

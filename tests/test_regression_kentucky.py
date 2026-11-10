@@ -160,6 +160,22 @@ def test_table_1_is_an_area_weighted_mix_at_two_region_gages(lib, number):
     assert np.min(np.abs(np.array(alone) / np.array(flows) - 1)) > 0.02
 
 
+def test_two_region_basins_are_weighted_in_flow_by_default(lib):
+    """03277500 at example 1's own split (333 of 466 mi2 in Region 2) gives Table 1's values."""
+    from flowfreq import estimate_from_characteristics
+
+    assert lib.weighting_space == "linear"
+    gage = RURAL["03277500"]
+    chars = {k: v for k, v in gage.items() if isinstance(v, (int, float))}
+    share = 333 / 466 * 100
+    est = estimate_from_characteristics(
+        "KY", chars, region={"Region 2": share, "Region 3": 100 - share}, lat=37.6, lon=-83.3
+    )
+    q = est.quantiles.set_index("aep")["flow_cfs"]
+    for aep, printed in zip(RURAL_AEPS, gage["flows"]):
+        assert q.loc[aep] == pytest.approx(printed, rel=0.006)
+
+
 def test_two_region_fraction_at_hazard_matches_the_worked_example():
     """Example 1 has 333 of 466 mi2 upstream in Region 2, the same gage's area and region mix."""
     assert RURAL["03277500"]["DRNAREA"] == 466.0

@@ -41,7 +41,9 @@ Owner's:
 
 Library follow-ups the batches found, none changed:
 
-11. Multi-region weighting: SD's report averages in flow.
+11. Multi-region weighting: done for SD, WY and KY, whose reports average in flow (`weighting_space` in their
+    files). Every other state still weights in log; MT's area-weighted example (415 and 257, 358) can't say which
+    without its area split, and no other report was checked.
 12. `power` at base 0 (IL stores an offset of 1e-12, which moves a term by at most 1.1e-6 log10 units, so it
     was left). Degrees of freedom on adjusted sets (IL). Done: a rounded AVP now gives way to the SEP in AL
     and TN, IA's CCM above 3.87 goes to the drainage-area-only set, and LA's MAP slope is `CSL10_85` by the

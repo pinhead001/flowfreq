@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **South Dakota, Wyoming and Kentucky** basins spanning regions are averaged in flow, as their reports do: SD's
+  Willow Creek example now gives 9,190 rather than about 6,860, WY's North Fork Crazy Woman Creek 2,800 rather than
+  2,630, and KY's Table 1 two-region gages reproduce at the report's own area split. A state's file may set `weighting_space`;
+  `estimate_at_site` and `estimate_from_characteristics` default to it, and a caller's value overrides.
+
 ### Added
 - **`estimate_from_characteristics`** and **`flowfreq ungaged-chars`**: the regional regression from basin
   characteristics and a region the caller supplies, with no StreamStats call. It's for sites StreamStats can't serve,
