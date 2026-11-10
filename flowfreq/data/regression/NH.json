@@ -29,7 +29,7 @@
    }
   }
  ],
- "notes": "Olson, SIR 2008-5206: a statewide set on DRNAREA, APRAVPRE, WETLAND and CSL10_85 (equations 3-9, region 1) and a statewide drainage-area-only set for sites outside region 1's ranges (equations 20-26, region 2), both at the 2-, 5-, 10-, 25-, 50-, 100- and 500-year recurrence intervals (no 0.5-percent AEP) from 117 streamgages in and adjacent to New Hampshire. Both sets NSS serves are current; none is left out. The constant is printed, so intercept = log10 of it. Ranges from Table 8. SEP in log10 units as printed in Tables 10 and 12. Model error variance and the matrix (order intercept, log10 DRNAREA, log10 APRAVPRE, WETLAND, log10 CSL10_85) from Table 11; NSS lists slope before wetland, so the stored order is the report's. Region 2 has no matrix, so intervals use the SEP. Every coefficient, intercept and range equals NSS; NSS's SEPs agree within 2e-4. equivalent_years is the table average, which Tables 10 and 12 give only with a skew of about 0.25 (inferred: all 14 values to 0.1 year), though the report says skew is zero at an ungaged site as in its worked example, so eq. 13 with zero skew reproduces only the 2-year values. Table 9's +10-percent slope entry at the 2-year interval prints 1.8 where the coefficient 0.205 gives 2.0; the -10-percent entry (-2.1), NSS and the residual check support 0.205. The report's standard error of regression has no schema field, in log10 units at the seven intervals: region 1 0.132, 0.139, 0.147, 0.159, 0.170, 0.181, 0.210; region 2 0.231, 0.238, 0.243, 0.251, 0.258, 0.265, 0.283. Region 1 adjusted R2: 0.97, 0.97, 0.96, 0.95, 0.94, 0.94, 0.91. No per-gage regression estimates are printed, so the residuals of Table 5's at-site flows on Table 7's characteristics are compared with those standard errors of regression instead. At the one point tested (gage 01078000, 2026-11-04) NSS located GC1460 and not GC1459, so estimate_at_site uses region 1 and refuses region='2' there; evaluate region 2 directly.",
+ "notes": "Olson, SIR 2008-5206: a statewide set on DRNAREA, APRAVPRE, WETLAND and CSL10_85 (equations 3-9, region 1) and a statewide drainage-area-only set for sites outside region 1's ranges (equations 20-26, region 2), both at the 2-, 5-, 10-, 25-, 50-, 100- and 500-year recurrence intervals (no 0.5-percent AEP) from 117 streamgages in and adjacent to New Hampshire. Both sets NSS serves are current; none is left out. The constant is printed, so intercept = log10 of it. Ranges from Table 8. SEP in log10 units as printed in Tables 10 and 12. Model error variance and the matrix (order intercept, log10 DRNAREA, log10 APRAVPRE, WETLAND, log10 CSL10_85) from Table 11; NSS lists slope before wetland, so the stored order is the report's. Region 2 has no matrix, so intervals use the SEP. Every coefficient, intercept and range equals NSS; NSS's SEPs agree within 2e-4. equivalent_years is the table average, which Tables 10 and 12 give only with a skew of about 0.25 (inferred: all 14 values to 0.1 year), though the report says skew is zero at an ungaged site as in its worked example, so eq. 13 with zero skew reproduces only the 2-year values. Table 9's +10-percent slope entry at the 2-year interval prints 1.8 where the coefficient 0.205 gives 2.0; the -10-percent entry (-2.1), NSS and the residual check support 0.205. The report's standard error of regression has no schema field, in log10 units at the seven intervals: region 1 0.132, 0.139, 0.147, 0.159, 0.170, 0.181, 0.210; region 2 0.231, 0.238, 0.243, 0.251, 0.258, 0.265, 0.283. Region 1 adjusted R2: 0.97, 0.97, 0.96, 0.95, 0.94, 0.94, 0.91. No per-gage regression estimates are printed, so the residuals of Table 5's at-site flows on Table 7's characteristics are compared with those standard errors of regression instead. NSS locates GC1460 and not GC1459 (gage 01078000, 2026-11-04), so companion_regions puts region 2 beside region 1. Outside any of region 1's ranges region 1 drops out (region_limits, the report's rule), and where a characteristic is missing region_preference falls to region 2.",
  "equations": [
   {
    "region_code": "1",
@@ -843,5 +843,51 @@
    "n_sites": 117,
    "equivalent_years": 5.4
   }
- ]
+ ],
+ "companion_regions": {
+  "1": "2"
+ },
+ "region_limits": {
+  "1": [
+   {
+    "variable": "DRNAREA",
+    "minimum": 0.7,
+    "maximum": 1290.0,
+    "units": "mi2",
+    "source": "SIR 2008-5206: the drainage-area-only set is for sites outside region 1's ranges"
+   },
+   {
+    "variable": "APRAVPRE",
+    "minimum": 2.79,
+    "maximum": 6.23,
+    "units": "in",
+    "source": "SIR 2008-5206: the drainage-area-only set is for sites outside region 1's ranges"
+   },
+   {
+    "variable": "WETLAND",
+    "minimum": 0.0,
+    "maximum": 21.8,
+    "units": "percent",
+    "source": "SIR 2008-5206: the drainage-area-only set is for sites outside region 1's ranges"
+   },
+   {
+    "variable": "CSL10_85",
+    "minimum": 5.43,
+    "maximum": 543.0,
+    "units": "ft/mi",
+    "source": "SIR 2008-5206: the drainage-area-only set is for sites outside region 1's ranges"
+   }
+  ]
+ },
+ "region_preference": {
+  "tiers": [
+   [
+    "1"
+   ],
+   [
+    "2"
+   ]
+  ],
+  "basis": "the four-variable set where the basin has its characteristics, else drainage-area-only"
+ }
 }

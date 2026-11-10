@@ -475,3 +475,39 @@ def test_fallback_and_cautions_reject_unknown_regions():
     bad = dict(data, region_cautions={"NOPE": "x"})
     with pytest.raises(ValueError, match="region_cautions"):
         parse_state(bad)
+
+
+def test_new_hampshire_uses_drainage_area_only_outside_the_full_sets_ranges():
+    lib = load_state("NH")
+    full = {"DRNAREA": 50.0, "APRAVPRE": 4.0, "WETLAND": 2.0, "CSL10_85": 30.0}
+    a = assemble(lib, _located(("GC1460", 100.0)), full, **KW)
+    assert _used(a) == ["GC1460"]
+    outside = {**full, "CSL10_85": 600.0}  # above region 1's 543 ft/mi
+    a = assemble(lib, _located(("GC1460", 100.0)), outside, **KW)
+    assert [a.region_codes[r.code] for r in a.used] == ["2"]
+    assert "region limit: GC1460 needs" in a.region_choice_source
+    a = assemble(lib, _located(("GC1460", 100.0)), {"DRNAREA": 50.0}, **KW)
+    assert [a.region_codes[r.code] for r in a.used] == ["2"]
+
+
+def test_new_york_falls_to_drainage_area_only_where_a_characteristic_is_missing():
+    lib = load_state("NY")
+    a = assemble(lib, _located(("GC1075", 100.0)), {"DRNAREA": 40.0}, **KW)
+    assert [a.region_codes[r.code] for r in a.used] == ["5-DA"]
+    full = {"DRNAREA": 40.0, "CSL10_85": 30.0, "PRECIP": 40.0}
+    a = assemble(lib, _located(("GC1075", 100.0)), full, **KW)
+    assert [a.region_codes[r.code] for r in a.used] == ["5"]
+    a = assemble(lib, _located(("GC1075", 100.0)), full, region="5-DA", **KW)
+    assert [a.region_codes[r.code] for r in a.used] == ["5-DA"]
+
+
+def test_companions_must_name_regions_with_equations():
+    import json
+    from pathlib import Path
+
+    data = json.loads(
+        (Path(__file__).parent.parent / "flowfreq/data/regression/NY.json").read_text("utf-8")
+    )
+    data["companion_regions"] = {"1": "NOPE"}
+    with pytest.raises(ValueError, match="companion_regions"):
+        parse_state(data)

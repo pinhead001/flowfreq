@@ -502,6 +502,26 @@ def _preferred_regions(
     return None
 
 
+def _with_companions(
+    lib: StateLibrary, regions: Sequence[RegressionRegionLocation]
+) -> List[RegressionRegionLocation]:
+    """The located regions, plus each one's companion set that NSS didn't locate itself.
+
+    The companion takes its region's place and weight, so the overlap rules (limits, then
+    preferences) choose between the two as they would had NSS located both.
+    """
+    out = list(regions)
+    if not lib.companion_regions:
+        return out
+    have = {region_for_nss_code(lib, r.code) for r in regions}
+    for r in regions:
+        companion = lib.companion_regions.get(region_for_nss_code(lib, r.code) or "")
+        if companion and companion not in have:
+            out.append(replace(r, code=companion, name=_region_name(lib, companion)))
+            have.add(companion)
+    return out
+
+
 def _selected_region(
     lib: StateLibrary,
     regions: Sequence[RegressionRegionLocation],
@@ -734,6 +754,7 @@ def assemble(
         raise ValueError("aeps must be non-empty (use None for the regions' common AEPs)")
     choices = _region_choices(region)
     choice = choices[0] if choices else None
+    regions = _with_companions(lib, regions)
     selected_aside: List[RegressionRegionLocation] = []
     selected_source: Optional[str] = None
     if not choices:

@@ -37,7 +37,7 @@
    }
   }
  ],
- "notes": "SIR 2006-5112 (Lumia, Freehafer and Smith; no revisions listed) supersedes earlier USGS reports for rural, unregulated streams in New York excluding Long Island, which has no equations. It gives a full set (Table 1, codes 1-6, NSS GC1071-GC1076) and a drainage-area-only set (Table 3, codes 1-DA to 6-DA, NSS GC1065-GC1070) at 10 recurrence intervals, stored at AEP 0.8, 0.667 and 0.5 to 0.002. Both are current and both are kept, with no preference. NSS located only the full region at the one point tried (01350000), and estimate_at_site refuses a region NSS did not locate, so the drainage-area-only equations were reachable there only through evaluate(). The constant is printed, so intercept = log10 of it. Table 2's SE in percent gives sep_log and also equivalent_years; Table 4 gives ranges and n_sites. The report prints no covariance, model error variance or AVP, so intervals use sep_log. NSS difference: NSS serves each full region's SE on its drainage-area-only region too (all 60 equations). Table 2 prints 31.7 to 61.7 percent for those, and the report wins. Every coefficient, constant, offset and range equals NSS. Checks: examples 1, 2 and 3 reproduce (4,210, 105,700, 50,270, 79,900, 9,560 and 10,800 ft3/s). Table 8's regression line follows from Table 1 at Table 10's values at 375 of 388 gages, within 0.53 percent or 0.67 ft3/s. Six gages are footnote C (basin in two regions): example 2 prints 04232000's weight, 53.5 percent region 5, and it reproduces; the others reproduce with fitted weights or the listed region alone. At seven footnote-D gages (preregulation statistics: 01325000, 01417000, 01417500, 01421000, 01436000, 01437000, 01523500) Table 8 differs from Table 1 at Table 10's values by 1 to 18 percent, and one changed value of LAG, or of SL at 01523500, reproduces all ten intervals. The report states neither the values nor the reason; these are pinned, not settled. Table 8's weighted line is equation 3 with Table 2's E, within 1 percent at the single-region gages; it is not stored. Out of scope (#212): NSS GC1077 and GC1078, WRI 84-4350 (Stedfast; title page 1986, NSS says 1984) equations 2A-2F and 3A-3F. They are the nationwide equations of Sauer and others (1983, WSP 2207), reprinted and tested on New York basins, each a power of the rural peak at its own recurrence interval from another equation set, so the schema has no form for them. NSS returns no results for them, and neither report prints a worked example or per-basin flows. They stay in unparsed. WRI 84-4350's rural equations 1A-1F are superseded by SIR 2006-5112 and not stored.",
+ "notes": "SIR 2006-5112 (Lumia, Freehafer and Smith; no revisions listed) supersedes earlier USGS reports for rural, unregulated streams in New York excluding Long Island, which has no equations. It gives a full set (Table 1, codes 1-6, NSS GC1071-GC1076) and a drainage-area-only set (Table 3, codes 1-DA to 6-DA, NSS GC1065-GC1070) at 10 recurrence intervals, stored at AEP 0.8, 0.667 and 0.5 to 0.002. Both are current and both are kept, with no preference. NSS located only the full region at the one point tried (01350000), so companion_regions puts each region's drainage-area-only set beside it, and region_preference uses the full set where the basin has its characteristics, else drainage-area-only (a flowfreq method choice); region= reaches either. The constant is printed, so intercept = log10 of it. Table 2's SE in percent gives sep_log and also equivalent_years; Table 4 gives ranges and n_sites. The report prints no covariance, model error variance or AVP, so intervals use sep_log. NSS difference: NSS serves each full region's SE on its drainage-area-only region too (all 60 equations). Table 2 prints 31.7 to 61.7 percent for those, and the report wins. Every coefficient, constant, offset and range equals NSS. Checks: examples 1, 2 and 3 reproduce (4,210, 105,700, 50,270, 79,900, 9,560 and 10,800 ft3/s). Table 8's regression line follows from Table 1 at Table 10's values at 375 of 388 gages, within 0.53 percent or 0.67 ft3/s. Six gages are footnote C (basin in two regions): example 2 prints 04232000's weight, 53.5 percent region 5, and it reproduces; the others reproduce with fitted weights or the listed region alone. At seven footnote-D gages (preregulation statistics: 01325000, 01417000, 01417500, 01421000, 01436000, 01437000, 01523500) Table 8 differs from Table 1 at Table 10's values by 1 to 18 percent, and one changed value of LAG, or of SL at 01523500, reproduces all ten intervals. The report states neither the values nor the reason; these are pinned, not settled. Table 8's weighted line is equation 3 with Table 2's E, within 1 percent at the single-region gages; it is not stored. Out of scope (#212): NSS GC1077 and GC1078, WRI 84-4350 (Stedfast; title page 1986, NSS says 1984) equations 2A-2F and 3A-3F. They are the nationwide equations of Sauer and others (1983, WSP 2207), reprinted and tested on New York basins, each a power of the rural peak at its own recurrence interval from another equation set, so the schema has no form for them. NSS returns no results for them, and neither report prints a worked example or per-basin flows. They stay in unparsed. WRI 84-4350's rural equations 1A-1F are superseded by SIR 2006-5112 and not stored.",
  "equations": [
   {
    "region_code": "1",
@@ -4907,5 +4907,34 @@
    "equation": "",
    "reason": "Out of scope (#212): WRI 84-4350 equations 3A-3F (WSP 2207 equations 3-8) are a power of the rural peak from another equation set, which the schema cannot express; NSS Estimate returns no results."
   }
- ]
+ ],
+ "companion_regions": {
+  "1": "1-DA",
+  "2": "2-DA",
+  "3": "3-DA",
+  "4": "4-DA",
+  "5": "5-DA",
+  "6": "6-DA"
+ },
+ "region_preference": {
+  "tiers": [
+   [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6"
+   ],
+   [
+    "1-DA",
+    "2-DA",
+    "3-DA",
+    "4-DA",
+    "5-DA",
+    "6-DA"
+   ]
+  ],
+  "basis": "full set where the basin has its characteristics, else drainage-area-only; a flowfreq method choice, not a published rule"
+ }
 }
