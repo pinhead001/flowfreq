@@ -45,7 +45,7 @@ Library follow-ups the batches found, none changed:
     files). Every other state still weights in log; MT's area-weighted example (415 and 257, 358) can't say which
     without its area split, and no other report was checked.
 12. `power` at base 0 (IL stores an offset of 1e-12, which moves a term by at most 1.1e-6 log10 units, so it
-    was left). Degrees of freedom on adjusted sets (IL). Done: a rounded AVP now gives way to the SEP in AL
+    was left). Done: IL's adjusted sets use the report's degrees of freedom (`Variable.fitted`); a rounded AVP now gives way to the SEP in AL
     and TN, IA's CCM above 3.87 goes to the drainage-area-only set, and LA's MAP slope is `CSL10_85` by the
     report's definition.
 13. KY regions 1 and 4 and Jefferson have no live slope. TN Memphis has no live CHANCOND. IN prints no

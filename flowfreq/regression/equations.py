@@ -164,6 +164,11 @@ class Variable:
     times : str, optional
         A characteristic code whose raw value multiplies the transformed term (an
         interaction). ``None`` for an ordinary term.
+    fitted : bool, default True
+        Whether the term's coefficient was fitted in the regression whose ``n_sites``
+        sets the interval's degrees of freedom. False for a term added to a fitted
+        equation afterwards, such as Illinois's urbanization adjustment, so the
+        t-distribution keeps the report's ``n - p`` rather than losing a degree.
 
     Notes
     -----
@@ -186,6 +191,7 @@ class Variable:
     offset: float = 0.0
     exponent: Optional[float] = None
     times: Optional[str] = None
+    fitted: bool = True
 
     def __post_init__(self) -> None:
         if self.times is not None and not self.times.strip():
@@ -299,6 +305,8 @@ class Variable:
             d["exponent"] = self.exponent
         if self.times is not None:
             d["times"] = self.times
+        if not self.fitted:
+            d["fitted"] = False
         return d
 
 
@@ -733,8 +741,9 @@ def evaluate(
     interval = None
     if sd is not None:
         alpha = 1.0 - interval_level
-        if eq.n_sites is not None and eq.n_sites > len(eq.variables) + 1:
-            crit = float(stats.t.ppf(1 - alpha / 2, eq.n_sites - len(eq.variables) - 1))
+        n_fitted = sum(1 for v in eq.variables if v.fitted)
+        if eq.n_sites is not None and eq.n_sites > n_fitted + 1:
+            crit = float(stats.t.ppf(1 - alpha / 2, eq.n_sites - n_fitted - 1))
         else:
             crit = float(stats.norm.ppf(1 - alpha / 2))
         t_factor = 10.0 ** (crit * sd)
