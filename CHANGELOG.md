@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **`Hydrograph.day_of_water_year`** counts on a leap-year calendar, as its docstring always said (1-366): Feb 29 is
+  152, Mar 1 is 153 and Sep 30 is 366. It used 365 days, so Feb 29 and Mar 1 shared 152 and every date from March on
+  was numbered one low. Summary statistics by day now keep Feb 29 apart from Mar 1, and a date labelled from a leap
+  origin (the app's summary hydrograph) is no longer a day early from March.
+
 ### Changed
 - **New Hampshire and New York drainage-area-only sets are usable.** NSS never locates them, so they were reachable
   only through `evaluate`. Each is now a companion of its full set (`StateLibrary.companion_regions`). NH uses

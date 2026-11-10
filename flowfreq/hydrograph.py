@@ -44,8 +44,14 @@ class Hydrograph:
     @staticmethod
     @lru_cache(maxsize=1024)
     def day_of_water_year(month: int, day: int) -> int:
-        """Convert month/day to day of water year (1-366, starting Oct 1)."""
-        days_in_month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+        """Convert month/day to day of water year (1-366, starting Oct 1).
+
+        Every year uses the leap-year calendar, so a calendar date has the same number in
+        every year: Oct 1 is 1, Feb 29 is 152, Mar 1 is 153 and Sep 30 is 366. In a
+        non-leap year day 152 is simply absent. (Before 0.26 the count used 365 days, so
+        Feb 29 and Mar 1 shared 152 and a date from March on was one lower.)
+        """
+        days_in_month = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
         wy_month = (month - 10) % 12
         dowy = sum(days_in_month[(10 + i - 1) % 12] for i in range(wy_month)) + day
         return dowy
