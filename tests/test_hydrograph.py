@@ -37,10 +37,16 @@ class TestDayOfWaterYear:
         assert Hydrograph.day_of_water_year(10, 1) == 1
 
     def test_sep_30_is_the_last_day(self):
-        assert Hydrograph.day_of_water_year(9, 30) == 365
+        assert Hydrograph.day_of_water_year(9, 30) == 366
+
+    def test_feb_29_and_mar_1_have_their_own_days(self):
+        """A leap-year calendar: a date has one number in every year."""
+        assert Hydrograph.day_of_water_year(2, 28) == 151
+        assert Hydrograph.day_of_water_year(2, 29) == 152
+        assert Hydrograph.day_of_water_year(3, 1) == 153
 
     def test_monotonic_across_the_water_year(self):
-        """Every day of a non-leap water year, in Oct-Sep order, strictly increases."""
+        """Every day of a non-leap water year, in Oct-Sep order, strictly increases, skipping 152."""
         months_days = [(10, d) for d in range(1, 32)]
         months_days += [(11, d) for d in range(1, 31)]
         months_days += [(12, d) for d in range(1, 32)]
@@ -49,7 +55,7 @@ class TestDayOfWaterYear:
             months_days += [(m, d) for d in range(1, days_in_m + 1)]
         values = [Hydrograph.day_of_water_year(m, d) for m, d in months_days]
         assert values == sorted(values)
-        assert values == list(range(1, 366))
+        assert values == [d for d in range(1, 367) if d != 152]
 
     def test_non_numeric_month_raises(self):
         """No bounds checking at all -- month 13 or -1 silently wraps via `%`
