@@ -1476,6 +1476,60 @@ def estimate_at_site(
         region=region,
     )
 
+    return _site_estimate(
+        lib,
+        code,
+        lat,
+        lon,
+        assembly,
+        characteristics,
+        at_site=at_site,
+        allow_extrapolation=allow_extrapolation,
+        input_provenance={
+            "snap": ws.snap.to_dict(),
+            "delineation": {
+                "polygon_area_sq_mi": ws.polygon_area_sq_mi,
+                "unavailable": dict(ws.unavailable),
+                "advisories": list(ws.advisories),
+                "streamstats": ws.provenance.to_dict() if ws.provenance else None,
+            },
+            "regions_located": [r.to_dict() for r in located],
+            "derived_characteristics": {
+                k: {"value": v, "source": "snapped pour point"} for k, v in derived.items()
+            },
+        },
+        options={
+            "allow_nss_snapshot": allow_nss_snapshot,
+            "allow_provisional": allow_provisional,
+            "allow_extrapolation": allow_extrapolation,
+            "weighting_space": weighting_space,
+            "region": region,
+        },
+        basin_geojson=ws.polygon_geojson,
+    )
+
+
+def _site_estimate(
+    lib: StateLibrary,
+    code: str,
+    lat: float,
+    lon: float,
+    assembly: Assembly,
+    characteristics: Dict[str, float],
+    *,
+    at_site: Optional[FrequencyResults],
+    allow_extrapolation: bool,
+    input_provenance: Mapping[str, Any],
+    options: Mapping[str, Any],
+    basin_geojson: Optional[Dict[str, Any]],
+) -> SiteEstimate:
+    """The :class:`SiteEstimate` for an assembled basin, however its inputs were obtained.
+
+    Shared by :func:`estimate_at_site` (StreamStats) and :func:`estimate_from_characteristics`
+    (the caller's). ``input_provenance`` holds what is particular to the inputs (snap,
+    delineation, located regions, derived characteristics); the rest is common: at-site
+    weighting, out-of-range inputs, library status, cautions and known misses.
+    """
     method = "regression"
     weighted: Optional[pd.DataFrame] = None
     if at_site is None:
@@ -1502,36 +1556,21 @@ def estimate_at_site(
 
     subdir = OPT_IN_SUBDIRS.get(lib.status)
     provenance: Dict[str, Any] = {
-        "snap": ws.snap.to_dict(),
-        "delineation": {
-            "polygon_area_sq_mi": ws.polygon_area_sq_mi,
-            "unavailable": dict(ws.unavailable),
-            "advisories": list(ws.advisories),
-            "streamstats": ws.provenance.to_dict() if ws.provenance else None,
-        },
+        **{k: v for k, v in input_provenance.items() if k != "derived_characteristics"},
         "library": {
             "status": lib.status,
             "file": f"{subdir}/{code}.json" if subdir else f"{code}.json",
             "retrieved_utc": lib.retrieved_utc,
         },
-        "regions_located": [r.to_dict() for r in located],
         "missing_characteristics": assembly.missing,
-        "derived_characteristics": {
-            k: {"value": v, "source": "snapped pour point"} for k, v in derived.items()
-        },
+        "derived_characteristics": input_provenance.get("derived_characteristics", {}),
         "zero_weight_regions": [r.code for r in assembly.zero_weight],
         "alternative_regions": [
             _alternative(lib, r, assembly.region_codes[r.code]) for r in assembly.alternatives
         ],
         "out_of_range": out_of_range,
         "weighting": weighting,
-        "options": {
-            "allow_nss_snapshot": allow_nss_snapshot,
-            "allow_provisional": allow_provisional,
-            "allow_extrapolation": allow_extrapolation,
-            "weighting_space": weighting_space,
-            "region": region,
-        },
+        "options": dict(options),
         "estimated_at_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     }
     if assembly.region_choice_source is not None:
@@ -1558,7 +1597,138 @@ def estimate_at_site(
         region_codes=assembly.region_codes,
         weighted=weighted,
         provenance=provenance,
-        basin_geojson=ws.polygon_geojson,
+        basin_geojson=basin_geojson,
+    )
+
+
+def estimate_from_characteristics(
+    state: str,
+    characteristics: Mapping[str, float],
+    *,
+    region: Union[str, Mapping[str, float]],
+    lat: float,
+    lon: float,
+    aeps: Optional[Sequence[float]] = None,
+    at_site: Optional[FrequencyResults] = None,
+    allow_nss_snapshot: bool = False,
+    allow_provisional: bool = False,
+    allow_extrapolation: bool = False,
+    weighting_space: str = "log",
+    data_dir: Union[str, Path, None] = None,
+) -> SiteEstimate:
+    """Estimate flood quantiles from basin characteristics the caller supplies.
+
+    For a site StreamStats can't serve: Florida, Michigan and Nebraska have no StreamStats
+    stream grid and NSS locates no region there, so :func:`estimate_at_site` can't run.
+    The caller names the region from the report's map and gives the characteristics, measured
+    as the report defines them. The same equations, ranges, cautions and provenance apply.
+
+    Parameters
+    ----------
+    state : str
+        Two-letter jurisdiction code.
+    characteristics : mapping of str to float
+        Basin characteristics keyed by the codes the region's equations use (see
+        ``load_state(state).equations``). An equation needing one not given is refused.
+    region : str or mapping of str to float
+        The region: a library ``region_code`` or an NSS code. For a basin spanning regions,
+        a mapping of region to its percent of the basin, summing to 100.
+    lat, lon : float
+        The site, decimal degrees: recorded, used for outlet-coordinate characteristics an
+        equation needs (``LAT_OUT``, ``LONG_OUT``) and for known-miss cautions.
+    aeps, at_site, allow_nss_snapshot, allow_provisional, allow_extrapolation, \
+    weighting_space, data_dir
+        As for :func:`estimate_at_site`.
+
+    Returns
+    -------
+    SiteEstimate
+        ``basin_geojson`` is None. ``provenance["characteristics_source"]`` is ``"caller"``.
+
+    Raises
+    ------
+    EquationsUnavailable
+        If the jurisdiction has no library, or a region named is not one of its regions
+        (the message lists them).
+    ValueError
+        If the percent weights don't sum to 100 (within 1), or are not positive.
+    OutOfRangeError
+        An input outside its calibrated range without ``allow_extrapolation``.
+    """
+    if weighting_space not in ("log", "linear"):
+        raise ValueError(f"weighting_space must be 'log' or 'linear', got {weighting_space!r}")
+    if aeps is not None and len(aeps) == 0:
+        raise ValueError("aeps must be non-empty (use None for the regions' common AEPs)")
+    if at_site is not None:
+        require_variance_log(at_site)
+    code = jurisdiction(state).code
+    lib = _load_library(
+        code,
+        data_dir,
+        allow_nss_snapshot=allow_nss_snapshot,
+        allow_provisional=allow_provisional,
+    )
+    weights = {region: 100.0} if isinstance(region, str) else dict(region)
+    if not weights or any(w <= 0 for w in weights.values()):
+        raise ValueError(f"{code}: region weights must be positive percents, got {weights}")
+    if abs(sum(weights.values()) - 100.0) > 1.0:
+        raise ValueError(
+            f"{code}: region weights must sum to 100 percent of the basin, got "
+            f"{sum(weights.values()):g}"
+        )
+    located = []
+    for i, (name, weight) in enumerate(weights.items()):
+        lib_code = region_for_nss_code(lib, name) or _library_region(lib, name)
+        if lib_code is None:
+            raise EquationsUnavailable(
+                f"{code}: {name!r} is not one of its regions; choose from "
+                + ", ".join(repr(r) for r in lib.regions)
+            )
+        located.append(
+            RegressionRegionLocation(
+                region_id=i,
+                code=lib_code,
+                name=_region_name(lib, lib_code),
+                percent_weight=float(weight),
+                area_sq_mi=0.0,
+            )
+        )
+    values = {k: float(v) for k, v in characteristics.items()}
+    derived = outlet_coordinates(lib, lat, lon, values)
+    values.update(derived)
+    assembly = assemble(
+        lib,
+        located,
+        values,
+        aeps=aeps,
+        allow_extrapolation=allow_extrapolation,
+        weighting_space=weighting_space,
+    )
+    return _site_estimate(
+        lib,
+        code,
+        lat,
+        lon,
+        assembly,
+        values,
+        at_site=at_site,
+        allow_extrapolation=allow_extrapolation,
+        input_provenance={
+            "characteristics_source": "caller",
+            "regions_located": [],
+            "regions_given": {r.code: r.percent_weight for r in located},
+            "derived_characteristics": {
+                k: {"value": v, "source": "the site coordinates"} for k, v in derived.items()
+            },
+        },
+        options={
+            "allow_nss_snapshot": allow_nss_snapshot,
+            "allow_provisional": allow_provisional,
+            "allow_extrapolation": allow_extrapolation,
+            "weighting_space": weighting_space,
+            "region": region if isinstance(region, str) else dict(region),
+        },
+        basin_geojson=None,
     )
 
 

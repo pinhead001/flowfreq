@@ -31,7 +31,9 @@ on this library.
   (`flowfreq.streamstats`)
 - **Ungaged-site estimates** — `estimate_at_site` / `flowfreq ungaged`: delineate the basin,
   locate the NSS regression regions, evaluate the offline equations and report the
-  estimate with its provenance (see Ungaged sites below)
+  estimate with its provenance (see Ungaged sites below). Where StreamStats can't delineate
+  (Florida, Michigan, Nebraska), `estimate_from_characteristics` / `flowfreq ungaged-chars`
+  take the region and basin characteristics from the caller
 - **Transposition** — Drainage-area-ratio transfer to ungaged sites, QPPQ daily-series
   transfer, and donor screening by basin similarity
 - **Low-Flow Frequency Analysis** — Annual minimum *n*-day mean flow (7Q10-style
