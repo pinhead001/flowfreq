@@ -54,8 +54,8 @@ Library follow-ups the batches found, none changed:
     (CO, "SIR 2023-XXXX", GC1949-GC1952) and Taylor and others (WY, "SIR 2027-XXXX", GC2151-GC2154). When
     each is published, verify it and decide whether it replaces the stored set. The live tests ignore those
     regions until then.
-15. NH and NY never located their drainage-area-only sets at a tested point, so those are reachable
-    only through `evaluate`.
+15. NH and NY drainage-area-only sets: done (`companion_regions`); not yet checked live, since StreamStats was
+    refusing this machine when it merged.
 16. FL, MI and NE can't run through `estimate_at_site` (no StreamStats grid, no NSS region lookup).
     `estimate_from_characteristics` and `flowfreq ungaged-chars` now take the region and characteristics from
     the caller. Still to do: a form for it on the app's ungaged page.

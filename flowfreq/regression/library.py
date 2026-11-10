@@ -399,6 +399,10 @@ class StateLibrary:
     #: How a basin spanning regions is averaged, where the report says: "linear" (in flow, as
     #: South Dakota's procedure 2 does) or "log". None leaves it to the caller's default.
     weighting_space: Optional[str] = None
+    #: A region's companion set, used beside it wherever NSS locates the region but not the
+    #: companion: New Hampshire's and New York's drainage-area-only sets, which NSS never
+    #: locates. Keyed by library region code.
+    companion_regions: Dict[str, str] = field(default_factory=dict)
 
     @property
     def provisional(self) -> bool:
@@ -507,6 +511,10 @@ def parse_state(data: Dict[str, Any]) -> StateLibrary:
         raise ValueError(
             f"{state}: weighting_space must be 'log' or 'linear', got {weighting_space!r}"
         )
+    companions = {str(k): str(v) for k, v in (data.get("companion_regions") or {}).items()}
+    unknown = sorted((set(companions) | set(companions.values())) - regions_known)
+    if unknown:
+        raise ValueError(f"{state}: companion_regions for regions with no equations: {unknown}")
     selector_data = data.get("region_selector")
     selector = RegionSelector.from_dict(selector_data) if selector_data else None
     if selector is not None:
@@ -530,6 +538,7 @@ def parse_state(data: Dict[str, Any]) -> StateLibrary:
         region_cautions=cautions,
         fallback_region=fallback,
         weighting_space=weighting_space,
+        companion_regions=companions,
     )
 
 

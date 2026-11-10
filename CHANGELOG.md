@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **New Hampshire and New York drainage-area-only sets are usable.** NSS never locates them, so they were reachable
+  only through `evaluate`. Each is now a companion of its full set (`StateLibrary.companion_regions`). NH uses
+  drainage-area-only outside the four-variable set's ranges, as its report says, and both states use it where a
+  characteristic is missing (a method choice for NY). `region=` reaches either set.
+
 ### Fixed
 - **Illinois's urbanization-adjusted intervals** use the report's degrees of freedom. The urban term is added to a
   fitted equation, not fitted with it, so it no longer costs a degree of freedom. New: `Variable.fitted`.
