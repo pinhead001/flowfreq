@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **`estimate_from_characteristics`** and **`flowfreq ungaged-chars`**: the regional regression from basin
+  characteristics and a region the caller supplies, with no StreamStats call. It's for sites StreamStats can't serve,
+  chiefly Florida, Michigan and Nebraska, which have no stream grid and no NSS region lookup. Ranges, cautions,
+  known-miss cautions and provenance are as for `estimate_at_site`. A basin spanning regions takes a percent per
+  region.
+
 ## [0.25.0] - 2026-11-08
 
 Owner's calls for Texas, Louisiana's southern gap and Maryland, Iowa's CCM limit, sharper intervals in AL and TN, and a cross-border check tool. Estimates can change in TX, LA, IA, AL and TN; Maryland estimates carry a caution.

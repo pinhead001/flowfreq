@@ -54,8 +54,9 @@ Library follow-ups the batches found, none changed:
     regions until then.
 15. NH and NY never located their drainage-area-only sets at a tested point, so those are reachable
     only through `evaluate`.
-16. FL, MI and NE still can't run through `estimate_at_site`: no StreamStats grid, and NSS locates no
-    region there. A caller would have to supply region and characteristics.
+16. FL, MI and NE can't run through `estimate_at_site` (no StreamStats grid, no NSS region lookup).
+    `estimate_from_characteristics` and `flowfreq ungaged-chars` now take the region and characteristics from
+    the caller. Still to do: a form for it on the app's ungaged page.
 
 17. Finish the cross-border check once StreamStats stops refusing this machine (403 since 2026-11-09 14:40, after
     about 1,700 requests): `python tools/border_qa.py run --workers 1`, then `report` (about 280 gages left;

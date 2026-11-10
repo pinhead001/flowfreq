@@ -120,7 +120,12 @@ from .transpose import (
     transpose_frequency,
     transpose_low_flow,
 )
-from .ungaged import OverlappingRegionsError, SiteEstimate, estimate_at_site
+from .ungaged import (
+    OverlappingRegionsError,
+    SiteEstimate,
+    estimate_at_site,
+    estimate_from_characteristics,
+)
 from .usgs import (
     GageAttributes,
     NoInstantaneousDataError,
@@ -412,6 +417,7 @@ __all__ = [
     "OverlappingRegionsError",
     "SiteEstimate",
     "estimate_at_site",
+    "estimate_from_characteristics",
     # Low-flow frequency analysis
     "LowFlowResults",
     "LowFlowFrequency",

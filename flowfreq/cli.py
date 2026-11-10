@@ -8,7 +8,7 @@ Bulletin 17C implementation.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Union
 
 import click
 
@@ -342,6 +342,95 @@ def ungaged(
     except KeyError as exc:  # unknown --state: KeyError quotes str(); use the message
         raise click.ClickException(str(exc.args[0]) if exc.args else "unknown key") from exc
     except (ValueError, LookupError, requests.RequestException) as exc:
+        raise click.ClickException(str(exc)) from exc
+    click.echo(estimate.to_markdown())
+
+
+@cli.command("ungaged-chars")
+@click.option("--state", required=True, help="Two-letter jurisdiction code (e.g. FL).")
+@click.option(
+    "--region",
+    required=True,
+    help=(
+        "The region from the report's map: a library region code or NSS code. For a basin "
+        'spanning regions, give each with its percent, comma-separated ("1=60,2=40").'
+    ),
+)
+@click.option(
+    "--char",
+    "chars",
+    multiple=True,
+    required=True,
+    help="A basin characteristic as CODE=VALUE (e.g. DRNAREA=105); repeat for each.",
+)
+@click.option("--lat", type=float, required=True, help="Site latitude, decimal degrees.")
+@click.option("--lon", type=float, required=True, help="Site longitude, decimal degrees.")
+@click.option(
+    "--aep",
+    "aeps",
+    type=click.FloatRange(0.0, 1.0, min_open=True, max_open=True),
+    multiple=True,
+    help="Annual exceedance probability (fraction); repeat for several. Default: every AEP.",
+)
+@click.option("--allow-nss-snapshot", is_flag=True, help="Accept the unreviewed NSS snapshot tier.")
+@click.option(
+    "--allow-extrapolation",
+    is_flag=True,
+    help="Allow basin characteristics outside the equations' calibrated range.",
+)
+def ungaged_chars(
+    state: str,
+    region: str,
+    chars: Tuple[str, ...],
+    lat: float,
+    lon: float,
+    aeps: Tuple[float, ...],
+    allow_nss_snapshot: bool,
+    allow_extrapolation: bool,
+) -> None:
+    """Estimate flood quantiles from basin characteristics you supply (no StreamStats).
+
+    For sites StreamStats can't delineate, such as Florida, Michigan and Nebraska. Name the
+    region from the report's map and give each characteristic the region's equations use,
+    measured as the report defines it. Prints the estimate as Markdown.
+    """
+    from flowfreq.regression.equations import OutOfRangeError
+    from flowfreq.ungaged import estimate_from_characteristics
+
+    values: Dict[str, float] = {}
+    for item in chars:
+        name, sep, raw = item.partition("=")
+        try:
+            values[name.strip()] = float(raw)
+        except ValueError:
+            raise click.BadParameter(f"{item!r} is not CODE=VALUE", param_hint="--char")
+        if not sep:
+            raise click.BadParameter(f"{item!r} is not CODE=VALUE", param_hint="--char")
+    if "=" in region:
+        try:
+            chosen: Union[str, Dict[str, float]] = {
+                k.strip(): float(v) for k, v in (p.split("=") for p in region.split(","))
+            }
+        except ValueError:
+            raise click.BadParameter(f"{region!r} is not REGION=PERCENT,...", param_hint="--region")
+    else:
+        chosen = region
+    try:
+        estimate = estimate_from_characteristics(
+            state,
+            values,
+            region=chosen,
+            lat=lat,
+            lon=lon,
+            aeps=list(aeps) if aeps else None,
+            allow_nss_snapshot=allow_nss_snapshot,
+            allow_extrapolation=allow_extrapolation,
+        )
+    except OutOfRangeError as exc:
+        raise click.ClickException(f"{exc} (pass --allow-extrapolation to proceed)") from exc
+    except KeyError as exc:
+        raise click.ClickException(str(exc.args[0]) if exc.args else "unknown key") from exc
+    except (ValueError, LookupError) as exc:
         raise click.ClickException(str(exc)) from exc
     click.echo(estimate.to_markdown())
 
