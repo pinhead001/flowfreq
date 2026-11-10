@@ -86,6 +86,29 @@ def test_worked_example_willow_creek(lib):
     assert round(4730 * 66.9 / 86.5 + 24400 * 19.6 / 86.5, -1) == 9190
 
 
+def test_willow_creek_by_procedure_2_is_the_default(lib):
+    """The library's own weighting reproduces the report's 9,190; log would give about 6,860."""
+    from flowfreq import estimate_from_characteristics
+
+    assert lib.weighting_space == "linear"
+    regions = {"C": 66.9 / 86.5 * 100, "D": 19.6 / 86.5 * 100}
+    est = estimate_from_characteristics(
+        "SD", {"CONTDA": 86.5}, region=regions, lat=44.0, lon=-100.0, aeps=[0.01]
+    )
+    assert round(est.quantiles.loc[0, "flow_cfs"], -1) == pytest.approx(9190, abs=20)
+    assert est.provenance["options"]["weighting_space"] == "linear"
+    logged = estimate_from_characteristics(
+        "SD",
+        {"CONTDA": 86.5},
+        region=regions,
+        lat=44.0,
+        lon=-100.0,
+        aeps=[0.01],
+        weighting_space="log",
+    )
+    assert logged.quantiles.loc[0, "flow_cfs"] == pytest.approx(6860, rel=0.02)
+
+
 def test_worked_example_weighted_gage(lib):
     """P. 22: 06477400, subregion B, 12 years, 92 ft3/s at the station."""
     gage = GAGES["06477400"]

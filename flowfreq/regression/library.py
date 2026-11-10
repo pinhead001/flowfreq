@@ -396,6 +396,9 @@ class StateLibrary:
     #: The region used when NSS locates none of the library's regions and the caller names none,
     #: with why: ``{"region": code, "basis": text}``.
     fallback_region: Optional[Dict[str, str]] = None
+    #: How a basin spanning regions is averaged, where the report says: "linear" (in flow, as
+    #: South Dakota's procedure 2 does) or "log". None leaves it to the caller's default.
+    weighting_space: Optional[str] = None
 
     @property
     def provisional(self) -> bool:
@@ -499,6 +502,11 @@ def parse_state(data: Dict[str, Any]) -> StateLibrary:
         fallback = {"region": str(fallback["region"]), "basis": str(fallback.get("basis") or "")}
         if fallback["region"] not in regions_known:
             raise ValueError(f"{state}: fallback_region {fallback['region']!r} has no equations")
+    weighting_space = data.get("weighting_space")
+    if weighting_space not in (None, "log", "linear"):
+        raise ValueError(
+            f"{state}: weighting_space must be 'log' or 'linear', got {weighting_space!r}"
+        )
     selector_data = data.get("region_selector")
     selector = RegionSelector.from_dict(selector_data) if selector_data else None
     if selector is not None:
@@ -521,6 +529,7 @@ def parse_state(data: Dict[str, Any]) -> StateLibrary:
         known_misses=[KnownMiss.from_dict(x) for x in data.get("known_misses") or []],
         region_cautions=cautions,
         fallback_region=fallback,
+        weighting_space=weighting_space,
     )
 
 
