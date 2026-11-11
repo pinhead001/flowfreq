@@ -7,27 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
-- **`Hydrograph.day_of_water_year`** counts on a leap-year calendar, as its docstring always said (1-366): Feb 29 is
-  152, Mar 1 is 153 and Sep 30 is 366. It used 365 days, so Feb 29 and Mar 1 shared 152 and every date from March on
-  was numbered one low. Summary statistics by day now keep Feb 29 apart from Mar 1, and a date labelled from a leap
-  origin (the app's summary hydrograph) is no longer a day early from March.
+## [0.26.0] - 2026-11-11
 
-### Changed
-- **New Hampshire and New York drainage-area-only sets are usable.** NSS never locates them, so they were reachable
-  only through `evaluate`. Each is now a companion of its full set (`StateLibrary.companion_regions`). NH uses
-  drainage-area-only outside the four-variable set's ranges, as its report says, and both states use it where a
-  characteristic is missing (a method choice for NY). `region=` reaches either set.
-
-### Fixed
-- **Illinois's urbanization-adjusted intervals** use the report's degrees of freedom. The urban term is added to a
-  fitted equation, not fitted with it, so it no longer costs a degree of freedom. New: `Variable.fitted`.
-
-### Changed
-- **South Dakota, Wyoming and Kentucky** basins spanning regions are averaged in flow, as their reports do: SD's
-  Willow Creek example now gives 9,190 rather than about 6,860, WY's North Fork Crazy Woman Creek 2,800 rather than
-  2,630, and KY's Table 1 two-region gages reproduce at the report's own area split. A state's file may set `weighting_space`;
-  `estimate_at_site` and `estimate_from_characteristics` default to it, and a caller's value overrides.
+Estimates from caller-supplied characteristics where StreamStats can't delineate (Florida, Michigan, Nebraska),
+flow averaging of multi-region basins where the report does it (South Dakota, Wyoming, Kentucky), New Hampshire's and
+New York's drainage-area-only sets, Illinois's interval degrees of freedom, and the leap-year day of the water year.
+Estimates change for SD, WY and KY basins spanning regions, Illinois urban intervals and NH/NY sites missing a
+characteristic.
 
 ### Added
 - **`estimate_from_characteristics`** and **`flowfreq ungaged-chars`**: the regional regression from basin
@@ -35,6 +21,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   chiefly Florida, Michigan and Nebraska, which have no stream grid and no NSS region lookup. Ranges, cautions,
   known-miss cautions and provenance are as for `estimate_at_site`. A basin spanning regions takes a percent per
   region.
+
+### Changed
+- **New Hampshire and New York drainage-area-only sets are usable.** NSS never locates them, so they were reachable
+  only through `evaluate`. Each is now a companion of its full set (`StateLibrary.companion_regions`). NH uses
+  drainage-area-only outside the four-variable set's ranges, as its report says, and both states use it where a
+  characteristic is missing (a method choice for NY). `region=` reaches either set.
+- **South Dakota, Wyoming and Kentucky** basins spanning regions are averaged in flow, as their reports do: SD's
+  Willow Creek example now gives 9,190 rather than about 6,860, WY's North Fork Crazy Woman Creek 2,800 rather than
+  2,630, and KY's Table 1 two-region gages reproduce at the report's own area split. A state's file may set `weighting_space`;
+  `estimate_at_site` and `estimate_from_characteristics` default to it, and a caller's value overrides.
+
+### Fixed
+- **`Hydrograph.day_of_water_year`** counts on a leap-year calendar, as its docstring always said (1-366): Feb 29 is
+  152, Mar 1 is 153 and Sep 30 is 366. It used 365 days, so Feb 29 and Mar 1 shared 152 and every date from March on
+  was numbered one low. Summary statistics by day now keep Feb 29 apart from Mar 1, and a date labelled from a leap
+  origin (the app's summary hydrograph) is no longer a day early from March.
+- **Illinois's urbanization-adjusted intervals** use the report's degrees of freedom. The urban term is added to a
+  fitted equation, not fitted with it, so it no longer costs a degree of freedom. New: `Variable.fitted`.
 
 ## [0.25.0] - 2026-11-08
 
