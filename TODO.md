@@ -5,17 +5,30 @@
 > in progress are tracked under "Roadmap Phase A, Wave 1 and Wave 2" in Open Items below.
 
 ## Status
-Last updated: 2026-11-08. Version **0.25.0** is released (tag `v0.25.0`). `main` carries
+Last updated: 2026-11-11. Version **0.25.0** is released (tag `v0.25.0`). `main` carries
 **0.26.0.dev0**; 0.25.x patches come from `release/0.25.x` (CLAUDE.md, Branches and Releases).
-flowfreq-app pins v0.24.0, with a PR open for v0.25.0. 51 jurisdictions are `verified`, and 5 have no equations.
+flowfreq-app pins v0.25.0 and has merged app #42-#45 (raster hydrograph, NID/NLCD events beside a change point,
+the Bulletin 17C curve on the gage page, the characteristics form). 51 jurisdictions are `verified`, and 5 have no
+equations.
 
-### Next steps (2026-11-08)
+**On `main`, unreleased (v0.26.0):** `estimate_from_characteristics` and `flowfreq ungaged-chars` (#366); flow
+averaging of multi-region basins for SD, WY and KY (#367); IL's adjusted intervals at the report's degrees of
+freedom (#368); NH and NY drainage-area-only sets as companions (#369); the leap-year day-of-water-year (#370);
+the border tool's fixes (#360, #363) and results (#364). Estimates change for SD, WY and KY basins spanning
+regions, IL urban intervals and NH/NY sites missing a characteristic.
+
+**StreamStats has refused this machine (HTTP 403) since 2026-11-09 14:40**, after about 1,700 border-check
+requests in a day. Nothing below that needs it can run until it answers; retest at TN 03465500 or AL 02342500
+with a single request, not a loop.
+
+### Next steps (2026-11-11)
 
 **The batches in `docs/VERIFICATION_PLAN.md` are done. Read its "What `verified` rests on here".**
 
 Owner's:
 
-1. Merge the app's v0.25.0 pin PR and app #40. Push `release/0.25.x` (a hook blocks it here; the branch exists locally).
+1. **Release v0.26.0**, then pin the app to it. The pin PR must change the app's summary-hydrograph test from 365
+   days to 366 (the leap-day fix), and it switches on app #45's characteristics form.
 2. **Overlap calls:** none open. Urban and NRCS-regulated basins (AL, MO, TN, OK) need `region=` on purpose; say
    if you want a default instead.
 
@@ -33,10 +46,9 @@ Owner's:
    report, not in NSS) needs. If it does, verify and store that report.
 7. **LA's southern gap** uses the 1998 Non-Pine Hills set (TR 60, NSS GC879) when NSS locates no current region,
    with a caution and no interval (`fallback_region`). OH 2006-5312, TN 03-4176 and LA's Delta stay dropped.
-8. Close issue #293 once the next live run passes. Its last failure was the staged CO and WY regions
-   (item 14), which the live tests now ignore.
-9. Open the app in a browser: the resizable period grips (app #24), the self-hosted map and chart (#29, #30), the
-   dark-mode box (#32) and the extrapolation caution (#37) have never run in one here.
+8. Close issue #293: the live run of 2026-11-09 passed with the fix.
+9. Open the app in a browser: the resizable period grips (app #24), and app #42-#45 (raster hydrograph, basin
+   changes, the Bulletin 17C curve, the characteristics form) have never run in one here.
 10. Have a person spot-check the highest-use states against their reports. Every set was checked only by agents.
 
 Library follow-ups the batches found, none changed:
@@ -66,9 +78,17 @@ Library follow-ups the batches found, none changed:
     Georgia are traced: both states' equations match their reports. Also check whether Texas's StreamStats computes
     `OmegaEM` (SIR 2009-5087), which StreamStats failures kept from being answered.
 
-Parked: gage page NID and NLCD events beside a change point
-(`stationarity.basin_change_events`; needs the delineated basin), raster hydrograph, the Bulletin
-17C curve in place.
+App improvements suggested 2026-11-09, not started:
+
+- Ungaged page: plot the regression estimate's frequency curve with its prediction band, with a gage's own fit
+  overlaid where the point is at a gage.
+- Ungaged page: a border caution within about 20 km of a systematic pair (`docs/VERIFICATION_PLAN.md`), with the
+  neighbor's estimate one click away.
+- A StreamStats health banner, since an outage or a refusal is invisible today.
+- App #43: cache NLDI and dam-inventory failures briefly, so a rerun doesn't wait up to 60 s again while they're down.
+- Gage page: direct data downloads; fewer repeated USGS requests (`USGSgage.peak_summary()`); the peak chart's year
+  axis padding (to 2040 at Lees Ferry).
+- `st.navigation` pages, so browser Back works; shareable links for a point's result; a phone-layout check.
 
 Python 3.11–3.14 (`requires-python >= 3.11`; CI matrix in `.github/workflows/ci.yml`).
 
