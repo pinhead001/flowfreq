@@ -194,7 +194,7 @@ CI should test the supported Python matrix.
   `Bulletin17C` arguments, legacy WATSTORE peak-file reader
 - **`regulation.py`** — regulation/urbanization screen (GAGES-II + peak code 6) and the
   regulated-record refusal
-- **`catalog.py`** — national gage catalog (`data/gage_catalog.csv.gz`)
+- **`catalog.py`** — national gage catalog (`data/gage_catalog.csv.gz`), `search` by station number or name
 - **`regional_skew.py`** — verified regional skew by state, HUC or location;
   **`skew_study.py`** — B-WLS/B-GLS regional skew development
 - **`regression/`** — offline regional regression equations: `equations` (schema,
@@ -220,9 +220,14 @@ CI should test the supported Python matrix.
 - **`reporting/`** — reports from a JSON specification: `spec` (`ReportSpec`, `SectionSpec`),
   `sections` (the section kinds: `gaged_ffa`, `ungaged`, `weighted`, `text`), `blocks` (content blocks and
   the Markdown subset), `build` (`build_report`, Markdown output), `word` (DOCX through
-  python-docx, the `report` extra). A section's tables and figures come from the analysis it
-  runs; prose is a labeled draft `narrative` until marked reviewed. `report.py`
-  (`HydroReport`) is the older single-gage Markdown report
+  python-docx, the `report` extra), `session` (`ReportSession`: a report built a section at a
+  time, stable section ids, files named inside one output directory). A section's tables and
+  figures come from the analysis it runs; prose is a labeled draft `narrative` until marked
+  reviewed. `report.py` (`HydroReport`) is the older single-gage Markdown report
+- **`mcp_server.py`** — `flowfreq-mcp`: `ReportSession` as sixteen Model Context Protocol tools
+  for a chat client (the `mcp` extra, mcp 2.x; `docs/CHAT_REPORTS.md`). Tool calls take turns
+  behind a lock and matplotlib is put on Agg, because mcp runs sync tools on worker threads.
+  Tests drive it in process through `mcp.Client`
 - **`engine.py`**, **`batch.py`**, **`report.py`**, **`hydrograph.py`**, **`plots.py`**,
   **`freq_plot.py`**, **`flowio.py`**, **`cli.py`**
 

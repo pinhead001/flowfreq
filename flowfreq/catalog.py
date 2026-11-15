@@ -166,6 +166,59 @@ def select(
     return out.reset_index(drop=True)
 
 
+def search(
+    catalog: pd.DataFrame,
+    query: str,
+    *,
+    state: Optional[str] = None,
+    min_years: Optional[int] = None,
+    limit: int = 20,
+) -> pd.DataFrame:
+    """Find gages by station number or by words in the station name.
+
+    Parameters
+    ----------
+    catalog : pandas.DataFrame
+        Output of :func:`load_catalog`.
+    query : str
+        Digits match the start of ``site_no``. Anything else is split on whitespace and
+        every word must appear in ``site_name``, in any order and any case.
+    state : str, optional
+        Two-letter postal code.
+    min_years : int, optional
+        Minimum ``n_peaks``.
+    limit : int, default 20
+        The most rows returned.
+
+    Returns
+    -------
+    pandas.DataFrame
+        The matching rows, longest peak record first.
+
+    Raises
+    ------
+    ValueError
+        An empty query, or a limit below 1.
+    """
+    words = query.split()
+    if not words:
+        raise ValueError("search needs a station number or words from a station name")
+    if limit < 1:
+        raise ValueError(f"limit must be at least 1, got {limit}")
+    out = select(catalog, state=state, min_years=min_years)
+    if len(words) == 1 and words[0].isdigit():
+        out = out[out["site_no"].str.startswith(words[0])]
+    else:
+        names = out["site_name"].fillna("").str.upper()
+        for word in words:
+            out = out[names.loc[out.index].str.contains(word.upper(), regex=False)]
+    order = pd.to_numeric(out["n_peaks"], errors="coerce").fillna(-1)
+    out = out.assign(_order=order).sort_values(
+        ["_order", "site_no"], ascending=[False, True], kind="stable"
+    )
+    return out.drop(columns="_order").head(limit).reset_index(drop=True)
+
+
 def catalog_row(
     site_no: str,
     state: str,

@@ -30,6 +30,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   is false. It refuses a basin in more than one region and a regression with no variance of prediction.
   `ungaged` now requires only `state`, `lat` and `lon`; with `characteristics`, `region` is still needed.
 
+- **`flowfreq-mcp`**: the report tools as a Model Context Protocol server, so a chat client (Claude Code, Claude
+  Desktop) builds a report over a conversation (`docs/CHAT_REPORTS.md`; new `mcp` extra, `pip install
+  "flowfreq[mcp]"`). Sixteen tools: `find_gage`, `run_ffa`, `estimate_ungaged`, `estimate_from_characteristics`,
+  `weight_gage_with_regression`, text and narrative editing, `get_section`, outline and ordering, `render_report`
+  (DOCX or Markdown, with the specification beside it), `save_report` and `load_report`. flowfreq computes every
+  table and figure; the model's prose is a narrative that prints as a draft until marked reviewed, and a narrative
+  with a table or a heading is refused. An analysis's refusal reaches the model as an error naming the reason.
+  Files are named inside one output directory (`--dir`, or `$FLOWFREQ_REPORT_DIR`), never given by path.
+  Behind it, **`flowfreq.reporting.ReportSession`** builds a report a section at a time with stable section ids,
+  and **`flowfreq.catalog.search`** finds gages by station-number prefix or words from the station name.
+
 - **`USGSgage.peak_summary()`**, with `flowfreq.summarize_peaks(peaks)` behind it: the first and last water
   year of an annual peak record, its row count, and the largest peak with its date, as a `PeakSummary` dict of
   plain Python values. It reads the peaks already downloaded and makes no request. `flowfreq.record_years(start,

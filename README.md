@@ -80,6 +80,7 @@ pip install git+https://github.com/pinhead001/flowfreq@v0.26.0
 
 **Dependencies:** `numpy`, `pandas`, `matplotlib`, `scipy`, `requests`, `click`, `pyarrow`.
 Word reports need the `report` extra: `pip install "flowfreq[report]"` (python-docx).
+The chat server needs the `mcp` extra: `pip install "flowfreq[mcp]"` (mcp 2.x and python-docx).
 
 ### USGS Water Data API key (optional)
 
@@ -312,6 +313,23 @@ analysis and lays out what it returns, so a quantile in a report is the one `run
 
 `flowfreq.report.HydroReport`, the older single-gage Markdown report, is unchanged.
 
+### Reports through a chat
+
+`flowfreq-mcp` serves the same report tools to a chat client over the Model Context
+Protocol, so a report can be built by asking for it:
+
+```bash
+pip install "flowfreq[mcp]"
+claude mcp add flowfreq -- /path/to/venv/bin/flowfreq-mcp --dir ~/reports
+```
+
+The model calls `find_gage`, `run_ffa`, `estimate_from_characteristics`,
+`weight_gage_with_regression`, `edit_narrative` and `render_report`; flowfreq computes
+every table and figure, and what the model writes is narrative that prints as a draft
+until you mark it reviewed. `flowfreq.reporting.ReportSession` is the same thing from
+Python. Client configuration, the sixteen tools and the rules the server holds the model
+to are in [docs/CHAT_REPORTS.md](docs/CHAT_REPORTS.md).
+
 ## Module Overview
 
 | Module | Purpose |
@@ -326,7 +344,8 @@ analysis and lays out what it returns, so a quantile in a report is the one `run
 | `flowfreq.regression` | Offline regional regression equations and evaluator |
 | `flowfreq.ungaged` | `estimate_at_site` — basin delineation, NSS region matching, regression estimate with provenance |
 | `flowfreq.streamstats` | StreamStats delineation, basin characteristics, NSS estimates |
-| `flowfreq.reporting` | `ReportSpec` / `build_report` — DOCX or Markdown reports from a JSON specification |
+| `flowfreq.reporting` | `ReportSpec` / `build_report` — DOCX or Markdown reports from a JSON specification; `ReportSession` builds one a section at a time |
+| `flowfreq.mcp_server` | `flowfreq-mcp` — the report tools as a Model Context Protocol server for a chat client |
 | `flowfreq.transpose` / `flowfreq.qppq` / `flowfreq.donor_similarity` | Transposition to ungaged sites, QPPQ, donor screening |
 | `flowfreq.transfer_variance` | Variance-based weighting of gage transfers: dissimilarity variance, GLS blend with the regression, area-ratio band, leave-one-out |
 | `flowfreq.monthly_transfer` / `flowfreq.duration_transfer` | The same transfer variance for monthly mean/median flows and median annual duration quantiles (q10, q50, q90) |
