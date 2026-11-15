@@ -36,6 +36,7 @@ MAIN_TABLES: Dict[str, str] = {
     "gaged_ffa": "Flood quantiles with 90-percent confidence limits.",
     "ungaged": "Regression flood quantiles with prediction limits.",
     "weighted": "At-site and regression flood quantiles and their weighted estimate.",
+    "transposed": "Flood quantiles transposed from the gage by the drainage-area ratio.",
 }
 
 #: A table longer than this is named, not printed, when a section is read back.
@@ -334,6 +335,79 @@ class ReportSession:
         if not keep_parts:
             self._entries.remove(gage)
             self._entries.remove(regression)
+        return {**self._describe(built), "result": _main_table(built)}
+
+    def transpose(
+        self,
+        gage_id: str,
+        target_area_sqmi: float,
+        exponents: Mapping[str, Any],
+        *,
+        target_name: Optional[str] = None,
+        options: Optional[Mapping[str, Any]] = None,
+        detail: bool = False,
+        title: Optional[str] = None,
+        position: Optional[int] = None,
+    ) -> Dict[str, Any]:
+        """Transpose a gage section's quantiles to an ungaged site on the same stream.
+
+        Parameters
+        ----------
+        gage_id : str
+            The ``gaged_ffa`` section that is the donor. It stays in the report.
+        target_area_sqmi : float
+            The site's drainage area, in square miles.
+        exponents : mapping
+            The drainage-area exponents and where they came from: ``citation`` and either
+            ``exponent`` (one value for every AEP) or ``aeps`` and ``exponents``, with
+            ``region`` and ``valid_area_range_sqmi`` optional.
+        target_name : str, optional
+            A name for the site.
+        options : mapping, optional
+            The ``transposed`` kind's other options (``donor_area_sqmi``, ``max_aep``,
+            ``allow_out_of_range``, ``donor_site_class``, ``target_site_class``,
+            ``allow_regulation_mismatch``).
+        detail : bool, default False
+            Repeat the gage's analysis below the transposed table. Off by default, since
+            the gage's own section is still in the report.
+        title : str, optional
+            The heading, in place of the kind's own.
+        position : int, optional
+            Where it goes, counting from 1. Defaults to just after the gage's section.
+
+        Returns
+        -------
+        dict
+            As :meth:`add_section`.
+
+        Raises
+        ------
+        ReportError
+            A section of the wrong kind, a bad position, or a transposition
+            :func:`~flowfreq.reporting.build_section` refuses. Refusals the analysis
+            raises itself (an area ratio outside the method's range, a regulation
+            mismatch) pass through. The report is unchanged.
+        """
+        gage = self._entry(gage_id)
+        if gage.spec.kind != "gaged_ffa":
+            raise ReportError(
+                f"section {gage.id} is a {gage.spec.kind} section, not a gaged_ffa section"
+            )
+        index = self._entries.index(gage) + 1 if position is None else self._index(position)
+        given: Dict[str, Any] = dict(options or {})
+        for key in ("donor", "target_area_sqmi", "exponents", "target_name", "detail"):
+            if key in given:
+                raise ReportError(f"transposed: {key} is an argument, not one of the options")
+        given.update(
+            donor=gage.spec.options,
+            target_area_sqmi=target_area_sqmi,
+            exponents=dict(exponents),
+            detail=detail,
+        )
+        if target_name:
+            given["target_name"] = target_name
+        built = self._new(SectionSpec("transposed", title=title, options=given))
+        self._entries.insert(index, built)
         return {**self._describe(built), "result": _main_table(built)}
 
     def section_markdown(self, section_id: str) -> str:

@@ -1,10 +1,11 @@
 """Reports assembled from flowfreq results: a JSON specification in, Markdown or DOCX out.
 
 A report is described by a :class:`ReportSpec`: a title and a list of sections, each a kind
-(``gaged_ffa``, ``ungaged``, ``weighted``, ``text``) with its inputs. :func:`build_report` computes every
-table and figure from those inputs, so no number in a report is typed by hand or written by
-a language model. Prose that flowfreq did not compute rides along as a section's
-``narrative``, and renders under a draft label until someone marks it reviewed.
+(``gaged_ffa``, ``ungaged``, ``weighted``, ``transposed``, ``text``) with its inputs.
+:func:`build_report` computes every table and figure from those inputs, so no number in a
+report is typed by hand or written by a language model. Prose that flowfreq did not compute
+rides along as a section's ``narrative``, and renders under a draft label until someone
+marks it reviewed.
 
 >>> from flowfreq.reporting import ReportSpec, SectionSpec, build_report
 >>> spec = ReportSpec(

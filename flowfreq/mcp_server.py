@@ -63,7 +63,8 @@ no regional skew), tell the user what it said. The allow_* arguments override a 
 set one only when the user asks for it.
 
 A usual order: find_gage, run_ffa, then estimate_ungaged or estimate_from_characteristics \
-at the gage and weight_gage_with_regression, then get_section to read what was computed, \
+at the gage and weight_gage_with_regression (or transpose_gage_to_site for a site on \
+the gage's stream), then get_section to read what was computed, \
 edit_narrative, and render_report. The report is kept for the life of the server; \
 save_report and load_report carry it between conversations.
 """
@@ -412,6 +413,83 @@ def build_server(
             gage_section_id, regression_section_id, detail=detail, keep_parts=keep_parts
         )
 
+    def transpose_gage_to_site(
+        gage_section_id: str,
+        target_area_sqmi: float,
+        exponent_citation: str,
+        exponent: Optional[float] = None,
+        exponent_aeps: Optional[List[float]] = None,
+        exponents: Optional[List[float]] = None,
+        exponent_region: Optional[str] = None,
+        target_name: Optional[str] = None,
+        donor_area_sqmi: Optional[float] = None,
+        max_aep: Optional[float] = None,
+        allow_out_of_range: bool = False,
+        donor_site_class: Optional[str] = None,
+        target_site_class: Optional[str] = None,
+        allow_regulation_mismatch: bool = False,
+        detail: bool = False,
+        title: Optional[str] = None,
+        position: Optional[int] = None,
+    ) -> Dict[str, Any]:
+        """Transpose a gage's flood quantiles to an ungaged site on the same stream.
+
+        The drainage-area ratio method: each of the gage's quantiles is multiplied by
+        (site area / gage area) raised to the drainage-area exponent of a regional
+        regression. The gage's run_ffa section must already be in the report, and stays.
+
+        gage_section_id: the run_ffa section. target_area_sqmi: the site's drainage area.
+        exponent_citation: the report and table the exponents were published in, or why a
+        value was assumed. The exponents are the user's to supply from that report: ask
+        for them, and do not give values from memory. Give either exponent (one value for
+        every AEP) or exponent_aeps and exponents (the published values, AEP as a
+        fraction, for example [0.5, 0.1, 0.01] and [0.70, 0.66, 0.62]); between published
+        AEPs the exponent is interpolated, and beyond them held, which the table flags.
+        exponent_region: the regression region, for the record. target_name: a name for
+        the site. donor_area_sqmi: the gage's drainage area, when run_ffa did not find it.
+        max_aep: leave out quantiles more frequent than this AEP (a fraction).
+        allow_out_of_range: transpose although the area ratio is outside 0.5 to 1.5,
+        where the regression itself is the better estimate.
+        donor_site_class, target_site_class: reference, regulated, urban or unknown; a
+        regulated site on one side only is refused unless allow_regulation_mismatch.
+        detail: repeat the gage's analysis below the table. title, position: as run_ffa
+        (default position: just after the gage's section).
+
+        Returns the new section's id and the transposed table.
+        """
+        spec: Dict[str, Any] = {"citation": exponent_citation}
+        if exponent is not None:
+            spec["exponent"] = exponent
+        if exponent_aeps is not None:
+            spec["aeps"] = list(exponent_aeps)
+        if exponents is not None:
+            spec["exponents"] = list(exponents)
+        if exponent_region:
+            spec["region"] = exponent_region
+        options: Dict[str, Any] = {}
+        if donor_area_sqmi is not None:
+            options["donor_area_sqmi"] = donor_area_sqmi
+        if max_aep is not None:
+            options["max_aep"] = max_aep
+        if allow_out_of_range:
+            options["allow_out_of_range"] = True
+        if donor_site_class:
+            options["donor_site_class"] = donor_site_class
+        if target_site_class:
+            options["target_site_class"] = target_site_class
+        if allow_regulation_mismatch:
+            options["allow_regulation_mismatch"] = True
+        return report.transpose(
+            gage_section_id,
+            target_area_sqmi,
+            spec,
+            target_name=target_name,
+            options=options,
+            detail=detail,
+            title=title,
+            position=position,
+        )
+
     def add_text_section(
         title: str, narrative: str, position: Optional[int] = None
     ) -> Dict[str, Any]:
@@ -478,6 +556,7 @@ def build_server(
         estimate_ungaged,
         estimate_from_characteristics,
         weight_gage_with_regression,
+        transpose_gage_to_site,
         add_text_section,
         edit_narrative,
         mark_narrative_reviewed,

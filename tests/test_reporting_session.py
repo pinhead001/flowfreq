@@ -14,6 +14,7 @@ import pytest
 from flowfreq.reporting import DRAFT_LABEL, ReportError, ReportSpec, build_section
 from flowfreq.reporting.session import LONG_TABLE_ROWS, MAIN_TABLES, ReportSession
 from tests.test_reporting_sites import GAGE, TENNESSEE
+from tests.test_reporting_transposed import CITATION, EXPONENTS
 
 #: The same equations at a smaller basin, for a second section that is not the first.
 UPSTREAM: Dict[str, Any] = {**TENNESSEE, "characteristics": {"DRNAREA": 120.0}}
@@ -256,6 +257,110 @@ class TestWeight:
         with pytest.raises(ReportError, match="no AEP could be weighted"):
             parts.weight("s2", "s4")
         assert _ids(parts) == ["s1", "s2", "s3", "s4"]
+
+
+class TestTranspose:
+    ONE_PERCENT = "| 1 | 18,069 | 0.620 | 0.8239 | 14,888 | 11,539 | 22,339 | published |"
+
+    @pytest.fixture
+    def parts(self, session) -> ReportSession:
+        session.add_text("Introduction", TEXT)
+        session.add_section("gaged_ffa", GAGE)
+        session.add_text("Closing", TEXT)
+        return session
+
+    def test_goes_after_the_gage_which_stays(self, parts):
+        added = parts.transpose(
+            "s2", 150.0, EXPONENTS, target_name="Big Sandy River above Bruceton"
+        )
+        assert added["section_id"] == "s4" and added["number"] == 3
+        assert added["kind"] == "transposed" and added["narrative"] == "none"
+        assert added["title"] == "Transposed flood frequency at Big Sandy River above Bruceton"
+        assert added["result"].startswith(MAIN_TABLES["transposed"])
+        assert self.ONE_PERCENT in added["result"]
+        assert _ids(parts) == ["s1", "s2", "s4", "s3"]
+        options = parts.spec.sections[2].options
+        assert options["donor"] == parts.spec.sections[1].options
+        assert options["donor_area_sqmi"] == 205.0 and options["detail"] is False
+        assert options["exponents"] == EXPONENTS
+        assert "Analysis at the donor gage" not in parts.section_markdown("s4")
+
+    def test_options_detail_title_and_position(self, parts):
+        added = parts.transpose(
+            "s2",
+            150.0,
+            {"exponent": 0.8, "citation": CITATION},
+            options={
+                "max_aep": 0.5,
+                "donor_site_class": "reference",
+                "target_site_class": "reference",
+            },
+            detail=True,
+            title="Upstream site",
+            position=1,
+        )
+        assert added["title"] == "Upstream site" and added["number"] == 1
+        assert _ids(parts) == ["s4", "s1", "s2", "s3"]
+        assert "| 1 | 18,069 | 0.800 | 0.7789 | 14,074 |" in added["result"]
+        assert "| 99 |" not in added["result"]
+        text = parts.section_markdown("s4")
+        assert "### Analysis at the donor gage" in text and "Regulation was not" not in text
+
+    def test_the_exponents_given_are_copied(self, parts):
+        exponents = dict(EXPONENTS)
+        parts.transpose("s2", 150.0, exponents)
+        exponents["citation"] = "changed afterwards"
+        assert parts.spec.sections[2].options["exponents"] == EXPONENTS
+
+    @pytest.mark.parametrize(
+        "gage, change, error, match",
+        [
+            ("s1", {}, ReportError, "section s1 is a text section, not a gaged_ffa section"),
+            ("s9", {}, ReportError, "no section 's9'"),
+            ("s2", {"position": 5}, ReportError, "position must be from 1 to 4"),
+            (
+                "s2",
+                {"options": {"detail": True}},
+                ReportError,
+                "transposed: detail is an argument, not one of the options",
+            ),
+            (
+                "s2",
+                {"options": {"donor": dict(GAGE)}},
+                ReportError,
+                "transposed: donor is an argument, not one of the options",
+            ),
+            ("s2", {"options": {"max_aeps": 0.5}}, ReportError, "unknown option.*max_aeps"),
+            ("s2", {"exponents": {"exponent": 0.8}}, ReportError, "exponents needs a citation"),
+            (
+                "s2",
+                {"target_area_sqmi": 50.0},
+                ValueError,
+                "area ratio 0.2439 is outside the applicable range",
+            ),
+        ],
+    )
+    def test_a_refused_transposition_changes_nothing(self, parts, gage, change, error, match):
+        arguments = {"target_area_sqmi": 150.0, "exponents": EXPONENTS, **change}
+        with pytest.raises(error, match=match):
+            parts.transpose(gage, **arguments)
+        assert _ids(parts) == ["s1", "s2", "s3"]
+        # The refused section took no id either.
+        assert parts.add_text("Next", TEXT)["section_id"] == "s4"
+
+    def test_the_transposed_section_is_in_the_saved_report(self, parts, tmp_path):
+        parts.transpose("s2", 150.0, EXPONENTS)
+        parts.render("upstream.md")
+        later = ReportSession(output_dir=tmp_path)
+        later.load("upstream.json")
+        assert [s["kind"] for s in later.outline()["sections"]] == [
+            "text",
+            "gaged_ffa",
+            "transposed",
+            "text",
+        ]
+        assert later.section_markdown("s3") == parts.section_markdown("s4")
+        assert self.ONE_PERCENT in (tmp_path / "upstream.md").read_text(encoding="utf-8")
 
 
 class TestOrder:

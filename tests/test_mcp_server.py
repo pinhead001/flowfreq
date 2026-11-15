@@ -30,6 +30,7 @@ from flowfreq.mcp_server import (  # noqa: E402
 from flowfreq.reporting import DRAFT_LABEL, sections  # noqa: E402
 from flowfreq.reporting.session import ReportSession  # noqa: E402
 from tests.test_reporting_sites import GAGE, TENNESSEE, UNUSED  # noqa: E402
+from tests.test_reporting_transposed import CITATION, EXPONENTS  # noqa: E402
 from tests.test_ungaged import WA_LAT, WA_LON, Fakes, _wa_site  # noqa: E402
 
 TOOLS = [
@@ -40,6 +41,7 @@ TOOLS = [
     "estimate_ungaged",
     "estimate_from_characteristics",
     "weight_gage_with_regression",
+    "transpose_gage_to_site",
     "add_text_section",
     "edit_narrative",
     "mark_narrative_reviewed",
@@ -384,6 +386,120 @@ class TestEstimates:
         said = chat.refusal("estimate_ungaged", state="WA", lat=WA_LAT, lon=WA_LON)
         assert "403 Client Error" in said
         assert chat.call("report_outline")["sections"] == []
+
+
+class TestTranspose:
+    @pytest.fixture
+    def gage(self, chat, peaks) -> str:
+        added = chat.call("run_ffa", site_no="03606500", stationarity=False, **SKEW)
+        return str(added["section_id"])
+
+    def test_exponents_by_aep(self, chat, session, gage):
+        added = chat.call(
+            "transpose_gage_to_site",
+            gage_section_id=gage,
+            target_area_sqmi=150.0,
+            exponent_citation=CITATION,
+            exponent_aeps=EXPONENTS["aeps"],
+            exponents=EXPONENTS["exponents"],
+            exponent_region="Region 1",
+            target_name="Big Sandy River above Bruceton",
+        )
+        assert added["section_id"] == "s2" and added["number"] == 2
+        assert added["kind"] == "transposed"
+        assert added["title"] == "Transposed flood frequency at Big Sandy River above Bruceton"
+        assert (
+            "| 1 | 18,069 | 0.620 | 0.8239 | 14,888 | 11,539 | 22,339 | published |"
+            in added["result"]
+        )
+        # The gage's own section stays, and the options hold what was asked.
+        outline = chat.call("report_outline")
+        assert [s["kind"] for s in outline["sections"]] == ["gaged_ffa", "transposed"]
+        options = session.spec.sections[1].options
+        assert options["exponents"] == EXPONENTS and options["detail"] is False
+        assert set(options) == {
+            "donor",
+            "donor_area_sqmi",
+            "target_area_sqmi",
+            "target_name",
+            "exponents",
+            "detail",
+        }
+        text = chat.call("get_section", section_id="s2")
+        assert f"- Exponent source: {CITATION}" in text and "- Area ratio: 0.7317" in text
+        assert "Regulation was not checked" in text
+
+    def test_one_exponent_and_every_option(self, chat, session, gage):
+        added = chat.call(
+            "transpose_gage_to_site",
+            gage_section_id=gage,
+            target_area_sqmi=50.0,
+            exponent_citation=CITATION,
+            exponent=0.8,
+            donor_area_sqmi=180.0,
+            max_aep=0.5,
+            allow_out_of_range=True,
+            donor_site_class="regulated",
+            target_site_class="reference",
+            allow_regulation_mismatch=True,
+            detail=True,
+            title="Upstream site",
+            position=1,
+        )
+        assert added["title"] == "Upstream site" and added["number"] == 1
+        options = session.spec.sections[0].options
+        assert options["exponents"] == {"citation": CITATION, "exponent": 0.8}
+        assert options["donor_area_sqmi"] == 180.0 and options["max_aep"] == 0.5
+        assert options["allow_out_of_range"] is True
+        assert options["allow_regulation_mismatch"] is True
+        text = chat.call("get_section", section_id="s2")
+        assert "- Area ratio: 0.2778" in text and "| 99 |" not in text.split("### Analysis")[0]
+        assert "The area ratio 0.2778 is outside the applicable range" in text
+        assert "Regulation mismatch, transferred by override" in text
+        assert "### Analysis at the donor gage" in text
+
+    @pytest.mark.parametrize(
+        "change, said",
+        [
+            ({"gage_section_id": "s7"}, "ReportError: no section 's7'"),
+            ({}, "ReportError: transposed: exponents takes either exponent"),
+            (
+                {"exponent": 0.8, "exponents": [0.7]},
+                "ReportError: transposed: exponents takes either exponent",
+            ),
+            (
+                {"exponent": 0.8, "exponent_citation": " "},
+                "ReportError: transposed: exponents needs a citation",
+            ),
+            (
+                {"exponent": 0.8, "target_area_sqmi": 50.0},
+                "ValueError: area ratio 0.2439 is outside the applicable range (0.5, 1.5)",
+            ),
+            (
+                {"exponent": 0.8, "donor_site_class": "regulated", "target_site_class": "urban"},
+                "RegulationMismatchError: regulation mismatch: donor is regulated",
+            ),
+            (
+                {"exponent": 0.8, "target_site_class": "dammed"},
+                "ReportError: transposed: target_site_class must be one of reference, regulated",
+            ),
+        ],
+    )
+    def test_refusals(self, chat, gage, change, said):
+        arguments = {
+            "gage_section_id": gage,
+            "target_area_sqmi": 150.0,
+            "exponent_citation": CITATION,
+            **change,
+        }
+        refusal = chat.refusal("transpose_gage_to_site", **arguments)
+        assert refusal.startswith(f"Error executing tool transpose_gage_to_site: {said}"), refusal
+        assert [s["kind"] for s in chat.call("report_outline")["sections"]] == ["gaged_ffa"]
+
+    def test_the_citation_and_the_areas_are_required(self, chat):
+        schema = {t.name: t for t in chat.tools()}["transpose_gage_to_site"].input_schema
+        assert schema["required"] == ["gage_section_id", "target_area_sqmi", "exponent_citation"]
+        assert schema["properties"]["detail"]["default"] is False
 
 
 class TestWholeReport:

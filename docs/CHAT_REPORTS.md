@@ -32,7 +32,7 @@ claude mcp add flowfreq --env USGS_API_KEY=your-key -- D:\a\flowfreq\.venv\Scrip
 ```
 
 Add `--scope user` to have it in every project. `/mcp` inside Claude Code lists the server
-and its sixteen tools.
+and its seventeen tools.
 
 **Claude Desktop** — in `claude_desktop_config.json` (Settings, Developer, Edit Config):
 
@@ -79,6 +79,7 @@ rebuilds the same report with no network and no chat.
 | `estimate_ungaged` | Add a regional regression estimate at a point, basin delineated by StreamStats | StreamStats |
 | `estimate_from_characteristics` | The same estimate from basin characteristics you supply | nothing |
 | `weight_gage_with_regression` | Weight a gage section with a regression section by inverse variance (Bulletin 17C Appendix 9) | nothing |
+| `transpose_gage_to_site` | Carry a gage section's quantiles to an ungaged site on the same stream by the drainage-area ratio, with exponents you supply and cite | nothing |
 | `add_text_section` | Add a section of prose only | nothing |
 | `edit_narrative` | Set the prose after a section's computed content | nothing |
 | `mark_narrative_reviewed` | Remove the draft label from one section's narrative | your say-so |
@@ -93,6 +94,23 @@ Sections have ids (`s1`, `s2`, ...) that do not change when sections move and ar
 reused. By default `weight_gage_with_regression` replaces the two sections it weights,
 since the weighted section carries both analyses; `keep_parts` keeps them, and a part that
 has a narrative is never replaced.
+
+`transpose_gage_to_site` leaves the gage's section where it is and puts the transposed one
+after it. The drainage-area exponents are yours to give, from the regional regression report
+for the area, with the report and table as `exponent_citation`: either one `exponent` for
+every AEP, or `exponent_aeps` and `exponents` as the report's table has them. flowfreq ships
+no table of exponents, and the server's instructions tell the model to ask for them rather
+than recall them. An example request:
+
+> Transpose the gage's quantiles to the bridge site, 150 square miles, with exponents 0.70,
+> 0.66 and 0.62 at AEP 0.5, 0.1 and 0.01 from table 4 of the regional report (give the full
+> citation here).
+
+The section's table shows, for each AEP, the gage's flow, the exponent, the factor applied
+and whether that exponent was published, interpolated between published AEPs or held beyond
+them. An area ratio outside 0.5 to 1.5 is refused unless `allow_out_of_range`, and a
+regulated site on one side only is refused unless `allow_regulation_mismatch`; either
+override is written into the section's caveats.
 
 ## What the server holds the model to
 
@@ -136,5 +154,6 @@ tests drive it in process.
 - `estimate_ungaged` depends on StreamStats, which takes a minute or more and is sometimes
   unavailable. `estimate_from_characteristics` is the route that needs no service.
 - There is no PDF writer; export one from Word.
-- The section kinds are those of `flowfreq.reporting.SECTION_KINDS`. Transposition,
-  low-flow and regime analyses are not report sections yet.
+- The section kinds are those of `flowfreq.reporting.SECTION_KINDS`. Low-flow and regime
+  analyses are not report sections yet, and neither are the other transfers in
+  `flowfreq.transpose` (flow-duration, low-flow, between two gages, regression-weighted).
