@@ -5,22 +5,24 @@
 > in progress are tracked under "Roadmap Phase A, Wave 1 and Wave 2" in Open Items below.
 
 ## Status
-Last updated: 2026-11-11. Version **0.26.0** is released (tag `v0.26.0`). `main` carries
+Last updated: 2026-11-15. Version **0.26.0** is released (tag `v0.26.0`). `main` carries
 **0.27.0.dev0**; 0.26.x patches come from `release/0.26.x` (CLAUDE.md, Branches and Releases).
-flowfreq-app pins v0.25.0, with a PR open for v0.26.0, and has merged app #42-#45. 51 jurisdictions are `verified`,
-and 5 have no equations.
+flowfreq-app pins v0.26.0 (app #46) and has merged app #42-#46; app #47-#52 are open and wait for the owner.
+51 jurisdictions are `verified`, and 5 have no equations.
 
 **StreamStats has refused this machine (HTTP 403) since 2026-11-09 14:40**, after about 1,700 border-check
 requests in a day. Nothing below that needs it can run until it answers; retest at TN 03465500 or AL 02342500
 with a single request, not a loop.
 
-### Next steps (2026-11-11)
+### Next steps (2026-11-15)
 
 **The batches in `docs/VERIFICATION_PLAN.md` are done. Read its "What `verified` rests on here".**
 
 Owner's:
 
-1. Merge the app's v0.26.0 pin PR (it switches on app #45's form). Push `release/0.26.x` (a hook blocks it here).
+1. Push `release/0.26.x` (a hook blocks it here; the branch exists locally, cut from `v0.26.0`). Review and
+   merge app #47-#52 ("App improvements" below has the order and the conflicts). The app's v0.26.0 pin is
+   merged (app #46), so app #45's form is on.
 2. **Overlap calls:** none open. Urban and NRCS-regulated basins (AL, MO, TN, OK) need `region=` on purpose; say
    if you want a default instead.
 
@@ -40,7 +42,8 @@ Owner's:
    with a caution and no interval (`fallback_region`). OH 2006-5312, TN 03-4176 and LA's Delta stay dropped.
 8. Issue #293 is closed (2026-11-11); no issues are open.
 9. Open the app in a browser: the resizable period grips (app #24), and app #42-#45 (raster hydrograph, basin
-   changes, the Bulletin 17C curve, the characteristics form) have never run in one here.
+   changes, the Bulletin 17C curve, the characteristics form) have never run in one here. The same holds for
+   the open app #47-#52, which were checked with Streamlit's AppTest only.
 10. Have a person spot-check the highest-use states against their reports. Every set was checked only by agents.
 
 Library follow-ups the batches found, none changed:
@@ -73,25 +76,46 @@ Library follow-ups the batches found, none changed:
     refusing this machine when it merged.
 16. FL, MI and NE can't run through `estimate_at_site` (no StreamStats grid, no NSS region lookup).
     `estimate_from_characteristics` and `flowfreq ungaged-chars` now take the region and characteristics from
-    the caller. Still to do: a form for it on the app's ungaged page.
+    the caller, and the app's ungaged page has a form for it (app #45, on since the v0.26.0 pin).
 
 17. Finish the cross-border check once StreamStats stops refusing this machine (403 since 2026-11-09 14:40, after
     about 1,700 requests): `python tools/border_qa.py run --workers 1`, then `report` (about 280 gages left;
     `docs/BORDER_QA.md`). Then trace Rhode Island against Connecticut, the largest new offset (2.4 times). Iowa and
     Georgia are traced: both states' equations match their reports. Also check whether Texas's StreamStats computes
     `OmegaEM` (SIR 2009-5087), which StreamStats failures kept from being answered.
+18. Reports published in 2026 that nothing here uses yet, found in the Publications Warehouse on 2026-11-15
+    and not read:
+    - SIR 2026-5044 (Wagner and Anderson): urban floods in Alabama and Mississippi, data through water year
+      2024. `AL.json`'s urban set is SIR 2010-5012; `MS.json` has no urban set.
+    - SIR 2025-5104 (Wagner and Ladd, published 2026-02-05): urban streams in Tennessee and parts of Alabama,
+      Georgia, Mississippi, North Carolina and South Carolina, data through water year 2022. `TN.json`'s
+      urban sets are WRI 84-4182 and WRI 84-4110 (Memphis).
+    - SIR 2025-5034 (Levin, 2025): nonstationary flood frequency by regression in the north-central United
+      States. A reference for `future_flow` and `stationarity`, not an equation set.
+    For the two urban reports: check what NSS serves for each state, then verify and decide whether each
+    replaces the stored urban set, as for any other report.
 
-App improvements suggested 2026-11-09, not started:
+App improvements suggested 2026-11-09. Each has an app PR, opened 2026-11-14 and 2026-11-15, with the app's
+one CI check passing. None is merged (the owner merges app PRs) and none has run in a browser:
 
-- Ungaged page: plot the regression estimate's frequency curve with its prediction band, with a gage's own fit
-  overlaid where the point is at a gage.
-- Ungaged page: a border caution within about 20 km of a systematic pair (`docs/VERIFICATION_PLAN.md`), with the
-  neighbor's estimate one click away.
-- A StreamStats health banner, since an outage or a refusal is invisible today.
-- App #43: cache NLDI and dam-inventory failures briefly, so a rerun doesn't wait up to 60 s again while they're down.
-- Gage page: direct data downloads; fewer repeated USGS requests (`USGSgage.peak_summary()`); the peak chart's year
-  axis padding (to 2040 at Lees Ferry).
-- `st.navigation` pages, so browser Back works; shareable links for a point's result; a phone-layout check.
+- App #47: the ungaged page plots the regression estimate's frequency curve with its prediction band, and
+  overlays a gage's own fit where the point is at a gage.
+- App #52: a border caution within 20 km of a systematic pair, from `flowfreq.regression.border` (#377). It
+  stays hidden until the app's pin reaches a release that has #377 (0.27). Not done: the neighbor's estimate
+  one click away.
+- App #48: a StreamStats health banner.
+- App #49: NLDI and dam-inventory failures are cached briefly, so a rerun doesn't wait up to 60 s again.
+- App #50: direct data downloads on the gage page, fewer repeated USGS requests, and the peak chart's year
+  axis no longer padded (it ran to 2040 at Lees Ferry). The app carries its own copies of `summarize_peaks`
+  and `record_years` until its pin reaches a release that has #376.
+- App #51: `st.navigation` pages, so browser Back works; shareable links for a gage and for a point; a
+  narrow-screen layout. Its tests name the page on every run, because Streamlit 1.67's AppTest keeps a page
+  switch between runs and 1.63 does not.
+
+Conflicts between them, so the merge order matters: #51 with #47 (`streamlit_app.py`, `ungaged_ui.py`) and
+with #48 (`ungaged_ui.py`); #52 with #47 (`ungaged_ui.py`: keep `border_cautions` and #47's
+`_show_estimate(estimate, gage_fit=None)`) and with #48 (`CLAUDE.md`, `README.md`: keep both lines). #49 and
+#50 conflict with nothing. Merging #49, #50, #47, #48 and then resolving #52 and #51 is the shortest route.
 
 Python 3.11–3.14 (`requires-python >= 3.11`; CI matrix in `.github/workflows/ci.yml`).
 
@@ -268,7 +292,9 @@ Still failing in the 2026-10-30 rerun (14 of 56; WY and MN fixed since, live rec
 - [x] **Stationarity by default**: `run_ffa` attaches the screen dictionary; the figure is
       opt-in (`stationarity_figure=True`).
 - [ ] **Regional skew `pending` rows** (41): each waits for a published B-WLS/B-GLS study or
-      a reading of the report's printed value; the row's notes say which.
+      a reading of the report's printed value; the row's notes say which. Re-checked
+      2026-11-15: a Publications Warehouse search for 2025 and 2026 found no regional skew
+      study beyond SIR 2025-5110 (VA and WV), which is already used.
 
 The methow-flow items and the `pending` skew rows have no issues; #203-#218 are closed.
 
@@ -468,6 +494,9 @@ Phase A / Wave entries below.
       0.31, B17B-era). Re-check the Publications Warehouse and the data release; transcribe
       the skew, its region and the nine regions' equations from the published report.
       Re-checked 2026-10-31: still not in the Publications Warehouse.
+      Re-checked 2026-11-15: still not in the Warehouse. The data release is titled "(Under
+      Revision)", is marked temporarily unavailable and lists no files (ScienceBase, last
+      updated 2026-11-09).
 - [ ] **Future flow (#36), kept open** (decided 2026-10-11). No state tabulates per-AEP
       factors. The issue stays open for WDFW-style per-site tools rather than closing on
       the survey.
@@ -602,10 +631,10 @@ Arizona has a verified regional skew (SIR 2014-5211 app. 1). CO, UT, WY and NV h
       GeoPackage (`api/nation/gpkg`) with stdlib `sqlite3` (#155). Its `dams` table holds the
       CSV's values as the same text. All four live regulation tests pass, including the end-to-end
       classification, which had been skipping.
-- [ ] **v0.10.4 GitHub release.** Deleted 2026-10-13 to re-attach the dists; the workflow
-      re-run cannot recreate it (PyPI refuses the duplicate upload; `skip-existing` landed
-      in 0.11.0, after the tag). Recreate it from PyPI's files with `gh release create
-      v0.10.4 --verify-tag` and the CHANGELOG section as notes.
+- [x] **v0.10.4 GitHub release.** Deleted 2026-10-13 to re-attach the dists; the workflow
+      re-run could not recreate it (PyPI refuses the duplicate upload; `skip-existing` landed
+      in 0.11.0, after the tag). It exists again: published 2026-10-14 with both dists
+      attached (`gh release view v0.10.4`, checked 2026-11-15).
 
 Earlier items, all closed; each verified in the code on 2026-10-03.
 
@@ -1177,7 +1206,8 @@ the CLOMR/LOMR case this is for.
       swallowed by a broad `except Exception` into `{"error": ...}`. Pinned as
       `tests/test_batch.py::TestAnalyzeSites::test_real_fetch_output_shape_is_analyzable`,
       `xfail(strict=True)`. The real fix belongs in `usgs.py` (should it return `PeakRecord`
-      instead of a dict, or should `batch.py` adapt?) -- not done here.
+      instead of a dict, or should `batch.py` adapt?) -- not done here. (Fixed since, in #46;
+      the test is a plain passing test.)
 - [x] `cli.py` (57, now larger with the `compare` subcommand) -- `tests/test_cli.py` covers
       `validate`/`benchmark` and `compare`'s extension-agnostic paths (CSV validation, the
       `ImportError`-to-`ClickException` mapping, exit codes) via a monkeypatched
