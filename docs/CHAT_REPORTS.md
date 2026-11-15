@@ -32,7 +32,7 @@ claude mcp add flowfreq --env USGS_API_KEY=your-key -- D:\a\flowfreq\.venv\Scrip
 ```
 
 Add `--scope user` to have it in every project. `/mcp` inside Claude Code lists the server
-and its seventeen tools.
+and its eighteen tools.
 
 **Claude Desktop** — in `claude_desktop_config.json` (Settings, Developer, Edit Config):
 
@@ -80,6 +80,7 @@ rebuilds the same report with no network and no chat.
 | `estimate_from_characteristics` | The same estimate from basin characteristics you supply | nothing |
 | `weight_gage_with_regression` | Weight a gage section with a regression section by inverse variance (Bulletin 17C Appendix 9) | nothing |
 | `transpose_gage_to_site` | Carry a gage section's quantiles to an ungaged site on the same stream by the drainage-area ratio, with exponents you supply and cite | nothing |
+| `check_gage_against_reference` | Compare a gage section's fit with USGS peakfq 8.1.0 on the same record, or with the numbers of another program's run that you supply | nothing |
 | `add_text_section` | Add a section of prose only | nothing |
 | `edit_narrative` | Set the prose after a section's computed content | nothing |
 | `mark_narrative_reviewed` | Remove the draft label from one section's narrative | your say-so |
@@ -111,6 +112,29 @@ and whether that exponent was published, interpolated between published AEPs or 
 them. An area ratio outside 0.5 to 1.5 is refused unless `allow_out_of_range`, and a
 regulated site on one side only is refused unless `allow_regulation_mismatch`; either
 override is written into the section's caveats.
+
+`check_gage_against_reference` adds a section that says whether the gage's fit agrees with
+a second computation of the same record, and tabulates the two side by side: fitted
+parameters, quantiles and 90-percent confidence limits, each difference against its
+tolerance (1 percent for quantiles and 2 percent for confidence limits unless you set
+others). The gage's section stays. There are two sources for the second computation:
+
+- **USGS peakfq 8.1.0**, when no `reference_*` argument is given. flowfreq sends the gage's
+  peaks, thresholds and regional skew to peakfq's Fortran routine through its own
+  extension, which has to be built on the machine the server runs on
+  (`python build_fortran/build.py`, needing gfortran and meson; `docs/FORTRAN_UPLOAD.md`).
+  Without it the tool refuses and says so. What peakfq returned is stored in the section,
+  with the date, so the report rebuilds later on a machine without the extension. If the
+  gage's inputs change afterwards the stored numbers are refused as belonging to another
+  record.
+- **Numbers you give**, from your own run of peakfq, HEC-SSP or another program:
+  `reference_source` (the program, its version and where the numbers were taken from),
+  `reference_aeps` with `reference_flows_cfs`, and optionally `reference_lower_cfs` and
+  `reference_upper_cfs`. Only what you give is compared. The model is told to ask for
+  these and not to supply them from memory.
+
+Agreement here means the two programs compute the same thing from the same inputs. It
+says nothing about whether the inputs suit the gage.
 
 ## What the server holds the model to
 

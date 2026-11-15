@@ -65,7 +65,9 @@ set one only when the user asks for it.
 A usual order: find_gage, run_ffa, then estimate_ungaged or estimate_from_characteristics \
 at the gage and weight_gage_with_regression (or transpose_gage_to_site for a site on \
 the gage's stream), then get_section to read what was computed, \
-edit_narrative, and render_report. The report is kept for the life of the server; \
+edit_narrative, and render_report. check_gage_against_reference adds a comparison of a \
+gage's computation with USGS peakfq or with numbers the user gives. The report is kept for \
+the life of the server; \
 save_report and load_report carry it between conversations.
 """
 
@@ -490,6 +492,80 @@ def build_server(
             position=position,
         )
 
+    def check_gage_against_reference(
+        gage_section_id: str,
+        reference_source: Optional[str] = None,
+        reference_aeps: Optional[List[float]] = None,
+        reference_flows_cfs: Optional[List[float]] = None,
+        reference_lower_cfs: Optional[List[float]] = None,
+        reference_upper_cfs: Optional[List[float]] = None,
+        tolerance_pct: Optional[float] = None,
+        ci_tolerance_pct: Optional[float] = None,
+        detail: bool = False,
+        title: Optional[str] = None,
+        position: Optional[int] = None,
+    ) -> Dict[str, Any]:
+        """Check a gage's flood frequency computation against a second computation of
+        the same record, and add the comparison as a section. The gage's run_ffa section
+        must already be in the report, and stays.
+
+        With no reference_* argument the record is run through USGS peakfq 8.1.0, the
+        reference implementation of Bulletin 17C, by flowfreq's Fortran extension. Where
+        that extension is not built the tool refuses and says how to build it.
+
+        Otherwise the reference is the user's own run of another program (peakfq,
+        HEC-SSP): ask for its numbers, and do not give values from memory.
+        reference_source: the program, its version and where the numbers were taken from.
+        reference_aeps (fractions, for example [0.1, 0.01]) and reference_flows_cfs: its
+        flood quantiles, in the same order. reference_lower_cfs, reference_upper_cfs: its
+        90-percent confidence limits in that order, both or neither.
+
+        tolerance_pct: the largest quantile difference that counts as agreement, in
+        percent (default 1). ci_tolerance_pct: the same for the confidence limits
+        (default 2). detail: repeat the gage's analysis below the comparison. title,
+        position: as run_ffa (default position: just after the gage's section).
+
+        Returns the new section's id, and whether the two agree with the quantile table.
+        """
+        columns = {
+            "reference_aeps": reference_aeps,
+            "reference_flows_cfs": reference_flows_cfs,
+            "reference_lower_cfs": reference_lower_cfs,
+            "reference_upper_cfs": reference_upper_cfs,
+        }
+        reference: Optional[Dict[str, Any]] = None
+        if reference_source is not None or any(v is not None for v in columns.values()):
+            if reference_aeps is None or reference_flows_cfs is None:
+                raise ValueError(
+                    "a reference needs reference_source, reference_aeps and "
+                    "reference_flows_cfs; with none of the reference_* arguments the record "
+                    "is run through peakfq"
+                )
+            if (reference_lower_cfs is None) != (reference_upper_cfs is None):
+                raise ValueError("give reference_lower_cfs and reference_upper_cfs together")
+            given = {name: list(v) for name, v in columns.items() if v is not None}
+            if len({len(v) for v in given.values()}) != 1:
+                raise ValueError(
+                    f"{', '.join(given)} must have one value per AEP: {len(reference_aeps)}"
+                )
+            rows: List[Dict[str, Any]] = []
+            for i, aep in enumerate(reference_aeps):
+                row: Dict[str, Any] = {"aep": aep, "flow_cfs": reference_flows_cfs[i]}
+                if reference_lower_cfs is not None and reference_upper_cfs is not None:
+                    row["lower_cfs"] = reference_lower_cfs[i]
+                    row["upper_cfs"] = reference_upper_cfs[i]
+                rows.append(row)
+            reference = {"source": reference_source, "quantiles": rows}
+        return report.engine_check(
+            gage_section_id,
+            reference=reference,
+            tolerance_pct=tolerance_pct,
+            ci_tolerance_pct=ci_tolerance_pct,
+            detail=detail,
+            title=title,
+            position=position,
+        )
+
     def add_text_section(
         title: str, narrative: str, position: Optional[int] = None
     ) -> Dict[str, Any]:
@@ -557,6 +633,7 @@ def build_server(
         estimate_from_characteristics,
         weight_gage_with_regression,
         transpose_gage_to_site,
+        check_gage_against_reference,
         add_text_section,
         edit_narrative,
         mark_narrative_reviewed,

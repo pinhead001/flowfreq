@@ -1,5 +1,10 @@
 """
 flowfreq.report - Technical report generation
+
+`HydroReport` is the older single-gage Markdown report, kept as it is for the code that
+uses it (:func:`flowfreq.analyze_gage`). Reports with more than one section, DOCX output,
+ungaged, weighted or transposed estimates, or a saved specification that rebuilds the
+same report are made with :mod:`flowfreq.reporting`.
 """
 
 from __future__ import annotations
@@ -21,7 +26,17 @@ USGSGage = USGSgage
 
 
 class HydroReport:
-    """Generate technical report for hydrologic analysis."""
+    """Generate technical report for hydrologic analysis.
+
+    One gage, one analysis already run, Markdown out, with figures saved beside it.
+
+    See Also
+    --------
+    flowfreq.reporting.build_report : Reports from a specification, in Markdown or DOCX,
+        whose ``gaged_ffa`` section covers the same ground with the method as applied, the
+        skew's citation and the stationarity screen. New work should start there; this
+        class is not being extended.
+    """
 
     def __init__(self, gage: USGSGage, analysis: Union[Bulletin17C, FloodFrequencyAnalysis]):
         self._gage = gage

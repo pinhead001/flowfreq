@@ -32,9 +32,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **`flowfreq-mcp`**: the report tools as a Model Context Protocol server, so a chat client (Claude Code, Claude
   Desktop) builds a report over a conversation (`docs/CHAT_REPORTS.md`; new `mcp` extra, `pip install
-  "flowfreq[mcp]"`). Seventeen tools: `find_gage`, `run_ffa`, `estimate_ungaged`, `estimate_from_characteristics`,
-  `weight_gage_with_regression`, `transpose_gage_to_site`, text and narrative editing, `get_section`, outline and
-  ordering, `render_report`
+  "flowfreq[mcp]"`). Eighteen tools: `find_gage`, `run_ffa`, `estimate_ungaged`, `estimate_from_characteristics`,
+  `weight_gage_with_regression`, `transpose_gage_to_site`, `check_gage_against_reference`, text and narrative
+  editing, `get_section`, outline and ordering, `render_report`
   (DOCX or Markdown, with the specification beside it), `save_report` and `load_report`. flowfreq computes every
   table and figure; the model's prose is a narrative that prints as a draft until marked reviewed, and a narrative
   with a table or a heading is refused. An analysis's refusal reaches the model as an error naming the reason.
@@ -48,6 +48,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   regression was developed over. `ReportSession.transpose` and the MCP tool `transpose_gage_to_site` add it from
   a gage section already in the report. An area ratio outside 0.5 to 1.5 and a regulation mismatch are refused
   unless allowed, as in `flowfreq.transpose`.
+- **Report section `engine_check`**: a gage's Bulletin 17C fit compared with a reference computation of the same
+  record. With no `reference` the record goes through USGS peakfq 8.1.0 (`emafitpr`, by the Fortran extension)
+  and what it returned is stored in the section's options with the date and a digest of the record, so the report
+  rebuilds without the extension and a reference stored for other inputs is refused. A `reference` can instead
+  carry the numbers of another program's run (`source`, `quantiles`, optionally `parameters` and the low-outlier
+  count), and only what it gives is compared. The section opens with the verdict, then tabulates parameters,
+  quantiles and 90-percent confidence limits side by side with each difference and whether it is within
+  `tolerance_pct` (1), `parameter_tolerance_pct` (0.5) or `ci_tolerance_pct` (2); a different low-outlier count
+  is a disagreement. Without the extension and without a `reference` it refuses and says how to build one.
+  `ReportSession.engine_check` and the MCP tool `check_gage_against_reference` add it from a gage section.
+- **`Bulletin17C.fortran_reference()`**: one live `emafitpr` call built from the object's own inputs, returning
+  the `ReferenceResult`, for holding an existing native fit against peakfq without rebuilding the record
+  (`compare_engines` does both from the raw record).
   Behind it, **`flowfreq.reporting.ReportSession`** builds a report a section at a time with stable section ids,
   and **`flowfreq.catalog.search`** finds gages by station-number prefix or words from the station name.
 

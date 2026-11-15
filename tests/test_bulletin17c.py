@@ -752,6 +752,60 @@ class TestEngineParameter:
             b17c.run_analysis(method="mom", engine="fortran")
 
 
+class TestFortranReference:
+    """``Bulletin17C.fortran_reference``: the object's own inputs, sent to ``emafitpr``.
+
+    The call itself is replaced, so this runs with or without the extension;
+    ``tests/fortran_parity/test_report_engine_check_live.py`` makes it for real.
+    """
+
+    FLOWS = TestEngineParameter.FLOWS
+    YEARS = TestEngineParameter.YEARS
+
+    def test_passes_what_the_object_was_built_with(self, monkeypatch):
+        from flowfreq import fortran_engine
+        from flowfreq.bulletin17c import FloodFrequencyAnalysis
+
+        seen = {}
+
+        def fake(peak_flows, **kwargs):
+            seen.update(kwargs, peak_flows=peak_flows)
+            return "the reference", None
+
+        monkeypatch.setattr(fortran_engine, "run_fortran_reference", fake)
+        b17c = Bulletin17C(
+            peak_flows=self.FLOWS,
+            water_years=self.YEARS,
+            regional_skew=0.1,
+            regional_skew_mse=0.3,
+            historical_peaks=[(1995, 2500.0)],
+            user_low_outlier_threshold=950.0,
+        )
+        assert b17c.fortran_reference() == "the reference"
+        np.testing.assert_array_equal(seen["peak_flows"], self.FLOWS)
+        np.testing.assert_array_equal(seen["water_years"], self.YEARS)
+        assert seen["regional_skew"] == 0.1 and seen["regional_skew_mse"] == 0.3
+        assert seen["historical_peaks"] == [(1995, 2500.0)]
+        assert seen["user_low_outlier_threshold"] == 950.0
+        assert seen["eps"] == 0.90 and seen["station_name"] == ""
+        np.testing.assert_array_equal(seen["aeps"], FloodFrequencyAnalysis.STANDARD_AEP)
+        # No analysis was run to make the call: it needs the inputs, not a fit.
+        assert b17c._analyzer is None
+
+        b17c.fortran_reference(aep=np.array([0.01]), confidence=0.95, station_name="A gage")
+        np.testing.assert_array_equal(seen["aeps"], [0.01])
+        assert seen["eps"] == 0.95 and seen["station_name"] == "A gage"
+
+    def test_without_the_extension_it_is_an_import_error(self, monkeypatch):
+        import sys
+
+        # None in sys.modules is how an import is made to fail, built or not.
+        monkeypatch.setitem(sys.modules, "flowfreq.peakfqr", None)
+        b17c = Bulletin17C(peak_flows=self.FLOWS, water_years=self.YEARS)
+        with pytest.raises(ImportError):
+            b17c.fortran_reference()
+
+
 class TestEMAZeroFlowYears:
     """Zero (and NaN) flows are dropped from the fit; their years must go with them.
 

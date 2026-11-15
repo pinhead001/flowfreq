@@ -37,7 +37,11 @@ MAIN_TABLES: Dict[str, str] = {
     "ungaged": "Regression flood quantiles with prediction limits.",
     "weighted": "At-site and regression flood quantiles and their weighted estimate.",
     "transposed": "Flood quantiles transposed from the gage by the drainage-area ratio.",
+    "engine_check": "Flood quantiles from flowfreq and from the reference.",
 }
+
+#: Kinds whose opening paragraph is part of the result: a check's verdict is its result.
+_VERDICT_KINDS = frozenset({"engine_check"})
 
 #: A table longer than this is named, not printed, when a section is read back.
 LONG_TABLE_ROWS = 40
@@ -410,6 +414,75 @@ class ReportSession:
         self._entries.insert(index, built)
         return {**self._describe(built), "result": _main_table(built)}
 
+    def engine_check(
+        self,
+        gage_id: str,
+        *,
+        reference: Optional[Mapping[str, Any]] = None,
+        tolerance_pct: Optional[float] = None,
+        parameter_tolerance_pct: Optional[float] = None,
+        ci_tolerance_pct: Optional[float] = None,
+        detail: bool = False,
+        title: Optional[str] = None,
+        position: Optional[int] = None,
+    ) -> Dict[str, Any]:
+        """Check a gage section's fit against a reference computation of the same record.
+
+        Parameters
+        ----------
+        gage_id : str
+            The ``gaged_ffa`` section to check. It stays in the report.
+        reference : mapping, optional
+            The reference's numbers: ``source``, ``quantiles`` (objects with ``aep`` and
+            ``flow_cfs``, and ``lower_cfs`` and ``upper_cfs`` for 90-percent limits), and
+            optionally ``parameters``, ``low_outlier_count`` and
+            ``low_outlier_threshold_cfs``. Without it the record is run through USGS
+            peakfq 8.1.0 by flowfreq's Fortran extension, and what that returned is stored
+            in the section's options.
+        tolerance_pct, parameter_tolerance_pct, ci_tolerance_pct : float, optional
+            Tolerances in percent for the quantiles (default 1), the mean and standard
+            deviation of log10 flow (0.5) and the confidence limits (2).
+        detail : bool, default False
+            Repeat the gage's analysis below the comparison. Off by default, since the
+            gage's own section is still in the report.
+        title : str, optional
+            The heading, in place of the kind's own.
+        position : int, optional
+            Where it goes, counting from 1. Defaults to just after the gage's section.
+
+        Returns
+        -------
+        dict
+            As :meth:`add_section`, with the verdict paragraph ahead of the quantile table
+            in ``result``.
+
+        Raises
+        ------
+        ReportError
+            A section of the wrong kind, a bad position, a reference
+            :func:`~flowfreq.reporting.build_section` refuses, or no reference given and
+            the Fortran extension not built. The report is unchanged.
+        """
+        gage = self._entry(gage_id)
+        if gage.spec.kind != "gaged_ffa":
+            raise ReportError(
+                f"section {gage.id} is a {gage.spec.kind} section, not a gaged_ffa section"
+            )
+        index = self._entries.index(gage) + 1 if position is None else self._index(position)
+        given: Dict[str, Any] = {"gage": gage.spec.options, "detail": detail}
+        if reference is not None:
+            given["reference"] = dict(reference)
+        for name, value in (
+            ("tolerance_pct", tolerance_pct),
+            ("parameter_tolerance_pct", parameter_tolerance_pct),
+            ("ci_tolerance_pct", ci_tolerance_pct),
+        ):
+            if value is not None:
+                given[name] = value
+        built = self._new(SectionSpec("engine_check", title=title, options=given))
+        self._entries.insert(index, built)
+        return {**self._describe(built), "result": _main_table(built)}
+
     def section_markdown(self, section_id: str) -> str:
         """A section as it will print, as Markdown.
 
@@ -654,9 +727,10 @@ def _check_narrative(text: str) -> None:
 
 def _main_table(entry: _Entry) -> Optional[str]:
     caption = MAIN_TABLES.get(entry.spec.kind)
+    lead = entry.content.blocks[:1] if entry.spec.kind in _VERDICT_KINDS else []
     for block in entry.content.blocks:
         if isinstance(block, Table) and block.caption == caption:
-            return render_markdown([block])
+            return render_markdown([*lead, block])
     return None
 
 
