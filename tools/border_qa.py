@@ -25,11 +25,18 @@ How each state's estimate is made:
 Stages, cached under ``--cache`` (default ``.cache/border_qa``, gitignored), so a run resumes::
 
     python tools/border_qa.py candidates
-    python tools/border_qa.py run --workers 3
+    python tools/border_qa.py run
     python tools/border_qa.py report
     python tools/border_qa.py offsets    # flowfreq/data/border_offsets.csv, from the rows
 
 Network: StreamStats, NSS, TIGERweb and the Water Data API (set ``USGS_API_KEY``).
+
+One gage at a time by default. On 2026-11-09 a run with three workers slowed NSS
+``bylocation`` for every user, and StreamStats blocked this tool's address (issue #365):
+NSS keeps a query running after the client gives up, so each timeout and retry added a
+heavy query. The library now runs ``bylocation`` calls one at a time with a pause and
+does not retry their timeouts, whatever ``--workers`` is. Talk to the StreamStats team
+(streamstats@usgs.gov) before raising ``--workers`` or starting a full run.
 """
 
 from __future__ import annotations
@@ -656,7 +663,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     ap.add_argument("stage", choices=["candidates", "run", "report", "offsets"])
     ap.add_argument("--cache", type=Path, default=REPO_ROOT / ".cache" / "border_qa")
     ap.add_argument("--border-km", type=float, default=20.0)
-    ap.add_argument("--workers", type=int, default=3)
+    ap.add_argument("--workers", type=int, default=1, help="gages at a time (issue #365)")
     ap.add_argument("--limit", type=int, default=None, help="run at most this many gages")
     ap.add_argument("--out", type=Path, default=REPO_ROOT / "docs" / "BORDER_QA.md")
     ap.add_argument("--csv", type=Path, default=REPO_ROOT / "docs" / "border_qa" / "rows.csv")
