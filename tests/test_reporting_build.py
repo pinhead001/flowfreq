@@ -152,7 +152,7 @@ class TestShortCitation:
 
 class TestBuildSection:
     def test_kinds_registered(self):
-        assert set(SECTION_KINDS) == {"text", "gaged_ffa", "ungaged"}
+        assert set(SECTION_KINDS) == {"text", "gaged_ffa", "ungaged", "weighted"}
         assert all(kind.summary for kind in SECTION_KINDS.values())
 
     def test_unknown_kind(self):
@@ -164,8 +164,8 @@ class TestBuildSection:
             build_section("gaged_ffa", {**FAST, "regional_skw": -0.5})
 
     def test_missing_option(self):
-        options = {k: v for k, v in FLORIDA.items() if k != "region"}
-        with pytest.raises(ReportError, match="ungaged: missing option.*region"):
+        options = {k: v for k, v in FLORIDA.items() if k != "lat"}
+        with pytest.raises(ReportError, match="ungaged: missing option.*lat"):
             build_section("ungaged", options)
 
     def test_the_callers_options_are_not_changed(self):
@@ -492,6 +492,9 @@ class TestUngaged:
             ({"characteristics": {}}, "characteristics must be an object"),
             ({"characteristics": {"DRNAREA": "big"}}, "must be numbers"),
             ({"region": 1}, "region must be a region code"),
+            ({"region": None}, "with characteristics, region must be a region code"),
+            ({"region": ["1", "2"]}, "with characteristics, region must be a region code"),
+            ({"lat": "north"}, "lat and lon must be numbers"),
         ],
     )
     def test_bad_inputs(self, change, message):

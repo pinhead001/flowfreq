@@ -19,6 +19,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   offline. DOCX needs the new `report` extra (`pip install "flowfreq[report]"`, python-docx); there is no PDF writer,
   since Word exports one. `flowfreq.report.HydroReport` is unchanged.
 
+- **Report sections at a site.** An `ungaged` section given no `characteristics` delineates the point with
+  StreamStats and writes what came back into the spec: every characteristic, the regions with their percent of
+  the basin, and a `streamstats` record (retrieval date, snapped point, delineated area, advisories, regions set
+  aside). The section is computed from those stored values, so the saved spec rebuilds it without StreamStats; if
+  they don't reproduce the StreamStats estimate, the build is refused. Its characteristics table lists only what
+  the equations use unless `all_characteristics` is set. A new `weighted` section takes a `gage` (the `gaged_ffa`
+  inputs) and a `regression` (the `ungaged` inputs) and weights the at-site quantiles with the regression's by
+  inverse variance (`weight_with_regression`, Bulletin 17C Appendix 9), followed by both analyses unless `detail`
+  is false. It refuses a basin in more than one region and a regression with no variance of prediction.
+  `ungaged` now requires only `state`, `lat` and `lon`; with `characteristics`, `region` is still needed.
+
 - **`USGSgage.peak_summary()`**, with `flowfreq.summarize_peaks(peaks)` behind it: the first and last water
   year of an annual peak record, its row count, and the largest peak with its date, as a `PeakSummary` dict of
   plain Python values. It reads the peaks already downloaded and makes no request. `flowfreq.record_years(start,
