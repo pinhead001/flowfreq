@@ -129,10 +129,13 @@ from .ungaged import (
 from .usgs import (
     GageAttributes,
     NoInstantaneousDataError,
+    PeakSummary,
     USGSgage,
     fetch_nwis_batch,
     fetch_nwis_peaks,
     join_flow_and_stage,
+    record_years,
+    summarize_peaks,
 )
 from .workflow import (
     B17C_DEFAULT_SKEW,
@@ -454,6 +457,9 @@ __all__ = [
     "fetch_nwis_peaks",
     "fetch_nwis_batch",
     "join_flow_and_stage",
+    "PeakSummary",
+    "summarize_peaks",
+    "record_years",
     "save_flow_frame",
     "load_flow_frame",
     # Hydrograph
