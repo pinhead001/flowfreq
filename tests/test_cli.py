@@ -525,3 +525,78 @@ class TestUngaged:
             cli, ["ungaged", "--lat", "1", "--lon", "2", "--state", "MT", "--aep", "1.5"]
         )
         assert result.exit_code == 2
+
+
+class TestReport:
+    @staticmethod
+    def _spec(tmp_path, **options):
+        import json
+
+        years = list(range(1990, 2020))
+        flows = [900.0 + 37.0 * ((7 * i) % 23) for i in range(len(years))]
+        spec = {
+            "title": "Example Creek",
+            "date": "2026-11-14",
+            "sections": [
+                {"kind": "text", "title": "Purpose", "narrative": "Why."},
+                {
+                    "kind": "gaged_ffa",
+                    "options": {
+                        "peaks": {"water_year": years, "peak_flow_cfs": flows},
+                        "regional_skew_state": "IA",
+                        "stationarity": False,
+                        **options,
+                    },
+                },
+            ],
+        }
+        path = tmp_path / "spec.json"
+        path.write_text(json.dumps(spec), encoding="utf-8")
+        return path
+
+    def test_writes_markdown_and_the_spec_as_built(self, tmp_path):
+        from flowfreq.reporting import ReportSpec
+
+        out, frozen = tmp_path / "report.md", tmp_path / "frozen.json"
+        result = CliRunner().invoke(
+            cli, ["report", str(self._spec(tmp_path)), "-o", str(out), "--save-spec", str(frozen)]
+        )
+        assert result.exit_code == 0, result.output
+        assert f"Wrote {out} and {frozen}" in result.output
+        text = out.read_text(encoding="utf-8")
+        assert text.splitlines()[0] == "# Example Creek"
+        assert "Flood quantiles with 90-percent confidence limits." in text
+        assert (tmp_path / "report_files" / "figure_1.png").exists()
+        # The looked-up skew is recorded as a value, so the frozen spec needs no lookup.
+        options = ReportSpec.load(frozen).sections[1].options
+        assert options["regional_skew"] == pytest.approx(-0.4)
+        assert "regional_skew_state" not in options
+
+    def test_writes_docx(self, tmp_path):
+        pytest.importorskip("docx")
+        out = tmp_path / "report.docx"
+        result = CliRunner().invoke(cli, ["report", str(self._spec(tmp_path)), "-o", str(out)])
+        assert result.exit_code == 0, result.output
+        assert result.output.strip() == f"Wrote {out}"
+        assert out.read_bytes()[:2] == b"PK"
+
+    def test_a_spec_error_is_one_line_exit_one(self, tmp_path):
+        spec = self._spec(tmp_path, regional_skew=0.1)
+        result = CliRunner().invoke(cli, ["report", str(spec), "-o", str(tmp_path / "r.md")])
+        assert result.exit_code == 1
+        assert "Error: section 2 (gaged_ffa)" in result.output
+        assert "Traceback" not in result.output
+        assert not (tmp_path / "r.md").exists()
+
+    def test_unsupported_output_suffix(self, tmp_path):
+        result = CliRunner().invoke(
+            cli, ["report", str(self._spec(tmp_path)), "-o", str(tmp_path / "r.pdf")]
+        )
+        assert result.exit_code == 1
+        assert "use .docx or .md" in result.output
+
+    def test_missing_spec_file_is_a_usage_error(self, tmp_path):
+        result = CliRunner().invoke(
+            cli, ["report", str(tmp_path / "absent.json"), "-o", str(tmp_path / "r.md")]
+        )
+        assert result.exit_code == 2

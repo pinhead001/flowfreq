@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **`flowfreq.reporting`** and **`flowfreq report`**: a report built from a JSON specification, written as DOCX or
+  Markdown. A `ReportSpec` is a title and a list of sections, each a kind with its inputs: `gaged_ffa` (Bulletin 17C at
+  a gage: record, method, fitted parameters, quantiles with confidence limits, frequency curve, stationarity screen,
+  the peaks), `ungaged` (the regional regression from supplied basin characteristics) and `text`. `build_report`
+  computes every table and figure from those inputs, so no number in a report is typed by hand. Prose flowfreq
+  didn't compute goes in a section's `narrative`, limited to paragraphs and bullet lists, and prints under a draft
+  label until its `narrative_status` is set to `reviewed`. The spec as built records what was fetched (a gage's peaks,
+  a looked-up regional skew with its citation), so `report.spec.save(...)` gives a file that rebuilds the same report
+  offline. DOCX needs the new `report` extra (`pip install "flowfreq[report]"`, python-docx); there is no PDF writer,
+  since Word exports one. `flowfreq.report.HydroReport` is unchanged.
+
 ### Removed
 - `.bumpversion.cfg` and the `bump2version` dev dependency. The config was stuck at 0.7.0 and no bump has used it
   since; versions are edited by hand in the release and dev-bump PRs (CLAUDE.md, Branches and Releases).

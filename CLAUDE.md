@@ -216,6 +216,12 @@ CI should test the supported Python matrix.
 - **`stationarity.py`** — Mann-Kendall (Hamed-Rao), Sen's slope, Spearman, Pettitt, CUSUM and Lombard screening of annual series; field significance (FDR/Walker, block bootstrap); change-point attribution (peak codes, NID dams, NLCD impervious); peaks-over-threshold count trends; `stationarity_report` (one-page figure and Markdown); mixed-population seasonality screen
 - **`lowflow.py`** / **`regime.py`** / **`subdaily.py`** — low-flow frequency, flow-regime and
   sub-daily metrics
+- **`reporting/`** — reports from a JSON specification: `spec` (`ReportSpec`, `SectionSpec`),
+  `sections` (the section kinds: `gaged_ffa`, `ungaged`, `text`), `blocks` (content blocks and
+  the Markdown subset), `build` (`build_report`, Markdown output), `word` (DOCX through
+  python-docx, the `report` extra). A section's tables and figures come from the analysis it
+  runs; prose is a labeled draft `narrative` until marked reviewed. `report.py`
+  (`HydroReport`) is the older single-gage Markdown report
 - **`engine.py`**, **`batch.py`**, **`report.py`**, **`hydrograph.py`**, **`plots.py`**,
   **`freq_plot.py`**, **`flowio.py`**, **`cli.py`**
 

@@ -50,7 +50,9 @@ on this library.
 - **Frequency Curve** — Log-probability axis, LP3 fitted curve, CI band, multi-skew overlay
 - **CLI** — `flowfreq validate` and `flowfreq benchmark` for numerical validation;
   `flowfreq compare` to run both engines on a peak CSV
-- **Reports** — Automated Markdown technical reports
+- **Reports** — `flowfreq.reporting` / `flowfreq report`: a Word or Markdown report built from
+  a JSON specification, every table and figure computed from the inputs it records (see
+  Reports below)
 
 ## Installation
 
@@ -76,7 +78,8 @@ Or install a released version straight from GitHub:
 pip install git+https://github.com/pinhead001/flowfreq@v0.26.0
 ```
 
-**Dependencies:** `numpy`, `pandas`, `matplotlib`, `scipy`, `requests`, `click`, `pyarrow`
+**Dependencies:** `numpy`, `pandas`, `matplotlib`, `scipy`, `requests`, `click`, `pyarrow`.
+Word reports need the `report` extra: `pip install "flowfreq[report]"` (python-docx).
 
 ### USGS Water Data API key (optional)
 
@@ -246,6 +249,58 @@ Appendix 9 (single region only).
   own alternatives) cannot take a single `region=`; transposition from a nearby gage is a
   separate step (`flowfreq.transpose`), not yet part of `estimate_at_site`.
 
+## Reports
+
+```python
+from flowfreq.reporting import ReportSpec, SectionSpec, build_report
+
+spec = ReportSpec(
+    title="Big Sandy River flood frequency",
+    author="A. Analyst",
+    sections=[
+        SectionSpec("text", title="Purpose", narrative="Design flows for the Route 70 bridge."),
+        SectionSpec("gaged_ffa", options={"site_no": "03606500", "regional_skew_from_site": True}),
+        SectionSpec("ungaged", options={
+            "state": "FL", "region": "1", "lat": 30.4, "lon": -84.3,
+            "characteristics": {"DRNAREA": 105.0, "LC92STOR": 43.3},
+        }),
+    ],
+)
+report = build_report(spec)           # downloads the peaks, looks up the skew, fits, draws
+report.save("big_sandy.docx")         # or .md, with its figures in big_sandy_files/
+report.spec.save("big_sandy.json")    # the spec as built: rebuilds the same report offline
+```
+
+```bash
+flowfreq report big_sandy.json -o big_sandy.docx --save-spec big_sandy.built.json
+```
+
+A report is a specification of inputs, never of results. `build_report` runs each section's
+analysis and lays out what it returns, so a quantile in a report is the one `run_ffa` or
+`estimate_from_characteristics` computed.
+
+- **Section kinds** are in `flowfreq.reporting.SECTION_KINDS`, each with its required and
+  optional inputs. `gaged_ffa` is Bulletin 17C at a gage: the record, the method as applied
+  (skew source with its citation, low-outlier screening, perception thresholds, peak codes),
+  fitted parameters, quantiles with 90-percent confidence limits, the frequency curve, the
+  stationarity screen and the peaks. `ungaged` is the regional regression from basin
+  characteristics you supply. `text` is a titled section of prose.
+- **The spec as built is the record.** Give a `site_no` and the peaks are downloaded; give
+  `regional_skew_state` or `regional_skew_from_site` and the skew is looked up. Both are
+  written into `report.spec` as values, with the retrieval date and the citation, and the
+  saved file builds the same tables and figures with no network.
+- **Narrative.** A section's `narrative` is prose placed after its computed content:
+  paragraphs and bullet lists only, so a table in a report always comes from flowfreq. It
+  prints under "Draft narrative (written by a language model; not reviewed)" until
+  `narrative_status` is `"reviewed"`.
+- **What is refused.** An unknown section kind, option or spec key is a `ReportError` naming
+  the section. The analyses' own refusals pass through: a regulated record without
+  `allow_regulated`, no regional skew choice, a characteristic outside an equation's range.
+- **Output.** `.docx` (the `report` extra) or `.md`. There is no PDF writer; export one from
+  Word.
+
+`flowfreq.report.HydroReport`, the older single-gage Markdown report, is unchanged.
+
 ## Module Overview
 
 | Module | Purpose |
@@ -260,6 +315,7 @@ Appendix 9 (single region only).
 | `flowfreq.regression` | Offline regional regression equations and evaluator |
 | `flowfreq.ungaged` | `estimate_at_site` — basin delineation, NSS region matching, regression estimate with provenance |
 | `flowfreq.streamstats` | StreamStats delineation, basin characteristics, NSS estimates |
+| `flowfreq.reporting` | `ReportSpec` / `build_report` — DOCX or Markdown reports from a JSON specification |
 | `flowfreq.transpose` / `flowfreq.qppq` / `flowfreq.donor_similarity` | Transposition to ungaged sites, QPPQ, donor screening |
 | `flowfreq.transfer_variance` | Variance-based weighting of gage transfers: dissimilarity variance, GLS blend with the regression, area-ratio band, leave-one-out |
 | `flowfreq.monthly_transfer` / `flowfreq.duration_transfer` | The same transfer variance for monthly mean/median flows and median annual duration quantiles (q10, q50, q90) |
@@ -403,6 +459,9 @@ flowfreq compare --peaks peaks.csv --regional-skew -0.07 --regional-skew-se 0.42
 
 # Regional-regression estimate at an ungaged site (see Ungaged sites)
 flowfreq ungaged --lat 48.3465 --lon -120.1180 --state WA
+
+# A report from a JSON specification (see Reports); .docx needs the report extra
+flowfreq report spec.json -o report.docx
 ```
 
 ## Web Application
