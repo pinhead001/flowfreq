@@ -102,6 +102,14 @@ dev = [
     "types-requests",
     # tools/agentops (the delegate runner, docs/AGENTOPS.md): queue and ledger locks.
     "filelock>=3.13,<5",
+    # The `report` extra below, so CI runs the DOCX tests and mypy sees its types.
+    "python-docx>=1.1,<2",
+]
+
+# DOCX output for flowfreq.reporting (`flowfreq report spec.json -o report.docx`). Markdown
+# output needs nothing extra. Pure Python over lxml, which has wheels for 3.11-3.14.
+report = [
+    "python-docx>=1.1,<2",
 ]
 
 # Raster reading for the regression-study tools under tools/ (basin

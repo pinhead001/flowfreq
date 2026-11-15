@@ -435,5 +435,47 @@ def ungaged_chars(
     click.echo(estimate.to_markdown())
 
 
+@cli.command()
+@click.argument("spec", type=click.Path(exists=True, dir_okay=False, path_type=Path))
+@click.option(
+    "-o",
+    "--output",
+    type=click.Path(dir_okay=False, path_type=Path),
+    required=True,
+    help="The report to write: .docx (needs the 'report' extra) or .md.",
+)
+@click.option(
+    "--save-spec",
+    type=click.Path(dir_okay=False, path_type=Path),
+    default=None,
+    help=(
+        "Also write the specification as built, with downloaded peaks and looked-up skews "
+        "recorded in it, so the report rebuilds offline."
+    ),
+)
+def report(spec: Path, output: Path, save_spec: Optional[Path]) -> None:
+    """Build a report from a JSON specification.
+
+    SPEC lists the report's sections (gaged_ffa, ungaged, text) and their inputs; every
+    table and figure is computed from them. See flowfreq.reporting.
+    """
+    from flowfreq.reporting import ReportSpec, build_report
+
+    try:
+        built = build_report(ReportSpec.load(spec))
+        built.save(output)
+    except ImportError as exc:
+        raise click.ClickException(str(exc)) from exc
+    except KeyError as exc:
+        raise click.ClickException(str(exc.args[0]) if exc.args else "unknown key") from exc
+    except (ValueError, LookupError) as exc:
+        raise click.ClickException(str(exc)) from exc
+    if save_spec is not None:
+        built.spec.save(save_spec)
+        click.echo(f"Wrote {output} and {save_spec}")
+    else:
+        click.echo(f"Wrote {output}")
+
+
 if __name__ == "__main__":
     cli()
