@@ -94,6 +94,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   AEPs above 4 percent for a basin running from the Northwest region into the Northwest Foothills; the library
   does not check for that pair. The other verified states' reports say nothing on such basins and keep the
   average in log (TODO.md lists which were read).
+- **NSS `bylocation` calls no longer retry a timeout, wait longer, and go one at a time** (issue #365). NSS
+  keeps a `bylocation` query running after the client disconnects, so the old 60-second timeout and three
+  attempts could run one slow basin's query three times at once, and `tools/border_qa.py` with three workers
+  up to nine. That slowed the service for every user on 2026-11-09, and StreamStats blocked the address.
+  `locate_regression_regions` now waits at least `BYLOCATION_TIMEOUT` (200 s, above the NSS load balancer's
+  180 s), does not retry a read timeout or a 504, and holds a process-wide lock so `bylocation` calls run one
+  at a time with `BYLOCATION_PAUSE` (1 s) between them. A connect timeout, a dropped connection and other 5xx
+  are still retried. Region lookups through `estimate_at_site`, `estimate_flow_statistics` and the app's
+  ungaged page take the new limits; other StreamStats requests are unchanged. `tools/border_qa.py run` now
+  defaults to one worker.
 
 ### Removed
 - `.bumpversion.cfg` and the `bump2version` dev dependency. The config was stuck at 0.7.0 and no bump has used it

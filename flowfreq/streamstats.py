@@ -490,12 +490,19 @@ def _request_with_backoff(
     timeout: float,
     max_retries: int = 3,
     backoff_base: float = 2.0,
+    retry_abandoned: bool = True,
 ) -> requests.Response:
     """Issue one polite request with exponential backoff on 5xx or timeout (NFR-2).
 
     A 4xx is a data problem, not a transient one, and is never retried here --
     retrying a request that will fail the same way again just adds load to a free
     public service with no key.
+
+    With ``retry_abandoned=False`` a read timeout and a 504 are not retried either. Both
+    mean the server received the request and may still be working on it: NSS keeps a
+    ``bylocation`` query running after the client disconnects, so a retry runs the same
+    heavy query twice at once (issue #365). A connect timeout, a dropped connection and
+    any other 5xx are still retried.
     """
     last_exc: Optional[BaseException] = None
     for attempt in range(max_retries):
@@ -506,6 +513,20 @@ def _request_with_backoff(
             if json_body is not None:
                 kwargs["json"] = json_body
             response = method(url, **kwargs)
+        except requests.ReadTimeout as exc:
+            if not retry_abandoned:
+                raise StreamStatsTransportError(
+                    f"StreamStats request to {url} timed out after {timeout:g} s; not retried, "
+                    "since the server may still be working on it"
+                ) from exc
+            last_exc = exc
+            logger.warning(
+                "StreamStats request to %s timed out (attempt %d/%d): %s",
+                url,
+                attempt + 1,
+                max_retries,
+                exc,
+            )
         except (requests.Timeout, requests.ConnectionError) as exc:
             last_exc = exc
             logger.warning(
@@ -516,6 +537,11 @@ def _request_with_backoff(
                 exc,
             )
         else:
+            if response.status_code == 504 and not retry_abandoned:
+                raise StreamStatsTransportError(
+                    f"StreamStats request to {url} returned 504 (gateway timeout); not retried, "
+                    "since the server may still be working on it"
+                )
             if response.status_code >= 500:
                 last_exc = requests.HTTPError(f"{response.status_code} error from {url}")
                 logger.warning(
@@ -1523,10 +1549,38 @@ def _geometry_of(watershed_polygon: Dict[str, Any]) -> Dict[str, Any]:
 NSS_EXTRA_REGIONS: Dict[str, Tuple[str, ...]] = {"MN": ("RRB",)}
 
 
+#: Client timeout for NSS ``bylocation``, seconds. Above the 180-second limit of the NSS
+#: load balancer, so the client never abandons a query the server is still running: NSS
+#: does not cancel the database query when the client disconnects (issue #365).
+BYLOCATION_TIMEOUT: float = 200.0
+
+#: Seconds left between the end of one ``bylocation`` call and the start of the next from
+#: this process, whatever the thread.
+BYLOCATION_PAUSE: float = 1.0
+
+# One bylocation call at a time per process: a caller's thread pool runs its other work in
+# parallel, but its NSS region lookups queue here (issue #365).
+_BYLOCATION_LOCK = threading.Lock()
+
+
 def _bylocation(nss_region: str, geometry: Dict[str, Any], timeout: float) -> List[Any]:
-    """One NSS ``bylocation`` answer (a list of region entries), unchecked."""
+    """One NSS ``bylocation`` answer (a list of region entries), unchecked.
+
+    Serial within the process, paced by :data:`BYLOCATION_PAUSE`, with a timeout of at least
+    :data:`BYLOCATION_TIMEOUT`, and not retried on a read timeout or a 504.
+    """
     url = f"https://{GENERIC_HOST}/nssservices/regions/{nss_region}/regressionregions/bylocation"
-    response = _request_with_backoff(requests.post, url, json_body=geometry, timeout=timeout)
+    with _BYLOCATION_LOCK:
+        try:
+            response = _request_with_backoff(
+                requests.post,
+                url,
+                json_body=geometry,
+                timeout=max(timeout, BYLOCATION_TIMEOUT),
+                retry_abandoned=False,
+            )
+        finally:
+            time.sleep(BYLOCATION_PAUSE)
     if response.status_code >= 400:
         raise StreamStatsResponseError(
             f"NSS bylocation for region {nss_region!r} was rejected "
@@ -1549,7 +1603,7 @@ def locate_regression_regions(
     region: str,
     watershed_polygon: Dict[str, Any],
     *,
-    timeout: float = 60.0,
+    timeout: float = BYLOCATION_TIMEOUT,
 ) -> List[RegressionRegionLocation]:
     """The NSS regression regions a watershed polygon falls in, with area percentages.
 
@@ -1574,6 +1628,10 @@ def locate_regression_regions(
         A GeoJSON Polygon/MultiPolygon, or a Feature carrying one -- for instance
         :attr:`WatershedCharacteristics.polygon_geojson`. NSS refuses a bare Point
         (``400 "Geometry is not of type: Polygon,MultiPolygon"``, confirmed live).
+    timeout : float
+        Per-request timeout in seconds, raised to :data:`BYLOCATION_TIMEOUT` if shorter. A
+        large basin can take NSS longer than a minute, and NSS keeps the query running
+        after the client gives up, so a shorter timeout only adds load (issue #365).
 
     Returns
     -------
@@ -1587,7 +1645,8 @@ def locate_regression_regions(
     StreamStatsResponseError
         A rejected request, or an answer that fails the checks above.
     StreamStatsTransportError
-        Transport failure after retrying.
+        A transport failure after retrying, or at once on a read timeout or a 504, which
+        are not retried.
     """
     geometry = _geometry_of(watershed_polygon)
     basin_sq_mi = geojson_area_sq_mi(geometry)

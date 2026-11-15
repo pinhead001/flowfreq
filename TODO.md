@@ -10,9 +10,14 @@ Last updated: 2026-11-15. Version **0.26.0** is released (tag `v0.26.0`). `main`
 flowfreq-app pins v0.26.0 (app #46) and has merged app #42-#46; app #47-#52 are open and wait for the owner.
 51 jurisdictions are `verified`, and 5 have no equations.
 
-**StreamStats has refused this machine (HTTP 403) since 2026-11-09 14:40**, after about 1,700 border-check
-requests in a day. Nothing below that needs it can run until it answers; retest at TN 03465500 or AL 02342500
-with a single request, not a loop.
+**StreamStats has blocked this machine's address (HTTP 403) since 2026-11-09 14:40, on purpose: issue #365.**
+A StreamStats developer traced an NSS `bylocation` slowdown to `tools/border_qa.py` with three workers: NSS keeps
+a query running after the client disconnects, and the client's 60-second timeout and retries ran one slow basin's
+query up to nine times at once. They lift the block after talking with the owner (on the issue, or
+streamstats@usgs.gov), and asked that border_qa and any automated `bylocation` jobs stay paused until then. The
+client side is fixed (no retry on a `bylocation` timeout, a 200 s timeout, one call at a time with a pause; see
+CHANGELOG). Nothing below that needs StreamStats can run until the block is lifted; then retest at TN 03465500 or
+AL 02342500 with a single request, not a loop.
 
 ### Next steps (2026-11-15)
 
@@ -40,7 +45,8 @@ Owner's:
    report, not in NSS) needs. If it does, verify and store that report.
 7. **LA's southern gap** uses the 1998 Non-Pine Hills set (TR 60, NSS GC879) when NSS locates no current region,
    with a caution and no interval (`fallback_region`). OH 2006-5312, TN 03-4176 and LA's Delta stay dropped.
-8. Issue #293 is closed (2026-11-11); no issues are open.
+8. Issue #293 is closed (2026-11-11). **Issue #365 (StreamStats block, above) is open and unanswered since
+   2026-11-09**; it was missed until 2026-11-15. Answering it is the owner's.
 9. Open the app in a browser: the resizable period grips (app #24), and app #42-#45 (raster hydrograph, basin
    changes, the Bulletin 17C curve, the characteristics form) have never run in one here. The same holds for
    the open app #47-#52, which were checked with Streamlit's AppTest only.
@@ -78,7 +84,7 @@ Library follow-ups the batches found, none changed:
     `estimate_from_characteristics` and `flowfreq ungaged-chars` now take the region and characteristics from
     the caller, and the app's ungaged page has a form for it (app #45, on since the v0.26.0 pin).
 
-17. Finish the cross-border check once StreamStats stops refusing this machine (403 since 2026-11-09 14:40, after
+17. Finish the cross-border check once StreamStats lifts the block (issue #365; 403 since 2026-11-09 14:40, after
     about 1,700 requests): `python tools/border_qa.py run --workers 1`, then `report` (about 280 gages left;
     `docs/BORDER_QA.md`). Then trace Rhode Island against Connecticut, the largest new offset (2.4 times). Iowa and
     Georgia are traced: both states' equations match their reports. Also check whether Texas's StreamStats computes

@@ -1306,6 +1306,129 @@ class TestLocateRegressionRegions:
             assert locate_regression_regions("WA", GOAT_POLYGON) == []
 
 
+class TestBylocationLoad:
+    """Issue #365: NSS keeps a ``bylocation`` query running after the client gives up.
+
+    So a timeout there is not retried, the client waits longer than the NSS load
+    balancer's 180 s, and calls from one process go one at a time with a pause between.
+    """
+
+    GOOD = NSS_BYLOCATION_WA_GOAT_CREEK
+
+    def test_a_read_timeout_is_not_retried(self) -> None:
+        with (
+            patch(
+                "flowfreq.streamstats.requests.post", side_effect=requests.ReadTimeout("slow")
+            ) as post,
+            patch("flowfreq.streamstats.time.sleep") as sleep,
+        ):
+            with pytest.raises(StreamStatsTransportError, match="not retried"):
+                locate_regression_regions("WA", GOAT_POLYGON)
+        assert post.call_count == 1
+        assert all(c.args[0] == 0.0 for c in sleep.call_args_list)  # no backoff wait
+
+    def test_a_gateway_timeout_is_not_retried(self) -> None:
+        with patch(
+            "flowfreq.streamstats.requests.post",
+            return_value=_mock_response(status_code=504, text="Gateway Timeout"),
+        ) as post:
+            with pytest.raises(StreamStatsTransportError, match="504"):
+                locate_regression_regions("WA", GOAT_POLYGON)
+        assert post.call_count == 1
+
+    @pytest.mark.parametrize(
+        "first",
+        [
+            requests.ConnectTimeout("never connected"),
+            requests.ConnectionError("reset"),
+            _mock_response(status_code=503, text="Service Unavailable"),
+        ],
+        ids=["connect-timeout", "connection-error", "503"],
+    )
+    def test_a_request_the_server_never_ran_is_still_retried(self, first) -> None:
+        with (
+            patch(
+                "flowfreq.streamstats.requests.post",
+                side_effect=[first, _mock_response(self.GOOD)],
+            ) as post,
+            patch("flowfreq.streamstats.time.sleep"),
+        ):
+            located = locate_regression_regions("WA", GOAT_POLYGON)
+        assert post.call_count == 2 and [r.code for r in located] == ["GC1751"]
+
+    @pytest.mark.parametrize("asked", [None, 30.0, 60.0])
+    def test_the_timeout_outlasts_the_load_balancer(self, asked) -> None:
+        from flowfreq.streamstats import BYLOCATION_TIMEOUT
+
+        assert BYLOCATION_TIMEOUT > 180.0
+        kwargs = {} if asked is None else {"timeout": asked}
+        with patch(
+            "flowfreq.streamstats.requests.post", return_value=_mock_response(self.GOOD)
+        ) as post:
+            locate_regression_regions("WA", GOAT_POLYGON, **kwargs)
+        assert post.call_args.kwargs["timeout"] == BYLOCATION_TIMEOUT
+
+    def test_a_longer_timeout_is_kept(self) -> None:
+        with patch(
+            "flowfreq.streamstats.requests.post", return_value=_mock_response(self.GOOD)
+        ) as post:
+            locate_regression_regions("WA", GOAT_POLYGON, timeout=600.0)
+        assert post.call_args.kwargs["timeout"] == 600.0
+
+    def test_other_requests_still_retry_a_read_timeout(self) -> None:
+        with (
+            patch(
+                "flowfreq.streamstats.requests.get",
+                side_effect=[requests.ReadTimeout("slow"), _mock_response(SNAP_GOOD)],
+            ) as get,
+            patch("flowfreq.streamstats.time.sleep"),
+        ):
+            snap_point("WA", 48.57, -120.38)
+        assert get.call_count == 2
+
+    def test_threads_take_turns(self) -> None:
+        import threading
+        import time
+
+        state = {"open": 0, "most": 0}
+        guard = threading.Lock()
+
+        def post(url, **kwargs):
+            with guard:
+                state["open"] += 1
+                state["most"] = max(state["most"], state["open"])
+            time.sleep(0.02)
+            with guard:
+                state["open"] -= 1
+            return _mock_response(self.GOOD)
+
+        with patch("flowfreq.streamstats.requests.post", side_effect=post):
+            with ThreadPoolExecutor(max_workers=4) as pool:
+                found = list(
+                    pool.map(lambda _: locate_regression_regions("WA", GOAT_POLYGON), range(8))
+                )
+        assert len(found) == 8 and state["most"] == 1
+
+    def test_each_call_is_followed_by_the_pause(self, monkeypatch) -> None:
+        monkeypatch.setattr("flowfreq.streamstats.BYLOCATION_PAUSE", 1.0)
+        with (
+            patch("flowfreq.streamstats.requests.post", return_value=_mock_response(self.GOOD)),
+            patch("flowfreq.streamstats.time.sleep") as sleep,
+        ):
+            locate_regression_regions("WA", GOAT_POLYGON)
+        sleep.assert_called_once_with(1.0)
+
+    def test_the_pause_follows_a_failure_too(self, monkeypatch) -> None:
+        monkeypatch.setattr("flowfreq.streamstats.BYLOCATION_PAUSE", 1.0)
+        with (
+            patch("flowfreq.streamstats.requests.post", side_effect=requests.ReadTimeout("slow")),
+            patch("flowfreq.streamstats.time.sleep") as sleep,
+        ):
+            with pytest.raises(StreamStatsTransportError):
+                locate_regression_regions("WA", GOAT_POLYGON)
+        sleep.assert_called_once_with(1.0)
+
+
 def _nss_dispatch_for(template):
     def dispatch(url, **kwargs):
         if url.endswith("/Scenarios"):

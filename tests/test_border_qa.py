@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import math
 import sys
 from pathlib import Path
@@ -107,3 +108,19 @@ def test_a_state_without_the_50_percent_aep_still_compares_at_10_and_1():
     values = {"CONTDA": 200.0, "CSL10_85": 4.0, "HIGHREG": 1009.0}
     out = bq._assemble(load_state("IN"), loc, values)
     assert "0.5" not in out and out["0.1"][0] > 0 and out["0.01"][0] > out["0.1"][0]
+
+
+def test_a_run_is_one_gage_at_a_time_unless_asked(tmp_path, monkeypatch):
+    """Issue #365: three workers overloaded NSS bylocation, so the default is one."""
+    seen = []
+    monkeypatch.setattr(bq, "run", lambda cache, workers, limit: seen.append(workers))
+    # main() configures logging for the whole process; keep that from reaching other tests.
+    monkeypatch.setattr(logging, "basicConfig", lambda **kwargs: None)
+    levels = {name: logging.getLogger(name).level for name in ("flowfreq", "urllib3")}
+    try:
+        bq.main(["run", "--cache", str(tmp_path)])
+        bq.main(["run", "--cache", str(tmp_path), "--workers", "2"])
+    finally:
+        for name, level in levels.items():
+            logging.getLogger(name).setLevel(level)
+    assert seen == [1, 2]
