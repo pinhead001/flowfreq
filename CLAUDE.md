@@ -140,7 +140,11 @@ first is on you at every invocation:
 `flowfreq.__version__` shows whether a session is running development code or a release.
 Patch releases for the current minor line come from `release/0.26.x` (cut at `v0.26.0`): branch
 a fix from it, PR it there, and tag `v0.26.N` on that merge commit. Port the fix to `main` as
-well. `release/0.25.x`, `release/0.24.x`, `release/0.23.x`, `release/0.22.x`, `release/0.21.x`, `release/0.20.x`, `release/0.19.x`, `release/0.18.x`, `release/0.17.x`, `release/0.16.x`, `release/0.15.x`, `release/0.14.x`, `release/0.13.x`, `release/0.12.x`, `release/0.11.x` and `release/0.10.x` are kept for reference.
+well. If `origin` doesn't have that branch yet (the owner pushes `release/*`; a hook blocks it for
+agents), cut it from the tag, `git switch -c release/0.26.x v0.26.0`, never from `main`, which
+carries the next minor's unreleased work. Earlier `release/0.N.x` branches are kept for reference.
+Version bumps are hand edits of `pyproject.toml` in the release PR and the following dev-bump PR;
+there is no bump tool.
 Downstream projects (methow-flow, flowfreq-app) pin release tags such as
 `flowfreq @ git+https://github.com/pinhead001/flowfreq@v0.26.0`, so work on `main` never
 reaches them. Never move or delete a pushed release tag.

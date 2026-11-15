@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+- `.bumpversion.cfg` and the `bump2version` dev dependency. The config was stuck at 0.7.0 and no bump has used it
+  since; versions are edited by hand in the release and dev-bump PRs (CLAUDE.md, Branches and Releases).
+
 ## [0.26.0] - 2026-11-11
 
 Estimates from caller-supplied characteristics where StreamStats can't delineate (Florida, Michigan, Nebraska),
