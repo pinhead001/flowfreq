@@ -200,7 +200,8 @@ CI should test the supported Python matrix.
 - **`regression/`** — offline regional regression equations: `equations` (schema,
   evaluator, prediction intervals), `library` (per-state JSON, status definitions),
   `jurisdictions` (the 56 jurisdictions and their waves), `nss` (NSS equation parser),
-  `oregon` / `montana` (state-specific procedures)
+  `oregon` / `montana` (state-specific procedures), `border` (the systematic differences
+  between neighboring states' equations near their border, from `tools/border_qa.py`)
 - **`streamstats.py`** — StreamStats delineation, basin characteristics, NSS estimates
 - **`transpose.py`** / **`qppq.py`** / **`donor_similarity.py`** — transposition to ungaged
   sites, QPPQ daily transfer, donor screening and ranking by basin similarity

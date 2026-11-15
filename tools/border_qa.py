@@ -27,6 +27,7 @@ Stages, cached under ``--cache`` (default ``.cache/border_qa``, gitignored), so 
     python tools/border_qa.py candidates
     python tools/border_qa.py run --workers 3
     python tools/border_qa.py report
+    python tools/border_qa.py offsets    # flowfreq/data/border_offsets.csv, from the rows
 
 Network: StreamStats, NSS, TIGERweb and the Water Data API (set ``USGS_API_KEY``).
 """
@@ -534,6 +535,60 @@ def summarize(rows: pd.DataFrame) -> Dict[str, Any]:
     }
 
 
+OFFSET_COLUMNS = (
+    "home",
+    "neighbor",
+    "gages",
+    "neighbor_over_home",
+    "with_fit",
+    "home_over_at_site",
+    "neighbor_over_at_site",
+    "home_nearer",
+)
+
+
+def offsets(rows: pd.DataFrame) -> pd.DataFrame:
+    """The pairs systematic on clean comparisons at 1 percent, as the library ships them.
+
+    One row per (home, neighbour): the number of clean gages, the median of the neighbour's
+    flow over the home state's, and, at the gages with an at-site Bulletin 17C fit, the
+    median of each state's flow over the fit and the count where the home state's was the
+    nearer. This is ``flowfreq/data/border_offsets.csv``, which
+    :mod:`flowfreq.regression.border` reads.
+    """
+    one = rows[(rows["why_not"].fillna("") == "") & (rows["aep"] == 0.01)].copy()
+    one = one[one["clean"].fillna(False).astype(bool)]
+    out = []
+    for (h, n), g in one.groupby(["home", "neighbor"]):
+        med = float((g["neighbor_q"] / g["home_q"]).map(math.log10).median())
+        if len(g) < 3 or abs(med) <= SYSTEMATIC_LOG:
+            continue
+        fit = g.dropna(subset=["at_site_q"])
+        home_log = (fit["home_q"] / fit["at_site_q"]).map(math.log10)
+        nb_log = (fit["neighbor_q"] / fit["at_site_q"]).map(math.log10)
+        out.append(
+            {
+                "home": h,
+                "neighbor": n,
+                "gages": len(g),
+                "neighbor_over_home": round(10**med, 2),
+                "with_fit": len(fit),
+                "home_over_at_site": round(10 ** float(home_log.median()), 2) if len(fit) else None,
+                "neighbor_over_at_site": (
+                    round(10 ** float(nb_log.median()), 2) if len(fit) else None
+                ),
+                "home_nearer": int((home_log.abs() < nb_log.abs()).sum()),
+            }
+        )
+    return pd.DataFrame(out, columns=list(OFFSET_COLUMNS))
+
+
+def write_offsets(rows_csv: Path, out_csv: Path) -> None:
+    table = offsets(pd.read_csv(rows_csv, dtype={"site_no": str}))
+    table.to_csv(out_csv, index=False, lineterminator="\n")
+    logger.info("wrote %s (%d pairs)", out_csv, len(table))
+
+
 def report(cache: Path, out_md: Path, out_csv: Path) -> None:
     rows = rows_from_cache(cache)
     out_csv.parent.mkdir(parents=True, exist_ok=True)
@@ -598,13 +653,16 @@ def report(cache: Path, out_md: Path, out_csv: Path) -> None:
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("stage", choices=["candidates", "run", "report"])
+    ap.add_argument("stage", choices=["candidates", "run", "report", "offsets"])
     ap.add_argument("--cache", type=Path, default=REPO_ROOT / ".cache" / "border_qa")
     ap.add_argument("--border-km", type=float, default=20.0)
     ap.add_argument("--workers", type=int, default=3)
     ap.add_argument("--limit", type=int, default=None, help="run at most this many gages")
     ap.add_argument("--out", type=Path, default=REPO_ROOT / "docs" / "BORDER_QA.md")
     ap.add_argument("--csv", type=Path, default=REPO_ROOT / "docs" / "border_qa" / "rows.csv")
+    ap.add_argument(
+        "--offsets", type=Path, default=REPO_ROOT / "flowfreq" / "data" / "border_offsets.csv"
+    )
     args = ap.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(message)s")
     for noisy in ("flowfreq", "urllib3"):
@@ -614,6 +672,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         candidates(args.cache, args.border_km)
     elif args.stage == "run":
         run(args.cache, args.workers, args.limit)
+    elif args.stage == "offsets":
+        write_offsets(args.csv, args.offsets)
     else:
         report(args.cache, args.out, args.csv)
     return 0

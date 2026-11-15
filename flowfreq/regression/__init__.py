@@ -4,6 +4,13 @@ See ``docs/MASTER_ROADMAP.md`` §3. This package is the offline evaluator.
 :mod:`flowfreq.streamstats` is the online (NSS) one.
 """
 
+from flowfreq.regression.border import (
+    BORDER_KM,
+    BorderOffset,
+    border_offsets,
+    border_offsets_between,
+    border_offsets_for,
+)
 from flowfreq.regression.equations import (
     Citation,
     OutOfRangeError,
@@ -33,6 +40,8 @@ from flowfreq.regression.library import (
 from flowfreq.regression.nss_library import asep_to_sep_log, snapshot_to_library
 
 __all__ = [
+    "BORDER_KM",
+    "BorderOffset",
     "Citation",
     "EquationsUnavailable",
     "JURISDICTIONS",
@@ -47,6 +56,9 @@ __all__ = [
     "asep_to_sep_log",
     "available_states",
     "awaiting_nss_states",
+    "border_offsets",
+    "border_offsets_between",
+    "border_offsets_for",
     "evaluate",
     "evaluate_weighted",
     "jurisdiction",

@@ -25,6 +25,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   end)` gives the span of a period of record in years. Both were in flowfreq-app's gage page; the app can drop
   its copies when its pin reaches a release with these.
 
+- **`flowfreq.regression.border_offsets()`**, `border_offsets_between(state, other)` and
+  `border_offsets_for(state)`: the 17 borders where one state's regression equations run systematically above or
+  below its neighbor's on the same basins (`docs/VERIFICATION_PLAN.md`), as `BorderOffset` records: the number of
+  gages, the median ratio at the 1 percent AEP, each state's median ratio to the at-site Bulletin 17C fits, and
+  how often the home state's was the nearer. `BorderOffset.describe()` gives it as a sentence, and `BORDER_KM`
+  (20) is the distance from the neighbor within which gages were compared. The table is
+  `flowfreq/data/border_offsets.csv`, written by the new `python tools/border_qa.py offsets` from
+  `docs/border_qa/rows.csv`; a test fails if the two disagree. No estimate changes: a difference is reported,
+  not smoothed, and the module holds no geometry, so measuring a point's distance to a state line is the
+  caller's.
+
 ### Removed
 - `.bumpversion.cfg` and the `bump2version` dev dependency. The config was stuck at 0.7.0 and no bump has used it
   since; versions are edited by hand in the release and dev-bump PRs (CLAUDE.md, Branches and Releases).
