@@ -104,11 +104,22 @@ dev = [
     "filelock>=3.13,<5",
     # The `report` extra below, so CI runs the DOCX tests and mypy sees its types.
     "python-docx>=1.1,<2",
+    # The `mcp` extra below, for the same two reasons (tests/test_mcp_server.py).
+    "mcp>=2.3,<3",
 ]
 
 # DOCX output for flowfreq.reporting (`flowfreq report spec.json -o report.docx`). Markdown
 # output needs nothing extra. Pure Python over lxml, which has wheels for 3.11-3.14.
 report = [
+    "python-docx>=1.1,<2",
+]
+
+# The report tools as a Model Context Protocol server (`flowfreq-mcp`, docs/CHAT_REPORTS.md):
+# a chat client calls flowfreq to build a report section by section. DOCX is the output a
+# chat is asked for, so python-docx comes with it. 2.x only: it replaced FastMCP with
+# mcp.server.mcpserver.MCPServer, which is what flowfreq.mcp_server imports.
+mcp = [
+    "mcp>=2.3,<3",
     "python-docx>=1.1,<2",
 ]
 
@@ -121,6 +132,7 @@ study = [
 
 [project.scripts]
 flowfreq = "flowfreq.cli:cli"
+flowfreq-mcp = "flowfreq.mcp_server:main"
 
 [tool.setuptools.packages.find]
 where = ["."]

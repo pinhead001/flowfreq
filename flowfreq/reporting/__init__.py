@@ -15,6 +15,10 @@ a language model. Prose that flowfreq did not compute rides along as a section's
 >>> report = build_report(spec)          # downloads the peaks, fits, draws
 >>> report.save("big_sandy.docx")        # needs: pip install "flowfreq[report]"
 >>> report.spec.save("big_sandy.json")   # the peaks are in it: rebuilds offline
+
+:class:`ReportSession` builds a report a section at a time, with stable section ids, and is
+what ``flowfreq-mcp`` (:mod:`flowfreq.mcp_server`, ``docs/CHAT_REPORTS.md``) puts behind a
+chat client's tools.
 """
 
 from .blocks import (
@@ -31,6 +35,7 @@ from .blocks import (
 )
 from .build import Report, build_report, render_markdown
 from .sections import SECTION_KINDS, SectionContent, SectionKind, build_section
+from .session import ReportSession
 from .spec import SCHEMA, ReportError, ReportSpec, SectionSpec
 
 __all__ = [
@@ -46,6 +51,7 @@ __all__ = [
     "Paragraph",
     "Report",
     "ReportError",
+    "ReportSession",
     "ReportSpec",
     "SectionContent",
     "SectionKind",

@@ -19,6 +19,7 @@ from flowfreq.catalog import (
     load_catalog_meta,
     location_fields,
     peaks_by_site,
+    search,
     select,
     sites_needing_location,
     write_catalog,
@@ -380,6 +381,36 @@ def test_packaged_catalog_known_sites(packaged):
     assert dung["first_water_year"] <= 1924 and dung["n_peaks"] >= 90
     assert by.loc["03606500", "state"] == "TN"  # Big Sandy at Bruceton: outside Wave 1
     assert pd.isna(by.loc["03606500", "regression_region"])
+
+
+def test_search(packaged):
+    by_number = search(packaged, "03606500")
+    assert list(by_number["site_no"]) == ["03606500"]
+    assert list(by_number.columns) == list(COLUMNS)
+
+    # Words match in any order and any case, and every one of them must be there.
+    named = search(packaged, "bruceton big sandy")
+    assert "03606500" in set(named["site_no"])
+    assert named["site_name"].str.contains("BRUCETON").all()
+
+    # A number is a prefix; the longest records come first; state and years filter.
+    prefix = search(packaged, "0360", state="TN", min_years=40, limit=5)
+    assert 0 < len(prefix) <= 5
+    assert prefix["site_no"].str.startswith("0360").all()
+    assert (prefix["state"] == "TN").all() and (prefix["n_peaks"] >= 40).all()
+    assert prefix["n_peaks"].is_monotonic_decreasing
+
+    assert search(packaged, "no such river anywhere").empty
+    assert search(packaged, "sandy", state="HI").empty
+
+
+@pytest.mark.parametrize(
+    "query, limit, match",
+    [("  ", 20, "station number or words"), ("sandy", 0, "limit must be at least 1")],
+)
+def test_search_refuses(packaged, query, limit, match):
+    with pytest.raises(ValueError, match=match):
+        search(packaged, query, limit=limit)
 
 
 # ------------------------------------------------- live ---------------------
