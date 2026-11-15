@@ -296,7 +296,11 @@ analysis and lays out what it returns, so a quantile in a report is the one `run
   ratio (`flowfreq.transpose.transpose_frequency`): per AEP the gage's flow, the exponent
   and whether it was published, interpolated or extrapolated, the factor and the transposed
   flow with the donor's limits scaled, then the caveats and, unless `detail` is false, the
-  analysis at the gage. `text` is a titled section of prose.
+  analysis at the gage. `engine_check` takes a `gage` and compares its fit with a reference
+  computation of the same record: USGS peakfq 8.1.0 run by flowfreq's Fortran extension, or
+  the numbers of another program's run given as `reference`. It states whether the two
+  agree within the tolerances and tabulates the parameters, quantiles and confidence
+  limits side by side. `text` is a titled section of prose.
 - **The spec as built is the record.** Give a `site_no` and the peaks are downloaded; give
   `regional_skew_state` or `regional_skew_from_site` and the skew is looked up. Both are
   written into `report.spec` as values, with the retrieval date and the citation, and the
@@ -333,7 +337,7 @@ The model calls `find_gage`, `run_ffa`, `estimate_from_characteristics`,
 `weight_gage_with_regression`, `edit_narrative` and `render_report`; flowfreq computes
 every table and figure, and what the model writes is narrative that prints as a draft
 until you mark it reviewed. `flowfreq.reporting.ReportSession` is the same thing from
-Python. Client configuration, the seventeen tools and the rules the server holds the model
+Python. Client configuration, the eighteen tools and the rules the server holds the model
 to are in [docs/CHAT_REPORTS.md](docs/CHAT_REPORTS.md).
 
 ## Module Overview

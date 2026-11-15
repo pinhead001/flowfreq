@@ -7,12 +7,21 @@ its characteristics.
 from __future__ import annotations
 
 import json
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 import pytest
 
+from flowfreq.bulletin17c import Bulletin17C
 from flowfreq.reporting import DRAFT_LABEL, ReportError, ReportSpec, build_section
 from flowfreq.reporting.session import LONG_TABLE_ROWS, MAIN_TABLES, ReportSession
+from tests.test_reporting_engine_check import (
+    AGREE,
+    DISAGREE,
+    GAGE_HEADING,
+    REFERENCE,
+    _as_emafitpr,
+    _with_row,
+)
 from tests.test_reporting_sites import GAGE, TENNESSEE
 from tests.test_reporting_transposed import CITATION, EXPONENTS
 
@@ -361,6 +370,133 @@ class TestTranspose:
         ]
         assert later.section_markdown("s3") == parts.section_markdown("s4")
         assert self.ONE_PERCENT in (tmp_path / "upstream.md").read_text(encoding="utf-8")
+
+
+class TestEngineCheck:
+    ONE_PERCENT = "| 1 | 18,069 | 18,069 | <0.001 | yes |"
+
+    @pytest.fixture
+    def calls(self, monkeypatch) -> List[str]:
+        """The live peakfq call, refusing as it does where the extension is not built.
+
+        A test that wants an answer appends ``"built"`` first. The list then counts the calls.
+        """
+        made: List[str] = []
+
+        def live(self, *args, **kwargs):
+            if "built" not in made:
+                raise ImportError("flowfreq.peakfqr is not built")
+            made.append("call")
+            return _as_emafitpr(REFERENCE)
+
+        monkeypatch.setattr(Bulletin17C, "fortran_reference", live)
+        return made
+
+    @pytest.fixture
+    def parts(self, session, calls) -> ReportSession:
+        session.add_text("Introduction", TEXT)
+        session.add_section("gaged_ffa", GAGE)
+        session.add_text("Closing", TEXT)
+        return session
+
+    def test_goes_after_the_gage_and_leads_with_the_verdict(self, parts):
+        added = parts.engine_check("s2", reference=REFERENCE)
+        assert added["section_id"] == "s4" and added["number"] == 3
+        assert added["kind"] == "engine_check" and added["narrative"] == "none"
+        assert added["title"] == (
+            "Computation check at USGS 03606500 Big Sandy River at Bruceton, TN"
+        )
+        # The verdict is the result, so it comes ahead of the table.
+        assert added["result"].startswith("The Bulletin 17C fit at USGS 03606500 Big Sandy")
+        assert AGREE in added["result"] and self.ONE_PERCENT in added["result"]
+        assert MAIN_TABLES["engine_check"] in added["result"]
+        assert added["result"].index(AGREE) < added["result"].index(self.ONE_PERCENT)
+        assert _ids(parts) == ["s1", "s2", "s4", "s3"]
+        options = parts.spec.sections[2].options
+        assert options["gage"] == parts.spec.sections[1].options
+        assert options["reference"] == REFERENCE and options["detail"] is False
+        assert GAGE_HEADING not in parts.section_markdown("s4")
+
+    def test_without_a_reference_peakfq_is_run_once(self, parts, calls, tmp_path):
+        calls.append("built")
+        added = parts.engine_check("s2")
+        assert calls == ["built", "call"] and AGREE in added["result"]
+        stored = parts.spec.sections[2].options["reference"]
+        assert stored["source"].startswith("USGS peakfq 8.1.0, its Fortran routine emafitpr")
+        assert stored["record"] == REFERENCE["record"]
+        assert stored["quantiles"] == REFERENCE["quantiles"]
+        # The saved report rebuilds from what was stored, where there is no extension.
+        parts.render("check.md")
+        calls.remove("built")
+        later = ReportSession(output_dir=tmp_path)
+        later.load("check.json")
+        assert [s["kind"] for s in later.outline()["sections"]] == [
+            "text",
+            "gaged_ffa",
+            "engine_check",
+            "text",
+        ]
+        assert later.section_markdown("s3") == parts.section_markdown("s4")
+        assert calls == ["call"]
+        assert self.ONE_PERCENT in (tmp_path / "check.md").read_text(encoding="utf-8")
+
+    def test_tolerances_detail_title_and_position(self, parts):
+        reference = _with_row(0.01, flow_cfs=19000.0, lower_cfs=13000.0)
+        reference["parameters"]["std_log"] = 0.27
+        added = parts.engine_check("s2", reference=reference)
+        assert DISAGREE in added["result"]
+        assert "| 1 | 18,069 | 19,000 | 4.900 | no |" in added["result"]
+        loose = parts.engine_check(
+            "s2",
+            reference=reference,
+            tolerance_pct=5,
+            parameter_tolerance_pct=2,
+            ci_tolerance_pct=10,
+            detail=True,
+            title="Second computation",
+            position=1,
+        )
+        assert loose["title"] == "Second computation" and loose["number"] == 1
+        assert AGREE in loose["result"]
+        assert _ids(parts) == ["s5", "s1", "s2", "s4", "s3"]
+        options = parts.spec.sections[0].options
+        assert options["tolerance_pct"] == 5 and options["parameter_tolerance_pct"] == 2
+        assert options["ci_tolerance_pct"] == 10 and options["detail"] is True
+        assert f"### {GAGE_HEADING}" in parts.section_markdown("s5")
+
+    def test_the_reference_given_is_copied(self, parts):
+        reference = dict(REFERENCE)
+        parts.engine_check("s2", reference=reference)
+        reference["source"] = "changed afterwards"
+        assert parts.spec.sections[2].options["reference"] == REFERENCE
+
+    @pytest.mark.parametrize(
+        "gage, change, match",
+        [
+            ("s1", {}, "section s1 is a text section, not a gaged_ffa section"),
+            ("s9", {}, "no section 's9'"),
+            ("s2", {"position": 5}, "position must be from 1 to 4"),
+            ("s2", {"tolerance_pct": 0}, "engine_check: tolerance_pct must be a positive"),
+            (
+                "s2",
+                {"reference": {"source": "A printout"}},
+                "engine_check: reference needs quantiles",
+            ),
+            (
+                "s2",
+                {"reference": {**REFERENCE, "record": "0000000000000000"}},
+                "computed for other peaks, thresholds or regional skew",
+            ),
+            ("s2", {"reference": None}, "which is not built in this environment"),
+        ],
+    )
+    def test_a_refused_check_changes_nothing(self, parts, gage, change, match):
+        arguments = {"reference": REFERENCE, **change}
+        with pytest.raises(ReportError, match=match):
+            parts.engine_check(gage, **arguments)
+        assert _ids(parts) == ["s1", "s2", "s3"]
+        # The refused section took no id either.
+        assert parts.add_text("Next", TEXT)["section_id"] == "s4"
 
 
 class TestOrder:

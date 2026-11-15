@@ -2483,10 +2483,50 @@ class Bulletin17C:
         """
         if self._fortran_arrays is None:
             self.run_analysis(method="ema", engine="fortran")
+
+        from .fortran_engine import quantile_frames
+
+        return quantile_frames(self.fortran_reference(aep, confidence))
+
+    def fortran_reference(
+        self,
+        aep: Optional[np.ndarray] = None,
+        confidence: float = 0.90,
+        station_name: str = "",
+    ) -> "ReferenceResult":
+        """This record as USGS peakfq 8.1.0 fits it: one live ``emafitpr`` call.
+
+        The call is built from the inputs this object was constructed with, whichever
+        engine it runs its own analysis on, so the result can be held against a native
+        fit with :meth:`validate`. :func:`flowfreq.workflow.compare_engines` does both
+        from the raw record; this is for a fit that already exists.
+
+        Parameters
+        ----------
+        aep : array-like, optional
+            Annual exceedance probabilities to evaluate. Defaults to
+            :attr:`FloodFrequencyAnalysis.STANDARD_AEP`.
+        confidence : float, default 0.90
+            Coverage of the confidence interval.
+        station_name : str, optional
+            Carried into the result.
+
+        Returns
+        -------
+        ReferenceResult
+            Parameters, quantiles, confidence limits and low-outlier screening as
+            ``emafitpr`` returned them, in cfs.
+
+        Raises
+        ------
+        ImportError
+            The f2py extension is not built; run ``python build_fortran/build.py``
+            (needs gfortran and meson).
+        """
         if aep is None:
             aep = FloodFrequencyAnalysis.STANDARD_AEP
 
-        from .fortran_engine import quantile_frames, run_fortran_reference
+        from .fortran_engine import run_fortran_reference
 
         # Rebuilding the arrays from the original inputs (rather than reusing
         # self._fortran_arrays directly) is deliberate: it is the same
@@ -2504,10 +2544,11 @@ class Bulletin17C:
             regional_skew_mse=self._regional_skew_mse,
             aeps=aep,
             eps=confidence,
+            station_name=station_name,
             interval_peaks=self._interval_peaks,
             historical_interval_peaks=self._historical_interval_peaks,
         )
-        return quantile_frames(reference)
+        return reference
 
     def plot_frequency_curve(
         self,

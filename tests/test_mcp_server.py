@@ -20,6 +20,7 @@ from mcp import Client  # noqa: E402
 
 from flowfreq import __version__  # noqa: E402
 from flowfreq import mcp_server  # noqa: E402
+from flowfreq.bulletin17c import Bulletin17C  # noqa: E402
 from flowfreq.mcp_server import (  # noqa: E402
     INSTRUCTIONS,
     REPORT_DIR_ENV,
@@ -29,6 +30,13 @@ from flowfreq.mcp_server import (  # noqa: E402
 )
 from flowfreq.reporting import DRAFT_LABEL, sections  # noqa: E402
 from flowfreq.reporting.session import ReportSession  # noqa: E402
+from tests.test_reporting_engine_check import (  # noqa: E402
+    AGREE,
+    DISAGREE,
+    GAGE_HEADING,
+    REFERENCE,
+    _as_emafitpr,
+)
 from tests.test_reporting_sites import GAGE, TENNESSEE, UNUSED  # noqa: E402
 from tests.test_reporting_transposed import CITATION, EXPONENTS  # noqa: E402
 from tests.test_ungaged import WA_LAT, WA_LON, Fakes, _wa_site  # noqa: E402
@@ -42,6 +50,7 @@ TOOLS = [
     "estimate_from_characteristics",
     "weight_gage_with_regression",
     "transpose_gage_to_site",
+    "check_gage_against_reference",
     "add_text_section",
     "edit_narrative",
     "mark_narrative_reviewed",
@@ -500,6 +509,164 @@ class TestTranspose:
         schema = {t.name: t for t in chat.tools()}["transpose_gage_to_site"].input_schema
         assert schema["required"] == ["gage_section_id", "target_area_sqmi", "exponent_citation"]
         assert schema["properties"]["detail"]["default"] is False
+
+
+class TestEngineCheck:
+    PRINTOUT = "A second program's printout for this gage, table of computed quantiles"
+
+    @pytest.fixture
+    def gage(self, chat, peaks) -> str:
+        added = chat.call("run_ffa", site_no="03606500", stationarity=False, **SKEW)
+        return str(added["section_id"])
+
+    @pytest.fixture
+    def emafitpr(self, monkeypatch) -> List[int]:
+        """The live peakfq call, answered from stored numbers; the list counts the calls."""
+        calls: List[int] = []
+
+        def live(self, *args, **kwargs):
+            calls.append(1)
+            return _as_emafitpr(REFERENCE)
+
+        monkeypatch.setattr(Bulletin17C, "fortran_reference", live)
+        return calls
+
+    @pytest.fixture
+    def no_extension(self, monkeypatch) -> None:
+        def absent(self, *args, **kwargs):
+            raise ImportError("flowfreq.peakfqr is not built")
+
+        monkeypatch.setattr(Bulletin17C, "fortran_reference", absent)
+
+    def test_against_peakfq(self, chat, session, gage, emafitpr):
+        added = chat.call("check_gage_against_reference", gage_section_id=gage)
+        assert emafitpr == [1]
+        assert added["section_id"] == "s2" and added["kind"] == "engine_check"
+        assert added["title"] == (
+            "Computation check at USGS 03606500 Big Sandy River at Bruceton, TN"
+        )
+        assert added["result"].startswith("The Bulletin 17C fit at USGS 03606500 Big Sandy")
+        assert AGREE in added["result"]
+        assert "| 1 | 18,069 | 18,069 | <0.001 | yes |" in added["result"]
+        outline = chat.call("report_outline")
+        assert [s["kind"] for s in outline["sections"]] == ["gaged_ffa", "engine_check"]
+        options = session.spec.sections[1].options
+        assert set(options) == {"gage", "reference", "detail"} and options["detail"] is False
+        assert options["reference"]["source"].startswith("USGS peakfq 8.1.0")
+        assert options["reference"]["quantiles"] == REFERENCE["quantiles"]
+        text = chat.call("get_section", section_id="s2")
+        assert "90-percent confidence limits from flowfreq and from the reference." in text
+        assert GAGE_HEADING not in text
+
+    def test_against_numbers_the_user_gives(self, chat, session, gage, no_extension):
+        added = chat.call(
+            "check_gage_against_reference",
+            gage_section_id=gage,
+            reference_source=self.PRINTOUT,
+            reference_aeps=[0.1, 0.01],
+            reference_flows_cfs=[10600.0, 18500.0],
+            reference_lower_cfs=[8900.0, 14000.0],
+            reference_upper_cfs=[13100.0, 27100.0],
+        )
+        assert DISAGREE in added["result"]
+        assert "| 1 | 18,069 | 18,500 | 2.330 | no |" in added["result"]
+        assert session.spec.sections[1].options["reference"] == {
+            "source": self.PRINTOUT,
+            "quantiles": [
+                {"aep": 0.1, "flow_cfs": 10600.0, "lower_cfs": 8900.0, "upper_cfs": 13100.0},
+                {"aep": 0.01, "flow_cfs": 18500.0, "lower_cfs": 14000.0, "upper_cfs": 27100.0},
+            ],
+        }
+        # The same numbers, with the tolerance the user accepts, the gage repeated, and first.
+        loose = chat.call(
+            "check_gage_against_reference",
+            gage_section_id=gage,
+            reference_source=self.PRINTOUT,
+            reference_aeps=[0.1, 0.01],
+            reference_flows_cfs=[10600.0, 18500.0],
+            tolerance_pct=3,
+            ci_tolerance_pct=5,
+            detail=True,
+            title="Second computation",
+            position=1,
+        )
+        assert AGREE in loose["result"] and "(tolerance 3 percent)" in loose["result"]
+        assert loose["title"] == "Second computation" and loose["number"] == 1
+        options = session.spec.sections[0].options
+        assert options["tolerance_pct"] == 3 and options["ci_tolerance_pct"] == 5
+        assert "lower_cfs" not in options["reference"]["quantiles"][0]
+        text = chat.call("get_section", section_id=loose["section_id"])
+        assert f"### {GAGE_HEADING}" in text
+        assert "confidence limits from flowfreq and from the reference" not in text
+
+    @pytest.mark.parametrize(
+        "change, said",
+        [
+            (
+                {},
+                "ReportError: engine_check: the reference fit is made by flowfreq's Fortran "
+                "extension (USGS peakfq 8.1.0), which is not built in this environment.",
+            ),
+            ({"gage_section_id": "s7", "reference_aeps": [0.01]}, "ValueError: a reference needs"),
+            (
+                {"reference_source": "A printout"},
+                "ValueError: a reference needs reference_source, reference_aeps and "
+                "reference_flows_cfs; with none of the reference_* arguments the record is run "
+                "through peakfq",
+            ),
+            (
+                {"reference_aeps": [0.01], "reference_flows_cfs": [18069.0]},
+                "ReportError: engine_check: reference needs a source",
+            ),
+            (
+                {
+                    "reference_source": "A printout",
+                    "reference_aeps": [0.01],
+                    "reference_flows_cfs": [18069.0],
+                    "reference_lower_cfs": [14000.0],
+                },
+                "ValueError: give reference_lower_cfs and reference_upper_cfs together",
+            ),
+            (
+                {
+                    "reference_source": "A printout",
+                    "reference_aeps": [0.1, 0.01],
+                    "reference_flows_cfs": [18069.0],
+                },
+                "ValueError: reference_aeps, reference_flows_cfs must have one value per AEP: 2",
+            ),
+            (
+                {
+                    "reference_source": "A printout",
+                    "reference_aeps": [1.0],
+                    "reference_flows_cfs": [18069.0],
+                },
+                "ReportError: engine_check: a reference aep is a fraction between 0 and 1",
+            ),
+            (
+                {
+                    "gage_section_id": "s7",
+                    "reference_source": "A printout",
+                    "reference_aeps": [0.01],
+                    "reference_flows_cfs": [18069.0],
+                },
+                "ReportError: no section 's7'",
+            ),
+        ],
+    )
+    def test_refusals(self, chat, gage, no_extension, change, said):
+        arguments = {"gage_section_id": gage, **change}
+        refusal = chat.refusal("check_gage_against_reference", **arguments)
+        assert refusal.startswith(
+            f"Error executing tool check_gage_against_reference: {said}"
+        ), refusal
+        assert [s["kind"] for s in chat.call("report_outline")["sections"]] == ["gaged_ffa"]
+
+    def test_only_the_gage_is_required(self, chat):
+        schema = {t.name: t for t in chat.tools()}["check_gage_against_reference"].input_schema
+        assert schema["required"] == ["gage_section_id"]
+        assert schema["properties"]["detail"]["default"] is False
+        assert "check_gage_against_reference" in INSTRUCTIONS
 
 
 class TestWholeReport:
