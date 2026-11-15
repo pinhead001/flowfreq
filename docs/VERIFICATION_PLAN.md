@@ -229,7 +229,10 @@ extrapolated, and Kansas to Missouri and Delaware to Maryland, where an urban se
 counts **clean** comparisons, where neither side extrapolated and no urban set was picked by default (474 of 539 at 1
 percent).
 
-17 pairs are systematic on clean comparisons. At-site is the gage's Bulletin 17C fit with station skew:
+17 pairs are systematic on clean comparisons. At-site is the gage's Bulletin 17C fit with station skew. The
+library ships this table (`flowfreq/data/border_offsets.csv`, written by `python tools/border_qa.py offsets`;
+`flowfreq.regression.border_offsets_between("RI", "CT")` reads it), so an estimate near one of these borders
+can say so:
 
 | Home to neighbor | Gages | Neighbor/home | Home/at-site | Neighbor/at-site | Home nearer the record |
 |---|---:|---:|---:|---:|---:|
