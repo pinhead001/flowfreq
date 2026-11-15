@@ -19,6 +19,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   offline. DOCX needs the new `report` extra (`pip install "flowfreq[report]"`, python-docx); there is no PDF writer,
   since Word exports one. `flowfreq.report.HydroReport` is unchanged.
 
+- **`USGSgage.peak_summary()`**, with `flowfreq.summarize_peaks(peaks)` behind it: the first and last water
+  year of an annual peak record, its row count, and the largest peak with its date, as a `PeakSummary` dict of
+  plain Python values. It reads the peaks already downloaded and makes no request. `flowfreq.record_years(start,
+  end)` gives the span of a period of record in years. Both were in flowfreq-app's gage page; the app can drop
+  its copies when its pin reaches a release with these.
+
 ### Removed
 - `.bumpversion.cfg` and the `bump2version` dev dependency. The config was stuck at 0.7.0 and no bump has used it
   since; versions are edited by hand in the release and dev-bump PRs (CLAUDE.md, Branches and Releases).

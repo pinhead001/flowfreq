@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 from functools import cached_property
 from io import StringIO
 from pathlib import Path
-from typing import Any, ClassVar, Dict, List, Optional, Tuple
+from typing import Any, ClassVar, Dict, List, Optional, Tuple, TypedDict
 
 import numpy as np
 import pandas as pd
@@ -1343,6 +1343,27 @@ class USGSgage:
 
         return self._peak_data
 
+    def peak_summary(self) -> PeakSummary:
+        """Summarize the downloaded annual peaks: the years covered and the largest peak.
+
+        Returns
+        -------
+        PeakSummary
+            :func:`summarize_peaks` of :attr:`peak_data`.
+
+        Raises
+        ------
+        ValueError
+            If no peaks have been downloaded or set. This method makes no request;
+            call :meth:`download_peak_flow` first.
+        """
+        if self._peak_data is None:
+            raise ValueError(
+                f"Site {self._site_no}: no peak data to summarize; "
+                "call download_peak_flow() first"
+            )
+        return summarize_peaks(self._peak_data)
+
     def _site_metadata_from_waterdata(self) -> None:
         """Set the site attributes from the OGC ``monitoring-locations`` record.
 
@@ -1972,6 +1993,115 @@ def _download_peak_flow_rdb(
     )
     df["water_year"] = df["water_year"].astype(int)
     return df.reset_index(drop=True), station_name, drainage_area
+
+
+class PeakSummary(TypedDict):
+    """What :func:`summarize_peaks` returns."""
+
+    #: First water year with a row.
+    first: int
+    #: Last water year with a row.
+    last: int
+    #: Number of rows, whether or not each has a flow.
+    count: int
+    #: Largest peak flow in cfs, or None when no row has a flow.
+    max_cfs: Optional[float]
+    #: Date of that peak as ``YYYY-MM-DD``, or None when it has none.
+    max_date: Optional[str]
+
+
+def summarize_peaks(peaks: pd.DataFrame) -> PeakSummary:
+    """First and last water year, row count, and the largest peak of an annual peak record.
+
+    Parameters
+    ----------
+    peaks : pandas.DataFrame
+        :meth:`USGSgage.download_peak_flow` output: ``water_year`` and
+        ``peak_flow_cfs``, and ``peak_date`` if the date of the largest peak is wanted.
+
+    Returns
+    -------
+    PeakSummary
+        ``first``, ``last``, ``count``, ``max_cfs``, ``max_date``. ``count`` is the
+        number of rows, so a year reported without a flow is counted; ``max_cfs`` is
+        None when no row has a flow. Of two years tied for the largest peak, the
+        first in the frame gives ``max_date``.
+
+    Raises
+    ------
+    ValueError
+        For a frame with no rows, with no water year, or without the ``water_year``
+        and ``peak_flow_cfs`` columns.
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> peaks = pd.DataFrame(
+    ...     {
+    ...         "water_year": [2019, 2020, 2021],
+    ...         "peak_date": pd.to_datetime(["2019-02-23", "2020-01-12", "2021-03-28"]),
+    ...         "peak_flow_cfs": [8200.0, 15400.0, 9100.0],
+    ...     }
+    ... )
+    >>> summarize_peaks(peaks)
+    {'first': 2019, 'last': 2021, 'count': 3, 'max_cfs': 15400.0, 'max_date': '2020-01-12'}
+    """
+    missing = [c for c in ("water_year", "peak_flow_cfs") if c not in peaks.columns]
+    if missing:
+        raise ValueError(f"peaks has no {' or '.join(missing)} column")
+    years = peaks["water_year"].dropna()
+    if years.empty:
+        raise ValueError("peaks has no rows with a water year to summarize")
+    flows = peaks.dropna(subset=["peak_flow_cfs"])
+    max_cfs: Optional[float] = None
+    max_date: Optional[str] = None
+    if not flows.empty:
+        # argmax, like idxmax, takes the first of a tie.
+        top = int(flows["peak_flow_cfs"].to_numpy(dtype=float).argmax())
+        max_cfs = float(flows["peak_flow_cfs"].iloc[top])
+        when = flows["peak_date"].iloc[top] if "peak_date" in flows.columns else None
+        if when is not None and pd.notna(when):
+            max_date = pd.Timestamp(when).strftime("%Y-%m-%d")
+    return {
+        "first": int(years.min()),
+        "last": int(years.max()),
+        "count": int(len(peaks)),
+        "max_cfs": max_cfs,
+        "max_date": max_date,
+    }
+
+
+def record_years(start: Optional[str], end: Optional[str]) -> Optional[float]:
+    """Length of a period of record in years, from its first and last dates.
+
+    Parameters
+    ----------
+    start, end : str, optional
+        Dates as ``YYYY-MM-DD``, as :attr:`USGSgage.daily_por_start` and
+        :attr:`USGSgage.daily_por_end` give them.
+
+    Returns
+    -------
+    float or None
+        Days between the two divided by 365.25, or None when either is missing.
+        It is the span, not the record's length with gaps taken out.
+
+    Raises
+    ------
+    ValueError
+        If a date cannot be read, or ``end`` is before ``start``.
+
+    Examples
+    --------
+    >>> round(record_years("1990-10-01", "2020-10-01"), 3)
+    30.001
+    """
+    if not start or not end:
+        return None
+    days = (pd.Timestamp(end) - pd.Timestamp(start)).days
+    if days < 0:
+        raise ValueError(f"end {end} is before start {start}")
+    return float(days / 365.25)
 
 
 def fetch_nwis_peaks(site_no: str, backend: str = DEFAULT_BACKEND) -> List[Dict]:

@@ -27,6 +27,8 @@ from flowfreq.usgs import (
     _parse_peak_dt,
     fetch_nwis_batch,
     fetch_nwis_peaks,
+    record_years,
+    summarize_peaks,
 )
 from tests.fixtures.nwis_rdb import (
     DV_BASIC,
@@ -833,6 +835,108 @@ def _ogc_location() -> dict:
 
 _PEAKS_OGC = "https://api.waterdata.usgs.gov/ogcapi/v1/collections/peaks/items"
 _LOCATIONS_OGC = "https://api.waterdata.usgs.gov/ogcapi/v1/collections/monitoring-locations"
+
+
+def _peak_frame() -> pd.DataFrame:
+    return pd.DataFrame(
+        {
+            "water_year": [1897, 1919, 1927, 2010],
+            "peak_date": pd.to_datetime(["1897-03-20", "1919-01-03", "1927-04-16", "2010-05-03"]),
+            "peak_flow_cfs": [25000.0, 21000.5, 18500.0, 22800.0],
+            "qualification_code": ["7", "", "", ""],
+        }
+    )
+
+
+class TestSummarizePeaks:
+    """``summarize_peaks`` and ``USGSgage.peak_summary``."""
+
+    def test_years_count_and_the_largest_peak(self) -> None:
+        assert summarize_peaks(_peak_frame()) == {
+            "first": 1897,
+            "last": 2010,
+            "count": 4,
+            "max_cfs": 25000.0,
+            "max_date": "1897-03-20",
+        }
+
+    def test_the_flow_is_not_truncated(self) -> None:
+        peaks = _peak_frame().iloc[1:2]
+        assert summarize_peaks(peaks)["max_cfs"] == 21000.5
+
+    def test_a_year_without_a_flow_is_counted_but_is_not_the_largest(self) -> None:
+        peaks = _peak_frame()
+        peaks.loc[0, "peak_flow_cfs"] = float("nan")
+        summary = summarize_peaks(peaks)
+        assert (summary["first"], summary["count"]) == (1897, 4)
+        assert (summary["max_cfs"], summary["max_date"]) == (22800.0, "2010-05-03")
+
+    def test_no_flow_at_all_leaves_the_largest_peak_empty(self) -> None:
+        peaks = _peak_frame()
+        peaks["peak_flow_cfs"] = float("nan")
+        summary = summarize_peaks(peaks)
+        assert summary["max_cfs"] is None and summary["max_date"] is None
+        assert (summary["first"], summary["last"], summary["count"]) == (1897, 2010, 4)
+
+    def test_the_largest_peak_without_a_date(self) -> None:
+        peaks = _peak_frame()
+        peaks.loc[0, "peak_date"] = pd.NaT
+        summary = summarize_peaks(peaks)
+        assert summary["max_cfs"] == 25000.0 and summary["max_date"] is None
+        assert summarize_peaks(_peak_frame().drop(columns="peak_date"))["max_date"] is None
+
+    def test_a_tie_takes_the_first_in_the_frame(self) -> None:
+        peaks = _peak_frame()
+        peaks.loc[3, "peak_flow_cfs"] = 25000.0
+        assert summarize_peaks(peaks)["max_date"] == "1897-03-20"
+
+    def test_the_values_are_plain_python(self) -> None:
+        summary = summarize_peaks(_peak_frame())
+        assert type(summary["first"]) is int and type(summary["count"]) is int
+        assert type(summary["max_cfs"]) is float
+        json.dumps(summary)
+
+    def test_an_empty_record_is_refused(self) -> None:
+        with pytest.raises(ValueError, match="no rows with a water year"):
+            summarize_peaks(_peak_frame().iloc[0:0])
+
+    def test_a_frame_that_is_not_a_peak_record_is_refused(self) -> None:
+        with pytest.raises(ValueError, match="no peak_flow_cfs column"):
+            summarize_peaks(_peak_frame().drop(columns="peak_flow_cfs"))
+        with pytest.raises(ValueError, match="no water_year or peak_flow_cfs column"):
+            summarize_peaks(pd.DataFrame({"flow_cfs": [1.0]}))
+
+    def test_the_gage_summarizes_its_own_peaks(self) -> None:
+        gage = USGSgage("03606500")
+        gage.peak_data = _peak_frame()
+        assert gage.peak_summary() == summarize_peaks(_peak_frame())
+
+    def test_the_gage_makes_no_request_for_it(self) -> None:
+        gage = USGSgage("03606500")
+        with patch("flowfreq.usgs.requests.get") as get:
+            with pytest.raises(ValueError, match="03606500.*download_peak_flow"):
+                gage.peak_summary()
+        get.assert_not_called()
+
+
+class TestRecordYears:
+    def test_the_span_in_years(self) -> None:
+        # 10958 days: thirty years with eight leap days.
+        assert record_years("1990-10-01", "2020-10-01") == pytest.approx(10958 / 365.25)
+        assert record_years("2020-01-01", "2020-01-01") == 0.0
+        assert record_years("1929-10-01", "2025-09-30") == pytest.approx(95.997, abs=1e-3)
+
+    @pytest.mark.parametrize("start, end", [(None, "2020-10-01"), ("1990-10-01", None), ("", "")])
+    def test_a_missing_date_gives_no_length(self, start, end) -> None:
+        assert record_years(start, end) is None
+
+    def test_an_end_before_the_start_is_refused(self) -> None:
+        with pytest.raises(ValueError, match="2019-10-01 is before start 2020-10-01"):
+            record_years("2020-10-01", "2019-10-01")
+
+    def test_an_unreadable_date_is_refused(self) -> None:
+        with pytest.raises(ValueError):
+            record_years("not a date", "2020-10-01")
 
 
 class TestDownloadPeakFlowBackends:
