@@ -32,12 +32,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **`flowfreq-mcp`**: the report tools as a Model Context Protocol server, so a chat client (Claude Code, Claude
   Desktop) builds a report over a conversation (`docs/CHAT_REPORTS.md`; new `mcp` extra, `pip install
-  "flowfreq[mcp]"`). Sixteen tools: `find_gage`, `run_ffa`, `estimate_ungaged`, `estimate_from_characteristics`,
-  `weight_gage_with_regression`, text and narrative editing, `get_section`, outline and ordering, `render_report`
+  "flowfreq[mcp]"`). Seventeen tools: `find_gage`, `run_ffa`, `estimate_ungaged`, `estimate_from_characteristics`,
+  `weight_gage_with_regression`, `transpose_gage_to_site`, text and narrative editing, `get_section`, outline and
+  ordering, `render_report`
   (DOCX or Markdown, with the specification beside it), `save_report` and `load_report`. flowfreq computes every
   table and figure; the model's prose is a narrative that prints as a draft until marked reviewed, and a narrative
   with a table or a heading is refused. An analysis's refusal reaches the model as an error naming the reason.
   Files are named inside one output directory (`--dir`, or `$FLOWFREQ_REPORT_DIR`), never given by path.
+- **Report section `transposed`**: a gage's Bulletin 17C quantiles carried to an ungaged site on the same stream by
+  the drainage-area ratio (`transpose_frequency`). Inputs are the `donor` (the `gaged_ffa` inputs), the
+  `target_area_sqmi` and the `exponents` with their `citation`, as one `exponent` or as `aeps` with `exponents`.
+  The table gives, per AEP, the gage's flow, the exponent and whether it was published, interpolated or
+  extrapolated, the factor applied, and the transposed flow with the donor's confidence limits scaled; the caveats
+  `TransposedResults.to_markdown()` writes follow it, with one more when an area is outside the range the cited
+  regression was developed over. `ReportSession.transpose` and the MCP tool `transpose_gage_to_site` add it from
+  a gage section already in the report. An area ratio outside 0.5 to 1.5 and a regulation mismatch are refused
+  unless allowed, as in `flowfreq.transpose`.
   Behind it, **`flowfreq.reporting.ReportSession`** builds a report a section at a time with stable section ids,
   and **`flowfreq.catalog.search`** finds gages by station-number prefix or words from the station name.
 

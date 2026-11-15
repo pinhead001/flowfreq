@@ -152,7 +152,7 @@ class TestShortCitation:
 
 class TestBuildSection:
     def test_kinds_registered(self):
-        assert set(SECTION_KINDS) == {"text", "gaged_ffa", "ungaged", "weighted"}
+        assert set(SECTION_KINDS) == {"text", "gaged_ffa", "ungaged", "weighted", "transposed"}
         assert all(kind.summary for kind in SECTION_KINDS.values())
 
     def test_unknown_kind(self):

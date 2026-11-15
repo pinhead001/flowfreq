@@ -289,8 +289,14 @@ analysis and lays out what it returns, so a quantile in a report is the one `run
   `weighted` takes a `gage` (the `gaged_ffa` inputs) and a `regression` (the `ungaged`
   inputs, at the gage) and weights the two by inverse variance (Bulletin 17C Appendix 9):
   the weighted table, then both analyses unless `detail` is false. It refuses a basin in
-  more than one region, whose area-weighted flow has no variance of prediction. `text` is
-  a titled section of prose.
+  more than one region, whose area-weighted flow has no variance of prediction.
+  `transposed` takes a `donor` (the `gaged_ffa` inputs), a `target_area_sqmi` and
+  `exponents` (a `citation`, and either one `exponent` or `aeps` with `exponents`), and
+  carries the gage's quantiles to an ungaged site on the same stream by the drainage-area
+  ratio (`flowfreq.transpose.transpose_frequency`): per AEP the gage's flow, the exponent
+  and whether it was published, interpolated or extrapolated, the factor and the transposed
+  flow with the donor's limits scaled, then the caveats and, unless `detail` is false, the
+  analysis at the gage. `text` is a titled section of prose.
 - **The spec as built is the record.** Give a `site_no` and the peaks are downloaded; give
   `regional_skew_state` or `regional_skew_from_site` and the skew is looked up. Both are
   written into `report.spec` as values, with the retrieval date and the citation, and the
@@ -327,7 +333,7 @@ The model calls `find_gage`, `run_ffa`, `estimate_from_characteristics`,
 `weight_gage_with_regression`, `edit_narrative` and `render_report`; flowfreq computes
 every table and figure, and what the model writes is narrative that prints as a draft
 until you mark it reviewed. `flowfreq.reporting.ReportSession` is the same thing from
-Python. Client configuration, the sixteen tools and the rules the server holds the model
+Python. Client configuration, the seventeen tools and the rules the server holds the model
 to are in [docs/CHAT_REPORTS.md](docs/CHAT_REPORTS.md).
 
 ## Module Overview
