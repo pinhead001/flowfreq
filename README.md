@@ -283,12 +283,23 @@ analysis and lays out what it returns, so a quantile in a report is the one `run
   optional inputs. `gaged_ffa` is Bulletin 17C at a gage: the record, the method as applied
   (skew source with its citation, low-outlier screening, perception thresholds, peak codes),
   fitted parameters, quantiles with 90-percent confidence limits, the frequency curve, the
-  stationarity screen and the peaks. `ungaged` is the regional regression from basin
-  characteristics you supply. `text` is a titled section of prose.
+  stationarity screen and the peaks. `ungaged` is the regional regression at a point: give
+  `characteristics` and `region`, or neither and StreamStats delineates the basin.
+  `weighted` takes a `gage` (the `gaged_ffa` inputs) and a `regression` (the `ungaged`
+  inputs, at the gage) and weights the two by inverse variance (Bulletin 17C Appendix 9):
+  the weighted table, then both analyses unless `detail` is false. It refuses a basin in
+  more than one region, whose area-weighted flow has no variance of prediction. `text` is
+  a titled section of prose.
 - **The spec as built is the record.** Give a `site_no` and the peaks are downloaded; give
   `regional_skew_state` or `regional_skew_from_site` and the skew is looked up. Both are
   written into `report.spec` as values, with the retrieval date and the citation, and the
-  saved file builds the same tables and figures with no network.
+  saved file builds the same tables and figures with no network. An `ungaged` section
+  without `characteristics` is stored the same way: every characteristic StreamStats
+  returned, the regions with their percent of the basin, and a `streamstats` record (date,
+  snapped point, delineated area, what it warned of or set aside). The section is computed
+  from those stored values, and is refused if they don't reproduce the StreamStats
+  estimate. Its table lists the characteristics the equations use; `all_characteristics`
+  lists every one.
 - **Narrative.** A section's `narrative` is prose placed after its computed content:
   paragraphs and bullet lists only, so a table in a report always comes from flowfreq. It
   prints under "Draft narrative (written by a language model; not reviewed)" until

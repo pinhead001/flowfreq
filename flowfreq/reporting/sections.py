@@ -18,7 +18,7 @@ from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple
 import numpy as np
 import pandas as pd
 
-from .blocks import Block, Figure, Heading, Paragraph, Table, parse_markdown, without_title
+from .blocks import Block, Bullets, Figure, Heading, Paragraph, Table, parse_markdown, without_title
 from .spec import ReportError
 
 #: The reference every Bulletin 17C section cites.
@@ -336,6 +336,11 @@ def _threshold_rows(thresholds: Any) -> List[Dict[str, Any]]:
 
 
 def _build_gaged_ffa(given: Dict[str, Any]) -> SectionContent:
+    return _gaged_ffa(given)[0]
+
+
+def _gaged_ffa(given: Dict[str, Any]) -> Tuple[SectionContent, Any]:
+    """The gaged section and the fitted ``Bulletin17C`` behind it."""
     from ..freq_plot import plot_frequency_curve, plot_peak_flows_with_thresholds
     from ..workflow import run_ffa
 
@@ -621,27 +626,223 @@ def _build_gaged_ffa(given: Dict[str, Any]) -> SectionContent:
     references = [BULLETIN_17C]
     if p["regional_skew_source"] == "user" and options.get("regional_skew_citation"):
         references.append(str(options["regional_skew_citation"]))
-    return SectionContent(title=title, blocks=blocks, options=options, references=references)
+    content = SectionContent(title=title, blocks=blocks, options=options, references=references)
+    return content, b17c
 
 
 # -- ungaged: regression from characteristics ---------------------------------------------
 
 
-def _build_ungaged(given: Dict[str, Any]) -> SectionContent:
+_STREAMSTATS_KEYS = (
+    "retrieved",
+    "snapped_lat",
+    "snapped_lon",
+    "snap_distance_m",
+    "polygon_area_sq_mi",
+    "regions_located",
+    "region_choice",
+    "notes",
+)
+
+
+def _streamstats_notes(estimate: Any) -> List[str]:
+    """What the StreamStats run set aside or warned of, which the stored inputs alone lose."""
+    provenance = estimate.provenance
+    notes: List[str] = []
+    if provenance.get("region_choice_source"):
+        notes.append(f"Region choice: {provenance['region_choice_source']}.")
+    alternatives = provenance.get("alternative_regions") or []
+    if alternatives:
+        notes.append(
+            "Alternative NSS equation sets for the same area, not used: "
+            + "; ".join(
+                f"{a['code']} ({a['name']}): {a['citation'] or 'citation unknown'}"
+                for a in alternatives
+            )
+            + "."
+        )
+    if estimate.unmatched_regions:
+        notes.append(
+            "Located by NSS but not in the library, so excluded and the area fractions "
+            "renormalised: "
+            + ", ".join(
+                f"{r.code} ({r.name}, {r.percent_weight:g} percent)"
+                for r in estimate.unmatched_regions
+            )
+            + "."
+        )
+    missing = provenance.get("missing_characteristics") or {}
+    if missing:
+        notes.append(
+            "Regions skipped because StreamStats returned no value for a characteristic "
+            "their equations need: "
+            + "; ".join(f"{code} needs {', '.join(codes)}" for code, codes in missing.items())
+            + "."
+        )
+    zero_weight = provenance.get("zero_weight_regions") or []
+    if zero_weight:
+        notes.append(
+            "Regions NSS located at 0 percent of the basin (an overlap under half a percent), "
+            "dropped: " + ", ".join(zero_weight) + "."
+        )
+    advisories = (provenance.get("delineation") or {}).get("advisories") or []
+    if advisories:
+        notes.append(
+            "StreamStats warned about this basin: "
+            + "; ".join(str(a) for a in advisories)
+            + ". The regression equations may not represent it; check against local data."
+        )
+    return notes
+
+
+def _same_quantiles(a: pd.DataFrame, b: pd.DataFrame) -> bool:
+    if len(a) != len(b):
+        return False
+    return all(
+        np.allclose(
+            a[column].to_numpy(dtype=float),
+            b[column].to_numpy(dtype=float),
+            rtol=1e-9,
+            atol=0.0,
+            equal_nan=True,
+        )
+        for column in ("aep", "flow_cfs", "lower", "upper")
+    )
+
+
+def _freeze_streamstats(options: Dict[str, Any], lat: float, lon: float) -> None:
+    """Delineate the site with StreamStats and write what it returned into the options.
+
+    Afterwards the options hold the basin characteristics, the regions with their percent
+    of the basin and a ``streamstats`` record of the run, so the section rebuilds from
+    them without StreamStats. The estimate the stored inputs give is checked against the
+    one StreamStats gave, since the report shows the former.
+    """
+    from ..ungaged import estimate_at_site, estimate_from_characteristics
+
+    chosen = options.get("region")
+    if chosen is not None and not isinstance(chosen, (str, list)):
+        raise ReportError(
+            "ungaged: without characteristics, region is the choice among overlapping NSS "
+            "regions: a code or a list of codes"
+        )
+    snapshot = bool(options.get("allow_nss_snapshot", False))
+    provisional = bool(options.get("allow_provisional", False))
+    extrapolate = bool(options.get("allow_extrapolation", False))
+    live = estimate_at_site(
+        lat,
+        lon,
+        state=str(options["state"]),
+        aeps=options.get("aeps"),
+        weighting_space=options.get("weighting_space"),
+        region=chosen,
+        allow_nss_snapshot=snapshot,
+        allow_provisional=provisional,
+        allow_extrapolation=extrapolate,
+    )
+    total = sum(r.percent_weight for r in live.regions)
+    if not live.regions or total <= 0:
+        raise ReportError("ungaged: StreamStats located no regression region the library has")
+    regions: Dict[str, float] = {}
+    for r in live.regions:
+        code = live.region_codes.get(r.code, r.code)
+        regions[code] = regions.get(code, 0.0) + 100.0 * r.percent_weight / total
+    characteristics = {str(code): float(value) for code, value in live.characteristics.items()}
+    stored = estimate_from_characteristics(
+        str(options["state"]),
+        characteristics,
+        region=regions,
+        lat=lat,
+        lon=lon,
+        aeps=options.get("aeps"),
+        weighting_space=options.get("weighting_space"),
+        allow_nss_snapshot=snapshot,
+        allow_provisional=provisional,
+        allow_extrapolation=extrapolate,
+    )
+    if not _same_quantiles(live.quantiles, stored.quantiles):
+        raise ReportError(
+            "ungaged: the estimate from the characteristics and regions StreamStats returned "
+            "does not reproduce the StreamStats estimate itself, so the section cannot be "
+            "stored faithfully. Give characteristics and region yourself instead."
+        )
+    snap = live.provenance.get("snap") or {}
+    delineation = live.provenance.get("delineation") or {}
+    record: Dict[str, Any] = {
+        "retrieved": _dt.date.today().isoformat(),
+        "snapped_lat": snap.get("snapped_lat"),
+        "snapped_lon": snap.get("snapped_lon"),
+        "snap_distance_m": snap.get("distance_m"),
+        "polygon_area_sq_mi": delineation.get("polygon_area_sq_mi"),
+        "regions_located": [
+            {"code": r.code, "name": r.name, "percent": round(float(r.percent_weight), 6)}
+            for r in live.regions
+        ],
+        "notes": _streamstats_notes(live),
+    }
+    if chosen is not None:
+        record["region_choice"] = chosen
+    options["characteristics"] = characteristics
+    options["region"] = regions
+    options["streamstats"] = record
+
+
+def _streamstats_record(options: Mapping[str, Any]) -> Optional[Dict[str, Any]]:
+    record = options.get("streamstats")
+    if record is None:
+        return None
+    if not isinstance(record, dict):
+        raise ReportError("ungaged: streamstats must be an object")
+    extra = sorted(set(record) - set(_STREAMSTATS_KEYS))
+    if extra:
+        raise ReportError(
+            f"ungaged: unknown streamstats key(s) {', '.join(extra)}; "
+            f"allowed: {', '.join(_STREAMSTATS_KEYS)}"
+        )
+    notes = record.get("notes") or []
+    if not isinstance(notes, list) or any(not isinstance(n, str) for n in notes):
+        raise ReportError("ungaged: streamstats notes must be a list of sentences")
+    return record
+
+
+def _used_codes(estimate: Any) -> List[str]:
+    """The characteristic codes the equations used read, in the order first met."""
+    codes: List[str] = []
+    for per_region in estimate.estimates.values():
+        for _, each in per_region:
+            for variable in (*each.equation.variables, *each.equation.applicability):
+                if variable.code not in codes:
+                    codes.append(variable.code)
+    return codes
+
+
+def _ungaged(given: Dict[str, Any]) -> Tuple[SectionContent, Any]:
+    """The ungaged section and the estimate behind it."""
     from ..ungaged import estimate_from_characteristics
 
     options = dict(given)
+    try:
+        lat, lon = float(options["lat"]), float(options["lon"])
+    except (TypeError, ValueError) as exc:
+        raise ReportError(f"ungaged: lat and lon must be numbers: {exc}") from exc
+    if options.get("characteristics") is None:
+        if options.get("streamstats") is not None:
+            raise ReportError("ungaged: a streamstats record needs the characteristics it gave")
+        _freeze_streamstats(options, lat, lon)
+    record = _streamstats_record(options)
     characteristics = options["characteristics"]
     if not isinstance(characteristics, dict) or not characteristics:
         raise ReportError("ungaged: characteristics must be an object of code to value")
-    region = options["region"]
+    region = options.get("region")
     if not isinstance(region, (str, dict)):
-        raise ReportError("ungaged: region must be a region code or an object of code to percent")
+        raise ReportError(
+            "ungaged: with characteristics, region must be a region code or an object of "
+            "code to percent"
+        )
     try:
         values = {str(code): float(value) for code, value in characteristics.items()}
-        lat, lon = float(options["lat"]), float(options["lon"])
     except (TypeError, ValueError) as exc:
-        raise ReportError(f"ungaged: characteristics, lat and lon must be numbers: {exc}") from exc
+        raise ReportError(f"ungaged: characteristics must be numbers: {exc}") from exc
     estimate = estimate_from_characteristics(
         str(options["state"]),
         values,
@@ -656,16 +857,51 @@ def _build_ungaged(given: Dict[str, Any]) -> SectionContent:
     )
     heading, body = without_title(parse_markdown(estimate.to_markdown()))
     site_name = options.get("site_name")
-    blocks: List[Block] = [
-        Paragraph(
+    if record is None:
+        opening = (
             "Flood quantiles were estimated from published regional regression equations, "
             "evaluated on basin characteristics supplied by the analyst. The computation was "
             f"made with flowfreq {_version()}; the characteristics were not measured by it."
         )
-    ]
+    else:
+        opening = (
+            "Flood quantiles were estimated from published regional regression equations, "
+            "evaluated on basin characteristics from USGS StreamStats"
+            + (f", retrieved {record['retrieved']}" if record.get("retrieved") else "")
+            + f". StreamStats delineated the basin above {lat:.5f}, {lon:.5f}"
+        )
+        if record.get("snapped_lat") is not None and record.get("snapped_lon") is not None:
+            opening += (
+                f", which it moved to {float(record['snapped_lat']):.5f}, "
+                f"{float(record['snapped_lon']):.5f} on its stream network"
+            )
+            if record.get("snap_distance_m") is not None:
+                opening += f" ({float(record['snap_distance_m']):,.0f} m away)"
+        if record.get("polygon_area_sq_mi") is not None:
+            opening += (
+                f"; the delineated basin is {float(record['polygon_area_sq_mi']):,.4g} "
+                "square miles"
+            )
+        opening += (
+            f". The computation was made with flowfreq {_version()} from the stored values, "
+            "so it does not change if StreamStats later does."
+        )
+    blocks: List[Block] = [Paragraph(opening)]
+    used = _used_codes(estimate)
+    show_all = record is None or bool(options.get("all_characteristics", False))
     for block in body:
         if isinstance(block, Table) and block.header and block.header[0] == "AEP (%)":
             block = replace(block, caption="Regression flood quantiles with prediction limits.")
+        elif isinstance(block, Table) and block.header == ("Code", "Value") and not show_all:
+            # StreamStats returns every characteristic it computes for the state.
+            block = replace(
+                block,
+                rows=tuple(row for row in block.rows if row[0] in used),
+                caption="Basin characteristics the equations use, from StreamStats.",
+            )
+        elif isinstance(block, Bullets) and block is body[-1] and record is not None:
+            # The caveats list is the last block; the stored notes belong in it.
+            block = replace(block, items=(*block.items, *(record.get("notes") or ())))
         blocks.append(block)
 
     references: List[str] = []
@@ -681,6 +917,105 @@ def _build_ungaged(given: Dict[str, Any]) -> SectionContent:
     title = (
         f"Regression estimate at {site_name}" if site_name else (heading or "Regression estimate")
     )
+    content = SectionContent(title=title, blocks=blocks, options=options, references=references)
+    return content, estimate
+
+
+def _build_ungaged(given: Dict[str, Any]) -> SectionContent:
+    return _ungaged(given)[0]
+
+
+# -- at-site fit weighted with the regression ---------------------------------------------
+
+
+def _nested(kind: str, name: str, value: Any) -> Dict[str, Any]:
+    """A nested section's options, checked against the kind they belong to."""
+    if not isinstance(value, dict):
+        raise ReportError(f"weighted: {name} must be an object of {kind} options")
+    SECTION_KINDS[kind].check(value)
+    return dict(value)
+
+
+def _build_weighted(given: Dict[str, Any]) -> SectionContent:
+    from ..gage_weighting import weight_with_regression
+
+    options = dict(given)
+    gage, b17c = _gaged_ffa(_nested("gaged_ffa", "gage", options["gage"]))
+    regression, estimate = _ungaged(_nested("ungaged", "regression", options["regression"]))
+    if len(estimate.regions) != 1:
+        raise ReportError(
+            f"weighted: the basin spans {len(estimate.regions)} regression regions, whose "
+            "area-weighted flow has no variance of prediction, so it cannot be weighted with "
+            "the at-site fit"
+        )
+    extrapolate = bool(options["regression"].get("allow_extrapolation", False))
+    frame = weight_with_regression(
+        b17c.results,
+        [per_region[0][1] for per_region in estimate.estimates.values()],
+        allow_extrapolated=extrapolate,
+    )
+    # The at-site fit has more AEPs than any regression publishes; those rows say nothing.
+    frame = frame[frame["regression_flow_cfs"].notna()]
+    if frame.empty:
+        raise ReportError("weighted: the regression and the at-site fit share no AEP")
+    if frame["weighted_flow_cfs"].isna().all():
+        raise ReportError(
+            "weighted: no AEP could be weighted: "
+            + "; ".join(sorted({str(note) for note in frame["note"] if note}))
+        )
+    noted = bool(frame["note"].astype(bool).any())
+    header = [
+        "Annual exceedance probability (percent)",
+        "At-site flow (cfs)",
+        "Regression flow (cfs)",
+        "Weight on the at-site flow",
+        "Weighted flow (cfs)",
+        "Lower 90-percent limit (cfs)",
+        "Upper 90-percent limit (cfs)",
+    ]
+    rows = []
+    for _, row in frame.iterrows():
+        weight = row["weight_at_site"]
+        cells = [
+            f"{row['aep'] * 100:.3g}",
+            cfs(row["flow_cfs"]),
+            cfs(row["regression_flow_cfs"]),
+            f"{weight:.2f}" if math.isfinite(weight) else "-",
+            cfs(row["weighted_flow_cfs"]),
+            cfs(row["weighted_lower_cfs"]),
+            cfs(row["weighted_upper_cfs"]),
+        ]
+        if noted:
+            cells.append(str(row["note"]))
+        rows.append(tuple(cells))
+    if noted:
+        header.append("Note")
+    blocks: List[Block] = [
+        Paragraph(
+            "The at-site flood quantiles were weighted with the regional regression estimates "
+            "by the inverse of their variances, in log10 of flow, following Bulletin 17C "
+            "Appendix 9 (England and others, 2019). The at-site variance is the variance of "
+            "the fitted quantile and the regression's is its variance of prediction, so the "
+            "estimate with the smaller variance carries the larger weight. The weighted limits "
+            "treat the two estimates as independent. The computation was made with flowfreq "
+            f"{_version()}."
+        ),
+        Table(
+            tuple(header),
+            tuple(rows),
+            (*("right",) * 7, *(("left",) if noted else ())),
+            "At-site and regression flood quantiles and their weighted estimate.",
+        ),
+    ]
+    if bool(options.get("detail", True)):
+        blocks.append(Heading(2, "At-site analysis"))
+        blocks.extend(_demote(gage.blocks))
+        blocks.append(Heading(2, "Regression estimate"))
+        blocks.extend(_demote(regression.blocks))
+    references = list(gage.references)
+    references.extend(r for r in regression.references if r not in references)
+    options["gage"], options["regression"] = gage.options, regression.options
+    title = gage.title.replace("Flood frequency", "Weighted flood frequency", 1)
     return SectionContent(title=title, blocks=blocks, options=options, references=references)
 
 
@@ -730,11 +1065,17 @@ SECTION_KINDS: Dict[str, SectionKind] = {
         SectionKind(
             name="ungaged",
             summary=(
-                "Regional regression estimate at an ungaged site from basin characteristics "
-                "the analyst supplies: regions, inputs, quantiles with prediction limits, caveats."
+                "Regional regression estimate at an ungaged site: regions, inputs, quantiles "
+                "with prediction limits, caveats. The basin characteristics and region are "
+                "the analyst's, or come from StreamStats when none are given and are then "
+                "stored in the specification."
             ),
-            required=("state", "characteristics", "region", "lat", "lon"),
+            required=("state", "lat", "lon"),
             optional=(
+                "characteristics",
+                "region",
+                "streamstats",
+                "all_characteristics",
                 "site_name",
                 "aeps",
                 "allow_nss_snapshot",
@@ -743,6 +1084,16 @@ SECTION_KINDS: Dict[str, SectionKind] = {
                 "weighting_space",
             ),
             build=_build_ungaged,
+        ),
+        SectionKind(
+            name="weighted",
+            summary=(
+                "A gage's Bulletin 17C quantiles weighted with the regional regression at the "
+                "gage (Bulletin 17C Appendix 9): the weighted table, then both analyses."
+            ),
+            required=("gage", "regression"),
+            optional=("detail",),
+            build=_build_weighted,
         ),
     )
 }
