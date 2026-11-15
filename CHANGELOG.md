@@ -36,6 +36,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   not smoothed, and the module holds no geometry, so measuring a point's distance to a state line is the
   caller's.
 
+### Changed
+- **Twelve more states average a multi-region basin in flow**, as their reports do: Arizona, California,
+  Colorado, Florida, Georgia, Iowa, Montana, Nevada, New Jersey, New York, North Carolina and South Carolina
+  now set `weighting_space` to `linear`, as does Colorado's set awaiting NSS (SIR 2025-5047). An estimate for a
+  basin spanning two regions in one of them changes, upward, since an average in flow is never below the
+  average in log: New York's Genesee River example gives 79,900 ft3/s rather than about 74,800, Nevada's
+  equation 6 example 1,680 rather than about 1,210, and Montana's 391 rather than 389. A basin in one region
+  is unchanged, and a caller's `weighting_space` still overrides. Each file's notes cite the page. Florida's
+  and New Jersey's reports give the rule in words only ("weighted on the percentage of drainage area in each
+  flood region"), with no equation or example to confirm the reading. Montana's reports limit the rule to
+  AEPs above 4 percent for a basin running from the Northwest region into the Northwest Foothills; the library
+  does not check for that pair. The other verified states' reports say nothing on such basins and keep the
+  average in log (TODO.md lists which were read).
+
 ### Removed
 - `.bumpversion.cfg` and the `bump2version` dev dependency. The config was stuck at 0.7.0 and no bump has used it
   since; versions are edited by hand in the release and dev-bump PRs (CLAUDE.md, Branches and Releases).
