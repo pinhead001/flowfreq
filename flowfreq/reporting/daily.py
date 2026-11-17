@@ -67,7 +67,8 @@ def download_daily(
         ``daily`` (the inline record: ``start``, the first day as ``YYYY-MM-DD``;
         ``flow_cfs``, one value per calendar day from ``start`` with ``None`` where the
         record has none; ``source``; ``retrieved``), ``site_name`` and
-        ``drainage_area_sqmi`` (either may be None).
+        ``drainage_area_sqmi`` (from the download, else flowfreq's gage catalog; either may
+        be None).
 
     Raises
     ------
@@ -100,9 +101,29 @@ def download_daily(
             "source": f"USGS Water Data API daily mean flow, site {gage.site_no}",
             "retrieved": _dt.date.today().isoformat(),
         },
-        "site_name": gage.site_name,
-        "drainage_area_sqmi": gage.drainage_area,
+        **_station_attributes(gage),
     }
+
+
+def _station_attributes(gage: Any) -> Dict[str, Any]:
+    """The station's name and drainage area: the gage's own, else the shipped catalog's.
+
+    The daily download does not always carry them, and the catalog needs no request. It
+    lists gages with annual peaks, so either may still be None.
+    """
+    name, area = gage.site_name, gage.drainage_area
+    if name is None or area is None:
+        from ..catalog import load_catalog
+
+        catalog = load_catalog()
+        rows = catalog[catalog["site_no"].astype(str) == str(gage.site_no)]
+        if not rows.empty:
+            row = rows.iloc[0]
+            if name is None and pd.notna(row["site_name"]):
+                name = str(row["site_name"])
+            if area is None and pd.notna(row["drainage_area_sqmi"]):
+                area = float(row["drainage_area_sqmi"])
+    return {"site_name": name, "drainage_area_sqmi": area}
 
 
 def _date(owner: str, name: str, value: Any) -> pd.Timestamp:
