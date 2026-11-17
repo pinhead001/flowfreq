@@ -43,6 +43,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `flowfreq.reporting.download_daily`, `ReportSession.future_flow`, and three `flowfreq-mcp` tools
   (`low_flow_frequency`, `flow_duration`, `apply_future_change_factors`), which makes twenty-one.
 
+- **Montana: a caution on weighting the Northwest region with the Northwest Foothills.** SIR 2015-5019-F (p. 13)
+  says that for a basin whose upstream part is in the Northwest region and downstream part in the Northwest
+  Foothills, weighting the two regions' estimates by drainage area is appropriate only for AEPs greater than 4
+  percent. An estimate that weights `NW` with `NWF` now says so in `advisory`, naming the AEPs at 4 percent and
+  rarer, and records it in `provenance["weighting_cautions"]`. No flow changes: every AEP is still weighted. New:
+  `StateLibrary.weighting_cautions` (`WeightingCaution`), read from a state file's `weighting_cautions`.
+
 - **`flowfreq-mcp`**: the report tools as a Model Context Protocol server, so a chat client (Claude Code, Claude
   Desktop) builds a report over a conversation (`docs/CHAT_REPORTS.md`; new `mcp` extra, `pip install
   "flowfreq[mcp]"`). Eighteen tools: `find_gage`, `run_ffa`, `estimate_ungaged`, `estimate_from_characteristics`,

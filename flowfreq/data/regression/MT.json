@@ -14472,5 +14472,13 @@
       }
     }
   },
-  "weighting_space": "linear"
+  "weighting_space": "linear",
+  "weighting_cautions": [
+    {
+      "regions": ["NW", "NWF"],
+      "aep_at_or_below": 0.04,
+      "text": "This basin spans Montana's Northwest and Northwest Foothills hydrologic regions. SIR 2015-5019-F (p. 13, citing Parrett and Johnson, 2004) says that where the upstream part of a basin is in the Northwest region and the downstream part in the Northwest Foothills, weighting the two regions' estimates by drainage area is appropriate only for AEPs greater than 4 percent, because some large peaks that originate in the Northwest region attenuate downstream. The flows here are weighted at every AEP all the same; at 4 percent and rarer, judge them against the basin and both regions' separate estimates.",
+      "source": "SIR 2015-5019-F ver. 1.1, p. 13"
+    }
+  ]
 }

@@ -15,6 +15,7 @@ A StreamStats developer traced an NSS `bylocation` slowdown to `tools/border_qa.
 a query running after the client disconnects, and the client's 60-second timeout and retries ran one slow basin's
 query up to nine times at once. They lift the block after talking with the owner (on the issue, or
 streamstats@usgs.gov), and asked that border_qa and any automated `bylocation` jobs stay paused until then. The
+owner replied on the issue on 2026-11-15; no answer yet. The
 client side is fixed (no retry on a `bylocation` timeout, a 200 s timeout, one call at a time with a pause; see
 CHANGELOG). Nothing below that needs StreamStats can run until the block is lifted; then retest at TN 03465500 or
 AL 02342500 with a single request, not a loop.
@@ -45,8 +46,9 @@ Owner's:
    report, not in NSS) needs. If it does, verify and store that report.
 7. **LA's southern gap** uses the 1998 Non-Pine Hills set (TR 60, NSS GC879) when NSS locates no current region,
    with a caution and no interval (`fallback_region`). OH 2006-5312, TN 03-4176 and LA's Delta stay dropped.
-8. Issue #293 is closed (2026-11-11). **Issue #365 (StreamStats block, above) is open and unanswered since
-   2026-11-09**; it was missed until 2026-11-15. Answering it is the owner's.
+8. Issue #293 is closed (2026-11-11). **Issue #365 (StreamStats block, above):** the owner answered on
+   2026-11-15, describing the client fix (#384) and asking for the block to be lifted. StreamStats had not replied
+   by 2026-11-16. No StreamStats request from here until they do and the owner says so.
 9. Open the app in a browser: the resizable period grips (app #24), and app #42-#45 (raster hydrograph, basin
    changes, the Bulletin 17C curve, the characteristics form) have never run in one here. The same holds for
    the open app #47-#52, which were checked with Streamlit's AppTest only.
@@ -58,7 +60,9 @@ Library follow-ups the batches found, none changed:
     `linear`: SD, WY, KY, and since 2026-11-15 AZ, CA, CO (also the set awaiting NSS), FL, GA, IA, MT, NC, NJ,
     NV, NY, SC. FL and NJ give the rule in words only. Still open:
     - MT limits the rule to AEPs above 4 percent for a basin running from the Northwest region into the
-      Northwest Foothills (SIR 2015-5019-F p. 13). The library weights at every AEP and gives no caution.
+      Northwest Foothills (SIR 2015-5019-F p. 13). Done 2026-11-16: the library still weights at every AEP, and
+      an estimate weighting NW with NWF carries a caution naming the AEPs at 4 percent and rarer
+      (`weighting_cautions` in `MT.json`). The channel-width sets (SIR 2020-5142) weren't read for the rule.
     - Read 2026-11-15 and silent on such basins, so left in log: AK, AL (2020 and 2010), AR, CT, DE (2022 and
       2006), HI, ID, KS, LA, MA, ME, MI, MN (2023 and 2019), MO (2014 and 2010), MS, ND, NE, NH, NM (2008), OH,
       OK, OR (SIR 2005-5116), PA, PR, RI, TN, TX, UT (SIR 2007-5158), VA and WV (SIR 2025-5110), VT, WA, WI.
