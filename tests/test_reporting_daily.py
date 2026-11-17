@@ -306,6 +306,23 @@ class TestDownload:
             built.blocks, FLOW_DURATION_CAPTION
         )
 
+    def test_the_catalog_names_a_station_the_download_does_not(self, monkeypatch):
+        class Unnamed:
+            def __init__(self, site_no: str) -> None:
+                self.site_no = site_no
+                self.site_name = None
+                self.drainage_area = None
+
+            def download_daily_flow(self, **kwargs: Any) -> Any:
+                return FRAME
+
+        monkeypatch.setattr("flowfreq.usgs.USGSgage", Unnamed)
+        known = download_daily("03606500")
+        assert "BIG SANDY" in known["site_name"].upper()
+        assert known["drainage_area_sqmi"] == pytest.approx(205.0, rel=0.02)
+        unknown = download_daily("00000000")
+        assert unknown["site_name"] is None and unknown["drainage_area_sqmi"] is None
+
     def test_a_failed_download_is_a_refusal(self, monkeypatch):
         class Broken:
             def __init__(self, site_no: str) -> None:

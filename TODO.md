@@ -138,9 +138,11 @@ page in the app was dropped, since only the owner chats. Not yet done:
 - Open a DOCX in Word. The tests read each one back with python-docx, which checks structure, not layout.
 - Run the tools that reach a service: `find_gage` and `run_ffa` against the Water Data API with no peaks
   supplied, and `estimate_ungaged` against StreamStats (refused, as above). The tests stub every request.
-- The section kinds `low_flow`, `flow_duration` and `future_flow` (2026-11-16) were built against a
-  synthetic daily record and made-up factors. None has run against a real gage's daily flows, and
-  no monthly statistics, summary hydrograph or baseflow section exists.
+- The section kinds `low_flow`, `flow_duration` and `future_flow` (2026-11-16): the tests use a synthetic
+  daily record and made-up factors. `low_flow` and `flow_duration` were also built once from the Water Data
+  API at USGS 03606500 (80 years used, 18 left out as incomplete; 7Q10 37.8 ft3/s), through `build_report`
+  and not through a chat client, and nobody has checked those numbers against another program. No monthly
+  statistics, summary hydrograph or baseflow section exists.
 
 Python 3.11–3.14 (`requires-python >= 3.11`; CI matrix in `.github/workflows/ci.yml`).
 
