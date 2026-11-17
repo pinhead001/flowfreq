@@ -24,11 +24,12 @@ from __future__ import annotations
 import copy
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Mapping, Optional, Union
+from typing import Any, Dict, List, Mapping, Optional, Sequence, Union
 
 from .blocks import Block, Figure, Heading, Narrative, Paragraph, Table, narrative_blocks
 from .build import build_report, render_markdown
-from .sections import SectionContent, build_section
+from .daily import FLOW_DURATION_CAPTION, LOW_FLOW_CAPTION
+from .sections import FUTURE_FLOW_CAPTION, SectionContent, build_section
 from .spec import ReportError, ReportSpec, SectionSpec
 
 #: The table of each kind that carries its result, by caption.
@@ -38,6 +39,9 @@ MAIN_TABLES: Dict[str, str] = {
     "weighted": "At-site and regression flood quantiles and their weighted estimate.",
     "transposed": "Flood quantiles transposed from the gage by the drainage-area ratio.",
     "engine_check": "Flood quantiles from flowfreq and from the reference.",
+    "low_flow": LOW_FLOW_CAPTION,
+    "flow_duration": FLOW_DURATION_CAPTION,
+    "future_flow": FUTURE_FLOW_CAPTION,
 }
 
 #: Kinds whose opening paragraph is part of the result: a check's verdict is its result.
@@ -480,6 +484,67 @@ class ReportSession:
             if value is not None:
                 given[name] = value
         built = self._new(SectionSpec("engine_check", title=title, options=given))
+        self._entries.insert(index, built)
+        return {**self._describe(built), "result": _main_table(built)}
+
+    def future_flow(
+        self,
+        base_id: str,
+        factor_set: Mapping[str, Any],
+        *,
+        aeps: Optional[Sequence[float]] = None,
+        detail: bool = False,
+        title: Optional[str] = None,
+        position: Optional[int] = None,
+    ) -> Dict[str, Any]:
+        """Scale a section's flood quantiles by change factors for a future condition.
+
+        Parameters
+        ----------
+        base_id : str
+            The ``gaged_ffa`` or ``ungaged`` section whose quantiles are scaled. It stays in
+            the report.
+        factor_set : mapping
+            The change factors and where they come from: ``name``, ``aeps``, ``factors``,
+            ``scenario``, ``horizon``, ``citation``, and optionally ``level``,
+            ``geography`` and ``legal_status``
+            (:class:`~flowfreq.future_flow.ChangeFactorSet`).
+        aeps : sequence of float, optional
+            The AEPs to scale. Defaults to the section's AEPs within the factors' range.
+        detail : bool, default False
+            Repeat the present-condition analysis below the table.
+        title : str, optional
+            The heading, in place of the kind's own.
+        position : int, optional
+            Where it goes, counting from 1. Defaults to just after the base section.
+
+        Returns
+        -------
+        dict
+            As :meth:`add_section`.
+
+        Raises
+        ------
+        ReportError
+            A section of the wrong kind, a bad position, or factors
+            :func:`~flowfreq.reporting.build_section` refuses. The report is unchanged.
+        """
+        base = self._entry(base_id)
+        names = {"gaged_ffa": "gage", "ungaged": "regression"}
+        if base.spec.kind not in names:
+            raise ReportError(
+                f"section {base.id} is a {base.spec.kind} section, not a gaged_ffa or an "
+                "ungaged section"
+            )
+        index = self._entries.index(base) + 1 if position is None else self._index(position)
+        given: Dict[str, Any] = {
+            names[base.spec.kind]: base.spec.options,
+            "factor_set": dict(factor_set),
+            "detail": detail,
+        }
+        if aeps is not None:
+            given["aeps"] = [float(a) for a in aeps]
+        built = self._new(SectionSpec("future_flow", title=title, options=given))
         self._entries.insert(index, built)
         return {**self._describe(built), "result": _main_table(built)}
 

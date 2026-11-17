@@ -30,6 +30,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   is false. It refuses a basin in more than one region and a regression with no variance of prediction.
   `ungaged` now requires only `state`, `lat` and `lon`; with `characteristics`, `region` is still needed.
 
+- **Report sections `low_flow`, `flow_duration` and `future_flow`.** `low_flow` and `flow_duration` are computed
+  from a gage's daily mean flows, downloaded for a `site_no` and written into the spec as `daily` (a `start` date
+  and one `flow_cfs` value per day, `null` where the record has none), so the saved spec rebuilds them offline.
+  `low_flow` is low-flow frequency (`LowFlowFrequency`): the annual minimum `n_day`-day mean flow fitted with a
+  log-Pearson Type III or lognormal distribution, quantiles such as 7Q10 with 90-percent confidence limits, the
+  fitted curve and the annual minima, with zero-flow and short-record cautions in the method text.
+  `flow_duration` is the flow equaled or exceeded on a given percent of days (q10, q50, q90) and the curve.
+  `future_flow` multiplies a `gage`'s or a `regression`'s flood quantiles by a `factor_set` the analyst supplies
+  and cites (`apply_change_factors`); it scales only the AEPs within the factors' range unless `aeps` names
+  others, marks each factor as published, interpolated or held, and gives no confidence limits. New:
+  `flowfreq.reporting.download_daily`, `ReportSession.future_flow`, and three `flowfreq-mcp` tools
+  (`low_flow_frequency`, `flow_duration`, `apply_future_change_factors`), which makes twenty-one.
+
 - **Montana: a caution on weighting the Northwest region with the Northwest Foothills.** SIR 2015-5019-F (p. 13)
   says that for a basin whose upstream part is in the Northwest region and downstream part in the Northwest
   Foothills, weighting the two regions' estimates by drainage area is appropriate only for AEPs greater than 4

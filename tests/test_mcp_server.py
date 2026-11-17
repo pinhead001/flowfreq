@@ -51,6 +51,9 @@ TOOLS = [
     "weight_gage_with_regression",
     "transpose_gage_to_site",
     "check_gage_against_reference",
+    "low_flow_frequency",
+    "flow_duration",
+    "apply_future_change_factors",
     "add_text_section",
     "edit_narrative",
     "mark_narrative_reviewed",
@@ -770,6 +773,83 @@ class TestWholeReport:
     def test_a_missing_argument_is_an_error_not_a_crash(self, chat):
         result = chat.result("get_section")
         assert result.is_error and "section_id" in result.content[0].text
+
+
+class TestDailyAndFutureTools:
+    """low_flow_frequency, flow_duration and apply_future_change_factors."""
+
+    FACTORS = {
+        "factor_set_name": "made-up 2050",
+        "scenario": "SSP5-8.5",
+        "horizon": "2050",
+        "citation": "Example, A.B., 2024, A made-up climate guidance for the tests, table 2.",
+        "factor_aeps": [0.5, 0.1, 0.01],
+        "factors": [1.05, 1.10, 1.20],
+    }
+
+    @pytest.fixture
+    def daily_flows(self, monkeypatch) -> List[Any]:
+        """Stub the daily download with a synthetic record; returns what was asked for."""
+        from flowfreq.reporting import daily
+        from tests.test_reporting_daily import STATION
+
+        asked: List[Any] = []
+
+        def fake(site_no: str, start_date: Any = None, end_date: Any = None) -> Dict[str, Any]:
+            asked.append((site_no, start_date, end_date))
+            return {
+                "daily": dict(STATION["daily"]),
+                "site_name": STATION["site_name"],
+                "drainage_area_sqmi": STATION["drainage_area_sqmi"],
+            }
+
+        monkeypatch.setattr(daily, "download_daily", fake)
+        return asked
+
+    def test_low_flow_frequency(self, chat, session, daily_flows):
+        added = chat.call("low_flow_frequency", site_no=" 01234567 ", non_exceedance=[0.5, 0.1])
+        assert daily_flows == [("01234567", None, None)]
+        assert added["kind"] == "low_flow"
+        assert added["title"] == "Low-flow frequency at USGS 01234567 Test Creek near Nowhere"
+        assert "| 7Q10 |" in added["result"] and "| 7Q2 |" in added["result"]
+        options = session.spec.sections[0].options
+        assert options["n_day"] == 7 and options["daily"]["start"] == "1990-04-01"
+
+    def test_flow_duration(self, chat, daily_flows):
+        added = chat.call(
+            "flow_duration",
+            site_no="01234567",
+            exceedance_pct=[10, 50, 90],
+            start_date="2000-01-01",
+        )
+        assert daily_flows == [("01234567", "2000-01-01", None)]
+        assert added["kind"] == "flow_duration"
+        assert added["result"].count("| q") == 3
+
+    def test_a_station_number_is_checked(self, chat, daily_flows):
+        for name in ("low_flow_frequency", "flow_duration"):
+            refusal = chat.refusal(name, site_no="Test Creek")
+            assert "site_no is a USGS station number, all digits" in refusal
+        assert daily_flows == []
+
+    def test_apply_future_change_factors(self, chat, session, peaks):
+        chat.call("run_ffa", site_no="03606500", stationarity=False, peaks_table=False, **SKEW)
+        added = chat.call("apply_future_change_factors", section_id="s1", **self.FACTORS)
+        assert added["section_id"] == "s2" and added["kind"] == "future_flow"
+        assert added["title"].startswith("Future-condition flood frequency at USGS 03606500")
+        assert "| 1 | 18,069 | 1.200 | 21,683 | published |" in added["result"]
+        stored = session.spec.sections[1].options["factor_set"]
+        assert stored["level"] == "site" and stored["legal_status"] == "informational"
+
+    def test_factors_are_refused_in_words(self, chat, peaks):
+        chat.call("run_ffa", site_no="03606500", stationarity=False, peaks_table=False, **SKEW)
+        refusal = chat.refusal(
+            "apply_future_change_factors",
+            section_id="s1",
+            **{**self.FACTORS, "factors": [1.05, 1.10]},
+        )
+        assert "aeps and factors must be non-empty and equal in length" in refusal
+        assert "apply_future_change_factors" in INSTRUCTIONS
 
 
 class TestMain:

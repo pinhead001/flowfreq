@@ -218,13 +218,13 @@ CI should test the supported Python matrix.
 - **`lowflow.py`** / **`regime.py`** / **`subdaily.py`** — low-flow frequency, flow-regime and
   sub-daily metrics
 - **`reporting/`** — reports from a JSON specification: `spec` (`ReportSpec`, `SectionSpec`),
-  `sections` (the section kinds: `gaged_ffa`, `ungaged`, `weighted`, `transposed`, `engine_check`, `text`), `blocks` (content blocks and
+  `sections` (the section kinds: `gaged_ffa`, `ungaged`, `weighted`, `transposed`, `engine_check`, `future_flow`, `text`), `daily` (`low_flow` and `flow_duration`, from a daily record stored in the spec), `blocks` (content blocks and
   the Markdown subset), `build` (`build_report`, Markdown output), `word` (DOCX through
   python-docx, the `report` extra), `session` (`ReportSession`: a report built a section at a
   time, stable section ids, files named inside one output directory). A section's tables and
   figures come from the analysis it runs; prose is a labeled draft `narrative` until marked
   reviewed. `report.py` (`HydroReport`) is the older single-gage Markdown report
-- **`mcp_server.py`** — `flowfreq-mcp`: `ReportSession` as eighteen Model Context Protocol tools
+- **`mcp_server.py`** — `flowfreq-mcp`: `ReportSession` as twenty-one Model Context Protocol tools
   for a chat client (the `mcp` extra, mcp 2.x; `docs/CHAT_REPORTS.md`). Tool calls take turns
   behind a lock and matplotlib is put on Agg, because mcp runs sync tools on worker threads.
   Tests drive it in process through `mcp.Client`

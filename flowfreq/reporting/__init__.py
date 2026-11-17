@@ -1,8 +1,8 @@
 """Reports assembled from flowfreq results: a JSON specification in, Markdown or DOCX out.
 
 A report is described by a :class:`ReportSpec`: a title and a list of sections, each a kind
-(``gaged_ffa``, ``ungaged``, ``weighted``, ``transposed``, ``engine_check``, ``text``) with its
-inputs.
+(``gaged_ffa``, ``ungaged``, ``weighted``, ``transposed``, ``engine_check``, ``low_flow``,
+``flow_duration``, ``future_flow``, ``text``) with its inputs.
 :func:`build_report` computes every table and figure from those inputs, so no number in a
 report is typed by hand or written by a language model. Prose that flowfreq did not compute
 rides along as a section's ``narrative``, and renders under a draft label until someone
@@ -36,6 +36,7 @@ from .blocks import (
     parse_markdown,
 )
 from .build import Report, build_report, render_markdown
+from .daily import download_daily  # registers low_flow and flow_duration
 from .sections import SECTION_KINDS, SectionContent, SectionKind, build_section
 from .session import ReportSession
 from .spec import SCHEMA, ReportError, ReportSpec, SectionSpec
@@ -61,6 +62,7 @@ __all__ = [
     "Table",
     "build_report",
     "build_section",
+    "download_daily",
     "parse_markdown",
     "render_markdown",
 ]

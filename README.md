@@ -300,7 +300,16 @@ analysis and lays out what it returns, so a quantile in a report is the one `run
   computation of the same record: USGS peakfq 8.1.0 run by flowfreq's Fortran extension, or
   the numbers of another program's run given as `reference`. It states whether the two
   agree within the tolerances and tabulates the parameters, quantiles and confidence
-  limits side by side. `text` is a titled section of prose.
+  limits side by side. `low_flow` and `flow_duration` take a gage's daily mean flows
+  (`site_no` to download them, or `daily` inline: a `start` date and one `flow_cfs` value
+  per day, `null` where there is none). `low_flow` fits the annual minimum `n_day`-day mean
+  flow (`flowfreq.lowflow.LowFlowFrequency`; 7Q10, 7Q2) and gives the quantiles with
+  90-percent confidence limits, the fitted curve and the annual minima; `flow_duration`
+  gives the flow equaled or exceeded on a given percent of days (q10, q50, q90) and the
+  curve. `future_flow` takes a `gage` or a `regression` and a `factor_set` (name, AEPs,
+  factors, scenario, horizon and citation, all the analyst's) and multiplies the flood
+  quantiles by the change factors (`flowfreq.future_flow.apply_change_factors`), marking
+  each factor as published, interpolated or held. `text` is a titled section of prose.
 - **The spec as built is the record.** Give a `site_no` and the peaks are downloaded; give
   `regional_skew_state` or `regional_skew_from_site` and the skew is looked up. Both are
   written into `report.spec` as values, with the retrieval date and the citation, and the
@@ -337,7 +346,7 @@ The model calls `find_gage`, `run_ffa`, `estimate_from_characteristics`,
 `weight_gage_with_regression`, `edit_narrative` and `render_report`; flowfreq computes
 every table and figure, and what the model writes is narrative that prints as a draft
 until you mark it reviewed. `flowfreq.reporting.ReportSession` is the same thing from
-Python. Client configuration, the eighteen tools and the rules the server holds the model
+Python. Client configuration, the twenty-one tools and the rules the server holds the model
 to are in [docs/CHAT_REPORTS.md](docs/CHAT_REPORTS.md).
 
 ## Module Overview

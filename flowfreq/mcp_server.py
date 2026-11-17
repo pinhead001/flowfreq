@@ -66,7 +66,9 @@ A usual order: find_gage, run_ffa, then estimate_ungaged or estimate_from_charac
 at the gage and weight_gage_with_regression (or transpose_gage_to_site for a site on \
 the gage's stream), then get_section to read what was computed, \
 edit_narrative, and render_report. check_gage_against_reference adds a comparison of a \
-gage's computation with USGS peakfq or with numbers the user gives. The report is kept for \
+gage's computation with USGS peakfq or with numbers the user gives. low_flow_frequency and \
+flow_duration add sections from a gage's daily flows, and apply_future_change_factors \
+scales a section's flood quantiles by factors the user supplies. The report is kept for \
 the life of the server; \
 save_report and load_report carry it between conversations.
 """
@@ -132,6 +134,13 @@ def _plain(value: Any) -> Any:
         return value
     number = float(value)
     return int(number) if number.is_integer() else number
+
+
+def _station(site_no: str) -> str:
+    """A USGS station number, checked."""
+    if not site_no.strip().isdigit():
+        raise ReportError(f"site_no is a USGS station number, all digits; got {site_no!r}")
+    return site_no.strip()
 
 
 def _gaged_options(
@@ -566,6 +575,136 @@ def build_server(
             position=position,
         )
 
+    def low_flow_frequency(
+        site_no: str,
+        n_day: int = 7,
+        non_exceedance: Optional[List[float]] = None,
+        year_type: str = "climatic",
+        distribution: str = "lp3",
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+        annual_table: bool = True,
+        title: Optional[str] = None,
+        position: Optional[int] = None,
+    ) -> Dict[str, Any]:
+        """Add a low-flow frequency section for a USGS gage (7Q10, 7Q2 and the like).
+
+        Downloads the gage's daily mean flows from USGS, takes the lowest n_day-day mean
+        flow of each year, fits a log-Pearson Type III distribution to those minima and
+        adds a section with the record, the method, the fitted parameters, the low-flow
+        quantiles with 90-percent confidence limits, the fitted curve and the annual
+        minima. The daily flows are stored in the report, so it rebuilds later without a
+        download; a long record makes the saved report several hundred kilobytes.
+
+        site_no: the USGS station number. n_day: the averaging period in days (7 for
+        7Q10). non_exceedance: annual non-exceedance probabilities as fractions, for
+        example [0.5, 0.1] for the 2-year and 10-year low flows; the default is 0.5, 0.2,
+        0.1, 0.05, 0.02 and 0.01. year_type: "climatic" (April 1 to March 31, the
+        default for low flows), "water" or "calendar". distribution: "lp3" (station
+        skew) or "lognormal" (zero skew, steadier on a short record). start_date,
+        end_date: limit the record, YYYY-MM-DD. annual_table: include the table of
+        annual minima. title, position: as run_ffa.
+
+        The tool refuses a record with fewer than 10 complete years. Returns the
+        section's id and the quantile table.
+        """
+        options: Dict[str, Any] = {
+            "site_no": _station(site_no),
+            "n_day": n_day,
+            "year_type": year_type,
+            "distribution": distribution,
+            "annual_table": annual_table,
+        }
+        if non_exceedance is not None:
+            options["non_exceedance"] = list(non_exceedance)
+        for name, value in (("start_date", start_date), ("end_date", end_date)):
+            if value:
+                options[name] = value
+        return report.add_section("low_flow", options, title=title, position=position)
+
+    def flow_duration(
+        site_no: str,
+        exceedance_pct: Optional[List[float]] = None,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+        title: Optional[str] = None,
+        position: Optional[int] = None,
+    ) -> Dict[str, Any]:
+        """Add a flow-duration section for a USGS gage.
+
+        Downloads the gage's daily mean flows from USGS and adds a section with the
+        record, the flow equaled or exceeded on a given percent of days, and the
+        flow-duration curve. Write these statistics with a lowercase q: q10 is the flow
+        exceeded on 10 percent of days (a high flow) and q90 a low one. They are not
+        flood quantiles and carry no annual probability. The daily flows are stored in
+        the report, so it rebuilds later without a download.
+
+        site_no: the USGS station number. exceedance_pct: percents of days, each
+        between 0 and 100 (default 1, 5, 10, 20, 50, 80, 90, 95 and 99). start_date,
+        end_date: limit the record, YYYY-MM-DD. title, position: as run_ffa.
+
+        Returns the section's id and the table.
+        """
+        options: Dict[str, Any] = {"site_no": _station(site_no)}
+        if exceedance_pct is not None:
+            options["exceedance_pct"] = list(exceedance_pct)
+        for name, value in (("start_date", start_date), ("end_date", end_date)):
+            if value:
+                options[name] = value
+        return report.add_section("flow_duration", options, title=title, position=position)
+
+    def apply_future_change_factors(
+        section_id: str,
+        factor_set_name: str,
+        scenario: str,
+        horizon: str,
+        citation: str,
+        factor_aeps: List[float],
+        factors: List[float],
+        legal_status: str = "informational",
+        aeps: Optional[List[float]] = None,
+        detail: bool = False,
+        title: Optional[str] = None,
+        position: Optional[int] = None,
+    ) -> Dict[str, Any]:
+        """Scale a section's flood quantiles by change factors for a future condition,
+        and add the result as a section. The section scaled is a run_ffa section or a
+        regression estimate already in the report, and stays.
+
+        flowfreq ships no change factors. They come from a source the user names (a
+        state's climate guidance, an agency report): ask for the numbers and the
+        citation, and do not give factors from memory.
+        factor_set_name: a short name for the set. scenario: the emissions or warming
+        scenario, for example "SSP5-8.5". horizon: the planning horizon, for example
+        "2050". citation: the source document and table.
+        factor_aeps (fractions, for example [0.1, 0.01]) and factors: the multipliers
+        as published, in the same order. legal_status: "required", "recommended" or
+        "informational".
+        aeps: the AEPs to scale; by default those of the section that lie within
+        factor_aeps. An AEP outside them takes the nearest published factor and is
+        marked. detail: repeat the present-condition analysis below the table. title,
+        position: as run_ffa (default position: just after the section scaled).
+
+        Returns the new section's id and the table of present and future flows.
+        """
+        return report.future_flow(
+            section_id,
+            {
+                "name": factor_set_name,
+                "scenario": scenario,
+                "horizon": horizon,
+                "citation": citation,
+                "aeps": list(factor_aeps),
+                "factors": list(factors),
+                "level": "site",
+                "legal_status": legal_status,
+            },
+            aeps=aeps,
+            detail=detail,
+            title=title,
+            position=position,
+        )
+
     def add_text_section(
         title: str, narrative: str, position: Optional[int] = None
     ) -> Dict[str, Any]:
@@ -634,6 +773,9 @@ def build_server(
         weight_gage_with_regression,
         transpose_gage_to_site,
         check_gage_against_reference,
+        low_flow_frequency,
+        flow_duration,
+        apply_future_change_factors,
         add_text_section,
         edit_narrative,
         mark_narrative_reviewed,
