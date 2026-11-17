@@ -32,7 +32,7 @@ claude mcp add flowfreq --env USGS_API_KEY=your-key -- D:\a\flowfreq\.venv\Scrip
 ```
 
 Add `--scope user` to have it in every project. `/mcp` inside Claude Code lists the server
-and its eighteen tools.
+and its twenty-one tools.
 
 **Claude Desktop** — in `claude_desktop_config.json` (Settings, Developer, Edit Config):
 
@@ -81,6 +81,9 @@ rebuilds the same report with no network and no chat.
 | `weight_gage_with_regression` | Weight a gage section with a regression section by inverse variance (Bulletin 17C Appendix 9) | nothing |
 | `transpose_gage_to_site` | Carry a gage section's quantiles to an ungaged site on the same stream by the drainage-area ratio, with exponents you supply and cite | nothing |
 | `check_gage_against_reference` | Compare a gage section's fit with USGS peakfq 8.1.0 on the same record, or with the numbers of another program's run that you supply | nothing |
+| `low_flow_frequency` | Add a low-flow frequency section for a gage: the annual minimum n-day mean flow fitted with a log-Pearson Type III distribution (7Q10, 7Q2), with 90-percent confidence limits | USGS (daily flows) |
+| `flow_duration` | Add a flow-duration section for a gage: the flow exceeded on a given percent of days (q10, q50, q90) and the curve | USGS (daily flows) |
+| `apply_future_change_factors` | Scale a gage or regression section's flood quantiles by change factors you supply and cite | nothing |
 | `add_text_section` | Add a section of prose only | nothing |
 | `edit_narrative` | Set the prose after a section's computed content | nothing |
 | `mark_narrative_reviewed` | Remove the draft label from one section's narrative | your say-so |
@@ -112,6 +115,24 @@ and whether that exponent was published, interpolated between published AEPs or 
 them. An area ratio outside 0.5 to 1.5 is refused unless `allow_out_of_range`, and a
 regulated site on one side only is refused unless `allow_regulation_mismatch`; either
 override is written into the section's caveats.
+
+`low_flow_frequency` and `flow_duration` download the gage's daily mean flows and store them
+in the report, one value per day, so the report rebuilds later without a download. A long
+record makes the saved `.json` several hundred kilobytes. Low-flow frequency takes the
+lowest `n_day`-day mean flow of each climatic year (April 1 to March 31 unless you ask for
+water or calendar years), leaves out a year with fewer than 350 days of record, and refuses
+a record with fewer than 10 years. There is no regional skew and no low-outlier test for
+low flows, and the section says so. A flow-duration statistic is written with a lowercase
+q (q10 is the flow exceeded on 10 percent of days) and is not an annual probability.
+
+`apply_future_change_factors` multiplies the flood quantiles of a `run_ffa` section or a
+regression estimate by change factors for a future condition. flowfreq ships no change
+factors, so the factors, their scenario and horizon, and the citation are yours to give,
+and the server's instructions tell the model to ask for them rather than recall them. Only
+the AEPs within the factors' range are scaled unless you name others with `aeps`; an AEP
+beyond the range takes the nearest published factor and the table marks it. The section
+gives no confidence limits, since a factor scales the flow and says nothing of its
+uncertainty. The section scaled stays in the report.
 
 `check_gage_against_reference` adds a section that says whether the gage's fit agrees with
 a second computation of the same record, and tabulates the two side by side: fitted

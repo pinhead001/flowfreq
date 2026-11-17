@@ -159,6 +159,9 @@ class TestBuildSection:
             "weighted",
             "transposed",
             "engine_check",
+            "future_flow",
+            "low_flow",
+            "flow_duration",
         }
         assert all(kind.summary for kind in SECTION_KINDS.values())
 
