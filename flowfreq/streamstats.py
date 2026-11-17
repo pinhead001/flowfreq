@@ -937,6 +937,14 @@ def _parse_characteristics(hydro_data: Any) -> Tuple[Dict[str, Characteristic], 
     return characteristics, unavailable
 
 
+#: Client timeout for the two requests that make StreamStats compute a basin: ss-delineate's
+#: ``delineate/sshydro`` and ss-hydro's basin characteristics. A large basin takes minutes.
+#: Neither is retried on a read timeout or a 504, for the reason ``bylocation`` is not
+#: (issue #365): a request the client abandons may still be running on the server, and a
+#: retry then runs the same computation again beside it.
+COMPUTE_TIMEOUT: float = 200.0
+
+
 def _sshydro_delineation(
     region: str, lat: float, lon: float, *, default_server: str, timeout: float
 ) -> Tuple[SnapResult, Dict[str, Any], str, List[str], List[str]]:
@@ -955,7 +963,11 @@ def _sshydro_delineation(
     )
     sshydro_params = {"lat": snap.snapped_lat, "lon": snap.snapped_lon}
     sshydro_response = _request_with_backoff(
-        requests.get, sshydro_url, params=sshydro_params, timeout=timeout
+        requests.get,
+        sshydro_url,
+        params=sshydro_params,
+        timeout=max(timeout, COMPUTE_TIMEOUT),
+        retry_abandoned=False,
     )
     request_urls.append(getattr(sshydro_response, "url", sshydro_url))
     if sshydro_response.status_code == 422:
@@ -1180,7 +1192,12 @@ def delineate_and_get_characteristics(
         "BCs": bc_labels,
     }
     hydro_response = _request_with_backoff(
-        requests.post, hydro_url, params=hydro_params, json_body=bcrequest, timeout=timeout
+        requests.post,
+        hydro_url,
+        params=hydro_params,
+        json_body=bcrequest,
+        timeout=max(timeout, COMPUTE_TIMEOUT),
+        retry_abandoned=False,
     )
     request_urls.append(getattr(hydro_response, "url", hydro_url))
     if hydro_response.status_code == 422:
