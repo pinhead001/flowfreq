@@ -5,21 +5,20 @@
 > in progress are tracked under "Roadmap Phase A, Wave 1 and Wave 2" in Open Items below.
 
 ## Status
-Last updated: 2026-11-16. Version **0.26.0** is released (tag `v0.26.0`). **0.27.0 is prepared and waits for
-the owner**: the release PR sets the version, and the tag, the dev bump to 0.28.0.dev0 and `release/0.27.x`
-follow its merge. 0.26.x patches come from `release/0.26.x` (CLAUDE.md, Branches and Releases).
+Last updated: 2026-11-17. Version **0.27.0** is released (tag `v0.27.0`). `main` carries
+**0.28.0.dev0**; 0.27.x patches come from `release/0.27.x` (CLAUDE.md, Branches and Releases).
 flowfreq-app pins v0.26.0 (app #46) and has merged app #42-#46; app #47-#52 are open and wait for the owner.
 51 jurisdictions are `verified`, and 5 have no equations.
 
-**StreamStats has blocked this machine's address (HTTP 403) since 2026-11-09 14:40, on purpose: issue #365.**
-A StreamStats developer traced an NSS `bylocation` slowdown to `tools/border_qa.py` with three workers: NSS keeps
-a query running after the client disconnects, and the client's 60-second timeout and retries ran one slow basin's
-query up to nine times at once. They lift the block after talking with the owner (on the issue, or
-streamstats@usgs.gov), and asked that border_qa and any automated `bylocation` jobs stay paused until then. The
-owner replied on the issue on 2026-11-15; no answer yet. The
-client side is fixed (no retry on a `bylocation` timeout, a 200 s timeout, one call at a time with a pause; see
-CHANGELOG). Nothing below that needs StreamStats can run until the block is lifted; then retest at TN 03465500 or
-AL 02342500 with a single request, not a loop.
+**StreamStats blocked this machine's address (HTTP 403) from 2026-11-09 14:40 to 2026-11-16, on purpose: issue
+#365, now closed.** A StreamStats developer traced an NSS `bylocation` slowdown to `tools/border_qa.py` with three
+workers: NSS keeps a query running after the client disconnects, and the client's 60-second timeout and retries
+ran one slow basin's query up to nine times at once. The client side is fixed (no retry on a `bylocation`
+timeout, a 200 s timeout, one call at a time with a pause; released in 0.27.0). The owner replied on 2026-11-15,
+and StreamStats lifted the block on 2026-11-16, adding that their web services are getting rate limiting. One
+test request on 2026-11-17 (a snap at TN 03465500) returned HTTP 200. The owner's reply promised to wait for
+StreamStats' go-ahead before any larger run, so `border_qa` and the other live checks below still wait for the
+owner's word. Run them with one worker.
 
 ### Next steps (2026-11-15)
 
@@ -27,7 +26,8 @@ AL 02342500 with a single request, not a loop.
 
 Owner's:
 
-1. Push `release/0.26.x` (a hook blocks it here; the branch exists locally, cut from `v0.26.0`). Review and
+1. Push `release/0.26.x` and `release/0.27.x` (a hook blocks it here; both exist locally, cut from their
+   tags). Review and
    merge app #47-#52 ("App improvements" below has the order and the conflicts). The app's v0.26.0 pin is
    merged (app #46), so app #45's form is on.
 2. **Overlap calls:** none open. Urban and NRCS-regulated basins (AL, MO, TN, OK) need `region=` on purpose; say
@@ -47,9 +47,8 @@ Owner's:
    report, not in NSS) needs. If it does, verify and store that report.
 7. **LA's southern gap** uses the 1998 Non-Pine Hills set (TR 60, NSS GC879) when NSS locates no current region,
    with a caution and no interval (`fallback_region`). OH 2006-5312, TN 03-4176 and LA's Delta stay dropped.
-8. Issue #293 is closed (2026-11-11). **Issue #365 (StreamStats block, above):** the owner answered on
-   2026-11-15, describing the client fix (#384) and asking for the block to be lifted. StreamStats had not replied
-   by 2026-11-16. No StreamStats request from here until they do and the owner says so.
+8. Issues #293 and #365 are closed. **StreamStats is reachable again** (above): say when the cross-border run
+   and the other live checks may go, and whether to tell StreamStats on #365 first.
 9. Open the app in a browser: the resizable period grips (app #24), and app #42-#45 (raster hydrograph, basin
    changes, the Bulletin 17C curve, the characteristics form) have never run in one here. The same holds for
    the open app #47-#52, which were checked with Streamlit's AppTest only.
