@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.27.0] - 2026-11-16
+
+Reports built from a JSON specification, as DOCX or Markdown, and `flowfreq-mcp`, which puts the report tools
+behind a chat client. NSS `bylocation` calls no longer retry a timeout and go one at a time (issue #365).
+Estimates change for a basin spanning two regions in twelve more states, which now average in flow as their
+reports do. A Montana basin weighting the Northwest region with the Northwest Foothills carries a caution.
+
 ### Added
 - **`flowfreq.reporting`** and **`flowfreq report`**: a report built from a JSON specification, written as DOCX or
   Markdown. A `ReportSpec` is a title and a list of sections, each a kind with its inputs: `gaged_ffa` (Bulletin 17C at
@@ -52,8 +59,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **`flowfreq-mcp`**: the report tools as a Model Context Protocol server, so a chat client (Claude Code, Claude
   Desktop) builds a report over a conversation (`docs/CHAT_REPORTS.md`; new `mcp` extra, `pip install
-  "flowfreq[mcp]"`). Eighteen tools: `find_gage`, `run_ffa`, `estimate_ungaged`, `estimate_from_characteristics`,
-  `weight_gage_with_regression`, `transpose_gage_to_site`, `check_gage_against_reference`, text and narrative
+  "flowfreq[mcp]"`). Twenty-one tools: `find_gage`, `run_ffa`, `estimate_ungaged`, `estimate_from_characteristics`,
+  `weight_gage_with_regression`, `transpose_gage_to_site`, `check_gage_against_reference`, `low_flow_frequency`,
+  `flow_duration`, `apply_future_change_factors`, text and narrative
   editing, `get_section`, outline and ordering, `render_report`
   (DOCX or Markdown, with the specification beside it), `save_report` and `load_report`. flowfreq computes every
   table and figure; the model's prose is a narrative that prints as a draft until marked reviewed, and a narrative
@@ -111,8 +119,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   is unchanged, and a caller's `weighting_space` still overrides. Each file's notes cite the page. Florida's
   and New Jersey's reports give the rule in words only ("weighted on the percentage of drainage area in each
   flood region"), with no equation or example to confirm the reading. Montana's reports limit the rule to
-  AEPs above 4 percent for a basin running from the Northwest region into the Northwest Foothills; the library
-  does not check for that pair. The other verified states' reports say nothing on such basins and keep the
+  AEPs above 4 percent for a basin running from the Northwest region into the Northwest Foothills; such an
+  estimate is still weighted at every AEP and carries a caution (see Added). The other verified states' reports say nothing on such basins and keep the
   average in log (TODO.md lists which were read).
 - **NSS `bylocation` calls no longer retry a timeout, wait longer, and go one at a time** (issue #365). NSS
   keeps a `bylocation` query running after the client disconnects, so the old 60-second timeout and three

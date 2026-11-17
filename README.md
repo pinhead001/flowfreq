@@ -75,7 +75,7 @@ pip install -e ".[dev]"
 Or install a released version straight from GitHub:
 
 ```bash
-pip install git+https://github.com/pinhead001/flowfreq@v0.26.0
+pip install git+https://github.com/pinhead001/flowfreq@v0.27.0
 ```
 
 **Dependencies:** `numpy`, `pandas`, `matplotlib`, `scipy`, `requests`, `click`, `pyarrow`.
@@ -575,6 +575,7 @@ England, J.F., Jr., et al., 2019, Guidelines for determining flood flow frequenc
 
 | Version | Changes |
 |---------|---------|
+| **v0.27.0** | Reports from a JSON specification as DOCX or Markdown (`flowfreq.reporting`, `flowfreq report`; sections for a gage, a regression estimate, weighting, transposition, a peakfq check, low flow, flow duration and future-condition factors); `flowfreq-mcp` for building a report through a chat client; NSS `bylocation` calls serial and never retried on timeout (#365); flow averaging in twelve more states; Montana Northwest/Foothills caution (`weighting_cautions`); `peak_summary`; `regression.border` |
 | **v0.26.0** | `estimate_from_characteristics` / `flowfreq ungaged-chars` (FL, MI, NE); flow averaging for SD, WY, KY (`weighting_space`); NH/NY drainage-area-only sets (`companion_regions`); IL degrees of freedom (`Variable.fitted`); leap-year `day_of_water_year` |
 | **v0.25.0** | Texas regional sets first; Louisiana's southern gap (`fallback_region`); Maryland caution (`region_cautions`); Iowa CCM limit; AL/TN intervals from the SEP; `tools/border_qa.py` |
 | **v0.24.0** | Indiana selects its region at the point (`RegionSelector`); known-miss cautions near three gages (`KnownMiss`); the report names extrapolated inputs |

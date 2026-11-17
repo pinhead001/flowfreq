@@ -5,8 +5,9 @@
 > in progress are tracked under "Roadmap Phase A, Wave 1 and Wave 2" in Open Items below.
 
 ## Status
-Last updated: 2026-11-15. Version **0.26.0** is released (tag `v0.26.0`). `main` carries
-**0.27.0.dev0**; 0.26.x patches come from `release/0.26.x` (CLAUDE.md, Branches and Releases).
+Last updated: 2026-11-16. Version **0.26.0** is released (tag `v0.26.0`). **0.27.0 is prepared and waits for
+the owner**: the release PR sets the version, and the tag, the dev bump to 0.28.0.dev0 and `release/0.27.x`
+follow its merge. 0.26.x patches come from `release/0.26.x` (CLAUDE.md, Branches and Releases).
 flowfreq-app pins v0.26.0 (app #46) and has merged app #42-#46; app #47-#52 are open and wait for the owner.
 51 jurisdictions are `verified`, and 5 have no equations.
 
@@ -93,17 +94,36 @@ Library follow-ups the batches found, none changed:
     `docs/BORDER_QA.md`). Then trace Rhode Island against Connecticut, the largest new offset (2.4 times). Iowa and
     Georgia are traced: both states' equations match their reports. Also check whether Texas's StreamStats computes
     `OmegaEM` (SIR 2009-5087), which StreamStats failures kept from being answered.
-18. Reports published in 2026 that nothing here uses yet, found in the Publications Warehouse on 2026-11-15
-    and not read:
-    - SIR 2026-5044 (Wagner and Anderson): urban floods in Alabama and Mississippi, data through water year
-      2024. `AL.json`'s urban set is SIR 2010-5012; `MS.json` has no urban set.
-    - SIR 2025-5104 (Wagner and Ladd, published 2026-02-05): urban streams in Tennessee and parts of Alabama,
-      Georgia, Mississippi, North Carolina and South Carolina, data through water year 2022. `TN.json`'s
-      urban sets are WRI 84-4182 and WRI 84-4110 (Memphis).
+18. Reports published in 2026 that nothing here uses yet. The two urban reports were read on 2026-11-16 (PDFs
+    and their ScienceBase data releases; NSS was not asked, because of the block). Neither PDF prints a
+    coefficient or a worked example: the equations are only in the data releases.
+    - **SIR 2026-5044** (Wagner and Anderson, published 2026-09-24): urban floods in Alabama and Mississippi,
+      data through water year 2024; data release doi:10.5066/P13GPMON. It says it supersedes SIR 2010-5012,
+      `AL.json`'s `Urban` region, and Mississippi's 1991 urban equations; `MS.json` has no urban set, so it
+      would be the first. One set for both states at 8 AEPs: DRNAREA (log10) and LC11DEV (percent developed,
+      NLCD 2011, untransformed), for 1.06 to 53.6 mi2 and 20 to 100 percent developed, by WLS on 42 gages.
+      The release gives the model error variance and AVP per AEP but no covariance matrix; it does ship the
+      design and weight matrices, and a covariance computed from them reproduced the release's per-gage
+      variance of prediction at all 42 gages. Open: whether a covariance the library derives is acceptable
+      (AVP alone is the fallback), and whether the set applies in Alabama's flood region 3 and the
+      Mississippi Alluvial Plain, which the report doesn't exclude. `AL.json` would switch from CONTDA and
+      URBAN to DRNAREA and LC11DEV.
+    - **SIR 2025-5104** (Wagner and Ladd, published 2026-02-05): urban streams in Tennessee and the parts of
+      AL, GA, MS, NC and SC in six Level 3 ecoregions, data through water year 2022; data release
+      doi:10.5066/P1TE9KTH. One set at 8 AEPs by GLS on 136 gages: DRNAREA, LC11DEV, and the percent of the
+      basin in the Piedmont (L3_PIEDMNT) and in the Ridge and Valley (L3_RDGVLY), for basins of 10 percent
+      developed imperviousness (LC11IMP) or more, 0.164 to 93.4 mi2. The release ships full-precision
+      coefficients, the model error variance and a covariance matrix per AEP; the printed 4-decimal
+      coefficients are too coarse for the ecoregion terms (up to 1.9 percent). The report does not say it
+      supersedes WRI 84-4182 or WRI 84-4110 (`TN.json`'s urban sets), and names only Tennessee for
+      StreamStats, so keeping or retiring the 1984 sets, and using it outside Tennessee, are the owner's
+      calls. The two ecoregion codes are new to the library, and whether StreamStats computes them is
+      unknown. NSS's snapshot of 2026-10-25 served neither report.
     - SIR 2025-5034 (Levin, 2025): nonstationary flood frequency by regression in the north-central United
-      States. A reference for `future_flow` and `stationarity`, not an equation set.
-    For the two urban reports: check what NSS serves for each state, then verify and decide whether each
-    replaces the stored urban set, as for any other report.
+      States. A reference for `future_flow` and `stationarity`, not an equation set. Not read.
+    Next, once StreamStats lifts the block: check what NSS serves for each state and under which
+    characteristic codes, then verify and store. Recommended: adopt SIR 2026-5044 for AL and MS; adopt
+    SIR 2025-5104 for Tennessee beside the 1984 sets until NSS shows what it serves.
 
 App improvements suggested 2026-11-09. Each has an app PR, opened 2026-11-14 and 2026-11-15, with the app's
 one CI check passing. None is merged (the owner merges app PRs) and none has run in a browser:
