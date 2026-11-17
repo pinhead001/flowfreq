@@ -41,7 +41,7 @@ import logging
 import math
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Mapping, Optional, Union
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple, Union
 
 from flowfreq.regression.equations import RegressionEquation
 from flowfreq.regression.jurisdictions import jurisdiction
@@ -336,6 +336,55 @@ class RegionSelector:
         )
 
 
+@dataclass(frozen=True)
+class WeightingCaution:
+    """A report's limit on area-weighting a basin that spans particular regions.
+
+    It changes no value: the weighted flow is still returned at every AEP. An estimate that
+    weights all of ``regions`` together carries the caution, naming the AEPs it reaches.
+
+    Attributes
+    ----------
+    regions : tuple of str
+        Library region codes. The caution applies when the estimate weights every one of them.
+    text : str
+        The caution in words.
+    aep_at_or_below : float, optional
+        The caution reaches only AEPs at or below this value. None reaches every AEP.
+    source : str
+        Where the limit is printed.
+    """
+
+    regions: Tuple[str, ...]
+    text: str
+    aep_at_or_below: Optional[float] = None
+    source: str = ""
+
+    def affected(self, used_codes: Iterable[str], aeps: Iterable[float]) -> List[float]:
+        """The AEPs the caution reaches for an estimate weighting ``used_codes``, largest first."""
+        if not set(self.regions) <= set(used_codes):
+            return []
+        limit = self.aep_at_or_below
+        return sorted(
+            (float(a) for a in aeps if limit is None or float(a) <= limit + 1e-12), reverse=True
+        )
+
+    def caution(self, aeps: Sequence[float]) -> str:
+        """The caution in words, with the AEPs it reaches in percent."""
+        listed = ", ".join(f"{100 * a:g}" for a in aeps)
+        return f"{self.text} AEPs this reaches here, in percent: {listed}."
+
+    @classmethod
+    def from_dict(cls, d: Dict[str, Any]) -> "WeightingCaution":
+        limit = d.get("aep_at_or_below")
+        return cls(
+            regions=tuple(str(c) for c in d["regions"]),
+            text=str(d["text"]),
+            aep_at_or_below=None if limit is None else float(limit),
+            source=str(d.get("source") or ""),
+        )
+
+
 @dataclass
 class RegionPreference:
     """An order of preference among overlapping equation sets.
@@ -403,6 +452,9 @@ class StateLibrary:
     #: companion: New Hampshire's and New York's drainage-area-only sets, which NSS never
     #: locates. Keyed by library region code.
     companion_regions: Dict[str, str] = field(default_factory=dict)
+    #: Limits a report puts on area-weighting a basin that spans particular regions
+    #: (:class:`WeightingCaution`). An estimate that weights them carries the caution.
+    weighting_cautions: List[WeightingCaution] = field(default_factory=list)
 
     @property
     def provisional(self) -> bool:
@@ -515,6 +567,17 @@ def parse_state(data: Dict[str, Any]) -> StateLibrary:
     unknown = sorted((set(companions) | set(companions.values())) - regions_known)
     if unknown:
         raise ValueError(f"{state}: companion_regions for regions with no equations: {unknown}")
+    weighting_cautions = [
+        WeightingCaution.from_dict(x) for x in data.get("weighting_cautions") or []
+    ]
+    for wc in weighting_cautions:
+        unknown = sorted(set(wc.regions) - regions_known)
+        if unknown:
+            raise ValueError(
+                f"{state}: weighting_cautions for regions with no equations: {unknown}"
+            )
+        if len(set(wc.regions)) < 2:
+            raise ValueError(f"{state}: a weighting caution needs two or more regions")
     selector_data = data.get("region_selector")
     selector = RegionSelector.from_dict(selector_data) if selector_data else None
     if selector is not None:
@@ -539,6 +602,7 @@ def parse_state(data: Dict[str, Any]) -> StateLibrary:
         fallback_region=fallback,
         weighting_space=weighting_space,
         companion_regions=companions,
+        weighting_cautions=weighting_cautions,
     )
 
 

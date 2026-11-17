@@ -30,6 +30,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   is false. It refuses a basin in more than one region and a regression with no variance of prediction.
   `ungaged` now requires only `state`, `lat` and `lon`; with `characteristics`, `region` is still needed.
 
+- **Montana: a caution on weighting the Northwest region with the Northwest Foothills.** SIR 2015-5019-F (p. 13)
+  says that for a basin whose upstream part is in the Northwest region and downstream part in the Northwest
+  Foothills, weighting the two regions' estimates by drainage area is appropriate only for AEPs greater than 4
+  percent. An estimate that weights `NW` with `NWF` now says so in `advisory`, naming the AEPs at 4 percent and
+  rarer, and records it in `provenance["weighting_cautions"]`. No flow changes: every AEP is still weighted. New:
+  `StateLibrary.weighting_cautions` (`WeightingCaution`), read from a state file's `weighting_cautions`.
+
 - **`flowfreq-mcp`**: the report tools as a Model Context Protocol server, so a chat client (Claude Code, Claude
   Desktop) builds a report over a conversation (`docs/CHAT_REPORTS.md`; new `mcp` extra, `pip install
   "flowfreq[mcp]"`). Eighteen tools: `find_gage`, `run_ffa`, `estimate_ungaged`, `estimate_from_characteristics`,

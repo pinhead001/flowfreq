@@ -1602,6 +1602,15 @@ def _site_estimate(
     region_cautions = [text for code, text in lib.region_cautions.items() if code in used_codes]
     if nearby:
         provenance["known_misses"] = [asdict(m) for m in nearby]
+    weighting_cautions: List[str] = []
+    if len(assembly.used) > 1:
+        for wc in lib.weighting_cautions:
+            reached = wc.affected(used_codes, assembly.estimates)
+            if reached:
+                weighting_cautions.append(wc.caution(reached))
+                provenance.setdefault("weighting_cautions", []).append(
+                    {"regions": list(wc.regions), "aeps": reached, "source": wc.source}
+                )
     return SiteEstimate(
         lat=lat,
         lon=lon,
@@ -1613,7 +1622,15 @@ def _site_estimate(
         characteristics=characteristics,
         library_status=lib.status,
         advisory=" ".join(
-            filter(None, [lib.advisory, *region_cautions, *(m.caution() for m in nearby)])
+            filter(
+                None,
+                [
+                    lib.advisory,
+                    *region_cautions,
+                    *weighting_cautions,
+                    *(m.caution() for m in nearby),
+                ],
+            )
         ),
         estimates=assembly.estimates,
         region_codes=assembly.region_codes,
