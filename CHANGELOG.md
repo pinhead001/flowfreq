@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.27.1] - 2026-11-17
+
 ### Changed
 - **A StreamStats delineation or basin-characteristics request is no longer retried after a timeout.** The two
   requests that make StreamStats compute a basin (ss-delineate's `delineate/sshydro` and ss-hydro's basin
