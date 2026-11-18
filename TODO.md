@@ -5,7 +5,7 @@
 > in progress are tracked under "Roadmap Phase A, Wave 1 and Wave 2" in Open Items below.
 
 ## Status
-Last updated: 2026-11-17. Version **0.27.0** is released (tag `v0.27.0`). `main` carries
+Last updated: 2026-11-17. Version **0.27.1** is released (tag `v0.27.1`, a patch on 0.27.0). `main` carries
 **0.28.0.dev0**; 0.27.x patches come from `release/0.27.x` (CLAUDE.md, Branches and Releases).
 flowfreq-app pins v0.26.0 (app #46) and has merged app #42-#46; app #47-#52 are open and wait for the owner.
 51 jurisdictions are `verified`, and 5 have no equations.
@@ -88,11 +88,13 @@ Library follow-ups the batches found, none changed:
     `estimate_from_characteristics` and `flowfreq ungaged-chars` now take the region and characteristics from
     the caller, and the app's ungaged page has a form for it (app #45, on since the v0.26.0 pin).
 
-17. Finish the cross-border check once StreamStats lifts the block (issue #365; 403 since 2026-11-09 14:40, after
-    about 1,700 requests): `python tools/border_qa.py run --workers 1`, then `report` (about 280 gages left;
-    `docs/BORDER_QA.md`). Then trace Rhode Island against Connecticut, the largest new offset (2.4 times). Iowa and
-    Georgia are traced: both states' equations match their reports. Also check whether Texas's StreamStats computes
-    `OmegaEM` (SIR 2009-5087), which StreamStats failures kept from being answered.
+17. The cross-border check is finished (2026-11-17, one worker, no refusal from StreamStats; `docs/BORDER_QA.md`).
+    1,689 of 1,691 gages attempted; NM 09455800 and 09443000 timed out once at 200 s and were left. Illinois
+    against Indiana joined the systematic pairs and Virginia against West Virginia left them. Still to do: trace
+    Rhode Island against Connecticut, the largest offset (2.4 times), and Illinois against Indiana. Iowa and
+    Georgia are traced: both states' equations match their reports. Also check whether Texas's StreamStats
+    computes `OmegaEM` (SIR 2009-5087). The first restart showed the 60-second, three-try pattern of issue #365 on
+    ss-hydro's characteristics request, fixed in 0.27.1 (#389): run any further StreamStats job on 0.27.1 or later.
 18. Reports published in 2026 that nothing here uses yet. The two urban reports were read on 2026-11-16 (PDFs
     and their ScienceBase data releases; NSS was not asked, because of the block). Neither PDF prints a
     coefficient or a worked example: the equations are only in the data releases.
