@@ -160,6 +160,7 @@ class TestBuildSection:
             "transposed",
             "engine_check",
             "future_flow",
+            "comparison",
             "low_flow",
             "flow_duration",
         }
