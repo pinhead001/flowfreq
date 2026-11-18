@@ -8,12 +8,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
-- **The cross-border comparison is complete, and two borders change in `border_offsets`.** `tools/border_qa.py`
+- **The cross-border comparison is complete, and `border_offsets` has 15 borders, not 17.** `tools/border_qa.py`
   finished on 2026-11-17 with one worker: 1,689 of 1,691 candidate gages attempted, 1,391 delineated, 649 compared
-  at 1 percent (539 before). Illinois against Indiana is new (5 clean gages, Indiana's equations about 0.67 of
-  Illinois's). Virginia against West Virginia is gone: the six gages of the partial run gave 0.53, and all 27 give
-  1.0. Virginia against Tennessee now rests on 13 gages (1.40). The other 14 pairs are unchanged, and there are
-  still 17. Two New Mexico gages timed out once at StreamStats and were not asked again.
+  at 1 percent (539 before). Three pairs are gone. Virginia against West Virginia: the six gages of the partial
+  run gave 0.53, and all 27 give 1.0. Colorado against New Mexico, and a new Illinois against Indiana row that the
+  last gages produced, both rested on a region the tool picked from a list: NSS returns every region of the
+  neighbor at equal weight there, and the first was taken (New Mexico's Southeast mountain region for San Juan
+  basins). A comparison with any set picked by default no longer counts as clean, where only an urban pick did
+  before. Virginia against Tennessee now rests on 13 gages (1.40). Two New Mexico gages timed out once at
+  StreamStats and were not asked again.
+
+### Added
+- **The 2026 urban equations for Alabama, Mississippi and Tennessee**, as region `Urban 2026` in each state's file.
+  SIR 2026-5044 (Wagner and Anderson) gives one set for urban Alabama and Mississippi on drainage area and
+  percent developed land (`DRNAREA`, `LC11DEV`), 1.06 to 53.6 mi2 and 20 to 100 percent; it is Mississippi's first
+  urban set. SIR 2025-5104 (Wagner and Ladd) gives Tennessee's, with the percent of the basin in the Piedmont and in
+  the Ridge and Valley ecoregions (`L3_PIEDMNT`, `L3_RDGVLY`), for basins 10 percent impervious or more. Neither
+  report prints a coefficient: the equations come from the reports' data releases through the new
+  `tools/build_urban_2026.py`, which stores them only if they reproduce the release's flow and variance of
+  prediction at every gage (42 and 136). Alabama's and Mississippi's covariance is computed from the release's
+  design and weight matrices, since none is published; Tennessee's is the release's own. NSS serves neither set
+  (checked 2026-11-18), so nothing locates them: name the region, as in
+  `estimate_from_characteristics("MS", {...}, region="Urban 2026")`. The older urban sets stay, because NSS and
+  StreamStats still serve them: Alabama's `Urban` (SIR 2010-5012), which the new report says it supersedes, and
+  Tennessee's `Urban statewide` and `Memphis urban` (1984), which the new report does not mention replacing. An
+  estimate from any of the three now carries a caution naming the 2026 set. SIR 2025-5104 is stored for Tennessee
+  only, though it was fitted on gages in six states.
 
 ## [0.27.1] - 2026-11-17
 
@@ -120,7 +140,7 @@ reports do. A Montana basin weighting the Northwest region with the Northwest Fo
   its copies when its pin reaches a release with these.
 
 - **`flowfreq.regression.border_offsets()`**, `border_offsets_between(state, other)` and
-  `border_offsets_for(state)`: the 17 borders where one state's regression equations run systematically above or
+  `border_offsets_for(state)`: the borders (17 then; 15 since the check was completed) where one state's regression equations run systematically above or
   below its neighbor's on the same basins (`docs/VERIFICATION_PLAN.md`), as `BorderOffset` records: the number of
   gages, the median ratio at the 1 percent AEP, each state's median ratio to the at-site Bulletin 17C fits, and
   how often the home state's was the nearer. `BorderOffset.describe()` gives it as a sentence, and `BORDER_KM`

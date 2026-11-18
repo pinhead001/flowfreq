@@ -59,8 +59,10 @@ def _third_figure_half_unit(x: float) -> float:
 
 def test_tennessee_is_verified(lib):
     assert lib.status == "verified"
-    assert sorted(lib.regions) == sorted(NSS)
-    assert len(lib.equations) == 76
+    # "Urban 2026" is SIR 2025-5104's set, which NSS does not serve
+    # (tests/test_regression_urban_2026.py).
+    assert sorted(lib.regions) == sorted([*NSS, "Urban 2026"])
+    assert len(lib.equations) == 84
     for region, code in NSS.items():
         assert region_for_nss_code(lib, code) == region
         want = AEPS[:6] if region in ("Memphis urban", "Urban statewide") else AEPS
@@ -72,10 +74,11 @@ def test_every_equation_equals_the_nss_snapshot_but_for_its_errors(lib):
     snap = json.loads((DATA / "nss_snapshot" / "TN.json").read_text(encoding="utf-8"))
     assert len(snap["equations"]) == 139
     by_key = {(s["region_code"], s["aep"]): s for s in snap["equations"]}
+    served = [e for e in lib.equations if e.region_code != "Urban 2026"]
     assert {k for k in by_key if k[0] not in SUPERSEDED} == {
-        (NSS[e.region_code], e.aep) for e in lib.equations
+        (NSS[e.region_code], e.aep) for e in served
     }
-    for e in lib.equations:
+    for e in served:
         key = (e.region_code, e.aep)
         s = by_key[(NSS[e.region_code], e.aep)]
         if key in NSS_CONSTANT:
@@ -151,6 +154,8 @@ def test_avp_is_the_sep_implied_variance_where_it_is_stored(lib):
             assert e.avp is None and e.sep_log is not None
         elif e.region_code in ("Memphis urban", "Urban statewide"):
             assert e.avp is None
+        elif e.region_code == "Urban 2026":
+            assert e.avp is not None  # the data release's AVP at full precision
         else:
             assert round(e.sep_log**2, 2) == e.avp
 

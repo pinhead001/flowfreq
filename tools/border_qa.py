@@ -475,15 +475,17 @@ def _clean(rec: Mapping[str, Any], entry: Mapping[str, Any], key: str) -> bool:
 
     Extrapolation here is usually a set used far outside its range because the set that
     applies needs a characteristic the home region doesn't compute (Georgia's 1 mi2 sets on
-    Alabama basins); an urban default pick puts an urban set on a rural basin. Either makes a
-    difference that is the check's, not the equations'.
+    Alabama basins). A default pick is the tool choosing among sets NSS returned together:
+    an urban set on a rural basin, or, where NSS returns every region of the neighbour at
+    equal weight, the first in list order whatever its place on the map (New Mexico's
+    Southeast mountain region on San Juan basins; Indiana's region 1 at three Illinois
+    gages). Either makes a difference that is the check's, not the equations'.
     """
     home = (rec.get("home_est") or {}).get(key)
     other = entry.get(key)
     if not home or not other:
         return False
-    urban_pick = bool(entry.get("picked")) and "urban" in " ".join(entry.get("regions", [])).lower()
-    return not (home[1] or other[1] or urban_pick)
+    return not (home[1] or other[1] or bool(entry.get("picked")))
 
 
 def summarize(rows: pd.DataFrame) -> Dict[str, Any]:
@@ -637,7 +639,7 @@ def report(cache: Path, out_md: Path, out_csv: Path) -> None:
         "## Pairs at 1 percent",
         "",
         "Systematic: 3 or more gages and a median factor beyond 1.26 (0.1 log10). Clean: neither side "
-        "extrapolated and no urban set picked by default; "
+        "extrapolated and no set picked by default; "
         f"{s['clean_at_1pct']} of the comparisons at 1 percent are clean.",
         "",
         "| Home | Neighbour | Gages | Median neighbour/home | Systematic | Clean gages | Clean median "

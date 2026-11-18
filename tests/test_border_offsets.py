@@ -23,7 +23,7 @@ ROWS = REPO_ROOT / "docs" / "border_qa" / "rows.csv"
 
 def test_the_shipped_table_has_the_systematic_pairs():
     offsets = border_offsets()
-    assert len(offsets) == 17  # docs/VERIFICATION_PLAN.md
+    assert len(offsets) == 15  # docs/VERIFICATION_PLAN.md
     assert all(isinstance(o, BorderOffset) for o in offsets)
     assert [(o.home, o.neighbor) for o in offsets] == sorted((o.home, o.neighbor) for o in offsets)
     # Systematic means 3 or more gages and a median beyond 0.1 in log10.

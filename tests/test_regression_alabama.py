@@ -24,6 +24,8 @@ NSS = {
     "Urban": "GC1504",
 }
 AEPS = [0.5, 0.2, 0.1, 0.04, 0.02, 0.01, 0.005, 0.002]
+#: SIR 2026-5044's set, which NSS does not serve (tests/test_regression_urban_2026.py).
+NOT_IN_NSS = "Urban 2026"
 #: See the fixture's ``_source``. Neither report prints a worked example or a covariance.
 GAGES = json.loads((ROOT / "fixtures" / "regression" / "alabama_gages.json").read_text("utf-8"))
 
@@ -39,8 +41,8 @@ def _flow(lib, region, aep, **inputs):
 
 def test_alabama_is_verified(lib):
     assert lib.status == "verified"
-    assert lib.regions == ["1", "2", "3", "4", "Small streams", "Urban"]
-    assert len(lib.equations) == 48
+    assert lib.regions == ["1", "2", "3", "4", "Small streams", "Urban", NOT_IN_NSS]
+    assert len(lib.equations) == 56
     for region, code in NSS.items():
         assert region_for_nss_code(lib, code) == region
         assert set(lib.aeps(region)) == set(AEPS)
@@ -57,8 +59,9 @@ def test_site_counts_add_up_to_the_reports(lib):
 def test_every_equation_equals_the_nss_snapshot(lib):
     snap = json.loads((DATA / "nss_snapshot" / "AL.json").read_text(encoding="utf-8"))
     by_key = {(s["region_code"], s["aep"]): s for s in snap["equations"]}
-    assert {(NSS[e.region_code], e.aep) for e in lib.equations} == set(by_key)
-    for e in lib.equations:
+    served = [e for e in lib.equations if e.region_code != NOT_IN_NSS]
+    assert {(NSS[e.region_code], e.aep) for e in served} == set(by_key)
+    for e in served:
         s = by_key[(NSS[e.region_code], e.aep)]
         assert e.intercept == pytest.approx(s["intercept"], abs=1e-9)
         assert list(e.coefficients) == s["coefficients"]

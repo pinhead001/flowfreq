@@ -49,9 +49,24 @@
     "citation_id": 184,
     "last_year_of_data": 2017
    }
+  },
+  {
+   "citation": "Wagner, D.M., and Anderson, B.T., 2026, Magnitude and frequency of urban floods in Alabama and Mississippi using data through the 2024 water year: U.S. Geological Survey Scientific Investigations Report 2026-5044, 13 p., https://doi.org/10.3133/sir20265044.",
+   "doi": "10.3133/sir20265044",
+   "url": "https://pubs.usgs.gov/publication/sir20265044",
+   "pdf": "https://pubs.usgs.gov/sir/2026/5044/sir20265044.pdf",
+   "data_release": "https://doi.org/10.5066/P13GPMON",
+   "tables": [
+    "Data release: RegressionEquations.csv, WLSresults.csv, WLS_output"
+   ],
+   "nss": {
+    "regression_regions": [],
+    "last_year_of_data": 2024,
+    "checked": "2026-11-18"
+   }
   }
  ],
- "notes": "Anderson, SIR 2018-5148: flood regions A, B and C on drainage area alone at 8 AEPs (Tables 4 and 5), and Anderson, SIR 2021-5046, for the Mississippi Alluvial Plain (MAP), which SIR 2018-5148 left out for lack of data. Together they cover the state with no overlap and no superseded set among them; SIR 2018-5148 supersedes WRIR 91-4037. The constant is printed, so intercept = log10 of it. SEP and AVP as printed. LC11DEV 0-20 percent: the report removed sites with more than 20 percent development (p. 5). NSS carries the limit at 19.9999 and only on each region's Q50%, so here it is on all 24 equations at the printed 20. Equations and SEP equal NSS otherwise. The report also says not to use the methods where impervious area exceeds 10 percent unless urban effects are insignificant (p. 9, text, not stored). Not stored, no schema field: MSE (0.015 to 0.053; WREG's, not a model error variance, since no MEV column is printed), pseudo-R2, and SIR 2021-5046's MSE column (0.034 to 0.061), which exceeds AVP at 5 AEPs. No covariance, so intervals use AVP. No worked example in either report. Per-gage: the data release (ver. 3.0) prints RRE flows at 251 gages in regions A, B and C, reproduced at its Table 1 drainage areas but for two pinned gages: 02484500 and 02484600 carry their neighbour's RRE and weighted rows (02484500 implies 76 mi2, the 76.4 of 02484600; 02484600 repeats 02484750's row, 0.11 mi2). The release's two tables disagree on region at six gages (07287050, 07287150, 07287160, 07287165, 07287170, 07287505); RRE flows follow its Table 2. Its Table 2 also has 30 region A gages where Table 4 says 27. MAP: Table 3 of SIR 2021-5046 prints RRE flows for 50 gages, reproduced at its Table 1; its title says 58, and 8 have no row. The slope code is NSS's, CSL10_85fm; it matches the report's value at 07288500.",
+ "notes": "Anderson, SIR 2018-5148: flood regions A, B and C on drainage area alone at 8 AEPs (Tables 4 and 5), and Anderson, SIR 2021-5046, for the Mississippi Alluvial Plain (MAP), which SIR 2018-5148 left out for lack of data. Together they cover the state with no overlap and no superseded set among them; SIR 2018-5148 supersedes WRIR 91-4037. The constant is printed, so intercept = log10 of it. SEP and AVP as printed. LC11DEV 0-20 percent: the report removed sites with more than 20 percent development (p. 5). NSS carries the limit at 19.9999 and only on each region's Q50%, so here it is on all 24 equations at the printed 20. Equations and SEP equal NSS otherwise. The report also says not to use the methods where impervious area exceeds 10 percent unless urban effects are insignificant (p. 9, text, not stored). Not stored, no schema field: MSE (0.015 to 0.053; WREG's, not a model error variance, since no MEV column is printed), pseudo-R2, and SIR 2021-5046's MSE column (0.034 to 0.061), which exceeds AVP at 5 AEPs. No covariance, so intervals use AVP. No worked example in either report. Per-gage: the data release (ver. 3.0) prints RRE flows at 251 gages in regions A, B and C, reproduced at its Table 1 drainage areas but for two pinned gages: 02484500 and 02484600 carry their neighbour's RRE and weighted rows (02484500 implies 76 mi2, the 76.4 of 02484600; 02484600 repeats 02484750's row, 0.11 mi2). The release's two tables disagree on region at six gages (07287050, 07287150, 07287160, 07287165, 07287170, 07287505); RRE flows follow its Table 2. Its Table 2 also has 30 region A gages where Table 4 says 27. MAP: Table 3 of SIR 2021-5046 prints RRE flows for 50 gages, reproduced at its Table 1; its title says 58, and 8 have no row. The slope code is NSS's, CSL10_85fm; it matches the report's value at 07288500. Urban 2026: Wagner and Anderson, SIR 2026-5044, one set for the urban areas of Alabama and Mississippi at 8 AEPs, Q = DRNAREA^a * 10^(b + c*LC11DEV), by weighted least squares on 42 streamgages (29 in Alabama, 13 in Mississippi). The report prints no equation, coefficient or worked example; everything is from its data release (doi:10.5066/P13GPMON), written by tools/build_urban_2026.py. Coefficients are coefs.txt's at full precision (RegressionEquations.csv rounds them to 4 decimals, which moves a flow by up to 1.1 percent); model_error_variance is ModErrVar, avp is AVP and sep_log is Sp (percent) converted as sqrt(ln(1 + (Sp/100)^2)) / ln(10). The release has no covariance matrix. The one stored is (X' W^-1 X)^-1 computed from the release's modelInput.txt and Weighting.txt (order constant, log10 DRNAREA, LC11DEV), and is not a USGS-printed value: it reproduces the release's coefficients to 1e-10, their standard errors, and with the model error variance every gage's VarPred in WLSresults.csv at all 8 AEPs to its 4 decimals; its mean equals the AVP. Flows reproduce at all 42 gages and 8 AEPs to the 3 significant figures printed. Ranges are the report's (p. 8): DRNAREA 1.06 to 53.6 mi2 and LC11DEV 20 to 100 percent (developed land, NLCD 2011 classes 21-24); not for streams substantially affected by regulation. The LC11DEV coefficient falls with AEP and is -0.0002 at 0.2 percent. NSS served no region for this report on 2026-11-18, so nothing locates this set: name it with region='Urban 2026'. The report says the set supersedes Mississippi's 1991 urban equations (Landers and Wilson), which were never stored here. Regions A, B and C stop at 20 percent LC11DEV, where this set starts. The report does not say how it relates to the Mississippi Alluvial Plain set.",
  "equations": [
   {
    "region_code": "A",
@@ -1260,6 +1275,430 @@
    "sep_log": 0.244266,
    "avp": 0.059,
    "n_sites": 58
+  },
+  {
+   "region_code": "Urban 2026",
+   "region_name": "Urban, Alabama and Mississippi (SIR 2026-5044; not in NSS)",
+   "aep": 0.5,
+   "intercept": 2.31965140648468,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.06,
+     "maximum": 53.6
+    },
+    {
+     "code": "LC11DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 20.0,
+     "maximum": 100.0
+    }
+   ],
+   "coefficients": [
+    0.6272601078372,
+    0.0053989018509719
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., and Anderson, B.T., 2026, Magnitude and frequency of urban floods in Alabama and Mississippi using data through the 2024 water year: U.S. Geological Survey Scientific Investigations Report 2026-5044, 13 p., https://doi.org/10.3133/sir20265044.",
+    "table": "Data release doi:10.5066/P13GPMON, WLS_output/AEP_*/coefs.txt and PerformanceMetrics.txt; ranges from the report, p. 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20265044"
+   },
+   "sep_log": 0.117664,
+   "avp": 0.0138448440201676,
+   "model_error_variance": 0.0128111922158582,
+   "covariance": [
+    [
+     0.004972545189106488,
+     -0.0018520392637912692,
+     -4.707897843184926e-05
+    ],
+    [
+     -0.0018520392637912638,
+     0.0015135211659398312,
+     8.564171708666911e-06
+    ],
+    [
+     -4.707897843184932e-05,
+     8.564171708666987e-06,
+     6.155926605692818e-07
+    ]
+   ],
+   "n_sites": 42
+  },
+  {
+   "region_code": "Urban 2026",
+   "region_name": "Urban, Alabama and Mississippi (SIR 2026-5044; not in NSS)",
+   "aep": 0.2,
+   "intercept": 2.58724951624816,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.06,
+     "maximum": 53.6
+    },
+    {
+     "code": "LC11DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 20.0,
+     "maximum": 100.0
+    }
+   ],
+   "coefficients": [
+    0.622641566501572,
+    0.0039332882962367
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., and Anderson, B.T., 2026, Magnitude and frequency of urban floods in Alabama and Mississippi using data through the 2024 water year: U.S. Geological Survey Scientific Investigations Report 2026-5044, 13 p., https://doi.org/10.3133/sir20265044.",
+    "table": "Data release doi:10.5066/P13GPMON, WLS_output/AEP_*/coefs.txt and PerformanceMetrics.txt; ranges from the report, p. 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20265044"
+   },
+   "sep_log": 0.111071,
+   "avp": 0.0123366945619656,
+   "model_error_variance": 0.0113453029895498,
+   "covariance": [
+    [
+     0.004767560716785556,
+     -0.0017907105956938762,
+     -4.4861647334361946e-05
+    ],
+    [
+     -0.0017907105956938773,
+     0.0014584349523463097,
+     8.188262432896156e-06
+    ],
+    [
+     -4.486164733436193e-05,
+     8.188262432896144e-06,
+     5.871212312702735e-07
+    ]
+   ],
+   "n_sites": 42
+  },
+  {
+   "region_code": "Urban 2026",
+   "region_name": "Urban, Alabama and Mississippi (SIR 2026-5044; not in NSS)",
+   "aep": 0.1,
+   "intercept": 2.74231838744961,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.06,
+     "maximum": 53.6
+    },
+    {
+     "code": "LC11DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 20.0,
+     "maximum": 100.0
+    }
+   ],
+   "coefficients": [
+    0.614381934975729,
+    0.0030914796881822
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., and Anderson, B.T., 2026, Magnitude and frequency of urban floods in Alabama and Mississippi using data through the 2024 water year: U.S. Geological Survey Scientific Investigations Report 2026-5044, 13 p., https://doi.org/10.3133/sir20265044.",
+    "table": "Data release doi:10.5066/P13GPMON, WLS_output/AEP_*/coefs.txt and PerformanceMetrics.txt; ranges from the report, p. 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20265044"
+   },
+   "sep_log": 0.104329,
+   "avp": 0.0108845722425171,
+   "model_error_variance": 0.0099267141554648,
+   "covariance": [
+    [
+     0.00460597970270116,
+     -0.0017446806495142306,
+     -4.305540973020138e-05
+    ],
+    [
+     -0.001744680649514231,
+     0.0014158738091826289,
+     7.88107401427094e-06
+    ],
+    [
+     -4.305540973020138e-05,
+     7.881074014270939e-06,
+     5.639278194022129e-07
+    ]
+   ],
+   "n_sites": 42
+  },
+  {
+   "region_code": "Urban 2026",
+   "region_name": "Urban, Alabama and Mississippi (SIR 2026-5044; not in NSS)",
+   "aep": 0.04,
+   "intercept": 2.91834807081263,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.06,
+     "maximum": 53.6
+    },
+    {
+     "code": "LC11DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 20.0,
+     "maximum": 100.0
+    }
+   ],
+   "coefficients": [
+    0.601905192191591,
+    0.0021467399942473
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., and Anderson, B.T., 2026, Magnitude and frequency of urban floods in Alabama and Mississippi using data through the 2024 water year: U.S. Geological Survey Scientific Investigations Report 2026-5044, 13 p., https://doi.org/10.3133/sir20265044.",
+    "table": "Data release doi:10.5066/P13GPMON, WLS_output/AEP_*/coefs.txt and PerformanceMetrics.txt; ranges from the report, p. 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20265044"
+   },
+   "sep_log": 0.099051,
+   "avp": 0.0098111325099549,
+   "model_error_variance": 0.0088304664407731,
+   "covariance": [
+    [
+     0.004718299924277851,
+     -0.0018033609366686371,
+     -4.376426893090633e-05
+    ],
+    [
+     -0.0018033609366686373,
+     0.0014574606645361133,
+     8.02988560659757e-06
+    ],
+    [
+     -4.376426893090633e-05,
+     8.029885606597571e-06,
+     5.735366180431081e-07
+    ]
+   ],
+   "n_sites": 42
+  },
+  {
+   "region_code": "Urban 2026",
+   "region_name": "Urban, Alabama and Mississippi (SIR 2026-5044; not in NSS)",
+   "aep": 0.02,
+   "intercept": 3.03554208437798,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.06,
+     "maximum": 53.6
+    },
+    {
+     "code": "LC11DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 20.0,
+     "maximum": 100.0
+    }
+   ],
+   "coefficients": [
+    0.593422020272087,
+    0.0015250285394749
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., and Anderson, B.T., 2026, Magnitude and frequency of urban floods in Alabama and Mississippi using data through the 2024 water year: U.S. Geological Survey Scientific Investigations Report 2026-5044, 13 p., https://doi.org/10.3133/sir20265044.",
+    "table": "Data release doi:10.5066/P13GPMON, WLS_output/AEP_*/coefs.txt and PerformanceMetrics.txt; ranges from the report, p. 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20265044"
+   },
+   "sep_log": 0.101193,
+   "avp": 0.0102400108185425,
+   "model_error_variance": 0.0091511545186341,
+   "covariance": [
+    [
+     0.005241543181245305,
+     -0.0020102275637637113,
+     -4.846044058789963e-05
+    ],
+    [
+     -0.0020102275637637118,
+     0.0016218664015158419,
+     8.897688763323988e-06
+    ],
+    [
+     -4.8460440587899626e-05,
+     8.897688763323981e-06,
+     6.351254993651163e-07
+    ]
+   ],
+   "n_sites": 42
+  },
+  {
+   "region_code": "Urban 2026",
+   "region_name": "Urban, Alabama and Mississippi (SIR 2026-5044; not in NSS)",
+   "aep": 0.01,
+   "intercept": 3.14213207738133,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.06,
+     "maximum": 53.6
+    },
+    {
+     "code": "LC11DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 20.0,
+     "maximum": 100.0
+    }
+   ],
+   "coefficients": [
+    0.586477261011544,
+    0.0009607098867374
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., and Anderson, B.T., 2026, Magnitude and frequency of urban floods in Alabama and Mississippi using data through the 2024 water year: U.S. Geological Survey Scientific Investigations Report 2026-5044, 13 p., https://doi.org/10.3133/sir20265044.",
+    "table": "Data release doi:10.5066/P13GPMON, WLS_output/AEP_*/coefs.txt and PerformanceMetrics.txt; ranges from the report, p. 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20265044"
+   },
+   "sep_log": 0.109992,
+   "avp": 0.0120982439676225,
+   "model_error_variance": 0.0107968476869544,
+   "covariance": [
+    [
+     0.006265370080845924,
+     -0.002404286597844895,
+     -5.789313967552549e-05
+    ],
+    [
+     -0.0024042865978448997,
+     0.0019392105033992741,
+     1.0630709843657524e-05
+    ],
+    [
+     -5.78931396755254e-05,
+     1.0630709843657446e-05,
+     7.587510188859027e-07
+    ]
+   ],
+   "n_sites": 42
+  },
+  {
+   "region_code": "Urban 2026",
+   "region_name": "Urban, Alabama and Mississippi (SIR 2026-5044; not in NSS)",
+   "aep": 0.005,
+   "intercept": 3.24057325302304,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.06,
+     "maximum": 53.6
+    },
+    {
+     "code": "LC11DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 20.0,
+     "maximum": 100.0
+    }
+   ],
+   "coefficients": [
+    0.580622087853014,
+    0.0004422270110528
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., and Anderson, B.T., 2026, Magnitude and frequency of urban floods in Alabama and Mississippi using data through the 2024 water year: U.S. Geological Survey Scientific Investigations Report 2026-5044, 13 p., https://doi.org/10.3133/sir20265044.",
+    "table": "Data release doi:10.5066/P13GPMON, WLS_output/AEP_*/coefs.txt and PerformanceMetrics.txt; ranges from the report, p. 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20265044"
+   },
+   "sep_log": 0.124975,
+   "avp": 0.0156187535492762,
+   "model_error_variance": 0.0139843678516979,
+   "covariance": [
+    [
+     0.007866456200682354,
+     -0.0030144021390350146,
+     -7.278780891447484e-05
+    ],
+    [
+     -0.003014402139035015,
+     0.0024330832351350294,
+     1.3362275074984035e-05
+    ],
+    [
+     -7.278780891447485e-05,
+     1.3362275074984028e-05,
+     9.539551084696583e-07
+    ]
+   ],
+   "n_sites": 42
+  },
+  {
+   "region_code": "Urban 2026",
+   "region_name": "Urban, Alabama and Mississippi (SIR 2026-5044; not in NSS)",
+   "aep": 0.002,
+   "intercept": 3.36223278085847,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 1.06,
+     "maximum": 53.6
+    },
+    {
+     "code": "LC11DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 20.0,
+     "maximum": 100.0
+    }
+   ],
+   "coefficients": [
+    0.573498926847026,
+    -0.0001965667954494
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., and Anderson, B.T., 2026, Magnitude and frequency of urban floods in Alabama and Mississippi using data through the 2024 water year: U.S. Geological Survey Scientific Investigations Report 2026-5044, 13 p., https://doi.org/10.3133/sir20265044.",
+    "table": "Data release doi:10.5066/P13GPMON, WLS_output/AEP_*/coefs.txt and PerformanceMetrics.txt; ranges from the report, p. 8",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20265044"
+   },
+   "sep_log": 0.152134,
+   "avp": 0.0231446591662155,
+   "model_error_variance": 0.0208653779205928,
+   "covariance": [
+    [
+     0.010965237972394123,
+     -0.004187180918135122,
+     -0.00010179135970960893
+    ],
+    [
+     -0.004187180918135114,
+     0.0033855249944069864,
+     1.8672910578823423e-05
+    ],
+    [
+     -0.00010179135970960901,
+     1.8672910578823518e-05,
+     1.3339417621678806e-06
+    ]
+   ],
+   "n_sites": 42
   }
  ]
 }
