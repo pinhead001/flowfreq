@@ -161,6 +161,7 @@ class TestBuildSection:
             "engine_check",
             "future_flow",
             "comparison",
+            "site_summary",
             "low_flow",
             "flow_duration",
         }

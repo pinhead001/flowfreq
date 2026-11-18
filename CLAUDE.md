@@ -218,7 +218,7 @@ CI should test the supported Python matrix.
 - **`lowflow.py`** / **`regime.py`** / **`subdaily.py`** — low-flow frequency, flow-regime and
   sub-daily metrics
 - **`reporting/`** — reports from a JSON specification: `spec` (`ReportSpec`, `SectionSpec`),
-  `sections` (the section kinds: `gaged_ffa`, `ungaged`, `weighted`, `transposed`, `engine_check`, `future_flow`, `comparison`, `text`), `daily` (`low_flow` and `flow_duration`, from a daily record stored in the spec), `blocks` (content blocks and
+  `sections` (the section kinds: `gaged_ffa`, `ungaged`, `weighted`, `transposed`, `engine_check`, `future_flow`, `comparison`, `text`), `summary` (`site_summary`: characteristics, a map, flows by method and a curve plot for one site), `daily` (`low_flow` and `flow_duration`, from a daily record stored in the spec), `blocks` (content blocks and
   the Markdown subset), `build` (`build_report`, Markdown output), `word` (DOCX through
   python-docx, the `report` extra), `session` (`ReportSession`: a report built a section at a
   time, stable section ids, files named inside one output directory). A section's tables and

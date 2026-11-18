@@ -19,6 +19,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   StreamStats and were not asked again.
 
 ### Added
+- **Report section `site_summary`**: a summary of a study of one site, for the front of a report. It takes
+  `locations` (each a name, a point, and optionally basin characteristics and a watershed outline as GeoJSON) and
+  the same `estimates` a `comparison` section takes, and gives a table of the characteristics, printed as supplied
+  and said to be; a map of the locations and watersheds, with no base map; the flood quantiles by each method from
+  the 1.5-year to the 500-year flood; and the methods' frequency curves with their limits on one plot (`curves`
+  chooses which). A gage's fit tabulates the 1.5-year flood at AEP 0.67 and some regressions at 0.667; the summary
+  shows them as one row and says so. Discussion goes in the section's `narrative`.
+
 - **Report section `comparison`**: several estimates of the flood quantiles at one site, side by side. It takes
   `estimates`, each a `label`, a `kind` (`gaged_ffa`, `transposed` or `ungaged`) and that kind's options, and
   tabulates the flows at the AEPs all of them give (or the `aeps` asked for), with the ratio of the largest to the

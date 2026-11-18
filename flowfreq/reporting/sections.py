@@ -1692,9 +1692,11 @@ _ESTIMATE_KEYS = ("label", "kind", "options")
 COMPARISON_CAPTION = "Flood quantiles at the site by each method."
 
 
-def _compared(index: int, given: Any) -> Tuple[str, SectionContent, pd.DataFrame, str]:
+def _compared(
+    index: int, given: Any, section: str = "comparison"
+) -> Tuple[str, SectionContent, pd.DataFrame, str]:
     """One estimate: its label, its section, its flows with limits, and what the limits are."""
-    owner = f"comparison: estimate {index + 1}"
+    owner = f"{section}: estimate {index + 1}"
     if not isinstance(given, dict):
         raise ReportError(f"{owner} must be an object with label, kind and options")
     extra = sorted(set(given) - set(_ESTIMATE_KEYS))
