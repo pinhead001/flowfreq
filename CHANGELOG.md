@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.27.1] - 2026-11-17
+
+### Changed
+- **A StreamStats delineation or basin-characteristics request is no longer retried after a timeout.** The two
+  requests that make StreamStats compute a basin (ss-delineate's `delineate/sshydro` and ss-hydro's basin
+  characteristics) waited 60 seconds and were sent up to three times. A large basin takes longer than that, so the
+  same computation was started three times and each abandoned, which is the pattern issue #365 was about for
+  `bylocation`. Both now wait at least `COMPUTE_TIMEOUT` (200 s) and are not retried on a read timeout or a 504; a
+  connect timeout, a dropped connection and other 5xx are still retried. `delineate_and_get_characteristics`,
+  `delineate_watershed` and `estimate_at_site` take the new limits, so a slow basin can take over three minutes
+  to answer or to fail, where it failed after about three before. Whether these services keep working after the
+  client disconnects, as NSS does, was not confirmed; the change assumes they may.
+
 ## [0.27.0] - 2026-11-16
 
 Reports built from a JSON specification, as DOCX or Markdown, and `flowfreq-mcp`, which puts the report tools

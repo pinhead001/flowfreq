@@ -475,6 +475,72 @@ def _run_delineation(snap, sshydro, hydro, **kwargs):
         return delineate_and_get_characteristics("WA", lat, lon, **kwargs), post
 
 
+class TestComputeLoad:
+    """The two requests that make StreamStats compute a basin are not run twice.
+
+    A read timeout or a 504 means the server took the request and may still be working on
+    it, so neither ss-delineate's delineation nor ss-hydro's characteristics is retried, and
+    the client waits at least ``COMPUTE_TIMEOUT`` for each (issue #365's reasoning).
+    """
+
+    def test_a_slow_characteristics_request_is_sent_once(self) -> None:
+        with (
+            patch("flowfreq.streamstats.requests.get", side_effect=_good_get_responses()),
+            patch(
+                "flowfreq.streamstats.requests.post", side_effect=requests.ReadTimeout("slow")
+            ) as post,
+            patch("flowfreq.streamstats.time.sleep"),
+        ):
+            with pytest.raises(StreamStatsTransportError, match="not retried"):
+                delineate_and_get_characteristics("WA", 48.57430, -120.37890)
+        assert post.call_count == 1
+
+    def test_a_slow_delineation_is_sent_once(self) -> None:
+        with (
+            patch(
+                "flowfreq.streamstats.requests.get",
+                side_effect=[_mock_response(SNAP_GOOD), requests.ReadTimeout("slow")],
+            ) as get,
+            patch("flowfreq.streamstats.requests.post") as post,
+            patch("flowfreq.streamstats.time.sleep"),
+        ):
+            with pytest.raises(StreamStatsTransportError, match="not retried"):
+                delineate_and_get_characteristics("WA", 48.57430, -120.37890)
+        assert get.call_count == 2
+        post.assert_not_called()
+
+    def test_a_gateway_timeout_is_not_retried(self) -> None:
+        with (
+            patch("flowfreq.streamstats.requests.get", side_effect=_good_get_responses()),
+            patch(
+                "flowfreq.streamstats.requests.post",
+                return_value=_mock_response(status_code=504, text="Gateway Timeout"),
+            ) as post,
+        ):
+            with pytest.raises(StreamStatsTransportError, match="504"):
+                delineate_and_get_characteristics("WA", 48.57430, -120.37890)
+        assert post.call_count == 1
+
+    @pytest.mark.parametrize("asked,sent", [(None, 200.0), (30.0, 200.0), (600.0, 600.0)])
+    def test_both_wait_at_least_the_compute_timeout(self, asked, sent) -> None:
+        from flowfreq.streamstats import COMPUTE_TIMEOUT
+
+        assert COMPUTE_TIMEOUT == 200.0
+        kwargs = {} if asked is None else {"timeout": asked}
+        with (
+            patch("flowfreq.streamstats.requests.get", side_effect=_good_get_responses()) as get,
+            patch(
+                "flowfreq.streamstats.requests.post",
+                return_value=_mock_response(HYDRO_CHARACTERISTICS_GOOD),
+            ) as post,
+        ):
+            delineate_and_get_characteristics("WA", 48.57430, -120.37890, **kwargs)
+        assert get.call_args_list[1].kwargs["timeout"] == sent
+        assert post.call_args.kwargs["timeout"] == sent
+        # The snap is a lookup, not a computation, and keeps the caller's timeout.
+        assert get.call_args_list[0].kwargs["timeout"] == (asked or 60.0)
+
+
 def _outer_ring(sshydro):
     for entry in sshydro["bcrequest"]["wsresp"]["featurecollection"][0]:
         if entry["name"] == "globalwatershed":
