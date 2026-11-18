@@ -309,7 +309,10 @@ analysis and lays out what it returns, so a quantile in a report is the one `run
   curve. `future_flow` takes a `gage` or a `regression` and a `factor_set` (name, AEPs,
   factors, scenario, horizon and citation, all the analyst's) and multiplies the flood
   quantiles by the change factors (`flowfreq.future_flow.apply_change_factors`), marking
-  each factor as published, interpolated or held. `text` is a titled section of prose.
+  each factor as published, interpolated or held. `comparison` takes `estimates` (each a
+  `label`, a `kind` of `gaged_ffa`, `transposed` or `ungaged`, and that kind's options)
+  and sets their flood quantiles at one site side by side, with each one's limits and its
+  own analysis below. `text` is a titled section of prose.
 - **The spec as built is the record.** Give a `site_no` and the peaks are downloaded; give
   `regional_skew_state` or `regional_skew_from_site` and the skew is looked up. Both are
   written into `report.spec` as values, with the retrieval date and the citation, and the

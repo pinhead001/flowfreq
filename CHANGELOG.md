@@ -19,6 +19,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   StreamStats and were not asked again.
 
 ### Added
+- **Report section `comparison`**: several estimates of the flood quantiles at one site, side by side. It takes
+  `estimates`, each a `label`, a `kind` (`gaged_ffa`, `transposed` or `ungaged`) and that kind's options, and
+  tabulates the flows at the AEPs all of them give (or the `aeps` asked for), with the ratio of the largest to the
+  smallest, then each estimate's limits, named for what they are: a gage's confidence limits, a transposition's
+  scaled donor limits, a regression's prediction limits. Each estimate's own analysis follows under its label
+  unless `detail` is false. Nothing is weighted or combined. It is the section for an ungaged site with a gage
+  upstream, a gage downstream and a regional regression. `flowfreq-mcp` has no tool for it yet; build it from a
+  specification or with `ReportSession.add_section`.
+
 - **The 2026 urban equations for Alabama, Mississippi and Tennessee**, as region `Urban 2026` in each state's file.
   SIR 2026-5044 (Wagner and Anderson) gives one set for urban Alabama and Mississippi on drainage area and
   percent developed land (`DRNAREA`, `LC11DEV`), 1.06 to 53.6 mi2 and 20 to 100 percent; it is Mississippi's first

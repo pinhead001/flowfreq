@@ -456,7 +456,7 @@ def ungaged_chars(
 def report(spec: Path, output: Path, save_spec: Optional[Path]) -> None:
     """Build a report from a JSON specification.
 
-    SPEC lists the report's sections (gaged_ffa, ungaged, weighted, text) and their inputs; every
+    SPEC lists the report's sections (flowfreq.reporting.SECTION_KINDS) and their inputs; every
     table and figure is computed from them. See flowfreq.reporting.
     """
     from flowfreq.reporting import ReportSpec, build_report
