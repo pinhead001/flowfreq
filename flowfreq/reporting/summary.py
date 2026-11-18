@@ -228,13 +228,12 @@ def _build_site_summary(given: Dict[str, Any]) -> SectionContent:
                 f"{_OWNER}: not every estimate has a quantile at AEP "
                 + ", ".join(f"{a:g}" for a in missing)
             )
-    apart = sorted(
-        {
-            f"{aep * 100:.3g} percent ({', '.join(sorted({f'{float(at(t, aep)['aep']):g}' for t in tables}))})"
-            for aep in aeps
-            if len({float(at(t, aep)["aep"]) for t in tables}) > 1
-        }
-    )
+    apart = []
+    for aep in aeps:
+        used = sorted({float(at(table, aep)["aep"]) for table in tables})
+        if len(used) > 1:
+            shown = ", ".join(format(value, "g") for value in used)
+            apart.append(format(aep * 100, ".3g") + " percent (" + shown + ")")
     plotted = options.get("curves")
     if plotted is None:
         plotted = labels
