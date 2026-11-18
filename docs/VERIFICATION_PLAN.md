@@ -200,7 +200,7 @@ locates all eight regions at 100 percent. `estimate_at_site` now uses it (`Regio
 The rule follows the report, though it doesn't always land closer to the gage: 03364500 moved further away. Gages
 wholly in one region don't change.
 
-## Cross-border check on every border, 2026-11-07 to 2026-11-09 (partial)
+## Cross-border check on every border, 2026-11-07 to 2026-11-17
 
 `tools/border_qa.py` runs every catalog gage within 20 km of a neighboring verified state (20+ peaks, 1-3,000 mi2, not
 classed regulated or urban): 1,691 gages in 107 pairs. Each is delineated once in its own state. Both states' equations are
@@ -208,25 +208,23 @@ then evaluated on that basin at AEP 50, 10 and 1 percent: the home state through
 neighbor on the same characteristics, filling equivalent ones where the home region lacks them. Results are in
 `docs/BORDER_QA.md`, with rows in `docs/border_qa/rows.csv`.
 
-**Still partial.** StreamStats' ss-hydro was down from early 2026-11-08 to the morning of 2026-11-09. The second run then
-stopped when StreamStats began refusing this machine with 403 Forbidden, after about 1,700 requests in a day. About 280
-gages remain: 147 refused, 71 with a service error, and 64 not reached. Resume with `python tools/border_qa.py run
---workers 1` once StreamStats answers again, then `report`. The cache is under `.cache/border_qa`. Of 1,182 delineated
-gages, 516 could be compared. The main obstacle is still the neighbor needing a characteristic the home region doesn't
-compute (429 rows at 1 percent). Indiana now compares, at 10 rows, after the tool stopped asking it for a 50 percent
-equation it doesn't publish.
+**Complete, 2026-11-17.** StreamStats' ss-hydro was down from early 2026-11-08 to the morning of 2026-11-09, and the
+second run stopped when StreamStats blocked this machine's address (issue #365), about 280 gages short. The block was
+lifted on 2026-11-16 and the rest ran on 2026-11-17, one gage at a time, with no refusal. Two New Mexico gages
+(09455800, 09443000) timed out once and were not asked again. Of 1,391 delineated gages, 623 could be compared. The main
+obstacle is still the neighbor needing a characteristic the home region doesn't compute (528 rows at 1 percent).
 
 | At 1 percent | Gages |
 |---|---:|
-| Within 1.5 times | 359 |
-| 1.5 to 2 times | 111 |
-| 2 to 3 times | 43 |
-| 3 times or more | 26 |
+| Within 1.5 times | 446 |
+| 1.5 to 2 times | 122 |
+| 2 to 3 times | 53 |
+| 3 times or more | 28 |
 
-The median factor is 1.22-1.24 at every AEP. The home equation was nearer the at-site fit at 284 of 533 comparisons. The
+The median factor is 1.21 at every AEP. The home equation was nearer the at-site fit at 333 of 642 comparisons. The
 first run showed 3 apparent offsets that were the check's own doing: Alabama to Georgia, where Georgia's 1 mi2 sets were
 extrapolated, and Kansas to Missouri and Delaware to Maryland, where an urban set was picked by default. So the report
-counts **clean** comparisons, where neither side extrapolated and no urban set was picked by default (474 of 539 at 1
+counts **clean** comparisons, where neither side extrapolated and no urban set was picked by default (576 of 649 at 1
 percent).
 
 17 pairs are systematic on clean comparisons. At-site is the gage's Bulletin 17C fit with station skew. The
@@ -242,6 +240,7 @@ can say so:
 | IA to MN | 6 | 2.04 | 0.41 | 0.59 | 2 of 6 |
 | IA to WI | 8 | 0.46 | 0.93 | 0.46 | 6 of 8 |
 | ID to MT | 7 | 0.55 | 1.06 | 0.68 | 4 of 7 |
+| IL to IN | 5 | 0.67 | 0.62 | 0.55 | 3 of 5 |
 | KS to MO | 4 | 0.71 | 0.92 | 0.62 | 2 of 2 |
 | MA to VT | 7 | 0.71 | 0.72 | 0.51 | 5 of 7 |
 | MD to VA | 5 | 1.47 | 0.92 | 1.35 | 3 of 5 |
@@ -251,11 +250,25 @@ can say so:
 | NY to VT | 14 | 1.42 | 0.84 | 1.28 | 9 of 14 |
 | RI to CT | 14 | 2.39 | 0.87 | 1.90 | 10 of 14 |
 | SD to IA | 4 | 1.37 | 0.96 | 1.32 | 3 of 4 |
-| VA to TN | 9 | 1.41 | 1.10 | 1.64 | 7 of 9 |
-| VA to WV | 6 | 0.53 | 0.88 | 0.64 | 2 of 6 |
+| VA to TN | 13 | 1.40 | 1.10 | 1.54 | 11 of 13 |
 
-**New in the second run:** Connecticut's equations run 2.4 times above Rhode Island's at 14 Rhode Island gages, and 1.9 times
-above the record. Rhode Island's are nearer at 10, so this is the largest new offset worth tracing.
+**Changed by the last 280 gages:** Illinois to Indiana is new (5 clean gages; both states' equations sit below the
+record there, and it is not traced). Virginia to West Virginia is gone: the six gages of the partial run gave 0.53, and all
+27 give a median of 1.0. Both states use SIR 2025-5110; about a quarter of the gages fall in a different region of it
+on the other side and differ by half.
+
+**Rhode Island to Connecticut, traced 2026-11-17: it compares unlike equations.** Connecticut's equations run 2.4 times
+above Rhode Island's at 14 Rhode Island gages, and 1.9 times above the record; Rhode Island's are nearer at 10. Rhode
+Island's StreamStats computes neither of the characteristics Connecticut's full set needs (`SSURGOCCDD`, `I24H100Y`), so
+at every one of the 14 the Connecticut side is its drainage-area-only set (region 2 of SIR 2020-5054), against Rhode
+Island's three-variable set (drainage area, stream density, storage; SIR 2012-5109). Evaluated here on the cached basins,
+the 2.39 splits into two factors: Connecticut's drainage-area-only set is 1.85 times Rhode Island's own
+drainage-area-only set, and Rhode Island's drainage-area-only set is 1.29 times its full set on these basins, whose
+stream density is low (median 1.68 mi/mi2). Rhode Island's full set gives 0.87 of the record, so these basins do flood
+less for their area than Connecticut's statewide drainage-area relation says. Nothing points to a transcription
+fault. Not done: Rhode Island's values weren't set against its report's printed estimates, as Iowa's and Georgia's
+were, and Connecticut's full set couldn't be tried, for want of the two characteristics. The shipped offset is
+therefore a statement about Connecticut's drainage-area-only set on Rhode Island basins, not about its full set.
 
 Mostly each state's own equations sit nearer its own gages, as expected of equations fitted to them. Two rows from the
 first run didn't fit that pattern, and both are traced. **Georgia's** 2023 set gives 0.64 of the record along the Alabama line, where Alabama's gives 1.32. **Iowa's**
