@@ -337,6 +337,132 @@ def _threshold_rows(thresholds: Any) -> List[Dict[str, Any]]:
     return list(thresholds)
 
 
+_EXTENSION_KEYS = ("index", "n_extend", "years")
+_INDEX_KEYS = ("site_no", "site_name", "peaks")
+
+
+def _extended_frame(options: Dict[str, Any], frame: pd.DataFrame) -> Tuple[Any, pd.DataFrame]:
+    """The record extended from an index gage (Bulletin 17C Appendix 8), and the extension.
+
+    Downloads the index gage's peaks when the options carry none, and writes them back.
+    The frame returned has the observed peaks and the generated ones, with a ``source``
+    column saying which.
+    """
+    from ..peak_extension import extend_peaks
+
+    given = options["extension"]
+    if not isinstance(given, dict) or not isinstance(given.get("index"), dict):
+        raise ReportError("gaged_ffa: extension must be an object with an index gage")
+    extra = sorted(set(given) - set(_EXTENSION_KEYS)) + sorted(
+        set(given["index"]) - set(_INDEX_KEYS)
+    )
+    if extra:
+        raise ReportError(
+            f"gaged_ffa: unknown extension key(s) {', '.join(extra)}; an extension takes "
+            f"{', '.join(_EXTENSION_KEYS)} and its index {', '.join(_INDEX_KEYS)}"
+        )
+    extension = dict(given)
+    index = dict(extension["index"])
+    if index.get("peaks") is None:
+        if not index.get("site_no"):
+            raise ReportError("gaged_ffa: the extension's index gage needs site_no or peaks")
+        fetched = download_peaks(str(index["site_no"]).strip())
+        index["peaks"] = fetched["peaks"]
+        if index.get("site_name") is None and fetched.get("site_name") is not None:
+            index["site_name"] = fetched["site_name"]
+    index_frame = _peak_frame(index["peaks"])
+    try:
+        result = extend_peaks(
+            pd.Series(frame["peak_flow_cfs"].to_numpy(), index=frame["water_year"].to_numpy()),
+            pd.Series(
+                index_frame["peak_flow_cfs"].to_numpy(), index=index_frame["water_year"].to_numpy()
+            ),
+            n_extend=extension.get("n_extend"),
+            years=extension.get("years"),
+        )
+    except (TypeError, ValueError) as exc:
+        raise ReportError(f"gaged_ffa: the record could not be extended: {exc}") from exc
+    extension["index"] = index
+    options["extension"] = extension
+    added = pd.DataFrame(
+        {
+            "water_year": result.extended["water_year"].astype(int),
+            "peak_flow_cfs": result.extended["flow_cfs"].astype(float),
+            "qualification_code": None,
+            "peak_date": None,
+            "source": "extended",
+        }
+    )
+    both = pd.concat([frame.assign(source="observed"), added], ignore_index=True)
+    return result, both.sort_values("water_year").reset_index(drop=True)
+
+
+def _extension_blocks(result: Any, options: Dict[str, Any]) -> List[Block]:
+    """What the record extension did, in a paragraph, its statistics and any cautions."""
+    index = options["extension"]["index"]
+    label = " ".join(
+        str(x)
+        for x in (
+            f"USGS {index['site_no']}" if index.get("site_no") else None,
+            index.get("site_name"),
+        )
+        if x
+    )
+    years = [int(y) for y in result.extended["water_year"]]
+    blocks: List[Block] = [
+        Heading(2, "Record extension"),
+        Paragraph(
+            f"The record was extended from the index gage{' ' + label if label else ''} "
+            "following Bulletin 17C Appendix 8 (England and others, 2019). The mean and "
+            "variance of the logarithms of the peaks were first improved with the index "
+            "gage's longer record (the Matalas-Jacobs estimators), and the effective record "
+            f"that improvement is worth, {result.effective_length_variance:.1f} years in the "
+            f"variance, set the number of peaks to add: {result.n_extended}. They were "
+            f"generated from the index gage's peaks of {min(years)} to {max(years)} by the "
+            "line below, whose intercept and slope make the observed and generated peaks "
+            "together reproduce the improved mean and variance. The generated peaks stand "
+            "for the information the index gage adds and are not estimates of what "
+            "happened in those years; they enter the frequency analysis as if observed. "
+            "The stationarity screen is not run on an extended record."
+        ),
+        Table(
+            ("Item", "Value"),
+            (
+                ("Concurrent years", f"{result.n_concurrent}"),
+                ("Index-gage years outside them", f"{result.n_additional}"),
+                (
+                    "Years at this gage the index gage lacks (not in the fit)",
+                    f"{result.n_short_only}",
+                ),
+                ("Correlation of the concurrent log10 peaks", f"{result.correlation:.4f}"),
+                ("Mean of log10 flow, concurrent years", f"{result.mean_short:.4f}"),
+                ("Mean of log10 flow, improved", f"{result.mean_augmented:.4f}"),
+                ("Standard deviation of log10 flow, concurrent years", f"{result.sd_short:.4f}"),
+                (
+                    "Standard deviation of log10 flow, improved",
+                    f"{math.sqrt(result.variance_augmented):.4f}",
+                ),
+                ("Effective record length, mean (years)", f"{result.effective_length_mean:.1f}"),
+                (
+                    "Effective record length, variance (years)",
+                    f"{result.effective_length_variance:.1f}",
+                ),
+                ("Peaks added", f"{result.n_extended}"),
+                (
+                    "Extension line",
+                    f"log10 Q = {result.intercept:.4f} + {result.slope:.4f} "
+                    f"(log10 Q_index - {result.mean_index_extended:.4f})",
+                ),
+            ),
+            ("left", "right"),
+            "Record extension from the index gage.",
+        ),
+    ]
+    if result.notes:
+        blocks.append(Bullets(tuple(f"**{note}**" for note in result.notes)))
+    return blocks
+
+
 def _build_gaged_ffa(given: Dict[str, Any]) -> SectionContent:
     return _gaged_ffa(given)[0]
 
@@ -357,6 +483,11 @@ def _gaged_ffa(given: Dict[str, Any]) -> Tuple[SectionContent, Any]:
             if options.get(key) is None and fetched.get(key) is not None:
                 options[key] = fetched[key]
     frame = _peak_frame(options["peaks"])
+    observed = frame
+    extension = None
+    if options.get("extension") is not None:
+        extension, frame = _extended_frame(options, frame)
+    screened = bool(options.get("stationarity", True)) and extension is None
     _resolve_skew(options)
     thresholds = _threshold_rows(options.get("perception_thresholds"))
     apply_codes = bool(options.get("apply_peak_codes", True))
@@ -376,8 +507,8 @@ def _gaged_ffa(given: Dict[str, Any]) -> Tuple[SectionContent, Any]:
         apply_peak_codes=apply_codes,
         site_no=site_no,
         allow_regulated=bool(options.get("allow_regulated", False)),
-        stationarity=bool(options.get("stationarity", True)),
-        stationarity_figure=bool(options.get("stationarity", True)),
+        stationarity=screened,
+        stationarity_figure=screened,
     )
     if result["error"]:
         raise ReportError(f"gaged_ffa: the frequency analysis failed: {result['error']}")
@@ -386,11 +517,13 @@ def _gaged_ffa(given: Dict[str, Any]) -> Tuple[SectionContent, Any]:
     site_name = options.get("site_name")
     label = " ".join(x for x in (f"USGS {site_no}" if site_no else None, site_name) if x)
     title = f"Flood frequency at {label}" if label else "Flood frequency"
+    if extension is not None:
+        title += ", record extended"
     blocks: List[Block] = []
 
     # Station and record
-    year_values = frame["water_year"].to_numpy(dtype=int)
-    flow_values = frame["peak_flow_cfs"].to_numpy(dtype=float)
+    year_values = observed["water_year"].to_numpy(dtype=int)
+    flow_values = observed["peak_flow_cfs"].to_numpy(dtype=float)
     largest, smallest = int(np.argmax(flow_values)), int(np.argmin(flow_values))
     record: List[Tuple[str, str]] = []
     if site_no:
@@ -403,7 +536,7 @@ def _gaged_ffa(given: Dict[str, Any]) -> Tuple[SectionContent, Any]:
         )
     record.extend(
         [
-            ("Annual peaks", f"{len(frame)}"),
+            ("Annual peaks", f"{len(observed)}"),
             ("Water years", f"{year_values.min()} to {year_values.max()}"),
             (
                 "Largest peak (cfs)",
@@ -415,6 +548,8 @@ def _gaged_ffa(given: Dict[str, Any]) -> Tuple[SectionContent, Any]:
             ),
         ]
     )
+    if extension is not None:
+        record.append(("Peaks added by record extension", f"{extension.n_extended}"))
     if options["peaks"].get("source"):
         retrieved = options["peaks"].get("retrieved")
         record.append(
@@ -499,6 +634,8 @@ def _gaged_ffa(given: Dict[str, Any]) -> Tuple[SectionContent, Any]:
             "should be checked before use.**"
         )
     blocks.append(Paragraph(" ".join(method)))
+    if extension is not None:
+        blocks.extend(_extension_blocks(extension, options))
 
     # Fitted parameters
     fitted: List[Tuple[str, str]] = [
@@ -611,6 +748,8 @@ def _gaged_ffa(given: Dict[str, Any]) -> Tuple[SectionContent, Any]:
         if any(dates):
             columns.append(("Date", "left", dates))
         columns.append(("Peak flow (cfs)", "right", [cfs(q) for q in frame["peak_flow_cfs"]]))
+        if extension is not None:
+            columns.append(("Source", "left", [str(s) for s in frame["source"]]))
         if has_codes:
             columns.append(
                 ("Qualification codes", "left", ["" if c is None else str(c) for c in codes])
@@ -2066,6 +2205,7 @@ SECTION_KINDS: Dict[str, SectionKind] = {
                 "allow_regulated",
                 "stationarity",
                 "peaks_table",
+                "extension",
             ),
             build=_build_gaged_ffa,
         ),

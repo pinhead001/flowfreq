@@ -19,6 +19,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   StreamStats and were not asked again.
 
 ### Added
+- **Record extension of annual peaks (Bulletin 17C Appendix 8)**: `flowfreq.extend_peaks(short, index)` extends a
+  short gage's annual peaks from a nearby long-record index gage. It computes the Matalas-Jacobs mean and variance
+  (equations 8-7 and 8-8), the effective record length the index gage is worth (8-18 for the mean, 8-19 for the
+  variance), and generates that many peaks from the index gage's most recent non-concurrent years by the line of
+  equations 8-20 to 8-24, so that observed and generated peaks together have the improved mean and variance.
+  `PeakExtension` carries every intermediate value. It reproduces the Bulletin's own example (Suwanee Creek from
+  the Etowah River: correlation 0.8519, 13 peaks added, the line of equation 8-25 and table 8-2). It needs 10
+  concurrent years, refuses a negative squared slope as the Bulletin says to, and notes a correlation at or below
+  0.80. Censored and historical peaks are not treated: every value is taken as an exact peak. A `gaged_ffa`
+  report section takes it as `extension` (`{"index": {"site_no": ...}}`): the index gage's peaks are stored in
+  the spec, the section shows the extension's statistics and line, marks the generated peaks in the table of
+  peaks, fits the extended record, and does not run the stationarity screen on it.
+
 - **Report section `site_summary`**: a summary of a study of one site, for the front of a report. It takes
   `locations` (each a name, a point, and optionally basin characteristics and a watershed outline as GeoJSON) and
   the same `estimates` a `comparison` section takes, and gives a table of the characteristics, printed as supplied

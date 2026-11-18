@@ -47,6 +47,7 @@ from .nesting import (
     nested_gage_pairs,
     nldi_upstream_sites,
 )
+from .peak_extension import PeakExtension, extend_peaks
 from .qppq import (
     MONTHLY_SEASONS,
     SNOWMELT_SEASONS,
@@ -377,6 +378,8 @@ __all__ = [
     "MONTHLY_SEASONS",
     # Record extension
     "Move1",
+    "PeakExtension",
+    "extend_peaks",
     "fit_move1",
     "extend_record",
     # Transposition to an ungaged site
