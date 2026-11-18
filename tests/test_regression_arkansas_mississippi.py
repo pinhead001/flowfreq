@@ -119,8 +119,10 @@ def test_arkansas_is_verified(ar):
 
 def test_mississippi_is_verified(ms):
     assert ms.status == "verified"
-    assert ms.regions == ["A", "B", "C", "MAP"]
-    assert len(ms.equations) == 32
+    # "Urban 2026" is SIR 2026-5044's set, which NSS does not serve
+    # (tests/test_regression_urban_2026.py).
+    assert ms.regions == ["A", "B", "C", "MAP", "Urban 2026"]
+    assert len(ms.equations) == 40
     for region, code in NSS_MS.items():
         assert region_for_nss_code(ms, code) == region
 
@@ -140,7 +142,7 @@ def test_site_counts(ar, ms):
         "MAP": 58,
     }
     assert sum(ar.equation(r, 0.01).n_sites for r in ("A", "B1", "B2", "C", "D")) == 281
-    assert {r: ms.equation(r, 0.01).n_sites for r in ms.regions} == {
+    assert {r: ms.equation(r, 0.01).n_sites for r in ms.regions if r != "Urban 2026"} == {
         "A": 27,
         "B": 134,
         "C": 120,
@@ -402,8 +404,9 @@ def test_mississippi_area_limits_are_table_5(ms):
 
 def test_mississippi_equals_nss_but_for_the_development_limit(ms):
     snap = _snapshot("MS")
-    assert {(NSS_MS[e.region_code], e.aep) for e in ms.equations} == set(snap)
-    for e in ms.equations:
+    served = [e for e in ms.equations if e.region_code != "Urban 2026"]
+    assert {(NSS_MS[e.region_code], e.aep) for e in served} == set(snap)
+    for e in served:
         s = snap[NSS_MS[e.region_code], e.aep]
         assert e.intercept == pytest.approx(s["intercept"], abs=1e-12)
         assert e.coefficients == pytest.approx(s["coefficients"], abs=1e-12)

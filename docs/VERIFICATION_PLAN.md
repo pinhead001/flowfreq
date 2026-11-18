@@ -224,10 +224,10 @@ obstacle is still the neighbor needing a characteristic the home region doesn't 
 The median factor is 1.21 at every AEP. The home equation was nearer the at-site fit at 333 of 642 comparisons. The
 first run showed 3 apparent offsets that were the check's own doing: Alabama to Georgia, where Georgia's 1 mi2 sets were
 extrapolated, and Kansas to Missouri and Delaware to Maryland, where an urban set was picked by default. So the report
-counts **clean** comparisons, where neither side extrapolated and no urban set was picked by default (576 of 649 at 1
+counts **clean** comparisons, where neither side extrapolated and no set was picked by default (562 of 649 at 1
 percent).
 
-17 pairs are systematic on clean comparisons. At-site is the gage's Bulletin 17C fit with station skew. The
+15 pairs are systematic on clean comparisons. At-site is the gage's Bulletin 17C fit with station skew. The
 library ships this table (`flowfreq/data/border_offsets.csv`, written by `python tools/border_qa.py offsets`;
 `flowfreq.regression.border_offsets_between("RI", "CT")` reads it), so an estimate near one of these borders
 can say so:
@@ -235,12 +235,10 @@ can say so:
 | Home to neighbor | Gages | Neighbor/home | Home/at-site | Neighbor/at-site | Home nearer the record |
 |---|---:|---:|---:|---:|---:|
 | AR to MO | 11 | 0.73 | 1.02 | 0.66 | 9 of 11 |
-| CO to NM | 5 | 1.86 | 1.55 | 3.31 | 4 of 5 |
 | GA to AL | 17 | 1.69 | 0.64 | 1.32 | 9 of 17 |
 | IA to MN | 6 | 2.04 | 0.41 | 0.59 | 2 of 6 |
 | IA to WI | 8 | 0.46 | 0.93 | 0.46 | 6 of 8 |
 | ID to MT | 7 | 0.55 | 1.06 | 0.68 | 4 of 7 |
-| IL to IN | 5 | 0.67 | 0.62 | 0.55 | 3 of 5 |
 | KS to MO | 4 | 0.71 | 0.92 | 0.62 | 2 of 2 |
 | MA to VT | 7 | 0.71 | 0.72 | 0.51 | 5 of 7 |
 | MD to VA | 5 | 1.47 | 0.92 | 1.35 | 3 of 5 |
@@ -252,10 +250,21 @@ can say so:
 | SD to IA | 4 | 1.37 | 0.96 | 1.32 | 3 of 4 |
 | VA to TN | 13 | 1.40 | 1.10 | 1.54 | 11 of 13 |
 
-**Changed by the last 280 gages:** Illinois to Indiana is new (5 clean gages; both states' equations sit below the
-record there, and it is not traced). Virginia to West Virginia is gone: the six gages of the partial run gave 0.53, and all
+**Changed by the last 280 gages:** Virginia to West Virginia is gone: the six gages of the partial run gave 0.53, and all
 27 give a median of 1.0. Both states use SIR 2025-5110; about a quarter of the gages fall in a different region of it
 on the other side and differ by half.
+
+**Illinois to Indiana, traced 2026-11-18: the check's own doing, and removed.** The last gages produced a new row, Indiana
+at 0.67 of Illinois on 5 gages. The five ratios run from 0.40 to 1.02. An Illinois basin has no `HIGHREG`, the
+characteristic Indiana selects its region by, and at three of the five NSS returned every Indiana region at equal weight,
+so the tool took the first in list order (region 1). Region 5 instead halves the Indiana flow at two of them. Illinois's
+side is sound: its unadjusted equations on the cached basins match the regression values in its data release (Table DR-10
+of doi:10.5066/P9XPWUMI) at 9 of 9 gages, within 0.3 percent in regions 3 and 5. The low home/at-site ratio is three nested
+Vermilion River gages and two 20-year records whose station-skew fits run above the report's weighted-skew values. Indiana's
+reports print no regression flow by gage, so its side has nothing to be set against. **Colorado to New Mexico went the
+same way:** all five of its gages used New Mexico's Southeast mountain region, first in the list, for basins on the San
+Juan. So a comparison with any set picked by default is no longer clean, where only an urban pick was excluded before, and
+both rows are out of the shipped table (15 pairs).
 
 **Rhode Island to Connecticut, traced 2026-11-17: it compares unlike equations.** Connecticut's equations run 2.4 times
 above Rhode Island's at 14 Rhode Island gages, and 1.9 times above the record; Rhode Island's are nearer at 10. Rhode
@@ -266,8 +275,12 @@ the 2.39 splits into two factors: Connecticut's drainage-area-only set is 1.85 t
 drainage-area-only set, and Rhode Island's drainage-area-only set is 1.29 times its full set on these basins, whose
 stream density is low (median 1.68 mi/mi2). Rhode Island's full set gives 0.87 of the record, so these basins do flood
 less for their area than Connecticut's statewide drainage-area relation says. Nothing points to a transcription
-fault. Not done: Rhode Island's values weren't set against its report's printed estimates, as Iowa's and Georgia's
-were, and Connecticut's full set couldn't be tried, for want of the two characteristics. The shipped offset is
+fault. **Rhode Island's values against its report, 2026-11-18:** the stored equations, on the characteristics SIR
+2012-5109 prints (Tables 1 and 14), give the report's printed regression flow (Tables 13 and 15) at all 13 gages the
+report covers, at 10 and 1 percent; 01117430 isn't in it. On StreamStats' characteristics, 12 of the 13 are within 3
+percent of the printed value. Peeptoad Brook (01115098) is 27 percent above it, because StreamStats' stream density
+there is 2.35 mi/mi2 against the report's 1.68. Not done: Connecticut's full set couldn't be tried, for want of the two
+characteristics. The shipped offset is
 therefore a statement about Connecticut's drainage-area-only set on Rhode Island basins, not about its full set.
 
 Mostly each state's own equations sit nearer its own gages, as expected of equations fitted to them. Two rows from the
@@ -285,6 +298,19 @@ two sets are nearer at about half the gages each.
 
 Differences are documented, not smoothed. None was traced to a transcription fault, and none is cautioned in results,
 since a border offset says the two studies disagree, not which is wrong.
+
+## Urban sets of 2026, stored 2026-11-18
+
+SIR 2026-5044 (Alabama and Mississippi) and SIR 2025-5104 (Tennessee) print no equation, coefficient or worked example,
+so `verified` rests on their data releases alone. `tools/build_urban_2026.py` reads each release's WREG output and writes
+the equations only if every check passes: the full-precision coefficients round to the release's summary table; flows
+reproduce the release's per-gage regression values to the 3 figures printed, and variances of prediction to 4 decimals, at
+all 42 gages (Alabama and Mississippi) and all 136 (Tennessee) at 8 AEPs. Tennessee's covariance is the release's.
+Alabama's and Mississippi's is computed from the release's design and weight matrices, since none is published; it returns
+the release's coefficients to 1e-10 and their standard errors, and its mean variance of prediction is the release's AVP.
+NSS served neither report on 2026-11-18 (three `Scenarios` requests), so there is no NSS cross-check, and the sets are
+reached by naming region `Urban 2026`. The applicability limits (ranges, 10 percent imperviousness in Tennessee) were read
+from the PDFs. Not checked: whether the reports' basin characteristics match what StreamStats computes today.
 
 ## Order
 

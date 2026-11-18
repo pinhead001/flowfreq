@@ -14,7 +14,7 @@ At 1 percent, the home state's equation was nearer the at-site fit at 333 of 642
 
 ## Pairs at 1 percent
 
-Systematic: 3 or more gages and a median factor beyond 1.26 (0.1 log10). Clean: neither side extrapolated and no urban set picked by default; 576 of the comparisons at 1 percent are clean.
+Systematic: 3 or more gages and a median factor beyond 1.26 (0.1 log10). Clean: neither side extrapolated and no set picked by default; 562 of the comparisons at 1 percent are clean.
 
 | Home | Neighbour | Gages | Median neighbour/home | Systematic | Clean gages | Clean median | Clean systematic |
 |---|---|---:|---:|---|---:|---:|---|
@@ -25,9 +25,9 @@ Systematic: 3 or more gages and a median factor beyond 1.26 (0.1 log10). Clean: 
 | AR | MO | 12 | 0.7 | yes | 11 | 0.73 | yes |
 | AR | MS | 2 | 1.02 |  | 2 | 1.02 |  |
 | AR | OK | 16 | 1.09 |  | 16 | 1.09 |  |
-| AZ | NM | 2 | 1.48 |  | 2 | 1.48 |  |
+| AZ | NM | 2 | 1.48 |  | 0 |  |  |
 | AZ | UT | 2 | 0.42 |  | 1 | 0.16 |  |
-| CO | NM | 6 | 2.02 | yes | 5 | 1.86 | yes |
+| CO | NM | 6 | 2.02 | yes | 0 |  |  |
 | DE | MD | 3 | 1.62 | yes | 0 |  |  |
 | GA | AL | 18 | 1.69 | yes | 17 | 1.69 | yes |
 | GA | NC | 4 | 1.0 |  | 4 | 1.0 |  |
@@ -39,7 +39,7 @@ Systematic: 3 or more gages and a median factor beyond 1.26 (0.1 log10). Clean: 
 | ID | MT | 7 | 0.55 | yes | 7 | 0.55 | yes |
 | ID | UT | 3 | 0.78 | yes | 2 | 0.92 |  |
 | IL | IA | 12 | 1.15 |  | 12 | 1.15 |  |
-| IL | IN | 8 | 0.71 | yes | 5 | 0.67 | yes |
+| IL | IN | 8 | 0.71 | yes | 2 | 0.81 |  |
 | IL | KY | 3 | 1.17 |  | 2 | 1.13 |  |
 | IN | KY | 10 | 0.86 |  | 9 | 0.87 |  |
 | KS | MO | 9 | 0.61 | yes | 4 | 0.71 | yes |
@@ -71,7 +71,7 @@ Systematic: 3 or more gages and a median factor beyond 1.26 (0.1 log10). Clean: 
 | ND | SD | 2 | 1.33 |  | 0 |  |  |
 | NH | ME | 6 | 0.8 |  | 6 | 0.8 |  |
 | NH | VT | 5 | 1.16 |  | 5 | 1.16 |  |
-| NM | AZ | 4 | 0.13 | yes | 1 | 0.28 |  |
+| NM | AZ | 4 | 0.13 | yes | 0 |  |  |
 | NM | CO | 4 | 0.53 | yes | 0 |  |  |
 | NM | OK | 1 | 0.31 |  | 1 | 0.31 |  |
 | NY | CT | 7 | 1.61 | yes | 6 | 1.64 | yes |
@@ -94,7 +94,7 @@ Systematic: 3 or more gages and a median factor beyond 1.26 (0.1 log10). Clean: 
 | SD | ND | 1 | 4.89 |  | 0 |  |  |
 | TN | AL | 7 | 1.16 |  | 6 | 1.13 |  |
 | TN | GA | 4 | 1.67 | yes | 0 |  |  |
-| TN | KY | 13 | 1.07 |  | 12 | 1.1 |  |
+| TN | KY | 13 | 1.07 |  | 11 | 1.07 |  |
 | TN | MO | 2 | 0.32 |  | 2 | 0.32 |  |
 | TN | MS | 5 | 1.23 |  | 5 | 1.23 |  |
 | TN | NC | 1 | 1.95 |  | 0 |  |  |
@@ -102,7 +102,7 @@ Systematic: 3 or more gages and a median factor beyond 1.26 (0.1 log10). Clean: 
 | TX | OK | 1 | 0.5 |  | 1 | 0.5 |  |
 | UT | AZ | 3 | 1.0 |  | 2 | 1.3 |  |
 | UT | ID | 1 | 1.37 |  | 1 | 1.37 |  |
-| VA | KY | 9 | 0.97 |  | 9 | 0.97 |  |
+| VA | KY | 9 | 0.97 |  | 7 | 0.97 |  |
 | VA | NC | 5 | 2.34 | yes | 0 |  |  |
 | VA | TN | 13 | 1.4 | yes | 13 | 1.4 | yes |
 | VA | WV | 27 | 1.0 |  | 27 | 1.0 |  |

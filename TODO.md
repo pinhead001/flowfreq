@@ -42,9 +42,9 @@ Owner's:
    cross-border gages differing by 2 times or more aren't cautioned, since none is traced to a miss.
 5. **MD** stays at the Third Edition, with a caution on every estimate that the Sixth (2023) replaces it for state
    practice (`region_cautions`). A Piedmont boundary basin still needs `region=`.
-6. **TX:** the regional sets come before Statewide, and the Colorado sets split at 32 mi2. Still to check, once
-   StreamStats' ss-hydro is back: whether it computes `OmegaEM`, which SIR 2009-5087 (the authors' preferred
-   report, not in NSS) needs. If it does, verify and store that report.
+6. **TX:** the regional sets come before Statewide, and the Colorado sets split at 32 mi2. Texas's StreamStats
+   does compute `OmegaEM` (present at all 8 Texas gages of the cross-border run, 2026-11-17), so SIR 2009-5087
+   (the authors' preferred report, not in NSS) can be verified and stored. Not started.
 7. **LA's southern gap** uses the 1998 Non-Pine Hills set (TR 60, NSS GC879) when NSS locates no current region,
    with a caution and no interval (`fallback_region`). OH 2006-5312, TN 03-4176 and LA's Delta stay dropped.
 8. Issues #293 and #365 are closed. **StreamStats is reachable again** (above): say when the cross-border run
@@ -82,49 +82,36 @@ Library follow-ups the batches found, none changed:
     (CO, "SIR 2023-XXXX", GC1949-GC1952) and Taylor and others (WY, "SIR 2027-XXXX", GC2151-GC2154). When
     each is published, verify it and decide whether it replaces the stored set. The live tests ignore those
     regions until then.
-15. NH and NY drainage-area-only sets: done (`companion_regions`); not yet checked live, since StreamStats was
-    refusing this machine when it merged.
+15. NH and NY drainage-area-only sets: done (`companion_regions`). The cross-border run estimated 17 New Hampshire
+    and 51 New York gages live on 2026-11-17 with the companions in place, all on the full sets; no basin there
+    fell outside a full set's ranges, so the drop to drainage-area-only itself has still run only in unit tests.
 16. FL, MI and NE can't run through `estimate_at_site` (no StreamStats grid, no NSS region lookup).
     `estimate_from_characteristics` and `flowfreq ungaged-chars` now take the region and characteristics from
     the caller, and the app's ungaged page has a form for it (app #45, on since the v0.26.0 pin).
 
-17. The cross-border check is finished (2026-11-17, one worker, no refusal from StreamStats; `docs/BORDER_QA.md`).
-    1,689 of 1,691 gages attempted; NM 09455800 and 09443000 timed out once at 200 s and were left. Illinois
-    against Indiana joined the systematic pairs and Virginia against West Virginia left them. Still to do: trace
-    Rhode Island against Connecticut, the largest offset (2.4 times), and Illinois against Indiana. Iowa and
-    Georgia are traced: both states' equations match their reports. Also check whether Texas's StreamStats
-    computes `OmegaEM` (SIR 2009-5087). The first restart showed the 60-second, three-try pattern of issue #365 on
-    ss-hydro's characteristics request, fixed in 0.27.1 (#389): run any further StreamStats job on 0.27.1 or later.
-18. Reports published in 2026 that nothing here uses yet. The two urban reports were read on 2026-11-16 (PDFs
-    and their ScienceBase data releases; NSS was not asked, because of the block). Neither PDF prints a
-    coefficient or a worked example: the equations are only in the data releases.
-    - **SIR 2026-5044** (Wagner and Anderson, published 2026-09-24): urban floods in Alabama and Mississippi,
-      data through water year 2024; data release doi:10.5066/P13GPMON. It says it supersedes SIR 2010-5012,
-      `AL.json`'s `Urban` region, and Mississippi's 1991 urban equations; `MS.json` has no urban set, so it
-      would be the first. One set for both states at 8 AEPs: DRNAREA (log10) and LC11DEV (percent developed,
-      NLCD 2011, untransformed), for 1.06 to 53.6 mi2 and 20 to 100 percent developed, by WLS on 42 gages.
-      The release gives the model error variance and AVP per AEP but no covariance matrix; it does ship the
-      design and weight matrices, and a covariance computed from them reproduced the release's per-gage
-      variance of prediction at all 42 gages. Open: whether a covariance the library derives is acceptable
-      (AVP alone is the fallback), and whether the set applies in Alabama's flood region 3 and the
-      Mississippi Alluvial Plain, which the report doesn't exclude. `AL.json` would switch from CONTDA and
-      URBAN to DRNAREA and LC11DEV.
-    - **SIR 2025-5104** (Wagner and Ladd, published 2026-02-05): urban streams in Tennessee and the parts of
-      AL, GA, MS, NC and SC in six Level 3 ecoregions, data through water year 2022; data release
-      doi:10.5066/P1TE9KTH. One set at 8 AEPs by GLS on 136 gages: DRNAREA, LC11DEV, and the percent of the
-      basin in the Piedmont (L3_PIEDMNT) and in the Ridge and Valley (L3_RDGVLY), for basins of 10 percent
-      developed imperviousness (LC11IMP) or more, 0.164 to 93.4 mi2. The release ships full-precision
-      coefficients, the model error variance and a covariance matrix per AEP; the printed 4-decimal
-      coefficients are too coarse for the ecoregion terms (up to 1.9 percent). The report does not say it
-      supersedes WRI 84-4182 or WRI 84-4110 (`TN.json`'s urban sets), and names only Tennessee for
-      StreamStats, so keeping or retiring the 1984 sets, and using it outside Tennessee, are the owner's
-      calls. The two ecoregion codes are new to the library, and whether StreamStats computes them is
-      unknown. NSS's snapshot of 2026-10-25 served neither report.
-    - SIR 2025-5034 (Levin, 2025): nonstationary flood frequency by regression in the north-central United
-      States. A reference for `future_flow` and `stationarity`, not an equation set. Not read.
-    Next, once StreamStats lifts the block: check what NSS serves for each state and under which
-    characteristic codes, then verify and store. Recommended: adopt SIR 2026-5044 for AL and MS; adopt
-    SIR 2025-5104 for Tennessee beside the 1984 sets until NSS shows what it serves.
+17. The cross-border check is finished and its offsets traced (`docs/BORDER_QA.md`; `docs/VERIFICATION_PLAN.md`
+    has the traces). 1,689 of 1,691 gages attempted; NM 09455800 and 09443000 timed out once at 200 s and were
+    left. 15 pairs are systematic. Rhode Island against Connecticut compares unlike equations, and Rhode
+    Island's values match its report at 13 of 13 gages. Illinois against Indiana and Colorado against New
+    Mexico were the tool's doing (a region taken by list order) and are out. Open:
+    - NSS returns every Indiana region, and every New Mexico region, at equal weight for a basin or circle
+      near those borders. Why wasn't looked into; it is why `estimate_at_site` needs `region=` there.
+    - Rhode Island 01115098 (Peeptoad Brook): StreamStats' stream density is 2.35 against the report's 1.68, so
+      today's estimate is 27 percent above the report's printed one. No other gage of the 13 differs by more
+      than 3 percent.
+    - Run any further StreamStats job on 0.27.1 or later (#389).
+18. The two 2026 urban reports are stored as region `Urban 2026` (2026-11-18): SIR 2026-5044 in `AL.json` and
+    `MS.json`, SIR 2025-5104 in `TN.json`, from their data releases through `tools/build_urban_2026.py`. Open:
+    - NSS served neither on 2026-11-18 (it still serves Alabama's 2010 set and Tennessee's 1984 sets). When it
+      does, key the sets to its region codes and decide whether the older sets go.
+    - Alabama's and Mississippi's covariance is derived, not printed (the owner accepted this, 2026-11-17).
+    - SIR 2025-5104 is stored for Tennessee only. It is the one candidate for urban basins above 1 mi2 in GA,
+      NC and SC, where an estimate above 10 percent impervious is refused today; the report doesn't say it
+      applies there in place of those states' equations, so using it there is the owner's call.
+    - Whether StreamStats computes `L3_PIEDMNT` and `L3_RDGVLY` for Tennessee is unknown, and whether the
+      2026-5044 set applies in Alabama's flood region 3 or the Mississippi Alluvial Plain isn't stated.
+    - SIR 2025-5034 (Levin, 2025), nonstationary flood frequency by regression in the north-central United
+      States, is a reference for `future_flow` and `stationarity`, not an equation set. Not read.
 
 App improvements suggested 2026-11-09. Each has an app PR, opened 2026-11-14 and 2026-11-15, with the app's
 one CI check passing. None is merged (the owner merges app PRs) and none has run in a browser:

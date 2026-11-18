@@ -77,12 +77,15 @@ def test_default_pick_avoids_urban_and_drainage_area_only_sets():
     assert bq.default_pick(cands[:2]) == "GC1564"
 
 
-def test_clean_excludes_extrapolation_and_urban_default_picks():
+def test_clean_excludes_extrapolation_and_default_picks():
     home = {"home_est": {"0.01": [1000.0, False]}}
     assert bq._clean(home, {"0.01": [1200.0, False], "regions": ["GC1:1"]}, "0.01")
     assert not bq._clean(home, {"0.01": [1200.0, True], "regions": ["GC1:1"]}, "0.01")
     urban = {"0.01": [1200.0, False], "regions": ["GC1486:Urban"], "picked": "GC1486"}
     assert not bq._clean(home, urban, "0.01")
+    # Any default pick: NSS returns every region at equal weight and the first is taken.
+    listed = {"0.01": [1200.0, False], "regions": ["GC1094:3"], "picked": "GC1094"}
+    assert not bq._clean(home, listed, "0.01")
     assert not bq._clean({"home_est": {"0.01": [1000.0, True]}}, {"0.01": [1, False]}, "0.01")
 
 
