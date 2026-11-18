@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+- **The cross-border comparison is complete, and two borders change in `border_offsets`.** `tools/border_qa.py`
+  finished on 2026-11-17 with one worker: 1,689 of 1,691 candidate gages attempted, 1,391 delineated, 649 compared
+  at 1 percent (539 before). Illinois against Indiana is new (5 clean gages, Indiana's equations about 0.67 of
+  Illinois's). Virginia against West Virginia is gone: the six gages of the partial run gave 0.53, and all 27 give
+  1.0. Virginia against Tennessee now rests on 13 gages (1.40). The other 14 pairs are unchanged, and there are
+  still 17. Two New Mexico gages timed out once at StreamStats and were not asked again.
+
+## [0.27.1] - 2026-11-17
+
+### Changed
 - **A StreamStats delineation or basin-characteristics request is no longer retried after a timeout.** The two
   requests that make StreamStats compute a basin (ss-delineate's `delineate/sshydro` and ss-hydro's basin
   characteristics) waited 60 seconds and were sent up to three times. A large basin takes longer than that, so the
