@@ -213,6 +213,7 @@ CI should test the supported Python matrix.
   leave-one-out coverage
 - **`monthly_transfer.py`** / **`duration_transfer.py`** — monthly mean/median flow statistics, and median annual duration quantiles (q10, q50, q90), with sampling covariance, runoff-volume gage pairs for `fit_dissimilarity`, the GLS blend and leave-one-out
 - **`future_flow.py`** — future-condition change-factor framework
+- **`peak_extension.py`** — record extension of annual peaks from an index gage (Bulletin 17C Appendix 8: Matalas-Jacobs moments, effective record length, the MOVE line); `record_extension.py` is MOVE.1 for daily flows
 - **`naturalize.py`** — naturalization add-back of upstream diversions (caller-supplied rates, return fractions, seasons)
 - **`stationarity.py`** — Mann-Kendall (Hamed-Rao), Sen's slope, Spearman, Pettitt, CUSUM and Lombard screening of annual series; field significance (FDR/Walker, block bootstrap); change-point attribution (peak codes, NID dams, NLCD impervious); peaks-over-threshold count trends; `stationarity_report` (one-page figure and Markdown); mixed-population seasonality screen
 - **`lowflow.py`** / **`regime.py`** / **`subdaily.py`** — low-flow frequency, flow-regime and

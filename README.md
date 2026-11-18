@@ -315,7 +315,9 @@ analysis and lays out what it returns, so a quantile in a report is the one `run
   own analysis below. `site_summary` takes `locations` (points, with optional basin
   characteristics and watershed outlines) and the same `estimates`, and gives a
   characteristics table, a map, the flows by method from the 1.5-year to the 500-year flood
-  and a plot of the methods' curves. `text` is a titled section of prose.
+  and a plot of the methods' curves. `text` is a titled section of prose. A `gaged_ffa` section
+  with an `extension` (`{"index": {"site_no": ...}}`) extends the gage's record from an
+  index gage by Bulletin 17C Appendix 8 (`flowfreq.extend_peaks`) before fitting it.
 - **The spec as built is the record.** Give a `site_no` and the peaks are downloaded; give
   `regional_skew_state` or `regional_skew_from_site` and the skew is looked up. Both are
   written into `report.spec` as values, with the retrieval date and the citation, and the
