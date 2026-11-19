@@ -26,9 +26,7 @@ Three read-only reviews (the report tools; the analysis and data-retrieval code 
 repository health) found about 37 things, most reproduced with a concrete input. What was fixed is in
 CHANGELOG.md under Unreleased. What was found and **not** done, for a decision or a later pass:
 
-1. **CI does not run on a pull request into `release/*`** (`.github/workflows/tests.yml` triggers on `main`
-   only), so the first check a patch release gets is the tag push. The fix is one line in the workflow. CI also
-   has no pip cache across its six jobs.
+1. **CI has no pip cache** across its six jobs. (Pull requests into `release/**` now run CI.)
 2. **One test is a fifth of the suite**: `fortran_parity/test_fixed_threshold_live.py::
    test_regional_weighting_inputs_match`, 80 s of 380. Cut it to a few representative cases or mark it so a quick
    local run can leave it out.
