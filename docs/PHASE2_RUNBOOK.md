@@ -1,5 +1,7 @@
 # Phase 2 Runbook — Create the app repository
 
+> **Historical: complete.** The application repository exists and the `app/` folder this runbook moves is gone from this one. Kept as the record of how the split was done.
+
 The Streamlit half of the split. Companion to `docs/REPO_SPLIT_PLAN.md` and
 `docs/PHASE1_RUNBOOK.md`.
 

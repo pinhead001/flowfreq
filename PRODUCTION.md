@@ -1,5 +1,7 @@
 # FlowFreq Production Readiness Status
 
+> **Historical (as of 2026-08-31).** This was the readiness checklist for the first release, when the Streamlit application lived in this repository. The application is now [pinhead001/flowfreq-app](https://github.com/pinhead001/flowfreq-app); status and open work are in `TODO.md`, releases in `CHANGELOG.md`. Nothing below is current.
+
 **Status**: ✅ **MVP Complete** | **Next Phase**: Medium-priority enhancements (2–3 weeks)
 
 Last updated: 2026-08-31

@@ -1,5 +1,7 @@
 # Uploading the peakfqr Fortran Source & Reference Materials
 
+> **Paths in this document predate two moves.** `flowfreq/peakfqsa/` and `tests/peakfqsa/` no longer exist: the subsystem was removed, its fixtures are under `tests/fixtures/`, and the parity suite is `tests/fortran_parity/`. The reference Fortran is in `vendor/peakfqr/`. The findings about `emafitpr` stand; read the paths as history.
+
 **Purpose:** get the USGS Fortran EMA source and its reference/test material out of the
 local-only workspace (`C:\a\hal\_shared\peakfqr`) and into this repository, so that the
 remaining numerical errors can be root-caused against the authoritative implementation and
