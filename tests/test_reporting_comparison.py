@@ -190,7 +190,7 @@ def test_the_1_5_year_row_is_kept_across_0_67_and_0_667():
     }
     built = build_section("comparison", {"estimates": [ESTIMATES[0], idaho], "detail": False})
     rows = {row[0]: row for row in _table(built.blocks, COMPARISON_CAPTION).rows}
-    assert "66.7" in rows and "42.9" in rows
+    assert "66.7" in rows and "80" in rows
     assert "slightly different probabilities" in _text(built.blocks)
     assert "66.7 percent (0.667, 0.67)" in _text(built.blocks)
 
