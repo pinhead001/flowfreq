@@ -21,6 +21,10 @@ jobs:
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: '3.11'
+          # The pip download cache, keyed on the dependency list. Six jobs
+          # were each downloading every wheel on every run.
+          cache: pip
+          cache-dependency-path: pyproject.toml
 
       # The dev extra, not a bare `pip install black isort`. This job used to
       # install the linters unpinned, so it ran black 26 while pyproject pins
@@ -84,20 +88,28 @@ jobs:
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: ${{ matrix.python-version }}
+          # The pip download cache, keyed on the dependency list. Six jobs
+          # were each downloading every wheel on every run.
+          cache: pip
+          cache-dependency-path: pyproject.toml
 
       - name: Install
         run: pip install -e ".[dev]"
 
       # No marker flags here: the default selection lives in pyproject.toml's
       # addopts, so this runs exactly what a developer's bare `pytest` runs.
+      # Not on 3.12: that leg runs the same selection under coverage below, and
+      # running both made it the slowest job by ten minutes (19 against 8).
       - name: Test
+        if: matrix.python-version != '3.12'
         run: pytest tests/
 
       # pytest-cov has been a declared dev dependency that nothing ever
       # invoked, so coverage was unmeasured rather than known. One leg of the
       # matrix is enough; running it on all four would quadruple the cost to
-      # produce the same number.
-      - name: Coverage
+      # produce the same number. This is the 3.12 leg's test run: `make cov`
+      # is `pytest tests/` with --cov, and fails on a failing test.
+      - name: Test with coverage
         if: matrix.python-version == '3.12'
         run: make cov
 
@@ -122,6 +134,10 @@ jobs:
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: '3.11'
+          # The pip download cache, keyed on the dependency list. Six jobs
+          # were each downloading every wheel on every run.
+          cache: pip
+          cache-dependency-path: pyproject.toml
 
       - name: Install gfortran
         run: sudo apt-get update && sudo apt-get install -y gfortran
