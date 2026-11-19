@@ -242,8 +242,16 @@ def _peak_frame(peaks: Any) -> pd.DataFrame:
         )
     except (TypeError, ValueError) as exc:
         raise ReportError(f"gaged_ffa: peaks are not numeric: {exc}") from exc
-    if not np.all(np.isfinite(frame["peak_flow_cfs"].to_numpy())):
+    values = frame["peak_flow_cfs"].to_numpy()
+    if not np.all(np.isfinite(values)):
         raise ReportError("gaged_ffa: peak_flow_cfs holds a non-finite value")
+    if np.any(values < 0):
+        raise ReportError("gaged_ffa: peak_flow_cfs holds a negative value")
+    if n < 3 or int(np.sum(values > 0)) < 3:
+        raise ReportError(
+            f"gaged_ffa: a frequency analysis needs at least 3 peaks above zero; the record "
+            f"has {int(np.sum(values > 0))} of {n}"
+        )
     if frame["water_year"].duplicated().any():
         raise ReportError("gaged_ffa: a water year appears more than once in peaks")
     return frame
@@ -363,6 +371,19 @@ def _extended_frame(options: Dict[str, Any], frame: pd.DataFrame) -> Tuple[Any, 
             f"{', '.join(_EXTENSION_KEYS)} and its index {', '.join(_INDEX_KEYS)}"
         )
     extension = dict(given)
+    count = extension.get("n_extend")
+    if count is not None and (isinstance(count, bool) or not isinstance(count, int) or count < 2):
+        raise ReportError("gaged_ffa: extension n_extend must be a whole number, 2 or more")
+    chosen = extension.get("years")
+    if chosen is not None and (
+        not isinstance(chosen, list)
+        or not chosen
+        or any(isinstance(y, bool) or not isinstance(y, int) for y in chosen)
+    ):
+        raise ReportError("gaged_ffa: extension years must be a list of water years")
+    split = extension.get("split_year")
+    if split is not None and (isinstance(split, bool) or not isinstance(split, int)):
+        raise ReportError("gaged_ffa: extension split_year must be a water year")
     index = dict(extension["index"])
     if index.get("peaks") is None:
         if not index.get("site_no"):
@@ -527,7 +548,7 @@ def _gaged_ffa(given: Dict[str, Any]) -> Tuple[SectionContent, Any]:
     _resolve_skew(options)
     thresholds = _threshold_rows(options.get("perception_thresholds"))
     apply_codes = bool(options.get("apply_peak_codes", True))
-    codes = frame["qualification_code"].tolist()
+    codes = [None if pd.isna(c) else c for c in frame["qualification_code"].tolist()]
     has_codes = any(c is not None for c in codes)
 
     result = run_ffa(
@@ -780,7 +801,7 @@ def _gaged_ffa(given: Dict[str, Any]) -> Tuple[SectionContent, Any]:
         columns: List[Tuple[str, str, List[str]]] = [
             ("Water year", "right", [f"{int(y)}" for y in frame["water_year"]]),
         ]
-        dates = ["" if d is None else str(d) for d in frame["peak_date"]]
+        dates = ["" if pd.isna(d) else str(d) for d in frame["peak_date"]]
         if any(dates):
             columns.append(("Date", "left", dates))
         columns.append(("Peak flow (cfs)", "right", [cfs(q) for q in frame["peak_flow_cfs"]]))
@@ -1454,6 +1475,19 @@ def _finite(owner: str, name: str, value: Any) -> float:
     return number
 
 
+def _extension_digest(extension: Any) -> Any:
+    """What of a record extension decides the fit: the index peaks and which years are used."""
+    if not isinstance(extension, dict) or not isinstance(extension.get("index"), dict):
+        return None
+    peaks = extension["index"].get("peaks") or {}
+    return {
+        "years": [int(y) for y in peaks.get("water_year") or []],
+        "flows": [float(q) for q in peaks.get("peak_flow_cfs") or []],
+        "n_extend": extension.get("n_extend"),
+        "chosen": extension.get("years"),
+    }
+
+
 def _record_digest(gage: Mapping[str, Any]) -> str:
     """A digest of the gage inputs that decide the fit, so a stored reference names its record."""
     frame = _peak_frame(gage["peaks"])
@@ -1461,7 +1495,7 @@ def _record_digest(gage: Mapping[str, Any]) -> str:
     held = {
         "years": [int(y) for y in frame["water_year"]],
         "flows": [float(q) for q in frame["peak_flow_cfs"]],
-        "codes": [None if c is None else str(c) for c in frame["qualification_code"]],
+        "codes": [None if pd.isna(c) else str(c) for c in frame["qualification_code"]],
         "skew": [
             None if gage.get(key) is None else float(gage[key])
             for key in ("regional_skew", "regional_skew_se")
@@ -1480,6 +1514,10 @@ def _record_digest(gage: Mapping[str, Any]) -> str:
         ],
         "low_outlier_threshold": None if low is None else float(low),
     }
+    extension = _extension_digest(gage.get("extension"))
+    if extension is not None:
+        # Only when there is one, so a reference stored before extensions existed still matches.
+        held["extension"] = extension
     text = json.dumps(held, sort_keys=True)
     return hashlib.sha256(text.encode("utf-8")).hexdigest()[:16]
 

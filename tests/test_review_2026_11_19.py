@@ -109,3 +109,70 @@ class TestCoverage:
         assert part.provenance["covered_percent"] == pytest.approx(60.0)
         assert "cover only 60 percent of the basin" in part.advisory
         assert "cover only 60 percent" in part.to_markdown()
+
+
+class TestReportInputs:
+    """Inputs that built nonsense or crashed now get a refusal that says what to change."""
+
+    PEAKS = {
+        "water_year": list(range(1990, 2010)),
+        "peak_flow_cfs": [float(1000 + 37 * i) for i in range(20)],
+    }
+
+    def test_missing_codes_and_dates_print_empty_not_nan(self):
+        from flowfreq.reporting import Table, build_section
+
+        peaks = {
+            **self.PEAKS,
+            "qualification_code": ["6"] + [None] * 19,
+            "peak_date": ["1990-03-01"] + [None] * 19,
+        }
+        built = build_section(
+            "gaged_ffa", {"peaks": peaks, "station_skew_only": True, "stationarity": False}
+        )
+        (table,) = [
+            b
+            for b in built.blocks
+            if isinstance(b, Table) and b.caption == "Annual peak flows used in the analysis."
+        ]
+        assert table.header == ("Water year", "Date", "Peak flow (cfs)", "Qualification codes")
+        assert table.rows[0][1] == "1990-03-01" and table.rows[0][3] == "6"
+        assert all(row[1] == "" and row[3] == "" for row in table.rows[1:])
+
+    @pytest.mark.parametrize(
+        "flows,said",
+        [
+            ([0.0] * 20, "at least 3 peaks above zero"),
+            ([-5.0] + [100.0] * 19, "negative value"),
+        ],
+    )
+    def test_degenerate_peak_records_are_refused(self, flows, said):
+        from flowfreq.reporting import ReportError, build_section
+
+        with pytest.raises(ReportError, match=said):
+            build_section("gaged_ffa", {"peaks": {**self.PEAKS, "peak_flow_cfs": flows}})
+        with pytest.raises(ReportError, match="at least 3 peaks"):
+            build_section("gaged_ffa", {"peaks": {"water_year": [2000], "peak_flow_cfs": [5.0]}})
+
+    def test_a_bad_marker_and_bad_min_days_are_refusals(self):
+        from flowfreq.reporting import ReportError, build_section
+        from tests.test_reporting_daily import STATION
+        from tests.test_reporting_summary import SUMMARY
+
+        bad = [{**SUMMARY["locations"][0], "marker": "square"}]
+        with pytest.raises(ReportError, match="marker must be one of"):
+            build_section("site_summary", {**SUMMARY, "locations": bad})
+        for value in (None, "many", 0, 2.5):
+            with pytest.raises(ReportError, match="min_days must be a whole number"):
+                build_section("low_flow", {**STATION, "min_days": value})
+
+    def test_a_check_stored_for_one_extension_is_refused_for_another(self):
+        from flowfreq.reporting.sections import _record_digest
+        from tests.test_reporting_extension import EXTENSION, SUWANEE
+
+        plain = _record_digest(SUWANEE)
+        extended = _record_digest({**SUWANEE, "extension": EXTENSION})
+        fewer = _record_digest({**SUWANEE, "extension": {**EXTENSION, "n_extend": 8}})
+        assert len({plain, extended, fewer}) == 3
+        # A record with no extension digests as it did before extensions existed.
+        assert plain == _record_digest({**SUWANEE, "extension": None})

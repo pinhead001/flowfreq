@@ -39,6 +39,8 @@ SUMMARY_FLOWS_CAPTION = "Flood quantiles at the site by each method."
 SUMMARY_CHARACTERISTICS_CAPTION = "Basin characteristics at each location."
 
 _LOCATION_KEYS = ("name", "lat", "lon", "characteristics", "basin", "marker")
+#: The point markers a location may take (matplotlib's).
+_MARKERS = ("o", "s", "^", "v", "<", ">", "*", "D", "P", "X")
 _OWNER = "site_summary"
 
 
@@ -94,6 +96,11 @@ def _locations(given: Any) -> List[Dict[str, Any]]:
             raise ReportError(f"{where}: a characteristic is not a number") from exc
         if any(not math.isfinite(v) for v in values.values()):
             raise ReportError(f"{where}: a characteristic is not a finite number")
+        marker = str(each.get("marker") or "o")
+        if marker not in _MARKERS:
+            raise ReportError(
+                f"{where}: marker must be one of {' '.join(_MARKERS)}; got {marker!r}"
+            )
         rings = None if each.get("basin") is None else _rings(each["basin"], where)
         out.append(
             {
@@ -102,7 +109,7 @@ def _locations(given: Any) -> List[Dict[str, Any]]:
                 "lon": lon,
                 "characteristics": values,
                 "rings": rings,
-                "marker": str(each.get("marker") or "o"),
+                "marker": marker,
             }
         )
     if len({loc["name"] for loc in out}) != len(out):

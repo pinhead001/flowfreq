@@ -286,7 +286,9 @@ def _build_low_flow(given: Dict[str, Any]) -> SectionContent:
     if distribution not in ("lp3", "lognormal"):
         raise ReportError(f"{owner}: distribution must be lp3 or lognormal")
     asked = _probabilities(owner, "non_exceedance", options.get("non_exceedance"), 1.0)
-    min_days = int(options.get("min_days", 350))
+    min_days = options.get("min_days", 350)
+    if isinstance(min_days, bool) or not isinstance(min_days, int) or not 1 <= min_days <= 366:
+        raise ReportError(f"{owner}: min_days must be a whole number of days from 1 to 366")
     frame = _daily_frame(owner, options)
 
     try:

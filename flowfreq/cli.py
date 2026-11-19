@@ -461,6 +461,11 @@ def report(spec: Path, output: Path, save_spec: Optional[Path]) -> None:
     """
     from flowfreq.reporting import ReportSpec, build_report
 
+    # Before the build, which may download records: a suffix the writer will refuse.
+    if output.suffix.lower() not in (".docx", ".md"):
+        raise click.ClickException(
+            f"cannot write a report as {output.suffix or 'a file with no suffix'}: use .docx or .md"
+        )
     try:
         built = build_report(ReportSpec.load(spec))
         built.save(output)

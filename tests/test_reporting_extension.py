@@ -141,8 +141,12 @@ def test_a_weak_relation_carries_its_caution():
         ({"index": {"peaks": ETOWAH}, "method": "MOVE.1"}, "unknown extension key"),
         ({"index": {"peaks": ETOWAH}, "years": [1990]}, "could not be extended"),
         (
-            {"index": {"peaks": {"water_year": [1985, 1986], "peak_flow_cfs": [1.0, 2.0]}}},
-            "could not be extended: only 2 concurrent",
+            {
+                "index": {
+                    "peaks": {"water_year": [1985, 1986, 1987], "peak_flow_cfs": [1.0, 2.0, 3.0]}
+                }
+            },
+            "could not be extended: only 3 concurrent",
         ),
     ],
 )
@@ -186,3 +190,18 @@ def test_a_zero_flow_year_is_not_extended_into_a_duplicate():
     rows = _table(built.blocks, "Annual peak flows used in the analysis.").rows
     years = [row[0] for row in rows]
     assert len(years) == len(set(years)) and years.count("2005") == 1
+
+
+@pytest.mark.parametrize(
+    "change,said",
+    [
+        ({"n_extend": 2.7}, "n_extend must be a whole number"),
+        ({"n_extend": True}, "n_extend must be a whole number"),
+        ({"years": "1950"}, "years must be a list of water years"),
+        ({"years": [1975.5]}, "years must be a list of water years"),
+        ({"split_year": "1990"}, "split_year must be a water year"),
+    ],
+)
+def test_extension_options_of_the_wrong_type_are_refused(change, said):
+    with pytest.raises(ReportError, match=said):
+        build_section("gaged_ffa", {**SUWANEE, "extension": {**EXTENSION, **change}})
