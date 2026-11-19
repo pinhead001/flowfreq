@@ -111,3 +111,33 @@ def test_peak_backend_goes_through_the_shared_request(monkeypatch, calls):
     assert payload == {"features": [], "links": []}
     assert calls["get"][1]["headers"]["X-Api-Key"] == "k"
     assert len(calls["sleep"]) == 1
+
+
+@pytest.mark.parametrize("status", [502, 504])
+def test_a_gateway_error_is_retried(monkeypatch, calls, status):
+    _serve(monkeypatch, calls, [_response(status), _response(200)])
+    assert waterdata.request("u", {}, 5).status_code == 200
+    assert len(calls["get"]) == 2 and len(calls["sleep"]) == 1
+
+
+def test_a_dropped_connection_is_retried_then_raised(monkeypatch, calls):
+    failures = iter([requests.ConnectionError("reset"), requests.Timeout("slow")])
+
+    def flaky(url, params=None, timeout=None, **kwargs):
+        calls["get"].append(kwargs)
+        try:
+            raise next(failures)
+        except StopIteration:
+            return _response(200)
+
+    monkeypatch.setattr(waterdata.requests, "get", flaky)
+    assert waterdata.request("u", {}, 5).status_code == 200
+    assert len(calls["get"]) == 3 and len(calls["sleep"]) == 2
+
+    def dead(url, params=None, timeout=None, **kwargs):
+        raise requests.ConnectionError("down")
+
+    monkeypatch.setattr(waterdata.requests, "get", dead)
+    with pytest.raises(requests.ConnectionError):
+        waterdata.request("u", {}, 5)
+    assert len(calls["sleep"]) == 2 + waterdata.MAX_RETRIES

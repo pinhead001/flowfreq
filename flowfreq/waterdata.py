@@ -176,7 +176,7 @@ def _rfc3339(ts: pd.Timestamp) -> str:
 API_KEY_ENV = "USGS_API_KEY"
 
 #: HTTP statuses retried with backoff: rate-limited, and transient unavailability.
-RETRY_STATUSES = frozenset({429, 503})
+RETRY_STATUSES = frozenset({429, 502, 503, 504})
 
 #: Retries after the first attempt, and the backoff cap in seconds.
 MAX_RETRIES = 4
@@ -214,7 +214,8 @@ def _retry_delay(response: requests.Response, attempt: int) -> float:
 
 
 def request(url: str, params: Optional[Mapping[str, Any]], timeout: float) -> requests.Response:
-    """GET from the Water Data API with the API key and 429/503 backoff.
+    """GET from the Water Data API with the API key and backoff on 429, 502, 503, 504 and a
+    dropped connection.
 
     Every call to ``api.waterdata.usgs.gov`` in flowfreq goes through here, so the
     key and the retry policy apply to peaks, instantaneous and daily values, and
@@ -236,8 +237,11 @@ def request(url: str, params: Optional[Mapping[str, Any]], timeout: float) -> re
     Raises
     ------
     requests.HTTPError
-        After :data:`MAX_RETRIES` retries still return 429/503, or on any other
-        error status. A 429 or 403 message says how to supply an API key.
+        After :data:`MAX_RETRIES` retries still return a status in
+        :data:`RETRY_STATUSES`, or on any other error status. A 429 or 403 message says
+        how to supply an API key.
+    requests.ConnectionError, requests.Timeout
+        After :data:`MAX_RETRIES` retries still fail to connect or to answer in time.
     """
     import time
 
@@ -245,7 +249,23 @@ def request(url: str, params: Optional[Mapping[str, Any]], timeout: float) -> re
     extra: Dict[str, Any] = {"headers": {"X-Api-Key": key}} if key else {}
     attempt = 0
     while True:
-        response = requests.get(url, params=params, timeout=timeout, **extra)
+        try:
+            response = requests.get(url, params=params, timeout=timeout, **extra)
+        except (requests.ConnectionError, requests.Timeout) as exc:
+            # A read of stored data: asking again costs the service nothing it had not done.
+            if attempt >= MAX_RETRIES:
+                raise
+            attempt += 1
+            delay = min(2.0**attempt, MAX_BACKOFF_S)
+            logger.warning(
+                "Water Data API request failed (%s); retry %d/%d in %.0f s",
+                type(exc).__name__,
+                attempt,
+                MAX_RETRIES,
+                delay,
+            )
+            time.sleep(delay)
+            continue
         if response.status_code in RETRY_STATUSES and attempt < MAX_RETRIES:
             attempt += 1
             delay = _retry_delay(response, attempt)
