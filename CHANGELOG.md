@@ -8,6 +8,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+- **A transposition records an area outside the regression's range.** A donor or target drainage area outside
+  `RegressionExponents.valid_area_range_sqmi` was only logged. `TranspositionProvenance.areas_outside_regression`
+  now holds a sentence for each and `to_markdown` prints it under Caveats.
+- **`interpolate_between_gages` says which AEPs it leaves out**, in `frame.attrs["dropped_aeps"]` and a warning,
+  and pairs the two gages' AEPs through `flowfreq.aep`, so 0.67 at one meets 0.667 at the other. It dropped a row
+  the downstream gage lacked without a word.
+- **The legacy daily backend refuses a site with several discharge series.** It took whichever NWIS listed
+  first. The default backend already refused and asked for a `ts_id`.
+- **A peak row with no value is dropped with a warning that names the water years**, not at info level. The fit is
+  unchanged: the year is a gap. peakfq's `siteQT` would give a year inside the record a censored row, and which is
+  right depends on why the value is missing.
+- **Every report table has a caption and so a number.** The regions and characteristics tables of an `ungaged`
+  section and the stationarity tests of a `gaged_ffa` section had none. The `ungaged` quantile table spells its
+  columns out with units ("Lower prediction limit (cfs)" for "Lower"), and `gaged_ffa` says "Recurrence interval"
+  as the other kinds do. Table numbers in an existing report shift.
 - **StreamStats requests that make the server compute are retried only where it cannot have started.** With
   `retry_abandoned=False` a dropped or reset connection, a 502 and any 5xx but 503 are no longer retried; only a
   connect timeout and a 503 are. NSS `Scenarios/Estimate`, in `estimate_flow_statistics` and in
@@ -43,6 +58,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the wrong end's factor.
 
 ### Changed
+- **`fetch_nwis_batch` runs 2 workers without a Water Data API key** and 6 with one (it ran 6 either way). A
+  keyless address is allowed 1,000 requests an hour.
+- **`estimate_flow_statistics` reads NSS's national statistic-group list once per process**, not once per point.
+- **`flowfreq.engine.B17CEngine`, `flowfreq.batch` and `flowfreq.plots` are deprecated.** The class is a plain
+  sample-moments fit under a Bulletin 17C name (no EMA, no low-outlier test, no regional skew), and nothing in
+  the library uses it or the two modules built on it. Creating one raises a `DeprecationWarning` pointing at
+  `Bulletin17C` and `run_ffa`. Nothing is removed yet.
+- **`flowfreq/reporting/sections.py` is split into one module per section kind** (`gaged`, `regional`, `weighted`,
+  `transposed`, `engine_check`, `comparison`, `future`, over `_base`). `sections` is the registry and still
+  exports every name it defined. Code that replaced `sections.download_peaks` in a test must now replace
+  `gaged.download_peaks`.
 - **The Water Data API client retries a dropped connection, a 502 and a 504** with backoff, as it did a 429 and a
   503. A multi-page download failed on the first blip.
 - **An estimate whose regression regions cover only part of the basin says so.** `Assembly.covered_percent` and
@@ -60,6 +86,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   StreamStats and were not asked again.
 
 ### Added
+- **`estimate_at_site(min_coverage_percent=)`** refuses (`PartialCoverageError`) a basin whose regression regions
+  cover less than the share given. Off by default: a partly covered basin is still estimated from the part
+  covered, with the share recorded and a caution.
+- **`ReportSession.weight` and the `weight_gage_with_regression` chat tool take `title` and `position`**, as the
+  other section methods do.
+- **`make test-quick`**: the suite without the one test marked `slow` (80 s of about 370). CI and `make test`
+  still run it.
 - **`allow_inaccurate`: a basin StreamStats warns "... MAY BE INACCURATE" about can be used.** StreamStats attaches
   that warning, naming characteristics, where a basin runs past its data (into Canada, for one), and flowfreq
   refused the basin outright, polygon and all. The default is unchanged. With `allow_inaccurate=True` on
