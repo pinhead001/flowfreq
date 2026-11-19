@@ -112,6 +112,16 @@ def trimmed() -> Dict[str, Any]:
 #: The snapshots ``allow_nss_snapshot=True`` can return: a state with a verified set keeps its
 #: snapshot file as evidence, but gets the verified set.
 SERVED_SNAPSHOTS = [c for c in nss_snapshot_states() if available_states().get(c) != "verified"]
+#: Every snapshot file shipped. Each state now has a verified set, so SERVED_SNAPSHOTS is
+#: empty and a test parametrized on it runs nothing; the files are still shipped and read
+#: as evidence, so the checks of their contents read each file directly.
+SHIPPED_SNAPSHOTS = sorted(nss_snapshot_states())
+
+
+def _snapshot_library(code: str):
+    """A state's snapshot file as a library, whatever load_state would prefer."""
+    data = json.loads((DATA_DIR / NSS_SNAPSHOT_SUBDIR / f"{code}.json").read_text(encoding="utf-8"))
+    return parse_state(data)
 
 
 # --------------------------------------------------------------------------- loader
@@ -456,12 +466,16 @@ def test_shipped_sep_log_matches_the_report(code, region, aep, sep_pct):
     assert eq.sep_log == pytest.approx(asep_to_sep_log(sep_pct), rel=1e-9)
 
 
-@pytest.mark.parametrize("code", SERVED_SNAPSHOTS)
+def test_snapshot_files_are_still_shipped():
+    assert len(SHIPPED_SNAPSHOTS) >= 40
+
+
+@pytest.mark.parametrize("code", SHIPPED_SNAPSHOTS)
 def test_every_stored_sep_log_is_plausible(code):
     # Bounds are wider than the 0.05-0.6 first proposed: genuine percentage ASEps in the
     # sweep give AL 0.039-0.048 (ASEp ~9-11%) and CA GC1534 0.61-0.90 (ASEp ~150-856%).
     # The unconverted bad values would have been ~0.002, far below the floor.
-    for eq in load_state(code, allow_nss_snapshot=True).equations:
+    for eq in _snapshot_library(code).equations:
         if eq.sep_log is not None:
             assert 0.03 <= eq.sep_log <= 1.0, (code, eq.region_code, eq.aep, eq.sep_log)
 
@@ -586,11 +600,11 @@ def _midpoint(v) -> float:
     return math.sqrt(lo * hi) if lo > 0 else (lo + hi) / 2
 
 
-@pytest.mark.parametrize("code", SERVED_SNAPSHOTS)
+@pytest.mark.parametrize("code", SHIPPED_SNAPSHOTS)
 def test_every_snapshot_library_loads_and_evaluates(code):
     from flowfreq.regression.equations import evaluate
 
-    lib = load_state(code, allow_nss_snapshot=True)
+    lib = _snapshot_library(code)
     assert lib.nss_snapshot and lib.equations
     for eq in lib.equations:
         mid = {v.code: _midpoint(v) for v in (*eq.applicability, *eq.variables)}
