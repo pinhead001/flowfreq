@@ -19,6 +19,9 @@ from flowfreq.core import PeakRecord
 from flowfreq.engine import STANDARD_RETURN_PERIODS, B17CEngine
 from tests.fixtures.big_sandy import SYSTEMATIC_PEAKS
 
+# The class under test is deprecated and says so each time one is made.
+pytestmark = pytest.mark.filterwarnings("ignore:flowfreq.engine.B17CEngine:DeprecationWarning")
+
 
 @pytest.fixture(scope="module")
 def peaks():
@@ -239,3 +242,8 @@ class TestSkewEstimatorMatchesBulletin17C:
         b = Bulletin17C(peak_flows=flows[:12], water_years=years[:12])
         b.run_analysis(method="mom")
         assert engine.skew == pytest.approx(b.results.skew_station, rel=1e-6)
+
+
+def test_the_old_engine_warns_that_it_is_deprecated():
+    with pytest.warns(DeprecationWarning, match="plain moments fit.*Bulletin17C"):
+        B17CEngine()

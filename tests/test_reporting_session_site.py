@@ -227,3 +227,32 @@ class TestTools:
         assert not result.is_error, result.content
         section_id = result.structured_content["result"]["section_id"]
         assert "state-level" in session.section_markdown(section_id)
+
+
+def test_weight_takes_a_title_and_a_position():
+    import inspect
+
+    from flowfreq.reporting.session import ReportSession
+
+    names = inspect.signature(ReportSession.weight).parameters
+    assert names["title"].default is None and names["position"].default is None
+    assert set(inspect.signature(ReportSession.transpose).parameters) >= {"title", "position"}
+
+
+def test_names_that_lived_in_sections_are_still_importable_from_it():
+    from flowfreq.reporting import gaged, sections
+
+    for name in (
+        "download_peaks",
+        "cfs",
+        "short_citation",
+        "BULLETIN_17C",
+        "_record_digest",
+        "_matched_aeps",
+        "_row_at",
+        "COMPARISON_CAPTION",
+        "FUTURE_FLOW_CAPTION",
+    ):
+        assert hasattr(sections, name), name
+    assert sections.download_peaks is gaged.download_peaks
+    assert sections.SECTION_KINDS["gaged_ffa"].build is gaged._build_gaged_ffa

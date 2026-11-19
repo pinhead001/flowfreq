@@ -344,3 +344,12 @@ class TestProvenanceAndReport:
 
 def test_default_area_ratio_range_is_the_usgs_band():
     assert DEFAULT_AREA_RATIO_RANGE == (0.5, 1.5)
+
+
+def test_an_area_outside_the_regression_is_in_provenance_and_the_report(donor, exponents):
+    inside = transpose_frequency(donor, 205.0, 150.0, exponents)
+    assert inside.provenance.areas_outside_regression == ()
+    out = transpose_frequency(donor, 4000.0, 3500.0, exponents)
+    notes = out.provenance.areas_outside_regression
+    assert len(notes) == 2 and notes[0].startswith("The donor drainage area, 4,000.0 sq mi")
+    assert "1.0 to 3,000.0 sq mi" in notes[1] and notes[1] in out.to_markdown()

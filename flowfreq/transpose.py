@@ -446,6 +446,11 @@ class TranspositionProvenance:
         What :func:`flowfreq.regulation.check_transfer_regulation` returned:
         each side's regulation status, whether both were supplied
         (``regulation_checked``) and whether a mismatch was overridden.
+    areas_outside_regression : tuple of str
+        One sentence for each of the donor and target whose drainage area is
+        outside ``RegressionExponents.valid_area_range_sqmi``, the range the cited
+        regression was developed over. Empty when both are inside or the range
+        is not given. The transfer proceeds either way; this is the record of it.
     """
 
     donor_area_sqmi: float
@@ -467,6 +472,7 @@ class TranspositionProvenance:
     hydrogeologic_setting: Optional[str] = None
     bfi_difference: Optional[float] = None
     regulation: Optional[Dict[str, Any]] = None
+    areas_outside_regression: Tuple[str, ...] = ()
 
     @property
     def extrapolated_aeps(self) -> np.ndarray:
@@ -601,6 +607,8 @@ class TransposedResults:
                 + f" were clamped to the bounds {p.b_bounds}."
             )
 
+        for sentence in p.areas_outside_regression:
+            lines.append(f"- {sentence}")
         if not p.area_ratio_in_range:
             lines.append(
                 f"- **The area ratio {p.area_ratio:.4f} is outside the applicable range "
@@ -727,19 +735,26 @@ def _check_areas(
             area_ratio_range,
         )
 
-    valid_area = exponents.valid_area_range_sqmi
-    if valid_area is not None:
-        for label, area in (("donor", donor_area_sqmi), ("target", target_area_sqmi)):
-            if not valid_area[0] <= area <= valid_area[1]:
-                logger.warning(
-                    "%s drainage area %.1f sq mi is outside the range %s the cited "
-                    "regression was developed over.",
-                    label,
-                    area,
-                    valid_area,
-                )
+    for sentence in _areas_outside_regression(exponents, donor_area_sqmi, target_area_sqmi):
+        logger.warning("%s", sentence)
 
     return area_ratio, in_range
+
+
+def _areas_outside_regression(
+    exponents: RegressionExponents, donor_area_sqmi: float, target_area_sqmi: float
+) -> Tuple[str, ...]:
+    """A sentence for each area outside the range the cited regression covers."""
+    valid_area = exponents.valid_area_range_sqmi
+    if valid_area is None:
+        return ()
+    low, high = valid_area
+    return tuple(
+        f"The {label} drainage area, {area:,.1f} sq mi, is outside the {low:,.1f} to "
+        f"{high:,.1f} sq mi the cited regression was developed over."
+        for label, area in (("donor", donor_area_sqmi), ("target", target_area_sqmi))
+        if not low <= area <= high
+    )
 
 
 def _check_monotonic(
@@ -997,6 +1012,9 @@ def transpose_frequency(
         b_bounds=b_bounds,
         area_ratio_range=area_ratio_range,
         area_ratio_in_range=in_range,
+        areas_outside_regression=_areas_outside_regression(
+            exponents, donor_area_sqmi, target_area_sqmi
+        ),
         donor_site_no=donor_site_no,
         target_name=target_name,
         monotonic=monotonic,
@@ -1081,7 +1099,10 @@ def interpolate_between_gages(
     pd.DataFrame
         Columns ``aep``, ``flow_cfs``, ``upstream_flow_cfs``,
         ``downstream_flow_cfs`` and ``weight_upstream``, for the AEPs both
-        transfers carry, in the upstream transfer's order.
+        transfers carry, in the upstream transfer's order. AEPs are paired with
+        :func:`flowfreq.aep.match_aep`, so 0.67 at one gage meets 0.667 at the
+        other. ``frame.attrs["dropped_aeps"]`` lists the upstream AEPs left out
+        because the downstream transfer has no such row; they are also logged.
 
     Raises
     ------
@@ -1108,16 +1129,31 @@ def interpolate_between_gages(
         down_results, down_area_sqmi, target_area_sqmi, exponents, **transpose_options
     ).quantiles
 
-    up_key = np.round(up["aep"].to_numpy(dtype=float), 6)
-    down_key = np.round(down["aep"].to_numpy(dtype=float), 6)
-    down_flow_by_key = dict(zip(down_key, down["flow_cfs"].to_numpy(dtype=float)))
+    up_aep = up["aep"].to_numpy(dtype=float)
+    down_aep = [float(a) for a in down["aep"].to_numpy(dtype=float)]
+    down_flow = dict(zip(down_aep, down["flow_cfs"].to_numpy(dtype=float)))
+    partner = [match_aep(down_aep, float(a)) for a in up_aep]
 
-    keep = np.array([k in down_flow_by_key for k in up_key], dtype=bool)
-    aep = up["aep"].to_numpy(dtype=float)[keep]
+    keep = np.array([p is not None for p in partner], dtype=bool)
+    aep = up_aep[keep]
     q_up = up["flow_cfs"].to_numpy(dtype=float)[keep]
-    q_down = np.array([down_flow_by_key[k] for k in up_key[keep]], dtype=float)
+    q_down = np.array([down_flow[p] for p in partner if p is not None], dtype=float)
+    dropped = [float(a) for a in up_aep[~keep]]
+    if dropped:
+        logger.warning(
+            "interpolate_between_gages left out AEP %s: the downstream gage has no such row.",
+            ", ".join(f"{a:g}" for a in dropped),
+        )
 
     blended = np.exp(weight * np.log(q_up) + (1.0 - weight) * np.log(q_down))
+    frame = _blend_frame(aep, blended, q_up, q_down, weight)
+    frame.attrs["dropped_aeps"] = dropped
+    return frame
+
+
+def _blend_frame(
+    aep: np.ndarray, blended: np.ndarray, q_up: np.ndarray, q_down: np.ndarray, weight: float
+) -> pd.DataFrame:
     return pd.DataFrame(
         {
             "aep": aep,
@@ -1286,6 +1322,9 @@ def transpose_duration(
         b_bounds=b_bounds,
         area_ratio_range=area_ratio_range,
         area_ratio_in_range=in_range,
+        areas_outside_regression=_areas_outside_regression(
+            exponents, donor_area_sqmi, target_area_sqmi
+        ),
         donor_site_no=donor_site_no,
         target_name=target_name,
         statistic="flow duration",
@@ -1501,6 +1540,9 @@ def transpose_low_flow(
         b_bounds=b_bounds,
         area_ratio_range=area_ratio_range,
         area_ratio_in_range=in_range,
+        areas_outside_regression=_areas_outside_regression(
+            exponents, donor_area_sqmi, target_area_sqmi
+        ),
         donor_site_no=donor_site_no,
         target_name=target_name,
         statistic=f"{results.n_day}-day low flow",

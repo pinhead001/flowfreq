@@ -11,5 +11,7 @@ def _no_bylocation_pause(request, monkeypatch):
 
     A live test keeps it: the pause is for the service (issue #365).
     """
+    # Each test reads NSS's statistic-group list from its own stub, not a neighbour's.
+    monkeypatch.setattr("flowfreq.streamstats._GROUP_CODES_BY_ID", {})
     if request.node.get_closest_marker("requires_network") is None:
         monkeypatch.setattr("flowfreq.streamstats.BYLOCATION_PAUSE", 0.0)

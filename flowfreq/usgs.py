@@ -733,6 +733,15 @@ class USGSgage:
 
         if not flow_cols:
             raise ValueError("Flow data column not found")
+        if len(flow_cols) > 1:
+            # The first column is not "the" record: it is whichever sensor NWIS lists
+            # first. The default backend refuses the same site and asks for a ts_id.
+            raise ValueError(
+                f"Site {self._site_no} reports {len(flow_cols)} daily discharge series "
+                f"({', '.join(flow_cols)}) and the legacy service cannot say which is "
+                "wanted. Use the default backend, whose error lists the series, and "
+                "flowfreq.waterdata.download_daily(..., ts_id=...) to pick one."
+            )
 
         flow_col = flow_cols[0]
 
@@ -2137,7 +2146,7 @@ def fetch_nwis_peaks(site_no: str, backend: str = DEFAULT_BACKEND) -> List[Dict]
 
 
 def fetch_nwis_batch(
-    sites: List[str], workers: int = 6, backend: str = DEFAULT_BACKEND
+    sites: List[str], workers: Optional[int] = None, backend: str = DEFAULT_BACKEND
 ) -> Tuple[Dict[str, List[Dict]], Dict[str, str]]:
     """
     Fetch peak flow records for multiple USGS sites in parallel.
@@ -2146,8 +2155,10 @@ def fetch_nwis_batch(
     ----------
     sites : list of str
         USGS site numbers
-    workers : int
-        Number of parallel workers (default: 6)
+    workers : int, optional
+        Number of parallel workers. By default 6 with a Water Data API key and 2
+        without: a keyless address is allowed 1,000 requests an hour, and six
+        workers on a long list spend that in minutes and then wait out the backoff.
     backend : str, default :data:`flowfreq.peak_sources.DEFAULT_BACKEND`
         Passed to :func:`fetch_nwis_peaks` for every site.
 
@@ -2162,6 +2173,13 @@ def fetch_nwis_batch(
 
     results: Dict[str, List[Dict]] = {}
     errors: Dict[str, str] = {}
+
+    if workers is None:
+        from flowfreq import waterdata
+
+        workers = 6 if waterdata._current_api_key() else 2
+    if workers < 1:
+        raise ValueError(f"workers must be at least 1, got {workers}")
 
     with ThreadPoolExecutor(max_workers=workers) as executor:
         future_to_site = {executor.submit(fetch_nwis_peaks, site, backend): site for site in sites}

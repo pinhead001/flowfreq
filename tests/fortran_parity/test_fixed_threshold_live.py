@@ -108,6 +108,7 @@ def _emafitpr_skew_weighting(ql, qu, arrays):
     return p["weight_factor"], p["mse_skew"], p
 
 
+@pytest.mark.slow  # twelve live emafitpr calls, about 80 s: a fifth of the whole suite
 def test_regional_weighting_inputs_match(fits):
     """Native ``Wd``/``as_G_mse`` agree with ``emafitpr``'s to within its own rounding band.
 

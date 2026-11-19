@@ -110,6 +110,24 @@ class TestCoverage:
         assert "cover only 60 percent of the basin" in part.advisory
         assert "cover only 60 percent" in part.to_markdown()
 
+    def test_a_required_coverage_refuses_a_basin_below_it(self, monkeypatch):
+        from dataclasses import replace
+
+        from flowfreq import PartialCoverageError
+        from flowfreq.ungaged import estimate_at_site
+        from tests.test_ungaged import WA_LAT, WA_LON, Fakes, _wa_site
+
+        fakes = Fakes(_wa_site())
+        monkeypatch.setattr("flowfreq.ungaged.delineate_and_get_characteristics", fakes.delineate)
+        monkeypatch.setattr("flowfreq.ungaged.locate_regression_regions", fakes.locate)
+        whole = estimate_at_site(WA_LAT, WA_LON, state="WA", min_coverage_percent=90)
+        assert whole.provenance["options"]["min_coverage_percent"] == 90
+        fakes.regions = [replace(r, percent_weight=0.6 * r.percent_weight) for r in fakes.regions]
+        with pytest.raises(PartialCoverageError, match="cover 60 percent.*below the 90") as info:
+            estimate_at_site(WA_LAT, WA_LON, state="WA", min_coverage_percent=90)
+        assert info.value.covered_percent == pytest.approx(60.0)
+        assert len(estimate_at_site(WA_LAT, WA_LON, state="WA", min_coverage_percent=50).quantiles)
+
 
 class TestReportInputs:
     """Inputs that built nonsense or crashed now get a refusal that says what to change."""

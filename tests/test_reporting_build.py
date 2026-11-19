@@ -1,7 +1,7 @@
 """Tests for flowfreq.reporting: the section kinds and the built report.
 
 Everything here runs offline. The gaged sections carry their peaks inline (Big Sandy's
-systematic record), and the one test of a download replaces ``sections.download_peaks``.
+systematic record), and the one test of a download replaces ``gaged.download_peaks``.
 """
 
 from __future__ import annotations
@@ -17,6 +17,7 @@ import requests
 from flowfreq.regional_skew import regional_skew_for
 from flowfreq.regression.equations import OutOfRangeError
 from flowfreq.regulation import RegulatedRecordError
+from flowfreq.reporting import gaged  # noqa: E402
 from flowfreq.reporting import (
     DRAFT_LABEL,
     SECTION_KINDS,
@@ -382,7 +383,7 @@ class TestDownload:
                 "drainage_area_sqmi": 205.0,
             }
 
-        monkeypatch.setattr(sections, "download_peaks", fake)
+        monkeypatch.setattr(gaged, "download_peaks", fake)
         asked = {"site_no": "03606500", "stationarity": False, "peaks_table": False, **SKEW}
         content = build_section("gaged_ffa", asked)
         assert calls == ["03606500"]
@@ -393,13 +394,13 @@ class TestDownload:
         assert rows["Data source"] == "test double, retrieved 2026-11-14"
 
         # Built again from the options as resolved, nothing is downloaded.
-        monkeypatch.setattr(sections, "download_peaks", lambda site_no: pytest.fail("downloaded"))
+        monkeypatch.setattr(gaged, "download_peaks", lambda site_no: pytest.fail("downloaded"))
         again = build_section("gaged_ffa", content.options)
         assert again.options == content.options
 
     def test_a_given_site_name_is_kept(self, monkeypatch):
         monkeypatch.setattr(
-            sections,
+            gaged,
             "download_peaks",
             lambda site_no: {"peaks": PEAKS, "site_name": "FROM NWIS", "drainage_area_sqmi": None},
         )
@@ -533,7 +534,13 @@ class TestBuildReport:
 
     def test_captions_are_numbered_through_the_report(self, big_sandy):
         captions = [b.caption for b in big_sandy.blocks if isinstance(b, Table) and b.caption]
-        assert [c.split(".")[0] for c in captions] == [f"Table {i}" for i in range(1, 6)]
+        # Every table has a caption: the ungaged section's regions and characteristics
+        # tables and the stationarity tests had none and were skipped by the numbering.
+        tables = [b for b in big_sandy.blocks if isinstance(b, Table)]
+        assert len(captions) == len(tables) == 8
+        assert [c.split(".")[0] for c in captions] == [f"Table {i}" for i in range(1, 9)]
+        assert any("Annual exceedance probability (percent)" == t.header[0] for t in tables)
+        assert not any(t.header[0] == "AEP (%)" or "Lower" in t.header for t in tables)
 
     def test_references_are_sorted_and_single(self, big_sandy):
         start = big_sandy.blocks.index(Heading(1, "References"))

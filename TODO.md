@@ -22,39 +22,24 @@ owner's word. Run them with one worker.
 
 ### Review of 2026-11-19
 
-Three read-only reviews (the report tools; the analysis and data-retrieval code outside the validated EMA core;
-repository health) found about 37 things, most reproduced with a concrete input. What was fixed is in
-CHANGELOG.md under Unreleased. What was found and **not** done, for a decision or a later pass:
+Three read-only reviews found about 37 things. #396 fixed most; the follow-up PR did the eight recommendations
+left over (transposition notes, four data-retrieval leads, report consistency and the `sections.py` split, the
+slow test, the old engine's deprecation, an opt-in coverage requirement, historical notes on stale documents,
+CI cache). CHANGELOG.md, Unreleased, has the detail. Still open from it:
 
-1. **CI has no pip cache** across its six jobs. (Pull requests into `release/**` now run CI.)
-2. **One test is a fifth of the suite**: `fortran_parity/test_fixed_threshold_live.py::
-   test_regional_weighting_inputs_match`, 80 s of 380. Cut it to a few representative cases or mark it so a quick
-   local run can leave it out.
-3. **A second, older fit engine still ships**: `engine.py` (`B17CEngine`), `batch.py` and `plots.py` import only
-   each other, aren't exported, and `plots.plot_frequency_curve` shares a name with the one in `freq_plot`.
-   `core.log_pearson3_ppf` has no caller. Check flowfreq-app and methow-flow, then deprecate or remove.
-4. **`assemble` on a basin partly outside the regions used** now records `covered_percent` and cautions. Whether
-   it should refuse below some share, as it refuses an overlap, is the owner's call.
-5. **Transposition warnings that are only logged**: a donor or target area outside the exponents'
-   `valid_area_range_sqmi` (`transpose.py`, about line 730; the report section does print it), and
-   `interpolate_between_gages` dropping AEPs the downstream gage lacks.
-6. **Data-retrieval leads, read but not reproduced**: the legacy daily parser takes the first of several 00060
-   series where the OGC path refuses; peaks with a null value are dropped where peakfq's `siteQT` would censor
-   the year; `fetch_nwis_batch` defaults to 6 workers against 1,000 keyless requests an hour;
-   `estimate_flow_statistics` asks for the statistic groups twice per point.
-7. **Report sections are inconsistent in small ways**: `ungaged` prints "AEP (%)", "Lower", "Upper" where the
-   others spell them out with units, and two of its tables have no caption; "Return interval" in one kind and
-   "Recurrence interval" in others; `site_name` against `target_name`, `peaks_table` against `annual_table`;
-   `ReportSession.weight` alone takes no `title` or `position` and defaults `detail` on. `sections.py` is 2,500
-   lines and wants one module per kind. A report with a summary and a comparison fits every gage three times.
-8. **Chat tools still missing an argument for** perception thresholds, peaks typed by hand, a regional skew by
-   state, a basin outline for the summary's map, `ungaged` `aeps` and `weighting_space`.
-9. **Documents that describe things that are gone**: `PRODUCTION.md` (Streamlit deployment), `docs/
-   PHASE1_RUNBOOK.md`, `PHASE2_RUNBOOK.md` and `REPO_SPLIT_PLAN.md` (the `app/` folder), and paths under
-   `tests/peakfqsa/` in `docs/FORTRAN_UPLOAD.md`. They need a "historical" line at the top or an archive folder.
-10. **Nine class-scoped fixtures are defined as instance methods**, which pytest 10 will refuse; the pin is `<10`.
-11. **The Moyie report** (`D:\moyie\hydrology`) was built before the review. Rebuilt on this code it gains the
-    table of the two gages' relation before and after a year, which its narrative currently asserts.
+1. **Null-value peaks.** A peak row with no value is dropped (now with a warning naming the years) and the year
+   becomes a gap. peakfq's `siteQT` censors a year inside the record. Changing that changes fits, so it needs a
+   look at real records with such rows and at their codes first.
+2. **Remove the deprecated engine** (`engine.py`, `batch.py`, `plots.py`) in a later minor release, and decide
+   about `core.log_pearson3_ppf`, which has no caller.
+3. **Option names differ between section kinds** and were left alone, since renaming breaks stored specs:
+   `site_name` and `target_name`, `peaks_table` and `annual_table`. `ReportSession.weight` still defaults
+   `detail` on where `transpose` defaults it off.
+4. **A report with a summary and a comparison fits every gage three times.** A cache across sections was not
+   added: the builders mutate the options they are given and a fit is about a second.
+5. **Chat tools still missing an argument for** perception thresholds, peaks typed by hand, a regional skew by
+   state, a basin outline for the summary's map, `ungaged` `aeps`, `weighting_space` and `min_coverage_percent`.
+6. **Nine class-scoped fixtures are defined as instance methods**, which pytest 10 will refuse; the pin is `<10`.
 
 ### Next steps (2026-11-15)
 

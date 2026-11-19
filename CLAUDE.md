@@ -54,6 +54,7 @@ pip install -e ".[dev]"
 # About 130 s of it is live emafitpr calls in the vendored Fortran;
 # test_fixed_threshold_live.py alone takes ~100 s (80 s of it in
 # test_regional_weighting_inputs_match). The native code accounts for very little of it.
+# `make test-quick` leaves that one out (it is marked `slow`; ~290 s); CI and `make test` run it.
 # `pytest --durations=12` lists the slow ones; outside tests/fortran_parity the slowest is
 # test_regression_gls.py::test_known_model_error_variance_recovered at ~14 s.
 # History, same machine: ~200 s at v0.9.0 (1970 tests), then ~340 s (absent) / ~880 s (present) at
@@ -230,7 +231,7 @@ CI should test the supported Python matrix.
 - **`lowflow.py`** / **`regime.py`** / **`subdaily.py`** — low-flow frequency, flow-regime and
   sub-daily metrics
 - **`reporting/`** — reports from a JSON specification: `spec` (`ReportSpec`, `SectionSpec`),
-  `sections` (the section kinds: `gaged_ffa`, `ungaged`, `weighted`, `transposed`, `engine_check`, `future_flow`, `comparison`, `text`), `summary` (`site_summary`: characteristics, a map, flows by method and a curve plot for one site), `daily` (`low_flow` and `flow_duration`, from a daily record stored in the spec), `blocks` (content blocks and
+  `sections` (the registry of section kinds; each kind's builder is in its own module, `gaged`, `regional`, `weighted`, `transposed`, `engine_check`, `comparison`, `future`, over `_base`; to replace a builder's helper in a test, patch it in the module that defines it. The kinds: `gaged_ffa`, `ungaged`, `weighted`, `transposed`, `engine_check`, `future_flow`, `comparison`, `text`), `summary` (`site_summary`: characteristics, a map, flows by method and a curve plot for one site), `daily` (`low_flow` and `flow_duration`, from a daily record stored in the spec), `blocks` (content blocks and
   the Markdown subset), `build` (`build_report`, Markdown output), `word` (DOCX through
   python-docx, the `report` extra), `session` (`ReportSession`: a report built a section at a
   time, stable section ids, files named inside one output directory). A section's tables and

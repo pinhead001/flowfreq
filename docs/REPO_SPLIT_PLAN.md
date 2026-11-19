@@ -1,5 +1,7 @@
 # Repository Split Plan
 
+> **Historical: complete.** The split into `flowfreq` and `flowfreq-app` is done. Paths below (`app/`, `hydrolib`) describe the repository before it.
+
 Splitting `pinhead001/hydrolib` into a reusable analysis library and a separate
 Streamlit application.
 

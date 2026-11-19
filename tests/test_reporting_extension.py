@@ -10,6 +10,7 @@ from typing import Any, Dict, List
 
 import pytest
 
+from flowfreq.reporting import gaged  # noqa: E402
 from flowfreq.reporting import (
     Bullets,
     Heading,
@@ -99,7 +100,7 @@ def test_the_index_record_is_downloaded_once_and_stored(monkeypatch):
         asked.append(site_no)
         return {"peaks": dict(ETOWAH), "site_name": "ETOWAH RIVER AT CANTON, GA"}
 
-    monkeypatch.setattr(sections, "download_peaks", fake)
+    monkeypatch.setattr(gaged, "download_peaks", fake)
     built = build_section(
         "gaged_ffa", {**SUWANEE, "extension": {"index": {"site_no": "02392000"}, "n_extend": 8}}
     )
