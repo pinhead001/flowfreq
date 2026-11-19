@@ -20,6 +20,7 @@ from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple
 import numpy as np
 import pandas as pd
 
+from ..aep import match_aep, same_aep
 from .blocks import Block, Bullets, Figure, Heading, Paragraph, Table, parse_markdown, without_title
 from .spec import ReportError
 
@@ -1917,13 +1918,6 @@ def _compared(
     return label, content, flows, said.replace("%", "-percent")
 
 
-#: How far apart, as a fraction of the larger, two AEPs may be and still be one row. A
-#: Bulletin 17C fit tabulates the 1.5-year flood at 0.67 and the 2.33-year flood at 0.43,
-#: where a regression report has 0.667 and 0.429. Relative, so that 0.005 and 0.002 are
-#: never taken for each other.
-AEP_MATCH = 0.0075
-
-
 def _flow_table(flows: pd.DataFrame) -> Dict[float, Any]:
     """An estimate's rows that have a flow, by AEP."""
     return {float(r["aep"]): r for _, r in flows[flows["flow_cfs"].notna()].iterrows()}
@@ -1934,7 +1928,7 @@ def _row_at(table: Mapping[float, Any], aep: float) -> Any:
     if not table:
         return None
     nearest = min(table, key=lambda a: abs(a - aep))
-    return table[nearest] if abs(nearest - aep) <= AEP_MATCH * max(nearest, aep) else None
+    return table[nearest] if same_aep(nearest, aep) else None
 
 
 def _matched_aeps(
@@ -1954,7 +1948,7 @@ def _matched_aeps(
         if default is None:
             candidates: List[float] = []
             for aep in sorted({a for table in tables for a in table}, reverse=True):
-                if not any(abs(aep - c) <= AEP_MATCH * max(aep, c) for c in candidates):
+                if not any(same_aep(aep, c) for c in candidates):
                     candidates.append(aep)
         else:
             candidates = [float(a) for a in default]
@@ -2166,7 +2160,8 @@ def _build_future_flow(given: Dict[str, Any]) -> SectionContent:
     asked = options.get("aeps")
     if asked is None:
         # Only the AEPs the factors cover: nothing is held beyond them unless asked for.
-        keep = [a for a in have if min(published) - 1e-12 <= a <= max(published) + 1e-12]
+        low, high = min(published), max(published)
+        keep = [a for a in have if low <= a <= high or same_aep(a, low) or same_aep(a, high)]
         if not keep:
             raise ReportError(
                 "future_flow: the present-condition quantiles have no AEP within the factor "
@@ -2195,7 +2190,7 @@ def _build_future_flow(given: Dict[str, Any]) -> SectionContent:
     def basis(aep: float, extrapolated: bool) -> str:
         if extrapolated:
             return "held beyond the published AEPs"
-        if any(abs(aep - p) < 1e-9 for p in published):
+        if match_aep(published, aep) is not None:
             return "published"
         return "interpolated"
 

@@ -16,9 +16,9 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 import numpy as np
 import pandas as pd
 
+from ..aep import AEP_MATCH
 from .blocks import Block, Figure, Paragraph, Table
 from .sections import (
-    AEP_MATCH,
     SECTION_KINDS,
     SectionContent,
     SectionKind,
