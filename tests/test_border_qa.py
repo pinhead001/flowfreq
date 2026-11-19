@@ -127,3 +127,48 @@ def test_a_run_is_one_gage_at_a_time_unless_asked(tmp_path, monkeypatch):
         for name, level in levels.items():
             logging.getLogger(name).setLevel(level)
     assert seen == [1, 2]
+
+
+def test_a_run_stops_when_streamstats_refuses_or_keeps_failing():
+    assert bq.stop_reason(["HTTPError: 403 Client Error: Forbidden"], 0).startswith(
+        "StreamStats is refusing"
+    )
+    assert bq.stop_reason(["StreamStatsTransportError: 429 from x"], 1) is not None
+    assert bq.stop_reason(["StreamStatsTransportError: timed out"], 2) is None
+    assert bq.stop_reason(["StreamStatsTransportError: timed out"], 3) == (
+        "3 gages in a row failed at the service"
+    )
+    # A drainage area of 403 square miles is not a refusal.
+    assert bq.stop_reason(["EquationsUnavailable: needs DRNAREA 1403.5"], 0) is None
+    assert bq.stop_reason([], 0) is None
+
+
+def test_site_errors_gathers_every_level():
+    rec = {
+        "error": "A",
+        "home_est": {"error": "B"},
+        "neighbors": {"TN": {"error": "C"}, "KY": {"0.01": [1.0, False]}},
+    }
+    assert bq.site_errors(rec) == ["A", "B", "C"]
+    assert bq.site_errors({"home_est": {"0.01": [1.0, False]}}) == []
+
+
+def test_a_refused_site_stops_the_rest_from_being_asked(tmp_path, monkeypatch):
+    import pandas as pd
+
+    sites = [f"0{i}000000" for i in range(1, 7)]
+    pd.DataFrame({"site_no": sites, "home": "TN", "neighbor": "KY", "distance_km": 5.0}).to_csv(
+        tmp_path / "candidates.csv", index=False
+    )
+    asked = []
+
+    def refused(cache, site_no, rows):
+        asked.append(site_no)
+        bq._write(
+            cache / "sites" / f"{site_no}.json",
+            {"site_no": site_no, "error": "HTTPError: 403 Client Error: Forbidden"},
+        )
+
+    monkeypatch.setattr(bq, "run_site", refused)
+    bq.run(tmp_path, workers=1, limit=None)
+    assert asked == sites[:1]
