@@ -123,6 +123,7 @@ from .transpose import (
 )
 from .ungaged import (
     OverlappingRegionsError,
+    PartialCoverageError,
     SiteEstimate,
     estimate_at_site,
     estimate_from_characteristics,
@@ -422,6 +423,7 @@ __all__ = [
     "LOW_FLOW_AREA_RATIO_RANGE",
     # Regression estimate at an ungaged site
     "OverlappingRegionsError",
+    "PartialCoverageError",
     "SiteEstimate",
     "estimate_at_site",
     "estimate_from_characteristics",

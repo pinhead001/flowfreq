@@ -851,6 +851,7 @@ class TestEstimateAtSite:
             "allow_provisional": False,
             "allow_extrapolation": True,
             "allow_inaccurate": False,
+            "min_coverage_percent": None,
             "weighting_space": "linear",
             "region": None,
         }

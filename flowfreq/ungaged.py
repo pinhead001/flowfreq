@@ -202,6 +202,29 @@ Candidate = Tuple[str, str, Optional[int]]
 MEASURED_WIDTH_CODES = frozenset({"WACTCH", "WBANKFULL", "CHANWD_RS"})
 
 
+class PartialCoverageError(EquationsUnavailable):
+    """The regression regions used cover less of the basin than the caller requires.
+
+    Raised by :func:`estimate_at_site` only when ``min_coverage_percent`` is given. Without
+    it a partly covered basin is estimated from the part covered, with a caution.
+
+    Attributes
+    ----------
+    covered_percent, required_percent : float
+    """
+
+    def __init__(self, covered_percent: float, required_percent: float, regions: str) -> None:
+        self.covered_percent = covered_percent
+        self.required_percent = required_percent
+        super().__init__(
+            f"the regression regions used ({regions}) cover {covered_percent:.0f} percent of "
+            f"the basin, below the {required_percent:g} percent required "
+            "(min_coverage_percent). The rest is in another state or country, or in a region "
+            "with no equations here. Lower or drop min_coverage_percent to estimate from the "
+            "part covered."
+        )
+
+
 class OverlappingRegionsError(EquationsUnavailable):
     """The located NSS regions overlap: they are alternative equation sets, not a partition.
 
@@ -1377,6 +1400,7 @@ def estimate_at_site(
     data_dir: Union[str, Path, None] = None,
     region: Union[str, Sequence[str], None] = None,
     allow_inaccurate: bool = False,
+    min_coverage_percent: Optional[float] = None,
 ) -> SiteEstimate:
     """Estimate flood quantiles at an ungaged site from the state's regression equations.
 
@@ -1443,6 +1467,14 @@ def estimate_at_site(
         a region whose equations need one is skipped as for any missing characteristic. Characteristics the warning does
         not name are returned as StreamStats computed them; whether they cover the whole
         basin is not something StreamStats says. Any other warning is still refused.
+
+    min_coverage_percent : float, optional
+        Refuse (:class:`PartialCoverageError`) when the regression regions used cover less
+        than this percent of the basin. By default nothing is refused on that ground: the
+        covered part's weights are scaled to the whole, ``provenance["covered_percent"]``
+        records the share and the advisory carries a caution. Whether a basin half outside
+        the regions can be estimated from the half inside is a judgment about that basin,
+        so no threshold is built in.
 
     Returns
     -------
@@ -1516,6 +1548,10 @@ def estimate_at_site(
         weighting_space=weighting_space,
         region=region,
     )
+    if min_coverage_percent is not None and assembly.covered_percent < min_coverage_percent:
+        raise PartialCoverageError(
+            assembly.covered_percent, float(min_coverage_percent), _codes(assembly.used)
+        )
 
     return _site_estimate(
         lib,
@@ -1544,6 +1580,7 @@ def estimate_at_site(
             "allow_provisional": allow_provisional,
             "allow_extrapolation": allow_extrapolation,
             "allow_inaccurate": allow_inaccurate,
+            "min_coverage_percent": min_coverage_percent,
             "weighting_space": weighting_space,
             "region": region,
         },
