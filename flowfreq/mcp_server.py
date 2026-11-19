@@ -68,7 +68,10 @@ the gage's stream), then get_section to read what was computed, \
 edit_narrative, and render_report. check_gage_against_reference adds a comparison of a \
 gage's computation with USGS peakfq or with numbers the user gives. low_flow_frequency and \
 flow_duration add sections from a gage's daily flows, and apply_future_change_factors \
-scales a section's flood quantiles by factors the user supplies. The report is kept for \
+scales a section's flood quantiles by factors the user supplies. For an ungaged site with \
+several estimates, compare_estimates sets them side by side and add_site_summary puts a \
+summary at the front; extend_gage_record extends a discontinued gage's record from a \
+longer one. The report is kept for \
 the life of the server; \
 save_report and load_report carry it between conversations.
 """
@@ -662,6 +665,8 @@ def build_server(
         factor_aeps: List[float],
         factors: List[float],
         legal_status: str = "informational",
+        level: str = "site",
+        geography: Optional[List[str]] = None,
         aeps: Optional[List[float]] = None,
         detail: bool = False,
         title: Optional[str] = None,
@@ -679,7 +684,9 @@ def build_server(
         "2050". citation: the source document and table.
         factor_aeps (fractions, for example [0.1, 0.01]) and factors: the multipliers
         as published, in the same order. legal_status: "required", "recommended" or
-        "informational".
+        "informational". level: whose factors they are, "national", "state" (give
+        geography, the two-letter codes the guidance covers) or "site" (derived for this
+        one site; the default).
         aeps: the AEPs to scale; by default those of the section that lie within
         factor_aeps. An AEP outside them takes the nearest published factor and is
         marked. detail: repeat the present-condition analysis below the table. title,
@@ -696,11 +703,128 @@ def build_server(
                 "citation": citation,
                 "aeps": list(factor_aeps),
                 "factors": list(factors),
-                "level": "site",
+                "level": level,
+                "geography": list(geography or []),
                 "legal_status": legal_status,
             },
             aeps=aeps,
             detail=detail,
+            title=title,
+            position=position,
+        )
+
+    def extend_gage_record(
+        gage_section_id: str,
+        index_gage_section_id: str,
+        n_extend: Optional[int] = None,
+        split_year: Optional[int] = None,
+        title: Optional[str] = None,
+        position: Optional[int] = None,
+    ) -> Dict[str, Any]:
+        """Extend a short gage record from a nearby long-record gage, and fit the result.
+
+        Bulletin 17C Appendix 8 (record extension, MOVE): for a gage that was discontinued
+        or has a short record, where a gage with a longer record on the same or a similar
+        stream has peaks in common with it. Both gages must already have run_ffa sections,
+        and both stay. The new section shows the correlation of the concurrent peaks, the
+        effective years of record the long gage adds, the peaks generated, a table that
+        checks the two gages' relation was the same in both parts of the concurrent
+        period, and the flood quantiles of the extended record.
+
+        gage_section_id: the short-record gage's section. index_gage_section_id: the
+        long-record gage's section. n_extend: how many peaks to add; leave it out to use
+        the effective record gained. split_year: the water year to divide the concurrent
+        period at in the relation table, for example the year of a change point the
+        short gage's stationarity screen found (default: the middle). title, position: as
+        run_ffa (default position: just after the short gage's section).
+
+        The tool refuses with fewer than 10 concurrent years or where the long gage adds
+        too little. The generated peaks stand for the information the long gage adds; do
+        not describe them as estimates of what happened in those years.
+
+        Returns the new section's id and its quantile table.
+        """
+        return report.extend_record(
+            gage_section_id,
+            index_gage_section_id,
+            n_extend=n_extend,
+            split_year=split_year,
+            title=title,
+            position=position,
+        )
+
+    def compare_estimates(
+        section_ids: List[str],
+        labels: Optional[List[str]] = None,
+        site_name: Optional[str] = None,
+        aeps: Optional[List[float]] = None,
+        detail: bool = False,
+        title: Optional[str] = None,
+        position: Optional[int] = None,
+    ) -> Dict[str, Any]:
+        """Set several estimates of the flood quantiles at one site side by side.
+
+        For an ungaged site with more than one way to estimate it: a transposition from
+        a gage upstream, one from a gage downstream, the regional regression. Each
+        estimate is a section already in the report (a run_ffa section, a
+        transpose_gage_to_site section, a regression estimate, an extend_gage_record
+        section); they stay. The new section tabulates the flows by method with the ratio
+        of the largest to the smallest, and each method's limits. Nothing is weighted or
+        combined.
+
+        section_ids: two or more section ids. labels: a short column heading for each, in
+        the same order (default: the sections' titles, which are long). site_name: the
+        site the estimates are for. aeps: the AEPs to show, as fractions (default: those
+        every estimate gives). detail: repeat each estimate's analysis below the tables.
+        title, position: as run_ffa.
+
+        Returns the new section's id and the comparison table.
+        """
+        return report.compare(
+            section_ids,
+            labels=labels,
+            site_name=site_name,
+            aeps=aeps,
+            detail=detail,
+            title=title,
+            position=position,
+        )
+
+    def add_site_summary(
+        section_ids: List[str],
+        locations: List[Dict[str, Any]],
+        labels: Optional[List[str]] = None,
+        site_name: Optional[str] = None,
+        curves: Optional[List[str]] = None,
+        characteristics_source: Optional[str] = None,
+        title: Optional[str] = None,
+        position: Optional[int] = 1,
+    ) -> Dict[str, Any]:
+        """Add a summary section for the front of the report: the basin characteristics of
+        the site and the gages, a map of where they are, the flood quantiles by each
+        method from the 1.5-year to the 500-year flood, and the methods' frequency curves
+        on one plot.
+
+        section_ids, labels, site_name: the estimates to summarize, as compare_estimates.
+        locations: the site and each gage, each an object with name, lat and lon (decimal
+        degrees) and optionally characteristics, an object of code to value such as
+        {"DRNAREA": 762, "PRECPRIS10": 34.23}. The characteristics are printed as given
+        and are the user's: ask for them, and do not supply values from memory.
+        characteristics_source: where they came from, printed above the table. curves:
+        the labels to plot (default: all). title: the heading (default "Summary: <site>").
+        position: where the section goes (default: first).
+
+        Write the discussion of findings and limitations with edit_narrative afterwards.
+
+        Returns the new section's id and the table of flows.
+        """
+        return report.summarize(
+            section_ids,
+            locations,
+            labels=labels,
+            site_name=site_name,
+            curves=curves,
+            characteristics_source=characteristics_source,
             title=title,
             position=position,
         )
@@ -776,6 +900,9 @@ def build_server(
         low_flow_frequency,
         flow_duration,
         apply_future_change_factors,
+        extend_gage_record,
+        compare_estimates,
+        add_site_summary,
         add_text_section,
         edit_narrative,
         mark_narrative_reviewed,

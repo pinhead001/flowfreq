@@ -354,7 +354,7 @@ The model calls `find_gage`, `run_ffa`, `estimate_from_characteristics`,
 `weight_gage_with_regression`, `edit_narrative` and `render_report`; flowfreq computes
 every table and figure, and what the model writes is narrative that prints as a draft
 until you mark it reviewed. `flowfreq.reporting.ReportSession` is the same thing from
-Python. Client configuration, the twenty-one tools and the rules the server holds the model
+Python. Client configuration, the twenty-four tools and the rules the server holds the model
 to are in [docs/CHAT_REPORTS.md](docs/CHAT_REPORTS.md).
 
 ## Module Overview

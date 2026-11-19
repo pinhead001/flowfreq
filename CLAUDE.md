@@ -225,7 +225,7 @@ CI should test the supported Python matrix.
   time, stable section ids, files named inside one output directory). A section's tables and
   figures come from the analysis it runs; prose is a labeled draft `narrative` until marked
   reviewed. `report.py` (`HydroReport`) is the older single-gage Markdown report
-- **`mcp_server.py`** — `flowfreq-mcp`: `ReportSession` as twenty-one Model Context Protocol tools
+- **`mcp_server.py`** — `flowfreq-mcp`: `ReportSession` as twenty-four Model Context Protocol tools
   for a chat client (the `mcp` extra, mcp 2.x; `docs/CHAT_REPORTS.md`). Tool calls take turns
   behind a lock and matplotlib is put on Agg, because mcp runs sync tools on worker threads.
   Tests drive it in process through `mcp.Client`

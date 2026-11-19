@@ -138,7 +138,7 @@ with #48 (`ungaged_ui.py`); #52 with #47 (`ungaged_ui.py`: keep `border_cautions
 Reports through chat (2026-11-14 and 2026-11-15, unreleased on `main`). `flowfreq.reporting` builds a report from
 a JSON specification in Markdown or DOCX (#375), with section kinds `gaged_ffa`, `ungaged`, `weighted` (#380),
 `transposed` (#382), `engine_check` (#383) and `text`. `flowfreq-mcp` (#381, the `mcp` extra) gives a chat
-client twenty-one tools over a `ReportSession`; `docs/CHAT_REPORTS.md` has the client configuration. The chat
+client twenty-four tools over a `ReportSession`; `docs/CHAT_REPORTS.md` has the client configuration. The chat
 page in the app was dropped, since only the owner chats. Not yet done:
 
 - Connect `flowfreq-mcp` to Claude Code or Claude Desktop and write a report with it. The tests drive the
