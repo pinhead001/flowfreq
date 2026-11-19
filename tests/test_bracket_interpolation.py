@@ -121,3 +121,31 @@ class TestInterpolateBetweenGages:
         # The default area-ratio band refuses the 1/3 transfer from the downstream gage.
         with pytest.raises(ValueError):
             interpolate_between_gages(up, UP_AREA, down, DOWN_AREA, UP_AREA, EXPONENTS)
+
+    def test_a_row_the_downstream_gage_lacks_is_named(self, fits, caplog) -> None:
+        import copy
+
+        up, down = fits
+        short = copy.deepcopy(down)
+        short.quantiles = short.quantiles[~np.isclose(short.quantiles["aep"], 0.01)].reset_index(
+            drop=True
+        )
+        with caplog.at_level("WARNING"):
+            out = interpolate_between_gages(up, UP_AREA, short, DOWN_AREA, 150.0, EXPONENTS, **WIDE)
+        assert out.attrs["dropped_aeps"] == [0.01]
+        assert not np.isclose(out["aep"], 0.01).any()
+        assert "left out AEP 0.01" in caplog.text
+        whole = interpolate_between_gages(up, UP_AREA, down, DOWN_AREA, 150.0, EXPONENTS, **WIDE)
+        assert whole.attrs["dropped_aeps"] == []
+
+    def test_aeps_written_differently_are_paired(self, fits) -> None:
+        import copy
+
+        up, down = fits
+        other = copy.deepcopy(down)
+        other.quantiles.loc[np.isclose(other.quantiles["aep"], 0.1), "aep"] = 0.1003
+        if other.confidence_limits is not None and "aep" in other.confidence_limits:
+            limits = other.confidence_limits
+            limits.loc[np.isclose(limits["aep"], 0.1), "aep"] = 0.1003
+        out = interpolate_between_gages(up, UP_AREA, other, DOWN_AREA, 150.0, EXPONENTS, **WIDE)
+        assert np.isclose(out["aep"], 0.1).any() and out.attrs["dropped_aeps"] == []
