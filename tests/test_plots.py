@@ -24,6 +24,9 @@ from flowfreq.plots import (
 )
 from tests.fixtures.big_sandy import SYSTEMATIC_PEAKS
 
+# The class under test is deprecated and says so each time one is made.
+pytestmark = pytest.mark.filterwarnings("ignore:flowfreq.engine.B17CEngine:DeprecationWarning")
+
 matplotlib.use("Agg")
 
 

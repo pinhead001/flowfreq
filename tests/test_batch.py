@@ -24,6 +24,9 @@ from flowfreq.core import PeakRecord
 from flowfreq.engine import STANDARD_RETURN_PERIODS
 from tests.fixtures.big_sandy import SYSTEMATIC_PEAKS
 
+# The class under test is deprecated and says so each time one is made.
+pytestmark = pytest.mark.filterwarnings("ignore:flowfreq.engine.B17CEngine:DeprecationWarning")
+
 
 @pytest.fixture(scope="module")
 def records():

@@ -1,11 +1,17 @@
 """
-flowfreq.engine - B17C Engine for flood frequency analysis
+flowfreq.engine - a plain moments fit kept from early versions. Deprecated.
 
-Provides a simplified interface for Bulletin 17C analysis with PeakFQ-style output.
+``B17CEngine`` fits log-Pearson Type III by the sample moments of the peaks it is given
+and nothing more: no Expected Moments Algorithm, no low-outlier test, no historical or
+censored data and no regional skew. Its name says Bulletin 17C and its answer is not a
+Bulletin 17C answer except on a complete record with no low outliers and station skew.
+Use :class:`flowfreq.Bulletin17C` or :func:`flowfreq.run_ffa`. ``flowfreq.batch`` and
+``flowfreq.plots`` are built on this class and are deprecated with it.
 """
 
 from __future__ import annotations
 
+import warnings
 from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
@@ -17,11 +23,20 @@ from .core import PeakRecord, compute_ci_lp3, lp3_frequency_factor_peakfq, lp3_q
 STANDARD_RETURN_PERIODS = (1.5, 2, 5, 10, 25, 50, 100, 200, 500)
 
 
+#: What the deprecation warning says, here and in ``flowfreq.batch`` and ``flowfreq.plots``.
+DEPRECATION = (
+    "flowfreq.engine.B17CEngine (and flowfreq.batch and flowfreq.plots, which are built on "
+    "it) is deprecated and will be removed in a later release. It is a plain moments fit: "
+    "no EMA, no low-outlier test, no regional skew. Use flowfreq.Bulletin17C or "
+    "flowfreq.run_ffa, and flowfreq.freq_plot.plot_frequency_curve for the figure."
+)
+
+
 class B17CEngine:
     """
-    Simplified Bulletin 17C engine for flood frequency analysis.
+    A log-Pearson Type III fit by sample moments. Deprecated.
 
-    Provides PeakFQ-style quantile estimation with confidence intervals.
+    Not a Bulletin 17C analysis: see the module docstring. Creating one warns.
 
     Examples
     --------
@@ -34,7 +49,8 @@ class B17CEngine:
     >>> ci = engine.quantiles_with_ci([10, 50, 100])
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
+        warnings.warn(DEPRECATION, DeprecationWarning, stacklevel=2)
         self.params: Optional[Tuple[float, float, float]] = None
         self.n: int = 0
         self._records: List[PeakRecord] = []

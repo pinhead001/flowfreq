@@ -3,7 +3,6 @@ import os
 
 from flowfreq import Bulletin17C, USGSgage
 from flowfreq.core import PeakRecord
-from flowfreq.engine import B17CEngine
 
 # Set output directory (outside repo)
 output_dir = r"C:\Users\chrisj.nelson\hydro_output\gage_11066460"
@@ -111,19 +110,6 @@ fig = b17c.plot_frequency_curve(
     show_confidence=True,
 )
 print(f"\nFrequency curve saved to: {output_dir}/frequency_curve.png")
-
-# %% 7. Alternative: Use B17CEngine for quick analysis
-engine = B17CEngine()
-engine.fit(records)
-
-print("\n" + "=" * 50)
-print("B17C ENGINE SUMMARY")
-print("=" * 50)
-print(engine.summary())
-
-# Get formatted frequency table
-print("\nFrequency Table with 95% CI:")
-print(engine.frequency_table().to_string(index=False))
 
 # %% 8. Generate short report (no tabulate required)
 
