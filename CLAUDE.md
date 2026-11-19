@@ -131,11 +131,12 @@ first is on you at every invocation:
   catching `.venv` and similar, and it appears with or without UTF-8 mode. The signal is
   the "Unable to parse" warning, not the count.
 - Install the dev tooling with `pip install -e ".[dev]"`, never by naming packages. The
-  extra pins `black>=24.0,<27`. CI installs the newest black in that range and a venv keeps
-  whichever it was built with (24.10 on the main development machine on 2026-11-19); both
-  passed `black --check` on the same tree that day. A black outside the range can format
-  differently and have you "fix" correctly formatted files. Lint covers `flowfreq/`,
-  `tests/`, `tools/` and `build_fortran/`.
+  extra pins `black>=24.0,<27`. CI installs the newest black in that range (26.10 on
+  2026-11-19) and a venv keeps whichever it was built with (24.10 on the main development
+  machine). The two can disagree: on 2026-11-19 a local `make lint` passed and `ci / lint`
+  failed, because black 26 wants a trailing comma after a lone wrapped parameter that black
+  24 leaves alone (black 24 accepts the comma once it is there). `ci / lint` is the
+  authority. Lint covers `flowfreq/`, `tests/`, `tools/` and `build_fortran/`.
 - **New code must parse on Python 3.11.** A venv on 3.12 or later accepts a nested
   same-quote f-string (`f"{d["k"]}"`), which 3.11 rejects; one reached a PR on 2026-11-18
   and failed `ci / test (3.11)` and `ci / Fortran parity`. Local pytest cannot see it.
