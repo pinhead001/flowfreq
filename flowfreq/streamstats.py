@@ -1908,6 +1908,20 @@ def list_statistic_groups(
     return data
 
 
+#: NSS's national list of statistic groups, id to code, once it has been read. It is the
+#: same for every point, so a batch asks for it once and not once per point.
+_GROUP_CODES_BY_ID: Dict[Any, str] = {}
+
+
+def _statistic_group_codes_by_id(timeout: float) -> Dict[Any, str]:
+    """NSS statistic-group ids to codes, read once per process."""
+    if not _GROUP_CODES_BY_ID:
+        _GROUP_CODES_BY_ID.update(
+            {g["id"]: g["code"] for g in list_statistic_groups(timeout=timeout)}
+        )
+    return _GROUP_CODES_BY_ID
+
+
 def _fill_and_validate_regions(
     scenario: Dict[str, Any], characteristics: Dict[str, Characteristic]
 ) -> Tuple[Dict[str, Any], Dict[str, str]]:
@@ -2122,7 +2136,7 @@ def estimate_flow_statistics(
     if statistic_group_codes is None:
         statistic_group_codes = [g["code"] for g in list_statistic_groups(region, timeout=timeout)]
 
-    id_to_code = {g["id"]: g["code"] for g in list_statistic_groups(timeout=timeout)}
+    id_to_code = _statistic_group_codes_by_id(timeout)
 
     locations: Optional[Dict[str, RegressionRegionLocation]] = None
     if watershed_polygon is not None:

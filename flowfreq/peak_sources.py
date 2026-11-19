@@ -344,10 +344,18 @@ class WaterDataApiBackend:
         df["peak_date"] = pd.to_datetime(df["peak_date"], format="%Y-%m-%d", errors="coerce")
         incomplete = df["water_year"].isna() | df["peak_flow_cfs"].isna()
         if incomplete.any():
-            logger.info(
-                "Site %s: dropped %d peak row(s) with no water year or no value",
+            # Said at warning level and with the years: the fit then treats each as a
+            # year with no record, where peakfq's siteQT gives a year inside the record
+            # a censored row at the perception threshold. Which is right depends on why
+            # the value is missing, which the analyst has to read from the codes.
+            years = sorted({int(y) for y in df.loc[incomplete, "water_year"].dropna()})
+            logger.warning(
+                "Site %s: dropped %d peak row(s) with no water year or no value%s. "
+                "A year dropped from inside the record is treated as a gap, not as a "
+                "censored year.",
                 site,
                 int(incomplete.sum()),
+                f" (water years {', '.join(map(str, years))})" if years else "",
             )
             df = df.loc[~incomplete].copy()
         df["water_year"] = df["water_year"].astype(int)
