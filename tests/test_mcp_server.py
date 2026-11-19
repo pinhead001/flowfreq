@@ -28,6 +28,7 @@ from flowfreq.mcp_server import (  # noqa: E402
     default_report_dir,
     main,
 )
+from flowfreq.reporting import gaged  # noqa: E402
 from flowfreq.reporting import DRAFT_LABEL, sections  # noqa: E402
 from flowfreq.reporting.session import ReportSession  # noqa: E402
 from tests.test_reporting_engine_check import (  # noqa: E402
@@ -139,7 +140,7 @@ def peaks(monkeypatch) -> List[str]:
             "drainage_area_sqmi": GAGE["drainage_area_sqmi"],
         }
 
-    monkeypatch.setattr(sections, "download_peaks", fake)
+    monkeypatch.setattr(gaged, "download_peaks", fake)
     return asked
 
 
@@ -338,7 +339,7 @@ class TestRunFfa:
 
             raise RegulatedRecordError(f"USGS {site_no} is regulated")
 
-        monkeypatch.setattr(sections, "download_peaks", regulated)
+        monkeypatch.setattr(gaged, "download_peaks", regulated)
         assert chat.refusal("run_ffa", site_no="01019000", skew="station") == (
             "Error executing tool run_ffa: RegulatedRecordError: USGS 01019000 is regulated"
         )
@@ -347,7 +348,7 @@ class TestRunFfa:
         def broken(site_no: str) -> Dict[str, Any]:
             raise RuntimeError("the disk is on fire")
 
-        monkeypatch.setattr(sections, "download_peaks", broken)
+        monkeypatch.setattr(gaged, "download_peaks", broken)
         said = chat.refusal("run_ffa", site_no="03606500", skew="station")
         assert said == "Error executing tool run_ffa: RuntimeError: the disk is on fire"
         # A fault, unlike a refusal, leaves its traceback in the server's log.

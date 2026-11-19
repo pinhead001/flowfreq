@@ -1,7 +1,7 @@
 """Tests for flowfreq.reporting: the section kinds and the built report.
 
 Everything here runs offline. The gaged sections carry their peaks inline (Big Sandy's
-systematic record), and the one test of a download replaces ``sections.download_peaks``.
+systematic record), and the one test of a download replaces ``gaged.download_peaks``.
 """
 
 from __future__ import annotations
@@ -17,6 +17,7 @@ import requests
 from flowfreq.regional_skew import regional_skew_for
 from flowfreq.regression.equations import OutOfRangeError
 from flowfreq.regulation import RegulatedRecordError
+from flowfreq.reporting import gaged  # noqa: E402
 from flowfreq.reporting import (
     DRAFT_LABEL,
     SECTION_KINDS,
@@ -382,7 +383,7 @@ class TestDownload:
                 "drainage_area_sqmi": 205.0,
             }
 
-        monkeypatch.setattr(sections, "download_peaks", fake)
+        monkeypatch.setattr(gaged, "download_peaks", fake)
         asked = {"site_no": "03606500", "stationarity": False, "peaks_table": False, **SKEW}
         content = build_section("gaged_ffa", asked)
         assert calls == ["03606500"]
@@ -393,13 +394,13 @@ class TestDownload:
         assert rows["Data source"] == "test double, retrieved 2026-11-14"
 
         # Built again from the options as resolved, nothing is downloaded.
-        monkeypatch.setattr(sections, "download_peaks", lambda site_no: pytest.fail("downloaded"))
+        monkeypatch.setattr(gaged, "download_peaks", lambda site_no: pytest.fail("downloaded"))
         again = build_section("gaged_ffa", content.options)
         assert again.options == content.options
 
     def test_a_given_site_name_is_kept(self, monkeypatch):
         monkeypatch.setattr(
-            sections,
+            gaged,
             "download_peaks",
             lambda site_no: {"peaks": PEAKS, "site_name": "FROM NWIS", "drainage_area_sqmi": None},
         )
