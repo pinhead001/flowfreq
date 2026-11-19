@@ -54,6 +54,7 @@ pip install -e ".[dev]"
 # About 130 s of it is live emafitpr calls in the vendored Fortran;
 # test_fixed_threshold_live.py alone takes ~100 s (80 s of it in
 # test_regional_weighting_inputs_match). The native code accounts for very little of it.
+# `make test-quick` leaves that one out (it is marked `slow`; ~290 s); CI and `make test` run it.
 # `pytest --durations=12` lists the slow ones; outside tests/fortran_parity the slowest is
 # test_regression_gls.py::test_known_model_error_variance_recovered at ~14 s.
 # History, same machine: ~200 s at v0.9.0 (1970 tests), then ~340 s (absent) / ~880 s (present) at

@@ -214,5 +214,6 @@ addopts = "-v -m 'not requires_network'"
 markers = [
     "requires_network: marks tests that contact live NWIS services (deselect with '-m \"not requires_network\"')",
     "requires_fortran: marks tests needing the f2py Fortran extension (auto-skipped when absent; build with python build_fortran/build.py)",
+    "slow: marks a test that takes over a minute; CI and a bare pytest run it, `make test-quick` leaves it out",
     "requires_peakfqr_testdata: marks tests needing the peakfqr reference test data, searched under vendor/peakfqr then ../_shared/peakfqr; auto-skipped when absent, see docs/FORTRAN_UPLOAD.md",
 ]

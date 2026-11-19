@@ -33,7 +33,7 @@ export PYTHONUTF8 := 1
 # working directory.
 
 .DEFAULT_GOAL := help
-.PHONY: help check lint typecheck fmt test test-all cov clean-verify fortran parity golden clean
+.PHONY: help check lint typecheck fmt test test-quick test-all cov clean-verify fortran parity golden clean
 
 # In Python, not awk: cmd.exe has no awk, and this is the default goal.
 help:  ## Show this help
@@ -55,6 +55,12 @@ fmt:  ## Apply formatting
 test: export PYTHONSAFEPATH := 1
 test:  ## Run the suite as CI does
 	$(PYTEST) tests/
+
+# Not what CI runs: it leaves out the tests marked slow (one test, a fifth of the time).
+# Run `make test` before pushing.
+test-quick: export PYTHONSAFEPATH := 1
+test-quick:  ## The suite without the tests marked slow
+	$(PYTEST) tests/ -m "not requires_network and not slow"
 
 cov: export PYTHONSAFEPATH := 1
 cov:  ## Test suite with a coverage report
