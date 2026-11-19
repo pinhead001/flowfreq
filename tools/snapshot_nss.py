@@ -97,6 +97,7 @@ from flowfreq.streamstats import (  # noqa: E402
     StreamStatsResponseError,
     StreamStatsTransportError,
     _fetch_citations,
+    COMPUTE_TIMEOUT,
     _request_with_backoff,
     list_statistic_groups,
 )
@@ -195,7 +196,14 @@ def _get_json(url: str, params: Dict[str, Any], timeout: float) -> Any:
 def _estimate(scenario: Dict[str, Any], timeout: float) -> List[Dict[str, Any]]:
     """POST one scenario; return the regression regions NSS answered with."""
     url = f"https://{GENERIC_HOST}/nssservices/Scenarios/Estimate"
-    response = _request_with_backoff(requests.post, url, json_body=[scenario], timeout=timeout)
+    # One request and a long wait: a retry would run the same evaluation again beside it.
+    response = _request_with_backoff(
+        requests.post,
+        url,
+        json_body=[scenario],
+        timeout=max(timeout, COMPUTE_TIMEOUT),
+        retry_abandoned=False,
+    )
     if response.status_code >= 400:
         raise StreamStatsResponseError(
             f"Estimate rejected ({response.status_code}): {response.text[:300]}"

@@ -1218,6 +1218,22 @@ class TestEstimateFlowStatistics:
             with pytest.raises(StreamStatsResponseError):
                 estimate_flow_statistics("WA", _GOOD_CHARACTERISTICS, statistic_group_codes=["PFS"])
 
+    def test_a_slow_estimate_is_sent_once_and_waited_for(self) -> None:
+        """Estimate evaluates every scenario on the server: a retry would run it again."""
+        from flowfreq.streamstats import COMPUTE_TIMEOUT
+
+        with (
+            patch("flowfreq.streamstats.requests.get", side_effect=_nss_get_dispatch),
+            patch(
+                "flowfreq.streamstats.requests.post", side_effect=requests.ReadTimeout("slow")
+            ) as post,
+            patch("flowfreq.streamstats.time.sleep"),
+        ):
+            with pytest.raises(StreamStatsTransportError, match="not retried"):
+                estimate_flow_statistics("WA", _GOOD_CHARACTERISTICS, statistic_group_codes=["PFS"])
+        assert post.call_count == 1
+        assert post.call_args.kwargs["timeout"] == COMPUTE_TIMEOUT
+
     def test_estimate_persistent_500_raises_transport_error(self) -> None:
         """The confirmed-live real bug (wrapping the body in {"scenarioList": [...]})
         surfaces as a 500 that persists across retries -- exercised here via the
@@ -1403,13 +1419,30 @@ class TestBylocationLoad:
         assert post.call_count == 1
 
     @pytest.mark.parametrize(
+        "failure",
+        [
+            requests.ConnectionError("connection reset by peer"),
+            _mock_response(status_code=502, text="Bad Gateway"),
+            _mock_response(status_code=500, text="Internal Server Error"),
+        ],
+        ids=["connection-reset", "502", "500"],
+    )
+    def test_a_request_the_server_may_have_started_is_sent_once(self, failure) -> None:
+        with (
+            patch("flowfreq.streamstats.requests.post", side_effect=[failure, failure]) as post,
+            patch("flowfreq.streamstats.time.sleep"),
+        ):
+            with pytest.raises(StreamStatsTransportError, match="not retried"):
+                locate_regression_regions("WA", GOAT_POLYGON)
+        assert post.call_count == 1
+
+    @pytest.mark.parametrize(
         "first",
         [
             requests.ConnectTimeout("never connected"),
-            requests.ConnectionError("reset"),
             _mock_response(status_code=503, text="Service Unavailable"),
         ],
-        ids=["connect-timeout", "connection-error", "503"],
+        ids=["connect-timeout", "503"],
     )
     def test_a_request_the_server_never_ran_is_still_retried(self, first) -> None:
         with (

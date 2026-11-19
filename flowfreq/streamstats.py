@@ -526,11 +526,12 @@ def _request_with_backoff(
     retrying a request that will fail the same way again just adds load to a free
     public service with no key.
 
-    With ``retry_abandoned=False`` a read timeout and a 504 are not retried either. Both
-    mean the server received the request and may still be working on it: NSS keeps a
-    ``bylocation`` query running after the client disconnects, so a retry runs the same
-    heavy query twice at once (issue #365). A connect timeout, a dropped connection and
-    any other 5xx are still retried.
+    With ``retry_abandoned=False`` the request is retried only where the server cannot
+    have started on it: a connect timeout, or a 503. A read timeout, a dropped or reset
+    connection, a 502, a 504 and any other 5xx may all mean the server received the request
+    and is still working on it: NSS keeps a ``bylocation`` query running after the client
+    disconnects, so a retry runs the same heavy query twice at once (issue #365). Use it
+    for every request that makes the server compute.
     """
     last_exc: Optional[BaseException] = None
     for attempt in range(max_retries):
@@ -556,6 +557,11 @@ def _request_with_backoff(
                 exc,
             )
         except (requests.Timeout, requests.ConnectionError) as exc:
+            if not retry_abandoned and not isinstance(exc, requests.ConnectTimeout):
+                raise StreamStatsTransportError(
+                    f"StreamStats request to {url} failed ({type(exc).__name__}: {exc}); not "
+                    "retried, since the server may have received it and still be working on it"
+                ) from exc
             last_exc = exc
             logger.warning(
                 "StreamStats request to %s failed (attempt %d/%d): %s",
@@ -565,10 +571,11 @@ def _request_with_backoff(
                 exc,
             )
         else:
-            if response.status_code == 504 and not retry_abandoned:
+            if response.status_code >= 500 and response.status_code != 503 and not retry_abandoned:
+                what = " (gateway timeout)" if response.status_code == 504 else ""
                 raise StreamStatsTransportError(
-                    f"StreamStats request to {url} returned 504 (gateway timeout); not retried, "
-                    "since the server may still be working on it"
+                    f"StreamStats request to {url} returned {response.status_code}{what}; not "
+                    "retried, since the server may still be working on it"
                 )
             if response.status_code >= 500:
                 last_exc = requests.HTTPError(f"{response.status_code} error from {url}")
@@ -2137,8 +2144,13 @@ def estimate_flow_statistics(
         return [], skipped
 
     estimate_url = f"https://{GENERIC_HOST}/nssservices/Scenarios/Estimate"
+    # Estimate evaluates every scenario on the server: one request, and a long enough wait.
     estimate_response = _request_with_backoff(
-        requests.post, estimate_url, json_body=to_submit, timeout=timeout
+        requests.post,
+        estimate_url,
+        json_body=to_submit,
+        timeout=max(timeout, COMPUTE_TIMEOUT),
+        retry_abandoned=False,
     )
     if estimate_response.status_code >= 400:
         raise StreamStatsResponseError(
