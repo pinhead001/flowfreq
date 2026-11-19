@@ -223,3 +223,6 @@ build_fortran/native.ini
 
 # agentops state (tools/agentops/): queue, ledger, meter, cooldowns
 .agentops/state/
+
+# Agent worktrees and their scratch files
+.claude/worktrees/

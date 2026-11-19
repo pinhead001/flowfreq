@@ -1,7 +1,9 @@
 # %% Imports
 import os
 
-from flowfreq import B17CEngine, Bulletin17C, PeakRecord, USGSGage, plot_frequency_curve
+from flowfreq import Bulletin17C, USGSgage
+from flowfreq.core import PeakRecord
+from flowfreq.engine import B17CEngine
 
 # Set output directory (outside repo)
 output_dir = r"C:\Users\chrisj.nelson\hydro_output\gage_11066460"
@@ -9,7 +11,7 @@ os.makedirs(output_dir, exist_ok=True)
 
 # %% 1. Download peak flow data from USGS
 site_no = "11066460"
-gage = USGSGage(site_no)
+gage = USGSgage(site_no)
 gage.download_peak_flow()
 
 print(f"Site: {gage.site_name}")

@@ -92,12 +92,12 @@ from flowfreq.regression.nss import (  # noqa: E402
     to_regression_equation,
 )
 from flowfreq.streamstats import (  # noqa: E402
+    COMPUTE_TIMEOUT,
     GENERIC_HOST,
     MAX_CONCURRENCY,
     StreamStatsResponseError,
     StreamStatsTransportError,
     _fetch_citations,
-    COMPUTE_TIMEOUT,
     _request_with_backoff,
     list_statistic_groups,
 )
