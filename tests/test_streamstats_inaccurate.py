@@ -164,3 +164,38 @@ def test_a_regulated_warning_outranks_an_inaccurate_one_listed_first():
     both["later"] = {"WarningMsg": "REGULATED: SOME RIVER"}
     with pytest.raises(RegulatedDelineationError, match="SOME RIVER"):
         _delineate(both)
+
+
+def test_the_ungaged_report_section_passes_it_on_and_says_what_was_withheld(monkeypatch):
+    from dataclasses import replace
+
+    from flowfreq.reporting import Bullets, build_section
+    from tests.test_ungaged import WA_LAT, WA_LON, Fakes, _wa_site
+
+    fakes = Fakes(_wa_site())
+    delineate = fakes.delineate
+
+    def warned(region, lat, lon, **kw):
+        ws = delineate(region, lat, lon, **kw)
+        if not kw.get("allow_inaccurate"):
+            raise DegenerateDelineationError(f"warning: {MOYIE}")
+        ws.advisories = [MOYIE]
+        ws.unavailable = {**ws.unavailable, "ELEV": "withheld: StreamStats says ELEV may be"}
+        return ws
+
+    monkeypatch.setattr("flowfreq.ungaged.delineate_and_get_characteristics", warned)
+    monkeypatch.setattr("flowfreq.ungaged.locate_regression_regions", fakes.locate)
+    site = {"state": "WA", "lat": WA_LAT, "lon": WA_LON}
+    with pytest.raises(DegenerateDelineationError):
+        build_section("ungaged", dict(site))
+    fakes.regions = [replace(r, percent_weight=0.5 * r.percent_weight) for r in fakes.regions]
+    built = build_section("ungaged", {**site, "allow_inaccurate": True})
+    notes = " ".join(item for b in built.blocks if isinstance(b, Bullets) for item in b.items)
+    assert "StreamStats warned about this basin" in notes and "MAY BE INACCURATE" in notes
+    assert "withheld from the equations: ELEV" in notes
+    assert "cover 50 percent of the basin" in notes
+    # The stored section rebuilds with no StreamStats, and keeps the notes.
+    again = build_section("ungaged", built.options)
+    assert "cover 50 percent of the basin" in " ".join(
+        item for b in again.blocks if isinstance(b, Bullets) for item in b.items
+    )

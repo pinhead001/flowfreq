@@ -332,6 +332,7 @@ def build_server(
         region: Optional[str] = None,
         allow_extrapolation: bool = False,
         allow_provisional: bool = False,
+        allow_inaccurate: bool = False,
         title: Optional[str] = None,
         position: Optional[int] = None,
     ) -> Dict[str, Any]:
@@ -349,10 +350,15 @@ def build_server(
         region code, when the basin lies in several and one is to be used.
         allow_extrapolation: evaluate equations outside their calibrated range, flagged
         in the table. allow_provisional: use equations flowfreq has not verified.
+        allow_inaccurate: keep a basin StreamStats warns "may be inaccurate" about, as it
+        does where the basin crosses into Canada or Mexico; the characteristics the
+        warning names are withheld from the equations and the section says so.
 
         Returns the section's id and the quantile table.
         """
         options: Dict[str, Any] = {"state": state, "lat": lat, "lon": lon}
+        if allow_inaccurate:
+            options["allow_inaccurate"] = True
         if site_name:
             options["site_name"] = site_name
         if region:

@@ -890,6 +890,24 @@ def _streamstats_notes(estimate: Any) -> List[str]:
             + "; ".join(str(a) for a in advisories)
             + ". The regression equations may not represent it; check against local data."
         )
+    withheld = sorted(
+        code
+        for code, why in ((provenance.get("delineation") or {}).get("unavailable") or {}).items()
+        if str(why).startswith("withheld")
+    )
+    if withheld:
+        notes.append(
+            "Characteristics StreamStats computed and said may be inaccurate for this basin, "
+            "withheld from the equations: " + ", ".join(withheld) + "."
+        )
+    covered = provenance.get("covered_percent")
+    if covered is not None and float(covered) < 98.0:
+        notes.append(
+            f"The regression regions used cover {float(covered):.0f} percent of the basin; "
+            "their shares were scaled up to the whole, so the rest (in another state or "
+            "country, or in a region with no equations here) is treated as like the part "
+            "covered."
+        )
     return notes
 
 
@@ -937,6 +955,7 @@ def _freeze_streamstats(options: Dict[str, Any], lat: float, lon: float) -> None
         allow_nss_snapshot=snapshot,
         allow_provisional=provisional,
         allow_extrapolation=extrapolate,
+        allow_inaccurate=bool(options.get("allow_inaccurate", False)),
     )
     total = sum(r.percent_weight for r in live.regions)
     if not live.regions or total <= 0:
@@ -2358,6 +2377,7 @@ SECTION_KINDS: Dict[str, SectionKind] = {
                 "allow_nss_snapshot",
                 "allow_provisional",
                 "allow_extrapolation",
+                "allow_inaccurate",
                 "weighting_space",
             ),
             build=_build_ungaged,
