@@ -557,7 +557,7 @@ class LowFlowFrequency:
         flow_cfs = np.where(below, 0.0, 10**log_Q)
         lower = np.where(below, np.nan, 10 ** (log_Q - z_alpha * se_log))
         upper = np.where(below, np.nan, 10 ** (log_Q + z_alpha * se_log))
-        pct = int(confidence * 100)
+        pct = round(confidence * 100)
 
         return pd.DataFrame(
             {
@@ -705,7 +705,7 @@ class LowFlowFrequency:
         alpha = 1 - confidence
         lower = np.nanpercentile(stacked, 100 * alpha / 2, axis=0)
         upper = np.nanpercentile(stacked, 100 * (1 - alpha / 2), axis=0)
-        pct = int(confidence * 100)
+        pct = round(confidence * 100)
 
         point = self.compute_quantiles(p)["flow_cfs"].to_numpy()
 

@@ -114,6 +114,7 @@ values, which is what the term conventionally means.
 from __future__ import annotations
 
 import calendar
+import logging
 from typing import Dict, Optional, Sequence, Tuple
 
 import numpy as np
@@ -127,6 +128,8 @@ from .core import YEAR_TYPES, assign_year_label
 # never had one, and adding a two-name one would demote every other public
 # function in the file.
 from .subdaily import diel_variation, diel_variation_summary
+
+logger = logging.getLogger(__name__)
 
 #: Baseflow separation methods accepted by separate_baseflow, baseflow_index,
 #: and FlowRegime.
@@ -1095,6 +1098,11 @@ def flow_duration_curve(
         raise KeyError("daily_data has no 'flow_cfs' column")
 
     flows = daily_data["flow_cfs"].dropna().to_numpy(dtype=float)
+    negative = int(np.sum(flows < 0))
+    if negative:
+        # A negative daily value is a missing-value code or a reversal, as in lowflow.
+        logger.warning("flow_duration_curve: %d negative flow(s) treated as missing", negative)
+        flows = flows[flows >= 0]
     if flows.size == 0:
         raise ValueError("no non-null flows in daily_data; nothing to build a curve from")
 

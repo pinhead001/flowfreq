@@ -369,6 +369,10 @@ class Assembly:
     missing: Dict[str, List[str]]
     alternatives: List[RegressionRegionLocation] = field(default_factory=list)
     region_choice_source: Optional[str] = None
+    #: The sum of the used regions' ``percent_weight`` before they were rescaled to 100: how
+    #: much of the basin the estimate's regions cover. Under 100 where part of the basin is
+    #: in another state, another country, or a region the library does not have.
+    covered_percent: float = 100.0
 
 
 def _drainage_area_class(
@@ -1102,6 +1106,7 @@ def assemble(
         missing=missing,
         alternatives=alternatives,
         region_choice_source=region_choice_source,
+        covered_percent=min(100.0, float(total)),
     )
 
 
@@ -1612,6 +1617,15 @@ def _site_estimate(
     }
     if assembly.region_choice_source is not None:
         provenance["region_choice_source"] = assembly.region_choice_source
+    provenance["covered_percent"] = assembly.covered_percent
+    coverage_caution = ""
+    if assembly.covered_percent < 100.0 - max(PERCENT_WEIGHT_TOL, 0.5 * len(assembly.used)):
+        coverage_caution = (
+            f"The regression regions used ({_codes(assembly.used)}) cover only "
+            f"{assembly.covered_percent:.0f} percent of the basin. Their weights were scaled up "
+            "to the whole, so the rest of the basin (in another state or country, or in a "
+            "region with no equations here) is treated as if it were like the part covered."
+        )
     nearby = [m for m in lib.known_misses if m.distance_km(lat, lon) <= m.radius_km]
     used_codes = {assembly.region_codes.get(r.code, r.code) for r in assembly.used}
     region_cautions = [text for code, text in lib.region_cautions.items() if code in used_codes]
@@ -1641,6 +1655,7 @@ def _site_estimate(
                 None,
                 [
                     lib.advisory,
+                    coverage_caution,
                     *region_cautions,
                     *weighting_cautions,
                     *(m.caution() for m in nearby),

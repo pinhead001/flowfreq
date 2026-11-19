@@ -316,9 +316,27 @@ def _get_all_features(
     seen = set()
     page = 1
     while True:
-        features.extend(payload.get("features") or [])
+        page_features = payload.get("features") if isinstance(payload, Mapping) else None
+        if not isinstance(page_features, list):
+            # An error body served with HTTP 200 has no feature list. Taking it for the last
+            # page would return a truncated record as if it were whole.
+            raise requests.RequestException(
+                f"Water Data API ({what}): page {page} is not a feature collection "
+                f"(keys: {sorted(payload) if isinstance(payload, Mapping) else type(payload).__name__})"
+            )
+        features.extend(page_features)
         nxt = _next_link(payload)
         if nxt is None:
+            matched = payload.get("numberMatched")
+            if (
+                isinstance(matched, int)
+                and not isinstance(matched, bool)
+                and len(features) < matched
+            ):
+                raise requests.RequestException(
+                    f"Water Data API ({what}): {len(features)} of {matched} rows arrived and "
+                    "there is no next page"
+                )
             return features
         if nxt in seen:
             raise requests.RequestException(
