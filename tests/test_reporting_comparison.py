@@ -173,3 +173,36 @@ def test_in_a_report_and_a_session(tmp_path):
         "comparison", {"site_name": SITE, "estimates": ESTIMATES, "detail": False}
     )
     assert added["result"].startswith(COMPARISON_CAPTION)
+
+
+def test_the_1_5_year_row_is_kept_across_0_67_and_0_667():
+    """A Bulletin 17C fit tabulates 0.67 and Idaho's regression 0.667: one row, not none."""
+    idaho = {
+        "label": "Idaho regression",
+        "kind": "ungaged",
+        "options": {
+            "state": "ID",
+            "lat": 48.8,
+            "lon": -116.2,
+            "region": "1_2",
+            "characteristics": {"DRNAREA": 205.0, "PRECPRIS10": 34.0},
+        },
+    }
+    built = build_section("comparison", {"estimates": [ESTIMATES[0], idaho], "detail": False})
+    rows = {row[0]: row for row in _table(built.blocks, COMPARISON_CAPTION).rows}
+    assert "66.7" in rows and "42.9" in rows
+    assert "slightly different probabilities" in _text(built.blocks)
+    assert "66.7 percent (0.667, 0.67)" in _text(built.blocks)
+
+
+def test_nearby_aeps_are_never_taken_for_each_other():
+    from flowfreq.reporting.sections import _matched_aeps, _row_at
+
+    table = {0.005: {"aep": 0.005}, 0.01: {"aep": 0.01}, 0.67: {"aep": 0.67}}
+    assert _row_at(table, 0.002) is None
+    assert _row_at(table, 0.667)["aep"] == 0.67
+    assert _row_at({}, 0.5) is None
+    other = {0.002: {"aep": 0.002}, 0.01: {"aep": 0.01}}
+    assert _matched_aeps("x", [table, other], None) == ([0.01], [])
+    with pytest.raises(ReportError, match="no AEP in common"):
+        _matched_aeps("x", [table, {0.5: {"aep": 0.5}}], None)

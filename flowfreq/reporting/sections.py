@@ -1882,6 +1882,85 @@ def _compared(
     return label, content, flows, said.replace("%", "-percent")
 
 
+#: How far apart, as a fraction of the larger, two AEPs may be and still be one row. A
+#: Bulletin 17C fit tabulates the 1.5-year flood at 0.67 and the 2.33-year flood at 0.43,
+#: where a regression report has 0.667 and 0.429. Relative, so that 0.005 and 0.002 are
+#: never taken for each other.
+AEP_MATCH = 0.0075
+
+
+def _flow_table(flows: pd.DataFrame) -> Dict[float, Any]:
+    """An estimate's rows that have a flow, by AEP."""
+    return {float(r["aep"]): r for _, r in flows[flows["flow_cfs"].notna()].iterrows()}
+
+
+def _row_at(table: Mapping[float, Any], aep: float) -> Any:
+    """The estimate's row at ``aep``, or at the AEP nearest it within ``AEP_MATCH``; else None."""
+    if not table:
+        return None
+    nearest = min(table, key=lambda a: abs(a - aep))
+    return table[nearest] if abs(nearest - aep) <= AEP_MATCH * max(nearest, aep) else None
+
+
+def _matched_aeps(
+    owner: str,
+    tables: Sequence[Mapping[float, Any]],
+    asked: Any,
+    default: Optional[Sequence[float]] = None,
+) -> Tuple[List[float], List[str]]:
+    """The AEPs to tabulate across several estimates, and which of them join unlike AEPs.
+
+    ``asked`` is the section's ``aeps`` option. Without it the AEPs are those of ``default``
+    that every estimate has, or, with no default, every AEP all the estimates have. An AEP
+    is "had" within :data:`AEP_MATCH`. The second value lists, in words, the rows whose
+    estimates sit at slightly different AEPs.
+    """
+    if asked is None:
+        if default is None:
+            candidates: List[float] = []
+            for aep in sorted({a for table in tables for a in table}, reverse=True):
+                if not any(abs(aep - c) <= AEP_MATCH * max(aep, c) for c in candidates):
+                    candidates.append(aep)
+        else:
+            candidates = [float(a) for a in default]
+        aeps = [a for a in candidates if all(_row_at(t, a) is not None for t in tables)]
+        if not aeps:
+            raise ReportError(f"{owner}: the estimates have no AEP in common")
+    else:
+        if not isinstance(asked, list) or not asked:
+            raise ReportError(f"{owner}: aeps must be a non-empty list of AEPs")
+        try:
+            aeps = [float(a) for a in asked]
+        except (TypeError, ValueError) as exc:
+            raise ReportError(f"{owner}: aeps must be a list of numbers") from exc
+        missing = [a for a in aeps if any(_row_at(t, a) is None for t in tables)]
+        if missing:
+            raise ReportError(
+                f"{owner}: not every estimate has a quantile at AEP "
+                + ", ".join(f"{a:g}" for a in missing)
+            )
+    shown: List[float] = []
+    apart: List[str] = []
+    for aep in aeps:
+        used = sorted({float(_row_at(table, aep)["aep"]) for table in tables})
+        # Where the estimates differ, the row takes the value written with the most digits:
+        # 0.667, not 0.67, for the 1.5-year flood.
+        label = (
+            aep
+            if asked is not None or default is not None
+            else max(used, key=lambda a: len(format(a, "g")))
+        )
+        shown.append(label)
+        if len(used) > 1:
+            apart.append(
+                format(label * 100, ".3g")
+                + " percent ("
+                + ", ".join(format(value, "g") for value in used)
+                + ")"
+            )
+    return shown, apart
+
+
 def _build_comparison(given: Dict[str, Any]) -> SectionContent:
     options = dict(given)
     listed = options["estimates"]
@@ -1891,40 +1970,16 @@ def _build_comparison(given: Dict[str, Any]) -> SectionContent:
     labels = [label for label, _, _, _ in built]
     if len(set(labels)) != len(labels):
         raise ReportError("comparison: two estimates have the same label")
-    tables = [
-        {round(float(r["aep"]), 9): r for _, r in flows[flows["flow_cfs"].notna()].iterrows()}
-        for _, _, flows, _ in built
-    ]
-    shared = set(tables[0])
-    for table in tables[1:]:
-        shared &= set(table)
-    asked = options.get("aeps")
-    if asked is None:
-        aeps = sorted(shared, reverse=True)
-        if not aeps:
-            raise ReportError("comparison: the estimates have no AEP in common")
-    else:
-        if not isinstance(asked, list) or not asked:
-            raise ReportError("comparison: aeps must be a non-empty list of AEPs")
-        try:
-            aeps = [round(float(a), 9) for a in asked]
-        except (TypeError, ValueError) as exc:
-            raise ReportError("comparison: aeps must be a list of numbers") from exc
-        missing = [a for a in aeps if a not in shared]
-        if missing:
-            raise ReportError(
-                "comparison: not every estimate has a quantile at AEP "
-                + ", ".join(f"{a:g}" for a in missing)
-                + "; all have "
-                + (", ".join(f"{a:g}" for a in sorted(shared, reverse=True)) or "none in common")
-            )
+    tables = [_flow_table(flows) for _, _, flows, _ in built]
+    aeps, apart = _matched_aeps("comparison", tables, options.get("aeps"))
 
     site = str(options["site_name"]).strip() if options.get("site_name") else ""
     where = site or "the site"
     flow_rows = []
     limit_rows = []
     for aep in aeps:
-        flows = [float(table[aep]["flow_cfs"]) for table in tables]
+        matched = [_row_at(table, aep) for table in tables]
+        flows = [float(row["flow_cfs"]) for row in matched]
         low, high = min(flows), max(flows)
         flow_rows.append(
             (
@@ -1934,8 +1989,8 @@ def _build_comparison(given: Dict[str, Any]) -> SectionContent:
             )
         )
         cells = [f"{aep * 100:.3g}"]
-        for table in tables:
-            lower, upper = table[aep]["lower"], table[aep]["upper"]
+        for row in matched:
+            lower, upper = row["lower"], row["upper"]
             cells.append(
                 "-" if pd.isna(lower) or pd.isna(upper) else f"{cfs(lower)} to {cfs(upper)}"
             )
@@ -1962,6 +2017,13 @@ def _build_comparison(given: Dict[str, Any]) -> SectionContent:
             COMPARISON_CAPTION,
         ),
     ]
+    if apart:
+        blocks.append(
+            Paragraph(
+                "The methods tabulate some rows at slightly different probabilities, which "
+                "are shown together: " + "; ".join(apart) + "."
+            )
+        )
     if any(cell != "-" for row in limit_rows for cell in row[1:]):
         blocks.append(
             Paragraph(
