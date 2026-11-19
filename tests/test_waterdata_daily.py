@@ -262,8 +262,11 @@ class TestDownloadDaily:
                 download_daily(BIG_SANDY, start_date="1900-01-01", end_date="1900-01-05")
 
     def test_request_failure_propagates(self) -> None:
-        with patch(
-            "flowfreq.waterdata.requests.get", side_effect=requests.ConnectionError("reset")
+        with (
+            patch(
+                "flowfreq.waterdata.requests.get", side_effect=requests.ConnectionError("reset")
+            ) as get,
+            patch("time.sleep"),  # the request retries a dropped connection, with backoff
         ):
             with pytest.raises(requests.RequestException, match="daily values for site"):
                 download_daily(BIG_SANDY, start_date="2024-01-01", end_date="2024-01-02")
