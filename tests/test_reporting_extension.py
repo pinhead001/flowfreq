@@ -169,3 +169,20 @@ def test_the_relation_of_the_two_gages_is_tabulated_by_part():
     )
     with pytest.raises(ReportError, match="leaves one part"):
         build_section("gaged_ffa", {**SUWANEE, "extension": {**EXTENSION, "split_year": 2050}})
+
+
+def test_a_zero_flow_year_is_not_extended_into_a_duplicate():
+    peaks = {
+        "water_year": [*SUWANEE["peaks"]["water_year"], 2005],
+        "peak_flow_cfs": [*SUWANEE["peaks"]["peak_flow_cfs"], 0.0],
+    }
+    index = {
+        "water_year": [*ETOWAH["water_year"], 2005],
+        "peak_flow_cfs": [*ETOWAH["peak_flow_cfs"], 9000.0],
+    }
+    built = build_section(
+        "gaged_ffa", {**SUWANEE, "peaks": peaks, "extension": {"index": {"peaks": index}}}
+    )
+    rows = _table(built.blocks, "Annual peak flows used in the analysis.").rows
+    years = [row[0] for row in rows]
+    assert len(years) == len(set(years)) and years.count("2005") == 1

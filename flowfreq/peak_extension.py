@@ -33,8 +33,8 @@ What this module cannot do
 - **Years the short gage has and the index gage lacks take no part in the fit.** They stay
   in the extended record, so that record's mean and variance then differ slightly from the
   augmented ones; :attr:`PeakExtension.n_short_only` counts them.
-- **Zero and negative peaks have no logarithm** and are left out of the fit and of the
-  years extended.
+- **Zero and negative peaks have no logarithm** and are left out of the fit. A year the
+  short gage observed at zero flow stays observed: no peak is generated for it.
 - **Censored and historical peaks are not treated.** Every value is taken as an exact
   annual peak.
 """
@@ -202,7 +202,9 @@ def extend_peaks(
             f"only {n1} concurrent year(s) of positive peaks; Bulletin 17C Appendix 8 needs "
             f"at least {MIN_CONCURRENT_YEARS}"
         )
-    additional = x_all.index.difference(y_all.index)
+    # A year the short gage observed, even at zero flow, is not a year to generate.
+    observed_years = pd.to_numeric(short, errors="coerce").dropna().index
+    additional = x_all.index.difference(observed_years)
     n2 = len(additional)
     if n2 < 2:
         raise ValueError("the index gage has fewer than 2 years outside the concurrent period")

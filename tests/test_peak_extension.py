@@ -195,3 +195,13 @@ def test_concurrent_relation_sees_a_relation_that_moved(records):
         concurrent_relation(suwanee, etowah, split_year=1985)
     with pytest.raises(ValueError, match="fewer than 2 concurrent"):
         concurrent_relation(suwanee.iloc[:1], etowah.loc[:1984])
+
+
+def test_a_year_observed_at_zero_flow_is_not_generated(records):
+    """A zero has no logarithm, so it is out of the fit, but it was observed."""
+    suwanee, etowah = records
+    etowah_longer = pd.concat([etowah, pd.Series({2005: 9000.0, 2006: 12000.0})])
+    dry = pd.concat([suwanee, pd.Series({2005: 0.0, 2006: 0.0})])
+    ext = extend_peaks(dry, etowah_longer)
+    assert not set(ext.extended["water_year"]) & {2005, 2006}
+    assert ext.n_concurrent == 20 and ext.n_additional == 93
