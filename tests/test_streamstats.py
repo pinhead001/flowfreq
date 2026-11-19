@@ -1010,6 +1010,45 @@ class TestBatchGetCharacteristics:
         assert "node_bad" in errors
         assert "snap" in errors["node_bad"].lower()
 
+    def test_a_refusing_service_stops_the_batch(self) -> None:
+        """A 403 is the service saying no: the other points send nothing."""
+        points = [(f"n{i}", "WA", 48.5 + i / 100, -120.3) for i in range(25)]
+        forbidden = _mock_response(status_code=403, text="Forbidden")
+        with (
+            patch("flowfreq.streamstats.requests.get", return_value=forbidden) as get,
+            patch("flowfreq.streamstats.requests.post") as post,
+        ):
+            results, errors = batch_get_characteristics(points, validate_regions=False)
+        assert results == {} and len(errors) == 25
+        assert get.call_count == 1
+        post.assert_not_called()
+        assert sum(e.startswith("not attempted: the batch stopped") for e in errors.values()) == 24
+
+    def test_a_failing_service_stops_the_batch_after_three_in_a_row(self) -> None:
+        points = [(f"n{i}", "WA", 48.5 + i / 100, -120.3) for i in range(25)]
+
+        def get(url, **kwargs):
+            if "/pourpoint/" in url:
+                return _mock_response(SNAP_GOOD)
+            raise requests.ReadTimeout("slow")
+
+        with (
+            patch("flowfreq.streamstats.requests.get", side_effect=get) as mock_get,
+            patch("flowfreq.streamstats.time.sleep"),
+        ):
+            results, errors = batch_get_characteristics(points, validate_regions=False)
+        delineations = [c for c in mock_get.call_args_list if "/pourpoint/" not in c.args[0]]
+        assert results == {} and len(delineations) == 3
+        assert sum(e.startswith("not attempted") for e in errors.values()) == 22
+
+    def test_bad_points_do_not_trip_the_breaker(self) -> None:
+        points = [(f"n{i}", "WA", 48.584, -120.370) for i in range(6)]
+        with patch(
+            "flowfreq.streamstats.requests.get", return_value=_mock_response(SNAP_UNSNAPPABLE)
+        ) as get:
+            results, errors = batch_get_characteristics(points, validate_regions=False)
+        assert get.call_count == 6 and not any("not attempted" in e for e in errors.values())
+
     def test_empty_batch_returns_empty_results(self) -> None:
         results, errors = batch_get_characteristics([], validate_regions=False)
         assert results == {}

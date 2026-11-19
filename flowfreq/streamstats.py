@@ -1379,6 +1379,51 @@ def list_regions(*, timeout: float = 30.0) -> List[Dict[str, Any]]:
     return data
 
 
+#: How many points in a row may fail at the service before a batch stops asking.
+BATCH_MAX_CONSECUTIVE_FAILURES: int = 3
+_REFUSAL_STATUS = re.compile(r"(?<!\d)(403|429)(?!\d)")
+
+
+class _BatchBreaker:
+    """Stops a batch that the service is refusing or failing, instead of asking N times.
+
+    A 403 or a 429 stops it at once: the service has said no. So do
+    :data:`BATCH_MAX_CONSECUTIVE_FAILURES` transport failures in a row. Points not yet
+    started are then reported as not attempted, and send nothing.
+    """
+
+    def __init__(self) -> None:
+        self._lock = threading.Lock()
+        self._streak = 0
+        self.reason: Optional[str] = None
+
+    def check(self) -> None:
+        if self.reason is not None:
+            raise StreamStatsTransportError(f"not attempted: the batch stopped ({self.reason})")
+
+    def record(self, exc: Optional[BaseException]) -> None:
+        with self._lock:
+            if exc is None:
+                self._streak = 0
+                return
+            status = getattr(getattr(exc, "response", None), "status_code", None)
+            refused = status in (403, 429) or (
+                isinstance(exc, requests.HTTPError) and _REFUSAL_STATUS.search(str(exc))
+            )
+            if refused:
+                self.reason = self.reason or f"StreamStats refused a request: {exc}"
+            elif isinstance(exc, (StreamStatsTransportError, requests.RequestException)):
+                self._streak += 1
+                if self._streak >= BATCH_MAX_CONSECUTIVE_FAILURES:
+                    self.reason = self.reason or (
+                        f"{self._streak} points in a row failed at the service, the last "
+                        f"with: {exc}"
+                    )
+            else:
+                # A bad point (unsnappable, degenerate) is the point's fault, not the service's.
+                self._streak = 0
+
+
 def batch_get_characteristics(
     points: Sequence[Tuple[str, str, float, float]],
     *,
@@ -1394,6 +1439,10 @@ def batch_get_characteristics(
     A single bad point (unsnappable, wrong region, a service hiccup) never aborts the
     batch -- its reason is collected in ``errors`` instead, mirroring
     :func:`flowfreq.usgs.fetch_nwis_batch`'s two-dict return.
+
+    A service that is refusing or failing does stop it: after an HTTP 403 or 429, or
+    :data:`BATCH_MAX_CONSECUTIVE_FAILURES` transport failures in a row, the points not yet
+    started send nothing and are reported in ``errors`` as not attempted.
 
     Parameters
     ----------
@@ -1442,16 +1491,25 @@ def batch_get_characteristics(
                     f"StreamStats' known region codes"
                 )
 
+    breaker = _BatchBreaker()
+
     def _one(region: str, lat: float, lon: float) -> WatershedCharacteristics:
-        return delineate_and_get_characteristics(
-            region,
-            lat,
-            lon,
-            characteristic_codes=characteristic_codes,
-            cache=cache,
-            timeout=timeout,
-            include_polygon=include_polygon,
-        )
+        breaker.check()
+        try:
+            result = delineate_and_get_characteristics(
+                region,
+                lat,
+                lon,
+                characteristic_codes=characteristic_codes,
+                cache=cache,
+                timeout=timeout,
+                include_polygon=include_polygon,
+            )
+        except Exception as exc:
+            breaker.record(exc)
+            raise
+        breaker.record(None)
+        return result
 
     results: Dict[str, WatershedCharacteristics] = {}
     errors: Dict[str, str] = {}
@@ -2289,8 +2347,10 @@ def batch_estimate_flow_statistics(
     estimates: Dict[str, List[RegionFlowEstimates]] = {}
     skipped: Dict[str, Dict[str, str]] = {}
 
+    breaker = _BatchBreaker()
     for point_id, watershed in characteristics_by_point.items():
         try:
+            breaker.check()
             region_estimates, point_skipped = estimate_flow_statistics(
                 region_by_point[point_id],
                 watershed.characteristics,
@@ -2303,7 +2363,10 @@ def batch_estimate_flow_statistics(
             estimates[point_id] = region_estimates
             if point_skipped:
                 skipped[point_id] = point_skipped
+            breaker.record(None)
         except Exception as e:
+            if not str(e).startswith("not attempted"):
+                breaker.record(e)
             errors[point_id] = str(e)
 
     return estimates, skipped, errors
