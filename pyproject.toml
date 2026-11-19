@@ -182,8 +182,8 @@ ignore_missing_imports = true
 
 [tool.black]
 line-length = 100
-# py314 deliberately not listed: black<25 (pinned in the dev extra, see its
-# comment) doesn't recognize it as a target and errors outright ("not one of
+# py314 deliberately not listed: black 24, the oldest the dev extra allows,
+# doesn't recognize it as a target and errors outright ("not one of
 # 'py33'...'py313'"), which broke `ci / lint` and the v0.7.0 release run.
 # black has no py314-specific formatting rules yet -- 3.14 introduces no new
 # syntax relevant to formatting decisions over 3.13 -- so omitting it changes

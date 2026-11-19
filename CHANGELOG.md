@@ -7,8 +7,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **StreamStats requests that make the server compute are retried only where it cannot have started.** With
+  `retry_abandoned=False` a dropped or reset connection, a 502 and any 5xx but 503 are no longer retried; only a
+  connect timeout and a 503 are. NSS `Scenarios/Estimate`, in `estimate_flow_statistics` and in
+  `tools/snapshot_nss.py`, was still sent up to three times at 60 s and now goes once with the 200 s compute
+  timeout. This is the rest of what issue #365 was about.
+- **A StreamStats batch stops when the service refuses or keeps failing.** `batch_get_characteristics` and
+  `batch_estimate_flow_statistics` asked every remaining point after a 403, and abandoned a server-side computation
+  per point when the service was timing out. A 403 or 429 now stops the batch, as do three transport failures in a
+  row (`BATCH_MAX_CONSECUTIVE_FAILURES`); points not started send nothing and are reported as not attempted.
+  `tools/border_qa.py run` stops the same way, and caps `--workers` at StreamStats' limit of 4.
+- **The 1.5-year flood is no longer dropped, left unweighted or called extrapolated.** A Bulletin 17C fit tabulates
+  it at AEP 0.67 and a regression report at 0.667, and each place that paired the two compared them exactly.
+  `weight_with_regression` returned NaN with "no regression estimate at this AEP"; the `weighted`, `comparison`
+  and `future_flow` report sections left the row out without a word; a transposition whose published exponents
+  ended at 0.667 labelled 0.67 `extrapolated`, and refused it under `extrapolation="error"`. All of them now go
+  through `flowfreq.aep` (`same_aep`, `match_aep`: two AEPs within 0.75 percent of each other are the same flood)
+  and say where they paired unlike values. `site_summary` had its own absolute tolerance, which could take 0.002
+  for 0.005 when an estimate lacked one of them.
+- **A daily or peak download that stops short is an error.** A Water Data API page answered with HTTP 200 and no
+  feature list ended paging, so a 366-day request could return 2 rows as if that were the record. That page, and a
+  record shorter than the service's own `numberMatched`, now raise.
+- **`extend_peaks` no longer generates a peak for a year the short gage observed at zero flow.** The zero was
+  dropped before the non-concurrent years were worked out, so the year came back as a second, generated peak.
+- **`flow_duration_curve` treats negative daily values as missing**, as `lowflow` does. A run of -999999 came back
+  as a flow.
+- **Low-flow limit columns are named for the level given**: confidence 0.58 gave `lower_57pct`.
+- **Report tables print a missing qualification code or date as empty, not "nan"** (pandas 3), which affected every
+  downloaded record. An `engine_check` reference stored for an extended record is refused when the extension
+  changes; it was accepted. Refused in words where they crashed or built nonsense: an all-zero, negative or
+  one-peak record, an extension `n_extend` of 2.7 or `years` given as text, a marker name matplotlib does not
+  know, `min_days` of null. `flowfreq report` checks the output suffix before it builds.
+- **A change factor asked for at an AEP outside (0, 1)** (a percent for a fraction) is refused; it returned NaN or
+  the wrong end's factor.
+
 ### Changed
-- **The cross-border comparison is complete, and `border_offsets` has 15 borders, not 17.** `tools/border_qa.py`
+- **The Water Data API client retries a dropped connection, a 502 and a 504** with backoff, as it did a 429 and a
+  503. A multi-page download failed on the first blip.
+- **An estimate whose regression regions cover only part of the basin says so.** `Assembly.covered_percent` and
+  `provenance["covered_percent"]` record the regions' share before it is scaled to 100, and the advisory carries a
+  caution below about 98 percent. A region at 40 percent of the basin gave the same answer as at 100 with no trace.
+  No flow changes.
+- **The cross-border comparison is complete, and `border_offsets` has 15 borders, not 17.** `tools/border_qa.py`
   finished on 2026-11-17 with one worker: 1,689 of 1,691 candidate gages attempted, 1,391 delineated, 649 compared
   at 1 percent (539 before). Three pairs are gone. Virginia against West Virginia: the six gages of the partial
   run gave 0.53, and all 27 give 1.0. Colorado against New Mexico, and a new Illinois against Indiana row that the
@@ -19,6 +60,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   StreamStats and were not asked again.
 
 ### Added
+- **`allow_inaccurate`: a basin StreamStats warns "... MAY BE INACCURATE" about can be used.** StreamStats attaches
+  that warning, naming characteristics, where a basin runs past its data (into Canada, for one), and flowfreq
+  refused the basin outright, polygon and all. The default is unchanged. With `allow_inaccurate=True` on
+  `delineate_watershed`, `delineate_and_get_characteristics` and `estimate_at_site` (and as an option of the
+  `ungaged` report section and the `estimate_ungaged` chat tool), the warning is returned as an advisory and every
+  characteristic it names moves from `characteristics` to `unavailable`, so it cannot reach an equation.
+  `streamstats.inaccurate_codes` reads the names. Any other warning is still refused, and a `REGULATED` one is
+  refused as regulated wherever it sits among several. Kept results have their own cache key.
+- **`concurrent_relation`**, and a table of it in an extended `gaged_ffa` section: the median ratio of the two
+  gages' concurrent peaks, its spread and their correlation in each part of the concurrent period (divided at its
+  middle, or at `split_year`). Record extension assumes that relation held; this shows whether it did.
+- **Chat tools and `ReportSession` methods for the site sections**: `compare_estimates` / `compare`,
+  `add_site_summary` / `summarize` and `extend_gage_record` / `extend_record`, which makes twenty-four tools.
+  `apply_future_change_factors` takes `level` and `geography`; it labelled every factor set site-level.
+
 - **Record extension of annual peaks (Bulletin 17C Appendix 8)**: `flowfreq.extend_peaks(short, index)` extends a
   short gage's annual peaks from a nearby long-record index gage. It computes the Matalas-Jacobs mean and variance
   (equations 8-7 and 8-8), the effective record length the index gage is worth (8-18 for the mean, 8-19 for the
