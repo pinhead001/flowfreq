@@ -175,7 +175,10 @@ def test_concurrent_relation_sets_the_two_parts_side_by_side(records):
     assert list(table["n"]) == [10, 10, 20]
     assert table.loc[2, "correlation"] == pytest.approx(0.8519, abs=5e-5)
     ratios = suwanee / etowah.loc[suwanee.index]
-    assert table.loc[2, "median_ratio"] == pytest.approx(float(np.median(ratios)), rel=1e-9)
+    # The median is taken of the log10 ratio, so an even count gives a geometric middle.
+    assert table.loc[2, "median_ratio"] == pytest.approx(
+        float(10 ** np.median(np.log10(ratios))), rel=1e-9
+    )
     chosen = concurrent_relation(suwanee, etowah, split_year=1990)
     assert list(chosen["period"]) == ["1985-1989", "1990-2004", "1985-2004"]
 
