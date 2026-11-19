@@ -294,6 +294,8 @@ class ReportSession:
         *,
         detail: bool = True,
         keep_parts: bool = False,
+        title: Optional[str] = None,
+        position: Optional[int] = None,
     ) -> Dict[str, Any]:
         """Weight a gage section with a regression section already in the report.
 
@@ -307,6 +309,11 @@ class ReportSession:
         keep_parts : bool, default False
             Keep the two sections as well. By default the weighted section takes the
             gage section's place and both are removed, since it holds what they held.
+        title : str, optional
+            The section's title, in place of the one it gives itself.
+        position : int, optional
+            Where it goes, counting from 1 in the report as it stands. Defaults to the
+            gage section's place.
 
         Returns
         -------
@@ -332,9 +339,11 @@ class ReportSession:
                         f"section {entry.id} has a narrative, which replacing it would drop; "
                         "keep the parts or move the text first"
                     )
+        index = self._entries.index(gage) if position is None else self._index(position)
         built = self._new(
             SectionSpec(
                 "weighted",
+                title=title,
                 options={
                     "gage": copy.deepcopy(gage.spec.options),
                     "regression": copy.deepcopy(regression.spec.options),
@@ -342,7 +351,7 @@ class ReportSession:
                 },
             )
         )
-        self._entries.insert(self._entries.index(gage), built)
+        self._entries.insert(index, built)
         if not keep_parts:
             self._entries.remove(gage)
             self._entries.remove(regression)

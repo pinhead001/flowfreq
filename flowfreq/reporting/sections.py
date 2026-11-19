@@ -726,7 +726,7 @@ def _gaged_ffa(given: Dict[str, Any]) -> Tuple[SectionContent, Any]:
         Table(
             (
                 "Annual exceedance probability (percent)",
-                "Return interval (years)",
+                "Recurrence interval (years)",
                 "Flow (cfs)",
                 "Lower 90-percent limit (cfs)",
                 "Upper 90-percent limit (cfs)",
@@ -783,7 +783,14 @@ def _gaged_ffa(given: Dict[str, Any]) -> Tuple[SectionContent, Any]:
     if page is not None:
         _, body = without_title(parse_markdown(page.markdown))
         blocks.append(Heading(2, "Stationarity screen"))
-        blocks.extend(_demote(body))
+        blocks.extend(
+            (
+                replace(b, caption="Stationarity tests of the annual peaks.")
+                if isinstance(b, Table) and not b.caption and b.header[:1] == ("Test",)
+                else b
+            )
+            for b in _demote(body)
+        )
         blocks.append(
             Figure(
                 _figure_png(page.figure),
@@ -1033,6 +1040,18 @@ def _used_codes(estimate: Any) -> List[str]:
     return codes
 
 
+#: The quantile table's columns as an ungaged section prints them.
+_UNGAGED_HEADERS = {
+    "AEP (%)": "Annual exceedance probability (percent)",
+    "Lower": "Lower prediction limit (cfs)",
+    "Upper": "Upper prediction limit (cfs)",
+    "Level": "Level of the limits",
+    "Interval": "How the limits were computed",
+    "Extrapolated": "Outside the calibrated range",
+    "Regions": "Regression regions",
+}
+
+
 def _ungaged(given: Dict[str, Any]) -> Tuple[SectionContent, Any]:
     """The ungaged section and the estimate behind it."""
     from ..ungaged import estimate_from_characteristics
@@ -1108,7 +1127,20 @@ def _ungaged(given: Dict[str, Any]) -> Tuple[SectionContent, Any]:
     show_all = record is None or bool(options.get("all_characteristics", False))
     for block in body:
         if isinstance(block, Table) and block.header and block.header[0] == "AEP (%)":
-            block = replace(block, caption="Regression flood quantiles with prediction limits.")
+            # The estimate's own report abbreviates; a section spells its columns out
+            # with their units, as the other kinds do.
+            spelled = tuple(_UNGAGED_HEADERS.get(name, name) for name in block.header)
+            block = replace(
+                block,
+                header=spelled,
+                caption="Regression flood quantiles with prediction limits.",
+            )
+        elif isinstance(block, Table) and block.header and block.header[0] == "NSS code":
+            block = replace(
+                block, caption="Regression regions the basin is in, and the equations' source."
+            )
+        elif isinstance(block, Table) and block.header == ("Code", "Value") and show_all:
+            block = replace(block, caption="Basin characteristics.")
         elif isinstance(block, Table) and block.header == ("Code", "Value") and not show_all:
             # StreamStats returns every characteristic it computes for the state.
             block = replace(

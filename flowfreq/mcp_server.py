@@ -415,6 +415,8 @@ def build_server(
         regression_section_id: str,
         detail: bool = True,
         keep_parts: bool = False,
+        title: Optional[str] = None,
+        position: Optional[int] = None,
     ) -> Dict[str, Any]:
         """Weight a gage's flood quantiles with the regression estimate at the gage.
 
@@ -425,12 +427,18 @@ def build_server(
 
         detail: carry both analyses below the weighted table. keep_parts: keep the two
         sections as well; by default the weighted section takes their place, since it
-        holds what they held (a part with a narrative is not replaced).
+        holds what they held (a part with a narrative is not replaced). title and
+        position: as for the other sections; by default it takes the gage section's place.
 
         Returns the new section's id and the weighted table.
         """
         return report.weight(
-            gage_section_id, regression_section_id, detail=detail, keep_parts=keep_parts
+            gage_section_id,
+            regression_section_id,
+            detail=detail,
+            keep_parts=keep_parts,
+            title=title,
+            position=position,
         )
 
     def transpose_gage_to_site(

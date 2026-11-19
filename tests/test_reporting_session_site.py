@@ -227,3 +227,13 @@ class TestTools:
         assert not result.is_error, result.content
         section_id = result.structured_content["result"]["section_id"]
         assert "state-level" in session.section_markdown(section_id)
+
+
+def test_weight_takes_a_title_and_a_position():
+    import inspect
+
+    from flowfreq.reporting.session import ReportSession
+
+    names = inspect.signature(ReportSession.weight).parameters
+    assert names["title"].default is None and names["position"].default is None
+    assert set(inspect.signature(ReportSession.transpose).parameters) >= {"title", "position"}

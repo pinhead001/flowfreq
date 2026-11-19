@@ -533,7 +533,13 @@ class TestBuildReport:
 
     def test_captions_are_numbered_through_the_report(self, big_sandy):
         captions = [b.caption for b in big_sandy.blocks if isinstance(b, Table) and b.caption]
-        assert [c.split(".")[0] for c in captions] == [f"Table {i}" for i in range(1, 6)]
+        # Every table has a caption: the ungaged section's regions and characteristics
+        # tables and the stationarity tests had none and were skipped by the numbering.
+        tables = [b for b in big_sandy.blocks if isinstance(b, Table)]
+        assert len(captions) == len(tables) == 8
+        assert [c.split(".")[0] for c in captions] == [f"Table {i}" for i in range(1, 9)]
+        assert any("Annual exceedance probability (percent)" == t.header[0] for t in tables)
+        assert not any(t.header[0] == "AEP (%)" or "Lower" in t.header for t in tables)
 
     def test_references_are_sorted_and_single(self, big_sandy):
         start = big_sandy.blocks.index(Heading(1, "References"))
