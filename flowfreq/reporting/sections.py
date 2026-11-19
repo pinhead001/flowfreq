@@ -20,6 +20,7 @@ from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple
 import numpy as np
 import pandas as pd
 
+from ..aep import match_aep, same_aep
 from .blocks import Block, Bullets, Figure, Heading, Paragraph, Table, parse_markdown, without_title
 from .spec import ReportError
 
@@ -241,8 +242,16 @@ def _peak_frame(peaks: Any) -> pd.DataFrame:
         )
     except (TypeError, ValueError) as exc:
         raise ReportError(f"gaged_ffa: peaks are not numeric: {exc}") from exc
-    if not np.all(np.isfinite(frame["peak_flow_cfs"].to_numpy())):
+    values = frame["peak_flow_cfs"].to_numpy()
+    if not np.all(np.isfinite(values)):
         raise ReportError("gaged_ffa: peak_flow_cfs holds a non-finite value")
+    if np.any(values < 0):
+        raise ReportError("gaged_ffa: peak_flow_cfs holds a negative value")
+    if n < 3 or int(np.sum(values > 0)) < 3:
+        raise ReportError(
+            f"gaged_ffa: a frequency analysis needs at least 3 peaks above zero; the record "
+            f"has {int(np.sum(values > 0))} of {n}"
+        )
     if frame["water_year"].duplicated().any():
         raise ReportError("gaged_ffa: a water year appears more than once in peaks")
     return frame
@@ -337,7 +346,7 @@ def _threshold_rows(thresholds: Any) -> List[Dict[str, Any]]:
     return list(thresholds)
 
 
-_EXTENSION_KEYS = ("index", "n_extend", "years")
+_EXTENSION_KEYS = ("index", "n_extend", "years", "split_year")
 _INDEX_KEYS = ("site_no", "site_name", "peaks")
 
 
@@ -348,7 +357,7 @@ def _extended_frame(options: Dict[str, Any], frame: pd.DataFrame) -> Tuple[Any, 
     The frame returned has the observed peaks and the generated ones, with a ``source``
     column saying which.
     """
-    from ..peak_extension import extend_peaks
+    from ..peak_extension import concurrent_relation, extend_peaks
 
     given = options["extension"]
     if not isinstance(given, dict) or not isinstance(given.get("index"), dict):
@@ -362,6 +371,19 @@ def _extended_frame(options: Dict[str, Any], frame: pd.DataFrame) -> Tuple[Any, 
             f"{', '.join(_EXTENSION_KEYS)} and its index {', '.join(_INDEX_KEYS)}"
         )
     extension = dict(given)
+    count = extension.get("n_extend")
+    if count is not None and (isinstance(count, bool) or not isinstance(count, int) or count < 2):
+        raise ReportError("gaged_ffa: extension n_extend must be a whole number, 2 or more")
+    chosen = extension.get("years")
+    if chosen is not None and (
+        not isinstance(chosen, list)
+        or not chosen
+        or any(isinstance(y, bool) or not isinstance(y, int) for y in chosen)
+    ):
+        raise ReportError("gaged_ffa: extension years must be a list of water years")
+    split = extension.get("split_year")
+    if split is not None and (isinstance(split, bool) or not isinstance(split, int)):
+        raise ReportError("gaged_ffa: extension split_year must be a water year")
     index = dict(extension["index"])
     if index.get("peaks") is None:
         if not index.get("site_no"):
@@ -371,15 +393,15 @@ def _extended_frame(options: Dict[str, Any], frame: pd.DataFrame) -> Tuple[Any, 
         if index.get("site_name") is None and fetched.get("site_name") is not None:
             index["site_name"] = fetched["site_name"]
     index_frame = _peak_frame(index["peaks"])
+    short = pd.Series(frame["peak_flow_cfs"].to_numpy(), index=frame["water_year"].to_numpy())
+    long = pd.Series(
+        index_frame["peak_flow_cfs"].to_numpy(), index=index_frame["water_year"].to_numpy()
+    )
     try:
         result = extend_peaks(
-            pd.Series(frame["peak_flow_cfs"].to_numpy(), index=frame["water_year"].to_numpy()),
-            pd.Series(
-                index_frame["peak_flow_cfs"].to_numpy(), index=index_frame["water_year"].to_numpy()
-            ),
-            n_extend=extension.get("n_extend"),
-            years=extension.get("years"),
+            short, long, n_extend=extension.get("n_extend"), years=extension.get("years")
         )
+        relation = concurrent_relation(short, long, split_year=extension.get("split_year"))
     except (TypeError, ValueError) as exc:
         raise ReportError(f"gaged_ffa: the record could not be extended: {exc}") from exc
     extension["index"] = index
@@ -394,10 +416,10 @@ def _extended_frame(options: Dict[str, Any], frame: pd.DataFrame) -> Tuple[Any, 
         }
     )
     both = pd.concat([frame.assign(source="observed"), added], ignore_index=True)
-    return result, both.sort_values("water_year").reset_index(drop=True)
+    return (result, relation), both.sort_values("water_year").reset_index(drop=True)
 
 
-def _extension_blocks(result: Any, options: Dict[str, Any]) -> List[Block]:
+def _extension_blocks(result: Any, relation: pd.DataFrame, options: Dict[str, Any]) -> List[Block]:
     """What the record extension did, in a paragraph, its statistics and any cautions."""
     index = options["extension"]["index"]
     label = " ".join(
@@ -460,6 +482,40 @@ def _extension_blocks(result: Any, options: Dict[str, Any]) -> List[Block]:
     ]
     if result.notes:
         blocks.append(Bullets(tuple(f"**{note}**" for note in result.notes)))
+    chosen = options["extension"].get("split_year") is not None
+    blocks.append(
+        Paragraph(
+            "Record extension assumes one fixed relation between the two gages. The table "
+            "below sets the two parts of the concurrent period side by side, divided at "
+            + ("the year the analyst gave" if chosen else "its middle")
+            + ": the median of this gage's peak over the index gage's in the same year, "
+            "the spread of that ratio, and the correlation of the logarithms. A ratio or a "
+            "correlation that differs between the parts means the relation moved."
+        )
+    )
+    blocks.append(
+        Table(
+            (
+                "Water years",
+                "Concurrent years",
+                "Median ratio to the index gage",
+                "Standard deviation of log10 ratio",
+                "Correlation of log10 peaks",
+            ),
+            tuple(
+                (
+                    str(row["period"]).replace("-", " to "),
+                    f"{int(row['n'])}",
+                    f"{row['median_ratio']:.3f}",
+                    "-" if pd.isna(row["ratio_log_sd"]) else f"{row['ratio_log_sd']:.4f}",
+                    "-" if pd.isna(row["correlation"]) else f"{row['correlation']:.3f}",
+                )
+                for _, row in relation.iterrows()
+            ),
+            ("left", "right", "right", "right", "right"),
+            "Relation of the two gages' concurrent peaks, by part of the concurrent period.",
+        )
+    )
     return blocks
 
 
@@ -485,13 +541,14 @@ def _gaged_ffa(given: Dict[str, Any]) -> Tuple[SectionContent, Any]:
     frame = _peak_frame(options["peaks"])
     observed = frame
     extension = None
+    relation = None
     if options.get("extension") is not None:
-        extension, frame = _extended_frame(options, frame)
+        (extension, relation), frame = _extended_frame(options, frame)
     screened = bool(options.get("stationarity", True)) and extension is None
     _resolve_skew(options)
     thresholds = _threshold_rows(options.get("perception_thresholds"))
     apply_codes = bool(options.get("apply_peak_codes", True))
-    codes = frame["qualification_code"].tolist()
+    codes = [None if pd.isna(c) else c for c in frame["qualification_code"].tolist()]
     has_codes = any(c is not None for c in codes)
 
     result = run_ffa(
@@ -634,8 +691,8 @@ def _gaged_ffa(given: Dict[str, Any]) -> Tuple[SectionContent, Any]:
             "should be checked before use.**"
         )
     blocks.append(Paragraph(" ".join(method)))
-    if extension is not None:
-        blocks.extend(_extension_blocks(extension, options))
+    if extension is not None and relation is not None:
+        blocks.extend(_extension_blocks(extension, relation, options))
 
     # Fitted parameters
     fitted: List[Tuple[str, str]] = [
@@ -744,7 +801,7 @@ def _gaged_ffa(given: Dict[str, Any]) -> Tuple[SectionContent, Any]:
         columns: List[Tuple[str, str, List[str]]] = [
             ("Water year", "right", [f"{int(y)}" for y in frame["water_year"]]),
         ]
-        dates = ["" if d is None else str(d) for d in frame["peak_date"]]
+        dates = ["" if pd.isna(d) else str(d) for d in frame["peak_date"]]
         if any(dates):
             columns.append(("Date", "left", dates))
         columns.append(("Peak flow (cfs)", "right", [cfs(q) for q in frame["peak_flow_cfs"]]))
@@ -833,6 +890,24 @@ def _streamstats_notes(estimate: Any) -> List[str]:
             + "; ".join(str(a) for a in advisories)
             + ". The regression equations may not represent it; check against local data."
         )
+    withheld = sorted(
+        code
+        for code, why in ((provenance.get("delineation") or {}).get("unavailable") or {}).items()
+        if str(why).startswith("withheld")
+    )
+    if withheld:
+        notes.append(
+            "Characteristics StreamStats computed and said may be inaccurate for this basin, "
+            "withheld from the equations: " + ", ".join(withheld) + "."
+        )
+    covered = provenance.get("covered_percent")
+    if covered is not None and float(covered) < 98.0:
+        notes.append(
+            f"The regression regions used cover {float(covered):.0f} percent of the basin; "
+            "their shares were scaled up to the whole, so the rest (in another state or "
+            "country, or in a region with no equations here) is treated as like the part "
+            "covered."
+        )
     return notes
 
 
@@ -880,6 +955,7 @@ def _freeze_streamstats(options: Dict[str, Any], lat: float, lon: float) -> None
         allow_nss_snapshot=snapshot,
         allow_provisional=provisional,
         allow_extrapolation=extrapolate,
+        allow_inaccurate=bool(options.get("allow_inaccurate", False)),
     )
     total = sum(r.percent_weight for r in live.regions)
     if not live.regions or total <= 0:
@@ -1418,6 +1494,19 @@ def _finite(owner: str, name: str, value: Any) -> float:
     return number
 
 
+def _extension_digest(extension: Any) -> Any:
+    """What of a record extension decides the fit: the index peaks and which years are used."""
+    if not isinstance(extension, dict) or not isinstance(extension.get("index"), dict):
+        return None
+    peaks = extension["index"].get("peaks") or {}
+    return {
+        "years": [int(y) for y in peaks.get("water_year") or []],
+        "flows": [float(q) for q in peaks.get("peak_flow_cfs") or []],
+        "n_extend": extension.get("n_extend"),
+        "chosen": extension.get("years"),
+    }
+
+
 def _record_digest(gage: Mapping[str, Any]) -> str:
     """A digest of the gage inputs that decide the fit, so a stored reference names its record."""
     frame = _peak_frame(gage["peaks"])
@@ -1425,7 +1514,7 @@ def _record_digest(gage: Mapping[str, Any]) -> str:
     held = {
         "years": [int(y) for y in frame["water_year"]],
         "flows": [float(q) for q in frame["peak_flow_cfs"]],
-        "codes": [None if c is None else str(c) for c in frame["qualification_code"]],
+        "codes": [None if pd.isna(c) else str(c) for c in frame["qualification_code"]],
         "skew": [
             None if gage.get(key) is None else float(gage[key])
             for key in ("regional_skew", "regional_skew_se")
@@ -1444,6 +1533,10 @@ def _record_digest(gage: Mapping[str, Any]) -> str:
         ],
         "low_outlier_threshold": None if low is None else float(low),
     }
+    extension = _extension_digest(gage.get("extension"))
+    if extension is not None:
+        # Only when there is one, so a reference stored before extensions existed still matches.
+        held["extension"] = extension
     text = json.dumps(held, sort_keys=True)
     return hashlib.sha256(text.encode("utf-8")).hexdigest()[:16]
 
@@ -1882,6 +1975,78 @@ def _compared(
     return label, content, flows, said.replace("%", "-percent")
 
 
+def _flow_table(flows: pd.DataFrame) -> Dict[float, Any]:
+    """An estimate's rows that have a flow, by AEP."""
+    return {float(r["aep"]): r for _, r in flows[flows["flow_cfs"].notna()].iterrows()}
+
+
+def _row_at(table: Mapping[float, Any], aep: float) -> Any:
+    """The estimate's row at ``aep``, or at the AEP nearest it within ``AEP_MATCH``; else None."""
+    if not table:
+        return None
+    nearest = min(table, key=lambda a: abs(a - aep))
+    return table[nearest] if same_aep(nearest, aep) else None
+
+
+def _matched_aeps(
+    owner: str,
+    tables: Sequence[Mapping[float, Any]],
+    asked: Any,
+    default: Optional[Sequence[float]] = None,
+) -> Tuple[List[float], List[str]]:
+    """The AEPs to tabulate across several estimates, and which of them join unlike AEPs.
+
+    ``asked`` is the section's ``aeps`` option. Without it the AEPs are those of ``default``
+    that every estimate has, or, with no default, every AEP all the estimates have. An AEP
+    is "had" within :data:`AEP_MATCH`. The second value lists, in words, the rows whose
+    estimates sit at slightly different AEPs.
+    """
+    if asked is None:
+        if default is None:
+            candidates: List[float] = []
+            for aep in sorted({a for table in tables for a in table}, reverse=True):
+                if not any(same_aep(aep, c) for c in candidates):
+                    candidates.append(aep)
+        else:
+            candidates = [float(a) for a in default]
+        aeps = [a for a in candidates if all(_row_at(t, a) is not None for t in tables)]
+        if not aeps:
+            raise ReportError(f"{owner}: the estimates have no AEP in common")
+    else:
+        if not isinstance(asked, list) or not asked:
+            raise ReportError(f"{owner}: aeps must be a non-empty list of AEPs")
+        try:
+            aeps = [float(a) for a in asked]
+        except (TypeError, ValueError) as exc:
+            raise ReportError(f"{owner}: aeps must be a list of numbers") from exc
+        missing = [a for a in aeps if any(_row_at(t, a) is None for t in tables)]
+        if missing:
+            raise ReportError(
+                f"{owner}: not every estimate has a quantile at AEP "
+                + ", ".join(f"{a:g}" for a in missing)
+            )
+    shown: List[float] = []
+    apart: List[str] = []
+    for aep in aeps:
+        used = sorted({float(_row_at(table, aep)["aep"]) for table in tables})
+        # Where the estimates differ, the row takes the value written with the most digits:
+        # 0.667, not 0.67, for the 1.5-year flood.
+        label = (
+            aep
+            if asked is not None or default is not None
+            else max(used, key=lambda a: len(format(a, "g")))
+        )
+        shown.append(label)
+        if len(used) > 1:
+            apart.append(
+                format(label * 100, ".3g")
+                + " percent ("
+                + ", ".join(format(value, "g") for value in used)
+                + ")"
+            )
+    return shown, apart
+
+
 def _build_comparison(given: Dict[str, Any]) -> SectionContent:
     options = dict(given)
     listed = options["estimates"]
@@ -1891,40 +2056,16 @@ def _build_comparison(given: Dict[str, Any]) -> SectionContent:
     labels = [label for label, _, _, _ in built]
     if len(set(labels)) != len(labels):
         raise ReportError("comparison: two estimates have the same label")
-    tables = [
-        {round(float(r["aep"]), 9): r for _, r in flows[flows["flow_cfs"].notna()].iterrows()}
-        for _, _, flows, _ in built
-    ]
-    shared = set(tables[0])
-    for table in tables[1:]:
-        shared &= set(table)
-    asked = options.get("aeps")
-    if asked is None:
-        aeps = sorted(shared, reverse=True)
-        if not aeps:
-            raise ReportError("comparison: the estimates have no AEP in common")
-    else:
-        if not isinstance(asked, list) or not asked:
-            raise ReportError("comparison: aeps must be a non-empty list of AEPs")
-        try:
-            aeps = [round(float(a), 9) for a in asked]
-        except (TypeError, ValueError) as exc:
-            raise ReportError("comparison: aeps must be a list of numbers") from exc
-        missing = [a for a in aeps if a not in shared]
-        if missing:
-            raise ReportError(
-                "comparison: not every estimate has a quantile at AEP "
-                + ", ".join(f"{a:g}" for a in missing)
-                + "; all have "
-                + (", ".join(f"{a:g}" for a in sorted(shared, reverse=True)) or "none in common")
-            )
+    tables = [_flow_table(flows) for _, _, flows, _ in built]
+    aeps, apart = _matched_aeps("comparison", tables, options.get("aeps"))
 
     site = str(options["site_name"]).strip() if options.get("site_name") else ""
     where = site or "the site"
     flow_rows = []
     limit_rows = []
     for aep in aeps:
-        flows = [float(table[aep]["flow_cfs"]) for table in tables]
+        matched = [_row_at(table, aep) for table in tables]
+        flows = [float(row["flow_cfs"]) for row in matched]
         low, high = min(flows), max(flows)
         flow_rows.append(
             (
@@ -1934,8 +2075,8 @@ def _build_comparison(given: Dict[str, Any]) -> SectionContent:
             )
         )
         cells = [f"{aep * 100:.3g}"]
-        for table in tables:
-            lower, upper = table[aep]["lower"], table[aep]["upper"]
+        for row in matched:
+            lower, upper = row["lower"], row["upper"]
             cells.append(
                 "-" if pd.isna(lower) or pd.isna(upper) else f"{cfs(lower)} to {cfs(upper)}"
             )
@@ -1962,6 +2103,13 @@ def _build_comparison(given: Dict[str, Any]) -> SectionContent:
             COMPARISON_CAPTION,
         ),
     ]
+    if apart:
+        blocks.append(
+            Paragraph(
+                "The methods tabulate some rows at slightly different probabilities, which "
+                "are shown together: " + "; ".join(apart) + "."
+            )
+        )
     if any(cell != "-" for row in limit_rows for cell in row[1:]):
         blocks.append(
             Paragraph(
@@ -2069,7 +2217,8 @@ def _build_future_flow(given: Dict[str, Any]) -> SectionContent:
     asked = options.get("aeps")
     if asked is None:
         # Only the AEPs the factors cover: nothing is held beyond them unless asked for.
-        keep = [a for a in have if min(published) - 1e-12 <= a <= max(published) + 1e-12]
+        low, high = min(published), max(published)
+        keep = [a for a in have if low <= a <= high or same_aep(a, low) or same_aep(a, high)]
         if not keep:
             raise ReportError(
                 "future_flow: the present-condition quantiles have no AEP within the factor "
@@ -2098,7 +2247,7 @@ def _build_future_flow(given: Dict[str, Any]) -> SectionContent:
     def basis(aep: float, extrapolated: bool) -> str:
         if extrapolated:
             return "held beyond the published AEPs"
-        if any(abs(aep - p) < 1e-9 for p in published):
+        if match_aep(published, aep) is not None:
             return "published"
         return "interpolated"
 
@@ -2228,6 +2377,7 @@ SECTION_KINDS: Dict[str, SectionKind] = {
                 "allow_nss_snapshot",
                 "allow_provisional",
                 "allow_extrapolation",
+                "allow_inaccurate",
                 "weighting_space",
             ),
             build=_build_ungaged,

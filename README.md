@@ -317,7 +317,9 @@ analysis and lays out what it returns, so a quantile in a report is the one `run
   characteristics table, a map, the flows by method from the 1.5-year to the 500-year flood
   and a plot of the methods' curves. `text` is a titled section of prose. A `gaged_ffa` section
   with an `extension` (`{"index": {"site_no": ...}}`) extends the gage's record from an
-  index gage by Bulletin 17C Appendix 8 (`flowfreq.extend_peaks`) before fitting it.
+  index gage by Bulletin 17C Appendix 8 (`flowfreq.extend_peaks`) before fitting it, and
+  tabulates the two gages' relation in each part of their concurrent period (`split_year`
+  sets where it is divided).
 - **The spec as built is the record.** Give a `site_no` and the peaks are downloaded; give
   `regional_skew_state` or `regional_skew_from_site` and the skew is looked up. Both are
   written into `report.spec` as values, with the retrieval date and the citation, and the
@@ -354,7 +356,7 @@ The model calls `find_gage`, `run_ffa`, `estimate_from_characteristics`,
 `weight_gage_with_regression`, `edit_narrative` and `render_report`; flowfreq computes
 every table and figure, and what the model writes is narrative that prints as a draft
 until you mark it reviewed. `flowfreq.reporting.ReportSession` is the same thing from
-Python. Client configuration, the twenty-one tools and the rules the server holds the model
+Python. Client configuration, the twenty-four tools and the rules the server holds the model
 to are in [docs/CHAT_REPORTS.md](docs/CHAT_REPORTS.md).
 
 ## Module Overview
@@ -376,6 +378,8 @@ to are in [docs/CHAT_REPORTS.md](docs/CHAT_REPORTS.md).
 | `flowfreq.transpose` / `flowfreq.qppq` / `flowfreq.donor_similarity` | Transposition to ungaged sites, QPPQ, donor screening |
 | `flowfreq.transfer_variance` | Variance-based weighting of gage transfers: dissimilarity variance, GLS blend with the regression, area-ratio band, leave-one-out |
 | `flowfreq.monthly_transfer` / `flowfreq.duration_transfer` | The same transfer variance for monthly mean/median flows and median annual duration quantiles (q10, q50, q90) |
+| `flowfreq.peak_extension` | Record extension of annual peaks from an index gage (Bulletin 17C Appendix 8): `extend_peaks`, `concurrent_relation` |
+| `flowfreq.aep` | `same_aep` / `match_aep`: pairing AEPs two sources write differently (0.67 and 0.667) |
 | `flowfreq.gage_weighting` / `flowfreq.nesting` | Bulletin 17C Appendix 9 weighting of at-site and regression estimates; flow-connected gage pairs |
 | `flowfreq.naturalize` | Naturalization add-back of upstream diversions (caller-supplied rates and return fractions) |
 | `flowfreq.stationarity` | Trend and change-point screening (Mann-Kendall with Hamed-Rao, Sen, Spearman, Pettitt, CUSUM, Lombard), field significance (FDR, Walker, block bootstrap), change-point attribution (peak codes, NID, NLCD), peaks-over-threshold count trends, one-page `stationarity_report`, mixed-population screen |

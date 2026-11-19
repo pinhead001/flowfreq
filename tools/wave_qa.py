@@ -233,7 +233,7 @@ def _skew_for(state: str, huc8: Optional[str], lat: float, lon: float) -> Tuple[
 
 
 def _fit_one(
-    args: Tuple[str, str, Optional[str], float, float, List[Dict[str, Any]]]
+    args: Tuple[str, str, Optional[str], float, float, List[Dict[str, Any]]],
 ) -> Dict[str, Any]:
     site, state, huc8, lat, lon, records = args
     from flowfreq.workflow import run_ffa

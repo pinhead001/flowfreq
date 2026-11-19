@@ -164,3 +164,44 @@ def test_refusals(records, change, said):
 def test_not_a_series_is_a_type_error(records):
     with pytest.raises(TypeError, match="pandas Series"):
         extend_peaks([1.0, 2.0], records[1])
+
+
+def test_concurrent_relation_sets_the_two_parts_side_by_side(records):
+    from flowfreq.peak_extension import concurrent_relation
+
+    suwanee, etowah = records
+    table = concurrent_relation(suwanee, etowah)
+    assert list(table["period"]) == ["1985-1994", "1995-2004", "1985-2004"]
+    assert list(table["n"]) == [10, 10, 20]
+    assert table.loc[2, "correlation"] == pytest.approx(0.8519, abs=5e-5)
+    ratios = suwanee / etowah.loc[suwanee.index]
+    # The median is taken of the log10 ratio, so an even count gives a geometric middle.
+    assert table.loc[2, "median_ratio"] == pytest.approx(
+        float(10 ** np.median(np.log10(ratios))), rel=1e-9
+    )
+    chosen = concurrent_relation(suwanee, etowah, split_year=1990)
+    assert list(chosen["period"]) == ["1985-1989", "1990-2004", "1985-2004"]
+
+
+def test_concurrent_relation_sees_a_relation_that_moved(records):
+    from flowfreq.peak_extension import concurrent_relation
+
+    suwanee, etowah = records
+    shifted = suwanee.copy()
+    shifted.loc[1995:] *= 2.0
+    table = concurrent_relation(shifted, etowah, split_year=1995)
+    assert table.loc[1, "median_ratio"] > 1.5 * table.loc[0, "median_ratio"]
+    with pytest.raises(ValueError, match="leaves one part"):
+        concurrent_relation(suwanee, etowah, split_year=1985)
+    with pytest.raises(ValueError, match="fewer than 2 concurrent"):
+        concurrent_relation(suwanee.iloc[:1], etowah.loc[:1984])
+
+
+def test_a_year_observed_at_zero_flow_is_not_generated(records):
+    """A zero has no logarithm, so it is out of the fit, but it was observed."""
+    suwanee, etowah = records
+    etowah_longer = pd.concat([etowah, pd.Series({2005: 9000.0, 2006: 12000.0})])
+    dry = pd.concat([suwanee, pd.Series({2005: 0.0, 2006: 0.0})])
+    ext = extend_peaks(dry, etowah_longer)
+    assert not set(ext.extended["water_year"]) & {2005, 2006}
+    assert ext.n_concurrent == 20 and ext.n_additional == 93

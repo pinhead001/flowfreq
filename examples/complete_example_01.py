@@ -1,7 +1,7 @@
 # %% Complete workflow - run this entire cell
 
 from flowfreq import (
-    USGSGage,
+    USGSgage,
     Bulletin17C,
 )
 import os
@@ -12,7 +12,7 @@ os.makedirs(output_dir, exist_ok=True)
 
 # 1. Download data
 site_no = "11066460"
-gage = USGSGage(site_no)
+gage = USGSgage(site_no)
 gage.download_peak_flow()
 
 print(f"Site: {gage.site_name}")
@@ -23,12 +23,12 @@ print(f"Number of peaks: {len(gage.peak_data)}")
 peak_flows = gage.peak_data["peak_flow_cfs"].values
 water_years = gage.peak_data["water_year"].values
 historical_peaks = []  # Empty - no historical data
-regional_skew = None   # Station skew only
+regional_skew = None  # Station skew only
 regional_skew_mse = None
 
 # 3. Run analysis
 b17c = Bulletin17C(peak_flows, water_years=water_years)
-results = b17c.run_analysis(method='ema')
+results = b17c.run_analysis(method="ema")
 
 print(f"\nStation Skew: {results.skew_station:.4f}")
 print(f"Skew Used: {results.skew_used:.4f}")

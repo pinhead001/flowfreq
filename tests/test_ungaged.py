@@ -788,7 +788,14 @@ class TestEstimateAtSite:
         assert est.weighted is None
         # The two StreamStats calls receive exactly what the caller passed.
         assert fakes.delineate_calls == [
-            {"region": "WA", "lat": WA_LAT, "lon": WA_LON, "cache": None, "timeout": 12.5}
+            {
+                "region": "WA",
+                "lat": WA_LAT,
+                "lon": WA_LON,
+                "cache": None,
+                "timeout": 12.5,
+                "allow_inaccurate": False,
+            }
         ]
         assert fakes.locate_calls == [
             {"region": "WA", "polygon": fakes.watershed.polygon_geojson, "timeout": 12.5}
@@ -843,6 +850,7 @@ class TestEstimateAtSite:
             "allow_nss_snapshot": False,
             "allow_provisional": False,
             "allow_extrapolation": True,
+            "allow_inaccurate": False,
             "weighting_space": "linear",
             "region": None,
         }

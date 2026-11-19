@@ -63,6 +63,7 @@ import pandas as pd
 from numpy.typing import ArrayLike
 from scipy.special import ndtri
 
+from flowfreq.aep import match_aep
 from flowfreq.regression.equations import RegressionEquation, evaluate
 
 logger = logging.getLogger(__name__)
@@ -143,10 +144,20 @@ class ChangeFactorSet:
             The interpolated multipliers, and a boolean mask marking the AEPs
             outside the published range, where the endpoint was held.
         """
+        asked = np.atleast_1d(np.asarray(aeps, dtype=float))
+        if np.any(~np.isfinite(asked)) or np.any((asked <= 0.0) | (asked >= 1.0)):
+            raise ValueError(
+                "every AEP must be a fraction in (0, 1), not a percent; got "
+                + ", ".join(f"{a:g}" for a in asked[~((asked > 0.0) & (asked < 1.0))])
+            )
+        # 0.67 against a published 0.667 is that published point, not beyond it.
+        asked = np.array(
+            [m if (m := match_aep(self.aeps, float(a))) is not None else float(a) for a in asked]
+        )
         z_pub = ndtri(1.0 - np.asarray(self.aeps, dtype=float))
         order = np.argsort(z_pub)
         z_pub, f_pub = z_pub[order], np.asarray(self.factors, dtype=float)[order]
-        z = ndtri(1.0 - np.asarray(aeps, dtype=float))
+        z = ndtri(1.0 - asked)
         extrap = (z < z_pub[0] - 1e-12) | (z > z_pub[-1] + 1e-12)
         return np.interp(z, z_pub, f_pub), extrap
 

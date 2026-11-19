@@ -141,11 +141,67 @@ def test_a_weak_relation_carries_its_caution():
         ({"index": {"peaks": ETOWAH}, "method": "MOVE.1"}, "unknown extension key"),
         ({"index": {"peaks": ETOWAH}, "years": [1990]}, "could not be extended"),
         (
-            {"index": {"peaks": {"water_year": [1985, 1986], "peak_flow_cfs": [1.0, 2.0]}}},
-            "could not be extended: only 2 concurrent",
+            {
+                "index": {
+                    "peaks": {"water_year": [1985, 1986, 1987], "peak_flow_cfs": [1.0, 2.0, 3.0]}
+                }
+            },
+            "could not be extended: only 3 concurrent",
         ),
     ],
 )
 def test_refusals(extension, said):
     with pytest.raises(ReportError, match=said):
         build_section("gaged_ffa", {**SUWANEE, "extension": extension})
+
+
+def test_the_relation_of_the_two_gages_is_tabulated_by_part():
+    caption = "Relation of the two gages' concurrent peaks, by part of the concurrent period."
+    built = build_section("gaged_ffa", {**SUWANEE, "extension": EXTENSION})
+    table = _table(built.blocks, caption)
+    assert [row[0] for row in table.rows] == ["1985 to 1994", "1995 to 2004", "1985 to 2004"]
+    assert table.rows[2][1] == "20" and table.rows[2][4] == "0.852"
+    text = "\n".join(b.text for b in built.blocks if isinstance(b, Paragraph))
+    assert "divided at its middle" in text
+    chosen = build_section("gaged_ffa", {**SUWANEE, "extension": {**EXTENSION, "split_year": 1990}})
+    assert [row[0] for row in _table(chosen.blocks, caption).rows][:2] == [
+        "1985 to 1989",
+        "1990 to 2004",
+    ]
+    assert "divided at the year the analyst gave" in "\n".join(
+        b.text for b in chosen.blocks if isinstance(b, Paragraph)
+    )
+    with pytest.raises(ReportError, match="leaves one part"):
+        build_section("gaged_ffa", {**SUWANEE, "extension": {**EXTENSION, "split_year": 2050}})
+
+
+def test_a_zero_flow_year_is_not_extended_into_a_duplicate():
+    peaks = {
+        "water_year": [*SUWANEE["peaks"]["water_year"], 2005],
+        "peak_flow_cfs": [*SUWANEE["peaks"]["peak_flow_cfs"], 0.0],
+    }
+    index = {
+        "water_year": [*ETOWAH["water_year"], 2005],
+        "peak_flow_cfs": [*ETOWAH["peak_flow_cfs"], 9000.0],
+    }
+    built = build_section(
+        "gaged_ffa", {**SUWANEE, "peaks": peaks, "extension": {"index": {"peaks": index}}}
+    )
+    rows = _table(built.blocks, "Annual peak flows used in the analysis.").rows
+    years = [row[0] for row in rows]
+    assert len(years) == len(set(years)) and years.count("2005") == 1
+
+
+@pytest.mark.parametrize(
+    "change,said",
+    [
+        ({"n_extend": 2.7}, "n_extend must be a whole number"),
+        ({"n_extend": True}, "n_extend must be a whole number"),
+        ({"years": "1950"}, "years must be a list of water years"),
+        ({"years": [1975.5]}, "years must be a list of water years"),
+        ({"split_year": "1990"}, "split_year must be a water year"),
+    ],
+)
+def test_extension_options_of_the_wrong_type_are_refused(change, said):
+    with pytest.raises(ReportError, match=said):
+        build_section("gaged_ffa", {**SUWANEE, "extension": {**EXTENSION, **change}})

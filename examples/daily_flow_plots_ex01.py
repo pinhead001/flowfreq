@@ -11,7 +11,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 from flowfreq import Hydrograph
-from flowfreq.usgs import USGSGage
+from flowfreq.usgs import USGSgage
 
 matplotlib.use("Agg")  # Use non-interactive backend for saving plots
 
@@ -23,7 +23,7 @@ os.makedirs(output_dir, exist_ok=True)
 site_no = "09355500"
 
 # Initialize USGS gage
-gage = USGSGage(site_no)
+gage = USGSgage(site_no)
 
 # Download daily flow data (complete water years for POR)
 print(f"Downloading daily flow data for USGS {site_no}...")

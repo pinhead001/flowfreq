@@ -994,11 +994,17 @@ class TestDownloadPeakFlowBackends:
         assert gage.site_name
 
     def test_metadata_failure_still_returns_the_peaks(self, caplog) -> None:
-        get = _RoutedGet(
-            {_PEAKS_OGC: _ogc_pages(), _LOCATIONS_OGC: [requests.ConnectionError("down")]}
-        )
+        from flowfreq import waterdata
+
+        # A dropped connection is retried, so the service stays down for every attempt.
+        down = [requests.ConnectionError("down")] * (waterdata.MAX_RETRIES + 1)
+        get = _RoutedGet({_PEAKS_OGC: _ogc_pages(), _LOCATIONS_OGC: down})
         gage = USGSgage("03606500")
-        with patch("flowfreq.usgs.requests.get", get), caplog.at_level("WARNING"):
+        with (
+            patch("flowfreq.usgs.requests.get", get),
+            patch("time.sleep"),
+            caplog.at_level("WARNING"),
+        ):
             frame = gage.download_peak_flow()
         assert len(frame) == 7
         assert gage.site_name is None and gage.drainage_area is None

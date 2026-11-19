@@ -46,6 +46,7 @@ import numpy as np
 import pandas as pd
 from scipy.special import ndtri
 
+from flowfreq.aep import match_aep
 from flowfreq.core import FrequencyResults, LowFlowResults
 from flowfreq.regulation import RegulationStatus, check_transfer_regulation
 
@@ -310,7 +311,12 @@ class RegressionExponents:
             sources = np.full(query.shape, _SOURCE_CONSTANT, dtype=object)
             return self._finish(query, values, sources, b_bounds)
 
-        z_query = _normal_deviate(query)
+        # A fit tabulates 0.67 where a report prints 0.667: evaluate at the published point,
+        # so the endpoint is not taken for an extrapolation.
+        snapped = np.array(
+            [m if (m := match_aep(self.aeps, float(q))) is not None else float(q) for q in query]
+        )
+        z_query = _normal_deviate(snapped)
         z_published = _normal_deviate(self.aeps)
 
         below = z_query < z_published[0]
@@ -331,7 +337,7 @@ class RegressionExponents:
 
         sources = np.where(outside, _SOURCE_EXTRAPOLATED, _SOURCE_INTERPOLATED).astype(object)
         # A query landing on a published point is published, not interpolated.
-        for i, aep_value in enumerate(query):
+        for i, aep_value in enumerate(snapped):
             if np.any(np.isclose(self.aeps, aep_value, rtol=0.0, atol=_AEP_MATCH_TOL)):
                 sources[i] = _SOURCE_PUBLISHED
 

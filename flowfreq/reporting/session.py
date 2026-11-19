@@ -336,8 +336,8 @@ class ReportSession:
             SectionSpec(
                 "weighted",
                 options={
-                    "gage": gage.spec.options,
-                    "regression": regression.spec.options,
+                    "gage": copy.deepcopy(gage.spec.options),
+                    "regression": copy.deepcopy(regression.spec.options),
                     "detail": detail,
                 },
             )
@@ -410,7 +410,7 @@ class ReportSession:
             if key in given:
                 raise ReportError(f"transposed: {key} is an argument, not one of the options")
         given.update(
-            donor=gage.spec.options,
+            donor=copy.deepcopy(gage.spec.options),
             target_area_sqmi=target_area_sqmi,
             exponents=dict(exponents),
             detail=detail,
@@ -476,7 +476,7 @@ class ReportSession:
                 f"section {gage.id} is a {gage.spec.kind} section, not a gaged_ffa section"
             )
         index = self._entries.index(gage) + 1 if position is None else self._index(position)
-        given: Dict[str, Any] = {"gage": gage.spec.options, "detail": detail}
+        given: Dict[str, Any] = {"gage": copy.deepcopy(gage.spec.options), "detail": detail}
         if reference is not None:
             given["reference"] = dict(reference)
         for name, value in (
@@ -488,6 +488,232 @@ class ReportSession:
                 given[name] = value
         built = self._new(SectionSpec("engine_check", title=title, options=given))
         self._entries.insert(index, built)
+        return {**self._describe(built), "result": _main_table(built)}
+
+    def _estimates(
+        self, section_ids: Sequence[str], labels: Optional[Sequence[str]]
+    ) -> List[Dict[str, Any]]:
+        """Sections as the estimates a comparison or a summary takes, their options copied."""
+        if labels is not None and len(labels) != len(section_ids):
+            raise ReportError(
+                f"give one label for each section: {len(section_ids)} sections, "
+                f"{len(labels)} labels"
+            )
+        estimates = []
+        for i, section_id in enumerate(section_ids):
+            entry = self._entry(section_id)
+            if entry.spec.kind not in ("gaged_ffa", "transposed", "ungaged"):
+                raise ReportError(
+                    f"section {entry.id} is a {entry.spec.kind} section; an estimate is a "
+                    "gaged_ffa, transposed or ungaged section"
+                )
+            options = copy.deepcopy(entry.spec.options)
+            if entry.spec.kind == "transposed":
+                options["detail"] = False  # the donor's analysis is in its own section
+            estimates.append(
+                {
+                    "label": labels[i] if labels is not None else entry.title,
+                    "kind": entry.spec.kind,
+                    "options": options,
+                }
+            )
+        return estimates
+
+    def compare(
+        self,
+        section_ids: Sequence[str],
+        *,
+        labels: Optional[Sequence[str]] = None,
+        site_name: Optional[str] = None,
+        aeps: Optional[Sequence[float]] = None,
+        detail: bool = False,
+        title: Optional[str] = None,
+        position: Optional[int] = None,
+    ) -> Dict[str, Any]:
+        """Set several sections' flood quantiles at one site side by side.
+
+        Parameters
+        ----------
+        section_ids : sequence of str
+            Two or more ``gaged_ffa``, ``transposed`` or ``ungaged`` sections. They stay in
+            the report.
+        labels : sequence of str, optional
+            A column heading for each, in order. Defaults to the sections' titles.
+        site_name : str, optional
+            The site the estimates are for.
+        aeps : sequence of float, optional
+            The AEPs to tabulate. Defaults to those every estimate gives.
+        detail : bool, default False
+            Repeat each estimate's analysis below the tables.
+        title : str, optional
+            The heading, in place of the kind's own.
+        position : int, optional
+            Where it goes, counting from 1. Defaults to the end.
+
+        Returns
+        -------
+        dict
+            As :meth:`add_section`.
+
+        Raises
+        ------
+        ReportError
+            A section of the wrong kind, labels that do not match, or a comparison
+            :func:`~flowfreq.reporting.build_section` refuses. The report is unchanged.
+        """
+        index = self._index(position)
+        given: Dict[str, Any] = {
+            "estimates": self._estimates(section_ids, labels),
+            "detail": detail,
+        }
+        if site_name:
+            given["site_name"] = site_name
+        if aeps is not None:
+            given["aeps"] = [float(a) for a in aeps]
+        built = self._new(SectionSpec("comparison", title=title, options=given))
+        self._entries.insert(index, built)
+        return {**self._describe(built), "result": _main_table(built)}
+
+    def summarize(
+        self,
+        section_ids: Sequence[str],
+        locations: Sequence[Mapping[str, Any]],
+        *,
+        labels: Optional[Sequence[str]] = None,
+        site_name: Optional[str] = None,
+        curves: Optional[Sequence[str]] = None,
+        characteristic_names: Optional[Mapping[str, str]] = None,
+        characteristics_source: Optional[str] = None,
+        title: Optional[str] = None,
+        position: Optional[int] = 1,
+    ) -> Dict[str, Any]:
+        """Add a summary of the study: characteristics, a map, the flows by method and a plot.
+
+        Parameters
+        ----------
+        section_ids : sequence of str
+            The ``gaged_ffa``, ``transposed`` or ``ungaged`` sections whose flood quantiles
+            the summary tabulates and plots.
+        locations : sequence of mapping
+            The site and the gages: each a ``name``, ``lat`` and ``lon``, and optionally
+            ``characteristics`` (code to value), ``basin`` (a GeoJSON polygon) and
+            ``marker``.
+        labels, site_name : optional
+            As :meth:`compare`.
+        curves : sequence of str, optional
+            The labels to plot. Defaults to all.
+        characteristic_names : mapping, optional
+            A printed name for a characteristic code.
+        characteristics_source : str, optional
+            Where the characteristics came from, printed above their table.
+        title : str, optional
+            The heading, in place of the kind's own.
+        position : int, optional
+            Where it goes, counting from 1. Defaults to first.
+
+        Returns
+        -------
+        dict
+            As :meth:`add_section`.
+
+        Raises
+        ------
+        ReportError
+            As :meth:`compare`, or locations the section refuses. The report is unchanged.
+        """
+        index = self._index(position)
+        given: Dict[str, Any] = {
+            "estimates": self._estimates(section_ids, labels),
+            "locations": [copy.deepcopy(dict(loc)) for loc in locations],
+        }
+        for name, value in (
+            ("site_name", site_name),
+            ("curves", None if curves is None else list(curves)),
+            (
+                "characteristic_names",
+                None if characteristic_names is None else dict(characteristic_names),
+            ),
+            ("characteristics_source", characteristics_source),
+        ):
+            if value:
+                given[name] = value
+        built = self._new(SectionSpec("site_summary", title=title, options=given))
+        self._entries.insert(index, built)
+        return {**self._describe(built), "result": _main_table(built)}
+
+    def extend_record(
+        self,
+        gage_id: str,
+        index_id: str,
+        *,
+        n_extend: Optional[int] = None,
+        years: Optional[Sequence[int]] = None,
+        split_year: Optional[int] = None,
+        title: Optional[str] = None,
+        position: Optional[int] = None,
+    ) -> Dict[str, Any]:
+        """Add a gage's flood frequency with its record extended from another gage section.
+
+        Bulletin 17C Appendix 8: the short gage's record is extended with peaks generated
+        from the index gage's years outside their concurrent period, and the extended
+        record is fitted. Both sections stay in the report.
+
+        Parameters
+        ----------
+        gage_id, index_id : str
+            The ``gaged_ffa`` section of the short-record gage, and that of the long-record
+            index gage whose peaks extend it.
+        n_extend : int, optional
+            How many peaks to add. Defaults to the effective record the index gage adds.
+        years : sequence of int, optional
+            The index-gage water years to generate from. Defaults to the most recent.
+        split_year : int, optional
+            Where to divide the concurrent period in the table that checks the two gages'
+            relation held. Defaults to its middle.
+        title : str, optional
+            The heading, in place of the kind's own.
+        position : int, optional
+            Where it goes, counting from 1. Defaults to just after the gage's section.
+
+        Returns
+        -------
+        dict
+            As :meth:`add_section`.
+
+        Raises
+        ------
+        ReportError
+            A section of the wrong kind, a gage section that is already extended, or an
+            extension :func:`~flowfreq.reporting.build_section` refuses (too few concurrent
+            years, no gain). The report is unchanged.
+        """
+        gage, index_gage = self._entry(gage_id), self._entry(index_id)
+        for entry in (gage, index_gage):
+            if entry.spec.kind != "gaged_ffa":
+                raise ReportError(
+                    f"section {entry.id} is a {entry.spec.kind} section, not a gaged_ffa section"
+                )
+        if gage.spec.options.get("extension") is not None:
+            raise ReportError(f"section {gage.id} is already an extended record")
+        if gage is index_gage:
+            raise ReportError("a gage cannot extend its own record")
+        where = self._entries.index(gage) + 1 if position is None else self._index(position)
+        source = index_gage.spec.options
+        extension: Dict[str, Any] = {
+            "index": {
+                key: copy.deepcopy(source[key])
+                for key in ("site_no", "site_name", "peaks")
+                if source.get(key) is not None
+            }
+        }
+        for name, value in (("n_extend", n_extend), ("split_year", split_year)):
+            if value is not None:
+                extension[name] = value
+        if years is not None:
+            extension["years"] = list(years)
+        given = {**copy.deepcopy(gage.spec.options), "extension": extension}
+        built = self._new(SectionSpec("gaged_ffa", title=title, options=given))
+        self._entries.insert(where, built)
         return {**self._describe(built), "result": _main_table(built)}
 
     def future_flow(
@@ -541,7 +767,7 @@ class ReportSession:
             )
         index = self._entries.index(base) + 1 if position is None else self._index(position)
         given: Dict[str, Any] = {
-            names[base.spec.kind]: base.spec.options,
+            names[base.spec.kind]: copy.deepcopy(base.spec.options),
             "factor_set": dict(factor_set),
             "detail": detail,
         }

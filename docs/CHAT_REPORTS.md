@@ -32,7 +32,7 @@ claude mcp add flowfreq --env USGS_API_KEY=your-key -- D:\a\flowfreq\.venv\Scrip
 ```
 
 Add `--scope user` to have it in every project. `/mcp` inside Claude Code lists the server
-and its twenty-one tools.
+and its twenty-four tools.
 
 **Claude Desktop** — in `claude_desktop_config.json` (Settings, Developer, Edit Config):
 
@@ -84,6 +84,9 @@ rebuilds the same report with no network and no chat.
 | `low_flow_frequency` | Add a low-flow frequency section for a gage: the annual minimum n-day mean flow fitted with a log-Pearson Type III distribution (7Q10, 7Q2), with 90-percent confidence limits | USGS (daily flows) |
 | `flow_duration` | Add a flow-duration section for a gage: the flow exceeded on a given percent of days (q10, q50, q90) and the curve | USGS (daily flows) |
 | `apply_future_change_factors` | Scale a gage or regression section's flood quantiles by change factors you supply and cite | nothing |
+| `extend_gage_record` | Extend a short or discontinued gage's record from a longer gage section (Bulletin 17C Appendix 8) and fit the extended record | nothing |
+| `compare_estimates` | Set several sections' flood quantiles at one site side by side, with each one's limits | nothing |
+| `add_site_summary` | A summary for the front of the report: basin characteristics you supply, a map, the flows by method and a plot of the curves | nothing |
 | `add_text_section` | Add a section of prose only | nothing |
 | `edit_narrative` | Set the prose after a section's computed content | nothing |
 | `mark_narrative_reviewed` | Remove the draft label from one section's narrative | your say-so |
@@ -133,6 +136,24 @@ the AEPs within the factors' range are scaled unless you name others with `aeps`
 beyond the range takes the nearest published factor and the table marks it. The section
 gives no confidence limits, since a factor scales the flow and says nothing of its
 uncertainty. The section scaled stays in the report.
+
+For an ungaged site with gages on its stream, the usual order is: `run_ffa` for each gage,
+`transpose_gage_to_site` from each, a regression estimate at the site, then
+`compare_estimates` over those sections and `add_site_summary` for the front of the report.
+`compare_estimates` tabulates the flows by method with the ratio of the largest to the
+smallest and each method's limits; it weights and combines nothing. `add_site_summary`
+takes the site and the gages as `locations`, each a name and a point with the basin
+characteristics you have for it; those are printed as you give them, and the model is told
+to ask for them.
+
+`extend_gage_record` is for a gage that was discontinued or has a short record, beside one
+with a longer record. It follows Bulletin 17C Appendix 8: the correlation of the concurrent
+peaks sets how many years of record the longer gage is worth, and that many peaks are
+generated from it and fitted with the observed ones. The section prints a table of the two
+gages' relation in each part of the concurrent period, since the method assumes that
+relation held; give `split_year` to divide it at a year of interest. It refuses with fewer
+than 10 concurrent years. The generated peaks stand for information, not for what happened
+in those years.
 
 `check_gage_against_reference` adds a section that says whether the gage's fit agrees with
 a second computation of the same record, and tabulates the two side by side: fitted
@@ -199,6 +220,10 @@ tests drive it in process.
 - `estimate_ungaged` depends on StreamStats, which takes a minute or more and is sometimes
   unavailable. `estimate_from_characteristics` is the route that needs no service.
 - There is no PDF writer; export one from Word.
-- The section kinds are those of `flowfreq.reporting.SECTION_KINDS`. Low-flow and regime
-  analyses are not report sections yet, and neither are the other transfers in
-  `flowfreq.transpose` (flow-duration, low-flow, between two gages, regression-weighted).
+- The section kinds are those of `flowfreq.reporting.SECTION_KINDS`. Low-flow frequency and
+  flow duration are sections at a gage only. Regime metrics are not report sections, and
+  neither are the other transfers in `flowfreq.transpose` (flow-duration, low-flow, between
+  two gages, regression-weighted).
+- Some options of the Python sections have no tool argument: perception thresholds, peaks
+  typed in by hand, a regional skew by state, a basin outline for the summary's map. Build
+  those from a specification (`flowfreq report`) or with `ReportSession.add_section`.

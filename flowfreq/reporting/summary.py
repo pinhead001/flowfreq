@@ -16,6 +16,7 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 import numpy as np
 import pandas as pd
 
+from ..aep import AEP_MATCH
 from .blocks import Block, Figure, Paragraph, Table
 from .sections import (
     SECTION_KINDS,
@@ -23,6 +24,9 @@ from .sections import (
     SectionKind,
     _compared,
     _figure_png,
+    _flow_table,
+    _matched_aeps,
+    _row_at,
     _version,
     cfs,
 )
@@ -34,11 +38,9 @@ SUMMARY_AEPS: Tuple[float, ...] = (0.667, 0.5, 0.2, 0.1, 0.04, 0.02, 0.01, 0.005
 SUMMARY_FLOWS_CAPTION = "Flood quantiles at the site by each method."
 SUMMARY_CHARACTERISTICS_CAPTION = "Basin characteristics at each location."
 
-#: How far apart two AEPs may be and still be one row: a Bulletin 17C fit tabulates the
-#: 1.5-year flood at 0.67 and Idaho's regression at 0.667.
-AEP_MATCH = 0.0045
-
 _LOCATION_KEYS = ("name", "lat", "lon", "characteristics", "basin", "marker")
+#: The point markers a location may take (matplotlib's).
+_MARKERS = ("o", "s", "^", "v", "<", ">", "*", "D", "P", "X")
 _OWNER = "site_summary"
 
 
@@ -94,6 +96,11 @@ def _locations(given: Any) -> List[Dict[str, Any]]:
             raise ReportError(f"{where}: a characteristic is not a number") from exc
         if any(not math.isfinite(v) for v in values.values()):
             raise ReportError(f"{where}: a characteristic is not a finite number")
+        marker = str(each.get("marker") or "o")
+        if marker not in _MARKERS:
+            raise ReportError(
+                f"{where}: marker must be one of {' '.join(_MARKERS)}; got {marker!r}"
+            )
         rings = None if each.get("basin") is None else _rings(each["basin"], where)
         out.append(
             {
@@ -102,7 +109,7 @@ def _locations(given: Any) -> List[Dict[str, Any]]:
                 "lon": lon,
                 "characteristics": values,
                 "rings": rings,
-                "marker": str(each.get("marker") or "o"),
+                "marker": marker,
             }
         )
     if len({loc["name"] for loc in out}) != len(out):
@@ -162,7 +169,8 @@ def _curve_figure(
     fig, ax = plt.subplots(figsize=(8, 5.5))
     for index, (label, flows) in enumerate(curves):
         rows = flows[flows["flow_cfs"].notna()].sort_values("aep", ascending=False)
-        rows = rows[(rows["aep"] <= max(aeps) + AEP_MATCH) & (rows["aep"] >= min(aeps) - AEP_MATCH)]
+        top, bottom = max(aeps) * (1 + AEP_MATCH), min(aeps) * (1 - AEP_MATCH)
+        rows = rows[(rows["aep"] <= top) & (rows["aep"] >= bottom)]
         x = -ndtri(rows["aep"].to_numpy(dtype=float))
         color = f"C{index}"
         ax.plot(x, rows["flow_cfs"], "-o", color=color, markersize=4, label=label)
@@ -198,42 +206,8 @@ def _build_site_summary(given: Dict[str, Any]) -> SectionContent:
     labels = [label for label, _, _, _ in built]
     if len(set(labels)) != len(labels):
         raise ReportError(f"{_OWNER}: two estimates have the same label")
-    tables = [
-        {float(r["aep"]): r for _, r in flows[flows["flow_cfs"].notna()].iterrows()}
-        for _, _, flows, _ in built
-    ]
-
-    def at(table: Dict[float, Any], aep: float) -> Any:
-        """The estimate's row at ``aep``, or at the AEP nearest it within ``AEP_MATCH``."""
-        if not table:
-            return None
-        nearest = min(table, key=lambda a: abs(a - aep))
-        return table[nearest] if abs(nearest - aep) <= AEP_MATCH else None
-
-    asked = options.get("aeps")
-    if asked is None:
-        aeps = [a for a in SUMMARY_AEPS if all(at(t, a) is not None for t in tables)]
-        if not aeps:
-            raise ReportError(f"{_OWNER}: the estimates share none of the summary AEPs")
-    else:
-        if not isinstance(asked, list) or not asked:
-            raise ReportError(f"{_OWNER}: aeps must be a non-empty list of AEPs")
-        try:
-            aeps = [float(a) for a in asked]
-        except (TypeError, ValueError) as exc:
-            raise ReportError(f"{_OWNER}: aeps must be a list of numbers") from exc
-        missing = [a for a in aeps if any(at(t, a) is None for t in tables)]
-        if missing:
-            raise ReportError(
-                f"{_OWNER}: not every estimate has a quantile at AEP "
-                + ", ".join(f"{a:g}" for a in missing)
-            )
-    apart = []
-    for aep in aeps:
-        used = sorted({float(at(table, aep)["aep"]) for table in tables})
-        if len(used) > 1:
-            shown = ", ".join(format(value, "g") for value in used)
-            apart.append(format(aep * 100, ".3g") + " percent (" + shown + ")")
+    tables = [_flow_table(flows) for _, _, flows, _ in built]
+    aeps, apart = _matched_aeps(_OWNER, tables, options.get("aeps"), SUMMARY_AEPS)
     plotted = options.get("curves")
     if plotted is None:
         plotted = labels
@@ -305,7 +279,7 @@ def _build_site_summary(given: Dict[str, Any]) -> SectionContent:
                 (
                     f"{aep * 100:.3g}",
                     f"{1.0 / aep:.3g}",
-                    *(cfs(float(at(table, aep)["flow_cfs"])) for table in tables),
+                    *(cfs(float(_row_at(table, aep)["flow_cfs"])) for table in tables),
                 )
                 for aep in aeps
             ),

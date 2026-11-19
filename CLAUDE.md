@@ -48,13 +48,14 @@ repo bumps its pin.
 ```bash
 pip install -e ".[dev]"
 
-# Full suite. ~225 s with the Fortran extension present, measured 2026-10-31 on a Windows
-# developer machine (CPython 3.12; 4018 passed, plus 4 local-only failures: the 2 described under
-# Validation Status and 2 from a local agentops profile, since fixed by #299). On 2026-10-03 it was ~70 s with the extension
-# absent (2541 tests) and ~355 s with it present.
-# That extra ~285 s is almost all live emafitpr calls in the vendored Fortran;
-# test_fixed_threshold_live.py alone takes ~190 s (twelve ~13 s calls in
+# Full suite. ~380 s with the Fortran extension present, measured 2026-11-19 on a Windows
+# developer machine (CPython 3.12; 5786 passed, 6 xfailed, plus the 2 local-only failures
+# described under Validation Status). On 2026-10-31 it was ~225 s (4018 passed).
+# About 130 s of it is live emafitpr calls in the vendored Fortran;
+# test_fixed_threshold_live.py alone takes ~100 s (80 s of it in
 # test_regional_weighting_inputs_match). The native code accounts for very little of it.
+# `pytest --durations=12` lists the slow ones; outside tests/fortran_parity the slowest is
+# test_regression_gls.py::test_known_model_error_variance_recovered at ~14 s.
 # History, same machine: ~200 s at v0.9.0 (1970 tests), then ~340 s (absent) / ~880 s (present) at
 # 0.10.0, because #81 made the EMA fixed point iterate as p3est_ema does (Big Sandy 13 -> 45
 # iterations, a 6000 cfs FIXED threshold 100 -> 827). Each iteration costs one m_p3 per
@@ -85,10 +86,9 @@ black flowfreq/ tests/ && isort flowfreq/ tests/
 # check, and easy to miss: this command list ran black+isort+pytest for a
 # while with no mention of it, which is exactly how v0.7.0 shipped ten mypy
 # errors in transpose.py/qppq.py straight to main without anyone running it
-# locally first -- pytest was, and stayed, fully green throughout. The
-# pyproject.toml [tool.mypy] override list documents which modules are
-# exempted (legacy debt) versus enforced (new modules by default, including
-# any you add).
+# locally first -- pytest was, and stayed, fully green throughout. No module
+# is exempt any more (pyproject.toml [tool.mypy] has no overrides), so a new
+# module is checked from its first commit.
 mypy flowfreq/
 
 # make check == lint (black --check + isort --check-only) + typecheck (mypy) + test,
@@ -131,8 +131,17 @@ first is on you at every invocation:
   catching `.venv` and similar, and it appears with or without UTF-8 mode. The signal is
   the "Unable to parse" warning, not the count.
 - Install the dev tooling with `pip install -e ".[dev]"`, never by naming packages. The
-  extra pins `black>=24.0,<25`; black 26 formats differently, so an unpinned install has you
-  "fix" correctly formatted files and turn CI red.
+  extra pins `black>=24.0,<27`. CI installs the newest black in that range (26.10 on
+  2026-11-19) and a venv keeps whichever it was built with (24.10 on the main development
+  machine). The two can disagree: on 2026-11-19 a local `make lint` passed and `ci / lint`
+  failed, because black 26 wants a trailing comma after a lone wrapped parameter that black
+  24 leaves alone (black 24 accepts the comma once it is there). `ci / lint` is the
+  authority. Lint covers `flowfreq/`, `tests/`, `tools/` and `build_fortran/`.
+- **New code must parse on Python 3.11.** A venv on 3.12 or later accepts a nested
+  same-quote f-string (`f"{d["k"]}"`), which 3.11 rejects; one reached a PR on 2026-11-18
+  and failed `ci / test (3.11)` and `ci / Fortran parity`. Local pytest cannot see it.
+- **Do not chain a commit after `pytest ... | tail`.** The pipeline's exit status is
+  `tail`'s, so `&& git commit` runs on a failing suite. Redirect to a file and test `$?`.
 
 ## Branches and Releases
 
@@ -200,7 +209,7 @@ CI should test the supported Python matrix.
 - **`regression/`** — offline regional regression equations: `equations` (schema,
   evaluator, prediction intervals), `library` (per-state JSON, status definitions),
   `jurisdictions` (the 56 jurisdictions and their waves), `nss` (NSS equation parser),
-  `oregon` / `montana` (state-specific procedures), `border` (the systematic differences
+  `oregon` / `montana` / `nevada` (state-specific procedures), `gls` (GLS regression fitting), `nss_library` (NSS snapshots as libraries), `border` (the systematic differences
   between neighboring states' equations near their border, from `tools/border_qa.py`)
 - **`streamstats.py`** — StreamStats delineation, basin characteristics, NSS estimates
 - **`transpose.py`** / **`qppq.py`** / **`donor_similarity.py`** — transposition to ungaged
@@ -213,6 +222,8 @@ CI should test the supported Python matrix.
   leave-one-out coverage
 - **`monthly_transfer.py`** / **`duration_transfer.py`** — monthly mean/median flow statistics, and median annual duration quantiles (q10, q50, q90), with sampling covariance, runoff-volume gage pairs for `fit_dissimilarity`, the GLS blend and leave-one-out
 - **`future_flow.py`** — future-condition change-factor framework
+- **`aep.py`** — `same_aep` / `match_aep`: pairing AEPs that two sources write differently (0.67 in a Bulletin 17C fit, 0.667 in a regression report). Anything that pairs AEPs from two sources goes through it, never `==` or a `1e-9` tolerance
+- **`ungaged.py`** — `estimate_at_site` / `estimate_from_characteristics` / `assemble`: the regional regression at a site, with region selection, overlap rules, cautions and provenance
 - **`peak_extension.py`** — record extension of annual peaks from an index gage (Bulletin 17C Appendix 8: Matalas-Jacobs moments, effective record length, the MOVE line); `record_extension.py` is MOVE.1 for daily flows
 - **`naturalize.py`** — naturalization add-back of upstream diversions (caller-supplied rates, return fractions, seasons)
 - **`stationarity.py`** — Mann-Kendall (Hamed-Rao), Sen's slope, Spearman, Pettitt, CUSUM and Lombard screening of annual series; field significance (FDR/Walker, block bootstrap); change-point attribution (peak codes, NID dams, NLCD impervious); peaks-over-threshold count trends; `stationarity_report` (one-page figure and Markdown); mixed-population seasonality screen
@@ -225,7 +236,7 @@ CI should test the supported Python matrix.
   time, stable section ids, files named inside one output directory). A section's tables and
   figures come from the analysis it runs; prose is a labeled draft `narrative` until marked
   reviewed. `report.py` (`HydroReport`) is the older single-gage Markdown report
-- **`mcp_server.py`** — `flowfreq-mcp`: `ReportSession` as twenty-one Model Context Protocol tools
+- **`mcp_server.py`** — `flowfreq-mcp`: `ReportSession` as twenty-four Model Context Protocol tools
   for a chat client (the `mcp` extra, mcp 2.x; `docs/CHAT_REPORTS.md`). Tool calls take turns
   behind a lock and matplotlib is put on Agg, because mcp runs sync tools on worker threads.
   Tests drive it in process through `mcp.Client`
@@ -241,7 +252,21 @@ sends an `X-Api-Key` from `USGS_API_KEY` or `waterdata.set_api_key()`, and retri
 429/503 with `Retry-After` or exponential backoff. Without a key the API allows 1000
 requests/hour per IP. Legacy NWIS remains available with `backend="nwis-legacy"`. On the OGC
 backend an IV `ts_id` is the 32-hex `time_series_id`, not the NWIS DD number, and
-`peak_date` is a UTC date.
+`peak_date` is a UTC date. `waterdata.request` also retries a dropped connection, a 502 and a
+504: these are reads of stored data.
+
+**StreamStats is the opposite case, and USGS blocked this machine's address over it once
+(issue #365).** Its delineation, basin-characteristics, NSS `bylocation` and NSS
+`Scenarios/Estimate` requests make the server compute, and it goes on computing after the
+client gives up. So in `streamstats.py` each of those goes through
+`_request_with_backoff(..., retry_abandoned=False)` with a timeout of at least
+`COMPUTE_TIMEOUT` (200 s): it is retried only on a connect timeout or a 503, where the server
+cannot have started. `bylocation` calls also run one at a time per process. The batch
+functions and `tools/border_qa.py` stop at the first 403 or 429 and after three service
+failures in a row. Give any new request that makes StreamStats compute the same treatment,
+and never loop over sites against it without those stops. A basin StreamStats warns "... MAY
+BE INACCURATE" about (it crosses into Canada or Mexico) is refused unless the caller passes
+`allow_inaccurate=True`, which withholds the characteristics the warning names.
 
 ## Conventions
 

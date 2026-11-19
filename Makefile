@@ -2,7 +2,7 @@
 # and what the build runs cannot drift apart.
 
 PYTHON ?= python
-PKGS := flowfreq/ tests/
+PKGS := flowfreq/ tests/ tools/ build_fortran/
 
 # The marker deselection lives in pyproject.toml's addopts, not here, so a bare
 # `pytest` is already correct and there is exactly one place to get it wrong.
@@ -35,8 +35,9 @@ export PYTHONUTF8 := 1
 .DEFAULT_GOAL := help
 .PHONY: help check lint typecheck fmt test test-all cov clean-verify fortran parity golden clean
 
+# In Python, not awk: cmd.exe has no awk, and this is the default goal.
 help:  ## Show this help
-	@awk -F':.*?## ' '/^[a-z-]+:.*## /{printf "  %-10s %s\n", $$1, $$2}' Makefile
+	@$(PYTHON) -c "import re; [print('  {:<13} {}'.format(*m.groups())) for m in re.finditer(r'^([a-z-]+):.*?## (.*)', open('Makefile', encoding='utf-8').read(), re.M)]"
 
 check: lint typecheck test  ## Everything CI checks, in CI's order
 
@@ -44,7 +45,7 @@ lint:  ## Formatting check (does not modify files)
 	$(PYTHON) -m black --check --diff $(PKGS)
 	$(PYTHON) -m isort --check-only --diff $(PKGS)
 
-typecheck:  ## mypy over the modules that pass today (see pyproject overrides)
+typecheck:  ## mypy over flowfreq/ (no module is exempt)
 	$(PYTHON) -m mypy flowfreq/
 
 fmt:  ## Apply formatting
@@ -66,13 +67,12 @@ cov:  ## Test suite with a coverage report
 # like a passing check. This target removes everything that can do that, so a
 # green result means the tree is green rather than the leftovers are helpful.
 # Note it depends on `clean`, which removes the f2py extension: this reports
-# the ~476 tests a fresh checkout runs, not the ~608 available once the
+# the tests a fresh checkout runs, not the larger number available once the
 # extension is built. That is the point -- it answers "is the tree green", not
 # "is my machine green". Run `make parity` afterwards to get the Fortran
 # comparisons back.
-clean-verify: clean  ## Wipe every build artifact, then run the full gate
-	rm -rf build/ dist/ *.egg-info .mypy_cache .pytest_cache
-	find . -path ./vendor -prune -o -name "__pycache__" -type d -print0 2>/dev/null | xargs -0 rm -rf
+clean-verify:  ## Wipe every build artifact, then run the full gate
+	$(PYTHON) tools/clean.py --all
 	$(MAKE) check
 
 test-all: export PYTHONSAFEPATH := 1
@@ -94,7 +94,6 @@ parity:  ## Build the extension and check the golden files against it (needs gfo
 golden:  ## Regenerate Fortran parity golden files (needs the extension)
 	$(PYTHON) tools/gen_fortran_golden.py
 
+# tools/clean.py, not rm: the recipes run through cmd.exe on Windows.
 clean:  ## Remove build and test artifacts
-	rm -rf build_fortran/mbuild build_fortran/native.ini build_fortran/_emafort*.so build_fortran/_emafort*.pyd
-	rm -rf flowfreq/peakfqr/_emafort*.so flowfreq/peakfqr/_emafort*.pyd flowfreq/peakfqr/*.dll
-	rm -rf .pytest_cache .mypy_cache
+	$(PYTHON) tools/clean.py

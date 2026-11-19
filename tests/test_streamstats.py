@@ -1010,6 +1010,45 @@ class TestBatchGetCharacteristics:
         assert "node_bad" in errors
         assert "snap" in errors["node_bad"].lower()
 
+    def test_a_refusing_service_stops_the_batch(self) -> None:
+        """A 403 is the service saying no: the other points send nothing."""
+        points = [(f"n{i}", "WA", 48.5 + i / 100, -120.3) for i in range(25)]
+        forbidden = _mock_response(status_code=403, text="Forbidden")
+        with (
+            patch("flowfreq.streamstats.requests.get", return_value=forbidden) as get,
+            patch("flowfreq.streamstats.requests.post") as post,
+        ):
+            results, errors = batch_get_characteristics(points, validate_regions=False)
+        assert results == {} and len(errors) == 25
+        assert get.call_count == 1
+        post.assert_not_called()
+        assert sum(e.startswith("not attempted: the batch stopped") for e in errors.values()) == 24
+
+    def test_a_failing_service_stops_the_batch_after_three_in_a_row(self) -> None:
+        points = [(f"n{i}", "WA", 48.5 + i / 100, -120.3) for i in range(25)]
+
+        def get(url, **kwargs):
+            if "/pourpoint/" in url:
+                return _mock_response(SNAP_GOOD)
+            raise requests.ReadTimeout("slow")
+
+        with (
+            patch("flowfreq.streamstats.requests.get", side_effect=get) as mock_get,
+            patch("flowfreq.streamstats.time.sleep"),
+        ):
+            results, errors = batch_get_characteristics(points, validate_regions=False)
+        delineations = [c for c in mock_get.call_args_list if "/pourpoint/" not in c.args[0]]
+        assert results == {} and len(delineations) == 3
+        assert sum(e.startswith("not attempted") for e in errors.values()) == 22
+
+    def test_bad_points_do_not_trip_the_breaker(self) -> None:
+        points = [(f"n{i}", "WA", 48.584, -120.370) for i in range(6)]
+        with patch(
+            "flowfreq.streamstats.requests.get", return_value=_mock_response(SNAP_UNSNAPPABLE)
+        ) as get:
+            results, errors = batch_get_characteristics(points, validate_regions=False)
+        assert get.call_count == 6 and not any("not attempted" in e for e in errors.values())
+
     def test_empty_batch_returns_empty_results(self) -> None:
         results, errors = batch_get_characteristics([], validate_regions=False)
         assert results == {}
@@ -1218,6 +1257,22 @@ class TestEstimateFlowStatistics:
             with pytest.raises(StreamStatsResponseError):
                 estimate_flow_statistics("WA", _GOOD_CHARACTERISTICS, statistic_group_codes=["PFS"])
 
+    def test_a_slow_estimate_is_sent_once_and_waited_for(self) -> None:
+        """Estimate evaluates every scenario on the server: a retry would run it again."""
+        from flowfreq.streamstats import COMPUTE_TIMEOUT
+
+        with (
+            patch("flowfreq.streamstats.requests.get", side_effect=_nss_get_dispatch),
+            patch(
+                "flowfreq.streamstats.requests.post", side_effect=requests.ReadTimeout("slow")
+            ) as post,
+            patch("flowfreq.streamstats.time.sleep"),
+        ):
+            with pytest.raises(StreamStatsTransportError, match="not retried"):
+                estimate_flow_statistics("WA", _GOOD_CHARACTERISTICS, statistic_group_codes=["PFS"])
+        assert post.call_count == 1
+        assert post.call_args.kwargs["timeout"] == COMPUTE_TIMEOUT
+
     def test_estimate_persistent_500_raises_transport_error(self) -> None:
         """The confirmed-live real bug (wrapping the body in {"scenarioList": [...]})
         surfaces as a 500 that persists across retries -- exercised here via the
@@ -1403,13 +1458,30 @@ class TestBylocationLoad:
         assert post.call_count == 1
 
     @pytest.mark.parametrize(
+        "failure",
+        [
+            requests.ConnectionError("connection reset by peer"),
+            _mock_response(status_code=502, text="Bad Gateway"),
+            _mock_response(status_code=500, text="Internal Server Error"),
+        ],
+        ids=["connection-reset", "502", "500"],
+    )
+    def test_a_request_the_server_may_have_started_is_sent_once(self, failure) -> None:
+        with (
+            patch("flowfreq.streamstats.requests.post", side_effect=[failure, failure]) as post,
+            patch("flowfreq.streamstats.time.sleep"),
+        ):
+            with pytest.raises(StreamStatsTransportError, match="not retried"):
+                locate_regression_regions("WA", GOAT_POLYGON)
+        assert post.call_count == 1
+
+    @pytest.mark.parametrize(
         "first",
         [
             requests.ConnectTimeout("never connected"),
-            requests.ConnectionError("reset"),
             _mock_response(status_code=503, text="Service Unavailable"),
         ],
-        ids=["connect-timeout", "connection-error", "503"],
+        ids=["connect-timeout", "503"],
     )
     def test_a_request_the_server_never_ran_is_still_retried(self, first) -> None:
         with (

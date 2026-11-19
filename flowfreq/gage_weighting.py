@@ -41,20 +41,18 @@ import numpy as np
 import pandas as pd
 from scipy.special import ndtri
 
+from flowfreq.aep import match_aep, same_aep
 from flowfreq.core import FrequencyResults
 from flowfreq.regression.equations import RegressionEstimate
 
 logger = logging.getLogger(__name__)
-
-#: Tolerance for matching a regression's AEP to an at-site AEP.
-_AEP_TOL = 1e-9
 
 
 def _by_aep(regression: Sequence[RegressionEstimate]) -> Dict[float, RegressionEstimate]:
     out: Dict[float, RegressionEstimate] = {}
     for est in regression:
         aep = float(est.equation.aep)
-        if any(abs(aep - a) <= _AEP_TOL for a in out):
+        if any(same_aep(aep, a) for a in out):
             raise ValueError(f"more than one regression estimate at AEP {aep:g}")
         out[aep] = est
     return out
@@ -145,10 +143,13 @@ def weight_with_regression(
             "note": "",
         }
         rows.append(row)
-        est = next((e for a, e in regs.items() if abs(a - aep) <= _AEP_TOL), None)
-        if est is None:
+        matched = match_aep(regs, aep)
+        if matched is None:
             row["note"] = "no regression estimate at this AEP"
             continue
+        est = regs[matched]
+        # The fit tabulates 0.67 where a regression prints 0.667: the same flood.
+        paired = "" if matched == aep else f"regression at AEP {matched:g}"
         row["regression_flow_cfs"] = est.flow_cfs
         v_r = est.prediction_variance
         if v_r is None:
@@ -171,9 +172,11 @@ def weight_with_regression(
             weighted_variance_log=v_w,
             weighted_lower_cfs=10.0 ** (log_w - half),
             weighted_upper_cfs=10.0 ** (log_w + half),
-            note="extrapolated regression" if est.extrapolated else "",
+            note="; ".join(
+                n for n in ("extrapolated regression" if est.extrapolated else "", paired) if n
+            ),
         )
-    unused = [a for a in regs if not any(abs(a - float(x)) <= _AEP_TOL for x in cl["aep"])]
+    unused = [a for a in regs if match_aep((float(x) for x in cl["aep"]), a) is None]
     if unused:
         logger.warning(
             "regression AEP(s) %s have no at-site quantile and were not used",

@@ -148,6 +148,34 @@ ADVISORY_WARNINGS = (
 )
 
 
+#: A ``WarningMsg`` that names characteristics StreamStats could not compute over the
+#: whole basin, as for a basin that runs past its data into Canada or Mexico:
+#: "FOREST, SLOP30_10M, PRECIP, ..., AND BSLDEM30M MAY BE INACCURATE". Matched against the
+#: whole message. Refused by default; ``allow_inaccurate=True`` keeps the delineation and
+#: withholds the characteristics it names (:func:`inaccurate_codes`).
+INACCURATE_WARNING = re.compile(
+    r"(?P<codes>[A-Z0-9_]+(?:\s*,\s*(?:AND\s+)?[A-Z0-9_]+|\s+AND\s+[A-Z0-9_]+)*)"
+    r"\s+MAY\s+BE\s+INACCURATE\.?",
+    re.IGNORECASE,
+)
+
+
+def inaccurate_codes(warning: str) -> Optional[List[str]]:
+    """The characteristic codes a "MAY BE INACCURATE" warning names, or None if it is not one.
+
+    >>> inaccurate_codes("FOREST, PRECIP, AND ELEV MAY BE INACCURATE")
+    ['FOREST', 'PRECIP', 'ELEV']
+    >>> inaccurate_codes("Delineated basin may contain karst") is None
+    True
+    """
+    match = INACCURATE_WARNING.fullmatch(warning.strip())
+    if match is None:
+        return None
+    parts = re.split(r"\s*,\s*|\s+AND\s+", match["codes"], flags=re.IGNORECASE)
+    codes = [re.sub(r"^AND\s+", "", p.strip(), flags=re.IGNORECASE).upper() for p in parts]
+    return [code for code in codes if code]
+
+
 class DegenerateDelineationError(ValueError):
     """A delineation response failed validation: a warning, or a structurally invalid
     or degenerate polygon (FR-3). The accompanying geometry must not be used.
@@ -498,11 +526,12 @@ def _request_with_backoff(
     retrying a request that will fail the same way again just adds load to a free
     public service with no key.
 
-    With ``retry_abandoned=False`` a read timeout and a 504 are not retried either. Both
-    mean the server received the request and may still be working on it: NSS keeps a
-    ``bylocation`` query running after the client disconnects, so a retry runs the same
-    heavy query twice at once (issue #365). A connect timeout, a dropped connection and
-    any other 5xx are still retried.
+    With ``retry_abandoned=False`` the request is retried only where the server cannot
+    have started on it: a connect timeout, or a 503. A read timeout, a dropped or reset
+    connection, a 502, a 504 and any other 5xx may all mean the server received the request
+    and is still working on it: NSS keeps a ``bylocation`` query running after the client
+    disconnects, so a retry runs the same heavy query twice at once (issue #365). Use it
+    for every request that makes the server compute.
     """
     last_exc: Optional[BaseException] = None
     for attempt in range(max_retries):
@@ -528,6 +557,11 @@ def _request_with_backoff(
                 exc,
             )
         except (requests.Timeout, requests.ConnectionError) as exc:
+            if not retry_abandoned and not isinstance(exc, requests.ConnectTimeout):
+                raise StreamStatsTransportError(
+                    f"StreamStats request to {url} failed ({type(exc).__name__}: {exc}); not "
+                    "retried, since the server may have received it and still be working on it"
+                ) from exc
             last_exc = exc
             logger.warning(
                 "StreamStats request to %s failed (attempt %d/%d): %s",
@@ -537,10 +571,11 @@ def _request_with_backoff(
                 exc,
             )
         else:
-            if response.status_code == 504 and not retry_abandoned:
+            if response.status_code >= 500 and response.status_code != 503 and not retry_abandoned:
+                what = " (gateway timeout)" if response.status_code == 504 else ""
                 raise StreamStatsTransportError(
-                    f"StreamStats request to {url} returned 504 (gateway timeout); not retried, "
-                    "since the server may still be working on it"
+                    f"StreamStats request to {url} returned {response.status_code}{what}; not "
+                    "retried, since the server may still be working on it"
                 )
             if response.status_code >= 500:
                 last_exc = requests.HTTPError(f"{response.status_code} error from {url}")
@@ -946,13 +981,21 @@ COMPUTE_TIMEOUT: float = 200.0
 
 
 def _sshydro_delineation(
-    region: str, lat: float, lon: float, *, default_server: str, timeout: float
-) -> Tuple[SnapResult, Dict[str, Any], str, List[str], List[str]]:
+    region: str,
+    lat: float,
+    lon: float,
+    *,
+    default_server: str,
+    timeout: float,
+    allow_inaccurate: bool = False,
+) -> Tuple[SnapResult, Dict[str, Any], str, List[str], List[str], List[str]]:
     """Snap the point and run ss-delineate's ``delineate/sshydro``; the shared first half.
 
     Returns the snap, the parsed sshydro response (already checked for a ``WarningMsg``),
-    the server that answered, the request URLs and any advisory warnings, for
-    :func:`delineate_and_get_characteristics` and :func:`delineate_watershed`.
+    the server that answered, the request URLs, any advisory warnings, and the
+    characteristic codes a "MAY BE INACCURATE" warning named (empty unless
+    ``allow_inaccurate``, which keeps such a warning as an advisory instead of refusing),
+    for :func:`delineate_and_get_characteristics` and :func:`delineate_watershed`.
     """
     snap = snap_point(region, lat, lon, timeout=timeout)
 
@@ -987,21 +1030,39 @@ def _sshydro_delineation(
 
     warnings = _find_warning_msgs(sshydro_data)
     advisories = [w for w in warnings if _is_advisory(w)]
-    refused = [w for w in warnings if not _is_advisory(w)]
+    withheld: List[str] = []
+    refused = []
+    for warning in warnings:
+        if _is_advisory(warning):
+            continue
+        named = inaccurate_codes(warning) if allow_inaccurate else None
+        if named is None:
+            refused.append(warning)
+        else:
+            advisories.append(warning)
+            withheld.extend(code for code in named if code not in withheld)
     if refused:
-        warning_msg = refused[0]
+        # A regulated basin is refused as regulated wherever its warning sits in the list.
+        regulated = [w for w in refused if w.upper().startswith("REGULATED")]
+        warning_msg = (regulated or refused)[0]
         error = (
             RegulatedDelineationError
             if warning_msg.upper().startswith("REGULATED")
             else DegenerateDelineationError
         )
+        hint = (
+            "; pass allow_inaccurate=True to keep the delineation and withhold the "
+            "characteristics it names"
+            if inaccurate_codes(warning_msg) is not None
+            else ""
+        )
         raise error(
             f"StreamStats delineation warning at ({snap.snapped_lat}, "
-            f"{snap.snapped_lon}) in region {region!r}: {warning_msg}"
+            f"{snap.snapped_lon}) in region {region!r}: {warning_msg}{hint}"
         )
     for advisory in advisories:
         logger.warning("StreamStats at (%s, %s): %s", snap.snapped_lat, snap.snapped_lon, advisory)
-    return snap, sshydro_data, server_used, request_urls, advisories
+    return snap, sshydro_data, server_used, request_urls, advisories, withheld
 
 
 def delineate_watershed(
@@ -1012,6 +1073,7 @@ def delineate_watershed(
     cache: Optional[StreamStatsCache] = None,
     default_server: str = DEFAULT_SERVER,
     timeout: float = 60.0,
+    allow_inaccurate: bool = False,
 ) -> WatershedCharacteristics:
     """Snap and delineate one pour point, returning the watershed polygon only.
 
@@ -1038,6 +1100,15 @@ def delineate_watershed(
     timeout : float
         Per-request timeout, seconds.
 
+    allow_inaccurate : bool, default False
+        Keep a basin StreamStats warns about with "... MAY BE INACCURATE", which it does
+        where the basin runs past its data (into Canada, for one). By default such a basin
+        is refused. With this set, the warning is returned in ``advisories`` and every
+        characteristic it names is withheld: moved from ``characteristics`` to
+        ``unavailable``, so it cannot reach an equation. Characteristics the warning does
+        not name are returned as StreamStats computed them; whether they cover the whole
+        basin is not something StreamStats says. Any other warning is still refused.
+
     Returns
     -------
     WatershedCharacteristics
@@ -1050,15 +1121,22 @@ def delineate_watershed(
     StreamStatsResponseError, StreamStatsTransportError
         As :func:`delineate_and_get_characteristics`, less the ss-hydro failures.
     """
-    cache_key = _cache_key(region, lat, lon, "<polygon only>", True)
+    cache_key = _cache_key(
+        region, lat, lon, "<polygon only>" + ("|inaccurate" if allow_inaccurate else ""), True
+    )
     if cache is not None:
         cached = cache.get(cache_key)
         if cached is not None:
             logger.debug("StreamStats cache hit for %s", cache_key)
             return WatershedCharacteristics.from_dict(cached)
 
-    snap, sshydro_data, server_used, request_urls, advisories = _sshydro_delineation(
-        region, lat, lon, default_server=default_server, timeout=timeout
+    snap, sshydro_data, server_used, request_urls, advisories, _ = _sshydro_delineation(
+        region,
+        lat,
+        lon,
+        default_server=default_server,
+        timeout=timeout,
+        allow_inaccurate=allow_inaccurate,
     )
     watershed_feature = _extract_global_watershed(sshydro_data)
     polygon_area_sq_mi = _validate_watershed_polygon(
@@ -1097,6 +1175,7 @@ def delineate_and_get_characteristics(
     default_server: str = DEFAULT_SERVER,
     timeout: float = 60.0,
     include_polygon: bool = True,
+    allow_inaccurate: bool = False,
 ) -> WatershedCharacteristics:
     """Snap, delineate, and compute basin characteristics for one pour point.
 
@@ -1140,6 +1219,15 @@ def delineate_and_get_characteristics(
         polygon is several hundred kB, which a cache of many points rewrites on every
         entry.
 
+    allow_inaccurate : bool, default False
+        Keep a basin StreamStats warns about with "... MAY BE INACCURATE", which it does
+        where the basin runs past its data (into Canada, for one). By default such a basin
+        is refused. With this set, the warning is returned in ``advisories`` and every
+        characteristic it names is withheld: moved from ``characteristics`` to
+        ``unavailable``, so it cannot reach an equation. Characteristics the warning does
+        not name are returned as StreamStats computed them; whether they cover the whole
+        basin is not something StreamStats says. Any other warning is still refused.
+
     Returns
     -------
     WatershedCharacteristics
@@ -1151,7 +1239,10 @@ def delineate_and_get_characteristics(
         See each exception's docstring; see also S7 of the design doc.
     """
     bc_labels = ";".join(characteristic_codes) if characteristic_codes else "*"
-    cache_key = _cache_key(region, lat, lon, bc_labels, include_polygon)
+    # A result that kept a "MAY BE INACCURATE" basin must never answer a default call.
+    cache_key = _cache_key(
+        region, lat, lon, bc_labels + ("|inaccurate" if allow_inaccurate else ""), include_polygon
+    )
 
     if cache is not None:
         cached = cache.get(cache_key)
@@ -1159,8 +1250,13 @@ def delineate_and_get_characteristics(
             logger.debug("StreamStats cache hit for %s", cache_key)
             return WatershedCharacteristics.from_dict(cached)
 
-    snap, sshydro_data, server_used, request_urls, advisories = _sshydro_delineation(
-        region, lat, lon, default_server=default_server, timeout=timeout
+    snap, sshydro_data, server_used, request_urls, advisories, withheld = _sshydro_delineation(
+        region,
+        lat,
+        lon,
+        default_server=default_server,
+        timeout=timeout,
+        allow_inaccurate=allow_inaccurate,
     )
 
     bcrequest = sshydro_data.get("bcrequest")
@@ -1216,6 +1312,14 @@ def delineate_and_get_characteristics(
 
     characteristics, unavailable = _parse_characteristics(hydro_data)
     _check_polygon_area(polygon_area_sq_mi, characteristics)
+    for code in withheld:
+        # StreamStats computed a value and said not to trust it: it must not reach an equation.
+        if code in characteristics:
+            value = characteristics.pop(code).value
+            unavailable[code] = (
+                f"withheld: StreamStats says {code} may be inaccurate for this basin "
+                f"(it returned {value:g})"
+            )
 
     polygon_geojson: Optional[Dict[str, Any]] = None
     if include_polygon:
@@ -1275,6 +1379,51 @@ def list_regions(*, timeout: float = 30.0) -> List[Dict[str, Any]]:
     return data
 
 
+#: How many points in a row may fail at the service before a batch stops asking.
+BATCH_MAX_CONSECUTIVE_FAILURES: int = 3
+_REFUSAL_STATUS = re.compile(r"(?<!\d)(403|429)(?!\d)")
+
+
+class _BatchBreaker:
+    """Stops a batch that the service is refusing or failing, instead of asking N times.
+
+    A 403 or a 429 stops it at once: the service has said no. So do
+    :data:`BATCH_MAX_CONSECUTIVE_FAILURES` transport failures in a row. Points not yet
+    started are then reported as not attempted, and send nothing.
+    """
+
+    def __init__(self) -> None:
+        self._lock = threading.Lock()
+        self._streak = 0
+        self.reason: Optional[str] = None
+
+    def check(self) -> None:
+        if self.reason is not None:
+            raise StreamStatsTransportError(f"not attempted: the batch stopped ({self.reason})")
+
+    def record(self, exc: Optional[BaseException]) -> None:
+        with self._lock:
+            if exc is None:
+                self._streak = 0
+                return
+            status = getattr(getattr(exc, "response", None), "status_code", None)
+            refused = status in (403, 429) or (
+                isinstance(exc, requests.HTTPError) and _REFUSAL_STATUS.search(str(exc))
+            )
+            if refused:
+                self.reason = self.reason or f"StreamStats refused a request: {exc}"
+            elif isinstance(exc, (StreamStatsTransportError, requests.RequestException)):
+                self._streak += 1
+                if self._streak >= BATCH_MAX_CONSECUTIVE_FAILURES:
+                    self.reason = self.reason or (
+                        f"{self._streak} points in a row failed at the service, the last "
+                        f"with: {exc}"
+                    )
+            else:
+                # A bad point (unsnappable, degenerate) is the point's fault, not the service's.
+                self._streak = 0
+
+
 def batch_get_characteristics(
     points: Sequence[Tuple[str, str, float, float]],
     *,
@@ -1290,6 +1439,10 @@ def batch_get_characteristics(
     A single bad point (unsnappable, wrong region, a service hiccup) never aborts the
     batch -- its reason is collected in ``errors`` instead, mirroring
     :func:`flowfreq.usgs.fetch_nwis_batch`'s two-dict return.
+
+    A service that is refusing or failing does stop it: after an HTTP 403 or 429, or
+    :data:`BATCH_MAX_CONSECUTIVE_FAILURES` transport failures in a row, the points not yet
+    started send nothing and are reported in ``errors`` as not attempted.
 
     Parameters
     ----------
@@ -1338,16 +1491,25 @@ def batch_get_characteristics(
                     f"StreamStats' known region codes"
                 )
 
+    breaker = _BatchBreaker()
+
     def _one(region: str, lat: float, lon: float) -> WatershedCharacteristics:
-        return delineate_and_get_characteristics(
-            region,
-            lat,
-            lon,
-            characteristic_codes=characteristic_codes,
-            cache=cache,
-            timeout=timeout,
-            include_polygon=include_polygon,
-        )
+        breaker.check()
+        try:
+            result = delineate_and_get_characteristics(
+                region,
+                lat,
+                lon,
+                characteristic_codes=characteristic_codes,
+                cache=cache,
+                timeout=timeout,
+                include_polygon=include_polygon,
+            )
+        except Exception as exc:
+            breaker.record(exc)
+            raise
+        breaker.record(None)
+        return result
 
     results: Dict[str, WatershedCharacteristics] = {}
     errors: Dict[str, str] = {}
@@ -2040,8 +2202,13 @@ def estimate_flow_statistics(
         return [], skipped
 
     estimate_url = f"https://{GENERIC_HOST}/nssservices/Scenarios/Estimate"
+    # Estimate evaluates every scenario on the server: one request, and a long enough wait.
     estimate_response = _request_with_backoff(
-        requests.post, estimate_url, json_body=to_submit, timeout=timeout
+        requests.post,
+        estimate_url,
+        json_body=to_submit,
+        timeout=max(timeout, COMPUTE_TIMEOUT),
+        retry_abandoned=False,
     )
     if estimate_response.status_code >= 400:
         raise StreamStatsResponseError(
@@ -2180,8 +2347,10 @@ def batch_estimate_flow_statistics(
     estimates: Dict[str, List[RegionFlowEstimates]] = {}
     skipped: Dict[str, Dict[str, str]] = {}
 
+    breaker = _BatchBreaker()
     for point_id, watershed in characteristics_by_point.items():
         try:
+            breaker.check()
             region_estimates, point_skipped = estimate_flow_statistics(
                 region_by_point[point_id],
                 watershed.characteristics,
@@ -2194,7 +2363,10 @@ def batch_estimate_flow_statistics(
             estimates[point_id] = region_estimates
             if point_skipped:
                 skipped[point_id] = point_skipped
+            breaker.record(None)
         except Exception as e:
+            if not str(e).startswith("not attempted"):
+                breaker.record(e)
             errors[point_id] = str(e)
 
     return estimates, skipped, errors

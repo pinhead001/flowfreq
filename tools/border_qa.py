@@ -45,8 +45,9 @@ import argparse
 import json
 import logging
 import math
+import re
 import sys
-
+import threading
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
 from pathlib import Path
@@ -392,17 +393,66 @@ def _codes_needed(state: str, used: Mapping[str, Any]) -> set:
     return {v.code for e in lib.equations if e.region_code in codes for v in e.variables}
 
 
+#: Service failures in a row after which a run stops asking (issue #365).
+MAX_CONSECUTIVE_FAILURES = 3
+_REFUSED = re.compile(r"(?<!\d)(403|429)(?!\d)|Forbidden|Too Many Requests", re.IGNORECASE)
+
+
+def site_errors(rec: Mapping[str, Any]) -> List[str]:
+    """Every error a site's record holds: the delineation's, the home estimate's, each neighbour's."""
+    found = [rec.get("error"), (rec.get("home_est") or {}).get("error")]
+    found += [(entry or {}).get("error") for entry in (rec.get("neighbors") or {}).values()]
+    return [str(e) for e in found if e]
+
+
+def stop_reason(errors: Sequence[str], streak: int) -> Optional[str]:
+    """Why a run should stop after a site with these errors, or None to go on.
+
+    A 403 or a 429 anywhere stops it: StreamStats has said no. So does the third site in a
+    row with a transport failure. ``streak`` counts this site if it had one.
+    """
+    refused = [e for e in errors if _REFUSED.search(e)]
+    if refused:
+        return f"StreamStats is refusing requests: {refused[0][:200]}"
+    if streak >= MAX_CONSECUTIVE_FAILURES:
+        return f"{streak} gages in a row failed at the service"
+    return None
+
+
 def run(cache: Path, workers: int, limit: Optional[int]) -> None:
+    """Run every candidate gage not yet done, stopping if StreamStats refuses or keeps failing."""
     cand = pd.read_csv(cache / "candidates.csv", dtype={"site_no": str})
     groups = list(cand.groupby("site_no", sort=False))
     if limit:
         groups = groups[:limit]
+    if workers > ss.MAX_CONCURRENCY:
+        logger.warning(
+            "capping --workers %d at StreamStats' limit of %d", workers, ss.MAX_CONCURRENCY
+        )
+    workers = max(1, min(workers, ss.MAX_CONCURRENCY))
+    lock = threading.Lock()
+    state: Dict[str, Any] = {"streak": 0, "stop": None}
 
     def one(item: Tuple[str, pd.DataFrame]) -> None:
+        if state["stop"] is not None:
+            return
+        path = cache / "sites" / f"{item[0]}.json"
+        done = path.exists() and "TransportError" not in path.read_text(encoding="utf-8")
         try:
             run_site(cache, item[0], item[1])
-        except Exception:  # noqa: BLE001 - keep going; the site is retried on resume
+            errors = site_errors(_read(path)) if path.exists() else ["TransportError: delineation"]
+        except Exception as exc:  # noqa: BLE001 - the site is retried on resume
             logger.exception("site %s failed", item[0])
+            errors = [f"{type(exc).__name__}: {exc}"]
+        if done:
+            return  # already in the cache: nothing was asked, so nothing was learned
+        with lock:
+            failed = any("Transport" in e or _REFUSED.search(e) for e in errors)
+            state["streak"] = state["streak"] + 1 if failed else 0
+            reason = stop_reason(errors, state["streak"])
+            if reason and state["stop"] is None:
+                state["stop"] = reason
+                logger.error("stopping the run: %s. Resume when the service answers.", reason)
 
     with ThreadPoolExecutor(workers) as ex:
         list(ex.map(one, groups))

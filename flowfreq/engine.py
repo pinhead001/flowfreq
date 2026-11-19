@@ -25,7 +25,8 @@ class B17CEngine:
 
     Examples
     --------
-    >>> from flowfreq import B17CEngine, PeakRecord
+    >>> from flowfreq.core import PeakRecord
+    >>> from flowfreq.engine import B17CEngine
     >>> records = [PeakRecord(year=y, flow=f) for y, f in zip(years, flows)]
     >>> engine = B17CEngine()
     >>> engine.fit(records)

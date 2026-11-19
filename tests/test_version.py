@@ -19,8 +19,12 @@ not match the anchor.
 
 from __future__ import annotations
 
+import os
 import pathlib
 import re
+from importlib import metadata
+
+import pytest
 
 import flowfreq
 
@@ -31,6 +35,15 @@ def _pyproject_version() -> str:
     match = re.search(r'^version = "([^"]+)"', text, re.MULTILINE)
     assert match is not None, 'no `version = "..."` line found in pyproject.toml'
     return match.group(1)
+
+
+def _editable() -> bool:
+    """True when flowfreq is installed in development mode (PEP 610's direct_url.json)."""
+    try:
+        text = metadata.distribution("flowfreq").read_text("direct_url.json") or ""
+    except metadata.PackageNotFoundError:
+        return False
+    return bool(re.search(r'"editable"\s*:\s*true', text))
 
 
 def test_version_is_reported():
@@ -46,6 +59,13 @@ def test_version_matches_pyproject():
     ``pip install -e ".[dev]"``. CI installs fresh every run, so a failure
     there is a genuine disagreement."""
     expected = _pyproject_version()
+    if flowfreq.__version__ != expected and not os.environ.get("CI") and _editable():
+        # An editable install keeps the version it was installed with. After a bump, a
+        # branch switch or in a worktree, that is the machine's state, not a code fault.
+        pytest.skip(
+            f"the editable install says {flowfreq.__version__} and pyproject.toml {expected}: "
+            'reinstall with pip install -e ".[dev]" (CI installs fresh and stays strict)'
+        )
     assert flowfreq.__version__ == expected, (
         f"flowfreq.__version__ is {flowfreq.__version__!r} but pyproject.toml says "
         f'{expected!r}; if you just bumped the version, reinstall with pip install -e ".[dev]"'
