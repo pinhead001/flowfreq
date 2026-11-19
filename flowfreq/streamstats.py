@@ -148,6 +148,34 @@ ADVISORY_WARNINGS = (
 )
 
 
+#: A ``WarningMsg`` that names characteristics StreamStats could not compute over the
+#: whole basin, as for a basin that runs past its data into Canada or Mexico:
+#: "FOREST, SLOP30_10M, PRECIP, ..., AND BSLDEM30M MAY BE INACCURATE". Matched against the
+#: whole message. Refused by default; ``allow_inaccurate=True`` keeps the delineation and
+#: withholds the characteristics it names (:func:`inaccurate_codes`).
+INACCURATE_WARNING = re.compile(
+    r"(?P<codes>[A-Z0-9_]+(?:\s*,\s*(?:AND\s+)?[A-Z0-9_]+|\s+AND\s+[A-Z0-9_]+)*)"
+    r"\s+MAY\s+BE\s+INACCURATE\.?",
+    re.IGNORECASE,
+)
+
+
+def inaccurate_codes(warning: str) -> Optional[List[str]]:
+    """The characteristic codes a "MAY BE INACCURATE" warning names, or None if it is not one.
+
+    >>> inaccurate_codes("FOREST, PRECIP, AND ELEV MAY BE INACCURATE")
+    ['FOREST', 'PRECIP', 'ELEV']
+    >>> inaccurate_codes("Delineated basin may contain karst") is None
+    True
+    """
+    match = INACCURATE_WARNING.fullmatch(warning.strip())
+    if match is None:
+        return None
+    parts = re.split(r"\s*,\s*|\s+AND\s+", match["codes"], flags=re.IGNORECASE)
+    codes = [re.sub(r"^AND\s+", "", p.strip(), flags=re.IGNORECASE).upper() for p in parts]
+    return [code for code in codes if code]
+
+
 class DegenerateDelineationError(ValueError):
     """A delineation response failed validation: a warning, or a structurally invalid
     or degenerate polygon (FR-3). The accompanying geometry must not be used.
@@ -946,13 +974,21 @@ COMPUTE_TIMEOUT: float = 200.0
 
 
 def _sshydro_delineation(
-    region: str, lat: float, lon: float, *, default_server: str, timeout: float
-) -> Tuple[SnapResult, Dict[str, Any], str, List[str], List[str]]:
+    region: str,
+    lat: float,
+    lon: float,
+    *,
+    default_server: str,
+    timeout: float,
+    allow_inaccurate: bool = False,
+) -> Tuple[SnapResult, Dict[str, Any], str, List[str], List[str], List[str]]:
     """Snap the point and run ss-delineate's ``delineate/sshydro``; the shared first half.
 
     Returns the snap, the parsed sshydro response (already checked for a ``WarningMsg``),
-    the server that answered, the request URLs and any advisory warnings, for
-    :func:`delineate_and_get_characteristics` and :func:`delineate_watershed`.
+    the server that answered, the request URLs, any advisory warnings, and the
+    characteristic codes a "MAY BE INACCURATE" warning named (empty unless
+    ``allow_inaccurate``, which keeps such a warning as an advisory instead of refusing),
+    for :func:`delineate_and_get_characteristics` and :func:`delineate_watershed`.
     """
     snap = snap_point(region, lat, lon, timeout=timeout)
 
@@ -987,21 +1023,39 @@ def _sshydro_delineation(
 
     warnings = _find_warning_msgs(sshydro_data)
     advisories = [w for w in warnings if _is_advisory(w)]
-    refused = [w for w in warnings if not _is_advisory(w)]
+    withheld: List[str] = []
+    refused = []
+    for warning in warnings:
+        if _is_advisory(warning):
+            continue
+        named = inaccurate_codes(warning) if allow_inaccurate else None
+        if named is None:
+            refused.append(warning)
+        else:
+            advisories.append(warning)
+            withheld.extend(code for code in named if code not in withheld)
     if refused:
-        warning_msg = refused[0]
+        # A regulated basin is refused as regulated wherever its warning sits in the list.
+        regulated = [w for w in refused if w.upper().startswith("REGULATED")]
+        warning_msg = (regulated or refused)[0]
         error = (
             RegulatedDelineationError
             if warning_msg.upper().startswith("REGULATED")
             else DegenerateDelineationError
         )
+        hint = (
+            "; pass allow_inaccurate=True to keep the delineation and withhold the "
+            "characteristics it names"
+            if inaccurate_codes(warning_msg) is not None
+            else ""
+        )
         raise error(
             f"StreamStats delineation warning at ({snap.snapped_lat}, "
-            f"{snap.snapped_lon}) in region {region!r}: {warning_msg}"
+            f"{snap.snapped_lon}) in region {region!r}: {warning_msg}{hint}"
         )
     for advisory in advisories:
         logger.warning("StreamStats at (%s, %s): %s", snap.snapped_lat, snap.snapped_lon, advisory)
-    return snap, sshydro_data, server_used, request_urls, advisories
+    return snap, sshydro_data, server_used, request_urls, advisories, withheld
 
 
 def delineate_watershed(
@@ -1012,6 +1066,7 @@ def delineate_watershed(
     cache: Optional[StreamStatsCache] = None,
     default_server: str = DEFAULT_SERVER,
     timeout: float = 60.0,
+    allow_inaccurate: bool = False,
 ) -> WatershedCharacteristics:
     """Snap and delineate one pour point, returning the watershed polygon only.
 
@@ -1038,6 +1093,15 @@ def delineate_watershed(
     timeout : float
         Per-request timeout, seconds.
 
+    allow_inaccurate : bool, default False
+        Keep a basin StreamStats warns about with "... MAY BE INACCURATE", which it does
+        where the basin runs past its data (into Canada, for one). By default such a basin
+        is refused. With this set, the warning is returned in ``advisories`` and every
+        characteristic it names is withheld: moved from ``characteristics`` to
+        ``unavailable``, so it cannot reach an equation. Characteristics the warning does
+        not name are returned as StreamStats computed them; whether they cover the whole
+        basin is not something StreamStats says. Any other warning is still refused.
+
     Returns
     -------
     WatershedCharacteristics
@@ -1050,15 +1114,22 @@ def delineate_watershed(
     StreamStatsResponseError, StreamStatsTransportError
         As :func:`delineate_and_get_characteristics`, less the ss-hydro failures.
     """
-    cache_key = _cache_key(region, lat, lon, "<polygon only>", True)
+    cache_key = _cache_key(
+        region, lat, lon, "<polygon only>" + ("|inaccurate" if allow_inaccurate else ""), True
+    )
     if cache is not None:
         cached = cache.get(cache_key)
         if cached is not None:
             logger.debug("StreamStats cache hit for %s", cache_key)
             return WatershedCharacteristics.from_dict(cached)
 
-    snap, sshydro_data, server_used, request_urls, advisories = _sshydro_delineation(
-        region, lat, lon, default_server=default_server, timeout=timeout
+    snap, sshydro_data, server_used, request_urls, advisories, _ = _sshydro_delineation(
+        region,
+        lat,
+        lon,
+        default_server=default_server,
+        timeout=timeout,
+        allow_inaccurate=allow_inaccurate,
     )
     watershed_feature = _extract_global_watershed(sshydro_data)
     polygon_area_sq_mi = _validate_watershed_polygon(
@@ -1097,6 +1168,7 @@ def delineate_and_get_characteristics(
     default_server: str = DEFAULT_SERVER,
     timeout: float = 60.0,
     include_polygon: bool = True,
+    allow_inaccurate: bool = False,
 ) -> WatershedCharacteristics:
     """Snap, delineate, and compute basin characteristics for one pour point.
 
@@ -1140,6 +1212,15 @@ def delineate_and_get_characteristics(
         polygon is several hundred kB, which a cache of many points rewrites on every
         entry.
 
+    allow_inaccurate : bool, default False
+        Keep a basin StreamStats warns about with "... MAY BE INACCURATE", which it does
+        where the basin runs past its data (into Canada, for one). By default such a basin
+        is refused. With this set, the warning is returned in ``advisories`` and every
+        characteristic it names is withheld: moved from ``characteristics`` to
+        ``unavailable``, so it cannot reach an equation. Characteristics the warning does
+        not name are returned as StreamStats computed them; whether they cover the whole
+        basin is not something StreamStats says. Any other warning is still refused.
+
     Returns
     -------
     WatershedCharacteristics
@@ -1151,7 +1232,10 @@ def delineate_and_get_characteristics(
         See each exception's docstring; see also S7 of the design doc.
     """
     bc_labels = ";".join(characteristic_codes) if characteristic_codes else "*"
-    cache_key = _cache_key(region, lat, lon, bc_labels, include_polygon)
+    # A result that kept a "MAY BE INACCURATE" basin must never answer a default call.
+    cache_key = _cache_key(
+        region, lat, lon, bc_labels + ("|inaccurate" if allow_inaccurate else ""), include_polygon
+    )
 
     if cache is not None:
         cached = cache.get(cache_key)
@@ -1159,8 +1243,13 @@ def delineate_and_get_characteristics(
             logger.debug("StreamStats cache hit for %s", cache_key)
             return WatershedCharacteristics.from_dict(cached)
 
-    snap, sshydro_data, server_used, request_urls, advisories = _sshydro_delineation(
-        region, lat, lon, default_server=default_server, timeout=timeout
+    snap, sshydro_data, server_used, request_urls, advisories, withheld = _sshydro_delineation(
+        region,
+        lat,
+        lon,
+        default_server=default_server,
+        timeout=timeout,
+        allow_inaccurate=allow_inaccurate,
     )
 
     bcrequest = sshydro_data.get("bcrequest")
@@ -1216,6 +1305,14 @@ def delineate_and_get_characteristics(
 
     characteristics, unavailable = _parse_characteristics(hydro_data)
     _check_polygon_area(polygon_area_sq_mi, characteristics)
+    for code in withheld:
+        # StreamStats computed a value and said not to trust it: it must not reach an equation.
+        if code in characteristics:
+            value = characteristics.pop(code).value
+            unavailable[code] = (
+                f"withheld: StreamStats says {code} may be inaccurate for this basin "
+                f"(it returned {value:g})"
+            )
 
     polygon_geojson: Optional[Dict[str, Any]] = None
     if include_polygon:

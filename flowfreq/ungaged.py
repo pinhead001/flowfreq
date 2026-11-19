@@ -1371,6 +1371,7 @@ def estimate_at_site(
     timeout: float = 60.0,
     data_dir: Union[str, Path, None] = None,
     region: Union[str, Sequence[str], None] = None,
+    allow_inaccurate: bool = False,
 ) -> SiteEstimate:
     """Estimate flood quantiles at an ungaged site from the state's regression equations.
 
@@ -1427,6 +1428,17 @@ def estimate_at_site(
         region for the state (Wyoming, Nevada), a library region code chosen from the
         report's map is used alone.
 
+    allow_inaccurate : bool, default False
+        Keep a basin StreamStats warns about with "... MAY BE INACCURATE", which it does
+        where the basin runs past its data (into Canada, for one). By default such a basin
+        is refused
+        (:func:`~flowfreq.streamstats.delineate_and_get_characteristics`). With this set, the warning is returned in ``advisories`` and every
+        characteristic it names is withheld: moved from ``characteristics`` to
+        ``unavailable``, so it cannot reach an equation, and
+        a region whose equations need one is skipped as for any missing characteristic. Characteristics the warning does
+        not name are returned as StreamStats computed them; whether they cover the whole
+        basin is not something StreamStats says. Any other warning is still refused.
+
     Returns
     -------
     SiteEstimate
@@ -1475,7 +1487,9 @@ def estimate_at_site(
         allow_provisional=allow_provisional,
     )
     weighting_space = weighting_space or lib.weighting_space or "log"
-    ws = delineate_and_get_characteristics(code, lat, lon, cache=cache, timeout=timeout)
+    ws = delineate_and_get_characteristics(
+        code, lat, lon, cache=cache, timeout=timeout, allow_inaccurate=allow_inaccurate
+    )
     if ws.polygon_geojson is None:
         # The delineation is asked for its polygon; a cache entry saved before polygons
         # were returned is the one way to arrive here without one.
@@ -1524,6 +1538,7 @@ def estimate_at_site(
             "allow_nss_snapshot": allow_nss_snapshot,
             "allow_provisional": allow_provisional,
             "allow_extrapolation": allow_extrapolation,
+            "allow_inaccurate": allow_inaccurate,
             "weighting_space": weighting_space,
             "region": region,
         },
