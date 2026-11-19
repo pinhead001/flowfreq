@@ -337,7 +337,7 @@ def _threshold_rows(thresholds: Any) -> List[Dict[str, Any]]:
     return list(thresholds)
 
 
-_EXTENSION_KEYS = ("index", "n_extend", "years")
+_EXTENSION_KEYS = ("index", "n_extend", "years", "split_year")
 _INDEX_KEYS = ("site_no", "site_name", "peaks")
 
 
@@ -348,7 +348,7 @@ def _extended_frame(options: Dict[str, Any], frame: pd.DataFrame) -> Tuple[Any, 
     The frame returned has the observed peaks and the generated ones, with a ``source``
     column saying which.
     """
-    from ..peak_extension import extend_peaks
+    from ..peak_extension import concurrent_relation, extend_peaks
 
     given = options["extension"]
     if not isinstance(given, dict) or not isinstance(given.get("index"), dict):
@@ -371,15 +371,15 @@ def _extended_frame(options: Dict[str, Any], frame: pd.DataFrame) -> Tuple[Any, 
         if index.get("site_name") is None and fetched.get("site_name") is not None:
             index["site_name"] = fetched["site_name"]
     index_frame = _peak_frame(index["peaks"])
+    short = pd.Series(frame["peak_flow_cfs"].to_numpy(), index=frame["water_year"].to_numpy())
+    long = pd.Series(
+        index_frame["peak_flow_cfs"].to_numpy(), index=index_frame["water_year"].to_numpy()
+    )
     try:
         result = extend_peaks(
-            pd.Series(frame["peak_flow_cfs"].to_numpy(), index=frame["water_year"].to_numpy()),
-            pd.Series(
-                index_frame["peak_flow_cfs"].to_numpy(), index=index_frame["water_year"].to_numpy()
-            ),
-            n_extend=extension.get("n_extend"),
-            years=extension.get("years"),
+            short, long, n_extend=extension.get("n_extend"), years=extension.get("years")
         )
+        relation = concurrent_relation(short, long, split_year=extension.get("split_year"))
     except (TypeError, ValueError) as exc:
         raise ReportError(f"gaged_ffa: the record could not be extended: {exc}") from exc
     extension["index"] = index
@@ -394,10 +394,10 @@ def _extended_frame(options: Dict[str, Any], frame: pd.DataFrame) -> Tuple[Any, 
         }
     )
     both = pd.concat([frame.assign(source="observed"), added], ignore_index=True)
-    return result, both.sort_values("water_year").reset_index(drop=True)
+    return (result, relation), both.sort_values("water_year").reset_index(drop=True)
 
 
-def _extension_blocks(result: Any, options: Dict[str, Any]) -> List[Block]:
+def _extension_blocks(result: Any, relation: pd.DataFrame, options: Dict[str, Any]) -> List[Block]:
     """What the record extension did, in a paragraph, its statistics and any cautions."""
     index = options["extension"]["index"]
     label = " ".join(
@@ -460,6 +460,40 @@ def _extension_blocks(result: Any, options: Dict[str, Any]) -> List[Block]:
     ]
     if result.notes:
         blocks.append(Bullets(tuple(f"**{note}**" for note in result.notes)))
+    chosen = options["extension"].get("split_year") is not None
+    blocks.append(
+        Paragraph(
+            "Record extension assumes one fixed relation between the two gages. The table "
+            "below sets the two parts of the concurrent period side by side, divided at "
+            + ("the year the analyst gave" if chosen else "its middle")
+            + ": the median of this gage's peak over the index gage's in the same year, "
+            "the spread of that ratio, and the correlation of the logarithms. A ratio or a "
+            "correlation that differs between the parts means the relation moved."
+        )
+    )
+    blocks.append(
+        Table(
+            (
+                "Water years",
+                "Concurrent years",
+                "Median ratio to the index gage",
+                "Standard deviation of log10 ratio",
+                "Correlation of log10 peaks",
+            ),
+            tuple(
+                (
+                    str(row["period"]).replace("-", " to "),
+                    f"{int(row['n'])}",
+                    f"{row['median_ratio']:.3f}",
+                    "-" if pd.isna(row["ratio_log_sd"]) else f"{row['ratio_log_sd']:.4f}",
+                    "-" if pd.isna(row["correlation"]) else f"{row['correlation']:.3f}",
+                )
+                for _, row in relation.iterrows()
+            ),
+            ("left", "right", "right", "right", "right"),
+            "Relation of the two gages' concurrent peaks, by part of the concurrent period.",
+        )
+    )
     return blocks
 
 
@@ -485,8 +519,9 @@ def _gaged_ffa(given: Dict[str, Any]) -> Tuple[SectionContent, Any]:
     frame = _peak_frame(options["peaks"])
     observed = frame
     extension = None
+    relation = None
     if options.get("extension") is not None:
-        extension, frame = _extended_frame(options, frame)
+        (extension, relation), frame = _extended_frame(options, frame)
     screened = bool(options.get("stationarity", True)) and extension is None
     _resolve_skew(options)
     thresholds = _threshold_rows(options.get("perception_thresholds"))
@@ -634,8 +669,8 @@ def _gaged_ffa(given: Dict[str, Any]) -> Tuple[SectionContent, Any]:
             "should be checked before use.**"
         )
     blocks.append(Paragraph(" ".join(method)))
-    if extension is not None:
-        blocks.extend(_extension_blocks(extension, options))
+    if extension is not None and relation is not None:
+        blocks.extend(_extension_blocks(extension, relation, options))
 
     # Fitted parameters
     fitted: List[Tuple[str, str]] = [

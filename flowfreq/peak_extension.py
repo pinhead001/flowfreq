@@ -331,10 +331,70 @@ def extend_peaks(
     )
 
 
+def concurrent_relation(
+    short: pd.Series, index: pd.Series, *, split_year: Optional[int] = None
+) -> pd.DataFrame:
+    """How the two gages' concurrent peaks relate in each part of the concurrent period.
+
+    Record extension assumes one fixed relation between the gages. This sets the first
+    part of the concurrent period beside the second: if the ratio of the short gage's
+    peaks to the index gage's, or their correlation, differs between the parts, the
+    relation moved and the extension averages over two conditions.
+
+    Parameters
+    ----------
+    short, index : pandas.Series
+        Annual peak flow (cfs) indexed by water year. Zero and negative values are left out.
+    split_year : int, optional
+        The first water year of the second part. Defaults to the middle of the concurrent
+        years. Give the year of a change point a stationarity screen found.
+
+    Returns
+    -------
+    pandas.DataFrame
+        One row for each part and one for the whole: ``period`` (``"1930-1945"``),
+        ``n``, ``median_ratio`` (short over index), ``ratio_log_sd`` (the standard
+        deviation of log10 of the ratio) and ``correlation`` (of the log10 peaks; NaN with
+        fewer than 3 years).
+
+    Raises
+    ------
+    ValueError
+        No concurrent years, or a ``split_year`` that leaves a part empty.
+    """
+    y_all, x_all = _positive(short, "short"), _positive(index, "index")
+    years = y_all.index.intersection(x_all.index)
+    if len(years) < 2:
+        raise ValueError("the two records have fewer than 2 concurrent years")
+    split = int(years[len(years) // 2]) if split_year is None else int(split_year)
+    parts = [years[years < split], years[years >= split], years]
+    if len(parts[0]) == 0 or len(parts[1]) == 0:
+        raise ValueError(
+            f"split_year {split} leaves one part of the concurrent period "
+            f"({int(years[0])} to {int(years[-1])}) empty"
+        )
+    rows = []
+    for part in parts:
+        y, x = np.log10(y_all.loc[part].to_numpy()), np.log10(x_all.loc[part].to_numpy())
+        ratio = y - x
+        correlation = float(np.corrcoef(x, y)[0, 1]) if len(part) >= 3 else float("nan")
+        rows.append(
+            {
+                "period": f"{int(part[0])}-{int(part[-1])}",
+                "n": len(part),
+                "median_ratio": float(10.0 ** np.median(ratio)),
+                "ratio_log_sd": float(np.std(ratio, ddof=1)) if len(part) >= 2 else float("nan"),
+                "correlation": correlation,
+            }
+        )
+    return pd.DataFrame(rows)
+
+
 __all__ = [
     "MIN_CONCURRENT_YEARS",
     "RECOMMENDED_CORRELATION",
     "PeakExtension",
+    "concurrent_relation",
     "extend_peaks",
     "variance_terms",
 ]

@@ -164,3 +164,31 @@ def test_refusals(records, change, said):
 def test_not_a_series_is_a_type_error(records):
     with pytest.raises(TypeError, match="pandas Series"):
         extend_peaks([1.0, 2.0], records[1])
+
+
+def test_concurrent_relation_sets_the_two_parts_side_by_side(records):
+    from flowfreq.peak_extension import concurrent_relation
+
+    suwanee, etowah = records
+    table = concurrent_relation(suwanee, etowah)
+    assert list(table["period"]) == ["1985-1994", "1995-2004", "1985-2004"]
+    assert list(table["n"]) == [10, 10, 20]
+    assert table.loc[2, "correlation"] == pytest.approx(0.8519, abs=5e-5)
+    ratios = suwanee / etowah.loc[suwanee.index]
+    assert table.loc[2, "median_ratio"] == pytest.approx(float(np.median(ratios)), rel=1e-9)
+    chosen = concurrent_relation(suwanee, etowah, split_year=1990)
+    assert list(chosen["period"]) == ["1985-1989", "1990-2004", "1985-2004"]
+
+
+def test_concurrent_relation_sees_a_relation_that_moved(records):
+    from flowfreq.peak_extension import concurrent_relation
+
+    suwanee, etowah = records
+    shifted = suwanee.copy()
+    shifted.loc[1995:] *= 2.0
+    table = concurrent_relation(shifted, etowah, split_year=1995)
+    assert table.loc[1, "median_ratio"] > 1.5 * table.loc[0, "median_ratio"]
+    with pytest.raises(ValueError, match="leaves one part"):
+        concurrent_relation(suwanee, etowah, split_year=1985)
+    with pytest.raises(ValueError, match="fewer than 2 concurrent"):
+        concurrent_relation(suwanee.iloc[:1], etowah.loc[:1984])

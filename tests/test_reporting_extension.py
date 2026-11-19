@@ -149,3 +149,23 @@ def test_a_weak_relation_carries_its_caution():
 def test_refusals(extension, said):
     with pytest.raises(ReportError, match=said):
         build_section("gaged_ffa", {**SUWANEE, "extension": extension})
+
+
+def test_the_relation_of_the_two_gages_is_tabulated_by_part():
+    caption = "Relation of the two gages' concurrent peaks, by part of the concurrent period."
+    built = build_section("gaged_ffa", {**SUWANEE, "extension": EXTENSION})
+    table = _table(built.blocks, caption)
+    assert [row[0] for row in table.rows] == ["1985 to 1994", "1995 to 2004", "1985 to 2004"]
+    assert table.rows[2][1] == "20" and table.rows[2][4] == "0.852"
+    text = "\n".join(b.text for b in built.blocks if isinstance(b, Paragraph))
+    assert "divided at its middle" in text
+    chosen = build_section("gaged_ffa", {**SUWANEE, "extension": {**EXTENSION, "split_year": 1990}})
+    assert [row[0] for row in _table(chosen.blocks, caption).rows][:2] == [
+        "1985 to 1989",
+        "1990 to 2004",
+    ]
+    assert "divided at the year the analyst gave" in "\n".join(
+        b.text for b in chosen.blocks if isinstance(b, Paragraph)
+    )
+    with pytest.raises(ReportError, match="leaves one part"):
+        build_section("gaged_ffa", {**SUWANEE, "extension": {**EXTENSION, "split_year": 2050}})
