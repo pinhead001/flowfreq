@@ -146,17 +146,17 @@ first is on you at every invocation:
 
 ## Branches and Releases
 
-`main` carries the next minor release as a `.dev0` version (currently `0.28.0.dev0`), so
+`main` carries the next minor release as a `.dev0` version (currently `0.29.0.dev0`), so
 `flowfreq.__version__` shows whether a session is running development code or a release.
-Patch releases for the current minor line come from `release/0.27.x` (cut at `v0.27.0`): branch
-a fix from it, PR it there, and tag `v0.27.N` on that merge commit. Port the fix to `main` as
+Patch releases for the current minor line come from `release/0.28.x` (cut at `v0.28.0`): branch
+a fix from it, PR it there, and tag `v0.28.N` on that merge commit. Port the fix to `main` as
 well. If `origin` doesn't have that branch yet (the owner pushes `release/*`; a hook blocks it for
-agents), cut it from the tag, `git switch -c release/0.27.x v0.27.0`, never from `main`, which
+agents), cut it from the tag, `git switch -c release/0.28.x v0.28.0`, never from `main`, which
 carries the next minor's unreleased work. Earlier `release/0.N.x` branches are kept for reference.
 Version bumps are hand edits of `pyproject.toml` in the release PR and the following dev-bump PR;
 there is no bump tool.
 Downstream projects (methow-flow, flowfreq-app) pin release tags such as
-`flowfreq @ git+https://github.com/pinhead001/flowfreq@v0.27.0`, so work on `main` never
+`flowfreq @ git+https://github.com/pinhead001/flowfreq@v0.28.0`, so work on `main` never
 reaches them. Never move or delete a pushed release tag.
 
 ## Agent ops (Claude lead + agy delegates)
