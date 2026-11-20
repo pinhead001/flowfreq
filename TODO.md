@@ -5,9 +5,9 @@
 > in progress are tracked under "Roadmap Phase A, Wave 1 and Wave 2" in Open Items below.
 
 ## Status
-Last updated: 2026-11-19. Version **0.28.0** is prepared (release PR; the tag is the owner's). Until it is
-tagged, 0.27.1 is the released version and 0.27.x patches come from `release/0.27.x` (CLAUDE.md, Branches and
-Releases). flowfreq-app pins v0.27.1 (app #54) and has no open pull requests.
+Last updated: 2026-11-19. Version **0.28.0** is released (tag `v0.28.0`). `main` carries
+**0.29.0.dev0**; 0.28.x patches come from `release/0.28.x` (CLAUDE.md, Branches and Releases).
+flowfreq-app pins v0.27.1 until its pin PR for v0.28.0 is merged.
 51 jurisdictions are `verified`, and 5 have no equations.
 
 **StreamStats blocked this machine's address (HTTP 403) from 2026-11-09 14:40 to 2026-11-16, on purpose: issue
