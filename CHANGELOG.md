@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.28.0] - 2026-11-19
+
+Reports for a study of one site: a comparison of several estimates, a site summary for the front of a report,
+and record extension of annual peaks from an index gage (Bulletin 17C Appendix 8). The 2026 urban equations for
+Alabama, Mississippi and Tennessee. The fixes of a review of the whole repository, the most important being that
+requests which make StreamStats compute are no longer retried, and that the 1.5-year flood is no longer dropped
+where a fit and a regression write its AEP differently.
+
+**Read before upgrading:**
+
+- Table numbers in a report shift, because every table now has a caption. Column headings of the `ungaged`
+  section changed.
+- A download that stops short, a legacy daily request at a site with several discharge series, and a report
+  section given an all-zero, negative or one-peak record now raise where they returned something.
+- `border_offsets` has 15 state pairs, not 17, so the border caution changes for a few borders.
+- `flowfreq.engine.B17CEngine`, `flowfreq.batch` and `flowfreq.plots` are deprecated.
+- Code that replaced `flowfreq.reporting.sections.download_peaks` in a test must replace
+  `flowfreq.reporting.gaged.download_peaks`.
+
 ### Fixed
 - **A transposition records an area outside the regression's range.** A donor or target drainage area outside
   `RegressionExponents.valid_area_range_sqmi` was only logged. `TranspositionProvenance.areas_outside_regression`
