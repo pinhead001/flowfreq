@@ -46,15 +46,23 @@ CI cache). CHANGELOG.md, Unreleased, has the detail. Still open from it:
    `basin`.
 6. Done 2026-11-21 (#402): the eight class-scoped fixtures are staticmethods, and `PytestRemovedIn10Warning`
    is an error, so the `pytest<10` pin can move when pytest 10 is out.
-7. **Bulletin 17B procedure, for comparing B17C with the superseded B17B** (owner's choice 2026-11-21: a new
-   class). A `Bulletin17B` class in a new `flowfreq/bulletin17b.py`, built from `MethodOfMoments`' fitting code,
-   with what B17B adds: the B17B skew MSE (`_mseg`) and weighting with a generalized skew; the high- and
-   low-outlier tests in B17B's skew-dependent order; the historic-peak adjustment (Appendix 6); the
-   conditional-probability adjustment with synthetic statistics (Appendix 5), counting zero flows; and the
-   Appendix 9 confidence limits. `Bulletin17C(method=MOM)` is not changed. A `comparison` report section then
-   shows B17B beside B17C. Validation against the Bulletin 17B Appendix 12 worked examples (Big Sandy among
-   them), and against PeakFQ 5/7 B17B output if the owner has any; vendored peakfq 8.1 has no B17B mode. Next:
-   a design doc under `docs/superpowers/specs/`, then a plan.
+7. **Bulletin 17B procedure, for comparing B17C with the superseded B17B. Designed and planned, not started**
+   (owner, 2026-11-21: do not start building yet).
+   - Design (approved): `docs/superpowers/specs/2026-11-21-bulletin17b-design.md`. Plan, 8 tasks:
+     `docs/superpowers/plans/2026-11-21-bulletin17b.md` (#408). Execution: subagent-driven (owner's choice),
+     one implementer per task and a fresh reviewer before the next.
+   - Owner's decisions: a new `Bulletin17B` class (`Bulletin17C(method=MOM)` unchanged); B17B is computed and
+     reported **only when requested** (a `Bulletin17B` call or a `b17b_ffa` section); the B17B side uses the
+     B17C side's regional skew by default, with `generalized_skew` for the old study's Plate I value (three-
+     column comparison).
+   - The transcribed bulletin (Appendix 12 examples 1-4, the Appendix 6 Big Sandy example, Appendix 4 K_N,
+     Tables 1, 9-1, 11-1, the procedure with page labels) is on branch `wip/b17b-transcription` under
+     `tests/fixtures/b17b/`; plan Task 1 starts from it (its source path in the plan was a scratch folder).
+   - Before starting: a fresh `spec/` or feature branch from `main`, then Task 1.
+8. Done 2026-11-21 (#407): agent ops run on the shared `agentops` package (`D:/a/agentops`, `pip install -e` into
+   `.venv`); `tools/agentops/` is gone, the config is `config/agents.toml`, `run.bat` runs it, the push guards
+   are tighter. **It needs pinhead001/agentops#6 merged** (the ported features); until then this machine's
+   `D:/a/agentops` checkout stays on `feat/flowfreq-port`. All 12 finished cards are archived.
 
 ### Next steps (2026-11-15)
 
