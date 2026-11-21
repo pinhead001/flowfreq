@@ -21,6 +21,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   them.
 - A peak row with no value is still dropped with a warning, which now says this is what peakfq's `siteQT`
   does too (it removes gage-height-only rows before filling in the years), not a departure from it.
+- **Agent ops dev tooling moved to the shared `agentops` package** (`D:/a/agentops`), which now has what
+  flowfreq's own copy in `tools/agentops/` had. The copy, `tools/agentops_cli.py` and `agentops.toml` are gone;
+  the config is `config/agents.toml` (delegate permissions `config/agy-settings.json`), `run.bat` runs it and
+  `tools/agentops.sh` stays as the hooks' launcher. The push guards are tighter: they no longer block a command
+  line that merely ends in `main`, and now catch `feat:main`, `HEAD:refs/heads/main`, `+branch`, `:branch`,
+  `push -d` and `git -C <dir> push`. `filelock` left the `dev` extra. Not part of the published package.
 
 ### Removed
 

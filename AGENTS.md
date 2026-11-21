@@ -13,8 +13,8 @@ You implement exactly one task card in this worktree. The card's prompt and acce
   browse the repository, list directories recursively, or open other modules for context: every file you
   read costs quota.
 - Stay inside this worktree. Never push, merge, rebase or switch branches.
-- **Never edit anything under `vendor/`** (a verbatim USGS reference copy) or `tools/agentops/`,
-  `agentops.toml`, `AGENTS.md`, `.claude/`, `.github/`.
+- **Never edit anything under `vendor/`** (a verbatim USGS reference copy) or `config/`,
+  `run.bat`, `tools/agentops.sh`, `AGENTS.md`, `.claude/`, `.github/`.
 - No monkeypatching, import-time side effects or test-specific special cases in library code. If a test
   looks wrong (for example it fails for a reason unrelated to the card), stop and say so instead of working
   around it.

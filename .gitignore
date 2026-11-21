@@ -221,7 +221,7 @@ flowfreq/peakfqr/*.dll
 build_fortran/mbuild/
 build_fortran/native.ini
 
-# agentops state (tools/agentops/): queue, ledger, meter, cooldowns
+# agentops state (shared package, config/agents.toml): queue, ledger, meter, cooldowns, machine profile
 .agentops/state/
 
 # Agent worktrees and their scratch files

@@ -6,36 +6,47 @@ delegates, Google's Antigravity CLI (`agy`), implement the cards, each in its ow
 A governor reads the lead's Claude usage meter and the delegates' token ledger, then decides
 how much work each side takes on.
 
-The code is in `tools/agentops/`, a port of `flowfield2d.agentops`. Its design record is
+The code is the shared `agentops` package in `D:/a/agentops` (github.com/pinhead001/agentops),
+which flowfield2d and the other projects use too; flowfreq kept its own copy in `tools/agentops/`
+until 2026-11-21, when the features only that copy had (`child_env`, `--settings`, `AGENTS.md`
+seeding, `usage`, the machine-local profile) moved into the package. Its design record is
 flowfield2d's `docs/adr/0002-agy-integration.md`: the agy envelope, the success rule,
-confinement and the quota pools. The tool is development tooling only. It is not in the
-published `flowfreq` package, and nothing under `flowfreq/` imports it.
+confinement and the quota pools. The tool is development tooling only. It is not a flowfreq
+dependency (CI does not install it), and nothing under `flowfreq/` imports it. flowfreq's part
+is `config/agents.toml`, `config/agy-settings.json`, `run.bat`, `tools/agentops.sh` (the same
+launcher for the hooks) and the cards in `.agentops/cards/`.
 
 ## Pieces
 
 | Piece | Where | What it does |
 |---|---|---|
-| Config | `agentops.toml` | Paths, governor profiles, agy models and pools, `child_env`, hook guards |
+| Config | `config/agents.toml` | Paths, governor profiles, agy models and pools, `child_env`, `settings`, hook guards (checked in CI by `tests/test_agentops_config.py`) |
 | Claude meter | `statusline.py` | The status line writes `rate_limits.five_hour` / `seven_day` to `.agentops/state/claude_usage.json` and prints `5h <used>% (reset <in>) \| 7d <used>% \| gov <mode>`, plus `agy <n> run, <m> pend \| 7d tok <pool> <k>` while cards are queued or delegates ran in the last 24 h |
 | Governor | `governor.py` | Sets the mode (`normal` / `conserve` / `review-only` / `wait`) from the meter and the active profile, and sets agy concurrency from recent errors, calibration and cooldowns |
 | Ledger | `ledger.py` | `.agentops/state/ledger.jsonl`, one record per agy call (tokens, duration, ok) plus quota events |
 | Usage report | `usage.py` | Claude 5h/7d use, plus agy calls and tokens per quota pool over 24 h and 7 days, failed calls, quota events, top cards |
 | Cooldowns | `cooldown.py` | Starts a per-pool cooldown on a quota hit (parsed from "Resets in …"), then falls back to the next free pool |
-| Queue | `queue.py` | Card TOMLs in `.agentops/state/queue/{pending,running,done,escalated}/` |
+| Queue | `queue.py` | Card TOMLs in `.agentops/state/queue/{pending,running,done,escalated,archived}/` |
 | Runner | `runner.py` | Per card: worktree, agy, then acceptance; commits to `card/<id>` on success, retries with the failure output, otherwise escalates. Never merges |
-| Hooks | `hooks.py` | SessionStart prints the governor status. PreToolUse blocks force-pushes, pushes to `main`/`release/*`, tag deletes, and teammate/workflow spawns outside `normal` |
+| Hooks | `hooks.py` | SessionStart prints the governor status. PreToolUse blocks force-pushes, pushes to `main`/`release/*`, tag and branch deletes, and teammate/workflow spawns outside `normal`. Each `deny_bash` regex is searched in the whole command line, so the patterns stop at `;`, `&` and `\|` to stay inside the command that pushes |
+| Review | `review.py` | `cards show` / `cards diff` a finished card; `cards accept` archives it, `cards reject --reason` sends it back, each with a ledger record |
 
 ## One-time setup (developer machine)
 
-1. `pip install -e ".[dev]"`, which now includes `filelock`. Then install agy and sign in.
-2. **Wire the hooks and status line.** Merge `tools/agentops/settings.example.json` into
-   `.claude/settings.json`, or into `.claude/settings.local.json` to keep it to one
-   machine. The commands go through `tools/agentops.sh`. It picks `.venv/Scripts/python.exe`
-   (Windows), then `.venv/bin/python`, then `python3`/`python`, so the Windows Store
-   `python` shim is never used. A missing dependency fails open: the session keeps working
-   and the status line reports the tool as unavailable.
+1. `pip install -e ".[dev]"`, then `.venv\Scripts\python -m pip install -e D:gentops` (the
+   package needs Python 3.12, which the development venv is; it is not in `pyproject.toml`
+   because CI tests 3.11-3.14 and has no `D:/a/agentops`). Install it into flowfreq's own
+   `.venv`, not a separate one: the runner puts its interpreter's directory first on `PATH`
+   for `pre_acceptance` and acceptance commands, which need black and flowfreq. Then install
+   agy and sign in.
+2. **Wire the hooks and status line** in `.claude/settings.local.json` (one machine; a cloud
+   session has neither). The commands go through `tools/agentops.sh` (`statusline`,
+   `hook session-start`, `hook pre-tool-use` on `Bash|TeamCreate|Workflow`). It picks
+   `.venv/Scripts/python.exe` (Windows), then `.venv/bin/python`, then `python3`/`python`, so
+   the Windows Store `python` shim is never used. Without the package installed the hook
+   reports a non-blocking `No module named agentops` error and the session keeps working.
 3. **agy permissions**, a different file from step 2. The runner passes
-   `tools/agentops/agy-settings.example.json` (`[agy] settings` in `agentops.toml`) to every
+   `config/agy-settings.json` (`[agy] settings` in `config/agents.toml`) to every
    delegate call as `--settings`; agy then uses that file's `permissions` block for the call
    instead of its own `~/.gemini/antigravity-cli/settings.json` (its `cli.log` line
    `CLI settings initialized: permissions=...` shows which rules are live). So the repo governs
@@ -65,16 +76,16 @@ published `flowfreq` package, and nothing under `flowfreq/` imports it.
    command lines in `~/.gemini/antigravity-cli/conversations/*.db` before spending a card on it.
    Model names change: check `agy models` before writing `model =` on a card
    (`claude-sonnet-4-6` disappeared between 2026-10-26 and 2026-10-30).
-4. Select the governor profile for your Claude plan:
-   `python tools/agentops_cli.py --config agentops.toml gov profile pro` (or `max`; use
-   `overnight` when you are away and only review). The choice is this machine's: it is saved
-   as `governor_profile` in the gitignored state directory and overrides `profile` in
-   `agentops.toml`, which stays `pro` as the default for a cloud session.
+4. Select the governor profile for your Claude plan: `run.bat gov profile pro` (or `max`; use
+   `overnight` when you are away and only review; `gov profile` alone shows the active one and
+   where it came from, `gov profile --clear` drops the choice). The choice is this machine's:
+   it is saved as `governor_profile` in the gitignored state directory and overrides `profile`
+   in `config/agents.toml`, which stays `pro` as the default for a cloud session.
 
 ## The loop
 
 ```bash
-A="python tools/agentops_cli.py --config agentops.toml"   # or: bash tools/agentops.sh
+A="run.bat"                 # or: bash tools/agentops.sh (the same, from bash)
 $A gov next                 # mode, queue state, and what to do next
 $A cards add .agentops/cards/<id>.toml
 $A gov plan                 # which ready cards would be dispatched now
@@ -83,6 +94,10 @@ $A cards list
 $A usage                    # Claude meter + agy tokens per pool
 $A gov calibrate --agy-remaining 63   # after reading agy's /usage
 $A cards reset <id>         # discard the worktree and branch, back to pending
+$A cards show <id>          # a finished card: result, ledger, branch
+$A cards diff <id> --stat   # its branch against the base
+$A cards accept <id>        # after the PR merged: archive it
+$A cards reject <id> --reason "..."   # back to pending with the reason
 ```
 
 **Lead (Claude) per card:**
@@ -103,11 +118,12 @@ $A cards reset <id>         # discard the worktree and branch, back to pending
 3. Once the runner reports `done`, review `card/<id>`. The `reviewer` pass covers scope,
    tests not weakened, the full suite, `make check` and the CLAUDE.md conventions. Then
    push the branch and open the PR to `main` (the cards in `.agentops/cards/` are the
-   committed record). `escalated` means the lead takes the card over or rewrites it.
+   committed record). After the PR merges, `cards accept <id>` archives the card. `escalated`
+   means the lead takes the card over or rewrites it.
 
 **Why `child_env`:** the editable install points at the main checkout, so a worktree's
 `python -m pytest` would import the main checkout's `flowfreq`. To prevent that, the runner
-puts the card's worktree on `PYTHONPATH` (`{worktree}` in `agentops.toml`) for both the
+puts the card's worktree on `PYTHONPATH` (`{worktree}` in `config/agents.toml`) for both the
 delegate and the acceptance run, and also sets `PYTHONUTF8=1`.
 
 ## Card format

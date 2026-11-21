@@ -9,7 +9,7 @@ lead: the card path, the branch, and the worktree path (`../wt-flowfreq-<id>`).
 
 Check, in order:
 1. `git diff <card base>...card/<id> --stat`, then the diff. Every changed file is within the card's scope;
-   no test was edited, deleted, skipped, xfailed or loosened; nothing under `vendor/`, `tools/agentops/`,
+   no test was edited, deleted, skipped, xfailed or loosened; nothing under `vendor/`, `config/`,
    `.claude/` or `.github/` changed.
 2. In the worktree, with `PYTHONPATH=<worktree>`: the card's acceptance command, then the full offline
    suite (`PYTHONSAFEPATH=1 PYTHONUTF8=1 python -m pytest tests/ -q`). Report pass/fail counts only.

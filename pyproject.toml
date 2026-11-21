@@ -100,8 +100,6 @@ dev = [
     "mypy>=1.8",
     "pandas-stubs",
     "types-requests",
-    # tools/agentops (the delegate runner, docs/AGENTOPS.md): queue and ledger locks.
-    "filelock>=3.13,<5",
     # The `report` extra below, so CI runs the DOCX tests and mypy sees its types.
     "python-docx>=1.1,<2",
     # The `mcp` extra below, for the same two reasons (tests/test_mcp_server.py).
