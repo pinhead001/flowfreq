@@ -492,7 +492,20 @@ def log_pearson3_cdf(x: float, mean: float, std: float, skew: float) -> float:
 
 
 def log_pearson3_ppf(p: float, mean: float, std: float, skew: float) -> float:
-    """Compute quantile of Log-Pearson Type III distribution."""
+    """Quantile of the log-Pearson Type III distribution.
+
+    Parameters
+    ----------
+    p : float
+        Non-exceedance probability, not AEP: ``p = 0.99`` is the 1% AEP flood.
+    mean, std, skew : float
+        Moments of log10(flow).
+
+    Returns
+    -------
+    float
+        The flow, ``10 ** (mean + K * std)`` with ``K = kfactor(skew, 1 - p)``.
+    """
     K = kfactor(skew, 1 - p)
     log_q = mean + K * std
     return 10**log_q

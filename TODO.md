@@ -31,8 +31,10 @@ CI cache). CHANGELOG.md, Unreleased, has the detail. Still open from it:
    `peak_va` itself ("Remove GH only peaks", `vendor/peakfqr/R/readInputs.R`) before filling in every year of
    the range, so the year is missing data exactly as flowfreq treats it: censored below a perception threshold
    that covers it, otherwise a gap. The warning in `peak_sources.py` said otherwise and now says this.
-2. **Remove the deprecated engine** (`engine.py`, `batch.py`, `plots.py`) in a later minor release, and decide
-   about `core.log_pearson3_ppf`, which has no caller.
+2. Done 2026-11-21: the deprecated engine (`engine.py`, `batch.py`, `plots.py`) is removed for 0.29.
+   `core.log_pearson3_ppf` stays (it is correct; its docstring says `p` is the non-exceedance probability).
+   A Bulletin 17B procedure built on `MethodOfMoments`, for comparing B17C with the superseded B17B, is being
+   designed.
 3. **Option names differ between section kinds** and were left alone, since renaming breaks stored specs:
    `site_name` and `target_name`, `peaks_table` and `annual_table`. `ReportSession.weight` still defaults
    `detail` on where `transpose` defaults it off.
