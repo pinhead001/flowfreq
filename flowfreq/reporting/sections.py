@@ -9,6 +9,17 @@ The builders live one kind to a module (``gaged``, ``regional``, ``weighted``, `
 ``engine_check``, ``comparison``, ``future``; ``daily`` and ``summary`` hold the rest). This
 module is the registry, and every name that used to be defined here is still importable
 from here. To replace one in a test, patch it in the module that defines it.
+
+Option names that look inconsistent between kinds name different things, and stored specs
+use them, so they stay:
+
+- ``target_name`` (``transposed``) is the ungaged site the flows are moved to; the donor
+  gage keeps its own ``site_name`` inside the ``gage`` options.
+- ``peaks_table`` (``gaged_ffa``) is the annual peaks; ``annual_table`` (``low_flow``,
+  ``flow_duration``) is the annual minima or durations of a daily record.
+- ``detail`` defaults on in :meth:`ReportSession.weight`, whose weighted section replaces
+  the gage and regression sections, and off in :meth:`ReportSession.transpose`, whose donor
+  section stays in the report.
 """
 
 from __future__ import annotations

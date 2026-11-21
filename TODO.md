@@ -31,13 +31,13 @@ CI cache). CHANGELOG.md, Unreleased, has the detail. Still open from it:
    `peak_va` itself ("Remove GH only peaks", `vendor/peakfqr/R/readInputs.R`) before filling in every year of
    the range, so the year is missing data exactly as flowfreq treats it: censored below a perception threshold
    that covers it, otherwise a gap. The warning in `peak_sources.py` said otherwise and now says this.
-2. Done 2026-11-21: the deprecated engine (`engine.py`, `batch.py`, `plots.py`) is removed for 0.29.
+2. Done 2026-11-21 (#405): the deprecated engine (`engine.py`, `batch.py`, `plots.py`) is removed for 0.29.
+   It was not a Bulletin 17B implementation, only B17B's first step (a moments fit with station skew).
    `core.log_pearson3_ppf` stays (it is correct; its docstring says `p` is the non-exceedance probability).
-   A Bulletin 17B procedure built on `MethodOfMoments`, for comparing B17C with the superseded B17B, is being
-   designed.
-3. **Option names differ between section kinds** and were left alone, since renaming breaks stored specs:
-   `site_name` and `target_name`, `peaks_table` and `annual_table`. `ReportSession.weight` still defaults
-   `detail` on where `transpose` defaults it off.
+   The B17B procedure that replaces the idea is item 7.
+3. Closed 2026-11-21, no rename: the names that differ name different things (`target_name` is the ungaged
+   site, `annual_table` holds minima or durations, `detail` defaults follow whether the parts stay in the
+   report). The `reporting/sections.py` module docstring says so.
 4. Done 2026-11-21 (#403): a report fits each gage once. `gaged` memoises the fit on its options (it was 8
    fits counting nested sections and renders); `gaged.clear_fit_cache()` forgets them. A cache across sections was not
    added: the builders mutate the options they are given and a fit is about a second.
@@ -46,6 +46,15 @@ CI cache). CHANGELOG.md, Unreleased, has the detail. Still open from it:
    `basin`.
 6. Done 2026-11-21 (#402): the eight class-scoped fixtures are staticmethods, and `PytestRemovedIn10Warning`
    is an error, so the `pytest<10` pin can move when pytest 10 is out.
+7. **Bulletin 17B procedure, for comparing B17C with the superseded B17B** (owner's choice 2026-11-21: a new
+   class). A `Bulletin17B` class in a new `flowfreq/bulletin17b.py`, built from `MethodOfMoments`' fitting code,
+   with what B17B adds: the B17B skew MSE (`_mseg`) and weighting with a generalized skew; the high- and
+   low-outlier tests in B17B's skew-dependent order; the historic-peak adjustment (Appendix 6); the
+   conditional-probability adjustment with synthetic statistics (Appendix 5), counting zero flows; and the
+   Appendix 9 confidence limits. `Bulletin17C(method=MOM)` is not changed. A `comparison` report section then
+   shows B17B beside B17C. Validation against the Bulletin 17B Appendix 12 worked examples (Big Sandy among
+   them), and against PeakFQ 5/7 B17B output if the owner has any; vendored peakfq 8.1 has no B17B mode. Next:
+   a design doc under `docs/superpowers/specs/`, then a plan.
 
 ### Next steps (2026-11-15)
 
