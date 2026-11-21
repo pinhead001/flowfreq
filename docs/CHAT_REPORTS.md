@@ -235,4 +235,3 @@ tests drive it in process.
   flow duration are sections at a gage only. Regime metrics are not report sections, and
   neither are the other transfers in `flowfreq.transpose` (flow-duration, low-flow, between
   two gages, regression-weighted).
-

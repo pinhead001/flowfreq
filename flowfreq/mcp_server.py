@@ -177,7 +177,7 @@ def _gaged_options(
         options["station_skew_only" if skew == "station" else "use_default_skew"] = True
     elif by_state and given:
         raise ReportError(
-            "give regional_skew_state (a lookup) or regional_skew and regional_skew_se, " "not both"
+            "give regional_skew_state (a lookup) or regional_skew and regional_skew_se, not both"
         )
     elif regional_skew_region and not by_state:
         raise ReportError("regional_skew_region needs regional_skew_state")
