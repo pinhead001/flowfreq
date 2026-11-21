@@ -1,6 +1,6 @@
 # Bulletin 17B procedure for comparing with Bulletin 17C — design
 
-Date: 2026-11-21. Status: for the owner's approval (builder check done). TODO.md, review of
+Date: 2026-11-21. Status: approved by the owner 2026-11-21. TODO.md, review of
 2026-11-19, item 7.
 
 ## Intent
@@ -98,6 +98,10 @@ already in use.
 ## Decisions the owner made
 
 - Approach 1, a new class (2026-11-21).
+- **B17B is computed and reported only when requested (2026-11-21).** Nothing runs it by default:
+  `gaged_ffa`, `run_ffa`, `Bulletin17C`, the CLI, the chat tools and a `comparison` without a
+  `b17b_ffa` estimate never compute or show a B17B number. It appears only where a caller
+  constructs `Bulletin17B` or adds a `b17b_ffa` section (alone or as a `comparison` estimate).
 - Validate against the Bulletin 17B worked examples (2026-11-21: "show what changed in method";
   PeakFQ output if any turns up).
 - **The generalized skew on the B17B side (2026-11-21, option 3).** By default a `b17b_ffa`
