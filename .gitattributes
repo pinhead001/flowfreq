@@ -47,3 +47,6 @@ Makevars.win  text eol=lf whitespace=-trailing-space,-tab-in-indent
 # trade-off is that git treats these as binary and will not render textual
 # diffs for them -- acceptable for fixtures that are never meant to change.
 vendor/peakfqr/inst/testdata/**  -text
+
+# Windows batch files: cmd.exe mis-parses labels and goto in LF-only files.
+*.bat     text eol=crlf

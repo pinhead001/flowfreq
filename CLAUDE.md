@@ -33,7 +33,7 @@ flowfreq/            the library (flat package, NOT src/flowfreq/)
 vendor/peakfqr/      USGS peakfq 8.1.0 reference — Fortran, R, test data (do not edit)
 build_fortran/       f2py build script and .pyf signature file
 tools/               gen_fortran_golden.py — regenerates parity golden files
-tools/agentops/      dev-only agent ops: agy runner, governor, usage meter (docs/AGENTOPS.md)
+config/             agentops config (agents.toml, agy-settings.json); run.bat runs it (docs/AGENTOPS.md)
 tests/fixtures/      shared fixture data (Big Sandy, HU02, Wyoming/Montana, peakfqr respec)
 tests/fortran_parity/  native-vs-Fortran parity suite and committed golden files
 ```
@@ -163,13 +163,15 @@ reaches them. Never move or delete a pushed release tag.
 
 Multi-agent development as in flowfield2d: the lead writes failing tests on `spec/<id>` and a
 card in `.agentops/cards/`; `agy` implements it headless in a worktree (`card/<id>`); the lead
-reviews (`.claude/agents/reviewer.md`) and opens the PR. Tool: `tools/agentops/` (not shipped),
-config `agentops.toml`, delegate rules `AGENTS.md`, procedure `docs/AGENTOPS.md`.
-`python tools/agentops_cli.py --config agentops.toml gov next` says what to do; `... usage`
-reports the Claude meter and agy tokens per quota pool. The governor profile (`pro`, `max`,
-`overnight`) sets when teammates/workflows are allowed. `agentops.toml` is committed with
-`profile = "pro"`; `gov profile <name>` overrides it for one machine in the gitignored state
-directory, so the choice no longer touches the committed file.
+reviews (`.claude/agents/reviewer.md`) and opens the PR. Tool: the shared `agentops` package
+(`D:/a/agentops`, `pip install -e` into `.venv`; not a flowfreq dependency), config
+`config/agents.toml`, delegate rules `AGENTS.md`, procedure `docs/AGENTOPS.md`.
+`run.bat gov next` says what to do (`bash tools/agentops.sh ...` is the same from bash);
+`run.bat usage` reports the Claude meter and agy tokens per quota pool; `cards show`/`diff`,
+then `cards accept` (archive) or `cards reject --reason`, after review. The governor profile
+(`pro`, `max`, `overnight`) sets when teammates/workflows are allowed. `config/agents.toml` is
+committed with `profile = "pro"`; `gov profile <name>` overrides it for one machine in the
+gitignored state directory and never touches the committed file.
 
 ## Python Compatibility
 
