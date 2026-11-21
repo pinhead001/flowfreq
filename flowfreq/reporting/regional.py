@@ -130,6 +130,9 @@ def _freeze_streamstats(options: Dict[str, Any], lat: float, lon: float) -> None
     snapshot = bool(options.get("allow_nss_snapshot", False))
     provisional = bool(options.get("allow_provisional", False))
     extrapolate = bool(options.get("allow_extrapolation", False))
+    coverage: Dict[str, Any] = {}
+    if options.get("min_coverage_percent") is not None:
+        coverage["min_coverage_percent"] = options["min_coverage_percent"]
     live = estimate_at_site(
         lat,
         lon,
@@ -141,6 +144,7 @@ def _freeze_streamstats(options: Dict[str, Any], lat: float, lon: float) -> None
         allow_provisional=provisional,
         allow_extrapolation=extrapolate,
         allow_inaccurate=bool(options.get("allow_inaccurate", False)),
+        **coverage,
     )
     total = sum(r.percent_weight for r in live.regions)
     if not live.regions or total <= 0:

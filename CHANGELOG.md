@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `flowfreq-mcp`: `run_ffa` takes `peaks` typed by hand (no `site_no` needed), `site_name`, `perception_thresholds`,
+  `regional_skew_state` and `regional_skew_region`; `estimate_ungaged` takes `aeps`, `weighting_space` and
+  `min_coverage_percent` (now an `ungaged` section option), `estimate_from_characteristics` `aeps` and
+  `weighting_space`; `add_site_summary` documents a location's `basin` outline.
+
 ### Changed
 
 - A peak row with no value is still dropped with a warning, which now says this is what peakfq's `siteQT`
