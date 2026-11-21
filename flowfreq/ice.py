@@ -95,17 +95,27 @@ def cold_air_days(tmin: pd.Series, threshold_c: float, lookback_days: int) -> pd
     threshold_c : float
         A day is cold when ``tmin <= threshold_c``.
     lookback_days : int
-        Number of preceding days that also count; a day is flagged when it or
-        any of the ``lookback_days`` days before it is cold.
+        Number of preceding calendar days that also count; a day is flagged
+        when it or any of the ``lookback_days`` calendar days before it is
+        cold. The lookback is in calendar days, not rows, so gaps in the
+        index are allowed.
 
     Returns
     -------
     pd.Series
-        bool, on the index of ``tmin``. Missing TMIN counts as not cold.
+        bool, on the index of ``tmin`` in its original order. Missing TMIN
+        counts as not cold.
     """
-    cold = (tmin <= threshold_c).fillna(False).astype(float)
-    flagged = cold.rolling(lookback_days + 1, min_periods=1).max() > 0
-    return flagged.astype(bool)
+    values = tmin.to_numpy(dtype=float)
+    order = np.argsort(pd.DatetimeIndex(tmin.index).to_numpy(), kind="stable")
+    sorted_cold = pd.Series(
+        (values[order] <= threshold_c).astype(float),
+        index=pd.DatetimeIndex(tmin.index)[order],
+    )
+    flagged = (sorted_cold.rolling(f"{lookback_days + 1}D", min_periods=1).max() > 0).to_numpy()
+    result = np.empty(len(values), dtype=bool)
+    result[order] = flagged
+    return pd.Series(result, index=tmin.index)
 
 
 def cold_spells_per_winter(

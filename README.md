@@ -510,7 +510,7 @@ cold (NCEI daily TMIN at or below a threshold, on the day or within a lookback),
 by winter (water year) and month of the first day. Every threshold is a required option; nothing is defaulted.
 
 ```bash
-flowfreq ice-events --gauge 01234567 --gauge 01234568 --air-station USC00123456     --start 2000-10-01 --end 2020-09-30 --months 11,12,1,2,3 --air-c -10     --lookback-days 2 --merge-gap-days 2 --min-cold-spell-days 3 --out ice_out
+flowfreq ice-events --gauge 01234567 --gauge 01234568 --air-station USC00123456 \n    --start 2000-10-01 --end 2020-09-30 --months 11,12,1,2,3 --air-c -10 \n    --lookback-days 2 --merge-gap-days 2 --min-cold-spell-days 3 --out ice_out
 ```
 
 It writes `air_<station>.csv`, `daily_<site>.csv` per gauge, `gauge_ice_events.csv` (site, winter, month, start, end,

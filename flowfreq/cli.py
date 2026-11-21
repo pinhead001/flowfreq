@@ -574,9 +574,20 @@ def ice_events(
     from flowfreq import ghcn, ice, waterdata
 
     try:
+        reversed_dates = pd.Timestamp(start) > pd.Timestamp(end)
+    except ValueError:
+        reversed_dates = False  # a malformed date is reported by the fetch below
+    if reversed_dates:
+        raise click.ClickException(f"--start {start} is after --end {end}")
+    try:
         air = ghcn.fetch_ghcn_daily(air_station, start, end)
     except (requests.RequestException, ValueError) as exc:
         raise click.ClickException(f"air station {air_station}: {exc}") from exc
+    air_tmin_days = int(air["tmin_c"].notna().sum())
+    if air_tmin_days == 0:
+        raise click.ClickException(
+            f"air station {air_station}: no daily minimum temperature between {start} and {end}"
+        )
     cold = ice.cold_air_days(air["tmin_c"], air_c, lookback_days)
     cold = cold.reindex(air.index).fillna(False).astype(bool)
 
@@ -600,7 +611,9 @@ def ice_events(
         flagged = ice.ice_days_from_qualifiers(daily)
         day_ice = pd.Series(flagged["ice"].to_numpy(), index=pd.DatetimeIndex(flagged["date"]))
         day_ice = day_ice[~day_ice.index.duplicated(keep="last")]
+        has_record = pd.Series(True, index=day_ice.index).reindex(air.index, fill_value=False)
         day_ice = day_ice.reindex(air.index).fillna(False).astype(bool)
+        recorded = in_months & has_record.to_numpy(dtype=bool)
 
         flow = daily[["flow_cfs", "qualification_code"]].copy()
         flow.index = pd.DatetimeIndex(flagged["date"]).strftime("%Y-%m-%d")
@@ -610,7 +623,7 @@ def ice_events(
         both = pd.Series(air.index[(day_ice & cold).to_numpy()])
         event_rows.append(ice.events_in_months(both, months, merge_gap_days).assign(site=site))
         qa = ice.gauge_ice_qaqc(
-            day_ice[in_months], cold[in_months], min_cold_spell_days, merge_gap_days
+            day_ice[recorded], cold[recorded], min_cold_spell_days, merge_gap_days
         )
         qaqc_rows.append(qa.assign(site=site))
         per_gauge[site] = {"daily_rows": int(len(daily)), "ice_days": int(flagged["ice"].sum())}
@@ -640,6 +653,7 @@ def ice_events(
         },
         "flowfreq_version": flowfreq.__version__,
         "utc_time": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "air_tmin_days": air_tmin_days,
         "gauges": per_gauge,
     }
     (out_dir / "ice_events_run.json").write_text(json.dumps(run, indent=2), encoding="utf-8")

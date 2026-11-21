@@ -259,9 +259,9 @@ sends an `X-Api-Key` from `USGS_API_KEY` or `waterdata.set_api_key()`, and retri
 429/503 with `Retry-After` or exponential backoff. Without a key the API allows 1000
 requests/hour per IP. Legacy NWIS remains available with `backend="nwis-legacy"`. On the OGC
 backend an IV `ts_id` is the 32-hex `time_series_id`, not the NWIS DD number, and
-`peak_date` is a UTC date. NCEI daily summaries (`ghcn.py`) go through `waterdata.request` too, with `send_api_key=False`, so the USGS key
-is never sent to NCEI. `waterdata.request` also retries a dropped connection, a 502 and a
-504: these are reads of stored data.
+`peak_date` is a UTC date. NCEI daily summaries (`ghcn.py`) go through `waterdata.request` too,
+with `send_api_key=False`, so the USGS key is never sent to NCEI. `waterdata.request` also
+retries a dropped connection, a 502 and a 504: these are reads of stored data.
 
 **StreamStats is the opposite case, and USGS blocked this machine's address over it once
 (issue #365).** Its delineation, basin-characteristics, NSS `bylocation` and NSS

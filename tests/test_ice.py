@@ -94,7 +94,13 @@ def test_decade_scaled_no_event_is_zero_not_nan():
 
 def test_decade_scaled_no_spell_in_site_winters_is_nan():  # Review Focus 1
     out = decade_scaled(pd.Series({2013: 2}), pd.Series({2013: 0, 2014: 7}), [2013, 2014])
-    assert np.isnan(out["rate_per_spell"]) and np.isnan(out["events_per_winter_ref"])
+    for key in (
+        "rate_per_spell",
+        "events_per_winter_ref",
+        "events_ref_decade",
+        "share_winters_ref",
+    ):
+        assert np.isnan(out[key]), key
 
 
 def test_winter_event_counts_fills_zero_winters():
@@ -154,3 +160,18 @@ def test_qaqc_aligns_on_union_index():
     out = gauge_ice_qaqc(ice, cold, min_cold_spell_days=1, merge_gap_days=0)
     assert out["kind"].tolist() == ["ice_without_cold", "cold_without_ice"]
     assert out["n_days"].tolist() == [1, 2]
+
+
+def test_cold_air_days_looks_back_by_calendar_day_across_a_gap():
+    tmin = pd.Series(
+        [-12.0, 0.0], index=pd.DatetimeIndex(["2020-01-01", "2020-01-10"], name="date")
+    )
+    assert cold_air_days(tmin, -10.0, 2).tolist() == [True, False]
+
+
+def test_cold_air_days_keeps_callers_order():
+    idx = pd.DatetimeIndex(["2020-01-03", "2020-01-01", "2020-01-02"])
+    tmin = pd.Series([0.0, -12.0, 0.0], index=idx)
+    out = cold_air_days(tmin, -10.0, 1)
+    assert out.index.equals(idx)
+    assert out.tolist() == [False, True, True]
