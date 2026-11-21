@@ -211,6 +211,9 @@ python_files = ["test_*.py"]
 # stub classes, so `pytest -m requires_peakfqsa` collected zero tests and both
 # the marker and its exclusion were dead config.
 addopts = "-v -m 'not requires_network'"
+# pytest 10 refuses a class-scoped fixture written as an instance method; 9.x warns.
+# An error here keeps a new one from landing before the pin moves past <10.
+filterwarnings = ["error::pytest.PytestRemovedIn10Warning"]
 markers = [
     "requires_network: marks tests that contact live NWIS services (deselect with '-m \"not requires_network\"')",
     "requires_fortran: marks tests needing the f2py Fortran extension (auto-skipped when absent; build with python build_fortran/build.py)",

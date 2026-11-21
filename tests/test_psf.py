@@ -75,7 +75,8 @@ class TestParse:
 @needs_testdata
 class TestWymtFile:
     @pytest.fixture(scope="class")
-    def psf(self):
+    @staticmethod
+    def psf():
         return read_psf(_testdata("wymt_ffa_2022A.psf"))
 
     def test_counts(self, psf):

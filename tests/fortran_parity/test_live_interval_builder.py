@@ -202,7 +202,8 @@ class TestGapYearSwitchLive:
     THRESHOLD = 5_000.0  # synthetic; see class docstring and test_interval_builder.py
 
     @pytest.fixture(scope="class")
-    def record(self):
+    @staticmethod
+    def record():
         from tests.fixtures.site_12363000 import REGIONAL_SKEW, REGIONAL_SKEW_SD, SYSTEMATIC_PEAKS
 
         years = sorted(SYSTEMATIC_PEAKS)
