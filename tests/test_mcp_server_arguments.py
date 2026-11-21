@@ -135,8 +135,10 @@ class TestRunFfaSkewByState:
     def test_skew_from_the_state_is_used(self, chat, session, peaks):
         chat.call("run_ffa", site_no="03606500", regional_skew_state="TN", stationarity=False)
         options = session.spec.sections[0].options
-        assert options["regional_skew_state"] == "TN"
-        assert "regional_skew_from_site" not in options
+        # The lookup is resolved into the values it found, which is what is stored.
+        assert options["regional_skew"] == 0.048
+        assert "regional_skew_state" not in options and "regional_skew_from_site" not in options
+        assert "2025-5110" in options["regional_skew_citation"]
         assert chat.call("get_section", section_id="s1").count("0.048") >= 1
 
     @pytest.mark.parametrize(

@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- `flowfreq-mcp`: `run_ffa` takes `peaks` typed by hand (no `site_no` needed), `site_name`, `perception_thresholds`,
+  `regional_skew_state` and `regional_skew_region`; `estimate_ungaged` takes `aeps`, `weighting_space` and
+  `min_coverage_percent` (now an `ungaged` section option), `estimate_from_characteristics` `aeps` and
+  `weighting_space`; `add_site_summary` documents a location's `basin` outline.
+
 ## [0.28.0] - 2026-11-19
 
 Reports for a study of one site: a comparison of several estimates, a site summary for the front of a report,

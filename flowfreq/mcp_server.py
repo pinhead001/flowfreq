@@ -147,24 +147,46 @@ def _station(site_no: str) -> str:
 
 
 def _gaged_options(
-    site_no: str,
+    site_no: Optional[str],
     skew: str,
     regional_skew: Optional[float],
     regional_skew_se: Optional[float],
     regional_skew_citation: Optional[str],
     allow_provisional_skew: bool,
+    regional_skew_state: Optional[str] = None,
+    regional_skew_region: Optional[str] = None,
 ) -> Dict[str, Any]:
-    """The ``gaged_ffa`` options for a station and a choice of skew."""
-    if not site_no.strip().isdigit():
+    """The ``gaged_ffa`` options for a station (or none) and a choice of skew."""
+    if site_no is not None and not site_no.strip().isdigit():
         raise ReportError(f"site_no is a USGS station number, all digits; got {site_no!r}")
     if skew not in _SKEW_CHOICES:
         raise ReportError(f"skew must be one of {', '.join(_SKEW_CHOICES)}; got {skew!r}")
-    options: Dict[str, Any] = {"site_no": site_no.strip()}
+    options: Dict[str, Any] = {}
+    if site_no is not None:
+        options["site_no"] = site_no.strip()
     given = regional_skew is not None or regional_skew_se is not None
+    by_state = bool(regional_skew_state)
     if skew != "regional":
         if given:
             raise ReportError(f"a regional_skew value goes with skew='regional', not {skew!r}")
+        if by_state or regional_skew_region:
+            raise ReportError(
+                "regional_skew_state and regional_skew_region go with skew='regional', "
+                f"not {skew!r}"
+            )
         options["station_skew_only" if skew == "station" else "use_default_skew"] = True
+    elif by_state and given:
+        raise ReportError(
+            "give regional_skew_state (a lookup) or regional_skew and regional_skew_se, " "not both"
+        )
+    elif regional_skew_region and not by_state:
+        raise ReportError("regional_skew_region needs regional_skew_state")
+    elif by_state:
+        options["regional_skew_state"] = str(regional_skew_state).strip()
+        if regional_skew_region:
+            options["regional_skew_region"] = regional_skew_region
+        if allow_provisional_skew:
+            options["allow_provisional_skew"] = True
     elif given:
         if regional_skew is None or regional_skew_se is None:
             raise ReportError("give regional_skew and regional_skew_se together")
@@ -173,6 +195,12 @@ def _gaged_options(
         if regional_skew_citation:
             options["regional_skew_citation"] = regional_skew_citation
     else:
+        if site_no is None:
+            raise ReportError(
+                "skew='regional' without a station number needs regional_skew_state (a "
+                "lookup by state) or regional_skew and regional_skew_se; or choose "
+                "skew='station'"
+            )
         options["regional_skew_from_site"] = True
         if allow_provisional_skew:
             options["allow_provisional_skew"] = True
@@ -270,7 +298,7 @@ def build_server(
         )
 
     def run_ffa(
-        site_no: str,
+        site_no: Optional[str] = None,
         skew: str = "regional",
         regional_skew: Optional[float] = None,
         regional_skew_se: Optional[float] = None,
@@ -282,22 +310,42 @@ def build_server(
         peaks_table: bool = True,
         title: Optional[str] = None,
         position: Optional[int] = None,
+        peaks: Optional[Dict[str, List[Any]]] = None,
+        site_name: Optional[str] = None,
+        perception_thresholds: Optional[List[Dict[str, float]]] = None,
+        regional_skew_state: Optional[str] = None,
+        regional_skew_region: Optional[str] = None,
     ) -> Dict[str, Any]:
-        """Add a Bulletin 17C flood-frequency section for a USGS gage.
+        """Add a Bulletin 17C flood-frequency section for a USGS gage, or for peaks given.
 
-        Downloads the gage's annual peaks from USGS, fits the log-Pearson Type III
-        distribution by the Expected Moments Algorithm with the Multiple Grubbs-Beck
-        low-outlier test, and adds a section with the record, the method, the fitted
-        parameters, the flood quantiles with 90-percent confidence limits, the frequency
-        curve and a stationarity screen. The peaks are stored in the report, so it
-        rebuilds later without a download.
+        Downloads the gage's annual peaks from USGS (unless peaks are given), fits the
+        log-Pearson Type III distribution by the Expected Moments Algorithm with the
+        Multiple Grubbs-Beck low-outlier test, and adds a section with the record, the
+        method, the fitted parameters, the flood quantiles with 90-percent confidence
+        limits, the frequency curve and a stationarity screen. The peaks are stored in
+        the report, so it rebuilds later without a download.
 
-        site_no: the USGS station number (find_gage looks it up).
+        site_no: the USGS station number (find_gage looks it up). Give site_no, peaks,
+        or both.
+        peaks: annual peaks the user supplies, in place of the download (nothing is
+        downloaded): an object of equal-length columns, water_year (integers) and
+        peak_flow_cfs (numbers), and optionally qualification_code (NWIS codes, text or
+        null) and peak_date (YYYY-MM-DD or null). Take the values from the user, not
+        from memory. site_name: the station's or site's name, for the heading and the
+        record table.
+        perception_thresholds: historical periods, each an object with start_year,
+        end_year (water years) and threshold_cfs (the flow a flood had to exceed to be
+        recorded then); a year in the period without a peak is treated as below it.
         skew: "regional" (the default) weights the station skew with the regional skew
-        flowfreq has on file for the gage's location, or with regional_skew and
-        regional_skew_se (its standard error) when you give them, citing
-        regional_skew_citation; "station" uses the station skew alone; "default" uses
-        an unsourced generalized skew of -0.302 and is a last resort.
+        flowfreq has on file for the gage's location, or for regional_skew_state, or
+        with regional_skew and regional_skew_se (its standard error) when you give them,
+        citing regional_skew_citation; "station" uses the station skew alone; "default"
+        uses an unsourced generalized skew of -0.302 and is a last resort. Without
+        site_no, skew="regional" needs regional_skew_state or regional_skew values.
+        regional_skew_state: two-letter postal code; the regional skew flowfreq has on
+        file for that state is used (not together with regional_skew values).
+        regional_skew_region: the skew region within that state, where it has several;
+        it needs regional_skew_state.
         allow_provisional_skew: accept a regional skew flowfreq has not verified.
         allow_regulated: fit a record flowfreq screens as regulated, which it otherwise
         refuses because Bulletin 17C assumes unregulated peaks.
@@ -308,6 +356,11 @@ def build_server(
 
         Returns the section's id and the quantile table. Call get_section for the rest.
         """
+        if site_no is None and peaks is None:
+            raise ReportError(
+                "run_ffa needs site_no (a USGS station number, to download its peaks) or "
+                "peaks (annual peaks you supply), or both"
+            )
         options = _gaged_options(
             site_no,
             skew,
@@ -315,7 +368,15 @@ def build_server(
             regional_skew_se,
             regional_skew_citation,
             allow_provisional_skew,
+            regional_skew_state=regional_skew_state,
+            regional_skew_region=regional_skew_region,
         )
+        if peaks is not None:
+            options["peaks"] = dict(peaks)
+        if site_name:
+            options["site_name"] = site_name
+        if perception_thresholds is not None:
+            options["perception_thresholds"] = perception_thresholds
         if allow_regulated:
             options["allow_regulated"] = True
         if low_outlier_threshold is not None:
@@ -335,6 +396,9 @@ def build_server(
         allow_inaccurate: bool = False,
         title: Optional[str] = None,
         position: Optional[int] = None,
+        aeps: Optional[List[float]] = None,
+        weighting_space: Optional[str] = None,
+        min_coverage_percent: Optional[float] = None,
     ) -> Dict[str, Any]:
         """Add a regional regression estimate at a point, with the basin from StreamStats.
 
@@ -353,10 +417,21 @@ def build_server(
         allow_inaccurate: keep a basin StreamStats warns "may be inaccurate" about, as it
         does where the basin crosses into Canada or Mexico; the characteristics the
         warning names are withheld from the equations and the section says so.
+        aeps: the AEPs to estimate, as fractions, for example [0.01, 0.1] (default: those
+        the equations give). weighting_space: how estimates for a basin in several
+        regions are combined by area, "log" or "linear" (left out: flowfreq's default).
+        min_coverage_percent: the least percent of the basin the regression regions used
+        must cover; a basin covered less is refused.
 
         Returns the section's id and the quantile table.
         """
         options: Dict[str, Any] = {"state": state, "lat": lat, "lon": lon}
+        if aeps is not None:
+            options["aeps"] = list(aeps)
+        if weighting_space is not None:
+            options["weighting_space"] = weighting_space
+        if min_coverage_percent is not None:
+            options["min_coverage_percent"] = float(min_coverage_percent)
         if allow_inaccurate:
             options["allow_inaccurate"] = True
         if site_name:
@@ -380,6 +455,8 @@ def build_server(
         allow_provisional: bool = False,
         title: Optional[str] = None,
         position: Optional[int] = None,
+        aeps: Optional[List[float]] = None,
+        weighting_space: Optional[str] = None,
     ) -> Dict[str, Any]:
         """Add a regional regression estimate from basin characteristics the user supplies.
 
@@ -392,6 +469,9 @@ def build_server(
         region: the regression region's code in flowfreq's library; a refusal for an
         unknown code lists the state's regions.
         allow_extrapolation, allow_provisional, title, position: as estimate_ungaged.
+        aeps: the AEPs to estimate, as fractions (default: those the equations give).
+        weighting_space: "log" or "linear", how estimates for several regions are
+        combined (left out: flowfreq's default).
 
         Returns the section's id and the quantile table.
         """
@@ -402,6 +482,10 @@ def build_server(
             "characteristics": dict(characteristics),
             "region": region,
         }
+        if aeps is not None:
+            options["aeps"] = list(aeps)
+        if weighting_space is not None:
+            options["weighting_space"] = weighting_space
         if site_name:
             options["site_name"] = site_name
         if allow_extrapolation:
@@ -822,7 +906,9 @@ def build_server(
         section_ids, labels, site_name: the estimates to summarize, as compare_estimates.
         locations: the site and each gage, each an object with name, lat and lon (decimal
         degrees) and optionally characteristics, an object of code to value such as
-        {"DRNAREA": 762, "PRECPRIS10": 34.23}. The characteristics are printed as given
+        {"DRNAREA": 762, "PRECPRIS10": 34.23}, and optionally "basin", a GeoJSON Polygon
+        or MultiPolygon geometry (lon/lat) of the basin, drawn on the map. The
+        characteristics are printed as given
         and are the user's: ask for them, and do not supply values from memory.
         characteristics_source: where they came from, printed above the table. curves:
         the labels to plot (default: all). title: the heading (default "Summary: <site>").
