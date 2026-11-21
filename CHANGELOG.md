@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **A report fits each gage once.** `flowfreq.reporting.gaged` memoises the Bulletin 17C fit of a gage that carries its peaks (the last `FIT_CACHE_SIZE` fits, keyed on the options); `gaged.clear_fit_cache()` forgets them.
+
 ## [0.28.0] - 2026-11-19
 
 Reports for a study of one site: a comparison of several estimates, a site summary for the front of a report,

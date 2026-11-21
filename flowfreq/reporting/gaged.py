@@ -2,8 +2,12 @@
 
 from __future__ import annotations
 
+import copy
 import datetime as _dt
+import json
 import math
+import threading
+from collections import OrderedDict
 from dataclasses import replace
 from typing import Any, Dict, List, Mapping, Optional, Tuple
 
@@ -391,8 +395,83 @@ def _build_gaged_ffa(given: Dict[str, Any]) -> SectionContent:
     return _gaged_ffa(given)[0]
 
 
+#: How many gaged fits :func:`_gaged_ffa` keeps, least recently used dropped first.
+FIT_CACHE_SIZE: int = 32
+
+_FIT_CACHE: OrderedDict[str, Tuple[SectionContent, Any]] = OrderedDict()
+_FIT_CACHE_LOCK = threading.Lock()
+
+
+def clear_fit_cache() -> None:
+    """Forget every memoised gaged fit.
+
+    A report fits each gage once: :func:`_gaged_ffa` keeps the last
+    :data:`FIT_CACHE_SIZE` fits, keyed on their options. Clearing makes the next build of
+    any gaged section fit again.
+
+    Returns
+    -------
+    None
+    """
+    with _FIT_CACHE_LOCK:
+        _FIT_CACHE.clear()
+
+
+def _fit_key(options: Mapping[str, Any]) -> Optional[str]:
+    """The canonical form of a gage's options, or None when JSON cannot encode them."""
+    try:
+        return json.dumps(options, sort_keys=True)
+    except (TypeError, ValueError):
+        return None
+
+
+def _cache_get(key: Optional[str]) -> Optional[Tuple[SectionContent, Any]]:
+    if key is None:
+        return None
+    with _FIT_CACHE_LOCK:
+        hit = _FIT_CACHE.get(key)
+        if hit is None:
+            return None
+        _FIT_CACHE.move_to_end(key)
+        content, b17c = hit
+        return copy.deepcopy(content), b17c
+
+
+def _cache_put(keys: List[Optional[str]], entry: Tuple[SectionContent, Any]) -> None:
+    with _FIT_CACHE_LOCK:
+        for key in keys:
+            if key is None:
+                continue
+            _FIT_CACHE[key] = entry
+            _FIT_CACHE.move_to_end(key)
+        while len(_FIT_CACHE) > FIT_CACHE_SIZE:
+            _FIT_CACHE.popitem(last=False)
+
+
 def _gaged_ffa(given: Dict[str, Any]) -> Tuple[SectionContent, Any]:
-    """The gaged section and the fitted ``Bulletin17C`` behind it."""
+    """The gaged section and the fitted ``Bulletin17C`` behind it.
+
+    Fits are memoised (see :func:`clear_fit_cache`) when the options carry ``peaks``, under
+    the options as given and as resolved, so the sections nested from a previous build's
+    resolved options reuse the fit. The section returned is the caller's own copy; the
+    ``Bulletin17C`` object may be shared between callers and must be treated as read-only.
+    ``given`` is not changed.
+    """
+    cacheable = given.get("peaks") is not None
+    key = _fit_key(given) if cacheable else None
+    hit = _cache_get(key)
+    if hit is not None:
+        return hit
+    content, b17c = _fit_gaged_ffa(given)
+    if cacheable:
+        resolved = _fit_key(content.options)
+        if key is not None or resolved is not None:
+            _cache_put([key, resolved], (copy.deepcopy(content), b17c))
+    return content, b17c
+
+
+def _fit_gaged_ffa(given: Dict[str, Any]) -> Tuple[SectionContent, Any]:
+    """Build the gaged section and fit it, uncached."""
     from ..freq_plot import plot_frequency_curve, plot_peak_flows_with_thresholds
     from ..workflow import run_ffa
 
@@ -701,3 +780,6 @@ def _gaged_ffa(given: Dict[str, Any]) -> Tuple[SectionContent, Any]:
         references.append(str(options["regional_skew_citation"]))
     content = SectionContent(title=title, blocks=blocks, options=options, references=references)
     return content, b17c
+
+
+__all__ = ["FIT_CACHE_SIZE", "clear_fit_cache", "download_peaks"]

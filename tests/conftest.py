@@ -15,3 +15,13 @@ def _no_bylocation_pause(request, monkeypatch):
     monkeypatch.setattr("flowfreq.streamstats._GROUP_CODES_BY_ID", {})
     if request.node.get_closest_marker("requires_network") is None:
         monkeypatch.setattr("flowfreq.streamstats.BYLOCATION_PAUSE", 0.0)
+
+
+@pytest.fixture(autouse=True)
+def _cold_fit_cache():
+    """Each test fits its gages afresh: a fit memoised by a neighbour is not reused."""
+    from flowfreq.reporting import gaged
+
+    gaged.clear_fit_cache()
+    yield
+    gaged.clear_fit_cache()
