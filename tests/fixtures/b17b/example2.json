@@ -1,0 +1,460 @@
+{
+  "example": 2,
+  "title": "Adjusting for a High Outlier",
+  "bulletin_pages": "12-15 to 12-22 (PDF pages 133-140); data in Table 12-1, p.12-5 (PDF 123)",
+  "note_on_values": "All numbers are strings exactly as printed. Nothing computed or rounded by the transcriber.",
+  "station": {
+    "name": "Floyd River at James, Iowa",
+    "usgs_number_as_printed": "06-6005",
+    "latitude": "42°34'30\"",
+    "longitude": "96°18'45\"",
+    "drainage_area_sq_mi": "882",
+    "annual_peaks_available": "1935-1973"
+  },
+  "input": {
+    "systematic_record": {
+      "years": "1935-1973",
+      "N": 39
+    },
+    "annual_peaks_table_12_1": [
+      {
+        "year": 1935,
+        "peak_cfs_as_printed": "1460"
+      },
+      {
+        "year": 1936,
+        "peak_cfs_as_printed": "4050"
+      },
+      {
+        "year": 1937,
+        "peak_cfs_as_printed": "3570"
+      },
+      {
+        "year": 1938,
+        "peak_cfs_as_printed": "2060"
+      },
+      {
+        "year": 1939,
+        "peak_cfs_as_printed": "1300"
+      },
+      {
+        "year": 1940,
+        "peak_cfs_as_printed": "1390"
+      },
+      {
+        "year": 1941,
+        "peak_cfs_as_printed": "1720"
+      },
+      {
+        "year": 1942,
+        "peak_cfs_as_printed": "6280"
+      },
+      {
+        "year": 1943,
+        "peak_cfs_as_printed": "1360"
+      },
+      {
+        "year": 1944,
+        "peak_cfs_as_printed": "7440"
+      },
+      {
+        "year": 1945,
+        "peak_cfs_as_printed": "5320"
+      },
+      {
+        "year": 1946,
+        "peak_cfs_as_printed": "1400"
+      },
+      {
+        "year": 1947,
+        "peak_cfs_as_printed": "3240"
+      },
+      {
+        "year": 1948,
+        "peak_cfs_as_printed": "2710"
+      },
+      {
+        "year": 1949,
+        "peak_cfs_as_printed": "4520"
+      },
+      {
+        "year": 1950,
+        "peak_cfs_as_printed": "4840"
+      },
+      {
+        "year": 1951,
+        "peak_cfs_as_printed": "8320"
+      },
+      {
+        "year": 1952,
+        "peak_cfs_as_printed": "13900"
+      },
+      {
+        "year": 1953,
+        "peak_cfs_as_printed": "71500"
+      },
+      {
+        "year": 1954,
+        "peak_cfs_as_printed": "6250"
+      },
+      {
+        "year": 1955,
+        "peak_cfs_as_printed": "2260"
+      },
+      {
+        "year": 1956,
+        "peak_cfs_as_printed": "318"
+      },
+      {
+        "year": 1957,
+        "peak_cfs_as_printed": "1330"
+      },
+      {
+        "year": 1958,
+        "peak_cfs_as_printed": "970"
+      },
+      {
+        "year": 1959,
+        "peak_cfs_as_printed": "1920"
+      },
+      {
+        "year": 1960,
+        "peak_cfs_as_printed": "15100"
+      },
+      {
+        "year": 1961,
+        "peak_cfs_as_printed": "2870"
+      },
+      {
+        "year": 1962,
+        "peak_cfs_as_printed": "20600"
+      },
+      {
+        "year": 1963,
+        "peak_cfs_as_printed": "3810"
+      },
+      {
+        "year": 1964,
+        "peak_cfs_as_printed": "726"
+      },
+      {
+        "year": 1965,
+        "peak_cfs_as_printed": "7500"
+      },
+      {
+        "year": 1966,
+        "peak_cfs_as_printed": "7170"
+      },
+      {
+        "year": 1967,
+        "peak_cfs_as_printed": "2000"
+      },
+      {
+        "year": 1968,
+        "peak_cfs_as_printed": "829"
+      },
+      {
+        "year": 1969,
+        "peak_cfs_as_printed": "17300"
+      },
+      {
+        "year": 1970,
+        "peak_cfs_as_printed": "4740"
+      },
+      {
+        "year": 1971,
+        "peak_cfs_as_printed": "13400"
+      },
+      {
+        "year": 1972,
+        "peak_cfs_as_printed": "2940"
+      },
+      {
+        "year": 1973,
+        "peak_cfs_as_printed": "5660"
+      }
+    ],
+    "historic_information": {
+      "text": "Information from local residents indicates that the 1953 event is known to be the largest event since 1892; therefore, this event will be treated as a high outlier.",
+      "historic_period": "1892-1973",
+      "H": 82,
+      "Z": 1,
+      "L": 0,
+      "historic_peaks": [
+        {
+          "year": 1953,
+          "Q_cfs": "71500"
+        }
+      ]
+    },
+    "zero_flow_years": null,
+    "generalized_skew": "-0.3",
+    "generalized_skew_source": "Plate I",
+    "generalized_skew_mse": "0.302"
+  },
+  "computations": {
+    "step1_systematic_statistics": {
+      "page": "12-15",
+      "mean_log": "3.5553",
+      "std_log": "0.4642",
+      "skew_log": "0.3566",
+      "years": 39,
+      "preliminary_curve_note": "Figure 12-2 preliminary curve uses computed mean and standard deviation and a weighted skew of 0.1 (based on a generalized skew of -0.3 from Plate I)."
+    },
+    "step2_outlier_tests": {
+      "page": "12-15 to 12-17",
+      "order_rule_text": "The station skew is between +/- 0.4; therefore, the tests for both high outliers and low outliers are based on the systematic record statistics before any adjustments are made.",
+      "K_N": "2.671",
+      "K_N_sample_size": 39,
+      "high_eq_12_17": {
+        "printed": "3.5553 + 2.671(.4642) = 4.7952",
+        "X_H": "4.7952",
+        "Q_H_cfs": "62400"
+      },
+      "high_outliers": [
+        {
+          "year": 1953,
+          "Q_cfs": "71500"
+        }
+      ],
+      "low_eq_12_18": {
+        "printed": "3.5553 - 2.671(.4642) = 2.3154",
+        "X_L": "2.3154",
+        "Q_L_cfs": "207"
+      },
+      "low_outliers": [],
+      "low_outlier_text": "There are no values below this threshold value."
+    },
+    "step3_statistics_without_1953": {
+      "page": "12-17",
+      "mean_log": "3.5212",
+      "std_log": "0.4177",
+      "skew_log": "-0.0949",
+      "years": 38
+    },
+    "step4_historic_adjustment": {
+      "page": "12-17 to 12-19",
+      "H": 82,
+      "L": 0,
+      "N": 38,
+      "Z": 1,
+      "W_eq_12_19": {
+        "printed": "(82 - 1)/(38 + 0) = 2.13158",
+        "W": "2.13158"
+      },
+      "adjusted_mean_eq_12_20": {
+        "M": "3.5212",
+        "WNM": "285.2173",
+        "sum_Xz": "4.8543",
+        "numerator": "290.0716",
+        "printed": "290.0716/(82-0) = 3.5375",
+        "M_tilde": "3.5375"
+      },
+      "adjusted_std_eq_12_21": {
+        "S": ".4177",
+        "W_Nm1_S2": "13.7604",
+        "WN_M_minus_Mtilde_sq": ".0215",
+        "sum_Xz_minus_Mtilde_sq": "1.7340",
+        "numerator": "15.5159",
+        "printed": "15.5159/(82-0-1) = .1916",
+        "S_tilde_sq": ".1916",
+        "S_tilde": ".4377"
+      },
+      "adjusted_skew_eq_12_22": {
+        "G": "-0.0949",
+        "term1_W_Nm1_Nm2_S3_G_over_N": "-.5168",
+        "term2_3W_Nm1_M_minus_Mtilde_S2": "-.6729",
+        "term3_WN_M_minus_Mtilde_cubed": "-.0004",
+        "term4_sum_Xz_minus_Mtilde_cubed": "2.2833",
+        "bracket_sum": "1.0932",
+        "factor_printed_as_H_over_(H-WL-1)(H-WL-2)S_tilde3": ".1509",
+        "printed": "G = .1509 (1.0932) = .1650",
+        "G_tilde": ".1650",
+        "note": "The factor is printed with numerator 'H'; equation 6-4b has (H-WL). With L = 0 these are equal."
+      }
+    },
+    "weighted_skew_eq_12_23": {
+      "page": "12-19",
+      "station_skew_used": ".1650 (historically adjusted)",
+      "MSE_G_station": "0.073",
+      "MSE_G_source": "Interpolating in Table 1, based on H of 82 years",
+      "generalized_skew": "-0.3",
+      "MSE_generalized": "0.302",
+      "printed": ".302(.1650) + .073(-.3) / (.302 + .073) = 0.0745",
+      "G_w": "0.0745",
+      "G_w_rounded_used": "0.1",
+      "rounding_note": "rounded to nearest tenth"
+    },
+    "step5_plotting_positions": {
+      "page": "12-20",
+      "m1_eq_6_6": "1",
+      "m2_eq_12_24": {
+        "printed": "2.1316(2) - (2.1316-1)(1 + .5) = 2.5658",
+        "m2": "2.5658"
+      },
+      "plotting_formula": "Weibull, a = 0: PP = m/(H+1) (100)",
+      "PP1_eq_12_25": "1.20",
+      "PP2_eq_12_26": "3.09",
+      "PP2_exceedance": ".0309",
+      "table_12_6": [
+        {
+          "year": "1953",
+          "Q_cfs": "71500",
+          "W": "1.0000",
+          "E": "1",
+          "m_tilde": "1.0000",
+          "PP_percent": "1.20",
+          "PP_exceedance_probability": ".0120"
+        },
+        {
+          "year": "1962",
+          "Q_cfs": "20600",
+          "W": "2.1316",
+          "E": "2",
+          "m_tilde": "2.5658",
+          "PP_percent": "3.09",
+          "PP_exceedance_probability": ".0309"
+        },
+        {
+          "year": "1969",
+          "Q_cfs": "17300",
+          "W": "2.1316",
+          "E": "3",
+          "m_tilde": "4.6974",
+          "PP_percent": "5.66",
+          "PP_exceedance_probability": ".0566"
+        },
+        {
+          "year": "1960",
+          "Q_cfs": "15100",
+          "W": "2.1316",
+          "E": "4",
+          "m_tilde": "6.8290",
+          "PP_percent": "8.23",
+          "PP_exceedance_probability": ".0823"
+        },
+        {
+          "year": "1952",
+          "Q_cfs": "13900",
+          "W": "2.1316",
+          "E": "5",
+          "m_tilde": "8.9606",
+          "PP_percent": "10.80",
+          "PP_exceedance_probability": ".1080"
+        },
+        {
+          "year": "1971",
+          "Q_cfs": "13400",
+          "W": "2.1316",
+          "E": "6",
+          "m_tilde": "11.0922",
+          "PP_percent": "13.36",
+          "PP_exceedance_probability": ".1336"
+        },
+        {
+          "year": "1951",
+          "Q_cfs": "8320",
+          "W": "2.1316",
+          "E": "7",
+          "m_tilde": "13.2238",
+          "PP_percent": "15.93",
+          "PP_exceedance_probability": ".1593"
+        },
+        {
+          "year": "1965",
+          "Q_cfs": "7500",
+          "W": "2.1316",
+          "E": "8",
+          "m_tilde": "15.3554",
+          "PP_percent": "18.50",
+          "PP_exceedance_probability": ".1850"
+        },
+        {
+          "year": "1944",
+          "Q_cfs": "7440",
+          "W": "2.1316",
+          "E": "9",
+          "m_tilde": "17.4870",
+          "PP_percent": "21.07",
+          "PP_exceedance_probability": ".2107"
+        },
+        {
+          "year": "1966",
+          "Q_cfs": "7170",
+          "W": "2.1316",
+          "E": "10",
+          "m_tilde": "19.6186",
+          "PP_percent": "23.64",
+          "PP_exceedance_probability": ".2364"
+        }
+      ],
+      "table_12_6_note": "Only the first 10 values are shown for this example"
+    }
+  },
+  "final_frequency_table_12_7": {
+    "page": "12-21",
+    "G_w_used": "0.1",
+    "mean_used": "3.5375 (M~)",
+    "std_used": ".4377 (S~)",
+    "rows": [
+      {
+        "P": ".99",
+        "K_Gw_P": "-2.25258",
+        "log_Q": "2.5515",
+        "Q_cfs": "356"
+      },
+      {
+        "P": ".90",
+        "K_Gw_P": "-1.27037",
+        "log_Q": "2.9815",
+        "Q_cfs": "958"
+      },
+      {
+        "P": ".50",
+        "K_Gw_P": "-0.01662",
+        "log_Q": "3.5302",
+        "Q_cfs": "3390"
+      },
+      {
+        "P": ".10",
+        "K_Gw_P": "1.29178",
+        "log_Q": "4.1029",
+        "Q_cfs": "12700"
+      },
+      {
+        "P": ".05",
+        "K_Gw_P": "1.67279",
+        "log_Q": "4.2697",
+        "Q_cfs": "18600"
+      },
+      {
+        "P": ".02",
+        "K_Gw_P": "2.10697",
+        "log_Q": "4.4597",
+        "Q_cfs": "28800"
+      },
+      {
+        "P": ".01",
+        "K_Gw_P": "2.39961",
+        "log_Q": "4.5878",
+        "Q_cfs": "38700"
+      },
+      {
+        "P": ".005",
+        "K_Gw_P": "2.66965",
+        "log_Q": "4.7060",
+        "Q_cfs": "50800"
+      },
+      {
+        "P": ".002",
+        "K_Gw_P": "2.99978",
+        "log_Q": "4.8504",
+        "Q_cfs": "70900"
+      }
+    ]
+  },
+  "confidence_limits": null,
+  "expected_probability": null,
+  "figures": "Figure 12-2 (p.12-16) preliminary curve; Figure 12-3 (p.12-22) final curve; plots not transcribed",
+  "uncertain_digits": []
+}

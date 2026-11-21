@@ -1,0 +1,409 @@
+{
+  "example": 3,
+  "title": "Testing and Adjusting for a Low Outlier",
+  "bulletin_pages": "12-23 to 12-31 (PDF pages 141-149); data in Table 12-1, p.12-5 (PDF 123)",
+  "note_on_values": "All numbers are strings exactly as printed. Nothing computed or rounded by the transcriber.",
+  "station": {
+    "name": "Back Creek near Jones Springs, West Virginia",
+    "usgs_number_as_printed": "01-6140",
+    "latitude": "39°30'43\"",
+    "longitude": "78°02'15\"",
+    "drainage_area_sq_mi": "243",
+    "annual_peaks_available": "1929-31, 1939-1973"
+  },
+  "input": {
+    "systematic_record": {
+      "years": "1929-1931, 1939-1973",
+      "N": 38
+    },
+    "annual_peaks_table_12_1": [
+      {
+        "year": 1929,
+        "peak_cfs_as_printed": "8750"
+      },
+      {
+        "year": 1930,
+        "peak_cfs_as_printed": "15500"
+      },
+      {
+        "year": 1931,
+        "peak_cfs_as_printed": "4060"
+      },
+      {
+        "year": 1936,
+        "peak_cfs_as_printed": "22000*"
+      },
+      {
+        "year": 1937,
+        "peak_cfs_as_printed": "-"
+      },
+      {
+        "year": 1938,
+        "peak_cfs_as_printed": "-"
+      },
+      {
+        "year": 1939,
+        "peak_cfs_as_printed": "6300"
+      },
+      {
+        "year": 1940,
+        "peak_cfs_as_printed": "3130"
+      },
+      {
+        "year": 1941,
+        "peak_cfs_as_printed": "4160"
+      },
+      {
+        "year": 1942,
+        "peak_cfs_as_printed": "6700"
+      },
+      {
+        "year": 1943,
+        "peak_cfs_as_printed": "22400"
+      },
+      {
+        "year": 1944,
+        "peak_cfs_as_printed": "3880"
+      },
+      {
+        "year": 1945,
+        "peak_cfs_as_printed": "8050"
+      },
+      {
+        "year": 1946,
+        "peak_cfs_as_printed": "4020"
+      },
+      {
+        "year": 1947,
+        "peak_cfs_as_printed": "1600"
+      },
+      {
+        "year": 1948,
+        "peak_cfs_as_printed": "4460"
+      },
+      {
+        "year": 1949,
+        "peak_cfs_as_printed": "4230"
+      },
+      {
+        "year": 1950,
+        "peak_cfs_as_printed": "3010"
+      },
+      {
+        "year": 1951,
+        "peak_cfs_as_printed": "9150"
+      },
+      {
+        "year": 1952,
+        "peak_cfs_as_printed": "5100"
+      },
+      {
+        "year": 1953,
+        "peak_cfs_as_printed": "9820"
+      },
+      {
+        "year": 1954,
+        "peak_cfs_as_printed": "6200"
+      },
+      {
+        "year": 1955,
+        "peak_cfs_as_printed": "10700"
+      },
+      {
+        "year": 1956,
+        "peak_cfs_as_printed": "3880"
+      },
+      {
+        "year": 1957,
+        "peak_cfs_as_printed": "3420"
+      },
+      {
+        "year": 1958,
+        "peak_cfs_as_printed": "3240"
+      },
+      {
+        "year": 1959,
+        "peak_cfs_as_printed": "6800"
+      },
+      {
+        "year": 1960,
+        "peak_cfs_as_printed": "3740"
+      },
+      {
+        "year": 1961,
+        "peak_cfs_as_printed": "4700"
+      },
+      {
+        "year": 1962,
+        "peak_cfs_as_printed": "4380"
+      },
+      {
+        "year": 1963,
+        "peak_cfs_as_printed": "5190"
+      },
+      {
+        "year": 1964,
+        "peak_cfs_as_printed": "3960"
+      },
+      {
+        "year": 1965,
+        "peak_cfs_as_printed": "5600"
+      },
+      {
+        "year": 1966,
+        "peak_cfs_as_printed": "4670"
+      },
+      {
+        "year": 1967,
+        "peak_cfs_as_printed": "7080"
+      },
+      {
+        "year": 1968,
+        "peak_cfs_as_printed": "4640"
+      },
+      {
+        "year": 1969,
+        "peak_cfs_as_printed": "536"
+      },
+      {
+        "year": 1970,
+        "peak_cfs_as_printed": "6680"
+      },
+      {
+        "year": 1971,
+        "peak_cfs_as_printed": "8360"
+      },
+      {
+        "year": 1972,
+        "peak_cfs_as_printed": "18700"
+      },
+      {
+        "year": 1973,
+        "peak_cfs_as_printed": "5210"
+      }
+    ],
+    "table_12_1_notes": "1936 printed as '22000*' with footnote '*Not included in example computations.'; 1937 and 1938 printed as '-'. Note on p.12-30: 'A value of 22,000 cfs was estimated for 1936 on the basis of data from another site. This flow value could be treated as historic data and analyzed by the producers [sic] described in Appendix 6. As these computations are for illustrative purposes only, the remaining analysis was not made.'",
+    "historic_peaks": null,
+    "zero_flow_years": null,
+    "generalized_skew": "0.5",
+    "generalized_skew_source": "Plate I",
+    "generalized_skew_mse": ".302"
+  },
+  "computations": {
+    "step1_systematic_statistics": {
+      "page": "12-23",
+      "mean_log": "3.7220",
+      "std_log": "0.2804",
+      "skew_log": "-0.7311",
+      "years": 38,
+      "preliminary_curve_note": "Figure 12-4 preliminary curve uses computed mean and standard deviation and a weighted skew of -0.2 (based on a generalized skew of 0.5 from Plate I)."
+    },
+    "step2_low_outlier_test": {
+      "page": "12-23 to 12-25",
+      "order_rule_text": "As the computed skew coefficient is less than -0.4, the test for detecting possible low outliers is made first.",
+      "K_N": "2.661",
+      "K_N_sample_size": 38,
+      "low_eq_12_27": {
+        "printed": "3.7220 - 2.661 (.2804) = 2.9759",
+        "X_L": "2.9759",
+        "Q_L_cfs": "946"
+      },
+      "low_outliers": [
+        {
+          "year": 1969,
+          "Q_cfs": "536"
+        }
+      ]
+    },
+    "step3_statistics_without_low_outlier": {
+      "page": "12-25",
+      "mean_log": "3.7488",
+      "std_log": "0.2296",
+      "skew_log": "0.6311",
+      "years": 37
+    },
+    "step4_high_outlier_test": {
+      "page": "12-25",
+      "Q_H_cfs": "22,760",
+      "sample_size": 37,
+      "text": "computed to be 22,760 cfs based on the statistics in Step 3 and the sample size of 37 events. No recorded events exceed the threshold value.",
+      "high_outliers": []
+    },
+    "step5_conditional_adjustment": {
+      "page": "12-25 to 12-26",
+      "conditional_skew_used": "0.6",
+      "skew_rounding_note": "The skew coefficient has been rounded to 0.6 for ease in computation.",
+      "P_tilde_eq_12_28": {
+        "printed": "N/n = 37/38 = 0.9737",
+        "P_tilde": "0.9737"
+      },
+      "table_12_8": [
+        {
+          "P_d": ".99",
+          "K_G_Pd": "-1.88029",
+          "log_Q": "3.3171",
+          "Q_cfs": "2080",
+          "adjusted_exceedance_probability_P_Pd": ".9639"
+        },
+        {
+          "P_d": ".90",
+          "K_G_Pd": "-1.20028",
+          "log_Q": "3.4732",
+          "Q_cfs": "2970",
+          "adjusted_exceedance_probability_P_Pd": ".876"
+        },
+        {
+          "P_d": ".50",
+          "K_G_Pd": "-0.09945",
+          "log_Q": "3.7260",
+          "Q_cfs": "5320",
+          "adjusted_exceedance_probability_P_Pd": ".487"
+        },
+        {
+          "P_d": ".10",
+          "K_G_Pd": "1.32850",
+          "log_Q": "4.0538",
+          "Q_cfs": "11300",
+          "adjusted_exceedance_probability_P_Pd": ".097"
+        },
+        {
+          "P_d": ".05",
+          "K_G_Pd": "1.79701",
+          "log_Q": "4.1614",
+          "Q_cfs": "14500",
+          "adjusted_exceedance_probability_P_Pd": ".049"
+        },
+        {
+          "P_d": ".02",
+          "K_G_Pd": "2.35931",
+          "log_Q": "4.2905",
+          "Q_cfs": "19500",
+          "adjusted_exceedance_probability_P_Pd": ".0195"
+        },
+        {
+          "P_d": ".01",
+          "K_G_Pd": "2.75514",
+          "log_Q": "4.3814",
+          "Q_cfs": "24100",
+          "adjusted_exceedance_probability_P_Pd": ".0097"
+        },
+        {
+          "P_d": ".005",
+          "K_G_Pd": "3.13232",
+          "log_Q": "4.4680",
+          "Q_cfs": "29400",
+          "adjusted_exceedance_probability_P_Pd": ".0049"
+        },
+        {
+          "P_d": ".002",
+          "K_G_Pd": "3.60872",
+          "log_Q": "4.5774",
+          "Q_cfs": "37800",
+          "adjusted_exceedance_probability_P_Pd": ".0019"
+        }
+      ]
+    },
+    "step6_synthetic_statistics": {
+      "page": "12-28 to 12-29",
+      "Q01_cfs": "23880",
+      "Q10_cfs": "11210",
+      "Q50_cfs": "5230",
+      "Q_source": "read from the adjusted curve on Figure 12-5",
+      "Gs_eq_12_29": {
+        "printed": "-2.50 + 3.12 log(23880/11210)/log(11210/5230) = -2.50 + 3.12 (.32843/.33110) = 0.5948",
+        "log_ratio_01_10": ".32843",
+        "log_ratio_10_50": ".33110",
+        "Gs": "0.5948"
+      },
+      "Ss_eq_12_30": {
+        "printed": "log(23880/5230)/[2.75514-(-.09945)] = .6595/2.8546 = 0.2310",
+        "K01_used": "2.75514",
+        "K50_used": "-.09945",
+        "numerator": ".6595",
+        "denominator": "2.8546",
+        "Ss": "0.2310"
+      },
+      "Xs_eq_12_31": {
+        "printed": "log(5230) - (-.09945)(.2310) = 3.7185 + .0230 = 3.7415",
+        "log_Q50": "3.7185",
+        "Xs": "3.7415"
+      },
+      "note": "K.01 and K.50 used are the G = 0.6 values from Table 12-8 (not values for Gs = 0.5948 as Appendix 5 literally states)."
+    },
+    "step7_weighted_skew_eq_12_32": {
+      "page": "12-29",
+      "MSE_station_skew": "0.183",
+      "MSE_source": "from Table 1, based on n = 38 and using Gs for G",
+      "printed": ".302(0.5948) + .183(.5) / (.302 + .183) = 0.5590",
+      "G_w": "0.5590",
+      "G_w_rounded_used": "0.6",
+      "rounding_note": "rounded to nearest tenth"
+    }
+  },
+  "final_frequency_table_12_9": {
+    "page": "12-30",
+    "G_w_used": "0.6",
+    "mean_used": "3.7415 (Xs)",
+    "std_used": "0.2310 (Ss)",
+    "rows": [
+      {
+        "P": ".99",
+        "K_Gw_P": "-1.88029",
+        "log_Q": "3.3072",
+        "Q_cfs": "2030"
+      },
+      {
+        "P": ".90",
+        "K_Gw_P": "-1.20028",
+        "log_Q": "3.4642",
+        "Q_cfs": "2910"
+      },
+      {
+        "P": ".50",
+        "K_Gw_P": "-0.09945",
+        "log_Q": "3.7185",
+        "Q_cfs": "5230"
+      },
+      {
+        "P": ".10",
+        "K_Gw_P": "1.32850",
+        "log_Q": "4.0484",
+        "Q_cfs": "11200"
+      },
+      {
+        "P": ".05",
+        "K_Gw_P": "1.79701",
+        "log_Q": "4.1566",
+        "Q_cfs": "14300"
+      },
+      {
+        "P": ".02",
+        "K_Gw_P": "2.35931",
+        "log_Q": "4.2865",
+        "Q_cfs": "19300"
+      },
+      {
+        "P": ".01",
+        "K_Gw_P": "2.75514",
+        "log_Q": "4.3780",
+        "Q_cfs": "23900"
+      },
+      {
+        "P": ".005",
+        "K_Gw_P": "3.13232",
+        "log_Q": "4.4651",
+        "Q_cfs": "29200"
+      },
+      {
+        "P": ".002",
+        "K_Gw_P": "3.60872",
+        "log_Q": "4.5751",
+        "Q_cfs": "37600"
+      }
+    ]
+  },
+  "confidence_limits": null,
+  "expected_probability": null,
+  "figures": "Figure 12-4 (p.12-24) preliminary; Figure 12-5 (p.12-27) conditional and adjusted curves; Figure 12-6 (p.12-31) final; plots not transcribed",
+  "uncertain_digits": []
+}

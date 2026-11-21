@@ -1,0 +1,419 @@
+{
+  "example": 4,
+  "title": "Adjusting for Zero Flood Years",
+  "bulletin_pages": "12-32 to 12-37 (PDF pages 150-155); data in Table 12-1, p.12-5 (PDF 123)",
+  "note_on_values": "All numbers are strings exactly as printed. Nothing computed or rounded by the transcriber.",
+  "station": {
+    "name": "Orestimba Creek near Newman, California",
+    "usgs_number_as_printed": "11-2745",
+    "latitude": "37°19'01\"",
+    "longitude": "121°07'39\"",
+    "drainage_area_sq_mi": "134",
+    "annual_peaks_available": "1932-1973"
+  },
+  "input": {
+    "systematic_record": {
+      "years": "1932-1973",
+      "n_total_years": 42
+    },
+    "annual_peaks_table_12_1": [
+      {
+        "year": 1932,
+        "peak_cfs_as_printed": "4260"
+      },
+      {
+        "year": 1933,
+        "peak_cfs_as_printed": "345"
+      },
+      {
+        "year": 1934,
+        "peak_cfs_as_printed": "516"
+      },
+      {
+        "year": 1935,
+        "peak_cfs_as_printed": "1320"
+      },
+      {
+        "year": 1936,
+        "peak_cfs_as_printed": "1200"
+      },
+      {
+        "year": 1937,
+        "peak_cfs_as_printed": "2180"
+      },
+      {
+        "year": 1938,
+        "peak_cfs_as_printed": "3230"
+      },
+      {
+        "year": 1939,
+        "peak_cfs_as_printed": "115"
+      },
+      {
+        "year": 1940,
+        "peak_cfs_as_printed": "3440"
+      },
+      {
+        "year": 1941,
+        "peak_cfs_as_printed": "3070"
+      },
+      {
+        "year": 1942,
+        "peak_cfs_as_printed": "1880"
+      },
+      {
+        "year": 1943,
+        "peak_cfs_as_printed": "6450"
+      },
+      {
+        "year": 1944,
+        "peak_cfs_as_printed": "1290"
+      },
+      {
+        "year": 1945,
+        "peak_cfs_as_printed": "5970"
+      },
+      {
+        "year": 1946,
+        "peak_cfs_as_printed": "782"
+      },
+      {
+        "year": 1947,
+        "peak_cfs_as_printed": "0"
+      },
+      {
+        "year": 1948,
+        "peak_cfs_as_printed": "0"
+      },
+      {
+        "year": 1949,
+        "peak_cfs_as_printed": "335"
+      },
+      {
+        "year": 1950,
+        "peak_cfs_as_printed": "175"
+      },
+      {
+        "year": 1951,
+        "peak_cfs_as_printed": "2920"
+      },
+      {
+        "year": 1952,
+        "peak_cfs_as_printed": "3660"
+      },
+      {
+        "year": 1953,
+        "peak_cfs_as_printed": "147"
+      },
+      {
+        "year": 1954,
+        "peak_cfs_as_printed": "0"
+      },
+      {
+        "year": 1955,
+        "peak_cfs_as_printed": "16"
+      },
+      {
+        "year": 1956,
+        "peak_cfs_as_printed": "5620"
+      },
+      {
+        "year": 1957,
+        "peak_cfs_as_printed": "1440"
+      },
+      {
+        "year": 1958,
+        "peak_cfs_as_printed": "10200"
+      },
+      {
+        "year": 1959,
+        "peak_cfs_as_printed": "5380"
+      },
+      {
+        "year": 1960,
+        "peak_cfs_as_printed": "448"
+      },
+      {
+        "year": 1961,
+        "peak_cfs_as_printed": "0"
+      },
+      {
+        "year": 1962,
+        "peak_cfs_as_printed": "1740"
+      },
+      {
+        "year": 1963,
+        "peak_cfs_as_printed": "8300"
+      },
+      {
+        "year": 1964,
+        "peak_cfs_as_printed": "156"
+      },
+      {
+        "year": 1965,
+        "peak_cfs_as_printed": "560"
+      },
+      {
+        "year": 1966,
+        "peak_cfs_as_printed": "128"
+      },
+      {
+        "year": 1967,
+        "peak_cfs_as_printed": "4200"
+      },
+      {
+        "year": 1968,
+        "peak_cfs_as_printed": "0"
+      },
+      {
+        "year": 1969,
+        "peak_cfs_as_printed": "5080"
+      },
+      {
+        "year": 1970,
+        "peak_cfs_as_printed": "1010"
+      },
+      {
+        "year": 1971,
+        "peak_cfs_as_printed": "584"
+      },
+      {
+        "year": 1972,
+        "peak_cfs_as_printed": "0"
+      },
+      {
+        "year": 1973,
+        "peak_cfs_as_printed": "1510"
+      }
+    ],
+    "zero_flow_years": [
+      1947,
+      1948,
+      1954,
+      1961,
+      1968,
+      1972
+    ],
+    "zero_flow_count_as_printed": "There are 6 years with zero flood events, leaving 36 non-zero events.",
+    "historic_peaks": null,
+    "generalized_skew": "-0.3",
+    "generalized_skew_source": "Plate I",
+    "generalized_skew_mse": ".302"
+  },
+  "computations": {
+    "step2_nonzero_statistics": {
+      "page": "12-32",
+      "mean_log": "3.0786",
+      "std_log": "0.6443",
+      "skew_log": "-0.8360",
+      "years_non_zero": 36
+    },
+    "step3_low_outlier_test": {
+      "page": "12-32",
+      "order_rule_text": "Because the computed skew coefficient is less than -0.4, the test for detecting possible low outliers is made first.",
+      "sample_size": 36,
+      "Q_L_cfs": "23.9",
+      "K_N": null,
+      "K_N_note": "K_N and X_L not printed; only the threshold 23.9 cfs.",
+      "low_outliers": [
+        {
+          "year": 1955,
+          "Q_cfs": "16"
+        }
+      ],
+      "statistics_after_deletion": {
+        "mean_log": "3.1321",
+        "std_log": "0.5665",
+        "skew_log": "-0.4396",
+        "years": 35,
+        "years_label": "Years (Zero and low outliers deleted)"
+      }
+    },
+    "step4_high_outlier_test": {
+      "page": "12-33",
+      "Q_H_cfs": "41,770",
+      "sample_size": 35,
+      "high_outliers": [],
+      "text": "No recorded events exceed the threshold value."
+    },
+    "step5_conditional_adjustment": {
+      "page": "12-33",
+      "conditional_skew_used": "-0.4",
+      "skew_rounding_note": "The skew coefficient has been rounded to -0.4 for ease in computation.",
+      "P_tilde_printed": "35/42 = 0.83333",
+      "P_tilde": "0.83333",
+      "table_12_10": [
+        {
+          "P_d": ".99",
+          "K_G_P": "-2.61539",
+          "log_Q": "1.6505",
+          "Q_cfs": "44.7",
+          "adjusted_exceedance_probability_Ptilde_Pd": ".825"
+        },
+        {
+          "P_d": ".90",
+          "K_G_P": "-1.31671",
+          "log_Q": "2.3862",
+          "Q_cfs": "243",
+          "adjusted_exceedance_probability_Ptilde_Pd": ".750"
+        },
+        {
+          "P_d": ".50",
+          "K_G_P": "0.06651",
+          "log_Q": "3.1698",
+          "Q_cfs": "1480",
+          "adjusted_exceedance_probability_Ptilde_Pd": ".417"
+        },
+        {
+          "P_d": ".10",
+          "K_G_P": "1.23114",
+          "log_Q": "3.8295",
+          "Q_cfs": "6750",
+          "adjusted_exceedance_probability_Ptilde_Pd": ".083"
+        },
+        {
+          "P_d": ".05",
+          "K_G_P": "1.52357",
+          "log_Q": "3.9952",
+          "Q_cfs": "98900",
+          "adjusted_exceedance_probability_Ptilde_Pd": ".042",
+          "Q_cfs_note": "Printed as 98900; inconsistent with printed log Q 3.9952 and with neighbouring rows. Apparent misprint in the bulletin (likely 9890). Kept exactly as printed."
+        },
+        {
+          "P_d": ".02",
+          "K_G_P": "1.83361",
+          "log_Q": "4.1708",
+          "Q_cfs": "14800",
+          "adjusted_exceedance_probability_Ptilde_Pd": ".017"
+        },
+        {
+          "P_d": ".01",
+          "K_G_P": "2.02933",
+          "log_Q": "4.2817",
+          "Q_cfs": "19100",
+          "adjusted_exceedance_probability_Ptilde_Pd": ".0083"
+        },
+        {
+          "P_d": ".005",
+          "K_G_P": "2.20092",
+          "log_Q": "4.3789",
+          "Q_cfs": "23900",
+          "adjusted_exceedance_probability_Ptilde_Pd": ".0042"
+        },
+        {
+          "P_d": ".002",
+          "K_G_P": "2.39942",
+          "log_Q": "4.4914",
+          "Q_cfs": "31000",
+          "adjusted_exceedance_probability_Ptilde_Pd": ".0017"
+        }
+      ]
+    },
+    "step6_synthetic_statistics": {
+      "page": "12-35",
+      "Q01_cfs": "17940",
+      "Q10_cfs": "6000",
+      "Q50_cfs": "1060",
+      "Q_source": "from the adjusted curve on Figure 12-7",
+      "Gs_eq_12_33": {
+        "printed": "-2.50 + 3.12 log(17940/6000)/log(6000/1060) = -0.5287",
+        "Gs": "-0.5287",
+        "Gs_rounded": "-0.5",
+        "rounding_note": "rounded to nearest tenth"
+      },
+      "Ss_eq_12_34": {
+        "printed": "log(17940/1060)/(1.95472 - .08302)",
+        "K01_used": "1.95472",
+        "K50_used": ".08302",
+        "Ss": "0.6564"
+      },
+      "Xs_eq_12_35": {
+        "printed": "log(1060) - (.08302)(.6564)",
+        "Xs": "2.9708"
+      }
+    },
+    "step7_weighted_skew_eq_12_36": {
+      "page": "12-35",
+      "generalized_skew": "-0.3",
+      "MSE_station_skew": "0.163",
+      "MSE_source": "From Table I (record length used not stated)",
+      "printed": ".302(-.529) + .163(-.3) / (.302 + .163) = -0.4487",
+      "station_skew_used_in_weighting": "-.529",
+      "G_w": "-0.4487",
+      "G_w_rounded_used": "-0.4",
+      "rounding_note": "rounded to nearest tenth"
+    }
+  },
+  "final_frequency_table_12_11": {
+    "page": "12-36",
+    "title_as_printed": "COMPUTATION OF FREQUENCY CURVE ORDINATES",
+    "G_w_used": "-0.4",
+    "mean_used": "2.9708 (Xs)",
+    "std_used": "0.6564 (Ss)",
+    "rows": [
+      {
+        "P": ".99",
+        "K_Gw_P": "-2.61539",
+        "log_Q": "1.2541",
+        "Q_cfs": "17.9"
+      },
+      {
+        "P": ".90",
+        "K_Gw_P": "-1.31671",
+        "log_Q": "2.1065",
+        "Q_cfs": "128"
+      },
+      {
+        "P": ".50",
+        "K_Gw_P": "0.06651",
+        "log_Q": "3.0145",
+        "Q_cfs": "1030"
+      },
+      {
+        "P": ".10",
+        "K_Gw_P": "1.23114",
+        "log_Q": "3.7789",
+        "Q_cfs": "6010"
+      },
+      {
+        "P": ".05",
+        "K_Gw_P": "1.52357",
+        "log_Q": "3.9709",
+        "Q_cfs": "9350"
+      },
+      {
+        "P": ".02",
+        "K_Gw_P": "1.83361",
+        "log_Q": "4.1744",
+        "Q_cfs": "14900"
+      },
+      {
+        "P": ".01",
+        "K_Gw_P": "2.02933",
+        "log_Q": "4.3029",
+        "Q_cfs": "20100"
+      },
+      {
+        "P": ".005",
+        "K_Gw_P": "2.20092",
+        "log_Q": "4.4155",
+        "Q_cfs": "26000"
+      },
+      {
+        "P": ".002",
+        "K_Gw_P": "2.39942",
+        "log_Q": "4.5458",
+        "Q_cfs": "35100"
+      }
+    ],
+    "closing_text": "This frequency curve is plotted on Figure 12-8. The adjusted frequency derived in Step 4 is also shown on Figure 12-8. As the generalized skew may have been determined from stations with much different characteristics from the zero flood record station, judgment is required to determine the most reasonable frequency curve."
+  },
+  "confidence_limits": null,
+  "expected_probability": null,
+  "figures": "Figure 12-7 (p.12-34) conditional and adjusted curves, legend 'Observed Peaks Based on 36 Years'; Figure 12-8 (p.12-37) final curve, legend 'Observed Peaks Based on 42 Years' and 'Adjusted Frequency Curve at Step 5'; plots not transcribed",
+  "printed_inconsistencies": [
+    "Table 12-10, Pd=.05: Q printed 98900 vs log Q 3.9952 (misprint in the bulletin, kept as printed).",
+    "Text on p.12-36 says 'adjusted frequency derived in Step 4'; Figure 12-8 legend says 'Adjusted Frequency Curve at Step 5' (the adjustment is in Step 5)."
+  ],
+  "uncertain_digits": []
+}

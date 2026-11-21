@@ -1,0 +1,521 @@
+{
+  "example": 1,
+  "title": "Fitting the Log-Pearson Type III Distribution",
+  "bulletin_pages": "12-6 to 12-14 (PDF pages 124-132); data also in Table 12-1, p.12-5 (PDF 123)",
+  "note_on_values": "All numbers are strings exactly as printed (precision preserved). Nothing was computed or rounded by the transcriber.",
+  "station": {
+    "name": "Fishkill Creek at Beacon, New York",
+    "usgs_number_as_printed": "01-3735",
+    "latitude": "41°30'42\"",
+    "longitude": "73°56'58\"",
+    "drainage_area_sq_mi": "190",
+    "annual_peaks_available": "1945-1968"
+  },
+  "input": {
+    "systematic_record": {
+      "years": "1945-1968",
+      "N": 24
+    },
+    "annual_peaks_table_12_2": [
+      {
+        "year": 1945,
+        "peak_cfs": 2290,
+        "X": "3.35984",
+        "X2": "11.28852",
+        "X3": "37.92764"
+      },
+      {
+        "year": 1946,
+        "peak_cfs": 1470,
+        "X": "3.16732",
+        "X2": "10.03192",
+        "X3": "31.77429"
+      },
+      {
+        "year": 1947,
+        "peak_cfs": 2220,
+        "X": "3.34635",
+        "X2": "11.19806",
+        "X3": "37.47262"
+      },
+      {
+        "year": 1948,
+        "peak_cfs": 2970,
+        "X": "3.47276",
+        "X2": "12.06006",
+        "X3": "41.88170"
+      },
+      {
+        "year": 1949,
+        "peak_cfs": 3020,
+        "X": "3.48001",
+        "X2": "12.11047",
+        "X3": "42.14456"
+      },
+      {
+        "year": 1950,
+        "peak_cfs": 1210,
+        "X": "3.08279",
+        "X2": "9.50359",
+        "X3": "29.29759"
+      },
+      {
+        "year": 1951,
+        "peak_cfs": 2490,
+        "X": "3.39620",
+        "X2": "11.53417",
+        "X3": "39.17236"
+      },
+      {
+        "year": 1952,
+        "peak_cfs": 3170,
+        "X": "3.50106",
+        "X2": "12.25742",
+        "X3": "42.91397"
+      },
+      {
+        "year": 1953,
+        "peak_cfs": 3220,
+        "X": "3.50786",
+        "X2": "12.30508",
+        "X3": "43.16450"
+      },
+      {
+        "year": 1954,
+        "peak_cfs": 1760,
+        "X": "3.24551",
+        "X2": "10.53334",
+        "X3": "34.18604"
+      },
+      {
+        "year": 1955,
+        "peak_cfs": 8800,
+        "X": "3.94448",
+        "X2": "15.55892",
+        "X3": "61.37186"
+      },
+      {
+        "year": 1956,
+        "peak_cfs": 8280,
+        "X": "3.91803",
+        "X2": "15.35096",
+        "X3": "60.14552"
+      },
+      {
+        "year": 1957,
+        "peak_cfs": 1310,
+        "X": "3.11727",
+        "X2": "9.71737",
+        "X3": "30.29167"
+      },
+      {
+        "year": 1958,
+        "peak_cfs": 2500,
+        "X": "3.39794",
+        "X2": "11.54600",
+        "X3": "39.23260"
+      },
+      {
+        "year": 1959,
+        "peak_cfs": 1960,
+        "X": "3.29226",
+        "X2": "10.83898",
+        "X3": "35.68473"
+      },
+      {
+        "year": 1960,
+        "peak_cfs": 2140,
+        "X": "3.33041",
+        "X2": "11.09163",
+        "X3": "36.93968"
+      },
+      {
+        "year": 1961,
+        "peak_cfs": 4340,
+        "X": "3.63749",
+        "X2": "13.23133",
+        "X3": "48.12884"
+      },
+      {
+        "year": 1962,
+        "peak_cfs": 3060,
+        "X": "3.48572",
+        "X2": "12.15024",
+        "X3": "42.35235"
+      },
+      {
+        "year": 1963,
+        "peak_cfs": 1780,
+        "X": "3.25042",
+        "X2": "10.56523",
+        "X3": "34.34144"
+      },
+      {
+        "year": 1964,
+        "peak_cfs": 1380,
+        "X": "3.13988",
+        "X2": "9.85885",
+        "X3": "30.95559"
+      },
+      {
+        "year": 1965,
+        "peak_cfs": 980,
+        "X": "2.99123",
+        "X2": "8.94746",
+        "X3": "26.76390"
+      },
+      {
+        "year": 1966,
+        "peak_cfs": 1040,
+        "X": "3.01703",
+        "X2": "9.10247",
+        "X3": "27.46243"
+      },
+      {
+        "year": 1967,
+        "peak_cfs": 1580,
+        "X": "3.19866",
+        "X2": "10.23143",
+        "X3": "32.72685"
+      },
+      {
+        "year": 1968,
+        "peak_cfs": 3630,
+        "X": "3.55991",
+        "X2": "12.67296",
+        "X3": "45.11459"
+      }
+    ],
+    "historic_peaks": null,
+    "zero_flow_years": null,
+    "generalized_skew": "0.6",
+    "generalized_skew_source": "Plate I",
+    "generalized_skew_mse": ".302",
+    "generalized_skew_mse_page": "12-9"
+  },
+  "computations": {
+    "sums_table_12_2": {
+      "page": "12-6",
+      "N": 24,
+      "sum_X": "80.84043",
+      "sum_X2": "273.68646",
+      "sum_X3": "931.44732"
+    },
+    "mean_eq_12_1": {
+      "page": "12-7",
+      "printed": "80.84043/24 = 3.3684",
+      "X_bar": "3.3684"
+    },
+    "std_eq_12_2": {
+      "page": "12-7",
+      "printed": "S = sqrt(1.38750/23) = 0.2456",
+      "numerator": "1.38750",
+      "S": "0.2456"
+    },
+    "skew_eq_12_3": {
+      "page": "12-7",
+      "printed_terms": {
+        "N2_sumX3": "536513.6563",
+        "3N_sumX_sumX2": "1592995.0400",
+        "2_sumX_cubed": "1056612.7341",
+        "S_used_in_denominator": ".24561",
+        "S_cubed": ".014816",
+        "numerator": "131.3504",
+        "denominator": "179.9285"
+      },
+      "G": "0.7300"
+    },
+    "outlier_tests": {
+      "page": "12-8",
+      "K_N": "2.467",
+      "K_N_sample_size": 24,
+      "high_eq_12_4": {
+        "X_H": "3.9743",
+        "Q_H_cfs": "9425",
+        "printed": "3.3684 + 2.467 (.2456) = 3.9743"
+      },
+      "high_outliers": [],
+      "high_outlier_text": "The largest recorded value does not exceed the threshold value.",
+      "low_eq_12_5": {
+        "X_L": "2.7625",
+        "Q_L_cfs": "579",
+        "printed": "3.3684 - 2.467(.2456) = 2.7625"
+      },
+      "low_outliers": [],
+      "low_outlier_text": "There are no recorded values below this threshold value."
+    },
+    "station_skew_mse": {
+      "page": "12-8",
+      "A_eq_12_6": {
+        "printed": "-0.33 + 0.08(.730) = -.2716",
+        "A": "-.2716"
+      },
+      "B_eq_12_7": {
+        "printed": "0.94 - 0.26(.730) = .7502",
+        "B": "0.7502"
+      },
+      "MSE_G_eq_12_8": {
+        "printed": "10^[-.2716 - .7502 [log10(2.4)]] = 10^-.55683 = 0.277",
+        "exponent": "-.55683",
+        "MSE_G": "0.277"
+      }
+    },
+    "weighted_skew_eq_12_9": {
+      "page": "12-9",
+      "printed": ".302(.7300) + .277(.6) / .579 = 0.6678",
+      "denominator": ".579",
+      "G_w": "0.6678",
+      "G_w_rounded_used": "0.7",
+      "rounding_note": "rounded to nearest tenth"
+    },
+    "example_quantile_eq_12_10": {
+      "page": "12-9",
+      "P": ".01",
+      "K": "2.82359",
+      "printed": "log Q = 3.3684 + 2.82359(.2456) = 4.0619",
+      "log_Q": "4.0619",
+      "Q_cfs": "11500",
+      "note": "Discharges rounded to three significant figures (as stated in the bulletin)."
+    },
+    "confidence_limit_worked_point": {
+      "page": "12-12 to 12-13",
+      "P": ".99",
+      "z_c": "1.64485",
+      "confidence_level_as_printed": "0.05",
+      "K_Gw_P": "-1.80621",
+      "a_eq_12_11": "0.9412",
+      "b_eq_12_12": "3.1497",
+      "sqrt_term": ".5458",
+      "K_U_eq_12_13": "-1.3392",
+      "upper_log_Q_eq_12_14": "3.0395",
+      "upper_Q_cfs": "1100",
+      "K_L_eq_12_15": "-2.4989",
+      "lower_log_Q_eq_12_16": "2.7546",
+      "lower_Q_cfs": "568"
+    }
+  },
+  "final_frequency_table_12_3": {
+    "page": "12-10",
+    "G_w_used": "0.7",
+    "rows": [
+      {
+        "P": ".99",
+        "K_Gw_P": "-1.80621",
+        "log_Q": "2.9247",
+        "Q_cfs": "841"
+      },
+      {
+        "P": ".90",
+        "K_Gw_P": "-1.18347",
+        "log_Q": "3.0777",
+        "Q_cfs": "1200"
+      },
+      {
+        "P": ".50",
+        "K_Gw_P": "-0.11578",
+        "log_Q": "3.3399",
+        "Q_cfs": "2190"
+      },
+      {
+        "P": ".10",
+        "K_Gw_P": "1.33294",
+        "log_Q": "3.6957",
+        "Q_cfs": "4960"
+      },
+      {
+        "P": ".05",
+        "K_Gw_P": "1.81864",
+        "log_Q": "3.8150",
+        "Q_cfs": "6530"
+      },
+      {
+        "P": ".02",
+        "K_Gw_P": "2.40670",
+        "log_Q": "3.9595",
+        "Q_cfs": "9110"
+      },
+      {
+        "P": ".01",
+        "K_Gw_P": "2.82359",
+        "log_Q": "4.0619",
+        "Q_cfs": "11500"
+      },
+      {
+        "P": ".005",
+        "K_Gw_P": "3.22281",
+        "log_Q": "4.1599",
+        "Q_cfs": "14500"
+      },
+      {
+        "P": ".002",
+        "K_Gw_P": "3.72957",
+        "log_Q": "4.2844",
+        "Q_cfs": "19200"
+      }
+    ]
+  },
+  "confidence_limits_table_12_4": {
+    "page": "12-13",
+    "header_as_printed": {
+      "upper": "0.05 UPPER LIMIT CURVE",
+      "lower": "0.05 LOWER LIMIT CURVE"
+    },
+    "text_as_printed": "upper and lower confidence limits for levels of significance of .05 and .95 percent (p.12-10); Figure 12-1 legend: '.05 and .95 Confidence Limit Curves'",
+    "N_used": 24,
+    "rows": [
+      {
+        "P": ".99",
+        "K_Gw_P": "-1.80621",
+        "K_U": "-1.3392",
+        "upper_log_Q": "3.0395",
+        "upper_Q_cfs": "1100",
+        "K_L": "-2.4989",
+        "lower_log_Q": "2.7546",
+        "lower_Q_cfs": "568"
+      },
+      {
+        "P": ".90",
+        "K_Gw_P": "-1.18347",
+        "K_U": "-0.7962",
+        "upper_log_Q": "3.1728",
+        "upper_Q_cfs": "1490",
+        "K_L": "-1.7187",
+        "lower_log_Q": "2.9462",
+        "lower_Q_cfs": "884"
+      },
+      {
+        "P": ".50",
+        "K_Gw_P": "-0.11578",
+        "K_U": "0.2244",
+        "upper_log_Q": "3.4235",
+        "upper_Q_cfs": "2650",
+        "K_L": "-0.4704",
+        "lower_log_Q": "3.2528",
+        "lower_Q_cfs": "1790"
+      },
+      {
+        "P": ".10",
+        "K_Gw_P": "1.33294",
+        "K_U": "1.9038",
+        "upper_log_Q": "3.8359",
+        "upper_Q_cfs": "6850",
+        "K_L": "0.9286",
+        "lower_log_Q": "3.5964",
+        "lower_Q_cfs": "3950"
+      },
+      {
+        "P": ".05",
+        "K_Gw_P": "1.81864",
+        "K_U": "2.5149",
+        "upper_log_Q": "3.9860",
+        "upper_Q_cfs": "9680",
+        "K_L": "1.3497",
+        "lower_log_Q": "3.6998",
+        "lower_Q_cfs": "5010"
+      },
+      {
+        "P": ".02",
+        "K_Gw_P": "2.40670",
+        "K_U": "3.2673",
+        "upper_log_Q": "4.1708",
+        "upper_Q_cfs": "14800",
+        "K_L": "1.8469",
+        "lower_log_Q": "3.8220",
+        "lower_Q_cfs": "6640"
+      },
+      {
+        "P": ".01",
+        "K_Gw_P": "2.82359",
+        "K_U": "3.8058",
+        "upper_log_Q": "4.3031",
+        "upper_Q_cfs": "20100",
+        "K_L": "2.1943",
+        "lower_log_Q": "3.9073",
+        "lower_Q_cfs": "8080"
+      },
+      {
+        "P": ".005",
+        "K_Gw_P": "3.22281",
+        "K_U": "4.3239",
+        "upper_log_Q": "4.4303",
+        "upper_Q_cfs": "26900",
+        "K_L": "2.5245",
+        "lower_log_Q": "3.9884",
+        "lower_Q_cfs": "9740"
+      },
+      {
+        "P": ".002",
+        "K_Gw_P": "3.72957",
+        "K_U": "4.9841",
+        "upper_log_Q": "4.5925",
+        "upper_Q_cfs": "39100",
+        "K_L": "2.9412",
+        "lower_log_Q": "4.0907",
+        "lower_Q_cfs": "12300"
+      }
+    ]
+  },
+  "expected_probability_table_12_5": {
+    "page": "12-14",
+    "method": "Table 11-1 with N - 1 of 23 (p.12-13)",
+    "rows": [
+      {
+        "P": ".99",
+        "Q_cfs": "841",
+        "expected_probability": ".9839",
+        "interpolated": false
+      },
+      {
+        "P": ".90",
+        "Q_cfs": "1200",
+        "expected_probability": ".889",
+        "interpolated": false
+      },
+      {
+        "P": ".50",
+        "Q_cfs": "2190",
+        "expected_probability": ".50",
+        "interpolated": false
+      },
+      {
+        "P": ".10",
+        "Q_cfs": "4960",
+        "expected_probability": ".111",
+        "interpolated": false
+      },
+      {
+        "P": ".05",
+        "Q_cfs": "6530",
+        "expected_probability": ".060",
+        "interpolated": false
+      },
+      {
+        "P": ".02",
+        "Q_cfs": "9110",
+        "expected_probability": ".028",
+        "interpolated": true
+      },
+      {
+        "P": ".01",
+        "Q_cfs": "11500",
+        "expected_probability": ".0161",
+        "interpolated": false
+      },
+      {
+        "P": ".005",
+        "Q_cfs": "14500",
+        "expected_probability": ".0095",
+        "interpolated": true
+      },
+      {
+        "P": ".002",
+        "Q_cfs": "19200",
+        "expected_probability": ".0049",
+        "interpolated": true
+      }
+    ],
+    "footnote": "*Interpolated values"
+  },
+  "figure": "Figure 12-1, p.12-11 (plot only; not transcribed)",
+  "uncertain_digits": []
+}
