@@ -503,6 +503,21 @@ diel_variation_summary(diel_df)
 See [`docs/vignette_lowflow_regime.md`](docs/vignette_lowflow_regime.md) for a
 full walkthrough of all three, with a worked example and method-choice notes.
 
+## Ice events
+
+`flowfreq ice-events` finds days when a gauge reports ice (the `ICE` qualifier on its daily mean) while the air is
+cold (NCEI daily TMIN at or below a threshold, on the day or within a lookback), and groups them into events counted
+by winter (water year) and month of the first day. Every threshold is a required option; nothing is defaulted.
+
+```bash
+flowfreq ice-events --gauge 01234567 --gauge 01234568 --air-station USC00123456     --start 2000-10-01 --end 2020-09-30 --months 11,12,1,2,3 --air-c -10     --lookback-days 2 --merge-gap-days 2 --min-cold-spell-days 3 --out ice_out
+```
+
+It writes `air_<station>.csv`, `daily_<site>.csv` per gauge, `gauge_ice_events.csv` (site, winter, month, start, end,
+n_days), `gauge_ice_qaqc.csv` (ice without cold air, and cold spells without ice, within `--months`) and
+`ice_events_run.json` (the arguments, flowfreq version and UTC time). The building blocks are in `flowfreq.ice` and
+`flowfreq.ghcn`.
+
 ## CLI
 
 ```bash

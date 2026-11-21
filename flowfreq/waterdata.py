@@ -213,13 +213,21 @@ def _retry_delay(response: requests.Response, attempt: int) -> float:
         return min(2.0**attempt, MAX_BACKOFF_S)
 
 
-def request(url: str, params: Optional[Mapping[str, Any]], timeout: float) -> requests.Response:
+def request(
+    url: str,
+    params: Optional[Mapping[str, Any]],
+    timeout: float,
+    *,
+    send_api_key: bool = True,
+) -> requests.Response:
     """GET from the Water Data API with the API key and backoff on 429, 502, 503, 504 and a
     dropped connection.
 
     Every call to ``api.waterdata.usgs.gov`` in flowfreq goes through here, so the
     key and the retry policy apply to peaks, instantaneous and daily values, and
-    monitoring-location metadata alike.
+    monitoring-location metadata alike. Reads from other services (NCEI daily
+    summaries, :mod:`flowfreq.ghcn`) use the same retry policy through here, with
+    ``send_api_key=False`` so the USGS key never leaves for another host.
 
     Parameters
     ----------
@@ -228,6 +236,10 @@ def request(url: str, params: Optional[Mapping[str, Any]], timeout: float) -> re
         Query parameters; ``None`` for a ``next`` link that already carries them.
     timeout : float
         Per-attempt timeout, seconds.
+    send_api_key : bool, optional
+        Send the USGS ``X-Api-Key`` (default). False for a host other than the
+        Water Data API: no key header is sent and an error message does not
+        mention the USGS key.
 
     Returns
     -------
@@ -245,7 +257,7 @@ def request(url: str, params: Optional[Mapping[str, Any]], timeout: float) -> re
     """
     import time
 
-    key = _current_api_key()
+    key = _current_api_key() if send_api_key else None
     extra: Dict[str, Any] = {"headers": {"X-Api-Key": key}} if key else {}
     attempt = 0
     while True:
@@ -281,6 +293,10 @@ def request(url: str, params: Optional[Mapping[str, Any]], timeout: float) -> re
         try:
             response.raise_for_status()
         except requests.HTTPError as exc:
+            if response.status_code == 429 and not send_api_key:
+                raise requests.HTTPError(
+                    f"{exc}. Rate limited after {MAX_RETRIES} retries.", response=response
+                ) from exc
             if response.status_code == 429:
                 raise requests.HTTPError(
                     f"{exc}. Rate limited after {MAX_RETRIES} retries: without an API key "

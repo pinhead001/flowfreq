@@ -482,5 +482,169 @@ def report(spec: Path, output: Path, save_spec: Optional[Path]) -> None:
         click.echo(f"Wrote {output}")
 
 
+def _parse_months(ctx: click.Context, param: click.Parameter, value: str) -> Tuple[int, ...]:
+    """Click callback: ``"11,12,1"`` to a tuple of months 1-12."""
+    try:
+        months = tuple(int(m) for m in value.split(","))
+    except ValueError as exc:
+        raise click.BadParameter(f"{value!r} is not a comma list of integers") from exc
+    bad = [m for m in months if not 1 <= m <= 12]
+    if bad:
+        raise click.BadParameter(f"months must be integers 1-12, got {bad}")
+    return months
+
+
+def _parse_day(ctx: click.Context, param: click.Parameter, value: str) -> str:
+    """Click callback: a ``YYYY-MM-DD`` date, returned as given."""
+    import pandas as pd
+
+    try:
+        pd.to_datetime(value, format="%Y-%m-%d")
+    except ValueError as exc:
+        raise click.BadParameter(f"{value!r} is not a YYYY-MM-DD date") from exc
+    return value
+
+
+@cli.command("ice-events")
+@click.option("--gauge", "gauges", multiple=True, required=True, help="USGS site number (repeat).")
+@click.option(
+    "--air-station", required=True, help="NCEI air-temperature station, e.g. USC00123456."
+)
+@click.option("--start", required=True, callback=_parse_day, help="First day, YYYY-MM-DD.")
+@click.option("--end", required=True, callback=_parse_day, help="Last day, YYYY-MM-DD.")
+@click.option(
+    "--months",
+    required=True,
+    callback=_parse_months,
+    help="Analysis months, comma list of 1-12 (e.g. 11,12,1,2,3).",
+)
+@click.option("--air-c", required=True, type=float, help="Cold when TMIN is at or below this, C.")
+@click.option(
+    "--lookback-days",
+    required=True,
+    type=click.IntRange(min=0),
+    help="Days before a day whose cold air still counts.",
+)
+@click.option(
+    "--merge-gap-days",
+    required=True,
+    type=click.IntRange(min=0),
+    help="Missing days allowed inside one event.",
+)
+@click.option(
+    "--min-cold-spell-days",
+    required=True,
+    type=click.IntRange(min=1),
+    help="Shortest cold spell without gauge ice reported in the QA/QC file.",
+)
+@click.option(
+    "--out",
+    "out_dir",
+    required=True,
+    type=click.Path(file_okay=False, path_type=Path),
+    help="Output directory, created if missing.",
+)
+def ice_events(
+    gauges: Tuple[str, ...],
+    air_station: str,
+    start: str,
+    end: str,
+    months: Tuple[int, ...],
+    air_c: float,
+    lookback_days: int,
+    merge_gap_days: int,
+    min_cold_spell_days: int,
+    out_dir: Path,
+) -> None:
+    """Gauge ice events from daily qualifiers and cold air.
+
+    A gauge day with the ICE qualifier AND cold air (NCEI TMIN at or below --air-c
+    on the day or within --lookback-days before it) is an event day; days within
+    --merge-gap-days of each other join one event, counted in the winter and month of
+    its first day. Writes air_<station>.csv, daily_<site>.csv, gauge_ice_events.csv,
+    gauge_ice_qaqc.csv and ice_events_run.json into --out. Every threshold is an option.
+    """
+    import json
+    from datetime import datetime, timezone
+
+    import pandas as pd
+    import requests
+
+    import flowfreq
+    from flowfreq import ghcn, ice, waterdata
+
+    try:
+        air = ghcn.fetch_ghcn_daily(air_station, start, end)
+    except (requests.RequestException, ValueError) as exc:
+        raise click.ClickException(f"air station {air_station}: {exc}") from exc
+    cold = ice.cold_air_days(air["tmin_c"], air_c, lookback_days)
+    cold = cold.reindex(air.index).fillna(False).astype(bool)
+
+    # Every gauge is fetched before anything is written, so a failure leaves no partial output.
+    dailies: Dict[str, "pd.DataFrame"] = {}
+    for site in gauges:
+        try:
+            dailies[site] = waterdata.download_daily(
+                site, start_date=start, end_date=end, keep_null=True
+            )
+        except (requests.RequestException, ValueError, LookupError) as exc:
+            raise click.ClickException(f"gauge {site}: {exc}") from exc
+
+    out_dir.mkdir(parents=True, exist_ok=True)
+    air.to_csv(out_dir / f"air_{air_station}.csv")
+    in_months = pd.DatetimeIndex(air.index).month.isin(months)
+    event_rows: List["pd.DataFrame"] = []
+    qaqc_rows: List["pd.DataFrame"] = []
+    per_gauge: Dict[str, Dict[str, int]] = {}
+    for site, daily in dailies.items():
+        flagged = ice.ice_days_from_qualifiers(daily)
+        day_ice = pd.Series(flagged["ice"].to_numpy(), index=pd.DatetimeIndex(flagged["date"]))
+        day_ice = day_ice[~day_ice.index.duplicated(keep="last")]
+        day_ice = day_ice.reindex(air.index).fillna(False).astype(bool)
+
+        flow = daily[["flow_cfs", "qualification_code"]].copy()
+        flow.index = pd.DatetimeIndex(flagged["date"]).strftime("%Y-%m-%d")
+        flow.index.name = "date"
+        flow.to_csv(out_dir / f"daily_{site}.csv")
+
+        both = pd.Series(air.index[(day_ice & cold).to_numpy()])
+        event_rows.append(ice.events_in_months(both, months, merge_gap_days).assign(site=site))
+        qa = ice.gauge_ice_qaqc(
+            day_ice[in_months], cold[in_months], min_cold_spell_days, merge_gap_days
+        )
+        qaqc_rows.append(qa.assign(site=site))
+        per_gauge[site] = {"daily_rows": int(len(daily)), "ice_days": int(flagged["ice"].sum())}
+
+    event_cols = ["site", "winter", "month", "start", "end", "n_days"]
+    qaqc_cols = ["site", "kind", "start", "end", "n_days"]
+    events = pd.concat(event_rows, ignore_index=True).reindex(columns=event_cols)
+    qaqc = pd.concat(qaqc_rows, ignore_index=True).reindex(columns=qaqc_cols)
+    for frame in (events, qaqc):
+        for col in ("start", "end"):
+            frame[col] = pd.to_datetime(frame[col]).dt.strftime("%Y-%m-%d")
+    events.to_csv(out_dir / "gauge_ice_events.csv", index=False)
+    qaqc.to_csv(out_dir / "gauge_ice_qaqc.csv", index=False)
+
+    run = {
+        "arguments": {
+            "gauge": list(gauges),
+            "air_station": air_station,
+            "start": start,
+            "end": end,
+            "months": list(months),
+            "air_c": air_c,
+            "lookback_days": lookback_days,
+            "merge_gap_days": merge_gap_days,
+            "min_cold_spell_days": min_cold_spell_days,
+            "out": str(out_dir),
+        },
+        "flowfreq_version": flowfreq.__version__,
+        "utc_time": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "gauges": per_gauge,
+    }
+    (out_dir / "ice_events_run.json").write_text(json.dumps(run, indent=2), encoding="utf-8")
+    click.echo(f"Wrote {len(events)} ice events and {len(qaqc)} QA/QC rows to {out_dir}")
+
+
 if __name__ == "__main__":
     cli()

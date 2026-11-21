@@ -141,3 +141,18 @@ def test_a_dropped_connection_is_retried_then_raised(monkeypatch, calls):
     with pytest.raises(requests.ConnectionError):
         waterdata.request("u", {}, 5)
     assert len(calls["sleep"]) == 2 + waterdata.MAX_RETRIES
+
+
+def test_send_api_key_false_sends_no_key_even_when_configured(monkeypatch, calls):
+    waterdata.set_api_key("configured-key")
+    _serve(monkeypatch, calls, [_response(200)])
+    waterdata.request("u", {}, 5, send_api_key=False)
+    assert calls["get"] == [{}]
+
+
+def test_send_api_key_false_429_message_omits_the_usgs_key(monkeypatch, calls):
+    waterdata.set_api_key("configured-key")
+    _serve(monkeypatch, calls, [_response(429)] * (waterdata.MAX_RETRIES + 1))
+    with pytest.raises(requests.HTTPError) as err:
+        waterdata.request("u", {}, 5, send_api_key=False)
+    assert waterdata.API_KEY_ENV not in str(err.value)
