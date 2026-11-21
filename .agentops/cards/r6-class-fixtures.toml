@@ -1,0 +1,25 @@
+id = "r6-class-fixtures"
+repo = "flowfreq"
+title = "Class-scoped fixtures as staticmethods, so pytest 10 accepts them (review 2026-11-19 item 6)"
+base = "spec/r6-class-fixtures"
+model = "gemini-3.8-flash-high"
+prompt = """
+Outcome: no test fixture triggers pytest.PytestRemovedIn10Warning. pyproject.toml on this
+branch already turns that warning into an error ("filterwarnings"); do not change pyproject.toml.
+
+pytest 9 warns, and pytest 10 refuses, a fixture with scope="class" (or "module"/"session")
+written as an instance method of a test class (first parameter `self`). Fix each one by
+making it a @staticmethod (decorators in the order `@pytest.fixture(scope="class")` above
+`@staticmethod`) and dropping `self`; keep its other parameters, name and body unchanged.
+If a body uses `self`, report that case instead of inventing a fix.
+
+Known places (search tests/ for every `scope="class"`, `scope="module"` and
+`scope="session"` fixture inside a class to be sure, there may be one more):
+tests/test_psf.py, tests/test_psf_convert.py (two), tests/test_lp3_quantile_exact.py,
+tests/test_wave_qa.py, tests/fortran_parity/test_psf_vs_golden.py (two),
+tests/fortran_parity/test_live_interval_builder.py.
+
+Files to edit: only those test files. Do not change any assertion. Do not touch flowfreq/,
+vendor/ or pyproject.toml.
+"""
+acceptance = "python -m pytest tests/test_psf.py tests/test_psf_convert.py tests/test_lp3_quantile_exact.py tests/test_wave_qa.py tests/fortran_parity -q -p no:cacheprovider"

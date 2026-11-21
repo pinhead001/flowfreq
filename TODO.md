@@ -36,13 +36,14 @@ CI cache). CHANGELOG.md, Unreleased, has the detail. Still open from it:
 3. **Option names differ between section kinds** and were left alone, since renaming breaks stored specs:
    `site_name` and `target_name`, `peaks_table` and `annual_table`. `ReportSession.weight` still defaults
    `detail` on where `transpose` defaults it off.
-4. **A report with a summary and a comparison fits every gage three times** (8 times counting renders; card
-   `r4-fit-cache`, 2026-11-21). A cache across sections was not
+4. Done 2026-11-21 (#403): a report fits each gage once. `gaged` memoises the fit on its options (it was 8
+   fits counting nested sections and renders); `gaged.clear_fit_cache()` forgets them. A cache across sections was not
    added: the builders mutate the options they are given and a fit is about a second.
-5. **Chat tools still missing an argument for** (card `r5-chat-arguments`, 2026-11-21) perception thresholds, peaks typed by hand, a regional skew by
-   state, a basin outline for the summary's map, `ungaged` `aeps`, `weighting_space` and `min_coverage_percent`.
-6. **Eight class-scoped fixtures are defined as instance methods**, which pytest 10 will refuse; the pin is `<10`
-   (card `r6-class-fixtures`, 2026-11-21, which also makes `PytestRemovedIn10Warning` an error).
+5. Done 2026-11-21 (#401): the chat tools take perception thresholds, peaks typed by hand, a regional skew by
+   state, `ungaged` `aeps`, `weighting_space` and `min_coverage_percent`, and document a summary location's
+   `basin`.
+6. Done 2026-11-21 (#402): the eight class-scoped fixtures are staticmethods, and `PytestRemovedIn10Warning`
+   is an error, so the `pytest<10` pin can move when pytest 10 is out.
 
 ### Next steps (2026-11-15)
 
