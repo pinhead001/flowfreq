@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **A report fits each gage once.** `flowfreq.reporting.gaged` memoises the Bulletin 17C fit of a gage that
+  carries its peaks (the last `FIT_CACHE_SIZE` fits, keyed on the options); `gaged.clear_fit_cache()` forgets
+  them.
 - A peak row with no value is still dropped with a warning, which now says this is what peakfq's `siteQT`
   does too (it removes gage-height-only rows before filling in the years), not a departure from it.
 
