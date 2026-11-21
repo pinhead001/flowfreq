@@ -242,7 +242,7 @@ CI should test the supported Python matrix.
   for a chat client (the `mcp` extra, mcp 2.x; `docs/CHAT_REPORTS.md`). Tool calls take turns
   behind a lock and matplotlib is put on Agg, because mcp runs sync tools on worker threads.
   Tests drive it in process through `mcp.Client`
-- **`engine.py`**, **`batch.py`**, **`report.py`**, **`hydrograph.py`**, **`plots.py`**,
+- **`report.py`**, **`hydrograph.py`**,
   **`freq_plot.py`**, **`flowio.py`**, **`cli.py`**
 
 ## Data Sources

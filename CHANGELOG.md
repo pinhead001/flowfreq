@@ -22,6 +22,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A peak row with no value is still dropped with a warning, which now says this is what peakfq's `siteQT`
   does too (it removes gage-height-only rows before filling in the years), not a departure from it.
 
+### Removed
+
+- **`flowfreq.engine` (`B17CEngine`), `flowfreq.batch` and `flowfreq.plots`**, deprecated in 0.28.0. They were a
+  plain sample-moments fit under a Bulletin 17C name. Use `flowfreq.Bulletin17C` or `flowfreq.run_ffa`, and
+  `flowfreq.freq_plot.plot_frequency_curve` for the figure. The `Interactive-1` example notebook no longer
+  calls the old engine.
+
 ## [0.28.0] - 2026-11-19
 
 Reports for a study of one site: a comparison of several estimates, a site summary for the front of a report,

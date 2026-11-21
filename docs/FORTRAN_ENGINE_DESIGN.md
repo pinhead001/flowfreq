@@ -32,8 +32,8 @@ verdict about which side is wrong. A per-run comparison surfaces that class of
 case on a user's own data, which nothing currently does.
 
 It also catches defects in the native path that no unit test would. The biased
-station-skew estimator in `B17CEngine.fit` — see the strict xfail in
-`tests/test_engine.py` — sat undetected in a public API for exactly as long as
+station-skew estimator in `B17CEngine.fit` (fixed in 0.4.0; the class was removed in
+0.29.0) sat undetected in a public API for exactly as long as
 nothing compared it against a reference.
 
 ---

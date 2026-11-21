@@ -16,6 +16,7 @@ from flowfreq.core import (
     YEAR_TYPES,
     assign_year_label,
     compute_ci_lp3,
+    log_pearson3_ppf,
     lp3_frequency_factor_peakfq,
     lp3_quantile_peakfq,
 )
@@ -159,3 +160,18 @@ class TestComputeCiLp3:
         _, lower10, upper10 = compute_ci_lp3(3.0, 0.25, -0.302, n=40, T=10)
         _, lower100, upper100 = compute_ci_lp3(3.0, 0.25, -0.302, n=40, T=100)
         assert (upper100 - lower100) > (upper10 - lower10)
+
+
+class TestLogPearson3Ppf:
+    """``p`` is a non-exceedance probability: 0.99 is the 1% AEP flood."""
+
+    def test_matches_the_peakfq_quantile_at_the_same_aep(self) -> None:
+        assert log_pearson3_ppf(0.99, 3.0, 0.25, -0.302) == pytest.approx(
+            lp3_quantile_peakfq(3.0, 0.25, -0.302, 100), rel=1e-9
+        )
+
+    def test_zero_skew_median_is_ten_to_the_mean(self) -> None:
+        assert log_pearson3_ppf(0.5, 3.0, 0.25, 0.0) == pytest.approx(1000.0, rel=1e-9)
+
+    def test_larger_p_gives_larger_flow(self) -> None:
+        assert log_pearson3_ppf(0.99, 3.0, 0.25, 0.4) > log_pearson3_ppf(0.9, 3.0, 0.25, 0.4)
