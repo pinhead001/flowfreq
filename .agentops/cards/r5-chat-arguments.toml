@@ -1,0 +1,52 @@
+id = "r5-chat-arguments"
+repo = "flowfreq"
+title = "Chat tools: perception thresholds, hand peaks, skew by state, ungaged options, basin outline (review 2026-11-19 item 5)"
+base = "spec/r5-chat-arguments"
+model = "claude-opus-5-5-medium"
+prompt = """
+Outcome: the flowfreq-mcp chat tools pass on section options the section kinds already
+accept. Edit flowfreq/mcp_server.py, and for min_coverage_percent only,
+flowfreq/reporting/regional.py and the `ungaged` optional keys in flowfreq/reporting/sections.py.
+
+1. `run_ffa`:
+   - `site_no: Optional[str] = None` (keep it first). New keyword arguments with defaults:
+     `peaks: Optional[Dict[str, List[Any]]] = None` (columns water_year, peak_flow_cfs,
+     optionally qualification_code, peak_date; stored as the gaged_ffa `peaks` option, so
+     nothing is downloaded), `site_name: Optional[str] = None`,
+     `perception_thresholds: Optional[List[Dict[str, float]]] = None` (each start_year,
+     end_year, threshold_cfs; stored as is, validation stays in gaged.py),
+     `regional_skew_state: Optional[str] = None`, `regional_skew_region: Optional[str] = None`.
+   - Neither site_no nor peaks: refuse (ReportError naming both site_no and peaks) before
+     anything else happens.
+   - Extend `_gaged_options` with keyword parameters `regional_skew_state=None,
+     regional_skew_region=None` (defaults keep tests/test_mcp_server.py::test_skew_choices
+     passing) and accept site_no None (no `site_no` key then). Rules, all refused before
+     any download: state or region only with skew="regional" (message contains
+     "skew='regional'"); state together with regional_skew values refused (message contains
+     "not both"); region without state refused (message contains
+     "regional_skew_region needs regional_skew_state"). With a state: options
+     {"regional_skew_state": ..., "regional_skew_region": ... when given,
+     "allow_provisional_skew": True when asked}, and no "regional_skew_from_site". Regional
+     skew with no state, no values and no site_no: refuse, naming regional_skew_state.
+   - Docstring: document each new argument, with the peaks columns and the threshold keys.
+2. `estimate_ungaged`: `aeps: Optional[List[float]]`, `weighting_space: Optional[str]`
+   ("log" or "linear"), `min_coverage_percent: Optional[float]`, each stored in the options
+   only when given. In flowfreq/reporting/regional.py pass `min_coverage_percent` from the
+   options to `estimate_at_site` (it already takes it) and add "min_coverage_percent" to the
+   ungaged kind's optional keys in sections.py. `estimate_from_characteristics`: `aeps` and
+   `weighting_space` the same way. Document each in the docstrings by name.
+3. `add_site_summary`: the `locations` objects already accept `basin` (see
+   flowfreq/reporting/summary.py `_LOCATION_KEYS`, `_rings`); document it in the docstring:
+   "basin", a GeoJSON Polygon or MultiPolygon geometry (lon/lat), drawn on the map.
+
+Also update docs/CHAT_REPORTS.md where it lists tool arguments, and add one line under
+"## [Unreleased]" in CHANGELOG.md. Keep the tool count at twenty-four. Python 3.11 syntax
+(no nested same-quote f-strings). mypy must pass.
+
+Files to read: flowfreq/mcp_server.py, flowfreq/reporting/gaged.py (`_resolve_skew`,
+`_threshold_rows`, `_peak_frame`), flowfreq/reporting/regional.py, flowfreq/ungaged.py
+(`estimate_at_site` signature), flowfreq/reporting/summary.py.
+Tests (already written, do not edit): tests/test_mcp_server_arguments.py.
+Must keep passing: tests/test_mcp_server.py, tests/test_reporting_*.py.
+"""
+acceptance = "python -m pytest tests/test_mcp_server_arguments.py tests/test_mcp_server.py tests/test_reporting_sites.py tests/test_reporting_spec.py tests/test_reporting_summary.py -q -p no:cacheprovider && python -m mypy flowfreq/mcp_server.py flowfreq/reporting/regional.py"

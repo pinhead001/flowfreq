@@ -1,0 +1,44 @@
+id = "r4-fit-cache"
+repo = "flowfreq"
+title = "Memoise the gaged_ffa fit, so a report fits each gage once (review 2026-11-19 item 4)"
+base = "spec/r4-fit-cache"
+model = "claude-opus-5-5-medium"
+prompt = """
+Outcome: a report fits each gage once. Today `_gaged_ffa` in flowfreq/reporting/gaged.py
+calls `flowfreq.workflow.run_ffa` every time any section needs the gage (the gaged section,
+then again nested in site_summary, comparison and weighted, then again on every render):
+8 fits for the report in the first test. Each fit is about a second.
+
+Add to flowfreq/reporting/gaged.py:
+- `FIT_CACHE_SIZE: int = 32` (module constant) and `clear_fit_cache() -> None` (public,
+  NumPy docstring, exported in the module's public names).
+- A bounded least-recently-used cache inside `_gaged_ffa`, keyed on a canonical form of
+  the options it is given (json.dumps with sort_keys=True; a value json cannot encode makes
+  the call uncached rather than raising). Cache only when the options already carry `peaks`
+  (a call that downloads is never cached). Store under the key of the options as given AND
+  under the key of the resolved options (`content.options`), because the nested sections
+  are built from the resolved options a previous build returned (skew lookups turned into
+  values, peaks filled in) and those must hit too.
+- What a hit returns must be independent of what any earlier caller got: return a
+  `copy.deepcopy` of the cached SectionContent (blocks, options, references). The fitted
+  Bulletin17C object in the tuple may be shared and is read-only by convention; say so in
+  the `_gaged_ffa` docstring.
+- A failed fit (ReportError or any exception) is not cached.
+- The options dict the caller passed must not be mutated (it is not today; keep it so).
+- Guard the cache with a threading.Lock (the MCP server runs tools on worker threads).
+
+Also: one line under "## [Unreleased]" in CHANGELOG.md (### Changed); in CLAUDE.md's
+Architecture entry for `reporting/` add a short clause that gaged fits are memoised
+(`gaged.clear_fit_cache`). Type hints throughout; mypy must pass.
+
+Files to read: flowfreq/reporting/gaged.py, flowfreq/reporting/_base.py (SectionContent),
+flowfreq/reporting/summary.py, comparison.py, weighted.py (callers of `_gaged_ffa`).
+Files to edit: flowfreq/reporting/gaged.py, CHANGELOG.md, CLAUDE.md, and tests/conftest.py
+only if needed (below).
+Tests (already written, do not edit): tests/test_reporting_fit_cache.py.
+Existing tests that must keep passing: tests/test_reporting_*.py, tests/test_mcp_server.py.
+If an existing test fails because it patches `run_ffa` or `download_peaks` and expects a
+second call, add an autouse fixture calling `gaged.clear_fit_cache()` in tests/conftest.py
+rather than editing many tests.
+"""
+acceptance = "python -m pytest tests/test_reporting_fit_cache.py tests/test_reporting_build.py tests/test_reporting_comparison.py tests/test_reporting_summary.py tests/test_reporting_session.py tests/test_reporting_session_site.py tests/test_reporting_sites.py tests/test_reporting_extension.py tests/test_reporting_engine_check.py tests/test_mcp_server.py -q -p no:cacheprovider && python -m mypy flowfreq/reporting/gaged.py"
