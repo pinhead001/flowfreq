@@ -61,8 +61,8 @@ CI cache). CHANGELOG.md, Unreleased, has the detail. Still open from it:
    - Before starting: a fresh `spec/` or feature branch from `main`, then Task 1.
 8. Done 2026-11-21 (#407): agent ops run on the shared `agentops` package (`D:/a/agentops`, `pip install -e` into
    `.venv`); `tools/agentops/` is gone, the config is `config/agents.toml`, `run.bat` runs it, the push guards
-   are tighter. **It needs pinhead001/agentops#6 merged** (the ported features); until then this machine's
-   `D:/a/agentops` checkout stays on `feat/flowfreq-port`. All 12 finished cards are archived.
+   are tighter. The features it needs came from pinhead001/agentops#6 (merged 2026-11-21). All 12 finished
+   cards are archived.
 
 ### Next steps (2026-11-15)
 
