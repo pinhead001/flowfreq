@@ -5,9 +5,9 @@
 > in progress are tracked under "Roadmap Phase A, Wave 1 and Wave 2" in Open Items below.
 
 ## Status
-Last updated: 2026-11-19. Version **0.28.0** is released (tag `v0.28.0`). `main` carries
+Last updated: 2026-11-21. Version **0.28.0** is released (tag `v0.28.0`). `main` carries
 **0.29.0.dev0**; 0.28.x patches come from `release/0.28.x` (CLAUDE.md, Branches and Releases).
-flowfreq-app pins v0.27.1 until its pin PR for v0.28.0 is merged.
+flowfreq-app pins v0.28.0 (app #55, merged 2026-11-21); no app PR is open.
 51 jurisdictions are `verified`, and 5 have no equations.
 
 **StreamStats blocked this machine's address (HTTP 403) from 2026-11-09 14:40 to 2026-11-16, on purpose: issue
@@ -27,19 +27,22 @@ left over (transposition notes, four data-retrieval leads, report consistency an
 slow test, the old engine's deprecation, an opt-in coverage requirement, historical notes on stale documents,
 CI cache). CHANGELOG.md, Unreleased, has the detail. Still open from it:
 
-1. **Null-value peaks.** A peak row with no value is dropped (now with a warning naming the years) and the year
-   becomes a gap. peakfq's `siteQT` censors a year inside the record. Changing that changes fits, so it needs a
-   look at real records with such rows and at their codes first.
+1. **Null-value peaks: no change needed** (checked 2026-11-21). peakfq's `siteQT` drops a row with no
+   `peak_va` itself ("Remove GH only peaks", `vendor/peakfqr/R/readInputs.R`) before filling in every year of
+   the range, so the year is missing data exactly as flowfreq treats it: censored below a perception threshold
+   that covers it, otherwise a gap. The warning in `peak_sources.py` said otherwise and now says this.
 2. **Remove the deprecated engine** (`engine.py`, `batch.py`, `plots.py`) in a later minor release, and decide
    about `core.log_pearson3_ppf`, which has no caller.
 3. **Option names differ between section kinds** and were left alone, since renaming breaks stored specs:
    `site_name` and `target_name`, `peaks_table` and `annual_table`. `ReportSession.weight` still defaults
    `detail` on where `transpose` defaults it off.
-4. **A report with a summary and a comparison fits every gage three times.** A cache across sections was not
+4. **A report with a summary and a comparison fits every gage three times** (8 times counting renders; card
+   `r4-fit-cache`, 2026-11-21). A cache across sections was not
    added: the builders mutate the options they are given and a fit is about a second.
-5. **Chat tools still missing an argument for** perception thresholds, peaks typed by hand, a regional skew by
+5. **Chat tools still missing an argument for** (card `r5-chat-arguments`, 2026-11-21) perception thresholds, peaks typed by hand, a regional skew by
    state, a basin outline for the summary's map, `ungaged` `aeps`, `weighting_space` and `min_coverage_percent`.
-6. **Nine class-scoped fixtures are defined as instance methods**, which pytest 10 will refuse; the pin is `<10`.
+6. **Eight class-scoped fixtures are defined as instance methods**, which pytest 10 will refuse; the pin is `<10`
+   (card `r6-class-fixtures`, 2026-11-21, which also makes `PytestRemovedIn10Warning` an error).
 
 ### Next steps (2026-11-15)
 
@@ -47,10 +50,7 @@ CI cache). CHANGELOG.md, Unreleased, has the detail. Still open from it:
 
 Owner's:
 
-1. Push `release/0.26.x` and `release/0.27.x` (a hook blocks it here; both exist locally, cut from their
-   tags). Review and
-   merge app #47-#52 ("App improvements" below has the order and the conflicts). The app's v0.26.0 pin is
-   merged (app #46), so app #45's form is on.
+1. Done: every `release/0.N.x` through 0.28.x is pushed, and app #47-#55 are merged (2026-11-17 to 2026-11-21).
 2. **Overlap calls:** none open. Urban and NRCS-regulated basins (AL, MO, TN, OK) need `region=` on purpose; say
    if you want a default instead.
 
@@ -72,7 +72,7 @@ Owner's:
    and the other live checks may go, and whether to tell StreamStats on #365 first.
 9. Open the app in a browser: the resizable period grips (app #24), and app #42-#45 (raster hydrograph, basin
    changes, the Bulletin 17C curve, the characteristics form) have never run in one here. The same holds for
-   the open app #47-#52, which were checked with Streamlit's AppTest only.
+   app #47-#52 (merged), which were checked with Streamlit's AppTest only.
 10. Have a person spot-check the highest-use states against their reports. Every set was checked only by agents.
 
 Library follow-ups the batches found, none changed:
@@ -134,27 +134,8 @@ Library follow-ups the batches found, none changed:
     - SIR 2025-5034 (Levin, 2025), nonstationary flood frequency by regression in the north-central United
       States, is a reference for `future_flow` and `stationarity`, not an equation set. Not read.
 
-App improvements suggested 2026-11-09. Each has an app PR, opened 2026-11-14 and 2026-11-15, with the app's
-one CI check passing. None is merged (the owner merges app PRs) and none has run in a browser:
-
-- App #47: the ungaged page plots the regression estimate's frequency curve with its prediction band, and
-  overlays a gage's own fit where the point is at a gage.
-- App #52: a border caution within 20 km of a systematic pair, from `flowfreq.regression.border` (#377). It
-  stays hidden until the app's pin reaches a release that has #377 (0.27). Not done: the neighbor's estimate
-  one click away.
-- App #48: a StreamStats health banner.
-- App #49: NLDI and dam-inventory failures are cached briefly, so a rerun doesn't wait up to 60 s again.
-- App #50: direct data downloads on the gage page, fewer repeated USGS requests, and the peak chart's year
-  axis no longer padded (it ran to 2040 at Lees Ferry). The app carries its own copies of `summarize_peaks`
-  and `record_years` until its pin reaches a release that has #376.
-- App #51: `st.navigation` pages, so browser Back works; shareable links for a gage and for a point; a
-  narrow-screen layout. Its tests name the page on every run, because Streamlit 1.67's AppTest keeps a page
-  switch between runs and 1.63 does not.
-
-Conflicts between them, so the merge order matters: #51 with #47 (`streamlit_app.py`, `ungaged_ui.py`) and
-with #48 (`ungaged_ui.py`); #52 with #47 (`ungaged_ui.py`: keep `border_cautions` and #47's
-`_show_estimate(estimate, gage_fit=None)`) and with #48 (`CLAUDE.md`, `README.md`: keep both lines). #49 and
-#50 conflict with nothing. Merging #49, #50, #47, #48 and then resolving #52 and #51 is the shortest route.
+App improvements suggested 2026-11-09 (app #47-#52) were merged 2026-11-17, and the app pins v0.28.0. None
+has run in a browser (item 9 above). Not done: the neighbor's estimate one click away from a border caution.
 
 Reports through chat (2026-11-14 and 2026-11-15, unreleased on `main`). `flowfreq.reporting` builds a report from
 a JSON specification in Markdown or DOCX (#375), with section kinds `gaged_ffa`, `ungaged`, `weighted` (#380),

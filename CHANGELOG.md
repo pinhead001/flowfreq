@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- A peak row with no value is still dropped with a warning, which now says this is what peakfq's `siteQT`
+  does too (it removes gage-height-only rows before filling in the years), not a departure from it.
+
 ## [0.28.0] - 2026-11-19
 
 Reports for a study of one site: a comparison of several estimates, a site summary for the front of a report,
@@ -94,7 +99,8 @@ where a fit and a regression write its AEP differently.
   `provenance["covered_percent"]` record the regions' share before it is scaled to 100, and the advisory carries a
   caution below about 98 percent. A region at 40 percent of the basin gave the same answer as at 100 with no trace.
   No flow changes.
-- **The cross-border comparison is complete, and `border_offsets` has 15 borders, not 17.** `tools/border_qa.py`
+
+- **The cross-border comparison is complete, and `border_offsets` has 15 borders, not 17.** `tools/border_qa.py`
   finished on 2026-11-17 with one worker: 1,689 of 1,691 candidate gages attempted, 1,391 delineated, 649 compared
   at 1 percent (539 before). Three pairs are gone. Virginia against West Virginia: the six gages of the partial
   run gave 0.53, and all 27 give 1.0. Colorado against New Mexico, and a new Illinois against Indiana row that the
