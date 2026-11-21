@@ -98,7 +98,8 @@ class TestCulbertsonAgainstPeakfq:
     """The station the drift was reported on, against peakfq's own quantiles."""
 
     @pytest.fixture(scope="class")
-    def b17c(self):
+    @staticmethod
+    def b17c():
         from flowfreq.bulletin17c import Bulletin17C
         from tests.fixtures.wymt_peaks import load_site
 

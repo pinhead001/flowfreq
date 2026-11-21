@@ -285,7 +285,8 @@ class TestCompareBasin:
     """Trimmed inputs for one border basin captured by tools/wave_qa.py."""
 
     @pytest.fixture(scope="class")
-    def case(self):
+    @staticmethod
+    def case():
         return json.loads((FIXTURES / "border_basin.json").read_text(encoding="utf-8"))
 
     def test_rows_and_flags_are_consistent(self, libs, case):
