@@ -10,6 +10,8 @@ from flowfreq.ice import (
     count_events,
     decade_scaled,
     events_in_months,
+    gauge_ice_qaqc,
+    ice_days_from_qualifiers,
     winter_event_counts,
     winter_of,
 )
@@ -99,3 +101,56 @@ def test_winter_event_counts_fills_zero_winters():
     ev = pd.DataFrame({"winter": [2014, 2014, 2016]})
     out = winter_event_counts(ev, [2014, 2015, 2016])
     assert out["n_events"].tolist() == [2, 0, 1]
+
+
+def test_ice_days_need_the_ice_token():
+    daily = pd.DataFrame(
+        {"qualification_code": ["A", "A:e", "A:e:ICE", "P:ICE"]},
+        index=pd.date_range("2015-01-01", periods=4),
+    )
+    out = ice_days_from_qualifiers(daily)
+    assert list(out.columns) == ["date", "ice", "estimated"]
+    assert out["ice"].tolist() == [False, False, True, True]
+    assert out["estimated"].tolist() == [False, True, True, False]
+
+
+def test_ice_days_estimated_word_missing_code_and_tz():
+    idx = pd.date_range("2015-01-01", periods=3, tz="UTC")
+    daily = pd.DataFrame({"qualification_code": ["A:ESTIMATED", None, np.nan]}, index=idx)
+    out = ice_days_from_qualifiers(daily)
+    assert out["estimated"].tolist() == [True, False, False]
+    assert out["ice"].tolist() == [False, False, False]
+    assert out["date"].dt.tz is None
+    assert out["date"].dt.strftime("%Y-%m-%d").tolist() == [
+        "2015-01-01",
+        "2015-01-02",
+        "2015-01-03",
+    ]
+
+
+def test_qaqc_flags_both_kinds():
+    idx = pd.date_range("2015-01-01", periods=12)
+    ice = pd.Series([1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], index=idx).astype(bool)
+    cold = pd.Series([0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0], index=idx).astype(bool)
+    out = gauge_ice_qaqc(ice, cold, min_cold_spell_days=5, merge_gap_days=0)
+    assert list(out.columns) == ["kind", "start", "end", "n_days"]
+    assert out["kind"].tolist() == ["ice_without_cold", "cold_without_ice"]
+    assert out["n_days"].tolist() == [2, 5]
+
+
+def test_qaqc_minimum_length_and_empty():
+    idx = pd.date_range("2015-01-01", periods=6)
+    ice = pd.Series(False, index=idx)
+    cold = pd.Series([True, True, False, False, False, False], index=idx)
+    out = gauge_ice_qaqc(ice, cold, min_cold_spell_days=3, merge_gap_days=0)
+    assert out.empty
+    assert list(out.columns) == ["kind", "start", "end", "n_days"]
+    assert str(out["n_days"].dtype) == "int64"
+
+
+def test_qaqc_aligns_on_union_index():
+    ice = pd.Series([True], index=pd.to_datetime(["2015-01-01"]))
+    cold = pd.Series([True, True], index=pd.to_datetime(["2015-01-02", "2015-01-03"]))
+    out = gauge_ice_qaqc(ice, cold, min_cold_spell_days=1, merge_gap_days=0)
+    assert out["kind"].tolist() == ["ice_without_cold", "cold_without_ice"]
+    assert out["n_days"].tolist() == [1, 2]

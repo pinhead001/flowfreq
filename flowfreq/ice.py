@@ -282,3 +282,80 @@ def decade_scaled(
         "spells_obs": spells_obs,
         "spells_ref_mean": spells_ref_mean,
     }
+
+
+def ice_days_from_qualifiers(daily: pd.DataFrame) -> pd.DataFrame:
+    """Flag gauge days that carry an ice or an estimated qualifier.
+
+    The ``qualification_code`` is split on ``":"`` into tokens. ``ICE`` marks
+    an ice day. ``e`` or ``ESTIMATED`` marks an estimated day, which is not
+    ice: an estimate alone can be an equipment fault. A missing code gives
+    False for both.
+
+    Parameters
+    ----------
+    daily : pd.DataFrame
+        Indexed by day (a DatetimeIndex, tz-naive or tz-aware), with a
+        ``qualification_code`` column such as ``A:e:ICE`` or ``P:ICE``.
+
+    Returns
+    -------
+    pd.DataFrame
+        Columns ``date`` (datetime64, tz-naive, no time of day), ``ice`` and
+        ``estimated`` (bool), one row per input row.
+    """
+    idx = pd.DatetimeIndex(daily.index)
+    if idx.tz is not None:
+        idx = idx.tz_localize(None)
+    tokens = (
+        daily["qualification_code"]
+        .astype("object")
+        .map(lambda c: set(c.split(":")) if isinstance(c, str) else set())
+    )
+    return pd.DataFrame(
+        {
+            "date": pd.Series(idx.normalize(), dtype="datetime64[ns]"),
+            "ice": tokens.map(lambda t: "ICE" in t).to_numpy(dtype=bool),
+            "estimated": tokens.map(lambda t: "e" in t or "ESTIMATED" in t).to_numpy(dtype=bool),
+        }
+    )
+
+
+def gauge_ice_qaqc(
+    ice: pd.Series, cold: pd.Series, min_cold_spell_days: int, merge_gap_days: int
+) -> pd.DataFrame:
+    """Compare gauge ice days with cold air.
+
+    ``ice_without_cold`` is an event of ice days that are not cold-air days,
+    of any length. ``cold_without_ice`` is an event of cold-air days that are
+    not ice days with at least ``min_cold_spell_days`` days. Events are those
+    of :func:`count_events`.
+
+    Parameters
+    ----------
+    ice, cold : pd.Series
+        Bool series indexed by day. They are aligned on the union of their
+        indexes, and a day missing from one is False there.
+    min_cold_spell_days : int
+        Shortest ``cold_without_ice`` event reported.
+    merge_gap_days : int
+        As in :func:`count_events`.
+
+    Returns
+    -------
+    pd.DataFrame
+        Columns ``kind``, ``start``, ``end`` and ``n_days``, ``ice_without_cold``
+        rows first, each kind sorted by start. Empty, with those columns, when
+        there is nothing to flag.
+    """
+    union = ice.index.union(cold.index)
+    i = ice.reindex(union).fillna(False).astype(bool)
+    c = cold.reindex(union).fillna(False).astype(bool)
+    parts = []
+    ev = count_events(pd.Series(union[(i & ~c).to_numpy()]), merge_gap_days)
+    parts.append(ev.assign(kind="ice_without_cold"))
+    ev = count_events(pd.Series(union[(c & ~i).to_numpy()]), merge_gap_days)
+    parts.append(ev[ev["n_days"] >= min_cold_spell_days].assign(kind="cold_without_ice"))
+    out = pd.concat(parts, ignore_index=True)[["kind", "start", "end", "n_days"]]
+    out["n_days"] = out["n_days"].astype("int64")
+    return out.reset_index(drop=True)

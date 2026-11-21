@@ -1095,6 +1095,8 @@ def parse_daily_features(
     features: Sequence[Mapping[str, Any]],
     param_cd: str = "00060",
     ts_id: Optional[str] = None,
+    *,
+    keep_null: bool = False,
 ) -> pd.DataFrame:
     """Parse ``daily`` features into a date-indexed frame.
 
@@ -1107,6 +1109,10 @@ def parse_daily_features(
     ts_id : str, optional
         The ``time_series_id`` requested, if one was. Without it the rows must
         all come from one series.
+    keep_null : bool
+        Keep rows with a null value, with NaN in the value column and their
+        ``qualification_code`` (``P:ICE`` for an ice day with no estimate).
+        The default, ``False``, is unchanged: such rows are dropped.
 
     Returns
     -------
@@ -1116,8 +1122,8 @@ def parse_daily_features(
         ``qualification_code`` (:func:`map_qualification_code`, as on the
         instantaneous path: ``A``, ``P:e``, ``A:e:ICE``). Rows with a null
         value -- ice-affected or equipment-outage days with no published
-        value -- are dropped, as the legacy parser drops their ``Ice`` /
-        ``Eqp`` text.
+        value -- are dropped by default, as the legacy parser drops their
+        ``Ice`` / ``Eqp`` text, and kept with NaN flow when ``keep_null``.
 
     Raises
     ------
@@ -1184,7 +1190,7 @@ def parse_daily_features(
     frame = frame[frame.index.notna()]
 
     null_values = frame[value_col].isna()
-    if null_values.any():
+    if null_values.any() and not keep_null:
         logger.debug(
             "Dropping %d daily row(s) with no value (qualifiers: %s)",
             int(null_values.sum()),
@@ -1247,6 +1253,7 @@ def download_daily(
     end_date: Optional[str] = None,
     ts_id: Optional[str] = None,
     timeout: int = 60,
+    keep_null: bool = False,
 ) -> pd.DataFrame:
     """Daily mean values for one parameter from the Water Data OGC API.
 
@@ -1282,6 +1289,11 @@ def download_daily(
         daily-mean series.
     timeout : int
         Per-request timeout in seconds.
+    keep_null : bool
+        Keep days with a null value (ice-affected or equipment-outage days
+        with no published value) as NaN flow with their
+        ``qualification_code``. The default, ``False``, is unchanged: those
+        days are dropped.
 
     Returns
     -------
@@ -1324,7 +1336,7 @@ def download_daily(
     if not features:
         window = f" between {start_date} and {end_date}" if time_param is not None else ""
         raise ValueError(f"No daily data found for site {site_no}{window} on the Water Data API")
-    return parse_daily_features(features, param_cd, ts_id)
+    return parse_daily_features(features, param_cd, ts_id, keep_null=keep_null)
 
 
 # ----------------------------------------------------------------------------

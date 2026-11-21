@@ -141,6 +141,18 @@ class TestParseDailyFeatures:
         assert df["flow_cfs"].tolist() == [223.0, 3120.0]
         assert pd.Timestamp("2026-01-18") not in df.index
 
+    def test_keep_null_keeps_ice_rows_without_a_value(self) -> None:
+        rows = [
+            _row("2026-01-17", "3120", approval="Provisional"),
+            _row("2026-01-18", None, approval="Provisional", qualifier=["ICE"]),
+        ]
+        kept = parse_daily_features(rows, keep_null=True)
+        assert len(kept) == 2
+        day = kept.loc[pd.Timestamp("2026-01-18")]
+        assert pd.isna(day["flow_cfs"])
+        assert day["qualification_code"] == "P:ICE"
+        assert pd.Timestamp("2026-01-18") not in parse_daily_features(rows).index
+
     def test_empty_gives_typed_empty_frame(self) -> None:
         df = parse_daily_features([])
         assert df.empty and list(df.columns) == ["flow_cfs", "qualification_code"]
