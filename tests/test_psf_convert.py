@@ -571,11 +571,13 @@ class TestWymt:
     """Every station in peakfq's own WY/MT test file converts, and agrees with peakfq."""
 
     @pytest.fixture(scope="class")
-    def stations(self):
+    @staticmethod
+    def stations():
         return convert_psf(_testdata("wymt_ffa_2022A.psf"))
 
     @pytest.fixture(scope="class")
-    def info(self):
+    @staticmethod
+    def info():
         with open(_testdata("wymt_ffa_2022A_EXPinfo_7_4.csv"), newline="") as fh:
             return {r["site_no"]: r for r in csv.DictReader(fh)}
 

@@ -131,7 +131,8 @@ class TestPowderRiverFromPsf:
     """85 uncensored years: must match to the same 1e-6 as the hand-built fixture."""
 
     @pytest.fixture(scope="class")
-    def fit(self, stations):
+    @staticmethod
+    def fit(stations):
         return _fit_with_golden_skew(stations, "powder_river_06326500")
 
     def test_moments(self, fit):
@@ -154,7 +155,8 @@ class TestCainsCouleeFromPsf:
     """32 years, 11 PILFs: the parts ``test_wymt_vs_golden.py`` shows agreeing."""
 
     @pytest.fixture(scope="class")
-    def fit(self, stations):
+    @staticmethod
+    def fit(stations):
         return _fit_with_golden_skew(stations, "cains_coulee_06327450")
 
     def test_mgbt(self, fit):
