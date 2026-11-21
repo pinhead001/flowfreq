@@ -344,15 +344,17 @@ class WaterDataApiBackend:
         df["peak_date"] = pd.to_datetime(df["peak_date"], format="%Y-%m-%d", errors="coerce")
         incomplete = df["water_year"].isna() | df["peak_flow_cfs"].isna()
         if incomplete.any():
-            # Said at warning level and with the years: the fit then treats each as a
-            # year with no record, where peakfq's siteQT gives a year inside the record
-            # a censored row at the perception threshold. Which is right depends on why
-            # the value is missing, which the analyst has to read from the codes.
+            # peakfq does the same: siteQT drops a row with no peak_va ("Remove GH only
+            # peaks", vendor/peakfqr/R/readInputs.R) before it fills in every year of the
+            # analysis range, so the year is missing data like any year with no row --
+            # censored below a perception threshold that covers it (Qmin to tl), otherwise
+            # a gap. Said at warning level with the years, since such rows are usually
+            # gage-height-only peaks the analyst may want to look at.
             years = sorted({int(y) for y in df.loc[incomplete, "water_year"].dropna()})
             logger.warning(
                 "Site %s: dropped %d peak row(s) with no water year or no value%s. "
-                "A year dropped from inside the record is treated as a gap, not as a "
-                "censored year.",
+                "As in peakfq, a year dropped from inside the record is treated as a gap: "
+                "missing data, censored only where a perception threshold covers it.",
                 site,
                 int(incomplete.sum()),
                 f" (water years {', '.join(map(str, years))})" if years else "",

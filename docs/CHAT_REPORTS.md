@@ -75,7 +75,7 @@ rebuilds the same report with no network and no chat.
 | Tool | What it does | Needs |
 |---|---|---|
 | `find_gage` | Search the shipped gage catalog by station number or words from the name | nothing |
-| `run_ffa` | Add a Bulletin 17C section for a gage: record, method, parameters, quantiles with 90-percent confidence limits, frequency curve, stationarity screen, peaks | USGS (peaks; site location for the regional skew) |
+| `run_ffa` | Add a Bulletin 17C section for a gage: record, method, parameters, quantiles with 90-percent confidence limits, frequency curve, stationarity screen, peaks | USGS (peaks, unless you give them; site location for the regional skew) |
 | `estimate_ungaged` | Add a regional regression estimate at a point, basin delineated by StreamStats | StreamStats |
 | `estimate_from_characteristics` | The same estimate from basin characteristics you supply | nothing |
 | `weight_gage_with_regression` | Weight a gage section with a regression section by inverse variance (Bulletin 17C Appendix 9) | nothing |
@@ -101,6 +101,16 @@ Sections have ids (`s1`, `s2`, ...) that do not change when sections move and ar
 reused. By default `weight_gage_with_regression` replaces the two sections it weights,
 since the weighted section carries both analyses; `keep_parts` keeps them, and a part that
 has a narrative is never replaced.
+
+`run_ffa` takes `peaks` you type in (columns `water_year` and `peak_flow_cfs`, optionally
+`qualification_code` and `peak_date`) in place of a download, with or without a `site_no`,
+and `site_name` to name the site; `perception_thresholds`, each with `start_year`,
+`end_year` and `threshold_cfs`; and `regional_skew_state` (with `regional_skew_region`
+where the state has several) for the regional skew on file for a state. Without `site_no`,
+`skew="regional"` needs `regional_skew_state` or `regional_skew` and `regional_skew_se`.
+`estimate_ungaged` takes `aeps`, `weighting_space` (`"log"` or `"linear"`) and
+`min_coverage_percent` (the least percent of the basin the regions used must cover);
+`estimate_from_characteristics` takes `aeps` and `weighting_space`.
 
 `transpose_gage_to_site` leaves the gage's section where it is and puts the transposed one
 after it. The drainage-area exponents are yours to give, from the regional regression report
@@ -143,8 +153,9 @@ For an ungaged site with gages on its stream, the usual order is: `run_ffa` for 
 `compare_estimates` tabulates the flows by method with the ratio of the largest to the
 smallest and each method's limits; it weights and combines nothing. `add_site_summary`
 takes the site and the gages as `locations`, each a name and a point with the basin
-characteristics you have for it; those are printed as you give them, and the model is told
-to ask for them.
+characteristics you have for it, and optionally `basin`, a GeoJSON Polygon or MultiPolygon
+geometry (lon/lat) drawn on the map; the characteristics are printed as you give them, and
+the model is told to ask for them.
 
 `extend_gage_record` is for a gage that was discontinued or has a short record, beside one
 with a longer record. It follows Bulletin 17C Appendix 8: the correlation of the concurrent
@@ -224,6 +235,3 @@ tests drive it in process.
   flow duration are sections at a gage only. Regime metrics are not report sections, and
   neither are the other transfers in `flowfreq.transpose` (flow-duration, low-flow, between
   two gages, regression-weighted).
-- Some options of the Python sections have no tool argument: perception thresholds, peaks
-  typed in by hand, a regional skew by state, a basin outline for the summary's map. Build
-  those from a specification (`flowfreq report`) or with `ReportSession.add_section`.

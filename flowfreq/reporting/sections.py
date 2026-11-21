@@ -160,6 +160,7 @@ SECTION_KINDS.update(
                 "allow_extrapolation",
                 "allow_inaccurate",
                 "weighting_space",
+                "min_coverage_percent",
             ),
             build=_build_ungaged,
         ),

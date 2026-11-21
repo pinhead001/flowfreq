@@ -158,7 +158,8 @@ class TestServer:
     def test_arguments_are_typed(self, chat):
         by_name = {tool.name: tool for tool in chat.tools()}
         schema = by_name["run_ffa"].input_schema
-        assert schema["required"] == ["site_no"]
+        # site_no is optional since peaks can be given by hand instead.
+        assert "required" not in schema
         assert schema["properties"]["skew"]["default"] == "regional"
         assert schema["properties"]["allow_regulated"] == {
             "default": False,
