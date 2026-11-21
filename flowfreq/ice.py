@@ -24,6 +24,8 @@ __all__ = [
     "cold_air_days",
     "cold_spells_per_winter",
     "events_in_months",
+    "winter_event_counts",
+    "decade_scaled",
 ]
 
 
@@ -185,3 +187,98 @@ def events_in_months(dates: pd.Series, months: Sequence[int], merge_gap_days: in
     ev["winter"] = winter_of(ev["start"]).astype("int64")
     ev["month"] = ev["start"].dt.month.astype("int64")
     return ev
+
+
+def winter_event_counts(events: pd.DataFrame, counted_winters: Sequence[int]) -> pd.DataFrame:
+    """Count events per winter, with a zero row for every counted winter.
+
+    Parameters
+    ----------
+    events : pd.DataFrame
+        Events with a ``winter`` column (as from :func:`events_in_months`).
+    counted_winters : Sequence[int]
+        Winters (water years) in which the site was observed.
+
+    Returns
+    -------
+    pd.DataFrame
+        Columns ``winter`` and ``n_events`` (both int64), one row per counted
+        winter in the order given; 0 where the winter has no event. Events in
+        winters not listed are dropped.
+    """
+    winters = pd.Series(list(counted_winters), dtype="int64")
+    counts = events["winter"].astype("int64").value_counts()
+    n = winters.map(counts).fillna(0).astype("int64")
+    return pd.DataFrame({"winter": winters, "n_events": n})
+
+
+def decade_scaled(
+    n_events: pd.Series,
+    air_index: pd.Series,
+    reference_winters: Sequence[int],
+) -> dict[str, float]:
+    """Scale a site's event count to a reference period by an air index.
+
+    The rate is events per cold spell over the site's counted winters. It is
+    applied to the air index of each reference winter: the expected events in
+    a winter are ``rate * spells``, and the chance of at least one event is
+    ``1 - exp(-rate * spells)`` (a Poisson count).
+
+    Parameters
+    ----------
+    n_events : pd.Series
+        Events per counted winter, indexed by winter. Its index is the set of
+        winters the site was observed.
+    air_index : pd.Series
+        Cold spells (``n_spells``) by winter. A winter missing from it counts
+        as 0 spells.
+    reference_winters : Sequence[int]
+        Winters of the reference period.
+
+    Returns
+    -------
+    dict[str, float]
+        ``n_winters``, ``events_per_winter_obs``, ``share_winters_obs`` (share
+        of counted winters with an event), ``rate_per_spell``,
+        ``events_per_winter_ref``, ``events_ref_decade``
+        (``events_per_winter_ref * 10``, the ten-year period of D&L 38.4),
+        ``share_winters_ref`` (mean Poisson chance of an event over the
+        reference winters), ``spells_obs`` (spells in the counted winters) and
+        ``spells_ref_mean``. When there are no spells in the counted winters
+        the rate cannot be formed and the four scaled values are NaN. When
+        there are spells but no events they are 0.0.
+    """
+    site_winters = list(n_events.index)
+    events = n_events.to_numpy(dtype=float)
+    n_winters = len(site_winters)
+    spells_site = air_index.reindex(site_winters).fillna(0).to_numpy(dtype=float)
+    spells_ref = air_index.reindex(list(reference_winters)).fillna(0).to_numpy(dtype=float)
+
+    spells_obs = float(spells_site.sum())
+    spells_ref_mean = float(spells_ref.mean()) if spells_ref.size else float("nan")
+    nan = float("nan")
+    if n_winters:
+        events_per_winter_obs = float(events.mean())
+        share_winters_obs = float((events > 0).mean())
+    else:
+        events_per_winter_obs = share_winters_obs = nan
+
+    if spells_obs > 0:
+        rate = float(events.sum()) / spells_obs
+        events_ref = rate * spells_ref_mean
+        share_ref = float(np.mean(1.0 - np.exp(-rate * spells_ref))) if spells_ref.size else nan
+    else:
+        logger.info("no cold spell in the site's winters: rate per spell is undefined")
+        rate = events_ref = share_ref = nan
+
+    return {
+        "n_winters": n_winters,
+        "events_per_winter_obs": events_per_winter_obs,
+        "share_winters_obs": share_winters_obs,
+        "rate_per_spell": rate,
+        "events_per_winter_ref": events_ref,
+        "events_ref_decade": events_ref * 10,
+        "share_winters_ref": share_ref,
+        "spells_obs": spells_obs,
+        "spells_ref_mean": spells_ref_mean,
+    }

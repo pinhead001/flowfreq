@@ -1,12 +1,16 @@
 """Tests for flowfreq.ice: event counting, cold air and the air index."""
 
+import numpy as np
 import pandas as pd
+import pytest
 
 from flowfreq.ice import (
     cold_air_days,
     cold_spells_per_winter,
     count_events,
+    decade_scaled,
     events_in_months,
+    winter_event_counts,
     winter_of,
 )
 
@@ -64,3 +68,34 @@ def test_events_in_months_drops_days_outside_the_winter():  # Review Focus 2
     ev = events_in_months(d, [11, 12, 1, 2, 3], merge_gap_days=2)
     assert ev["n_days"].tolist() == [1, 1] and ev["winter"].tolist() == [2015, 2015]
     assert ev["month"].tolist() == [11, 3]
+
+
+def test_decade_scaled_rate_and_poisson_share():
+    n = pd.Series({2013: 2, 2014: 4})  # 6 events
+    air = pd.Series({2012: 6, 2013: 3, 2014: 3, 2015: 6})  # 6 spells in the site's winters
+    out = decade_scaled(n, air, reference_winters=[2012, 2013, 2014, 2015])
+    assert out["rate_per_spell"] == 1.0
+    assert out["events_per_winter_ref"] == 4.5  # 1.0 * mean(6, 3, 3, 6)
+    assert out["events_ref_decade"] == 45.0
+    assert out["share_winters_ref"] == pytest.approx(np.mean([1 - np.exp(-6), 1 - np.exp(-3)] * 2))
+    assert (out["events_per_winter_obs"], out["share_winters_obs"], out["n_winters"]) == (
+        3.0,
+        1.0,
+        2,
+    )
+
+
+def test_decade_scaled_no_event_is_zero_not_nan():
+    out = decade_scaled(pd.Series({2013: 0}), pd.Series({2013: 5, 2014: 7}), [2013, 2014])
+    assert out["rate_per_spell"] == 0.0 and out["share_winters_ref"] == 0.0
+
+
+def test_decade_scaled_no_spell_in_site_winters_is_nan():  # Review Focus 1
+    out = decade_scaled(pd.Series({2013: 2}), pd.Series({2013: 0, 2014: 7}), [2013, 2014])
+    assert np.isnan(out["rate_per_spell"]) and np.isnan(out["events_per_winter_ref"])
+
+
+def test_winter_event_counts_fills_zero_winters():
+    ev = pd.DataFrame({"winter": [2014, 2014, 2016]})
+    out = winter_event_counts(ev, [2014, 2015, 2016])
+    assert out["n_events"].tolist() == [2, 0, 1]
