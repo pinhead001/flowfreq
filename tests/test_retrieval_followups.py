@@ -64,6 +64,7 @@ def test_a_peak_with_no_value_is_dropped_out_loud(caplog) -> None:
         frame = USGSgage("03606500").download_peak_flow(site_metadata=False)
     assert year not in set(frame["water_year"]) and len(frame) == 6
     assert f"water years {year}" in caplog.text and "treated as a gap" in caplog.text
+    assert "As in peakfq" in caplog.text
 
 
 @pytest.mark.parametrize("key, expected", [(None, 2), ("abc", 6)])
