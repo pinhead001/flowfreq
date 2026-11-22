@@ -213,13 +213,21 @@ def _retry_delay(response: requests.Response, attempt: int) -> float:
         return min(2.0**attempt, MAX_BACKOFF_S)
 
 
-def request(url: str, params: Optional[Mapping[str, Any]], timeout: float) -> requests.Response:
+def request(
+    url: str,
+    params: Optional[Mapping[str, Any]],
+    timeout: float,
+    *,
+    send_api_key: bool = True,
+) -> requests.Response:
     """GET from the Water Data API with the API key and backoff on 429, 502, 503, 504 and a
     dropped connection.
 
     Every call to ``api.waterdata.usgs.gov`` in flowfreq goes through here, so the
     key and the retry policy apply to peaks, instantaneous and daily values, and
-    monitoring-location metadata alike.
+    monitoring-location metadata alike. Reads from other services (NCEI daily
+    summaries, :mod:`flowfreq.ghcn`) use the same retry policy through here, with
+    ``send_api_key=False`` so the USGS key never leaves for another host.
 
     Parameters
     ----------
@@ -228,6 +236,10 @@ def request(url: str, params: Optional[Mapping[str, Any]], timeout: float) -> re
         Query parameters; ``None`` for a ``next`` link that already carries them.
     timeout : float
         Per-attempt timeout, seconds.
+    send_api_key : bool, optional
+        Send the USGS ``X-Api-Key`` (default). False for a host other than the
+        Water Data API: no key header is sent and an error message does not
+        mention the USGS key.
 
     Returns
     -------
@@ -245,7 +257,7 @@ def request(url: str, params: Optional[Mapping[str, Any]], timeout: float) -> re
     """
     import time
 
-    key = _current_api_key()
+    key = _current_api_key() if send_api_key else None
     extra: Dict[str, Any] = {"headers": {"X-Api-Key": key}} if key else {}
     attempt = 0
     while True:
@@ -281,6 +293,10 @@ def request(url: str, params: Optional[Mapping[str, Any]], timeout: float) -> re
         try:
             response.raise_for_status()
         except requests.HTTPError as exc:
+            if response.status_code == 429 and not send_api_key:
+                raise requests.HTTPError(
+                    f"{exc}. Rate limited after {MAX_RETRIES} retries.", response=response
+                ) from exc
             if response.status_code == 429:
                 raise requests.HTTPError(
                     f"{exc}. Rate limited after {MAX_RETRIES} retries: without an API key "
@@ -1095,6 +1111,8 @@ def parse_daily_features(
     features: Sequence[Mapping[str, Any]],
     param_cd: str = "00060",
     ts_id: Optional[str] = None,
+    *,
+    keep_null: bool = False,
 ) -> pd.DataFrame:
     """Parse ``daily`` features into a date-indexed frame.
 
@@ -1107,6 +1125,10 @@ def parse_daily_features(
     ts_id : str, optional
         The ``time_series_id`` requested, if one was. Without it the rows must
         all come from one series.
+    keep_null : bool
+        Keep rows with a null value, with NaN in the value column and their
+        ``qualification_code`` (``P:ICE`` for an ice day with no estimate).
+        The default, ``False``, is unchanged: such rows are dropped.
 
     Returns
     -------
@@ -1116,8 +1138,8 @@ def parse_daily_features(
         ``qualification_code`` (:func:`map_qualification_code`, as on the
         instantaneous path: ``A``, ``P:e``, ``A:e:ICE``). Rows with a null
         value -- ice-affected or equipment-outage days with no published
-        value -- are dropped, as the legacy parser drops their ``Ice`` /
-        ``Eqp`` text.
+        value -- are dropped by default, as the legacy parser drops their
+        ``Ice`` / ``Eqp`` text, and kept with NaN flow when ``keep_null``.
 
     Raises
     ------
@@ -1184,7 +1206,7 @@ def parse_daily_features(
     frame = frame[frame.index.notna()]
 
     null_values = frame[value_col].isna()
-    if null_values.any():
+    if null_values.any() and not keep_null:
         logger.debug(
             "Dropping %d daily row(s) with no value (qualifiers: %s)",
             int(null_values.sum()),
@@ -1247,6 +1269,7 @@ def download_daily(
     end_date: Optional[str] = None,
     ts_id: Optional[str] = None,
     timeout: int = 60,
+    keep_null: bool = False,
 ) -> pd.DataFrame:
     """Daily mean values for one parameter from the Water Data OGC API.
 
@@ -1282,6 +1305,11 @@ def download_daily(
         daily-mean series.
     timeout : int
         Per-request timeout in seconds.
+    keep_null : bool
+        Keep days with a null value (ice-affected or equipment-outage days
+        with no published value) as NaN flow with their
+        ``qualification_code``. The default, ``False``, is unchanged: those
+        days are dropped.
 
     Returns
     -------
@@ -1324,7 +1352,7 @@ def download_daily(
     if not features:
         window = f" between {start_date} and {end_date}" if time_param is not None else ""
         raise ValueError(f"No daily data found for site {site_no}{window} on the Water Data API")
-    return parse_daily_features(features, param_cd, ts_id)
+    return parse_daily_features(features, param_cd, ts_id, keep_null=keep_null)
 
 
 # ----------------------------------------------------------------------------

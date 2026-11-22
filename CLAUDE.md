@@ -230,6 +230,9 @@ CI should test the supported Python matrix.
 - **`peak_extension.py`** — record extension of annual peaks from an index gage (Bulletin 17C Appendix 8: Matalas-Jacobs moments, effective record length, the MOVE line); `record_extension.py` is MOVE.1 for daily flows
 - **`naturalize.py`** — naturalization add-back of upstream diversions (caller-supplied rates, return fractions, seasons)
 - **`stationarity.py`** — Mann-Kendall (Hamed-Rao), Sen's slope, Spearman, Pettitt, CUSUM and Lombard screening of annual series; field significance (FDR/Walker, block bootstrap); change-point attribution (peak codes, NID dams, NLCD impervious); peaks-over-threshold count trends; `stationarity_report` (one-page figure and Markdown); mixed-population seasonality screen
+- **`ice.py`** — ice events: winters, event counting with gap merging, cold-air days, gauge `ICE`
+  qualifiers, gauge-versus-air QA/QC; behind `flowfreq ice-events`, every threshold a required option
+- **`ghcn.py`** — NCEI daily TMIN/TMAX (`fetch_ghcn_daily`) through `waterdata.request`, without the USGS key
 - **`lowflow.py`** / **`regime.py`** / **`subdaily.py`** — low-flow frequency, flow-regime and
   sub-daily metrics
 - **`reporting/`** — reports from a JSON specification: `spec` (`ReportSpec`, `SectionSpec`),
@@ -256,8 +259,9 @@ sends an `X-Api-Key` from `USGS_API_KEY` or `waterdata.set_api_key()`, and retri
 429/503 with `Retry-After` or exponential backoff. Without a key the API allows 1000
 requests/hour per IP. Legacy NWIS remains available with `backend="nwis-legacy"`. On the OGC
 backend an IV `ts_id` is the 32-hex `time_series_id`, not the NWIS DD number, and
-`peak_date` is a UTC date. `waterdata.request` also retries a dropped connection, a 502 and a
-504: these are reads of stored data.
+`peak_date` is a UTC date. NCEI daily summaries (`ghcn.py`) go through `waterdata.request` too,
+with `send_api_key=False`, so the USGS key is never sent to NCEI. `waterdata.request` also
+retries a dropped connection, a 502 and a 504: these are reads of stored data.
 
 **StreamStats is the opposite case, and USGS blocked this machine's address over it once
 (issue #365).** Its delineation, basin-characteristics, NSS `bylocation` and NSS

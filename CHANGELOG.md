@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Ice events from gauge qualifiers and cold air.** `flowfreq.ice` (winter and event counting, cold-air days,
+  gauge `ICE` qualifiers, gauge-versus-air QA/QC), `flowfreq.ghcn.fetch_ghcn_daily` (NCEI daily TMIN/TMAX) and the
+  `flowfreq ice-events` command, whose every threshold is a required option. `waterdata.download_daily` takes
+  `keep_null=True` to keep ice-affected days with no value; `waterdata.request` takes `send_api_key=False`, used for
+  NCEI so the USGS key is never sent to another host.
 - `flowfreq-mcp`: `run_ffa` takes `peaks` typed by hand (no `site_no` needed), `site_name`, `perception_thresholds`,
   `regional_skew_state` and `regional_skew_region`; `estimate_ungaged` takes `aeps`, `weighting_space` and
   `min_coverage_percent` (now an `ungaged` section option), `estimate_from_characteristics` `aeps` and

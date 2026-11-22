@@ -644,7 +644,8 @@ class USGSgage:
         qualifiers ``["ESTIMATED", "ICE"]``, legacy code ``A:e``). Where it
         published none -- typically provisional winter data -- legacy writes
         the text ``Ice`` in the value column and the OGC API a null value
-        with qualifier ``["ICE"]``; both backends drop the day. So neither
+        with qualifier ``["ICE"]``; both backends drop the day (the OGC path keeps it as NaN with
+        ``download_daily(keep_null=True)``). So neither
         backend turns an ice day into NaN in the returned frame, and on every
         record compared live the two return the same days. The difference is
         only in what is kept alongside: the qualifier, which
