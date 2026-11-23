@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.28.1] - 2026-11-23
+
 ### Fixed
 
 - **The HYSEP baseflow windows were about twice as wide as the method's.** USGS WRIR 96-4040 makes the whole window
