@@ -66,29 +66,29 @@ looks perfectly reasonable on paper.
   knowing about before comparing this figure against the same site
   analyzed from a slightly different download window.
 - ``"hysep_fixed"``, ``"hysep_sliding"``, ``"hysep_local_minimum"``: the
-  three USGS HYSEP methods (Sloto & Crouse, 1996), all built on the same
-  interval width ``N* = round_to_odd(2 * drainage_area_sqmi ** 0.2)`` days
-  (Pettyjohn & Henning, 1979). Fixed-interval takes the minimum in each
-  non-overlapping ``2N*``-day block as a flat baseflow value for that whole
-  block (a step function -- the crudest of the three). Sliding-interval is
-  a centered rolling minimum of window ``2N*+1`` (smoother, still a direct
-  minimum, no interpolation). Local-minimum flags a day as a turning point
-  when it equals the minimum of its own centered ``2N*+1`` window, then
-  interpolates between turning points exactly as the IH method does. All
-  three need ``drainage_area_sqmi`` -- there is no way around this; it is
-  intrinsic to how HYSEP defines its window width, so a site missing that
-  attribute cannot use these methods, and the error says so rather than
-  guessing a drainage area or silently falling back to another method.
-  **The N* constant above is implemented from secondary-source citations of
-  Sloto & Crouse (1996) / Pettyjohn & Henning (1979), not a direct read of
-  either primary document** -- this development environment has no network
-  access to check it against USGS WRIR 96-4040 directly. The value is
-  self-consistent (odd-integer rounding, the expected qualitative growth
-  with drainage area) but that is not the same as confirming the constant
-  itself is correct. Verify it against the primary source before relying
-  on any HYSEP-derived number for a published result; if it is off by even
-  a small factor, every HYSEP result built on it is systematically wrong,
-  not just imprecise.
+  three USGS HYSEP methods (Sloto & Crouse, 1996, USGS WRIR 96-4040, after
+  Pettyjohn & Henning, 1979), all built on the same interval. ``2N*`` is the
+  odd number of days from 3 to 11 nearest ``2N``, with ``N =
+  drainage_area_sqmi ** 0.2``; the report does not say how to break a tie
+  (32 square miles gives exactly 4), and the smaller is taken here.
+  Fixed-interval takes the minimum in each non-overlapping ``2N*``-day block
+  as a flat baseflow value for that whole block (a step function -- the
+  crudest of the three). Sliding-interval is a centered rolling minimum of
+  ``2N*`` days (smoother, still a direct minimum, no interpolation).
+  Local-minimum flags a day as a turning point when it equals the minimum of
+  its own centered ``2N*``-day window, then interpolates between turning
+  points exactly as the IH method does. All three need
+  ``drainage_area_sqmi`` -- there is no way around this; it is intrinsic to
+  how HYSEP defines its window width, so a site missing that attribute cannot
+  use these methods, and the error says so rather than guessing a drainage
+  area or silently falling back to another method. Checked against the
+  report's French Creek example (59.1 square miles, 5 days): its April 1992
+  values, and its 1969 local-minimum listing, where every monthly base flow
+  agrees within 0.24 cfs and the year within 0.4 percent (27.10 against a
+  published 27.00), a difference that has not been traced. See
+  ``tests/fixtures/hysep/README.md``. Through flowfreq 0.28.0 the windows were
+  ``2 * 2N*`` (fixed) and ``2 * 2N* + 1`` days wide and not limited to 11, so
+  HYSEP baseflow came out too low.
 - ``"lyne_hollick"``: the Lyne & Hollick (1979) recursive digital filter,
   3 passes (forward, backward, forward) per Nathan & McMahon (1990),
   alpha=0.925. A single missing day would otherwise poison every
@@ -386,31 +386,29 @@ def _ih_smoothed_minima(flows: np.ndarray, block_days: int = 5, factor: float = 
     return _interpolate_baseflow(flows, np.array(turning_pos), np.array(turning_val))
 
 
+#: The interval widths HYSEP may use, in days (Sloto & Crouse, 1996).
+_HYSEP_INTERVALS = (3, 5, 7, 9, 11)
+
+
 def _hysep_interval_days(drainage_area_sqmi: float) -> int:
-    """HYSEP's interval half-width N*, in days (Pettyjohn & Henning, 1979).
+    """HYSEP's interval 2N*, in days: the whole width of the window.
 
-    N* = 2 * A^0.2, rounded to the nearest odd integer, A in square miles.
-
-    From secondary-source citations of the primary reference, not a direct
-    read of it -- this has not been checked against USGS WRIR 96-4040
-    itself (see the module docstring's HYSEP section). Confirm this
-    constant before relying on a HYSEP-derived result for publication.
+    The odd integer from 3 to 11 nearest 2N, with N = A**0.2 and A in square
+    miles (Sloto & Crouse, 1996, USGS WRIR 96-4040). A tie goes to the smaller.
     """
     if drainage_area_sqmi <= 0:
         raise ValueError(f"drainage_area_sqmi must be positive, got {drainage_area_sqmi}")
-    n_star = 2.0 * drainage_area_sqmi**0.2
-    n_odd = int(2 * round((n_star - 1) / 2) + 1)
-    return max(n_odd, 1)
+    two_n = 2.0 * drainage_area_sqmi**0.2
+    return min(_HYSEP_INTERVALS, key=lambda days: abs(days - two_n))
 
 
-def _hysep_fixed(flows: np.ndarray, n_star: int) -> np.ndarray:
-    """HYSEP fixed-interval method: minimum of each non-overlapping 2*N*-day
+def _hysep_fixed(flows: np.ndarray, interval_days: int) -> np.ndarray:
+    """HYSEP fixed-interval method: minimum of each non-overlapping 2N*-day
     block, held constant across the block (a step function)."""
-    width = 2 * n_star
     n = len(flows)
     baseflow = np.full(n, np.nan)
-    for start in range(0, n, width):
-        end = min(start + width, n)
+    for start in range(0, n, interval_days):
+        end = min(start + interval_days, n)
         seg = flows[start:end]
         if np.isnan(seg).any():
             continue
@@ -418,24 +416,26 @@ def _hysep_fixed(flows: np.ndarray, n_star: int) -> np.ndarray:
     return baseflow
 
 
-def _hysep_sliding(flows: np.ndarray, n_star: int) -> np.ndarray:
-    """HYSEP sliding-interval method: centered rolling minimum, window
-    2*N*+1 days."""
-    window = 2 * n_star + 1
-    return pd.Series(flows).rolling(window=window, center=True, min_periods=window).min().to_numpy()
+def _centered_minimum(flows: np.ndarray, interval_days: int) -> pd.Series:
+    """Minimum of the centered 2N*-day window, NaN where the window is incomplete."""
+    return (
+        pd.Series(flows).rolling(window=interval_days, center=True, min_periods=interval_days).min()
+    )
 
 
-def _hysep_local_minimum(flows: np.ndarray, n_star: int) -> np.ndarray:
+def _hysep_sliding(flows: np.ndarray, interval_days: int) -> np.ndarray:
+    """HYSEP sliding-interval method: centered rolling minimum, window 2N* days."""
+    return _centered_minimum(flows, interval_days).to_numpy()
+
+
+def _hysep_local_minimum(flows: np.ndarray, interval_days: int) -> np.ndarray:
     """HYSEP local-minimum method: a day is a turning point if it equals the
-    minimum of its own centered 2*N*+1-day window; turning points are then
+    minimum of its own centered 2N*-day window; turning points are then
     interpolated exactly as the IH method does."""
-    window = 2 * n_star + 1
-    s = pd.Series(flows)
-    roll_min = s.rolling(window=window, center=True, min_periods=window).min()
-    is_turning = (s == roll_min) & roll_min.notna()
+    roll_min = _centered_minimum(flows, interval_days)
+    is_turning = (pd.Series(flows) == roll_min) & roll_min.notna()
     positions = np.where(is_turning.to_numpy())[0]
-    values = flows[positions]
-    return _interpolate_baseflow(flows, positions, values)
+    return _interpolate_baseflow(flows, positions, flows[positions])
 
 
 def _gap_free_runs(values: np.ndarray) -> list:
@@ -540,7 +540,7 @@ def separate_baseflow(
     if method in _HYSEP_METHODS and drainage_area_sqmi is None:
         raise ValueError(
             f"method={method!r} requires drainage_area_sqmi -- HYSEP's window width is "
-            f"defined in terms of it (N* = round_to_odd(2 * A**0.2)), so there is no "
+            f"defined in terms of it (the odd integer nearest 2 * A**0.2), so there is no "
             f"drainage-area-free way to run it. Pass it explicitly, or use "
             f"method='ih_smoothed_minima' (the default) or 'lyne_hollick', neither of "
             f"which needs it."
@@ -555,13 +555,13 @@ def separate_baseflow(
         baseflow = _lyne_hollick(flows, alpha=alpha, passes=passes)
     else:
         assert drainage_area_sqmi is not None  # checked above for the HYSEP methods
-        n_star = _hysep_interval_days(drainage_area_sqmi)
+        interval_days = _hysep_interval_days(drainage_area_sqmi)
         if method == "hysep_fixed":
-            baseflow = _hysep_fixed(flows, n_star)
+            baseflow = _hysep_fixed(flows, interval_days)
         elif method == "hysep_sliding":
-            baseflow = _hysep_sliding(flows, n_star)
+            baseflow = _hysep_sliding(flows, interval_days)
         else:
-            baseflow = _hysep_local_minimum(flows, n_star)
+            baseflow = _hysep_local_minimum(flows, interval_days)
 
     return pd.Series(baseflow, index=full_idx, name="baseflow_cfs")
 

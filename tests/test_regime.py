@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -184,27 +186,30 @@ class TestIhSmoothedMinima:
 class TestHysep:
     """Tests for the three HYSEP variants and their shared N* formula."""
 
-    def test_interval_days_matches_published_examples(self) -> None:
-        """N* = round_to_odd(2 * A**0.2); A=100 sq mi is a commonly cited N*=5 case."""
-        assert _hysep_interval_days(100) == 5
-
-    def test_interval_days_increases_with_drainage_area(self) -> None:
-        assert _hysep_interval_days(10) < _hysep_interval_days(1000) < _hysep_interval_days(10000)
+    @pytest.mark.parametrize(
+        "area,days",
+        [(0.5, 3), (32.0, 3), (59.1, 5), (100.0, 5), (1000.0, 7), (4000.0, 11), (1e6, 11)],
+    )
+    def test_interval_days(self, area: float, days: int) -> None:
+        """2N* is the odd integer from 3 to 11 nearest 2 * A**0.2 (WRIR 96-4040); the report
+        gives 5 for French Creek's 59.1 square miles. A tie (32) goes to the smaller."""
+        assert _hysep_interval_days(area) == days
 
     def test_interval_days_rejects_nonpositive_area(self) -> None:
         with pytest.raises(ValueError, match="must be positive"):
             _hysep_interval_days(0)
 
     def test_fixed_interval_is_a_step_function(self) -> None:
-        """Baseflow is constant within each non-overlapping 2*N*-day block."""
+        """Baseflow is constant within each non-overlapping 2N*-day block."""
         flows = np.array(
             [50, 45, 40, 35, 30, 10, 32, 36, 40, 44, 48, 52, 20, 48, 44, 40, 36, 32, 28, 24],
             dtype=float,
         )
         from flowfreq.regime import _hysep_fixed
 
-        bf = _hysep_fixed(flows, n_star=2)
-        assert bf[0] == bf[1] == bf[2] == bf[3] == flows[0:4].min()
+        bf = _hysep_fixed(flows, interval_days=3)
+        assert bf[0] == bf[1] == bf[2] == flows[0:3].min()
+        assert bf[3] == flows[3:6].min()
 
     def test_sliding_interval_never_exceeds_actual_flow(self) -> None:
         from flowfreq.regime import _hysep_sliding
@@ -213,7 +218,7 @@ class TestHysep:
             [50, 45, 40, 35, 30, 10, 32, 36, 40, 44, 48, 52, 20, 48, 44, 40, 36, 32, 28, 24],
             dtype=float,
         )
-        bf = _hysep_sliding(flows, n_star=2)
+        bf = _hysep_sliding(flows, interval_days=3)
         valid = ~np.isnan(bf)
         assert np.all(bf[valid] <= flows[valid] + 1e-9)
 
@@ -224,7 +229,7 @@ class TestHysep:
             [50, 45, 40, 35, 30, 10, 32, 36, 40, 44, 48, 52, 20, 48, 44, 40, 36, 32, 28, 24],
             dtype=float,
         )
-        bf = _hysep_local_minimum(flows, n_star=2)
+        bf = _hysep_local_minimum(flows, interval_days=3)
         assert bf[5] == 10.0
         assert bf[12] == 20.0
 
@@ -233,6 +238,55 @@ class TestHysep:
         daily = _synthetic_daily(n_years=2)
         with pytest.raises(ValueError, match="requires drainage_area_sqmi"):
             separate_baseflow(daily, method=method)
+
+
+class TestHysepFrenchCreek:
+    """The worked example of USGS WRIR 96-4040: French Creek, 59.1 square miles, 5 days.
+
+    ``tests/fixtures/hysep/README.md`` says where the record and the 11-day offset come from.
+    """
+
+    AREA = 59.1
+    STREAMFLOW = [42.87, 42.18, 57.45, 46.60, 28.55, 19.30]
+    STREAMFLOW += [94.13, 30.39, 21.70, 22.48, 43.10, 50.48]
+    BASEFLOW = [31.56, 36.37, 41.56, 36.88, 21.99, 14.53]
+    BASEFLOW += [28.06, 24.18, 19.02, 19.96, 19.72, 30.48]
+
+    @pytest.fixture
+    def record(self) -> pd.DataFrame:
+        path = Path(__file__).parent / "fixtures" / "hysep" / "01472157_daily.csv"
+        return pd.read_csv(path, index_col="date", parse_dates=True)
+
+    def test_fixed_interval(self, record: pd.DataFrame) -> None:
+        """April 5 to 9, 1992: every day takes the lowest, 49 cfs."""
+        bf = separate_baseflow(record.loc["1992-04-05":], "hysep_fixed", self.AREA)
+        assert bf.loc["1992-04-05":"1992-04-09"].tolist() == [49.0] * 5
+
+    def test_sliding_interval(self, record: pd.DataFrame) -> None:
+        """April 16 to 20, 1992: the lowest, 42 cfs, goes to the median day, April 18."""
+        bf = separate_baseflow(record.loc["1992-03-01":], "hysep_sliding", self.AREA)
+        assert bf.loc["1992-04-18"] == 42.0
+        assert bf.loc["1992-04-19"] > 42.0  # April 17 to 21 does not reach back to it
+
+    def test_local_minimum(self, record: pd.DataFrame) -> None:
+        """Figure 4: local minimums on April 9, 15, 21 and 24, 1992."""
+        spring = record.loc["1992-03-01":]
+        bf = separate_baseflow(spring, "hysep_local_minimum", self.AREA)
+        for day in (9, 15, 21, 24):
+            date = pd.Timestamp(1992, 4, day)
+            assert bf.loc[date] == spring["flow_cfs"].loc[date]
+
+    def test_local_minimum_monthly_summary(self, record: pd.DataFrame) -> None:
+        """Appendix 2, 1969, whose dates run 11 days early."""
+        listed = record.loc["1968-12-01":"1970-02-28"]
+        listed = listed.set_axis(listed.index - pd.Timedelta(days=11))
+        flow = listed["flow_cfs"].loc["1969"]
+        np.testing.assert_allclose(
+            flow.groupby(flow.index.month).mean(), self.STREAMFLOW, atol=0.0051
+        )
+        bf = separate_baseflow(listed, "hysep_local_minimum", self.AREA).loc["1969"]
+        np.testing.assert_allclose(bf.groupby(bf.index.month).mean(), self.BASEFLOW, atol=0.3)
+        assert bf.mean() == pytest.approx(27.00, rel=0.005)
 
 
 class TestLyneHollick:
