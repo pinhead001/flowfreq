@@ -73,8 +73,10 @@ def _x(eq, values):
 def test_status_regions_and_nss_codes(state):
     lib = load_state(state)
     assert lib.status == "verified"
-    assert sorted(lib.regions) == sorted(NSS[state])
-    assert len(lib.equations) == 8 * len(NSS[state])
+    # "Urban 2026" is SIR 2025-5104's set, which NSS does not serve
+    # (tests/test_regression_urban_2026.py).
+    assert sorted(lib.regions) == sorted([*NSS[state], "Urban 2026"])
+    assert len(lib.equations) == 8 * (len(NSS[state]) + 1)
     for region, code in NSS[state].items():
         assert region_for_nss_code(lib, code) == region
         assert lib.aeps(region) == sorted(AEPS, reverse=True)
@@ -84,8 +86,9 @@ def test_every_equation_against_the_nss_snapshot(state):
     lib = load_state(state)
     snap = json.loads((DATA / "nss_snapshot" / f"{state}.json").read_text("utf-8"))
     by_key = {(s["region_code"], s["aep"]): s for s in snap["equations"]}
-    assert {(NSS[state][e.region_code], e.aep) for e in lib.equations} == set(by_key)
-    for e in lib.equations:
+    served = [e for e in lib.equations if e.region_code != "Urban 2026"]
+    assert {(NSS[state][e.region_code], e.aep) for e in served} == set(by_key)
+    for e in served:
         s = by_key[(NSS[state][e.region_code], e.aep)]
         assert e.intercept == pytest.approx(s["intercept"], abs=1e-9)
         assert e.sep_log == pytest.approx(s["sep_log"], abs=6e-4)

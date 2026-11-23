@@ -17,6 +17,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Texas: SIR 2009-5087's OmegaEM equations** (Asquith and Roussel, 2009, Table 3; AEP 0.5 to 0.002), region
   `Statewide OmegaEM`. NSS does not serve them, so they are used only when the caller names the region, and the caller
   supplies the main-channel slope (`MCSLOPE`, feet per foot), which StreamStats does not return in Texas.
+- **The 2026 urban equations of SIR 2025-5104 (Wagner and Ladd) in Georgia, North Carolina and South Carolina**, region
+  `Urban 2026`, for urban basins above 1 mi2 and 10 percent impervious, where nothing else is stored. They are used
+  only when the caller names the region and supplies the two ecoregion percentages. An estimate carries a caution:
+  the set is not valid in the Middle Atlantic or Southern Coastal Plain, and it estimates high at its South Carolina
+  gages (observed flow 0.69 of the equations' at 10 percent AEP).
 - **Baseflow method `ih_smoothed_minima_log`**: the turning points of `ih_smoothed_minima` joined through the logarithms
   of their flows, as the USGS BFI program does. On 23 gages its mean annual index is 0.001 below the program's
   published one on average (0.033 at most), where the default is 0.016 above it (0.061 at most). The default method is unchanged.

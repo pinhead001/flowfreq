@@ -1,4 +1,5 @@
-"""The 2026 urban equations: SIR 2026-5044 (Alabama, Mississippi) and SIR 2025-5104 (Tennessee).
+"""The 2026 urban equations: SIR 2026-5044 (Alabama, Mississippi) and SIR 2025-5104 (Tennessee;
+Georgia, North Carolina and South Carolina by the owner's decision of 2026-11-23).
 
 Neither report prints a coefficient or a worked example, so the check is each data
 release's own per-gage table: regression flow to three significant figures and variance of
@@ -33,7 +34,7 @@ def _three_figures(value: float, printed: float) -> bool:
     return abs(value - printed) <= 0.5 * step * (1 + 1e-9)
 
 
-@pytest.mark.parametrize("state", ["AL", "MS", "TN"])
+@pytest.mark.parametrize("state", ["AL", "MS", "TN", "GA", "NC", "SC"])
 def test_the_set_is_stored_at_eight_aeps(state):
     lib = load_state(state)
     assert lib.status == "verified" and REGION in lib.regions
@@ -41,7 +42,7 @@ def test_the_set_is_stored_at_eight_aeps(state):
     # NSS serves no region for either report, so nothing locates the set.
     assert all("GC" not in e.region_name for e in lib.equations if e.region_code == REGION)
     assert region_for_nss_code(lib, "GC1504") != REGION
-    assert lib.equation(REGION, 0.01).n_sites == (136 if state == "TN" else 42)
+    assert lib.equation(REGION, 0.01).n_sites == (42 if state in ("AL", "MS") else 136)
 
 
 def test_alabama_and_mississippi_hold_the_same_equations():
@@ -76,6 +77,66 @@ def test_tennessee_release_gages_reproduce(gage):
         est = evaluate(lib.equation(REGION, float(aep)), inputs)
         assert _three_figures(est.flow_cfs, printed), (aep, est.flow_cfs, printed)
         assert est.prediction_variance == pytest.approx(gage["var"][aep], abs=5.1e-5)
+
+
+@pytest.mark.parametrize("gage", GAGES["southeast"], ids=lambda g: g["site_no"])
+def test_southeast_release_gages_reproduce(gage):
+    lib = load_state(gage["state"])
+    inputs = {k: gage[k] for k in ("DRNAREA", "LC11DEV", "L3_PIEDMNT", "L3_RDGVLY", "LC11IMP")}
+    for aep, printed in gage["flows"].items():
+        est = evaluate(lib.equation(REGION, float(aep)), inputs)
+        assert _three_figures(est.flow_cfs, printed), (aep, est.flow_cfs, printed)
+        assert est.prediction_variance == pytest.approx(gage["var"][aep], abs=5.1e-5)
+
+
+@pytest.mark.parametrize("state", ["GA", "NC", "SC"])
+def test_the_southeast_states_hold_tennessees_equations(state):
+    tn, lib = load_state("TN"), load_state(state)
+    for aep in AEPS:
+        a, b = tn.equation(REGION, aep), lib.equation(REGION, aep)
+        assert (a.intercept, a.coefficients, a.covariance) == (
+            b.intercept,
+            b.coefficients,
+            b.covariance,
+        )
+        assert (a.variables, a.applicability) == (b.variables, b.applicability)
+        assert "Tennessee (" not in b.region_name
+
+
+@pytest.mark.parametrize("state", ["GA", "NC", "SC"])
+def test_the_southeast_set_is_used_only_when_named_and_cautions(state):
+    lib = load_state(state)
+    assert all(REGION not in tier for tier in lib.region_preference.tiers)
+    assert REGION not in lib.region_limits
+    caution = lib.region_cautions[REGION]
+    assert "not valid in the Middle Atlantic" in caution and "does not say" in caution
+    assert ("South Carolina gages" in caution) is (state == "SC")
+
+
+def test_the_south_carolina_caution_has_the_releases_own_residuals():
+    """Observed over regression flow at the report's 16 South Carolina gages."""
+    lib, ratio = load_state("SC"), {}
+    for aep in ("0.1", "0.01"):
+        eq = lib.equation(REGION, float(aep))
+        logs = [
+            math.log10(g["observed"][aep] / evaluate(eq, g).flow_cfs) for g in GAGES["sc_observed"]
+        ]
+        assert len(logs) == 16
+        ratio[aep] = 10.0 ** float(np.mean(logs))
+    text = lib.region_cautions[REGION]
+    assert f"{ratio['0.1']:.2f} of the equations' at 10 percent AEP" in text
+    assert f"{ratio['0.01']:.2f} at 1 percent" in text
+
+
+def test_a_georgia_urban_estimate_above_one_square_mile():
+    """The basin the state's other sets refuse: over 1 mi2 and 10 percent impervious."""
+    gage = GAGES["southeast"][0]
+    inputs = {k: gage[k] for k in ("DRNAREA", "LC11DEV", "L3_PIEDMNT", "L3_RDGVLY", "LC11IMP")}
+    est = estimate_from_characteristics(
+        "GA", inputs, region=REGION, lat=33.68, lon=-84.36, aeps=[0.01]
+    )
+    assert _three_figures(float(est.quantiles.loc[0, "flow_cfs"]), gage["flows"]["0.01"])
+    assert "SIR 2025-5104" in est.advisory
 
 
 def test_the_derived_covariance_is_the_coefficients_own():

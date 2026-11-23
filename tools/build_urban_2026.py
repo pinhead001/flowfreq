@@ -1,4 +1,5 @@
-"""Store the 2026 urban flood-frequency equations for Alabama, Mississippi and Tennessee.
+"""Store the 2026 urban flood-frequency equations: Alabama, Mississippi and Tennessee, and
+Tennessee's report in Georgia, North Carolina and South Carolina as well.
 
 Neither report prints a coefficient: the equations are in their ScienceBase data releases,
 as WREG output. This reads the unpacked releases, checks them against the releases' own
@@ -12,7 +13,10 @@ per-gage results, and writes the equations into the state files as region ``Urba
   standard errors and every gage's variance of prediction.
 - SIR 2025-5104 (Wagner and Ladd, 2026), Tennessee; data release doi:10.5066/P1TE9KTH
   (``GLS_results.zip``: ``GLSresults.csv``, ``AEP_*/coefs.txt``, ``CoVarMat.txt``,
-  ``PerformanceMetrics.txt``). Generalized least squares on 136 streamgages.
+  ``PerformanceMetrics.txt``). Generalized least squares on 136 streamgages, 86 of them in
+  Georgia (32), North Carolina (38) and South Carolina (16), where the same set is stored by
+  the owner's decision of 2026-11-23: the report doesn't say it applies there in place of
+  those states' own equations.
 
 Usage::
 
@@ -189,7 +193,9 @@ def alms_equations(root: Path) -> List[Dict[str, Any]]:
     return out
 
 
-def tn_equations(root: Path) -> List[Dict[str, Any]]:
+def tn_equations(
+    root: Path, region_name: str = "Urban, Tennessee (SIR 2025-5104; not in NSS)"
+) -> List[Dict[str, Any]]:
     """The eight SIR 2025-5104 equations, checked against the release's 136 gages."""
     printed = pd.read_csv(root / "GLSresults.csv", dtype={"site_no": str})
     summary = pd.read_csv(root / "RegressionEquations.csv", dtype=str).dropna(subset=["AEP"])
@@ -221,7 +227,7 @@ def tn_equations(root: Path) -> List[Dict[str, Any]]:
         out.append(
             {
                 "region_code": REGION,
-                "region_name": "Urban, Tennessee (SIR 2025-5104; not in NSS)",
+                "region_name": region_name,
                 "aep": float(aep),
                 "intercept": float(beta[0]),
                 "variables": [
@@ -313,9 +319,9 @@ TN_NOTE = (
     " Urban 2026: Wagner and Ladd, SIR 2025-5104 (published 2026-02-05), one set at 8 AEPs "
     "for urban streams in Tennessee and the parts of AL, GA, MS, NC and SC in six Level 3 "
     "ecoregions, Q = DRNAREA^a * 10^(b + c*LC11DEV + d*L3_PIEDMNT + e*L3_RDGVLY), by "
-    "generalized least squares on 136 streamgages (20 in Tennessee). It is stored for "
-    "Tennessee only: the report names only Tennessee for StreamStats and says nothing of "
-    "replacing another state's equations. The report prints no equation or coefficient; "
+    "generalized least squares on 136 streamgages (20 in Tennessee). The report names "
+    "only Tennessee for StreamStats and says nothing of replacing another state's equations; "
+    "the set is stored in GA, NC and SC too, by the owner's decision of 2026-11-23. The report prints no equation or coefficient; "
     "everything is from its data release (doi:10.5066/P1TE9KTH, ver. 1.1), written by "
     "tools/build_urban_2026.py. Coefficients are coefs.txt's at full precision (the 4 "
     "decimals of RegressionEquations.csv move a flow by up to 1.9 percent, since the "
@@ -348,6 +354,43 @@ TN_CAUTION = (
     "data through water year 2022, stored as region 'Urban 2026'. The report does not say it "
     "supersedes this set, which NSS and StreamStats still serve."
 )
+
+
+#: For Georgia, North Carolina and South Carolina. ``{gages}`` is the state's count of the 136.
+SE_NOTE = (
+    " Urban 2026: Wagner and Ladd, SIR 2025-5104 (published 2026-02-05), the set described in "
+    "TN.json, identical here: 8 AEPs, Q = DRNAREA^a * 10^(b + c*LC11DEV + d*L3_PIEDMNT + "
+    "e*L3_RDGVLY), by generalized least squares on 136 streamgages, {gages} of them in this "
+    "state, from its data release (doi:10.5066/P1TE9KTH, ver. 1.1) by "
+    "tools/build_urban_2026.py. It is here by the owner's decision of 2026-11-23, for urban "
+    "basins above 1 mi2 and 10 percent impervious, where no other set here applies; the "
+    "report does not say it applies in place of this state's equations, and names only "
+    "Tennessee for StreamStats. It is in no region_preference tier and NSS locates no region "
+    "for it, so it is used only when named: region='Urban 2026'. L3_PIEDMNT and L3_RDGVLY are "
+    "the percent of the basin in the Piedmont and in the Ridge and Valley Level 3 ecoregions "
+    "(EPA, 2013), which the caller supplies unless StreamStats has them. Ranges (report p. "
+    "12): DRNAREA 0.164 to 93.4 mi2, LC11DEV 26 to 100 percent; applicability 10 percent or "
+    "more developed imperviousness (LC11IMP). Not valid in the Middle Atlantic or Southern "
+    "Coastal Plain Level 3 ecoregions, nor for regulated or tidal streams; no urban gage was "
+    "in the Blue Ridge (p. 5)."
+)
+SC_NOTE = (
+    " At the report's 16 South Carolina gages the geometric mean of the gage's flow over the "
+    "equation's is 0.69 at 10 percent AEP and 0.76 at 1 percent (GLSresults.csv), and at the "
+    "8 of them outside the Piedmont 0.65 and 0.70."
+)
+SE_CAUTION = (
+    "SIR 2025-5104 (Wagner and Ladd, 2026) is an urban set fitted to gages in six southeastern "
+    "states; it does not say it applies in place of this state's equations. It is not valid in "
+    "the Middle Atlantic or Southern Coastal Plain Level 3 ecoregions, for regulated or tidal "
+    "streams, and it had no gage in the Blue Ridge; nothing here checks which ecoregion the "
+    "basin is in."
+)
+SC_CAUTION = (
+    " It estimates high in this state: the flows at its 16 South Carolina gages average 0.69 "
+    "of the equations' at 10 percent AEP and 0.76 at 1 percent."
+)
+SOUTHEAST = {"GA": 32, "NC": 38, "SC": 16}
 
 
 def _store(
@@ -388,6 +431,16 @@ def main(argv: Sequence[str] | None = None) -> int:
         TN_NOTE,
         {"Urban statewide": TN_CAUTION, "Memphis urban": TN_CAUTION},
     )
+    southeast = tn_equations(args.tn, "Urban, southeastern states (SIR 2025-5104; not in NSS)")
+    for state, gages in SOUTHEAST.items():
+        south_carolina = state == "SC"
+        _store(
+            state,
+            southeast,
+            TN_SOURCE,
+            SE_NOTE.format(gages=gages) + (SC_NOTE if south_carolina else ""),
+            {REGION: SE_CAUTION + (SC_CAUTION if south_carolina else "")},
+        )
     return 0
 
 
