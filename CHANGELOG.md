@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **The HYSEP baseflow windows were about twice as wide as the method's.** USGS WRIR 96-4040 makes the whole window
+  2N*, the odd number of days from 3 to 11 nearest 2A^0.2; `hysep_fixed` used twice that, the other two twice that
+  plus a day, and nothing limited it. Every `hysep_*` baseflow and baseflow index changes, mostly upward. On the
+  report's own example (French Creek, 1969, local minimum) the annual base flow goes from 25.1 to 27.1 cfs, against
+  27.00 published. `ih_smoothed_minima` (the default) and `lyne_hollick` are unchanged.
+
 ## [0.28.0] - 2026-11-19
 
 Reports for a study of one site: a comparison of several estimates, a site summary for the front of a report,
