@@ -13,7 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   2N*, the odd number of days from 3 to 11 nearest 2A^0.2; `hysep_fixed` used twice that, the other two twice that
   plus a day, and nothing limited it. Every `hysep_*` baseflow and baseflow index changes, mostly upward. On the
   report's own example (French Creek, 1969, local minimum) the annual base flow goes from 25.1 to 27.1 cfs, against
-  27.00 published. `ih_smoothed_minima` (the default) and `lyne_hollick` are unchanged.
+  27.00 published. `ih_smoothed_minima` (the default) and `lyne_hollick` are unchanged by it.
+- **Baseflow is no longer interpolated across a long gap.** `ih_smoothed_minima` (the default) and
+  `hysep_local_minimum` joined the last low point before a gap to the first after it, however far apart, and the
+  days on either side took baseflow from that line. A gap of more than 15 days now ends one separation and starts
+  another; records without one are unchanged.
 
 ## [0.28.0] - 2026-11-19
 
