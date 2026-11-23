@@ -12,10 +12,22 @@ import pandas as pd
 import pytest
 
 from flowfreq.hydrograph import Hydrograph
-from flowfreq.regime import monthly_flow_summary
+from flowfreq.regime import (
+    BASEFLOW_METHODS,
+    FlowRegime,
+    baseflow_index,
+    monthly_flow_summary,
+    separate_baseflow,
+)
 from flowfreq.reporting import ReportError, build_section
 from flowfreq.reporting.blocks import Figure, Table
-from flowfreq.reporting.regime_sections import MONTHLY_CAPTION, SUMMARY_HYDROGRAPH_CAPTION
+from flowfreq.reporting.regime_sections import (
+    _METHOD_WORDS,
+    BASEFLOW_CAPTION,
+    MONTHLY_CAPTION,
+    SUMMARY_HYDROGRAPH_CAPTION,
+    _typical_year,
+)
 from flowfreq.reporting.sections import cfs
 from flowfreq.reporting.session import MAIN_TABLES
 from tests.test_reporting_daily import FRAME, START, STATION, VALUES, _table, _text
@@ -200,3 +212,109 @@ class TestSummaryHydrograph:
     def test_refusals(self, change: Dict[str, Any], said: str) -> None:
         with pytest.raises(ReportError, match=said):
             build_section("summary_hydrograph", {**STATION, **change})
+
+
+class TestBaseflow:
+    @pytest.fixture
+    def built(self) -> Any:
+        return build_section("baseflow", dict(STATION))
+
+    def test_the_index_is_the_pooled_one(self, built: Any) -> None:
+        regime = FlowRegime(FRAME)
+        rows = dict(_table(built.blocks, BASEFLOW_CAPTION).rows)
+        assert MAIN_TABLES["baseflow"] == BASEFLOW_CAPTION
+        assert rows["Baseflow index"] == f"{regime.summary()['baseflow_index']:.3f}"
+        assert rows["Complete water years"] == "29"
+        assert rows["Separation method"] == "ih_smoothed_minima"
+
+    def test_means_are_over_the_days_with_both_flows(self, built: Any) -> None:
+        series = separate_baseflow(FRAME)
+        both = pd.DataFrame({"flow": FRAME["flow_cfs"], "base": series}).dropna()
+        both = both.loc["1990-10-01":"2019-09-30"]
+        rows = dict(_table(built.blocks, BASEFLOW_CAPTION).rows)
+        assert rows["Mean streamflow (cfs)"] == cfs(both["flow"].mean())
+        assert rows["Mean baseflow (cfs)"] == cfs(both["base"].mean())
+        inches = 365.25 * 86400 * 12 / (42.0 * 5280**2)
+        assert rows["Mean streamflow (inches per year)"] == f"{both['flow'].mean() * inches:.2f}"
+        assert rows["Mean baseflow (inches per year)"] == f"{both['base'].mean() * inches:.2f}"
+
+    def test_no_inches_without_a_drainage_area(self) -> None:
+        options = {k: v for k, v in STATION.items() if k != "drainage_area_sqmi"}
+        table = _table(build_section("baseflow", options).blocks, BASEFLOW_CAPTION)
+        assert not [row for row in table.rows if "inches" in row[0]]
+
+    def test_annual_table(self, built: Any) -> None:
+        annual = baseflow_index(FRAME)
+        annual = annual[annual["complete"]]
+        table = _tables(built.blocks)[-1]
+        assert table.header == ("Water year", "Days used", "Baseflow index")
+        assert table.rows == tuple(
+            (f"{year}", f"{days}", f"{index:.3f}")
+            for year, days, index in zip(annual["year"], annual["n_days"], annual["baseflow_index"])
+        )
+        assert "2 water year(s) with too few days" in _text(built.blocks)
+        brief = build_section("baseflow", {**STATION, "annual_table": False})
+        assert len(_tables(brief.blocks)) == len(_tables(built.blocks)) - 1
+
+    def test_title_cautions_and_figures(self, built: Any) -> None:
+        assert built.title == "Baseflow at USGS 01234567 Test Creek near Nowhere"
+        text = _text(built.blocks)
+        assert "not comparable" in text and "regulation" in text and "snowmelt" in text
+        assert len(_figures(built.blocks)) == 2
+
+    @pytest.mark.parametrize("method", BASEFLOW_METHODS)
+    def test_every_method_is_named_and_cited(self, method: str) -> None:
+        built = build_section("baseflow", {**STATION, "method": method})
+        words, citation = _METHOD_WORDS[method]
+        assert words in _text(built.blocks)
+        assert built.references == [citation]
+        regime = FlowRegime(FRAME, baseflow_method=method, drainage_area_sqmi=42.0)
+        rows = dict(_table(built.blocks, BASEFLOW_CAPTION).rows)
+        assert rows["Baseflow index"] == f"{regime.summary()['baseflow_index']:.3f}"
+        assert ("interval of 5 days" in _text(built.blocks)) == method.startswith("hysep")
+
+    def test_methods_have_words_for_each(self) -> None:
+        assert tuple(_METHOD_WORDS) == BASEFLOW_METHODS
+
+    def test_typical_year_is_nearest_the_median_and_earliest_on_a_tie(self) -> None:
+        assert _typical_year(pd.Series({2001: 5.0, 2002: 9.0, 2003: 7.5})) == 2003
+        assert _typical_year(pd.Series({2001: 5.0, 2002: 9.0})) == 2001
+
+    def test_a_year_of_zero_flow_has_no_index(self) -> None:
+        values = VALUES.copy()
+        dry = (FRAME.index >= "1999-10-01") & (FRAME.index <= "2000-09-30")
+        values[dry] = 0.0
+        built = build_section("baseflow", _station(values))
+        rows = {row[0]: row for row in _tables(built.blocks)[-1].rows}
+        assert rows["2000"][2] == "-"
+        assert len(_figures(built.blocks)) == 2
+
+    def test_negative_values_are_missing(self) -> None:
+        values = VALUES.copy()
+        values[400:430] = -5.0
+        built = build_section("baseflow", _station(values))
+        assert "30 negative value(s)" in _text(built.blocks)
+        years = [row[0] for row in _tables(built.blocks)[-1].rows]
+        assert "1991" not in years and "1992" in years
+
+    def test_rebuilds_from_its_own_options(self, built: Any) -> None:
+        again = build_section("baseflow", built.options)
+        assert _tables(again.blocks) == _tables(built.blocks)
+
+    @pytest.mark.parametrize(
+        "change,said",
+        [
+            ({"method": "eckhardt"}, "method must be one of ih_smoothed_minima"),
+            ({"method": "hysep_fixed", "drainage_area_sqmi": None}, "give drainage_area_sqmi"),
+            ({"drainage_area_sqmi": 0.0}, "drainage_area_sqmi must be a positive number"),
+            ({"drainage_area_sqmi": "big"}, "drainage_area_sqmi must be a positive number"),
+            ({"min_days": 0}, "min_days must be a whole number of days from 1 to 366"),
+            ({"annual_table": 1}, "annual_table must be true or false"),
+            ({"daily": {"start": START, "flow_cfs": [5.0] * 200}}, "no complete water year"),
+            ({"daily": {"start": START, "flow_cfs": [0.0] * 900}}, "every flow.*is zero"),
+            ({"n_day": 7}, r"unknown option\(s\) n_day"),
+        ],
+    )
+    def test_refusals(self, change: Dict[str, Any], said: str) -> None:
+        with pytest.raises(ReportError, match=said):
+            build_section("baseflow", {**STATION, **change})

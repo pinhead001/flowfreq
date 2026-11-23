@@ -1,5 +1,5 @@
-"""Report sections describing a gage's flow regime: ``monthly_statistics`` and
-``summary_hydrograph``.
+"""Report sections describing a gage's flow regime: ``monthly_statistics``,
+``summary_hydrograph`` and ``baseflow``.
 
 Computed from the daily mean flows a section carries inline, as :mod:`.daily`'s kinds are,
 and from :mod:`flowfreq.regime`.
@@ -7,7 +7,8 @@ and from :mod:`flowfreq.regime`.
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Sequence, Tuple
+import math
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
 import pandas as pd
@@ -21,6 +22,48 @@ from .spec import ReportError
 MONTHLY_CAPTION = "Statistics of the monthly mean flows."
 #: Caption of the ``summary_hydrograph`` section's table.
 SUMMARY_HYDROGRAPH_CAPTION = "Daily mean flow by date, for the 1st and 15th of each month."
+#: Caption of the ``baseflow`` section's main table.
+BASEFLOW_CAPTION = "Baseflow index and mean flows for the complete water years."
+
+_SLOTO_CROUSE_1996 = (
+    "Sloto, R.A., and Crouse, M.Y., 1996, HYSEP: A computer program for streamflow hydrograph "
+    "separation and analysis: U.S. Geological Survey Water-Resources Investigations Report "
+    "96-4040, 46 p."
+)
+#: What a report says of each baseflow separation method, and the reference it cites. The
+#: keys are :data:`flowfreq.regime.BASEFLOW_METHODS`, in its order.
+_METHOD_WORDS: Dict[str, Tuple[str, str]] = {
+    "ih_smoothed_minima": (
+        "The smoothed-minima method (Institute of Hydrology, 1980) takes the lowest flow of "
+        "each 5-day block, keeps it as a turning point where 0.9 times it is no more than the "
+        "lowest flow of either neighboring block, and joins the turning points with straight "
+        "lines, never above the streamflow.",
+        "Institute of Hydrology, 1980, Low flow studies report: Wallingford, United Kingdom, "
+        "Institute of Hydrology.",
+    ),
+    "hysep_fixed": (
+        "The HYSEP fixed-interval method (Sloto and Crouse, 1996) gives every day of each "
+        "interval the lowest flow in it.",
+        _SLOTO_CROUSE_1996,
+    ),
+    "hysep_sliding": (
+        "The HYSEP sliding-interval method (Sloto and Crouse, 1996) gives each day the lowest "
+        "flow in the interval centered on it.",
+        _SLOTO_CROUSE_1996,
+    ),
+    "hysep_local_minimum": (
+        "The HYSEP local-minimum method (Sloto and Crouse, 1996) keeps each day that is the "
+        "lowest in the interval centered on it and joins those days with straight lines, "
+        "never above the streamflow.",
+        _SLOTO_CROUSE_1996,
+    ),
+    "lyne_hollick": (
+        "The recursive digital filter of Lyne and Hollick (1979) was passed over the record "
+        "three times (forward, backward, forward) with a filter parameter of 0.925.",
+        "Lyne, V., and Hollick, M., 1979, Stochastic time-variable rainfall-runoff modelling: "
+        "Institute of Engineers Australia National Conference, p. 89-93.",
+    ),
+}
 
 #: Calendar months in water-year order.
 _MONTHS: Tuple[Tuple[int, str], ...] = (
@@ -270,6 +313,192 @@ def _build_summary_hydrograph(given: Dict[str, Any]) -> SectionContent:
     return SectionContent(title=title, blocks=blocks, options=options, references=[])
 
 
+# -- baseflow --------------------------------------------------------------------------------
+
+
+def _drainage_area(owner: str, options: Dict[str, Any]) -> Optional[float]:
+    value = options.get("drainage_area_sqmi")
+    if value is None:
+        return None
+    try:
+        area = float(value)
+    except (TypeError, ValueError):
+        area = math.nan
+    if isinstance(value, bool) or not (math.isfinite(area) and area > 0):
+        raise ReportError(f"{owner}: drainage_area_sqmi must be a positive number")
+    return area
+
+
+def _typical_year(means: pd.Series) -> int:
+    """The year whose mean flow is nearest the median of them, the earliest on a tie."""
+    means = means.sort_index()
+    return int(means.index[int((means - means.median()).abs().to_numpy().argmin())])
+
+
+def _index(value: float) -> str:
+    return f"{value:.3f}" if math.isfinite(value) else "-"
+
+
+def _separated_figure(year: int, days: pd.DataFrame, label: str) -> bytes:
+    """One water year's streamflow with its baseflow shaded."""
+    import matplotlib.pyplot as plt
+    from matplotlib.dates import DateFormatter, MonthLocator, date2num
+
+    fig, ax = plt.subplots(figsize=(8, 5))
+    floor = 0.0
+    if float(days["flow"].min()) > 0 and float(days["base"].min()) > 0:
+        ax.set_yscale("log")
+        floor = 0.8 * float(days["base"].min())
+        ax.set_ylim(bottom=floor)
+    ax.fill_between(
+        days.index, floor, days["base"], color="C0", alpha=0.4, linewidth=0, label="Baseflow"
+    )
+    ax.plot(days.index, days["flow"], color="black", linewidth=0.9, label="Streamflow")
+    ax.set_xlim(date2num(pd.Timestamp(year - 1, 10, 1)), date2num(pd.Timestamp(year, 9, 30)))
+    ax.xaxis.set_major_locator(MonthLocator())
+    ax.xaxis.set_major_formatter(DateFormatter("%b"))
+    ax.set_xlabel(f"Water year {year}")
+    ax.set_ylabel("Daily mean flow (cfs)")
+    if label:
+        ax.set_title(label)
+    ax.grid(True, which="both", alpha=0.3)
+    ax.legend(loc="upper right")
+    return _figure_png(fig)
+
+
+def _index_figure(annual: pd.DataFrame, pooled: float, label: str) -> bytes:
+    """The baseflow index of each complete year, with the pooled value."""
+    import matplotlib.pyplot as plt
+    from matplotlib.ticker import MaxNLocator
+
+    fig, ax = plt.subplots(figsize=(8, 4))
+    ax.bar(annual["year"], annual["baseflow_index"], color="C0", alpha=0.7)
+    ax.axhline(pooled, color="black", linewidth=1, label=f"All complete years ({pooled:.3f})")
+    ax.set_ylim(0, 1)
+    ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+    ax.set_xlabel("Water year")
+    ax.set_ylabel("Baseflow index")
+    if label:
+        ax.set_title(label)
+    ax.grid(True, axis="y", alpha=0.3)
+    ax.legend(loc="upper right")
+    return _figure_png(fig)
+
+
+def _build_baseflow(given: Dict[str, Any]) -> SectionContent:
+    from ..core import assign_year_label
+    from ..regime import BASEFLOW_METHODS, FlowRegime, _hysep_interval_days
+
+    owner = "baseflow"
+    options = dict(given)
+    method = str(options.get("method", "ih_smoothed_minima"))
+    if method not in BASEFLOW_METHODS:
+        raise ReportError(f"{owner}: method must be one of {', '.join(BASEFLOW_METHODS)}")
+    min_days = options.get("min_days", 350)
+    if isinstance(min_days, bool) or not isinstance(min_days, int) or not 1 <= min_days <= 366:
+        raise ReportError(f"{owner}: min_days must be a whole number of days from 1 to 366")
+    annual_table = _flag(owner, "annual_table", options.get("annual_table", True))
+    frame = _valid_frame(owner, options)
+    area = _drainage_area(owner, options)
+    hysep = method.startswith("hysep")
+    if hysep and area is None:
+        raise ReportError(
+            f"{owner}: {method} sets its interval from the drainage area: give drainage_area_sqmi"
+        )
+
+    regime = FlowRegime(frame, min_days=min_days, baseflow_method=method, drainage_area_sqmi=area)
+    annual = regime.annual
+    used = annual[annual["baseflow_complete"]]
+    if used.empty:
+        raise ReportError(
+            f"{owner}: the record has no complete water year (at least {min_days} days with "
+            "both a streamflow and a separated baseflow)"
+        )
+    pooled = float(regime.summary()["baseflow_index"])
+    if not math.isfinite(pooled):
+        raise ReportError(f"{owner}: every flow of the complete water years is zero")
+    days = pd.DataFrame({"flow": frame["flow_cfs"], "base": regime.baseflow_series}).dropna()
+    days["year"] = assign_year_label(pd.DatetimeIndex(days.index), "water")
+    days = days[days["year"].isin(used["year"])]
+    label = _label(options)
+
+    words, citation = _METHOD_WORDS[method]
+    left_out = len(annual) - len(used)
+    text = [
+        "Baseflow was separated from the daily mean flows. " + words,
+    ]
+    if hysep and area is not None:
+        text.append(
+            f"The drainage area of {area:,.4g} square miles gives an interval of "
+            f"{_hysep_interval_days(area)} days."
+        )
+    text.append(
+        "The baseflow index is the volume of baseflow divided by the volume of streamflow over "
+        f"the water years (October 1 to September 30) with at least {min_days} days that have "
+        "both."
+    )
+    text.append(f"The computation was made with flowfreq {_version()}.")
+    if left_out:
+        text.append(f"{left_out} water year(s) with too few days were left out.")
+    text.extend(_negative_note(owner, options, frame))
+    cautions = (
+        "The separation is a rule applied to the hydrograph, not a measurement of groundwater "
+        "discharge. Baseflow indexes from different methods are not comparable, so compare "
+        "this one only with others by the same method. Reservoir regulation, diversion, return "
+        "flow and snowmelt all raise or lower the index without any change in groundwater."
+    )
+    rows: List[Tuple[str, str]] = [
+        ("Separation method", method),
+        ("Complete water years", f"{len(used)}"),
+        ("Mean streamflow (cfs)", cfs(days["flow"].mean())),
+        ("Mean baseflow (cfs)", cfs(days["base"].mean())),
+        ("Baseflow index", _index(pooled)),
+    ]
+    if area is not None:
+        inches = 365.25 * 86400.0 * 12.0 / (area * 5280.0**2)
+        rows.extend(
+            [
+                ("Mean streamflow (inches per year)", f"{days['flow'].mean() * inches:.2f}"),
+                ("Mean baseflow (inches per year)", f"{days['base'].mean() * inches:.2f}"),
+            ]
+        )
+    year = _typical_year(days.groupby("year")["flow"].mean())
+    blocks: List[Block] = [
+        _record_table(options, frame),
+        Paragraph(" ".join(text)),
+        Paragraph(cautions),
+        Table(("Item", "Value"), tuple(rows), ("left", "right"), BASEFLOW_CAPTION),
+        Figure(
+            _separated_figure(year, days[days["year"] == year], label),
+            f"Streamflow and separated baseflow in water year {year}, the complete year whose "
+            "mean flow is nearest the median.",
+        ),
+        Figure(
+            _index_figure(used, pooled, label),
+            "Baseflow index of each complete water year.",
+        ),
+    ]
+    if annual_table:
+        blocks.append(Heading(2, "Annual baseflow index"))
+        blocks.append(
+            Table(
+                ("Water year", "Days used", "Baseflow index"),
+                tuple(
+                    (f"{y}", f"{n}", _index(float(index)))
+                    for y, n, index in zip(
+                        used["year"],
+                        days.groupby("year").size().reindex(used["year"]),
+                        used["baseflow_index"],
+                    )
+                ),
+                ("right", "right", "right"),
+                "Baseflow index by water year.",
+            )
+        )
+    title = f"Baseflow at {label}" if label else "Baseflow"
+    return SectionContent(title=title, blocks=blocks, options=options, references=[citation])
+
+
 _KINDS: Sequence[SectionKind] = (
     SectionKind(
         name="monthly_statistics",
@@ -292,7 +521,18 @@ _KINDS: Sequence[SectionKind] = (
         optional=_STATION_OPTIONS,
         build=_build_summary_hydrograph,
     ),
+    SectionKind(
+        name="baseflow",
+        summary=(
+            "Baseflow at a gage from its daily mean flows, by one named separation method: the "
+            "baseflow index for the record and each year, mean streamflow and baseflow, and a "
+            "separated hydrograph for a typical year."
+        ),
+        required=(),
+        optional=(*_STATION_OPTIONS, "method", "min_days", "annual_table"),
+        build=_build_baseflow,
+    ),
 )
 SECTION_KINDS.update({kind.name: kind for kind in _KINDS})
 
-__all__ = ["MONTHLY_CAPTION", "SUMMARY_HYDROGRAPH_CAPTION"]
+__all__ = ["BASEFLOW_CAPTION", "MONTHLY_CAPTION", "SUMMARY_HYDROGRAPH_CAPTION"]

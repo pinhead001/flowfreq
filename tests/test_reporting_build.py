@@ -167,6 +167,7 @@ class TestBuildSection:
             "flow_duration",
             "monthly_statistics",
             "summary_hydrograph",
+            "baseflow",
         }
         assert all(kind.summary for kind in SECTION_KINDS.values())
 
