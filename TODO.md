@@ -176,7 +176,12 @@ page in the app was dropped, since only the owner chats. Not yet done:
   and not through a chat client, and nobody has checked those numbers against another program.
 - `monthly_statistics`, `summary_hydrograph` and `baseflow` (2026-11-22): built once from the Water Data API at USGS
   03606500 and read in Word. HYSEP is checked against WRIR 96-4040's French Creek example (#412, ported to 0.28.x in
-  #413); the other two baseflow methods have not been checked against another program. Each daily section stores its
+  #413); `lyne_hollick` has not been checked against another program.
+  `ih_smoothed_minima` was, on 23 gages against the USGS BFI program's published indexes (OFR 03-146,
+  2026-11-23): 0.016 high on average (median 0.012, most 0.061), mostly because the program joins the logarithms of the
+  turning points and ours joins the flows. Joining logarithms gives a mean difference of -0.001. Your call: add it as a
+  method (or option) named for the program, make it the default, or leave it. The method's documentation no longer
+  says it is the Wahl and Wahl program's. Each daily section stores its
   own copy of the record.
 
 Python 3.11–3.14 (`requires-python >= 3.11`; CI matrix in `.github/workflows/ci.yml`).

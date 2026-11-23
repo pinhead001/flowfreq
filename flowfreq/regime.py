@@ -50,14 +50,19 @@ straightforward way to introduce an apples-to-oranges comparison that
 looks perfectly reasonable on paper.
 
 - ``"ih_smoothed_minima"`` (default): the UKIH/Institute of Hydrology
-  smoothed-minima method (Institute of Hydrology, 1980; as codified by Wahl
-  & Wahl, 1988, the most widely cited "Base Flow Index" definition and the
-  one most reviewers will recognize by that name). Non-overlapping 5-day
+  smoothed-minima method (Institute of Hydrology, 1980). Non-overlapping 5-day
   blocks; a block's minimum is a baseflow ordinate ("turning point") if 0.9
   times it does not exceed either adjacent block's minimum; ordinates are
   connected by straight-line interpolation, capped at actual flow (baseflow
   cannot exceed total streamflow), but not across more than 15 missing days,
-  which end one separation and start another. Needs no drainage area and is
+  which end one separation and start another. **It is not the USGS BFI program**
+  (Wahl & Wahl, 1988, 1995), which takes the same turning points but joins the
+  logarithms of their flows, uses a linear recession at a zero flow, and adds
+  turning points at the ends of a year. On 23 USGS gages with unbroken records
+  (2026-11-23), this method's mean annual index was above the program's, as
+  published in USGS Open-File Report 03-146, by 0.016 on average and 0.061 at most (0.012 at the
+  median gage); joining logarithms instead brought the mean difference to -0.001.
+  Needs no drainage area and is
   parameter-light, which is why it is the default here. Its non-overlapping
   blocks are anchored to the first date in the input, a known, published
   sensitivity of the method: shifting the same underlying series by 0-4
