@@ -302,9 +302,9 @@ Output:
   `"lyne_hollick"` (recursive digital filter), and three HYSEP variants
   (`"hysep_fixed"`, `"hysep_sliding"`, `"hysep_local_minimum"`, which require
   `drainage_area_sqmi=gage.drainage_area`). They are not directly comparable
-  to each other — see the module docstring's disclosure on UKIH's
-  block-alignment sensitivity and the HYSEP window-width constant before
-  reporting a BFI value without naming the method used to get it.
+  to each other: name the method when reporting a BFI value, and see the module
+  docstring on UKIH's block-alignment sensitivity and on how the HYSEP windows
+  were checked against their source.
 - `richards_baker_flashiness`, `tqmean`, `baseflow_index`, `separate_baseflow`,
   `monthly_flow_summary`, and `seasonal_flow_summary` are all available
   standalone if you only need one metric rather than the full bundle.
