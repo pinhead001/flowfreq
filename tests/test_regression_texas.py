@@ -83,8 +83,10 @@ def _printed_matrix(eq):
 
 def test_texas_is_verified(lib):
     assert lib.status == "verified"
-    assert sorted(lib.regions) == sorted(NSS)
-    assert len(lib.equations) == 65
+    # "Statewide OmegaEM" is SIR 2009-5087, which NSS does not serve
+    # (test_regression_texas_omegaem.py)
+    assert sorted(lib.regions) == sorted([*NSS, "Statewide OmegaEM"])
+    assert len(lib.equations) == 65 + 9
     for region, code in NSS.items():
         assert region_for_nss_code(lib, code) == region
 
@@ -93,8 +95,9 @@ def test_every_equation_gives_the_nss_flow(lib):
     """No flow, AEP, exponent or limit differs. The (100 + x) forms fold the 100 into NSS's constant."""
     snap = json.loads((DATA / "nss_snapshot" / "TX.json").read_text(encoding="utf-8"))
     by_key = {(s["region_code"], s["aep"]): s for s in snap["equations"]}
-    assert {(NSS[e.region_code], e.aep) for e in lib.equations} == set(by_key)
-    for e in lib.equations:
+    served = [e for e in lib.equations if e.region_code in NSS]
+    assert {(NSS[e.region_code], e.aep) for e in served} == set(by_key)
+    for e in served:
         s = by_key[(NSS[e.region_code], e.aep)]
         assert list(e.coefficients) == s["coefficients"]
         chars = {}
