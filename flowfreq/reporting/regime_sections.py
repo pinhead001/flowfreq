@@ -1,4 +1,5 @@
-"""Report sections describing a gage's flow regime: ``monthly_statistics``.
+"""Report sections describing a gage's flow regime: ``monthly_statistics`` and
+``summary_hydrograph``.
 
 Computed from the daily mean flows a section carries inline, as :mod:`.daily`'s kinds are,
 and from :mod:`flowfreq.regime`.
@@ -18,6 +19,8 @@ from .spec import ReportError
 
 #: Caption of the ``monthly_statistics`` section's main table.
 MONTHLY_CAPTION = "Statistics of the monthly mean flows."
+#: Caption of the ``summary_hydrograph`` section's table.
+SUMMARY_HYDROGRAPH_CAPTION = "Daily mean flow by date, for the 1st and 15th of each month."
 
 #: Calendar months in water-year order.
 _MONTHS: Tuple[Tuple[int, str], ...] = (
@@ -36,6 +39,8 @@ _MONTHS: Tuple[Tuple[int, str], ...] = (
 )
 #: A month counts when at least this fraction of its days has a value.
 _MONTH_COMPLETE = 0.9
+#: Percentiles (of non-exceedance) a summary hydrograph gives for each date.
+_PERCENTILES = [10, 25, 50, 75, 90]
 
 
 def _valid_frame(owner: str, options: Dict[str, Any]) -> pd.DataFrame:
@@ -80,7 +85,7 @@ def _monthly_rows(complete: pd.DataFrame) -> List[Tuple[str, ...]]:
             rows.append((name, "0", *["-"] * 6))
             continue
         means = group["mean_flow_cfs"]
-        most, least = group.loc[means.idxmax()], group.loc[means.idxmin()]
+        values, years = means.to_numpy(dtype=float), group["year"].to_numpy(dtype=int)
         rows.append(
             (
                 name,
@@ -88,8 +93,8 @@ def _monthly_rows(complete: pd.DataFrame) -> List[Tuple[str, ...]]:
                 cfs(means.mean()),
                 cfs(means.median()),
                 cfs(means.std(ddof=1)),
-                f"{cfs(most['mean_flow_cfs'])} ({int(most['year'])})",
-                f"{cfs(least['mean_flow_cfs'])} ({int(least['year'])})",
+                f"{cfs(values.max())} ({years[values.argmax()]})",
+                f"{cfs(values.min())} ({years[values.argmin()]})",
                 f"{100.0 * volumes[month] / annual:.1f}" if annual > 0 else "-",
             )
         )
@@ -200,6 +205,71 @@ def _build_monthly_statistics(given: Dict[str, Any]) -> SectionContent:
     return SectionContent(title=title, blocks=blocks, options=options, references=[])
 
 
+# -- summary hydrograph ----------------------------------------------------------------------
+
+
+def _build_summary_hydrograph(given: Dict[str, Any]) -> SectionContent:
+    from ..hydrograph import Hydrograph
+
+    owner = "summary_hydrograph"
+    options = dict(given)
+    frame = _valid_frame(owner, options)
+    label = _label(options)
+    stats = Hydrograph.get_summary_stats(frame, _PERCENTILES).set_index("day_of_water_year")
+    days = Hydrograph._compute_dowy_series(pd.DatetimeIndex(frame.index))
+    counts = pd.Series(days).value_counts()
+    columns = ("min", *(f"p{p}" for p in _PERCENTILES), "max")
+    rows: List[Tuple[str, ...]] = []
+    for month, name in _MONTHS:
+        for day in (1, 15):
+            number = Hydrograph.day_of_water_year(month, day)
+            if number in stats.index:
+                cells = tuple(cfs(stats.at[number, column]) for column in columns)
+            else:
+                cells = ("-",) * len(columns)
+            rows.append((f"{name} {day}", f"{int(counts.get(number, 0))}", *cells))
+
+    method = [
+        "For each date of the year, the daily mean flows of every year with a value on that "
+        "date were ranked and their percentiles taken by linear interpolation. They are "
+        "percentiles of non-exceedance: the 10th percentile is the flow that 10 percent of the "
+        "years were at or below on that date, which a flow-duration table would call q90. A "
+        "curve joins one date's statistic to the next and is not the flow of any one year.",
+        f"The computation was made with flowfreq {_version()}.",
+    ]
+    method.extend(_negative_note(owner, options, frame))
+    figure = Hydrograph.plot_summary_hydrograph(
+        frame,
+        site_name=options.get("site_name"),
+        site_no=str(options["site_no"]).strip() if options.get("site_no") else None,
+        percentiles=_PERCENTILES,
+        yscale="log" if float(frame["flow_cfs"].min()) > 0 else "linear",
+    )
+    blocks: List[Block] = [
+        _record_table(options, frame),
+        Paragraph(" ".join(method)),
+        Table(
+            (
+                "Date",
+                "Years",
+                "Minimum (cfs)",
+                *("Median (cfs)" if p == 50 else f"{p}th percentile (cfs)" for p in _PERCENTILES),
+                "Maximum (cfs)",
+            ),
+            tuple(rows),
+            ("left", *["right"] * (len(columns) + 1)),
+            SUMMARY_HYDROGRAPH_CAPTION,
+        ),
+        Figure(
+            _figure_png(figure),
+            "Summary hydrograph: the median, the middle half and the middle 80 percent of the "
+            "daily mean flows on each date, with the smallest and largest of record.",
+        ),
+    ]
+    title = f"Summary hydrograph at {label}" if label else "Summary hydrograph"
+    return SectionContent(title=title, blocks=blocks, options=options, references=[])
+
+
 _KINDS: Sequence[SectionKind] = (
     SectionKind(
         name="monthly_statistics",
@@ -212,7 +282,17 @@ _KINDS: Sequence[SectionKind] = (
         optional=(*_STATION_OPTIONS, "annual_table"),
         build=_build_monthly_statistics,
     ),
+    SectionKind(
+        name="summary_hydrograph",
+        summary=(
+            "Summary hydrograph at a gage from its daily mean flows: the median, quartiles, "
+            "10th and 90th percentiles and range of the flow on each date of the year."
+        ),
+        required=(),
+        optional=_STATION_OPTIONS,
+        build=_build_summary_hydrograph,
+    ),
 )
 SECTION_KINDS.update({kind.name: kind for kind in _KINDS})
 
-__all__ = ["MONTHLY_CAPTION"]
+__all__ = ["MONTHLY_CAPTION", "SUMMARY_HYDROGRAPH_CAPTION"]

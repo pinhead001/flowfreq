@@ -29,7 +29,7 @@ from typing import Any, Dict, List, Mapping, Optional, Sequence, Union
 from .blocks import Block, Figure, Heading, Narrative, Paragraph, Table, narrative_blocks
 from .build import build_report, render_markdown
 from .daily import FLOW_DURATION_CAPTION, LOW_FLOW_CAPTION
-from .regime_sections import MONTHLY_CAPTION
+from .regime_sections import MONTHLY_CAPTION, SUMMARY_HYDROGRAPH_CAPTION
 from .sections import COMPARISON_CAPTION, FUTURE_FLOW_CAPTION, SectionContent, build_section
 from .spec import ReportError, ReportSpec, SectionSpec
 from .summary import SUMMARY_FLOWS_CAPTION
@@ -44,6 +44,7 @@ MAIN_TABLES: Dict[str, str] = {
     "low_flow": LOW_FLOW_CAPTION,
     "flow_duration": FLOW_DURATION_CAPTION,
     "monthly_statistics": MONTHLY_CAPTION,
+    "summary_hydrograph": SUMMARY_HYDROGRAPH_CAPTION,
     "future_flow": FUTURE_FLOW_CAPTION,
     "comparison": COMPARISON_CAPTION,
     "site_summary": SUMMARY_FLOWS_CAPTION,

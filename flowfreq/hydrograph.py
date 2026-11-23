@@ -61,6 +61,11 @@ class Hydrograph:
         """Compute day of water year for a date series."""
         return np.array([cls.day_of_water_year(d.month, d.day) for d in dates])
 
+    @staticmethod
+    def _count_water_years(dates: pd.DatetimeIndex) -> int:
+        """How many water years (October 1 to September 30) the dates touch."""
+        return len(np.unique(dates.year + (dates.month >= 10)))
+
     @classmethod
     def plot_daily_timeseries(
         cls,
@@ -100,7 +105,7 @@ class Hydrograph:
             max_exp = math.ceil(math.log10(max_flow))
             ticks = [10**i for i in range(min_exp, max_exp + 1)]
             ax.set_yticks(ticks)
-            ax.set_yticklabels([f"{int(tick):,}" for tick in ticks])
+            ax.set_yticklabels([f"{tick:,.0f}" if tick >= 1 else f"{tick:g}" for tick in ticks])
 
         # Format dates for annotation (cross-platform, no leading zeros)
         d_min = daily_data.index.min()
@@ -214,7 +219,7 @@ class Hydrograph:
             max_exp = math.ceil(math.log10(max_flow))
             ticks = [10**i for i in range(min_exp, max_exp + 1)]
             ax.set_yticks(ticks)
-            ax.set_yticklabels([f"{int(tick):,}" for tick in ticks])
+            ax.set_yticklabels([f"{tick:,.0f}" if tick >= 1 else f"{tick:g}" for tick in ticks])
 
         title = "Summary Hydrograph"
         if site_name and site_no:
@@ -234,7 +239,7 @@ class Hydrograph:
         d_max = daily_data.index.max()
         plot_start = f"{d_min.month}/{d_min.day}/{d_min.year}"
         plot_end = f"{d_max.month}/{d_max.day}/{d_max.year}"
-        n_years = len(pd.DatetimeIndex(df.index).year.unique())
+        n_years = cls._count_water_years(pd.DatetimeIndex(df.index))
 
         # Build annotation text
         if por_start and por_end:
@@ -329,7 +334,7 @@ class Hydrograph:
             max_exp = math.ceil(math.log10(max_flow))
             ticks = [10**i for i in range(min_exp, max_exp + 1)]
             ax.set_yticks(ticks)
-            ax.set_yticklabels([f"{int(tick):,}" for tick in ticks])
+            ax.set_yticklabels([f"{tick:,.0f}" if tick >= 1 else f"{tick:g}" for tick in ticks])
 
         # Set x-ticks
         ax.set_xscale("linear")
@@ -341,7 +346,7 @@ class Hydrograph:
         d_max = daily_data.index.max()
         plot_start = f"{d_min.month}/{d_min.day}/{d_min.year}"
         plot_end = f"{d_max.month}/{d_max.day}/{d_max.year}"
-        n_years = len(pd.DatetimeIndex(daily_data.index).year.unique())
+        n_years = cls._count_water_years(pd.DatetimeIndex(daily_data.index))
 
         # Build annotation text
         if por_start and por_end:

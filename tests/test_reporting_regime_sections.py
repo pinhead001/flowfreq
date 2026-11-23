@@ -11,10 +11,11 @@ import numpy as np
 import pandas as pd
 import pytest
 
+from flowfreq.hydrograph import Hydrograph
 from flowfreq.regime import monthly_flow_summary
 from flowfreq.reporting import ReportError, build_section
 from flowfreq.reporting.blocks import Figure, Table
-from flowfreq.reporting.regime_sections import MONTHLY_CAPTION
+from flowfreq.reporting.regime_sections import MONTHLY_CAPTION, SUMMARY_HYDROGRAPH_CAPTION
 from flowfreq.reporting.sections import cfs
 from flowfreq.reporting.session import MAIN_TABLES
 from tests.test_reporting_daily import FRAME, START, STATION, VALUES, _table, _text
@@ -142,3 +143,60 @@ class TestMonthlyStatistics:
     def test_refusals(self, change: Dict[str, Any], said: str) -> None:
         with pytest.raises(ReportError, match=said):
             build_section("monthly_statistics", {**STATION, **change})
+
+
+class TestSummaryHydrograph:
+    @pytest.fixture
+    def built(self) -> Any:
+        return build_section("summary_hydrograph", dict(STATION))
+
+    def test_rows_are_the_hydrograph_own_statistics(self, built: Any) -> None:
+        stats = Hydrograph.get_summary_stats(FRAME).set_index("day_of_water_year")
+        table = _table(built.blocks, SUMMARY_HYDROGRAPH_CAPTION)
+        assert MAIN_TABLES["summary_hydrograph"] == SUMMARY_HYDROGRAPH_CAPTION
+        assert len(table.rows) == 24
+        assert [row[0] for row in table.rows[:3]] == ["October 1", "October 15", "November 1"]
+        for row, (month, day) in zip(table.rows, [(10, 1), (10, 15), (11, 1), (11, 15)]):
+            here = stats.loc[Hydrograph.day_of_water_year(month, day)]
+            names = ("min", "p10", "p25", "p50", "p75", "p90", "max")
+            assert row[1:] == ("30", *(cfs(here[name]) for name in names))
+
+    def test_percentiles_are_named_as_non_exceedance(self, built: Any) -> None:
+        text = _text(built.blocks)
+        assert "percentiles of non-exceedance" in text
+        assert "q90" in text  # the 10th percentile by the name the duration section uses
+        assert built.title == "Summary hydrograph at USGS 01234567 Test Creek near Nowhere"
+        assert len(_figures(built.blocks)) == 1
+
+    def test_a_date_without_a_value_is_a_row_of_dashes(self) -> None:
+        built = build_section("summary_hydrograph", _station(VALUES[:30]))  # April 1990
+        rows = {row[0]: row for row in _table(built.blocks, SUMMARY_HYDROGRAPH_CAPTION).rows}
+        assert rows["October 1"][1:] == ("0", *["-"] * 7)
+        assert rows["April 15"][1] == "1"
+
+    def test_negative_values_are_missing(self) -> None:
+        values = VALUES.copy()
+        values[0] = -9.0  # April 1, 1990
+        built = build_section("summary_hydrograph", _station(values))
+        rows = {row[0]: row for row in _table(built.blocks, SUMMARY_HYDROGRAPH_CAPTION).rows}
+        assert rows["April 1"][1] == "29" and "-9" not in rows["April 1"]
+        assert "1 negative value(s)" in _text(built.blocks)
+
+    def test_zero_flows_draw(self) -> None:
+        built = build_section("summary_hydrograph", _station(np.zeros(800)))
+        assert len(_figures(built.blocks)) == 1
+
+    def test_rebuilds_from_its_own_options(self, built: Any) -> None:
+        again = build_section("summary_hydrograph", built.options)
+        assert _tables(again.blocks) == _tables(built.blocks)
+
+    @pytest.mark.parametrize(
+        "change,said",
+        [
+            ({"percentiles": [5, 95]}, r"unknown option\(s\) percentiles"),
+            ({"daily": {"start": START, "flow_cfs": [-5.0] * 40}}, "no value of zero or more"),
+        ],
+    )
+    def test_refusals(self, change: Dict[str, Any], said: str) -> None:
+        with pytest.raises(ReportError, match=said):
+            build_section("summary_hydrograph", {**STATION, **change})
