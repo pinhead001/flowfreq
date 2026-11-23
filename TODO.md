@@ -99,9 +99,9 @@ Owner's:
 
 Library follow-ups the batches found, none changed:
 
-11. Multi-region weighting: 15 states' reports average in flow and their files set `weighting_space` to
+11. Multi-region weighting: 16 states' reports average in flow and their files set `weighting_space` to
     `linear`: SD, WY, KY, and since 2026-11-15 AZ, CA, CO (also the set awaiting NSS), FL, GA, IA, MT, NC, NJ,
-    NV, NY, SC. FL and NJ give the rule in words only. Still open:
+    NV, NY, SC, and MD (2026-11-23). FL, MD and NJ give the rule in words only. Still open:
     - MT limits the rule to AEPs above 4 percent for a basin running from the Northwest region into the
       Northwest Foothills (SIR 2015-5019-F p. 13). Done 2026-11-16: the library still weights at every AEP, and
       an estimate weighting NW with NWF carries a caution naming the AEPs at 4 percent and rarer
@@ -110,7 +110,8 @@ Library follow-ups the batches found, none changed:
       2006), HI, ID, KS, LA, MA, ME, MI, MN (2023 and 2019), MO (2014 and 2010), MS, ND, NE, NH, NM (2008), OH,
       OK, OR (SIR 2005-5116), PA, PR, RI, TN, TX, UT (SIR 2007-5158), VA and WV (SIR 2025-5110), VT, WA, WI.
       The reading was a text search of each PDF for weighting language, not a full read.
-    - Not read: IL, MD and eastern OR (Cooper, 2006). IN picks a region by point location.
+    - Read 2026-11-23: IL (ICT 23-019) and eastern OR (Cooper, 2006) are silent by a text search, so left in log.
+      MD is not (above). IN picks a region by point location. Every report has now been searched.
     - SIR 2013-5086 (p. 34) says StreamStats itself weights in flow by drainage area for a site draining more
       than one region, citing Ries and others (2008). If that holds in every state, a silent state's log
       average differs from what StreamStats returns. Whether to make `linear` the default everywhere is the

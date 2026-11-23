@@ -1,6 +1,6 @@
 """A state's `weighting_space`: how its report combines the regions of a basin that spans two.
 
-Fifteen reports average the regions' flows by drainage area, so their files set "linear".
+Sixteen reports average the regions' flows by drainage area, so their files set "linear".
 The rest keep the library's default, an average in log: their reports say nothing on such a
 basin, or were not read (TODO.md).
 """
@@ -12,8 +12,25 @@ import pytest
 from flowfreq import estimate_from_characteristics
 from flowfreq.regression.library import available_states, load_state
 
-#: States whose report says to weight the flows. FL and NJ say so in words only.
-LINEAR = ["AZ", "CA", "CO", "FL", "GA", "IA", "KY", "MT", "NC", "NJ", "NV", "NY", "SC", "SD", "WY"]
+#: States whose report says to weight the flows. FL, MD and NJ say so in words only.
+LINEAR = [
+    "AZ",
+    "CA",
+    "CO",
+    "FL",
+    "GA",
+    "IA",
+    "KY",
+    "MD",
+    "MT",
+    "NC",
+    "NJ",
+    "NV",
+    "NY",
+    "SC",
+    "SD",
+    "WY",
+]
 
 
 def _flow(state, characteristics, region, aep, **kwargs):
@@ -99,3 +116,13 @@ def test_colorado_set_awaiting_nss_weights_in_flow_too():
     lib = load_state("CO", allow_awaiting_nss=True, warn=False)
     assert lib.status == "awaiting_nss"
     assert lib.weighting_space == "linear"
+
+
+def test_maryland_weights_the_regions_estimates():
+    """Maryland Hydrology Panel, third edition, p. 2-11: weight by percent of drainage area."""
+    characteristics = {"DRNAREA": 50.0, "LIME": 0.0, "FOREST_MD": 40.0, "BSLDEM10ff": 0.15}
+    regions = {"Piedmont and Blue Ridge (Rural)": 30.0, "Appalachian Plateau": 70.0}
+    alone = [_flow("MD", characteristics, {code: 100.0}, 0.01)[1] for code in regions]
+    _, flow = _flow("MD", characteristics, regions, 0.01)
+    assert alone[0] != pytest.approx(alone[1], rel=0.05)
+    assert flow == pytest.approx(0.3 * alone[0] + 0.7 * alone[1])
