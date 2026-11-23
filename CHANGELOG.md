@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `flowfreq ice-events` command, whose every threshold is a required option. `waterdata.download_daily` takes
   `keep_null=True` to keep ice-affected days with no value; `waterdata.request` takes `send_api_key=False`, used for
   NCEI so the USGS key is never sent to another host.
+- **Texas: SIR 2009-5087's OmegaEM equations** (Asquith and Roussel, 2009, Table 3; AEP 0.5 to 0.002), region
+  `Statewide OmegaEM`. NSS does not serve them, so they are used only when the caller names the region, and the caller
+  supplies the main-channel slope (`MCSLOPE`, feet per foot), which StreamStats does not return in Texas.
 - **Report sections `monthly_statistics`, `summary_hydrograph` and `baseflow`**, from a gage's daily mean flows
   stored in the specification, as `low_flow` and `flow_duration` are. Monthly statistics are of the monthly mean
   flows of complete months, with box plots; the summary hydrograph gives the percentiles of the flow on each date
