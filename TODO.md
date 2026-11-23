@@ -149,9 +149,10 @@ Library follow-ups the batches found, none changed:
     - NSS served neither on 2026-11-18 (it still serves Alabama's 2010 set and Tennessee's 1984 sets). When it
       does, key the sets to its region codes and decide whether the older sets go.
     - Alabama's and Mississippi's covariance is derived, not printed (the owner accepted this, 2026-11-17).
-    - SIR 2025-5104 is stored for Tennessee only. It is the one candidate for urban basins above 1 mi2 in GA,
-      NC and SC, where an estimate above 10 percent impervious is refused today; the report doesn't say it
-      applies there in place of those states' equations, so using it there is the owner's call.
+    - SIR 2025-5104 is stored in GA, NC and SC as well (the owner's decision, 2026-11-23), used only with
+      `region="Urban 2026"`. It estimates high at the report's South Carolina gages (observed flow 0.69 of the
+      equations' at 10 percent AEP), which its caution there says. Nothing checks the basin's ecoregion.
+      Alabama and Mississippi, also in the report's area, have SIR 2026-5044 instead.
     - Whether StreamStats computes `L3_PIEDMNT` and `L3_RDGVLY` for Tennessee is unknown, and whether the
       2026-5044 set applies in Alabama's flood region 3 or the Mississippi Alluvial Plain isn't stated.
     - SIR 2025-5034 (Levin, 2025), nonstationary flood frequency by regression in the north-central United
