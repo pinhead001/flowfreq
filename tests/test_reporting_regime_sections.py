@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import pytest
@@ -19,7 +20,7 @@ from flowfreq.regime import (
     monthly_flow_summary,
     separate_baseflow,
 )
-from flowfreq.reporting import ReportError, build_section
+from flowfreq.reporting import ReportError, build_section, regime_sections
 from flowfreq.reporting.blocks import Figure, Table
 from flowfreq.reporting.regime_sections import (
     _METHOD_WORDS,
@@ -60,6 +61,67 @@ def _figures(blocks: List[Any]) -> List[Figure]:
 
 def _tables(blocks: List[Any]) -> List[Table]:
     return [b for b in blocks if isinstance(b, Table)]
+
+
+@pytest.fixture
+def drawn(monkeypatch: pytest.MonkeyPatch) -> List[Any]:
+    """The axes of every figure a section draws, kept open to look at."""
+    axes: List[Any] = []
+
+    def keep(fig: Any) -> bytes:
+        fig.canvas.draw()
+        axes.append(fig.axes[0])
+        plt.close(fig)
+        return b""
+
+    monkeypatch.setattr(regime_sections, "_figure_png", keep)
+    return axes
+
+
+class TestWhatIsDrawn:
+    """Each figure shows its data: the limits hold it and the axis runs upward."""
+
+    @staticmethod
+    def _holds(ax: Any, low: float, high: float) -> bool:
+        bottom, top = ax.get_ylim()
+        return bottom <= low and high <= top
+
+    @staticmethod
+    def _tick_labels(ax: Any) -> List[str]:
+        return [t.get_text() for t in ax.get_yticklabels() if t.get_text()]
+
+    @pytest.mark.parametrize("floor", [0.0, 0.02, 25.0])
+    def test_baseflow(self, drawn: List[Any], floor: float) -> None:
+        values = np.maximum(VALUES - VALUES.min(), 0.0) + floor
+        build_section("baseflow", _station(values))
+        ax, bars = drawn
+        line = ax.get_lines()[0].get_ydata()
+        assert self._holds(ax, line.min(), line.max())
+        assert ax.get_yscale() == ("log" if line.min() > 0 else "linear")
+        low = ax.collections[0].get_paths()[0].vertices[:, 1].min()
+        assert ax.get_ylim()[0] <= low * (1 + 1e-9)
+        assert not [t for t in self._tick_labels(ax) if "10^" in t or t == "0" and floor]
+        assert len(bars.patches) == 29
+
+    def test_baseflow_of_an_intermittent_stream_is_linear(self, drawn: List[Any]) -> None:
+        values = VALUES.copy()
+        values[::50] = 0.0
+        build_section("baseflow", _station(values))
+        ax = drawn[0]
+        assert ax.get_yscale() == "linear" and ax.get_ylim()[0] == 0.0
+        assert ax.get_ylim()[1] >= ax.get_lines()[0].get_ydata().max()
+
+    def test_monthly(self, drawn: List[Any]) -> None:
+        build_section("monthly_statistics", dict(STATION))
+        (ax,) = drawn
+        means = monthly_flow_summary(FRAME).query("complete")["mean_flow_cfs"]
+        assert self._holds(ax, means.min(), means.max())
+        labels = self._tick_labels(ax)
+        assert labels and not [t for t in labels if "10^" in t]
+
+    def test_summary(self, drawn: List[Any]) -> None:
+        build_section("summary_hydrograph", dict(STATION))
+        assert self._holds(drawn[0], VALUES.min(), VALUES.max())
 
 
 class TestMonthlyStatistics:
@@ -126,6 +188,13 @@ class TestMonthlyStatistics:
         assert table.rows[1][1] == cfs(monthly[(1991, 10)])
         assert len(table.rows) == 31
 
+    def test_annual_table_leaves_out_a_year_with_no_complete_month(self) -> None:
+        values = VALUES.copy()
+        values[(FRAME.index >= "1995-09-25") & (FRAME.index <= "1998-10-10")] = np.nan
+        built = build_section("monthly_statistics", {**_station(values), "annual_table": True})
+        years = [row[0] for row in _tables(built.blocks)[-1].rows]
+        assert years == [str(y) for y in range(1990, 2021) if y not in (1996, 1997, 1998)]
+
     def test_negative_values_are_missing(self) -> None:
         values = VALUES.copy()
         values[:30] = -5.0
@@ -167,7 +236,7 @@ class TestSummaryHydrograph:
         table = _table(built.blocks, SUMMARY_HYDROGRAPH_CAPTION)
         assert MAIN_TABLES["summary_hydrograph"] == SUMMARY_HYDROGRAPH_CAPTION
         assert len(table.rows) == 24
-        assert [row[0] for row in table.rows[:3]] == ["October 1", "October 15", "November 1"]
+        assert [row[0] for row in table.rows[:3]] == ["Oct 1", "Oct 15", "Nov 1"]
         for row, (month, day) in zip(table.rows, [(10, 1), (10, 15), (11, 1), (11, 15)]):
             here = stats.loc[Hydrograph.day_of_water_year(month, day)]
             names = ("min", "p10", "p25", "p50", "p75", "p90", "max")
@@ -183,15 +252,15 @@ class TestSummaryHydrograph:
     def test_a_date_without_a_value_is_a_row_of_dashes(self) -> None:
         built = build_section("summary_hydrograph", _station(VALUES[:30]))  # April 1990
         rows = {row[0]: row for row in _table(built.blocks, SUMMARY_HYDROGRAPH_CAPTION).rows}
-        assert rows["October 1"][1:] == ("0", *["-"] * 7)
-        assert rows["April 15"][1] == "1"
+        assert rows["Oct 1"][1:] == ("0", *["-"] * 7)
+        assert rows["Apr 15"][1] == "1"
 
     def test_negative_values_are_missing(self) -> None:
         values = VALUES.copy()
         values[0] = -9.0  # April 1, 1990
         built = build_section("summary_hydrograph", _station(values))
         rows = {row[0]: row for row in _table(built.blocks, SUMMARY_HYDROGRAPH_CAPTION).rows}
-        assert rows["April 1"][1] == "29" and "-9" not in rows["April 1"]
+        assert rows["Apr 1"][1] == "29" and "-9" not in rows["Apr 1"]
         assert "1 negative value(s)" in _text(built.blocks)
 
     def test_zero_flows_draw(self) -> None:

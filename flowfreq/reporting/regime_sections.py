@@ -109,6 +109,16 @@ def _flag(owner: str, name: str, value: Any) -> bool:
     return value
 
 
+def _log_flow_axis(ax: Any) -> None:
+    """A log flow axis with plain numbers at 1, 2 and 5 times each power of ten."""
+    from matplotlib.ticker import FuncFormatter, LogLocator, NullFormatter
+
+    ax.set_yscale("log")
+    ax.yaxis.set_major_locator(LogLocator(subs=(1.0, 2.0, 5.0)))
+    ax.yaxis.set_major_formatter(FuncFormatter(lambda v, _: f"{v:,.0f}" if v >= 1 else f"{v:g}"))
+    ax.yaxis.set_minor_formatter(NullFormatter())
+
+
 # -- monthly statistics ----------------------------------------------------------------------
 
 
@@ -162,7 +172,7 @@ def _monthly_figure(complete: pd.DataFrame, label: str) -> bytes:
     ax.set_xticks(range(len(_MONTHS)))
     ax.set_xticklabels([name[:3] for _, name in _MONTHS])
     if all(means[i].min() > 0 for i in present):
-        ax.set_yscale("log")
+        _log_flow_axis(ax)
     ax.set_ylabel("Monthly mean flow (cfs)")
     if label:
         ax.set_title(label)
@@ -171,7 +181,10 @@ def _monthly_figure(complete: pd.DataFrame, label: str) -> bytes:
 
 
 def _annual_monthly_table(monthly: pd.DataFrame) -> Table:
-    """Monthly mean flows, one row to a water year, a dash where the month is incomplete."""
+    """Monthly mean flows, one row to a water year, a dash where the month is incomplete.
+
+    A water year with no complete month has no row.
+    """
     cells = {
         (int(row["year"]), int(row["month"])): row["mean_flow_cfs"]
         for _, row in monthly[monthly["complete"]].iterrows()
@@ -180,7 +193,7 @@ def _annual_monthly_table(monthly: pd.DataFrame) -> Table:
         ("Water year", *(name[:3] for _, name in _MONTHS)),
         tuple(
             (f"{year}", *(cfs(cells.get((year, month), np.nan)) for month, _ in _MONTHS))
-            for year in sorted(int(y) for y in monthly["year"].unique())
+            for year in sorted({year for year, _ in cells})
         ),
         ("right",) * (len(_MONTHS) + 1),
         "Monthly mean flows by water year (cfs).",
@@ -270,7 +283,7 @@ def _build_summary_hydrograph(given: Dict[str, Any]) -> SectionContent:
                 cells = tuple(cfs(stats.at[number, column]) for column in columns)
             else:
                 cells = ("-",) * len(columns)
-            rows.append((f"{name} {day}", f"{int(counts.get(number, 0))}", *cells))
+            rows.append((f"{name[:3]} {day}", f"{int(counts.get(number, 0))}", *cells))
 
     method = [
         "For each date of the year, the daily mean flows of every year with a value on that "
@@ -345,15 +358,15 @@ def _separated_figure(year: int, days: pd.DataFrame, label: str) -> bytes:
     from matplotlib.dates import DateFormatter, MonthLocator, date2num
 
     fig, ax = plt.subplots(figsize=(8, 5))
-    floor = 0.0
-    if float(days["flow"].min()) > 0 and float(days["base"].min()) > 0:
-        ax.set_yscale("log")
-        floor = 0.8 * float(days["base"].min())
-        ax.set_ylim(bottom=floor)
+    lowest = float(days[["flow", "base"]].min().min())
+    floor = 0.8 * lowest
     ax.fill_between(
         days.index, floor, days["base"], color="C0", alpha=0.4, linewidth=0, label="Baseflow"
     )
     ax.plot(days.index, days["flow"], color="black", linewidth=0.9, label="Streamflow")
+    if lowest > 0:
+        _log_flow_axis(ax)
+    ax.set_ylim(bottom=floor)  # after the curves: a limit set first stops the autoscaling
     ax.set_xlim(date2num(pd.Timestamp(year - 1, 10, 1)), date2num(pd.Timestamp(year, 9, 30)))
     ax.xaxis.set_major_locator(MonthLocator())
     ax.xaxis.set_major_formatter(DateFormatter("%b"))

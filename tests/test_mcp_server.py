@@ -845,7 +845,7 @@ class TestDailyAndFutureTools:
         added = chat.call("summary_hydrograph", site_no="01234567", start_date="2000-10-01")
         assert daily_flows == [("01234567", "2000-10-01", None)]
         assert added["kind"] == "summary_hydrograph"
-        assert "| October 15 | 20 |" in added["result"]
+        assert "| Oct 15 | 20 |" in added["result"]
 
     def test_baseflow(self, chat, session, daily_flows):
         added = chat.call(
