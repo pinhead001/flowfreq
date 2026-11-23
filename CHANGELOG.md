@@ -30,7 +30,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   2N*, the odd number of days from 3 to 11 nearest 2A^0.2; `hysep_fixed` used twice that, the other two twice that
   plus a day, and nothing limited it. Every `hysep_*` baseflow and baseflow index changes, mostly upward. On the
   report's own example (French Creek, 1969, local minimum) the annual base flow goes from 25.1 to 27.1 cfs, against
-  27.00 published. `ih_smoothed_minima` (the default) and `lyne_hollick` are unchanged.
+  27.00 published. `ih_smoothed_minima` (the default) and `lyne_hollick` are unchanged by it.
+- A drainage area that is not a positive number is refused in words by every report section built from daily flows.
 - `Hydrograph`'s summary hydrograph and duration curve counted the calendar years touched, so 20 water years read as
   21 and a record with a gap counted what fell in it; they print the days with a value over 365.25. Its log axes
   labeled 0.1 cfs, 0.01 cfs and so on as 0.
