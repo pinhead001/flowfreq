@@ -75,7 +75,7 @@ pip install -e ".[dev]"
 Or install a released version straight from GitHub:
 
 ```bash
-pip install git+https://github.com/pinhead001/flowfreq@v0.28.0
+pip install git+https://github.com/pinhead001/flowfreq@v0.28.1
 ```
 
 **Dependencies:** `numpy`, `pandas`, `matplotlib`, `scipy`, `requests`, `click`, `pyarrow`.
@@ -587,6 +587,7 @@ England, J.F., Jr., et al., 2019, Guidelines for determining flood flow frequenc
 
 | Version | Changes |
 |---------|---------|
+| **v0.28.1** | Baseflow: the HYSEP windows are 2N* days wide (they were about twice that), and baseflow is not interpolated across more than 15 missing days |
 | **v0.28.0** | Report sections `comparison` and `site_summary`; record extension of annual peaks (`flowfreq.extend_peaks`, Bulletin 17C Appendix 8); the 2026 urban equations for AL, MS and TN; `flowfreq.aep` (0.67 and 0.667 are one flood); StreamStats compute requests never retried, batches stop on refusal; `allow_inaccurate` for a basin StreamStats warns about; twenty-four `flowfreq-mcp` tools; `B17CEngine` deprecated. See CHANGELOG.md. |
 | **v0.27.1** | A StreamStats delineation or basin-characteristics request waits 200 s and is not retried after a timeout |
 | **v0.27.0** | Reports from a JSON specification as DOCX or Markdown (`flowfreq.reporting`, `flowfreq report`; sections for a gage, a regression estimate, weighting, transposition, a peakfq check, low flow, flow duration and future-condition factors); `flowfreq-mcp` for building a report through a chat client; NSS `bylocation` calls serial and never retried on timeout (#365); flow averaging in twelve more states; Montana Northwest/Foothills caution (`weighting_cautions`); `peak_summary`; `regression.border` |
