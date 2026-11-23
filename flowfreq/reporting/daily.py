@@ -134,11 +134,26 @@ def _date(owner: str, name: str, value: Any) -> pd.Timestamp:
     return stamp
 
 
+def _drainage_area(owner: str, options: Dict[str, Any]) -> Optional[float]:
+    """The drainage area as a number; None when not given."""
+    value = options.get("drainage_area_sqmi")
+    if value is None:
+        return None
+    try:
+        area = float(value)
+    except (TypeError, ValueError):
+        area = math.nan
+    if isinstance(value, bool) or not (math.isfinite(area) and area > 0):
+        raise ReportError(f"{owner}: drainage_area_sqmi must be a positive number")
+    return area
+
+
 def _daily_frame(owner: str, options: Dict[str, Any]) -> pd.DataFrame:
     """The inline daily record as a frame indexed by date, days without a value absent.
 
     Downloads the record first when the options carry none, and writes it into them.
     """
+    _drainage_area(owner, options)
     site_no = str(options["site_no"]).strip() if options.get("site_no") else None
     if options.get("daily") is None:
         if site_no is None:
