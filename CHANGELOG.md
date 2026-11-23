@@ -24,7 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   gages (observed flow 0.69 of the equations' at 10 percent AEP).
 - **Baseflow method `ih_smoothed_minima_log`**: the turning points of `ih_smoothed_minima` joined through the logarithms
   of their flows, as the USGS BFI program does. On 23 gages its mean annual index is 0.001 below the program's
-  published one on average (0.033 at most), where the default is 0.016 above it (0.061 at most). The default method is unchanged.
+  published one on average (0.033 at most), where the default is 0.016 above it (0.061 at most). The default method is
+  unchanged.
 - **Report sections `monthly_statistics`, `summary_hydrograph` and `baseflow`**, from a gage's daily mean flows
   stored in the specification, as `low_flow` and `flow_duration` are. Monthly statistics are of the monthly mean
   flows of complete months, with box plots; the summary hydrograph gives the percentiles of the flow on each date
@@ -37,19 +38,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **The HYSEP baseflow windows were about twice as wide as the method's.** USGS WRIR 96-4040 makes the whole window
-  2N*, the odd number of days from 3 to 11 nearest 2A^0.2; `hysep_fixed` used twice that, the other two twice that
-  plus a day, and nothing limited it. Every `hysep_*` baseflow and baseflow index changes, mostly upward. On the
-  report's own example (French Creek, 1969, local minimum) the annual base flow goes from 25.1 to 27.1 cfs, against
-  27.00 published. `ih_smoothed_minima` (the default) and `lyne_hollick` are unchanged by it.
 - A drainage area that is not a positive number is refused in words by every report section built from daily flows.
 - `Hydrograph`'s summary hydrograph and duration curve counted the calendar years touched, so 20 water years read as
   21 and a record with a gap counted what fell in it; they print the days with a value over 365.25. Its log axes
   labeled 0.1 cfs, 0.01 cfs and so on as 0.
-- **Baseflow is no longer interpolated across a long gap.** `ih_smoothed_minima` (the default) and
-  `hysep_local_minimum` joined the last low point before a gap to the first after it, however far apart, and the
-  days on either side took baseflow from that line. A gap of more than 15 days now ends one separation and starts
-  another; records without one are unchanged.
 
 ### Changed
 
@@ -73,6 +65,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   plain sample-moments fit under a Bulletin 17C name. Use `flowfreq.Bulletin17C` or `flowfreq.run_ffa`, and
   `flowfreq.freq_plot.plot_frequency_curve` for the figure. The `Interactive-1` example notebook no longer
   calls the old engine.
+
+## [0.28.1] - 2026-11-23
+
+### Fixed
+
+- **The HYSEP baseflow windows were about twice as wide as the method's.** USGS WRIR 96-4040 makes the whole window
+  2N*, the odd number of days from 3 to 11 nearest 2A^0.2; `hysep_fixed` used twice that, the other two twice that
+  plus a day, and nothing limited it. Every `hysep_*` baseflow and baseflow index changes, mostly upward. On the
+  report's own example (French Creek, 1969, local minimum) the annual base flow goes from 25.1 to 27.1 cfs, against
+  27.00 published. `ih_smoothed_minima` (the default) and `lyne_hollick` are unchanged by it.
+- **Baseflow is no longer interpolated across a long gap.** `ih_smoothed_minima` (the default) and
+  `hysep_local_minimum` joined the last low point before a gap to the first after it, however far apart, and the
+  days on either side took baseflow from that line. A gap of more than 15 days now ends one separation and starts
+  another; records without one are unchanged.
 
 ## [0.28.0] - 2026-11-19
 

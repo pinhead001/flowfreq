@@ -156,7 +156,7 @@ carries the next minor's unreleased work. Earlier `release/0.N.x` branches are k
 Version bumps are hand edits of `pyproject.toml` in the release PR and the following dev-bump PR;
 there is no bump tool.
 Downstream projects (methow-flow, flowfreq-app) pin release tags such as
-`flowfreq @ git+https://github.com/pinhead001/flowfreq@v0.28.0`, so work on `main` never
+`flowfreq @ git+https://github.com/pinhead001/flowfreq@v0.28.1`, so work on `main` never
 reaches them. Never move or delete a pushed release tag.
 
 ## Agent ops (Claude lead + agy delegates)
