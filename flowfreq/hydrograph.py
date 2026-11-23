@@ -62,9 +62,10 @@ class Hydrograph:
         return np.array([cls.day_of_water_year(d.month, d.day) for d in dates])
 
     @staticmethod
-    def _count_water_years(dates: pd.DatetimeIndex) -> int:
-        """How many water years (October 1 to September 30) the dates touch."""
-        return len(np.unique(dates.year + (dates.month >= 10)))
+    def _years_of_record(dates: pd.DatetimeIndex) -> str:
+        """The length of the record as text: days with a value over 365.25, at least 1."""
+        years = max(1, round(len(dates) / 365.25))
+        return f"{years} year" if years == 1 else f"{years} years"
 
     @classmethod
     def plot_daily_timeseries(
@@ -239,13 +240,15 @@ class Hydrograph:
         d_max = daily_data.index.max()
         plot_start = f"{d_min.month}/{d_min.day}/{d_min.year}"
         plot_end = f"{d_max.month}/{d_max.day}/{d_max.year}"
-        n_years = cls._count_water_years(pd.DatetimeIndex(df.index))
+        years = cls._years_of_record(pd.DatetimeIndex(df["flow_cfs"].dropna().index))
 
         # Build annotation text
         if por_start and por_end:
-            annot_text = f"POR: {por_start} - {por_end}\nPlot: {plot_start} - {plot_end}\n({n_years} years plotted)"
+            annot_text = (
+                f"POR: {por_start} - {por_end}\nPlot: {plot_start} - {plot_end}\n({years} plotted)"
+            )
         else:
-            annot_text = f"POR: {plot_start} - {plot_end}\n({n_years} years)"
+            annot_text = f"POR: {plot_start} - {plot_end}\n({years})"
 
         ax.annotate(
             annot_text,
@@ -346,13 +349,15 @@ class Hydrograph:
         d_max = daily_data.index.max()
         plot_start = f"{d_min.month}/{d_min.day}/{d_min.year}"
         plot_end = f"{d_max.month}/{d_max.day}/{d_max.year}"
-        n_years = cls._count_water_years(pd.DatetimeIndex(daily_data.index))
+        years = cls._years_of_record(pd.DatetimeIndex(daily_data["flow_cfs"].dropna().index))
 
         # Build annotation text
         if por_start and por_end:
-            annot_text = f"POR: {por_start} - {por_end}\nPlot: {plot_start} - {plot_end}\n({n_years} years plotted)"
+            annot_text = (
+                f"POR: {por_start} - {por_end}\nPlot: {plot_start} - {plot_end}\n({years} plotted)"
+            )
         else:
-            annot_text = f"POR: {plot_start} - {plot_end}\n({n_years} years)"
+            annot_text = f"POR: {plot_start} - {plot_end}\n({years})"
 
         ax.annotate(
             annot_text,

@@ -119,9 +119,45 @@ class TestWhatIsDrawn:
         labels = self._tick_labels(ax)
         assert labels and not [t for t in labels if "10^" in t]
 
+    def test_monthly_with_a_dry_month_is_linear(self, drawn: List[Any]) -> None:
+        values = VALUES.copy()
+        values[:30] = 0.0  # April 1990
+        build_section("monthly_statistics", _station(values))
+        assert drawn[0].get_yscale() == "linear"
+
     def test_summary(self, drawn: List[Any]) -> None:
         build_section("summary_hydrograph", dict(STATION))
-        assert self._holds(drawn[0], VALUES.min(), VALUES.max())
+        (ax,) = drawn
+        assert self._holds(ax, VALUES.min(), VALUES.max())
+        assert ax.get_yscale() == "log"
+        stats = Hydrograph.get_summary_stats(FRAME)
+        for line, name in zip(ax.get_lines(), ("p50", "min", "max")):
+            np.testing.assert_array_equal(line.get_xdata(), stats["day_of_water_year"])
+            np.testing.assert_allclose(line.get_ydata(), stats[name])
+
+    def test_summary_of_an_intermittent_stream_is_linear(self, drawn: List[Any]) -> None:
+        values = VALUES.copy()
+        values[::50] = 0.0
+        build_section("summary_hydrograph", _station(values))
+        assert drawn[0].get_yscale() == "linear"
+
+    def test_the_separated_year_is_the_one_named(self, drawn: List[Any]) -> None:
+        built = build_section("baseflow", dict(STATION))
+        ax = drawn[0]
+        year = int(ax.get_xlabel().removeprefix("Water year "))
+        flows = FRAME["flow_cfs"].loc[f"{year - 1}-10-01":f"{year}-09-30"]
+        np.testing.assert_array_equal(ax.get_lines()[0].get_ydata(), flows)
+        assert f"water year {year}" in _figures(built.blocks)[0].caption
+
+    def test_missing_days_are_a_break_in_the_separated_hydrograph(self, drawn: List[Any]) -> None:
+        values = VALUES.copy()
+        missing = (FRAME.index.month == 5) & (FRAME.index.day <= 10)
+        values[missing] = np.nan
+        build_section("baseflow", {**_station(values), "min_days": 300})
+        line = drawn[0].get_lines()[0]
+        year = int(drawn[0].get_xlabel().removeprefix("Water year "))
+        assert len(line.get_ydata()) == (366 if pd.Timestamp(year, 1, 1).is_leap_year else 365)
+        assert np.isnan(line.get_ydata()).sum() == 10
 
 
 class TestMonthlyStatistics:
@@ -151,6 +187,13 @@ class TestMonthlyStatistics:
     def test_percents_of_annual_volume_sum_to_100(self, built: Any) -> None:
         table = _table(built.blocks, MONTHLY_CAPTION)
         assert sum(float(row[7]) for row in table.rows) == pytest.approx(100.0, abs=0.6)
+
+    def test_percents_of_annual_volume_weigh_each_month_by_its_length(self) -> None:
+        # A constant flow: the share of a month is its share of the days.
+        built = build_section("monthly_statistics", _station(np.full(1461, 50.0), "1991-10-01"))
+        shares = {row[0]: row[7] for row in _table(built.blocks, MONTHLY_CAPTION).rows}
+        assert shares["October"] == f"{100 * 31 / 365.25:.1f}"
+        assert shares["February"] == f"{100 * 28.25 / 365.25:.1f}"
 
     def test_title_method_and_figure(self, built: Any) -> None:
         assert built.title == "Monthly flow statistics at USGS 01234567 Test Creek near Nowhere"
@@ -275,6 +318,10 @@ class TestSummaryHydrograph:
         "change,said",
         [
             ({"percentiles": [5, 95]}, r"unknown option\(s\) percentiles"),
+            (
+                {"daily": {"start": "1990-04-02", "flow_cfs": [5.0] * 10}},
+                "no value on the 1st or 15th of any month",
+            ),
             ({"daily": {"start": START, "flow_cfs": [-5.0] * 40}}, "no value of zero or more"),
         ],
     )

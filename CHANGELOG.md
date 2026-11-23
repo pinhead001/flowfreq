@@ -31,8 +31,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   plus a day, and nothing limited it. Every `hysep_*` baseflow and baseflow index changes, mostly upward. On the
   report's own example (French Creek, 1969, local minimum) the annual base flow goes from 25.1 to 27.1 cfs, against
   27.00 published. `ih_smoothed_minima` (the default) and `lyne_hollick` are unchanged.
-- `Hydrograph`'s summary hydrograph and duration curve counted calendar years, so 20 water years read as 21; they
-  count water years. Its log axes labeled 0.1 cfs, 0.01 cfs and so on as 0.
+- `Hydrograph`'s summary hydrograph and duration curve counted the calendar years touched, so 20 water years read as
+  21 and a record with a gap counted what fell in it; they print the days with a value over 365.25. Its log axes
+  labeled 0.1 cfs, 0.01 cfs and so on as 0.
+- **Baseflow is no longer interpolated across a long gap.** `ih_smoothed_minima` (the default) and
+  `hysep_local_minimum` joined the last low point before a gap to the first after it, however far apart, and the
+  days on either side took baseflow from that line. A gap of more than 15 days now ends one separation and starts
+  another; records without one are unchanged.
 
 ### Changed
 

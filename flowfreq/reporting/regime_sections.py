@@ -285,6 +285,9 @@ def _build_summary_hydrograph(given: Dict[str, Any]) -> SectionContent:
                 cells = ("-",) * len(columns)
             rows.append((f"{name[:3]} {day}", f"{int(counts.get(number, 0))}", *cells))
 
+    if all(row[1] == "0" for row in rows):
+        raise ReportError(f"{owner}: the record has no value on the 1st or 15th of any month")
+
     method = [
         "For each date of the year, the daily mean flows of every year with a value on that "
         "date were ranked and their percentiles taken by linear interpolation. They are "
@@ -353,10 +356,12 @@ def _index(value: float) -> str:
 
 
 def _separated_figure(year: int, days: pd.DataFrame, label: str) -> bytes:
-    """One water year's streamflow with its baseflow shaded."""
+    """One water year's streamflow with its baseflow shaded, broken where a day has no value."""
     import matplotlib.pyplot as plt
     from matplotlib.dates import DateFormatter, MonthLocator, date2num
 
+    first, last = pd.Timestamp(year - 1, 10, 1), pd.Timestamp(year, 9, 30)
+    days = days.reindex(pd.date_range(first, last, freq="D"))
     fig, ax = plt.subplots(figsize=(8, 5))
     lowest = float(days[["flow", "base"]].min().min())
     floor = 0.8 * lowest
@@ -367,7 +372,7 @@ def _separated_figure(year: int, days: pd.DataFrame, label: str) -> bytes:
     if lowest > 0:
         _log_flow_axis(ax)
     ax.set_ylim(bottom=floor)  # after the curves: a limit set first stops the autoscaling
-    ax.set_xlim(date2num(pd.Timestamp(year - 1, 10, 1)), date2num(pd.Timestamp(year, 9, 30)))
+    ax.set_xlim(date2num(first), date2num(last))
     ax.xaxis.set_major_locator(MonthLocator())
     ax.xaxis.set_major_formatter(DateFormatter("%b"))
     ax.set_xlabel(f"Water year {year}")
@@ -430,7 +435,8 @@ def _build_baseflow(given: Dict[str, Any]) -> SectionContent:
     pooled = float(regime.summary()["baseflow_index"])
     if not math.isfinite(pooled):
         raise ReportError(f"{owner}: every flow of the complete water years is zero")
-    days = pd.DataFrame({"flow": frame["flow_cfs"], "base": regime.baseflow_series}).dropna()
+    separated = pd.DataFrame({"flow": frame["flow_cfs"], "base": regime.baseflow_series})
+    days = separated.dropna()
     days["year"] = assign_year_label(pd.DatetimeIndex(days.index), "water")
     days = days[days["year"].isin(used["year"])]
     label = _label(options)
@@ -482,7 +488,7 @@ def _build_baseflow(given: Dict[str, Any]) -> SectionContent:
         Paragraph(cautions),
         Table(("Item", "Value"), tuple(rows), ("left", "right"), BASEFLOW_CAPTION),
         Figure(
-            _separated_figure(year, days[days["year"] == year], label),
+            _separated_figure(year, separated, label),
             f"Streamflow and separated baseflow in water year {year}, the complete year whose "
             "mean flow is nearest the median.",
         ),
