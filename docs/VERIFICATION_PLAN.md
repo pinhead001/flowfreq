@@ -309,7 +309,9 @@ all 42 gages (Alabama and Mississippi) and all 136 (Tennessee) at 8 AEPs. Tennes
 Alabama's and Mississippi's is computed from the release's design and weight matrices, since none is published; it returns
 the release's coefficients to 1e-10 and their standard errors, and its mean variance of prediction is the release's AVP.
 NSS served neither report on 2026-11-18 (three `Scenarios` requests), so there is no NSS cross-check, and the sets are
-reached by naming region `Urban 2026`. The applicability limits (ranges, 10 percent imperviousness in Tennessee) were read
+reached by naming region `Urban 2026`. Since 2026-11-23 the SIR 2025-5104 set is also in Georgia, North Carolina and South
+Carolina, which hold 86 of its 136 gages; that it may be used there is the owner's decision, not the report's statement.
+The applicability limits (ranges, 10 percent imperviousness in Tennessee) were read
 from the PDFs. Not checked: whether the reports' basin characteristics match what StreamStats computes today.
 
 ## Order

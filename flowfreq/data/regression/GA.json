@@ -19,6 +19,21 @@
   {
    "citation": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
    "url": "https://doi.org/10.3133/sir20145030"
+  },
+  {
+   "citation": "Wagner, D.M., and Ladd, D.E., 2026, Estimating the magnitude and frequency of floods at ungaged locations on urban streams in Tennessee and parts of Alabama, Georgia, Mississippi, North Carolina, and South Carolina, using data through the 2022 water year: U.S. Geological Survey Scientific Investigations Report 2025-5104, 17 p., https://doi.org/10.3133/sir20255104.",
+   "doi": "10.3133/sir20255104",
+   "url": "https://pubs.usgs.gov/publication/sir20255104",
+   "pdf": "https://pubs.usgs.gov/sir/2025/5104/sir20255104.pdf",
+   "data_release": "https://doi.org/10.5066/P1TE9KTH",
+   "tables": [
+    "Data release: RegressionEquations.csv, GLSresults.csv, AEP_*/CoVarMat.txt"
+   ],
+   "nss": {
+    "regression_regions": [],
+    "last_year_of_data": 2022,
+    "checked": "2026-11-18"
+   }
   }
  ],
  "region_preference": {
@@ -35,7 +50,7 @@
   ],
   "basis": "at 1 mi2 or less both apply; SIR 2023-5006 is the newer report, on later data and Bulletin 17C, so it comes first where it applies; a flowfreq method choice, not a published rule"
  },
- "notes": "Georgia. Two studies, both served by NSS and neither withdrawing the other. SIR 2023-5006 (Feaster and others, 2023; statistics through 2017): one set of equations for rural basins of 0.08 to 8,902 mi2 on drainage area and the percentage of the basin in hydrologic regions 1-5, stored as region HR1-5, 8 AEPs, 801 streamgages. Table 2 is an exponent affine in PCT2, A**(b0 + b2 PCT2), stored as a log10 DRNAREA term and a second with times=PCTREG2; region 4 is the base and PCT4 has no term (NSS carries PCTREG4 at zero exponent, not stored). Variables follow the row vector of the report's eq. 14. Percentages are stored 0-100: Table 5 prints the smallest non-zero value (0.1, 2.3, 0.1, 0.1, 1.2), and the equations are defined at zero. Table 5 also prints a drainage area range by region; the stored range is the whole, 0.08-8,902. Limitation 3 (not for impervious area over 10 percent) is an applicability limit at every AEP on NSS's LC19IMP; among NSS's equations only South Carolina's 50-percent form carries it. AVP and SEP are Table 4; model error variance and covariance are Kolb and others (2023) table 9, in the order intercept, log10 DRNAREA, PCT1, PCT3, PCT5, log10 DRNAREA x PCT2, confirmed by MEV + xUx at the 670 Georgia, North and South Carolina gages regressed (Kolb table 3). The printed 4-percent statistics are wrong and this file does not use them: Table 4 prints AVP 0.0251 and Kolb table 9 prints MEV 0.0261, where the WREG output in the model archive (Weaver and others, 2023) has AVP 0.026 and MEV 0.0251, and SEP 38.4 percent converts to 0.0260 by eq. 10; the mean of Kolb table 3's variances over those gages is 0.0260, and MEV 0.0261 plus xUx overshoots table 3 by about 0.001 at each of them. This file stores AVP 0.0260 and MEV 0.0251. The covariance printed in table 9 is kept: it differs from the archive's by up to 26 percent in small off-diagonal cells, and reproduces the variances as well. Kolb table 1 disagrees with the WREG input (SiteInfo.txt) at 5 gages, and table 3 follows the input at the first four, where it matters: 02103500 (86.2 and 13.4 percent in regions 3 and 4, against 96.5 and 3.1), 02114450 (100 in region 1, against 90 and 10 with region 2), 02134500 (100 in region 4, against 26.3 in 3 and 73.7 in 4), 02143000 (83.6 mi2, against 93.6), 02385700 (2.5 and 97.5 percent in regions 1 and 2, against 2.2 and 97.8). Table 3 and the worked examples (02116500, 93,525 ft3/s; the ungaged Yadkin site, 81,931 ft3/s) reproduce. The report's prose gives a 1-percent base slope of 0.604; Tables 2 and 3 and WREG (0.6053) have 0.605. SIR 2014-5030 (Feaster and others, 2014; ver. 1.1, the latest; statistics through 2011): regions HR1, HR3, HR4, HR5 from Table 7, for the small, rural basins NSS serves in its peak-flow group, which the report defines as under 1 mi2, so the stored upper drainage area is 1.0 in each. The report publishes these equations more widely, to 3 mi2 in HR1, 459 in HR3, 53.5 in HR4, 10 in HR5, for urban basins; NSS serves those as separate urban regions, which are out of scope with HR1's equations over 3 mi2. Constants are printed, so intercept = log10 of them. SEP and AVP from Table 9, model error variance and covariance from Table 10 in the order intercept, log10 DRNAREA, then the rest as in Table 7; the same matrices are in the report's spreadsheet tool to rounding, and MEV + mean(xUx) over Table 8's gages returns Table 9's AVP. HR1 at 0.2 percent has no impervious term. Ranges from Table 11; NSS has 0.2 for the smallest impervious area in HR4 where Table 11 prints 0.02, and Table 8 has HR4 gages at 0.0 and 0.1, so this file has 0.02. Table 7's heading gives HR3 from 0.22 mi2, the urban gages' minimum in Table 11, which prints 0.14 for all gages; Table 8 has 0.14, so this file has 0.14. Report example (0.50 mi2, 30.0 percent impervious, HR1, 1 percent): 509 ft3/s reproduces, but its xUx of 0.001447 does not: Table 10 gives 0.00196, and so does the spreadsheet's matrix. Table 5's regression flows reproduce within the rounding of Table 7. Set choice: for a rural basin under 1 mi2 both sets apply; SIR 2023-5006 uses later data and Bulletin 17C. It excludes impervious area over 10 percent, where 2014-5030 is the only set here. At 1 mi2 or less, region_preference puts 2023-5006 first. Above 10 percent impervious 2023-5006 drops out (region_limits), leaving the 2014 small sets at 1 mi2 or less; above 1 mi2 nothing else applies, and 2023-5006's own LC19IMP range refuses the estimate with OutOfRangeError. Above 1 mi2 the small sets of 2014-5030 drop out (region_limits), so 2023-5006 is used. HR5 is from Gotvald and Knaak (2011), not refitted in this report, so it has no gages in Table 8 and no count, and its intervals were checked only against the spreadsheet tool. A basin in two of the urban hydrologic regions is averaged in flow, not in log, by the drainage area in each (SIR 2014-5030, p. 47: with 40 percent in HR3 and 60 percent in HR4, the HR3 estimate 'would be multiplied by 0.40', the HR4 estimate 'by 0.60 and the two estimates would be added together'), so weighting_space is 'linear'. The rural equation (HR1-5) takes the region percentages as variables and is not weighted. A caller's weighting_space overrides it.",
+ "notes": "Georgia. Two studies, both served by NSS and neither withdrawing the other. SIR 2023-5006 (Feaster and others, 2023; statistics through 2017): one set of equations for rural basins of 0.08 to 8,902 mi2 on drainage area and the percentage of the basin in hydrologic regions 1-5, stored as region HR1-5, 8 AEPs, 801 streamgages. Table 2 is an exponent affine in PCT2, A**(b0 + b2 PCT2), stored as a log10 DRNAREA term and a second with times=PCTREG2; region 4 is the base and PCT4 has no term (NSS carries PCTREG4 at zero exponent, not stored). Variables follow the row vector of the report's eq. 14. Percentages are stored 0-100: Table 5 prints the smallest non-zero value (0.1, 2.3, 0.1, 0.1, 1.2), and the equations are defined at zero. Table 5 also prints a drainage area range by region; the stored range is the whole, 0.08-8,902. Limitation 3 (not for impervious area over 10 percent) is an applicability limit at every AEP on NSS's LC19IMP; among NSS's equations only South Carolina's 50-percent form carries it. AVP and SEP are Table 4; model error variance and covariance are Kolb and others (2023) table 9, in the order intercept, log10 DRNAREA, PCT1, PCT3, PCT5, log10 DRNAREA x PCT2, confirmed by MEV + xUx at the 670 Georgia, North and South Carolina gages regressed (Kolb table 3). The printed 4-percent statistics are wrong and this file does not use them: Table 4 prints AVP 0.0251 and Kolb table 9 prints MEV 0.0261, where the WREG output in the model archive (Weaver and others, 2023) has AVP 0.026 and MEV 0.0251, and SEP 38.4 percent converts to 0.0260 by eq. 10; the mean of Kolb table 3's variances over those gages is 0.0260, and MEV 0.0261 plus xUx overshoots table 3 by about 0.001 at each of them. This file stores AVP 0.0260 and MEV 0.0251. The covariance printed in table 9 is kept: it differs from the archive's by up to 26 percent in small off-diagonal cells, and reproduces the variances as well. Kolb table 1 disagrees with the WREG input (SiteInfo.txt) at 5 gages, and table 3 follows the input at the first four, where it matters: 02103500 (86.2 and 13.4 percent in regions 3 and 4, against 96.5 and 3.1), 02114450 (100 in region 1, against 90 and 10 with region 2), 02134500 (100 in region 4, against 26.3 in 3 and 73.7 in 4), 02143000 (83.6 mi2, against 93.6), 02385700 (2.5 and 97.5 percent in regions 1 and 2, against 2.2 and 97.8). Table 3 and the worked examples (02116500, 93,525 ft3/s; the ungaged Yadkin site, 81,931 ft3/s) reproduce. The report's prose gives a 1-percent base slope of 0.604; Tables 2 and 3 and WREG (0.6053) have 0.605. SIR 2014-5030 (Feaster and others, 2014; ver. 1.1, the latest; statistics through 2011): regions HR1, HR3, HR4, HR5 from Table 7, for the small, rural basins NSS serves in its peak-flow group, which the report defines as under 1 mi2, so the stored upper drainage area is 1.0 in each. The report publishes these equations more widely, to 3 mi2 in HR1, 459 in HR3, 53.5 in HR4, 10 in HR5, for urban basins; NSS serves those as separate urban regions, which are out of scope with HR1's equations over 3 mi2. Constants are printed, so intercept = log10 of them. SEP and AVP from Table 9, model error variance and covariance from Table 10 in the order intercept, log10 DRNAREA, then the rest as in Table 7; the same matrices are in the report's spreadsheet tool to rounding, and MEV + mean(xUx) over Table 8's gages returns Table 9's AVP. HR1 at 0.2 percent has no impervious term. Ranges from Table 11; NSS has 0.2 for the smallest impervious area in HR4 where Table 11 prints 0.02, and Table 8 has HR4 gages at 0.0 and 0.1, so this file has 0.02. Table 7's heading gives HR3 from 0.22 mi2, the urban gages' minimum in Table 11, which prints 0.14 for all gages; Table 8 has 0.14, so this file has 0.14. Report example (0.50 mi2, 30.0 percent impervious, HR1, 1 percent): 509 ft3/s reproduces, but its xUx of 0.001447 does not: Table 10 gives 0.00196, and so does the spreadsheet's matrix. Table 5's regression flows reproduce within the rounding of Table 7. Set choice: for a rural basin under 1 mi2 both sets apply; SIR 2023-5006 uses later data and Bulletin 17C. It excludes impervious area over 10 percent, where 2014-5030 is the only set here. At 1 mi2 or less, region_preference puts 2023-5006 first. Above 10 percent impervious 2023-5006 drops out (region_limits), leaving the 2014 small sets at 1 mi2 or less; above 1 mi2 nothing else applies, and 2023-5006's own LC19IMP range refuses the estimate with OutOfRangeError. Above 1 mi2 the small sets of 2014-5030 drop out (region_limits), so 2023-5006 is used. HR5 is from Gotvald and Knaak (2011), not refitted in this report, so it has no gages in Table 8 and no count, and its intervals were checked only against the spreadsheet tool. A basin in two of the urban hydrologic regions is averaged in flow, not in log, by the drainage area in each (SIR 2014-5030, p. 47: with 40 percent in HR3 and 60 percent in HR4, the HR3 estimate 'would be multiplied by 0.40', the HR4 estimate 'by 0.60 and the two estimates would be added together'), so weighting_space is 'linear'. The rural equation (HR1-5) takes the region percentages as variables and is not weighted. A caller's weighting_space overrides it. Urban 2026: Wagner and Ladd, SIR 2025-5104 (published 2026-02-05), the set described in TN.json, identical here: 8 AEPs, Q = DRNAREA^a * 10^(b + c*LC11DEV + d*L3_PIEDMNT + e*L3_RDGVLY), by generalized least squares on 136 streamgages, 32 of them in this state, from its data release (doi:10.5066/P1TE9KTH, ver. 1.1) by tools/build_urban_2026.py. It is here by the owner's decision of 2026-11-23, for urban basins above 1 mi2 and 10 percent impervious, where no other set here applies; the report does not say it applies in place of this state's equations, and names only Tennessee for StreamStats. It is in no region_preference tier and NSS locates no region for it, so it is used only when named: region='Urban 2026'. L3_PIEDMNT and L3_RDGVLY are the percent of the basin in the Piedmont and in the Ridge and Valley Level 3 ecoregions (EPA, 2013), which the caller supplies unless StreamStats has them. Ranges (report p. 12): DRNAREA 0.164 to 93.4 mi2, LC11DEV 26 to 100 percent; applicability 10 percent or more developed imperviousness (LC11IMP). Not valid in the Middle Atlantic or Southern Coastal Plain Level 3 ecoregions, nor for regulated or tidal streams; no urban gage was in the Blue Ridge (p. 5).",
  "equations": [
   {
    "region_code": "HR1-5",
@@ -2741,6 +2756,790 @@
      0.00167
     ]
    ]
+  },
+  {
+   "region_code": "Urban 2026",
+   "region_name": "Urban, southeastern states (SIR 2025-5104; not in NSS)",
+   "aep": 0.5,
+   "intercept": 2.23292096882482,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.164,
+     "maximum": 93.4
+    },
+    {
+     "code": "LC11DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 26.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "L3_PIEDMNT",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "L3_RDGVLY",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    }
+   ],
+   "coefficients": [
+    0.651760453342856,
+    0.0061977635888066,
+    -0.002659549226362,
+    -0.0021156462099754
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., and Ladd, D.E., 2026, Estimating the magnitude and frequency of floods at ungaged locations on urban streams in Tennessee and parts of Alabama, Georgia, Mississippi, North Carolina, and South Carolina, using data through the 2022 water year: U.S. Geological Survey Scientific Investigations Report 2025-5104, 17 p., https://doi.org/10.3133/sir20255104.",
+    "table": "Data release doi:10.5066/P1TE9KTH (ver. 1.1), GLS_results/AEP_*/coefs.txt, CoVarMat.txt and PerformanceMetrics.txt; ranges from the report, p. 12",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255104"
+   },
+   "sep_log": 0.154905,
+   "avp": 0.0239954601071963,
+   "model_error_variance": 0.0229027659911771,
+   "covariance": [
+    [
+     0.005768269333,
+     -0.001086710091,
+     -5.784519e-05,
+     -2.721323e-06,
+     -1.0883803e-05
+    ],
+    [
+     -0.001086710091,
+     0.00060882488,
+     8.153737e-06,
+     -1.335372e-06,
+     -8.72817e-07
+    ],
+    [
+     -5.784519e-05,
+     8.153737e-06,
+     6.89615e-07,
+     -2.9347e-08,
+     7.2096e-08
+    ],
+    [
+     -2.721323e-06,
+     -1.335372e-06,
+     -2.9347e-08,
+     1.15724e-07,
+     6.2311e-08
+    ],
+    [
+     -1.0883803e-05,
+     -8.72817e-07,
+     7.2096e-08,
+     6.2311e-08,
+     3.60064e-07
+    ]
+   ],
+   "n_sites": 136,
+   "applicability": [
+    {
+     "code": "LC11IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 10.0,
+     "maximum": 100.0
+    }
+   ]
+  },
+  {
+   "region_code": "Urban 2026",
+   "region_name": "Urban, southeastern states (SIR 2025-5104; not in NSS)",
+   "aep": 0.2,
+   "intercept": 2.51810739012634,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.164,
+     "maximum": 93.4
+    },
+    {
+     "code": "LC11DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 26.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "L3_PIEDMNT",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "L3_RDGVLY",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    }
+   ],
+   "coefficients": [
+    0.633912093493404,
+    0.0046930541368384,
+    -0.0023136806767656,
+    -0.0023151574831115
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., and Ladd, D.E., 2026, Estimating the magnitude and frequency of floods at ungaged locations on urban streams in Tennessee and parts of Alabama, Georgia, Mississippi, North Carolina, and South Carolina, using data through the 2022 water year: U.S. Geological Survey Scientific Investigations Report 2025-5104, 17 p., https://doi.org/10.3133/sir20255104.",
+    "table": "Data release doi:10.5066/P1TE9KTH (ver. 1.1), GLS_results/AEP_*/coefs.txt, CoVarMat.txt and PerformanceMetrics.txt; ranges from the report, p. 12",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255104"
+   },
+   "sep_log": 0.150944,
+   "avp": 0.0227839433346254,
+   "model_error_variance": 0.021622262808877,
+   "covariance": [
+    [
+     0.005936423642,
+     -0.001123497358,
+     -5.8747112e-05,
+     -3.147105e-06,
+     -1.0319676e-05
+    ],
+    [
+     -0.001123497358,
+     0.00061963967,
+     8.406914e-06,
+     -1.313048e-06,
+     -1.225829e-06
+    ],
+    [
+     -5.8747112e-05,
+     8.406914e-06,
+     6.95067e-07,
+     -2.8603e-08,
+     6.2588e-08
+    ],
+    [
+     -3.147105e-06,
+     -1.313048e-06,
+     -2.8603e-08,
+     1.25659e-07,
+     6.6971e-08
+    ],
+    [
+     -1.0319676e-05,
+     -1.225829e-06,
+     6.2588e-08,
+     6.6971e-08,
+     3.77862e-07
+    ]
+   ],
+   "n_sites": 136,
+   "applicability": [
+    {
+     "code": "LC11IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 10.0,
+     "maximum": 100.0
+    }
+   ]
+  },
+  {
+   "region_code": "Urban 2026",
+   "region_name": "Urban, southeastern states (SIR 2025-5104; not in NSS)",
+   "aep": 0.1,
+   "intercept": 2.66019385782699,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.164,
+     "maximum": 93.4
+    },
+    {
+     "code": "LC11DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 26.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "L3_PIEDMNT",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "L3_RDGVLY",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    }
+   ],
+   "coefficients": [
+    0.625780425302841,
+    0.0040232166715205,
+    -0.0021656139970923,
+    -0.0024087984458983
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., and Ladd, D.E., 2026, Estimating the magnitude and frequency of floods at ungaged locations on urban streams in Tennessee and parts of Alabama, Georgia, Mississippi, North Carolina, and South Carolina, using data through the 2022 water year: U.S. Geological Survey Scientific Investigations Report 2025-5104, 17 p., https://doi.org/10.3133/sir20255104.",
+    "table": "Data release doi:10.5066/P1TE9KTH (ver. 1.1), GLS_results/AEP_*/coefs.txt, CoVarMat.txt and PerformanceMetrics.txt; ranges from the report, p. 12",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255104"
+   },
+   "sep_log": 0.153186,
+   "avp": 0.0234658221545825,
+   "model_error_variance": 0.0221701169603696,
+   "covariance": [
+    [
+     0.006537695533,
+     -0.001243638391,
+     -6.4121899e-05,
+     -3.732899e-06,
+     -1.0784629e-05
+    ],
+    [
+     -0.001243638391,
+     0.000680152553,
+     9.26425e-06,
+     -1.431046e-06,
+     -1.579403e-06
+    ],
+    [
+     -6.4121899e-05,
+     9.26425e-06,
+     7.54699e-07,
+     -2.9561e-08,
+     6.1482e-08
+    ],
+    [
+     -3.732899e-06,
+     -1.431046e-06,
+     -2.9561e-08,
+     1.4151e-07,
+     7.5857e-08
+    ],
+    [
+     -1.0784629e-05,
+     -1.579403e-06,
+     6.1482e-08,
+     7.5857e-08,
+     4.20066e-07
+    ]
+   ],
+   "n_sites": 136,
+   "applicability": [
+    {
+     "code": "LC11IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 10.0,
+     "maximum": 100.0
+    }
+   ]
+  },
+  {
+   "region_code": "Urban 2026",
+   "region_name": "Urban, southeastern states (SIR 2025-5104; not in NSS)",
+   "aep": 0.04,
+   "intercept": 2.79642868244541,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.164,
+     "maximum": 93.4
+    },
+    {
+     "code": "LC11DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 26.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "L3_PIEDMNT",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "L3_RDGVLY",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    }
+   ],
+   "coefficients": [
+    0.621672806267005,
+    0.0034379080011522,
+    -0.0020620789480064,
+    -0.0024655173400534
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., and Ladd, D.E., 2026, Estimating the magnitude and frequency of floods at ungaged locations on urban streams in Tennessee and parts of Alabama, Georgia, Mississippi, North Carolina, and South Carolina, using data through the 2022 water year: U.S. Geological Survey Scientific Investigations Report 2025-5104, 17 p., https://doi.org/10.3133/sir20255104.",
+    "table": "Data release doi:10.5066/P1TE9KTH (ver. 1.1), GLS_results/AEP_*/coefs.txt, CoVarMat.txt and PerformanceMetrics.txt; ranges from the report, p. 12",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255104"
+   },
+   "sep_log": 0.163266,
+   "avp": 0.0266556458927218,
+   "model_error_variance": 0.0250906999443312,
+   "covariance": [
+    [
+     0.007847296343,
+     -0.001502310601,
+     -7.6557775e-05,
+     -4.710388e-06,
+     -1.2294795e-05
+    ],
+    [
+     -0.001502310601,
+     0.000817925943,
+     1.1172851e-05,
+     -1.723282e-06,
+     -2.166438e-06
+    ],
+    [
+     -7.6557775e-05,
+     1.1172851e-05,
+     8.98359e-07,
+     -3.3788e-08,
+     6.62e-08
+    ],
+    [
+     -4.710388e-06,
+     -1.723282e-06,
+     -3.3788e-08,
+     1.71747e-07,
+     9.3281e-08
+    ],
+    [
+     -1.2294795e-05,
+     -2.166438e-06,
+     6.62e-08,
+     9.3281e-08,
+     5.10236e-07
+    ]
+   ],
+   "n_sites": 136,
+   "applicability": [
+    {
+     "code": "LC11IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 10.0,
+     "maximum": 100.0
+    }
+   ]
+  },
+  {
+   "region_code": "Urban 2026",
+   "region_name": "Urban, southeastern states (SIR 2025-5104; not in NSS)",
+   "aep": 0.02,
+   "intercept": 2.87805681079794,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.164,
+     "maximum": 93.4
+    },
+    {
+     "code": "LC11DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 26.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "L3_PIEDMNT",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "L3_RDGVLY",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    }
+   ],
+   "coefficients": [
+    0.620836648482113,
+    0.0031168642455638,
+    -0.0020209448961625,
+    -0.002472697810318
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., and Ladd, D.E., 2026, Estimating the magnitude and frequency of floods at ungaged locations on urban streams in Tennessee and parts of Alabama, Georgia, Mississippi, North Carolina, and South Carolina, using data through the 2022 water year: U.S. Geological Survey Scientific Investigations Report 2025-5104, 17 p., https://doi.org/10.3133/sir20255104.",
+    "table": "Data release doi:10.5066/P1TE9KTH (ver. 1.1), GLS_results/AEP_*/coefs.txt, CoVarMat.txt and PerformanceMetrics.txt; ranges from the report, p. 12",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255104"
+   },
+   "sep_log": 0.175472,
+   "avp": 0.0307902602422205,
+   "model_error_variance": 0.0289484205064407,
+   "covariance": [
+    [
+     0.009236857951,
+     -0.001775440084,
+     -9.0019045e-05,
+     -5.629486e-06,
+     -1.4106722e-05
+    ],
+    [
+     -0.001775440084,
+     0.000966317929,
+     1.3203192e-05,
+     -2.035004e-06,
+     -2.707869e-06
+    ],
+    [
+     -9.0019045e-05,
+     1.3203192e-05,
+     1.056021e-06,
+     -3.9257e-08,
+     7.3998e-08
+    ],
+    [
+     -5.629486e-06,
+     -2.035004e-06,
+     -3.9257e-08,
+     2.02094e-07,
+     1.1093e-07
+    ],
+    [
+     -1.4106722e-05,
+     -2.707869e-06,
+     7.3998e-08,
+     1.1093e-07,
+     6.04688e-07
+    ]
+   ],
+   "n_sites": 136,
+   "applicability": [
+    {
+     "code": "LC11IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 10.0,
+     "maximum": 100.0
+    }
+   ]
+  },
+  {
+   "region_code": "Urban 2026",
+   "region_name": "Urban, southeastern states (SIR 2025-5104; not in NSS)",
+   "aep": 0.01,
+   "intercept": 2.94763838341784,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.164,
+     "maximum": 93.4
+    },
+    {
+     "code": "LC11DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 26.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "L3_PIEDMNT",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "L3_RDGVLY",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    }
+   ],
+   "coefficients": [
+    0.621086180826766,
+    0.0028653651699557,
+    -0.0019978351808627,
+    -0.0024642730085694
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., and Ladd, D.E., 2026, Estimating the magnitude and frequency of floods at ungaged locations on urban streams in Tennessee and parts of Alabama, Georgia, Mississippi, North Carolina, and South Carolina, using data through the 2022 water year: U.S. Geological Survey Scientific Investigations Report 2025-5104, 17 p., https://doi.org/10.3133/sir20255104.",
+    "table": "Data release doi:10.5066/P1TE9KTH (ver. 1.1), GLS_results/AEP_*/coefs.txt, CoVarMat.txt and PerformanceMetrics.txt; ranges from the report, p. 12",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255104"
+   },
+   "sep_log": 0.187973,
+   "avp": 0.0353339823686143,
+   "model_error_variance": 0.0331949193767313,
+   "covariance": [
+    [
+     0.010729820111,
+     -0.002069044458,
+     -0.000104522957,
+     -6.603737e-06,
+     -1.6055379e-05
+    ],
+    [
+     -0.002069044458,
+     0.001126374591,
+     1.5389435e-05,
+     -2.36845e-06,
+     -3.2918e-06
+    ],
+    [
+     -0.000104522957,
+     1.5389435e-05,
+     1.22635e-06,
+     -4.5364e-08,
+     8.2447e-08
+    ],
+    [
+     -6.603737e-06,
+     -2.36845e-06,
+     -4.5364e-08,
+     2.34557e-07,
+     1.29875e-07
+    ],
+    [
+     -1.6055379e-05,
+     -3.2918e-06,
+     8.2447e-08,
+     1.29875e-07,
+     7.06773e-07
+    ]
+   ],
+   "n_sites": 136,
+   "applicability": [
+    {
+     "code": "LC11IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 10.0,
+     "maximum": 100.0
+    }
+   ]
+  },
+  {
+   "region_code": "Urban 2026",
+   "region_name": "Urban, southeastern states (SIR 2025-5104; not in NSS)",
+   "aep": 0.005,
+   "intercept": 3.01050339417933,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.164,
+     "maximum": 93.4
+    },
+    {
+     "code": "LC11DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 26.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "L3_PIEDMNT",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "L3_RDGVLY",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    }
+   ],
+   "coefficients": [
+    0.621396035386278,
+    0.002653016266875,
+    -0.0019857980612656,
+    -0.0024410540538313
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., and Ladd, D.E., 2026, Estimating the magnitude and frequency of floods at ungaged locations on urban streams in Tennessee and parts of Alabama, Georgia, Mississippi, North Carolina, and South Carolina, using data through the 2022 water year: U.S. Geological Survey Scientific Investigations Report 2025-5104, 17 p., https://doi.org/10.3133/sir20255104.",
+    "table": "Data release doi:10.5066/P1TE9KTH (ver. 1.1), GLS_results/AEP_*/coefs.txt, CoVarMat.txt and PerformanceMetrics.txt; ranges from the report, p. 12",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255104"
+   },
+   "sep_log": 0.203284,
+   "avp": 0.0413243137481697,
+   "model_error_variance": 0.0388245529139348,
+   "covariance": [
+    [
+     0.012572258076,
+     -0.002432059327,
+     -0.0001225125,
+     -7.759357e-06,
+     -1.8569404e-05
+    ],
+    [
+     -0.002432059327,
+     0.001325620031,
+     1.8085743e-05,
+     -2.773653e-06,
+     -3.963364e-06
+    ],
+    [
+     -0.0001225125,
+     1.8085743e-05,
+     1.438455e-06,
+     -5.3205e-08,
+     9.427e-08
+    ],
+    [
+     -7.759357e-06,
+     -2.773653e-06,
+     -5.3205e-08,
+     2.73396e-07,
+     1.52746e-07
+    ],
+    [
+     -1.8569404e-05,
+     -3.963364e-06,
+     9.427e-08,
+     1.52746e-07,
+     8.31262e-07
+    ]
+   ],
+   "n_sites": 136,
+   "applicability": [
+    {
+     "code": "LC11IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 10.0,
+     "maximum": 100.0
+    }
+   ]
+  },
+  {
+   "region_code": "Urban 2026",
+   "region_name": "Urban, southeastern states (SIR 2025-5104; not in NSS)",
+   "aep": 0.002,
+   "intercept": 3.08493303021284,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.164,
+     "maximum": 93.4
+    },
+    {
+     "code": "LC11DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 26.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "L3_PIEDMNT",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    },
+    {
+     "code": "L3_RDGVLY",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 100.0
+    }
+   ],
+   "coefficients": [
+    0.62209322994633,
+    0.0024217611385606,
+    -0.0019805344057217,
+    -0.0023969236507414
+   ],
+   "citation": {
+    "publication": "Wagner, D.M., and Ladd, D.E., 2026, Estimating the magnitude and frequency of floods at ungaged locations on urban streams in Tennessee and parts of Alabama, Georgia, Mississippi, North Carolina, and South Carolina, using data through the 2022 water year: U.S. Geological Survey Scientific Investigations Report 2025-5104, 17 p., https://doi.org/10.3133/sir20255104.",
+    "table": "Data release doi:10.5066/P1TE9KTH (ver. 1.1), GLS_results/AEP_*/coefs.txt, CoVarMat.txt and PerformanceMetrics.txt; ranges from the report, p. 12",
+    "year": 2026,
+    "url": "https://doi.org/10.3133/sir20255104"
+   },
+   "sep_log": 0.224644,
+   "avp": 0.0504649199105592,
+   "model_error_variance": 0.0474327281643555,
+   "covariance": [
+    [
+     0.01531049964,
+     -0.002973028837,
+     -0.000149300803,
+     -9.4512e-06,
+     -2.2347985e-05
+    ],
+    [
+     -0.002973028837,
+     0.00162362839,
+     2.2097107e-05,
+     -3.370871e-06,
+     -4.943e-06
+    ],
+    [
+     -0.000149300803,
+     2.2097107e-05,
+     1.754941e-06,
+     -6.5086e-08,
+     1.12436e-07
+    ],
+    [
+     -9.4512e-06,
+     -3.370871e-06,
+     -6.5086e-08,
+     3.303e-07,
+     1.86491e-07
+    ],
+    [
+     -2.2347985e-05,
+     -4.943e-06,
+     1.12436e-07,
+     1.86491e-07,
+     1.015852e-06
+    ]
+   ],
+   "n_sites": 136,
+   "applicability": [
+    {
+     "code": "LC11IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 10.0,
+     "maximum": 100.0
+    }
+   ]
   }
  ],
  "region_limits": {
@@ -2785,5 +3584,8 @@
    }
   ]
  },
- "weighting_space": "linear"
+ "weighting_space": "linear",
+ "region_cautions": {
+  "Urban 2026": "SIR 2025-5104 (Wagner and Ladd, 2026) is an urban set fitted to gages in six southeastern states; it does not say it applies in place of this state's equations. It is not valid in the Middle Atlantic or Southern Coastal Plain Level 3 ecoregions, for regulated or tidal streams, and it had no gage in the Blue Ridge; nothing here checks which ecoregion the basin is in."
+ }
 }
