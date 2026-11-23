@@ -165,6 +165,7 @@ class TestBuildSection:
             "site_summary",
             "low_flow",
             "flow_duration",
+            "monthly_statistics",
         }
         assert all(kind.summary for kind in SECTION_KINDS.values())
 
