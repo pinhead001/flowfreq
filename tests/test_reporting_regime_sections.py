@@ -119,6 +119,14 @@ class TestWhatIsDrawn:
         labels = self._tick_labels(ax)
         assert labels and not [t for t in labels if "10^" in t]
 
+    @pytest.mark.parametrize("kind", ["baseflow", "monthly_statistics"])
+    def test_a_narrow_range_of_flows_has_labels_to_read(self, drawn: List[Any], kind: str) -> None:
+        build_section(kind, _station(110.0 + 80.0 * (VALUES - VALUES.min()) / np.ptp(VALUES)))
+        ax = drawn[0]
+        low, high = ax.get_ylim()
+        seen = [t for t in ax.yaxis.get_majorticklocs() if low <= t <= high]
+        assert ax.get_yscale() == "linear" and len(seen) >= 3
+
     def test_monthly_with_a_dry_month_is_linear(self, drawn: List[Any]) -> None:
         values = VALUES.copy()
         values[:30] = 0.0  # April 1990
@@ -289,6 +297,7 @@ class TestSummaryHydrograph:
         text = _text(built.blocks)
         assert "percentiles of non-exceedance" in text
         assert "q90" in text  # the 10th percentile by the name the duration section uses
+        assert "February 29 rests on 8 years" in text  # 1992 to 2020
         assert built.title == "Summary hydrograph at USGS 01234567 Test Creek near Nowhere"
         assert len(_figures(built.blocks)) == 1
 
@@ -368,7 +377,7 @@ class TestBaseflow:
             (f"{year}", f"{days}", f"{index:.3f}")
             for year, days, index in zip(annual["year"], annual["n_days"], annual["baseflow_index"])
         )
-        assert "2 water year(s) with too few days" in _text(built.blocks)
+        assert "2 water year(s) with too few days, or none, were left out" in _text(built.blocks)
         brief = build_section("baseflow", {**STATION, "annual_table": False})
         assert len(_tables(brief.blocks)) == len(_tables(built.blocks)) - 1
 
@@ -434,3 +443,15 @@ class TestBaseflow:
     def test_refusals(self, change: Dict[str, Any], said: str) -> None:
         with pytest.raises(ReportError, match=said):
             build_section("baseflow", {**STATION, **change})
+
+
+@pytest.mark.parametrize("kind", ["monthly_statistics", "summary_hydrograph"])
+@pytest.mark.parametrize("area", ["big", -4.0, 0.0, True])
+def test_a_bad_drainage_area_is_refused_in_words(kind: str, area: Any) -> None:
+    with pytest.raises(ReportError, match="drainage_area_sqmi must be a positive number"):
+        build_section(kind, {**STATION, "drainage_area_sqmi": area})
+
+
+def test_the_summary_says_when_february_29_has_no_value() -> None:
+    built = build_section("summary_hydrograph", _station(VALUES[:200]))
+    assert "February 29" not in _text(built.blocks)

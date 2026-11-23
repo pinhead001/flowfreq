@@ -502,3 +502,9 @@ class TestSession:
         duration = session.add_section("flow_duration", dict(STATION))
         assert duration["result"].startswith(FLOW_DURATION_CAPTION)
         assert "| q50 |" in duration["result"]
+
+
+@pytest.mark.parametrize("kind", ["low_flow", "flow_duration"])
+def test_a_bad_drainage_area_is_refused_in_words(kind):
+    with pytest.raises(ReportError, match="drainage_area_sqmi must be a positive number"):
+        build_section(kind, {**STATION, "drainage_area_sqmi": "big"})
