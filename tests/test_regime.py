@@ -183,12 +183,54 @@ class TestIhSmoothedMinima:
         assert np.all(bf[valid] <= flows[valid] + 1e-6)
 
 
+class TestGapsInTheRecord:
+    """Interpolated baseflow does not cross a gap too long for a complete year."""
+
+    METHODS = ("ih_smoothed_minima", "hysep_local_minimum")
+
+    @pytest.mark.parametrize("method", METHODS)
+    def test_a_long_gap_separates_as_two_records(self, method: str) -> None:
+        daily = _synthetic_daily(n_years=6, start="1990-10-01").iloc[:2000]
+        early, late = daily.iloc[:800], daily.iloc[1500:]  # multiples of the 5-day block
+        whole = separate_baseflow(pd.concat([early, late]), method, 42.0)
+        for part in (early, late):
+            alone = separate_baseflow(part, method, 42.0)
+            pd.testing.assert_series_equal(whole.loc[alone.index], alone, check_freq=False)
+
+    @pytest.mark.parametrize("method", METHODS)
+    def test_a_short_gap_is_bridged(self, method: str) -> None:
+        daily = _synthetic_daily(n_years=3, start="1990-10-01")
+        gapped = daily.drop(daily.index[500:503])
+        bf = separate_baseflow(gapped, method, 42.0)
+        assert bf.iloc[500:503].isna().all()
+        assert bf.iloc[480:500].notna().all() and bf.iloc[503:523].notna().all()
+
+    def test_the_longest_gap_bridged(self) -> None:
+        flows = np.full(60, 10.0)
+        positions, values = np.array([5, 55]), np.array([10.0, 10.0])
+        for missing, bridged in ((15, True), (16, False)):
+            gapped = flows.copy()
+            gapped[20 : 20 + missing] = np.nan
+            bf = _interpolate_baseflow(gapped, positions, values)
+            assert np.isnan(bf[20 : 20 + missing]).all()
+            assert (not np.isnan(bf[10])) is bridged
+
+
 class TestHysep:
     """Tests for the three HYSEP variants and their shared N* formula."""
 
     @pytest.mark.parametrize(
         "area,days",
-        [(0.5, 3), (32.0, 3), (59.1, 5), (100.0, 5), (1000.0, 7), (4000.0, 11), (1e6, 11)],
+        [
+            (0.5, 3),
+            (32.0, 3),
+            (59.1, 5),
+            (100.0, 5),
+            (1000.0, 7),
+            (3125.0, 9),
+            (4000.0, 11),
+            (1e6, 11),
+        ],
     )
     def test_interval_days(self, area: float, days: int) -> None:
         """2N* is the odd integer from 3 to 11 nearest 2 * A**0.2 (WRIR 96-4040); the report

@@ -160,7 +160,7 @@ has run in a browser (item 9 above). Not done: the neighbor's estimate one click
 Reports through chat (2026-11-14 and 2026-11-15, unreleased on `main`). `flowfreq.reporting` builds a report from
 a JSON specification in Markdown or DOCX (#375), with section kinds `gaged_ffa`, `ungaged`, `weighted` (#380),
 `transposed` (#382), `engine_check` (#383) and `text`. `flowfreq-mcp` (#381, the `mcp` extra) gives a chat
-client twenty-four tools over a `ReportSession`; `docs/CHAT_REPORTS.md` has the client configuration. The chat
+client twenty-seven tools over a `ReportSession`; `docs/CHAT_REPORTS.md` has the client configuration. The chat
 page in the app was dropped, since only the owner chats. Not yet done:
 
 - Connect `flowfreq-mcp` to Claude Code or Claude Desktop and write a report with it. The tests drive the
@@ -171,8 +171,11 @@ page in the app was dropped, since only the owner chats. Not yet done:
 - The section kinds `low_flow`, `flow_duration` and `future_flow` (2026-11-16): the tests use a synthetic
   daily record and made-up factors. `low_flow` and `flow_duration` were also built once from the Water Data
   API at USGS 03606500 (80 years used, 18 left out as incomplete; 7Q10 37.8 ft3/s), through `build_report`
-  and not through a chat client, and nobody has checked those numbers against another program. No monthly
-  statistics, summary hydrograph or baseflow section exists.
+  and not through a chat client, and nobody has checked those numbers against another program.
+- `monthly_statistics`, `summary_hydrograph` and `baseflow` (2026-11-22): built once from the Water Data API at USGS
+  03606500 and read in Word. HYSEP is checked against WRIR 96-4040's French Creek example (#412, ported to 0.28.x in
+  #413); the other two baseflow methods have not been checked against another program. Each daily section stores its
+  own copy of the record.
 
 Python 3.11–3.14 (`requires-python >= 3.11`; CI matrix in `.github/workflows/ci.yml`).
 

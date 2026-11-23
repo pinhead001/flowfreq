@@ -191,3 +191,47 @@ class TestPlotFlowDurationCurve:
         empty = pd.DataFrame({"flow_cfs": []}, index=pd.DatetimeIndex([]))
         with pytest.raises(ValueError):
             Hydrograph.plot_flow_duration_curve(empty)
+
+
+class TestYearsAndTicks:
+    """What the summary hydrograph and the duration curve print beside the data."""
+
+    @staticmethod
+    def _draw(kind, frame, yscale="linear"):
+        if kind == "summary":
+            return Hydrograph.plot_summary_hydrograph(frame, yscale=yscale)
+        return Hydrograph.plot_flow_duration_curve(frame, yscale=yscale)[0]
+
+    @pytest.mark.parametrize("kind", ["summary", "duration"])
+    @pytest.mark.parametrize(
+        "start,end,years",
+        [
+            ("1990-10-01", "1992-09-30", 2),
+            ("1990-04-01", "2000-03-31", 10),
+            ("1990-01-01", "1999-12-31", 10),
+            ("1990-01-01", "1990-01-20", 1),
+        ],
+    )
+    def test_the_year_count_is_the_length_of_the_record(self, kind, start, end, years):
+        days = pd.date_range(start, end, freq="D")
+        fig = self._draw(kind, pd.DataFrame({"flow_cfs": np.full(len(days), 5.0)}, index=days))
+        unit = "year" if years == 1 else "years"
+        assert any(f"({years} {unit})" in t.get_text() for t in fig.axes[0].texts)
+        plt.close(fig)
+
+    @pytest.mark.parametrize("kind", ["summary", "duration"])
+    def test_the_year_count_leaves_out_gaps(self, kind):
+        days = pd.date_range("1990-10-01", "2010-09-30", freq="D")
+        days = days[(days < "1995-10-01") | (days >= "2005-10-01")]
+        fig = self._draw(kind, pd.DataFrame({"flow_cfs": np.full(len(days), 5.0)}, index=days))
+        assert any("(10 years)" in t.get_text() for t in fig.axes[0].texts)
+        plt.close(fig)
+
+    @pytest.mark.parametrize("kind", ["summary", "duration"])
+    def test_log_ticks_below_one_are_not_printed_as_zero(self, kind):
+        days = pd.date_range("1990-10-01", "1992-09-30", freq="D")
+        flows = np.geomspace(0.1, 2000.0, len(days))
+        fig = self._draw(kind, pd.DataFrame({"flow_cfs": flows}, index=days), "log")
+        labels = [t.get_text() for t in fig.axes[0].get_yticklabels()]
+        assert labels == ["0.1", "1", "10", "100", "1,000", "10,000"]
+        plt.close(fig)

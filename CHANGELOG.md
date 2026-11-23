@@ -14,6 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `flowfreq ice-events` command, whose every threshold is a required option. `waterdata.download_daily` takes
   `keep_null=True` to keep ice-affected days with no value; `waterdata.request` takes `send_api_key=False`, used for
   NCEI so the USGS key is never sent to another host.
+- **Report sections `monthly_statistics`, `summary_hydrograph` and `baseflow`**, from a gage's daily mean flows
+  stored in the specification, as `low_flow` and `flow_duration` are. Monthly statistics are of the monthly mean
+  flows of complete months, with box plots; the summary hydrograph gives the percentiles of the flow on each date
+  of the year; baseflow gives the index by one named separation method, for the record and each water year, with
+  a separated hydrograph for a typical year. `flowfreq-mcp` gets a tool for each, which makes twenty-seven.
 - `flowfreq-mcp`: `run_ffa` takes `peaks` typed by hand (no `site_no` needed), `site_name`, `perception_thresholds`,
   `regional_skew_state` and `regional_skew_region`; `estimate_ungaged` takes `aeps`, `weighting_space` and
   `min_coverage_percent` (now an `ungaged` section option), `estimate_from_characteristics` `aeps` and
@@ -26,6 +31,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   plus a day, and nothing limited it. Every `hysep_*` baseflow and baseflow index changes, mostly upward. On the
   report's own example (French Creek, 1969, local minimum) the annual base flow goes from 25.1 to 27.1 cfs, against
   27.00 published. `ih_smoothed_minima` (the default) and `lyne_hollick` are unchanged.
+- `Hydrograph`'s summary hydrograph and duration curve counted the calendar years touched, so 20 water years read as
+  21 and a record with a gap counted what fell in it; they print the days with a value over 365.25. Its log axes
+  labeled 0.1 cfs, 0.01 cfs and so on as 0.
+- **Baseflow is no longer interpolated across a long gap.** `ih_smoothed_minima` (the default) and
+  `hysep_local_minimum` joined the last low point before a gap to the first after it, however far apart, and the
+  days on either side took baseflow from that line. A gap of more than 15 days now ends one separation and starts
+  another; records without one are unchanged.
 
 ### Changed
 

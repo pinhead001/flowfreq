@@ -56,7 +56,8 @@ looks perfectly reasonable on paper.
   blocks; a block's minimum is a baseflow ordinate ("turning point") if 0.9
   times it does not exceed either adjacent block's minimum; ordinates are
   connected by straight-line interpolation, capped at actual flow (baseflow
-  cannot exceed total streamflow). Needs no drainage area and is
+  cannot exceed total streamflow), but not across more than 15 missing days,
+  which end one separation and start another. Needs no drainage area and is
   parameter-light, which is why it is the default here. Its non-overlapping
   blocks are anchored to the first date in the input, a known, published
   sensitivity of the method: shifting the same underlying series by 0-4
@@ -326,13 +327,19 @@ def tqmean(daily_data: pd.DataFrame, year_type: str = "water", min_days: int = 3
 # =============================================================================
 
 
+#: The longest run of missing days baseflow is interpolated across: what a year of
+#: 365 days can lack and still have the default ``min_days`` of 350.
+_MAX_BRIDGED_GAP_DAYS = 15
+
+
 def _interpolate_baseflow(
     flows: np.ndarray, positions: np.ndarray, values: np.ndarray
 ) -> np.ndarray:
     """Straight-line interpolation between baseflow turning points, capped at
     actual flow (baseflow cannot exceed total streamflow). NaN outside the
     span bounded by the first and last turning point, and wherever `flows`
-    itself is NaN. Shared by the IH and HYSEP-local-minimum methods, which
+    itself is NaN. A run of more than ``_MAX_BRIDGED_GAP_DAYS`` missing days ends
+    one span and starts another. Shared by the IH and HYSEP-local-minimum methods, which
     differ only in how a turning point is identified.
     """
     n = len(flows)
@@ -340,12 +347,21 @@ def _interpolate_baseflow(
     if len(positions) < 2:
         return baseflow
 
-    lo, hi = int(positions[0]), int(positions[-1])
-    idx = np.arange(lo, hi + 1)
-    interpolated = np.interp(idx, positions, values)
-    segment = flows[lo : hi + 1]
-    valid = ~np.isnan(segment)
-    baseflow[lo : hi + 1] = np.where(valid, np.minimum(interpolated, segment), np.nan)
+    runs = _gap_free_runs(flows)
+    starts = [
+        after[0]
+        for before, after in zip(runs, runs[1:])
+        if after[0] - before[1] > _MAX_BRIDGED_GAP_DAYS
+    ]
+    cuts = np.searchsorted(positions, starts)
+    for where, what in zip(np.split(positions, cuts), np.split(values, cuts)):
+        if len(where) < 2:
+            continue
+        lo, hi = int(where[0]), int(where[-1])
+        interpolated = np.interp(np.arange(lo, hi + 1), where, what)
+        segment = flows[lo : hi + 1]
+        valid = ~np.isnan(segment)
+        baseflow[lo : hi + 1] = np.where(valid, np.minimum(interpolated, segment), np.nan)
     return baseflow
 
 
@@ -398,7 +414,7 @@ def _hysep_interval_days(drainage_area_sqmi: float) -> int:
     """
     if drainage_area_sqmi <= 0:
         raise ValueError(f"drainage_area_sqmi must be positive, got {drainage_area_sqmi}")
-    two_n = 2.0 * drainage_area_sqmi**0.2
+    two_n = round(2.0 * drainage_area_sqmi**0.2, 9)  # 3125**0.2 is not quite 5
     return min(_HYSEP_INTERVALS, key=lambda days: abs(days - two_n))
 
 

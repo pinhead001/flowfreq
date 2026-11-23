@@ -66,8 +66,9 @@ A usual order: find_gage, run_ffa, then estimate_ungaged or estimate_from_charac
 at the gage and weight_gage_with_regression (or transpose_gage_to_site for a site on \
 the gage's stream), then get_section to read what was computed, \
 edit_narrative, and render_report. check_gage_against_reference adds a comparison of a \
-gage's computation with USGS peakfq or with numbers the user gives. low_flow_frequency and \
-flow_duration add sections from a gage's daily flows, and apply_future_change_factors \
+gage's computation with USGS peakfq or with numbers the user gives. low_flow_frequency, \
+flow_duration, monthly_statistics, summary_hydrograph and baseflow add sections from a \
+gage's daily flows, and apply_future_change_factors \
 scales a section's flood quantiles by factors the user supplies. For an ungaged site with \
 several estimates, compare_estimates sets them side by side and add_site_summary puts a \
 summary at the front; extend_gage_record extends a discontinued gage's record from a \
@@ -754,6 +755,101 @@ def build_server(
                 options[name] = value
         return report.add_section("flow_duration", options, title=title, position=position)
 
+    def monthly_statistics(
+        site_no: str,
+        annual_table: bool = False,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+        title: Optional[str] = None,
+        position: Optional[int] = None,
+    ) -> Dict[str, Any]:
+        """Add a monthly flow statistics section for a USGS gage.
+
+        Downloads the gage's daily mean flows from USGS and adds a section with, for each
+        month from October to September, the mean, median, standard deviation, largest and
+        smallest monthly mean flow (with their water years) and the month's share of the
+        annual volume, and box plots. A month counts only when at least 90 percent of its
+        days have a value. The daily flows are stored in the report, so it rebuilds later
+        without a download.
+
+        site_no: the USGS station number. annual_table: also print every year's monthly
+        means, a table 13 columns wide. start_date, end_date: limit the record,
+        YYYY-MM-DD. title, position: as run_ffa.
+
+        Returns the section's id and the table.
+        """
+        options: Dict[str, Any] = {"site_no": _station(site_no), "annual_table": annual_table}
+        for name, value in (("start_date", start_date), ("end_date", end_date)):
+            if value:
+                options[name] = value
+        return report.add_section("monthly_statistics", options, title=title, position=position)
+
+    def summary_hydrograph(
+        site_no: str,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+        title: Optional[str] = None,
+        position: Optional[int] = None,
+    ) -> Dict[str, Any]:
+        """Add a summary hydrograph section for a USGS gage.
+
+        Downloads the gage's daily mean flows from USGS and adds a section with a figure of
+        the median, quartiles, 10th and 90th percentiles and range of the flow on each date
+        of the year, and a table of them for the 1st and 15th of each month. These are
+        percentiles of non-exceedance: the 10th percentile is a low flow, what a
+        flow-duration table calls q90. The daily flows are stored in the report, so it
+        rebuilds later without a download.
+
+        site_no: the USGS station number. start_date, end_date: limit the record,
+        YYYY-MM-DD. title, position: as run_ffa.
+
+        Returns the section's id and the table.
+        """
+        options: Dict[str, Any] = {"site_no": _station(site_no)}
+        for name, value in (("start_date", start_date), ("end_date", end_date)):
+            if value:
+                options[name] = value
+        return report.add_section("summary_hydrograph", options, title=title, position=position)
+
+    def baseflow(
+        site_no: str,
+        method: str = "ih_smoothed_minima",
+        drainage_area_sqmi: Optional[float] = None,
+        annual_table: bool = True,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+        title: Optional[str] = None,
+        position: Optional[int] = None,
+    ) -> Dict[str, Any]:
+        """Add a baseflow section for a USGS gage.
+
+        Downloads the gage's daily mean flows from USGS, separates baseflow by one named
+        method and adds a section with the baseflow index of the record and of each complete
+        water year, mean streamflow and baseflow, and a separated hydrograph for a typical
+        year. Indexes from different methods are not comparable, and regulation, diversion
+        and snowmelt distort them; say which method was used wherever you quote one. The
+        daily flows are stored in the report, so it rebuilds later without a download.
+
+        site_no: the USGS station number. method: "ih_smoothed_minima" (the default),
+        "hysep_fixed", "hysep_sliding", "hysep_local_minimum" or "lyne_hollick".
+        drainage_area_sqmi: square miles, in place of the station's own; the HYSEP methods
+        need one. annual_table: include the index of each year. start_date, end_date: limit
+        the record, YYYY-MM-DD. title, position: as run_ffa.
+
+        Returns the section's id and the table.
+        """
+        options: Dict[str, Any] = {
+            "site_no": _station(site_no),
+            "method": method,
+            "annual_table": annual_table,
+        }
+        if drainage_area_sqmi is not None:
+            options["drainage_area_sqmi"] = drainage_area_sqmi
+        for name, value in (("start_date", start_date), ("end_date", end_date)):
+            if value:
+                options[name] = value
+        return report.add_section("baseflow", options, title=title, position=position)
+
     def apply_future_change_factors(
         section_id: str,
         factor_set_name: str,
@@ -999,6 +1095,9 @@ def build_server(
         check_gage_against_reference,
         low_flow_frequency,
         flow_duration,
+        monthly_statistics,
+        summary_hydrograph,
+        baseflow,
         apply_future_change_factors,
         extend_gage_record,
         compare_estimates,

@@ -306,7 +306,11 @@ analysis and lays out what it returns, so a quantile in a report is the one `run
   flow (`flowfreq.lowflow.LowFlowFrequency`; 7Q10, 7Q2) and gives the quantiles with
   90-percent confidence limits, the fitted curve and the annual minima; `flow_duration`
   gives the flow equaled or exceeded on a given percent of days (q10, q50, q90) and the
-  curve. `future_flow` takes a `gage` or a `regression` and a `factor_set` (name, AEPs,
+  curve. `monthly_statistics`, `summary_hydrograph` and `baseflow` take the same record:
+  the statistics of each month's mean flows with box plots (`annual_table` adds every
+  year), the percentiles of the flow on each date of the year, and the baseflow index by
+  one named separation `method` (`flowfreq.regime`), with a separated hydrograph and the
+  index of each year. `future_flow` takes a `gage` or a `regression` and a `factor_set` (name, AEPs,
   factors, scenario, horizon and citation, all the analyst's) and multiplies the flood
   quantiles by the change factors (`flowfreq.future_flow.apply_change_factors`), marking
   each factor as published, interpolated or held. `comparison` takes `estimates` (each a
@@ -356,7 +360,7 @@ The model calls `find_gage`, `run_ffa`, `estimate_from_characteristics`,
 `weight_gage_with_regression`, `edit_narrative` and `render_report`; flowfreq computes
 every table and figure, and what the model writes is narrative that prints as a draft
 until you mark it reviewed. `flowfreq.reporting.ReportSession` is the same thing from
-Python. Client configuration, the twenty-four tools and the rules the server holds the model
+Python. Client configuration, the twenty-seven tools and the rules the server holds the model
 to are in [docs/CHAT_REPORTS.md](docs/CHAT_REPORTS.md).
 
 ## Module Overview

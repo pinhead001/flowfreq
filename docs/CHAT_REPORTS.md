@@ -32,7 +32,7 @@ claude mcp add flowfreq --env USGS_API_KEY=your-key -- D:\a\flowfreq\.venv\Scrip
 ```
 
 Add `--scope user` to have it in every project. `/mcp` inside Claude Code lists the server
-and its twenty-four tools.
+and its twenty-seven tools.
 
 **Claude Desktop** — in `claude_desktop_config.json` (Settings, Developer, Edit Config):
 
@@ -83,6 +83,9 @@ rebuilds the same report with no network and no chat.
 | `check_gage_against_reference` | Compare a gage section's fit with USGS peakfq 8.1.0 on the same record, or with the numbers of another program's run that you supply | nothing |
 | `low_flow_frequency` | Add a low-flow frequency section for a gage: the annual minimum n-day mean flow fitted with a log-Pearson Type III distribution (7Q10, 7Q2), with 90-percent confidence limits | USGS (daily flows) |
 | `flow_duration` | Add a flow-duration section for a gage: the flow exceeded on a given percent of days (q10, q50, q90) and the curve | USGS (daily flows) |
+| `monthly_statistics` | Add a monthly flow statistics section for a gage: the mean, median, spread and range of each month's mean flow, its share of the annual volume, and box plots | USGS (daily flows) |
+| `summary_hydrograph` | Add a summary hydrograph section for a gage: the percentiles and range of the flow on each date of the year | USGS (daily flows) |
+| `baseflow` | Add a baseflow section for a gage: the baseflow index by one named separation method, for the record and each year, and a separated hydrograph | USGS (daily flows) |
 | `apply_future_change_factors` | Scale a gage or regression section's flood quantiles by change factors you supply and cite | nothing |
 | `extend_gage_record` | Extend a short or discontinued gage's record from a longer gage section (Bulletin 17C Appendix 8) and fit the extended record | nothing |
 | `compare_estimates` | Set several sections' flood quantiles at one site side by side, with each one's limits | nothing |
@@ -137,6 +140,15 @@ water or calendar years), leaves out a year with fewer than 350 days of record, 
 a record with fewer than 10 years. There is no regional skew and no low-outlier test for
 low flows, and the section says so. A flow-duration statistic is written with a lowercase
 q (q10 is the flow exceeded on 10 percent of days) and is not an annual probability.
+
+`monthly_statistics`, `summary_hydrograph` and `baseflow` use the same kind of record, and
+each section stores its own copy of it. Monthly statistics rest on months with a value on
+at least 90 percent of their days. The summary hydrograph's percentiles are of
+non-exceedance, so its 10th percentile is a low flow. `baseflow` separates by one method
+(`ih_smoothed_minima` unless you name another); indexes from different methods are not
+comparable, and the HYSEP methods need a drainage area, which comes from the gage's record
+or from `drainage_area_sqmi`. Water years with fewer than 350 days that have both a flow
+and a separated baseflow are left out.
 
 `apply_future_change_factors` multiplies the flood quantiles of a `run_ffa` section or a
 regression estimate by change factors for a future condition. flowfreq ships no change
