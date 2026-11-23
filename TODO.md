@@ -180,9 +180,8 @@ page in the app was dropped, since only the owner chats. Not yet done:
   #413); `lyne_hollick` has not been checked against another program.
   `ih_smoothed_minima` was, on 23 gages against the USGS BFI program's published indexes (OFR 03-146,
   2026-11-23): 0.016 high on average (median 0.012, most 0.061), mostly because the program joins the logarithms of the
-  turning points and ours joins the flows. Joining logarithms gives a mean difference of -0.001. Your call: add it as a
-  method (or option) named for the program, make it the default, or leave it. The method's documentation no longer
-  says it is the Wahl and Wahl program's. Each daily section stores its
+  turning points and ours joins the flows. `ih_smoothed_minima_log` joins logarithms (mean difference -0.001, largest 0.033; the owner's
+  decision of 2026-11-23, as an option, with the default unchanged). Each daily section stores its
   own copy of the record.
 
 Python 3.11–3.14 (`requires-python >= 3.11`; CI matrix in `.github/workflows/ci.yml`).

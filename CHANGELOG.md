@@ -17,6 +17,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Texas: SIR 2009-5087's OmegaEM equations** (Asquith and Roussel, 2009, Table 3; AEP 0.5 to 0.002), region
   `Statewide OmegaEM`. NSS does not serve them, so they are used only when the caller names the region, and the caller
   supplies the main-channel slope (`MCSLOPE`, feet per foot), which StreamStats does not return in Texas.
+- **Baseflow method `ih_smoothed_minima_log`**: the turning points of `ih_smoothed_minima` joined through the logarithms
+  of their flows, as the USGS BFI program does. On 23 gages its mean annual index is 0.001 below the program's
+  published one on average (0.033 at most), where the default is 0.016 above it (0.061 at most). The default method is unchanged.
 - **Report sections `monthly_statistics`, `summary_hydrograph` and `baseflow`**, from a gage's daily mean flows
   stored in the specification, as `low_flow` and `flow_duration` are. Monthly statistics are of the monthly mean
   flows of complete months, with box plots; the summary hydrograph gives the percentiles of the flow on each date

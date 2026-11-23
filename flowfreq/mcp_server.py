@@ -831,7 +831,8 @@ def build_server(
         daily flows are stored in the report, so it rebuilds later without a download.
 
         site_no: the USGS station number. method: "ih_smoothed_minima" (the default),
-        "hysep_fixed", "hysep_sliding", "hysep_local_minimum" or "lyne_hollick".
+        "ih_smoothed_minima_log" (its turning points joined through logarithms, as the
+        USGS BFI program joins them), "hysep_fixed", "hysep_sliding", "hysep_local_minimum" or "lyne_hollick".
         drainage_area_sqmi: square miles, in place of the station's own; the HYSEP methods
         need one. annual_table: include the index of each year. start_date, end_date: limit
         the record, YYYY-MM-DD. title, position: as run_ffa.

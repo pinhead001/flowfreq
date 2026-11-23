@@ -35,11 +35,11 @@ to them, which are dropped via ``nansum`` rather than fabricated. With
 roughly a dozen dropped difference terms out of ~364, a small but nonzero
 approximation worth knowing is there.
 
-**Baseflow separation methods.** Five are implemented, named explicitly
+**Baseflow separation methods.** Six are implemented, named explicitly
 because a BFI value is not comparable across methods without knowing which
 one produced it -- every function and results object reports the method
 used alongside the number. This is not a minor labeling formality: the
-five methods are known in the literature to disagree systematically on
+six methods are known in the literature to disagree systematically on
 the same site (a step-function method like hysep_fixed and a smoothly
 interpolated one like ih_smoothed_minima do not converge as the record
 gets longer, they measure recognizably different things), so a BFI
@@ -61,7 +61,7 @@ looks perfectly reasonable on paper.
   turning points at the ends of a year. On 23 USGS gages with unbroken records
   (2026-11-23), this method's mean annual index was above the program's, as
   published in USGS Open-File Report 03-146, by 0.016 on average and 0.061 at most (0.012 at the
-  median gage); joining logarithms instead brought the mean difference to -0.001.
+  median gage).
   Needs no drainage area and is
   parameter-light, which is why it is the default here. Its non-overlapping
   blocks are anchored to the first date in the input, a known, published
@@ -71,6 +71,13 @@ looks perfectly reasonable on paper.
   annual BFI between 0.9349 and 0.9391 -- a real if modest effect, worth
   knowing about before comparing this figure against the same site
   analyzed from a slightly different download window.
+- ``"ih_smoothed_minima_log"``: the turning points of ``"ih_smoothed_minima"``,
+  joined by straight lines through the logarithms of their flows, as the USGS BFI
+  program joins them. Where either turning point is zero the line is straight in
+  flow. It is usually the nearer of the two to that program: on the same 23 gages its
+  mean annual index differed from the published one by -0.001 on average and 0.033 at
+  most, and was the nearer at 17. It is still not that program, which adds turning
+  points at the ends of a year.
 - ``"hysep_fixed"``, ``"hysep_sliding"``, ``"hysep_local_minimum"``: the
   three USGS HYSEP methods (Sloto & Crouse, 1996, USGS WRIR 96-4040, after
   Pettyjohn & Henning, 1979), all built on the same interval. ``2N*`` is the
@@ -141,6 +148,7 @@ logger = logging.getLogger(__name__)
 #: and FlowRegime.
 BASEFLOW_METHODS = (
     "ih_smoothed_minima",
+    "ih_smoothed_minima_log",
     "hysep_fixed",
     "hysep_sliding",
     "hysep_local_minimum",
@@ -338,10 +346,12 @@ _MAX_BRIDGED_GAP_DAYS = 15
 
 
 def _interpolate_baseflow(
-    flows: np.ndarray, positions: np.ndarray, values: np.ndarray
+    flows: np.ndarray, positions: np.ndarray, values: np.ndarray, log: bool = False
 ) -> np.ndarray:
     """Straight-line interpolation between baseflow turning points, capped at
-    actual flow (baseflow cannot exceed total streamflow). NaN outside the
+    actual flow (baseflow cannot exceed total streamflow). With ``log`` the line is
+    through the logarithms of the flows, except between two turning points either of
+    which is zero. NaN outside the
     span bounded by the first and last turning point, and wherever `flows`
     itself is NaN. A run of more than ``_MAX_BRIDGED_GAP_DAYS`` missing days ends
     one span and starts another. Shared by the IH and HYSEP-local-minimum methods, which
@@ -363,14 +373,22 @@ def _interpolate_baseflow(
         if len(where) < 2:
             continue
         lo, hi = int(where[0]), int(where[-1])
-        interpolated = np.interp(np.arange(lo, hi + 1), where, what)
+        days = np.arange(lo, hi + 1)
+        interpolated = np.interp(days, where, what)
+        if log:
+            left = np.minimum(np.searchsorted(where, days, side="right") - 1, len(where) - 2)
+            positive = (what[left] > 0) & (what[left + 1] > 0)
+            logs = np.log(np.where(what > 0, what, 1.0))
+            interpolated = np.where(positive, np.exp(np.interp(days, where, logs)), interpolated)
         segment = flows[lo : hi + 1]
         valid = ~np.isnan(segment)
         baseflow[lo : hi + 1] = np.where(valid, np.minimum(interpolated, segment), np.nan)
     return baseflow
 
 
-def _ih_smoothed_minima(flows: np.ndarray, block_days: int = 5, factor: float = 0.9) -> np.ndarray:
+def _ih_smoothed_minima(
+    flows: np.ndarray, block_days: int = 5, factor: float = 0.9, log: bool = False
+) -> np.ndarray:
     """UKIH/Institute of Hydrology smoothed-minima baseflow separation.
 
     Parameters
@@ -382,6 +400,8 @@ def _ih_smoothed_minima(flows: np.ndarray, block_days: int = 5, factor: float = 
         Turning-point ratio, default 0.9 (the standard UKIH value): a
         block's minimum is a turning point if ``factor * block_min <=
         min(previous block's min, next block's min)``.
+    log : bool
+        Join the turning points through the logarithms of their flows.
     """
     n = len(flows)
     n_blocks = n // block_days
@@ -404,7 +424,7 @@ def _ih_smoothed_minima(flows: np.ndarray, block_days: int = 5, factor: float = 
             turning_pos.append(block_pos[i])
             turning_val.append(block_mins[i])
 
-    return _interpolate_baseflow(flows, np.array(turning_pos), np.array(turning_val))
+    return _interpolate_baseflow(flows, np.array(turning_pos), np.array(turning_val), log=log)
 
 
 #: The interval widths HYSEP may use, in days (Sloto & Crouse, 1996).
@@ -536,7 +556,8 @@ def separate_baseflow(
     drainage_area_sqmi : float, optional
         Required for the three ``"hysep_*"`` methods; unused otherwise.
     block_days, factor : optional
-        Only used by ``"ih_smoothed_minima"``; see :func:`_ih_smoothed_minima`.
+        Only used by the two ``"ih_smoothed_minima"`` methods; see
+        :func:`_ih_smoothed_minima`.
     alpha, passes : optional
         Only used by ``"lyne_hollick"``; see :func:`_lyne_hollick`.
 
@@ -570,8 +591,10 @@ def separate_baseflow(
     full_idx = pd.date_range(daily_data.index.min(), daily_data.index.max(), freq="D")
     flows = daily_data["flow_cfs"].reindex(full_idx).where(lambda s: s >= 0).to_numpy(dtype=float)
 
-    if method == "ih_smoothed_minima":
-        baseflow = _ih_smoothed_minima(flows, block_days=block_days, factor=factor)
+    if method in ("ih_smoothed_minima", "ih_smoothed_minima_log"):
+        baseflow = _ih_smoothed_minima(
+            flows, block_days=block_days, factor=factor, log=method.endswith("_log")
+        )
     elif method == "lyne_hollick":
         baseflow = _lyne_hollick(flows, alpha=alpha, passes=passes)
     else:
@@ -627,9 +650,9 @@ def baseflow_index(
     baseflow are available -- the days that actually feed the ratio, not
     every day with a valid daily flow value. Every separation method
     leaves some days undefined (a warm-up run before the first identified
-    turning point for "ih_smoothed_minima", "hysep_sliding", and
+    turning point for the two "ih_smoothed_minima", "hysep_sliding", and
     "hysep_local_minimum"; the run of days spoiled by any gap in the
-    input, for all five methods). Summing total flow over the whole year
+    input, for all six methods). Summing total flow over the whole year
     while summing baseflow over only the days it happens to cover would
     silently bias the ratio toward whatever is NOT represented in the
     unmatched days -- worst when a storm or a gap during high water falls
