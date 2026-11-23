@@ -83,9 +83,11 @@ Owner's:
    cross-border gages differing by 2 times or more aren't cautioned, since none is traced to a miss.
 5. **MD** stays at the Third Edition, with a caution on every estimate that the Sixth (2023) replaces it for state
    practice (`region_cautions`). A Piedmont boundary basin still needs `region=`.
-6. **TX:** the regional sets come before Statewide, and the Colorado sets split at 32 mi2. Texas's StreamStats
-   does compute `OmegaEM` (present at all 8 Texas gages of the cross-border run, 2026-11-17), so SIR 2009-5087
-   (the authors' preferred report, not in NSS) can be verified and stored. Not started.
+6. **TX:** the regional sets come before Statewide, and the Colorado sets split at 32 mi2. SIR 2009-5087 (the authors'
+   preferred report, not in NSS) is stored as region `Statewide OmegaEM` (2026-11-23), used only with `region=`. Your
+   call: whether it should come before Statewide. **It needs a channel slope that StreamStats does not return in
+   Texas** (none at the 8 gages saved from the cross-border run; OmegaEM is there), so a StreamStats basin can't run it
+   until a slope is supplied. The slope is the main channel's fall over its whole length, not 10-85.
 7. **LA's southern gap** uses the 1998 Non-Pine Hills set (TR 60, NSS GC879) when NSS locates no current region,
    with a caution and no interval (`fallback_region`). OH 2006-5312, TN 03-4176 and LA's Delta stay dropped.
 8. Issues #293 and #365 are closed. **StreamStats is reachable again** (above): say when the cross-border run

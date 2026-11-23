@@ -123,9 +123,21 @@
     ],
     "last_year_of_data": 1993
    }
+  },
+  {
+   "citation": "Asquith, W.H., and Roussel, M.C., 2009, Regression equations for estimation of annual peak-streamflow frequency for undeveloped watersheds in Texas using an L-moment-based, PRESS-minimized, residual-adjusted approach: U.S. Geological Survey Scientific Investigations Report 2009-5087, 48 p.",
+   "doi": "10.3133/sir20095087",
+   "url": "https://pubs.usgs.gov/publication/sir20095087",
+   "pdf": "https://pubs.usgs.gov/sir/2009/5087/pdf/sir2009-5087.pdf",
+   "tables": [
+    "Table 1",
+    "Table 3",
+    "Appendix 1",
+    "Appendix 3"
+   ]
   }
  ],
- "notes": "SUPERSEDED IN PRACTICE: SIR 2008-5084 (Table 8, region Statewide) is followed by Asquith and Roussel, 2009, SIR 2009-5087, whose authors prefer its OmegaEM equations; NSS's peak-flow snapshot does not serve that report, nor the 96 equations of Asquith and Slade, 1997, WRI 96-4307, so neither is stored. What NSS serves is kept. CITATIONS NSS GETS WRONG: NSS cites WRI 98-4015 for GC1489, but that report excludes urban basins and has no impervious-cover equation; the set is Veenhuis and Gannett, WRI 86-4069, Table 8. NSS cites WRI 98-4178 for GC1493, but the set is WRI 98-4015's large-basin equations. Seven reports, then: 98-4015 (2 regions), 98-4178 (3), 86-4069, 82-18, 96-4072, 80-17 and 2008-5084 (1 each). All are kept because each is the only set for its area or land use; the regional sets and the Statewide set overlap; region_preference puts the regional sets first and Statewide elsewhere (an owner's decision of 2026-11-08), and the Colorado sets split at 32 mi2 by region_limits. region= overrides. INTERVALS: 98-4015 and 98-4178 give the prediction variance as s^2(1 + h0), with h0 = x'[X'WX]^-1 x from an unscaled matrix. flowfreq computes model_error_variance + x'Ux, so model_error_variance = s^2 and covariance = s^2 times the printed matrix, reordered to intercept first (98-4015 prints Area, Slope, Constant). SIR 2008-5084 is the same; its matrices are printed only in Appendix 2's R output, as tmp in finalQt, in the order constant, A^lambda, log10 P, and s times the root of their diagonal gives the printed Std. Error columns. No covariance is printed for 86-4069, 82-18, 96-4072 or 80-17, so intervals use sep_log. 86-4069 prints an average standard error of prediction; 82-18, 96-4072 and 80-17 print only a standard error of estimate, stored as sep_log because it is the only error they give. It omits coefficient sampling error, so those intervals are narrower than a true SEP. 96-4072's 0.036 log10^2 mean square error for its 100-year equation agrees with its 46 percent (0.1887^2). REPORT ERRORS: (1) 98-4178 Table 3's region 3 matrix is not the matrix of region 3's printed equation. It equals, to all five printed decimals, the constant and CDA block of a three-term fit that also has stream slope, with 08065800 Bedias Creek (region 2 in Table 1) in region 3. The two-term fit gives 0.16508, -0.06928, 0.03398 and reproduces Table 2's region 3 equations. The report's example uses the printed matrix (h0 = 0.29634, where the two-term matrix gives 0.0605), so it is stored as printed and region 3 intervals are wider than the fit supports. (2) 98-4178 Table 1 counts 80 stations in region 2 and 41 in region 3 after the exclusions the text lists; Table 2 says 79 and 42, and refits agree with Table 2 once Bedias Creek moves. (3) 98-4178 p. 19 gives the upper limit as 9,670 in the computation and 9,760 in the sentence after it; 9,670 is right. (4) 98-4015 p. I-1 prints a large-basin weight of 0.070 where the computation uses 0.70. (5) 2008-5084 Table 8 prints s = 0.3548 and adjusted R2 0.7458 for Q100; Appendix 2 prints 0.3545 and 0.7461, and 0.12386 / sqrt(0.12205) = 0.3545, so 0.3545 is stored. (6) 82-18's effects table (p. 53) uses urbanization indexes 36 and 9, the index's limits. Fifteen of its 16 flows reproduce to 0.34 percent; Turtle Creek's 5-year minimum prints 1,960 where the equation gives 1,942 (0.9 percent), and that cell is pinned. NOT STORED, BECAUSE NO FIELD OR NO SEPARATE REGION FITS: 98-4015's equation 3 weights the two Colorado sets by log10 A from 10 to 100 mi2 (the example reproduces in the test, outside the small set's calibrated range), and its equations 4 and 5 weight their limits. 80-17 caps K at KMAX from its figure 2. Shape-factor limits apply to 98-4015 (0.30-3.93, 3.79-18.43) and 96-4072 (1.0-15), and 98-4178 lists others on p. 12; these are in no NSS parameter set, so they are left here rather than as applicability limits that would refuse every StreamStats basin. 96-4072 limits its equations to about 45 mi of Marble Falls. Also not stored: SIR 2008-5084's other five equation sets (Tables 4-7, 9), which NSS does not serve, and each report's R2. Limits are the ones each report recommends where it gives both: 86-4069 uses 2.0-20 mi2 (data 2.31-51.3), 82-18 uses 3-40 mi2 and 12-33 (data 1.25-66.4, 10-36). CHECKS: 80-17's Table 10 per-gage estimates (22 gages, 132 values) reproduce to its rounding from Table 5. 98-4015 and 98-4178 refit from their Table 1 gage data. No report prints per-gage regression estimates except 80-17. 96-4072 has no worked example, no matrix and no per-gage estimates, so its check is NSS and the MSE alone. NSS DIFFERENCES: none in any AEP, flow, coefficient or limit, only the two citations above and NSS's form for URBAN and IMPERV, (100 + x), which folds the 100 into the constant and gives the same flow.",
+ "notes": "SUPERSEDED IN PRACTICE: SIR 2008-5084 (Table 8, region Statewide) is followed by Asquith and Roussel, 2009, SIR 2009-5087, whose authors prefer its OmegaEM equations. NSS's peak-flow snapshot does not serve that report; its Table 3 is stored as region Statewide OmegaEM, which no NSS region names, so it is used only when the caller asks for it with region= (it is in no region_preference tier; whether it should come before Statewide is the owner's call). NSS does not serve the 96 equations of Asquith and Slade, 1997, WRI 96-4307, either, and they are not stored. STATEWIDE OMEGAEM: it needs MCSLOPE, the report's dimensionless main-channel slope: the fall between the two ends of the main channel over its whole length, in feet per foot. It is not a 10-85 slope and StreamStats returns no channel slope in Texas (none at any of 8 Texas gages of the cross-border run, 2026-11-17; OmegaEM and PRECIPCENT are there), so the caller must supply it. Area is contributing drainage area. P is mean annual precipitation at the approximate center of the watershed (1951-80; any authoritative 30-year value serves, p. 3). OmegaEM's limits are the least and greatest values of figure 2, which the authors put at +/-0.10. The coefficients are Table 3's; Appendix 3's unrounded ones give the same flow within 2 percent at the 502 stations checked. Intervals are 98-4015's form, from Appendix 3's matrices (order constant, A^lambda, log10 P, log10 S, OmegaEM), and the report says they are too narrow because OmegaEM's own uncertainty is not in them (p. 24). Stations of 10,000 mi2 or more were left out (p. 3). The 250-year equation (AEP 0.004) has no counterpart in the other sets. What NSS serves is kept. CITATIONS NSS GETS WRONG: NSS cites WRI 98-4015 for GC1489, but that report excludes urban basins and has no impervious-cover equation; the set is Veenhuis and Gannett, WRI 86-4069, Table 8. NSS cites WRI 98-4178 for GC1493, but the set is WRI 98-4015's large-basin equations. Seven reports behind NSS's regions, then: 98-4015 (2 regions), 98-4178 (3), 86-4069, 82-18, 96-4072, 80-17 and 2008-5084 (1 each). All are kept because each is the only set for its area or land use; the regional sets and the Statewide set overlap; region_preference puts the regional sets first and Statewide elsewhere (an owner's decision of 2026-11-08), and the Colorado sets split at 32 mi2 by region_limits. region= overrides. INTERVALS: 98-4015 and 98-4178 give the prediction variance as s^2(1 + h0), with h0 = x'[X'WX]^-1 x from an unscaled matrix. flowfreq computes model_error_variance + x'Ux, so model_error_variance = s^2 and covariance = s^2 times the printed matrix, reordered to intercept first (98-4015 prints Area, Slope, Constant). SIR 2008-5084 is the same; its matrices are printed only in Appendix 2's R output, as tmp in finalQt, in the order constant, A^lambda, log10 P, and s times the root of their diagonal gives the printed Std. Error columns. No covariance is printed for 86-4069, 82-18, 96-4072 or 80-17, so intervals use sep_log. 86-4069 prints an average standard error of prediction; 82-18, 96-4072 and 80-17 print only a standard error of estimate, stored as sep_log because it is the only error they give. It omits coefficient sampling error, so those intervals are narrower than a true SEP. 96-4072's 0.036 log10^2 mean square error for its 100-year equation agrees with its 46 percent (0.1887^2). REPORT ERRORS: (1) 98-4178 Table 3's region 3 matrix is not the matrix of region 3's printed equation. It equals, to all five printed decimals, the constant and CDA block of a three-term fit that also has stream slope, with 08065800 Bedias Creek (region 2 in Table 1) in region 3. The two-term fit gives 0.16508, -0.06928, 0.03398 and reproduces Table 2's region 3 equations. The report's example uses the printed matrix (h0 = 0.29634, where the two-term matrix gives 0.0605), so it is stored as printed and region 3 intervals are wider than the fit supports. (2) 98-4178 Table 1 counts 80 stations in region 2 and 41 in region 3 after the exclusions the text lists; Table 2 says 79 and 42, and refits agree with Table 2 once Bedias Creek moves. (3) 98-4178 p. 19 gives the upper limit as 9,670 in the computation and 9,760 in the sentence after it; 9,670 is right. (4) 98-4015 p. I-1 prints a large-basin weight of 0.070 where the computation uses 0.70. (5) 2008-5084 Table 8 prints s = 0.3548 and adjusted R2 0.7458 for Q100; Appendix 2 prints 0.3545 and 0.7461, and 0.12386 / sqrt(0.12205) = 0.3545, so 0.3545 is stored. (6) 82-18's effects table (p. 53) uses urbanization indexes 36 and 9, the index's limits. Fifteen of its 16 flows reproduce to 0.34 percent; Turtle Creek's 5-year minimum prints 1,960 where the equation gives 1,942 (0.9 percent), and that cell is pinned. NOT STORED, BECAUSE NO FIELD OR NO SEPARATE REGION FITS: 98-4015's equation 3 weights the two Colorado sets by log10 A from 10 to 100 mi2 (the example reproduces in the test, outside the small set's calibrated range), and its equations 4 and 5 weight their limits. 80-17 caps K at KMAX from its figure 2. Shape-factor limits apply to 98-4015 (0.30-3.93, 3.79-18.43) and 96-4072 (1.0-15), and 98-4178 lists others on p. 12; these are in no NSS parameter set, so they are left here rather than as applicability limits that would refuse every StreamStats basin. 96-4072 limits its equations to about 45 mi of Marble Falls. Also not stored: SIR 2008-5084's other five equation sets (Tables 4-7, 9), which NSS does not serve, and each report's R2. Limits are the ones each report recommends where it gives both: 86-4069 uses 2.0-20 mi2 (data 2.31-51.3), 82-18 uses 3-40 mi2 and 12-33 (data 1.25-66.4, 10-36). CHECKS: 80-17's Table 10 per-gage estimates (22 gages, 132 values) reproduce to its rounding from Table 5. 98-4015 and 98-4178 refit from their Table 1 gage data. No report prints per-gage regression estimates except 80-17. 96-4072 has no worked example, no matrix and no per-gage estimates, so its check is NSS and the MSE alone. NSS DIFFERENCES: none in any AEP, flow, coefficient or limit, only the two citations above and NSS's form for URBAN and IMPERV, (100 + x), which folds the 100 into the constant and gives the same flow.",
  "equations": [
   {
    "region_code": "Austin urban",
@@ -3014,6 +3026,798 @@
     ]
    ],
    "n_sites": 656
+  },
+  {
+   "region_code": "Statewide OmegaEM",
+   "region_name": "Texas statewide, undeveloped watersheds, OmegaEM equations (SIR 2009-5087 Table 3)",
+   "aep": 0.5,
+   "intercept": 50.98,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "power",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 9329.0,
+     "exponent": -0.0058
+    },
+    {
+     "code": "PRECIPCENT",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 8.0,
+     "maximum": 57.0
+    },
+    {
+     "code": "MCSLOPE",
+     "transform": "log10",
+     "units": "ft/ft",
+     "minimum": 0.00023,
+     "maximum": 0.0703
+    },
+    {
+     "code": "OmegaEM",
+     "transform": "identity",
+     "units": "dimensionless",
+     "minimum": -0.503,
+     "maximum": 0.386
+    }
+   ],
+   "coefficients": [
+    -50.3,
+    1.398,
+    0.27,
+    0.776
+   ],
+   "citation": {
+    "publication": "Asquith, W.H., and Roussel, M.C., 2009, Regression equations for estimation of annual peak-streamflow frequency for undeveloped watersheds in Texas using an L-moment-based, PRESS-minimized, residual-adjusted approach: U.S. Geological Survey Scientific Investigations Report 2009-5087, 48 p.",
+    "table": "Table 3, p. 17; matrices and residual standard errors, Appendix 3, pp. 43-48; limits, Table 1, p. 4, and figure 2, p. 13",
+    "year": 2009,
+    "url": "https://doi.org/10.3133/sir20095087"
+   },
+   "model_error_variance": 0.08386816,
+   "covariance": [
+    [
+     1.629172169,
+     -1.643163509,
+     0.06807112198,
+     0.05014619191,
+     -0.009167561182
+    ],
+    [
+     -1.643163509,
+     1.669347174,
+     -0.07580380701,
+     -0.05016965445,
+     0.009078299712
+    ],
+    [
+     0.06807112198,
+     -0.07580380701,
+     0.009604490267,
+     0.003275243622,
+     -0.0009327834368
+    ],
+    [
+     0.05014619191,
+     -0.05016965445,
+     0.003275243622,
+     0.002375443688,
+     -0.0006453398275
+    ],
+    [
+     -0.009167561182,
+     0.009078299712,
+     -0.0009327834368,
+     -0.0006453398275,
+     0.004394069953
+    ]
+   ],
+   "n_sites": 638
+  },
+  {
+   "region_code": "Statewide OmegaEM",
+   "region_name": "Texas statewide, undeveloped watersheds, OmegaEM equations (SIR 2009-5087 Table 3)",
+   "aep": 0.2,
+   "intercept": 16.62,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "power",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 9329.0,
+     "exponent": -0.0215
+    },
+    {
+     "code": "PRECIPCENT",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 8.0,
+     "maximum": 57.0
+    },
+    {
+     "code": "MCSLOPE",
+     "transform": "log10",
+     "units": "ft/ft",
+     "minimum": 0.00023,
+     "maximum": 0.0703
+    },
+    {
+     "code": "OmegaEM",
+     "transform": "identity",
+     "units": "dimensionless",
+     "minimum": -0.503,
+     "maximum": 0.386
+    }
+   ],
+   "coefficients": [
+    -15.32,
+    1.308,
+    0.372,
+    0.885
+   ],
+   "citation": {
+    "publication": "Asquith, W.H., and Roussel, M.C., 2009, Regression equations for estimation of annual peak-streamflow frequency for undeveloped watersheds in Texas using an L-moment-based, PRESS-minimized, residual-adjusted approach: U.S. Geological Survey Scientific Investigations Report 2009-5087, 48 p.",
+    "table": "Table 3, p. 17; matrices and residual standard errors, Appendix 3, pp. 43-48; limits, Table 1, p. 4, and figure 2, p. 13",
+    "year": 2009,
+    "url": "https://doi.org/10.3133/sir20095087"
+   },
+   "model_error_variance": 0.06780816,
+   "covariance": [
+    [
+     0.1050773067,
+     -0.1008813642,
+     0.0106522734,
+     0.01127995455,
+     -0.002239178012
+    ],
+    [
+     -0.1008813642,
+     0.1063812793,
+     -0.01673453787,
+     -0.01123122286,
+     0.002174044205
+    ],
+    [
+     0.0106522734,
+     -0.01673453787,
+     0.007502419589,
+     0.00253283481,
+     -0.0007232242044
+    ],
+    [
+     0.01127995455,
+     -0.01123122286,
+     0.00253283481,
+     0.001872132441,
+     -0.0005031426499
+    ],
+    [
+     -0.002239178012,
+     0.002174044205,
+     -0.0007232242044,
+     -0.0005031426499,
+     0.003477687951
+    ]
+   ],
+   "n_sites": 638
+  },
+  {
+   "region_code": "Statewide OmegaEM",
+   "region_name": "Texas statewide, undeveloped watersheds, OmegaEM equations (SIR 2009-5087 Table 3)",
+   "aep": 0.1,
+   "intercept": 13.62,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "power",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 9329.0,
+     "exponent": -0.0289
+    },
+    {
+     "code": "PRECIPCENT",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 8.0,
+     "maximum": 57.0
+    },
+    {
+     "code": "MCSLOPE",
+     "transform": "log10",
+     "units": "ft/ft",
+     "minimum": 0.00023,
+     "maximum": 0.0703
+    },
+    {
+     "code": "OmegaEM",
+     "transform": "identity",
+     "units": "dimensionless",
+     "minimum": -0.503,
+     "maximum": 0.386
+    }
+   ],
+   "coefficients": [
+    -11.97,
+    1.203,
+    0.403,
+    0.918
+   ],
+   "citation": {
+    "publication": "Asquith, W.H., and Roussel, M.C., 2009, Regression equations for estimation of annual peak-streamflow frequency for undeveloped watersheds in Texas using an L-moment-based, PRESS-minimized, residual-adjusted approach: U.S. Geological Survey Scientific Investigations Report 2009-5087, 48 p.",
+    "table": "Table 3, p. 17; matrices and residual standard errors, Appendix 3, pp. 43-48; limits, Table 1, p. 4, and figure 2, p. 13",
+    "year": 2009,
+    "url": "https://doi.org/10.3133/sir20095087"
+   },
+   "model_error_variance": 0.06436369,
+   "covariance": [
+    [
+     0.05926314626,
+     -0.05369823073,
+     0.005980159004,
+     0.008038177147,
+     -0.00153728226
+    ],
+    [
+     -0.05369823073,
+     0.05744303122,
+     -0.0117886315,
+     -0.007965882756,
+     0.001436184957
+    ],
+    [
+     0.005980159004,
+     -0.0117886315,
+     0.007050212334,
+     0.002339319103,
+     -0.0006418028567
+    ],
+    [
+     0.008038177147,
+     -0.007965882756,
+     0.002339319103,
+     0.001742190439,
+     -0.0004622225619
+    ],
+    [
+     -0.00153728226,
+     0.001436184957,
+     -0.0006418028567,
+     -0.0004622225619,
+     0.003356260963
+    ]
+   ],
+   "n_sites": 638
+  },
+  {
+   "region_code": "Statewide OmegaEM",
+   "region_name": "Texas statewide, undeveloped watersheds, OmegaEM equations (SIR 2009-5087 Table 3)",
+   "aep": 0.04,
+   "intercept": 11.79,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "power",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 9329.0,
+     "exponent": -0.0374
+    },
+    {
+     "code": "PRECIPCENT",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 8.0,
+     "maximum": 57.0
+    },
+    {
+     "code": "MCSLOPE",
+     "transform": "log10",
+     "units": "ft/ft",
+     "minimum": 0.00023,
+     "maximum": 0.0703
+    },
+    {
+     "code": "OmegaEM",
+     "transform": "identity",
+     "units": "dimensionless",
+     "minimum": -0.503,
+     "maximum": 0.386
+    }
+   ],
+   "coefficients": [
+    -9.819,
+    1.14,
+    0.446,
+    0.945
+   ],
+   "citation": {
+    "publication": "Asquith, W.H., and Roussel, M.C., 2009, Regression equations for estimation of annual peak-streamflow frequency for undeveloped watersheds in Texas using an L-moment-based, PRESS-minimized, residual-adjusted approach: U.S. Geological Survey Scientific Investigations Report 2009-5087, 48 p.",
+    "table": "Table 3, p. 17; matrices and residual standard errors, Appendix 3, pp. 43-48; limits, Table 1, p. 4, and figure 2, p. 13",
+    "year": 2009,
+    "url": "https://doi.org/10.3133/sir20095087"
+   },
+   "model_error_variance": 0.06953769,
+   "covariance": [
+    [
+     0.04254353772,
+     -0.03570884298,
+     0.003768746771,
+     0.006863304047,
+     -0.001318095954
+    ],
+    [
+     -0.03570884298,
+     0.03908205373,
+     -0.01012807005,
+     -0.006786344355,
+     0.001195715182
+    ],
+    [
+     0.003768746771,
+     -0.01012807005,
+     0.007627837118,
+     0.00250486699,
+     -0.0006749721079
+    ],
+    [
+     0.006863304047,
+     -0.006786344355,
+     0.00250486699,
+     0.001867674014,
+     -0.000491268412
+    ],
+    [
+     -0.001318095954,
+     0.001195715182,
+     -0.0006749721079,
+     -0.000491268412,
+     0.003614810144
+    ]
+   ],
+   "n_sites": 638
+  },
+  {
+   "region_code": "Statewide OmegaEM",
+   "region_name": "Texas statewide, undeveloped watersheds, OmegaEM equations (SIR 2009-5087 Table 3)",
+   "aep": 0.02,
+   "intercept": 11.17,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "power",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 9329.0,
+     "exponent": -0.0424
+    },
+    {
+     "code": "PRECIPCENT",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 8.0,
+     "maximum": 57.0
+    },
+    {
+     "code": "MCSLOPE",
+     "transform": "log10",
+     "units": "ft/ft",
+     "minimum": 0.00023,
+     "maximum": 0.0703
+    },
+    {
+     "code": "OmegaEM",
+     "transform": "identity",
+     "units": "dimensionless",
+     "minimum": -0.503,
+     "maximum": 0.386
+    }
+   ],
+   "coefficients": [
+    -8.997,
+    1.105,
+    0.476,
+    0.961
+   ],
+   "citation": {
+    "publication": "Asquith, W.H., and Roussel, M.C., 2009, Regression equations for estimation of annual peak-streamflow frequency for undeveloped watersheds in Texas using an L-moment-based, PRESS-minimized, residual-adjusted approach: U.S. Geological Survey Scientific Investigations Report 2009-5087, 48 p.",
+    "table": "Table 3, p. 17; matrices and residual standard errors, Appendix 3, pp. 43-48; limits, Table 1, p. 4, and figure 2, p. 13",
+    "year": 2009,
+    "url": "https://doi.org/10.3133/sir20095087"
+   },
+   "model_error_variance": 0.07845601,
+   "covariance": [
+    [
+     0.04010846816,
+     -0.03205813777,
+     0.003091427896,
+     0.006953970414,
+     -0.001364091776
+    ],
+    [
+     -0.03205813777,
+     0.035566474,
+     -0.01028985551,
+     -0.006869179081,
+     0.001225132374
+    ],
+    [
+     0.003091427896,
+     -0.01028985551,
+     0.008619058868,
+     0.002827443036,
+     -0.0007624984269
+    ],
+    [
+     0.006953970414,
+     -0.006869179081,
+     0.002827443036,
+     0.00210867238,
+     -0.0005552943785
+    ],
+    [
+     -0.001364091776,
+     0.001225132374,
+     -0.0007624984269,
+     -0.0005552943785,
+     0.004048610439
+    ]
+   ],
+   "n_sites": 638
+  },
+  {
+   "region_code": "Statewide OmegaEM",
+   "region_name": "Texas statewide, undeveloped watersheds, OmegaEM equations (SIR 2009-5087 Table 3)",
+   "aep": 0.01,
+   "intercept": 10.82,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "power",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 9329.0,
+     "exponent": -0.0467
+    },
+    {
+     "code": "PRECIPCENT",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 8.0,
+     "maximum": 57.0
+    },
+    {
+     "code": "MCSLOPE",
+     "transform": "log10",
+     "units": "ft/ft",
+     "minimum": 0.00023,
+     "maximum": 0.0703
+    },
+    {
+     "code": "OmegaEM",
+     "transform": "identity",
+     "units": "dimensionless",
+     "minimum": -0.503,
+     "maximum": 0.386
+    }
+   ],
+   "coefficients": [
+    -8.448,
+    1.071,
+    0.507,
+    0.969
+   ],
+   "citation": {
+    "publication": "Asquith, W.H., and Roussel, M.C., 2009, Regression equations for estimation of annual peak-streamflow frequency for undeveloped watersheds in Texas using an L-moment-based, PRESS-minimized, residual-adjusted approach: U.S. Geological Survey Scientific Investigations Report 2009-5087, 48 p.",
+    "table": "Table 3, p. 17; matrices and residual standard errors, Appendix 3, pp. 43-48; limits, Table 1, p. 4, and figure 2, p. 13",
+    "year": 2009,
+    "url": "https://doi.org/10.3133/sir20095087"
+   },
+   "model_error_variance": 0.091204,
+   "covariance": [
+    [
+     0.04111334042,
+     -0.03155546493,
+     0.002765082697,
+     0.00749927617,
+     -0.001460847347
+    ],
+    [
+     -0.03155546493,
+     0.03543153825,
+     -0.01114515799,
+     -0.00741676683,
+     0.001315024692
+    ],
+    [
+     0.002765082697,
+     -0.01114515799,
+     0.01006446966,
+     0.003317784272,
+     -0.0009011726786
+    ],
+    [
+     0.00749927617,
+     -0.00741676683,
+     0.003317784272,
+     0.002468482318,
+     -0.0006475535074
+    ],
+    [
+     -0.001460847347,
+     0.001315024692,
+     -0.0009011726786,
+     -0.0006475535074,
+     0.004690116815
+    ]
+   ],
+   "n_sites": 638
+  },
+  {
+   "region_code": "Statewide OmegaEM",
+   "region_name": "Texas statewide, undeveloped watersheds, OmegaEM equations (SIR 2009-5087 Table 3)",
+   "aep": 0.005,
+   "intercept": 10.61,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "power",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 9329.0,
+     "exponent": -0.0504
+    },
+    {
+     "code": "PRECIPCENT",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 8.0,
+     "maximum": 57.0
+    },
+    {
+     "code": "MCSLOPE",
+     "transform": "log10",
+     "units": "ft/ft",
+     "minimum": 0.00023,
+     "maximum": 0.0703
+    },
+    {
+     "code": "OmegaEM",
+     "transform": "identity",
+     "units": "dimensionless",
+     "minimum": -0.503,
+     "maximum": 0.386
+    }
+   ],
+   "coefficients": [
+    -8.058,
+    1.034,
+    0.531,
+    0.975
+   ],
+   "citation": {
+    "publication": "Asquith, W.H., and Roussel, M.C., 2009, Regression equations for estimation of annual peak-streamflow frequency for undeveloped watersheds in Texas using an L-moment-based, PRESS-minimized, residual-adjusted approach: U.S. Geological Survey Scientific Investigations Report 2009-5087, 48 p.",
+    "table": "Table 3, p. 17; matrices and residual standard errors, Appendix 3, pp. 43-48; limits, Table 1, p. 4, and figure 2, p. 13",
+    "year": 2009,
+    "url": "https://doi.org/10.3133/sir20095087"
+   },
+   "model_error_variance": 0.10876804,
+   "covariance": [
+    [
+     0.044583975,
+     -0.0329124323,
+     0.002496361662,
+     0.008413355601,
+     -0.001607682724
+    ],
+    [
+     -0.0329124323,
+     0.03724438054,
+     -0.01246612265,
+     -0.008307354674,
+     0.001439690541
+    ],
+    [
+     0.002496361662,
+     -0.01246612265,
+     0.01197970018,
+     0.003953438285,
+     -0.001070028761
+    ],
+    [
+     0.008413355601,
+     -0.008307354674,
+     0.003953438285,
+     0.002946565904,
+     -0.0007648969927
+    ],
+    [
+     -0.001607682724,
+     0.001439690541,
+     -0.001070028761,
+     -0.0007648969927,
+     0.005585961618
+    ]
+   ],
+   "n_sites": 638
+  },
+  {
+   "region_code": "Statewide OmegaEM",
+   "region_name": "Texas statewide, undeveloped watersheds, OmegaEM equations (SIR 2009-5087 Table 3)",
+   "aep": 0.004,
+   "intercept": 10.56,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "power",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 9329.0,
+     "exponent": -0.0516
+    },
+    {
+     "code": "PRECIPCENT",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 8.0,
+     "maximum": 57.0
+    },
+    {
+     "code": "MCSLOPE",
+     "transform": "log10",
+     "units": "ft/ft",
+     "minimum": 0.00023,
+     "maximum": 0.0703
+    },
+    {
+     "code": "OmegaEM",
+     "transform": "identity",
+     "units": "dimensionless",
+     "minimum": -0.503,
+     "maximum": 0.386
+    }
+   ],
+   "coefficients": [
+    -7.943,
+    1.021,
+    0.541,
+    0.977
+   ],
+   "citation": {
+    "publication": "Asquith, W.H., and Roussel, M.C., 2009, Regression equations for estimation of annual peak-streamflow frequency for undeveloped watersheds in Texas using an L-moment-based, PRESS-minimized, residual-adjusted approach: U.S. Geological Survey Scientific Investigations Report 2009-5087, 48 p.",
+    "table": "Table 3, p. 17; matrices and residual standard errors, Appendix 3, pp. 43-48; limits, Table 1, p. 4, and figure 2, p. 13",
+    "year": 2009,
+    "url": "https://doi.org/10.3133/sir20095087"
+   },
+   "model_error_variance": 0.11498881,
+   "covariance": [
+    [
+     0.04590058579,
+     -0.03352649621,
+     0.002443752539,
+     0.008753213784,
+     -0.00170356359
+    ],
+    [
+     -0.03352649621,
+     0.03809369536,
+     -0.01300872317,
+     -0.008654645663,
+     0.001517355713
+    ],
+    [
+     0.002443752539,
+     -0.01300872317,
+     0.0127017203,
+     0.004199152164,
+     -0.001133437801
+    ],
+    [
+     0.008753213784,
+     -0.008654645663,
+     0.004199152164,
+     0.003124927621,
+     -0.0008149805461
+    ],
+    [
+     -0.00170356359,
+     0.001517355713,
+     -0.001133437801,
+     -0.0008149805461,
+     0.005904374468
+    ]
+   ],
+   "n_sites": 638
+  },
+  {
+   "region_code": "Statewide OmegaEM",
+   "region_name": "Texas statewide, undeveloped watersheds, OmegaEM equations (SIR 2009-5087 Table 3)",
+   "aep": 0.002,
+   "intercept": 10.4,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "power",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 9329.0,
+     "exponent": -0.0554
+    },
+    {
+     "code": "PRECIPCENT",
+     "transform": "log10",
+     "units": "in",
+     "minimum": 8.0,
+     "maximum": 57.0
+    },
+    {
+     "code": "MCSLOPE",
+     "transform": "log10",
+     "units": "ft/ft",
+     "minimum": 0.00023,
+     "maximum": 0.0703
+    },
+    {
+     "code": "OmegaEM",
+     "transform": "identity",
+     "units": "dimensionless",
+     "minimum": -0.503,
+     "maximum": 0.386
+    }
+   ],
+   "coefficients": [
+    -7.605,
+    0.988,
+    0.569,
+    0.976
+   ],
+   "citation": {
+    "publication": "Asquith, W.H., and Roussel, M.C., 2009, Regression equations for estimation of annual peak-streamflow frequency for undeveloped watersheds in Texas using an L-moment-based, PRESS-minimized, residual-adjusted approach: U.S. Geological Survey Scientific Investigations Report 2009-5087, 48 p.",
+    "table": "Table 3, p. 17; matrices and residual standard errors, Appendix 3, pp. 43-48; limits, Table 1, p. 4, and figure 2, p. 13",
+    "year": 2009,
+    "url": "https://doi.org/10.3133/sir20095087"
+   },
+   "model_error_variance": 0.13682601,
+   "covariance": [
+    [
+     0.05051480147,
+     -0.03565130444,
+     0.002220214093,
+     0.009927619131,
+     -0.001935168776
+    ],
+    [
+     -0.03565130444,
+     0.04090241852,
+     -0.01478952342,
+     -0.009838784707,
+     0.001735432903
+    ],
+    [
+     0.002220214093,
+     -0.01478952342,
+     0.01520049402,
+     0.005065814724,
+     -0.001387677216
+    ],
+    [
+     0.009927619131,
+     -0.009838784707,
+     0.005065814724,
+     0.003759769548,
+     -0.0009855941457
+    ],
+    [
+     -0.001935168776,
+     0.001735432903,
+     -0.001387677216,
+     -0.0009855941457,
+     0.007025120635
+    ]
+   ],
+   "n_sites": 638
   }
  ],
  "region_preference": {
