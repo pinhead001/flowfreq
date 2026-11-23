@@ -84,8 +84,8 @@ Owner's:
 5. **MD** stays at the Third Edition, with a caution on every estimate that the Sixth (2023) replaces it for state
    practice (`region_cautions`). A Piedmont boundary basin still needs `region=`.
 6. **TX:** the regional sets come before Statewide, and the Colorado sets split at 32 mi2. SIR 2009-5087 (the authors'
-   preferred report, not in NSS) is stored as region `Statewide OmegaEM` (2026-11-23), used only with `region=`. Your
-   call: whether it should come before Statewide. **It needs a channel slope that StreamStats does not return in
+   preferred report, not in NSS) is stored as region `Statewide OmegaEM` (2026-11-23), used only with `region=`; the
+   owner left it out of the order (2026-11-23). **It needs a channel slope that StreamStats does not return in
    Texas** (none at the 8 gages saved from the cross-border run; OmegaEM is there), so a StreamStats basin can't run it
    until a slope is supplied. The slope is the main channel's fall over its whole length, not 10-85.
 7. **LA's southern gap** uses the 1998 Non-Pine Hills set (TR 60, NSS GC879) when NSS locates no current region,
