@@ -14,7 +14,7 @@ import numpy as np
 import pandas as pd
 
 from .blocks import Block, Figure, Heading, Paragraph, Table
-from .daily import _STATION_OPTIONS, _daily_frame, _label, _record_table
+from .daily import _STATION_OPTIONS, _daily_frame, _drainage_area, _label, _record_table
 from .sections import SECTION_KINDS, SectionContent, SectionKind, _figure_png, _version, cfs
 from .spec import ReportError
 
@@ -109,14 +109,21 @@ def _flag(owner: str, name: str, value: Any) -> bool:
     return value
 
 
-def _log_flow_axis(ax: Any) -> None:
-    """A log flow axis with plain numbers at 1, 2 and 5 times each power of ten."""
+def _flow_axis(ax: Any, low: float, high: float) -> bool:
+    """Make the flow axis log, with plain numbers at 1, 2 and 5 times each power of ten.
+
+    It stays linear, and False is returned, where the flows reach zero or span less than a
+    factor of five, over which such an axis could have a single label.
+    """
     from matplotlib.ticker import FuncFormatter, LogLocator, NullFormatter
 
+    if low <= 0 or high < 5.0 * low:
+        return False
     ax.set_yscale("log")
     ax.yaxis.set_major_locator(LogLocator(subs=(1.0, 2.0, 5.0)))
     ax.yaxis.set_major_formatter(FuncFormatter(lambda v, _: f"{v:,.0f}" if v >= 1 else f"{v:g}"))
     ax.yaxis.set_minor_formatter(NullFormatter())
+    return True
 
 
 # -- monthly statistics ----------------------------------------------------------------------
@@ -171,8 +178,7 @@ def _monthly_figure(complete: pd.DataFrame, label: str) -> bytes:
     ax.set_xlim(-0.6, len(_MONTHS) - 0.4)
     ax.set_xticks(range(len(_MONTHS)))
     ax.set_xticklabels([name[:3] for _, name in _MONTHS])
-    if all(means[i].min() > 0 for i in present):
-        _log_flow_axis(ax)
+    _flow_axis(ax, min(means[i].min() for i in present), max(means[i].max() for i in present))
     ax.set_ylabel("Monthly mean flow (cfs)")
     if label:
         ax.set_title(label)
@@ -225,7 +231,7 @@ def _build_monthly_statistics(given: Dict[str, Any]) -> SectionContent:
         f"The computation was made with flowfreq {_version()}.",
     ]
     if partial:
-        method.append(f"{partial} month(s) with too few days of record were left out.")
+        method.append(f"{partial} month(s) with too few days of record, or none, were left out.")
     if complete.groupby("month").size().nunique() > 1:
         method.append("The months do not all rest on the same number of years.")
     method.extend(_negative_note(owner, options, frame))
@@ -296,6 +302,9 @@ def _build_summary_hydrograph(given: Dict[str, Any]) -> SectionContent:
         "curve joins one date's statistic to the next and is not the flow of any one year.",
         f"The computation was made with flowfreq {_version()}.",
     ]
+    leap = int(counts.get(Hydrograph.day_of_water_year(2, 29), 0))
+    if leap:
+        method.append(f"February 29 rests on {leap} years, the leap years with a value on it.")
     method.extend(_negative_note(owner, options, frame))
     figure = Hydrograph.plot_summary_hydrograph(
         frame,
@@ -332,19 +341,6 @@ def _build_summary_hydrograph(given: Dict[str, Any]) -> SectionContent:
 # -- baseflow --------------------------------------------------------------------------------
 
 
-def _drainage_area(owner: str, options: Dict[str, Any]) -> Optional[float]:
-    value = options.get("drainage_area_sqmi")
-    if value is None:
-        return None
-    try:
-        area = float(value)
-    except (TypeError, ValueError):
-        area = math.nan
-    if isinstance(value, bool) or not (math.isfinite(area) and area > 0):
-        raise ReportError(f"{owner}: drainage_area_sqmi must be a positive number")
-    return area
-
-
 def _typical_year(means: pd.Series) -> int:
     """The year whose mean flow is nearest the median of them, the earliest on a tie."""
     means = means.sort_index()
@@ -364,13 +360,12 @@ def _separated_figure(year: int, days: pd.DataFrame, label: str) -> bytes:
     days = days.reindex(pd.date_range(first, last, freq="D"))
     fig, ax = plt.subplots(figsize=(8, 5))
     lowest = float(days[["flow", "base"]].min().min())
-    floor = 0.8 * lowest
+    log = _flow_axis(ax, lowest, float(days["flow"].max()))
+    floor = 0.8 * lowest if log else 0.0
     ax.fill_between(
         days.index, floor, days["base"], color="C0", alpha=0.4, linewidth=0, label="Baseflow"
     )
     ax.plot(days.index, days["flow"], color="black", linewidth=0.9, label="Streamflow")
-    if lowest > 0:
-        _log_flow_axis(ax)
     ax.set_ylim(bottom=floor)  # after the curves: a limit set first stops the autoscaling
     ax.set_xlim(date2num(first), date2num(last))
     ax.xaxis.set_major_locator(MonthLocator())
@@ -458,7 +453,7 @@ def _build_baseflow(given: Dict[str, Any]) -> SectionContent:
     )
     text.append(f"The computation was made with flowfreq {_version()}.")
     if left_out:
-        text.append(f"{left_out} water year(s) with too few days were left out.")
+        text.append(f"{left_out} water year(s) with too few days, or none, were left out.")
     text.extend(_negative_note(owner, options, frame))
     cautions = (
         "The separation is a rule applied to the hydrograph, not a measurement of groundwater "
