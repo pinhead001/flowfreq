@@ -45,6 +45,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Maryland averages a basin's regions in flow**, weighted by drainage area (`weighting_space` is `linear`), as the Third
+  Edition says (p. 2-11, in words only). It averaged logarithms.
 - **A report fits each gage once.** `flowfreq.reporting.gaged` memoises the Bulletin 17C fit of a gage that
   carries its peaks (the last `FIT_CACHE_SIZE` fits, keyed on the options); `gaged.clear_fit_cache()` forgets
   them.
