@@ -22,6 +22,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   only when the caller names the region and supplies the two ecoregion percentages. An estimate carries a caution:
   the set is not valid in the Middle Atlantic or Southern Coastal Plain, and it estimates high at its South Carolina
   gages (observed flow 0.69 of the equations' at 10 percent AEP).
+- **Baseflow method `ih_smoothed_minima_log`**: the turning points of `ih_smoothed_minima` joined through the logarithms
+  of their flows, as the USGS BFI program does. On 23 gages its mean annual index is 0.001 below the program's
+  published one on average (0.033 at most), where the default is 0.016 above it (0.061 at most). The default method is unchanged.
 - **Report sections `monthly_statistics`, `summary_hydrograph` and `baseflow`**, from a gage's daily mean flows
   stored in the specification, as `low_flow` and `flow_duration` are. Monthly statistics are of the monthly mean
   flows of complete months, with box plots; the summary hydrograph gives the percentiles of the flow on each date

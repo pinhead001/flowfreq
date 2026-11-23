@@ -186,7 +186,7 @@ class TestIhSmoothedMinima:
 class TestGapsInTheRecord:
     """Interpolated baseflow does not cross a gap too long for a complete year."""
 
-    METHODS = ("ih_smoothed_minima", "hysep_local_minimum")
+    METHODS = ("ih_smoothed_minima", "ih_smoothed_minima_log", "hysep_local_minimum")
 
     @pytest.mark.parametrize("method", METHODS)
     def test_a_long_gap_separates_as_two_records(self, method: str) -> None:
@@ -214,6 +214,55 @@ class TestGapsInTheRecord:
             bf = _interpolate_baseflow(gapped, positions, values)
             assert np.isnan(bf[20 : 20 + missing]).all()
             assert (not np.isnan(bf[10])) is bridged
+
+
+class TestLogInterpolation:
+    """``ih_smoothed_minima_log``: the same turning points, joined in logarithms."""
+
+    def test_the_line_between_turning_points_is_geometric(self) -> None:
+        flows = np.full(5, 100.0)
+        bf = _interpolate_baseflow(flows, np.array([0, 4]), np.array([1.0, 16.0]), log=True)
+        np.testing.assert_allclose(bf, [1.0, 2.0, 4.0, 8.0, 16.0])
+
+    def test_a_turning_point_of_zero_is_joined_straight(self) -> None:
+        flows = np.full(9, 100.0)
+        positions, values = np.array([0, 2, 4, 6, 8]), np.array([1.0, 4.0, 0.0, 4.0, 16.0])
+        bf = _interpolate_baseflow(flows, positions, values, log=True)
+        np.testing.assert_allclose(bf, [1.0, 2.0, 4.0, 2.0, 0.0, 2.0, 4.0, 8.0, 16.0])
+
+    def test_never_above_the_streamflow(self) -> None:
+        flows = np.array([1.0, 1.5, 100.0, 100.0, 16.0])
+        bf = _interpolate_baseflow(flows, np.array([0, 4]), np.array([1.0, 16.0]), log=True)
+        np.testing.assert_allclose(bf, [1.0, 1.5, 4.0, 8.0, 16.0])
+
+    def test_below_the_straight_lines_and_defined_on_the_same_days(self) -> None:
+        daily = _synthetic_daily(n_years=3)
+        straight = separate_baseflow(daily, "ih_smoothed_minima")
+        log = separate_baseflow(daily, "ih_smoothed_minima_log")
+        assert (straight.isna() == log.isna()).all()
+        assert (log.dropna() <= straight.dropna() + 1e-9).all()
+        assert (log.dropna() < straight.dropna() - 1e-6).any()
+
+    def test_block_days_and_factor_are_used(self) -> None:
+        daily = _synthetic_daily(n_years=3)
+        usual = separate_baseflow(daily, "ih_smoothed_minima_log")
+        assert not usual.equals(separate_baseflow(daily, "ih_smoothed_minima_log", block_days=7))
+        assert not usual.equals(separate_baseflow(daily, "ih_smoothed_minima_log", factor=0.7))
+
+    def test_against_the_usgs_programs_published_indexes(self) -> None:
+        """OFR 03-146's BFI_AVE, and what each method differs from it by
+        (``tests/fixtures/bfi/README.md``, where one of the gages is the method's worst of 23)."""
+        published = {"04131500": 0.544, "12065500": 0.525, "13077700": 0.660}
+        off = {}
+        for method in ("ih_smoothed_minima", "ih_smoothed_minima_log"):
+            for site, index in published.items():
+                path = Path(__file__).parent / "fixtures" / "bfi" / f"{site}_daily.csv.gz"
+                daily = pd.read_csv(path, parse_dates=["date"], index_col="date")
+                table = baseflow_index(daily, method=method)
+                mean = float(table.loc[table["complete"], "baseflow_index"].mean())
+                off[method, site] = round(mean - index, 3)
+        assert [off["ih_smoothed_minima", s] for s in published] == [0.015, 0.012, 0.049]
+        assert [off["ih_smoothed_minima_log", s] for s in published] == [-0.033, -0.002, 0.015]
 
 
 class TestHysep:

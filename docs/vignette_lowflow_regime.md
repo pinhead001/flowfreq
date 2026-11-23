@@ -297,9 +297,10 @@ Output:
 ```
 
 **Method notes:**
-- Five baseflow-separation methods are available in `BASEFLOW_METHODS`:
+- Six baseflow-separation methods are available in `BASEFLOW_METHODS`:
   `"ih_smoothed_minima"` (the default — UKIH/IH smoothed local minima),
-  `"lyne_hollick"` (recursive digital filter), and three HYSEP variants
+  `"ih_smoothed_minima_log"` (the same turning points joined through the logarithms of
+  their flows, as the USGS BFI program joins them), `"lyne_hollick"` (recursive digital filter), and three HYSEP variants
   (`"hysep_fixed"`, `"hysep_sliding"`, `"hysep_local_minimum"`, which require
   `drainage_area_sqmi=gage.drainage_area`). They are not directly comparable
   to each other: name the method when reporting a BFI value, and see the module

@@ -41,6 +41,14 @@ _METHOD_WORDS: Dict[str, Tuple[str, str]] = {
         "Institute of Hydrology, 1980, Low flow studies report: Wallingford, United Kingdom, "
         "Institute of Hydrology.",
     ),
+    "ih_smoothed_minima_log": (
+        "The turning points of the smoothed-minima method (Institute of Hydrology, 1980: the "
+        "lowest flow of each 5-day block, where 0.9 times it is no more than the lowest flow "
+        "of either neighboring block) were joined with straight lines through the logarithms "
+        "of their flows, never above the streamflow.",
+        "Institute of Hydrology, 1980, Low flow studies report: Wallingford, United Kingdom, "
+        "Institute of Hydrology.",
+    ),
     "hysep_fixed": (
         "The HYSEP fixed-interval method (Sloto and Crouse, 1996) gives every day of each "
         "interval the lowest flow in it.",
