@@ -236,14 +236,14 @@ CI should test the supported Python matrix.
 - **`lowflow.py`** / **`regime.py`** / **`subdaily.py`** — low-flow frequency, flow-regime and
   sub-daily metrics
 - **`reporting/`** — reports from a JSON specification: `spec` (`ReportSpec`, `SectionSpec`),
-  `sections` (the registry of section kinds; each kind's builder is in its own module, `gaged`, `regional`, `weighted`, `transposed`, `engine_check`, `comparison`, `future`, over `_base`; to replace a builder's helper in a test, patch it in the module that defines it. The kinds: `gaged_ffa`, `ungaged`, `weighted`, `transposed`, `engine_check`, `future_flow`, `comparison`, `text`), `summary` (`site_summary`: characteristics, a map, flows by method and a curve plot for one site), `daily` (`low_flow` and `flow_duration`, from a daily record stored in the spec), `blocks` (content blocks and
+  `sections` (the registry of section kinds; each kind's builder is in its own module, `gaged`, `regional`, `weighted`, `transposed`, `engine_check`, `comparison`, `future`, over `_base`; to replace a builder's helper in a test, patch it in the module that defines it. The kinds: `gaged_ffa`, `ungaged`, `weighted`, `transposed`, `engine_check`, `future_flow`, `comparison`, `text`), `summary` (`site_summary`: characteristics, a map, flows by method and a curve plot for one site), `daily` (`low_flow` and `flow_duration`, from a daily record stored in the spec), `regime_sections` (`monthly_statistics`, `summary_hydrograph` and `baseflow`, the same way), `blocks` (content blocks and
   the Markdown subset), `build` (`build_report`, Markdown output), `word` (DOCX through
   python-docx, the `report` extra), `session` (`ReportSession`: a report built a section at a
   time, stable section ids, files named inside one output directory). A section's tables and
   figures come from the analysis it runs; prose is a labeled draft `narrative` until marked
   reviewed; gaged fits are memoised on their options, so a report fits each gage once
   (`gaged.clear_fit_cache` forgets them). `report.py` (`HydroReport`) is the older single-gage Markdown report
-- **`mcp_server.py`** — `flowfreq-mcp`: `ReportSession` as twenty-four Model Context Protocol tools
+- **`mcp_server.py`** — `flowfreq-mcp`: `ReportSession` as twenty-seven Model Context Protocol tools
   for a chat client (the `mcp` extra, mcp 2.x; `docs/CHAT_REPORTS.md`). Tool calls take turns
   behind a lock and matplotlib is put on Agg, because mcp runs sync tools on worker threads.
   Tests drive it in process through `mcp.Client`

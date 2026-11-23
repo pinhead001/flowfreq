@@ -54,6 +54,9 @@ TOOLS = [
     "check_gage_against_reference",
     "low_flow_frequency",
     "flow_duration",
+    "monthly_statistics",
+    "summary_hydrograph",
+    "baseflow",
     "apply_future_change_factors",
     "extend_gage_record",
     "compare_estimates",
@@ -831,8 +834,48 @@ class TestDailyAndFutureTools:
         assert added["kind"] == "flow_duration"
         assert added["result"].count("| q") == 3
 
+    def test_monthly_statistics(self, chat, session, daily_flows):
+        added = chat.call("monthly_statistics", site_no="01234567", end_date="2010-09-30")
+        assert daily_flows == [("01234567", None, "2010-09-30")]
+        assert added["kind"] == "monthly_statistics"
+        assert "| October |" in added["result"] and "| September |" in added["result"]
+        assert session.spec.sections[0].options["annual_table"] is False
+
+    def test_summary_hydrograph(self, chat, daily_flows):
+        added = chat.call("summary_hydrograph", site_no="01234567", start_date="2000-10-01")
+        assert daily_flows == [("01234567", "2000-10-01", None)]
+        assert added["kind"] == "summary_hydrograph"
+        assert "| October 15 | 20 |" in added["result"]
+
+    def test_baseflow(self, chat, session, daily_flows):
+        added = chat.call(
+            "baseflow", site_no="01234567", method="hysep_sliding", drainage_area_sqmi=59.1
+        )
+        assert daily_flows == [("01234567", None, None)]
+        assert added["kind"] == "baseflow"
+        assert "| Separation method | hysep_sliding |" in added["result"]
+        options = session.spec.sections[0].options
+        assert options["drainage_area_sqmi"] == 59.1 and options["annual_table"] is True
+
+    def test_baseflow_takes_the_stations_own_drainage_area(self, chat, session, daily_flows):
+        chat.call("baseflow", site_no="01234567")
+        options = session.spec.sections[0].options
+        assert options["drainage_area_sqmi"] == 42.0
+        assert options["method"] == "ih_smoothed_minima"
+
+    def test_baseflow_refuses_an_unknown_method_in_words(self, chat, daily_flows):
+        refusal = chat.refusal("baseflow", site_no="01234567", method="eckhardt")
+        assert "method must be one of ih_smoothed_minima" in refusal
+        assert daily_flows == []
+
     def test_a_station_number_is_checked(self, chat, daily_flows):
-        for name in ("low_flow_frequency", "flow_duration"):
+        for name in (
+            "low_flow_frequency",
+            "flow_duration",
+            "monthly_statistics",
+            "summary_hydrograph",
+            "baseflow",
+        ):
             refusal = chat.refusal(name, site_no="Test Creek")
             assert "site_no is a USGS station number, all digits" in refusal
         assert daily_flows == []
