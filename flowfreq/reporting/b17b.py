@@ -18,6 +18,7 @@ from scipy.special import ndtr, ndtri
 
 from ..aep import same_aep
 from ..bulletin17b import (
+    AEP_RANGE,
     STANDARD_AEP,
     Bulletin17B,
     Bulletin17BError,
@@ -29,7 +30,7 @@ from ..bulletin17b import (
 )
 from ..regulation import RegulatedRecordError, classify_site, require_unregulated
 from . import gaged
-from ._base import BULLETIN_17C, SectionContent, _figure_png, _version, cfs
+from ._base import SectionContent, _figure_png, _version, cfs
 from .blocks import Block, Bullets, Figure, Heading, Paragraph, Table
 from .gaged import _peak_frame, _resolve_skew, _skew_sentence, _threshold_rows
 from .spec import ReportError
@@ -56,6 +57,7 @@ DEFAULT_AEP: Tuple[float, ...] = tuple(sorted({*STANDARD_AEP, 0.2, 0.04}, revers
 #: Generalized-skew MSE when none is given (Plate I).
 _PLATE_I_MSE = 0.302
 
+_REGIONAL = ("regional_skew", "regional_skew_se")
 _LOOKUPS = ("regional_skew_state", "regional_skew_region", "regional_skew_from_site")
 
 
@@ -116,8 +118,8 @@ def _aeps(value: Any) -> List[float]:
         aeps = [float(a) for a in value]
     except (TypeError, ValueError) as exc:
         raise ReportError(f"{_KIND}: aeps must be a list of numbers") from exc
-    if any(not 0.0 < a < 1.0 for a in aeps):
-        raise ReportError(f"{_KIND}: aeps must be between 0 and 1")
+    if any(not AEP_RANGE[0] <= a <= AEP_RANGE[1] for a in aeps):
+        raise ReportError(f"{_KIND}: aeps must be between {AEP_RANGE[0]:g} and {AEP_RANGE[1]:.6f}")
     for i, a in enumerate(aeps):
         for b in aeps[:i]:
             if same_aep(a, b):
@@ -125,11 +127,46 @@ def _aeps(value: Any) -> List[float]:
     return aeps
 
 
+def _low_threshold(options: Mapping[str, Any]) -> Optional[float]:
+    """The ``low_outlier_threshold`` option; zero means none, as in ``gaged_ffa``."""
+    value = _number(options, "low_outlier_threshold")
+    if value is not None and value < 0.0:
+        raise ReportError(f"{_KIND}: low_outlier_threshold must not be negative; got {value:g}")
+    return value or None
+
+
+def _codes(frame: pd.DataFrame) -> List[Optional[str]]:
+    """Each peak's qualification codes as text, None where it has none."""
+    codes: List[Optional[str]] = []
+    for year, code in zip(frame["water_year"], frame["qualification_code"]):
+        if code is None or (isinstance(code, float) and math.isnan(code)):
+            codes.append(None)
+        elif isinstance(code, str):
+            codes.append(code)
+        elif (
+            isinstance(code, (int, float))
+            and not isinstance(code, bool)
+            and float(code).is_integer()
+        ):
+            codes.append(str(int(code)))
+        else:
+            raise ReportError(f"{_KIND}: the qualification code of {year} cannot be read: {code!r}")
+    return codes
+
+
 def _checked_rows(thresholds: Any) -> List[Dict[str, Any]]:
-    """The perception thresholds, each with whole years and a threshold in cfs."""
+    """The perception thresholds with whole years, which may be given as text, and a flow."""
     with _own_errors():
-        rows = _threshold_rows(thresholds)
+        rows = [dict(row) for row in _threshold_rows(thresholds)]
     for row in rows:
+        for key in ("start_year", "end_year"):
+            if isinstance(row[key], str):
+                try:
+                    row[key] = int(row[key])
+                except ValueError as exc:
+                    raise ReportError(
+                        f"{_KIND}: a threshold's {key} must be a year; got {row[key]!r}"
+                    ) from exc
         try:
             _threshold_row(row)
         except Bulletin17BError as exc:
@@ -141,8 +178,18 @@ def _skew(options: Dict[str, Any]) -> Tuple[Optional[float], float, str, Optiona
     """The generalized skew, its MSE, the sentence that says where they come from, a citation.
 
     A ``generalized_skew`` wins. Without one, the regional skew of the ``gaged_ffa``
-    options is resolved, in place, as that section resolves it.
+    options is resolved, in place, as that section resolves it. ``station_skew_only`` goes
+    with neither.
     """
+    if options.get("station_skew_only"):
+        others = [
+            key
+            for key in ("generalized_skew", "generalized_skew_mse", *_REGIONAL, *_LOOKUPS)
+            if options.get(key) is not None and options.get(key) is not False
+        ]
+        if others:
+            raise ReportError(f"{_KIND}: station_skew_only cannot go with {', '.join(others)}")
+        return None, _PLATE_I_MSE, "The station skew was used alone, as asked.", None
     generalized = _number(options, "generalized_skew")
     mse = _number(options, "generalized_skew_mse", positive=True)
     regional = _number(options, "regional_skew")
@@ -175,8 +222,8 @@ def _skew(options: Dict[str, Any]) -> Tuple[Optional[float], float, str, Optiona
             None,
         )
     sentence = _skew_sentence(options, "user") + (
-        " It is the same regional skew as the Bulletin 17C analysis, so the difference is "
-        "the change in procedure."
+        " It is the regional skew a Bulletin 17C analysis with the same options uses, so the "
+        "difference is the change in procedure."
     )
     citation = options.get("regional_skew_citation")
     return (
@@ -401,6 +448,14 @@ def _figure_caption(res: Bulletin17BResults) -> str:
 
 
 def _build_b17b_ffa(given: Dict[str, Any]) -> SectionContent:
+    """Build the section.
+
+    The options are those of ``gaged_ffa`` where they apply, with one difference. A record
+    with code-7 (historic) peaks and ``perception_thresholds`` needs
+    ``apply_peak_codes=False`` in ``gaged_ffa``, which does not take the two together. Here
+    it needs the codes applied, because Bulletin 17B gets its historic peaks from them, so
+    such a record takes two sets of options.
+    """
     return _b17b_ffa(given)[0]
 
 
@@ -413,7 +468,7 @@ def _b17b_ffa(given: Dict[str, Any]) -> Tuple[SectionContent, Optional[Bulletin1
     """
     options = copy.deepcopy(given)
     _number(options, "drainage_area_sqmi", positive=True)
-    threshold = _number(options, "low_outlier_threshold", positive=True)
+    threshold = _low_threshold(options)
     aeps = _aeps(options.get("aeps"))
     period = _period(options.get("historic_period"))
     if period is not None:
@@ -432,7 +487,7 @@ def _b17b_ffa(given: Dict[str, Any]) -> Tuple[SectionContent, Optional[Bulletin1
         frame = _peak_frame(options["peaks"])
     skew, skew_mse, skew_sentence, citation = _skew(options)
 
-    codes = [None if pd.isna(c) else c for c in frame["qualification_code"].tolist()]
+    codes = _codes(frame)
     has_codes = any(c is not None for c in codes)
     apply_codes = bool(options.get("apply_peak_codes", True))
     applied = codes if has_codes and apply_codes else None
@@ -446,17 +501,18 @@ def _b17b_ffa(given: Dict[str, Any]) -> Tuple[SectionContent, Optional[Bulletin1
     record = _record_rows(options, frame, site_no)
     data: List[str] = []
     override = False
+    basis = ""
     references = [BULLETIN_17B]
     refusal: Optional[str] = None
     results: Optional[Bulletin17BResults] = None
     try:
         if site_no:
             # The codes count here whether or not they are applied, as in gaged_ffa.
+            classed = classify_site(site_no, codes if has_codes else None)
+            basis = "; ".join(classed.basis)
             screen = require_unregulated(
-                classify_site(site_no, codes if has_codes else None),
-                allow_regulated=bool(options.get("allow_regulated", False)),
+                classed, allow_regulated=bool(options.get("allow_regulated", False))
             )
-            basis = "; ".join(str(b) for b in screen.get("basis") or [])
             record.append(
                 ("Regulation screen", str(screen["site_class"]) + (f": {basis}" if basis else ""))
             )
@@ -499,9 +555,13 @@ def _b17b_ffa(given: Dict[str, Any]) -> Tuple[SectionContent, Optional[Bulletin1
             aeps=aeps,
             hand_computation=bool(options.get("hand_computation", False)),
         ).run_analysis()
-    except RegulatedRecordError as exc:
-        refusal = str(exc)
-        references.append(BULLETIN_17C)  # the screen's sentence cites it
+    except RegulatedRecordError:
+        # The screen's own message is about Bulletin 17C.
+        refusal = (
+            f"USGS {site_no} is classed regulated ({basis}), and Bulletin 17B describes "
+            "unregulated flood peaks. The section's allow_regulated option overrides this and "
+            "fits the record as observed"
+        )
     except Bulletin17BError as exc:
         refusal = str(exc)
 

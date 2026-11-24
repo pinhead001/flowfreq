@@ -26,6 +26,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Union
 
+from ._base import section_title
 from .blocks import Block, Figure, Heading, Narrative, Paragraph, Table, narrative_blocks
 from .build import build_report, render_markdown
 from .daily import FLOW_DURATION_CAPTION, LOW_FLOW_CAPTION
@@ -78,7 +79,7 @@ class _Entry:
 
     @property
     def title(self) -> str:
-        return self.spec.title or self.content.title
+        return section_title(self.spec.kind, self.spec.title, self.content.title)
 
 
 class ReportSession:

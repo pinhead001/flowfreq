@@ -9,15 +9,25 @@ from __future__ import annotations
 import copy
 import json
 import math
+import warnings
 from typing import Any, Dict, List, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 
-from flowfreq.bulletin17b import STANDARD_AEP, Bulletin17B
+from flowfreq.bulletin17b import STANDARD_AEP, Bulletin17B, Bulletin17BError
 from flowfreq.regional_skew import regional_skew_for
-from flowfreq.reporting import SECTION_KINDS, ReportError, build_section, gaged
+from flowfreq.reporting import (
+    SECTION_KINDS,
+    ReportError,
+    ReportSpec,
+    SectionSpec,
+    build_report,
+    build_section,
+    gaged,
+)
+from flowfreq.reporting._base import section_title
 from flowfreq.reporting.b17b import (
     B17B_CAPTION,
     BULLETIN_17B,
@@ -26,8 +36,8 @@ from flowfreq.reporting.b17b import (
     _build_b17b_ffa,
     _frequency_figure,
 )
-from flowfreq.reporting.blocks import Bullets, Figure, Paragraph, Table
-from flowfreq.reporting.sections import BULLETIN_17C, cfs
+from flowfreq.reporting.blocks import Bullets, Figure, Heading, Paragraph, Table
+from flowfreq.reporting.sections import cfs
 from flowfreq.reporting.session import MAIN_TABLES, ReportSession
 from tests.fixtures.b17b import record
 
@@ -113,6 +123,53 @@ def test_the_section_says_17b_is_superseded_and_why_it_is_there():
     assert "superseded by Bulletin 17C" in said and "comparison" in said
 
 
+def _headings(report: Any) -> List[str]:
+    return [b.text for b in report.blocks if isinstance(b, Heading) and b.level == 1]
+
+
+def test_a_given_title_keeps_the_label_in_a_built_report():
+    given = "Flood frequency at the gage"
+    spec = ReportSpec(
+        title="Report",
+        sections=[
+            SectionSpec("b17b_ffa", title=given, options=dict(EX1)),
+            SectionSpec("b17b_ffa", title=f"Old study, {LABEL}", options=dict(EX1)),
+            SectionSpec(
+                "b17b_ffa", title="Old study, bulletin 17b (SUPERSEDED)", options=dict(EX1)
+            ),
+            SectionSpec("text", title=given, narrative="Words."),
+        ],
+    )
+    assert _headings(build_report(spec))[:4] == [
+        f"1. {given}, {LABEL}",
+        f"2. Old study, {LABEL}",
+        "3. Old study, bulletin 17b (SUPERSEDED)",
+        f"4. {given}",
+    ]
+
+
+def test_a_given_title_keeps_the_label_in_a_session(tmp_path):
+    session = ReportSession("Report", output_dir=tmp_path)
+    added = session.add_section("b17b_ffa", dict(EX1), title="At the gage")
+    assert added["title"] == f"At the gage, {LABEL}"
+    assert session.add_text("At the gage", "Words.")["title"] == "At the gage"
+    refused = session.add_section(
+        "b17b_ffa", {**EX1, "low_outlier_threshold": 2190.0}, title="Refused"
+    )
+    assert refused["title"] == f"Refused, {LABEL}"
+    assert f"At the gage, {LABEL}" in json.dumps(session.outline())
+    session.render("report.md")
+    assert f"1. At the gage, {LABEL}" in (tmp_path / "report.md").read_text(encoding="utf-8")
+
+
+def test_only_the_b17b_kind_has_its_titles_labelled():
+    for kind in SECTION_KINDS:
+        expected = f"Given, {LABEL}" if kind == "b17b_ffa" else "Given"
+        assert section_title(kind, "Given", "Own") == expected
+        assert section_title(kind, None, f"Own, {LABEL}") == f"Own, {LABEL}"
+        assert section_title(kind, "", "") == ""
+
+
 # -- skew ---------------------------------------------------------------------------------
 
 
@@ -123,8 +180,8 @@ def test_section_uses_the_b17c_regional_skew_by_default():
     assert res.skew_generalized == 0.6 and res.skew_generalized_mse == pytest.approx(0.3025)
     assert any("change in procedure" in text_of(b) for b in content.blocks)
     assert (
-        "the same regional skew as the Bulletin 17C analysis, so the difference is the change "
-        "in procedure" in all_text(content)
+        "the regional skew a Bulletin 17C analysis with the same options uses, so the "
+        "difference is the change in procedure" in all_text(content)
     )
 
 
@@ -209,7 +266,18 @@ def _row(**change: Any) -> Dict[str, Any]:
         ({"generalized_skew": math.inf}, "generalized_skew must be a number"),
         ({"generalized_skew": 0.6, "generalized_skew_mse": -1.0}, "must be positive"),
         ({"generalized_skew_mse": 0.2}, "generalized_skew_mse needs generalized_skew"),
-        ({"low_outlier_threshold": 0.0}, "low_outlier_threshold must be positive"),
+        ({"low_outlier_threshold": -1.0}, "low_outlier_threshold must not be negative"),
+        ({"low_outlier_threshold": "low"}, "low_outlier_threshold must be a number"),
+        ({"station_skew_only": True, "generalized_skew": 0.6}, "station_skew_only"),
+        ({"station_skew_only": True, "generalized_skew_mse": 0.3}, "station_skew_only"),
+        ({"station_skew_only": True, "regional_skew": 0.1}, "station_skew_only"),
+        ({"station_skew_only": True, "regional_skew_se": 0.1}, "station_skew_only"),
+        ({"station_skew_only": True, "regional_skew_state": "TN"}, "station_skew_only"),
+        ({"station_skew_only": True, "regional_skew_region": "x"}, "station_skew_only"),
+        ({"station_skew_only": True, "regional_skew_from_site": True}, "station_skew_only"),
+        ({"aeps": [0.01, 1e-12]}, "aeps must be between 1e-06 and 0.999999"),
+        ({"aeps": [1 - 1e-12]}, "aeps must be between 1e-06 and 0.999999"),
+        (_row(start_year="long ago"), "start_year must be a year"),
         ({"historic_period": [1900]}, r"historic_period must be \[first year, last year\]"),
         ({"historic_period": 1900}, r"historic_period must be \[first year, last year\]"),
         ({"historic_period": [1900.5, 1968]}, r"historic_period must be \[first year"),
@@ -224,7 +292,8 @@ def _row(**change: Any) -> Dict[str, Any]:
         (_row(end_year=1880), "ends before it begins"),
         ({"drainage_area_sqmi": "big"}, "drainage_area_sqmi must be a number"),
         ({"regional_skw": 0.1}, "unknown option"),
-        ({"station_skew_only": True}, "unknown option"),
+        ({"use_default_skew": True}, "unknown option"),
+        ({"stationarity": False}, "unknown option"),
     ],
 )
 def test_bad_options_raise(extra, message):
@@ -237,6 +306,63 @@ def test_bad_peaks_raise():
         build_section("b17b_ffa", {})
     with pytest.raises(ReportError, match="b17b_ffa: peak_flow_cfs holds a non-finite value"):
         build_section("b17b_ffa", {"peaks": with_peaks([(1980, math.nan, None)])})
+
+
+@pytest.mark.parametrize("code", [{"a": 1}, ["7", "2"], True, 7.5, math.inf])
+@pytest.mark.parametrize("apply", [True, False])
+def test_an_unreadable_code_raises(code, apply):
+    peaks = with_peaks([(1975, 2000.0, code)])
+    with pytest.raises(ReportError, match="b17b_ffa: the qualification code of 1975"):
+        build_section("b17b_ffa", {**EX1, "peaks": peaks, "apply_peak_codes": apply})
+
+
+@pytest.mark.parametrize("code", [3, 3.0, "3"])
+def test_a_code_may_be_written_as_a_number(code):
+    peaks = with_peaks([(1975, 90000.0, code)])
+    content, res = _b17b_ffa({**EX1, "peaks": peaks, "site_no": "99999999"})
+    assert res.n_years == 24 and "1975 (90,000 cfs, code 3)" in all_text(content)
+
+
+@pytest.mark.parametrize("zero", [0, 0.0])
+def test_a_low_outlier_threshold_of_zero_means_none(zero):
+    content, res = _b17b_ffa({**EX1, "low_outlier_threshold": zero})
+    _, plain = _b17b_ffa(dict(EX1))
+    assert res.low_outlier_threshold == plain.low_outlier_threshold
+    assert "replaces eq. 8a" not in "\n".join(res.steps)
+    assert build_section("b17b_ffa", content.options).blocks == content.blocks
+
+
+def test_station_skew_only_uses_the_station_skew_and_says_so():
+    content, res = _b17b_ffa({"peaks": peaks_spec("example1"), "station_skew_only": True})
+    assert res.skew_generalized is None and res.skew_used == res.skew_station
+    assert "station skew was used alone, as asked" in all_text(content)
+    assert content.options["station_skew_only"] is True
+    _, res = _b17b_ffa({**EX1, "station_skew_only": False})
+    assert res.skew_generalized == 0.6
+
+
+def test_threshold_years_may_be_text():
+    rows = [{"start_year": "1897", "end_year": "1929", "threshold_cfs": "18000"}]
+    content, res = _b17b_ffa({**SANDY, "perception_thresholds": rows})
+    assert res.historic.h == 77 and "1897 to 1929, 18,000 cfs" in all_text(content)
+
+
+@pytest.mark.parametrize("name", ["example1", "example4"])
+def test_extreme_aeps_do_not_overflow(name):
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", RuntimeWarning)
+        content, res = _b17b_ffa(
+            {"peaks": peaks_spec(name), "generalized_skew": 0.6, "aeps": [1 - 1e-6, 0.01, 1e-6]}
+        )
+    assert np.all(np.isfinite(res.quantiles[["flow_cfs", "lower", "upper"]].to_numpy()))
+    assert _scatters(res)["Annual peaks"] > 20
+
+
+@pytest.mark.parametrize("aep", [1e-7, 1e-12, 1 - 1e-7, 1 - 1e-12])
+def test_the_class_refuses_aeps_it_cannot_evaluate(aep):
+    rec = record("example1")
+    with pytest.raises(Bulletin17BError, match="1e-06 and 0.999999"):
+        Bulletin17B(rec.peaks_cfs, rec.water_years, aeps=[aep])
 
 
 # -- refusals -----------------------------------------------------------------------------
@@ -261,15 +387,17 @@ def test_a_regulated_record_is_a_sentence_and_the_override_is_stated():
     content, res = _b17b_ffa(given)
     assert res is None
     said = text_of(content.blocks[-1])
-    assert said.startswith(REFUSED + "USGS " + REGULATED_SITE)
-    assert "classified regulated" in said
-    assert BULLETIN_17C in content.references  # the sentence cites England and others
+    assert said.startswith(
+        REFUSED + "USGS " + REGULATED_SITE + " is classed regulated (dam storage"
+    )
+    assert "17C" not in said and "allow_regulated=True" not in said and "England" not in said
+    assert "Bulletin 17B" in said and "The section's allow_regulated option overrides" in said
+    assert content.references == [BULLETIN_17B]
     content, res = _b17b_ffa({**given, "allow_regulated": True})
     assert res is not None
     assert "classified as regulated" in all_text(content)
     rows = dict(tables(content)["Station and peak-flow record."].rows)
     assert "regulated" in rows["Regulation screen"]
-    assert BULLETIN_17C not in content.references
 
 
 def test_a_code_6_peak_at_a_numbered_gage_is_the_regulated_sentence():

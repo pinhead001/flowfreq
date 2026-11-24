@@ -41,9 +41,10 @@ from ._base import (  # noqa: F401
     _figure_png,
     _version,
     cfs,
+    section_title,
     short_citation,
 )
-from .b17b import B17B_CAPTION, BULLETIN_17B, _b17b_ffa, _build_b17b_ffa  # noqa: F401
+from .b17b import B17B_CAPTION, BULLETIN_17B, SUPERSEDED, _b17b_ffa, _build_b17b_ffa  # noqa: F401
 from .comparison import (  # noqa: F401
     _COMPARED_KINDS,
     _ESTIMATE_KEYS,
@@ -175,6 +176,7 @@ SECTION_KINDS.update(
                 "allow_provisional_skew",
                 "generalized_skew",
                 "generalized_skew_mse",
+                "station_skew_only",
                 "historic_period",
                 "low_outlier_threshold",
                 "perception_thresholds",
@@ -184,6 +186,7 @@ SECTION_KINDS.update(
                 "aeps",
             ),
             build=_build_b17b_ffa,
+            title_label=SUPERSEDED,
         ),
         SectionKind(
             name="ungaged",

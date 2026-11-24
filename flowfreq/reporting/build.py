@@ -19,7 +19,7 @@ from .blocks import (
     narrative_blocks,
     number_captions,
 )
-from .sections import _version, build_section
+from .sections import _version, build_section, section_title
 from .spec import ReportError, ReportSpec, SectionSpec
 
 _ALIGN_RULE = {"left": "---", "right": "---:", "center": ":---:"}
@@ -191,7 +191,7 @@ def build_report(spec: ReportSpec) -> Report:
             content = build_section(section.kind, section.options)
         except ReportError as exc:
             raise ReportError(f"{where}: {exc}") from exc
-        title = section.title or content.title
+        title = section_title(section.kind, section.title, content.title)
         if not title:
             raise ReportError(f"{where}: needs a title")
         blocks.append(Heading(1, f"{number}. {title}"))

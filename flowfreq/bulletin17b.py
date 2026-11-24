@@ -36,6 +36,7 @@ from flowfreq.peak_codes import (
 logger = logging.getLogger(__name__)
 
 __all__ = [
+    "AEP_RANGE",
     "Bulletin17B",
     "Bulletin17BError",
     "Bulletin17BResults",
@@ -441,6 +442,10 @@ MIN_SYSTEMATIC = 10
 #: Largest share of the systematic record that may be truncated (p. 5-1).
 MAX_TRUNCATED = 0.25
 
+#: Smallest and largest AEP that can be evaluated. Near 1e-9 the Pearson III inverse behind
+#: ``kfactor`` no longer converges and returns a value with no meaning.
+AEP_RANGE: tuple[float, float] = (1e-6, 1.0 - 1e-6)
+
 #: The bulletin's frequency-table rows (Table 12-3), as annual exceedance probabilities.
 STANDARD_AEP: tuple[float, ...] = (0.99, 0.90, 0.50, 0.10, 0.05, 0.02, 0.01, 0.005, 0.002)
 
@@ -699,7 +704,8 @@ class Bulletin17B:
         Two-sided confidence level of the limits.
     aeps : sequence of float, optional
         Annual exceedance probabilities to report; ``STANDARD_AEP`` by default. Two
-        that are one flood written differently (0.667 and 0.67) are refused.
+        that are one flood written differently (0.667 and 0.67) are refused, and so is
+        one outside ``AEP_RANGE``, 1e-6 to 1 - 1e-6.
     hand_computation : bool, default False
         Round the weighted skew to the nearest tenth (ties away from zero) before
         reading K, as the worked examples in the bulletin do. The same rounding applies to
@@ -768,6 +774,11 @@ class Bulletin17B:
         aep_list = [_finite_number(a, "an AEP") for a in (STANDARD_AEP if aeps is None else aeps)]
         if not aep_list or any(not 0.0 < a < 1.0 for a in aep_list):
             raise Bulletin17BError("AEPs must be a non-empty list of values between 0 and 1")
+        if any(not AEP_RANGE[0] <= a <= AEP_RANGE[1] for a in aep_list):
+            raise Bulletin17BError(
+                f"AEPs must be between {AEP_RANGE[0]:g} and {AEP_RANGE[1]:.6f}; beyond that the "
+                "frequency factor cannot be evaluated"
+            )
         for i, a in enumerate(aep_list):
             for b in aep_list[:i]:
                 if same_aep(a, b):

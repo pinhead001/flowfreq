@@ -6,7 +6,7 @@ import io
 import math
 import re
 from dataclasses import dataclass, field, replace
-from typing import Any, Callable, Dict, List, Mapping, Sequence, Tuple
+from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple
 
 from .blocks import Block, Heading
 from .spec import ReportError
@@ -69,13 +69,18 @@ class SectionContent:
 
 @dataclass(frozen=True)
 class SectionKind:
-    """A registered section kind: its name, what it takes and the function that builds it."""
+    """A registered section kind: its name, what it takes and the function that builds it.
+
+    ``title_label`` is what every title of the section has to say, a caller's own included
+    (see :func:`section_title`); empty for most kinds.
+    """
 
     name: str
     summary: str
     required: Tuple[str, ...]
     optional: Tuple[str, ...]
     build: Callable[[Dict[str, Any]], SectionContent]
+    title_label: str = ""
 
     def check(self, options: Mapping[str, Any]) -> None:
         """Raise :class:`ReportError` for an unknown or a missing option."""
@@ -94,6 +99,32 @@ class SectionKind:
 #: The section kinds a spec may name. Filled by :mod:`flowfreq.reporting.sections`, and by
 #: the modules that register further kinds (``daily``, ``summary``).
 SECTION_KINDS: Dict[str, SectionKind] = {}
+
+
+def section_title(kind: str, given: Optional[str], own: str) -> str:
+    """The heading of a section: the caller's title if there is one, else the kind's own.
+
+    A kind with a ``title_label`` (superseded numbers) has it appended when the title does
+    not carry the words, so a caller's title cannot drop it.
+
+    Parameters
+    ----------
+    kind : str
+        A key of :data:`SECTION_KINDS`.
+    given : str or None
+        The title the specification gives.
+    own : str
+        The title the section was built with.
+
+    Returns
+    -------
+    str
+    """
+    title = given or own
+    label = SECTION_KINDS[kind].title_label
+    if title and label and label.lower() not in title.lower():
+        return f"{title}, {label}"
+    return title
 
 
 def _version() -> str:
