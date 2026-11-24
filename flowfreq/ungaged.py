@@ -707,6 +707,23 @@ def _named_region(lib: StateLibrary, choices: Sequence[str]) -> Optional[str]:
     return next((code for code in lib.named_regions if code.upper() == wanted), None)
 
 
+def _shares_used(
+    lib: StateLibrary, lib_codes: Set[str], characteristics: Mapping[str, float]
+) -> List[Tuple[str, float]]:
+    """``(codes in words, sum)`` of each of ``lib.basin_shares`` an equation of these regions takes."""
+    taken = {
+        v.code
+        for e in lib.equations
+        if e.region_code in lib_codes
+        for v in (*e.variables, *e.applicability)
+    }
+    return [
+        (" and ".join(group), sum(characteristics.get(code, 0.0) for code in group))
+        for group in lib.basin_shares
+        if taken & set(group)
+    ]
+
+
 def _supplied(lib: StateLibrary, given: Optional[Mapping[str, Any]]) -> Dict[str, float]:
     """``supplied_characteristics`` as numbers, each a code some equation of ``lib`` uses."""
     values: Dict[str, float] = {}
@@ -1114,6 +1131,12 @@ def assemble(
         region_choice_source = (
             f"{limit_source}; {region_choice_source}" if region_choice_source else limit_source
         )
+
+    for words, share in _shares_used(lib, {code for _, code in used}, characteristics):
+        if share > 100.0 + PERCENT_WEIGHT_TOL:
+            raise ValueError(
+                f"{lib.state}: {words} are percents of one basin and sum to {share:g} percent"
+            )
 
     if aeps is None:
         common = set.intersection(*(set(lib.aeps(lib_code)) for _, lib_code in used))
@@ -1753,6 +1776,12 @@ def _site_estimate(
     nearby = [m for m in lib.known_misses if m.distance_km(lat, lon) <= m.radius_km]
     used_codes = {assembly.region_codes.get(r.code, r.code) for r in assembly.used}
     region_cautions = [text for code, text in lib.region_cautions.items() if code in used_codes]
+    share_cautions = [
+        f"{words} sum to {share:g}, which looks as if they were given as fractions: they are "
+        "percents of the basin, 0 to 100."
+        for words, share in _shares_used(lib, used_codes, characteristics)
+        if 0.0 < share <= 1.0
+    ]
     if nearby:
         provenance["known_misses"] = [asdict(m) for m in nearby]
     weighting_cautions: List[str] = []
@@ -1781,6 +1810,7 @@ def _site_estimate(
                     lib.advisory,
                     coverage_caution,
                     *region_cautions,
+                    *share_cautions,
                     *weighting_cautions,
                     *(m.caution() for m in nearby),
                 ],

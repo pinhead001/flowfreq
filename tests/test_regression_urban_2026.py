@@ -2,10 +2,11 @@
 Georgia, North Carolina and South Carolina by the owner's decision of 2026-11-23).
 
 Neither report prints a coefficient or a worked example, so the check is each data
-release's own per-gage table: regression flow to three significant figures and variance of
-prediction to four decimals. The fixture copies three gages from each
-(``WLSresults.csv`` of doi:10.5066/P13GPMON, ``GLSresults.csv`` of doi:10.5066/P1TE9KTH);
-``tools/build_urban_2026.py`` checks all 42 and all 136 before it writes the state files.
+release's own per-gage table, at every gage and AEP: regression flow to three significant
+figures and variance of prediction to four decimals. ``urban_2026_wls.csv`` (42 gages,
+doi:10.5066/P13GPMON) and ``urban_2026_gls.csv`` (136, doi:10.5066/P1TE9KTH) are columns of
+the releases' ``WLSresults.csv`` and ``GLSresults.csv``, and ``urban_2026_wreg.json`` is
+their ``coefs.txt``, ``CoVarMat.txt`` and ``PerformanceMetrics.txt``.
 """
 
 from __future__ import annotations
@@ -13,8 +14,10 @@ from __future__ import annotations
 import json
 import math
 from pathlib import Path
+from typing import Any, Dict
 
 import numpy as np
+import pandas as pd
 import pytest
 
 from flowfreq import estimate_from_characteristics
@@ -24,9 +27,21 @@ from flowfreq.regression.library import load_state
 from flowfreq.ungaged import region_for_nss_code
 
 ROOT = Path(__file__).resolve().parent
-GAGES = json.loads((ROOT / "fixtures" / "regression" / "urban_2026_gages.json").read_text("utf-8"))
+FIXTURES = ROOT / "fixtures" / "regression"
+WLS = pd.read_csv(FIXTURES / "urban_2026_wls.csv", dtype={"site_no": str})
+GLS = pd.read_csv(FIXTURES / "urban_2026_gls.csv", dtype={"site_no": str})
+WREG = json.loads((FIXTURES / "urban_2026_wreg.json").read_text("utf-8"))
 AEPS = [0.5, 0.2, 0.1, 0.04, 0.02, 0.01, 0.005, 0.002]
 REGION = "Urban 2026"
+GLS_STATES = ["TN", "GA", "NC", "SC"]
+
+
+def _inputs(gage: Any) -> Dict[str, float]:
+    return {k: float(v) for k, v in gage.items() if k[:2] in ("DR", "LC", "L3")}
+
+
+def _gage(table: pd.DataFrame, site_no: str) -> Any:
+    return table.set_index("site_no").loc[site_no]
 
 
 def _three_figures(value: float, printed: float) -> bool:
@@ -58,35 +73,48 @@ def test_alabama_and_mississippi_hold_the_same_equations():
         assert [v.transform for v in a.variables] == ["log10", "identity"]
 
 
-@pytest.mark.parametrize("gage", GAGES["alms"], ids=lambda g: g["site_no"])
-def test_alabama_mississippi_release_gages_reproduce(gage):
-    lib = load_state(gage["state"])
-    inputs = {"DRNAREA": gage["DRNAREA"], "LC11DEV": gage["LC11DEV"]}
-    for aep, printed in gage["flows"].items():
-        est = evaluate(lib.equation(REGION, float(aep)), inputs)
-        assert _three_figures(est.flow_cfs, printed), (aep, est.flow_cfs, printed)
-        assert est.prediction_variance == pytest.approx(gage["var"][aep], abs=5.1e-5)
+@pytest.mark.parametrize("aep", AEPS)
+@pytest.mark.parametrize("state", ["AL", "MS"])
+def test_alabama_mississippi_release_gages_reproduce(state, aep):
+    eq = load_state(state).equation(REGION, aep)
+    assert len(WLS) == 42
+    for _, gage in WLS.iterrows():
+        est = evaluate(eq, _inputs(gage))
+        assert _three_figures(est.flow_cfs, gage[f"WLS_{aep:g}"]), gage["site_no"]
+        assert est.prediction_variance == pytest.approx(gage[f"VarPred_{aep:g}"], abs=5.1e-5)
         assert est.interval is not None and est.interval[0] < est.flow_cfs < est.interval[1]
 
 
-@pytest.mark.parametrize("gage", GAGES["tn"], ids=lambda g: g["site_no"])
-def test_tennessee_release_gages_reproduce(gage):
-    lib = load_state("TN")
-    inputs = {k: gage[k] for k in ("DRNAREA", "LC11DEV", "L3_PIEDMNT", "L3_RDGVLY", "LC11IMP")}
-    for aep, printed in gage["flows"].items():
-        est = evaluate(lib.equation(REGION, float(aep)), inputs)
-        assert _three_figures(est.flow_cfs, printed), (aep, est.flow_cfs, printed)
-        assert est.prediction_variance == pytest.approx(gage["var"][aep], abs=5.1e-5)
+@pytest.mark.parametrize("aep", AEPS)
+@pytest.mark.parametrize("state", GLS_STATES)
+def test_the_southeast_release_gages_reproduce(state, aep):
+    eq = load_state(state).equation(REGION, aep)
+    assert len(GLS) == 136
+    assert any((GLS["L3_RDGVLY"] > 0) & (GLS["L3_RDGVLY"] < 100))  # partly Ridge and Valley
+    for _, gage in GLS.iterrows():
+        est = evaluate(eq, _inputs(gage))
+        assert _three_figures(est.flow_cfs, gage[f"GLS_{aep:g}"]), gage["site_no"]
+        assert est.prediction_variance == pytest.approx(gage[f"GLSvar_{aep:g}"], abs=5.1e-5)
 
 
-@pytest.mark.parametrize("gage", GAGES["southeast"], ids=lambda g: g["site_no"])
-def test_southeast_release_gages_reproduce(gage):
-    lib = load_state(gage["state"])
-    inputs = {k: gage[k] for k in ("DRNAREA", "LC11DEV", "L3_PIEDMNT", "L3_RDGVLY", "LC11IMP")}
-    for aep, printed in gage["flows"].items():
-        est = evaluate(lib.equation(REGION, float(aep)), inputs)
-        assert _three_figures(est.flow_cfs, printed), (aep, est.flow_cfs, printed)
-        assert est.prediction_variance == pytest.approx(gage["var"][aep], abs=5.1e-5)
+@pytest.mark.parametrize("aep", AEPS)
+@pytest.mark.parametrize("state", ["AL", "MS", *GLS_STATES])
+def test_the_stored_numbers_are_the_releases_wreg_output(state, aep):
+    eq = load_state(state).equation(REGION, aep)
+    wreg = WREG["wls" if state in ("AL", "MS") else "gls"][f"{aep:g}"]
+    assert [eq.intercept, *eq.coefficients] == wreg["coefficients"]
+    assert eq.model_error_variance == wreg["ModErrVar"] and eq.avp == wreg["AVP"]
+    sep = math.sqrt(math.log(1.0 + (wreg["Sp"] / 100.0) ** 2)) / math.log(10.0)
+    assert eq.sep_log == pytest.approx(sep, abs=5.1e-7)
+    if state in GLS_STATES:
+        assert [list(row) for row in eq.covariance] == wreg["covariance"]
+    errors = np.sqrt(np.diag(np.array(eq.covariance)))
+    assert errors == pytest.approx(wreg["standard_errors"], rel=1e-5)
+
+
+def test_the_release_counts_by_state():
+    counts = GLS["state"].value_counts()
+    assert [int(counts[s]) for s in ("GA", "NC", "SC")] == [32, 38, 16]
 
 
 @pytest.mark.parametrize("state", ["GA", "NC", "SC"])
@@ -103,39 +131,54 @@ def test_the_southeast_states_hold_tennessees_equations(state):
         assert "Tennessee (" not in b.region_name
 
 
-@pytest.mark.parametrize("state", ["GA", "NC", "SC"])
-def test_the_southeast_set_is_used_only_when_named_and_cautions(state):
+@pytest.mark.parametrize("state", GLS_STATES)
+def test_the_set_is_used_only_when_named_and_cautions(state):
     lib = load_state(state)
-    assert all(REGION not in tier for tier in lib.region_preference.tiers)
+    tiers = lib.region_preference.tiers if lib.region_preference else []
+    assert all(REGION not in tier for tier in tiers)
     assert REGION not in lib.region_limits
     caution = lib.region_cautions[REGION]
-    assert "not valid in the Middle Atlantic" in caution and "does not say" in caution
+    for words in (
+        "not valid in the Middle Atlantic or Southern Coastal Plain",
+        "not known outside the study area",
+        "Blue Ridge",
+        "percent of the basin, 0 to 100, not fractions",
+        "inappropriate",
+    ):
+        assert words in caution, words
     assert ("South Carolina gages" in caution) is (state == "SC")
+    # What else the USGS publishes for an urban basin there.
+    assert ("SIR 2014-5030" in caution) is (state != "TN")
+    assert ("does not say it applies in place" in caution) is (state != "TN")
 
 
 def test_the_south_carolina_caution_has_the_releases_own_residuals():
-    """Observed over regression flow at the report's 16 South Carolina gages."""
-    lib, ratio = load_state("SC"), {}
-    for aep in ("0.1", "0.01"):
-        eq = lib.equation(REGION, float(aep))
-        logs = [
-            math.log10(g["observed"][aep] / evaluate(eq, g).flow_cfs) for g in GAGES["sc_observed"]
-        ]
-        assert len(logs) == 16
-        ratio[aep] = 10.0 ** float(np.mean(logs))
+    """Observed (at-site EMA) over regression flow at the report's 16 South Carolina gages."""
+    lib = load_state("SC")
     text = lib.region_cautions[REGION]
-    assert f"{ratio['0.1']:.2f} of the equations' at 10 percent AEP" in text
-    assert f"{ratio['0.01']:.2f} at 1 percent" in text
+    gages = GLS[GLS["state"] == "SC"]
+    assert len(gages) == 16
+    for aep, words in ((0.1, "10 percent"), (0.01, "1 percent")):
+        eq = lib.equation(REGION, aep)
+        ratio = np.array(
+            [g[f"EMA_{aep:g}"] / evaluate(eq, _inputs(g)).flow_cfs for _, g in gages.iterrows()]
+        )
+        mean = 10.0 ** float(np.mean(np.log10(ratio)))
+        below = int((ratio < 1).sum())
+        assert (
+            f"{mean:.2f} at {words} AEP ({ratio.min():.2f} to {ratio.max():.2f}, {below} of 16 "
+            "below 1)"
+        ) in text
 
 
 def test_a_georgia_urban_estimate_above_one_square_mile():
     """The basin the state's other sets refuse: over 1 mi2 and 10 percent impervious."""
-    gage = GAGES["southeast"][0]
-    inputs = {k: gage[k] for k in ("DRNAREA", "LC11DEV", "L3_PIEDMNT", "L3_RDGVLY", "LC11IMP")}
+    gage = _gage(GLS, "02203655")
+    inputs = _inputs(gage)
     est = estimate_from_characteristics(
         "GA", inputs, region=REGION, lat=33.68, lon=-84.36, aeps=[0.01]
     )
-    assert _three_figures(float(est.quantiles.loc[0, "flow_cfs"]), gage["flows"]["0.01"])
+    assert _three_figures(float(est.quantiles.loc[0, "flow_cfs"]), gage["GLS_0.01"])
     assert "SIR 2025-5104" in est.advisory
 
 
@@ -188,13 +231,16 @@ def test_the_older_urban_sets_stay_with_a_caution():
     al, tn = load_state("AL"), load_state("TN")
     assert al.equation("Urban", 0.01).n_sites == 23
     assert "supersedes" in al.region_cautions["Urban"]
-    assert set(tn.region_cautions) == {"Urban statewide", "Memphis urban"}
-    assert all("does not say it supersedes" in t for t in tn.region_cautions.values())
+    assert set(tn.region_cautions) == {"Urban statewide", "Memphis urban", REGION}
+    for region in ("Urban statewide", "Memphis urban"):
+        text = tn.region_cautions[region]
+        assert "'should be used to predict streamflows'" in text and "10 percent" in text
+        assert "does not name this set" in text
     assert REGION not in al.region_cautions and load_state("MS").region_cautions == {}
 
 
 def test_an_estimate_names_the_region():
-    gage = GAGES["alms"][1]
+    gage = _gage(WLS, "02473047")
     est = estimate_from_characteristics(
         "MS",
         {"DRNAREA": gage["DRNAREA"], "LC11DEV": gage["LC11DEV"]},
@@ -203,7 +249,7 @@ def test_an_estimate_names_the_region():
         lon=-90.2,
         aeps=[0.01],
     )
-    assert _three_figures(float(est.quantiles.loc[0, "flow_cfs"]), gage["flows"]["0.01"])
+    assert _three_figures(float(est.quantiles.loc[0, "flow_cfs"]), gage["WLS_0.01"])
     assert est.quantiles.loc[0, "lower"] < est.quantiles.loc[0, "flow_cfs"]
 
 
@@ -212,3 +258,64 @@ def test_alabamas_old_urban_estimate_says_it_is_superseded():
         "AL", {"CONTDA": 5.0, "URBAN": 50.0}, region="Urban", lat=33.5, lon=-86.8, aeps=[0.01]
     )
     assert "SIR 2026-5044" in est.advisory
+
+
+# -- the two ecoregion percentages ----------------------------------------------------------
+
+BASIN = {"DRNAREA": 20.0, "LC11DEV": 60.0, "LC11IMP": 30.0}
+
+
+def _shares(piedmont, ridge, state="GA"):
+    return estimate_from_characteristics(
+        state,
+        {**BASIN, "L3_PIEDMNT": piedmont, "L3_RDGVLY": ridge},
+        region=REGION,
+        lat=33.7,
+        lon=-84.4,
+        aeps=[0.01],
+    )
+
+
+@pytest.mark.parametrize("state", GLS_STATES)
+def test_shares_of_one_basin_cannot_pass_100_percent(state):
+    with pytest.raises(ValueError, match="L3_PIEDMNT and L3_RDGVLY.*200 percent"):
+        _shares(100.0, 100.0, state)
+    assert _shares(50.4, 50.0, state).quantiles.loc[0, "flow_cfs"] > 0  # rounding
+
+
+@pytest.mark.parametrize("piedmont,ridge", [(1.0, 0.0), (0.6, 0.4), (0.0, 0.98)])
+def test_a_share_that_looks_like_a_fraction_is_cautioned(piedmont, ridge):
+    est = _shares(piedmont, ridge)
+    assert "given as fractions" in est.advisory
+    assert "given as fractions" in est.to_markdown()
+
+
+@pytest.mark.parametrize("piedmont,ridge", [(100.0, 0.0), (0.0, 0.0), (99.0, 1.0), (40.0, 0.5)])
+def test_a_share_in_percent_is_not(piedmont, ridge):
+    assert "given as fractions" not in _shares(piedmont, ridge).advisory
+
+
+def test_the_check_is_only_for_the_states_that_take_the_shares():
+    assert load_state("GA").basin_shares == [("L3_PIEDMNT", "L3_RDGVLY")]
+    est = estimate_from_characteristics(
+        "AL",
+        {"DRNAREA": 5.0, "LC11DEV": 50.0, "L3_PIEDMNT": 1.0, "L3_RDGVLY": 100.0},
+        region=REGION,
+        lat=33.5,
+        lon=-86.8,
+        aeps=[0.01],
+    )
+    assert "given as fractions" not in est.advisory
+
+
+def test_another_set_of_the_state_ignores_the_shares():
+    """StreamStats may return the codes; a set that does not use them is not refused over them."""
+    est = estimate_from_characteristics(
+        "AL",
+        {"CONTDA": 5.0, "URBAN": 50.0, "L3_PIEDMNT": 100.0, "L3_RDGVLY": 100.0},
+        region="Urban",
+        lat=33.5,
+        lon=-86.8,
+        aeps=[0.01],
+    )
+    assert est.quantiles.loc[0, "flow_cfs"] > 0

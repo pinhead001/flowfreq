@@ -459,6 +459,10 @@ class StateLibrary:
     #: located, for the whole basin: Texas's OmegaEM set and the 2026 urban sets. A region
     #: that is only part of a state's map is never one of these.
     named_regions: List[str] = field(default_factory=list)
+    #: Groups of characteristics that are each a percent of the same basin (SIR 2025-5104's two
+    #: ecoregion percentages). A group summing to over 100 is refused, and one that looks like
+    #: fractions is cautioned, where an equation used takes it.
+    basin_shares: List[Tuple[str, ...]] = field(default_factory=list)
 
     @property
     def provisional(self) -> bool:
@@ -612,6 +616,7 @@ def parse_state(data: Dict[str, Any]) -> StateLibrary:
         companion_regions=companions,
         weighting_cautions=weighting_cautions,
         named_regions=named,
+        basin_shares=[tuple(str(c) for c in group) for group in data.get("basin_shares") or []],
     )
 
 
