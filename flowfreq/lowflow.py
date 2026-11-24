@@ -179,7 +179,9 @@ def annual_minimum_flow(
     within a year is of interest, alignment does not change which n-day
     windows exist -- it only changes which date is attached to one -- except
     at a year boundary, where a window is credited to the year containing
-    its last day.
+    its last day. USGS SIR 2026-5021's published values fit windows kept inside
+    each year instead: of 32 gages compared (2026-11-24), it matters at one for
+    the 7-day minima (7Q10 498 cfs here, 504 there; ``tests/fixtures/lowflow``).
     """
     if n_day < 1:
         raise ValueError(f"n_day must be >= 1, got {n_day}")
