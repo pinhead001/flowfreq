@@ -83,3 +83,14 @@ def test_only_montana_has_one():
     files = sorted((Path(__file__).parent.parent / "flowfreq/data/regression").glob("*.json"))
     have = [f.stem for f in files if json.loads(f.read_text("utf-8")).get("weighting_cautions")]
     assert len(files) > 40 and have == ["MT"]
+
+
+@pytest.mark.parametrize("width", ["BF", "AC", "RS"])
+def test_montanas_channel_width_sets_carry_the_same_limit(width):
+    """SIR 2020-5142 (pp. 38 and 47) repeats it for the sets it adds."""
+    lib = load_state("MT")
+    pair = (f"NW-{width}", f"NWF-{width}")
+    (found,) = [c for c in lib.weighting_cautions if set(c.regions) == set(pair)]
+    assert found.aep_at_or_below == 0.04 and "SIR 2020-5142" in found.text
+    assert found.affected(pair, [0.5, 0.1, 0.04, 0.01]) == [0.04, 0.01]
+    assert found.affected(pair[:1], [0.01]) == []

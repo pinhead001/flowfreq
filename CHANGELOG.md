@@ -55,7 +55,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `covered_percent` is the least NSS's located regions can cover, so `min_coverage_percent` and the caution still work.
 - SIR 2025-5104's two ecoregion percentages are refused where they sum to over 100, and cautioned where they look
   like fractions. Its Tennessee caution on the 1984 urban sets quotes the report's instruction to use the new ones.
-- `SiteEstimate.to_markdown` prints how the region was chosen, where a rule or the caller chose it.
+- `SiteEstimate.to_markdown` prints how the region was chosen, where a rule or the caller chose it, and whether a
+  basin in several regions was averaged in flow or in the logarithms of flow.
+- Montana's channel-width sets carry the Northwest to Northwest Foothills weighting caution (SIR 2020-5142, pp. 38, 47).
 - A drainage area that is not a positive number is refused in words by every report section built from daily flows.
 - `Hydrograph`'s summary hydrograph and duration curve counted the calendar years touched, so 20 water years read as
   21 and a record with a gap counted what fell in it; they print the days with a value over 365.25. Its log axes
