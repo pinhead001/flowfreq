@@ -128,3 +128,22 @@ def test_a_failed_fit_is_not_cached(monkeypatch):
         with pytest.raises(Exception, match="made to fail"):
             build_section("gaged_ffa", dict(GAGE))
     assert len(calls) == 2
+
+
+def test_a_downloaded_gage_is_fitted_once_too(tmp_path, fits, monkeypatch):
+    """Found by a live chat run, 2026-11-24: the download's own fit was not kept."""
+    downloads: List[str] = []
+
+    def downloaded(site_no: str) -> Dict[str, Any]:
+        downloads.append(site_no)
+        return {"peaks": copy.deepcopy(GAGE["peaks"]), "site_name": "Big Sandy River"}
+
+    monkeypatch.setattr(gaged, "download_peaks", downloaded)
+    given = {k: v for k, v in GAGE.items() if k not in ("peaks", "site_name")}
+    session = ReportSession("Big Sandy River", output_dir=tmp_path)
+    session.add_section("gaged_ffa", dict(given))
+    session.render("report.md")
+    assert len(fits) == 1 and downloads == ["03606500"]
+    # Asked for again without peaks, it is downloaded and fitted again: the record may have grown.
+    build_section("gaged_ffa", dict(given))
+    assert len(fits) == 2 and len(downloads) == 2

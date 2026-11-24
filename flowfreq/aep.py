@@ -17,14 +17,24 @@ from typing import Iterable, Optional
 #: (0.01 and 0.005) by 50 percent.
 AEP_MATCH: float = 0.0075
 
+#: The same for the chance of not being exceeded, which tells the common floods apart: 0.995
+#: and 0.99 are within 0.75 percent as written, but the second is not exceeded in twice as
+#: many years as the first. 0.667 and 0.67 differ by 0.9 percent here.
+COMMON_MATCH: float = 0.02
+
 
 def same_aep(a: float, b: float, tolerance: float = AEP_MATCH) -> bool:
     """True when two AEPs are the same flood written to different precision.
 
-    >>> same_aep(0.67, 0.667), same_aep(0.005, 0.002), same_aep(0.01, 0.01)
-    (True, False, True)
+    >>> same_aep(0.67, 0.667), same_aep(0.005, 0.002), same_aep(0.99, 0.995)
+    (True, False, False)
     """
-    return abs(float(a) - float(b)) <= tolerance * max(abs(float(a)), abs(float(b)))
+    p, q = float(a), float(b)
+    apart = abs(p - q)
+    if apart > tolerance * max(abs(p), abs(q)):
+        return False
+    # An epsilon, so that a flood written twice as 1 - 0.01 is itself.
+    return apart <= COMMON_MATCH * max(1.0 - p, 1.0 - q) + 1e-9
 
 
 def match_aep(
@@ -45,4 +55,4 @@ def match_aep(
     return best
 
 
-__all__ = ["AEP_MATCH", "match_aep", "same_aep"]
+__all__ = ["AEP_MATCH", "COMMON_MATCH", "match_aep", "same_aep"]

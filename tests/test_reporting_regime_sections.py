@@ -455,3 +455,39 @@ def test_a_bad_drainage_area_is_refused_in_words(kind: str, area: Any) -> None:
 def test_the_summary_says_when_february_29_has_no_value() -> None:
     built = build_section("summary_hydrograph", _station(VALUES[:200]))
     assert "February 29" not in _text(built.blocks)
+
+
+@pytest.mark.parametrize(
+    "low,high,log", [(100.0, 110.0, False), (50.0, 50.0, False), (10.0, 51.0, True)]
+)
+def test_the_summary_hydrograph_axis_has_labels_to_read(
+    drawn: List[Any], low: float, high: float, log: bool
+) -> None:
+    spread = np.ptp(VALUES)
+    build_section(
+        "summary_hydrograph", _station(low + (high - low) * (VALUES - VALUES.min()) / spread)
+    )
+    assert (drawn[0].get_yscale() == "log") is log
+
+
+@pytest.mark.parametrize("ratio,log", [(4.99, False), (5.0, True)])
+def test_the_axis_turns_log_at_a_factor_of_five(ratio: float, log: bool) -> None:
+    fig, ax = plt.subplots()
+    assert regime_sections._flow_axis(ax, 100.0, 100.0 * ratio) is log
+    assert ax.get_yscale() == ("log" if log else "linear")
+    plt.close(fig)
+
+
+def test_a_linear_baseflow_axis_starts_at_zero(drawn: List[Any]) -> None:
+    build_section("baseflow", _station(110.0 + 80.0 * (VALUES - VALUES.min()) / np.ptp(VALUES)))
+    assert drawn[0].get_yscale() == "linear" and drawn[0].get_ylim()[0] == 0.0
+    drawn.clear()
+    build_section("baseflow", dict(STATION))
+    assert drawn[0].get_yscale() == "log" and drawn[0].get_ylim()[0] > 0.0
+
+
+def test_one_february_29_is_one_year() -> None:
+    days = pd.date_range(START, periods=len(VALUES), freq="D")
+    first = int(np.flatnonzero(days == pd.Timestamp("1995-10-01"))[0])
+    built = build_section("summary_hydrograph", _station(VALUES[first : first + 731], "1995-10-01"))
+    assert "February 29 rests on 1 year, " in _text(built.blocks)

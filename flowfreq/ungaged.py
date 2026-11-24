@@ -407,7 +407,7 @@ class Assembly:
     #: much of the basin the estimate's regions cover. Under 100 where part of the basin is
     #: in another state, another country, or a region the library does not have. Where a set
     #: of ``named_regions`` stands in for what NSS located, the least the located regions can
-    #: cover: the most any one report's regions add up to.
+    #: cover: the most any one report's regions add up to, and 0 where NSS located none.
     covered_percent: float = 100.0
     #: The located regions a set of ``named_regions`` stands in for (empty on every other path).
     stands_in_for: List[RegressionRegionLocation] = field(default_factory=list)
@@ -728,13 +728,20 @@ def _least_covered(
     """The least percent of the basin the located regions can cover between them.
 
     The regions of one report's table partition the state, so they add up; another report's are
-    alternatives over the same ground and do not. Where two reports do partition a state the
-    sum would be larger, so this is a lower bound.
+    alternatives over the same ground and do not. Sets with a limit on when they apply
+    (``lib.region_limits``: Texas's small and large Colorado basins) are alternatives too, even
+    in one table, so only the largest of those counts. Where two reports, or limited sets, do
+    partition a state the sum would be larger, so this is a lower bound.
     """
     sums: Dict[str, float] = {}
     for loc, lib_code in located:
+        weight = max(loc.percent_weight, 0.0)
         cited = _region_citation(lib, lib_code)[0]
-        sums[cited] = sums.get(cited, 0.0) + max(loc.percent_weight, 0.0)
+        if lib_code in lib.region_limits:
+            cited += " (limited)"
+            sums[cited] = max(sums.get(cited, 0.0), weight)
+        else:
+            sums[cited] = sums.get(cited, 0.0) + weight
     # NSS rounds each weight to a whole percent, so a whole basin may read 99 or 101.
     return min(100.0, max(sums.values(), default=0.0))
 
@@ -891,9 +898,11 @@ def assemble(
     extra_refusal = ""
     pre_matched: Dict[str, str] = {}
     replaced: List[Tuple[RegressionRegionLocation, str]] = []
+    covered: Optional[float] = None
     named = _named_region(lib, choices)
     if named is not None and matched and all(code != named for _, code in matched):
         replaced, matched = matched, []
+        covered = _least_covered(lib, replaced)
         located = RegressionRegionLocation(
             region_id=0,
             code=named,
@@ -922,6 +931,9 @@ def assemble(
             matched = [(located, resolved)]
             pre_matched = {located.code: resolved}
             region_choice_source = "caller; NSS located no peak-flow region for this basin"
+            if resolved in lib.named_regions:
+                # NSS does serve the state's other regions, so nothing says the basin is in it.
+                covered = 0.0
         else:
             shown = choice if len(choices) == 1 else region
             extra_refusal = f"; region {shown!r} is not a library region either"
@@ -1245,7 +1257,7 @@ def assemble(
         missing=missing,
         alternatives=alternatives,
         region_choice_source=region_choice_source,
-        covered_percent=(_least_covered(lib, replaced) if replaced else min(100.0, float(total))),
+        covered_percent=min(100.0, float(total)) if covered is None else covered,
         stands_in_for=[loc for loc, _ in replaced],
     )
 
@@ -1455,9 +1467,11 @@ class SiteEstimate:
         else:
             lines.append("- Every input lies within the calibrated range of the equations used.")
         if len(self.regions) > 1:
+            space = (self.provenance.get("options") or {}).get("weighting_space")
+            how = {"linear": " in flow", "log": " in the logarithms of flow"}.get(str(space), "")
             lines.append(
                 f"- The basin spans {len(self.regions)} regression regions; the flows are "
-                "area-weighted and carry no prediction interval."
+                f"area-weighted{how} and carry no prediction interval."
             )
         missing = self.provenance.get("missing_characteristics")
         if missing:
@@ -1752,10 +1766,16 @@ def estimate_at_site(
 
 def stand_in_caution(covered_percent: float, region: str) -> str:
     """The caution where a named set is used for a basin NSS's regions only partly cover."""
+    if covered_percent <= 0.0:
+        return (
+            f"NSS located none of the state's regression regions for this basin, and {region!r} "
+            "is used for the whole of it: check that the basin is in the state."
+        )
     return (
         f"NSS located the state's regression regions over at least {covered_percent:.0f} percent "
-        f"of the basin and perhaps not all of it, and {region!r} is used for the whole, so any "
-        "part in another state or country is treated as if it were like the part in this one."
+        "of the basin (the most any one report's regions add up to) and perhaps not all of it, "
+        f"and {region!r} is used for the whole, so any part in another state or country is "
+        "treated as if it were like the part in this one."
     )
 
 
@@ -1835,9 +1855,11 @@ def _site_estimate(
             "to the whole, so the rest of the basin (in another state or country, or in a "
             "region with no equations here) is treated as if it were like the part covered."
         )
-    if coverage_caution and assembly.stands_in_for:
+    used_library = {assembly.region_codes.get(r.code, r.code) for r in assembly.used}
+    if coverage_caution and used_library & set(lib.named_regions):
         provenance["stands_in_for"] = [r.code for r in assembly.stands_in_for]
         coverage_caution = stand_in_caution(assembly.covered_percent, _codes(assembly.used))
+    provenance["partly_covered"] = bool(coverage_caution)
     nearby = [m for m in lib.known_misses if m.distance_km(lat, lon) <= m.radius_km]
     used_codes = {assembly.region_codes.get(r.code, r.code) for r in assembly.used}
     region_cautions = [text for code, text in lib.region_cautions.items() if code in used_codes]

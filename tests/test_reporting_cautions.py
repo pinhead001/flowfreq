@@ -257,3 +257,16 @@ def test_a_future_flow_reply_carries_the_cautions(tmp_path: Any) -> None:
     session.add_section("ungaged", dict(URBAN))
     reply = session.future_flow("s1", dict(FACTORS))
     assert CAUTION in reply["cautions"][0]
+
+
+@pytest.mark.parametrize("percent", [98.4, 97.0, 45.0])
+def test_a_live_coverage_caution_is_always_stored(texas: Fakes, percent: float) -> None:
+    """The note was kept only below 98 percent, the caution given below 98.5."""
+    from tests.test_ungaged_named_region import _nss
+
+    located = type(texas.regions[0])
+    texas.regions = [located(1, _nss("TX", "Statewide"), "located", percent, 20.0)]
+    for options in (dict(TEXAS), {k: TEXAS[k] for k in ("state", "lat", "lon")}):
+        built = build_section("ungaged", options)
+        assert any("percent of the basin" in c for c in built.cautions), options
+        assert _all_text(built.blocks).count(f"{percent:.0f} percent of the basin") == 1

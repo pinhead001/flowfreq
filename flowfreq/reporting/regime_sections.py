@@ -117,6 +117,11 @@ def _flag(owner: str, name: str, value: Any) -> bool:
     return value
 
 
+def _spans_a_log_axis(low: float, high: float) -> bool:
+    """Whether flows from ``low`` to ``high`` give a log axis enough labels to read."""
+    return low > 0 and high >= 5.0 * low
+
+
 def _flow_axis(ax: Any, low: float, high: float) -> bool:
     """Make the flow axis log, with plain numbers at 1, 2 and 5 times each power of ten.
 
@@ -125,7 +130,7 @@ def _flow_axis(ax: Any, low: float, high: float) -> bool:
     """
     from matplotlib.ticker import FuncFormatter, LogLocator, NullFormatter
 
-    if low <= 0 or high < 5.0 * low:
+    if not _spans_a_log_axis(low, high):
         return False
     ax.set_yscale("log")
     ax.yaxis.set_major_locator(LogLocator(subs=(1.0, 2.0, 5.0)))
@@ -312,14 +317,16 @@ def _build_summary_hydrograph(given: Dict[str, Any]) -> SectionContent:
     ]
     leap = int(counts.get(Hydrograph.day_of_water_year(2, 29), 0))
     if leap:
-        method.append(f"February 29 rests on {leap} years, the leap years with a value on it.")
+        years = "1 year, the leap year" if leap == 1 else f"{leap} years, the leap years"
+        method.append(f"February 29 rests on {years} with a value on it.")
     method.extend(_negative_note(owner, options, frame))
+    lowest = float(frame["flow_cfs"].min())
     figure = Hydrograph.plot_summary_hydrograph(
         frame,
         site_name=options.get("site_name"),
         site_no=str(options["site_no"]).strip() if options.get("site_no") else None,
         percentiles=_PERCENTILES,
-        yscale="log" if float(frame["flow_cfs"].min()) > 0 else "linear",
+        yscale="log" if _spans_a_log_axis(lowest, float(frame["flow_cfs"].max())) else "linear",
     )
     blocks: List[Block] = [
         _record_table(options, frame),
