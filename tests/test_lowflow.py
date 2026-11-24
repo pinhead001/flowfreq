@@ -547,7 +547,8 @@ class TestAgainstSir20265021:
     @classmethod
     def _climatic(cls, site: str) -> pd.DataFrame:
         row = cls.TABLE.loc[site]
-        return cls._daily(site).loc[f"{row.First_CY}-04-01" :f"{row.Last_CY + 1}-03-31"]
+        first, last = f"{row.First_CY}-04-01", f"{row.Last_CY + 1}-03-31"
+        return cls._daily(site).loc[first:last]
 
     @staticmethod
     def _printed(value: float, printed: float) -> bool:
@@ -587,7 +588,8 @@ class TestAgainstSir20265021:
     @pytest.mark.parametrize("site", ["02383000", "02096846", "03487500"])
     def test_the_flow_duration(self, site: str) -> None:
         row = self.TABLE.loc[site]
-        years = self._daily(site).loc[f"{row.First_full_WY - 1}-10-01" :f"{row.Last_full_WY}-09-30"]
+        first, last = f"{row.First_full_WY - 1}-10-01", f"{row.Last_full_WY}-09-30"
+        years = self._daily(site).loc[first:last]
         wanted = [95, 90, 75, 50, 25, 10, 5]
         curve = flow_duration_curve(years, wanted).set_index("exceedance_pct")["flow_cfs"]
         for p in wanted:
