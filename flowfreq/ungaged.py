@@ -33,6 +33,8 @@ Assembly rules
   a sequence of codes, one per side of a region boundary, whose ``percent_weight`` sums
   to 100 % (within the same tolerance): they are used together as a partition and the
   rest are ``alternatives``.
+- A set NSS does not serve (``StateLibrary.named_regions``) is used only when ``region=`` is
+  its code, and then for the whole basin: what NSS located becomes ``alternatives``.
 - Area fractions come from NSS's ``percent_weight`` (what NSS itself weights by),
   renormalised over the regions actually used.
 - One region gives its own prediction interval; several give an area-weighted flow with
@@ -42,6 +44,7 @@ Assembly rules
 from __future__ import annotations
 
 import logging
+import math
 import re
 from dataclasses import asdict, dataclass, field, replace
 from datetime import datetime, timezone
@@ -380,7 +383,8 @@ class Assembly:
         regions partition the basin).
     region_choice_source : str, optional
         Set when ``region`` named a library region that NSS did not locate (NSS located no
-        peak-flow region mapping to the library); ``None`` on every other path.
+        peak-flow region mapping to the library, or does not serve the set), or when a rule
+        chose among the located regions; else ``None``.
     """
 
     quantiles: pd.DataFrame
@@ -691,6 +695,38 @@ def _library_region(lib: StateLibrary, code: str) -> Optional[str]:
     return None
 
 
+def _named_region(lib: StateLibrary, choices: Sequence[str]) -> Optional[str]:
+    """The set of ``lib.named_regions`` a single choice names (case-insensitively), else None.
+
+    Only the ``region_code`` itself counts: a word of the set's name could as well mean one of
+    the sets NSS located.
+    """
+    if len(choices) != 1:
+        return None
+    wanted = choices[0].upper()
+    return next((code for code in lib.named_regions if code.upper() == wanted), None)
+
+
+def _supplied(lib: StateLibrary, given: Optional[Mapping[str, Any]]) -> Dict[str, float]:
+    """``supplied_characteristics`` as numbers, each a code some equation of ``lib`` uses."""
+    values: Dict[str, float] = {}
+    known = {v.code for e in lib.equations for v in (*e.variables, *e.applicability)}
+    for code, value in (given or {}).items():
+        if code not in known:
+            raise ValueError(
+                f"supplied_characteristics: {code}: no {lib.state} equation uses it; they use "
+                + ", ".join(sorted(known))
+            )
+        try:
+            number = math.nan if isinstance(value, bool) else float(value)
+        except (TypeError, ValueError):
+            number = math.nan
+        if not math.isfinite(number):
+            raise ValueError(f"supplied_characteristics: {code} must be finite, got {value!r}")
+        values[code] = number
+    return values
+
+
 def assemble(
     lib: StateLibrary,
     regions: Sequence[RegressionRegionLocation],
@@ -748,6 +784,10 @@ def assemble(
         ``percent_weight`` 100, recorded in ``region_codes``, with
         ``region_choice_source`` set; otherwise the refusal also says the code is not a
         library region (a sequence of two or more codes never resolves this way).
+        A single code that is one of ``lib.named_regions`` (a set NSS does not serve, such
+        as the 2026 urban sets) and that NSS did not locate is used alone for the whole
+        basin even where NSS located other regions, which are then returned in
+        ``alternatives``, with ``region_choice_source`` set.
         Without ``region``, a set a :class:`~flowfreq.regression.library.RegionLimit`
         excludes is dropped first and returned in ``alternatives``, then the overlap rules
         apply to what is left. ``region`` reaches a set a limit would drop.
@@ -799,7 +839,24 @@ def assemble(
     region_choice_source: Optional[str] = None
     extra_refusal = ""
     pre_matched: Dict[str, str] = {}
-    if region is not None and (not regions or not matched):
+    replaced: List[Tuple[RegressionRegionLocation, str]] = []
+    named = _named_region(lib, choices)
+    if named is not None and matched and all(code != named for _, code in matched):
+        replaced, matched = matched, []
+        located = RegressionRegionLocation(
+            region_id=0,
+            code=named,
+            name=_region_name(lib, named),
+            percent_weight=100.0,
+            area_sq_mi=0.0,
+        )
+        matched = [(located, named)]
+        pre_matched = {named: named}
+        region_choice_source = (
+            "caller; NSS does not serve it, and it is used for the whole basin in place of "
+            f"what NSS located ({', '.join(loc.code for loc, _ in replaced)})"
+        )
+    elif region is not None and (not regions or not matched):
         resolved = _library_region(lib, choice) if len(choices) == 1 and choice else None
         if resolved is not None and choice is not None:
             located = RegressionRegionLocation(
@@ -849,7 +906,7 @@ def assemble(
             _codes(unmatched),
             ", ".join(r.code for r, _ in matched),
         )
-    region_codes = {loc.code: lib_code for loc, lib_code in matched}
+    region_codes = {loc.code: lib_code for loc, lib_code in (*replaced, *matched)}
     region_codes.update(pre_matched)
     region_codes.update(
         {r.code: code for r in selected_aside if (code := region_for_nss_code(lib, r.code))}
@@ -945,7 +1002,7 @@ def assemble(
                 )
             extra.append(found)
 
-    limited: List[RegressionRegionLocation] = []
+    limited: List[RegressionRegionLocation] = [r for r, _ in replaced if r.percent_weight > 0]
     limit_source: Optional[str] = None
     if not choices:
         used, limited, limit_source = _within_limits(lib, used, characteristics)
@@ -1248,6 +1305,9 @@ class SiteEstimate:
                 lines.append(f"| {r.code} | {r.name} | {fraction:.3f} | {source} |")
         else:
             lines.append("No regression region was used.")
+        choice = self.provenance.get("region_choice_source")
+        if choice:
+            lines.extend(["", f"Region choice: {choice}."])
         alternatives = self.provenance.get("alternative_regions")
         if alternatives:
             lines.extend(["", "Not used (alternative NSS equation sets):", ""])
@@ -1269,6 +1329,11 @@ class SiteEstimate:
         if self.characteristics:
             lines.extend(["| Code | Value |", "|---|---:|"])
             lines.extend(f"| {code} | {value:g} |" for code, value in self.characteristics.items())
+            supplied = self.provenance.get("supplied_characteristics")
+            if supplied:
+                lines.extend(
+                    ["", f"Supplied by the caller, not StreamStats: {', '.join(sorted(supplied))}."]
+                )
         else:
             lines.append("None.")
 
@@ -1401,6 +1466,7 @@ def estimate_at_site(
     region: Union[str, Sequence[str], None] = None,
     allow_inaccurate: bool = False,
     min_coverage_percent: Optional[float] = None,
+    supplied_characteristics: Optional[Mapping[str, float]] = None,
 ) -> SiteEstimate:
     """Estimate flood quantiles at an ungaged site from the state's regression equations.
 
@@ -1455,7 +1521,9 @@ def estimate_at_site(
         ``provenance["alternative_regions"]``. May also be a sequence of codes that
         together cover the basin (see :func:`assemble`). Where NSS locates no peak-flow
         region for the state (Wyoming, Nevada), a library region code chosen from the
-        report's map is used alone.
+        report's map is used alone. A set NSS does not serve (``named_regions`` in the
+        state's library: ``"Statewide OmegaEM"`` in Texas, ``"Urban 2026"`` in AL, GA, MS,
+        NC, SC and TN) is used for the whole basin when its code is given here.
 
     allow_inaccurate : bool, default False
         Keep a basin StreamStats warns about with "... MAY BE INACCURATE", which it does
@@ -1475,6 +1543,13 @@ def estimate_at_site(
         records the share and the advisory carries a caution. Whether a basin half outside
         the regions can be estimated from the half inside is a judgment about that basin,
         so no threshold is built in.
+
+    supplied_characteristics : mapping of str to float, optional
+        Basin characteristics StreamStats does not return, by the codes the equations use
+        (the main-channel slope ``MCSLOPE`` in Texas, the ecoregion percentages of the 2026
+        urban equations), measured as the report defines them. They join StreamStats' own
+        and are recorded in ``provenance["supplied_characteristics"]``. A code StreamStats
+        did return is refused rather than replaced; one it withheld may be given.
 
     Returns
     -------
@@ -1503,8 +1578,10 @@ def estimate_at_site(
     OutOfRangeError
         An input outside its calibrated range without ``allow_extrapolation``.
     ValueError
-        An unknown ``weighting_space``; an empty ``aeps``; a weighted ``Q=0`` in log space; or an
-        ``at_site`` whose ``confidence_limits`` lack ``variance_log``.
+        An unknown ``weighting_space``; an empty ``aeps``; a weighted ``Q=0`` in log space; an
+        ``at_site`` whose ``confidence_limits`` lack ``variance_log``; or a
+        ``supplied_characteristics`` code no equation uses, that StreamStats returned, or
+        with a value that is not a finite number.
     UnsnappablePointError, DegenerateDelineationError, StreamStatsResponseError, \
     StreamStatsTransportError
         From StreamStats, unchanged.
@@ -1524,6 +1601,7 @@ def estimate_at_site(
         allow_provisional=allow_provisional,
     )
     weighting_space = weighting_space or lib.weighting_space or "log"
+    supplied = _supplied(lib, supplied_characteristics)
     ws = delineate_and_get_characteristics(
         code, lat, lon, cache=cache, timeout=timeout, allow_inaccurate=allow_inaccurate
     )
@@ -1536,6 +1614,14 @@ def estimate_at_site(
         )
     located = locate_regression_regions(code, ws.polygon_geojson, timeout=timeout)
     characteristics = {k: c.value for k, c in ws.characteristics.items()}
+    both = sorted(set(supplied) & set(characteristics))
+    if both:
+        raise ValueError(
+            f"supplied_characteristics: StreamStats returned {', '.join(both)} for this basin "
+            f"({', '.join(f'{characteristics[c]:g}' for c in both)}); leave it out, or use "
+            "estimate_from_characteristics to estimate from your own value"
+        )
+    characteristics.update(supplied)
     derived = outlet_coordinates(lib, ws.snap.snapped_lat, ws.snap.snapped_lon, characteristics)
     characteristics.update(derived)
 
@@ -1574,6 +1660,7 @@ def estimate_at_site(
             "derived_characteristics": {
                 k: {"value": v, "source": "snapped pour point"} for k, v in derived.items()
             },
+            "supplied_characteristics": supplied,
         },
         options={
             "allow_nss_snapshot": allow_nss_snapshot,

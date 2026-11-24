@@ -3282,5 +3282,8 @@
  "weighting_space": "linear",
  "region_cautions": {
   "Urban 2026": "SIR 2025-5104 (Wagner and Ladd, 2026) is an urban set fitted to gages in six southeastern states; it does not say it applies in place of this state's equations. It is not valid in the Middle Atlantic or Southern Coastal Plain Level 3 ecoregions, for regulated or tidal streams, and it had no gage in the Blue Ridge; nothing here checks which ecoregion the basin is in."
- }
+ },
+ "named_regions": [
+  "Urban 2026"
+ ]
 }

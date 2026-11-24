@@ -3287,5 +3287,8 @@
  "region_cautions": {
   "Urban statewide": "SIR 2025-5104 (Wagner and Ladd, 2026) gives newer urban equations for Tennessee from data through water year 2022, stored as region 'Urban 2026'. The report does not say it supersedes this set, which NSS and StreamStats still serve.",
   "Memphis urban": "SIR 2025-5104 (Wagner and Ladd, 2026) gives newer urban equations for Tennessee from data through water year 2022, stored as region 'Urban 2026'. The report does not say it supersedes this set, which NSS and StreamStats still serve."
- }
+ },
+ "named_regions": [
+  "Urban 2026"
+ ]
 }

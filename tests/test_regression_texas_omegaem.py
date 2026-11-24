@@ -17,16 +17,17 @@ from typing import Any, Dict
 import numpy as np
 import pandas as pd
 import pytest
+from scipy.stats import t
 
 from flowfreq.regression import evaluate
-from flowfreq.regression.library import load_state
+from flowfreq.regression.library import EquationsUnavailable, load_state
 from flowfreq.ungaged import estimate_from_characteristics
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures" / "regression"
 REGION = "Statewide OmegaEM"
 YEARS = (2, 5, 10, 25, 50, 100, 200, 250, 500)
 #: The report's worked example: 08190000, Nueces River at Laguna (p. 17).
-LAGUNA = {"DRNAREA": 737.0, "PRECIPCENT": 24.5, "MCSLOPE": 0.00326, "OmegaEM": 0.33}
+LAGUNA = {"CONTDA": 737.0, "PRECIPCENT": 24.5, "MCSLOPE": 0.00326, "OmegaEM": 0.33}
 
 
 @pytest.fixture(scope="module")
@@ -79,9 +80,35 @@ def test_matrix_gives_the_printed_standard_errors(
 ) -> None:
     eq, printed = _equation(lib, years), appendix[str(years)]
     assert eq.model_error_variance == pytest.approx(printed["rse"] ** 2)
-    errors = np.sqrt(np.diag(np.array(eq.covariance)))
+    covariance = np.array(eq.covariance)
+    errors = np.sqrt(np.diag(covariance))
     np.testing.assert_allclose(errors, printed["se"], rtol=4e-4)
-    np.testing.assert_allclose(np.array(eq.covariance), np.array(eq.covariance).T)
+    np.testing.assert_allclose(covariance, covariance.T)
+    # Every term, not only the diagonal.
+    matrix = np.array(printed["matrix"])
+    np.testing.assert_allclose(covariance, printed["rse"] ** 2 * matrix, rtol=2e-6)
+
+
+@pytest.mark.parametrize("years", YEARS)
+def test_limits_are_table_1_and_figure_2(lib: Any, years: int) -> None:
+    """Table 1: 0.1 to 9,329 mi2, 8 to 57 in, slope 0.00023 to 0.0703; figure 2's least and most."""
+    limits = [(v.code, v.units, v.minimum, v.maximum) for v in _equation(lib, years).variables]
+    assert limits == [
+        ("CONTDA", "mi2", 0.1, 9329.0),
+        ("PRECIPCENT", "in", 8.0, 57.0),
+        ("MCSLOPE", "ft/ft", 0.00023, 0.0703),
+        ("OmegaEM", "dimensionless", -0.503, 0.386),
+    ]
+
+
+def test_the_interval_is_students_t_on_633_degrees_of_freedom(lib: Any) -> None:
+    """Equation 7 at the report's example, 90 percent: 638 stations less five coefficients."""
+    est = evaluate(_equation(lib, 100), LAGUNA)
+    assert est.interval is not None and est.interval_level == 0.9
+    half = t.ppf(0.95, 633) * math.sqrt(est.prediction_variance)
+    assert est.interval[0] == pytest.approx(est.flow_cfs / 10.0**half, rel=1e-9)
+    assert est.interval[1] == pytest.approx(est.flow_cfs * 10.0**half, rel=1e-9)
+    assert [round(x, -1) for x in est.interval] == [45780.0, 457040.0]
 
 
 @pytest.mark.parametrize("years", YEARS)
@@ -97,7 +124,7 @@ def test_stations_scatter_about_the_equation_as_the_report_says(
                 evaluate(
                     eq,
                     {
-                        "DRNAREA": row["CDA"],
+                        "CONTDA": row["CDA"],
                         "PRECIPCENT": row["MAP"],
                         "MCSLOPE": row["MCS"],
                         "OmegaEM": row["OMEGA"],
@@ -142,6 +169,36 @@ def test_it_is_used_only_when_asked_for(lib: Any) -> None:
     assert REGION not in lib.region_limits
 
 
+def test_the_total_drainage_area_is_not_taken_for_the_contributing_one(lib: Any) -> None:
+    """P. 3: area is contributing. StreamStats' DRNAREA is total, many times as large in places."""
+    total = {**{k: v for k, v in LAGUNA.items() if k != "CONTDA"}, "DRNAREA": 737.0}
+    with pytest.raises(EquationsUnavailable, match="CONTDA"):
+        estimate_from_characteristics("TX", total, region=REGION, lat=29.43, lon=-100.0)
+
+
+def test_an_estimate_carries_what_the_set_assumes() -> None:
+    estimate = estimate_from_characteristics("TX", LAGUNA, region=REGION, lat=29.43, lon=-100.0)
+    for words in (
+        "undeveloped",
+        "contributing drainage area (CONTDA), not the total",
+        "feet per foot",
+        "not a 10-85 slope",
+        "too narrow",
+    ):
+        assert words in estimate.advisory, words
+
+
+def test_the_statewide_set_says_the_authors_prefer_this_one() -> None:
+    estimate = estimate_from_characteristics(
+        "TX", {"DRNAREA": 737.0, "PRECIPCENT": 24.5}, region="Statewide", lat=29.43, lon=-100.0
+    )
+    assert "SIR 2009-5087" in estimate.advisory and "'Statewide OmegaEM'" in estimate.advisory
+
+
+def test_other_texas_sets_carry_no_caution(lib: Any) -> None:
+    assert set(lib.region_cautions) == {"Statewide", REGION}
+
+
 def test_estimate_from_characteristics(lib: Any) -> None:
     estimate = estimate_from_characteristics("TX", LAGUNA, region=REGION, lat=29.43, lon=-100.0)
     table = estimate.quantiles.set_index("aep")
@@ -150,7 +207,7 @@ def test_estimate_from_characteristics(lib: Any) -> None:
 
 
 @pytest.mark.parametrize(
-    "code,value", [("DRNAREA", 9400.0), ("MCSLOPE", 0.1), ("OmegaEM", 0.5), ("PRECIPCENT", 60.0)]
+    "code,value", [("CONTDA", 9400.0), ("MCSLOPE", 0.1), ("OmegaEM", 0.5), ("PRECIPCENT", 60.0)]
 )
 def test_out_of_range_is_refused(lib: Any, code: str, value: float) -> None:
     with pytest.raises(ValueError, match=code):
