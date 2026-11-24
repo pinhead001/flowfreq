@@ -13,7 +13,6 @@ ambiguous are in ``tests/fixtures/b17b/procedure.md``.
 
 from __future__ import annotations
 
-import logging
 from typing import Mapping, NamedTuple, Optional
 
 import numpy as np
@@ -21,8 +20,6 @@ from scipy.special import ndtri
 from scipy.stats import t as student_t
 
 from flowfreq.core import kfactor
-
-logger = logging.getLogger(__name__)
 
 __all__ = [
     "Bulletin17BError",
@@ -226,10 +223,12 @@ def log_moments(x: np.ndarray) -> tuple[float, float, float]:
     n = x.size
     if n < 3:
         raise Bulletin17BError(f"moments need at least 3 values; got {n}")
+    if not np.all(np.isfinite(x)):
+        raise Bulletin17BError("the log flows contain a value that is not finite (a zero flow?)")
+    if np.ptp(x) == 0.0:
+        raise Bulletin17BError("the log flows are all equal, so S is zero and G undefined")
     mean = float(x.mean())
     s = float(x.std(ddof=1))
-    if s == 0.0:
-        raise Bulletin17BError("the standard deviation of the log flows is zero")
     g = float(n * np.sum((x - mean) ** 3) / ((n - 1) * (n - 2) * s**3))
     return mean, s, g
 
@@ -300,16 +299,27 @@ def historic_moments(
     xz = np.asarray(x_historic, dtype=float)
     z = xz.size
     n = xs.size
+    if n + l == 0:
+        raise Bulletin17BError("the systematic record is empty")
+    if not (np.all(np.isfinite(xs)) and np.all(np.isfinite(xz))):
+        raise Bulletin17BError("the log flows contain a value that is not finite (a zero flow?)")
     w = (h - z) / (n + l)  # eq. 6-1
+    if w < 1.0:
+        raise Bulletin17BError(
+            f"historic weight W = {w:.4f} is below 1: H = {h} is shorter than the "
+            f"{n + l + z} years of record"
+        )
     m = h - w * l
     if m - 2 <= 0:
         raise Bulletin17BError(f"historic period H = {h} is too short for the record")
+    if np.ptp(np.concatenate([xs, xz])) == 0.0:
+        raise Bulletin17BError("the log flows are all equal, so S is zero and G undefined")
     mean = float((w * xs.sum() + xz.sum()) / m)  # eq. 6-2a
     d_s = xs - mean
     d_z = xz - mean
     var = float((w * np.sum(d_s**2) + np.sum(d_z**2)) / (m - 1))  # eq. 6-3a
-    if var <= 0.0:
-        raise Bulletin17BError("the historically adjusted standard deviation is zero")
+    if not var > 0.0:
+        raise Bulletin17BError("the historically adjusted standard deviation is not positive")
     std = var**0.5
     skew = float(
         m / ((m - 1) * (m - 2)) * (w * np.sum(d_s**3) + np.sum(d_z**3)) / std**3
@@ -377,9 +387,19 @@ def confidence_deviates(k: np.ndarray, n: int, z: float) -> tuple[np.ndarray, np
         ``(k_upper, k_lower)``.
     """
     k = np.asarray(k, dtype=float)
+    if n < 2:
+        raise Bulletin17BError(f"confidence limits need N >= 2; got N = {n}")
     a = 1.0 - z**2 / (2.0 * (n - 1))  # eq. 9-5
+    if a <= 0.0:
+        raise Bulletin17BError(
+            f"eq. 9-5 gives a = {a:.4f} <= 0 for N = {n} and z = {z:.4f}: "
+            "the record is too short for this confidence level"
+        )
     b = k**2 - z**2 / n  # eq. 9-6
-    root = np.sqrt(k**2 - a * b)
+    disc = k**2 - a * b
+    if not np.all(disc >= 0.0):
+        raise Bulletin17BError("eqs. 9-4a and 9-4b have a negative discriminant")
+    root = np.sqrt(disc)
     return (k + root) / a, (k - root) / a  # eqs. 9-4a, 9-4b
 
 
