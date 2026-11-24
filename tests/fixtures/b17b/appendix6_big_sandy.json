@@ -1,0 +1,969 @@
+{
+  "title": "Appendix 6 historic data example: Historically Weighted Log Pearson Type III - Annual Peaks",
+  "bulletin_pages": "6-4 to 6-6 (PDF 84-86): Figure 6-1 (pp. 6-4, 6-5) and Figure 6-2 (p. 6-6); Figure 6-3 (p. 6-7, PDF 87) is a plot only, not transcribed",
+  "note_on_values": "Numbers are strings exactly as printed (thousands separators kept). Nothing computed or rounded by the transcriber.",
+  "station": {
+    "name": "Big Sandy River at Bruceton, TN",
+    "number_as_printed": "3-6065",
+    "drainage_area_sq_mi": "205"
+  },
+  "input": {
+    "record_as_printed": "1897, 1919, 1927, 1930-1973 (47 years)",
+    "historical_period_as_printed": "1897-1973 (77 years)",
+    "N": 44,
+    "Z": 3,
+    "H": 77,
+    "L": 0,
+    "L_note": "L is not printed; W = (77-3)/44 implies L = 0 (no low values excluded).",
+    "historic_peaks": [
+      {
+        "year": 1897,
+        "Q_cfs": "25,000",
+        "X_z": "4.39794"
+      },
+      {
+        "year": 1919,
+        "Q_cfs": "21,000",
+        "X_z": "4.32222"
+      },
+      {
+        "year": 1927,
+        "Q_cfs": "18,500",
+        "X_z": "4.26717"
+      }
+    ],
+    "systematic_years": "1930-1973, all 44 years present (no gaps)",
+    "systematic_peaks": [
+      {
+        "year": 1930,
+        "Q_cfs": "9,100",
+        "X": "3.95904"
+      },
+      {
+        "year": 1931,
+        "Q_cfs": "2,060",
+        "X": "3.31387"
+      },
+      {
+        "year": 1932,
+        "Q_cfs": "7,820",
+        "X": "3.89321"
+      },
+      {
+        "year": 1933,
+        "Q_cfs": "3,220",
+        "X": "3.50786"
+      },
+      {
+        "year": 1934,
+        "Q_cfs": "5,580",
+        "X": "3.74663"
+      },
+      {
+        "year": 1935,
+        "Q_cfs": "17,000",
+        "X": "4.23045"
+      },
+      {
+        "year": 1936,
+        "Q_cfs": "6,740",
+        "X": "3.82866"
+      },
+      {
+        "year": 1937,
+        "Q_cfs": "13,800",
+        "X": "4.13988"
+      },
+      {
+        "year": 1938,
+        "Q_cfs": "4,270",
+        "X": "3.63043"
+      },
+      {
+        "year": 1939,
+        "Q_cfs": "5,940",
+        "X": "3.77379"
+      },
+      {
+        "year": 1940,
+        "Q_cfs": "1,680",
+        "X": "3.22531"
+      },
+      {
+        "year": 1941,
+        "Q_cfs": "1,200",
+        "X": "3.07918"
+      },
+      {
+        "year": 1942,
+        "Q_cfs": "10,100",
+        "X": "4.00432"
+      },
+      {
+        "year": 1943,
+        "Q_cfs": "3,780",
+        "X": "3.57749"
+      },
+      {
+        "year": 1944,
+        "Q_cfs": "5,340",
+        "X": "3.72754"
+      },
+      {
+        "year": 1945,
+        "Q_cfs": "5,630",
+        "X": "3.75051"
+      },
+      {
+        "year": 1946,
+        "Q_cfs": "12,000",
+        "X": "4.07918"
+      },
+      {
+        "year": 1947,
+        "Q_cfs": "3,980",
+        "X": "3.59988"
+      },
+      {
+        "year": 1948,
+        "Q_cfs": "6,130",
+        "X": "3.78746"
+      },
+      {
+        "year": 1949,
+        "Q_cfs": "4,740",
+        "X": "3.67578"
+      },
+      {
+        "year": 1950,
+        "Q_cfs": "9,880",
+        "X": "3.99475"
+      },
+      {
+        "year": 1951,
+        "Q_cfs": "5,230",
+        "X": "3.71850"
+      },
+      {
+        "year": 1952,
+        "Q_cfs": "4,260",
+        "X": "3.62941"
+      },
+      {
+        "year": 1953,
+        "Q_cfs": "5,000",
+        "X": "3.69897"
+      },
+      {
+        "year": 1954,
+        "Q_cfs": "3,320",
+        "X": "3.52114"
+      },
+      {
+        "year": 1955,
+        "Q_cfs": "5,480",
+        "X": "3.73878"
+      },
+      {
+        "year": 1956,
+        "Q_cfs": "11,800",
+        "X": "4.07188"
+      },
+      {
+        "year": 1957,
+        "Q_cfs": "5,150",
+        "X": "3.71181"
+      },
+      {
+        "year": 1958,
+        "Q_cfs": "3,350",
+        "X": "3.52504"
+      },
+      {
+        "year": 1959,
+        "Q_cfs": "2,400",
+        "X": "3.38021"
+      },
+      {
+        "year": 1960,
+        "Q_cfs": "1,460",
+        "X": "3.16435"
+      },
+      {
+        "year": 1961,
+        "Q_cfs": "3,770",
+        "X": "3.57634"
+      },
+      {
+        "year": 1962,
+        "Q_cfs": "7,480",
+        "X": "3.87390"
+      },
+      {
+        "year": 1963,
+        "Q_cfs": "2,740",
+        "X": "3.43775"
+      },
+      {
+        "year": 1964,
+        "Q_cfs": "3,100",
+        "X": "3.49136"
+      },
+      {
+        "year": 1965,
+        "Q_cfs": "7,180",
+        "X": "3.85612"
+      },
+      {
+        "year": 1966,
+        "Q_cfs": "1,920",
+        "X": "3.28330"
+      },
+      {
+        "year": 1967,
+        "Q_cfs": "9,060",
+        "X": "3.95713"
+      },
+      {
+        "year": 1968,
+        "Q_cfs": "3,080",
+        "X": "3.48855"
+      },
+      {
+        "year": 1969,
+        "Q_cfs": "2,800",
+        "X": "3.44716"
+      },
+      {
+        "year": 1970,
+        "Q_cfs": "4,330",
+        "X": "3.63649"
+      },
+      {
+        "year": 1971,
+        "Q_cfs": "5,080",
+        "X": "3.70586"
+      },
+      {
+        "year": 1972,
+        "Q_cfs": "12,000",
+        "X": "4.07918"
+      },
+      {
+        "year": 1973,
+        "Q_cfs": "7,640",
+        "X": "3.88309"
+      }
+    ],
+    "generalized_skew": "-0.2",
+    "generalized_skew_mse": "0.302",
+    "generalized_skew_note": "Generalized skew -0.2 appears only inside the printed weighted-skew equation (p. 6-5); its source is not stated."
+  },
+  "figure_6_1_table": {
+    "page": "6-4",
+    "header_as_printed": "N = 44; Z = 3; H = 77",
+    "weight_column_note": "Historic rows weight 1.00; systematic rows bracketed with 'W = (H - Z)/N = (77 - 3)/(44) = 1.68182', the value printed explicitly only on the first (1935) and last (1941) systematic rows (others null here).",
+    "rows_in_rank_order": [
+      {
+        "year": 1897,
+        "Q_cfs": "25,000",
+        "log_Y_X": "4.39794",
+        "departure_X_minus_M_tilde": "0.68212",
+        "weight_W_as_printed": "1.00",
+        "event_number_E": 1,
+        "weighted_order_m_tilde": "1.00",
+        "plotting_position_weibull_percent": "1.28"
+      },
+      {
+        "year": 1919,
+        "Q_cfs": "21,000",
+        "log_Y_X": "4.32222",
+        "departure_X_minus_M_tilde": "0.60640",
+        "weight_W_as_printed": "1.00",
+        "event_number_E": 2,
+        "weighted_order_m_tilde": "2.00",
+        "plotting_position_weibull_percent": "2.56"
+      },
+      {
+        "year": 1927,
+        "Q_cfs": "18,500",
+        "log_Y_X": "4.26717",
+        "departure_X_minus_M_tilde": "0.55136",
+        "weight_W_as_printed": "1.00",
+        "event_number_E": 3,
+        "weighted_order_m_tilde": "3.00",
+        "plotting_position_weibull_percent": "3.85"
+      },
+      {
+        "year": 1935,
+        "Q_cfs": "17,000",
+        "log_Y_X": "4.23045",
+        "departure_X_minus_M_tilde": "0.51464",
+        "weight_W_as_printed": "1.68182",
+        "event_number_E": 4,
+        "weighted_order_m_tilde": "4.34",
+        "plotting_position_weibull_percent": "5.56"
+      },
+      {
+        "year": 1937,
+        "Q_cfs": "13,800",
+        "log_Y_X": "4.13988",
+        "departure_X_minus_M_tilde": "0.42407",
+        "weight_W_as_printed": null,
+        "event_number_E": 5,
+        "weighted_order_m_tilde": "6.02",
+        "plotting_position_weibull_percent": "7.72"
+      },
+      {
+        "year": 1946,
+        "Q_cfs": "12,000",
+        "log_Y_X": "4.07918",
+        "departure_X_minus_M_tilde": "0.36337",
+        "weight_W_as_printed": null,
+        "event_number_E": 6,
+        "weighted_order_m_tilde": "7.71",
+        "plotting_position_weibull_percent": "9.88"
+      },
+      {
+        "year": 1972,
+        "Q_cfs": "12,000",
+        "log_Y_X": "4.07918",
+        "departure_X_minus_M_tilde": "0.36337",
+        "weight_W_as_printed": null,
+        "event_number_E": 7,
+        "weighted_order_m_tilde": "9.39",
+        "plotting_position_weibull_percent": "12.04"
+      },
+      {
+        "year": 1956,
+        "Q_cfs": "11,800",
+        "log_Y_X": "4.07188",
+        "departure_X_minus_M_tilde": "0.35607",
+        "weight_W_as_printed": null,
+        "event_number_E": 8,
+        "weighted_order_m_tilde": "11.07",
+        "plotting_position_weibull_percent": "14.19"
+      },
+      {
+        "year": 1942,
+        "Q_cfs": "10,100",
+        "log_Y_X": "4.00432",
+        "departure_X_minus_M_tilde": "0.28851",
+        "weight_W_as_printed": null,
+        "event_number_E": 9,
+        "weighted_order_m_tilde": "12.75",
+        "plotting_position_weibull_percent": "16.35"
+      },
+      {
+        "year": 1950,
+        "Q_cfs": "9,880",
+        "log_Y_X": "3.99475",
+        "departure_X_minus_M_tilde": "0.27895",
+        "weight_W_as_printed": null,
+        "event_number_E": 10,
+        "weighted_order_m_tilde": "14.43",
+        "plotting_position_weibull_percent": "18.50"
+      },
+      {
+        "year": 1930,
+        "Q_cfs": "9,100",
+        "log_Y_X": "3.95904",
+        "departure_X_minus_M_tilde": "0.24323",
+        "weight_W_as_printed": null,
+        "event_number_E": 11,
+        "weighted_order_m_tilde": "16.12",
+        "plotting_position_weibull_percent": "20.67"
+      },
+      {
+        "year": 1967,
+        "Q_cfs": "9,060",
+        "log_Y_X": "3.95713",
+        "departure_X_minus_M_tilde": "0.24132",
+        "weight_W_as_printed": null,
+        "event_number_E": 12,
+        "weighted_order_m_tilde": "17.80",
+        "plotting_position_weibull_percent": "22.82"
+      },
+      {
+        "year": 1932,
+        "Q_cfs": "7,820",
+        "log_Y_X": "3.89321",
+        "departure_X_minus_M_tilde": "0.17740",
+        "weight_W_as_printed": null,
+        "event_number_E": 13,
+        "weighted_order_m_tilde": "19.48",
+        "plotting_position_weibull_percent": "24.97"
+      },
+      {
+        "year": 1973,
+        "Q_cfs": "7,640",
+        "log_Y_X": "3.88309",
+        "departure_X_minus_M_tilde": "0.16728",
+        "weight_W_as_printed": null,
+        "event_number_E": 14,
+        "weighted_order_m_tilde": "21.16",
+        "plotting_position_weibull_percent": "27.13"
+      },
+      {
+        "year": 1962,
+        "Q_cfs": "7,480",
+        "log_Y_X": "3.87390",
+        "departure_X_minus_M_tilde": "0.15809",
+        "weight_W_as_printed": null,
+        "event_number_E": 15,
+        "weighted_order_m_tilde": "22.84",
+        "plotting_position_weibull_percent": "29.28"
+      },
+      {
+        "year": 1965,
+        "Q_cfs": "7,180",
+        "log_Y_X": "3.85612",
+        "departure_X_minus_M_tilde": "0.14031",
+        "weight_W_as_printed": null,
+        "event_number_E": 16,
+        "weighted_order_m_tilde": "24.53",
+        "plotting_position_weibull_percent": "31.45"
+      },
+      {
+        "year": 1936,
+        "Q_cfs": "6,740",
+        "log_Y_X": "3.82866",
+        "departure_X_minus_M_tilde": "0.11285",
+        "weight_W_as_printed": null,
+        "event_number_E": 17,
+        "weighted_order_m_tilde": "26.21",
+        "plotting_position_weibull_percent": "33.60"
+      },
+      {
+        "year": 1948,
+        "Q_cfs": "6,130",
+        "log_Y_X": "3.78746",
+        "departure_X_minus_M_tilde": "0.07165",
+        "weight_W_as_printed": null,
+        "event_number_E": 18,
+        "weighted_order_m_tilde": "27.89",
+        "plotting_position_weibull_percent": "35.76"
+      },
+      {
+        "year": 1939,
+        "Q_cfs": "5,940",
+        "log_Y_X": "3.77379",
+        "departure_X_minus_M_tilde": "0.05798",
+        "weight_W_as_printed": null,
+        "event_number_E": 19,
+        "weighted_order_m_tilde": "29.57",
+        "plotting_position_weibull_percent": "37.91"
+      },
+      {
+        "year": 1945,
+        "Q_cfs": "5,630",
+        "log_Y_X": "3.75051",
+        "departure_X_minus_M_tilde": "0.03470",
+        "weight_W_as_printed": null,
+        "event_number_E": 20,
+        "weighted_order_m_tilde": "31.25",
+        "plotting_position_weibull_percent": "40.06"
+      },
+      {
+        "year": 1934,
+        "Q_cfs": "5,580",
+        "log_Y_X": "3.74663",
+        "departure_X_minus_M_tilde": "0.03082",
+        "weight_W_as_printed": null,
+        "event_number_E": 21,
+        "weighted_order_m_tilde": "32.94",
+        "plotting_position_weibull_percent": "42.23"
+      },
+      {
+        "year": 1955,
+        "Q_cfs": "5,480",
+        "log_Y_X": "3.73878",
+        "departure_X_minus_M_tilde": "0.02297",
+        "weight_W_as_printed": null,
+        "event_number_E": 22,
+        "weighted_order_m_tilde": "34.62",
+        "plotting_position_weibull_percent": "44.38"
+      },
+      {
+        "year": 1944,
+        "Q_cfs": "5,340",
+        "log_Y_X": "3.72754",
+        "departure_X_minus_M_tilde": "0.01173",
+        "weight_W_as_printed": null,
+        "event_number_E": 23,
+        "weighted_order_m_tilde": "36.30",
+        "plotting_position_weibull_percent": "46.54"
+      },
+      {
+        "year": 1951,
+        "Q_cfs": "5,230",
+        "log_Y_X": "3.71850",
+        "departure_X_minus_M_tilde": "0.00269",
+        "weight_W_as_printed": null,
+        "event_number_E": 24,
+        "weighted_order_m_tilde": "37.98",
+        "plotting_position_weibull_percent": "48.69"
+      },
+      {
+        "year": 1957,
+        "Q_cfs": "5,150",
+        "log_Y_X": "3.71181",
+        "departure_X_minus_M_tilde": "-0.00400",
+        "weight_W_as_printed": null,
+        "event_number_E": 25,
+        "weighted_order_m_tilde": "39.66",
+        "plotting_position_weibull_percent": "50.85"
+      },
+      {
+        "year": 1971,
+        "Q_cfs": "5,080",
+        "log_Y_X": "3.70586",
+        "departure_X_minus_M_tilde": "-0.00995",
+        "weight_W_as_printed": null,
+        "event_number_E": 26,
+        "weighted_order_m_tilde": "41.35",
+        "plotting_position_weibull_percent": "53.01"
+      },
+      {
+        "year": 1953,
+        "Q_cfs": "5,000",
+        "log_Y_X": "3.69897",
+        "departure_X_minus_M_tilde": "-0.01684",
+        "weight_W_as_printed": null,
+        "event_number_E": 27,
+        "weighted_order_m_tilde": "43.03",
+        "plotting_position_weibull_percent": "55.17"
+      },
+      {
+        "year": 1949,
+        "Q_cfs": "4,740",
+        "log_Y_X": "3.67578",
+        "departure_X_minus_M_tilde": "-0.04003",
+        "weight_W_as_printed": null,
+        "event_number_E": 28,
+        "weighted_order_m_tilde": "44.71",
+        "plotting_position_weibull_percent": "57.32"
+      },
+      {
+        "year": 1970,
+        "Q_cfs": "4,330",
+        "log_Y_X": "3.63649",
+        "departure_X_minus_M_tilde": "-0.07932",
+        "weight_W_as_printed": null,
+        "event_number_E": 29,
+        "weighted_order_m_tilde": "46.39",
+        "plotting_position_weibull_percent": "59.47"
+      },
+      {
+        "year": 1938,
+        "Q_cfs": "4,270",
+        "log_Y_X": "3.63043",
+        "departure_X_minus_M_tilde": "-0.08538",
+        "weight_W_as_printed": null,
+        "event_number_E": 30,
+        "weighted_order_m_tilde": "48.07",
+        "plotting_position_weibull_percent": "61.62"
+      },
+      {
+        "year": 1952,
+        "Q_cfs": "4,260",
+        "log_Y_X": "3.62941",
+        "departure_X_minus_M_tilde": "-0.08640",
+        "weight_W_as_printed": null,
+        "event_number_E": 31,
+        "weighted_order_m_tilde": "49.76",
+        "plotting_position_weibull_percent": "63.79"
+      },
+      {
+        "year": 1947,
+        "Q_cfs": "3,980",
+        "log_Y_X": "3.59988",
+        "departure_X_minus_M_tilde": "-0.11593",
+        "weight_W_as_printed": null,
+        "event_number_E": 32,
+        "weighted_order_m_tilde": "51.44",
+        "plotting_position_weibull_percent": "65.95"
+      },
+      {
+        "year": 1943,
+        "Q_cfs": "3,780",
+        "log_Y_X": "3.57749",
+        "departure_X_minus_M_tilde": "-0.13832",
+        "weight_W_as_printed": null,
+        "event_number_E": 33,
+        "weighted_order_m_tilde": "53.12",
+        "plotting_position_weibull_percent": "68.10"
+      },
+      {
+        "year": 1961,
+        "Q_cfs": "3,770",
+        "log_Y_X": "3.57634",
+        "departure_X_minus_M_tilde": "-0.13947",
+        "weight_W_as_printed": null,
+        "event_number_E": 34,
+        "weighted_order_m_tilde": "54.80",
+        "plotting_position_weibull_percent": "70.25"
+      },
+      {
+        "year": 1958,
+        "Q_cfs": "3,350",
+        "log_Y_X": "3.52504",
+        "departure_X_minus_M_tilde": "-0.19077",
+        "weight_W_as_printed": null,
+        "event_number_E": 35,
+        "weighted_order_m_tilde": "56.49",
+        "plotting_position_weibull_percent": "72.42"
+      },
+      {
+        "year": 1954,
+        "Q_cfs": "3,320",
+        "log_Y_X": "3.52114",
+        "departure_X_minus_M_tilde": "-0.19467",
+        "weight_W_as_printed": null,
+        "event_number_E": 36,
+        "weighted_order_m_tilde": "58.17",
+        "plotting_position_weibull_percent": "74.58"
+      },
+      {
+        "year": 1933,
+        "Q_cfs": "3,220",
+        "log_Y_X": "3.50786",
+        "departure_X_minus_M_tilde": "-0.20795",
+        "weight_W_as_printed": null,
+        "event_number_E": 37,
+        "weighted_order_m_tilde": "59.85",
+        "plotting_position_weibull_percent": "76.73"
+      },
+      {
+        "year": 1964,
+        "Q_cfs": "3,100",
+        "log_Y_X": "3.49136",
+        "departure_X_minus_M_tilde": "-0.22445",
+        "weight_W_as_printed": null,
+        "event_number_E": 38,
+        "weighted_order_m_tilde": "61.53",
+        "plotting_position_weibull_percent": "78.88"
+      },
+      {
+        "year": 1968,
+        "Q_cfs": "3,080",
+        "log_Y_X": "3.48855",
+        "departure_X_minus_M_tilde": "-0.22725",
+        "weight_W_as_printed": null,
+        "event_number_E": 39,
+        "weighted_order_m_tilde": "63.21",
+        "plotting_position_weibull_percent": "81.04"
+      },
+      {
+        "year": 1969,
+        "Q_cfs": "2,800",
+        "log_Y_X": "3.44716",
+        "departure_X_minus_M_tilde": "-0.26865",
+        "weight_W_as_printed": null,
+        "event_number_E": 40,
+        "weighted_order_m_tilde": "64.90",
+        "plotting_position_weibull_percent": "83.21"
+      },
+      {
+        "year": 1963,
+        "Q_cfs": "2,740",
+        "log_Y_X": "3.43775",
+        "departure_X_minus_M_tilde": "-0.27806",
+        "weight_W_as_printed": null,
+        "event_number_E": 41,
+        "weighted_order_m_tilde": "66.58",
+        "plotting_position_weibull_percent": "85.36"
+      },
+      {
+        "year": 1959,
+        "Q_cfs": "2,400",
+        "log_Y_X": "3.38021",
+        "departure_X_minus_M_tilde": "-0.33560",
+        "weight_W_as_printed": null,
+        "event_number_E": 42,
+        "weighted_order_m_tilde": "68.26",
+        "plotting_position_weibull_percent": "87.51"
+      },
+      {
+        "year": 1931,
+        "Q_cfs": "2,060",
+        "log_Y_X": "3.31387",
+        "departure_X_minus_M_tilde": "-0.40194",
+        "weight_W_as_printed": null,
+        "event_number_E": 43,
+        "weighted_order_m_tilde": "69.94",
+        "plotting_position_weibull_percent": "89.67"
+      },
+      {
+        "year": 1966,
+        "Q_cfs": "1,920",
+        "log_Y_X": "3.28330",
+        "departure_X_minus_M_tilde": "-0.43251",
+        "weight_W_as_printed": null,
+        "event_number_E": 44,
+        "weighted_order_m_tilde": "71.62",
+        "plotting_position_weibull_percent": "91.82"
+      },
+      {
+        "year": 1940,
+        "Q_cfs": "1,680",
+        "log_Y_X": "3.22531",
+        "departure_X_minus_M_tilde": "-0.49050",
+        "weight_W_as_printed": null,
+        "event_number_E": 45,
+        "weighted_order_m_tilde": "73.31",
+        "plotting_position_weibull_percent": "93.99"
+      },
+      {
+        "year": 1960,
+        "Q_cfs": "1,460",
+        "log_Y_X": "3.16435",
+        "departure_X_minus_M_tilde": "-0.55146",
+        "weight_W_as_printed": null,
+        "event_number_E": 46,
+        "weighted_order_m_tilde": "74.99",
+        "plotting_position_weibull_percent": "96.14"
+      },
+      {
+        "year": 1941,
+        "Q_cfs": "1,200",
+        "log_Y_X": "3.07918",
+        "departure_X_minus_M_tilde": "-0.63663",
+        "weight_W_as_printed": "1.68182",
+        "event_number_E": 47,
+        "weighted_order_m_tilde": "76.67",
+        "plotting_position_weibull_percent": "98.29"
+      }
+    ]
+  },
+  "figure_6_1_computations": {
+    "page": "6-5",
+    "eq_6_2a": {
+      "sum_X": "162.40155",
+      "W_sum_X": "273.13018",
+      "sum_Xz": "12.98733",
+      "numerator": "286.11751",
+      "printed": "286.11751/77 = 3.71581",
+      "M_tilde": "3.71581"
+    },
+    "eq_6_3a": {
+      "sum_x2": "3.09755",
+      "W_sum_x2": "5.20952",
+      "sum_xz2": "1.13705",
+      "numerator": "6.34657",
+      "printed": "6.34657/(77 - 1) = 0.08351",
+      "S_tilde_sq": "0.08351",
+      "S_tilde": "0.28898",
+      "S_tilde_cubed": "0.02413",
+      "note": "lower-case x denotes departures X - M~"
+    },
+    "eq_6_4a": {
+      "sum_x3": "-0.37648",
+      "W_sum_x3": "-0.63317",
+      "sum_xz3": "0.70802",
+      "numerator": "0.07485",
+      "printed": "(77)(0.07485) / [(76)(75)(0.02413)] = 0.0418",
+      "G_tilde": "0.0418"
+    },
+    "eq_6_mse": {
+      "label_as_printed": "Solving (Eq. 6, Page 13)",
+      "N": "77",
+      "A": {
+        "printed": "-0.33 + 0.08 (0.0418) = -0.32666",
+        "value": "-0.32666"
+      },
+      "B": {
+        "printed": "0.94 - 0.26 (0.0418) = 0.92913",
+        "value": "0.92913"
+      },
+      "printed": "10^[-0.32666 - 0.92913[0.88649]] = 10^[-1.150325] = 0.07074",
+      "log10_N_over_10": "0.88649",
+      "exponent": "-1.150325",
+      "MSE_G": "0.07074"
+    },
+    "weighted_skew": {
+      "label_as_printed": "Solving (Eq. 9.5, Page 12)",
+      "label_note": "Mislabelled in the bulletin: this is equation 5 on page 12.",
+      "printed": "[0.302(0.0418) + 0.07074(-0.2)] / (.302 + 0.07074) = -0.00409",
+      "G_w": "-0.00409",
+      "rounding_note": "Not rounded to a tenth here (unlike Appendix 12): K values are given for G_w = -0.00409."
+    },
+    "eq_6_5_frequency_table": {
+      "G_w": "-0.00409",
+      "S_tilde": ".28898",
+      "M_tilde": "3.71581",
+      "rows": [
+        {
+          "exceedance_percent": "99",
+          "K_Gw": "-2.32934",
+          "S_tilde_times_K": "-0.67313",
+          "log_Q": "3.04269",
+          "Q_cfs": "1,103"
+        },
+        {
+          "exceedance_percent": "95",
+          "K_Gw": "-1.64599",
+          "S_tilde_times_K": "-0.47566",
+          "log_Q": "3.24014",
+          "Q_cfs": "1,738"
+        },
+        {
+          "exceedance_percent": "90",
+          "K_Gw": "-1.28196",
+          "S_tilde_times_K": "-0.37046",
+          "log_Q": "3.34535",
+          "Q_cfs": "2,215"
+        },
+        {
+          "exceedance_percent": "80",
+          "K_Gw": "-0.84141",
+          "S_tilde_times_K": "-0.24315",
+          "log_Q": "3.47266",
+          "Q_cfs": "2,969"
+        },
+        {
+          "exceedance_percent": "50",
+          "K_Gw": "0.00067",
+          "S_tilde_times_K": "0.00019",
+          "log_Q": "3.71600",
+          "Q_cfs": "5,200"
+        },
+        {
+          "exceedance_percent": "20",
+          "K_Gw": "0.84180",
+          "S_tilde_times_K": "0.24326",
+          "log_Q": "3.95907",
+          "Q_cfs": "9,100"
+        },
+        {
+          "exceedance_percent": "10",
+          "K_Gw": "1.28110",
+          "S_tilde_times_K": "0.37021",
+          "log_Q": "4.08602",
+          "Q_cfs": "12,190"
+        },
+        {
+          "exceedance_percent": "4",
+          "K_Gw": "1.74929",
+          "S_tilde_times_K": "0.50551",
+          "log_Q": "4.22132",
+          "Q_cfs": "16,646"
+        },
+        {
+          "exceedance_percent": "2",
+          "K_Gw": "2.05159",
+          "S_tilde_times_K": "0.59289",
+          "log_Q": "4.30868",
+          "Q_cfs": "20,355"
+        },
+        {
+          "exceedance_percent": "1",
+          "K_Gw": "2.32340",
+          "S_tilde_times_K": "0.67142",
+          "log_Q": "4.38723",
+          "Q_cfs": "24,391"
+        },
+        {
+          "exceedance_percent": ".1",
+          "K_Gw": "3.08455",
+          "S_tilde_times_K": "0.89138",
+          "log_Q": "4.60719",
+          "Q_cfs": "40,475"
+        },
+        {
+          "exceedance_percent": ".01",
+          "K_Gw": "3.71054",
+          "S_tilde_times_K": "1.07227",
+          "log_Q": "4.78808",
+          "Q_cfs": "61,387"
+        }
+      ]
+    },
+    "eq_6_6": {
+      "printed": "Z = 3; For E = 1; m~ = E = 1; For E = 2; m~ = E = 2; For E = 3; m~ = E = 3"
+    },
+    "eq_6_7": {
+      "printed": "(Z + 1) = 4; (Z + N) = 47; For 4 <= E <= 47: m~ = (1.682)(E) - (0.682)(3.5); m~ = (1.682)(E) - 2.387"
+    },
+    "eq_6_8": {
+      "printed": "For Weibull: a = 0. PP~ = (100)(m~)/(78)"
+    }
+  },
+  "figure_6_2": {
+    "page": "6-6",
+    "title": "Results of Standard Computation for the Current Continuous Record; Adjustment to Historically Weighted 77 Years",
+    "systematic_statistics": {
+      "years_label": "(44 years)",
+      "N": 44,
+      "M": "3.69094",
+      "S": "0.26721",
+      "S2": "0.07140",
+      "S3": "0.01908",
+      "G": "-0.18746"
+    },
+    "historic_peaks_table": [
+      {
+        "year": "1897",
+        "Y_z_cfs": "25,000",
+        "X_z": "4.39794",
+        "X_z_minus_M_tilde": "0.68213",
+        "X_z_minus_M_tilde_sq": "0.46531",
+        "X_z_minus_M_tilde_cubed": "0.31740"
+      },
+      {
+        "year": "1919",
+        "Y_z_cfs": "21,000",
+        "X_z": "4.32222",
+        "X_z_minus_M_tilde": "0.60641",
+        "X_z_minus_M_tilde_sq": "0.36774",
+        "X_z_minus_M_tilde_cubed": "0.22300"
+      },
+      {
+        "year": "1927",
+        "Y_z_cfs": "18,500",
+        "X_z": "4.26717",
+        "X_z_minus_M_tilde": "0.55136",
+        "X_z_minus_M_tilde_sq": "0.30400",
+        "X_z_minus_M_tilde_cubed": "0.16762"
+      }
+    ],
+    "historic_sums": {
+      "sum_Xz": "12.98733",
+      "sum_Xz_minus_M_tilde": "1.83990",
+      "sum_sq": "1.13705",
+      "sum_cube": "0.70802"
+    },
+    "eq_6_1": {
+      "printed": "W = (77-3)/44 = 1.68182",
+      "W": "1.68182"
+    },
+    "eq_6_2b": {
+      "printed": "[(1.68182)(44)(3.69094) + (12.98733)] / 77 = 3.71581",
+      "M_tilde": "3.71581"
+    },
+    "eq_6_3b": {
+      "M_minus_M_tilde": "-0.02487",
+      "M_minus_M_tilde_sq": "0.000619",
+      "M_minus_M_tilde_cubed": "-0.0000154",
+      "printed": "[(1.68182)(43)(0.07140) + (1.68182)(44)(0.000619) + (1.13705)] / 76 = 0.08351",
+      "S_tilde_sq": "0.08351",
+      "S_tilde": "0.28898",
+      "S_tilde_cubed": "0.02413",
+      "print_note": "The second 1.68182 has an overstruck third digit (an 8 typed over another digit); read as 1.68182."
+    },
+    "eq_6_4b": {
+      "printed": "77/[(76)(75)(0.02413)] [ (1.68182)(43)(42)(0.01908)(-0.18746)/44 + (3)(1.68182)(43)(-0.02487)(0.07140) + (1.68182)(44)(-0.0000154) + (0.70802) ]",
+      "G_tilde": "0.0418"
+    }
+  },
+  "printed_inconsistencies": [
+    "Departures X - M~ for 1897 and 1919 are 0.68212 and 0.60640 in Figure 6-1 but 0.68213 and 0.60641 in Figure 6-2 (Figure 6-1 departures imply M~ = 3.71582).",
+    "1950: log of 9,880 printed 3.99475 (log10(9880) rounds to 3.99476); the printed departure 0.27895 is consistent with the printed log.",
+    "Systematic G printed -0.18746; recomputing from the printed logs gives about -0.1874 (rounding in source).",
+    "Eq. 6-5 table, 2 percent row: (S~)(K) printed 0.59289 (clearly), but 0.28898 x 2.05159 = 0.59287 and the printed log Q 4.30868 = 3.71581 + 0.59287; 0.59289 appears to be a source arithmetic/typing slip. Kept as printed.",
+    "Weighted-skew step is labelled 'Eq. 9.5, Page 12'; it is equation 5.",
+    "Appendix 6 step 4 text says the example 'does not include the final step of weighting with the generalized skew', yet Figure 6-1 continues through weighting (G_w = -0.00409) and the frequency table.",
+    "Printed plotting positions (2 decimals) differ from (1.68182 E - 0.68182 x 3.5)/78 x 100 by up to 0.02 (bulletin rounding); kept as printed."
+  ],
+  "uncertain_digits": []
+}

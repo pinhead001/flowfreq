@@ -3,6 +3,8 @@
 Date: 2026-11-21. Status: approved by the owner 2026-11-21. TODO.md, review of
 2026-11-19, item 7.
 
+Implemented 2026-11-24.
+
 ## Intent
 
 Many effective flood studies and older reports used Bulletin 17B (1981/1982), usually through

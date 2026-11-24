@@ -17,6 +17,7 @@ from importlib.metadata import PackageNotFoundError
 from importlib.metadata import version as _installed_version
 from typing import Optional
 
+from .bulletin17b import Bulletin17B, Bulletin17BError, Bulletin17BResults, bulletin17b_kwargs
 from .bulletin17c import (
     Bulletin17C,
     ExpectedMomentsAlgorithm,
@@ -475,6 +476,11 @@ __all__ = [
     "MethodOfMoments",
     "ExpectedMomentsAlgorithm",
     "FloodFrequencyAnalysis",
+    # Bulletin 17B (superseded), for comparison
+    "Bulletin17B",
+    "Bulletin17BError",
+    "Bulletin17BResults",
+    "bulletin17b_kwargs",
     # Report
     "HydroReport",
     # Convenience

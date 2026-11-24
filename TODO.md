@@ -25,7 +25,7 @@ owner's word. Run them with one worker.
 Three read-only reviews, each from the published reports: no stored number was wrong. Fixed in one PR: `region=`
 refused both sets wherever NSS located a region; Texas took total drainage area; the cautions were thin and some
 report sections dropped them; half the AEPs of `Urban 2026` had no test. #416, #418, #422 and the last commit of #424 were reviewed
-on 2026-11-24; the fixes are in the PR that says so. Left:
+on 2026-11-24; the fixes are #426. Left:
 
 - MD: with GC1480's inputs missing and `allow_extrapolation`, the Piedmont urban set (GC1481) is averaged in below its
   10 percent impervious limit. The estimate is marked extrapolated and names IMPERV, so this was left; without
@@ -58,23 +58,22 @@ CI cache). CHANGELOG.md, Unreleased, has the detail. Still open from it:
    `basin`.
 6. Done 2026-11-21 (#402): the eight class-scoped fixtures are staticmethods, and `PytestRemovedIn10Warning`
    is an error, so the `pytest<10` pin can move when pytest 10 is out.
-7. **Bulletin 17B procedure, for comparing B17C with the superseded B17B. Designed and planned, not started**
-   (owner, 2026-11-21: do not start building yet).
-   - Design (approved): `docs/superpowers/specs/2026-11-21-bulletin17b-design.md`. Plan, 8 tasks:
-     `docs/superpowers/plans/2026-11-21-bulletin17b.md` (#408). Execution: subagent-driven (owner's choice),
-     one implementer per task and a fresh reviewer before the next.
-   - Owner's decisions: a new `Bulletin17B` class (`Bulletin17C(method=MOM)` unchanged); B17B is computed and
-     reported **only when requested** (a `Bulletin17B` call or a `b17b_ffa` section); the B17B side uses the
-     B17C side's regional skew by default, with `generalized_skew` for the old study's Plate I value (three-
-     column comparison).
-   - The transcribed bulletin (Appendix 12 examples 1-4, the Appendix 6 Big Sandy example, Appendix 4 K_N,
-     Tables 1, 9-1, 11-1, the procedure with page labels) is on branch `wip/b17b-transcription` under
-     `tests/fixtures/b17b/`; plan Task 1 starts from it (its source path in the plan was a scratch folder).
-   - Before starting: a fresh `spec/` or feature branch from `main`, then Task 1.
+7. Done 2026-11-24 (#429): the Bulletin 17B procedure, for comparing B17C with the superseded B17B.
+   `flowfreq.Bulletin17B`, `bulletin17b_kwargs`, a `b17b_ffa` report section, and `b17b_ffa` as an estimate of a
+   `comparison` (design `docs/superpowers/specs/2026-11-21-bulletin17b-design.md`, plan
+   `docs/superpowers/plans/2026-11-21-bulletin17b.md`, the transcribed bulletin in `tests/fixtures/b17b/`).
+   Computed and reported only when requested. What was checked is in CHANGELOG.md. Left:
+   - No PeakFQ 5 output has been compared with it; the checks are the bulletin's own examples.
+   - No chat tool adds a `b17b_ffa` section. `compare_estimates` takes one that a loaded report has.
+   - A record with code-7 peaks and `perception_thresholds` needs two sets of options, one for `gaged_ffa`
+     (`apply_peak_codes: false`) and one for `b17b_ffa` (codes applied).
 8. Done 2026-11-21 (#407): agent ops run on the shared `agentops` package (`D:/a/agentops`, `pip install -e` into
    `.venv`); `tools/agentops/` is gone, the config is `config/agents.toml`, `run.bat` runs it, the push guards
    are tighter. The features it needs came from pinhead001/agentops#6 (merged 2026-11-21). All 12 finished
    cards are archived.
+9. `core.kfactor` returns nonsense without an error at very rare AEPs (checked 2026-11-24: skew 0.5 at 1e-10 gives
+   2e99; a positive skew fails past 1e-9, a negative one at 1e-9 already, -0.5 giving 4.0 where scipy has 3.47). It
+   holds at 1e-8. Not changed; `Bulletin17B` takes AEPs from 1e-6.
 
 ### Next steps (2026-11-15)
 
@@ -187,7 +186,9 @@ page in the app was dropped, since only the owner chats. Not yet done:
   server in process and over stdio from an `mcp.Client`; no chat client has been attached.
 - Open a DOCX in Word. The tests read each one back with python-docx, which checks structure, not layout.
 - Run `estimate_ungaged` against StreamStats (waits, as above). `find_gage`, `run_ffa` (peaks downloaded from the Water
-  Data API), `get_section` and `render_report` ran live through an in-process `mcp.Client` on 2026-11-24 at USGS 03606500.
+  Data API), `get_section` and `render_report` ran live through an in-process `mcp.Client` on 2026-11-24 at USGS 03606500,
+  and so did the daily-flow sections, the weighting, the transposition, the reference check, the comparison and
+  save/load (the reloaded report is the same). Not run: `extend_gage_record` and `apply_future_change_factors`.
 - The section kinds `low_flow`, `flow_duration` and `future_flow` (2026-11-16): the tests use a synthetic
   daily record and made-up factors. `low_flow` and `flow_duration` were also built once from the Water Data
   API at USGS 03606500 (80 years used, 18 left out as incomplete; 7Q10 37.8 ft3/s), through `build_report`

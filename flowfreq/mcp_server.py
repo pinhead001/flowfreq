@@ -971,9 +971,9 @@ def build_server(
         a gage upstream, one from a gage downstream, the regional regression. Each
         estimate is a section already in the report (a run_ffa section, a
         transpose_gage_to_site section, a regression estimate, an extend_gage_record
-        section); they stay. The new section tabulates the flows by method with the ratio
-        of the largest to the smallest, and each method's limits. Nothing is weighted or
-        combined.
+        section, or a b17b_ffa section if the report already has one); they stay. The new
+        section tabulates the flows by method with the ratio of the largest to the
+        smallest, and each method's limits. Nothing is weighted or combined.
 
         section_ids: two or more section ids. labels: a short column heading for each, in
         the same order (default: the sections' titles, which are long). site_name: the

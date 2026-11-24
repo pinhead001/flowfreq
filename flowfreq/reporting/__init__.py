@@ -1,8 +1,8 @@
 """Reports assembled from flowfreq results: a JSON specification in, Markdown or DOCX out.
 
 A report is described by a :class:`ReportSpec`: a title and a list of sections, each a kind
-(``gaged_ffa``, ``ungaged``, ``weighted``, ``transposed``, ``engine_check``, ``low_flow``,
-``flow_duration``, ``monthly_statistics``, ``summary_hydrograph``, ``baseflow``,
+(``gaged_ffa``, ``b17b_ffa``, ``ungaged``, ``weighted``, ``transposed``, ``engine_check``,
+``low_flow``, ``flow_duration``, ``monthly_statistics``, ``summary_hydrograph``, ``baseflow``,
 ``future_flow``, ``comparison``, ``site_summary``, ``text``) with its inputs.
 :func:`build_report` computes every table and figure from those inputs, so no number in a
 report is typed by hand or written by a language model. Prose that flowfreq did not compute

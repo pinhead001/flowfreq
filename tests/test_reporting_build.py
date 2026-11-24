@@ -156,6 +156,7 @@ class TestBuildSection:
         assert set(SECTION_KINDS) == {
             "text",
             "gaged_ffa",
+            "b17b_ffa",
             "ungaged",
             "weighted",
             "transposed",

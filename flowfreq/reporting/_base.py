@@ -5,9 +5,14 @@ from __future__ import annotations
 import io
 import math
 import re
+import textwrap
 from dataclasses import dataclass, field, replace
-from typing import Any, Callable, Dict, List, Mapping, Sequence, Tuple
+from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
+import numpy as np
+import pandas as pd
+
+from ..aep import AEP_MATCH
 from .blocks import Block, Heading
 from .spec import ReportError
 
@@ -18,6 +23,10 @@ BULLETIN_17C = (
     "flood flow frequency, Bulletin 17C (ver. 1.1, May 2019): U.S. Geological Survey "
     "Techniques and Methods, book 4, chap. B5, 148 p., https://doi.org/10.3133/tm4B5."
 )
+
+
+#: The label on everything that shows a Bulletin 17B number.
+SUPERSEDED = "Bulletin 17B (superseded)"
 
 
 _PEAK_KEYS = (
@@ -31,6 +40,10 @@ _PEAK_KEYS = (
 
 
 _FIGURE_DPI = 200
+
+
+#: Characters to a line of a legend below its axes.
+_LEGEND_WIDTH = 80
 
 
 #: The authors and year a USGS-style citation opens with: "Eash, D.A., and Veilleux, A.G., 2013,".
@@ -56,7 +69,8 @@ class SectionContent:
         Full citations for the report's reference list.
     cautions : list of str
         What the regression behind the flows warns of (``SiteEstimate.advisory``), for a
-        reply that shows only the section's table. Already in ``blocks``.
+        reply that shows only the section's table. A Bulletin 17B section holds its
+        refusal here. Already in ``blocks``.
     """
 
     title: str
@@ -68,13 +82,19 @@ class SectionContent:
 
 @dataclass(frozen=True)
 class SectionKind:
-    """A registered section kind: its name, what it takes and the function that builds it."""
+    """A registered section kind: its name, what it takes and the function that builds it.
+
+    ``title_label`` is what every title of the section has to say, a caller's own included
+    (see :func:`section_title`), or a function that gives it from the section's options;
+    empty for most kinds.
+    """
 
     name: str
     summary: str
     required: Tuple[str, ...]
     optional: Tuple[str, ...]
     build: Callable[[Dict[str, Any]], SectionContent]
+    title_label: Union[str, Callable[[Mapping[str, Any]], str]] = ""
 
     def check(self, options: Mapping[str, Any]) -> None:
         """Raise :class:`ReportError` for an unknown or a missing option."""
@@ -93,6 +113,42 @@ class SectionKind:
 #: The section kinds a spec may name. Filled by :mod:`flowfreq.reporting.sections`, and by
 #: the modules that register further kinds (``daily``, ``summary``).
 SECTION_KINDS: Dict[str, SectionKind] = {}
+
+
+def with_label(text: str, label: str) -> str:
+    """``text`` with ", ``label``" appended, unless it already has the label's words.
+
+    The words are looked for in any case and without a leading "with ". Empty text or an
+    empty label leaves ``text`` as it is.
+    """
+    if not text or not label or label.removeprefix("with ").lower() in text.lower():
+        return text
+    return f"{text}, {label}"
+
+
+def section_title(kind: str, given: Optional[str], own: str, options: Mapping[str, Any]) -> str:
+    """The heading of a section: the caller's title if there is one, else the kind's own.
+
+    A kind with a ``title_label`` (superseded numbers) has it appended when the title does
+    not carry the words, so a caller's title cannot drop it.
+
+    Parameters
+    ----------
+    kind : str
+        A key of :data:`SECTION_KINDS`.
+    given : str or None
+        The title the specification gives.
+    own : str
+        The title the section was built with.
+    options : mapping
+        The section's options, which the label may depend on.
+
+    Returns
+    -------
+    str
+    """
+    label = SECTION_KINDS[kind].title_label
+    return with_label(given or own, label if isinstance(label, str) else label(options))
 
 
 def _version() -> str:
@@ -146,6 +202,69 @@ def _figure_png(fig: Any) -> bytes:
     )
     plt.close(fig)
     return buffer.getvalue()
+
+
+def _curve_figure(
+    curves: Sequence[Tuple[str, pd.DataFrame]],
+    aeps: Sequence[float],
+    where: str,
+    *,
+    dashed: Sequence[str] = (),
+    legend_below: bool = False,
+) -> bytes:
+    """Each method's flood quantiles against AEP on a normal probability axis, with limits.
+
+    Curves labeled in ``dashed`` are drawn dashed, over the others and out of step with each
+    other, so that a curve they coincide with shows. ``legend_below`` puts the legend under
+    the axes, its long labels wrapped, where it covers nothing. Labels and ``where`` are
+    drawn as written, a dollar sign or a leading underscore included.
+    """
+    import matplotlib.pyplot as plt
+    from matplotlib.ticker import FuncFormatter
+    from scipy.special import ndtri
+
+    fig, ax = plt.subplots(figsize=(8, 5.5))
+    for index, (label, flows) in enumerate(curves):
+        rows = flows[flows["flow_cfs"].notna()].sort_values("aep", ascending=False)
+        top, bottom = max(aeps) * (1 + AEP_MATCH), min(aeps) * (1 - AEP_MATCH)
+        rows = rows[(rows["aep"] <= top) & (rows["aep"] >= bottom)]
+        x = -ndtri(rows["aep"].to_numpy(dtype=float))
+        color = f"C{index}"
+        style: Dict[str, Any] = {"linestyle": "-"}
+        if label in dashed:
+            step, n = dashed.index(label), len(dashed)
+            style = {"linestyle": (2 * (n + 1 - step), (2, 2 * n)), "zorder": 3}
+        # A placeholder: the legend leaves out a label that begins with an underscore.
+        ax.plot(x, rows["flow_cfs"], marker="o", color=color, markersize=4, label="curve", **style)
+        limits = rows.dropna(subset=["lower", "upper"])
+        if not limits.empty:
+            xl = -ndtri(limits["aep"].to_numpy(dtype=float))
+            ax.fill_between(xl, limits["lower"], limits["upper"], color=color, alpha=0.12)
+            ax.plot(xl, limits["lower"], "--", color=color, linewidth=0.8)
+            ax.plot(xl, limits["upper"], "--", color=color, linewidth=0.8)
+    ticks = sorted(aeps, reverse=True)
+    ax.set_xticks(-ndtri(np.array(ticks)))
+    ax.set_xticklabels([f"{100 * a:.3g}" for a in ticks])
+    ax.set_yscale("log")
+    plain = FuncFormatter(lambda value, _: f"{value:,.0f}")
+    ax.yaxis.set_major_formatter(plain)
+    ax.yaxis.set_minor_formatter(plain)
+    ax.tick_params(axis="y", which="minor", labelsize=8)
+    ax.set_xlabel("Annual exceedance probability (percent)")
+    ax.set_ylabel("Flow (cfs)")
+    ax.set_title(f"Flood frequency at {where}", parse_math=False)
+    ax.grid(True, which="both", alpha=0.3)
+    if legend_below:
+        # Handles long enough to show a dash of every curve.
+        legend = ax.legend(
+            loc="upper center", bbox_to_anchor=(0.5, -0.12), frameon=False, handlelength=4
+        )
+    else:
+        legend = ax.legend(loc="lower right")
+    for text, (label, _) in zip(legend.get_texts(), curves):
+        text.set_parse_math(False)
+        text.set_text(textwrap.fill(label, _LEGEND_WIDTH) if legend_below else label)
+    return _figure_png(fig)
 
 
 def _demote(blocks: Sequence[Block], by: int = 1) -> List[Block]:

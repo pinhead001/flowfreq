@@ -5,10 +5,11 @@ and returns the section's blocks, its references and its options *as resolved*: 
 builder fetched (a gage's annual peaks, a regional skew looked up by state) is written back
 as plain values, so the same options build the same section again without the network.
 
-The builders live one kind to a module (``gaged``, ``regional``, ``weighted``, ``transposed``,
-``engine_check``, ``comparison``, ``future``; ``daily``, ``regime_sections`` and ``summary``
-hold the rest). This module is the registry, and every name that used to be defined here is
-still importable from here. To replace one in a test, patch it in the module that defines it.
+The builders live one kind to a module (``gaged``, ``b17b``, ``regional``, ``weighted``,
+``transposed``, ``engine_check``, ``comparison``, ``future``; ``daily``, ``regime_sections``
+and ``summary`` hold the rest). This module is the registry, and every name that used to be
+defined here is still importable from here. To replace one in a test, patch it in the module
+that defines it.
 
 Option names that look inconsistent between kinds name different things, and stored specs
 use them, so they stay:
@@ -40,14 +41,17 @@ from ._base import (  # noqa: F401
     _figure_png,
     _version,
     cfs,
+    section_title,
     short_citation,
 )
+from .b17b import B17B_CAPTION, BULLETIN_17B, SUPERSEDED, _b17b_ffa, _build_b17b_ffa  # noqa: F401
 from .comparison import (  # noqa: F401
     _COMPARED_KINDS,
     _ESTIMATE_KEYS,
     COMPARISON_CAPTION,
     _build_comparison,
     _compared,
+    _comparison_label,
     _flow_table,
     _matched_aeps,
     _row_at,
@@ -151,6 +155,41 @@ SECTION_KINDS.update(
             build=_build_gaged_ffa,
         ),
         SectionKind(
+            name="b17b_ffa",
+            summary=(
+                "Bulletin 17B (superseded) flood frequency at a gage, for comparison with "
+                "Bulletin 17C. Computed only when this section is requested."
+            ),
+            required=(),
+            optional=(
+                "site_no",
+                "site_name",
+                "drainage_area_sqmi",
+                "peaks",
+                "regional_skew",
+                "regional_skew_se",
+                "regional_skew_citation",
+                "regional_skew_note",
+                "regional_skew_advisory",
+                "regional_skew_state",
+                "regional_skew_region",
+                "regional_skew_from_site",
+                "allow_provisional_skew",
+                "generalized_skew",
+                "generalized_skew_mse",
+                "station_skew_only",
+                "historic_period",
+                "low_outlier_threshold",
+                "perception_thresholds",
+                "apply_peak_codes",
+                "allow_regulated",
+                "hand_computation",
+                "aeps",
+            ),
+            build=_build_b17b_ffa,
+            title_label=SUPERSEDED,
+        ),
+        SectionKind(
             name="ungaged",
             summary=(
                 "Regional regression estimate at an ungaged site: regions, inputs, quantiles "
@@ -240,13 +279,15 @@ SECTION_KINDS.update(
             name="comparison",
             summary=(
                 "Several estimates of the flood quantiles at one site, side by side: each a "
-                "gage's Bulletin 17C fit, a transposition from a gage or a regional "
-                "regression, with its limits, the ratio of the largest to the smallest, and "
-                "each estimate's own analysis below."
+                "gage's Bulletin 17C fit, a transposition from a gage, a regional "
+                "regression or, when requested, a Bulletin 17B (superseded) fit, with its "
+                "limits, the ratio of the largest to the smallest, and each estimate's own "
+                "analysis below. With a Bulletin 17B fit it adds a plot of the curves."
             ),
             required=("estimates",),
             optional=("site_name", "aeps", "detail"),
             build=_build_comparison,
+            title_label=_comparison_label,
         ),
     )
 )
@@ -283,6 +324,8 @@ def build_section(kind: str, options: Mapping[str, Any]) -> SectionContent:
 
 
 __all__ = [
+    "B17B_CAPTION",
+    "BULLETIN_17B",
     "BULLETIN_17C",
     "COMPARISON_CAPTION",
     "FUTURE_FLOW_CAPTION",
