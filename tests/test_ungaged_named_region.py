@@ -321,3 +321,47 @@ def test_a_limit_or_applicability_code_may_be_supplied() -> None:
 def test_a_named_set_first_in_a_sequence_is_refused_too() -> None:
     with pytest.raises(EquationsUnavailable, match="not in use"):
         assemble(NAMED, [_region("GC1", 100.0)], CHARS, region=["R2", "GC1"], **KW)
+
+
+def test_sets_a_report_splits_by_size_are_not_parts_of_the_state() -> None:
+    """Colorado small and large share a table and the same ground (32 mi2 divides them)."""
+    both = [
+        _located(_nss("TX", r), 45.0) for r in ("Colorado small", "Colorado large", "Statewide")
+    ]
+    assert _covered("TX", *both) == 45.0
+
+
+def test_alternatives_of_one_report_in_different_tables_do_not_add_up() -> None:
+    both = [_located(_nss("TN", r), 60.0) for r in ("HA1", "HA1 DA only")]
+    assert _covered("TN", *both) == 60.0
+
+
+def test_coverage_is_never_over_100_percent() -> None:
+    parts = [_located(_nss("AL", r), p) for r, p in (("1", 70.0), ("2", 31.0))]
+    assert _covered("AL", *parts) == 100.0
+
+
+@pytest.mark.parametrize("located", [[], [_located("GC9999", 30.0)]])
+def test_a_named_set_where_nss_locates_none_of_the_states_regions(
+    texas: Fakes, located: list
+) -> None:
+    """Nothing says the basin is in Texas: a required coverage is refused, else a caution."""
+    texas.regions = located
+    est = _texas(supplied_characteristics=SUPPLIED)
+    assert est.provenance["covered_percent"] == 0.0
+    assert "NSS located none of the state's regression regions" in est.advisory
+    assert "at least" not in est.advisory
+    with pytest.raises(PartialCoverageError):
+        _texas(supplied_characteristics=SUPPLIED, min_coverage_percent=1)
+
+
+def test_a_region_of_the_states_map_is_not_held_to_that() -> None:
+    """Wyoming and Nevada: NSS locates nothing anywhere, so it says nothing of the basin."""
+    a = assemble(LIB, [], CHARS, region="R2", **KW)
+    assert a.covered_percent == 100.0
+
+
+def test_a_named_set_over_a_sliver_says_so(texas: Fakes) -> None:
+    texas.regions = [_located(_nss("TX", "Statewide"), 0.0)]
+    est = _texas(supplied_characteristics=SUPPLIED)
+    assert "NSS located none of the state's regression regions" in est.advisory

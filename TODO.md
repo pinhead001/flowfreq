@@ -24,7 +24,8 @@ owner's word. Run them with one worker.
 
 Three read-only reviews, each from the published reports: no stored number was wrong. Fixed in one PR: `region=`
 refused both sets wherever NSS located a region; Texas took total drainage area; the cautions were thin and some
-report sections dropped them; half the AEPs of `Urban 2026` had no test. Not reviewed: #416, #418, #422. Left:
+report sections dropped them; half the AEPs of `Urban 2026` had no test. #416, #418, #422 and the last commit of #424 were reviewed
+on 2026-11-24; the fixes are in the PR that says so. Left:
 
 - MD: with GC1480's inputs missing and `allow_extrapolation`, the Piedmont urban set (GC1481) is averaged in below its
   10 percent impervious limit. The estimate is marked extrapolated and names IMPERV, so this was left; without
@@ -196,6 +197,8 @@ page in the app was dropped, since only the owner chats. Not yet done:
   #413). `lyne_hollick` was checked on 2026-11-24 against Ladson and others' BFI.R (2013): the same to 1e-7 of the mean
   flow away from the ends of a record, where theirs reflects 30 days and ours does not. The index differs by 0.0002 at most on
   25 years and up, but is 0.10 against 0.20 on their 67-day sample. Whether to reflect is the owner's call.
+  Whether to add a baseflow method that restarts the blocks each water year, as the USGS BFI program does, is the owner's
+  call (it would be 0.543 at 04131500 against 0.544 published, where `ih_smoothed_minima_log` gives 0.511).
   `ih_smoothed_minima` was, on 23 gages against the USGS BFI program's published indexes (OFR 03-146,
   2026-11-23): 0.016 high on average (median 0.012, most 0.061), mostly because the program joins the logarithms of the
   turning points and ours joins the flows. `ih_smoothed_minima_log` joins logarithms (mean difference -0.001, largest 0.033; the owner's
@@ -381,7 +384,8 @@ Still failing in the 2026-10-30 rerun (14 of 56; WY and MN fixed since, live rec
 - [ ] **Regional skew `pending` rows** (41): each waits for a published B-WLS/B-GLS study or
       a reading of the report's printed value; the row's notes say which. Re-checked
       2026-11-15: a Publications Warehouse search for 2025 and 2026 found no regional skew
-      study beyond SIR 2025-5110 (VA and WV), which is already used.
+      study beyond SIR 2025-5110 (VA and WV), which is already used. Re-checked 2026-11-24: nothing new (the
+      Elkhorn River report, SIR 2026-5004, has at-site peaks only).
 
 The methow-flow items and the `pending` skew rows have no issues; #203-#218 are closed.
 
@@ -584,6 +588,7 @@ Phase A / Wave entries below.
       Re-checked 2026-11-15: still not in the Warehouse. The data release is titled "(Under
       Revision)", is marked temporarily unavailable and lists no files (ScienceBase, last
       updated 2026-11-09).
+      Re-checked 2026-11-24: still not in the Warehouse.
 - [ ] **Future flow (#36), kept open** (decided 2026-10-11). No state tabulates per-AEP
       factors. The issue stays open for WDFW-style per-site tools rather than closing on
       the survey.

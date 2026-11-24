@@ -441,7 +441,10 @@ def _build_flow_duration(given: Dict[str, Any]) -> SectionContent:
     options = dict(given)
     asked = _probabilities(owner, "exceedance_pct", options.get("exceedance_pct"), 100.0)
     frame = _daily_frame(owner, options)
-    curve = flow_duration_curve(frame, asked)
+    try:
+        curve = flow_duration_curve(frame, asked)
+    except ValueError as exc:  # no day with a flow: every value negative
+        raise ReportError(f"{owner}: {exc}") from exc
     label = _label(options)
     first, last = frame.index[0], frame.index[-1]
     missing = (last - first).days + 1 - len(frame)

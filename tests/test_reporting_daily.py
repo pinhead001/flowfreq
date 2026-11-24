@@ -508,3 +508,10 @@ class TestSession:
 def test_a_bad_drainage_area_is_refused_in_words(kind):
     with pytest.raises(ReportError, match="drainage_area_sqmi must be a positive number"):
         build_section(kind, {**STATION, "drainage_area_sqmi": "big"})
+
+
+@pytest.mark.parametrize("kind", ["low_flow", "flow_duration"])
+def test_a_record_with_no_usable_flow_is_refused_in_words(kind):
+    bad = {**STATION, "daily": {"start": START, "flow_cfs": [-1.0] * 4000}}
+    with pytest.raises(ReportError, match="flow"):
+        build_section(kind, bad)

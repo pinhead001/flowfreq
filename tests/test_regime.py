@@ -227,9 +227,9 @@ class TestLogInterpolation:
 
     def test_a_turning_point_of_zero_is_joined_straight(self) -> None:
         flows = np.full(9, 100.0)
-        positions, values = np.array([0, 2, 4, 6, 8]), np.array([1.0, 4.0, 0.0, 4.0, 16.0])
+        positions, values = np.array([0, 2, 4, 6, 8]), np.array([1.0, 9.0, 0.0, 9.0, 16.0])
         bf = _interpolate_baseflow(flows, positions, values, log=True)
-        np.testing.assert_allclose(bf, [1.0, 2.0, 4.0, 2.0, 0.0, 2.0, 4.0, 8.0, 16.0])
+        np.testing.assert_allclose(bf, [1.0, 3.0, 9.0, 4.5, 0.0, 4.5, 9.0, 12.0, 16.0])
 
     def test_never_above_the_streamflow(self) -> None:
         flows = np.array([1.0, 1.5, 100.0, 100.0, 16.0])

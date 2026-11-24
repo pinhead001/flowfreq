@@ -35,6 +35,7 @@ _WARNINGS = (
     "Characteristics StreamStats computed and said may be inaccurate",
     "The regression regions used cover",
     "NSS located the state's regression regions over at least",
+    "NSS located none of the state's regression regions",
 )
 
 
@@ -98,9 +99,9 @@ def _streamstats_notes(estimate: Any) -> List[str]:
             "withheld from the equations: " + ", ".join(withheld) + "."
         )
     covered = provenance.get("covered_percent")
-    if provenance.get("stands_in_for"):
+    if provenance.get("stands_in_for") is not None:
         notes.append(stand_in_caution(float(covered), ", ".join(r.code for r in estimate.regions)))
-    elif covered is not None and float(covered) < 98.0:
+    elif provenance.get("partly_covered"):
         notes.append(
             f"The regression regions used cover {float(covered):.0f} percent of the basin; "
             "their shares were scaled up to the whole, so the rest (in another state or "
