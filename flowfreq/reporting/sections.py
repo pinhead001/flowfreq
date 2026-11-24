@@ -51,6 +51,7 @@ from .comparison import (  # noqa: F401
     COMPARISON_CAPTION,
     _build_comparison,
     _compared,
+    _comparison_label,
     _flow_table,
     _matched_aeps,
     _row_at,
@@ -278,13 +279,15 @@ SECTION_KINDS.update(
             name="comparison",
             summary=(
                 "Several estimates of the flood quantiles at one site, side by side: each a "
-                "gage's Bulletin 17C fit, a transposition from a gage or a regional "
-                "regression, with its limits, the ratio of the largest to the smallest, and "
-                "each estimate's own analysis below."
+                "gage's Bulletin 17C fit, a transposition from a gage, a regional "
+                "regression or, when requested, a Bulletin 17B (superseded) fit, with its "
+                "limits, the ratio of the largest to the smallest, and each estimate's own "
+                "analysis below. With a Bulletin 17B fit it adds a plot of the curves."
             ),
             required=("estimates",),
             optional=("site_name", "aeps", "detail"),
             build=_build_comparison,
+            title_label=_comparison_label,
         ),
     )
 )

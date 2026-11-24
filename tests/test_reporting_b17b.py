@@ -165,9 +165,9 @@ def test_a_given_title_keeps_the_label_in_a_session(tmp_path):
 def test_only_the_b17b_kind_has_its_titles_labelled():
     for kind in SECTION_KINDS:
         expected = f"Given, {LABEL}" if kind == "b17b_ffa" else "Given"
-        assert section_title(kind, "Given", "Own") == expected
-        assert section_title(kind, None, f"Own, {LABEL}") == f"Own, {LABEL}"
-        assert section_title(kind, "", "") == ""
+        assert section_title(kind, "Given", "Own", {"estimates": []}) == expected
+        assert section_title(kind, None, f"Own, {LABEL}", {"estimates": []}) == f"Own, {LABEL}"
+        assert section_title(kind, "", "", {"estimates": []}) == ""
 
 
 # -- skew ---------------------------------------------------------------------------------

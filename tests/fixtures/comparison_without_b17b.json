@@ -1,0 +1,1705 @@
+{
+ "detail": {
+  "title": "Flood quantiles at Big Sandy River above Bruceton by 3 methods",
+  "blocks": [
+   [
+    "Paragraph",
+    {
+     "text": "The flood quantiles at Big Sandy River above Bruceton were estimated by 3 methods, set side by side below at the annual exceedance probabilities all of them give. Each estimate is computed as its own subsection describes. The last column is the largest estimate over the smallest. The estimates are compared, not combined: no weighting is applied here, and they are not independent where they share a gage record or a regression. The computation was made with flowfreq {version}."
+    }
+   ],
+   [
+    "Table",
+    {
+     "header": [
+      "Annual exceedance probability (percent)",
+      "Gage (cfs)",
+      "Transposed from the gage (cfs)",
+      "Regional regression (cfs)",
+      "Largest over smallest"
+     ],
+     "rows": [
+      [
+       "50",
+       "5,052",
+       "4,060",
+       "7,180",
+       "1.77"
+      ],
+      [
+       "20",
+       "8,293",
+       "6,719",
+       "11,278",
+       "1.68"
+      ],
+      [
+       "10",
+       "10,577",
+       "8,606",
+       "14,251",
+       "1.66"
+      ],
+      [
+       "4",
+       "13,550",
+       "11,088",
+       "18,210",
+       "1.64"
+      ],
+      [
+       "2",
+       "15,801",
+       "12,977",
+       "21,350",
+       "1.65"
+      ],
+      [
+       "1",
+       "18,069",
+       "14,888",
+       "24,552",
+       "1.65"
+      ],
+      [
+       "0.5",
+       "20,359",
+       "16,774",
+       "27,896",
+       "1.66"
+      ],
+      [
+       "0.2",
+       "23,424",
+       "19,300",
+       "32,464",
+       "1.68"
+      ]
+     ],
+     "align": [
+      "right",
+      "right",
+      "right",
+      "right",
+      "right"
+     ],
+     "caption": "Flood quantiles at the site by each method."
+    }
+   ],
+   [
+    "Paragraph",
+    {
+     "text": "Limits, where a method gives them: Gage, 90-percent confidence limits; Transposed from the gage, the donor's 90-percent confidence limits, scaled; Regional regression, 90-percent prediction limits. A transposed estimate's limits carry the donor gage's sampling uncertainty only, not the uncertainty of the transposition."
+    }
+   ],
+   [
+    "Table",
+    {
+     "header": [
+      "Annual exceedance probability (percent)",
+      "Gage (cfs)",
+      "Transposed from the gage (cfs)",
+      "Regional regression (cfs)"
+     ],
+     "rows": [
+      [
+       "50",
+       "4,274 to 5,936",
+       "3,435 to 4,770",
+       "3,988 to 12,926"
+      ],
+      [
+       "20",
+       "7,066 to 9,899",
+       "5,725 to 8,020",
+       "6,410 to 19,842"
+      ],
+      [
+       "10",
+       "8,937 to 13,117",
+       "7,272 to 10,674",
+       "7,892 to 25,733"
+      ],
+      [
+       "4",
+       "11,171 to 18,032",
+       "9,141 to 14,755",
+       "9,710 to 34,150"
+      ],
+      [
+       "2",
+       "12,667 to 22,302",
+       "10,403 to 18,315",
+       "10,964 to 41,576"
+      ],
+      [
+       "1",
+       "14,005 to 27,113",
+       "11,539 to 22,339",
+       "12,155 to 49,589"
+      ],
+      [
+       "0.5",
+       "15,203 to 32,545",
+       "12,526 to 26,815",
+       "13,357 to 58,261"
+      ],
+      [
+       "0.2",
+       "16,606 to 40,843",
+       "13,682 to 33,651",
+       "15,038 to 70,084"
+      ]
+     ],
+     "align": [
+      "right",
+      "right",
+      "right",
+      "right"
+     ],
+     "caption": "Lower and upper limits of each estimate."
+    }
+   ],
+   [
+    "Heading",
+    {
+     "level": 2,
+     "text": "Gage"
+    }
+   ],
+   [
+    "Table",
+    {
+     "header": [
+      "Item",
+      "Value"
+     ],
+     "rows": [
+      [
+       "USGS station number",
+       "03606500"
+      ],
+      [
+       "Station name",
+       "Big Sandy River at Bruceton, TN"
+      ],
+      [
+       "Drainage area (square miles)",
+       "205"
+      ],
+      [
+       "Annual peaks",
+       "44"
+      ],
+      [
+       "Water years",
+       "1930 to 1973"
+      ],
+      [
+       "Largest peak (cfs)",
+       "17,000 (water year 1935)"
+      ],
+      [
+       "Smallest peak (cfs)",
+       "1,200 (water year 1941)"
+      ],
+      [
+       "Regulation screen",
+       "unknown: Non-ref; below storage and impervious thresholds (GAGES-II 2011-09-30)"
+      ]
+     ],
+     "align": [
+      "left",
+      "left"
+     ],
+     "caption": "Station and peak-flow record."
+    }
+   ],
+   [
+    "Paragraph",
+    {
+     "text": "The annual peaks were fitted with a log-Pearson Type III distribution following Bulletin 17C (England and others, 2019): the Expected Moments Algorithm (EMA) for the moments and the Multiple Grubbs-Beck Test (MGBT) for potentially influential low floods. The computation was made with flowfreq {version}. The station skew was weighted with a regional skew of -0.500 (standard error 0.550), supplied by the analyst without a citation. MGBT identified no potentially influential low floods."
+    }
+   ],
+   [
+    "Table",
+    {
+     "header": [
+      "Parameter",
+      "Value"
+     ],
+     "rows": [
+      [
+       "Mean of log10 flow",
+       "3.6909"
+      ],
+      [
+       "Standard deviation of log10 flow",
+       "0.2672"
+      ],
+      [
+       "Station skew",
+       "-0.187"
+      ],
+      [
+       "Regional skew",
+       "-0.500"
+      ],
+      [
+       "Weighted skew",
+       "-0.281"
+      ],
+      [
+       "Skew used",
+       "-0.281"
+      ],
+      [
+       "Low-outlier threshold (cfs)",
+       "none"
+      ],
+      [
+       "Values censored below the threshold",
+       "0"
+      ],
+      [
+       "Peaks flagged by MGBT",
+       "0"
+      ]
+     ],
+     "align": [
+      "left",
+      "right"
+     ],
+     "caption": "Fitted log-Pearson Type III parameters and low-outlier screening."
+    }
+   ],
+   [
+    "Table",
+    {
+     "header": [
+      "Annual exceedance probability (percent)",
+      "Recurrence interval (years)",
+      "Flow (cfs)",
+      "Lower 90-percent limit (cfs)",
+      "Upper 90-percent limit (cfs)"
+     ],
+     "rows": [
+      [
+       "66.7",
+       "1.5",
+       "3,859",
+       "3,206",
+       "4,556"
+      ],
+      [
+       "50",
+       "2",
+       "5,052",
+       "4,274",
+       "5,936"
+      ],
+      [
+       "20",
+       "5",
+       "8,293",
+       "7,066",
+       "9,899"
+      ],
+      [
+       "10",
+       "10",
+       "10,577",
+       "8,937",
+       "13,117"
+      ],
+      [
+       "4",
+       "25",
+       "13,550",
+       "11,171",
+       "18,032"
+      ],
+      [
+       "2",
+       "50",
+       "15,801",
+       "12,667",
+       "22,302"
+      ],
+      [
+       "1",
+       "100",
+       "18,069",
+       "14,005",
+       "27,113"
+      ],
+      [
+       "0.5",
+       "200",
+       "20,359",
+       "15,203",
+       "32,545"
+      ],
+      [
+       "0.2",
+       "500",
+       "23,424",
+       "16,606",
+       "40,843"
+      ]
+     ],
+     "align": [
+      "right",
+      "right",
+      "right",
+      "right",
+      "right"
+     ],
+     "caption": "Flood quantiles with 90-percent confidence limits."
+    }
+   ],
+   [
+    "Figure",
+    {
+     "caption": "Fitted frequency curve with 90-percent confidence limits and the annual peaks.",
+     "width_in": 6.5
+    }
+   ],
+   [
+    "Figure",
+    {
+     "caption": "Annual peak flows.",
+     "width_in": 6.5
+    }
+   ],
+   [
+    "Heading",
+    {
+     "level": 2,
+     "text": "Transposed from the gage"
+    }
+   ],
+   [
+    "Paragraph",
+    {
+     "text": "Flood quantiles at the ungaged site were transposed from the donor gage, USGS 03606500 Big Sandy River at Bruceton, TN, by the drainage-area ratio method: the gage's quantile at each annual exceedance probability, multiplied by the ratio of the site's drainage area to the gage's raised to the drainage-area exponent of a regional regression at that probability. The exponents are from Example and Author (2020). No distribution was fitted at the site, so there are no moments to report there. The computation was made with flowfreq {version}."
+    }
+   ],
+   [
+    "Bullets",
+    {
+     "items": [
+      "Donor: USGS 03606500, 205.0 sq mi",
+      "Target: ungaged target, 150.0 sq mi",
+      "Area ratio: 0.7317",
+      "Exponent source: Example, A.B., and Author, C.D., 2020, A made-up report for the tests, table 1.",
+      "Region: Region 1",
+      "Statistic: flood frequency",
+      "Interpolation: linear (in normal-deviate space); extrapolation: clamp"
+     ]
+    }
+   ],
+   [
+    "Table",
+    {
+     "header": [
+      "Annual exceedance probability (percent)",
+      "Donor flow (cfs)",
+      "Drainage-area exponent",
+      "Factor applied",
+      "Transposed flow (cfs)",
+      "Lower 90-percent limit (cfs)",
+      "Upper 90-percent limit (cfs)",
+      "Exponent basis"
+     ],
+     "rows": [
+      [
+       "99.5",
+       "856",
+       "0.700",
+       "0.8036",
+       "688",
+       "321",
+       "994",
+       "extrapolated"
+      ],
+      [
+       "99",
+       "1,035",
+       "0.700",
+       "0.8036",
+       "831",
+       "438",
+       "1,149",
+       "extrapolated"
+      ],
+      [
+       "95",
+       "1,703",
+       "0.700",
+       "0.8036",
+       "1,368",
+       "933",
+       "1,727",
+       "extrapolated"
+      ],
+      [
+       "90",
+       "2,195",
+       "0.700",
+       "0.8036",
+       "1,764",
+       "1,318",
+       "2,158",
+       "extrapolated"
+      ],
+      [
+       "80",
+       "2,954",
+       "0.700",
+       "0.8036",
+       "2,374",
+       "1,903",
+       "2,836",
+       "extrapolated"
+      ],
+      [
+       "67",
+       "3,836",
+       "0.700",
+       "0.8036",
+       "3,083",
+       "2,560",
+       "3,641",
+       "extrapolated"
+      ],
+      [
+       "50",
+       "5,052",
+       "0.700",
+       "0.8036",
+       "4,060",
+       "3,435",
+       "4,770",
+       "published"
+      ],
+      [
+       "20",
+       "8,293",
+       "0.674",
+       "0.8102",
+       "6,719",
+       "5,725",
+       "8,020",
+       "interpolated"
+      ],
+      [
+       "10",
+       "10,577",
+       "0.660",
+       "0.8137",
+       "8,606",
+       "7,272",
+       "10,674",
+       "published"
+      ],
+      [
+       "4",
+       "13,550",
+       "0.642",
+       "0.8183",
+       "11,088",
+       "9,141",
+       "14,755",
+       "interpolated"
+      ],
+      [
+       "2",
+       "15,801",
+       "0.630",
+       "0.8212",
+       "12,977",
+       "10,403",
+       "18,315",
+       "interpolated"
+      ],
+      [
+       "1",
+       "18,069",
+       "0.620",
+       "0.8239",
+       "14,888",
+       "11,539",
+       "22,339",
+       "published"
+      ],
+      [
+       "0.5",
+       "20,359",
+       "0.620",
+       "0.8239",
+       "16,774",
+       "12,526",
+       "26,815",
+       "extrapolated"
+      ],
+      [
+       "0.2",
+       "23,424",
+       "0.620",
+       "0.8239",
+       "19,300",
+       "13,682",
+       "33,651",
+       "extrapolated"
+      ]
+     ],
+     "align": [
+      "right",
+      "right",
+      "right",
+      "right",
+      "right",
+      "right",
+      "right",
+      "left"
+     ],
+     "caption": "Flood quantiles transposed from the gage by the drainage-area ratio."
+    }
+   ],
+   [
+    "Heading",
+    {
+     "level": 3,
+     "text": "Caveats"
+    }
+   ],
+   [
+    "Bullets",
+    {
+     "items": [
+      "**8 of 14 quantiles use an extrapolated exponent**, at AEP 0.995, 0.99, 0.95, 0.9, 0.8, 0.67, 0.005, 0.002. These fall outside the range the cited regression publishes, so their exponent is an assumption of this analysis rather than a published value.",
+      "**Regulation was not checked**: no regulation status was supplied for both donor and target. A regulated donor transfers its regulation.",
+      "Confidence limits are the donor's, scaled by the same factor. That is first order and understates the true uncertainty: it treats the transposition as exact and carries none of the regression's own error."
+     ]
+    }
+   ],
+   [
+    "Heading",
+    {
+     "level": 2,
+     "text": "Regional regression"
+    }
+   ],
+   [
+    "Paragraph",
+    {
+     "text": "Flood quantiles were estimated from published regional regression equations, evaluated on basin characteristics supplied by the analyst. The computation was made with flowfreq {version}; the characteristics were not measured by it."
+    }
+   ],
+   [
+    "Bullets",
+    {
+     "items": [
+      "Method: regression",
+      "Equation library: TN, status verified"
+     ]
+    }
+   ],
+   [
+    "Heading",
+    {
+     "level": 3,
+     "text": "Regression regions"
+    }
+   ],
+   [
+    "Table",
+    {
+     "header": [
+      "NSS code",
+      "Name",
+      "Area fraction",
+      "Source"
+     ],
+     "rows": [
+      [
+       "HA4 DA only",
+       "Hydrologic area 4, drainage area only (SIR 2024-5130; NSS GC2022)",
+       "1.000",
+       "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p. (2025), table Table 5 (p. 16), Table 6 (p. 17)"
+      ]
+     ],
+     "align": [
+      "left",
+      "left",
+      "right",
+      "left"
+     ],
+     "caption": "Regression regions the basin is in, and the equations' source."
+    }
+   ],
+   [
+    "Heading",
+    {
+     "level": 3,
+     "text": "Basin characteristics"
+    }
+   ],
+   [
+    "Table",
+    {
+     "header": [
+      "Code",
+      "Value"
+     ],
+     "rows": [
+      [
+       "DRNAREA",
+       "205"
+      ]
+     ],
+     "align": [
+      "left",
+      "right"
+     ],
+     "caption": "Basin characteristics."
+    }
+   ],
+   [
+    "Heading",
+    {
+     "level": 3,
+     "text": "Quantiles"
+    }
+   ],
+   [
+    "Table",
+    {
+     "header": [
+      "Annual exceedance probability (percent)",
+      "Flow (cfs)",
+      "Lower prediction limit (cfs)",
+      "Upper prediction limit (cfs)",
+      "Level of the limits",
+      "How the limits were computed",
+      "Outside the calibrated range",
+      "Regression regions"
+     ],
+     "rows": [
+      [
+       "50",
+       "7,180",
+       "3,988",
+       "12,926",
+       "90%",
+       "average standard error of prediction (sharper than the rounded AVP)",
+       "no",
+       "HA4 DA only"
+      ],
+      [
+       "20",
+       "11,278",
+       "6,410",
+       "19,842",
+       "90%",
+       "average standard error of prediction (sharper than the rounded AVP)",
+       "no",
+       "HA4 DA only"
+      ],
+      [
+       "10",
+       "14,251",
+       "7,892",
+       "25,733",
+       "90%",
+       "average standard error of prediction (sharper than the rounded AVP)",
+       "no",
+       "HA4 DA only"
+      ],
+      [
+       "4",
+       "18,210",
+       "9,710",
+       "34,150",
+       "90%",
+       "average standard error of prediction (sharper than the rounded AVP)",
+       "no",
+       "HA4 DA only"
+      ],
+      [
+       "2",
+       "21,350",
+       "10,964",
+       "41,576",
+       "90%",
+       "average variance of prediction",
+       "no",
+       "HA4 DA only"
+      ],
+      [
+       "1",
+       "24,552",
+       "12,155",
+       "49,589",
+       "90%",
+       "average standard error of prediction (sharper than the rounded AVP)",
+       "no",
+       "HA4 DA only"
+      ],
+      [
+       "0.5",
+       "27,896",
+       "13,357",
+       "58,261",
+       "90%",
+       "average standard error of prediction (sharper than the rounded AVP)",
+       "no",
+       "HA4 DA only"
+      ],
+      [
+       "0.2",
+       "32,464",
+       "15,038",
+       "70,084",
+       "90%",
+       "average variance of prediction",
+       "no",
+       "HA4 DA only"
+      ]
+     ],
+     "align": [
+      "right",
+      "right",
+      "right",
+      "right",
+      "right",
+      "left",
+      "left",
+      "left"
+     ],
+     "caption": "Regression flood quantiles with prediction limits."
+    }
+   ],
+   [
+    "Heading",
+    {
+     "level": 3,
+     "text": "Caveats"
+    }
+   ],
+   [
+    "Bullets",
+    {
+     "items": [
+      "Every input lies within the calibrated range of the equations used."
+     ]
+    }
+   ]
+  ],
+  "options": {
+   "site_name": "Big Sandy River above Bruceton",
+   "estimates": [
+    {
+     "label": "Gage",
+     "kind": "gaged_ffa",
+     "options": {
+      "site_no": "03606500",
+      "site_name": "Big Sandy River at Bruceton, TN",
+      "drainage_area_sqmi": 205.0,
+      "peaks": {
+       "water_year": [
+        1930,
+        1931,
+        1932,
+        1933,
+        1934,
+        1935,
+        1936,
+        1937,
+        1938,
+        1939,
+        1940,
+        1941,
+        1942,
+        1943,
+        1944,
+        1945,
+        1946,
+        1947,
+        1948,
+        1949,
+        1950,
+        1951,
+        1952,
+        1953,
+        1954,
+        1955,
+        1956,
+        1957,
+        1958,
+        1959,
+        1960,
+        1961,
+        1962,
+        1963,
+        1964,
+        1965,
+        1966,
+        1967,
+        1968,
+        1969,
+        1970,
+        1971,
+        1972,
+        1973
+       ],
+       "peak_flow_cfs": [
+        9100.0,
+        2060.0,
+        7820.0,
+        3220.0,
+        5580.0,
+        17000.0,
+        6740.0,
+        13800.0,
+        4270.0,
+        5940.0,
+        1680.0,
+        1200.0,
+        10100.0,
+        3780.0,
+        5340.0,
+        5630.0,
+        12000.0,
+        3980.0,
+        6130.0,
+        4740.0,
+        9880.0,
+        5230.0,
+        4260.0,
+        5000.0,
+        3320.0,
+        5480.0,
+        11800.0,
+        5150.0,
+        3350.0,
+        2400.0,
+        1460.0,
+        3770.0,
+        7480.0,
+        2740.0,
+        3100.0,
+        7180.0,
+        1920.0,
+        9060.0,
+        3080.0,
+        2800.0,
+        4330.0,
+        5080.0,
+        12000.0,
+        7640.0
+       ]
+      },
+      "stationarity": false,
+      "peaks_table": false,
+      "regional_skew": -0.5,
+      "regional_skew_se": 0.55
+     }
+    },
+    {
+     "label": "Transposed from the gage",
+     "kind": "transposed",
+     "options": {
+      "donor": {
+       "site_no": "03606500",
+       "site_name": "Big Sandy River at Bruceton, TN",
+       "drainage_area_sqmi": 205.0,
+       "peaks": {
+        "water_year": [
+         1930,
+         1931,
+         1932,
+         1933,
+         1934,
+         1935,
+         1936,
+         1937,
+         1938,
+         1939,
+         1940,
+         1941,
+         1942,
+         1943,
+         1944,
+         1945,
+         1946,
+         1947,
+         1948,
+         1949,
+         1950,
+         1951,
+         1952,
+         1953,
+         1954,
+         1955,
+         1956,
+         1957,
+         1958,
+         1959,
+         1960,
+         1961,
+         1962,
+         1963,
+         1964,
+         1965,
+         1966,
+         1967,
+         1968,
+         1969,
+         1970,
+         1971,
+         1972,
+         1973
+        ],
+        "peak_flow_cfs": [
+         9100.0,
+         2060.0,
+         7820.0,
+         3220.0,
+         5580.0,
+         17000.0,
+         6740.0,
+         13800.0,
+         4270.0,
+         5940.0,
+         1680.0,
+         1200.0,
+         10100.0,
+         3780.0,
+         5340.0,
+         5630.0,
+         12000.0,
+         3980.0,
+         6130.0,
+         4740.0,
+         9880.0,
+         5230.0,
+         4260.0,
+         5000.0,
+         3320.0,
+         5480.0,
+         11800.0,
+         5150.0,
+         3350.0,
+         2400.0,
+         1460.0,
+         3770.0,
+         7480.0,
+         2740.0,
+         3100.0,
+         7180.0,
+         1920.0,
+         9060.0,
+         3080.0,
+         2800.0,
+         4330.0,
+         5080.0,
+         12000.0,
+         7640.0
+        ]
+       },
+       "stationarity": false,
+       "peaks_table": false,
+       "regional_skew": -0.5,
+       "regional_skew_se": 0.55
+      },
+      "target_area_sqmi": 150.0,
+      "exponents": {
+       "aeps": [
+        0.5,
+        0.1,
+        0.01
+       ],
+       "exponents": [
+        0.7,
+        0.66,
+        0.62
+       ],
+       "citation": "Example, A.B., and Author, C.D., 2020, A made-up report for the tests, table 1.",
+       "region": "Region 1"
+      },
+      "detail": false,
+      "donor_area_sqmi": 205.0
+     }
+    },
+    {
+     "label": "Regional regression",
+     "kind": "ungaged",
+     "options": {
+      "state": "TN",
+      "characteristics": {
+       "DRNAREA": 205.0
+      },
+      "region": "HA4 DA only",
+      "lat": 36.04,
+      "lon": -88.23
+     }
+    }
+   ]
+  },
+  "references": [
+   "England, J.F., Jr., Cohn, T.A., Faber, B.A., Stedinger, J.R., Thomas, W.O., Jr., Veilleux, A.G., Kiang, J.E., and Mason, R.R., Jr., 2019, Guidelines for determining flood flow frequency, Bulletin 17C (ver. 1.1, May 2019): U.S. Geological Survey Techniques and Methods, book 4, chap. B5, 148 p., https://doi.org/10.3133/tm4B5.",
+   "Example, A.B., and Author, C.D., 2020, A made-up report for the tests, table 1.",
+   "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p. https://doi.org/10.3133/sir20245130"
+  ],
+  "cautions": [],
+  "markdown": "The flood quantiles at Big Sandy River above Bruceton were estimated by 3 methods, set side by side below at the annual exceedance probabilities all of them give. Each estimate is computed as its own subsection describes. The last column is the largest estimate over the smallest. The estimates are compared, not combined: no weighting is applied here, and they are not independent where they share a gage record or a regression. The computation was made with flowfreq {version}.\n\nFlood quantiles at the site by each method.\n\n| Annual exceedance probability (percent) | Gage (cfs) | Transposed from the gage (cfs) | Regional regression (cfs) | Largest over smallest |\n|---:|---:|---:|---:|---:|\n| 50 | 5,052 | 4,060 | 7,180 | 1.77 |\n| 20 | 8,293 | 6,719 | 11,278 | 1.68 |\n| 10 | 10,577 | 8,606 | 14,251 | 1.66 |\n| 4 | 13,550 | 11,088 | 18,210 | 1.64 |\n| 2 | 15,801 | 12,977 | 21,350 | 1.65 |\n| 1 | 18,069 | 14,888 | 24,552 | 1.65 |\n| 0.5 | 20,359 | 16,774 | 27,896 | 1.66 |\n| 0.2 | 23,424 | 19,300 | 32,464 | 1.68 |\n\nLimits, where a method gives them: Gage, 90-percent confidence limits; Transposed from the gage, the donor's 90-percent confidence limits, scaled; Regional regression, 90-percent prediction limits. A transposed estimate's limits carry the donor gage's sampling uncertainty only, not the uncertainty of the transposition.\n\nLower and upper limits of each estimate.\n\n| Annual exceedance probability (percent) | Gage (cfs) | Transposed from the gage (cfs) | Regional regression (cfs) |\n|---:|---:|---:|---:|\n| 50 | 4,274 to 5,936 | 3,435 to 4,770 | 3,988 to 12,926 |\n| 20 | 7,066 to 9,899 | 5,725 to 8,020 | 6,410 to 19,842 |\n| 10 | 8,937 to 13,117 | 7,272 to 10,674 | 7,892 to 25,733 |\n| 4 | 11,171 to 18,032 | 9,141 to 14,755 | 9,710 to 34,150 |\n| 2 | 12,667 to 22,302 | 10,403 to 18,315 | 10,964 to 41,576 |\n| 1 | 14,005 to 27,113 | 11,539 to 22,339 | 12,155 to 49,589 |\n| 0.5 | 15,203 to 32,545 | 12,526 to 26,815 | 13,357 to 58,261 |\n| 0.2 | 16,606 to 40,843 | 13,682 to 33,651 | 15,038 to 70,084 |\n\n### Gage\n\nStation and peak-flow record.\n\n| Item | Value |\n|---|---|\n| USGS station number | 03606500 |\n| Station name | Big Sandy River at Bruceton, TN |\n| Drainage area (square miles) | 205 |\n| Annual peaks | 44 |\n| Water years | 1930 to 1973 |\n| Largest peak (cfs) | 17,000 (water year 1935) |\n| Smallest peak (cfs) | 1,200 (water year 1941) |\n| Regulation screen | unknown: Non-ref; below storage and impervious thresholds (GAGES-II 2011-09-30) |\n\nThe annual peaks were fitted with a log-Pearson Type III distribution following Bulletin 17C (England and others, 2019): the Expected Moments Algorithm (EMA) for the moments and the Multiple Grubbs-Beck Test (MGBT) for potentially influential low floods. The computation was made with flowfreq {version}. The station skew was weighted with a regional skew of -0.500 (standard error 0.550), supplied by the analyst without a citation. MGBT identified no potentially influential low floods.\n\nFitted log-Pearson Type III parameters and low-outlier screening.\n\n| Parameter | Value |\n|---|---:|\n| Mean of log10 flow | 3.6909 |\n| Standard deviation of log10 flow | 0.2672 |\n| Station skew | -0.187 |\n| Regional skew | -0.500 |\n| Weighted skew | -0.281 |\n| Skew used | -0.281 |\n| Low-outlier threshold (cfs) | none |\n| Values censored below the threshold | 0 |\n| Peaks flagged by MGBT | 0 |\n\nFlood quantiles with 90-percent confidence limits.\n\n| Annual exceedance probability (percent) | Recurrence interval (years) | Flow (cfs) | Lower 90-percent limit (cfs) | Upper 90-percent limit (cfs) |\n|---:|---:|---:|---:|---:|\n| 66.7 | 1.5 | 3,859 | 3,206 | 4,556 |\n| 50 | 2 | 5,052 | 4,274 | 5,936 |\n| 20 | 5 | 8,293 | 7,066 | 9,899 |\n| 10 | 10 | 10,577 | 8,937 | 13,117 |\n| 4 | 25 | 13,550 | 11,171 | 18,032 |\n| 2 | 50 | 15,801 | 12,667 | 22,302 |\n| 1 | 100 | 18,069 | 14,005 | 27,113 |\n| 0.5 | 200 | 20,359 | 15,203 | 32,545 |\n| 0.2 | 500 | 23,424 | 16,606 | 40,843 |\n\n### Transposed from the gage\n\nFlood quantiles at the ungaged site were transposed from the donor gage, USGS 03606500 Big Sandy River at Bruceton, TN, by the drainage-area ratio method: the gage's quantile at each annual exceedance probability, multiplied by the ratio of the site's drainage area to the gage's raised to the drainage-area exponent of a regional regression at that probability. The exponents are from Example and Author (2020). No distribution was fitted at the site, so there are no moments to report there. The computation was made with flowfreq {version}.\n\n- Donor: USGS 03606500, 205.0 sq mi\n- Target: ungaged target, 150.0 sq mi\n- Area ratio: 0.7317\n- Exponent source: Example, A.B., and Author, C.D., 2020, A made-up report for the tests, table 1.\n- Region: Region 1\n- Statistic: flood frequency\n- Interpolation: linear (in normal-deviate space); extrapolation: clamp\n\nFlood quantiles transposed from the gage by the drainage-area ratio.\n\n| Annual exceedance probability (percent) | Donor flow (cfs) | Drainage-area exponent | Factor applied | Transposed flow (cfs) | Lower 90-percent limit (cfs) | Upper 90-percent limit (cfs) | Exponent basis |\n|---:|---:|---:|---:|---:|---:|---:|---|\n| 99.5 | 856 | 0.700 | 0.8036 | 688 | 321 | 994 | extrapolated |\n| 99 | 1,035 | 0.700 | 0.8036 | 831 | 438 | 1,149 | extrapolated |\n| 95 | 1,703 | 0.700 | 0.8036 | 1,368 | 933 | 1,727 | extrapolated |\n| 90 | 2,195 | 0.700 | 0.8036 | 1,764 | 1,318 | 2,158 | extrapolated |\n| 80 | 2,954 | 0.700 | 0.8036 | 2,374 | 1,903 | 2,836 | extrapolated |\n| 67 | 3,836 | 0.700 | 0.8036 | 3,083 | 2,560 | 3,641 | extrapolated |\n| 50 | 5,052 | 0.700 | 0.8036 | 4,060 | 3,435 | 4,770 | published |\n| 20 | 8,293 | 0.674 | 0.8102 | 6,719 | 5,725 | 8,020 | interpolated |\n| 10 | 10,577 | 0.660 | 0.8137 | 8,606 | 7,272 | 10,674 | published |\n| 4 | 13,550 | 0.642 | 0.8183 | 11,088 | 9,141 | 14,755 | interpolated |\n| 2 | 15,801 | 0.630 | 0.8212 | 12,977 | 10,403 | 18,315 | interpolated |\n| 1 | 18,069 | 0.620 | 0.8239 | 14,888 | 11,539 | 22,339 | published |\n| 0.5 | 20,359 | 0.620 | 0.8239 | 16,774 | 12,526 | 26,815 | extrapolated |\n| 0.2 | 23,424 | 0.620 | 0.8239 | 19,300 | 13,682 | 33,651 | extrapolated |\n\n#### Caveats\n\n- **8 of 14 quantiles use an extrapolated exponent**, at AEP 0.995, 0.99, 0.95, 0.9, 0.8, 0.67, 0.005, 0.002. These fall outside the range the cited regression publishes, so their exponent is an assumption of this analysis rather than a published value.\n- **Regulation was not checked**: no regulation status was supplied for both donor and target. A regulated donor transfers its regulation.\n- Confidence limits are the donor's, scaled by the same factor. That is first order and understates the true uncertainty: it treats the transposition as exact and carries none of the regression's own error.\n\n### Regional regression\n\nFlood quantiles were estimated from published regional regression equations, evaluated on basin characteristics supplied by the analyst. The computation was made with flowfreq {version}; the characteristics were not measured by it.\n\n- Method: regression\n- Equation library: TN, status verified\n\n#### Regression regions\n\nRegression regions the basin is in, and the equations' source.\n\n| NSS code | Name | Area fraction | Source |\n|---|---|---:|---|\n| HA4 DA only | Hydrologic area 4, drainage area only (SIR 2024-5130; NSS GC2022) | 1.000 | Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p. (2025), table Table 5 (p. 16), Table 6 (p. 17) |\n\n#### Basin characteristics\n\nBasin characteristics.\n\n| Code | Value |\n|---|---:|\n| DRNAREA | 205 |\n\n#### Quantiles\n\nRegression flood quantiles with prediction limits.\n\n| Annual exceedance probability (percent) | Flow (cfs) | Lower prediction limit (cfs) | Upper prediction limit (cfs) | Level of the limits | How the limits were computed | Outside the calibrated range | Regression regions |\n|---:|---:|---:|---:|---:|---|---|---|\n| 50 | 7,180 | 3,988 | 12,926 | 90% | average standard error of prediction (sharper than the rounded AVP) | no | HA4 DA only |\n| 20 | 11,278 | 6,410 | 19,842 | 90% | average standard error of prediction (sharper than the rounded AVP) | no | HA4 DA only |\n| 10 | 14,251 | 7,892 | 25,733 | 90% | average standard error of prediction (sharper than the rounded AVP) | no | HA4 DA only |\n| 4 | 18,210 | 9,710 | 34,150 | 90% | average standard error of prediction (sharper than the rounded AVP) | no | HA4 DA only |\n| 2 | 21,350 | 10,964 | 41,576 | 90% | average variance of prediction | no | HA4 DA only |\n| 1 | 24,552 | 12,155 | 49,589 | 90% | average standard error of prediction (sharper than the rounded AVP) | no | HA4 DA only |\n| 0.5 | 27,896 | 13,357 | 58,261 | 90% | average standard error of prediction (sharper than the rounded AVP) | no | HA4 DA only |\n| 0.2 | 32,464 | 15,038 | 70,084 | 90% | average variance of prediction | no | HA4 DA only |\n\n#### Caveats\n\n- Every input lies within the calibrated range of the equations used.\n"
+ },
+ "brief": {
+  "title": "Flood quantiles at Big Sandy River above Bruceton by 3 methods",
+  "blocks": [
+   [
+    "Paragraph",
+    {
+     "text": "The flood quantiles at Big Sandy River above Bruceton were estimated by 3 methods, set side by side below at the annual exceedance probabilities all of them give. Each estimate is computed as its own subsection describes, in this report's other sections. The last column is the largest estimate over the smallest. The estimates are compared, not combined: no weighting is applied here, and they are not independent where they share a gage record or a regression. The computation was made with flowfreq {version}."
+    }
+   ],
+   [
+    "Table",
+    {
+     "header": [
+      "Annual exceedance probability (percent)",
+      "Gage (cfs)",
+      "Transposed from the gage (cfs)",
+      "Regional regression (cfs)",
+      "Largest over smallest"
+     ],
+     "rows": [
+      [
+       "50",
+       "5,052",
+       "4,060",
+       "7,180",
+       "1.77"
+      ],
+      [
+       "20",
+       "8,293",
+       "6,719",
+       "11,278",
+       "1.68"
+      ],
+      [
+       "10",
+       "10,577",
+       "8,606",
+       "14,251",
+       "1.66"
+      ],
+      [
+       "4",
+       "13,550",
+       "11,088",
+       "18,210",
+       "1.64"
+      ],
+      [
+       "2",
+       "15,801",
+       "12,977",
+       "21,350",
+       "1.65"
+      ],
+      [
+       "1",
+       "18,069",
+       "14,888",
+       "24,552",
+       "1.65"
+      ],
+      [
+       "0.5",
+       "20,359",
+       "16,774",
+       "27,896",
+       "1.66"
+      ],
+      [
+       "0.2",
+       "23,424",
+       "19,300",
+       "32,464",
+       "1.68"
+      ]
+     ],
+     "align": [
+      "right",
+      "right",
+      "right",
+      "right",
+      "right"
+     ],
+     "caption": "Flood quantiles at the site by each method."
+    }
+   ],
+   [
+    "Paragraph",
+    {
+     "text": "Limits, where a method gives them: Gage, 90-percent confidence limits; Transposed from the gage, the donor's 90-percent confidence limits, scaled; Regional regression, 90-percent prediction limits. A transposed estimate's limits carry the donor gage's sampling uncertainty only, not the uncertainty of the transposition."
+    }
+   ],
+   [
+    "Table",
+    {
+     "header": [
+      "Annual exceedance probability (percent)",
+      "Gage (cfs)",
+      "Transposed from the gage (cfs)",
+      "Regional regression (cfs)"
+     ],
+     "rows": [
+      [
+       "50",
+       "4,274 to 5,936",
+       "3,435 to 4,770",
+       "3,988 to 12,926"
+      ],
+      [
+       "20",
+       "7,066 to 9,899",
+       "5,725 to 8,020",
+       "6,410 to 19,842"
+      ],
+      [
+       "10",
+       "8,937 to 13,117",
+       "7,272 to 10,674",
+       "7,892 to 25,733"
+      ],
+      [
+       "4",
+       "11,171 to 18,032",
+       "9,141 to 14,755",
+       "9,710 to 34,150"
+      ],
+      [
+       "2",
+       "12,667 to 22,302",
+       "10,403 to 18,315",
+       "10,964 to 41,576"
+      ],
+      [
+       "1",
+       "14,005 to 27,113",
+       "11,539 to 22,339",
+       "12,155 to 49,589"
+      ],
+      [
+       "0.5",
+       "15,203 to 32,545",
+       "12,526 to 26,815",
+       "13,357 to 58,261"
+      ],
+      [
+       "0.2",
+       "16,606 to 40,843",
+       "13,682 to 33,651",
+       "15,038 to 70,084"
+      ]
+     ],
+     "align": [
+      "right",
+      "right",
+      "right",
+      "right"
+     ],
+     "caption": "Lower and upper limits of each estimate."
+    }
+   ]
+  ],
+  "options": {
+   "site_name": "Big Sandy River above Bruceton",
+   "estimates": [
+    {
+     "label": "Gage",
+     "kind": "gaged_ffa",
+     "options": {
+      "site_no": "03606500",
+      "site_name": "Big Sandy River at Bruceton, TN",
+      "drainage_area_sqmi": 205.0,
+      "peaks": {
+       "water_year": [
+        1930,
+        1931,
+        1932,
+        1933,
+        1934,
+        1935,
+        1936,
+        1937,
+        1938,
+        1939,
+        1940,
+        1941,
+        1942,
+        1943,
+        1944,
+        1945,
+        1946,
+        1947,
+        1948,
+        1949,
+        1950,
+        1951,
+        1952,
+        1953,
+        1954,
+        1955,
+        1956,
+        1957,
+        1958,
+        1959,
+        1960,
+        1961,
+        1962,
+        1963,
+        1964,
+        1965,
+        1966,
+        1967,
+        1968,
+        1969,
+        1970,
+        1971,
+        1972,
+        1973
+       ],
+       "peak_flow_cfs": [
+        9100.0,
+        2060.0,
+        7820.0,
+        3220.0,
+        5580.0,
+        17000.0,
+        6740.0,
+        13800.0,
+        4270.0,
+        5940.0,
+        1680.0,
+        1200.0,
+        10100.0,
+        3780.0,
+        5340.0,
+        5630.0,
+        12000.0,
+        3980.0,
+        6130.0,
+        4740.0,
+        9880.0,
+        5230.0,
+        4260.0,
+        5000.0,
+        3320.0,
+        5480.0,
+        11800.0,
+        5150.0,
+        3350.0,
+        2400.0,
+        1460.0,
+        3770.0,
+        7480.0,
+        2740.0,
+        3100.0,
+        7180.0,
+        1920.0,
+        9060.0,
+        3080.0,
+        2800.0,
+        4330.0,
+        5080.0,
+        12000.0,
+        7640.0
+       ]
+      },
+      "stationarity": false,
+      "peaks_table": false,
+      "regional_skew": -0.5,
+      "regional_skew_se": 0.55
+     }
+    },
+    {
+     "label": "Transposed from the gage",
+     "kind": "transposed",
+     "options": {
+      "donor": {
+       "site_no": "03606500",
+       "site_name": "Big Sandy River at Bruceton, TN",
+       "drainage_area_sqmi": 205.0,
+       "peaks": {
+        "water_year": [
+         1930,
+         1931,
+         1932,
+         1933,
+         1934,
+         1935,
+         1936,
+         1937,
+         1938,
+         1939,
+         1940,
+         1941,
+         1942,
+         1943,
+         1944,
+         1945,
+         1946,
+         1947,
+         1948,
+         1949,
+         1950,
+         1951,
+         1952,
+         1953,
+         1954,
+         1955,
+         1956,
+         1957,
+         1958,
+         1959,
+         1960,
+         1961,
+         1962,
+         1963,
+         1964,
+         1965,
+         1966,
+         1967,
+         1968,
+         1969,
+         1970,
+         1971,
+         1972,
+         1973
+        ],
+        "peak_flow_cfs": [
+         9100.0,
+         2060.0,
+         7820.0,
+         3220.0,
+         5580.0,
+         17000.0,
+         6740.0,
+         13800.0,
+         4270.0,
+         5940.0,
+         1680.0,
+         1200.0,
+         10100.0,
+         3780.0,
+         5340.0,
+         5630.0,
+         12000.0,
+         3980.0,
+         6130.0,
+         4740.0,
+         9880.0,
+         5230.0,
+         4260.0,
+         5000.0,
+         3320.0,
+         5480.0,
+         11800.0,
+         5150.0,
+         3350.0,
+         2400.0,
+         1460.0,
+         3770.0,
+         7480.0,
+         2740.0,
+         3100.0,
+         7180.0,
+         1920.0,
+         9060.0,
+         3080.0,
+         2800.0,
+         4330.0,
+         5080.0,
+         12000.0,
+         7640.0
+        ]
+       },
+       "stationarity": false,
+       "peaks_table": false,
+       "regional_skew": -0.5,
+       "regional_skew_se": 0.55
+      },
+      "target_area_sqmi": 150.0,
+      "exponents": {
+       "aeps": [
+        0.5,
+        0.1,
+        0.01
+       ],
+       "exponents": [
+        0.7,
+        0.66,
+        0.62
+       ],
+       "citation": "Example, A.B., and Author, C.D., 2020, A made-up report for the tests, table 1.",
+       "region": "Region 1"
+      },
+      "detail": false,
+      "donor_area_sqmi": 205.0
+     }
+    },
+    {
+     "label": "Regional regression",
+     "kind": "ungaged",
+     "options": {
+      "state": "TN",
+      "characteristics": {
+       "DRNAREA": 205.0
+      },
+      "region": "HA4 DA only",
+      "lat": 36.04,
+      "lon": -88.23
+     }
+    }
+   ],
+   "detail": false
+  },
+  "references": [
+   "England, J.F., Jr., Cohn, T.A., Faber, B.A., Stedinger, J.R., Thomas, W.O., Jr., Veilleux, A.G., Kiang, J.E., and Mason, R.R., Jr., 2019, Guidelines for determining flood flow frequency, Bulletin 17C (ver. 1.1, May 2019): U.S. Geological Survey Techniques and Methods, book 4, chap. B5, 148 p., https://doi.org/10.3133/tm4B5.",
+   "Example, A.B., and Author, C.D., 2020, A made-up report for the tests, table 1.",
+   "Ladd, D.E., and Ensminger, P.A., 2025, Estimating the magnitude and frequency of floods at ungaged locations on streams in Tennessee through the 2013 water year: U.S. Geological Survey Scientific Investigations Report 2024-5130, 19 p. https://doi.org/10.3133/sir20245130"
+  ],
+  "cautions": [],
+  "markdown": "The flood quantiles at Big Sandy River above Bruceton were estimated by 3 methods, set side by side below at the annual exceedance probabilities all of them give. Each estimate is computed as its own subsection describes, in this report's other sections. The last column is the largest estimate over the smallest. The estimates are compared, not combined: no weighting is applied here, and they are not independent where they share a gage record or a regression. The computation was made with flowfreq {version}.\n\nFlood quantiles at the site by each method.\n\n| Annual exceedance probability (percent) | Gage (cfs) | Transposed from the gage (cfs) | Regional regression (cfs) | Largest over smallest |\n|---:|---:|---:|---:|---:|\n| 50 | 5,052 | 4,060 | 7,180 | 1.77 |\n| 20 | 8,293 | 6,719 | 11,278 | 1.68 |\n| 10 | 10,577 | 8,606 | 14,251 | 1.66 |\n| 4 | 13,550 | 11,088 | 18,210 | 1.64 |\n| 2 | 15,801 | 12,977 | 21,350 | 1.65 |\n| 1 | 18,069 | 14,888 | 24,552 | 1.65 |\n| 0.5 | 20,359 | 16,774 | 27,896 | 1.66 |\n| 0.2 | 23,424 | 19,300 | 32,464 | 1.68 |\n\nLimits, where a method gives them: Gage, 90-percent confidence limits; Transposed from the gage, the donor's 90-percent confidence limits, scaled; Regional regression, 90-percent prediction limits. A transposed estimate's limits carry the donor gage's sampling uncertainty only, not the uncertainty of the transposition.\n\nLower and upper limits of each estimate.\n\n| Annual exceedance probability (percent) | Gage (cfs) | Transposed from the gage (cfs) | Regional regression (cfs) |\n|---:|---:|---:|---:|\n| 50 | 4,274 to 5,936 | 3,435 to 4,770 | 3,988 to 12,926 |\n| 20 | 7,066 to 9,899 | 5,725 to 8,020 | 6,410 to 19,842 |\n| 10 | 8,937 to 13,117 | 7,272 to 10,674 | 7,892 to 25,733 |\n| 4 | 11,171 to 18,032 | 9,141 to 14,755 | 9,710 to 34,150 |\n| 2 | 12,667 to 22,302 | 10,403 to 18,315 | 10,964 to 41,576 |\n| 1 | 14,005 to 27,113 | 11,539 to 22,339 | 12,155 to 49,589 |\n| 0.5 | 15,203 to 32,545 | 12,526 to 26,815 | 13,357 to 58,261 |\n| 0.2 | 16,606 to 40,843 | 13,682 to 33,651 | 15,038 to 70,084 |\n"
+ },
+ "cautioned": {
+  "title": "Comparison of flood estimates",
+  "blocks": [
+   [
+    "Paragraph",
+    {
+     "text": "The flood quantiles at the site were estimated by 2 methods, set side by side below at the annual exceedance probabilities all of them give. Each estimate is computed as its own subsection describes, in this report's other sections. The last column is the largest estimate over the smallest. The estimates are compared, not combined: no weighting is applied here, and they are not independent where they share a gage record or a regression. The computation was made with flowfreq {version}."
+    }
+   ],
+   [
+    "Table",
+    {
+     "header": [
+      "Annual exceedance probability (percent)",
+      "Gage (cfs)",
+      "Urban (cfs)",
+      "Largest over smallest"
+     ],
+     "rows": [
+      [
+       "10",
+       "10,577",
+       "5,197",
+       "2.04"
+      ],
+      [
+       "1",
+       "18,069",
+       "8,465",
+       "2.13"
+      ]
+     ],
+     "align": [
+      "right",
+      "right",
+      "right",
+      "right"
+     ],
+     "caption": "Flood quantiles at the site by each method."
+    }
+   ],
+   [
+    "Paragraph",
+    {
+     "text": "Limits, where a method gives them: Gage, 90-percent confidence limits; Urban, 90-percent prediction limits. A transposed estimate's limits carry the donor gage's sampling uncertainty only, not the uncertainty of the transposition."
+    }
+   ],
+   [
+    "Table",
+    {
+     "header": [
+      "Annual exceedance probability (percent)",
+      "Gage (cfs)",
+      "Urban (cfs)"
+     ],
+     "rows": [
+      [
+       "10",
+       "8,937 to 13,117",
+       "2,911 to 9,278"
+      ],
+      [
+       "1",
+       "14,005 to 27,113",
+       "4,158 to 17,230"
+      ]
+     ],
+     "align": [
+      "right",
+      "right",
+      "right"
+     ],
+     "caption": "Lower and upper limits of each estimate."
+    }
+   ],
+   [
+    "Paragraph",
+    {
+     "text": "Cautions on Urban: SIR 2025-5104 (Wagner and Ladd, 2026) is an urban set fitted to gages in six southeastern states, 20 of 136 in Tennessee. It is not valid in the Middle Atlantic or Southern Coastal Plain Level 3 ecoregions or for regulated or tidal streams; its accuracy is not known outside the study area, which is six ecoregions and had no urban gage in the Mississippi Alluvial Plain, Central Appalachians or Blue Ridge (pp. 5, 12). Nothing here checks which ecoregion the basin is in. L3_PIEDMNT and L3_RDGVLY are percent of the basin, 0 to 100, not fractions. At a gage used to develop the equations the report calls weighting them with the at-site estimate inappropriate, because the two are not independent (p. 13)."
+    }
+   ]
+  ],
+  "options": {
+   "estimates": [
+    {
+     "label": "Gage",
+     "kind": "gaged_ffa",
+     "options": {
+      "site_no": "03606500",
+      "site_name": "Big Sandy River at Bruceton, TN",
+      "drainage_area_sqmi": 205.0,
+      "peaks": {
+       "water_year": [
+        1930,
+        1931,
+        1932,
+        1933,
+        1934,
+        1935,
+        1936,
+        1937,
+        1938,
+        1939,
+        1940,
+        1941,
+        1942,
+        1943,
+        1944,
+        1945,
+        1946,
+        1947,
+        1948,
+        1949,
+        1950,
+        1951,
+        1952,
+        1953,
+        1954,
+        1955,
+        1956,
+        1957,
+        1958,
+        1959,
+        1960,
+        1961,
+        1962,
+        1963,
+        1964,
+        1965,
+        1966,
+        1967,
+        1968,
+        1969,
+        1970,
+        1971,
+        1972,
+        1973
+       ],
+       "peak_flow_cfs": [
+        9100.0,
+        2060.0,
+        7820.0,
+        3220.0,
+        5580.0,
+        17000.0,
+        6740.0,
+        13800.0,
+        4270.0,
+        5940.0,
+        1680.0,
+        1200.0,
+        10100.0,
+        3780.0,
+        5340.0,
+        5630.0,
+        12000.0,
+        3980.0,
+        6130.0,
+        4740.0,
+        9880.0,
+        5230.0,
+        4260.0,
+        5000.0,
+        3320.0,
+        5480.0,
+        11800.0,
+        5150.0,
+        3350.0,
+        2400.0,
+        1460.0,
+        3770.0,
+        7480.0,
+        2740.0,
+        3100.0,
+        7180.0,
+        1920.0,
+        9060.0,
+        3080.0,
+        2800.0,
+        4330.0,
+        5080.0,
+        12000.0,
+        7640.0
+       ]
+      },
+      "stationarity": false,
+      "peaks_table": false,
+      "regional_skew": -0.5,
+      "regional_skew_se": 0.55
+     }
+    },
+    {
+     "label": "Urban",
+     "kind": "ungaged",
+     "options": {
+      "state": "TN",
+      "characteristics": {
+       "DRNAREA": 20.0,
+       "LC11DEV": 60.0,
+       "LC11IMP": 30.0,
+       "L3_PIEDMNT": 0.0,
+       "L3_RDGVLY": 0.0
+      },
+      "region": "Urban 2026",
+      "lat": 36.04,
+      "lon": -88.23
+     }
+    }
+   ],
+   "detail": false,
+   "aeps": [
+    0.1,
+    0.01
+   ]
+  },
+  "references": [
+   "England, J.F., Jr., Cohn, T.A., Faber, B.A., Stedinger, J.R., Thomas, W.O., Jr., Veilleux, A.G., Kiang, J.E., and Mason, R.R., Jr., 2019, Guidelines for determining flood flow frequency, Bulletin 17C (ver. 1.1, May 2019): U.S. Geological Survey Techniques and Methods, book 4, chap. B5, 148 p., https://doi.org/10.3133/tm4B5.",
+   "Wagner, D.M., and Ladd, D.E., 2026, Estimating the magnitude and frequency of floods at ungaged locations on urban streams in Tennessee and parts of Alabama, Georgia, Mississippi, North Carolina, and South Carolina, using data through the 2022 water year: U.S. Geological Survey Scientific Investigations Report 2025-5104, 17 p., https://doi.org/10.3133/sir20255104. https://doi.org/10.3133/sir20255104"
+  ],
+  "cautions": [
+   "Urban: SIR 2025-5104 (Wagner and Ladd, 2026) is an urban set fitted to gages in six southeastern states, 20 of 136 in Tennessee. It is not valid in the Middle Atlantic or Southern Coastal Plain Level 3 ecoregions or for regulated or tidal streams; its accuracy is not known outside the study area, which is six ecoregions and had no urban gage in the Mississippi Alluvial Plain, Central Appalachians or Blue Ridge (pp. 5, 12). Nothing here checks which ecoregion the basin is in. L3_PIEDMNT and L3_RDGVLY are percent of the basin, 0 to 100, not fractions. At a gage used to develop the equations the report calls weighting them with the at-site estimate inappropriate, because the two are not independent (p. 13)."
+  ],
+  "markdown": "The flood quantiles at the site were estimated by 2 methods, set side by side below at the annual exceedance probabilities all of them give. Each estimate is computed as its own subsection describes, in this report's other sections. The last column is the largest estimate over the smallest. The estimates are compared, not combined: no weighting is applied here, and they are not independent where they share a gage record or a regression. The computation was made with flowfreq {version}.\n\nFlood quantiles at the site by each method.\n\n| Annual exceedance probability (percent) | Gage (cfs) | Urban (cfs) | Largest over smallest |\n|---:|---:|---:|---:|\n| 10 | 10,577 | 5,197 | 2.04 |\n| 1 | 18,069 | 8,465 | 2.13 |\n\nLimits, where a method gives them: Gage, 90-percent confidence limits; Urban, 90-percent prediction limits. A transposed estimate's limits carry the donor gage's sampling uncertainty only, not the uncertainty of the transposition.\n\nLower and upper limits of each estimate.\n\n| Annual exceedance probability (percent) | Gage (cfs) | Urban (cfs) |\n|---:|---:|---:|\n| 10 | 8,937 to 13,117 | 2,911 to 9,278 |\n| 1 | 14,005 to 27,113 | 4,158 to 17,230 |\n\nCautions on Urban: SIR 2025-5104 (Wagner and Ladd, 2026) is an urban set fitted to gages in six southeastern states, 20 of 136 in Tennessee. It is not valid in the Middle Atlantic or Southern Coastal Plain Level 3 ecoregions or for regulated or tidal streams; its accuracy is not known outside the study area, which is six ecoregions and had no urban gage in the Mississippi Alluvial Plain, Central Appalachians or Blue Ridge (pp. 5, 12). Nothing here checks which ecoregion the basin is in. L3_PIEDMNT and L3_RDGVLY are percent of the basin, 0 to 100, not fractions. At a gage used to develop the equations the report calls weighting them with the at-site estimate inappropriate, because the two are not independent (p. 13).\n"
+ }
+}

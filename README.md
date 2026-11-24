@@ -284,7 +284,9 @@ analysis and lays out what it returns, so a quantile in a report is the one `run
   optional inputs. `gaged_ffa` is Bulletin 17C at a gage: the record, the method as applied
   (skew source with its citation, low-outlier screening, perception thresholds, peak codes),
   fitted parameters, quantiles with 90-percent confidence limits, the frequency curve, the
-  stationarity screen and the peaks. `ungaged` is the regional regression at a point: give
+  stationarity screen and the peaks. `b17b_ffa` is Bulletin 17B (superseded) at a gage, for
+  comparison with Bulletin 17C and only on request: it takes the same peaks and regional skew,
+  or the `generalized_skew` of an earlier study. `ungaged` is the regional regression at a point: give
   `characteristics` and `region`, or neither and StreamStats delineates the basin.
   `weighted` takes a `gage` (the `gaged_ffa` inputs) and a `regression` (the `ungaged`
   inputs, at the gage) and weights the two by inverse variance (Bulletin 17C Appendix 9):
@@ -314,10 +316,11 @@ analysis and lays out what it returns, so a quantile in a report is the one `run
   factors, scenario, horizon and citation, all the analyst's) and multiplies the flood
   quantiles by the change factors (`flowfreq.future_flow.apply_change_factors`), marking
   each factor as published, interpolated or held. `comparison` takes `estimates` (each a
-  `label`, a `kind` of `gaged_ffa`, `transposed` or `ungaged`, and that kind's options)
+  `label`, a `kind` of `gaged_ffa`, `transposed`, `ungaged` or `b17b_ffa`, and that kind's options)
   and sets their flood quantiles at one site side by side, with each one's limits and its
-  own analysis below. `site_summary` takes `locations` (points, with optional basin
-  characteristics and watershed outlines) and the same `estimates`, and gives a
+  own analysis below (and a plot of the curves when one is `b17b_ffa`). `site_summary`
+  takes `locations` (points, with optional basin characteristics and watershed outlines)
+  and the same `estimates` (except `b17b_ffa`), and gives a
   characteristics table, a map, the flows by method from the 1.5-year to the 500-year flood
   and a plot of the methods' curves. `text` is a titled section of prose. A `gaged_ffa` section
   with an `extension` (`{"index": {"site_no": ...}}`) extends the gage's record from an
@@ -390,6 +393,7 @@ to are in [docs/CHAT_REPORTS.md](docs/CHAT_REPORTS.md).
 | `flowfreq.future_flow` | Future-condition change-factor framework |
 | `flowfreq.subdaily` | Sub-daily metrics: extreme timing, ramping rates |
 | `flowfreq.bulletin17c` | `Bulletin17C` — EMA/MOM analysis, quantiles, CI, plots |
+| `flowfreq.bulletin17b` | `Bulletin17B` — the superseded 1982 procedure, for comparison with 17C; computed only on request |
 | `flowfreq.core` | `FrequencyResults`, `LowFlowResults`, `kfactor`, `grubbs_beck_critical_value` |
 | `flowfreq.lowflow` | `LowFlowFrequency` — annual *n*-day low-flow frequency analysis |
 | `flowfreq.regime` | `FlowRegime` — flashiness, baseflow separation, diel variation, seasonal summaries |

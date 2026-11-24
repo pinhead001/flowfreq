@@ -194,6 +194,10 @@ CI should test the supported Python matrix.
   `grubbs_beck_critical_value`, `log_pearson3_*`, `compute_ci_lp3`)
 - **`bulletin17c.py`** — `FloodFrequencyAnalysis` (ABC), `MethodOfMoments`,
   `ExpectedMomentsAlgorithm`, `Bulletin17C` (facade), and the MGBT three-sweep
+- **`bulletin17b.py`** — `Bulletin17B`, the superseded 1982 procedure, for comparison with 17C,
+  and `bulletin17b_kwargs` (its inputs from NWIS peaks and codes). Nothing computes it unless
+  asked: the class, a `b17b_ffa` section, or a `comparison` with a `b17b_ffa` estimate. Whatever
+  shows its numbers says "Bulletin 17B (superseded)"
 - **`fortran_engine.py`** — the vendored `emafitpr` as a selectable engine (`engine="fortran"`)
 - **`workflow.py`** — `run_ffa` / `compare_engines` entry points, `peak_code_kwargs`
 - **`usgs.py`** — `USGSgage` retrieval (peaks, daily, instantaneous, paired flow+stage),
@@ -236,7 +240,7 @@ CI should test the supported Python matrix.
 - **`lowflow.py`** / **`regime.py`** / **`subdaily.py`** — low-flow frequency, flow-regime and
   sub-daily metrics
 - **`reporting/`** — reports from a JSON specification: `spec` (`ReportSpec`, `SectionSpec`),
-  `sections` (the registry of section kinds; each kind's builder is in its own module, `gaged`, `regional`, `weighted`, `transposed`, `engine_check`, `comparison`, `future`, over `_base`; to replace a builder's helper in a test, patch it in the module that defines it. The kinds: `gaged_ffa`, `ungaged`, `weighted`, `transposed`, `engine_check`, `future_flow`, `comparison`, `text`), `summary` (`site_summary`: characteristics, a map, flows by method and a curve plot for one site), `daily` (`low_flow` and `flow_duration`, from a daily record stored in the spec), `regime_sections` (`monthly_statistics`, `summary_hydrograph` and `baseflow`, the same way), `blocks` (content blocks and
+  `sections` (the registry of section kinds; each kind's builder is in its own module, `gaged`, `b17b`, `regional`, `weighted`, `transposed`, `engine_check`, `comparison`, `future`, over `_base`; to replace a builder's helper in a test, patch it in the module that defines it. The kinds: `gaged_ffa`, `b17b_ffa` (Bulletin 17B, superseded; only on request), `ungaged`, `weighted`, `transposed`, `engine_check`, `future_flow`, `comparison`, `text`), `summary` (`site_summary`: characteristics, a map, flows by method and a curve plot for one site), `daily` (`low_flow` and `flow_duration`, from a daily record stored in the spec), `regime_sections` (`monthly_statistics`, `summary_hydrograph` and `baseflow`, the same way), `blocks` (content blocks and
   the Markdown subset), `build` (`build_report`, Markdown output), `word` (DOCX through
   python-docx, the `report` extra), `session` (`ReportSession`: a report built a section at a
   time, stable section ids, files named inside one output directory). A section's tables and

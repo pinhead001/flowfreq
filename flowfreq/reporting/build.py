@@ -191,7 +191,7 @@ def build_report(spec: ReportSpec) -> Report:
             content = build_section(section.kind, section.options)
         except ReportError as exc:
             raise ReportError(f"{where}: {exc}") from exc
-        title = section_title(section.kind, section.title, content.title)
+        title = section_title(section.kind, section.title, content.title, content.options)
         if not title:
             raise ReportError(f"{where}: needs a title")
         blocks.append(Heading(1, f"{number}. {title}"))

@@ -29,6 +29,7 @@ from typing import Any, Dict, List, Mapping, Optional, Sequence, Union
 from ._base import section_title
 from .blocks import Block, Figure, Heading, Narrative, Paragraph, Table, narrative_blocks
 from .build import build_report, render_markdown
+from .comparison import _COMPARED_KINDS, B17B_NOT_SUMMARIZED
 from .daily import FLOW_DURATION_CAPTION, LOW_FLOW_CAPTION
 from .regime_sections import BASEFLOW_CAPTION, MONTHLY_CAPTION, SUMMARY_HYDROGRAPH_CAPTION
 from .sections import (
@@ -39,7 +40,7 @@ from .sections import (
     build_section,
 )
 from .spec import ReportError, ReportSpec, SectionSpec
-from .summary import SUMMARY_FLOWS_CAPTION
+from .summary import _SUMMARIZED_KINDS, SUMMARY_FLOWS_CAPTION
 
 #: The table of each kind that carries its result, by caption.
 MAIN_TABLES: Dict[str, str] = {
@@ -79,7 +80,8 @@ class _Entry:
 
     @property
     def title(self) -> str:
-        return section_title(self.spec.kind, self.spec.title, self.content.title)
+        spec, content = self.spec, self.content
+        return section_title(spec.kind, spec.title, content.title, content.options)
 
 
 class ReportSession:
@@ -520,7 +522,10 @@ class ReportSession:
         return self._added(built)
 
     def _estimates(
-        self, section_ids: Sequence[str], labels: Optional[Sequence[str]]
+        self,
+        section_ids: Sequence[str],
+        labels: Optional[Sequence[str]],
+        kinds: Sequence[str],
     ) -> List[Dict[str, Any]]:
         """Sections as the estimates a comparison or a summary takes, their options copied."""
         if labels is not None and len(labels) != len(section_ids):
@@ -531,11 +536,14 @@ class ReportSession:
         estimates = []
         for i, section_id in enumerate(section_ids):
             entry = self._entry(section_id)
-            if entry.spec.kind not in ("gaged_ffa", "transposed", "ungaged"):
-                raise ReportError(
+            if entry.spec.kind not in kinds:
+                message = (
                     f"section {entry.id} is a {entry.spec.kind} section; an estimate is a "
-                    "gaged_ffa, transposed or ungaged section"
+                    f"{', '.join(kinds[:-1])} or {kinds[-1]} section"
                 )
+                if entry.spec.kind == "b17b_ffa":
+                    message += f". {B17B_NOT_SUMMARIZED}"
+                raise ReportError(message)
             options = copy.deepcopy(entry.spec.options)
             if entry.spec.kind == "transposed":
                 options["detail"] = False  # the donor's analysis is in its own section
@@ -564,8 +572,8 @@ class ReportSession:
         Parameters
         ----------
         section_ids : sequence of str
-            Two or more ``gaged_ffa``, ``transposed`` or ``ungaged`` sections. They stay in
-            the report.
+            Two or more ``gaged_ffa``, ``transposed``, ``ungaged`` or ``b17b_ffa`` sections.
+            They stay in the report.
         labels : sequence of str, optional
             A column heading for each, in order. Defaults to the sections' titles.
         site_name : str, optional
@@ -592,7 +600,7 @@ class ReportSession:
         """
         index = self._index(position)
         given: Dict[str, Any] = {
-            "estimates": self._estimates(section_ids, labels),
+            "estimates": self._estimates(section_ids, labels, _COMPARED_KINDS),
             "detail": detail,
         }
         if site_name:
@@ -648,11 +656,12 @@ class ReportSession:
         Raises
         ------
         ReportError
-            As :meth:`compare`, or locations the section refuses. The report is unchanged.
+            As :meth:`compare`, or locations the section refuses. A ``b17b_ffa`` section is
+            refused: Bulletin 17B is not shown in a summary. The report is unchanged.
         """
         index = self._index(position)
         given: Dict[str, Any] = {
-            "estimates": self._estimates(section_ids, labels),
+            "estimates": self._estimates(section_ids, labels, _SUMMARIZED_KINDS),
             "locations": [copy.deepcopy(dict(loc)) for loc in locations],
         }
         for name, value in (

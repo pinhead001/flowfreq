@@ -6,8 +6,12 @@ import io
 import math
 import re
 from dataclasses import dataclass, field, replace
-from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple
+from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
+import numpy as np
+import pandas as pd
+
+from ..aep import AEP_MATCH
 from .blocks import Block, Heading
 from .spec import ReportError
 
@@ -18,6 +22,10 @@ BULLETIN_17C = (
     "flood flow frequency, Bulletin 17C (ver. 1.1, May 2019): U.S. Geological Survey "
     "Techniques and Methods, book 4, chap. B5, 148 p., https://doi.org/10.3133/tm4B5."
 )
+
+
+#: The label on everything that shows a Bulletin 17B number.
+SUPERSEDED = "Bulletin 17B (superseded)"
 
 
 _PEAK_KEYS = (
@@ -72,7 +80,8 @@ class SectionKind:
     """A registered section kind: its name, what it takes and the function that builds it.
 
     ``title_label`` is what every title of the section has to say, a caller's own included
-    (see :func:`section_title`); empty for most kinds.
+    (see :func:`section_title`), or a function that gives it from the section's options;
+    empty for most kinds.
     """
 
     name: str
@@ -80,7 +89,7 @@ class SectionKind:
     required: Tuple[str, ...]
     optional: Tuple[str, ...]
     build: Callable[[Dict[str, Any]], SectionContent]
-    title_label: str = ""
+    title_label: Union[str, Callable[[Mapping[str, Any]], str]] = ""
 
     def check(self, options: Mapping[str, Any]) -> None:
         """Raise :class:`ReportError` for an unknown or a missing option."""
@@ -101,7 +110,18 @@ class SectionKind:
 SECTION_KINDS: Dict[str, SectionKind] = {}
 
 
-def section_title(kind: str, given: Optional[str], own: str) -> str:
+def with_label(text: str, label: str) -> str:
+    """``text`` with ", ``label``" appended, unless it already has the label's words.
+
+    The words are looked for in any case and without a leading "with ". Empty text or an
+    empty label leaves ``text`` as it is.
+    """
+    if not text or not label or label.removeprefix("with ").lower() in text.lower():
+        return text
+    return f"{text}, {label}"
+
+
+def section_title(kind: str, given: Optional[str], own: str, options: Mapping[str, Any]) -> str:
     """The heading of a section: the caller's title if there is one, else the kind's own.
 
     A kind with a ``title_label`` (superseded numbers) has it appended when the title does
@@ -115,16 +135,15 @@ def section_title(kind: str, given: Optional[str], own: str) -> str:
         The title the specification gives.
     own : str
         The title the section was built with.
+    options : mapping
+        The section's options, which the label may depend on.
 
     Returns
     -------
     str
     """
-    title = given or own
     label = SECTION_KINDS[kind].title_label
-    if title and label and label.lower() not in title.lower():
-        return f"{title}, {label}"
-    return title
+    return with_label(given or own, label if isinstance(label, str) else label(options))
 
 
 def _version() -> str:
@@ -178,6 +197,44 @@ def _figure_png(fig: Any) -> bytes:
     )
     plt.close(fig)
     return buffer.getvalue()
+
+
+def _curve_figure(
+    curves: Sequence[Tuple[str, pd.DataFrame]], aeps: Sequence[float], where: str
+) -> bytes:
+    """Each method's flood quantiles against AEP on a normal probability axis, with limits."""
+    import matplotlib.pyplot as plt
+    from matplotlib.ticker import FuncFormatter
+    from scipy.special import ndtri
+
+    fig, ax = plt.subplots(figsize=(8, 5.5))
+    for index, (label, flows) in enumerate(curves):
+        rows = flows[flows["flow_cfs"].notna()].sort_values("aep", ascending=False)
+        top, bottom = max(aeps) * (1 + AEP_MATCH), min(aeps) * (1 - AEP_MATCH)
+        rows = rows[(rows["aep"] <= top) & (rows["aep"] >= bottom)]
+        x = -ndtri(rows["aep"].to_numpy(dtype=float))
+        color = f"C{index}"
+        ax.plot(x, rows["flow_cfs"], "-o", color=color, markersize=4, label=label)
+        limits = rows.dropna(subset=["lower", "upper"])
+        if not limits.empty:
+            xl = -ndtri(limits["aep"].to_numpy(dtype=float))
+            ax.fill_between(xl, limits["lower"], limits["upper"], color=color, alpha=0.12)
+            ax.plot(xl, limits["lower"], "--", color=color, linewidth=0.8)
+            ax.plot(xl, limits["upper"], "--", color=color, linewidth=0.8)
+    ticks = sorted(aeps, reverse=True)
+    ax.set_xticks(-ndtri(np.array(ticks)))
+    ax.set_xticklabels([f"{100 * a:.3g}" for a in ticks])
+    ax.set_yscale("log")
+    plain = FuncFormatter(lambda value, _: f"{value:,.0f}")
+    ax.yaxis.set_major_formatter(plain)
+    ax.yaxis.set_minor_formatter(plain)
+    ax.tick_params(axis="y", which="minor", labelsize=8)
+    ax.set_xlabel("Annual exceedance probability (percent)")
+    ax.set_ylabel("Flow (cfs)")
+    ax.set_title(f"Flood frequency at {where}")
+    ax.grid(True, which="both", alpha=0.3)
+    ax.legend(loc="lower right")
+    return _figure_png(fig)
 
 
 def _demote(blocks: Sequence[Block], by: int = 1) -> List[Block]:

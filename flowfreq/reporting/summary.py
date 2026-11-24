@@ -14,9 +14,8 @@ import math
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
-import pandas as pd
 
-from ..aep import AEP_MATCH
+from ._base import _curve_figure
 from .blocks import Block, Figure, Paragraph, Table
 from .regional import _caution_paragraphs
 from .sections import (
@@ -43,6 +42,8 @@ _LOCATION_KEYS = ("name", "lat", "lon", "characteristics", "basin", "marker")
 #: The point markers a location may take (matplotlib's).
 _MARKERS = ("o", "s", "^", "v", "<", ">", "*", "D", "P", "X")
 _OWNER = "site_summary"
+#: The kinds of estimate a ``site_summary`` section can show: Bulletin 17B is not one.
+_SUMMARIZED_KINDS = ("gaged_ffa", "transposed", "ungaged")
 
 
 def _rings(geometry: Any, where: str) -> List[np.ndarray]:
@@ -159,51 +160,13 @@ def _map_figure(locations: Sequence[Dict[str, Any]]) -> bytes:
     return _figure_png(fig)
 
 
-def _curve_figure(
-    curves: Sequence[Tuple[str, pd.DataFrame]], aeps: Sequence[float], where: str
-) -> bytes:
-    """Each method's flood quantiles against AEP on a normal probability axis, with limits."""
-    import matplotlib.pyplot as plt
-    from matplotlib.ticker import FuncFormatter
-    from scipy.special import ndtri
-
-    fig, ax = plt.subplots(figsize=(8, 5.5))
-    for index, (label, flows) in enumerate(curves):
-        rows = flows[flows["flow_cfs"].notna()].sort_values("aep", ascending=False)
-        top, bottom = max(aeps) * (1 + AEP_MATCH), min(aeps) * (1 - AEP_MATCH)
-        rows = rows[(rows["aep"] <= top) & (rows["aep"] >= bottom)]
-        x = -ndtri(rows["aep"].to_numpy(dtype=float))
-        color = f"C{index}"
-        ax.plot(x, rows["flow_cfs"], "-o", color=color, markersize=4, label=label)
-        limits = rows.dropna(subset=["lower", "upper"])
-        if not limits.empty:
-            xl = -ndtri(limits["aep"].to_numpy(dtype=float))
-            ax.fill_between(xl, limits["lower"], limits["upper"], color=color, alpha=0.12)
-            ax.plot(xl, limits["lower"], "--", color=color, linewidth=0.8)
-            ax.plot(xl, limits["upper"], "--", color=color, linewidth=0.8)
-    ticks = sorted(aeps, reverse=True)
-    ax.set_xticks(-ndtri(np.array(ticks)))
-    ax.set_xticklabels([f"{100 * a:.3g}" for a in ticks])
-    ax.set_yscale("log")
-    plain = FuncFormatter(lambda value, _: f"{value:,.0f}")
-    ax.yaxis.set_major_formatter(plain)
-    ax.yaxis.set_minor_formatter(plain)
-    ax.tick_params(axis="y", which="minor", labelsize=8)
-    ax.set_xlabel("Annual exceedance probability (percent)")
-    ax.set_ylabel("Flow (cfs)")
-    ax.set_title(f"Flood frequency at {where}")
-    ax.grid(True, which="both", alpha=0.3)
-    ax.legend(loc="lower right")
-    return _figure_png(fig)
-
-
 def _build_site_summary(given: Dict[str, Any]) -> SectionContent:
     options = dict(given)
     locations = _locations(options["locations"])
     listed = options["estimates"]
     if not isinstance(listed, list) or not listed:
         raise ReportError(f"{_OWNER}: estimates must be a non-empty list")
-    built = [_compared(i, each, _OWNER) for i, each in enumerate(listed)]
+    built = [_compared(i, each, _OWNER, _SUMMARIZED_KINDS) for i, each in enumerate(listed)]
     labels = [label for label, _, _, _ in built]
     if len(set(labels)) != len(labels):
         raise ReportError(f"{_OWNER}: two estimates have the same label")

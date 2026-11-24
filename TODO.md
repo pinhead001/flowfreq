@@ -58,23 +58,22 @@ CI cache). CHANGELOG.md, Unreleased, has the detail. Still open from it:
    `basin`.
 6. Done 2026-11-21 (#402): the eight class-scoped fixtures are staticmethods, and `PytestRemovedIn10Warning`
    is an error, so the `pytest<10` pin can move when pytest 10 is out.
-7. **Bulletin 17B procedure, for comparing B17C with the superseded B17B. Designed and planned, not started**
-   (owner, 2026-11-21: do not start building yet).
-   - Design (approved): `docs/superpowers/specs/2026-11-21-bulletin17b-design.md`. Plan, 8 tasks:
-     `docs/superpowers/plans/2026-11-21-bulletin17b.md` (#408). Execution: subagent-driven (owner's choice),
-     one implementer per task and a fresh reviewer before the next.
-   - Owner's decisions: a new `Bulletin17B` class (`Bulletin17C(method=MOM)` unchanged); B17B is computed and
-     reported **only when requested** (a `Bulletin17B` call or a `b17b_ffa` section); the B17B side uses the
-     B17C side's regional skew by default, with `generalized_skew` for the old study's Plate I value (three-
-     column comparison).
-   - The transcribed bulletin (Appendix 12 examples 1-4, the Appendix 6 Big Sandy example, Appendix 4 K_N,
-     Tables 1, 9-1, 11-1, the procedure with page labels) is on branch `wip/b17b-transcription` under
-     `tests/fixtures/b17b/`; plan Task 1 starts from it (its source path in the plan was a scratch folder).
-   - Before starting: a fresh `spec/` or feature branch from `main`, then Task 1.
+7. Done 2026-11-24 (PR of 2026-11-24): the Bulletin 17B procedure, for comparing B17C with the superseded B17B.
+   `flowfreq.Bulletin17B`, `bulletin17b_kwargs`, a `b17b_ffa` report section, and `b17b_ffa` as an estimate of a
+   `comparison` (design `docs/superpowers/specs/2026-11-21-bulletin17b-design.md`, plan
+   `docs/superpowers/plans/2026-11-21-bulletin17b.md`, the transcribed bulletin in `tests/fixtures/b17b/`).
+   Computed and reported only when requested. What was checked is in CHANGELOG.md. Left:
+   - No PeakFQ 5 output has been compared with it; the checks are the bulletin's own examples.
+   - No chat tool adds a `b17b_ffa` section. `compare_estimates` takes one that a loaded report has.
+   - A record with code-7 peaks and `perception_thresholds` needs two sets of options, one for `gaged_ffa`
+     (`apply_peak_codes: false`) and one for `b17b_ffa` (codes applied).
 8. Done 2026-11-21 (#407): agent ops run on the shared `agentops` package (`D:/a/agentops`, `pip install -e` into
    `.venv`); `tools/agentops/` is gone, the config is `config/agents.toml`, `run.bat` runs it, the push guards
    are tighter. The features it needs came from pinhead001/agentops#6 (merged 2026-11-21). All 12 finished
    cards are archived.
+9. `core.kfactor` returns nonsense without an error at very rare AEPs (checked 2026-11-24: skew 0.5 at 1e-10 gives
+   2e99; a positive skew fails past 1e-9, a negative one at 1e-9 already, -0.5 giving 4.0 where scipy has 3.47). It
+   holds at 1e-8. Not changed; `Bulletin17B` takes AEPs from 1e-6.
 
 ### Next steps (2026-11-15)
 

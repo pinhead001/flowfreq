@@ -1,6 +1,7 @@
 """The ``b17b_ffa`` section: a Bulletin 17B (superseded) fit, for comparison with 17C.
 
-Nothing else in a report computes Bulletin 17B. The section takes the peaks and the skew
+Nothing else in a report computes Bulletin 17B, except a ``comparison`` section that has
+a ``b17b_ffa`` estimate. The section takes the peaks and the skew
 options of a ``gaged_ffa`` section, so the two differ in procedure only, unless the caller
 gives the generalized skew of an earlier study.
 """
@@ -30,15 +31,12 @@ from ..bulletin17b import (
 )
 from ..regulation import RegulatedRecordError, classify_site, require_unregulated
 from . import gaged
-from ._base import SectionContent, _figure_png, _version, cfs
+from ._base import SUPERSEDED, SectionContent, _figure_png, _version, cfs
 from .blocks import Block, Bullets, Figure, Heading, Paragraph, Table
 from .gaged import _peak_frame, _resolve_skew, _skew_sentence, _threshold_rows
 from .spec import ReportError
 
 _KIND = "b17b_ffa"
-
-#: The label on everything that shows a Bulletin 17B number.
-SUPERSEDED = "Bulletin 17B (superseded)"
 
 #: The caption of the section's main table.
 B17B_CAPTION = f"{SUPERSEDED} quantiles, with 90-percent limits."
