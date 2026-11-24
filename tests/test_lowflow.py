@@ -2,11 +2,17 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 import pytest
 
+from flowfreq.core import assign_year_label
 from flowfreq.lowflow import LOW_FLOW_YEAR_TYPES, LowFlowFrequency, annual_minimum_flow
+from flowfreq.regime import flow_duration_curve
+
+LOWFLOW_FIXTURES = Path(__file__).parent / "fixtures" / "lowflow"
 
 
 def _flat_year_with_dip(
@@ -519,3 +525,86 @@ class TestBootstrapConfidenceLimits:
         lff = LowFlowFrequency(daily, n_day=7)
         boot = lff.compute_bootstrap_confidence_limits(random_state=1, n_resamples=300)
         assert not boot.empty
+
+
+class TestAgainstSir20265021:
+    """USGS SIR 2026-5021 (Feaster and others, 2026), data release doi:10.5066/P13BHRVE, Table 1.
+
+    Log-Pearson III of the annual minimum n-day means of April-March years, with a conditional
+    probability for zeros: this module's method. ``tests/fixtures/lowflow/README.md`` has the
+    comparison of 32 gages this is three of.
+    """
+
+    TABLE = pd.read_csv(
+        LOWFLOW_FIXTURES / "sir2026_5021_table1.csv", dtype={"USGS_streamgage_number": str}
+    ).set_index("USGS_streamgage_number")
+
+    @classmethod
+    def _daily(cls, site: str) -> pd.DataFrame:
+        path = LOWFLOW_FIXTURES / f"{site}_daily.csv.gz"
+        return pd.read_csv(path, parse_dates=["date"], index_col="date")
+
+    @classmethod
+    def _climatic(cls, site: str) -> pd.DataFrame:
+        row = cls.TABLE.loc[site]
+        return cls._daily(site).loc[f"{row.First_CY}-04-01" :f"{row.Last_CY + 1}-03-31"]
+
+    @staticmethod
+    def _printed(value: float, printed: float) -> bool:
+        """Whether ``value`` rounds to the printed one: 3 figures, at most 2 decimals."""
+        if printed == 0:
+            return value < 0.005
+        step = max(10.0 ** (np.floor(np.log10(printed)) - 2), 0.01)
+        return bool(abs(value - printed) <= 0.5 * step * (1 + 1e-6))
+
+    @pytest.mark.parametrize("site", ["02383000", "02096846"])
+    def test_the_fit_of_the_seven_day_minima(self, site: str) -> None:
+        row, fit = self.TABLE.loc[site], LowFlowFrequency(self._climatic(site), n_day=7)
+        results = fit.run_analysis()
+        assert results.n_years == row.N
+        assert results.n_zero_years == (11 if site == "02096846" else 0)
+        assert results.mean_log == pytest.approx(row.Mean_annual_7day, abs=5.1e-4)
+        assert results.std_log == pytest.approx(row.Stdev_annual_7day, abs=5.1e-4)
+        assert results.skew_used == pytest.approx(row.Skew_annual_7day, abs=5.1e-4)
+
+    @pytest.mark.parametrize("site", ["02383000", "02096846"])
+    @pytest.mark.parametrize(
+        "column,n_day,p",
+        [
+            ("Annual_1Q10", 1, 0.1),
+            ("Annual_7Q2", 7, 0.5),
+            ("Annual_7Q10", 7, 0.1),
+            ("Annual_30Q2", 30, 0.5),
+            ("Annual_30Q3", 30, 1 / 3),
+        ],
+    )
+    def test_the_low_flows(self, site: str, column: str, n_day: int, p: float) -> None:
+        fit = LowFlowFrequency(self._climatic(site), n_day=n_day)
+        fit.run_analysis()
+        value = float(fit.compute_quantiles(np.array([p]))["flow_cfs"].iloc[0])
+        assert self._printed(value, self.TABLE.loc[site, column]), value
+
+    @pytest.mark.parametrize("site", ["02383000", "02096846", "03487500"])
+    def test_the_flow_duration(self, site: str) -> None:
+        row = self.TABLE.loc[site]
+        years = self._daily(site).loc[f"{row.First_full_WY - 1}-10-01" :f"{row.Last_full_WY}-09-30"]
+        wanted = [95, 90, 75, 50, 25, 10, 5]
+        curve = flow_duration_curve(years, wanted).set_index("exceedance_pct")["flow_cfs"]
+        for p in wanted:
+            printed = row[f"Stream_duration_{p}"]
+            assert curve[p] == pytest.approx(printed, rel=0.01, abs=0.005), p
+
+    def test_a_window_across_april_1_counts_here_and_not_there(self) -> None:
+        """03487500, 1956: its lowest 7 days here end on April 1. Kept inside each year, the
+        minima have the printed mean, standard deviation and skew; as computed they do not."""
+        site = "03487500"
+        row, daily = self.TABLE.loc[site], self._climatic(site)
+        ours = LowFlowFrequency(daily, n_day=7).run_analysis()
+        assert ours.mean_log == pytest.approx(2.834, abs=5.1e-4)
+        year = assign_year_label(pd.DatetimeIndex(daily.index), "climatic")
+        inside = daily.groupby(np.asarray(year))["flow_cfs"].apply(
+            lambda q: q.rolling(7).mean().min()
+        )
+        logs = np.log10(inside.to_numpy())
+        assert logs.mean() == pytest.approx(row.Mean_annual_7day, abs=5.1e-4)
+        assert logs.std(ddof=1) == pytest.approx(row.Stdev_annual_7day, abs=5.1e-4)

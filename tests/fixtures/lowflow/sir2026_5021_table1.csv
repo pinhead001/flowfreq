@@ -1,0 +1,4 @@
+USGS_streamgage_number,USGS_streamgage_name,First_CY,Last_CY,First_full_WY,Last_full_WY,N,Mean_annual_7day,Stdev_annual_7day,Skew_annual_7day,Annual_1Q10,Annual_7Q2,Annual_7Q10,Annual_30Q2,Annual_30Q3,Stream_duration_99,Stream_duration_95,Stream_duration_90,Stream_duration_75,Stream_duration_50,Stream_duration_25,Stream_duration_10,Stream_duration_5,Stream_duration_1
+02383000,"ROCK CREEK NEAR FAIRMOUNT, GA",1952,1973,1952,1973,22,-0.125,0.177,-0.21,0.35,0.76,0.44,0.97,0.83,0.54,0.84,1,1.6,3,6.8,13,21,76
+02096846,"CANE CREEK NEAR ORANGE GROVE, NC",1989,2021,1990,2022,33,-1.375,0.753,-0.356,0,0.01,0,0.05,0.02,0,0,0.05,0.25,1.38,4.5,11,22.1,88.9
+03487500,"SOUTH FORK HOLSTON RIVER AT KINGSPORT, TN",1926,1976,1926,1976,51,2.836,0.107,0.277,404,678,504,926,793,460,589,728,1050,2020,3440,5050,6390,10900
