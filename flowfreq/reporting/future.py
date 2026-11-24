@@ -8,7 +8,7 @@ from ..aep import match_aep, same_aep
 from ._base import SectionContent, _demote, _version, cfs, short_citation
 from .blocks import Block, Heading, Paragraph, Table
 from .gaged import _gaged_ffa
-from .regional import _ungaged
+from .regional import _caution_paragraphs, _ungaged
 from .spec import ReportError
 from .weighted import _nested
 
@@ -168,10 +168,16 @@ def _build_future_flow(given: Dict[str, Any]) -> SectionContent:
     if bool(options.get("detail", True)):
         blocks.append(Heading(2, "Present-condition analysis"))
         blocks.extend(_demote(base.blocks))
+    else:
+        blocks.extend(_caution_paragraphs("the regression estimate", base))
     references = list(base.references)
     if factors.citation not in references:
         references.append(factors.citation)
     title = base.title[:1].lower() + base.title[1:] if base.title else "flood quantiles"
     return SectionContent(
-        title=f"Future-condition {title}", blocks=blocks, options=options, references=references
+        title=f"Future-condition {title}",
+        blocks=blocks,
+        options=options,
+        references=references,
+        cautions=list(base.cautions),
     )

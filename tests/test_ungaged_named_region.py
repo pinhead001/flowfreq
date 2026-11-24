@@ -227,3 +227,20 @@ def test_a_withheld_value_may_be_supplied(texas: Fakes, monkeypatch: pytest.Monk
     monkeypatch.setattr(ungaged, "delineate_and_get_characteristics", withheld)
     est = _texas(supplied_characteristics={**SUPPLIED, "OmegaEM": 0.33})
     assert est.characteristics["OmegaEM"] == 0.33
+
+
+@pytest.mark.parametrize("state", ["GA", "NC", "SC"])
+def test_a_word_of_a_named_sets_name_is_not_its_code(state: str) -> None:
+    """'Urban' took the 2026 set silently: it is the only region with the word in its name."""
+    with pytest.raises(EquationsUnavailable, match="'Urban' is not one of its regions"):
+        estimate_from_characteristics(state, URBAN, region="Urban", lat=33.7, lon=-84.4)
+    with pytest.raises(EquationsUnavailable, match="not a library region"):
+        assemble(
+            load_state(state),
+            [],
+            URBAN,
+            aeps=None,
+            allow_extrapolation=False,
+            weighting_space="log",
+            region="Urban",
+        )

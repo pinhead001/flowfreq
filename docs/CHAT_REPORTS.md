@@ -111,8 +111,10 @@ and `site_name` to name the site; `perception_thresholds`, each with `start_year
 `end_year` and `threshold_cfs`; and `regional_skew_state` (with `regional_skew_region`
 where the state has several) for the regional skew on file for a state. Without `site_no`,
 `skew="regional"` needs `regional_skew_state` or `regional_skew` and `regional_skew_se`.
-`estimate_ungaged` takes `aeps`, `weighting_space` (`"log"` or `"linear"`) and
-`min_coverage_percent` (the least percent of the basin the regions used must cover);
+`estimate_ungaged` takes `aeps`, `weighting_space` (`"log"` or `"linear"`),
+`min_coverage_percent` (the least percent of the basin the regions used must cover) and
+`supplied_characteristics` (values for characteristics StreamStats does not return). A reply
+whose flows rest on a regression with cautions carries them as `cautions`;
 `estimate_from_characteristics` takes `aeps` and `weighting_space`.
 
 `transpose_gage_to_site` leaves the gage's section where it is and puts the transposed one

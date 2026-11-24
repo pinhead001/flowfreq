@@ -5,7 +5,7 @@ from __future__ import annotations
 import io
 import math
 import re
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 from typing import Any, Callable, Dict, List, Mapping, Sequence, Tuple
 
 from .blocks import Block, Heading
@@ -54,12 +54,16 @@ class SectionContent:
         The options as resolved: enough to build the same section offline.
     references : list of str
         Full citations for the report's reference list.
+    cautions : list of str
+        What the regression behind the flows warns of (``SiteEstimate.advisory``), for a
+        reply that shows only the section's table. Already in ``blocks``.
     """
 
     title: str
     blocks: List[Block]
     options: Dict[str, Any]
     references: List[str]
+    cautions: List[str] = field(default_factory=list)
 
 
 @dataclass(frozen=True)

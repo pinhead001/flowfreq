@@ -266,6 +266,20 @@ def compare(
         raise SystemExit(1)
 
 
+def _code_values(chars: Tuple[str, ...]) -> Dict[str, float]:
+    """``CODE=VALUE`` options as a dict; :class:`click.BadParameter` for anything else."""
+    values: Dict[str, float] = {}
+    for item in chars:
+        name, _, raw = item.partition("=")
+        try:
+            values[name.strip()] = float(raw)
+        except ValueError:
+            raise click.BadParameter(f"{item!r} is not CODE=VALUE", param_hint="--char")
+        if not name.strip():
+            raise click.BadParameter(f"{item!r} is not CODE=VALUE", param_hint="--char")
+    return values
+
+
 @cli.command()
 @click.option("--lat", type=float, required=True, help="Site latitude, decimal degrees.")
 @click.option("--lon", type=float, required=True, help="Site longitude, decimal degrees.")
@@ -297,8 +311,16 @@ def compare(
         "Where NSS returns overlapping regions (alternative equation sets for the same "
         "area), the one to use: an NSS code (e.g. GC2016) or library region code. Give "
         'several, comma-separated ("GC1, GC2"), to use one set per side of a region '
-        "boundary; together they must cover the whole basin."
+        "boundary; together they must cover the whole basin. A set NSS does not serve "
+        '("Statewide OmegaEM" in TX; "Urban 2026" in AL, GA, MS, NC, SC and TN) is used for '
+        "the whole basin when named."
     ),
+)
+@click.option(
+    "--char",
+    "chars",
+    multiple=True,
+    help="A basin characteristic StreamStats does not return, as CODE=VALUE; repeat for each.",
 )
 def ungaged(
     lat: float,
@@ -308,6 +330,7 @@ def ungaged(
     allow_nss_snapshot: bool,
     allow_extrapolation: bool,
     region: Optional[str],
+    chars: Tuple[str, ...],
 ) -> None:
     """Estimate flood-frequency quantiles at an ungaged site (regional regression).
 
@@ -323,6 +346,7 @@ def ungaged(
     from flowfreq.regression.equations import OutOfRangeError
     from flowfreq.ungaged import estimate_at_site
 
+    supplied = _code_values(chars)
     try:
         estimate = estimate_at_site(
             lat,
@@ -336,6 +360,7 @@ def ungaged(
                 if region is not None and "," in region
                 else region
             ),
+            supplied_characteristics=supplied or None,
         )
     except OutOfRangeError as exc:
         raise click.ClickException(f"{exc} (pass --allow-extrapolation to proceed)") from exc
@@ -397,15 +422,7 @@ def ungaged_chars(
     from flowfreq.regression.equations import OutOfRangeError
     from flowfreq.ungaged import estimate_from_characteristics
 
-    values: Dict[str, float] = {}
-    for item in chars:
-        name, sep, raw = item.partition("=")
-        try:
-            values[name.strip()] = float(raw)
-        except ValueError:
-            raise click.BadParameter(f"{item!r} is not CODE=VALUE", param_hint="--char")
-        if not sep:
-            raise click.BadParameter(f"{item!r} is not CODE=VALUE", param_hint="--char")
+    values = _code_values(chars)
     if "=" in region:
         try:
             chosen: Union[str, Dict[str, float]] = {

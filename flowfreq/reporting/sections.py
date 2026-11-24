@@ -172,6 +172,7 @@ SECTION_KINDS.update(
                 "allow_inaccurate",
                 "weighting_space",
                 "min_coverage_percent",
+                "supplied_characteristics",
             ),
             build=_build_ungaged,
         ),

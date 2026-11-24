@@ -11,7 +11,7 @@ from ..aep import same_aep
 from ._base import SectionContent, _demote, _version, cfs
 from .blocks import Block, Heading, Paragraph, Table
 from .gaged import _gaged_ffa
-from .regional import _ungaged
+from .regional import _caution_paragraphs, _ungaged
 from .spec import ReportError
 from .transposed import _transposed
 from .weighted import _nested
@@ -241,6 +241,8 @@ def _build_comparison(given: Dict[str, Any]) -> SectionContent:
         if bool(options.get("detail", True)):
             blocks.append(Heading(2, label))
             blocks.extend(_demote(content.blocks))
+        else:
+            blocks.extend(_caution_paragraphs(label, content))
         references.extend(r for r in content.references if r not in references)
         resolved.append({"label": label, "kind": each["kind"], "options": content.options})
     options["estimates"] = resolved
@@ -253,4 +255,5 @@ def _build_comparison(given: Dict[str, Any]) -> SectionContent:
         blocks=blocks,
         options=options,
         references=references,
+        cautions=[f"{label}: {text}" for label, c, _, _ in built for text in c.cautions],
     )

@@ -106,6 +106,10 @@ QUANTILE_COLUMNS: Tuple[str, ...] = (
 RegionEstimates = List[Tuple[float, RegressionEstimate]]
 
 
+#: An NSS regression-region code.
+NSS_CODE = re.compile(r"GC\d+", re.IGNORECASE)
+
+
 def region_for_nss_code(lib: StateLibrary, code: str) -> Optional[str]:
     """Map an NSS region code to a library ``region_code``.
 
@@ -131,6 +135,9 @@ def region_for_nss_code(lib: StateLibrary, code: str) -> Optional[str]:
         return code
     token = re.compile(rf"(?<![A-Za-z0-9]){re.escape(code)}(?![A-Za-z0-9])")
     for e in lib.equations:
+        # A word of a named set's name ("Urban") is not a way to name it; an NSS code is.
+        if e.region_code in lib.named_regions and not NSS_CODE.fullmatch(code):
+            continue
         if e.region_name and token.search(e.region_name):
             return e.region_code
     return None
@@ -682,7 +689,9 @@ def _library_region(lib: StateLibrary, code: str) -> Optional[str]:
     """Resolve a caller's code to a library ``region_code`` (case-insensitively), else None.
 
     Equal to a ``region_code`` in ``lib.regions``, or a whole-token match inside some
-    equation's ``region_name`` (the token rule of :func:`region_for_nss_code`).
+    equation's ``region_name`` (the token rule of :func:`region_for_nss_code`). A set of
+    ``lib.named_regions`` is reached by its code (or an NSS code its name carries), not by a
+    word of its name.
     """
     wanted = code.upper()
     for lib_code in lib.regions:
@@ -690,6 +699,8 @@ def _library_region(lib: StateLibrary, code: str) -> Optional[str]:
             return lib_code
     token = re.compile(rf"(?<![A-Za-z0-9]){re.escape(code)}(?![A-Za-z0-9])", re.IGNORECASE)
     for e in lib.equations:
+        if e.region_code in lib.named_regions and not NSS_CODE.fullmatch(code):
+            continue
         if e.region_name and token.search(e.region_name):
             return e.region_code
     return None

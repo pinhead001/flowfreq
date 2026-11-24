@@ -16,12 +16,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   NCEI so the USGS key is never sent to another host.
 - **Texas: SIR 2009-5087's OmegaEM equations** (Asquith and Roussel, 2009, Table 3; AEP 0.5 to 0.002), region
   `Statewide OmegaEM`. NSS does not serve them, so they are used only when the caller names the region, and the caller
-  supplies the main-channel slope (`MCSLOPE`, feet per foot), which StreamStats does not return in Texas.
+  supplies the main-channel slope (`MCSLOPE`, feet per foot) and the contributing drainage area (`CONTDA`), which
+  StreamStats did not return at the Texas gages checked. The default `Statewide` set now carries a caution that the
+  later report's authors prefer these.
 - **The 2026 urban equations of SIR 2025-5104 (Wagner and Ladd) in Georgia, North Carolina and South Carolina**, region
   `Urban 2026`, for urban basins above 1 mi2 and 10 percent impervious, where nothing else is stored. They are used
   only when the caller names the region and supplies the two ecoregion percentages. An estimate carries a caution:
-  the set is not valid in the Middle Atlantic or Southern Coastal Plain, and it estimates high at its South Carolina
-  gages (observed flow 0.69 of the equations' at 10 percent AEP).
+  the set is not valid in the Middle Atlantic or Southern Coastal Plain, it estimates high at its South Carolina
+  gages (observed flow 0.69 of the equations' at 10 percent AEP), weighting at its own gages is inappropriate, and
+  SIR 2014-5030 also covers urban basins there.
+- **`estimate_at_site(supplied_characteristics=)`**, `flowfreq ungaged --char CODE=VALUE`, and the same for the `ungaged`
+  report section and `flowfreq-mcp`'s `estimate_ungaged`: values for characteristics StreamStats does not return.
+  A code it did return is refused, not replaced.
+- A regression's cautions are printed by `site_summary`, and by `comparison`, `weighted` and `future_flow` with
+  `detail: false`, which dropped them; a `flowfreq-mcp` reply carries them as `cautions`.
 - **Baseflow method `ih_smoothed_minima_log`**: the turning points of `ih_smoothed_minima` joined through the logarithms
   of their flows, as the USGS BFI program does. On 23 gages its mean annual index is 0.001 below the program's
   published one on average (0.033 at most), where the default is 0.016 above it (0.061 at most). The default method is
@@ -38,6 +46,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`region=` reaches the sets NSS does not serve.** `Urban 2026` (AL, MS and TN since 0.28.0) was refused by
+  `estimate_at_site` wherever NSS located one of the state's regions, which is nearly everywhere; only
+  `estimate_from_characteristics` could use it. A set in a library's new `named_regions` is now used for the whole
+  basin when `region=` is its code, and what NSS located is listed as not used. Only the code names such a set:
+  `region="Urban"` took `Urban 2026` in Georgia, North Carolina and South Carolina.
+- SIR 2025-5104's two ecoregion percentages are refused where they sum to over 100, and cautioned where they look
+  like fractions. Its Tennessee caution on the 1984 urban sets quotes the report's instruction to use the new ones.
+- `SiteEstimate.to_markdown` prints how the region was chosen, where a rule or the caller chose it.
 - A drainage area that is not a positive number is refused in words by every report section built from daily flows.
 - `Hydrograph`'s summary hydrograph and duration curve counted the calendar years touched, so 20 water years read as
   21 and a record with a gap counted what fell in it; they print the days with a value over 365.25. Its log axes
@@ -46,7 +62,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **Maryland averages a basin's regions in flow**, weighted by drainage area (`weighting_space` is `linear`), as the Third
-  Edition says (p. 2-11, in words only). It averaged logarithms.
+  Edition says (p. 2-11, in words). It averaged logarithms. The Sixth Edition repeats the words (p. 2-12), and the
+  GISHydro code they name adds up flows.
 - **A report fits each gage once.** `flowfreq.reporting.gaged` memoises the Bulletin 17C fit of a gage that
   carries its peaks (the last `FIT_CACHE_SIZE` fits, keyed on the options); `gaged.clear_fit_cache()` forgets
   them.

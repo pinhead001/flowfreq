@@ -8,7 +8,7 @@ from typing import Any, Dict, List
 from ._base import SECTION_KINDS, SectionContent, _demote, _version, cfs
 from .blocks import Block, Heading, Paragraph, Table
 from .gaged import _gaged_ffa
-from .regional import _ungaged
+from .regional import _caution_paragraphs, _ungaged
 from .spec import ReportError
 
 # -- at-site fit weighted with the regression ---------------------------------------------
@@ -98,8 +98,16 @@ def _build_weighted(given: Dict[str, Any]) -> SectionContent:
         blocks.extend(_demote(gage.blocks))
         blocks.append(Heading(2, "Regression estimate"))
         blocks.extend(_demote(regression.blocks))
+    else:
+        blocks.extend(_caution_paragraphs("the regression estimate", regression))
     references = list(gage.references)
     references.extend(r for r in regression.references if r not in references)
     options["gage"], options["regression"] = gage.options, regression.options
     title = gage.title.replace("Flood frequency", "Weighted flood frequency", 1)
-    return SectionContent(title=title, blocks=blocks, options=options, references=references)
+    return SectionContent(
+        title=title,
+        blocks=blocks,
+        options=options,
+        references=references,
+        cautions=list(regression.cautions),
+    )

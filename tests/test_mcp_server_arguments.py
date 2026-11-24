@@ -219,6 +219,33 @@ class TestUngagedOptions:
             assert "aeps" in said and "weighting_space" in said
         assert "min_coverage_percent" in _description(chat, "estimate_ungaged")
 
+    def test_supplied_characteristics_and_the_cautions_reach_the_chat(
+        self, chat, session, monkeypatch
+    ):
+        from tests.test_ungaged_named_region import SUPPLIED, _other
+
+        site = {
+            **_wa_site(),
+            "streamstats_region": "TX",
+            "characteristics": {"DRNAREA": 760.0, "PRECIPCENT": 24.5, "OmegaEM": 0.33},
+        }
+        fakes = Fakes(site)
+        fakes.regions = [_other("TX")]
+        monkeypatch.setattr("flowfreq.ungaged.delineate_and_get_characteristics", fakes.delineate)
+        monkeypatch.setattr("flowfreq.ungaged.locate_regression_regions", fakes.locate)
+        added = chat.call(
+            "estimate_ungaged",
+            state="TX",
+            lat=29.43,
+            lon=-100.0,
+            region="Statewide OmegaEM",
+            supplied_characteristics=SUPPLIED,
+        )
+        assert any("contributing drainage area" in text for text in added["cautions"])
+        options = session.spec.sections[0].options
+        assert options["characteristics"]["MCSLOPE"] == SUPPLIED["MCSLOPE"]
+        assert options["streamstats"]["supplied"] == ["CONTDA", "MCSLOPE"]
+
 
 class TestSummaryBasin:
     def test_a_basin_outline_reaches_the_map(self, chat, session, peaks):
