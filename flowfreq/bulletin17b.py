@@ -13,6 +13,7 @@ bulletin is ambiguous are in ``tests/fixtures/b17b/procedure.md``.
 
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass, field
 from decimal import ROUND_HALF_UP, Decimal
 from typing import Any, Mapping, NamedTuple, Optional, Sequence
@@ -24,7 +25,15 @@ from scipy.stats import t as student_t
 
 from flowfreq.aep import same_aep
 from flowfreq.core import kfactor
-from flowfreq.peak_codes import GREATER_THAN_CODES, LESS_THAN_CODES, PeakTreatment, peak_interval
+from flowfreq.peak_codes import (
+    GREATER_THAN_CODES,
+    LESS_THAN_CODES,
+    PeakInterval,
+    PeakTreatment,
+    peak_interval,
+)
+
+logger = logging.getLogger(__name__)
 
 __all__ = [
     "Bulletin17B",
@@ -41,6 +50,7 @@ __all__ = [
     "historic_moments",
     "log_moments",
     "outlier_k",
+    "removed_peaks",
     "station_skew_mse",
     "synthetic_statistics",
     "weighted_skew",
@@ -589,7 +599,7 @@ def _integer_year(value: object, name: str) -> int:
         raise Bulletin17BError(f"{name}s must be whole numbers, not text; got {value!r}")
     year = _finite_number(value, name)
     if isinstance(value, (bool, np.bool_)) or year != int(year):
-        raise Bulletin17BError(f"{name}s must be integers; got {value!r}")
+        raise Bulletin17BError(f"{name}s must be whole numbers (integers); got {value!r}")
     return int(year)
 
 
@@ -1343,7 +1353,10 @@ class Bulletin17B:
 
 
 def _threshold_row(row: object) -> tuple[int, int, float]:
-    """One perception-threshold row as (start year, end year, threshold in cfs)."""
+    """One perception-threshold row as (start year, end year, threshold in cfs).
+
+    The threshold may be infinite (a period that was not observed); it is not negative.
+    """
     if not isinstance(row, Mapping) or not {"start_year", "end_year", "threshold_cfs"} <= set(row):
         raise Bulletin17BError(
             "each perception threshold needs start_year, end_year and threshold_cfs; "
@@ -1351,7 +1364,14 @@ def _threshold_row(row: object) -> tuple[int, int, float]:
         )
     start = _integer_year(row["start_year"], "threshold start year")
     end = _integer_year(row["end_year"], "threshold end year")
-    threshold = _finite_number(row["threshold_cfs"], "a threshold")
+    try:
+        threshold = float(row["threshold_cfs"])
+    except (TypeError, ValueError):
+        raise Bulletin17BError(
+            f"a threshold must be a number; got {row['threshold_cfs']!r}"
+        ) from None
+    if threshold != threshold:
+        raise Bulletin17BError("a threshold must not be NaN")
     if end < start:
         raise Bulletin17BError(f"a perception threshold ends before it begins: {start} to {end}")
     if threshold < 0.0:
@@ -1359,34 +1379,65 @@ def _threshold_row(row: object) -> tuple[int, int, float]:
     return start, end, threshold
 
 
-def _historic_row_start(
-    rows: list[tuple[int, int, float]], systematic: dict[int, float], first: int, last: int
-) -> Optional[int]:
-    """The start of the one historic row, after checking the rest of the rows.
+def _as_list(value: object, name: str) -> list[Any]:
+    """``value`` as a list, refusing text, mappings, frames and anything not a sequence."""
+    if isinstance(value, (str, bytes, Mapping, pd.DataFrame)):
+        raise Bulletin17BError(f"{name} must be a sequence; got {type(value).__name__}")
+    try:
+        return list(value)  # type: ignore[call-overload]
+    except TypeError:
+        raise Bulletin17BError(f"{name} must be a sequence; got {value!r}") from None
 
-    A row that touches the systematic record, ``first`` to ``last``, may only be one that
-    changes nothing there: a threshold of zero, or at or below every measured peak of the
-    years it covers.
+
+def _span(start: int, end: int) -> str:
+    return f"{start} to {end}"
+
+
+def _historic_row_start(
+    rows: list[tuple[int, int, float]],
+    measured: Mapping[int, float],
+    first: int,
+    last: int,
+    record_start: int,
+) -> Optional[int]:
+    """The start of the one historic row, after checking the rest of the finite rows.
+
+    Rows of zero are dropped and a repeated row counts once. A row that touches the
+    systematic record, ``first`` to ``last``, may only be one that changes nothing there:
+    every year it covers there has a measured peak, and its threshold is at or below
+    all of them. ``record_start`` is the first year of the record before peaks were
+    removed, where the historic row has to end.
     """
     historic: list[tuple[int, int, float]] = []
-    for start, end, threshold in rows:
+    for start, end, threshold in sorted(set(r for r in rows if r[2] > 0.0)):
         if start > last:
             raise Bulletin17BError(
-                f"the perception threshold {start} to {end} begins after the last year of "
+                f"the perception threshold {_span(start, end)} begins after the last year of "
                 f"the record, {last}; Bulletin 17B has no use for it"
             )
-        if end >= first:
-            covered = [q for y, q in systematic.items() if start <= y <= end]
-            if threshold > 0.0 and (not covered or threshold > min(covered)):
+        lo, hi = max(start, first), min(end, last)
+        if lo <= hi:
+            unmeasured = [y for y in range(lo, hi + 1) if y not in measured]
+            covered = [measured[y] for y in range(lo, hi + 1) if y in measured]
+            if unmeasured:
                 raise Bulletin17BError(
-                    f"the perception threshold of {threshold:g} cfs for {start} to {end} is a "
-                    "change of threshold inside the systematic record, which Bulletin 17B "
+                    f"the perception threshold of {threshold:g} cfs for {_span(start, end)} "
+                    f"covers {len(unmeasured)} year(s) of the systematic record with no "
+                    f"measured peak ({_span(unmeasured[0], unmeasured[-1])}"
+                    f"{'' if len(unmeasured) == hi - lo + 1 else ' and others'}); "
+                    "dropping the row would lose that information, and Bulletin 17B cannot "
+                    "take it"
+                )
+            if threshold > min(covered):
+                raise Bulletin17BError(
+                    f"the perception threshold of {threshold:g} cfs for {_span(start, end)} is "
+                    "a change of threshold inside the systematic record, which Bulletin 17B "
                     "cannot take"
                 )
         if start < first:
             historic.append((start, end, threshold))
     if len(historic) > 1:
-        spans = ", ".join(f"{s} to {e}" for s, e, _ in historic)
+        spans = ", ".join(_span(s, e) for s, e, _ in historic)
         raise Bulletin17BError(
             f"the perception thresholds give more than one historic period ({spans}); "
             "Bulletin 17B takes one historic period"
@@ -1394,12 +1445,101 @@ def _historic_row_start(
     if not historic:
         return None
     start, end, _ = historic[0]
-    if end < first - 1:
+    if end < record_start - 1:
         raise Bulletin17BError(
-            f"the historic threshold ends in {end} but the systematic record starts in "
-            f"{first}: {end + 1} to {first - 1} is covered by no period"
+            f"the historic threshold ends in {end} but the record starts in {record_start}: "
+            f"{_span(end + 1, record_start - 1)} is covered by no period"
         )
     return start
+
+
+class _Coded(NamedTuple):
+    """One peak with its codes read."""
+
+    year: int
+    flow: float
+    given: object
+    interval: PeakInterval
+
+
+def _read_peaks(
+    peak_flows: Sequence[float],
+    water_years: Sequence[int],
+    peak_codes: Optional[Sequence[object]],
+) -> list[_Coded]:
+    """Check the three lists and classify every peak by its codes."""
+    flows_raw = _as_list(peak_flows, "peak_flows")
+    years = [_integer_year(y, "water year") for y in _as_list(water_years, "water_years")]
+    if len(flows_raw) != len(years):
+        raise Bulletin17BError(
+            f"{len(flows_raw)} peak flows but {len(years)} water years: lengths must match"
+        )
+    codes = [None] * len(years) if peak_codes is None else _as_list(peak_codes, "peak_codes")
+    if len(codes) != len(years):
+        raise Bulletin17BError(
+            f"{len(codes)} peak codes but {len(years)} peaks: lengths must match"
+        )
+    out = []
+    for year, raw, code in zip(years, flows_raw, codes):
+        try:
+            flow = float(raw)
+        except (TypeError, ValueError):
+            raise Bulletin17BError(
+                f"the peak flow of {year} must be a number; got {raw!r}"
+            ) from None
+        if flow < 0.0:
+            raise Bulletin17BError(f"the peak flow of {year} is negative ({flow:g})")
+        as_code = (
+            str(int(code))
+            if isinstance(code, (int, np.integer)) and not isinstance(code, (bool, np.bool_))
+            else code
+        )
+        if isinstance(code, (Mapping, pd.DataFrame, pd.Series, bytes)):
+            raise Bulletin17BError(f"the peak code of {year} is not a code: {code!r}")
+        try:
+            interval = peak_interval(0.0 if flow != flow else flow, as_code)
+        except (TypeError, ValueError):
+            raise Bulletin17BError(f"the peak code of {year} is not a code: {code!r}") from None
+        out.append(_Coded(year, flow, code, interval))
+    return out
+
+
+def removed_peaks(
+    peak_flows: Sequence[float],
+    water_years: Sequence[int],
+    peak_codes: Optional[Sequence[object]],
+) -> list[tuple[int, float, str]]:
+    """The peaks that :func:`bulletin17b_kwargs` removes for their codes.
+
+    Parameters
+    ----------
+    peak_flows, water_years, peak_codes
+        As for :func:`bulletin17b_kwargs`.
+
+    Returns
+    -------
+    list of (int, float, str)
+        Year, flow in cfs (NaN if none was given) and the codes as given, for each peak
+        with a code 3, O, 6 or C, in the order given.
+
+    Raises
+    ------
+    Bulletin17BError
+        On lists that are not sequences, differ in length or hold bad values.
+    """
+    return [
+        (
+            p.year,
+            p.flow,
+            p.given if isinstance(p.given, str) else ",".join(sorted(p.interval.codes)),
+        )
+        for p in _read_peaks(peak_flows, water_years, peak_codes)
+        if p.interval.treatment is PeakTreatment.REMOVED
+    ]
+
+
+def _years_text(years: Sequence[int]) -> str:
+    return ", ".join(str(y) for y in sorted(years))
 
 
 def bulletin17b_kwargs(
@@ -1417,32 +1557,45 @@ def bulletin17b_kwargs(
     - code 4 years are below the gage base: they go to ``below_base_years`` and the flow
       printed for them is not used;
     - codes 3 and O, and 6 and C, remove the peak, as ``peak_code_kwargs`` does by
-      default. Removal wins over every other code on the same peak. A regulated record is
-      refused elsewhere, in the report section, not here;
-    - code 8, and code 7 with 4 or 8, have no Bulletin 17B treatment and are refused.
+      default. Removal wins over every other code on the same peak. The removal is logged
+      with the years, and :func:`removed_peaks` lists them. A regulated record is refused
+      elsewhere, in the report section, not here;
+    - code 8, and code 7 with 4 or 8, have no Bulletin 17B treatment and are refused;
+    - a peak with no flow (NaN), apart from code 4 and the removed ones, is dropped with a
+      logged warning that names its year. A historic peak with no flow is dropped as
+      well, and a below-base year never needs a flow.
 
     The historic period is the one perception-threshold row that starts before the
     systematic record and ends in the year before it, through the last year of the
-    record. The threshold's value is not checked against the historic peaks: one above
+    record, or the last historic peak if that is later (a historic peak after the gage
+    closed). The threshold's value is not checked against the historic peaks: one above
     some of them, or a historic peak missing from the period, goes unnoticed. Without a
     row, historic peaks give a period from the first historic year (or the first year of
-    the record, if that is earlier) to the last year of the record. A row with no
-    historic peaks still gives the period, so that high outliers can be adjusted for. A
-    row that touches the systematic record is ignored only if it changes nothing there (a
-    threshold of zero, or at or below every measured peak it covers); otherwise it is
-    refused, as are two historic rows. The systematic record runs from the first to the
-    last year of the peaks that are not historic, counting below-base years. A historic
-    peak may fall in a gap in it, but not in a year that has a systematic peak.
+    the record, if that is earlier). A row with no historic peaks still gives the period,
+    so that high outliers can be adjusted for.
+
+    Rows of zero are dropped, as ``run_ffa`` does, and a repeated row counts once. A
+    positive row that touches the systematic record is accepted only if it changes
+    nothing there: each year it covers has a measured peak, and its threshold is at or
+    below all of them. A row that covers a year of the record with no measured peak
+    (a gap, a below-base year, a historic peak or a removed peak) is refused, because
+    dropping it would lose information; so are a change of threshold inside the record
+    and two historic rows. An infinite threshold is an unobserved period, which Bulletin
+    17B has no treatment for. It is refused unless no year in it has a peak and none of
+    it is in the historic period, in which case it is ignored and the choice is logged.
+    The systematic record runs from the first to the last year of the peaks that are not
+    historic, counting below-base years. A historic peak may fall in a gap in it, but
+    not in a year that has a systematic peak.
 
     Parameters
     ----------
     peak_flows : sequence of float
-        Annual peak flows in cfs. NaN is accepted only where the flow is not used (codes
-        4, 3, O, 6 and C); a kept peak without a flow is refused.
+        Annual peak flows in cfs.
     water_years : sequence of int
         Water year of each peak.
     peak_codes : sequence, optional
-        One NWIS qualification code field per peak (``"7"``, ``"2,6"``, NaN for none).
+        One NWIS qualification code field per peak (``"7"``, ``"2,6"``, an integer code,
+        NaN for none).
     perception_thresholds : sequence of mapping, optional
         Rows with ``start_year``, ``end_year`` and ``threshold_cfs``, the shape the
         ``gaged_ffa`` report section takes.
@@ -1456,54 +1609,55 @@ def bulletin17b_kwargs(
     Raises
     ------
     Bulletin17BError
-        On a code with no Bulletin 17B treatment, a kept peak with no flow, a year that
-        occurs twice, thresholds Bulletin 17B cannot take, or no peaks left.
+        On an input that is not a sequence, a code with no Bulletin 17B treatment, a year
+        that occurs twice, thresholds Bulletin 17B cannot take, or no peaks left.
     """
-    flows_raw = list(peak_flows)
-    if isinstance(water_years, (str, bytes)):
-        raise Bulletin17BError(f"water_years must be a sequence of years; got {water_years!r}")
-    years = [_integer_year(y, "water year") for y in water_years]
-    if len(flows_raw) != len(years):
-        raise Bulletin17BError(
-            f"{len(flows_raw)} peak flows but {len(years)} water years: lengths must match"
+    peaks = _read_peaks(peak_flows, water_years, peak_codes)
+    rows = [
+        _threshold_row(r)
+        for r in _as_list(
+            [] if perception_thresholds is None else perception_thresholds, "perception_thresholds"
         )
-    codes = [None] * len(years) if peak_codes is None else list(peak_codes)
-    if len(codes) != len(years):
-        raise Bulletin17BError(
-            f"{len(codes)} peak codes but {len(years)} peaks: lengths must match"
-        )
-    rows = [_threshold_row(r) for r in (perception_thresholds or [])]
+    ]
 
     kept: list[tuple[int, float]] = []
     historic: list[tuple[int, float]] = []
     below: list[int] = []
-    for year, raw, code in zip(years, flows_raw, codes):
-        try:
-            flow = float(raw)  # type: ignore[arg-type]
-        except (TypeError, ValueError):
-            raise Bulletin17BError(
-                f"the peak flow of {year} must be a number; got {raw!r}"
-            ) from None
-        if flow < 0.0:
-            raise Bulletin17BError(f"the peak flow of {year} is negative ({flow:g})")
-        interval = peak_interval(0.0 if flow != flow else flow, code)
-        found = interval.codes
+    removed: list[int] = []
+    no_flow: list[int] = []
+    no_flow_historic: list[int] = []
+    for p in peaks:
+        interval = p.interval
         if interval.treatment is PeakTreatment.REMOVED:
+            removed.append(p.year)
             continue
         if interval.treatment is PeakTreatment.GREATER_THAN or (
-            interval.is_historic and found & (LESS_THAN_CODES | GREATER_THAN_CODES)
+            interval.is_historic and interval.codes & (LESS_THAN_CODES | GREATER_THAN_CODES)
         ):
             raise Bulletin17BError(
-                f"the {year} peak has code(s) {','.join(sorted(found))}, which have no "
-                "Bulletin 17B treatment"
+                f"the {p.year} peak has code(s) {','.join(sorted(interval.codes))}, which have "
+                "no Bulletin 17B treatment"
             )
         if interval.treatment is PeakTreatment.LESS_THAN:
-            below.append(year)
-            continue
-        if not np.isfinite(flow):
-            kind = "historic peak" if interval.is_historic else "peak"
-            raise Bulletin17BError(f"the {year} {kind} has no flow")
-        (historic if interval.is_historic else kept).append((year, flow))
+            below.append(p.year)
+        elif p.flow != p.flow:
+            (no_flow_historic if interval.is_historic else no_flow).append(p.year)
+        else:
+            (historic if interval.is_historic else kept).append((p.year, p.flow))
+    if removed:
+        logger.info(
+            "Peaks removed for their codes (3, O, 6 or C), %d: %s",
+            len(removed),
+            _years_text(removed),
+        )
+    for label, years_dropped in (("peak", no_flow), ("historic peak", no_flow_historic)):
+        if years_dropped:
+            logger.warning(
+                "Dropped %d %s(s) with no flow: %s",
+                len(years_dropped),
+                label,
+                _years_text(years_dropped),
+            )
 
     systematic_years = [y for y, _ in kept] + below
     if not systematic_years:
@@ -1511,20 +1665,38 @@ def bulletin17b_kwargs(
         raise Bulletin17BError(f"{what} after the peak codes are applied")
     _require_unique_years(systematic_years + [y for y, _ in historic], "a water year")
     first, last = min(systematic_years), max(systematic_years)
+    # The record before peaks were removed: a removed first year does not open a gap.
+    record_start = min(p.year for p in peaks if not p.interval.is_historic)
 
-    start = _historic_row_start(rows, dict(kept), first, last)
+    finite = [r for r in rows if np.isfinite(r[2])]
+    start = _historic_row_start(finite, dict(kept), first, last, record_start)
     period: Optional[tuple[int, int]] = None
+    last_historic = max((y for y, _ in historic), default=last)
     if start is not None:
-        period = (start, last)
+        period = (start, max(last, last_historic))
     elif historic:
-        period = (min(first, min(y for y, _ in historic)), last)
+        period = (min(first, min(y for y, _ in historic)), max(last, last_historic))
     if period is not None:
         outside = sorted(y for y, _ in historic if not period[0] <= y <= period[1])
         if outside:
             raise Bulletin17BError(
                 f"historic peak(s) in {outside} are outside the historic period "
-                f"{period[0]} to {period[1]}"
+                f"{_span(*period)}"
             )
+    with_peaks = set(systematic_years) | {y for y, _ in historic}
+    for s_, e_, _ in sorted(set(r for r in rows if not np.isfinite(r[2]))):
+        in_period = period is not None and s_ <= period[1] and e_ >= period[0]
+        if in_period or any(s_ <= y <= e_ for y in with_peaks):
+            raise Bulletin17BError(
+                f"the perception threshold {_span(s_, e_)} is infinite, an unobserved period, "
+                "and it covers years with peaks or the historic period; Bulletin 17B has no "
+                "treatment for an unobserved period"
+            )
+        logger.info(
+            "Perception threshold %s is infinite and no year in it has a peak or is in the "
+            "historic period: ignored, those years are not part of the record",
+            _span(s_, e_),
+        )
     kept.sort()
     return {
         "peak_flows": [q for _, q in kept],

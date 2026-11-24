@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+import logging
+
 import numpy as np
+import pandas as pd
 import pytest
 
-from flowfreq.bulletin17b import Bulletin17B, Bulletin17BError, bulletin17b_kwargs
+from flowfreq.bulletin17b import Bulletin17B, Bulletin17BError, bulletin17b_kwargs, removed_peaks
 from tests.fixtures.b17b import record
 
 # 18 ordinary years, used to build records.
@@ -245,26 +248,6 @@ def test_a_code_7_peak_in_a_year_that_has_a_systematic_peak_refuses():
         bulletin17b_kwargs(BASE + [2900.0], YEARS + [1955], [None] * 18 + ["7"])
 
 
-def test_a_code_7_peak_with_no_flow_refuses():
-    flows, years, codes = _historic_record()
-    flows[0] = float("nan")
-    with pytest.raises(Bulletin17BError, match="1900.*no flow"):
-        bulletin17b_kwargs(flows, years, codes)
-
-
-def test_a_kept_peak_with_no_flow_refuses():
-    flows = list(BASE)
-    flows[3] = float("nan")
-    with pytest.raises(Bulletin17BError, match="1953.*no flow"):
-        bulletin17b_kwargs(flows, YEARS, None)
-
-
-def test_a_historic_peak_after_the_record_refuses():
-    flows, years, codes = _historic_record()
-    with pytest.raises(Bulletin17BError, match="1990"):
-        bulletin17b_kwargs(flows + [3100.0], years + [1990], codes + ["7"])
-
-
 def test_no_peaks_left_refuses():
     with pytest.raises(Bulletin17BError, match="no peaks"):
         bulletin17b_kwargs([1.0, 2.0], [1950, 1951], ["6", "3"])
@@ -350,3 +333,157 @@ def test_below_base_code_runs_end_to_end():
     kw = bulletin17b_kwargs(BASE, YEARS, codes_for(y1955="4"))
     res = Bulletin17B(**kw).run_analysis()
     assert res.n_years == 18 and res.n_below_base == 1
+
+
+# --- fix round 1 ---------------------------------------------------------------------------
+
+
+def test_a_positive_row_over_unmeasured_years_refuses_when_the_codes_are_off():
+    """Big Sandy with its code 7 peaks fitted as systematic: the row would vanish."""
+    bs = record("appendix6_big_sandy")
+    years = [y for y, _ in bs.historic_peaks] + list(bs.water_years)
+    flows = [q for _, q in bs.historic_peaks] + list(bs.peaks_cfs)
+    row = {"start_year": 1897, "end_year": 1929, "threshold_cfs": 18500.0}
+    with pytest.raises(Bulletin17BError, match="no measured peak"):
+        bulletin17b_kwargs(flows, years, None, [row])
+
+
+def test_a_row_at_its_covered_minimum_over_a_gap_refuses():
+    years = list(range(1985, 1988)) + list(range(2003, 2005))
+    flows = [900.0, 1100.0, 1000.0, 1200.0, 950.0]
+    row = {"start_year": 1985, "end_year": 2004, "threshold_cfs": 900.0}
+    with pytest.raises(Bulletin17BError, match="1988 to 2002|no measured peak"):
+        bulletin17b_kwargs(flows, years, None, [row])
+
+
+def test_a_zero_row_is_not_a_historic_row():
+    flows, years, codes = _historic_record()
+    row = {"start_year": 1800, "end_year": 1949, "threshold_cfs": 0.0}
+    kw = bulletin17b_kwargs(flows, years, codes, [row])
+    assert kw["historic_period"] == (1900, 1967)
+
+
+def test_the_peakfq_shape_of_two_rows_gives_the_period():
+    flows, years, codes = _historic_record()
+    rows = [
+        {"start_year": 1890, "end_year": 2025, "threshold_cfs": 0.0},
+        {"start_year": 1890, "end_year": 1949, "threshold_cfs": 2500.0},
+    ]
+    assert bulletin17b_kwargs(flows, years, codes, rows)["historic_period"] == (1890, 1967)
+
+
+def test_a_duplicated_row_counts_once():
+    flows, years, codes = _historic_record()
+    row = {"start_year": 1890, "end_year": 1949, "threshold_cfs": 2500.0}
+    kw = bulletin17b_kwargs(flows, years, codes, [row, dict(row)])
+    assert kw["historic_period"] == (1890, 1967)
+
+
+def test_removed_peaks_lists_year_flow_and_codes_as_given(caplog):
+    codes = codes_for(y1955="2,6", y1956="O", y1957="3")
+    flows = list(BASE)
+    flows[8] = float("nan")
+    with caplog.at_level(logging.INFO, logger="flowfreq.bulletin17b"):
+        got = removed_peaks(flows, YEARS, codes)
+        bulletin17b_kwargs(BASE, YEARS, codes)
+    assert [(y, c) for y, _, c in got] == [(1955, "2,6"), (1956, "O"), (1957, "3")]
+    assert got[0][1] == BASE[5]
+    removal = [r for r in caplog.records if "removed" in r.getMessage()]
+    assert removal and all(str(y) in removal[0].getMessage() for y in (1955, 1956, 1957))
+    assert removed_peaks(BASE, YEARS, None) == []
+
+
+def test_a_historic_peak_after_the_record_extends_the_period():
+    flows, years, codes = _historic_record()
+    kw = bulletin17b_kwargs(flows + [3100.0], years + [1990], codes + ["7"])
+    assert kw["historic_period"] == (1900, 1990)
+    assert kw["historic_peaks"][-1] == (1990, 3100.0)
+    row = {"start_year": 1890, "end_year": 1949, "threshold_cfs": 2500.0}
+    kw = bulletin17b_kwargs(flows + [3100.0], years + [1990], codes + ["7"], [row])
+    assert kw["historic_period"] == (1890, 1990)
+    Bulletin17B(**kw)
+
+
+def test_a_kept_peak_with_no_flow_is_dropped_and_logged(caplog):
+    flows = list(BASE)
+    flows[3] = float("nan")
+    with caplog.at_level(logging.WARNING, logger="flowfreq.bulletin17b"):
+        kw = bulletin17b_kwargs(flows, YEARS, None)
+    assert 1953 not in kw["water_years"] and len(kw["peak_flows"]) == 17
+    assert any("1953" in r.getMessage() and "no flow" in r.getMessage() for r in caplog.records)
+
+
+def test_a_historic_peak_with_no_flow_is_dropped_and_logged(caplog):
+    flows, years, codes = _historic_record()
+    flows[0] = float("nan")
+    with caplog.at_level(logging.WARNING, logger="flowfreq.bulletin17b"):
+        kw = bulletin17b_kwargs(flows, years, codes)
+    assert kw["historic_peaks"] == [(1925, 2600.0)] and kw["historic_period"] == (1925, 1967)
+    assert any("1900" in r.getMessage() for r in caplog.records)
+
+
+def test_the_gap_check_starts_at_the_record_before_removal():
+    codes = codes_for(y1950="6")
+    row = {"start_year": 1890, "end_year": 1949, "threshold_cfs": 2500.0}
+    kw = bulletin17b_kwargs(BASE, YEARS, codes, [row])
+    assert kw["historic_period"] == (1890, 1967) and 1950 not in kw["water_years"]
+
+
+def test_integer_codes_are_read_like_strings():
+    flows, years, _ = _historic_record()
+    codes = [np.int64(7), 7] + [None] * 18
+    kw = bulletin17b_kwargs(flows, years, codes)
+    assert [y for y, _ in kw["historic_peaks"]] == [1900, 1925]
+    kw = bulletin17b_kwargs(BASE, YEARS, [4] + [None] * 17)
+    assert kw["below_base_years"] == [1950]
+
+
+@pytest.mark.parametrize(
+    "kwargs",
+    [
+        {"peak_codes": pd.DataFrame({"c": ["7"] * 18})},
+        {"peak_codes": "7"},
+        {"peak_codes": 7},
+        {"peak_codes": [{"a": 1}] + [None] * 17},
+        {"peak_codes": None, "perception_thresholds": pd.DataFrame({"start_year": [1890]})},
+        {"peak_codes": None, "perception_thresholds": 5},
+        {"peak_codes": None, "perception_thresholds": "rows"},
+    ],
+)
+def test_wrong_types_raise_bulletin17b_error(kwargs):
+    with pytest.raises(Bulletin17BError):
+        bulletin17b_kwargs(BASE, YEARS, **kwargs)
+
+
+def test_an_infinite_threshold_over_peaks_refuses():
+    row = {"start_year": 1950, "end_year": 1960, "threshold_cfs": float("inf")}
+    with pytest.raises(Bulletin17BError, match="unobserved"):
+        bulletin17b_kwargs(BASE, YEARS, None, [row])
+
+
+def test_an_infinite_threshold_over_the_historic_period_refuses():
+    flows, years, codes = _historic_record()
+    rows = [
+        {"start_year": 1890, "end_year": 1949, "threshold_cfs": 2500.0},
+        {"start_year": 1930, "end_year": 1940, "threshold_cfs": float("inf")},
+    ]
+    with pytest.raises(Bulletin17BError, match="unobserved"):
+        bulletin17b_kwargs(flows, years, codes, rows)
+
+
+def test_an_infinite_threshold_over_unmeasured_years_outside_the_period_is_ignored(caplog):
+    flows, years, codes = _historic_record()
+    rows = [
+        {"start_year": 1890, "end_year": 1949, "threshold_cfs": 2500.0},
+        {"start_year": 1800, "end_year": 1850, "threshold_cfs": float("inf")},
+    ]
+    with caplog.at_level(logging.INFO, logger="flowfreq.bulletin17b"):
+        kw = bulletin17b_kwargs(flows, years, codes, rows)
+    assert kw["historic_period"] == (1890, 1967)
+    assert any("1800" in r.getMessage() and "ignored" in r.getMessage() for r in caplog.records)
+
+
+def test_a_non_integer_threshold_year_says_whole_numbers():
+    row = {"start_year": 1890.5, "end_year": 1949, "threshold_cfs": 1.0}
+    with pytest.raises(Bulletin17BError, match="threshold start years must be whole numbers"):
+        bulletin17b_kwargs(BASE, YEARS, None, [row])
