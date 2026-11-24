@@ -56,7 +56,8 @@ class SectionContent:
         Full citations for the report's reference list.
     cautions : list of str
         What the regression behind the flows warns of (``SiteEstimate.advisory``), for a
-        reply that shows only the section's table. Already in ``blocks``.
+        reply that shows only the section's table. A Bulletin 17B section holds its
+        refusal here. Already in ``blocks``.
     """
 
     title: str

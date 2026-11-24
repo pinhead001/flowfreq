@@ -5,10 +5,11 @@ and returns the section's blocks, its references and its options *as resolved*: 
 builder fetched (a gage's annual peaks, a regional skew looked up by state) is written back
 as plain values, so the same options build the same section again without the network.
 
-The builders live one kind to a module (``gaged``, ``regional``, ``weighted``, ``transposed``,
-``engine_check``, ``comparison``, ``future``; ``daily``, ``regime_sections`` and ``summary``
-hold the rest). This module is the registry, and every name that used to be defined here is
-still importable from here. To replace one in a test, patch it in the module that defines it.
+The builders live one kind to a module (``gaged``, ``b17b``, ``regional``, ``weighted``,
+``transposed``, ``engine_check``, ``comparison``, ``future``; ``daily``, ``regime_sections``
+and ``summary`` hold the rest). This module is the registry, and every name that used to be
+defined here is still importable from here. To replace one in a test, patch it in the module
+that defines it.
 
 Option names that look inconsistent between kinds name different things, and stored specs
 use them, so they stay:
@@ -42,6 +43,7 @@ from ._base import (  # noqa: F401
     cfs,
     short_citation,
 )
+from .b17b import B17B_CAPTION, BULLETIN_17B, _b17b_ffa, _build_b17b_ffa  # noqa: F401
 from .comparison import (  # noqa: F401
     _COMPARED_KINDS,
     _ESTIMATE_KEYS,
@@ -149,6 +151,39 @@ SECTION_KINDS.update(
                 "extension",
             ),
             build=_build_gaged_ffa,
+        ),
+        SectionKind(
+            name="b17b_ffa",
+            summary=(
+                "Bulletin 17B (superseded) flood frequency at a gage, for comparison with "
+                "Bulletin 17C. Computed only when this section is requested."
+            ),
+            required=(),
+            optional=(
+                "site_no",
+                "site_name",
+                "drainage_area_sqmi",
+                "peaks",
+                "regional_skew",
+                "regional_skew_se",
+                "regional_skew_citation",
+                "regional_skew_note",
+                "regional_skew_advisory",
+                "regional_skew_state",
+                "regional_skew_region",
+                "regional_skew_from_site",
+                "allow_provisional_skew",
+                "generalized_skew",
+                "generalized_skew_mse",
+                "historic_period",
+                "low_outlier_threshold",
+                "perception_thresholds",
+                "apply_peak_codes",
+                "allow_regulated",
+                "hand_computation",
+                "aeps",
+            ),
+            build=_build_b17b_ffa,
         ),
         SectionKind(
             name="ungaged",
@@ -283,6 +318,8 @@ def build_section(kind: str, options: Mapping[str, Any]) -> SectionContent:
 
 
 __all__ = [
+    "B17B_CAPTION",
+    "BULLETIN_17B",
     "BULLETIN_17C",
     "COMPARISON_CAPTION",
     "FUTURE_FLOW_CAPTION",

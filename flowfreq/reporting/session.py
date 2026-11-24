@@ -30,13 +30,20 @@ from .blocks import Block, Figure, Heading, Narrative, Paragraph, Table, narrati
 from .build import build_report, render_markdown
 from .daily import FLOW_DURATION_CAPTION, LOW_FLOW_CAPTION
 from .regime_sections import BASEFLOW_CAPTION, MONTHLY_CAPTION, SUMMARY_HYDROGRAPH_CAPTION
-from .sections import COMPARISON_CAPTION, FUTURE_FLOW_CAPTION, SectionContent, build_section
+from .sections import (
+    B17B_CAPTION,
+    COMPARISON_CAPTION,
+    FUTURE_FLOW_CAPTION,
+    SectionContent,
+    build_section,
+)
 from .spec import ReportError, ReportSpec, SectionSpec
 from .summary import SUMMARY_FLOWS_CAPTION
 
 #: The table of each kind that carries its result, by caption.
 MAIN_TABLES: Dict[str, str] = {
     "gaged_ffa": "Flood quantiles with 90-percent confidence limits.",
+    "b17b_ffa": B17B_CAPTION,
     "ungaged": "Regression flood quantiles with prediction limits.",
     "weighted": "At-site and regression flood quantiles and their weighted estimate.",
     "transposed": "Flood quantiles transposed from the gage by the drainage-area ratio.",
