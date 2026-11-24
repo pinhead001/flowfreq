@@ -11,7 +11,7 @@ from __future__ import annotations
 import copy
 import math
 from contextlib import contextmanager
-from typing import Any, Dict, Iterator, List, Mapping, Optional, Tuple
+from typing import Any, Dict, Iterator, List, Mapping, Optional, Set, Tuple
 
 import numpy as np
 import pandas as pd
@@ -24,6 +24,7 @@ from ..bulletin17b import (
     Bulletin17B,
     Bulletin17BError,
     Bulletin17BResults,
+    _ranges,
     _threshold_row,
     bulletin17b_kwargs,
     confidence_deviates,
@@ -220,8 +221,8 @@ def _skew(options: Dict[str, Any]) -> Tuple[Optional[float], float, str, Optiona
             None,
         )
     sentence = _skew_sentence(options, "user") + (
-        " It is the regional skew a Bulletin 17C analysis with the same options uses, so the "
-        "difference is the change in procedure."
+        " It is the regional skew a Bulletin 17C analysis with the same options uses. With "
+        "the same peaks, the difference is the change in procedure."
     )
     citation = options.get("regional_skew_citation")
     return (
@@ -290,6 +291,39 @@ def _threshold_sentence(rows: List[Dict[str, Any]]) -> str:
         "Perception thresholds: "
         + "; ".join(listed)
         + ". Bulletin 17B takes only a historic period from them."
+    )
+
+
+def _unrecorded_sentence(
+    kwargs: Mapping[str, Any], rows: List[Dict[str, Any]], res: Bulletin17BResults
+) -> str:
+    """The years inside the historic period that H counts although nothing was recorded.
+
+    They are the years of an infinite (unobserved) threshold row, and the years of the
+    systematic record that have neither a peak nor a below-base year. The rest of the
+    period is what the historic peaks and their threshold speak for.
+    """
+    if res.historic is None:
+        return ""
+    first, last = kwargs["historic_period"]
+    systematic = {*kwargs["water_years"], *kwargs["below_base_years"]}
+    present = systematic | {y for y, _ in kwargs["historic_peaks"]}
+    unobserved: Set[int] = set()
+    for row in rows:
+        start, end, threshold = _threshold_row(row)
+        if not math.isfinite(threshold):
+            unobserved.update(range(max(start, first), min(end, last) + 1))
+    gaps = set(range(min(systematic), max(systematic) + 1)) - present - unobserved
+    parts = [
+        f"{_ranges(sorted(years))} ({why})"
+        for years, why in ((unobserved, "not observed"), (gaps, "no peak"))
+        if years
+    ]
+    if not parts:
+        return ""
+    return (
+        f"H counts the years of the historic period {first} to {last} that have no record: "
+        f"{' and '.join(parts)}."
     )
 
 
@@ -418,7 +452,12 @@ def _frequency_figure(res: Bulletin17BResults, where: str) -> Any:
     ax.set_xlim(x[0], x[-1])
     ax.set_xlabel("Annual Exceedance Probability", fontsize=_FONT_SIZE)
     title = f"Flood Frequency Curve, {SUPERSEDED}"
-    ax.set_title(f"{title}\n{where}" if where else title, fontsize=_FONT_SIZE, fontweight="bold")
+    ax.set_title(
+        f"{title}\n{where}" if where else title,
+        fontsize=_FONT_SIZE,
+        fontweight="bold",
+        parse_math=False,  # a site name is drawn as written
+    )
     ax.legend(loc="upper left", fontsize=_ANNOT_FONT_SIZE)
     ax.grid(True, which="both", alpha=0.3)
     fig.tight_layout()
@@ -453,6 +492,10 @@ def _build_b17b_ffa(given: Dict[str, Any]) -> SectionContent:
     ``apply_peak_codes=False`` in ``gaged_ffa``, which does not take the two together. Here
     it needs the codes applied, because Bulletin 17B gets its historic peaks from them, so
     such a record takes two sets of options.
+
+    Downloaded peaks carry no year without a flow (``download_peaks`` drops them), so a
+    code-4 year whose flow is blank never reaches L or the 25 percent limit. Give such a
+    record as ``peaks``, with a flow for the year; the flow is not used.
     """
     return _b17b_ffa(given)[0]
 
@@ -500,6 +543,7 @@ def _b17b_ffa(given: Dict[str, Any]) -> Tuple[SectionContent, Optional[Bulletin1
     data: List[str] = []
     override = False
     basis = ""
+    regulated_as = "without the peaks coded 6 or C" if apply_codes else "as observed"
     references = [BULLETIN_17B]
     refusal: Optional[str] = None
     results: Optional[Bulletin17BResults] = None
@@ -553,12 +597,15 @@ def _b17b_ffa(given: Dict[str, Any]) -> Tuple[SectionContent, Optional[Bulletin1
             aeps=aeps,
             hand_computation=bool(options.get("hand_computation", False)),
         ).run_analysis()
+        counted = _unrecorded_sentence(kwargs, rows, results)
+        if counted:
+            data.append(counted)
     except RegulatedRecordError:
         # The screen's own message is about Bulletin 17C.
         refusal = (
             f"USGS {site_no} is classed regulated ({basis}), and Bulletin 17B describes "
-            "unregulated flood peaks. The section's allow_regulated option overrides this and "
-            "fits the record as observed"
+            "unregulated flood peaks. The section's allow_regulated option overrides this; the "
+            f"fit then describes the regulated record {regulated_as}"
         )
     except Bulletin17BError as exc:
         refusal = str(exc)
@@ -571,7 +618,7 @@ def _b17b_ffa(given: Dict[str, Any]) -> Tuple[SectionContent, Optional[Bulletin1
             Paragraph(
                 "**This record is classified as regulated.** Bulletin 17B describes "
                 "unregulated flood peaks; the fit was made at the analyst's direction and "
-                "describes the regulated record as observed."
+                f"describes the regulated record {regulated_as}."
             )
         )
     if data:

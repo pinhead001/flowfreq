@@ -598,3 +598,9 @@ def test_the_package_exports_the_class():
     for name in ("Bulletin17B", "Bulletin17BError", "Bulletin17BResults", "bulletin17b_kwargs"):
         assert name in flowfreq.__all__
         assert getattr(flowfreq, name) is getattr(flowfreq.bulletin17b, name)
+
+
+def test_a_site_name_with_math_signs_is_drawn_as_written():
+    content = compare(b17c(), b17b(site_name="Cash $^$ Creek"), site_name="Cash $^$ Creek")
+    assert any(is_figure(b) for b in content.blocks)
+    assert "Cash $^$ Creek" in render_markdown([b for b in content.blocks if not is_figure(b)])

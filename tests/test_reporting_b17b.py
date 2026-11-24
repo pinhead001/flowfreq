@@ -180,8 +180,8 @@ def test_section_uses_the_b17c_regional_skew_by_default():
     assert res.skew_generalized == 0.6 and res.skew_generalized_mse == pytest.approx(0.3025)
     assert any("change in procedure" in text_of(b) for b in content.blocks)
     assert (
-        "the regional skew a Bulletin 17C analysis with the same options uses, so the "
-        "difference is the change in procedure" in all_text(content)
+        "the regional skew a Bulletin 17C analysis with the same options uses. With the same "
+        "peaks, the difference is the change in procedure" in all_text(content)
     )
 
 
@@ -392,10 +392,14 @@ def test_a_regulated_record_is_a_sentence_and_the_override_is_stated():
     )
     assert "17C" not in said and "allow_regulated=True" not in said and "England" not in said
     assert "Bulletin 17B" in said and "The section's allow_regulated option overrides" in said
+    assert "regulated record without the peaks coded 6 or C" in said
     assert content.references == [BULLETIN_17B]
     content, res = _b17b_ffa({**given, "allow_regulated": True})
     assert res is not None
     assert "classified as regulated" in all_text(content)
+    assert "regulated record without the peaks coded 6 or C" in all_text(content)
+    as_given, _ = _b17b_ffa({**given, "allow_regulated": True, "apply_peak_codes": False})
+    assert "regulated record as observed" in all_text(as_given)
     rows = dict(tables(content)["Station and peak-flow record."].rows)
     assert "regulated" in rows["Regulation screen"]
 
@@ -540,6 +544,60 @@ def test_a_historic_period_that_misses_the_record_is_a_refusal():
     assert res is None and "does not cover the systematic record" in all_text(content)
 
 
+def _without(years: List[int]) -> Dict[str, Any]:
+    """Big Sandy's record with some of its systematic years left out."""
+    peaks = peaks_spec("appendix6_big_sandy")
+    keep = [i for i, y in enumerate(peaks["water_year"]) if y not in years]
+    return {key: [values[i] for i in keep] for key, values in peaks.items()}
+
+
+def test_years_without_a_record_inside_the_historic_period_are_named():
+    """Ruling 21: H counts a gap and an unobserved row, and the section says so."""
+    peaks = _without([1940, 1941, 1942, 1950])
+    content, res = _b17b_ffa({**SANDY, "peaks": peaks})
+    assert res.historic.h == 77
+    assert (
+        "H counts the years of the historic period 1897 to 1973 that have no record: 1940 to "
+        "1942, 1950 (no peak)." in all_text(content)
+    )
+    rows = [
+        {"start_year": 1940, "end_year": 1942, "threshold_cfs": math.inf},
+        {"start_year": 1890, "end_year": 1896, "threshold_cfs": math.inf},
+        {"start_year": 1898, "end_year": 1900, "threshold_cfs": math.inf},
+    ]
+    content, res = _b17b_ffa({**SANDY, "peaks": peaks, "perception_thresholds": rows})
+    assert res.historic.h == 77
+    assert (
+        "that have no record: 1898 to 1900, 1940 to 1942 (not observed) and 1950 (no peak)."
+        in all_text(content)
+    )
+
+
+def test_a_removed_peak_inside_the_historic_period_is_a_year_without_a_record():
+    peaks = peaks_spec("appendix6_big_sandy")
+    peaks["qualification_code"][peaks["water_year"].index(1941)] = "3"
+    content, _ = _b17b_ffa({**SANDY, "peaks": peaks})
+    assert "that have no record: 1941 (no peak)." in all_text(content)
+
+
+def test_a_whole_record_or_no_adjustment_says_nothing_about_h():
+    assert "H counts" not in all_text(build_section("b17b_ffa", dict(SANDY)))
+    gap = {
+        **EX1,
+        "perception_thresholds": [
+            {"start_year": 1980, "end_year": 1985, "threshold_cfs": math.inf}
+        ],
+    }
+    assert "H counts" not in all_text(build_section("b17b_ffa", gap))
+
+
+def test_years_below_the_base_have_a_record():
+    peaks = peaks_spec("appendix6_big_sandy")
+    peaks["qualification_code"][peaks["water_year"].index(1941)] = "4"
+    content, res = _b17b_ffa({**SANDY, "peaks": peaks})
+    assert res.historic is not None and "H counts" not in all_text(content)
+
+
 # -- codes --------------------------------------------------------------------------------
 
 
@@ -630,6 +688,11 @@ def test_figure_shows_positions_beyond_the_usual_axis():
     _, res = _b17b_ffa({**EX1, "peaks": with_peaks([(1200, 50000.0, "7")])})
     assert res.historic.h == 769
     assert _scatters(res)["Historic peaks"] == 1
+
+
+def test_figure_title_is_drawn_as_written():
+    content = build_section("b17b_ffa", {**EX1, "site_name": "Cash $^$ Creek"})
+    assert figure_of(content).png.startswith(b"\x89PNG")
 
 
 def test_figure_png_is_in_the_section():

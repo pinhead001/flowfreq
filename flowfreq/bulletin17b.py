@@ -665,6 +665,16 @@ class Bulletin17B:
     the unadjusted statistics. Low outliers are then dropped and the historic
     adjustment is made, with L counting them.
 
+    K_H of eq. 8b is read at the number of systematic peaks, N. Page 18 says the Appendix 4
+    value "for period used to compute" the adjusted mean and standard deviation, which
+    read literally is H. The table stops at 149 and H is often longer. Of the vendored
+    records, the 32 that run the high test first with H of 149 or less give the same
+    result either way.
+
+    At least 10 systematic peaks have to be left for the moments, once peaks have moved
+    to the historic ones and truncated years are out. That is this project's choice. It is
+    stricter than the bulletin, which asks for 10 years of record.
+
     Zero flows, years below the gage base and low outliers are truncated: they stay in the
     record length and in L but not in the moments. A record with any of them gets the
     conditional probability adjustment, and its curve comes from the synthetic statistics
@@ -1203,7 +1213,8 @@ class Bulletin17B:
         text = (
             f"only {left} of the {len(self._all_years)} years of the systematic record are "
             f"left for the moments{': ' if why else ''}{', '.join(why)}. "
-            f"Bulletin 17B needs at least {MIN_SYSTEMATIC}."
+            f"Here at least {MIN_SYSTEMATIC} are needed: this project's choice, stricter "
+            "than the bulletin, which asks for 10 years of record."
         )
         if n_moved and self._historic_peaks:
             year, flow = min(self._historic_peaks, key=lambda e: e[1])

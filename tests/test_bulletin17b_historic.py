@@ -455,6 +455,7 @@ def test_too_few_systematic_peaks_after_moves_to_z_refuses():
         big_sandy(historic_peaks=[(1900, 1300.0)])
     text = str(err.value)
     assert "43 moved" in text and "1 of the 44" in text and "at least 10" in text
+    assert "this project's choice" in text
     assert "1300 cfs" in text and "wrong units" in text
 
 

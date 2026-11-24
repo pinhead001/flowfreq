@@ -23,7 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Known limits. In Example 4 the bulletin read its adjusted curve by eye. In the exact mode, the default, three of
     its rows differ by more than 5 percent (the largest 17 percent, at 99 percent AEP) and the others by less. By hand
     computation (`hand_computation=True`) the largest difference is 16 percent, at 0.2 percent AEP, because the
-    weighted skew rounds to -0.5, not the printed -0.4. No PeakFQ 5 output has been checked. No person has reviewed the code; the reviews were by agents.
+    weighted skew rounds to -0.5, not the printed -0.4. No PeakFQ 5 output has been checked. No person has reviewed
+    the code; the reviews were by agents.
 
 - **Ice events from gauge qualifiers and cold air.** `flowfreq.ice` (winter and event counting, cold-air days,
   gauge `ICE` qualifiers, gauge-versus-air QA/QC), `flowfreq.ghcn.fetch_ghcn_daily` (NCEI daily TMIN/TMAX) and the
