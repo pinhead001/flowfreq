@@ -38,7 +38,10 @@ IDAHO = {
         (0.005, 0.002, False),
         (0.01, 0.005, False),
         (0.2, 0.1, False),
-        (0.99, 0.995, True),  # within 0.75 percent; no source tabulates both
+        (0.99, 0.995, False),  # 0.75 percent apart as written, but one is twice as common
+        (0.95, 0.953, False),
+        (0.8, 0.8, True),
+        (0.9999, 1.0, False),
     ],
 )
 def test_same_aep(a, b, same):
@@ -144,3 +147,28 @@ def test_the_future_flow_section_keeps_the_1_5_year_row_as_published():
     assert not any(
         isinstance(b, Paragraph) and "nearest published factor" in b.text for b in asked.blocks
     )
+
+
+def test_a_comparison_of_two_fits_keeps_both_common_floods():
+    """99.5 and 99 percent are both in a Bulletin 17C fit; the second row was left out."""
+    built = build_section(
+        "comparison",
+        {
+            "detail": False,
+            "estimates": [
+                {"label": "A", "kind": "gaged_ffa", "options": dict(GAGE)},
+                {"label": "B", "kind": "gaged_ffa", "options": {**GAGE, "regional_skew": 0.1}},
+            ],
+        },
+    )
+    table = next(b for b in built.blocks if isinstance(b, Table))
+    shown = [row[0] for row in table.rows]
+    assert "99.5" in shown and "99" in shown and len(shown) == len(set(shown))
+    assert not any(
+        "slightly different probabilities" in getattr(b, "text", "") for b in built.blocks
+    )
+
+
+def test_a_common_flood_is_not_taken_for_its_neighbor():
+    assert match_aep([0.99, 0.9, 0.5], 0.995) is None
+    assert match_aep([0.995, 0.99], 0.99) == 0.99

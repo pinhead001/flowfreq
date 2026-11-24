@@ -61,6 +61,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Montana's channel-width sets carry the Northwest to Northwest Foothills weighting caution (SIR 2020-5142, pp. 38, 47).
 - The summary hydrograph's flow axis is log only over a factor of five, as the other daily sections'; a record with no
   usable flow is refused in words by `flow_duration`.
+- **The 99-percent flood is no longer left out of a comparison.** `flowfreq.aep.same_aep` took 0.99 and 0.995 for one
+  flood, so a `comparison` of two Bulletin 17C fits kept one row for both, and a source with only one of them was paired
+  with the other.
 - A drainage area that is not a positive number is refused in words by every report section built from daily flows.
 - `Hydrograph`'s summary hydrograph and duration curve counted the calendar years touched, so 20 water years read as
   21 and a record with a gap counted what fell in it; they print the days with a value over 365.25. Its log axes
