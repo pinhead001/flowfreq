@@ -279,7 +279,7 @@ def _low_flow_figure(fit: Any, results: Any, label: str) -> bytes:
     ax.set_xlabel("Annual non-exceedance probability (percent)")
     ax.set_ylabel(f"Annual minimum {results.n_day}-day mean flow (cfs)")
     if label:
-        ax.set_title(label)
+        ax.set_title(label, parse_math=False)
     ax.grid(True, which="both", alpha=0.3)
     ax.legend(loc="lower right")
     return _figure_png(fig)

@@ -313,7 +313,7 @@ def plot_frequency_curve(
         title = f"Flood Frequency Curve - USGS {site_no}"
     else:
         title = "Flood Frequency Curve (Bulletin 17C)"
-    ax.set_title(title, fontsize=_FONT_SIZE, fontweight="bold", pad=35)
+    ax.set_title(title, fontsize=_FONT_SIZE, fontweight="bold", pad=35, parse_math=False)
 
     # --- LP3 parameters annotation (top-left, matches hydrograph style) ---
     skew_lines = "\n".join(
@@ -629,7 +629,7 @@ def plot_peak_flows_with_thresholds(
         title = f"Annual Peak Flows - USGS {site_no}"
     else:
         title = "Annual Peak Flows"
-    ax.set_title(title, fontsize=_FONT_SIZE, fontweight="bold")
+    ax.set_title(title, fontsize=_FONT_SIZE, fontweight="bold", parse_math=False)
 
     # Record summary annotation (top-left, matches hydrograph style)
     n_years = len(years)

@@ -194,7 +194,7 @@ def _monthly_figure(complete: pd.DataFrame, label: str) -> bytes:
     _flow_axis(ax, min(means[i].min() for i in present), max(means[i].max() for i in present))
     ax.set_ylabel("Monthly mean flow (cfs)")
     if label:
-        ax.set_title(label)
+        ax.set_title(label, parse_math=False)
     ax.grid(True, axis="y", which="both", alpha=0.3)
     return _figure_png(fig)
 
@@ -388,7 +388,7 @@ def _separated_figure(year: int, days: pd.DataFrame, label: str) -> bytes:
     ax.set_xlabel(f"Water year {year}")
     ax.set_ylabel("Daily mean flow (cfs)")
     if label:
-        ax.set_title(label)
+        ax.set_title(label, parse_math=False)
     ax.grid(True, which="both", alpha=0.3)
     ax.legend(loc="upper right")
     return _figure_png(fig)
@@ -407,7 +407,7 @@ def _index_figure(annual: pd.DataFrame, pooled: float, label: str) -> bytes:
     ax.set_xlabel("Water year")
     ax.set_ylabel("Baseflow index")
     if label:
-        ax.set_title(label)
+        ax.set_title(label, parse_math=False)
     ax.grid(True, axis="y", alpha=0.3)
     ax.legend(loc="upper right")
     return _figure_png(fig)

@@ -147,7 +147,7 @@ def _map_figure(locations: Sequence[Dict[str, Any]]) -> bytes:
             markeredgecolor="black",
             markersize=9,
             zorder=20,
-            label=loc["name"] + (" (watershed outlined)" if loc["rings"] else ""),
+            label="location",  # replaced below: a label may not start with "_"
         )
     middle = float(np.mean([loc["lat"] for loc in locations]))
     ax.set_aspect(1.0 / max(math.cos(math.radians(middle)), 0.1))
@@ -156,7 +156,10 @@ def _map_figure(locations: Sequence[Dict[str, Any]]) -> bytes:
     ax.ticklabel_format(useOffset=False)
     ax.xaxis.set_major_locator(MaxNLocator(5))
     ax.grid(True, alpha=0.3)
-    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.09), frameon=False)
+    legend = ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.09), frameon=False)
+    for text, loc in zip(legend.get_texts(), locations):
+        text.set_parse_math(False)
+        text.set_text(loc["name"] + (" (watershed outlined)" if loc["rings"] else ""))
     return _figure_png(fig)
 
 
