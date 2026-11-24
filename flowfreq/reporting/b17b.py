@@ -294,6 +294,18 @@ def _threshold_sentence(rows: List[Dict[str, Any]]) -> str:
     )
 
 
+def _history_sentence(kwargs: Mapping[str, Any], res: Bulletin17BResults) -> Optional[str]:
+    """What a Bulletin 17C analysis of the same record needs before it counts the same years."""
+    if res.historic is None:
+        return None
+    first, last = kwargs["historic_period"]
+    return (
+        f"Bulletin 17B counted the historic period {first} to {last}. A Bulletin 17C analysis "
+        "counts a historic period only through perception thresholds: without one for these "
+        "years, part of the difference between the two is the period and not the procedure."
+    )
+
+
 def _unrecorded_sentence(
     kwargs: Mapping[str, Any], rows: List[Dict[str, Any]], res: Bulletin17BResults
 ) -> str:
@@ -597,6 +609,9 @@ def _b17b_ffa(given: Dict[str, Any]) -> Tuple[SectionContent, Optional[Bulletin1
             aeps=aeps,
             hand_computation=bool(options.get("hand_computation", False)),
         ).run_analysis()
+        history = _history_sentence(kwargs, results)
+        if history is not None:
+            data.append(history)
         counted = _unrecorded_sentence(kwargs, rows, results)
         if counted:
             data.append(counted)

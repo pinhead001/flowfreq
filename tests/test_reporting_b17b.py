@@ -792,3 +792,15 @@ def test_the_reference_gives_the_bulletin_and_its_address():
     assert content.references == [BULLETIN_17B]
     assert "Interagency Advisory Committee on Water Data, 1982" in BULLETIN_17B
     assert "https://pubs.usgs.gov/unnumbered/70275162/report.pdf" in BULLETIN_17B
+
+
+HISTORY = "counts a historic period only through perception thresholds"
+
+
+def test_a_historic_period_is_said_to_need_thresholds_in_bulletin_17c():
+    """Live at 03606500: 17C without thresholds gave 27,265 cfs at 1 percent, 17B 24,374."""
+    built = build_section("b17b_ffa", dict(SANDY))
+    text = " ".join(text_of(b) for b in built.blocks)
+    assert HISTORY in text and "1897 to 1973" in text
+    plain = build_section("b17b_ffa", {"peaks": peaks_spec("example1"), "generalized_skew": 0.6})
+    assert HISTORY not in " ".join(text_of(b) for b in plain.blocks)

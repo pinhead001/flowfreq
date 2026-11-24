@@ -67,6 +67,8 @@ CI cache). CHANGELOG.md, Unreleased, has the detail. Still open from it:
    - No chat tool adds a `b17b_ffa` section. `compare_estimates` takes one that a loaded report has.
    - A record with code-7 peaks and `perception_thresholds` needs two sets of options, one for `gaged_ffa`
      (`apply_peak_codes: false`) and one for `b17b_ffa` (codes applied).
+     Without thresholds the two do not count the same years: live at 03606500 (2026-11-24) the 1-percent flow is
+     27,265 cfs by 17C and 24,374 by 17B, which counts 1897 to 2025. The section says so.
 8. Done 2026-11-21 (#407): agent ops run on the shared `agentops` package (`D:/a/agentops`, `pip install -e` into
    `.venv`); `tools/agentops/` is gone, the config is `config/agents.toml`, `run.bat` runs it, the push guards
    are tighter. The features it needs came from pinhead001/agentops#6 (merged 2026-11-21). All 12 finished
