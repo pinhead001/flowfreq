@@ -461,16 +461,6 @@ def test_an_infinite_threshold_over_peaks_refuses():
         bulletin17b_kwargs(BASE, YEARS, None, [row])
 
 
-def test_an_infinite_threshold_over_the_historic_period_refuses():
-    flows, years, codes = _historic_record()
-    rows = [
-        {"start_year": 1890, "end_year": 1949, "threshold_cfs": 2500.0},
-        {"start_year": 1930, "end_year": 1940, "threshold_cfs": float("inf")},
-    ]
-    with pytest.raises(Bulletin17BError, match="unobserved"):
-        bulletin17b_kwargs(flows, years, codes, rows)
-
-
 def test_an_infinite_threshold_over_unmeasured_years_outside_the_period_is_ignored(caplog):
     flows, years, codes = _historic_record()
     rows = [
@@ -480,10 +470,119 @@ def test_an_infinite_threshold_over_unmeasured_years_outside_the_period_is_ignor
     with caplog.at_level(logging.INFO, logger="flowfreq.bulletin17b"):
         kw = bulletin17b_kwargs(flows, years, codes, rows)
     assert kw["historic_period"] == (1890, 1967)
-    assert any("1800" in r.getMessage() and "ignored" in r.getMessage() for r in caplog.records)
+    assert any("1800" in r.getMessage() and "no record" in r.getMessage() for r in caplog.records)
 
 
 def test_a_non_integer_threshold_year_says_whole_numbers():
     row = {"start_year": 1890.5, "end_year": 1949, "threshold_cfs": 1.0}
     with pytest.raises(Bulletin17BError, match="threshold start years must be whole numbers"):
         bulletin17b_kwargs(BASE, YEARS, None, [row])
+
+
+# --- fix round 2 ---------------------------------------------------------------------------
+
+
+def test_a_base_row_over_below_base_years_is_accepted():
+    codes = codes_for(y1955="4", y1956="4")
+    row = {"start_year": 1950, "end_year": 1967, "threshold_cfs": 721.0}
+    kw = bulletin17b_kwargs(BASE, YEARS, codes, [row])
+    assert kw["below_base_years"] == [1955, 1956] and kw["historic_period"] is None
+    high = {"start_year": 1950, "end_year": 1967, "threshold_cfs": 722.0}
+    with pytest.raises(Bulletin17BError, match="change of threshold"):
+        bulletin17b_kwargs(BASE, YEARS, codes, [high])
+
+
+def _after_record():
+    """Systematic 1950-1967 and a code 7 peak in 1975."""
+    return BASE + [3000.0], YEARS + [1975], [None] * 18 + ["7"]
+
+
+@pytest.mark.parametrize("end", [1974, 1975, 1980])
+def test_a_row_after_the_record_to_a_historic_peak_is_the_historic_row(end):
+    flows, years, codes = _after_record()
+    row = {"start_year": 1968, "end_year": end, "threshold_cfs": 2500.0}
+    kw = bulletin17b_kwargs(flows, years, codes, [row])
+    assert kw["historic_period"] == (1950, 1975)
+    assert kw["historic_peaks"] == [(1975, 3000.0)]
+    Bulletin17B(**kw)
+
+
+def test_a_row_before_and_a_row_after_refuse_as_two_historic_periods():
+    flows, years, codes = _after_record()
+    rows = [
+        {"start_year": 1940, "end_year": 1949, "threshold_cfs": 2500.0},
+        {"start_year": 1968, "end_year": 1975, "threshold_cfs": 2500.0},
+    ]
+    with pytest.raises(Bulletin17BError, match="more than one historic period"):
+        bulletin17b_kwargs(flows, years, codes, rows)
+
+
+def test_a_row_after_the_record_with_no_historic_peak_refuses_with_its_reason():
+    row = {"start_year": 1968, "end_year": 1975, "threshold_cfs": 2500.0}
+    with pytest.raises(Bulletin17BError, match="reaches no historic peak"):
+        bulletin17b_kwargs(BASE, YEARS, None, [row])
+
+
+def test_a_gap_between_the_record_and_a_row_after_it_refuses():
+    flows, years, codes = _after_record()
+    row = {"start_year": 1971, "end_year": 1975, "threshold_cfs": 2500.0}
+    with pytest.raises(Bulletin17BError, match="1968 to 1970"):
+        bulletin17b_kwargs(flows, years, codes, [row])
+
+
+def _gapped(drop):
+    years = [y for y in YEARS if y not in drop]
+    return [q for y, q in zip(YEARS, BASE) if y not in drop], years
+
+
+def test_infinite_rows_over_empty_years_override_a_base_row(caplog):
+    flows, years = _gapped({1955, 1960})
+    base = {"start_year": 1950, "end_year": 1967, "threshold_cfs": 700.0}
+    rows = [
+        base,
+        {"start_year": 1955, "end_year": 1955, "threshold_cfs": float("inf")},
+        {"start_year": 1960, "end_year": 1960, "threshold_cfs": float("inf")},
+    ]
+    with caplog.at_level(logging.INFO, logger="flowfreq.bulletin17b"):
+        kw = bulletin17b_kwargs(flows, years, None, rows)
+    assert kw["water_years"] == years and kw["historic_period"] is None
+    assert any("1955" in r.getMessage() for r in caplog.records)
+    with pytest.raises(Bulletin17BError, match="no measured peak"):
+        bulletin17b_kwargs(flows, years, None, [base])
+
+
+def test_an_infinite_row_inside_the_historic_period_is_accepted():
+    flows, years, codes = _historic_record()
+    rows = [
+        {"start_year": 1890, "end_year": 1949, "threshold_cfs": 2500.0},
+        {"start_year": 1930, "end_year": 1940, "threshold_cfs": float("inf")},
+    ]
+    kw = bulletin17b_kwargs(flows, years, codes, rows)
+    assert kw["historic_period"] == (1890, 1967)
+
+
+def test_an_infinite_row_over_a_kept_peak_still_refuses():
+    rows = [{"start_year": 1960, "end_year": 1961, "threshold_cfs": float("inf")}]
+    with pytest.raises(Bulletin17BError, match="unobserved|infinite"):
+        bulletin17b_kwargs(BASE, YEARS, None, rows)
+
+
+def test_only_removed_years_next_to_the_record_close_the_gap():
+    years = [1906] + list(range(1930, 1948))
+    flows = [900.0] + BASE
+    codes = ["6"] + [None] * 18
+    row = {"start_year": 1897, "end_year": 1905, "threshold_cfs": 2500.0}
+    with pytest.raises(Bulletin17BError, match="covered by no period"):
+        bulletin17b_kwargs(flows, years, codes, [row])
+    years = [1929] + list(range(1930, 1948))
+    row = {"start_year": 1897, "end_year": 1928, "threshold_cfs": 2500.0}
+    kw = bulletin17b_kwargs(flows, years, codes, [row])
+    assert kw["historic_period"] == (1897, 1947)
+
+
+def test_unmeasured_years_are_listed_as_years_and_runs():
+    flows, years = _gapped({1955, 1960, 1961})
+    row = {"start_year": 1950, "end_year": 1967, "threshold_cfs": 700.0}
+    with pytest.raises(Bulletin17BError) as err:
+        bulletin17b_kwargs(flows, years, None, [row])
+    assert "1955, 1960 to 1961" in str(err.value) and "and others" not in str(err.value)

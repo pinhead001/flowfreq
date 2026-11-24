@@ -1393,48 +1393,69 @@ def _span(start: int, end: int) -> str:
     return f"{start} to {end}"
 
 
-def _historic_row_start(
+def _ranges(years: Sequence[int]) -> str:
+    """Years as runs: ``1988, 1995 to 1997``."""
+    runs: list[list[int]] = []
+    for y in sorted(set(years)):
+        if runs and y == runs[-1][1] + 1:
+            runs[-1][1] = y
+        else:
+            runs.append([y, y])
+    return ", ".join(str(a) if a == b else f"{a} to {b}" for a, b in runs)
+
+
+def _historic_row(
     rows: list[tuple[int, int, float]],
+    unobserved: set[int],
     measured: Mapping[int, float],
-    first: int,
-    last: int,
-    record_start: int,
-) -> Optional[int]:
-    """The start of the one historic row, after checking the rest of the finite rows.
+    below: set[int],
+    historic_years: Sequence[int],
+    bounds: tuple[int, int, int, int],
+) -> Optional[tuple[int, int]]:
+    """The one historic row as (start, end), after checking the rest of the finite rows.
 
     Rows of zero are dropped and a repeated row counts once. A row that touches the
-    systematic record, ``first`` to ``last``, may only be one that changes nothing there:
-    every year it covers there has a measured peak, and its threshold is at or below
-    all of them. ``record_start`` is the first year of the record before peaks were
-    removed, where the historic row has to end.
+    systematic record may only be one that changes nothing there. Every year it covers has
+    a measured peak, a below-base year (observed, below the base) or an unobserved year
+    (under an infinite row, which overrides it), and its threshold is at or below every
+    measured peak. A row wholly before the record is the historic row if it ends in the
+    year before the record starts. One wholly after it is, if it starts the year after
+    the record ends and reaches a historic peak (ending in that peak's year or the year
+    before). ``bounds`` are the first and last year of the systematic record, and the
+    first and last year of the record before peaks were removed.
     """
+    first, last, record_start, record_end = bounds
     historic: list[tuple[int, int, float]] = []
     for start, end, threshold in sorted(set(r for r in rows if r[2] > 0.0)):
-        if start > last:
-            raise Bulletin17BError(
-                f"the perception threshold {_span(start, end)} begins after the last year of "
-                f"the record, {last}; Bulletin 17B has no use for it"
-            )
         lo, hi = max(start, first), min(end, last)
         if lo <= hi:
-            unmeasured = [y for y in range(lo, hi + 1) if y not in measured]
-            covered = [measured[y] for y in range(lo, hi + 1) if y in measured]
+            years = range(lo, hi + 1)
+            unmeasured = [
+                y for y in years if y not in measured and y not in below and y not in unobserved
+            ]
             if unmeasured:
                 raise Bulletin17BError(
                     f"the perception threshold of {threshold:g} cfs for {_span(start, end)} "
-                    f"covers {len(unmeasured)} year(s) of the systematic record with no "
-                    f"measured peak ({_span(unmeasured[0], unmeasured[-1])}"
-                    f"{'' if len(unmeasured) == hi - lo + 1 else ' and others'}); "
-                    "dropping the row would lose that information, and Bulletin 17B cannot "
-                    "take it"
+                    f"covers year(s) of the systematic record with no measured peak "
+                    f"({_ranges(unmeasured)}); dropping the row would lose that "
+                    "information, and Bulletin 17B cannot take it"
                 )
-            if threshold > min(covered):
+            covered = [measured[y] for y in years if y in measured]
+            if covered and threshold > min(covered):
                 raise Bulletin17BError(
                     f"the perception threshold of {threshold:g} cfs for {_span(start, end)} is "
                     "a change of threshold inside the systematic record, which Bulletin 17B "
                     "cannot take"
                 )
         if start < first:
+            historic.append((start, end, threshold))
+        elif start > last:
+            if not any(start <= y <= end + 1 for y in historic_years):
+                raise Bulletin17BError(
+                    f"the perception threshold {_span(start, end)} begins after the last "
+                    f"year of the record, {last}, and reaches no historic peak, so it is "
+                    "not a historic period"
+                )
             historic.append((start, end, threshold))
     if len(historic) > 1:
         spans = ", ".join(_span(s, e) for s, e, _ in historic)
@@ -1450,7 +1471,12 @@ def _historic_row_start(
             f"the historic threshold ends in {end} but the record starts in {record_start}: "
             f"{_span(end + 1, record_start - 1)} is covered by no period"
         )
-    return start
+    if start > record_end + 1:
+        raise Bulletin17BError(
+            f"the historic threshold starts in {start} but the record ends in {record_end}: "
+            f"{_span(record_end + 1, start - 1)} is covered by no period"
+        )
+    return start, end
 
 
 class _Coded(NamedTuple):
@@ -1574,16 +1600,26 @@ def bulletin17b_kwargs(
     the record, if that is earlier). A row with no historic peaks still gives the period,
     so that high outliers can be adjusted for.
 
+    A row wholly after the record is the historic row if it starts the year after the
+    record ends and reaches a historic peak (it ends in that peak's year or the year
+    before). A row before the record and a row after it are two historic periods and
+    refuse.
+
     Rows of zero are dropped, as ``run_ffa`` does, and a repeated row counts once. A
     positive row that touches the systematic record is accepted only if it changes
-    nothing there: each year it covers has a measured peak, and its threshold is at or
-    below all of them. A row that covers a year of the record with no measured peak
-    (a gap, a below-base year, a historic peak or a removed peak) is refused, because
-    dropping it would lose information; so are a change of threshold inside the record
-    and two historic rows. An infinite threshold is an unobserved period, which Bulletin
-    17B has no treatment for. It is refused unless no year in it has a peak and none of
-    it is in the historic period, in which case it is ignored and the choice is logged.
-    The systematic record runs from the first to the last year of the peaks that are not
+    nothing there: each year it covers has a measured peak or is a below-base year
+    (observed), or is unobserved (see below), and its threshold is at or below every
+    measured peak. A row that covers a year of the record with no measured peak (a gap,
+    a historic peak or a removed peak) is refused, because dropping it would lose
+    information; so are a change of threshold inside the record and two historic rows.
+
+    An infinite threshold is an unobserved period. If no year in it has a peak, it is
+    accepted: those years are treated as having no record, as a gap with no row is, any
+    other row is overridden in them, and the choice is logged. Inside a historic period
+    this makes H count them, as it does with no row. A year with a peak under an
+    infinite row refuses. The record's first and last years, for the gap check of a
+    historic row, include removed and flowless years next to it, and only those. The
+    systematic record runs from the first to the last year of the peaks that are not
     historic, counting below-base years. A historic peak may fall in a gap in it, but
     not in a year that has a systematic peak.
 
@@ -1665,17 +1701,49 @@ def bulletin17b_kwargs(
         raise Bulletin17BError(f"{what} after the peak codes are applied")
     _require_unique_years(systematic_years + [y for y, _ in historic], "a water year")
     first, last = min(systematic_years), max(systematic_years)
-    # The record before peaks were removed: a removed first year does not open a gap.
-    record_start = min(p.year for p in peaks if not p.interval.is_historic)
+    # The record before peaks were removed: a removed or flowless year next to the record
+    # does not open a gap.
+    dropped = set(removed) | set(no_flow)
+    record_start, record_end = first, last
+    while record_start - 1 in dropped:
+        record_start -= 1
+    while record_end + 1 in dropped:
+        record_end += 1
 
+    with_peaks = set(systematic_years) | {y for y, _ in historic}
+    unobserved: set[int] = set()
+    for s_, e_, _ in sorted(set(r for r in rows if not np.isfinite(r[2]))):
+        if any(s_ <= y <= e_ for y in with_peaks):
+            raise Bulletin17BError(
+                f"the perception threshold {_span(s_, e_)} is infinite, an unobserved period, "
+                "but it covers a year that has a peak; Bulletin 17B has no treatment for that"
+            )
+        unobserved.update(range(s_, e_ + 1))
+        logger.info(
+            "Perception threshold %s is infinite and no year in it has a peak: those years "
+            "are treated as having no record, as a gap with no row is, and any other "
+            "threshold row is overridden in them",
+            _span(s_, e_),
+        )
     finite = [r for r in rows if np.isfinite(r[2])]
-    start = _historic_row_start(finite, dict(kept), first, last, record_start)
+    row = _historic_row(
+        finite,
+        unobserved,
+        dict(kept),
+        set(below),
+        [y for y, _ in historic],
+        (first, last, record_start, record_end),
+    )
     period: Optional[tuple[int, int]] = None
     last_historic = max((y for y, _ in historic), default=last)
-    if start is not None:
-        period = (start, max(last, last_historic))
+    end_year = max(last, last_historic)
+    if row is not None:
+        # A row before the record starts the period; one after it leaves the start at
+        # the record's first year, or the first historic peak.
+        before = row[0] < first
+        period = (row[0] if before else min([first] + [y for y, _ in historic]), end_year)
     elif historic:
-        period = (min(first, min(y for y, _ in historic)), max(last, last_historic))
+        period = (min(first, min(y for y, _ in historic)), end_year)
     if period is not None:
         outside = sorted(y for y, _ in historic if not period[0] <= y <= period[1])
         if outside:
@@ -1683,20 +1751,6 @@ def bulletin17b_kwargs(
                 f"historic peak(s) in {outside} are outside the historic period "
                 f"{_span(*period)}"
             )
-    with_peaks = set(systematic_years) | {y for y, _ in historic}
-    for s_, e_, _ in sorted(set(r for r in rows if not np.isfinite(r[2]))):
-        in_period = period is not None and s_ <= period[1] and e_ >= period[0]
-        if in_period or any(s_ <= y <= e_ for y in with_peaks):
-            raise Bulletin17BError(
-                f"the perception threshold {_span(s_, e_)} is infinite, an unobserved period, "
-                "and it covers years with peaks or the historic period; Bulletin 17B has no "
-                "treatment for an unobserved period"
-            )
-        logger.info(
-            "Perception threshold %s is infinite and no year in it has a peak or is in the "
-            "historic period: ignored, those years are not part of the record",
-            _span(s_, e_),
-        )
     kept.sort()
     return {
         "peak_flows": [q for _, q in kept],
