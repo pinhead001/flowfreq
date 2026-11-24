@@ -1404,7 +1404,7 @@ def stationarity_report(
     if log:
         ax.set_yscale("log")
     ax.set_ylabel("annual value")
-    ax.set_title(title or "Stationarity screen")
+    ax.set_title(title or "Stationarity screen", parse_math=False)
     ax.legend(fontsize=7, loc="best")
 
     ax = axes[1]

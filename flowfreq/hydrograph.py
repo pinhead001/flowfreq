@@ -93,7 +93,7 @@ class Hydrograph:
             title = f"Mean Daily Streamflow\nUSGS {site_no} - {site_name}"
         elif site_no:
             title = f"Mean Daily Streamflow - USGS {site_no}"
-        ax.set_title(title, fontsize=cls.FONT_SIZE, fontweight="bold")
+        ax.set_title(title, fontsize=cls.FONT_SIZE, fontweight="bold", parse_math=False)
 
         ax.grid(True, which="both", alpha=0.3)
         ax.xaxis.set_major_formatter(DateFormatter("%Y"))
@@ -227,7 +227,7 @@ class Hydrograph:
             title = f"Summary Hydrograph\nUSGS {site_no} - {site_name}"
         elif site_no:
             title = f"Summary Hydrograph - USGS {site_no}"
-        ax.set_title(title, fontsize=cls.FONT_SIZE, fontweight="bold")
+        ax.set_title(title, fontsize=cls.FONT_SIZE, fontweight="bold", parse_math=False)
 
         ax.legend(
             loc="upper right",
@@ -325,7 +325,7 @@ class Hydrograph:
             title = f"Flow Duration Curve\nUSGS {site_no} - {site_name}"
         elif site_no:
             title = f"Flow Duration Curve - USGS {site_no}"
-        ax.set_title(title, fontsize=cls.FONT_SIZE, fontweight="bold")
+        ax.set_title(title, fontsize=cls.FONT_SIZE, fontweight="bold", parse_math=False)
 
         ax.grid(True, which="both", alpha=0.3)
 

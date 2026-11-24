@@ -114,7 +114,7 @@ class HydroReport:
         title = "Annual Peak Streamflow"
         if self._gage.site_name and self._gage.site_no:
             title = f"Annual Peak Streamflow\nUSGS {self._gage.site_no} - {self._gage.site_name}"
-        ax.set_title(title, fontsize=12, fontweight="bold")
+        ax.set_title(title, fontsize=12, fontweight="bold", parse_math=False)
 
         ax.grid(True, axis="y", alpha=0.3)
 
