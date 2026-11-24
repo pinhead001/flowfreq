@@ -61,6 +61,7 @@ they have read that section's text.
 - When a tool refuses (a regulated record, a characteristic outside an equation's range, \
 no regional skew), tell the user what it said. The allow_* arguments override a refusal; \
 set one only when the user asks for it.
+- When a reply has cautions, tell the user what they say.
 
 A usual order: find_gage, run_ffa, then estimate_ungaged or estimate_from_characteristics \
 at the gage and weight_gage_with_regression (or transpose_gage_to_site for a site on \
@@ -400,6 +401,7 @@ def build_server(
         aeps: Optional[List[float]] = None,
         weighting_space: Optional[str] = None,
         min_coverage_percent: Optional[float] = None,
+        supplied_characteristics: Optional[Dict[str, float]] = None,
     ) -> Dict[str, Any]:
         """Add a regional regression estimate at a point, with the basin from StreamStats.
 
@@ -412,7 +414,9 @@ def build_server(
 
         state: two-letter postal code. lat, lon: decimal degrees (lon negative in the
         Americas), on the stream. site_name: a name for the site. region: a regression
-        region code, when the basin lies in several and one is to be used.
+        region code, when the basin lies in several and one is to be used, or the code of
+        a set NSS does not serve, used for the whole basin ("Statewide OmegaEM" in Texas,
+        "Urban 2026" in AL, GA, MS, NC, SC and TN).
         allow_extrapolation: evaluate equations outside their calibrated range, flagged
         in the table. allow_provisional: use equations flowfreq has not verified.
         allow_inaccurate: keep a basin StreamStats warns "may be inaccurate" about, as it
@@ -422,9 +426,11 @@ def build_server(
         the equations give). weighting_space: how estimates for a basin in several
         regions are combined by area, "log" or "linear" (left out: flowfreq's default).
         min_coverage_percent: the least percent of the basin the regression regions used
-        must cover; a basin covered less is refused.
+        must cover; a basin covered less is refused. supplied_characteristics: values
+        the user gives for characteristics StreamStats does not return, by code, for
+        example {"MCSLOPE": 0.00326}; a code StreamStats does return is refused.
 
-        Returns the section's id and the quantile table.
+        Returns the section's id, the quantile table and any cautions.
         """
         options: Dict[str, Any] = {"state": state, "lat": lat, "lon": lon}
         if aeps is not None:
@@ -433,6 +439,8 @@ def build_server(
             options["weighting_space"] = weighting_space
         if min_coverage_percent is not None:
             options["min_coverage_percent"] = float(min_coverage_percent)
+        if supplied_characteristics:
+            options["supplied_characteristics"] = dict(supplied_characteristics)
         if allow_inaccurate:
             options["allow_inaccurate"] = True
         if site_name:

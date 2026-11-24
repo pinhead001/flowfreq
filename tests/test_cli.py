@@ -600,3 +600,32 @@ class TestReport:
             cli, ["report", str(tmp_path / "absent.json"), "-o", str(tmp_path / "r.md")]
         )
         assert result.exit_code == 2
+
+
+class TestUngagedSupplied:
+    BASE = ["ungaged", "--lat", "29.43", "--lon", "-100", "--state", "TX"]
+
+    def test_characteristics_reach_the_estimate(self, monkeypatch):
+        seen = {}
+
+        class Done:
+            def to_markdown(self):
+                return "done"
+
+        def fake(lat, lon, **kwargs):
+            seen.update(kwargs)
+            return Done()
+
+        monkeypatch.setattr("flowfreq.ungaged.estimate_at_site", fake)
+        args = ["--char", "MCSLOPE=0.00326", "--char", "CONTDA=737"]
+        result = CliRunner().invoke(cli, self.BASE + args)
+        assert result.exit_code == 0, result.output
+        assert seen["supplied_characteristics"] == {"MCSLOPE": 0.00326, "CONTDA": 737.0}
+        result = CliRunner().invoke(cli, self.BASE)
+        assert result.exit_code == 0 and seen["supplied_characteristics"] is None
+
+    @pytest.mark.parametrize("bad", ["MCSLOPE", "MCSLOPE=steep", "=3"])
+    def test_a_bad_one_is_refused(self, bad, monkeypatch):
+        monkeypatch.setattr("flowfreq.ungaged.estimate_at_site", lambda *a, **k: 1 / 0)
+        result = CliRunner().invoke(cli, self.BASE + ["--char", bad])
+        assert result.exit_code == 2 and "CODE=VALUE" in result.output

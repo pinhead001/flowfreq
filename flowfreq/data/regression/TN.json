@@ -3285,7 +3285,17 @@
   ]
  },
  "region_cautions": {
-  "Urban statewide": "SIR 2025-5104 (Wagner and Ladd, 2026) gives newer urban equations for Tennessee from data through water year 2022, stored as region 'Urban 2026'. The report does not say it supersedes this set, which NSS and StreamStats still serve.",
-  "Memphis urban": "SIR 2025-5104 (Wagner and Ladd, 2026) gives newer urban equations for Tennessee from data through water year 2022, stored as region 'Urban 2026'. The report does not say it supersedes this set, which NSS and StreamStats still serve."
- }
+  "Urban statewide": "SIR 2025-5104 (Wagner and Ladd, 2026) updated the methods for urban streams in Tennessee with data through water year 2022, and says that where the basin is 10 percent or more developed imperviousness its equations 'should be used to predict streamflows' (p. 12). They are stored as region 'Urban 2026'. The report does not name this set or say it supersedes it, and NSS and StreamStats still serve it.",
+  "Memphis urban": "SIR 2025-5104 (Wagner and Ladd, 2026) updated the methods for urban streams in Tennessee with data through water year 2022, and says that where the basin is 10 percent or more developed imperviousness its equations 'should be used to predict streamflows' (p. 12). They are stored as region 'Urban 2026'. The report does not name this set or say it supersedes it, and NSS and StreamStats still serve it.",
+  "Urban 2026": "SIR 2025-5104 (Wagner and Ladd, 2026) is an urban set fitted to gages in six southeastern states, 20 of 136 in Tennessee. It is not valid in the Middle Atlantic or Southern Coastal Plain Level 3 ecoregions or for regulated or tidal streams; its accuracy is not known outside the study area, which is six ecoregions and had no urban gage in the Mississippi Alluvial Plain, Central Appalachians or Blue Ridge (pp. 5, 12). Nothing here checks which ecoregion the basin is in. L3_PIEDMNT and L3_RDGVLY are percent of the basin, 0 to 100, not fractions. At a gage used to develop the equations the report calls weighting them with the at-site estimate inappropriate, because the two are not independent (p. 13)."
+ },
+ "named_regions": [
+  "Urban 2026"
+ ],
+ "basin_shares": [
+  [
+   "L3_PIEDMNT",
+   "L3_RDGVLY"
+  ]
+ ]
 }

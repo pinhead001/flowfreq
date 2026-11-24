@@ -455,6 +455,14 @@ class StateLibrary:
     #: Limits a report puts on area-weighting a basin that spans particular regions
     #: (:class:`WeightingCaution`). An estimate that weights them carries the caution.
     weighting_cautions: List[WeightingCaution] = field(default_factory=list)
+    #: Sets NSS does not serve that a caller may name (``region=``) in place of whatever NSS
+    #: located, for the whole basin: Texas's OmegaEM set and the 2026 urban sets. A region
+    #: that is only part of a state's map is never one of these.
+    named_regions: List[str] = field(default_factory=list)
+    #: Groups of characteristics that are each a percent of the same basin (SIR 2025-5104's two
+    #: ecoregion percentages). A group summing to over 100 is refused, and one that looks like
+    #: fractions is cautioned, where an equation used takes it.
+    basin_shares: List[Tuple[str, ...]] = field(default_factory=list)
 
     @property
     def provisional(self) -> bool:
@@ -578,6 +586,10 @@ def parse_state(data: Dict[str, Any]) -> StateLibrary:
             )
         if len(set(wc.regions)) < 2:
             raise ValueError(f"{state}: a weighting caution needs two or more regions")
+    named = [str(c) for c in data.get("named_regions") or []]
+    unknown = sorted(set(named) - regions_known)
+    if unknown:
+        raise ValueError(f"{state}: named_regions for regions with no equations: {unknown}")
     selector_data = data.get("region_selector")
     selector = RegionSelector.from_dict(selector_data) if selector_data else None
     if selector is not None:
@@ -603,6 +615,8 @@ def parse_state(data: Dict[str, Any]) -> StateLibrary:
         weighting_space=weighting_space,
         companion_regions=companions,
         weighting_cautions=weighting_cautions,
+        named_regions=named,
+        basin_shares=[tuple(str(c) for c in group) for group in data.get("basin_shares") or []],
     )
 
 

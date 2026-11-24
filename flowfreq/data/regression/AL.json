@@ -1888,5 +1888,8 @@
  },
  "region_cautions": {
   "Urban": "SIR 2026-5044 (Wagner and Anderson, 2026) says it supersedes these urban equations (SIR 2010-5012). NSS and StreamStats still serve this set, so it is what a StreamStats region lookup returns; the 2026 set is stored as region 'Urban 2026' and takes DRNAREA and LC11DEV."
- }
+ },
+ "named_regions": [
+  "Urban 2026"
+ ]
 }

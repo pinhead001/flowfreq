@@ -136,6 +136,13 @@ class ReportSession:
             "narrative": narrative,
         }
 
+    def _added(self, entry: _Entry) -> Dict[str, Any]:
+        """The reply for a section just built: its description, main table and any cautions."""
+        reply = {**self._describe(entry), "result": _main_table(entry)}
+        if entry.content.cautions:
+            reply["cautions"] = list(entry.content.cautions)
+        return reply
+
     def _index(self, position: Optional[int]) -> int:
         """Where a new section goes; checked before the section is built."""
         if position is None:
@@ -249,6 +256,7 @@ class ReportSession:
         dict
             ``section_id``, ``number``, ``kind``, ``title``, ``narrative`` and ``result``:
             the section's main table as Markdown (``None`` for a kind without one).
+            ``cautions``, a list of sentences, when the regression behind the flows has any.
 
         Raises
         ------
@@ -260,7 +268,7 @@ class ReportSession:
         index = self._index(position)
         entry = self._new(SectionSpec(kind, title=title, options=dict(options)))
         self._entries.insert(index, entry)
-        return {**self._describe(entry), "result": _main_table(entry)}
+        return self._added(entry)
 
     def add_text(
         self, title: str, narrative: str, *, position: Optional[int] = None
@@ -359,7 +367,7 @@ class ReportSession:
         if not keep_parts:
             self._entries.remove(gage)
             self._entries.remove(regression)
-        return {**self._describe(built), "result": _main_table(built)}
+        return self._added(built)
 
     def transpose(
         self,
@@ -432,7 +440,7 @@ class ReportSession:
             given["target_name"] = target_name
         built = self._new(SectionSpec("transposed", title=title, options=given))
         self._entries.insert(index, built)
-        return {**self._describe(built), "result": _main_table(built)}
+        return self._added(built)
 
     def engine_check(
         self,
@@ -501,7 +509,7 @@ class ReportSession:
                 given[name] = value
         built = self._new(SectionSpec("engine_check", title=title, options=given))
         self._entries.insert(index, built)
-        return {**self._describe(built), "result": _main_table(built)}
+        return self._added(built)
 
     def _estimates(
         self, section_ids: Sequence[str], labels: Optional[Sequence[str]]
@@ -585,7 +593,7 @@ class ReportSession:
             given["aeps"] = [float(a) for a in aeps]
         built = self._new(SectionSpec("comparison", title=title, options=given))
         self._entries.insert(index, built)
-        return {**self._describe(built), "result": _main_table(built)}
+        return self._added(built)
 
     def summarize(
         self,
@@ -652,7 +660,7 @@ class ReportSession:
                 given[name] = value
         built = self._new(SectionSpec("site_summary", title=title, options=given))
         self._entries.insert(index, built)
-        return {**self._describe(built), "result": _main_table(built)}
+        return self._added(built)
 
     def extend_record(
         self,
@@ -727,7 +735,7 @@ class ReportSession:
         given = {**copy.deepcopy(gage.spec.options), "extension": extension}
         built = self._new(SectionSpec("gaged_ffa", title=title, options=given))
         self._entries.insert(where, built)
-        return {**self._describe(built), "result": _main_table(built)}
+        return self._added(built)
 
     def future_flow(
         self,
@@ -788,7 +796,7 @@ class ReportSession:
             given["aeps"] = [float(a) for a in aeps]
         built = self._new(SectionSpec("future_flow", title=title, options=given))
         self._entries.insert(index, built)
-        return {**self._describe(built), "result": _main_table(built)}
+        return self._added(built)
 
     def section_markdown(self, section_id: str) -> str:
         """A section as it will print, as Markdown.

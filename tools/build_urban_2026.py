@@ -350,9 +350,26 @@ AL_CAUTION = (
     "and LC11DEV."
 )
 TN_CAUTION = (
-    "SIR 2025-5104 (Wagner and Ladd, 2026) gives newer urban equations for Tennessee from "
-    "data through water year 2022, stored as region 'Urban 2026'. The report does not say it "
-    "supersedes this set, which NSS and StreamStats still serve."
+    "SIR 2025-5104 (Wagner and Ladd, 2026) updated the methods for urban streams in Tennessee "
+    "with data through water year 2022, and says that where the basin is 10 percent or more "
+    "developed imperviousness its equations 'should be used to predict streamflows' (p. 12). "
+    "They are stored as region 'Urban 2026'. The report does not name this set or say it "
+    "supersedes it, and NSS and StreamStats still serve it."
+)
+
+#: What any estimate with SIR 2025-5104's equations should carry, whatever the state.
+LIMITS_CAUTION = (
+    " It is not valid in the Middle Atlantic or Southern Coastal Plain Level 3 ecoregions or for "
+    "regulated or tidal streams; its accuracy is not known outside the study area, which is "
+    "six ecoregions and had no urban gage in the Mississippi Alluvial Plain, Central "
+    "Appalachians or Blue Ridge (pp. 5, 12). Nothing here checks "
+    "which ecoregion the basin is in. L3_PIEDMNT and L3_RDGVLY are percent of the basin, 0 to "
+    "100, not fractions. At a gage used to develop the equations the report calls weighting "
+    "them with the at-site estimate inappropriate, because the two are not independent (p. 13)."
+)
+TN_2026_CAUTION = (
+    "SIR 2025-5104 (Wagner and Ladd, 2026) is an urban set fitted to gages in six southeastern "
+    "states, 20 of 136 in Tennessee." + LIMITS_CAUTION
 )
 
 
@@ -363,12 +380,15 @@ SE_NOTE = (
     "e*L3_RDGVLY), by generalized least squares on 136 streamgages, {gages} of them in this "
     "state, from its data release (doi:10.5066/P1TE9KTH, ver. 1.1) by "
     "tools/build_urban_2026.py. It is here by the owner's decision of 2026-11-23, for urban "
-    "basins above 1 mi2 and 10 percent impervious, where no other set here applies; the "
+    "basins above 1 mi2 and 10 percent impervious, where no other set stored here applies (SIR "
+    "2014-5030's urban equations, which go further, are stored only to 1 mi2); the "
     "report does not say it applies in place of this state's equations, and names only "
     "Tennessee for StreamStats. It is in no region_preference tier and NSS locates no region "
-    "for it, so it is used only when named: region='Urban 2026'. L3_PIEDMNT and L3_RDGVLY are "
+    "for it, so it is used only when named: region='Urban 2026', which named_regions lets "
+    "stand in place of what NSS located, for the whole basin. L3_PIEDMNT and L3_RDGVLY are "
     "the percent of the basin in the Piedmont and in the Ridge and Valley Level 3 ecoregions "
-    "(EPA, 2013), which the caller supplies unless StreamStats has them. Ranges (report p. "
+    "(EPA, 2013), which the caller supplies (supplied_characteristics) unless StreamStats has "
+    "them; basin_shares refuses a sum over 100. Ranges (report p. "
     "12): DRNAREA 0.164 to 93.4 mi2, LC11DEV 26 to 100 percent; applicability 10 percent or "
     "more developed imperviousness (LC11IMP). Not valid in the Middle Atlantic or Southern "
     "Coastal Plain Level 3 ecoregions, nor for regulated or tidal streams; no urban gage was "
@@ -381,14 +401,17 @@ SC_NOTE = (
 )
 SE_CAUTION = (
     "SIR 2025-5104 (Wagner and Ladd, 2026) is an urban set fitted to gages in six southeastern "
-    "states; it does not say it applies in place of this state's equations. It is not valid in "
-    "the Middle Atlantic or Southern Coastal Plain Level 3 ecoregions, for regulated or tidal "
-    "streams, and it had no gage in the Blue Ridge; nothing here checks which ecoregion the "
-    "basin is in."
+    "states; it does not say it applies in place of this state's equations. The USGS also "
+    "publishes equations for urban basins here by hydrologic region, SIR 2014-5030 (Feaster, "
+    "Gotvald and Weaver, 2014, Table 7), to 436 mi2 in HR1, 459 in HR3 and 53.5 in HR4, "
+    "though the largest urban basin it used was 378, 5.67 and 43.9 mi2 (Table 11); "
+    "flowfreq has that report's equations only to 1 mi2, so compare with the report itself above "
+    "that." + LIMITS_CAUTION
 )
 SC_CAUTION = (
-    " It estimates high in this state: the flows at its 16 South Carolina gages average 0.69 "
-    "of the equations' at 10 percent AEP and 0.76 at 1 percent."
+    " It estimates high in this state: at-site flow over the equations' flow at its 16 South "
+    "Carolina gages has a geometric mean of 0.69 at 10 percent AEP (0.36 to 1.20, 14 of 16 "
+    "below 1) and 0.76 at 1 percent AEP (0.33 to 2.71, 12 of 16 below 1)."
 )
 SOUTHEAST = {"GA": 32, "NC": 38, "SC": 16}
 
@@ -399,6 +422,7 @@ def _store(
     source: Dict[str, Any],
     note: str,
     cautions: Dict[str, str],
+    shares: bool = True,
 ) -> None:
     path = DATA / f"{state}.json"
     data = json.loads(path.read_text(encoding="utf-8"))
@@ -410,6 +434,9 @@ def _store(
     data["notes"] = (base.split(marker)[0] if marker in base else base) + note
     if cautions:
         data["region_cautions"] = {**data.get("region_cautions", {}), **cautions}
+    data["named_regions"] = [REGION]
+    if shares:
+        data["basin_shares"] = [["L3_PIEDMNT", "L3_RDGVLY"]]
     # The state files are indent-1 ASCII JSON with CRLF line ends.
     text = json.dumps(data, indent=1) + "\n"
     path.write_bytes(text.replace("\n", "\r\n").encode("ascii"))
@@ -422,14 +449,18 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parser.parse_args(argv)
     alms = alms_equations(args.alms)
     tennessee = tn_equations(args.tn)
-    _store("AL", alms, ALMS_SOURCE, ALMS_NOTE + AL_NOTE, {"Urban": AL_CAUTION})
-    _store("MS", alms, ALMS_SOURCE, ALMS_NOTE + MS_NOTE, {})
+    _store("AL", alms, ALMS_SOURCE, ALMS_NOTE + AL_NOTE, {"Urban": AL_CAUTION}, False)
+    _store("MS", alms, ALMS_SOURCE, ALMS_NOTE + MS_NOTE, {}, False)
     _store(
         "TN",
         tennessee,
         TN_SOURCE,
         TN_NOTE,
-        {"Urban statewide": TN_CAUTION, "Memphis urban": TN_CAUTION},
+        {
+            "Urban statewide": TN_CAUTION,
+            "Memphis urban": TN_CAUTION,
+            REGION: TN_2026_CAUTION,
+        },
     )
     southeast = tn_equations(args.tn, "Urban, southeastern states (SIR 2025-5104; not in NSS)")
     for state, gages in SOUTHEAST.items():

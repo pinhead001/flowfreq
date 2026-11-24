@@ -18,6 +18,7 @@ import pandas as pd
 
 from ..aep import AEP_MATCH
 from .blocks import Block, Figure, Paragraph, Table
+from .regional import _caution_paragraphs
 from .sections import (
     SECTION_KINDS,
     SectionContent,
@@ -294,6 +295,8 @@ def _build_site_summary(given: Dict[str, Any]) -> SectionContent:
                 "are shown together: " + "; ".join(apart) + "."
             )
         )
+    for label, content, _, _ in built:
+        blocks.extend(_caution_paragraphs(label, content))
     curves = [(label, flows) for label, _, flows, _ in built if label in plotted]
     said = "; ".join(f"{label}, {limits}" for label, _, _, limits in built if label in plotted)
     blocks.append(
@@ -314,6 +317,7 @@ def _build_site_summary(given: Dict[str, Any]) -> SectionContent:
         blocks=blocks,
         options=options,
         references=references,
+        cautions=[f"{label}: {text}" for label, c, _, _ in built for text in c.cautions],
     )
 
 

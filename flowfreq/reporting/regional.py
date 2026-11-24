@@ -24,12 +24,24 @@ _STREAMSTATS_KEYS = (
     "polygon_area_sq_mi",
     "regions_located",
     "region_choice",
+    "supplied",
     "notes",
+)
+
+
+#: How the notes that warn about the basin itself begin, against those that record a choice.
+_WARNINGS = (
+    "StreamStats warned about this basin",
+    "Characteristics StreamStats computed and said may be inaccurate",
+    "The regression regions used cover",
+    "NSS located the state's regression regions over at least",
 )
 
 
 def _streamstats_notes(estimate: Any) -> List[str]:
     """What the StreamStats run set aside or warned of, which the stored inputs alone lose."""
+    from ..ungaged import stand_in_caution
+
     provenance = estimate.provenance
     notes: List[str] = []
     if provenance.get("region_choice_source"):
@@ -86,7 +98,9 @@ def _streamstats_notes(estimate: Any) -> List[str]:
             "withheld from the equations: " + ", ".join(withheld) + "."
         )
     covered = provenance.get("covered_percent")
-    if covered is not None and float(covered) < 98.0:
+    if provenance.get("stands_in_for"):
+        notes.append(stand_in_caution(float(covered), ", ".join(r.code for r in estimate.regions)))
+    elif covered is not None and float(covered) < 98.0:
         notes.append(
             f"The regression regions used cover {float(covered):.0f} percent of the basin; "
             "their shares were scaled up to the whole, so the rest (in another state or "
@@ -133,6 +147,14 @@ def _freeze_streamstats(options: Dict[str, Any], lat: float, lon: float) -> None
     coverage: Dict[str, Any] = {}
     if options.get("min_coverage_percent") is not None:
         coverage["min_coverage_percent"] = options["min_coverage_percent"]
+    supplied = options.pop("supplied_characteristics", None)
+    extra: Dict[str, Any] = {}
+    if supplied is not None:
+        if not isinstance(supplied, dict) or not supplied:
+            raise ReportError(
+                "ungaged: supplied_characteristics must be an object of code to value"
+            )
+        extra["supplied_characteristics"] = supplied
     live = estimate_at_site(
         lat,
         lon,
@@ -145,6 +167,7 @@ def _freeze_streamstats(options: Dict[str, Any], lat: float, lon: float) -> None
         allow_extrapolation=extrapolate,
         allow_inaccurate=bool(options.get("allow_inaccurate", False)),
         **coverage,
+        **extra,
     )
     total = sum(r.percent_weight for r in live.regions)
     if not live.regions or total <= 0:
@@ -188,6 +211,8 @@ def _freeze_streamstats(options: Dict[str, Any], lat: float, lon: float) -> None
     }
     if chosen is not None:
         record["region_choice"] = chosen
+    if supplied:
+        record["supplied"] = sorted(supplied)
     options["characteristics"] = characteristics
     options["region"] = regions
     options["streamstats"] = record
@@ -208,6 +233,9 @@ def _streamstats_record(options: Mapping[str, Any]) -> Optional[Dict[str, Any]]:
     notes = record.get("notes") or []
     if not isinstance(notes, list) or any(not isinstance(n, str) for n in notes):
         raise ReportError("ungaged: streamstats notes must be a list of sentences")
+    supplied = record.get("supplied") or []
+    if not isinstance(supplied, list) or any(not isinstance(c, str) for c in supplied):
+        raise ReportError("ungaged: streamstats supplied must be a list of codes")
     return record
 
 
@@ -247,6 +275,11 @@ def _ungaged(given: Dict[str, Any]) -> Tuple[SectionContent, Any]:
         if options.get("streamstats") is not None:
             raise ReportError("ungaged: a streamstats record needs the characteristics it gave")
         _freeze_streamstats(options, lat, lon)
+    elif options.get("supplied_characteristics") is not None:
+        raise ReportError(
+            "ungaged: supplied_characteristics is for a section without characteristics, whose "
+            "basin StreamStats gives; put the values in characteristics"
+        )
     record = _streamstats_record(options)
     characteristics = options["characteristics"]
     if not isinstance(characteristics, dict) or not characteristics:
@@ -273,6 +306,8 @@ def _ungaged(given: Dict[str, Any]) -> Tuple[SectionContent, Any]:
         allow_extrapolation=bool(options.get("allow_extrapolation", False)),
         weighting_space=options.get("weighting_space"),
     )
+    analysts = list((record or {}).get("supplied") or [])
+    by_analyst = " and ".join(filter(None, [", ".join(analysts[:-1]), *analysts[-1:]]))
     heading, body = without_title(parse_markdown(estimate.to_markdown()))
     site_name = options.get("site_name")
     if record is None:
@@ -300,6 +335,9 @@ def _ungaged(given: Dict[str, Any]) -> Tuple[SectionContent, Any]:
                 f"; the delineated basin is {float(record['polygon_area_sq_mi']):,.4g} "
                 "square miles"
             )
+        if by_analyst:
+            verb = "was" if len(analysts) == 1 else "were"
+            opening += f". {by_analyst} {verb} supplied by the analyst, not StreamStats"
         opening += (
             f". The computation was made with flowfreq {_version()} from the stored values, "
             "so it does not change if StreamStats later does."
@@ -328,7 +366,8 @@ def _ungaged(given: Dict[str, Any]) -> Tuple[SectionContent, Any]:
             block = replace(
                 block,
                 rows=tuple(row for row in block.rows if row[0] in used),
-                caption="Basin characteristics the equations use, from StreamStats.",
+                caption="Basin characteristics the equations use, from StreamStats"
+                + (f" except {by_analyst}, supplied by the analyst." if by_analyst else "."),
             )
         elif isinstance(block, Bullets) and block is body[-1] and record is not None:
             # The caveats list is the last block; the stored notes belong in it.
@@ -348,8 +387,27 @@ def _ungaged(given: Dict[str, Any]) -> Tuple[SectionContent, Any]:
     title = (
         f"Regression estimate at {site_name}" if site_name else (heading or "Regression estimate")
     )
-    content = SectionContent(title=title, blocks=blocks, options=options, references=references)
+    content = SectionContent(
+        title=title,
+        blocks=blocks,
+        options=options,
+        references=references,
+        cautions=[
+            text
+            for text in (
+                estimate.advisory,
+                estimate.extrapolation_caution,
+                *(n for n in (record or {}).get("notes") or () if n.startswith(_WARNINGS)),
+            )
+            if text
+        ],
+    )
     return content, estimate
+
+
+def _caution_paragraphs(label: str, content: SectionContent) -> List[Block]:
+    """An estimate's cautions, for a section that shows its flows without its own text."""
+    return [Paragraph(f"Cautions on {label}: {text}") for text in content.cautions]
 
 
 def _build_ungaged(given: Dict[str, Any]) -> SectionContent:

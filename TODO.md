@@ -7,7 +7,7 @@
 ## Status
 Last updated: 2026-11-23. Version **0.28.1** is released (tag `v0.28.1`, from `release/0.28.x`). `main` carries
 **0.29.0.dev0**; 0.28.x patches come from `release/0.28.x` (CLAUDE.md, Branches and Releases).
-flowfreq-app pins v0.28.0 (app #55, merged 2026-11-21); no app PR is open. Not yet pinned: v0.28.1.
+flowfreq-app pins v0.28.0 (app #55, merged 2026-11-21); app #56, open, pins v0.28.1.
 51 jurisdictions are `verified`, and 5 have no equations.
 
 **StreamStats blocked this machine's address (HTTP 403) from 2026-11-09 14:40 to 2026-11-16, on purpose: issue
@@ -19,6 +19,18 @@ and StreamStats lifted the block on 2026-11-16, adding that their web services a
 test request on 2026-11-17 (a snap at TN 03465500) returned HTTP 200. The owner's reply promised to wait for
 StreamStats' go-ahead before any larger run, so `border_qa` and the other live checks below still wait for the
 owner's word. Run them with one worker.
+
+### Review of #417, #419 and #421 (2026-11-23)
+
+Three read-only reviews, each from the published reports: no stored number was wrong. Fixed in one PR: `region=`
+refused both sets wherever NSS located a region; Texas took total drainage area; the cautions were thin and some
+report sections dropped them; half the AEPs of `Urban 2026` had no test. Not reviewed: #416, #418, #422. Left:
+
+- MD: with GC1480's inputs missing, the Piedmont urban set (GC1481) is averaged in below its 10 percent impervious
+  gate, with a log warning only (with `allow_extrapolation` where IMPERV is out of range). Same before #419.
+- `SiteEstimate.to_markdown` says a multi-region basin's flows "are area-weighted" in either space; which one is
+  only in `provenance["options"]`.
+- `tools/build_urban_2026.py` drops any note written after its own " Urban 2026: " text in a state file.
 
 ### Review of 2026-11-19
 
@@ -85,9 +97,9 @@ Owner's:
    practice (`region_cautions`). A Piedmont boundary basin still needs `region=`.
 6. **TX:** the regional sets come before Statewide, and the Colorado sets split at 32 mi2. SIR 2009-5087 (the authors'
    preferred report, not in NSS) is stored as region `Statewide OmegaEM` (2026-11-23), used only with `region=`; the
-   owner left it out of the order (2026-11-23). **It needs a channel slope that StreamStats does not return in
-   Texas** (none at the 8 gages saved from the cross-border run; OmegaEM is there), so a StreamStats basin can't run it
-   until a slope is supplied. The slope is the main channel's fall over its whole length, not 10-85.
+   owner left it out of the order (2026-11-23). It needs the main-channel slope (`MCSLOPE`, whole length, not 10-85)
+   and the contributing drainage area (`CONTDA`), neither of which StreamStats returned at the 8 Texas gages saved
+   from the cross-border run; give them as `supplied_characteristics`.
 7. **LA's southern gap** uses the 1998 Non-Pine Hills set (TR 60, NSS GC879) when NSS locates no current region,
    with a caution and no interval (`fallback_region`). OH 2006-5312, TN 03-4176 and LA's Delta stay dropped.
 8. Issues #293 and #365 are closed. **StreamStats is reachable again** (above): say when the cross-border run
@@ -111,7 +123,8 @@ Library follow-ups the batches found, none changed:
       OK, OR (SIR 2005-5116), PA, PR, RI, TN, TX, UT (SIR 2007-5158), VA and WV (SIR 2025-5110), VT, WA, WI.
       The reading was a text search of each PDF for weighting language, not a full read.
     - Read 2026-11-23: IL (ICT 23-019) and eastern OR (Cooper, 2006) are silent by a text search, so left in log.
-      MD is not (above). IN picks a region by point location. Every report has now been searched.
+      MD is not (above). IN picks a region by point location. Every state has now been searched, but not two
+      stored reports: MT's SIR 2020-5142 (above) and the Navajo Nation's (Waltemeyer, 2006; NM and UT).
     - SIR 2013-5086 (p. 34) says StreamStats itself weights in flow by drainage area for a site draining more
       than one region, citing Ries and others (2008). If that holds in every state, a silent state's log
       average differs from what StreamStats returns. Whether to make `linear` the default everywhere is the
@@ -153,6 +166,8 @@ Library follow-ups the batches found, none changed:
       `region="Urban 2026"`. It estimates high at the report's South Carolina gages (observed flow 0.69 of the
       equations' at 10 percent AEP), which its caution there says. Nothing checks the basin's ecoregion.
       Alabama and Mississippi, also in the report's area, have SIR 2026-5044 instead.
+    - In GA, NC and SC the state's other USGS urban equations (SIR 2014-5030) are stored only to 1 mi2, though the
+      report takes them to 436 (HR1), 459 (HR3) and 53.5 mi2 (HR4). Storing the rest is not done; the caution names it.
     - Whether StreamStats computes `L3_PIEDMNT` and `L3_RDGVLY` for Tennessee is unknown, and whether the
       2026-5044 set applies in Alabama's flood region 3 or the Mississippi Alluvial Plain isn't stated.
     - SIR 2025-5034 (Levin, 2025), nonstationary flood frequency by regression in the north-central United
