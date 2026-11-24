@@ -422,6 +422,10 @@ def expected_probability(aep: np.ndarray, n: int) -> np.ndarray:
     return np.asarray(student_t.sf(ndtri(1.0 - aep) * np.sqrt(n / (n + 1.0)), df=n - 1))
 
 
+#: Fewest systematic peaks the moments may rest on, once peaks have moved to the historic
+#: ones and low outliers have been dropped. Appendix 4 starts at 10 as well.
+MIN_SYSTEMATIC = 10
+
 #: The bulletin's frequency-table rows (Table 12-3), as annual exceedance probabilities.
 STANDARD_AEP: tuple[float, ...] = (0.99, 0.90, 0.50, 0.10, 0.05, 0.02, 0.01, 0.005, 0.002)
 
@@ -643,7 +647,8 @@ class Bulletin17B:
     historic_period : (first_year, last_year), optional
         The period, of H = last - first + 1 years, in which the historic peaks and any
         high outliers are known to be the largest. It has to cover the systematic
-        record. Without it, high outliers are kept in the systematic record.
+        record. Without it, high outliers are kept in the systematic record. At least
+        10 systematic peaks have to be left once peaks have moved to the historic ones.
     below_base_years, low_outlier_threshold
         Inputs of later steps; giving one raises :class:`Bulletin17BError`.
     confidence : float, default 0.90
@@ -859,10 +864,13 @@ class Bulletin17B:
             low = x < lo_log
             self._note_test("low", "eq. 8a", lo_log, low, steps)
             if low.any():
-                mean, std, g = self._without_lows(x, low, steps)
+                mean, std, g = self._without_lows(x, low)
                 k_n = outlier_k(int((~low).sum()))
             hi_log = mean + k_n * std
             high = x > hi_log
+            if low.any():
+                self._note_dropped(low, (mean, std, g), self._adjusts(high), steps)
+                steps[-1] += f" The high outlier test uses them, with K_N = {k_n:.3f}."
             self._note_test("high", "eq. 7", hi_log, high, steps)
             historic = self._adjust_for_history(x, high, low, steps)
         elif order == "high first":
@@ -873,20 +881,26 @@ class Bulletin17B:
             if historic is None:
                 lo_log, equation = mean - k_n * std, "eq. 8a"
             else:
-                lo_log, equation = historic.mean - k_n * historic.std, "eq. 8b"
+                lo_log = historic.mean - k_n * historic.std
+                equation = (
+                    f"eq. 8b on the adjusted statistics, K = {k_n:.3f} for the {x.size} "
+                    "systematic peaks tested"
+                )
             low = x < lo_log
             self._note_test("low", equation, lo_log, low, steps)
             if low.any():
-                mean, std, g = self._without_lows(x, low, steps)
+                mean, std, g = self._without_lows(x, low)
+                self._note_dropped(low, (mean, std, g), historic is not None, steps)
                 if historic is not None:
-                    historic = self._adjust_for_history(x, high, low, steps)
+                    historic = self._adjust_for_history(x, high, low, steps, again=True)
         else:
             hi_log, lo_log = mean + k_n * std, mean - k_n * std
             high, low = x > hi_log, x < lo_log
             self._note_test("high", "eq. 7", hi_log, high, steps)
             self._note_test("low", "eq. 8a", lo_log, low, steps)
             if low.any():
-                mean, std, g = self._without_lows(x, low, steps)
+                mean, std, g = self._without_lows(x, low)
+                self._note_dropped(low, (mean, std, g), self._adjusts(high), steps)
             historic = self._adjust_for_history(x, high, low, steps)
         n_systematic = int((~low).sum())
         if historic is not None:
@@ -927,31 +941,79 @@ class Bulletin17B:
             )
         steps.append(text)
 
-    @staticmethod
-    def _without_lows(
-        x: np.ndarray, low: np.ndarray, steps: list[str]
-    ) -> tuple[float, float, float]:
+    def _without_lows(self, x: np.ndarray, low: np.ndarray) -> tuple[float, float, float]:
         """Moments of the peaks left when the low outliers are dropped."""
-        mean, std, g = log_moments(x[~low])
-        steps.append(
+        self._require_enough(np.zeros(x.size, dtype=bool), low)
+        return log_moments(x[~low])
+
+    @staticmethod
+    def _note_dropped(
+        low: np.ndarray, moments: tuple[float, float, float], adjusted: bool, steps: list[str]
+    ) -> None:
+        """Record the moments without the low outliers, and whether they are final."""
+        mean, std, g = moments
+        text = (
             f"Dropped the {int(low.sum())} low outlier(s) and recomputed the mean "
             f"({mean:.4f}), standard deviation ({std:.4f}) and skew ({g:.4f})."
         )
-        return mean, std, g
+        if adjusted:
+            text += (
+                " These still include any high outlier and are not used for the curve, which "
+                "takes the historically adjusted statistics that follow."
+            )
+        steps.append(text)
+
+    def _require_enough(self, in_z: np.ndarray, low: np.ndarray) -> None:
+        """Refuse when fewer than ``MIN_SYSTEMATIC`` peaks are left for the moments."""
+        n = len(self._flows)
+        left = int((~in_z & ~low).sum())
+        if left >= MIN_SYSTEMATIC:
+            return
+        n_moved, n_low = int(in_z.sum()), int(low.sum())
+        why = []
+        if n_moved:
+            why.append(f"{n_moved} moved to the historic peaks")
+        if n_low:
+            why.append(f"{n_low} low outlier(s) dropped")
+        text = (
+            f"only {left} of the {n} systematic peaks are left for the moments"
+            f"{': ' if why else ''}{' and '.join(why)}. "
+            f"Bulletin 17B needs at least {MIN_SYSTEMATIC}."
+        )
+        if n_moved and self._historic_peaks:
+            year, flow = min(self._historic_peaks, key=lambda e: e[1])
+            above = sum(q > flow for q in self._flows)
+            if above > n / 2:
+                text += (
+                    f" The historic peak of {flow:g} cfs in {year} is below {above} of the "
+                    f"{n} systematic peaks, so it may be in the wrong units."
+                )
+        raise Bulletin17BError(text)
+
+    def _adjusts(self, high: np.ndarray) -> bool:
+        """True when there is a historic period and something in it to adjust for."""
+        return self._historic_period is not None and bool(self._historic_peaks or high.any())
 
     def _adjust_for_history(
-        self, x: np.ndarray, high: np.ndarray, low: np.ndarray, steps: list[str]
+        self,
+        x: np.ndarray,
+        high: np.ndarray,
+        low: np.ndarray,
+        steps: list[str],
+        *,
+        again: bool = False,
     ) -> Optional[HistoricAdjustment]:
         """Make the Appendix 6 adjustment, or return None when there is nothing to adjust.
 
         Z takes the given historic peaks, the high outliers, and every systematic peak
         above the smallest given historic peak. A systematic peak equal to it stays in
-        the systematic record. L is the number of low outliers.
+        the systematic record. L is the number of low outliers. ``again`` marks a second
+        adjustment, made because the first one brought out low outliers.
         """
         if self._historic_period is None:
             return None
         first, last = self._historic_period
-        if not self._historic_peaks and not high.any():
+        if not self._adjusts(high):
             steps.append(
                 f"The historic period {first} to {last} has no historic peaks and no high "
                 "outliers, so no historic adjustment was made."
@@ -962,6 +1024,7 @@ class Bulletin17B:
             smallest = min(q for _, q in self._historic_peaks)
             in_z |= np.asarray(self._flows) > smallest
         in_z &= ~low
+        self._require_enough(in_z, low)
         peaks = sorted(self._historic_peaks + self._peaks_where(in_z))
         h = last - first + 1
         n_low = int(low.sum())
@@ -973,6 +1036,7 @@ class Bulletin17B:
         steps.append(
             f"Made the historic adjustment of Appendix 6 for {first} to {last}: H = {h}, "
             f"Z = {len(peaks)}, L = {n_low}, W = {hm.w:.5f}."
+            + (" It replaces the first adjustment." if again else "")
             + (f" Systematic peaks treated as historic: {listed}." if moved else "")
             + f" Adjusted mean {hm.mean:.4f}, standard deviation {hm.std:.4f} and skew "
             f"{hm.skew:.4f}."

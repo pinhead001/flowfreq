@@ -265,6 +265,31 @@ def test_eq6_takes_the_adjusted_skew_and_h():
     assert res.skew_weighted == weighted_skew(res.historic.skew, res.skew_station_mse, -0.2, 0.302)
 
 
+def test_historic_peak_in_a_gap_of_the_record():
+    """A broken record: 1940-1949 are missing, and 1945 is known from a mark."""
+    bs = record("appendix6_big_sandy")
+    kept = [(y, q) for y, q in zip(bs.water_years, bs.peaks_cfs) if not 1940 <= y <= 1949]
+    res = Bulletin17B(
+        [q for _, q in kept],
+        [y for y, _ in kept],
+        historic_peaks=[(1945, 26000.0)],
+        historic_period=(1897, 1973),
+    ).run_analysis()
+    h = res.historic
+    assert (h.h, h.z, res.n_systematic, res.n_years) == (77, 1, 34, 34)
+    assert h.w == pytest.approx(76 / 34) and h.historic_peaks == [(1945, 26000.0)]
+    assert res.plotting_positions.set_index("year").loc[1945].weighted_order == 1.0
+
+
+def test_period_ending_after_the_record():
+    """H runs to the end of the period given, 1897-1990, not to the last peak."""
+    res = big_sandy(historic_period=(1897, 1990))
+    assert res.historic.h == 94 and res.historic.w == pytest.approx(91 / 44)
+    assert res.skew_station_mse == station_skew_mse(res.historic.skew, 94)
+    top = res.plotting_positions.set_index("year").loc[1897]
+    assert top.exceedance == pytest.approx(1 / 95)
+
+
 # --- The order of the tests ----------------------------------------------------------------
 
 
@@ -299,6 +324,19 @@ def test_high_first_runs_the_low_test_by_eq_8b_at_systematic_n():
     assert "eq. 8b" in text and "eq. 8a" not in text
 
 
+def test_historic_peaks_alone_bring_eq_8b():
+    """Skew above +0.4, no high outlier: the given peak is enough for the adjustment."""
+    res = synthetic(
+        [1900.0, 2300.0], historic_peaks=[(1920, 5000.0)], historic_period=(1901, 1969)
+    ).run_analysis()
+    assert res.outlier_order == "high first" and res.high_outliers == []
+    assert (res.historic.z, res.n_systematic) == (1, 20)
+    assert res.low_outlier_threshold == pytest.approx(
+        10 ** (res.historic.mean - outlier_k(20) * res.historic.std)
+    )
+    assert any("eq. 8b" in t and "K = 2.385 for the 20 systematic peaks" in t for t in res.steps)
+
+
 def test_high_first_without_adjustment_runs_the_low_test_by_eq_8a():
     res = synthetic([9000.0, 1100.0]).run_analysis()
     assert res.outlier_order == "high first" and res.historic is None
@@ -323,6 +361,12 @@ def test_high_first_low_outlier_found_after_the_adjustment():
     s = b._screen_and_adjust([])
     assert s.high_outliers == [(1968, 20000.0)] and s.low_outliers == [(1969, 220.0)]
     assert s.low_threshold_log == pytest.approx(first.mean - outlier_k(20) * first.std)
+    steps = []
+    b._screen_and_adjust(steps)
+    made = [t for t in steps if "historic adjustment of Appendix 6" in t]
+    assert len(made) == 2 and "replaces" not in made[0] and "replaces the first" in made[1]
+    dropped = next(t for t in steps if t.startswith("Dropped"))
+    assert "still include any high outlier" in dropped and "not used for the curve" in dropped
     again = historic_moments(x[:18], x[18:19], h=100, l=1)
     assert (s.historic.l, s.historic.z, s.n_systematic) == (1, 1, 18)
     assert (s.mean, s.std, s.skew) == pytest.approx(again[1:], abs=1e-12)
@@ -336,7 +380,11 @@ def test_low_first_high_outlier_found_after_the_low_is_dropped():
     mean, std, g = log_moments(x)
     assert g < -0.4 and x[-1] < mean + outlier_k(20) * std  # not high by the first statistics
     m2, s2, _ = log_moments(np.delete(x, 18))
-    s = b._screen_and_adjust([])
+    steps = []
+    s = b._screen_and_adjust(steps)
+    dropped = next(t for t in steps if t.startswith("Dropped"))
+    assert "The high outlier test uses" in dropped and "not used for the curve" in dropped
+    assert "replaces" not in " ".join(steps)
     assert s.order == "low first"
     assert s.low_outliers == [(1968, 0.5)] and s.high_outliers == [(1969, 3500.0)]
     assert s.low_threshold_log == pytest.approx(mean - outlier_k(20) * std)
@@ -368,7 +416,9 @@ def test_both_branch_drops_low_outliers_then_adjusts():
 
 
 def test_low_outlier_without_history_is_dropped_from_the_moments():
-    s = synthetic([0.5, 1100.0])._screen_and_adjust([])
+    steps = []
+    s = synthetic([0.5, 1100.0])._screen_and_adjust(steps)
+    assert "not used for the curve" not in " ".join(steps)  # no adjustment follows
     x = np.log10(BASE + [1100.0])
     assert s.historic is None and s.low_outliers == [(1968, 0.5)]
     assert (s.mean, s.std, s.skew) == pytest.approx(log_moments(x), abs=1e-12)
@@ -406,6 +456,57 @@ def test_bad_historic_input_refuses_with_the_reason(peaks, period, match):
         ).run_analysis()
 
 
+def test_too_few_systematic_peaks_after_moves_to_z_refuses():
+    with pytest.raises(Bulletin17BError) as err:
+        big_sandy(historic_peaks=[(1900, 1300.0)])
+    text = str(err.value)
+    assert "43 moved" in text and "1 of the 44" in text and "at least 10" in text
+    assert "1300 cfs" in text and "wrong units" in text
+
+
 def test_every_systematic_peak_above_the_historic_one_refuses():
-    with pytest.raises(Bulletin17BError, match="systematic record is empty"):
+    with pytest.raises(Bulletin17BError, match="44 moved"):
         big_sandy(historic_peaks=[(1900, 1.0)])
+
+
+@pytest.mark.parametrize(("left", "refused"), [(10, False), (9, True)])
+def test_ten_systematic_peaks_are_enough(left, refused):
+    flows = sorted(record("appendix6_big_sandy").peaks_cfs)
+    assert flows[left - 1] < flows[left]
+    peaks = [(1900, (flows[left - 1] + flows[left]) / 2)]
+    if refused:
+        with pytest.raises(Bulletin17BError, match="35 moved"):
+            big_sandy(historic_peaks=peaks)
+    else:
+        assert big_sandy(historic_peaks=peaks).n_systematic == 10
+
+
+def test_short_record_with_a_large_historic_peak_does_not_blame_the_units():
+    """Ten years, one of them a high outlier: nine are left."""
+    flows = [*BASE, 90000.0]
+    flows = flows[:9] + flows[-1:]
+    with pytest.raises(Bulletin17BError, match="1 moved") as err:
+        Bulletin17B(
+            flows,
+            list(range(1960, 1970)),
+            historic_peaks=[(1920, 95000.0)],
+            historic_period=(1901, 1969),
+        ).run_analysis()
+    assert "units" not in str(err.value)
+
+
+def test_too_few_peaks_after_low_outliers_refuses():
+    flows = [*BASE[:9], 0.5]
+    b = Bulletin17B(flows, list(range(1960, 1970)))
+    with pytest.raises(Bulletin17BError, match="1 low outlier.* at least 10"):
+        b.run_analysis()
+
+
+def test_too_few_peaks_after_low_outliers_and_moves_names_both():
+    """Both on unadjusted statistics: 10 of 11 left once the low is dropped, then 9."""
+    flows = [*BASE[:9], 40000.0, 26.0]
+    b = Bulletin17B(flows, list(range(1960, 1971)), historic_period=(1901, 1970))
+    s_mean, s_std, g = log_moments(np.log10(flows))
+    assert abs(g) <= 0.4
+    with pytest.raises(Bulletin17BError, match="1 moved.*1 low outlier"):
+        b.run_analysis()
