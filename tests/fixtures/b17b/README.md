@@ -132,3 +132,7 @@ The grid:
 
 - Appendix 3 K tables (described above).
 - The Appendix 12 figures and Figure 6-3 (plots only).
+
+Values are as printed in Bulletin 17B (1982); do not correct them.
+
+The files sit directly in this folder (the `examples/` prefix above is the transcriber's); `__init__.py` is the test loader: `load(name)` and `record(name)`.
