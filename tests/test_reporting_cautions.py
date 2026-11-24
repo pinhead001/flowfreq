@@ -189,3 +189,71 @@ class TestSupplied:
         options["streamstats"]["supplied"] = bad
         with pytest.raises(ReportError, match="streamstats supplied must be a list of codes"):
             build_section("ungaged", options)
+
+
+# -- what StreamStats and the ranges warn of ----------------------------------------------------
+
+COVERAGE = "The regression regions used cover 45 percent of the basin"
+WARNING = "StreamStats warned about this basin"
+WITHHELD = "withheld from the equations"
+
+
+def _partly(notes: List[str]) -> Dict[str, Any]:
+    return {**TENNESSEE, "streamstats": {"retrieved": "2026-11-23", "notes": notes}}
+
+
+NOTES = [
+    "Region choice: the caller's.",
+    COVERAGE + "; their shares were scaled up to the whole.",
+    WARNING + ": MAY BE INACCURATE.",
+    "Characteristics StreamStats computed and said may be inaccurate for this basin, "
+    + WITHHELD
+    + ": PRECIP.",
+]
+
+
+@pytest.mark.parametrize("kind,detail", KINDS)
+def test_streamstats_warnings_reach_every_kind_once(kind: str, detail: bool) -> None:
+    built = build_section(kind, _options(kind, detail, _partly(NOTES)))
+    text = _all_text(built.blocks)
+    for words in (COVERAGE, WARNING, WITHHELD):
+        assert text.count(words) == 1, words
+        assert any(words in c for c in built.cautions), words
+    assert not any("Region choice" in c for c in built.cautions)
+
+
+def test_the_warnings_are_the_notes_a_live_run_stores(texas: Fakes) -> None:
+    """The phrases above are those _streamstats_notes writes, not only this test's."""
+    from tests.test_ungaged_named_region import _nss
+
+    texas.regions = [
+        type(texas.regions[0])(1, _nss("TX", "Statewide"), "located", 45.0, 20.0),
+    ]
+    built = build_section("ungaged", dict(TEXAS))
+    assert any("45 percent of the basin" in c for c in built.cautions)
+    assert _all_text(built.blocks).count("45 percent of the basin") == 1
+    again = build_section("ungaged", built.options)
+    assert again.cautions == built.cautions
+
+
+BIG: Dict[str, Any] = {
+    **URBAN,
+    "characteristics": {**URBAN["characteristics"], "DRNAREA": 400.0},
+    "allow_extrapolation": True,
+}
+
+
+@pytest.mark.parametrize("kind,detail", KINDS)
+def test_extrapolation_reaches_every_kind(kind: str, detail: bool) -> None:
+    built = build_section(kind, _options(kind, detail, BIG))
+    assert any("outside the calibrated range" in c and "DRNAREA" in c for c in built.cautions)
+    text = _all_text(built.blocks)
+    assert "DRNAREA=400" in text
+    assert text.count("so the published standard error does not apply there") == 1
+
+
+def test_a_future_flow_reply_carries_the_cautions(tmp_path: Any) -> None:
+    session = ReportSession("Urban", output_dir=tmp_path)
+    session.add_section("ungaged", dict(URBAN))
+    reply = session.future_flow("s1", dict(FACTORS))
+    assert CAUTION in reply["cautions"][0]

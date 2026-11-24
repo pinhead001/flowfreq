@@ -24,7 +24,7 @@ from flowfreq import estimate_from_characteristics
 from flowfreq.regression import evaluate
 from flowfreq.regression.equations import OutOfRangeError
 from flowfreq.regression.library import load_state
-from flowfreq.ungaged import region_for_nss_code
+from flowfreq.ungaged import _shares_used, region_for_nss_code
 
 ROOT = Path(__file__).resolve().parent
 FIXTURES = ROOT / "fixtures" / "regression"
@@ -141,7 +141,7 @@ def test_the_set_is_used_only_when_named_and_cautions(state):
     for words in (
         "not valid in the Middle Atlantic or Southern Coastal Plain",
         "not known outside the study area",
-        "Blue Ridge",
+        "Mississippi Alluvial Plain, Central Appalachians or Blue Ridge",
         "percent of the basin, 0 to 100, not fractions",
         "inappropriate",
     ):
@@ -149,6 +149,9 @@ def test_the_set_is_used_only_when_named_and_cautions(state):
     assert ("South Carolina gages" in caution) is (state == "SC")
     # What else the USGS publishes for an urban basin there.
     assert ("SIR 2014-5030" in caution) is (state != "TN")
+    assert ("the largest urban basin it used was 378, 5.67 and 43.9 mi2" in caution) is (
+        state != "TN"
+    )
     assert ("does not say it applies in place" in caution) is (state != "TN")
 
 
@@ -319,3 +322,16 @@ def test_another_set_of_the_state_ignores_the_shares():
         aeps=[0.01],
     )
     assert est.quantiles.loc[0, "flow_cfs"] > 0
+
+
+def test_a_rural_set_of_the_same_state_ignores_the_shares():
+    lib = load_state("GA")
+    shares = {"L3_PIEDMNT": 100.0, "L3_RDGVLY": 100.0}
+    assert _shares_used(lib, {REGION}, shares) == [("L3_PIEDMNT and L3_RDGVLY", 200.0)]
+    assert _shares_used(lib, {"HR1-5", "HR1"}, shares) == []
+
+
+def test_the_share_limits_are_100_percent_and_1():
+    with pytest.raises(ValueError, match="102 percent"):
+        _shares(60.0, 42.0)
+    assert "given as fractions" not in _shares(1.5, 0.0).advisory

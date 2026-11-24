@@ -29,7 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   report section and `flowfreq-mcp`'s `estimate_ungaged`: values for characteristics StreamStats does not return.
   A code it did return is refused, not replaced.
 - A regression's cautions are printed by `site_summary`, and by `comparison`, `weighted` and `future_flow` with
-  `detail: false`, which dropped them; a `flowfreq-mcp` reply carries them as `cautions`.
+  `detail: false`, which dropped them; a `flowfreq-mcp` reply carries them as `cautions`. With them go StreamStats'
+  own warnings about the basin, partial coverage and inputs outside the calibrated range.
 - **Baseflow method `ih_smoothed_minima_log`**: the turning points of `ih_smoothed_minima` joined through the logarithms
   of their flows, as the USGS BFI program does. On 23 gages its mean annual index is 0.001 below the program's
   published one on average (0.033 at most), where the default is 0.016 above it (0.061 at most). The default method is
@@ -50,7 +51,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `estimate_at_site` wherever NSS located one of the state's regions, which is nearly everywhere; only
   `estimate_from_characteristics` could use it. A set in a library's new `named_regions` is now used for the whole
   basin when `region=` is its code, and what NSS located is listed as not used. Only the code names such a set:
-  `region="Urban"` took `Urban 2026` in Georgia, North Carolina and South Carolina.
+  `region="Urban"` took `Urban 2026` in Georgia, Mississippi, North Carolina and South Carolina. Its
+  `covered_percent` is the least NSS's located regions can cover, so `min_coverage_percent` and the caution still work.
 - SIR 2025-5104's two ecoregion percentages are refused where they sum to over 100, and cautioned where they look
   like fractions. Its Tennessee caution on the 1984 urban sets quotes the report's instruction to use the new ones.
 - `SiteEstimate.to_markdown` prints how the region was chosen, where a rule or the caller chose it.

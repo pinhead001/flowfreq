@@ -29,8 +29,19 @@ _STREAMSTATS_KEYS = (
 )
 
 
+#: How the notes that warn about the basin itself begin, against those that record a choice.
+_WARNINGS = (
+    "StreamStats warned about this basin",
+    "Characteristics StreamStats computed and said may be inaccurate",
+    "The regression regions used cover",
+    "NSS located the state's regression regions over at least",
+)
+
+
 def _streamstats_notes(estimate: Any) -> List[str]:
     """What the StreamStats run set aside or warned of, which the stored inputs alone lose."""
+    from ..ungaged import stand_in_caution
+
     provenance = estimate.provenance
     notes: List[str] = []
     if provenance.get("region_choice_source"):
@@ -87,7 +98,9 @@ def _streamstats_notes(estimate: Any) -> List[str]:
             "withheld from the equations: " + ", ".join(withheld) + "."
         )
     covered = provenance.get("covered_percent")
-    if covered is not None and float(covered) < 98.0:
+    if provenance.get("stands_in_for"):
+        notes.append(stand_in_caution(float(covered), ", ".join(r.code for r in estimate.regions)))
+    elif covered is not None and float(covered) < 98.0:
         notes.append(
             f"The regression regions used cover {float(covered):.0f} percent of the basin; "
             "their shares were scaled up to the whole, so the rest (in another state or "
@@ -379,7 +392,15 @@ def _ungaged(given: Dict[str, Any]) -> Tuple[SectionContent, Any]:
         blocks=blocks,
         options=options,
         references=references,
-        cautions=[estimate.advisory] if estimate.advisory else [],
+        cautions=[
+            text
+            for text in (
+                estimate.advisory,
+                estimate.extrapolation_caution,
+                *(n for n in (record or {}).get("notes") or () if n.startswith(_WARNINGS)),
+            )
+            if text
+        ],
     )
     return content, estimate
 

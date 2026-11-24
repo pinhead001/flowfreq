@@ -18,7 +18,12 @@ from flowfreq import OverlappingRegionsError, estimate_at_site
 from flowfreq.regression import evaluate
 from flowfreq.regression.library import DATA_DIR, EquationsUnavailable, load_state
 from flowfreq.streamstats import RegressionRegionLocation
-from flowfreq.ungaged import assemble, estimate_from_characteristics, region_for_nss_code
+from flowfreq.ungaged import (
+    PartialCoverageError,
+    assemble,
+    estimate_from_characteristics,
+    region_for_nss_code,
+)
 
 from .test_ungaged import CHARS, KW, LIB, Fakes, _region, _wa_site, _watershed
 
@@ -95,7 +100,7 @@ def test_a_named_set_takes_the_place_of_overlapping_and_partial_regions() -> Non
         [_region("GC1", 60.0), _region("GC9", 40.0)],
     ):
         a = assemble(NAMED, located, CHARS, region="R2", **KW)
-        assert [r.code for r in a.used] == ["R2"] and a.covered_percent == 100.0
+        assert [r.code for r in a.used] == ["R2"]
         assert [r.code for r in a.unmatched] == [r.code for r in located if r.code == "GC9"]
 
 
@@ -229,7 +234,7 @@ def test_a_withheld_value_may_be_supplied(texas: Fakes, monkeypatch: pytest.Monk
     assert est.characteristics["OmegaEM"] == 0.33
 
 
-@pytest.mark.parametrize("state", ["GA", "NC", "SC"])
+@pytest.mark.parametrize("state", ["GA", "NC", "SC", "MS"])
 def test_a_word_of_a_named_sets_name_is_not_its_code(state: str) -> None:
     """'Urban' took the 2026 set silently: it is the only region with the word in its name."""
     with pytest.raises(EquationsUnavailable, match="'Urban' is not one of its regions"):
@@ -244,3 +249,75 @@ def test_a_word_of_a_named_sets_name_is_not_its_code(state: str) -> None:
             weighting_space="log",
             region="Urban",
         )
+
+
+# -- a basin NSS's regions only partly cover -----------------------------------------------
+
+
+def _located(code: str, percent: float) -> RegressionRegionLocation:
+    return RegressionRegionLocation(1, code, "located", percent, 20.0)
+
+
+def _nss(state: str, region: str) -> str:
+    """The NSS code that reaches a library region."""
+    lib = load_state(state)
+    return next(f"GC{n}" for n in range(1, 3000) if region_for_nss_code(lib, f"GC{n}") == region)
+
+
+def _covered(state: str, *located: RegressionRegionLocation) -> float:
+    a = assemble(
+        load_state(state),
+        list(located),
+        {**URBAN, **TEXAS, "MCSLOPE": 0.00326},
+        aeps=[0.01],
+        allow_extrapolation=False,
+        weighting_space="log",
+        region=_set(state),
+    )
+    return a.covered_percent
+
+
+def test_a_named_set_covers_what_nss_located_of_the_state() -> None:
+    assert _covered("TX", _located(_nss("TX", "Statewide"), 45.0)) == 45.0
+    assert _covered("TX", _located(_nss("TX", "Statewide"), 100.0)) == 100.0
+
+
+def test_overlapping_reports_do_not_add_up_to_the_whole_basin() -> None:
+    both = (_located(_nss("TX", "Statewide"), 60.0), _located(_nss("TX", "Brazos 3"), 60.0))
+    assert _covered("TX", *both) == 60.0
+
+
+def test_the_parts_of_one_report_do_add_up() -> None:
+    parts = [_located(_nss("AL", r), p) for r, p in (("1", 70.0), ("2", 30.0))]
+    assert _covered("AL", *parts) == 100.0
+
+
+def test_a_partly_covered_basin_is_cautioned_and_may_be_refused(texas: Fakes) -> None:
+    texas.regions = [_located(_nss("TX", "Statewide"), 45.0)]
+    est = _texas(supplied_characteristics=SUPPLIED)
+    assert est.provenance["covered_percent"] == 45.0
+    assert "at least 45 percent" in est.advisory and "'Statewide OmegaEM'" in est.advisory
+    assert "scaled" not in est.advisory  # nothing was: the set is used for the whole basin
+    assert "45 %" in est.provenance["region_choice_source"]
+    with pytest.raises(PartialCoverageError) as info:
+        _texas(supplied_characteristics=SUPPLIED, min_coverage_percent=90)
+    assert info.value.covered_percent == 45.0 and texas.regions[0].code in str(info.value)
+    texas.regions = [_located(_nss("TX", "Statewide"), 100.0)]
+    whole = _texas(supplied_characteristics=SUPPLIED, min_coverage_percent=90)
+    assert "percent of the basin" not in whole.advisory.split("SIR 2009-5087")[0]
+
+
+def test_the_choice_of_a_region_selector_may_be_supplied(monkeypatch: pytest.MonkeyPatch) -> None:
+    lib = load_state("IN")
+    assert lib.region_selector is not None
+    code = lib.region_selector.variable
+    assert ungaged._supplied(lib, {code: 2}) == {code: 2.0}
+
+
+def test_a_limit_or_applicability_code_may_be_supplied() -> None:
+    assert ungaged._supplied(load_state("GA"), {"LC11IMP": 30}) == {"LC11IMP": 30.0}
+
+
+def test_a_named_set_first_in_a_sequence_is_refused_too() -> None:
+    with pytest.raises(EquationsUnavailable, match="not in use"):
+        assemble(NAMED, [_region("GC1", 100.0)], CHARS, region=["R2", "GC1"], **KW)
