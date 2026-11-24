@@ -451,9 +451,10 @@ def _cache_put(keys: List[Optional[str]], entry: Tuple[SectionContent, Any]) -> 
 def _gaged_ffa(given: Dict[str, Any]) -> Tuple[SectionContent, Any]:
     """The gaged section and the fitted ``Bulletin17C`` behind it.
 
-    Fits are memoised (see :func:`clear_fit_cache`) when the options carry ``peaks``, under
-    the options as given and as resolved, so the sections nested from a previous build's
-    resolved options reuse the fit. The section returned is the caller's own copy; the
+    Fits are memoised (see :func:`clear_fit_cache`) under the options as resolved, which carry
+    the peaks, and under those given when they carry ``peaks`` too, so the sections nested from
+    a previous build's resolved options reuse the fit. Options without peaks are downloaded and
+    fitted each time. The section returned is the caller's own copy; the
     ``Bulletin17C`` object may be shared between callers and must be treated as read-only.
     ``given`` is not changed.
     """
@@ -463,10 +464,9 @@ def _gaged_ffa(given: Dict[str, Any]) -> Tuple[SectionContent, Any]:
     if hit is not None:
         return hit
     content, b17c = _fit_gaged_ffa(given)
-    if cacheable:
-        resolved = _fit_key(content.options)
-        if key is not None or resolved is not None:
-            _cache_put([key, resolved], (copy.deepcopy(content), b17c))
+    resolved = _fit_key(content.options)
+    if key is not None or resolved is not None:
+        _cache_put([key, resolved], (copy.deepcopy(content), b17c))
     return content, b17c
 
 

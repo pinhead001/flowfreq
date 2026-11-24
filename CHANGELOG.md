@@ -68,8 +68,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Maryland averages a basin's regions in flow**, weighted by drainage area (`weighting_space` is `linear`), as the Third
   Edition says (p. 2-11, in words). It averaged logarithms. The Sixth Edition repeats the words (p. 2-12), and the
   GISHydro code they name adds up flows.
-- **A report fits each gage once.** `flowfreq.reporting.gaged` memoises the Bulletin 17C fit of a gage that
-  carries its peaks (the last `FIT_CACHE_SIZE` fits, keyed on the options); `gaged.clear_fit_cache()` forgets
+- **A report fits each gage once.** `flowfreq.reporting.gaged` memoises the Bulletin 17C fit of a gage by its options
+  with the peaks in them, downloaded or given (the last `FIT_CACHE_SIZE` fits, keyed on the options); `gaged.clear_fit_cache()` forgets
   them.
 - A peak row with no value is still dropped with a warning, which now says this is what peakfq's `siteQT`
   does too (it removes gage-height-only rows before filling in the years), not a departure from it.

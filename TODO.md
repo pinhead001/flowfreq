@@ -185,8 +185,8 @@ page in the app was dropped, since only the owner chats. Not yet done:
 - Connect `flowfreq-mcp` to Claude Code or Claude Desktop and write a report with it. The tests drive the
   server in process and over stdio from an `mcp.Client`; no chat client has been attached.
 - Open a DOCX in Word. The tests read each one back with python-docx, which checks structure, not layout.
-- Run the tools that reach a service: `find_gage` and `run_ffa` against the Water Data API with no peaks
-  supplied, and `estimate_ungaged` against StreamStats (refused, as above). The tests stub every request.
+- Run `estimate_ungaged` against StreamStats (waits, as above). `find_gage`, `run_ffa` (peaks downloaded from the Water
+  Data API), `get_section` and `render_report` ran live through an in-process `mcp.Client` on 2026-11-24 at USGS 03606500.
 - The section kinds `low_flow`, `flow_duration` and `future_flow` (2026-11-16): the tests use a synthetic
   daily record and made-up factors. `low_flow` and `flow_duration` were also built once from the Water Data
   API at USGS 03606500 (80 years used, 18 left out as incomplete; 7Q10 37.8 ft3/s), through `build_report`
