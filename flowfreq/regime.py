@@ -56,28 +56,30 @@ looks perfectly reasonable on paper.
   connected by straight-line interpolation, capped at actual flow (baseflow
   cannot exceed total streamflow), but not across more than 15 missing days,
   which end one separation and start another. **It is not the USGS BFI program**
-  (Wahl & Wahl, 1988, 1995), which takes the same turning points but joins the
-  logarithms of their flows, uses a linear recession at a zero flow, and adds
-  turning points at the ends of a year. On 23 USGS gages with unbroken records
-  (2026-11-23), this method's mean annual index was above the program's, as
-  published in USGS Open-File Report 03-146, by 0.016 on average and 0.061 at most (0.012 at the
-  median gage).
+  (Wahl & Wahl, 1988, 1995; source of version 4.15 read 2026-11-24). That program
+  restarts the blocks each October 1 and lengthens the last one, joins the
+  logarithms of the turning points' flows (straight in flow at a zero), adds turning
+  points at the ends of a year, does not cap baseflow at streamflow, and beside a zero
+  minimum tests only the other neighbor. On 23 USGS gages (2026-11-23), this method's
+  mean annual index was above the program's, as published in USGS Open-File Report 03-146,
+  by 0.016 on average and 0.061 at most (0.012 at the median gage).
   Needs no drainage area and is
   parameter-light, which is why it is the default here. Its non-overlapping
   blocks are anchored to the first date in the input, a known, published
   sensitivity of the method: shifting the same underlying series by 0-4
   days (changing which calendar days fall in which block, with no
   hydrologic meaning to the shift itself) moved a 2-year synthetic record's
-  annual BFI between 0.9349 and 0.9391 -- a real if modest effect, worth
-  knowing about before comparing this figure against the same site
-  analyzed from a slightly different download window.
+  annual BFI between 0.9349 and 0.9391, and the mean index of USGS 04131500
+  (27 years, logarithms) between 0.512 and 0.550. Know about it before comparing this
+  figure against the same site analyzed from a slightly different download window.
 - ``"ih_smoothed_minima_log"``: the turning points of ``"ih_smoothed_minima"``,
   joined by straight lines through the logarithms of their flows, as the USGS BFI
   program joins them. Where either turning point is zero the line is straight in
   flow. It is usually the nearer of the two to that program: on the same 23 gages its
   mean annual index differed from the published one by -0.001 on average and 0.033 at
-  most, and was the nearer at 17. It is still not that program, which adds turning
-  points at the ends of a year.
+  most, and was the nearer at 17. It is still not that program: its blocks run on from the
+  first date. At the gage where it differs most (04131500), restarting them each October 1
+  gives 0.543 against the published 0.544, where this gives 0.511.
 - ``"hysep_fixed"``, ``"hysep_sliding"``, ``"hysep_local_minimum"``: the
   three USGS HYSEP methods (Sloto & Crouse, 1996, USGS WRIR 96-4040, after
   Pettyjohn & Henning, 1979), all built on the same interval. ``2N*`` is the
