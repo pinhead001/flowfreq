@@ -13,18 +13,28 @@ ambiguous are in ``tests/fixtures/b17b/procedure.md``.
 
 from __future__ import annotations
 
-from typing import Mapping, NamedTuple, Optional
+import logging
+from dataclasses import dataclass, field
+from typing import Mapping, NamedTuple, Optional, Sequence
 
 import numpy as np
+import pandas as pd
 from scipy.special import ndtri
 from scipy.stats import t as student_t
 
 from flowfreq.core import kfactor
 
+logger = logging.getLogger(__name__)
+
 __all__ = [
+    "Bulletin17B",
     "Bulletin17BError",
+    "Bulletin17BResults",
+    "ConditionalAdjustment",
+    "HistoricAdjustment",
     "HistoricMoments",
     "KN_TABLE",
+    "STANDARD_AEP",
     "confidence_deviates",
     "expected_probability",
     "historic_moments",
@@ -411,3 +421,387 @@ def expected_probability(aep: np.ndarray, n: int) -> np.ndarray:
     """
     aep = np.asarray(aep, dtype=float)
     return np.asarray(student_t.sf(ndtri(1.0 - aep) * np.sqrt(n / (n + 1.0)), df=n - 1))
+
+
+#: The bulletin's frequency-table rows (Table 12-3), as annual exceedance probabilities.
+STANDARD_AEP: tuple[float, ...] = (0.99, 0.90, 0.50, 0.10, 0.05, 0.02, 0.01, 0.005, 0.002)
+
+
+@dataclass
+class HistoricAdjustment:
+    """Historic adjustment of Appendix 6 (filled in when the adjustment is made)."""
+
+    h: int
+    z: int
+    l: int
+    w: float
+    mean: float
+    std: float
+    skew: float
+    historic_peaks: list[tuple[int, float]]
+
+
+@dataclass
+class ConditionalAdjustment:
+    """Conditional probability adjustment of Appendix 5 (filled in when it is made)."""
+
+    p_tilde: float
+    n_truncated: int
+    mean: float
+    std: float
+    skew: float
+    q01: float
+    q10: float
+    q50: float
+    mean_s: float
+    std_s: float
+    skew_s: float
+
+
+@dataclass
+class Bulletin17BResults:
+    """Result of a Bulletin 17B fit.
+
+    Attributes
+    ----------
+    n_years : int
+        Years in the systematic record, including zero, below-base and low-outlier years.
+    n_systematic : int
+        Peaks that enter the moments (the bulletin's N).
+    n_zeros, n_below_base : int
+        Years left out of the moments as zeros or below the gage base.
+    outlier_order : str
+        ``"high first"``, ``"low first"`` or ``"both on unadjusted statistics"``.
+    high_outlier_threshold, low_outlier_threshold : float
+        Outlier thresholds in cfs.
+    high_outliers, low_outliers : list of (year, flow)
+        Peaks the tests flagged.
+    historic, conditional : optional
+        Appendix 6 and Appendix 5 adjustments, ``None`` when not made.
+    mean_log, std_log : float
+        Mean and standard deviation of the log10 flows of the final curve.
+    skew_station : float
+        The station skew that was weighted (historically adjusted or synthetic when
+        those adjustments were made).
+    skew_station_mse : float
+        Its mean square error from eq. 6.
+    skew_generalized, skew_generalized_mse, skew_weighted : float, optional
+        Generalized skew, its MSE and the eq. 5 weighted skew; ``None`` without a
+        generalized skew.
+    skew_used : float
+        The skew the quantiles use (rounded to a tenth in hand-computation mode).
+    quantiles : pandas.DataFrame
+        Columns ``aep, flow_cfs, log_flow, K_factor, lower, upper,
+        expected_probability``. ``lower`` and ``upper`` are the confidence limits in cfs.
+    plotting_positions : pandas.DataFrame
+        Columns ``year, flow_cfs, weighted_order, exceedance`` (Weibull here).
+    steps : list of str
+        One plain sentence per decision of the bulletin flow chart.
+    """
+
+    n_years: int
+    n_systematic: int
+    n_zeros: int
+    n_below_base: int
+    outlier_order: str
+    high_outlier_threshold: float
+    low_outlier_threshold: float
+    high_outliers: list[tuple[int, float]]
+    low_outliers: list[tuple[int, float]]
+    historic: Optional[HistoricAdjustment]
+    conditional: Optional[ConditionalAdjustment]
+    mean_log: float
+    std_log: float
+    skew_station: float
+    skew_station_mse: float
+    skew_generalized: Optional[float]
+    skew_generalized_mse: Optional[float]
+    skew_weighted: Optional[float]
+    skew_used: float
+    quantiles: pd.DataFrame
+    plotting_positions: pd.DataFrame
+    steps: list[str] = field(default_factory=list)
+
+
+def _finite_number(value: object, name: str) -> float:
+    try:
+        x = float(value)  # type: ignore[arg-type]
+    except (TypeError, ValueError):
+        raise Bulletin17BError(f"{name} must be a number; got {value!r}") from None
+    if not np.isfinite(x):
+        raise Bulletin17BError(f"{name} must be finite; got {value!r}")
+    return x
+
+
+def _not_implemented(what: str) -> Bulletin17BError:
+    return Bulletin17BError(f"{what} is not implemented yet in Bulletin17B")
+
+
+class Bulletin17B:
+    """Bulletin 17B (1982) flood frequency analysis, superseded by Bulletin 17C.
+
+    This version handles a complete systematic record: moments of the log peaks,
+    the outlier tests, skew weighting, the log-Pearson III curve, confidence limits
+    and expected probability. Records that need the historic adjustment, zero or
+    low-outlier treatment are refused until those steps exist.
+
+    Parameters
+    ----------
+    peak_flows : sequence of float
+        Annual peak flows in cfs.
+    water_years : sequence of int
+        Water year of each peak. A year may appear only once.
+    generalized_skew : float, optional
+        Generalized (regional) skew. Without it the station skew is used.
+    generalized_skew_mse : float, default 0.302
+        Mean square error of the generalized skew (Plate I value).
+    historic_peaks, historic_period, below_base_years, low_outlier_threshold
+        Inputs of later steps; giving one raises :class:`Bulletin17BError`.
+    confidence : float, default 0.90
+        Two-sided confidence level of the limits.
+    aeps : sequence of float, optional
+        Annual exceedance probabilities to report; ``STANDARD_AEP`` by default.
+    hand_computation : bool, default False
+        Round the weighted skew to the nearest tenth before reading K, as the
+        worked examples in the bulletin do. Exact mode never rounds.
+
+    Raises
+    ------
+    Bulletin17BError
+        On invalid input, or a record the bulletin or this class does not cover.
+    """
+
+    def __init__(
+        self,
+        peak_flows: Sequence[float],
+        water_years: Sequence[int],
+        *,
+        generalized_skew: Optional[float] = None,
+        generalized_skew_mse: float = 0.302,
+        historic_peaks: Optional[Sequence[tuple[int, float]]] = None,
+        historic_period: Optional[tuple[int, int]] = None,
+        below_base_years: Optional[Sequence[int]] = None,
+        low_outlier_threshold: Optional[float] = None,
+        confidence: float = 0.90,
+        aeps: Optional[Sequence[float]] = None,
+        hand_computation: bool = False,
+    ) -> None:
+        flows = [_finite_number(q, "a peak flow") for q in peak_flows]
+        raw_years = list(water_years)
+        if len(flows) != len(raw_years):
+            raise Bulletin17BError(
+                f"{len(flows)} peak flows but {len(raw_years)} water years: lengths must match"
+            )
+        if any(q < 0 for q in flows):
+            raise Bulletin17BError("peak flows must not be negative")
+        years: list[int] = []
+        for y in raw_years:
+            fy = _finite_number(y, "a water year")
+            if isinstance(y, bool) or fy != int(fy):
+                raise Bulletin17BError(f"water years must be integers; got {y!r}")
+            years.append(int(fy))
+        if len(set(years)) != len(years):
+            dup = sorted({y for y in years if years.count(y) > 1})
+            raise Bulletin17BError(f"a water year appears more than once: {dup}")
+        order = np.argsort(years, kind="stable")
+        self._years = [years[i] for i in order]
+        self._flows = [flows[i] for i in order]
+
+        self._gen_skew: Optional[float] = (
+            None
+            if generalized_skew is None
+            else _finite_number(generalized_skew, "generalized_skew")
+        )
+        mse = _finite_number(generalized_skew_mse, "generalized_skew_mse")
+        if mse <= 0.0:
+            raise Bulletin17BError(f"generalized_skew_mse must be positive; got {mse}")
+        self._gen_mse = mse
+        conf = _finite_number(confidence, "confidence")
+        if not 0.0 < conf < 1.0:
+            raise Bulletin17BError(f"confidence must be between 0 and 1; got {conf}")
+        self._confidence = conf
+        aep_list = [_finite_number(a, "an AEP") for a in (STANDARD_AEP if aeps is None else aeps)]
+        if not aep_list or any(not 0.0 < a < 1.0 for a in aep_list):
+            raise Bulletin17BError("AEPs must be a non-empty list of values between 0 and 1")
+        self._aeps = aep_list
+        self._hand = bool(hand_computation)
+        self._historic_peaks = historic_peaks
+        self._historic_period = historic_period
+        self._below_base_years = below_base_years
+        self._low_threshold = low_outlier_threshold
+
+    def run_analysis(self) -> Bulletin17BResults:
+        """Fit the record and return the frequency table, limits and steps.
+
+        Raises
+        ------
+        Bulletin17BError
+            If the record is constant, has fewer than 10 or more than 149 peaks, or
+            needs a step that is not implemented yet.
+        """
+        steps: list[str] = []
+        self._require_supported()
+        x = np.log10(np.asarray(self._flows, dtype=float))
+        n = x.size
+        mean, std, g = log_moments(x)
+        steps.append(
+            f"Computed the mean ({mean:.4f}), standard deviation ({std:.4f}) and station "
+            f"skew ({g:.4f}) of the base-10 logs of the {n} annual peaks."
+        )
+        order, high, low = self._screen_outliers(x, n, mean, std, g, steps)
+        # Later tasks add their steps here, each as a separate method that returns the
+        # adjusted moments: the historic adjustment (Appendix 6), then the low-outlier,
+        # zero and conditional probability adjustments (Appendix 5).
+        skew_station = g
+        skew_mse = station_skew_mse(skew_station, n)
+        skew_w, skew_used = self._weight_skew(skew_station, skew_mse, steps)
+        quantiles = self._frequency_curve(mean, std, skew_used, n, n, steps)
+        k_n = outlier_k(n)
+        return Bulletin17BResults(
+            n_years=n,
+            n_systematic=n,
+            n_zeros=0,
+            n_below_base=0,
+            outlier_order=order,
+            high_outlier_threshold=float(10.0 ** (mean + k_n * std)),
+            low_outlier_threshold=float(10.0 ** (mean - k_n * std)),
+            high_outliers=high,
+            low_outliers=low,
+            historic=None,
+            conditional=None,
+            mean_log=mean,
+            std_log=std,
+            skew_station=skew_station,
+            skew_station_mse=skew_mse,
+            skew_generalized=self._gen_skew,
+            skew_generalized_mse=None if self._gen_skew is None else self._gen_mse,
+            skew_weighted=skew_w,
+            skew_used=skew_used,
+            quantiles=quantiles,
+            plotting_positions=self._plotting_positions(),
+            steps=steps,
+        )
+
+    def _require_supported(self) -> None:
+        """Refuse inputs only the later steps can treat, rather than answer wrongly."""
+        if self._historic_peaks:
+            raise _not_implemented("The historic adjustment (historic_peaks)")
+        if self._historic_period is not None:
+            raise _not_implemented("The historic adjustment (historic_period)")
+        if self._below_base_years:
+            raise _not_implemented("The conditional probability adjustment (below_base_years)")
+        if self._low_threshold is not None:
+            raise _not_implemented("A user-supplied low outlier threshold")
+        if any(q == 0.0 for q in self._flows):
+            raise _not_implemented("The treatment of zero flows")
+
+    def _screen_outliers(
+        self,
+        x: np.ndarray,
+        n: int,
+        mean: float,
+        std: float,
+        g: float,
+        steps: list[str],
+    ) -> tuple[str, list[tuple[int, float]], list[tuple[int, float]]]:
+        """Apply the Appendix 4 tests in the order the station skew sets (p. 17)."""
+        k_n = outlier_k(n)
+        if g > 0.4:
+            order = "high first"
+        elif g < -0.4:
+            order = "low first"
+        else:
+            order = "both on unadjusted statistics"
+        steps.append(
+            f"The station skew is {g:.4f}, so the outlier tests run in the order: {order}. "
+            f"K_N is {k_n:.3f} for N = {n}."
+        )
+        hi_log = mean + k_n * std
+        lo_log = mean - k_n * std
+        high = [(y, q) for y, q, lx in zip(self._years, self._flows, x) if lx > hi_log]
+        low = [(y, q) for y, q, lx in zip(self._years, self._flows, x) if lx < lo_log]
+        if high:
+            listed = ", ".join(f"{y} ({q:g} cfs)" for y, q in high)
+            steps.append(
+                f"High outlier(s) above {10 ** hi_log:,.0f} cfs: {listed}. With no historic "
+                "period given they are treated as part of the systematic record and kept."
+            )
+        else:
+            steps.append(f"No high outliers above {10 ** hi_log:,.0f} cfs.")
+        if low:
+            listed = ", ".join(f"{y} ({q:g} cfs)" for y, q in low)
+            raise _not_implemented(
+                f"The low outlier treatment (the test flags {listed} below "
+                f"{10 ** lo_log:,.0f} cfs)"
+            )
+        steps.append(f"No low outliers below {10 ** lo_log:,.0f} cfs.")
+        return order, high, low
+
+    def _weight_skew(
+        self, skew_station: float, skew_mse: float, steps: list[str]
+    ) -> tuple[Optional[float], float]:
+        """Weight the station and generalized skews (eq. 5), or use the station skew."""
+        if self._gen_skew is None:
+            steps.append(
+                f"No generalized skew was given, so the station skew {skew_station:.4f} "
+                "is used for the curve."
+            )
+            return None, skew_station
+        w = weighted_skew(skew_station, skew_mse, self._gen_skew, self._gen_mse)
+        used = (round(w, 1) if self._hand else w) + 0.0  # + 0.0 turns -0.0 into 0.0
+        text = (
+            f"Weighted the station skew {skew_station:.4f} (MSE {skew_mse:.3f}) with the "
+            f"generalized skew {self._gen_skew:.4f} (MSE {self._gen_mse:.3f}) by inverse "
+            f"MSE to get {w:.4f}."
+        )
+        if self._hand:
+            text += f" Rounded to {used:.1f}, as the worked examples do."
+        steps.append(text)
+        return w, used
+
+    def _frequency_curve(
+        self,
+        mean: float,
+        std: float,
+        skew: float,
+        n_limits: int,
+        n_prob: int,
+        steps: list[str],
+    ) -> pd.DataFrame:
+        """Quantiles, confidence limits and expected probability at the skew used."""
+        aep = np.asarray(self._aeps, dtype=float)
+        k = np.array([kfactor(skew, float(a)) for a in aep])
+        log_q = mean + k * std
+        z = float(ndtri(1.0 - (1.0 - self._confidence) / 2.0))
+        k_up, k_lo = confidence_deviates(k, n_limits, z)
+        steps.append(
+            f"Computed the log-Pearson III quantiles at skew {skew:.4f}, with "
+            f"{100 * self._confidence:g} percent two-sided confidence limits for N = "
+            f"{n_limits} and the expected probability for N = {n_prob}."
+        )
+        return pd.DataFrame(
+            {
+                "aep": aep,
+                "flow_cfs": 10.0**log_q,
+                "log_flow": log_q,
+                "K_factor": k,
+                "lower": 10.0 ** (mean + k_lo * std),
+                "upper": 10.0 ** (mean + k_up * std),
+                "expected_probability": expected_probability(aep, n_prob),
+            }
+        )
+
+    def _plotting_positions(self) -> pd.DataFrame:
+        """Weibull plotting positions, rank / (N + 1) from the largest peak."""
+        flows = np.asarray(self._flows, dtype=float)
+        n = flows.size
+        rank = np.empty(n)
+        rank[np.argsort(-flows, kind="stable")] = np.arange(1, n + 1)
+        return pd.DataFrame(
+            {
+                "year": self._years,
+                "flow_cfs": flows,
+                "weighted_order": rank,
+                "exceedance": rank / (n + 1.0),
+            }
+        )
