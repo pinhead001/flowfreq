@@ -15,7 +15,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from decimal import ROUND_HALF_UP, Decimal
-from typing import Mapping, NamedTuple, Optional, Sequence
+from typing import Any, Mapping, NamedTuple, Optional, Sequence
 
 import numpy as np
 import pandas as pd
@@ -24,6 +24,7 @@ from scipy.stats import t as student_t
 
 from flowfreq.aep import same_aep
 from flowfreq.core import kfactor
+from flowfreq.peak_codes import GREATER_THAN_CODES, LESS_THAN_CODES, PeakTreatment, peak_interval
 
 __all__ = [
     "Bulletin17B",
@@ -34,6 +35,7 @@ __all__ = [
     "HistoricMoments",
     "KN_TABLE",
     "STANDARD_AEP",
+    "bulletin17b_kwargs",
     "confidence_deviates",
     "expected_probability",
     "historic_moments",
@@ -583,8 +585,10 @@ def _finite_number(value: object, name: str) -> float:
 
 
 def _integer_year(value: object, name: str) -> int:
+    if isinstance(value, (str, bytes)):
+        raise Bulletin17BError(f"{name}s must be whole numbers, not text; got {value!r}")
     year = _finite_number(value, name)
-    if isinstance(value, bool) or year != int(year):
+    if isinstance(value, (bool, np.bool_)) or year != int(year):
         raise Bulletin17BError(f"{name}s must be integers; got {value!r}")
     return int(year)
 
@@ -688,7 +692,9 @@ class Bulletin17B:
         that are one flood written differently (0.667 and 0.67) are refused.
     hand_computation : bool, default False
         Round the weighted skew to the nearest tenth (ties away from zero) before
-        reading K, as the worked examples in the bulletin do. A station skew used alone,
+        reading K, as the worked examples in the bulletin do. The same rounding applies to
+        the station skew that K is read at for the conditional curve of Appendix 5, and to
+        the synthetic skew that K is read at in eq. 5-4. A station skew used alone,
         without a generalized skew, stays unrounded. Exact mode never rounds.
 
     Raises
@@ -713,6 +719,8 @@ class Bulletin17B:
         hand_computation: bool = False,
     ) -> None:
         flows = [_finite_number(q, "a peak flow") for q in peak_flows]
+        if isinstance(water_years, (str, bytes)):
+            raise Bulletin17BError(f"water_years must be a sequence of years; got {water_years!r}")
         raw_years = list(water_years)
         if len(flows) != len(raw_years):
             raise Bulletin17BError(
@@ -724,6 +732,8 @@ class Bulletin17B:
         _require_unique_years(years, "a water year")
         self._below_base_years = self._checked_below_base(below_base_years)
         below = set(self._below_base_years)
+        # Below-base years that came with a flow; the flow is not used.
+        self._flows_ignored = sorted(below & set(years))
         measured = sorted((y, q) for y, q in zip(years, flows) if y not in below)
         # The peaks above zero and above the gage base, which the statistics are made of.
         self._years = [y for y, q in measured if q > 0.0]
@@ -769,6 +779,8 @@ class Bulletin17B:
         if years is None:
             return []
         try:
+            if isinstance(years, (str, bytes)):
+                raise TypeError
             raw = list(years)
         except TypeError:
             raise Bulletin17BError(
@@ -854,7 +866,8 @@ class Bulletin17B:
         if conditional is not None:
             mean, std, skew = conditional.mean_s, conditional.std_s, conditional.skew_s
         skew_mse = station_skew_mse(skew, n if s.historic is None else s.historic.h)
-        skew_w, skew_used = self._weight_skew(skew, skew_mse, steps)
+        label = "station skew" if conditional is None else "synthetic skew"
+        skew_w, skew_used = self._weight_skew(skew, skew_mse, label, steps)
         quantiles = self._frequency_curve(mean, std, skew_used, n, n, steps)
         if conditional is not None:
             self._note_extrapolation(conditional.p_tilde, steps)
@@ -940,7 +953,7 @@ class Bulletin17B:
         known = [q for _, q in s.low_outliers] + [0.0 for _ in self._zero_years]
         level = f"at or below {kept:g} cfs, the smallest peak kept"
         if known:
-            level = f"above {max(known):g} cfs, the largest flow truncated, and {level}"
+            level = f"above {max(known):g} cfs, the largest known flow truncated, and {level}"
         steps.append(
             f"Made the conditional probability adjustment of Appendix 5: {truncated} of {n} "
             f"years truncated ({', '.join(self._truncated_parts(n_low))}). The truncation "
@@ -956,7 +969,10 @@ class Bulletin17B:
         if self._hand:
             k_skew = _nearest_tenth(skew_s)
             mean_s, std_s, skew_s = synthetic_statistics(q01, q10, q50, k_skew=k_skew)
-            rounding = f" K is read at skew {skew_c:.1f} there and at {k_skew:.1f} in eq. 5-4."
+            rounding = (
+                f" K for the conditional curve is read at skew {skew_c:.1f}, and at "
+                f"{k_skew:.1f} in eq. 5-4."
+            )
         steps.append(
             f"The conditional curve (mean {s.mean:.4f}, standard deviation {s.std:.4f}, skew "
             f"{s.skew:.4f}) gives {q01:,.0f}, {q10:,.0f} and {q50:,.0f} cfs at exceedance "
@@ -1081,6 +1097,11 @@ class Bulletin17B:
                 f"({_year_list(self._below_base_years)})"
             )
         steps.append(f"Left out of the statistics: {' and '.join(parts)}.")
+        if self._flows_ignored:
+            steps.append(
+                f"The flow given for below-base year(s) {_year_list(self._flows_ignored)} is "
+                "not used: the year is below the gage base, whatever the flow."
+            )
         self._require_mostly_kept(0)
         none = np.zeros(len(self._flows), dtype=bool)
         self._require_enough(none, none)
@@ -1159,8 +1180,8 @@ class Bulletin17B:
         why = [f"{n_moved} moved to the historic peaks"] if n_moved else []
         why += self._truncated_parts(n_low)
         text = (
-            f"only {left} of the {len(self._all_years)} systematic peaks are left for the "
-            f"moments{': ' if why else ''}{', '.join(why)}. "
+            f"only {left} of the {len(self._all_years)} years of the systematic record are "
+            f"left for the moments{': ' if why else ''}{', '.join(why)}. "
             f"Bulletin 17B needs at least {MIN_SYSTEMATIC}."
         )
         if n_moved and self._historic_peaks:
@@ -1238,19 +1259,19 @@ class Bulletin17B:
         )
 
     def _weight_skew(
-        self, skew_station: float, skew_mse: float, steps: list[str]
+        self, skew_station: float, skew_mse: float, label: str, steps: list[str]
     ) -> tuple[Optional[float], float]:
         """Weight the station and generalized skews (eq. 5), or use the station skew."""
         if self._gen_skew is None:
             steps.append(
-                f"No generalized skew was given, so the station skew {skew_station:.4f} "
+                f"No generalized skew was given, so the {label} {skew_station:.4f} "
                 "is used for the curve."
             )
             return None, skew_station
         w = weighted_skew(skew_station, skew_mse, self._gen_skew, self._gen_mse)
         used = _nearest_tenth(w) if self._hand else w + 0.0  # no -0.0
         text = (
-            f"Weighted the station skew {skew_station:.4f} (MSE {skew_mse:.3f}) with the "
+            f"Weighted the {label} {skew_station:.4f} (MSE {skew_mse:.3f}) with the "
             f"generalized skew {self._gen_skew:.4f} (MSE {self._gen_mse:.3f}) by inverse "
             f"MSE to get {w:.4f}."
         )
@@ -1319,3 +1340,196 @@ class Bulletin17B:
             }
         )
         return table.sort_values("year", ignore_index=True)
+
+
+def _threshold_row(row: object) -> tuple[int, int, float]:
+    """One perception-threshold row as (start year, end year, threshold in cfs)."""
+    if not isinstance(row, Mapping) or not {"start_year", "end_year", "threshold_cfs"} <= set(row):
+        raise Bulletin17BError(
+            "each perception threshold needs start_year, end_year and threshold_cfs; "
+            f"got {row!r}"
+        )
+    start = _integer_year(row["start_year"], "threshold start year")
+    end = _integer_year(row["end_year"], "threshold end year")
+    threshold = _finite_number(row["threshold_cfs"], "a threshold")
+    if end < start:
+        raise Bulletin17BError(f"a perception threshold ends before it begins: {start} to {end}")
+    if threshold < 0.0:
+        raise Bulletin17BError(f"a perception threshold must not be negative; got {threshold:g}")
+    return start, end, threshold
+
+
+def _historic_row_start(
+    rows: list[tuple[int, int, float]], systematic: dict[int, float], first: int, last: int
+) -> Optional[int]:
+    """The start of the one historic row, after checking the rest of the rows.
+
+    A row that touches the systematic record, ``first`` to ``last``, may only be one that
+    changes nothing there: a threshold of zero, or at or below every measured peak of the
+    years it covers.
+    """
+    historic: list[tuple[int, int, float]] = []
+    for start, end, threshold in rows:
+        if start > last:
+            raise Bulletin17BError(
+                f"the perception threshold {start} to {end} begins after the last year of "
+                f"the record, {last}; Bulletin 17B has no use for it"
+            )
+        if end >= first:
+            covered = [q for y, q in systematic.items() if start <= y <= end]
+            if threshold > 0.0 and (not covered or threshold > min(covered)):
+                raise Bulletin17BError(
+                    f"the perception threshold of {threshold:g} cfs for {start} to {end} is a "
+                    "change of threshold inside the systematic record, which Bulletin 17B "
+                    "cannot take"
+                )
+        if start < first:
+            historic.append((start, end, threshold))
+    if len(historic) > 1:
+        spans = ", ".join(f"{s} to {e}" for s, e, _ in historic)
+        raise Bulletin17BError(
+            f"the perception thresholds give more than one historic period ({spans}); "
+            "Bulletin 17B takes one historic period"
+        )
+    if not historic:
+        return None
+    start, end, _ = historic[0]
+    if end < first - 1:
+        raise Bulletin17BError(
+            f"the historic threshold ends in {end} but the systematic record starts in "
+            f"{first}: {end + 1} to {first - 1} is covered by no period"
+        )
+    return start
+
+
+def bulletin17b_kwargs(
+    peak_flows: Sequence[float],
+    water_years: Sequence[int],
+    peak_codes: Optional[Sequence[object]],
+    perception_thresholds: Optional[Sequence[Mapping[str, Any]]] = None,
+) -> dict[str, Any]:
+    """:class:`Bulletin17B` arguments from an NWIS peak record and its qualification codes.
+
+    The codes are classified as :func:`flowfreq.peak_codes.peak_interval` classifies them
+    for Bulletin 17C, so a combination of codes resolves the same way:
+
+    - code 7 peaks are historic peaks;
+    - code 4 years are below the gage base: they go to ``below_base_years`` and the flow
+      printed for them is not used;
+    - codes 3 and O, and 6 and C, remove the peak, as ``peak_code_kwargs`` does by
+      default. Removal wins over every other code on the same peak. A regulated record is
+      refused elsewhere, in the report section, not here;
+    - code 8, and code 7 with 4 or 8, have no Bulletin 17B treatment and are refused.
+
+    The historic period is the one perception-threshold row that starts before the
+    systematic record and ends in the year before it, through the last year of the
+    record. The threshold's value is not checked against the historic peaks: one above
+    some of them, or a historic peak missing from the period, goes unnoticed. Without a
+    row, historic peaks give a period from the first historic year (or the first year of
+    the record, if that is earlier) to the last year of the record. A row with no
+    historic peaks still gives the period, so that high outliers can be adjusted for. A
+    row that touches the systematic record is ignored only if it changes nothing there (a
+    threshold of zero, or at or below every measured peak it covers); otherwise it is
+    refused, as are two historic rows. The systematic record runs from the first to the
+    last year of the peaks that are not historic, counting below-base years. A historic
+    peak may fall in a gap in it, but not in a year that has a systematic peak.
+
+    Parameters
+    ----------
+    peak_flows : sequence of float
+        Annual peak flows in cfs. NaN is accepted only where the flow is not used (codes
+        4, 3, O, 6 and C); a kept peak without a flow is refused.
+    water_years : sequence of int
+        Water year of each peak.
+    peak_codes : sequence, optional
+        One NWIS qualification code field per peak (``"7"``, ``"2,6"``, NaN for none).
+    perception_thresholds : sequence of mapping, optional
+        Rows with ``start_year``, ``end_year`` and ``threshold_cfs``, the shape the
+        ``gaged_ffa`` report section takes.
+
+    Returns
+    -------
+    dict
+        ``peak_flows``, ``water_years``, ``historic_peaks``, ``historic_period`` and
+        ``below_base_years``, as :class:`Bulletin17B` takes them.
+
+    Raises
+    ------
+    Bulletin17BError
+        On a code with no Bulletin 17B treatment, a kept peak with no flow, a year that
+        occurs twice, thresholds Bulletin 17B cannot take, or no peaks left.
+    """
+    flows_raw = list(peak_flows)
+    if isinstance(water_years, (str, bytes)):
+        raise Bulletin17BError(f"water_years must be a sequence of years; got {water_years!r}")
+    years = [_integer_year(y, "water year") for y in water_years]
+    if len(flows_raw) != len(years):
+        raise Bulletin17BError(
+            f"{len(flows_raw)} peak flows but {len(years)} water years: lengths must match"
+        )
+    codes = [None] * len(years) if peak_codes is None else list(peak_codes)
+    if len(codes) != len(years):
+        raise Bulletin17BError(
+            f"{len(codes)} peak codes but {len(years)} peaks: lengths must match"
+        )
+    rows = [_threshold_row(r) for r in (perception_thresholds or [])]
+
+    kept: list[tuple[int, float]] = []
+    historic: list[tuple[int, float]] = []
+    below: list[int] = []
+    for year, raw, code in zip(years, flows_raw, codes):
+        try:
+            flow = float(raw)  # type: ignore[arg-type]
+        except (TypeError, ValueError):
+            raise Bulletin17BError(
+                f"the peak flow of {year} must be a number; got {raw!r}"
+            ) from None
+        if flow < 0.0:
+            raise Bulletin17BError(f"the peak flow of {year} is negative ({flow:g})")
+        interval = peak_interval(0.0 if flow != flow else flow, code)
+        found = interval.codes
+        if interval.treatment is PeakTreatment.REMOVED:
+            continue
+        if interval.treatment is PeakTreatment.GREATER_THAN or (
+            interval.is_historic and found & (LESS_THAN_CODES | GREATER_THAN_CODES)
+        ):
+            raise Bulletin17BError(
+                f"the {year} peak has code(s) {','.join(sorted(found))}, which have no "
+                "Bulletin 17B treatment"
+            )
+        if interval.treatment is PeakTreatment.LESS_THAN:
+            below.append(year)
+            continue
+        if not np.isfinite(flow):
+            kind = "historic peak" if interval.is_historic else "peak"
+            raise Bulletin17BError(f"the {year} {kind} has no flow")
+        (historic if interval.is_historic else kept).append((year, flow))
+
+    systematic_years = [y for y, _ in kept] + below
+    if not systematic_years:
+        what = "no peaks are left" if not historic else "no systematic peaks are left"
+        raise Bulletin17BError(f"{what} after the peak codes are applied")
+    _require_unique_years(systematic_years + [y for y, _ in historic], "a water year")
+    first, last = min(systematic_years), max(systematic_years)
+
+    start = _historic_row_start(rows, dict(kept), first, last)
+    period: Optional[tuple[int, int]] = None
+    if start is not None:
+        period = (start, last)
+    elif historic:
+        period = (min(first, min(y for y, _ in historic)), last)
+    if period is not None:
+        outside = sorted(y for y, _ in historic if not period[0] <= y <= period[1])
+        if outside:
+            raise Bulletin17BError(
+                f"historic peak(s) in {outside} are outside the historic period "
+                f"{period[0]} to {period[1]}"
+            )
+    kept.sort()
+    return {
+        "peak_flows": [q for _, q in kept],
+        "water_years": [y for y, _ in kept],
+        "historic_peaks": sorted(historic),
+        "historic_period": period,
+        "below_base_years": sorted(below),
+    }
