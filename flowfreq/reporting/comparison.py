@@ -172,6 +172,17 @@ def _matched_aeps(
     return shown, apart
 
 
+def _b17b_label(label: str) -> str:
+    """A ``b17b_ffa`` estimate's label as shown: it says that Bulletin 17B is superseded.
+
+    A label that names Bulletin 17B gets the one word it lacks, any other the whole phrase.
+    """
+    words = label.lower()
+    if "bulletin 17b" not in words:
+        return with_label(label, SUPERSEDED)
+    return label if "superseded" in words else f"{label} (superseded)"
+
+
 def _comparison_label(options: Mapping[str, Any]) -> str:
     """What every title of the section has to say: that a Bulletin 17B estimate is in it."""
     present = any(each["kind"] == "b17b_ffa" for each in options["estimates"])
@@ -202,14 +213,18 @@ def _curves_block(
     caption = " and ".join(named) + " frequency curves." if named else "Frequency curves."
     superseded = [label for label, kind, _, _ in shown if kind == "b17b_ffa"]
     if superseded:
-        caption += f" Superseded: {'; '.join(superseded)}."
+        caption += f" Superseded, dashed: {'; '.join(superseded)}."
     missing = [label for label, _, flows, _ in estimates if flows.empty]
     if missing:
         caption += f" Not drawn: {'; '.join(missing)}."
     limits = "; ".join(f"{label}, {said}" for label, _, _, said in shown)
     caption += f" Shaded bands are each estimate's limits ({limits})."
     png = _curve_figure(
-        [(label, _within(flows, aeps)) for label, _, flows, _ in shown], aeps, where
+        [(label, _within(flows, aeps)) for label, _, flows, _ in shown],
+        aeps,
+        where,
+        dashed=superseded,
+        legend_below=True,
     )
     return Figure(png, caption)
 
@@ -337,7 +352,7 @@ def _build_comparison(given: Dict[str, Any]) -> SectionContent:
     built = []
     for i, each in enumerate(listed):
         label, content, estimate, said = _compared(i, each)
-        shown = with_label(label, SUPERSEDED) if each["kind"] == "b17b_ffa" else label
+        shown = _b17b_label(label) if each["kind"] == "b17b_ffa" else label
         built.append((shown, content, estimate, said))
     kinds = [each["kind"] for each in listed]
     labels = [label for label, _, _, _ in built]

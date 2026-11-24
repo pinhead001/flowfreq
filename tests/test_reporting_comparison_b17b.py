@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, Iterator, List
 
 import matplotlib.pyplot as plt
 import pytest
@@ -91,9 +91,9 @@ def drawn(monkeypatch: pytest.MonkeyPatch) -> List[Any]:
     """What each curve figure was asked to draw, in order."""
     calls: List[Any] = []
 
-    def record(curves: Any, aeps: Any, where: str) -> bytes:
+    def record(curves: Any, aeps: Any, where: str, **style: Any) -> bytes:
         calls.append((list(curves), list(aeps), where))
-        return _base._curve_figure(curves, aeps, where)
+        return _base._curve_figure(curves, aeps, where, **style)
 
     monkeypatch.setattr(comparison, "_curve_figure", record)
     return calls
@@ -115,7 +115,7 @@ def test_comparison_puts_b17b_beside_b17c():
     assert table(content).header == (
         "Annual exceedance probability (percent)",
         "Bulletin 17C (cfs)",
-        f"Bulletin 17B, {LABEL} (cfs)",
+        f"{LABEL} (cfs)",
         "Largest over smallest",
     )
     _, res = _b17b_ffa(gage_opts("example1"))
@@ -128,7 +128,7 @@ def test_comparison_puts_b17b_beside_b17c():
     assert float(rows["1"][3]) == pytest.approx(max(flows) / min(flows), abs=0.006)
     assert BULLETIN_17B in content.references
     said = text_of(content.blocks)
-    assert f"Bulletin 17B, {LABEL}, 90-percent confidence limits (Bulletin 17B)" in said
+    assert f"; {LABEL}, 90-percent confidence limits (Bulletin 17B)" in said
     assert "superseded by Bulletin 17C" in said and "estimated by 2 methods" in said
     assert "gives no answer" not in said and content.cautions == []
 
@@ -199,14 +199,18 @@ def test_a_bad_option_still_raises():
         ("Gage", f"Gage, {LABEL}"),
         (f"Old study, {LABEL}", f"Old study, {LABEL}"),
         ("bulletin 17b (SUPERSEDED), old skew", "bulletin 17b (SUPERSEDED), old skew"),
-        ("Bulletin 17B", f"Bulletin 17B, {LABEL}"),
+        ("Bulletin 17B", LABEL),
+        ("bulletin 17b, old skew", "bulletin 17b, old skew (superseded)"),
+        ("Superseded bulletin 17B fit", "Superseded bulletin 17B fit"),
+        ("Superseded", f"Superseded, {LABEL}"),
+        ("Bulletin 17C", f"Bulletin 17C, {LABEL}"),
     ],
 )
 def test_column_headers_and_headings_say_superseded_once(label, shown):
-    content = compare(b17c(), b17b(label))
+    content = compare(b17c("Gage fit"), b17b(label))
     assert table(content).header[2] == f"{shown} (cfs)"
     assert table(content, LIMITS_CAPTION).header[2] == f"{shown} (cfs)"
-    assert headings(content) == ["Bulletin 17C", shown]
+    assert headings(content) == ["Gage fit", shown]
 
 
 def test_the_subsection_keeps_its_own_labels():
@@ -219,6 +223,8 @@ def test_the_subsection_keeps_its_own_labels():
 def test_the_same_shown_label_is_refused():
     with pytest.raises(ReportError, match="two estimates have the same label"):
         compare(b17b("Gage"), b17b(f"Gage, {LABEL}"))
+    with pytest.raises(ReportError, match="two estimates have the same label"):
+        compare(b17b("Bulletin 17B"), b17b(LABEL))
     with pytest.raises(ReportError, match="two estimates have the same label"):
         compare(b17c("Gage"), b17c("Gage"))
 
@@ -365,7 +371,7 @@ def test_the_figure_draws_every_estimate_with_its_limits(drawn):
         assert flows[["lower", "upper"]].notna().all(axis=None)
     caption = caption_of(content)
     assert caption.startswith(CURVES)
-    assert f"Superseded: Procedure of 1982, {LABEL}." in caption
+    assert f"Superseded, dashed: Procedure of 1982, {LABEL}." in caption
     assert "Regression, 90-percent prediction limits" in caption
     assert "90-percent confidence limits (Bulletin 17B)" in caption
 
@@ -381,40 +387,102 @@ def test_a_refused_estimate_is_not_drawn(drawn):
     ((curves, _, _),) = drawn
     assert [label for label, _ in curves] == ["Bulletin 17C", f"Old, {LABEL}"]
     caption = caption_of(content)
-    assert caption.startswith(CURVES) and f"Superseded: Old, {LABEL}." in caption
+    assert caption.startswith(CURVES) and f"Superseded, dashed: Old, {LABEL}." in caption
     assert f"Not drawn: Old procedure, {LABEL}." in caption
 
 
 def test_the_caption_names_only_what_is_drawn():
     only_17c = caption_of(compare(b17c(), refused(), detail=False))
     assert only_17c.startswith("Bulletin 17C frequency curves.")
-    assert "Superseded:" not in only_17c
+    assert "Superseded, dashed:" not in only_17c
     two = caption_of(compare(b17b("A"), b17b("B", generalized_skew=-0.3), detail=False))
     assert two.startswith(f"{LABEL} frequency curves.")
-    assert f"Superseded: A, {LABEL}; B, {LABEL}." in two
+    assert f"Superseded, dashed: A, {LABEL}; B, {LABEL}." in two
     moved = {"label": "Moved", "kind": "transposed", "options": dict(TRANSPOSED)}
     assert caption_of(compare(moved, b17b(), detail=False)).startswith(CURVES)
     regression = {"label": "R", "kind": "ungaged", "options": dict(TENNESSEE)}
     assert caption_of(compare(regression, refused(), detail=False)).startswith("Frequency curves.")
 
 
-def test_the_figure_is_on_the_summary_axis(monkeypatch):
+@pytest.fixture
+def figures(monkeypatch: pytest.MonkeyPatch) -> Iterator[List[Any]]:
+    """The figures drawn, left open."""
     shown: List[Any] = []
 
     def keep(fig: Any) -> bytes:
+        fig.canvas.draw()
         shown.append(fig)
-        return b"\x89PNG"
+        return b"png"
 
     monkeypatch.setattr(_base, "_figure_png", keep)
+    yield shown
+    for fig in shown:
+        plt.close(fig)
+
+
+def legend_of(fig: Any) -> List[str]:
+    return [t.get_text() for t in fig.axes[0].get_legend().get_texts()]
+
+
+def curves_of(fig: Any) -> List[Any]:
+    """The curves, without the limits."""
+    return [line for line in fig.axes[0].get_lines() if line.get_marker() == "o"]
+
+
+def test_the_figure_is_on_the_summary_axis(figures):
     compare(b17c(), b17b(), detail=False)
-    (fig,) = shown
+    (fig,) = figures
     (ax,) = fig.axes
     assert ax.get_yscale() == "log"
     assert [t.get_text() for t in ax.get_xticklabels()][-2:] == ["0.5", "0.2"]
-    labels = [t.get_text() for t in ax.get_legend().get_texts()]
-    assert labels == ["Bulletin 17C", f"Procedure of 1982, {LABEL}"]
+    assert legend_of(fig) == ["Bulletin 17C", f"Procedure of 1982, {LABEL}"]
     assert len(ax.collections) == 2  # a band for each
-    plt.close(fig)
+
+
+@pytest.mark.parametrize("label", ["_hidden", "$x^{$ in dollars", "$_{$", "50% $"])
+def test_any_label_is_drawn_as_written(figures, label):
+    compare(b17c(label), b17b(), site_name="Cash $^$ Creek", detail=False)
+    (fig,) = figures
+    assert legend_of(fig) == [label, f"Procedure of 1982, {LABEL}"]
+    assert fig.axes[0].get_title() == "Flood frequency at Cash $^$ Creek"
+
+
+@pytest.mark.parametrize("label", ["_hidden", "$x^{$ in dollars"])
+def test_any_label_is_drawn_as_written_in_a_summary(figures, label):
+    estimates = [{**ORDINARY[0], "label": label}]
+    build_section("site_summary", {**SUMMARY, "estimates": estimates})
+    assert legend_of(figures[-1]) == [label]
+
+
+def test_the_legend_covers_nothing(figures):
+    long = "Regional regression equations of the study, drainage area only, " * 3
+    regression = {"label": long, "kind": "ungaged", "options": dict(TENNESSEE)}
+    compare(b17c(), b17b(), b17b("Old skew", generalized_skew=-0.3), regression, detail=False)
+    (fig,) = figures
+    (ax,) = fig.axes
+    box, legend = ax.get_window_extent(), ax.get_legend().get_window_extent()
+    assert legend.y1 < min(t.get_window_extent().y0 for t in ax.get_xticklabels())
+    assert legend.y1 < ax.xaxis.label.get_window_extent().y0
+    assert legend.width < 1.3 * box.width  # long labels are wrapped
+    assert " ".join(legend_of(fig)[-1].split()) == long.strip()
+
+
+def test_a_summary_keeps_its_legend_inside(figures):
+    build_section("site_summary", dict(SUMMARY))
+    ax = figures[-1].axes[0]
+    assert ax.get_window_extent().contains(*ax.get_legend().get_window_extent().p0)
+    assert {line.get_linestyle() for line in curves_of(figures[-1])} == {"-"}
+
+
+def test_coinciding_curves_both_show(figures):
+    compare(b17b("First"), b17c(), b17b("Second", generalized_skew=-0.3), detail=False)
+    old, new, other = curves_of(figures[0])
+    at = dict(zip(new.get_xdata().round(6), new.get_ydata()))
+    both = [(at[x], y) for x, y in zip(old.get_xdata().round(6), old.get_ydata()) if x in at]
+    assert len(both) == 10 and all(a == pytest.approx(b) for a, b in both)
+    assert new.get_linestyle() == "-"
+    assert old.get_linestyle() == "--" and other.get_linestyle() == "--"
+    assert min(old.get_zorder(), other.get_zorder()) > new.get_zorder()
 
 
 def test_the_figure_leaves_no_pyplot_figure_open():

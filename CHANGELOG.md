@@ -13,16 +13,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and perception thresholds) and a `b17b_ffa` report section run the 1982 procedure, for comparing a Bulletin 17C
   answer with an older study. A `comparison` section takes a `b17b_ffa` estimate, labels it
   "Bulletin 17B (superseded)" and then adds a plot of the curves; a record Bulletin 17B refuses shows a column of "-"
-  and the reason. Nothing computes it unless asked: `Bulletin17C`, `run_ffa`, the command line, the chat tools,
+  and the reason. Nothing computes it unless asked: `Bulletin17C`, `run_ffa`, the command line, the chat tools
+  (`compare_estimates` takes a `b17b_ffa` section only if the report already has one),
   `site_summary` (which refuses it) and every existing report are unchanged.
   - Checked against the bulletin: Appendix 12 examples 1 to 4, the Appendix 6 Big Sandy example, and the Appendix 9
     (confidence limits) and Appendix 11 (expected probability) checks. Of the 573 peak records in the vendored peakfq
     test data, 482 are accepted as input and 91 are refused with a reason (one of the 482 is then refused for
     its zero years).
-  - Known limits. Example 4 by hand computation (`hand_computation=True`) gives a skew of -0.5, not the printed -0.4,
-    and a 1-percent flood 11 percent below the printed one: the bulletin read its adjusted curve by eye. For the same
-    reason three rows of Example 4 differ in the exact mode, the default, by up to 17 percent (at 99 percent AEP). No
-    PeakFQ 5 output has been checked. No person has reviewed the code; the reviews were by agents.
+  - Known limits. In Example 4 the bulletin read its adjusted curve by eye. In the exact mode, the default, three of
+    its rows differ by more than 5 percent (the largest 17 percent, at 99 percent AEP) and the others by less. By hand
+    computation (`hand_computation=True`) the largest difference is 16 percent, at 0.2 percent AEP, because the
+    weighted skew rounds to -0.5, not the printed -0.4. No PeakFQ 5 output has been checked. No person has reviewed the code; the reviews were by agents.
 
 - **Ice events from gauge qualifiers and cold air.** `flowfreq.ice` (winter and event counting, cold-air days,
   gauge `ICE` qualifiers, gauge-versus-air QA/QC), `flowfreq.ghcn.fetch_ghcn_daily` (NCEI daily TMIN/TMAX) and the

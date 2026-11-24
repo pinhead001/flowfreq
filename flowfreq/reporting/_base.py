@@ -5,6 +5,7 @@ from __future__ import annotations
 import io
 import math
 import re
+import textwrap
 from dataclasses import dataclass, field, replace
 from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
@@ -39,6 +40,10 @@ _PEAK_KEYS = (
 
 
 _FIGURE_DPI = 200
+
+
+#: Characters to a line of a legend below its axes.
+_LEGEND_WIDTH = 80
 
 
 #: The authors and year a USGS-style citation opens with: "Eash, D.A., and Veilleux, A.G., 2013,".
@@ -200,9 +205,20 @@ def _figure_png(fig: Any) -> bytes:
 
 
 def _curve_figure(
-    curves: Sequence[Tuple[str, pd.DataFrame]], aeps: Sequence[float], where: str
+    curves: Sequence[Tuple[str, pd.DataFrame]],
+    aeps: Sequence[float],
+    where: str,
+    *,
+    dashed: Sequence[str] = (),
+    legend_below: bool = False,
 ) -> bytes:
-    """Each method's flood quantiles against AEP on a normal probability axis, with limits."""
+    """Each method's flood quantiles against AEP on a normal probability axis, with limits.
+
+    Curves labeled in ``dashed`` are drawn dashed, over the others and out of step with each
+    other, so that a curve they coincide with shows. ``legend_below`` puts the legend under
+    the axes, its long labels wrapped, where it covers nothing. Labels and ``where`` are
+    drawn as written, a dollar sign or a leading underscore included.
+    """
     import matplotlib.pyplot as plt
     from matplotlib.ticker import FuncFormatter
     from scipy.special import ndtri
@@ -214,7 +230,12 @@ def _curve_figure(
         rows = rows[(rows["aep"] <= top) & (rows["aep"] >= bottom)]
         x = -ndtri(rows["aep"].to_numpy(dtype=float))
         color = f"C{index}"
-        ax.plot(x, rows["flow_cfs"], "-o", color=color, markersize=4, label=label)
+        style: Dict[str, Any] = {"linestyle": "-"}
+        if label in dashed:
+            step, n = dashed.index(label), len(dashed)
+            style = {"linestyle": (2 * (n + 1 - step), (2, 2 * n)), "zorder": 3}
+        # A placeholder: the legend leaves out a label that begins with an underscore.
+        ax.plot(x, rows["flow_cfs"], marker="o", color=color, markersize=4, label="curve", **style)
         limits = rows.dropna(subset=["lower", "upper"])
         if not limits.empty:
             xl = -ndtri(limits["aep"].to_numpy(dtype=float))
@@ -231,9 +252,18 @@ def _curve_figure(
     ax.tick_params(axis="y", which="minor", labelsize=8)
     ax.set_xlabel("Annual exceedance probability (percent)")
     ax.set_ylabel("Flow (cfs)")
-    ax.set_title(f"Flood frequency at {where}")
+    ax.set_title(f"Flood frequency at {where}", parse_math=False)
     ax.grid(True, which="both", alpha=0.3)
-    ax.legend(loc="lower right")
+    if legend_below:
+        # Handles long enough to show a dash of every curve.
+        legend = ax.legend(
+            loc="upper center", bbox_to_anchor=(0.5, -0.12), frameon=False, handlelength=4
+        )
+    else:
+        legend = ax.legend(loc="lower right")
+    for text, (label, _) in zip(legend.get_texts(), curves):
+        text.set_parse_math(False)
+        text.set_text(textwrap.fill(label, _LEGEND_WIDTH) if legend_below else label)
     return _figure_png(fig)
 
 
