@@ -520,6 +520,11 @@ def _lyne_hollick(flows: np.ndarray, alpha: float = 0.925, passes: int = 3) -> n
     through the entire remainder of the recursion (and, with backward
     passes, potentially the portion before it too). Splitting on gap-free
     runs contains that to exactly the missing day(s) themselves.
+
+    The filter starts at zero quickflow at each end of a run. Ladson and others (2013) reflect
+    30 days there instead. On the three records of ``tests/fixtures/bfi`` (25 to 30 years) the
+    index differs from theirs by 0.0002 at most, all of it within 200 days of an end; on 67 days
+    of the Bass River, their own sample, it is 0.10 against 0.20 (alpha 0.98).
     """
     result = np.full(len(flows), np.nan)
     for start, end in _gap_free_runs(flows):

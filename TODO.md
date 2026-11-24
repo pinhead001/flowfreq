@@ -7,7 +7,7 @@
 ## Status
 Last updated: 2026-11-23. Version **0.28.1** is released (tag `v0.28.1`, from `release/0.28.x`). `main` carries
 **0.29.0.dev0**; 0.28.x patches come from `release/0.28.x` (CLAUDE.md, Branches and Releases).
-flowfreq-app pins v0.28.0 (app #55, merged 2026-11-21); app #56, open, pins v0.28.1.
+flowfreq-app pins v0.28.1 (app #56, merged 2026-11-24).
 51 jurisdictions are `verified`, and 5 have no equations.
 
 **StreamStats blocked this machine's address (HTTP 403) from 2026-11-09 14:40 to 2026-11-16, on purpose: issue
@@ -26,10 +26,9 @@ Three read-only reviews, each from the published reports: no stored number was w
 refused both sets wherever NSS located a region; Texas took total drainage area; the cautions were thin and some
 report sections dropped them; half the AEPs of `Urban 2026` had no test. Not reviewed: #416, #418, #422. Left:
 
-- MD: with GC1480's inputs missing, the Piedmont urban set (GC1481) is averaged in below its 10 percent impervious
-  gate, with a log warning only (with `allow_extrapolation` where IMPERV is out of range). Same before #419.
-- `SiteEstimate.to_markdown` says a multi-region basin's flows "are area-weighted" in either space; which one is
-  only in `provenance["options"]`.
+- MD: with GC1480's inputs missing and `allow_extrapolation`, the Piedmont urban set (GC1481) is averaged in below its
+  10 percent impervious limit. The estimate is marked extrapolated and names IMPERV, so this was left; without
+  `allow_extrapolation` it is refused. Same before #419.
 - `tools/build_urban_2026.py` drops any note written after its own " Urban 2026: " text in a state file.
 
 ### Review of 2026-11-19
@@ -117,14 +116,15 @@ Library follow-ups the batches found, none changed:
     - MT limits the rule to AEPs above 4 percent for a basin running from the Northwest region into the
       Northwest Foothills (SIR 2015-5019-F p. 13). Done 2026-11-16: the library still weights at every AEP, and
       an estimate weighting NW with NWF carries a caution naming the AEPs at 4 percent and rarer
-      (`weighting_cautions` in `MT.json`). The channel-width sets (SIR 2020-5142) weren't read for the rule.
+      (`weighting_cautions` in `MT.json`). The channel-width report (SIR 2020-5142, pp. 38 and 47) says the same of
+      its sets, and averages in flow; they carry the caution since 2026-11-24.
     - Read 2026-11-15 and silent on such basins, so left in log: AK, AL (2020 and 2010), AR, CT, DE (2022 and
       2006), HI, ID, KS, LA, MA, ME, MI, MN (2023 and 2019), MO (2014 and 2010), MS, ND, NE, NH, NM (2008), OH,
       OK, OR (SIR 2005-5116), PA, PR, RI, TN, TX, UT (SIR 2007-5158), VA and WV (SIR 2025-5110), VT, WA, WI.
       The reading was a text search of each PDF for weighting language, not a full read.
     - Read 2026-11-23: IL (ICT 23-019) and eastern OR (Cooper, 2006) are silent by a text search, so left in log.
-      MD is not (above). IN picks a region by point location. Every state has now been searched, but not two
-      stored reports: MT's SIR 2020-5142 (above) and the Navajo Nation's (Waltemeyer, 2006; NM and UT).
+      MD is not (above). IN picks a region by point location. The Navajo Nation's report (Waltemeyer, 2006; NM and
+      UT) is silent by a text search too (2026-11-24), so every stored report has been searched.
     - SIR 2013-5086 (p. 34) says StreamStats itself weights in flow by drainage area for a site draining more
       than one region, citing Ries and others (2008). If that holds in every state, a silent state's log
       average differs from what StreamStats returns. Whether to make `linear` the default everywhere is the
@@ -185,15 +185,17 @@ page in the app was dropped, since only the owner chats. Not yet done:
 - Connect `flowfreq-mcp` to Claude Code or Claude Desktop and write a report with it. The tests drive the
   server in process and over stdio from an `mcp.Client`; no chat client has been attached.
 - Open a DOCX in Word. The tests read each one back with python-docx, which checks structure, not layout.
-- Run the tools that reach a service: `find_gage` and `run_ffa` against the Water Data API with no peaks
-  supplied, and `estimate_ungaged` against StreamStats (refused, as above). The tests stub every request.
+- Run `estimate_ungaged` against StreamStats (waits, as above). `find_gage`, `run_ffa` (peaks downloaded from the Water
+  Data API), `get_section` and `render_report` ran live through an in-process `mcp.Client` on 2026-11-24 at USGS 03606500.
 - The section kinds `low_flow`, `flow_duration` and `future_flow` (2026-11-16): the tests use a synthetic
   daily record and made-up factors. `low_flow` and `flow_duration` were also built once from the Water Data
   API at USGS 03606500 (80 years used, 18 left out as incomplete; 7Q10 37.8 ft3/s), through `build_report`
   and not through a chat client, and nobody has checked those numbers against another program.
 - `monthly_statistics`, `summary_hydrograph` and `baseflow` (2026-11-22): built once from the Water Data API at USGS
   03606500 and read in Word. HYSEP is checked against WRIR 96-4040's French Creek example (#412, ported to 0.28.x in
-  #413); `lyne_hollick` has not been checked against another program.
+  #413). `lyne_hollick` was checked on 2026-11-24 against Ladson and others' BFI.R (2013): the same to 1e-7 of the mean
+  flow away from the ends of a record, where theirs reflects 30 days and ours does not. The index differs by 0.0002 at most on
+  25 years and up, but is 0.10 against 0.20 on their 67-day sample. Whether to reflect is the owner's call.
   `ih_smoothed_minima` was, on 23 gages against the USGS BFI program's published indexes (OFR 03-146,
   2026-11-23): 0.016 high on average (median 0.012, most 0.061), mostly because the program joins the logarithms of the
   turning points and ours joins the flows. `ih_smoothed_minima_log` joins logarithms (mean difference -0.001, largest 0.033; the owner's

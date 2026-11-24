@@ -1455,9 +1455,11 @@ class SiteEstimate:
         else:
             lines.append("- Every input lies within the calibrated range of the equations used.")
         if len(self.regions) > 1:
+            space = (self.provenance.get("options") or {}).get("weighting_space")
+            how = {"linear": " in flow", "log": " in the logarithms of flow"}.get(str(space), "")
             lines.append(
                 f"- The basin spans {len(self.regions)} regression regions; the flows are "
-                "area-weighted and carry no prediction interval."
+                f"area-weighted{how} and carry no prediction interval."
             )
         missing = self.provenance.get("missing_characteristics")
         if missing:

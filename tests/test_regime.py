@@ -15,6 +15,7 @@ from flowfreq.regime import (
     _hysep_interval_days,
     _ih_smoothed_minima,
     _interpolate_baseflow,
+    _lyne_hollick,
     baseflow_index,
     diel_variation,
     diel_variation_summary,
@@ -964,3 +965,114 @@ class TestDielVariationSummary:
         assert summary["n_days"] == 0
         assert np.isnan(summary["mean_diel_amplitude_cfs"])
         assert np.isnan(summary["mean_diel_cv"])
+
+
+class TestLyneHollickAgainstLadson:
+    """Ladson and others (2013), the program BFI.R of 1 October 2013 (TonyLadson on GitHub).
+
+    It reflects 30 days at each end and starts the filter at the first flow; ours does neither,
+    so the two differ near the ends of a record and nowhere else.
+    """
+
+    #: Bass River at Loch, 67 daily flows (the paper's own sample).
+    BASS = [
+        5,
+        7,
+        108,
+        117,
+        57,
+        36,
+        26,
+        95,
+        1169,
+        308,
+        144,
+        89,
+        62,
+        48,
+        40,
+        35,
+        73,
+        82,
+        342,
+        393,
+        310,
+        275,
+        260,
+        245,
+        256,
+        141,
+        119,
+        934,
+        382,
+        158,
+        96,
+        122,
+        103,
+        83,
+        67,
+        148,
+        366,
+        161,
+        119,
+        82,
+        330,
+        294,
+        261,
+        266,
+        153,
+        247,
+        703,
+        498,
+        286,
+        163,
+        124,
+        85,
+        94,
+        81,
+        62,
+        47,
+        37,
+        30,
+        26,
+        24,
+        24,
+        22,
+        21,
+        20,
+        19,
+        18,
+        18,
+    ]
+
+    @staticmethod
+    def _ladson(flows: np.ndarray, alpha: float, reflect: int = 30) -> np.ndarray:
+        def one_pass(y: np.ndarray) -> np.ndarray:
+            quick = np.empty(len(y))
+            quick[0] = y[0]
+            for i in range(1, len(y)):
+                quick[i] = alpha * quick[i - 1] + 0.5 * (1 + alpha) * (y[i] - y[i - 1])
+            return np.where(quick > 0, y - quick, y)
+
+        padded = np.concatenate([flows[reflect:0:-1], flows, flows[-2 : -reflect - 2 : -1]])
+        base = one_pass(one_pass(one_pass(padded)[::-1])[::-1])
+        return np.maximum(base[reflect:-reflect], 0.0)
+
+    def test_the_transcription_gives_the_programs_printed_index(self):
+        flows = np.array(self.BASS, dtype=float)
+        index = self._ladson(flows, 0.98).sum() / flows.sum()
+        assert index == pytest.approx(0.1965759, abs=5e-8)  # printed in BFI_example.R
+
+    def test_away_from_the_ends_of_a_record_ours_is_the_same(self):
+        frame = pd.read_csv(Path(__file__).parent / "fixtures" / "bfi" / "13077700_daily.csv.gz")
+        flows = frame["flow_cfs"].dropna().to_numpy(dtype=float)
+        ours, theirs = _lyne_hollick(flows, 0.925), self._ladson(flows, 0.925)
+        assert len(flows) == 11049
+        apart = np.abs(ours - theirs)
+        assert apart[200:-200].max() < 1e-6 * flows.mean()
+        assert ours.sum() / theirs.sum() == pytest.approx(1.0, abs=3e-4)
+
+    def test_a_record_of_two_months_is_not(self):
+        flows = np.array(self.BASS, dtype=float)
+        ours = _lyne_hollick(flows, 0.98).sum() / flows.sum()
+        assert ours == pytest.approx(0.1022, abs=5e-5)  # against 0.1966

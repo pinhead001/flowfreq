@@ -126,3 +126,24 @@ def test_maryland_weights_the_regions_estimates():
     _, flow = _flow("MD", characteristics, regions, 0.01)
     assert alone[0] != pytest.approx(alone[1], rel=0.05)
     assert flow == pytest.approx(0.3 * alone[0] + 0.7 * alone[1])
+
+
+@pytest.mark.parametrize(
+    "space,words",
+    [
+        ("linear", "area-weighted in flow and"),
+        ("log", "area-weighted in the logarithms of flow and"),
+    ],
+)
+def test_the_estimates_own_report_says_which_space(space, words):
+    est = estimate_from_characteristics(
+        "MT",
+        {"CONTDA": 100.0, "PRECIP": 15.0},
+        region={"NW": 40.0, "NWF": 60.0},
+        aeps=[0.1],
+        lat=48.0,
+        lon=-112.5,
+        weighting_space=space,
+    )
+    text = est.to_markdown()
+    assert words in text and "carry no prediction interval" in text
