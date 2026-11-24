@@ -360,7 +360,7 @@ def test_high_first_low_outlier_found_after_the_adjustment():
     first = historic_moments(np.delete(x, 18), x[18:19], h=100, l=0)
     s = b._screen_and_adjust([])
     assert s.high_outliers == [(1968, 20000.0)] and s.low_outliers == [(1969, 220.0)]
-    assert s.low_threshold_log == pytest.approx(first.mean - outlier_k(20) * first.std)
+    assert math.log10(s.low_threshold) == pytest.approx(first.mean - outlier_k(20) * first.std)
     steps = []
     b._screen_and_adjust(steps)
     made = [t for t in steps if "historic adjustment of Appendix 6" in t]
@@ -370,8 +370,6 @@ def test_high_first_low_outlier_found_after_the_adjustment():
     again = historic_moments(x[:18], x[18:19], h=100, l=1)
     assert (s.historic.l, s.historic.z, s.n_systematic) == (1, 1, 18)
     assert (s.mean, s.std, s.skew) == pytest.approx(again[1:], abs=1e-12)
-    with pytest.raises(Bulletin17BError, match="not implemented"):
-        b.run_analysis()
 
 
 def test_low_first_high_outlier_found_after_the_low_is_dropped():
@@ -387,13 +385,11 @@ def test_low_first_high_outlier_found_after_the_low_is_dropped():
     assert "replaces" not in " ".join(steps)
     assert s.order == "low first"
     assert s.low_outliers == [(1968, 0.5)] and s.high_outliers == [(1969, 3500.0)]
-    assert s.low_threshold_log == pytest.approx(mean - outlier_k(20) * std)
+    assert math.log10(s.low_threshold) == pytest.approx(mean - outlier_k(20) * std)
     assert s.high_threshold_log == pytest.approx(m2 + outlier_k(19) * s2)
     expected = historic_moments(x[:18], x[19:], h=100, l=1)
     assert s.historic.l == 1
     assert (s.mean, s.std, s.skew) == pytest.approx(expected[1:], abs=1e-12)
-    with pytest.raises(Bulletin17BError, match="not implemented"):
-        b.run_analysis()
 
 
 def test_both_branch_drops_low_outliers_then_adjusts():
@@ -406,13 +402,11 @@ def test_both_branch_drops_low_outliers_then_adjusts():
     assert s.order == BOTH
     assert s.high_outliers == [(1968, 40000.0)] and s.low_outliers == [(1969, 26.0)]
     assert s.high_threshold_log == pytest.approx(mean + outlier_k(20) * std)
-    assert s.low_threshold_log == pytest.approx(mean - outlier_k(20) * std)
+    assert math.log10(s.low_threshold) == pytest.approx(mean - outlier_k(20) * std)
     expected = historic_moments(x[:18], x[18:19], h=100, l=1)
     assert (s.historic.l, s.historic.z) == (1, 1)
     assert s.historic.w == pytest.approx(99 / 19)
     assert (s.mean, s.std, s.skew) == pytest.approx(expected[1:], abs=1e-12)
-    with pytest.raises(Bulletin17BError, match="not implemented"):
-        b.run_analysis()
 
 
 def test_low_outlier_without_history_is_dropped_from_the_moments():

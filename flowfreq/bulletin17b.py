@@ -426,6 +426,9 @@ def expected_probability(aep: np.ndarray, n: int) -> np.ndarray:
 #: ones and low outliers have been dropped. Appendix 4 starts at 10 as well.
 MIN_SYSTEMATIC = 10
 
+#: Largest share of the systematic record that may be truncated (p. 5-1).
+MAX_TRUNCATED = 0.25
+
 #: The bulletin's frequency-table rows (Table 12-3), as annual exceedance probabilities.
 STANDARD_AEP: tuple[float, ...] = (0.99, 0.90, 0.50, 0.10, 0.05, 0.02, 0.01, 0.005, 0.002)
 
@@ -463,7 +466,25 @@ class HistoricAdjustment:
 
 @dataclass
 class ConditionalAdjustment:
-    """Conditional probability adjustment of Appendix 5 (filled in when it is made)."""
+    """Conditional probability adjustment of Appendix 5 (filled in when it is made).
+
+    Attributes
+    ----------
+    p_tilde : float
+        Probability that an annual peak is above the truncation level: N / n (eq. 5-1a),
+        or (H - W L) / H after a historic adjustment (eq. 5-1b).
+    n_truncated : int
+        Truncated years: zeros, years below the gage base and low outliers (L).
+    mean, std, skew : float
+        Moments of the conditional curve, from the peaks kept (historically adjusted when
+        that adjustment was made). Never rounded; hand-computation mode evaluates the
+        curve at the skew rounded to a tenth.
+    q01, q10, q50 : float
+        Adjusted curve in cfs at exceedance probabilities 0.01, 0.10 and 0.50, which is
+        the conditional curve at P / ``p_tilde`` (eq. 5-2).
+    mean_s, std_s, skew_s : float
+        Synthetic statistics (eqs. 5-3 to 5-5). The skew is not yet weighted.
+    """
 
     p_tilde: float
     n_truncated: int
@@ -489,13 +510,15 @@ class Bulletin17BResults:
     n_systematic : int
         Peaks that enter the moments (the bulletin's N).
     n_zeros, n_below_base : int
-        Years left out of the moments as zeros or below the gage base.
+        Years left out of the moments as zeros or below the gage base. A below-base year
+        whose recorded flow is zero counts as below base only.
     outlier_order : str
         ``"high first"``, ``"low first"`` or ``"both on unadjusted statistics"``.
     high_outlier_threshold, low_outlier_threshold : float
-        Outlier thresholds in cfs, from the statistics each test used (eqs. 7, 8a, 8b).
+        Outlier thresholds in cfs, from the statistics each test used (eqs. 7, 8a, 8b),
+        or the low-outlier threshold the caller gave.
     high_outliers, low_outliers : list of (year, flow)
-        Peaks the tests flagged.
+        Peaks above the high threshold and strictly below the low one.
     historic, conditional : optional
         Appendix 6 and Appendix 5 adjustments, ``None`` when not made.
     mean_log, std_log : float
@@ -514,9 +537,13 @@ class Bulletin17BResults:
     quantiles : pandas.DataFrame
         Columns ``aep, flow_cfs, log_flow, K_factor, lower, upper,
         expected_probability``. ``lower`` and ``upper`` are the confidence limits in cfs.
+        After a conditional adjustment, rows with an AEP above ``conditional.p_tilde``
+        extrapolate the synthetic curve below the truncation level; ``steps`` names them.
     plotting_positions : pandas.DataFrame
         Columns ``year, flow_cfs, weighted_order, exceedance``: Weibull positions, and
         Appendix 6's weighted ones (eqs. 6-6 to 6-8, a = 0) after a historic adjustment.
+        Every year of the systematic record has a row, so truncated years take ranks too:
+        low outliers at their flow, then below-base years (``flow_cfs`` NaN), then zeros.
     steps : list of str
         One plain sentence per decision of the bulletin flow chart.
     """
@@ -568,15 +595,6 @@ def _require_unique_years(years: Sequence[int], name: str) -> None:
         raise Bulletin17BError(f"{name} appears more than once: {dup}")
 
 
-def _is_same_flood(a: float, b: float) -> bool:
-    """True when two AEPs are one flood.
-
-    ``same_aep`` alone takes 0.995 and 0.99 for each other, so the non-exceedances have
-    to agree too. 2 percent keeps 0.667 and 0.67 together.
-    """
-    return same_aep(a, b) and same_aep(1.0 - a, 1.0 - b, tolerance=0.02)
-
-
 def _nearest_tenth(x: float) -> float:
     """Round to the nearest tenth with ties away from zero, on the decimal value.
 
@@ -600,7 +618,7 @@ class _Screened(NamedTuple):
 
     order: str
     high_threshold_log: float
-    low_threshold_log: float
+    low_threshold: float
     high_outliers: list[tuple[int, float]]
     low_outliers: list[tuple[int, float]]
     historic: Optional[HistoricAdjustment]
@@ -610,18 +628,16 @@ class _Screened(NamedTuple):
     skew: float
 
 
-def _not_implemented(what: str) -> Bulletin17BError:
-    return Bulletin17BError(f"{what} is not implemented yet in Bulletin17B")
+def _year_list(years: Sequence[int]) -> str:
+    return ", ".join(str(y) for y in years)
 
 
 class Bulletin17B:
     """Bulletin 17B (1982) flood frequency analysis, superseded by Bulletin 17C.
 
-    This version handles a systematic record without zero flows or low outliers:
-    moments of the log peaks, the outlier tests, the historic adjustment of Appendix 6,
-    skew weighting, the log-Pearson III curve, confidence limits and expected
-    probability. Records that need zero or low-outlier treatment are refused until
-    those steps exist.
+    The steps are the moments of the log peaks, the outlier tests, the historic adjustment
+    of Appendix 6, the conditional probability adjustment of Appendix 5, skew weighting,
+    the log-Pearson III curve, confidence limits and expected probability.
 
     The outlier tests follow the flow chart on p. 12-3. With a station skew above +0.4
     the high test and the historic adjustment come first, and the low test after an
@@ -630,10 +646,16 @@ class Bulletin17B:
     the unadjusted statistics. Low outliers are then dropped and the historic
     adjustment is made, with L counting them.
 
+    Zero flows, years below the gage base and low outliers are truncated: they stay in the
+    record length and in L but not in the moments. A record with any of them gets the
+    conditional probability adjustment, and its curve comes from the synthetic statistics
+    (eqs. 5-3 to 5-5). A record with more than 25 percent of its years truncated is
+    refused.
+
     Parameters
     ----------
     peak_flows : sequence of float
-        Annual peak flows in cfs.
+        Annual peak flows in cfs. Zero is a zero flood year. Negative flows are refused.
     water_years : sequence of int
         Water year of each peak. A year may appear only once.
     generalized_skew : float, optional
@@ -648,9 +670,17 @@ class Bulletin17B:
         The period, of H = last - first + 1 years, in which the historic peaks and any
         high outliers are known to be the largest. It has to cover the systematic
         record. Without it, high outliers are kept in the systematic record. At least
-        10 systematic peaks have to be left once peaks have moved to the historic ones.
-    below_base_years, low_outlier_threshold
-        Inputs of later steps; giving one raises :class:`Bulletin17BError`.
+        10 systematic peaks have to be left once peaks have moved to the historic ones
+        and truncated years are out.
+    below_base_years : sequence of int, optional
+        Water years of the systematic record whose peak was below the gage base. A year
+        may have a flow in ``peak_flows`` or not; a flow given for it is not used. It may
+        not be a historic peak as well.
+    low_outlier_threshold : float, optional
+        Threshold in cfs that replaces the one of eq. 8a or 8b. Peaks strictly below it
+        are truncated as low outliers; a peak equal to it is kept. It is applied where the
+        flow chart has the low-outlier test, so a high test that the bulletin makes
+        without the low outliers is made without these.
     confidence : float, default 0.90
         Two-sided confidence level of the limits.
     aeps : sequence of float, optional
@@ -692,9 +722,15 @@ class Bulletin17B:
             raise Bulletin17BError("peak flows must not be negative")
         years = [_integer_year(y, "water year") for y in raw_years]
         _require_unique_years(years, "a water year")
-        order = np.argsort(years, kind="stable")
-        self._years = [years[i] for i in order]
-        self._flows = [flows[i] for i in order]
+        self._below_base_years = self._checked_below_base(below_base_years)
+        below = set(self._below_base_years)
+        measured = sorted((y, q) for y, q in zip(years, flows) if y not in below)
+        # The peaks above zero and above the gage base, which the statistics are made of.
+        self._years = [y for y, q in measured if q > 0.0]
+        self._flows = [q for _, q in measured if q > 0.0]
+        self._zero_years = [y for y, q in measured if q == 0.0]
+        # Every year of the systematic record, whether its peak was measured or not.
+        self._all_years = sorted(self._years + self._zero_years + self._below_base_years)
 
         self._gen_skew: Optional[float] = (
             None
@@ -714,14 +750,33 @@ class Bulletin17B:
             raise Bulletin17BError("AEPs must be a non-empty list of values between 0 and 1")
         for i, a in enumerate(aep_list):
             for b in aep_list[:i]:
-                if _is_same_flood(a, b):
+                if same_aep(a, b):
                     raise Bulletin17BError(f"{b:g} and {a:g} are the same AEP given twice")
         self._aeps = aep_list
         self._hand = bool(hand_computation)
         self._historic_period = self._checked_period(historic_period)
         self._historic_peaks = self._checked_historic_peaks(historic_peaks)
-        self._below_base_years = below_base_years
-        self._low_threshold = low_outlier_threshold
+        self._low_threshold: Optional[float] = None
+        if low_outlier_threshold is not None:
+            threshold = _finite_number(low_outlier_threshold, "low_outlier_threshold")
+            if threshold <= 0.0:
+                raise Bulletin17BError(f"low_outlier_threshold must be positive; got {threshold:g}")
+            self._low_threshold = threshold
+
+    @staticmethod
+    def _checked_below_base(years: Optional[Sequence[int]]) -> list[int]:
+        """The below-base years as sorted, distinct integers."""
+        if years is None:
+            return []
+        try:
+            raw = list(years)
+        except TypeError:
+            raise Bulletin17BError(
+                f"below_base_years must be a sequence of years; got {years!r}"
+            ) from None
+        checked = [_integer_year(y, "below-base year") for y in raw]
+        _require_unique_years(checked, "a below-base year")
+        return sorted(checked)
 
     def _checked_period(self, period: Optional[tuple[int, int]]) -> Optional[tuple[int, int]]:
         """The historic period as two years that cover the systematic record."""
@@ -737,10 +792,11 @@ class Bulletin17B:
         last = _integer_year(last_raw, "historic_period year")
         if last < first:
             raise Bulletin17BError(f"historic_period ends before it begins: {first} to {last}")
-        if self._years and not (first <= self._years[0] and self._years[-1] <= last):
+        record = self._all_years
+        if record and not (first <= record[0] and record[-1] <= last):
             raise Bulletin17BError(
                 f"historic_period {first} to {last} does not cover the systematic record, "
-                f"{self._years[0]} to {self._years[-1]}"
+                f"{record[0]} to {record[-1]}"
             )
         return first, last
 
@@ -773,7 +829,7 @@ class Bulletin17B:
             raise Bulletin17BError(
                 f"historic peak(s) in {outside} are outside the historic period {first} to {last}"
             )
-        both = sorted(set(years) & set(self._years))
+        both = sorted(set(years) & set(self._all_years))
         if both:
             raise Bulletin17BError(
                 f"historic peak(s) in {both} are in the systematic record as well"
@@ -786,40 +842,37 @@ class Bulletin17B:
         Raises
         ------
         Bulletin17BError
-            If the record is constant, has fewer than 10 or more than 149 peaks, or
-            needs a step that is not implemented yet.
+            If the record is constant, has fewer than 10 or more than 149 peaks above zero
+            and the gage base, has more than 25 percent of its years truncated, or gives a
+            synthetic skew outside the range of eq. 5-3.
         """
         steps: list[str] = []
-        self._require_supported()
-        n = len(self._years)
+        n = len(self._all_years)
         s = self._screen_and_adjust(steps)
-        if s.low_outliers:
-            # Task 5: the conditional probability adjustment (Appendix 5) goes here. The
-            # moments in ``s`` are already those without the low outliers.
-            listed = ", ".join(f"{y} ({q:g} cfs)" for y, q in s.low_outliers)
-            raise _not_implemented(
-                f"The low outlier treatment (the test flags {listed} below "
-                f"{10 ** s.low_threshold_log:,.0f} cfs)"
-            )
-        mean, std = s.mean, s.std
-        skew_mse = station_skew_mse(s.skew, n if s.historic is None else s.historic.h)
-        skew_w, skew_used = self._weight_skew(s.skew, skew_mse, steps)
+        mean, std, skew = s.mean, s.std, s.skew
+        conditional = self._adjust_for_truncation(s, steps)
+        if conditional is not None:
+            mean, std, skew = conditional.mean_s, conditional.std_s, conditional.skew_s
+        skew_mse = station_skew_mse(skew, n if s.historic is None else s.historic.h)
+        skew_w, skew_used = self._weight_skew(skew, skew_mse, steps)
         quantiles = self._frequency_curve(mean, std, skew_used, n, n, steps)
+        if conditional is not None:
+            self._note_extrapolation(conditional.p_tilde, steps)
         return Bulletin17BResults(
             n_years=n,
             n_systematic=s.n_systematic,
-            n_zeros=0,
-            n_below_base=0,
+            n_zeros=len(self._zero_years),
+            n_below_base=len(self._below_base_years),
             outlier_order=s.order,
             high_outlier_threshold=float(10.0**s.high_threshold_log),
-            low_outlier_threshold=float(10.0**s.low_threshold_log),
+            low_outlier_threshold=s.low_threshold,
             high_outliers=s.high_outliers,
             low_outliers=s.low_outliers,
             historic=s.historic,
-            conditional=None,
+            conditional=conditional,
             mean_log=mean,
             std_log=std,
-            skew_station=s.skew,
+            skew_station=skew,
             skew_station_mse=skew_mse,
             skew_generalized=self._gen_skew,
             skew_generalized_mse=None if self._gen_skew is None else self._gen_mse,
@@ -830,21 +883,118 @@ class Bulletin17B:
             steps=steps,
         )
 
-    def _require_supported(self) -> None:
-        """Refuse inputs only the later steps can treat, rather than answer wrongly."""
+    @property
+    def _n_unmeasured(self) -> int:
+        """Zero and below-base years, the part of L known before any outlier test."""
+        return len(self._zero_years) + len(self._below_base_years)
+
+    def _truncated_parts(self, n_low: int) -> list[str]:
+        """What is truncated, in words, for messages."""
+        parts = []
+        if self._zero_years:
+            parts.append(f"{len(self._zero_years)} zero year(s)")
         if self._below_base_years:
-            raise _not_implemented("The conditional probability adjustment (below_base_years)")
-        if self._low_threshold is not None:
-            raise _not_implemented("A user-supplied low outlier threshold")
-        if any(q == 0.0 for q in self._flows):
-            raise _not_implemented("The treatment of zero flows")
+            parts.append(f"{len(self._below_base_years)} year(s) below the gage base")
+        if n_low:
+            parts.append(f"{n_low} low outlier(s)")
+        return parts
+
+    def _require_mostly_kept(self, n_low: int) -> None:
+        """Refuse when more than 25 percent of the record is truncated (p. 5-1)."""
+        n = len(self._all_years)
+        truncated = self._n_unmeasured + n_low
+        if truncated > MAX_TRUNCATED * n:
+            raise Bulletin17BError(
+                f"{truncated} of the {n} years are truncated "
+                f"({', '.join(self._truncated_parts(n_low))}). Bulletin 17B allows the "
+                "conditional probability adjustment only when not over 25 percent of the "
+                "record is truncated."
+            )
+
+    def _adjust_for_truncation(
+        self, s: _Screened, steps: list[str]
+    ) -> Optional[ConditionalAdjustment]:
+        """Make the Appendix 5 adjustment, or return None when nothing is truncated."""
+        n_low = len(s.low_outliers)
+        truncated = self._n_unmeasured + n_low
+        if truncated == 0:
+            return None
+        n = len(self._all_years)
+        if s.historic is None:
+            p_tilde = s.n_systematic / n  # eq. 5-1a
+            equation = f"eq. 5-1a, N / n = {s.n_systematic} / {n}"
+        else:
+            h, w = s.historic.h, s.historic.w
+            p_tilde = (h - w * s.historic.l) / h  # eq. 5-1b
+            equation = f"eq. 5-1b, (H - W L) / H with H = {h}, W = {w:.5f}, L = {s.historic.l}"
+        if p_tilde <= 0.5:
+            # Only after a historic adjustment that moves much of the record to Z. Without
+            # one, the 25 percent limit keeps this at 0.75 or more.
+            raise Bulletin17BError(
+                f"the probability of a peak above the truncation level is {p_tilde:.4f} "
+                f"({equation}). The synthetic statistics need the curve at exceedance "
+                "probability 0.50, which the adjusted curve does not reach."
+            )
+        low_years = {y for y, _ in s.low_outliers}
+        kept = min(q for y, q in zip(self._years, self._flows) if y not in low_years)
+        known = [q for _, q in s.low_outliers] + [0.0 for _ in self._zero_years]
+        level = f"at or below {kept:g} cfs, the smallest peak kept"
+        if known:
+            level = f"above {max(known):g} cfs, the largest flow truncated, and {level}"
+        steps.append(
+            f"Made the conditional probability adjustment of Appendix 5: {truncated} of {n} "
+            f"years truncated ({', '.join(self._truncated_parts(n_low))}). The truncation "
+            f"level is {level}. P~ = {p_tilde:.4f} ({equation})."
+        )
+        skew_c = _nearest_tenth(s.skew) if self._hand else s.skew
+        q01, q10, q50 = (
+            float(10.0 ** (s.mean + kfactor(skew_c, p / p_tilde) * s.std))
+            for p in (0.01, 0.10, 0.50)
+        )
+        mean_s, std_s, skew_s = synthetic_statistics(q01, q10, q50)
+        rounding = ""
+        if self._hand:
+            k_skew = _nearest_tenth(skew_s)
+            mean_s, std_s, skew_s = synthetic_statistics(q01, q10, q50, k_skew=k_skew)
+            rounding = f" K is read at skew {skew_c:.1f} there and at {k_skew:.1f} in eq. 5-4."
+        steps.append(
+            f"The conditional curve (mean {s.mean:.4f}, standard deviation {s.std:.4f}, skew "
+            f"{s.skew:.4f}) gives {q01:,.0f}, {q10:,.0f} and {q50:,.0f} cfs at exceedance "
+            f"probabilities 0.01, 0.10 and 0.50 over all years.{rounding} The synthetic "
+            f"statistics (eqs. 5-3 to 5-5) are mean {mean_s:.4f}, standard deviation "
+            f"{std_s:.4f} and skew {skew_s:.4f}. They replace the statistics above."
+        )
+        return ConditionalAdjustment(
+            p_tilde=p_tilde,
+            n_truncated=truncated,
+            mean=s.mean,
+            std=s.std,
+            skew=s.skew,
+            q01=q01,
+            q10=q10,
+            q50=q50,
+            mean_s=mean_s,
+            std_s=std_s,
+            skew_s=skew_s,
+        )
+
+    def _note_extrapolation(self, p_tilde: float, steps: list[str]) -> None:
+        """Name the AEPs that lie below the truncation level."""
+        beyond = [a for a in self._aeps if a > p_tilde]
+        if beyond:
+            steps.append(
+                f"AEP {', '.join(f'{a:g}' for a in beyond)}: above P~ = {p_tilde:.4f}, so "
+                "the flow extrapolates the synthetic curve below the truncation level. The "
+                "curve is fitted to exceedance probabilities 0.01 to 0.50."
+            )
 
     def _screen_and_adjust(self, steps: list[str]) -> _Screened:
         """Outlier tests and historic adjustment in the order of the p. 12-3 flow chart.
 
         The moments returned leave the low outliers out. The conditional probability
-        adjustment that has to follow a low outlier is not made here.
+        adjustment that has to follow truncated years is not made here.
         """
+        self._leave_out_unmeasured(steps)
         x = np.log10(np.asarray(self._flows, dtype=float))
         mean, std, g = log_moments(x)
         steps.append(
@@ -860,9 +1010,7 @@ class Bulletin17B:
         historic: Optional[HistoricAdjustment] = None
         no_lows = np.zeros(x.size, dtype=bool)
         if order == "low first":
-            lo_log = mean - k_n * std
-            low = x < lo_log
-            self._note_test("low", "eq. 8a", lo_log, low, steps)
+            lo_limit, low = self._low_test(x, mean - k_n * std, "eq. 8a", "", steps)
             if low.any():
                 mean, std, g = self._without_lows(x, low)
                 k_n = outlier_k(int((~low).sum()))
@@ -871,33 +1019,34 @@ class Bulletin17B:
             if low.any():
                 self._note_dropped(low, (mean, std, g), self._adjusts(high), steps)
                 steps[-1] += f" The high outlier test uses them, with K_N = {k_n:.3f}."
-            self._note_test("high", "eq. 7", hi_log, high, steps)
+            self._note_test("high", "eq. 7", float(10.0**hi_log), high, steps)
             historic = self._adjust_for_history(x, high, low, steps)
         elif order == "high first":
             hi_log = mean + k_n * std
             high = x > hi_log
-            self._note_test("high", "eq. 7", hi_log, high, steps)
+            self._note_test("high", "eq. 7", float(10.0**hi_log), high, steps)
             historic = self._adjust_for_history(x, high, no_lows, steps)
             if historic is None:
-                lo_log, equation = mean - k_n * std, "eq. 8a"
+                lo_limit, low = self._low_test(x, mean - k_n * std, "eq. 8a", "", steps)
             else:
-                lo_log = historic.mean - k_n * historic.std
-                equation = (
-                    f"eq. 8b on the adjusted statistics, K = {k_n:.3f} for the {x.size} "
-                    "systematic peaks tested"
+                lo_limit, low = self._low_test(
+                    x,
+                    historic.mean - k_n * historic.std,
+                    "eq. 8b",
+                    f" on the adjusted statistics, K = {k_n:.3f} for the {x.size} "
+                    "systematic peaks tested",
+                    steps,
                 )
-            low = x < lo_log
-            self._note_test("low", equation, lo_log, low, steps)
             if low.any():
                 mean, std, g = self._without_lows(x, low)
                 self._note_dropped(low, (mean, std, g), historic is not None, steps)
                 if historic is not None:
                     historic = self._adjust_for_history(x, high, low, steps, again=True)
         else:
-            hi_log, lo_log = mean + k_n * std, mean - k_n * std
-            high, low = x > hi_log, x < lo_log
-            self._note_test("high", "eq. 7", hi_log, high, steps)
-            self._note_test("low", "eq. 8a", lo_log, low, steps)
+            hi_log = mean + k_n * std
+            high = x > hi_log
+            self._note_test("high", "eq. 7", float(10.0**hi_log), high, steps)
+            lo_limit, low = self._low_test(x, mean - k_n * std, "eq. 8a", "", steps)
             if low.any():
                 mean, std, g = self._without_lows(x, low)
                 self._note_dropped(low, (mean, std, g), self._adjusts(high), steps)
@@ -909,7 +1058,7 @@ class Bulletin17B:
         return _Screened(
             order=order,
             high_threshold_log=hi_log,
-            low_threshold_log=lo_log,
+            low_threshold=lo_limit,
             high_outliers=self._peaks_where(high),
             low_outliers=self._peaks_where(low),
             historic=historic,
@@ -919,16 +1068,53 @@ class Bulletin17B:
             skew=g,
         )
 
+    def _leave_out_unmeasured(self, steps: list[str]) -> None:
+        """Record the zero and below-base years, and refuse when they leave too little."""
+        if not self._n_unmeasured:
+            return
+        parts = []
+        if self._zero_years:
+            parts.append(f"{len(self._zero_years)} zero year(s) ({_year_list(self._zero_years)})")
+        if self._below_base_years:
+            parts.append(
+                f"{len(self._below_base_years)} year(s) below the gage base "
+                f"({_year_list(self._below_base_years)})"
+            )
+        steps.append(f"Left out of the statistics: {' and '.join(parts)}.")
+        self._require_mostly_kept(0)
+        none = np.zeros(len(self._flows), dtype=bool)
+        self._require_enough(none, none)
+
     def _peaks_where(self, mask: np.ndarray) -> list[tuple[int, float]]:
         """The systematic peaks a mask selects, by year."""
         return [(y, q) for y, q, m in zip(self._years, self._flows, mask) if m]
 
+    def _low_test(
+        self, x: np.ndarray, limit_log: float, equation: str, detail: str, steps: list[str]
+    ) -> tuple[float, np.ndarray]:
+        """The low-outlier threshold in cfs and the peaks below it.
+
+        A threshold the caller gave replaces that of ``equation``, and is compared with
+        the flows themselves.
+        """
+        if self._low_threshold is not None:
+            limit = self._low_threshold
+            low = np.asarray(self._flows) < limit
+            label = f"the threshold given, which replaces {equation}"
+        else:
+            limit = float(10.0**limit_log)
+            low = x < limit_log
+            label = equation + detail
+        self._note_test("low", label, limit, low, steps)
+        return limit, low
+
     def _note_test(
-        self, kind: str, equation: str, limit_log: float, flagged: np.ndarray, steps: list[str]
+        self, kind: str, equation: str, limit_cfs: float, flagged: np.ndarray, steps: list[str]
     ) -> None:
         """Record one outlier test and what it flagged."""
         side = "above" if kind == "high" else "below"
-        limit = f"{side} {10 ** limit_log:,.0f} cfs ({equation})"
+        shown = f"{limit_cfs:,.0f}" if limit_cfs >= 100 else f"{limit_cfs:.3g}"
+        limit = f"{side} {shown} cfs ({equation})"
         if not flagged.any():
             steps.append(f"No {kind} outliers {limit}.")
             return
@@ -943,6 +1129,7 @@ class Bulletin17B:
 
     def _without_lows(self, x: np.ndarray, low: np.ndarray) -> tuple[float, float, float]:
         """Moments of the peaks left when the low outliers are dropped."""
+        self._require_mostly_kept(int(low.sum()))
         self._require_enough(np.zeros(x.size, dtype=bool), low)
         return log_moments(x[~low])
 
@@ -965,23 +1152,20 @@ class Bulletin17B:
 
     def _require_enough(self, in_z: np.ndarray, low: np.ndarray) -> None:
         """Refuse when fewer than ``MIN_SYSTEMATIC`` peaks are left for the moments."""
-        n = len(self._flows)
         left = int((~in_z & ~low).sum())
         if left >= MIN_SYSTEMATIC:
             return
         n_moved, n_low = int(in_z.sum()), int(low.sum())
-        why = []
-        if n_moved:
-            why.append(f"{n_moved} moved to the historic peaks")
-        if n_low:
-            why.append(f"{n_low} low outlier(s) dropped")
+        why = [f"{n_moved} moved to the historic peaks"] if n_moved else []
+        why += self._truncated_parts(n_low)
         text = (
-            f"only {left} of the {n} systematic peaks are left for the moments"
-            f"{': ' if why else ''}{' and '.join(why)}. "
+            f"only {left} of the {len(self._all_years)} systematic peaks are left for the "
+            f"moments{': ' if why else ''}{', '.join(why)}. "
             f"Bulletin 17B needs at least {MIN_SYSTEMATIC}."
         )
         if n_moved and self._historic_peaks:
             year, flow = min(self._historic_peaks, key=lambda e: e[1])
+            n = len(self._flows)
             above = sum(q > flow for q in self._flows)
             if above > n / 2:
                 text += (
@@ -1007,8 +1191,9 @@ class Bulletin17B:
 
         Z takes the given historic peaks, the high outliers, and every systematic peak
         above the smallest given historic peak. A systematic peak equal to it stays in
-        the systematic record. L is the number of low outliers. ``again`` marks a second
-        adjustment, made because the first one brought out low outliers.
+        the systematic record. L is the number of zeros, below-base years and low
+        outliers. ``again`` marks a second adjustment, made because the first one brought
+        out low outliers.
         """
         if self._historic_period is None:
             return None
@@ -1027,15 +1212,15 @@ class Bulletin17B:
         self._require_enough(in_z, low)
         peaks = sorted(self._historic_peaks + self._peaks_where(in_z))
         h = last - first + 1
-        n_low = int(low.sum())
+        n_truncated = self._n_unmeasured + int(low.sum())
         hm = historic_moments(
-            x[~in_z & ~low], np.log10(np.array([q for _, q in peaks])), h=h, l=n_low
+            x[~in_z & ~low], np.log10(np.array([q for _, q in peaks])), h=h, l=n_truncated
         )
         moved = self._peaks_where(in_z)
         listed = ", ".join(f"{y} ({q:g} cfs)" for y, q in moved)
         steps.append(
             f"Made the historic adjustment of Appendix 6 for {first} to {last}: H = {h}, "
-            f"Z = {len(peaks)}, L = {n_low}, W = {hm.w:.5f}."
+            f"Z = {len(peaks)}, L = {n_truncated}, W = {hm.w:.5f}."
             + (" It replaces the first adjustment." if again else "")
             + (f" Systematic peaks treated as historic: {listed}." if moved else "")
             + f" Adjusted mean {hm.mean:.4f}, standard deviation {hm.std:.4f} and skew "
@@ -1044,7 +1229,7 @@ class Bulletin17B:
         return HistoricAdjustment(
             h=h,
             z=len(peaks),
-            l=n_low,
+            l=n_truncated,
             w=hm.w,
             mean=hm.mean,
             std=hm.std,
@@ -1110,12 +1295,16 @@ class Bulletin17B:
         """Weibull positions, weighted by Appendix 6 when ``historic`` is given.
 
         Events rank from the largest, the Z historic peaks first (eqs. 6-6 to 6-8 with
-        a = 0). Without an adjustment, W = 1, Z = 0 and H = N, and this is rank / (N + 1).
+        a = 0). Without an adjustment, W = 1, Z = 0 and H is the number of years in the
+        systematic record, n, and this is rank / (n + 1). Truncated years take ranks:
+        below-base years come after every measured peak and zeros come last.
         """
         top = [] if historic is None else historic.historic_peaks
         in_top = {y for y, _ in top}
         rest = [(y, q) for y, q in zip(self._years, self._flows) if y not in in_top]
         events = sorted(top, key=lambda e: -e[1]) + sorted(rest, key=lambda e: -e[1])
+        events += [(y, float("nan")) for y in self._below_base_years]
+        events += [(y, 0.0) for y in self._zero_years]
         z = len(top)
         w = 1.0 if historic is None else historic.w
         h = len(events) if historic is None else historic.h

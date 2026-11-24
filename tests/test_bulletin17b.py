@@ -146,31 +146,6 @@ def test_no_generalized_skew_uses_station_skew():
 @pytest.mark.parametrize(
     "kw",
     [
-        {"below_base_years": [1950]},
-        {"low_outlier_threshold": 500.0},
-    ],
-)
-def test_later_task_inputs_say_not_implemented(kw):
-    r = record("example1")
-    with pytest.raises(Bulletin17BError, match="not implemented"):
-        Bulletin17B(r.peaks_cfs, r.water_years, **kw).run_analysis()
-
-
-def test_zero_flow_says_not_implemented():
-    flows = [0.0] + [1000.0 + 37 * i for i in range(11)]
-    with pytest.raises(Bulletin17BError, match="not implemented"):
-        Bulletin17B(flows, list(range(2000, 2012))).run_analysis()
-
-
-def test_low_outlier_found_says_not_implemented():
-    flows = [1000, 1100, 900, 1200, 950, 1050, 1000, 980, 1020, 1080, 990, 5]
-    with pytest.raises(Bulletin17BError, match="not implemented"):
-        Bulletin17B(flows, list(range(2000, 2012))).run_analysis()
-
-
-@pytest.mark.parametrize(
-    "kw",
-    [
         {"peak_flows": [1, 2, 3], "water_years": [2000, 2001]},
         {"peak_flows": [1, 2, float("nan")], "water_years": [1, 2, 3]},
         {"peak_flows": [1, -2, 3], "water_years": [1, 2, 3]},
