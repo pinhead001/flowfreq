@@ -1,4 +1,4 @@
-"""Bulletin 17B (1982) formulas as pure functions.
+"""Bulletin 17B (1982) flood frequency analysis, superseded by Bulletin 17C.
 
 Bulletin 17B, "Guidelines for Determining Flood Flow Frequency", is the method of
 moments procedure that Bulletin 17C (2019) superseded. It is kept here to reproduce
@@ -6,15 +6,15 @@ older studies and to compare them with the Bulletin 17C fit. It is superseded, a
 nothing in flowfreq runs it unless the caller asks for it.
 
 This module holds the bulletin's equations, one function each, with the equation
-numbers in the docstrings. All logs are base 10. The procedure that strings the
-equations together lives elsewhere. Page labels and the places where the bulletin is
-ambiguous are in ``tests/fixtures/b17b/procedure.md``.
+numbers in the docstrings, and :class:`Bulletin17B`, which applies them in the order of
+the bulletin's flow charts. All logs are base 10. Page labels and the places where the
+bulletin is ambiguous are in ``tests/fixtures/b17b/procedure.md``.
 """
 
 from __future__ import annotations
 
-import logging
 from dataclasses import dataclass, field
+from decimal import ROUND_HALF_UP, Decimal
 from typing import Mapping, NamedTuple, Optional, Sequence
 
 import numpy as np
@@ -22,9 +22,8 @@ import pandas as pd
 from scipy.special import ndtri
 from scipy.stats import t as student_t
 
+from flowfreq.aep import same_aep
 from flowfreq.core import kfactor
-
-logger = logging.getLogger(__name__)
 
 __all__ = [
     "Bulletin17B",
@@ -429,7 +428,24 @@ STANDARD_AEP: tuple[float, ...] = (0.99, 0.90, 0.50, 0.10, 0.05, 0.02, 0.01, 0.0
 
 @dataclass
 class HistoricAdjustment:
-    """Historic adjustment of Appendix 6 (filled in when the adjustment is made)."""
+    """Historic adjustment of Appendix 6 (filled in when the adjustment is made).
+
+    Attributes
+    ----------
+    h : int
+        Years in the historic period.
+    z : int
+        Historic peaks: those given, the high outliers, and the systematic peaks above
+        the smallest given historic peak.
+    l : int
+        Low values left out of the moments but counted in the systematic record.
+    w : float
+        Weight of a systematic peak, (H - Z) / (N + L) (eq. 6-1).
+    mean, std, skew : float
+        Adjusted moments of the logs (eqs. 6-2a to 6-4a).
+    historic_peaks : list of (year, flow)
+        The Z peaks, by year.
+    """
 
     h: int
     z: int
@@ -473,7 +489,7 @@ class Bulletin17BResults:
     outlier_order : str
         ``"high first"``, ``"low first"`` or ``"both on unadjusted statistics"``.
     high_outlier_threshold, low_outlier_threshold : float
-        Outlier thresholds in cfs.
+        Outlier thresholds in cfs, from the statistics each test used (eqs. 7, 8a, 8b).
     high_outliers, low_outliers : list of (year, flow)
         Peaks the tests flagged.
     historic, conditional : optional
@@ -489,12 +505,14 @@ class Bulletin17BResults:
         Generalized skew, its MSE and the eq. 5 weighted skew; ``None`` without a
         generalized skew.
     skew_used : float
-        The skew the quantiles use (rounded to a tenth in hand-computation mode).
+        The skew the quantiles use. In hand-computation mode a weighted skew is rounded
+        to a tenth; a station skew used alone is not.
     quantiles : pandas.DataFrame
         Columns ``aep, flow_cfs, log_flow, K_factor, lower, upper,
         expected_probability``. ``lower`` and ``upper`` are the confidence limits in cfs.
     plotting_positions : pandas.DataFrame
-        Columns ``year, flow_cfs, weighted_order, exceedance`` (Weibull here).
+        Columns ``year, flow_cfs, weighted_order, exceedance``: Weibull positions, and
+        Appendix 6's weighted ones (eqs. 6-6 to 6-8, a = 0) after a historic adjustment.
     steps : list of str
         One plain sentence per decision of the bulletin flow chart.
     """
@@ -533,6 +551,61 @@ def _finite_number(value: object, name: str) -> float:
     return x
 
 
+def _integer_year(value: object, name: str) -> int:
+    year = _finite_number(value, name)
+    if isinstance(value, bool) or year != int(year):
+        raise Bulletin17BError(f"{name}s must be integers; got {value!r}")
+    return int(year)
+
+
+def _require_unique_years(years: Sequence[int], name: str) -> None:
+    if len(set(years)) != len(years):
+        dup = sorted({y for y in years if years.count(y) > 1})
+        raise Bulletin17BError(f"{name} appears more than once: {dup}")
+
+
+def _is_same_flood(a: float, b: float) -> bool:
+    """True when two AEPs are one flood.
+
+    ``same_aep`` alone takes 0.995 and 0.99 for each other, so the non-exceedances have
+    to agree too. 2 percent keeps 0.667 and 0.67 together.
+    """
+    return same_aep(a, b) and same_aep(1.0 - a, 1.0 - b, tolerance=0.02)
+
+
+def _nearest_tenth(x: float) -> float:
+    """Round to the nearest tenth with ties away from zero, on the decimal value.
+
+    Ten decimals are kept first, so that a tie carrying floating-point noise is still
+    a tie. Never returns a negative zero.
+    """
+    return float(Decimal(f"{x:.10f}").quantize(Decimal("0.1"), ROUND_HALF_UP)) + 0.0
+
+
+def _outlier_order(skew: float) -> str:
+    """Which outlier test comes first for this station skew (p. 17, p. 12-3)."""
+    if skew > 0.4:
+        return "high first"
+    if skew < -0.4:
+        return "low first"
+    return "both on unadjusted statistics"
+
+
+class _Screened(NamedTuple):
+    """The outlier tests and the moments they and the historic adjustment lead to."""
+
+    order: str
+    high_threshold_log: float
+    low_threshold_log: float
+    high_outliers: list[tuple[int, float]]
+    low_outliers: list[tuple[int, float]]
+    historic: Optional[HistoricAdjustment]
+    n_systematic: int
+    mean: float
+    std: float
+    skew: float
+
+
 def _not_implemented(what: str) -> Bulletin17BError:
     return Bulletin17BError(f"{what} is not implemented yet in Bulletin17B")
 
@@ -540,10 +613,18 @@ def _not_implemented(what: str) -> Bulletin17BError:
 class Bulletin17B:
     """Bulletin 17B (1982) flood frequency analysis, superseded by Bulletin 17C.
 
-    This version handles a complete systematic record: moments of the log peaks,
-    the outlier tests, skew weighting, the log-Pearson III curve, confidence limits
-    and expected probability. Records that need the historic adjustment, zero or
-    low-outlier treatment are refused until those steps exist.
+    This version handles a systematic record without zero flows or low outliers:
+    moments of the log peaks, the outlier tests, the historic adjustment of Appendix 6,
+    skew weighting, the log-Pearson III curve, confidence limits and expected
+    probability. Records that need zero or low-outlier treatment are refused until
+    those steps exist.
+
+    The outlier tests follow the flow chart on p. 12-3. With a station skew above +0.4
+    the high test and the historic adjustment come first, and the low test after an
+    adjustment uses the adjusted statistics (eq. 8b) with K read at the number of
+    systematic peaks tested. Below -0.4 the low test comes first. In between, both use
+    the unadjusted statistics. Low outliers are then dropped and the historic
+    adjustment is made, with L counting them.
 
     Parameters
     ----------
@@ -555,15 +636,25 @@ class Bulletin17B:
         Generalized (regional) skew. Without it the station skew is used.
     generalized_skew_mse : float, default 0.302
         Mean square error of the generalized skew (Plate I value).
-    historic_peaks, historic_period, below_base_years, low_outlier_threshold
+    historic_peaks : sequence of (year, flow), optional
+        Known peaks in cfs outside the systematic record. They need a
+        ``historic_period``. Systematic peaks above the smallest of them are treated as
+        historic peaks too. A systematic peak equal to it stays systematic.
+    historic_period : (first_year, last_year), optional
+        The period, of H = last - first + 1 years, in which the historic peaks and any
+        high outliers are known to be the largest. It has to cover the systematic
+        record. Without it, high outliers are kept in the systematic record.
+    below_base_years, low_outlier_threshold
         Inputs of later steps; giving one raises :class:`Bulletin17BError`.
     confidence : float, default 0.90
         Two-sided confidence level of the limits.
     aeps : sequence of float, optional
-        Annual exceedance probabilities to report; ``STANDARD_AEP`` by default.
+        Annual exceedance probabilities to report; ``STANDARD_AEP`` by default. Two
+        that are one flood written differently (0.667 and 0.67) are refused.
     hand_computation : bool, default False
-        Round the weighted skew to the nearest tenth before reading K, as the
-        worked examples in the bulletin do. Exact mode never rounds.
+        Round the weighted skew to the nearest tenth (ties away from zero) before
+        reading K, as the worked examples in the bulletin do. A station skew used alone,
+        without a generalized skew, stays unrounded. Exact mode never rounds.
 
     Raises
     ------
@@ -594,15 +685,8 @@ class Bulletin17B:
             )
         if any(q < 0 for q in flows):
             raise Bulletin17BError("peak flows must not be negative")
-        years: list[int] = []
-        for y in raw_years:
-            fy = _finite_number(y, "a water year")
-            if isinstance(y, bool) or fy != int(fy):
-                raise Bulletin17BError(f"water years must be integers; got {y!r}")
-            years.append(int(fy))
-        if len(set(years)) != len(years):
-            dup = sorted({y for y in years if years.count(y) > 1})
-            raise Bulletin17BError(f"a water year appears more than once: {dup}")
+        years = [_integer_year(y, "water year") for y in raw_years]
+        _require_unique_years(years, "a water year")
         order = np.argsort(years, kind="stable")
         self._years = [years[i] for i in order]
         self._flows = [flows[i] for i in order]
@@ -623,12 +707,73 @@ class Bulletin17B:
         aep_list = [_finite_number(a, "an AEP") for a in (STANDARD_AEP if aeps is None else aeps)]
         if not aep_list or any(not 0.0 < a < 1.0 for a in aep_list):
             raise Bulletin17BError("AEPs must be a non-empty list of values between 0 and 1")
+        for i, a in enumerate(aep_list):
+            for b in aep_list[:i]:
+                if _is_same_flood(a, b):
+                    raise Bulletin17BError(f"{b:g} and {a:g} are the same AEP given twice")
         self._aeps = aep_list
         self._hand = bool(hand_computation)
-        self._historic_peaks = historic_peaks
-        self._historic_period = historic_period
+        self._historic_period = self._checked_period(historic_period)
+        self._historic_peaks = self._checked_historic_peaks(historic_peaks)
         self._below_base_years = below_base_years
         self._low_threshold = low_outlier_threshold
+
+    def _checked_period(self, period: Optional[tuple[int, int]]) -> Optional[tuple[int, int]]:
+        """The historic period as two years that cover the systematic record."""
+        if period is None:
+            return None
+        try:
+            first_raw, last_raw = period
+        except (TypeError, ValueError):
+            raise Bulletin17BError(
+                f"historic_period must be (first_year, last_year); got {period!r}"
+            ) from None
+        first = _integer_year(first_raw, "historic_period year")
+        last = _integer_year(last_raw, "historic_period year")
+        if last < first:
+            raise Bulletin17BError(f"historic_period ends before it begins: {first} to {last}")
+        if self._years and not (first <= self._years[0] and self._years[-1] <= last):
+            raise Bulletin17BError(
+                f"historic_period {first} to {last} does not cover the systematic record, "
+                f"{self._years[0]} to {self._years[-1]}"
+            )
+        return first, last
+
+    def _checked_historic_peaks(
+        self, peaks: Optional[Sequence[tuple[int, float]]]
+    ) -> list[tuple[int, float]]:
+        """The historic peaks by year, each inside the period and outside the record."""
+        checked: list[tuple[int, float]] = []
+        for pair in [] if peaks is None else peaks:
+            try:
+                year_raw, flow_raw = pair
+            except (TypeError, ValueError):
+                raise Bulletin17BError(
+                    f"historic_peaks must be (year, flow) pairs; got {pair!r}"
+                ) from None
+            year = _integer_year(year_raw, "historic peak year")
+            flow = _finite_number(flow_raw, "a historic peak flow")
+            if flow <= 0.0:
+                raise Bulletin17BError(f"historic peak flows must be positive; got {flow:g}")
+            checked.append((year, flow))
+        if not checked:
+            return []
+        years = [y for y, _ in checked]
+        _require_unique_years(years, "a historic peak year")
+        if self._historic_period is None:
+            raise Bulletin17BError("historic_peaks need a historic_period, which sets H")
+        first, last = self._historic_period
+        outside = sorted(y for y in years if not first <= y <= last)
+        if outside:
+            raise Bulletin17BError(
+                f"historic peak(s) in {outside} are outside the historic period {first} to {last}"
+            )
+        both = sorted(set(years) & set(self._years))
+        if both:
+            raise Bulletin17BError(
+                f"historic peak(s) in {both} are in the systematic record as well"
+            )
+        return sorted(checked)
 
     def run_analysis(self) -> Bulletin17BResults:
         """Fit the record and return the frequency table, limits and steps.
@@ -641,53 +786,47 @@ class Bulletin17B:
         """
         steps: list[str] = []
         self._require_supported()
-        x = np.log10(np.asarray(self._flows, dtype=float))
-        n = x.size
-        mean, std, g = log_moments(x)
-        steps.append(
-            f"Computed the mean ({mean:.4f}), standard deviation ({std:.4f}) and station "
-            f"skew ({g:.4f}) of the base-10 logs of the {n} annual peaks."
-        )
-        order, high, low = self._screen_outliers(x, n, mean, std, g, steps)
-        # Later tasks add their steps here, each as a separate method that returns the
-        # adjusted moments: the historic adjustment (Appendix 6), then the low-outlier,
-        # zero and conditional probability adjustments (Appendix 5).
-        skew_station = g
-        skew_mse = station_skew_mse(skew_station, n)
-        skew_w, skew_used = self._weight_skew(skew_station, skew_mse, steps)
+        n = len(self._years)
+        s = self._screen_and_adjust(steps)
+        if s.low_outliers:
+            # Task 5: the conditional probability adjustment (Appendix 5) goes here. The
+            # moments in ``s`` are already those without the low outliers.
+            listed = ", ".join(f"{y} ({q:g} cfs)" for y, q in s.low_outliers)
+            raise _not_implemented(
+                f"The low outlier treatment (the test flags {listed} below "
+                f"{10 ** s.low_threshold_log:,.0f} cfs)"
+            )
+        mean, std = s.mean, s.std
+        skew_mse = station_skew_mse(s.skew, n if s.historic is None else s.historic.h)
+        skew_w, skew_used = self._weight_skew(s.skew, skew_mse, steps)
         quantiles = self._frequency_curve(mean, std, skew_used, n, n, steps)
-        k_n = outlier_k(n)
         return Bulletin17BResults(
             n_years=n,
-            n_systematic=n,
+            n_systematic=s.n_systematic,
             n_zeros=0,
             n_below_base=0,
-            outlier_order=order,
-            high_outlier_threshold=float(10.0 ** (mean + k_n * std)),
-            low_outlier_threshold=float(10.0 ** (mean - k_n * std)),
-            high_outliers=high,
-            low_outliers=low,
-            historic=None,
+            outlier_order=s.order,
+            high_outlier_threshold=float(10.0**s.high_threshold_log),
+            low_outlier_threshold=float(10.0**s.low_threshold_log),
+            high_outliers=s.high_outliers,
+            low_outliers=s.low_outliers,
+            historic=s.historic,
             conditional=None,
             mean_log=mean,
             std_log=std,
-            skew_station=skew_station,
+            skew_station=s.skew,
             skew_station_mse=skew_mse,
             skew_generalized=self._gen_skew,
             skew_generalized_mse=None if self._gen_skew is None else self._gen_mse,
             skew_weighted=skew_w,
             skew_used=skew_used,
             quantiles=quantiles,
-            plotting_positions=self._plotting_positions(),
+            plotting_positions=self._plotting_positions(s.historic),
             steps=steps,
         )
 
     def _require_supported(self) -> None:
         """Refuse inputs only the later steps can treat, rather than answer wrongly."""
-        if self._historic_peaks:
-            raise _not_implemented("The historic adjustment (historic_peaks)")
-        if self._historic_period is not None:
-            raise _not_implemented("The historic adjustment (historic_period)")
         if self._below_base_years:
             raise _not_implemented("The conditional probability adjustment (below_base_years)")
         if self._low_threshold is not None:
@@ -695,47 +834,159 @@ class Bulletin17B:
         if any(q == 0.0 for q in self._flows):
             raise _not_implemented("The treatment of zero flows")
 
-    def _screen_outliers(
-        self,
-        x: np.ndarray,
-        n: int,
-        mean: float,
-        std: float,
-        g: float,
-        steps: list[str],
-    ) -> tuple[str, list[tuple[int, float]], list[tuple[int, float]]]:
-        """Apply the Appendix 4 tests in the order the station skew sets (p. 17)."""
-        k_n = outlier_k(n)
-        if g > 0.4:
-            order = "high first"
-        elif g < -0.4:
-            order = "low first"
-        else:
-            order = "both on unadjusted statistics"
+    def _screen_and_adjust(self, steps: list[str]) -> _Screened:
+        """Outlier tests and historic adjustment in the order of the p. 12-3 flow chart.
+
+        The moments returned leave the low outliers out. The conditional probability
+        adjustment that has to follow a low outlier is not made here.
+        """
+        x = np.log10(np.asarray(self._flows, dtype=float))
+        mean, std, g = log_moments(x)
+        steps.append(
+            f"Computed the mean ({mean:.4f}), standard deviation ({std:.4f}) and station "
+            f"skew ({g:.4f}) of the base-10 logs of the {x.size} annual peaks."
+        )
+        order = _outlier_order(g)
+        k_n = outlier_k(x.size)
         steps.append(
             f"The station skew is {g:.4f}, so the outlier tests run in the order: {order}. "
-            f"K_N is {k_n:.3f} for N = {n}."
+            f"K_N is {k_n:.3f} for N = {x.size}."
         )
-        hi_log = mean + k_n * std
-        lo_log = mean - k_n * std
-        high = [(y, q) for y, q, lx in zip(self._years, self._flows, x) if lx > hi_log]
-        low = [(y, q) for y, q, lx in zip(self._years, self._flows, x) if lx < lo_log]
-        if high:
-            listed = ", ".join(f"{y} ({q:g} cfs)" for y, q in high)
-            steps.append(
-                f"High outlier(s) above {10 ** hi_log:,.0f} cfs: {listed}. With no historic "
-                "period given they are treated as part of the systematic record and kept."
-            )
+        historic: Optional[HistoricAdjustment] = None
+        no_lows = np.zeros(x.size, dtype=bool)
+        if order == "low first":
+            lo_log = mean - k_n * std
+            low = x < lo_log
+            self._note_test("low", "eq. 8a", lo_log, low, steps)
+            if low.any():
+                mean, std, g = self._without_lows(x, low, steps)
+                k_n = outlier_k(int((~low).sum()))
+            hi_log = mean + k_n * std
+            high = x > hi_log
+            self._note_test("high", "eq. 7", hi_log, high, steps)
+            historic = self._adjust_for_history(x, high, low, steps)
+        elif order == "high first":
+            hi_log = mean + k_n * std
+            high = x > hi_log
+            self._note_test("high", "eq. 7", hi_log, high, steps)
+            historic = self._adjust_for_history(x, high, no_lows, steps)
+            if historic is None:
+                lo_log, equation = mean - k_n * std, "eq. 8a"
+            else:
+                lo_log, equation = historic.mean - k_n * historic.std, "eq. 8b"
+            low = x < lo_log
+            self._note_test("low", equation, lo_log, low, steps)
+            if low.any():
+                mean, std, g = self._without_lows(x, low, steps)
+                if historic is not None:
+                    historic = self._adjust_for_history(x, high, low, steps)
         else:
-            steps.append(f"No high outliers above {10 ** hi_log:,.0f} cfs.")
-        if low:
-            listed = ", ".join(f"{y} ({q:g} cfs)" for y, q in low)
-            raise _not_implemented(
-                f"The low outlier treatment (the test flags {listed} below "
-                f"{10 ** lo_log:,.0f} cfs)"
+            hi_log, lo_log = mean + k_n * std, mean - k_n * std
+            high, low = x > hi_log, x < lo_log
+            self._note_test("high", "eq. 7", hi_log, high, steps)
+            self._note_test("low", "eq. 8a", lo_log, low, steps)
+            if low.any():
+                mean, std, g = self._without_lows(x, low, steps)
+            historic = self._adjust_for_history(x, high, low, steps)
+        n_systematic = int((~low).sum())
+        if historic is not None:
+            mean, std, g = historic.mean, historic.std, historic.skew
+            n_systematic -= historic.z - len(self._historic_peaks)
+        return _Screened(
+            order=order,
+            high_threshold_log=hi_log,
+            low_threshold_log=lo_log,
+            high_outliers=self._peaks_where(high),
+            low_outliers=self._peaks_where(low),
+            historic=historic,
+            n_systematic=n_systematic,
+            mean=mean,
+            std=std,
+            skew=g,
+        )
+
+    def _peaks_where(self, mask: np.ndarray) -> list[tuple[int, float]]:
+        """The systematic peaks a mask selects, by year."""
+        return [(y, q) for y, q, m in zip(self._years, self._flows, mask) if m]
+
+    def _note_test(
+        self, kind: str, equation: str, limit_log: float, flagged: np.ndarray, steps: list[str]
+    ) -> None:
+        """Record one outlier test and what it flagged."""
+        side = "above" if kind == "high" else "below"
+        limit = f"{side} {10 ** limit_log:,.0f} cfs ({equation})"
+        if not flagged.any():
+            steps.append(f"No {kind} outliers {limit}.")
+            return
+        listed = ", ".join(f"{y} ({q:g} cfs)" for y, q in self._peaks_where(flagged))
+        text = f"{kind.capitalize()} outlier(s) {limit}: {listed}."
+        if kind == "high" and self._historic_period is None:
+            text += (
+                " With no historic period given they are treated as part of the systematic "
+                "record and kept."
             )
-        steps.append(f"No low outliers below {10 ** lo_log:,.0f} cfs.")
-        return order, high, low
+        steps.append(text)
+
+    @staticmethod
+    def _without_lows(
+        x: np.ndarray, low: np.ndarray, steps: list[str]
+    ) -> tuple[float, float, float]:
+        """Moments of the peaks left when the low outliers are dropped."""
+        mean, std, g = log_moments(x[~low])
+        steps.append(
+            f"Dropped the {int(low.sum())} low outlier(s) and recomputed the mean "
+            f"({mean:.4f}), standard deviation ({std:.4f}) and skew ({g:.4f})."
+        )
+        return mean, std, g
+
+    def _adjust_for_history(
+        self, x: np.ndarray, high: np.ndarray, low: np.ndarray, steps: list[str]
+    ) -> Optional[HistoricAdjustment]:
+        """Make the Appendix 6 adjustment, or return None when there is nothing to adjust.
+
+        Z takes the given historic peaks, the high outliers, and every systematic peak
+        above the smallest given historic peak. A systematic peak equal to it stays in
+        the systematic record. L is the number of low outliers.
+        """
+        if self._historic_period is None:
+            return None
+        first, last = self._historic_period
+        if not self._historic_peaks and not high.any():
+            steps.append(
+                f"The historic period {first} to {last} has no historic peaks and no high "
+                "outliers, so no historic adjustment was made."
+            )
+            return None
+        in_z = high.copy()
+        if self._historic_peaks:
+            smallest = min(q for _, q in self._historic_peaks)
+            in_z |= np.asarray(self._flows) > smallest
+        in_z &= ~low
+        peaks = sorted(self._historic_peaks + self._peaks_where(in_z))
+        h = last - first + 1
+        n_low = int(low.sum())
+        hm = historic_moments(
+            x[~in_z & ~low], np.log10(np.array([q for _, q in peaks])), h=h, l=n_low
+        )
+        moved = self._peaks_where(in_z)
+        listed = ", ".join(f"{y} ({q:g} cfs)" for y, q in moved)
+        steps.append(
+            f"Made the historic adjustment of Appendix 6 for {first} to {last}: H = {h}, "
+            f"Z = {len(peaks)}, L = {n_low}, W = {hm.w:.5f}."
+            + (f" Systematic peaks treated as historic: {listed}." if moved else "")
+            + f" Adjusted mean {hm.mean:.4f}, standard deviation {hm.std:.4f} and skew "
+            f"{hm.skew:.4f}."
+        )
+        return HistoricAdjustment(
+            h=h,
+            z=len(peaks),
+            l=n_low,
+            w=hm.w,
+            mean=hm.mean,
+            std=hm.std,
+            skew=hm.skew,
+            historic_peaks=peaks,
+        )
 
     def _weight_skew(
         self, skew_station: float, skew_mse: float, steps: list[str]
@@ -748,7 +999,7 @@ class Bulletin17B:
             )
             return None, skew_station
         w = weighted_skew(skew_station, skew_mse, self._gen_skew, self._gen_mse)
-        used = (round(w, 1) if self._hand else w) + 0.0  # + 0.0 turns -0.0 into 0.0
+        used = _nearest_tenth(w) if self._hand else w + 0.0  # no -0.0
         text = (
             f"Weighted the station skew {skew_station:.4f} (MSE {skew_mse:.3f}) with the "
             f"generalized skew {self._gen_skew:.4f} (MSE {self._gen_mse:.3f}) by inverse "
@@ -791,17 +1042,27 @@ class Bulletin17B:
             }
         )
 
-    def _plotting_positions(self) -> pd.DataFrame:
-        """Weibull plotting positions, rank / (N + 1) from the largest peak."""
-        flows = np.asarray(self._flows, dtype=float)
-        n = flows.size
-        rank = np.empty(n)
-        rank[np.argsort(-flows, kind="stable")] = np.arange(1, n + 1)
-        return pd.DataFrame(
+    def _plotting_positions(self, historic: Optional[HistoricAdjustment]) -> pd.DataFrame:
+        """Weibull positions, weighted by Appendix 6 when ``historic`` is given.
+
+        Events rank from the largest, the Z historic peaks first (eqs. 6-6 to 6-8 with
+        a = 0). Without an adjustment, W = 1, Z = 0 and H = N, and this is rank / (N + 1).
+        """
+        top = [] if historic is None else historic.historic_peaks
+        in_top = {y for y, _ in top}
+        rest = [(y, q) for y, q in zip(self._years, self._flows) if y not in in_top]
+        events = sorted(top, key=lambda e: -e[1]) + sorted(rest, key=lambda e: -e[1])
+        z = len(top)
+        w = 1.0 if historic is None else historic.w
+        h = len(events) if historic is None else historic.h
+        rank = np.arange(1, len(events) + 1, dtype=float)
+        order = np.where(rank <= z, rank, w * rank - (w - 1.0) * (z + 0.5))
+        table = pd.DataFrame(
             {
-                "year": self._years,
-                "flow_cfs": flows,
-                "weighted_order": rank,
-                "exceedance": rank / (n + 1.0),
+                "year": [y for y, _ in events],
+                "flow_cfs": [q for _, q in events],
+                "weighted_order": order,
+                "exceedance": order / (h + 1.0),
             }
         )
+        return table.sort_values("year", ignore_index=True)
