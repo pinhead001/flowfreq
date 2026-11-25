@@ -8,7 +8,6 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from flowfreq.core import assign_year_label
 from flowfreq.lowflow import LOW_FLOW_YEAR_TYPES, LowFlowFrequency, annual_minimum_flow
 from flowfreq.regime import flow_duration_curve
 
@@ -117,7 +116,7 @@ class TestAnnualMinimumFlow:
 
     def test_invalid_n_day_raises(self) -> None:
         daily = pd.DataFrame({"flow_cfs": [1.0]}, index=pd.date_range("2020-01-01", periods=1))
-        with pytest.raises(ValueError, match="n_day must be >= 1"):
+        with pytest.raises(ValueError, match="n_day must be from 1 to 365, got 0"):
             annual_minimum_flow(daily, n_day=0)
 
     def test_invalid_year_type_raises(self) -> None:
@@ -558,7 +557,7 @@ class TestAgainstSir20265021:
         step = max(10.0 ** (np.floor(np.log10(printed)) - 2), 0.01)
         return bool(abs(value - printed) <= 0.5 * step * (1 + 1e-6))
 
-    @pytest.mark.parametrize("site", ["02383000", "02096846"])
+    @pytest.mark.parametrize("site", ["02383000", "02096846", "03487500"])
     def test_the_fit_of_the_seven_day_minima(self, site: str) -> None:
         row, fit = self.TABLE.loc[site], LowFlowFrequency(self._climatic(site), n_day=7)
         results = fit.run_analysis()
@@ -568,7 +567,7 @@ class TestAgainstSir20265021:
         assert results.std_log == pytest.approx(row.Stdev_annual_7day, abs=5.1e-4)
         assert results.skew_used == pytest.approx(row.Skew_annual_7day, abs=5.1e-4)
 
-    @pytest.mark.parametrize("site", ["02383000", "02096846"])
+    @pytest.mark.parametrize("site", ["02383000", "02096846", "03487500"])
     @pytest.mark.parametrize(
         "column,n_day,p",
         [
@@ -596,17 +595,60 @@ class TestAgainstSir20265021:
             printed = row[f"Stream_duration_{p}"]
             assert curve[p] == pytest.approx(printed, rel=0.01, abs=0.005), p
 
-    def test_a_window_across_april_1_counts_here_and_not_there(self) -> None:
-        """03487500, 1956: its lowest 7 days here end on April 1. Kept inside each year, the
-        minima have the printed mean, standard deviation and skew; as computed they do not."""
-        site = "03487500"
-        row, daily = self.TABLE.loc[site], self._climatic(site)
-        ours = LowFlowFrequency(daily, n_day=7).run_analysis()
-        assert ours.mean_log == pytest.approx(2.834, abs=5.1e-4)
-        year = assign_year_label(pd.DatetimeIndex(daily.index), "climatic")
-        inside = daily.groupby(np.asarray(year))["flow_cfs"].apply(
-            lambda q: q.rolling(7).mean().min()
+    def test_a_low_spell_across_april_1(self) -> None:
+        """03487500: the 7 days to April 1, 1956 are lower than any inside climatic year 1956."""
+        lowest = annual_minimum_flow(self._climatic("03487500")).set_index("year").loc[1956]
+        assert lowest["window_end_date"] != pd.Timestamp("1956-04-01")
+        assert (
+            lowest["flow_cfs"]
+            > self._climatic("03487500").loc["1956-03-26":"1956-04-01"]["flow_cfs"].mean()
         )
-        logs = np.log10(inside.to_numpy())
-        assert logs.mean() == pytest.approx(row.Mean_annual_7day, abs=5.1e-4)
-        assert logs.std(ddof=1) == pytest.approx(row.Stdev_annual_7day, abs=5.1e-4)
+
+
+class TestWindowsInsideTheYear:
+    """A window that crosses the start of a year belongs to neither year."""
+
+    @staticmethod
+    def _spell(center: str, year_type: str, n_day: int = 7) -> pd.DataFrame:
+        days = pd.date_range("2000-01-01", "2004-12-31", freq="D")
+        flow = pd.Series(100.0, index=days)
+        middle = pd.Timestamp(center)
+        flow[middle - pd.Timedelta(days=3) : middle + pd.Timedelta(days=3)] = 1.0
+        data = flow.to_frame("flow_cfs")
+        return annual_minimum_flow(data, n_day=n_day, year_type=year_type).set_index("year")
+
+    @pytest.mark.parametrize(
+        "year_type,start,before,after",
+        [
+            ("climatic", "2002-04-01", 2001, 2002),
+            ("water", "2002-10-01", 2002, 2003),
+            ("calendar", "2002-01-01", 2001, 2002),
+        ],
+    )
+    def test_each_year_keeps_its_own_part_of_the_spell(
+        self, year_type: str, start: str, before: int, after: int
+    ) -> None:
+        # Three of the seven days are before the start, four from it on.
+        minima = self._spell(start, year_type)["flow_cfs"]
+        assert minima[before] == pytest.approx((3 * 1.0 + 4 * 100.0) / 7)
+        assert minima[after] == pytest.approx((4 * 1.0 + 3 * 100.0) / 7)
+
+    def test_a_spell_inside_a_year_is_whole(self) -> None:
+        assert self._spell("2002-08-15", "climatic")["flow_cfs"][2002] == 1.0
+
+    def test_the_first_window_of_a_year_starts_on_its_first_day(self) -> None:
+        row = self._spell("2002-04-04", "climatic").loc[2002]
+        assert row["flow_cfs"] == 1.0 and row["window_end_date"] == pd.Timestamp("2002-04-07")
+
+    def test_a_one_day_window_is_unchanged(self) -> None:
+        minima = self._spell("2002-04-01", "climatic", n_day=1)["flow_cfs"]
+        assert minima[2001] == minima[2002] == 1.0
+
+    def test_a_window_as_long_as_a_year(self) -> None:
+        minima = self._spell("2002-08-15", "climatic", n_day=365)["flow_cfs"]
+        assert minima[2002] == pytest.approx((358 * 100.0 + 7) / 365)
+        assert minima[2001] == 100.0 and np.isnan(minima[1999])
+
+    def test_a_window_longer_than_a_year_is_refused(self) -> None:
+        with pytest.raises(ValueError, match="n_day must be from 1 to 365, got 366"):
+            self._spell("2002-08-15", "climatic", n_day=366)

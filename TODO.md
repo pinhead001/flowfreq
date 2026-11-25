@@ -195,9 +195,9 @@ page in the app was dropped, since only the owner chats. Not yet done:
   daily record and made-up factors. `low_flow` and `flow_duration` were also built once from the Water Data
   API at USGS 03606500 (80 years used, 18 left out as incomplete; 7Q10 37.8 ft3/s), through `build_report`
   and not through a chat client. The methods were checked on 2026-11-24 against USGS SIR 2026-5021's published low flows
-  and flow durations at 32 gages (`tests/fixtures/lowflow/README.md`): 29 agree to the figures printed. One of the other
-  three is an n-day window that crosses April 1, which USGS keeps inside the year; whether to do the same is the owner's
-  call (it changes 7Q10 at 1 of 32 gages, by 1.2 percent).
+  and flow durations at 32 gages (`tests/fixtures/lowflow/README.md`): 31 agree to the figures printed, with n-day
+  windows kept inside each year (the owner's decision, 2026-11-24). The other, 02065500, has printed 7-day statistics that
+  its approved record does not give.
 - `monthly_statistics`, `summary_hydrograph` and `baseflow` (2026-11-22): built once from the Water Data API at USGS
   03606500 and read in Word. HYSEP is checked against WRIR 96-4040's French Creek example (#412, ported to 0.28.x in
   #413). `lyne_hollick` was checked on 2026-11-24 against Ladson and others' BFI.R (2013): the same to 1e-7 of the mean
