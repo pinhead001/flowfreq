@@ -112,6 +112,7 @@ class TestLowFlow:
         text = _text(built.blocks)
         assert "annual minimum 7-day mean flow" in text
         assert "climatic year (April 1 to March 31)" in text and "Riggs, 1972" in text
+        assert "A period that runs from one such year into the next was not used." in text
         assert built.references == [RIGGS_1972]
         assert sum(isinstance(b, Figure) for b in built.blocks) == 1
         record = dict(_table(built.blocks, "Station and daily-flow record.").rows)

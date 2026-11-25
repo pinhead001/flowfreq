@@ -153,6 +153,7 @@ True
 default `n_day=7` and `year_type="climatic"` give the familiar 7Q2/7Q10-style
 statistics; the climatic year (Apr 1 – Mar 31, per Riggs 1972) keeps a single
 low-flow season from being split across a calendar- or water-year boundary.
+An *n*-day window that crosses the start of a year is not used.
 
 ```python
 from flowfreq import LowFlowFrequency

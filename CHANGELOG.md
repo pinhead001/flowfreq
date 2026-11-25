@@ -94,6 +94,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Low flows: an n-day window stays inside its year.** `annual_minimum_flow`, `LowFlowFrequency` and the `low_flow`
+  report section credited a window that crosses the start of a year (April 1) to the year it ends in; it is now not
+  used, as in USGS SIR 2026-5021. Of 32 of that report's gages, 7Q10 changes at one (498 to 504 cfs, the printed value)
+  and 30Q2 noticeably at two (0.6 and 1.2 percent); 31 of the 32 now agree with the report to the figures printed
+  (three values on a rounding tie), and the other has a printed value its record does not support. `n_day` over 365 is
+  refused.
 - **Maryland averages a basin's regions in flow**, weighted by drainage area (`weighting_space` is `linear`), as the Third
   Edition says (p. 2-11, in words). It averaged logarithms. The Sixth Edition repeats the words (p. 2-12), and the
   GISHydro code they name adds up flows.

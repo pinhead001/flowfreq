@@ -138,7 +138,7 @@ override is written into the section's caveats.
 in the report, one value per day, so the report rebuilds later without a download. A long
 record makes the saved `.json` several hundred kilobytes. Low-flow frequency takes the
 lowest `n_day`-day mean flow of each climatic year (April 1 to March 31 unless you ask for
-water or calendar years), leaves out a year with fewer than 350 days of record, and refuses
+water or calendar years; an `n_day` period that crosses into the next year is not used), leaves out a year with fewer than 350 days of record, and refuses
 a record with fewer than 10 years. There is no regional skew and no low-outlier test for
 low flows, and the section says so. A flow-duration statistic is written with a lowercase
 q (q10 is the flow exceeded on 10 percent of days) and is not an annual probability.

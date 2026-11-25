@@ -42,7 +42,10 @@ single connected low-flow event across two years. A climatic year is
 labeled by the calendar year containing the majority of its months (April 1
 Y - March 31 Y+1 is climatic year Y), the same logic by which a water year
 is labeled by its ending calendar year. Pass ``year_type="water"`` or
-``"calendar"`` to use those instead.
+``"calendar"`` to use those instead. An n-day window is used only if all of it is
+in one year: one that crosses the start of a year belongs to neither, as in USGS
+SIR 2026-5021. A low spell across that date counts in each year by its windows
+inside that year.
 
 **Zero-flow years.** A year whose annual minimum n-day mean is exactly zero
 cannot contribute to a log-space fit -- log10(0) is undefined, and letting
@@ -130,7 +133,7 @@ def annual_minimum_flow(
         Negative values are treated as missing (see Notes), not as extreme
         lows.
     n_day : int
-        Averaging window length in days, e.g. 7 for 7Q10/7Q2. Must be >= 1.
+        Averaging window length in days, e.g. 7 for 7Q10/7Q2. From 1 to 365.
     year_type : str
         Year definition; see :data:`LOW_FLOW_YEAR_TYPES` and the module
         docstring. Default "climatic".
@@ -174,17 +177,16 @@ def annual_minimum_flow(
     affected by this and is retained -- see the module docstring on
     zero-flow handling.
 
-    **Window alignment.** Each n-day mean is labeled by the last day of its
-    window (pandas' default rolling alignment). Since only the minimum value
-    within a year is of interest, alignment does not change which n-day
-    windows exist -- it only changes which date is attached to one -- except
-    at a year boundary, where a window is credited to the year containing
-    its last day. USGS SIR 2026-5021's published values fit windows kept inside
-    each year instead: of 32 gages compared (2026-11-24), it matters at one for
-    the 7-day minima (7Q10 498 cfs here, 504 there; ``tests/fixtures/lowflow``).
+    **Windows stay inside a year.** Each n-day mean is labeled by the last day
+    of its window (pandas' default rolling alignment), and a window that starts
+    in one year and ends in the next is not used, as USGS SIR 2026-5021's
+    published values have it. Before 0.29.0 such a window was credited to the
+    year of its last day; of 32 gages compared (2026-11-24) that changed the
+    7-day statistics at one (7Q10 498 cfs, 504 with windows inside the year and
+    as published; ``tests/fixtures/lowflow``).
     """
-    if n_day < 1:
-        raise ValueError(f"n_day must be >= 1, got {n_day}")
+    if not 1 <= n_day <= 365:
+        raise ValueError(f"n_day must be from 1 to 365, got {n_day}")
     if year_type not in LOW_FLOW_YEAR_TYPES:
         raise ValueError(f"year_type must be one of {LOW_FLOW_YEAR_TYPES}, got {year_type!r}")
 
@@ -195,6 +197,9 @@ def annual_minimum_flow(
     n_day_mean = flows.rolling(window=n_day, min_periods=n_day).mean()
     window_years = assign_year_label(pd.DatetimeIndex(n_day_mean.index), year_type)
     daily_years = assign_year_label(full_idx, year_type)
+    first_days = pd.DatetimeIndex(n_day_mean.index) - pd.Timedelta(days=n_day - 1)
+    inside = np.asarray(window_years) == np.asarray(assign_year_label(first_days, year_type))
+    n_day_mean = n_day_mean.where(inside)
 
     windows = pd.DataFrame(
         {"year": window_years, "flow_cfs": n_day_mean.to_numpy()}, index=n_day_mean.index

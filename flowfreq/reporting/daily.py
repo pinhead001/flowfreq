@@ -292,8 +292,8 @@ def _build_low_flow(given: Dict[str, Any]) -> SectionContent:
     owner = "low_flow"
     options = dict(given)
     n_day = options.get("n_day", 7)
-    if isinstance(n_day, bool) or not isinstance(n_day, int) or n_day < 1:
-        raise ReportError(f"{owner}: n_day must be a whole number of days, 1 or more")
+    if isinstance(n_day, bool) or not isinstance(n_day, int) or not 1 <= n_day <= 365:
+        raise ReportError(f"{owner}: n_day must be a whole number of days, 1 to 365")
     year_type = str(options.get("year_type", "climatic"))
     if year_type not in YEAR_TYPES:
         raise ReportError(f"{owner}: year_type must be one of {', '.join(YEAR_TYPES)}")
@@ -328,6 +328,8 @@ def _build_low_flow(given: Dict[str, Any]) -> SectionContent:
         f"The annual minimum {n_day}-day mean flow was taken for each "
         f"{_YEAR_WORDS.get(year_type, year_type)} with at least {min_days} days of record."
     ]
+    if n_day > 1:
+        method.append("A period that runs from one such year into the next was not used.")
     if distribution == "lp3":
         method.append(
             "A log-Pearson Type III distribution was fitted to the logarithms of those minima "
