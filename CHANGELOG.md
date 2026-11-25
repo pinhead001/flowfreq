@@ -41,11 +41,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   StreamStats did not return at the Texas gages checked. The default `Statewide` set now carries a caution that the
   later report's authors prefer these.
 - **The 2026 urban equations of SIR 2025-5104 (Wagner and Ladd) in Georgia, North Carolina and South Carolina**, region
-  `Urban 2026`, for urban basins above 1 mi2 and 10 percent impervious, where nothing else is stored. They are used
+  `Urban 2026`, for urban basins above 1 mi2 and 10 percent impervious. They are used
   only when the caller names the region and supplies the two ecoregion percentages. An estimate carries a caution:
   the set is not valid in the Middle Atlantic or Southern Coastal Plain, it estimates high at its South Carolina
   gages (observed flow 0.69 of the equations' at 10 percent AEP), weighting at its own gages is inappropriate, and
   SIR 2014-5030 also covers urban basins there.
+- **SIR 2014-5030's urban equations in Georgia, North Carolina and South Carolina at the report's own drainage areas**,
+  regions `Urban 2014 HR1 small` (to 3 mi2), `Urban 2014 HR1 large` (3 to 436), `Urban 2014 HR3` (to 459), `Urban 2014
+  HR4` (to 53.5) and, in Georgia, `Urban 2014 HR5` (to 10). They were stored only to 1 mi2, and region 1's over 3 mi2 not
+  at all. They are used only when named, for the whole basin, and carry cautions: the largest urban basin behind each, and
+  that the report sends a basin over 1 mi2 and under 10 percent impervious to the rural equations. No default changes.
 - **`estimate_at_site(supplied_characteristics=)`**, `flowfreq ungaged --char CODE=VALUE`, and the same for the `ungaged`
   report section and `flowfreq-mcp`'s `estimate_ungaged`: values for characteristics StreamStats does not return.
   A code it did return is refused, not replaced.

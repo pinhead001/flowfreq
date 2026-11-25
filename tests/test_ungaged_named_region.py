@@ -59,7 +59,10 @@ def _codes(lib: Any, name: str) -> Set[str]:
 @pytest.mark.parametrize("state", STATES)
 def test_the_state_files_name_their_sets_nss_does_not_serve(state: str) -> None:
     lib = load_state(state)
-    assert lib.named_regions == [_set(state)]
+    assert lib.named_regions[0] == _set(state)
+    # SIR 2014-5030's urban sets (tests/test_regression_southeast.py).
+    assert all(r.startswith("Urban 2014 ") for r in lib.named_regions[1:])
+    assert bool(lib.named_regions[1:]) is (state in ("GA", "NC", "SC"))
     tiers = lib.region_preference.tiers if lib.region_preference else []
     assert all(_set(state) not in tier for tier in tiers)
 

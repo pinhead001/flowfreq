@@ -171,8 +171,9 @@ Library follow-ups the batches found, none changed:
       `region="Urban 2026"`. It estimates high at the report's South Carolina gages (observed flow 0.69 of the
       equations' at 10 percent AEP), which its caution there says. Nothing checks the basin's ecoregion.
       Alabama and Mississippi, also in the report's area, have SIR 2026-5044 instead.
-    - In GA, NC and SC the state's other USGS urban equations (SIR 2014-5030) are stored only to 1 mi2, though the
-      report takes them to 436 (HR1), 459 (HR3) and 53.5 mi2 (HR4). Storing the rest is not done; the caution names it.
+    - In GA, NC and SC the state's other USGS urban equations (SIR 2014-5030) are stored to the report's own drainage
+      areas as the `Urban 2014` sets, used only when named (the owner's decision, 2026-11-24). A basin in two of its
+      regions is not averaged, and NSS's own urban regions (GC1539, GC1541 and others) were not compared with them.
     - Whether StreamStats computes `L3_PIEDMNT` and `L3_RDGVLY` for Tennessee is unknown, and whether the
       2026-5044 set applies in Alabama's flood region 3 or the Mississippi Alluvial Plain isn't stated.
     - SIR 2025-5034 (Levin, 2025), nonstationary flood frequency by regression in the north-central United

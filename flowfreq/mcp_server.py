@@ -415,8 +415,9 @@ def build_server(
         state: two-letter postal code. lat, lon: decimal degrees (lon negative in the
         Americas), on the stream. site_name: a name for the site. region: a regression
         region code, when the basin lies in several and one is to be used, or the code of
-        a set NSS does not serve, used for the whole basin ("Statewide OmegaEM" in Texas,
-        "Urban 2026" in AL, GA, MS, NC, SC and TN).
+        a set used only when named, and for the whole basin ("Statewide OmegaEM" in Texas,
+        "Urban 2026" in AL, GA, MS, NC, SC and TN; in GA, NC and SC "Urban 2014 HR1 small"
+        (to 3 mi2), "Urban 2014 HR1 large" (over 3), "Urban 2014 HR3", "Urban 2014 HR4").
         allow_extrapolation: evaluate equations outside their calibrated range, flagged
         in the table. allow_provisional: use equations flowfreq has not verified.
         allow_inaccurate: keep a basin StreamStats warns "may be inaccurate" about, as it
