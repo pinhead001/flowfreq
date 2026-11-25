@@ -840,7 +840,9 @@ def build_server(
 
         site_no: the USGS station number. method: "ih_smoothed_minima" (the default),
         "ih_smoothed_minima_log" (its turning points joined through logarithms, as the
-        USGS BFI program joins them), "hysep_fixed", "hysep_sliding", "hysep_local_minimum" or "lyne_hollick".
+        USGS BFI program joins them), "ih_smoothed_minima_log_wy" (that with the 5-day
+        blocks started again each October 1, the nearest to the USGS BFI program),
+        "hysep_fixed", "hysep_sliding", "hysep_local_minimum" or "lyne_hollick".
         drainage_area_sqmi: square miles, in place of the station's own; the HYSEP methods
         need one. annual_table: include the index of each year. start_date, end_date: limit
         the record, YYYY-MM-DD. title, position: as run_ffa.

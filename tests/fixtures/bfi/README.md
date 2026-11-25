@@ -16,4 +16,5 @@ it by 0.001 with `ih_smoothed_minima_log` (largest differences 0.061 and 0.033).
 records and a difference between the two methods. They include 04131500, where the logarithms do worst of the 23 (0.033
 low, against 0.015 high with straight lines). That is the phase of the 5-day blocks: the program restarts them each
 October 1 and ours run on from the first date. Restarted, the index is 0.543 (2026-11-24, from the program's source,
-version 4.15, ported and not compiled).
+version 4.15, ported and not compiled); `ih_smoothed_minima_log_wy`, which restarts them and caps baseflow at streamflow,
+gives 0.541. On the 23 gages it is 0.0005 high on average, 0.023 off at most, and within 0.005 at 17 (14 without the restart).
