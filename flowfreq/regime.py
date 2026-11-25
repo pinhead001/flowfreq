@@ -35,11 +35,11 @@ to them, which are dropped via ``nansum`` rather than fabricated. With
 roughly a dozen dropped difference terms out of ~364, a small but nonzero
 approximation worth knowing is there.
 
-**Baseflow separation methods.** Six are implemented, named explicitly
+**Baseflow separation methods.** Seven are implemented, named explicitly
 because a BFI value is not comparable across methods without knowing which
 one produced it -- every function and results object reports the method
 used alongside the number. This is not a minor labeling formality: the
-six methods are known in the literature to disagree systematically on
+seven methods are known in the literature to disagree systematically on
 the same site (a step-function method like hysep_fixed and a smoothly
 interpolated one like ih_smoothed_minima do not converge as the record
 gets longer, they measure recognizably different things), so a BFI
@@ -78,8 +78,18 @@ looks perfectly reasonable on paper.
   flow. It is usually the nearer of the two to that program: on the same 23 gages its
   mean annual index differed from the published one by -0.001 on average and 0.033 at
   most, and was the nearer at 17. It is still not that program: its blocks run on from the
-  first date. At the gage where it differs most (04131500), restarting them each October 1
-  gives 0.543 against the published 0.544, where this gives 0.511.
+  first date.
+- ``"ih_smoothed_minima_log_wy"``: ``"ih_smoothed_minima_log"`` with the blocks started
+  again each October 1 and a year's last block lengthened by the days left over (one in
+  a leap year), as the USGS BFI program does. Blocks at the ends of the record that are
+  not whole are left out, so the result does not depend on the date the record starts.
+  On the same 23 gages its mean annual index differed from the published one by 0.0005 on
+  average, -0.001 at the median gage and 0.023 at most, and was within 0.005 at 17 (14
+  with ``"ih_smoothed_minima_log"``). At 04131500 it is 0.541 against 0.544 published and
+  0.511 without the restart. The program also adds turning points at the ends of a year,
+  does not cap baseflow at streamflow, and treats zeros as said above; its source, ported,
+  comes no nearer than 0.025 at the gage where it differs most, so part of the difference
+  is in the published values or the records behind them.
 - ``"hysep_fixed"``, ``"hysep_sliding"``, ``"hysep_local_minimum"``: the
   three USGS HYSEP methods (Sloto & Crouse, 1996, USGS WRIR 96-4040, after
   Pettyjohn & Henning, 1979), all built on the same interval. ``2N*`` is the
@@ -130,7 +140,7 @@ from __future__ import annotations
 
 import calendar
 import logging
-from typing import Dict, Optional, Sequence, Tuple
+from typing import Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
 import pandas as pd
@@ -151,6 +161,7 @@ logger = logging.getLogger(__name__)
 BASEFLOW_METHODS = (
     "ih_smoothed_minima",
     "ih_smoothed_minima_log",
+    "ih_smoothed_minima_log_wy",
     "hysep_fixed",
     "hysep_sliding",
     "hysep_local_minimum",
@@ -388,8 +399,33 @@ def _interpolate_baseflow(
     return baseflow
 
 
+def _water_year_blocks(index: pd.DatetimeIndex, block_days: int) -> List[Tuple[int, int]]:
+    """Blocks of ``block_days`` from each October 1, as (start, end) positions in ``index``.
+
+    ``index`` is a complete daily calendar. The last block of a year takes the days left
+    over. A block that is not wholly inside ``index`` is left out, and the blocks of a year
+    are the same whichever day ``index`` starts on.
+    """
+    blocks = []
+    n = len(index)
+    for year in range(index[0].year - 1, index[-1].year + 1):
+        start = (pd.Timestamp(year, 10, 1) - index[0]).days
+        end = (pd.Timestamp(year + 1, 10, 1) - index[0]).days
+        n_blocks = max((end - start) // block_days, 1)
+        for b in range(n_blocks):
+            first = start + b * block_days
+            last = end if b == n_blocks - 1 else first + block_days
+            if first >= 0 and last <= n:
+                blocks.append((first, last))
+    return blocks
+
+
 def _ih_smoothed_minima(
-    flows: np.ndarray, block_days: int = 5, factor: float = 0.9, log: bool = False
+    flows: np.ndarray,
+    block_days: int = 5,
+    factor: float = 0.9,
+    log: bool = False,
+    blocks: Optional[Sequence[Tuple[int, int]]] = None,
 ) -> np.ndarray:
     """UKIH/Institute of Hydrology smoothed-minima baseflow separation.
 
@@ -404,19 +440,23 @@ def _ih_smoothed_minima(
         min(previous block's min, next block's min)``.
     log : bool
         Join the turning points through the logarithms of their flows.
+    blocks : sequence of (start, end), optional
+        The blocks, in order and without gaps between them. Default: ``block_days`` days
+        each from the first day of `flows`.
     """
-    n = len(flows)
-    n_blocks = n // block_days
+    if blocks is None:
+        blocks = [(b, b + block_days) for b in range(0, len(flows) - block_days + 1, block_days)]
+    n_blocks = len(blocks)
     block_mins = np.full(n_blocks, np.nan)
     block_pos = np.full(n_blocks, -1, dtype=int)
 
-    for b in range(n_blocks):
-        seg = flows[b * block_days : (b + 1) * block_days]
+    for b, (start, end) in enumerate(blocks):
+        seg = flows[start:end]
         if np.isnan(seg).any():
             continue
         i = int(np.argmin(seg))
         block_mins[b] = seg[i]
-        block_pos[b] = b * block_days + i
+        block_pos[b] = start + i
 
     turning_pos, turning_val = [], []
     for i in range(1, n_blocks - 1):
@@ -563,7 +603,7 @@ def separate_baseflow(
     drainage_area_sqmi : float, optional
         Required for the three ``"hysep_*"`` methods; unused otherwise.
     block_days, factor : optional
-        Only used by the two ``"ih_smoothed_minima"`` methods; see
+        Only used by the three ``"ih_smoothed_minima"`` methods; see
         :func:`_ih_smoothed_minima`.
     alpha, passes : optional
         Only used by ``"lyne_hollick"``; see :func:`_lyne_hollick`.
@@ -598,9 +638,14 @@ def separate_baseflow(
     full_idx = pd.date_range(daily_data.index.min(), daily_data.index.max(), freq="D")
     flows = daily_data["flow_cfs"].reindex(full_idx).where(lambda s: s >= 0).to_numpy(dtype=float)
 
-    if method in ("ih_smoothed_minima", "ih_smoothed_minima_log"):
+    if method.startswith("ih_smoothed_minima"):
+        blocks = _water_year_blocks(full_idx, block_days) if method.endswith("_wy") else None
         baseflow = _ih_smoothed_minima(
-            flows, block_days=block_days, factor=factor, log=method.endswith("_log")
+            flows,
+            block_days=block_days,
+            factor=factor,
+            log=method != "ih_smoothed_minima",
+            blocks=blocks,
         )
     elif method == "lyne_hollick":
         baseflow = _lyne_hollick(flows, alpha=alpha, passes=passes)
@@ -657,9 +702,9 @@ def baseflow_index(
     baseflow are available -- the days that actually feed the ratio, not
     every day with a valid daily flow value. Every separation method
     leaves some days undefined (a warm-up run before the first identified
-    turning point for the two "ih_smoothed_minima", "hysep_sliding", and
+    turning point for the three "ih_smoothed_minima", "hysep_sliding", and
     "hysep_local_minimum"; the run of days spoiled by any gap in the
-    input, for all six methods). Summing total flow over the whole year
+    input, for all seven methods). Summing total flow over the whole year
     while summing baseflow over only the days it happens to cover would
     silently bias the ratio toward whatever is NOT represented in the
     unmatched days -- worst when a storm or a gap during high water falls
@@ -871,8 +916,8 @@ class FlowRegime:
     drainage_area_sqmi : float, optional
         Required if `baseflow_method` is one of the ``"hysep_*"`` methods.
     baseflow_block_days, baseflow_factor : optional
-        Passed through to :func:`separate_baseflow` for the
-        "ih_smoothed_minima" method.
+        Passed through to :func:`separate_baseflow` for the three
+        "ih_smoothed_minima" methods.
     baseflow_alpha, baseflow_passes : optional
         Passed through to :func:`separate_baseflow` for the "lyne_hollick"
         method.

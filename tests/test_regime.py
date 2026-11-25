@@ -16,6 +16,7 @@ from flowfreq.regime import (
     _ih_smoothed_minima,
     _interpolate_baseflow,
     _lyne_hollick,
+    _water_year_blocks,
     baseflow_index,
     diel_variation,
     diel_variation_summary,
@@ -187,12 +188,17 @@ class TestIhSmoothedMinima:
 class TestGapsInTheRecord:
     """Interpolated baseflow does not cross a gap too long for a complete year."""
 
-    METHODS = ("ih_smoothed_minima", "ih_smoothed_minima_log", "hysep_local_minimum")
+    METHODS = (
+        "ih_smoothed_minima",
+        "ih_smoothed_minima_log",
+        "ih_smoothed_minima_log_wy",
+        "hysep_local_minimum",
+    )
 
     @pytest.mark.parametrize("method", METHODS)
     def test_a_long_gap_separates_as_two_records(self, method: str) -> None:
         daily = _synthetic_daily(n_years=6, start="1990-10-01").iloc[:2000]
-        early, late = daily.iloc[:800], daily.iloc[1500:]  # multiples of the 5-day block
+        early, late = daily.iloc[:800], daily.iloc[1500:]
         whole = separate_baseflow(pd.concat([early, late]), method, 42.0)
         for part in (early, late):
             alone = separate_baseflow(part, method, 42.0)
@@ -255,7 +261,7 @@ class TestLogInterpolation:
         (``tests/fixtures/bfi/README.md``, where one of the gages is the method's worst of 23)."""
         published = {"04131500": 0.544, "12065500": 0.525, "13077700": 0.660}
         off = {}
-        for method in ("ih_smoothed_minima", "ih_smoothed_minima_log"):
+        for method in BASEFLOW_METHODS[:3]:
             for site, index in published.items():
                 path = Path(__file__).parent / "fixtures" / "bfi" / f"{site}_daily.csv.gz"
                 daily = pd.read_csv(path, parse_dates=["date"], index_col="date")
@@ -264,6 +270,79 @@ class TestLogInterpolation:
                 off[method, site] = round(mean - index, 3)
         assert [off["ih_smoothed_minima", s] for s in published] == [0.015, 0.012, 0.049]
         assert [off["ih_smoothed_minima_log", s] for s in published] == [-0.033, -0.002, 0.015]
+        assert [off["ih_smoothed_minima_log_wy", s] for s in published] == [-0.003, -0.003, 0.023]
+
+
+class TestWaterYearBlocks:
+    """``ih_smoothed_minima_log_wy``: the 5-day blocks start again each October 1."""
+
+    METHOD = "ih_smoothed_minima_log_wy"
+
+    @staticmethod
+    def _blocks(start: str, days: int, block_days: int = 5) -> list:
+        index = pd.date_range(start, periods=days, freq="D")
+        edges = _water_year_blocks(index, block_days)
+        return [(index[a].strftime("%m-%d"), b - a) for a, b in edges]
+
+    def test_every_year_has_73_blocks_and_the_last_takes_february_29(self) -> None:
+        blocks = self._blocks("1990-10-01", 365 + 366 + 365)
+        assert len(blocks) == 3 * 73
+        assert [blocks[i][0] for i in (0, 73, 146)] == ["10-01"] * 3
+        assert [n for _, n in blocks[:73]] == [5] * 73
+        assert [n for _, n in blocks[73:146]] == [5] * 72 + [6]
+
+    def test_the_last_block_takes_what_is_left_over(self) -> None:
+        blocks = self._blocks("1990-10-01", 365, block_days=7)
+        assert len(blocks) == 52 and blocks[-1] == ("09-23", 8)
+
+    def test_partial_blocks_at_the_ends_of_the_record_are_left_out(self) -> None:
+        blocks = self._blocks("1990-10-04", 20)
+        assert blocks == [("10-06", 5), ("10-11", 5), ("10-16", 5)]
+        assert self._blocks("1991-09-27", 3) == []
+        # The leap year's last block needs its sixth day.
+        assert self._blocks("1992-09-25", 5) == [] and len(self._blocks("1992-09-25", 6)) == 1
+
+    def test_the_first_date_of_the_record_does_not_matter(self) -> None:
+        daily = _synthetic_daily(n_years=3, start="1990-10-01")
+        whole = separate_baseflow(daily, self.METHOD)
+        usual = separate_baseflow(daily, "ih_smoothed_minima_log")
+        moved = False
+        for shift in (1, 2, 3, 4):
+            part = separate_baseflow(daily.iloc[shift:], self.METHOD).iloc[90:]
+            pd.testing.assert_series_equal(part, whole.loc[part.index], check_freq=False)
+            other = separate_baseflow(daily.iloc[shift:], "ih_smoothed_minima_log").iloc[90:]
+            both = other.notna() & usual.loc[other.index].notna()
+            moved = moved or not np.allclose(other[both], usual.loc[other.index][both])
+        assert moved
+
+    def test_the_first_water_year_is_as_without_the_restart(self) -> None:
+        daily = _synthetic_daily(n_years=1, start="1990-10-01").iloc[:365]
+        pd.testing.assert_series_equal(
+            separate_baseflow(daily, self.METHOD),
+            separate_baseflow(daily, "ih_smoothed_minima_log"),
+        )
+
+    def test_turning_points_compare_blocks_across_october_1(self) -> None:
+        """The last block of a year and the first of the next are neighbors."""
+        days = pd.date_range("1990-10-01", "1992-09-30", freq="D")
+        flow = pd.Series(50.0, index=days)
+        flow["1991-10-01":"1991-10-05"] = 1.0
+        bf = separate_baseflow(flow.to_frame("flow_cfs"), self.METHOD)
+        # 0.9 x 50 is over the 1 next to it, so the block before is no turning point, and the
+        # line runs from September 21, the first day of the block before that, to October 1.
+        assert bf["1991-09-21"] == pytest.approx(50.0) and bf["1991-10-01"] == pytest.approx(1.0)
+        assert bf["1991-09-26"] == pytest.approx(50.0**0.5)
+
+    def test_block_days_and_factor_are_used(self) -> None:
+        daily = _synthetic_daily(n_years=3)
+        usual = separate_baseflow(daily, self.METHOD)
+        assert not usual.equals(separate_baseflow(daily, self.METHOD, block_days=7))
+        assert not usual.equals(separate_baseflow(daily, self.METHOD, factor=0.7))
+
+    def test_never_above_the_streamflow(self) -> None:
+        daily = _synthetic_daily(n_years=3)
+        bf = separate_baseflow(daily, self.METHOD).dropna()
+        assert (bf <= daily["flow_cfs"].loc[bf.index] + 1e-9).all()
 
 
 class TestHysep:

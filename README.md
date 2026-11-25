@@ -489,7 +489,7 @@ from flowfreq import FlowRegime
 regime = FlowRegime(
     daily_df,
     year_type="water",                   # default; independent of LowFlowFrequency's
-    baseflow_method="ih_smoothed_minima",  # or ih_smoothed_minima_log/hysep_*/lyne_hollick — see BASEFLOW_METHODS
+    baseflow_method="ih_smoothed_minima",  # or ih_smoothed_minima_log[_wy]/hysep_*/lyne_hollick — see BASEFLOW_METHODS
 )
 
 regime.annual     # per-year: flashiness_index, tqmean, baseflow_index, completeness
