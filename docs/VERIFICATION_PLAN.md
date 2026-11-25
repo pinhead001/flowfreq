@@ -131,7 +131,10 @@ under 10 percent impervious, saying it doesn't apply above that. It cites SIR 20
 studies, and doesn't say it replaces it. So at 1 mi2 or less both sets apply at or below 10 percent, and only the
 2014 sets apply above it. Above 1 mi2, HR1-5's stored `LC19IMP` range already refuses an urban basin. An earlier
 version of this section said nothing did, which was wrong. The owner chose HR1-5 first at or below 10 percent,
-the 2014 sets above it, and refusal above 1 mi2.
+the 2014 sets above it, and refusal above 1 mi2. Since 2026-11-24 (the owner's decision) SIR 2014-5030's equations are
+also stored to its own limits (3 mi2 in region 1, 436 for region 1's other column, 459 in region 3, 53.5 in region 4, 10 in
+region 5) as the `Urban 2014` sets, used only when named. Region 1's column over 3 mi2, new here, reproduces Table 5's flows
+at its 61 gages and 8 AEPs within 0.8 percent and Table 9's AVP from Table 8's 235 gages.
 
 **The other outliers.**
 

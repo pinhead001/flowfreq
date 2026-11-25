@@ -50,7 +50,7 @@
   ],
   "basis": "at 1 mi2 or less both apply; SIR 2023-5006 is the newer report, on later data and Bulletin 17C, so it comes first where it applies; a flowfreq method choice, not a published rule"
  },
- "notes": "Georgia. Two studies, both served by NSS and neither withdrawing the other. SIR 2023-5006 (Feaster and others, 2023; statistics through 2017): one set of equations for rural basins of 0.08 to 8,902 mi2 on drainage area and the percentage of the basin in hydrologic regions 1-5, stored as region HR1-5, 8 AEPs, 801 streamgages. Table 2 is an exponent affine in PCT2, A**(b0 + b2 PCT2), stored as a log10 DRNAREA term and a second with times=PCTREG2; region 4 is the base and PCT4 has no term (NSS carries PCTREG4 at zero exponent, not stored). Variables follow the row vector of the report's eq. 14. Percentages are stored 0-100: Table 5 prints the smallest non-zero value (0.1, 2.3, 0.1, 0.1, 1.2), and the equations are defined at zero. Table 5 also prints a drainage area range by region; the stored range is the whole, 0.08-8,902. Limitation 3 (not for impervious area over 10 percent) is an applicability limit at every AEP on NSS's LC19IMP; among NSS's equations only South Carolina's 50-percent form carries it. AVP and SEP are Table 4; model error variance and covariance are Kolb and others (2023) table 9, in the order intercept, log10 DRNAREA, PCT1, PCT3, PCT5, log10 DRNAREA x PCT2, confirmed by MEV + xUx at the 670 Georgia, North and South Carolina gages regressed (Kolb table 3). The printed 4-percent statistics are wrong and this file does not use them: Table 4 prints AVP 0.0251 and Kolb table 9 prints MEV 0.0261, where the WREG output in the model archive (Weaver and others, 2023) has AVP 0.026 and MEV 0.0251, and SEP 38.4 percent converts to 0.0260 by eq. 10; the mean of Kolb table 3's variances over those gages is 0.0260, and MEV 0.0261 plus xUx overshoots table 3 by about 0.001 at each of them. This file stores AVP 0.0260 and MEV 0.0251. The covariance printed in table 9 is kept: it differs from the archive's by up to 26 percent in small off-diagonal cells, and reproduces the variances as well. Kolb table 1 disagrees with the WREG input (SiteInfo.txt) at 5 gages, and table 3 follows the input at the first four, where it matters: 02103500 (86.2 and 13.4 percent in regions 3 and 4, against 96.5 and 3.1), 02114450 (100 in region 1, against 90 and 10 with region 2), 02134500 (100 in region 4, against 26.3 in 3 and 73.7 in 4), 02143000 (83.6 mi2, against 93.6), 02385700 (2.5 and 97.5 percent in regions 1 and 2, against 2.2 and 97.8). Table 3 and the worked examples (02116500, 93,525 ft3/s; the ungaged Yadkin site, 81,931 ft3/s) reproduce. The report's prose gives a 1-percent base slope of 0.604; Tables 2 and 3 and WREG (0.6053) have 0.605. SIR 2014-5030 (Feaster and others, 2014; ver. 1.1, the latest; statistics through 2011): regions HR1, HR3, HR4, HR5 from Table 7, for the small, rural basins NSS serves in its peak-flow group, which the report defines as under 1 mi2, so the stored upper drainage area is 1.0 in each. The report publishes these equations more widely, to 3 mi2 in HR1, 459 in HR3, 53.5 in HR4, 10 in HR5, for urban basins; NSS serves those as separate urban regions, which are out of scope with HR1's equations over 3 mi2. Constants are printed, so intercept = log10 of them. SEP and AVP from Table 9, model error variance and covariance from Table 10 in the order intercept, log10 DRNAREA, then the rest as in Table 7; the same matrices are in the report's spreadsheet tool to rounding, and MEV + mean(xUx) over Table 8's gages returns Table 9's AVP. HR1 at 0.2 percent has no impervious term. Ranges from Table 11; NSS has 0.2 for the smallest impervious area in HR4 where Table 11 prints 0.02, and Table 8 has HR4 gages at 0.0 and 0.1, so this file has 0.02. Table 7's heading gives HR3 from 0.22 mi2, the urban gages' minimum in Table 11, which prints 0.14 for all gages; Table 8 has 0.14, so this file has 0.14. Report example (0.50 mi2, 30.0 percent impervious, HR1, 1 percent): 509 ft3/s reproduces, but its xUx of 0.001447 does not: Table 10 gives 0.00196, and so does the spreadsheet's matrix. Table 5's regression flows reproduce within the rounding of Table 7. Set choice: for a rural basin under 1 mi2 both sets apply; SIR 2023-5006 uses later data and Bulletin 17C. It excludes impervious area over 10 percent, where 2014-5030 is the only set here. At 1 mi2 or less, region_preference puts 2023-5006 first. Above 10 percent impervious 2023-5006 drops out (region_limits), leaving the 2014 small sets at 1 mi2 or less; above 1 mi2 nothing else applies, and 2023-5006's own LC19IMP range refuses the estimate with OutOfRangeError. Above 1 mi2 the small sets of 2014-5030 drop out (region_limits), so 2023-5006 is used. HR5 is from Gotvald and Knaak (2011), not refitted in this report, so it has no gages in Table 8 and no count, and its intervals were checked only against the spreadsheet tool. A basin in two of the urban hydrologic regions is averaged in flow, not in log, by the drainage area in each (SIR 2014-5030, p. 47: with 40 percent in HR3 and 60 percent in HR4, the HR3 estimate 'would be multiplied by 0.40', the HR4 estimate 'by 0.60 and the two estimates would be added together'), so weighting_space is 'linear'. The rural equation (HR1-5) takes the region percentages as variables and is not weighted. A caller's weighting_space overrides it. Urban 2026: Wagner and Ladd, SIR 2025-5104 (published 2026-02-05), the set described in TN.json, identical here: 8 AEPs, Q = DRNAREA^a * 10^(b + c*LC11DEV + d*L3_PIEDMNT + e*L3_RDGVLY), by generalized least squares on 136 streamgages, 32 of them in this state, from its data release (doi:10.5066/P1TE9KTH, ver. 1.1) by tools/build_urban_2026.py. It is here by the owner's decision of 2026-11-23, for urban basins above 1 mi2 and 10 percent impervious, where no other set stored here applies (SIR 2014-5030's urban equations, which go further, are stored only to 1 mi2); the report does not say it applies in place of this state's equations, and names only Tennessee for StreamStats. It is in no region_preference tier and NSS locates no region for it, so it is used only when named: region='Urban 2026', which named_regions lets stand in place of what NSS located, for the whole basin. L3_PIEDMNT and L3_RDGVLY are the percent of the basin in the Piedmont and in the Ridge and Valley Level 3 ecoregions (EPA, 2013), which the caller supplies (supplied_characteristics) unless StreamStats has them; basin_shares refuses a sum over 100. Ranges (report p. 12): DRNAREA 0.164 to 93.4 mi2, LC11DEV 26 to 100 percent; applicability 10 percent or more developed imperviousness (LC11IMP). Not valid in the Middle Atlantic or Southern Coastal Plain Level 3 ecoregions, nor for regulated or tidal streams; no urban gage was in the Blue Ridge (p. 5).",
+ "notes": "Georgia. Two studies, both served by NSS and neither withdrawing the other. SIR 2023-5006 (Feaster and others, 2023; statistics through 2017): one set of equations for rural basins of 0.08 to 8,902 mi2 on drainage area and the percentage of the basin in hydrologic regions 1-5, stored as region HR1-5, 8 AEPs, 801 streamgages. Table 2 is an exponent affine in PCT2, A**(b0 + b2 PCT2), stored as a log10 DRNAREA term and a second with times=PCTREG2; region 4 is the base and PCT4 has no term (NSS carries PCTREG4 at zero exponent, not stored). Variables follow the row vector of the report's eq. 14. Percentages are stored 0-100: Table 5 prints the smallest non-zero value (0.1, 2.3, 0.1, 0.1, 1.2), and the equations are defined at zero. Table 5 also prints a drainage area range by region; the stored range is the whole, 0.08-8,902. Limitation 3 (not for impervious area over 10 percent) is an applicability limit at every AEP on NSS's LC19IMP; among NSS's equations only South Carolina's 50-percent form carries it. AVP and SEP are Table 4; model error variance and covariance are Kolb and others (2023) table 9, in the order intercept, log10 DRNAREA, PCT1, PCT3, PCT5, log10 DRNAREA x PCT2, confirmed by MEV + xUx at the 670 Georgia, North and South Carolina gages regressed (Kolb table 3). The printed 4-percent statistics are wrong and this file does not use them: Table 4 prints AVP 0.0251 and Kolb table 9 prints MEV 0.0261, where the WREG output in the model archive (Weaver and others, 2023) has AVP 0.026 and MEV 0.0251, and SEP 38.4 percent converts to 0.0260 by eq. 10; the mean of Kolb table 3's variances over those gages is 0.0260, and MEV 0.0261 plus xUx overshoots table 3 by about 0.001 at each of them. This file stores AVP 0.0260 and MEV 0.0251. The covariance printed in table 9 is kept: it differs from the archive's by up to 26 percent in small off-diagonal cells, and reproduces the variances as well. Kolb table 1 disagrees with the WREG input (SiteInfo.txt) at 5 gages, and table 3 follows the input at the first four, where it matters: 02103500 (86.2 and 13.4 percent in regions 3 and 4, against 96.5 and 3.1), 02114450 (100 in region 1, against 90 and 10 with region 2), 02134500 (100 in region 4, against 26.3 in 3 and 73.7 in 4), 02143000 (83.6 mi2, against 93.6), 02385700 (2.5 and 97.5 percent in regions 1 and 2, against 2.2 and 97.8). Table 3 and the worked examples (02116500, 93,525 ft3/s; the ungaged Yadkin site, 81,931 ft3/s) reproduce. The report's prose gives a 1-percent base slope of 0.604; Tables 2 and 3 and WREG (0.6053) have 0.605. SIR 2014-5030 (Feaster and others, 2014; ver. 1.1, the latest; statistics through 2011): regions HR1, HR3, HR4, HR5 from Table 7, for the small, rural basins NSS serves in its peak-flow group, which the report defines as under 1 mi2, so the stored upper drainage area is 1.0 in each. The report publishes these equations more widely, to 3 mi2 in HR1, 459 in HR3, 53.5 in HR4, 10 in HR5, for urban basins; NSS serves those, and HR1's equations over 3 mi2, as separate urban regions; here they are the Urban 2014 sets. Constants are printed, so intercept = log10 of them. SEP and AVP from Table 9, model error variance and covariance from Table 10 in the order intercept, log10 DRNAREA, then the rest as in Table 7; the same matrices are in the report's spreadsheet tool to rounding, and MEV + mean(xUx) over Table 8's gages returns Table 9's AVP. HR1 at 0.2 percent has no impervious term. Ranges from Table 11; NSS has 0.2 for the smallest impervious area in HR4 where Table 11 prints 0.02, and Table 8 has HR4 gages at 0.0 and 0.1, so this file has 0.02. Table 7's heading gives HR3 from 0.22 mi2, the urban gages' minimum in Table 11, which prints 0.14 for all gages; Table 8 has 0.14, so this file has 0.14. Report example (0.50 mi2, 30.0 percent impervious, HR1, 1 percent): 509 ft3/s reproduces, but its xUx of 0.001447 does not: Table 10 gives 0.00196, and so does the spreadsheet's matrix. Table 5's regression flows reproduce within the rounding of Table 7. Set choice: for a rural basin under 1 mi2 both sets apply; SIR 2023-5006 uses later data and Bulletin 17C. It excludes impervious area over 10 percent, where 2014-5030 is the only set here. At 1 mi2 or less, region_preference puts 2023-5006 first. Above 10 percent impervious 2023-5006 drops out (region_limits), leaving the 2014 small sets at 1 mi2 or less; above 1 mi2 nothing else applies, and 2023-5006's own LC19IMP range refuses the estimate with OutOfRangeError. Above 1 mi2 the small sets of 2014-5030 drop out (region_limits), so 2023-5006 is used. HR5 is from Gotvald and Knaak (2011), not refitted in this report, so it has no gages in Table 8 and no count, and its intervals were checked only against the spreadsheet tool. A basin in two of the urban hydrologic regions is averaged in flow, not in log, by the drainage area in each (SIR 2014-5030, p. 47: with 40 percent in HR3 and 60 percent in HR4, the HR3 estimate 'would be multiplied by 0.40', the HR4 estimate 'by 0.60 and the two estimates would be added together'), so weighting_space is 'linear'. The rural equation (HR1-5) takes the region percentages as variables and is not weighted. A caller's weighting_space overrides it. Urban 2014: SIR 2014-5030 again (Table 7), at its whole drainage area range, by the owner's decision of 2026-11-24, as sets used only when named (named_regions; in no region_preference tier and not keyed to the urban regions NSS serves): 'Urban 2014 HR1 small' (0.10 to 3 mi2), 'Urban 2014 HR1 large' (3 to 436 mi2), 'Urban 2014 HR3' (to 459), 'Urban 2014 HR4' (to 53.5), 'Urban 2014 HR5' (0.2 to 10). All but 'HR1 large' are the equations stored as HR1, HR3, HR4 and HR5, whose numbers they copy, by tools/build_urban_2014.py. 'HR1 large' is Tables 7, 9, 10 and 11 (235 streamgages, 60 of them urban): Table 5's regression flows reproduce within 0.8 percent at the 61 gages it prints over 3 mi2, the coefficients and matrices are the report's spreadsheet tool's to rounding, and MEV + mean(xUx) over Table 8's 235 gages returns Table 9's AVP. Reedy River example (30.0 mi2, 18 percent, p. 46): 6,600 ft3/s reproduces. The xUx the report prints for its HR1 example (0.001447) is what Table 10 gives, to rounding, with the impervious area entered as 0.30 where the example says 30.0, as its spreadsheet tool enters it (percent over 100); the coefficients and matrices are for percent (the tests of significance on p. 25 follow only so), and 0.00196 is used here. A named set is used for the whole basin: the report's average by area over hydrologic regions (p. 47) is not made. Urban 2026: Wagner and Ladd, SIR 2025-5104 (published 2026-02-05), the set described in TN.json, identical here: 8 AEPs, Q = DRNAREA^a * 10^(b + c*LC11DEV + d*L3_PIEDMNT + e*L3_RDGVLY), by generalized least squares on 136 streamgages, 32 of them in this state, from its data release (doi:10.5066/P1TE9KTH, ver. 1.1) by tools/build_urban_2026.py. It is here by the owner's decision of 2026-11-23, for urban basins above 1 mi2 and 10 percent impervious, where the other sets stored here are SIR 2014-5030's (Urban 2014); the report does not say it applies in place of this state's equations, and names only Tennessee for StreamStats. It is in no region_preference tier and NSS locates no region for it, so it is used only when named: region='Urban 2026', which named_regions lets stand in place of what NSS located, for the whole basin. L3_PIEDMNT and L3_RDGVLY are the percent of the basin in the Piedmont and in the Ridge and Valley Level 3 ecoregions (EPA, 2013), which the caller supplies (supplied_characteristics) unless StreamStats has them; basin_shares refuses a sum over 100. Ranges (report p. 12): DRNAREA 0.164 to 93.4 mi2, LC11DEV 26 to 100 percent; applicability 10 percent or more developed imperviousness (LC11IMP). Not valid in the Middle Atlantic or Southern Coastal Plain Level 3 ecoregions, nor for regulated or tidal streams; no urban gage was in the Blue Ridge (p. 5).",
  "equations": [
   {
    "region_code": "HR1-5",
@@ -3540,6 +3540,2119 @@
      "maximum": 100.0
     }
    ]
+  },
+  {
+   "region_code": "Urban 2014 HR1 large",
+   "region_name": "Hydrologic region 1, Piedmont and Ridge and Valley, urban, 3 to 436 mi2 (SIR 2014-5030)",
+   "aep": 0.5,
+   "intercept": 2.296665190261531,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 3.0,
+     "maximum": 436.0
+    },
+    {
+     "code": "LC06IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 47.9
+    }
+   ],
+   "coefficients": [
+    0.5735,
+    0.0101
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.14524,
+   "avp": 0.021,
+   "model_error_variance": 0.02,
+   "covariance": [
+    [
+     0.00151,
+     -0.000619,
+     -1.79e-05
+    ],
+    [
+     -0.000619,
+     0.000358,
+     3.53e-06
+    ],
+    [
+     -1.79e-05,
+     3.53e-06,
+     1.31e-06
+    ]
+   ],
+   "n_sites": 235
+  },
+  {
+   "region_code": "Urban 2014 HR1 large",
+   "region_name": "Hydrologic region 1, Piedmont and Ridge and Valley, urban, 3 to 436 mi2 (SIR 2014-5030)",
+   "aep": 0.2,
+   "intercept": 2.5550944485783194,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 3.0,
+     "maximum": 436.0
+    },
+    {
+     "code": "LC06IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 47.9
+    }
+   ],
+   "coefficients": [
+    0.5605,
+    0.0074
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.133176,
+   "avp": 0.018,
+   "model_error_variance": 0.017,
+   "covariance": [
+    [
+     0.00149,
+     -0.00059,
+     -1.69e-05
+    ],
+    [
+     -0.00059,
+     0.000333,
+     3.39e-06
+    ],
+    [
+     -1.69e-05,
+     3.39e-06,
+     1.27e-06
+    ]
+   ],
+   "n_sites": 235
+  },
+  {
+   "region_code": "Urban 2014 HR1 large",
+   "region_name": "Hydrologic region 1, Piedmont and Ridge and Valley, urban, 3 to 436 mi2 (SIR 2014-5030)",
+   "aep": 0.1,
+   "intercept": 2.6848453616444123,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 3.0,
+     "maximum": 436.0
+    },
+    {
+     "code": "LC06IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 47.9
+    }
+   ],
+   "coefficients": [
+    0.5539,
+    0.006
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.130338,
+   "avp": 0.017,
+   "model_error_variance": 0.016,
+   "covariance": [
+    [
+     0.00159,
+     -0.000619,
+     -1.78e-05
+    ],
+    [
+     -0.000619,
+     0.000345,
+     3.54e-06
+    ],
+    [
+     -1.78e-05,
+     3.54e-06,
+     1.35e-06
+    ]
+   ],
+   "n_sites": 235
+  },
+  {
+   "region_code": "Urban 2014 HR1 large",
+   "region_name": "Hydrologic region 1, Piedmont and Ridge and Valley, urban, 3 to 436 mi2 (SIR 2014-5030)",
+   "aep": 0.04,
+   "intercept": 2.8175653695597807,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 3.0,
+     "maximum": 436.0
+    },
+    {
+     "code": "LC06IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 47.9
+    }
+   ],
+   "coefficients": [
+    0.547,
+    0.0046
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.133176,
+   "avp": 0.018,
+   "model_error_variance": 0.017,
+   "covariance": [
+    [
+     0.00181,
+     -0.000703,
+     -2.02e-05
+    ],
+    [
+     -0.000703,
+     0.000389,
+     4.02e-06
+    ],
+    [
+     -2.02e-05,
+     4.02e-06,
+     1.56e-06
+    ]
+   ],
+   "n_sites": 235
+  },
+  {
+   "region_code": "Urban 2014 HR1 large",
+   "region_name": "Hydrologic region 1, Piedmont and Ridge and Valley, urban, 3 to 436 mi2 (SIR 2014-5030)",
+   "aep": 0.02,
+   "intercept": 2.8998205024270964,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 3.0,
+     "maximum": 436.0
+    },
+    {
+     "code": "LC06IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 47.9
+    }
+   ],
+   "coefficients": [
+    0.5428,
+    0.0037
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.137215,
+   "avp": 0.019,
+   "model_error_variance": 0.018,
+   "covariance": [
+    [
+     0.00202,
+     -0.000785,
+     -2.26e-05
+    ],
+    [
+     -0.000785,
+     0.000433,
+     4.49e-06
+    ],
+    [
+     -2.26e-05,
+     4.49e-06,
+     1.75e-06
+    ]
+   ],
+   "n_sites": 235
+  },
+  {
+   "region_code": "Urban 2014 HR1 large",
+   "region_name": "Hydrologic region 1, Piedmont and Ridge and Valley, urban, 3 to 436 mi2 (SIR 2014-5030)",
+   "aep": 0.01,
+   "intercept": 2.973589623427257,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 3.0,
+     "maximum": 436.0
+    },
+    {
+     "code": "LC06IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 47.9
+    }
+   ],
+   "coefficients": [
+    0.5386,
+    0.0028
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.144441,
+   "avp": 0.021,
+   "model_error_variance": 0.02,
+   "covariance": [
+    [
+     0.00228,
+     -0.00089,
+     -2.56e-05
+    ],
+    [
+     -0.00089,
+     0.000491,
+     5.1e-06
+    ],
+    [
+     -2.56e-05,
+     5.1e-06,
+     1.99e-06
+    ]
+   ],
+   "n_sites": 235
+  },
+  {
+   "region_code": "Urban 2014 HR1 large",
+   "region_name": "Hydrologic region 1, Piedmont and Ridge and Valley, urban, 3 to 436 mi2 (SIR 2014-5030)",
+   "aep": 0.005,
+   "intercept": 3.0398105541483504,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 3.0,
+     "maximum": 436.0
+    },
+    {
+     "code": "LC06IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 47.9
+    }
+   ],
+   "coefficients": [
+    0.5351,
+    0.0021
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.150814,
+   "avp": 0.023,
+   "model_error_variance": 0.022,
+   "covariance": [
+    [
+     0.00253,
+     -0.000994,
+     -2.86e-05
+    ],
+    [
+     -0.000994,
+     0.000548,
+     5.72e-06
+    ],
+    [
+     -2.86e-05,
+     5.72e-06,
+     2.23e-06
+    ]
+   ],
+   "n_sites": 235
+  },
+  {
+   "region_code": "Urban 2014 HR1 large",
+   "region_name": "Hydrologic region 1, Piedmont and Ridge and Valley, urban, 3 to 436 mi2 (SIR 2014-5030)",
+   "aep": 0.002,
+   "intercept": 3.1202447955463652,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 3.0,
+     "maximum": 436.0
+    },
+    {
+     "code": "LC06IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 47.9
+    }
+   ],
+   "coefficients": [
+    0.5305,
+    0.0011
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.162243,
+   "avp": 0.026,
+   "model_error_variance": 0.025,
+   "covariance": [
+    [
+     0.00293,
+     -0.00116,
+     -3.33e-05
+    ],
+    [
+     -0.00116,
+     0.00064,
+     6.71e-06
+    ],
+    [
+     -3.33e-05,
+     6.71e-06,
+     2.6e-06
+    ]
+   ],
+   "n_sites": 235
+  },
+  {
+   "region_code": "Urban 2014 HR1 small",
+   "region_name": "Hydrologic region 1, Piedmont and Ridge and Valley, urban, 0.10 to 3 mi2 (SIR 2014-5030)",
+   "aep": 0.5,
+   "intercept": 2.2121876044039577,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 3.0
+    },
+    {
+     "code": "LC06IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 47.9
+    }
+   ],
+   "coefficients": [
+    0.7089,
+    0.0133
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.135197,
+   "avp": 0.018,
+   "model_error_variance": 0.017,
+   "covariance": [
+    [
+     0.000923,
+     0.000187,
+     -3.35e-05
+    ],
+    [
+     0.000187,
+     0.00215,
+     3.87e-06
+    ],
+    [
+     -3.35e-05,
+     3.87e-06,
+     2.93e-06
+    ]
+   ],
+   "n_sites": 62
+  },
+  {
+   "region_code": "Urban 2014 HR1 small",
+   "region_name": "Hydrologic region 1, Piedmont and Ridge and Valley, urban, 0.10 to 3 mi2 (SIR 2014-5030)",
+   "aep": 0.2,
+   "intercept": 2.4533183400470375,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 3.0
+    },
+    {
+     "code": "LC06IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 47.9
+    }
+   ],
+   "coefficients": [
+    0.7351,
+    0.0096
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.108591,
+   "avp": 0.012,
+   "model_error_variance": 0.011,
+   "covariance": [
+    [
+     0.000787,
+     0.000156,
+     -2.73e-05
+    ],
+    [
+     0.000156,
+     0.00154,
+     2.23e-06
+    ],
+    [
+     -2.73e-05,
+     2.23e-06,
+     2.2e-06
+    ]
+   ],
+   "n_sites": 62
+  },
+  {
+   "region_code": "Urban 2014 HR1 small",
+   "region_name": "Hydrologic region 1, Piedmont and Ridge and Valley, urban, 0.10 to 3 mi2 (SIR 2014-5030)",
+   "aep": 0.1,
+   "intercept": 2.5809249756756194,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 3.0
+    },
+    {
+     "code": "LC06IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 47.9
+    }
+   ],
+   "coefficients": [
+    0.7536,
+    0.0076
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.106932,
+   "avp": 0.011,
+   "model_error_variance": 0.01,
+   "covariance": [
+    [
+     0.000854,
+     0.000171,
+     -2.94e-05
+    ],
+    [
+     0.000171,
+     0.00162,
+     2.18e-06
+    ],
+    [
+     -2.94e-05,
+     2.18e-06,
+     2.32e-06
+    ]
+   ],
+   "n_sites": 62
+  },
+  {
+   "region_code": "Urban 2014 HR1 small",
+   "region_name": "Hydrologic region 1, Piedmont and Ridge and Valley, urban, 0.10 to 3 mi2 (SIR 2014-5030)",
+   "aep": 0.04,
+   "intercept": 2.714329759745233,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 3.0
+    },
+    {
+     "code": "LC06IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 47.9
+    }
+   ],
+   "coefficients": [
+    0.7752,
+    0.0053
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.115203,
+   "avp": 0.013,
+   "model_error_variance": 0.012,
+   "covariance": [
+    [
+     0.00103,
+     0.000209,
+     -3.57e-05
+    ],
+    [
+     0.000209,
+     0.00198,
+     2.86e-06
+    ],
+    [
+     -3.57e-05,
+     2.86e-06,
+     2.8e-06
+    ]
+   ],
+   "n_sites": 62
+  },
+  {
+   "region_code": "Urban 2014 HR1 small",
+   "region_name": "Hydrologic region 1, Piedmont and Ridge and Valley, urban, 0.10 to 3 mi2 (SIR 2014-5030)",
+   "aep": 0.02,
+   "intercept": 2.800717078282385,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 3.0
+    },
+    {
+     "code": "LC06IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 47.9
+    }
+   ],
+   "coefficients": [
+    0.7903,
+    0.0037
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.124637,
+   "avp": 0.016,
+   "model_error_variance": 0.014,
+   "covariance": [
+    [
+     0.0012,
+     0.000247,
+     -4.19e-05
+    ],
+    [
+     0.000247,
+     0.00236,
+     3.78e-06
+    ],
+    [
+     -4.19e-05,
+     3.78e-06,
+     3.31e-06
+    ]
+   ],
+   "n_sites": 62
+  },
+  {
+   "region_code": "Urban 2014 HR1 small",
+   "region_name": "Hydrologic region 1, Piedmont and Ridge and Valley, urban, 0.10 to 3 mi2 (SIR 2014-5030)",
+   "aep": 0.01,
+   "intercept": 2.8767949762007006,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 3.0
+    },
+    {
+     "code": "LC06IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 47.9
+    }
+   ],
+   "coefficients": [
+    0.8038,
+    0.0024
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.136005,
+   "avp": 0.019,
+   "model_error_variance": 0.017,
+   "covariance": [
+    [
+     0.0014,
+     0.00029,
+     -4.91e-05
+    ],
+    [
+     0.00029,
+     0.00281,
+     4.96e-06
+    ],
+    [
+     -4.91e-05,
+     4.96e-06,
+     3.91e-06
+    ]
+   ],
+   "n_sites": 62
+  },
+  {
+   "region_code": "Urban 2014 HR1 small",
+   "region_name": "Hydrologic region 1, Piedmont and Ridge and Valley, urban, 0.10 to 3 mi2 (SIR 2014-5030)",
+   "aep": 0.005,
+   "intercept": 2.946452265013073,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 3.0
+    },
+    {
+     "code": "LC06IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.0,
+     "maximum": 47.9
+    }
+   ],
+   "coefficients": [
+    0.8181,
+    0.0011
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.148032,
+   "avp": 0.022,
+   "model_error_variance": 0.02,
+   "covariance": [
+    [
+     0.00161,
+     0.000337,
+     -5.69e-05
+    ],
+    [
+     0.000337,
+     0.00331,
+     6.44e-06
+    ],
+    [
+     -5.69e-05,
+     6.44e-06,
+     4.57e-06
+    ]
+   ],
+   "n_sites": 62
+  },
+  {
+   "region_code": "Urban 2014 HR1 small",
+   "region_name": "Hydrologic region 1, Piedmont and Ridge and Valley, urban, 0.10 to 3 mi2 (SIR 2014-5030)",
+   "aep": 0.002,
+   "intercept": 3.019116290447073,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 3.0
+    }
+   ],
+   "coefficients": [
+    0.816
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.157534,
+   "avp": 0.025,
+   "model_error_variance": 0.023,
+   "covariance": [
+    [
+     0.00106,
+     0.000513
+    ],
+    [
+     0.000513,
+     0.00399
+    ]
+   ],
+   "n_sites": 62
+  },
+  {
+   "region_code": "Urban 2014 HR3",
+   "region_name": "Hydrologic region 3, Sand Hills, urban (SIR 2014-5030)",
+   "aep": 0.5,
+   "intercept": 1.4771212547196624,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.14,
+     "maximum": 459.0
+    },
+    {
+     "code": "LC06DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 2.8,
+     "maximum": 98.5
+    }
+   ],
+   "coefficients": [
+    0.6605,
+    0.0122
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.176968,
+   "avp": 0.031,
+   "model_error_variance": 0.028,
+   "covariance": [
+    [
+     0.00529,
+     -0.00231,
+     -6.07e-05
+    ],
+    [
+     -0.00231,
+     0.00146,
+     2.46e-05
+    ],
+    [
+     -6.07e-05,
+     2.46e-05,
+     1.2e-06
+    ]
+   ],
+   "n_sites": 34
+  },
+  {
+   "region_code": "Urban 2014 HR3",
+   "region_name": "Hydrologic region 3, Sand Hills, urban (SIR 2014-5030)",
+   "aep": 0.2,
+   "intercept": 1.7109631189952756,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.14,
+     "maximum": 459.0
+    },
+    {
+     "code": "LC06DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 2.8,
+     "maximum": 98.5
+    }
+   ],
+   "coefficients": [
+    0.6535,
+    0.0109
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.196264,
+   "avp": 0.039,
+   "model_error_variance": 0.035,
+   "covariance": [
+    [
+     0.00662,
+     -0.00289,
+     -7.57e-05
+    ],
+    [
+     -0.00289,
+     0.00182,
+     3.06e-05
+    ],
+    [
+     -7.57e-05,
+     3.06e-05,
+     1.5e-06
+    ]
+   ],
+   "n_sites": 34
+  },
+  {
+   "region_code": "Urban 2014 HR3",
+   "region_name": "Hydrologic region 3, Sand Hills, urban (SIR 2014-5030)",
+   "aep": 0.1,
+   "intercept": 1.8350561017201164,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.14,
+     "maximum": 459.0
+    },
+    {
+     "code": "LC06DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 2.8,
+     "maximum": 98.5
+    }
+   ],
+   "coefficients": [
+    0.6507,
+    0.0102
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.20955,
+   "avp": 0.044,
+   "model_error_variance": 0.04,
+   "covariance": [
+    [
+     0.00774,
+     -0.00337,
+     -8.82e-05
+    ],
+    [
+     -0.00337,
+     0.00211,
+     3.55e-05
+    ],
+    [
+     -8.82e-05,
+     3.55e-05,
+     1.74e-06
+    ]
+   ],
+   "n_sites": 34
+  },
+  {
+   "region_code": "Urban 2014 HR3",
+   "region_name": "Hydrologic region 3, Sand Hills, urban (SIR 2014-5030)",
+   "aep": 0.04,
+   "intercept": 1.9698816437464999,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.14,
+     "maximum": 459.0
+    },
+    {
+     "code": "LC06DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 2.8,
+     "maximum": 98.5
+    }
+   ],
+   "coefficients": [
+    0.6472,
+    0.0095
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.226821,
+   "avp": 0.051,
+   "model_error_variance": 0.046,
+   "covariance": [
+    [
+     0.00936,
+     -0.00406,
+     -0.000106
+    ],
+    [
+     -0.00406,
+     0.00254,
+     4.26e-05
+    ],
+    [
+     -0.000106,
+     4.26e-05,
+     2.09e-06
+    ]
+   ],
+   "n_sites": 34
+  },
+  {
+   "region_code": "Urban 2014 HR3",
+   "region_name": "Hydrologic region 3, Sand Hills, urban (SIR 2014-5030)",
+   "aep": 0.02,
+   "intercept": 2.0569048513364727,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.14,
+     "maximum": 459.0
+    },
+    {
+     "code": "LC06DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 2.8,
+     "maximum": 98.5
+    }
+   ],
+   "coefficients": [
+    0.6451,
+    0.009
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.239784,
+   "avp": 0.058,
+   "model_error_variance": 0.052,
+   "covariance": [
+    [
+     0.0107,
+     -0.00462,
+     -0.000121
+    ],
+    [
+     -0.00462,
+     0.00289,
+     4.83e-05
+    ],
+    [
+     -0.000121,
+     4.83e-05,
+     2.37e-06
+    ]
+   ],
+   "n_sites": 34
+  },
+  {
+   "region_code": "Urban 2014 HR3",
+   "region_name": "Hydrologic region 3, Sand Hills, urban (SIR 2014-5030)",
+   "aep": 0.01,
+   "intercept": 2.1398790864012365,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.14,
+     "maximum": 459.0
+    },
+    {
+     "code": "LC06DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 2.8,
+     "maximum": 98.5
+    }
+   ],
+   "coefficients": [
+    0.643,
+    0.0086
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.252778,
+   "avp": 0.064,
+   "model_error_variance": 0.057,
+   "covariance": [
+    [
+     0.012,
+     -0.00521,
+     -0.000136
+    ],
+    [
+     -0.00521,
+     0.00325,
+     5.42e-05
+    ],
+    [
+     -0.000136,
+     5.42e-05,
+     2.66e-06
+    ]
+   ],
+   "n_sites": 34
+  },
+  {
+   "region_code": "Urban 2014 HR3",
+   "region_name": "Hydrologic region 3, Sand Hills, urban (SIR 2014-5030)",
+   "aep": 0.005,
+   "intercept": 2.2121876044039577,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.14,
+     "maximum": 459.0
+    },
+    {
+     "code": "LC06DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 2.8,
+     "maximum": 98.5
+    }
+   ],
+   "coefficients": [
+    0.6413,
+    0.0082
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.265776,
+   "avp": 0.071,
+   "model_error_variance": 0.064,
+   "covariance": [
+    [
+     0.0135,
+     -0.00583,
+     -0.000151
+    ],
+    [
+     -0.00583,
+     0.00363,
+     6.04e-05
+    ],
+    [
+     -0.000151,
+     6.04e-05,
+     2.98e-06
+    ]
+   ],
+   "n_sites": 34
+  },
+  {
+   "region_code": "Urban 2014 HR3",
+   "region_name": "Hydrologic region 3, Sand Hills, urban (SIR 2014-5030)",
+   "aep": 0.002,
+   "intercept": 2.303196057420489,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.14,
+     "maximum": 459.0
+    },
+    {
+     "code": "LC06DEV",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 2.8,
+     "maximum": 98.5
+    }
+   ],
+   "coefficients": [
+    0.6386,
+    0.0077
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.284793,
+   "avp": 0.081,
+   "model_error_variance": 0.073,
+   "covariance": [
+    [
+     0.0156,
+     -0.00675,
+     -0.000175
+    ],
+    [
+     -0.00675,
+     0.0042,
+     6.97e-05
+    ],
+    [
+     -0.000175,
+     6.97e-05,
+     3.44e-06
+    ]
+   ],
+   "n_sites": 34
+  },
+  {
+   "region_code": "Urban 2014 HR4",
+   "region_name": "Hydrologic region 4, Coastal Plain, urban (SIR 2014-5030)",
+   "aep": 0.5,
+   "intercept": 1.4199557484897578,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 53.5
+    },
+    {
+     "code": "LC06IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.02,
+     "maximum": 34.8
+    },
+    {
+     "code": "I24H50Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 6.51,
+     "maximum": 10.9
+    }
+   ],
+   "coefficients": [
+    0.5908,
+    0.0173,
+    0.0515
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.170417,
+   "avp": 0.029,
+   "model_error_variance": 0.028,
+   "covariance": [
+    [
+     0.0286,
+     -0.000945,
+     -0.000118,
+     -0.00334
+    ],
+    [
+     -0.000945,
+     0.000536,
+     1.42e-05,
+     5.76e-05
+    ],
+    [
+     -0.000118,
+     1.42e-05,
+     4.48e-06,
+     9.08e-06
+    ],
+    [
+     -0.00334,
+     5.76e-05,
+     9.08e-06,
+     0.000407
+    ]
+   ],
+   "n_sites": 157
+  },
+  {
+   "region_code": "Urban 2014 HR4",
+   "region_name": "Hydrologic region 4, Coastal Plain, urban (SIR 2014-5030)",
+   "aep": 0.2,
+   "intercept": 1.608526033577194,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 53.5
+    },
+    {
+     "code": "LC06IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.02,
+     "maximum": 34.8
+    },
+    {
+     "code": "I24H50Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 6.51,
+     "maximum": 10.9
+    }
+   ],
+   "coefficients": [
+    0.5958,
+    0.0125,
+    0.0623
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.155168,
+   "avp": 0.024,
+   "model_error_variance": 0.023,
+   "covariance": [
+    [
+     0.0271,
+     -0.000822,
+     -0.000103,
+     -0.00317
+    ],
+    [
+     -0.000822,
+     0.000473,
+     1.26e-05,
+     5.08e-05
+    ],
+    [
+     -0.000103,
+     1.26e-05,
+     4.05e-06,
+     7.52e-06
+    ],
+    [
+     -0.00317,
+     5.08e-05,
+     7.52e-06,
+     0.000389
+    ]
+   ],
+   "n_sites": 157
+  },
+  {
+   "region_code": "Urban 2014 HR4",
+   "region_name": "Hydrologic region 4, Coastal Plain, urban (SIR 2014-5030)",
+   "aep": 0.1,
+   "intercept": 1.714329759745233,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 53.5
+    },
+    {
+     "code": "LC06IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.02,
+     "maximum": 34.8
+    },
+    {
+     "code": "I24H50Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 6.51,
+     "maximum": 10.9
+    }
+   ],
+   "coefficients": [
+    0.6004,
+    0.0101,
+    0.0666
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.154378,
+   "avp": 0.024,
+   "model_error_variance": 0.022,
+   "covariance": [
+    [
+     0.0298,
+     -0.000849,
+     -0.000107,
+     -0.0035
+    ],
+    [
+     -0.000849,
+     0.000496,
+     1.33e-05,
+     5.25e-05
+    ],
+    [
+     -0.000107,
+     1.33e-05,
+     4.29e-06,
+     7.68e-06
+    ],
+    [
+     -0.0035,
+     5.25e-05,
+     7.68e-06,
+     0.000429
+    ]
+   ],
+   "n_sites": 157
+  },
+  {
+   "region_code": "Urban 2014 HR4",
+   "region_name": "Hydrologic region 4, Coastal Plain, urban (SIR 2014-5030)",
+   "aep": 0.04,
+   "intercept": 1.826722520168992,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 53.5
+    },
+    {
+     "code": "LC06IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.02,
+     "maximum": 34.8
+    },
+    {
+     "code": "I24H50Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 6.51,
+     "maximum": 10.9
+    }
+   ],
+   "coefficients": [
+    0.6067,
+    0.0075,
+    0.0708
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.160284,
+   "avp": 0.026,
+   "model_error_variance": 0.024,
+   "covariance": [
+    [
+     0.0354,
+     -0.00095,
+     -0.000121,
+     -0.00417
+    ],
+    [
+     -0.00095,
+     0.000566,
+     1.53e-05,
+     5.84e-05
+    ],
+    [
+     -0.000121,
+     1.53e-05,
+     4.93e-06,
+     8.59e-06
+    ],
+    [
+     -0.00417,
+     5.84e-05,
+     8.59e-06,
+     0.000512
+    ]
+   ],
+   "n_sites": 157
+  },
+  {
+   "region_code": "Urban 2014 HR4",
+   "region_name": "Hydrologic region 4, Coastal Plain, urban (SIR 2014-5030)",
+   "aep": 0.02,
+   "intercept": 1.8943160626844384,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 53.5
+    },
+    {
+     "code": "LC06IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.02,
+     "maximum": 34.8
+    },
+    {
+     "code": "I24H50Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 6.51,
+     "maximum": 10.9
+    }
+   ],
+   "coefficients": [
+    0.6111,
+    0.0058,
+    0.0738
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.16809,
+   "avp": 0.028,
+   "model_error_variance": 0.026,
+   "covariance": [
+    [
+     0.0408,
+     -0.00106,
+     -0.000137,
+     -0.0048
+    ],
+    [
+     -0.00106,
+     0.000641,
+     1.74e-05,
+     6.49e-05
+    ],
+    [
+     -0.000137,
+     1.74e-05,
+     5.58e-06,
+     9.67e-06
+    ],
+    [
+     -0.0048,
+     6.49e-05,
+     9.67e-06,
+     0.00059
+    ]
+   ],
+   "n_sites": 157
+  },
+  {
+   "region_code": "Urban 2014 HR4",
+   "region_name": "Hydrologic region 4, Coastal Plain, urban (SIR 2014-5030)",
+   "aep": 0.01,
+   "intercept": 1.9566485792052033,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 53.5
+    },
+    {
+     "code": "LC06IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.02,
+     "maximum": 34.8
+    },
+    {
+     "code": "I24H50Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 6.51,
+     "maximum": 10.9
+    }
+   ],
+   "coefficients": [
+    0.6154,
+    0.0043,
+    0.0762
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.177735,
+   "avp": 0.032,
+   "model_error_variance": 0.029,
+   "covariance": [
+    [
+     0.0468,
+     -0.0012,
+     -0.000155,
+     -0.00552
+    ],
+    [
+     -0.0012,
+     0.000731,
+     1.99e-05,
+     7.26e-05
+    ],
+    [
+     -0.000155,
+     1.99e-05,
+     6.36e-06,
+     1.09e-05
+    ],
+    [
+     -0.00552,
+     7.26e-05,
+     1.09e-05,
+     0.000678
+    ]
+   ],
+   "n_sites": 157
+  },
+  {
+   "region_code": "Urban 2014 HR4",
+   "region_name": "Hydrologic region 4, Coastal Plain, urban (SIR 2014-5030)",
+   "aep": 0.005,
+   "intercept": 2.012837224705172,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 53.5
+    },
+    {
+     "code": "LC06IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.02,
+     "maximum": 34.8
+    },
+    {
+     "code": "I24H50Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 6.51,
+     "maximum": 10.9
+    }
+   ],
+   "coefficients": [
+    0.6201,
+    0.0029,
+    0.0785
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.188008,
+   "avp": 0.035,
+   "model_error_variance": 0.033,
+   "covariance": [
+    [
+     0.0532,
+     -0.00134,
+     -0.000174,
+     -0.00628
+    ],
+    [
+     -0.00134,
+     0.000827,
+     2.26e-05,
+     8.08e-05
+    ],
+    [
+     -0.000174,
+     2.26e-05,
+     7.19e-06,
+     1.23e-05
+    ],
+    [
+     -0.00628,
+     8.08e-05,
+     1.23e-05,
+     0.000771
+    ]
+   ],
+   "n_sites": 157
+  },
+  {
+   "region_code": "Urban 2014 HR4",
+   "region_name": "Hydrologic region 4, Coastal Plain, urban (SIR 2014-5030)",
+   "aep": 0.002,
+   "intercept": 2.0755469613925306,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.1,
+     "maximum": 53.5
+    },
+    {
+     "code": "LC06IMP",
+     "transform": "identity",
+     "units": "percent",
+     "minimum": 0.02,
+     "maximum": 34.8
+    },
+    {
+     "code": "I24H50Y",
+     "transform": "identity",
+     "units": "in",
+     "minimum": 6.51,
+     "maximum": 10.9
+    }
+   ],
+   "coefficients": [
+    0.6261,
+    0.0012,
+    0.0813
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.204784,
+   "avp": 0.042,
+   "model_error_variance": 0.039,
+   "covariance": [
+    [
+     0.0631,
+     -0.00158,
+     -0.000206,
+     -0.00745
+    ],
+    [
+     -0.00158,
+     0.000985,
+     2.7e-05,
+     9.44e-05
+    ],
+    [
+     -0.000206,
+     2.7e-05,
+     8.53e-06,
+     1.46e-05
+    ],
+    [
+     -0.00745,
+     9.44e-05,
+     1.46e-05,
+     0.000914
+    ]
+   ],
+   "n_sites": 157
+  },
+  {
+   "region_code": "Urban 2014 HR5",
+   "region_name": "Hydrologic region 5, Lower Tifton Upland, urban (SIR 2014-5030)",
+   "aep": 0.5,
+   "intercept": 2.2174839442139063,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.2,
+     "maximum": 10.0
+    }
+   ],
+   "coefficients": [
+    0.537
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.174278,
+   "avp": 0.03,
+   "model_error_variance": 0.0277,
+   "covariance": [
+    [
+     0.00262,
+     -0.000895
+    ],
+    [
+     -0.000895,
+     0.000846
+    ]
+   ]
+  },
+  {
+   "region_code": "Urban 2014 HR5",
+   "region_name": "Hydrologic region 5, Lower Tifton Upland, urban (SIR 2014-5030)",
+   "aep": 0.2,
+   "intercept": 2.423245873936808,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.2,
+     "maximum": 10.0
+    }
+   ],
+   "coefficients": [
+    0.583
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.144441,
+   "avp": 0.021,
+   "model_error_variance": 0.0184,
+   "covariance": [
+    [
+     0.00249,
+     -0.000702
+    ],
+    [
+     -0.000702,
+     0.000646
+    ]
+   ]
+  },
+  {
+   "region_code": "Urban 2014 HR5",
+   "region_name": "Hydrologic region 5, Lower Tifton Upland, urban (SIR 2014-5030)",
+   "aep": 0.1,
+   "intercept": 2.5428254269591797,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.2,
+     "maximum": 10.0
+    }
+   ],
+   "coefficients": [
+    0.6
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.143241,
+   "avp": 0.02,
+   "model_error_variance": 0.0177,
+   "covariance": [
+    [
+     0.00289,
+     -0.000777
+    ],
+    [
+     -0.000777,
+     0.000695
+    ]
+   ]
+  },
+  {
+   "region_code": "Urban 2014 HR5",
+   "region_name": "Hydrologic region 5, Lower Tifton Upland, urban (SIR 2014-5030)",
+   "aep": 0.04,
+   "intercept": 2.6748611407378116,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.2,
+     "maximum": 10.0
+    }
+   ],
+   "coefficients": [
+    0.615
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.15002,
+   "avp": 0.022,
+   "model_error_variance": 0.0191,
+   "covariance": [
+    [
+     0.00357,
+     -0.000949
+    ],
+    [
+     -0.000949,
+     0.000836
+    ]
+   ]
+  },
+  {
+   "region_code": "Urban 2014 HR5",
+   "region_name": "Hydrologic region 5, Lower Tifton Upland, urban (SIR 2014-5030)",
+   "aep": 0.02,
+   "intercept": 2.7589118923979736,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.2,
+     "maximum": 10.0
+    }
+   ],
+   "coefficients": [
+    0.624
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.158714,
+   "avp": 0.025,
+   "model_error_variance": 0.0212,
+   "covariance": [
+    [
+     0.00417,
+     -0.00112
+    ],
+    [
+     -0.00112,
+     0.000977
+    ]
+   ]
+  },
+  {
+   "region_code": "Urban 2014 HR5",
+   "region_name": "Hydrologic region 5, Lower Tifton Upland, urban (SIR 2014-5030)",
+   "aep": 0.01,
+   "intercept": 2.835056101720116,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.2,
+     "maximum": 10.0
+    }
+   ],
+   "coefficients": [
+    0.632
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.171191,
+   "avp": 0.029,
+   "model_error_variance": 0.0246,
+   "covariance": [
+    [
+     0.0049,
+     -0.00133
+    ],
+    [
+     -0.00133,
+     0.00116
+    ]
+   ]
+  },
+  {
+   "region_code": "Urban 2014 HR5",
+   "region_name": "Hydrologic region 5, Lower Tifton Upland, urban (SIR 2014-5030)",
+   "aep": 0.005,
+   "intercept": 2.905256048748451,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.2,
+     "maximum": 10.0
+    }
+   ],
+   "coefficients": [
+    0.639
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.183081,
+   "avp": 0.034,
+   "model_error_variance": 0.0281,
+   "covariance": [
+    [
+     0.00565,
+     -0.00156
+    ],
+    [
+     -0.00156,
+     0.00135
+    ]
+   ]
+  },
+  {
+   "region_code": "Urban 2014 HR5",
+   "region_name": "Hydrologic region 5, Lower Tifton Upland, urban (SIR 2014-5030)",
+   "aep": 0.002,
+   "intercept": 2.9872192299080047,
+   "variables": [
+    {
+     "code": "DRNAREA",
+     "transform": "log10",
+     "units": "mi2",
+     "minimum": 0.2,
+     "maximum": 10.0
+    }
+   ],
+   "coefficients": [
+    0.649
+   ],
+   "citation": {
+    "publication": "Feaster, T.D., Gotvald, A.J., and Weaver, J.C., 2014, Methods for estimating the magnitude and frequency of floods for urban and small, rural streams in Georgia, South Carolina, and North Carolina, 2011 (ver. 1.1, March 2014): U.S. Geological Survey Scientific Investigations Report 2014-5030, 104 p.",
+    "table": "Tables 7, 9, 10 and 11",
+    "year": 2014,
+    "url": "https://doi.org/10.3133/sir20145030"
+   },
+   "sep_log": 0.203311,
+   "avp": 0.041,
+   "model_error_variance": 0.0349,
+   "covariance": [
+    [
+     0.00686,
+     -0.00194
+    ],
+    [
+     -0.00194,
+     0.00167
+    ]
+   ]
   }
  ],
  "region_limits": {
@@ -3586,10 +5699,20 @@
  },
  "weighting_space": "linear",
  "region_cautions": {
-  "Urban 2026": "SIR 2025-5104 (Wagner and Ladd, 2026) is an urban set fitted to gages in six southeastern states; it does not say it applies in place of this state's equations. The USGS also publishes equations for urban basins here by hydrologic region, SIR 2014-5030 (Feaster, Gotvald and Weaver, 2014, Table 7), to 436 mi2 in HR1, 459 in HR3 and 53.5 in HR4, though the largest urban basin it used was 378, 5.67 and 43.9 mi2 (Table 11); flowfreq has that report's equations only to 1 mi2, so compare with the report itself above that. It is not valid in the Middle Atlantic or Southern Coastal Plain Level 3 ecoregions or for regulated or tidal streams; its accuracy is not known outside the study area, which is six ecoregions and had no urban gage in the Mississippi Alluvial Plain, Central Appalachians or Blue Ridge (pp. 5, 12). Nothing here checks which ecoregion the basin is in. L3_PIEDMNT and L3_RDGVLY are percent of the basin, 0 to 100, not fractions. At a gage used to develop the equations the report calls weighting them with the at-site estimate inappropriate, because the two are not independent (p. 13)."
+  "Urban 2026": "SIR 2025-5104 (Wagner and Ladd, 2026) is an urban set fitted to gages in six southeastern states; it does not say it applies in place of this state's equations. The USGS also publishes equations for urban basins here by hydrologic region, SIR 2014-5030 (Feaster, Gotvald and Weaver, 2014, Table 7), to 436 mi2 in HR1, 459 in HR3 and 53.5 in HR4, though the largest urban basin it used was 378, 5.67 and 43.9 mi2 (Table 11); flowfreq has them as the 'Urban 2014' regions, so compare with those. It is not valid in the Middle Atlantic or Southern Coastal Plain Level 3 ecoregions or for regulated or tidal streams; its accuracy is not known outside the study area, which is six ecoregions and had no urban gage in the Mississippi Alluvial Plain, Central Appalachians or Blue Ridge (pp. 5, 12). Nothing here checks which ecoregion the basin is in. L3_PIEDMNT and L3_RDGVLY are percent of the basin, 0 to 100, not fractions. At a gage used to develop the equations the report calls weighting them with the at-site estimate inappropriate, because the two are not independent (p. 13).",
+  "Urban 2014 HR1 large": "SIR 2014-5030 (Feaster, Gotvald and Weaver, 2014, Table 7) is for urban and small rural streams, with peaks through water year 2011 at the latest. Over 1 mi2 and under 10 percent impervious the report says to use the rural equations (pp. 8, 34; HR1-5 here). It starts at 3 mi2. The largest urban basin among its 235 gages (60 urban) is 378 mi2. Named, this set is used for the whole basin: the report averages a basin in two hydrologic regions by area (p. 47), and has no equations for urban streams in the Blue Ridge (region 2). Nothing here checks which region the basin is in. Land cover is from NLCD 2006 (a later NLCD by the same methods may give the impervious area), not NLCD 1992. Not for streams substantially affected by regulation, channelization or levees, nor by storm surge or tides.",
+  "Urban 2014 HR1 small": "SIR 2014-5030 (Feaster, Gotvald and Weaver, 2014, Table 7) is for urban and small rural streams, with peaks through water year 2011 at the latest. Over 1 mi2 and under 10 percent impervious the report says to use the rural equations (pp. 8, 34; HR1-5 here). Its 62 gages reach 3 mi2, 21 of them urban, the least 12.5 percent impervious. Named, this set is used for the whole basin: the report averages a basin in two hydrologic regions by area (p. 47), and has no equations for urban streams in the Blue Ridge (region 2). Nothing here checks which region the basin is in. Land cover is from NLCD 2006 (a later NLCD by the same methods may give the impervious area), not NLCD 1992. Not for streams substantially affected by regulation, channelization or levees, nor by storm surge or tides.",
+  "Urban 2014 HR3": "SIR 2014-5030 (Feaster, Gotvald and Weaver, 2014, Table 7) is for urban and small rural streams, with peaks through water year 2011 at the latest. Over 1 mi2 and under 10 percent impervious the report says to use the rural equations (pp. 8, 34; HR1-5 here). Only 8 of its 34 gages are urban, at 67 to 98.5 percent developed, and the largest of those drains 5.67 mi2; its standard error of prediction is 42 to 73 percent. Named, this set is used for the whole basin: the report averages a basin in two hydrologic regions by area (p. 47), and has no equations for urban streams in the Blue Ridge (region 2). Nothing here checks which region the basin is in. Land cover is from NLCD 2006 (a later NLCD by the same methods may give the impervious area), not NLCD 1992. Not for streams substantially affected by regulation, channelization or levees, nor by storm surge or tides.",
+  "Urban 2014 HR4": "SIR 2014-5030 (Feaster, Gotvald and Weaver, 2014, Table 7) is for urban and small rural streams, with peaks through water year 2011 at the latest. Over 1 mi2 and under 10 percent impervious the report says to use the rural equations (pp. 8, 34; HR1-5 here). Of its 157 gages 27 are urban, 16 of them in New Jersey, and the largest urban basin is 43.9 mi2. Named, this set is used for the whole basin: the report averages a basin in two hydrologic regions by area (p. 47), and has no equations for urban streams in the Blue Ridge (region 2). Nothing here checks which region the basin is in. Land cover is from NLCD 2006 (a later NLCD by the same methods may give the impervious area), not NLCD 1992. Not for streams substantially affected by regulation, channelization or levees, nor by storm surge or tides.",
+  "Urban 2014 HR5": "SIR 2014-5030 (Feaster, Gotvald and Weaver, 2014, Table 7) is for urban and small rural streams, with peaks through water year 2011 at the latest. Over 1 mi2 and under 10 percent impervious the report says to use the rural equations (pp. 8, 34; HR1-5 here). It is Gotvald and Knaak (2011), not refitted, and has no urban term; the basins it was fitted to were 0 to 36 percent impervious. Named, this set is used for the whole basin: the report averages a basin in two hydrologic regions by area (p. 47), and has no equations for urban streams in the Blue Ridge (region 2). Nothing here checks which region the basin is in. Land cover is from NLCD 2006 (a later NLCD by the same methods may give the impervious area), not NLCD 1992. Not for streams substantially affected by regulation, channelization or levees, nor by storm surge or tides."
  },
  "named_regions": [
-  "Urban 2026"
+  "Urban 2026",
+  "Urban 2014 HR1 large",
+  "Urban 2014 HR1 small",
+  "Urban 2014 HR3",
+  "Urban 2014 HR4",
+  "Urban 2014 HR5"
  ],
  "basin_shares": [
   [

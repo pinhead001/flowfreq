@@ -33,7 +33,7 @@ Assembly rules
   a sequence of codes, one per side of a region boundary, whose ``percent_weight`` sums
   to 100 % (within the same tolerance): they are used together as a partition and the
   rest are ``alternatives``.
-- A set NSS does not serve (``StateLibrary.named_regions``) is used only when ``region=`` is
+- A set NSS does not locate (``StateLibrary.named_regions``) is used only when ``region=`` is
   its code, and then for the whole basin: what NSS located becomes ``alternatives``.
 - Area fractions come from NSS's ``percent_weight`` (what NSS itself weights by),
   renormalised over the regions actually used.
@@ -1610,7 +1610,8 @@ def estimate_at_site(
         region for the state (Wyoming, Nevada), a library region code chosen from the
         report's map is used alone. A set NSS does not serve (``named_regions`` in the
         state's library: ``"Statewide OmegaEM"`` in Texas, ``"Urban 2026"`` in AL, GA, MS,
-        NC, SC and TN) is used for the whole basin when its code is given here.
+        NC, SC and TN), or serves as another statistic (the ``"Urban 2014 ..."`` sets in GA,
+        NC and SC), is used for the whole basin when its code is given here.
 
     allow_inaccurate : bool, default False
         Keep a basin StreamStats warns about with "... MAY BE INACCURATE", which it does

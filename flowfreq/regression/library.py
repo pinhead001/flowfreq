@@ -455,9 +455,10 @@ class StateLibrary:
     #: Limits a report puts on area-weighting a basin that spans particular regions
     #: (:class:`WeightingCaution`). An estimate that weights them carries the caution.
     weighting_cautions: List[WeightingCaution] = field(default_factory=list)
-    #: Sets NSS does not serve that a caller may name (``region=``) in place of whatever NSS
-    #: located, for the whole basin: Texas's OmegaEM set and the 2026 urban sets. A region
-    #: that is only part of a state's map is never one of these.
+    #: Sets a caller may name (``region=``) in place of whatever NSS located, for the whole
+    #: basin: Texas's OmegaEM set and the 2026 urban sets, which NSS does not serve, and SIR
+    #: 2014-5030's urban sets in GA, NC and SC. Those last are parts of a map and their
+    #: cautions say a basin in two of them is not averaged; no other part of a map is here.
     named_regions: List[str] = field(default_factory=list)
     #: Groups of characteristics that are each a percent of the same basin (SIR 2025-5104's two
     #: ecoregion percentages). A group summing to over 100 is refused, and one that looks like

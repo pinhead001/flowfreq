@@ -380,9 +380,8 @@ SE_NOTE = (
     "e*L3_RDGVLY), by generalized least squares on 136 streamgages, {gages} of them in this "
     "state, from its data release (doi:10.5066/P1TE9KTH, ver. 1.1) by "
     "tools/build_urban_2026.py. It is here by the owner's decision of 2026-11-23, for urban "
-    "basins above 1 mi2 and 10 percent impervious, where no other set stored here applies (SIR "
-    "2014-5030's urban equations, which go further, are stored only to 1 mi2); the "
-    "report does not say it applies in place of this state's equations, and names only "
+    "basins above 1 mi2 and 10 percent impervious, where the other sets stored here are SIR "
+    "2014-5030's (Urban 2014); the report does not say it applies in place of this state's equations, and names only "
     "Tennessee for StreamStats. It is in no region_preference tier and NSS locates no region "
     "for it, so it is used only when named: region='Urban 2026', which named_regions lets "
     "stand in place of what NSS located, for the whole basin. L3_PIEDMNT and L3_RDGVLY are "
@@ -405,8 +404,7 @@ SE_CAUTION = (
     "publishes equations for urban basins here by hydrologic region, SIR 2014-5030 (Feaster, "
     "Gotvald and Weaver, 2014, Table 7), to 436 mi2 in HR1, 459 in HR3 and 53.5 in HR4, "
     "though the largest urban basin it used was 378, 5.67 and 43.9 mi2 (Table 11); "
-    "flowfreq has that report's equations only to 1 mi2, so compare with the report itself above "
-    "that." + LIMITS_CAUTION
+    "flowfreq has them as the 'Urban 2014' regions, so compare with those." + LIMITS_CAUTION
 )
 SC_CAUTION = (
     " It estimates high in this state: at-site flow over the equations' flow at its 16 South "
@@ -434,7 +432,8 @@ def _store(
     data["notes"] = (base.split(marker)[0] if marker in base else base) + note
     if cautions:
         data["region_cautions"] = {**data.get("region_cautions", {}), **cautions}
-    data["named_regions"] = [REGION]
+    others = [r for r in data.get("named_regions") or [] if r != REGION]
+    data["named_regions"] = [REGION] + others
     if shares:
         data["basin_shares"] = [["L3_PIEDMNT", "L3_RDGVLY"]]
     # The state files are indent-1 ASCII JSON with CRLF line ends.
