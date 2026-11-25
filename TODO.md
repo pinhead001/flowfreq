@@ -65,6 +65,9 @@ CI cache). CHANGELOG.md, Unreleased, has the detail. Still open from it:
    Computed and reported only when requested. What was checked is in CHANGELOG.md. Left:
    - No PeakFQ 5 output has been compared with it; the checks are the bulletin's own examples.
    - No chat tool adds a `b17b_ffa` section. `compare_estimates` takes one that a loaded report has.
+   - Years under an infinite perception threshold are left out of H (the owner's decision, 2026-11-24). A gap
+     with no row is counted. A historic row and the record with only an infinite row between them still refuse
+     as a gap covered by no period.
    - A record with code-7 peaks and `perception_thresholds` needs two sets of options, one for `gaged_ffa`
      (`apply_peak_codes: false`) and one for `b17b_ffa` (codes applied).
      Without thresholds the two do not count the same years: live at 03606500 (2026-11-24) the 1-percent flow is

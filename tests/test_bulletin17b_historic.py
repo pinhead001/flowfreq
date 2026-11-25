@@ -505,3 +505,62 @@ def test_too_few_peaks_after_low_outliers_and_moves_names_both():
     assert abs(g) <= 0.4
     with pytest.raises(Bulletin17BError, match="1 moved.*1 low outlier"):
         b.run_analysis()
+
+
+# --- years that were not observed --------------------------------------------------------
+
+
+def test_h_leaves_out_the_years_not_observed():
+    """A flood above the historic ones could have gone unseen in them."""
+    whole = big_sandy()
+    res = big_sandy(unobserved_years=[1900, 1901, 1925])
+    assert whole.historic.h == 77 and res.historic.h == 74
+    assert res.historic.w == pytest.approx((74 - 3) / 44)
+    bs = record("appendix6_big_sandy")
+    hm = historic_moments(
+        np.log10(bs.peaks_cfs), np.log10([q for _, q in bs.historic_peaks]), h=74, l=0
+    )
+    assert (res.historic.mean, res.historic.std, res.historic.skew) == pytest.approx(
+        (hm.mean, hm.std, hm.skew)
+    )
+    assert any("3 year(s) that were not observed (1900 to 1901, 1925)" in s for s in res.steps)
+    assert not any("not observed" in s for s in whole.steps)
+
+
+def test_h_without_them_is_used_for_the_skew_and_the_plotting_positions():
+    res = big_sandy(unobserved_years=range(1900, 1911), generalized_skew=-0.2)
+    assert res.historic.h == 66
+    assert res.skew_station_mse == pytest.approx(station_skew_mse(res.historic.skew, 66))
+    assert res.plotting_positions["exceedance"].iloc[0] == pytest.approx(1 / 67)
+
+
+def test_unobserved_years_outside_the_period_change_nothing():
+    res = big_sandy(unobserved_years=[1890, 1896, 1974])
+    assert res.historic.h == 77 and not any("not observed" in s for s in res.steps)
+
+
+def test_unobserved_years_without_a_historic_period_change_nothing():
+    a, b = example2(), example2(unobserved_years=[1980])
+    assert b.historic is None
+    assert b.quantiles.equals(a.quantiles)
+
+
+@pytest.mark.parametrize(
+    ("years", "match"),
+    [
+        ([1940], "a peak in it.*1940"),
+        ([1897], "a peak in it.*1897"),
+        ([1900, 1900], "more than once"),
+        ([1900.5], "integers"),
+        ("1900", "sequence"),
+        (1900, "sequence"),
+    ],
+)
+def test_bad_unobserved_years_refuse(years, match):
+    with pytest.raises(Bulletin17BError, match=match):
+        big_sandy(unobserved_years=years)
+
+
+def test_a_below_base_year_was_observed():
+    with pytest.raises(Bulletin17BError, match="1941"):
+        big_sandy(below_base_years=[1941], unobserved_years=[1941])

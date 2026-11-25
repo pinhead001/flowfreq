@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     (confidence limits) and Appendix 11 (expected probability) checks. Of the 573 peak records in the vendored peakfq
     test data, 482 are accepted as input and 91 are refused with a reason (one of the 482 is then refused for
     its zero years).
+  - The historic period's H leaves out the years an infinite perception threshold says were not observed
+    (`unobserved_years`), because a flood larger than the historic ones could have gone unseen in them. It counts
+    a gap with no threshold row. 10 of the 573 vendored records have such years; leaving them out raises their
+    1-percent flood by 0.15 to 1.45 percent (generalized skew 0).
   - Known limits. In Example 4 the bulletin read its adjusted curve by eye. In the exact mode, the default, three of
     its rows differ by more than 5 percent (the largest 17 percent, at 99 percent AEP) and the others by less. By hand
     computation (`hand_computation=True`) the largest difference is 16 percent, at 0.2 percent AEP, because the

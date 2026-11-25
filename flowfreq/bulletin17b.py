@@ -457,7 +457,7 @@ class HistoricAdjustment:
     Attributes
     ----------
     h : int
-        Years in the historic period.
+        Years in the historic period, without the ones that were not observed.
     z : int
         Historic peaks: those given, the high outliers, and the systematic peaks above
         the smallest given historic peak.
@@ -696,11 +696,17 @@ class Bulletin17B:
         ``historic_period``. Systematic peaks above the smallest of them are treated as
         historic peaks too. A systematic peak equal to it stays systematic.
     historic_period : (first_year, last_year), optional
-        The period, of H = last - first + 1 years, in which the historic peaks and any
-        high outliers are known to be the largest. It has to cover the systematic
-        record. Without it, high outliers are kept in the systematic record. At least
-        10 systematic peaks have to be left once peaks have moved to the historic ones
-        and truncated years are out.
+        The period in which the historic peaks and any high outliers are known to be the
+        largest, of H = last - first + 1 years less any ``unobserved_years``. It has to
+        cover the systematic record. Without it, high outliers are kept in the systematic
+        record. At least 10 systematic peaks have to be left once peaks have moved to the
+        historic ones and truncated years are out.
+    unobserved_years : sequence of int, optional
+        Years in which a flood larger than the historic peaks could have gone unseen. H
+        leaves out those inside the historic period; the others change nothing. Such a
+        year may not have a peak, historic or systematic, or be a below-base year. A year
+        without a peak that is not listed here counts in H, because the historic peaks
+        are known to be the largest of the period.
     below_base_years : sequence of int, optional
         Water years of the systematic record whose peak was below the gage base. A year
         may have a flow in ``peak_flows`` or not; a flow given for it is not used. It may
@@ -739,6 +745,7 @@ class Bulletin17B:
         historic_peaks: Optional[Sequence[tuple[int, float]]] = None,
         historic_period: Optional[tuple[int, int]] = None,
         below_base_years: Optional[Sequence[int]] = None,
+        unobserved_years: Optional[Sequence[int]] = None,
         low_outlier_threshold: Optional[float] = None,
         confidence: float = 0.90,
         aeps: Optional[Sequence[float]] = None,
@@ -756,7 +763,9 @@ class Bulletin17B:
             raise Bulletin17BError("peak flows must not be negative")
         years = [_integer_year(y, "water year") for y in raw_years]
         _require_unique_years(years, "a water year")
-        self._below_base_years = self._checked_below_base(below_base_years)
+        self._below_base_years = self._checked_years(
+            below_base_years, "below_base_years", "below-base year"
+        )
         below = set(self._below_base_years)
         # Below-base years that came with a flow; the flow is not used.
         self._flows_ignored = sorted(below & set(years))
@@ -797,6 +806,8 @@ class Bulletin17B:
         self._hand = bool(hand_computation)
         self._historic_period = self._checked_period(historic_period)
         self._historic_peaks = self._checked_historic_peaks(historic_peaks)
+        # The years of the historic period that H leaves out.
+        self._unobserved = self._checked_unobserved(unobserved_years)
         self._low_threshold: Optional[float] = None
         if low_outlier_threshold is not None:
             threshold = _finite_number(low_outlier_threshold, "low_outlier_threshold")
@@ -805,8 +816,8 @@ class Bulletin17B:
             self._low_threshold = threshold
 
     @staticmethod
-    def _checked_below_base(years: Optional[Sequence[int]]) -> list[int]:
-        """The below-base years as sorted, distinct integers."""
+    def _checked_years(years: Optional[Sequence[int]], name: str, what: str) -> list[int]:
+        """Years as sorted, distinct integers."""
         if years is None:
             return []
         try:
@@ -814,12 +825,25 @@ class Bulletin17B:
                 raise TypeError
             raw = list(years)
         except TypeError:
-            raise Bulletin17BError(
-                f"below_base_years must be a sequence of years; got {years!r}"
-            ) from None
-        checked = [_integer_year(y, "below-base year") for y in raw]
-        _require_unique_years(checked, "a below-base year")
+            raise Bulletin17BError(f"{name} must be a sequence of years; got {years!r}") from None
+        checked = [_integer_year(y, what) for y in raw]
+        _require_unique_years(checked, f"{'an' if what[0] in 'aeiou' else 'a'} {what}")
         return sorted(checked)
+
+    def _checked_unobserved(self, years: Optional[Sequence[int]]) -> list[int]:
+        """The unobserved years inside the historic period, none of which has a record."""
+        checked = self._checked_years(years, "unobserved_years", "unobserved year")
+        observed = set(self._all_years) | {y for y, _ in self._historic_peaks}
+        both = sorted(observed & set(checked))
+        if both:
+            raise Bulletin17BError(
+                "unobserved_years may not have a year with a peak in it or one below the gage "
+                f"base: {_ranges(both)}"
+            )
+        if self._historic_period is None:
+            return []
+        first, last = self._historic_period
+        return [y for y in checked if first <= y <= last]
 
     def _checked_period(self, period: Optional[tuple[int, int]]) -> Optional[tuple[int, int]]:
         """The historic period as two years that cover the systematic record."""
@@ -1264,7 +1288,7 @@ class Bulletin17B:
         in_z &= ~low
         self._require_enough(in_z, low)
         peaks = sorted(self._historic_peaks + self._peaks_where(in_z))
-        h = last - first + 1
+        h = last - first + 1 - len(self._unobserved)
         n_truncated = self._n_unmeasured + int(low.sum())
         hm = historic_moments(
             x[~in_z & ~low], np.log10(np.array([q for _, q in peaks])), h=h, l=n_truncated
@@ -1274,6 +1298,12 @@ class Bulletin17B:
         steps.append(
             f"Made the historic adjustment of Appendix 6 for {first} to {last}: H = {h}, "
             f"Z = {len(peaks)}, L = {n_truncated}, W = {hm.w:.5f}."
+            + (
+                f" H leaves out {len(self._unobserved)} year(s) that were not observed "
+                f"({_ranges(self._unobserved)})."
+                if self._unobserved
+                else ""
+            )
             + (" It replaces the first adjustment." if again else "")
             + (f" Systematic peaks treated as historic: {listed}." if moved else "")
             + f" Adjusted mean {hm.mean:.4f}, standard deviation {hm.std:.4f} and skew "
@@ -1636,12 +1666,11 @@ def bulletin17b_kwargs(
     information; so are a change of threshold inside the record and two historic rows.
 
     An infinite threshold is an unobserved period. If no year in it has a peak, it is
-    accepted: those years are treated as having no record, as a gap with no row is, any
-    other row is overridden in them, and the choice is logged. Inside a historic period
-    this makes H count them, as it does with no row. A year with a peak under an
-    infinite row refuses. The record's first and last years, for the gap check of a
-    historic row, include removed and flowless years next to it, and only those. The
-    systematic record runs from the first to the last year of the peaks that are not
+    accepted: they go to ``unobserved_years``, which H leaves out, any other row is
+    overridden in them, and the choice is logged. A gap with no row inside a historic
+    period is counted in H. A year with a peak under an infinite row refuses. The
+    record's first and last years, for the gap check of a historic row, include removed
+    and flowless years next to it, and only those. The systematic record runs from the first to the last year of the peaks that are not
     historic, counting below-base years. A historic peak may fall in a gap in it, but
     not in a year that has a systematic peak.
 
@@ -1661,8 +1690,8 @@ def bulletin17b_kwargs(
     Returns
     -------
     dict
-        ``peak_flows``, ``water_years``, ``historic_peaks``, ``historic_period`` and
-        ``below_base_years``, as :class:`Bulletin17B` takes them.
+        ``peak_flows``, ``water_years``, ``historic_peaks``, ``historic_period``,
+        ``below_base_years`` and ``unobserved_years``, as :class:`Bulletin17B` takes them.
 
     Raises
     ------
@@ -1743,8 +1772,8 @@ def bulletin17b_kwargs(
         unobserved.update(range(s_, e_ + 1))
         logger.info(
             "Perception threshold %s is infinite and no year in it has a peak: those years "
-            "are treated as having no record, as a gap with no row is, and any other "
-            "threshold row is overridden in them",
+            "have no record, a historic period's H leaves them out, and any other threshold "
+            "row is overridden in them",
             _span(s_, e_),
         )
     finite = [r for r in rows if np.isfinite(r[2])]
@@ -1780,4 +1809,5 @@ def bulletin17b_kwargs(
         "historic_peaks": sorted(historic),
         "historic_period": period,
         "below_base_years": sorted(below),
+        "unobserved_years": sorted(unobserved),
     }
