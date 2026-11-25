@@ -11,7 +11,7 @@ from __future__ import annotations
 import copy
 import math
 from contextlib import contextmanager
-from typing import Any, Dict, Iterator, List, Mapping, Optional, Set, Tuple
+from typing import Any, Dict, Iterator, List, Mapping, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -306,37 +306,34 @@ def _history_sentence(kwargs: Mapping[str, Any], res: Bulletin17BResults) -> Opt
     )
 
 
-def _unrecorded_sentence(
-    kwargs: Mapping[str, Any], rows: List[Dict[str, Any]], res: Bulletin17BResults
-) -> str:
-    """The years inside the historic period that H counts although nothing was recorded.
+def _unrecorded_sentence(kwargs: Mapping[str, Any], res: Bulletin17BResults) -> str:
+    """What H does with the years inside the historic period where nothing was recorded.
 
-    They are the years of an infinite (unobserved) threshold row, and the years of the
-    systematic record that have neither a peak nor a below-base year. The rest of the
-    period is what the historic peaks and their threshold speak for.
+    It leaves out the years of an infinite (unobserved) threshold row. It counts the other
+    years of the systematic record that have neither a peak nor a below-base year, and the
+    rest of the period, which the historic peaks and their threshold speak for.
     """
     if res.historic is None:
         return ""
     first, last = kwargs["historic_period"]
     systematic = {*kwargs["water_years"], *kwargs["below_base_years"]}
     present = systematic | {y for y, _ in kwargs["historic_peaks"]}
-    unobserved: Set[int] = set()
-    for row in rows:
-        start, end, threshold = _threshold_row(row)
-        if not math.isfinite(threshold):
-            unobserved.update(range(max(start, first), min(end, last) + 1))
+    unobserved = {y for y in kwargs["unobserved_years"] if first <= y <= last}
     gaps = set(range(min(systematic), max(systematic) + 1)) - present - unobserved
-    parts = [
-        f"{_ranges(sorted(years))} ({why})"
-        for years, why in ((unobserved, "not observed"), (gaps, "no peak"))
-        if years
-    ]
-    if not parts:
-        return ""
-    return (
-        f"H counts the years of the historic period {first} to {last} that have no record: "
-        f"{' and '.join(parts)}."
-    )
+    said = []
+    if unobserved:
+        n = len(unobserved)
+        said.append(
+            f"H leaves out {n} year{'' if n == 1 else 's'} of the historic period {first} to "
+            f"{last} whose perception threshold says {'it was' if n == 1 else 'they were'} not "
+            f"observed: {_ranges(sorted(unobserved))}."
+        )
+    if gaps:
+        said.append(
+            f"H counts the years of the historic period {first} to {last} that have no peak: "
+            f"{_ranges(sorted(gaps))}."
+        )
+    return " ".join(said)
 
 
 def _parameter_rows(res: Bulletin17BResults) -> List[Tuple[str, str]]:
@@ -612,7 +609,7 @@ def _b17b_ffa(given: Dict[str, Any]) -> Tuple[SectionContent, Optional[Bulletin1
         history = _history_sentence(kwargs, results)
         if history is not None:
             data.append(history)
-        counted = _unrecorded_sentence(kwargs, rows, results)
+        counted = _unrecorded_sentence(kwargs, results)
         if counted:
             data.append(counted)
     except RegulatedRecordError:

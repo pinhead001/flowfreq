@@ -552,13 +552,13 @@ def _without(years: List[int]) -> Dict[str, Any]:
 
 
 def test_years_without_a_record_inside_the_historic_period_are_named():
-    """Ruling 21: H counts a gap and an unobserved row, and the section says so."""
+    """H counts a gap with no row, leaves out an unobserved one, and the section says so."""
     peaks = _without([1940, 1941, 1942, 1950])
     content, res = _b17b_ffa({**SANDY, "peaks": peaks})
     assert res.historic.h == 77
     assert (
-        "H counts the years of the historic period 1897 to 1973 that have no record: 1940 to "
-        "1942, 1950 (no peak)." in all_text(content)
+        "H counts the years of the historic period 1897 to 1973 that have no peak: 1940 to "
+        "1942, 1950." in all_text(content)
     )
     rows = [
         {"start_year": 1940, "end_year": 1942, "threshold_cfs": math.inf},
@@ -566,10 +566,16 @@ def test_years_without_a_record_inside_the_historic_period_are_named():
         {"start_year": 1898, "end_year": 1900, "threshold_cfs": math.inf},
     ]
     content, res = _b17b_ffa({**SANDY, "peaks": peaks, "perception_thresholds": rows})
-    assert res.historic.h == 77
+    assert res.historic.h == 77 - 6
+    said = all_text(content)
     assert (
-        "that have no record: 1898 to 1900, 1940 to 1942 (not observed) and 1950 (no peak)."
-        in all_text(content)
+        "H leaves out 6 years of the historic period 1897 to 1973 whose perception threshold "
+        "says they were not observed: 1898 to 1900, 1940 to 1942." in said
+    )
+    assert "that have no peak: 1950." in said
+    del rows[2]
+    assert "H leaves out 3 years" in all_text(
+        build_section("b17b_ffa", {**SANDY, "peaks": peaks, "perception_thresholds": rows})
     )
 
 
@@ -577,7 +583,7 @@ def test_a_removed_peak_inside_the_historic_period_is_a_year_without_a_record():
     peaks = peaks_spec("appendix6_big_sandy")
     peaks["qualification_code"][peaks["water_year"].index(1941)] = "3"
     content, _ = _b17b_ffa({**SANDY, "peaks": peaks})
-    assert "that have no record: 1941 (no peak)." in all_text(content)
+    assert "that have no peak: 1941." in all_text(content)
 
 
 def test_a_whole_record_or_no_adjustment_says_nothing_about_h():

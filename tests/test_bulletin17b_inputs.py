@@ -117,7 +117,9 @@ def test_uncoded_record_passes_through():
         "historic_peaks",
         "historic_period",
         "below_base_years",
+        "unobserved_years",
     }
+    assert kw["unobserved_years"] == []
 
 
 def test_code_4_is_below_base():
@@ -559,6 +561,21 @@ def test_an_infinite_row_inside_the_historic_period_is_accepted():
     ]
     kw = bulletin17b_kwargs(flows, years, codes, rows)
     assert kw["historic_period"] == (1890, 1967)
+    assert kw["unobserved_years"] == list(range(1930, 1941))
+    res = Bulletin17B(**kw).run_analysis()
+    assert res.historic is not None and res.historic.h == 78 - 11
+
+
+def test_overlapping_infinite_rows_count_a_year_once():
+    flows, years, codes = _historic_record()
+    inf = float("inf")
+    rows = [
+        {"start_year": 1890, "end_year": 1949, "threshold_cfs": 2500.0},
+        {"start_year": 1930, "end_year": 1940, "threshold_cfs": inf},
+        {"start_year": 1938, "end_year": 1942, "threshold_cfs": inf},
+    ]
+    kw = bulletin17b_kwargs(flows, years, codes, rows)
+    assert kw["unobserved_years"] == list(range(1930, 1943))
 
 
 def test_an_infinite_row_over_a_kept_peak_still_refuses():
