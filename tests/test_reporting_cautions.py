@@ -236,6 +236,22 @@ def test_the_warnings_are_the_notes_a_live_run_stores(texas: Fakes) -> None:
     assert again.cautions == built.cautions
 
 
+@pytest.mark.parametrize("located", [0, 1])
+def test_a_stored_report_keeps_the_caution_that_nss_located_none(
+    texas: Fakes, located: int
+) -> None:
+    """A named set where NSS located nothing (or a code of no region here) is cautioned, then
+    and when the report is built again from what it stored."""
+    texas.regions = [type(texas.regions[0])(1, "GC9999", "elsewhere", 30.0, 20.0)][:located]
+    built = build_section("ungaged", dict(TEXAS))
+    words = "NSS located none of the state's regression regions"
+    assert sum(words in c for c in built.cautions) == 1
+    again = build_section("ungaged", built.options)
+    assert again.cautions == built.cautions
+    assert _all_text(again.blocks).count(words) == 1
+    assert "cover 0 percent" not in _all_text(again.blocks)
+
+
 BIG: Dict[str, Any] = {
     **URBAN,
     "characteristics": {**URBAN["characteristics"], "DRNAREA": 400.0},

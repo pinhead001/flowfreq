@@ -206,7 +206,8 @@ page in the app was dropped, since only the owner chats. Not yet done:
   03606500 and read in Word. HYSEP is checked against WRIR 96-4040's French Creek example (#412, ported to 0.28.x in
   #413). `lyne_hollick` was checked on 2026-11-24 against Ladson and others' BFI.R (2013): the same to 1e-7 of the mean
   flow away from the ends of a record, where theirs reflects 30 days and ours does not. The index differs by 0.0002 at most on
-  25 years and up, but is 0.10 against 0.20 on their 67-day sample. Whether to reflect is the owner's call.
+  25 years and up, but is 0.10 against 0.20 on their 67-day sample. Not reflected: the owner's decision, 2026-11-25, since it matters only on a
+  record of a year or two.
   `ih_smoothed_minima_log_wy` (the owner's decision, 2026-11-24) restarts the blocks each October 1 as the USGS BFI program
   does: 0.541 at 04131500 against 0.544 published, where `ih_smoothed_minima_log` gives 0.511.
   `ih_smoothed_minima` was, on 23 gages against the USGS BFI program's published indexes (OFR 03-146,

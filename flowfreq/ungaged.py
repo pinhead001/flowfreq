@@ -728,20 +728,22 @@ def _least_covered(
     """The least percent of the basin the located regions can cover between them.
 
     The regions of one report's table partition the state, so they add up; another report's are
-    alternatives over the same ground and do not. Sets with a limit on when they apply
-    (``lib.region_limits``: Texas's small and large Colorado basins) are alternatives too, even
-    in one table, so only the largest of those counts. Where two reports, or limited sets, do
-    partition a state the sum would be larger, so this is a lower bound.
+    alternatives over the same ground and do not. Sets of one table with different limits on
+    when they apply (``lib.region_limits``: Texas's small and large Colorado basins) are
+    alternatives too, so only the largest of those counts; sets under the same limits (SIR
+    2014-5030's small rural regions, each to 1 mi2) are parts of the state and add up. Where two
+    reports, or differently limited sets, do partition a state the sum would be larger, so this
+    is a lower bound.
     """
     sums: Dict[str, float] = {}
     for loc, lib_code in located:
         weight = max(loc.percent_weight, 0.0)
         cited = _region_citation(lib, lib_code)[0]
-        if lib_code in lib.region_limits:
-            cited += " (limited)"
-            sums[cited] = max(sums.get(cited, 0.0), weight)
-        else:
-            sums[cited] = sums.get(cited, 0.0) + weight
+        limits = lib.region_limits.get(lib_code)
+        if limits:
+            # The limits without their sources: sets under the same ones partition the state.
+            cited += f" (limited {sorted(repr(replace(lim, source='')) for lim in limits)})"
+        sums[cited] = sums.get(cited, 0.0) + weight
     # NSS rounds each weight to a whole percent, so a whole basin may read 99 or 101.
     return min(100.0, max(sums.values(), default=0.0))
 
