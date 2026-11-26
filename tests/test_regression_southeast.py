@@ -409,7 +409,7 @@ def test_urban_2014_sets_are_used_only_when_named(state):
     "stored, region, low, high",
     [
         ("HR1", "Urban 2014 HR1 small", 0.1, 3.0),
-        ("HR3", "Urban 2014 HR3", 0.14, 459.0),
+        ("HR3", "Urban 2014 HR3", 0.22, 459.0),
         ("HR4", "Urban 2014 HR4", 0.1, 53.5),
         ("HR5", "Urban 2014 HR5", 0.2, 10.0),
     ],

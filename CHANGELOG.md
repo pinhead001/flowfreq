@@ -76,6 +76,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **A named set's coverage where a state's regions share a limit.** Sets of one report under the same limit (SIR
+  2014-5030's small rural regions in Georgia and the Carolinas, each to 1 mi2) were taken as alternatives, so a basin
+  60 percent in one and 40 in another counted as 60 percent covered. They now add up; sets with different limits
+  (Texas's small and large Colorado sets) are still alternatives.
+- **The `Urban 2014` sets, after review.** `Urban 2014 HR3` starts at 0.22 mi2 (Table 7), not 0.14. The `HR1 small`
+  caution gives its least urban impervious area as 13.2 percent, not 12.5 (a gage over 3 mi2). The command-line help
+  and the chat tool's text name the sets by their codes, and `Urban 2014 HR5` in Georgia.
 - **`region=` reaches the sets NSS does not serve.** `Urban 2026` (AL, MS and TN since 0.28.0) was refused by
   `estimate_at_site` wherever NSS located one of the state's regions, which is nearly everywhere; only
   `estimate_from_characteristics` could use it. A set in a library's new `named_regions` is now used for the whole

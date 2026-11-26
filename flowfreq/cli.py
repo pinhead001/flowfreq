@@ -313,7 +313,8 @@ def _code_values(chars: Tuple[str, ...]) -> Dict[str, float]:
         'several, comma-separated ("GC1, GC2"), to use one set per side of a region '
         "boundary; together they must cover the whole basin. A set used only when named "
         '("Statewide OmegaEM" in TX; "Urban 2026" in AL, GA, MS, NC, SC and TN; "Urban 2014 '
-        'HR1 large", "HR1 small", "HR3", "HR4" in GA, NC and SC) is used for the whole basin.'
+        'HR1 small", "Urban 2014 HR1 large", "Urban 2014 HR3", "Urban 2014 HR4" in GA, NC and '
+        'SC, and "Urban 2014 HR5" in GA) is used for the whole basin.'
     ),
 )
 @click.option(

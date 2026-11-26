@@ -368,3 +368,9 @@ def test_a_named_set_over_a_sliver_says_so(texas: Fakes) -> None:
     texas.regions = [_located(_nss("TX", "Statewide"), 0.0)]
     est = _texas(supplied_characteristics=SUPPLIED)
     assert "NSS located none of the state's regression regions" in est.advisory
+
+
+def test_parts_of_one_report_under_the_same_limit_do_add_up() -> None:
+    """SIR 2014-5030's small rural sets split Georgia by region, each limited to 1 mi2."""
+    parts = [_located(_nss("GA", r), p) for r, p in (("HR1", 60.0), ("HR3", 40.0))]
+    assert _covered("GA", *parts) == 100.0

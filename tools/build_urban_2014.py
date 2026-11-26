@@ -29,6 +29,9 @@ LARGE = PREFIX + "HR1 large"
 AEPS = (0.5, 0.2, 0.1, 0.04, 0.02, 0.01, 0.005, 0.002)
 
 #: stored region -> (new region, its name, upper drainage area in mi2 of Table 7).
+#: The lower limits stay the stored ones but for HR3, whose Table 7 starts at 0.22 mi2 (0.14
+#: is Table 11's smallest gage of the region, rural).
+LOWER = {"HR3": 0.22}
 WIDENED = {
     "HR1": (
         PREFIX + "HR1 small",
@@ -77,7 +80,7 @@ NOTE = (
     " Urban 2014: SIR 2014-5030 again (Table 7), at its whole drainage area range, by the "
     "owner's decision of 2026-11-24, as sets used only when named (named_regions; in no "
     "region_preference tier and not keyed to the urban regions NSS serves): 'Urban 2014 HR1 "
-    "small' (0.10 to 3 mi2), 'Urban 2014 HR1 large' (3 to 436 mi2), 'Urban 2014 HR3' (to 459), "
+    "small' (0.10 to 3 mi2), 'Urban 2014 HR1 large' (3 to 436 mi2), 'Urban 2014 HR3' (0.22 to 459), "
     "'Urban 2014 HR4' (to 53.5){hr5}. All but 'HR1 large' are the equations stored as HR1, HR3"
     ", HR4{hr5_short}, whose numbers they copy, by tools/build_urban_2014.py. 'HR1 large' is "
     "Tables 7, 9, 10 and 11 (235 streamgages, 60 of them urban): Table 5's regression flows "
@@ -103,8 +106,9 @@ NOTE_HR5 = (", 'Urban 2014 HR5' (0.2 to 10)", " and HR5")
 #: What every one of the sets carries; ``{range}`` is the set's own sentence.
 CAUTION = (
     "SIR 2014-5030 (Feaster, Gotvald and Weaver, 2014, Table 7) is for urban and small rural "
-    "streams, with peaks through water year 2011 at the latest. Over 1 mi2 and under 10 percent "
-    "impervious the report says to use the rural equations (pp. 8, 34; HR1-5 here). {range} "
+    "streams, with peaks through water year 2011 at the latest. At 1 mi2 or more and under 10 "
+    "percent impervious the report says to use the rural equations (pp. 8, 34; it names the "
+    "2009 rural reports, and the rural set stored here is HR1-5, SIR 2023-5006). {range} "
     "Named, this set is used for the whole basin: the report averages a basin in two hydrologic "
     "regions by area (p. 47), and has no equations for urban streams in the Blue Ridge (region "
     "2). Nothing here checks which region the basin is in. Land cover is from NLCD 2006 (a "
@@ -113,7 +117,7 @@ CAUTION = (
 )
 RANGES = {
     PREFIX
-    + "HR1 small": "Its 62 gages reach 3 mi2, 21 of them urban, the least 12.5 percent impervious.",
+    + "HR1 small": "Its 62 gages reach 3 mi2, 21 of them urban, the least 13.2 percent impervious.",
     LARGE: "It starts at 3 mi2. The largest urban basin among its 235 gages (60 urban) is 378 mi2.",
     PREFIX
     + "HR3": (
@@ -176,6 +180,7 @@ def widened(equation: Dict[str, Any]) -> Dict[str, Any]:
     if area["code"] != "DRNAREA" or area["maximum"] != 1.0:
         raise ValueError(f"unexpected drainage area in {equation['region_code']}: {area}")
     area["maximum"] = maximum
+    area["minimum"] = LOWER.get(equation["region_code"], area["minimum"])
     return copied
 
 
