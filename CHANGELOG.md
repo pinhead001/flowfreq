@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.29.0] - 2026-11-26
+
+Bulletin 17B (superseded) for comparison with an older study, on request only. Report sections for monthly
+statistics, a summary hydrograph and baseflow. Ice events from gauge qualifiers and cold air. More regional
+equations used only when named: Texas's OmegaEM set, the 2026 urban equations in Georgia and the Carolinas, and SIR
+2014-5030's urban equations there at the report's own drainage areas. Characteristics a caller supplies where
+StreamStats returns none.
+
+**Read before upgrading:**
+
+- Low flows change: an n-day window that crosses the start of a climatic year (April 1) is no longer credited to
+  the year it ends in. A 7Q10 or 30Q2 can move (one of 32 checked gages: 498 to 504 cfs). `n_day` over 365 is
+  refused.
+- Maryland averages a basin's regions in flow, not in logarithms, so Maryland estimates over two regions change.
+- `flowfreq.engine` (`B17CEngine`), `flowfreq.batch` and `flowfreq.plots` are removed.
+
 ### Added
 
 - **Bulletin 17B (superseded), on request.** `flowfreq.Bulletin17B` (with `bulletin17b_kwargs` for NWIS peaks, codes

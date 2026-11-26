@@ -75,7 +75,7 @@ pip install -e ".[dev]"
 Or install a released version straight from GitHub:
 
 ```bash
-pip install git+https://github.com/pinhead001/flowfreq@v0.28.1
+pip install git+https://github.com/pinhead001/flowfreq@v0.29.0
 ```
 
 **Dependencies:** `numpy`, `pandas`, `matplotlib`, `scipy`, `requests`, `click`, `pyarrow`.
@@ -612,6 +612,7 @@ England, J.F., Jr., et al., 2019, Guidelines for determining flood flow frequenc
 
 | Version | Changes |
 |---------|---------|
+| **v0.29.0** | Bulletin 17B (superseded) on request; report sections `monthly_statistics`, `summary_hydrograph` and `baseflow` (baseflow methods `ih_smoothed_minima_log` and `ih_smoothed_minima_log_wy`); ice events (`flowfreq ice-events`); TX OmegaEM, 2026 urban (GA, NC, SC) and SIR 2014-5030 urban sets used only when named; `supplied_characteristics`; low-flow windows inside the year; Maryland averages in flow; `B17CEngine`, `flowfreq.batch` and `flowfreq.plots` removed. See CHANGELOG.md. |
 | **v0.28.1** | Baseflow: the HYSEP windows are 2N* days wide (they were about twice that), and baseflow is not interpolated across more than 15 missing days |
 | **v0.28.0** | Report sections `comparison` and `site_summary`; record extension of annual peaks (`flowfreq.extend_peaks`, Bulletin 17C Appendix 8); the 2026 urban equations for AL, MS and TN; `flowfreq.aep` (0.67 and 0.667 are one flood); StreamStats compute requests never retried, batches stop on refusal; `allow_inaccurate` for a basin StreamStats warns about; twenty-four `flowfreq-mcp` tools; `B17CEngine` deprecated. See CHANGELOG.md. |
 | **v0.27.1** | A StreamStats delineation or basin-characteristics request waits 200 s and is not retried after a timeout |
