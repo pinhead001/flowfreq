@@ -146,12 +146,12 @@ first is on you at every invocation:
 
 ## Branches and Releases
 
-`main` carries the next minor release as a `.dev0` version (currently `0.29.0.dev0`), so
+`main` carries the next minor release as a `.dev0` version (currently `0.30.0.dev0`), so
 `flowfreq.__version__` shows whether a session is running development code or a release.
-Patch releases for the current minor line come from `release/0.28.x` (cut at `v0.28.0`): branch
-a fix from it, PR it there, and tag `v0.28.N` on that merge commit. Port the fix to `main` as
+Patch releases for the current minor line come from `release/0.29.x` (cut at `v0.29.0`): branch
+a fix from it, PR it there, and tag `v0.29.N` on that merge commit. Port the fix to `main` as
 well. If `origin` doesn't have that branch yet (the owner pushes `release/*`; a hook blocks it for
-agents), cut it from the tag, `git switch -c release/0.28.x v0.28.0`, never from `main`, which
+agents), cut it from the tag, `git switch -c release/0.29.x v0.29.0`, never from `main`, which
 carries the next minor's unreleased work. Earlier `release/0.N.x` branches are kept for reference.
 Version bumps are hand edits of `pyproject.toml` in the release PR and the following dev-bump PR;
 there is no bump tool.

@@ -6,7 +6,7 @@
 
 ## Status
 Last updated: 2026-11-26. Version **0.29.0** is released (tag `v0.29.0`, the owner's word of 2026-11-25, after
-independent review of #426 and #435). 0.29.x patches come from `release/0.29.x`, which the owner pushes (CLAUDE.md,
+independent review of #426 and #435). `main` carries **0.30.0.dev0**; 0.29.x patches come from `release/0.29.x`, which the owner pushes (CLAUDE.md,
 Branches and Releases).
 flowfreq-app pins v0.28.1 (app #56, merged 2026-11-24).
 51 jurisdictions are `verified`, and 5 have no equations.
